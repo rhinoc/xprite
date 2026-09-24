@@ -1,0 +1,44 @@
+:global(:root) {
+  --ui-text-default-size: 14px;
+  --ui-text-compact-size: 12px;
+  --ui-text-mini-size: 12px;
+  --ui-text-mini-cjk-size: 10px;
+  --ui-text-mini-line: 10px;
+}
+
+.inline {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-start;
+  white-space: nowrap;
+  vertical-align: middle;
+  font-weight: 400;
+  font-kerning: none;
+  font-variant-ligatures: none;
+  font-synthesis: none;
+  -webkit-font-smoothing: none;
+}
+
+.inlineRun {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.wrap {
+  display: block;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.wrap .inlineRun {
+  display: inline;
+}
+
+.latinRun {
+  font-family: PixelArtBitmap, monospace;
+}
+
+.cjkRun {
+  font-family: FusionPixelZhHans, monospace;
+}

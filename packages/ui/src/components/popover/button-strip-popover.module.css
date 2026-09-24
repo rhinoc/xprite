@@ -1,0 +1,36 @@
+.popup {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  box-shadow: none;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  height: var(--ui-strip-cell-height);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+}
+
+.buttons::-webkit-scrollbar {
+  display: none;
+}
+
+.buttons > :global([data-slot="button"]) {
+  flex: 0 0 var(--ui-strip-cell-width);
+  width: var(--ui-strip-cell-width);
+  min-width: var(--ui-strip-cell-width);
+  height: var(--ui-strip-cell-height);
+  min-height: var(--ui-strip-cell-height);
+  padding: 1px;
+}
+
+.buttons > :global([data-slot="button"] + [data-slot="button"]) {
+  margin-inline-start: calc(-1 * var(--ui-strip-border-overlap));
+}

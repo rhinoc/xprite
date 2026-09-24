@@ -1,0 +1,64 @@
+:global(:root) {
+  --ui-shade-checker-light: var(--ui-color-checker-light, #c0c0c0);
+  --ui-shade-checker-dark: var(--ui-color-checker-dark, #808080);
+}
+
+.shadeStrip {
+  position: absolute;
+  z-index: var(--ui-control-z-index, 4);
+  width: var(--ui-shade-strip-width);
+  height: var(--ui-shade-strip-height, 100%);
+  font-size: 0;
+}
+
+.surface {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.menuTrigger {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  z-index: 1;
+  width: var(--ui-shade-arrow-width);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: var(--ui-cursor-default, default);
+}
+
+.menuTrigger:focus-visible {
+  outline: var(--ui-focus-ring-width, 1px) solid var(--ui-focus-ring, currentColor);
+  outline-offset: -1px;
+}
+
+.colorList {
+  position: absolute;
+  inset-block: 0;
+  left: var(--ui-shade-arrow-width);
+  right: 0;
+  outline: none;
+  touch-action: none;
+  cursor: var(--ui-cursor-default, default);
+}
+
+.colorList:focus-visible {
+  outline: var(--ui-focus-ring-width, 1px) solid var(--ui-focus-ring, currentColor);
+  outline-offset: -1px;
+}
+
+.colorList[data-dragging="true"] {
+  cursor: var(--ui-cursor-move, move);
+}
+
+.option {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

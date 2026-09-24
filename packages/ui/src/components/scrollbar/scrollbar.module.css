@@ -1,0 +1,23 @@
+.scrollbar {
+  user-select: none;
+  touch-action: none;
+}
+
+.artwork {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.track {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.thumb {
+  position: absolute;
+}

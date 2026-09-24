@@ -1,0 +1,7 @@
+interface:
+  display_name: "Pixel-to-Pixel Analysis"
+  short_description: "Compare PNGs and generate pixel diffs"
+  default_prompt: "Use $pixel-to-pixel-analysis to compare these reference and candidate PNGs and explain the differences."
+
+policy:
+  allow_implicit_invocation: true

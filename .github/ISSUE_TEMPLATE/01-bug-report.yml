@@ -1,0 +1,48 @@
+name: Bug report / 问题反馈
+description: Report a problem with Xprite / 反馈 Xprite 的使用问题
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        You can write in English or Chinese. Please search existing issues first.
+        可以使用中文或英文填写，请先搜索已有 Issue。
+
+        Reproduce the problem, then open **Edit → Preferences → Diagnostics → Export diagnostic log**.
+        复现问题后，打开 **编辑 → 首选项 → 诊断 → 导出诊断日志**。
+        The downloaded report includes app/build version, browser/system information available to the browser, display and input capabilities, workspace state, and recent logs. You do not need to enter environment information separately.
+        下载的报告包含应用及构建版本、浏览器可提供的浏览器和系统信息、显示及输入能力、工作区状态和最近日志，无需重复填写环境信息。
+
+        Reports can contain project names and error details. Review the file before uploading it to a public issue. Project artwork is not included in the diagnostic export.
+        报告可能包含项目名称和错误详情，上传到公开 Issue 前请检查文件。诊断导出不包含作品图像。
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and expected result / 问题与预期结果
+      description: Describe what happened and what you expected / 描述实际现象和预期结果。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce / 复现步骤
+      description: Include the actions and input method that trigger the problem. If it is intermittent, describe what you were doing / 说明触发问题的操作和输入方式；如果偶发，请描述当时的操作。
+      placeholder: |
+        1. Open a project / 打开项目
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostic log / 诊断日志
+      description: Drag the exported xprite-diagnostics-*.json file here, or paste its contents. If export is unavailable, explain why and provide your browser/version, operating system and Xprite URL instead / 将导出的 xprite-diagnostics-*.json 文件拖入此处，或粘贴内容。无法导出时，请说明原因，并补充浏览器及版本、操作系统和 Xprite 网址。
+    validations:
+      required: true
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Screenshots or example project (optional) / 截图或示例项目（可选）
+      description: Add screenshots or a recording if useful. Put .ase/.aseprite examples in a .zip file and use a minimal project you can share publicly / 可附截图或录屏；.ase/.aseprite 示例请压缩为 .zip，并使用可公开分享的最小项目。

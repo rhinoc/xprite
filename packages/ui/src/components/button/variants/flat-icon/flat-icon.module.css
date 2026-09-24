@@ -1,0 +1,10 @@
+.flatIcon {
+  min-width: var(--ui-button-icon-size, 24px);
+  padding-inline: 0;
+}
+
+.flatIcon:focus-visible {
+  outline: var(--ui-button-focus-width, var(--ui-focus-ring-width, 1px)) dotted
+    var(--ui-button-focus-color, var(--ui-focus-ring-color, #202528));
+  outline-offset: var(--ui-button-focus-offset, -5px);
+}

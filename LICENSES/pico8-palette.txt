@@ -1,0 +1,8 @@
+PICO-8 palette
+
+The bundled apps/editor/assets/palette-presets/pico8-palette/pico-8.gpl
+is the PICO-8 palette. The Aseprite source extension credits Joseph White;
+PICO-8's official FAQ states that its palette is released under CC0 1.0.
+
+License: https://creativecommons.org/publicdomain/zero/1.0/
+Source: https://www.lexaloffle.com/pico-8.php?page=faq

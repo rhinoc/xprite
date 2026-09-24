@@ -1,0 +1,31 @@
+name: Feature request / 功能建议
+description: Suggest an improvement to Xprite / 为 Xprite 提出改进建议
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        You can write in English or Chinese. Please search existing issues first.
+        可以使用中文或英文填写，请先搜索已有 Issue。
+        Diagnostic logs are not required for feature requests. Use the bug report form for broken behavior.
+        功能建议无需诊断日志；已有功能出现问题请使用问题反馈表单。
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case and problem / 使用场景与问题
+      description: What are you trying to do, and what makes it difficult? / 你想完成什么操作，目前遇到了什么困难？
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed improvement / 期望的改进
+      description: Describe how the feature should work and how it would help / 描述期望的使用方式，以及它如何解决问题。
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or references (optional) / 替代办法或参考（可选）
+      description: Share workarounds, examples, screenshots, or links / 可补充现有替代办法、示例、截图或链接。

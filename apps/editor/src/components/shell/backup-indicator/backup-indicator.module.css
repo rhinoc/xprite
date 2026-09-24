@@ -1,0 +1,5 @@
+.indicator {
+  position: relative;
+  flex: 0 0 auto;
+  pointer-events: none;
+}

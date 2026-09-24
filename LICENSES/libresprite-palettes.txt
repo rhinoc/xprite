@@ -1,0 +1,59 @@
+LibreSprite palette preset inventory
+
+Source: https://github.com/LibreSprite/LibreSprite/tree/eb34acdf27805504fe6637093685944877b51fe5/data/palettes
+Source revision checked: `eb34acdf27805504fe6637093685944877b51fe5` (2026-09-28)
+Upstream program license: GNU General Public License, version 2
+
+The 38 files below are copied byte-for-byte from LibreSprite's bundled palette directory
+into `apps/editor/assets/palette-presets/libresprite/`. LibreSprite's README
+states that the program is distributed under GPL-2.0. This project redistributes
+the LibreSprite palette set under GPL-2.0-only and preserves each file's
+original comments and author/source information.
+
+PICO-8's creator separately makes the palette available under CC0 1.0; see
+https://www.lexaloffle.com/pico-8.php?page=faq. Solarized retains its separate
+MIT license; see `solarized.txt`.
+
+`*.gpl` is the GIMP Palette file format and does not mean GNU GPL. In this
+inventory, GPL-2.0-only refers to the LibreSprite source distribution license.
+
+Files copied:
+
+- `a64.gpl`
+- `aap-16.gpl`
+- `aap-64.gpl`
+- `aap-splendor128.gpl`
+- `apple-ii.gpl`
+- `arne-paldac.gpl`
+- `arne16.gpl`
+- `arne32.gpl`
+- `atari2600-ntsc.gpl`
+- `atari2600-pal.gpl`
+- `cg-arne.gpl`
+- `cga.gpl`
+- `commodore-plus4.gpl`
+- `commodore-vic20.gpl`
+- `commodore64.gpl`
+- `copper-tech.gpl`
+- `cpc-boy.gpl`
+- `db16.gpl`
+- `db32.gpl`
+- `eroge-copper.gpl`
+- `gameboy-color-type1.gpl`
+- `gameboy.gpl`
+- `google-ui.gpl`
+- `jmp.gpl`
+- `master-system.gpl`
+- `monokai.gpl`
+- `nes-ntsc.gpl`
+- `nes.gpl`
+- `pico-8.gpl`
+- `psygnork.gpl`
+- `smile-basic.gpl`
+- `solarized.gpl`
+- `teletext.gpl`
+- `vga-13h.gpl`
+- `web-safe-colors.gpl`
+- `win16.gpl`
+- `x11.gpl`
+- `zx-spectrum.gpl`

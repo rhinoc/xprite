@@ -1,0 +1,31 @@
+.surface {
+  position: fixed;
+  z-index: var(--ui-tooltip-z-index, 10000);
+  pointer-events: none;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.artwork {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  transform-origin: top left;
+}
+
+.skin {
+  pointer-events: none;
+}
+
+.arrowClip {
+  position: absolute;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.textLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}

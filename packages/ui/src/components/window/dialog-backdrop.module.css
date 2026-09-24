@@ -1,0 +1,7 @@
+:global(.xse-dialog-backdrop) {
+  position: absolute;
+  inset: 0;
+  z-index: var(--ui-dialog-z-index, 2000);
+  pointer-events: auto;
+  touch-action: pan-x pan-y;
+}

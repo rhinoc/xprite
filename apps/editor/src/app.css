@@ -1,0 +1,75 @@
+:root {
+  --xse-min-width: 0px;
+  --xse-min-height: 0px;
+  --xse-content-min-width: 320px;
+  --xse-status-bar-height: 30px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  color: var(--xse-text);
+  background: var(--xse-editor);
+  color-scheme: dark;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  min-width: var(--xse-min-width);
+  min-height: var(--xse-min-height);
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  height: 100dvh;
+  background: var(--xse-editor);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Home Screen WebKit can exclude the translucent status bar from dvh. */
+@media (display-mode: standalone) {
+  html,
+  body {
+    height: 100lvh;
+  }
+}
+
+:where(
+  input,
+  textarea,
+  [contenteditable=""],
+  [contenteditable="true"],
+  [contenteditable="plaintext-only"]
+) {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+button,
+input {
+  font: inherit;
+}
+button {
+  color: inherit;
+  border: 0;
+  cursor: var(--ui-cursor-default, default);
+}
+
+.xse-startup {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+  color: var(--xse-text);
+  background: var(--xse-editor);
+}

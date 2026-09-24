@@ -1,0 +1,154 @@
+:global(.xse-timeline-selection-outline) {
+  position: absolute;
+  z-index: var(--ui-layer-timeline-selection, 6);
+  pointer-events: none;
+}
+
+:global(.xse-timeline-thumbnail-overlay) {
+  position: absolute;
+  z-index: var(--ui-layer-timeline-thumbnail, 7);
+  pointer-events: none;
+}
+
+:global(.xse-timeline[data-range-cursor="move"]),
+:global(.xse-timeline[data-range-cursor="move"] [data-timeline-kind]) {
+  cursor: var(--ui-cursor-move, move);
+}
+
+:global(.xse-timeline[data-range-cursor="copy"]),
+:global(.xse-timeline[data-range-cursor="copy"] [data-timeline-kind]) {
+  cursor: var(--ui-cursor-copy, copy);
+}
+
+:global(.xse-timeline[data-range-cursor="scroll"]),
+:global(.xse-timeline[data-range-cursor="scroll"] [data-timeline-kind]) {
+  cursor: var(--ui-cursor-scroll, grabbing);
+}
+
+:global(.xse-editor-workspace .xse-timeline) {
+  position: relative;
+  flex: 0 0 calc(74px + 7 * var(--xse-timeline-row));
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+}
+:global(.xse-timeline .xse-timeline-layer-name) {
+  left: 72px;
+  font-size: var(--ui-text-default-size, 14px);
+}
+:global(.xse-timeline) {
+  position: relative;
+  min-width: 0;
+  min-height: 160px;
+  height: calc(74px + 7 * var(--xse-timeline-row, 24px));
+}
+:global(.xse-timeline-layer-pane),
+:global(.xse-timeline-frame-pane) {
+  position: absolute;
+  z-index: 3;
+  overflow: hidden;
+  scrollbar-width: none;
+}
+:global(.xse-timeline > [role="scrollbar"]) {
+  z-index: 4;
+}
+:global(.xse-timeline-layer-pane) {
+  left: 159.996px;
+  top: 63.448px;
+  width: 199.994px;
+  height: 169.918px;
+  overflow-y: auto;
+}
+:global(.xse-timeline-frame-pane) {
+  left: 360.002px;
+  top: 39.656px;
+  right: 35.994px;
+  height: 193.64px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+:global(.xse-timeline-layer-pane::-webkit-scrollbar),
+:global(.xse-timeline-frame-pane::-webkit-scrollbar) {
+  width: 0;
+  height: 0;
+}
+:global(.xse-timeline-layer-content),
+:global(.xse-timeline-frame-content),
+:global(.xse-timeline-frame-header),
+:global(.xse-timeline-frame-row) {
+  position: relative;
+}
+:global(.xse-timeline-layer-row),
+:global(.xse-timeline-frame-row) {
+  position: absolute;
+  left: 0;
+  display: block;
+}
+:global(.xse-timeline-layer-name),
+:global(.xse-timeline-cell) {
+  position: absolute;
+  display: block;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+  font: 12.298px/1 var(--xse-font, monospace);
+  cursor: var(--ui-cursor-default, default);
+}
+:global(.xse-timeline-layer-name) {
+  left: 72.004px;
+  width: 127.99px;
+  height: 100%;
+  padding: 0;
+  text-align: left;
+  background: transparent;
+  color: transparent;
+}
+:global(.xse-timeline-layer-action) {
+  position: absolute;
+  top: 0;
+  width: 23.996px;
+  height: 23.984px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: var(--ui-cursor-default, default);
+}
+:global(.xse-timeline-layer-action:disabled) {
+  cursor: var(--ui-cursor-default, default);
+}
+:global(.xse-timeline-cell:focus-visible),
+:global(.xse-timeline-layer-name:focus-visible) {
+  outline: 1.366px dotted currentColor;
+  outline-offset: -1.366px;
+}
+:global(.xse-timeline-cell:hover),
+:global(.xse-timeline-layer-name:hover) {
+  filter: brightness(1.12);
+}
+:global(.xse-editor-window[data-ui-appearance="dark"] .xse-timeline-cell:hover),
+:global(.xse-editor-window[data-ui-appearance="dark"] .xse-timeline-layer-name:hover) {
+  filter: brightness(1.18);
+}
+:global(.xse-timeline-header-action) {
+  position: absolute;
+  z-index: 3;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: var(--ui-cursor-default, default);
+}
+:global(.xse-timeline .xse-timeline-header-action) {
+  cursor: var(--ui-cursor-default, default);
+}
+:global(.xse-timeline .xse-timeline-header-action:focus-visible) {
+  outline: 1.366px dotted var(--ui-button-focus-color, var(--ui-focus-ring-color, #202528));
+  outline-offset: -2.734px;
+}
+:global(.xse-timeline-frame-header) {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}

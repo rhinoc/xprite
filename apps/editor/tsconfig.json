@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "../../node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2021", "DOM", "DOM.Iterable"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@xprite/bedrock/*": ["../../dist/bedrock/*"],
+      "@xprite/editor-core": ["../../dist/core/types/index.d.ts"],
+      "@xprite/editor-core/*": ["../../dist/core/types/*"],
+      "$/*": [
+        "./src/*",
+        "../../packages/editor-core/src/*",
+        "../../packages/bedrock/browser/*",
+        "../../packages/ui/src/*"
+      ],
+      "$assets/*": ["./assets/*", "../../packages/ui/assets/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"],
+  "references": [
+    { "path": "../../packages/bedrock/tsconfig.browser.build.json" },
+    { "path": "../../packages/editor-core/tsconfig.build.json" },
+    { "path": "../../packages/ui/tsconfig.json" }
+  ]
+}

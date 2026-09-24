@@ -1,0 +1,104 @@
+.menuTree {
+  position: fixed;
+  z-index: var(--ui-z-menu-overlay, 9000);
+  inset: 0;
+  pointer-events: none;
+}
+
+.menuPanel {
+  position: absolute;
+  outline: none;
+  overscroll-behavior: contain;
+}
+
+.touchRows {
+  --ui-text-size: var(--ui-text-compact-size);
+}
+
+.menuSurface {
+  position: relative;
+}
+
+.menuArtwork {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.menuArtworkScale {
+  position: absolute;
+  inset: 0 auto auto 0;
+  transform-origin: top left;
+}
+
+.menuFrame {
+  position: absolute;
+  inset: 0;
+}
+
+.menuSeparator {
+  position: absolute;
+  overflow: hidden;
+}
+
+.menuItemFace,
+.menuItemFaceSelected {
+  position: absolute;
+  background: var(--ui-menu-item-face);
+}
+
+.menuItemFaceSelected {
+  background: var(--ui-menu-item-highlight-face);
+}
+
+.mnemonicUnderline,
+.submenuArrow {
+  position: absolute;
+}
+
+.mnemonicUnderline {
+  height: var(--ui-menu-underline-height, 2px);
+}
+
+.menuItemHitTarget {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  cursor: var(--ui-cursor-default, default);
+}
+
+.menuBar {
+  position: absolute;
+  z-index: var(--ui-z-menu-bar, 20);
+  background: var(--ui-menu-normal-face);
+}
+
+.menuTrigger {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: var(--ui-cursor-default, default);
+}
+
+.menuTrigger[data-hovered="true"] {
+  background: var(--ui-menu-hot-face);
+}
+
+.menuTrigger[data-open="true"] {
+  background: var(--ui-menu-highlight-face);
+}
+
+.menuTriggerArt {
+  position: absolute;
+  inset: 0 auto auto 0;
+  pointer-events: none;
+  transform-origin: top left;
+}

@@ -1,0 +1,9 @@
+.controls {
+  display: contents;
+  --ui-symmetry-control-step: 28px;
+  --ui-symmetry-control-width: 30px;
+}
+
+.symmetryButton {
+  z-index: var(--ui-control-z-index, 4);
+}

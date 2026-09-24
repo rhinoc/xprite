@@ -1,0 +1,1800 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Xprite · Cover Studio</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #f5f6f8;
+      color: #20232a;
+      font:
+        13px -apple-system,
+        BlinkMacSystemFont,
+        "PingFang SC",
+        Arial,
+        sans-serif;
+    }
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+    button,
+    select {
+      cursor: pointer;
+    }
+    button {
+      background: white;
+      border: 1px solid #dfe2e8;
+      border-radius: 7px;
+      padding: 7px 11px;
+      color: inherit;
+    }
+    button:hover {
+      background: #f3f5f9;
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    button.primary {
+      background: #273eec;
+      color: white;
+      border-color: #273eec;
+    }
+    button.primary:hover {
+      background: #1f32c5;
+    }
+    input,
+    select,
+    textarea {
+      border: 1px solid #dfe2e8;
+      border-radius: 6px;
+      background: white;
+      color: inherit;
+      padding: 7px 8px;
+      min-width: 0;
+    }
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 2px solid #c5ccff;
+      outline-offset: 1px;
+    }
+    input[type="number"] {
+      width: 76px;
+    }
+    input[type="color"] {
+      padding: 2px;
+      width: 44px;
+      height: 32px;
+    }
+    textarea {
+      resize: vertical;
+      width: 100%;
+      min-height: 86px;
+      line-height: 1.5;
+    }
+    header {
+      min-height: 66px;
+      background: white;
+      border-bottom: 1px solid #e4e6eb;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 20px;
+      flex-wrap: wrap;
+    }
+    .identity {
+      font-weight: 650;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+    .identity span {
+      color: #a1a5ae;
+      margin: 0 8px;
+      font-weight: 400;
+    }
+    .spacer {
+      flex: 1;
+    }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .toolbar .dims {
+      font-size: 11px;
+      color: #9298a4;
+    }
+    .toolbar input {
+      width: 64px;
+      padding: 7px 4px;
+    }
+    .workspace {
+      display: grid;
+      grid-template-columns: 188px minmax(340px, 1fr) 266px;
+      height: calc(100vh - 111px);
+    }
+    aside {
+      background: white;
+      overflow: auto;
+      padding: 18px 14px;
+    }
+    .layers {
+      border-right: 1px solid #e4e6eb;
+    }
+    .properties {
+      border-left: 1px solid #e4e6eb;
+    }
+    .section-title {
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      color: #9398a3;
+      margin: 0 0 13px;
+    }
+    .layer-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .layer-row > button.name {
+      flex: 1;
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      border-color: transparent;
+      background: transparent;
+      padding: 8px 6px;
+    }
+    .layer-row.selected {
+      background: #eef0ff;
+      border-radius: 6px;
+    }
+    .layer-row.selected > button.name {
+      color: #253ada;
+    }
+    .layer-row.hidden {
+      opacity: 0.45;
+    }
+    .layer-row .visibility {
+      border: none;
+      background: none;
+      padding: 5px;
+      font-size: 14px;
+      color: #9499a2;
+    }
+    .layer-actions {
+      display: flex;
+      gap: 7px;
+      margin: 14px 0;
+    }
+    .stage-area {
+      position: relative;
+      overflow: hidden;
+      min-height: 350px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 44px 26px;
+      background-color: #edeff3;
+      background-image: radial-gradient(#cbd0d9 0.7px, transparent 0.7px);
+      background-size: 14px 14px;
+    }
+    canvas {
+      box-shadow: 0 5px 22px #242c4218;
+      touch-action: none;
+      display: block;
+      outline: 1px solid #dfe2e8;
+      cursor: default;
+    }
+    .stage-controls {
+      position: absolute;
+      left: 20px;
+      top: 13px;
+      display: flex;
+      gap: 7px;
+    }
+    .stage-controls button {
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+    .stage-label {
+      position: absolute;
+      bottom: 14px;
+      color: #8b919d;
+      font-size: 11px;
+    }
+    .field {
+      margin-bottom: 15px;
+    }
+    .field > label {
+      display: block;
+      color: #737a86;
+      font-size: 11px;
+      margin: 0 0 6px;
+    }
+    .field input:not([type="color"]):not([type="checkbox"]),
+    .field select {
+      width: 100%;
+    }
+    .pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #626975;
+      font-size: 12px;
+      margin: 9px 0;
+    }
+    h2 {
+      font-size: 15px;
+      margin: 0 0 18px;
+      font-weight: 650;
+    }
+    .separator {
+      border: 0;
+      border-top: 1px solid #eceef2;
+      margin: 19px 0;
+    }
+    .note {
+      font-size: 12px;
+      color: #989ea8;
+      line-height: 1.7;
+    }
+    .image-button {
+      width: 100%;
+    }
+    .danger {
+      color: #bc4d59;
+    }
+    footer {
+      height: 45px;
+      border-top: 1px solid #e4e6eb;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 0 20px;
+      color: #858b97;
+      font-size: 11px;
+    }
+    .status {
+      color: #52616b;
+    }
+    .empty {
+      padding-top: 40px;
+    }
+    .file-hidden {
+      display: none;
+    }
+    .dimensions-tag {
+      font-variant-numeric: tabular-nums;
+      color: #6c7481;
+    }
+    .small {
+      font-size: 11px;
+      color: #9198a3;
+    }
+    .preview-select {
+      display: none;
+    }
+    .export-menu {
+      position: relative;
+    }
+    .export-options {
+      position: absolute;
+      right: 0;
+      top: 38px;
+      z-index: 5;
+      background: white;
+      box-shadow: 0 10px 30px #2222;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 6px;
+      min-width: 150px;
+    }
+    .export-options button {
+      display: block;
+      border: 0;
+      width: 100%;
+      text-align: left;
+    }
+    .export-options[hidden] {
+      display: none;
+    }
+    @media (max-width: 1050px) {
+      .workspace {
+        grid-template-columns: minmax(340px, 1fr) 245px;
+      }
+      .layers {
+        display: none;
+      }
+      .preview-select {
+        display: block;
+      }
+      .identity {
+        font-size: 14px;
+      }
+      .toolbar {
+        gap: 4px;
+      }
+      header {
+        gap: 10px;
+        padding: 10px;
+      }
+      .stage-area {
+        padding: 40px 15px;
+      }
+    }
+    @media (max-width: 680px) {
+      .workspace {
+        height: auto;
+        display: flex;
+        flex-direction: column;
+      }
+      .stage-area {
+        min-height: 420px;
+      }
+      .properties {
+        border-top: 1px solid #ddd;
+        border-left: 0;
+        max-height: none;
+      }
+      footer {
+        height: auto;
+        min-height: 45px;
+      }
+      .spacer {
+        display: none;
+      }
+      header {
+        justify-content: space-between;
+      }
+      .identity {
+        width: 100%;
+      }
+    }
+  </style>
+  <style>
+    body {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      flex-shrink: 0;
+    }
+    .workspace {
+      flex: 1;
+      height: auto;
+      min-height: 0;
+    }
+    .status:empty {
+      display: none;
+    }
+    .status {
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .note,
+    .small {
+      display: none;
+    }
+  </style>
+  <header>
+    <div class="identity">Xprite <span>/</span> Cover Studio</div>
+    <div class="toolbar">
+      <select id="template" aria-label="Cover preset">
+        <option value="630x500-zh">itch · Chinese</option>
+        <option value="630x500-en">itch · English</option>
+        <option value="1920x1080-zh">Wide · Chinese</option>
+        <option value="1920x1080-en">Wide · English</option>
+      </select>
+      <input id="canvas-width" type="number" min="1" max="8192" aria-label="Canvas width" /><span
+        class="dims"
+        >×</span
+      ><input
+        id="canvas-height"
+        type="number"
+        min="1"
+        max="8192"
+        aria-label="Canvas height"
+      /><button id="apply-size">Apply size</button>
+    </div>
+    <div class="spacer"></div>
+    <div class="toolbar">
+      <button id="undo" title="Undo ⌘Z" aria-label="Undo">↶</button
+      ><button id="redo" title="Redo ⇧⌘Z" aria-label="Redo">↷</button
+      ><button id="load-project">Open project</button
+      ><button id="apply-layout">Apply layout…</button><button id="save-project">Save layout</button
+      ><select id="export-scale" aria-label="Export scale">
+        <option value="1">1×</option>
+        <option value="2">2×</option>
+        <option value="3">3×</option></select
+      ><button id="export-png" class="primary">Export PNG</button
+      ><span id="status" class="status"></span>
+    </div>
+  </header>
+  <main class="workspace">
+    <aside class="layers">
+      <div class="section-title">Layers</div>
+      <div id="layer-list"></div>
+      <div class="layer-actions">
+        <button id="add-text">+ Text</button><button id="add-image">+ Image</button>
+      </div>
+      <hr class="separator" />
+      <button id="copy-layout" style="width: 100%; margin-bottom: 9px">Copy to Chinese</button
+      ><button id="reset-layout">Reset preset</button>
+    </aside>
+    <section class="stage-area" id="stage-area">
+      <div class="stage-controls">
+        <button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-label">Fit</button
+        ><button id="zoom-in" aria-label="Zoom in">＋</button
+        ><label class="row"><input id="snapping" type="checkbox" checked /> Snap</label
+        ><select id="divisions" aria-label="Canvas divisions">
+          <option value="2">Halves</option>
+          <option value="3" selected>Thirds</option>
+          <option value="4">Quarters</option></select
+        ><select id="layer-picker" class="preview-select" aria-label="Select layer"></select>
+      </div>
+      <canvas id="stage" aria-label="Cover canvas"></canvas>
+      <div class="stage-label" id="stage-label"></div>
+    </section>
+    <aside class="properties"><div id="inspector"></div></aside>
+  </main>
+  <input
+    id="image-file"
+    type="file"
+    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+    class="file-hidden"
+  /><input id="project-file" type="file" accept="application/json,.json" class="file-hidden" />
+  <script id="cover-bundle" type="application/json">
+    __COVER_BUNDLE__
+  </script>
+  <script>
+    (() => {
+      "use strict";
+      const bundle = JSON.parse(document.getElementById("cover-bundle").textContent);
+      const $ = (id) => document.getElementById(id);
+      const clone = (value) => JSON.parse(JSON.stringify(value));
+      const STORAGE_KEY = "xprite.cover-studio.v2";
+      const SNAP_DISTANCE = 6,
+        NEARBY_DISTANCE = 80,
+        MIN_SCALE = 0.05;
+      const SYSTEM_FONT = '-apple-system,"PingFang SC",Arial,sans-serif';
+      const canvas = $("stage"),
+        ctx = canvas.getContext("2d", { colorSpace: "srgb" });
+      const images = new Map(),
+        assets = { ...bundle.assets };
+      let documents = clone(bundle.templates),
+        active = bundle.defaultTemplate;
+      let selected = "headline",
+        zoom = 1,
+        manualZoom = false,
+        drag = null,
+        pendingAsset = null;
+      let undoStack = [],
+        redoStack = [],
+        saveTimer,
+        paintPending = false,
+        ready = false,
+        fieldRecorded = false;
+      let snapGuides = [],
+        importMode = "open";
+      const status = (text) => ($("status").textContent = text);
+      const doc = () => documents[active];
+      const layer = () => doc().layers.find((item) => item.id === selected);
+      const family = (font) =>
+        bundle.fonts[font] ? '"Cover-' + font + '"' : font === "Arial" ? "Arial" : SYSTEM_FONT;
+      const fontString = (item, size = item.fontSize) =>
+        `${item.weight || 700} ${size}px ${family(item.font)}`;
+      const round = (value) => Math.round(value * 10) / 10;
+      const escape = (value) =>
+        String(value).replace(
+          /[&<>"']/g,
+          (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char],
+        );
+      const option = (value, label, current) =>
+        `<option value="${escape(value)}" ${value === current ? "selected" : ""}>${escape(label)}</option>`;
+
+      function loadImage(key, data) {
+        return new Promise((resolve, reject) => {
+          const image = new Image();
+          image.onload = () => {
+            images.set(key, image);
+            resolve(image);
+          };
+          image.onerror = () => reject(new Error("Could not load image"));
+          image.src = data;
+        });
+      }
+      function rrect(context, x, y, w, h, r) {
+        context.beginPath();
+        context.roundRect(x, y, w, h, Math.min(r, w / 2, h / 2));
+      }
+      function shadow(context, amount = 1) {
+        context.shadowColor = "rgba(18,25,40,.16)";
+        context.shadowBlur = 15 * amount;
+        context.shadowOffsetY = 5 * amount;
+      }
+      function noShadow(context) {
+        context.shadowColor = "transparent";
+        context.shadowBlur = 0;
+        context.shadowOffsetY = 0;
+      }
+      function arrowPoints(item) {
+        const a = { x: item.start.x * item.w, y: item.start.y * item.h },
+          b = { x: item.end.x * item.w, y: item.end.y * item.h };
+        const dx = b.x - a.x,
+          dy = b.y - a.y;
+        return {
+          a,
+          b,
+          c: { x: (a.x + b.x) / 2 - dy * item.curvature, y: (a.y + b.y) / 2 + dx * item.curvature },
+        };
+      }
+      function reframeArrow(item, a, b, curvature = item.curvature) {
+        const dx = b.x - a.x,
+          dy = b.y - a.y,
+          c = { x: (a.x + b.x) / 2 - dy * curvature, y: (a.y + b.y) / 2 + dx * curvature };
+        const pad = Math.max(item.strokeWidth * 4, 2),
+          left = Math.min(a.x, b.x, c.x) - pad,
+          top = Math.min(a.y, b.y, c.y) - pad;
+        item.x = left;
+        item.y = top;
+        item.w = Math.max(1, Math.max(a.x, b.x, c.x) - left + pad);
+        item.h = Math.max(1, Math.max(a.y, b.y, c.y) - top + pad);
+        item.start = { x: (a.x - left) / item.w, y: (a.y - top) / item.h };
+        item.end = { x: (b.x - left) / item.w, y: (b.y - top) / item.h };
+        item.curvature = curvature;
+      }
+      function snapTargets(item) {
+        const count = Number($("divisions").value),
+          x = [0, doc().width / 2, doc().width],
+          y = [0, doc().height / 2, doc().height];
+        for (let index = 1; index < count; index++) {
+          x.push((doc().width * index) / count);
+          y.push((doc().height * index) / count);
+        }
+        const distance = (a0, a1, b0, b1) => Math.max(0, a0 - b1, b0 - a1);
+        for (const other of doc().layers) {
+          if (other.id === item.id || !other.visible) continue;
+          if (
+            distance(item.y, item.y + item.h, other.y, other.y + other.h) <=
+            NEARBY_DISTANCE / zoom
+          )
+            x.push(other.x, other.x + other.w / 2, other.x + other.w);
+          if (
+            distance(item.x, item.x + item.w, other.x, other.x + other.w) <=
+            NEARBY_DISTANCE / zoom
+          )
+            y.push(other.y, other.y + other.h / 2, other.y + other.h);
+        }
+        return {
+          x: [...new Set(x)].filter((value) => value >= 0 && value <= doc().width),
+          y: [...new Set(y)].filter((value) => value >= 0 && value <= doc().height),
+        };
+      }
+      function nearest(features, targets) {
+        let best = null;
+        for (const feature of features)
+          for (const target of targets) {
+            const delta = target - feature;
+            if (
+              Math.abs(delta) <= SNAP_DISTANCE / zoom &&
+              (!best || Math.abs(delta) < Math.abs(best.delta))
+            )
+              best = { target, delta };
+          }
+        return best;
+      }
+      function snapMove(item) {
+        const targets = snapTargets(item),
+          x = nearest([item.x, item.x + item.w / 2, item.x + item.w], targets.x),
+          y = nearest([item.y, item.y + item.h / 2, item.y + item.h], targets.y);
+        if (x) {
+          item.x += x.delta;
+          snapGuides.push({ axis: "x", value: x.target });
+        }
+        if (y) {
+          item.y += y.delta;
+          snapGuides.push({ axis: "y", value: y.target });
+        }
+      }
+      function snapPoint(point, item) {
+        const targets = snapTargets(item),
+          result = { ...point },
+          x = nearest([point.x], targets.x),
+          y = nearest([point.y], targets.y);
+        if (x) {
+          result.x = x.target;
+          snapGuides.push({ axis: "x", value: x.target });
+        }
+        if (y) {
+          result.y = y.target;
+          snapGuides.push({ axis: "y", value: y.target });
+        }
+        return result;
+      }
+      function snapResize(initial, handle, ratio) {
+        const sx = handle.endsWith("w") ? -1 : 1,
+          sy = handle.startsWith("n") ? -1 : 1;
+        const anchor = {
+          x: initial.x + (sx < 0 ? initial.w : 0),
+          y: initial.y + (sy < 0 ? initial.h : 0),
+        };
+        const preview = {
+          ...initial,
+          x: sx < 0 ? anchor.x - initial.w * ratio : anchor.x,
+          y: sy < 0 ? anchor.y - initial.h * ratio : anchor.y,
+          w: initial.w * ratio,
+          h: initial.h * ratio,
+        };
+        const targets = snapTargets(preview),
+          candidates = [];
+        for (const axis of ["x", "y"])
+          for (const fraction of [1, 0.5]) {
+            const direction = axis === "x" ? sx * initial.w : sy * initial.h,
+              coefficient = direction * fraction;
+            const feature = anchor[axis] + coefficient * ratio;
+            for (const target of targets[axis]) {
+              const difference = Math.abs(target - feature),
+                next = (target - anchor[axis]) / coefficient;
+              if (difference <= SNAP_DISTANCE / zoom && next >= MIN_SCALE)
+                candidates.push({ axis, target, ratio: next, difference });
+            }
+          }
+        candidates.sort((a, b) => a.difference - b.difference);
+        if (!candidates.length) return ratio;
+        const best = candidates[0];
+        for (const candidate of candidates)
+          if (Math.abs(candidate.ratio - best.ratio) * Math.max(initial.w, initial.h) < 0.6 / zoom)
+            snapGuides.push({ axis: candidate.axis, value: candidate.target });
+        return best.ratio;
+      }
+
+      function textMetrics(item, fit = false) {
+        ctx.save();
+        ctx.font = fontString(item);
+        const lines = item.text.split("\n");
+        if (fit) {
+          const measured = Math.max(1, ...lines.map((line) => ctx.measureText(line).width));
+          item.fontSize = Math.floor(
+            Math.min(item.fontSize, (item.fontSize * (item.w - 4)) / measured),
+          );
+          ctx.font = fontString(item);
+        }
+        const content = Math.max(1, ...lines.map((line) => ctx.measureText(line).width));
+        if (item.kind === "text") {
+          item.w = content + (item.highlight ? 4 : 0);
+          item.h =
+            lines.length * item.fontSize * (item.lineHeight || 1.16) +
+            (lines.length - 1) * (item.lineGap || 0);
+        }
+        if (item.kind === "github") {
+          item.w = item.iconSize + item.gap + content;
+          item.h = Math.max(item.iconSize, item.fontSize * 1.2);
+        }
+        ctx.restore();
+        return lines;
+      }
+
+      function drawLayer(context, item) {
+        context.save();
+        context.translate(Math.round(item.x), Math.round(item.y));
+        const w = item.w,
+          h = item.h,
+          image = images.get(item.asset);
+        if (item.kind === "image") {
+          context.imageSmoothingEnabled = item.asset !== "cursor";
+          context.imageSmoothingQuality = "high";
+          if (image) context.drawImage(image, 0, 0, w, h);
+        }
+        if (item.kind === "brand") {
+          if (image) {
+            context.save();
+            rrect(context, 0, 0, h, h, h * 0.12);
+            context.clip();
+            context.imageSmoothingEnabled = false;
+            context.drawImage(image, 0, 0, h, h);
+            context.restore();
+          }
+          context.font = `700 ${item.fontSize}px Arial`;
+          context.fillStyle = item.color;
+          context.textBaseline = "alphabetic";
+          context.fillText(item.text, h + h * 0.094, h * 0.79);
+        }
+        if (item.kind === "text") {
+          context.font = fontString(item);
+          context.textBaseline = "top";
+          context.fillStyle = item.color;
+          const lineHeight = item.fontSize * (item.lineHeight || 1.16) + (item.lineGap || 0);
+          item.text.split("\n").forEach((line, index) => {
+            const y = index * lineHeight;
+            if (item.highlight && line.includes(item.highlight)) {
+              const start = line.indexOf(item.highlight),
+                prefix = line.slice(0, start);
+              const x = context.measureText(prefix).width,
+                length = context.measureText(item.highlight).width;
+              context.fillStyle = item.highlightColor || "#fff4a7";
+              context.fillRect(x - 2, y - 1, length + 4, item.fontSize * 1.1);
+              context.fillStyle = item.color;
+            }
+            context.fillText(line, 0, y);
+          });
+        }
+        if (item.kind === "github") {
+          if (image)
+            context.drawImage(image, 0, (h - item.iconSize) / 2, item.iconSize, item.iconSize);
+          context.font = fontString(item);
+          context.fillStyle = item.color;
+          context.textBaseline = "middle";
+          context.fillText(item.text, item.iconSize + item.gap, h / 2);
+        }
+        if (item.kind === "desktop") {
+          shadow(context, w / 600);
+          rrect(context, 0, 0, w, h, w * 0.0125);
+          context.fillStyle = "#f2f3f5";
+          context.fill();
+          noShadow(context);
+          context.save();
+          rrect(context, 0, 0, w, h, w * 0.0125);
+          context.clip();
+          const bar = item.bar;
+          context.fillStyle = "#f2f3f5";
+          context.fillRect(0, 0, w, bar);
+          const dot = bar * 0.137;
+          ["#ff6259", "#ffbe2e", "#2bc841"].forEach((color, index) => {
+            context.beginPath();
+            context.arc(bar * 0.49 + index * bar * 0.46, bar / 2, dot, 0, Math.PI * 2);
+            context.fillStyle = color;
+            context.fill();
+          });
+          const ax = bar * 3.04,
+            aw = w - ax - bar * 0.4,
+            ah = bar * 0.66;
+          context.fillStyle = "#e5e7ea";
+          rrect(context, ax, (bar - ah) / 2, aw, ah, ah / 2);
+          context.fill();
+          context.fillStyle = "#15171a";
+          context.font = `${bar * 0.38}px Arial`;
+          context.textBaseline = "middle";
+          context.fillText(item.address, ax + bar * 0.35, bar / 2);
+          context.imageSmoothingEnabled = false;
+          if (image) context.drawImage(image, 0, bar, w, h - bar);
+          context.restore();
+          rrect(context, 0.4, 0.4, w - 0.8, h - 0.8, w * 0.0125);
+          context.lineWidth = 0.6;
+          context.strokeStyle = "#777e87";
+          context.stroke();
+        }
+        if (item.kind === "phone") {
+          const radius = (w * 68) / 428,
+            inset = w * item.inset,
+            sw = w - 2 * inset,
+            sh = h - 2 * inset;
+          shadow(context, w / 180);
+          rrect(context, 0, 0, w, h, radius);
+          context.fillStyle = "#242528";
+          context.fill();
+          noShadow(context);
+          rrect(context, 0.7, 0.7, w - 1.4, h - 1.4, radius);
+          context.lineWidth = 1;
+          context.strokeStyle = "#94979b";
+          context.stroke();
+          context.save();
+          rrect(context, inset, inset, sw, sh, (w * 49) / 428);
+          context.clip();
+          context.fillStyle = "#f4f5f7";
+          context.fillRect(inset, inset, sw, sh);
+          const status = w * item.status,
+            address = w * item.addressHeight;
+          context.font = `600 ${w * 0.04}px ${SYSTEM_FONT}`;
+          context.textBaseline = "middle";
+          context.fillStyle = "#111";
+          context.fillText("9:41", inset + w * 0.066, status / 2 + inset);
+          rrect(
+            context,
+            w / 2 - (w * 120) / 428 / 2,
+            inset + w * 0.01,
+            (w * 120) / 428,
+            (w * 24) / 428,
+            w,
+          );
+          context.fillStyle = "#111";
+          context.fill();
+          const ap = w * 0.053,
+            ay = inset + status + w * 0.013,
+            ah = address - w * 0.026;
+          rrect(context, inset + ap, ay, sw - 2 * ap, ah, ah / 2);
+          context.fillStyle = "#e3e5e8";
+          context.fill();
+          context.font = `${w * 0.047}px ${SYSTEM_FONT}`;
+          context.textAlign = "center";
+          context.fillStyle = "#101112";
+          context.fillText(item.address, w / 2, ay + ah / 2);
+          context.imageSmoothingEnabled = false;
+          if (image)
+            context.drawImage(image, inset, inset + status + address, sw, sh - status - address);
+          context.restore();
+        }
+        if (item.kind === "arrow") {
+          const { a, b, c } = arrowPoints(item),
+            angle = Math.atan2(b.y - c.y, b.x - c.x),
+            head = item.strokeWidth * 3.8;
+          context.beginPath();
+          context.moveTo(a.x, a.y);
+          context.quadraticCurveTo(c.x, c.y, b.x, b.y);
+          context.moveTo(b.x - head * Math.cos(angle - 0.5), b.y - head * Math.sin(angle - 0.5));
+          context.lineTo(b.x, b.y);
+          context.lineTo(b.x - head * Math.cos(angle + 0.5), b.y - head * Math.sin(angle + 0.5));
+          context.lineWidth = item.strokeWidth;
+          context.strokeStyle = item.color;
+          context.lineCap = "round";
+          context.lineJoin = "round";
+          context.stroke();
+        }
+        context.restore();
+      }
+
+      function render(context, selection = false) {
+        const current = doc();
+        context.clearRect(0, 0, current.width, current.height);
+        context.fillStyle = current.background;
+        context.fillRect(0, 0, current.width, current.height);
+        for (const item of current.layers) if (item.visible) drawLayer(context, item);
+        const item = layer();
+        if (selection && item?.visible) {
+          context.save();
+          const one = 1 / zoom;
+          context.strokeStyle = "#4358ed";
+          context.lineWidth = one;
+          context.setLineDash(item.locked ? [4 * one, 3 * one] : []);
+          context.strokeRect(item.x, item.y, item.w, item.h);
+          if (!item.locked) {
+            context.setLineDash([]);
+            context.fillStyle = "white";
+            const r = 3.5 / zoom;
+            for (const [x, y] of [
+              [item.x, item.y],
+              [item.x + item.w, item.y],
+              [item.x, item.y + item.h],
+              [item.x + item.w, item.y + item.h],
+            ]) {
+              context.fillRect(x - r, y - r, 2 * r, 2 * r);
+              context.strokeRect(x - r, y - r, 2 * r, 2 * r);
+            }
+          }
+          context.restore();
+          if (item.kind === "arrow" && !item.locked) {
+            const { a, b, c } = arrowPoints(item);
+            context.save();
+            context.translate(item.x, item.y);
+            context.lineWidth = 1 / zoom;
+            context.setLineDash([3 / zoom, 3 / zoom]);
+            context.strokeStyle = "#9ca9ce";
+            context.beginPath();
+            context.moveTo(a.x, a.y);
+            context.lineTo(c.x, c.y);
+            context.lineTo(b.x, b.y);
+            context.stroke();
+            context.setLineDash([]);
+            for (const [name, point] of [
+              ["start", a],
+              ["end", b],
+              ["curve", c],
+            ]) {
+              context.beginPath();
+              context.arc(point.x, point.y, 5 / zoom, 0, Math.PI * 2);
+              context.fillStyle = name === "curve" ? "#ffb256" : "white";
+              context.fill();
+              context.strokeStyle = "#4358ed";
+              context.stroke();
+            }
+            context.restore();
+          }
+        }
+        if (selection && drag && $("snapping").checked) {
+          context.save();
+          context.lineWidth = 1 / zoom;
+          context.setLineDash([3 / zoom, 4 / zoom]);
+          context.strokeStyle = "#afbad480";
+          const count = Number($("divisions").value);
+          for (let index = 1; index < count; index++) {
+            context.beginPath();
+            context.moveTo((current.width * index) / count, 0);
+            context.lineTo((current.width * index) / count, current.height);
+            context.moveTo(0, (current.height * index) / count);
+            context.lineTo(current.width, (current.height * index) / count);
+            context.stroke();
+          }
+          context.setLineDash([]);
+          context.strokeStyle = "#ec5498";
+          for (const guide of snapGuides) {
+            context.beginPath();
+            if (guide.axis === "x") {
+              context.moveTo(guide.value, 0);
+              context.lineTo(guide.value, current.height);
+            } else {
+              context.moveTo(0, guide.value);
+              context.lineTo(current.width, guide.value);
+            }
+            context.stroke();
+          }
+          context.restore();
+        }
+      }
+      function paint() {
+        if (paintPending) return;
+        paintPending = true;
+        requestAnimationFrame(() => {
+          paintPending = false;
+          const dpr = window.devicePixelRatio || 1;
+          ctx.setTransform(dpr * zoom, 0, 0, dpr * zoom, 0, 0);
+          render(ctx, true);
+        });
+      }
+      function fitView() {
+        const area = $("stage-area").getBoundingClientRect();
+        if (!manualZoom)
+          zoom = Math.min((area.width - 52) / doc().width, (area.height - 96) / doc().height, 1.5);
+        zoom = Math.max(0.05, zoom);
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(doc().width * zoom * dpr);
+        canvas.height = Math.round(doc().height * zoom * dpr);
+        canvas.style.width = doc().width * zoom + "px";
+        canvas.style.height = doc().height * zoom + "px";
+        $("zoom-label").textContent = Math.round(zoom * 100) + "%";
+        $("stage-label").textContent = `${doc().width} × ${doc().height}`;
+        paint();
+      }
+      function record() {
+        undoStack.push(clone(doc()));
+        if (undoStack.length > 70) undoStack.shift();
+        redoStack = [];
+        historyControls();
+      }
+      function historyControls() {
+        $("undo").disabled = !undoStack.length;
+        $("redo").disabled = !redoStack.length;
+      }
+      function changed(refresh = true) {
+        paint();
+        if (refresh) {
+          drawLayers();
+          drawInspector();
+        }
+        historyControls();
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(save, 350);
+      }
+      function save() {
+        try {
+          const uploads = Object.fromEntries(
+            Object.entries(assets).filter(([key]) => !bundle.assets[key]),
+          );
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ documents, active, uploads }));
+          status("");
+        } catch {
+          status("Save layout to a file");
+        }
+      }
+      function switchTemplate(key) {
+        documents[active] = doc();
+        active = key;
+        selected = "headline";
+        undoStack = [];
+        redoStack = [];
+        manualZoom = false;
+        syncCanvasControls();
+        drawLayers();
+        drawInspector();
+        fitView();
+        save();
+      }
+      function syncCanvasControls() {
+        $("template").value = active;
+        $("canvas-width").value = doc().width;
+        $("canvas-height").value = doc().height;
+        $("copy-layout").textContent =
+          doc().language === "zh" ? "Copy to English" : "Copy to Chinese";
+        historyControls();
+      }
+      function composeLayout(source, target) {
+        const result = clone(source),
+          existing = new Map(target.layers.map((item) => [item.id, item]));
+        result.language = target.language;
+        for (const item of result.layers) {
+          const content = existing.get(item.id);
+          if (["desktop", "phone"].includes(item.kind))
+            item.asset =
+              content?.kind === item.kind
+                ? content.asset
+                : `${item.kind === "desktop" ? "desktop" : "mobile"}_${target.language}`;
+          if (["text", "github", "brand"].includes(item.kind)) {
+            if (content?.kind === item.kind) {
+              item.text = content.text;
+              item.highlight = content.highlight;
+              item.font = content.font;
+            } else if (item.kind !== "brand")
+              item.font = target.language === "en" ? "spacegrotesk" : "system";
+          }
+        }
+        return result;
+      }
+      function applyLayout(source) {
+        record();
+        documents[active] = composeLayout(source, doc());
+        selected = null;
+        manualZoom = false;
+        syncCanvasControls();
+        changed();
+        fitView();
+        save();
+        status("Layout applied");
+      }
+      $("copy-layout").onclick = () => {
+        const source = clone(doc()),
+          targetKey = active.replace(/-(zh|en)$/, source.language === "zh" ? "-en" : "-zh"),
+          previous = clone(documents[targetKey]);
+        documents[targetKey] = composeLayout(source, documents[targetKey]);
+        switchTemplate(targetKey);
+        undoStack = [previous];
+        historyControls();
+        status("Layout copied");
+      };
+
+      function drawLayers() {
+        $("layer-list").innerHTML = doc()
+          .layers.slice()
+          .reverse()
+          .map(
+            (item) =>
+              `<div class="layer-row ${item.id === selected ? "selected" : ""} ${item.visible ? "" : "hidden"}"><button class="name" data-select="${escape(item.id)}">${item.locked ? "🔒 " : ""}${escape(item.name)}</button><button class="visibility" data-visible="${escape(item.id)}" title="${item.visible ? "Hide" : "Show"}Layers">${item.visible ? "◉" : "○"}</button></div>`,
+          )
+          .join("");
+        $("layer-picker").innerHTML = doc()
+          .layers.slice()
+          .reverse()
+          .map((item) => option(item.id, item.name, selected))
+          .join("");
+      }
+      const numeric = (id, label, value, step = 1, min) =>
+        `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="number" value="${round(value)}" step="${step}" ${min !== undefined ? `min="${min}"` : ""}></div>`;
+      function drawInspector() {
+        const item = layer();
+        if (!item) {
+          $("inspector").innerHTML =
+            '<div class="empty"><h2>Canvas</h2><div class="field"><label>Background</label><input id="background" type="color" value="' +
+            doc().background +
+            '"></div></div>';
+          return;
+        }
+        const isText = ["text", "github", "brand"].includes(item.kind),
+          isImage = ["image", "desktop", "phone"].includes(item.kind);
+        $("inspector").innerHTML =
+          `<h2>${escape(item.name)}</h2><div class="pair">${numeric("pos-x", "X", item.x, 0.1)}${numeric("pos-y", "Y", item.y, 0.1)}</div><div class="pair">${numeric("layer-width", "Width", item.w, 0.1, 1)}${numeric("layer-height", "Height", item.h, 0.1, 1)}</div><label class="toggle"><input id="locked" type="checkbox" ${item.locked ? "checked" : ""}>Lock layer</label><label class="toggle"><input id="visible" type="checkbox" ${item.visible ? "checked" : ""}>Show layer</label><hr class="separator">
+      ${
+        isText
+          ? `<div class="field"><label for="text-value">Text</label><textarea id="text-value">${escape(item.text)}</textarea></div><div class="field"><label for="font-family">Font</label><select id="font-family">${option("system", "System / Chinese", item.font)}${Object.entries(
+              bundle.fonts,
+            )
+              .map(([key, value]) => option(key, value.family, item.font))
+              .join(
+                "",
+              )}${option("Arial", "Arial", item.font)}</select></div><div class="pair">${numeric("font-size", "Size", item.fontSize, 0.5, 1)}<div class="field"><label for="font-weight">Weight</label><select id="font-weight">${[400, 500, 600, 700, 750, 800, 900].map((value) => option(String(value), String(value), String(item.weight || 700))).join("")}</select></div></div><div class="field"><label for="text-color">Text color</label><input id="text-color" type="color" value="${item.color}"></div>`
+          : ""
+      }
+      ${item.kind === "text" ? `<div class="pair">${numeric("line-height", "Line height", item.lineHeight, 0.05, 0.5)}${numeric("line-gap", "Line gap", item.lineGap, 0.5, 0)}</div><div class="field"><label for="highlight-word">Highlight word</label><input id="highlight-word" value="${escape(item.highlight || "")}"></div><div class="field"><label for="highlight-color">Highlight color</label><input id="highlight-color" type="color" value="${item.highlightColor || "#fff4a7"}"></div>` : ""}
+      ${["desktop", "phone"].includes(item.kind) ? `<div class="field"><label for="address">Address</label><input id="address" value="${escape(item.address)}"></div>` : ""}
+      ${item.kind === "arrow" ? `<div class="pair">${numeric("start-x", "Start X", item.x + item.start.x * item.w, 0.1)}${numeric("start-y", "Start Y", item.y + item.start.y * item.h, 0.1)}</div><div class="pair">${numeric("end-x", "End X", item.x + item.end.x * item.w, 0.1)}${numeric("end-y", "End Y", item.y + item.end.y * item.h, 0.1)}</div><div class="pair">${numeric("curvature", "Curvature %", item.curvature * 100, 5)}${numeric("stroke-width", "Stroke", item.strokeWidth, 0.1, 0.1)}</div><div class="field"><label for="arrow-color">Arrow color</label><input id="arrow-color" type="color" value="${item.color}"></div>` : ""}
+      ${isImage ? '<button id="replace-image" class="image-button">Replace ' + (["desktop", "phone"].includes(item.kind) ? "screenshot" : "image") + "…</button>" : ""}
+      <hr class="separator"><div class="pair"><button id="to-front" title="⌘⇧] / Ctrl+Shift+]">To front</button><button id="to-back" title="⌘⇧[ / Ctrl+Shift+[">To back</button><button id="forward">Forward</button><button id="backward">Backward</button></div><div class="row" style="margin-top:9px"><button id="duplicate">Duplicate</button><button id="delete-layer" class="danger">Delete</button></div>`;
+      }
+      function select(id) {
+        selected = id;
+        drawLayers();
+        drawInspector();
+        paint();
+      }
+      function updateProperty(key, value) {
+        const item = layer();
+        if (!item) return;
+        item[key] = value;
+        if (
+          ["fontSize", "font", "weight", "text", "lineHeight", "lineGap", "highlight"].includes(
+            key,
+          ) &&
+          ["text", "github"].includes(item.kind)
+        ) {
+          textMetrics(item);
+          $("layer-width").value = round(item.w);
+          $("layer-height").value = round(item.h);
+        }
+        changed(false);
+      }
+
+      $("inspector").addEventListener("focusin", (event) => {
+        if (event.target.matches("input,textarea,select")) fieldRecorded = false;
+      });
+      $("inspector").addEventListener("input", (event) => {
+        const { id, value, type, checked } = event.target;
+        if (!fieldRecorded) {
+          record();
+          fieldRecorded = true;
+        }
+        if (id === "background") {
+          doc().background = value;
+          changed(false);
+          return;
+        }
+        if (["start-x", "start-y", "end-x", "end-y", "curvature", "stroke-width"].includes(id)) {
+          const item = layer(),
+            number = Number(value);
+          if (!item || !Number.isFinite(number)) return;
+          const { a, b } = arrowPoints(item);
+          a.x += item.x;
+          a.y += item.y;
+          b.x += item.x;
+          b.y += item.y;
+          if (id === "start-x") a.x = number;
+          if (id === "start-y") a.y = number;
+          if (id === "end-x") b.x = number;
+          if (id === "end-y") b.y = number;
+          if (id === "stroke-width") {
+            if (number <= 0) return;
+            item.strokeWidth = number;
+          }
+          reframeArrow(
+            item,
+            a,
+            b,
+            id === "curvature" ? Math.max(-2, Math.min(2, number / 100)) : item.curvature,
+          );
+          if (id === "curvature") event.target.value = round(item.curvature * 100);
+          for (const [field, key] of [
+            ["pos-x", "x"],
+            ["pos-y", "y"],
+            ["layer-width", "w"],
+            ["layer-height", "h"],
+          ])
+            $(field).value = round(item[key]);
+          changed(false);
+          return;
+        }
+        const map = {
+          "pos-x": "x",
+          "pos-y": "y",
+          "text-value": "text",
+          "font-family": "font",
+          "font-size": "fontSize",
+          "font-weight": "weight",
+          "text-color": "color",
+          "line-height": "lineHeight",
+          "line-gap": "lineGap",
+          "highlight-word": "highlight",
+          "highlight-color": "highlightColor",
+          address: "address",
+          "arrow-color": "color",
+          locked: "locked",
+          visible: "visible",
+        };
+        if (id === "layer-width" || id === "layer-height") {
+          const item = layer(),
+            number = Number(value);
+          if (!item || number <= 0) return;
+          const ratio = number / (id === "layer-width" ? item.w : item.h);
+          resizeLayer(item, ratio);
+          changed(false);
+          return;
+        }
+        if (!map[id]) return;
+        const next =
+          type === "checkbox"
+            ? checked
+            : type === "number" || id === "font-weight"
+              ? Number(value)
+              : value;
+        if (typeof next === "number" && !Number.isFinite(next)) return;
+        if (id === "font-size" && next < 1) return;
+        updateProperty(map[id], next);
+      });
+      $("inspector").addEventListener("change", () => {
+        drawLayers();
+        paint();
+        save();
+      });
+      $("inspector").addEventListener("click", (event) => {
+        const id = event.target.id,
+          item = layer();
+        if (!item) return;
+        if (id === "replace-image") {
+          pendingAsset = item.id;
+          $("image-file").click();
+        }
+        if (id === "delete-layer") {
+          record();
+          doc().layers = doc().layers.filter((value) => value.id !== item.id);
+          selected = null;
+          changed();
+        }
+        if (id === "duplicate") {
+          record();
+          const copy = clone(item);
+          copy.id = "layer-" + crypto.randomUUID();
+          copy.name += " copy";
+          copy.x += 12;
+          copy.y += 12;
+          doc().layers.push(copy);
+          selected = copy.id;
+          changed();
+        }
+        if (id === "to-front") reorderLayer(doc().layers.length - 1);
+        if (id === "to-back") reorderLayer(0);
+        if (id === "forward" || id === "backward") {
+          const index = doc().layers.indexOf(item),
+            target = index + (id === "forward" ? 1 : -1);
+          if (target >= 0 && target < doc().layers.length) {
+            record();
+            [doc().layers[index], doc().layers[target]] = [
+              doc().layers[target],
+              doc().layers[index],
+            ];
+            changed();
+          }
+        }
+      });
+      $("layer-list").addEventListener("click", (event) => {
+        const button = event.target.closest("button");
+        if (!button) return;
+        if (button.dataset.select) select(button.dataset.select);
+        if (button.dataset.visible) {
+          record();
+          const item = doc().layers.find((layer) => layer.id === button.dataset.visible);
+          item.visible = !item.visible;
+          changed();
+        }
+      });
+      $("layer-picker").onchange = (event) => select(event.target.value);
+      function reorderLayer(target) {
+        const item = layer(),
+          index = doc().layers.indexOf(item);
+        if (index < 0 || target === index) return;
+        record();
+        doc().layers.splice(index, 1);
+        doc().layers.splice(target, 0, item);
+        changed();
+      }
+      $("snapping").onchange = () => {
+        snapGuides = [];
+        paint();
+      };
+      $("divisions").onchange = () => {
+        snapGuides = [];
+        paint();
+      };
+
+      function localPoint(event) {
+        const rect = canvas.getBoundingClientRect();
+        return { x: (event.clientX - rect.left) / zoom, y: (event.clientY - rect.top) / zoom };
+      }
+      function resizeLayer(item, ratio) {
+        item.w *= ratio;
+        item.h *= ratio;
+        for (const key of ["fontSize", "lineGap", "iconSize", "gap", "bar", "strokeWidth"])
+          if (item[key] !== undefined) item[key] *= ratio;
+      }
+      canvas.addEventListener("pointerdown", (event) => {
+        if (!ready || event.button !== 0) return;
+        const point = localPoint(event),
+          current = layer();
+        let handle = null;
+        if (current?.visible && !current.locked) {
+          const radius = 8 / zoom;
+          if (current.kind === "arrow") {
+            const points = arrowPoints(current);
+            for (const [name, p] of [
+              ["start", points.a],
+              ["end", points.b],
+              ["curve", points.c],
+            ])
+              if (Math.hypot(point.x - current.x - p.x, point.y - current.y - p.y) < radius) {
+                handle = name;
+                break;
+              }
+          }
+          if (!handle)
+            for (const [name, x, y] of [
+              ["nw", current.x, current.y],
+              ["ne", current.x + current.w, current.y],
+              ["sw", current.x, current.y + current.h],
+              ["se", current.x + current.w, current.y + current.h],
+            ])
+              if (Math.hypot(point.x - x, point.y - y) < radius) {
+                handle = name;
+                break;
+              }
+        }
+        const hit = handle
+          ? current
+          : doc()
+              .layers.slice()
+              .reverse()
+              .find(
+                (item) =>
+                  item.visible &&
+                  !item.locked &&
+                  point.x >= item.x &&
+                  point.x <= item.x + item.w &&
+                  point.y >= item.y &&
+                  point.y <= item.y + item.h,
+              );
+        select(hit?.id || null);
+        if (!hit) return;
+        record();
+        drag = { start: point, initial: clone(hit), handle };
+        canvas.setPointerCapture(event.pointerId);
+        event.preventDefault();
+      });
+      canvas.addEventListener("pointermove", (event) => {
+        if (!drag) return;
+        const item = layer(),
+          point = localPoint(event),
+          dx = point.x - drag.start.x,
+          dy = point.y - drag.start.y;
+        if (!item) return;
+        snapGuides = [];
+        const snapping = $("snapping").checked && !event.altKey;
+        if (["start", "end", "curve"].includes(drag.handle)) {
+          const initial = drag.initial,
+            { a, b } = arrowPoints(initial);
+          a.x += initial.x;
+          a.y += initial.y;
+          b.x += initial.x;
+          b.y += initial.y;
+          const target = snapping ? snapPoint(point, item) : point;
+          let curvature = initial.curvature;
+          if (drag.handle === "start") Object.assign(a, target);
+          if (drag.handle === "end") Object.assign(b, target);
+          if (drag.handle === "curve") {
+            const vx = b.x - a.x,
+              vy = b.y - a.y;
+            curvature = Math.max(
+              -2,
+              Math.min(
+                2,
+                ((target.x - (a.x + b.x) / 2) * -vy + (target.y - (a.y + b.y) / 2) * vx) /
+                  Math.max(1, vx * vx + vy * vy),
+              ),
+            );
+          }
+          Object.assign(item, clone(initial));
+          reframeArrow(item, a, b, curvature);
+        } else if (drag.handle) {
+          const initial = drag.initial;
+          let dw = drag.handle.endsWith("w") ? -dx : dx,
+            dh = drag.handle.startsWith("n") ? -dy : dy;
+          let ratio = Math.max(
+            MIN_SCALE,
+            1 + (dw * initial.w + dh * initial.h) / (initial.w * initial.w + initial.h * initial.h),
+          );
+          if (snapping) ratio = snapResize(initial, drag.handle, ratio);
+          Object.assign(item, clone(initial));
+          resizeLayer(item, ratio);
+          if (drag.handle.endsWith("w")) item.x = initial.x + initial.w - item.w;
+          if (drag.handle.startsWith("n")) item.y = initial.y + initial.h - item.h;
+        } else {
+          item.x = drag.initial.x + dx;
+          item.y = drag.initial.y + dy;
+          if (snapping) snapMove(item);
+        }
+        if (item.kind === "arrow") {
+          const { a, b } = arrowPoints(item);
+          for (const [id, value] of [
+            ["start-x", item.x + a.x],
+            ["start-y", item.y + a.y],
+            ["end-x", item.x + b.x],
+            ["end-y", item.y + b.y],
+            ["curvature", item.curvature * 100],
+          ])
+            if ($(id)) $(id).value = round(value);
+        }
+        paint();
+        ["pos-x", "pos-y", "layer-width", "layer-height"].forEach((id, index) => {
+          const input = $(id);
+          if (input) input.value = round([item.x, item.y, item.w, item.h][index]);
+        });
+      });
+      function endDrag() {
+        if (!drag) return;
+        drag = null;
+        snapGuides = [];
+        changed();
+        save();
+      }
+      canvas.addEventListener("pointerup", endDrag);
+      canvas.addEventListener("pointercancel", endDrag);
+      canvas.addEventListener("dblclick", () => {
+        const input = $("text-value");
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      });
+
+      function undo() {
+        if (!undoStack.length) return;
+        redoStack.push(clone(doc()));
+        documents[active] = undoStack.pop();
+        changed();
+        syncCanvasControls();
+        fitView();
+      }
+      function redo() {
+        if (!redoStack.length) return;
+        undoStack.push(clone(doc()));
+        documents[active] = redoStack.pop();
+        changed();
+        syncCanvasControls();
+        fitView();
+      }
+      $("undo").onclick = undo;
+      $("redo").onclick = redo;
+      window.addEventListener("keydown", (event) => {
+        if (event.target.closest("input,textarea,select")) return;
+        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") {
+          event.preventDefault();
+          event.shiftKey ? redo() : undo();
+          return;
+        }
+        if (
+          (event.metaKey || event.ctrlKey) &&
+          event.shiftKey &&
+          ["BracketRight", "BracketLeft"].includes(event.code)
+        ) {
+          event.preventDefault();
+          reorderLayer(event.code === "BracketRight" ? doc().layers.length - 1 : 0);
+          return;
+        }
+        const item = layer();
+        if (!item || item.locked) return;
+        const directions = {
+          ArrowLeft: [-1, 0],
+          ArrowRight: [1, 0],
+          ArrowUp: [0, -1],
+          ArrowDown: [0, 1],
+        };
+        if (directions[event.key]) {
+          event.preventDefault();
+          record();
+          const amount = event.shiftKey ? 10 : 1;
+          item.x += directions[event.key][0] * amount;
+          item.y += directions[event.key][1] * amount;
+          changed();
+        }
+        if (event.key === "Delete" || event.key === "Backspace") {
+          event.preventDefault();
+          $("delete-layer")?.click();
+        }
+      });
+      $("template").onchange = (event) => switchTemplate(event.target.value);
+      $("apply-size").onclick = () => {
+        const width = Number($("canvas-width").value),
+          height = Number($("canvas-height").value);
+        if (
+          !Number.isInteger(width) ||
+          !Number.isInteger(height) ||
+          width < 1 ||
+          height < 1 ||
+          width > 8192 ||
+          height > 8192
+        ) {
+          status("Enter canvas dimensions from 1 to 8192");
+          return;
+        }
+        record();
+        const ratio = Math.min(width / doc().width, height / doc().height);
+        for (const item of doc().layers) {
+          item.x *= ratio;
+          item.y *= ratio;
+          resizeLayer(item, ratio);
+        }
+        doc().width = width;
+        doc().height = height;
+        manualZoom = false;
+        changed();
+        fitView();
+      };
+      $("zoom-in").onclick = () => {
+        zoom *= 1.15;
+        manualZoom = true;
+        fitView();
+      };
+      $("zoom-out").onclick = () => {
+        zoom /= 1.15;
+        manualZoom = true;
+        fitView();
+      };
+      $("zoom-label").onclick = () => {
+        manualZoom = false;
+        fitView();
+      };
+      $("reset-layout").onclick = () => {
+        record();
+        documents[active] = clone(bundle.templates[active]);
+        initializeMetrics(doc());
+        manualZoom = false;
+        selected = "headline";
+        syncCanvasControls();
+        changed();
+        fitView();
+      };
+      function addText() {
+        record();
+        const id = "layer-" + crypto.randomUUID();
+        doc().layers.push({
+          id,
+          kind: "text",
+          name: "New text",
+          x: 30,
+          y: 30,
+          w: 200,
+          h: 50,
+          text: "New text",
+          font: "system",
+          fontSize: 28,
+          weight: 700,
+          lineHeight: 1.2,
+          lineGap: 0,
+          color: "#101112",
+          visible: true,
+          locked: false,
+          highlight: "",
+        });
+        selected = id;
+        textMetrics(layer());
+        changed();
+      }
+      $("add-text").onclick = addText;
+      $("add-image").onclick = () => {
+        pendingAsset = "new";
+        $("image-file").click();
+      };
+      $("image-file").onchange = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        try {
+          const data = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+          const key = "upload-" + crypto.randomUUID();
+          const image = await loadImage(key, data);
+          record();
+          assets[key] = data;
+          if (pendingAsset === "new") {
+            const id = "layer-" + crypto.randomUUID(),
+              width = Math.min(doc().width * 0.45, image.width);
+            doc().layers.push({
+              id,
+              kind: "image",
+              name: file.name,
+              x: 30,
+              y: 30,
+              w: width,
+              h: (width * image.height) / image.width,
+              asset: key,
+              visible: true,
+              locked: false,
+            });
+            selected = id;
+          } else {
+            const item = doc().layers.find((item) => item.id === pendingAsset);
+            if (item) item.asset = key;
+          }
+          changed();
+          status("Image replaced");
+        } catch (error) {
+          status(error.message || "Could not load image");
+        } finally {
+          event.target.value = "";
+          pendingAsset = null;
+        }
+      };
+      function download(blob, name) {
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.download = name;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 15000);
+      }
+      $("export-png").onclick = async () => {
+        const button = $("export-png");
+        button.disabled = true;
+        status("Exporting…");
+        try {
+          await document.fonts.ready;
+          const scale = Number($("export-scale").value);
+          const output = document.createElement("canvas");
+          output.width = doc().width * scale;
+          output.height = doc().height * scale;
+          const context = output.getContext("2d", { colorSpace: "srgb" });
+          context.scale(scale, scale);
+          render(context, false);
+          const blob = await new Promise((resolve) => output.toBlob(resolve, "image/png"));
+          if (!blob) throw new Error("Export failed");
+          download(blob, `xprite-${doc().language}-${output.width}x${output.height}.png`);
+          status(`Exported ${output.width} × ${output.height}`);
+        } catch (error) {
+          status(error.message);
+        } finally {
+          button.disabled = false;
+        }
+      };
+      $("save-project").onclick = () => {
+        const uploads = Object.fromEntries(
+          Object.entries(assets).filter(([key]) => !bundle.assets[key]),
+        );
+        download(
+          new Blob(
+            [
+              JSON.stringify(
+                { format: "xprite-cover-layout", version: 2, documents, active, uploads },
+                null,
+                2,
+              ),
+            ],
+            { type: "application/json" },
+          ),
+          "xprite-cover-layout.json",
+        );
+        status("Layout saved");
+      };
+      $("load-project").onclick = () => {
+        importMode = "open";
+        $("project-file").click();
+      };
+      $("apply-layout").onclick = () => {
+        importMode = "apply";
+        $("project-file").click();
+      };
+      function validDocuments(value) {
+        if (!value || typeof value !== "object") return false;
+        return Object.values(value).every(
+          (document) =>
+            Number.isInteger(document.width) &&
+            Number.isInteger(document.height) &&
+            document.width >= 1 &&
+            document.width <= 8192 &&
+            document.height >= 1 &&
+            document.height <= 8192 &&
+            typeof document.background === "string" &&
+            Array.isArray(document.layers) &&
+            document.layers.length <= 200 &&
+            document.layers.every(
+              (item) =>
+                typeof item.id === "string" &&
+                ["text", "image", "brand", "github", "desktop", "phone", "arrow"].includes(
+                  item.kind,
+                ) &&
+                ["x", "y", "w", "h"].every((key) => Number.isFinite(item[key])) &&
+                item.w > 0 &&
+                item.h > 0 &&
+                (item.kind !== "arrow" ||
+                  (item.start &&
+                    item.end &&
+                    [
+                      item.start.x,
+                      item.start.y,
+                      item.end.x,
+                      item.end.y,
+                      item.curvature,
+                      item.strokeWidth,
+                    ].every(Number.isFinite) &&
+                    item.strokeWidth > 0)),
+            ),
+        );
+      }
+      $("project-file").onchange = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        try {
+          const project = JSON.parse(await file.text());
+          if (
+            project.format !== "xprite-cover-layout" ||
+            project.version !== 2 ||
+            !validDocuments(project.documents) ||
+            !project.documents[project.active]
+          )
+            throw new Error("Select a Cover Studio layout file");
+          const uploads = project.uploads || {};
+          for (const data of Object.values(uploads))
+            if (typeof data !== "string" || !data.startsWith("data:image/"))
+              throw new Error("Invalid layout image");
+          await Promise.all(Object.entries(uploads).map(([key, data]) => loadImage(key, data)));
+          Object.assign(assets, uploads);
+          if (importMode === "apply") applyLayout(project.documents[project.active]);
+          else {
+            documents = { ...clone(bundle.templates), ...project.documents };
+            active = project.active;
+            initializeMetrics(doc());
+            selected = null;
+            undoStack = [];
+            redoStack = [];
+            manualZoom = false;
+            syncCanvasControls();
+            changed();
+            fitView();
+            save();
+            status("Project opened");
+          }
+        } catch (error) {
+          status(error.message || "Could not open layout");
+        } finally {
+          event.target.value = "";
+          importMode = "open";
+        }
+      };
+      function initializeMetrics(document) {
+        for (const item of document.layers)
+          if (["text", "github"].includes(item.kind)) {
+            textMetrics(item, !!item.fit);
+            delete item.fit;
+          }
+      }
+      async function initialize() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+          if (saved && validDocuments(saved.documents) && saved.documents[saved.active]) {
+            documents = { ...documents, ...saved.documents };
+            active = saved.active;
+            for (const [key, data] of Object.entries(saved.uploads || {}))
+              if (typeof data === "string" && data.startsWith("data:image/")) assets[key] = data;
+          }
+        } catch {}
+        await Promise.all(
+          Object.entries(bundle.fonts).map(async ([key, font]) => {
+            const face = new FontFace("Cover-" + key, `url(${font.data})`, { weight: "100 900" });
+            await face.load();
+            document.fonts.add(face);
+          }),
+        );
+        await Promise.all(Object.entries(assets).map(([key, data]) => loadImage(key, data)));
+        await document.fonts.ready;
+        for (const document of Object.values(documents)) initializeMetrics(document);
+        ready = true;
+        syncCanvasControls();
+        drawLayers();
+        drawInspector();
+        fitView();
+        status("");
+        document.documentElement.dataset.editorReady = "true";
+      }
+      new ResizeObserver(() => {
+        if (ready) fitView();
+      }).observe($("stage-area"));
+      initialize().catch((error) => status("Could not load: " + error.message));
+    })();
+  </script>
+</html>

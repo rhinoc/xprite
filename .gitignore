@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Generated builds
+dist/
+
+# Python/TypeScript/build caches
+__pycache__/
+scripts/__pycache__/
+*.tsbuildinfo
+coverage/
+
+# OS/editor noise
+.DS_Store
+*.swp
+*~
+npm-debug.log*
+pnpm-debug.log*
+
+# Local service configuration and deployment credentials
+.env
+.env.local
+.env.*.local
+.edgeone/
+
+# Temporary files
+.tmp/
+.refs/
+.docs/
+.vitest/
+.codex/

@@ -1,0 +1,38 @@
+.positioned {
+  display: inline-block;
+  font-style: normal;
+  font-weight: 400;
+  font-kerning: none;
+  font-variant-ligatures: none;
+  font-synthesis: none;
+  -webkit-font-smoothing: none;
+}
+
+.positioned[data-font="default"] {
+  font-size: var(--ui-text-size, var(--ui-text-default-size, 14px));
+  line-height: var(--ui-text-size, var(--ui-text-default-size, 14px));
+}
+
+.positioned[data-font="mini"] {
+  font-size: var(--ui-text-mini-size, 12px);
+  line-height: var(--ui-text-mini-line, 10px);
+}
+
+.miniLatin,
+.miniCjk {
+  line-height: var(--ui-text-mini-line, 10px);
+}
+
+.miniLatin {
+  font-size: var(--ui-text-mini-cjk-size, 10px);
+  font-family: sans-serif;
+}
+
+.miniCjk {
+  font-size: var(--ui-text-mini-cjk-size, 10px);
+}
+
+.miniGlyph {
+  display: inline-block;
+  vertical-align: top;
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreBinaries": ["c\\+\\+", "clang\\+\\+", "ego-browser"],
+  "ignoreDependencies": ["@posthog/cli", "dependency-cruiser", "edgeone"],
+  "workspaces": {
+    ".": {
+      "entry": [
+        "scripts/**/*.{js,cjs,mjs,jsx,ts,tsx,cts,mts}",
+        ".agents/skills/**/scripts/*.mjs",
+        "infra/dependency-cruiser*.cjs"
+      ]
+    },
+    "apps/editor": {
+      "entry": [
+        "{index,cli,main}.{js,cjs,mjs,jsx,ts,cts,mts,tsx}",
+        "src/{index,cli,main}.{js,cjs,mjs,jsx,ts,cts,mts,tsx}",
+        "src/adapters/minitool/{main.tsx,boot-guard.js,runtime-compat.ts,integer64.ts,images.ts,aseprite-files.ts,storage.ts,files.ts,clipboard.ts,pixel-alignment.ts}",
+        "assets/public/sw.js",
+        "src/managers/menus/shortcut-availability.ts"
+      ]
+    },
+    "packages/ui": {
+      "entry": ["src/{index,assets,canvas,cursor,popover,utils}.ts"]
+    }
+  }
+}

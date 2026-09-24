@@ -1,0 +1,41 @@
+.root {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  outline: none;
+}
+
+.root:focus-visible {
+  outline: 1px dotted var(--xse-border, #202528);
+  outline-offset: -2px;
+}
+
+.artwork {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  transform-origin: top left;
+}
+
+.option {
+  position: absolute;
+  display: block;
+  box-sizing: border-box;
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: var(--ui-cursor-hand, pointer);
+  pointer-events: auto;
+}
+
+.option:disabled {
+  cursor: default;
+}

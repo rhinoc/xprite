@@ -1,0 +1,209 @@
+{
+  "images/zh/layout-menu.webp": {
+    "width": 160,
+    "height": 230,
+    "capturedAt": "2026-10-03T07:39:02.395Z",
+    "source": "http://localhost:5173/editor",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "clip": {
+      "x": 1032,
+      "y": 14,
+      "width": 160,
+      "height": 230
+    },
+    "selectors": [
+      "button[role=\"combobox\"][aria-label=\"工作区布局\"]",
+      "[role=\"listbox\"][aria-label=\"工作区布局\"]"
+    ]
+  },
+  "images/zh/file-menu.webp": {
+    "width": 224,
+    "height": 152,
+    "capturedAt": "2026-10-03T07:28:53.811Z",
+    "source": "http://localhost:5173/editor",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "clip": {
+      "x": 0,
+      "y": 0,
+      "width": 224,
+      "height": 152
+    },
+    "selectors": [
+      "[role=\"menubar\"] button[aria-label=\"文件\"]",
+      "[role=\"menu\"][aria-label=\"文件\"] button[aria-label=\"另存为...\"]"
+    ]
+  },
+  "images/zh/save-as.webp": {
+    "width": 376,
+    "height": 336,
+    "capturedAt": "2026-10-03T07:29:28.024Z",
+    "source": "http://localhost:5173/editor",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "clip": {
+      "x": 452,
+      "y": 282,
+      "width": 376,
+      "height": 336
+    },
+    "selectors": ["[role=\"dialog\"][aria-label=\"另存为\"]"]
+  },
+  "images/zh/touch-settings.webp": {
+    "width": 698,
+    "height": 458,
+    "capturedAt": "2026-10-03T07:30:28.645Z",
+    "source": "http://localhost:5173/editor",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "clip": {
+      "x": 380,
+      "y": 152,
+      "width": 698,
+      "height": 458
+    },
+    "selectors": [
+      "button[role=\"combobox\"][aria-label=\"单指操作\"]",
+      "button[aria-label=\"双指轻点撤销\"]",
+      "button[role=\"combobox\"][aria-label=\"取色延迟（毫秒）\"]"
+    ]
+  },
+  "images/zh/view-show.webp": {
+    "width": 226,
+    "height": 304,
+    "capturedAt": "2026-10-03T07:30:29.267Z",
+    "source": "http://localhost:5173/editor",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "clip": {
+      "x": 736,
+      "y": 16,
+      "width": 226,
+      "height": 304
+    },
+    "selectors": ["[role=\"menu\"][aria-label=\"显示\"]"]
+  },
+  "images/shared/layout-button.webp": {
+    "width": 80,
+    "height": 40,
+    "capturedAt": "2026-10-03T07:30:29.410Z",
+    "source": "http://localhost:5173/editor",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "clip": {
+      "x": 1176,
+      "y": 14,
+      "width": 80,
+      "height": 40
+    },
+    "selectors": [".xse-layout-button", ".xse-workspace-settings-button"]
+  },
+  "images/en/layout-menu.webp": {
+    "width": 206,
+    "height": 230,
+    "capturedAt": "2026-10-03T07:39:03.980Z",
+    "source": "http://localhost:5173/editor",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "clip": {
+      "x": 1032,
+      "y": 14,
+      "width": 206,
+      "height": 230
+    },
+    "selectors": [
+      "button[role=\"combobox\"][aria-label=\"Workspace layout\"]",
+      "[role=\"listbox\"][aria-label=\"Workspace layout\"]"
+    ]
+  },
+  "images/en/view-show.webp": {
+    "width": 250,
+    "height": 304,
+    "capturedAt": "2026-10-03T07:34:17.754Z",
+    "source": "http://localhost:5173/editor",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "clip": {
+      "x": 852,
+      "y": 16,
+      "width": 250,
+      "height": 304
+    },
+    "selectors": ["[role=\"menu\"][aria-label=\"Show\"]"]
+  },
+  "images/en/file-menu.webp": {
+    "width": 272,
+    "height": 152,
+    "capturedAt": "2026-10-03T07:34:18.126Z",
+    "source": "http://localhost:5173/editor",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "clip": {
+      "x": 0,
+      "y": 0,
+      "width": 272,
+      "height": 152
+    },
+    "selectors": [
+      "[role=\"menubar\"] button[aria-label=\"File\"]",
+      "[role=\"menu\"][aria-label=\"File\"] button[aria-label=\"Save As...\"]"
+    ]
+  },
+  "images/en/save-as.webp": {
+    "width": 376,
+    "height": 336,
+    "capturedAt": "2026-10-03T07:34:42.328Z",
+    "source": "http://localhost:5173/editor",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "clip": {
+      "x": 452,
+      "y": 282,
+      "width": 376,
+      "height": 336
+    },
+    "selectors": ["[role=\"dialog\"][aria-label=\"Save As\"]"]
+  },
+  "images/en/touch-settings.webp": {
+    "width": 698,
+    "height": 458,
+    "capturedAt": "2026-10-03T07:34:55.094Z",
+    "source": "http://localhost:5173/editor",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "clip": {
+      "x": 380,
+      "y": 152,
+      "width": 698,
+      "height": 458
+    },
+    "selectors": [
+      "button[role=\"combobox\"][aria-label=\"Single-finger action\"]",
+      "button[aria-label=\"Two-finger tap to undo\"]",
+      "button[role=\"combobox\"][aria-label=\"Color-pick delay (ms)\"]"
+    ]
+  }
+}

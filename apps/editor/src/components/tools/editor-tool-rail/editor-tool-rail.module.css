@@ -1,0 +1,18 @@
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-control-gap, 8px);
+  width: 100%;
+  min-width: 0;
+}
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 0 0 auto;
+}
+
+.selectedTool {
+  width: max-content;
+  max-width: 100%;
+}

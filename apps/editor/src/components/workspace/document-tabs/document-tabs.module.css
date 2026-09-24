@@ -1,0 +1,116 @@
+:global(.xse-tab-strip.xse-document-tabs) {
+  box-sizing: border-box;
+  padding: 0;
+  align-items: stretch;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  touch-action: pan-x;
+  background: var(--ui-menu-normal-face);
+}
+
+:global(.xse-tab-strip.xse-document-tabs::-webkit-scrollbar) {
+  display: none;
+}
+
+:global(.xse-tab-strip .xse-document-tab-menu-controls) {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex: 0 0 32px;
+  align-self: flex-start;
+  align-items: center;
+  width: 32px;
+  height: 24px;
+  pointer-events: auto;
+}
+
+:global(.xse-tab-strip .xse-layout-button),
+:global(.xse-tab-strip .xse-workspace-settings-button) {
+  position: relative;
+  flex: 0 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 24px;
+  z-index: 5;
+  box-sizing: border-box;
+  appearance: none;
+  background: transparent;
+  color: var(--xse-window-menuitem-normal-text, currentColor);
+  border: 0;
+  margin: 0;
+  padding: 0;
+  pointer-events: auto;
+  cursor: var(--ui-cursor-hand, pointer);
+  --xse-layout-button-icon-color: var(--xse-window-menuitem-normal-text, currentColor);
+}
+:global(.xse-tab-strip .xse-layout-icon-frame) {
+  position: relative;
+  flex: none;
+  width: 10px;
+  height: 12px;
+  pointer-events: none;
+}
+:global(.xse-tab-strip .xse-layout-icon) {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+:global(.xse-tab-strip .xse-layout-button:hover:not(:disabled)),
+:global(.xse-tab-strip .xse-workspace-settings-button:hover:not(:disabled)) {
+  background: var(--xse-window-menuitem-hot-face, #ffebb6);
+  color: var(--xse-window-menuitem-hot-text, #000000);
+  --xse-layout-button-icon-color: var(--xse-window-menuitem-hot-text, #000000);
+}
+:global(.xse-tab-strip .xse-layout-button:focus-visible),
+:global(.xse-tab-strip .xse-workspace-settings-button:focus-visible) {
+  outline: var(--ui-focus-ring-width, 1px) dotted var(--ui-focus-ring-color, currentColor);
+  outline-offset: -2px;
+}
+:global(.xse-tab-strip .xse-layout-button[data-open="true"]) {
+  outline: var(--ui-border-width, 1px) dotted var(--ui-menu-highlight-face, currentColor);
+  outline-offset: -2px;
+}
+:global(.xse-tab-strip .xse-layout-button[data-workspace-layout-trigger][data-open="true"]) {
+  background: var(--xse-window-tooltip-face, #ffff7d);
+  color: var(--xse-window-tooltip-text, #000000);
+  --xse-layout-button-icon-color: var(--xse-window-tooltip-text, #000000);
+}
+:global(.xse-tab-strip .xse-document-tab-controls) {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex: 0 0 auto;
+  height: var(--ui-tab-control-height, 24px);
+  align-self: flex-start;
+  align-items: center;
+  pointer-events: auto;
+  overflow: hidden;
+}
+:global(
+  .xse-tab-strip .xse-document-tab-controls .xse-layout-button[data-workspace-layout-trigger]
+) {
+  flex-basis: 32px;
+  width: 32px;
+  height: 100%;
+  margin-left: 0;
+}
+:global(.xse-tab-strip .xse-document-notifications) {
+  position: relative;
+  display: block;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 100%;
+}
+:global(.xse-tab-strip .xse-notifications-button) {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 32px;
+  height: 100%;
+  z-index: 4;
+  background: transparent;
+}

@@ -1,0 +1,4 @@
+/* Canvas Size lets editor rulers receive input outside its window. */
+:global(.xse-size-dialog) {
+  pointer-events: auto;
+}

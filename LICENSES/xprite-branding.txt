@@ -1,0 +1,61 @@
+Xprite brand asset license
+
+Copyright (c) 2026 rhinoc. All rights reserved.
+
+Scope
+
+This license applies to the Xprite brand icon, logo and mascot artwork in:
+
+- apps/editor/assets/examples/xprite/xprite.ase (the brand artwork source project)
+- apps/editor/assets/examples/xprite/xprite-preview.webp
+- apps/editor/assets/public/icon.svg
+- apps/editor/assets/public/icon-192.png
+- apps/editor/assets/public/icon-512.png
+- apps/editor/assets/public/favicon.ico
+- apps/editor/assets/public/favicon-16.png
+- apps/editor/assets/public/favicon-32.png
+- apps/editor/assets/public/startup-loading.webp
+- apps/editor/assets/home/icon-frame-1.webp
+- apps/editor/assets/home/icon-frame-2.webp
+
+Copies, resized versions and animation frames of these brand assets, including
+scripts/marketing-cover/inputs/icon.png, are covered by the same terms.
+
+The bundled example is the source project for the Xprite brand icon and
+favicons. Its inclusion as an editable example does not grant an open artwork
+license. The source project and its previews, exports and animation frames
+are covered by this same brand asset license.
+
+These assets are licensed separately from the software. They are not covered
+by GPL-2.0-only, the UI package's MIT license, or CC BY 4.0. Ordinary tool and
+interface icons and third-party assets are outside the scope of this license
+and retain their own licenses.
+
+Permission
+
+You may use and display these assets as included in Xprite when running the
+application. You may copy them unchanged as part of an unchanged copy of
+Xprite, provided that this notice is retained and the copy is not presented
+as endorsed by the copyright holder.
+
+You may also open and edit the bundled source project locally for learning
+and personal experimentation. This permission does not extend to publishing
+or distributing modified brand artwork or using it as another product's
+branding.
+
+Any other copying, modification, distribution, sublicensing or sale of these
+assets requires prior written permission from rhinoc. In particular, these
+assets may not be used as the branding of a fork, another application,
+website, service or merchandise without that permission. Forks and modified
+distributions must replace the brand assets unless separately authorized.
+
+No trademark rights or permission to imply affiliation, sponsorship or
+endorsement are granted. All rights not expressly granted are reserved.
+Nothing in this license limits rights granted by applicable law, the
+software's GPL or MIT licenses, or the separate licenses of other assets.
+
+For permission requests, contact rhinoc through https://github.com/rhinoc.
+
+The assets are provided "as is", without warranty of any kind. To the extent
+permitted by applicable law, the copyright holder is not liable for any claim,
+damages or other liability arising from the use of these assets.

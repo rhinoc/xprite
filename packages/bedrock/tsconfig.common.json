@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": [],
+    "lib": ["ES2020"],
+    "composite": true,
+    "tsBuildInfoFile": "../../node_modules/.tmp/bedrock-common.tsbuildinfo"
+  },
+  "include": ["common/**/*.ts"],
+  "exclude": ["**/*.test.ts"]
+}

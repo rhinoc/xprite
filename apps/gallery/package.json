@@ -1,0 +1,18 @@
+{
+  "name": "@xprite/gallery-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "pnpm -w run gallery:generate",
+    "predev": "pnpm -w run build:ui && pnpm -w run gallery:generate",
+    "dev": "vite",
+    "prebuild": "pnpm -w run build:ui && pnpm -w run gallery:generate",
+    "build": "tsc -b tsconfig.json && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@xprite/ui": "workspace:*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

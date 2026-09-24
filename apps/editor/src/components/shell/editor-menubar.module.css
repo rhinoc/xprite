@@ -1,0 +1,15 @@
+:global(.xse-menubar-toggle-icon) {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+:global(.xse-menubar-toggle-icon > span) {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+}

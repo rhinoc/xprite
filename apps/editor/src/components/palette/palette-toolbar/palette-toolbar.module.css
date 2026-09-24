@@ -1,0 +1,28 @@
+:global(.xse-palette-toolbar) {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  gap: var(--ui-space-2, 4px);
+  z-index: 4;
+  height: 36px;
+  padding-inline: var(--ui-space-2, 4px);
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+}
+:global(.xse-palette .xse-palette-toolbar) {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+:global(.xse-palette-toolbar::-webkit-scrollbar) {
+  display: none;
+}
+
+:global(.xse-palette-toolbar > [data-slot="button"]) {
+  flex: 0 0 auto;
+}

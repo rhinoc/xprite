@@ -1,0 +1,13 @@
+{
+  "name": "@xprite/bedrock",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./common/*": "./common/*.ts",
+    "./browser/*": "./browser/*.ts"
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.json"
+  }
+}

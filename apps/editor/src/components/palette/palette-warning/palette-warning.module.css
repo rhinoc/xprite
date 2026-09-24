@@ -1,0 +1,19 @@
+.warningButton {
+  z-index: var(--ui-control-z-index, 4);
+  cursor: var(--ui-cursor-default, default);
+}
+
+.warningFace {
+  position: absolute;
+  inset: 0;
+  background: var(--ui-palette-warning-workspace);
+  pointer-events: none;
+}
+
+.warningButton[data-hot="true"] .warningFace {
+  background: var(--ui-palette-warning-hot);
+}
+
+.warningButton:disabled {
+  cursor: var(--ui-cursor-disabled, default);
+}

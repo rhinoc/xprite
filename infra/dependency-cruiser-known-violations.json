@@ -1,0 +1,23 @@
+[
+  {
+    "type": "cycle",
+    "from": "packages/editor-core/src/modules/color-mode/color-mode.ts",
+    "to": "packages/editor-core/src/modules/tile/model.ts",
+    "unresolvedTo": "../tile/model",
+    "dependencyTypes": ["local", "import"],
+    "rule": {
+      "severity": "error",
+      "name": "no-circular"
+    },
+    "cycle": [
+      {
+        "name": "packages/editor-core/src/modules/tile/model.ts",
+        "dependencyTypes": ["local", "import"]
+      },
+      {
+        "name": "packages/editor-core/src/modules/color-mode/color-mode.ts",
+        "dependencyTypes": ["local", "import"]
+      }
+    ]
+  }
+]

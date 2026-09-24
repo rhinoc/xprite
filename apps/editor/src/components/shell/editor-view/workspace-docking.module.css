@@ -1,0 +1,121 @@
+:global(.xse-workspace-viewport-tree),
+:global(.xse-workspace-pane),
+:global(.xse-workspace-pane-content),
+:global(.xse-workspace-split) {
+  min-width: 0;
+  min-height: 0;
+}
+
+:global(.xse-fixed-document-header) {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+:global(.xse-fixed-document-header .xse-document-tabs) {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 100%;
+}
+
+:global(.xse-editor-window.xse-editor-window .xse-touch-main.xse-touch-composition) {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  margin-inline: var(--xse-editor-horizontal-inset, 0px);
+}
+
+:global(.xse-editor-window .xse-status) {
+  margin-inline: var(--xse-editor-horizontal-inset, 0px);
+}
+:global(
+  .xse-editor-window.xse-editor-window[data-workspace-panel-arrangement="stacked"]
+    .xse-compact-editor-layout
+) {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+:global(
+  .xse-editor-window[data-workspace-panel-arrangement="stacked"]
+    .xse-compact-editor-layout.xse-touch-main
+) {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+:global(.xse-workspace-viewport-tree) {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+:global(.xse-workspace-pane) {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--xse-window-workspace, #7d929e);
+}
+
+:global(.xse-workspace-pane-content) {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  overflow: hidden;
+}
+
+:global(.xse-workspace-pane-content > .xse-viewport) {
+  flex: 1 1 0;
+}
+
+:global(.xse-workspace-split) {
+  display: grid;
+  flex: 1 1 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+:global(.xse-workspace-splitter) {
+  position: relative;
+  z-index: 4;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  border: 0;
+  outline: 0;
+  background: var(--xse-window-workspace, #7d929e);
+}
+:global(.xse-workspace-splitter:focus-visible) {
+  outline: 1px dotted var(--xse-window-focus, #2c4c91);
+  outline-offset: -1px;
+}
+
+:global(.xse-floating-tab) {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+:global(.xse-editor-window[data-ui-appearance="dark"] .xse-workspace-pane) {
+  background: var(--xse-window-panel-dark, #333333);
+}
+:global(.xse-editor-window[data-ui-appearance="dark"] .xse-workspace-splitter) {
+  background: var(--xse-window-panel-dark, #333333);
+}
+:global(.xse-editor-window[data-ui-appearance="dark"] .xse-workspace-splitter:focus-visible) {
+  outline-color: var(--xse-window-focus, #aebfe6);
+}

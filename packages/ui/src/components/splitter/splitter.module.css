@@ -1,0 +1,12 @@
+.splitter {
+  touch-action: none;
+  user-select: none;
+}
+
+.splitter[data-axis="horizontal"] {
+  cursor: var(--ui-cursor-resize-horizontal, col-resize);
+}
+
+.splitter[data-axis="vertical"] {
+  cursor: var(--ui-cursor-resize-vertical, row-resize);
+}

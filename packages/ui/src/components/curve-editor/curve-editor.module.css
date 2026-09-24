@@ -1,0 +1,87 @@
+.root {
+  --ui-curve-background: #000;
+  --ui-curve-border: #ff0;
+  --ui-curve-grid: #808000;
+  --ui-curve-line: #fff;
+  --ui-curve-point: #00f;
+  position: relative;
+  box-sizing: border-box;
+  background: var(--xse-window, #d3cbbe);
+  touch-action: none;
+  user-select: none;
+  cursor: var(--ui-cursor-hand, pointer);
+}
+
+.root:focus-visible {
+  outline: none;
+}
+
+.frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.graph {
+  position: absolute;
+  overflow: hidden;
+}
+
+.background {
+  fill: var(--ui-curve-background);
+}
+
+.border {
+  fill: none;
+  stroke: var(--ui-curve-border);
+  stroke-width: 1;
+}
+
+.grid {
+  fill: var(--ui-curve-grid);
+}
+
+.curve {
+  fill: var(--ui-curve-line);
+  pointer-events: none;
+}
+
+.hitTarget {
+  fill: transparent;
+}
+
+.point {
+  fill: none;
+  stroke: var(--ui-curve-point);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+.hotGuide,
+.editGuide {
+  visibility: hidden;
+  fill: none;
+  stroke: var(--ui-curve-border);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+.root:not([aria-disabled="true"]) .node:hover .hotGuide,
+.root:focus-visible .selected .hotGuide,
+.root:not([aria-disabled="true"]):active .selected .editGuide {
+  visibility: visible;
+}
+
+.root:active .node .hotGuide {
+  visibility: hidden;
+}
+
+.status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}

@@ -1,0 +1,59 @@
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483100;
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.workarea {
+  grid-row: 2;
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  min-width: 0;
+  padding: var(--ui-space-4, 8px);
+  outline: none;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-width: 720px;
+  max-height: 640px;
+  min-height: 0;
+  min-width: 0;
+  background: var(--xse-face, #2c2c30);
+  color: var(--xse-text, #c0c0c0);
+}
+
+.panel > [data-slot="panel-header"] {
+  flex: 0 0 auto;
+  padding: var(--ui-space-4, 8px);
+}
+
+.panel > [data-slot="panel-body"] {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--ui-space-4, 8px);
+}
+
+.report {
+  flex: 1 1 auto;
+  margin: var(--ui-space-4, 8px) 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+}
+
+.actions > * + * {
+  margin-left: var(--ui-space-4, 8px);
+}

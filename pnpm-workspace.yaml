@@ -1,0 +1,18 @@
+packages:
+  - apps/*
+  - packages/*
+
+allowBuilds:
+  '@posthog/cli': true
+  core-js: true
+  esbuild: true
+
+# dependency-cruiser 18 uses the TypeScript compiler API that changed in v7.
+packageExtensions:
+  dependency-cruiser@^18.4.0:
+    dependencies:
+      typescript: 6.0.3
+  # check-unused-css currently relies on typescript-estree, which supports TypeScript < 6.1.
+  check-unused-css@^0.5.5:
+    dependencies:
+      typescript: 6.0.3

@@ -1,0 +1,7 @@
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: var(--ui-layer-modal-backdrop, 2000);
+  pointer-events: auto;
+  touch-action: pan-x pan-y;
+}

@@ -1,0 +1,19 @@
+.lockRatio {
+  --xse-lock-ratio-icon-color: var(--xse-window-menuitem-normal-text, currentColor);
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+  cursor: var(--ui-cursor-hand, pointer);
+}
+
+.lockRatio:hover:not(:disabled) {
+  background: var(--xse-window-menuitem-hot-face, #ffebb6);
+  --xse-lock-ratio-icon-color: var(--xse-window-menuitem-hot-text, #000000);
+}
+
+.lockRatio:focus-visible {
+  outline: var(--ui-focus-ring-width, 1px) dotted var(--ui-focus-ring-color, currentColor);
+  outline-offset: -2px;
+}

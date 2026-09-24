@@ -1,0 +1,56 @@
+{
+  "renderer": "Native Chromium HTML/SVG composition",
+  "config": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/output/630x500/en/config.json",
+  "output": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/output/630x500/en/xprite-cover-en.png",
+  "canvas": [630, 500],
+  "render_canvas": [1344, 1067],
+  "device_scale_factor": 1,
+  "screenshot_resizing": false,
+  "final_image_resizing": true,
+  "inputs": {
+    "desktop": {
+      "path": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/output/630x500/en/desktop.png",
+      "size": [1238, 660],
+      "sha256": "794eb980fe4060ebf4368064190f1dc0e0f8a277500ead10559197526f147251"
+    },
+    "mobile": {
+      "path": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/output/630x500/en/mobile.png",
+      "size": [328, 622],
+      "sha256": "abeb9c5379a5a7329696767379923bf715aeeaea5266077dc6266c3db085181d"
+    },
+    "icon": {
+      "path": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/inputs/icon.png",
+      "size": [192, 192],
+      "sha256": "89599b930700e933c3f68501361d74671e722ce40804c479f1d96a5d7ec8212d"
+    },
+    "english_font": {
+      "path": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/inputs/fonts/spacegrotesk.ttf",
+      "family": "Space Grotesk",
+      "sha256": "acad6de1fc93436f5c0f1f4137751ef04f1aea3063e7036535970ffcfbd79f72"
+    },
+    "safari": {
+      "path": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/inputs/safari.png",
+      "size": [256, 256],
+      "sha256": "214dd888fc3feef1eef08b7d591c2ce61b8211021cd0a77338c80eb4487e64f4"
+    },
+    "chrome": {
+      "path": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/inputs/chrome.png",
+      "size": [256, 256],
+      "sha256": "c3bc06ce343a356cac6043eb608bc13a351f1ffbb6b1ab27bea126a1d1f286ad"
+    },
+    "github": {
+      "path": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/inputs/github.svg",
+      "format": "svg",
+      "sha256": "7421820090b50ac79d7c2bf7c951a433d7098a8a9c474809207bdd45f62d9d46"
+    },
+    "cursor": {
+      "path": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/inputs/cursor.svg",
+      "format": "svg",
+      "sha256": "84a2307dfa1be381ddc0a5eb18250d51e0408411b6a9331fab88ab081205e8a7"
+    }
+  },
+  "phone_aspect_ratio": 2.02803738317757,
+  "language": "en",
+  "locale": "en",
+  "layout": "compact"
+}

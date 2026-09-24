@@ -1,0 +1,473 @@
+{
+  "schemaVersion": 3,
+  "tools": {
+    "marquee": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": false,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": false,
+        "brushSize": false,
+        "brushAngle": false,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "elliptical_marquee": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": false,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": false,
+        "brushSize": false,
+        "brushAngle": false,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "lasso": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": false,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": false,
+        "brushSize": false,
+        "brushAngle": false,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": true
+      }
+    },
+    "polygonal_lasso": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": false,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": false,
+        "brushSize": false,
+        "brushAngle": false,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "magic_wand": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": false,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": false,
+        "brushSize": false,
+        "brushAngle": false,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "pencil": {
+      "behavior": {
+        "connectFreehandStroke": true
+      },
+      "settings": {
+        "hasInk": true,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": true,
+        "brushSize": true,
+        "brushAngle": true,
+        "dynamics": true,
+        "dynamicsOptionsGrid": true,
+        "pixelAlgorithm": true
+      }
+    },
+    "spray": {
+      "behavior": {
+        "connectFreehandStroke": true
+      },
+      "settings": {
+        "hasInk": true,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": true,
+        "brushSize": true,
+        "brushAngle": true,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "eraser": {
+      "behavior": {
+        "connectFreehandStroke": true
+      },
+      "settings": {
+        "hasInk": false,
+        "defaultBrushSize": 8
+      },
+      "controls": {
+        "opacity": true,
+        "brushType": true,
+        "brushSize": true,
+        "brushAngle": true,
+        "dynamics": true,
+        "dynamicsOptionsGrid": true,
+        "pixelAlgorithm": true
+      }
+    },
+    "eyedropper": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": false,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": false,
+        "brushSize": false,
+        "brushAngle": false,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "zoom": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": false,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": false,
+        "brushSize": false,
+        "brushAngle": false,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "hand": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": false,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": false,
+        "brushSize": false,
+        "brushAngle": false,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "move": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": false,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": false,
+        "brushSize": false,
+        "brushAngle": false,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "slice": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": false,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": false,
+        "brushSize": false,
+        "brushAngle": false,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "bucket": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": true,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": false,
+        "brushSize": false,
+        "brushAngle": false,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "gradient": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": false,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": false,
+        "brushSize": false,
+        "brushAngle": false,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "line": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": true,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": true,
+        "brushSize": true,
+        "brushAngle": true,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "curve": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": true,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": true,
+        "brushSize": true,
+        "brushAngle": true,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "rectangle": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": true,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": true,
+        "brushSize": true,
+        "brushAngle": true,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "filled_rectangle": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": true,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": true,
+        "brushSize": true,
+        "brushAngle": true,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "ellipse": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": true,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": true,
+        "brushSize": true,
+        "brushAngle": true,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "filled_ellipse": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": true,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": true,
+        "brushSize": true,
+        "brushAngle": true,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "contour": {
+      "behavior": {
+        "connectFreehandStroke": true
+      },
+      "settings": {
+        "hasInk": true,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": true,
+        "brushSize": true,
+        "brushAngle": true,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": true
+      }
+    },
+    "polygon": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": true,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": true,
+        "brushSize": true,
+        "brushAngle": true,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "blur": {
+      "behavior": {
+        "connectFreehandStroke": true
+      },
+      "settings": {
+        "hasInk": false,
+        "defaultBrushSize": 16
+      },
+      "controls": {
+        "opacity": true,
+        "brushType": true,
+        "brushSize": true,
+        "brushAngle": true,
+        "dynamics": true,
+        "dynamicsOptionsGrid": true,
+        "pixelAlgorithm": true
+      }
+    },
+    "jumble": {
+      "behavior": {
+        "connectFreehandStroke": true
+      },
+      "settings": {
+        "hasInk": false,
+        "defaultBrushSize": 16
+      },
+      "controls": {
+        "opacity": true,
+        "brushType": true,
+        "brushSize": true,
+        "brushAngle": true,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    },
+    "text": {
+      "behavior": {
+        "connectFreehandStroke": false
+      },
+      "settings": {
+        "hasInk": false,
+        "defaultBrushSize": 1
+      },
+      "controls": {
+        "opacity": false,
+        "brushType": false,
+        "brushSize": false,
+        "brushAngle": false,
+        "dynamics": false,
+        "dynamicsOptionsGrid": false,
+        "pixelAlgorithm": false
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+.icon {
+  min-width: var(--ui-button-icon-size, 24px);
+  padding-inline: 0;
+}

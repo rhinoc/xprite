@@ -1,0 +1,496 @@
+{
+  "schemaVersion": 3,
+  "commands": [
+    {
+      "id": "NewFile",
+      "shortcut": "Ctrl+N",
+      "context": "Any"
+    },
+    {
+      "id": "OpenFile",
+      "shortcut": "Ctrl+O",
+      "context": "Any"
+    },
+    {
+      "id": "SaveFile",
+      "shortcut": "Ctrl+S",
+      "context": "Any"
+    },
+    {
+      "id": "SaveFileAs",
+      "shortcut": "Ctrl+Shift+S",
+      "context": "Any"
+    },
+    {
+      "id": "SaveFileCopyAs",
+      "shortcut": "Ctrl+Alt+Shift+S",
+      "context": "Any"
+    },
+    {
+      "id": "CloseFile",
+      "shortcut": "Ctrl+W",
+      "context": "Any"
+    },
+    {
+      "id": "CloseAllFiles",
+      "shortcut": "Ctrl+Shift+W",
+      "context": "Any"
+    },
+    {
+      "id": "RepeatLastExport",
+      "shortcut": "Ctrl+Shift+X",
+      "context": "Any"
+    },
+    {
+      "id": "Cancel",
+      "shortcut": "Esc",
+      "context": "Any",
+      "params": {
+        "type": "all"
+      }
+    },
+    {
+      "id": "Undo",
+      "shortcut": "Ctrl+Z",
+      "context": "Any"
+    },
+    {
+      "id": "Redo",
+      "shortcut": "Ctrl+Y",
+      "context": "Any"
+    },
+    {
+      "id": "Redo",
+      "shortcut": "Ctrl+R",
+      "context": "Any"
+    },
+    {
+      "id": "Redo",
+      "shortcut": "Ctrl+Shift+Z",
+      "context": "Any"
+    },
+    {
+      "id": "Cut",
+      "shortcut": "Ctrl+X",
+      "context": "Any"
+    },
+    {
+      "id": "Copy",
+      "shortcut": "Ctrl+C",
+      "context": "Any"
+    },
+    {
+      "id": "CopyMerged",
+      "shortcut": "Ctrl+Shift+C",
+      "context": "Any"
+    },
+    {
+      "id": "Paste",
+      "shortcut": "Ctrl+V",
+      "context": "Any"
+    },
+    {
+      "id": "Clear",
+      "shortcut": "Del",
+      "context": "Any"
+    },
+    {
+      "id": "Clear",
+      "shortcut": "Backspace",
+      "context": "Any"
+    },
+    {
+      "id": "Options",
+      "shortcut": "Ctrl+K",
+      "context": "Any"
+    },
+    {
+      "id": "KeyboardShortcuts",
+      "shortcut": "Ctrl+Alt+Shift+K",
+      "context": "Any"
+    },
+    {
+      "id": "LayerProperties",
+      "shortcut": "Shift+P",
+      "context": "Any"
+    },
+    {
+      "id": "LayerVisibility",
+      "shortcut": "Shift+X",
+      "context": "Any"
+    },
+    {
+      "id": "NewFrame",
+      "shortcut": "Alt+N",
+      "context": "Any"
+    },
+    {
+      "id": "NewFrame",
+      "shortcut": "Alt+B",
+      "context": "Any",
+      "params": {
+        "content": "empty"
+      }
+    },
+    {
+      "id": "FrameProperties",
+      "shortcut": "P",
+      "context": "Any",
+      "params": {
+        "frame": "current"
+      }
+    },
+    {
+      "id": "ReverseFrames",
+      "shortcut": "Alt+I",
+      "context": "Any"
+    },
+    {
+      "id": "PlayAnimation",
+      "shortcut": "Enter",
+      "context": "Any"
+    },
+    {
+      "id": "MaskAll",
+      "shortcut": "Ctrl+A",
+      "context": "Any"
+    },
+    {
+      "id": "DeselectMask",
+      "shortcut": "Ctrl+D",
+      "context": "Any"
+    },
+    {
+      "id": "ReselectMask",
+      "shortcut": "Ctrl+Shift+D",
+      "context": "Any"
+    },
+    {
+      "id": "InvertMask",
+      "shortcut": "Ctrl+Shift+I",
+      "context": "Any"
+    },
+    {
+      "id": "TogglePreview",
+      "shortcut": "F7",
+      "context": "Any"
+    },
+    {
+      "id": "ShowOnionSkin",
+      "shortcut": "F3",
+      "context": "Any"
+    },
+    {
+      "id": "SwitchColors",
+      "shortcut": "X",
+      "context": "Any"
+    },
+    {
+      "id": "ChangeBrush",
+      "shortcut": "=",
+      "context": "Any",
+      "params": {
+        "change": "increment-size"
+      }
+    },
+    {
+      "id": "ChangeBrush",
+      "shortcut": "-",
+      "context": "Any",
+      "params": {
+        "change": "decrement-size"
+      }
+    },
+    {
+      "id": "NewSpriteFromSelection",
+      "shortcut": "Ctrl+Alt+N",
+      "context": "Any"
+    },
+    {
+      "id": "ReopenClosedFile",
+      "shortcut": "Ctrl+Shift+T",
+      "context": "Any"
+    },
+    {
+      "id": "ImportSpriteSheet",
+      "shortcut": "Ctrl+I",
+      "context": "Any"
+    },
+    {
+      "id": "ExportSpriteSheet",
+      "shortcut": "Ctrl+E",
+      "context": "Any"
+    },
+    {
+      "id": "LayerProperties",
+      "shortcut": "F2",
+      "context": "Normal"
+    },
+    {
+      "id": "NewLayer",
+      "shortcut": "Shift+N",
+      "context": "Any"
+    },
+    {
+      "id": "NewLayer",
+      "shortcut": "Ctrl+J",
+      "context": "Any",
+      "params": {
+        "viaCopy": "true"
+      }
+    },
+    {
+      "id": "NewLayer",
+      "shortcut": "Ctrl+Shift+J",
+      "context": "Any",
+      "params": {
+        "viaCut": "true"
+      }
+    },
+    {
+      "id": "NewFrame",
+      "shortcut": "Alt+M",
+      "context": "Any",
+      "params": {
+        "content": "cellinked"
+      }
+    },
+    {
+      "id": "NewFrame",
+      "shortcut": "Alt+D",
+      "context": "Any",
+      "params": {
+        "content": "celcopies"
+      }
+    },
+    {
+      "id": "RemoveFrame",
+      "shortcut": "Alt+C",
+      "context": "Any"
+    },
+    {
+      "id": "PlayPreviewAnimation",
+      "shortcut": "Shift+Enter",
+      "context": "Any"
+    },
+    {
+      "id": "ShowGrid",
+      "shortcut": "Ctrl+'",
+      "context": "Any"
+    },
+    {
+      "id": "ShowPixelGrid",
+      "shortcut": "Ctrl+Shift+'",
+      "context": "Any"
+    },
+    {
+      "id": "ToggleTilesMode",
+      "shortcut": "Space+Tab",
+      "context": "Any"
+    },
+    {
+      "id": "Undo",
+      "shortcut": "Ctrl+Z",
+      "context": "Transformation"
+    }
+  ],
+  "tools": [
+    {
+      "id": "rectangular_marquee",
+      "shortcut": "M",
+      "context": "Any"
+    },
+    {
+      "id": "elliptical_marquee",
+      "shortcut": "Shift+M",
+      "context": "Any"
+    },
+    {
+      "id": "lasso",
+      "shortcut": "Q",
+      "context": "Any"
+    },
+    {
+      "id": "polygonal_lasso",
+      "shortcut": "Shift+Q",
+      "context": "Any"
+    },
+    {
+      "id": "magic_wand",
+      "shortcut": "W",
+      "context": "Any"
+    },
+    {
+      "id": "pencil",
+      "shortcut": "B",
+      "context": "Any"
+    },
+    {
+      "id": "spray",
+      "shortcut": "Shift+B",
+      "context": "Any"
+    },
+    {
+      "id": "eraser",
+      "shortcut": "E",
+      "context": "Any"
+    },
+    {
+      "id": "eyedropper",
+      "shortcut": "I",
+      "context": "Any"
+    },
+    {
+      "id": "move",
+      "shortcut": "V",
+      "context": "Any"
+    },
+    {
+      "id": "zoom",
+      "shortcut": "Z",
+      "context": "Any"
+    },
+    {
+      "id": "hand",
+      "shortcut": "H",
+      "context": "Any"
+    },
+    {
+      "id": "paint_bucket",
+      "shortcut": "G",
+      "context": "Any"
+    },
+    {
+      "id": "line",
+      "shortcut": "L",
+      "context": "Any"
+    },
+    {
+      "id": "curve",
+      "shortcut": "Shift+L",
+      "context": "Any"
+    },
+    {
+      "id": "rectangle",
+      "shortcut": "U",
+      "context": "Any"
+    },
+    {
+      "id": "filled_rectangle",
+      "shortcut": "U",
+      "context": "Any"
+    },
+    {
+      "id": "ellipse",
+      "shortcut": "Shift+U",
+      "context": "Any"
+    },
+    {
+      "id": "filled_ellipse",
+      "shortcut": "Shift+U",
+      "context": "Any"
+    },
+    {
+      "id": "contour",
+      "shortcut": "D",
+      "context": "Any"
+    },
+    {
+      "id": "polygon",
+      "shortcut": "Shift+D",
+      "context": "Any"
+    },
+    {
+      "id": "blur",
+      "shortcut": "R",
+      "context": "Any"
+    },
+    {
+      "id": "jumble",
+      "shortcut": "R",
+      "context": "Any"
+    },
+    {
+      "id": "slice",
+      "shortcut": "Shift+C",
+      "context": "Any"
+    },
+    {
+      "id": "gradient",
+      "shortcut": "Shift+G",
+      "context": "Any"
+    },
+    {
+      "id": "text",
+      "shortcut": "T",
+      "context": "Any"
+    }
+  ],
+  "actions": [
+    {
+      "id": "CopySelection",
+      "shortcut": "Ctrl",
+      "context": "Transform Selection"
+    },
+    {
+      "id": "LockAxis",
+      "shortcut": "Shift",
+      "context": "Canvas Size"
+    },
+    {
+      "id": "AngleSnap",
+      "shortcut": "Shift",
+      "context": "Line / Gradient"
+    },
+    {
+      "id": "MaintainAspectRatio",
+      "shortcut": "Shift",
+      "context": "Selection Transform"
+    },
+    {
+      "id": "AddSelection",
+      "shortcut": "Shift",
+      "context": "Selection"
+    },
+    {
+      "id": "SubtractSelection",
+      "shortcut": "Alt+Shift",
+      "context": "Selection"
+    },
+    {
+      "id": "IntersectSelection",
+      "shortcut": "Ctrl+Shift",
+      "context": "Selection"
+    },
+    {
+      "id": "AutoSelectLayer",
+      "shortcut": "Ctrl",
+      "context": "Move"
+    },
+    {
+      "id": "StraightLineFromLastPoint",
+      "shortcut": "Shift",
+      "context": "Freehand"
+    },
+    {
+      "id": "SquareAspect",
+      "shortcut": "Shift",
+      "context": "Shape"
+    },
+    {
+      "id": "DrawFromCenter",
+      "shortcut": "Ctrl",
+      "context": "Shape"
+    },
+    {
+      "id": "MoveOrigin",
+      "shortcut": "Space",
+      "context": "Shape"
+    },
+    {
+      "id": "RotateShape",
+      "shortcut": "Alt",
+      "context": "Shape"
+    }
+  ]
+}

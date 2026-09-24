@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 2,
+  "tools": {
+    "rectangular_marquee": {
+      "label": "Rectangular Marquee Tool",
+      "tips": "* Left Button: replace/add to current selection\n* Right Button: remove from current selection",
+      "shortcut": "M",
+      "text": "Rectangular Marquee Tool:\n* Left Button: replace/add to current selection\n* Right Button: remove from current selection\n\nShortcut: M"
+    },
+    "elliptical_marquee": {
+      "label": "Elliptical Marquee Tool",
+      "tips": "* Left Button: replace/add to current selection\n* Right Button: remove from current selection",
+      "shortcut": "Shift+M",
+      "text": "Elliptical Marquee Tool:\n* Left Button: replace/add to current selection\n* Right Button: remove from current selection\n\nShortcut: Shift+M"
+    },
+    "lasso": {
+      "label": "Lasso Tool",
+      "tips": "* Left Button: replace/add to current selection\n* Right Button: remove from current selection",
+      "shortcut": "Q",
+      "text": "Lasso Tool:\n* Left Button: replace/add to current selection\n* Right Button: remove from current selection\n\nShortcut: Q"
+    },
+    "polygonal_lasso": {
+      "label": "Polygonal Lasso Tool",
+      "tips": "* Left Button: replace/add to current selection\n* Right Button: remove from current selection",
+      "shortcut": "Shift+Q",
+      "text": "Polygonal Lasso Tool:\n* Left Button: replace/add to current selection\n* Right Button: remove from current selection\n\nShortcut: Shift+Q"
+    },
+    "magic_wand": {
+      "label": "Magic Wand Tool",
+      "tips": "* Left Button: replace/add to current selection\n* Right Button: remove from current selection",
+      "shortcut": "W",
+      "text": "Magic Wand Tool:\n* Left Button: replace/add to current selection\n* Right Button: remove from current selection\n\nShortcut: W"
+    },
+    "pencil": {
+      "label": "Pencil Tool",
+      "tips": "",
+      "shortcut": "B",
+      "text": "Pencil Tool\n\nShortcut: B"
+    },
+    "spray": {
+      "label": "Spray Tool",
+      "tips": "",
+      "shortcut": "Shift+B",
+      "text": "Spray Tool\n\nShortcut: Shift+B"
+    },
+    "eraser": {
+      "label": "Eraser Tool",
+      "tips": "* Left Button: Erase with the background color in \"Background\" layer\n  or transparent color in any other layer\n* Right Button: Replace foreground with background color",
+      "shortcut": "E",
+      "text": "Eraser Tool:\n* Left Button: Erase with the background color in \"Background\" layer\n  or transparent color in any other layer\n* Right Button: Replace foreground with background color\n\nShortcut: E"
+    },
+    "eyedropper": {
+      "label": "Eyedropper Tool",
+      "tips": "",
+      "shortcut": "I",
+      "text": "Eyedropper Tool\n\nShortcut: I"
+    },
+    "zoom": {
+      "label": "Zoom Tool",
+      "tips": "",
+      "shortcut": "Z",
+      "text": "Zoom Tool\n\nShortcut: Z"
+    },
+    "hand": {
+      "label": "Hand Tool",
+      "tips": "",
+      "shortcut": "H",
+      "text": "Hand Tool\n\nShortcut: H"
+    },
+    "move": {
+      "label": "Move Tool",
+      "tips": "",
+      "shortcut": "V",
+      "text": "Move Tool\n\nShortcut: V"
+    },
+    "slice": {
+      "label": "Slice Tool",
+      "tips": "",
+      "shortcut": "Shift+C",
+      "text": "Slice Tool\n\nShortcut: Shift+C"
+    },
+    "paint_bucket": {
+      "label": "Paint Bucket Tool",
+      "tips": "",
+      "shortcut": "G",
+      "text": "Paint Bucket Tool\n\nShortcut: G"
+    },
+    "gradient": {
+      "label": "Gradient Tool",
+      "tips": "",
+      "shortcut": "Shift+G",
+      "text": "Gradient Tool\n\nShortcut: Shift+G"
+    },
+    "line": {
+      "label": "Line Tool",
+      "tips": "",
+      "shortcut": "L",
+      "text": "Line Tool\n\nShortcut: L"
+    },
+    "curve": {
+      "label": "Curve Tool",
+      "tips": "",
+      "shortcut": "Shift+L",
+      "text": "Curve Tool\n\nShortcut: Shift+L"
+    },
+    "rectangle": {
+      "label": "Rectangle Tool",
+      "tips": "",
+      "shortcut": "U",
+      "text": "Rectangle Tool\n\nShortcut: U"
+    },
+    "filled_rectangle": {
+      "label": "Filled Rectangle Tool",
+      "tips": "",
+      "shortcut": "U",
+      "text": "Filled Rectangle Tool\n\nShortcut: U"
+    },
+    "ellipse": {
+      "label": "Ellipse Tool",
+      "tips": "",
+      "shortcut": "Shift+U",
+      "text": "Ellipse Tool\n\nShortcut: Shift+U"
+    },
+    "filled_ellipse": {
+      "label": "Filled Ellipse Tool",
+      "tips": "",
+      "shortcut": "Shift+U",
+      "text": "Filled Ellipse Tool\n\nShortcut: Shift+U"
+    },
+    "contour": {
+      "label": "Contour Tool",
+      "tips": "",
+      "shortcut": "D",
+      "text": "Contour Tool\n\nShortcut: D"
+    },
+    "polygon": {
+      "label": "Polygon Tool",
+      "tips": "",
+      "shortcut": "Shift+D",
+      "text": "Polygon Tool\n\nShortcut: Shift+D"
+    },
+    "blur": {
+      "label": "Blur Tool",
+      "tips": "",
+      "shortcut": "R",
+      "text": "Blur Tool\n\nShortcut: R"
+    },
+    "jumble": {
+      "label": "Jumble Tool",
+      "tips": "",
+      "shortcut": "R",
+      "text": "Jumble Tool\n\nShortcut: R"
+    },
+    "text": {
+      "label": "Text Tool",
+      "tips": "",
+      "shortcut": "T",
+      "text": "Text Tool\n\nShortcut: T"
+    }
+  },
+  "actions": {
+    "preview_hide": "Hide Preview",
+    "preview_show": "Show Preview",
+    "timeline_hide": "Hide Timeline",
+    "timeline_show": "Show Timeline"
+  },
+  "showMore": "Show more..."
+}

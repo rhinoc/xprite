@@ -1,0 +1,17 @@
+Phone-frame proportions are adapted from Devices.css by Yan Zhu (MIT).
+Reference: https://github.com/picturepan2/devices.css/blob/master/src/_iphone-14-pro.scss
+The renderer uses an independent HTML/CSS template, not the original CSS. It reserves separate status/browser areas so the camera does not cover the screenshot.
+Original source license: third-party/devices-css-LICENSE.txt
+Screenshot and icon inputs are copies from this Xprite workspace; original files are not modified.
+
+Safari and Chrome icons were extracted from the installed macOS applications for browser identification. They are third-party brand artwork, separate from the Devices.css MIT-licensed frame reference.
+Safari: Apple Inc. Chrome: Google LLC.
+
+GitHub mark: Primer Octicons mark-github-16.svg (GitHub Inc., MIT).
+Source: https://github.com/primer/octicons/blob/main/icons/mark-github-16.svg
+License: third-party/octicons-LICENSE.txt
+Cursor overlay: copied from packages/ui/assets/cursors/aseprite/normal.svg, retaining its original source metadata.
+
+English font options: Space Grotesk, Manrope, Sora from Google Fonts, SIL Open Font License 1.1. Original font files are embedded in the cover HTML only.
+Sources: https://github.com/google/fonts/tree/main/ofl/spacegrotesk ; https://github.com/google/fonts/tree/main/ofl/manrope ; https://github.com/google/fonts/tree/main/ofl/sora
+Licenses: third-party/spacegrotesk-OFL.txt, third-party/manrope-OFL.txt, third-party/sora-OFL.txt

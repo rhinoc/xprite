@@ -1,0 +1,26 @@
+.root {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--ui-space-4, 8px);
+  border: var(--ui-border-width, 1px) solid var(--xse-border, #575b61);
+  border-radius: 0;
+  background: var(--xse-face, #2c2c30);
+  color: var(--xse-text, #c0c0c0);
+  font:
+    14px/1.5 ui-monospace,
+    monospace;
+  resize: none;
+  overflow: auto;
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: default;
+  touch-action: pan-x pan-y;
+}
+
+.root:focus {
+  outline: var(--ui-focus-ring-width, 1px) solid var(--ui-focus-ring-color, currentColor);
+  outline-offset: -1px;
+}

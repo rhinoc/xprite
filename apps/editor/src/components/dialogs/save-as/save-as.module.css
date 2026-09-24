@@ -1,0 +1,18 @@
+.targetOption {
+  padding: 0 !important;
+}
+
+.targetOptionIcon {
+  position: absolute;
+  top: 32px;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.targetOptionIcon > :first-child {
+  width: 32px;
+  height: 32px;
+}

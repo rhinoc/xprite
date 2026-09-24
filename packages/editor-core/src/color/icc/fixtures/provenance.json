@@ -1,0 +1,16 @@
+{
+  "file": "sRGB_v4_ICC_preference.icc",
+  "source": "https://registry.color.org/rgb-registry/profiles/sRGB_v4_ICC_preference.icc",
+  "terms": "https://registry.color.org/rgb-registry/srgbprofiles#v4pref",
+  "sha256": "83174717332326ddc198d9df188a4daec27b8979ba152cebbfc470c793d0bb11",
+  "license": {
+    "owner": "International Color Consortium",
+    "permission": "Use, copy and distribution without fee; retain the original file including its embedded copyright tag. Do not use the ICC name in distribution advertising without prior written permission."
+  },
+  "purpose": "Unmodified RGB/Lab PCS mAB/mBA regression fixture. Test-only; no application runtime dependency.",
+  "references": [
+    "https://archive.color.org/specification/ICC.1-2022-05.pdf",
+    ".refs/skia-arm64/modules/skcms/src/skcms_public.h",
+    ".refs/skia-arm64/modules/skcms/src/Transform_inl.h"
+  ]
+}

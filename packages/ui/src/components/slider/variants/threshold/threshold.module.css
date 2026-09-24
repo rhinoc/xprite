@@ -1,0 +1,22 @@
+.thresholdSlider {
+  cursor: var(--ui-cursor-default, default);
+}
+
+.artwork {
+  position: absolute;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  transform-origin: top left;
+}
+
+.face {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: block;
+}
+
+.sensor {
+  position: absolute;
+  display: block;
+}

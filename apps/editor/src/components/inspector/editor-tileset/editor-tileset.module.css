@@ -1,0 +1,10 @@
+:global(.xse-tileset) {
+  min-width: 0;
+  min-height: 0;
+}
+
+:global(.xse-workspace-panel-empty) {
+  display: grid;
+  min-height: 100%;
+  place-items: center;
+}

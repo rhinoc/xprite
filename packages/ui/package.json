@@ -1,0 +1,56 @@
+{
+  "name": "@xprite/ui",
+  "version": "0.1.0",
+  "description": "Reusable React primitives for pixel-art interfaces",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "LICENSE",
+    "LICENSES",
+    "ATTRIBUTION.md",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "module": "./dist/ui.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/ui.js"
+    },
+    "./style.css": "./dist/style.css",
+    "./canvas": {
+      "types": "./dist/types/canvas.d.ts",
+      "import": "./dist/canvas.js"
+    },
+    "./cursor": {
+      "types": "./dist/types/cursor.d.ts",
+      "import": "./dist/cursor.js"
+    },
+    "./popover": {
+      "types": "./dist/types/popover.d.ts",
+      "import": "./dist/popover.js"
+    },
+    "./utils": {
+      "types": "./dist/types/utils.d.ts",
+      "import": "./dist/utils.js"
+    },
+    "./assets": {
+      "types": "./dist/types/assets.d.ts",
+      "import": "./dist/assets.js"
+    }
+  },
+  "scripts": {
+    "build": "node ../../scripts/generate-ui-theme.mjs && pnpm -w exec oxfmt --config infra/oxfmt.json --write packages/ui/src/base/theme/theme-name-types.ts packages/ui/src/base/theme/generated/themes/aseprite-light.ts packages/ui/src/base/theme/generated/themes/aseprite-dark.ts && vite build && tsc -b tsconfig.json --force && node ../../scripts/rewrite-package-type-imports.mjs dist/types"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  }
+}

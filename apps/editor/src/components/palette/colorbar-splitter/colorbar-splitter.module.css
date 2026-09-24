@@ -1,0 +1,11 @@
+:global(.xse-colorbar-resize-handle:focus-visible) {
+  outline: 0;
+  background: rgba(20, 24, 28, 0.14) !important;
+}
+:global(.xse-colorbar-resize-handle:focus-visible::after) {
+  position: absolute;
+  inset: 0 1px;
+  content: "";
+  border-left: 0.5px solid rgba(255, 255, 255, 0.65);
+  border-right: 0.5px solid rgba(20, 24, 28, 0.5);
+}

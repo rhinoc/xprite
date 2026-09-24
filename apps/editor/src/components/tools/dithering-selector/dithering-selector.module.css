@@ -1,0 +1,9 @@
+:global(:root) {
+  --ui-layer-dithering-preview: 5;
+}
+
+.preview {
+  position: absolute;
+  z-index: var(--ui-layer-dithering-preview);
+  pointer-events: none;
+}

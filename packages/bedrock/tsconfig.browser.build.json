@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.browser.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "../../dist/bedrock/browser",
+    "rootDir": "browser",
+    "paths": {
+      "$/*": ["./browser/*"],
+      "@xprite/bedrock/common/*": ["../../dist/bedrock/common/*"]
+    },
+    "tsBuildInfoFile": "../../node_modules/.tmp/bedrock-browser.build.tsbuildinfo"
+  },
+  "references": [{ "path": "./tsconfig.common.build.json" }]
+}

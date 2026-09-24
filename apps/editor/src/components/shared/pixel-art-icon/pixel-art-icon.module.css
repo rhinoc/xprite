@@ -1,0 +1,40 @@
+.icon {
+  display: inline-block;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  background-color: currentColor;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+}
+
+.drawn {
+  image-rendering: pixelated;
+  mask-size: 32px;
+  -webkit-mask-size: 32px;
+}
+
+.smallDrawn {
+  mask-size: 16px;
+  -webkit-mask-size: 16px;
+}
+
+.workspaceSettings {
+  flex-basis: 10px;
+  width: 10px;
+  height: 12px;
+}
+
+.originalColor {
+  flex-basis: 32px;
+  width: 32px;
+  height: 32px;
+  background-color: transparent;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}

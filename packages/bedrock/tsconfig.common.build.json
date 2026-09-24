@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.common.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "../../dist/bedrock/common",
+    "rootDir": "common",
+    "tsBuildInfoFile": "../../node_modules/.tmp/bedrock-common.build.tsbuildinfo"
+  }
+}

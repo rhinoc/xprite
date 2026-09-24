@@ -1,0 +1,9 @@
+:global(.xse-tab-strip .xse-workspace-layout-combo-slot) {
+  display: none;
+}
+
+:global(.xse-tab-strip .xse-workspace-layout-combo-slot[data-open="true"]) {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+}

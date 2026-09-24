@@ -1,0 +1,5 @@
+pnpm exec lint-staged --config infra/lint-staged.json
+pnpm run check:package-imports
+pnpm run check:ui-editor-usage
+pnpm run check:dom-geometry
+pnpm run check:i18n

@@ -1,0 +1,16 @@
+.slider {
+  box-sizing: border-box;
+  outline: none;
+  touch-action: none;
+  user-select: none;
+  cursor: var(--ui-cursor-default, default);
+}
+
+.slider:focus-visible {
+  outline: var(--ui-focus-ring-width, 1px) solid var(--ui-focus-ring, currentColor);
+  outline-offset: var(--ui-focus-ring-width, 1px);
+}
+
+.sliderRelative {
+  cursor: var(--ui-cursor-resize-horizontal, ew-resize);
+}

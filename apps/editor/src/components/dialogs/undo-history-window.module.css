@@ -1,0 +1,43 @@
+.root {
+  position: absolute;
+  inset: 0;
+  background: var(--xse-window-face, #c0c0c0);
+  color: var(--xse-window-text, #111);
+}
+
+.state {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: var(--ui-button-min-height, 24px);
+  padding: var(--ui-space-1, 2px) var(--ui-space-4, 8px);
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+  cursor: var(--ui-cursor-default, default);
+  font-size: 0;
+  line-height: 0;
+}
+
+.savedMarker {
+  position: absolute;
+  top: 10px;
+  left: 8px;
+  width: 4px;
+  height: 4px;
+}
+
+.savedMarker[data-saved="true"] {
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.state[data-current="true"] {
+  background: var(--xse-accent, #4a70ad);
+}
+
+.screenReaderOnly {
+  position: absolute;
+  left: -9999px;
+}

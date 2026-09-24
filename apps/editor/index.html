@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Create and edit pixel art and animations in your browser. Open Aseprite files, draw sprites, manage layers and frames, and save your work locally."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Xprite - Online Pixel Art Editor &amp; Animation Tool" />
+    <meta
+      property="og:description"
+      content="Create and edit pixel art and animations in your browser. Open Aseprite files, draw sprites, manage layers and frames, and save your work locally."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Xprite - Online Pixel Art Editor &amp; Animation Tool" />
+    <meta
+      name="twitter:description"
+      content="Create and edit pixel art and animations in your browser. Open Aseprite files, draw sprites, manage layers and frames, and save your work locally."
+    />
+    <meta name="theme-color" content="#202125" />
+    <meta name="application-name" content="Xprite" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="%BASE_URL%favicon.ico?v=xprite-2"
+      sizes="16x16 32x32"
+    />
+    <link rel="icon" type="image/png" href="%BASE_URL%favicon-32.png?v=xprite-2" sizes="32x32" />
+    <link rel="icon" type="image/png" href="%BASE_URL%favicon-16.png?v=xprite-2" sizes="16x16" />
+    <link rel="apple-touch-icon" sizes="192x192" href="%BASE_URL%icon-192.png?v=xprite-3" />
+    <link rel="manifest" href="%BASE_URL%manifest.webmanifest?v=xprite-3" />
+    <link rel="preload" as="image" href="%BASE_URL%startup-loading.webp?v=xprite-2" />
+    <style>
+      html,
+      body {
+        box-sizing: border-box;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        overscroll-behavior: none;
+        background: #202125;
+        color: #c0c0c0;
+      }
+      body {
+        height: 100dvh;
+      }
+      @media (display-mode: standalone) {
+        html,
+        body {
+          height: 100lvh;
+        }
+      }
+      #root {
+        height: 100%;
+      }
+      .xse-startup {
+        display: grid;
+        place-items: center;
+        width: 100%;
+        height: 100%;
+        color: #c0c0c0;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+          env(safe-area-inset-left);
+        box-sizing: border-box;
+      }
+      .xse-loading-sprite {
+        width: 63px;
+        height: 63px;
+        overflow: hidden;
+      }
+      .xse-loading-sprite__canvas {
+        display: block;
+        width: 63px;
+        height: 63px;
+        image-rendering: pixelated;
+      }
+      #xse-startup-error {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483000;
+        overflow: auto;
+        padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
+          max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+        background: #202125;
+        font-family: ui-monospace, monospace;
+      }
+      #xse-startup-error:not([hidden]) {
+        display: grid;
+        place-content: center;
+      }
+      #xse-startup-error pre {
+        max-width: 70ch;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      #xse-startup-error button {
+        padding: 8px 12px;
+        font: inherit;
+        cursor: pointer;
+      }
+    </style>
+    <title>Xprite - Online Pixel Art Editor &amp; Animation Tool</title>
+  </head>
+  <body>
+    <div id="root">
+      <div class="xse-startup" role="status" aria-label="Loading">
+        <div class="xse-loading-sprite" aria-hidden="true">
+          <canvas
+            id="xse-startup-canvas"
+            class="xse-loading-sprite__canvas"
+            width="7"
+            height="7"
+          ></canvas>
+        </div>
+      </div>
+    </div>
+    <!-- This recovery UI must work even when React, UI, or editor modules cannot load. -->
+    <section id="xse-startup-error" role="alert" hidden>
+      <h1 id="xse-startup-error-title">Editor error</h1>
+      <p id="xse-startup-error-description">The editor could not start. Reload to try again.</p>
+      <pre id="xse-startup-error-details"></pre>
+      <div>
+        <button id="xse-startup-error-reload" type="button">Reload editor</button>
+        <button id="xse-startup-error-export" type="button">Export diagnostic log</button>
+      </div>
+    </section>
+    <script>
+      document.documentElement.dataset.xseStartupStartedAt = String(performance.now());
+      (() => {
+        const BOOTSTRAPPED_EVENT = "xse-startup-bootstrapped";
+        const DIAGNOSTIC_FORMAT = "xprite-startup-diagnostics-v1";
+        const DIAGNOSTIC_FILENAME = "xprite-startup-diagnostics.json";
+        const JSON_INDENTATION_SPACES = 2;
+        let diagnostic = null;
+
+        const showFailure = (error) => {
+          if (diagnostic) return;
+          diagnostic = {
+            format: DIAGNOSTIC_FORMAT,
+            timestamp: Date.now(),
+            source: "app-startup",
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            url: window.location.href,
+          };
+          const isChinese =
+            document.documentElement.lang.startsWith("zh") ||
+            navigator.languages.some((language) => language.toLowerCase().startsWith("zh"));
+          if (isChinese) {
+            document.getElementById("xse-startup-error").lang = "zh-CN";
+            document.getElementById("xse-startup-error-title").textContent = "编辑器错误";
+            document.getElementById("xse-startup-error-description").textContent =
+              "编辑器启动失败，请重新加载后重试。";
+            document.getElementById("xse-startup-error-reload").textContent = "重新加载编辑器";
+            document.getElementById("xse-startup-error-export").textContent = "导出诊断日志";
+          }
+          document.getElementById("xse-startup-error-details").textContent = error.message;
+          document.getElementById("root").hidden = true;
+          document.getElementById("xse-startup-error").hidden = false;
+          document.getElementById("xse-startup-error-reload").focus();
+        };
+        const onError = (event) => {
+          if (event.target instanceof HTMLScriptElement && event.target.type === "module") {
+            showFailure(new Error(`Failed to load editor module: ${event.target.src}`));
+          } else if (event instanceof ErrorEvent) {
+            showFailure(
+              event.error instanceof Error
+                ? event.error
+                : new Error(event.message || "Editor startup failed"),
+            );
+          }
+        };
+        // Module graph failures are resource error events; they do not bubble.
+        window.addEventListener("error", onError, true);
+        window.addEventListener(
+          BOOTSTRAPPED_EVENT,
+          () => window.removeEventListener("error", onError, true),
+          { once: true },
+        );
+        document.getElementById("xse-startup-error-reload").addEventListener("click", () => {
+          window.location.reload();
+        });
+        document.getElementById("xse-startup-error-export").addEventListener("click", () => {
+          if (!diagnostic) return;
+          const blob = new Blob([JSON.stringify(diagnostic, null, JSON_INDENTATION_SPACES)], {
+            type: "application/json",
+          });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = DIAGNOSTIC_FILENAME;
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 0);
+        });
+      })();
+    </script>
+    <script type="module" src="/src/components/shell/startup-animation-bootstrap.ts"></script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+Aseprite English UI strings
+
+Selected English translations from `data/strings/en.ini` appear in:
+
+- `apps/editor/assets/commands/libresprite-main-menu.json` (visible menu labels)
+- `apps/editor/assets/commands/aseprite-tool-tips.json` (tool names, help text, preview/timeline labels)
+- `apps/editor/src/i18n/locales/en.json` (English UI label catalog)
+- selected labels in the current editor dialogs and controls
+
+Source: Aseprite `data/strings/en.ini`, snapshot commit
+`1af985278481e278bf44ebec86cb4433aff280b4`:
+https://github.com/aseprite/aseprite/blob/1af985278481e278bf44ebec86cb4433aff280b4/data/strings/en.ini
+
+Copyright (C) 2018-present Igara Studio S.A.
+Copyright (C) 2016-2018 David Capello
+
+The source file identifies these translations as licensed under the Creative
+Commons Attribution 4.0 International License (CC BY 4.0):
+https://creativecommons.org/licenses/by/4.0/
+
+Changes: selected English strings are organized in this editor's product-owned
+locale catalog, menu, tooltip, and dialog layouts. Product branding replaces
+source branding in settings and Home text. Menu hierarchy, command wiring, and
+shortcut bindings are maintained separately as product data. Tooltip shortcut
+suffixes use the editor's own active binding records.

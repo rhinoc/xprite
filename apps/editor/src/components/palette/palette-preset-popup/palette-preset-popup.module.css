@@ -1,0 +1,10 @@
+:global(.xse-palette-resource-list) {
+  outline: none;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+
+:global(.xse-palette-search > input) {
+  padding-left: 26px;
+}

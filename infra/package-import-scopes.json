@@ -1,0 +1,45 @@
+[
+  {
+    "directory": "apps/editor",
+    "source": "src",
+    "tsconfig": "tsconfig.json",
+    "aliases": {
+      "$/": "src",
+      "$assets/": "assets"
+    }
+  },
+  {
+    "directory": "apps/gallery",
+    "source": "src",
+    "tsconfig": "tsconfig.json",
+    "aliases": {
+      "$/": "src",
+      "$assets/": "../../packages/ui/assets"
+    }
+  },
+  {
+    "directory": "packages/ui",
+    "source": "src",
+    "tsconfig": "tsconfig.json",
+    "aliases": {
+      "$/": "src",
+      "$assets/": "assets"
+    }
+  },
+  {
+    "directory": "packages/editor-core",
+    "source": "src",
+    "tsconfig": "tsconfig.json",
+    "aliases": {
+      "$/": "src"
+    }
+  },
+  {
+    "directory": "packages/bedrock",
+    "source": "browser",
+    "tsconfig": "tsconfig.browser.json",
+    "aliases": {
+      "$/": "browser"
+    }
+  }
+]

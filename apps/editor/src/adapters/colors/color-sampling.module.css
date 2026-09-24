@@ -1,0 +1,5 @@
+.sampling,
+.sampling * {
+  cursor: var(--ui-cursor-eyedropper, crosshair) !important;
+  user-select: none !important;
+}

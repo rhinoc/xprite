@@ -1,0 +1,18 @@
+[
+  {
+    "name": "desktop",
+    "source": "http://cover-zh-desktop-1238x660.localhost:5173/",
+    "size": [1238, 660],
+    "deviceScaleFactor": 1,
+    "locale": "zh-CN",
+    "capturedAt": "2026-10-03T10:25:47.425Z"
+  },
+  {
+    "name": "mobile",
+    "source": "http://cover-zh-mobile-328x622.localhost:5173/",
+    "size": [328, 622],
+    "deviceScaleFactor": 1,
+    "locale": "zh-CN",
+    "capturedAt": "2026-10-03T10:25:50.485Z"
+  }
+]

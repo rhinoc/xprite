@@ -1,0 +1,7 @@
+{
+  "*.{js,jsx,ts,tsx,mjs,cjs,mts,cts}": [
+    "oxfmt --config infra/oxfmt.json",
+    "oxlint --config infra/oxlint.json"
+  ],
+  "*.{css,scss,html,json,jsonc}": "oxfmt --config infra/oxfmt.json"
+}

@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "$/*": ["./browser/*"]
+    }
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.common.build.json"
+    },
+    {
+      "path": "./tsconfig.browser.build.json"
+    }
+  ]
+}

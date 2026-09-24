@@ -1,0 +1,13 @@
+.busy {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ui-space-2, 4px);
+  position: fixed;
+  bottom: 6px;
+  left: 8px;
+  z-index: 200;
+  font-size: 0;
+  line-height: 0;
+  background: var(--xse-window, #d3cbbe);
+  padding: var(--ui-space-2, 4px);
+}

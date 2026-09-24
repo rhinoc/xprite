@@ -1,0 +1,33 @@
+:global(.xse-viewport) {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: linear-gradient(
+    to right,
+    var(--xse-window-workspace, #7d929e) 0 3.417px,
+    var(--xse-window-gutter-edge, #655561) 3.417px
+  );
+}
+:global(.xse-editor-window[data-timeline-visible="false"] .xse-viewport) {
+  height: calc(100% + 116.84px);
+  z-index: 1;
+}
+:global(.xse-editor-window[data-ui-appearance="dark"] .xse-viewport) {
+  background: linear-gradient(
+    to right,
+    var(--xse-window-panel-dark, #333333) 0 3.417px,
+    var(--xse-window-gutter-edge, #202125) 3.417px
+  );
+}
+:global(.xse-editor-workspace .xse-viewport) {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 88px;
+  height: auto;
+  background: transparent;
+}
+:global(.xse-editor-window[data-timeline-visible="false"] .xse-editor-workspace .xse-viewport) {
+  height: auto;
+}

@@ -1,0 +1,44 @@
+.tool {
+  --button-min-height: var(--ui-button-tool-height, 34px);
+  --button-padding-inline: var(--ui-button-tool-padding-inline, 5px);
+  min-width: var(--ui-button-tool-min-width, 32px);
+  gap: var(--ui-button-tool-gap, var(--ui-space-1, 2px));
+  overflow: hidden;
+  touch-action: manipulation;
+  color: inherit;
+}
+
+.tool:disabled {
+  opacity: var(--ui-button-tool-disabled-opacity, 0.55);
+}
+
+.tool:focus-visible {
+  outline: var(--ui-button-tool-focus-width, 2px) solid
+    var(--ui-button-tool-focus, var(--ui-focus-ring-color, #202528));
+  outline-offset: var(--ui-button-tool-focus-offset, -4px);
+}
+
+.toolSkin {
+  position: absolute !important;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.toolIcon {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.toolLabel {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

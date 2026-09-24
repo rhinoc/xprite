@@ -1,0 +1,35 @@
+{
+  "name": "@xprite/editor-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./base": "./src/base/index.ts",
+    "./document": "./src/document/index.ts",
+    "./canvas": "./src/canvas/index.ts",
+    "./drawing": "./src/drawing/index.ts",
+    "./selection": "./src/selection/index.ts",
+    "./clipboard": "./src/clipboard/index.ts",
+    "./timeline": "./src/timeline/index.ts",
+    "./sprite": "./src/sprite/index.ts",
+    "./tilemap": "./src/tilemap/index.ts",
+    "./color": "./src/color/index.ts",
+    "./image-editing": "./src/image-editing/index.ts",
+    "./import-export": "./src/import-export/index.ts",
+    "./import-export/file-names": "./src/import-export/file-names.ts",
+    "./history": "./src/history/index.ts",
+    "./session": "./src/session/index.ts",
+    "./editor": "./src/editor/index.ts",
+    "./editor/commands": "./src/editor/commands/index.ts",
+    "./editor/persistence-snapshot": "./src/editor/persistence-snapshot.ts"
+  },
+  "scripts": {
+    "build": "vite build && tsc -b tsconfig.build.json --force && node ../../scripts/rewrite-package-type-imports.mjs ../../dist/core/types",
+    "typecheck": "tsgo -p tsconfig.json"
+  },
+  "dependencies": {
+    "@xprite/bedrock": "workspace:*",
+    "fflate": "^0.8.3"
+  }
+}

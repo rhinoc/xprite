@@ -1,0 +1,320 @@
+.root {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  container-type: inline-size;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--ui-home-workspace, #666);
+  color: var(--ui-home-workspace-text, #fff);
+}
+
+.header {
+  box-sizing: content-box;
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: minmax(0, var(--xse-home-mascot-width, 64px)) minmax(
+      0,
+      var(--xse-home-actions-width, 124px)
+    ) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--xse-home-header-gap, 8px);
+  min-height: var(--xse-home-mascot-height, 74px);
+  margin: 0 8px;
+  padding-top: var(--xse-home-header-top-padding, 8px);
+}
+
+.mascot {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  cursor: var(--ui-cursor-action, pointer);
+  text-decoration: none;
+}
+
+.mascot:focus-visible {
+  outline: var(--ui-focus-ring-width, 1px) dotted currentColor;
+  outline-offset: var(--ui-focus-ring-width, 1px);
+}
+
+.mascot img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  image-rendering: pixelated;
+}
+
+.actions {
+  display: flex;
+  width: 100%;
+  max-width: var(--xse-home-actions-width, 124px);
+  height: var(--xse-home-actions-height, 58px);
+  min-width: 0;
+  flex-direction: column;
+  align-self: center;
+  justify-content: space-between;
+}
+
+.action {
+  display: block;
+  flex: 0 0 var(--xse-home-action-height, 14px);
+  width: 100%;
+  min-width: 0;
+}
+
+.identity {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-self: end;
+  gap: var(--ui-space-1, 2px);
+  padding-inline: var(--ui-space-4, 8px);
+}
+
+.identityAuthor,
+.identityActions {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--ui-space-2, 4px);
+}
+
+.identityAuthor > button,
+.identityAuthor > a,
+.identityActions > button,
+.identityActions > a {
+  height: 28px;
+}
+
+.identityAuthor {
+  padding-inline: var(--ui-space-2, 4px);
+}
+
+.identityActions {
+  gap: var(--ui-space-6, 12px);
+}
+
+.starLink {
+  padding-inline: var(--ui-space-2, 4px);
+}
+
+.starLink:hover,
+.starLink:focus-visible {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.starIcon {
+  display: block;
+  flex: 0 0 auto;
+  background: currentColor;
+  mask-image: var(--xse-home-star-mask);
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+
+@container (max-width: 600px) {
+  .header {
+    grid-template-columns: minmax(0, var(--xse-home-mascot-width, 64px)) minmax(0, 1fr) max-content;
+  }
+
+  .identity {
+    padding-inline: 0;
+  }
+}
+
+.recentSection {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  margin: 0 8px;
+}
+
+.recentHeading {
+  display: flex;
+  flex: 0 0 14px;
+  min-width: 0;
+  align-items: center;
+  margin: 0 0 8px;
+  font-weight: 400;
+}
+
+.filesView {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.filesFill {
+  position: absolute;
+  z-index: 0;
+  inset: 8px 6px 6px;
+  pointer-events: none;
+}
+
+.filesScrollArea {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  margin: 8px 6px 6px;
+}
+
+.fileScrollContent {
+  display: flex;
+  min-width: 100%;
+  min-height: 100%;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.fileRow {
+  box-sizing: border-box;
+  display: flex;
+  flex: 0 0 var(--xse-home-row-height, 22px);
+  width: 100%;
+  min-width: 0;
+  height: var(--xse-home-row-height, 22px);
+  align-items: stretch;
+}
+
+.recentLink {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+}
+
+.fileAction {
+  flex: 0 0 auto;
+  align-self: center;
+  margin-inline: 2px;
+  visibility: hidden;
+}
+
+.downloadAction {
+  margin-inline-end: var(--ui-space-4, 8px);
+}
+
+.filesFrame {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.footer {
+  box-sizing: border-box;
+  display: flex;
+  flex: 0 0 var(--xse-status-bar-height, 30px);
+  min-width: 0;
+  height: var(--xse-status-bar-height, 30px);
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  overflow: hidden;
+}
+
+.footerContent {
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
+  height: 18px;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--ui-space-2, 4px);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.footerLink {
+  flex: 0 0 auto;
+  height: 14px;
+  white-space: nowrap;
+}
+
+.footerSegment {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: baseline;
+  gap: var(--ui-space-2, 4px);
+}
+
+.footerText {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+.footerText > [data-slot="inline-text"] {
+  white-space: pre;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.pin {
+  appearance: none;
+  position: relative;
+  display: block;
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  align-self: center;
+  padding: 0;
+  border: 0;
+  margin: 0 2px 0 0;
+  background: transparent;
+  color: transparent;
+  text-align: left;
+  cursor: var(--ui-cursor-hand, pointer);
+  visibility: hidden;
+}
+
+/* Reserve action space so hover cannot move the link during a Safari tap. */
+.fileRow[data-highlighted="true"] .pin,
+.fileRow[data-highlighted="true"] .fileAction,
+.pin[data-pinned="true"] {
+  visibility: visible;
+}
+
+@media (any-pointer: coarse) {
+  .pin,
+  .fileAction {
+    visibility: visible;
+  }
+}
+
+.pin:disabled {
+  cursor: var(--ui-cursor-disabled, default);
+}
+
+.pin:focus-visible {
+  outline: var(--ui-focus-ring-width, 1px) dotted var(--ui-home-focus-ring, currentColor);
+  outline-offset: var(--ui-focus-ring-width, 1px);
+}

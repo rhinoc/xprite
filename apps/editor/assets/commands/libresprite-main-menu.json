@@ -1,0 +1,1575 @@
+{
+  "schemaVersion": 3,
+  "menus": [
+    {
+      "kind": "menu",
+      "label": "File",
+      "mnemonic": "F",
+      "mnemonicIndex": 0,
+      "children": [
+        {
+          "kind": "item",
+          "label": "New...",
+          "mnemonic": "N",
+          "mnemonicIndex": 0,
+          "command": "NewFile",
+          "shortcut": "Ctrl+N",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Open...",
+          "mnemonic": "O",
+          "mnemonicIndex": 0,
+          "command": "OpenFile",
+          "shortcut": "Ctrl+O",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "menu",
+          "label": "Open Recent",
+          "mnemonic": "R",
+          "mnemonicIndex": 5,
+          "children": [
+            {
+              "kind": "item",
+              "label": "Reopen Closed File",
+              "mnemonic": "R",
+              "mnemonicIndex": 0,
+              "command": "ReopenClosedFile",
+              "shortcut": "Ctrl+Shift+T",
+              "shortcutBindingContext": "Any"
+            },
+            {
+              "kind": "placeholder",
+              "marker": "recent-files"
+            },
+            {
+              "kind": "separator"
+            },
+            {
+              "kind": "item",
+              "label": "Clear Recent Files",
+              "mnemonic": "C",
+              "mnemonicIndex": 0,
+              "command": "ClearRecentFiles"
+            }
+          ]
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "Save",
+          "mnemonic": "S",
+          "mnemonicIndex": 0,
+          "command": "SaveFile",
+          "shortcut": "Ctrl+S",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Save As...",
+          "mnemonic": "A",
+          "mnemonicIndex": 5,
+          "command": "SaveFileAs",
+          "shortcut": "Ctrl+Shift+S",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "menu",
+          "label": "Export",
+          "mnemonic": "E",
+          "mnemonicIndex": 0,
+          "children": [
+            {
+              "kind": "item",
+              "label": "Export As...",
+              "mnemonic": "E",
+              "mnemonicIndex": 0,
+              "command": "SaveFileCopyAs",
+              "shortcut": "Ctrl+Alt+Shift+S",
+              "shortcutBindingContext": "Any"
+            },
+            {
+              "kind": "item",
+              "label": "Export Sprite Sheet",
+              "mnemonic": "S",
+              "mnemonicIndex": 7,
+              "command": "ExportSpriteSheet",
+              "shortcut": "Ctrl+E",
+              "shortcutBindingContext": "Any"
+            },
+            {
+              "kind": "item",
+              "label": "Export Tileset",
+              "mnemonic": "T",
+              "mnemonicIndex": 7,
+              "command": "ExportTileset"
+            },
+            {
+              "kind": "item",
+              "label": "Repeat Last Export",
+              "mnemonic": "L",
+              "mnemonicIndex": 7,
+              "command": "RepeatLastExport",
+              "shortcut": "Ctrl+Shift+X",
+              "shortcutBindingContext": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "label": "Close",
+          "mnemonic": "C",
+          "mnemonicIndex": 0,
+          "command": "CloseFile",
+          "shortcut": "Ctrl+W",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Close All",
+          "command": "CloseAllFiles",
+          "shortcut": "Ctrl+Shift+W",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "Import Sprite Sheet",
+          "mnemonic": "I",
+          "mnemonicIndex": 0,
+          "command": "ImportSpriteSheet",
+          "shortcut": "Ctrl+I",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "Exit",
+          "mnemonic": "x",
+          "mnemonicIndex": 1,
+          "command": "Exit",
+          "shortcut": "Ctrl+Q",
+          "shortcutBindingContext": "Any"
+        }
+      ]
+    },
+    {
+      "kind": "menu",
+      "label": "Edit",
+      "mnemonic": "E",
+      "mnemonicIndex": 0,
+      "children": [
+        {
+          "kind": "item",
+          "label": "Keyboard Shortcuts...",
+          "mnemonic": "K",
+          "mnemonicIndex": 0,
+          "command": "KeyboardShortcuts",
+          "shortcut": "Ctrl+Alt+Shift+K",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Preferences...",
+          "mnemonic": ".",
+          "mnemonicIndex": 11,
+          "command": "Options",
+          "shortcut": "Ctrl+K",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "Undo",
+          "mnemonic": "U",
+          "mnemonicIndex": 0,
+          "command": "Undo",
+          "shortcut": "Ctrl+Z",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Redo",
+          "mnemonic": "R",
+          "mnemonicIndex": 0,
+          "command": "Redo",
+          "shortcut": "Ctrl+Y",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Undo History",
+          "mnemonic": "y",
+          "mnemonicIndex": 11,
+          "command": "UndoHistory"
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "Cut",
+          "mnemonic": "t",
+          "mnemonicIndex": 2,
+          "command": "Cut",
+          "shortcut": "Ctrl+X",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Copy",
+          "mnemonic": "C",
+          "mnemonicIndex": 0,
+          "command": "Copy",
+          "shortcut": "Ctrl+C",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Copy Merged",
+          "mnemonic": "g",
+          "mnemonicIndex": 8,
+          "command": "CopyMerged",
+          "shortcut": "Ctrl+Shift+C",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Paste",
+          "mnemonic": "P",
+          "mnemonicIndex": 0,
+          "command": "Paste",
+          "shortcut": "Ctrl+V",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "menu",
+          "label": "Paste Special",
+          "mnemonic": "l",
+          "mnemonicIndex": 12,
+          "children": [
+            {
+              "kind": "item",
+              "label": "Paste as New Sprite",
+              "mnemonic": "S",
+              "mnemonicIndex": 13,
+              "command": "NewFile",
+              "params": {
+                "fromClipboard": "true"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Paste as New Layer",
+              "mnemonic": "L",
+              "mnemonicIndex": 13,
+              "command": "NewLayer",
+              "shortcut": "Ctrl+Shift+V",
+              "shortcutBindingContext": "Any",
+              "params": {
+                "fromClipboard": "true"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Paste as New Reference Layer",
+              "mnemonic": "R",
+              "mnemonicIndex": 13,
+              "command": "NewLayer",
+              "params": {
+                "reference": "true",
+                "fromClipboard": "true"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "label": "Delete",
+          "mnemonic": "D",
+          "mnemonicIndex": 0,
+          "command": "Clear",
+          "shortcut": "Del",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "Fill",
+          "mnemonic": "F",
+          "mnemonicIndex": 0,
+          "command": "Fill",
+          "shortcut": "F",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Stroke",
+          "command": "Stroke",
+          "shortcut": "S",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "menu",
+          "label": "Rotate",
+          "mnemonic": "o",
+          "mnemonicIndex": 1,
+          "children": [
+            {
+              "kind": "item",
+              "label": "180",
+              "mnemonic": "1",
+              "mnemonicIndex": 0,
+              "command": "Rotate",
+              "params": {
+                "target": "mask",
+                "angle": "180"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "90 CW",
+              "mnemonic": "9",
+              "mnemonicIndex": 0,
+              "command": "Rotate",
+              "params": {
+                "target": "mask",
+                "angle": "90"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "90 CCW",
+              "mnemonic": "C",
+              "mnemonicIndex": 3,
+              "command": "Rotate",
+              "params": {
+                "target": "mask",
+                "angle": "-90"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "label": "Flip Horizontal",
+          "mnemonic": "H",
+          "mnemonicIndex": 5,
+          "command": "Flip",
+          "shortcut": "Shift+H",
+          "shortcutBindingContext": "Any",
+          "params": {
+            "target": "mask",
+            "orientation": "horizontal"
+          }
+        },
+        {
+          "kind": "item",
+          "label": "Flip Vertical",
+          "mnemonic": "V",
+          "mnemonicIndex": 5,
+          "command": "Flip",
+          "shortcut": "Shift+V",
+          "shortcutBindingContext": "Any",
+          "params": {
+            "target": "mask",
+            "orientation": "vertical"
+          }
+        },
+        {
+          "kind": "item",
+          "label": "Transform",
+          "mnemonic": "m",
+          "mnemonicIndex": 8,
+          "command": "MaskContent",
+          "shortcut": "Ctrl+T",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "menu",
+          "label": "Shift",
+          "mnemonic": "S",
+          "mnemonicIndex": 0,
+          "children": [
+            {
+              "kind": "item",
+              "label": "Left",
+              "mnemonic": "L",
+              "mnemonicIndex": 0,
+              "command": "MoveMask",
+              "params": {
+                "target": "content",
+                "direction": "left",
+                "units": "pixel",
+                "quantity": "1",
+                "wrap": "1"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Right",
+              "mnemonic": "R",
+              "mnemonicIndex": 0,
+              "command": "MoveMask",
+              "params": {
+                "target": "content",
+                "direction": "right",
+                "units": "pixel",
+                "quantity": "1",
+                "wrap": "1"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Up",
+              "mnemonic": "U",
+              "mnemonicIndex": 0,
+              "command": "MoveMask",
+              "params": {
+                "target": "content",
+                "direction": "up",
+                "units": "pixel",
+                "quantity": "1",
+                "wrap": "1"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Down",
+              "mnemonic": "D",
+              "mnemonicIndex": 0,
+              "command": "MoveMask",
+              "params": {
+                "target": "content",
+                "direction": "down",
+                "units": "pixel",
+                "quantity": "1",
+                "wrap": "1"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "New Brush",
+          "mnemonic": "B",
+          "mnemonicIndex": 4,
+          "command": "NewBrush",
+          "shortcut": "Ctrl+B",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "New Sprite From Selection",
+          "mnemonic": "N",
+          "mnemonicIndex": 0,
+          "command": "NewSpriteFromSelection",
+          "shortcut": "Ctrl+Alt+N",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "Replace Color...",
+          "mnemonic": "e",
+          "mnemonicIndex": 1,
+          "command": "ReplaceColor",
+          "shortcut": "Shift+R",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Invert...",
+          "mnemonic": "I",
+          "mnemonicIndex": 0,
+          "command": "InvertColor"
+        },
+        {
+          "kind": "menu",
+          "label": "Adjustments",
+          "mnemonic": "j",
+          "mnemonicIndex": 2,
+          "children": [
+            {
+              "kind": "item",
+              "label": "Brightness/Contrast...",
+              "mnemonic": "B",
+              "mnemonicIndex": 0,
+              "command": "BrightnessContrast"
+            },
+            {
+              "kind": "item",
+              "label": "Hue/Saturation...",
+              "mnemonic": "H",
+              "mnemonicIndex": 0,
+              "command": "HueSaturation",
+              "shortcut": "Ctrl+U",
+              "shortcutBindingContext": "Any"
+            },
+            {
+              "kind": "item",
+              "label": "Color Curve...",
+              "command": "ColorCurve"
+            }
+          ]
+        },
+        {
+          "kind": "menu",
+          "label": "FX",
+          "mnemonic": "X",
+          "mnemonicIndex": 1,
+          "children": [
+            {
+              "kind": "item",
+              "label": "Outline",
+              "mnemonic": "O",
+              "mnemonicIndex": 0,
+              "command": "Outline",
+              "shortcut": "Shift+O",
+              "shortcutBindingContext": "Any"
+            },
+            {
+              "kind": "item",
+              "label": "Convolution Matrix...",
+              "command": "ConvolutionMatrix"
+            },
+            {
+              "kind": "item",
+              "label": "Median Blur...",
+              "command": "Despeckle"
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "label": "Insert Text",
+          "command": "PasteText"
+        }
+      ]
+    },
+    {
+      "kind": "menu",
+      "label": "Sprite",
+      "mnemonic": "S",
+      "mnemonicIndex": 0,
+      "children": [
+        {
+          "kind": "item",
+          "label": "Properties...",
+          "mnemonic": "P",
+          "mnemonicIndex": 0,
+          "command": "SpriteProperties",
+          "shortcut": "Ctrl+P",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "menu",
+          "label": "Color Mode",
+          "mnemonic": "M",
+          "mnemonicIndex": 6,
+          "children": [
+            {
+              "kind": "item",
+              "label": "RGB Color",
+              "mnemonic": "R",
+              "mnemonicIndex": 0,
+              "command": "ChangePixelFormat",
+              "params": {
+                "format": "rgb"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Grayscale",
+              "mnemonic": "G",
+              "mnemonicIndex": 0,
+              "command": "ChangePixelFormat",
+              "params": {
+                "format": "grayscale"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Indexed",
+              "mnemonic": "I",
+              "mnemonicIndex": 0,
+              "command": "ChangePixelFormat",
+              "params": {
+                "format": "indexed"
+              }
+            },
+            {
+              "kind": "separator"
+            },
+            {
+              "kind": "item",
+              "label": "More Options",
+              "mnemonic": "M",
+              "mnemonicIndex": 0,
+              "command": "ChangePixelFormat"
+            }
+          ]
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "Duplicate...",
+          "mnemonic": "D",
+          "mnemonicIndex": 0,
+          "command": "DuplicateSprite"
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "Sprite Size...",
+          "mnemonic": "S",
+          "mnemonicIndex": 0,
+          "command": "SpriteSize",
+          "shortcut": "Ctrl+Alt+I",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Canvas Size...",
+          "mnemonic": "C",
+          "mnemonicIndex": 0,
+          "command": "CanvasSize",
+          "shortcut": "C",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "menu",
+          "label": "Rotate Canvas",
+          "mnemonic": "R",
+          "mnemonicIndex": 0,
+          "children": [
+            {
+              "kind": "item",
+              "label": "180",
+              "mnemonic": "1",
+              "mnemonicIndex": 0,
+              "command": "Rotate",
+              "params": {
+                "target": "canvas",
+                "angle": "180"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "90 CW",
+              "mnemonic": "9",
+              "mnemonicIndex": 0,
+              "command": "Rotate",
+              "params": {
+                "target": "canvas",
+                "angle": "90"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "90 CCW",
+              "mnemonic": "C",
+              "mnemonicIndex": 3,
+              "command": "Rotate",
+              "params": {
+                "target": "canvas",
+                "angle": "-90"
+              }
+            },
+            {
+              "kind": "separator"
+            },
+            {
+              "kind": "item",
+              "label": "Flip Canvas Horizontal",
+              "mnemonic": "H",
+              "mnemonicIndex": 12,
+              "command": "Flip",
+              "params": {
+                "target": "canvas",
+                "orientation": "horizontal"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Flip Canvas Vertical",
+              "mnemonic": "V",
+              "mnemonicIndex": 12,
+              "command": "Flip",
+              "params": {
+                "target": "canvas",
+                "orientation": "vertical"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "Crop",
+          "mnemonic": "o",
+          "mnemonicIndex": 2,
+          "command": "CropSprite"
+        },
+        {
+          "kind": "item",
+          "label": "Trim",
+          "mnemonic": "T",
+          "mnemonicIndex": 0,
+          "command": "AutocropSprite"
+        }
+      ]
+    },
+    {
+      "kind": "menu",
+      "label": "Layer",
+      "mnemonic": "L",
+      "mnemonicIndex": 0,
+      "children": [
+        {
+          "kind": "item",
+          "label": "Properties...",
+          "mnemonic": "P",
+          "mnemonicIndex": 0,
+          "command": "LayerProperties",
+          "shortcut": "F2",
+          "shortcutBindingContext": "Normal"
+        },
+        {
+          "kind": "item",
+          "label": "Visible",
+          "mnemonic": "V",
+          "mnemonicIndex": 0,
+          "command": "LayerVisibility",
+          "shortcut": "Shift+X",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Lock Layers",
+          "mnemonic": "k",
+          "mnemonicIndex": 3,
+          "command": "LayerLock"
+        },
+        {
+          "kind": "item",
+          "label": "Open Group",
+          "mnemonic": "O",
+          "mnemonicIndex": 0,
+          "command": "OpenGroup",
+          "shortcut": "Shift+E",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "menu",
+          "label": "New...",
+          "mnemonic": "N",
+          "mnemonicIndex": 0,
+          "children": [
+            {
+              "kind": "item",
+              "label": "New Layer",
+              "mnemonic": "N",
+              "mnemonicIndex": 0,
+              "command": "NewLayer",
+              "shortcut": "Shift+N",
+              "shortcutBindingContext": "Any"
+            },
+            {
+              "kind": "item",
+              "label": "New Group",
+              "mnemonic": "G",
+              "mnemonicIndex": 4,
+              "command": "NewLayer",
+              "shortcut": "Alt+Shift+N",
+              "shortcutBindingContext": "Any",
+              "params": {
+                "group": "true"
+              }
+            },
+            {
+              "kind": "separator"
+            },
+            {
+              "kind": "item",
+              "label": "New Layer via Copy",
+              "mnemonic": "C",
+              "mnemonicIndex": 14,
+              "command": "NewLayer",
+              "shortcut": "Ctrl+J",
+              "shortcutBindingContext": "Any",
+              "params": {
+                "viaCopy": "true"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "New Layer via Cut",
+              "mnemonic": "t",
+              "mnemonicIndex": 16,
+              "command": "NewLayer",
+              "shortcut": "Ctrl+Shift+J",
+              "shortcutBindingContext": "Any",
+              "params": {
+                "viaCut": "true"
+              }
+            },
+            {
+              "kind": "separator"
+            },
+            {
+              "kind": "item",
+              "label": "New Reference Layer from File",
+              "mnemonic": "R",
+              "mnemonicIndex": 4,
+              "command": "NewLayer",
+              "params": {
+                "reference": "true",
+                "fromFile": "true"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "New Tilemap Layer",
+              "command": "NewLayer",
+              "shortcut": "Space+N",
+              "shortcutBindingContext": "Any",
+              "params": {
+                "tilemap": "true",
+                "ask": "true"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "label": "Delete Layer",
+          "mnemonic": "r",
+          "mnemonicIndex": 11,
+          "command": "RemoveLayer"
+        },
+        {
+          "kind": "menu",
+          "label": "Convert To...",
+          "mnemonic": "e",
+          "mnemonicIndex": 4,
+          "children": [
+            {
+              "kind": "item",
+              "label": "Background",
+              "mnemonic": "B",
+              "mnemonicIndex": 0,
+              "command": "ConvertLayer",
+              "params": {
+                "to": "background"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Layer",
+              "mnemonic": "L",
+              "mnemonicIndex": 0,
+              "command": "ConvertLayer",
+              "params": {
+                "to": "layer"
+              }
+            },
+            {
+              "kind": "separator"
+            },
+            {
+              "kind": "item",
+              "label": "Tilemap",
+              "mnemonic": "T",
+              "mnemonicIndex": 0,
+              "command": "ConvertLayer",
+              "params": {
+                "to": "tilemap"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "Duplicate",
+          "mnemonic": "D",
+          "mnemonicIndex": 0,
+          "command": "DuplicateLayer"
+        },
+        {
+          "kind": "item",
+          "label": "Merge Down",
+          "mnemonic": "M",
+          "mnemonicIndex": 0,
+          "command": "MergeDownLayer"
+        },
+        {
+          "kind": "item",
+          "label": "Flatten",
+          "mnemonic": "F",
+          "mnemonicIndex": 0,
+          "command": "FlattenLayers"
+        },
+        {
+          "kind": "item",
+          "label": "Flatten Visible",
+          "mnemonic": "s",
+          "mnemonicIndex": 10,
+          "command": "FlattenLayers",
+          "params": {
+            "visibleOnly": "true"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "menu",
+      "label": "Frame",
+      "mnemonic": "r",
+      "mnemonicIndex": 1,
+      "children": [
+        {
+          "kind": "item",
+          "label": "Frame Properties...",
+          "mnemonic": "F",
+          "mnemonicIndex": 0,
+          "command": "FrameProperties",
+          "shortcut": "P",
+          "shortcutBindingContext": "Any",
+          "params": {
+            "frame": "current"
+          }
+        },
+        {
+          "kind": "item",
+          "label": "Cel Properties...",
+          "mnemonic": "C",
+          "mnemonicIndex": 0,
+          "command": "CelProperties"
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "New Frame",
+          "mnemonic": "N",
+          "mnemonicIndex": 0,
+          "command": "NewFrame",
+          "shortcut": "Alt+N",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "New Empty Frame",
+          "mnemonic": "E",
+          "mnemonicIndex": 4,
+          "command": "NewFrame",
+          "shortcut": "Alt+B",
+          "shortcutBindingContext": "Any",
+          "params": {
+            "content": "empty"
+          }
+        },
+        {
+          "kind": "item",
+          "label": "Duplicate Cel(s)",
+          "mnemonic": "D",
+          "mnemonicIndex": 0,
+          "command": "NewFrame",
+          "shortcut": "Alt+D",
+          "shortcutBindingContext": "Any",
+          "params": {
+            "content": "celcopies"
+          }
+        },
+        {
+          "kind": "item",
+          "label": "Duplicate Linked Cel(s)",
+          "mnemonic": "L",
+          "mnemonicIndex": 10,
+          "command": "NewFrame",
+          "shortcut": "Alt+M",
+          "shortcutBindingContext": "Any",
+          "params": {
+            "content": "cellinked"
+          }
+        },
+        {
+          "kind": "item",
+          "label": "Delete Frame",
+          "mnemonic": "r",
+          "mnemonicIndex": 8,
+          "command": "RemoveFrame",
+          "shortcut": "Alt+C",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "menu",
+          "label": "Tags",
+          "mnemonic": "T",
+          "mnemonicIndex": 0,
+          "children": [
+            {
+              "kind": "item",
+              "label": "Tag Properties...",
+              "mnemonic": "P",
+              "mnemonicIndex": 4,
+              "command": "FrameTagProperties"
+            },
+            {
+              "kind": "separator"
+            },
+            {
+              "kind": "item",
+              "label": "New Tag",
+              "mnemonic": "T",
+              "mnemonicIndex": 4,
+              "command": "NewFrameTag"
+            },
+            {
+              "kind": "item",
+              "label": "Delete Tag",
+              "mnemonic": "D",
+              "mnemonicIndex": 0,
+              "command": "RemoveFrameTag"
+            }
+          ]
+        },
+        {
+          "kind": "menu",
+          "label": "Jump to",
+          "mnemonic": "J",
+          "mnemonicIndex": 0,
+          "children": [
+            {
+              "kind": "item",
+              "label": "First Frame",
+              "mnemonic": "F",
+              "mnemonicIndex": 0,
+              "command": "GotoFirstFrame",
+              "shortcut": "Home",
+              "shortcutBindingContext": "Any"
+            },
+            {
+              "kind": "item",
+              "label": "Previous Frame",
+              "mnemonic": "P",
+              "mnemonicIndex": 0,
+              "command": "GotoPreviousFrame",
+              "shortcut": "Left",
+              "shortcutBindingContext": "Normal"
+            },
+            {
+              "kind": "item",
+              "label": "Next Frame",
+              "mnemonic": "N",
+              "mnemonicIndex": 0,
+              "command": "GotoNextFrame",
+              "shortcut": "Right",
+              "shortcutBindingContext": "Normal"
+            },
+            {
+              "kind": "item",
+              "label": "Last Frame",
+              "mnemonic": "L",
+              "mnemonicIndex": 0,
+              "command": "GotoLastFrame",
+              "shortcut": "End",
+              "shortcutBindingContext": "Any"
+            },
+            {
+              "kind": "separator"
+            },
+            {
+              "kind": "item",
+              "label": "First Frame In Tag",
+              "command": "GotoFirstFrameInTag"
+            },
+            {
+              "kind": "item",
+              "label": "Last Frame In Tag",
+              "command": "GotoLastFrameInTag"
+            },
+            {
+              "kind": "separator"
+            },
+            {
+              "kind": "item",
+              "label": "Go to Frame",
+              "mnemonic": "G",
+              "mnemonicIndex": 0,
+              "command": "GotoFrame",
+              "shortcut": "Alt+G",
+              "shortcutBindingContext": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "label": "Play Animation",
+          "command": "PlayAnimation",
+          "shortcut": "Enter",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "menu",
+          "label": "Playback",
+          "mnemonic": "P",
+          "mnemonicIndex": 0,
+          "children": [
+            {
+              "kind": "item",
+              "label": "Play Preview Animation",
+              "command": "PlayPreviewAnimation",
+              "shortcut": "Shift+Enter",
+              "shortcutBindingContext": "Any"
+            },
+            {
+              "kind": "separator"
+            },
+            {
+              "kind": "item",
+              "label": "Playback Speed 0.25x",
+              "command": "SetPlaybackSpeed",
+              "params": {
+                "multiplier": "0.25"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Playback Speed 0.5x",
+              "command": "SetPlaybackSpeed",
+              "params": {
+                "multiplier": "0.5"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Playback Speed 1x",
+              "command": "SetPlaybackSpeed",
+              "params": {
+                "multiplier": "1.0"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Playback Speed 1.5x",
+              "command": "SetPlaybackSpeed",
+              "params": {
+                "multiplier": "1.5"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Playback Speed 2x",
+              "command": "SetPlaybackSpeed",
+              "params": {
+                "multiplier": "2.0"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Playback Speed 3x",
+              "command": "SetPlaybackSpeed",
+              "params": {
+                "multiplier": "3.0"
+              }
+            },
+            {
+              "kind": "separator"
+            },
+            {
+              "kind": "item",
+              "label": "Play Once",
+              "command": "TogglePlayOnce"
+            },
+            {
+              "kind": "item",
+              "label": "Play All Frames (Ignore Tags)",
+              "command": "TogglePlayAll"
+            },
+            {
+              "kind": "item",
+              "label": "Play Subtags & Repetitions",
+              "command": "TogglePlaySubtags"
+            },
+            {
+              "kind": "separator"
+            },
+            {
+              "kind": "item",
+              "label": "Rewind on Stop",
+              "command": "ToggleRewindOnStop"
+            }
+          ]
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "Constant Frame Rate",
+          "command": "FrameProperties",
+          "params": {
+            "frame": "all"
+          }
+        },
+        {
+          "kind": "item",
+          "label": "Reverse Frames",
+          "mnemonic": "v",
+          "mnemonicIndex": 2,
+          "command": "ReverseFrames",
+          "shortcut": "Alt+I",
+          "shortcutBindingContext": "Any"
+        }
+      ]
+    },
+    {
+      "kind": "menu",
+      "label": "Select",
+      "mnemonic": "t",
+      "mnemonicIndex": 5,
+      "children": [
+        {
+          "kind": "item",
+          "label": "All",
+          "mnemonic": "A",
+          "mnemonicIndex": 0,
+          "command": "MaskAll",
+          "shortcut": "Ctrl+A",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Deselect",
+          "mnemonic": "D",
+          "mnemonicIndex": 0,
+          "command": "DeselectMask",
+          "shortcut": "Ctrl+D",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Reselect",
+          "mnemonic": "R",
+          "mnemonicIndex": 0,
+          "command": "ReselectMask",
+          "shortcut": "Ctrl+Shift+D",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Inverse",
+          "mnemonic": "I",
+          "mnemonicIndex": 0,
+          "command": "InvertMask",
+          "shortcut": "Ctrl+Shift+I",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "Color Range",
+          "mnemonic": "C",
+          "mnemonicIndex": 0,
+          "command": "MaskByColor"
+        },
+        {
+          "kind": "menu",
+          "label": "Modify",
+          "mnemonic": "M",
+          "mnemonicIndex": 0,
+          "children": [
+            {
+              "kind": "item",
+              "label": "Border",
+              "mnemonic": "B",
+              "mnemonicIndex": 0,
+              "command": "ModifySelection",
+              "params": {
+                "modifier": "border"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Expand",
+              "mnemonic": "E",
+              "mnemonicIndex": 0,
+              "command": "ModifySelection",
+              "params": {
+                "modifier": "expand"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Contract",
+              "mnemonic": "C",
+              "mnemonicIndex": 0,
+              "command": "ModifySelection",
+              "params": {
+                "modifier": "contract"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "menu",
+      "label": "View",
+      "mnemonic": "V",
+      "mnemonicIndex": 0,
+      "children": [
+        {
+          "kind": "menu",
+          "label": "Show",
+          "mnemonic": "S",
+          "mnemonicIndex": 0,
+          "children": [
+            {
+              "kind": "item",
+              "label": "Layer Edges",
+              "mnemonic": "L",
+              "mnemonicIndex": 0,
+              "command": "ShowLayerEdges"
+            },
+            {
+              "kind": "item",
+              "label": "Selection Edges",
+              "mnemonic": "S",
+              "mnemonicIndex": 0,
+              "command": "ShowSelectionEdges"
+            },
+            {
+              "kind": "item",
+              "label": "Grid",
+              "mnemonic": "G",
+              "mnemonicIndex": 0,
+              "command": "ShowGrid",
+              "shortcut": "Ctrl+'",
+              "shortcutBindingContext": "Any"
+            },
+            {
+              "kind": "item",
+              "label": "Auto Guides",
+              "mnemonic": "A",
+              "mnemonicIndex": 0,
+              "command": "ShowAutoGuides"
+            },
+            {
+              "kind": "item",
+              "label": "Slices",
+              "mnemonic": "i",
+              "mnemonicIndex": 2,
+              "command": "ShowSlices"
+            },
+            {
+              "kind": "item",
+              "label": "Pixel Grid",
+              "mnemonic": "P",
+              "mnemonicIndex": 0,
+              "command": "ShowPixelGrid",
+              "shortcut": "Ctrl+Shift+'",
+              "shortcutBindingContext": "Any"
+            },
+            {
+              "kind": "item",
+              "label": "Tile Numbers",
+              "mnemonic": "T",
+              "mnemonicIndex": 0,
+              "command": "ShowTileNumbers"
+            },
+            {
+              "kind": "separator"
+            },
+            {
+              "kind": "item",
+              "label": "Brush Preview",
+              "mnemonic": "B",
+              "mnemonicIndex": 0,
+              "command": "ShowBrushPreview"
+            }
+          ]
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "menu",
+          "label": "Grid",
+          "mnemonic": "G",
+          "mnemonicIndex": 0,
+          "children": [
+            {
+              "kind": "item",
+              "label": "Grid Settings",
+              "mnemonic": "d",
+              "mnemonicIndex": 3,
+              "command": "GridSettings"
+            },
+            {
+              "kind": "item",
+              "label": "Selection as Grid",
+              "mnemonic": "i",
+              "mnemonicIndex": 6,
+              "command": "SelectionAsGrid"
+            },
+            {
+              "kind": "item",
+              "label": "Snap to Grid",
+              "mnemonic": "S",
+              "mnemonicIndex": 0,
+              "command": "SnapToGrid",
+              "shortcut": "Shift+S",
+              "shortcutBindingContext": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "menu",
+          "label": "Tiled Mode",
+          "mnemonic": "M",
+          "mnemonicIndex": 6,
+          "children": [
+            {
+              "kind": "item",
+              "label": "None",
+              "mnemonic": "N",
+              "mnemonicIndex": 0,
+              "command": "TiledMode",
+              "params": {
+                "axis": "none"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Tiled in Both Axes",
+              "mnemonic": "B",
+              "mnemonicIndex": 9,
+              "command": "TiledMode",
+              "params": {
+                "axis": "both"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Tiled in X Axis",
+              "mnemonic": "X",
+              "mnemonicIndex": 9,
+              "command": "TiledMode",
+              "params": {
+                "axis": "x"
+              }
+            },
+            {
+              "kind": "item",
+              "label": "Tiled in Y Axis",
+              "mnemonic": "Y",
+              "mnemonicIndex": 9,
+              "command": "TiledMode",
+              "params": {
+                "axis": "y"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "label": "Symmetry Options",
+          "mnemonic": "y",
+          "mnemonicIndex": 1,
+          "command": "SymmetryMode"
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "Set Loop Section",
+          "mnemonic": "L",
+          "mnemonicIndex": 4,
+          "command": "SetLoopSection"
+        },
+        {
+          "kind": "item",
+          "label": "Show Onion Skin",
+          "mnemonic": "O",
+          "mnemonicIndex": 5,
+          "command": "ShowOnionSkin",
+          "shortcut": "F3",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "Timeline",
+          "mnemonic": "T",
+          "mnemonicIndex": 0,
+          "command": "Timeline",
+          "shortcut": "Tab",
+          "shortcutBindingContext": "Any",
+          "params": {
+            "switch": "true"
+          }
+        },
+        {
+          "kind": "item",
+          "label": "Preview",
+          "mnemonic": "w",
+          "mnemonicIndex": 6,
+          "command": "TogglePreview",
+          "shortcut": "F7",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Home",
+          "mnemonic": "H",
+          "mnemonicIndex": 0,
+          "command": "Home"
+        }
+      ]
+    }
+  ]
+}

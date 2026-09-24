@@ -1,0 +1,30 @@
+.layer {
+  position: absolute;
+  inset: 0;
+  z-index: var(--ui-color-picker-z-index, 2100);
+  pointer-events: none;
+}
+
+.swatchGroup {
+  position: absolute;
+  pointer-events: auto;
+}
+
+.swatchGroup button {
+  position: absolute;
+  top: 16.6667%;
+  height: 66.6667%;
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  outline: none;
+}
+
+.error {
+  position: absolute;
+  width: 0.683px;
+  height: 0.683px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}

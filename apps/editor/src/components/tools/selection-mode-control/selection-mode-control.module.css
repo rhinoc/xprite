@@ -1,0 +1,4 @@
+.option {
+  z-index: var(--ui-control-z-index, 4);
+  box-sizing: border-box;
+}

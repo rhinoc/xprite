@@ -1,0 +1,104 @@
+name: Deploy editor
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Tag or commit to deploy (empty uses the selected branch)"
+        required: false
+        type: string
+      environment:
+        description: "Target environment (first deployment must be production)"
+        required: true
+        default: preview
+        type: choice
+        options:
+          - preview
+          - production
+
+permissions:
+  contents: read
+
+concurrency:
+  group: edgeone-editor-${{ inputs.environment || 'production' }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy editor
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: ${{ inputs.environment || 'production' }}
+    env:
+      HUSKY: "0"
+      EDGEONE_ENV: ${{ inputs.environment || 'production' }}
+      EDGEONE_PROJECT_NAME: ${{ vars.EDGEONE_PROJECT_NAME || 'xprite' }}
+      EDGEONE_AREA: ${{ vars.EDGEONE_AREA }}
+      VITE_POSTHOG_REGION: ${{ vars.VITE_POSTHOG_REGION || 'US' }}
+      VITE_POSTHOG_PROJECT_TOKEN: ${{ (inputs.environment || 'production') == 'production' && vars.VITE_POSTHOG_PROJECT_TOKEN || '' }}
+
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - name: Validate deployment configuration
+        run: pnpm run deploy:validate
+        env:
+          EDGEONE_API_TOKEN: ${{ secrets.EDGEONE_API_TOKEN }}
+          POSTHOG_CLI_API_KEY: ${{ (inputs.environment || 'production') == 'production' && secrets.POSTHOG_CLI_API_KEY || '' }}
+          POSTHOG_CLI_PROJECT_ID: ${{ (inputs.environment || 'production') == 'production' && secrets.POSTHOG_CLI_API_KEY != '' && vars.POSTHOG_CLI_PROJECT_ID || '' }}
+
+      - name: Record actual build revision
+        run: |
+          echo "POSTHOG_RELEASE=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "DEPLOY_REF=$(git describe --tags --exact-match HEAD 2>/dev/null || git rev-parse --short HEAD)" >> "$GITHUB_ENV"
+
+      - run: pnpm install --frozen-lockfile
+      - name: Validate EdgeOne configuration
+        run: pnpm exec edgeone validate
+
+      - name: Build editor and upload optional source maps
+        run: pnpm run build:editor
+        env:
+          POSTHOG_CLI_API_KEY: ${{ (inputs.environment || 'production') == 'production' && secrets.POSTHOG_CLI_API_KEY || '' }}
+          POSTHOG_CLI_PROJECT_ID: ${{ (inputs.environment || 'production') == 'production' && secrets.POSTHOG_CLI_API_KEY != '' && vars.POSTHOG_CLI_PROJECT_ID || '' }}
+
+      - name: Prepare static deployment
+        run: pnpm run deploy:prepare
+
+      - name: Save deployment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: editor-${{ env.EDGEONE_ENV }}-${{ env.POSTHOG_RELEASE }}
+          path: .tmp/deploy/editor/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish and verify deployed revision
+        id: publish
+        run: pnpm run deploy:editor
+        env:
+          EDGEONE_API_TOKEN: ${{ secrets.EDGEONE_API_TOKEN }}
+
+      - name: Save deployment result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-result-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .tmp/deploy/result.json
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 14

@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "../../dist/core/types",
+    "rootDir": "src",
+    "composite": true,
+    "declarationMap": true,
+    "paths": {
+      "$/*": ["./src/*"],
+      "@xprite/bedrock/common/*": ["../../dist/bedrock/common/*"]
+    },
+    "tsBuildInfoFile": "../../node_modules/.tmp/editor-core.build.tsbuildinfo"
+  },
+  "references": [{ "path": "../bedrock/tsconfig.common.build.json" }]
+}

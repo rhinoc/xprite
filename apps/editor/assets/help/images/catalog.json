@@ -1,0 +1,46 @@
+{
+  "images/en/file-menu.webp": {
+    "width": 272,
+    "height": 152
+  },
+  "images/en/layout-menu.webp": {
+    "width": 206,
+    "height": 230
+  },
+  "images/en/save-as.webp": {
+    "width": 376,
+    "height": 336
+  },
+  "images/en/touch-settings.webp": {
+    "width": 698,
+    "height": 458
+  },
+  "images/en/view-show.webp": {
+    "width": 250,
+    "height": 304
+  },
+  "images/shared/layout-button.webp": {
+    "width": 80,
+    "height": 40
+  },
+  "images/zh/file-menu.webp": {
+    "width": 224,
+    "height": 152
+  },
+  "images/zh/layout-menu.webp": {
+    "width": 160,
+    "height": 230
+  },
+  "images/zh/save-as.webp": {
+    "width": 376,
+    "height": 336
+  },
+  "images/zh/touch-settings.webp": {
+    "width": 698,
+    "height": 458
+  },
+  "images/zh/view-show.webp": {
+    "width": 226,
+    "height": 304
+  }
+}

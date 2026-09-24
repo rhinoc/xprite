@@ -1,0 +1,49 @@
+:global(.xse-tool-rail) {
+  position: relative;
+  box-sizing: border-box;
+  z-index: 4;
+  background: var(--xse-workspace, #7d929e);
+}
+:global(.xse-tool-rail[data-layout="column"]) {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+:global(.xse-tool-rail-groups[data-layout="column"]) {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+:global(.xse-tool-rail-groups[data-layout="column"]::-webkit-scrollbar) {
+  display: none;
+}
+:global(.xse-tool-rail-groups[data-layout="row"]) {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+:global(.xse-tool-rail-groups[data-layout="row"]::-webkit-scrollbar) {
+  display: none;
+}
+:global(.xse-tool-rail [data-slot="button"]) {
+  z-index: 4;
+}
+:global(.xse-tool-rail[data-layout="row"]) {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+:global(.xse-editor-window[data-ui-appearance="dark"] .xse-tool-rail) {
+  background: var(--xse-panel-dark, #333333);
+}

@@ -1,0 +1,18 @@
+.control {
+  position: absolute;
+  left: calc(var(--ui-layer-flag-column, 0) * var(--ui-layer-flag-cell-width, 24px));
+  top: 0;
+  width: var(--ui-layer-flag-cell-width, 24px);
+  height: var(--ui-layer-flag-height, 24px);
+  z-index: var(--ui-control-z-index, 4);
+  box-sizing: border-box;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: var(--ui-cursor-default, default);
+}
+
+.control:focus-visible {
+  outline: var(--ui-focus-ring-width, 1px) solid var(--ui-focus-ring, currentColor);
+  outline-offset: -1px;
+}

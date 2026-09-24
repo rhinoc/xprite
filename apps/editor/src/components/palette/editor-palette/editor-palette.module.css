@@ -1,0 +1,32 @@
+:global(.xse-palette) {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  background: var(--xse-workspace, #7d929e);
+}
+:global(.xse-palette-grid) {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(5, 11.001px);
+  grid-template-rows: repeat(22, 11.001px);
+  gap: 0.998px;
+  width: 58.994px;
+  margin-top: 3.075px;
+  overflow: hidden;
+}
+:global(.xse-palette-grid span) {
+  aspect-ratio: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: none !important;
+  cursor: inherit;
+}
+:global(.xse-editor-window[data-ui-appearance="dark"] .xse-palette) {
+  background: var(--xse-panel-dark, #333333);
+}
+:global(.xse-editor-workspace .xse-palette) {
+  flex: 1 1 auto;
+  min-height: 48px;
+}

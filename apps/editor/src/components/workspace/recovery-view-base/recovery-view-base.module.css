@@ -1,0 +1,25 @@
+.root {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--ui-recovery-workspace);
+}
+
+.toolbar {
+  position: relative;
+  flex: none;
+}
+
+.list {
+  flex: 1;
+}
+
+:global(.xse-editor-window[data-workspace-recovery-layout="stacked"]) .root .list {
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}

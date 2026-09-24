@@ -1,0 +1,48 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-6, 12px);
+  padding: var(--ui-space-4, 8px);
+  min-width: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-space-4, 8px);
+  min-width: 0;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  align-items: center;
+  gap: var(--ui-space-4, 8px);
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.caption {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-2, 4px);
+  min-width: 0;
+}
+
+.standalone {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--ui-space-4, 8px);
+  padding-top: var(--ui-space-4, 8px);
+}

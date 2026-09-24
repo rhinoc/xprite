@@ -1,0 +1,25 @@
+.input {
+  position: absolute;
+  left: var(--ui-inline-text-left, 0px);
+  top: var(--ui-inline-text-top, 0px);
+  width: max(1px, var(--ui-inline-text-width, 1px));
+  height: max(1px, var(--ui-inline-text-height, 1px));
+  z-index: var(--ui-z-inline-editor, var(--ui-layer-floating, 10));
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  color: transparent;
+  caret-color: transparent;
+  -webkit-text-fill-color: transparent;
+  touch-action: auto;
+  cursor: var(--ui-cursor-default, default);
+}
+
+.input::selection {
+  background: transparent;
+  color: transparent;
+}

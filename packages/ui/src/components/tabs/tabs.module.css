@@ -1,0 +1,100 @@
+.root {
+  --ui-tab-artwork-layer: var(--ui-layer-background, 1);
+  --ui-tab-control-layer: var(--ui-control-z-index, 3);
+  --ui-tab-drag-layer: var(--ui-layer-dragged, 5);
+  --ui-tab-cursor: var(--ui-cursor-default, default);
+
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+:global([data-ui-compact="true"] .xse-tab-strip) {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  touch-action: pan-x;
+}
+
+:global([data-ui-compact="true"] .xse-tab-strip::-webkit-scrollbar) {
+  display: none;
+}
+
+.artwork {
+  position: absolute;
+  pointer-events: none;
+}
+
+.leadingContent {
+  position: sticky;
+  left: 0;
+  z-index: var(--ui-tab-control-layer);
+  display: flex;
+  flex-shrink: 0;
+}
+
+.leadingControl {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.scrollSpacer {
+  pointer-events: none;
+}
+
+.paintLayer {
+  position: absolute;
+  inset: 0 auto auto 0;
+  z-index: var(--ui-tab-artwork-layer);
+}
+
+.tabList {
+  position: absolute;
+  inset: 0;
+  z-index: var(--ui-tab-control-layer);
+  pointer-events: none;
+}
+
+.tab {
+  position: absolute;
+  top: 0;
+  z-index: var(--ui-tab-control-layer);
+  cursor: var(--ui-tab-cursor);
+  pointer-events: auto;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+}
+
+.tab:focus-visible {
+  outline: none;
+}
+
+.root .tab[data-ui-pointer-focused="true"]:focus-visible {
+  outline: none;
+}
+
+.closeButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: var(--ui-tab-cursor);
+}
+
+.floatingTab {
+  --ui-tab-floating-layer: var(--ui-layer-floating, 10000);
+
+  position: fixed;
+  z-index: var(--ui-tab-floating-layer);
+  pointer-events: none;
+}

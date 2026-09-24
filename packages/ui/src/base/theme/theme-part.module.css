@@ -1,0 +1,34 @@
+.themeIcon {
+  display: inline-block;
+  flex: none;
+  vertical-align: middle;
+}
+.themeRepeat {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+.themePart {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  min-width: var(--xse-theme-min-width);
+  min-height: var(--xse-theme-min-height);
+}
+.themePixelSurface {
+  position: absolute;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+.themePixelHost {
+  position: relative;
+  display: inline-flex;
+  isolation: isolate;
+}
+.themePixelBlock {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}

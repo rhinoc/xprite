@@ -1,0 +1,34 @@
+.host {
+  position: absolute;
+  inset-inline: 12px;
+  top: 12px;
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.notice {
+  max-width: 100%;
+  padding: var(--ui-space-4, 8px) 12px;
+  border: var(--ui-border-width, 1px) solid;
+  animation: enter 180ms ease-out;
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-100% - 12px));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notice {
+    animation: none;
+  }
+}

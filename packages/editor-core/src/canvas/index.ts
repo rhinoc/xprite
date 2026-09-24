@@ -1,0 +1,18 @@
+export * from "$/canvas/assistance/grid";
+export * from "$/canvas/assistance/symmetry";
+export { BLEND_MODES, blendNormalAt, blendAt, blendImageAt } from "$/canvas/blend-modes";
+export * from "$/canvas/document-view-preferences";
+export * from "$/canvas/frame-geometry";
+export * from "$/canvas/guides";
+export * from "$/canvas/overlay-geometry";
+export * from "$/canvas/raster";
+export { supportsPixelPerfect } from "$/canvas/raster/pixel-perfect-stroke";
+export * from "$/canvas/raster/dynamic-paint-stroke";
+export * from "$/canvas/raster/stroke-dynamics";
+export * from "$/canvas/selection-ants";
+export * from "$/canvas/types";
+export * from "$/canvas/editor-renderer";
+export * from "$/canvas/controller";
+export * from "$/canvas/tiled-canvas";
+export * from "$/canvas/view";
+export * from "$/canvas/zoom";

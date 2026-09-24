@@ -1,0 +1,328 @@
+{
+  "cursors": {
+    "crosshair": {
+      "sizes": {
+        "16": {
+          "file": "crosshair.svg",
+          "hotspotX": 7,
+          "hotspotY": 7
+        }
+      }
+    },
+    "eyedropper": {
+      "sizes": {
+        "16": {
+          "file": "eyedropper.svg",
+          "hotspotX": 0,
+          "hotspotY": 15
+        }
+      }
+    },
+    "forbidden": {
+      "sizes": {
+        "16": {
+          "file": "forbidden.svg",
+          "hotspotX": 0,
+          "hotspotY": 0
+        }
+      }
+    },
+    "hand": {
+      "sizes": {
+        "16": {
+          "file": "hand.svg",
+          "hotspotX": 5,
+          "hotspotY": 3
+        }
+      }
+    },
+    "magnifier": {
+      "sizes": {
+        "16": {
+          "file": "magnifier.svg",
+          "hotspotX": 5,
+          "hotspotY": 5
+        }
+      }
+    },
+    "move": {
+      "sizes": {
+        "16": {
+          "file": "move.svg",
+          "hotspotX": 0,
+          "hotspotY": 0
+        }
+      }
+    },
+    "move_selection": {
+      "sizes": {
+        "16": {
+          "file": "move_selection.svg",
+          "hotspotX": 0,
+          "hotspotY": 0
+        }
+      }
+    },
+    "normal": {
+      "sizes": {
+        "16": {
+          "file": "normal.svg",
+          "hotspotX": 0,
+          "hotspotY": 0
+        }
+      }
+    },
+    "normal_add": {
+      "sizes": {
+        "16": {
+          "file": "normal_add.svg",
+          "hotspotX": 0,
+          "hotspotY": 0
+        }
+      }
+    },
+    "rotate_e": {
+      "sizes": {
+        "16": {
+          "file": "rotate_e.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "rotate_n": {
+      "sizes": {
+        "16": {
+          "file": "rotate_n.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "rotate_ne": {
+      "sizes": {
+        "16": {
+          "file": "rotate_ne.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "rotate_nw": {
+      "sizes": {
+        "16": {
+          "file": "rotate_nw.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "rotate_s": {
+      "sizes": {
+        "16": {
+          "file": "rotate_s.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "rotate_se": {
+      "sizes": {
+        "16": {
+          "file": "rotate_se.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "rotate_sw": {
+      "sizes": {
+        "16": {
+          "file": "rotate_sw.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "rotate_w": {
+      "sizes": {
+        "16": {
+          "file": "rotate_w.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "scroll": {
+      "sizes": {
+        "16": {
+          "file": "scroll.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "size_e": {
+      "sizes": {
+        "16": {
+          "file": "size_e.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "size_n": {
+      "sizes": {
+        "16": {
+          "file": "size_n.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "size_ne": {
+      "sizes": {
+        "16": {
+          "file": "size_ne.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "size_ns": {
+      "sizes": {
+        "16": {
+          "file": "size_ns.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "size_nw": {
+      "sizes": {
+        "16": {
+          "file": "size_nw.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "size_s": {
+      "sizes": {
+        "16": {
+          "file": "size_s.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "size_se": {
+      "sizes": {
+        "16": {
+          "file": "size_se.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "size_sw": {
+      "sizes": {
+        "16": {
+          "file": "size_sw.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "size_w": {
+      "sizes": {
+        "16": {
+          "file": "size_w.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "size_we": {
+      "sizes": {
+        "16": {
+          "file": "size_we.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "skew_e": {
+      "sizes": {
+        "16": {
+          "file": "skew_e.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "skew_n": {
+      "sizes": {
+        "16": {
+          "file": "skew_n.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "skew_ne": {
+      "sizes": {
+        "16": {
+          "file": "skew_ne.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "skew_nw": {
+      "sizes": {
+        "16": {
+          "file": "skew_nw.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "skew_s": {
+      "sizes": {
+        "16": {
+          "file": "skew_s.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "skew_se": {
+      "sizes": {
+        "16": {
+          "file": "skew_se.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "skew_sw": {
+      "sizes": {
+        "16": {
+          "file": "skew_sw.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    },
+    "skew_w": {
+      "sizes": {
+        "16": {
+          "file": "skew_w.svg",
+          "hotspotX": 8,
+          "hotspotY": 8
+        }
+      }
+    }
+  }
+}

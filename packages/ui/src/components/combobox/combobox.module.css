@@ -1,0 +1,48 @@
+.anchor {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 auto;
+  vertical-align: top;
+  z-index: var(--ui-control-z-index, 4);
+}
+
+.trigger {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  touch-action: manipulation;
+}
+
+.artwork {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.popup {
+  outline: none;
+}
+
+.viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.optionHitArea {
+  position: absolute;
+}
+
+.optionHit {
+  position: absolute;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  outline: none;
+  background: transparent;
+  touch-action: manipulation;
+}

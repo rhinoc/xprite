@@ -1,0 +1,40 @@
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  -webkit-touch-callout: none;
+}
+.xse-safe-area {
+  /* Reserve native floating controls in addition to the system safe area. */
+  --xprite-minitool-navigation-inset: 48px;
+  grid-template-rows:
+    calc(var(--safe-area-inset-top, 0px) + var(--xprite-minitool-navigation-inset))
+    minmax(0, 1fr)
+    var(--safe-area-inset-bottom, 0px);
+  grid-template-columns: var(--safe-area-inset-left, 0px) minmax(0, 1fr) var(
+      --safe-area-inset-right,
+      0px
+    );
+}
+@supports (padding-top: env(safe-area-inset-top)) {
+  .xse-safe-area {
+    grid-template-rows:
+      calc(
+        var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) +
+          var(--xprite-minitool-navigation-inset)
+      )
+      minmax(0, 1fr)
+      var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+    grid-template-columns: var(--safe-area-inset-left, env(safe-area-inset-left, 0px)) minmax(
+        0,
+        1fr
+      ) var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
+  }
+}
+[aria-disabled="true"] {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.5;
+}

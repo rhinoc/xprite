@@ -1,0 +1,68 @@
+.root {
+  position: absolute;
+  inset: 0;
+  z-index: 102;
+  pointer-events: none;
+}
+
+.band,
+.surface {
+  position: absolute;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.band {
+  border: 1px dashed var(--xse-window-tooltip-face, #ffff7d);
+  background: color-mix(in srgb, var(--xse-window-tooltip-face, #ffff7d) 14%, transparent);
+}
+
+.band[data-selected] {
+  border: 2px solid var(--xse-window-tooltip-face, #ffff7d);
+  background: color-mix(in srgb, var(--xse-window-tooltip-face, #ffff7d) 28%, transparent);
+}
+
+.surface {
+  border: 1px dashed var(--xse-window-tooltip-face, #ffff7d);
+}
+
+.marker {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--xse-window-tooltip-text, #000000);
+  background: var(--xse-window-tooltip-face, #ffff7d);
+  pointer-events: none;
+}
+
+.marker[data-selected] {
+  border: 2px solid var(--xse-window-tooltip-text, #000000);
+  box-shadow: 0 0 0 2px var(--xse-window-tooltip-face, #ffff7d);
+}
+
+.verticalLabel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.hint {
+  position: absolute;
+  left: 50%;
+  top: 36px;
+  max-width: calc(100% - 64px);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px;
+  transform: translateX(-50%);
+  color: var(--xse-window-tooltip-text, #000000);
+  background: var(--xse-window-tooltip-face, #ffff7d);
+  pointer-events: none;
+}

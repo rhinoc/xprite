@@ -1,0 +1,33 @@
+.root {
+  --ui-tool-artwork-layer: var(--ui-control-z-index, 4);
+  --ui-tool-popup-layer: var(--ui-layer-popup, 120);
+
+  display: contents;
+}
+
+.popup {
+  --ui-tool-popup-layer: var(--ui-layer-popup, 120);
+  position: fixed;
+  z-index: var(--ui-tool-popup-layer);
+  pointer-events: auto;
+}
+
+.root[data-layout="row"] :global(button[data-slot="button"]) {
+  touch-action: pan-x;
+}
+
+.root[data-layout="column"] :global(button[data-slot="button"]) {
+  touch-action: pan-y;
+}
+
+.popup :global(button[data-slot="button"]) {
+  touch-action: none;
+}
+
+.artworkStrip {
+  z-index: var(--ui-tool-artwork-layer);
+}
+
+.face {
+  pointer-events: none;
+}

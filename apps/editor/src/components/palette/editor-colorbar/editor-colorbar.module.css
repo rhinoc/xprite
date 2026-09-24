@@ -1,0 +1,17 @@
+:global(.xse-colorbar) {
+  display: flex;
+  flex-direction: column;
+  gap: 1.367px;
+  padding: 0 0.683px 0 2.05px;
+  background: var(--xse-workspace, #7d929e);
+}
+:global(.xse-editor-window[data-ui-appearance="dark"] .xse-colorbar) {
+  background: var(--xse-panel-dark, #333333);
+}
+:global(.xse-editor-workspace .xse-colorbar) {
+  position: relative;
+  flex: 20 1 0px;
+  min-height: 144px;
+  padding: 0;
+  overflow: hidden;
+}

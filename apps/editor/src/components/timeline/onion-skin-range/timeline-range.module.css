@@ -1,0 +1,36 @@
+:global(:root) {
+  --ui-layer-onion-range: 2;
+}
+
+.timelineRangeSlider {
+  z-index: var(--ui-layer-onion-range);
+  pointer-events: none;
+}
+
+.timelineRangeArtwork {
+  position: absolute;
+  overflow: hidden;
+  display: block;
+  pointer-events: none;
+}
+
+.timelineRangeHandle {
+  position: absolute;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: var(--ui-cursor-resize-horizontal, ew-resize);
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.timelineRangeHandle:focus-visible {
+  outline: var(--ui-focus-ring-width, 1px) solid var(--ui-focus-ring, currentColor);
+  outline-offset: -1px;
+}
+
+.timelineRangeHandle:disabled {
+  pointer-events: none;
+}

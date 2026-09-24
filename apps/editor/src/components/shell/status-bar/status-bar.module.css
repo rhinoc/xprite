@@ -1,0 +1,123 @@
+:global(.xse-editor-window .xse-status) {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-4, 8px);
+  flex: 0 0 var(--xse-status-bar-height, 30px);
+  height: var(--xse-status-bar-height, 30px);
+  min-height: var(--xse-status-bar-height, 30px);
+  box-sizing: border-box;
+  padding: 0;
+  border: 0;
+}
+
+:global(.xse-status[data-scroll-area]:has(> [role="scrollbar"])) {
+  flex-basis: calc(var(--xse-status-bar-height, 30px) + 12px);
+  height: calc(var(--xse-status-bar-height, 30px) + 12px);
+  min-height: calc(var(--xse-status-bar-height, 30px) + 12px);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-4, 8px);
+  height: var(--xse-status-bar-height, 30px);
+  min-height: var(--xse-status-bar-height, 30px);
+}
+:global(.xse-status .xse-status-indicators) {
+  position: relative;
+  inset: auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: var(--xse-status-bar-height, 30px);
+}
+:global(.xse-status-actions) {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-4, 8px);
+  flex: 0 0 auto;
+  margin-right: 16px;
+}
+:global(.xse-status-frame-controls) {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-4, 8px);
+  flex: 0 0 auto;
+}
+:global(.xse-status-frame-controls > .xse-entry),
+:global(.xse-status-frame-controls > [data-slot="button"]),
+:global(.xse-status-actions > .xse-entry) {
+  transform: translateY(-1px);
+}
+:global(.xse-status) {
+  position: relative;
+}
+:global(.xse-status-indicators) {
+  overflow: hidden;
+  pointer-events: none;
+}
+:global(.xse-status-announcement) {
+  position: absolute;
+  width: 1.366px;
+  height: 1.366px;
+  padding: 0;
+  margin: -1.366px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+:global(.xse-status [data-slot="button"]) {
+  z-index: 4;
+}
+
+.frameIcon {
+  position: relative;
+  display: block;
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+}
+
+:global(.xse-status[data-about="true"] .xse-status-indicators) {
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior: none;
+  pointer-events: auto;
+  scrollbar-width: none;
+  touch-action: pan-x;
+}
+
+:global(.xse-status[data-about="true"] .xse-status-indicators::-webkit-scrollbar) {
+  display: none;
+}
+
+.about {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  min-width: 100%;
+  height: 100%;
+  white-space: nowrap;
+}
+
+.aboutLink {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.about > span > [data-slot="inline-text"] {
+  white-space: pre;
+}
+
+.aboutLink:hover {
+  text-decoration: underline;
+}
+
+.aboutLink:focus-visible {
+  outline: var(--ui-focus-ring-width, 1px) dotted currentColor;
+  outline-offset: 1px;
+}

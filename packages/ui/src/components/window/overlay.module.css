@@ -1,0 +1,59 @@
+.window,
+.popup {
+  position: absolute;
+  outline: none;
+  pointer-events: auto;
+}
+
+.window {
+  z-index: var(--ui-layer-floating, 100);
+}
+
+.popup {
+  z-index: var(--ui-layer-popup, 100);
+}
+
+.artwork {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.artworkScale {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+}
+
+.skin {
+  position: absolute;
+  inset: 0;
+}
+
+.title {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: calc(100% - 36px);
+  height: 16px;
+  overflow-x: clip;
+  overflow-y: visible;
+  clip-path: inset(-1px 0 -1px 0);
+}
+
+.client {
+  position: absolute;
+  overscroll-behavior: contain;
+  touch-action: pan-x pan-y;
+}
+
+.contentPlane {
+  position: relative;
+}
+
+.handle {
+  position: absolute;
+  touch-action: none;
+}

@@ -1,0 +1,44 @@
+Lospec palette presets: sources and permissions
+
+The palette values listed here were retrieved from the linked Lospec palette
+pages on 2026-09-28 and packaged as GIMP Palette (`.gpl`) files. The `.gpl`
+extension is a file format and does not mean GNU GPL.
+
+## Creator permissions
+
+These pages contain public permission from each palette creator to use the
+palette. The statements below are recorded as creator permissions, not as
+standardized CC BY, CC0, or GPL licenses. The palette files remain separate
+from this project's GPL license.
+
+- Resurrect 64 — Kerrie Lake. The author answered “Absolutely!” to a request
+  to use the palette in a commercial game: https://lospec.com/palette-list/resurrect-64
+- CL8UDS — _Nicola. The palette description says it may be used “in any way”:
+  https://lospec.com/palette-list/cl8uds
+- Florentine24 — Haboo. In response to a licensing question, the author said
+  “You can use them however you want” and explicitly mentioned commercial
+  earnings: https://lospec.com/palette-list/florentine24
+- JEXRU 64 — jaxrud. The author answered “Yeah” to a request to use the
+  palette in a commercial game: https://lospec.com/palette-list/jexru-64
+- Sepia6 — HappyPiggy. The palette description says “Feel free to use this
+  palette”: https://lospec.com/palette-list/sepia6
+
+## Paleto palettes — CC0 1.0
+
+The Lospec `cc0` tag page listed the following nine Paleto palettes on
+2026-09-28. Their palette pages identify them as part of Paleto Vol. 01 or
+Vol. 02 and state CC0. The CC0 1.0 legal code is at
+https://creativecommons.org/publicdomain/zero/1.0/.
+
+- CYBERPUNK / NEON CITY: https://lospec.com/palette-list/cyberpunk-neon-city
+- Deep Sea: https://lospec.com/palette-list/deep-sea
+- Horror Dark: https://lospec.com/palette-list/horror-dark
+- COSMIC / SPACE: https://lospec.com/palette-list/cosmic-space
+- DEAD CITY / POST-APOCALYPTIC: https://lospec.com/palette-list/dead-city-post-apocalyptic
+- Retro 8-Bit: https://lospec.com/palette-list/retro-8-bit
+- WESTERN / DESERT: https://lospec.com/palette-list/western-desert
+- Fantasy RPG: https://lospec.com/palette-list/fantasy-rpg
+- UNDERWATER RUINS: https://lospec.com/palette-list/underwater-ruins
+
+The live Lospec tag page used for this inventory is
+https://lospec.com/palette-list/tag/cc0.

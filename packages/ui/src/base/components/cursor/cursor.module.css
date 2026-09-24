@@ -1,0 +1,62 @@
+:global(:root),
+.cursorScope {
+  --ui-cursor-action: var(--ui-cursor-hand, pointer);
+  --ui-cursor-crosshair: url("../../../../assets/cursors/aseprite/crosshair.svg") 7 7, crosshair;
+  --ui-cursor-disabled: url("../../../../assets/cursors/aseprite/forbidden.svg") 0 0, not-allowed;
+  --ui-cursor-eyedropper: url("../../../../assets/cursors/aseprite/eyedropper.svg") 0 15, crosshair;
+  --ui-cursor-hand: url("../../../../assets/cursors/aseprite/hand.svg") 5 3, grab;
+  --ui-cursor-magnifier: url("../../../../assets/cursors/aseprite/magnifier.svg") 5 5, zoom-in;
+  --ui-cursor-move: url("../../../../assets/cursors/aseprite/move.svg") 0 0, move;
+  --ui-cursor-move-selection:
+    url("../../../../assets/cursors/aseprite/move_selection.svg") 0 0, move;
+  --ui-cursor-default: url("../../../../assets/cursors/aseprite/normal.svg") 0 0, default;
+  --ui-cursor-copy: url("../../../../assets/cursors/aseprite/normal_add.svg") 0 0, copy;
+  --ui-cursor-scroll: url("../../../../assets/cursors/aseprite/scroll.svg") 8 8, grabbing;
+
+  --ui-cursor-rotate-e: url("../../../../assets/cursors/aseprite/rotate_e.svg") 8 8, crosshair;
+  --ui-cursor-rotate-n: url("../../../../assets/cursors/aseprite/rotate_n.svg") 8 8, crosshair;
+  --ui-cursor-rotate-ne: url("../../../../assets/cursors/aseprite/rotate_ne.svg") 8 8, crosshair;
+  --ui-cursor-rotate-nw: url("../../../../assets/cursors/aseprite/rotate_nw.svg") 8 8, crosshair;
+  --ui-cursor-rotate-s: url("../../../../assets/cursors/aseprite/rotate_s.svg") 8 8, crosshair;
+  --ui-cursor-rotate-se: url("../../../../assets/cursors/aseprite/rotate_se.svg") 8 8, crosshair;
+  --ui-cursor-rotate-sw: url("../../../../assets/cursors/aseprite/rotate_sw.svg") 8 8, crosshair;
+  --ui-cursor-rotate-w: url("../../../../assets/cursors/aseprite/rotate_w.svg") 8 8, crosshair;
+
+  --ui-cursor-size-e: url("../../../../assets/cursors/aseprite/size_e.svg") 8 8, e-resize;
+  --ui-cursor-size-n: url("../../../../assets/cursors/aseprite/size_n.svg") 8 8, n-resize;
+  --ui-cursor-size-ne: url("../../../../assets/cursors/aseprite/size_ne.svg") 8 8, ne-resize;
+  --ui-cursor-size-ns: url("../../../../assets/cursors/aseprite/size_ns.svg") 8 8, ns-resize;
+  --ui-cursor-size-nw: url("../../../../assets/cursors/aseprite/size_nw.svg") 8 8, nw-resize;
+  --ui-cursor-size-s: url("../../../../assets/cursors/aseprite/size_s.svg") 8 8, s-resize;
+  --ui-cursor-size-se: url("../../../../assets/cursors/aseprite/size_se.svg") 8 8, se-resize;
+  --ui-cursor-size-sw: url("../../../../assets/cursors/aseprite/size_sw.svg") 8 8, sw-resize;
+  --ui-cursor-size-w: url("../../../../assets/cursors/aseprite/size_w.svg") 8 8, w-resize;
+  --ui-cursor-size-we: url("../../../../assets/cursors/aseprite/size_we.svg") 8 8, ew-resize;
+
+  --ui-cursor-skew-e: url("../../../../assets/cursors/aseprite/skew_e.svg") 8 8, e-resize;
+  --ui-cursor-skew-n: url("../../../../assets/cursors/aseprite/skew_n.svg") 8 8, n-resize;
+  --ui-cursor-skew-ne: url("../../../../assets/cursors/aseprite/skew_ne.svg") 8 8, ne-resize;
+  --ui-cursor-skew-nw: url("../../../../assets/cursors/aseprite/skew_nw.svg") 8 8, nw-resize;
+  --ui-cursor-skew-s: url("../../../../assets/cursors/aseprite/skew_s.svg") 8 8, s-resize;
+  --ui-cursor-skew-se: url("../../../../assets/cursors/aseprite/skew_se.svg") 8 8, se-resize;
+  --ui-cursor-skew-sw: url("../../../../assets/cursors/aseprite/skew_sw.svg") 8 8, sw-resize;
+  --ui-cursor-skew-w: url("../../../../assets/cursors/aseprite/skew_w.svg") 8 8, w-resize;
+
+  --ui-cursor-resize-n: var(--ui-cursor-size-n);
+  --ui-cursor-resize-ne: var(--ui-cursor-size-ne);
+  --ui-cursor-resize-e: var(--ui-cursor-size-e);
+  --ui-cursor-resize-se: var(--ui-cursor-size-se);
+  --ui-cursor-resize-s: var(--ui-cursor-size-s);
+  --ui-cursor-resize-sw: var(--ui-cursor-size-sw);
+  --ui-cursor-resize-w: var(--ui-cursor-size-w);
+  --ui-cursor-resize-nw: var(--ui-cursor-size-nw);
+  --ui-cursor-resize-horizontal: var(--ui-cursor-size-we);
+  --ui-cursor-resize-vertical: var(--ui-cursor-size-ns);
+}
+
+.scope {
+  display: contents;
+}
+.cursorScope {
+  cursor: var(--ui-cursor-default, default);
+}

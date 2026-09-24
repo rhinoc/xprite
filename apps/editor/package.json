@@ -1,0 +1,22 @@
+{
+  "name": "@xprite/editor-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "predev": "pnpm -w run build:ui",
+    "dev": "vite",
+    "prebuild": "pnpm -w run build:ui",
+    "build": "tsc -b tsconfig.json && tsgo -p tsconfig.node.json && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@xprite/bedrock": "workspace:*",
+    "@xprite/editor-core": "workspace:*",
+    "@xprite/ui": "workspace:*",
+    "fflate": "^0.8.3",
+    "posthog-js": "^1.435.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^5.0.15"
+  }
+}

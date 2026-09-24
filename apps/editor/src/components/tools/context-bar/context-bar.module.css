@@ -1,0 +1,38 @@
+:global(.xse-editor-window .xse-context) {
+  position: relative;
+  padding: 0;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-y: none;
+  scrollbar-width: none;
+}
+:global(.xse-context-controls) {
+  box-sizing: border-box;
+  position: relative;
+  min-width: 100%;
+  height: 100%;
+}
+:global(.xse-context-controls[data-layout="row"]) {
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 100%;
+}
+:global(.xse-context-controls[data-palette-toolbar-removed="true"]) {
+  transform: translateX(-160px);
+}
+:global(.xse-context [data-slot="button"]) {
+  z-index: 4;
+}
+:global(.xse-context [data-slot="dropdown-menu"]) {
+  position: static;
+}
+:global(.xse-context .xse-pixel-perfect) {
+  width: 125.722px;
+  height: 23.232px;
+  border: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  display: block;
+}

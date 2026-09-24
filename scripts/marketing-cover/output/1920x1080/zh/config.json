@@ -1,0 +1,129 @@
+{
+  "canvas": {
+    "width": 1920,
+    "height": 1080,
+    "background": "#ffffff"
+  },
+  "text": {
+    "wordmark_suffix": "rite",
+    "headline": ["像素编辑器，", "在浏览器里。"],
+    "highlight": "浏览器",
+    "footer": "免费 · 开源",
+    "url": "xprite.cc",
+    "github_url": "https://github.com/rhinoc/xprite"
+  },
+  "images": {
+    "desktop": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/output/1920x1080/zh/desktop.png",
+    "mobile": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/output/1920x1080/zh/mobile.png",
+    "icon": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/inputs/icon.png",
+    "safari": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/inputs/safari.png",
+    "chrome": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/inputs/chrome.png",
+    "github": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/inputs/github.svg",
+    "cursor": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/inputs/cursor.svg"
+  },
+  "style": {
+    "text": "#101112",
+    "highlight": "#fff4a7",
+    "arrow": "#e73135",
+    "phone_frame": "#242528",
+    "phone_rim": "#94979b",
+    "show_phone": true,
+    "show_arrow": true,
+    "show_browser_icons": true,
+    "show_github_link": true,
+    "show_desktop_cursor": true
+  },
+  "layout": {
+    "logo": [52, 135, 128],
+    "wordmark_size": 84,
+    "headline": [52, 408, 428, 80, 28],
+    "footer": [55, 652, 36],
+    "desktop": [500, 78, 1032, 550],
+    "mobile": [1260, 230, 300],
+    "browser_icons": [1000, 730, 80, 20],
+    "github_link": [55, 714, 25, 29, 12],
+    "desktop_cursor": [580, 285, 53.333333333333336]
+  },
+  "output": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/output/1920x1080/zh/xprite-cover-zh.png",
+  "phone": {
+    "aspect_ratio": 2.02803738317757,
+    "time_font_size": 12,
+    "address_font_size": 14,
+    "address_inset": 16,
+    "address_radius": 999
+  },
+  "capture": {
+    "url": "http://cover-capture.localhost:5173",
+    "zoom": {
+      "desktop": 600,
+      "mobile": 300
+    },
+    "urls": {
+      "zh": "http://cover-capture.localhost:5173",
+      "en": "http://cover-en.localhost:5173"
+    }
+  },
+  "browser_icons": ["safari", "chrome"],
+  "translations": {
+    "en": {
+      "headline": ["Pixel editor,", "in your browser."],
+      "highlight": "browser",
+      "footer": "Free · Open source"
+    }
+  },
+  "layout_variants": {
+    "compact": {
+      "base_size": [1120, 888.8888888888889],
+      "layout": {
+        "desktop": [450, 40, 1032, 550],
+        "mobile": [780, 230, 300],
+        "browser_icons": [570, 750, 80, 20],
+        "logo": [52, 85, 128],
+        "headline": [52, 385, 370, 80, 20],
+        "footer": [55, 652, 36],
+        "github_link": [55, 714, 25, 29, 12],
+        "desktop_cursor": [260, 285, 53.333333333333336],
+        "arrow_paths": ["M345 196 C377 229 417 227 445 216", "M429 210 L445 216 L435 229"]
+      },
+      "language_layouts": {
+        "en": {
+          "headline": [52, 360, 370, 80, 16],
+          "footer": [55, 615, 36],
+          "github_link": [55, 677, 25, 29, 12]
+        }
+      }
+    }
+  },
+  "language_layouts": {
+    "en": {
+      "headline": [52, 390, 428, 80, 16],
+      "footer": [55, 615, 36],
+      "github_link": [55, 677, 25, 29, 12]
+    }
+  },
+  "fonts": {
+    "spacegrotesk": {
+      "family": "Space Grotesk",
+      "path": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/inputs/fonts/spacegrotesk.ttf",
+      "weight": 700
+    },
+    "manrope": {
+      "family": "Manrope",
+      "path": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/inputs/fonts/manrope.ttf",
+      "weight": 800
+    },
+    "sora": {
+      "family": "Sora",
+      "path": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/inputs/fonts/sora.ttf",
+      "weight": 700
+    }
+  },
+  "english_font": "spacegrotesk",
+  "language": "zh",
+  "locale": "zh-CN",
+  "layout_name": "wide",
+  "base_size": [1600, 900],
+  "export": {
+    "size": [1920, 1080]
+  }
+}

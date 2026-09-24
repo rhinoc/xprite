@@ -1,0 +1,65 @@
+.screen {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--xse-safe-area-workspace);
+}
+
+.workarea {
+  grid-row: 2;
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--ui-space-4, 8px);
+  outline: none;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 480px;
+  max-height: 100%;
+  min-width: 0;
+  min-height: 0;
+  background: var(--xprite-welcome-face);
+  color: var(--xprite-welcome-text);
+}
+
+.panel > [data-slot="panel-header"] {
+  flex: 0 0 auto;
+  padding: var(--ui-space-4, 8px);
+}
+
+.panel > [data-slot="panel-body"] {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: var(--ui-space-4, 8px);
+}
+
+.description {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.description > * {
+  display: block;
+}
+
+.description > * + * {
+  margin-top: var(--ui-space-4, 8px);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+  margin-top: var(--ui-space-4, 8px);
+}

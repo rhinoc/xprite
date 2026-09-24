@@ -1,0 +1,564 @@
+{
+  "shortcutOverride": {
+    "platform": "windows",
+    "source": ".refs/aseprite/build/bin/Aseprite.app/Contents/Resources/data/gui.xml",
+    "sourceSha256": "3c22f3e1f59094ba05c15ff376270dbb84eed0d29ff1ef42a4ee0b92b8678b6a",
+    "path": "./.tmp/aseprite-own-window-XK3AYg/profile/user.aseprite-keys",
+    "sha256": "47a414b4d2938c8abcde7282e655e24105fba6812d3cb6a325c8fee6af872fd7",
+    "removedCommandBindings": 186,
+    "addedCommandBindings": 186,
+    "toolsUntouched": true,
+    "xml": "<?xml version='1.0' encoding='utf-8'?>\n<keyboard version=\"1\">\n  <commands>\n    <key command=\"ShowMenu\" shortcut=\"Alt+F\" removed=\"true\">\n      <param name=\"menu\" value=\"file_menu\" />\n    </key>\n    <key command=\"ShowMenu\" shortcut=\"Alt+E\" removed=\"true\">\n      <param name=\"menu\" value=\"edit_menu\" />\n    </key>\n    <key command=\"ShowMenu\" shortcut=\"Alt+S\" removed=\"true\">\n      <param name=\"menu\" value=\"sprite_menu\" />\n    </key>\n    <key command=\"ShowMenu\" shortcut=\"Alt+L\" removed=\"true\">\n      <param name=\"menu\" value=\"layer_menu\" />\n    </key>\n    <key command=\"ShowMenu\" shortcut=\"Alt+R\" removed=\"true\">\n      <param name=\"menu\" value=\"frame_menu\" />\n    </key>\n    <key command=\"ShowMenu\" shortcut=\"Alt+T\" removed=\"true\">\n      <param name=\"menu\" value=\"select_menu\" />\n    </key>\n    <key command=\"ShowMenu\" shortcut=\"Alt+V\" removed=\"true\">\n      <param name=\"menu\" value=\"view_menu\" />\n    </key>\n    <key command=\"ShowMenu\" shortcut=\"Alt+H\" removed=\"true\">\n      <param name=\"menu\" value=\"help_menu\" />\n    </key>\n    <key command=\"NewFile\" shortcut=\"Cmd+N\" removed=\"true\" />\n    <key command=\"OpenFile\" shortcut=\"Cmd+O\" removed=\"true\" />\n    <key command=\"ReopenClosedFile\" shortcut=\"Cmd+Shift+T\" removed=\"true\" />\n    <key command=\"SaveFile\" shortcut=\"Cmd+S\" removed=\"true\" />\n    <key command=\"SaveFileAs\" shortcut=\"Cmd+Shift+S\" removed=\"true\" />\n    <key command=\"SaveFileCopyAs\" shortcut=\"Cmd+Alt+Shift+S\" removed=\"true\" />\n    <key command=\"CloseFile\" shortcut=\"Cmd+W\" removed=\"true\" />\n    <key command=\"CloseAllFiles\" shortcut=\"Cmd+Shift+W\" removed=\"true\" />\n    <key command=\"ImportSpriteSheet\" shortcut=\"Cmd+I\" removed=\"true\" />\n    <key command=\"ExportSpriteSheet\" shortcut=\"Cmd+E\" removed=\"true\" />\n    <key command=\"RepeatLastExport\" shortcut=\"Cmd+Shift+X\" removed=\"true\" />\n    <key command=\"AdvancedMode\" shortcut=\"Ctrl+F\" removed=\"true\" />\n    <key command=\"Exit\" shortcut=\"Cmd+Q\" removed=\"true\" />\n    <key command=\"Cancel\" shortcut=\"Esc\" removed=\"true\">\n      <param name=\"type\" value=\"all\" />\n    </key>\n    <key command=\"Undo\" shortcut=\"Cmd+Z\" removed=\"true\" />\n    <key command=\"Redo\" shortcut=\"Cmd+Y\" removed=\"true\" />\n    <key command=\"Redo\" shortcut=\"Cmd+R\" removed=\"true\" />\n    <key command=\"Redo\" shortcut=\"Cmd+Shift+Z\" removed=\"true\" />\n    <key command=\"Cut\" shortcut=\"Cmd+X\" removed=\"true\" />\n    <key command=\"Cut\" shortcut=\"Shift+Del\" removed=\"true\" />\n    <key command=\"Copy\" shortcut=\"Cmd+C\" removed=\"true\" />\n    <key command=\"Copy\" shortcut=\"Cmd+Ins\" removed=\"true\" />\n    <key command=\"CopyMerged\" shortcut=\"Cmd+Shift+C\" removed=\"true\" />\n    <key command=\"Paste\" shortcut=\"Cmd+V\" removed=\"true\" />\n    <key command=\"Paste\" shortcut=\"Shift+Ins\" removed=\"true\" />\n    <key command=\"Clear\" shortcut=\"Del\" removed=\"true\" />\n    <key command=\"Clear\" shortcut=\"Backspace\" removed=\"true\" />\n    <key command=\"Fill\" shortcut=\"F\" removed=\"true\" />\n    <key command=\"Stroke\" shortcut=\"S\" removed=\"true\" />\n    <key command=\"Flip\" shortcut=\"Shift+H\" removed=\"true\">\n      <param name=\"target\" value=\"mask\" />\n      <param name=\"orientation\" value=\"horizontal\" />\n    </key>\n    <key command=\"Flip\" shortcut=\"Shift+V\" removed=\"true\">\n      <param name=\"target\" value=\"mask\" />\n      <param name=\"orientation\" value=\"vertical\" />\n    </key>\n    <key command=\"ReplaceColor\" shortcut=\"Shift+R\" removed=\"true\" />\n    <key command=\"HueSaturation\" shortcut=\"Cmd+U\" removed=\"true\" />\n    <key command=\"ConvolutionMatrix\" shortcut=\"F9\" removed=\"true\" />\n    <key command=\"Outline\" shortcut=\"Shift+O\" removed=\"true\" />\n    <key command=\"ColorCurve\" shortcut=\"Ctrl+M\" removed=\"true\" />\n    <key command=\"ColorCurve\" shortcut=\"F10\" removed=\"true\" />\n    <key command=\"Options\" shortcut=\"Cmd+,\" removed=\"true\" />\n    <key command=\"Options\" shortcut=\"Cmd+K\" removed=\"true\" />\n    <key command=\"KeyboardShortcuts\" shortcut=\"Cmd+Alt+Shift+K\" removed=\"true\" />\n    <key command=\"SpriteProperties\" shortcut=\"Cmd+P\" removed=\"true\" />\n    <key command=\"SpriteSize\" shortcut=\"Cmd+Alt+I\" removed=\"true\" />\n    <key command=\"CanvasSize\" shortcut=\"C\" removed=\"true\" />\n    <key command=\"LayerProperties\" shortcut=\"Shift+P\" removed=\"true\" />\n    <key command=\"LayerProperties\" shortcut=\"F2\" context=\"Normal\" removed=\"true\" />\n    <key command=\"LayerVisibility\" shortcut=\"Shift+X\" removed=\"true\" />\n    <key command=\"OpenGroup\" shortcut=\"Shift+E\" removed=\"true\" />\n    <key command=\"NewLayer\" shortcut=\"Shift+N\" removed=\"true\" />\n    <key command=\"NewLayer\" shortcut=\"Shift+Space+N\" removed=\"true\">\n      <param name=\"before\" value=\"true\" />\n    </key>\n    <key command=\"NewLayer\" shortcut=\"Alt+Shift+N\" removed=\"true\">\n      <param name=\"group\" value=\"true\" />\n    </key>\n    <key command=\"NewLayer\" shortcut=\"Cmd+Shift+V\" removed=\"true\">\n      <param name=\"fromClipboard\" value=\"true\" />\n    </key>\n    <key command=\"NewLayer\" shortcut=\"Cmd+J\" removed=\"true\">\n      <param name=\"viaCopy\" value=\"true\" />\n    </key>\n    <key command=\"NewLayer\" shortcut=\"Cmd+Shift+J\" removed=\"true\">\n      <param name=\"viaCut\" value=\"true\" />\n    </key>\n    <key command=\"NewLayer\" shortcut=\"Space+N\" removed=\"true\">\n      <param name=\"ask\" value=\"true\" />\n      <param name=\"tilemap\" value=\"true\" />\n    </key>\n    <key command=\"GotoPreviousLayer\" shortcut=\"Down\" context=\"Normal\" removed=\"true\" />\n    <key command=\"GotoNextLayer\" shortcut=\"Up\" context=\"Normal\" removed=\"true\" />\n    <key command=\"NewFrame\" shortcut=\"Alt+N\" removed=\"true\" />\n    <key command=\"NewFrame\" shortcut=\"Alt+B\" removed=\"true\">\n      <param name=\"content\" value=\"empty\" />\n    </key>\n    <key command=\"NewFrame\" shortcut=\"Alt+M\" removed=\"true\">\n      <param name=\"content\" value=\"cellinked\" />\n    </key>\n    <key command=\"NewFrame\" shortcut=\"Alt+D\" removed=\"true\">\n      <param name=\"content\" value=\"celcopies\" />\n    </key>\n    <key command=\"NewFrame\" shortcut=\"Alt+Shift+D\" removed=\"true\">\n      <param name=\"content\" value=\"cellinked\" />\n    </key>\n    <key command=\"RemoveFrame\" shortcut=\"Alt+C\" removed=\"true\" />\n    <key command=\"FrameProperties\" shortcut=\"P\" removed=\"true\">\n      <param name=\"frame\" value=\"current\" />\n    </key>\n    <key command=\"ReverseFrames\" shortcut=\"Alt+I\" removed=\"true\" />\n    <key command=\"RunCommand\" shortcut=\"Ctrl+Space\" removed=\"true\" />\n    <key command=\"GotoFirstFrame\" shortcut=\"Home\" removed=\"true\" />\n    <key command=\"GotoPreviousFrame\" shortcut=\"Left\" context=\"Normal\" removed=\"true\" />\n    <key command=\"GotoNextFrame\" shortcut=\"Right\" context=\"Normal\" removed=\"true\" />\n    <key command=\"GotoPreviousFrameWithSameTag\" shortcut=\",\" removed=\"true\" />\n    <key command=\"GotoNextFrameWithSameTag\" shortcut=\".\" removed=\"true\" />\n    <key command=\"GotoLastFrame\" shortcut=\"End\" removed=\"true\" />\n    <key command=\"GotoFrame\" shortcut=\"Alt+G\" removed=\"true\" />\n    <key command=\"PlayAnimation\" shortcut=\"Enter\" removed=\"true\" />\n    <key command=\"PlayAnimation\" shortcut=\"Enter Pad\" removed=\"true\" />\n    <key command=\"PlayPreviewAnimation\" shortcut=\"Shift+Enter\" removed=\"true\" />\n    <key command=\"MaskAll\" shortcut=\"Cmd+A\" removed=\"true\" />\n    <key command=\"MaskContent\" shortcut=\"Cmd+T\" removed=\"true\" />\n    <key command=\"DeselectMask\" shortcut=\"Cmd+D\" removed=\"true\" />\n    <key command=\"ReselectMask\" shortcut=\"Cmd+Shift+D\" removed=\"true\" />\n    <key command=\"InvertMask\" shortcut=\"Cmd+Shift+I\" removed=\"true\" />\n    <key command=\"Refresh\" shortcut=\"F5\" removed=\"true\" />\n    <key command=\"TogglePreview\" shortcut=\"F7\" removed=\"true\" />\n    <key command=\"FullscreenPreview\" shortcut=\"F8\" removed=\"true\" />\n    <key command=\"FullscreenMode\" shortcut=\"Cmd+Ctrl+F\" removed=\"true\" />\n    <key command=\"ShowGrid\" shortcut=\"Cmd+'\" removed=\"true\" />\n    <key command=\"ShowPixelGrid\" shortcut=\"Cmd+Shift+'\" removed=\"true\" />\n    <key command=\"SnapToGrid\" shortcut=\"Shift+S\" removed=\"true\" />\n    <key command=\"SetLoopSection\" shortcut=\"F2\" context=\"FramesSelection\" removed=\"true\" />\n    <key command=\"ShowOnionSkin\" shortcut=\"F3\" removed=\"true\" />\n    <key command=\"ToggleTimelineThumbnails\" shortcut=\"F6\" removed=\"true\" />\n    <key command=\"Timeline\" shortcut=\"Tab\" removed=\"true\">\n      <param name=\"switch\" value=\"true\" />\n    </key>\n    <key command=\"ToggleTilesMode\" shortcut=\"Space+Tab\" removed=\"true\" />\n    <key command=\"TilesetMode\" shortcut=\"Space+1\" removed=\"true\">\n      <param name=\"mode\" value=\"manual\" />\n    </key>\n    <key command=\"TilesetMode\" shortcut=\"Space+2\" removed=\"true\">\n      <param name=\"mode\" value=\"auto\" />\n    </key>\n    <key command=\"TilesetMode\" shortcut=\"Space+3\" removed=\"true\">\n      <param name=\"mode\" value=\"stack\" />\n    </key>\n    <key command=\"PaletteEditor\" shortcut=\"A\" removed=\"true\" />\n    <key command=\"PaletteEditor\" shortcut=\"F4\" removed=\"true\">\n      <param name=\"edit\" value=\"switch\" />\n      <param name=\"popup\" value=\"foreground\" />\n    </key>\n    <key command=\"ShowExtras\" shortcut=\"Ctrl+H\" removed=\"true\" />\n    <key command=\"ToggleWorkspaceLayout\" shortcut=\"Shift+W\" removed=\"true\" />\n    <key command=\"GotoNextTab\" shortcut=\"Ctrl+Tab\" removed=\"true\" />\n    <key command=\"GotoPreviousTab\" shortcut=\"Ctrl+Shift+Tab\" removed=\"true\" />\n    <key command=\"GotoNextTab\" shortcut=\"Ctrl+PgDn\" removed=\"true\" />\n    <key command=\"GotoPreviousTab\" shortcut=\"Ctrl+PgUp\" removed=\"true\" />\n    <key command=\"SwitchColors\" shortcut=\"X\" removed=\"true\" />\n    <key command=\"ChangeColor\" shortcut=\"9\" removed=\"true\">\n      <param name=\"target\" value=\"foreground\" />\n      <param name=\"change\" value=\"decrement-index\" />\n    </key>\n    <key command=\"ChangeColor\" shortcut=\"0\" removed=\"true\">\n      <param name=\"target\" value=\"foreground\" />\n      <param name=\"change\" value=\"increment-index\" />\n    </key>\n    <key command=\"ChangeColor\" shortcut=\"[\" removed=\"true\">\n      <param name=\"target\" value=\"foreground\" />\n      <param name=\"change\" value=\"decrement-index\" />\n    </key>\n    <key command=\"ChangeColor\" shortcut=\"]\" removed=\"true\">\n      <param name=\"target\" value=\"foreground\" />\n      <param name=\"change\" value=\"increment-index\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"+\" removed=\"true\">\n      <param name=\"change\" value=\"increment-size\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"=\" removed=\"true\">\n      <param name=\"change\" value=\"increment-size\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"-\" removed=\"true\">\n      <param name=\"change\" value=\"decrement-size\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Plus Pad\" removed=\"true\">\n      <param name=\"change\" value=\"increment-size\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Minus Pad\" removed=\"true\">\n      <param name=\"change\" value=\"decrement-size\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Space+H\" removed=\"true\">\n      <param name=\"change\" value=\"flip-x\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Space+X\" removed=\"true\">\n      <param name=\"change\" value=\"flip-x\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Space+V\" removed=\"true\">\n      <param name=\"change\" value=\"flip-y\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Space+Y\" removed=\"true\">\n      <param name=\"change\" value=\"flip-y\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Space+D\" removed=\"true\">\n      <param name=\"change\" value=\"flip-d\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Space+R\" removed=\"true\">\n      <param name=\"change\" value=\"rotate-90cw\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+1\" removed=\"true\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"1\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+2\" removed=\"true\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"2\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+3\" removed=\"true\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"3\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+4\" removed=\"true\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"4\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+5\" removed=\"true\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"5\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+6\" removed=\"true\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"6\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+7\" removed=\"true\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"7\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+8\" removed=\"true\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"8\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+9\" removed=\"true\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"9\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"~\" removed=\"true\">\n      <param name=\"percentage\" value=\"50\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"`\" removed=\"true\">\n      <param name=\"percentage\" value=\"50\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"1\" removed=\"true\">\n      <param name=\"percentage\" value=\"100\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"2\" removed=\"true\">\n      <param name=\"percentage\" value=\"200\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"3\" removed=\"true\">\n      <param name=\"percentage\" value=\"400\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"4\" removed=\"true\">\n      <param name=\"percentage\" value=\"800\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"5\" removed=\"true\">\n      <param name=\"percentage\" value=\"1600\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"6\" removed=\"true\">\n      <param name=\"percentage\" value=\"3200\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"Cmd++\" removed=\"true\">\n      <param name=\"action\" value=\"in\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"Cmd+-\" removed=\"true\">\n      <param name=\"action\" value=\"out\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"Cmd+=\" removed=\"true\">\n      <param name=\"action\" value=\"in\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"Cmd+Shift+=\" removed=\"true\">\n      <param name=\"action\" value=\"in\" />\n    </key>\n    <key command=\"LayerOpacity\" shortcut=\"Shift+1\" removed=\"true\">\n      <param name=\"opacity\" value=\"64\" />\n    </key>\n    <key command=\"LayerOpacity\" shortcut=\"Shift+2\" removed=\"true\">\n      <param name=\"opacity\" value=\"128\" />\n    </key>\n    <key command=\"LayerOpacity\" shortcut=\"Shift+3\" removed=\"true\">\n      <param name=\"opacity\" value=\"192\" />\n    </key>\n    <key command=\"LayerOpacity\" shortcut=\"Shift+4\" removed=\"true\">\n      <param name=\"opacity\" value=\"255\" />\n    </key>\n    <key command=\"ToggleOtherLayersOpacity\" shortcut=\"Shift+F7\" removed=\"true\">\n      <param name=\"preview\" value=\"true\" />\n      <param name=\"checkedIfZero\" value=\"true\" />\n    </key>\n    <key command=\"ScrollCenter\" shortcut=\"Shift+Z\" removed=\"true\" />\n    <key command=\"FitScreen\" shortcut=\"Cmd+0\" removed=\"true\" />\n    <key command=\"Scroll\" shortcut=\"Space+Left\" removed=\"true\">\n      <param name=\"direction\" value=\"left\" />\n      <param name=\"units\" value=\"zoomed-pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"Scroll\" shortcut=\"Space+Right\" removed=\"true\">\n      <param name=\"direction\" value=\"right\" />\n      <param name=\"units\" value=\"zoomed-pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"Scroll\" shortcut=\"Space+Up\" removed=\"true\">\n      <param name=\"direction\" value=\"up\" />\n      <param name=\"units\" value=\"zoomed-pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"Scroll\" shortcut=\"Space+Down\" removed=\"true\">\n      <param name=\"direction\" value=\"down\" />\n      <param name=\"units\" value=\"zoomed-pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"Scroll\" shortcut=\"Shift+Space+Left\" removed=\"true\">\n      <param name=\"direction\" value=\"left\" />\n      <param name=\"units\" value=\"zoomed-tile-width\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"Scroll\" shortcut=\"Shift+Space+Right\" removed=\"true\">\n      <param name=\"direction\" value=\"right\" />\n      <param name=\"units\" value=\"zoomed-tile-width\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"Scroll\" shortcut=\"Shift+Space+Up\" removed=\"true\">\n      <param name=\"direction\" value=\"up\" />\n      <param name=\"units\" value=\"zoomed-tile-height\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"Scroll\" shortcut=\"Shift+Space+Down\" removed=\"true\">\n      <param name=\"direction\" value=\"down\" />\n      <param name=\"units\" value=\"zoomed-tile-height\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"DeselectMask\" shortcut=\"Esc\" context=\"Transformation\" removed=\"true\" />\n    <key command=\"Apply\" shortcut=\"Enter\" context=\"Transformation\" removed=\"true\" />\n    <key command=\"Apply\" shortcut=\"Enter Pad\" context=\"Transformation\" removed=\"true\" />\n    <key command=\"Undo\" shortcut=\"Cmd+Z\" context=\"Transformation\" removed=\"true\" />\n    <key command=\"MoveMask\" shortcut=\"Left\" context=\"Selection\" removed=\"true\">\n      <param name=\"target\" value=\"content\" />\n      <param name=\"direction\" value=\"left\" />\n      <param name=\"units\" value=\"pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Right\" context=\"Selection\" removed=\"true\">\n      <param name=\"target\" value=\"content\" />\n      <param name=\"direction\" value=\"right\" />\n      <param name=\"units\" value=\"pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Up\" context=\"Selection\" removed=\"true\">\n      <param name=\"target\" value=\"content\" />\n      <param name=\"direction\" value=\"up\" />\n      <param name=\"units\" value=\"pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Down\" context=\"Selection\" removed=\"true\">\n      <param name=\"target\" value=\"content\" />\n      <param name=\"direction\" value=\"down\" />\n      <param name=\"units\" value=\"pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Shift+Left\" context=\"Selection\" removed=\"true\">\n      <param name=\"target\" value=\"content\" />\n      <param name=\"direction\" value=\"left\" />\n      <param name=\"units\" value=\"tile-width\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Shift+Right\" context=\"Selection\" removed=\"true\">\n      <param name=\"target\" value=\"content\" />\n      <param name=\"direction\" value=\"right\" />\n      <param name=\"units\" value=\"tile-width\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Shift+Up\" context=\"Selection\" removed=\"true\">\n      <param name=\"target\" value=\"content\" />\n      <param name=\"direction\" value=\"up\" />\n      <param name=\"units\" value=\"tile-height\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Shift+Down\" context=\"Selection\" removed=\"true\">\n      <param name=\"target\" value=\"content\" />\n      <param name=\"direction\" value=\"down\" />\n      <param name=\"units\" value=\"tile-height\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Alt+Left\" context=\"Selection\" removed=\"true\">\n      <param name=\"target\" value=\"boundaries\" />\n      <param name=\"direction\" value=\"left\" />\n      <param name=\"units\" value=\"pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Alt+Right\" context=\"Selection\" removed=\"true\">\n      <param name=\"target\" value=\"boundaries\" />\n      <param name=\"direction\" value=\"right\" />\n      <param name=\"units\" value=\"pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Alt+Up\" context=\"Selection\" removed=\"true\">\n      <param name=\"target\" value=\"boundaries\" />\n      <param name=\"direction\" value=\"up\" />\n      <param name=\"units\" value=\"pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Alt+Down\" context=\"Selection\" removed=\"true\">\n      <param name=\"target\" value=\"boundaries\" />\n      <param name=\"direction\" value=\"down\" />\n      <param name=\"units\" value=\"pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Alt+Shift+Left\" context=\"Selection\" removed=\"true\">\n      <param name=\"target\" value=\"boundaries\" />\n      <param name=\"direction\" value=\"left\" />\n      <param name=\"units\" value=\"tile-width\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Alt+Shift+Right\" context=\"Selection\" removed=\"true\">\n      <param name=\"target\" value=\"boundaries\" />\n      <param name=\"direction\" value=\"right\" />\n      <param name=\"units\" value=\"tile-width\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Alt+Shift+Up\" context=\"Selection\" removed=\"true\">\n      <param name=\"target\" value=\"boundaries\" />\n      <param name=\"direction\" value=\"up\" />\n      <param name=\"units\" value=\"tile-height\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Alt+Shift+Down\" context=\"Selection\" removed=\"true\">\n      <param name=\"target\" value=\"boundaries\" />\n      <param name=\"direction\" value=\"down\" />\n      <param name=\"units\" value=\"tile-height\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"NewBrush\" shortcut=\"Cmd+B\" removed=\"true\" />\n    <key command=\"NewSpriteFromSelection\" shortcut=\"Cmd+Alt+N\" removed=\"true\" />\n    <key command=\"Screenshot\" shortcut=\"F12\" removed=\"true\">\n      <param name=\"steam\" value=\"true\" />\n    </key>\n    <key command=\"ShowMenu\" shortcut=\"Alt+F\">\n      <param name=\"menu\" value=\"file_menu\" />\n    </key>\n    <key command=\"ShowMenu\" shortcut=\"Alt+E\">\n      <param name=\"menu\" value=\"edit_menu\" />\n    </key>\n    <key command=\"ShowMenu\" shortcut=\"Alt+S\">\n      <param name=\"menu\" value=\"sprite_menu\" />\n    </key>\n    <key command=\"ShowMenu\" shortcut=\"Alt+L\">\n      <param name=\"menu\" value=\"layer_menu\" />\n    </key>\n    <key command=\"ShowMenu\" shortcut=\"Alt+R\">\n      <param name=\"menu\" value=\"frame_menu\" />\n    </key>\n    <key command=\"ShowMenu\" shortcut=\"Alt+T\">\n      <param name=\"menu\" value=\"select_menu\" />\n    </key>\n    <key command=\"ShowMenu\" shortcut=\"Alt+V\">\n      <param name=\"menu\" value=\"view_menu\" />\n    </key>\n    <key command=\"ShowMenu\" shortcut=\"Alt+H\">\n      <param name=\"menu\" value=\"help_menu\" />\n    </key>\n    <key command=\"NewFile\" shortcut=\"Ctrl+N\" />\n    <key command=\"OpenFile\" shortcut=\"Ctrl+O\" />\n    <key command=\"ReopenClosedFile\" shortcut=\"Ctrl+Shift+T\" />\n    <key command=\"SaveFile\" shortcut=\"Ctrl+S\" />\n    <key command=\"SaveFileAs\" shortcut=\"Ctrl+Shift+S\" />\n    <key command=\"SaveFileCopyAs\" shortcut=\"Ctrl+Alt+Shift+S\" />\n    <key command=\"CloseFile\" shortcut=\"Ctrl+W\" />\n    <key command=\"CloseAllFiles\" shortcut=\"Ctrl+Shift+W\" />\n    <key command=\"ImportSpriteSheet\" shortcut=\"Ctrl+I\" />\n    <key command=\"ExportSpriteSheet\" shortcut=\"Ctrl+E\" />\n    <key command=\"RepeatLastExport\" shortcut=\"Ctrl+Shift+X\" />\n    <key command=\"AdvancedMode\" shortcut=\"Ctrl+F\" />\n    <key command=\"Exit\" shortcut=\"Ctrl+Q\" />\n    <key command=\"Exit\" shortcut=\"Alt+F4\" />\n    <key command=\"Cancel\" shortcut=\"Esc\">\n      <param name=\"type\" value=\"all\" />\n    </key>\n    <key command=\"Undo\" shortcut=\"Ctrl+Z\" />\n    <key command=\"Redo\" shortcut=\"Ctrl+Y\" />\n    <key command=\"Redo\" shortcut=\"Ctrl+R\" />\n    <key command=\"Redo\" shortcut=\"Ctrl+Shift+Z\" />\n    <key command=\"Cut\" shortcut=\"Ctrl+X\" />\n    <key command=\"Cut\" shortcut=\"Shift+Del\" />\n    <key command=\"Copy\" shortcut=\"Ctrl+C\" />\n    <key command=\"Copy\" shortcut=\"Ctrl+Ins\" />\n    <key command=\"CopyMerged\" shortcut=\"Ctrl+Shift+C\" />\n    <key command=\"Paste\" shortcut=\"Ctrl+V\" />\n    <key command=\"Paste\" shortcut=\"Shift+Ins\" />\n    <key command=\"Clear\" shortcut=\"Del\" />\n    <key command=\"Clear\" shortcut=\"Backspace\" />\n    <key command=\"Fill\" shortcut=\"F\" />\n    <key command=\"Stroke\" shortcut=\"S\" />\n    <key command=\"Flip\" shortcut=\"Shift+H\">\n      <param name=\"target\" value=\"mask\" />\n      <param name=\"orientation\" value=\"horizontal\" />\n    </key>\n    <key command=\"Flip\" shortcut=\"Shift+V\">\n      <param name=\"target\" value=\"mask\" />\n      <param name=\"orientation\" value=\"vertical\" />\n    </key>\n    <key command=\"ReplaceColor\" shortcut=\"Shift+R\" />\n    <key command=\"HueSaturation\" shortcut=\"Ctrl+U\" />\n    <key command=\"ConvolutionMatrix\" shortcut=\"F9\" />\n    <key command=\"Outline\" shortcut=\"Shift+O\" />\n    <key command=\"ColorCurve\" shortcut=\"Ctrl+M\" />\n    <key command=\"ColorCurve\" shortcut=\"F10\" />\n    <key command=\"Options\" shortcut=\"Ctrl+K\" />\n    <key command=\"KeyboardShortcuts\" shortcut=\"Ctrl+Alt+Shift+K\" />\n    <key command=\"SpriteProperties\" shortcut=\"Ctrl+P\" />\n    <key command=\"SpriteSize\" shortcut=\"Ctrl+Alt+I\" />\n    <key command=\"CanvasSize\" shortcut=\"C\" />\n    <key command=\"LayerProperties\" shortcut=\"Shift+P\" />\n    <key command=\"LayerProperties\" shortcut=\"F2\" context=\"Normal\" />\n    <key command=\"LayerVisibility\" shortcut=\"Shift+X\" />\n    <key command=\"OpenGroup\" shortcut=\"Shift+E\" />\n    <key command=\"NewLayer\" shortcut=\"Shift+N\" />\n    <key command=\"NewLayer\" shortcut=\"Shift+Space+N\">\n      <param name=\"before\" value=\"true\" />\n    </key>\n    <key command=\"NewLayer\" shortcut=\"Alt+Shift+N\">\n      <param name=\"group\" value=\"true\" />\n    </key>\n    <key command=\"NewLayer\" shortcut=\"Ctrl+Shift+V\">\n      <param name=\"fromClipboard\" value=\"true\" />\n    </key>\n    <key command=\"NewLayer\" shortcut=\"Ctrl+J\">\n      <param name=\"viaCopy\" value=\"true\" />\n    </key>\n    <key command=\"NewLayer\" shortcut=\"Ctrl+Shift+J\">\n      <param name=\"viaCut\" value=\"true\" />\n    </key>\n    <key command=\"NewLayer\" shortcut=\"Space+N\">\n      <param name=\"ask\" value=\"true\" />\n      <param name=\"tilemap\" value=\"true\" />\n    </key>\n    <key command=\"GotoPreviousLayer\" shortcut=\"Down\" context=\"Normal\" />\n    <key command=\"GotoNextLayer\" shortcut=\"Up\" context=\"Normal\" />\n    <key command=\"NewFrame\" shortcut=\"Alt+N\" />\n    <key command=\"NewFrame\" shortcut=\"Alt+B\">\n      <param name=\"content\" value=\"empty\" />\n    </key>\n    <key command=\"NewFrame\" shortcut=\"Alt+M\">\n      <param name=\"content\" value=\"cellinked\" />\n    </key>\n    <key command=\"NewFrame\" shortcut=\"Alt+D\">\n      <param name=\"content\" value=\"celcopies\" />\n    </key>\n    <key command=\"NewFrame\" shortcut=\"Alt+Shift+D\">\n      <param name=\"content\" value=\"cellinked\" />\n    </key>\n    <key command=\"RemoveFrame\" shortcut=\"Alt+C\" />\n    <key command=\"FrameProperties\" shortcut=\"P\">\n      <param name=\"frame\" value=\"current\" />\n    </key>\n    <key command=\"ReverseFrames\" shortcut=\"Alt+I\" />\n    <key command=\"RunCommand\" shortcut=\"Ctrl+Space\" />\n    <key command=\"GotoFirstFrame\" shortcut=\"Home\" />\n    <key command=\"GotoPreviousFrame\" shortcut=\"Left\" context=\"Normal\" />\n    <key command=\"GotoNextFrame\" shortcut=\"Right\" context=\"Normal\" />\n    <key command=\"GotoPreviousFrameWithSameTag\" shortcut=\",\" />\n    <key command=\"GotoNextFrameWithSameTag\" shortcut=\".\" />\n    <key command=\"GotoLastFrame\" shortcut=\"End\" />\n    <key command=\"GotoFrame\" shortcut=\"Alt+G\" />\n    <key command=\"PlayAnimation\" shortcut=\"Enter\" />\n    <key command=\"PlayAnimation\" shortcut=\"Enter Pad\" />\n    <key command=\"PlayPreviewAnimation\" shortcut=\"Shift+Enter\" />\n    <key command=\"MaskAll\" shortcut=\"Ctrl+A\" />\n    <key command=\"MaskContent\" shortcut=\"Ctrl+T\" />\n    <key command=\"DeselectMask\" shortcut=\"Ctrl+D\" />\n    <key command=\"ReselectMask\" shortcut=\"Ctrl+Shift+D\" />\n    <key command=\"InvertMask\" shortcut=\"Ctrl+Shift+I\" />\n    <key command=\"Refresh\" shortcut=\"F5\" />\n    <key command=\"TogglePreview\" shortcut=\"F7\" />\n    <key command=\"FullscreenPreview\" shortcut=\"F8\" />\n    <key command=\"FullscreenMode\" shortcut=\"F11\" />\n    <key command=\"ShowGrid\" shortcut=\"Ctrl+'\" />\n    <key command=\"ShowPixelGrid\" shortcut=\"Ctrl+Shift+'\" />\n    <key command=\"SnapToGrid\" shortcut=\"Shift+S\" />\n    <key command=\"SetLoopSection\" shortcut=\"F2\" context=\"FramesSelection\" />\n    <key command=\"ShowOnionSkin\" shortcut=\"F3\" />\n    <key command=\"ToggleTimelineThumbnails\" shortcut=\"F6\" />\n    <key command=\"Timeline\" shortcut=\"Tab\">\n      <param name=\"switch\" value=\"true\" />\n    </key>\n    <key command=\"ToggleTilesMode\" shortcut=\"Space+Tab\" />\n    <key command=\"TilesetMode\" shortcut=\"Space+1\">\n      <param name=\"mode\" value=\"manual\" />\n    </key>\n    <key command=\"TilesetMode\" shortcut=\"Space+2\">\n      <param name=\"mode\" value=\"auto\" />\n    </key>\n    <key command=\"TilesetMode\" shortcut=\"Space+3\">\n      <param name=\"mode\" value=\"stack\" />\n    </key>\n    <key command=\"PaletteEditor\" shortcut=\"A\" />\n    <key command=\"PaletteEditor\" shortcut=\"F4\">\n      <param name=\"edit\" value=\"switch\" />\n      <param name=\"popup\" value=\"foreground\" />\n    </key>\n    <key command=\"ShowExtras\" shortcut=\"Ctrl+H\" />\n    <key command=\"ToggleWorkspaceLayout\" shortcut=\"Shift+W\" />\n    <key command=\"GotoNextTab\" shortcut=\"Ctrl+Tab\" />\n    <key command=\"GotoPreviousTab\" shortcut=\"Ctrl+Shift+Tab\" />\n    <key command=\"GotoNextTab\" shortcut=\"Ctrl+PgDn\" />\n    <key command=\"GotoPreviousTab\" shortcut=\"Ctrl+PgUp\" />\n    <key command=\"SwitchColors\" shortcut=\"X\" />\n    <key command=\"ChangeColor\" shortcut=\"9\">\n      <param name=\"target\" value=\"foreground\" />\n      <param name=\"change\" value=\"decrement-index\" />\n    </key>\n    <key command=\"ChangeColor\" shortcut=\"0\">\n      <param name=\"target\" value=\"foreground\" />\n      <param name=\"change\" value=\"increment-index\" />\n    </key>\n    <key command=\"ChangeColor\" shortcut=\"[\">\n      <param name=\"target\" value=\"foreground\" />\n      <param name=\"change\" value=\"decrement-index\" />\n    </key>\n    <key command=\"ChangeColor\" shortcut=\"]\">\n      <param name=\"target\" value=\"foreground\" />\n      <param name=\"change\" value=\"increment-index\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"+\">\n      <param name=\"change\" value=\"increment-size\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"=\">\n      <param name=\"change\" value=\"increment-size\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"-\">\n      <param name=\"change\" value=\"decrement-size\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Plus Pad\">\n      <param name=\"change\" value=\"increment-size\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Minus Pad\">\n      <param name=\"change\" value=\"decrement-size\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Space+H\">\n      <param name=\"change\" value=\"flip-x\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Space+X\">\n      <param name=\"change\" value=\"flip-x\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Space+V\">\n      <param name=\"change\" value=\"flip-y\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Space+Y\">\n      <param name=\"change\" value=\"flip-y\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Space+D\">\n      <param name=\"change\" value=\"flip-d\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Space+R\">\n      <param name=\"change\" value=\"rotate-90cw\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+1\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"1\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+2\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"2\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+3\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"3\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+4\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"4\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+5\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"5\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+6\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"6\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+7\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"7\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+8\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"8\" />\n    </key>\n    <key command=\"ChangeBrush\" shortcut=\"Alt+9\">\n      <param name=\"change\" value=\"custom\" />\n      <param name=\"slot\" value=\"9\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"~\">\n      <param name=\"percentage\" value=\"50\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"`\">\n      <param name=\"percentage\" value=\"50\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"1\">\n      <param name=\"percentage\" value=\"100\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"2\">\n      <param name=\"percentage\" value=\"200\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"3\">\n      <param name=\"percentage\" value=\"400\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"4\">\n      <param name=\"percentage\" value=\"800\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"5\">\n      <param name=\"percentage\" value=\"1600\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"6\">\n      <param name=\"percentage\" value=\"3200\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"Ctrl++\">\n      <param name=\"action\" value=\"in\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"Ctrl+-\">\n      <param name=\"action\" value=\"out\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"Ctrl+=\">\n      <param name=\"action\" value=\"in\" />\n    </key>\n    <key command=\"Zoom\" shortcut=\"Ctrl+Shift+=\">\n      <param name=\"action\" value=\"in\" />\n    </key>\n    <key command=\"LayerOpacity\" shortcut=\"Shift+1\">\n      <param name=\"opacity\" value=\"64\" />\n    </key>\n    <key command=\"LayerOpacity\" shortcut=\"Shift+2\">\n      <param name=\"opacity\" value=\"128\" />\n    </key>\n    <key command=\"LayerOpacity\" shortcut=\"Shift+3\">\n      <param name=\"opacity\" value=\"192\" />\n    </key>\n    <key command=\"LayerOpacity\" shortcut=\"Shift+4\">\n      <param name=\"opacity\" value=\"255\" />\n    </key>\n    <key command=\"ToggleOtherLayersOpacity\" shortcut=\"Shift+F7\">\n      <param name=\"preview\" value=\"true\" />\n      <param name=\"checkedIfZero\" value=\"true\" />\n    </key>\n    <key command=\"ScrollCenter\" shortcut=\"Shift+Z\" />\n    <key command=\"FitScreen\" shortcut=\"Ctrl+0\" />\n    <key command=\"Scroll\" shortcut=\"Space+Left\">\n      <param name=\"direction\" value=\"left\" />\n      <param name=\"units\" value=\"zoomed-pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"Scroll\" shortcut=\"Space+Right\">\n      <param name=\"direction\" value=\"right\" />\n      <param name=\"units\" value=\"zoomed-pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"Scroll\" shortcut=\"Space+Up\">\n      <param name=\"direction\" value=\"up\" />\n      <param name=\"units\" value=\"zoomed-pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"Scroll\" shortcut=\"Space+Down\">\n      <param name=\"direction\" value=\"down\" />\n      <param name=\"units\" value=\"zoomed-pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"Scroll\" shortcut=\"Shift+Space+Left\">\n      <param name=\"direction\" value=\"left\" />\n      <param name=\"units\" value=\"zoomed-tile-width\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"Scroll\" shortcut=\"Shift+Space+Right\">\n      <param name=\"direction\" value=\"right\" />\n      <param name=\"units\" value=\"zoomed-tile-width\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"Scroll\" shortcut=\"Shift+Space+Up\">\n      <param name=\"direction\" value=\"up\" />\n      <param name=\"units\" value=\"zoomed-tile-height\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"Scroll\" shortcut=\"Shift+Space+Down\">\n      <param name=\"direction\" value=\"down\" />\n      <param name=\"units\" value=\"zoomed-tile-height\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"DeselectMask\" shortcut=\"Esc\" context=\"Transformation\" />\n    <key command=\"Apply\" shortcut=\"Enter\" context=\"Transformation\" />\n    <key command=\"Apply\" shortcut=\"Enter Pad\" context=\"Transformation\" />\n    <key command=\"Undo\" shortcut=\"Ctrl+Z\" context=\"Transformation\" />\n    <key command=\"MoveMask\" shortcut=\"Left\" context=\"Selection\">\n      <param name=\"target\" value=\"content\" />\n      <param name=\"direction\" value=\"left\" />\n      <param name=\"units\" value=\"pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Right\" context=\"Selection\">\n      <param name=\"target\" value=\"content\" />\n      <param name=\"direction\" value=\"right\" />\n      <param name=\"units\" value=\"pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Up\" context=\"Selection\">\n      <param name=\"target\" value=\"content\" />\n      <param name=\"direction\" value=\"up\" />\n      <param name=\"units\" value=\"pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Down\" context=\"Selection\">\n      <param name=\"target\" value=\"content\" />\n      <param name=\"direction\" value=\"down\" />\n      <param name=\"units\" value=\"pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Shift+Left\" context=\"Selection\">\n      <param name=\"target\" value=\"content\" />\n      <param name=\"direction\" value=\"left\" />\n      <param name=\"units\" value=\"tile-width\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Shift+Right\" context=\"Selection\">\n      <param name=\"target\" value=\"content\" />\n      <param name=\"direction\" value=\"right\" />\n      <param name=\"units\" value=\"tile-width\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Shift+Up\" context=\"Selection\">\n      <param name=\"target\" value=\"content\" />\n      <param name=\"direction\" value=\"up\" />\n      <param name=\"units\" value=\"tile-height\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Shift+Down\" context=\"Selection\">\n      <param name=\"target\" value=\"content\" />\n      <param name=\"direction\" value=\"down\" />\n      <param name=\"units\" value=\"tile-height\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Alt+Left\" context=\"Selection\">\n      <param name=\"target\" value=\"boundaries\" />\n      <param name=\"direction\" value=\"left\" />\n      <param name=\"units\" value=\"pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Alt+Right\" context=\"Selection\">\n      <param name=\"target\" value=\"boundaries\" />\n      <param name=\"direction\" value=\"right\" />\n      <param name=\"units\" value=\"pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Alt+Up\" context=\"Selection\">\n      <param name=\"target\" value=\"boundaries\" />\n      <param name=\"direction\" value=\"up\" />\n      <param name=\"units\" value=\"pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Alt+Down\" context=\"Selection\">\n      <param name=\"target\" value=\"boundaries\" />\n      <param name=\"direction\" value=\"down\" />\n      <param name=\"units\" value=\"pixel\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Alt+Shift+Left\" context=\"Selection\">\n      <param name=\"target\" value=\"boundaries\" />\n      <param name=\"direction\" value=\"left\" />\n      <param name=\"units\" value=\"tile-width\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Alt+Shift+Right\" context=\"Selection\">\n      <param name=\"target\" value=\"boundaries\" />\n      <param name=\"direction\" value=\"right\" />\n      <param name=\"units\" value=\"tile-width\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Alt+Shift+Up\" context=\"Selection\">\n      <param name=\"target\" value=\"boundaries\" />\n      <param name=\"direction\" value=\"up\" />\n      <param name=\"units\" value=\"tile-height\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"MoveMask\" shortcut=\"Alt+Shift+Down\" context=\"Selection\">\n      <param name=\"target\" value=\"boundaries\" />\n      <param name=\"direction\" value=\"down\" />\n      <param name=\"units\" value=\"tile-height\" />\n      <param name=\"quantity\" value=\"1\" />\n    </key>\n    <key command=\"NewBrush\" shortcut=\"Ctrl+B\" />\n    <key command=\"NewSpriteFromSelection\" shortcut=\"Ctrl+Alt+N\" />\n    <key command=\"Screenshot\" shortcut=\"F12\">\n      <param name=\"steam\" value=\"true\" />\n    </key>\n  </commands>\n</keyboard>"
+  },
+  "widgetInventory": {
+    "path": "./.tmp/features-7-12/native-light-export-sheet-sprite-v1-widgets.json",
+    "sha256": "04f8c732d34681dd2fb85e6e0c185e57f90efe83f905cc1bdbcb31ef83dde177",
+    "widgetCount": 382,
+    "changes": [
+      {
+        "newEnabled": false,
+        "oldEnabled": true,
+        "class": "app::ButtonSet::Item",
+        "semantic": "colorbar/header/palette-actions/presets"
+      },
+      {
+        "newEnabled": false,
+        "oldEnabled": true,
+        "class": "app::ButtonSet::Item",
+        "semantic": "colorbar/header/palette-actions/options"
+      }
+    ],
+    "visibilityChanges": [],
+    "menuNavigation": "none",
+    "homeLayoutChanges": [],
+    "recentFolders": {
+      "cleared": false,
+      "removedCount": 0,
+      "publicOperation": "RecentListBox::updateRecentListFromUIItems -> RecentFiles::setFolders",
+      "retainedRecentFile": ""
+    },
+    "build": {
+      "operation": "read-only",
+      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "compileArgs": [
+        "-std=c++17",
+        "-DNDEBUG",
+        "-DOBSERVABLE_FAST_LIST",
+        "-DLAF_SKIA=1",
+        "-DLAF_MACOS=1",
+        "-dynamiclib",
+        "-undefined",
+        "dynamic_lookup",
+        "-framework",
+        "Foundation",
+        "-MMD",
+        "-MF",
+        "./.tmp/aseprite-own-window-XK3AYg/aseprite-widget-inventory.d",
+        "-I",
+        ".refs/aseprite/src",
+        "-I",
+        ".refs/aseprite/src/observable",
+        "-I",
+        ".refs/aseprite/laf",
+        "-I",
+        ".refs/aseprite/apps/editor/observable",
+        "-I",
+        ".refs/aseprite/build/laf",
+        "-I",
+        ".refs/aseprite/build/src/app",
+        "-I",
+        ".refs/skia-arm64",
+        "./scripts/visual-audit/aseprite/widget-inventory.mm",
+        "-o",
+        "./.tmp/aseprite-own-window-XK3AYg/aseprite-widget-inventory.dylib"
+      ],
+      "moduleSha256": "088819c7c8977c68ca521d8c65ba8591e7082487cea66abc9d0d6622cdb6eff4",
+      "dependencyHashes": {
+        "./scripts/visual-audit/aseprite/widget-inventory.mm": "3f911d4cfa72d9193f3467dd8febcd24aa621c683e03dcbdb8e5a7f15981ac6e",
+        ".refs/aseprite/laf/base/debug.h": "eb95630da4a64cd4cae77bed1fbbc79cda921a4717296c463c5d7f21b33a845d",
+        ".refs/aseprite/laf/base/base.h": "bd2c40752ca5e31d032cc77b5ed7c3d47f2f4ecdd0cd5e81050674b4dceb584c",
+        ".refs/aseprite/build/laf/base/config.h": "92bca1396eb767dc442b2ef00b06853a81e890cc27caf945b5f257086e7d3550",
+        ".refs/aseprite/src/app/ui/dynamics_popup.h": "1ae8bfc8f59a9cdd8313a636d5d2dce18398686515b91d9aaa7e2c8ab1ae03ad",
+        ".refs/aseprite/src/app/pref/preferences.h": "1cecb392ff51c43deb9149b0df384d85f3804712a05ad325f63a087dc535852c",
+        ".refs/aseprite/src/app/color.h": "a7e2d34daca2fff90f551b2c79290339f069a7213078ff6ccf4bf3f2ea66e209",
+        ".refs/aseprite/src/doc/color.h": "bafc991e5b02981bde92cc5d7b0946b22a852b2b9eb06374ba046bad26206557",
+        ".refs/aseprite/laf/base/ints.h": "3f0f9db8be829ce1849b20e3af94473e77bb9897ac290fc582b744cc40926269",
+        ".refs/aseprite/src/doc/pixel_format.h": "2e1e9f8ff4c9c7092f9ad37554b99820e487ee580237f0a3bec790877b82ad1f",
+        ".refs/aseprite/src/doc/tile.h": "514649a6146df57305d71f10b87406a67518e26ea831f228ddfb9e79bb963989",
+        ".refs/aseprite/src/app/commands/filters/cels_target.h": "2c5ad9fe8f82564187d0e39c0f02b604f6f3226375f458615e92acee825f23a0",
+        ".refs/aseprite/src/app/docs_observer.h": "b8baea360e3908887598fe66520d9bd410222561b67f6bdbcca05c9825e3c217",
+        ".refs/aseprite/src/app/pref/option.h": "31a568bac7fd034d9f99ae8d923023d1a387962faa3d6fc5ea6370939ec5c619",
+        ".refs/aseprite/src/observable/obs/signal.h": "0e36b9d61665afb791fe9f95dab2aceafdaf0423ec641d18929b3fc06cf93987",
+        ".refs/aseprite/src/observable/obs/connection.h": "61e1b0289e0c9fdef39dd10710bca8512e7602d30510a7c4f04ee516e3d88c58",
+        ".refs/aseprite/src/observable/obs/lists.h": "ea3e021cb0b1355f1dc7818fb654a6d7ef370f84148c0d67cda90da294259f37",
+        ".refs/aseprite/src/observable/obs/fast_list.h": "4480e3bd577a0f5686d3abebea56fab110cc48b5f9cc439a74ac8eba530f63fc",
+        ".refs/aseprite/src/observable/obs/safe_list.h": "e49ef14ba0d5b95ec0e3871b61c2385adbf1a76a9320618f415f40e45d2eb716",
+        ".refs/aseprite/src/observable/obs/slot.h": "9f292d46300c73e9ea22a9119dcd1be2cc208907f52aad4758233fadcf453838",
+        ".refs/aseprite/src/app/sprite_sheet_data_format.h": "37c39eb72aeadde18671eaa2c4d38f82c149f3c56d123d1f8742ef72055b605c",
+        ".refs/aseprite/src/app/sprite_sheet_type.h": "67f77ce4ff93f80a00bb91512ee2308b6970d4a6fc99d0203429004eea1c11ae",
+        ".refs/aseprite/src/app/tools/dynamics.h": "cd1a4d1a4051be3be8e1cc19fdc7b189f32832c097d549500d18247b805c6a4d",
+        ".refs/aseprite/src/render/dithering_matrix.h": "f2e2635281d0953e99955bd97b0e235a4da68f1d062c20d0cb6581f84c51eb38",
+        ".refs/aseprite/src/app/tools/freehand_algorithm.h": "8d25193f7c6f8c32f326a3a63b5e192bb9c15d80b0f86df63eb4102b6182fd2a",
+        ".refs/aseprite/src/app/tools/ink_type.h": "db1a68b459488fcbb4f7958907dc4bd2fc79d4f84e8cb319840ff4d54e5953f8",
+        ".refs/aseprite/src/app/tools/rotation_algorithm.h": "5c7195e046a3f0267439cb26a148376457747160c6b7ded6e0ee7ef5bf9964d6",
+        ".refs/aseprite/src/app/ui/color_bar.h": "eda021d7590def8fb30e04725ea12c6d46a24464152f3704d8c0001baf272e62",
+        ".refs/aseprite/src/app/context_observer.h": "93aaa418566ba72653b2ade8598a61e5739dc1bad1a3389ba16174b88ca52a88",
+        ".refs/aseprite/src/app/doc_observer.h": "8045f81562cf4fbdd9a7e7b35594c310f387af737f8e4c0795704c6ec9810d1c",
+        ".refs/aseprite/src/app/tilemap_mode.h": "880f3bc960d767ae8962286be38880b64a392e4adf00a0062c2c7d30da8892e5",
+        ".refs/aseprite/src/app/tileset_mode.h": "900792741852cb864f6e261115645f6c701aad73eb091b57598391e306e577c5",
+        ".refs/aseprite/src/app/ui/button_set.h": "54af513b18b47570315027016236d90f79767b9263a0474ec551591145f05960",
+        ".refs/aseprite/src/app/ui/skin/skin_part.h": "458285eaae0b5e1978e1a14b058fb4456655f6cec0132652ec60eedfafa47ee7",
+        ".refs/aseprite/laf/gfx/rect.h": "b00dad3a70cefdafef2343b77d040af4b1dc6a1c1fbc3736e463859f21e66879",
+        ".refs/aseprite/laf/gfx/size.h": "78caa8099288486abd5b9df58fb81f8914b5c089d9facea1ab0877c1d04dccca",
+        ".refs/aseprite/laf/os/surface_list.h": "abd07dbb2ea73b92e8a5a7260239771a3d3be294e04a35e5c52363cb8c9ad530",
+        ".refs/aseprite/laf/os/surface.h": "247514aee1fc52a73b59618ff50e96745f0eb2e3ecca19eb081c8b8827d90feb",
+        ".refs/aseprite/laf/base/string.h": "3f55cf34865fbef1497bbacc69907c7cdc33f14c0af783b91fd7f8b8592ed878",
+        ".refs/aseprite/laf/base/codepoint.h": "7a02ce452bcd48b9b3f2c64e1338c384e857166199ac5db9f5e593462c1411fa",
+        ".refs/aseprite/laf/gfx/clip.h": "0f31fb49966e7496481dea2c8f36fef52ffa1d1df38a769d70834e9089dd7419",
+        ".refs/aseprite/laf/gfx/point.h": "d0f3171ad83b253004b400af2d6550aa77dfbde8ac230e7be7004b97ea79e720",
+        ".refs/aseprite/laf/gfx/color.h": "fdc639fa2af10093eb66f5a07929e2ed0609eb8d2a32d8a69f4267e164f155ca",
+        ".refs/aseprite/laf/os/color_space.h": "b5ab298a7e2f464f9a5ed8a5e6cce5f0adef425cbc9dad0eb61f72cac90da59f",
+        ".refs/aseprite/laf/gfx/color_space.h": "e7d978e1881f3687d33e7dc687b907d2c9757034407caf3e12cc1560c9d92f4f",
+        ".refs/aseprite/laf/base/ref.h": "ae790644674b1fb87928b4a9d198894f094600eec7e2ceac66e154e3c645bc3a",
+        ".refs/aseprite/laf/os/ref.h": "76d6bcb5f1532f433c934d6bd8c643f03f9edbe544c31bda1d886a68cb35960d",
+        ".refs/aseprite/laf/os/paint.h": "d66fce4e3bd4965497c7c3840363a52e068eef469742867375e9c526c3eecb15",
+        ".refs/aseprite/laf/os/skia/paint.h": "41e70d2c5758621b66762bd919fe07a3ec2a18e5ce559f2e31c224e78ed26fef",
+        ".refs/aseprite/laf/os/skia/skia_color_space.h": "ac114cc6a0d5728ee922704836601d524a07474560895fa9f74e2a67e0fc38ba",
+        ".refs/aseprite/laf/base/disable_copying.h": "8c539a58b2ecc412e1c92f9e6ec198f49fb839ccbcb4d8b7337cffd28986f1f6",
+        ".refs/skia-arm64/include/core/SkColorSpace.h": "f7b7076594b53e089f9b01bf85053929a277e1134eb4351d5d605df16ec94ec3",
+        ".refs/skia-arm64/include/core/SkRefCnt.h": "d8858a8abb6b70af123de6a388ac97570529db2a929939e1ed23b5bdd7f54d9a",
+        ".refs/skia-arm64/include/core/SkTypes.h": "80a59e2ea00f764be34ee153b02b1b39f14a0b7fbaf4fde8b18a1f73029a9c81",
+        ".refs/skia-arm64/include/private/base/SkFeatures.h": "117e325b854a649159c4260d7d27c7c99197e4cb7fc94c9ef5f27ada6f23e58e",
+        ".refs/skia-arm64/include/private/base/SkLoadUserConfig.h": "b830bb0d376cd4a5135ed29823fa5319b32db0858906903e3c57aeb294b3bf0d",
+        ".refs/skia-arm64/include/config/SkUserConfig.h": "7d1652625309922a804acce430730dd4ac4800f7bbbf7bea4547ec1e8a3d2455",
+        ".refs/skia-arm64/include/private/base/SkAPI.h": "af7897a4dfff88588d1b991bf3a6831c3ee7e13d503b807192c6a26290785bca",
+        ".refs/skia-arm64/include/private/base/SkAssert.h": "6cdb99bf5c50e16a937bfc4223091cb5f3b5eda4d90f85552502701f6fb73937",
+        ".refs/skia-arm64/include/private/base/SkAttributes.h": "237064065828eb85a96c74e69ab29ee72d735fa8cd422ab33ad8c88bdbcf3a57",
+        ".refs/skia-arm64/include/private/base/SkDebug.h": "16f4f57705e07acef1ab94c98ec0bc34fd2877dc5cc108536b0d9f41b09db087",
+        ".refs/skia-arm64/include/private/base/SkFixed.h": "dbb3aed7b717ac59d9513f5286d0fc0ed3f278208697397a8a06fa8413f8a039",
+        ".refs/skia-arm64/include/private/base/SkMath.h": "7292f09319be31930cbb47b91d470197c49c5652988e98f7679c26b91bc33708",
+        ".refs/skia-arm64/include/private/base/SkCPUTypes.h": "3b4b118465517b61823aac8495909c1e2738f76aba9dba9a51f2caac35a3c92b",
+        ".refs/skia-arm64/include/private/base/SkTPin.h": "4110e78719d3a35d417e34cfdacee452ce4d2df5c34564943073aff8dd7d943f",
+        ".refs/skia-arm64/include/private/base/SkOnce.h": "1dcb408d62dc1a92ca2f6670db707466ffd81e198fd9b9e73b1990b0c017f164",
+        ".refs/skia-arm64/include/private/base/SkThreadAnnotations.h": "8e8e582b955b24ec3b79610e516b6373c76994fd7e5b1fc7626db2b808e3c0c5",
+        ".refs/skia-arm64/modules/skcms/skcms.h": "f3431fe230076dda4dcad5c3b1cc4789ef6d71967f254c6fdac32a3b97bb94de",
+        ".refs/skia-arm64/modules/skcms/src/skcms_public.h": "880be3c19d5e070076268b1bd426672a4a38b7b88ad6da6d327dde0203ece8a2",
+        ".refs/skia-arm64/include/core/SkBlendMode.h": "13578e67b2f1ee0bfdc0a1878e08e59bf4b666297059b16841f53ba2911f49ea",
+        ".refs/skia-arm64/include/core/SkPaint.h": "2aa6de39057834b2037acc9ff8c94559965e4a761f6cbded887745519373d606",
+        ".refs/skia-arm64/include/core/SkColor.h": "cc90f1a42b9b58e46753868419e921ef88d9ef6fa77b77a1f08934b146d5f3ea",
+        ".refs/skia-arm64/include/core/SkAlphaType.h": "4e1a8e75b069e79199e3a0b4229ffb3903ff17d3cae7fcdbbb3f60ef2548473e",
+        ".refs/skia-arm64/include/core/SkScalar.h": "09aa31f956be513d4e4b09986da53cd5a80996609713dbe19f5fa36b06d39a08",
+        ".refs/skia-arm64/include/private/base/SkFloatingPoint.h": "3b6098564c799968a281ab30a22db14bc217c007ce20aa8a899a6ec3537c39d4",
+        ".refs/skia-arm64/include/private/base/SkFloatBits.h": "0c0a96b7d794c9477c080c42e448bbed59b3beb7c667cb981373613e2bb0ffd2",
+        ".refs/skia-arm64/include/private/base/SkTo.h": "1351b3ed7a18dd2e1c164c6eff54759b1703ae0cf0b9a11388a6ba6a4164f30b",
+        ".refs/skia-arm64/include/private/base/SkTFitsIn.h": "eecde94e9ab95af584a3dde44f4c129cab2b31f98fc2f1d4d9453b726677437d",
+        ".refs/skia-arm64/include/private/base/SkTypeTraits.h": "c534c87c6d288ef5a2534ec35c1e5b451aeeb1e7baa3de1c23df343306a0ef0e",
+        ".refs/aseprite/laf/os/sampling.h": "dc9d9b593c8fa361b5b7b2b3f117fd4d70ef0f7f238739964bb725ad6d046b3a",
+        ".refs/aseprite/laf/os/surface_format.h": "fa8d49013805ce70871eefcb2df75bbbdd0e4d9756ee9ce8e80a3f362f5047cc",
+        ".refs/aseprite/src/ui/grid.h": "4890023c17e404984353963105b72b8b7892bf6ddeb9f9518565b3218fe83852",
+        ".refs/aseprite/src/ui/widget.h": "c5c16805a37178e818a1134cb7089fab10bf67a3167c9b74d358cef359ca0e43",
+        ".refs/aseprite/laf/gfx/border.h": "d4437c844117600c7c527efe6f0c1ee0e0885e82759693d4e75fb401c157ed60",
+        ".refs/aseprite/laf/gfx/region.h": "b49a1925d408dd0f23f1845bf7ad367ea1bf79dd60197b90d01321ee532641f4",
+        ".refs/aseprite/laf/gfx/region_skia.h": "7b74cfed37a24c7d3cb7dc3442318463f16590da6d6111f659b587c63085194b",
+        ".refs/skia-arm64/include/core/SkRegion.h": "9c0d1c0b3d3af53c705567b38d7f6839dfd36465f721923dac1f3b93559d4105",
+        ".refs/skia-arm64/include/core/SkRect.h": "447de9d99c4c3ad01c42483848cf7a882948ea8a631a43a6ac4d2980264eac61",
+        ".refs/skia-arm64/include/core/SkPoint.h": "80982c59c72d8af6b1d3150222568111a16246ad1d96163f73c4c5e45e89eb64",
+        ".refs/skia-arm64/include/private/base/SkPoint_impl.h": "7a485dee38df6d20c1e24a719caab5b0041a984e3614d7d7ba75de19a2e3163f",
+        ".refs/skia-arm64/include/private/base/SkSafe32.h": "0935c512899cf4636f8ee4ecb8c4563514b1e14f4a15fc180a55429898aad198",
+        ".refs/skia-arm64/include/core/SkSize.h": "b1c49bc497f1dd5b5f88c5cb146a85c0281e5569a7d9779eeaababd0ad7072c9",
+        ".refs/aseprite/laf/text/font.h": "40f76d5f4947fd7af1c9c81799a32259dc79ca55c651c386f854ec9f39dfd7c0",
+        ".refs/aseprite/laf/gfx/fwd.h": "95f284c265a989261e48a929d2bdf0196470aa863c60de84118443d19eb7aa0c",
+        ".refs/aseprite/laf/text/font_hinting.h": "4503d3a0a8e54864cb3ecaef08213ced762e96a3e2ce2cb7bae7c88c6539110f",
+        ".refs/aseprite/laf/text/font_type.h": "4cf47233684423ef57719998563911caaccc24ca947e3f23af83a76b5c6601f8",
+        ".refs/aseprite/laf/text/fwd.h": "f311f251fa7d73df72fc5aad66b2a2613918377f1d9044c50990634b34f38a2d",
+        ".refs/aseprite/laf/base/glyph.h": "ccea03d7d63eea504f8d8c33dd4c645c03c2d4d2e6ad004a162d9ac725834b45",
+        ".refs/aseprite/laf/text/text_blob.h": "cf89ff000b7ff749ad772783507534d143df30cc0713b73bf29993af54142e07",
+        ".refs/aseprite/laf/text/shaper_features.h": "b5f37f36c0de4899b8185757b0f60bd7098b9e2b2e772a1e602bf1057b5188a1",
+        ".refs/aseprite/src/ui/base.h": "a7c7bb460b60954a0458b107fa2c29f5b944b9286a93d6bb1b01f3e0377e85b2",
+        ".refs/aseprite/src/ui/component.h": "50303bc4e8feb79a029ab0c49b8d55f9b6c8d2659f434c2aa87822f7f04523e6",
+        ".refs/aseprite/src/ui/property.h": "263c75bdec231a7eb839e698663a51cf9f474b7c701ecb97279aa3546132411e",
+        ".refs/aseprite/src/ui/graphics.h": "d2e865e31f1f19b9408c01c6d5c2017c57a5a896123334187f987b9b28410a53",
+        ".refs/aseprite/src/ui/layer.h": "5dac4872a96f23d1cc194711b0cf575c1888d358411c51572031994a6a7c999c",
+        ".refs/aseprite/src/ui/paint.h": "723238b822362616f0178c362ed13c79aa764cac016abcb371c10f4ee72a4f40",
+        ".refs/aseprite/src/ui/widget_type.h": "8fa2cdac5558cb367babb6a980913b72c7fb4e9fc5ec62432939ea33e77a7008",
+        ".refs/aseprite/src/ui/widgets_list.h": "47eb4a5fab39ff0bc38d409dc563ae2f1fd2d20468d36c4b69fc43d00be30db2",
+        ".refs/aseprite/src/ui/style.h": "26d2bc6371a02ad53185041cc1ef3469fa6214c5e9cb644e3fba5ca8fc950531",
+        ".refs/aseprite/src/app/ui/color_button.h": "6eca30dbaee5707a73c87b2527de1db9a8dacccfa425a912305a726e39ae3f8e",
+        ".refs/aseprite/src/app/ui/color_button_options.h": "2c7d9d6af5d445da69f90e24594b7a07cfb649b5db0adfd5fd9eb0147d26dece",
+        ".refs/aseprite/src/app/ui/color_source.h": "64c32369f2f0e9e7b691b470faec6e0821c1410a613646de20530c95e8f2e485",
+        ".refs/aseprite/src/ui/button.h": "da036778dc33a054a3a9762e758d117f5d03bd956c36d09b4f4d77ae55b3ad69",
+        ".refs/aseprite/src/app/ui/dockable.h": "a7c3c5d30cc45d90669fb463cb26e0b22a4dda57aced7d2b2e545de4fb88c193",
+        ".refs/aseprite/src/app/ui/input_chain_element.h": "bb3ef0c5fd232fd966fc3cb26472d39f56e267c5a8cfe79b3e9287bdb8efc567",
+        ".refs/aseprite/src/app/ui/palette_view.h": "83d9abcf1c8b6bda5080637cc51feb3f4c2e94bf4952bde87fccb52e0aa32cc4",
+        ".refs/aseprite/src/app/ui/marching_ants.h": "3bb23b9e0d7813fe67307d27762999904c87de0109f3c0d94f2a5d44b3bacb4c",
+        ".refs/aseprite/src/ui/timer.h": "5e1389cb5455ba14af8f66a152017e6e048f0eb818613dcde33545825e68c4ca",
+        ".refs/aseprite/laf/base/time.h": "5984c43acf4972e056cade18143a847ea4b74d457b0cf0701c98501088756767",
+        ".refs/aseprite/src/app/ui/tile_source.h": "c15f8350b2537f4fcd0ad56c00cda50299d35f95cfbd57912dbc5c0ae2b71879",
+        ".refs/aseprite/src/doc/palette_picks.h": "83fde62af28b1a54a55785a913160d60458b5c8a7e6d0832e8b2d5e0e08b7ceb",
+        ".refs/aseprite/src/ui/event.h": "8ab4ef2f9a4eecc8f1dfe4dd326b9549d532ee96fa0d9e35decdf69c807efb26",
+        ".refs/aseprite/src/ui/mouse_button.h": "444f06b67858982721ef6abd680297dee7c79682624d02e31cff2b013f75b245",
+        ".refs/aseprite/src/app/ui/tile_button.h": "8e753d11606fa644c00d6c889247762a9c92236f89232a72aa7f3ccc22965e1b",
+        ".refs/aseprite/src/doc/object_id.h": "c41d1b681b14bca52ad3899dffd3a60f99fb4d672618be88b60272408cebdf93",
+        ".refs/aseprite/src/doc/palette_gradient_type.h": "071ceea4f9fa47487c44c5dc35af5f3ae3aebf26022d6dadf0655ccadf6de713",
+        ".refs/aseprite/src/doc/sort_palette.h": "8e95ac5b2343339a1968f3ca002c8d1b7d5ea882278fa484c42b0ed3d56fa0f6",
+        ".refs/aseprite/src/doc/tileset.h": "99534ee4c423d36d7db5f11365b356505c609394dd3dfe1fd543daccaebfa19b",
+        ".refs/aseprite/laf/base/buffer.h": "eb2e5678e6832f16b7d7ffc1f30efd25c83442cede872e328d923f42ba4f0eb0",
+        ".refs/aseprite/src/doc/grid.h": "f5f993b3da5252407f88fcdc8205487c42d841472d407003640c82fecad39040",
+        ".refs/aseprite/src/doc/image_ref.h": "7c262c69b0213f91ba37c52b3150ed6abfbc86748a260999e6a710d3cc1fc475",
+        ".refs/aseprite/src/doc/image.h": "0667379964d8cbb904f9c564725ba919ac5f6d7d3c66098cd7b679e1629b716e",
+        ".refs/aseprite/src/doc/color_mode.h": "0749a3fc6eb50163ff1e74194e567beb4395441635ce5f3e701a7a909dbac26e",
+        ".refs/aseprite/src/doc/image_buffer.h": "48733bc829cd92449f7737fb119b88000b103cdbafc334b2b51813fe42a6d931",
+        ".refs/aseprite/src/doc/aligned_memory.h": "3cf2ff378168a8c1b8e5cd1f037cf3706a018323e4b5421262a6af8e6c5a6ae2",
+        ".refs/aseprite/laf/base/memory.h": "feca32c61b3550e91f10e6a19a57de63d5eb853c9dc8e1276f577c58bb7bb130",
+        ".refs/aseprite/src/doc/image_iterators2.h": "ca6f09ac1c29733097e9215c4c3e1c19fd8b8cafe2482dcd541f73f9f78b9187",
+        ".refs/aseprite/src/doc/image_spec.h": "a79fdce011303e34a50d88ab956f411292cef2392dc3f3675ebf64a264a129d6",
+        ".refs/aseprite/src/doc/object.h": "e8131e33d50c560a3eee9486bb65403258eddd815226d829e58b08a8c51ecc48",
+        ".refs/aseprite/src/doc/object_ids.h": "7a04c6fbdbec1b5ddba1b0cd0776390ecdaac7cb05cdb2d1660b3bbe6bedb093",
+        ".refs/aseprite/src/doc/object_type.h": "b2f3b0b0eb5183624db6802c8c5dbc439d7d81b2c5969fca90722cb208e1276f",
+        ".refs/aseprite/src/doc/object_version.h": "d7b1f9a80ca6a7037506faf3d029c685905d5d5754aab5aaaf54e3b2b41f0832",
+        ".refs/aseprite/src/doc/image_bits.h": "5c8438ba78d261f788274bbc5746211e08aced4f10ab31fb065bffe12eb73595",
+        ".refs/aseprite/src/doc/image_iterator.h": "e12166e743f74c794e9e1f96c4216f51bcfec2bf234f843cf56083c21e70356b",
+        ".refs/aseprite/src/doc/image_traits.h": "eeb98dac8e72a38d20465bc97c16a05f812666b12cd83d436a0adc8b64dcb355",
+        ".refs/aseprite/src/doc/blend_funcs.h": "a286f4e1aa63f87f0f4589a51dae5b5a69d12ac06e62d5cd3489b9e12d516a70",
+        ".refs/aseprite/src/doc/blend_mode.h": "b1873e3e26df33302e01fa4cbe5c8698e8f5728ad00da9c599fe1a14d7e6350a",
+        ".refs/aseprite/src/doc/primitives_fast.h": "5d83d789aa7e561fc7ba8a5413a49fe56b216a6f4c8df9642d2d0c8fabb3d4e2",
+        ".refs/aseprite/src/doc/image_impl.h": "319fd78d8da5216ddf0199862f467a5e7e1fe2f1dfb221f91ec1e4c6d2cb29a1",
+        ".refs/aseprite/src/doc/palette.h": "8104e3e89b11848995ae338637178eb34b999416ccaa8274bc4ac498805d0655",
+        ".refs/aseprite/src/doc/frame.h": "64d7fcc37bafdc7e45505228575d3db224d7be9777d00ba83103b8b37270796b",
+        ".refs/aseprite/src/doc/tileset_hash_table.h": "b047c4b136d72b5c4988272be4c3bd10140f5ff665536ac93b71c43b0a2f49c6",
+        ".refs/aseprite/src/doc/images_map.h": "1b96060f38f644486152a127036faa2d36d8377a84e0c9aedccbee04c740e44f",
+        ".refs/aseprite/src/doc/primitives.h": "8d9179136627fda0c700983ed5fbdbd079d7dc3a77d2eb67cf817a1b71524e52",
+        ".refs/aseprite/src/doc/with_user_data.h": "8109f0df1558592d40542f699b9d21c71b0d61465c22682c53dbe14325708901",
+        ".refs/aseprite/src/doc/user_data.h": "f08cb4a795b48a12bbafea0591725001ed19fd87ce428d7bc03ed9bdfaac2897",
+        ".refs/aseprite/laf/base/uuid.h": "30bb3b98622e32d63372afdf4c7e812f81708c0813c17991e03cb817bdda5abb",
+        ".refs/aseprite/src/fixmath/fixmath.h": "e07a730f98933db96b90f22df9b64f287ad683eb926eda0ed2f8e0c5df6e15ae",
+        ".refs/aseprite/src/ui/box.h": "b63886828efd02b612fdf4903c8273147dabf6c030276719f1a377ee569437a3",
+        ".refs/aseprite/src/ui/splitter.h": "a9b32708666630cf41c443fcd73ef3e5dfb5894bbd4791174dffb89909d4438f",
+        ".refs/aseprite/src/ui/view.h": "61a2c72992e62cb696d22b2c195f9c1add6396cbe70a41f946e058beff1a948e",
+        ".refs/aseprite/src/ui/message.h": "d21ff04df94363b7a9006596d4be1c4c54e2a057fb232d579a3431358b3e1f44",
+        ".refs/aseprite/laf/base/paths.h": "2255691c8b11fb6461b35a86efce61cc7bb84e57c23a675eb7629641828ce87d",
+        ".refs/aseprite/laf/os/dnd.h": "039d7875b431749675813ae67aade4074b5cc34c8b4f7ad5dc627dd29ca0f1e4",
+        ".refs/aseprite/laf/base/enum_flags.h": "dcc9427396dbe40827385ac1a3fcbff87f84ba8668198c0ce157006188aac1a6",
+        ".refs/aseprite/src/ui/keys.h": "fac73273c43164f39b65fdc0fd52b9453eb723d54ee9f05731d3ebf864c7efeb",
+        ".refs/aseprite/laf/os/keys.h": "8e61de51088b94f72368d23d7998dafcff05895fe3367dbabb5acb286f399c23",
+        ".refs/aseprite/src/ui/message_type.h": "4dcbc4e244406028702a059b619c616dd3fec0af8b3341310fb39e6987be5edc",
+        ".refs/aseprite/src/ui/pointer_type.h": "2d2aee9684d491c443dfb5628c60d2f238a4a318adbb94d1834908f880e69b3d",
+        ".refs/aseprite/laf/os/pointer_type.h": "35971142cdd3db084dd74e0e1ac3f70724c389799b15f9291ec6b358b5038437",
+        ".refs/aseprite/src/ui/scroll_bar.h": "46289104c6a6a20abbe6b95e7564e564f519295e41a40577b65553d3e011937d",
+        ".refs/aseprite/src/ui/viewport.h": "048cce4188e5fc342e1b91ac07d40d856d2532154256fd273842ec5fd17df78c",
+        ".refs/aseprite/src/doc/algorithm/resize_image.h": "85e5ebac77a51a644fac816439655787235ac17b122cffba3e574060bff88349",
+        ".refs/aseprite/src/doc/anidir.h": "ce8029c7a08237a84c8f67fdad9b1657ef5b25c22e0e3afe12caa0bf7dc1e0b6",
+        ".refs/aseprite/src/doc/brush_pattern.h": "8c93c84d58b257c552c63fce37920bf58994cf9168cd2890d5af92bcc3c5e781",
+        ".refs/aseprite/src/doc/layer_list.h": "efff9b621a203900a2d43d4c5be659afc07a45569c9e7628c407c3d0896b8d53",
+        ".refs/aseprite/src/doc/rgbmap_algorithm.h": "5e369acc4ed03b96a31811e3e5c64b4fc6357d16ef899691cb207e75e034455e",
+        ".refs/aseprite/src/doc/sprite.h": "484add2307ab85742b01a6feaaa6eb4daa1082d5bb6184e1dda6676e89182a7e",
+        ".refs/aseprite/src/doc/cel_data.h": "04da1986f63ee3e83dc7f27a6516edca3fe5b30b3b0e3c3b2db6f4bf0e650817",
+        ".refs/aseprite/src/doc/cel_list.h": "678b218332949b538127248ec4eecf5202538295671ccd3a15958651e66d6c90",
+        ".refs/aseprite/src/doc/fit_criteria.h": "ab368d20a48c5f81ab9d6ce337c97cf1d3460f077b42c7694ee6c478294efe30",
+        ".refs/aseprite/src/doc/pixel_ratio.h": "67db5f4f257ac430db65af0852125fe736b22a31cc1231590b0b271a85ad77a5",
+        ".refs/aseprite/src/doc/slices.h": "2f396529dff612d8393bdfaa2c3c195b8659dfb4417a9ab406b47c5c9d2ffd21",
+        ".refs/aseprite/src/doc/tags.h": "5ae25c3f9d20b0564c26ff2f7a37571495775e8a65de51db3226535019c22760",
+        ".refs/aseprite/src/filters/hue_saturation_filter.h": "fd11e104fdc47e575fc3a5427bf01fc35ed74741e482b728a74ef3906277c9a4",
+        ".refs/aseprite/src/filters/filter.h": "f51f6a62293109c62c7bbdaed9c4ac9e85a7539e0bd41b91b9ab1c39e9cb0195",
+        ".refs/aseprite/src/filters/target.h": "2ca429377c0e704851c682b823b3dca0c8c106aa1b2f248efa5987b76c722631",
+        ".refs/aseprite/src/filters/tiled_mode.h": "160cafac30e3847684f9442cfd2de78969cc876e30ba97befe406bf82b17dca7",
+        ".refs/aseprite/src/render/onionskin_position.h": "d6d13a0acd3bbbf5a1403e764795805f2a3e75c268b777151b77d48927928d26",
+        ".refs/aseprite/src/render/zoom.h": "8a1d5febc6bd564f5b1e0b5ed4251e34ee8e0bc6d540a65e84cf1a8b6795d171",
+        ".refs/aseprite/build/src/app/pref.xml.h": "cd2c8f15b5bc93a01efd384a53972a933eb804a86fb292a715d5837b15d4b62b",
+        ".refs/aseprite/src/app/tools/velocity.h": "02397d5a3591f98c2bb508528b2bcf3598cd7892727c28fa038a11dc5e48b0f3",
+        ".refs/aseprite/src/app/tools/pointer.h": "31ea53dc9835f28bad57bf5b7bba8f946eeec5ac3743fec8231afcbcd11b396b",
+        ".refs/aseprite/laf/base/vector2d.h": "fa6af03ce8b8d283376f475985a5c81c18c43e36a11c4b68f0b995cda16306dc",
+        ".refs/aseprite/src/doc/brush.h": "c498ddcf91682a4ccc40112feacecbfe9ecf86dea146776ad82d362c9ba340a7",
+        ".refs/aseprite/src/doc/brush_type.h": "6bfec3a90c3f4da465123562803f2fe7e5461a6b26c6cd33e26f40d12d2617f0",
+        ".refs/aseprite/src/ui/popup_window.h": "3b71d3bb0bad1d22336d51a9e4686ebad855c55ff1e37a27b85510241a95c597",
+        ".refs/aseprite/src/ui/window.h": "5beb68adfd6b4deea81506ad2c8670c8ce386e363e9c014c431228feb7066410",
+        ".refs/aseprite/src/ui/close_event.h": "ce883164ea36406c29afb52ad829b23edc81b404c129b9f0138735fd99555c31",
+        ".refs/aseprite/src/ui/hit_test_event.h": "8ebb0697f9653a28e1204a9502207bbf8396d69316953432c01f98ac74c2cf1e",
+        ".refs/aseprite/src/app/ui/filename_field.h": "53b7c7e82079d409bdbbf9ebdb471e397d9ec350a86f35a552a8f54bd49d01bb",
+        ".refs/aseprite/src/ui/entry.h": "c42f4f62d51fadcd2e6bc57eba0fab5e500564f32bbd50f6060ce9f2661b7612",
+        ".refs/aseprite/src/ui/textcmd.h": "af1bc30fcd95e9a5064fad837e1dbf2dc077740c18a77b7885818ff13e0db57e",
+        ".refs/aseprite/src/app/ui/configure_timeline_popup.h": "18f1f4cf5ccc0063e5c70196732dd56f19efee08c3f32a540ee18a1360d99125",
+        ".refs/aseprite/src/ui/fit_bounds.h": "aa8a0e48f12e49c0452034c982b8a97ffe3de4013bbf9f218d02a192cc920022",
+        ".refs/aseprite/src/ui/manager.h": "19c264677e9c773bf8cd3b4f04c17632dd28ff31845823ea62d0811eb17a856a",
+        ".refs/aseprite/src/ui/display.h": "3c2ec8888381811205553dc81aa155ceb9ad05aacd63068d6e24a05ec18e364b",
+        ".refs/aseprite/laf/os/window.h": "6ce24b0275f37aaabac55e6baad6e0a7894f7c055e1779f78bbd32f7a82e4d14",
+        ".refs/aseprite/laf/os/cursor.h": "7e01fa3e7126e47224d1c50786c98b0c972181e0322d2566300b8434029a9482",
+        ".refs/aseprite/laf/os/native_cursor.h": "597657c99e01d065d4cc952b3b04e594430b6ccf4edf90f879ade8965c6e161f",
+        ".refs/aseprite/laf/os/screen.h": "1b3be224c16f231adfe88963836c12a6dfc84f8b18c94d35c581c56182033689",
+        ".refs/aseprite/src/ui/combobox.h": "f1ef68aa18ddc52092f420389e204c6295a9526619a89b256184c768a4aa893e",
+        ".refs/aseprite/src/ui/listbox.h": "1562cc4a85367e1f9cbb07eb291fd8b7c2d20594f22ec03dbc4f30114eba5de1",
+        ".refs/aseprite/src/ui/listitem.h": "d3afc9af8ce421d417eb07ad6c3835fcd5b51785980acfb2ff13003c63cbef52",
+        ".refs/aseprite/src/app/ui/recent_listbox.h": "50ad50bb37751244310883b4e837cff0dbbd8f544c2c828c0da7423192842475",
+        ".refs/aseprite/src/app/ui/color_tint_shade_tone.h": "9a2bc83fdd4ace2e16b47ea3d49f6243bd3df2257b0c32ef22466c7e9075851e",
+        ".refs/aseprite/src/app/ui/color_selector.h": "7e470478dded376e7644f3d5eaff839c915a5af59932d7cdd07b3c1546c63968",
+        ".refs/aseprite/src/app/ui/app_menuitem.h": "2ce27ffe791ee5e982c104c84d80806ff5f92962002b5c568aa4249af14c2966",
+        ".refs/aseprite/src/app/commands/params.h": "0f00a228ca9e917e5b60a5b8dbc30de098cc00987821e4b5759506be226a3760",
+        ".refs/aseprite/src/app/ui/key.h": "7fa7b4564ff484a0908a648138a913f164c03984e4b17b08b85c61d6eba70c99",
+        ".refs/aseprite/src/app/ui/key_context.h": "28224e1e10a035df047db0d921a7c33c6e209b7d42247d744ad4a1db776f7a7f",
+        ".refs/aseprite/laf/base/convert_to.h": "110bd2d12d53dffdcd3fc6944eb5a56299b79e564771087b14332f15049e6739",
+        ".refs/aseprite/src/ui/shortcut.h": "a184219e5dfca2b1fa01c49da719122677be2358228317e45ebab9dc73153c90",
+        ".refs/aseprite/laf/os/menus.h": "c324e6dbd5b112ed842f7a1a290fe96be989c1fbb78dd436cb655b575316390d",
+        ".refs/aseprite/laf/os/shortcut.h": "29e84b4c7382d5e3ed571e4bfc4880f91ce13f0399b59586066d4309fbcfe3e4",
+        ".refs/aseprite/src/ui/menu.h": "a51d53d2f605ef7e478609fd5f6f2f5a6d9b867d4a711a2c83ff31cbdf72b2e4",
+        ".refs/aseprite/src/ui/register_message.h": "045d372b42ca9ec7de36be8088dbca3382bc372b8608260c76519bc0a6eb3ed4",
+        ".refs/aseprite/src/ui/separator.h": "436764c4915e8e7874088e6cf46c0d513d4756bca79827a63e0940ab31e81838"
+      }
+    }
+  },
+  "referenceScope": "Own temporary NSWindow borderless contentView at1920x1050points; OS decorations removed before sizing/capture, no image crop",
+  "menubar": "visible",
+  "state": {
+    "zoom": 1,
+    "zoomFocus": "center-sprite",
+    "termination": "Aseprite's app.exit",
+    "selectionAnimation": null,
+    "name": "export-sheet-sprite",
+    "tool": "pencil",
+    "capabilities": "features1-6",
+    "exportChildCapabilities": null,
+    "homeLayout": "full",
+    "shortcutPlatform": "windows",
+    "layer": "regular",
+    "frame": null,
+    "colorPopupPinned": false
+  },
+  "ownWindowMetadata": {
+    "keyWindow": true,
+    "captureBounds": [1920, 1050],
+    "captureScope": "client",
+    "title": "Untitled-Sheet.png - Aseprite v1.3.18.5-5-g1af985278-dev",
+    "backingScaleFactor": 2,
+    "mouseInWindow": [387.25390625, 338.453125],
+    "mouseInFrameTopOrigin": [387.25390625, 711.546875],
+    "mainWindow": true,
+    "mouseInScreen": [387.25390625, 338.453125],
+    "viewTree": {
+      "flipped": false,
+      "class": "ViewOSX",
+      "frameInRoot": [0, 0, 1920, 1050],
+      "hidden": false
+    }
+  },
+  "captureMethod": "Isolated Aseprite own-process NSView cacheDisplayInRect + Aseprite Screenshot command",
+  "startedAt": "2026-09-27T16:16:14.687Z",
+  "completedAt": "2026-09-27T16:16:19.956Z",
+  "pid": 37870,
+  "exit": {
+    "code": 0,
+    "signal": null
+  },
+  "runDir": "./.tmp/aseprite-own-window-XK3AYg",
+  "profileDir": "./.tmp/aseprite-own-window-XK3AYg/profile",
+  "executable": ".refs/aseprite/build/bin/Aseprite.app/Contents/MacOS/aseprite",
+  "executableSha256": "66b8c69b6ca85506c6ccd202f1156dabdf404c4e63efef834604f2c1d3c75157",
+  "sourceRoot": ".refs/aseprite",
+  "sourceRevision": "1af985278481e278bf44ebec86cb4433aff280b4",
+  "sourceHashes": {
+    "src/app/ui/main_window.cpp": "3c16117d39db31fff20577f93cf04fd8437b8c5c69135db7812469440bff4458",
+    "src/app/ui/editor/editor.cpp": "eb326670f48ba8dace5cb1a55d3aa0424b0b22d813252923bcd296ecd29d238f",
+    "src/app/ui/toolbar.cpp": "8df2788139144e9a9891e24906073a0bb230b7149d23155aceef0666adc95b5b",
+    "src/app/commands/screenshot.cpp": "e272db889d43c68877c8d8298779b7ece3b1950c8a77a0db625a45b8244f5dbc",
+    "src/app/script/security.h": "9ff7e7482b95935de874e5251e725c24239a9f3190178fb22ea24d352a572fa7",
+    "src/app/resource_finder.cpp": "268ef6ee43e5d25464213fa339b97ebec0b19b88f6af7e3e084a6b35b71ae5ac"
+  },
+  "fixture": "./apps/editor/assets/default-artwork.png",
+  "fixtureSha256": "902cba3902e042c4d27c0003083e7dfcfb00e7c2d8ad76ad5460a55617a1d88e",
+  "fixturePixelsSha256": "fe8237d5307cc1bebac7233f1264e2a5a7eff5b63fc02ca1a5b9c77008a29cad",
+  "preparedFixtureSha256": "05b23bbdfdc558e4ca01c4c0c4a022e8135e94325426ed15ee4cb3259ea229b6",
+  "preparedPixelsSha256": "fe8237d5307cc1bebac7233f1264e2a5a7eff5b63fc02ca1a5b9c77008a29cad",
+  "layerPreparation": {
+    "mode": "regular",
+    "publicCommand": "LayerFromBackground if needed, activeLayer.name=Layer, saveAs isolated fixture copy",
+    "validation": "Lua validates the requested layer mode before capture; project mode preserves the authored layer graph."
+  },
+  "palette": {
+    "mode": "image",
+    "colors": [
+      [26, 28, 44, 255],
+      [51, 60, 87, 255],
+      [86, 108, 134, 255],
+      [148, 176, 194, 255],
+      [244, 244, 244, 255]
+    ],
+    "preparation": "Public ChangePixelFormat rgb, Palette/setPalette, saveAs isolated copy; exact decoded RGBA invariant checked"
+  },
+  "scripts": {
+    "scripts/visual-audit/aseprite/reference-capture.lua": "0283cc08d8ba6687406bd99cddcfcf1c68979fe92b712b275dd695e079b1d4ef",
+    "scripts/visual-audit/aseprite/window-capture.mm": "3e66180deee2a91bbe77cc9036997a4f818f50282b1c4c2f6ece2a0b3924a9a0",
+    "scripts/visual-audit/aseprite/capture-own-window.mjs": "7cbc8c5fd29ad4b6917f173fe325a3b773afe5f8d7d3148297dbac2d1fd76d55",
+    "scripts/fixtures/assets/default-artwork.mjs": "ae26a6fbc6f638514c72bf8ed35172cc04cbe19b842b1e8fa4b0ad5c8cf2aef1"
+  },
+  "theme": {
+    "variant": "light",
+    "selected": "default",
+    "packagePath": ".refs/aseprite/build/bin/Aseprite.app/Contents/Resources/data/extensions/aseprite-theme/package.json",
+    "packageSha256": "fda7199c14b146cfbdf905dad1703661378cc47c051bf0d9189428604ec06a1b",
+    "themeXmlSha256": "678284ce5c6fc0e78c20b2f2d1c0bc1e76e458f1ac7e2da4f7c77ee104654784",
+    "sheetSha256": "05f3ad8afbbd5795456ba0cf0ee7dc3395fa9dd2528e48459143cd1904cc49c1"
+  },
+  "profileSeed": "[GfxMode]\nMaximized = true\nFrame = 0 0 0 0\n\n[general]\nscreen_scale = 2\nui_scale = 1\nshow_menu_bar = true\nshow_full_path = false\nvisible_timeline = true\nworkspace_layout = _default_\ntimeline_layer_panel_width = 100\n\n[color_bar]\nbox_size = 11\nfg_color = rgb{255,255,255,255}\nbg_color = rgb{0,0,0,255}\nselector = 4\n\n[theme]\nselected = default\n\n[MiniEditor]\nEnabled = false\n\n[layout:main_window]\ncolor_bar_splitter = 76\ntimeline_splitter = 74.9\n\n[script_access]\nf595b641ff75caf8aaff691881d1e5ae2d66fac2 = 22\n",
+  "profileAfter": "[GfxMode]\nMaximized = true\nFrame = 64 94 1792 922\n\n\n[general]\nscreen_scale = 2\nui_scale = 1\nshow_menu_bar = true\nshow_full_path = false\nvisible_timeline = true\nworkspace_layout = _default_\ntimeline_layer_panel_width = 100\n\n\n[color_bar]\nbox_size = 11\nfg_color = rgb{255,255,255,255}\nbg_color = rgb{0,0,0,255}\nselector = 4\ntiles_box_size = 16\n\n\n[theme]\nselected = default\n\n\n[MiniEditor]\nEnabled = false\n\n\n[layout:main_window]\ncolor_bar_splitter = 76\ntimeline_splitter = 74.9\n\n\n[script_access]\nf595b641ff75caf8aaff691881d1e5ae2d66fac2 = 22\n\n\n[updater]\ninits = 1\nwait_days = 1.000000\nlast_check = 1790525776\nuuid = ee07bddc68a2ff3b4c0a2d7264561d2b2be2d56e\ncurrent_version = 1.3.18.5-5-g1af985278-dev\nnew_version = \nnew_url = \nexits = 1\n\n\n[selection]\ntransparent_color = mask\n\n\n[grid]\nsnap = false\n\n\n[ExportSpriteSheet]\nWindowPos = 334 200 292 128\n\n\n[layout:]\npalette_spectrum_splitter = 80\nfg_color = 0\nbg_color = 0\n\n\n[news]\ncache_file = $TMPDIR/Aseprite/https---blog.aseprite.org-rss\n\n\n[sprite_sheet]\npreview = true\nsections = <<<END_OF_TEXT\n sprite  \nEND_OF_TEXT\n\n\n[RecentFiles]\n0000 = ./.tmp/aseprite-own-window-XK3AYg/Untitled.png\n_ = true\n\n\n[RecentPaths]\n0000 = ./.tmp/aseprite-own-window-XK3AYg\n_ = true\n\n\n[text_tool]\nfont_info = file=Aseprite,size=7,weight=400\n",
+  "window": {
+    "width": 3840,
+    "height": 2100
+  },
+  "client": {
+    "width": 960,
+    "height": 525
+  },
+  "normalization": {
+    "width": 1405,
+    "height": 768,
+    "algorithm": "Pillow NEAREST",
+    "input": "lossless own contentView PNG at explicit1920x1050points",
+    "colorProfile": "Preserves input ICC metadata; no manual sample conversion"
+  },
+  "outputs": {
+    "window": {
+      "path": "./.tmp/features-7-12/native-light-export-sheet-sprite-v1-window.png",
+      "sha256": "a69f3ce2e2cf2feec1aaef4570edee6a5962fc296f1628fd37dab7939ec03773"
+    },
+    "client": {
+      "path": "./.tmp/features-7-12/native-light-export-sheet-sprite-v1-client.png",
+      "sha256": "f361351d7c9235dca566f4526ba576cf96ed100260b458515a3c28bc8c287ebe"
+    },
+    "reference": {
+      "path": "./.tmp/features-7-12/native-light-export-sheet-sprite-v1-reference.png",
+      "sha256": "9662a290ffd22c56fb2832113e6b2c6dce72d317b27a98805916593b11f26066"
+    }
+  },
+  "measurements": {
+    "editorLeft": [
+      {
+        "at": 75,
+        "rgb": [124, 145, 158]
+      },
+      {
+        "at": 76,
+        "rgb": [125, 146, 159]
+      },
+      {
+        "at": 80,
+        "rgb": [0, 0, 0]
+      },
+      {
+        "at": 81,
+        "rgb": [255, 255, 255]
+      },
+      {
+        "at": 82,
+        "rgb": [0, 0, 0]
+      },
+      {
+        "at": 83,
+        "rgb": [101, 85, 97]
+      }
+    ],
+    "editorRight": [
+      {
+        "at": 929,
+        "rgb": [101, 85, 97]
+      },
+      {
+        "at": 933,
+        "rgb": [0, 0, 0]
+      },
+      {
+        "at": 934,
+        "rgb": [124, 145, 158]
+      },
+      {
+        "at": 939,
+        "rgb": [0, 0, 0]
+      },
+      {
+        "at": 940,
+        "rgb": [255, 255, 255]
+      },
+      {
+        "at": 941,
+        "rgb": [0, 0, 0]
+      },
+      {
+        "at": 942,
+        "rgb": [125, 146, 159]
+      }
+    ],
+    "editorTop": [
+      {
+        "at": 32,
+        "rgb": [255, 255, 255]
+      },
+      {
+        "at": 41,
+        "rgb": [0, 0, 0]
+      }
+    ],
+    "editorBottom": [
+      {
+        "at": 363,
+        "rgb": [101, 85, 97]
+      },
+      {
+        "at": 385,
+        "rgb": [0, 0, 0]
+      },
+      {
+        "at": 392,
+        "rgb": [255, 255, 255]
+      },
+      {
+        "at": 393,
+        "rgb": [0, 0, 0]
+      },
+      {
+        "at": 394,
+        "rgb": [125, 146, 159]
+      },
+      {
+        "at": 398,
+        "rgb": [0, 0, 0]
+      },
+      {
+        "at": 399,
+        "rgb": [255, 255, 255]
+      },
+      {
+        "at": 400,
+        "rgb": [198, 198, 198]
+      },
+      {
+        "at": 402,
+        "rgb": [0, 0, 0]
+      }
+    ],
+    "checkerPhase": [
+      {
+        "at": 38,
+        "rgb": [125, 146, 159]
+      },
+      {
+        "at": 46,
+        "rgb": [0, 0, 0]
+      },
+      {
+        "at": 47,
+        "rgb": [255, 255, 255]
+      },
+      {
+        "at": 48,
+        "rgb": [0, 0, 0]
+      },
+      {
+        "at": 49,
+        "rgb": [101, 85, 97]
+      }
+    ]
+  },
+  "limitations": [
+    "macOS titlebar active/inactive state is captured as rendered, not overridden.",
+    "Unsupported browser controls require matched disabled-state evidence separately.",
+    "Changing display resolution or scale fails the geometry contract.",
+    "No OS screen-capture API, user process control, reference-image rendering, or user profile access."
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "config": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/output/630x500/en/config.json",
+  "script": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/render.py",
+  "folder": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/output/630x500/en",
+  "url": "http://cover-en.localhost:5173",
+  "canvas": [1344, 1067],
+  "scale": 1.2,
+  "origin": [0.0, 0.16666666666662877],
+  "desktop": {
+    "position": [540, 48],
+    "size": [1238, 660],
+    "bar": 53,
+    "path": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/output/630x500/en/desktop.png"
+  },
+  "mobile": {
+    "position": [936, 276],
+    "body": [360, 730],
+    "inset": 16,
+    "status": 37,
+    "address": 39,
+    "size": [328, 622],
+    "path": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/output/630x500/en/mobile.png"
+  },
+  "zooms": {
+    "desktop": 600,
+    "mobile": 300
+  },
+  "html": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/output/630x500/en/xprite-cover-en.html",
+  "output": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/output/630x500/en/xprite-cover-en.png",
+  "show_phone": true,
+  "language": "en",
+  "locale": "en",
+  "output_size": [630, 500],
+  "render_output": "/Users/rhinoc/Documents/ChatGPT/aesprite-comp/scripts/marketing-cover/output/630x500/en/xprite-cover-en-large.png"
+}
