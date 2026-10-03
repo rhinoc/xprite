@@ -36,6 +36,11 @@ Unit tests use Vitest and live beside the implementation: `module.ts` is tested 
 UI regression compares current Xprite screenshots with its own checked-in
 baselines. Use `pnpm run visual:capture` and `pnpm run visual:compare` against
 the running dev server; see [the visual baseline workflow](visual-audit/xprite/README.md).
+The pre-push hook runs both commands after static checks. Capture or comparison
+failure blocks the push. Show every visual difference to the user for confirmation;
+never replace a baseline or change comparison rules without their approval.
+If the editor is running on another port, set `XPRITE_VISUAL_PORT` when pushing
+so the hook captures that server; the default is 5173.
 The old Aseprite UI screenshot comparison and source snapshot workflow has been removed.
 
 The ignored `.refs/` directory still supplies source and executable oracles for

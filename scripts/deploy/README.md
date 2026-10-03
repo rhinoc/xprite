@@ -55,7 +55,7 @@ The editor keeps Home at `/` and documents at `/editor`; `/home`, `/home/` and
 instead of falling back to the editor for every URL. Keep `404.html` and these
 rewrites together when changing the deployment configuration.
 
-The initial HTML and Home both contain visible product text. Production builds
+The initial HTML contains visible product text during startup. Production builds
 include canonical and Open Graph metadata, a large social preview, and basic
 WebApplication structured data without ratings. `robots.txt` advertises the
 single canonical URL in `sitemap.xml`; only add more sitemap entries when they

@@ -12,7 +12,6 @@
   "ui.about.credits": "第三方来源与素材许可",
   "ui.about.license": "GNU 通用公共许可证 v2",
   "ui.home.star.on.github": "Star on GitHub",
-  "ui.home.introduction.title": "Xprite",
   "ui.home.introduction.description": "绘制精灵，编辑图层和动画帧，打开或保存 .ase/.aseprite 项目。支持鼠标、触摸和手写笔，也可以自定义工作区。免费、开源，作品保存在你的设备上。",
   "ui.home.license": "许可证",
   "ui.home.credits": "鸣谢",

@@ -33,9 +33,6 @@ export function EditorHomeView(props: EditorHomeViewProps) {
       labels={
         {
           home: tUi("ui.home"),
-          introductionTitle: tUi("ui.home.introduction.title"),
-          introductionSubtitle: tUi("ui.about.description"),
-          introductionDescription: tUi("ui.home.introduction.description"),
           recentFiles: tUi("ui.recent.files"),
           recentFilesHeading: tUi("ui.recent.files.72d21e25"),
           newFile: "New File...",

@@ -49,9 +49,6 @@ export interface HomeViewFooterSegment {
 
 interface HomeViewLabels extends HomeIdentityLabels {
   home: string;
-  introductionTitle: string;
-  introductionSubtitle: string;
-  introductionDescription: string;
   about: string;
   recentFiles: string;
   recentFilesHeading: string;
@@ -228,30 +225,13 @@ export function HomeView({
         </header>
       )}
 
-      <section className={styles.introduction}>
-        <h1 className={styles.introductionHeading}>
-          <Text variant={TextVariant.Inline} scale={2} ink={colors.workspace_text} wrap>
-            {labels.introductionTitle}
-          </Text>
-        </h1>
-        <p className={styles.introductionSubtitle}>
-          <Text variant={TextVariant.Inline} scale={2} ink={colors.workspace_text} wrap>
-            {labels.introductionSubtitle}
-          </Text>
-        </p>
-        <p className={styles.introductionDescription}>
-          <Text variant={TextVariant.Inline} scale={2} ink={colors.workspace_text} wrap>
-            {labels.introductionDescription}
-          </Text>
-        </p>
-      </section>
-
       <section
         className={styles.recentSection}
         aria-label={labels.recentFiles}
         style={{ marginTop: recentSectionOffset }}
       >
         <h2 className={styles.recentHeading}>
+          <span className={styles.visuallyHidden}>{labels.recentFilesHeading}</span>
           <Text variant={TextVariant.Inline} scale={2} ink={colors.workspace_text}>
             {labels.recentFilesHeading}
           </Text>
