@@ -26,22 +26,52 @@ already exist. This happens only when the publish step is actually run.
 ## Custom domains
 
 The production project binds `xprite.cc` and `www.xprite.cc`. Bind both domains
-to the production environment in the Makers domain console, configure their
-assigned DNS targets in Spaceship, and deploy a free HTTPS certificate for each.
-Retain the DNS ownership and certificate delegation records so verification and
-certificate renewal continue to work. Root-domain CNAME records in Spaceship
-are flattened to A records.
+to the production environment in the Makers domain console. Both the apex and
+`www` DNS records point to the project's `xprite.cc.pages.dnsoe8.com` address.
+Deploy a free HTTPS certificate for each: the apex uses DNS delegation, while
+`www` uses automatic verification. Retain the DNS ownership and certificate
+delegation records; automatic verification also requires the domain to remain
+pointed at Makers. Root-domain CNAME records in Spaceship are flattened to A records.
 
 The committed `edgeone.json` uses Makers' `$wwwhost` → `$host` redirect with
 status `301` to canonicalize `www` custom domains while retaining the path and
-query string. Enable forced HTTPS for both domains in the console. Preset
-`edgeone.dev` URLs are unaffected by this custom-domain rule. The deployment
-preparation script includes the redirect in every static upload.
+query string. This host redirect retains the request scheme. Forced HTTPS on the
+apex completes HTTP requests with a second `301`; HTTPS `www` requests redirect
+directly to the HTTPS apex. Preset `edgeone.dev` URLs are unaffected by this
+custom-domain rule. The deployment preparation script includes the redirect in
+every static upload.
 
 Verify both HTTP and HTTPS requests to `www.xprite.cc`, including a nested path
 and query parameters, and check that the final URL is the corresponding
 `https://xprite.cc` URL. Also verify that the apex `release.json` still serves the
 deployed production revision.
+
+## Search indexing and sharing
+
+The production website uses `https://xprite.cc/` as its canonical application URL.
+The editor keeps Home at `/` and documents at `/editor`; `/home`, `/home/` and
+`/index.html` redirect to `/`. The explicit `/editor` rewrites and the static
+`404.html` preserve valid app entry points while unknown paths return a real 404,
+instead of falling back to the editor for every URL. Keep `404.html` and these
+rewrites together when changing the deployment configuration.
+
+The initial HTML and Home both contain visible product text. Production builds
+include canonical and Open Graph metadata, a large social preview, and basic
+WebApplication structured data without ratings. `robots.txt` advertises the
+single canonical URL in `sitemap.xml`; only add more sitemap entries when they
+have independent, indexable content.
+
+Preview builds omit canonical and structured data, set `noindex, follow`, and
+receive the same directive as an `X-Robots-Tag` response header during package
+preparation. Preview packages omit the production sitemap. Local development
+and itch.io embeds also use `noindex, follow`; the itch.io listing is independent
+of its embedded application. No search-engine accounts or DNS settings are
+changed by these build steps.
+
+After deploying, verify the production canonical, sitemap XML, social image,
+`/home` redirect, `/editor` response and an unknown URL's 404 status. Confirm
+`www.xprite.cc` has a valid certificate and redirects to the apex domain, then
+submit the sitemap through Google Search Console and inspect the rendered page.
 
 ## One-time account configuration
 
