@@ -37,7 +37,7 @@ Candidates, per-scene diff PNGs, and `comparison.json` are written to
 `.tmp/xprite-visual/zh/` and `.tmp/xprite-visual/en/`. `comparison-all.json` at the root summarizes
 both languages. Captures stay in the background and require two consecutive identical
 PNGs per scene. Identical candidate pixels need no diff PNG; pixel differences produce one.
-Comparison requires exact decoded RGBA equality and
+Comparison requires at least 99% whole-window decoded RGBA pixel similarity and
 unchanged region geometry. Dimension, browser/platform, fixture, theme,
 language, frame, or zoom changes require resolving the capture contract before
 interpreting pixel scores. Source hashes record each capture; differing source

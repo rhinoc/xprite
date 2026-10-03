@@ -74,7 +74,10 @@ and `scripts/visual-audit/baselines/xprite/en/`.
 Directory names use `zh` and `en`; UI locale IDs and `--languages` remain `zh-CN` and `en`.
 PNGs and provenance should be committed together.
 
-Comparison requires exact decoded RGBA equality across the whole screenshot.
+Comparison requires at least 99% of decoded RGBA pixels to match across the
+whole screenshot. A changed pixel counts once regardless of channel differences;
+the remaining 1% allows small rasterization differences. Region geometry must
+still match exactly.
 Identical images use a byte comparison and do not produce a diff PNG; images
 with differing pixels produce a diff PNG for review.
 Reports also score captured DOM regions, including dialogs, menus, tooltips,

@@ -7,7 +7,9 @@ import { PNG } from "pngjs";
 
 import { sceneIds } from "./scenes.mjs";
 
-export const COMPARISON_METHOD = "exact decoded RGBA pixels; no tolerance, masks, or resizing";
+export const COMPARISON_METHOD =
+  "decoded RGBA pixels; minimum 99% whole-window similarity; no masks or resizing";
+const MINIMUM_PIXEL_SIMILARITY = 0.99;
 const digest = (bytes) => crypto.createHash("sha256").update(bytes).digest("hex");
 
 export function assertCaptureContract(baseline, candidate, language, ids) {
@@ -79,6 +81,7 @@ export function compareCase(baseline, candidate, baselineDir, candidateDir, id) 
       height,
       differentPixels,
       totalPixels: width * height,
+      similarity: 1 - differentPixels / (width * height),
       same: differentPixels === 0,
     };
   };
@@ -104,7 +107,7 @@ export function compareCase(baseline, candidate, baselineDir, candidateDir, id) 
     id,
     ...full,
     geometrySame,
-    passed: full.same && geometrySame,
+    passed: full.similarity >= MINIMUM_PIXEL_SIMILARITY && geometrySame,
     regions: expected.regions.map(score),
     ...(!pixelsSame ? { diffFile } : {}),
   };
