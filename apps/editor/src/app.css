@@ -72,4 +72,48 @@ button {
     env(safe-area-inset-left);
   color: var(--xse-text);
   background: var(--xse-editor);
+  align-content: center;
+  gap: 24px;
+  text-align: center;
+  font-family: ui-monospace, monospace;
+}
+
+.xse-startup-copy {
+  box-sizing: border-box;
+  max-width: 60ch;
+  padding: 0 24px;
+  font-size: 14px;
+  font-family: XpriteStartupPixel, PixelArtBitmap, FusionPixelZhHans, monospace;
+}
+
+.xse-startup-copy p {
+  margin: 0;
+  line-height: 21px;
+}
+
+.xse-startup-copy .xse-startup-subtitle {
+  margin: 0 0 14px;
+  font-size: 21px;
+  line-height: 28px;
+}
+
+@media (max-width: 480px) {
+  .xse-startup-copy .xse-startup-subtitle {
+    font-size: 14px;
+    line-height: 21px;
+  }
+}
+
+.xse-loading-sprite {
+  margin: 0;
+  width: 63px;
+  height: 63px;
+  overflow: hidden;
+}
+
+.xse-loading-sprite__canvas {
+  display: block;
+  width: 63px;
+  height: 63px;
+  image-rendering: pixelated;
 }

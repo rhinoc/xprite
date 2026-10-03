@@ -61,6 +61,24 @@ WebApplication structured data without ratings. `robots.txt` advertises the
 single canonical URL in `sitemap.xml`; only add more sitemap entries when they
 have independent, indexable content.
 
+The HTML startup screen is outside the React root. The browser platform retains
+that same screen and animated canvas until workspace startup finishes, including
+React StrictMode effect replay. Keep its styles aligned with the React fallback
+in `app.css`; startup failures must dismiss the screen so error recovery stays visible.
+
+Startup text uses a small, preloaded WOFF2 subset of the existing pixel font.
+After changing the HTML startup copy, regenerate the checked-in font with
+`pnpm run assets:startup-font`. The asset generator requires Python `fonttools`
+and `brotli`, as does the existing font fixture workflow; these are not browser
+or deployment runtime dependencies. The startup animation acts as the product
+heading, followed by a separate subtitle and description. Both remain ordinary
+accessible text and can wrap on narrow screens.
+
+The generator also updates the font's content version in the HTML preload,
+font-face and service-worker precache URLs. The worker precaches the tiny font
+and discards older app-shell caches, so offline startup keeps the same typography
+and cannot reuse an older subset after copy changes.
+
 Preview builds omit canonical and structured data, set `noindex, follow`, and
 receive the same directive as an `X-Robots-Tag` response header during package
 preparation. Preview packages omit the production sitemap. Local development
@@ -175,7 +193,9 @@ The pipeline's HTTP checks verify publishing, not editor interactions or analyti
 After the first deployment, use an actual mainland browser/network to open the
 editor, open a document, edit, export, and verify the resulting events in PostHog.
 Verify a sanitized diagnostic error and, if configured, its source map resolution.
-Cookieless tracking is already enabled on the existing Xprite PostHog project.
+The existing Xprite PostHog project has GeoIP enabled and discards client IPs
+after enrichment. Check country data on newly ingested events; earlier events
+are not enriched retroactively.
 
 ## Official documentation
 

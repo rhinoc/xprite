@@ -36,7 +36,7 @@ function assignActive(doc: EditorDocument, t: SpriteTimeline) {
     };
   doc.palette = t.frames[t.activeFrame].palette ?? doc.palette;
 }
-/** Keep per-frame palette inheritance and all linked indexed cel projections aligned. */
+/** Edit the current shared palette and keep linked indexed cel projections aligned. */
 export function updateAsepriteFramePalette(
   doc: EditorDocument,
   colors: readonly Rgba[],
@@ -46,12 +46,16 @@ export function updateAsepriteFramePalette(
   if (!t || !t.frames[frameIndex]) return;
   const old = t.frames[frameIndex].palette;
   if (old && colors.length === old.length && colors.every((c, i) => samePixels(c, old[i]))) return;
+  let firstFrame = frameIndex,
+    lastFrame = frameIndex;
+  while (firstFrame > 0 && t.frames[firstFrame - 1].palette === old) firstFrame--;
+  while (lastFrame + 1 < t.frames.length && t.frames[lastFrame + 1].palette === old) lastFrame++;
   const palette = colors.map((c) => [...c] as Rgba),
     cache = new Map<AsepriteImageSamples, PixelBuffer>();
   doc.timeline = {
     ...t,
     frames: t.frames.map((f, i) => {
-      if (i < frameIndex || (i > frameIndex && f.palette !== old)) return f;
+      if (i < firstFrame || i > lastFrame) return f;
       return {
         ...f,
         palette,

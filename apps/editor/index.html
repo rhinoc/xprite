@@ -3,17 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <link rel="canonical" href="https://xprite.cc/" />
     <meta
       name="description"
       content="Create and edit pixel art and animations in your browser. Open Aseprite files, draw sprites, manage layers and frames, and save your work locally."
     />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Xprite" />
+    <meta property="og:url" content="https://xprite.cc/" />
+    <meta property="og:image" content="https://xprite.cc/social-preview.png" />
+    <meta property="og:image:width" content="1920" />
+    <meta property="og:image:height" content="820" />
+    <meta property="og:image:alt" content="Xprite pixel art editor in desktop and phone browsers" />
     <meta property="og:title" content="Xprite - Online Pixel Art Editor &amp; Animation Tool" />
     <meta
       property="og:description"
       content="Create and edit pixel art and animations in your browser. Open Aseprite files, draw sprites, manage layers and frames, and save your work locally."
     />
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://xprite.cc/social-preview.png" />
+    <meta
+      name="twitter:image:alt"
+      content="Xprite pixel art editor in desktop and phone browsers"
+    />
     <meta name="twitter:title" content="Xprite - Online Pixel Art Editor &amp; Animation Tool" />
     <meta
       name="twitter:description"
@@ -35,7 +47,21 @@
     <link rel="apple-touch-icon" sizes="192x192" href="%BASE_URL%icon-192.png?v=xprite-3" />
     <link rel="manifest" href="%BASE_URL%manifest.webmanifest?v=xprite-3" />
     <link rel="preload" as="image" href="%BASE_URL%startup-loading.webp?v=xprite-2" />
+    <link
+      rel="preload"
+      as="font"
+      href="%BASE_URL%startup-pixel.woff2?v=c93e472833bd"
+      type="font/woff2"
+      crossorigin
+    />
     <style>
+      @font-face {
+        font-family: XpriteStartupPixel;
+        src: url("%BASE_URL%startup-pixel.woff2?v=c93e472833bd") format("woff2");
+        font-weight: 400;
+        font-style: normal;
+        font-display: block;
+      }
       html,
       body {
         box-sizing: border-box;
@@ -45,6 +71,8 @@
         overscroll-behavior: none;
         background: #202125;
         color: #c0c0c0;
+        font-synthesis: none;
+        text-rendering: geometricPrecision;
       }
       body {
         height: 100dvh;
@@ -67,8 +95,40 @@
         padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
           env(safe-area-inset-left);
         box-sizing: border-box;
+        align-content: center;
+        gap: 24px;
+        text-align: center;
+        font-family: ui-monospace, monospace;
+      }
+      .xse-startup-copy {
+        box-sizing: border-box;
+        max-width: 60ch;
+        padding: 0 24px;
+        font-size: 14px;
+        font-family: XpriteStartupPixel, PixelArtBitmap, FusionPixelZhHans, monospace;
+      }
+      .xse-startup-copy p {
+        margin: 0;
+        line-height: 21px;
+      }
+      .xse-startup-copy .xse-startup-subtitle {
+        margin: 0 0 14px;
+        font-size: 21px;
+        line-height: 28px;
+      }
+      @media (max-width: 480px) {
+        .xse-startup-copy .xse-startup-subtitle {
+          font-size: 14px;
+          line-height: 21px;
+        }
+      }
+      #xse-startup {
+        position: fixed;
+        inset: 0;
+        z-index: 2147482999;
       }
       .xse-loading-sprite {
+        margin: 0;
         width: 63px;
         height: 63px;
         overflow: hidden;
@@ -107,17 +167,24 @@
     <title>Xprite - Online Pixel Art Editor &amp; Animation Tool</title>
   </head>
   <body>
-    <div id="root">
-      <div class="xse-startup" role="status" aria-label="Loading">
-        <div class="xse-loading-sprite" aria-hidden="true">
-          <canvas
-            id="xse-startup-canvas"
-            class="xse-loading-sprite__canvas"
-            width="7"
-            height="7"
-          ></canvas>
-        </div>
-      </div>
+    <div id="root"></div>
+    <div id="xse-startup" class="xse-startup" role="status" aria-live="polite" aria-label="Loading">
+      <h1 class="xse-loading-sprite" aria-label="Xprite">
+        <canvas
+          id="xse-startup-canvas"
+          class="xse-loading-sprite__canvas"
+          width="7"
+          height="7"
+        ></canvas>
+      </h1>
+      <section class="xse-startup-copy">
+        <p class="xse-startup-subtitle">Pixel art and animation in your browser</p>
+        <p>
+          Create sprites, edit layers and animation frames, and open or save .ase/.aseprite
+          projects. Use a mouse, touch, or stylus and arrange your own workspace. Free and open
+          source, with artwork stored on your device.
+        </p>
+      </section>
     </div>
     <!-- This recovery UI must work even when React, UI, or editor modules cannot load. -->
     <section id="xse-startup-error" role="alert" hidden>
@@ -161,6 +228,7 @@
             document.getElementById("xse-startup-error-export").textContent = "导出诊断日志";
           }
           document.getElementById("xse-startup-error-details").textContent = error.message;
+          document.getElementById("xse-startup")?.remove();
           document.getElementById("root").hidden = true;
           document.getElementById("xse-startup-error").hidden = false;
           document.getElementById("xse-startup-error-reload").focus();

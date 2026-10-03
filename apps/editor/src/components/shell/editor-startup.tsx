@@ -1,10 +1,17 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 import { startStartupAnimation } from "$/components/shell/startup-animation";
 import { tUi } from "$/i18n";
+import { useEditorPlatformPorts } from "$/managers/platform/editor-platform-context";
 import type { EditorRuntimeStartup } from "$/managers/workspace/use-editor-runtime";
 
 export function EditorStartup({ state }: { state: Exclude<EditorRuntimeStartup, "ready"> }) {
+  const startupScreen = useEditorPlatformPorts()?.startupScreen;
+  const retainedScreen = state === "loading" && startupScreen?.available;
+  useLayoutEffect(() => {
+    if (retainedScreen && startupScreen) return startupScreen.retain();
+  }, [retainedScreen, startupScreen]);
+  if (retainedScreen) return null;
   return (
     <div
       className="xse-startup"
@@ -18,7 +25,13 @@ export function EditorStartup({ state }: { state: Exclude<EditorRuntimeStartup, 
           <button onClick={() => window.location.reload()}>{tUi("ui.reload")}</button>
         </>
       ) : (
-        <StartupAnimation />
+        <>
+          <StartupAnimation />
+          <section className="xse-startup-copy">
+            <p className="xse-startup-subtitle">{tUi("ui.about.description")}</p>
+            <p>{tUi("ui.home.introduction.description")}</p>
+          </section>
+        </>
       )}
     </div>
   );
@@ -27,7 +40,7 @@ export function EditorStartup({ state }: { state: Exclude<EditorRuntimeStartup, 
 function StartupAnimation() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -39,8 +52,8 @@ function StartupAnimation() {
   }, []);
 
   return (
-    <div className="xse-loading-sprite" aria-hidden="true">
+    <h1 className="xse-loading-sprite" aria-label="Xprite">
       <canvas ref={canvasRef} className="xse-loading-sprite__canvas" width={7} height={7} />
-    </div>
+    </h1>
   );
 }

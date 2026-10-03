@@ -54,6 +54,8 @@ count, runtime-only document identity, dimensions, layer/frame/palette counts.
 Browser/device/OS properties use PostHog's standard event field names.
 The same visit ID joins a user's operations within this page load; it is not saved
 to browser storage or reused across reloads.
+PostHog keeps a separate browser-scoped visitor identifier in localStorage so
+return visits can be counted across page loads. Person profiles remain disabled.
 
 Remote events never include document names, paths, pixels, source file metadata,
 workspace exports, arbitrary diagnostic details or URL query/hash parameters.
@@ -73,9 +75,10 @@ SDK batching/retry behavior handles subsequent delivery. Do Not Track is respect
 
 1. Use a PostHog free account without adding a payment method. Choose an existing
    project, or obtain approval before creating one or changing its settings.
-2. In PostHog project settings, enable **Cookieless server hash mode**. This is
-   mandatory: PostHog otherwise discards cookieless events. This integration does
-   not change account/project settings by itself.
+2. Keep the project's **GeoIP** transformation enabled and **Discard client IP
+   data** enabled. GeoIP adds location properties before PostHog discards the
+   original IP. The browser SDK stores its visitor identifier in localStorage,
+   not in a cookie.
 3. Configure the public build variables shown in `apps/editor/.env.example`:
    `VITE_POSTHOG_PROJECT_TOKEN` and `VITE_POSTHOG_REGION` (`US` or `EU`).
    The SDK uses `https://us.i.posthog.com` or `https://eu.i.posthog.com` for
@@ -104,13 +107,15 @@ Direct browser connectivity to PostHog requires mainland network validation.
 Reporting failures do not interrupt editing or local diagnostics. No proxy,
 hosting-side geography endpoint, or durable delivery queue is included.
 
-Cookieless measurement has daily identity rotation and collision/repeat-visitor
-limitations. Prefer daily feature penetration and visit-level funnels. Retention
-across days requires a separate identity/consent design.
+The visitor identifier persists only within the current browser's site storage.
+Clearing that storage resets it; different browsers and devices are counted
+separately. GeoIP applies to newly ingested events, not historical events.
 
 ## Sources
 
-- [PostHog cookieless tracking](https://posthog.com/tutorials/cookieless-tracking)
+- [PostHog JavaScript persistence](https://posthog.com/docs/libraries/js/persistence)
+- [PostHog GeoIP transformation](https://posthog.com/docs/cdp/transformations/template-geoip)
+- [PostHog IP data storage](https://posthog.com/docs/privacy/data-storage#discarding-ip-addresses-at-project-level)
 - [PostHog error tracking](https://posthog.com/docs/error-tracking/installation/web)
 - [PostHog Capture API](https://posthog.com/docs/api/capture)
 - [PostHog exception wire schema](https://posthog.com/docs/error-tracking/issues-and-exceptions)

@@ -53,7 +53,7 @@ export function startStartupAnimation(canvas: HTMLCanvasElement, startedAt: numb
     void spriteSheetReady.then((loaded) => {
       if (stopped || !loaded) return;
       ready = true;
-      frameRequest = requestAnimationFrame(drawFrame);
+      drawFrame(performance.now());
     });
   };
 

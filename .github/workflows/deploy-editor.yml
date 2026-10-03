@@ -53,6 +53,9 @@ jobs:
           node-version: "24"
           cache: pnpm
 
+      - name: Validate public documentation
+        run: pnpm run check:public-docs
+
       - name: Validate deployment configuration
         run: pnpm run deploy:validate
         env:

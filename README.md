@@ -7,17 +7,13 @@
     <a href="https://xprite.cc"><strong>Open Xprite</strong></a> ·
     <a href="./README.zh.md">中文</a> ·
     <a href="./apps/editor/assets/help/README.en.md">User guide</a> ·
+    <a href="./PRIVACY.md">Privacy</a> ·
     <a href="./CONTRIBUTING.md">Contributing</a> ·
     <a href="https://github.com/rhinoc/xprite/issues">Feedback</a>
   </p>
 </div>
 
-<table>
-  <tr>
-    <td width="78%"><img src="./scripts/visual-audit/baselines/xprite/en/editor-wide.png" alt="Xprite desktop layout" /></td>
-    <td width="22%"><img src="./scripts/visual-audit/baselines/xprite/en/editor-compact.png" alt="Xprite phone layout" /></td>
-  </tr>
-</table>
+![Xprite sprite editor in desktop and phone browsers](./scripts/marketing-cover/output/xprite-readme-cover.png)
 
 ## Highlights
 

@@ -205,5 +205,85 @@
       "button[aria-label=\"Two-finger tap to undo\"]",
       "button[role=\"combobox\"][aria-label=\"Color-pick delay (ms)\"]"
     ]
+  },
+  "images/shared/color-buttons.webp": {
+    "width": 168,
+    "height": 76,
+    "capturedAt": "2026-10-03T17:29:32.908Z",
+    "source": "http://localhost:5173/editor",
+    "clip": {
+      "x": 40,
+      "y": 867,
+      "width": 168,
+      "height": 76
+    },
+    "selectors": [
+      "button[aria-label=\"Foreground color: #FFFFFF\"]",
+      "button[aria-label=\"Background color: #000000\"]"
+    ],
+    "context": "Color buttons contain hexadecimal values, with no localized labels; shared by both guides."
+  },
+  "images/en/chrome-install-button.webp": {
+    "width": 180,
+    "height": 68,
+    "capturedAt": "2026-10-03T17:24:34.470Z",
+    "source": "http://localhost:5173/",
+    "clip": {
+      "x": 3045,
+      "y": 94,
+      "width": 180,
+      "height": 68
+    },
+    "selectors": ["Chrome toolbar button: Install Xprite"],
+    "sourceApplication": "Google Chrome",
+    "interfaceLanguage": "en",
+    "coordinateSpace": "native-window-pixels",
+    "windowSize": {
+      "width": 3840,
+      "height": 2096
+    },
+    "context": "Native English Chrome controls, also shown in the Chinese guide with translated button names alongside their English labels.",
+    "references": ["https://support.google.com/chrome/answer/9658361"]
+  },
+  "images/shared/selection-arrows.webp": {
+    "width": 136,
+    "height": 40,
+    "capturedAt": "2026-10-03T17:36:48.041Z",
+    "source": "http://xprite-help.localhost:5173/editor",
+    "viewport": {
+      "width": 900,
+      "height": 700
+    },
+    "clip": {
+      "x": 483,
+      "y": 52,
+      "width": 136,
+      "height": 40
+    },
+    "selectors": [
+      "[role=\"toolbar\"][aria-label=\"Shortcuts\"] button[aria-label=\"Move Selection Left\"]",
+      "[role=\"toolbar\"][aria-label=\"Shortcuts\"] button[aria-label=\"Move Selection Down\"]"
+    ]
+  },
+  "images/shared/selection-modifiers.webp": {
+    "width": 104,
+    "height": 40,
+    "capturedAt": "2026-10-03T17:36:48.041Z",
+    "source": "http://xprite-help.localhost:5173/editor",
+    "viewport": {
+      "width": 900,
+      "height": 700
+    },
+    "clip": {
+      "x": 650,
+      "y": 52,
+      "width": 104,
+      "height": 40
+    },
+    "selectors": [
+      "[role=\"toolbar\"][aria-label=\"Shortcuts\"] button[aria-label=\"Constrain\"]",
+      "[role=\"toolbar\"][aria-label=\"Shortcuts\"] button[aria-label=\"Duplicate Drag\"]",
+      "[role=\"toolbar\"][aria-label=\"Shortcuts\"] button[aria-label=\"From Center\"]"
+    ]
   }
 }

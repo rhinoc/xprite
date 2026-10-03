@@ -198,6 +198,7 @@ export interface EditorLocationPort {
 }
 
 export interface EditorPlatformPorts {
+  startupScreen?: StartupScreenPort;
   navigation: { openExternal(url: string): void; location?: EditorLocationPort };
   colorSampling?: ColorSamplingPort;
   userPresets?: UserPresetStoragePort;
@@ -209,4 +210,9 @@ export interface EditorPlatformPorts {
   wheelInput: EditorWheelInputPort;
   font: EditorFontPort;
   files: EditorFilePort;
+}
+
+export interface StartupScreenPort {
+  readonly available: boolean;
+  retain(): () => void;
 }

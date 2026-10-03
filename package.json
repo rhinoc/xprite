@@ -5,6 +5,7 @@
   "license": "GPL-2.0-only",
   "type": "module",
   "scripts": {
+    "assets:startup-font": "python3 scripts/fixtures/assets/build-startup-font.py",
     "minitool:pack": "node scripts/minitool/pack.mts",
     "prepare": "husky",
     "build:ui": "pnpm --filter @xprite/ui run build",
@@ -30,7 +31,8 @@
     "preview:gallery": "pnpm --filter @xprite/gallery-app run preview",
     "test": "vitest run --config infra/vitest.config.ts",
     "test:watch": "vitest --config infra/vitest.config.ts",
-    "check": "pnpm run check:format && pnpm run check:i18n && pnpm run check:duplicates && pnpm run check:lint && pnpm run check:stale-css && pnpm run check:knip && pnpm run check:package-imports && pnpm run check:package-architecture && pnpm run check:dom-geometry && pnpm run check:ui-editor-usage && pnpm run check:ui-control-placement",
+    "check": "pnpm run check:public-docs && pnpm run check:format && pnpm run check:i18n && pnpm run check:duplicates && pnpm run check:lint && pnpm run check:stale-css && pnpm run check:knip && pnpm run check:package-imports && pnpm run check:package-architecture && pnpm run check:dom-geometry && pnpm run check:ui-editor-usage && pnpm run check:ui-control-placement",
+    "check:public-docs": "node scripts/check/check-public-docs.mjs",
     "check:i18n": "node scripts/check/check-i18n-coverage.mjs",
     "check:dependencies": "node scripts/check/check-editor-core-graph.mjs",
     "check:duplicates": "jscpd apps packages scripts infra --format typescript,tsx,javascript,jsx,css --ignore \"**/generated-ui-components.ts,**/base/theme/generated/themes/*.ts\" --min-tokens 50 --threshold 3 --reporters threshold --no-colors --no-tips",

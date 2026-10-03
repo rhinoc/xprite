@@ -16,6 +16,7 @@ import { browserKeyboardLikelyAvailable } from "$/adapters/input/keyboard-capabi
 import { createPaintingCursorRenderer } from "$/adapters/input/painting-cursors";
 import { releaseEditorFocus } from "$/adapters/input/release-editor-focus";
 import { createBrowserEditorLocation } from "$/adapters/platform/browser-editor-location";
+import { createBrowserStartupScreen } from "$/adapters/platform/browser-startup-screen";
 import { rasterizeEditorTextFont } from "$/adapters/rendering/editor-font";
 import { ReferenceViewportCache } from "$/adapters/rendering/reference-viewport-cache";
 import { createBrowserShortcutFilePort } from "$/adapters/shortcuts/browser-shortcut-files";
@@ -38,6 +39,7 @@ export function createBrowserEditorPlatformPorts(): EditorPlatformPorts {
     ? EditorPrimaryModifier.Command
     : EditorPrimaryModifier.Control;
   return {
+    startupScreen: createBrowserStartupScreen(),
     navigation: {
       location: createBrowserEditorLocation(),
       openExternal: (url) => {

@@ -2,6 +2,7 @@ import { StrictMode, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { BrowserDiagnostics } from "$/adapters/diagnostics/browser-diagnostics";
+import { dismissBrowserStartupScreen } from "$/adapters/platform/browser-startup-screen";
 import { PostHogTelemetry } from "$/adapters/telemetry/posthog-telemetry";
 import App from "$/App";
 import "$/i18n";
@@ -41,9 +42,10 @@ const root = createRoot(document.getElementById("root")!);
 root.render(
   <StrictMode>
     <AppErrorBoundary
-      onError={(error, componentStack) =>
-        diagnostics.capture(error, DiagnosticSource.ReactBoundary, { componentStack })
-      }
+      onError={(error, componentStack) => {
+        dismissBrowserStartupScreen();
+        diagnostics.capture(error, DiagnosticSource.ReactBoundary, { componentStack });
+      }}
       onExportDiagnostics={() => diagnostics.exportLogs()}
     >
       <DiagnosticsProvider diagnostics={diagnostics}>

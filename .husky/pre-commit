@@ -1,3 +1,4 @@
+pnpm run check:public-docs
 pnpm exec lint-staged --config infra/lint-staged.json
 pnpm run check:package-imports
 pnpm run check:ui-editor-usage

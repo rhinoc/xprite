@@ -31,6 +31,10 @@ manifest and mobile installation metadata. Offline caching and app installation
 belong to the standalone website. Cross-origin frames use the existing file-input
 and file-download flows rather than native file-system pickers.
 
+The embedded application uses `noindex, follow` and omits the standalone site's
+canonical, structured data, robots file, sitemap and static 404 page. Search
+engines can index the itch.io project listing independently of the embedded tool.
+
 Optional public `VITE_POSTHOG_PROJECT_TOKEN` / `VITE_POSTHOG_REGION` settings still
 apply at build time. With both `POSTHOG_CLI_API_KEY` and `POSTHOG_CLI_PROJECT_ID`
 configured in the build environment, the build generates hidden source maps in

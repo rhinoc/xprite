@@ -42,5 +42,21 @@
   "images/zh/view-show.webp": {
     "width": 226,
     "height": 304
+  },
+  "images/shared/color-buttons.webp": {
+    "width": 168,
+    "height": 76
+  },
+  "images/en/chrome-install-button.webp": {
+    "width": 180,
+    "height": 68
+  },
+  "images/shared/selection-arrows.webp": {
+    "width": 136,
+    "height": 40
+  },
+  "images/shared/selection-modifiers.webp": {
+    "width": 104,
+    "height": 40
   }
 }

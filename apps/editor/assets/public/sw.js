@@ -1,4 +1,5 @@
-const CACHE_NAME = "xprite-v5";
+const CACHE_PREFIX = "xprite-";
+const CACHE_NAME = `${CACHE_PREFIX}v6`;
 const BASE_URL = new URL("./", self.location.href);
 const APP_SHELL = [
   BASE_URL.href,
@@ -10,6 +11,7 @@ const APP_SHELL = [
   new URL("favicon-16.png?v=xprite-2", BASE_URL).href,
   new URL("favicon-32.png?v=xprite-2", BASE_URL).href,
   new URL("startup-loading.webp?v=xprite-2", BASE_URL).href,
+  new URL("startup-pixel.woff2?v=c93e472833bd", BASE_URL).href,
 ];
 
 self.addEventListener("install", (event) => {
@@ -22,7 +24,18 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches
+      .keys()
+      .then((names) =>
+        Promise.all(
+          names
+            .filter((name) => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME)
+            .map((name) => caches.delete(name)),
+        ),
+      )
+      .then(() => self.clients.claim()),
+  );
 });
 
 self.addEventListener("fetch", (event) => {

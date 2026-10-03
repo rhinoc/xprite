@@ -1,2 +1,3 @@
 User-agent: *
 Allow: /
+Sitemap: https://xprite.cc/sitemap.xml

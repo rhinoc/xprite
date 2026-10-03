@@ -78,11 +78,20 @@ async function prepareDeployment() {
   // Upload only serving rules; omit build/install commands to keep this package prebuilt.
   const servingConfiguration = {
     $schema: configuration.$schema,
-    headers: configuration.headers,
+    headers: [
+      ...configuration.headers,
+      ...(environment === "preview"
+        ? [{ source: "/*", headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }] }]
+        : []),
+    ],
     caches: configuration.caches,
     ...(configuration.rewrites ? { rewrites: configuration.rewrites } : {}),
     ...(configuration.redirects ? { redirects: configuration.redirects } : {}),
   };
+  if (environment === "preview") {
+    await writeFile(join(deploymentDirectory, "robots.txt"), "User-agent: *\nAllow: /\n");
+    await rm(join(deploymentDirectory, "sitemap.xml"), { force: true });
+  }
   await writeFile(
     join(deploymentDirectory, "edgeone.json"),
     `${JSON.stringify(servingConfiguration, null, 2)}\n`,

@@ -2,6 +2,16 @@
 
 Run scripts from the repository root. The root `package.json` exposes common commands.
 
+`pnpm run check:public-docs` rejects Xiaohongshu / 小红书, RedNote, XHS and
+platform links in root Markdown (except `AGENTS.md`), the user guide and its
+text assets, public text assets, and the editor HTML entry. It reports file and
+line numbers and exits with a failure. New files in these locations are included
+automatically. Platform runtime code and developer documentation under `scripts/`
+are outside this public-document scope. The guide is for the official website
+and describes differences from Aseprite; it also rejects itch.io and mini tool
+edition references. The pre-commit hook, root `check` (including pre-push),
+PR/push CI, and deployment workflow all run the check.
+
 Editor release configuration and tag/manual deployment instructions are in
 [deploy/README.md](deploy/README.md). Root `deploy:*` scripts prepare and publish
 the static editor to EdgeOne Makers.

@@ -7,17 +7,13 @@
     <a href="https://xprite.cc"><strong>在线体验</strong></a> ·
     <a href="./README.md">English</a> ·
     <a href="./apps/editor/assets/help/README.zh-CN.md">使用指南</a> ·
+    <a href="./PRIVACY.zh.md">隐私说明</a> ·
     <a href="./CONTRIBUTING.md">参与开发</a> ·
     <a href="https://github.com/rhinoc/xprite/issues">问题反馈</a>
   </p>
 </div>
 
-<table>
-  <tr>
-    <td width="78%"><img src="./scripts/visual-audit/baselines/xprite/zh/editor-wide.png" alt="Xprite 桌面布局" /></td>
-    <td width="22%"><img src="./scripts/visual-audit/baselines/xprite/zh/editor-compact.png" alt="Xprite 手机布局" /></td>
-  </tr>
-</table>
+![在电脑和手机浏览器中使用 Xprite 精灵编辑器](./scripts/marketing-cover/output/xprite-readme-cover.png)
 
 ## 特点
 

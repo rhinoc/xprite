@@ -760,7 +760,7 @@ function EditorTimelineContent({
     [
       editor.playing ? "ani_stop" : "ani_play",
       editor.playing ? "Stop playback" : "Play animation",
-      () => editor.setPlaying((v) => !v),
+      () => editor.setPlaying(!editor.playing),
       "Enter",
     ],
     ["ani_next", "Next frame", () => commands.stepFrame(1), "Right"],
@@ -1326,7 +1326,7 @@ function EditorTimelineContent({
           );
           return (
             <Tooltip
-              key={label}
+              key={shortcut}
               placement="bottom"
               text={`${tUiSource(label)}\n\n${tUi("ui.timeline.playback.shortcut", { shortcut })}${i === 2 ? `\n\n${tUi("ui.timeline.playback.right.click.settings")}` : ""}`}
             >
@@ -1334,6 +1334,7 @@ function EditorTimelineContent({
                 i === 2 ? (
                   <EditorContextMenu
                     label="Animation Playback"
+                    touchDoubleClickTarget={false}
                     items={animationPlaybackMenuItems(
                       coreSnapshot?.view.playback ?? defaultPlaybackSettings,
                       updatePlaybackOptions,

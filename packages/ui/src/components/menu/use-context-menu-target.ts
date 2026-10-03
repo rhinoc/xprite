@@ -12,7 +12,7 @@ import type { LongPressActivation, PointerContact } from "$/components/menu/poin
 interface ContextMenuTargetOptions {
   longPressTarget?: string | false;
   longPressActivation?: LongPressActivation;
-  touchDoubleClickTarget?: string;
+  touchDoubleClickTarget?: string | false;
   gestureScope?: unknown;
   canOpenTouchMenu?: (input: PointerContact, target: Element) => boolean;
   onContextMenu?: MouseEventHandler<HTMLElement>;

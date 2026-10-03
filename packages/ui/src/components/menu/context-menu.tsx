@@ -18,7 +18,8 @@ export interface ContextMenuProps {
   longPressTarget?: string | false;
   /** Open during the hold, or reserve hold-and-drag and open on stationary release. */
   longPressActivation?: LongPressActivation;
-  touchDoubleClickTarget?: string;
+  /** Restrict touch double-clicks to a selector, or disable them for single-tap controls. */
+  touchDoubleClickTarget?: string | false;
   gestureScope?: unknown;
   /** Let the target's editing/resize gesture take precedence over a stationary hold. */
   canOpenTouchMenu?: (input: PointerContact, target: Element) => boolean;

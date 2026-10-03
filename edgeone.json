@@ -5,7 +5,16 @@
   "installCommand": "npx --yes pnpm@11.1.3 install --frozen-lockfile",
   "buildCommand": "npx --yes pnpm@11.1.3 run build:editor",
   "outputDirectory": "apps/editor/dist",
-  "redirects": [{ "source": "$wwwhost", "destination": "$host", "statusCode": 301 }],
+  "redirects": [
+    { "source": "$wwwhost", "destination": "$host", "statusCode": 301 },
+    { "source": "/home", "destination": "/", "statusCode": 301 },
+    { "source": "/home/", "destination": "/", "statusCode": 301 },
+    { "source": "/index.html", "destination": "/", "statusCode": 301 }
+  ],
+  "rewrites": [
+    { "source": "/editor", "destination": "/index.html" },
+    { "source": "/editor/", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/",
@@ -13,6 +22,14 @@
     },
     {
       "source": "/index.html",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+    },
+    {
+      "source": "/editor",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+    },
+    {
+      "source": "/editor/",
       "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
     },
     {
@@ -31,6 +48,8 @@
   "caches": [
     { "source": "/", "cacheTtl": 0 },
     { "source": "/index.html", "cacheTtl": 0 },
+    { "source": "/editor", "cacheTtl": 0 },
+    { "source": "/editor/", "cacheTtl": 0 },
     { "source": "/sw.js", "cacheTtl": 0 },
     { "source": "/release.json", "cacheTtl": 0 },
     { "source": "/assets/*", "cacheTtl": 86400 }

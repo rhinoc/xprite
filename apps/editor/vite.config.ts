@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
+import { editorSeo } from "../../infra/editor-seo.ts";
 import { packageLocalAliases } from "../../infra/package-local-aliases.ts";
 
 const appRoot = dirname(fileURLToPath(import.meta.url));
@@ -284,6 +285,9 @@ function itchDistribution() {
       await Promise.all([
         unlink(resolve(editorOutput, "sw.js")),
         unlink(resolve(editorOutput, "manifest.webmanifest")),
+        unlink(resolve(editorOutput, "404.html")),
+        unlink(resolve(editorOutput, "robots.txt")),
+        unlink(resolve(editorOutput, "sitemap.xml")),
         writeFile(
           resolve(editorOutput, "release.json"),
           `${JSON.stringify(
@@ -321,6 +325,7 @@ export default defineConfig({
   publicDir: resolve(appRoot, "assets/public"),
   plugins: [
     packageLocalAliases(),
+    editorSeo(projectMetadata.version),
     react(),
     debugInputMiddleware(),
     bundleLicenseNotices(),

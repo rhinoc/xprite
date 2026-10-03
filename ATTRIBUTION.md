@@ -82,7 +82,7 @@ The light and dark bitmap theme atlases, derived UI parts and cursor artwork
 retain the [theme attribution](LICENSES/aseprite-theme.txt). The bitmap font,
 WOFF2 conversion, and generated regular/mini glyph atlases retain the
 [font attribution](LICENSES/aseprite-font.txt). Both are licensed CC BY 4.0;
-their browser conversions, crops, and measurements are modifications.
+their browser conversions, crops, measurements, and startup font subsetting are modifications.
 
 English interface strings retained from `data/strings/en.ini` are licensed
 CC BY 4.0 by Igara Studio S.A. and David Capello. The distributed string

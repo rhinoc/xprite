@@ -8,13 +8,17 @@ import {
 import { useEditorPlatformPorts } from "$/managers/platform/editor-platform-context";
 import { EditorPageRoute } from "$/managers/ports/platform";
 
+function normalizeEditorPath(path: string): string {
+  return path.replace(/\/+$/, "") || EditorPageRoute.Home;
+}
+
 export function useEditorLocation(tab: EditorTab, openTab: EditorUiState["openTab"]): void {
   const location = useEditorPlatformPorts()?.navigation.location;
   const previousTab = useRef(tab);
   const skipNextHistoryEntry = useRef(false);
   useEffect(() => {
     if (!location) return;
-    const path = location.read().replace(/\/+$/, "");
+    const path = normalizeEditorPath(location.read());
     const target = tab === "home" ? EditorPageRoute.Home : EditorPageRoute.Document;
     const changed = previousTab.current !== tab;
     previousTab.current = tab;
@@ -27,7 +31,7 @@ export function useEditorLocation(tab: EditorTab, openTab: EditorUiState["openTa
   useEffect(() => {
     if (!location) return;
     return location.subscribe(() => {
-      const path = location.read().replace(/\/+$/, "");
+      const path = normalizeEditorPath(location.read());
       const nextTab = path === EditorPageRoute.Home ? "home" : "document";
       if (nextTab !== tab) {
         skipNextHistoryEntry.current = true;

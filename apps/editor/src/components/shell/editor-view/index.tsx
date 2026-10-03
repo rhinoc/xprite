@@ -228,10 +228,11 @@ function DocumentScene() {
   const chromePreferences = useEditorChromePreferences();
   const { document: activeDocument, dirty } = useEditorDocumentView();
   useEffect(() => {
-    document.title = activeDocument
-      ? `${activeDocument.name} | ${APP_NAME}`
-      : tUi("ui.online.pixel.art.editor.animation.tool", { value1: APP_NAME });
-  }, [activeDocument?.name, language]);
+    document.title =
+      editor.tab === "document" && activeDocument
+        ? `${activeDocument.name} | ${APP_NAME}`
+        : tUi("ui.online.pixel.art.editor.animation.tool", { value1: APP_NAME });
+  }, [activeDocument?.name, editor.tab, language]);
   const { hasTileset } = useTilesetInspectorView();
   const {
     width: editorWidth,
