@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 
 import { parseEgoReport, printEgoNonReportLines } from "../../base/ego-report.mjs";
 import { collectVisualSources } from "../base/audit-source-files.mjs";
+import { startCaptureStream } from "./capture-stream.mjs";
 import {
   layouts,
   scenes,
@@ -17,6 +18,7 @@ import {
 } from "./scenes.mjs";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url));
+const startedAt = performance.now();
 const args = process.argv.slice(2);
 const baseline = args.includes("--baseline");
 const force = args.includes("--force");
@@ -33,6 +35,9 @@ const output = path.resolve(
   value("--output", baseline ? "scripts/visual-audit/baselines/xprite" : ".tmp/xprite-visual"),
 );
 const port = Number(value("--port", "5173"));
+const baselineRoot = path.join(root, "scripts/visual-audit/baselines/xprite");
+if (!baseline && (output === baselineRoot || output.startsWith(`${baselineRoot}${path.sep}`)))
+  throw Error("Candidate captures must not overwrite the locked baselines.");
 const spaceId = args.includes("--space") ? Number(value("--space")) : undefined;
 if (!Number.isInteger(port) || port <= 0 || port > 65535) throw Error("Invalid --port.");
 if (spaceId !== undefined && (!Number.isInteger(spaceId) || spaceId <= 0))
@@ -82,6 +87,31 @@ const sources = () =>
   );
 const before = sources();
 const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "xprite-visual-"));
+const fixture = "apps/editor/assets/examples/xprite/xprite.ase";
+const stream = baseline
+  ? null
+  : startCaptureStream({
+      root,
+      output,
+      temporary,
+      languages,
+      selectedIds,
+      metadata: {
+        schemaVersion: 1,
+        kind: "xprite-candidate",
+        capturedAt: new Date().toISOString(),
+        captureMethod:
+          "ego-browser raw PNG, DPR 1, isolated Vite HMR transport, no resize or masking",
+        theme: "light",
+        fixture: { file: fixture, sha256: digest(fs.readFileSync(path.join(root, fixture))) },
+        sourceDigest: digest(JSON.stringify(before)),
+        sourceHashes: before,
+        gitRevision: spawnSync("git", ["rev-parse", "HEAD"], {
+          cwd: root,
+          encoding: "utf8",
+        }).stdout.trim(),
+      },
+    });
 try {
   const payload = fs.readFileSync(new URL("./capture.payload.mjs", import.meta.url), "utf8");
   const config = {
@@ -96,11 +126,6 @@ try {
     catalogs,
   };
   const installed = path.join(os.homedir(), ".local/bin/ego-browser");
-  // macOS can suspend screenshot rendering when Ego Lite is not foreground.
-  if (process.platform === "darwin") {
-    const activation = spawnSync("open", ["-a", "ego lite"], { encoding: "utf8" });
-    if (activation.status !== 0) throw Error(`Cannot activate Ego Lite: ${activation.stderr}`);
-  }
   const streams = { stdout: "", stderr: "" };
   const status = await new Promise((resolve, reject) => {
     const child = spawn(fs.existsSync(installed) ? installed : "ego-browser", ["nodejs"], {
@@ -114,7 +139,9 @@ try {
       pending[stream] += chunk;
       const lines = pending[stream].split("\n");
       pending[stream] = lines.pop();
-      for (const line of lines) if (/^CAPTURE_(SPACE|CASE):/.test(line)) console.log(line);
+      for (const line of lines)
+        if (line.startsWith("CAPTURE_SPACE:") || (baseline && line.startsWith("CAPTURE_CASE:")))
+          console.log(line);
     };
     child.stdout.on("data", (chunk) => collect("stdout", chunk));
     child.stderr.on("data", (chunk) => collect("stderr", chunk));
@@ -129,6 +156,7 @@ try {
   );
   if (status !== 0) throw Error("Ego capture failed.");
   const { report } = parseEgoReport(streams, "XPRITE_CAPTURE_REPORT");
+  stream?.assertCaptured(report.cases);
   const after = sources();
   if (JSON.stringify(before) !== JSON.stringify(after)) {
     const changed = [...new Set([...Object.keys(before), ...Object.keys(after)])].filter(
@@ -138,7 +166,6 @@ try {
       `Editor sources changed during capture: ${changed.join(", ")}. Run again after edits settle.`,
     );
   }
-  const fixture = "apps/editor/assets/examples/xprite/xprite.ase";
   for (const language of languages) {
     const captured = report.cases.filter((entry) => entry.language === language);
     if (!captured.length) continue;
@@ -162,6 +189,7 @@ try {
       }).stdout.trim(),
       browser: report.browser,
       cases: captured,
+      ...(!baseline ? { captureComplete: true } : {}),
     };
     const captureProvenance = {
       capturedAt: manifest.capturedAt,
@@ -205,6 +233,12 @@ try {
     fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
     console.log(`Saved ${captured.length} ${language} captures to ${directory}`);
   }
+  stream?.complete();
+  console.log(`Capture completed in ${Math.round(performance.now() - startedAt)} ms.`);
 } finally {
-  fs.rmSync(temporary, { recursive: true, force: true });
+  try {
+    await stream?.close();
+  } finally {
+    fs.rmSync(temporary, { recursive: true, force: true });
+  }
 }

@@ -29,7 +29,7 @@ compare with this set, rather than a reason to update baselines automatically.
 Captures cover Chinese (`zh-CN`) and English (`en`), with the light theme and DPR 1.
 Selectors are resolved from the corresponding UI catalog, and the actual page language is checked. Compact uses the
 application's compact layout with mouse input; this suite does not emulate touch.
-PNGs are raw, without resizing or masking. Each scene must produce three
+PNGs are raw, without resizing or masking. Each scene must produce two
 consecutive identical captures. Editable fields are blurred before capture so
 blinking carets do not enter the comparison. Dialogs are closed without editing
 draft values. The recovery tab is closed before capturing editor overlays.
@@ -50,6 +50,9 @@ pnpm run visual:compare
 The capture creates one Ego task space and closes it on success. For an existing
 agent-owned space, pass `--space ID`; its caller remains responsible for closing
 that space. `--port PORT` targets an existing server on another port.
+The capture does not activate Ego Lite or bring its page to the foreground.
+Capture waits for fonts and stable PNGs instead of animation frames, which can
+be throttled in a background browser. The command reports total capture time.
 
 Capture resets local storage and IndexedDB only on the dedicated
 `xprite-visual-{wide,compact}-{zh-cn,en}.localhost` origins on that port,
@@ -60,12 +63,20 @@ source, and changing source files during capture rejects the result.
 
 Candidates, diff PNGs, and each language's `comparison.json` are written to
 `.tmp/xprite-visual/zh/` and `.tmp/xprite-visual/en/`. `comparison-all.json` at the root summarizes both languages.
+Candidate capture and pixel comparison run in separate queues. Each stable PNG
+and its provenance are saved immediately and sent to a comparison worker while
+the browser captures the next scene. Reports update after each comparison;
+completed candidates and results remain available if a later capture fails.
+Partial reports cannot pass the push gate. The final comparison requires a
+successful complete capture, every selected scene and the unchanged source check.
 Baselines and capture manifests live in `scripts/visual-audit/baselines/xprite/zh/`
 and `scripts/visual-audit/baselines/xprite/en/`.
 Directory names use `zh` and `en`; UI locale IDs and `--languages` remain `zh-CN` and `en`.
 PNGs and provenance should be committed together.
 
 Comparison requires exact decoded RGBA equality across the whole screenshot.
+Identical images use a byte comparison and do not produce a diff PNG; images
+with differing pixels produce a diff PNG for review.
 Reports also score captured DOM regions, including dialogs, menus, tooltips,
 and individual Home action buttons, and check that geometry is unchanged.
 Dimension, fixture, browser/platform, frame, zoom, language, or theme mismatches

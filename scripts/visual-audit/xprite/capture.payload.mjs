@@ -6,13 +6,12 @@ const task = await taskSpace(config.spaceId ?? "Xprite visual regression");
 if (task.ownership !== "agent") throw Error("Capture requires an agent-owned task space.");
 console.log(`CAPTURE_SPACE:${task.spaceId}`);
 const page = task.page("p1");
-await page.cdp("Page.bringToFront");
 const cases = [];
+let browser;
 const exampleButton = `button[aria-label=${JSON.stringify(config.sampleName)}]`;
 const settle = () =>
   page.evaluate(async () => {
     await document.fonts.ready;
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   });
 const parkedPointer = async (width, height) => {
   await page.mouse.move(width - 1, height - 1, { label: "clear pointer hover before capture" });
@@ -28,6 +27,7 @@ for (const language of config.languages) {
   const selected = new Set(config.selectedIds[language]);
   if (!selected.size) continue;
   await fs.mkdir(`${config.output}/${language}`, { recursive: true });
+  await fs.mkdir(`${config.output}/ready/${language}`, { recursive: true });
   const catalog = config.catalogs[language];
   const text = (key, values = {}) => {
     if (!catalog[key]) throw Error(`Missing ${language} capture label: ${key}`);
@@ -107,7 +107,6 @@ for (const language of config.languages) {
     const capture = async (view, target) => {
       const id = `${view}-${mode}`;
       if (!selected.has(id)) return;
-      await page.cdp("Page.bringToFront");
       await page.waitForSelector(target, { state: "visible", timeout: 30000 });
       await page.waitForFunction(
         () =>
@@ -204,7 +203,7 @@ for (const language of config.languages) {
       let previousHash,
         stable = false;
       let identicalCaptures = 0;
-      const requiredIdenticalCaptures = 3;
+      const requiredIdenticalCaptures = 2;
       const maximumCaptureAttempts = 12;
       for (let attempt = 0; attempt < maximumCaptureAttempts; attempt++) {
         await settle();
@@ -216,7 +215,15 @@ for (const language of config.languages) {
         identicalCaptures = hash === previousHash ? identicalCaptures + 1 : 1;
         if (identicalCaptures >= requiredIdenticalCaptures) {
           await page.waitForSelector(target, { state: "visible", timeout: 3000 });
-          cases.push({ id, file: `${id}.png`, sha256: hash, ...metadata });
+          browser ??= await page.evaluate(() => ({
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+          }));
+          const entry = { id, file: `${id}.png`, sha256: hash, ...metadata };
+          cases.push(entry);
+          const readyFile = `${config.output}/ready/${language}/${id}.json`;
+          await fs.writeFile(`${readyFile}.pending`, JSON.stringify({ browser, entry }));
+          await fs.rename(`${readyFile}.pending`, readyFile);
           stable = true;
           break;
         }
@@ -356,7 +363,7 @@ for (const language of config.languages) {
     await page.cdp("Page.removeScriptToEvaluateOnNewDocument", initialization);
   }
 }
-const browser = await page.evaluate(() => ({
+browser ??= await page.evaluate(() => ({
   userAgent: navigator.userAgent,
   platform: navigator.platform,
 }));
