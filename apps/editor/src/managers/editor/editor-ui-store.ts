@@ -1,6 +1,12 @@
 import { createStore } from "zustand/vanilla";
 
 import { WorkingColorTarget } from "$/managers/colors/working-color-target";
+import {
+  EditorView,
+  EditorViewChangeTrigger,
+  EditorViewChangeReason,
+  type EditorViewTransition,
+} from "$/managers/editor/editor-view-transition";
 import type { CanvasQuickTool } from "$/managers/input/policies/quick-tool";
 import type { PreferenceStoragePort } from "$/managers/ports/platform";
 import {
@@ -22,6 +28,18 @@ type Updater<T> = T | ((current: T) => T);
 const LAST_ACTIVE_TAB_STORAGE_KEY = "xse.workspace.active-tab.v1";
 const HOME_PAGE_PATH = "/home";
 const EDITOR_PAGE_PATH = "/editor";
+const INITIAL_VIEW_TRANSITION: EditorViewTransition = {
+  trigger: EditorViewChangeTrigger.Initial,
+  reason: EditorViewChangeReason.InitialLoad,
+};
+const TAB_SELECTED_TRANSITION: EditorViewTransition = {
+  trigger: EditorViewChangeTrigger.User,
+  reason: EditorViewChangeReason.TabSelected,
+};
+const TAB_CLOSED_TRANSITION: EditorViewTransition = {
+  trigger: EditorViewChangeTrigger.User,
+  reason: EditorViewChangeReason.TabClosed,
+};
 
 function restoreActiveTab(
   fallback: EditorTab,
@@ -56,6 +74,8 @@ export interface EditorUiState {
   tilesetEditable: boolean;
   previousTool: EditorTool | null;
   tab: EditorTab;
+  recoveryOpen: boolean;
+  viewTransition: EditorViewTransition;
   openTabs: EditorTab[];
   notice: string;
   panelLayoutPreferences: PanelLayoutPreferences;
@@ -69,10 +89,31 @@ export interface EditorUiState {
   setWorkingColorTarget(value: WorkingColorTarget): void;
   setTilesetEditable(value: boolean): void;
   rememberToolChange(previous: EditorTool, next: EditorTool): void;
-  setTab(value: EditorTab): void;
-  openTab(value: EditorTab): void;
-  closeTab(value: EditorTab): void;
+  setTab(value: EditorTab, transition?: EditorViewTransition): void;
+  openTab(value: EditorTab, transition?: EditorViewTransition): void;
+  closeTab(value: EditorTab, transition?: EditorViewTransition): void;
+  setRecoveryOpen(value: boolean, transition?: EditorViewTransition): void;
   setNotice(value: string): void;
+}
+
+export function editorViewForState(state: Pick<EditorUiState, "tab" | "recoveryOpen">): EditorView {
+  if (state.recoveryOpen && state.tab === "home") return EditorView.Recovery;
+  if (state.tab === HelpDocumentTab.Guide) return EditorView.Guide;
+  return state.tab === "home" ? EditorView.Home : EditorView.Editor;
+}
+
+function viewStateChange(
+  state: EditorUiState,
+  tab: EditorTab,
+  recoveryOpen: boolean,
+  transition: EditorViewTransition,
+) {
+  const next = { tab, recoveryOpen };
+  return {
+    ...next,
+    viewTransition:
+      editorViewForState(state) === editorViewForState(next) ? state.viewTransition : transition,
+  };
 }
 
 function updatePanelLayoutPreferences(
@@ -111,6 +152,8 @@ export function createEditorUiStore(
     tilesetEditable: false,
     previousTool: null,
     tab: restoreActiveTab(initialTab, storage, pathname),
+    recoveryOpen: false,
+    viewTransition: INITIAL_VIEW_TRANSITION,
     openTabs: ["home", "document"],
     notice: "",
     panelLayoutPreferences: readPanelLayoutPreferences(storage),
@@ -165,25 +208,52 @@ export function createEditorUiStore(
       if (previous === next) return;
       set({ previousTool: previous });
     },
-    setTab: (tab) => set({ tab }),
-    openTab: (tab) => {
-      const { openTabs } = get();
-      if (tab === HelpDocumentTab.Guide && get().tab !== HelpDocumentTab.Guide)
-        previousGuideTab = get().tab;
-      set({ openTabs: openTabs.includes(tab) ? openTabs : [...openTabs, tab], tab });
+    setTab: (tab, transition = TAB_SELECTED_TRANSITION) =>
+      set((state) =>
+        state.tab === tab
+          ? state
+          : viewStateChange(state, tab, tab === "home" && state.recoveryOpen, transition),
+      ),
+    openTab: (tab, transition = TAB_SELECTED_TRANSITION) => {
+      const state = get();
+      const { openTabs } = state;
+      if (state.tab === tab && openTabs.includes(tab)) return;
+      if (tab === HelpDocumentTab.Guide && state.tab !== HelpDocumentTab.Guide)
+        previousGuideTab = state.tab;
+      set({
+        openTabs: openTabs.includes(tab) ? openTabs : [...openTabs, tab],
+        ...viewStateChange(state, tab, tab === "home" && state.recoveryOpen, transition),
+      });
     },
-    closeTab: (closing) =>
+    closeTab: (closing, transition = TAB_CLOSED_TRANSITION) =>
       set((state) => {
         const openTabs = state.openTabs.filter((tab) => tab !== closing);
         const nextTab =
           closing === HelpDocumentTab.Guide && openTabs.includes(previousGuideTab)
             ? previousGuideTab
             : (openTabs[0] ?? "home");
+        const tab = state.tab === closing ? nextTab : state.tab;
         return {
           openTabs,
-          tab: state.tab === closing ? nextTab : state.tab,
+          ...viewStateChange(state, tab, tab === "home" && state.recoveryOpen, transition),
         };
       }),
+    setRecoveryOpen: (recoveryOpen, transition) =>
+      set((state) =>
+        state.recoveryOpen === recoveryOpen
+          ? state
+          : viewStateChange(
+              state,
+              state.tab,
+              recoveryOpen,
+              transition ?? {
+                trigger: EditorViewChangeTrigger.User,
+                reason: recoveryOpen
+                  ? EditorViewChangeReason.RecoveryOpened
+                  : EditorViewChangeReason.RecoveryClosed,
+              },
+            ),
+      ),
     setNotice: (notice) => set({ notice }),
   }));
   if (storage) {

@@ -6,6 +6,8 @@
 
 If you have used Aseprite, you can keep familiar drawing, layer and animation workflows. This guide covers Xprite's workspace layouts, touch controls, and ways to save and use your work on the web.
 
+On your first visit, Xprite follows your browser's preferred language order and uses the first supported language: English or Simplified Chinese. If none match, it uses English. Change **Edit → Preferences → General → Language** to choose a language; your selection is saved in the current browser and takes priority on later visits.
+
 The Xiaohongshu edition shows an introduction on your first visit and remembers when you dismiss it. You can draw, edit and play animations. Projects stay in the current mini tool and do not sync automatically. Use **File → Export** to save images to your photo album. External websites and Aseprite project downloads are unavailable in this edition. Clearing app data may show the introduction again.
 
 - [Arrange your workspace](#arrange-your-workspace): move, combine and float panels, and save your own layouts.

@@ -13,6 +13,10 @@ import { useDiagnosticsPort } from "$/managers/diagnostics/diagnostics-context";
 import { EditorProvider } from "$/managers/editor/editor-state-manager";
 import { createEditorUiStore } from "$/managers/editor/editor-ui-store";
 import type { EditorTab } from "$/managers/editor/editor-ui-store";
+import {
+  automaticViewTransition,
+  EditorViewChangeReason,
+} from "$/managers/editor/editor-view-transition";
 import { CanvasInputProvider } from "$/managers/input/canvas-input-context";
 import { useWheelDevicePreferences } from "$/managers/input/use-wheel-device-preferences";
 import { WheelDeviceProvider } from "$/managers/input/wheel-device-context";
@@ -100,7 +104,9 @@ function EditorApplication({
 
   useEffect(() => {
     if (runtime.startup === "ready" && runtime.workspaceSnapshot.tabs.length === 0)
-      uiStore.getState().setTab("home");
+      uiStore
+        .getState()
+        .setTab("home", automaticViewTransition(EditorViewChangeReason.NoDocuments));
   }, [runtime.startup, runtime.workspaceSnapshot.tabs.length, uiStore]);
 
   const language = currentUiLanguage();

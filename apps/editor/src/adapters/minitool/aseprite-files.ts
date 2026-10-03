@@ -10,6 +10,7 @@ export const DEFAULT_MAX_ASEPRITE_PROJECT_BYTES = 64 * 1024 * 1024;
 export async function decodeAsepriteBlob(blob: Blob, fileName: string) {
   if (blob.size > DEFAULT_MAX_ASEPRITE_PROJECT_BYTES) throw new RangeError("项目文件过大。");
   const data = await decodeAseprite(new Uint8Array(await blob.arrayBuffer()), {
+    fileName,
     limits: {
       maxFileBytes: DEFAULT_MAX_ASEPRITE_PROJECT_BYTES,
       maxDecodedBytes: DEFAULT_MAX_ASEPRITE_PROJECT_BYTES,
@@ -18,7 +19,7 @@ export async function decodeAsepriteBlob(blob: Blob, fileName: string) {
       maxCelPixels: DEFAULT_MAX_ASEPRITE_PROJECT_BYTES / 4,
     },
   });
-  return projectFromAseprite(data, fileName);
+  return projectFromAseprite(data);
 }
 export async function decodeAsepriteSource(source: Blob | { url: string }, name: string) {
   return decodeAsepriteBlob(source instanceof Blob ? source : inlineAssetBlob(source.url), name);

@@ -4,6 +4,11 @@ import { changeUiLanguage, type UiLanguage } from "$/i18n";
 import { ClipboardRegion, createClipboardActions } from "$/managers/clipboard";
 import { useEditor, useEditorManagerContext } from "$/managers/editor/editor-state-manager";
 import { editorSceneForTab } from "$/managers/editor/editor-ui-store";
+import {
+  automaticViewTransition,
+  userViewTransition,
+  EditorViewChangeReason,
+} from "$/managers/editor/editor-view-transition";
 import { useEditorSnapshot } from "$/managers/editor/use-editor-snapshot";
 import {
   exportDocumentAnimation,
@@ -33,6 +38,7 @@ import { shortcutContexts } from "$/managers/shortcuts/shortcut-contexts";
 import { SHORTCUT_DEFINITIONS } from "$/managers/shortcuts/shortcut-manager";
 import { reportingExport } from "$/managers/telemetry/reporting-export";
 import { useTelemetryFeatures } from "$/managers/telemetry/use-telemetry-features";
+import { useTelemetryView } from "$/managers/telemetry/use-telemetry-view";
 import {
   DEFAULT_TEXT_FONT_SIZE,
   editorTextFontOptions,
@@ -257,12 +263,9 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     )
       setSheetImport(null);
   }, [core, sheetImport]);
-  const [recoveryOpen, setRecoveryOpen] = useState(false);
+  const { recoveryOpen, setRecoveryOpen } = editor;
   const [recoveryTabOpen, setRecoveryTabOpen] = useState(false);
   const [recoverySelectedIds, setRecoverySelectedIds] = useState<readonly string[]>([]);
-  useEffect(() => {
-    if (editor.tab !== "home") setRecoveryOpen(false);
-  }, [editor.tab]);
   const [recoveryItems, setRecoveryItems] = useState<RecoveryItem[]>([]);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [recoveryBusy, setRecoveryBusy] = useState(false);
@@ -308,13 +311,13 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     if (!session.canStartInteraction()) return;
     setRecoveryTabOpen(true);
     setRecoveryOpen(true);
-    editor.setTab("home");
+    editor.setTab("home", userViewTransition(EditorViewChangeReason.RecoveryOpened));
     void refreshRecovery();
   };
   const selectRecovery = () => {
     if (!session.canStartInteraction()) return;
     setRecoveryOpen(true);
-    editor.setTab("home");
+    editor.setTab("home", userViewTransition(EditorViewChangeReason.RecoveryOpened));
   };
   const closeRecovery = () => {
     if (!session.canStartInteraction()) return;
@@ -323,8 +326,8 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     if (recoveryOpen) {
       setRecoveryOpen(false);
       if (!editor.openTabs.includes("home") && editor.openTabs.includes("document"))
-        editor.setTab("document");
-      else editor.openTab("home");
+        editor.setTab("document", userViewTransition(EditorViewChangeReason.RecoveryClosed));
+      else editor.openTab("home", userViewTransition(EditorViewChangeReason.RecoveryClosed));
     }
   };
   const recoverProjects = async (ids: readonly string[]) => {
@@ -332,8 +335,9 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     setRecoveryBusy(true);
     try {
       for (const id of ids) await workspace.recoverProject(id);
-      setRecoveryOpen(false);
-      editor.openTab("document");
+      const transition = automaticViewTransition(EditorViewChangeReason.DocumentRecovered);
+      setRecoveryOpen(false, transition);
+      editor.openTab("document", transition);
     } catch (reason) {
       session.reportError(reason);
     } finally {
@@ -384,7 +388,10 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
           ),
           options.name,
         );
-        editor.openTab("document");
+        editor.openTab(
+          "document",
+          automaticViewTransition(EditorViewChangeReason.DocumentGenerated),
+        );
       }
     } catch (reason) {
       session.reportError(reason);
@@ -504,12 +511,19 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
   });
   useEffect(() => {
     if (activation.current.tabId !== workspaceSnapshot.activeId) {
-      setRecoveryOpen(false);
+      const transition = automaticViewTransition(
+        workspaceSnapshot.tabs.length
+          ? recoveryBusy
+            ? EditorViewChangeReason.DocumentRecovered
+            : EditorViewChangeReason.DocumentActivated
+          : EditorViewChangeReason.LastDocumentClosed,
+      );
+      setRecoveryOpen(false, transition);
       activation.current = {
         tabId: workspaceSnapshot.activeId,
         value: workflow.documentActivation,
       };
-      editor.openTab(workspaceSnapshot.tabs.length ? "document" : "home");
+      editor.openTab(workspaceSnapshot.tabs.length ? "document" : "home", transition);
       return;
     }
     if (activation.current.value === workflow.documentActivation) return;
@@ -522,11 +536,26 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     if (workflow.documentActivationKind === "close") {
       const closingId = workspaceSnapshot.activeId;
       workspace.close(closingId);
-      editor.openTab(workspace.getSnapshot().tabs.length === 0 ? "home" : "document");
-    } else editor.openTab("document");
+      const empty = workspace.getSnapshot().tabs.length === 0;
+      editor.openTab(
+        empty ? "home" : "document",
+        automaticViewTransition(
+          empty ? EditorViewChangeReason.LastDocumentClosed : EditorViewChangeReason.DocumentClosed,
+        ),
+      );
+    } else
+      editor.openTab("document", automaticViewTransition(EditorViewChangeReason.DocumentOpened));
     setDialog(null);
     setNewDialog(false);
-  }, [workflow.documentActivation, editor, workspace, workspaceSnapshot.activeId]);
+  }, [
+    workflow.documentActivation,
+    editor,
+    workspace,
+    workspaceSnapshot.activeId,
+    workspaceSnapshot.tabs.length,
+    recoveryBusy,
+  ]);
+  useTelemetryView();
   const exitCount = useRef(workspaceSnapshot.exitRequests);
   useEffect(() => {
     if (exitCount.current !== workspaceSnapshot.exitRequests) {
@@ -798,7 +827,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       if (image.asepriteSamples || image.sourceProfile)
         workspace.createDocumentFromProject(projectFromClipboardImage(image), name);
       else workspace.createDocumentFromImage(image.pixels, image.palette, name);
-      editor.openTab("document");
+      editor.openTab("document", automaticViewTransition(EditorViewChangeReason.DocumentGenerated));
     },
     duplicateSprite: () => {
       if (session.canStartInteraction() && state.document) setDuplicateSpriteOpen(true);
@@ -861,8 +890,9 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       timelineActions?.flushPendingLayerProperties?.();
       void (async () => {
         if (await workspace.reopenClosedFile()) {
-          setRecoveryOpen(false);
-          editor.openTab("document");
+          const transition = automaticViewTransition(EditorViewChangeReason.DocumentOpened);
+          setRecoveryOpen(false, transition);
+          editor.openTab("document", transition);
         }
       })().catch((error) => session.reportError(error));
     },
@@ -871,8 +901,9 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       timelineActions?.flushPendingLayerProperties?.();
       void workspace.openRecent(id).then((opened) => {
         if (opened) {
-          setRecoveryOpen(false);
-          editor.openTab("document");
+          const transition = automaticViewTransition(EditorViewChangeReason.DocumentOpened);
+          setRecoveryOpen(false, transition);
+          editor.openTab("document", transition);
         }
       });
     },
@@ -1340,7 +1371,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     const project = core.clipboard.duplicateProject(flatten);
     if (!project) return;
     workspace.createDocumentFromProject(project, name);
-    editor.openTab("document");
+    editor.openTab("document", automaticViewTransition(EditorViewChangeReason.DocumentGenerated));
     setDuplicateSpriteOpen(false);
   };
   const cancelReplacement = () => {

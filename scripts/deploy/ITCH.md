@@ -32,10 +32,16 @@ belong to the standalone website. Cross-origin frames use the existing file-inpu
 and file-download flows rather than native file-system pickers.
 
 Optional public `VITE_POSTHOG_PROJECT_TOKEN` / `VITE_POSTHOG_REGION` settings still
-apply at build time. Source map generation and uploads are disabled for this
-distribution, even when the shell has PostHog CLI credentials. Build metadata in
-`release.json` records the package version and release; set `POSTHOG_RELEASE`
-before building if a commit SHA should identify the artifact.
+apply at build time. With both `POSTHOG_CLI_API_KEY` and `POSTHOG_CLI_PROJECT_ID`
+configured in the build environment, the build generates hidden source maps in
+`.tmp/itch/editor/assets/`, injects PostHog chunk/release IDs, uploads the maps to
+PostHog, and deletes the uploaded maps before artifact validation and ZIP packaging.
+An upload failure stops the build. With neither credential configured, source map
+generation and upload are skipped; configuring only one credential fails the build.
+The ZIP and the directory uploaded by butler must not contain source maps.
+
+Build metadata in `release.json` records the package version and release; set
+`POSTHOG_RELEASE` before building if a commit SHA should identify the artifact.
 
 ## First upload
 

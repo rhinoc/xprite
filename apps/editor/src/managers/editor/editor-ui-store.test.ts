@@ -2,7 +2,14 @@ import assert from "node:assert/strict";
 
 import { describe, it } from "vitest";
 
-import { createEditorUiStore } from "$/managers/editor/editor-ui-store";
+import { createEditorUiStore, editorViewForState } from "$/managers/editor/editor-ui-store";
+import {
+  automaticViewTransition,
+  EditorView,
+  EditorViewChangeTrigger,
+  EditorViewChangeReason,
+} from "$/managers/editor/editor-view-transition";
+import { HelpDocumentTab } from "$/managers/shell/help";
 
 function memoryStorage() {
   const values = new Map<string, string>();
@@ -60,5 +67,56 @@ describe("editor tab recovery", () => {
       createEditorUiStore("home", unavailableStorage, "/editor").getState().tab,
       "document",
     );
+  });
+});
+
+describe("editor view transitions", () => {
+  it("preserves the transition cause when the current view is selected again", () => {
+    const store = createEditorUiStore("home");
+    store.getState().openTab("document");
+    assert.equal(store.getState().viewTransition.trigger, EditorViewChangeTrigger.User);
+    const transition = store.getState().viewTransition;
+    store
+      .getState()
+      .openTab("document", automaticViewTransition(EditorViewChangeReason.DocumentActivated));
+    store.getState().setTab("document");
+    assert.equal(store.getState().viewTransition, transition);
+    store
+      .getState()
+      .setTab("home", automaticViewTransition(EditorViewChangeReason.LastDocumentClosed));
+    assert.equal(editorViewForState(store.getState()), EditorView.Home);
+    assert.equal(store.getState().viewTransition.trigger, EditorViewChangeTrigger.Automatic);
+    assert.equal(store.getState().viewTransition.reason, EditorViewChangeReason.LastDocumentClosed);
+  });
+
+  it("distinguishes recovery and guide views and leaves recovery on navigation", () => {
+    const store = createEditorUiStore("home");
+    store.getState().setRecoveryOpen(true);
+    assert.equal(editorViewForState(store.getState()), EditorView.Recovery);
+    assert.equal(store.getState().viewTransition.reason, EditorViewChangeReason.RecoveryOpened);
+    store.getState().setRecoveryOpen(false);
+    assert.equal(editorViewForState(store.getState()), EditorView.Home);
+    assert.equal(store.getState().viewTransition.reason, EditorViewChangeReason.RecoveryClosed);
+    store.getState().setRecoveryOpen(true);
+    store.getState().openTab("document", {
+      trigger: EditorViewChangeTrigger.Navigation,
+      reason: EditorViewChangeReason.HistoryNavigation,
+    });
+    assert.equal(store.getState().recoveryOpen, false);
+    assert.equal(editorViewForState(store.getState()), EditorView.Editor);
+    assert.equal(store.getState().viewTransition.trigger, EditorViewChangeTrigger.Navigation);
+    store.getState().openTab(HelpDocumentTab.Guide);
+    assert.equal(editorViewForState(store.getState()), EditorView.Guide);
+    store.getState().closeTab(HelpDocumentTab.Guide);
+    assert.equal(editorViewForState(store.getState()), EditorView.Editor);
+    assert.equal(store.getState().viewTransition.reason, EditorViewChangeReason.TabClosed);
+  });
+
+  it("does not replace the view transition when an inactive tab closes", () => {
+    const store = createEditorUiStore("home");
+    const transition = store.getState().viewTransition;
+    store.getState().closeTab("document");
+    assert.equal(editorViewForState(store.getState()), EditorView.Home);
+    assert.equal(store.getState().viewTransition, transition);
   });
 });

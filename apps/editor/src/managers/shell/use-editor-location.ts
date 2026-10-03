@@ -1,10 +1,14 @@
 import { useEffect, useRef } from "react";
 
-import type { EditorTab } from "$/managers/editor/editor-ui-store";
+import type { EditorTab, EditorUiState } from "$/managers/editor/editor-ui-store";
+import {
+  EditorViewChangeTrigger,
+  EditorViewChangeReason,
+} from "$/managers/editor/editor-view-transition";
 import { useEditorPlatformPorts } from "$/managers/platform/editor-platform-context";
 import { EditorPageRoute } from "$/managers/ports/platform";
 
-export function useEditorLocation(tab: EditorTab, openTab: (tab: EditorTab) => void): void {
+export function useEditorLocation(tab: EditorTab, openTab: EditorUiState["openTab"]): void {
   const location = useEditorPlatformPorts()?.navigation.location;
   const previousTab = useRef(tab);
   const skipNextHistoryEntry = useRef(false);
@@ -27,7 +31,10 @@ export function useEditorLocation(tab: EditorTab, openTab: (tab: EditorTab) => v
       const nextTab = path === EditorPageRoute.Home ? "home" : "document";
       if (nextTab !== tab) {
         skipNextHistoryEntry.current = true;
-        openTab(nextTab);
+        openTab(nextTab, {
+          trigger: EditorViewChangeTrigger.Navigation,
+          reason: EditorViewChangeReason.HistoryNavigation,
+        });
       }
     });
   }, [location, tab, openTab]);

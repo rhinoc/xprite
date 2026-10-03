@@ -100,7 +100,7 @@ function WelcomeDialog({ saving, onDismiss }: MiniToolWelcomeDialogProps) {
 /** Imported exclusively by the mini tool entry; the editor starts after dismissal. */
 export function MiniToolWelcomeDialog(props: MiniToolWelcomeDialogProps) {
   return (
-    <UIProvider theme="light" language={currentUiLanguage()}>
+    <UIProvider appearance="light" language={currentUiLanguage()}>
       <WelcomeDialog {...props} />
     </UIProvider>
   );

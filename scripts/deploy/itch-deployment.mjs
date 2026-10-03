@@ -29,9 +29,6 @@ async function buildEditor() {
   await runCommand(process.platform === "win32" ? "pnpm.cmd" : "pnpm", ["run", "build:editor"], {
     ...process.env,
     XPRITE_DISTRIBUTION: "itch",
-    // This distribution has its own output directory and does not upload source maps.
-    POSTHOG_CLI_API_KEY: "",
-    POSTHOG_CLI_PROJECT_ID: "",
   });
   await validateArtifact();
   console.log("itch.io editor built in .tmp/itch/editor.");

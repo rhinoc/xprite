@@ -22,6 +22,7 @@ Dialog and layout managers notify the telemetry manager at their existing lifecy
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `$pageview`               | One page visit after optional transport initialization.                                                                                                   |
 | `editor_ready`            | Workspace and UI assets are ready, once per page visit.                                                                                                   |
+| `view_changed`            | The committed view changed, including initial entry, user selection, automatic workflow transitions and browser history navigation.                      |
 | `document_opened`         | A usable document was opened by the user. `open_method` distinguishes example, new, import, recent and recovery. Cancelled/failed imports do not count.   |
 | `document_edit_started`   | First committed content change per open document. Pointer movement, selections, viewport changes, loading and saves do not count.                         |
 | `file_download_requested` | Generated files were handed to the browser's download mechanism. This does not assert that a file reached disk.                                           |
@@ -32,6 +33,21 @@ Dialog and layout managers notify the telemetry manager at their existing lifecy
 An export operation emits one output event, even when it downloads a PNG sequence.
 Partial outputs are marked `output_completed: false`. Auto-save is not a business event.
 Native Save As cancellation produces no output event.
+
+`view_changed` records `from_view`, `to_view`, `trigger` and `reason`. Views are
+`home`, `editor`, `guide` and `recovery`; selecting another document within the
+editor does not change the view. Initial entry uses `from_view: null`,
+`trigger: initial` and `reason: initial_load`. Later triggers are `user`,
+`automatic` and `navigation`. Reasons use the fixed `EditorViewChangeReason`
+vocabulary, including document activation/open/recovery, closing the last document,
+tab selection/closing, recovery entry/exit and browser history navigation.
+
+The UI store owns tab and recovery visibility plus the transition cause. A manager
+hook observes committed React views; the telemetry manager suppresses repeated
+views, including StrictMode effect replay. Intermediate updates that have already
+been superseded and the empty editor's automatic Home fallback are not reported as
+separate editor visits. `editor_ready` measures startup readiness, not entry into
+the editor view. This adds no navigation persistence fields or changes to routes.
 
 Common context includes release/version, a memory-only `visit_id`, open document
 count, runtime-only document identity, dimensions, layer/frame/palette counts.

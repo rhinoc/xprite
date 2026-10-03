@@ -17,7 +17,7 @@ import {
   parseGridBoundsPreference,
   type GridBoundsPreferences,
 } from "$/managers/preferences/grid-preferences";
-import { Button, Combobox, Divider, Input, Slider, type SurfaceBounds } from "@xprite/ui";
+import { Button, Checkbox, Combobox, Divider, Input, Slider, type SurfaceBounds } from "@xprite/ui";
 
 const MAX_CHECKERBOARD_CELL_SIZE = 512;
 const MAX_OPACITY = 255;

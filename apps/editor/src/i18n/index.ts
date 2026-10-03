@@ -6,6 +6,7 @@ import { browserLocalStorage as localStorage } from "@xprite/bedrock/browser/loc
 
 const UI_LANGUAGES = ["en", "zh-CN"] as const;
 export type UiLanguage = (typeof UI_LANGUAGES)[number];
+const DEFAULT_UI_LANGUAGE: UiLanguage = "en";
 const LANGUAGE_STORAGE_KEY = "xse.ui.language.v1";
 export type UiMessageKey = keyof typeof en;
 const locales: Record<UiLanguage, Record<string, string>> = {
@@ -24,10 +25,18 @@ function initialLanguage(): UiLanguage {
   } catch {
     // Storage can be disabled; the browser language remains a useful default.
   }
-  return typeof navigator !== "undefined" &&
-    navigator.languages?.some((language) => language.toLowerCase().startsWith("zh"))
-    ? "zh-CN"
-    : "en";
+  if (typeof navigator === "undefined") return DEFAULT_UI_LANGUAGE;
+  const preferredLanguages = navigator.languages?.length
+    ? navigator.languages
+    : [navigator.language];
+  for (const preferredLanguage of preferredLanguages) {
+    const baseLanguage = preferredLanguage.split("-")[0].toLowerCase();
+    const supportedLanguage = UI_LANGUAGES.find(
+      (language) => language.split("-")[0].toLowerCase() === baseLanguage,
+    );
+    if (supportedLanguage) return supportedLanguage;
+  }
+  return DEFAULT_UI_LANGUAGE;
 }
 
 let language = initialLanguage();

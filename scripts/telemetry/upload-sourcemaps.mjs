@@ -5,7 +5,12 @@ import { fileURLToPath } from "node:url";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const projectMetadata = JSON.parse(await readFile(resolve(repositoryRoot, "package.json"), "utf8"));
-const outputDirectory = resolve(repositoryRoot, "apps/editor/dist/assets");
+const outputDirectory = resolve(
+  repositoryRoot,
+  process.env.XPRITE_DISTRIBUTION === "itch"
+    ? ".tmp/itch/editor/assets"
+    : "apps/editor/dist/assets",
+);
 const apiKey = process.env.POSTHOG_CLI_API_KEY;
 const projectId = process.env.POSTHOG_CLI_PROJECT_ID;
 

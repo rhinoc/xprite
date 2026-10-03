@@ -1,5 +1,6 @@
 export enum TelemetryEvent {
   EditorReady = "editor_ready",
+  ViewChanged = "view_changed",
   DocumentOpened = "document_opened",
   DocumentEditStarted = "document_edit_started",
   FileDownloadRequested = "file_download_requested",
@@ -44,7 +45,7 @@ export enum TelemetryEditKind {
   Other = "other",
 }
 
-export type TelemetryProperties = Readonly<Record<string, string | number | boolean>>;
+export type TelemetryProperties = Readonly<Record<string, string | number | boolean | null>>;
 
 export interface TelemetryException {
   readonly name: string;

@@ -1,5 +1,11 @@
 import { currentUiLanguage } from "$/i18n";
 import {
+  EditorViewChangeTrigger,
+  EditorViewChangeReason,
+  type EditorView,
+  type EditorViewTransition,
+} from "$/managers/editor/editor-view-transition";
+import {
   DiagnosticSource,
   WorkspaceDiagnosticAction,
   type DiagnosticRecord,
@@ -86,6 +92,7 @@ export class TelemetryManager {
   >();
   private nextDocumentIdentity = 0;
   private ready = false;
+  private reportedView: EditorView | null = null;
   private readonly startedAt = performance.now();
   private exceptionWindowStartedAt = 0;
   private exceptionCount = 0;
@@ -157,6 +164,19 @@ export class TelemetryManager {
         Object.assign(observed, documentBaseline(state), { opened: Boolean(state.document) });
       }
     }
+  }
+
+  viewChanged(view: EditorView, transition: EditorViewTransition): void {
+    if (!this.port.enabled || view === this.reportedView) return;
+    const previous = this.reportedView;
+    this.reportedView = view;
+    this.capture(TelemetryEvent.ViewChanged, {
+      ...this.context(),
+      from_view: previous,
+      to_view: view,
+      trigger: previous === null ? EditorViewChangeTrigger.Initial : transition.trigger,
+      reason: previous === null ? EditorViewChangeReason.InitialLoad : transition.reason,
+    });
   }
 
   context(slotId?: string): TelemetryProperties {

@@ -279,9 +279,6 @@
     .status {
       color: #52616b;
     }
-    .empty {
-      padding-top: 40px;
-    }
     .file-hidden {
       display: none;
     }
@@ -1780,16 +1777,16 @@
         `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="number" value="${round(value)}" step="${step}" ${min !== undefined ? `min="${min}"` : ""}></div>`;
       function drawInspector() {
         const item = layer();
+        const canvasFields = `<h2>Canvas</h2><div class="field"><label for="background">Background</label><input id="background" type="color" value="${escape(doc().background)}"></div>`;
         if (!item) {
-          $("inspector").innerHTML =
-            '<div class="empty"><h2>Canvas</h2><div class="field"><label>Background</label><input id="background" type="color" value="' +
-            doc().background +
-            '"></div></div>';
+          $("inspector").innerHTML = canvasFields;
           return;
         }
         const isText = ["text", "github", "brand"].includes(item.kind),
           isImage = ["image", "desktop", "phone"].includes(item.kind);
         $("inspector").innerHTML =
+          canvasFields +
+          '<hr class="separator">' +
           `<h2>${escape(item.name)}</h2><div class="pair">${numeric("pos-x", "X", item.x, 0.1)}${numeric("pos-y", "Y", item.y, 0.1)}</div><div class="pair">${numeric("layer-width", "Width", item.w, 0.1, 1)}${numeric("layer-height", "Height", item.h, 0.1, 1)}</div><label class="toggle"><input id="locked" type="checkbox" ${item.locked ? "checked" : ""}>Lock layer</label><label class="toggle"><input id="visible" type="checkbox" ${item.visible ? "checked" : ""}>Show layer</label><hr class="separator">
       ${
         isText

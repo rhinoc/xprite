@@ -204,8 +204,10 @@ function usePreviewEditorState(
   const setTab = useStore(uiStore, (state) => state.setTab);
   const openTabs = useStore(uiStore, (state) => state.openTabs);
   const openTab = useStore(uiStore, (state) => state.openTab);
-  const closeTab = (closing: EditorTab) => {
-    uiStore.getState().closeTab(closing);
+  const recoveryOpen = useStore(uiStore, (state) => state.recoveryOpen);
+  const setRecoveryOpen = useStore(uiStore, (state) => state.setRecoveryOpen);
+  const closeTab: EditorUiState["closeTab"] = (closing, transition) => {
+    uiStore.getState().closeTab(closing, transition);
     if (closing === "document") setPlaying(false);
   };
   const [brushSizes, setBrushSizes] = useState<Partial<Record<EditorTool, number>>>({});
@@ -450,6 +452,8 @@ function usePreviewEditorState(
     openTabs,
     openTab,
     closeTab,
+    recoveryOpen,
+    setRecoveryOpen,
     brushSize,
     setBrushSize,
     brushShape,

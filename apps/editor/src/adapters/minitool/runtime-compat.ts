@@ -4,19 +4,27 @@ import { installResizeObserverFallback, scrollSize } from "@xprite/ui/utils";
 if (typeof globalThis === "undefined")
   Object.defineProperty(window, "globalThis", { value: window });
 if (!Object.fromEntries)
-  Object.fromEntries = (entries) => {
-    const result: Record<string, unknown> = {};
-    for (const [key, value] of entries)
-      Object.defineProperty(result, key, {
-        value,
-        enumerable: true,
-        configurable: true,
-        writable: true,
-      });
-    return result;
-  };
-if (!Object.hasOwn)
-  Object.hasOwn = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
+  Object.defineProperty(Object, "fromEntries", {
+    value(entries: Iterable<readonly [PropertyKey, unknown]>) {
+      const result: Record<string, unknown> = {};
+      for (const [key, value] of entries)
+        Object.defineProperty(result, key, {
+          value,
+          enumerable: true,
+          configurable: true,
+          writable: true,
+        });
+      return result;
+    },
+    configurable: true,
+    writable: true,
+  });
+if (!("hasOwn" in Object))
+  Object.defineProperty(Object, "hasOwn", {
+    value: (value: object, key: PropertyKey) => Object.prototype.hasOwnProperty.call(value, key),
+    configurable: true,
+    writable: true,
+  });
 if (!String.prototype.replaceAll)
   Object.defineProperty(String.prototype, "replaceAll", {
     value(this: string, search: string | RegExp, replacement: string) {
@@ -28,7 +36,7 @@ if (!String.prototype.replaceAll)
       return this.replace(new RegExp(escaped, "g"), replacement);
     },
   });
-if (!Array.prototype.at)
+if (!("at" in Array.prototype))
   Object.defineProperty(Array.prototype, "at", {
     value(this: unknown[], index: number) {
       const offset = Math.trunc(index) || 0;
@@ -146,7 +154,8 @@ function clone<T>(value: T, seen = new Map<object, unknown>()): T {
     });
   return result as T;
 }
-if (typeof globalThis.structuredClone !== "function") globalThis.structuredClone = clone;
+if (typeof globalThis.structuredClone !== "function")
+  globalThis.structuredClone = (value) => clone(value);
 
 installResizeObserverFallback();
 

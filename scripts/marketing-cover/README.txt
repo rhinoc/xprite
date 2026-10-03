@@ -76,12 +76,14 @@ output/font-preview.png / .html 提供三款字体的实际文案对比，相关
 独立封面编辑器：
 - cover-editor.html：自包含离线网页，直接用浏览器打开。
 - 可以拖动、缩放图层，编辑文字、字体、字号及颜色，替换截图，切换中英文和尺寸。
+- 右侧属性栏顶部的 Canvas → Background 可修改当前封面的背景色，选中图层时也可使用。修改即时预览，支持撤销/重做，并随布局保存及 PNG 导出。
 - PNG 从 sRGB 画布直接输出；像素截图关闭平滑缩放；1x 输出画布原尺寸，2x / 3x 提供更高分辨率。
 - 自动保存在本网页的浏览器存储中；「保存布局」和「打开布局」用于 JSON 文件。
 - 更新脚本素材后，运行 python3 scripts/marketing-cover/make_editor.py 重新嵌入当前封面及字体。
 - 模板源文件为 cover-editor.template.html；独立于主编辑器代码、构建和运行流程。
 
 Cover Studio controls:
+- Canvas → Background at the top of the right properties panel changes the current cover's background, including while a layer is selected. Changes preview immediately, support Undo/Redo, and are included in saved layouts and PNG exports.
 - Arrow: drag Start, End or Curve handles; coordinates, curvature and stroke are editable.
 - Snap: canvas edges, centers, halves/thirds/quarters and nearby layer edges/centers. Applies to movement, corner resizing and arrow handles. Hold Alt to bypass.
 - To front / To back: buttons or Cmd/Ctrl+Shift+] / Cmd/Ctrl+Shift+[.

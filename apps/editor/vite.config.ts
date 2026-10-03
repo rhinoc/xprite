@@ -27,6 +27,14 @@ const bedrockSource = resolve(repositoryRoot, "packages/bedrock");
 const editorCoreSource = resolve(repositoryRoot, "packages/editor-core/src");
 const uiSource = resolve(repositoryRoot, "packages/ui/src");
 const uiStylesheet = resolve(repositoryRoot, "packages/ui/dist/style.css");
+const REACT_RUNTIME_CHUNK_NAME = "react-runtime";
+const REACT_RUNTIME_MODULE_PATTERN = /[\\/]node_modules[\\/](?:react|react-dom|scheduler)[\\/]/;
+const CORE_CHUNK_NAME = "editor-core";
+const CORE_MODULE_PATTERN = /[\\/]packages[\\/]editor-core[\\/]/;
+const UI_CHUNK_NAME = "ui";
+const UI_MODULE_PATTERN = /[\\/]packages[\\/]ui[\\/]/;
+const BEDROCK_CHUNK_NAME = "bedrock";
+const BEDROCK_MODULE_PATTERN = /[\\/]packages[\\/]bedrock[\\/]/;
 const DEBUG_INPUT_ENDPOINT = "/__debug/input";
 const DIAGNOSTICS_ENDPOINT = "/__debug/diagnostics";
 const DIAGNOSTIC_ARTIFACT_ENDPOINT = "/__debug/diagnostic-artifact";
@@ -289,6 +297,19 @@ function itchDistribution() {
   };
 }
 
+function preserveEditorStyleEffects() {
+  return {
+    name: "preserve-editor-style-effects",
+    enforce: "post" as const,
+    transform(code: string, id: string) {
+      // Bare CSS Module imports still apply global editor layout selectors.
+      if (id.startsWith(appRoot) && /\.css(?:\?|$)/.test(id))
+        return { code, moduleSideEffects: "no-treeshake" as const };
+      return null;
+    },
+  };
+}
+
 export default defineConfig({
   base: isItchBuild ? "./" : "/",
   define: {
@@ -303,6 +324,7 @@ export default defineConfig({
     react(),
     debugInputMiddleware(),
     bundleLicenseNotices(),
+    preserveEditorStyleEffects(),
     ...(isItchBuild ? [itchDistribution()] : []),
   ],
   resolve: {
@@ -338,9 +360,20 @@ export default defineConfig({
   build: {
     outDir: editorOutput,
     emptyOutDir: true,
+    rolldownOptions: {
+      output: {
+        // Preserve package dependency direction so shared initializers do not form chunk cycles.
+        codeSplitting: {
+          groups: [
+            { name: REACT_RUNTIME_CHUNK_NAME, test: REACT_RUNTIME_MODULE_PATTERN },
+            { name: CORE_CHUNK_NAME, test: CORE_MODULE_PATTERN },
+            { name: UI_CHUNK_NAME, test: UI_MODULE_PATTERN },
+            { name: BEDROCK_CHUNK_NAME, test: BEDROCK_MODULE_PATTERN },
+          ],
+        },
+      },
+    },
     sourcemap:
-      !isItchBuild && process.env.POSTHOG_CLI_API_KEY && process.env.POSTHOG_CLI_PROJECT_ID
-        ? "hidden"
-        : false,
+      process.env.POSTHOG_CLI_API_KEY && process.env.POSTHOG_CLI_PROJECT_ID ? "hidden" : false,
   },
 });
