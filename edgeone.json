@@ -5,6 +5,7 @@
   "installCommand": "npx --yes pnpm@11.1.3 install --frozen-lockfile",
   "buildCommand": "npx --yes pnpm@11.1.3 run build:editor",
   "outputDirectory": "apps/editor/dist",
+  "redirects": [{ "source": "$wwwhost", "destination": "$host", "statusCode": 301 }],
   "headers": [
     {
       "source": "/",

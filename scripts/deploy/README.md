@@ -23,6 +23,26 @@ Do not also enable EdgeOne's branch-triggered Git deployment for this project.
 The CLI creates a direct upload project with the configured name if it does not
 already exist. This happens only when the publish step is actually run.
 
+## Custom domains
+
+The production project binds `xprite.cc` and `www.xprite.cc`. Bind both domains
+to the production environment in the Makers domain console, configure their
+assigned DNS targets in Spaceship, and deploy a free HTTPS certificate for each.
+Retain the DNS ownership and certificate delegation records so verification and
+certificate renewal continue to work. Root-domain CNAME records in Spaceship
+are flattened to A records.
+
+The committed `edgeone.json` uses Makers' `$wwwhost` → `$host` redirect with
+status `301` to canonicalize `www` custom domains while retaining the path and
+query string. Enable forced HTTPS for both domains in the console. Preset
+`edgeone.dev` URLs are unaffected by this custom-domain rule. The deployment
+preparation script includes the redirect in every static upload.
+
+Verify both HTTP and HTTPS requests to `www.xprite.cc`, including a nested path
+and query parameters, and check that the final URL is the corresponding
+`https://xprite.cc` URL. Also verify that the apex `release.json` still serves the
+deployed production revision.
+
 ## One-time account configuration
 
 Add the following under GitHub Settings → Secrets and variables → Actions,
