@@ -66,6 +66,12 @@ that same screen and animated canvas until workspace startup finishes, including
 React StrictMode effect replay. Keep its styles aligned with the React fallback
 in `app.css`; startup failures must dismiss the screen so error recovery stays visible.
 
+The startup recovery region uses `data-nosnippet` so Google cannot use module
+loading errors as the site's search description. Service-worker registration
+failures are recorded locally with the `service-worker` diagnostic source;
+offline caching is optional and must not produce an unhandled rejection in
+restricted browsers or search rendering tools.
+
 Startup text uses a small, preloaded WOFF2 subset of the existing pixel font.
 After changing the HTML startup copy, regenerate the checked-in font with
 `pnpm run assets:startup-font`. The asset generator requires Python `fonttools`

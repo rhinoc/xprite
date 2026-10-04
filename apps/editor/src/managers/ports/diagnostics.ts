@@ -5,6 +5,7 @@ export enum DiagnosticSource {
   ReactBoundary = "react-boundary",
   GlobalError = "global-error",
   UnhandledRejection = "unhandled-rejection",
+  ServiceWorker = "service-worker",
   Session = "session",
   ImportWorker = "import-worker",
   RecoveryWorker = "recovery-worker",

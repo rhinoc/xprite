@@ -20,16 +20,19 @@ const STARTUP_BOOTSTRAPPED_EVENT = "xse-startup-bootstrapped";
 const workspaceLifetime: WorkspaceLifetime =
   import.meta.hot?.data.workspaceLifetime ?? new WorkspaceLifetime();
 
-if (import.meta.env.PROD && !__XPRITE_ITCH__ && "serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    void navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`);
-  });
-}
-
 const telemetry = new TelemetryManager(new PostHogTelemetry());
 const diagnostics = new BrowserDiagnostics({ onRecord: telemetry.observeDiagnostic });
 const removeGlobalHandlers = diagnostics.installGlobalHandlers();
 if (import.meta.env.DEV) void diagnostics.syncRecentToDevelopmentLog();
+
+if (import.meta.env.PROD && !__XPRITE_ITCH__ && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    // Offline caching is optional; restricted browsers and search renderers can reject it.
+    void navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch((error) => {
+      diagnostics.capture(error, DiagnosticSource.ServiceWorker);
+    });
+  });
+}
 
 function DevelopmentErrorPreview(): ReactNode {
   throw new Error("Development-only error boundary preview");
