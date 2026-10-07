@@ -53,6 +53,7 @@ export interface WindowVariantProps {
   /** Modal owners are responsible for a focus trap and blocking the backdrop. */
   modal?: boolean;
   showCloseButton?: boolean;
+  closeLabel?: string;
   onRootRef?: (node: HTMLDivElement | null) => void;
   constrainToViewport?: boolean;
   contentLayout?: OverlayContentLayout;
@@ -75,8 +76,9 @@ type Gesture = {
 };
 
 const DEFAULT_BOUNDS: SurfaceBounds = { x: 1350, y: 110, width: 500, height: 400 };
-const WINDOW_BORDER = windowMetrics.border;
-const WINDOW_TITLEBAR = windowMetrics.titlebar;
+const DEFAULT_WINDOW_BORDER = windowMetrics.border;
+const DEFAULT_WINDOW_TITLEBAR = windowMetrics.titlebar;
+const DEFAULT_CLOSE_BUTTON = { width: 18, height: 22, right: 6, top: 6 };
 const MINIMUM_WIDTH = windowMetrics.minimumWidth;
 const MINIMUM_HEIGHT = windowMetrics.minimumHeight;
 
@@ -99,6 +101,7 @@ export function WindowVariant({
   autoFocus = true,
   modal = false,
   showCloseButton = true,
+  closeLabel,
   onRootRef,
   constrainToViewport = false,
   contentLayout = OverlayContentLayout.Positioned,
@@ -106,7 +109,19 @@ export function WindowVariant({
   titlebarActions,
   className,
 }: WindowVariantProps) {
-  const { translateKey, translateSource } = useTheme();
+  const { definition: theme, translateKey, translateSource } = useTheme();
+  const WINDOW_BORDER = theme.parts.window.surface?.borderWidth ?? DEFAULT_WINDOW_BORDER;
+  const WINDOW_TITLEBAR = theme.parts.window.surface?.titlebar?.height ?? DEFAULT_WINDOW_TITLEBAR;
+  const closeButton = {
+    width: theme.dimensions.window_close_button_width ?? DEFAULT_CLOSE_BUTTON.width,
+    height: theme.dimensions.window_close_button_height ?? DEFAULT_CLOSE_BUTTON.height,
+    right: theme.dimensions.window_close_button_right ?? DEFAULT_CLOSE_BUTTON.right,
+    top: theme.dimensions.window_close_button_top ?? DEFAULT_CLOSE_BUTTON.top,
+  };
+  const closeButtonX =
+    theme.dimensions.window_close_button_left !== undefined
+      ? theme.dimensions.window_close_button_left
+      : undefined;
   const displayTitle = translateSource(title);
   const displayDescription = description ? translateSource(description) : undefined;
   const [localBounds, setLocalBounds] = useState(defaultBounds);
@@ -376,15 +391,21 @@ export function WindowVariant({
       {typeof titlebarActions === "function" ? titlebarActions(context) : titlebarActions}
       {showCloseButton && (
         <Button
-          bounds={{ x: bounds.x + width - 24, y: bounds.y + 6, width: 18, height: 22 }}
+          bounds={{
+            x: bounds.x + (closeButtonX ?? width - closeButton.width - closeButton.right),
+            y: bounds.y + closeButton.top,
+            width: closeButton.width,
+            height: closeButton.height,
+          }}
           relativeTo={bounds}
           viewport={viewport}
           part="window_button_normal"
           hotPart="window_button_hot"
           pushedPart="window_button_selected"
           icon="window_close_icon"
+          style={{ minWidth: 0, minHeight: 0, padding: 0 }}
           insetContent={false}
-          aria-label={translateKey("ui.close.name").replace("{name}", displayTitle)}
+          aria-label={closeLabel ?? translateKey("ui.close.name").replace("{name}", displayTitle)}
           onClick={() => {
             stop();
             onOpenChange(false);

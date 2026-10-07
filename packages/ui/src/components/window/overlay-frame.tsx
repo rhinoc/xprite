@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 
+import { useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { ThemePart } from "$/base/theme/theme-part";
 import { cn } from "$/base/utils/cn";
@@ -73,6 +74,7 @@ export function OverlayFrame({
   children,
 }: OverlayFrameProps) {
   const { definition: theme } = useTheme();
+  const { measureThemeText } = useThemeText();
   const layout = surfaceLayout(bounds, viewport);
   const clientLayout = surfaceLayout(clientLayoutBounds, viewport);
   const sx = viewport.width / viewport.sceneWidth;
@@ -172,6 +174,17 @@ export function OverlayFrame({
                 x={0}
                 y={0}
                 color={theme.colors.window_titlebar_text}
+                style={{
+                  background: "var(--ui-window-title-background, transparent)",
+                  left: theme.dimensions.window_title_centered
+                    ? Math.floor((bounds.width - measureThemeText(label)) / 2) -
+                      (theme.dimensions.window_title_padding ?? 0)
+                    : "var(--ui-window-title-offset, 0px)",
+                  transform: theme.dimensions.window_title_centered
+                    ? "none"
+                    : "var(--ui-window-title-transform, none)",
+                  padding: "var(--ui-window-title-padding, 0px)",
+                }}
               />
             </span>
           )}

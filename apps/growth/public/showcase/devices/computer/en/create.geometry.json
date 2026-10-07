@@ -1,0 +1,403 @@
+{
+  "source": "http://computer-demo.localhost:5173/",
+  "language": "en",
+  "controls": [
+    {
+      "label": "File",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 44,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Edit",
+      "rect": {
+        "x": 44,
+        "y": 0,
+        "width": 46,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Sprite",
+      "rect": {
+        "x": 90,
+        "y": 0,
+        "width": 64,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Layer",
+      "rect": {
+        "x": 154,
+        "y": 0,
+        "width": 64,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Frame",
+      "rect": {
+        "x": 218,
+        "y": 0,
+        "width": 70,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Select",
+      "rect": {
+        "x": 288,
+        "y": 0,
+        "width": 66,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "View",
+      "rect": {
+        "x": 354,
+        "y": 0,
+        "width": 54,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Help",
+      "rect": {
+        "x": 408,
+        "y": 0,
+        "width": 50,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Settings",
+      "rect": {
+        "x": 1376,
+        "y": 22,
+        "width": 32,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Close Home",
+      "rect": {
+        "x": 132,
+        "y": 22,
+        "width": 28,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "About",
+      "rect": {
+        "x": 8,
+        "y": 64,
+        "width": 64,
+        "height": 74
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "New File...",
+      "rect": {
+        "x": 80,
+        "y": 72,
+        "width": 124,
+        "height": 14
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Open File...",
+      "rect": {
+        "x": 80,
+        "y": 94,
+        "width": 124,
+        "height": 14
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Recover Files...",
+      "rect": {
+        "x": 80,
+        "y": 116,
+        "width": 124,
+        "height": 14
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "example.aseprite",
+      "rect": {
+        "x": 14,
+        "y": 184,
+        "width": 1336,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Download example.aseprite",
+      "rect": {
+        "x": 1352,
+        "y": 183,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Pin example.aseprite",
+      "rect": {
+        "x": 1382,
+        "y": 187,
+        "width": 16,
+        "height": 16
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Delete browser copy of example.aseprite",
+      "rect": {
+        "x": 1402,
+        "y": 183,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Add to desktop",
+      "rect": {
+        "x": 1294,
+        "y": 808,
+        "width": 138,
+        "height": 32
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "File name",
+      "rect": {
+        "x": 648,
+        "y": 232,
+        "width": 240,
+        "height": 30
+      },
+      "value": "hello",
+      "pressed": null
+    },
+    {
+      "label": "Width",
+      "rect": {
+        "x": 664,
+        "y": 322,
+        "width": 30,
+        "height": 30
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Width",
+      "rect": {
+        "x": 554,
+        "y": 322,
+        "width": 110,
+        "height": 30
+      },
+      "value": "128",
+      "pressed": null
+    },
+    {
+      "label": "Height",
+      "rect": {
+        "x": 824,
+        "y": 322,
+        "width": 30,
+        "height": 30
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Height",
+      "rect": {
+        "x": 714,
+        "y": 322,
+        "width": 110,
+        "height": 30
+      },
+      "value": "80",
+      "pressed": null
+    },
+    {
+      "label": "Lock Ratio",
+      "rect": {
+        "x": 858,
+        "y": 322,
+        "width": 28,
+        "height": 30
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "RGBA",
+      "rect": {
+        "x": 552,
+        "y": 390,
+        "width": 89,
+        "height": 64
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "Grayscale",
+      "rect": {
+        "x": 639,
+        "y": 390,
+        "width": 136,
+        "height": 64
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Indexed",
+      "rect": {
+        "x": 773,
+        "y": 390,
+        "width": 115,
+        "height": 64
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Transparent",
+      "rect": {
+        "x": 552,
+        "y": 492,
+        "width": 153,
+        "height": 64
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "White",
+      "rect": {
+        "x": 703,
+        "y": 492,
+        "width": 89,
+        "height": 64
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "Black",
+      "rect": {
+        "x": 790,
+        "y": 492,
+        "width": 98,
+        "height": 64
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Advanced Options",
+      "rect": {
+        "x": 552,
+        "y": 564,
+        "width": 336,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "OK",
+      "rect": {
+        "x": 640,
+        "y": 596,
+        "width": 120,
+        "height": 34
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Cancel",
+      "rect": {
+        "x": 768,
+        "y": 596,
+        "width": 120,
+        "height": 34
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "New Sprite Help",
+      "rect": {
+        "x": 856,
+        "y": 204,
+        "width": 18,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Close New Sprite",
+      "rect": {
+        "x": 876,
+        "y": 204,
+        "width": 18,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    }
+  ],
+  "canvasViewport": null
+}

@@ -31,7 +31,6 @@ import {
   PREFERENCES_SEARCH_DELAY_MS,
 } from "$/managers/dialogs/preferences-search";
 import { WheelDevice, type DetectedWheelDevice } from "$/managers/input/wheel-device-context";
-import { AppearanceMode } from "$/managers/preferences/appearance-preferences";
 import {
   CanvasDisplaySection,
   DEFAULT_CANVAS_DISPLAY_PREFERENCES,
@@ -84,6 +83,7 @@ import type { EditorChromePreferences } from "$/managers/shell/editor-chrome-pre
 import { useEditorChromePreferences } from "$/managers/shell/editor-chrome-preferences-context";
 import type { RecoverySettings } from "$/managers/workspace/recovery-settings";
 import { WorkspaceContextPresentation } from "$/managers/workspace/workspace-panel-layout";
+import { AppearanceMode } from "@xprite/editor-ui/appearance";
 import {
   Button,
   ButtonVariant,

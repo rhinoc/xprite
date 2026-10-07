@@ -4,6 +4,10 @@ const task = await taskSpace(space),
   page = task.page("p1");
 const assert = (await import("node:assert/strict")).default;
 const fs = await import("node:fs/promises");
+const { pathToFileURL } = await import("node:url");
+const { captureBrowserScreenshot } = await import(
+  pathToFileURL(`${root}/scripts/base/screenshot.mjs`).href
+);
 await fs.mkdir(`${root}/.tmp`, { recursive: true });
 const settle = () =>
   page.evaluate(
@@ -148,10 +152,13 @@ await settle();
 const final = await inspect();
 check(final);
 await task.cdp("Target.activateTarget", { targetId: page.targetId });
-await page.screenshot({ path: `${root}/.tmp/alignment-app.png`, raw: true });
+const screenshot = await captureBrowserScreenshot(page, {
+  path: `${root}/.tmp/alignment-app.png`,
+  expectedDpr: 1,
+});
 await fs.writeFile(
   `${root}/.tmp/alignment-browser.json`,
-  JSON.stringify({ passed: true, results, final }, null, 2),
+  JSON.stringify({ passed: true, results, final, screenshot }, null, 2),
 );
 console.log({
   passed: true,

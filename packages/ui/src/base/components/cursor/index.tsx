@@ -80,7 +80,20 @@ const artwork = {
   skew_w,
 };
 
+const CURSOR_BASE_SIZE = 16;
 export type CursorRole = keyof typeof artwork;
+
+/** Original cursor artwork and hotspot for canvas or other non-DOM presentations. */
+export function getCursorArtwork(role: CursorRole) {
+  const hotspot = manifest.cursors[role].sizes["16"];
+  return {
+    svg: artwork[role],
+    width: CURSOR_BASE_SIZE,
+    height: CURSOR_BASE_SIZE,
+    hotspot: { x: hotspot.hotspotX, y: hotspot.hotspotY },
+  };
+}
+
 type Direction = "n" | "ne" | "e" | "se" | "s" | "sw" | "w" | "nw";
 export type CursorName =
   | CursorRole
@@ -89,7 +102,6 @@ export type CursorName =
   | `rotate-${Direction}`
   | `skew-${Direction}`;
 
-const CURSOR_BASE_SIZE = 16;
 const MIN_CURSOR_SCALE = 1;
 const MAX_CURSOR_SCALE = 4;
 const cursorCache = new Map<string, string>();
@@ -176,5 +188,27 @@ export function CursorProvider({ children, className, ...props }: CursorProvider
     >
       {children}
     </div>
+  );
+}
+
+export interface CursorImageProps {
+  source: string;
+  width: number;
+  height: number;
+  hotspot: { x: number; y: number };
+  point: { x: number; y: number };
+}
+
+/** Render an existing cursor bitmap at its exact hotspot; never synthesize an outline. */
+export function CursorImage({ source, width, height, hotspot, point }: CursorImageProps) {
+  return (
+    <img
+      src={source}
+      alt=""
+      aria-hidden
+      draggable={false}
+      className={styles.image}
+      style={{ width, height, left: point.x - hotspot.x, top: point.y - hotspot.y }}
+    />
   );
 }

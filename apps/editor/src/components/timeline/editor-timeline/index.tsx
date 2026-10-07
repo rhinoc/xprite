@@ -18,27 +18,14 @@ import {
   useTimelineInteractions,
   TimelineRangeCursor,
 } from "$/components/timeline/editor-timeline/use-timeline-interactions";
-import {
-  asepriteLayerRows,
-  paintLayerRowArtwork,
-  EditorLayerFlagControls,
-} from "$/components/timeline/layer-row";
+import { EditorLayerFlagControls } from "$/components/timeline/layer-row";
 import { EditorOnionSkinRange } from "$/components/timeline/onion-skin-range";
 import {
   TimelineActionsProvider,
   useRegisterTimelineActions,
   useTimelineActions,
 } from "$/components/timeline/timeline-actions";
-import {
-  celIdentity,
-  celsShareImage,
-  timelineCelThumbnail,
-  paintTimelineThumbnail,
-  timelinePartForCel,
-  timelineFrameLabel,
-  paintThumbnailChecker,
-  TimelineCellButton,
-} from "$/components/timeline/timeline-cell";
+import { timelineFrameLabel, TimelineCellButton } from "$/components/timeline/timeline-cell";
 import { TimelineDialogs } from "$/components/timeline/timeline-dialogs";
 import { TimelineTags } from "$/components/timeline/timeline-tags";
 import { TilemapDialog } from "$/components/tools/tilemap-controls";
@@ -48,13 +35,7 @@ import { useEditorFields } from "$/managers/editor/editor-state-manager";
 import { useWheelInput } from "$/managers/input/use-wheel-input";
 import { defaultTimelinePanelPreferences } from "$/managers/preferences/timeline-panel-preferences";
 import { useTimelineLayerColumnWidthPreference } from "$/managers/preferences/use-panel-layout-preferences";
-import { useTimelineTagBands, TIMELINE_TAG_BAND_HEIGHT } from "$/managers/timeline/tag-bands";
-import {
-  readTimelineDockHeight,
-  readTimelineDockWidth,
-  saveTimelineDockHeight,
-  saveTimelineDockWidth,
-} from "$/managers/timeline/timeline-layout-preferences";
+import { useTimelineDockPreferences } from "$/managers/timeline/timeline-layout-preferences";
 import { TimelineWheelAction } from "$/managers/timeline/timeline-manager";
 import { useTimelineManager } from "$/managers/timeline/timeline-manager";
 import { defaultOnionSkinSettings } from "$/managers/timeline/timeline-presentation";
@@ -79,25 +60,31 @@ import {
 } from "$/managers/timeline/timeline-range-geometry";
 import { useWorkspaceResizeScheduler } from "$/managers/workspace/workspace-resize-scheduler";
 import {
+  timelineCelThumbnail,
+  paintTimelineThumbnail,
+  paintThumbnailChecker,
+  celIdentity,
+  celsShareImage,
+  timelinePartForCel,
+  asepriteLayerRows,
+  paintLayerRowArtwork,
+  paintTimelineTagArtwork,
+  paintTimelineFrameArtwork,
+  useTimelineTagBands,
+  TIMELINE_TAG_BAND_HEIGHT,
+} from "@xprite/editor-ui/timeline";
+import {
   ContextMenu as EditorContextMenu,
   LongPressActivation,
   Menu,
   type MenuItem,
+  Button,
+  Tooltip,
+  CanvasSurface,
+  Scrollbar,
+  useUi,
 } from "@xprite/ui";
-import { Button } from "@xprite/ui";
-import { Tooltip } from "@xprite/ui";
-import { CanvasSurface } from "@xprite/ui";
-import { Scrollbar } from "@xprite/ui";
-import { useUi } from "@xprite/ui";
-import {
-  paintUiPart,
-  paintUiIcon,
-  paintUiText,
-  measureUiText,
-  centerUiPixel,
-  uiFontHeight,
-  useUiAssets,
-} from "@xprite/ui/assets";
+import { paintUiPart, paintUiIcon, measureUiText, useUiAssets } from "@xprite/ui/assets";
 import type { UiPartName } from "@xprite/ui/assets";
 import { UI_SCALE } from "@xprite/ui/canvas";
 import { UI_SCALE_X as sx, UI_SCALE_Y as sy } from "@xprite/ui/canvas";
@@ -195,12 +182,13 @@ function EditorTimelineContent({
   );
   const headerTop = TIMELINE_BASE_HEADER_TOP + tagBands.height - TIMELINE_TAG_BAND_HEIGHT;
   const firstFrame = panelPreferences.firstFrame;
+  const dockPreferences = useTimelineDockPreferences();
   const defaultDockHeight = (37 + 7 * timelineStyle.dimensions.timeline_base_size) * UI_SCALE;
   const [dockHeight, setDockHeight] = useState(() =>
-    readTimelineDockHeight(64 * UI_SCALE, defaultDockHeight),
+    dockPreferences.readHeight(64 * UI_SCALE, defaultDockHeight),
   );
   const [dockWidth, setDockWidth] = useState<number | null>(() =>
-    readTimelineDockWidth(64 * UI_SCALE),
+    dockPreferences.readWidth(64 * UI_SCALE),
   );
   const dockDrag = useRef<{
     pointer: number;
@@ -223,12 +211,12 @@ function EditorTimelineContent({
     else setDockHeight(next);
   };
   useEffect(() => {
-    saveTimelineDockHeight(dockHeight);
-  }, [dockHeight]);
+    dockPreferences.saveHeight(dockHeight);
+  }, [dockHeight, dockPreferences]);
   useEffect(() => {
     if (dockWidth === null) return;
-    saveTimelineDockWidth(dockWidth);
-  }, [dockWidth]);
+    dockPreferences.saveWidth(dockWidth);
+  }, [dockWidth, dockPreferences]);
   const { requestedColumnWidth, setColumnWidth, beginResize } =
     useTimelineLayerColumnWidthPreference();
   const columnResizeScheduler = useWorkspaceResizeScheduler();
@@ -1007,27 +995,7 @@ function EditorTimelineContent({
             : originalTag;
         const x = frameLeft + tag.from * frameSize - frameScrollScene;
         const right = frameLeft + (tag.to + 1) * frameSize - frameScrollScene;
-        const color = `rgba(${tag.color[0]}, ${tag.color[1]}, ${tag.color[2]}, ${(tag.color[3] ?? UINT8_MAX) / UINT8_MAX})`;
-        const ink =
-          tag.color[0] * 299 + tag.color[1] * 587 + tag.color[2] * 114 > 150000
-            ? "#000000"
-            : "#ffffff";
-        // Timeline::getPartBounds(PART_TAG), drawTags, and drawTagBraces:
-        // 7px font + 2px padding, 4px tag area, then the header's 12px.
-        // Only the top of the full source brace is visible through PART_TAGS.
-        paintUiPart(
-          ctx,
-          assets,
-          "timeline_loop_range",
-          x,
-          bandTop + 30,
-          Math.max(24, right - x),
-          32,
-          { color },
-        );
-        ctx.fillStyle = color;
-        ctx.fillRect(x + 6, bandTop + 12, measureUiText(tag.name) + 8, 18);
-        paintUiText(ctx, assets, tag.name, x + 10, bandTop + 16, { color: ink });
+        paintTimelineTagArtwork(ctx, assets, { tag, x, y: bandTop, width: right - x });
         ctx.restore();
       }
       ctx.restore();
@@ -1054,35 +1022,15 @@ function EditorTimelineContent({
         const x = frameLeft + index * frameSize - frameScrollScene;
         const selected =
           range?.kind === "frames" ? range.frames.includes(index) : index === activeFrame;
-        paintUiPart(
-          ctx,
-          assets,
-          hot?.layer === -1 && hot.frame === index
-            ? selected
-              ? "timeline_active_hover"
-              : "timeline_hover"
-            : selected
-              ? "timeline_active"
-              : "timeline_normal",
+        paintTimelineFrameArtwork(ctx, assets, {
           x,
-          headerTop,
-          frameSize,
-          frameHeaderHeight,
-        );
-        const text = timelineFrameLabel(index, firstFrame);
-        paintUiText(
-          ctx,
-          assets,
-          text,
-          centerUiPixel(x, frameSize, measureUiText(text, "mini")),
-          centerUiPixel(headerTop, frameHeaderHeight, uiFontHeight("mini")),
-          {
-            font: "mini",
-            color: selected
-              ? assets.style.colors.timeline_active_text
-              : assets.style.colors.timeline_normal_text,
-          },
-        );
+          y: headerTop,
+          width: frameSize,
+          height: frameHeaderHeight,
+          label: timelineFrameLabel(index, firstFrame),
+          selected,
+          hovered: hot?.layer === -1 && hot.frame === index,
+        });
       }
       ctx.restore();
 

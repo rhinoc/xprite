@@ -11,6 +11,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@xprite/growth-content": "workspace:*",
+    "@xprite/site-assets": "workspace:*",
+    "@xprite/site-shell": "workspace:*",
     "@xprite/ui": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

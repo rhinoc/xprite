@@ -49,9 +49,13 @@ export class IndexedDbFileIdentities {
     })();
     return this.loading;
   }
-  async identify(file: File, handle?: IdentifiableFileHandle): Promise<string> {
+  async identify(
+    file: File,
+    handle?: IdentifiableFileHandle,
+    sourceChecksum?: string,
+  ): Promise<string> {
     await this.load().catch(() => {});
-    const checksum = await sha256Hex(new Uint8Array(await file.arrayBuffer()));
+    const checksum = sourceChecksum ?? (await sha256Hex(new Uint8Array(await file.arrayBuffer())));
     const fingerprint = JSON.stringify([file.webkitRelativePath || file.name, file.size, checksum]);
     let matching: FileIdentity | undefined;
     if (handle?.isSameEntry) {

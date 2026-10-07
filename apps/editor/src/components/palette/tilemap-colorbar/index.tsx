@@ -27,10 +27,16 @@ import {
   useTilemapModeBarModel,
   useTilemapPaletteModel,
 } from "$/managers/palette/tilemap-model";
-import { ContextMenu as EditorContextMenu } from "@xprite/ui";
-import { Button, Scrollbar, TOUCH_LONG_PRESS_DELAY_MS, TOUCH_MOVE_THRESHOLD } from "@xprite/ui";
-import { CanvasSurface, type SurfaceBounds } from "@xprite/ui";
-import { useUi } from "@xprite/ui";
+import {
+  ContextMenu as EditorContextMenu,
+  Button,
+  Scrollbar,
+  TOUCH_LONG_PRESS_DELAY_MS,
+  TOUCH_MOVE_THRESHOLD,
+  CanvasSurface,
+  type SurfaceBounds,
+  useUi,
+} from "@xprite/ui";
 import {
   useUiAssets,
   paintUiText,

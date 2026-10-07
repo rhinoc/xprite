@@ -13,6 +13,7 @@ import {
   libreSpriteWorkingBrushColor,
 } from "$/color/operations/color-mode";
 import { PaletteController } from "$/color/palette/controller";
+import type { EditorPersistenceSnapshot } from "$/document";
 import { DocumentController } from "$/document/controller";
 import { ensureTimeline, syncTimeline, activateTimelineCel } from "$/document/document";
 import { expandActiveLayer } from "$/document/layer-expansion";
@@ -23,17 +24,22 @@ import { resolveRightClickTool } from "$/drawing/right-click";
 import { DrawingSettingsController } from "$/drawing/settings-controller";
 import { BitmapTextController } from "$/drawing/text/controller";
 import { EditorToolId, type EditorTool, type ToolSettings } from "$/drawing/tool-settings";
+import { applyDocumentBatch, batchName } from "$/editor/batch-edit";
+import {
+  BatchEditError,
+  BatchEditErrorCode,
+  type BatchEditOperation,
+  type BatchEditResult,
+} from "$/editor/batch-edit-types";
 import { composeEditorModules, type EditorCompositionHost } from "$/editor/composition";
 import { EditorPriorityGestureController } from "$/editor/input/priority-gesture-controller";
 import { EditorInputRouter } from "$/editor/input/router";
 import { EditorKernel, type EditorSnapshotDraft } from "$/editor/kernel";
-import {
-  clonePersistenceSnapshot,
-  type EditorPersistenceSnapshot,
-} from "$/editor/persistence-snapshot";
+import { clonePersistenceSnapshot } from "$/editor/persistence-snapshot";
 import type { RasterChange } from "$/editor/types";
+import { EditorPointerPhase, type EditorPointerSample } from "$/editor/types";
 import { HistoryController } from "$/history/controller";
-import type { HistoryCommand } from "$/history/history";
+import { HistoryPersistenceEffect, type HistoryCommand } from "$/history/history";
 import { ImageEditingController } from "$/image-editing/controller";
 import type { ImportExportController } from "$/import-export/controller";
 import { SelectionController } from "$/selection/controller";
@@ -61,10 +67,13 @@ function mergeRasterBounds(a: Rect, b: Rect): Rect {
 }
 /** Public editor facade and composition root for the editing modules. */
 export class RasterEditor {
+  private readonly pointerObservers = new Set<(sample: EditorPointerSample) => void>();
+  private canvasPointerPressed = false;
+  private lastPointerInput: PointerInput | null = null;
   private pointerButtonOverride = false;
   private pendingRasterChange: { pixels: PixelBuffer; bounds: Rect } | null | undefined;
   private rasterChange: RasterChange | null = null;
-  private readonly kernel: EditorKernel;
+  protected readonly kernel: EditorKernel;
   private lastDrawingPoint: Point | null = null;
   private lineFreehandPreview: DrawingLinePreview | null = null;
   private palette: Rgba[] = [];
@@ -152,9 +161,80 @@ export class RasterEditor {
 
   getSnapshot = () => this.kernel.getSnapshot();
   getRevisions = () => this.kernel.getRevisions();
+  getContentRevision = () => this.kernel.getContentRevision();
   getPersistenceSnapshot = () => this.kernel.getPersistenceSnapshot();
   getCommittedPersistenceSnapshot = () => this.kernel.getCommittedPersistenceSnapshot();
   subscribe = (listener: () => void) => this.kernel.subscribe(listener);
+  /** Synchronous agent edits share normal history, publication and recovery. */
+  applyBatch(
+    operations: readonly BatchEditOperation[],
+    expectedRevision: number,
+    label: string,
+  ): BatchEditResult {
+    if (!this.doc) throw new BatchEditError(BatchEditErrorCode.NotFound, "No document is open");
+    if (
+      this.hasPendingDocumentEdit() ||
+      this.inlineText ||
+      this.imageEditing.getEffectPreview() ||
+      this.importExport.getSpriteSheetPreview()
+    )
+      throw new BatchEditError(
+        BatchEditErrorCode.Busy,
+        "Finish the current edit before applying a batch",
+      );
+    if (expectedRevision !== this.getContentRevision())
+      throw new BatchEditError(
+        BatchEditErrorCode.Conflict,
+        "Document changed; read its context again",
+      );
+    batchName(label, "label");
+    const document = this.doc;
+    this.timeline.setPlaying(false);
+    try {
+      let result!: BatchEditResult;
+      const transaction = this.runHistoryTransaction(
+        document,
+        label,
+        () => {
+          result = applyDocumentBatch(document, operations);
+        },
+        () => this.prepareHistoryCommit(document),
+      );
+      this.publish(transaction.pixelsChanged);
+      return result;
+    } catch (error) {
+      this.publish(true);
+      throw error;
+    }
+  }
+  subscribePointer = (listener: (sample: EditorPointerSample) => void) => {
+    this.pointerObservers.add(listener);
+    return () => {
+      this.pointerObservers.delete(listener);
+    };
+  };
+  private observePointer(
+    phase: EditorPointerPhase,
+    input: PointerInput | null = this.lastPointerInput,
+    settings = this.drawing.settings.getInputSettings(),
+  ) {
+    if (input) this.lastPointerInput = input;
+    if (!this.pointerObservers.size) return;
+    const sample: EditorPointerSample = {
+      phase,
+      point: phase === EditorPointerPhase.Leave || !input ? null : { x: input.x, y: input.y },
+      pressed: this.canvasPointerPressed,
+      tool: settings.tool,
+      size: settings.brush.size,
+      pressure: input?.pressure ?? 1,
+    };
+    for (const observer of this.pointerObservers) observer(sample);
+  }
+
+  /** Optional render source supplied by detached presentation views. */
+  protected getPresentationInput(): { document: EditorDocument } | null {
+    return null;
+  }
 
   private get kernelCanUndo() {
     return this.kernel.canUndo;
@@ -263,6 +343,7 @@ export class RasterEditor {
     return {
       kernel: this.kernel,
       getDocument: () => this.doc,
+      getPresentationInput: () => this.getPresentationInput(),
       getSettings: () => this.settings,
       getInputSettings: () => this.drawing.settings.getInputSettings(),
       setSettings: (value) => {
@@ -341,6 +422,7 @@ export class RasterEditor {
 
   hasPendingDocumentEdit = (): boolean =>
     !!(
+      this.kernel.transactionActive ||
       this.drawingGestures.hasPendingDocumentEdit() ||
       this.tilemapGestures.hasPendingDocumentEdit() ||
       this.slices.hasPendingDocumentEdit() ||
@@ -370,7 +452,7 @@ export class RasterEditor {
     );
   }
 
-  private publish(pixels = false) {
+  protected publish(pixels = false) {
     const activePalette =
       this.imageEditing.getEffectPreview()?.palette ?? this.doc?.palette ?? this.palette;
     for (const target of ["foreground", "background"] as const) {
@@ -501,6 +583,7 @@ export class RasterEditor {
     this.pointer = null;
     this.lineFreehandPreview = null;
     this.publish();
+    this.observePointer(EditorPointerPhase.Leave);
   }
   /** The same channel/sample rules used on click, exposed for the hover status. */
   private snappedInput(input: PointerInput): PointerInput {
@@ -596,20 +679,37 @@ export class RasterEditor {
     this.pointerButtonOverride =
       !!tool && !this.drawing.settings.getQuickTool() && !input.quickMove;
     this.drawing.settings.setPointerTool(tool);
+    this.canvasPointerPressed = true;
     this.inputRouter.pointerDown(this.drawingPointerInput(input));
+    this.observePointer(EditorPointerPhase.Down, input);
   }
 
   pointerMove(input: PointerInput) {
     this.inputRouter.pointerMove(this.drawingPointerInput(input));
+    this.observePointer(EditorPointerPhase.Move, input);
   }
 
   pointerUp(input?: PointerInput) {
+    const settings = this.drawing.settings.getInputSettings();
     try {
       this.inputRouter.pointerUp(input ? this.drawingPointerInput(input) : undefined);
+    } catch (error) {
+      if (!this.reportDocumentLimit(error)) throw error;
     } finally {
+      this.canvasPointerPressed = false;
+      this.observePointer(EditorPointerPhase.Up, input ?? this.lastPointerInput, settings);
       this.drawing.settings.setPointerTool(null);
       this.pointerButtonOverride = false;
     }
+  }
+  private reportDocumentLimit(error: unknown): boolean {
+    if (!(error instanceof EditorAllocationError) || error.operation !== "document") return false;
+    this.error = error;
+    this.status = error.message;
+    this.pendingRasterChange = null;
+    this.rasterChange = null;
+    this.publish(true);
+    return true;
   }
   /** Finish applied ink when the browser loses a pointer before its release. */
   finishInterruptedStroke(): boolean {
@@ -635,12 +735,18 @@ export class RasterEditor {
   /** Pointer arbitration cancels only the current drag; staged paste/text stay
    * available for explicit Apply/Cancel after navigation or a pen takeover. */
   cancelPointerGesture() {
+    const pressed = this.canvasPointerPressed;
     this.inputRouter.pointerCancel();
+    this.canvasPointerPressed = false;
+    if (pressed) this.observePointer(EditorPointerPhase.Cancel);
     this.drawing.settings.setPointerTool(null);
     this.pointerButtonOverride = false;
   }
   cancelGesture() {
+    const pressed = this.canvasPointerPressed;
     this.inputRouter.cancelGesture();
+    this.canvasPointerPressed = false;
+    if (pressed) this.observePointer(EditorPointerPhase.Cancel);
     this.drawing.settings.setPointerTool(null);
     this.pointerButtonOverride = false;
   }
@@ -659,6 +765,7 @@ export class RasterEditor {
     if (before?.x === after.x && before?.y === after.y) return undefined;
     this.lastDrawingPoint = after;
     return {
+      persistenceEffect: HistoryPersistenceEffect.NoDocumentContent,
       undo: () => {
         this.lastDrawingPoint = before ? { ...before } : null;
       },
@@ -745,6 +852,7 @@ export class RasterEditor {
       this.showSelectionEdgesAfterEdit(document, replacesSelection);
       this.publish(transaction.pixelsChanged);
     } catch (error) {
+      if (this.reportDocumentLimit(error)) return;
       this.publish(true);
       throw error;
     }

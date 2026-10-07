@@ -1,39 +1,38 @@
-import type { UiColorRole } from "$/base/theme/theme-name-types";
+import { defaultUiTheme } from "$/base/theme/default-theme";
+import type { UiTheme, UiThemeArtwork } from "$/base/theme/theme-definition";
 import type { UiStyleDefinition, UiAppearance } from "$/base/theme/theme-types";
 
-export interface ThemeModule {
+export interface ThemeModule extends UiThemeArtwork {
   variant: UiAppearance;
-  definition: UiStyleDefinition;
-  sheetUrl: string;
-  lightThemeColorRoles?: Readonly<Record<string, readonly UiColorRole[]>>;
+  uiTheme: UiTheme;
 }
 
-type GeneratedThemeModule = {
-  themeDefinition: UiStyleDefinition;
+/** Serializable metadata for rendering and hydrating before bitmap resources load. */
+export interface UiThemeSnapshot {
+  themeId: string;
+  appearance: UiAppearance;
+  definition: UiStyleDefinition;
   sheetUrl: string;
-  lightThemeColorRoles?: Readonly<Record<string, readonly UiColorRole[]>>;
-};
+  tokens?: UiThemeArtwork["tokens"];
+}
 
-const moduleLoaders: Record<UiAppearance, () => Promise<GeneratedThemeModule>> = {
-  light: () => import("$/base/theme/generated/themes/aseprite-light"),
-  dark: () => import("$/base/theme/generated/themes/aseprite-dark"),
-};
-const modulePromises = new Map<UiAppearance, Promise<ThemeModule>>();
+const modulePromises = new WeakMap<UiTheme, Map<UiAppearance, Promise<ThemeModule>>>();
 
-export function loadThemeModule(variant: UiAppearance): Promise<ThemeModule> {
-  const cached = modulePromises.get(variant);
+export function loadThemeModule(
+  variant: UiAppearance,
+  uiTheme: UiTheme = defaultUiTheme,
+): Promise<ThemeModule> {
+  let cache = modulePromises.get(uiTheme);
+  if (!cache) {
+    cache = new Map();
+    modulePromises.set(uiTheme, cache);
+  }
+  const cached = cache.get(variant);
   if (cached) return cached;
-  const promise = moduleLoaders[variant]().then(
-    ({ themeDefinition, sheetUrl, lightThemeColorRoles }) => ({
-      variant,
-      definition: themeDefinition,
-      sheetUrl,
-      lightThemeColorRoles,
-    }),
-  );
-  modulePromises.set(variant, promise);
+  const promise = uiTheme.load(variant).then((artwork) => ({ ...artwork, variant, uiTheme }));
+  cache.set(variant, promise);
   void promise.catch(() => {
-    if (modulePromises.get(variant) === promise) modulePromises.delete(variant);
+    if (cache.get(variant) === promise) cache.delete(variant);
   });
   return promise;
 }

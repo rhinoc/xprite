@@ -1,16 +1,13 @@
 import * as React from "react";
 
-import {
-  centerThemePixel,
-  measureThemeText,
-  themeControlSize,
-  themeFontHeight,
-} from "$/base/components/theme-controls";
+import { themeControlSize } from "$/base/components/theme-controls";
 import { buttonInkRole } from "$/base/controls/control-policy";
+import { useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import type { AtlasPartName } from "$/base/theme/theme-part";
 import { cn } from "$/base/utils/cn";
-import { ButtonVariant, type ButtonProps } from "$/components/button/types";
+import { ButtonContent } from "$/components/button/content/ButtonContent";
+import { ButtonAppearance, ButtonVariant, type ButtonProps } from "$/components/button/types";
 import { buttonVariants } from "$/components/button/variants";
 import { ColorArtwork } from "$/components/button/variants/color/ColorArtwork";
 import { FlatIconArtwork } from "$/components/button/variants/flat-icon/FlatIconArtwork";
@@ -18,13 +15,17 @@ import { ThemeButtonArtwork } from "$/components/button/variants/standard/ThemeB
 import { ToolButtonContent } from "$/components/button/variants/tool/ToolButtonContent";
 import { DEFAULT_SURFACE_VIEWPORT, surfaceLayout } from "$/components/canvas-surface";
 import { RASTER_SCALE } from "$/components/canvas-surface/metrics";
+import { UiIcon } from "$/components/theme/appearance";
 
 import styles from "$/components/button/button.module.css";
+import contentStyles from "$/components/button/content/content.module.css";
+import quietStyles from "$/components/button/content/quiet.module.css";
 
 const FLAT_ICON_PADDING = 8;
+const OUTLINE_BUTTON_TEXT_PADDING = 16;
 
 type ButtonControlProps = Omit<ButtonProps, "variant" | "menu"> & {
-  variant?: Exclude<ButtonVariant, ButtonVariant.Split>;
+  variant?: Exclude<ButtonVariant, ButtonVariant.Split | ButtonVariant.Tile>;
 };
 
 function assignButtonRef(
@@ -39,7 +40,9 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
   function ButtonControl(
     {
       children,
+      slots,
       variant = ButtonVariant.Standard,
+      appearance = ButtonAppearance.Default,
       readOnly = false,
       selected = false,
       bounds: suppliedBounds,
@@ -61,7 +64,7 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
       label,
       leading,
       labelScale = 1.35,
-      font = "mini",
+      font: suppliedFont,
       insetContent = true,
       paintArtwork = true,
       buttonRef,
@@ -93,9 +96,17 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
     forwardedRef,
   ) {
     const variantStyle = buttonVariants[variant];
-    const isFlatIcon = variantStyle.flatIcon === true;
-    const part = suppliedPart ?? variantStyle.defaultPart;
+    const quiet = appearance === ButtonAppearance.Quiet;
+    const slotted = variant === ButtonVariant.Standard && slots !== undefined;
+    const nativeContent = slotted || quiet;
+    const isFlatIcon = variantStyle.flatIcon === true && !quiet;
     const { definition: theme, translateSource, language } = useTheme();
+    const part =
+      suppliedPart ??
+      (variant === ButtonVariant.Standard ? theme.controlParts?.button?.part : undefined) ??
+      variantStyle.defaultPart;
+    const font = suppliedFont ?? theme.controlParts?.button?.font ?? "mini";
+    const { measureThemeText, themeFontHeight, centerThemePixel } = useThemeText();
     const displayText = text === undefined ? undefined : translateSource(text);
     const displayLabel = label === undefined ? undefined : translateSource(label);
     const displayMnemonic = language === "en" ? mnemonicIndex : undefined;
@@ -106,6 +117,16 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
             height: theme.parts[icon].height * RASTER_SCALE + FLAT_ICON_PADDING,
           }
         : themeControlSize(theme, part, displayText, font, icon);
+    const outline = part.startsWith("button_") ? theme.controlParts?.button?.outline : undefined;
+    if (outline) {
+      measuredSize.width = displayText
+        ? Math.max(
+            outline.minimumWidth,
+            measureThemeText(displayText ?? "", font) + OUTLINE_BUTTON_TEXT_PADDING,
+          )
+        : outline.minimumHeight;
+      measuredSize.height = outline.minimumHeight;
+    }
     const bounds = suppliedBounds ?? {
       x: 0,
       y: 0,
@@ -122,13 +143,23 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
     const [pointerPressed, setPressed] = React.useState(false);
     const pressed = suppliedPressed ?? pointerPressed;
     const isButtonSet = part.startsWith("buttonset_item");
-    const isTool = variantStyle.tool === true;
-    const isColor = variantStyle.color === true;
+    const isTool = variantStyle.tool === true && !quiet;
+    const isColor = variantStyle.color === true && !quiet;
     const isReadOnlyColor = isColor && readOnly;
-    const usesThemeArtwork = variantStyle.themeArtwork === true;
+    const usesThemeArtwork = variantStyle.themeArtwork === true && !nativeContent;
     const activePart = (() => {
       if (disabled || isColor) return part;
-      if (pressed) return pushedPart ?? (isTool ? "toolbutton_pushed" : part);
+      if (pressed)
+        return (
+          pushedPart ??
+          (isTool
+            ? "toolbutton_pushed"
+            : isButtonSet
+              ? "buttonset_item_pushed"
+              : part === "button_normal"
+                ? "button_selected"
+                : part)
+        );
       if (selected)
         return (
           selectedPart ??
@@ -137,12 +168,20 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
         );
       if (hover)
         return hotPart ?? (isTool ? "toolbutton_hot" : isButtonSet ? "buttonset_item_hot" : part);
-      if (focused && isButtonSet) return focusedPart ?? "buttonset_item_focused";
+      if (focused)
+        return (
+          focusedPart ??
+          (isButtonSet
+            ? "buttonset_item_focused"
+            : part === "button_normal"
+              ? "button_focused"
+              : part)
+        );
       return part;
     })() as AtlasPartName;
     const slices = theme.parts[activePart]?.slices;
     const contentBounds =
-      insetContent && !isFlatIcon && slices
+      insetContent && !isFlatIcon && slices && !outline
         ? {
             x: bounds.x + slices[0] * 2,
             y: bounds.y + slices[3] * 2,
@@ -184,18 +223,34 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
     const textY = displayText
       ? centerThemePixel(contentBounds.y, contentBounds.height, themeFontHeight(font)) -
         bounds.y +
-        (textOffset?.y ?? 0)
+        (textOffset?.y ?? theme.controlParts?.button?.textOffsetY?.[font] ?? 0)
       : 0;
     const iconGeometry = drawIcon ? theme.parts[drawIcon] : null;
+    const frameIconOffset =
+      !insetContent && part.startsWith("button_")
+        ? theme.controlParts?.button?.frameIconOffset
+        : undefined;
+    // Full-frame icons align in local pixels. Absolute theme-grid snapping
+    // makes a glyph shift when its window moves by one screen pixel.
     const iconX = iconGeometry
-      ? centerThemePixel(contentBounds.x, contentBounds.width, iconGeometry.width * 2) -
-        bounds.x +
-        (iconOffset?.x ?? 0)
+      ? (insetContent
+          ? centerThemePixel(
+              contentBounds.x,
+              contentBounds.width,
+              iconGeometry.width * RASTER_SCALE,
+            ) - bounds.x
+          : Math.floor((bounds.width - iconGeometry.width * RASTER_SCALE) / 2)) +
+        (iconOffset?.x ?? frameIconOffset?.x ?? 0)
       : 0;
     const iconY = iconGeometry
-      ? centerThemePixel(contentBounds.y, contentBounds.height, iconGeometry.height * 2) -
-        bounds.y +
-        (iconOffset?.y ?? 0)
+      ? (insetContent
+          ? centerThemePixel(
+              contentBounds.y,
+              contentBounds.height,
+              iconGeometry.height * RASTER_SCALE,
+            ) - bounds.y
+          : Math.floor((bounds.height - iconGeometry.height * RASTER_SCALE) / 2)) +
+        (iconOffset?.y ?? frameIconOffset?.y ?? 0)
       : 0;
     const layout = surfaceLayout(bounds, viewport);
     const position = {
@@ -207,8 +262,11 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
     const selectedInk = disabled ? theme.colors.disabled : ink;
     const classes = cn(
       styles.root,
+      slotted && !quiet && contentStyles.surfaceFrame,
+      slotted && !quiet && contentStyles.surface,
+      quiet && quietStyles.quiet,
       usesThemeArtwork && styles.theme,
-      variantStyle.className,
+      !quiet && variantStyle.className,
       className,
     );
     const displayPart = activePart;
@@ -227,11 +285,17 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
         disabled={disabled || isReadOnlyColor}
         data-slot="button"
         data-variant={variant}
+        data-appearance={appearance}
+        data-content-slots={nativeContent || undefined}
         data-selected={selected || undefined}
+        data-pressed={pressed || undefined}
+        data-focused={(quiet && focused) || undefined}
         aria-label={
           props["aria-label"]
             ? translateSource(props["aria-label"]!)
-            : (displayLabel ?? displayText)
+            : slotted && slots?.content != null
+              ? undefined
+              : (displayLabel ?? displayText)
         }
         title={props.title ? translateSource(props.title) : undefined}
         data-label-source={props["aria-label"] ?? label ?? text ?? undefined}
@@ -318,7 +382,13 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
             drawIcon={drawIcon}
             iconX={iconX}
             iconY={iconY}
-            iconInk={tintIcon || (disabled && tintDisabledIcon) ? ink : undefined}
+            iconInk={
+              tintIcon ||
+              (disabled && tintDisabledIcon) ||
+              (drawIcon && theme.parts[drawIcon].foregroundRole)
+                ? ink
+                : undefined
+            }
             text={displayText}
             textX={textX}
             textY={textY}
@@ -328,6 +398,13 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
             disabled={disabled}
             disabledTextShadow={disabledTextShadow}
             mnemonicIndex={displayMnemonic}
+            state={{
+              pressed,
+              selected,
+              hovered: hover,
+              focused,
+              defaultAction: part === "button_focused",
+            }}
           />
         )}
         {isColor && (
@@ -351,13 +428,38 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
             label={displayLabel}
             labelScale={labelScale}
             selectedInk={selectedInk}
-            iconInk={tintIcon || (disabled && tintDisabledIcon) ? ink : undefined}
+            iconInk={
+              tintIcon ||
+              (disabled && tintDisabledIcon) ||
+              (drawIcon && theme.parts[drawIcon].foregroundRole)
+                ? ink
+                : undefined
+            }
             skinClassName={variantStyle.contentSkinClassName}
             iconClassName={variantStyle.contentIconClassName}
             labelClassName={variantStyle.contentLabelClassName}
           />
         )}
-        {children}
+        {nativeContent ? (
+          <ButtonContent
+            slots={
+              slots ??
+              (quiet
+                ? {
+                    leading:
+                      leading ??
+                      (drawIcon ? (
+                        <UiIcon part={drawIcon} scale={RASTER_SCALE} color="currentColor" />
+                      ) : undefined),
+                  }
+                : undefined)
+            }
+          >
+            {children ?? displayText ?? displayLabel}
+          </ButtonContent>
+        ) : (
+          children
+        )}
       </button>
     );
   },

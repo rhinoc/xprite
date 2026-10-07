@@ -14,10 +14,13 @@ import { useLayerCommandActions } from "$/components/timeline/layer-command-acti
 import { useTimelineActions } from "$/components/timeline/timeline-actions";
 import { useSelectionActions } from "$/components/tools/selection-actions";
 import { TilemapDialog } from "$/components/tools/tilemap-controls";
-import { tUi } from "$/i18n";
+import { tUi, useUiLanguage } from "$/i18n";
 import { useEditorFields } from "$/managers/editor/editor-state-manager";
 import { useInputInteractionMode } from "$/managers/input/input-interaction-context";
 import { MenuCheckKind, unsupportedMenuCheck } from "$/managers/menus/menu-checks";
+import { usePwaManager, usePwaState } from "$/managers/pwa/pwa-context";
+import { PwaInstallMethod } from "$/managers/pwa/pwa-manager";
+import { useReplayCommands } from "$/managers/replay/replay-context";
 import { useEditorChromePreferences } from "$/managers/shell/editor-chrome-preferences-context";
 import {
   MenuDocumentShowOption,
@@ -49,6 +52,8 @@ const PLAYBACK_TOGGLES: Readonly<
 
 /** Product menu hierarchy with the supported browser editor capabilities attached. */
 export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" } = {}) {
+  useUiLanguage();
+  const { manager: replay, snapshot: replayCommands } = useReplayCommands();
   const [tilemapDialog, setTilemapDialog] = useState<"new" | "convert" | null>(null);
   const [undoHistoryOpen, setUndoHistoryOpen] = useState(false);
   const [colorModeOptionsOpen, setColorModeOptionsOpen] = useState(false);
@@ -59,6 +64,8 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
   const [grayscaleMethod, setGrayscaleMethod] = useState<"luma" | "hsv" | "hsl">("luma");
   const [conversionError, setConversionError] = useState("");
   const layout = useEditorLayout();
+  const pwaManager = usePwaManager();
+  const pwaState = usePwaState();
   const chromePreferences = useEditorChromePreferences();
   const inputInteractionMode = useInputInteractionMode();
   const menuInRail = presentation ? presentation === "rail" : inputInteractionMode === "touch";
@@ -150,6 +157,10 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
     SaveFileCopyAs: {
       onSelect: actions.exportCopy,
       disabled: !can("export") || !actions.canSave,
+    },
+    Share: {
+      onSelect: actions.share,
+      disabled: !can("export") || !actions.canSave || !actions.share,
     },
     Fill: {
       onSelect: () => editorCommands.selection.fillSelection(),
@@ -320,6 +331,10 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
     GotoLastFrame: {
       onSelect: () => editor.setFrame(frameCount),
       disabled: !hasDocumentTimeline,
+    },
+    ExportAnimalCrossing: {
+      onSelect: actions.exportAnimalCrossing,
+      disabled: documentUnavailable || !actions.exportAnimalCrossing,
     },
     ExportTileset: {
       onSelect: actions.exportTileset,
@@ -800,6 +815,43 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
     },
   });
   const menus = catalogMenus.map((topMenu) => {
+    if (topMenu.label === "Sprite")
+      return {
+        ...topMenu,
+        items: [
+          ...topMenu.items,
+          {
+            label: tUi("replay.menu"),
+            separator: true,
+            children: [
+              {
+                label: tUi(
+                  replayCommands.recording
+                    ? "replay.showBar"
+                    : replayCommands.canContinue
+                      ? "replay.continue"
+                      : "replay.start",
+                ),
+                onSelect: replay.openRecording,
+                disabled:
+                  !actions.canStartInteraction || replayCommands.busy || !replayCommands.canRecord,
+              },
+              {
+                label: tUi("replay.stop"),
+                onSelect: replay.stop,
+                disabled: !actions.canStartInteraction || !replayCommands.recording,
+              },
+              {
+                label: tUi("replay.title"),
+                separator: true,
+                onSelect: () => replay.setOpen(true),
+                disabled:
+                  !actions.canStartInteraction || replayCommands.busy || replayCommands.recording,
+              },
+            ],
+          },
+        ],
+      };
     if (topMenu.label !== "View") return topMenu;
     return {
       ...topMenu,
@@ -881,6 +933,23 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
       {
         label: tUi("ui.user.guide"),
         onSelect: actions.userGuide,
+        disabled: !actions.canStartInteraction,
+      },
+      ...(pwaManager &&
+      pwaState?.supported &&
+      !pwaState.installed &&
+      pwaState.installMethod === PwaInstallMethod.Prompt
+        ? [
+            {
+              label: tUi("ui.pwa.desktop.add"),
+              onSelect: () => void pwaManager.install(),
+              disabled: pwaState.installBusy || !actions.canStartInteraction,
+            },
+          ]
+        : []),
+      {
+        label: tUi("feedback.title"),
+        onSelect: actions.feedback,
         disabled: !actions.canStartInteraction,
       },
       {

@@ -1,4 +1,5 @@
 import { themeGlyphAssets } from "$/base/theme/theme-assets";
+import { useTheme } from "$/base/theme/theme-context";
 import { cn } from "$/base/utils/cn";
 import { textRuns } from "$/components/text/text-runs";
 import type { PositionedPixelTextProps } from "$/components/text/types";
@@ -48,8 +49,10 @@ export function PositionedPixelText({
   font = "default",
   scale = 2,
   style,
-}: PositionedPixelTextProps) {
-  const runs = font === "mini" ? textRuns(text) : [];
+}: Omit<PositionedPixelTextProps, "variant">) {
+  const { definition } = useTheme();
+  const metrics = definition.typography?.[font];
+  const runs = font === "mini" && !metrics ? textRuns(text) : [];
   const baseFontSize = font === "mini" ? MINI_FONT_FALLBACK_SIZE : DEFAULT_FONT_SIZE;
   const baseLineHeight = font === "mini" ? MINI_FONT_LINE_HEIGHT : DEFAULT_FONT_SIZE;
   return (
@@ -69,11 +72,18 @@ export function PositionedPixelText({
               fontSize: `${(baseFontSize * scale) / 2}px`,
               lineHeight: `${(baseLineHeight * scale) / 2}px`,
             }),
+        ...(metrics
+          ? {
+              fontFamily: `${metrics.fontFamily}, FusionPixelZhHans, monospace`,
+              fontSize: `${(metrics.fontSize * scale) / 2}px`,
+              lineHeight: `${(metrics.lineHeight * scale) / 2}px`,
+            }
+          : {}),
         ...style,
       }}
       data-font={font}
     >
-      {font === "mini"
+      {font === "mini" && !metrics
         ? runs.map((run, index) =>
             run.cjk ? (
               <span

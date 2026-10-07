@@ -11,6 +11,10 @@ export type TooltipPlacement =
   | "bottom"
   | "left"
   | "right"
+  | "left-top"
+  | "left-bottom"
+  | "right-top"
+  | "right-bottom"
   | "top-left"
   | "top-right"
   | "bottom-left"
@@ -25,6 +29,10 @@ const flags: Record<TooltipPlacement, number> = {
   bottom: BOTTOM,
   left: LEFT,
   right: RIGHT,
+  "left-top": TOP | LEFT,
+  "left-bottom": BOTTOM | LEFT,
+  "right-top": TOP | RIGHT,
+  "right-bottom": BOTTOM | RIGHT,
   "top-left": TOP | LEFT,
   "top-right": TOP | RIGHT,
   "bottom-left": BOTTOM | LEFT,
@@ -88,9 +96,13 @@ export function tooltipPosition(
       let arrowAlign = align;
       if (x !== preferredX && align & (TOP | BOTTOM)) arrowAlign &= ~(LEFT | RIGHT);
       else if (y !== preferredY && align & (LEFT | RIGHT)) arrowAlign &= ~(TOP | BOTTOM);
-      const placement = (Object.keys(flags) as TooltipPlacement[]).find(
-        (key) => flags[key] === arrowAlign,
-      )!;
+      const lateralCorner = preferred.startsWith("left-") || preferred.startsWith("right-");
+      const placement =
+        (Object.keys(flags) as TooltipPlacement[]).find(
+          (key) =>
+            flags[key] === arrowAlign &&
+            (key.startsWith("left-") || key.startsWith("right-")) === lateralCorner,
+        ) ?? (Object.keys(flags) as TooltipPlacement[]).find((key) => flags[key] === arrowAlign)!;
       return { bounds, placement };
     }
     if (attempt === 0 || attempt === 2) {

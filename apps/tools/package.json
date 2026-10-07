@@ -1,0 +1,25 @@
+{
+  "name": "@xprite/tools-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b tsconfig.json && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@xprite/bedrock": "workspace:*",
+    "@xprite/editor-core": "workspace:*",
+    "@xprite/editor-ui": "workspace:*",
+    "@xprite/growth-content": "workspace:*",
+    "@xprite/site-assets": "workspace:*",
+    "@xprite/site-shell": "workspace:*",
+    "@xprite/ui": "workspace:*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "@types/three": "0.186.0"
+  }
+}

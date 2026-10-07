@@ -46,9 +46,19 @@ const SaveAsDialog = lazy(() =>
     default: module.SaveAsDialog,
   })),
 );
+const AnimalCrossingDialog = lazy(() =>
+  import("$/components/dialogs/animal-crossing-dialog").then((module) => ({
+    default: module.AnimalCrossingDialog,
+  })),
+);
 const ExportFileDialog = lazy(() =>
   import("$/components/dialogs/export-file-dialog").then((module) => ({
     default: module.ExportFileDialog,
+  })),
+);
+const ShareProjectDialog = lazy(() =>
+  import("$/components/dialogs/share-project").then((module) => ({
+    default: module.ShareProjectDialog,
   })),
 );
 const SpriteSheetDialog = lazy(() =>
@@ -79,6 +89,9 @@ const KeyboardShortcutsDialog = lazy(() =>
 );
 const AboutDialog = lazy(() =>
   import("$/components/dialogs/about").then((module) => ({ default: module.AboutDialog })),
+);
+const FeedbackDialog = lazy(() =>
+  import("$/components/dialogs/feedback").then((module) => ({ default: module.FeedbackDialog })),
 );
 
 type EditorWorkflowsProps = Omit<
@@ -145,6 +158,7 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
     setKeyboardShortcutsOpen,
     aboutOpen,
     setAboutOpen,
+    feedback,
     openHelpLink,
     newTilemapDialog,
     setNewTilemapDialog,
@@ -158,6 +172,11 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
     colorTarget,
     text,
     textSize,
+    animalCrossingSource,
+    animalCrossingExportPort,
+    setAnimalCrossingSource,
+    shareSource,
+    setShareSource,
     exportDocument,
     setExportDocument,
     exportBusy,
@@ -297,7 +316,6 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
           hidden
           type="file"
           multiple
-          accept="image/*,.ase,.aseprite"
           onChange={(e) => {
             const files = Array.from(e.target.files ?? []);
             e.target.value = "";
@@ -422,6 +440,20 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
             />
           </Suspense>
         )}
+        {animalCrossingSource && animalCrossingExportPort && (
+          <Suspense fallback={null}>
+            <AnimalCrossingDialog
+              source={animalCrossingSource}
+              port={animalCrossingExportPort}
+              onClose={() => setAnimalCrossingSource(null)}
+            />
+          </Suspense>
+        )}
+        {shareSource && (
+          <Suspense fallback={null}>
+            <ShareProjectDialog source={shareSource} onClose={() => setShareSource(null)} />
+          </Suspense>
+        )}
         {exportDocument && (
           <Suspense fallback={null}>
             <ExportFileDialog
@@ -472,6 +504,11 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
         {aboutOpen && (
           <Suspense fallback={null}>
             <AboutDialog open={aboutOpen} onOpenChange={setAboutOpen} onOpenLink={openHelpLink} />
+          </Suspense>
+        )}
+        {feedback.open && (
+          <Suspense fallback={null}>
+            <FeedbackDialog manager={feedback} />
           </Suspense>
         )}
         {keyboardShortcutsOpen && (

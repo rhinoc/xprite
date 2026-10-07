@@ -1,6 +1,13 @@
 import { createContext, useContext, type ReactNode } from "react";
 
-import { Checkbox, Label, useUi, type CheckboxProps, type LabelProps } from "@xprite/ui";
+import {
+  Checkbox,
+  useUi,
+  type CheckboxProps,
+  type ControlTextProps,
+  Text,
+  TextVariant,
+} from "@xprite/ui";
 import { measureUiText } from "@xprite/ui/assets";
 
 const PreferencesDialogLayoutContext = createContext(false);
@@ -44,16 +51,19 @@ export function PreferencesCheckbox(props: CheckboxProps) {
   );
 }
 
-export function PreferencesLabel(props: LabelProps) {
+type WithoutVariant<Props> = Props extends unknown ? Omit<Props, "variant"> : never;
+
+export function PreferencesLabel(props: WithoutVariant<ControlTextProps>) {
   const narrow = usePreferencesDialogNarrowLayout();
   const { translateSource } = useUi();
   const wrap =
     narrow &&
     !!props.bounds &&
     measureUiText(translateSource(props.text), props.font) > props.bounds.width;
-  if (!wrap || !props.bounds) return <Label {...props} />;
+  if (!wrap || !props.bounds) return <Text variant={TextVariant.Control} {...props} />;
   return (
-    <Label
+    <Text
+      variant={TextVariant.Control}
       {...props}
       bounds={{
         ...props.bounds,

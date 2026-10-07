@@ -9,9 +9,7 @@ import {
   type EditorPreferences,
 } from "$/managers/preferences/editor-preferences";
 import { TOOL_COLOR_CHANNEL_MAX } from "$/managers/tools/color-control";
-import { Input } from "@xprite/ui";
-import { Combobox } from "@xprite/ui";
-import { Slider } from "@xprite/ui";
+import { Input, Combobox, Slider } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 import { useUiAssets } from "@xprite/ui/assets";
 

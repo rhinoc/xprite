@@ -9,26 +9,88 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const uiRoot = resolve(repositoryRoot, "packages/ui");
 const entryPath = resolve(uiRoot, "src/components/index.ts");
 const outputPath = resolve(repositoryRoot, "apps/gallery/src/generated-ui-components.ts");
+const routesPath = resolve(repositoryRoot, "apps/gallery/build/generated-routes.json");
 const GALLERY_CALLBACK_KEY = "$galleryCallback";
 const GALLERY_ICON_KEY = "$galleryIcon";
-const COMPONENT_NAME_PATTERN = /^[A-Z]/;
-// Infrastructure and unstyled containers have no independent control appearance to preview.
-const EXCLUDED_PREVIEW_COMPONENTS = new Set([
-  "CanvasScaleProvider",
-  "CanvasSurface",
-  "ControlFlow",
-  "ControlFlowItem",
-  "Panel",
-  "PanSurface",
-  "Splitter",
-  "TooltipGroup",
-  "TooltipProvider",
-  "UIProvider",
-]);
+const COMPONENT_GROUPS = {
+  Controls: ["Button", "Checkbox", "Combobox", "CurveEditor", "Input", "Slider", "TextArea"],
+  Typography: ["Text", "RichText"],
+  Containers: ["Panel", "Field", "Note", "ScrollArea", "PageScrollArea", "Divider", "StatusBar"],
+  Navigation: ["ListBox", "NavigationList", "Tabs", "Menu", "Menubar"],
+  Overlays: ["Dialog", "AlertDialog", "Popover", "ContextMenu", "Tooltip", "Toast"],
+  Media: ["Icon", "Pattern", "PixelImage"],
+};
+const PREVIEW_PROPERTIES = { Icon: "kind", ListBox: "selectionMode" };
 const MAX_ENUM_OPTIONS = 32;
 const MAX_SAMPLE_DEPTH = 3;
 
 const sampleOverrides = {
+  CanvasSurface: {
+    bounds: { x: 0, y: 0, width: 240, height: 80 },
+    viewport: undefined,
+    paint: { [GALLERY_CALLBACK_KEY]: "paint" },
+    pixels: undefined,
+    checker: undefined,
+  },
+  ControlFlow: { enabled: true },
+  ControlFlowItem: { bounds: { x: 0, y: 0, width: 240, height: 80 }, viewport: undefined },
+  Panel: {
+    title: "Layers",
+    extra: null,
+    children: "Panel content",
+    groupBorder: "secondary",
+    style: { width: 282, minHeight: 118 },
+  },
+  Field: {
+    label: "Brush size",
+    children: "12",
+    description: "Width in pixels",
+    error: undefined,
+    controlId: undefined,
+  },
+  NavigationList: {
+    items: [
+      { href: "#overview", label: "Overview" },
+      { href: "#frames", label: "Frames and layers" },
+      { href: "#export", label: "Export" },
+    ],
+    activeHref: "#frames",
+    style: { width: 240, height: 128 },
+  },
+  MenubarButton: { children: "Sound", icon: false },
+  Icon: { kind: "application", size: 16 },
+  Pattern: { children: null, preview: true, style: { width: 240, height: 120 } },
+  PageScrollArea: { reserveGutter: true, documentGutter: false, children: null },
+  StatusBar: { leading: "Frame 1 of 8", children: "16 × 16", trailing: "100%" },
+  Note: {
+    children: "Make your notes stand out and get noticed.",
+    style: { width: 126, minHeight: 47 },
+    title: "Read Me",
+    dismissBehavior: "collapse",
+    dismissLabel: undefined,
+    collapseLabel: undefined,
+    expandLabel: undefined,
+    resizeLabel: undefined,
+  },
+  PanSurface: {
+    pan: { x: 0, y: 0 },
+    coordinateScale: { x: 1, y: 1 },
+    handTool: true,
+    panButtons: [0],
+    onPan: { [GALLERY_CALLBACK_KEY]: "onPan" },
+    style: { height: 80, border: "1px solid var(--xse-border)" },
+  },
+  PixelImage: {
+    src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath fill='%235e99da' d='M2 2h12v12H2z'/%3E%3Cpath fill='%23f4ba58' d='M6 6h4v4H6z'/%3E%3C/svg%3E",
+    alt: "Pixel artwork",
+    width: 16,
+    height: 16,
+    initialBox: { width: 240, height: 80 },
+  },
+  Splitter: {
+    axis: "horizontal",
+    style: { width: 8, height: 80, background: "var(--xse-border)" },
+  },
   CurveEditor: {
     bounds: { x: 0, y: 0, width: 336, height: 256 },
     points: [
@@ -56,12 +118,15 @@ const sampleOverrides = {
   },
   Button: {
     children: null,
+    href: undefined,
+    slots: undefined,
     selected: false,
+    pressed: undefined,
     selectedIcon: undefined,
     bounds: { x: 0, y: 0, width: 160, height: 32 },
-    color: "#202528",
-    fill: "#d3cbbe",
-    font: "mini",
+    color: undefined,
+    fill: undefined,
+    font: undefined,
     icon: "window_play_icon",
     insetContent: true,
     paintArtwork: true,
@@ -70,8 +135,8 @@ const sampleOverrides = {
     pushedPart: "buttonset_item_pushed",
     focusedPart: "buttonset_item_focused",
     selectedPart: "buttonset_item_active",
-    text: "Apply",
-    label: "Apply",
+    text: "Button",
+    label: "Button",
     menu: {
       label: "More actions",
       items: [
@@ -83,16 +148,18 @@ const sampleOverrides = {
   Checkbox: {
     label: "Pixel perfect",
     checked: true,
-    bounds: { x: 0, y: 0, width: 160, height: 32 },
+    bounds: undefined,
+    pixelSize: undefined,
   },
   Combobox: {
+    pixelWidth: undefined,
     value: "normal",
     options: [
       { value: "normal", label: "Normal" },
       { value: "multiply", label: "Multiply" },
       { value: "screen", label: "Screen" },
     ],
-    bounds: { x: 0, y: 0, width: 180, height: 32 },
+    bounds: { x: 0, y: 0, width: 156, height: 18 },
   },
   ContextMenu: {
     label: "Canvas actions",
@@ -133,13 +200,37 @@ const sampleOverrides = {
   Menu: {
     label: "Edit",
     items: [
-      { label: "Undo", shortcut: "Ctrl+Z" },
-      { label: "Redo", shortcut: "Ctrl+Y" },
+      { label: "Undo", shortcut: "Meta+Z" },
+      { label: "Redo", shortcut: "Meta+Shift+Z" },
     ],
   },
   Menubar: {
+    trailingMenus: undefined,
+    bounds: undefined,
+    width: 280,
+    links: undefined,
+    layout: undefined,
+    leadingContent: undefined,
+    trailingContent: undefined,
     menus: [
-      { label: "File", items: [{ label: "New" }, { label: "Open" }] },
+      {
+        label: "File",
+        items: [
+          { label: "New Folder", shortcut: "Meta+N" },
+          { label: "Open", shortcut: "Meta+O", disabled: true },
+          { label: "Print", shortcut: "Meta+P", disabled: true },
+          { label: "Close Window", shortcut: "Meta+W" },
+          { label: "Get Info", shortcut: "Meta+I", separator: true },
+          { label: "Sharing..." },
+          { label: "Duplicate", shortcut: "Meta+D" },
+          { label: "Make Alias" },
+          { label: "Put Away", shortcut: "Meta+Y", disabled: true },
+          { label: "Find", shortcut: "Meta+F", separator: true },
+          { label: "Find Again", shortcut: "Meta+G" },
+          { label: "Page Setup...", separator: true },
+          { label: "Print Window" },
+        ],
+      },
       { label: "Edit", items: [{ label: "Undo" }, { label: "Redo" }] },
     ],
   },
@@ -164,7 +255,8 @@ const sampleOverrides = {
     text: "Section label",
   },
   Input: {
-    bounds: { x: 0, y: 0, width: 180, height: 32 },
+    pixelWidth: undefined,
+    bounds: { x: 0, y: 0, width: 170, height: 22 },
     value: "Brush size",
     size: 16,
     leading: { [GALLERY_ICON_KEY]: "icon_search" },
@@ -175,15 +267,13 @@ const sampleOverrides = {
     frameScaleTop: undefined,
     pixelSize: undefined,
   },
-  Label: {
-    bounds: { x: 0, y: 0, width: 160, height: 28 },
-    text: "Brush size",
-    color: undefined,
-    fill: undefined,
-  },
   ListBox: {
-    bounds: { x: 0, y: 0, width: 220, height: 100 },
+    frameStyle: undefined,
+    framed: true,
+    scrollbarVariant: undefined,
+    bounds: { x: 0, y: 0, width: 220, height: 160 },
     viewport: undefined,
+    font: undefined,
     items: [
       { value: "brush", label: "Brush" },
       { value: "pencil", label: "Pencil" },
@@ -191,9 +281,15 @@ const sampleOverrides = {
       { value: "eraser", label: "Eraser" },
     ],
     value: "brush",
+    values: ["brush"],
     "aria-label": "Tools",
     itemHeight: 18,
     separatorHeight: 8,
+    selectionMode: "single",
+    sectionHeight: undefined,
+    headingHeight: undefined,
+    renderItem: undefined,
+    renderGroup: undefined,
   },
   Radio: {
     label: "Brush tool",
@@ -216,6 +312,8 @@ const sampleOverrides = {
     "aria-label": "Brush size",
     label: undefined,
     valueFormat: "integer",
+    step: 1,
+    paintBackground: undefined,
   },
   Tabs: {
     tabs: [
@@ -241,17 +339,55 @@ const sampleOverrides = {
     children: null,
     className: undefined,
   },
-  Text: { variant: "inline", text: "Pixel aligned text", scale: 2 },
+  Text: {
+    variant: "inline",
+    text: "Pixel aligned text",
+    children: "Pixel aligned text",
+    bounds: { x: 0, y: 0, width: 200, height: 28 },
+    x: 0,
+    y: 0,
+    pixelSize: undefined,
+    fill: undefined,
+    scale: 2,
+    color: undefined,
+    ink: undefined,
+  },
+  RichText: {
+    children: "A short note about an animation project.",
+    markdown:
+      "# A pixel notebook\n\nRead **bold labels**, `inline code` and [a link](/editor).\n\n- First item\n- Second item",
+  },
+  TextArea: {
+    scrollbarVariant: undefined,
+    defaultValue: "Frame notes\nKeep the outline crisp.",
+    value: undefined,
+    children: undefined,
+    rows: 4,
+  },
+  ScrollArea: {
+    scrollX: false,
+    scrollY: true,
+    scrollbarVariant: undefined,
+    style: { width: 280, height: 96 },
+    children: "Frame 01\nFrame 02\nFrame 03\nFrame 04\nFrame 05\nFrame 06\nFrame 07\nFrame 08",
+  },
   Tooltip: {
-    text: "A themed tooltip",
-    placement: "bottom",
+    children: "Help",
+    text: "Balloon help\n\nText goes here. There\nis no formatting.",
+    placement: "top-left",
     maxWidth: undefined,
     targetBounds: undefined,
   },
 };
 
 const previewDescriptions = {
+  RichText:
+    "Use markdown for Markdown source, or clear it to preview JSX children. These are two content inputs of the same component.",
   Tabs: "Xprite tabs with selection, close, and reorder behavior.",
+  Text: "Inline, reading, pixel-positioned and theme-aligned control text.",
+  Note: "Paper colors and window controls, with removal or collapse on close.",
+  Panel: "Standard, window and titled group frames with action and content slots.",
+  ListBox: "Single or multiple selection with grouped rows and custom content slots.",
 };
 
 const previewKinds = {
@@ -281,13 +417,14 @@ function componentSignature(symbol) {
   const resolved = resolveExport(symbol);
   const location = resolved.valueDeclaration ?? resolved.declarations?.[0] ?? entrySource;
   const componentType = checker.getTypeOfSymbolAtLocation(resolved, location);
-  const signature = checker.getSignaturesOfType(componentType, ts.SignatureKind.Call)[0];
+  const signatures = checker.getSignaturesOfType(componentType, ts.SignatureKind.Call);
+  const signature = signatures[0];
   if (!signature) return null;
 
   const returnType = checker.typeToString(signature.getReturnType());
   const isForwardRef = checker.typeToString(componentType).startsWith("ForwardRefExoticComponent<");
-  return /\bElement\b/.test(returnType) || isForwardRef
-    ? { resolved, componentType, signature }
+  return /\b(?:Element|ReactElement)\b/.test(returnType) || isForwardRef
+    ? { resolved, componentType, signature, signatures }
     : null;
 }
 
@@ -465,12 +602,18 @@ function sampleValue(name, componentName, type, depth = 0, parentName = "") {
   return sample;
 }
 
-function componentProps(symbol, signature, componentName) {
-  const parameter = signature.getParameters()[0];
+function componentProps(symbol, signatures, componentName) {
+  const parameter = signatures[0].getParameters()[0];
   if (!parameter) return { schemas: [], initialProps: {} };
 
   const location = parameter.valueDeclaration ?? parameter.declarations?.[0] ?? entrySource;
-  const propsType = checker.getTypeOfSymbolAtLocation(parameter, location);
+  const propsType = checker.getUnionType(
+    signatures.map((signature) => {
+      const parameter = signature.getParameters()[0];
+      const declaration = parameter.valueDeclaration ?? parameter.declarations?.[0] ?? entrySource;
+      return checker.getTypeOfSymbolAtLocation(parameter, declaration);
+    }),
+  );
   const candidates = propsType.isUnion() ? propsType.types : [propsType];
   const propertyMap = new Map();
   for (const candidate of candidates) {
@@ -491,57 +634,82 @@ function componentProps(symbol, signature, componentName) {
     });
     const type =
       propertyTypes.length === 1 ? propertyTypes[0] : checker.getUnionType(propertyTypes);
-    const required = properties.some((property) => !(property.flags & ts.SymbolFlags.Optional));
+    const required = candidates.every((candidate) => {
+      const property = candidate.getProperty(name);
+      return property && !(property.flags & ts.SymbolFlags.Optional);
+    });
     const schema = propertySchema(name, type, required);
     schema.hostProp =
       name !== "children" &&
       !properties.some((property) => property.declarations?.some(isUiDeclaration));
     schemas.push(schema);
-    if (!schema.hostProp || required) initialProps[name] = sampleValue(name, componentName, type);
+    if (required) initialProps[name] = sampleValue(name, componentName, type);
   }
 
   Object.assign(initialProps, sampleOverrides[componentName] ?? {});
   return { schemas, initialProps };
 }
 
-const components = checker
-  .getExportsOfModule(entrySymbol)
-  .map((symbol) => {
-    if (!COMPONENT_NAME_PATTERN.test(symbol.name) || EXCLUDED_PREVIEW_COMPONENTS.has(symbol.name))
-      return null;
+const publicExports = new Map(
+  checker.getExportsOfModule(entrySymbol).map((symbol) => [symbol.name, symbol]),
+);
+const components = Object.entries(COMPONENT_GROUPS).flatMap(([group, names]) =>
+  names.map((name) => {
+    const symbol = publicExports.get(name);
+    if (!symbol) throw new Error(`Gallery component ${name} is not publicly exported`);
     const signature = componentSignature(symbol);
-    if (!signature) return null;
-    const { schemas, initialProps } = componentProps(symbol, signature.signature, symbol.name);
+    if (!signature) throw new Error(`Gallery component ${name} has no React signature`);
+    const { schemas, initialProps } = componentProps(symbol, signature.signatures, name);
     return {
-      name: symbol.name,
+      name,
+      group,
       schemas,
       initialProps,
-      description: previewDescriptions[symbol.name],
-      previewKind: previewKinds[symbol.name],
+      description: previewDescriptions[name],
+      previewKind: previewKinds[name],
+      previewProperty: PREVIEW_PROPERTIES[name],
     };
-  })
-  .filter(Boolean)
-  .sort((left, right) => left.name.localeCompare(right.name));
+  }),
+);
 
 const imports = `import {\n${components.map(({ name }) => `  ${name},`).join("\n")}\n} from "@xprite/ui";`;
 const data = components
-  .map(({ name, schemas, initialProps, description, previewKind }) => {
+  .map(({ name, group, schemas, initialProps, description, previewKind, previewProperty }) => {
     const serializedSchemas = JSON.stringify(schemas, null, 2).replace(/^/gm, "    ");
     const serializedProps = JSON.stringify(initialProps, null, 2).replace(/^/gm, "    ");
     const serializedDescription = description
       ? `\n    description: ${JSON.stringify(description)},`
       : "";
+    const serializedPreviewProperty = previewProperty
+      ? `\n    previewProperty: ${JSON.stringify(previewProperty)},`
+      : "";
     const serializedPreviewKind = previewKind
       ? `\n    previewKind: ${JSON.stringify(previewKind)},`
       : "";
-    return `  {\n    name: ${JSON.stringify(name)},\n    component: ${name} as unknown as ComponentType<Record<string, unknown>>,\n    props: ${serializedSchemas},\n    initialProps: ${serializedProps},${serializedDescription}${serializedPreviewKind}\n  },`;
+    return `  {\n    name: ${JSON.stringify(name)},\n    group: GalleryComponentGroup.${group},\n    component: ${name} as unknown as ComponentType<Record<string, unknown>>,\n    props: ${serializedSchemas},\n    initialProps: ${serializedProps},${serializedDescription}${serializedPreviewKind}${serializedPreviewProperty}\n  },`;
   })
   .join("\n");
 
-const output = `// Generated from the public React components and prop types in packages/ui/src/components/index.ts.\n// Run pnpm gallery:generate to refresh.\nimport type { ComponentType } from "react";\n${imports}\n\nexport interface GalleryPropSchema {\n  name: string;\n  kind: "string" | "number" | "boolean" | "enum" | "array" | "callback" | "node" | "json";\n  required: boolean;\n  hostProp: boolean;\n  type: string;\n  options?: readonly (string | number)[];\n}\n\nexport interface GalleryComponentDefinition {\n  name: string;\n  component: ComponentType<Record<string, unknown>>;\n  props: readonly GalleryPropSchema[];\n  initialProps: Record<string, unknown>;\n  description?: string;\n  previewKind?: string;\n}\n\nexport const generatedUIComponents: readonly GalleryComponentDefinition[] = [\n${data}\n];\n`;
+const output = `// Generated from the public React components and prop types in packages/ui/src/components/index.ts.\n// Run pnpm gallery:generate to refresh.\nimport type { ComponentType } from "react";\n${imports}\n\nexport interface GalleryPropSchema {\n  name: string;\n  kind: "string" | "number" | "boolean" | "enum" | "array" | "callback" | "node" | "json";\n  required: boolean;\n  hostProp: boolean;\n  type: string;\n  options?: readonly (string | number)[];\n}\n\nexport enum GalleryComponentGroup {\n  Controls = "Controls",\n  Typography = "Typography",\n  Containers = "Containers",\n  Navigation = "Navigation",\n  Overlays = "Overlays",\n  Media = "Media",\n}\n\nexport interface GalleryComponentDefinition {\n  group: GalleryComponentGroup;\n  previewProperty?: string;\n  name: string;\n  component: ComponentType<Record<string, unknown>>;\n  props: readonly GalleryPropSchema[];\n  initialProps: Record<string, unknown>;\n  description?: string;\n  previewKind?: string;\n}\n\nexport const generatedUIComponents: readonly GalleryComponentDefinition[] = [\n${data}\n];\n`;
 
 await mkdir(dirname(outputPath), { recursive: true });
 await writeFile(outputPath, output);
+await mkdir(dirname(routesPath), { recursive: true });
+await writeFile(
+  routesPath,
+  `${JSON.stringify(
+    [
+      "/gallery/",
+      "/gallery/icons",
+      ...components.map(
+        ({ name }) =>
+          `/gallery/components/${name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase()}`,
+      ),
+    ],
+    null,
+    2,
+  )}\n`,
+);
 execFileSync("pnpm", ["exec", "oxfmt", "--config", "infra/oxfmt.json", "--write", outputPath], {
   cwd: repositoryRoot,
   stdio: "ignore",

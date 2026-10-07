@@ -9,27 +9,27 @@
 }
 
 .positioned[data-font="default"] {
-  font-size: var(--ui-text-size, var(--ui-text-default-size, 14px));
-  line-height: var(--ui-text-size, var(--ui-text-default-size, 14px));
+  font-size: var(--ui-text-size, var(--ui-text-default-size));
+  line-height: var(--ui-text-size, var(--ui-text-default-size));
 }
 
 .positioned[data-font="mini"] {
-  font-size: var(--ui-text-mini-size, 12px);
-  line-height: var(--ui-text-mini-line, 10px);
+  font-size: var(--ui-text-mini-size);
+  line-height: var(--ui-text-mini-line);
 }
 
 .miniLatin,
 .miniCjk {
-  line-height: var(--ui-text-mini-line, 10px);
+  line-height: var(--ui-text-mini-line);
 }
 
 .miniLatin {
-  font-size: var(--ui-text-mini-cjk-size, 10px);
+  font-size: var(--ui-text-mini-cjk-size);
   font-family: sans-serif;
 }
 
 .miniCjk {
-  font-size: var(--ui-text-mini-cjk-size, 10px);
+  font-size: var(--ui-text-mini-cjk-size);
 }
 
 .miniGlyph {

@@ -4,7 +4,8 @@ import { themeControlSize } from "$/base/components/theme-controls";
 import { useTheme } from "$/base/theme/theme-context";
 import { cn } from "$/base/utils/cn";
 import { ButtonControl } from "$/components/button/ButtonControl";
-import type { ButtonProps } from "$/components/button/types";
+import { ButtonAppearance, type ButtonProps } from "$/components/button/types";
+import { SplitButtonSurface } from "$/components/button/variants/split/SplitButtonSurface";
 import { DEFAULT_SURFACE_VIEWPORT, surfaceLayout } from "$/components/canvas-surface";
 import { RASTER_SCALE } from "$/components/canvas-surface/metrics";
 import { Menu } from "$/components/menu";
@@ -32,6 +33,22 @@ export const SplitButtonContent = forwardRef<HTMLButtonElement, SplitButtonConte
     ref,
   ) {
     const { definition: theme, translateSource } = useTheme();
+    if (props.slots !== undefined || props.appearance === ButtonAppearance.Quiet)
+      return (
+        <SplitButtonSurface
+          {...props}
+          ref={ref}
+          slots={props.slots ?? {}}
+          bounds={suppliedBounds}
+          pixelSize={pixelSize}
+          relativeTo={relativeTo}
+          viewport={viewport}
+          menu={menu}
+          disabled={disabled}
+          style={style}
+          className={className}
+        />
+      );
     const expandWidth = Math.max(0, menu?.expandWidth ?? EXPAND_BUTTON_WIDTH);
     const measuredSize = themeControlSize(
       theme,
@@ -91,7 +108,10 @@ export const SplitButtonContent = forwardRef<HTMLButtonElement, SplitButtonConte
               hotPart="drop_down_button_right_hot"
               pushedPart="drop_down_button_right_selected"
               focusedPart="drop_down_button_right_focused"
-              selectedPart="drop_down_button_right_selected"
+              selectedPart={
+                theme.controlParts?.splitButton?.arrowOpen ?? "drop_down_button_right_selected"
+              }
+              selected={!!trigger["aria-expanded"] && !!theme.controlParts?.splitButton?.arrowOpen}
               icon={menuDisabled ? "combobox_arrow_down_disabled" : "combobox_arrow_down"}
               selectedIcon="combobox_arrow_down_selected"
             />

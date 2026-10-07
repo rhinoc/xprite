@@ -6,12 +6,19 @@ import {
   ToolGradientType as GradientType,
   TOOL_CONTROL_CHANNEL_MAX as UINT8_MAX,
 } from "$/managers/tools/tool-options";
-import { ControlFlowItem } from "@xprite/ui";
-import { Button, Input, InputTouchActivation, Label } from "@xprite/ui";
-import { Combobox } from "@xprite/ui";
-import { Checkbox } from "@xprite/ui";
-import { Slider, SliderVariant } from "@xprite/ui";
-import { Tooltip } from "@xprite/ui";
+import {
+  ControlFlowItem,
+  Text,
+  TextVariant,
+  Button,
+  Input,
+  InputTouchActivation,
+  Combobox,
+  Checkbox,
+  Slider,
+  SliderVariant,
+  Tooltip,
+} from "@xprite/ui";
 import type { SurfaceBounds, SurfaceViewport } from "@xprite/ui";
 
 interface GradientOptionsProps {
@@ -126,7 +133,13 @@ export function GradientContextBar({
   return (
     <>
       <ControlFlowItem>
-        <Label {...common} bounds={bounds(2, 90)} text="Tolerance:" font="mini" />
+        <Text
+          variant={TextVariant.Control}
+          {...common}
+          bounds={bounds(2, 90)}
+          text="Tolerance:"
+          font="mini"
+        />
       </ControlFlowItem>
       <ControlFlowItem>
         <Input
@@ -165,7 +178,13 @@ export function GradientContextBar({
       </ControlFlowItem>
       <GradientOptions {...common} {...gradient} bounds={bounds(332, 342)} />
       <ControlFlowItem>
-        <Label {...common} bounds={bounds(684, 68)} text="Opacity:" font="mini" />
+        <Text
+          variant={TextVariant.Control}
+          {...common}
+          bounds={bounds(684, 68)}
+          text="Opacity:"
+          font="mini"
+        />
       </ControlFlowItem>
       <ControlFlowItem>
         <Slider

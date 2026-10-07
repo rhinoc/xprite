@@ -67,6 +67,7 @@ import { layerEditable } from "$/timeline/timeline";
 import { LAYER_REFERENCE, type SpriteTimeline } from "$/timeline/timeline";
 
 export interface EditorCompositionHost {
+  getPresentationInput(): { document: EditorDocument } | null;
   kernel: EditorKernel;
   getDocument(): EditorDocument | null;
   getSettings(): ToolSettings;
@@ -704,6 +705,8 @@ class EditorComposition {
     this.canvas = new CanvasController({
       getDocument: () => this.doc,
       getPreviewInput: () => {
+        const presentation = this.host.getPresentationInput();
+        if (presentation) return presentation;
         const multi = this.clipboard.previewMultiCelSelectionTransform();
         return multi ? { document: multi } : this.drawing.runtime.previewInput();
       },

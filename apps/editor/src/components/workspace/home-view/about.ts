@@ -2,7 +2,7 @@ import type { HomeViewFooterSegment } from "$/components/workspace/home-view-bas
 import { EDITOR_EXTERNAL_LINKS } from "$/config/external-links";
 import { tUi } from "$/i18n";
 
-const XPRITE_PRODUCT_NAME = "Xprite";
+const AUTHOR_PREFIX = "by";
 
 const XPRITE_GITHUB_PROFILE = {
   handle: "rhinoc",
@@ -11,7 +11,7 @@ const XPRITE_GITHUB_PROFILE = {
 
 export interface EditorHomeAbout {
   attribution: readonly HomeViewFooterSegment[];
-  versionFooter: readonly HomeViewFooterSegment[];
+  footerSegments: readonly HomeViewFooterSegment[];
   repositoryHref: string;
   profile: string;
   profileHref: string;
@@ -19,12 +19,10 @@ export interface EditorHomeAbout {
 
 export function getEditorHomeAbout(): EditorHomeAbout {
   return {
-    attribution: [
-      { text: XPRITE_PRODUCT_NAME, href: EDITOR_EXTERNAL_LINKS.xpriteRepository },
-      { text: tUi("ui.about.by") },
-    ],
-    versionFooter: [
-      { text: `${XPRITE_PRODUCT_NAME} v${__XPRITE_VERSION__}` },
+    attribution: [{ text: `${AUTHOR_PREFIX} ` }],
+    footerSegments: [
+      { text: AUTHOR_PREFIX },
+      { text: XPRITE_GITHUB_PROFILE.handle, href: XPRITE_GITHUB_PROFILE.href, separator: false },
       { text: tUi("ui.home.license"), href: EDITOR_EXTERNAL_LINKS.xpriteLicense },
       { text: tUi("ui.home.credits"), href: EDITOR_EXTERNAL_LINKS.xpriteCredits },
     ],

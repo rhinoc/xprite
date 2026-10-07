@@ -1,12 +1,19 @@
 import * as React from "react";
 
 import { entrySelection } from "$/base/controls/control-policy";
-import { themeGlyphAssets } from "$/base/theme/theme-assets";
+import { paintPartSurface } from "$/base/theme/paint-part-surface";
+import {
+  glyphSets,
+  isCjkGlyph,
+  measureThemeText,
+  themeFontHeight,
+  useThemeText,
+  centerThemePixel,
+} from "$/base/theme/text-metrics";
 import {
   getThemeAssets,
   preloadThemeAssets,
   subscribeThemeAssets,
-  themeAssetsRevision,
   type UiAssetBundle,
   type UiBitmap,
 } from "$/base/theme/theme-assets-store";
@@ -19,29 +26,17 @@ import {
 import { ThemePart, type AtlasPartName, type UiPartName } from "$/base/theme/theme-part";
 import { themeTextCache } from "$/base/theme/theme-text-cache";
 import { cn } from "$/base/utils/cn";
-import {
-  borderSize,
-  computedStyle,
-  observeElementSize,
-  rangeRect,
-} from "$/base/utils/dom-geometry";
+import { borderSize, observeElementSize, rangeRect } from "$/base/utils/dom-geometry";
 import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
 import { UINT8_MAX } from "$/base/utils/numeric-constants";
-import {
-  surfaceLayout,
-  DEFAULT_SURFACE_VIEWPORT,
-  type SurfaceViewport,
-} from "$/components/canvas-surface";
+import { surfaceLayout, DEFAULT_SURFACE_VIEWPORT } from "$/components/canvas-surface";
 import { RASTER_SCALE } from "$/components/canvas-surface/metrics";
 import type { ControlPlacement } from "$/components/control-flow/placement";
+import { useFieldControl } from "$/components/field/Field";
 import { InputTouchActivation, useInputTouchActivation } from "$/components/input/touch-activation";
 import { Text, TextVariant, type PixelFont } from "$/components/text";
 
 import styles from "$/base/components/theme-controls.module.css";
-
-const { defaultGlyphMetrics: defaultGlyphData, miniGlyphMetrics: miniGlyphData } = themeGlyphAssets;
-// Aseprite's text clip leaves one GUI unit of vertical ink tolerance.
-const CJK_LABEL_GLYPH_BLEED = 1;
 
 export { getThemeAssets, preloadThemeAssets };
 export type { UiAssetBundle, UiBitmap };
@@ -49,76 +44,25 @@ export type { UiAssetBundle, UiBitmap };
 export function useThemeAssets(variant?: UiAppearance): UiAssetBundle | null {
   const context = useTheme();
   const requestedVariant = variant ?? context.variant;
-  React.useSyncExternalStore(subscribeThemeAssets, themeAssetsRevision, themeAssetsRevision);
-  const [loaded, setLoaded] = React.useState<UiAssetBundle | null>(() =>
-    getThemeAssets(requestedVariant),
+  const subscribe = React.useCallback(
+    (listener: () => void) => subscribeThemeAssets(requestedVariant, context.uiTheme, listener),
+    [requestedVariant, context.uiTheme],
   );
+  const getSnapshot = React.useCallback(
+    () => getThemeAssets(requestedVariant, context.uiTheme),
+    [requestedVariant, context.uiTheme],
+  );
+  const assets = React.useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
   React.useEffect(() => {
-    let active = true;
-    void preloadThemeAssets(requestedVariant, context.language)
-      .then((result) => {
-        if (active) setLoaded(result);
-      })
-      .catch((error) => console.error(error));
-    return () => {
-      active = false;
-    };
-  }, [requestedVariant, context.language]);
-  const assets =
-    getThemeAssets(requestedVariant) ?? (loaded?.variant === requestedVariant ? loaded : null);
+    void preloadThemeAssets(requestedVariant, context.language, context.uiTheme).catch((error) =>
+      console.error(error),
+    );
+  }, [requestedVariant, context.language, context.uiTheme]);
   return React.useMemo(
     () => (assets ? { ...assets, language: context.language } : null),
     [assets, context.language],
   );
 }
-const glyphSets = {
-  default: defaultGlyphData as Record<string, number[]>,
-  mini: miniGlyphData as Record<string, number[]>,
-};
-/** CJK uses the same em/advance as the selected Aseprite atlas at this scale. */
-function cjkFallbackAdvance(font: PixelFont, scale = 2) {
-  return themeFontHeight(font, scale);
-}
-function isCjkGlyph(codepoint: number) {
-  return (
-    (codepoint >= 0x2e80 && codepoint <= 0x2fff) ||
-    (codepoint >= 0x3000 && codepoint <= 0x30ff) ||
-    (codepoint >= 0x3100 && codepoint <= 0x31ff) ||
-    (codepoint >= 0x3400 && codepoint <= 0x4dbf) ||
-    (codepoint >= 0x4e00 && codepoint <= 0x9fff) ||
-    (codepoint >= 0xac00 && codepoint <= 0xd7ff) ||
-    (codepoint >= 0xf900 && codepoint <= 0xfaff) ||
-    (codepoint >= 0xfe30 && codepoint <= 0xfe4f) ||
-    (codepoint >= 0xff00 && codepoint <= 0xffef) ||
-    (codepoint >= 0x20000 && codepoint <= 0x323af)
-  );
-}
-export function measureThemeText(text: string, font: PixelFont = "default", scale = 2) {
-  return [...text].reduce((width, char) => {
-    const codepoint = char.codePointAt(0)!;
-    const glyph = glyphSets[font][String(codepoint)];
-    return (
-      width +
-      (glyph
-        ? glyph[2] * scale
-        : isCjkGlyph(codepoint)
-          ? cjkFallbackAdvance(font, scale)
-          : (glyphSets[font]["63"]?.[2] ?? 4) * scale)
-    );
-  }, 0);
-}
-export function centerThemePixel(position: number, size: number, itemSize: number, scale = 2) {
-  return (
-    (Math.trunc(position / scale) +
-      Math.trunc(Math.trunc(size / scale) / 2) -
-      Math.trunc(Math.trunc(itemSize / scale) / 2)) *
-    scale
-  );
-}
-export function themeFontHeight(font: PixelFont = "default", scale = 2) {
-  return (glyphSets[font]["32"]?.[3] ?? 7) * scale;
-}
-
 const cjkPixelGlyphCache = new Map<string, HTMLCanvasElement>();
 const CJK_PIXEL_GLYPH_CACHE_LIMIT = 512;
 const CJK_PIXEL_COVERAGE_THRESHOLD = 64;
@@ -204,7 +148,18 @@ export function paintThemePart(
   } = {},
 ) {
   const source = assets.theme.parts[part];
-  const scale = options.scale ?? 2;
+  if (
+    source.surface &&
+    paintPartSurface(context, source.surface, assets.theme.colors, x, y, width, height, {
+      face: options.fill
+        ? remapThemeColor(options.fill, assets.theme, assets.variant, assets.lightThemeColorRoles)
+        : undefined,
+      ink: options.color,
+      drawCenter: options.drawCenter,
+    })
+  )
+    return;
+  const scale = options.scale ?? source.paintScale ?? 2;
   const bitmap = options.color ? tint(assets.sheet, options.color) : assets.sheet;
   context.imageSmoothingEnabled = false;
   if (options.fill) {
@@ -295,9 +250,12 @@ export function paintThemeIcon(
 ) {
   const source = assets.theme.parts[part];
   const scale = options.scale ?? 2;
+  const color =
+    options.color ??
+    (source.foregroundRole ? assets.theme.colors[source.foregroundRole] : undefined);
   context.imageSmoothingEnabled = false;
   context.drawImage(
-    options.color ? tint(assets.sheet, options.color) : assets.sheet,
+    color ? tint(assets.sheet, color) : assets.sheet,
     source.x,
     source.y,
     source.width,
@@ -318,6 +276,21 @@ export function paintThemeText(
 ) {
   const font = options.font ?? "default",
     scale = options.scale ?? 2;
+  const metrics = assets.theme.typography?.[font];
+  if (metrics) {
+    context.save();
+    context.font = `${(metrics.fontSize * scale) / RASTER_SCALE}px ${metrics.fontFamily}, FusionPixelZhHans, monospace`;
+    context.textAlign = "left";
+    context.textBaseline = "middle";
+    context.fillStyle = options.color ?? assets.theme.colors.text;
+    context.fillText(
+      text,
+      Math.floor(x),
+      Math.floor(y + (metrics.lineHeight * scale) / RASTER_SCALE / 2),
+    );
+    context.restore();
+    return;
+  }
   const image = tint(
     font === "mini" ? assets.miniFont : assets.defaultFont,
     options.color ?? assets.theme.colors.text,
@@ -363,7 +336,7 @@ export function paintThemeText(
     const codepoint = char.codePointAt(0)!;
     const glyph = glyphSets[font][String(codepoint)];
     if (!glyph && isCjkGlyph(codepoint)) {
-      const fallbackAdvance = cjkFallbackAdvance(font, scale);
+      const fallbackAdvance = themeFontHeight(font, scale);
       const bitmap = cjkPixelGlyph(
         char,
         font,
@@ -395,7 +368,7 @@ export function paintThemeText(
 
 /** Theme::calcWidgetMetrics: content plus atlas borders in painter units. */
 export function themeControlSize(
-  theme: Pick<UiStyleDefinition, "parts">,
+  theme: Pick<UiStyleDefinition, "parts" | "typography">,
   part: AtlasPartName,
   text = "",
   font: PixelFont = "default",
@@ -410,185 +383,23 @@ export function themeControlSize(
     width:
       Math.max(
         frame?.width ?? 0,
-        borderWidth + Math.max(measureThemeText(text, font, 1), glyph?.width ?? 0),
+        borderWidth +
+          Math.max(measureThemeText(text, font, 1, theme.typography), glyph?.width ?? 0),
       ) * RASTER_SCALE,
     height:
       Math.max(
         frame?.height ?? 0,
-        borderHeight + Math.max(themeFontHeight(font, 1), glyph?.height ?? 0),
+        borderHeight + Math.max(themeFontHeight(font, 1, theme.typography), glyph?.height ?? 0),
       ) * RASTER_SCALE,
   };
-}
-
-interface LabelContentProps extends React.HTMLAttributes<HTMLSpanElement> {
-  viewport?: SurfaceViewport;
-  text: string;
-  font?: PixelFont;
-  color?: string;
-  align?: "left" | "center" | "right";
-  fill?: string;
-  wrap?: boolean;
-}
-
-export type LabelProps = LabelContentProps & ControlPlacement;
-
-let labelTextMetricContext: CanvasRenderingContext2D | null | undefined;
-
-function getLabelTextMetricContext() {
-  if (typeof document === "undefined") return null;
-  if (labelTextMetricContext === undefined) {
-    labelTextMetricContext = document.createElement("canvas").getContext("2d");
-  }
-  return labelTextMetricContext;
-}
-
-export function Label({
-  bounds: suppliedBounds,
-  pixelSize,
-  relativeTo = { x: 0, y: 0 },
-  viewport = DEFAULT_SURFACE_VIEWPORT,
-  text,
-  font = "default",
-  color,
-  align = "left",
-  fill,
-  wrap = false,
-  style,
-  className,
-  ...props
-}: LabelProps) {
-  const { definition: theme, translateSource } = useTheme();
-  const displayText = translateSource(text);
-  const labelRef = React.useRef<HTMLSpanElement>(null);
-  const [inkBounds, setInkBounds] = React.useState<{
-    text: string;
-    font: PixelFont;
-    right: number;
-  } | null>(null);
-  const bounds = suppliedBounds ?? {
-    x: 0,
-    y: 0,
-    width: pixelSize ? pixelSize.width * RASTER_SCALE : measureThemeText(displayText, font),
-    height: pixelSize ? pixelSize.height * RASTER_SCALE : themeFontHeight(font),
-  };
-  React.useLayoutEffect(() => {
-    if (align !== "right") return;
-    let active = true;
-    const measureInkRight = () => {
-      const textElement = labelRef.current?.querySelector<HTMLElement>("[data-font]");
-      const context = getLabelTextMetricContext();
-      if (!textElement || !context) return;
-      const computed = computedStyle(textElement);
-      context.font = computed.font;
-      context.textAlign = "left";
-      context.direction = computed.direction as CanvasDirection;
-      const canvasTextStyles = context as unknown as Record<string, string>;
-      if ("fontKerning" in context) canvasTextStyles.fontKerning = computed.fontKerning;
-      if ("letterSpacing" in context) {
-        canvasTextStyles.letterSpacing =
-          computed.letterSpacing === "normal" ? "0px" : computed.letterSpacing;
-      }
-      if ("wordSpacing" in context) {
-        canvasTextStyles.wordSpacing =
-          computed.wordSpacing === "normal" ? "0px" : computed.wordSpacing;
-      }
-      if ("lang" in context) canvasTextStyles.lang = document.documentElement.lang || "en";
-      const right = context.measureText(displayText).actualBoundingBoxRight;
-      if (Number.isFinite(right)) {
-        setInkBounds((current) =>
-          current?.text === displayText && current.font === font && current.right === right
-            ? current
-            : { text: displayText, font, right },
-        );
-      }
-    };
-    measureInkRight();
-    const fontsReady = typeof document === "undefined" ? undefined : document.fonts?.ready;
-    if (fontsReady) void fontsReady.then(() => active && measureInkRight());
-    return () => {
-      active = false;
-    };
-  }, [align, displayText, font, style, theme]);
-  const ink = color ?? theme.colors.text;
-  const textHeight = themeFontHeight(font);
-  const textY = centerThemePixel(bounds.y, bounds.height, textHeight) - bounds.y;
-  const containsCjk = [...displayText].some((char) => isCjkGlyph(char.codePointAt(0)!));
-  const clipTop = Math.max(0, -textY) + CJK_LABEL_GLYPH_BLEED;
-  const clipBottom = Math.max(0, textY + textHeight - bounds.height) + CJK_LABEL_GLYPH_BLEED;
-  const textX =
-    align === "center"
-      ? centerThemePixel(bounds.x, bounds.width, measureThemeText(displayText, font)) - bounds.x
-      : align === "right"
-        ? bounds.width -
-          (inkBounds?.text === displayText && inkBounds.font === font
-            ? inkBounds.right
-            : measureThemeText(displayText, font))
-        : 0;
-  const layout = surfaceLayout(bounds, viewport);
-  return (
-    <span
-      {...props}
-      ref={labelRef}
-      className={cn(styles.uiLabel, className)}
-      role="img"
-      aria-label={displayText}
-      style={{
-        position: suppliedBounds ? "absolute" : "relative",
-        left: layout.left - Math.floor((relativeTo.x * viewport.width) / viewport.sceneWidth),
-        top: layout.top - Math.floor((relativeTo.y * viewport.height) / viewport.sceneHeight),
-        flex: "0 0 auto",
-        width: layout.width,
-        height: layout.height,
-        pointerEvents: "none",
-        ...style,
-      }}
-    >
-      <span
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          left: 0,
-          top: 0,
-          width: bounds.width,
-          height: bounds.height,
-          overflowX: "clip",
-          overflowY: containsCjk ? "visible" : "clip",
-          clipPath: containsCjk ? `inset(-${clipTop}px 0 -${clipBottom}px 0)` : undefined,
-          background: fill,
-          transform: `scale(${layout.width / bounds.width}, ${layout.height / bounds.height})`,
-          transformOrigin: "top left",
-        }}
-      >
-        <Text
-          variant={TextVariant.PositionedPixel}
-          text={displayText}
-          x={textX}
-          y={textY}
-          font={font}
-          color={ink}
-          style={
-            wrap
-              ? {
-                  left: 0,
-                  width: bounds.width,
-                  whiteSpace: "normal",
-                  overflowWrap: "anywhere",
-                  textAlign: align,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                }
-              : undefined
-          }
-        />
-      </span>
-    </span>
-  );
 }
 
 interface InputContentProps extends Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
   "value" | "onChange" | "size" | "part"
 > {
+  /** Width in theme pixels; keep the skin's natural height. */
+  pixelWidth?: number;
   /** Preferred character capacity, independent of the current draft value. */
   size?: number;
   value: string;
@@ -656,6 +467,7 @@ function measureRenderedEntryOffset(container: HTMLSpanElement, offset: number, 
 export function Input({
   bounds: suppliedBounds,
   pixelSize,
+  pixelWidth,
   relativeTo = { x: 0, y: 0 },
   size = 8,
   value,
@@ -686,7 +498,9 @@ export function Input({
   onClick,
   ...props
 }: InputProps) {
+  const fieldAttributes = useFieldControl(props);
   const { definition: theme, translateSource } = useTheme();
+  const { measureThemeText, themeFontHeight } = useThemeText();
   const activation = useInputTouchActivation(touchActivation, !!props.readOnly, onTouchTap);
   const [draft, setDraft] = React.useState(value);
   const leadingLayer = React.useRef<HTMLSpanElement>(null);
@@ -702,7 +516,7 @@ export function Input({
     update(borderSize(layer));
     return observeElementSize(layer, update);
   }, [hasLeading]);
-  const contentInset = suppliedTextInset ?? INPUT_TEXT_INSET;
+  const contentInset = suppliedTextInset ?? theme.dimensions.input_text_inset ?? INPUT_TEXT_INSET;
   const textInset = contentInset + (hasLeading ? leadingWidth + INPUT_LEADING_GAP : 0);
   const measuredText = "0".repeat(Math.max(1, size)) + suffix;
   const measuredSize = themeControlSize(
@@ -716,7 +530,11 @@ export function Input({
     x: 0,
     y: 0,
     ...measuredSize,
-    ...(hasLeading ? { width: Math.max(measuredSize.width, contentMinimumWidth) } : {}),
+    height: theme.dimensions.input_height ?? measuredSize.height,
+    ...(pixelWidth !== undefined ? { width: pixelWidth * RASTER_SCALE } : {}),
+    ...(hasLeading && pixelWidth === undefined
+      ? { width: Math.max(measuredSize.width, contentMinimumWidth) }
+      : {}),
     ...(pixelSize
       ? {
           width: pixelSize.width * RASTER_SCALE,
@@ -766,7 +584,10 @@ export function Input({
       : focused
         ? "sunken_focused"
         : "sunken_normal")) as AtlasPartName;
-  const textY = centerThemePixel(bounds.y, bounds.height, 14) - bounds.y;
+  const textY =
+    centerThemePixel(bounds.y, bounds.height, 14) -
+    bounds.y +
+    (theme.dimensions.input_text_offset_y ?? 0);
   const range = entrySelection(draft, selection.start, selection.end);
   const [textPositions, setTextPositions] = React.useState<EntryTextPositions | null>(null);
   React.useLayoutEffect(() => {
@@ -845,9 +666,11 @@ export function Input({
             x={textInset - 4}
             y={textY - 4}
             color={
-              props.disabled || showingPlaceholder
+              props.disabled
                 ? theme.colors.disabled
-                : (theme.colors.textbox_text ?? theme.colors.text)
+                : showingPlaceholder
+                  ? (theme.colors.textbox_placeholder_text ?? theme.colors.disabled)
+                  : (theme.colors.textbox_text ?? theme.colors.text)
             }
           />
           {range.selected && !props.disabled && (
@@ -899,9 +722,10 @@ export function Input({
           data-slot="input-leading"
           style={{
             left: contentInset,
-            color:
-              props.disabled || showingPlaceholder
-                ? theme.colors.disabled
+            color: props.disabled
+              ? theme.colors.disabled
+              : showingPlaceholder
+                ? (theme.colors.textbox_placeholder_text ?? theme.colors.disabled)
                 : (theme.colors.textbox_text ?? theme.colors.text),
           }}
         >
@@ -910,6 +734,7 @@ export function Input({
       )}
       <input
         {...props}
+        {...fieldAttributes}
         readOnly={activation.readOnly}
         style={{ paddingLeft: textInset }}
         aria-label={props["aria-label"] ? translateSource(props["aria-label"]!) : undefined}

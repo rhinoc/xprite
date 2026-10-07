@@ -1,0 +1,50 @@
+{
+  "name": "iPhone 15 Pro Max",
+  "uid": "5b7b35513a154ac69619dc2b2fe15686",
+  "license": {
+    "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+    "label": "CC Attribution",
+    "fullName": "Creative Commons Attribution",
+    "requirements": "Author must be credited. Commercial use is allowed.",
+    "url": "http://creativecommons.org/licenses/by/4.0/",
+    "slug": "by"
+  },
+  "user": {
+    "uid": "d4a90097a3d54b6f83605e42ac06b6e3",
+    "username": "MG990",
+    "displayName": "MajdyModels",
+    "account": "basic",
+    "profileUrl": "https://sketchfab.com/MG990",
+    "avatar": {
+      "uid": "bdbb5cf6dc23424aa84c62c839f1d213",
+      "uri": "https://api.sketchfab.com/v3/avatars/bdbb5cf6dc23424aa84c62c839f1d213",
+      "images": [
+        {
+          "width": 32,
+          "height": 32,
+          "size": 670,
+          "url": "https://media.sketchfab.com/avatars/bdbb5cf6dc23424aa84c62c839f1d213/da78577a4fca4971a352cb7accf235cb.png"
+        },
+        {
+          "width": 48,
+          "height": 48,
+          "size": 1092,
+          "url": "https://media.sketchfab.com/avatars/bdbb5cf6dc23424aa84c62c839f1d213/06d3c4c0d9da4fb98c2185efc5a7e7bc.png"
+        },
+        {
+          "width": 90,
+          "height": 90,
+          "size": 3096,
+          "url": "https://media.sketchfab.com/avatars/bdbb5cf6dc23424aa84c62c839f1d213/a76b9338e734479f982ea95fb210b97e.png"
+        },
+        {
+          "width": 100,
+          "height": 100,
+          "size": 3566,
+          "url": "https://media.sketchfab.com/avatars/bdbb5cf6dc23424aa84c62c839f1d213/381807ab19a04bab9efc99e21a9fc739.png"
+        }
+      ]
+    },
+    "uri": "https://api.sketchfab.com/v3/users/d4a90097a3d54b6f83605e42ac06b6e3"
+  }
+}

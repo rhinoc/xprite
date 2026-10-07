@@ -12,6 +12,11 @@ baselines. The old Aseprite screenshot comparison workflow has been retired.
 For unrelated PNG or sprite comparisons, use the standalone comparator.
 Both use the repository's existing `pixelmatch` and `pngjs` dependencies.
 Preserve captures exactly: do not resize, mask, or rewrite candidate pixels.
+Capture scripts reuse `scripts/base/screenshot.mjs`: native compositor pixels,
+measured DPR, CSS crop and output-dimension checks, font readiness, and PNG color
+metadata. The current Xprite regression contract remains DPR 1. Acceptance
+screenshots keep the device's actual DPR and separate pixel/display dimensions.
+PNG comparisons reject changed color-space metadata; diagnostic PNGs retain it.
 
 ## Audit Xprite's current UI
 
@@ -33,6 +38,12 @@ use mouse input; they do not certify touch interaction.
 Chinese baselines and provenance live in `scripts/visual-audit/baselines/xprite/zh/`;
 English baselines and their own manifest live in `scripts/visual-audit/baselines/xprite/en/`.
 README images reference the editor baseline PNGs directly.
+Run `pnpm run visual:report` to open a portable image comparison in
+`.tmp/visual-report/index.html`. It embeds baseline, candidate, and red diff PNGs
+and lists changed geometry, scores, capture times, and incomplete or stale
+evidence. Capture and compare commands also refresh it on completion or failure;
+the report never changes baseline pixels or gate results.
+
 Candidates, per-scene diff PNGs, and `comparison.json` are written to
 `.tmp/xprite-visual/zh/` and `.tmp/xprite-visual/en/`. `comparison-all.json` at the root summarizes
 both languages. Captures stay in the background and require two consecutive identical
@@ -62,6 +73,13 @@ skill before browser capture. Keep Aseprite file/algorithm compatibility checks,
 widget geometry fixtures, and runtime font/theme resources separate from this
 UI regression workflow.
 
+## Tool SSG and hydration
+
+Run `pnpm run visual:startup` for all 32 tool first-paint pairs. SSG and hydrated
+views require identical decoded RGBA pixels (100% similarity), matching color
+metadata and unchanged region geometry. This gate has no tolerance, masks or
+scene exclusions. It is separate from the editor’s approved 99% baseline gate.
+
 ## Compare two images
 
 From the repository root, run:
@@ -72,7 +90,8 @@ node .agents/skills/pixel-to-pixel-analysis/scripts/pixel-diff.mjs \
   --threshold 0.1
 ```
 
-The command writes a red-marked diff PNG and prints JSON containing dimensions,
+The command writes a red-marked diff PNG and an accompanying portable HTML report
+(`.tmp/pixel-diff.html` for the default output), then prints JSON containing dimensions,
 different pixel count, total pixels, and difference percentage. Exit status is
 `0` only when no pixels differ at the selected threshold; a nonzero status means
 the images differ or the inputs are invalid.

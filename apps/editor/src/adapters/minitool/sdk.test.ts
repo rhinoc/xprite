@@ -96,8 +96,9 @@ it("cleans a failed append, keeps the previous head, and allows retry", async ()
 
 it("removes unpublished project data if catalog publication exceeds quota", async () => {
   const { files, storage, quota } = await container();
-  const { MiniToolProjectRepository } = await import("$/adapters/minitool/project-repository");
-  const repository = new MiniToolProjectRepository();
+  const { createMiniToolProjectStorage } = await import("$/adapters/minitool/project-storage");
+  const { ProjectRepository } = await import("$/managers/storage/project-repository");
+  const repository = new ProjectRepository(createMiniToolProjectStorage());
   const original = new Uint8Array([1, 2, 3]);
   const record = await repository.save({
     projectId: "project",
@@ -121,4 +122,39 @@ it("removes unpublished project data if catalog publication exceeds quota", asyn
   expect(files).toEqual(savedFiles);
   expect(storage).toEqual(savedStorage);
   expect((await repository.load("project"))?.bytes).toEqual(original);
+});
+
+it("recovers a previous snapshot for explicit missing files and preserves permission failures", async () => {
+  const { api, storage, quota } = await container();
+  quota.limitBytes = 16 * 1024;
+  const { createMiniToolProjectStorage } = await import("$/adapters/minitool/project-storage");
+  const { ProjectRepository } = await import("$/managers/storage/project-repository");
+  const repository = new ProjectRepository(createMiniToolProjectStorage());
+  const input = {
+    projectId: "project",
+    bytes: new Uint8Array([1, 2, 3]),
+    metadata: { name: "Project" },
+  };
+  const first = await repository.save({ ...input, expectedHead: null });
+  const second = await repository.save({
+    ...input,
+    bytes: new Uint8Array([4, 5, 6]),
+    expectedHead: first.head.id,
+  });
+  const payloadId = second.head.parts?.[0].id ?? second.head.id;
+  const pointer = JSON.parse(storage.get(`xprite:v1:file:snapshot:${payloadId}`)!);
+  const readFile = api.readFile;
+  let code = "ENOENT";
+  api.readFile = async (options) => {
+    if (options.filePath === pointer.filePath) throw { code, errMsg: "readFile failed" };
+    return readFile(options);
+  };
+
+  const recovered = await repository.load("project");
+  expect(recovered?.recovered).toBe(true);
+  expect(recovered?.bytes).toEqual(input.bytes);
+
+  code = "EACCES";
+  await expect(repository.load("project")).rejects.toThrow("readFile failed");
+  repository.close();
 });

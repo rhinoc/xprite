@@ -82,30 +82,22 @@
   padding-inline: var(--ui-space-4, 8px);
 }
 
-.identityAuthor,
 .identityActions {
   display: flex;
   min-width: 0;
-  align-items: center;
-  gap: var(--ui-space-2, 4px);
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--ui-space-1, 2px);
 }
 
-.identityAuthor > button,
-.identityAuthor > a,
 .identityActions > button,
 .identityActions > a {
   height: 28px;
 }
 
-.identityAuthor {
-  padding-inline: var(--ui-space-2, 4px);
-}
-
-.identityActions {
-  gap: var(--ui-space-6, 12px);
-}
-
 .starLink {
+  white-space: nowrap;
+  flex-shrink: 0;
   padding-inline: var(--ui-space-2, 4px);
 }
 

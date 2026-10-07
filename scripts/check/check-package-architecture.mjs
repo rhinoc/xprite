@@ -9,6 +9,16 @@ const dependencyCruiserCli = path.join(
 );
 const scopes = [
   {
+    name: "editor-ui",
+    tsConfig: "packages/editor-ui/tsconfig.json",
+    sources: ["packages/editor-ui/src"],
+  },
+  {
+    name: "share-service",
+    tsConfig: "services/share/tsconfig.json",
+    sources: ["services/share/src"],
+  },
+  {
     name: "bedrock",
     tsConfig: "packages/bedrock/tsconfig.browser.json",
     sources: ["packages/bedrock/browser", "packages/bedrock/common"],
@@ -27,6 +37,11 @@ const scopes = [
     name: "editor-app",
     tsConfig: "apps/editor/tsconfig.json",
     sources: ["apps/editor/src"],
+  },
+  {
+    name: "tools-app",
+    tsConfig: "apps/tools/tsconfig.json",
+    sources: ["apps/tools/src"],
   },
 ];
 

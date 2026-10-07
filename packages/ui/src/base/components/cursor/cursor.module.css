@@ -60,3 +60,9 @@
 .cursorScope {
   cursor: var(--ui-cursor-default, default);
 }
+.image {
+  position: absolute;
+  pointer-events: none;
+  image-rendering: pixelated;
+  z-index: 1;
+}

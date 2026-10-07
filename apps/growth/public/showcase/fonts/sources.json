@@ -1,0 +1,17 @@
+[
+  {
+    "family": "Doto",
+    "file": "doto-variable-latin.woff2",
+    "source": "https://fonts.gstatic.com/s/doto/v3/t5tvIRMbNJ6TamLgVke1pKY.woff2",
+    "axes": {
+      "wght": [100, 900],
+      "ROND": [0, 100]
+    },
+    "license": "SIL Open Font License 1.1",
+    "licenseSource": "https://raw.githubusercontent.com/google/fonts/main/ofl/doto/OFL.txt",
+    "licenseFile": "doto-OFL.txt",
+    "downloaded": "2026-10-04",
+    "sha256": "973562ff04b73bcf8f5d3870b90a83aa21dfe124e4eadb0fb76795b0e1fb16b6",
+    "modifications": "None; Google Fonts Latin web subset"
+  }
+]

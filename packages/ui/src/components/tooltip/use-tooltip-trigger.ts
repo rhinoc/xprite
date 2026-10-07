@@ -11,6 +11,7 @@ import {
   autoTooltipPlacement,
   tooltipPosition,
   type TooltipPlacementOption,
+  type TooltipPlacement,
 } from "$/components/tooltip/geometry";
 import { wrapTooltipText } from "$/components/tooltip/text-layout";
 import { subscribeTooltipDismissal } from "$/components/tooltip/tooltip-dismissal";
@@ -23,6 +24,7 @@ import type {
   TooltipGroupState,
   TooltipTriggerProps,
   TooltipTriggerPropsGetter,
+  TooltipTextMetrics,
 } from "$/components/tooltip/types";
 
 interface TooltipTriggerOptions {
@@ -35,6 +37,7 @@ interface TooltipTriggerOptions {
   targetOffsetX?: number;
   measureText: (text: string) => number;
   group: TooltipGroupState | null;
+  textMetrics?: TooltipTextMetrics;
 }
 
 const DEFAULT_TOOLTIP_DELAY = 300;
@@ -57,6 +60,7 @@ export function useTooltipTrigger({
   targetBounds,
   measureText,
   group,
+  textMetrics,
 }: TooltipTriggerOptions) {
   const id = useId();
   const anchor = useRef<HTMLElement | null>(null);
@@ -95,6 +99,10 @@ export function useTooltipTrigger({
     targetBounds?.y,
     targetBounds?.width,
     targetBounds?.height,
+    textMetrics?.lineHeight,
+    textMetrics?.widthPadding,
+    textMetrics?.heightPadding,
+    textMetrics?.pointerSize,
   ]);
 
   const schedule = (target: HTMLElement, wait = delay, ignoreWarmGroup = false) => {
@@ -141,24 +149,58 @@ export function useTooltipTrigger({
         };
         const lines = wrapTooltipText(
           text,
-          Math.max(1, Math.min(maxWidth, workArea.width) - TOOLTIP_WIDTH_PADDING),
+          Math.max(
+            1,
+            Math.min(maxWidth, workArea.width) -
+              (textMetrics?.widthPadding ?? TOOLTIP_WIDTH_PADDING),
+          ),
           measureText,
         );
-        const width = Math.min(
+        const bodyWidth = Math.min(
           workArea.width,
-          Math.max(...lines.map((line) => measureText(line))) + TOOLTIP_WIDTH_PADDING,
+          Math.max(...lines.map((line) => measureText(line))) +
+            (textMetrics?.widthPadding ?? TOOLTIP_WIDTH_PADDING),
         );
-        const height = lines.length * TOOLTIP_LINE_HEIGHT + TOOLTIP_HEIGHT_PADDING;
-        const resolvedPlacement =
+        const bodyHeight =
+          lines.length * (textMetrics?.lineHeight ?? TOOLTIP_LINE_HEIGHT) +
+          (textMetrics?.heightPadding ?? TOOLTIP_HEIGHT_PADDING);
+        const sizeForPlacement = (side: TooltipPlacement) => {
+          const insets =
+            textMetrics?.pointerInsets?.[side] ??
+            textMetrics?.pointerInsets?.[side === "bottom" ? "bottom-left" : "top-left"];
+          if (insets)
+            return {
+              width: Math.min(workArea.width, bodyWidth + insets.left + insets.right),
+              height: bodyHeight + insets.top + insets.bottom,
+            };
+          const pointer = textMetrics?.pointerSize ?? 0;
+          return {
+            width: Math.min(
+              workArea.width,
+              bodyWidth + (side === "left" || side === "right" ? pointer : 0),
+            ),
+            height: bodyHeight + (side.includes("top") || side.includes("bottom") ? pointer : 0),
+          };
+        };
+        let resolvedPlacement =
           placement === "auto"
-            ? autoTooltipPlacement(positionedTargetBounds, { width, height }, workArea)
+            ? autoTooltipPlacement(
+                positionedTargetBounds,
+                { width: bodyWidth, height: bodyHeight },
+                workArea,
+              )
             : placement;
-        const positioned = tooltipPosition(
-          positionedTargetBounds,
-          { width, height },
-          workArea,
-          resolvedPlacement,
-        );
+        let size = sizeForPlacement(resolvedPlacement);
+        let positioned = tooltipPosition(positionedTargetBounds, size, workArea, resolvedPlacement);
+        // A flipped pointer can reserve a different edge or number of pixels.
+        // Fit the actual contour rather than retaining the preferred contour's box.
+        for (let attempt = 0; positioned && attempt < 4; attempt++) {
+          const actualSize = sizeForPlacement(positioned.placement);
+          if (actualSize.width === size.width && actualSize.height === size.height) break;
+          resolvedPlacement = positioned.placement;
+          size = actualSize;
+          positioned = tooltipPosition(positionedTargetBounds, size, workArea, resolvedPlacement);
+        }
         if (!positioned) {
           close();
           return;

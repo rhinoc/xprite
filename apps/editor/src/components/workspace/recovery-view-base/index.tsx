@@ -6,9 +6,9 @@ import {
   Button,
   ButtonVariant,
   ListBox,
-  ListBoxVariant,
+  ListBoxSelectionMode,
   useUi,
-  type WorkspaceListBoxItem,
+  type MultipleListBoxItem,
 } from "@xprite/ui";
 import { uiControlSize } from "@xprite/ui/assets";
 import { UI_SCALE_X, UI_SCALE_Y } from "@xprite/ui/canvas";
@@ -190,7 +190,7 @@ export function RecoveryView({
   const recover = (ids: readonly string[]) => {
     if (!locked && ids.length) onRecover(ids);
   };
-  const listItems: WorkspaceListBoxItem[] = [];
+  const listItems: MultipleListBoxItem[] = [];
   if (loading)
     listItems.push({ value: LOADING_ITEM_ID, label: labels.loading, height: LOADING_ROW_HEIGHT });
   else if (items.length) {
@@ -264,7 +264,7 @@ export function RecoveryView({
         />
       </div>
       <ListBox
-        variant={ListBoxVariant.Workspace}
+        selectionMode={ListBoxSelectionMode.Multiple}
         className={styles.list}
         items={listItems}
         values={selectedIds}

@@ -4,7 +4,11 @@ import { afterEach, describe, it, vi } from "vitest";
 
 import { decodeAsepriteBlob, saveAseprite } from "$/adapters/files/aseprite-files";
 import type { SaveFileHandle } from "$/adapters/files/aseprite-files";
-import { asepriteFromProject, projectFromAseprite } from "@xprite/editor-core/import-export";
+import {
+  asepriteFromProject,
+  encodeAsepriteSync,
+  projectFromAseprite,
+} from "@xprite/editor-core/import-export";
 import { SessionSaveIntent, type SessionProject } from "@xprite/editor-core/session";
 
 function groupedProject(): SessionProject {
@@ -48,6 +52,42 @@ function groupedProject(): SessionProject {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("ASE project file save preserves group metadata", () => {
+  it("exposes the same once-read input for identity hashing", async () => {
+    const encoded = encodeAsepriteSync(
+      asepriteFromProject(groupedProject(), { preserveGroupMetadata: true }),
+    );
+    const blob = new Blob([encoded as unknown as BlobPart]);
+    const read = vi.spyOn(blob, "arrayBuffer");
+    const capture = vi.fn();
+    await decodeAsepriteBlob(blob, "Groups.aseprite", { onSourceBytes: capture });
+    assert.equal(read.mock.calls.length, 1);
+    assert.equal(capture.mock.calls.length, 1);
+    assert.deepEqual(capture.mock.calls[0][0], encoded);
+  });
+
+  it("supplies already encoded bytes for identity hashing after a native save", async () => {
+    const capture = vi.fn();
+    let written: Blob | undefined;
+    const handle: SaveFileHandle = {
+      name: "Groups.aseprite",
+      async createWritable() {
+        return {
+          async write(blob) {
+            written = blob;
+          },
+          async close() {},
+        };
+      },
+    };
+    await saveAseprite(groupedProject(), handle.name!, SessionSaveIntent.Save, {
+      fileHandle: handle,
+      onFileDataSaved: capture,
+    });
+    const [blob, name, bytes] = capture.mock.calls[0];
+    assert.equal(blob, written);
+    assert.equal(name, handle.name);
+    assert.deepEqual(bytes, new Uint8Array(await written!.arrayBuffer()));
+  });
   for (const intent of [SessionSaveIntent.Save, SessionSaveIntent.SaveAs])
     for (const compressed of [false, true])
       it(`${intent} retains group fields with compression ${compressed} while rendering is disabled`, async () => {

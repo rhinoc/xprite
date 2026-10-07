@@ -17,9 +17,10 @@ import {
   Combobox,
   Divider,
   Input,
-  Label,
   focusDialogContainer,
   isDialogPopupTarget,
+  Text,
+  TextVariant,
 } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 import { centerUiPixel, measureUiText } from "@xprite/ui/assets";
@@ -282,7 +283,8 @@ export function TextDialog({
                 { text: "Font:", y: 38, h: 32 },
                 { text: "Color:", y: 78, h: 30 },
               ].map((row) => (
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   key={row.text}
                   text={row.text}
                   bounds={{

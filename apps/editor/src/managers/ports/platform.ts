@@ -1,4 +1,6 @@
+import type { AnimalCrossingExportPort } from "$/managers/ports/animal-crossing-export";
 import type { ColorSamplingPort } from "$/managers/ports/color-sampling";
+import type { ProjectSharingPort } from "$/managers/ports/sharing";
 import type { ShortcutFilePort } from "$/managers/ports/shortcut-files";
 import type { UserPresetStoragePort } from "$/managers/ports/user-presets";
 import type { WebpExportPort } from "$/managers/ports/webp-export";
@@ -74,6 +76,8 @@ export interface EditorFontPort {
 }
 
 interface EditorFilePort {
+  animalCrossingExport?: AnimalCrossingExportPort;
+  sharing?: ProjectSharingPort;
   webp?: WebpExportPort;
   decodeAsepriteBlob(blob: Blob, fileName: string): Promise<SessionProject>;
   decodeImageBlob?(blob: Blob): Promise<PixelBuffer>;

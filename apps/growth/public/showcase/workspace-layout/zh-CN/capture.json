@@ -1,0 +1,48 @@
+{
+  "method": "Chromium compositor PNG frames during real editor pointer input",
+  "recordedAt": "2026-10-04T15:42:09.101826+00:00",
+  "sourceOrigin": "http://layout-demo.localhost:5173/editor",
+  "document": "example.aseprite",
+  "viewport": {
+    "width": 1080,
+    "height": 720,
+    "dpr": 1
+  },
+  "language": "zh-CN",
+  "actions": [
+    {
+      "action": "Dock timeline on the right",
+      "milliseconds": 1098.9227080000564
+    },
+    {
+      "action": "Resize the right timeline pane",
+      "milliseconds": 6631.981500000227
+    },
+    {
+      "action": "Return timeline to the bottom",
+      "milliseconds": 10266.283250000328
+    }
+  ],
+  "sourceFrameCount": 84,
+  "sourceDurationMilliseconds": 17117,
+  "encoding": {
+    "framesPerSecond": 10,
+    "preservesRecordedDuration": true,
+    "scale": 1,
+    "gifPaletteColors": 256
+  },
+  "assets": {
+    "layout.gif": {
+      "bytes": 492313,
+      "sha256": "fdf702d2cd686a39d31ae9a87dbf2951d06bcc22aca6026d71f9b0a2c48330bf"
+    },
+    "layout.webm": {
+      "bytes": 369507,
+      "sha256": "31f371f0451978707fae27143a5dc80d7440b08fb0398d529cac7a580d92053d"
+    },
+    "poster.png": {
+      "bytes": 20853,
+      "sha256": "3feceef1f810f514b921c1bb577625008776b64499bee07e7ac31eb4ff4cb044"
+    }
+  }
+}

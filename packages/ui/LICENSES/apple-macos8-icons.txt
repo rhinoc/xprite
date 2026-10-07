@@ -1,0 +1,18 @@
+Apple Mac OS 8.0 icon artwork
+Copyright Apple Computer, Inc. All rights reserved.
+
+The PNG source files and lossless WebP runtime files in assets/icons/desktop/macos8/
+are decoded copies of 32x32 icl8/ICN# and 16x16 ics8/ics# bitmap and mask
+resources in Apple Mac OS 8.0. Platinum folder, document and application icons
+come from Appearance Extension; desk accessory icons come from their applications.
+They are not original Xprite artwork and are not relicensed under the package's
+MIT License.
+No permission from Apple is asserted by the archive's availability.
+
+Preservation source:
+https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.8.0.HD.dsk.zip
+
+Exact source files, resource IDs and SHA-256 hashes are recorded in
+assets/icons/desktop/macos8/provenance.json. The decoded files retain the
+original indexed-color pixel plane and transparency mask. They are not redrawn,
+recolored, smoothed or resampled. CSS supplies pixelated display scaling.

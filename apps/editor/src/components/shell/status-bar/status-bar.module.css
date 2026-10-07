@@ -23,6 +23,18 @@
   height: var(--xse-status-bar-height, 30px);
   min-height: var(--xse-status-bar-height, 30px);
 }
+
+.recoveryProblem {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-4, 8px);
+  width: max-content;
+  white-space: nowrap;
+}
+
+:global(.xse-status .xse-status-indicators[data-recovery-error="true"]) {
+  flex: 0 0 auto;
+}
 :global(.xse-status .xse-status-indicators) {
   position: relative;
   inset: auto;

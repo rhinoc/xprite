@@ -1,4 +1,5 @@
 import { encodePng } from "$/adapters/files/images";
+import { importAsepriteInWorker } from "$/adapters/workers/aseprite-import-client";
 import { tUi } from "$/i18n";
 import {
   downloadBlob,
@@ -10,17 +11,20 @@ import {
   type SaveFilePickerOptions,
   type WritableFileHandle,
 } from "@xprite/bedrock/browser/file-system";
+import { inflateZlibExact } from "@xprite/editor-core/base";
+import { markImmutableEditorProject } from "@xprite/editor-core/document";
 import {
   AsepriteCodecError,
-  decodeAseprite,
+  EDITOR_ASEPRITE_LIMITS,
+  decodeAsepriteProject,
   encodeAseprite,
   encodeAsepriteSync,
-  preflightAseprite,
-  projectFromAseprite,
   asepriteFromProject,
   asepriteFileName,
   pngFileName,
+  projectPngImage,
   type AsepriteEncodeOptions,
+  type AsepriteDecodeOptions,
 } from "@xprite/editor-core/import-export";
 import {
   SessionSaveIntent,
@@ -33,13 +37,15 @@ const DEVELOPMENT_DIAGNOSTIC_ARTIFACT_ENDPOINT = "/__debug/diagnostic-artifact";
 const DEVELOPMENT_ARTIFACT_NAME_FALLBACK = "unnamed.aseprite";
 /** Aseprite project budget. This bounds both the encoded file and the
  * sum of decoded cel bytes before any timeline graph is allocated. */
-export const DEFAULT_MAX_ASEPRITE_PROJECT_BYTES = 64 * 1024 * 1024;
+export const DEFAULT_MAX_ASEPRITE_PROJECT_BYTES = EDITOR_ASEPRITE_LIMITS.maxFileBytes;
 
 type DeflateStream = new (format: "deflate") => TransformStream<Uint8Array, Uint8Array>;
 type CompressionStreamConstructor = DeflateStream;
 export type SaveFileHandle = WritableFileHandle;
 
 export interface AsepriteFileOptions {
+  /** Embedded runtimes provide a bounded decoder while sharing browser preflight policy. */
+  inflate?: AsepriteDecodeOptions["inflate"];
   /** Override browser globals in tests or embedded hosts. */
   decompressionStream?: DeflateStream;
   compressionStream?: CompressionStreamConstructor;
@@ -51,7 +57,9 @@ export interface AsepriteFileOptions {
   fileHandlePermission?: () => Promise<"granted" | "denied" | "prompt">;
   /** Called after the destination selected by the picker has been written. */
   onFileHandleSaved?: (handle: SaveFileHandle) => void;
-  onFileDataSaved?: (blob: Blob, name: string) => void;
+  onFileDataSaved?: (blob: Blob, name: string, bytes?: Uint8Array) => void;
+  /** Borrow the exact file input for hashing. Do not mutate or retain these bytes. */
+  onSourceBytes?: (bytes: Uint8Array) => void;
   maxInflatedBytes?: number;
   maxProjectBytes?: number;
   encode?: AsepriteEncodeOptions;
@@ -129,20 +137,18 @@ export async function inflateAsepriteDeflate(
   const Stream =
     options.decompressionStream ??
     (globalThis as typeof globalThis & { DecompressionStream?: DeflateStream }).DecompressionStream;
-  if (typeof Stream !== "function")
-    throw new Error("This browser does not provide DecompressionStream('deflate')");
+  if (typeof Stream !== "function") return inflateZlibExact(bytes, expectedBytes);
   const input = new Blob([new Uint8Array(bytes) as unknown as BlobPart]);
   const output = input.stream().pipeThrough(new Stream("deflate"));
   const reader = output.getReader();
-  const parts: Uint8Array[] = [];
+  const result = new Uint8Array(expectedBytes);
   let total = 0;
   try {
     while (true) {
       const next = await reader.read();
       if (next.done) break;
       const value = next.value;
-      total += value.byteLength;
-      if (total > expectedBytes || total > maxInflatedBytes) {
+      if (value.byteLength > expectedBytes - total || value.byteLength > maxInflatedBytes - total) {
         await reader.cancel();
         throw new AsepriteCodecError(
           tUi("ui.aseprite.compressed.cel.expands.beyond.its.declared.bytes", {
@@ -150,7 +156,8 @@ export async function inflateAsepriteDeflate(
           }),
         );
       }
-      parts.push(value);
+      result.set(value, total);
+      total += value.byteLength;
     }
   } finally {
     reader.releaseLock();
@@ -162,12 +169,6 @@ export async function inflateAsepriteDeflate(
         value2: expectedBytes,
       }),
     );
-  const result = new Uint8Array(total);
-  let offset = 0;
-  for (const part of parts) {
-    result.set(part, offset);
-    offset += part.byteLength;
-  }
   return result;
 }
 
@@ -183,7 +184,8 @@ async function deflateAseprite(
       .CompressionStream;
   if (typeof Stream !== "function")
     throw new Error("This browser does not provide CompressionStream('deflate')");
-  const maxEncodedBytes = options.encode?.limits?.maxFileBytes ?? 256 * 1024 * 1024;
+  const maxEncodedBytes =
+    options.encode?.limits?.maxFileBytes ?? EDITOR_ASEPRITE_LIMITS.maxFileBytes;
   const input = new Blob([new Uint8Array(bytes) as unknown as BlobPart]);
   const output = input.stream().pipeThrough(new Stream("deflate"));
   const reader = output.getReader();
@@ -216,6 +218,19 @@ async function deflateAseprite(
   return result;
 }
 
+/** Attach browser diagnostic context without coupling portable codecs to file I/O. */
+export async function annotateAsepriteDecodeFailure(
+  reason: unknown,
+  bytes: Uint8Array,
+  fileName: string,
+): Promise<Error> {
+  const diagnosticArtifact = await persistFailedAsepriteArtifact(bytes, fileName);
+  return withDiagnosticDetails(reason, {
+    aseprite: { fileName, byteLength: bytes.byteLength },
+    ...(diagnosticArtifact ? { developmentArtifact: diagnosticArtifact } : {}),
+  });
+}
+
 export async function decodeAsepriteBlob(
   blob: Blob,
   fileName: string,
@@ -239,44 +254,56 @@ export async function decodeAsepriteBlob(
       }),
     );
   try {
+    options.onSourceBytes?.(bytes);
     const limits = {
+      ...EDITOR_ASEPRITE_LIMITS,
       maxFileBytes: maxProjectBytes,
-      maxDecodedBytes: maxProjectBytes,
-      maxFrames: 4096,
-      maxLayers: 256,
-      maxCelPixels: Math.floor(maxProjectBytes / 4),
+      maxDecodedBytes: options.maxProjectBytes ?? EDITOR_ASEPRITE_LIMITS.maxDecodedBytes,
+      maxExpandedBytes: Math.min(
+        EDITOR_ASEPRITE_LIMITS.maxExpandedBytes,
+        options.maxProjectBytes ?? EDITOR_ASEPRITE_LIMITS.maxExpandedBytes,
+      ),
+      maxCelPixels: Math.min(EDITOR_ASEPRITE_LIMITS.maxCelPixels, Math.floor(maxProjectBytes / 4)),
     };
-    const preflight = preflightAseprite(bytes, { limits });
-    if (!preflight.ok)
-      throw new AsepriteCodecError(
-        tUi("ui.aseprite.preflight.rejected.this.file", {
-          value1: preflight.issues.map((issue) => issue.message).join("; "),
-        }),
-        preflight.issues,
-      );
-    const header = preflight.header!;
-    const canvasPixels = header.width * header.height;
-    if (!Number.isSafeInteger(canvasPixels) || canvasPixels * 4 > maxProjectBytes)
-      throw new AsepriteCodecError(
-        tUi("ui.aseprite.canvas.exceeds.the.browser.resource.limit.for.aseprite.projects.bytes", {
-          value1: header.width,
-          value2: header.height,
-          value3: maxProjectBytes,
-        }),
-      );
-    const sprite = await decodeAseprite(bytes, {
+    if (!options.inflate && !options.decompressionStream) {
+      const pending = importAsepriteInWorker({ bytes, fileName, limits });
+      if (pending) return await pending;
+    }
+    const project = await decodeAsepriteProject(bytes, {
       fileName,
-      preflight: true,
+      takeOwnership: true,
+      takeInflatedOwnership: !options.inflate,
+      deferPixels: !options.inflate,
+      takeProjectOwnership: true,
       limits,
-      inflate: (compressed, expected) => inflateAsepriteDeflate(compressed, expected, options),
+      maxCanvasBytes: maxProjectBytes,
+      errors: {
+        preflight: (preflight) =>
+          new AsepriteCodecError(
+            tUi("ui.aseprite.preflight.rejected.this.file", {
+              value1: preflight.issues.map((issue) => issue.message).join("; "),
+            }),
+            preflight.issues,
+          ),
+        canvas: (header, maxCanvasBytes) =>
+          new AsepriteCodecError(
+            tUi(
+              "ui.aseprite.canvas.exceeds.the.browser.resource.limit.for.aseprite.projects.bytes",
+              {
+                value1: header.width,
+                value2: header.height,
+                value3: maxCanvasBytes,
+              },
+            ),
+          ),
+      },
+      inflate:
+        options.inflate ??
+        ((compressed, expected) => inflateAsepriteDeflate(compressed, expected, options)),
     });
-    return projectFromAseprite(sprite);
+    return markImmutableEditorProject(project);
   } catch (reason) {
-    const diagnosticArtifact = await persistFailedAsepriteArtifact(bytes, fileName);
-    throw withDiagnosticDetails(reason, {
-      aseprite: { fileName, byteLength: bytes.byteLength },
-      ...(diagnosticArtifact ? { developmentArtifact: diagnosticArtifact } : {}),
-    });
+    throw await annotateAsepriteDecodeFailure(reason, bytes, fileName);
   }
 }
 
@@ -317,7 +344,11 @@ export async function saveAseprite(
   const encode = async (): Promise<Uint8Array> => {
     // The render preference must not discard authored group properties on save.
     const sprite = asepriteFromProject(project, { preserveGroupMetadata: true });
-    const shared = { fileName: asepriteName, ...options.encode };
+    const shared = {
+      fileName: asepriteName,
+      ...options.encode,
+      limits: { ...EDITOR_ASEPRITE_LIMITS, ...options.encode?.limits },
+    };
     if (typeof CompressionStream === "function")
       return encodeAseprite(sprite, {
         ...shared,
@@ -327,7 +358,14 @@ export async function saveAseprite(
     // Keep a usable raw-file fallback for older browsers. Explicitly clear a
     // caller's compression request because the synchronous encoder cannot
     // invoke a browser stream without losing the activation path.
-    return encodeAsepriteSync(sprite, { ...shared, compress: false });
+    return encodeAsepriteSync(sprite, { ...shared, compress: false, preserveCelCompression: true });
+  };
+  const encodeOutput = async (
+    format: "png" | "aseprite",
+  ): Promise<{ blob: Blob; bytes?: Uint8Array }> => {
+    if (format === "png") return { blob: await encodePng(projectPngImage(project)) };
+    const bytes = await encode();
+    return { blob: new Blob([bytes as unknown as BlobPart], { type: ASEPRITE_MIME }), bytes };
   };
   if (intent === SessionSaveIntent.Save && options.fileHandle) {
     const handle = options.fileHandle;
@@ -337,12 +375,9 @@ export async function saveAseprite(
         tUi("ui.write.permission.was.not.granted.for", { value1: handle.name ?? fileName }),
       );
     const format = fileFormat(handle.name);
-    const blob =
-      format === "png"
-        ? await encodePng(project.pngImage ?? project.image)
-        : new Blob([(await encode()) as unknown as BlobPart], { type: ASEPRITE_MIME });
-    await writeFileHandle(handle, blob);
-    options.onFileDataSaved?.(blob, handle.name || fileName);
+    const output = await encodeOutput(format);
+    await writeFileHandle(handle, output.blob);
+    options.onFileDataSaved?.(output.blob, handle.name || fileName, output.bytes);
     return { method: "file", name: handle.name || fileName, format };
   }
   if (intent === SessionSaveIntent.Save || intent === SessionSaveIntent.SaveAs) {
@@ -372,7 +407,7 @@ export async function saveAseprite(
       } catch (error) {
         if (isAbortError(error)) throw error;
         if (outputFormat === "png") {
-          const blob = await encodePng(project.pngImage ?? project.image);
+          const blob = await encodePng(projectPngImage(project));
           downloadBlob(blob, fileName);
           options.onFileDataSaved?.(blob, fileName);
           return { method: "download", name: fileName, format: outputFormat };
@@ -380,22 +415,19 @@ export async function saveAseprite(
         const bytes = await encode();
         const blob = new Blob([bytes as unknown as BlobPart], { type: ASEPRITE_MIME });
         downloadBlob(blob, fileName);
-        options.onFileDataSaved?.(blob, fileName);
+        options.onFileDataSaved?.(blob, fileName, bytes);
         return { method: "download", name: fileName, format: outputFormat };
       }
       const format = fileFormat(handle.name);
-      const blob =
-        format === "png"
-          ? await encodePng(project.pngImage ?? project.image)
-          : new Blob([(await encode()) as unknown as BlobPart], { type: ASEPRITE_MIME });
-      await writeFileHandle(handle, blob);
-      options.onFileDataSaved?.(blob, handle.name || fileName);
+      const output = await encodeOutput(format);
+      await writeFileHandle(handle, output.blob);
+      options.onFileDataSaved?.(output.blob, handle.name || fileName, output.bytes);
       options.onFileHandleSaved?.(handle);
       return { method: "picker", name: handle.name || fileName, format };
     }
   }
   if (outputFormat === "png") {
-    const blob = await encodePng(project.pngImage ?? project.image);
+    const blob = await encodePng(projectPngImage(project));
     downloadBlob(blob, fileName);
     options.onFileDataSaved?.(blob, fileName);
     return { method: "download", name: fileName, format: outputFormat };
@@ -403,6 +435,6 @@ export async function saveAseprite(
   const bytes = await encode();
   const blob = new Blob([bytes as unknown as BlobPart], { type: ASEPRITE_MIME });
   downloadBlob(blob, fileName);
-  options.onFileDataSaved?.(blob, fileName);
+  options.onFileDataSaved?.(blob, fileName, bytes);
   return { method: "download", name: fileName, format: outputFormat };
 }

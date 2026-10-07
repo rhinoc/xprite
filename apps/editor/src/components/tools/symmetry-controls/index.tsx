@@ -1,7 +1,5 @@
 import { tUi } from "$/i18n";
-import { Button } from "@xprite/ui";
-import { Menu } from "@xprite/ui";
-import { Tooltip } from "@xprite/ui";
+import { Button, Menu, Tooltip } from "@xprite/ui";
 import type { UiPartName } from "@xprite/ui/assets";
 
 import styles from "$/components/tools/symmetry-controls/symmetry-controls.module.css";

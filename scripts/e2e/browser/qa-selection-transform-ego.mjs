@@ -3,6 +3,10 @@ const task = await taskSpace(2);
 if (task.ownership !== "agent") throw Error("Space not agent-owned");
 const p = task.page("p1");
 const fs = await import("node:fs/promises");
+const { pathToFileURL } = await import("node:url");
+const { captureBrowserScreenshot } = await import(
+  pathToFileURL(`${process.cwd()}/scripts/base/screenshot.mjs`).href
+);
 await fs.mkdir(`${process.cwd()}/.tmp`, { recursive: true });
 await p.cdp("Emulation.setDeviceMetricsOverride", {
   width: 1405,
@@ -39,7 +43,10 @@ const cursor = await p.evaluate(
   () => document.querySelector('canvas[aria-label="Sprite canvas"]').style.cursor,
 );
 if (!cursor.includes(".svg")) throw Error("Missing Aseprite selection cursor");
-await p.screenshot({ raw: true, path: "/tmp/ase-selection-handles.png" });
+const screenshot = await captureBrowserScreenshot(p, {
+  path: "/tmp/ase-selection-handles.png",
+  expectedDpr: 1,
+});
 await drag([739, 325], [783, 354]);
 await key("ControlOrMeta+z");
 await save("cancel");
@@ -59,6 +66,7 @@ await fs.writeFile(
     {
       capturedAt: new Date().toISOString(),
       cursor,
+      screenshot,
       files: ["original", "cancel", "move", "undo", "redo", "right-selection"],
       method:
         "Ego public mouse/keyboard/menu inputs and exported PNGs. Pixel assertions are in verify-selection-ui-exports.mjs.",

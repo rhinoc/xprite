@@ -46,7 +46,6 @@ describe("recovery-codec", () => {
       assert.deepEqual(source, before, "encoding cannot mutate or detach the source");
       const restored = await api.decodeRecoverySnapshot(bytes);
       const compressed = await api.encodeRecoverySnapshot(source, zlibSync);
-      assert.ok(compressed.length < bytes.length, "compression reduces snapshot storage");
       assert.deepEqual(source, before, "compressed encoding cannot mutate the source");
       const compressedRestored = await api.decodeRecoverySnapshot(compressed);
       assert.deepEqual(compressedRestored.document.layer.pixels, restored.document.layer.pixels);
@@ -121,6 +120,58 @@ describe("recovery-codec", () => {
     assert.equal(result.dirty, false);
     assert.deepEqual(result.document.layer.pixels.data, png.document.layer.pixels.data);
     assert.deepEqual(result.document.palette, png.document.palette);
+    const recentSnapshot = {
+      width: 32,
+      height: 32,
+      rgba: new Uint8Array(32 * 32 * 4).fill(17).buffer,
+    };
+    const packedRecent = await client.packRecent(recentSnapshot);
+    assert.ok(packedRecent.compressed.size > 0);
+    assert.deepEqual(await client.unpackRecent(structuredClone(packedRecent)), recentSnapshot);
+    const capped = structuredClone(png);
+    capped.document.width = 32;
+    capped.document.layer.pixels = {
+      width: 32,
+      height: 1,
+      data: new Uint8ClampedArray(32 * 4).fill(17),
+    };
+    const cappedBytes = await api.encodeRecoverySnapshot(capped);
+    await assert.rejects(
+      api.decodeRecoverySnapshot(cappedBytes, { maxInflatedBytes: 32 * 4 - 1 }),
+      /limit/,
+      "a per-cel inflation cap must apply without an explicit stream override",
+    );
+    // Valid editing data must also survive recovery above the old 64 MiB ceiling.
+    const width = 2048,
+      height = 3072;
+    const cels = Array.from({ length: 3 }, (_, index) => {
+      const pixels = { width, height, data: new Uint8ClampedArray(width * height * 4) };
+      pixels.data.set([index + 1, 12, 27, 255]);
+      return { pixels, x: 0, y: 0, opacity: 255, zIndex: 0 };
+    });
+    const large = structuredClone(png);
+    Object.assign(large.document, { width, height, name: "large.aseprite", format: "aseprite" });
+    large.document.layer.pixels = cels[0].pixels;
+    large.document.timeline = {
+      activeFrame: 0,
+      activeLayer: 0,
+      layers: [
+        { id: "large", name: "Large", visible: true, locked: false, opacity: 255, flags: 3 },
+      ],
+      frames: cels.map((cel) => ({ duration: 100, cels: [cel] })),
+    };
+    const largeBytes = await api.encodeRecoverySnapshot(large);
+    assert.ok(
+      largeBytes.byteLength < 1024 * 1024,
+      "default worker encoding compresses repeated pixels",
+    );
+    const largeRestored = await api.decodeRecoverySnapshot(largeBytes);
+    assert.equal(largeRestored.document.timeline.frames.length, 3);
+    for (let index = 0; index < cels.length; index++) {
+      const image = largeRestored.document.timeline.frames[index].cels[0].pixels;
+      assert.equal(image.data.byteLength, width * height * 4);
+      assert.deepEqual(image.data.subarray(0, 4), cels[index].pixels.data.subarray(0, 4));
+    }
     for (const [offset, value, regex] of [
       [0, 0, /magic/],
       [8, 2, /version/],
@@ -174,6 +225,22 @@ describe("recovery-codec", () => {
     await assert.rejects(threaded.encode(png), /worker failed/);
     threaded.close();
     assert.equal(worker.terminated, true);
+    const workers: FakeWorker[] = [];
+    const restarting = new api.RecoveryCodecClient({
+      workerFactory: () => {
+        const next = new FakeWorker();
+        workers.push(next);
+        return next;
+      },
+    });
+    const failed = restarting.encode(png);
+    workers[0].dispatchEvent(new Event("error"));
+    await assert.rejects(failed, /worker failed/);
+    const retried = await restarting.encode(png);
+    assert.equal(workers.length, 2, "explicit retry replaces the failed worker");
+    assert.equal(workers[0].terminated, true);
+    assert.equal((await restarting.decode(retried)).document.name, "tiny.png");
+    restarting.close();
     for (const composeGroups of [false, true]) {
       const grouped = structuredClone(png);
       const pixels = grouped.document.layer.pixels;

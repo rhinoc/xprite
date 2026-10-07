@@ -7,6 +7,54 @@ const tsConfigFileName = process.env.XPRITE_DEPENDENCY_CRUISER_TSCONFIG
 module.exports = {
   forbidden: [
     {
+      name: "editor-ui-does-not-import-app-or-platform-code",
+      severity: "error",
+      from: { path: "^packages/editor-ui/src/" },
+      to: { path: "^apps/|^packages/bedrock/browser/" },
+    },
+    {
+      name: "appearance-policy-is-headless",
+      severity: "error",
+      from: { path: "^packages/editor-ui/src/appearance/" },
+      to: { path: "^packages/ui/|^packages/editor-ui/src/timeline/|^node_modules/react/" },
+    },
+    {
+      name: "share-service-does-not-import-frontend",
+      severity: "error",
+      from: { path: "^services/share/" },
+      to: { path: "^apps/|^packages/(ui|editor-core|bedrock/browser)/" },
+    },
+    {
+      name: "frontend-does-not-import-service-implementation",
+      severity: "error",
+      from: { path: "^(apps|packages)/" },
+      to: { path: "^services/" },
+    },
+    {
+      name: "share-domain-and-ports-do-not-import-implementations",
+      severity: "error",
+      from: { path: "^services/share/src/sharing/(domain|ports)/" },
+      to: { path: "^services/share/src/(worker\\.ts|sharing/(application|adapters)/)" },
+    },
+    {
+      name: "share-application-does-not-import-platform",
+      severity: "error",
+      from: { path: "^services/share/src/sharing/application/" },
+      to: { path: "^services/share/src/(worker\\.ts|sharing/adapters/)" },
+    },
+    {
+      name: "share-only-composition-root-connects-storage-adapters",
+      severity: "error",
+      from: {
+        path: "^services/share/src/",
+        pathNot: [
+          "^services/share/src/worker\\.ts$",
+          "^services/share/src/sharing/adapters/cloudflare/",
+        ],
+      },
+      to: { path: "^services/share/src/sharing/adapters/cloudflare/" },
+    },
+    {
       name: "no-circular",
       severity: "error",
       from: {},
@@ -24,7 +72,7 @@ module.exports = {
       comment: "Bedrock is the lowest package layer.",
       severity: "error",
       from: { path: "^packages/bedrock/" },
-      to: { path: "^packages/(editor-core|ui)/" },
+      to: { path: "^packages/(editor-core|ui|editor-ui)/" },
     },
     {
       name: "bedrock-common-does-not-depend-on-browser",
@@ -38,14 +86,14 @@ module.exports = {
       comment: "Editor core can use Bedrock common, but not browser adapters or UI.",
       severity: "error",
       from: { path: "^packages/editor-core/src/" },
-      to: { path: "^packages/(ui|bedrock/browser)/" },
+      to: { path: "^packages/(ui|editor-ui|bedrock/browser)/" },
     },
     {
       name: "ui-does-not-depend-on-editor-core",
       comment: "Reusable UI primitives must not depend on editor business logic.",
       severity: "error",
       from: { path: "^packages/ui/src/" },
-      to: { path: "^packages/editor-core/" },
+      to: { path: "^packages/(editor-core|editor-ui)/" },
     },
     {
       name: "editor-components-use-manager-apis",
@@ -72,7 +120,9 @@ module.exports = {
         "Managers own app workflows and remain independent from view components and UI primitives.",
       severity: "error",
       from: { path: "^apps/editor/src/managers/" },
-      to: { path: "^apps/editor/src/components/|^apps/editor/src/adapters/|^packages/ui/" },
+      to: {
+        path: "^apps/editor/src/components/|^apps/editor/src/adapters/|^packages/ui/|^packages/editor-ui/src/(?!appearance/)",
+      },
     },
     {
       name: "editor-adapters-do-not-import-components",

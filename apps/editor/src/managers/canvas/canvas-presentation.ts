@@ -6,7 +6,7 @@
 export {
   clampCanvasPan,
   clipSymmetryLine,
-  convertPixelsToSrgb,
+  PresentationColorCache,
   workingColorProfile,
   createAsepriteSelectionAntsState,
   documentToScreen,

@@ -19,7 +19,7 @@ Organize by business scope first, then by technical role within that scope.
 
 ## Dependencies
 
-- Components may import `@xprite/ui` and public APIs from `managers/`.
+- Components may import `@xprite/ui`, `@xprite/editor-ui` and public APIs from `managers/`.
 - Components must not import `@xprite/editor-core`, `@xprite/bedrock`, `adapters/`, or a store library directly.
 - Managers coordinate application use cases and own app UI stores. Keep editor document/history/settings canonical in `RasterEditor` and session/workspace objects; do not mirror those models into Zustand.
 - Managers depend on editor-core, Bedrock's generic `common/` and `browser/` modules, store implementations, and manager-owned port contracts.

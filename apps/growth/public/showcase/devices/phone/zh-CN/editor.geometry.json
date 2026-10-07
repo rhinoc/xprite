@@ -1,0 +1,474 @@
+{
+  "source": "http://phone-demo.localhost:5173/editor",
+  "language": "zh-CN",
+  "controls": [
+    {
+      "label": "菜单",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 32,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "工作区布局",
+      "rect": {
+        "x": 334,
+        "y": 0,
+        "width": 32,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "设置",
+      "rect": {
+        "x": 366,
+        "y": 0,
+        "width": 32,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "关闭 主页",
+      "rect": {
+        "x": 116,
+        "y": 0,
+        "width": 28,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "关闭 hello.aseprite",
+      "rect": {
+        "x": 228,
+        "y": 0,
+        "width": 28,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "移动面板",
+      "rect": {
+        "x": 2,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "铅笔",
+      "rect": {
+        "x": 2,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "橡皮擦",
+      "rect": {
+        "x": 32,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "取色器",
+      "rect": {
+        "x": 62,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "矩形选区",
+      "rect": {
+        "x": 92,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "油漆桶",
+      "rect": {
+        "x": 122,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "移动",
+      "rect": {
+        "x": 152,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "缩放",
+      "rect": {
+        "x": 182,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "直线",
+      "rect": {
+        "x": 212,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "矩形",
+      "rect": {
+        "x": 242,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "轮廓",
+      "rect": {
+        "x": 272,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "模糊",
+      "rect": {
+        "x": 302,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "文字",
+      "rect": {
+        "x": 332,
+        "y": 34,
+        "width": 34,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "显示预览",
+      "rect": {
+        "x": 364,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "隐藏时间轴",
+      "rect": {
+        "x": 396,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "移动面板",
+      "rect": {
+        "x": 2,
+        "y": 506.0390625,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "第一帧",
+      "rect": {
+        "x": 4,
+        "y": 542.0390625,
+        "width": 34,
+        "height": 26
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "上一帧",
+      "rect": {
+        "x": 36,
+        "y": 542.0390625,
+        "width": 34,
+        "height": 26
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "播放动画",
+      "rect": {
+        "x": 68,
+        "y": 542.0390625,
+        "width": 34,
+        "height": 26
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "下一帧",
+      "rect": {
+        "x": 100,
+        "y": 542.0390625,
+        "width": 34,
+        "height": 26
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "最后一帧",
+      "rect": {
+        "x": 132,
+        "y": 542.0390625,
+        "width": 34,
+        "height": 26
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "新建图层",
+      "rect": {
+        "x": 124,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "图层菜单",
+      "rect": {
+        "x": 148,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "切换所有图层可见性",
+      "rect": {
+        "x": 4,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "切换所有图层锁定状态",
+      "rect": {
+        "x": 28,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "切换所有图层的连续单元格",
+      "rect": {
+        "x": 52,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "时间轴设置",
+      "rect": {
+        "x": 76,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "洋葱皮",
+      "rect": {
+        "x": 100,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "选择图层 Background",
+      "rect": {
+        "x": 76,
+        "y": 596.0390625,
+        "width": 128,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "隐藏图层 Background",
+      "rect": {
+        "x": 4,
+        "y": 596.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "锁定图层 Background",
+      "rect": {
+        "x": 28,
+        "y": 596.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "启用图层 Background 的连续单元格",
+      "rect": {
+        "x": 52,
+        "y": 596.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "第 1 帧，时长 100 毫秒",
+      "rect": {
+        "x": 204,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "Background，第 1 帧，关键帧",
+      "rect": {
+        "x": 204,
+        "y": 596.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "当前帧",
+      "rect": {
+        "x": 224,
+        "y": 818,
+        "width": 72,
+        "height": 24
+      },
+      "value": "1",
+      "pressed": null
+    },
+    {
+      "label": "添加帧",
+      "rect": {
+        "x": 302,
+        "y": 818,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "缩放",
+      "rect": {
+        "x": 330,
+        "y": 818,
+        "width": 82,
+        "height": 24
+      },
+      "value": "100",
+      "pressed": null
+    }
+  ],
+  "canvasViewport": {
+    "x": 2,
+    "y": 70,
+    "width": 426,
+    "height": 428
+  }
+}

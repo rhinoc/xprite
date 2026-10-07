@@ -7,18 +7,25 @@ import {
   useMemo,
   useRef,
   useState,
-  type ComponentType,
   type Ref,
+  type CSSProperties,
   type ReactNode,
 } from "react";
 
+import { GalleryPageScrollPreview } from "$/components/page-scroll-preview";
 import {
   generatedUIComponents,
+  GalleryComponentGroup,
   type GalleryComponentDefinition,
   type GalleryPropSchema,
 } from "$/generated-ui-components";
+import { GALLERY_THEMES } from "$/managers/appearance";
 import type { IconClipboard } from "$/managers/ports/icon-clipboard";
+import { siteApplications } from "@xprite/growth-content/navigation";
+import menuIconUrl from "@xprite/site-assets/menu-icon.svg";
+import { SiteMenubar } from "@xprite/site-shell";
 import {
+  CanvasSurface,
   Button,
   ButtonVariant,
   Checkbox,
@@ -26,23 +33,40 @@ import {
   Dialog,
   Divider,
   Input,
+  Field,
+  FieldLayout,
+  TextArea,
+  TextAreaPresentation,
+  TextAreaResize,
   ListBox,
+  ListBoxFrameStyle,
+  IconKind,
+  type ListBoxItem,
+  Icon,
+  MenuCheckType,
   OverlayContentLayout,
   Panel,
-  Scrollbar,
+  PanelVariant,
+  PanelWindowKind,
+  WindowWorkspace,
+  Pattern,
+  PatternVariant,
+  macintoshTheme,
+  ContentLayout,
+  ContentPadding,
+  RichText,
+  ScrollArea,
+  type ScrollbarVariant,
   Toast,
   type ButtonProps,
   type SurfaceBounds,
+  type SurfaceViewport,
   useUi,
+  type UiTheme,
+  IconSize,
 } from "@xprite/ui";
-import { UiIcon, type UiPartName } from "@xprite/ui/assets";
-import {
-  scrollSize,
-  layoutSize,
-  scrollPosition,
-  setScrollPosition,
-  observeResize,
-} from "@xprite/ui/utils";
+import { UiIcon, paintUiPart, paintUiText, useUiAssets, type UiPartName } from "@xprite/ui/assets";
+import { layoutSize, observeResize } from "@xprite/ui/utils";
 
 import styles from "$/gallery.module.css";
 
@@ -53,29 +77,36 @@ const EVENT_LOG_LIMIT = 200;
 const DEFAULT_ENUM_VALUE = "__gallery_default__";
 const DEFAULT_COMPONENT_SLUG = "button";
 const GALLERY_WINDOW_RATIO = 0.8;
+const GALLERY_MENU_BAR_HEIGHT = 22;
 const MIN_ICON_GROUP_SIZE = 4;
 const OTHER_ICONS_GROUP_TITLE = "Others";
 const COPY_NOTICE_DURATION_MS = 1800;
-const HEADER_SEARCH_BOUNDS = { x: 0, y: 0, width: 180, height: 28 };
 const SECTION_HEADING_HEIGHT = 12;
 const ARTWORK_SCALE = 2;
-const FILTER_ENTRY_BOUNDS = { x: 0, y: 0, width: 180, height: 28 };
-const FORM_CONTROL_HEIGHT = 32;
+const FILTER_ENTRY_PIXEL_WIDTH = 90;
+const JSON_EDITOR_HEIGHT = 96;
 const MIN_PREVIEW_HEIGHT = 64;
 const DEFAULT_PREVIEW_HEIGHT = 96;
+const TOOLTIP_PREVIEW_HEIGHT = 144;
+const PANEL_PREVIEW_HEIGHT = 160;
+const COMPONENT_NAV_GROUP_HEIGHT = 32;
+const COMPONENT_NAV_GROUP_LABEL_HEIGHT = 20;
+const LIST_PREVIEW_WIDTH = 220;
+const LIST_PREVIEW_HEIGHT = 100;
 const MAX_PREVIEW_HEIGHT = 420;
-const SCROLLBAR_THICKNESS = 12;
-const SCROLL_MEASUREMENT_EPSILON = 1;
-const COMPONENT_NAV_ITEM_HEIGHT = 18;
-const COMPONENT_NAV_VERTICAL_INSET = 14;
-const COMPONENT_NAV_SCROLLBAR_GUTTER = 14;
+const COMPONENT_NAV_ITEM_HEIGHT = 24;
 
 const callbackTarget = {
   onOpenChange: "open",
+  onCollapsedChange: "collapsed",
   onExpandedChange: "expanded",
   onCheckedChange: "checked",
   onValueChange: "value",
   onBoundsChange: "bounds",
+  onPan: "pan",
+  onPointsChange: "points",
+  onSelectionChange: "selectedIndex",
+  onValuesChange: "values",
 } as const;
 
 type EditableProps = Record<string, unknown>;
@@ -110,20 +141,46 @@ function GallerySectionHeading({ text }: { text: string }) {
   );
 }
 
-function GalleryFormControl({ children }: { children: (bounds: SurfaceBounds) => ReactNode }) {
+function GalleryFormControl({
+  children,
+}: {
+  children: ReactNode | ((pixelWidth: number) => ReactNode);
+}) {
   const { ref, width } = useGalleryElementSize<HTMLDivElement>();
   return (
     <div className={styles["gallery-themed-control"]} ref={ref}>
-      {width > 0 && children({ x: 0, y: 0, width, height: FORM_CONTROL_HEIGHT })}
+      {typeof children === "function" ? width > 0 && children(width / ARTWORK_SCALE) : children}
     </div>
   );
 }
 
-interface ScrollMetrics {
-  contentSize: number;
-  visibleSize: number;
-  value: number;
-  width: number;
+function GalleryNavigationSearch({
+  value,
+  onValueChange,
+}: {
+  value: string;
+  onValueChange: (value: string) => void;
+}) {
+  const { ref, width } = useGalleryElementSize<HTMLDivElement>();
+  return (
+    <div className={styles["gallery-search"]}>
+      <div className={styles["gallery-search-entry"]} ref={ref}>
+        {width > 0 && (
+          <Input
+            aria-label="Find a component, prop, or icon"
+            pixelWidth={width / ARTWORK_SCALE}
+            id="gallery-filter"
+            leading={<UiIcon part="icon_search" scale={2} color="currentColor" />}
+            onValueChange={onValueChange}
+            placeholder="Search"
+            size={24}
+            type="search"
+            value={value}
+          />
+        )}
+      </div>
+    </div>
+  );
 }
 
 interface GalleryScrollRegionProps {
@@ -132,6 +189,7 @@ interface GalleryScrollRegionProps {
   className: string;
   contentClassName?: string;
   contentRevision?: number;
+  scrollbarVariant?: ScrollbarVariant;
 }
 
 function GalleryScrollRegion({
@@ -140,87 +198,46 @@ function GalleryScrollRegion({
   className,
   contentClassName,
   contentRevision = 0,
+  scrollbarVariant,
 }: GalleryScrollRegionProps) {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [metrics, setMetrics] = useState<ScrollMetrics>({
-    contentSize: 0,
-    visibleSize: 0,
-    value: 0,
-    width: 0,
-  });
-
-  const measure = useCallback(() => {
-    const content = contentRef.current;
-    if (!content) return;
-
-    const next = {
-      contentSize: scrollSize(content).height,
-      visibleSize: layoutSize(content).height,
-      value: scrollPosition(content).y,
-      width: layoutSize(content).width,
-    };
-    setMetrics((current) =>
-      current.contentSize === next.contentSize &&
-      current.visibleSize === next.visibleSize &&
-      current.value === next.value &&
-      current.width === next.width
-        ? current
-        : next,
-    );
-  }, []);
-
-  useLayoutEffect(() => {
-    const content = contentRef.current;
-    if (!content) return;
-
-    measure();
-    const resizeObserver = observeResize([content], measure);
-    const mutationObserver = new MutationObserver(measure);
-
-    mutationObserver.observe(content, {
-      attributes: true,
-      characterData: true,
-      childList: true,
-      subtree: true,
-    });
-
-    return () => {
-      resizeObserver();
-      mutationObserver.disconnect();
-    };
-  }, [contentRevision, measure]);
-
-  const hasOverflow = metrics.contentSize > metrics.visibleSize + SCROLL_MEASUREMENT_EPSILON;
-
   return (
-    <div className={`${styles["gallery-scroll-region"]} ${className}`}>
-      <div
-        aria-label={ariaLabel}
-        className={[styles["gallery-scroll-content"], contentClassName].filter(Boolean).join(" ")}
-        onScroll={measure}
-        ref={contentRef}
-        role="region"
-        tabIndex={0}
-      >
-        {children}
-      </div>
-      {hasOverflow && (
-        <Scrollbar
-          aria-label={`${ariaLabel} scroll`}
-          bounds={{
-            x: Math.max(0, metrics.width - SCROLLBAR_THICKNESS),
-            y: 0,
-            width: SCROLLBAR_THICKNESS,
-            height: metrics.visibleSize,
+    <ScrollArea
+      className={`${styles["gallery-scroll-region"]} ${className}`}
+      scrollX={false}
+      scrollbarVariant={scrollbarVariant}
+      reserveScrollbarGutter
+      contentRevision={contentRevision}
+      contentClassName={[styles["gallery-scroll-content"], contentClassName]
+        .filter(Boolean)
+        .join(" ")}
+      aria-label={`${ariaLabel} scroll`}
+      viewportProps={{
+        "aria-label": ariaLabel,
+        "data-ui-scroll-region-focus": "true",
+        role: "region",
+        tabIndex: 0,
+      }}
+    >
+      {children}
+    </ScrollArea>
+  );
+}
+
+function GalleryNavigationGroup({ label }: { label: string }) {
+  const { ref, width } = useGalleryElementSize<HTMLDivElement>();
+  return (
+    <div
+      ref={ref}
+      className={styles["gallery-navigation-group"]}
+      style={{ paddingBlockStart: COMPONENT_NAV_GROUP_HEIGHT - COMPONENT_NAV_GROUP_LABEL_HEIGHT }}
+    >
+      {width > 0 && (
+        <Divider
+          pixelSize={{
+            width: width / ARTWORK_SCALE,
+            height: COMPONENT_NAV_GROUP_LABEL_HEIGHT / ARTWORK_SCALE,
           }}
-          contentSize={metrics.contentSize}
-          onValueChange={(value) => {
-            if (!contentRef.current) return;
-            setScrollPosition(contentRef.current, { y: value });
-            measure();
-          }}
-          value={metrics.value}
-          visibleSize={metrics.visibleSize}
+          text={label}
         />
       )}
     </div>
@@ -236,60 +253,46 @@ function GalleryComponentNavigation({
   componentSlug: string;
   onSelect: (slug: string) => void;
 }) {
-  const viewportRef = useRef<HTMLElement>(null);
-  const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
-  const items = useMemo(
+  const { ref, width, height } = useGalleryElementSize<HTMLElement>();
+  const items = useMemo<ListBoxItem[]>(
     () => [
-      { value: "icons", label: "Icons" },
-      ...components.map((component) => ({
-        value: componentSlugFromName(component.name),
-        label: component.name,
-      })),
+      { value: "icons", label: "Atlas icons" },
+      ...Object.values(GalleryComponentGroup).flatMap((group): ListBoxItem[] => {
+        const entries = components.filter((component) => component.group === group);
+        return entries.length
+          ? [
+              { separator: true, label: group },
+              ...entries.map((component) => ({
+                value: componentSlugFromName(component.name),
+                label: component.name,
+              })),
+            ]
+          : [];
+      }),
     ],
     [components],
   );
-
-  useLayoutEffect(() => {
-    const viewport = viewportRef.current;
-    if (!viewport) return;
-    const measure = () => {
-      const next = { width: layoutSize(viewport).width, height: layoutSize(viewport).height };
-      setViewportSize((current) =>
-        current.width === next.width && current.height === next.height ? current : next,
-      );
-    };
-    measure();
-    const observer = observeResize([viewport], measure);
-
-    return () => observer();
-  }, []);
-
-  const listWidth = Math.max(0, viewportSize.width - COMPONENT_NAV_SCROLLBAR_GUTTER);
-  const listHeight = Math.max(
-    viewportSize.height,
-    COMPONENT_NAV_VERTICAL_INSET + items.length * COMPONENT_NAV_ITEM_HEIGHT,
-  );
-  const selectedValue = items.some((item) => item.value === componentSlug) ? componentSlug : "";
+  const selectedValue = items.some((item) => !item.separator && item.value === componentSlug)
+    ? componentSlug
+    : "";
 
   return (
-    <nav aria-label="UI components" className={styles["gallery-component-nav"]} ref={viewportRef}>
-      <GalleryScrollRegion
-        ariaLabel="UI components"
-        className={styles["gallery-component-nav-scroll"]}
-        contentRevision={items.length}
-      >
-        <div style={{ position: "relative", width: listWidth, height: listHeight }}>
-          {listWidth > 0 && listHeight > 0 && (
-            <ListBox
-              aria-label="UI components"
-              bounds={{ x: 0, y: 0, width: listWidth, height: listHeight }}
-              items={items}
-              onValueChange={onSelect}
-              value={selectedValue}
-            />
-          )}
-        </div>
-      </GalleryScrollRegion>
+    <nav aria-label="UI components" className={styles["gallery-component-nav"]} ref={ref}>
+      {width > 0 && height > 0 && (
+        <ListBox
+          aria-label="UI components"
+          bounds={{ x: 0, y: 0, width, height }}
+          font="default"
+          frameStyle={ListBoxFrameStyle.Single}
+          scrollbarVariant="transparent"
+          itemHeight={COMPONENT_NAV_ITEM_HEIGHT}
+          separatorHeight={COMPONENT_NAV_GROUP_HEIGHT}
+          renderGroup={(item) => <GalleryNavigationGroup label={item.label ?? ""} />}
+          items={items}
+          onValueChange={onSelect}
+          value={selectedValue}
+        />
+      )}
     </nav>
   );
 }
@@ -352,9 +355,18 @@ function callbackDefaults(definition: GalleryComponentDefinition) {
       .filter((prop) => prop.kind === "callback")
       .map((prop) => [
         prop.name,
-        definition.name === "Slider" && prop.name === "paintBackground"
+        ["renderItem", "renderGroup"].includes(prop.name) ||
+        prop.name.endsWith("Ref") ||
+        prop.name === "onInputElement" ||
+        (definition.name === "Note" && prop.name === "onDismiss") ||
+        (definition.name === "Slider" && prop.name === "paintBackground")
           ? false
-          : !prop.hostProp || prop.required,
+          : prop.required ||
+            (!prop.hostProp && prop.name.startsWith("on")) ||
+            (definition.initialProps[prop.name] !== null &&
+              typeof definition.initialProps[prop.name] === "object" &&
+              GALLERY_CALLBACK_KEY in
+                (definition.initialProps[prop.name] as Record<string, unknown>)),
       ]),
   );
 }
@@ -412,16 +424,13 @@ function CallbackControl({
 }) {
   return (
     <GalleryFormControl>
-      {(bounds) => (
-        <Checkbox
-          aria-label={schema.name}
-          bounds={bounds}
-          checked={enabled}
-          label={schema.name}
-          mini
-          onCheckedChange={onChange}
-        />
-      )}
+      <Checkbox
+        aria-label={schema.name}
+        checked={enabled}
+        label={schema.name}
+        mini
+        onCheckedChange={onChange}
+      />
     </GalleryFormControl>
   );
 }
@@ -439,11 +448,13 @@ function JsonControl({
   const [invalid, setInvalid] = useState(false);
 
   return (
-    <label className={styles["gallery-field"]}>
-      <span className={styles["gallery-field-heading"]}>
-        <span>{schema.name}</span>
-      </span>
-      <textarea
+    <Field label={schema.name} layout={FieldLayout.Horizontal}>
+      <TextArea
+        presentation={TextAreaPresentation.Code}
+        resize={TextAreaResize.Vertical}
+        height={JSON_EDITOR_HEIGHT}
+        scrollbarVariant="mini"
+        aria-label={schema.name}
         aria-invalid={invalid}
         onChange={(event) => {
           const nextDraft = event.target.value;
@@ -456,9 +467,10 @@ function JsonControl({
           }
         }}
         spellCheck={false}
+        rows={5}
         value={draft}
       />
-    </label>
+    </Field>
   );
 }
 
@@ -486,28 +498,24 @@ function PropControl({
   if (schema.kind === "boolean")
     return (
       <GalleryFormControl>
-        {(bounds) => (
-          <Checkbox
-            aria-label={schema.name}
-            bounds={bounds}
-            checked={Boolean(value)}
-            label={schema.name}
-            mini
-            onCheckedChange={onChange}
-          />
-        )}
+        <Checkbox
+          aria-label={schema.name}
+          checked={Boolean(value)}
+          label={schema.name}
+          mini
+          onCheckedChange={onChange}
+        />
       </GalleryFormControl>
     );
 
   if (schema.kind === "enum")
     return (
-      <div className={styles["gallery-field"]}>
-        <span className={styles["gallery-field-heading"]}>{schema.name}</span>
+      <Field label={schema.name} layout={FieldLayout.Horizontal}>
         <GalleryFormControl>
-          {(bounds) => (
+          {(pixelWidth) => (
             <Combobox
               aria-label={schema.name}
-              bounds={bounds}
+              pixelWidth={pixelWidth}
               onValueChange={(nextValue) => {
                 const option = schema.options?.find((candidate) => String(candidate) === nextValue);
                 onChange(nextValue === DEFAULT_ENUM_VALUE ? undefined : (option ?? nextValue));
@@ -523,17 +531,16 @@ function PropControl({
             />
           )}
         </GalleryFormControl>
-      </div>
+      </Field>
     );
 
   return (
-    <div className={styles["gallery-field"]}>
-      <span className={styles["gallery-field-heading"]}>{schema.name}</span>
+    <Field label={schema.name} layout={FieldLayout.Horizontal}>
       <GalleryFormControl>
-        {(bounds) => (
+        {(pixelWidth) => (
           <Input
             aria-label={schema.name}
-            bounds={bounds}
+            pixelWidth={pixelWidth}
             onValueChange={(nextValue) =>
               onChange(schema.kind === "number" ? Number(nextValue) : nextValue)
             }
@@ -543,20 +550,179 @@ function PropControl({
           />
         )}
       </GalleryFormControl>
+    </Field>
+  );
+}
+
+function GalleryCanvasPreview({ props }: { props: EditableProps }) {
+  const assets = useUiAssets();
+  const bounds = props.bounds as SurfaceBounds;
+  return (
+    <CanvasSurface
+      bounds={bounds}
+      style={{ display: "block" }}
+      dependencies={[assets]}
+      paint={(context) => {
+        if (!assets) return;
+        paintUiPart(
+          context,
+          assets,
+          "button_normal",
+          bounds.x,
+          bounds.y,
+          bounds.width,
+          bounds.height,
+          { drawCenter: true },
+        );
+        paintUiText(context, assets, "Canvas artwork", bounds.x + 12, bounds.y + 12, {
+          color: assets.style.colors.text,
+        });
+      }}
+    />
+  );
+}
+
+function GalleryComponentPreview({
+  definition,
+  props,
+}: {
+  definition: GalleryComponentDefinition;
+  props: EditableProps;
+}) {
+  const { ref, width } = useGalleryElementSize<HTMLDivElement>();
+  const next = { ...props };
+  const viewport = props.viewport as SurfaceViewport | undefined;
+  const availableWidth = viewport ? (width * viewport.sceneWidth) / viewport.width : width;
+  if (width > 0) {
+    for (const key of ["bounds", "defaultBounds", "sceneBounds", "clientBounds"]) {
+      const bounds = props[key] as Partial<SurfaceBounds> | undefined;
+      if (bounds && typeof bounds.width === "number") {
+        const fittedWidth = Math.min(bounds.width, availableWidth);
+        next[key] = {
+          ...bounds,
+          width: fittedWidth,
+          ...(typeof bounds.x === "number"
+            ? { x: Math.min(bounds.x, Math.max(0, availableWidth - fittedWidth)) }
+            : {}),
+        };
+      }
+    }
+    if (typeof props.width === "number") next.width = Math.min(props.width, availableWidth);
+    if (props.style && typeof props.style === "object") {
+      const style = props.style as CSSProperties;
+      next.style = {
+        ...style,
+        boxSizing: style.boxSizing ?? "border-box",
+        ...(typeof style.width === "number" ? { width: Math.min(style.width, width) } : {}),
+      };
+    }
+  }
+  return (
+    <div ref={ref} className={styles["gallery-preview-plane"]}>
+      {width > 0 && <GalleryPreviewContent definition={definition} props={next} />}
     </div>
   );
 }
 
-function GalleryCard({ definition }: { definition: GalleryComponentDefinition }) {
+function GalleryPreviewContent({
+  definition,
+  props,
+}: {
+  definition: GalleryComponentDefinition;
+  props: EditableProps;
+}) {
+  const { style } = useUi();
+  if (definition.name === "CanvasSurface") return <GalleryCanvasPreview props={props} />;
+  if (definition.name === "PageScrollArea") return <GalleryPageScrollPreview props={props} />;
+  if (definition.name === "Field") return <GalleryFieldPreview props={props} />;
+  if (definition.name === "RichText") {
+    if (typeof props.markdown === "string" && props.markdown.length > 0) {
+      const { children: _children, dangerouslySetInnerHTML: _html, ...markdownProps } = props;
+      return createElement(definition.component, markdownProps);
+    }
+    const { markdown: _markdown, resolveImage: _resolveImage, children, ...markupProps } = props;
+    if (markupProps.dangerouslySetInnerHTML)
+      return createElement(definition.component, markupProps);
+    return (
+      <RichText {...markupProps}>
+        <h1>Sprite notes</h1>
+        <p>{children as ReactNode}</p>
+        <h2>Animation</h2>
+        <ul>
+          <li>8 frames</li>
+          <li>Transparent background</li>
+        </ul>
+        <p>
+          <a href="#export">Export the animation</a>
+        </p>
+      </RichText>
+    );
+  }
+  if (definition.name === "Text") {
+    const textProps = { ...props };
+    if (props.variant === "inline" || props.variant === "reading") {
+      textProps.ink = props.ink ?? (props.color === undefined ? style.colors.text : undefined);
+    } else {
+      textProps.color = props.color ?? style.colors.text;
+    }
+    return createElement(definition.component, textProps);
+  }
+  const preview = createElement(definition.component, { ...props, children: props.children });
+  if (definition.name === "PixelImage") {
+    const box = props.initialBox as { width?: number; height?: number } | undefined;
+    return (
+      <div
+        className={styles["gallery-pixel-preview"]}
+        style={{
+          width: box?.width ?? LIST_PREVIEW_WIDTH,
+          height: box?.height ?? DEFAULT_PREVIEW_HEIGHT,
+        }}
+      >
+        {preview}
+      </div>
+    );
+  }
+  if (definition.name === "Button" && props.variant === ButtonVariant.Standard && !props.href) {
+    return (
+      <div className={styles["gallery-button-actions"]}>
+        {preview}
+        <Button href="#navigation-preview" text="Open editor" slots={{}} />
+      </div>
+    );
+  }
+  return preview;
+}
+
+function GalleryFieldPreview({ props }: { props: EditableProps }) {
+  const initialValue = typeof props.children === "string" ? props.children : "12";
+  const [value, setValue] = useState(initialValue);
+  useEffect(() => setValue(initialValue), [initialValue]);
+  return (
+    <Field {...props} label={props.label as ReactNode}>
+      <Input aria-label="Brush size" value={value} onValueChange={setValue} />
+    </Field>
+  );
+}
+
+interface GalleryCardProps {
+  definition: GalleryComponentDefinition;
+  events: readonly string[];
+  onRecordEvent: (event: string) => void;
+  onClearConsole: () => void;
+}
+
+function GalleryCard({ definition, events, onRecordEvent, onClearConsole }: GalleryCardProps) {
   const [props, setProps] = useState<EditableProps>(() => ({ ...definition.initialProps }));
   const [enabledCallbacks, setEnabledCallbacks] = useState<Record<string, boolean>>(() =>
     callbackDefaults(definition),
   );
-  const [events, setEvents] = useState<string[]>([]);
   const [propFilter, setPropFilter] = useState("");
   const [resetRevision, setResetRevision] = useState(0);
   const variantSchema = definition.props.find(
-    (prop) => prop.name === "variant" && prop.kind === "enum" && (prop.options?.length ?? 0) > 1,
+    (prop) =>
+      prop.name === (definition.previewProperty ?? "variant") &&
+      prop.kind === "enum" &&
+      (prop.options?.length ?? 0) > 1,
   );
   const variantOptions = variantSchema?.options ?? [];
   const hasVariants = variantOptions.length > 1;
@@ -578,11 +744,21 @@ function GalleryCard({ definition }: { definition: GalleryComponentDefinition })
     | undefined;
   const previewHeight = Math.min(
     MAX_PREVIEW_HEIGHT,
-    Math.max(MIN_PREVIEW_HEIGHT, Number(previewBounds?.height) || DEFAULT_PREVIEW_HEIGHT),
+    Math.max(
+      definition.name === "Icon" ? IconSize.Small : MIN_PREVIEW_HEIGHT,
+      Number(previewBounds?.height) ||
+        (definition.name === "Tooltip"
+          ? TOOLTIP_PREVIEW_HEIGHT
+          : definition.name === "Panel"
+            ? PANEL_PREVIEW_HEIGHT
+            : definition.name === "Icon"
+              ? IconSize.Small
+              : DEFAULT_PREVIEW_HEIGHT),
+    ),
   );
 
   const recordEvent = (name: string, args: unknown[]) => {
-    setEvents((current) => [...current, eventSummary(name, args)].slice(-EVENT_LOG_LIMIT));
+    onRecordEvent(eventSummary(name, args));
   };
 
   const updateFromCallback = (name: string, args: unknown[]) => {
@@ -606,6 +782,33 @@ function GalleryCard({ definition }: { definition: GalleryComponentDefinition })
   };
 
   const makeCallback = (name: string) => {
+    if (definition.name === "Tabs" && name === "onClose")
+      return (id: string) => {
+        setProps((current) => {
+          const tabs = (current.tabs as { id: string }[]).filter((tab) => tab.id !== id);
+          return {
+            ...current,
+            tabs,
+            value: current.value === id ? (tabs[0]?.id ?? "") : current.value,
+          };
+        });
+        recordEvent(name, [id]);
+      };
+    if (definition.name === "Tabs" && name === "onReorder")
+      return (id: string, targetId: string) => {
+        setProps((current) => {
+          const tabs = [...(current.tabs as { id: string }[])];
+          const from = tabs.findIndex((tab) => tab.id === id);
+          const to = tabs.findIndex((tab) => tab.id === targetId);
+          if (from < 0 || to < 0) return current;
+          const [tab] = tabs.splice(from, 1);
+          tabs.splice(to, 0, tab);
+          return { ...current, tabs };
+        });
+        recordEvent(name, [id, targetId]);
+      };
+    if (name === "renderItem") return (item: { label: string }) => item.label;
+    if (name === "renderGroup") return (item: { label?: string }) => item.label ?? "";
     if (name === "renderTrigger")
       return (triggerProps: Record<string, unknown> & { buttonRef?: Ref<HTMLButtonElement> }) => {
         const { buttonRef, ...buttonProps } = triggerProps;
@@ -626,7 +829,7 @@ function GalleryCard({ definition }: { definition: GalleryComponentDefinition })
     if (name === "measureText") return (text: string) => text.length;
     if (name === "valueFormat") return (value: string | number) => String(value);
     if (name === "translateKey" || name === "translateSource") return (text: string) => text;
-    if (name === "onInputElement" || name === "buttonRef" || name === "onRootRef") return () => {};
+    if (name.endsWith("Ref") || name === "onInputElement") return () => {};
     return (...args: unknown[]) => updateFromCallback(name, args);
   };
 
@@ -657,30 +860,37 @@ function GalleryCard({ definition }: { definition: GalleryComponentDefinition })
         ? makeCallback(schema.name)
         : schema.required
           ? () => {}
-          : undefined;
+          : props[schema.name] !== null && typeof props[schema.name] !== "object"
+            ? props[schema.name]
+            : undefined;
     }
     for (const schema of definition.props) {
       if (
+        definition.name !== "Text" &&
         schema.name === "children" &&
         schema.kind === "node" &&
         typeof props.children === "string"
       ) {
         next.children = createElement(
           "span",
-          { className: styles["gallery-child"] },
+          {
+            className:
+              definition.name === "ScrollArea"
+                ? styles["gallery-scroll-sample"]
+                : styles["gallery-child"],
+          },
           props.children,
         );
       }
     }
     return next;
     // Callbacks intentionally use the latest setter and preview state each render.
-  }, [definition, props, enabledCallbacks]);
+  }, [definition, props, enabledCallbacks, onRecordEvent]);
 
-  const ComponentPreview = definition.component as ComponentType<Record<string, unknown>>;
   const reset = () => {
     setProps({ ...definition.initialProps });
     setEnabledCallbacks(callbackDefaults(definition));
-    setEvents([]);
+    onClearConsole();
     setVariantProps({});
     setResetRevision((current) => current + 1);
   };
@@ -703,7 +913,7 @@ function GalleryCard({ definition }: { definition: GalleryComponentDefinition })
   };
 
   return (
-    <article className={styles["gallery-card"]}>
+    <WindowWorkspace className={styles["gallery-card"]}>
       <GallerySectionHeading text="Preview" />
       <div
         className={`${styles["gallery-variant-grid"]} ${
@@ -715,10 +925,53 @@ function GalleryCard({ definition }: { definition: GalleryComponentDefinition })
           const isOpen = !hasOpenProp ? true : props.open === true;
           const previewProps: EditableProps = {
             ...runtimeProps,
-            ...variantProps[variantKey],
             ...sliderVariantProps(variant),
+            ...variantProps[variantKey],
           };
-          if (variantSchema && variant !== undefined) previewProps.variant = variant;
+          if (variantSchema && variant !== undefined) previewProps[variantSchema.name] = variant;
+          if (
+            definition.name === "ListBox" &&
+            variant === "multiple" &&
+            Array.isArray(previewProps.items)
+          ) {
+            previewProps.items = previewProps.items.map(
+              (item: { separator?: boolean; label?: string }) =>
+                item.separator ? { ...item, label: item.label ?? "More tools" } : item,
+            );
+          }
+          if (definition.name === "ListBox") {
+            if (variant === "multiple") {
+              const bounds = props.bounds as { width?: number; height?: number } | undefined;
+              previewProps.style = {
+                width: bounds?.width ?? LIST_PREVIEW_WIDTH,
+                height: bounds?.height ?? LIST_PREVIEW_HEIGHT,
+                ...(props.style as CSSProperties | undefined),
+              };
+              for (const key of [
+                "bounds",
+                "pixelSize",
+                "relativeTo",
+                "value",
+                "onValueChange",
+                "font",
+                "framed",
+                "frameStyle",
+                "scrollbarVariant",
+                "separatorHeight",
+              ])
+                delete previewProps[key];
+            } else {
+              for (const key of [
+                "values",
+                "onValuesChange",
+                "onActivate",
+                "disabled",
+                "sectionHeight",
+                "headingHeight",
+              ])
+                delete previewProps[key];
+            }
+          }
           if (definition.name === "Button") {
             const icon = typeof props.icon === "string" ? props.icon : "window_play_icon";
             previewProps.children = undefined;
@@ -726,12 +979,38 @@ function GalleryCard({ definition }: { definition: GalleryComponentDefinition })
             previewProps.label = undefined;
             previewProps.leading = undefined;
             previewProps.text = undefined;
+            previewProps.slots = undefined;
+            previewProps.href = undefined;
 
-            if (variant === "standard") {
-              previewProps.text = typeof props.text === "string" ? props.text : "Apply";
+            if (variant === "tile") {
+              previewProps.text = typeof props.text === "string" ? props.text : "Button";
+              previewProps.slots = runtimeProps.slots ?? {
+                leading: <Icon kind={IconKind.Folder} size={IconSize.Large} />,
+              };
+              previewProps.bounds = undefined;
+              previewProps.pixelSize = undefined;
+              // Tile props are native attributes, so do not forward painter-only parameters.
+              const tileKeys = new Set([
+                "variant",
+                "text",
+                "slots",
+                "tileSize",
+                "compactOnSmallScreens",
+                "disabled",
+                "onClick",
+                "className",
+                "style",
+                "aria-label",
+              ]);
+              for (const key of Object.keys(previewProps))
+                if (!tileKeys.has(key)) delete previewProps[key];
+            } else if (variant === "standard") {
+              previewProps.text = typeof props.text === "string" ? props.text : "Button";
               previewProps["aria-label"] = previewProps.text;
-              previewProps.bounds = { x: 0, y: 0, width: 160, height: 32 };
-              previewProps.part = "buttonset_item_normal";
+              previewProps.bounds = undefined;
+              previewProps.slots = runtimeProps.slots ?? {};
+              previewProps.href =
+                typeof props.href === "string" && props.href ? props.href : undefined;
             } else if (variant === "icon") {
               previewProps.icon = icon;
               previewProps.bounds = { x: 0, y: 0, width: 40, height: 40 };
@@ -744,7 +1023,9 @@ function GalleryCard({ definition }: { definition: GalleryComponentDefinition })
             } else if (variant === "split") {
               previewProps.text = typeof props.text === "string" ? props.text : "Apply";
               previewProps["aria-label"] = previewProps.text;
-              previewProps.bounds = { x: 0, y: 0, width: 184, height: 32 };
+              previewProps.bounds = undefined;
+              previewProps.pixelSize = undefined;
+              previewProps.slots = runtimeProps.slots ?? {};
             } else if (variant === "color") {
               previewProps.text = typeof props.text === "string" ? props.text : "Apply";
               previewProps["aria-label"] = previewProps.text;
@@ -755,8 +1036,21 @@ function GalleryCard({ definition }: { definition: GalleryComponentDefinition })
               previewProps.icon = icon;
               previewProps.bounds = { x: 0, y: 0, width: 40, height: 40 };
               previewProps.part = "toolbutton_normal";
+              previewProps.hotPart = "toolbutton_hot";
+              previewProps.pushedPart = "toolbutton_pushed";
+              previewProps.focusedPart = "toolbutton_hot";
+              previewProps.selectedPart = "toolbutton_pushed";
               previewProps["aria-label"] = "Brush";
             }
+          }
+          if (definition.name === "Tooltip") {
+            previewProps.children = (
+              <Button
+                slots={{}}
+                text={typeof props.children === "string" ? props.children : "Help"}
+                aria-label="Tooltip help"
+              />
+            );
           }
           if (hasOpenProp) previewProps.open = isOpen;
           if (hasVariants && enabledCallbacks.onOpenChange) {
@@ -767,14 +1061,31 @@ function GalleryCard({ definition }: { definition: GalleryComponentDefinition })
             previewProps.autoFocus = false;
             previewProps.closeOnOutsideClick = false;
           }
-          if (definition.name === "Slider" && hasVariants && enabledCallbacks.onValueChange) {
-            previewProps.onValueChange = (...args: unknown[]) => {
-              setVariantProps((current) => ({
-                ...current,
-                [variantKey]: { ...current[variantKey], value: args[0] },
-              }));
-              recordEvent("onValueChange", args);
-            };
+          if (["Slider", "ListBox", "Note"].includes(definition.name) && hasVariants) {
+            for (const callback of ["onValueChange", "onValuesChange", "onCollapsedChange"]) {
+              if (!enabledCallbacks[callback]) continue;
+              previewProps[callback] = (...args: unknown[]) => {
+                setVariantProps((current) => ({
+                  ...current,
+                  [variantKey]: {
+                    ...current[variantKey],
+                    [callbackTarget[callback as keyof typeof callbackTarget]]: args[0],
+                  },
+                }));
+                recordEvent(callback, args);
+              };
+            }
+          }
+          if (definition.name === "AlertDialog" && Array.isArray(previewProps.actions)) {
+            previewProps.actions = previewProps.actions.map(
+              (action: { label: string; onClick?: () => void }) => ({
+                ...action,
+                onClick: () => {
+                  action.onClick?.();
+                  setProps((current) => ({ ...current, open: false }));
+                },
+              }),
+            );
           }
           return (
             <section className={styles["gallery-variant-tile"]} key={variantKey}>
@@ -783,19 +1094,20 @@ function GalleryCard({ definition }: { definition: GalleryComponentDefinition })
                   {String(variant).replace(/[-_]/g, " ")}
                 </h3>
               )}
-              <div className={styles["gallery-preview"]} style={{ height: previewHeight }}>
-                <GalleryScrollRegion
-                  ariaLabel={`${definition.name} ${variant ?? ""} preview`}
-                  className={styles["gallery-preview-scroll"]}
-                  contentClassName={styles["gallery-preview-content"]}
-                  contentRevision={resetRevision}
+              <div
+                className={styles["gallery-preview"]}
+                role="region"
+                aria-label={`${definition.name} ${variant ?? ""} preview`.replace(/\s+/g, " ")}
+                data-gallery-preview
+              >
+                <div
+                  className={styles["gallery-preview-content"]}
+                  style={{ minHeight: previewHeight }}
                 >
                   {hasOpenProp && !isOpen ? (
                     <div className={styles["gallery-preview-closed"]}>
                       <Button
-                        onClick={() => {
-                          setProps((current) => ({ ...current, open: true }));
-                        }}
+                        onClick={() => setProps((current) => ({ ...current, open: true }))}
                         text={variant === undefined ? "Open preview" : `Open ${variant} preview`}
                         variant={ButtonVariant.Standard}
                       />
@@ -805,13 +1117,10 @@ function GalleryCard({ definition }: { definition: GalleryComponentDefinition })
                       key={`${definition.name}:${variantKey}:${resetRevision}`}
                       resetRevision={resetRevision}
                     >
-                      {createElement(ComponentPreview, {
-                        ...previewProps,
-                        children: previewProps.children,
-                      })}
+                      <GalleryComponentPreview definition={definition} props={previewProps} />
                     </PreviewBoundary>
                   )}
-                </GalleryScrollRegion>
+                </div>
               </div>
             </section>
           );
@@ -819,14 +1128,10 @@ function GalleryCard({ definition }: { definition: GalleryComponentDefinition })
       </div>
       <Panel
         className={styles["gallery-console"]}
-        extra={
-          <Button
-            aria-label="Clear console"
-            onClick={() => setEvents([])}
-            text="Clear"
-            variant={ButtonVariant.Standard}
-          />
-        }
+        contentLayout={ContentLayout.Fill}
+        variant={PanelVariant.Window}
+        windowKind={PanelWindowKind.Utility}
+        collapsible
         title="Console"
       >
         <GalleryScrollRegion
@@ -840,14 +1145,20 @@ function GalleryCard({ definition }: { definition: GalleryComponentDefinition })
             : null}
         </GalleryScrollRegion>
       </Panel>
-      <section className={styles["gallery-props"]} aria-label="Parameters">
-        <GallerySectionHeading text="Parameters" />
+      <Panel
+        className={styles["gallery-props"]}
+        contentPadding={ContentPadding.Standard}
+        title="Parameters"
+        variant={PanelVariant.Window}
+        windowKind={PanelWindowKind.Utility}
+        collapsible
+      >
         <div className={styles["gallery-props-toolbar"]}>
           <div className={styles["gallery-filter"]}>
             <div className={styles["gallery-filter-entry"]}>
               <Input
                 aria-label="Filter parameters"
-                bounds={FILTER_ENTRY_BOUNDS}
+                pixelWidth={FILTER_ENTRY_PIXEL_WIDTH}
                 mini
                 onValueChange={setPropFilter}
                 placeholder="Filter…"
@@ -880,8 +1191,14 @@ function GalleryCard({ definition }: { definition: GalleryComponentDefinition })
           ))}
         </div>
         {hostPropCount > 0 && (
-          <details className={styles["gallery-host-props"]}>
-            <summary>Advanced parameters</summary>
+          <Panel
+            className={styles["gallery-host-props"]}
+            title="Advanced parameters"
+            variant={PanelVariant.Window}
+            windowKind={PanelWindowKind.Utility}
+            collapsible
+            defaultCollapsed
+          >
             <GalleryScrollRegion
               ariaLabel="Advanced parameters"
               className={styles["gallery-host-props-scroll"]}
@@ -901,19 +1218,27 @@ function GalleryCard({ definition }: { definition: GalleryComponentDefinition })
                 />
               ))}
             </GalleryScrollRegion>
-          </details>
+          </Panel>
         )}
-      </section>
-    </article>
+      </Panel>
+    </WindowWorkspace>
   );
 }
 
 interface GalleryProps {
   iconClipboard: IconClipboard;
+  theme: UiTheme;
+  onThemeChange: (theme: UiTheme) => void;
 }
 
-export default function Gallery({ iconClipboard }: GalleryProps) {
+export default function Gallery({ iconClipboard, theme, onThemeChange }: GalleryProps) {
   const [open, setOpen] = useState(true);
+  const [consoleEvents, setConsoleEvents] = useState<string[]>([]);
+  const recordConsoleEvent = useCallback((event: string) => {
+    setConsoleEvents((current) => [...current, event].slice(-EVENT_LOG_LIMIT));
+  }, []);
+  const clearConsole = useCallback(() => setConsoleEvents([]), []);
+  const [userWindowBounds, setUserWindowBounds] = useState<SurfaceBounds>();
   const [copyNotice, setCopyNotice] = useState<{ text: string } | null>(null);
   useEffect(() => {
     if (!copyNotice) return;
@@ -989,15 +1314,17 @@ export default function Gallery({ iconClipboard }: GalleryProps) {
 
   useEffect(() => {
     const updateRoute = () => {
+      clearConsole();
       setComponentSlug(readComponentSlug());
       setGalleryPage(readGalleryPage());
     };
     window.addEventListener("popstate", updateRoute);
     return () => window.removeEventListener("popstate", updateRoute);
-  }, []);
+  }, [clearConsole]);
 
   const handleComponentSelect = (slug: string) => {
-    const pathname = `/components/${slug}`;
+    if (slug !== componentSlug) clearConsole();
+    const pathname = `${import.meta.env.BASE_URL}components/${slug}`;
     if (window.location.pathname !== pathname) window.history.pushState(null, "", pathname);
     setComponentSlug(slug);
     setGalleryPage("components");
@@ -1006,7 +1333,7 @@ export default function Gallery({ iconClipboard }: GalleryProps) {
   const handleGalleryPageChange = (page: string) => {
     const nextPage = page === "icons" ? "icons" : "components";
     const selectedSlug = componentSlug ?? DEFAULT_COMPONENT_SLUG;
-    const pathname = nextPage === "icons" ? "/icons" : `/components/${selectedSlug}`;
+    const pathname = `${import.meta.env.BASE_URL}${nextPage === "icons" ? "icons" : `components/${selectedSlug}`}`;
     if (window.location.pathname !== pathname) window.history.pushState(null, "", pathname);
     setComponentSlug(selectedSlug);
     setGalleryPage(nextPage);
@@ -1014,27 +1341,87 @@ export default function Gallery({ iconClipboard }: GalleryProps) {
 
   const pageTitle = galleryPage === "icons" ? "Icons" : (activeComponent?.name ?? "Components");
 
+  const applicationMenus = [
+    {
+      label: "Edit",
+      mnemonicIndex: -1,
+      items: [
+        {
+          label: "Clear Console",
+          disabled: !open || galleryPage !== "components" || consoleEvents.length === 0,
+          onSelect: clearConsole,
+        },
+      ],
+    },
+  ];
+  const menuBarHeight = style.dimensions.menubar_height ?? GALLERY_MENU_BAR_HEIGHT;
+  const desktopHeight = Math.max(0, height - menuBarHeight);
   const windowBounds = {
     x: Math.round((width * (1 - GALLERY_WINDOW_RATIO)) / 2),
-    y: Math.round((height * (1 - GALLERY_WINDOW_RATIO)) / 2),
+    y: menuBarHeight + Math.round((desktopHeight * (1 - GALLERY_WINDOW_RATIO)) / 2),
     width: Math.round(width * GALLERY_WINDOW_RATIO),
-    height: Math.round(height * GALLERY_WINDOW_RATIO),
+    height: Math.round(desktopHeight * GALLERY_WINDOW_RATIO),
   };
 
   return (
-    <main className={styles["gallery-workspace"]} ref={workspaceRef}>
+    <main
+      className={styles["gallery-workspace"]}
+      ref={workspaceRef}
+      data-gallery-macintosh={theme === macintoshTheme || undefined}
+    >
+      {theme === macintoshTheme && (
+        <Pattern
+          variant={PatternVariant.System7Pattern04}
+          className={styles["gallery-desktop-pattern"]}
+          aria-hidden="true"
+        />
+      )}
+      <header
+        className={styles["gallery-menubar"]}
+        style={
+          {
+            height: menuBarHeight,
+            "--ui-menu-navigation-height": `${menuBarHeight}px`,
+          } as CSSProperties
+        }
+      >
+        <SiteMenubar
+          label="Gallery menu"
+          applicationName="UI Gallery"
+
+          applications={siteApplications("/gallery/", "en", true)}
+          menus={applicationMenus}
+          brandImage={menuIconUrl}
+          systemItems={[
+            {
+              label: "Theme",
+              separator: true,
+              children: GALLERY_THEMES.map((option) => ({
+                label: option.label,
+                checked: theme === option,
+                checkType: MenuCheckType.Radio,
+                onSelect: () => onThemeChange(option),
+              })),
+            },
+          ]}
+        />
+      </header>
       {!open && (
         <Button onClick={() => setOpen(true)} text="UI Gallery" variant={ButtonVariant.Standard} />
       )}
       {width > 0 && height > 0 && (
         <Dialog
           open={open}
-          onOpenChange={setOpen}
+          onOpenChange={(nextOpen) => {
+            setOpen(nextOpen);
+            if (!nextOpen) clearConsole();
+          }}
           title="UI Gallery"
-          bounds={windowBounds}
+          bounds={userWindowBounds ?? windowBounds}
+          onBoundsChange={setUserWindowBounds}
           sceneBounds={{ width, height }}
-          moveable={false}
-          resizable={false}
+          moveable
+          resizable
           autoFocus={false}
           contentLayout={OverlayContentLayout.Flow}
         >
@@ -1043,22 +1430,7 @@ export default function Gallery({ iconClipboard }: GalleryProps) {
               <Toast text={copyNotice?.text ?? null} />
               <div className={styles["gallery-body"]}>
                 <aside className={styles["gallery-sidebar"]} aria-label="Gallery navigation">
-                  <div className={styles["gallery-search"]}>
-                    <div className={styles["gallery-search-entry"]}>
-                      <Input
-                        aria-label="Find a component, prop, or icon"
-                        bounds={HEADER_SEARCH_BOUNDS}
-                        id="gallery-filter"
-                        style={{ maxWidth: "100%" }}
-                        leading={<UiIcon part="icon_search" scale={2} color="currentColor" />}
-                        onValueChange={setFilter}
-                        placeholder="Search"
-                        size={24}
-                        type="search"
-                        value={filter}
-                      />
-                    </div>
-                  </div>
+                  <GalleryNavigationSearch value={filter} onValueChange={setFilter} />
                   <div className={styles["gallery-sidebar-content"]}>
                     <GalleryComponentNavigation
                       components={filteredComponents}
@@ -1086,10 +1458,17 @@ export default function Gallery({ iconClipboard }: GalleryProps) {
                       <div className={styles["gallery-detail-content"]}>
                         <GalleryScrollRegion
                           ariaLabel={`${activeComponent.name} page`}
+                          scrollbarVariant="regular"
                           className={styles["gallery-detail-scroll"]}
                           contentClassName={styles["gallery-detail-scroll-content"]}
                         >
-                          <GalleryCard definition={activeComponent} key={activeComponent.name} />
+                          <GalleryCard
+                            definition={activeComponent}
+                            events={consoleEvents}
+                            onRecordEvent={recordConsoleEvent}
+                            onClearConsole={clearConsole}
+                            key={activeComponent.name}
+                          />
                         </GalleryScrollRegion>
                       </div>
                     )}
@@ -1101,6 +1480,7 @@ export default function Gallery({ iconClipboard }: GalleryProps) {
                   >
                     <GalleryScrollRegion
                       ariaLabel="UI atlas icons"
+                      scrollbarVariant="regular"
                       className={styles["gallery-icon-scroll"]}
                       contentClassName={styles["gallery-icon-groups"]}
                       contentRevision={visibleIconGroups.reduce(
@@ -1157,10 +1537,14 @@ function componentSlugFromName(name: string) {
 }
 
 function readComponentSlug() {
-  const route = window.location.pathname.match(/^\/components\/([^/]+)\/?$/);
+  const route = window.location.pathname
+    .slice(import.meta.env.BASE_URL.length)
+    .match(/^components\/([^/]+)\/?$/);
   return route?.[1] ?? DEFAULT_COMPONENT_SLUG;
 }
 
 function readGalleryPage() {
-  return /^\/icons\/?$/.test(window.location.pathname) ? "icons" : "components";
+  return /^icons\/?$/.test(window.location.pathname.slice(import.meta.env.BASE_URL.length))
+    ? "icons"
+    : "components";
 }

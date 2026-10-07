@@ -12,6 +12,17 @@ export interface PositionedTooltipLayout {
   target: SurfaceBounds;
 }
 
+export interface TooltipTextMetrics {
+  inset: number;
+  lineHeight: number;
+  widthPadding: number;
+  heightPadding: number;
+  pointerSize?: number;
+  pointerInsets?: Readonly<
+    Record<string, { left: number; top: number; right: number; bottom: number }>
+  >;
+}
+
 export type TooltipTriggerProps = Pick<
   HTMLAttributes<HTMLElement>,
   | "title"

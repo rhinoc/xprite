@@ -21,8 +21,7 @@ import {
 } from "$/managers/palette/palette-actions-model";
 import { resizeEditorPalette } from "$/managers/palette/palette-operations";
 import { MAX_EDITOR_PALETTE_COLORS } from "$/managers/palette/palette-view";
-import { Button } from "@xprite/ui";
-import { Menu, type MenuItem } from "@xprite/ui";
+import { Button, Menu, type MenuItem } from "@xprite/ui";
 
 enum PaletteDialog {
   Preset = "preset",

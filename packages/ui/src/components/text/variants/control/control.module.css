@@ -1,0 +1,7 @@
+.uiLabel {
+  box-sizing: border-box;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 0;
+  font-size: 0;
+}

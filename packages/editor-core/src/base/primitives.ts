@@ -12,10 +12,23 @@ export interface Rect extends Point {
   height: number;
 }
 
+export enum PixelStorageFormat {
+  ZlibRgba = "zlib-rgba",
+}
+
+export interface EncodedRgbaPixels {
+  readonly format: PixelStorageFormat;
+  readonly byteLength: number;
+  readonly bytes: Uint8Array;
+  readonly hasHiddenRgb: boolean;
+}
+
 export interface PixelBuffer {
   width: number;
   height: number;
   data: Uint8ClampedArray;
+  /** Immutable backing for deferred RGB cels. Materialize before writing data. */
+  encoded?: EncodedRgbaPixels;
 }
 
 export enum PixelResizeMethod {

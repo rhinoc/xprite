@@ -1,11 +1,11 @@
 import type { AsepriteImageSamples } from "$/base/image";
 import type { PixelBuffer, Rect, Rgba } from "$/base/primitives";
 import type {
-  AsepriteCel,
+  AsepriteCelMetadata,
   AsepriteColorProfile,
-  AsepriteFrame,
+  AsepriteFrameMetadata,
   AsepriteLayer,
-  AsepriteSprite,
+  AsepriteSourceMetadata,
   AsepriteTag,
   AsepriteTileset,
   AsepriteUserData,
@@ -31,7 +31,7 @@ export interface TimelineLayer {
 export interface TimelineCel {
   tilemap?: TilemapImage;
   asepriteSamples?: AsepriteImageSamples;
-  source?: AsepriteCel;
+  source?: AsepriteCelMetadata;
   userData?: AsepriteUserData | null;
   preciseBounds?: Rect;
   pixels: PixelBuffer;
@@ -43,7 +43,7 @@ export interface TimelineCel {
 
 export interface TimelineFrame {
   palette?: readonly Rgba[];
-  source?: AsepriteFrame;
+  source?: AsepriteFrameMetadata;
   duration: number;
   cels: readonly (TimelineCel | null)[];
 }
@@ -75,7 +75,7 @@ export interface SpriteTimeline {
   composeGroups?: boolean;
   range?: TimelineRange;
   tags?: readonly AsepriteTag[];
-  asepriteSource?: AsepriteSprite;
+  asepriteSource?: AsepriteSourceMetadata;
   layers: readonly TimelineLayer[];
   frames: readonly TimelineFrame[];
   activeLayer: number;

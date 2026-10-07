@@ -1,0 +1,18 @@
+{
+  "repository": "https://github.com/halfmage/pixelarticons",
+  "commit": "8275e0af7c16aa40c54ea2b90b7af83b1fe4eb4c",
+  "assets": [
+    {
+      "file": "pixelarticons-MIT.txt",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/8275e0af7c16aa40c54ea2b90b7af83b1fe4eb4c/LICENSE",
+      "sha256": "eb113ac5006542496193a0641f8e90dcaf392e5025540ba45c2ee042af3ae51d",
+      "license": "MIT"
+    },
+    {
+      "file": "globe.svg",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/8275e0af7c16aa40c54ea2b90b7af83b1fe4eb4c/svg/globe.svg",
+      "sha256": "1b0f2e56f4e7f105119fa2eb077427fa9c8334f3f51fc39fee3cd078c6809499",
+      "license": "MIT"
+    }
+  ]
+}

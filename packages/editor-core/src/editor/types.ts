@@ -15,6 +15,24 @@ export interface GesturePreview {
   selectionMode?: ToolSettings["selectionMode"];
 }
 
+export enum EditorPointerPhase {
+  Down = "down",
+  Move = "move",
+  Up = "up",
+  Cancel = "cancel",
+  Leave = "leave",
+}
+
+/** Document coordinates, independent of browser input and viewport layout. */
+export interface EditorPointerSample {
+  phase: EditorPointerPhase;
+  point: Point | null;
+  pressed: boolean;
+  tool: EditorTool;
+  size: number;
+  pressure: number;
+}
+
 export interface EditorSnapshot {
   /** Local source bounds accumulated through consecutive raster writes.
    * Consumers fall back to full uploads when sources or revisions differ. */

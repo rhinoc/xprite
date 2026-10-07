@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 import type { SurfaceBounds, SurfaceViewport } from "$/components/canvas-surface";
 import type { SizedControlPlacement } from "$/components/control-flow/placement";
 import type { SliderEntryProps } from "$/components/slider/variants/entry";
@@ -31,13 +33,35 @@ export type ThresholdSliderProps = Placement & {
   sensorValue?: number;
 };
 
+export enum SliderOrientation {
+  Horizontal = "horizontal",
+  Vertical = "vertical",
+}
+
+export interface NativeSliderProps {
+  className?: string;
+  style?: CSSProperties;
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  orientation?: SliderOrientation;
+  showTicks?: boolean;
+  onValueChange: (value: number) => void;
+  "aria-label": string;
+  "aria-valuetext"?: string;
+  disabled?: boolean;
+}
+
 export enum SliderVariant {
   Normal = "normal",
   Threshold = "threshold",
   Entry = "entry",
+  Native = "native",
 }
 
 export type SliderProps =
   | (ScalarSliderProps & { variant?: SliderVariant.Normal })
   | (ThresholdSliderProps & { variant: SliderVariant.Threshold })
-  | (SliderEntryProps & { variant: SliderVariant.Entry });
+  | (SliderEntryProps & { variant: SliderVariant.Entry })
+  | (NativeSliderProps & { variant: SliderVariant.Native });

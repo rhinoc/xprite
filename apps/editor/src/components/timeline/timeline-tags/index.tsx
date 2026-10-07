@@ -4,7 +4,6 @@ import { createPortal } from "react-dom";
 import { FormDialog } from "$/components/dialogs/form-dialog";
 import { useTimelineActions } from "$/components/timeline/timeline-actions";
 import { tUi, tUiSource } from "$/i18n";
-import { TIMELINE_TAG_BAND_HEIGHT } from "$/managers/timeline/tag-bands";
 import { useTimelineManager } from "$/managers/timeline/timeline-manager";
 import {
   timelineTags,
@@ -20,6 +19,7 @@ import {
   useUserDataVisibility,
   UserDataVisibilityScope,
 } from "$/managers/user-data/user-data-manager";
+import { TIMELINE_TAG_BAND_HEIGHT } from "@xprite/editor-ui/timeline";
 import { Button, ButtonVariant, ContextMenu as EditorContextMenu } from "@xprite/ui";
 import { measureUiText } from "@xprite/ui/assets";
 import { UI_SCALE_X as sx, UI_SCALE_Y as sy } from "@xprite/ui/canvas";

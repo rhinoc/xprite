@@ -1,5 +1,6 @@
 import { browserColorSampling } from "$/adapters/colors/browser-color-sampling";
 import { decodeAsepriteBlob } from "$/adapters/files/aseprite-files";
+import { createBrowserAnimalCrossingExportPort } from "$/adapters/files/browser-animal-crossing-export";
 import { decodeImage } from "$/adapters/files/images";
 import { createBrowserWebpExportPort } from "$/adapters/files/webp-export";
 import { browserPointerSamples } from "$/adapters/input/browser-pointer-samples";
@@ -19,6 +20,7 @@ import { createBrowserEditorLocation } from "$/adapters/platform/browser-editor-
 import { createBrowserStartupScreen } from "$/adapters/platform/browser-startup-screen";
 import { rasterizeEditorTextFont } from "$/adapters/rendering/editor-font";
 import { ReferenceViewportCache } from "$/adapters/rendering/reference-viewport-cache";
+import { createBrowserProjectSharing } from "$/adapters/sharing/browser-project-sharing";
 import { createBrowserShortcutFilePort } from "$/adapters/shortcuts/browser-shortcut-files";
 import { IndexedDbUserPresets } from "$/adapters/storage/indexeddb/user-presets";
 import {
@@ -51,6 +53,11 @@ export function createBrowserEditorPlatformPorts(): EditorPlatformPorts {
     userPresets: new IndexedDbUserPresets(),
     shortcutFiles: createBrowserShortcutFilePort(primaryModifier),
     files: {
+      animalCrossingExport: createBrowserAnimalCrossingExportPort(),
+      sharing:
+        !__XPRITE_ITCH__ && typeof Worker === "function"
+          ? createBrowserProjectSharing()
+          : undefined,
       decodeAsepriteBlob,
       decodeImageBlob: decodeImage,
       webp: createBrowserWebpExportPort(),

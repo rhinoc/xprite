@@ -1,6 +1,8 @@
 import { memo, type CSSProperties, type HTMLAttributes } from "react";
 
+import { AtlasFirstPaint } from "$/base/theme/atlas-first-paint";
 import { AtlasRegion } from "$/base/theme/atlas-region";
+import { PartSurface } from "$/base/theme/part-surface";
 import { PixelSurface } from "$/base/theme/pixel-surface";
 import { getThemeAssets, type UiBitmap } from "$/base/theme/theme-assets-store";
 import { useTheme, type AtlasPartName } from "$/base/theme/theme-context";
@@ -27,6 +29,9 @@ export function ThemeIcon({
   y,
   color,
   scale = 1,
+  hovered = false,
+  pressed = false,
+  focused = false,
   className,
   style,
   ...props
@@ -36,13 +41,94 @@ export function ThemeIcon({
   y?: number;
   color?: string;
   scale?: number;
+  hovered?: boolean;
+  pressed?: boolean;
+  focused?: boolean;
 }) {
-  const { definition: theme, variant } = useTheme();
-  const assets = getThemeAssets(variant);
-  if (!assets) throw new Error("Theme icon requires a loaded UI atlas");
+  const { definition: theme, variant, uiTheme, sheetUrl } = useTheme();
+  const assets = getThemeAssets(variant, uiTheme);
   const source = theme.parts[part];
+  const tintColor =
+    color ?? (source.foregroundRole ? theme.colors[source.foregroundRole] : undefined);
+  if (source.vector)
+    return (
+      <span
+        {...props}
+        className={cn(styles.themeIcon, className)}
+        data-theme-part={part}
+        aria-hidden={props["aria-label"] ? undefined : true}
+        style={{
+          position: x !== undefined || y !== undefined ? "absolute" : "relative",
+          left: x,
+          top: y,
+          width: source.width * scale,
+          height: source.height * scale,
+          ...style,
+        }}
+      >
+        <svg
+          width="100%"
+          height="100%"
+          viewBox={`0 0 ${source.vector.width} ${source.vector.height}`}
+          style={{ display: "block" }}
+          shapeRendering="crispEdges"
+          aria-hidden="true"
+        >
+          {pressed && source.vector.pressedFace && (
+            <path
+              d={source.vector.pressedFace.path}
+              fill={theme.colors[source.vector.pressedFace.colorRole]}
+            />
+          )}
+          <path
+            d={
+              (pressed
+                ? source.vector.pressedPath
+                : hovered
+                  ? source.vector.hoverPath
+                  : undefined) ?? source.vector.path
+            }
+            fill={tintColor ?? theme.colors.text}
+          />
+        </svg>
+      </span>
+    );
+  if (source.surface)
+    return (
+      <PartSurface
+        {...props}
+        surface={
+          focused && source.surface.focusedBorderWidth !== undefined
+            ? { ...source.surface, borderWidth: source.surface.focusedBorderWidth }
+            : source.surface
+        }
+        colors={theme.colors}
+        ink={tintColor}
+        className={cn(styles.themeIcon, className)}
+        data-theme-part={part}
+        aria-hidden={props["aria-label"] ? undefined : true}
+        style={{
+          position: x !== undefined || y !== undefined ? "absolute" : "relative",
+          left: x,
+          top: y,
+          width: source.width * scale,
+          height: source.height * scale,
+          ...style,
+        }}
+      />
+    );
   return (
     <PixelSurface
+      artworkReady={assets !== null}
+      fallback={
+        <AtlasFirstPaint
+          sheetUrl={sheetUrl}
+          sheet={theme.sheet}
+          source={source}
+          scale={scale}
+          tint={tintColor}
+        />
+      }
       {...props}
       aria-hidden={props["aria-label"] ? undefined : true}
       className={cn(styles.themeIcon, className)}
@@ -55,15 +141,17 @@ export function ThemeIcon({
         height: source.height * scale,
         ...style,
       }}
-      paint={(metrics) => (
-        <AtlasRegion
-          sheet={assets.sheet}
-          source={source}
-          destination={{ x: 0, y: 0, width: metrics.width, height: metrics.height }}
-          cssPixelScale={metrics.cssPixelScale}
-          tint={color}
-        />
-      )}
+      paint={(metrics) =>
+        assets && (
+          <AtlasRegion
+            sheet={assets.sheet}
+            source={source}
+            destination={{ x: 0, y: 0, width: metrics.width, height: metrics.height }}
+            cssPixelScale={metrics.cssPixelScale}
+            tint={tintColor}
+          />
+        )
+      }
     />
   );
 }
@@ -91,36 +179,65 @@ export function ThemePart({
   children,
   ...props
 }: UiPartProps) {
-  const { definition: theme, variant } = useTheme();
-  const assets = getThemeAssets(variant);
-  if (!assets) throw new Error("Theme skin requires a loaded UI atlas");
-  const source: PartGeometry = theme.parts[part];
+  const { definition: theme, variant, uiTheme, sheetUrl } = useTheme();
+  const assets = getThemeAssets(variant, uiTheme);
+  const source = theme.parts[part];
   const slices = source.slices;
   const geometryStyle = {
-    "--xse-theme-min-width": `${(slices ? slices[0] + slices[2] : source.width) * scale}px`,
-    "--xse-theme-min-height": `${(slices ? slices[3] + slices[5] : source.height) * scale}px`,
+    "--xse-theme-min-width": `${source.surface ? source.surface.borderWidth * 2 : (slices ? slices[0] + slices[2] : source.width) * scale}px`,
+    "--xse-theme-min-height": `${source.surface ? source.surface.borderWidth * 2 : (slices ? slices[3] + slices[5] : source.height) * scale}px`,
     ...style,
   } as CSSProperties;
+  if (source.surface)
+    return (
+      <PartSurface
+        {...props}
+        surface={source.surface}
+        colors={theme.colors}
+        face={fill}
+        className={cn(styles.themePart, className)}
+        data-slot="theme-part"
+        data-theme-part={part}
+        style={geometryStyle}
+      >
+        {children}
+      </PartSurface>
+    );
   return (
     <PixelSurface
+      artworkReady={assets !== null}
+      fallback={
+        <AtlasFirstPaint
+          sheetUrl={sheetUrl}
+          sheet={theme.sheet}
+          source={source}
+          scale={scale}
+          scaleTop={scaleTop}
+          scaleBottom={scaleBottom}
+          fill={fill}
+          drawCenter={drawCenter}
+        />
+      }
       {...props}
       className={cn(styles.themePart, className)}
       data-slot="theme-part"
       data-theme-part={part}
       style={geometryStyle}
-      paint={(metrics) => (
-        <ThemeSkinContent
-          source={source}
-          sheet={assets.sheet}
-          scale={scale * metrics.scaleX}
-          scaleTop={(scaleTop ?? scale) * metrics.scaleY}
-          scaleBottom={(scaleBottom ?? scale) * metrics.scaleY}
-          fill={fill}
-          drawCenter={drawCenter}
-          size={metrics}
-          cssPixelScale={metrics.cssPixelScale}
-        />
-      )}
+      paint={(metrics) =>
+        assets && (
+          <ThemeSkinContent
+            source={source}
+            sheet={assets.sheet}
+            scale={scale * metrics.scaleX}
+            scaleTop={(scaleTop ?? scale) * metrics.scaleY}
+            scaleBottom={(scaleBottom ?? scale) * metrics.scaleY}
+            fill={fill}
+            drawCenter={drawCenter}
+            size={metrics}
+            cssPixelScale={metrics.cssPixelScale}
+          />
+        )
+      }
     >
       {children}
     </PixelSurface>

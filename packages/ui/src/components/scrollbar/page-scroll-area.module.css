@@ -1,0 +1,49 @@
+.root {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+:global(html:has([data-slot="page-scroll-area"])) {
+  scrollbar-width: none;
+}
+
+:global(html:has([data-slot="page-scroll-area"])::-webkit-scrollbar) {
+  display: none;
+}
+
+.chrome {
+  position: fixed;
+  inset: 0 0 0 auto;
+  z-index: var(--ui-layer-page-scrollbar, 50);
+  width: var(--ui-page-scrollbar-size);
+}
+
+:global(html:has([data-page-scroll-native="true"])) {
+  scrollbar-width: auto;
+  scrollbar-gutter: auto;
+}
+
+:global(html:has([data-page-scroll-native="true"][data-page-scroll-reserve="true"])) {
+  scrollbar-gutter: stable;
+}
+
+:global(html:has([data-page-scroll-native="true"])::-webkit-scrollbar) {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background: Canvas;
+}
+
+:global(html:has([data-page-scroll-native="true"])::-webkit-scrollbar-track) {
+  background: Canvas;
+  border-inline-start: 1px solid CanvasText;
+}
+
+:global(html:has([data-page-scroll-native="true"])::-webkit-scrollbar-thumb) {
+  background: GrayText;
+  border: 2px solid Canvas;
+}
+
+:global(body:has([data-slot="page-scroll-area"][data-document-gutter="true"])) {
+  padding-inline-end: var(--ui-document-scrollbar-size, 12px);
+}

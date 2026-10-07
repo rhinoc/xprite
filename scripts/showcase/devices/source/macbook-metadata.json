@@ -1,0 +1,50 @@
+{
+  "name": "macbook pro M3 16 inch 2024",
+  "uid": "8e34fc2b303144f78490007d91ff57c4",
+  "license": {
+    "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+    "label": "CC Attribution",
+    "fullName": "Creative Commons Attribution",
+    "requirements": "Author must be credited. Commercial use is allowed.",
+    "url": "http://creativecommons.org/licenses/by/4.0/",
+    "slug": "by"
+  },
+  "user": {
+    "uid": "095e37a1c45f434f8119aebce6112a6c",
+    "username": "jackbaeten",
+    "displayName": "jackbaeten",
+    "account": "basic",
+    "profileUrl": "https://sketchfab.com/jackbaeten",
+    "avatar": {
+      "uid": "6ee50d5194fc4a16b19ac32660e27a13",
+      "uri": "https://api.sketchfab.com/v3/avatars/6ee50d5194fc4a16b19ac32660e27a13",
+      "images": [
+        {
+          "width": 100,
+          "height": 100,
+          "size": 3030,
+          "url": "https://media.sketchfab.com/avatars/6ee50d5194fc4a16b19ac32660e27a13/3e6c6d8637c14f58bd5f9ef0d4186275.jpeg"
+        },
+        {
+          "width": 90,
+          "height": 90,
+          "size": 2613,
+          "url": "https://media.sketchfab.com/avatars/6ee50d5194fc4a16b19ac32660e27a13/271710dbdb994937b0fe2ae1a4e9dd2f.jpeg"
+        },
+        {
+          "width": 48,
+          "height": 48,
+          "size": 1093,
+          "url": "https://media.sketchfab.com/avatars/6ee50d5194fc4a16b19ac32660e27a13/ee36d7bad2dc477a93876e65b86b9c66.jpeg"
+        },
+        {
+          "width": 32,
+          "height": 32,
+          "size": 737,
+          "url": "https://media.sketchfab.com/avatars/6ee50d5194fc4a16b19ac32660e27a13/43aad97e22474360afb00a2aa8bfd6a0.jpeg"
+        }
+      ]
+    },
+    "uri": "https://api.sketchfab.com/v3/users/095e37a1c45f434f8119aebce6112a6c"
+  }
+}

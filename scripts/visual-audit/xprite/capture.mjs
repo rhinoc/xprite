@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 
 import { parseEgoReport, printEgoNonReportLines } from "../../base/ego-report.mjs";
 import { collectVisualSources } from "../base/audit-source-files.mjs";
+import { generateImageReport } from "../report.mjs";
 import { startCaptureStream } from "./capture-stream.mjs";
 import {
   layouts,
@@ -71,10 +72,10 @@ const catalogs = Object.fromEntries(
   ]),
 );
 const sampleMetadata = fs.readFileSync(
-  path.join(root, "apps/editor/assets/examples/xprite/xprite-project.ts"),
+  path.join(root, "apps/editor/assets/examples/hello/hello-project.ts"),
   "utf8",
 );
-const sampleNameMatch = sampleMetadata.match(/xpriteProjectName\s*=\s*("[^"\n]+")/);
+const sampleNameMatch = sampleMetadata.match(/exampleProjectName\s*=\s*("[^"\n]+")/);
 if (!sampleNameMatch) throw Error("Cannot read the bundled example display name.");
 const sampleName = JSON.parse(sampleNameMatch[1]);
 const digest = (bytes) => crypto.createHash("sha256").update(bytes).digest("hex");
@@ -86,8 +87,13 @@ const sources = () =>
     ]),
   );
 const before = sources();
+if (!baseline) {
+  fs.mkdirSync(output, { recursive: true });
+  for (const filename of ["capture-failure.json", "capture-failure.png"])
+    fs.rmSync(path.join(output, filename), { force: true });
+}
 const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "xprite-visual-"));
-const fixture = "apps/editor/assets/examples/xprite/xprite.ase";
+const fixture = "apps/growth/public/showcase/ipad/hello/hello.aseprite";
 const stream = baseline
   ? null
   : startCaptureStream({
@@ -101,7 +107,7 @@ const stream = baseline
         kind: "xprite-candidate",
         capturedAt: new Date().toISOString(),
         captureMethod:
-          "ego-browser raw PNG, DPR 1, isolated Vite HMR transport, no resize or masking",
+          "Chromium CDP native PNG, DPR 1, isolated Vite HMR transport, no resize or masking",
         theme: "light",
         fixture: { file: fixture, sha256: digest(fs.readFileSync(path.join(root, fixture))) },
         sourceDigest: digest(JSON.stringify(before)),
@@ -115,6 +121,7 @@ const stream = baseline
 try {
   const payload = fs.readFileSync(new URL("./capture.payload.mjs", import.meta.url), "utf8");
   const config = {
+    screenshotModule: new URL("../../base/screenshot.mjs", import.meta.url).href,
     output: temporary,
     port,
     spaceId,
@@ -154,7 +161,15 @@ try {
       (line) => line && !/^CAPTURE_(SPACE|CASE):/.test(line),
     ),
   );
-  if (status !== 0) throw Error("Ego capture failed.");
+  if (status !== 0) {
+    const failurePath = path.join(temporary, "capture-failure.json");
+    if (!baseline && fs.existsSync(failurePath)) {
+      fs.mkdirSync(output, { recursive: true });
+      for (const filename of ["capture-failure.json", "capture-failure.png"])
+        fs.copyFileSync(path.join(temporary, filename), path.join(output, filename));
+    }
+    throw Error("Ego capture failed.");
+  }
   const { report } = parseEgoReport(streams, "XPRITE_CAPTURE_REPORT");
   stream?.assertCaptured(report.cases);
   const after = sources();
@@ -177,7 +192,7 @@ try {
       kind: baseline ? "xprite-baseline" : "xprite-candidate",
       capturedAt: new Date().toISOString(),
       captureMethod:
-        "ego-browser raw PNG, DPR 1, isolated Vite HMR transport, no resize or masking",
+        "Chromium CDP native PNG, DPR 1, isolated Vite HMR transport, no resize or masking",
       theme: "light",
       language,
       fixture: { file: fixture, sha256: digest(fs.readFileSync(path.join(root, fixture))) },
@@ -240,5 +255,6 @@ try {
     await stream?.close();
   } finally {
     fs.rmSync(temporary, { recursive: true, force: true });
+    if (!baseline) generateImageReport();
   }
 }

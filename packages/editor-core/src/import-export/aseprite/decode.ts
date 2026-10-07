@@ -1,10 +1,16 @@
+import { zlibSync } from "fflate";
+
 import {
   FIXED_POINT_16_16_SCALE,
   UINT16_MAX,
   UINT8_MAX,
   BITS_PER_BYTE,
 } from "$/base/numeric-constants";
+import { PixelStorageFormat } from "$/base/primitives";
+import { hasTransparentRgb } from "$/base/rgba-analysis";
+import { inflateZlibExact } from "$/base/zlib";
 import { expandAsepriteSamples } from "$/color/samples";
+import { asepriteCelDecodedBytes } from "$/import-export/aseprite/cel-memory";
 import {
   AsepriteCel,
   AsepriteCelType,
@@ -28,11 +34,23 @@ import {
   AsepriteUserData,
   DEFAULT_ASEPRITE_LIMITS,
 } from "$/import-export/aseprite/model";
-import { inflateTileData } from "$/import-export/aseprite/tilemap-compression";
 import { decodeUtf8 } from "@xprite/bedrock/common/utf8";
 
 export const ASEPRITE_MAGIC = 0xa5e0;
 export const ASEPRITE_FRAME_MAGIC = 0xf1fa;
+export const ASEPRITE_SIGNATURE_BYTES = 6;
+const ASEPRITE_MAGIC_OFFSET = 4;
+
+/** Identifies the codec from a byte prefix; full decoding still validates the file. */
+export function isAsepriteData(bytes: Uint8Array): boolean {
+  if (bytes.byteLength < ASEPRITE_SIGNATURE_BYTES) return false;
+  return (
+    new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint16(
+      ASEPRITE_MAGIC_OFFSET,
+      true,
+    ) === ASEPRITE_MAGIC
+  );
+}
 
 const CHUNK_FLI_COLOR2 = 4;
 const CHUNK_FLI_COLOR = 11;
@@ -258,6 +276,19 @@ function bytesOf(input: ArrayBuffer | Uint8Array): Uint8Array {
   return new Uint8Array(input);
 }
 
+function decodeInput(
+  input: ArrayBuffer | Uint8Array,
+  options: AsepriteDecodeOptions,
+  limits: AsepriteResourceLimits,
+): Uint8Array {
+  const bytes = bytesOf(input);
+  if (bytes.byteLength > limits.maxFileBytes)
+    throw new AsepriteCodecError("Aseprite file exceeds its resource limit", [
+      issue(AsepriteIssueCode.ResourceLimit, `Aseprite file exceeds ${limits.maxFileBytes} bytes`),
+    ]);
+  return options.takeOwnership ? bytes : bytes.slice();
+}
+
 function readHeader(
   bytes: Uint8Array,
   limits: AsepriteResourceLimits,
@@ -285,7 +316,7 @@ function readHeader(
   }
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const fileSize = view.getUint32(0, true);
-  const magic = view.getUint16(4, true);
+  const magic = view.getUint16(ASEPRITE_MAGIC_OFFSET, true);
   const frames = view.getUint16(6, true);
   const width = view.getUint16(8, true);
   const height = view.getUint16(10, true);
@@ -312,7 +343,7 @@ function readHeader(
         `Unexpected Aseprite magic 0x${magic.toString(16)}`,
         true,
         {
-          offset: 4,
+          offset: ASEPRITE_MAGIC_OFFSET,
         },
       ),
     );
@@ -448,7 +479,9 @@ function readChunks(
       break;
     }
     const payloadStart = reader.offset;
-    const payload = reader.bytesCopy(size - 6);
+    // Scanning borrows ranges; only data retained by the decoded model is copied.
+    const payload = bytes.subarray(payloadStart, end);
+    reader.skip(size - 6);
     chunks.push({ type, start: chunkStart, payloadStart, end, payload });
   }
   if (reader.offset !== frameEnd) {
@@ -716,6 +749,7 @@ function scan(
   let offset = 128;
   let celCount = 0;
   let decodedBytes = 0;
+  let expandedBytes = 0;
   for (let frameIndex = 0; frameIndex < header.frames; frameIndex += 1) {
     const frameHeader = parseFrameHeader(bytes, offset, header.fileEnd, limits, frameIndex);
     issues.push(...frameHeader.issues);
@@ -807,7 +841,20 @@ function scan(
           cel.type === CEL_COMPRESSED ||
           cel.type === CEL_COMPRESSED_TILEMAP
         ) {
-          decodedBytes += cel.width * cel.height * 4;
+          decodedBytes +=
+            cel.type === CEL_COMPRESSED_TILEMAP
+              ? cel.width * cel.height * 4
+              : asepriteCelDecodedBytes(cel.width, cel.height, header.depth);
+          if (cel.type !== CEL_COMPRESSED_TILEMAP) expandedBytes += cel.width * cel.height * 4;
+          if (expandedBytes > limits.maxExpandedBytes)
+            issues.push(
+              issue(
+                AsepriteIssueCode.ResourceLimit,
+                "Sprite image data exceeds the editor memory limit",
+                true,
+                { offset: chunk.start, frameIndex, chunkType: chunk.type },
+              ),
+            );
           if (decodedBytes > limits.maxDecodedBytes) {
             issues.push(
               issue(
@@ -931,6 +978,52 @@ function scan(
   return { scan: { header, frames, layers, celCount, decodedBytes }, issues };
 }
 
+export interface AsepriteChunkRange {
+  readonly start: number;
+  readonly end: number;
+}
+
+const ASEPRITE_HEADER_BYTES = 128;
+const ASEPRITE_FRAME_HEADER_BYTES = 16;
+
+/** Ordered complete chunk ranges; surrounding file/frame headers remain caller-owned.
+ * Reuses the decoder's structural readers without decoding pixels or metadata. */
+export function readAsepriteChunkRanges(
+  bytes: Uint8Array,
+  options: Pick<AsepriteDecodeOptions, "limits"> = {},
+): readonly AsepriteChunkRange[] {
+  const limits = limitsFor(options.limits);
+  const rejectInvalid = (issues: readonly AsepriteIssue[]) => {
+    const fatal = issues.find((entry) => entry.fatal);
+    if (fatal) throw new AsepriteCodecError(fatal.message);
+  };
+  const result = readHeader(bytes, limits);
+  rejectInvalid(result.issues);
+  const header = result.header;
+  if (!header || header.fileSize !== bytes.length)
+    throw new AsepriteCodecError("Invalid Aseprite object boundaries");
+  const ranges: AsepriteChunkRange[] = [];
+  let offset = ASEPRITE_HEADER_BYTES;
+  for (let frameIndex = 0; frameIndex < header.frames; frameIndex++) {
+    const frameResult = parseFrameHeader(bytes, offset, header.fileEnd, limits, frameIndex);
+    rejectInvalid(frameResult.issues);
+    if (!frameResult.frame) throw new AsepriteCodecError("Invalid Aseprite frame boundaries");
+    const frame = frameResult.frame;
+    const chunks = readChunks(
+      bytes,
+      offset + ASEPRITE_FRAME_HEADER_BYTES,
+      frame.end,
+      frame.count,
+      limits,
+    );
+    rejectInvalid(chunks.issues);
+    for (const chunk of chunks.chunks) ranges.push({ start: chunk.start, end: chunk.end });
+    offset = frame.end;
+  }
+  if (offset !== bytes.length) throw new AsepriteCodecError("Invalid Aseprite object boundaries");
+  return ranges;
+}
+
 /**
  * Inspect structure and unsupported features without inflating any cel.
  * Callers should show the issues before replacing the current document.
@@ -940,7 +1033,13 @@ export function preflightAseprite(
   options: Pick<AsepriteDecodeOptions, "limits"> = {},
 ): AsepritePreflightResult {
   const result = scan(bytes, options);
-  if (!result.scan) return { ok: false, issues: result.issues };
+  return preflightResult(result);
+}
+
+function preflightResult(result: ReturnType<typeof scan>): AsepritePreflightResult {
+  // Diagnostics exposed to callers must not permit changing the actual scan.
+  const issues = result.issues.map((entry) => ({ ...entry }));
+  if (!result.scan) return { ok: false, issues };
   const h = result.scan.header;
   const header: AsepritePreflightHeader = {
     magic: h.magic,
@@ -951,7 +1050,7 @@ export function preflightAseprite(
     depth: h.depth,
     flags: h.flags,
   };
-  return { ok: !result.issues.some((entry) => entry.fatal), header, issues: result.issues };
+  return { ok: !issues.some((entry) => entry.fatal), header, issues };
 }
 
 function chunkRecord(chunk: ChunkInfo, frameIndex?: number): AsepriteRawChunk {
@@ -1210,6 +1309,7 @@ function parseTileset(
   limits: AsepriteResourceLimits,
   depth: number,
   inflate?: AsepriteInflate,
+  takeInflatedOwnership = false,
 ): AsepriteTileset | PromiseLike<AsepriteTileset> {
   const { r, size, ...ts } = tilesetHeader(chunk, limits, depth),
     expected = ts.tileWidth * ts.tileHeight * ts.tileCount * (depth / BITS_PER_BYTE);
@@ -1218,8 +1318,15 @@ function parseTileset(
       throw new AsepriteCodecError("Incorrect inflated tileset size");
     return {
       ...ts,
-      pixels: depth === 32 ? new Uint8Array(data) : new Uint8Array(),
-      ...(depth === 32 ? {} : { asepritePixels: new Uint8Array(data) }),
+      pixels:
+        depth === 32
+          ? !inflate || takeInflatedOwnership
+            ? data
+            : new Uint8Array(data)
+          : new Uint8Array(),
+      ...(depth === 32
+        ? {}
+        : { asepritePixels: !inflate || takeInflatedOwnership ? data : new Uint8Array(data) }),
     };
   };
   if (!(ts.flags & 2) || !ts.tileCount) {
@@ -1227,7 +1334,7 @@ function parseTileset(
     if (depth === 8 && !(ts.flags & 2)) data.fill(0);
     return finish(data);
   }
-  const data = (inflate ?? inflateTileData)(r.bytesCopy(size), expected);
+  const data = (inflate ?? inflateZlibExact)(r.bytesCopy(size), expected);
   return typeof (data as PromiseLike<Uint8Array>).then === "function"
     ? (data as PromiseLike<Uint8Array>).then(finish)
     : finish(data as Uint8Array);
@@ -1348,6 +1455,8 @@ function parseCel(
   inflate: AsepriteInflate | undefined,
   limits: AsepriteResourceLimits,
   depth = 32,
+  takeInflatedOwnership = false,
+  deferPixels = false,
 ): AsepriteCel | PromiseLike<AsepriteCel> {
   const r = new Reader(chunk.payload);
   const layerIndex = r.u16();
@@ -1394,11 +1503,13 @@ function parseCel(
     throw new AsepriteCodecError(`Cel dimensions exceed resource limits: ${width}x${height}`);
   }
   let pixels: Uint8Array | PromiseLike<Uint8Array>;
+  let compressedInput: Uint8Array | undefined;
   if (rawType === CEL_RAW) {
     if (r.remaining < expected) throw new AsepriteCodecError("Raw cel is truncated");
     pixels = r.bytesCopy(expected);
   } else {
-    pixels = (inflate ?? inflateTileData)(r.bytesCopy(r.remaining), expected);
+    compressedInput = r.bytesCopy(r.remaining);
+    pixels = (inflate ?? inflateZlibExact)(compressedInput, expected);
   }
   const finish = (decodedInput: Uint8Array): AsepriteCel => {
     let decoded = decodedInput;
@@ -1445,7 +1556,28 @@ function parseCel(
       type: rawType === CEL_RAW ? AsepriteCelType.Raw : AsepriteCelType.Compressed,
       width,
       height,
-      ...(depth === 32 ? { pixels: decoded.slice() } : { asepritePixels: decoded.slice() }),
+      ...(deferPixels && depth === 32
+        ? {
+            encodedPixels: {
+              format: PixelStorageFormat.ZlibRgba,
+              byteLength: expected,
+              bytes: compressedInput ?? zlibSync(decoded, { level: 1 }),
+              hasHiddenRgb: hasTransparentRgb(decoded),
+            },
+          }
+        : depth === 32
+          ? {
+              pixels:
+                rawType === CEL_RAW || !inflate || takeInflatedOwnership
+                  ? decoded
+                  : decoded.slice(),
+            }
+          : {
+              asepritePixels:
+                rawType === CEL_RAW || !inflate || takeInflatedOwnership
+                  ? decoded
+                  : decoded.slice(),
+            }),
       rawType,
     };
   };
@@ -1535,6 +1667,7 @@ function setLinkedDimensions(frames: AsepriteFrame[]): void {
         // link marker used by the encoder.
         if (source.tilemap) cel.tilemap = source.tilemap;
         if (source.pixels) cel.pixels = source.pixels;
+        if (source.encodedPixels) cel.encodedPixels = source.encodedPixels;
         if (source.asepritePixels) cel.asepritePixels = source.asepritePixels;
       }
     }
@@ -1550,6 +1683,7 @@ function expandAsepriteFrames(
   if (header.depth === 32) return;
   const images = new Map<Uint8Array, Map<AsepritePalette | undefined, Uint8Array>>();
   let bytes = 0;
+  let expandedBytes = 0;
   for (const frame of frames)
     for (const cel of frame.cels) {
       if (cel.tilemap) continue;
@@ -1564,20 +1698,20 @@ function expandAsepriteFrames(
       let pixels = palettes.get(palette);
       if (!pixels) {
         bytes += cel.width * cel.height * 4;
-        if (bytes > limits.maxDecodedBytes)
+        expandedBytes += cel.width * cel.height * 4;
+        if (bytes > limits.maxDecodedBytes || expandedBytes > limits.maxExpandedBytes)
           throw new AsepriteCodecError("Aseprite image projections exceed decoded memory limit");
-        pixels = new Uint8Array(
-          expandAsepriteSamples(
-            {
-              depth: header.depth as 8 | 16,
-              width: cel.width,
-              height: cel.height,
-              data: cel.asepritePixels,
-            },
-            palette,
-            layers[cel.layerIndex].background ? -1 : header.transparentIndex,
-          ),
+        const expanded = expandAsepriteSamples(
+          {
+            depth: header.depth as 8 | 16,
+            width: cel.width,
+            height: cel.height,
+            data: cel.asepritePixels,
+          },
+          palette,
+          layers[cel.layerIndex].background ? -1 : header.transparentIndex,
         );
+        pixels = new Uint8Array(expanded.buffer, expanded.byteOffset, expanded.byteLength);
         palettes.set(palette, pixels);
       }
       cel.pixels = pixels;
@@ -1588,9 +1722,11 @@ async function decodeInternal(
   bytesInput: ArrayBuffer | Uint8Array,
   options: AsepriteDecodeOptions = {},
 ): Promise<AsepriteSprite> {
-  const bytes = bytesOf(bytesInput);
   const limits = limitsFor(options.limits);
-  const result = scan(bytes, options);
+  const bytes = decodeInput(bytesInput, options, limits);
+  // The exact bytes and resolved limits used for inspection also drive decoding.
+  const result = scan(bytes, { limits });
+  options.onPreflight?.(preflightResult(result));
   const issues = result.issues;
   if (!result.scan) throw new AsepriteCodecError("Invalid Aseprite file", issues);
   if (
@@ -1651,7 +1787,13 @@ async function decodeInternal(
           if (layer.type === AsepriteLayerType.Group) parentStack.push(layer.index);
           lastTarget = { kind: "layer", value: layer };
         } else if (chunk.type === CHUNK_TILESET) {
-          const ts = await parseTileset(chunk, limits, header.depth, options.inflate);
+          const ts = await parseTileset(
+            chunk,
+            limits,
+            header.depth,
+            options.inflate,
+            options.takeInflatedOwnership,
+          );
           tilesets.push(ts);
           lastTarget = { kind: "tileset", value: ts };
           tileUserIndex = -1;
@@ -1663,6 +1805,8 @@ async function decodeInternal(
             options.inflate,
             limits,
             header.depth,
+            options.takeInflatedOwnership,
+            options.deferPixels,
           );
           frame.cels.push(cel);
           lastCel = cel;
@@ -1781,7 +1925,7 @@ export async function decodeAseprite(
   bytes: ArrayBuffer | Uint8Array,
   options: AsepriteDecodeOptions = {},
 ): Promise<AsepriteSprite> {
-  return decodeInternal(bytes, options);
+  return decodeInternal(bytes, { ...options });
 }
 
 /**
@@ -1790,11 +1934,13 @@ export async function decodeAseprite(
  */
 export function decodeAsepriteSync(
   bytes: ArrayBuffer | Uint8Array,
-  options: AsepriteDecodeOptions = {},
+  decodeOptions: AsepriteDecodeOptions = {},
 ): AsepriteSprite {
-  const input = bytesOf(bytes);
+  const options = { ...decodeOptions };
   const limits = limitsFor(options.limits);
-  const result = scan(input, options);
+  const input = decodeInput(bytes, options, limits);
+  const result = scan(input, { limits });
+  options.onPreflight?.(preflightResult(result));
   if (!result.scan) throw new AsepriteCodecError("Invalid Aseprite file", result.issues);
   if (
     options.preflight !== false &&
@@ -1852,7 +1998,13 @@ export function decodeAsepriteSync(
         if (layer.type === AsepriteLayerType.Group) parentStack.push(layer.index);
         lastTarget = { kind: "layer", value: layer };
       } else if (chunk.type === CHUNK_TILESET) {
-        const parsed = parseTileset(chunk, limits, header.depth, options.inflate);
+        const parsed = parseTileset(
+          chunk,
+          limits,
+          header.depth,
+          options.inflate,
+          options.takeInflatedOwnership,
+        );
         if (typeof (parsed as PromiseLike<AsepriteTileset>).then === "function")
           throw new AsepriteCodecError("decodeAsepriteSync requires synchronous inflate");
         const ts = parsed as AsepriteTileset;
@@ -1860,7 +2012,16 @@ export function decodeAsepriteSync(
         lastTarget = { kind: "tileset", value: ts };
         tileUserIndex = -1;
       } else if (chunk.type === CHUNK_CEL) {
-        const parsed = parseCel(chunk, frameIndex, layers, options.inflate, limits, header.depth);
+        const parsed = parseCel(
+          chunk,
+          frameIndex,
+          layers,
+          options.inflate,
+          limits,
+          header.depth,
+          options.takeInflatedOwnership,
+          options.deferPixels,
+        );
         if (parsed && typeof (parsed as PromiseLike<AsepriteCel>).then === "function") {
           throw new AsepriteCodecError(
             "decodeAsepriteSync requires a synchronous inflate function",

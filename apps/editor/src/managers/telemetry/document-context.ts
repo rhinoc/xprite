@@ -20,9 +20,11 @@ export function workspaceTelemetryContext(
   slotId = workspace.active.id,
 ): TelemetryProperties {
   const slot = workspace.getSlot(slotId);
-  const document = slot?.core.getSnapshot().document ?? null;
+  const snapshot = slot?.core.getSnapshot();
+  const document = snapshot?.document ?? null;
   return {
     open_document_count: workspace.getSnapshot().tabs.length,
+    document_dirty: Boolean(document && snapshot?.dirty),
     ...documentTelemetryContext(document),
     ...(slot && document ? { palette_color_count: slot.core.getSnapshot().palette.length } : {}),
   };

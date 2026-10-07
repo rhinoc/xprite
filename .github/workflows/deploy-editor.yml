@@ -28,7 +28,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Build and deploy editor
+    name: Build and deploy website
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: ${{ inputs.environment || 'production' }}
@@ -72,8 +72,8 @@ jobs:
       - name: Validate EdgeOne configuration
         run: pnpm exec edgeone validate
 
-      - name: Build editor and upload optional source maps
-        run: pnpm run build:editor
+      - name: Build website and upload optional editor source maps
+        run: pnpm run build:site
         env:
           POSTHOG_CLI_API_KEY: ${{ (inputs.environment || 'production') == 'production' && secrets.POSTHOG_CLI_API_KEY || '' }}
           POSTHOG_CLI_PROJECT_ID: ${{ (inputs.environment || 'production') == 'production' && secrets.POSTHOG_CLI_API_KEY != '' && vars.POSTHOG_CLI_PROJECT_ID || '' }}

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-10-04T11:11:18.201Z",
+  "method": "Chromium CDP native PNG",
+  "viewport": {
+    "width": 430,
+    "height": 846,
+    "dpr": 1
+  },
+  "captureClip": {
+    "x": 0,
+    "y": 0,
+    "width": 430,
+    "height": 846
+  },
+  "pixels": {
+    "width": 430,
+    "height": 846
+  },
+  "pixelScale": {
+    "x": 1,
+    "y": 1
+  },
+  "colorSpace": {
+    "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+    "srgbIntent": null,
+    "gamma": null,
+    "chromaticities": null,
+    "cicp": null
+  },
+  "sha256": "7f428c9c5b31bf6ad8b9ad5090d0f3ee40dca365160e969fe82b7a451027166d"
+}

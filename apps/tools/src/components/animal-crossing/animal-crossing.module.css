@@ -1,0 +1,245 @@
+.layout {
+  display: grid;
+  grid-template-columns: 250px minmax(280px, 1fr) 340px;
+  align-items: start;
+  gap: 16px;
+  flex: 1;
+  min-height: 640px;
+  padding: 20px 16px;
+  background: var(--tool-wash);
+}
+.singleLayout .previewPanel {
+  height: auto;
+}
+.singleLayout .previewStage {
+  flex: 0 0 auto;
+  height: 400px;
+}
+.settingsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-4);
+  min-width: 0;
+}
+.sideColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-4);
+  min-width: 0;
+}
+.miniPreviewPanel {
+  min-width: 0;
+}
+.settingsPanel,
+.outputPanel,
+.previewPanel {
+  min-width: 0;
+}
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ui-space-4);
+}
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+}
+.wideButton {
+  width: 100%;
+}
+.previewPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.previewContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+.previewToolbar {
+  gap: var(--ui-space-2);
+}
+.previewStage {
+  display: flex;
+  flex: 1;
+  min-height: 300px;
+}
+.previewHint {
+  padding: var(--ui-space-4);
+}
+.exampleCredit {
+  margin: 0 0 var(--ui-space-2);
+}
+.gridOverlay {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.gridCell {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid var(--xse-border);
+  opacity: 0.45;
+}
+.selectedCell {
+  border-width: 2px;
+  box-shadow: inset 0 0 0 1px var(--ui-theme-paper);
+  opacity: 1;
+}
+.tileSelection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  padding: var(--ui-space-4);
+}
+.tileScroll {
+  height: 80px;
+  max-height: 112px;
+}
+.tileButtons {
+  gap: var(--ui-space-2);
+}
+.qrArtwork {
+  display: flex;
+  justify-content: center;
+  width: 202px;
+  max-width: 100%;
+  background: white;
+}
+.outputEmpty {
+  min-height: 250px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+@media (max-width: 1120px) {
+  .layout,
+  .singleLayout {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    min-height: 0;
+    flex: 0 0 auto;
+  }
+  .settingsColumn {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .layout > .settingsPanel {
+    grid-column: 1 / -1;
+  }
+  .previewPanel {
+    height: auto;
+  }
+  .previewContent {
+    height: auto;
+  }
+  .previewStage {
+    flex: 0 0 auto;
+    height: 360px;
+  }
+}
+@media (max-width: 760px) {
+  .tileScroll {
+    height: 112px;
+  }
+  .layout {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto;
+    min-height: 0;
+  }
+  .settingsColumn {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .settingsPanel,
+  .previewPanel,
+  .outputPanel,
+  .sideColumn {
+    width: 100%;
+  }
+  .previewStage,
+  .singleLayout .previewStage {
+    height: 300px;
+    min-height: 300px;
+  }
+  .outputEmpty {
+    min-height: 120px;
+  }
+}
+
+.groundView {
+  display: flex;
+  flex-direction: column;
+}
+.groundToolbar,
+.cameraToolbar,
+.groundSettings {
+  padding: var(--ui-space-4);
+  gap: var(--ui-space-2);
+}
+.cameraToolbar {
+  padding-top: 0;
+}
+.groundCanvas {
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+  background: #c9e7ee;
+}
+.groundCanvas canvas {
+  display: block;
+  position: absolute;
+  inset: 0;
+}
+.groundNote {
+  padding: var(--ui-space-4);
+}
+
+.layout {
+  background: transparent;
+  padding: 12px 0 0;
+  gap: 24px;
+}
+.settingsColumn {
+  margin-top: 48px;
+  gap: 24px;
+}
+.sideColumn {
+  margin-top: 80px;
+  gap: 24px;
+}
+@media (max-width: 1120px) {
+  .settingsColumn {
+    margin-top: 0;
+  }
+  .sideColumn {
+    margin-top: 40px;
+  }
+}
+@media (max-width: 700px) {
+  .sideColumn {
+    margin-top: 0;
+  }
+}
+@media (min-width: 1121px) {
+  .layout {
+    gap: 0;
+  }
+  .settingsColumn {
+    position: relative;
+    z-index: 3;
+    margin-right: -16px;
+  }
+  .sideColumn {
+    position: relative;
+    z-index: 3;
+    margin-left: -16px;
+  }
+}

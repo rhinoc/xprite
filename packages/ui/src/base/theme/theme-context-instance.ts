@@ -1,9 +1,12 @@
 import { createContext } from "react";
 
+import type { UiTheme, UiThemeTokens } from "$/base/theme/theme-definition";
 import type { UiAppearance, UiStyleDefinition } from "$/base/theme/theme-types";
 
 export interface ThemeContextValue {
   variant: UiAppearance;
+  uiTheme: UiTheme;
+  tokens: UiThemeTokens;
   definition: UiStyleDefinition;
   sheetUrl: string;
   language: string;

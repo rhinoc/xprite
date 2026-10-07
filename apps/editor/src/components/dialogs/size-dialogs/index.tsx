@@ -22,10 +22,11 @@ import {
   Combobox,
   Divider,
   Input,
-  Label,
   focusDialogContainer,
   isDialogPopupTarget,
   type SurfaceBounds,
+  Text,
+  TextVariant,
 } from "@xprite/ui";
 import { centerUiPixel } from "@xprite/ui/assets";
 import type { UiPartName } from "@xprite/ui/assets";
@@ -262,7 +263,8 @@ function SizeDialog({
     />
   );
   const label = (client: SurfaceBounds, text: string, x: number, y: number, w: number, h = 30) => (
-    <Label
+    <Text
+      variant={TextVariant.Control}
       text={text}
       bounds={{ x: client.x + x + 2, y: client.y + y, width: Math.max(0, w - 2), height: h }}
       relativeTo={client}

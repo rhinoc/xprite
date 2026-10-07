@@ -3,55 +3,512 @@
   "name": "xprite",
   "nodeVersion": "24.5.0",
   "installCommand": "npx --yes pnpm@11.1.3 install --frozen-lockfile",
-  "buildCommand": "npx --yes pnpm@11.1.3 run build:editor",
-  "outputDirectory": "apps/editor/dist",
+  "buildCommand": "npx --yes pnpm@11.1.3 run build:site",
+  "outputDirectory": ".tmp/site",
   "redirects": [
-    { "source": "$wwwhost", "destination": "$host", "statusCode": 301 },
-    { "source": "/home", "destination": "/", "statusCode": 301 },
-    { "source": "/home/", "destination": "/", "statusCode": 301 },
-    { "source": "/index.html", "destination": "/", "statusCode": 301 }
+    {
+      "source": "$wwwhost",
+      "destination": "$host",
+      "statusCode": 301
+    },
+    {
+      "source": "/home",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/home/",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/help",
+      "destination": "/help/en/",
+      "statusCode": 301
+    },
+    {
+      "source": "/help/",
+      "destination": "/help/en/",
+      "statusCode": 301
+    },
+    {
+      "source": "/help/en",
+      "destination": "/help/en/",
+      "statusCode": 301
+    },
+    {
+      "source": "/help/zh-CN",
+      "destination": "/help/zh-CN/",
+      "statusCode": 301
+    },
+    {
+      "source": "/help/en/index.html",
+      "destination": "/help/en/",
+      "statusCode": 301
+    },
+    {
+      "source": "/help/zh-CN/index.html",
+      "destination": "/help/zh-CN/",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/viewer",
+      "destination": "/tools/viewer/",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/viewer/index.html",
+      "destination": "/tools/viewer/",
+      "statusCode": 301
+    },
+    {
+      "source": "/showcase",
+      "destination": "/showcase/en/",
+      "statusCode": 301
+    },
+    {
+      "source": "/showcase/",
+      "destination": "/showcase/en/",
+      "statusCode": 301
+    },
+    {
+      "source": "/showcase/index.html",
+      "destination": "/showcase/en/",
+      "statusCode": 301
+    },
+    {
+      "source": "/showcase/en",
+      "destination": "/showcase/en/",
+      "statusCode": 301
+    },
+    {
+      "source": "/showcase/zh-CN",
+      "destination": "/showcase/zh-CN/",
+      "statusCode": 301
+    },
+    {
+      "source": "/showcase/en/index.html",
+      "destination": "/showcase/en/",
+      "statusCode": 301
+    },
+    {
+      "source": "/showcase/zh-CN/index.html",
+      "destination": "/showcase/zh-CN/",
+      "statusCode": 301
+    },
+    {
+      "source": "/compare",
+      "destination": "/compare/",
+      "statusCode": 301
+    },
+    {
+      "source": "/compare/index.html",
+      "destination": "/compare/",
+      "statusCode": 301
+    },
+    {
+      "source": "/compare/aseprite-online",
+      "destination": "/compare/aseprite-online/",
+      "statusCode": 301
+    },
+    {
+      "source": "/compare/aseprite-online/index.html",
+      "destination": "/compare/aseprite-online/",
+      "statusCode": 301
+    },
+    {
+      "source": "/compare/aseprite-on-ipad",
+      "destination": "/compare/aseprite-on-ipad/",
+      "statusCode": 301
+    },
+    {
+      "source": "/compare/aseprite-on-ipad/index.html",
+      "destination": "/compare/aseprite-on-ipad/",
+      "statusCode": 301
+    },
+    {
+      "source": "/compare/piskel-alternatives",
+      "destination": "/compare/piskel-alternatives/",
+      "statusCode": 301
+    },
+    {
+      "source": "/compare/piskel-alternatives/index.html",
+      "destination": "/compare/piskel-alternatives/",
+      "statusCode": 301
+    },
+    {
+      "source": "/learn",
+      "destination": "/learn/",
+      "statusCode": 301
+    },
+    {
+      "source": "/learn/index.html",
+      "destination": "/learn/",
+      "statusCode": 301
+    },
+    {
+      "source": "/learn/aseprite-to-gif",
+      "destination": "/learn/aseprite-to-gif/",
+      "statusCode": 301
+    },
+    {
+      "source": "/learn/aseprite-to-gif/index.html",
+      "destination": "/learn/aseprite-to-gif/",
+      "statusCode": 301
+    },
+    {
+      "source": "/learn/aseprite-to-png",
+      "destination": "/learn/aseprite-to-png/",
+      "statusCode": 301
+    },
+    {
+      "source": "/learn/aseprite-to-png/index.html",
+      "destination": "/learn/aseprite-to-png/",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/gif-to-sprite-sheet",
+      "destination": "/tools/gif-to-sprite-sheet/",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/gif-to-sprite-sheet/index.html",
+      "destination": "/tools/gif-to-sprite-sheet/",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools",
+      "destination": "/tools/",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/index.html",
+      "destination": "/tools/",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/animal-crossing-qr",
+      "destination": "/tools/animal-crossing-qr/",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/animal-crossing-qr/index.html",
+      "destination": "/tools/animal-crossing-qr/",
+      "statusCode": 301
+    },
+    {
+      "source": "/gallery",
+      "destination": "/gallery/",
+      "statusCode": 301
+    },
+    {
+      "source": "/gallery/index.html",
+      "destination": "/gallery/",
+      "statusCode": 301
+    }
   ],
   "rewrites": [
-    { "source": "/editor", "destination": "/index.html" },
-    { "source": "/editor/", "destination": "/index.html" }
+    {
+      "source": "/editor",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/editor/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/help/en/",
+      "destination": "/help/en/index.html"
+    },
+    {
+      "source": "/help/zh-CN/",
+      "destination": "/help/zh-CN/index.html"
+    },
+    {
+      "source": "/tools/viewer/",
+      "destination": "/tools/viewer/index.html"
+    },
+    {
+      "source": "/showcase/en/",
+      "destination": "/showcase/en/index.html"
+    },
+    {
+      "source": "/showcase/zh-CN/",
+      "destination": "/showcase/zh-CN/index.html"
+    },
+    {
+      "source": "/compare/",
+      "destination": "/compare/index.html"
+    },
+    {
+      "source": "/compare/aseprite-online/",
+      "destination": "/compare/aseprite-online/index.html"
+    },
+    {
+      "source": "/compare/aseprite-on-ipad/",
+      "destination": "/compare/aseprite-on-ipad/index.html"
+    },
+    {
+      "source": "/compare/piskel-alternatives/",
+      "destination": "/compare/piskel-alternatives/index.html"
+    },
+    {
+      "source": "/learn/",
+      "destination": "/learn/index.html"
+    },
+    {
+      "source": "/learn/aseprite-to-gif/",
+      "destination": "/learn/aseprite-to-gif/index.html"
+    },
+    {
+      "source": "/learn/aseprite-to-png/",
+      "destination": "/learn/aseprite-to-png/index.html"
+    },
+    {
+      "source": "/tools/gif-to-sprite-sheet/",
+      "destination": "/tools/gif-to-sprite-sheet/index.html"
+    },
+    {
+      "source": "/tools/",
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/tools/animal-crossing-qr/",
+      "destination": "/tools/animal-crossing-qr/index.html"
+    },
+    {
+      "source": "/gallery/",
+      "destination": "/gallery/index.html"
+    }
   ],
   "headers": [
     {
       "source": "/",
-      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
     },
     {
       "source": "/index.html",
-      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
     },
     {
       "source": "/editor",
-      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
     },
     {
       "source": "/editor/",
-      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
     },
     {
       "source": "/sw.js",
-      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
     },
     {
       "source": "/release.json",
-      "headers": [{ "key": "Cache-Control", "value": "no-store" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/help/*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/tools/viewer/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/showcase",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/showcase/*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
     },
     {
       "source": "/assets/*",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/compare/*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/learn/*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/tools/gif-to-sprite-sheet/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/tools/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/tools/animal-crossing-qr/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/gallery/*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow"
+        }
+      ]
     }
   ],
   "caches": [
-    { "source": "/", "cacheTtl": 0 },
-    { "source": "/index.html", "cacheTtl": 0 },
-    { "source": "/editor", "cacheTtl": 0 },
-    { "source": "/editor/", "cacheTtl": 0 },
-    { "source": "/sw.js", "cacheTtl": 0 },
-    { "source": "/release.json", "cacheTtl": 0 },
-    { "source": "/assets/*", "cacheTtl": 86400 }
+    {
+      "source": "/",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/index.html",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/editor",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/editor/",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/tools/viewer/",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/showcase",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/showcase/*",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/sw.js",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/release.json",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/assets/*",
+      "cacheTtl": 86400
+    },
+    {
+      "source": "/compare/*",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/learn/*",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/tools/gif-to-sprite-sheet/",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/tools/",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/tools/animal-crossing-qr/",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/gallery/*",
+      "cacheTtl": 0
+    }
   ]
 }

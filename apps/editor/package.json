@@ -2,6 +2,11 @@
   "name": "@xprite/editor-app",
   "private": true,
   "type": "module",
+  "exports": {
+    "./embedded-runtime": "./src/embedded-runtime.ts",
+    "./host-contracts": "./src/host-contracts.ts",
+    "./browser-io": "./src/browser-io.ts"
+  },
   "scripts": {
     "predev": "pnpm -w run build:ui",
     "dev": "vite",
@@ -10,9 +15,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@bokuweb/zstd-wasm": "0.0.27",
     "@xprite/bedrock": "workspace:*",
     "@xprite/editor-core": "workspace:*",
+    "@xprite/editor-ui": "workspace:*",
+    "@xprite/growth-content": "workspace:*",
+    "@xprite/site-assets": "workspace:*",
     "@xprite/ui": "workspace:*",
+    "core-js": "3.50.0",
     "fflate": "^0.8.3",
     "posthog-js": "^1.435.6",
     "react": "^18.3.1",

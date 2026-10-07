@@ -19,9 +19,12 @@ import {
 } from "$/managers/timeline/timeline-presentation";
 import { stepZoom, libreSpriteZoomAtAnchor } from "$/managers/timeline/timeline-presentation";
 import { parseEditorColor } from "$/managers/tools/color-control";
-import { ContextMenu as EditorContextMenu } from "@xprite/ui";
-import { Button } from "@xprite/ui";
-import { CanvasSurface, type SurfaceBounds } from "@xprite/ui";
+import {
+  ContextMenu as EditorContextMenu,
+  Button,
+  CanvasSurface,
+  type SurfaceBounds,
+} from "@xprite/ui";
 import { paintUiPart, useUiAssets } from "@xprite/ui/assets";
 import { surfaceLayout } from "@xprite/ui/canvas";
 import {

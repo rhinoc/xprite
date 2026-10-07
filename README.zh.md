@@ -6,7 +6,7 @@
   <p>
     <a href="https://xprite.cc"><strong>在线体验</strong></a> ·
     <a href="./README.md">English</a> ·
-    <a href="./apps/editor/assets/help/README.zh-CN.md">使用指南</a> ·
+    <a href="https://xprite.cc/help/zh-CN/">使用指南</a> ·
     <a href="./PRIVACY.zh.md">隐私说明</a> ·
     <a href="./CONTRIBUTING.md">参与开发</a> ·
     <a href="https://github.com/rhinoc/xprite/issues">问题反馈</a>

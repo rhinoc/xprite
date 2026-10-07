@@ -1,4 +1,4 @@
-import { MAX_IMAGE_PIXELS } from "$/base/image-limits";
+import { MAX_DOCUMENT_PIXEL_BYTES } from "$/base/image-limits";
 import { duplicateLayers, layerSubtree } from "$/timeline/layer-operations";
 import { validTimelineRange } from "$/timeline/tags";
 import { isBackgroundLayer } from "$/timeline/timeline";
@@ -47,8 +47,8 @@ export function dropTimelineLayers(
     ),
   );
   if (
-    [...retained, ...copied].reduce((sum, pixels) => sum + pixels.data.byteLength, 0) >
-    MAX_IMAGE_PIXELS * 4
+    [...retained, ...copied].reduce((sum, pixels) => sum + pixels.width * pixels.height * 4, 0) >
+    MAX_DOCUMENT_PIXEL_BYTES
   )
     return timeline;
   const duplicate = duplicateLayers(timeline, selected);

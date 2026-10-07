@@ -1,9 +1,18 @@
 import * as React from "react";
 
+import { defaultUiTheme } from "$/base/theme/default-theme";
 import { getThemeAssets, preloadThemeAssets } from "$/base/theme/theme-assets-store";
 import type { UiAssetBundle } from "$/base/theme/theme-assets-store";
 import { ThemeContext, type ThemeContextValue } from "$/base/theme/theme-context-instance";
+import type { UiTheme } from "$/base/theme/theme-definition";
+import {
+  loadThemeModule,
+  type ThemeModule,
+  type UiThemeSnapshot,
+} from "$/base/theme/theme-module-loader";
 import type { UiColorRole } from "$/base/theme/theme-name-types";
+import { ThemeScope } from "$/base/theme/theme-scope";
+import { themeTokens } from "$/base/theme/theme-tokens";
 import type { UiStyleDefinition, UiAppearance } from "$/base/theme/theme-types";
 
 export type { AtlasPartName } from "$/base/theme/theme-name-types";
@@ -38,28 +47,44 @@ export type ThemeColorRoleIndex = Readonly<Record<string, readonly ThemeColorRol
 const identity = (text: string) => text;
 
 export interface UIProviderProps {
-  theme?: UiAppearance;
+  appearance?: UiAppearance;
+  uiTheme?: UiTheme;
   language?: string;
+  /** Wait for bitmap artwork before mounting controls. CSS-only pages can disable this. */
+  preloadArtwork?: boolean;
+  initialTheme?: UiThemeSnapshot;
+  /** Context only when an ancestor already supplies this theme's CSS variables. */
+  scope?: boolean;
   translateKey?: (key: string) => string;
   translateSource?: (source: string) => string;
   children: React.ReactNode;
 }
 
 export function UIProvider({
-  theme,
+  appearance,
+  uiTheme: requestedTheme,
   language,
+  preloadArtwork = true,
+  initialTheme,
+  scope = true,
   translateKey,
   translateSource,
   children,
 }: UIProviderProps) {
   const parent = React.useContext(ThemeContext);
-  const variant = theme ?? parent?.variant ?? "light";
+  const uiTheme = requestedTheme ?? parent?.uiTheme ?? defaultUiTheme;
+  const variant = appearance ?? parent?.variant ?? initialTheme?.appearance ?? "light";
   const resolvedLanguage = language ?? parent?.language ?? "en";
-  const [loaded, setLoaded] = React.useState<UiAssetBundle | null>(() => getThemeAssets(variant));
+  const [loaded, setLoaded] = React.useState<UiAssetBundle | ThemeModule | null>(() =>
+    initialTheme ? null : getThemeAssets(variant, uiTheme),
+  );
 
   React.useEffect(() => {
     let active = true;
-    void preloadThemeAssets(variant, resolvedLanguage)
+    const loading = preloadArtwork
+      ? preloadThemeAssets(variant, resolvedLanguage, uiTheme)
+      : loadThemeModule(variant, uiTheme);
+    void loading
       .then((assets) => {
         if (active) setLoaded(assets);
       })
@@ -67,14 +92,44 @@ export function UIProvider({
     return () => {
       active = false;
     };
-  }, [variant, resolvedLanguage]);
+  }, [variant, uiTheme, resolvedLanguage, preloadArtwork]);
 
-  const current = loaded?.variant === variant ? loaded : (parent ?? loaded);
+  const initial = React.useMemo<ThemeModule | null>(
+    () =>
+      initialTheme && initialTheme.themeId === uiTheme.id
+        ? {
+            uiTheme,
+            variant: initialTheme.appearance,
+            tokens: initialTheme.tokens,
+            definition: initialTheme.definition,
+            sheetUrl: initialTheme.sheetUrl,
+          }
+        : null,
+    [initialTheme, uiTheme],
+  );
+  const matches = (candidate: UiAssetBundle | ThemeModule | ThemeContextValue | null) =>
+    candidate?.variant === variant && candidate.uiTheme === uiTheme;
+  const current = matches(loaded)
+    ? loaded
+    : matches(parent)
+      ? parent
+      : matches(initial)
+        ? initial
+        : loaded;
   const value = React.useMemo<ThemeContextValue | null>(
     () =>
       current
         ? {
             variant: current.variant,
+            uiTheme: current.uiTheme,
+            tokens: themeTokens(
+              {
+                definition: "theme" in current ? current.theme : current.definition,
+                sheetUrl: current.sheetUrl,
+                tokens: current.tokens,
+              },
+              parent?.tokens,
+            ),
             definition: "theme" in current ? current.theme : current.definition,
             sheetUrl: current.sheetUrl,
             language: resolvedLanguage,
@@ -82,10 +137,14 @@ export function UIProvider({
             translateSource: translateSource ?? parent?.translateSource ?? identity,
           }
         : null,
-    [current, parent, resolvedLanguage, translateKey, translateSource],
+    [current, uiTheme, parent, resolvedLanguage, translateKey, translateSource],
   );
   if (!value) return null;
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>
+      {scope ? <ThemeScope>{children}</ThemeScope> : children}
+    </ThemeContext.Provider>
+  );
 }
 
 export function useTheme() {

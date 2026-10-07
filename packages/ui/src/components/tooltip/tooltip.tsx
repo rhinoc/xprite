@@ -1,11 +1,13 @@
 import { useCallback, type CSSProperties } from "react";
 
+import { useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { ThemeIcon, ThemePart } from "$/base/theme/theme-part";
 import { clientRect } from "$/base/utils/dom-geometry";
 import { surfaceLayout, type SurfaceBounds } from "$/components/canvas-surface/geometry";
 import { RASTER_SCALE } from "$/components/canvas-surface/metrics";
 import { Text, TextVariant } from "$/components/text";
+import { BalloonFrame, balloonBody } from "$/components/tooltip/balloon-frame";
 import { tooltipArrow, type TooltipPlacementOption } from "$/components/tooltip/geometry";
 import { PositionedTooltip } from "$/components/tooltip/positioned";
 import type { PositionedTooltipLayout, TooltipTriggerContent } from "$/components/tooltip/types";
@@ -29,12 +31,13 @@ export interface TooltipProps {
 }
 
 const TOOLTIP_TEXT_INSET = 10;
+const BALLOON_WIDTH_RESERVE = 2;
+const BALLOON_HEIGHT_RESERVE = 1;
 const TOOLTIP_LINE_HEIGHT = 14;
 const TOOLTIP_FONT_SCALE = RASTER_SCALE;
-const TOOLTIP_FONT_FAMILY = "var(--xse-font, PixelArtBitmap, FusionPixelZhHans, monospace)";
 let tooltipTextProbe: HTMLSpanElement | undefined;
 
-function measureTooltipText(text: string) {
+function measureTooltipText(text: string, fontFamily: string, fontSize: string) {
   const measure = (tooltipTextProbe ??= document.createElement("span"));
   Object.assign(measure.style, {
     position: "fixed",
@@ -44,9 +47,9 @@ function measureTooltipText(text: string) {
     pointerEvents: "none",
     display: "inline-block",
     whiteSpace: "pre",
-    fontFamily: TOOLTIP_FONT_FAMILY,
-    fontSize: `${TOOLTIP_LINE_HEIGHT}px`,
-    lineHeight: `${TOOLTIP_LINE_HEIGHT}px`,
+    fontFamily,
+    fontSize,
+    lineHeight: fontSize,
     fontWeight: "400",
     fontStyle: "normal",
     fontKerning: "none",
@@ -63,6 +66,18 @@ function measureTooltipText(text: string) {
 function TooltipArtwork({ layout }: { layout: PositionedTooltipLayout }) {
   const { definition: theme } = useTheme();
   const { bounds, viewport } = layout;
+  const skin = theme.controlParts?.tooltip;
+  const balloon = skin?.balloon;
+  const font = skin?.font ?? "default";
+  const inset = skin?.padding ?? theme.dimensions.tooltip_text_inset ?? TOOLTIP_TEXT_INSET;
+  const pointerSize = skin?.pointerSize ?? 0;
+  const pointer =
+    skin?.pointerArtworks?.[layout.placement] ??
+    skin?.pointerArtworks?.[layout.placement === "bottom" ? "bottom-left" : "top-left"];
+  const body = balloon
+    ? balloonBody(bounds, layout.placement, pointerSize, pointer?.bodyInsets)
+    : { left: 0, top: 0 };
+  const lineHeight = theme.typography?.[font]?.lineHeight ?? TOOLTIP_LINE_HEIGHT;
   const scaleX = viewport.width / viewport.sceneWidth;
   const scaleY = viewport.height / viewport.sceneHeight;
   const displayBounds = surfaceLayout(bounds, viewport);
@@ -77,48 +92,60 @@ function TooltipArtwork({ layout }: { layout: PositionedTooltipLayout }) {
 
   return (
     <div aria-hidden="true" className={styles.artwork} style={artworkStyle}>
-      <ThemePart
-        className={styles.skin}
-        part="tooltip"
-        scale={TOOLTIP_FONT_SCALE}
-        drawCenter
-        style={{
-          position: "absolute",
-          left: 0,
-          top: 0,
-          width: bounds.width,
-          height: bounds.height,
-          minWidth: 0,
-          minHeight: 0,
-          display: "block",
-        }}
-      />
-      <span
-        className={styles.arrowClip}
-        style={{
-          left: clip.x - bounds.x,
-          top: clip.y - bounds.y,
-          width: clip.width,
-          height: clip.height,
-        }}
-      >
-        <ThemeIcon
-          part="tooltip_arrow"
-          scale={TOOLTIP_FONT_SCALE}
-          x={atlas.x - clip.x}
-          y={atlas.y - clip.y}
+      {balloon ? (
+        <BalloonFrame
+          layout={layout}
+          pointerSize={pointerSize}
+          pointerArtwork={pointer}
+          face={theme.colors.tooltip_face}
+          ink={theme.colors.tooltip_text}
         />
-      </span>
+      ) : (
+        <>
+          <ThemePart
+            className={styles.skin}
+            part="tooltip"
+            scale={TOOLTIP_FONT_SCALE}
+            drawCenter
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              width: bounds.width,
+              height: bounds.height,
+              minWidth: 0,
+              minHeight: 0,
+              display: "block",
+            }}
+          />
+          <span
+            className={styles.arrowClip}
+            style={{
+              left: clip.x - bounds.x,
+              top: clip.y - bounds.y,
+              width: clip.width,
+              height: clip.height,
+            }}
+          >
+            <ThemeIcon
+              part="tooltip_arrow"
+              scale={TOOLTIP_FONT_SCALE}
+              x={atlas.x - clip.x}
+              y={atlas.y - clip.y}
+            />
+          </span>
+        </>
+      )}
       <span className={styles.textLayer}>
         {layout.lines.map((line, lineIndex) => (
           <Text
             key={lineIndex}
             variant={TextVariant.PositionedPixel}
             text={line}
-            x={TOOLTIP_TEXT_INSET}
-            y={TOOLTIP_TEXT_INSET + lineIndex * TOOLTIP_LINE_HEIGHT}
-            color={theme.colors.text}
-            font="default"
+            x={body.left + inset + (pointer?.textOffset?.x ?? 0)}
+            y={body.top + inset + lineIndex * lineHeight + (pointer?.textOffset?.y ?? 0)}
+            color={theme.colors.tooltip_text}
+            font={font}
             scale={TOOLTIP_FONT_SCALE}
           />
         ))}
@@ -129,7 +156,37 @@ function TooltipArtwork({ layout }: { layout: PositionedTooltipLayout }) {
 
 /** Delayed tooltip using DOM theme sprites, WOFF2 text, placement, and interaction. */
 export function Tooltip({ text, ...props }: TooltipProps) {
-  const { translateSource } = useTheme();
+  const { translateSource, definition, tokens } = useTheme();
+  const { measureThemeText } = useThemeText();
+  const skin = definition.controlParts?.tooltip;
+  const font = skin?.font ?? "default";
+  const metrics = definition.typography?.[font];
+  const inset = skin?.padding ?? definition.dimensions.tooltip_text_inset ?? TOOLTIP_TEXT_INSET;
+  const textMetrics = metrics
+    ? {
+        inset,
+        lineHeight: metrics.lineHeight,
+        widthPadding: inset * 2 + (skin?.balloon ? BALLOON_WIDTH_RESERVE : 0),
+        heightPadding: inset * 2 + (skin?.balloon ? BALLOON_HEIGHT_RESERVE : 0),
+        pointerSize: skin?.pointerSize,
+        pointerInsets: skin?.pointerArtworks
+          ? Object.fromEntries(
+              Object.entries(skin.pointerArtworks).map(([key, value]) => [key, value.bodyInsets]),
+            )
+          : undefined,
+      }
+    : undefined;
+  const measure = useCallback(
+    (text: string) =>
+      metrics
+        ? measureThemeText(text, font)
+        : measureTooltipText(
+            text,
+            tokens["--ui-font-family"] ?? "inherit",
+            tokens["--ui-text-default-size"] ?? `${TOOLTIP_LINE_HEIGHT}px`,
+          ),
+    [metrics, measureThemeText, font, tokens],
+  );
   const displayText = translateSource(text);
   const render = useCallback(
     (layout: PositionedTooltipLayout) => <TooltipArtwork layout={layout} />,
@@ -139,7 +196,8 @@ export function Tooltip({ text, ...props }: TooltipProps) {
     <PositionedTooltip
       {...props}
       text={displayText}
-      measureText={measureTooltipText}
+      measureText={measure}
+      textMetrics={textMetrics}
       render={render}
     />
   );

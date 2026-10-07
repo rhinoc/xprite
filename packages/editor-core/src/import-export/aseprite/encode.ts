@@ -6,6 +6,10 @@ import {
   UINT8_MAX,
   BITS_PER_BYTE,
 } from "$/base/numeric-constants";
+import { inflateZlibExact } from "$/base/zlib";
+import { assertEncodedPixels } from "$/document/pixel-storage";
+import { Writer } from "$/import-export/aseprite/binary-writer";
+import { asepriteCelDecodedBytes } from "$/import-export/aseprite/cel-memory";
 import { AsepriteCodecError } from "$/import-export/aseprite/decode";
 import {
   AsepriteCel,
@@ -42,93 +46,6 @@ const CEL_RAW = 0;
 const CEL_LINK = 1;
 const CEL_COMPRESSED = 2;
 
-class Writer {
-  private data: number[] = [];
-
-  get length(): number {
-    return this.data.length;
-  }
-
-  u8(value: number): void {
-    this.data.push(value & UINT8_MAX);
-  }
-
-  u16(value: number): void {
-    this.u8(value);
-    this.u8(value >>> 8);
-  }
-
-  i16(value: number): void {
-    this.u16(value < 0 ? value + 0x10000 : value);
-  }
-
-  u32(value: number): void {
-    this.u8(value);
-    this.u8(value >>> 8);
-    this.u8(value >>> 16);
-    this.u8(value >>> 24);
-  }
-
-  i32(value: number): void {
-    this.u32(value < 0 ? value + 0x100000000 : value);
-  }
-
-  bytes(bytes: Uint8Array): void {
-    for (const byte of bytes) this.data.push(byte);
-  }
-
-  pad(count: number): void {
-    for (let index = 0; index < count; index += 1) this.data.push(0);
-  }
-
-  string(value: string, maxBytes: number): void {
-    const encoded = encodeUtf8(value);
-    if (encoded.byteLength > maxBytes || encoded.byteLength > UINT16_MAX)
-      throw new AsepriteCodecError(`String exceeds ${maxBytes} bytes`);
-    this.u16(encoded.byteLength);
-    this.bytes(encoded);
-  }
-
-  patchU32(offset: number, value: number): void {
-    if (offset < 0 || offset + 4 > this.data.length)
-      throw new AsepriteCodecError("Invalid writer patch offset");
-    this.data[offset] = value & UINT8_MAX;
-    this.data[offset + 1] = (value >>> 8) & UINT8_MAX;
-    this.data[offset + 2] = (value >>> 16) & UINT8_MAX;
-    this.data[offset + 3] = (value >>> 24) & UINT8_MAX;
-  }
-
-  toBytes(): Uint8Array {
-    return Uint8Array.from(this.data);
-  }
-}
-
-function encodeUtf8(value: string): Uint8Array {
-  const bytes: number[] = [];
-  for (let index = 0; index < value.length; index += 1) {
-    let code = value.charCodeAt(index);
-    if (code >= 0xd800 && code <= 0xdbff && index + 1 < value.length) {
-      const low = value.charCodeAt(index + 1);
-      if (low >= 0xdc00 && low <= 0xdfff) {
-        code = 0x10000 + ((code - 0xd800) << 10) + low - 0xdc00;
-        index += 1;
-      }
-    }
-    if (code < 0x80) bytes.push(code);
-    else if (code < 0x800) bytes.push(0xc0 | (code >> 6), 0x80 | (code & 0x3f));
-    else if (code < 0x10000)
-      bytes.push(0xe0 | (code >> 12), 0x80 | ((code >> 6) & 0x3f), 0x80 | (code & 0x3f));
-    else
-      bytes.push(
-        0xf0 | (code >> 18),
-        0x80 | ((code >> 12) & 0x3f),
-        0x80 | ((code >> 6) & 0x3f),
-        0x80 | (code & 0x3f),
-      );
-  }
-  return Uint8Array.from(bytes);
-}
-
 function limitsFor(overrides?: Partial<AsepriteResourceLimits>): AsepriteResourceLimits {
   return { ...DEFAULT_ASEPRITE_LIMITS, ...overrides };
 }
@@ -161,6 +78,7 @@ function checkedDimensions(sprite: AsepriteSprite, limits: AsepriteResourceLimit
   }
   let cels = 0;
   let decodedBytes = 0;
+  let expandedBytes = 0;
   const tilesets = new Map<number, AsepriteTileset>();
   for (const ts of sprite.tilesets ?? []) {
     checkedInt(ts.id, 0, 0xffffffff, "Tileset ID");
@@ -222,7 +140,12 @@ function checkedDimensions(sprite: AsepriteSprite, limits: AsepriteResourceLimit
         const expected = cel.width * cel.height * (isTilemap ? 4 : sprite.depth / BITS_PER_BYTE);
         if (cel.width * cel.height > limits.maxCelPixels || expected > limits.maxDecodedBytes)
           throw new AsepriteCodecError("Cel pixel data exceeds limits");
-        decodedBytes += expected;
+        decodedBytes += isTilemap
+          ? expected
+          : asepriteCelDecodedBytes(cel.width, cel.height, sprite.depth);
+        if (!isTilemap) expandedBytes += cel.width * cel.height * 4;
+        if (expandedBytes > limits.maxExpandedBytes)
+          throw new AsepriteCodecError("Sprite image data exceeds the editor memory limit");
         if (decodedBytes > limits.maxDecodedBytes)
           throw new AsepriteCodecError("Total cel pixel data exceeds limits");
         if (isTilemap) {
@@ -238,6 +161,10 @@ function checkedDimensions(sprite: AsepriteSprite, limits: AsepriteResourceLimit
           for (const tile of map.tiles)
             if ((tile & 0x1fffffff) >= ts.tileCount && (tile & 0x1fffffff) !== 0)
               throw new AsepriteCodecError("Tile index outside referenced tileset");
+          continue;
+        }
+        if (cel.encodedPixels && sprite.depth === 32) {
+          assertEncodedPixels(cel.encodedPixels, expected);
           continue;
         }
         if (
@@ -485,7 +412,15 @@ function celChunk(cel: AsepriteCel, compress: Uint8Array | undefined, depth = 32
         view = new DataView(bytes.buffer);
       cel.tilemap!.tiles.forEach((value, index) => view.setUint32(index * 4, value, true));
       writer.bytes(deflateTileData(bytes));
-    } else writer.bytes(compress || (depth === 32 ? cel.pixels! : cel.asepritePixels!));
+    } else
+      writer.bytes(
+        compress ||
+          (depth === 32
+            ? cel.encodedPixels
+              ? inflateZlibExact(cel.encodedPixels.bytes, cel.encodedPixels.byteLength)
+              : cel.pixels!
+            : cel.asepritePixels!),
+      );
   }
   return chunk(CHUNK_CEL, writer.toBytes());
 }
@@ -648,18 +583,28 @@ async function encodeInternal(
   if (compress && !options.deflate)
     throw new AsepriteCodecError("compress:true requires an injected deflate function");
   const compressed = new Map<AsepriteCel, Uint8Array>();
+  if (options.preserveCelCompression)
+    for (const frame of sprite.frames)
+      for (const cel of frame.cels)
+        if (cel.encodedPixels && cel.type !== AsepriteCelType.Linked)
+          compressed.set(cel, cel.encodedPixels.bytes);
   if (compress) {
     for (const frame of sprite.frames) {
       for (const cel of frame.cels) {
         if (cel.type === AsepriteCelType.Linked || cel.type === AsepriteCelType.Tilemap) continue;
-        const encoded = await options.deflate!(
-          (sprite.depth === 32 ? cel.pixels : cel.asepritePixels)!,
-        );
+        if (cel.encodedPixels) {
+          compressed.set(cel, cel.encodedPixels.bytes);
+          continue;
+        }
+        const source = (sprite.depth === 32 ? cel.pixels : cel.asepritePixels)!;
+        const encoded = await options.deflate!(source);
         const bytes =
           encoded instanceof Uint8Array
             ? encoded
             : new Uint8Array(encoded as unknown as ArrayBuffer);
-        compressed.set(cel, bytes.slice());
+        // zlib headers can make small/incompressible cels larger. Both forms
+        // preserve independent cel identity and are native ASE representations.
+        if (bytes.byteLength < source.byteLength) compressed.set(cel, bytes.slice());
       }
     }
   }
@@ -691,6 +636,11 @@ export function encodeAsepriteSync(
   const headerFlags =
     sprite.flags | 1 | (sprite.layers.some((layer) => layer.uuid?.byteLength === 16) ? 4 : 0);
   const compressed = new Map<AsepriteCel, Uint8Array>();
+  if (options.preserveCelCompression)
+    for (const frame of sprite.frames)
+      for (const cel of frame.cels)
+        if (cel.encodedPixels && cel.type !== AsepriteCelType.Linked)
+          compressed.set(cel, cel.encodedPixels.bytes);
   const frameChunks = sprite.frames.map((frame, index) =>
     buildFrameChunks(sprite, frame, index, headerFlags, options, limits, compressed),
   );

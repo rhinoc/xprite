@@ -1,9 +1,11 @@
 import type { PixelBuffer, Rect } from "$/base/primitives";
-import { activateTimelineCel } from "$/document/document";
+import type { EditorPersistenceSnapshot } from "$/document";
+import { activateTimelineCel, syncTimeline } from "$/document/document";
+import { assertDocumentMemoryBudget } from "$/document/memory-budget";
 import type { EditorDocument } from "$/document/types";
 import {
   clonePersistenceSnapshot,
-  type EditorPersistenceSnapshot,
+  CommittedPersistenceCapture,
 } from "$/editor/persistence-snapshot";
 import type { EditorSnapshot } from "$/editor/types";
 import { EditorHistory, type HistoryCommand, type UndoOptions } from "$/history/history";
@@ -45,7 +47,9 @@ export class EditorKernel {
   private revision = 0;
   private pixelRevision = 0;
   private persistenceRevision = 0;
+  private sharedContentRevision = { value: 0 };
   private persistenceSnapshot: EditorPersistenceSnapshot | null = null;
+  private persistenceCapture = new CommittedPersistenceCapture();
   private persistenceKey: readonly unknown[] = [];
   private persistenceLayers: SpriteTimeline["layers"] | undefined;
   private persistenceLayerKey: readonly unknown[] = [];
@@ -55,6 +59,7 @@ export class EditorKernel {
   createLinkedKernel(refresh: (pixels: boolean) => void): EditorKernel {
     const linked = new EditorKernel();
     linked.history = this.history;
+    linked.sharedContentRevision = this.sharedContentRevision;
     linked.linkedKernels = this.linkedKernels;
     linked.refreshLinkedView = refresh;
     linked.document = this.document ? { ...this.document } : null;
@@ -105,6 +110,8 @@ export class EditorKernel {
   };
 
   getSnapshot = (): EditorSnapshot => this.snapshot;
+  /** Shared across linked views; undo and replacement never reuse an old revision. */
+  getContentRevision = (): number => this.sharedContentRevision.value;
   getRevisions = (): EditorRevisions => ({
     revision: this.revision,
     pixelRevision: this.pixelRevision,
@@ -158,7 +165,14 @@ export class EditorKernel {
     extraCommands: readonly HistoryCommand[] = [],
   ) {
     if (this.document !== document) return false;
-    return this.history.commit(document, replacesSelection, extraCommands);
+    try {
+      syncTimeline(document);
+      assertDocumentMemoryBudget(document);
+      return this.history.commit(document, replacesSelection, extraCommands);
+    } catch (error) {
+      this.history.cancel(document);
+      throw error;
+    }
   }
   cancelHistoryTransaction(document: EditorDocument) {
     if (this.document !== document) return false;
@@ -206,6 +220,8 @@ export class EditorKernel {
     try {
       change();
       prepareCommit();
+      syncTimeline(document);
+      assertDocumentMemoryBudget(document);
       const committed = this.history.commit(document, replacesSelection, extraCommands);
       return {
         committed,
@@ -235,7 +251,7 @@ export class EditorKernel {
         if (!active) return false;
         active = false;
         if (this.document !== document || !this.history.transactionActive) return false;
-        return this.history.commit(document);
+        return this.commitHistoryTransaction(document);
       },
       cancel: () => {
         if (!active) return false;
@@ -260,6 +276,19 @@ export class EditorKernel {
     if (!this.receivingLinkedPublication)
       for (const linked of this.linkedKernels)
         if (linked !== this) linked.receiveLinkedDocument(this.document, pixels);
+  }
+
+  /** Detached presentation has no edit/history/recovery publication. */
+  publishPresentationSnapshot(draft: EditorSnapshotDraft, pixels = false) {
+    this.document = draft.document;
+    if (pixels) this.pixelRevision++;
+    this.snapshot = {
+      ...draft,
+      revision: ++this.revision,
+      pixelRevision: this.pixelRevision,
+      persistenceRevision: this.persistenceRevision,
+    };
+    for (const listener of this.listeners) listener();
   }
 
   private publishPersistence() {
@@ -295,6 +324,7 @@ export class EditorKernel {
           doc.width,
           doc.height,
           this.history.contentIdentity,
+          this.history.persistenceBufferEpoch,
           this.history.dirty,
           timeline?.frames[timeline.activeFrame]?.palette ? undefined : doc.palette,
           timeline?.frames,
@@ -316,11 +346,17 @@ export class EditorKernel {
       this.persistedLayerKey = this.persistenceLayerKey;
       return;
     }
+    this.persistenceSnapshot = doc
+      ? this.persistenceCapture.capture(
+          { version: 1, document: doc, dirty: this.history.dirty },
+          this.history.persistenceBufferEpoch,
+          (data) => this.history.getPixelBufferVersion(data),
+        )
+      : null;
+    if (!doc) this.persistenceCapture.clear();
     this.persistenceKey = key;
     this.persistedLayerKey = this.persistenceLayerKey;
-    this.persistenceSnapshot = doc
-      ? clonePersistenceSnapshot({ version: 1, document: doc, dirty: this.history.dirty })
-      : null;
     this.persistenceRevision++;
+    this.sharedContentRevision.value++;
   }
 }

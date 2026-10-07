@@ -1,8 +1,14 @@
 import { UINT8_MAX } from "$/base/numeric-constants";
-import type { PixelBuffer, Rgba } from "$/base/primitives";
+import type { EncodedRgbaPixels, PixelBuffer, Rgba } from "$/base/primitives";
 import { assertSupportedColorProfile } from "$/color/icc-profile";
 import { encodeAsepriteSamples, type AsepriteImageSamples } from "$/color/samples";
+import type { EditorProject } from "$/document";
 import { activateTimelineCel, syncTimeline } from "$/document/document";
+import {
+  createEncodedPixelBuffer,
+  DecodedPixelCache,
+  encodedPixels,
+} from "$/document/pixel-storage";
 import { assertDimension, assertPixelCount } from "$/document/pixel-validation";
 import type { EditorDocument } from "$/document/types";
 import {
@@ -16,6 +22,7 @@ import {
   type AsepriteCel,
   type AsepriteLayer,
   type AsepriteUserData,
+  type AsepriteSourceMetadata,
 } from "$/import-export/aseprite/model";
 import { parseSliceChunks, serializeSliceChunks } from "$/sprite/slice-metadata";
 import { rasterizeTilemap, refreshTilemapProjections, type TilemapImage } from "$/tilemap/model";
@@ -32,12 +39,6 @@ import {
   type TimelineLayer,
 } from "$/timeline/timeline";
 
-export interface AsepriteEditorProject {
-  image: PixelBuffer;
-  timeline: SpriteTimeline;
-  palette?: readonly Rgba[];
-}
-
 function copyUserData(data: AsepriteUserData | undefined): AsepriteUserData | undefined {
   return data
     ? {
@@ -49,12 +50,33 @@ function copyUserData(data: AsepriteUserData | undefined): AsepriteUserData | un
 }
 /** Convert only after codec preflight succeeds. Unsupported rendering semantics
  * fail before installing a partial/flattened document. */
-export function projectFromAseprite(sprite: AsepriteSprite): AsepriteEditorProject {
+export function projectFromAseprite(
+  sprite: AsepriteSprite,
+  options: {
+    /** The caller relinquishes decoded pixels after conversion. */ takeOwnership?: boolean;
+  } = {},
+): EditorProject {
   assertDimension(sprite.width, "width");
   assertDimension(sprite.height, "height");
   assertPixelCount(sprite.width, sprite.height);
   if (![8, 16, 32].includes(sprite.depth)) throw new Error("Unsupported Aseprite pixel depth");
   assertSupportedColorProfile(sprite.colorProfile, sprite.depth);
+  const { tilesets: _tilesets, ...metadata } = sprite;
+  const source: AsepriteSourceMetadata = {
+    ...metadata,
+    frames: sprite.frames.map((frame) => ({
+      ...frame,
+      cels: frame.cels.map(
+        ({
+          pixels: _pixels,
+          encodedPixels: _encoded,
+          asepritePixels: _samples,
+          tilemap: _tilemap,
+          ...metadata
+        }) => metadata,
+      ),
+    })),
+  };
 
   for (const layer of sprite.layers)
     if (
@@ -95,7 +117,8 @@ export function projectFromAseprite(sprite: AsepriteSprite): AsepriteEditorProje
   }));
   assertSupportedBackgroundStack(importedLayers);
   assertSupportedAnimationTags(sprite.tags, sprite.frames.length);
-  const images = new Map<Uint8Array, PixelBuffer>(),
+  const decodedCache = new DecodedPixelCache();
+  const images = new Map<Uint8Array | EncodedRgbaPixels, PixelBuffer>(),
     resolving = new Set<AsepriteCel>(),
     sampleImageCopies = new Map<Uint8Array, AsepriteImageSamples>(),
     palettes = new Map<object, readonly Rgba[]>();
@@ -149,12 +172,22 @@ export function projectFromAseprite(sprite: AsepriteSprite): AsepriteEditorProje
         sprite.header.transparentIndex,
       );
     }
-    const existing = cel.pixels && images.get(cel.pixels);
+    const identity = cel.encodedPixels ?? cel.pixels;
+    const existing = identity && images.get(identity);
     if (existing) return existing;
     if (resolving.has(cel)) throw new Error("Invalid cyclic linked cel");
     resolving.add(cel);
     let pixels: PixelBuffer;
-    if (cel.type === AsepriteCelType.Linked && !cel.pixels) {
+    if (cel.encodedPixels) {
+      pixels = createEncodedPixelBuffer(
+        cel.width,
+        cel.height,
+        options.takeOwnership
+          ? cel.encodedPixels
+          : { ...cel.encodedPixels, bytes: cel.encodedPixels.bytes.slice() },
+        decodedCache,
+      );
+    } else if (cel.type === AsepriteCelType.Linked && !cel.pixels) {
       const target = sprite.frames[cel.linkedFrame ?? -1]?.cels.find(
         (item) => item.layerIndex === cel.layerIndex,
       );
@@ -168,10 +201,16 @@ export function projectFromAseprite(sprite: AsepriteSprite): AsepriteEditorProje
         cel.pixels.length !== cel.width * cel.height * 4
       )
         throw new Error("Invalid image cel");
-      pixels = { width: cel.width, height: cel.height, data: new Uint8ClampedArray(cel.pixels) };
+      pixels = {
+        width: cel.width,
+        height: cel.height,
+        data: options.takeOwnership
+          ? new Uint8ClampedArray(cel.pixels.buffer, cel.pixels.byteOffset, cel.pixels.byteLength)
+          : new Uint8ClampedArray(cel.pixels),
+      };
     }
     resolving.delete(cel);
-    if (cel.pixels) images.set(cel.pixels, pixels);
+    if (identity) images.set(identity, pixels);
     return pixels;
   };
   const loopCount = parseAnimationLoopMetadata(sprite);
@@ -180,8 +219,8 @@ export function projectFromAseprite(sprite: AsepriteSprite): AsepriteEditorProje
     slices: parseSliceChunks(sprite.chunks),
     tilesets: sprite.tilesets?.map((s) => ({
       ...s,
-      pixels: s.pixels.slice(),
-      asepritePixels: s.asepritePixels?.slice(),
+      pixels: options.takeOwnership ? s.pixels : s.pixels.slice(),
+      asepritePixels: options.takeOwnership ? s.asepritePixels : s.asepritePixels?.slice(),
       userData: copyUserData(s.userData),
       tileUserData: s.tileUserData?.map((data) => copyUserData(data) ?? {}),
     })),
@@ -203,13 +242,13 @@ export function projectFromAseprite(sprite: AsepriteSprite): AsepriteEditorProje
         }
       : undefined,
     composeGroups: false,
-    asepriteSource: sprite,
+    asepriteSource: source,
     activeFrame: 0,
     activeLayer: 0,
     layers: importedLayers,
     frames: sprite.frames.map((frame, index) => {
       const cels: (TimelineCel | null)[] = sprite.layers.map(() => null);
-      for (const cel of frame.cels) {
+      for (const [celIndex, cel] of frame.cels.entries()) {
         if (cel.layerIndex >= cels.length || cels[cel.layerIndex])
           throw new Error("Invalid duplicate/layer cel");
         let asepriteSamples: AsepriteImageSamples | undefined;
@@ -222,7 +261,7 @@ export function projectFromAseprite(sprite: AsepriteSprite): AsepriteEditorProje
               depth: sprite.depth as 8 | 16,
               width: cel.width,
               height: cel.height,
-              data: cel.asepritePixels.slice(),
+              data: options.takeOwnership ? cel.asepritePixels : cel.asepritePixels.slice(),
             };
             sampleImageCopies.set(cel.asepritePixels, asepriteSamples);
           }
@@ -235,12 +274,17 @@ export function projectFromAseprite(sprite: AsepriteSprite): AsepriteEditorProje
           y: cel.y,
           opacity: cel.opacity,
           zIndex: cel.zIndex,
-          source: cel,
+          source: source.frames[index].cels[celIndex],
           userData: copyUserData(cel.userData),
           preciseBounds: cel.preciseBounds,
         };
       }
-      return { duration: frame.duration, cels, source: frame, palette: framePalette(index) };
+      return {
+        duration: frame.duration,
+        cels,
+        source: source.frames[index],
+        palette: framePalette(index),
+      };
     }),
   };
   assertLayerHierarchy(timeline);
@@ -265,8 +309,14 @@ export function projectFromAseprite(sprite: AsepriteSprite): AsepriteEditorProje
 /** Encode the current graph, preserving metadata rather than reverting to the
  * original decoded cels. Linked image identities become Aseprite linked cels. */
 export function asepriteFromProject(
-  project: AsepriteEditorProject,
-  options: { preserveGroupMetadata?: boolean } = {},
+  project: Pick<EditorProject, "timeline" | "palette"> & {
+    image: Pick<PixelBuffer, "width" | "height"> & Partial<Pick<PixelBuffer, "data">>;
+  },
+  options: {
+    preserveGroupMetadata?: boolean;
+    /** The caller owns immutable pixels for the entire encoding operation. */
+    borrowImageData?: boolean;
+  } = {},
 ): AsepriteSprite {
   const t = ensureLayerUuids(project.timeline),
     original = t.asepriteSource,
@@ -365,6 +415,7 @@ export function asepriteFromProject(
       const identity = asepriteSamples ?? cel.pixels,
         linkedFrame = seen[layerIndex].get(identity);
       seen[layerIndex].set(identity, linkedFrame ?? index);
+      const backing = depth === 32 ? encodedPixels(cel.pixels) : undefined;
       return [
         {
           ...cel.source,
@@ -381,9 +432,22 @@ export function asepriteFromProject(
           height: cel.pixels.height,
           ...(linkedFrame === undefined
             ? {
-                type: AsepriteCelType.Raw,
-                rawType: 0,
-                pixels: new Uint8Array(cel.pixels.data),
+                type: backing ? AsepriteCelType.Compressed : AsepriteCelType.Raw,
+                rawType: backing ? 2 : 0,
+                encodedPixels: backing
+                  ? options.borrowImageData
+                    ? backing
+                    : { ...backing, bytes: backing.bytes.slice() }
+                  : undefined,
+                pixels: backing
+                  ? undefined
+                  : options.borrowImageData
+                    ? new Uint8Array(
+                        cel.pixels.data.buffer,
+                        cel.pixels.data.byteOffset,
+                        cel.pixels.data.byteLength,
+                      )
+                    : new Uint8Array(cel.pixels.data),
               }
             : { type: AsepriteCelType.Linked, rawType: 1, linkedFrame, pixels: undefined }),
         },
@@ -407,8 +471,8 @@ export function asepriteFromProject(
     frames,
     tilesets: t.tilesets?.map((s) => ({
       ...s,
-      pixels: s.pixels.slice(),
-      asepritePixels: s.asepritePixels?.slice(),
+      pixels: options.borrowImageData ? s.pixels : s.pixels.slice(),
+      asepritePixels: options.borrowImageData ? s.asepritePixels : s.asepritePixels?.slice(),
       userData: copyUserData(s.userData),
       tileUserData: s.tileUserData?.map((data) => copyUserData(data) ?? {}),
     })),
@@ -465,7 +529,7 @@ export function asepriteFromProject(
     },
   };
 }
-export function projectFromDocument(doc: EditorDocument): AsepriteEditorProject {
+export function projectFromDocument(doc: EditorDocument): EditorProject {
   syncTimeline(doc);
   const image = compositeTimeline(doc);
   return { image, timeline: doc.timeline!, palette: doc.palette };

@@ -9,6 +9,8 @@ import type {
 import type { RecoveryItem } from "$/managers/workspace/recovery-presentation";
 export interface EditorActions {
   backupActive?: boolean;
+  recoveryProblem?: string;
+  retryRecovery?: () => void;
   recoveryOpen?: boolean;
   recoveryTabOpen?: boolean;
   recoverySelectedIds?: readonly string[];
@@ -43,6 +45,7 @@ export interface EditorActions {
   keyboardShortcuts: () => void;
   userGuide: () => void;
   about: () => void;
+  feedback: () => void;
   donate: () => void;
   exit: () => void;
   loadRecentFiles?: () => void;
@@ -90,6 +93,8 @@ export interface EditorActions {
   saveAs: () => void;
   exportFile: () => void;
   exportCopy: () => void;
+  share?: () => void;
+  exportAnimalCrossing?: () => void;
   exportSpriteSheet?: () => void;
   exportTileset?: () => void;
   importSpriteSheet?: () => void;

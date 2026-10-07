@@ -7,11 +7,7 @@ import {
   type CSSProperties,
 } from "react";
 
-import {
-  centerThemePixel,
-  measureThemeText,
-  themeFontHeight,
-} from "$/base/components/theme-controls";
+import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { ThemeIcon, ThemePart, type AtlasPartName } from "$/base/theme/theme-part";
 import { composeEventHandlers } from "$/base/utils/compose-event-handlers";
@@ -32,8 +28,8 @@ import { isCjk } from "$/components/text/text-runs";
 
 import styles from "$/components/checkbox/checkbox.module.css";
 
-const CHECKBOX_LABEL_OFFSET = 28;
-const CHECKBOX_ICON_OFFSET = 4;
+const DEFAULT_CHECKBOX_LABEL_OFFSET = 28;
+const DEFAULT_CHECKBOX_ICON_OFFSET = 4;
 const CJK_CHECKBOX_TEXT_NUDGE_Y = -2;
 
 interface CheckboxContentProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -95,6 +91,12 @@ export function Checkbox({
   ...props
 }: CheckboxProps) {
   const { definition: theme, language, translateSource } = useTheme();
+  const skin = theme.controlParts?.checkable;
+  const { measureThemeText, themeFontHeight } = useThemeText();
+  const CHECKBOX_LABEL_OFFSET =
+    theme.dimensions.checkbox_label_offset ?? DEFAULT_CHECKBOX_LABEL_OFFSET;
+  const CHECKBOX_ICON_OFFSET =
+    theme.dimensions.checkbox_icon_offset ?? DEFAULT_CHECKBOX_ICON_OFFSET;
   const variantStyle = checkboxVariants[variant];
   const displayLabel = translateSource(label);
   const font: PixelFont = mini ? "mini" : "default";
@@ -104,7 +106,9 @@ export function Checkbox({
     width: pixelSize
       ? pixelSize.width * RASTER_SCALE
       : measureThemeText(displayLabel, font) + CHECKBOX_LABEL_OFFSET + CHECKBOX_ICON_OFFSET,
-    height: pixelSize ? pixelSize.height * RASTER_SCALE : themeFontHeight(font) + 8,
+    height: pixelSize
+      ? pixelSize.height * RASTER_SCALE
+      : (theme.dimensions.checkbox_height ?? themeFontHeight(font) + 8),
   };
   const cjkTextNudgeY = [...displayLabel].some((char) => isCjk(char.codePointAt(0)!))
     ? CJK_CHECKBOX_TEXT_NUDGE_Y
@@ -141,14 +145,23 @@ export function Checkbox({
     centerThemePixel(bounds.y + 4, bounds.height - 8, themeFontHeight(font)) -
     bounds.y +
     textOffsetY +
+    (theme.dimensions.checkbox_text_offset_y ?? 0) +
     cjkTextNudgeY;
-  const background = disabled
-    ? theme.colors.face
-    : hover
-      ? theme.colors[variantStyle.hotFace]
-      : focused
-        ? theme.colors[variantStyle.focusFace]
-        : undefined;
+  const background = skin
+    ? disabled
+      ? undefined
+      : hover && skin.hoverFace
+        ? theme.colors[skin.hoverFace]
+        : focused && skin.focusFace
+          ? theme.colors[skin.focusFace]
+          : undefined
+    : disabled
+      ? theme.colors.face
+      : hover
+        ? theme.colors[variantStyle.hotFace]
+        : focused
+          ? theme.colors[variantStyle.focusFace]
+          : undefined;
   const layout = surfaceLayout(bounds, viewport);
   const iconPart =
     `${variantStyle.artworkPrefix}_${selected ? "selected" : disabled ? "disabled" : "normal"}` as AtlasPartName;
@@ -264,14 +277,23 @@ export function Checkbox({
           background,
         }}
       >
-        {focused && !disabled && (
+        {focused && !disabled && skin?.focus !== "icon" && (
           <ThemePart part={focusPart} scale={2} drawCenter className={styles.focusArtwork} />
         )}
         <ThemeIcon
           part={iconPart}
+          focused={skin?.focus === "icon" && focused && !disabled}
+          style={
+            disabled && selected
+              ? { opacity: "var(--ui-control-disabled-opacity, 0.5)" }
+              : undefined
+          }
           scale={2}
           x={CHECKBOX_ICON_OFFSET}
-          y={centerThemePixel(bounds.y, bounds.height, 16) - bounds.y}
+          y={
+            centerThemePixel(bounds.y, bounds.height, theme.parts[iconPart].height * RASTER_SCALE) -
+            bounds.y
+          }
         />
         <Text
           variant={TextVariant.PositionedPixel}

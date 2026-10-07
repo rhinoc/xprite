@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { centerThemePixel, measureThemeText } from "$/base/components/theme-controls";
+import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { ThemeIcon, ThemePart, type AtlasPartName } from "$/base/theme/theme-part";
 import { cn } from "$/base/utils/cn";
@@ -38,6 +38,7 @@ export function ScalarSlider(props: ScalarSliderProps) {
   const bounds = sizedControlBounds(props);
   const host = React.useRef<HTMLDivElement>(null);
   const { translateSource, definition: theme } = useTheme();
+  const { measureThemeText } = useThemeText();
   const [focused, setFocused] = React.useState(false),
     [relative, setRelative] = React.useState(false);
   const drag = React.useRef<{
@@ -283,6 +284,7 @@ export function ScalarSlider(props: ScalarSliderProps) {
       aria-valuemin={min}
       aria-valuemax={hi}
       aria-valuenow={value}
+      aria-valuetext={text}
       aria-disabled={disabled || undefined}
       className={cn(styles.slider, relative && styles.sliderRelative)}
       style={position(bounds, relativeTo, viewport, !!suppliedBounds)}

@@ -1,0 +1,414 @@
+{
+  "source": "http://phone-demo.localhost:5173/",
+  "language": "zh-CN",
+  "controls": [
+    {
+      "label": "菜单",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 32,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "设置",
+      "rect": {
+        "x": 366,
+        "y": 0,
+        "width": 32,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "关闭 主页",
+      "rect": {
+        "x": 116,
+        "y": 0,
+        "width": 28,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "关于",
+      "rect": {
+        "x": 8,
+        "y": 42,
+        "width": 64,
+        "height": 74
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "新建文件...",
+      "rect": {
+        "x": 80,
+        "y": 50,
+        "width": 124,
+        "height": 14
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "打开文件...",
+      "rect": {
+        "x": 80,
+        "y": 72,
+        "width": 124,
+        "height": 14
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "恢复文件...",
+      "rect": {
+        "x": 80,
+        "y": 94,
+        "width": 124,
+        "height": 14
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "hello.aseprite",
+      "rect": {
+        "x": 14,
+        "y": 162,
+        "width": 328,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "下载 hello.aseprite",
+      "rect": {
+        "x": 344,
+        "y": 161,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "固定 hello.aseprite",
+      "rect": {
+        "x": 372,
+        "y": 165,
+        "width": 16,
+        "height": 16
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "删除 hello.aseprite 的浏览器副本",
+      "rect": {
+        "x": 392,
+        "y": 161,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "hello.aseprite",
+      "rect": {
+        "x": 14,
+        "y": 184,
+        "width": 328,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "下载 hello.aseprite",
+      "rect": {
+        "x": 344,
+        "y": 183,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "固定 hello.aseprite",
+      "rect": {
+        "x": 372,
+        "y": 187,
+        "width": 16,
+        "height": 16
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "删除 hello.aseprite 的浏览器副本",
+      "rect": {
+        "x": 392,
+        "y": 183,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "example.aseprite",
+      "rect": {
+        "x": 14,
+        "y": 206,
+        "width": 328,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "下载 example.aseprite",
+      "rect": {
+        "x": 344,
+        "y": 205,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "固定 example.aseprite",
+      "rect": {
+        "x": 372,
+        "y": 209,
+        "width": 16,
+        "height": 16
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "删除 example.aseprite 的浏览器副本",
+      "rect": {
+        "x": 392,
+        "y": 205,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "添加到桌面",
+      "rect": {
+        "x": 340,
+        "y": 811,
+        "width": 82,
+        "height": 32
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "文件名",
+      "rect": {
+        "x": 142,
+        "y": 234,
+        "width": 240,
+        "height": 30
+      },
+      "value": "hello",
+      "pressed": null
+    },
+    {
+      "label": "宽度",
+      "rect": {
+        "x": 158,
+        "y": 324,
+        "width": 30,
+        "height": 30
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "宽度",
+      "rect": {
+        "x": 48,
+        "y": 324,
+        "width": 110,
+        "height": 30
+      },
+      "value": "128",
+      "pressed": null
+    },
+    {
+      "label": "高度",
+      "rect": {
+        "x": 318,
+        "y": 324,
+        "width": 30,
+        "height": 30
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "高度",
+      "rect": {
+        "x": 208,
+        "y": 324,
+        "width": 110,
+        "height": 30
+      },
+      "value": "80",
+      "pressed": null
+    },
+    {
+      "label": "锁定比例",
+      "rect": {
+        "x": 352,
+        "y": 324,
+        "width": 28,
+        "height": 30
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "RGBA",
+      "rect": {
+        "x": 46,
+        "y": 392,
+        "width": 89,
+        "height": 64
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "灰度",
+      "rect": {
+        "x": 133,
+        "y": 392,
+        "width": 136,
+        "height": 64
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "索引色",
+      "rect": {
+        "x": 267,
+        "y": 392,
+        "width": 115,
+        "height": 64
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "透明",
+      "rect": {
+        "x": 46,
+        "y": 494,
+        "width": 153,
+        "height": 64
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "白色",
+      "rect": {
+        "x": 197,
+        "y": 494,
+        "width": 89,
+        "height": 64
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "黑色",
+      "rect": {
+        "x": 284,
+        "y": 494,
+        "width": 98,
+        "height": 64
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "高级选项",
+      "rect": {
+        "x": 46,
+        "y": 566,
+        "width": 336,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "确定",
+      "rect": {
+        "x": 134,
+        "y": 598,
+        "width": 120,
+        "height": 34
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "取消",
+      "rect": {
+        "x": 262,
+        "y": 598,
+        "width": 120,
+        "height": 34
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "新建精灵帮助",
+      "rect": {
+        "x": 350,
+        "y": 206,
+        "width": 18,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "关闭 新建精灵",
+      "rect": {
+        "x": 370,
+        "y": 206,
+        "width": 18,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    }
+  ],
+  "canvasViewport": null
+}

@@ -1,0 +1,15 @@
+@font-face {
+  font-family: ChiKareGo2;
+  src: url("./chikarego2.woff2?v=ec44f36e057a") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+}
+
+@font-face {
+  font-family: FindersKeepers;
+  src: url("./finderskeepers.woff2?v=9d39b3a3d946") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+}

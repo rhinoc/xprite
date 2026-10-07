@@ -20,6 +20,9 @@ const RANDOM_ID_START = 2;
 const EXCEPTION_EVENT = "$exception";
 const PAGEVIEW_EVENT = "$pageview";
 const TELEMETRY_DEFAULTS = "2026-05-30";
+const TELEMETRY_SCHEMA_VERSION = 2;
+const FEEDBACK_REQUEST_TIMEOUT_MS = 15_000;
+const POSTHOG_CAPTURE_PATH = "/i/v0/e";
 const ALLOWED_EVENTS = new Set<string>([
   ...Object.values(TelemetryEvent),
   EXCEPTION_EVENT,
@@ -33,19 +36,29 @@ const URL_PROPERTIES = [
   "$session_entry_url",
   "$session_entry_referrer",
 ];
-const PRIVATE_PROPERTIES = [
-  "$set",
-  "$set_once",
-  "$initial_person_info",
-  "$user_id",
-  "email",
-  "name",
-  "search",
-  "query",
-  "utm_term",
-  "$title",
-  "$initial_utm_term",
-];
+const SDK_CAMPAIGN_PROPERTIES = new Set([
+  "gad_source",
+  "mc_cid",
+  "gclid",
+  "gclsrc",
+  "dclid",
+  "gbraid",
+  "wbraid",
+  "fbclid",
+  "msclkid",
+  "twclid",
+  "li_fat_id",
+  "igshid",
+  "ttclid",
+  "rdt_cid",
+  "epik",
+  "qclid",
+  "sccid",
+  "oppref",
+  "irclid",
+  "_kx",
+  "ph_keyword",
+]);
 
 type PendingReport =
   | { event: TelemetryEvent; properties: TelemetryProperties }
@@ -63,6 +76,15 @@ function sanitizedUrl(value: unknown): string | undefined {
   }
 }
 
+function referringDomain(value: string): string | null {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.host : null;
+  } catch {
+    return null;
+  }
+}
+
 function sanitizeSdkEvent(event: CaptureResult | null): CaptureResult | null {
   if (!event || !ALLOWED_EVENTS.has(event.event)) return null;
   const properties = { ...event.properties };
@@ -71,7 +93,11 @@ function sanitizeSdkEvent(event: CaptureResult | null): CaptureResult | null {
     if (value) properties[key] = value;
     else delete properties[key];
   }
-  for (const key of PRIVATE_PROPERTIES) delete properties[key];
+  for (const key of Object.keys(properties)) {
+    const campaignKey = key.replace(/^(?:\$initial_|\$session_entry_)/u, "");
+    if (campaignKey.startsWith("utm_") || SDK_CAMPAIGN_PROPERTIES.has(campaignKey))
+      delete properties[key];
+  }
   return { ...event, properties };
 }
 
@@ -87,17 +113,26 @@ export class PostHogTelemetry implements TelemetryPort {
   private readonly token = import.meta.env.VITE_POSTHOG_PROJECT_TOKEN?.trim() ?? "";
   private readonly region = import.meta.env.VITE_POSTHOG_REGION === "EU" ? "eu" : "us";
   private readonly commonProperties: TelemetryProperties;
+  private readonly initialization: Promise<void>;
 
-  constructor() {
+  constructor(visitContext: TelemetryProperties = {}) {
     this.enabled =
       import.meta.env.PROD && this.token.startsWith("phc_") && navigator.doNotTrack !== "1";
     this.commonProperties = {
+      ...visitContext,
       app_version: __XPRITE_VERSION__,
       release: __XPRITE_RELEASE__,
       environment: "production",
       visit_id: this.visitId,
+      telemetry_schema_version: TELEMETRY_SCHEMA_VERSION,
+      entry_referrer_present: Boolean(document.referrer),
+      entry_referring_domain: referringDomain(document.referrer),
+      supports_structured_clone: typeof globalThis.structuredClone === "function",
+      supports_indexeddb: "indexedDB" in globalThis,
+      supports_save_file_picker: "showSaveFilePicker" in globalThis,
+      secure_context: window.isSecureContext,
     };
-    if (this.enabled) void this.initialize();
+    this.initialization = this.enabled ? this.initialize() : Promise.resolve();
   }
 
   capture(event: TelemetryEvent, properties: TelemetryProperties): void {
@@ -105,6 +140,39 @@ export class PostHogTelemetry implements TelemetryPort {
   }
   captureException(exception: TelemetryException, properties: TelemetryProperties): void {
     this.report({ exception, properties });
+  }
+
+  async submitFeedback(properties: TelemetryProperties): Promise<void> {
+    await this.initialization;
+    const sdk = this.sdk;
+    if (!this.enabled || !sdk || sdk.has_opted_out_capturing())
+      throw new Error("Feedback transport is unavailable");
+    const event = sanitizeSdkEvent({
+      uuid: crypto.randomUUID(),
+      event: TelemetryEvent.FeedbackSubmitted,
+      properties: sdk.calculateEventProperties(TelemetryEvent.FeedbackSubmitted, {
+        ...this.commonProperties,
+        ...properties,
+      }),
+    });
+    if (!event) throw new Error("Feedback event was not accepted");
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), FEEDBACK_REQUEST_TIMEOUT_MS);
+    try {
+      const response = await fetch(`${POSTHOG_API_HOSTS[this.region]}${POSTHOG_CAPTURE_PATH}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          api_key: this.token,
+          distinct_id: sdk.get_distinct_id(),
+          ...event,
+        }),
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error(`Feedback submission failed: ${response.status}`);
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 
   private async initialize(): Promise<void> {
@@ -117,6 +185,8 @@ export class PostHogTelemetry implements TelemetryPort {
         defaults: TELEMETRY_DEFAULTS,
         person_profiles: "never",
         persistence: "localStorage",
+        save_campaign_params: false,
+        save_referrer: false,
         respect_dnt: true,
         disable_capture_url_hashes: true,
         autocapture: false,
@@ -179,7 +249,13 @@ export class PostHogTelemetry implements TelemetryPort {
       sdk.captureException(error, properties);
       sdk.captureLog({ body: report.exception.message, level: "error", attributes: properties });
     } else {
-      sdk.capture(report.event, properties);
+      sdk.capture(
+        report.event,
+        properties,
+        report.event === TelemetryEvent.VisitCheckpoint
+          ? { transport: "sendBeacon", send_instantly: true }
+          : undefined,
+      );
       sdk.addExceptionStep(report.event, properties);
     }
   }

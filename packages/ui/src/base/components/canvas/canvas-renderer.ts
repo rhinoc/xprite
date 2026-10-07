@@ -1,9 +1,25 @@
+import { UINT8_MAX } from "$/base/utils/numeric-constants";
 import {
   surfaceLayout,
   DEFAULT_SURFACE_VIEWPORT,
   type SurfaceBounds,
   type SurfaceViewport,
 } from "$/components/canvas-surface/geometry";
+
+export interface CanvasPixelSource {
+  readonly width: number;
+  readonly height: number;
+  /** Borrowed pixels: rendering never mutates or transfers their buffer. */
+  readonly data: Uint8ClampedArray;
+}
+export interface SurfaceChecker {
+  readonly cellSize: number;
+  readonly light: readonly [number, number, number];
+  readonly dark: readonly [number, number, number];
+}
+const RGBA_CHANNELS = 4;
+const RGB_CHANNELS = 3;
+const ALPHA_CHANNEL = 3;
 /** Nearest-neighbor presentation preserves the source palette at every device ratio.
  * Layout remains CSS pixels; backing dimensions include DPR and external CSS scale. */
 export class CanvasRenderer {
@@ -60,9 +76,10 @@ export class CanvasRenderer {
     return { x: this.horizontal[x] ?? -1, y: this.vertical[y] ?? -1 };
   }
   /** Reuses the output until dimensions change. */
-  render(source: ImageData): ImageData {
+  render(source: CanvasPixelSource, checker?: SurfaceChecker): ImageData {
     this.output ??= new ImageData(this.pixelWidth, this.pixelHeight);
     const result = this.output.data;
+    if (checker) return this.renderChecker(source, checker);
     const packed =
       source.data.byteOffset % 4 === 0
         ? new Uint32Array(source.data.buffer, source.data.byteOffset, source.data.byteLength / 4)
@@ -126,5 +143,48 @@ export class CanvasRenderer {
       }
     }
     return this.output;
+  }
+
+  private renderChecker(source: CanvasPixelSource, checker: SurfaceChecker): ImageData {
+    if (!Number.isSafeInteger(checker.cellSize) || checker.cellSize < 1)
+      throw new RangeError("Checker cell size must be a positive integer.");
+    const output = this.output!;
+    const result = output.data;
+    for (let y = 0; y < this.pixelHeight; y++) {
+      const sy = this.vertical[y];
+      const row = y * this.pixelWidth * RGBA_CHANNELS;
+      if (y > 0 && sy === this.vertical[y - 1]) {
+        result.copyWithin(row, row - this.pixelWidth * RGBA_CHANNELS, row);
+        continue;
+      }
+      for (let x = 0; x < this.pixelWidth; x++) {
+        const sx = this.horizontal[x];
+        const target = row + x * RGBA_CHANNELS;
+        if (sx < 0 || sy < 0 || sx >= source.width || sy >= source.height) {
+          result.fill(0, target, target + RGBA_CHANNELS);
+          continue;
+        }
+        const offset = (sy * source.width + sx) * RGBA_CHANNELS;
+        const alpha = source.data[offset + ALPHA_CHANNEL];
+        if (alpha === UINT8_MAX) {
+          for (let c = 0; c < RGBA_CHANNELS; c++) result[target + c] = source.data[offset + c];
+          continue;
+        }
+        const background =
+          (Math.floor((sx + this.bounds.x) / checker.cellSize) +
+            Math.floor((sy + this.bounds.y) / checker.cellSize)) %
+          2
+            ? checker.light
+            : checker.dark;
+        for (let c = 0; c < RGB_CHANNELS; c++)
+          result[target + c] = alpha
+            ? Math.round(
+                (source.data[offset + c] * alpha + background[c] * (UINT8_MAX - alpha)) / UINT8_MAX,
+              )
+            : background[c];
+        result[target + ALPHA_CHANNEL] = UINT8_MAX;
+      }
+    }
+    return output;
   }
 }

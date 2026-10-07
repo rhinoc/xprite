@@ -58,7 +58,6 @@ import { useUiLanguage, tUi } from "$/i18n";
 import { useEditorFields } from "$/managers/editor/editor-state-manager";
 import { useTilesetInspectorView } from "$/managers/inspector/tileset-view";
 import { readDefaultPalette } from "$/managers/palette/presets";
-import type { AppearanceMode } from "$/managers/preferences/appearance-preferences";
 import { useEditorChromePreferences } from "$/managers/shell/editor-chrome-preferences-context";
 import { useEditorDocumentView } from "$/managers/shell/editor-document-view";
 import { HelpDocumentTab } from "$/managers/shell/help";
@@ -71,7 +70,8 @@ import {
 import { EditorDocumentPane } from "$/managers/workspace/editor-document-pane";
 import { WORKSPACE_WINDOW_GAP } from "$/managers/workspace/workspace-panel-geometry";
 import { useWorkspaceResizeScheduler } from "$/managers/workspace/workspace-resize-scheduler";
-import xpritePreview from "$assets/examples/xprite/xprite-preview.webp";
+import type { AppearanceMode } from "@xprite/editor-ui/appearance";
+import examplePreview from "@xprite/site-assets/showcase/ipad/hello/hello-frame-01.png?url";
 import { ScrollArea, Splitter, type TabDragPoint } from "@xprite/ui";
 
 import "$/components/shell/editor-view/workspace-docking.module.css";
@@ -428,6 +428,7 @@ function DocumentScene() {
       onNew={actions.new}
       onOpen={actions.open}
       onAbout={actions.about}
+      onFeedback={actions.canStartInteraction ? actions.feedback : undefined}
       onOpenRecent={actions.openRecent}
       onRecover={actions.recoverFiles}
       onPinRecent={actions.pinRecent}
@@ -646,8 +647,8 @@ function WorkspaceViewportTree({
               )}
               <div className="xse-workspace-pane-content">
                 <EditorViewport
-                  src={xpritePreview}
-                  previewSrc={xpritePreview}
+                  src={examplePreview}
+                  previewSrc={examplePreview}
                   alt={tUi("ui.sprite.canvas.2", { value1: filename })}
                 />
               </div>

@@ -3,8 +3,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const helpDirectory = "apps/editor/assets/help";
-const publicDirectories = [helpDirectory, "apps/editor/assets/public"];
+const helpDirectory = "apps/growth/content/help";
+const publicDirectories = [
+  helpDirectory,
+  "apps/growth/content/compare/articles",
+  "apps/growth/content/learn/articles",
+  "apps/editor/assets/public",
+  "apps/growth/public",
+];
 const textExtensions = new Set([
   ".md",
   ".mdx",
@@ -28,7 +34,7 @@ const lineEnding = /\r?\n/u;
 // Root Markdown is public repository documentation; AGENTS.md is agent policy.
 const publicFiles = readdirSync(repositoryRoot)
   .filter((filename) => /\.mdx?$/iu.test(filename) && filename !== "AGENTS.md")
-  .concat("apps/editor/index.html");
+  .concat("apps/editor/index.html", "apps/growth/showcase/index.html");
 
 function collectPublicFiles(directory) {
   const entries = readdirSync(path.join(repositoryRoot, directory), { withFileTypes: true });

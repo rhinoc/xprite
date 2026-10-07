@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "../../node_modules/.tmp/tsconfig.tools.tsbuildinfo",
+    "target": "ES2020",
+    "lib": ["ES2021", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "types": ["vite/client"],
+    "paths": {
+      "$/*": [
+        "./src/*",
+        "../../packages/editor-ui/src/*",
+        "../../packages/editor-core/src/*",
+        "../../packages/ui/src/*",
+        "../../packages/bedrock/browser/*"
+      ],
+      "$assets/*": ["./assets/*"]
+    }
+  },
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../../packages/bedrock/tsconfig.browser.build.json"
+    },
+    {
+      "path": "../../packages/editor-core/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/ui/tsconfig.json"
+    },
+    {
+      "path": "../../packages/editor-ui/tsconfig.json"
+    }
+  ]
+}

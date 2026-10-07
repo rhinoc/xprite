@@ -5,6 +5,6 @@
 
 .flatIcon:focus-visible {
   outline: var(--ui-button-focus-width, var(--ui-focus-ring-width, 1px)) dotted
-    var(--ui-button-focus-color, var(--ui-focus-ring-color, #202528));
+    var(--ui-button-focus-color, var(--ui-focus-ring-color));
   outline-offset: var(--ui-button-focus-offset, -5px);
 }

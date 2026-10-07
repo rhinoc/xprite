@@ -1,17 +1,16 @@
 import * as React from "react";
 
 import {
-  centerThemePixel,
   getThemeAssets,
-  measureThemeText,
   paintThemeIcon,
   paintThemePart,
   paintThemeText,
   preloadThemeAssets,
   themeControlSize,
-  themeFontHeight,
   useThemeAssets,
 } from "$/base/components/theme-controls";
+import { defaultUiTheme } from "$/base/theme/default-theme";
+import { centerThemePixel, measureThemeText, themeFontHeight } from "$/base/theme/text-metrics";
 import { themeGlyphAssets } from "$/base/theme/theme-assets";
 import {
   UIProvider as InternalThemeProvider,
@@ -19,7 +18,9 @@ import {
   useTheme,
 } from "$/base/theme/theme-context";
 import type { UiAppearance as Appearance } from "$/base/theme/theme-context";
+import type { UiTheme, UiThemeTokens } from "$/base/theme/theme-definition";
 import { themeMetrics } from "$/base/theme/theme-metrics";
+import { loadThemeModule, type UiThemeSnapshot } from "$/base/theme/theme-module-loader";
 import {
   ThemeIcon as InternalAtlasIcon,
   ThemePart as InternalAtlasPart,
@@ -34,10 +35,19 @@ export type { UiPartName } from "$/base/theme/theme-part";
 export type { UiBitmap } from "$/base/theme/theme-assets-store";
 export type { UiColorRole } from "$/base/theme/theme-name-types";
 export type { UiAssets, UiStyle } from "$/base/theme/ui-assets";
+export type { UiThemeSnapshot } from "$/base/theme/theme-module-loader";
 
 export interface UIProviderProps {
   appearance?: Appearance;
+  /** Independent visual skin. Inherits from the nearest provider; defaults to Aseprite. */
+  theme?: UiTheme;
   language?: string;
+  /** CSS-only pages can mount before bitmap artwork is loaded. Defaults to true. */
+  preloadArtwork?: boolean;
+  /** Use the same metadata for server HTML and the first hydration render. */
+  initialTheme?: UiThemeSnapshot;
+  /** Context only when an ancestor already supplies this theme's CSS variables. */
+  scope?: boolean;
   translateKey?: (key: string) => string;
   translateSource?: (source: string) => string;
   children: React.ReactNode;
@@ -45,6 +55,8 @@ export interface UIProviderProps {
 
 export interface UiContextValue {
   appearance: Appearance;
+  theme: UiTheme;
+  tokens: UiThemeTokens;
   style: UiStyle;
   sheetUrl: string;
   language: string;
@@ -52,16 +64,25 @@ export interface UiContextValue {
   translateSource: (source: string) => string;
 }
 
-export function UIProvider({ appearance, ...props }: UIProviderProps) {
+export function UIProvider({ appearance, theme, ...props }: UIProviderProps) {
   React.useEffect(() => {
     if (typeof document === "undefined") return;
     return connectStylusPointerRegions(document);
   }, []);
-  return <InternalThemeProvider {...props} theme={appearance} />;
+  return <InternalThemeProvider {...props} appearance={appearance} uiTheme={theme} />;
 }
 
 export function useUi(): UiContextValue {
-  const { variant, definition, ...context } = useTheme();
+  const {
+    variant,
+    uiTheme,
+    tokens,
+    definition,
+    sheetUrl,
+    language,
+    translateKey,
+    translateSource,
+  } = useTheme();
   const style = React.useMemo<UiStyle>(
     () => ({
       sheet: definition.sheet,
@@ -72,8 +93,17 @@ export function useUi(): UiContextValue {
     [definition],
   );
   return React.useMemo(
-    () => ({ ...context, appearance: variant, style }),
-    [context, style, variant],
+    () => ({
+      sheetUrl,
+      language,
+      translateKey,
+      translateSource,
+      appearance: variant,
+      theme: uiTheme,
+      tokens,
+      style,
+    }),
+    [sheetUrl, language, translateKey, translateSource, style, variant, uiTheme, tokens],
   );
 }
 
@@ -85,12 +115,33 @@ export function useSystemAppearance(): Appearance {
   return useSystemTheme();
 }
 
-export async function preloadUiAssets(appearance: Appearance, language = "en"): Promise<UiAssets> {
-  return exposeUiAssets(await preloadThemeAssets(appearance, language));
+export async function preloadUiAssets(
+  appearance: Appearance,
+  language = "en",
+  theme: UiTheme = defaultUiTheme,
+): Promise<UiAssets> {
+  return exposeUiAssets(await preloadThemeAssets(appearance, language, theme));
 }
 
-export function getUiAssets(appearance: Appearance): UiAssets | undefined {
-  const assets = getThemeAssets(appearance);
+export async function loadUiThemeSnapshot(
+  appearance: Appearance,
+  theme: UiTheme = defaultUiTheme,
+): Promise<UiThemeSnapshot> {
+  const module = await loadThemeModule(appearance, theme);
+  return {
+    themeId: theme.id,
+    appearance,
+    definition: module.definition,
+    sheetUrl: module.sheetUrl,
+    tokens: module.tokens,
+  };
+}
+
+export function getUiAssets(
+  appearance: Appearance,
+  theme: UiTheme = defaultUiTheme,
+): UiAssets | undefined {
+  const assets = getThemeAssets(appearance, theme);
   return assets ? exposeUiAssets(assets) : undefined;
 }
 
@@ -100,6 +151,19 @@ export function useUiAssets(appearance?: Appearance): UiAssets | null {
 }
 
 export const uiGlyphAssets = themeGlyphAssets;
+const DEFAULT_CHECKER = {
+  cellSize: 1,
+  light: [192, 192, 192] as const,
+  dark: [128, 128, 128] as const,
+};
+
+export function useUiChecker() {
+  const { definition } = useTheme();
+  return definition.controlParts?.canvasSurface?.checker ?? DEFAULT_CHECKER;
+}
+export function getUiChecker(assets: UiAssets) {
+  return assets.style.controlParts?.canvasSurface?.checker ?? DEFAULT_CHECKER;
+}
 export const measureUiText = measureThemeText;
 export const centerUiPixel = centerThemePixel;
 export const uiFontHeight = themeFontHeight;

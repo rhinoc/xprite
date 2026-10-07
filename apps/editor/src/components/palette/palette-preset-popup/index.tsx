@@ -4,9 +4,15 @@ import { createPortal } from "react-dom";
 import { EditorPopover, type PopoverContext } from "$/components/dialogs/overlay";
 import { tUi } from "$/i18n";
 import type { PaletteColor as Rgba } from "$/managers/palette/palette-operations";
-import { Button, Input, Text, TextVariant } from "@xprite/ui";
-import { Scrollbar } from "@xprite/ui";
-import { CanvasSurface, type SurfaceBounds } from "@xprite/ui";
+import {
+  Button,
+  Input,
+  Text,
+  TextVariant,
+  Scrollbar,
+  CanvasSurface,
+  type SurfaceBounds,
+} from "@xprite/ui";
 import {
   uiFontHeight,
   UiIcon,

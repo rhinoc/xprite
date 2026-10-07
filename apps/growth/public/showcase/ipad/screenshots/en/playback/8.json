@@ -1,0 +1,102 @@
+{
+  "file": "8.png",
+  "width": 1389,
+  "height": 970,
+  "sha256": "29b5762911b00b56b51c92736d4a0688ba59623b608f0ac1f56b405fe6a4ca14",
+  "capture": {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T09:38:12.410Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 1389,
+      "height": 970,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 1389,
+      "height": 970
+    },
+    "pixels": {
+      "width": 1389,
+      "height": 970
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": null,
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "29b5762911b00b56b51c92736d4a0688ba59623b608f0ac1f56b405fe6a4ca14"
+  },
+  "capturedAt": "2026-10-04T09:38:12.410Z",
+  "sourceFrameIndex": 7,
+  "durationMs": 130,
+  "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+  "artworkPixelsVerified": 10240,
+  "artworkColorMapping": {
+    "255,255,255": "255,255,255",
+    "153,169,91": "157,168,103",
+    "228,169,71": "207,173,91",
+    "216,115,77": "186,125,86",
+    "173,119,164": "158,125,161",
+    "112,141,184": "127,140,180",
+    "88,169,157": "126,165,158"
+  },
+  "frame": 8,
+  "playing": true,
+  "frames": [
+    {
+      "index": 0,
+      "label": "Frame 1, duration 120 milliseconds",
+      "pressed": "false"
+    },
+    {
+      "index": 1,
+      "label": "Frame 2, duration 130 milliseconds",
+      "pressed": "false"
+    },
+    {
+      "index": 2,
+      "label": "Frame 3, duration 120 milliseconds",
+      "pressed": "false"
+    },
+    {
+      "index": 3,
+      "label": "Frame 4, duration 130 milliseconds",
+      "pressed": "false"
+    },
+    {
+      "index": 4,
+      "label": "Frame 5, duration 120 milliseconds",
+      "pressed": "false"
+    },
+    {
+      "index": 5,
+      "label": "Frame 6, duration 130 milliseconds",
+      "pressed": "false"
+    },
+    {
+      "index": 6,
+      "label": "Frame 7, duration 120 milliseconds",
+      "pressed": "false"
+    },
+    {
+      "index": 7,
+      "label": "Frame 8, duration 130 milliseconds",
+      "pressed": "true"
+    }
+  ],
+  "viewport": {
+    "width": 1389,
+    "height": 970,
+    "devicePixelRatio": 1
+  },
+  "source": "http://showcase.localhost:5173/editor"
+}

@@ -1,6 +1,6 @@
 import { tUi } from "$/i18n";
 import { useUserGuide, resolveUserGuideImage } from "$/managers/shell/user-guide";
-import { MarkdownView, ScrollArea, useUi } from "@xprite/ui";
+import { RichText, ScrollArea, useUi } from "@xprite/ui";
 import { UiPart } from "@xprite/ui/assets";
 
 import styles from "$/components/workspace/user-guide-view/user-guide-view.module.css";
@@ -20,7 +20,7 @@ export function UserGuideView({ hidden = false }: { hidden?: boolean }) {
             "aria-label": tUi("ui.user.guide"),
           }}
         >
-          <MarkdownView
+          <RichText
             markdown={markdown}
             resolveImage={resolveUserGuideImage}
             aria-label={tUi("ui.user.guide")}

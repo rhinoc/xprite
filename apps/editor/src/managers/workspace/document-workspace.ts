@@ -17,6 +17,7 @@ import type {
 import type { EditorPrimaryModifier, PreferenceStoragePort } from "$/managers/ports/platform";
 import type { ShortcutFilePort } from "$/managers/ports/shortcut-files";
 import type { UserPresetStoragePort } from "$/managers/ports/user-presets";
+import type { WorkspaceSessionPorts } from "$/managers/ports/workspace-session";
 import {
   DEFAULT_CANVAS_DISPLAY_PREFERENCES,
   normalizeCanvasDisplayPreferences,
@@ -98,11 +99,10 @@ import type {
   ClosedProjectEntry,
 } from "$/managers/workspace/workspace-recovery";
 import {
-  xpriteProjectFileName,
-  xpriteProjectId,
-  xpriteProjectName,
-} from "$assets/examples/xprite/xprite-project";
-import projectUrl from "$assets/examples/xprite/xprite.ase?url";
+  exampleProjectFileName,
+  exampleProjectId,
+  exampleProjectName,
+} from "$assets/examples/hello/hello-project";
 import { canPickSaveFile } from "@xprite/bedrock/browser/file-system";
 import { DEFAULT_VIEW, DocumentViewTarget, RasterEditor, fitScreenZoom } from "@xprite/editor-core";
 import type { UndoOptions } from "@xprite/editor-core";
@@ -126,6 +126,7 @@ import type {
   SessionSource,
   SessionProject,
 } from "@xprite/editor-core/session";
+import projectUrl from "@xprite/site-assets/showcase/ipad/hello/hello.aseprite?url";
 
 const SLOT_PREFERENCE_PREFIX = "slot:";
 const VIEW_SLOT_ID_PREFIX = "view-";
@@ -136,7 +137,14 @@ const LOCAL_PROJECT_RECENT_PREFIX = "local-project:";
 const TOOL_PREFERENCES_KEY = "xse.workspace.tool-preferences.v1";
 
 function isPlaygroundName(name: string | undefined | null) {
-  return name === xpriteProjectName || name === xpriteProjectFileName;
+  return name === exampleProjectName || name === exampleProjectFileName;
+}
+
+/** Optional project data owns its errors independently of document persistence. */
+interface ProjectAttachment {
+  flush(): Promise<void>;
+  remove(projectIds: readonly string[]): Promise<void>;
+  hasPendingChanges(): boolean;
 }
 
 interface DocumentTabSnapshot {
@@ -182,16 +190,6 @@ export interface DocumentWorkspaceSnapshot {
   closedProjects: readonly ClosedProjectEntry[];
   canReopenClosedFile: boolean;
   importBatch: { index: number; total: number; name: string } | null;
-}
-
-export interface WorkspaceSessionPorts extends EditorSessionPorts<string> {
-  registerAsset(url: string, name: string): SessionSource<string>;
-  registerFile(file: File): SessionSource<string>;
-  registerProject(name: string, load: () => Promise<SessionProject>): SessionSource<string>;
-  pickFiles(): Promise<readonly SessionSource<string>[]> | null;
-  bindSourceToDocument(source: string, documentKey: string): void;
-  releaseDocumentHandle(documentKey: string): void;
-  hydrateDocumentHandles?(documentKeys: readonly string[]): Promise<void>;
 }
 
 export interface DocumentWorkspaceDependencies {
@@ -244,6 +242,19 @@ export class DocumentWorkspace {
     maxItems: 8,
     createId: () => this.createId(),
   });
+  private readonly projectAttachments = new Set<ProjectAttachment>();
+
+  registerProjectAttachment(attachment: ProjectAttachment) {
+    this.projectAttachments.add(attachment);
+    return () => {
+      this.projectAttachments.delete(attachment);
+    };
+  }
+  private flushProjectAttachments = () =>
+    Promise.all([...this.projectAttachments].map((attachment) => attachment.flush())).then(
+      () => {},
+    );
+
   private closeQueue: string[] = [];
   private closeAllExit = false;
   private exitRequests = 0;
@@ -347,7 +358,8 @@ export class DocumentWorkspace {
     this.ports = ports;
     // Document and bootstrap sessions borrow these resources; only the workspace disposes them.
     this.sessionPorts = {
-      loadRecentImages: ports.loadRecentImages?.bind(ports),
+      listRecentImages: ports.listRecentImages?.bind(ports),
+      readRecentImage: ports.readRecentImage?.bind(ports),
       saveRecentImages: ports.saveRecentImages?.bind(ports),
       decodeProject: ports.decodeProject?.bind(ports),
       identifySource: ports.identifySource?.bind(ports),
@@ -531,8 +543,8 @@ export class DocumentWorkspace {
       return canPickSaveFile() ? SaveTarget.FileSystem : SaveTarget.Browser;
     if (
       isPlaygroundName(documentName) ||
-      slot.session.getActiveRecentId() === xpriteProjectId ||
-      this.getRecoveryProjectId(slot.id) === xpriteProjectId
+      slot.session.getActiveRecentId() === exampleProjectId ||
+      this.getProjectId(slot.id) === exampleProjectId
     )
       return SaveTarget.Browser;
     return canPickSaveFile() ? SaveTarget.FileSystem : SaveTarget.Browser;
@@ -587,7 +599,7 @@ export class DocumentWorkspace {
   getExportPreferenceId = (slotId = this.activeId): string => {
     const recentId = this.getSlot(slotId)?.session.getActiveRecentId();
     if (recentId) return `${RECENT_PREFERENCE_PREFIX}${recentId}`;
-    const projectId = this.getRecoveryProjectId(slotId);
+    const projectId = this.getProjectId(slotId);
     return projectId
       ? `${PROJECT_PREFERENCE_PREFIX}${projectId}`
       : `${SLOT_PREFERENCE_PREFIX}${this.getDocumentId(slotId)}`;
@@ -601,7 +613,7 @@ export class DocumentWorkspace {
     for (const slot of this.slots) {
       if (this.getExportPreferenceId(slot.id) !== preferenceId) continue;
       this.documentPreferences.setExport(`${SLOT_PREFERENCE_PREFIX}${slot.id}`, record);
-      const projectId = this.getRecoveryProjectId(slot.id);
+      const projectId = this.getProjectId(slot.id);
       if (projectId)
         this.documentPreferences.setExport(`${PROJECT_PREFERENCE_PREFIX}${projectId}`, record);
     }
@@ -783,6 +795,14 @@ export class DocumentWorkspace {
     } else {
       project = this.recent.readProject(recentId);
       pixels = this.recent.read(recentId);
+      if (!pixels && this.ports.readRecentImage) {
+        const snapshot = await this.ports.readRecentImage(recentId);
+        if (this.disposed) return;
+        if (snapshot && this.recent.cache(snapshot)) {
+          pixels = snapshot.image;
+          project = snapshot.project ?? null;
+        }
+      }
     }
     if (project) {
       if (!this.ports.writeProject) throw new Error(tUi("ui.recent.file.download.unavailable"));
@@ -806,8 +826,8 @@ export class DocumentWorkspace {
       (slot) =>
         !this.closed.has(slot.id) &&
         (slot.session.getActiveRecentId() === recentId ||
-          (!!projectId && this.getRecoveryProjectId(slot.id) === projectId) ||
-          this.recentFilesCatalog.recentIdForProject(this.getRecoveryProjectId(slot.id) ?? "") ===
+          (!!projectId && this.getProjectId(slot.id) === projectId) ||
+          this.recentFilesCatalog.recentIdForProject(this.getProjectId(slot.id) ?? "") ===
             recentId),
     );
   }
@@ -850,21 +870,21 @@ export class DocumentWorkspace {
         this.slots.some((slot) => !slot.session.canStartInteraction())
       )
         throw new Error(tUi("ui.browser.copy.delete.workspace.changed"));
-      if (projectIds.length) await this.recovery.deleteClosedProjects(projectIds);
-      const remainingImages = this.recent.getList().filter((item) => item.id !== recentId);
-      if (this.ports.saveRecentImages)
-        await this.ports.saveRecentImages(
-          remainingImages.map((item) => ({
-            id: item.id,
-            name: item.name,
-            image: this.recent.read(item.id)!,
-            project: this.recent.readProject(item.id) ?? undefined,
-          })),
+      if (projectIds.length) {
+        await Promise.all(
+          [...this.projectAttachments].map((attachment) => attachment.remove(projectIds)),
         );
+        await this.recovery.deleteClosedProjects(projectIds);
+      }
+      const remainingImages = this.recent
+        .getPersistenceSnapshot()
+        .filter((item) => item.id !== recentId);
+      if (this.ports.saveRecentImages) await this.ports.saveRecentImages(remainingImages);
       for (const slot of this.slots) slot.session.removeRecentFiles([recentId]);
       this.recentFilesCatalog.forgetBrowserCopy([recentId, id], projectIds);
       // Deleting the bundled browser copy must also survive startup seeding.
-      if (recentId === xpriteProjectId) this.recentFilesCatalog.dismissProjects([xpriteProjectId]);
+      if (recentId === exampleProjectId)
+        this.recentFilesCatalog.dismissProjects([exampleProjectId]);
       const removedProjects = new Set(projectIds);
       this.closedProjectsRefresh++;
       this.closedProjects = projects.filter((project) => !removedProjects.has(project.id));
@@ -885,14 +905,14 @@ export class DocumentWorkspace {
   }
   isPlaygroundProjectId(projectId: string | null) {
     return (
-      projectId === xpriteProjectId ||
-      (!!projectId && this.recentFilesCatalog.recentIdForProject(projectId) === xpriteProjectId)
+      projectId === exampleProjectId ||
+      (!!projectId && this.recentFilesCatalog.recentIdForProject(projectId) === exampleProjectId)
     );
   }
   linkRecentFileToWorkspaceProject(slotId = this.activeId) {
     const slot = this.slots.find((item) => item.id === slotId && !this.closed.has(item.id));
     if (!slot) return;
-    const projectId = this.getRecoveryProjectId(slotId);
+    const projectId = this.getProjectId(slotId);
     this.recentFilesCatalog.linkProject(projectId, slot.session.getActiveRecentId() ?? projectId);
     this.notify();
   }
@@ -1161,7 +1181,7 @@ export class DocumentWorkspace {
           if (!this.pendingViewportFits.has(core))
             this.documentPreferences.captureViewport(key, view);
           this.documentPreferences.copy(key, `${SLOT_PREFERENCE_PREFIX}${id}`);
-          const projectId = this.getRecoveryProjectId(id);
+          const projectId = this.getProjectId(id);
           if (projectId)
             this.documentPreferences.copy(key, `${PROJECT_PREFERENCE_PREFIX}${projectId}`);
           if (changed && id === this.activeId) this.notify();
@@ -1275,7 +1295,7 @@ export class DocumentWorkspace {
         const previousKey = this.getDocumentPreferenceId(id);
         recentId = nextRecentId;
         if (!closed && nextRecentId)
-          this.recentFilesCatalog.linkProject(this.getRecoveryProjectId(id), nextRecentId);
+          this.recentFilesCatalog.linkProject(this.getProjectId(id), nextRecentId);
         const key =
           id !== documentId
             ? `${SLOT_PREFERENCE_PREFIX}${id}`
@@ -1363,8 +1383,12 @@ export class DocumentWorkspace {
     const slot = this.slots.find((item) => item.id === id);
     return !!slot && !this.closed.has(id) && this.isSlotModified(slot);
   }
+  private notifiedProjectIds = "";
   private notifyIfTabsChanged() {
     const next = this.buildSnapshot();
+    const projectIds = JSON.stringify(this.order.map((id) => this.getProjectId(id)));
+    const projectsEqual = projectIds === this.notifiedProjectIds;
+    this.notifiedProjectIds = projectIds;
     const tabsEqual =
       next.tabs.length === this.snapshot.tabs.length &&
       next.tabs.every(
@@ -1386,6 +1410,7 @@ export class DocumentWorkspace {
       });
     if (
       tabsEqual &&
+      projectsEqual &&
       panesEqual &&
       next.activeId === this.snapshot.activeId &&
       next.activePaneId === this.snapshot.activePaneId &&
@@ -1484,7 +1509,7 @@ export class DocumentWorkspace {
       return [
         {
           slotId,
-          projectId: this.getRecoveryProjectId(slotId),
+          projectId: this.getProjectId(slotId),
           documentName: document.name,
           width: document.width,
           height: document.height,
@@ -1514,7 +1539,7 @@ export class DocumentWorkspace {
   getDocumentId(slotId = this.activeId): string {
     return this.slots.find((slot) => slot.id === slotId)?.documentId ?? slotId;
   }
-  private getRecoveryProjectId(slotId: string): string | null {
+  getProjectId(slotId = this.activeId): string | null {
     return this.recovery.getSlotProjectId?.(this.getDocumentId(slotId)) ?? null;
   }
 
@@ -1528,7 +1553,7 @@ export class DocumentWorkspace {
       this.diagnostics?.recordWorkspaceEvent({
         action,
         slotId: slot.id,
-        projectId: this.getRecoveryProjectId(slot.id) ?? undefined,
+        projectId: this.getProjectId(slot.id) ?? undefined,
         documentName: document?.name ?? slot.name,
         ...(document ? { width: document.width, height: document.height } : {}),
         ...details,
@@ -1751,7 +1776,7 @@ export class DocumentWorkspace {
     if (index < 0) return;
     const closedSnapshot = this.pendingCloseSnapshots.get(id);
     this.pendingCloseSnapshots.delete(id);
-    const closedProjectId = this.pendingCloseProjectIds.get(id) ?? this.getRecoveryProjectId(id);
+    const closedProjectId = this.pendingCloseProjectIds.get(id) ?? this.getProjectId(id);
     const closedRecentId = this.pendingCloseRecentIds.get(id) ?? null;
     this.pendingCloseProjectIds.delete(id);
     this.pendingCloseRecentIds.delete(id);
@@ -1854,7 +1879,7 @@ export class DocumentWorkspace {
     }
     const snapshot = slot.core.getPersistenceSnapshot();
     if (snapshot) this.pendingCloseSnapshots.set(id, snapshot);
-    this.pendingCloseProjectIds.set(id, this.getRecoveryProjectId(id));
+    this.pendingCloseProjectIds.set(id, this.getProjectId(id));
     this.pendingCloseRecentIds.set(id, slot.session.getActiveRecentId());
     const result = slot.session.requestClose(false, this.isSlotModified(slot));
     if (result === SessionOutcome.Closed) this.close(id);
@@ -1978,10 +2003,10 @@ export class DocumentWorkspace {
           (slot) =>
             !this.closed.has(slot.id) &&
             !isPlaygroundName(slot.core.getSnapshot().document?.name) &&
-            !this.isPlaygroundProjectId(this.getRecoveryProjectId(slot.id)) &&
-            slot.session.getActiveRecentId() !== xpriteProjectId,
+            !this.isPlaygroundProjectId(this.getProjectId(slot.id)) &&
+            slot.session.getActiveRecentId() !== exampleProjectId,
         )
-        .map((slot) => this.getRecoveryProjectId(slot.id) ?? ""),
+        .map((slot) => this.getProjectId(slot.id) ?? ""),
     ]);
     this.recentFilesCatalog.clearPinned();
     this.closedProjects = closedProjects;
@@ -2029,6 +2054,13 @@ export class DocumentWorkspace {
     return this.slots.some((slot) => !this.closed.has(slot.id) && this.isSlotModified(slot));
   }
   needsBeforeUnloadWarning() {
+    if (!this.ready) return false;
+    return (
+      this.hasUnpersistedDocumentChanges() ||
+      [...this.projectAttachments].some((attachment) => attachment.hasPendingChanges())
+    );
+  }
+  private hasUnpersistedDocumentChanges() {
     if (!this.ready) return false;
     if (
       this.slots.some((slot) => {
@@ -2332,7 +2364,7 @@ export class DocumentWorkspace {
     if (linkedProject) return this.openClosedProject(linkedProject.id);
     const slot = this.appendSlot();
     await slot.session.restoreRecent();
-    if (slot.session.openRecent(id) === SessionOutcome.Created && this.select(slot.id)) {
+    if ((await slot.session.openRecent(id)) === SessionOutcome.Created && this.select(slot.id)) {
       this.linkRecentFileToWorkspaceProject(slot.id);
       this.recordWorkspaceEvent(WorkspaceDiagnosticAction.RecentImageOpened, slot, {
         recentId: id,
@@ -2435,7 +2467,7 @@ export class DocumentWorkspace {
           if (snapshot) {
             slot.core.restorePersistenceSnapshot(snapshot);
             const recentId = isPlaygroundName(snapshot.document.name)
-              ? xpriteProjectId
+              ? exampleProjectId
               : saved.layout.recentIds?.[slot.id];
             if (recentId) {
               slot.session.restoreRecentIdentity(recentId);
@@ -2499,12 +2531,12 @@ export class DocumentWorkspace {
     this.notify();
   }
   private async initializeDefaultPlayground(): Promise<void> {
-    if (this.disposed || this.recentFilesCatalog.isProjectDismissed(xpriteProjectId)) return;
+    if (this.disposed || this.recentFilesCatalog.isProjectDismissed(exampleProjectId)) return;
     let existingProject: ClosedProjectEntry | null;
     try {
       existingProject = await this.recovery.findProjectByName(
-        xpriteProjectName,
-        xpriteProjectFileName,
+        exampleProjectName,
+        exampleProjectFileName,
       );
     } catch (reason) {
       await this.rememberBundledProjectFallback();
@@ -2512,11 +2544,11 @@ export class DocumentWorkspace {
       return;
     }
     if (existingProject) {
-      this.recentFilesCatalog.linkProject(existingProject.id, xpriteProjectId);
+      this.recentFilesCatalog.linkProject(existingProject.id, exampleProjectId);
       const playgroundIsOpen = this.slots.some(
         (slot) =>
           isPlaygroundName(slot.core.getSnapshot().document?.name) ||
-          slot.session.getActiveRecentId() === xpriteProjectId,
+          slot.session.getActiveRecentId() === exampleProjectId,
       );
       if (!playgroundIsOpen) this.closedProjects = [existingProject, ...this.closedProjects];
       return;
@@ -2525,8 +2557,8 @@ export class DocumentWorkspace {
       this.slots.some(
         (slot) =>
           isPlaygroundName(slot.core.getSnapshot().document?.name) ||
-          slot.session.getActiveRecentId() === xpriteProjectId ||
-          this.isPlaygroundProjectId(this.getRecoveryProjectId(slot.id)),
+          slot.session.getActiveRecentId() === exampleProjectId ||
+          this.isPlaygroundProjectId(this.getProjectId(slot.id)),
       )
     )
       return;
@@ -2540,20 +2572,20 @@ export class DocumentWorkspace {
       "playground-seed",
     );
     try {
-      await bootstrap.initialize(this.ports.registerAsset(projectUrl, xpriteProjectName), {
+      await bootstrap.initialize(this.ports.registerAsset(projectUrl, exampleProjectName), {
         rememberInitial: false,
         awaitPersistence: false,
       });
       const snapshot = core.getPersistenceSnapshot();
       if (!snapshot)
         throw new Error(bootstrap.getSnapshot().error?.message ?? tUi("ui.playground.load.failed"));
-      const playground = await this.recovery.seedProject(xpriteProjectId, snapshot);
+      const playground = await this.recovery.seedProject(exampleProjectId, snapshot);
       if (playground)
         this.closedProjects = [
           playground,
           ...this.closedProjects.filter((project) => project.id !== playground.id),
         ];
-      if (playground) this.recentFilesCatalog.linkProject(playground.id, xpriteProjectId);
+      if (playground) this.recentFilesCatalog.linkProject(playground.id, exampleProjectId);
     } catch (reason) {
       await this.rememberBundledProjectFallback();
       this.active.session.reportError(reason, SessionOperation.Initialization);
@@ -2562,11 +2594,14 @@ export class DocumentWorkspace {
     }
   }
   private rememberBundledProjectFallback(): Promise<void> {
-    return this.active.session.initialize(this.ports.registerAsset(projectUrl, xpriteProjectName), {
-      rememberOnly: true,
-      initialRecentId: xpriteProjectId,
-      awaitPersistence: false,
-    });
+    return this.active.session.initialize(
+      this.ports.registerAsset(projectUrl, exampleProjectName),
+      {
+        rememberOnly: true,
+        initialRecentId: exampleProjectId,
+        awaitPersistence: false,
+      },
+    );
   }
 
   /** Start project-list scans after the first editor paint. */
@@ -2581,7 +2616,11 @@ export class DocumentWorkspace {
   }
 
   flushRecovery = () =>
-    Promise.all([this.recovery.flush(), this.userPresets.flush()]).then(() => {});
+    Promise.all([
+      this.recovery.flush(),
+      this.userPresets.flush(),
+      this.flushProjectAttachments(),
+    ]).then(() => {});
 
   async saveLocally(slotId?: string) {
     if (!this.ready || this.disposed) throw new Error("Workspace is not ready to save");
@@ -2590,7 +2629,7 @@ export class DocumentWorkspace {
       : undefined;
     if (slotId && !target) throw new Error("Document is no longer open");
     const stillPending = () =>
-      target ? this.isSlotModified(target) : this.needsBeforeUnloadWarning();
+      target ? this.isSlotModified(target) : this.hasUnpersistedDocumentChanges();
     for (const slot of this.slots) {
       if (this.closed.has(slot.id) || (slotId && slot.id !== slotId)) continue;
       const state = slot.core.getSnapshot();
@@ -2607,6 +2646,7 @@ export class DocumentWorkspace {
       // Optional retained archives may fail after the live workspace was saved.
       if (stillPending()) throw error;
     }
+    await this.flushProjectAttachments();
     if (stillPending())
       throw (
         this.recovery.getSnapshot().error ??
@@ -2633,7 +2673,7 @@ export class DocumentWorkspace {
   async saveAsInBrowser(slotId: string, name: string, format: "png" | "aseprite") {
     const slot = this.slots.find((item) => item.id === slotId && !this.closed.has(item.id));
     if (!slot) throw new Error("Document is no longer open");
-    const previousProjectId = this.getRecoveryProjectId(slotId) ?? undefined;
+    const previousProjectId = this.getProjectId(slotId) ?? undefined;
     await this.saveLocally(slotId);
     await this.recovery.forkSlot(slot.documentId, name, format, () =>
       slot.core.history.markSaved(name, format),
@@ -2662,7 +2702,10 @@ export class DocumentWorkspace {
     this.disposal = (this.initialization ?? Promise.resolve())
       .catch(() => {})
       .then(() => {
-        if (this.ready) return this.recovery.flush();
+        if (this.ready)
+          return Promise.all([this.recovery.flush(), this.flushProjectAttachments()]).then(
+            () => {},
+          );
       })
       .catch(() => {})
       .finally(() => this.recovery.dispose());

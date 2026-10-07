@@ -45,6 +45,7 @@ export interface RecentFile {
 export interface HomeViewFooterSegment {
   text: string;
   href?: string;
+  separator?: boolean;
 }
 
 interface HomeViewLabels extends HomeIdentityLabels {
@@ -55,7 +56,7 @@ interface HomeViewLabels extends HomeIdentityLabels {
   newFile: string;
   openFile: string;
   recoverFiles: string;
-  versionFooter: readonly HomeViewFooterSegment[];
+  footerSegments: readonly HomeViewFooterSegment[];
   recentFilesScroll: string;
   pinFile: (name: string) => string;
   downloadFile: (name: string) => string;
@@ -69,7 +70,7 @@ export interface HomeViewProps {
   labels: HomeViewLabels;
   mascot?: (hovered: boolean) => ReactNode;
   repositoryHref: string;
-  profileHref: string;
+  onFeedback?: () => void;
   onAbout: () => void;
   onNew: () => void;
   onOpen: () => void;
@@ -90,7 +91,7 @@ export function HomeView({
   labels,
   mascot,
   repositoryHref,
-  profileHref,
+  onFeedback,
   onAbout,
   onNew,
   onOpen,
@@ -221,7 +222,7 @@ export function HomeView({
               {labels.recoverFiles}
             </WorkspaceLink>
           </nav>
-          <HomeIdentity labels={labels} profileHref={profileHref} repositoryHref={repositoryHref} />
+          <HomeIdentity labels={labels} onFeedback={onFeedback} repositoryHref={repositoryHref} />
         </header>
       )}
 
@@ -357,11 +358,11 @@ export function HomeView({
 
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
-          {labels.versionFooter.map((segment, index) => {
+          {labels.footerSegments.map((segment, index) => {
             const segmentWidth = measureUiText(segment.text) * UI_SCALE_X;
             return (
               <div key={`${segment.text}-${index}`} className={styles.footerSegment}>
-                {index > 0 && (
+                {index > 0 && segment.separator !== false && (
                   <Text variant={TextVariant.Inline} scale={2} ink="var(--ui-home-text)">
                     {HOME_FOOTER_SEPARATOR}
                   </Text>

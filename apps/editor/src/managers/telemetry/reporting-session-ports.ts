@@ -1,7 +1,7 @@
 import { DocumentOpenMethod, TelemetryDownloadKind } from "$/managers/ports/telemetry";
+import type { WorkspaceSessionPorts } from "$/managers/ports/workspace-session";
 import { telemetryFileFormat } from "$/managers/telemetry/document-context";
 import type { TelemetryManager } from "$/managers/telemetry/telemetry-manager";
-import type { WorkspaceSessionPorts } from "$/managers/workspace/document-workspace";
 import {
   SessionSaveIntent,
   type SessionWriteResult,
@@ -28,17 +28,23 @@ export function reportingSessionPorts(
     const startedAt = performance.now();
     // Invoke synchronously: system file pickers require the original user activation.
     return writing().then((result) => {
-      if ("method" in result && intent !== SessionSaveIntent.Save) {
+      if (
+        "method" in result &&
+        (result.method === "download" || intent !== SessionSaveIntent.Save)
+      ) {
         telemetry.recordOutput(
           intent === SessionSaveIntent.Export
             ? TelemetryDownloadKind.Export
-            : TelemetryDownloadKind.SaveAs,
+            : intent === SessionSaveIntent.SaveAs
+              ? TelemetryDownloadKind.SaveAs
+              : TelemetryDownloadKind.Save,
           result.method,
           {
             ...context,
             output_format: result.format ?? telemetryFileFormat(result.name),
             generation_duration_ms: Math.round(performance.now() - startedAt),
             file_count: 1,
+            output_completed: true,
             ...("byteLength" in result && typeof result.byteLength === "number"
               ? { file_size_bytes: result.byteLength }
               : {}),
@@ -49,7 +55,8 @@ export function reportingSessionPorts(
     });
   };
   return {
-    loadRecentImages: ports.loadRecentImages?.bind(ports),
+    listRecentImages: ports.listRecentImages?.bind(ports),
+    readRecentImage: ports.readRecentImage?.bind(ports),
     saveRecentImages: ports.saveRecentImages?.bind(ports),
     identifySource: ports.identifySource?.bind(ports),
     decodeProject: ports.decodeProject?.bind(ports),

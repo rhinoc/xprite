@@ -1,10 +1,14 @@
 import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { createAsepriteSpriteProject } from "$/color/conversion";
-import { cloneEditorProject } from "$/document/project";
+import { syncTimeline } from "$/document/document";
+import { cloneEditorProject, isImmutableEditorProject } from "$/document/project";
 import { validateBitmapText } from "$/drawing/text/text";
+import {
+  isCommittedPersistenceSnapshot,
+  projectFromCommittedPersistenceSnapshot,
+} from "$/editor/persistence-snapshot";
 import { RasterEditor } from "$/editor/RasterEditor";
 import type { EditorSnapshot } from "$/editor/types";
-import { projectFromDocument } from "$/import-export/aseprite/project";
 import { PixelArtClassification, PixelationMethod } from "$/import-export/image/import";
 import {
   RecentImageStore,
@@ -92,6 +96,7 @@ export class EditorSession<Source> {
   private activeRecentId: string | null = null;
   private recentHydrated = false;
   private recentClearGeneration = 0;
+  private recentLimitVersion = 0;
   private acceptedNewSize: SessionSize = { width: 64, height: 64 };
   private state: EditorSessionSnapshot;
   constructor(
@@ -233,7 +238,23 @@ export class EditorSession<Source> {
   setRecentItemsLimit(limit: number) {
     this.recent.setLimit(limit);
     this.refreshRecent();
-    this.persistRecent();
+    const version = ++this.recentLimitVersion;
+    if (this.recentHydrated) {
+      this.persistRecent();
+      return;
+    }
+    const clearGeneration = this.recentClearGeneration;
+    // Changing a preference before Home has its catalog must not publish an
+    // empty replacement. Hydration applies the latest limit without loading pixels.
+    void this.restoreRecent().then(() => {
+      if (
+        this.disposed ||
+        version !== this.recentLimitVersion ||
+        clearGeneration !== this.recentClearGeneration
+      )
+        return;
+      this.persistRecent();
+    });
   }
   /** An explicit clear is authoritative, including an empty persisted list. */
   clearRecentFiles() {
@@ -265,7 +286,9 @@ export class EditorSession<Source> {
     const document = editor.getSnapshot().document;
     if (this.disposed || !document || document.id !== documentId) return null;
     const image = document.timeline ? editor.canvas.composite() : editor.canvas.exportComposite();
-    const project = document.timeline ? { ...projectFromDocument(document), image } : undefined;
+    const project = document.timeline
+      ? { image, timeline: document.timeline, palette: document.palette }
+      : undefined;
     this.activeRecentId = this.remember(image, document.name, identity, project);
     await this.flushPersistence();
     return this.activeRecentId;
@@ -283,16 +306,15 @@ export class EditorSession<Source> {
     if (this.hydration) return this.hydration;
     const clearGeneration = this.recentClearGeneration;
     this.hydration = (async () => {
-      if (!this.ports.loadRecentImages) {
+      if (!this.ports.listRecentImages) {
         this.recentHydrated = true;
         return;
       }
       try {
-        const images = await this.ports.loadRecentImages();
+        const images = await this.ports.listRecentImages();
         if (this.disposed) return;
         if (clearGeneration !== this.recentClearGeneration) return;
-        for (const item of [...images].reverse())
-          this.recent.record(item.image, item.name, item.id, item.project);
+        this.recent.restoreCatalog(images);
         this.recentHydrated = true;
         this.publish({ recentFiles: this.recent.getList() });
       } catch (reason) {
@@ -307,17 +329,15 @@ export class EditorSession<Source> {
   }
   private persistRecent() {
     if (!this.ports.saveRecentImages || !this.persistenceAvailable) return;
-    const images = this.recent.getList().map((item) => ({
-      id: item.id,
-      name: item.name,
-      image: this.recent.read(item.id)!,
-      project: this.recent.readProject(item.id) ?? undefined,
-    }));
+    const images = this.recent.getPersistenceSnapshot();
     const version = ++this.persistenceVersion;
     this.pendingPersistence++;
     this.publish({ persisting: true });
     this.persistence = this.persistence
-      .then(() => this.ports.saveRecentImages!(images))
+      .then(async () => {
+        await this.ports.saveRecentImages!(images);
+        this.recent.confirmPersistence(images);
+      })
       .catch((reason) => {
         if (!this.disposed && version === this.persistenceVersion)
           this.reportError(reason, SessionOperation.Recent);
@@ -332,8 +352,12 @@ export class EditorSession<Source> {
     name: string,
     identity?: string | null,
     project?: SessionProject,
+    immutable = false,
   ) {
-    const id = this.recent.record(image, name, identity, project);
+    const id =
+      immutable || isImmutableEditorProject(project)
+        ? this.recent.recordImmutable(image, name, identity, project)
+        : this.recent.record(image, name, identity, project);
     this.publish({ recentFiles: this.recent.getList() });
     if (id) this.persistRecent();
     return id;
@@ -391,7 +415,7 @@ export class EditorSession<Source> {
       });
     this.bootstrapPromise = (async () => {
       try {
-        if (options.rememberInitial !== false && this.ports.loadRecentImages)
+        if (options.rememberInitial !== false && this.ports.listRecentImages)
           await this.restoreRecent();
         if (!this.valid(generation)) return;
         const project = this.ports.decodeProject
@@ -447,7 +471,7 @@ export class EditorSession<Source> {
       before = this.checkpoint();
     this.publish({ busy: true, error: null });
     try {
-      if (this.ports.loadRecentImages) await this.restoreRecent();
+      if (this.ports.listRecentImages) await this.restoreRecent();
       if (!this.valid(generation)) return SessionOutcome.Ignored;
       const project = this.ports.decodeProject
         ? await this.ports.decodeProject(source.source)
@@ -695,7 +719,7 @@ export class EditorSession<Source> {
       return SessionOutcome.Error;
     }
   }
-  openRecent(id: string): SessionOutcome {
+  async openRecent(id: string): Promise<SessionOutcome> {
     if (this.disposed) return SessionOutcome.Ignored;
     const item = this.state.recentFiles.find((item) => item.id === id);
     if (!item) return SessionOutcome.Ignored;
@@ -715,11 +739,22 @@ export class EditorSession<Source> {
     }
     return this.loadRecent(id);
   }
-  private loadRecent(id: string): SessionOutcome {
+  private async loadRecent(id: string): Promise<SessionOutcome> {
+    const generation = this.generation;
+    const clearGeneration = this.recentClearGeneration;
+    this.publish({ busy: true });
     try {
-      const item = this.state.recentFiles.find((item) => item.id === id),
-        pixels = this.recent.read(id),
+      const item = this.state.recentFiles.find((item) => item.id === id);
+      let pixels = this.recent.read(id),
         project = this.recent.readProject(id);
+      if (item && !pixels && this.ports.readRecentImage) {
+        const snapshot = await this.ports.readRecentImage(id);
+        if (!this.valid(generation) || clearGeneration !== this.recentClearGeneration)
+          return SessionOutcome.Ignored;
+        if (!snapshot || !this.recent.cache(snapshot)) return SessionOutcome.Ignored;
+        pixels = snapshot.image;
+        project = snapshot.project ?? null;
+      }
       if (!item || !pixels) return SessionOutcome.Ignored;
       const outcome = this.install(
         pixels,
@@ -732,8 +767,10 @@ export class EditorSession<Source> {
       this.activeRecentId = id;
       return outcome;
     } catch (reason) {
-      this.reportError(reason, SessionOperation.Recent);
-      return SessionOutcome.Error;
+      if (this.valid(generation)) this.reportError(reason, SessionOperation.Recent);
+      return this.valid(generation) ? SessionOutcome.Error : SessionOutcome.Ignored;
+    } finally {
+      if (this.valid(generation)) this.publish({ busy: false });
     }
   }
   hasUnsavedChanges(): boolean {
@@ -819,26 +856,34 @@ export class EditorSession<Source> {
         (requiresProject || !!this.ports.writeProject);
       // Aseprite reference layers are editing guides: display previews may include them,
       // flattened PNG output must use the export renderer.
-      const pixels = needsProject ? editor.canvas.composite() : editor.canvas.exportComposite();
-      const pngImage = needsProject ? editor.canvas.exportComposite() : pixels;
       let project: SessionProject | undefined;
       if (needsProject) {
         if (!this.ports.writeProject)
           throw new Error("This session cannot save an Aseprite or animated sprite project.");
-        // projectFromDocument syncs the active raster facade into the timeline,
-        // preserving asepriteSource and linked cel identities. The editor's
-        // composite is the preview stored in recents and is reused here.
-        // Detach every cel buffer before handing the snapshot to an async
-        // browser writer. The editor may continue painting while that writer
-        // is suspended; the saved bytes and the recent entry must describe the
-        // exact graph that was offered to it.
-        const sourceProject = {
-          ...projectFromDocument(before.document),
-          image: pixels,
-          pngImage,
-        };
-        project = cloneEditorProject(sourceProject);
+        const committed = !editor.hasPendingDocumentEdit()
+          ? editor.getCommittedPersistenceSnapshot()
+          : null;
+        // Reuse already detached committed buffers, with current navigation.
+        // An active edit retains a fresh isolated snapshot of its exact live
+        // state. Neither path lends mutable document buffers to an async port.
+        if (committed && isCommittedPersistenceSnapshot(committed))
+          project = projectFromCommittedPersistenceSnapshot(committed, timeline!);
+        else {
+          const image = editor.canvas.composite();
+          syncTimeline(before.document);
+          // A staged tilemap projection may exist only in the active layer.
+          // Retain its exact export raster before the async format picker; the
+          // ordinary committed path can generate PNG lazily from its timeline.
+          const pendingProject: SessionProject = {
+            image,
+            timeline: before.document.timeline!,
+            palette: before.document.palette,
+            pngImage: editor.canvas.exportComposite(),
+          };
+          project = cloneEditorProject(pendingProject);
+        }
       }
+      const pixels = project?.image ?? editor.canvas.exportComposite();
       // These browser write ports are invoked before the first await so a
       // File System Access picker retains the originating user activation.
       const writeName = suggestedName?.trim() || before.document.name;
@@ -847,7 +892,7 @@ export class EditorSession<Source> {
         : await this.ports.write(pixels, writeName, intent, this.documentKey);
       if (this.disposed) return SessionOutcome.Ignored;
       if ("cancelled" in result) return SessionOutcome.Cancelled;
-      if (this.ports.loadRecentImages) await this.restoreRecent();
+      if (this.ports.listRecentImages) await this.restoreRecent();
       if (this.disposed) return SessionOutcome.Ignored;
       const now = editor.getSnapshot();
       const writeRecentId = result.recentIdentity
@@ -861,7 +906,7 @@ export class EditorSession<Source> {
             : writeRecentId && writeRecentId !== beforeRecentId
               ? writeRecentId
               : (beforeRecentId ?? writeRecentId);
-      const savedRecent = this.remember(pixels, result.name, recentIdentity, project);
+      const savedRecent = this.remember(pixels, result.name, recentIdentity, project, true);
       if (savedRecent && intent !== SessionSaveIntent.Export && result.recentIdentity)
         this.recentIdentities?.link(result.recentIdentity, savedRecent);
       if (

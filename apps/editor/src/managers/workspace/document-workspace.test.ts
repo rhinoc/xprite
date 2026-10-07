@@ -53,8 +53,9 @@ describe("bundled-recents", () => {
     const ports = `export class BrowserSessionPorts {
   recent=[];
   registerAsset=(source,name)=>({source,name});
-  loadRecentImages=async()=>this.recent;
-  saveRecentImages=async images=>{this.recent=images};
+  listRecentImages=async()=>this.recent.map(item=>{item.contentVersion??={};return {id:item.id,name:item.name,width:item.image.width,height:item.image.height,bytes:item.image.data.byteLength,contentVersion:item.contentVersion}});
+  readRecentImage=async id=>this.recent.find(item=>item.id===id)??null;
+  saveRecentImages=async images=>{this.recent=images.map(item=>"image" in item?item:{...this.recent.find(old=>old.id===item.id),name:item.name})};
   decode=async()=>({width:2,height:2,data:new Uint8ClampedArray(16)});
   bindSourceToDocument(){};
   releaseDocumentHandle(){};
@@ -142,15 +143,15 @@ describe("bundled-recents", () => {
     );
     assert.deepEqual(
       recent.map((item) => item.id),
-      ["bundled:xprite-project"],
+      ["bundled:hello-project"],
     );
     const count = workspace.getSnapshot().tabs.length;
-    assert.equal(await workspace.openRecent("bundled:xprite-project"), true);
+    assert.equal(await workspace.openRecent("bundled:hello-project"), true);
     assert.notEqual(workspace.active.id, "untitled");
     assert.equal(workspace.active.core.getSnapshot().document?.name, "example.aseprite");
     assert.equal(workspace.getSnapshot().tabs.length, count + 1);
     workspace.dispose();
-    console.log("Fresh workspaces list the bundled Xprite sample without opening a blank tab.");
+    console.log("Fresh workspaces list the bundled Hello sample without opening a blank tab.");
   }, 60_000);
 });
 
@@ -160,8 +161,9 @@ describe("document-workspace [feature-1-6]", () => {
   recent=[]; result={method:'download',name:'saved.png'};
   registerAsset=(source,name)=>({source,name});
   writes=0;
-  loadRecentImages=async()=>this.recent;
-  saveRecentImages=async(images)=>{this.recent=images};
+  listRecentImages=async()=>this.recent.map(item=>{item.contentVersion??={};return {id:item.id,name:item.name,width:item.image.width,height:item.image.height,bytes:item.image.data.byteLength,contentVersion:item.contentVersion}});
+  readRecentImage=async id=>this.recent.find(item=>item.id===id)??null;
+  saveRecentImages=async(images)=>{this.recent=images.map(item=>"image" in item?item:{...this.recent.find(old=>old.id===item.id),name:item.name})};
   write=async()=>{this.writes++;return this.result};
   decode=async(source)=>({width:2,height:2,data:new Uint8ClampedArray(16)});
   analyze=async()=>({classification:'likely-pixel-art',confidence:1,reasons:[]});
@@ -379,7 +381,21 @@ describe("document-workspace [feature-1-6]", () => {
         await flush();
         w.recovery.setPending(slot.id, false);
       };
+      let attachmentPending = true;
+      const stopAttachment = w.registerProjectAttachment({
+        flush: async () => {},
+        remove: async () => {},
+        hasPendingChanges: () => attachmentPending,
+      });
       await w.saveLocally();
+      assert.equal(w.needsBeforeUnloadWarning(), true, "unsaved attachments protect page closure");
+      attachmentPending = false;
+      assert.equal(
+        w.needsBeforeUnloadWarning(),
+        false,
+        "saved attachments release the close guard",
+      );
+      stopAttachment();
       assert.equal(w.getSnapshot().tabs[0].modified, false, "Web Save clears the tab dot");
       assert.equal(
         slot.core.getSnapshot().dirty,
@@ -773,13 +789,15 @@ describe("document-workspace [feature-1-6]", () => {
     {
       const w = workspace();
       let resumeHydration;
-      w.ports.loadRecentImages = () =>
+      w.ports.listRecentImages = () =>
         new Promise((resolve) => {
           resumeHydration = resolve;
         });
       const pending = w.active.session.restoreRecent();
       w.active.session.clearRecentFiles();
-      resumeHydration([{ id: "stale", name: "Stale.png", image: blank() }]);
+      resumeHydration([
+        { id: "stale", name: "Stale.png", width: 2, height: 2, bytes: 16, contentVersion: {} },
+      ]);
       await pending;
       assert.deepEqual(
         w.active.session.getSnapshot().recentFiles,

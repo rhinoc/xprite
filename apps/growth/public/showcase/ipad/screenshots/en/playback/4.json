@@ -1,0 +1,36 @@
+{
+  "file": "4.png",
+  "width": 1389,
+  "height": 970,
+  "colorSpace": {
+    "iccSha256": null,
+    "srgbIntent": null,
+    "gamma": null,
+    "chromaticities": null,
+    "cicp": null
+  },
+  "sha256": "6756f572e9284add68a2608e0094a4ed9f37aeace0cfe6aea9bba39e65fb2f94",
+  "capturedAt": "2026-10-04T09:36:25.936Z",
+  "frame": 4,
+  "sourceFrameIndex": 3,
+  "durationMs": 130,
+  "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+  "artworkPixelsVerified": 10240,
+  "artworkColorMapping": {
+    "255,255,255": "255,255,255",
+    "112,141,184": "127,140,180",
+    "88,169,157": "126,165,158",
+    "173,119,164": "158,125,161",
+    "153,169,91": "157,168,103",
+    "228,169,71": "207,173,91",
+    "216,115,77": "186,125,86"
+  },
+  "playing": true,
+  "viewport": {
+    "width": 1389,
+    "height": 970,
+    "devicePixelRatio": 1
+  },
+  "source": "http://showcase.localhost:5173/editor",
+  "captureProvenance": "Native PNG accepted by capturePlayback in the preceding pass; receipt reconstructed from its verified PNG and file capture time."
+}

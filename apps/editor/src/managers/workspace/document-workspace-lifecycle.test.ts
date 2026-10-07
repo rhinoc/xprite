@@ -1,9 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  DocumentWorkspace,
-  type WorkspaceSessionPorts,
-} from "$/managers/workspace/document-workspace";
+import type { WorkspaceSessionPorts } from "$/managers/ports/workspace-session";
+import { DocumentWorkspace } from "$/managers/workspace/document-workspace";
 import type { WorkspaceRecovery } from "$/managers/workspace/workspace-recovery";
 import { analyzePixelArt } from "@xprite/editor-core/import-export";
 
@@ -25,7 +23,7 @@ describe("workspace file resource lifetime", () => {
       pickFiles: () => null,
       bindSourceToDocument() {},
       releaseDocumentHandle() {},
-      loadRecentImages: async () => [],
+      listRecentImages: async () => [],
       saveRecentImages: async () => {},
       decode: async () => pixels,
       analyze: async () => analyzePixelArt(pixels),

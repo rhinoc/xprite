@@ -1,12 +1,7 @@
 .root {
-  --ui-curve-background: #000;
-  --ui-curve-border: #ff0;
-  --ui-curve-grid: #808000;
-  --ui-curve-line: #fff;
-  --ui-curve-point: #00f;
   position: relative;
   box-sizing: border-box;
-  background: var(--xse-window, #d3cbbe);
+  background: var(--ui-color-paper);
   touch-action: none;
   user-select: none;
   cursor: var(--ui-cursor-hand, pointer);
@@ -30,21 +25,21 @@
 }
 
 .background {
-  fill: var(--ui-curve-background);
+  fill: var(--ui-curve-background, var(--ui-field-face));
 }
 
 .border {
   fill: none;
-  stroke: var(--ui-curve-border);
+  stroke: var(--ui-curve-border, var(--ui-color-border));
   stroke-width: 1;
 }
 
 .grid {
-  fill: var(--ui-curve-grid);
+  fill: var(--ui-curve-grid, var(--ui-color-muted-ink));
 }
 
 .curve {
-  fill: var(--ui-curve-line);
+  fill: var(--ui-curve-line, var(--ui-color-ink));
   pointer-events: none;
 }
 
@@ -54,7 +49,7 @@
 
 .point {
   fill: none;
-  stroke: var(--ui-curve-point);
+  stroke: var(--ui-curve-point, var(--ui-color-ink));
   stroke-width: 1;
   pointer-events: none;
 }
@@ -63,7 +58,7 @@
 .editGuide {
   visibility: hidden;
   fill: none;
-  stroke: var(--ui-curve-border);
+  stroke: var(--ui-curve-border, var(--ui-color-border));
   stroke-width: 1;
   pointer-events: none;
 }
@@ -84,4 +79,8 @@
   height: 1px;
   overflow: hidden;
   clip-path: inset(50%);
+}
+
+.root[aria-disabled="true"] {
+  opacity: var(--ui-control-disabled-opacity, 0.5);
 }

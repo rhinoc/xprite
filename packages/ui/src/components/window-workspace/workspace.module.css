@@ -1,0 +1,39 @@
+:global([data-ui-desktop-workspace]) {
+  position: relative;
+  isolation: isolate;
+}
+:global([data-ui-desktop-window]) {
+  position: relative;
+  z-index: 1;
+}
+:global([data-ui-desktop-window][data-ui-window-priority="primary"]) {
+  z-index: 2;
+}
+:global(details[data-ui-desktop-window] > summary) {
+  list-style: none;
+  cursor: default;
+}
+:global(details[data-ui-desktop-window] > summary::-webkit-details-marker) {
+  display: none;
+}
+:global(details[data-ui-desktop-window]:not([open]) > :not(summary)) {
+  display: none !important;
+}
+:global(details[data-ui-desktop-window]:not([open])) {
+  height: max-content !important;
+  min-height: 0 !important;
+  flex: 0 0 auto;
+}
+:global(details[data-ui-desktop-window] > summary:focus-visible) {
+  outline: 1px dotted currentColor;
+  outline-offset: -4px;
+}
+
+:global([data-ui-desktop-window] > [data-slot="panel-header"]),
+:global([data-ui-desktop-window] > summary) {
+  touch-action: none;
+  user-select: none;
+}
+:global([data-ui-window-dragging]) {
+  cursor: grabbing;
+}

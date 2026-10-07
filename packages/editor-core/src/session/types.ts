@@ -34,21 +34,31 @@ export interface RecentImageItem {
   height: number;
   bytes: number;
 }
-/** Ports capture browser resources synchronously, before returning their promise. */
+/** Immutable persistence snapshot. Ports must not mutate or transfer its buffers.
+ * The opaque content version survives reordering and hydration, but is replaced
+ * whenever a record's pixels or project change. */
 export interface SessionRecentImage {
   readonly id: string;
   readonly name: string;
   readonly image: PixelBuffer;
   readonly project?: SessionProject;
+  readonly contentVersion?: object;
 }
+/** Lightweight durable record. Its opaque version allows ordered writes without loading content. */
+export interface SessionRecentMetadata extends RecentImageItem {
+  readonly contentVersion: object;
+}
+/** An ordered catalog may retain durable records whose content has not been loaded. */
+export type SessionRecentEntry = SessionRecentImage | SessionRecentMetadata;
 /** Maps storage-specific identities to the stable identity used by recent files. */
 export interface RecentIdentityPort {
   resolve(identity: string): string | null;
   link(identity: string, recentId: string): void;
 }
 export interface EditorSessionPorts<Source> {
-  loadRecentImages?(): Promise<readonly SessionRecentImage[]>;
-  saveRecentImages?(images: readonly SessionRecentImage[]): Promise<void>;
+  listRecentImages?(): Promise<readonly SessionRecentMetadata[]>;
+  readRecentImage?(id: string): Promise<SessionRecentImage | null>;
+  saveRecentImages?(images: readonly SessionRecentEntry[]): Promise<void>;
   /** Probe a source before single-image decoding. Return null for static images;
    * throw when a recognized project or animation is unsupported or malformed. */
   decodeProject?(source: Source): Promise<SessionProject | null>;

@@ -12,9 +12,7 @@ import {
 } from "$/managers/preferences/file-preferences";
 import type { FilePreferences } from "$/managers/preferences/file-preferences";
 import type { RecoverySettings } from "$/managers/workspace/recovery-settings";
-import { Button } from "@xprite/ui";
-import { Combobox } from "@xprite/ui";
-import { Slider } from "@xprite/ui";
+import { Button, Combobox, Slider } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 
 const intervals = [

@@ -15,23 +15,11 @@
 }
 
 :global(:root) {
-  --xse-font: PixelArtBitmap, FusionPixelZhHans, monospace;
   --ui-border-width: 1px;
   --ui-space-1: 2px;
   --ui-space-2: 4px;
   --ui-space-3: 6px;
   --ui-space-4: 8px;
-  --ui-font-size-control: 11px;
-  --ui-theme-font-size: 9.566px;
-  --ui-color-checker-light: #c0c0c0;
-  --ui-color-checker-dark: #808080;
-  --ui-color-white: #fff;
-  --ui-overlay-face: #ddd;
-  --ui-overlay-text: #222;
-  --ui-overlay-edge: #4c4c4c;
-  --ui-overlay-shadow: #333;
-  --ui-overlay-backdrop: rgba(0, 0, 0, 0.25);
-  --ui-context-menu-edge: #555;
   --ui-z-menu-overlay: 9000;
   --ui-z-menu-bar: 20;
   --ui-menu-row-height: 22px;
@@ -40,24 +28,23 @@
   --ui-menu-item-inset: 6px;
   --ui-menu-text-inset: 24px;
   --ui-menu-submenu-delay: 250ms;
-  --ui-menu-underline-height: 2px;
 }
 
 .uiBitmapFont {
-  font-family: var(--xse-font, PixelArtBitmap, FusionPixelZhHans, monospace);
+  font-family: var(--ui-font-family);
 }
 
 :global(:where(.xse-global)) {
   --ui-layer-floating: 100;
   --ui-layer-popup: 100;
   --ui-layer-modal-backdrop: 2000;
-  --xse-font: PixelArtBitmap, FusionPixelZhHans, monospace;
-  --xse-text: #000;
-  --xse-window: #d3cbbe;
-  --xse-border: #202528;
-  --xse-workspace: #7d929e;
-  --ui-panel-highlight: #faf0e6;
-  --ui-focus-ring-color: var(--xse-border, #202528);
+  --xse-font: var(--ui-font-family);
+  --xse-text: var(--ui-color-ink);
+  --xse-window: var(--ui-color-paper);
+  --xse-border: var(--ui-color-border);
+  --xse-workspace: var(--ui-color-desktop);
+  --ui-panel-highlight: inherit;
+  --ui-focus-ring-color: inherit;
   --ui-tooltip-z-index: 10000;
   --ui-control-z-index: 4;
   --ui-color-picker-z-index: 2100;
@@ -65,7 +52,7 @@
   color: var(--xse-text);
   background: var(--xse-window);
   font-family: var(--xse-font);
-  font-size: var(--ui-theme-font-size, 9.566px);
+  font-size: var(--ui-theme-font-size);
   line-height: 1;
 }
 
@@ -77,17 +64,4 @@
 :global(:where(.xse-global)) :global(button) {
   font: inherit;
   color: inherit;
-}
-
-:global(:where(.xse-global)) [data-slot="panel"] {
-  color: var(--xse-text, #000);
-  background: var(--xse-window);
-  border: var(--ui-border-width, 1px) solid var(--xse-border);
-  box-shadow: inset 1px 1px var(--ui-panel-highlight, #faf0e6);
-}
-
-:global(:where(.xse-global)) [data-slot="panel-header"] {
-  color: var(--xse-text, #000);
-  background: var(--xse-window);
-  border-bottom: var(--ui-border-width, 1px) solid var(--xse-border);
 }

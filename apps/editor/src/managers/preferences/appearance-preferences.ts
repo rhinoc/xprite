@@ -1,17 +1,5 @@
-/** OptionsCommand: preview immediately, Apply advances rollback, Cancel restores. */
-export enum AppearanceMode {
-  Light = "light",
-  Dark = "dark",
-  System = "system",
-}
-export type ResolvedAppearance = Exclude<AppearanceMode, AppearanceMode.System>;
+import type { AppearanceMode } from "@xprite/editor-ui/appearance";
 
-export function resolveAppearanceMode(
-  mode: AppearanceMode,
-  systemAppearance: ResolvedAppearance,
-): ResolvedAppearance {
-  return mode === AppearanceMode.System ? systemAppearance : mode;
-}
 export interface AppearancePreferencesTransaction {
   readonly current: AppearanceMode;
   readonly committed: AppearanceMode;

@@ -4,6 +4,7 @@
   flex: 0 0 auto;
   vertical-align: top;
   z-index: var(--ui-control-z-index, 4);
+  box-shadow: var(--ui-combobox-control-shadow, none);
 }
 
 .trigger {
@@ -15,6 +16,10 @@
   touch-action: manipulation;
 }
 
+.anchor[data-disabled] {
+  opacity: var(--ui-combobox-disabled-opacity, 1);
+}
+
 .artwork {
   position: absolute;
   inset: 0;
@@ -24,6 +29,8 @@
 
 .popup {
   outline: none;
+  box-shadow: var(--ui-combobox-popup-shadow, none);
+  clip-path: var(--ui-menu-popup-clip, none);
 }
 
 .viewport {
@@ -45,4 +52,16 @@
   outline: none;
   background: transparent;
   touch-action: manipulation;
+}
+
+.anchor::before {
+  display: var(--ui-combobox-shadow-display, none);
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  background: var(--ui-combobox-shadow-color, transparent);
+  content: "";
+  pointer-events: none;
 }

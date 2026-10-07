@@ -1,0 +1,555 @@
+[
+  {
+    "file": "1.png",
+    "width": 1389,
+    "height": 970,
+    "colorSpace": {
+      "iccSha256": null,
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "f353dd34d5886733556f1db42283ff0c9ed48c7dfd6b67457494705c4c2f0553",
+    "capturedAt": "2026-10-04T09:34:53.971Z",
+    "frame": 1,
+    "sourceFrameIndex": 0,
+    "durationMs": 120,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    },
+    "playing": true,
+    "viewport": {
+      "width": 1389,
+      "height": 970,
+      "devicePixelRatio": 1
+    },
+    "source": "http://showcase.localhost:5173/editor",
+    "captureProvenance": "Native PNG accepted by capturePlayback in the preceding pass; receipt reconstructed from its verified PNG and file capture time."
+  },
+  {
+    "file": "2.png",
+    "width": 1389,
+    "height": 970,
+    "colorSpace": {
+      "iccSha256": null,
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "09cca2e94e6bcd7cd4b73cf9f0bd20632ca5778b993cb45bf17665fac03d1451",
+    "capturedAt": "2026-10-04T09:34:54.097Z",
+    "frame": 2,
+    "sourceFrameIndex": 1,
+    "durationMs": 130,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "112,141,184": "127,140,180",
+      "88,169,157": "126,165,158",
+      "228,169,71": "207,173,91",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "173,119,164": "158,125,161"
+    },
+    "playing": true,
+    "viewport": {
+      "width": 1389,
+      "height": 970,
+      "devicePixelRatio": 1
+    },
+    "source": "http://showcase.localhost:5173/editor",
+    "captureProvenance": "Native PNG accepted by capturePlayback in the preceding pass; receipt reconstructed from its verified PNG and file capture time."
+  },
+  {
+    "file": "3.png",
+    "width": 1389,
+    "height": 970,
+    "sha256": "7d954a5e2fe72b466ba0607322a97396a9e4f31bd9a12f14d7d9a6ec589eb3c3",
+    "capture": {
+      "schemaVersion": 1,
+      "capturedAt": "2026-10-04T09:41:35.035Z",
+      "method": "Chromium CDP native PNG",
+      "viewport": {
+        "width": 1389,
+        "height": 970,
+        "dpr": 1
+      },
+      "captureClip": {
+        "x": 0,
+        "y": 0,
+        "width": 1389,
+        "height": 970
+      },
+      "pixels": {
+        "width": 1389,
+        "height": 970
+      },
+      "pixelScale": {
+        "x": 1,
+        "y": 1
+      },
+      "colorSpace": {
+        "iccSha256": null,
+        "srgbIntent": null,
+        "gamma": null,
+        "chromaticities": null,
+        "cicp": null
+      },
+      "sha256": "7d954a5e2fe72b466ba0607322a97396a9e4f31bd9a12f14d7d9a6ec589eb3c3"
+    },
+    "capturedAt": "2026-10-04T09:41:35.036Z",
+    "sourceFrameIndex": 2,
+    "durationMs": 120,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "112,141,184": "127,140,180",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "228,169,71": "207,173,91",
+      "216,115,77": "186,125,86",
+      "173,119,164": "158,125,161"
+    },
+    "frame": 3,
+    "playing": true,
+    "frames": [
+      {
+        "index": 0,
+        "label": "Frame 1, duration 120 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 1,
+        "label": "Frame 2, duration 130 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 2,
+        "label": "Frame 3, duration 120 milliseconds",
+        "pressed": "true"
+      },
+      {
+        "index": 3,
+        "label": "Frame 4, duration 130 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 4,
+        "label": "Frame 5, duration 120 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 5,
+        "label": "Frame 6, duration 130 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 6,
+        "label": "Frame 7, duration 120 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 7,
+        "label": "Frame 8, duration 130 milliseconds",
+        "pressed": "false"
+      }
+    ],
+    "viewport": {
+      "width": 1389,
+      "height": 970,
+      "devicePixelRatio": 1
+    },
+    "source": "http://showcase.localhost:5173/editor",
+    "captureProvenance": "Browser virtual time paused after real Play on native frame three and resumed immediately after capture. Document durations, application state and image pixels were not injected or edited."
+  },
+  {
+    "file": "4.png",
+    "width": 1389,
+    "height": 970,
+    "colorSpace": {
+      "iccSha256": null,
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "6756f572e9284add68a2608e0094a4ed9f37aeace0cfe6aea9bba39e65fb2f94",
+    "capturedAt": "2026-10-04T09:36:25.936Z",
+    "frame": 4,
+    "sourceFrameIndex": 3,
+    "durationMs": 130,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "112,141,184": "127,140,180",
+      "88,169,157": "126,165,158",
+      "173,119,164": "158,125,161",
+      "153,169,91": "157,168,103",
+      "228,169,71": "207,173,91",
+      "216,115,77": "186,125,86"
+    },
+    "playing": true,
+    "viewport": {
+      "width": 1389,
+      "height": 970,
+      "devicePixelRatio": 1
+    },
+    "source": "http://showcase.localhost:5173/editor",
+    "captureProvenance": "Native PNG accepted by capturePlayback in the preceding pass; receipt reconstructed from its verified PNG and file capture time."
+  },
+  {
+    "file": "5.png",
+    "width": 1389,
+    "height": 970,
+    "colorSpace": {
+      "iccSha256": null,
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "8003e0b705585ff17a56c5c94b1aa0f6fd3d7d83b08f9a58d03903693d7b4243",
+    "capturedAt": "2026-10-04T09:36:26.073Z",
+    "frame": 5,
+    "sourceFrameIndex": 4,
+    "durationMs": 120,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "112,141,184": "127,140,180",
+      "173,119,164": "158,125,161",
+      "216,115,77": "186,125,86",
+      "153,169,91": "157,168,103",
+      "228,169,71": "207,173,91"
+    },
+    "playing": true,
+    "viewport": {
+      "width": 1389,
+      "height": 970,
+      "devicePixelRatio": 1
+    },
+    "source": "http://showcase.localhost:5173/editor",
+    "captureProvenance": "Native PNG accepted by capturePlayback in the preceding pass; receipt reconstructed from its verified PNG and file capture time."
+  },
+  {
+    "file": "6.png",
+    "width": 1389,
+    "height": 970,
+    "sha256": "56e3347991093483538fe46e60bc946bb280db70373f75a1b5b6f05cc8a23ae6",
+    "capture": {
+      "schemaVersion": 1,
+      "capturedAt": "2026-10-04T09:38:11.186Z",
+      "method": "Chromium CDP native PNG",
+      "viewport": {
+        "width": 1389,
+        "height": 970,
+        "dpr": 1
+      },
+      "captureClip": {
+        "x": 0,
+        "y": 0,
+        "width": 1389,
+        "height": 970
+      },
+      "pixels": {
+        "width": 1389,
+        "height": 970
+      },
+      "pixelScale": {
+        "x": 1,
+        "y": 1
+      },
+      "colorSpace": {
+        "iccSha256": null,
+        "srgbIntent": null,
+        "gamma": null,
+        "chromaticities": null,
+        "cicp": null
+      },
+      "sha256": "56e3347991093483538fe46e60bc946bb280db70373f75a1b5b6f05cc8a23ae6"
+    },
+    "capturedAt": "2026-10-04T09:38:11.187Z",
+    "sourceFrameIndex": 5,
+    "durationMs": 130,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "112,141,184": "127,140,180",
+      "228,169,71": "207,173,91",
+      "216,115,77": "186,125,86",
+      "173,119,164": "158,125,161",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103"
+    },
+    "frame": 6,
+    "playing": true,
+    "frames": [
+      {
+        "index": 0,
+        "label": "Frame 1, duration 120 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 1,
+        "label": "Frame 2, duration 130 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 2,
+        "label": "Frame 3, duration 120 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 3,
+        "label": "Frame 4, duration 130 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 4,
+        "label": "Frame 5, duration 120 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 5,
+        "label": "Frame 6, duration 130 milliseconds",
+        "pressed": "true"
+      },
+      {
+        "index": 6,
+        "label": "Frame 7, duration 120 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 7,
+        "label": "Frame 8, duration 130 milliseconds",
+        "pressed": "false"
+      }
+    ],
+    "viewport": {
+      "width": 1389,
+      "height": 970,
+      "devicePixelRatio": 1
+    },
+    "source": "http://showcase.localhost:5173/editor"
+  },
+  {
+    "file": "7.png",
+    "width": 1389,
+    "height": 970,
+    "sha256": "5f14e4462953052c614c6866b01e0342cf171bbdb61f2ffde5bc8619f3f798c4",
+    "capture": {
+      "schemaVersion": 1,
+      "capturedAt": "2026-10-04T09:38:12.304Z",
+      "method": "Chromium CDP native PNG",
+      "viewport": {
+        "width": 1389,
+        "height": 970,
+        "dpr": 1
+      },
+      "captureClip": {
+        "x": 0,
+        "y": 0,
+        "width": 1389,
+        "height": 970
+      },
+      "pixels": {
+        "width": 1389,
+        "height": 970
+      },
+      "pixelScale": {
+        "x": 1,
+        "y": 1
+      },
+      "colorSpace": {
+        "iccSha256": null,
+        "srgbIntent": null,
+        "gamma": null,
+        "chromaticities": null,
+        "cicp": null
+      },
+      "sha256": "5f14e4462953052c614c6866b01e0342cf171bbdb61f2ffde5bc8619f3f798c4"
+    },
+    "capturedAt": "2026-10-04T09:38:12.305Z",
+    "sourceFrameIndex": 6,
+    "durationMs": 120,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "216,115,77": "186,125,86",
+      "112,141,184": "127,140,180",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103"
+    },
+    "frame": 7,
+    "playing": true,
+    "frames": [
+      {
+        "index": 0,
+        "label": "Frame 1, duration 120 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 1,
+        "label": "Frame 2, duration 130 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 2,
+        "label": "Frame 3, duration 120 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 3,
+        "label": "Frame 4, duration 130 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 4,
+        "label": "Frame 5, duration 120 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 5,
+        "label": "Frame 6, duration 130 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 6,
+        "label": "Frame 7, duration 120 milliseconds",
+        "pressed": "true"
+      },
+      {
+        "index": 7,
+        "label": "Frame 8, duration 130 milliseconds",
+        "pressed": "false"
+      }
+    ],
+    "viewport": {
+      "width": 1389,
+      "height": 970,
+      "devicePixelRatio": 1
+    },
+    "source": "http://showcase.localhost:5173/editor"
+  },
+  {
+    "file": "8.png",
+    "width": 1389,
+    "height": 970,
+    "sha256": "29b5762911b00b56b51c92736d4a0688ba59623b608f0ac1f56b405fe6a4ca14",
+    "capture": {
+      "schemaVersion": 1,
+      "capturedAt": "2026-10-04T09:38:12.410Z",
+      "method": "Chromium CDP native PNG",
+      "viewport": {
+        "width": 1389,
+        "height": 970,
+        "dpr": 1
+      },
+      "captureClip": {
+        "x": 0,
+        "y": 0,
+        "width": 1389,
+        "height": 970
+      },
+      "pixels": {
+        "width": 1389,
+        "height": 970
+      },
+      "pixelScale": {
+        "x": 1,
+        "y": 1
+      },
+      "colorSpace": {
+        "iccSha256": null,
+        "srgbIntent": null,
+        "gamma": null,
+        "chromaticities": null,
+        "cicp": null
+      },
+      "sha256": "29b5762911b00b56b51c92736d4a0688ba59623b608f0ac1f56b405fe6a4ca14"
+    },
+    "capturedAt": "2026-10-04T09:38:12.410Z",
+    "sourceFrameIndex": 7,
+    "durationMs": 130,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "153,169,91": "157,168,103",
+      "228,169,71": "207,173,91",
+      "216,115,77": "186,125,86",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180",
+      "88,169,157": "126,165,158"
+    },
+    "frame": 8,
+    "playing": true,
+    "frames": [
+      {
+        "index": 0,
+        "label": "Frame 1, duration 120 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 1,
+        "label": "Frame 2, duration 130 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 2,
+        "label": "Frame 3, duration 120 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 3,
+        "label": "Frame 4, duration 130 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 4,
+        "label": "Frame 5, duration 120 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 5,
+        "label": "Frame 6, duration 130 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 6,
+        "label": "Frame 7, duration 120 milliseconds",
+        "pressed": "false"
+      },
+      {
+        "index": 7,
+        "label": "Frame 8, duration 130 milliseconds",
+        "pressed": "true"
+      }
+    ],
+    "viewport": {
+      "width": 1389,
+      "height": 970,
+      "devicePixelRatio": 1
+    },
+    "source": "http://showcase.localhost:5173/editor"
+  }
+]

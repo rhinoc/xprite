@@ -11,12 +11,19 @@ import {
   DynamicsSensorControl as AsepriteDynamicSensor,
   DynamicsColorFlow as AsepriteDynamicsColorDirection,
 } from "$/managers/tools/tool-options";
-import { Button, Label } from "@xprite/ui";
-import { Checkbox } from "@xprite/ui";
-import { Slider, SliderVariant } from "@xprite/ui";
-import { Divider } from "@xprite/ui";
-import { Tooltip } from "@xprite/ui";
-import { type SurfaceBounds, type SurfaceViewport, useUi } from "@xprite/ui";
+import {
+  Button,
+  Text,
+  TextVariant,
+  Checkbox,
+  Slider,
+  SliderVariant,
+  Divider,
+  Tooltip,
+  type SurfaceBounds,
+  type SurfaceViewport,
+  useUi,
+} from "@xprite/ui";
 import { UiPart } from "@xprite/ui/assets";
 import { DEFAULT_SURFACE_VIEWPORT, surfaceLayout } from "@xprite/ui/canvas";
 import { anchoredPopoverStyle, useAnchoredPopover } from "@xprite/ui/popover";
@@ -259,7 +266,8 @@ export function DynamicsPicker({
               if (y === undefined) return null;
               return (
                 <React.Fragment key={parameter}>
-                  <Label
+                  <Text
+                    variant={TextVariant.Control}
                     {...common}
                     bounds={b(8, y, 74, parameter === "gradient" ? 30 : 28)}
                     text={NAMES[parameter]}
@@ -273,7 +281,8 @@ export function DynamicsPicker({
                         value={value.matrixName}
                         onValueChange={(matrixName) => update({ matrixName })}
                       />
-                      <Label
+                      <Text
+                        variant={TextVariant.Control}
                         {...common}
                         bounds={b(8, y + 30, 74, 28)}
                         font="mini"
@@ -355,7 +364,13 @@ export function DynamicsPicker({
             )}
             {pressure && (
               <>
-                <Label {...common} bounds={b(8, pressureY, 74, 28)} text="Pressure" font="mini" />
+                <Text
+                  variant={TextVariant.Control}
+                  {...common}
+                  bounds={b(8, pressureY, 74, 28)}
+                  text="Pressure"
+                  font="mini"
+                />
                 <Slider
                   variant={SliderVariant.Threshold}
                   {...common}
@@ -371,7 +386,13 @@ export function DynamicsPicker({
             )}
             {velocity && (
               <>
-                <Label {...common} bounds={b(8, velocityY, 74, 28)} text="Velocity" font="mini" />
+                <Text
+                  variant={TextVariant.Control}
+                  {...common}
+                  bounds={b(8, velocityY, 74, 28)}
+                  text="Velocity"
+                  font="mini"
+                />
                 <Slider
                   variant={SliderVariant.Threshold}
                   {...common}

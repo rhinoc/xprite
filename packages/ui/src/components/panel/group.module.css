@@ -1,0 +1,63 @@
+.root {
+  box-sizing: border-box;
+  position: relative;
+  min-width: 0;
+  color: var(--ui-surface-ink, var(--ui-color-ink));
+  background: var(--ui-surface-face, var(--ui-group-box-face, var(--ui-color-paper)));
+  border: var(--ui-group-box-border-width, var(--ui-border-width, 1px)) solid var(--ui-color-border);
+  box-shadow: inset 1px 1px var(--ui-group-box-highlight, var(--ui-panel-highlight));
+}
+.root:not([data-group-box-inset]) {
+  box-sizing: content-box;
+}
+.root[data-group-box-inset][data-group-box-header] {
+  margin-block-start: calc(var(--ui-group-box-title-height, 16px) / 2);
+}
+.root[data-group-box-variant="primary"] {
+  border-color: var(--ui-group-box-primary-edge, var(--ui-color-border));
+  box-shadow: inset 0 0 0 1px var(--ui-group-box-highlight, var(--ui-panel-highlight));
+}
+.header {
+  position: absolute;
+  top: calc(var(--ui-group-box-title-height, 16px) / -2 - 1px);
+  right: var(--ui-group-box-title-right, 15px);
+  left: var(--ui-group-box-title-left, 14px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  height: var(--ui-group-box-title-height, 16px);
+  font: var(--ui-group-box-title-size, var(--ui-text-default-size)) /
+    var(--ui-group-box-title-height) var(--ui-font-family);
+  -webkit-font-smoothing: var(--ui-group-box-font-smoothing, auto);
+}
+.title,
+.extra {
+  display: inline-flex;
+  align-items: center;
+  background: var(--ui-surface-face, var(--ui-group-box-face, var(--ui-color-paper)));
+  padding: 0 var(--ui-group-box-title-padding-right, 3px) 0
+    var(--ui-group-box-title-padding-left, 5px);
+}
+.title {
+  min-width: 0;
+  white-space: nowrap;
+}
+.title[data-plain-title] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.extra {
+  flex-shrink: 0;
+  gap: var(--ui-space-2, 3px);
+  margin-left: auto;
+}
+.body {
+  min-width: 0;
+}
+.root[data-group-box-header] > .body {
+  padding-top: var(--ui-group-box-content-inset, 12px);
+}
+.root[data-group-box-inset] > .body {
+  padding: var(--ui-group-box-content-inset, 12px);
+}

@@ -46,17 +46,27 @@ section as not applicable.
 
 Read [AGENTS.md](AGENTS.md) and the nearest package's instructions before
 changing code. Reuse `@xprite/ui` components and follow the existing component,
-manager, port, and adapter boundaries. Update both language catalogs and the
-relevant documentation when behavior or visible text changes. For new
+manager, port, and adapter boundaries. Update both language catalogs when visible
+text changes, and correct existing documentation when a change makes it inaccurate. For new
 third-party code or assets, record their source and license in the appropriate
 attribution and license notices.
 
 The in-app **Help → User Guide** reads the version-controlled Markdown files in
-`apps/editor/assets/help/`. When changing user-facing navigation, layouts,
-gestures, shortcuts, defaults, saving behavior or browser capabilities, update
-the relevant sections in both `README.en.md` and `README.zh-CN.md` in the same PR.
-Record updated sections in the PR template, or explain why no guide change is
-needed. See the **使用指南维护** section in `AGENTS.md` for document format rules.
+`apps/growth/content/help/`. This guide is only for the pixel editor. Do not add
+showcase, device demo, public-page appearance, standalone viewer or small-tool
+instructions; ordinary small tools do not require separate documentation.
+Order sections by everyday editor tasks and workflow. Put optional sharing, replay
+and AI features after core editing guidance, and feedback last. Place new features
+with their related tasks instead of prepending them because they are new.
+Keep task instructions brief. Do not explain algorithms, caches, memory/pixel
+budgets, internal size thresholds or self-explanatory controls. File size alone
+does not justify a help chapter when the opening operation is unchanged.
+Update both `README.en.md` and `README.zh-CN.md` only when an editor change makes
+existing guidance inaccurate, or introduces non-obvious operations, limitations
+or data-saving consequences that users need to know. Routine visual, layout and
+self-explanatory control changes do not require a guide edit. List changed
+sections in a PR when the guide is actually edited; otherwise omit that section.
+See **使用指南维护** in `AGENTS.md` for document format rules.
 
 ## Development setup
 
@@ -74,9 +84,42 @@ The repository's `.gitattributes` keeps Git hook files on LF line endings even
 when `core.autocrlf` is enabled. `pnpm install` installs the hooks automatically;
 the generated `.husky/_` directory does not need to be committed.
 
-The editor runs at `http://127.0.0.1:5173/`; the component gallery runs at
-`http://127.0.0.1:5174/`. Start one app separately with `pnpm run dev:editor` or
-`pnpm run dev:gallery`.
+`pnpm run dev` starts the independent editor, growth, tools and gallery servers,
+reusing this workspace's existing servers on their fixed ports. It performs no
+builds. Shared UI output must already exist; regenerate the gallery catalog with
+`pnpm run gallery:generate` after adding or removing public UI components.
+
+Use `http://127.0.0.1:5173` on this computer, or `http://<LAN-IP>:5173` from another
+device on the same subnet. The launcher prints the available IP addresses.
+The editor server proxies the other apps at their public paths:
+
+| Page | Path |
+| --- | --- |
+| Editor | `/` or `/editor` |
+| Showcase | `/showcase/en/` or `/showcase/zh-CN/` |
+| Articles | `/learn/` and `/compare/` |
+| User guide | `/help/en/` or `/help/zh-CN/` |
+| Tools | `/tools/` and its tool routes |
+| Component gallery | `/gallery/`, `/gallery/components/<slug>` and `/gallery/icons` |
+
+Navigation, assets and hot-update WebSockets use the same requesting origin.
+Only TCP port 5173 needs to be reachable from the other device. HTTP on a LAN IP
+is not a secure browser context; HTTPS-only capabilities such as service workers
+and some clipboard/file APIs still require a secure origin.
+
+Start apps separately with `pnpm run dev:editor`, `pnpm run dev:growth`,
+`pnpm run dev:tools` or `pnpm run dev:gallery`. Their backend ports remain
+5173, 5175, 5176 and 5174 respectively. Gallery uses `/gallery/` on its own
+server too. All servers must be running for cross-app navigation. Proxy rules
+are centralized in `infra/dev-site.ts`, with ports in `infra/dev-site.json`; production builds retain their
+existing paths and separate outputs. An unrelated process on a required port
+causes an error instead of silently moving an app to another port.
+
+Use root-relative paths for navigation between website pages, including menu
+items, help and article links, and gallery examples. Do not hardcode the
+production website origin in navigation or switch it based on development mode.
+Canonical URLs, search metadata and production service configuration retain
+their explicit production origins.
 
 ## Checks
 
@@ -91,9 +134,13 @@ pnpm run build
 ```
 
 `pnpm run check:ui-editor-usage` requires public UI components to be reachable
-from the Editor and rejects invalid or unresolved variant usages. Legal variants
-that the Editor does not use are reported for information and do not block the
-check. This policy also applies to the Git hooks that run the same script.
+from production page render graphs: editor, browser tools, showcase, help and
+article pages, including their SSG renderers and shared presentation packages.
+Gallery's normal page UI, including its menubar and navigation, counts as usage.
+Its configuration-driven component cards and the previews they render are
+excluded and cannot satisfy component usage requirements. The check
+rejects invalid or unresolved variant usages; unused legal variants are reported
+for information. Git hooks run the same script and use the same scope.
 
 Browser and Aseprite compatibility scripts are in `scripts/e2e/` and
 `scripts/visual-audit/`. The bundled `apps/editor/assets/xprite.ase` file is a

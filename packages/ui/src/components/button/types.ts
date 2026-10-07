@@ -6,6 +6,11 @@ import type { MenuItem } from "$/components/menu";
 import type { PixelFont } from "$/components/text";
 import type { UiPartName } from "$/components/theme/appearance";
 
+export enum ButtonAppearance {
+  Default = "default",
+  Quiet = "quiet",
+}
+
 export enum ButtonVariant {
   Standard = "standard",
   Icon = "icon",
@@ -13,6 +18,7 @@ export enum ButtonVariant {
   Color = "color",
   Tool = "tool",
   Split = "split",
+  Tile = "tile",
 }
 
 export interface ButtonMenuConfig {
@@ -23,13 +29,24 @@ export interface ButtonMenuConfig {
   expandWidth?: number;
 }
 
+export interface ButtonSlots {
+  leading?: React.ReactNode;
+  content?: React.ReactNode;
+  trailing?: React.ReactNode;
+}
+
 interface ButtonContentProps extends Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
   "children"
 > {
   children?: React.ReactNode;
+  href?: never;
+  /** Content composition for standard or split buttons in normal flow layout. */
+  slots?: ButtonSlots;
   /** Button presentation and interaction. Pixel artwork is the default for editor controls. */
-  variant?: ButtonVariant;
+  variant?: Exclude<ButtonVariant, ButtonVariant.Tile>;
+  /** Quiet renders themed text and slots without a control frame. */
+  appearance?: ButtonAppearance;
   /** Dropdown action for the split variant. */
   menu?: ButtonMenuConfig;
   /** Disable interaction for a color preview while preserving its swatch appearance. */
@@ -74,3 +91,50 @@ interface ButtonContentProps extends Omit<
 }
 
 export type ButtonProps = ButtonContentProps & ControlPlacement;
+
+/** Link buttons retain the browser's URL, new-tab, download, and keyboard behavior. */
+export interface ButtonLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  href: string;
+  variant?: ButtonVariant.Standard;
+  appearance?: ButtonAppearance;
+  text?: string;
+  slots?: ButtonSlots;
+  disabled?: boolean;
+  selected?: boolean;
+}
+
+export enum ButtonTileSize {
+  Regular = "regular",
+  Compact = "compact",
+}
+interface TileContentProps {
+  variant: ButtonVariant.Tile;
+  text?: string;
+  slots?: ButtonSlots;
+  tileSize?: ButtonTileSize;
+  compactOnSmallScreens?: boolean;
+}
+export interface ButtonTileProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, TileContentProps {
+  href?: never;
+}
+export interface ButtonTileLinkProps
+  extends React.AnchorHTMLAttributes<HTMLAnchorElement>, TileContentProps {
+  href: string;
+  disabled?: boolean;
+}
+
+export interface ButtonComponent {
+  (props: ButtonProps & React.RefAttributes<HTMLButtonElement>): React.ReactElement | null;
+  (props: ButtonLinkProps & React.RefAttributes<HTMLAnchorElement>): React.ReactElement | null;
+  (props: ButtonTileProps & React.RefAttributes<HTMLButtonElement>): React.ReactElement | null;
+  (props: ButtonTileLinkProps & React.RefAttributes<HTMLAnchorElement>): React.ReactElement | null;
+  (
+    props:
+      | (ButtonProps & React.RefAttributes<HTMLButtonElement>)
+      | (ButtonLinkProps & React.RefAttributes<HTMLAnchorElement>)
+      | (ButtonTileProps & React.RefAttributes<HTMLButtonElement>)
+      | (ButtonTileLinkProps & React.RefAttributes<HTMLAnchorElement>),
+  ): React.ReactElement | null;
+  displayName?: string;
+}

@@ -1,0 +1,15 @@
+{
+  "source": "Native Xprite editor screenshot captured through the actual editor file input",
+  "origin": "http://hello-assets.localhost:5173/editor",
+  "capturedOn": "2026-10-05",
+  "viewport": {
+    "width": 1440,
+    "height": 840
+  },
+  "document": "hello.aseprite",
+  "documentSha256": "3fc1e6823932ac1c08d6af4e43702a8c9a5af1744d4d681324cee5293f4c25da",
+  "frame": 1,
+  "backgroundLayerVisible": false,
+  "imageSha256": "1373fc9a77fc92344f00ae44a7378012505db5197ab62517eee948dc06363667",
+  "processing": "Unmodified compositor screenshot; no crop, redrawing, scaling or injected interface styles"
+}

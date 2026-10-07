@@ -1,0 +1,17 @@
+{
+  "name": "@xprite/share-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "typecheck": "tsgo -p tsconfig.json && tsgo -p tsconfig.tests.json",
+    "deploy": "node ../../scripts/deploy/share-deployment.mjs && wrangler deploy --env production",
+    "db:init": "wrangler d1 execute SHARE_DATABASE --local --file sql/schema.sql",
+    "db:init:production": "node ../../scripts/deploy/share-deployment.mjs && wrangler d1 execute SHARE_DATABASE --env production --remote --file sql/schema.sql"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261001.1",
+    "wrangler": "4.147.0"
+  }
+}

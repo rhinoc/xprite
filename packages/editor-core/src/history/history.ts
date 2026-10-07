@@ -1,5 +1,7 @@
 import type { PixelBuffer, Rect, Rgba } from "$/base/primitives";
 import { syncTimeline } from "$/document/document";
+import { makeEditorImageWritable } from "$/document/pixel-ownership";
+import { encodedPixels } from "$/document/pixel-storage";
 import type { EditorDocument } from "$/document/types";
 import { type TimelineFrame } from "$/timeline/timeline";
 const TILE = 32;
@@ -15,9 +17,15 @@ interface Patch {
   height: number;
   buffer: Uint8ClampedArray;
 }
+export enum HistoryPersistenceEffect {
+  NoDocumentContent = "no-document-content",
+}
+
 /** A transaction groups reversible commands, as in LibreSprite's GPLv2
  * app/cmd_transaction.h. */
 export interface HistoryCommand {
+  /** Unclassified custom commands invalidate all persistence buffer reuse. */
+  readonly persistenceEffect?: HistoryPersistenceEffect;
   undo(doc: EditorDocument): void;
   redo(doc: EditorDocument): void;
   memoryBytes?(): number;
@@ -179,6 +187,7 @@ function read(image: PixelBuffer, rect: Rect) {
   return data;
 }
 function write(p: Patch, data: Uint8ClampedArray) {
+  makeEditorImageWritable(p.image);
   for (let y = 0; y < p.height; y++)
     p.image.data.set(
       data.subarray(y * p.width * 4, (y + 1) * p.width * 4),
@@ -237,6 +246,34 @@ export class EditorHistory {
   private baseId = 0;
   private baseRasterId = 0;
   private historySnapshot: HistorySnapshot | null = null;
+  private pixelBufferVersions = new WeakMap<Uint8ClampedArray, number>();
+  private persistenceEpoch = 0;
+  /** Monotonic invalidation, unlike undoable raster/content identities. */
+  get persistenceBufferEpoch() {
+    return this.persistenceEpoch;
+  }
+  getPixelBufferVersion(data: Uint8ClampedArray): number {
+    return this.pixelBufferVersions.get(data) ?? 0;
+  }
+  private recordPersistenceMutation(command: HistoryCommand): void {
+    if (command instanceof CommandTransaction) {
+      for (const child of command.commands) this.recordPersistenceMutation(child);
+    } else if (command instanceof PatchCommand) {
+      const buffers = new Set(command.patches.map((patch) => patch.image.data));
+      for (const data of buffers)
+        this.pixelBufferVersions.set(data, this.getPixelBufferVersion(data) + 1);
+      // Structure/Palette commands restore immutable containers; existing RGBA
+      // arrays can only be edited through captured patches. Unclassified custom
+      // commands provide no such guarantee, so invalidate the entire cache.
+    } else if (
+      !(command instanceof StructureCommand) &&
+      !(command instanceof MaskCommand) &&
+      !(command instanceof PaletteCommand) &&
+      command.persistenceEffect !== HistoryPersistenceEffect.NoDocumentContent
+    ) {
+      this.persistenceEpoch++;
+    }
+  }
   /** RGBA raster identity excludes palette-only and selection-only changes. */
   get rasterIdentity() {
     return this.rasterId;
@@ -277,6 +314,8 @@ export class EditorHistory {
     return this.active !== null;
   }
   reset(dirty = false) {
+    this.persistenceEpoch++;
+    this.pixelBufferVersions = new WeakMap();
     this.past = [];
     this.current = null;
     this.active = null;
@@ -346,6 +385,7 @@ export class EditorHistory {
   }
   begin(doc: EditorDocument, label = "Transaction") {
     if (this.active) throw new Error("Nested editor transaction");
+    makeEditorImageWritable(doc.layer.pixels);
     const before = state(doc);
     // Tilemap projections are working copies. Shared Tilesets and tile grids
     // are replaced immutably when the transaction commits.
@@ -485,6 +525,7 @@ export class EditorHistory {
     };
     this.id = entry.afterId;
     this.rasterId = entry.afterRasterId;
+    this.recordPersistenceMutation(entry.command);
     if (!this.allowNonlinear) this.clearRedo();
     this.past.push(entry);
     this.current = entry;
@@ -513,7 +554,7 @@ export class EditorHistory {
     const countImage = (image: PixelBuffer) => {
       if (retained.has(image)) return;
       retained.add(image);
-      bytes += image.data.byteLength;
+      bytes += encodedPixels(image)?.bytes.byteLength ?? image.data.byteLength;
     };
     const countBufferBytes = (data: Uint8Array | Uint32Array | undefined) => {
       if (data && !sourceSampleBytes.has(data)) {
@@ -549,7 +590,6 @@ export class EditorHistory {
           if (cel) {
             countImage(cel.pixels);
             countBufferBytes(cel.asepriteSamples?.data);
-            countBufferBytes(cel.source?.asepritePixels);
             countBufferBytes(cel.tilemap?.tiles);
           }
       }
@@ -648,12 +688,14 @@ export class EditorHistory {
     while (this.current !== common) {
       const state = this.current!;
       state.command.undo(doc);
+      this.recordPersistenceMutation(state.command);
       this.current = state.parent;
     }
     const path: Entry[] = [];
     for (let state = destination; state !== common; state = state!.parent) path.push(state!);
     for (let i = path.length - 1; i >= 0; i--) {
       path[i].command.redo(doc);
+      this.recordPersistenceMutation(path[i].command);
       this.current = path[i];
     }
     this.id = this.current?.afterId ?? this.baseId;

@@ -1,0 +1,38 @@
+{
+  "author": "Kenney",
+  "asset": "Tiny Town 1.1",
+  "license": "CC0-1.0",
+  "source": "https://kenney.nl/assets/tiny-town",
+  "sourceDownload": "https://kenney.nl/media/pages/assets/tiny-town/a415fbeb49-1735736916/kenney_tiny-town.zip",
+  "sourceTilesetSha256": "3a54d99ecde790d4fdea207a3644cf130fc56fa838f1beb1507c185a95b8e902",
+  "tileSize": 16,
+  "columns": 12,
+  "rows": 10,
+  "layers": [
+    [
+      [1, 1, 1, 1, 1, 43, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 43, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 43, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 43, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 43, 1, 1, 1, 1, 1, 1],
+      [43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43],
+      [1, 1, 1, 1, 1, 43, 1, 1, 1, 1, 1, 1],
+      [1, 12, 13, 14, 1, 43, 1, 1, 1, 1, 1, 1],
+      [1, 36, 37, 38, 1, 43, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 43, 1, 1, 1, 1, 1, 1]
+    ],
+    [
+      [4, null, 2, null, null, null, null, null, 2, null, null, 4],
+      [16, 48, 49, 50, null, null, null, 52, 53, 54, 28, 16],
+      [null, 60, 63, 62, 17, null, null, 64, 65, 66, null, null],
+      [4, 72, 84, 75, null, null, null, 76, 88, 79, null, 4],
+      [16, 72, 86, 75, null, null, 83, 76, 90, 79, null, 16],
+      [null, null, null, null, null, null, null, null, null, null, 83, null],
+      [44, 45, 45, 45, 46, null, null, null, null, null, null, null],
+      [56, null, 131, null, 58, null, 4, 2, 6, 7, 8, null],
+      [56, null, null, 94, 58, null, 16, null, 18, 19, 20, 5],
+      [68, 69, null, 69, 70, null, null, 29, 30, 31, 32, null]
+    ]
+  ],
+  "modifications": "New village map assembled from unmodified original tiles; no recoloring or rescaling. Each exported 32x32 design contains a 2x2 block of original 16x16 tiles."
+}

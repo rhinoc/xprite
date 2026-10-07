@@ -4,6 +4,10 @@ if (task.ownership !== "agent") throw Error("Space2 must remain agent-owned");
 const p = task.page("p1");
 const fs = await import("node:fs/promises"),
   results = [];
+const { pathToFileURL } = await import("node:url");
+const { captureBrowserScreenshot } = await import(
+  pathToFileURL(`${process.cwd()}/scripts/base/screenshot.mjs`).href
+);
 await fs.mkdir(`${process.cwd()}/.tmp`, { recursive: true });
 const check = async (name, fn) => {
   if (!(await p.evaluate(fn))) throw Error(name);
@@ -71,7 +75,10 @@ await check(
     !document.querySelector('[role="dialog"]'),
 );
 await p.fill('input[aria-label="Canvas text"]', "Hi");
-await p.screenshot({ raw: true, path: "/tmp/ase-qa-inline-text.png" });
+const screenshot = await captureBrowserScreenshot(p, {
+  path: "/tmp/ase-qa-inline-text.png",
+  expectedDpr: 1,
+});
 await p.press('input[aria-label="Canvas text"]', "Escape");
 await check(
   "Escape cancels inline text",
@@ -120,7 +127,7 @@ await check(
 await fs.writeFile(
   `${process.cwd()}/.tmp/qa-remaining-interactions.json`,
   JSON.stringify(
-    { capturedAt: new Date().toISOString(), url: await p.url(), results, passed: true },
+    { capturedAt: new Date().toISOString(), url: await p.url(), results, screenshot, passed: true },
     null,
     2,
   ),

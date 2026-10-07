@@ -3,23 +3,21 @@ import {
   IndexedDbProjectStorage,
 } from "$/adapters/storage/project-storage/indexeddb";
 import { OpfsPayloadStore, supportsOpfs } from "$/adapters/storage/project-storage/opfs";
-import { ProjectRepository } from "$/adapters/storage/project-storage/repository";
-import { PayloadKind } from "$/adapters/storage/project-storage/types";
+import { PayloadKind, type ProjectRepositoryOptions } from "$/managers/ports/project-storage";
+import { createExclusiveLock } from "@xprite/bedrock/browser/exclusive-lock";
+import { randomId, sha256Hex } from "@xprite/bedrock/browser/runtime-crypto";
 
 const DEFAULT_PROJECT_OPFS_NAMESPACE = "xse.opfs.projects.v1";
 
-export * from "$/adapters/storage/project-storage/types";
-export { ProjectRepository } from "$/adapters/storage/project-storage/repository";
-
 /** Capability fallback is chosen only for NEW projects; existing backend stays pinned. */
-export function createBrowserProjectRepository(
+export function createBrowserProjectStorage(
   options: {
     factory?: IDBFactory;
     databaseName?: string;
     opfsNamespace?: string;
     preferOpfs?: boolean;
   } = {},
-): ProjectRepository {
+): ProjectRepositoryOptions {
   const databaseName = options.databaseName ?? DEFAULT_PROJECT_DATABASE_NAME;
   const opfsNamespace =
     options.opfsNamespace ??
@@ -28,10 +26,14 @@ export function createBrowserProjectRepository(
       : `${DEFAULT_PROJECT_OPFS_NAMESPACE}.${encodeURIComponent(databaseName)}`);
   const indexeddb = new IndexedDbProjectStorage({ factory: options.factory, databaseName });
   const opfs = supportsOpfs() ? new OpfsPayloadStore(opfsNamespace) : undefined;
-  return new ProjectRepository({
+  return {
     catalog: indexeddb,
+    makeId: randomId,
+    now: Date.now,
+    checksum: sha256Hex,
     stores: { [PayloadKind.IndexedDb]: indexeddb, [PayloadKind.Opfs]: opfs },
     preferredBackend:
       options.preferOpfs !== false && opfs ? PayloadKind.Opfs : PayloadKind.IndexedDb,
-  });
+    exclusive: createExclusiveLock(`xse.projects.mutation:${databaseName}`),
+  };
 }

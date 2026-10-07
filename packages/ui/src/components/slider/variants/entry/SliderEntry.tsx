@@ -1,9 +1,11 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 
-import { Input, centerThemePixel, measureThemeText } from "$/base/components/theme-controls";
+import { Input } from "$/base/components/theme-controls";
+import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { ThemePart } from "$/base/theme/theme-part";
+import { ThemeScope } from "$/base/theme/theme-scope";
 import { clientPoint, clientRect } from "$/base/utils/dom-geometry";
 import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
 import { usesNativeTextEditing } from "$/base/utils/native-text-input";
@@ -67,6 +69,7 @@ export function SliderEntry(props: SliderEntryProps) {
     ? { bounds: suppliedBounds, relativeTo }
     : { pixelSize: props.pixelSize };
   const { translateKey, translateSource, definition: theme } = useTheme();
+  const { measureThemeText } = useThemeText();
   const host = React.useRef<HTMLSpanElement>(null);
   const slider = React.useRef<HTMLDivElement>(null);
   const [popup, setPopup] = React.useState<Popup | null>(null);
@@ -348,53 +351,55 @@ export function SliderEntry(props: SliderEntryProps) {
       {popup &&
         layout &&
         createPortal(
-          <div
-            ref={slider}
-            data-popup=""
-            {...stylusPointerInputProps(!disabled && !readOnly)}
-            role="slider"
-            aria-label={`${displayLabel} ${translateKey("ui.slider")}`}
-            aria-valuemin={lo}
-            aria-valuemax={hi}
-            aria-valuenow={displayValue}
-            aria-valuetext={text}
-            onContextMenu={(event) => event.preventDefault()}
-            onPointerDown={(event) => {
-              event.preventDefault();
-              event.currentTarget.setPointerCapture(event.pointerId);
-              drag.current = {
-                pointer: event.pointerId,
-                mode: event.button === 0 ? "absolute" : "relative",
-                x: clientPoint(event).x,
-                value: displayValue,
-              };
-              if (event.button === 0) {
-                const rect = clientRect(event.currentTarget);
-                change(
-                  Math.max(
-                    lo,
-                    Math.min(
-                      hi,
-                      lo +
-                        Math.trunc(
-                          ((hi - lo + 1) * (clientPoint(event).x - rect.left)) / rect.width,
-                        ),
+          <ThemeScope>
+            <div
+              ref={slider}
+              data-popup=""
+              {...stylusPointerInputProps(!disabled && !readOnly)}
+              role="slider"
+              aria-label={`${displayLabel} ${translateKey("ui.slider")}`}
+              aria-valuemin={lo}
+              aria-valuemax={hi}
+              aria-valuenow={displayValue}
+              aria-valuetext={text}
+              onContextMenu={(event) => event.preventDefault()}
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.currentTarget.setPointerCapture(event.pointerId);
+                drag.current = {
+                  pointer: event.pointerId,
+                  mode: event.button === 0 ? "absolute" : "relative",
+                  x: clientPoint(event).x,
+                  value: displayValue,
+                };
+                if (event.button === 0) {
+                  const rect = clientRect(event.currentTarget);
+                  change(
+                    Math.max(
+                      lo,
+                      Math.min(
+                        hi,
+                        lo +
+                          Math.trunc(
+                            ((hi - lo + 1) * (clientPoint(event).x - rect.left)) / rect.width,
+                          ),
+                      ),
                     ),
-                  ),
-                );
-              }
-              selectText();
-            }}
-            className={styles.sliderPopup}
-            style={{
-              ...anchoredPopoverStyle(popup, popup.bounds, {
-                zIndex: 10020,
-                constrainToViewport: false,
-              }),
-            }}
-          >
-            {popupArt}
-          </div>,
+                  );
+                }
+                selectText();
+              }}
+              className={styles.sliderPopup}
+              style={{
+                ...anchoredPopoverStyle(popup, popup.bounds, {
+                  zIndex: 10020,
+                  constrainToViewport: false,
+                }),
+              }}
+            >
+              {popupArt}
+            </div>
+          </ThemeScope>,
           document.body,
         )}
     </span>

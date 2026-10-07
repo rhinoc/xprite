@@ -1,0 +1,15 @@
+{
+  "description": "Xprite native WeChat mini program",
+  "projectname": "xprite-wechat",
+  "appid": "touristappid",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "dist/",
+  "libVersion": "3.7.12",
+  "setting": {
+    "es6": true,
+    "minified": true,
+    "urlCheck": true,
+    "enhance": true,
+    "compileHotReLoad": true
+  }
+}

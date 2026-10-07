@@ -1,0 +1,410 @@
+[
+  {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T11:10:25.409Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 430,
+      "height": 846,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 430,
+      "height": 846
+    },
+    "pixels": {
+      "width": 430,
+      "height": 846
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "8943e03cbc8bf7999660303a47076fa6e8acf945f3ea71cd9dff568147c5cdbf",
+    "frame": 1,
+    "durationMs": 120,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkBounds": {
+      "x": 86,
+      "y": 204,
+      "width": 256,
+      "height": 160
+    },
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    }
+  },
+  {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T11:09:45.552Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 430,
+      "height": 846,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 430,
+      "height": 846
+    },
+    "pixels": {
+      "width": 430,
+      "height": 846
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "e5ff8c496d9767952fae3b7463c690c7f4985155360e42c8541fc156230ec809",
+    "frame": 2,
+    "durationMs": 130,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkBounds": {
+      "x": 86,
+      "y": 204,
+      "width": 256,
+      "height": 160
+    },
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    }
+  },
+  {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T11:10:09.246Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 430,
+      "height": 846,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 430,
+      "height": 846
+    },
+    "pixels": {
+      "width": 430,
+      "height": 846
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "8b98bb945dfcdeedcb217f94d36d1d8be835c5377bdbf5cbd1b97d5668101578",
+    "frame": 3,
+    "durationMs": 120,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkBounds": {
+      "x": 86,
+      "y": 204,
+      "width": 256,
+      "height": 160
+    },
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    }
+  },
+  {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T11:10:03.734Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 430,
+      "height": 846,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 430,
+      "height": 846
+    },
+    "pixels": {
+      "width": 430,
+      "height": 846
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "7d2dde63ca4a6d497cf6428e9857e80b2ad24c39fa740903383bb74504086769",
+    "frame": 4,
+    "durationMs": 130,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkBounds": {
+      "x": 86,
+      "y": 204,
+      "width": 256,
+      "height": 160
+    },
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    }
+  },
+  {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T11:09:38.946Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 430,
+      "height": 846,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 430,
+      "height": 846
+    },
+    "pixels": {
+      "width": 430,
+      "height": 846
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "efbea1858ac346ca985e434b7e88d830366f4076b443c944580fdd5cd33c2fcd",
+    "frame": 5,
+    "durationMs": 120,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkBounds": {
+      "x": 86,
+      "y": 204,
+      "width": 256,
+      "height": 160
+    },
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    }
+  },
+  {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T11:09:41.527Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 430,
+      "height": 846,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 430,
+      "height": 846
+    },
+    "pixels": {
+      "width": 430,
+      "height": 846
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "9e587a1333aae6be3c55c31ddfb4a6cf49c763f06e8fc0574e1dd3d0fd23d52b",
+    "frame": 6,
+    "durationMs": 130,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkBounds": {
+      "x": 86,
+      "y": 204,
+      "width": 256,
+      "height": 160
+    },
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    }
+  },
+  {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T11:09:54.227Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 430,
+      "height": 846,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 430,
+      "height": 846
+    },
+    "pixels": {
+      "width": 430,
+      "height": 846
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "152f042e0226544f45db7c63abb219105389be36bfcb46e0539e669f4e9872cd",
+    "frame": 7,
+    "durationMs": 120,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkBounds": {
+      "x": 86,
+      "y": 204,
+      "width": 256,
+      "height": 160
+    },
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    }
+  },
+  {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T11:10:22.104Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 430,
+      "height": 846,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 430,
+      "height": 846
+    },
+    "pixels": {
+      "width": 430,
+      "height": 846
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "f356c3838ebb671e69dbdca564bd8487f07e82afe2f65c6a8e91f046cf5c435c",
+    "frame": 8,
+    "durationMs": 130,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkBounds": {
+      "x": 86,
+      "y": 204,
+      "width": 256,
+      "height": 160
+    },
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    }
+  }
+]

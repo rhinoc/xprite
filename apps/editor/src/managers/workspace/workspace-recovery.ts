@@ -1,7 +1,12 @@
 import { tUi } from "$/i18n";
 import type { BrowserProjectDiagnosticEntry } from "$/managers/ports/diagnostics";
 import type { CanvasInputPort } from "$/managers/ports/platform";
+import { ProjectBytesOwnership } from "$/managers/ports/project-storage";
 import type { RecoverySettingsPort } from "$/managers/ports/recovery-settings";
+import type {
+  WorkspaceRecoveryCodec,
+  WorkspaceRecoveryRepository,
+} from "$/managers/ports/workspace-recovery";
 import { normalizeRecoverySettings } from "$/managers/workspace/recovery-settings";
 import type { RecoverySettings } from "$/managers/workspace/recovery-settings";
 import type { RasterEditor } from "@xprite/editor-core";
@@ -64,34 +69,6 @@ export interface WorkspaceRecoveryState {
   readonly recoveredProjectIds: readonly string[];
   readonly documents: Readonly<Record<string, AutosaveState<string>>>;
 }
-interface WorkspaceRecoveryProjectRecord {
-  projectId: string;
-  metadata: Record<string, unknown> & { name: string };
-  head: { id: string; backend?: string };
-  updatedAt: number;
-}
-interface WorkspaceRecoveryLoadedProject {
-  record: WorkspaceRecoveryProjectRecord;
-  bytes: Uint8Array;
-  recovered: boolean;
-}
-export interface WorkspaceRecoveryRepository {
-  load(projectId: string): Promise<WorkspaceRecoveryLoadedProject | null>;
-  save(input: {
-    projectId: string;
-    expectedHead: string | null;
-    bytes: Uint8Array;
-    metadata: Record<string, unknown> & { name: string };
-  }): Promise<WorkspaceRecoveryProjectRecord>;
-  list(): Promise<WorkspaceRecoveryProjectRecord[]>;
-  close(): void;
-  remove?(projectId: string, expectedHead: string): Promise<void>;
-}
-export interface WorkspaceRecoveryCodec {
-  encode(snapshot: EditorPersistenceSnapshot): Promise<Uint8Array>;
-  decode(bytes: Uint8Array): Promise<EditorPersistenceSnapshot>;
-  close(): void;
-}
 export interface WorkspaceRecoveryDependencies {
   repository: WorkspaceRecoveryRepository;
   codec: WorkspaceRecoveryCodec;
@@ -136,6 +113,7 @@ export class WorkspaceRecovery {
   >();
   private bindings = new Map<string, Binding>();
   private retiring = new Set<Binding>();
+  private retiringErrors = new Map<Binding, unknown>();
   private unsubscribers: (() => void)[] = [];
   private observedSlots = new Set<string>();
   private listeners = new Set<() => void>();
@@ -365,6 +343,7 @@ export class WorkspaceRecovery {
         projectId,
         expectedHead: null,
         bytes,
+        bytesOwnership: ProjectBytesOwnership.Immutable,
         metadata: {
           name: storedSnapshot.document.name,
           kind: "editor-project",
@@ -478,6 +457,7 @@ export class WorkspaceRecovery {
       projectId,
       expectedHead: null,
       bytes,
+      bytesOwnership: ProjectBytesOwnership.Immutable,
       metadata: {
         name,
         kind: "editor-project",
@@ -608,6 +588,8 @@ export class WorkspaceRecovery {
               projectId: `recovery-${this.createId()}`,
               expectedHead: null,
               bytes: pending.bytes,
+              bytesOwnership: ProjectBytesOwnership.Immutable,
+              reuseFromProjectId: sourceProjectId,
               metadata: {
                 kind: "recovery-checkpoint",
                 name: pending.snapshot.document.name,
@@ -825,11 +807,11 @@ export class WorkspaceRecovery {
       this.retiring.add(retired);
       void retired.coordinator
         .flush()
-        .then(() => {
-          retired.coordinator.dispose();
-          this.retiring.delete(retired);
-        })
-        .catch((error) => this.publish({ error }));
+        .then(() => this.finishRetiring(retired, slot.id))
+        .catch((error) => {
+          this.retiringErrors.set(retired, error);
+          this.publish({ error });
+        });
       this.bindings.delete(slot.id);
       binding = undefined;
     }
@@ -896,6 +878,7 @@ export class WorkspaceRecovery {
             projectId,
             expectedHead,
             bytes,
+            bytesOwnership: ProjectBytesOwnership.Immutable,
             metadata: {
               name: snapshot.document.name,
               kind: "editor-project",
@@ -930,7 +913,10 @@ export class WorkspaceRecovery {
         });
         if (this.bindings.get(slot.id) === next)
           this.publish({ documents: { ...this.state.documents, [slot.id]: status } });
-        if (status.status === "saved") this.scheduleManifest();
+        if (status.status === "saved") {
+          this.finishRetiring(next, slot.id);
+          this.scheduleManifest();
+        }
       },
     });
     this.bindings.set(slot.id, next);
@@ -938,6 +924,22 @@ export class WorkspaceRecovery {
       documents: { ...this.state.documents, [slot.id]: next.coordinator.getState() },
     });
     next.coordinator.notifyCommitted(next.revision);
+  }
+
+  private finishRetiring(binding: Binding, slotId: string): void {
+    if (!this.retiring.delete(binding)) return;
+    binding.coordinator.dispose();
+    const reported =
+      this.retiringErrors.has(binding) && this.state.error === this.retiringErrors.get(binding);
+    this.retiringErrors.delete(binding);
+    const documents = { ...this.state.documents };
+    if (!this.bindings.has(slotId)) delete documents[slotId];
+    const remainingErrors = [...this.retiringErrors.values()];
+    this.publish({
+      documents,
+      // Do not clear an unrelated manifest/archive failure when this document recovers.
+      ...(reported ? { error: remainingErrors[remainingErrors.length - 1] ?? null } : {}),
+    });
   }
 
   updateLayout(layout: RecoveryLayout) {
@@ -1012,6 +1014,7 @@ export class WorkspaceRecovery {
               projectId: WORKSPACE_ID,
               expectedHead: this.manifestHead,
               bytes: new TextEncoder().encode(json),
+              bytesOwnership: ProjectBytesOwnership.Immutable,
               metadata: { name: "Workspace", kind: "workspace" },
             });
             this.manifestHead = record.head.id;

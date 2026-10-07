@@ -16,3 +16,10 @@
 .plane {
   position: absolute;
 }
+.toolbar {
+  flex: 0 0 auto;
+  padding: var(--ui-toolbar-padding, 8px 12px);
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-theme-line, var(--xse-border));
+  background: var(--ui-theme-wash, var(--xse-window));
+  color: var(--xse-text);
+}

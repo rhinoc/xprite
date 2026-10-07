@@ -1,0 +1,11 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: var(--ui-space-4);
+  padding: var(--ui-space-4);
+}
+
+.actions {
+  justify-content: flex-end;
+}

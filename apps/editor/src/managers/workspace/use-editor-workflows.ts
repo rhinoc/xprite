@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
-import { changeUiLanguage, type UiLanguage } from "$/i18n";
+import { changeUiLanguage, tUi, type UiLanguage } from "$/i18n";
 import { ClipboardRegion, createClipboardActions } from "$/managers/clipboard";
 import { useEditor, useEditorManagerContext } from "$/managers/editor/editor-state-manager";
 import { editorSceneForTab } from "$/managers/editor/editor-ui-store";
@@ -10,18 +10,19 @@ import {
   EditorViewChangeReason,
 } from "$/managers/editor/editor-view-transition";
 import { useEditorSnapshot } from "$/managers/editor/use-editor-snapshot";
-import {
-  exportDocumentAnimation,
-  exportDocumentSpriteSheet,
-  repeatLastExport,
-  type AnimationExportPorts,
-} from "$/managers/files/export-animation";
+import { useFeedback } from "$/managers/feedback/use-feedback";
 import { useWheelDevice, WheelDevice } from "$/managers/input/wheel-device-context";
 import { useEditorPaletteModel } from "$/managers/palette/editor-palette-model";
 import { readDefaultPalette } from "$/managers/palette/presets";
 import { useEditorPlatformPorts } from "$/managers/platform/editor-platform-context";
-import { TelemetryFeature, TelemetryFeatureAction } from "$/managers/ports/telemetry";
-import { AppearanceMode } from "$/managers/preferences/appearance-preferences";
+import {
+  DocumentOpenMethod,
+  TelemetryFeature,
+  TelemetryFeatureAction,
+  TelemetryOperationAction,
+  TelemetryOperationOutcome,
+  TelemetryOperationTarget,
+} from "$/managers/ports/telemetry";
 import type { CanvasDisplayPreferences } from "$/managers/preferences/canvas-display-preferences";
 import type { CursorPreferences } from "$/managers/preferences/cursor-preferences";
 import { CanvasDisplayPreferenceTarget } from "$/managers/preferences/document-preferences";
@@ -31,12 +32,12 @@ import type { GridBoundsPreferences } from "$/managers/preferences/grid-preferen
 import type { GuideSlicePreferences } from "$/managers/preferences/guide-slice-preferences";
 import { PreferenceResetTarget } from "$/managers/preferences/reset-preferences";
 import { defaultTimelinePanelPreferences } from "$/managers/preferences/timeline-panel-preferences";
+import { usePwaManager } from "$/managers/pwa/pwa-context";
 import { DEFAULT_EDITOR_CHROME_PREFERENCES } from "$/managers/shell/editor-chrome-preferences";
 import { useEditorChromePreferences } from "$/managers/shell/editor-chrome-preferences-context";
 import { HELP_LINKS, HelpLink, HelpDocumentTab } from "$/managers/shell/help";
 import { shortcutContexts } from "$/managers/shortcuts/shortcut-contexts";
 import { SHORTCUT_DEFINITIONS } from "$/managers/shortcuts/shortcut-manager";
-import { reportingExport } from "$/managers/telemetry/reporting-export";
 import { useTelemetryFeatures } from "$/managers/telemetry/use-telemetry-features";
 import { useTelemetryView } from "$/managers/telemetry/use-telemetry-view";
 import {
@@ -67,10 +68,10 @@ import {
 import { DEFAULT_RECOVERY_SETTINGS } from "$/managers/workspace/recovery-settings";
 import { SaveTarget } from "$/managers/workspace/save-target";
 import { useWorkflowActionSnapshot } from "$/managers/workspace/workflow-action-snapshot";
+import { useDocumentOutputWorkflows } from "$/managers/workspace/workflows/use-document-output-workflows";
 import { normalizeKeyboardEvent } from "@xprite/bedrock/browser/keyboard";
 import {
   projectFromClipboardImage,
-  colorProfileToSrgb,
   EffectKind,
   resolveShortcut,
   canExecuteEditorAction,
@@ -78,24 +79,14 @@ import {
   hexToRgba,
   validateBitmapText,
 } from "@xprite/editor-core";
-import type {
-  EditorCommand,
-  EditorDocument,
-  ExportFileOptions,
-  RasterEditor,
-} from "@xprite/editor-core";
-import { workingColorProfile } from "@xprite/editor-core/color";
-import type {
-  SpriteSheetOptions,
-  SpriteSheetResult,
-  ImportSpriteSheetOptions,
-} from "@xprite/editor-core/import-export";
+import type { EditorCommand, RasterEditor } from "@xprite/editor-core";
 import {
   SessionSaveIntent,
   SessionOutcome,
   SessionOperation,
   type SessionSource,
 } from "@xprite/editor-core/session";
+import { AppearanceMode } from "@xprite/editor-ui/appearance";
 
 type TimelineWorkflowActions = {
   flushPendingLayerProperties?: () => void;
@@ -133,6 +124,7 @@ const TAB_FOCUS_WIDGET_SELECTOR =
 
 /** Coordinates editor use cases; the shell consumes its state and command view model. */
 export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
+  const pwa = usePwaManager();
   const platform = useEditorPlatformPorts();
   if (!platform) throw new Error("Editor workflow manager requires platform ports");
   const { core } = useEditorManagerContext();
@@ -181,16 +173,14 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
   const heldSpace = useRef(false);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
   const telemetry = useTelemetryFeatures(preferencesOpen, aboutOpen);
+  const feedback = useFeedback(telemetry, () => editor.setNotice(tUi("feedback.sent")));
   const [exitNotice, setExitNotice] = useState(false);
   const [dialog, setDialog] = useState<"text" | "color" | null>(null);
   const [colorTarget, setColorTarget] = useState<"foreground" | "background">("foreground");
   const [text, setText] = useState("");
   const [textSize, setTextSize] = useState(DEFAULT_TEXT_FONT_SIZE);
-  const [exportDocument, setExportDocument] = useState<EditorDocument | null>(null);
-  const [exportBusy, setExportBusy] = useState(false);
   const [saveAsOpen, setSaveAsOpen] = useState(false);
   const [saveAsBusy, setSaveAsBusy] = useState(false);
-  const exportKey = useRef<string>(workspace.active.id);
   const sheetFileIntent = useRef(false);
   const [sequenceImport, setSequenceImport] = useState<{
     sources: readonly SessionSource<string>[];
@@ -238,31 +228,12 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     const node = input.current;
     if (!node) return;
     const cancel = () => {
+      if (!sheetFileIntent.current) telemetry.documentOpenCancelled(DocumentOpenMethod.Import);
       sheetFileIntent.current = false;
     };
     node.addEventListener("cancel", cancel);
     return () => node.removeEventListener("cancel", cancel);
-  }, []);
-  const showSheetPreview = useCallback(
-    (result: SpriteSheetResult | null) =>
-      core.importExport.previewSpriteSheet(result?.pixels ?? null),
-    [core],
-  );
-  const [sheetSource, setSheetSource] = useState<SpriteSheetOptions["source"]>(undefined);
-  const [sheetExport, setSheetExport] = useState<EditorDocument | null>(null);
-  const [sheetImport, setSheetImport] = useState<{
-    core: RasterEditor;
-    id: number | undefined;
-    image: ReturnType<RasterEditor["canvas"]["exportComposite"]>;
-  } | null>(null);
-  const sheetImportView = sheetImport ? { image: sheetImport.image } : null;
-  useEffect(() => {
-    if (
-      sheetImport &&
-      (sheetImport.core !== core || sheetImport.id !== core.getSnapshot().document?.id)
-    )
-      setSheetImport(null);
-  }, [core, sheetImport]);
+  }, [telemetry]);
   const { recoveryOpen, setRecoveryOpen } = editor;
   const [recoveryTabOpen, setRecoveryTabOpen] = useState(false);
   const [recoverySelectedIds, setRecoverySelectedIds] = useState<readonly string[]>([]);
@@ -282,16 +253,15 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     workspace.recovery.getSnapshot,
     workspace.recovery.getSnapshot,
   );
-  const reportedRecoveryError = useRef<unknown>(null);
-  useEffect(() => {
-    const failure =
-      recoveryState.error ??
-      Object.values(recoveryState.documents).find((item) => item.error)?.error;
-    if (failure && failure !== reportedRecoveryError.current) {
-      reportedRecoveryError.current = failure;
-      session.reportError(failure);
-    }
-  }, [recoveryState, session]);
+  // Background failures must not prevent drawing, Save As or switching documents.
+  // The persistent status indicator remains until storage acknowledges a retry.
+  const recoveryFailure =
+    recoveryState.error ?? Object.values(recoveryState.documents).find((item) => item.error)?.error;
+  const retryRecovery = () => {
+    void workspace.recovery.retry().catch(() => {
+      // Recovery state retains the failure and the latest unsaved revision.
+    });
+  };
   const refreshRecovery = async () => {
     if (recoveryLoading) return;
     setRecoveryLoading(true);
@@ -308,19 +278,19 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     }
   };
   const showRecovery = () => {
-    if (!session.canStartInteraction()) return;
+    if (!canStartInteraction()) return;
     setRecoveryTabOpen(true);
     setRecoveryOpen(true);
     editor.setTab("home", userViewTransition(EditorViewChangeReason.RecoveryOpened));
     void refreshRecovery();
   };
   const selectRecovery = () => {
-    if (!session.canStartInteraction()) return;
+    if (!canStartInteraction()) return;
     setRecoveryOpen(true);
     editor.setTab("home", userViewTransition(EditorViewChangeReason.RecoveryOpened));
   };
   const closeRecovery = () => {
-    if (!session.canStartInteraction()) return;
+    if (!canStartInteraction()) return;
     setRecoveryTabOpen(false);
     setRecoverySelectedIds([]);
     if (recoveryOpen) {
@@ -331,7 +301,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     }
   };
   const recoverProjects = async (ids: readonly string[]) => {
-    if (recoveryBusy || !session.canStartInteraction()) return;
+    if (!canStartInteraction()) return;
     setRecoveryBusy(true);
     try {
       for (const id of ids) await workspace.recoverProject(id);
@@ -343,90 +313,6 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     } finally {
       setRecoveryBusy(false);
     }
-  };
-  const exportPorts = (ports: AnimationExportPorts, slotId: string): AnimationExportPorts => {
-    const preferenceId = workspace.getExportPreferenceId(slotId);
-    const last = workspace.getLastExport(slotId);
-    return {
-      ...ports,
-      storage: platform?.preferences,
-      rememberExport: (record) => workspace.rememberExport(preferenceId, record),
-      getLastExport: () => last,
-    };
-  };
-  const performExport = async (options: ExportFileOptions) => {
-    if (!exportDocument || sheetExport || sheetImport || exportBusy) return;
-    setExportBusy(true);
-    try {
-      await reportingExport(telemetry, exportDocument, exportKey.current, (ports) =>
-        exportDocumentAnimation(exportDocument, options, {
-          ...exportPorts(ports, exportKey.current),
-          webp: platform?.files.webp,
-        }),
-      );
-      setExportDocument(null);
-    } catch (reason) {
-      if (!(reason instanceof Error && reason.name === "AbortError")) session.reportError(reason);
-    } finally {
-      setExportBusy(false);
-    }
-  };
-  const performSheetExport = async (options: SpriteSheetOptions) => {
-    if (!sheetExport || exportBusy) return;
-    setExportBusy(true);
-    try {
-      const result = await reportingExport(telemetry, sheetExport, exportKey.current, (ports) =>
-        exportDocumentSpriteSheet(sheetExport, options, exportPorts(ports, exportKey.current)),
-      );
-      core.importExport.previewSpriteSheet(null);
-      setSheetExport(null);
-      if (options.openGenerated) {
-        workspace.createDocumentFromImage(
-          result.pixels,
-          sheetExport.palette?.map((color) =>
-            colorProfileToSrgb(color, workingColorProfile(sheetExport.timeline)),
-          ),
-          options.name,
-        );
-        editor.openTab(
-          "document",
-          automaticViewTransition(EditorViewChangeReason.DocumentGenerated),
-        );
-      }
-    } catch (reason) {
-      session.reportError(reason);
-    } finally {
-      setExportBusy(false);
-    }
-  };
-  const performSheetImport = (options: ImportSpriteSheetOptions) => {
-    if (
-      !sheetImport ||
-      sheetImport.core !== core ||
-      sheetImport.id !== core.getSnapshot().document?.id
-    )
-      return;
-    try {
-      core.importExport.importSpriteSheet(options);
-      setSheetImport(null);
-    } catch (reason) {
-      session.reportError(reason);
-    }
-  };
-  const prepareExport = () => {
-    timelineActions?.flushPendingLayerProperties?.();
-    if (
-      !session.canStartInteraction() ||
-      !canExecuteEditorAction("export", core.getSnapshot(), editorSceneForTab(editor.tab))
-    )
-      return null;
-    if (core.getSnapshot().inlineText && !core.drawing.text.commitInlineText()) return null;
-    if (core.getSnapshot().floatingPaste && !core.clipboard.commitFloatingPaste()) return null;
-    core.timeline.setPlaying(false);
-    core.cancelGesture();
-    exportKey.current = workspace.active.id;
-    const doc = core.getSnapshot().document;
-    return doc ? structuredClone(doc) : null;
   };
   const deleteRecovery = async () => {
     if (!deleteRecoveryIds || recoveryBusy) return;
@@ -492,6 +378,53 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
   const state = useEditorSnapshot(core)!;
   const { busy, replacement, pendingImport: pending, newSize, pixelationOptions } = workflow;
   const error = workflow.error?.message ?? "";
+  const output = useDocumentOutputWorkflows({
+    core,
+    session,
+    workspace,
+    platform,
+    telemetry,
+    scene: editorSceneForTab(editor.tab),
+    canStartInteraction,
+    flushPendingLayerProperties: () => timelineActionsRef.current?.flushPendingLayerProperties?.(),
+    openGeneratedDocument: () =>
+      editor.openTab("document", automaticViewTransition(EditorViewChangeReason.DocumentGenerated)),
+  });
+  const modalOpen = !!(
+    aboutOpen ||
+    feedback.open ||
+    dialog ||
+    newTilemapDialog ||
+    preferencesOpen ||
+    saveAsOpen ||
+    newDialog ||
+    duplicateSpriteOpen ||
+    keyboardShortcutsOpen ||
+    output.hasOpenDialog ||
+    deleteRecoveryIds ||
+    deleteBrowserCopyItem ||
+    sequenceImport ||
+    pending ||
+    replacement ||
+    error ||
+    exitNotice
+  );
+  const operationBusy = output.exportBusy || saveAsBusy || recoveryBusy || closingSaveBusy;
+  function canStartInteraction() {
+    return (
+      !modalOpen &&
+      !operationBusy &&
+      !workspace.getSnapshot().importBatch &&
+      session.canStartInteraction()
+    );
+  }
+  // Saving keeps ordinary editing available; only starting another workflow
+  // consults session.canStartInteraction(), which also protects native pickers.
+  const canDispatchEditorInput = () =>
+    !modalOpen &&
+    !operationBusy &&
+    !session.getSnapshot().busy &&
+    !workspace.getSnapshot().importBatch;
   useEffect(() => {
     if (
       !replacement ||
@@ -503,7 +436,16 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       void session.confirmReplacement();
   }, [replacement, closingSaveBusy, workspaceSnapshot, workspace, session]);
   useEffect(() => {
-    if (state.error) session.reportError(state.error);
+    if (state.error)
+      session.reportError(
+        state.error.operation === "document"
+          ? Object.defineProperty(new Error(tUi("ui.sprite.memory.limit.preserved")), "cause", {
+              value: state.error,
+              writable: true,
+              configurable: true,
+            })
+          : state.error,
+      );
   }, [state.error, session]);
   const activation = useRef({
     tabId: workspaceSnapshot.activeId,
@@ -588,19 +530,13 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     if (!sheetFileTarget || sheetFileTarget.core !== core) return;
     const imported = core.getSnapshot().document;
     if (imported && !workflow.busy) {
-      setSheetImport({ core, id: imported.id, image: core.canvas.exportComposite() });
+      output.openSheetImport();
       setSheetFileTarget(null);
     }
   }, [core, workflow.busy, state.document?.id, sheetFileTarget]);
   const requestSources = (sources: readonly SessionSource<string>[]) => {
     if (!sources.length) return;
-    if (
-      !workflowMounted.current ||
-      deleteBrowserCopyItem ||
-      sequenceSources.current.length ||
-      workspace.getSnapshot().importBatch ||
-      !workspace.active.session.canStartInteraction()
-    ) {
+    if (!workflowMounted.current || sequenceSources.current.length || !canStartInteraction()) {
       for (const source of sources) workspace.ports.releaseSource?.(source.source);
       return;
     }
@@ -620,8 +556,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     const isSheet = sheetFileIntent.current;
     sheetFileIntent.current = false;
     if (isSheet) {
-      if (!workspace.active.session.canStartInteraction() || workspace.getSnapshot().importBatch)
-        return;
+      if (!canStartInteraction()) return;
       timelineActions?.flushPendingLayerProperties?.();
       const operation = workspace.openSource(workspace.ports.registerFile(files[0]));
       setSheetFileTarget({ core: workspace.active.core, generation: Date.now() });
@@ -654,52 +589,77 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
   useSyncExternalStore(clipboard.subscribe, clipboard.getVersion, clipboard.getVersion);
   useEffect(() => {
     const paste = (event: ClipboardEvent) => {
-      if (
-        aboutOpen ||
-        dialog ||
-        preferencesOpen ||
-        saveAsOpen ||
-        newDialog ||
-        exportDocument ||
-        sheetExport ||
-        sheetImport ||
-        recoveryOpen ||
-        deleteRecoveryIds ||
-        deleteBrowserCopyItem ||
-        sequenceImport ||
-        pending ||
-        replacement ||
-        error ||
-        exitNotice
-      )
-        return;
+      if (!canDispatchEditorInput() || recoveryOpen) return;
       clipboard.handlePasteEvent(event);
     };
     window.addEventListener("paste", paste);
     return () => window.removeEventListener("paste", paste);
   });
   const currentSaveTarget = () => workspace.getSaveTarget();
+  const saveWithTelemetry = (
+    intent: SessionSaveIntent,
+    target: SaveTarget,
+    saving: () => Promise<SessionOutcome>,
+  ): Promise<SessionOutcome> => {
+    const finish = telemetry.beginSave(
+      intent === SessionSaveIntent.SaveAs
+        ? TelemetryOperationAction.SaveAs
+        : TelemetryOperationAction.Save,
+      target === SaveTarget.Browser
+        ? TelemetryOperationTarget.Browser
+        : TelemetryOperationTarget.FileSystem,
+      workspaceSnapshot.activeId,
+    );
+    try {
+      // Invoke synchronously so a native picker retains the user's activation.
+      return saving().then(
+        (outcome) => {
+          finish(
+            outcome === SessionOutcome.Created
+              ? TelemetryOperationOutcome.Success
+              : outcome === SessionOutcome.Cancelled
+                ? TelemetryOperationOutcome.Cancelled
+                : outcome === SessionOutcome.Error
+                  ? TelemetryOperationOutcome.Failed
+                  : TelemetryOperationOutcome.Ignored,
+          );
+          return outcome;
+        },
+        (reason) => {
+          finish(TelemetryOperationOutcome.Failed);
+          throw reason;
+        },
+      );
+    } catch (reason) {
+      finish(TelemetryOperationOutcome.Failed);
+      throw reason;
+    }
+  };
   const saveCurrentDocument = async (
     intent: SessionSaveIntent,
     target: SaveTarget,
     requestedName?: string,
   ): Promise<SessionOutcome> => {
     if (!session.canSave()) return SessionOutcome.Ignored;
-    if (intent === SessionSaveIntent.Save && target === SaveTarget.Browser) {
-      await workspace.saveInBrowser(workspaceSnapshot.activeId);
-      return SessionOutcome.Created;
-    }
-    const suggestedName =
-      target === SaveTarget.FileSystem
-        ? requestedName?.trim() ||
-          workspace.suggestedSaveName(core.getSnapshot().document?.name ?? "Untitled")
-        : undefined;
-    const outcome = await session.save(intent, suggestedName);
-    if (outcome === SessionOutcome.Created) {
-      await workspace.saveLocally(workspaceSnapshot.activeId);
-      workspace.linkRecentFileToWorkspaceProject(workspaceSnapshot.activeId);
-    }
-    return outcome;
+    return saveWithTelemetry(intent, target, async () => {
+      if (intent === SessionSaveIntent.Save && target === SaveTarget.Browser) {
+        await workspace.saveInBrowser(workspaceSnapshot.activeId);
+        pwa?.markSuccessfulSave();
+        return SessionOutcome.Created;
+      }
+      const suggestedName =
+        target === SaveTarget.FileSystem
+          ? requestedName?.trim() ||
+            workspace.suggestedSaveName(core.getSnapshot().document?.name ?? "Untitled")
+          : undefined;
+      const outcome = await session.save(intent, suggestedName);
+      if (outcome === SessionOutcome.Created) {
+        await workspace.saveLocally(workspaceSnapshot.activeId);
+        workspace.linkRecentFileToWorkspaceProject(workspaceSnapshot.activeId);
+        pwa?.markSuccessfulSave();
+      }
+      return outcome;
+    });
   };
   const saveThenClose = (target: SaveTarget) => {
     setClosingSaveBusy(true);
@@ -712,6 +672,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
   };
   const performDocumentSave = (intent: SessionSaveIntent, target = currentSaveTarget()) => {
     if (intent === SessionSaveIntent.SaveAs) {
+      telemetry.featureUsed(TelemetryFeature.SaveAs, TelemetryFeatureAction.Open);
       setSaveAsOpen(true);
       return;
     }
@@ -724,8 +685,11 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     setSaveAsBusy(true);
     void (async () => {
       if (target === SaveTarget.Browser) {
-        await workspace.saveAsInBrowser(workspaceSnapshot.activeId, name, format);
-        return SessionOutcome.Created;
+        return saveWithTelemetry(SessionSaveIntent.SaveAs, target, async () => {
+          await workspace.saveAsInBrowser(workspaceSnapshot.activeId, name, format);
+          pwa?.markSuccessfulSave();
+          return SessionOutcome.Created;
+        });
       }
       return saveCurrentDocument(SessionSaveIntent.SaveAs, target, name);
     })()
@@ -734,11 +698,6 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       })
       .catch((reason) => session.reportError(reason, SessionOperation.Save))
       .finally(() => setSaveAsBusy(false));
-  };
-  const openExportFileDialog = () => {
-    timelineActions?.flushPendingLayerProperties?.();
-    const doc = prepareExport();
-    if (doc) setExportDocument(doc);
   };
   const recentFiles = workspace.getRecentFiles();
   const canClearRecentFiles = recentFiles.length > 0;
@@ -754,7 +713,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       editor.openTabs.includes(HelpDocumentTab.Guide),
     );
   const selectAdjacentTab = (direction: -1 | 1) => {
-    if (!session.canStartInteraction()) return;
+    if (!canStartInteraction()) return;
     const target = adjacentTab(direction);
     if (!target) return;
     timelineActionsRef.current?.flushPendingLayerProperties?.();
@@ -771,6 +730,14 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
   };
   const actions = {
     clipboardCapabilities: clipboard.getCapabilities(),
+    recoveryProblem: recoveryFailure
+      ? tUi(
+          workspace.recovery.hasUnpersistedWorkspaceChanges()
+            ? "ui.recovery.save.failed.status"
+            : "ui.recovery.backup.failed.status",
+        )
+      : undefined,
+    retryRecovery,
     backupActive:
       recoveryState.backingUp ||
       Object.values(recoveryState.documents).some((item) => item.status === "saving"),
@@ -790,37 +757,46 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     recoverProjects: (ids: readonly string[]) => {
       void recoverProjects(ids);
     },
-    deleteRecoveryProjects: (ids: readonly string[]) => setDeleteRecoveryIds(ids),
+    deleteRecoveryProjects: (ids: readonly string[]) => {
+      if (canStartInteraction()) setDeleteRecoveryIds(ids);
+    },
     deleteBrowserCopy: (id: string) => {
-      if (deleteBrowserCopyBusy || downloadRecentBusy || !session.canStartInteraction()) return;
+      if (!canStartInteraction() || downloadRecentBusy) return;
       const file = workspace.getRecentFiles().find((item) => item.id === id);
       if (file && !file.isOpen) setDeleteBrowserCopyItem({ id: file.id, name: file.name });
     },
     deleteBrowserCopyBusy,
     leaveRecovery: () => setRecoveryOpen(false),
     copy: () => {
+      if (!canDispatchEditorInput()) return;
       void clipboard.copy();
     },
     copyMerged: () => {
+      if (!canDispatchEditorInput()) return;
       void clipboard.copyMerged();
     },
     cut: () => {
+      if (!canDispatchEditorInput()) return;
       void clipboard.cut();
     },
     paste: () => {
+      if (!canDispatchEditorInput()) return;
       void clipboard.paste();
     },
     pasteNewLayer: () => {
+      if (!canDispatchEditorInput()) return;
       void clipboard.pasteNewLayer();
     },
     pasteNewReferenceLayer: () => {
+      if (!canDispatchEditorInput()) return;
       void clipboard.pasteNewReferenceLayer();
     },
     pasteNewSprite: () => {
+      if (!canDispatchEditorInput()) return;
       void clipboard.pasteNewSprite();
     },
     newSpriteFromSelection: () => {
-      if (!session.canStartInteraction()) return;
+      if (!canStartInteraction()) return;
       const result = core.clipboard.createSpriteFromSelection();
       if (!result) return;
       const { image, name } = result;
@@ -830,27 +806,34 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       editor.openTab("document", automaticViewTransition(EditorViewChangeReason.DocumentGenerated));
     },
     duplicateSprite: () => {
-      if (session.canStartInteraction() && state.document) setDuplicateSpriteOpen(true);
+      if (canStartInteraction() && state.document) setDuplicateSpriteOpen(true);
     },
-    keyboardShortcuts: () => setKeyboardShortcutsOpen(true),
+    keyboardShortcuts: () => {
+      if (canStartInteraction()) setKeyboardShortcutsOpen(true);
+    },
     userGuide: () => {
-      if (!session.canStartInteraction()) return;
+      if (!canStartInteraction()) return;
       timelineActions?.flushPendingLayerProperties?.();
       setRecoveryOpen(false);
       editor.openTab(HelpDocumentTab.Guide);
     },
     about: () => {
-      if (session.canStartInteraction()) setAboutOpen(true);
+      if (canStartInteraction()) setAboutOpen(true);
+    },
+    feedback: () => {
+      if (canStartInteraction()) feedback.show();
     },
     donate: () => {
       telemetry.featureUsed(TelemetryFeature.Donate, TelemetryFeatureAction.Click);
       platform.navigation.openExternal(HELP_LINKS[HelpLink.Donate]);
     },
     closeAllDocuments: () => {
+      if (!canStartInteraction()) return;
       timelineActions?.flushPendingLayerProperties?.();
       workspace.closeAll();
     },
     closeDocument: () => {
+      if (!canStartInteraction()) return;
       if (editor.tab === HelpDocumentTab.Guide) {
         editor.closeTab(HelpDocumentTab.Guide);
         return;
@@ -860,22 +843,24 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
         return;
       }
       timelineActions?.flushPendingLayerProperties?.();
-      if (session.canStartInteraction()) workspace.requestClose();
+      workspace.requestClose();
     },
     exit: () => {
+      if (!canStartInteraction()) return;
       timelineActions?.flushPendingLayerProperties?.();
-      if (session.canStartInteraction()) workspace.closeAll(true);
+      workspace.closeAll(true);
     },
     canSave: session.canSave(),
-    canStartInteraction: session.canStartInteraction() && !deleteBrowserCopyItem,
+    canStartInteraction: canStartInteraction(),
     new: () => {
+      if (!canStartInteraction()) return;
       timelineActions?.flushPendingLayerProperties?.();
-      if (!session.canStartInteraction()) return;
+      telemetry.documentOpenRequested(DocumentOpenMethod.New);
       workspace.prepareNew();
       setNewDialog(true);
     },
     preferences: () => {
-      if (session.canStartInteraction()) setPreferencesOpen(true);
+      if (canStartInteraction()) setPreferencesOpen(true);
     },
     recentFiles,
     loadRecentFiles: () => {
@@ -883,10 +868,12 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     },
     canClearRecentFiles,
     clearRecentFiles: () => {
+      if (!canStartInteraction()) return;
       void workspace.clearRecentFiles();
     },
     canReopenClosedFile: workspaceSnapshot.canReopenClosedFile,
     reopenClosedFile: () => {
+      if (!canStartInteraction()) return;
       timelineActions?.flushPendingLayerProperties?.();
       void (async () => {
         if (await workspace.reopenClosedFile()) {
@@ -898,7 +885,9 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     },
     prepareText,
     openRecent: (id: string) => {
+      if (!canStartInteraction()) return;
       timelineActions?.flushPendingLayerProperties?.();
+      telemetry.recentOpenRequested(id);
       void workspace.openRecent(id).then((opened) => {
         if (opened) {
           const transition = automaticViewTransition(EditorViewChangeReason.DocumentOpened);
@@ -909,7 +898,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     },
     pinRecent: (id: string, pinned: boolean) => workspace.setRecentFilePinned(id, pinned),
     downloadRecent: (id: string) => {
-      if (downloadRecentBusy || deleteBrowserCopyBusy || !session.canStartInteraction()) return;
+      if (!canStartInteraction() || downloadRecentBusy) return;
       setDownloadRecentBusy(true);
       void workspace
         .downloadRecentFile(id)
@@ -918,7 +907,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     },
     downloadRecentBusy,
     documentTabs: workspaceSnapshot.tabs,
-    canSelectOtherDocumentTab: session.canStartInteraction() && !!adjacentTab(1),
+    canSelectOtherDocumentTab: canStartInteraction() && !!adjacentTab(1),
     nextDocumentTab: () => selectAdjacentTab(1),
     previousDocumentTab: () => selectAdjacentTab(-1),
     activeDocumentId: workspaceSnapshot.activeId,
@@ -926,23 +915,27 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     workspaceDockTree: workspaceSnapshot.dockTree,
     workspaceRootPaneId: workspace.getRootPaneId(),
     selectDocumentTab: (id: string) => {
+      if (!canStartInteraction()) return;
       setRecoveryOpen(false);
       timelineActions?.flushPendingLayerProperties?.();
       workspace.select(id);
       editor.openTab("document");
     },
     duplicateDocumentView: (id: string) => {
+      if (!canStartInteraction()) return;
       setRecoveryOpen(false);
       timelineActions?.flushPendingLayerProperties?.();
       if (workspace.duplicateView(id)) editor.openTab("document");
     },
     selectPaneTab: (paneId: string, id: string) => {
+      if (!canStartInteraction()) return;
       setRecoveryOpen(false);
       timelineActions?.flushPendingLayerProperties?.();
       workspace.selectPaneTab(paneId, id);
       editor.openTab("document");
     },
     activateWorkspacePane: (paneId: string) => {
+      if (!canStartInteraction()) return;
       setRecoveryOpen(false);
       workspace.activatePane(paneId);
       editor.openTab("document");
@@ -950,29 +943,29 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     reorderDocumentTab: (id: string, targetId: string, paneId?: string) =>
       paneId ? workspace.reorderInPane(paneId, id, targetId) : workspace.reorder(id, targetId),
     moveDocumentTab: (id: string, paneId: string, targetId?: string, before?: boolean) => {
+      if (!canStartInteraction()) return;
       setRecoveryOpen(false);
       workspace.moveTabToPane(id, paneId, targetId, before);
       editor.openTab("document");
     },
     splitDocumentTab: (id: string, paneId: string, edge: DockEdge) => {
+      if (!canStartInteraction()) return;
       setRecoveryOpen(false);
       workspace.splitTab(id, paneId, edge);
       editor.openTab("document");
     },
     resizeWorkspaceSplit: (splitId: string, ratio: number) => workspace.resizeSplit(splitId, ratio),
     closeDocumentTab: (id: string) => {
+      if (!canStartInteraction()) return;
       timelineActions?.flushPendingLayerProperties?.();
       workspace.requestClose(id);
     },
 
     open: () => {
+      if (!canStartInteraction()) return;
       timelineActions?.flushPendingLayerProperties?.();
-      if (
-        !session.canStartInteraction() ||
-        sequenceSources.current.length ||
-        workspace.getSnapshot().importBatch
-      )
-        return;
+      if (sequenceSources.current.length) return;
+      telemetry.documentOpenRequested(DocumentOpenMethod.Import);
       const picking = workspace.ports.pickFiles();
       if (!picking) {
         if (input.current) input.current.multiple = true;
@@ -980,19 +973,25 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
         return;
       }
       void picking
-        .then((sources) => requestSources(sources))
+        .then((sources) => {
+          if (!sources.length) telemetry.documentOpenCancelled(DocumentOpenMethod.Import);
+          requestSources(sources);
+        })
         .catch((reason) => {
           if (
             typeof reason === "object" &&
             reason !== null &&
             "name" in reason &&
             reason.name === "AbortError"
-          )
+          ) {
+            telemetry.documentOpenCancelled(DocumentOpenMethod.Import);
             return;
+          }
           session.reportError(reason, SessionOperation.Import);
         });
     },
     save: () => {
+      if (!canDispatchEditorInput()) return;
       timelineActions?.flushPendingLayerProperties?.();
       if (
         canExecuteEditorAction("save", core.getSnapshot(), editorSceneForTab(editor.tab)) &&
@@ -1002,56 +1001,18 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       }
     },
     saveAs: () => {
+      if (!canStartInteraction()) return;
       timelineActions?.flushPendingLayerProperties?.();
       if (session.canSave()) performDocumentSave(SessionSaveIntent.SaveAs);
     },
-    exportFile: openExportFileDialog,
-    exportCopy: openExportFileDialog,
-    exportSpriteSheet: () => {
-      const doc = prepareExport();
-      if (doc) {
-        setSheetSource(undefined);
-        setSheetExport(doc);
-      }
-    },
-    exportTileset: () => {
-      const doc = prepareExport();
-      if (doc?.timeline?.layers[doc.timeline.activeLayer]?.kind === "tilemap") {
-        doc.timeline.range = {
-          kind: "layers",
-          layers: [doc.timeline.activeLayer],
-          frames: [doc.timeline.activeFrame],
-        };
-        setSheetSource("tilesets");
-        setSheetExport(doc);
-      }
-    },
-    importSpriteSheet: () => {
-      const doc = prepareExport();
-      if (doc) setSheetImport({ core, id: doc.id, image: core.canvas.exportComposite() });
-    },
-    canRepeatExport:
-      !!core.getSnapshot().document && !!workspace.getLastExport(workspace.active.id),
-    repeatLastExport: () => {
-      const doc = prepareExport();
-      if (!doc || exportBusy) return;
-      setExportBusy(true);
-      void reportingExport(telemetry, doc, exportKey.current, (ports) =>
-        repeatLastExport(doc, {
-          ...exportPorts(ports, exportKey.current),
-          webp: platform?.files.webp,
-        }),
-      )
-        .catch((reason) => session.reportError(reason))
-        .finally(() => setExportBusy(false));
-    },
+    ...output.actions,
     color: (target: "foreground" | "background") => {
-      if (!session.canStartInteraction()) return;
+      if (!canStartInteraction()) return;
       setColorTarget(target);
       setDialog("color");
     },
     text: () => {
-      if (!session.canStartInteraction()) return;
+      if (!canStartInteraction()) return;
       prepareText();
       if (!canExecuteEditorAction("insert-text", core.getSnapshot(), editorSceneForTab(editor.tab)))
         return;
@@ -1064,6 +1025,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     cmd: EditorCommand,
     presentationContext = managerOptions.getCommandContext?.(),
   ) => {
+    if (!canDispatchEditorInput()) return;
     if (cmd.type === "cancel") clipboard.dismissTimelineCopyRange();
     const viewport =
       presentationContext?.viewport.width && presentationContext.viewport.height
@@ -1189,21 +1151,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
         (target.matches("input,textarea,select") || target.isContentEditable);
       if (
         event.defaultPrevented ||
-        aboutOpen ||
-        dialog ||
-        newTilemapDialog ||
-        preferencesOpen ||
-        exportDocument ||
-        sheetExport ||
-        sheetImport ||
-        deleteRecoveryIds ||
-        deleteBrowserCopyItem ||
-        newDialog ||
-        sequenceImport ||
-        pending ||
-        replacement ||
-        error ||
-        exitNotice ||
+        !canDispatchEditorInput() ||
         (event.target instanceof Element &&
           (event.target.closest('[role="dialog"]') ||
             (event.target.closest('[role="menu"]') && !event.ctrlKey && !event.metaKey)))
@@ -1331,12 +1279,11 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     setClipboardRegion(ClipboardRegion.Canvas);
     timelineActionsRef.current?.flushPendingLayerProperties?.();
   };
-  const closeSheetExport = () => {
-    core.importExport.previewSpriteSheet(null);
-    setSheetExport(null);
-  };
   const handleNewSpriteOpenChange = (open: boolean) => {
-    if (!open) session.resetNewSizeDraft();
+    if (!open) {
+      if (newDialog) telemetry.documentOpenCancelled(DocumentOpenMethod.New);
+      session.resetNewSizeDraft();
+    }
     setNewDialog(open);
   };
   const updateNewSpriteSize = (size: Parameters<typeof session.setNewSize>[0]) =>
@@ -1558,6 +1505,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     setKeyboardShortcutsOpen,
     aboutOpen,
     setAboutOpen,
+    feedback,
     openHelpLink: (link: HelpLink) => platform.navigation.openExternal(HELP_LINKS[link]),
     newTilemapDialog,
     setNewTilemapDialog,
@@ -1575,19 +1523,9 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     setText,
     textSize,
     setTextSize,
-    exportDocument,
-    setExportDocument,
-    exportBusy,
-    setExportBusy,
-    exportKey,
+    ...output,
     sheetFileIntent,
-    showSheetPreview,
-    sheetSource,
-    setSheetSource,
-    sheetExport,
-    setSheetExport,
-    sheetImport: sheetImportView,
-    setSheetImport,
+    animalCrossingExportPort: platform.files.animalCrossingExport,
     recoveryOpen,
     setRecoveryOpen,
     recoveryItems,
@@ -1609,16 +1547,15 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     saveAsOpen,
     saveAsBusy,
     saveAsTarget: SaveTarget.FileSystem,
-    closeSaveAs: () => setSaveAsOpen(false),
+    closeSaveAs: () => {
+      if (saveAsOpen && !saveAsBusy)
+        telemetry.featureUsed(TelemetryFeature.SaveAs, TelemetryFeatureAction.Cancel);
+      setSaveAsOpen(false);
+    },
     saveProjectAs,
-    reportedRecoveryError,
     refreshRecovery,
     showRecovery,
     recoverProjects,
-    performExport,
-    performSheetExport,
-    performSheetImport,
-    prepareExport,
     deleteRecovery,
     deleteBrowserCopy,
     prepareText,
@@ -1643,7 +1580,6 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     actions: actionSnapshot,
     command,
     handleCanvasPointerDown,
-    closeSheetExport,
     handleNewSpriteOpenChange,
     updateNewSpriteSize,
     createNewSprite,

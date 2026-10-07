@@ -1,0 +1,19 @@
+{
+  "name": "@xprite/editor-ui",
+  "private": true,
+  "license": "GPL-2.0-only",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./timeline": "./src/timeline/index.ts",
+    "./appearance": "./src/appearance/index.ts"
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.json"
+  },
+  "dependencies": {
+    "@xprite/editor-core": "workspace:*",
+    "@xprite/ui": "workspace:*",
+    "react": "^18.3.1"
+  }
+}

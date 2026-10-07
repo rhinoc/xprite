@@ -1,0 +1,410 @@
+[
+  {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T11:16:23.436Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 1440,
+      "height": 840,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 840
+    },
+    "pixels": {
+      "width": 1440,
+      "height": 840
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "c469fdb893219d6dc4da3f9e4aaeed57982960b5d940b8b3717ac1a3df6b57c0",
+    "frame": 1,
+    "durationMs": 120,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkBounds": {
+      "x": 393,
+      "y": 122,
+      "width": 768,
+      "height": 480
+    },
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    }
+  },
+  {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T11:15:59.100Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 1440,
+      "height": 840,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 840
+    },
+    "pixels": {
+      "width": 1440,
+      "height": 840
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "b52b20a57e2f0be9ae42cb5a9dd9e1af1d86841b670c39fff5f33f0e4e5af1de",
+    "frame": 2,
+    "durationMs": 130,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkBounds": {
+      "x": 393,
+      "y": 122,
+      "width": 768,
+      "height": 480
+    },
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    }
+  },
+  {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T11:16:19.460Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 1440,
+      "height": 840,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 840
+    },
+    "pixels": {
+      "width": 1440,
+      "height": 840
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "6f194179dccc7920acf482998cf0a5e1b552c6348419d42cbc2fdcabc45ad805",
+    "frame": 3,
+    "durationMs": 120,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkBounds": {
+      "x": 393,
+      "y": 122,
+      "width": 768,
+      "height": 480
+    },
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    }
+  },
+  {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T11:15:54.842Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 1440,
+      "height": 840,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 840
+    },
+    "pixels": {
+      "width": 1440,
+      "height": 840
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "c78d0f4beaffe0edeee81fdfde281882ac7d56baed9ac2a9df279903c00a1d19",
+    "frame": 4,
+    "durationMs": 130,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkBounds": {
+      "x": 393,
+      "y": 122,
+      "width": 768,
+      "height": 480
+    },
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    }
+  },
+  {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T11:16:04.051Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 1440,
+      "height": 840,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 840
+    },
+    "pixels": {
+      "width": 1440,
+      "height": 840
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "caa33a35968635e1432447e8340aaa7dff2e98d632266ad75dfeaf5a93dda2cd",
+    "frame": 5,
+    "durationMs": 120,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkBounds": {
+      "x": 393,
+      "y": 122,
+      "width": 768,
+      "height": 480
+    },
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    }
+  },
+  {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T11:16:29.375Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 1440,
+      "height": 840,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 840
+    },
+    "pixels": {
+      "width": 1440,
+      "height": 840
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "fb65afa78e87271fc0af760ea485b504f9777bfec3f8623b47253ec87a870f82",
+    "frame": 6,
+    "durationMs": 130,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkBounds": {
+      "x": 393,
+      "y": 122,
+      "width": 768,
+      "height": 480
+    },
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    }
+  },
+  {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T11:16:16.694Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 1440,
+      "height": 840,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 840
+    },
+    "pixels": {
+      "width": 1440,
+      "height": 840
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "f3b8439b2701c1d5677b1d3aca3db4c5c780a9c89e44af9a8edcbb7c24dcca66",
+    "frame": 7,
+    "durationMs": 120,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkBounds": {
+      "x": 393,
+      "y": 122,
+      "width": 768,
+      "height": 480
+    },
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    }
+  },
+  {
+    "schemaVersion": 1,
+    "capturedAt": "2026-10-04T11:16:31.614Z",
+    "method": "Chromium CDP native PNG",
+    "viewport": {
+      "width": 1440,
+      "height": 840,
+      "dpr": 1
+    },
+    "captureClip": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 840
+    },
+    "pixels": {
+      "width": 1440,
+      "height": 840
+    },
+    "pixelScale": {
+      "x": 1,
+      "y": 1
+    },
+    "colorSpace": {
+      "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+      "srgbIntent": null,
+      "gamma": null,
+      "chromaticities": null,
+      "cicp": null
+    },
+    "sha256": "8263aadfede35c9cd7d587b8c54936476adaaf6f797622b53642fe9fbeab1ed2",
+    "frame": 8,
+    "durationMs": 130,
+    "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "artworkPixelsVerified": 10240,
+    "artworkBounds": {
+      "x": 393,
+      "y": 122,
+      "width": 768,
+      "height": 480
+    },
+    "artworkColorMapping": {
+      "255,255,255": "255,255,255",
+      "88,169,157": "126,165,158",
+      "153,169,91": "157,168,103",
+      "216,115,77": "186,125,86",
+      "228,169,71": "207,173,91",
+      "173,119,164": "158,125,161",
+      "112,141,184": "127,140,180"
+    }
+  }
+]

@@ -1,0 +1,86 @@
+{
+  "purpose": "Raw compositor ICC diagnosis for the showcase assets; not visual-audit evidence.",
+  "sourceUrl": "http://showcase.localhost:5173/editor",
+  "sourceDocument": "../../hello/hello.aseprite",
+  "sourceDocumentSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+  "frame": 1,
+  "cssViewport": {
+    "width": 1389,
+    "height": 970
+  },
+  "sourcePixelGrid": {
+    "width": 128,
+    "height": 80
+  },
+  "sampleMethod": "Each native sprite pixel center, before ICC conversion; no pixels or source metadata rewritten.",
+  "finding": "DPR 1 omits ICC metadata; DPR 2 includes the Chromium compositor ICC. Both captures encode the same display RGB samples, identical to the original showcase source for all 10,240 artwork pixels.",
+  "referenceProfileSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+  "samples": [
+    {
+      "name": "historical",
+      "file": "../animation.png",
+      "sha256": "0d9931c81c28d43978d5785c256810e404d2e84c87d4af5fa3b8ed0468de6caa",
+      "devicePixelRatio": 1,
+      "artworkBoundsCss": {
+        "x": 382,
+        "y": 172,
+        "width": 768,
+        "height": 480
+      },
+      "artworkPixelsVerified": 10240,
+      "artworkColorMapping": {
+        "255,255,255": "255,255,255",
+        "88,169,157": "126,165,158",
+        "153,169,91": "157,168,103",
+        "216,115,77": "186,125,86",
+        "228,169,71": "207,173,91",
+        "173,119,164": "158,125,161",
+        "112,141,184": "127,140,180"
+      }
+    },
+    {
+      "name": "dpr1",
+      "file": "dpr1.png",
+      "sha256": "4a4862b1488c1e6ac3a4dd869f74e3a5e42f00ef0f236c024dd37b562d900a8d",
+      "devicePixelRatio": 1,
+      "artworkBoundsCss": {
+        "x": 508,
+        "y": 168,
+        "width": 768,
+        "height": 480
+      },
+      "artworkPixelsVerified": 10240,
+      "artworkColorMapping": {
+        "255,255,255": "255,255,255",
+        "88,169,157": "126,165,158",
+        "153,169,91": "157,168,103",
+        "216,115,77": "186,125,86",
+        "228,169,71": "207,173,91",
+        "173,119,164": "158,125,161",
+        "112,141,184": "127,140,180"
+      }
+    },
+    {
+      "name": "dpr2",
+      "file": "dpr2.png",
+      "sha256": "3161a5d00c0dd6338c87e0eb95c073c736e80c81f5281e8578576d64efa0f8e2",
+      "devicePixelRatio": 2,
+      "artworkBoundsCss": {
+        "x": 508,
+        "y": 168,
+        "width": 768,
+        "height": 480
+      },
+      "artworkPixelsVerified": 10240,
+      "artworkColorMapping": {
+        "255,255,255": "255,255,255",
+        "88,169,157": "126,165,158",
+        "153,169,91": "157,168,103",
+        "216,115,77": "186,125,86",
+        "228,169,71": "207,173,91",
+        "173,119,164": "158,125,161",
+        "112,141,184": "127,140,180"
+      }
+    }
+  ]
+}

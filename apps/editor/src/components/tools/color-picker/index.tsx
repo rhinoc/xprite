@@ -30,7 +30,17 @@ import {
   type EditorHslaChannel,
   type EditorHsvaChannel,
 } from "$/managers/tools/color-control";
-import { Button, ButtonVariant, Divider, Input, Label, Slider, Tooltip, useUi } from "@xprite/ui";
+import {
+  Button,
+  ButtonVariant,
+  Divider,
+  Input,
+  Slider,
+  Tooltip,
+  useUi,
+  Text,
+  TextVariant,
+} from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 import { measureUiText, UiIcon, UiPart } from "@xprite/ui/assets";
 import { surfaceLayout } from "@xprite/ui/canvas";
@@ -362,7 +372,8 @@ export function ColorPicker({
               />
             ))}
             {!narrowHeader && <HeaderSeparator x={c.x + 224} y={c.y} relativeTo={c} />}
-            <Label
+            <Text
+              variant={TextVariant.Control}
               bounds={{
                 x: c.x + 238 - headerOffsetX,
                 y: c.y + 12 + headerOffsetY,
@@ -437,7 +448,8 @@ export function ColorPicker({
               </Button>
             </Tooltip>
             {screenPicker.error && (
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 bounds={{
                   x: c.x + 8,
                   y:
@@ -453,7 +465,8 @@ export function ColorPicker({
               />
             )}
             {mode === ColorMode.Mask && (
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 bounds={{
                   x: c.x + 8,
                   y: c.y + 50 + headerOffsetY,
@@ -480,7 +493,8 @@ export function ColorPicker({
                 );
               return (
                 <span key={channel}>
-                  <Label
+                  <Text
+                    variant={TextVariant.Control}
                     bounds={{ x: c.x + 2, y: y + 8, width: 14, height: 14 }}
                     relativeTo={c}
                     text={CHANNEL_MARKS[channel]}

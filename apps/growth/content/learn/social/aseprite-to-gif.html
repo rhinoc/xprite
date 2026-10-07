@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="UTF-8" /><title>Aseprite to GIF social card</title
+  ><style>
+    * {
+      box-sizing: border-box;
+    }
+    html,
+    body {
+      margin: 0;
+      width: 1200px;
+      height: 630px;
+      overflow: hidden;
+    }
+    body {
+      background: #202125;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 56px 68px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 28px;
+      font-weight: 700;
+    }
+    header img {
+      width: 32px;
+      height: 32px;
+      image-rendering: pixelated;
+      vertical-align: middle;
+      margin-right: 12px;
+    }
+    .free {
+      font-size: 18px;
+      letter-spacing: 2px;
+      color: #202125;
+      background: #ffebb6;
+      padding: 12px 18px;
+    }
+    h1 {
+      font-size: 76px;
+      line-height: 1.1;
+      letter-spacing: -3px;
+      margin: 82px 0 20px;
+    }
+    p {
+      font-size: 30px;
+      color: #ddd;
+      margin: 0;
+    }
+    footer {
+      border-top: 2px solid #424348;
+      position: absolute;
+      top: 490px;
+      width: 1064px;
+      padding-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 20px;
+      color: #ffebb6;
+    }
+    .mark {
+      position: absolute;
+      right: 78px;
+      top: 190px;
+      display: grid;
+      grid-template-columns: repeat(4, 27px);
+      gap: 5px;
+      transform: rotate(-6deg);
+    }
+    .mark i {
+      width: 27px;
+      height: 27px;
+      background: #ffebb6;
+    }
+    .mark i:nth-child(3n) {
+      background: #6971ec;
+    }
+  </style>
+  <header>
+    <span><img src="/favicon-32.png" alt="" />Xprite</span
+    ><span class="free">FREE · IN YOUR BROWSER</span>
+  </header>
+  <h1>Aseprite to GIF</h1>
+  <p>Share your sprite animation.</p>
+  <div class="mark">
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i
+    ><i></i><i></i><i></i>
+  </div>
+  <footer><span>Choose a tag · Preview timing · Download GIF</span><span>xprite.cc</span></footer>
+</html>

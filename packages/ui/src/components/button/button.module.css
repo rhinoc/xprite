@@ -16,7 +16,7 @@
   border-radius: 0;
   background: transparent;
   color: inherit;
-  font: var(--ui-button-font, var(--ui-font-size-control, 11px) / 1 var(--xse-font, monospace));
+  font: var(--ui-button-font);
   white-space: nowrap;
   cursor: var(--ui-cursor-hand, pointer);
 }
@@ -33,7 +33,7 @@
 
 .root:focus-visible {
   outline: var(--ui-button-focus-width, var(--ui-focus-ring-width, 1px)) dotted
-    var(--ui-button-focus-color, var(--ui-focus-ring-color, #202528));
+    var(--ui-button-focus-color, var(--ui-focus-ring-color));
   outline-offset: var(--ui-button-focus-offset, -5px);
 }
 
@@ -53,7 +53,7 @@
 }
 
 .theme:disabled {
-  opacity: 1;
+  opacity: var(--ui-button-disabled-opacity, 1);
 }
 
 .themeArtwork {
@@ -70,5 +70,22 @@
 .mnemonic {
   position: absolute;
   height: var(--ui-button-mnemonic-height, 2px);
+  pointer-events: none;
+}
+
+.outlineContent {
+  position: absolute;
+  inset: -1px;
+}
+
+.defaultRing {
+  position: absolute;
+  inset: -4px;
+  box-sizing: border-box;
+  border: 3px solid transparent;
+  border-image-slice: 6;
+  border-image-width: 6px;
+  border-image-repeat: stretch;
+  image-rendering: pixelated;
   pointer-events: none;
 }

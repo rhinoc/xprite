@@ -1,0 +1,35 @@
+.quiet[data-appearance="quiet"] {
+  appearance: none;
+  min-width: 0;
+  min-height: var(--ui-button-quiet-min-height, var(--ui-button-min-height, 24px));
+  padding: var(--ui-button-quiet-padding, 0 8px);
+  border: 0;
+  border-image: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  color: var(--ui-button-quiet-ink, var(--ui-color-ink));
+  font: var(--ui-button-quiet-font-size) / var(--ui-button-quiet-line-height)
+    var(--ui-button-quiet-font, var(--ui-font-family));
+  text-decoration: none;
+  -webkit-font-smoothing: var(--ui-button-font-smoothing, auto);
+}
+.quiet[data-appearance="quiet"] :global([data-slot="button-content"]) {
+  line-height: inherit;
+}
+.quiet[data-appearance="quiet"]:is(:hover, [data-selected="true"], :active, [data-pressed="true"]) {
+  color: var(--ui-button-quiet-active-ink, var(--ui-button-surface-selected-ink));
+  background: var(--ui-button-quiet-active-face, var(--ui-button-surface-selected-face));
+}
+.quiet[data-appearance="quiet"]:is(:focus-visible, [data-focused="true"]) {
+  outline: 1px dotted var(--ui-focus-ring-color, currentColor);
+  outline-offset: -2px;
+}
+.quiet[data-appearance="quiet"]:is(:disabled, [aria-disabled="true"]) {
+  background: transparent;
+  color: var(--ui-button-surface-disabled-ink, var(--ui-color-muted-ink));
+  pointer-events: none;
+}
+.quiet[data-appearance="quiet"]:is(:disabled, [aria-disabled="true"])[data-tooltip-trigger] {
+  pointer-events: auto;
+}

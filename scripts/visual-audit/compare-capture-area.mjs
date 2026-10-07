@@ -3,6 +3,13 @@ import fs from "node:fs";
 
 import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";
+
+import {
+  assertSamePngColorSpace,
+  cropPngBytes,
+  preservePngColorSpace,
+} from "../base/screenshot.mjs";
+
 const [reference, candidate, prefix, ...coords] = process.argv.slice(2),
   [x, y, width, height] = coords.map(Number);
 if (
@@ -19,21 +26,12 @@ if (
   throw Error(
     "Usage: node scripts/visual-audit/compare-capture-area.mjs reference candidate prefix x y width height",
   );
-const crop = (path) => {
-  const im = PNG.sync.read(fs.readFileSync(path));
-  if (x + width > im.width || y + height > im.height) throw Error("Area outside capture");
-  const out = new PNG({ width, height });
-  for (let row = 0; row < height; row++)
-    im.data.copy(
-      out.data,
-      row * width * 4,
-      ((y + row) * im.width + x) * 4,
-      ((y + row) * im.width + x + width) * 4,
-    );
-  return out;
-};
-const a = crop(reference),
-  b = crop(candidate),
+const referenceBytes = fs.readFileSync(reference),
+  candidateBytes = fs.readFileSync(candidate);
+assertSamePngColorSpace(referenceBytes, candidateBytes);
+const rectangle = { x, y, width, height };
+const a = PNG.sync.read(cropPngBytes(referenceBytes, rectangle)),
+  b = PNG.sync.read(cropPngBytes(candidateBytes, rectangle)),
   diff = new PNG({ width, height });
 const differentPixels = pixelmatch(a.data, b.data, diff.data, width, height, {
   threshold: 0.1,
@@ -44,7 +42,10 @@ for (const [name, value] of [
   ["candidate-crop", b],
   ["crop-diff", diff],
 ])
-  fs.writeFileSync(`${prefix}-${name}.png`, PNG.sync.write(value));
+  fs.writeFileSync(
+    `${prefix}-${name}.png`,
+    preservePngColorSpace(referenceBytes, PNG.sync.write(value)),
+  );
 const report = {
   reference,
   candidate,

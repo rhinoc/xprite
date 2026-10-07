@@ -1,7 +1,8 @@
 export { Menu, MenuActivation, MenuCheckType } from "$/components/menu/menu";
 export type { MenuItem, MenuProps } from "$/components/menu/menu";
-export { Menubar } from "$/components/menu/menubar";
-export type { MenubarMenu, MenubarProps } from "$/components/menu/menubar";
+export { Menubar, MenubarLayout } from "$/components/menu/menubar";
+export { MenubarButton, type MenubarButtonProps } from "$/components/menu/menubar-button";
+export type { MenubarMenu, MenubarProps, MenubarNavigationLink } from "$/components/menu/menubar";
 export { ContextMenu } from "$/components/menu/context-menu";
 export type { ContextMenuProps } from "$/components/menu/context-menu";
 export {

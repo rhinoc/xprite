@@ -3,10 +3,10 @@ import { useCallback, useEffect, useRef } from "react";
 import {
   beginAppearancePreferences,
   updateAppearancePreferences,
-  type AppearanceMode,
   type AppearancePreferencesAction,
   type AppearancePreferencesTransaction,
 } from "$/managers/preferences/appearance-preferences";
+import type { AppearanceMode } from "@xprite/editor-ui/appearance";
 export interface AppearancePreferencesBindings {
   open: boolean;
   mode: AppearanceMode;

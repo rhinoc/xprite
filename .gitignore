@@ -22,9 +22,14 @@ pnpm-debug.log*
 .env.local
 .env.*.local
 .edgeone/
+.wrangler/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
 
 # Temporary files
 .tmp/
+artifacts/
 .refs/
 .docs/
 .vitest/

@@ -1,17 +1,32 @@
-import { forwardRef } from "react";
+import { forwardRef, type Ref } from "react";
 
 import { ButtonControl } from "$/components/button/ButtonControl";
-import { ButtonVariant, type ButtonProps } from "$/components/button/types";
+import { ButtonLink } from "$/components/button/content/ButtonLink";
+import {
+  ButtonVariant,
+  type ButtonProps,
+  type ButtonLinkProps,
+  type ButtonComponent,
+  type ButtonTileProps,
+  type ButtonTileLinkProps,
+} from "$/components/button/types";
 import { SplitButtonContent } from "$/components/button/variants/split/SplitButtonContent";
+import { TileButton } from "$/components/button/variants/tile/TileButton";
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = ButtonVariant.Standard, menu, ...props },
-  ref,
-) {
+export const Button = forwardRef<
+  HTMLButtonElement | HTMLAnchorElement,
+  ButtonProps | ButtonLinkProps | ButtonTileProps | ButtonTileLinkProps
+>(function Button(props, ref) {
+  if (props.variant === ButtonVariant.Tile) return <TileButton {...props} ref={ref} />;
+  if (props.href !== undefined)
+    return <ButtonLink {...props} ref={ref as Ref<HTMLAnchorElement>} />;
+
+  const { variant = ButtonVariant.Standard, menu, ...buttonProps } = props;
+  const buttonRef = ref as Ref<HTMLButtonElement>;
   if (variant === ButtonVariant.Split)
-    return <SplitButtonContent {...props} menu={menu} ref={ref} />;
+    return <SplitButtonContent {...buttonProps} menu={menu} ref={buttonRef} />;
 
-  return <ButtonControl {...props} variant={variant} ref={ref} />;
-});
+  return <ButtonControl {...buttonProps} variant={variant} ref={buttonRef} />;
+}) as ButtonComponent;
 
 Button.displayName = "Button";

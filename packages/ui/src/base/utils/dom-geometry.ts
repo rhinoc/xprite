@@ -3,6 +3,21 @@ const ZOOM_PROBE_SCALE = 2;
 const ZOOM_PROBE_SIZE = 4;
 const ZOOM_PROBE_EPSILON = 0.001;
 const unscaledClientRects = new WeakMap<Document, boolean>();
+/** Native renderers supply measured geometry without changing browser behavior. */
+export interface DomGeometryProvider {
+  clientRect(element: Element): DOMRect;
+  layoutSize(element: Element): { width: number; height: number };
+  computedStyle(element: Element): CSSStyleDeclaration;
+}
+const geometryProviders = new WeakMap<Document, DomGeometryProvider>();
+export function provideDomGeometry(document: Document, provider: DomGeometryProvider): () => void {
+  if (geometryProviders.has(document))
+    throw new Error("Geometry is already provided for this document");
+  geometryProviders.set(document, provider);
+  return () => {
+    if (geometryProviders.get(document) === provider) geometryProviders.delete(document);
+  };
+}
 
 function needsZoomCorrection(document: Document) {
   const known = unscaledClientRects.get(document);
@@ -31,6 +46,8 @@ export function clientRect(element: Element): DOMRect;
 export function clientRect(element: Element | null | undefined): DOMRect | undefined;
 export function clientRect(element: Element | null | undefined): DOMRect | undefined {
   if (!element) return undefined;
+  const provider = geometryProviders.get(element.ownerDocument);
+  if (provider) return provider.clientRect(element);
   const rect = element.getBoundingClientRect();
   const document = element.ownerDocument;
   const host = document?.defaultView;
@@ -50,7 +67,10 @@ export function clientRect(element: Element | null | undefined): DOMRect | undef
 
 /** Client pixels per layout CSS pixel, including ancestor zoom and transforms. */
 export function clientScale(element: HTMLElement) {
-  const rect = clientRect(element);
+  return scaleForRect(element, clientRect(element));
+}
+
+function scaleForRect(element: HTMLElement, rect: DOMRect) {
   const size = borderSize(element);
   return {
     x: size.width > 0 && rect.width > 0 ? rect.width / size.width : 1,
@@ -71,6 +91,8 @@ export interface GeometrySize {
 export function layoutSize(element: Element): GeometrySize;
 export function layoutSize(element: Element | null | undefined): GeometrySize | undefined;
 export function layoutSize(element: Element | null | undefined): GeometrySize | undefined {
+  const provider = element && geometryProviders.get(element.ownerDocument);
+  if (provider && element) return provider.layoutSize(element);
   return element ? { width: element.clientWidth, height: element.clientHeight } : undefined;
 }
 
@@ -132,12 +154,41 @@ export function clientPoint(input: { clientX: number; clientY: number }): Geomet
 }
 export function clientToLocal(element: HTMLElement, point: GeometryPoint): GeometryPoint {
   const rect = clientRect(element);
-  const scale = clientScale(element);
+  return pointToLocal(point, rect, scaleForRect(element, rect));
+}
+
+/** Convert samples from one frame using a single geometry snapshot. */
+export function clientPointsToLocal(
+  element: HTMLElement,
+  points: readonly GeometryPoint[],
+): GeometryPoint[] {
+  if (points.length === 0) return [];
+  const rect = clientRect(element);
+  const scale = scaleForRect(element, rect);
+  return points.map((point) => pointToLocal(point, rect, scale));
+}
+
+function pointToLocal(point: GeometryPoint, rect: DOMRect, scale: GeometryPoint): GeometryPoint {
   return { x: (point.x - rect.left) / scale.x, y: (point.y - rect.top) / scale.y };
 }
 export function clientDeltaToLocal(element: HTMLElement, delta: GeometryPoint): GeometryPoint {
   const scale = clientScale(element);
   return { x: delta.x / scale.x, y: delta.y / scale.y };
+}
+
+/** Snap a local layout point onto the display pixel grid, including fractional ancestors. */
+export function snapLocalToPixels(element: HTMLElement, point: GeometryPoint): GeometryPoint {
+  const rect = clientRect(element);
+  const scale = scaleForRect(element, rect);
+  const ratio = displayPixelRatio(element.ownerDocument.defaultView ?? window);
+  return pointToLocal(
+    {
+      x: Math.round((rect.left + point.x * scale.x) * ratio) / ratio,
+      y: Math.round((rect.top + point.y * scale.y) * ratio) / ratio,
+    },
+    rect,
+    scale,
+  );
 }
 
 /** Map a client point into an authored surface, retaining its local origin. */
@@ -175,6 +226,8 @@ export function scrollElementIntoView(
 }
 
 export function computedStyle(element: Element) {
+  const provider = geometryProviders.get(element.ownerDocument);
+  if (provider) return provider.computedStyle(element);
   const host = element.ownerDocument?.defaultView;
   return host ? host.getComputedStyle(element) : getComputedStyle(element);
 }

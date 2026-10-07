@@ -1,0 +1,22 @@
+{
+  "light": {
+    "ink": "#000000",
+    "paper": "#ffffff",
+    "wash": "#eeeeee",
+    "muted": "#888888",
+    "line": "#aaaaaa",
+    "desktop": "#dddddd",
+    "disabled": "#c0c0c0",
+    "titleFace": "#f3f3f3"
+  },
+  "dark": {
+    "ink": "#ffffff",
+    "paper": "#000000",
+    "wash": "#333333",
+    "muted": "#aaaaaa",
+    "line": "#888888",
+    "desktop": "#222222",
+    "disabled": "#404040",
+    "titleFace": "#0c0c0c"
+  }
+}

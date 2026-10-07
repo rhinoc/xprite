@@ -1,6 +1,7 @@
 import { MAX_IMAGE_DIMENSION, MAX_IMAGE_PIXELS } from "$/base/image-limits";
 import { UINT8_MAX } from "$/base/numeric-constants";
 import type { PixelBuffer } from "$/base/primitives";
+import { assertEncodedPixels, encodedPixels } from "$/document/pixel-storage";
 import { clamp } from "@xprite/bedrock/common/clamp";
 
 export function assertPixelBuffer(image: PixelBuffer, label = "image"): void {
@@ -20,6 +21,11 @@ export function assertPixelBuffer(image: PixelBuffer, label = "image"): void {
   const pixels = image.width * image.height;
   if (!Number.isSafeInteger(pixels) || pixels > MAX_IMAGE_PIXELS) {
     throw new RangeError(`${label} is too large; at most ${MAX_IMAGE_PIXELS} pixels are supported`);
+  }
+  const encoded = encodedPixels(image);
+  if (encoded) {
+    assertEncodedPixels(encoded, pixels * 4);
+    return;
   }
   if (!(image.data instanceof Uint8ClampedArray)) {
     throw new TypeError(`${label}.data must be a Uint8ClampedArray`);

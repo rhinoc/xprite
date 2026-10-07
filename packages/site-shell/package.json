@@ -1,0 +1,15 @@
+{
+  "name": "@xprite/site-shell",
+  "private": true,
+  "license": "GPL-2.0-only",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./browser": "./src/adapters/browser.ts",
+    "./startup": "./src/startup.ts"
+  },
+  "dependencies": {
+    "@xprite/ui": "workspace:*",
+    "react": "^18.3.1"
+  }
+}

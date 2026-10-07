@@ -14,9 +14,11 @@ import {
   resolveAsepriteSource,
   resolveSkiaRoot,
 } from "../../base/reference-paths.mjs";
+import { inspectPng, saveScreenshot } from "../../base/screenshot.mjs";
 import { defaultArtwork } from "../../fixtures/editor/default-artwork.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+const WINDOW_BACKING_DPR = 2;
 const options = {
   prefix: ".tmp/aseprite-pixel-cat-menubar",
   fixture: defaultArtwork.sourcePath,
@@ -39,7 +41,6 @@ const options = {
   capabilities: "full",
   homeLayout: "full",
   shortcutPlatform: "aseprite",
-  normalization: "bilinear",
   skia: resolveSkiaRoot(),
   timeout: 45000,
   force: false,
@@ -48,7 +49,7 @@ for (let i = 2; i < process.argv.length; i++) {
   const arg = process.argv[i];
   if (arg === "--help") {
     console.log(
-      "node scripts/visual-audit/aseprite/capture-own-window.mjs [--prefix PATH] [--fixture PNG | --project-fixture ASEPRITE] [--frame ONE_BASED_FRAME] [--app EXECUTABLE] [--source SOURCE_ROOT] [--colorbar 76] [--timeline 74.9] [--theme light|dark] [--menubar visible|hidden] [--scope window|client] [--palette source|image] [--layer regular|background|preserve] [--tool TOOL_ID] [--inventory] [--capabilities full|basic] [--home-layout full|no-news|no-news-no-folders] [--shortcut-platform aseprite|windows] [--normalization bilinear|nearest] [--skia SKIA_ROOT] [--state baseline|layer-properties|frame-properties|color-popup-foreground|color-popup-hsv|insert-text|new-sprite|preferences|grid|layer-edges|home|file-menu|file-export-menu|view-menu|view-show-menu|selection-handles|close-dirty] [--timeout 45000] [--force]",
+      "node scripts/visual-audit/aseprite/capture-own-window.mjs [--prefix PATH] [--fixture PNG | --project-fixture ASEPRITE] [--frame ONE_BASED_FRAME] [--app EXECUTABLE] [--source SOURCE_ROOT] [--colorbar 76] [--timeline 74.9] [--theme light|dark] [--menubar visible|hidden] [--scope window|client] [--palette source|image] [--layer regular|background|preserve] [--tool TOOL_ID] [--inventory] [--capabilities full|basic] [--home-layout full|no-news|no-news-no-folders] [--shortcut-platform aseprite|windows] [--skia SKIA_ROOT] [--state baseline|layer-properties|frame-properties|color-popup-foreground|color-popup-hsv|insert-text|new-sprite|preferences|grid|layer-edges|home|file-menu|file-export-menu|view-menu|view-show-menu|selection-handles|close-dirty] [--timeout 45000] [--force]",
     );
     process.exit(0);
   }
@@ -208,8 +209,6 @@ if (!["full", "no-news", "no-news-no-folders"].includes(options.homeLayout))
 if (options.homeLayout !== "full" && options.state !== "home")
   throw new Error("No-news customization requires Home state.");
 if (options.homeLayout !== "full") options.inventory = true;
-if (!["bilinear", "nearest"].includes(options.normalization))
-  throw new Error("--normalization must be bilinear or nearest.");
 if (!["aseprite", "windows"].includes(options.shortcutPlatform))
   throw new Error("--shortcut-platform must be aseprite or windows.");
 if (options.shortcutPlatform === "windows") options.inventory = true;
@@ -308,11 +307,13 @@ const portableMetadata = (value) => {
 };
 const prefix = absolute(options.prefix);
 const outputs = Object.fromEntries(
-  ["window", "client", "reference", "provenance", "log"].map((key) => [
+  ["window", "client", "provenance", "log"].map((key) => [
     key,
     `${prefix}-${key}.${key === "provenance" ? "json" : key === "log" ? "txt" : "png"}`,
   ]),
 );
+outputs.windowMetadata = `${prefix}-window.json`;
+outputs.clientMetadata = `${prefix}-client.json`;
 await fs.mkdir(path.dirname(prefix), { recursive: true });
 for (const output of Object.values(outputs)) {
   if (
@@ -573,8 +574,12 @@ if (timedOut || result.code !== 0)
   throw new Error(
     `Capture child failed: ${JSON.stringify({ ...result, timedOut, log: outputs.log, runDir })}`,
   );
-const windowPng = PNG.sync.read(await fs.readFile(rawWindow)),
-  clientPng = PNG.sync.read(await fs.readFile(rawClient));
+const [windowBytes, clientBytes] = await Promise.all([
+  fs.readFile(rawWindow),
+  fs.readFile(rawClient),
+]);
+const windowPng = inspectPng(windowBytes),
+  clientPng = PNG.sync.read(clientBytes);
 if (
   windowPng.width !== 3840 ||
   windowPng.height !== 2100 ||
@@ -597,15 +602,34 @@ if (inputPixels) {
     throw new Error("Palette setup changed fixture pixels; capture rejected.");
 } else if (preparedFixtureSha256 !== inputFixtureSha256)
   throw new Error("Project fixture changed during isolated capture setup; capture rejected.");
-await fs.copyFile(rawWindow, outputs.window);
-await fs.copyFile(rawClient, outputs.client);
-execFileSync("python3", [
-  "-c",
-  'from PIL import Image; import sys; im=Image.open(sys.argv[1]); mode=Image.Resampling.NEAREST if sys.argv[3]=="nearest" else Image.Resampling.BILINEAR; im.resize((1405,768),mode).save(sys.argv[2])',
-  outputs.window,
-  outputs.reference,
-  options.normalization,
-]);
+const metadataLine = log
+  .split("\n")
+  .find((line) => line.startsWith("ASEPRITE_WINDOW_VIEW_METADATA:"));
+const ownWindowMetadata = metadataLine
+  ? JSON.parse(metadataLine.slice("ASEPRITE_WINDOW_VIEW_METADATA:".length))
+  : null;
+if (!ownWindowMetadata?.captureBounds || !ownWindowMetadata.backingScaleFactor)
+  throw new Error("Own-window capture geometry metadata missing; capture rejected.");
+const captureMetadata = {
+  window: await saveScreenshot(windowBytes, {
+    path: outputs.window,
+    viewport: {
+      width: ownWindowMetadata.captureBounds[0],
+      height: ownWindowMetadata.captureBounds[1],
+      dpr: ownWindowMetadata.backingScaleFactor,
+    },
+    expectedDpr: WINDOW_BACKING_DPR,
+    method: "Isolated Aseprite NSView cacheDisplayInRect",
+    metadataPath: outputs.windowMetadata,
+    exclusive: !options.force,
+  }),
+  client: await saveScreenshot(clientBytes, {
+    path: outputs.client,
+    method: "Aseprite Screenshot command internal render surface",
+    metadataPath: outputs.clientMetadata,
+    exclusive: !options.force,
+  }),
+};
 const sourceFiles = [
   "src/app/ui/main_window.cpp",
   "src/app/ui/editor/editor.cpp",
@@ -652,12 +676,6 @@ if (widgetInventory)
     `${prefix}-widgets.json`,
     JSON.stringify(portableWidgetInventory, null, 2) + "\n",
   );
-const metadataLine = log
-  .split("\n")
-  .find((line) => line.startsWith("ASEPRITE_WINDOW_VIEW_METADATA:"));
-const ownWindowMetadata = metadataLine
-  ? JSON.parse(metadataLine.slice("ASEPRITE_WINDOW_VIEW_METADATA:".length))
-  : null;
 const provenance = portableMetadata({
   shortcutOverride,
   widgetInventory: portableWidgetInventory
@@ -754,6 +772,7 @@ const provenance = portableMetadata({
         "scripts/visual-audit/aseprite/reference-capture.lua",
         "scripts/visual-audit/aseprite/window-capture.mm",
         "scripts/visual-audit/aseprite/capture-own-window.mjs",
+        "scripts/base/screenshot.mjs",
         "scripts/fixtures/editor/default-artwork.mjs",
       ].map(async (file) => [file, await hash(absolute(file))]),
     ),
@@ -763,23 +782,16 @@ const provenance = portableMetadata({
   profileAfter: await fs.readFile(path.join(profileDir, "aseprite.ini"), "utf8"),
   window: { width: windowPng.width, height: windowPng.height },
   client: { width: clientPng.width, height: clientPng.height },
-  normalization: {
-    width: 1405,
-    height: 768,
-    algorithm: options.normalization === "nearest" ? "Pillow NEAREST" : "Pillow BILINEAR",
-    input:
-      options.scope === "client"
-        ? "lossless own contentView PNG at explicit1920x1050points"
-        : "lossless full own-window PNG",
-    colorProfile: "Preserves input ICC metadata; no manual sample conversion",
-  },
+  captures: captureMetadata,
   outputs: Object.fromEntries(
-    await Promise.all(
-      ["window", "client", "reference"].map(async (key) => [
-        key,
-        { path: outputs[key], sha256: await hash(outputs[key]) },
-      ]),
-    ),
+    ["window", "client"].map((key) => [
+      key,
+      {
+        path: outputs[key],
+        sha256: captureMetadata[key].sha256,
+        metadataPath: outputs[`${key}Metadata`],
+      },
+    ]),
   ),
   measurements: {
     editorLeft: scan("x", 150, 75, 90),

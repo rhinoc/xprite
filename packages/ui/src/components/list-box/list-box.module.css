@@ -6,7 +6,7 @@
 }
 
 .root:focus-visible {
-  outline: 1px dotted var(--xse-border, #202528);
+  outline: 1px dotted var(--ui-color-border);
   outline-offset: -2px;
 }
 
@@ -38,4 +38,30 @@
 
 .option:disabled {
   cursor: default;
+}
+
+.innerFrame {
+  position: absolute;
+  border: 1px solid;
+  pointer-events: none;
+}
+
+.frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.rows {
+  position: relative;
+  width: 100%;
+}
+
+.rowArtwork {
+  position: absolute;
+  inset: 0 auto auto 0;
+  pointer-events: none;
+  transform-origin: top left;
 }

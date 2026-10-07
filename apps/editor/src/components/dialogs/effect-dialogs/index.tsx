@@ -26,8 +26,7 @@ import {
   parseEditorColor,
   TOOL_COLOR_CHANNEL_MAX,
 } from "$/managers/tools/color-control";
-import { Button, Input, Label, Combobox, CurveEditor } from "@xprite/ui";
-import { Slider } from "@xprite/ui";
+import { Button, Input, Combobox, CurveEditor, Text, TextVariant, Slider } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 
 const COLOR_CURVE_BODY_WIDTH = 256;
@@ -241,7 +240,8 @@ export function EffectDialogs({
               <>
                 {(["width", "height"] as const).map((dimension, index) => (
                   <span key={dimension}>
-                    <Label
+                    <Text
+                      variant={TextVariant.Control}
                       bounds={{ x: c.x, y: c.y + index * 52, width: 110, height: 30 }}
                       relativeTo={c}
                       text={dimension === "width" ? "Width:" : "Height:"}
@@ -267,7 +267,8 @@ export function EffectDialogs({
                     />
                   </span>
                 ))}
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{ x: c.x, y: c.y + 120, width: c.width, height: 38 }}
                   relativeTo={c}
                   text={tUi("ui.median.neighborhood.range", { max: MAX_DIALOG_MEDIAN_SIZE })}
@@ -279,7 +280,8 @@ export function EffectDialogs({
                 const kernel = dialogConvolutionKernel(spec);
                 return (
                   <>
-                    <Label
+                    <Text
+                      variant={TextVariant.Control}
                       bounds={{ x: c.x, y: c.y, width: c.width, height: 24 }}
                       relativeTo={c}
                       text="Matrix:"
@@ -306,7 +308,8 @@ export function EffectDialogs({
                       }}
                     />
                     {kernel.weights.map((weight, index) => (
-                      <Label
+                      <Text
+                        variant={TextVariant.Control}
                         key={index}
                         bounds={{
                           x: c.x + (index % kernel.width) * 70,
@@ -318,7 +321,8 @@ export function EffectDialogs({
                         text={String(weight)}
                       />
                     ))}
-                    <Label
+                    <Text
+                      variant={TextVariant.Control}
                       bounds={{ x: c.x, y: c.y + 214, width: c.width, height: 30 }}
                       relativeTo={c}
                       text={tUi("ui.convolution.parameters", {
@@ -346,19 +350,22 @@ export function EffectDialogs({
             )}
             {spec.kind === DialogEffectKind.ReplaceColor && (
               <>
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{ x: c.x + 2, y: c.y, width: 50, height: 30 }}
                   relativeTo={c}
                   text="From:"
                 />
                 {swatch(c, "from", "From color", 60, 0)}
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{ x: c.x + 2, y: c.y + 38, width: 50, height: 30 }}
                   relativeTo={c}
                   text="To:"
                 />
                 {swatch(c, "to", "To color", 60, 38)}
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{ x: c.x + 2, y: c.y + c.height - 58, width: 186, height: 18 }}
                   relativeTo={c}
                   text="Tolerance:"
@@ -376,13 +383,15 @@ export function EffectDialogs({
             )}
             {spec.kind === DialogEffectKind.BrightnessContrast && (
               <>
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{ x: c.x + 2, y: c.y, width: 334, height: 18 }}
                   relativeTo={c}
                   text="Brightness:"
                 />
                 {pair(c, "brightness", "Brightness", 0, 26, 256, 264, 72, -100, 100)}
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{ x: c.x + 2, y: c.y + 64, width: 334, height: 18 }}
                   relativeTo={c}
                   text="Contrast:"
@@ -418,7 +427,8 @@ export function EffectDialogs({
                 ))}
                 {(["hue", "saturation", "lightness", "alpha"] as const).map((key, i) => (
                   <span key={key}>
-                    <Label
+                    <Text
+                      variant={TextVariant.Control}
                       bounds={{ x: c.x + 2, y: c.y + 68 + i * 30, width: 12, height: 18 }}
                       relativeTo={c}
                       text={["H", "S", spec.mode.startsWith("hsl") ? "L" : "V", "A"][i]}
@@ -446,13 +456,15 @@ export function EffectDialogs({
             )}
             {spec.kind === DialogEffectKind.Outline && (
               <>
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{ x: c.x + 2, y: c.y, width: 154, height: 30 }}
                   relativeTo={c}
                   text="Outline Color:"
                 />
                 {swatch(c, "color", "Outline color", 164, 0)}
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{ x: c.x + 2, y: c.y + 38, width: 154, height: 30 }}
                   relativeTo={c}
                   text="Background Color:"

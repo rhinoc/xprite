@@ -1,7 +1,10 @@
 # Xprite visual baselines
 
 These baselines record Xprite's current UI using the built-in `example.aseprite`
-project. The former Aseprite UI screenshot comparison workflow has been retired.
+project. The current bundled sample is the original Hello animation from
+`apps/growth/public/showcase/ipad/hello/hello.aseprite`. Existing locked baselines
+may record the earlier Xprite sample; a fixture mismatch still fails the gate.
+The former Aseprite UI screenshot comparison workflow has been retired.
 Aseprite document/algorithm compatibility checks and widget geometry fixtures
 remain separate.
 
@@ -27,6 +30,8 @@ compare with this set, rather than a reason to update baselines automatically.
 | `layer-properties` | Layer Properties dialog for the example's Flattened layer | [PNG](../baselines/xprite/zh/layer-properties-wide.png) | [PNG](../baselines/xprite/zh/layer-properties-compact.png) |
 
 Captures cover Chinese (`zh-CN`) and English (`en`), with the light theme and DPR 1.
+The shared `scripts/base/screenshot.mjs` captures native CDP PNGs with
+`expectedDpr: 1`; human acceptance captures use their actual device DPR instead.
 Selectors are resolved from the corresponding UI catalog, and the actual page language is checked. Compact uses the
 application's compact layout with mouse input; this suite does not emulate touch.
 PNGs are raw, without resizing or masking. Each scene must produce two
@@ -78,6 +83,10 @@ Comparison requires at least 99% of decoded RGBA pixels to match across the
 whole screenshot. A changed pixel counts once regardless of channel differences;
 the remaining 1% allows small rasterization differences. Region geometry must
 still match exactly.
+PNG color-space tags (ICC profile fingerprint, sRGB, gamma, chromaticities and
+cICP) must also match before RGBA pixels are scored. Diagnostic diff images
+preserve those tags. Baseline PNGs and the DPR 1 contract are not rewritten by
+this check.
 Identical images use a byte comparison and do not produce a diff PNG; images
 with differing pixels produce a diff PNG for review.
 Reports also score captured DOM regions, including dialogs, menus, tooltips,
@@ -136,3 +145,21 @@ Recapture and compare after updating to confirm reproducibility. Never update
 baselines automatically to silence a regression. These scenes cover documented
 default states; other preference sections, frames, dark themes, drag states,
 and touch interactions need additional scenes.
+
+## HTML image diff report
+
+`pnpm run visual:report` creates `.tmp/visual-report/index.html` from the saved
+editor captures and tool SSG/ready captures. The single HTML file embeds the
+original PNGs and diagnostic red diff images, so it can be opened without a
+server or accompanying image folders. Filter changed or unavailable scenes,
+search by language/page, and click a picture to inspect it at its original size.
+Each scene lists pixel difference, similarity, geometry, capture time, and
+evidence errors. Missing, stale, partial or incompatible evidence is labelled
+and cannot certify the current workspace.
+
+Editor candidate capture, editor comparison and the tool first-paint audit also
+refresh this report on completion or failure. A failed editor capture saves a
+separate diagnostic screenshot when possible; it does not become a canonical
+scene or qualify as a successful capture. Report generation never edits the
+locked baseline, changes acceptance thresholds, or turns a failed gate into a
+pass.

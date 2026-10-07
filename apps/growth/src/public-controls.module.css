@@ -1,0 +1,20 @@
+.code {
+  max-width: 100%;
+}
+.scrollContent > div {
+  min-width: max-content;
+}
+.scrollContent pre {
+  overflow: visible;
+  margin: 0;
+}
+
+.documentScroll {
+  height: max(400px, calc(100svh - 220px));
+}
+@media (max-width: 640px) {
+  .documentScroll {
+    height: 70svh;
+    min-height: 360px;
+  }
+}

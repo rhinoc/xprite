@@ -15,7 +15,7 @@ describe("intrinsic-controls", () => {
       await build({
         stdin: {
           contents:
-            'export { Button } from "./packages/ui/src/components/button"; export { Input, InputTouchActivation } from "./packages/ui/src/components/input"; export { Label } from "./packages/ui/src/components/label";',
+            'export { Button } from "./packages/ui/src/components/button"; export { Input, InputTouchActivation } from "./packages/ui/src/components/input"; export { Text, TextVariant } from "./packages/ui/src/components/text";',
           resolveDir: process.cwd(),
           loader: "tsx",
         },
@@ -28,7 +28,7 @@ describe("intrinsic-controls", () => {
         loader: { ".webp": "dataurl", ".css": "empty", ".woff2": "dataurl" },
       });
       const bundleRequire = createRequire(file);
-      const { Button, Label, Input, InputTouchActivation } = bundleRequire(file);
+      const { Button, Text, TextVariant, Input, InputTouchActivation } = bundleRequire(file);
       const { createElement } = bundleRequire("react");
       const { renderToStaticMarkup } = bundleRequire("react-dom/server");
       const html = (Component, props) => renderToStaticMarkup(createElement(Component, props));
@@ -45,7 +45,7 @@ describe("intrinsic-controls", () => {
       assert.match(short.style, /position:relative/);
       assert.ok(long.width > short.width, "Button follows content length.");
       assert.equal(short.height, long.height, "Content length does not scale button height.");
-      const label = size(html(Label, { text: "Export Sprite Sheet" }));
+      const label = size(html(Text, { variant: TextVariant.Control, text: "Export Sprite Sheet" }));
       assert.ok(long.width >= label.width, "Button accommodates its label plus skin borders.");
       const entry = size(html(Input, { size: 4, value: "1" }));
       const fullEntry = size(html(Input, { size: 4, value: "1000" }));

@@ -81,7 +81,14 @@ async function perform(request: OpfsRequest): Promise<ArrayBuffer | undefined> {
       if (!(error instanceof DOMException && error.name === "NotFoundError")) throw error;
     }
     const file = await directory.getFileHandle(request.key, { create: true });
-    await writeSnapshot(file, request.bytes!);
+    try {
+      await writeSnapshot(file, request.bytes!);
+    } catch (error) {
+      // This key was created under the write lock. A failed partial write has
+      // no owner yet and must not accumulate more disk usage on every retry.
+      await directory.removeEntry(request.key).catch(() => {});
+      throw error;
+    }
   };
   await scope.navigator.locks.request(
     `opfs-write:${encodeURIComponent(request.namespace)}:${request.key}`,

@@ -11,9 +11,15 @@ import {
   MAX_TILEMAP_BASE_INDEX as INT16_MAX,
   MIN_TILEMAP_BASE_INDEX as INT16_MIN,
 } from "$/managers/tools/tool-options";
-import { Button, Input, Label, isDialogPopupTarget } from "@xprite/ui";
-import { Combobox } from "@xprite/ui";
-import { Checkbox } from "@xprite/ui";
+import {
+  Button,
+  Input,
+  isDialogPopupTarget,
+  Text,
+  TextVariant,
+  Combobox,
+  Checkbox,
+} from "@xprite/ui";
 import { isImeKeyboardEvent } from "@xprite/ui/utils";
 
 export function TilemapDialog({
@@ -173,7 +179,8 @@ export function TilemapDialog({
           <>
             {!convert && (
               <>
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{ x: c.x, y: c.y + 1, width: 70, height: 24 }}
                   relativeTo={c}
                   text="Name:"
@@ -189,7 +196,8 @@ export function TilemapDialog({
               </>
             )}
             {!convert && (
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 bounds={{ x: c.x, y: c.y + 39, width: 70, height: 24 }}
                 relativeTo={c}
                 text="Tileset:"
@@ -234,7 +242,8 @@ export function TilemapDialog({
                     }))),
               ]}
             />
-            <Label
+            <Text
+              variant={TextVariant.Control}
               bounds={{
                 x: c.x + (convert ? 0 : 72),
                 y: c.y + 78 + rowShift,
@@ -258,7 +267,8 @@ export function TilemapDialog({
               disabled={!!chosen && !properties}
             />
             <>
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 bounds={{
                   x: c.x + (convert ? 0 : 72),
                   y: c.y + 116 + rowShift,
@@ -281,7 +291,8 @@ export function TilemapDialog({
                 onValueChange={setWidth}
                 disabled={!!chosen}
               />
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 bounds={{
                   x: c.x + (convert ? 276 : 280),
                   y: c.y + 116 + rowShift,
@@ -302,7 +313,8 @@ export function TilemapDialog({
             </>
             {advanced && (
               <>
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{
                     x: c.x + (convert ? 0 : 72),
                     y: c.y + 146 + rowShift,
@@ -324,7 +336,8 @@ export function TilemapDialog({
                   value={properties ? baseIndex : chosen ? String(chosen.baseIndex) : baseIndex}
                   onValueChange={setBaseIndex}
                 />
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{
                     x: c.x + (convert ? 0 : 72),
                     y: c.y + 180 + rowShift,
@@ -372,7 +385,8 @@ export function TilemapDialog({
               onCheckedChange={setAdvanced}
             />
             {(!valid || error) && (
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 bounds={{
                   x: c.x + 72,
                   y: c.y + (advanced ? 238 : 168) + rowShift,

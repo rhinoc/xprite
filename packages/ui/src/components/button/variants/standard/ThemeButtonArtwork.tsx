@@ -1,5 +1,12 @@
-import { measureThemeText, themeFontHeight } from "$/base/components/theme-controls";
-import { ThemeIcon, ThemePart, type AtlasPartName } from "$/base/theme/theme-part";
+import { pixelFrameImage, pixelFocusImage } from "$/base/theme/pixel-frame";
+import { useThemeText } from "$/base/theme/text-metrics";
+import { useTheme } from "$/base/theme/theme-context";
+import {
+  ThemeIcon,
+  ThemePart,
+  type AtlasPartName,
+  type UiPartProps,
+} from "$/base/theme/theme-part";
 import { Text, TextVariant, type PixelFont } from "$/components/text";
 
 import styles from "$/components/button/button.module.css";
@@ -23,6 +30,21 @@ interface ThemeButtonArtworkProps {
   disabled: boolean;
   disabledTextShadow: boolean;
   mnemonicIndex?: number;
+  state: {
+    pressed: boolean;
+    selected: boolean;
+    hovered: boolean;
+    focused: boolean;
+    defaultAction: boolean;
+  };
+}
+
+function OutlineButtonFrame({ children, className, style }: UiPartProps) {
+  return (
+    <span aria-hidden="true" className={className} style={style}>
+      <span className={styles.outlineContent}>{children}</span>
+    </span>
+  );
 }
 
 export function ThemeButtonArtwork({
@@ -44,9 +66,21 @@ export function ThemeButtonArtwork({
   disabled,
   disabledTextShadow,
   mnemonicIndex,
+  state,
 }: ThemeButtonArtworkProps) {
+  const { measureThemeText, themeFontHeight } = useThemeText();
+  const { definition } = useTheme();
+  const outline = part.startsWith("button_") ? definition.controlParts?.button?.outline : undefined;
+  const borderInk = definition.colors.text;
+  const Frame = outline ? OutlineButtonFrame : ThemePart;
+  const face =
+    state.pressed || state.selected
+      ? definition.colors.selected
+      : state.hovered
+        ? definition.colors.face
+        : definition.colors.background;
   return (
-    <ThemePart
+    <Frame
       part={part}
       scale={2}
       drawCenter
@@ -57,9 +91,55 @@ export function ThemeButtonArtwork({
         height: bounds.height,
         transform: `scale(${width / bounds.width}, ${height / bounds.height})`,
         background: fill ?? undefined,
+        ...(outline
+          ? {
+              boxSizing: "border-box",
+              border: `1px solid ${definition.colors.text}`,
+              borderRadius: outline.radius,
+              background: face,
+              ...(outline.pixelCorners
+                ? {
+                    background: "transparent",
+                    borderColor: "transparent",
+                    borderRadius: 0,
+                    borderImageSource: pixelFrameImage(borderInk, face),
+                    borderImageSlice: "3 fill",
+                    borderImageWidth: "3px",
+                    borderImageRepeat: "stretch",
+                    imageRendering: "pixelated",
+                  }
+                : {}),
+              outline:
+                part === "button_focused" && !outline.pixelCorners
+                  ? `2px solid ${definition.colors.text}`
+                  : undefined,
+              outlineOffset: 2,
+            }
+          : {}),
       }}
     >
-      {drawIcon && <ThemeIcon part={drawIcon} x={iconX} y={iconY} scale={2} color={iconInk} />}
+      {outline?.pixelCorners &&
+        (state.focused || state.defaultAction || part === "button_focused") && (
+          <span
+            className={styles.defaultRing}
+            style={{
+              borderImageSource: pixelFocusImage(
+                disabled ? definition.colors.disabled : definition.colors.text,
+              ),
+            }}
+          />
+        )}
+      {drawIcon && (
+        <ThemeIcon
+          part={drawIcon}
+          x={iconX}
+          y={iconY}
+          scale={2}
+          color={iconInk}
+          hovered={state.hovered}
+          pressed={state.pressed}
+        />
+      )}
       {text && disabled && disabledTextShadow && (
         <Text
           variant={TextVariant.PositionedPixel}
@@ -95,6 +175,6 @@ export function ThemeButtonArtwork({
             }}
           />
         )}
-    </ThemePart>
+    </Frame>
   );
 }

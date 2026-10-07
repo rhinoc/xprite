@@ -18,11 +18,18 @@ import {
   type BrushPickerImage as BrushImage,
   type ToolColor as Rgba,
 } from "$/managers/tools/tool-options";
-import { Button, Divider, type ButtonProps } from "@xprite/ui";
-import { Menu, MenuCheckType, type MenuItem } from "@xprite/ui";
-import { Tooltip } from "@xprite/ui";
-import { type SurfaceBounds, type SurfaceViewport } from "@xprite/ui";
-import { useUi } from "@xprite/ui";
+import {
+  Button,
+  Divider,
+  type ButtonProps,
+  Menu,
+  MenuCheckType,
+  type MenuItem,
+  Tooltip,
+  type SurfaceBounds,
+  type SurfaceViewport,
+  useUi,
+} from "@xprite/ui";
 import { centerUiPixel, measureUiText, UiPart } from "@xprite/ui/assets";
 import { DEFAULT_SURFACE_VIEWPORT, surfaceLayout } from "@xprite/ui/canvas";
 import { anchoredPopoverStyle, useAnchoredPopover } from "@xprite/ui/popover";

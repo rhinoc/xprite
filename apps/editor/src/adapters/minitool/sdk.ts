@@ -1,3 +1,14 @@
+/** Invalid SDK-owned stored data, distinct from quota, permission and bridge failures. */
+export class MiniToolStorageIntegrityError extends Error {
+  constructor(
+    message: string,
+    public readonly cause?: unknown,
+  ) {
+    super(message);
+    this.name = "MiniToolStorageIntegrityError";
+  }
+}
+
 interface MiniToolApi {
   getLaunchOptions?(): Promise<{ miniToolEnv?: { buildVersion?: number; userDataPath?: string } }>;
   setStorage?(options: { key: string; data: string }): Promise<unknown>;
@@ -47,6 +58,9 @@ const BRIDGE_TIMEOUT_MS = 12_000;
 const USER_ACTION_TIMEOUT_MS = 120_000;
 const STORAGE_QUOTA_MESSAGE =
   "小红书本地存储空间不足，本次保存未完成。请先导出需要保留的图片，再关闭并在主页删除不需要的浏览器副本，然后重试保存。";
+enum MiniToolFileErrorCode {
+  NotFound = "ENOENT",
+}
 enum MiniToolMethod {
   GetLaunchOptions = "getLaunchOptions",
   GetStorage = "getStorage",
@@ -165,7 +179,7 @@ function bridgeApi(native: MiniToolApi): MiniToolApi {
             resolve(value);
             return;
           }
-          const detail = value as { errMsg?: unknown; message?: unknown } | null;
+          const detail = value as { errMsg?: unknown; message?: unknown; code?: unknown } | null;
           const message = String(detail?.errMsg ?? detail?.message ?? value);
           if (
             name === MiniToolMethod.GetStorage &&
@@ -176,7 +190,14 @@ function bridgeApi(native: MiniToolApi): MiniToolApi {
             resolve({ data: null });
             return;
           }
-          const error = value instanceof Error ? value : new Error(message);
+          // Only an explicit filesystem missing-file code proves that a valid
+          // storage pointer has lost its bytes. Other bridge failures stay visible.
+          if (name === MiniToolMethod.ReadFile && detail?.code === MiniToolFileErrorCode.NotFound) {
+            reject(new MiniToolStorageIntegrityError("小工具存储数据缺失。", value));
+            return;
+          }
+          const error =
+            value instanceof Error ? value : Object.assign(new Error(message), { cause: value });
           const writesStorage =
             name === MiniToolMethod.SetStorage ||
             name === MiniToolMethod.WriteFile ||
@@ -326,12 +347,13 @@ async function readContainerFile(filePath: string): Promise<Uint8Array> {
       position,
       length: chunkBytes,
     });
-    const bytes = decodeBase64(result.data);
-    if (bytes.length !== result.bytesRead) throw new Error("小工具存储读取长度不正确。");
+    const bytes = decodeStoredBase64(result.data);
+    if (bytes.length !== result.bytesRead)
+      throw new MiniToolStorageIntegrityError("小工具存储读取长度不正确。");
     parts.push(bytes);
     position += result.bytesRead;
     if (result.eof) break;
-    if (!result.bytesRead) throw new Error("小工具存储读取没有进展。");
+    if (!result.bytesRead) throw new MiniToolStorageIntegrityError("小工具存储读取没有进展。");
   }
   const joined = new Uint8Array(position);
   let offset = 0;
@@ -342,41 +364,72 @@ async function readContainerFile(filePath: string): Promise<Uint8Array> {
   return joined;
 }
 
+function parseStoredJson(value: string): unknown {
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    throw new MiniToolStorageIntegrityError("小工具存储记录损坏。", error);
+  }
+}
+
+function decodeStoredBase64(value: string): Uint8Array<ArrayBuffer> {
+  try {
+    return decodeBase64(value);
+  } catch (error) {
+    throw new MiniToolStorageIntegrityError("小工具存储分片格式不正确。", error);
+  }
+}
+
 export async function readBytes(key: string): Promise<Uint8Array | null> {
   if (directory) {
     const pointer = await storageApi.getStorage({ key: `${STORE_PREFIX}file:${key}` });
     if (!pointer.data) return null;
-    const record = JSON.parse(pointer.data) as { filePath: string; length: number };
+    const record = parseStoredJson(pointer.data) as { filePath: string; length: number };
     if (
+      !record ||
+      typeof record.filePath !== "string" ||
       !record.filePath.startsWith(directory + "/") ||
       !Number.isSafeInteger(record.length) ||
       record.length < 0
     )
-      throw new Error("小工具存储记录损坏。");
+      throw new MiniToolStorageIntegrityError("小工具存储记录损坏。");
     const bytes = await readContainerFile(record.filePath);
-    if (bytes.length !== record.length) throw new Error("小工具存储长度不正确。");
+    if (bytes.length !== record.length)
+      throw new MiniToolStorageIntegrityError("小工具存储长度不正确。");
     return bytes;
   }
   const result = await storageApi.getStorage({ key: STORE_PREFIX + key });
   if (!result.data) return null;
-  const record = JSON.parse(result.data) as { id: string; count: number; length: number };
+  const record = parseStoredJson(result.data) as { id: string; count: number; length: number };
   if (
+    !record ||
+    typeof record.id !== "string" ||
+    !record.id ||
     !Number.isSafeInteger(record.length) ||
     record.length < 0 ||
     !Number.isSafeInteger(record.count) ||
     record.count < 1 ||
     record.count !== Math.max(1, Math.ceil(record.length / STORAGE_CHUNK_BYTES))
   )
-    throw new Error("小工具存储记录损坏。");
+    throw new MiniToolStorageIntegrityError("小工具存储记录损坏。");
   const bytes = new Uint8Array(record.length);
   for (let index = 0; index < record.count; index++) {
     const part = await storageApi.getStorage({
       key: `${STORE_PREFIX}${key}:${record.id}:${index}`,
     });
-    if (typeof part.data !== "string") throw new Error("小工具存储数据缺失。");
-    const data: unknown = JSON.parse(part.data);
-    if (typeof data !== "string") throw new Error("小工具存储分片格式不正确。");
-    bytes.set(decodeBase64(data), index * STORAGE_CHUNK_BYTES);
+    if (typeof part.data !== "string")
+      throw new MiniToolStorageIntegrityError("小工具存储数据缺失。");
+    const data: unknown = parseStoredJson(part.data);
+    if (typeof data !== "string")
+      throw new MiniToolStorageIntegrityError("小工具存储分片格式不正确。");
+    const decoded = decodeStoredBase64(data);
+    const expectedBytes = Math.min(
+      STORAGE_CHUNK_BYTES,
+      record.length - index * STORAGE_CHUNK_BYTES,
+    );
+    if (decoded.length !== expectedBytes)
+      throw new MiniToolStorageIntegrityError("小工具存储长度不正确。");
+    bytes.set(decoded, index * STORAGE_CHUNK_BYTES);
   }
   return bytes;
 }

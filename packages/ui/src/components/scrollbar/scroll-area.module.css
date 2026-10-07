@@ -18,6 +18,11 @@
   height: 0;
 }
 
+.viewport[data-ui-scroll-region-focus="true"]:focus-visible {
+  outline: 1px solid var(--ui-focus-ring-color);
+  outline-offset: -1px;
+}
+
 :where(.content) {
   position: relative;
   display: flow-root;

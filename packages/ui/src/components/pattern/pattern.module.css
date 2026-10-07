@@ -1,0 +1,1238 @@
+.root,
+:global([data-ui-desktop-pattern]) {
+  background-repeat: repeat;
+  image-rendering: pixelated;
+}
+:global([data-ui-desktop-pattern="mono-system7-01"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-01.svg");
+  background-size: 2px 2px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-01"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-01.svg")
+  );
+  background-size: 2px 2px;
+}
+:global([data-ui-desktop-pattern="mono-system7-02"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-02.svg");
+  background-size: 8px 8px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-02"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-02.svg")
+  );
+  background-size: 8px 8px;
+}
+:global([data-ui-desktop-pattern="mono-system7-03"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-03.svg");
+  background-size: 8px 4px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-03"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-03.svg")
+  );
+  background-size: 8px 4px;
+}
+:global([data-ui-desktop-pattern="mono-system7-04"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-04.svg");
+  background-size: 4px 4px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-04"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-04.svg")
+  );
+  background-size: 4px 4px;
+}
+:global([data-ui-desktop-pattern="mono-system7-05"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-05.svg");
+  background-size: 4px 4px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-05"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-05.svg")
+  );
+  background-size: 4px 4px;
+}
+:global([data-ui-desktop-pattern="mono-system7-06"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-06.svg");
+  background-size: 4px 2px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-06"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-06.svg")
+  );
+  background-size: 4px 2px;
+}
+:global([data-ui-desktop-pattern="mono-system7-07"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-07.svg");
+  background-size: 8px 8px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-07"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-07.svg")
+  );
+  background-size: 8px 8px;
+}
+:global([data-ui-desktop-pattern="mono-system7-08"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-08.svg");
+  background-size: 8px 2px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-08"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-08.svg")
+  );
+  background-size: 8px 2px;
+}
+:global([data-ui-desktop-pattern="mono-system7-09"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-09.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-09"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-09.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-10"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-10.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-10"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-10.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-11"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-11.svg");
+  background-size: 8px 8px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-11"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-11.svg")
+  );
+  background-size: 8px 8px;
+}
+:global([data-ui-desktop-pattern="mono-system7-12"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-12.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-12"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-12.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-13"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-13.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-13"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-13.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-14"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-14.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-14"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-14.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-15"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-15.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-15"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-15.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-16"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-16.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-16"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-16.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-17"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-17.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-17"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-17.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-18"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-18.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-18"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-18.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-19"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-19.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-19"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-19.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-21"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-21.svg");
+  background-size: 16px 8px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-21"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-21.svg")
+  );
+  background-size: 16px 8px;
+}
+:global([data-ui-desktop-pattern="mono-system7-25"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-25.svg");
+  background-size: 2px 4px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-25"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-25.svg")
+  );
+  background-size: 2px 4px;
+}
+:global([data-ui-desktop-pattern="mono-system7-27"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-27.svg");
+  background-size: 2px 8px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-27"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-27.svg")
+  );
+  background-size: 2px 8px;
+}
+:global([data-ui-desktop-pattern="mono-system7-28"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-28.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-28"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-28.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-29"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-29.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-29"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-29.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-30"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-30.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-30"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-30.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-31"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-31.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-31"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-31.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-32"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-32.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-32"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-32.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-33"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-33.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-33"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-33.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-34"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-34.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-34"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-34.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-35"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-35.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-35"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-35.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-36"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-36.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-36"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-36.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-37"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-37.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-37"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-37.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system7-38"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system7-38.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system7-38"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system7-38.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="system75-128"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-128.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-128"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-128.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-136"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-136.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-136"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-136.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="system75-19688"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-19688.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-19688"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-19688.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="system75-130"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-130.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-130"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-130.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-131"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-131.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-131"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-131.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-132"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-132.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-132"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-132.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-133"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-133.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-133"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-133.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-137"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-137.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-137"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-137.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-139"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-139.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-139"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-139.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="mono-system75-142"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system75-142.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system75-142"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system75-142.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="mono-system75-144"]) {
+  background-image: url("../../../assets/patterns/macintosh/mono-system75-144.svg");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="mono-system75-144"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/mono-system75-144.svg")
+  );
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="system75-145"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-145.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-145"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-145.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="system75-146"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-146.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-146"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-146.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="system75-147"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-147.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-147"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-147.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="system75-148"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-148.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-148"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-148.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="system75-149"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-149.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-149"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-149.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="system75-151"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-151.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-151"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-151.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="system75-547"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-547.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-547"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-547.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-870"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-870.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-870"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-870.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-987"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-987.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-987"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-987.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-1111"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-1111.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-1111"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-1111.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-3727"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-3727.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-3727"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-3727.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-4193"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-4193.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-4193"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-4193.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-6006"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-6006.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-6006"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-6006.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-6741"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-6741.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-6741"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-6741.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-7321"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-7321.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-7321"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-7321.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="system75-7344"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-7344.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-7344"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-7344.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-7527"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-7527.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-7527"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-7527.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-8388"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-8388.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-8388"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-8388.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-8448"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-8448.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-8448"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-8448.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-9695"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-9695.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-9695"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-9695.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-10042"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-10042.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-10042"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-10042.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-11703"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-11703.png");
+  background-size: 64px 64px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-11703"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-11703.png");
+  background-size: 64px 64px;
+}
+:global([data-ui-desktop-pattern="system75-12484"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-12484.png");
+  background-size: 32px 32px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-12484"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-12484.png");
+  background-size: 32px 32px;
+}
+:global([data-ui-desktop-pattern="system75-12593"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-12593.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-12593"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-12593.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-12821"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-12821.png");
+  background-size: 64px 64px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-12821"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-12821.png");
+  background-size: 64px 64px;
+}
+:global([data-ui-desktop-pattern="system75-13096"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-13096.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-13096"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-13096.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-13665"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-13665.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-13665"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-13665.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-16825"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-16825.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-16825"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-16825.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-16974"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-16974.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-16974"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-16974.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-17803"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-17803.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-17803"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-17803.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-desktop-pattern="system75-18078"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-18078.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-18078"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-18078.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-20318"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-20318.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-20318"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-20318.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-20446"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-20446.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-20446"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-20446.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-22348"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-22348.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-22348"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-22348.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-23295"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-23295.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-23295"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-23295.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-24517"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-24517.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-24517"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-24517.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-24642"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-24642.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-24642"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-24642.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-24817"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-24817.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-24817"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-24817.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-28851"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-28851.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-28851"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-28851.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-28920"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-28920.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-28920"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-28920.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-29907"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-29907.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-29907"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-29907.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-30711"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-30711.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-30711"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-30711.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-31689"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-31689.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-31689"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-31689.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-32623"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-32623.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-32623"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-32623.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="system75-2767"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-2767.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-2767"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-2767.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="system75-30930"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-30930.png");
+  background-size: 1024px 64px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-30930"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-30930.png");
+  background-size: 1024px 64px;
+}
+:global([data-ui-desktop-pattern="system75-32307"]) {
+  background-image: url("../../../assets/patterns/macintosh/system75-32307.png");
+  background-size: 1024px 64px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="system75-32307"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/system75-32307.png");
+  background-size: 1024px 64px;
+}
+:global([data-ui-desktop-pattern="macos8-embossed-mac-os-logo"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-embossed-mac-os-logo.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-embossed-mac-os-logo"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-embossed-mac-os-logo.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-aquamarine-accent"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-aquamarine-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-aquamarine-accent"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-aquamarine-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-copper-accent"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-copper-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-copper-accent"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-copper-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-crimson-accent"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-crimson-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-crimson-accent"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-crimson-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-emerald-green-accent"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-emerald-green-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-emerald-green-accent"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-emerald-green-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-gold-accent"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-gold-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-gold-accent"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-gold-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-lavender-accent"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-lavender-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-lavender-accent"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-lavender-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-magenta-accent"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-magenta-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-magenta-accent"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-magenta-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-sapphire-blue-accent"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-sapphire-blue-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-sapphire-blue-accent"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-sapphire-blue-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-silver-accent"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-silver-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-silver-accent"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-silver-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-turquoise-accent"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-turquoise-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-turquoise-accent"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-turquoise-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-turquoise-dark-accent"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-turquoise-dark-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-turquoise-dark-accent"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-turquoise-dark-accent.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-black-white-accent"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-black-white-accent.svg");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-black-white-accent"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: var(
+    --ui-pattern-override-image,
+    url("../../../assets/patterns/macintosh/macos8-black-white-accent.svg")
+  );
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-copland-blue"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-copland-blue.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-copland-blue"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-copland-blue.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-fibers"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-fibers.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-fibers"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-fibers.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-it-s-purple"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-it-s-purple.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-it-s-purple"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-it-s-purple.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="macos8-neon-clouds"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-neon-clouds.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-neon-clouds"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-neon-clouds.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-blue-cord"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-blue-cord.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-blue-cord"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-blue-cord.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-granite"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-granite.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-granite"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-granite.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-bumpy-blue"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-bumpy-blue.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-bumpy-blue"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-bumpy-blue.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-raised-lavender"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-raised-lavender.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-raised-lavender"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-raised-lavender.png");
+  background-size: 128px 128px;
+}
+:global([data-ui-desktop-pattern="macos8-terra-cotta"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-terra-cotta.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-terra-cotta"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-terra-cotta.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-the-rocks"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-the-rocks.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-the-rocks"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-the-rocks.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-tulips"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-tulips.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-tulips"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-tulips.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-sidewalk"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-sidewalk.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-sidewalk"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-sidewalk.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-rubber-bands"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-rubber-bands.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-rubber-bands"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-rubber-bands.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-grass"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-grass.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-grass"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-grass.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-bark"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-bark.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-bark"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-bark.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-denim"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-denim.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-denim"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-denim.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-bricks"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-bricks.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-bricks"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-bricks.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-notes"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-notes.png");
+  background-size: 512px 128px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-notes"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-notes.png");
+  background-size: 512px 128px;
+}
+:global([data-ui-desktop-pattern="macos8-stained-glass-window"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-stained-glass-window.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-stained-glass-window"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-stained-glass-window.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-teddy-bears"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-teddy-bears.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-teddy-bears"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-teddy-bears.png");
+  background-size: 256px 256px;
+}
+:global([data-ui-desktop-pattern="macos8-powerbook-traditional"]) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-powerbook-traditional.png");
+  background-size: 16px 16px;
+}
+:global([data-ui-pattern-override][data-ui-pattern-override="macos8-powerbook-traditional"])
+  :global([data-ui-desktop-pattern]:not([data-ui-pattern-preview])) {
+  background-image: url("../../../assets/patterns/macintosh/macos8-powerbook-traditional.png");
+  background-size: 16px 16px;
+}

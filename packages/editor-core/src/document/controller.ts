@@ -1,4 +1,3 @@
-import { MAX_IMAGE_PIXELS } from "$/base/image-limits";
 import { UINT8_MAX, UINT16_MAX, INT16_MIN, INT16_MAX } from "$/base/numeric-constants";
 import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { workingColorProfile, assertSupportedColorProfile } from "$/color/icc-profile";
@@ -8,6 +7,9 @@ import {
 } from "$/color/operations/color-mode";
 import { MAX_PALETTE_COLORS } from "$/color/palette-resize";
 import { activateTimelineCel } from "$/document/document";
+import { assertTimelineMemoryBudget } from "$/document/memory-budget";
+import { copyEditorImage } from "$/document/pixel-ownership";
+import { DecodedPixelCache } from "$/document/pixel-storage";
 import { assertDimension, assertPixelBuffer, assertPixelCount } from "$/document/pixel-validation";
 import type { EditorDocument } from "$/document/types";
 import { assertTilemapTimeline } from "$/tilemap/model";
@@ -115,8 +117,6 @@ export class DocumentController {
         throw new RangeError("Invalid sprite layer");
       ids.add(layer.id);
     }
-    const retainedImages = new Set<PixelBuffer>();
-    let retainedBytes = 0;
     for (const frame of timeline.frames) {
       if (
         frame.cels.length !== timeline.layers.length ||
@@ -140,15 +140,11 @@ export class DocumentController {
             cel.zIndex > INT16_MAX
           )
             throw new RangeError("Invalid sprite cel");
-          if (!retainedImages.has(cel.pixels)) {
-            retainedImages.add(cel.pixels);
-            retainedBytes += cel.pixels.data.byteLength;
-            if (retainedBytes > MAX_IMAGE_PIXELS * 4)
-              throw new RangeError("Sprite cel memory exceeds the editor limit");
-          }
         }
     }
+    assertTimelineMemoryBudget(timeline, width, height);
     const copied = new Map<PixelBuffer, PixelBuffer>();
+    const decodedCache = new DecodedPixelCache();
     const owned: SpriteTimeline = cloneAsepriteImageGraph({
       ...timeline,
       layers: timeline.layers.map((layer) => ({ ...layer })),
@@ -158,7 +154,7 @@ export class DocumentController {
           if (!cel) return null;
           let pixels = copied.get(cel.pixels);
           if (!pixels) {
-            pixels = cloneImage(cel.pixels);
+            pixels = copyEditorImage(cel.pixels, decodedCache);
             copied.set(cel.pixels, pixels);
           }
           return { ...cel, pixels };

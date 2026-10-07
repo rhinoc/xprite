@@ -30,24 +30,155 @@ describe("recent-images", () => {
     const read = store.read(first);
     read.data[0] = 7;
     assert.equal(store.read(first).data[0], 23, "read returns independent clone");
+    {
+      const versioned = new RecentImageStore();
+      const id = versioned.record(image, "Versioned");
+      const persistence = versioned.getPersistenceSnapshot();
+      const repeated = versioned.getPersistenceSnapshot();
+      assert.equal(
+        repeated[0].image,
+        persistence[0].image,
+        "persistence borrows stable stored pixels",
+      );
+      assert.equal(repeated[0].contentVersion, persistence[0].contentVersion);
+      image.data[0] = 101;
+      versioned.record(image, "Versioned", id);
+      assert.notEqual(
+        versioned.getPersistenceSnapshot()[0].contentVersion,
+        persistence[0].contentVersion,
+      );
+      assert.equal(persistence[0].image.data[0], 99, "queued snapshots survive record replacement");
+      const restored = new RecentImageStore();
+      restored.record(
+        persistence[0].image,
+        "Versioned",
+        id,
+        undefined,
+        persistence[0].contentVersion,
+      );
+      assert.equal(
+        restored.getPersistenceSnapshot()[0].contentVersion,
+        persistence[0].contentVersion,
+        "hydration retains the durable content version",
+      );
+      versioned.clear();
+      assert.equal(persistence[0].image.data[0], 99, "clearing cannot change an accepted snapshot");
+      image.data[0] = 99;
+    }
+    {
+      const lazy = new RecentImageStore({ maxBytes: 16, maxItems: 8 });
+      const firstToken = {},
+        secondToken = {};
+      lazy.restoreCatalog([
+        {
+          id: "cold-first",
+          name: "First.png",
+          width: 2,
+          height: 2,
+          bytes: 16,
+          contentVersion: firstToken,
+        },
+        {
+          id: "cold-second",
+          name: "Second.png",
+          width: 2,
+          height: 2,
+          bytes: 16,
+          contentVersion: secondToken,
+        },
+      ]);
+      assert.equal(lazy.read("cold-first"), null, "restoring catalog allocates no full pixels");
+      const cold = lazy.getPersistenceSnapshot();
+      assert.ok(
+        cold.every((entry) => !("image" in entry)),
+        "cold entries persist as references",
+      );
+      assert.equal(
+        lazy.cache({ id: "cold-first", name: "First.png", image, contentVersion: firstToken }),
+        true,
+      );
+      assert.equal(
+        lazy.cache({ id: "cold-second", name: "Second.png", image, contentVersion: secondToken }),
+        true,
+      );
+      assert.equal(lazy.getList().length, 2, "cache eviction preserves durable catalog entries");
+      assert.equal(
+        lazy.read("cold-first"),
+        null,
+        "least recently accessed durable content is released",
+      );
+      assert.ok(
+        lazy.read("cold-second"),
+        "most recently opened content remains cached without reordering history",
+      );
+      lazy.remove("cold-first");
+      assert.equal(
+        lazy.cache({ id: "cold-first", name: "First.png", image, contentVersion: firstToken }),
+        false,
+        "late content cannot resurrect deleted metadata",
+      );
+      const id = lazy.record(image, "New.png", null);
+      assert.ok(id, "adding an import fits by evicting only durable cached content");
+      assert.equal(lazy.getList().length, 2, "adding a new import retains an unloaded old record");
+      const detached = createBlankImage(2, 2);
+      const adopted = new RecentImageStore();
+      adopted.recordImmutable(detached, "Owned.png");
+      assert.equal(
+        adopted.getPersistenceSnapshot()[0].image,
+        detached,
+        "explicit immutable save capture borrows detached pixels",
+      );
+      const budgeted = new RecentImageStore({ maxBytes: 16 });
+      assert.equal(
+        budgeted.record(image, "Shared", null, { image }),
+        "recent-1",
+        "preview and project share one buffer budget",
+      );
+      const other = createBlankImage(2, 2);
+      const distinctId = budgeted.record(image, "Distinct", null, { image: other });
+      assert.ok(distinctId, "complete project exceeding resident budget remains pending");
+      assert.equal(
+        budgeted.getList()[0].bytes,
+        32,
+        "complete project pixels count toward the budget",
+      );
+      budgeted.confirmPersistence(budgeted.getPersistenceSnapshot());
+      assert.equal(
+        budgeted.read(distinctId),
+        null,
+        "full project accounting releases oversized durable content",
+      );
+    }
     const metadata = store.getList();
     metadata[0].name = "mutated";
     assert.equal(store.getList()[0].name, "First");
     assert.equal(store.getList()[0].bytes, 16);
+    store.confirmPersistence(store.getPersistenceSnapshot());
     const second = store.record(image, "Second");
     assert.deepEqual(
       store.getList().map((x) => x.id),
       [second, first],
     );
+    store.confirmPersistence(store.getPersistenceSnapshot());
     const third = store.record(image, "Third");
     assert.deepEqual(
       store.getList().map((x) => x.id),
-      [third, second],
+      [third, second, first],
     );
-    assert.equal(store.read(first), null, "byte budget evicts oldest");
-    const before = store.getList();
-    assert.equal(store.record(createBlankImage(3, 3), "Too large"), null);
-    assert.deepEqual(store.getList(), before, "oversized rejection preserves existing snapshots");
+    assert.equal(store.read(first), null, "byte budget releases the oldest durable payload");
+    const oversized = store.record(createBlankImage(3, 3), "Large snapshot");
+    assert.ok(oversized, "a valid large record remains retryable before durable commit");
+    assert.ok(store.read(oversized), "pending pixels are retained despite resident cache budget");
+    store.confirmPersistence(store.getPersistenceSnapshot());
+    assert.equal(
+      store.read(oversized),
+      null,
+      "oversized durable payload is released after persistence",
+    );
+    assert.ok(
+      store.getList().some((item) => item.id === oversized),
+      "oversized durable metadata remains available",
+    );
     assert.equal(store.read("missing"), null);
     store.clear();
     assert.deepEqual(store.getList(), [], "clear removes every recent snapshot");

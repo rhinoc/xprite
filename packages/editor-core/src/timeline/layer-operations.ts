@@ -8,6 +8,7 @@ import {
   paletteForColors,
   type AsepriteImageSamples,
 } from "$/color/samples";
+import { cloneStoredPixelBuffer } from "$/document/pixel-storage";
 import {
   effectiveLayerVisible,
   layerEditable,
@@ -102,7 +103,7 @@ export function insertLayer(
         0,
         reference && i === t.activeFrame
           ? {
-              pixels: { ...reference, data: reference.data.slice() },
+              pixels: cloneStoredPixelBuffer(reference),
               x: 0,
               y: 0,
               opacity: UINT8_MAX,
@@ -180,7 +181,7 @@ export function duplicateLayers(
           if (!c) return null;
           let p = images.get(c.pixels);
           if (!p) {
-            p = { ...c.pixels, data: c.pixels.data.slice() };
+            p = cloneStoredPixelBuffer(c.pixels);
             images.set(c.pixels, p);
           }
           let asepriteSamples = c.asepriteSamples;

@@ -1,0 +1,105 @@
+:global([data-showcase-hero]) {
+  position: relative;
+  isolation: isolate;
+}
+:global([data-showcase-stories]) {
+  padding-bottom: 24px;
+}
+:global([data-showcase-stories] > [data-showcase-story]:last-child) {
+  margin-bottom: 0;
+}
+:global([data-showcase-stories] *),
+:global([data-showcase-stories] *::before),
+:global([data-showcase-stories] *::after) {
+  box-sizing: border-box;
+}
+:global([data-showcase-story]) {
+  display: grid;
+  align-items: center;
+  width: calc(100% - 64px);
+  max-width: 1200px;
+  margin: 64px auto;
+  scroll-margin-top: var(--ui-space-4, 8px);
+}
+:global([data-story-layout]) {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  align-items: start;
+  gap: 32px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+:global([data-showcase-story="browser"] [data-story-layout]) {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+}
+:global([data-story-copy]) {
+  min-width: 0;
+  margin-top: 48px;
+}
+:global([data-story-description]) {
+  max-width: 44ch;
+}
+:global([data-story-editor]),
+:global([data-story-artwork]) {
+  min-width: 0;
+  margin: 0;
+}
+:global([data-story-artwork]) {
+  text-align: center;
+}
+:global([data-story-editor] img),
+:global([data-story-artwork] img) {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+:global([data-story-notes]) {
+  display: grid;
+  gap: 24px;
+  margin: 0 0 20px;
+}
+@media (max-width: 900px) {
+  :global([data-story-layout]),
+  :global([data-showcase-story="browser"] [data-story-layout]) {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 660px;
+    gap: 24px;
+  }
+  :global([data-story-copy]) {
+    margin: 0 24px 0 0;
+  }
+  :global([data-story-image-window]) {
+    margin-left: 24px;
+  }
+  :global([data-story-description]) {
+    max-width: none;
+  }
+}
+@media (max-width: 600px) {
+  :global([data-showcase-story]) {
+    width: calc(100% - 24px);
+    margin-block: 24px;
+  }
+}
+:global([data-story-copy][data-ui-note]) {
+  width: 100%;
+}
+@media (min-width: 901px) {
+  :global([data-story-layout]),
+  :global([data-showcase-story="browser"] [data-story-layout]) {
+    gap: 0;
+  }
+  :global([data-showcase-story="create"] [data-story-copy]) {
+    margin-right: -24px;
+    z-index: 3;
+  }
+  :global([data-showcase-story="browser"] [data-story-copy]) {
+    margin-left: -24px;
+    z-index: 3;
+  }
+  :global([data-story-copy][data-note-collapsed]) {
+    align-self: start;
+  }
+}

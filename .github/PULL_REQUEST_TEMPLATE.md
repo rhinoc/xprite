@@ -13,13 +13,16 @@
 
 ## User guide / 使用指南
 
-<!-- For user-facing behavior changes, update the relevant sections in both
-apps/editor/assets/help/README.en.md and README.zh-CN.md in this PR.
-List the updated sections, or explain why the guide does not need updating.
-涉及用户操作、入口、手势、快捷键、默认设置或保存行为时，在本次 PR 中同步更新中英文使用指南。
-列出更新的章节；无需更新时说明原因。 -->
+<!-- Only include this section when this PR changes the editor guide. Update both
+apps/growth/content/help/README.en.md and README.zh-CN.md when editor guidance
+becomes inaccurate or users need non-obvious operations, limitations or data-saving
+consequences explained. Showcase, public-page and independent tool changes do not
+require editor guide updates. Routine visible UI changes do not require tutorials.
+仅在本 PR 实际修改编辑器指南时保留此节，并列出更新章节。仅修正失效说明或补充
+不明显的编辑器操作、限制与保存后果；非编辑器页面、独立小工具及普通外观布局变化
+不要求修改指南。不修改指南时删除此节即可。 -->
 
-Updated sections or reason no update is needed / 更新章节或无需更新的原因：
+Updated sections / 更新章节：
 
 ## Screenshots and recording / 截图与录屏
 

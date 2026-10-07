@@ -22,6 +22,9 @@ export function EditorStatusbar({
       dimensions={dimensions}
       directory={directory}
       backupActive={actions?.backupActive}
+      recoveryProblem={actions?.recoveryProblem}
+      retryRecovery={actions?.retryRecovery}
+      saveRecoveryCopy={actions?.saveAs}
       about={showHomeAbout ? getEditorHomeAbout() : undefined}
     />
   );

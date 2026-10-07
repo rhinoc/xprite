@@ -15,12 +15,13 @@ import {
   Combobox,
   ControlFlowItem,
   Input,
-  Label,
   Menu,
   MenuCheckType,
   type MenuItem,
   type SurfaceBounds,
   useUi,
+  Text,
+  TextVariant,
 } from "@xprite/ui";
 import type { UiPartName } from "@xprite/ui/assets";
 import { measurePopoverAnchor } from "@xprite/ui/popover";
@@ -194,7 +195,12 @@ export function SelectionOptions({
       {marquee && (
         <>
           <ControlFlowItem>
-            <Label bounds={CONTROL_BOUNDS.cornerRadiusLabel} text="R:" font="mini" />
+            <Text
+              variant={TextVariant.Control}
+              bounds={CONTROL_BOUNDS.cornerRadiusLabel}
+              text="R:"
+              font="mini"
+            />
           </ControlFlowItem>
           <ControlFlowItem>
             <Input

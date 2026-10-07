@@ -1,0 +1,68 @@
+:global([data-ui-desktop-icon]) {
+  --desktop-icon-artwork-size: 64px;
+  appearance: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  width: 112px;
+  color: var(--ui-color-ink);
+  font: var(--ui-desktop-icon-font-size) / var(--ui-desktop-icon-line-height)
+    var(--ui-desktop-icon-font-family, var(--ui-font-family));
+  text-align: center;
+  text-decoration: none;
+  -webkit-font-smoothing: none;
+}
+:global([data-slot="desktop-icon-artwork"]) {
+  display: grid;
+  place-items: center;
+  width: var(--desktop-icon-artwork-size);
+  height: var(--desktop-icon-artwork-size);
+}
+:global([data-slot="desktop-icon-artwork"] img),
+:global([data-slot="desktop-icon-artwork"] svg) {
+  display: block;
+  width: var(--desktop-icon-artwork-size);
+  height: var(--desktop-icon-artwork-size);
+  margin: 0;
+  image-rendering: pixelated;
+}
+:global([data-slot="desktop-icon-label"]) {
+  padding: 1px 3px;
+  background: var(--ui-color-paper);
+  overflow-wrap: anywhere;
+}
+:global(
+  [data-ui-desktop-icon]:is(:hover, :focus-visible, :active) [data-slot="desktop-icon-label"]
+) {
+  color: var(--ui-color-paper);
+  background: var(--ui-color-ink);
+}
+:global([data-ui-desktop-icon]:disabled),
+:global([data-ui-desktop-icon][aria-disabled="true"]) {
+  opacity: var(--ui-button-surface-disabled-opacity, 0.5);
+  pointer-events: none;
+}
+
+:global([data-ui-desktop-icon]:focus-visible) {
+  outline: none;
+}
+:global([data-ui-desktop-icon]:focus-visible [data-slot="desktop-icon-label"]) {
+  outline: 1px dotted var(--ui-color-ink);
+  outline-offset: 2px;
+}
+
+:global([data-ui-desktop-icon][data-size="compact"]) {
+  --desktop-icon-artwork-size: 40px;
+}
+
+@media (max-width: 640px) {
+  :global([data-ui-desktop-icon][data-compact-on-small-screens]) {
+    --desktop-icon-artwork-size: 40px;
+  }
+}

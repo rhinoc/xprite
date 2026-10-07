@@ -1,0 +1,34 @@
+.titlebar {
+  box-sizing: border-box;
+  position: absolute;
+  inset: 0 0 auto;
+  border-bottom: var(--ui-titlebar-line-width) solid;
+  pointer-events: none;
+}
+
+.circleFrame {
+  position: absolute;
+  inset: calc(-1 * var(--ui-surface-border-width, 1px));
+  width: calc(100% + 2 * var(--ui-surface-border-width, 1px));
+  height: calc(100% + 2 * var(--ui-surface-border-width, 1px));
+  pointer-events: none;
+}
+
+.surfaceContent {
+  position: absolute;
+}
+
+.titlebar::before {
+  position: absolute;
+  top: 50%;
+  right: var(--ui-titlebar-inset);
+  left: var(--ui-titlebar-inset);
+  height: var(--ui-titlebar-stripe-height);
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--ui-titlebar-ink) 0 var(--ui-titlebar-line-width),
+    transparent var(--ui-titlebar-line-width) var(--ui-titlebar-step)
+  );
+  transform: translateY(-50%);
+  content: "";
+}

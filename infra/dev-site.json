@@ -1,0 +1,11 @@
+{
+  "ports": {
+    "editor": 5173,
+    "gallery": 5174,
+    "growth": 5175,
+    "tools": 5176
+  },
+  "growthBase": "/__growth/",
+  "galleryBase": "/gallery/",
+  "identityPath": "/__xprite/dev-server"
+}

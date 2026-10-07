@@ -1,5 +1,6 @@
-import { MAX_IMAGE_PIXELS } from "$/base/image-limits";
+import { MAX_DOCUMENT_PIXEL_BYTES } from "$/base/image-limits";
 import { expandAsepriteSamples, paletteForColors } from "$/color/samples";
+import { cloneStoredPixelBuffer } from "$/document/pixel-storage";
 import { refreshTilemapProjections } from "$/tilemap/model";
 import { validTimelineRange, type TimelineRange } from "$/timeline/operations/timeline-range";
 import {
@@ -19,7 +20,7 @@ const selected = (t: SpriteTimeline, range: TimelineRange) => ({
 const editable = (t: SpriteTimeline, li: number) => layerEditable(t, li);
 const clone = (cel: TimelineCel): TimelineCel => ({
   ...cel,
-  pixels: { ...cel.pixels, data: cel.pixels.data.slice() },
+  pixels: cloneStoredPixelBuffer(cel.pixels),
   asepriteSamples: cel.asepriteSamples
     ? { ...cel.asepriteSamples, data: cel.asepriteSamples.data.slice() }
     : undefined,
@@ -143,8 +144,8 @@ export function duplicateTimelineCels(
   if (!linked) {
     const bytes = fs
       .flatMap((fi) => writable.map((li) => t.frames[fi].cels[li]))
-      .reduce((sum, c) => sum + (c?.pixels.data.byteLength ?? 0), 0);
-    if (bytes > MAX_IMAGE_PIXELS * 4) return t;
+      .reduce((sum, c) => sum + (c ? c.pixels.width * c.pixels.height * 4 : 0), 0);
+    if (bytes > MAX_DOCUMENT_PIXEL_BYTES) return t;
   }
   const frames = t.frames.map((f) => ({ ...f, cels: [...f.cels] }));
   while (frames.length <= fs[fs.length - 1] + span)

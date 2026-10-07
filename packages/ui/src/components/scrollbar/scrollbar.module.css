@@ -21,3 +21,70 @@
 .thumb {
   position: absolute;
 }
+
+.track::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background-image: var(--ui-scrollbar-track-pattern, none);
+  background-size: 4px 4px;
+}
+.thumb::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 8px;
+  max-width: calc(100% - 4px);
+  max-height: calc(100% - 4px);
+  transform: translate(-50%, -50%);
+  background-image: var(--ui-scrollbar-thumb-grip, none);
+}
+.scrollbar[aria-orientation="horizontal"] .thumb::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+.scrollbar:focus-visible {
+  outline: var(--ui-focus-ring-width, 1px) solid var(--ui-focus-ring-color, currentColor);
+  outline-offset: 1px;
+}
+
+.scrollbar[data-scrollbar-variant="transparent"]:not([data-scrollbar-hovered="true"])
+  .track::after {
+  background-image: none;
+}
+
+.classicFrame {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+.classicTrack {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid var(--xse-border);
+  border-width: 0 1px;
+  background: var(--ui-scrollbar-classic-track-image);
+  background-size: 4px 2px;
+}
+.classicArrow,
+.classicThumb {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid var(--xse-border);
+  background: var(--xse-window);
+}
+
+.classicArrow svg {
+  position: absolute;
+  inset: -1px;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+}
+.classicThumb {
+  border-width: 1px 2px;
+}
+.scrollbar[aria-orientation="horizontal"] .classicThumb {
+  border-width: 2px 1px;
+}

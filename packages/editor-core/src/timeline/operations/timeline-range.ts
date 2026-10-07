@@ -1,4 +1,4 @@
-import { MAX_IMAGE_PIXELS } from "$/base/image-limits";
+import { MAX_DOCUMENT_PIXEL_BYTES, MAX_IMAGE_PIXELS } from "$/base/image-limits";
 import { mergeClipboardTileset } from "$/clipboard/tile";
 import {
   encodeAsepriteSamples,
@@ -6,6 +6,7 @@ import {
   paletteForColors,
   type AsepriteImageSamples,
 } from "$/color/samples";
+import { cloneStoredPixelBuffer } from "$/document/pixel-storage";
 import type { AsepriteTileset } from "$/import-export/aseprite/model";
 import {
   rasterizeTilemap,
@@ -66,8 +67,8 @@ export function transferTimelineRange(
       ),
     );
     if (
-      [...retained, ...copied].reduce((sum, p) => sum + p.data.byteLength, 0) >
-      MAX_IMAGE_PIXELS * 4
+      [...retained, ...copied].reduce((sum, p) => sum + p.width * p.height * 4, 0) >
+      MAX_DOCUMENT_PIXEL_BYTES
     )
       return t;
   }
@@ -81,7 +82,7 @@ export function transferTimelineRange(
     if (!cel || !copy) return cel;
     let pixels = images.get(cel.pixels);
     if (!pixels) {
-      pixels = { ...cel.pixels, data: new Uint8ClampedArray(cel.pixels.data) };
+      pixels = cloneStoredPixelBuffer(cel.pixels);
       images.set(cel.pixels, pixels);
     }
     let asepriteSamples = cel.asepriteSamples;

@@ -1,0 +1,91 @@
+.bar {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  width: 100%;
+  height: var(--ui-menu-navigation-height, 20px);
+  gap: 0;
+  padding: 0 8px;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid var(--ui-menu-navigation-ink, var(--ui-color-border));
+  background: var(--ui-menu-navigation-face, var(--ui-color-paper));
+  color: var(--ui-menu-navigation-ink, var(--ui-color-ink));
+  font: var(--ui-menu-navigation-font-size, var(--ui-text-default-size)) /
+    var(--ui-menu-navigation-line-height) var(--ui-font-family);
+  -webkit-font-smoothing: none;
+  overflow: hidden;
+  scrollbar-width: none;
+}
+.bar::-webkit-scrollbar {
+  display: none;
+}
+.link {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  height: calc(100% - 1px);
+  align-self: flex-end;
+  box-sizing: border-box;
+  padding: 0 10px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: var(--ui-menu-navigation-line-height);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.link:is(:hover, :focus-visible, :active, [aria-current="page"], [data-open="true"]) {
+  color: var(--ui-menu-navigation-highlight-ink, var(--xse-selected-text));
+  background: var(--ui-menu-navigation-highlight-face, var(--xse-selected));
+  outline: none;
+}
+.items {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+.items::-webkit-scrollbar {
+  display: none;
+}
+.menus {
+  display: flex;
+  flex-shrink: 0;
+  height: 100%;
+}
+.trailing {
+  display: flex;
+  flex: 0 0 auto;
+  height: 100%;
+  margin-left: auto;
+}
+.leading {
+  display: contents;
+}
+.leading img {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  image-rendering: pixelated;
+}
+
+.link[data-icon="true"] {
+  width: var(--ui-menu-icon-title-width, 32px);
+  padding: 0;
+}
+.link img {
+  width: 16px;
+  height: 16px;
+  image-rendering: pixelated;
+}

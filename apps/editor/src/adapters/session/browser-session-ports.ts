@@ -24,9 +24,13 @@ import {
   type ReadableFileHandle,
   type SaveFilePickerOptions,
 } from "@xprite/bedrock/browser/file-system";
+import { ImageDimensionError } from "@xprite/bedrock/browser/images";
+import { sha256Hex } from "@xprite/bedrock/browser/runtime-crypto";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import {
   asepriteFileName,
+  ASEPRITE_SIGNATURE_BYTES,
+  isAsepriteData,
   isAsepriteFileName,
   pngFileName,
   type PixelateOptions,
@@ -68,11 +72,13 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
       factory: options.factory,
     });
   }
-  loadRecentImages = () => this.recents.load();
+  listRecentImages = () => this.recents.list();
+  readRecentImage = (id: string) => this.recents.read(id);
   saveRecentImages = (images: Parameters<IndexedDbRecentImages["save"]>[0]) =>
     this.recents.save(images);
   private nextId = 1;
   private readonly sources = new Map<string, BrowserSessionSource>();
+  private readonly sourceChecksums = new Map<string, Promise<string | undefined>>();
   private readonly sourceFileHandles = new Map<string, SaveFileHandle>();
   private readonly documentFileHandles = new Map<string, SaveFileHandle>();
   private worker: ImageImportWorkerClient | null = null;
@@ -150,12 +156,13 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
       ? this.fileIdentities.identify(
           source,
           this.sourceFileHandles.get(token) as IdentifiableFileHandle | undefined,
+          await this.sourceChecksums.get(token),
         )
       : null;
   };
   private async savedIdentity(
     documentKey?: string,
-    data?: { blob: Blob; name: string },
+    data?: { blob: Blob; name: string; bytes?: Uint8Array },
   ): Promise<string | undefined> {
     const handle = documentKey
       ? (this.documentFileHandles.get(documentKey) as IdentifiableFileHandle | undefined)
@@ -165,7 +172,11 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
       const file = data
         ? new File([data.blob], data.name, { type: data.blob.type })
         : await handle!.getFile!();
-      return await this.fileIdentities.identify(file, handle);
+      return await this.fileIdentities.identify(
+        file,
+        handle,
+        data?.bytes ? await sha256Hex(data.bytes) : undefined,
+      );
     } catch {
       return undefined;
     }
@@ -174,21 +185,46 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
     const source = this.sources.get(token);
     if (!source) return Promise.reject(new Error("Image source is no longer available"));
     if ("loadProject" in source) return source.loadProject().then((project) => project.image);
-    return source instanceof File ? decodeImage(source) : decodeAsset(source.url);
+    if (!(source instanceof File)) return decodeAsset(source.url);
+    return decodeImage(source).catch((reason: unknown) => {
+      if (reason instanceof ImageDimensionError) throw reason;
+      throw Object.assign(new Error(tUi("ui.file.import.invalid", { name: source.name })), {
+        cause: reason,
+      });
+    });
   };
   decodeProject = async (token: string): Promise<SessionProject | null> => {
     const source = this.sources.get(token);
     if (!source) throw new Error("Image source is no longer available");
     if ("loadProject" in source) return source.loadProject();
     const name = source.name;
-    const { decodeAnimatedImageSource } = await import("$/adapters/files/animated-images");
-    const animation = await decodeAnimatedImageSource(source, name);
-    if (animation) return animation;
-    if (!isAsepriteFileName(name)) return null;
+    const asepriteData =
+      source instanceof File &&
+      isAsepriteData(new Uint8Array(await source.slice(0, ASEPRITE_SIGNATURE_BYTES).arrayBuffer()));
+    if (!asepriteData) {
+      const { decodeAnimatedImageSource } = await import("$/adapters/files/animated-images");
+      const animation = await decodeAnimatedImageSource(source, name);
+      if (animation) return animation;
+      // The extension also routes damaged Aseprite files to their codec's precise errors.
+      if (!isAsepriteFileName(name)) return null;
+    }
     const { decodeAsepriteSource } = await import("$/adapters/files/aseprite-files");
     try {
-      return await decodeAsepriteSource(source, name);
+      return await decodeAsepriteSource(source, name, {
+        onSourceBytes:
+          source instanceof File
+            ? (bytes) => {
+                if (this.closed || this.sources.get(token) !== source) return;
+                // Start hashing the same input now; retain only its small digest promise.
+                this.sourceChecksums.set(
+                  token,
+                  sha256Hex(bytes).catch(() => undefined),
+                );
+              }
+            : undefined,
+      });
     } catch (reason) {
+      this.sourceChecksums.delete(token);
       if (reason instanceof Error) {
         const annotated = reason as Error & { diagnosticDetails?: Record<string, unknown> };
         annotated.diagnosticDetails = {
@@ -210,6 +246,7 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
   };
   releaseSource = (token: string) => {
     this.sources.delete(token);
+    this.sourceChecksums.delete(token);
     this.sourceFileHandles.delete(token);
   };
   private getWorker() {
@@ -339,12 +376,12 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
           return outcome.handle;
         }
       : undefined;
-    let savedData: { blob: Blob; name: string } | undefined;
+    let savedData: { blob: Blob; name: string; bytes?: Uint8Array } | undefined;
     return import("$/adapters/files/aseprite-files")
       .then(({ saveAseprite }) =>
         saveAseprite(project, name, intent, {
-          onFileDataSaved: (blob, name) => {
-            savedData = { blob, name };
+          onFileDataSaved: (blob, name, bytes) => {
+            savedData = { blob, name, ...(bytes ? { bytes } : {}) };
           },
           ...(existing ? { fileHandle: existing } : {}),
           ...(fileHandlePermission ? { fileHandlePermission } : {}),
@@ -380,10 +417,12 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
     if (this.closed) return;
     this.closed = true;
     this.sources.clear();
+    this.sourceChecksums.clear();
     this.sourceFileHandles.clear();
     this.documentFileHandles.clear();
     this.fileHandles.close();
     this.fileIdentities.close();
+    this.recents.close();
     this.worker?.close();
     this.worker = null;
   };

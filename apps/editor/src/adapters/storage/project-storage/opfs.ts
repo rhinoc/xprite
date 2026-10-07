@@ -2,7 +2,7 @@ import {
   PayloadKind,
   ProjectStorageError,
   type PayloadStore,
-} from "$/adapters/storage/project-storage/types";
+} from "$/managers/ports/project-storage";
 import { OpfsByteStore, supportsOpfs } from "@xprite/bedrock/browser/opfs";
 import { BrowserStorageError } from "@xprite/bedrock/browser/storage-error";
 

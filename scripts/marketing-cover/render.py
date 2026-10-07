@@ -31,7 +31,8 @@ def png(path):
 
 
 def plan(config, path, output):
-    width, height = int(config['canvas']['width']), int(config['canvas']['height'])
+    output_size = config.get('export', {}).get('size', [config['canvas']['width'], config['canvas']['height']])
+    width, height = map(int, output_size)
     base_width,base_height = config.get('base_size',BASE_SIZE)
     scale = min(width / base_width, height / base_height)
     origin = ((width - base_width*scale)/2, (height-base_height*scale)/2)
@@ -46,8 +47,6 @@ def plan(config, path, output):
     mh = px(mobile[2]*config['phone']['aspect_ratio'])
     inset = px(mobile[2]*PHONE_INSET)
     status,address = [px(mobile[2]*fraction) for fraction in [PHONE_STATUS,PHONE_ADDRESS]]
-    output_size=config.get('export',{}).get('size',[width,height])
-    resize=output_size!=[width,height]
     return {'config':str(path), 'script':str(Path(__file__).resolve()), 'folder':str(path.parent),
             'url':config['capture']['url'], 'canvas':[width,height], 'scale':scale, 'origin':origin,
             'desktop':{'position':[dx,dy], 'size':[dw,dh], 'bar':px(config['layout'].get('browser_bar_height',44)), 'path':str((path.parent/config['images']['desktop']).resolve())},
@@ -56,7 +55,7 @@ def plan(config, path, output):
             'zooms':config['capture'].get('zoom',{'desktop':600,'mobile':300}),
             'html':str(output.with_suffix('.html')), 'output':str(output), 'show_phone':config['style']['show_phone'],
             'language':config.get('language','zh'), 'locale':config.get('locale','zh-CN'),
-            'output_size':output_size,'render_output':str(output.with_name(output.stem+'-large.png')) if resize else str(output)}
+            'output_size':[width,height]}
 
 
 def prepare_html(config,p):
@@ -173,7 +172,7 @@ def prepare_html(config,p):
     </script></body></html>'''
     target=Path(p['html']);target.parent.mkdir(parents=True,exist_ok=True);target.write_text(content)
     manifest={'renderer':'Native Chromium HTML/SVG composition','config':p['config'],'output':p['output'],'canvas':p['output_size'],'render_canvas':p['canvas'],
-              'device_scale_factor':1,'screenshot_resizing':False,'final_image_resizing':p['canvas']!=p['output_size'],'inputs':sources,'phone_aspect_ratio':config['phone']['aspect_ratio'],
+              'device_scale_factor':1,'screenshot_resizing':False,'final_image_resizing':False,'inputs':sources,'phone_aspect_ratio':config['phone']['aspect_ratio'],
               'language':p['language'],'locale':p['locale'],'layout':config.get('layout_name','wide')}
     target.with_name('source-manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
     return target
@@ -201,8 +200,6 @@ def make_job(source,configuration,size,language,layout_name,output_override):
     config['layout'].update(config.get('language_layouts',{}).get(language,{}))
     config['layout'].update(variant.get('language_layouts',{}).get(language,{}))
     config['base_size']=variant.get('base_size',list(BASE_SIZE))
-    render_width=max(width,round(config['base_size'][0]*1.2))
-    config['canvas'].update(width=render_width,height=round(height*render_width/width))
     config['export']={'size':[width,height]}
     for key,value in config['images'].items():
         config['images'][key]=str((configuration.parent/value).resolve())
@@ -269,7 +266,7 @@ def main():
             elif not needs_capture:prepare_html(config,p)
             jobs.append({'plan':str(plan_path),'capture':needs_capture})
     if args.html_only:return
-    request={'jobs':jobs,'spaceId':os.environ.get('XPRITE_COVER_SPACE')}
+    request={'jobs':jobs,'spaceId':os.environ.get('XPRITE_COVER_SPACE'),'root':str(Path(__file__).resolve().parents[2])}
     script='globalThis.xpriteCoverRun='+json.dumps(request)+';\n'+Path(__file__).with_name('capture.mjs').read_text()
     subprocess.run(['ego-browser','nodejs'],input=script,text=True,check=True)
     for job in jobs:print(json.loads(Path(job['plan']).read_text())['output'])

@@ -1,0 +1,53 @@
+.root {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--ui-navigation-list-frame-inset, 0px);
+  box-sizing: border-box;
+  background: var(--ui-navigation-list-face);
+  color: var(--ui-navigation-list-ink);
+}
+
+.scroll {
+  min-width: 0;
+  min-height: 0;
+}
+
+:global([data-slot="navigation-list-items"]) {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+:global([data-slot="navigation-list-link"]) {
+  display: block;
+  min-height: var(--ui-navigation-list-row-height);
+  box-sizing: border-box;
+  padding: 3px 8px;
+  color: var(--ui-navigation-list-ink);
+  background: var(--ui-navigation-list-face);
+  font-family: var(--ui-navigation-list-font-family);
+  font-size: var(--ui-navigation-list-font-size);
+  line-height: var(--ui-navigation-list-line-height);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  -webkit-font-smoothing: none;
+}
+
+:global(
+  [data-slot="navigation-list-link"]:is(
+    :hover,
+    :focus-visible,
+    :active,
+    [aria-current]:not([aria-current="false"])
+  )
+) {
+  color: var(--ui-navigation-list-selected-ink);
+  background: var(--ui-navigation-list-selected-face);
+}
+
+:global([data-slot="navigation-list-link"]:focus-visible) {
+  outline: 1px dotted currentColor;
+  outline-offset: -2px;
+}

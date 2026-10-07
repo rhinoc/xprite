@@ -20,7 +20,7 @@ import {
   useUserDataVisibility,
   UserDataVisibilityScope,
 } from "$/managers/user-data/user-data-manager";
-import { Button, Input, Label, Slider } from "@xprite/ui";
+import { Button, Input, Slider, Text, TextVariant } from "@xprite/ui";
 
 const MIN_DIALOG_WIDTH = 280;
 const MAX_DIALOG_WIDTH = 560;
@@ -189,7 +189,8 @@ export function CelProperties({
           const buttonX = c.x + c.width - RIGHT_INSET - BUTTON_WIDTH;
           return (
             <>
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 bounds={{ x: c.x + LABEL_X, y: c.y + rowTop, width: LABEL_WIDTH, height: 32 }}
                 relativeTo={c}
                 text="Opacity:"
@@ -222,7 +223,8 @@ export function CelProperties({
                 disabled={!view.hasSingleCel}
                 onClick={() => setUserDataOpen(!userDataOpen)}
               />
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 bounds={{
                   x: c.x + LABEL_X,
                   y: c.y + secondRowTop,
@@ -270,7 +272,8 @@ export function CelProperties({
               />
               {userDataOpen && (
                 <>
-                  <Label
+                  <Text
+                    variant={TextVariant.Control}
                     bounds={{
                       x: c.x + LABEL_X,
                       y: c.y + rowTop + USER_DATA_COLOR_ROW_OFFSET,
@@ -301,7 +304,8 @@ export function CelProperties({
                       setColorPickerOpen(true);
                     }}
                   />
-                  <Label
+                  <Text
+                    variant={TextVariant.Control}
                     bounds={{
                       x: c.x + LABEL_X,
                       y: c.y + rowTop + USER_DATA_TEXT_ROW_OFFSET,

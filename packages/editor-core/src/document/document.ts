@@ -1,5 +1,7 @@
 import { UINT8_MAX, BITS_PER_BYTE } from "$/base/numeric-constants";
 import type { PixelBuffer } from "$/base/primitives";
+import { makeEditorImageWritable } from "$/document/pixel-ownership";
+import { encodedPixels } from "$/document/pixel-storage";
 import type { EditorDocument } from "$/document/types";
 import { tilemapIndexedPixelAt } from "$/tilemap/model";
 import {
@@ -142,6 +144,7 @@ export function activateTimelineCel(doc: EditorDocument, frameIndex: number, lay
     throw new RangeError("Invalid active cel");
   const layer = timeline.layers[layerIndex],
     cel = timeline.frames[frameIndex].cels[layerIndex];
+  if (cel && !encodedPixels(cel.pixels)) makeEditorImageWritable(cel.pixels);
   doc.timeline =
     timeline.activeFrame === frameIndex && timeline.activeLayer === layerIndex
       ? timeline

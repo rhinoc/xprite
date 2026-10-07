@@ -1,0 +1,37 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "xprite-share-dev",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-10-04",
+  "workers_dev": true,
+  "vars": {
+    "ALLOWED_ORIGINS": "http://localhost:5173,http://127.0.0.1:5173",
+    "PUBLIC_VIEWER_URL": "http://localhost:5173/tools/viewer/",
+  },
+  "d1_databases": [
+    {
+      "binding": "SHARE_DATABASE",
+      "database_name": "xprite-share-dev",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+    },
+  ],
+  "r2_buckets": [{ "binding": "SHARE_FILES", "bucket_name": "xprite-share-dev" }],
+  "env": {
+    "production": {
+      "name": "xprite-share",
+      "vars": {
+        "ALLOWED_ORIGINS": "https://xprite.cc",
+        "PUBLIC_VIEWER_URL": "https://xprite.cc/tools/viewer/",
+      },
+      "d1_databases": [
+        {
+          "binding": "SHARE_DATABASE",
+          "database_name": "xprite-share",
+          "database_id": "00000000-0000-0000-0000-000000000000",
+        },
+      ],
+      "r2_buckets": [{ "binding": "SHARE_FILES", "bucket_name": "xprite-share" }],
+      "triggers": { "crons": ["*/5 * * * *"] },
+    },
+  },
+}

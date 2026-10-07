@@ -1,3 +1,5 @@
+import type { EncodedRgbaPixels } from "$/base/primitives";
+
 /**
  * Platform independent data exchanged by the Aseprite codec.
  *
@@ -144,6 +146,7 @@ export interface AsepriteCel {
   height: number;
   /** Packed RGBA8 data for image cels. Linked cels may expose resolved source bytes. */
   pixels?: Uint8Array;
+  encodedPixels?: EncodedRgbaPixels;
   /** Original indexed/grayscale image samples; retained independently of RGBA projection. */
   asepritePixels?: Uint8Array;
   /** Source frame for a linked cel. Aseprite links are within one layer. */
@@ -191,6 +194,17 @@ export interface AsepriteSprite {
   format: "ase" | "aseprite";
 }
 
+/** Authored metadata retained by the editor. Pixel/sample/tile arrays belong to
+ * canonical timeline cels and tilesets, rather than a second source graph. */
+export type AsepriteCelMetadata = Omit<
+  AsepriteCel,
+  "pixels" | "encodedPixels" | "asepritePixels" | "tilemap"
+>;
+export type AsepriteFrameMetadata = Omit<AsepriteFrame, "cels"> & { cels: AsepriteCelMetadata[] };
+export type AsepriteSourceMetadata = Omit<AsepriteSprite, "frames" | "tilesets"> & {
+  frames: AsepriteFrameMetadata[];
+};
+
 export interface AsepriteResourceLimits {
   maxFileBytes: number;
   maxWidth: number;
@@ -201,6 +215,8 @@ export interface AsepriteResourceLimits {
   maxChunkBytes: number;
   maxCelPixels: number;
   maxDecodedBytes: number;
+  /** RGBA cel projections, excluding retained indexed/gray source samples. */
+  maxExpandedBytes: number;
   maxStringBytes: number;
 }
 
@@ -214,6 +230,16 @@ export interface AsepriteDecodeOptions {
   preflight?: boolean;
   /** Permit unsupported feature diagnostics to return a partial model. Default false. */
   allowUnsupported?: boolean;
+  /** Inspect this decode's validated scan before any cel is inflated. Throw to reject it. */
+  onPreflight?: (result: AsepritePreflightResult) => void;
+  /** Transfer ownership of the input to this call without detaching its buffer.
+   * The caller must not mutate or reuse it during decoding. Otherwise a private
+   * snapshot is taken so asynchronous inflaters cannot observe caller edits. */
+  takeOwnership?: boolean;
+  /** The inflater returns fresh owned output and will never mutate/reuse it. */
+  takeInflatedOwnership?: boolean;
+  /** Validate RGB cels but retain their zlib backing instead of every RGBA frame. */
+  deferPixels?: boolean;
 }
 
 export type AsepriteInflate = (
@@ -262,6 +288,8 @@ export interface AsepritePreflightResult {
 }
 
 export interface AsepriteEncodeOptions {
+  /** Reuse validated compressed RGB backing for unchanged cels. */
+  preserveCelCompression?: boolean;
   fileName?: string;
   /** Preserve opaque chunks where the encoder can place them safely. */
   preserveUnknownChunks?: boolean;
@@ -281,5 +309,6 @@ export const DEFAULT_ASEPRITE_LIMITS: AsepriteResourceLimits = {
   maxChunkBytes: 256 * 1024 * 1024,
   maxCelPixels: 100_000_000,
   maxDecodedBytes: 512 * 1024 * 1024,
+  maxExpandedBytes: 512 * 1024 * 1024,
   maxStringBytes: 1024 * 1024,
 };

@@ -1,0 +1,24 @@
+export const MAX_FILE_BYTES = 250_000;
+export const MAX_IP_BYTES = 10_000_000;
+export const MAX_STORAGE_BYTES = 8_000_000_000;
+export const SHARE_LIFETIME_MS = 7 * 24 * 60 * 60 * 1_000;
+export const RESERVATION_LIFETIME_MS = 5 * 60 * 1_000;
+export const RETIRED_RECORD_LIFETIME_MS = 7 * 24 * 60 * 60 * 1_000;
+export const UPLOAD_RATE_WINDOW_MS = 60_000;
+export const MAX_RESERVATIONS_PER_WINDOW = 30;
+export const CLEANUP_BATCH_SIZE = 20;
+export const CLEANUP_RETRY_BASE_MS = 60_000;
+export const CLEANUP_RETRY_MAX_EXPONENT = 6;
+export const MAX_FILE_NAME_LENGTH = 120;
+export const MAX_DECODED_BYTES = 64 * 1_024 * 1_024;
+export const MAX_CANVAS_PIXELS = MAX_DECODED_BYTES / 4;
+export const ASE_HEADER_BYTES = 128;
+export const FRAME_HEADER_BYTES = 16;
+export const CHUNK_HEADER_BYTES = 6;
+export const ASE_MAGIC = 0xa5e0;
+export const FRAME_MAGIC = 0xf1fa;
+export const SHA256_PATTERN = /^[a-f0-9]{64}$/u;
+export const MANAGEMENT_KEY_PATTERN = /^[A-Za-z0-9_-]{43}$/u;
+export const SHARE_ID_PATTERN = /^[A-Za-z0-9_-]{22}$/u;
+export const REQUEST_ID_PATTERN =
+  /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/u;

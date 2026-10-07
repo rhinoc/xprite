@@ -1,0 +1,23 @@
+{
+  "name": "@xprite/site-assets",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./icon.svg": "./icon.svg",
+    "./menu-icon.svg": "./menu-icon.svg",
+    "./favicon.ico": "./favicon.ico",
+    "./favicon-32.png": "./favicon-32.png",
+    "./showcase/ipad/hello/hello.aseprite": "./showcase/ipad/hello/hello.aseprite",
+    "./showcase/ipad/hello/hello-frame-01.png": "./showcase/ipad/hello/hello-frame-01.png",
+    "./showcase/ipad/hello/hello.gif": "./showcase/ipad/hello/hello.gif",
+    "./showcase/textures/macintosh-dither.svg": "./showcase/textures/macintosh-dither.svg",
+    "./showcase/ipad/hello/hello-sheet.png": "./showcase/ipad/hello/hello-sheet.png",
+    "./social-preview.png": "./social-preview.png",
+    "./showcase/ipad/hello/hello-editor.png": "./showcase/ipad/hello/hello-editor.png",
+    "./tools/animal-crossing/kenney-village.png": "./tools/animal-crossing/kenney-village.png",
+    "./tools/animal-crossing/acnh/winding-cobblestone.png": "./tools/animal-crossing/acnh/winding-cobblestone.png",
+    "./tools/animal-crossing/acnh/grass-green.png": "./tools/animal-crossing/acnh/grass-green.png",
+    "./tools/animal-crossing/acnh/grass-spring.png": "./tools/animal-crossing/acnh/grass-spring.png",
+    "./tools/animal-crossing/acnh/grass-autumn.png": "./tools/animal-crossing/acnh/grass-autumn.png"
+  }
+}

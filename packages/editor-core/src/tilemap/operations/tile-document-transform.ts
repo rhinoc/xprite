@@ -1,4 +1,4 @@
-import { MAX_IMAGE_PIXELS } from "$/base/image-limits";
+import { MAX_DOCUMENT_PIXEL_BYTES, MAX_IMAGE_PIXELS } from "$/base/image-limits";
 import { BITS_PER_BYTE } from "$/base/numeric-constants";
 import type { Rect, PixelBuffer, Rgba } from "$/base/primitives";
 import { PixelResizeMethod } from "$/base/primitives";
@@ -27,7 +27,7 @@ export function validateTilemapTransform(
     assertDimension(w, "width");
     assertDimension(h, "height");
     bytes += w * h * channels;
-    if (bytes > MAX_IMAGE_PIXELS * 4)
+    if (bytes > MAX_DOCUMENT_PIXEL_BYTES)
       throw new RangeError("Tilemap transform exceeds memory limit");
   };
   for (const set of t.tilesets ?? []) {

@@ -7,12 +7,21 @@ const visualSource = /\.(?:[cm]?[jt]sx?|css|svg|png|jpe?g|gif|webp|avif|json|wof
 const workspaceRoots = [
   "apps/editor/assets",
   "apps/editor/src",
+  "apps/growth/content",
+  "apps/growth/public",
+  "packages/editor-ui/src",
   "packages/editor-core/src",
   "packages/bedrock/browser",
   "packages/ui/src",
   "packages/ui/assets",
 ];
 const workspaceFiles = [
+  "scripts/base/screenshot.mjs",
+  "infra/site-html.ts",
+  "infra/public-package-assets.ts",
+  "infra/dev-site.ts",
+  "infra/dev-site.json",
+  "packages/editor-ui/package.json",
   "apps/editor/index.html",
   "apps/editor/package.json",
   "apps/editor/tsconfig.json",

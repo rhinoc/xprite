@@ -31,6 +31,7 @@ import {
   type SurfaceViewport,
 } from "$/components/canvas-surface";
 import { Scrollbar } from "$/components/scrollbar/Scrollbar";
+import type { ScrollbarVariant } from "$/components/scrollbar/types";
 
 import styles from "$/components/scrollbar/scroll-area.module.css";
 
@@ -41,11 +42,17 @@ interface ScrollViewportProps extends HTMLAttributes<HTMLDivElement> {
 export interface ScrollAreaProps extends HTMLAttributes<HTMLDivElement> {
   scrollX?: boolean;
   scrollY?: boolean;
+  /** Keep gutter geometry stable before measurement, including static rendering. */
+  reserveScrollbarGutter?: boolean;
+  /** Override the theme default for the density of this particular region. */
+  scrollbarVariant?: ScrollbarVariant;
   viewport?: SurfaceViewport;
   viewportRef?: Ref<HTMLDivElement>;
   viewportProps?: ScrollViewportProps;
   contentClassName?: string;
   contentStyle?: CSSProperties;
+  /** Re-measure after an external content revision without resetting native scroll position. */
+  contentRevision?: number | string;
 }
 
 const useClientLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
@@ -69,11 +76,14 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(function S
   {
     scrollX = true,
     scrollY = true,
+    reserveScrollbarGutter = false,
+    scrollbarVariant,
     viewport = DEFAULT_SURFACE_VIEWPORT,
     viewportRef,
     viewportProps,
     contentClassName,
     contentStyle,
+    contentRevision,
     className,
     style,
     children,
@@ -156,8 +166,15 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(function S
   }, [alignPixels, presentation]);
   const sx = viewport.width / viewport.sceneWidth;
   const sy = viewport.height / viewport.sceneHeight;
-  const verticalSize = definition.dimensions.mini_scrollbar_size * ARTWORK_SCALE * sx;
-  const horizontalSize = definition.dimensions.mini_scrollbar_size * ARTWORK_SCALE * sy;
+  const areaVariant = scrollbarVariant ?? definition.controlParts?.scrollbar?.areaVariant;
+  const barSize =
+    areaVariant === "regular"
+      ? (definition.controlParts?.scrollbar?.arrowExtent ??
+        (definition.dimensions.scrollbar_default_size ?? definition.dimensions.scrollbar_size) *
+          ARTWORK_SCALE)
+      : definition.dimensions.mini_scrollbar_size * ARTWORK_SCALE;
+  const verticalSize = barSize * sx;
+  const horizontalSize = barSize * sy;
 
   const measure = useCallback(() => {
     const host = root.current;
@@ -169,21 +186,36 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(function S
     const nodeSize = layoutSize(node);
     const contentSize = scrollSize(node);
     const position = scrollPosition(node);
-    // Start with the full client size so a removed gutter cannot sustain itself.
-    let horizontal = scrollX && contentSize.width > hostSize.width + SCROLL_OVERFLOW_TOLERANCE;
-    let vertical = scrollY && contentSize.height > hostSize.height + SCROLL_OVERFLOW_TOLERANCE;
+    // Reserved gutters narrow the viewport even when their bars are hidden.
+    // Ignore previously detected bars so a removable gutter cannot sustain itself.
+    const reservedVertical = reserveScrollbarGutter && scrollY;
+    const reservedHorizontal = reserveScrollbarGutter && scrollX;
+    let horizontal =
+      scrollX &&
+      contentSize.width >
+        hostSize.width - (reservedVertical ? verticalSize : 0) + SCROLL_OVERFLOW_TOLERANCE;
+    let vertical =
+      scrollY &&
+      contentSize.height >
+        hostSize.height - (reservedHorizontal ? horizontalSize : 0) + SCROLL_OVERFLOW_TOLERANCE;
     horizontal ||=
       scrollX &&
       contentSize.width >
-        hostSize.width - (vertical ? verticalSize : 0) + SCROLL_OVERFLOW_TOLERANCE;
+        hostSize.width -
+          (vertical || reservedVertical ? verticalSize : 0) +
+          SCROLL_OVERFLOW_TOLERANCE;
     vertical ||=
       scrollY &&
       contentSize.height >
-        hostSize.height - (horizontal ? horizontalSize : 0) + SCROLL_OVERFLOW_TOLERANCE;
+        hostSize.height -
+          (horizontal || reservedHorizontal ? horizontalSize : 0) +
+          SCROLL_OVERFLOW_TOLERANCE;
     horizontal ||=
       scrollX &&
       contentSize.width >
-        hostSize.width - (vertical ? verticalSize : 0) + SCROLL_OVERFLOW_TOLERANCE;
+        hostSize.width -
+          (vertical || reservedVertical ? verticalSize : 0) +
+          SCROLL_OVERFLOW_TOLERANCE;
     const next = {
       width: nodeSize.width,
       height: nodeSize.height,
@@ -201,7 +233,7 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(function S
         ? current
         : next,
     );
-  }, [scrollX, scrollY, verticalSize, horizontalSize]);
+  }, [scrollX, scrollY, reserveScrollbarGutter, verticalSize, horizontalSize]);
 
   const updateScroll = useCallback(() => {
     const node = scroller.current;
@@ -268,7 +300,7 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(function S
       mutation.disconnect();
       plane.removeEventListener("load", schedule, true);
     };
-  }, [scrollX, scrollY, measure]);
+  }, [scrollX, scrollY, measure, contentRevision]);
 
   return (
     <CanvasScaleProvider pixelOffset={pixelOffset}>
@@ -286,8 +318,8 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(function S
           gap: 0,
           alignItems: "stretch",
           justifyItems: "stretch",
-          gridTemplateColumns: `minmax(0, 1fr) ${metrics.vertical ? verticalSize : 0}px`,
-          gridTemplateRows: `minmax(0, 1fr) ${metrics.horizontal ? horizontalSize : 0}px`,
+          gridTemplateColumns: `minmax(0, 1fr) ${metrics.vertical || (reserveScrollbarGutter && scrollY) ? verticalSize : 0}px`,
+          gridTemplateRows: `minmax(0, 1fr) ${metrics.horizontal || (reserveScrollbarGutter && scrollX) ? horizontalSize : 0}px`,
         }}
       >
         <div
@@ -334,7 +366,7 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(function S
             bounds={{ x: 0, y: 0, width: verticalSize / sx, height: metrics.height / sy }}
             viewport={viewport}
             style={{ left: "auto", right: 0 }}
-            variant="mini"
+            variant={areaVariant ?? "mini"}
             contentSize={metrics.contentHeight / sy}
             visibleSize={metrics.height / sy}
             value={metrics.top / sy}
@@ -356,7 +388,7 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(function S
             viewport={viewport}
             style={{ top: "auto", bottom: 0 }}
             orientation="horizontal"
-            variant="transparent"
+            variant={areaVariant ?? "transparent"}
             contentSize={metrics.contentWidth / sx}
             visibleSize={metrics.width / sx}
             value={metrics.left / sx}

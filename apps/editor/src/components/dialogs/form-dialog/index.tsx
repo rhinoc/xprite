@@ -18,11 +18,12 @@ import {
   Combobox,
   Divider,
   Input,
-  Label,
   focusDialogContainer,
   isDialogPopupTarget,
   type ButtonProps,
   type SurfaceBounds,
+  Text,
+  TextVariant,
 } from "@xprite/ui";
 import { measureUiText } from "@xprite/ui/assets";
 import { isImeKeyboardEvent } from "@xprite/ui/utils";
@@ -459,7 +460,8 @@ export function FormDialog({
                 />
               ))}
               {lines.map((line, i) => (
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   key={i}
                   bounds={{
                     x: client.x + 8,
@@ -500,7 +502,8 @@ export function FormDialog({
                 };
                 if (field.type === "label")
                   return (
-                    <Label
+                    <Text
+                      variant={TextVariant.Control}
                       key={field.key}
                       bounds={{
                         x: columnX + (authored ? 2 : 0),
@@ -578,7 +581,8 @@ export function FormDialog({
                 if (field.type === "color")
                   return (
                     <span key={field.key}>
-                      <Label
+                      <Text
+                        variant={TextVariant.Control}
                         bounds={{
                           x: columnX + inset + (authored ? 2 : 0),
                           y: authored ? y : y + 8,
@@ -603,7 +607,8 @@ export function FormDialog({
                   );
                 return (
                   <span key={field.key}>
-                    <Label
+                    <Text
+                      variant={TextVariant.Control}
                       bounds={{
                         x: columnX + inset + (authored ? 2 : 0),
                         y: authored ? y : y + 8,

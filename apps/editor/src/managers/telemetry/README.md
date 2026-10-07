@@ -18,21 +18,63 @@ Dialog and layout managers notify the telemetry manager at their existing lifecy
 
 ## Events
 
-| Event                     | Boundary                                                                                                                                                  |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `$pageview`               | One page visit after optional transport initialization.                                                                                                   |
-| `editor_ready`            | Workspace and UI assets are ready, once per page visit.                                                                                                   |
-| `view_changed`            | The committed view changed, including initial entry, user selection, automatic workflow transitions and browser history navigation.                      |
-| `document_opened`         | A usable document was opened by the user. `open_method` distinguishes example, new, import, recent and recovery. Cancelled/failed imports do not count.   |
-| `document_edit_started`   | First committed content change per open document. Pointer movement, selections, viewport changes, loading and saves do not count.                         |
-| `file_download_requested` | Generated files were handed to the browser's download mechanism. This does not assert that a file reached disk.                                           |
-| `file_save_as_completed`  | A user-requested Save As completed through the native file picker/file handle.                                                                            |
-| `feature_used`            | Actual settings/about dialog openings, donate clicks and layout changes.                                                                                  |
-| `$exception`              | A sanitized exception from the existing diagnostic pipeline. Repeated exceptions are suppressed for five seconds, with at most twenty reports per minute. |
+| Event                     | Boundary                                                                                                                                                             |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `$pageview`               | One page visit after optional transport initialization.                                                                                                              |
+| `editor_startup`          | Bootstrap, workspace and UI-asset startup stages, with started/completed/failed status and duration. A still-incomplete startup emits stalled once after 30 seconds. |
+| `editor_ready`            | Workspace and UI assets are ready, once per page visit.                                                                                                              |
+| `visit_checkpoint`        | Cumulative page-visible time, Home/editor-visible time, last view and startup state when the page becomes hidden or receives pagehide.                               |
+| `view_changed`            | The committed view changed, including initial entry, user selection, automatic workflow transitions and browser history navigation.                                  |
+| `document_restored`       | A document from the saved workspace is available when startup finishes, once per restored document per page visit.                                                   |
+| `document_opened`         | A usable document was opened by the user. `open_method` distinguishes example, new, import, recent and recovery. Cancelled/failed imports do not count.              |
+| `document_edit_started`   | First committed content change per open document. Pointer movement, selections, viewport changes, loading and saves do not count.                                    |
+| `file_download_requested` | Generated files were handed to the browser's download mechanism. This does not assert that a file reached disk.                                                      |
+| `file_save_as_completed`  | A user-requested Save As completed through the native file picker/file handle.                                                                                       |
+| `editor_operation`        | Document-open intent/cancellation and manual save/export requests/results, distinguished by action, phase, outcome and target.                                       |
+| `feature_used`            | Settings/about/save-as/export dialog entries, Save As dialog cancellation, donate clicks and layout changes.                                                         |
+| `feedback_submitted`      | A user explicitly submits the feedback dialog: `category`, `message` and optional `email`, plus the existing visit context.                                          |
+| `$exception`              | A sanitized exception from the existing diagnostic pipeline. Repeated exceptions are suppressed for five seconds, with at most twenty reports per minute.            |
 
 An export operation emits one output event, even when it downloads a PNG sequence.
-Partial outputs are marked `output_completed: false`. Auto-save is not a business event.
-Native Save As cancellation produces no output event.
+Completed outputs are marked `output_completed: true`; partial outputs are marked
+`output_completed: false`. For downloads, completion means all files were handed
+to the browser, not that they reached disk. Auto-save is not a business event.
+Native Save As cancellation produces `editor_operation` with `action: save_as`,
+`phase: finished`, `outcome: cancelled`, but no successful output event.
+Downloads produced by ordinary Save are included in `file_download_requested` with
+`download_kind: save`. A successful browser-storage save produces `editor_operation`
+with `action: save` or `save_as`, `phase: finished`, `outcome: success` and
+`target: browser`; it does not produce a download event. Save As dialog
+openings and cancellations, plus export dialog openings, use `feature_used`.
+
+`editor_operation` uses the following fixed dimensions:
+
+- `action`: `open_document`, `save`, `save_as`, `export`.
+- `phase`: `requested`, `finished`.
+- `outcome`: `success`, `cancelled`, `failed`, `ignored`, on results only.
+- `target`: `browser`, `file_system`, for manual saves.
+- `open_method`: `new`, `import`, `recent`, `example`, for document-open intent/cancellation.
+
+Save/export request and result share a memory-only `operation_id` and the result
+contains `operation_duration_ms`. Export results include file count, size, format
+and completion, even when zero files were generated. Document-open intent is
+recorded before showing the New dialog or file picker; explicit cancellation uses
+`phase: finished`, `outcome: cancelled`. The existing `document_opened` event marks
+a usable document. A browser without a file-input cancel event cannot report that
+cancellation. No separate event name is created for each operation phase.
+
+`editor_startup` is deduplicated across React effect replay. A stalled event is an
+observation, not a terminal failure: the same visit can subsequently become ready.
+Failures before the main JavaScript module or optional SDK starts remain outside
+this event stream. Common properties include `telemetry_schema_version: 2`, secure
+context and availability of structuredClone, IndexedDB and the native save picker.
+
+Checkpoint durations are cumulative within `visit_id`; use the latest checkpoint,
+not their sum. Visible time includes idle time and is not proof of user activity.
+Hidden/pagehide can be followed by a return or BFCache restoration, so these events
+do not declare a completed session. Checkpoints use the SDK's immediate sendBeacon
+transport as best-effort delivery. A missing checkpoint cannot prove a crash or
+abandonment. They add no persistent timer state or artwork data.
 
 `view_changed` records `from_view`, `to_view`, `trigger` and `reason`. Views are
 `home`, `editor`, `guide` and `recovery`; selecting another document within the
@@ -49,16 +91,49 @@ been superseded and the empty editor's automatic Home fallback are not reported 
 separate editor visits. `editor_ready` measures startup readiness, not entry into
 the editor view. This adds no navigation persistence fields or changes to routes.
 
-Common context includes release/version, a memory-only `visit_id`, open document
-count, runtime-only document identity, dimensions, layer/frame/palette counts.
+For a document-availability funnel, combine `document_opened` and
+`document_restored` in one step. `document_opened` alone excludes work resumed
+from the saved workspace; use `view_changed` to measure entry into the editor view.
+
+Common context includes release/version, a memory-only `visit_id`, committed view,
+open document count, dirty state, runtime-only document identity, dimensions and
+layer/frame/palette counts.
 Browser/device/OS properties use PostHog's standard event field names.
 The same visit ID joins a user's operations within this page load; it is not saved
 to browser storage or reused across reloads.
+`entry_referring_domain` contains only the hostname and optional port read from
+`document.referrer`; `entry_referrer_present` distinguishes a supplied referrer
+from missing information. Missing referrer still cannot establish the true source.
+
+When an editor URL contains exactly the recognized attribution values
+`utm_source=compare`, `utm_medium=referral`, and one of `utm_campaign=aseprite-online`,
+`aseprite-on-ipad` or `piskel-alternatives`, the provider-independent visit context
+adds `compare_source`, `compare_medium` and `compare_campaign`. These fields are
+attached to `$pageview`, readiness, document and output events for this page visit.
+They are not saved or carried to an unrelated return visit. The viewer's Continue
+editing link reconstructs only these three validated parameters; it never copies
+the input query or file metadata. Invalid combinations produce no compare context.
+
+For effective new-visitor attribution, select browser identifiers whose first-ever
+`$pageview` contains `compare_campaign`, then require `document_opened` followed by
+`document_edit_started` with the same `visit_id` and `document_id`. A click,
+`editor_ready` or restored document alone does not qualify. Use the existing
+browser identifier for first-time versus returning visitors; `visit_id` alone
+only distinguishes page loads. A first-ever visit must be determined from the
+available event history, not merely the first event inside a report date range.
+Cleared site storage, other browsers and other devices cannot be deduplicated.
+
 PostHog keeps a separate browser-scoped visitor identifier in localStorage so
 return visits can be counted across page loads. Person profiles remain disabled.
 
-Remote events never include document names, paths, pixels, source file metadata,
-workspace exports, arbitrary diagnostic details or URL query/hash parameters.
+Current manager events do not include document names, paths, pixels, source file
+metadata, workspace exports or arbitrary diagnostic details. The adapter preserves
+caller-supplied fields such as `email` and `name`; it has no general field deletion
+list. Event whitelisting and URL/campaign filtering remain enabled, including
+removal of raw URL query/hash parameters.
+Only the fixed comparison attribution above is accepted from a URL. The SDK's
+automatic campaign/referrer persistence is disabled; outgoing standard UTM,
+click identifiers and search keywords are removed, including initial/session fields.
 Exceptions include a sanitized message/stack and error source. The official SDK
 parses stack frames and attaches CLI-injected chunk/release IDs. Key actions are
 added to the SDK's bounded `$exception_steps` buffer for diagnostic context, and
@@ -70,6 +145,15 @@ retained in `LICENSES/posthog-js.txt` and copied to the deployment output.
 
 The transport buffers at most 64 reports during optional SDK startup.
 SDK batching/retry behavior handles subsequent delivery. Do Not Track is respected.
+
+Feedback uses the same initialized SDK for visitor identity and event properties,
+then posts once to the public Capture API with the existing event/URL/campaign
+filtering. It waits for an accepted HTTP response before clearing the draft. A
+failed, timed-out or unavailable transport keeps the draft and shows a retry error.
+The request timeout is fifteen seconds. Background SDK retry and batching do not
+apply to this explicit submission; only the user retries it. Local development
+and Do Not Track still disable sending. No Surveys configuration is required.
+Filter the PostHog event list on `feedback_submitted` to read the submitted fields.
 
 ## Configuration and deployment
 
@@ -102,6 +186,18 @@ SDK batching/retry behavior handles subsequent delivery. Do Not Track is respect
    script assets must load from the site, direct ingestion requests should
    succeed, and events/errors must appear in PostHog. A successful HTTP response
    alone does not prove ingestion.
+7. Verify each of the three comparison CTA campaigns reaches `$pageview`,
+   `editor_startup`, `editor_ready`, `document_opened`, `document_edit_started` and an output event
+   with matching compare fields. Use a fresh browser profile for first-visit
+   verification, then verify an untagged return visit has no compare fields.
+   Check the viewer's Continue editing path as well. Invalid source, medium or
+   campaign values and unrelated query/hash values must not appear in events.
+8. After deployment, filter on `telemetry_schema_version: 2` and verify incomplete
+   startup stages, a hidden-page checkpoint, New/file-picker cancellation, manual
+   browser/file-system saves and export failure. Join save/export requested and
+   results within `editor_operation` by both `visit_id` and `operation_id`, filtering
+   `action` and `phase`. Background recovery writes
+   must not produce manual-save events. These events cannot reconstruct old visits.
 
 Direct browser connectivity to PostHog requires mainland network validation.
 Reporting failures do not interrupt editing or local diagnostics. No proxy,

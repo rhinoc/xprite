@@ -28,6 +28,7 @@ const f = Math.fround,
   TILE = 32;
 interface Sample {
   pixels: PixelBuffer;
+  data?: Uint8ClampedArray;
   x: number;
   y: number;
   width: number;
@@ -231,7 +232,7 @@ export function renderTimelineViewport(
         blendImageAt(
           dst,
           ((y - ty) * tw + x - tx) * 4,
-          s.pixels.data,
+          s.data ?? (s.data = s.pixels.data),
           (sy * s.pixels.width + sx) * 4,
           opacity,
           mode,

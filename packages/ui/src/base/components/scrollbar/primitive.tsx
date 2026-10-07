@@ -36,6 +36,8 @@ export interface ScrollbarPrimitiveProps extends Omit<
   onValueChange: (value: number) => void;
   minimumThumbSize?: number;
   variant?: string;
+  arrowExtent?: number;
+  fixedThumbSize?: number;
   renderArtwork: (state: ScrollbarArtworkState) => React.ReactNode;
 }
 
@@ -50,6 +52,8 @@ export function ScrollbarPrimitive({
   value,
   onValueChange,
   minimumThumbSize = 0,
+  arrowExtent = 0,
+  fixedThumbSize,
   variant = "default",
   renderArtwork,
   style,
@@ -73,7 +77,16 @@ export function ScrollbarPrimitive({
   } | null>(null);
   const horizontal = orientation === "horizontal";
   const axisSize = horizontal ? bounds.width : bounds.height;
-  const geometry = scrollbarGeometry(axisSize, contentSize, visibleSize, value, minimumThumbSize);
+  const inset = Math.min(Math.max(0, arrowExtent), axisSize / 2);
+  const track = scrollbarGeometry(
+    axisSize - inset * 2,
+    contentSize,
+    visibleSize,
+    value,
+    minimumThumbSize,
+    fixedThumbSize,
+  );
+  const geometry = { ...track, position: track.position + inset };
   const layout = surfaceLayout(bounds, viewport);
   const commit = (next: number) =>
     onValueChange(Math.max(0, Math.min(geometry.maximum, Math.trunc(next))));
@@ -106,6 +119,8 @@ export function ScrollbarPrimitive({
       {...props}
       {...stylusPointerInputProps()}
       role="scrollbar"
+      data-scrollbar-variant={variant}
+      data-scrollbar-hovered={hover || undefined}
       tabIndex={tabIndex}
       aria-orientation={orientation}
       aria-valuemin={0}
@@ -124,7 +139,9 @@ export function ScrollbarPrimitive({
         if (event.defaultPrevented || event.button !== 0) return;
         event.preventDefault();
         const point = coordinate(event);
-        if (point < geometry.position) commit(value - Math.trunc(visibleSize / 2));
+        if (inset && point < inset) commit(value - 1);
+        else if (inset && point >= axisSize - inset) commit(value + 1);
+        else if (point < geometry.position) commit(value - Math.trunc(visibleSize / 2));
         else if (point >= geometry.position + geometry.length)
           commit(value + Math.trunc(visibleSize / 2));
         else {
@@ -149,7 +166,7 @@ export function ScrollbarPrimitive({
             (geometry.maximum *
               Math.max(
                 0,
-                Math.min(geometry.travel, current.position + point - current.coordinate),
+                Math.min(geometry.travel, current.position - inset + point - current.coordinate),
               )) /
               geometry.travel,
           );

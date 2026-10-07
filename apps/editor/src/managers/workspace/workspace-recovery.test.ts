@@ -9,7 +9,7 @@ describe("workspace-recovery", () => {
   it("workspace-recovery behavior", async () => {
     const { outputFiles } = await build({
       stdin: {
-        contents: `export { WorkspaceRecovery } from './apps/editor/src/managers/workspace/workspace-recovery'; export { RecoverySettingsStore } from './apps/editor/src/adapters/storage/recovery-settings-store'; export { RasterEditor } from './packages/editor-core/src/editor/RasterEditor.ts'; export { createBrowserProjectRepository } from './apps/editor/src/adapters/storage/project-storage';`,
+        contents: `export { WorkspaceRecovery } from './apps/editor/src/managers/workspace/workspace-recovery'; export { RecoverySettingsStore } from './apps/editor/src/adapters/storage/recovery-settings-store'; export { RasterEditor } from './packages/editor-core/src/editor/RasterEditor.ts'; export { createBrowserProjectStorage } from './apps/editor/src/adapters/storage/project-storage'; export { ProjectRepository } from './apps/editor/src/managers/storage/project-repository';`,
         resolveDir: process.cwd(),
       },
       bundle: true,
@@ -20,7 +20,8 @@ describe("workspace-recovery", () => {
     const {
       WorkspaceRecovery,
       RasterEditor,
-      createBrowserProjectRepository,
+      createBrowserProjectStorage,
+      ProjectRepository,
       RecoverySettingsStore,
     } = await import(
       `data:text/javascript;base64,${Buffer.from(outputFiles[0].contents).toString("base64")}`
@@ -51,7 +52,9 @@ describe("workspace-recovery", () => {
       close() {},
     });
     const repo = (name) =>
-      createBrowserProjectRepository({ databaseName: name, factory, preferOpfs: false });
+      new ProjectRepository(
+        createBrowserProjectStorage({ databaseName: name, factory, preferOpfs: false }),
+      );
     const preferenceMemory = new Map();
     const preferenceStorage = {
       getItem: (key) => preferenceMemory.get(key) ?? null,
@@ -1259,6 +1262,45 @@ describe("workspace-recovery", () => {
       assert.equal(after.entries.length, 2);
       assert.equal((await readProject(repository, after.entries[1].projectId)).document.width, 8);
       assert.equal(recovery.getSnapshot().error, null);
+      recovery.dispose();
+    }
+    {
+      const repository = repo("retired-checkpoint-retry");
+      const failure = new Error("temporary storage failure");
+      let failRetired = true;
+      const wrapped = {
+        load: (id) => repository.load(id),
+        list: () => repository.list(),
+        close: () => repository.close(),
+        save: (input) =>
+          failRetired &&
+          input.metadata.kind === "editor-project" &&
+          input.metadata.name === "retired.png"
+            ? Promise.reject(failure)
+            : repository.save(input),
+      };
+      const recovery = newRecovery({ repository: wrapped, codec: codec() });
+      await recovery.restore();
+      const editor = new RasterEditor(blank(), "retired.png");
+      stroke(editor);
+      recovery.start([{ id: "one", core: editor }], {
+        activeId: "one",
+        slotIds: ["one"],
+        views: [{ id: "one", documentId: "one" }],
+      });
+      const retiredId = recovery.getSlotProjectId("one");
+      await assert.rejects(recovery.flush(), (error) => error === failure);
+      editor.document.loadImage(blank(8), "current.png");
+      stroke(editor);
+      await assert.rejects(recovery.flush(), (error) => error === failure);
+      failRetired = false;
+      // A scheduled/background flush must settle the old failure too; this does
+      // not use retry(), whose final error reset could hide the regression.
+      await recovery.flush();
+      assert.equal(recovery.getSnapshot().error, null);
+      assert.equal(recovery.hasUnpersistedWorkspaceChanges(), false);
+      assert.equal((await readProject(repository, retiredId)).document.width, 4);
+      assert.equal(editor.getSnapshot().document.width, 8);
       recovery.dispose();
     }
     console.log(

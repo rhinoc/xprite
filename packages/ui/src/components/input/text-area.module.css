@@ -1,26 +1,67 @@
 .root {
-  display: block;
+  position: relative;
+  display: grid;
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
   min-height: 0;
-  padding: var(--ui-space-4, 8px);
-  border: var(--ui-border-width, 1px) solid var(--xse-border, #575b61);
+  border: var(--ui-border-width, 1px) solid var(--ui-color-border);
   border-radius: 0;
-  background: var(--xse-face, #2c2c30);
-  color: var(--xse-text, #c0c0c0);
-  font:
-    14px/1.5 ui-monospace,
-    monospace;
+  background: var(--ui-field-face, var(--ui-color-paper));
+  color: var(--ui-field-text, var(--ui-color-ink));
+  font: var(--ui-field-font-size) / var(--ui-field-line-height) var(--ui-field-font);
   resize: none;
+  overflow: hidden;
+}
+.native {
+  display: block;
+  box-sizing: border-box;
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: var(--ui-textarea-padding, var(--ui-space-4, 8px));
+  padding-right: calc(
+    var(--ui-textarea-padding, var(--ui-space-4, 8px)) + var(--ui-textarea-scrollbar-width, 0px)
+  );
+  padding-bottom: calc(
+    var(--ui-textarea-padding, var(--ui-space-4, 8px)) +
+      max(var(--ui-textarea-scrollbar-height, 0px), var(--ui-textarea-resize-size, 0px))
+  );
+  border: 0;
+  border-radius: 0;
+  background: inherit;
+  color: inherit;
+  font: inherit;
+  tab-size: inherit;
+  resize: none;
+  outline: none;
   overflow: auto;
+  scrollbar-width: none;
   user-select: text;
   -webkit-user-select: text;
   -webkit-touch-callout: default;
   touch-action: pan-x pan-y;
 }
-
-.root:focus {
+.native::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+.root:focus-within {
   outline: var(--ui-focus-ring-width, 1px) solid var(--ui-focus-ring-color, currentColor);
   outline-offset: -1px;
+}
+.root[data-disabled="true"] {
+  color: var(--ui-color-muted-ink);
+}
+.root[data-presentation="code"] {
+  --ui-textarea-padding: var(--ui-textarea-code-padding);
+  font: var(--ui-code-size) / var(--ui-textarea-code-line-height) var(--ui-code-font);
+  tab-size: var(--ui-code-tab-size);
+}
+.root[data-invalid="true"] {
+  outline: var(--ui-focus-ring-width, 1px) solid var(--ui-color-danger-ink);
 }

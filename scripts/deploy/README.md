@@ -1,8 +1,10 @@
 # Editor deployment
 
-The editor is a static Vite application. PostHog runs in the browser and sends
-events directly to its US/EU ingestion endpoint. No EdgeOne Functions, server,
-database or hosting runtime variables are required.
+The editor and public guides are static Vite outputs. A generated Makers
+middleware permits published files and explicit editor entry points, and returns
+the custom page with HTTP 404 for everything else. It uses no database, secrets,
+or application server. PostHog sends events directly from the browser to its
+US/EU ingestion endpoint.
 
 For itch.io HTML hosting, use the separate [itch.io distribution workflow](ITCH.md).
 
@@ -48,18 +50,83 @@ deployed production revision.
 
 ## Search indexing and sharing
 
+The showcase has separate `/showcase/en/` and `/showcase/zh-CN/` static entry
+pages. Both are required by assembly and deployment validation. Growth generates
+localized titles, descriptions, Open Graph metadata, self canonical links, and
+reciprocal `hreflang` plus `x-default` annotations before assembly. The sitemap
+lists both language URLs. `edgeone.json` normalizes trailing slashes and directs
+the neutral showcase entry to English; language selection uses no query string.
+
 The production website uses `https://xprite.cc/` as its canonical application URL.
 The editor keeps Home at `/` and documents at `/editor`; `/home`, `/home/` and
-`/index.html` redirect to `/`. The explicit `/editor` rewrites and the static
-`404.html` preserve valid app entry points while unknown paths return a real 404,
-instead of falling back to the editor for every URL. Keep `404.html` and these
-rewrites together when changing the deployment configuration.
+`/index.html` redirect to `/`. The explicit `/editor` rewrites preserve valid app
+entry points. Deployment preparation bundles `middleware.js` with the exact
+resource inventory and current `404.html`; this prevents Makers' automatic SPA
+fallback from returning the editor with HTTP 200 for nonexistent paths. Middleware
+is generated after `release.json` and serving configuration are written. The pinned
+CLI runs inside the artifact directory so it discovers this middleware.
 
-The initial HTML contains visible product text during startup. Production builds
-include canonical and Open Graph metadata, a large social preview, and basic
-WebApplication structured data without ratings. `robots.txt` advertises the
-single canonical URL in `sitemap.xml`; only add more sitemap entries when they
-have independent, indexable content.
+Public guides live at `/help/en/` and `/help/zh-CN/`. The Vite plugin in
+`apps/growth/build/public-pages.ts` renders the same Markdown that the editor's Help
+menu reads, validates section links and image catalog entries, and copies only
+referenced screenshots. Images carry their catalog dimensions; the guides need
+no editor JavaScript. Production guides have individual titles, descriptions,
+canonical URLs and reciprocal `hreflang` links. Both guide URLs are included in
+the generated sitemap. The editor layout is unchanged, and guide bodies remain
+sourced from the formal Markdown files.
+
+The English compare column at `/compare/` and its three initial article routes
+are rendered from the growth article manifest before assembly. Assembly and
+deployment preparation require these files. The column includes canonical URLs,
+article sharing metadata, structured data, and sitemap entries; reserve drafts
+and research dossiers have no public route. Compare aliases normalize to trailing
+slashes with query-preserving redirects, and unknown slugs return HTTP 404.
+Its editor links use only the three fixed compare campaigns described in the
+[editorial workflow](../../apps/growth/content/compare/README.md).
+
+The file viewer at `/tools/viewer/` is the separate `apps/tools` application, with its
+own entry point, managers, browser adapters and CSS Modules. It uses the shared
+editor-core Aseprite codec and timeline renderer without mounting the editor.
+Previewing does not write editor workspaces, preferences, recents or recovery
+data. Continue editing stages the original file in an isolated, short-lived
+IndexedDB record and opens `/editor` with a one-use transfer fragment. The editor
+consumes and deletes that record, removes the fragment and imports the project
+through its ordinary workspace API after startup. Other editor URLs never read
+the transfer store. Its static HTML has its own metadata and sitemap entry.
+
+The independent growth server (`pnpm run dev:growth`, port 5175) serves public
+guides and `/showcase` directly from source. Unknown public paths return the
+custom HTTP 404 page in growth development and Vite preview.
+
+`pnpm run build:site` builds editor, growth, tools, and gallery independently and merges
+their outputs into `.tmp/site`. It applies website search metadata to the merged
+editor HTML without changing `apps/editor/dist`. Growth owns guide source,
+showcase assets, static public pages, and SEO code; the editor reads only the
+small `@xprite/growth-content/help` data module. The deployment command validates
+all required entry files in `.tmp/site` before staging an upload. Gallery assets
+use `/gallery/` in both development and production. Its component and icon routes
+come from `apps/gallery/build/generated-routes.json`, regenerated alongside the
+component catalog by `gallery:generate`; staging adds exact rewrites and middleware
+entries for those routes, including direct visits and reloads. Gallery remains
+`noindex, follow` and is excluded from the public sitemap.
+
+Shared website icon links are defined in `infra/site-html.ts`. Vite entry templates
+use `<!-- xprite-site-icons -->`; generated guide and article HTML use `siteIcons()`.
+The same configuration covers the error page. Editor icon links retain relative
+URLs for embedded builds, while public pages use domain-root URLs independent of
+the app's asset base. Keep page-specific titles, descriptions, theme colors and
+editor installation metadata with their owning pages.
+
+`pnpm run dev` starts the independent app servers and connects them through the
+shared development proxy. Website navigation stays on the current origin;
+`/tools/` and `/gallery/` keep their own runtime and asset paths. The backend ports
+are implementation details of the development servers, not navigation destinations.
+
+The initial HTML contains visible product text during startup. The assembled
+production website includes canonical and Open Graph metadata, a large social
+preview, and basic WebApplication structured data without ratings. `robots.txt`
+advertises the sitemap containing the editor, public guides, viewer, and iPad
+showcase; add entries only for independent, indexable content.
 
 The HTML startup screen is outside the React root. The browser platform retains
 that same screen and animated canvas until workspace startup finishes, including
@@ -103,15 +170,15 @@ Add the following under GitHub Settings → Secrets and variables → Actions,
 or in the matching `production` / `preview` GitHub Environment. Creating the
 account token and setting these values is separate from committing this workflow.
 
-| Kind | Name | Value |
-| --- | --- | --- |
-| Secret | `EDGEONE_API_TOKEN` | EdgeOne Makers API Token from your account; required for both environments. |
-| Variable | `EDGEONE_AREA` | Required: `overseas` excludes mainland nodes; `global` includes mainland nodes. Match your chosen project area. |
-| Variable | `EDGEONE_PROJECT_NAME` | Optional; defaults to `xprite`. |
-| Variable | `VITE_POSTHOG_PROJECT_TOKEN` | Public `phc_…` token for the Xprite PostHog project; required for production. |
-| Variable | `VITE_POSTHOG_REGION` | `US` for the existing Xprite project; defaults to `US`. |
-| Secret | `POSTHOG_CLI_API_KEY` | Optional private key for source map uploads. Never use a `VITE_` prefix. |
-| Variable | `POSTHOG_CLI_PROJECT_ID` | `642366` when enabling uploads to the existing Xprite project. Required only with the source map key. |
+| Kind     | Name                         | Value                                                                                                           |
+| -------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Secret   | `EDGEONE_API_TOKEN`          | EdgeOne Makers API Token from your account; required for both environments.                                     |
+| Variable | `EDGEONE_AREA`               | Required: `overseas` excludes mainland nodes; `global` includes mainland nodes. Match your chosen project area. |
+| Variable | `EDGEONE_PROJECT_NAME`       | Optional; defaults to `xprite`.                                                                                 |
+| Variable | `VITE_POSTHOG_PROJECT_TOKEN` | Public `phc_…` token for the Xprite PostHog project; required for production.                                   |
+| Variable | `VITE_POSTHOG_REGION`        | `US` for the existing Xprite project; defaults to `US`.                                                         |
+| Secret   | `POSTHOG_CLI_API_KEY`        | Optional private key for source map uploads. Never use a `VITE_` prefix.                                        |
+| Variable | `POSTHOG_CLI_PROJECT_ID`     | `642366` when enabling uploads to the existing Xprite project. Required only with the source map key.           |
 
 The account location (China / international account) and acceleration area are
 different settings. The API token selects the account; `EDGEONE_AREA` selects
@@ -153,7 +220,7 @@ builds clear the PostHog token and source map credentials; test interactions do
 not enter the production project.
 
 The workflow uses Node 24 and pnpm 11.1.3, records the actual checked-out SHA as
-`POSTHOG_RELEASE`, runs `pnpm run build:editor`, and prepares the static files in
+`POSTHOG_RELEASE`, runs `pnpm run build:site`, and prepares the static files in
 the ignored `.tmp/deploy/editor/` directory. It saves that package as a GitHub
 artifact before uploading it. Same-environment deployments do not run concurrently.
 
@@ -163,9 +230,18 @@ with the artifact; the source/install commands do not. Package preparation rejec
 hidden files, symlinks and leftover source maps.
 
 After upload, the script verifies the commit/environment in `/release.json`,
-loads the HTML and checks its JavaScript entry. The Actions summary contains the
-deployment URL; result JSON is retained as a separate artifact, including whether
-these checks passed. A failed post-upload check fails the job but does not roll
+loads the editor HTML and checks its JavaScript module entry and linked stylesheets,
+both guide pages and their indexing metadata, both localized showcase pages,
+every tool page, all generated gallery routes, and an unknown path's custom HTTP 404 response. Tool and gallery checks also verify their module entries and linked stylesheets. Showcase checks
+require the correct HTML language and mount point, same-origin JavaScript module
+entry and linked stylesheets with successful HTTP responses and matching content
+types. Production pages must have their own canonical URL, both language links,
+the English default language link, and indexable robots metadata. Preview pages
+must have `noindex, follow` and no canonical URL. Asset requests preserve signed
+preview URL parameters. These checks do not execute showcase animations or load
+every model, image, font, or dynamically imported chunk. The Actions summary
+contains the deployment URL; result JSON is retained as a separate artifact,
+including whether these checks passed. A failed post-upload check fails the job but does not roll
 back an already published deployment. Fix the issue and redeploy the desired tag.
 
 To publish an older version, manually select that tag/commit. This rebuilds the
@@ -179,19 +255,21 @@ two deployment commands only validate configuration or prepare local files.
 
 ```sh
 pnpm run deploy:validate
-pnpm run build:editor
+pnpm run build:site
 pnpm run deploy:prepare
 pnpm run deploy:editor
 ```
+
+Use `build:site` for website releases. The general `build` script builds only
+the editor and component gallery; it does not produce the combined website.
 
 Set the same variables as the workflow, plus `EDGEONE_ENV`, the actual commit
 SHA in `POSTHOG_RELEASE`, and optionally `DEPLOY_REF`. Set `POSTHOG_RELEASE`
 before building as well as before packaging. These commands do not load `.env`
 files automatically. Do not run the publish command until deployment is intended.
 
-For native EdgeOne Git builds, retain repository root `./`, use the committed
-`edgeone.json`, and set the public PostHog build variables in EdgeOne. That mode
-publishes according to EdgeOne's Git integration rather than this tag workflow.
+Publish website releases through the tag/manual direct-upload workflow so public
+pages, indexing metadata and route middleware are prepared together.
 
 ## First-release acceptance
 
@@ -212,3 +290,9 @@ are not enriched retroactively.
 - [Domain requirements](https://cloud.tencent.com/document/product/1552/127404)
 - [GitHub workflow triggers](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)
 - [PostHog source maps](https://posthog.com/docs/error-tracking/upload-source-maps/github-actions)
+
+The GIF converter at `/tools/gif-to-sprite-sheet/` is another `apps/tools` entry.
+Its PNG/JSON export and canvas controls share the viewer foundation, with no
+editor runtime. Site assembly requires both tool entry files; public routing,
+canonical redirects, sitemap discovery, preview noindex and release verification
+include the converter. Run `pnpm run dev:tools` to review either entry on port 5176.

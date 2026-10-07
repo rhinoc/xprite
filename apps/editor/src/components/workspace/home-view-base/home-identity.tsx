@@ -12,18 +12,18 @@ const HOME_STAR_ICON_SIZE = 14;
 const HOME_STAR_ICON_GAP = 4;
 
 export interface HomeIdentityLabels {
-  profile: string;
   star: string;
+  feedback: string;
 }
 
 export function HomeIdentity({
   labels,
-  profileHref,
   repositoryHref,
+  onFeedback,
 }: {
   labels: HomeIdentityLabels;
-  profileHref: string;
   repositoryHref: string;
+  onFeedback?: () => void;
 }) {
   const linkBounds = (text: string, leadingWidth = 0) => ({
     x: 0,
@@ -38,19 +38,8 @@ export function HomeIdentity({
   } as CSSProperties;
 
   return (
-    <aside className={styles.identity} aria-label={labels.profile}>
-      <div className={styles.identityAuthor}>
-        <WorkspaceLink
-          layout="flow"
-          bounds={linkBounds(labels.profile)}
-          href={profileHref}
-          variant={WorkspaceLinkVariant.Workspace}
-          color="var(--ui-home-text)"
-        >
-          {labels.profile}
-        </WorkspaceLink>
-      </div>
-      <nav className={styles.identityActions} aria-label={labels.star}>
+    <aside className={styles.identity}>
+      <nav className={styles.identityActions} aria-label={labels.feedback}>
         <WorkspaceLink
           layout="flow"
           bounds={linkBounds(labels.star, HOME_STAR_ICON_SIZE + HOME_STAR_ICON_GAP)}
@@ -61,6 +50,17 @@ export function HomeIdentity({
           color="var(--ui-home-text)"
         >
           {labels.star}
+        </WorkspaceLink>
+        <WorkspaceLink
+          layout="flow"
+          bounds={linkBounds(labels.feedback)}
+          onClick={onFeedback}
+          disabled={!onFeedback}
+          variant={WorkspaceLinkVariant.Workspace}
+          className={styles.starLink}
+          color="var(--ui-home-text)"
+        >
+          {labels.feedback}
         </WorkspaceLink>
       </nav>
     </aside>

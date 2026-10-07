@@ -8,6 +8,8 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
+import { useThemeText } from "$/base/theme/text-metrics";
+import { ThemeScope } from "$/base/theme/theme-scope";
 import { composeEventHandlers } from "$/base/utils/compose-event-handlers";
 import { clientPoint, clientRect } from "$/base/utils/dom-geometry";
 import { UI_SCALE_X } from "$/components/canvas-surface/geometry";
@@ -19,6 +21,10 @@ import { UiIcon, UiPart, uiMetrics, useUi, type UiPartName } from "$/components/
 import styles from "$/components/tabs/tabs.module.css";
 
 const TAB_TRAILING_GAP = 4;
+const MINIMUM_CONTENT_TAB_WIDTH = 64;
+const DEFAULT_TAB_HORIZONTAL_PADDING = 16;
+const TAB_ICON_LABEL_GAP = 20;
+const COMPACT_TAB_WIDTH = 112;
 
 export interface TabItem {
   id: string;
@@ -89,6 +95,8 @@ export function Tabs({
 }: TabsProps) {
   const { style, translateKey, translateSource } = useUi();
   const metrics = uiMetrics(style);
+  const { measureThemeText } = useThemeText();
+  const labelInset = style.dimensions.tabs_text_inset ?? 8;
   const [denseUi, setDenseUi] = useState(false);
   const interactions = useTabInteractions({
     tabs: tabs.map((tab) => tab.id),
@@ -109,13 +117,33 @@ export function Tabs({
     observer.observe(root, { attributes: true, attributeFilter: ["data-ui-compact"] });
     return () => observer.disconnect();
   }, [interactions.ref]);
-  const tabWidth = denseUi
-    ? (narrowTabWidth ?? Math.min(112, metrics.tabWidth * 2))
+  const fixedTabWidth = denseUi
+    ? (narrowTabWidth ?? Math.min(COMPACT_TAB_WIDTH, metrics.tabWidth * 2))
     : metrics.tabWidth * 2;
   const faceHeight = metrics.tabFaceHeight * 2;
   const bottomHeight = metrics.tabBottomHeight * 2;
   const closeWidth = metrics.tabCloseWidth * 2;
-  const tabContentWidth = tabs.length * tabWidth + TAB_TRAILING_GAP;
+  const stripInset = style.dimensions.tabs_leading_inset ?? 0;
+  let tabOffset = stripInset;
+  const tabGeometry = tabs.map((tab) => {
+    const label = tab.translateLabel ? translateSource(tab.label) : tab.label;
+    const fittingWidth = Math.max(
+      MINIMUM_CONTENT_TAB_WIDTH,
+      measureThemeText(label) +
+        (style.dimensions.tabs_horizontal_padding ?? DEFAULT_TAB_HORIZONTAL_PADDING) +
+        (tab.icon ? TAB_ICON_LABEL_GAP : 0) +
+        (tab.closable !== false && onClose ? closeWidth : 0),
+    );
+    const tabWidth = style.dimensions.tabs_fit_content
+      ? denseUi
+        ? Math.min(fittingWidth, narrowTabWidth ?? COMPACT_TAB_WIDTH)
+        : fittingWidth
+      : fixedTabWidth;
+    const geometry = { x: tabOffset, width: tabWidth };
+    tabOffset += tabWidth;
+    return geometry;
+  });
+  const tabContentWidth = tabOffset + TAB_TRAILING_GAP;
   const availableTabWidth = Math.max(0, width - leadingContentWidth - trailingContentWidth);
   const scrollContentWidth = trailingContent
     ? tabContentWidth
@@ -128,6 +156,8 @@ export function Tabs({
   const [hotClose, setHotClose] = useState<string | null>(null);
   const [pressedClose, setPressedClose] = useState<string | null>(null);
   const artwork = (tab: TabItem, x: number, active: boolean, floating = false) => {
+    const tabWidth =
+      tabGeometry[tabs.findIndex((item) => item.id === tab.id)]?.width ?? fixedTabWidth;
     const label = tab.translateLabel ? translateSource(tab.label) : tab.label;
     const closeHot = !floating && hotClose === tab.id;
     const closePressed = !floating && pressedClose === tab.id && closeHot;
@@ -176,20 +206,30 @@ export function Tabs({
             position: "absolute",
             left: 0,
             top: 0,
-            width: tab.closable === false ? tabWidth - 8 : tabWidth - closeWidth,
+            width:
+              tab.closable === false || (style.dimensions.tabs_fit_content && !onClose)
+                ? tabWidth - labelInset
+                : tabWidth - closeWidth,
             height: faceHeight,
             overflow: "hidden",
           }}
         >
           {tab.icon && (
-            <UiIcon part={active ? tab.icon.active : tab.icon.inactive} x={8} y={6} scale={2} />
+            <UiIcon
+              part={active ? tab.icon.active : tab.icon.inactive}
+              x={labelInset}
+              y={6}
+              scale={2}
+              style={{ top: "var(--ui-tab-icon-top, 6px)" }}
+            />
           )}
           <Text
             variant={TextVariant.PositionedPixel}
             text={label}
-            x={tab.icon ? 28 : 8}
+            x={tab.icon ? labelInset + TAB_ICON_LABEL_GAP : labelInset}
             y={8}
             color={active ? style.colors.tab_active_text : style.colors.tab_normal_text}
+            style={{ top: "var(--ui-tab-label-top, 8px)" }}
           />
         </span>
         {tab.closable !== false && onClose && (
@@ -208,7 +248,13 @@ export function Tabs({
                 }}
               />
             )}
-            <UiIcon part={icon} x={tabWidth - closeWidth + 6} y={8} scale={2} />
+            <UiIcon
+              part={icon}
+              x={tabWidth - closeWidth + 6}
+              y={8}
+              scale={2}
+              style={{ top: "var(--ui-tab-close-icon-top, 8px)" }}
+            />
           </>
         )}
       </span>
@@ -219,28 +265,36 @@ export function Tabs({
   const visibleTabs = tabs
     .map((tab, index) => ({ tab, index }))
     .filter(({ tab }) => tab.id !== dragging?.value);
+  let visibleOffset = stripInset;
+  const visibleTabPositions = visibleTabs.map(({ index }) => {
+    const x = isFloating ? visibleOffset : tabGeometry[index].x;
+    visibleOffset += tabGeometry[index].width;
+    return x;
+  });
   const floatingTab =
     isFloating && dragging && typeof document !== "undefined"
       ? createPortal(
-          <div
-            className={styles.floatingTab}
-            aria-hidden="true"
-            style={{
-              left: dragging.x - dragging.offsetX,
-              top: dragging.y - dragging.offsetY,
-              width: tabWidth,
-              height: faceHeight + bottomHeight,
-              transformOrigin: "top left",
-              transform: `scale(${dragging.scaleX}, ${dragging.scaleY})`,
-            }}
-          >
-            {artwork(
-              tabs.find((tab) => tab.id === dragging.value)!,
-              0,
-              true,
-              true,
-            )}
-          </div>,
+          <ThemeScope>
+            <div
+              className={styles.floatingTab}
+              aria-hidden="true"
+              style={{
+                left: dragging.x - dragging.offsetX,
+                top: dragging.y - dragging.offsetY,
+                width: tabGeometry[dragging.originIndex]?.width ?? fixedTabWidth,
+                height: faceHeight + bottomHeight,
+                transformOrigin: "top left",
+                transform: `scale(${dragging.scaleX}, ${dragging.scaleY})`,
+              }}
+            >
+              {artwork(
+                tabs.find((tab) => tab.id === dragging.value)!,
+                0,
+                true,
+                true,
+              )}
+            </div>
+          </ThemeScope>,
           document.body,
         )
       : null;
@@ -254,6 +308,7 @@ export function Tabs({
       style={
         {
           height: metrics.tabsHeight * UI_SCALE,
+          ...(style.dimensions.tabs_fit_content ? { width } : {}),
           "--ui-tab-control-height": `${faceHeight}px`,
           "--ui-menu-normal-face": style.colors.menuitem_normal_face,
           ...rootStyle,
@@ -350,12 +405,8 @@ export function Tabs({
             height: bottomHeight,
           }}
         />
-        {visibleTabs.map(({ tab, index }, position) =>
-          artwork(
-            tab,
-            leadingContentWidth + (isFloating ? position : index) * tabWidth,
-            value === tab.id,
-          ),
+        {visibleTabs.map(({ tab }, position) =>
+          artwork(tab, leadingContentWidth + visibleTabPositions[position], value === tab.id),
         )}
         {dragging &&
           !isFloating &&
@@ -363,7 +414,7 @@ export function Tabs({
           artwork(
             tabs.find((tab) => tab.id === dragging.value)!,
             leadingContentWidth +
-              dragging.originIndex * tabWidth +
+              tabGeometry[dragging.originIndex].x +
               Math.round(dragging.delta / UI_SCALE_X),
             value === dragging.value,
           )}
@@ -381,8 +432,8 @@ export function Tabs({
             aria-description={tab.modified ? translateKey("ui.unsaved.changes") : undefined}
             className={styles.tab}
             style={{
-              left: Math.floor((leadingContentWidth + index * tabWidth) * UI_SCALE_X),
-              width: Math.ceil(tabWidth * UI_SCALE_X),
+              left: Math.floor((leadingContentWidth + tabGeometry[index].x) * UI_SCALE_X),
+              width: Math.ceil(tabGeometry[index].width * UI_SCALE_X),
               height: metrics.tabFaceHeight * UI_SCALE,
             }}
             onKeyDown={(event) => {

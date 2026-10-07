@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { centerThemePixel } from "$/base/components/theme-controls";
+import { centerThemePixel } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { ThemeIcon, ThemePart } from "$/base/theme/theme-part";
 import { cn } from "$/base/utils/cn";

@@ -1,0 +1,92 @@
+{
+  "images/en/file-menu.webp": {
+    "width": 272,
+    "height": 152,
+    "displayWidth": 272,
+    "displayHeight": 152
+  },
+  "images/en/layout-menu.webp": {
+    "width": 206,
+    "height": 230,
+    "displayWidth": 206,
+    "displayHeight": 230
+  },
+  "images/en/save-as.webp": {
+    "width": 376,
+    "height": 336,
+    "displayWidth": 376,
+    "displayHeight": 336
+  },
+  "images/en/touch-settings.webp": {
+    "width": 698,
+    "height": 458,
+    "displayWidth": 698,
+    "displayHeight": 458
+  },
+  "images/en/view-show.webp": {
+    "width": 250,
+    "height": 304,
+    "displayWidth": 250,
+    "displayHeight": 304
+  },
+  "images/shared/layout-button.webp": {
+    "width": 80,
+    "height": 40,
+    "displayWidth": 80,
+    "displayHeight": 40
+  },
+  "images/zh/file-menu.webp": {
+    "width": 224,
+    "height": 152,
+    "displayWidth": 224,
+    "displayHeight": 152
+  },
+  "images/zh/layout-menu.webp": {
+    "width": 160,
+    "height": 230,
+    "displayWidth": 160,
+    "displayHeight": 230
+  },
+  "images/zh/save-as.webp": {
+    "width": 376,
+    "height": 336,
+    "displayWidth": 376,
+    "displayHeight": 336
+  },
+  "images/zh/touch-settings.webp": {
+    "width": 698,
+    "height": 458,
+    "displayWidth": 698,
+    "displayHeight": 458
+  },
+  "images/zh/view-show.webp": {
+    "width": 226,
+    "height": 304,
+    "displayWidth": 226,
+    "displayHeight": 304
+  },
+  "images/shared/color-buttons.webp": {
+    "width": 168,
+    "height": 76,
+    "displayWidth": 168,
+    "displayHeight": 76
+  },
+  "images/en/chrome-install-button.webp": {
+    "width": 180,
+    "height": 68,
+    "displayWidth": 180,
+    "displayHeight": 68
+  },
+  "images/shared/selection-arrows.webp": {
+    "width": 136,
+    "height": 40,
+    "displayWidth": 136,
+    "displayHeight": 40
+  },
+  "images/shared/selection-modifiers.webp": {
+    "width": 104,
+    "height": 40,
+    "displayWidth": 104,
+    "displayHeight": 40
+  }
+}

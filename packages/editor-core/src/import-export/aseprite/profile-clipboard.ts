@@ -14,10 +14,11 @@ import {
   paletteForColors,
   type AsepriteImageSamples,
 } from "$/color/samples";
+import type { EditorProject } from "$/document";
 import { assertDimension, assertPixelCount } from "$/document/pixel-validation";
 import type { EditorDocument } from "$/document/types";
 import type { AsepriteTileset } from "$/import-export/aseprite/model";
-import { asepriteFromProject, type AsepriteEditorProject } from "$/import-export/aseprite/project";
+import { asepriteFromProject } from "$/import-export/aseprite/project";
 import {
   canKeepSelectionAsepriteSamples,
   transformCorners,
@@ -265,14 +266,14 @@ export function prepareTimelineClipboardForDocument(
 
 /** New sprite inherits Aseprite sample mode and working profile, not an implicit
  * flattened sRGB conversion. The workspace installs this as an unsaved project. */
-export function projectFromClipboardImage(payload: ClipboardImage): AsepriteEditorProject {
+export function projectFromClipboardImage(payload: ClipboardImage): EditorProject {
   const pixels = { ...payload.pixels, data: payload.pixels.data.slice() },
     asepriteSamples = payload.asepriteSamples
       ? { ...payload.asepriteSamples, data: payload.asepriteSamples.data.slice() }
       : undefined,
     palette = payload.palette?.map((c) => [...c] as Rgba),
     background = !!payload.sourceBackground;
-  const timeline: AsepriteEditorProject["timeline"] = {
+  const timeline: EditorProject["timeline"] = {
     colorDepth: asepriteSamples?.depth ?? 32,
     transparentIndex: payload.transparentIndex ?? 0,
     composeGroups: false,

@@ -22,7 +22,7 @@
 .menuArtwork {
   position: absolute;
   inset: 0;
-  overflow: hidden;
+  overflow: var(--ui-menu-artwork-overflow, hidden);
   pointer-events: none;
 }
 
@@ -68,6 +68,7 @@
   border: 0;
   outline: none;
   background: transparent;
+  text-decoration: none;
   cursor: var(--ui-cursor-default, default);
 }
 
@@ -88,12 +89,18 @@
   cursor: var(--ui-cursor-default, default);
 }
 
+.menuTrigger::before {
+  content: "";
+  position: absolute;
+  inset: var(--ui-menu-trigger-face-inset, 0px) 0;
+  background: var(--ui-menu-trigger-face, transparent);
+}
 .menuTrigger[data-hovered="true"] {
-  background: var(--ui-menu-hot-face);
+  --ui-menu-trigger-face: var(--ui-menu-hot-face);
 }
 
 .menuTrigger[data-open="true"] {
-  background: var(--ui-menu-highlight-face);
+  --ui-menu-trigger-face: var(--ui-menu-highlight-face);
 }
 
 .menuTriggerArt {
@@ -101,4 +108,24 @@
   inset: 0 auto auto 0;
   pointer-events: none;
   transform-origin: top left;
+}
+
+.menuItemIcon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.menuItemIcon img {
+  max-width: 100%;
+  max-height: 100%;
+  image-rendering: pixelated;
+}
+
+.menuTriggerContent {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
 }

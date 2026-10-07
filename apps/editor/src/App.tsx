@@ -1,13 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
+import { createBrowserAgentToolsPort } from "$/adapters/agent/browser-agent-tools";
 import { createBrowserEditorHostPorts } from "$/adapters/platform/browser-editor-host";
+import { createBrowserPwaPort } from "$/adapters/pwa/browser-pwa";
+import { createBrowserReplayPort } from "$/adapters/replay/browser-replay";
+import { BrowserReplayStorage } from "$/adapters/replay/browser-replay-storage";
 import { DEFAULT_PROJECT_DATABASE_NAME } from "$/adapters/storage/project-storage/indexeddb";
 import { RecoverySettingsStore } from "$/adapters/storage/recovery-settings-store";
 import { EditorSurface } from "$/components/canvas/editor-surface";
+import { ReplayHost } from "$/components/replay/replay-host";
 import { EditorStartup } from "$/components/shell/editor-startup";
 import { EditorView } from "$/components/shell/editor-view";
+import { PwaNotifications } from "$/components/shell/pwa";
 import { ColorProfileProvider } from "$/components/tools/color-profile";
 import { currentUiLanguage, tUi, tUiSource, useUiLanguage } from "$/i18n";
+import { AgentToolsManager } from "$/managers/agent/agent-tools-manager";
 import { ColorSourcesProvider } from "$/managers/colors/color-sources";
 import { useDiagnosticsPort } from "$/managers/diagnostics/diagnostics-context";
 import { EditorProvider } from "$/managers/editor/editor-state-manager";
@@ -17,14 +24,26 @@ import {
   automaticViewTransition,
   EditorViewChangeReason,
 } from "$/managers/editor/editor-view-transition";
+import { PROJECT_SHARE_LIMITS } from "$/managers/files/sharing-policy";
 import { CanvasInputProvider } from "$/managers/input/canvas-input-context";
 import { useWheelDevicePreferences } from "$/managers/input/use-wheel-device-preferences";
 import { WheelDeviceProvider } from "$/managers/input/wheel-device-context";
 import { EditorPlatformProvider } from "$/managers/platform/editor-platform-context";
+import { AGENT_DOCUMENTATION_FILE, AGENT_GLOBAL_NAME } from "$/managers/ports/agent-tools";
 import { DiagnosticSource, type DiagnosticsPort } from "$/managers/ports/diagnostics";
-import type { EditorHostFactory, EditorHostPorts } from "$/managers/ports/editor-host";
+import type {
+  EditorHostFactory,
+  EditorHostPorts,
+  EditorInitialProject,
+} from "$/managers/ports/editor-host";
+import type { PwaPort } from "$/managers/ports/pwa";
+import { PwaProvider } from "$/managers/pwa/pwa-context";
+import { PwaManager } from "$/managers/pwa/pwa-manager";
+import { ReplayProvider } from "$/managers/replay/replay-context";
+import { ReplayManager } from "$/managers/replay/replay-manager";
 import { EditorChromePreferencesManager } from "$/managers/shell/editor-chrome-preferences";
 import { EditorChromePreferencesProvider } from "$/managers/shell/editor-chrome-preferences-context";
+import { ProjectRepository } from "$/managers/storage/project-repository";
 import { reportingSessionPorts } from "$/managers/telemetry/reporting-session-ports";
 import { useTelemetry } from "$/managers/telemetry/telemetry-context";
 import type { TelemetryManager } from "$/managers/telemetry/telemetry-manager";
@@ -52,7 +71,7 @@ function createEditorWorkspace(
   const createId = randomId;
   const platform = host.platform;
   const recovery = new WorkspaceRecovery({
-    repository: host.createRepository(),
+    repository: new ProjectRepository(host.createProjectStorage()),
     codec: host.createCodec(),
     settingsStore: new RecoverySettingsStore(PROJECT_DATABASE_NAME, platform.preferences),
     createId,
@@ -81,12 +100,14 @@ function EditorApplication({
   uiStore,
   home,
   initialTab,
+  initialProject,
 }: {
   workspace: DocumentWorkspace;
   workspaceLifetime: WorkspaceLifetime;
   uiStore: ReturnType<typeof createEditorUiStore>;
   home: boolean;
   initialTab: EditorTab;
+  initialProject?: Promise<EditorInitialProject | Error | null> | null;
 }) {
   const systemAppearanceMode = useSystemAppearance();
   const runtime = useEditorRuntime(
@@ -96,7 +117,39 @@ function EditorApplication({
     workspaceLifetime,
   );
   const telemetry = useTelemetry();
+  const initialProjectImported = useRef(false);
   const wheelDevice = useWheelDevicePreferences();
+  const [replay] = useState(
+    () =>
+      new ReplayManager(workspace, uiStore, createBrowserReplayPort(), new BrowserReplayStorage()),
+  );
+
+  useEffect(() => {
+    if (runtime.startup !== "ready") return;
+    const agent = new AgentToolsManager(workspace, createBrowserAgentToolsPort(), (transition) =>
+      uiStore.getState().setTab("document", transition),
+    );
+    return agent.start();
+  }, [runtime.startup, workspace, uiStore]);
+
+  useEffect(() => {
+    if (runtime.startup !== "ready" || !initialProject || initialProjectImported.current) return;
+    let cancelled = false;
+    void initialProject.then((result) => {
+      if (cancelled || initialProjectImported.current) return;
+      initialProjectImported.current = true;
+      if (result instanceof Error) workspace.active.session.reportError(result);
+      else if (result) {
+        workspace.createDocumentFromProject(result.project, result.name);
+        uiStore
+          .getState()
+          .setTab("document", automaticViewTransition(EditorViewChangeReason.DocumentOpened));
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [runtime.startup, initialProject, workspace, uiStore]);
 
   useEffect(() => {
     if (runtime.startup === "ready") telemetry.markReady();
@@ -134,14 +187,23 @@ function EditorApplication({
                     initialTab={initialTab}
                     uiStore={uiStore}
                   >
-                    <EditorSurface>
-                      <EditorView
-                        home={home}
-                        appearanceMode={runtime.appearanceMode}
-                        onAppearanceModeChange={runtime.changeAppearanceMode}
-                        persistAppearanceMode={runtime.persistAppearanceMode}
-                      />
-                    </EditorSurface>
+                    <ReplayProvider manager={replay}>
+                      <EditorSurface
+                        label={tUi("ui.pixel.editor.browser.use", {
+                          api: `window.${AGENT_GLOBAL_NAME}`,
+                          path: `${import.meta.env.BASE_URL}${AGENT_DOCUMENTATION_FILE}`,
+                        })}
+                      >
+                        <EditorView
+                          home={home}
+                          appearanceMode={runtime.appearanceMode}
+                          onAppearanceModeChange={runtime.changeAppearanceMode}
+                          persistAppearanceMode={runtime.persistAppearanceMode}
+                        />
+                        <PwaNotifications />
+                        <ReplayHost />
+                      </EditorSurface>
+                    </ReplayProvider>
                   </EditorProvider>
                 </ColorSourcesProvider>
               </ColorProfileProvider>
@@ -152,6 +214,7 @@ function EditorApplication({
     ),
     [
       workspace,
+      replay,
       uiStore,
       home,
       initialTab,
@@ -174,7 +237,12 @@ function EditorApplication({
 export default function App({
   createHost,
   workspaceLifetime: suppliedWorkspaceLifetime,
-}: { createHost?: EditorHostFactory; workspaceLifetime?: WorkspaceLifetime } = {}) {
+  pwaPort: suppliedPwaPort,
+}: {
+  createHost?: EditorHostFactory;
+  workspaceLifetime?: WorkspaceLifetime;
+  pwaPort?: PwaPort;
+} = {}) {
   useUiLanguage();
   const diagnostics = useDiagnosticsPort();
   const telemetry = useTelemetry();
@@ -185,6 +253,21 @@ export default function App({
     return factory(diagnostics);
   });
   const platform = host.platform;
+  const [initialProject, setInitialProject] = useState<Promise<
+    EditorInitialProject | Error | null
+  > | null>(null);
+  const initialProjectRequested = useRef(false);
+  useEffect(() => {
+    if (initialProjectRequested.current) return;
+    initialProjectRequested.current = true;
+    const incoming = host.takeInitialProject?.(PROJECT_SHARE_LIMITS);
+    if (incoming)
+      setInitialProject(
+        incoming.catch((reason: unknown) =>
+          reason instanceof Error ? reason : new Error("Unable to open the viewer file."),
+        ),
+      );
+  }, [host]);
   const [chromePreferences] = useState(
     () =>
       new EditorChromePreferencesManager(
@@ -195,6 +278,16 @@ export default function App({
   const home = chromePreferences.getSnapshot().showHomeTabOnStart;
   const initialTab: EditorTab = home ? "home" : "document";
   const [workspace] = useState(() => createEditorWorkspace(host, diagnostics, telemetry));
+  const [pwa] = useState(
+    () =>
+      new PwaManager({
+        port:
+          suppliedPwaPort ??
+          createBrowserPwaPort({ enabled: false, baseUrl: import.meta.env.BASE_URL }),
+        preferences: platform.preferences,
+      }),
+  );
+  useEffect(() => pwa.start(), [pwa]);
   const [uiStore] = useState(() =>
     createEditorUiStore(initialTab, platform.preferences, platform.navigation.location?.read()),
   );
@@ -202,13 +295,16 @@ export default function App({
   return (
     <EditorPlatformProvider ports={platform}>
       <EditorChromePreferencesProvider manager={chromePreferences}>
-        <EditorApplication
-          workspace={workspace}
-          workspaceLifetime={workspaceLifetime}
-          uiStore={uiStore}
-          home={home}
-          initialTab={initialTab}
-        />
+        <PwaProvider manager={pwa}>
+          <EditorApplication
+            workspace={workspace}
+            workspaceLifetime={workspaceLifetime}
+            uiStore={uiStore}
+            home={home}
+            initialTab={initialTab}
+            initialProject={initialProject}
+          />
+        </PwaProvider>
       </EditorChromePreferencesProvider>
     </EditorPlatformProvider>
   );

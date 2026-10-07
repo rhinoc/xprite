@@ -29,3 +29,11 @@ export interface EditorDocument {
   /** Document palette; optional for existing external document constructors. */
   palette?: readonly Rgba[];
 }
+
+/** Committed document content for persistence, excluding interaction drafts and
+ * undo history. Saving recovery does not save an external project file. */
+export interface EditorPersistenceSnapshot {
+  version: 1;
+  document: EditorDocument;
+  dirty: boolean;
+}

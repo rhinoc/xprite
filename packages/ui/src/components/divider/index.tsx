@@ -1,8 +1,4 @@
-import {
-  centerThemePixel,
-  measureThemeText,
-  themeFontHeight,
-} from "$/base/components/theme-controls";
+import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import type { AtlasPartName } from "$/base/theme/theme-part";
 import { ThemeRepeat, ThemeRepeatAxis } from "$/base/theme/theme-repeat";
@@ -18,7 +14,6 @@ import { Text, TextVariant } from "$/components/text";
 import styles from "$/components/divider/divider.module.css";
 
 const SEPARATOR_SPRITE_PITCH = 18;
-const SEPARATOR_SPRITE_SIZE = 10;
 const SEPARATOR_HORIZONTAL_LABEL_LEFT = 8;
 const SEPARATOR_HORIZONTAL_LABEL_TOP = 4;
 const SEPARATOR_LABEL_BACKGROUND_LEFT = 4;
@@ -42,7 +37,7 @@ interface DividerContentProps {
 
 export type DividerProps = DividerContentProps & SizedControlPlacement;
 
-/** Aseprite-theme horizontal or vertical divider with an optional section label. */
+/** Themed horizontal or vertical divider with an optional section label. */
 export function Divider(props: DividerProps) {
   const {
     variant = DividerVariant.Standard,
@@ -55,15 +50,17 @@ export function Divider(props: DividerProps) {
   } = props;
   const bounds = sizedControlBounds(props);
   const { translateSource, definition } = useTheme();
+  const { measureThemeText, themeFontHeight } = useThemeText();
   const displayText = text ? translateSource(text) : "";
   const layout = surfaceLayout(bounds, viewport);
   const origin = surfaceLayout({ ...relativeTo, width: 0, height: 0 }, viewport);
   const part = (vertical ? "separator_vert" : "separator_horz") as AtlasPartName;
+  const spriteSize = (vertical ? definition.parts[part].width : definition.parts[part].height) * 2;
   const hasHorizontalLabel = !!displayText && !vertical;
   const inView = variant !== DividerVariant.Standard;
   const heading = variant === DividerVariant.InViewHeading;
   const background = heading
-    ? definition.colors.workspace
+    ? "var(--ui-heading-face)"
     : inView
       ? definition.colors.background
       : definition.colors.window_face;
@@ -108,19 +105,15 @@ export function Divider(props: DividerProps) {
             length={vertical ? bounds.height : bounds.width}
             pitch={SEPARATOR_SPRITE_PITCH}
             axis={vertical ? ThemeRepeatAxis.Vertical : ThemeRepeatAxis.Horizontal}
-            x={
-              vertical
-                ? centerThemePixel(bounds.x, bounds.width, SEPARATOR_SPRITE_SIZE) - bounds.x
-                : 0
-            }
+            x={vertical ? centerThemePixel(bounds.x, bounds.width, spriteSize) - bounds.x : 0}
             y={
               vertical
                 ? 0
                 : inView
-                  ? centerThemePixel(bounds.y, bounds.height, SEPARATOR_SPRITE_SIZE) - bounds.y
+                  ? centerThemePixel(bounds.y, bounds.height, spriteSize) - bounds.y
                   : displayText
                     ? 6
-                    : centerThemePixel(bounds.y, bounds.height, SEPARATOR_SPRITE_SIZE) - bounds.y
+                    : centerThemePixel(bounds.y, bounds.height, spriteSize) - bounds.y
             }
           />
         )}
@@ -141,7 +134,7 @@ export function Divider(props: DividerProps) {
               text={displayText}
               x={SEPARATOR_HORIZONTAL_LABEL_LEFT}
               y={textY}
-              color={heading ? definition.colors.background : definition.colors.separator_label}
+              color={heading ? "var(--ui-heading-ink)" : definition.colors.separator_label}
             />
           </>
         )}

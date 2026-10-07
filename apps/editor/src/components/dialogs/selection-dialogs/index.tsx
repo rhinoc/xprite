@@ -12,10 +12,17 @@ import {
   type EditorColor,
 } from "$/managers/tools/color-control";
 import { ToolSelectionMode, ToolSelectionModifier } from "$/managers/tools/tool-options";
-import { Button, Input, Label, isDialogPopupTarget } from "@xprite/ui";
-import { Checkbox, CheckboxVariant } from "@xprite/ui";
-import { Divider } from "@xprite/ui";
-import { Slider } from "@xprite/ui";
+import {
+  Button,
+  Input,
+  isDialogPopupTarget,
+  Text,
+  TextVariant,
+  Checkbox,
+  CheckboxVariant,
+  Divider,
+  Slider,
+} from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 import { measureUiText } from "@xprite/ui/assets";
 import { isImeKeyboardEvent } from "@xprite/ui/utils";
@@ -205,7 +212,8 @@ export function SelectionDialogs({
                   relativeTo={c}
                   width={186}
                 />
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{ x: c.x + 2, y: c.y + 40, width: 48, height: 30 }}
                   relativeTo={c}
                   text="Color:"
@@ -217,7 +225,8 @@ export function SelectionDialogs({
                   aria-label="Color"
                   onClick={() => setPicker({ x: c.x + 58, y: c.y + 40, width: 128, height: 30 })}
                 />
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{ x: c.x + 2, y: c.y + 78, width: 90, height: 32 }}
                   relativeTo={c}
                   text="Tolerance:"
@@ -242,7 +251,8 @@ export function SelectionDialogs({
               </>
             ) : (
               <>
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{ x: c.x + 2, y: c.y, width: labelWidth - 2, height: 30 }}
                   relativeTo={c}
                   text={byLabel}

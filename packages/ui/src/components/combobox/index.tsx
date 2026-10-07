@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useId, useRef, useState, type InputHTMLAttributes } from "react";
 import { createPortal } from "react-dom";
 
-import { Input, centerThemePixel, measureThemeText } from "$/base/components/theme-controls";
+import { Input } from "$/base/components/theme-controls";
+import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { ThemePart, ThemeIcon } from "$/base/theme/theme-part";
 import { ThemeRepeat } from "$/base/theme/theme-repeat";
+import { ThemeScope } from "$/base/theme/theme-scope";
 import { hitElement, clientPoint, clientRect } from "$/base/utils/dom-geometry";
 import {
   surfaceLayout,
@@ -14,6 +16,7 @@ import {
   type SurfaceViewport,
 } from "$/components/canvas-surface";
 import type { ControlPlacement } from "$/components/control-flow/placement";
+import { useFieldControl } from "$/components/field/Field";
 import type { InputTouchActivation } from "$/components/input/touch-activation";
 import { measurePopoverAnchor, anchoredPopoverStyle } from "$/components/popover/anchored";
 import { Scrollbar } from "$/components/scrollbar";
@@ -21,6 +24,8 @@ import { Text, TextVariant } from "$/components/text";
 
 import styles from "$/components/combobox/combobox.module.css";
 interface ComboboxContentProps {
+  /** Width in theme pixels; keep the skin's natural height. */
+  pixelWidth?: number;
   value: string;
   options: readonly { value: string; label: string; disabled?: boolean; separator?: boolean }[];
   onValueChange: (value: string) => void;
@@ -37,6 +42,9 @@ interface ComboboxContentProps {
   title?: string;
   buttonLabel?: string;
   "aria-invalid"?: InputHTMLAttributes<HTMLInputElement>["aria-invalid"];
+  id?: string;
+  "aria-labelledby"?: string;
+  "aria-describedby"?: string;
   "aria-label": string;
 }
 export type ComboboxProps = ComboboxContentProps & ControlPlacement;
@@ -48,13 +56,14 @@ type PopupLayout = {
   availableHeight: number;
   innerHeight: number;
 };
-const ROW = 18;
+const DEFAULT_ROW = 18;
 const DEFAULT_COMBOBOX_SIZE = { width: 72, height: 12 };
 const POPUP_LABEL_RESERVE = 24;
 /** Source ComboBox: non-editable entry + arrow button, and a Window/View/ListBox popup. */
 export function Combobox({
   bounds: suppliedBounds,
-  pixelSize = DEFAULT_COMBOBOX_SIZE,
+  pixelSize,
+  pixelWidth,
   relativeTo = { x: 0, y: 0 },
   value,
   options,
@@ -68,15 +77,38 @@ export function Combobox({
   touchActivation,
   title,
   buttonLabel,
+  id: controlId,
+  "aria-labelledby": labelledBy,
+  "aria-describedby": describedBy,
   "aria-invalid": ariaInvalid,
   "aria-label": label,
 }: ComboboxProps) {
+  const fieldAttributes = useFieldControl({
+    id: controlId,
+    "aria-labelledby": labelledBy,
+    "aria-describedby": describedBy,
+    "aria-invalid": ariaInvalid,
+  });
   const { definition: theme, translateSource, translateKey } = useTheme();
+  const { measureThemeText, themeFontHeight, centerThemePixel: centerText } = useThemeText();
+  const popupMenu = theme.controlParts?.combobox?.popupMenu;
+  const rowHeight = popupMenu ? (theme.dimensions.menu_row_height ?? DEFAULT_ROW) : DEFAULT_ROW;
+  const insetX = popupMenu ? 1 : 6;
+  const insetY = popupMenu ? 1 : 8;
+  const bottomInset = popupMenu ? 1 : 6;
+  const barSize = popupMenu ? (theme.controlParts?.scrollbar?.arrowExtent ?? 16) : 12;
+  const labelInset = popupMenu ? (theme.dimensions.menu_text_inset ?? 17) - insetX : 2;
   const bounds = suppliedBounds ?? {
     x: 0,
     y: 0,
-    width: pixelSize.width * RASTER_SCALE,
-    height: pixelSize.height * RASTER_SCALE,
+    width: pixelSize
+      ? pixelSize.width * RASTER_SCALE
+      : pixelWidth !== undefined
+        ? pixelWidth * RASTER_SCALE
+        : (theme.dimensions.combobox_width ?? DEFAULT_COMBOBOX_SIZE.width * RASTER_SCALE),
+    height: pixelSize
+      ? pixelSize.height * RASTER_SCALE
+      : (theme.dimensions.combobox_height ?? DEFAULT_COMBOBOX_SIZE.height * RASTER_SCALE),
   };
   const layout = surfaceLayout(bounds),
     id = useId();
@@ -93,9 +125,10 @@ export function Combobox({
   const [popup, setPopup] = useState<PopupLayout | null>(null),
     [scroll, setScroll] = useState(0);
   const [focused, setFocused] = useState(false),
+    [hovered, setHovered] = useState(false),
     [arrowHot, setArrowHot] = useState(false),
     [pressed, setPressed] = useState(false);
-  const rowHeights = options.map((o) => (o.separator ? 16 : ROW));
+  const rowHeights = options.map((o) => (o.separator ? (popupMenu ? 8 : 16) : rowHeight));
   const rowOffsets = options.map((_, i) => rowHeights.slice(0, i).reduce((a, b) => a + b, 0));
   const contentHeight = rowHeights.reduce((a, b) => a + b, 0);
   const selected = options.findIndex((option) => option.value === value),
@@ -154,16 +187,16 @@ export function Combobox({
       bottom = anchorBounds.bottom;
     const innerHeight = Math.min(
       contentHeight,
-      Math.max(ROW, Math.max(top, availableHeight - bottom) - 16),
+      Math.max(rowHeight, Math.max(top, availableHeight - bottom) - insetY - bottomInset - 2),
     );
-    const height = innerHeight + 14,
+    const height = innerHeight + insetY + bottomInset,
       y = bottom + height <= availableHeight ? bottom : Math.max(0, top - height);
     setScroll(
       Math.max(
         0,
         Math.min(
           contentHeight - innerHeight,
-          (rowOffsets[selected] ?? 0) - Math.floor(innerHeight / 2) + ROW / 2,
+          (rowOffsets[selected] ?? 0) - Math.floor(innerHeight / 2) + rowHeight / 2,
         ),
       ),
     );
@@ -225,7 +258,7 @@ export function Combobox({
             contentHeight - popup.innerHeight,
             old +
               (event.deltaMode
-                ? Math.sign(event.deltaY) * ROW
+                ? Math.sign(event.deltaY) * rowHeight
                 : (event.deltaY * popup.viewport.sceneHeight) / popup.viewport.height),
           ),
         ),
@@ -266,16 +299,27 @@ export function Combobox({
     );
   };
   const scrollbar = !!popup && contentHeight > popup.innerHeight;
-  const facePart = focused && !disabled ? "sunken2_focused" : "sunken2_normal";
+  const parts = theme.controlParts?.combobox;
+  const normalFacePart = parts?.faceNormal ?? "sunken2_normal";
+  const focusedFacePart = parts?.faceFocused ?? "sunken2_focused";
+  const facePart =
+    !disabled && hovered && parts?.faceHot
+      ? parts.faceHot
+      : focused && !disabled
+        ? focusedFacePart
+        : normalFacePart;
+  const arrowSelected = !disabled && (pressed || !!(popup && parts?.arrowOpen));
   const arrowPart =
     !disabled && pressed
-      ? "buttonset_item_pushed"
-      : !disabled && arrowHot
-        ? "buttonset_item_hot"
-        : "buttonset_item_normal";
+      ? (parts?.arrowPressed ?? "buttonset_item_pushed")
+      : !disabled && popup && parts?.arrowOpen
+        ? parts.arrowOpen
+        : !disabled && arrowHot
+          ? (parts?.arrowHot ?? "buttonset_item_hot")
+          : (parts?.arrowNormal ?? "buttonset_item_normal");
   const arrowIcon = disabled
     ? "combobox_arrow_down_disabled"
-    : pressed
+    : arrowSelected
       ? "combobox_arrow_down_selected"
       : "combobox_arrow_down";
   return (
@@ -283,6 +327,7 @@ export function Combobox({
       <span
         ref={anchor}
         className={styles.anchor}
+        data-disabled={disabled || undefined}
         style={{
           position: suppliedBounds ? "absolute" : "relative",
           left: suppliedBounds
@@ -304,13 +349,14 @@ export function Combobox({
         }}
       >
         <button
+          {...(!editable ? fieldAttributes : {})}
           className={styles.trigger}
           ref={trigger}
           type="button"
           tabIndex={editable ? -1 : undefined}
           role={editable ? undefined : "combobox"}
           aria-label={displayButtonLabel ?? displayLabel}
-          aria-invalid={ariaInvalid}
+          aria-invalid={fieldAttributes["aria-invalid"]}
           data-ui-label-source={buttonLabel ?? label}
           aria-valuetext={editable ? undefined : text}
           aria-expanded={!!popup}
@@ -343,13 +389,17 @@ export function Combobox({
           }}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
+          onPointerEnter={() => setHovered(true)}
           onPointerMove={(event) => {
             const rect = clientRect(event.currentTarget);
             setArrowHot(
-              editable || clientPoint(event).x >= rect.right - (30 * rect.width) / bounds.width,
+              !!parts?.faceHot ||
+                editable ||
+                clientPoint(event).x >= rect.right - (30 * rect.width) / bounds.width,
             );
           }}
           onPointerLeave={() => {
+            setHovered(false);
             setArrowHot(false);
             if (!gesture.current) setPressed(false);
           }}
@@ -449,16 +499,24 @@ export function Combobox({
           <ThemeIcon
             part={arrowIcon}
             scale={2}
-            x={bounds.width - 24}
-            y={centerThemePixel(bounds.y + 6, bounds.height - 16, 16) - bounds.y}
+            x={
+              theme.dimensions.combobox_arrow_centered
+                ? bounds.width - (theme.dimensions.combobox_arrow_inset ?? 17)
+                : bounds.width - 24
+            }
+            y={
+              theme.dimensions.combobox_arrow_centered
+                ? (bounds.height - theme.parts[arrowIcon].height * 2) / 2
+                : centerThemePixel(bounds.y + 6, bounds.height - 16, 16) - bounds.y
+            }
           />
           {!editable && (
             <span
               style={{
                 position: "absolute",
-                left: 8,
+                left: theme.dimensions.combobox_text_inset ?? 8,
                 top: 0,
-                width: bounds.width - 38,
+                width: bounds.width - 30 - (theme.dimensions.combobox_text_inset ?? 8),
                 height: bounds.height,
                 overflow: "hidden",
               }}
@@ -467,7 +525,11 @@ export function Combobox({
                 variant={TextVariant.PositionedPixel}
                 text={text}
                 x={0}
-                y={centerThemePixel(bounds.y, bounds.height, 14) - bounds.y}
+                y={
+                  centerThemePixel(bounds.y, bounds.height, 14) -
+                  bounds.y +
+                  (theme.dimensions.combobox_text_offset_y ?? 0)
+                }
                 color={disabled ? theme.colors.disabled : theme.colors.text}
               />
             </span>
@@ -475,10 +537,11 @@ export function Combobox({
         </span>
         {editable && (
           <Input
+            {...fieldAttributes}
             bounds={{ ...bounds, width: bounds.width - 30 }}
             relativeTo={bounds}
-            part="sunken2_normal"
-            focusedPart="sunken2_focused"
+            part={normalFacePart}
+            focusedPart={focusedFacePart}
             value={value}
             onValueChange={onDraftValueChange}
             onCommit={onValueChange}
@@ -488,7 +551,7 @@ export function Combobox({
             suffix={suffix}
             title={displayTitle}
             aria-label={displayLabel}
-            aria-invalid={ariaInvalid}
+            aria-invalid={fieldAttributes["aria-invalid"]}
             role="combobox"
             aria-haspopup="listbox"
             aria-expanded={!!popup}
@@ -515,7 +578,7 @@ export function Combobox({
                   const delta =
                       (event.key.endsWith("Down") ? 1 : -1) *
                       (event.key.startsWith("Page")
-                        ? Math.max(1, Math.floor(popup.innerHeight / ROW))
+                        ? Math.max(1, Math.floor(popup.innerHeight / rowHeight))
                         : 1),
                     next =
                       enabled[
@@ -531,100 +594,124 @@ export function Combobox({
       </span>
       {popup &&
         createPortal(
-          <div
-            ref={list}
-            className={styles.popup}
-            id={id}
-            role="listbox"
-            aria-label={displayLabel}
-            aria-activedescendant={selected >= 0 ? `${id}-${selected}` : undefined}
-            tabIndex={0}
-            style={{
-              ...anchoredPopoverStyle(popup, popup.bounds, { zIndex: 9000 }),
-              outline: "none",
-            }}
-            onKeyDown={(event) => {
-              event.stopPropagation();
-              if (["Escape", "Enter", " "].includes(event.key)) {
-                event.preventDefault();
-                close();
-                return;
-              }
-              if (event.key === "Tab") {
-                close(false);
-                return;
-              }
-              const enabled = options
-                .map((option, index) => (option.disabled || option.separator ? -1 : index))
-                .filter((index) => index >= 0);
-              if (!enabled.length) return;
-              let next: number | undefined;
-              const at = enabled.indexOf(selected);
-              if (event.key === "Home") next = enabled[0];
-              else if (event.key === "End") next = enabled[enabled.length - 1];
-              else if (["ArrowDown", "ArrowUp", "PageDown", "PageUp"].includes(event.key)) {
-                const delta =
-                  (event.key.endsWith("Down") ? 1 : -1) *
-                  (event.key.startsWith("Page")
-                    ? Math.max(1, Math.floor(popup.innerHeight / ROW))
-                    : 1);
-                next = enabled[Math.max(0, Math.min(enabled.length - 1, at + delta))];
-              } else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey)
-                next = [...enabled.slice(at + 1), ...enabled.slice(0, at + 1)].find((index) =>
-                  options[index].label.toLowerCase().startsWith(event.key.toLowerCase()),
-                );
-              if (next !== undefined) {
-                event.preventDefault();
-                choose(next);
-                ensureVisible(next);
-              }
-            }}
-          >
-            <span
-              aria-hidden="true"
-              className={styles.viewport}
+          <ThemeScope>
+            <div
+              ref={list}
+              className={styles.popup}
+              id={id}
+              role="listbox"
+              aria-label={displayLabel}
+              aria-activedescendant={selected >= 0 ? `${id}-${selected}` : undefined}
+              tabIndex={0}
               style={{
-                width: surfaceLayout(popup.bounds, popup.viewport).width,
-                height: surfaceLayout(popup.bounds, popup.viewport).height,
+                ...anchoredPopoverStyle(popup, popup.bounds, { zIndex: 9000 }),
+                outline: "none",
+              }}
+              onKeyDown={(event) => {
+                event.stopPropagation();
+                if (["Escape", "Enter", " "].includes(event.key)) {
+                  event.preventDefault();
+                  close();
+                  return;
+                }
+                if (event.key === "Tab") {
+                  close(false);
+                  return;
+                }
+                const enabled = options
+                  .map((option, index) => (option.disabled || option.separator ? -1 : index))
+                  .filter((index) => index >= 0);
+                if (!enabled.length) return;
+                let next: number | undefined;
+                const at = enabled.indexOf(selected);
+                if (event.key === "Home") next = enabled[0];
+                else if (event.key === "End") next = enabled[enabled.length - 1];
+                else if (["ArrowDown", "ArrowUp", "PageDown", "PageUp"].includes(event.key)) {
+                  const delta =
+                    (event.key.endsWith("Down") ? 1 : -1) *
+                    (event.key.startsWith("Page")
+                      ? Math.max(1, Math.floor(popup.innerHeight / rowHeight))
+                      : 1);
+                  next = enabled[Math.max(0, Math.min(enabled.length - 1, at + delta))];
+                } else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey)
+                  next = [...enabled.slice(at + 1), ...enabled.slice(0, at + 1)].find((index) =>
+                    options[index].label.toLowerCase().startsWith(event.key.toLowerCase()),
+                  );
+                if (next !== undefined) {
+                  event.preventDefault();
+                  choose(next);
+                  ensureVisible(next);
+                }
               }}
             >
               <span
+                aria-hidden="true"
+                className={styles.viewport}
                 style={{
-                  position: "absolute",
-                  left: 0,
-                  top: 0,
-                  width: popup.bounds.width,
-                  height: popup.bounds.height,
-                  transform: `scale(${surfaceLayout(popup.bounds, popup.viewport).width / popup.bounds.width}, ${surfaceLayout(popup.bounds, popup.viewport).height / popup.bounds.height})`,
-                  transformOrigin: "top left",
-                  background: theme.colors.window_face,
+                  width: surfaceLayout(popup.bounds, popup.viewport).width,
+                  height: surfaceLayout(popup.bounds, popup.viewport).height,
                 }}
               >
-                <ThemePart
-                  part={editable ? "sunken_normal" : "sunken_focused"}
-                  scale={2}
-                  drawCenter
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    width: popup.bounds.width,
-                    height: popup.bounds.height,
-                  }}
-                />
                 <span
                   style={{
                     position: "absolute",
-                    left: 6,
-                    top: 8,
-                    width: popup.bounds.width - 12 - (scrollbar ? 12 : 0),
-                    height: popup.innerHeight,
-                    overflow: "hidden",
+                    left: 0,
+                    top: 0,
+                    width: popup.bounds.width,
+                    height: popup.bounds.height,
+                    transform: `scale(${surfaceLayout(popup.bounds, popup.viewport).width / popup.bounds.width}, ${surfaceLayout(popup.bounds, popup.viewport).height / popup.bounds.height})`,
+                    transformOrigin: "top left",
+                    background: theme.colors.window_face,
                   }}
                 >
-                  {options.map((option, index) => {
-                    const y = rowOffsets[index] - scroll,
-                      active = index === selected;
-                    if (option.separator)
+                  <ThemePart
+                    part={popupMenu ? "menu" : editable ? "sunken_normal" : "sunken_focused"}
+                    scale={2}
+                    drawCenter
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      width: popup.bounds.width,
+                      height: popup.bounds.height,
+                    }}
+                  />
+                  <span
+                    style={{
+                      position: "absolute",
+                      left: insetX,
+                      top: insetY,
+                      width: popup.bounds.width - insetX * 2 - (scrollbar ? barSize : 0),
+                      height: popup.innerHeight,
+                      overflow: "hidden",
+                    }}
+                  >
+                    {options.map((option, index) => {
+                      const y = rowOffsets[index] - scroll,
+                        active = index === selected;
+                      if (option.separator)
+                        return (
+                          <span
+                            key={index}
+                            style={{
+                              position: "absolute",
+                              left: 0,
+                              top: y,
+                              width: "100%",
+                              height: rowHeights[index],
+                              background: theme.colors.listitem_normal_face,
+                            }}
+                          >
+                            <ThemeRepeat
+                              part="separator_horz"
+                              length={popup.bounds.width - insetX * 2 - (scrollbar ? barSize : 0)}
+                              y={
+                                popupMenu
+                                  ? centerText(y, rowHeights[index], 1) - y
+                                  : centerThemePixel(y, rowHeights[index], 10) - y
+                              }
+                            />
+                          </span>
+                        );
                       return (
                         <span
                           key={index}
@@ -633,126 +720,135 @@ export function Combobox({
                             left: 0,
                             top: y,
                             width: "100%",
-                            height: rowHeights[index],
-                            background: theme.colors.listitem_normal_face,
+                            height: rowHeight,
+                            background: active
+                              ? theme.colors.listitem_selected_face
+                              : option.disabled && !popupMenu
+                                ? theme.colors.face
+                                : theme.colors.listitem_normal_face,
                           }}
                         >
-                          <ThemeRepeat
-                            part="separator_horz"
-                            length={popup.bounds.width - 12 - (scrollbar ? 12 : 0)}
-                            y={centerThemePixel(y, rowHeights[index], 10) - y}
+                          {active && popupMenu && theme.controlParts?.menu?.checkedVector && (
+                            <svg
+                              width={12}
+                              height={12}
+                              viewBox="0 0 12 12"
+                              shapeRendering="crispEdges"
+                              style={{ position: "absolute", left: 0, top: (rowHeight - 12) / 2 }}
+                            >
+                              <path
+                                d={theme.controlParts.menu.checkedVector.path}
+                                fill={theme.colors.listitem_selected_text}
+                              />
+                            </svg>
+                          )}
+                          <Text
+                            variant={TextVariant.PositionedPixel}
+                            text={translateSource(option.label)}
+                            x={
+                              labelInset +
+                              (popupMenu && (active || option.disabled)
+                                ? (theme.dimensions.menu_text_state_offset_x ?? 0)
+                                : 0)
+                            }
+                            y={
+                              popupMenu
+                                ? centerText(y, rowHeight, themeFontHeight()) - y
+                                : centerThemePixel(y, rowHeight, 14) - y
+                            }
+                            color={
+                              option.disabled
+                                ? popupMenu
+                                  ? theme.colors.menuitem_disabled_text
+                                  : theme.colors.disabled
+                                : active
+                                  ? theme.colors.listitem_selected_text
+                                  : theme.colors.listitem_normal_text
+                            }
                           />
                         </span>
                       );
-                    return (
-                      <span
-                        key={index}
-                        style={{
-                          position: "absolute",
-                          left: 0,
-                          top: y,
-                          width: "100%",
-                          height: ROW,
-                          background: active
-                            ? theme.colors.listitem_selected_face
-                            : option.disabled
-                              ? theme.colors.face
-                              : theme.colors.listitem_normal_face,
-                        }}
-                      >
-                        <Text
-                          variant={TextVariant.PositionedPixel}
-                          text={translateSource(option.label)}
-                          x={2}
-                          y={centerThemePixel(y, ROW, 14) - y}
-                          color={
-                            option.disabled
-                              ? theme.colors.disabled
-                              : active
-                                ? theme.colors.listitem_selected_text
-                                : theme.colors.listitem_normal_text
-                          }
-                        />
-                      </span>
-                    );
-                  })}
+                    })}
+                  </span>
                 </span>
               </span>
-            </span>
-            <div
-              className={styles.optionHitArea}
-              style={{
-                left: (6 * popup.viewport.width) / popup.viewport.sceneWidth,
-                top: (8 * popup.viewport.height) / popup.viewport.sceneHeight,
-                width:
-                  ((popup.bounds.width - 12 - (scrollbar ? 12 : 0)) * popup.viewport.width) /
-                  popup.viewport.sceneWidth,
-                height: (popup.innerHeight * popup.viewport.height) / popup.viewport.sceneHeight,
-                overflow: "hidden",
-              }}
-            >
-              {options.map((option, index) => (
-                <button
-                  key={option.value}
-                  id={`${id}-${index}`}
-                  type="button"
-                  role={option.separator ? "separator" : "option"}
-                  aria-label={translateSource(option.label)}
-                  aria-selected={index === selected}
-                  disabled={option.disabled || option.separator}
-                  tabIndex={-1}
-                  data-ui-combo-owner={id}
-                  data-ui-combo-option={index}
-                  className={styles.optionHit}
-                  style={{
-                    left: 0,
-                    top:
-                      ((rowOffsets[index] - scroll) * popup.viewport.height) /
-                      popup.viewport.sceneHeight,
-                    height:
-                      (rowHeights[index] * popup.viewport.height) / popup.viewport.sceneHeight,
-                  }}
-                  onPointerDown={(event) => {
-                    if (event.button !== 0) return;
-                    if (event.pointerType !== "mouse") {
-                      event.stopPropagation();
-                      return;
-                    }
-                    event.preventDefault();
-                    gesture.current = {
-                      pointer: event.pointerId,
-                      entered: true,
-                      arrow: false,
-                    };
-                    list.current?.setPointerCapture(event.pointerId);
-                    choose(index);
-                  }}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    choose(index);
-                    close();
-                  }}
-                />
-              ))}
-            </div>
-            {scrollbar && (
-              <Scrollbar
-                bounds={{
-                  x: popup.bounds.x + popup.bounds.width - 18,
-                  y: popup.bounds.y + 8,
-                  width: 12,
-                  height: popup.innerHeight,
+              <div
+                className={styles.optionHitArea}
+                style={{
+                  left: (insetX * popup.viewport.width) / popup.viewport.sceneWidth,
+                  top: (insetY * popup.viewport.height) / popup.viewport.sceneHeight,
+                  width:
+                    ((popup.bounds.width - insetX * 2 - (scrollbar ? barSize : 0)) *
+                      popup.viewport.width) /
+                    popup.viewport.sceneWidth,
+                  height: (popup.innerHeight * popup.viewport.height) / popup.viewport.sceneHeight,
+                  overflow: "hidden",
                 }}
-                relativeTo={popup.bounds}
-                viewport={popup.viewport}
-                contentSize={contentHeight}
-                visibleSize={popup.innerHeight}
-                value={scroll}
-                onValueChange={setScroll}
-                aria-label={translateKey("ui.options.scroll").replace("{name}", displayLabel)}
-              />
-            )}
-          </div>,
+              >
+                {options.map((option, index) => (
+                  <button
+                    key={option.value}
+                    id={`${id}-${index}`}
+                    type="button"
+                    role={option.separator ? "separator" : "option"}
+                    aria-label={translateSource(option.label)}
+                    aria-selected={index === selected}
+                    disabled={option.disabled || option.separator}
+                    tabIndex={-1}
+                    data-ui-combo-owner={id}
+                    data-ui-combo-option={index}
+                    className={styles.optionHit}
+                    style={{
+                      left: 0,
+                      top:
+                        ((rowOffsets[index] - scroll) * popup.viewport.height) /
+                        popup.viewport.sceneHeight,
+                      height:
+                        (rowHeights[index] * popup.viewport.height) / popup.viewport.sceneHeight,
+                    }}
+                    onPointerDown={(event) => {
+                      if (event.button !== 0) return;
+                      if (event.pointerType !== "mouse") {
+                        event.stopPropagation();
+                        return;
+                      }
+                      event.preventDefault();
+                      gesture.current = {
+                        pointer: event.pointerId,
+                        entered: true,
+                        arrow: false,
+                      };
+                      list.current?.setPointerCapture(event.pointerId);
+                      choose(index);
+                    }}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      choose(index);
+                      close();
+                    }}
+                  />
+                ))}
+              </div>
+              {scrollbar && (
+                <Scrollbar
+                  bounds={{
+                    x: popup.bounds.x + popup.bounds.width - insetX - barSize,
+                    y: popup.bounds.y + insetY,
+                    width: barSize,
+                    height: popup.innerHeight,
+                  }}
+                  relativeTo={popup.bounds}
+                  viewport={popup.viewport}
+                  variant={popupMenu ? "regular" : "mini"}
+                  contentSize={contentHeight}
+                  visibleSize={popup.innerHeight}
+                  value={scroll}
+                  onValueChange={setScroll}
+                  aria-label={translateKey("ui.options.scroll").replace("{name}", displayLabel)}
+                />
+              )}
+            </div>
+          </ThemeScope>,
           document.body,
         )}
     </>

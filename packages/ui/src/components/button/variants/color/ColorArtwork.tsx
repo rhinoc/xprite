@@ -1,10 +1,11 @@
 import * as React from "react";
 
-import { centerThemePixel, measureThemeText } from "$/base/components/theme-controls";
+import { useThemeAssets } from "$/base/components/theme-controls";
 import { AtlasRegion } from "$/base/theme/atlas-region";
 import { PixelSurface } from "$/base/theme/pixel-surface";
-import { getThemeAssets } from "$/base/theme/theme-assets-store";
+import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
+import { ThemePart } from "$/base/theme/theme-part";
 import type { UiPartDefinition } from "$/base/theme/theme-types";
 import { computedStyle } from "$/base/utils/dom-geometry";
 import type { SurfaceBounds, SurfaceViewport } from "$/components/canvas-surface";
@@ -144,9 +145,8 @@ export function ColorArtwork({
   hot,
   pressed,
 }: ColorArtworkProps) {
-  const { variant, definition: theme, translateSource } = useTheme();
-  const assets = getThemeAssets(variant);
-  if (!assets) throw new Error("Color artwork requires a loaded UI atlas");
+  const { definition: theme, translateSource } = useTheme();
+  const { measureThemeText } = useThemeText();
   const colorProbeRef = React.useRef<HTMLSpanElement>(null);
   const [resolvedColor, setResolvedColor] = React.useState<ColorButtonColor | null>(null);
   const directColor = React.useMemo(() => parseColorButtonColor(color), [color]);
@@ -178,9 +178,21 @@ export function ColorArtwork({
   const selectionSlices = React.useMemo(
     () =>
       hot
-        ? themedSlices(theme.parts.colorbar_selection, bounds.width, bounds.height - 3, 2, false)
+        ? themedSlices(
+            theme.parts.colorbar_selection,
+            bounds.width,
+            bounds.height - (theme.dimensions.color_button_hover_height_inset ?? 3),
+            2,
+            false,
+          )
         : [],
-    [hot, theme.parts.colorbar_selection, bounds.width, bounds.height],
+    [
+      hot,
+      theme.parts.colorbar_selection,
+      theme.dimensions.color_button_hover_height_inset,
+      bounds.width,
+      bounds.height,
+    ],
   );
   const textX =
     centerThemePixel(bounds.x, bounds.width, measureThemeText(textLabel, "mini")) - bounds.x;
@@ -237,39 +249,37 @@ export function ColorArtwork({
             backgroundColor: `rgba(${swatch.rgb.join(",")}, ${swatch.opacity})`,
           }}
         />
-        <PixelSurface
-          aria-hidden="true"
-          data-slot="color-frame"
-          className={styles.atlasSurface}
-          paint={(metrics) =>
-            [
+        {theme.parts.colorbar_0.surface ? (
+          <>
+            <ThemePart
+              part="colorbar_0"
+              scale={2}
+              drawCenter={false}
+              className={styles.atlasSurface}
+              style={{ width: bounds.width, height: bounds.height }}
+            />
+            {hot && (
+              <ThemePart
+                part="colorbar_selection"
+                scale={2}
+                drawCenter={false}
+                className={styles.atlasSurface}
+                style={{ width: bounds.width, height: bounds.height }}
+              />
+            )}
+          </>
+        ) : (
+          <ColorAtlasFrame
+            slices={[
               ...frameSlices.map((slice) => ({
                 ...slice,
                 x: slice.x - bounds.x,
                 y: slice.y - bounds.y,
               })),
               ...selectionSlices,
-            ].map((slice, index) => (
-              <AtlasRegion
-                key={index}
-                sheet={assets.sheet}
-                source={{
-                  x: slice.sourceX,
-                  y: slice.sourceY,
-                  width: slice.sourceWidth,
-                  height: slice.sourceHeight,
-                }}
-                destination={{
-                  x: slice.x * metrics.scaleX,
-                  y: slice.y * metrics.scaleY,
-                  width: slice.width * metrics.scaleX,
-                  height: slice.height * metrics.scaleY,
-                }}
-                cssPixelScale={metrics.cssPixelScale}
-              />
-            ))
-          }
-        />
+            ]}
+          />
+        )}
         <Text
           variant={TextVariant.PositionedPixel}
           text={textLabel}
@@ -282,5 +292,38 @@ export function ColorArtwork({
         />
       </div>
     </div>
+  );
+}
+
+function ColorAtlasFrame({ slices }: { slices: ReturnType<typeof colorButtonFrameSlices> }) {
+  const assets = useThemeAssets();
+  if (!assets) return null;
+  return (
+    <PixelSurface
+      aria-hidden="true"
+      data-slot="color-frame"
+      className={styles.atlasSurface}
+      paint={(metrics) =>
+        slices.map((slice, index) => (
+          <AtlasRegion
+            key={index}
+            sheet={assets.sheet}
+            source={{
+              x: slice.sourceX,
+              y: slice.sourceY,
+              width: slice.sourceWidth,
+              height: slice.sourceHeight,
+            }}
+            destination={{
+              x: slice.x * metrics.scaleX,
+              y: slice.y * metrics.scaleY,
+              width: slice.width * metrics.scaleX,
+              height: slice.height * metrics.scaleY,
+            }}
+            cssPixelScale={metrics.cssPixelScale}
+          />
+        ))
+      }
+    />
   );
 }

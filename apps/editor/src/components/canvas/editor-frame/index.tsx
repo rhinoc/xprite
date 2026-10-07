@@ -14,8 +14,7 @@ import {
   type EditorScrollAxis,
 } from "$/managers/canvas/canvas-presentation";
 import { useWorkspaceResizeScheduler } from "$/managers/workspace/workspace-resize-scheduler";
-import { type SurfaceBounds, type SurfaceViewport } from "@xprite/ui";
-import { useUi } from "@xprite/ui";
+import { type SurfaceBounds, type SurfaceViewport, useUi } from "@xprite/ui";
 import { UiPart } from "@xprite/ui/assets";
 import { surfaceLayout, DEFAULT_SURFACE_VIEWPORT } from "@xprite/ui/canvas";
 import {

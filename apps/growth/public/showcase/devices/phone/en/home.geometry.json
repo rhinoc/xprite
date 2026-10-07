@@ -1,0 +1,139 @@
+{
+  "source": "http://phone-demo.localhost:5173/",
+  "language": "en",
+  "controls": [
+    {
+      "label": "Menu",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 32,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Settings",
+      "rect": {
+        "x": 366,
+        "y": 0,
+        "width": 32,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Close Home",
+      "rect": {
+        "x": 116,
+        "y": 0,
+        "width": 28,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "About",
+      "rect": {
+        "x": 8,
+        "y": 42,
+        "width": 64,
+        "height": 74
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "New File...",
+      "rect": {
+        "x": 80,
+        "y": 50,
+        "width": 124,
+        "height": 14
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Open File...",
+      "rect": {
+        "x": 80,
+        "y": 72,
+        "width": 124,
+        "height": 14
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Recover Files...",
+      "rect": {
+        "x": 80,
+        "y": 94,
+        "width": 124,
+        "height": 14
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "example.aseprite",
+      "rect": {
+        "x": 14,
+        "y": 162,
+        "width": 328,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Download example.aseprite",
+      "rect": {
+        "x": 344,
+        "y": 161,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Pin example.aseprite",
+      "rect": {
+        "x": 372,
+        "y": 165,
+        "width": 16,
+        "height": 16
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Delete browser copy of example.aseprite",
+      "rect": {
+        "x": 392,
+        "y": 161,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Add to desktop",
+      "rect": {
+        "x": 284,
+        "y": 811,
+        "width": 138,
+        "height": 32
+      },
+      "value": "",
+      "pressed": null
+    }
+  ],
+  "canvasViewport": null
+}

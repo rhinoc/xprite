@@ -2,7 +2,15 @@ import { useEffect, useId, useRef } from "react";
 
 import { currentUiLanguage, tUi, tUiSource } from "$/i18n";
 import { useDiagnosticsReport } from "$/managers/diagnostics/diagnostics-report-context";
-import { Button, Panel, Text, TextArea, TextVariant, UIProvider } from "@xprite/ui";
+import {
+  Button,
+  Panel,
+  Text,
+  TextArea,
+  TextAreaPresentation,
+  TextVariant,
+  UIProvider,
+} from "@xprite/ui";
 import { isImeKeyboardEvent } from "@xprite/ui/utils";
 
 import styles from "$/components/errors/diagnostics-report-view.module.css";
@@ -68,6 +76,7 @@ function ReportView({ report, onClose }: { report: string; onClose(): void }) {
             {tUi("ui.diagnostics.view.description")}
           </Text>
           <TextArea
+            presentation={TextAreaPresentation.Code}
             ref={text}
             className={styles.report}
             aria-label={tUi("ui.diagnostics.view.content")}

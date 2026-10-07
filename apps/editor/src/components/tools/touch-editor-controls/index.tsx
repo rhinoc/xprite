@@ -16,8 +16,16 @@ import {
   useTouchEditorCommands,
   useTouchEditorSnapshotModel,
 } from "$/managers/tools/touch-control-model";
-import { Button, ButtonVariant, Menu, MenuCheckType } from "@xprite/ui";
-import { Tooltip, TooltipGroup, ButtonStripPopover, ButtonStripAnchor } from "@xprite/ui";
+import {
+  Button,
+  ButtonVariant,
+  Menu,
+  MenuCheckType,
+  Tooltip,
+  TooltipGroup,
+  ButtonStripPopover,
+  ButtonStripAnchor,
+} from "@xprite/ui";
 import type { UiPartName } from "@xprite/ui/assets";
 
 import "$/components/tools/touch-editor-controls/touch-editor-controls.module.css";

@@ -1,0 +1,18 @@
+{
+  "repository": "https://github.com/halfmage/pixelarticons",
+  "commit": "8275e0af7c16aa40c54ea2b90b7af83b1fe4eb4c",
+  "assets": [
+    {
+      "file": "volume.svg",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/8275e0af7c16aa40c54ea2b90b7af83b1fe4eb4c/svg/volume-3.svg",
+      "sha256": "da3c41adde9a090a0eff1b0d92de054ea8861305da09f18b78b43df25dd41b92",
+      "license": "MIT"
+    },
+    {
+      "file": "volume-muted.svg",
+      "source": "https://raw.githubusercontent.com/halfmage/pixelarticons/8275e0af7c16aa40c54ea2b90b7af83b1fe4eb4c/svg/volume-x.svg",
+      "sha256": "60bbd5e0c07c37b865e80f1b07a2220211448c6e794b876b60042eb5b014eb59",
+      "license": "MIT"
+    }
+  ]
+}

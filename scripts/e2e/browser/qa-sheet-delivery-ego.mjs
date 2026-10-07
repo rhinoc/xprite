@@ -9,6 +9,10 @@ if (task.ownership !== "agent") throw Error("Sheet QA requires the existing agen
 const fs = await import("node:fs/promises"),
   crypto = await import("node:crypto");
 const root = c.root ?? process.cwd();
+const { pathToFileURL } = await import("node:url");
+const { captureBrowserScreenshot } = await import(
+  pathToFileURL(`${root}/scripts/base/screenshot.mjs`).href
+);
 const output = c.output ?? `${root}/.tmp/features-7-12/qa-sheet-delivery.json`;
 const report = {
   startedAt: new Date().toISOString(),
@@ -17,6 +21,7 @@ const report = {
   method:
     "Public menus, entries, pointer ruler drag, undo/redo; DOM and canvas pixel observations only",
   checks: [],
+  screenshots: [],
   passed: false,
 };
 const assert = (condition, message) => {
@@ -81,7 +86,12 @@ const check = async (name, run) => {
   }
 };
 const shot = async (label) => {
-  if (c.screenshotPrefix) await page.screenshot({ path: `${c.screenshotPrefix}-${label}.png` });
+  if (c.screenshotPrefix) {
+    const screenshot = await captureBrowserScreenshot(page, {
+      path: `${c.screenshotPrefix}-${label}.png`,
+    });
+    report.screenshots.push({ label, ...screenshot });
+  }
 };
 let failure;
 try {

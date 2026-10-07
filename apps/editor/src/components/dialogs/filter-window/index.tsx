@@ -3,8 +3,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { EditorDialog } from "$/components/dialogs/overlay";
 import { tUi, tUiSource } from "$/i18n";
 import { DialogEffectTarget } from "$/managers/dialogs/effect-dialog-manager";
-import { Button, isDialogPopupTarget } from "@xprite/ui";
-import { Checkbox } from "@xprite/ui";
+import { Button, isDialogPopupTarget, Checkbox } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 import { isImeKeyboardEvent } from "@xprite/ui/utils";
 export interface EditorFilterWindowProps {

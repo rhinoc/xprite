@@ -1,0 +1,74 @@
+{
+  "method": "Decode each original/tagged PNG in a detached Chromium sRGB Canvas2D; no page, editor, or source image is modified.",
+  "recordedAt": "2026-10-04T07:48:45.172Z",
+  "results": [
+    {
+      "name": "raw",
+      "contextColorSpace": "srgb",
+      "samples": [
+        {
+          "source": [255, 255, 255],
+          "displayedSrgb": [255, 255, 255]
+        },
+        {
+          "source": [88, 169, 157],
+          "displayedSrgb": [126, 165, 158]
+        },
+        {
+          "source": [153, 169, 91],
+          "displayedSrgb": [157, 168, 103]
+        },
+        {
+          "source": [216, 115, 77],
+          "displayedSrgb": [186, 125, 86]
+        },
+        {
+          "source": [228, 169, 71],
+          "displayedSrgb": [207, 173, 91]
+        },
+        {
+          "source": [173, 119, 164],
+          "displayedSrgb": [158, 125, 161]
+        },
+        {
+          "source": [112, 141, 184],
+          "displayedSrgb": [127, 140, 180]
+        }
+      ]
+    },
+    {
+      "name": "colorManaged",
+      "contextColorSpace": "srgb",
+      "samples": [
+        {
+          "source": [255, 255, 255],
+          "displayedSrgb": [255, 255, 255]
+        },
+        {
+          "source": [88, 169, 157],
+          "displayedSrgb": [89, 169, 158]
+        },
+        {
+          "source": [153, 169, 91],
+          "displayedSrgb": [153, 170, 91]
+        },
+        {
+          "source": [216, 115, 77],
+          "displayedSrgb": [216, 114, 77]
+        },
+        {
+          "source": [228, 169, 71],
+          "displayedSrgb": [229, 168, 71]
+        },
+        {
+          "source": [173, 119, 164],
+          "displayedSrgb": [173, 119, 164]
+        },
+        {
+          "source": [112, 141, 184],
+          "displayedSrgb": [113, 141, 184]
+        }
+      ]
+    }
+  ]
+}

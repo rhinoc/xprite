@@ -1,3 +1,4 @@
+import { MAX_DOCUMENT_PIXEL_BYTES, MAX_IMAGE_DIMENSION } from "$/base/image-limits";
 import { BITS_PER_BYTE, UINT8_MAX, UINT16_VALUE_COUNT } from "$/base/numeric-constants";
 import type { PixelBuffer, Rgba } from "$/base/primitives";
 import {
@@ -283,8 +284,8 @@ export function assertAsepriteColorTimeline(t: SpriteTimeline): void {
         !Number.isInteger(image.height) ||
         image.width < 1 ||
         image.height < 1 ||
-        image.width > 16384 ||
-        image.height > 16384 ||
+        image.width > MAX_IMAGE_DIMENSION ||
+        image.height > MAX_IMAGE_DIMENSION ||
         !(image.data instanceof Uint8Array) ||
         image.data.length !== image.width * image.height * (image.depth / BITS_PER_BYTE)
       )
@@ -292,7 +293,7 @@ export function assertAsepriteColorTimeline(t: SpriteTimeline): void {
       if (!images.has(image)) {
         images.add(image);
         bytes += image.data.byteLength;
-        if (bytes > 256 * 1024 * 1024)
+        if (bytes > MAX_DOCUMENT_PIXEL_BYTES / 2)
           throw new RangeError("Aseprite cel samples exceed memory limit");
       }
     }

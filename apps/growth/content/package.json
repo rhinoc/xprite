@@ -1,0 +1,10 @@
+{
+  "name": "@xprite/growth-content",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./help": "./help/index.ts",
+    "./tools": "./tools/index.ts",
+    "./navigation": "./navigation/index.ts"
+  }
+}

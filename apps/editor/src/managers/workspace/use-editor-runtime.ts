@@ -1,32 +1,18 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { useEditorPlatformPorts } from "$/managers/platform/editor-platform-context";
-import type { PreferenceStoragePort } from "$/managers/ports/platform";
-import {
-  resolveAppearanceMode,
-  AppearanceMode,
-  type ResolvedAppearance,
-} from "$/managers/preferences/appearance-preferences";
+import { TelemetryStartupStage, TelemetryStartupStatus } from "$/managers/ports/telemetry";
+import { useTelemetry } from "$/managers/telemetry/telemetry-context";
 import type { DocumentWorkspace } from "$/managers/workspace/document-workspace";
 import type { WorkspaceLifetime } from "$/managers/workspace/workspace-lifetime";
 import { workingColorProfile } from "@xprite/editor-core/color";
-
-const APPEARANCE_MODE_STORAGE_KEY = "xse.ui.appearance-mode.v1";
-
-function readAppearanceMode(storage: PreferenceStoragePort): AppearanceMode {
-  try {
-    const saved = storage.getItem(APPEARANCE_MODE_STORAGE_KEY);
-    if (
-      saved === AppearanceMode.Light ||
-      saved === AppearanceMode.Dark ||
-      saved === AppearanceMode.System
-    )
-      return saved;
-  } catch {
-    /* Use the default when storage is unavailable. */
-  }
-  return AppearanceMode.Light;
-}
+import {
+  resolveAppearanceMode,
+  readAppearanceMode,
+  AppearanceMode,
+  APPEARANCE_MODE_STORAGE_KEY,
+  type ResolvedAppearance,
+} from "@xprite/editor-ui/appearance";
 
 export type EditorUiAssetsPreloader = (appearance: ResolvedAppearance) => Promise<unknown>;
 export type EditorRuntimeStartup = "loading" | "ready" | "error";
@@ -40,6 +26,7 @@ export function useEditorRuntime(
   workspaceLifetime: WorkspaceLifetime,
 ) {
   const platform = useEditorPlatformPorts();
+  const telemetry = useTelemetry();
   if (!platform) throw new Error("Editor runtime requires platform ports");
   const { preferences: preferenceStorage } = platform;
   const workspaceSnapshot = useSyncExternalStore(
@@ -94,16 +81,38 @@ export function useEditorRuntime(
   useEffect(() => {
     const generation = ++lifetime.current;
     let live = true;
-    const assets = preloadUiAssets(appearanceRef.current);
-    void Promise.all([workspaceLifetime.initialize(workspace), assets])
+    telemetry.startup(TelemetryStartupStage.Workspace, TelemetryStartupStatus.Started);
+    telemetry.startup(TelemetryStartupStage.UiAssets, TelemetryStartupStatus.Started);
+    const assets = preloadUiAssets(appearanceRef.current).catch((reason) => {
+      if (live) telemetry.startup(TelemetryStartupStage.UiAssets, TelemetryStartupStatus.Failed);
+      throw reason;
+    });
+    const initialized = workspaceLifetime.initialize(workspace).then(
+      () => {
+        if (live)
+          telemetry.startup(TelemetryStartupStage.Workspace, TelemetryStartupStatus.Completed);
+      },
+      (reason) => {
+        if (live) telemetry.startup(TelemetryStartupStage.Workspace, TelemetryStartupStatus.Failed);
+        throw reason;
+      },
+    );
+    void Promise.all([initialized, assets])
       .then(async () => {
         let readyAppearance = appearanceRef.current;
-        do {
-          await preloadUiAssets(readyAppearance);
-          if (readyAppearance === appearanceRef.current) break;
-          readyAppearance = appearanceRef.current;
-        } while (live);
+        try {
+          do {
+            await preloadUiAssets(readyAppearance);
+            if (readyAppearance === appearanceRef.current) break;
+            readyAppearance = appearanceRef.current;
+          } while (live);
+        } catch (reason) {
+          if (live)
+            telemetry.startup(TelemetryStartupStage.UiAssets, TelemetryStartupStatus.Failed);
+          throw reason;
+        }
         if (live) {
+          telemetry.startup(TelemetryStartupStage.UiAssets, TelemetryStartupStatus.Completed);
           workspace.active.core.canvas.setView({ appearance: readyAppearance });
           setStartup("ready");
           workspace.startBackgroundInitialization();
@@ -120,7 +129,7 @@ export function useEditorRuntime(
         if (lifetime.current === generation) void workspaceLifetime.retire(workspace);
       });
     };
-  }, [preloadUiAssets, workspace, workspaceLifetime]);
+  }, [preloadUiAssets, workspace, workspaceLifetime, telemetry]);
 
   useEffect(() => {
     const flush = () => {

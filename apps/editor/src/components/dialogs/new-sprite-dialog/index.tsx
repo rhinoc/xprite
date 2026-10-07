@@ -15,10 +15,11 @@ import {
   Combobox,
   Divider,
   Input,
-  Label,
   focusDialogContainer,
   isDialogPopupTarget,
   type SurfaceBounds,
+  Text,
+  TextVariant,
 } from "@xprite/ui";
 import { centerUiPixel, UiIcon, useUiAssets } from "@xprite/ui/assets";
 import type { UiPartName } from "@xprite/ui/assets";
@@ -324,7 +325,8 @@ export function NewSpriteDialog({
           };
           return (
             <>
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 text="File name:"
                 bounds={{
                   x: client.x + 2,
@@ -348,7 +350,8 @@ export function NewSpriteDialog({
                 relativeTo={client}
               />
               {section("Size:", 42)}
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 text="Width:"
                 bounds={{
                   x: client.x + widthInputX,
@@ -376,7 +379,8 @@ export function NewSpriteDialog({
                 onDraftValueChange={(value) => updateDimension("width", value)}
                 onValueChange={(value) => updateDimension("width", value, true)}
               />
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 text="×"
                 bounds={{
                   x: client.x + dimensionSeparatorX,
@@ -387,7 +391,8 @@ export function NewSpriteDialog({
                 align="center"
                 relativeTo={client}
               />
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 text="Height:"
                 bounds={{
                   x: client.x + heightInputX,

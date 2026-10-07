@@ -4,27 +4,30 @@ import { build } from "esbuild";
 import { IDBFactory } from "fake-indexeddb";
 import { describe, it } from "vitest";
 
-import {
-  ProjectRepository,
-  ProjectStorageError,
-  createBrowserProjectRepository,
-} from "$/adapters/storage/project-storage";
+import { createBrowserProjectStorage } from "$/adapters/storage/project-storage";
 import { IndexedDbProjectStorage } from "$/adapters/storage/project-storage/indexeddb";
 import { OpfsPayloadStore, supportsOpfs } from "$/adapters/storage/project-storage/opfs";
+import { ProjectStorageError } from "$/managers/ports/project-storage";
+import { ProjectRepository } from "$/managers/storage/project-repository";
+import { randomId, sha256Hex } from "@xprite/bedrock/browser/runtime-crypto";
 
 describe("project-storage", () => {
   it("project-storage behavior", async () => {
     const factory = new IDBFactory();
-    const a = createBrowserProjectRepository({
-      factory,
-      databaseName: "draft-test",
-      preferOpfs: false,
-    });
-    const b = createBrowserProjectRepository({
-      factory,
-      databaseName: "draft-test",
-      preferOpfs: false,
-    });
+    const a = new ProjectRepository(
+      createBrowserProjectStorage({
+        factory,
+        databaseName: "draft-test",
+        preferOpfs: false,
+      }),
+    );
+    const b = new ProjectRepository(
+      createBrowserProjectStorage({
+        factory,
+        databaseName: "draft-test",
+        preferOpfs: false,
+      }),
+    );
     const input = {
       projectId: "project-a",
       expectedHead: null,
@@ -72,6 +75,9 @@ describe("project-storage", () => {
       },
     };
     const repo = new ProjectRepository({
+      makeId: randomId,
+      now: Date.now,
+      checksum: sha256Hex,
       catalog,
       stores: { opfs, indexeddb: catalog },
       preferredBackend: "opfs",
@@ -79,7 +85,9 @@ describe("project-storage", () => {
     const good = await repo.save(input);
     for (const kind of ["quota", "partial"]) {
       failure = kind;
-      await assert.rejects(repo.save({ ...input, expectedHead: good.head.id }));
+      await assert.rejects(
+        repo.save({ ...input, expectedHead: good.head.id, bytes: new Uint8Array([3, 2, 1]) }),
+      );
       assert.equal(
         (await catalog.get("project-a")).head.id,
         good.head.id,
@@ -126,6 +134,9 @@ describe("project-storage", () => {
     );
     failure = undefined;
     const noOpfs = new ProjectRepository({
+      makeId: randomId,
+      now: Date.now,
+      checksum: sha256Hex,
       catalog,
       stores: { indexeddb: catalog },
       preferredBackend: "indexeddb",
@@ -143,14 +154,25 @@ describe("project-storage", () => {
     // only the losing writer's newly created generation.
     const retainedCatalog = new IndexedDbProjectStorage({ factory, databaseName: "retention" });
     const retainedRepo = new ProjectRepository({
+      makeId: randomId,
+      now: Date.now,
+      checksum: sha256Hex,
       catalog: retainedCatalog,
       stores: { opfs },
       preferredBackend: "opfs",
     });
     values.clear();
     const r1 = await retainedRepo.save(input);
-    const r2 = await retainedRepo.save({ ...input, expectedHead: r1.head.id });
-    const r3 = await retainedRepo.save({ ...input, expectedHead: r2.head.id });
+    const r2 = await retainedRepo.save({
+      ...input,
+      expectedHead: r1.head.id,
+      bytes: new Uint8Array([4, 5, 6]),
+    });
+    const r3 = await retainedRepo.save({
+      ...input,
+      expectedHead: r2.head.id,
+      bytes: new Uint8Array([7, 8, 9]),
+    });
     assert.deepEqual([...values.keys()].sort(), [r2.head.id, r3.head.id].sort());
     const retainedRace = await Promise.allSettled([
       retainedRepo.save({ ...input, expectedHead: r3.head.id }),
@@ -161,11 +183,13 @@ describe("project-storage", () => {
     assert.ok(values.has(r3.head.id));
     retainedRepo.close();
 
-    const isolated = createBrowserProjectRepository({
-      factory,
-      databaseName: "isolated",
-      preferOpfs: false,
-    });
+    const isolated = new ProjectRepository(
+      createBrowserProjectStorage({
+        factory,
+        databaseName: "isolated",
+        preferOpfs: false,
+      }),
+    );
     assert.deepEqual(await isolated.list(), []);
     const retained = await catalog.read("missing").catch((error) => error);
     assert.equal(retained.code, "corrupt");

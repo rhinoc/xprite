@@ -16,8 +16,8 @@ import {
   type GridSettingsView,
 } from "$/managers/dialogs/grid-settings-manager";
 import { evaluateDialogNumber, type DialogRect } from "$/managers/dialogs/input-values";
-import { Button, Input, Label } from "@xprite/ui";
-import { Divider } from "@xprite/ui";
+import { Button, Input, Text, TextVariant, Divider } from "@xprite/ui";
+
 interface GridSettingsProps {
   bounds: DialogRect;
   onAccept: (bounds: DialogRect) => boolean | void;
@@ -61,7 +61,8 @@ function GridSettings({ bounds, onAccept, onClose, suspended }: GridSettingsProp
               x = right ? 166 : 0;
             return (
               <span key={key}>
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   text={{ x: "X:", y: "Y:", width: "Width:", height: "Height:" }[key]}
                   bounds={{
                     x: client.x + x + 2,

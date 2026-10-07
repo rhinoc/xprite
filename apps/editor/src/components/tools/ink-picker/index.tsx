@@ -1,8 +1,6 @@
 import type { Ink } from "$/managers/preferences/tool-ink-settings";
 import { ToolInk as AsepriteInk } from "$/managers/tools/tool-options";
-import { Button } from "@xprite/ui";
-import { Menu, MenuCheckType } from "@xprite/ui";
-import { Tooltip } from "@xprite/ui";
+import { Button, Menu, MenuCheckType, Tooltip } from "@xprite/ui";
 import type { SurfaceBounds, SurfaceViewport } from "@xprite/ui";
 import type { UiPartName } from "@xprite/ui/assets";
 

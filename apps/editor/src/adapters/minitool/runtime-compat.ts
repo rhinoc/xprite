@@ -1,3 +1,4 @@
+import "$/adapters/platform/structured-clone-compat";
 import { installResizeObserverFallback, scrollSize } from "@xprite/ui/utils";
 
 /** Only APIs used by the editor; the container's prohibited APIs are never polyfilled. */
@@ -107,55 +108,6 @@ if (!Blob.prototype.text)
   Blob.prototype.text = async function () {
     return new TextDecoder().decode(await this.arrayBuffer());
   };
-
-function clone<T>(value: T, seen = new Map<object, unknown>()): T {
-  if (value === null || typeof value !== "object") return value;
-  if (seen.has(value)) return seen.get(value) as T;
-  if (value instanceof ArrayBuffer) {
-    const result = value.slice(0);
-    seen.set(value, result);
-    return result as T;
-  }
-  if (ArrayBuffer.isView(value)) {
-    const buffer = clone(value.buffer, seen);
-    const result = (
-      value instanceof DataView
-        ? new DataView(buffer, value.byteOffset, value.byteLength)
-        : new (value.constructor as typeof Uint8Array)(
-            buffer,
-            value.byteOffset,
-            (value as unknown as Uint8Array).length,
-          )
-    ) as T;
-    seen.set(value, result);
-    return result;
-  }
-  if (value instanceof Date) return new Date(value.getTime()) as T;
-  if (value instanceof Map) {
-    const result = new Map();
-    seen.set(value, result);
-    for (const [key, entry] of value) result.set(clone(key, seen), clone(entry, seen));
-    return result as T;
-  }
-  if (value instanceof Set) {
-    const result = new Set();
-    seen.set(value, result);
-    for (const entry of value) result.add(clone(entry, seen));
-    return result as T;
-  }
-  const result: Record<string, unknown> | unknown[] = Array.isArray(value) ? [] : {};
-  seen.set(value, result);
-  for (const key of Object.keys(value))
-    Object.defineProperty(result, key, {
-      value: clone((value as Record<string, unknown>)[key], seen),
-      enumerable: true,
-      configurable: true,
-      writable: true,
-    });
-  return result as T;
-}
-if (typeof globalThis.structuredClone !== "function")
-  globalThis.structuredClone = (value) => clone(value);
 
 installResizeObserverFallback();
 

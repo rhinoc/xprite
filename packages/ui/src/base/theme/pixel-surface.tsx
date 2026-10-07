@@ -41,11 +41,15 @@ export interface PixelSurfaceMetrics {
 /** Every skin uses one physical-pixel drawing plane, independently of UI scale or DPR. */
 export function PixelSurface({
   paint,
+  fallback,
+  artworkReady = true,
   className,
   children,
   ...props
 }: HTMLAttributes<HTMLSpanElement> & {
   paint: (metrics: PixelSurfaceMetrics) => ReactNode;
+  fallback?: ReactNode;
+  artworkReady?: boolean;
 }) {
   const presentation = usePresentationMetrics();
   const ref = useRef<HTMLSpanElement>(null);
@@ -103,18 +107,22 @@ export function PixelSurface({
   };
   return (
     <span {...props} ref={ref} className={cn(styles.themePixelHost, className)}>
-      <span
-        aria-hidden="true"
-        className={styles.themePixelSurface}
-        style={{
-          left: (Math.round(grid.offsetX) - grid.offsetX) / grid.x,
-          top: (Math.round(grid.offsetY) - grid.offsetY) / grid.y,
-          width: metrics.width / grid.x,
-          height: metrics.height / grid.y,
-        }}
-      >
-        {paint(metrics)}
-      </span>
+      {fallback && (!artworkReady || metrics.width <= 0 || metrics.height <= 0) ? (
+        fallback
+      ) : (
+        <span
+          aria-hidden="true"
+          className={styles.themePixelSurface}
+          style={{
+            left: (Math.round(grid.offsetX) - grid.offsetX) / grid.x,
+            top: (Math.round(grid.offsetY) - grid.offsetY) / grid.y,
+            width: metrics.width / grid.x,
+            height: metrics.height / grid.y,
+          }}
+        >
+          {paint(metrics)}
+        </span>
+      )}
       {children}
     </span>
   );

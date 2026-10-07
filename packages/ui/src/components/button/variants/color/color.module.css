@@ -1,6 +1,6 @@
 .color {
-  --ui-color-checker-light: var(--ui-color-checker-light-token, #c0c0c0);
-  --ui-color-checker-dark: var(--ui-color-checker-dark-token, #808080);
+  --ui-color-checker-light: var(--ui-color-checker-light-token);
+  --ui-color-checker-dark: var(--ui-color-checker-dark-token);
   z-index: var(--ui-control-layer, 4);
   display: block;
   min-width: 0;
@@ -56,10 +56,10 @@
   pointer-events: none;
 }
 .checkerLight {
-  background-color: var(--ui-color-checker-light, #c0c0c0);
+  background-color: var(--ui-color-checker-light);
 }
 .checkerDark {
-  background-color: var(--ui-color-checker-dark, #808080);
+  background-color: var(--ui-color-checker-dark);
 }
 .atlasSurface {
   inset: 0;

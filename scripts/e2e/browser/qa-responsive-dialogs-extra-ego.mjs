@@ -1,6 +1,10 @@
 const task = await taskSpace(captureConfig.spaceId),
   page = task.page("p1");
 const fs = await import("node:fs/promises");
+const { pathToFileURL } = await import("node:url");
+const { captureBrowserScreenshot } = await import(
+  pathToFileURL(`${captureConfig.root}/scripts/base/screenshot.mjs`).href
+);
 await fs.mkdir(`${captureConfig.root}/.tmp`, { recursive: true });
 const button = (label) => `button[aria-label=${JSON.stringify(label)}]`;
 const settle = () =>
@@ -68,8 +72,9 @@ const cancel = await page.evaluate(() => {
 });
 if (!cancel.reachable) throw Error(`Scrolled Cancel unreachable: ${JSON.stringify(cancel)}`);
 checks.push({ name: "Dark preferences Cancel reachable by wheel scroll", cancel });
-await page.screenshot({
+const screenshot = await captureBrowserScreenshot(page, {
   path: `${captureConfig.root}/.tmp/responsive-dark-preferences-320.png`,
+  expectedDpr: 1,
 });
 await page.click(button("Cancel"));
 // An invalid file exercises the ordinary error form without replacing the document.
@@ -114,7 +119,7 @@ await page.keyboard.press("Escape");
 await page.keyboard.press("Escape");
 await fs.writeFile(
   `${captureConfig.root}/.tmp/responsive-dialogs-extra.json`,
-  JSON.stringify({ passed: true, checks }, null, 2) + "\n",
+  JSON.stringify({ passed: true, checks, screenshot }, null, 2) + "\n",
 );
 console.log(
   "Responsive supplemental checks passed:",

@@ -73,7 +73,8 @@
 }
 
 .tab:focus-visible {
-  outline: none;
+  outline: var(--ui-tab-focus-outline, none);
+  outline-offset: -5px;
 }
 
 .root .tab[data-ui-pointer-focused="true"]:focus-visible {

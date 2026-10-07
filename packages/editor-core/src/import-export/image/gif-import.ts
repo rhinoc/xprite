@@ -280,9 +280,12 @@ function fillRectangle(
 }
 
 /** Decode all composed GIF frames. A static GIF remains on the ordinary raster import path. */
-export function decodeGifAnimation(bytes: Uint8Array): RasterAnimation | null {
+export function decodeGifAnimation(
+  bytes: Uint8Array,
+  options: { includeStatic?: boolean } = {},
+): RasterAnimation | null {
   const gif = parseGif(bytes);
-  if (gif.frames.length === 1 && !gif.hasLoopCount) return null;
+  if (gif.frames.length === 1 && !gif.hasLoopCount && !options.includeStatic) return null;
   assertRasterAnimationCapacity(gif.width, gif.height, gif.frames.length);
   for (const frame of gif.frames) assertImportedFrameDuration(frame.durationMs);
   const canvas = new Uint8ClampedArray(gif.width * gif.height * RGBA_CHANNELS);

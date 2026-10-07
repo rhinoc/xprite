@@ -1,0 +1,760 @@
+{
+  "source": "http://phone-demo.localhost:5173/editor",
+  "language": "en",
+  "controls": [
+    {
+      "label": "Menu",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 32,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Workspace layout",
+      "rect": {
+        "x": 334,
+        "y": 0,
+        "width": 32,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Settings",
+      "rect": {
+        "x": 366,
+        "y": 0,
+        "width": 32,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Close Home",
+      "rect": {
+        "x": 116,
+        "y": 0,
+        "width": 28,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Close hello.aseprite",
+      "rect": {
+        "x": 228,
+        "y": 0,
+        "width": 28,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Move panel",
+      "rect": {
+        "x": 2,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Pencil",
+      "rect": {
+        "x": 2,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "Eraser",
+      "rect": {
+        "x": 32,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Eyedropper",
+      "rect": {
+        "x": 62,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Rectangular Marquee",
+      "rect": {
+        "x": 92,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Paint Bucket",
+      "rect": {
+        "x": 122,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Move",
+      "rect": {
+        "x": 152,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Zoom",
+      "rect": {
+        "x": 182,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Line",
+      "rect": {
+        "x": 212,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Rectangle",
+      "rect": {
+        "x": 242,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Contour",
+      "rect": {
+        "x": 272,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Blur",
+      "rect": {
+        "x": 302,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Text",
+      "rect": {
+        "x": 332,
+        "y": 34,
+        "width": 34,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Show Preview",
+      "rect": {
+        "x": 364,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Hide Timeline",
+      "rect": {
+        "x": 396,
+        "y": 34,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "Move panel",
+      "rect": {
+        "x": 2,
+        "y": 506.0390625,
+        "width": 32,
+        "height": 32
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "First frame",
+      "rect": {
+        "x": 4,
+        "y": 542.0390625,
+        "width": 34,
+        "height": 26
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Previous frame",
+      "rect": {
+        "x": 36,
+        "y": 542.0390625,
+        "width": 34,
+        "height": 26
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Play animation",
+      "rect": {
+        "x": 68,
+        "y": 542.0390625,
+        "width": 34,
+        "height": 26
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Next frame",
+      "rect": {
+        "x": 100,
+        "y": 542.0390625,
+        "width": 34,
+        "height": 26
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Last frame",
+      "rect": {
+        "x": 132,
+        "y": 542.0390625,
+        "width": 34,
+        "height": 26
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "New Layer",
+      "rect": {
+        "x": 124,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Layer menu",
+      "rect": {
+        "x": 148,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Toggle all layer visibility",
+      "rect": {
+        "x": 4,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Toggle all layer locks",
+      "rect": {
+        "x": 28,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Toggle all layer continuous cels",
+      "rect": {
+        "x": 52,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Timeline configuration",
+      "rect": {
+        "x": 76,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Onion skin",
+      "rect": {
+        "x": 100,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Select layer Hello",
+      "rect": {
+        "x": 76,
+        "y": 596.0390625,
+        "width": 128,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "Hide layer Hello",
+      "rect": {
+        "x": 4,
+        "y": 596.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "Lock layer Hello",
+      "rect": {
+        "x": 28,
+        "y": 596.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Enable continuous cels for layer Hello",
+      "rect": {
+        "x": 52,
+        "y": 596.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Select layer Background",
+      "rect": {
+        "x": 76,
+        "y": 620.0390625,
+        "width": 128,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Hide layer Background",
+      "rect": {
+        "x": 4,
+        "y": 620.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "Lock layer Background",
+      "rect": {
+        "x": 28,
+        "y": 620.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Enable continuous cels for layer Background",
+      "rect": {
+        "x": 52,
+        "y": 620.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Frame 1, duration 120 milliseconds",
+      "rect": {
+        "x": 204,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "Frame 2, duration 130 milliseconds",
+      "rect": {
+        "x": 228,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Frame 3, duration 120 milliseconds",
+      "rect": {
+        "x": 252,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Frame 4, duration 130 milliseconds",
+      "rect": {
+        "x": 276,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Frame 5, duration 120 milliseconds",
+      "rect": {
+        "x": 300,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Frame 6, duration 130 milliseconds",
+      "rect": {
+        "x": 324,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Frame 7, duration 120 milliseconds",
+      "rect": {
+        "x": 348,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Frame 8, duration 130 milliseconds",
+      "rect": {
+        "x": 372,
+        "y": 572.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Hello, frame 1, Keyframe",
+      "rect": {
+        "x": 204,
+        "y": 596.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "true"
+    },
+    {
+      "label": "Hello, frame 2, Keyframe",
+      "rect": {
+        "x": 228,
+        "y": 596.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Hello, frame 3, Keyframe",
+      "rect": {
+        "x": 252,
+        "y": 596.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Hello, frame 4, Keyframe",
+      "rect": {
+        "x": 276,
+        "y": 596.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Hello, frame 5, Keyframe",
+      "rect": {
+        "x": 300,
+        "y": 596.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Hello, frame 6, Keyframe",
+      "rect": {
+        "x": 324,
+        "y": 596.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Hello, frame 7, Keyframe",
+      "rect": {
+        "x": 348,
+        "y": 596.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Hello, frame 8, Keyframe",
+      "rect": {
+        "x": 372,
+        "y": 596.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Background, frame 1, Keyframe",
+      "rect": {
+        "x": 204,
+        "y": 620.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Background, frame 2, Keyframe",
+      "rect": {
+        "x": 228,
+        "y": 620.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Background, frame 3, Keyframe",
+      "rect": {
+        "x": 252,
+        "y": 620.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Background, frame 4, Keyframe",
+      "rect": {
+        "x": 276,
+        "y": 620.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Background, frame 5, Keyframe",
+      "rect": {
+        "x": 300,
+        "y": 620.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Background, frame 6, Keyframe",
+      "rect": {
+        "x": 324,
+        "y": 620.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Background, frame 7, Keyframe",
+      "rect": {
+        "x": 348,
+        "y": 620.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Background, frame 8, Keyframe",
+      "rect": {
+        "x": 372,
+        "y": 620.0390625,
+        "width": 24,
+        "height": 24
+      },
+      "value": "",
+      "pressed": "false"
+    },
+    {
+      "label": "Current frame",
+      "rect": {
+        "x": 224,
+        "y": 818,
+        "width": 72,
+        "height": 24
+      },
+      "value": "1",
+      "pressed": null
+    },
+    {
+      "label": "Add frame",
+      "rect": {
+        "x": 302,
+        "y": 818,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "Zoom",
+      "rect": {
+        "x": 330,
+        "y": 818,
+        "width": 82,
+        "height": 24
+      },
+      "value": "100",
+      "pressed": null
+    }
+  ],
+  "canvasViewport": {
+    "x": 2,
+    "y": 70,
+    "width": 426,
+    "height": 428
+  }
+}

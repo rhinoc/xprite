@@ -29,3 +29,21 @@
   inset: 0;
   pointer-events: none;
 }
+
+.balloonBody {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-image-source: var(--ui-tooltip-frame-image);
+  border-image-slice: 7 fill;
+  border-image-width: 7px;
+  border-image-repeat: stretch;
+  image-rendering: pixelated;
+}
+
+.balloonPointer {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}

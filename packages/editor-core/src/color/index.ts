@@ -1,6 +1,7 @@
 export * from "$/color/conversion";
 export * from "$/color/color";
 export * from "$/color/icc-profile";
+export * from "$/color/presentation-cache";
 export * from "$/color/operations/color-mode";
 export * from "$/color/image-transforms";
 export * from "$/color/samples";

@@ -1,6 +1,10 @@
-/** Clone structured data while retaining shared references inside the graph. */
-export function cloneGraph<T>(value: T): T {
-  return cloneValue(value, new WeakMap<object, unknown>());
+/** Clone structured data while retaining shared references inside the graph.
+ * Supplied copies must already be detached and immutable for this capture. */
+export function cloneGraph<T>(
+  value: T,
+  detachedCopies: Iterable<readonly [object, unknown]> = [],
+): T {
+  return cloneValue(value, new WeakMap<object, unknown>(detachedCopies));
 }
 
 function cloneValue<T>(value: T, seen: WeakMap<object, unknown>): T {
@@ -69,5 +73,11 @@ function cloneValue<T>(value: T, seen: WeakMap<object, unknown>): T {
   seen.set(object, copy);
   for (const key of Object.keys(value as Record<string, unknown>))
     copy[key] = cloneValue((value as Record<string, unknown>)[key], seen);
+  // Non-enumerable data accessors must stay lazy. Their dynamic receiver makes
+  // the cloned container independent while serialization omits derived data.
+  for (const key of Object.getOwnPropertyNames(value)) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key)!;
+    if (!descriptor.enumerable && descriptor.get) Object.defineProperty(copy, key, descriptor);
+  }
   return copy as T;
 }

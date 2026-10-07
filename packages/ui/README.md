@@ -96,7 +96,7 @@ import { Button, Tooltip } from "@xprite/ui";
       text="Brush type"
     />
   )}
-</Tooltip>
+</Tooltip>;
 ```
 
 The getter keeps existing handlers, invokes them before tooltip behavior, and
@@ -162,7 +162,8 @@ import {
   ButtonVariant,
   Checkbox,
   Entry,
-  Label,
+  Text,
+  TextVariant,
   Panel,
   Text,
   TextVariant,
@@ -182,7 +183,7 @@ export function ToolCard() {
           y={0}
           color="currentColor"
         />
-        <Label text="Project name" />
+        <Text variant={TextVariant.Control} text="Project name" />
         <Entry value="" aria-label="Project name" />
         <Checkbox
           bounds={{ x: 0, y: 0, width: 132, height: 32 }}
@@ -200,14 +201,30 @@ export function ToolCard() {
 The gallery app is a visual showcase of this package's current exports. Assets
 and font licenses are listed in `ATTRIBUTION.md` and `LICENSES/`.
 
-`MarkdownView` renders read-only documents using the shared pixel text and
-theme dividers. It supports headings, paragraphs, flat ordered and unordered
-lists, strong text, inline code, HTTP(S) links, local heading links and standalone
-images. Supply `resolveImage` to map image paths to URLs and display dimensions;
-images use their alt text as a caption and fit the reading width. HTML
-is shown as text. The first heading has no leading divider; consecutive headings
-share a section without an intervening divider. Compose it with `ScrollArea` for long documents; content localization
-and document selection remain with the application.
+`RichText` displays read-only rich content through one component. Pass JSX as
+`children` for existing headings, paragraphs, links, tables and other markup, or
+pass a `markdown` string for a Markdown document. The two inputs are mutually
+exclusive in the prop types; `Text` remains the component for individual labels
+and text runs.
+
+```tsx
+<RichText>
+  <h2>Animation notes</h2>
+  <p>Keep the background transparent.</p>
+</RichText>
+
+<RichText markdown={"## Animation notes\n\nKeep the background transparent."} />
+```
+
+Markdown content uses shared pixel text and theme dividers. It supports headings,
+paragraphs, flat ordered and unordered lists, strong text, inline code, HTTP(S)
+links, local heading links and standalone images. Supply `resolveImage` to map
+image paths to URLs and display dimensions; images retain those dimensions and
+scroll horizontally when wider than the reading area, with alt text as a caption.
+HTML in Markdown is shown as text. The first heading has no leading divider;
+consecutive headings share a section without an intervening divider. Compose
+`RichText` with `ScrollArea` for long documents; content localization and document
+selection remain with the application.
 
 `ScrollArea` updates scroll positions separately from content measurements and
 keeps stationary scrollbars outside the scrolled artwork's alignment context.
@@ -217,3 +234,68 @@ native scroll position.
 
 `Combobox` can set `fitPopupToContent` to widen its option list to fit labels
 without changing the trigger size. The popup remains constrained to the viewport.
+
+## Typography and color tokens
+
+`base/theme/semantic-presentation-tokens.ts` supplies complete defaults for every
+skin: primary/compact/code font roles, reading/field/code metrics, metadata,
+danger colors and ink/paper/border/separator/chrome roles. Theme descriptors can
+override individual values. Runtime and Macintosh static styles call the same
+pure helpers; regenerate static token CSS with `pnpm run assets:macintosh-theme`.
+
+Use `--ui-color-border` for hard control edges and `--ui-color-line` for subdued
+separators. Note palettes and typography live in `base/theme/note-tokens.ts`;
+components bind those roles rather than redefining palette values. Window fonts
+use the active skin's compact role, so another skin does not import Macintosh
+fonts. Component CSS consumes these guaranteed variables without visual literals.
+
+Pages may provide a cohesive typography preset for deliberate locale or marketing
+metrics; growth imports its site preset for both static and interactive rendering.
+Do not override inherited palette values through `.xse-global` or per-page control
+CSS. Source pictures, bitmap contrast glyphs, mask colors and business rendering
+colors retain their original data.
+
+## Macintosh desktop windows
+
+`PanelVariant.Window` composes the titlebar, body and optional footer. Choose
+`PanelWindowKind.Document`, `Utility`, `Dialog`, `About` or `Note` by the surface's
+purpose. Document and Utility windows support WindowShade by default: a titlebar
+single click activates; a double click rolls the body up or restores it.
+`collapsed` / `onCollapsedChange` support controlled state; `defaultCollapsed`
+sets the initial state. Enter or Space on a focused caption also toggles it.
+The body remains mounted, preserving field values and application state.
+
+`WindowWorkspace` owns presentation-only window positions and stacking. Drag a
+titlebar to move a window, click or keyboard-focus its content to raise it, and
+press Escape during dragging to cancel the movement. Mark layout ancestors with
+`data-ui-desktop-layer` when their stacking context must rise with the window.
+Static public pages use `connectWindowWorkspace(root, { staticWindowShade: true })`
+to apply the same titlebar behavior to server-rendered window markup.
+
+`Note` uses the source kit's seven paper colors and its close, corner collapse
+and resize controls. Set `NoteDismissBehavior.Collapse` and supply `title` to
+keep a named caption after closing so the note can be restored.
+
+`Icon` uses the original Mac OS 8.0 Platinum icon pixels under
+`assets/icons/desktop/macos8/`, including native 16×16 artwork for menu rows;
+extraction provenance and Apple copyright
+information are stored with those assets. `Pattern` supplies repeating
+tiles. Articles select a stable tile from their canonical path.
+
+`ButtonVariant.Tile` composes an icon through `slots.leading` and a caption
+through `text` or `slots.content`, with native button or link behavior.
+`PanelVariant.Group` supplies a captioned border; `PanelGroupBorder` chooses
+a single or etched edge. `TextVariant.Control` supplies theme translation,
+alignment and optional pixel bounds without implying an HTML form label.
+`ListBoxSelectionMode` chooses single or multiple selection; separators group
+rows, while `renderItem` and `renderGroup` supply custom content.
+
+The pattern catalog is generated from the curated original desktop resources
+with `pnpm run assets:desktop-patterns`. `PatternVariant` and `PATTERNS` describe
+125 retained tiles; removed imitation IDs have no compatibility aliases.
+`Pattern` accepts `foreground` and `background` for two-color masks, `preview`
+to isolate a swatch from the host's desktop override, and `scale` for display
+size. Fixed-color artwork uses original PNG pixels. Source records and exclusions
+are retained with the assets. Two-color patterns share shapes across inverted,
+translated and recolored source variants, and can be recolored without copying
+assets. Apple pattern artwork is licensed separately from the UI software.

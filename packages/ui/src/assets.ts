@@ -3,6 +3,8 @@ export {
   UiPart,
   centerUiPixel,
   getUiAssets,
+  getUiChecker,
+  loadUiThemeSnapshot,
   measureUiText,
   paintUiIcon,
   paintUiPart,
@@ -13,6 +15,7 @@ export {
   uiGlyphAssets,
   uiMetrics,
   useUiAssets,
+  useUiChecker,
 } from "$/components/theme/appearance";
 export type {
   UiPartName,
@@ -20,4 +23,6 @@ export type {
   UiBitmap,
   UiColorRole,
   UiStyle,
+  UiThemeSnapshot,
 } from "$/components/theme/appearance";
+export { default as systemHelpIconUrl } from "$assets/icons/system/help.svg?url";

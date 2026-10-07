@@ -12,12 +12,28 @@ export interface IndexedDbDatabaseOptions {
   stores?: readonly IndexedDbObjectStoreDefinition[];
 }
 
+function isInvalidStateError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    error.name === "InvalidStateError"
+  );
+}
+
 /** Owns IndexedDB opening, schema creation, connection invalidation, and close. */
 export class IndexedDbDatabase {
   private connection?: Promise<IDBDatabase>;
+  private current?: IDBDatabase;
   private closed = false;
 
   constructor(private readonly options: IndexedDbDatabaseOptions) {}
+
+  private invalidate(database: IDBDatabase): void {
+    if (this.current !== database) return;
+    this.current = undefined;
+    this.connection = undefined;
+  }
 
   open(): Promise<IDBDatabase> {
     if (this.closed)
@@ -31,7 +47,7 @@ export class IndexedDbDatabase {
         new BrowserStorageError(BrowserStorageErrorCode.Unavailable, "IndexedDB is unavailable"),
       );
 
-    this.connection = new Promise((resolve, reject) => {
+    const connection = new Promise<IDBDatabase>((resolve, reject) => {
       const request = factory.open(this.options.databaseName, this.options.version ?? 1);
       request.onupgradeneeded = () => {
         const database = request.result;
@@ -64,23 +80,53 @@ export class IndexedDbDatabase {
           );
           return;
         }
+        this.current = database;
+        database.onclose = () => this.invalidate(database);
         database.onversionchange = () => {
+          this.invalidate(database);
           database.close();
-          this.connection = undefined;
         };
         resolve(database);
       };
     });
-    this.connection.catch(() => {
-      this.connection = undefined;
+    this.connection = connection;
+    void connection.catch(() => {
+      if (this.connection === connection) this.connection = undefined;
     });
-    return this.connection;
+    return connection;
+  }
+
+  /** Retry only a failed synchronous transaction start, never an operation already underway. */
+  async withConnection<T>(start: (database: IDBDatabase) => Promise<T>): Promise<T> {
+    let database = await this.open();
+    if (this.closed)
+      throw new BrowserStorageError(
+        BrowserStorageErrorCode.Closed,
+        "IndexedDB connection is closed",
+      );
+    try {
+      return start(database);
+    } catch (error) {
+      if (!isInvalidStateError(error)) throw error;
+      this.invalidate(database);
+      database.close();
+      database = await this.open();
+      if (this.closed)
+        throw new BrowserStorageError(
+          BrowserStorageErrorCode.Closed,
+          "IndexedDB connection is closed",
+        );
+      return start(database);
+    }
   }
 
   close(): void {
     if (this.closed) return;
     this.closed = true;
-    this.connection?.then(
+    const connection = this.connection;
+    this.connection = undefined;
+    this.current = undefined;
+    connection?.then(
       (database) => database.close(),
       () => {},
     );

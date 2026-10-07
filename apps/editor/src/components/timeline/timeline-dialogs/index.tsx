@@ -25,9 +25,16 @@ import {
   UserDataVisibilityScope,
 } from "$/managers/user-data/user-data-manager";
 import type { AsepriteUserData } from "$/managers/user-data/user-data-manager";
-import { Button, Divider, Input, Label } from "@xprite/ui";
-import { Combobox } from "@xprite/ui";
-import { Slider, SliderVariant } from "@xprite/ui";
+import {
+  Button,
+  Divider,
+  Input,
+  Text,
+  TextVariant,
+  Combobox,
+  Slider,
+  SliderVariant,
+} from "@xprite/ui";
 
 const LAYER_PROPERTIES_DEFAULT_WIDTH = 390;
 const LAYER_PROPERTIES_MIN_WIDTH = 300;
@@ -230,7 +237,8 @@ function LayerPropertiesWindow({
             };
             return (
               <>
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{ x: client.x + 2, y: client.y, width: imageProps ? 68 : 52, height: 30 }}
                   relativeTo={client}
                   text="Name:"
@@ -258,7 +266,8 @@ function LayerPropertiesWindow({
                 />
                 {imageProps && (
                   <>
-                    <Label
+                    <Text
+                      variant={TextVariant.Control}
                       bounds={{ x: client.x + 2, y: client.y + 38, width: 68, height: 32 }}
                       relativeTo={client}
                       text="Mode:"
@@ -298,7 +307,8 @@ function LayerPropertiesWindow({
                         onClick={onTilesetClick}
                       />
                     )}
-                    <Label
+                    <Text
+                      variant={TextVariant.Control}
                       bounds={{ x: client.x + 2, y: client.y + 78, width: 68, height: 32 }}
                       relativeTo={client}
                       text="Opacity:"
@@ -324,7 +334,8 @@ function LayerPropertiesWindow({
                 )}
                 {userDataOpen && (
                   <>
-                    <Label
+                    <Text
+                      variant={TextVariant.Control}
                       bounds={{
                         x: client.x + 2,
                         y:
@@ -372,7 +383,8 @@ function LayerPropertiesWindow({
                         setColorPickerOpen(true);
                       }}
                     />
-                    <Label
+                    <Text
+                      variant={TextVariant.Control}
                       bounds={{
                         x: client.x + 2,
                         y:
@@ -529,12 +541,14 @@ function FramePropertiesWindow({
           const actionX = client.x + client.width - buttonGroupWidth;
           return (
             <>
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 bounds={{ x: client.x + 2, y: client.y, width: frameValueOffset - 10, height: 18 }}
                 relativeTo={client}
                 text="Frame number:"
               />
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 bounds={{
                   x: client.x + frameValueOffset,
                   y: client.y,
@@ -544,7 +558,8 @@ function FramePropertiesWindow({
                 relativeTo={client}
                 text={frame}
               />
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 bounds={{
                   x: client.x + 2,
                   y: client.y + 26,

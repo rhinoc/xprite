@@ -20,10 +20,7 @@ import {
   useUserDataVisibility,
   UserDataVisibilityScope,
 } from "$/managers/user-data/user-data-manager";
-import { Button, Input, Label } from "@xprite/ui";
-import { Checkbox } from "@xprite/ui";
-import { Combobox } from "@xprite/ui";
-import { Divider } from "@xprite/ui";
+import { Button, Input, Text, TextVariant, Checkbox, Combobox, Divider } from "@xprite/ui";
 
 const SPRITE_PROPERTIES_DIALOG_WIDTH = 578;
 const SPRITE_USER_DATA_COLOR_FIELD = { x: 88, y: 105, width: 424, height: 24 };
@@ -211,7 +208,8 @@ export function SpriteProperties({ onClose }: { onClose: () => void }) {
       >
         {({ clientBounds: c }: DialogContext) => (
           <>
-            <Label
+            <Text
+              variant={TextVariant.Control}
               bounds={{ x: c.x, y: c.y - 2, width: 86, height: 24 }}
               relativeTo={c}
               text="File name:"
@@ -231,32 +229,38 @@ export function SpriteProperties({ onClose }: { onClose: () => void }) {
               expanded={userDataOpen}
               onClick={() => setUserDataOpen(!userDataOpen)}
             />
-            <Label
+            <Text
+              variant={TextVariant.Control}
               bounds={{ x: c.x, y: c.y + 30, width: 86, height: 20 }}
               relativeTo={c}
               text="Type:"
             />
-            <Label
+            <Text
+              variant={TextVariant.Control}
               bounds={{ x: c.x + 86, y: c.y + 30, width: 400, height: 20 }}
               relativeTo={c}
               text={type}
             />
-            <Label
+            <Text
+              variant={TextVariant.Control}
               bounds={{ x: c.x, y: c.y + 54, width: 86, height: 20 }}
               relativeTo={c}
               text="Size:"
             />
-            <Label
+            <Text
+              variant={TextVariant.Control}
               bounds={{ x: c.x + 86, y: c.y + 54, width: 400, height: 20 }}
               relativeTo={c}
               text={size}
             />
-            <Label
+            <Text
+              variant={TextVariant.Control}
               bounds={{ x: c.x, y: c.y + 78, width: 86, height: 20 }}
               relativeTo={c}
               text="Frames:"
             />
-            <Label
+            <Text
+              variant={TextVariant.Control}
               bounds={{ x: c.x + 86, y: c.y + 78, width: 400, height: 20 }}
               relativeTo={c}
               text={String(document?.frameCount ?? 1)}
@@ -264,7 +268,8 @@ export function SpriteProperties({ onClose }: { onClose: () => void }) {
 
             {userDataOpen && (
               <>
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{ x: c.x, y: c.y + 105, width: 86, height: 24 }}
                   relativeTo={c}
                   text="Color:"
@@ -288,7 +293,8 @@ export function SpriteProperties({ onClose }: { onClose: () => void }) {
                     setColorPicker(true);
                   }}
                 />
-                <Label
+                <Text
+                  variant={TextVariant.Control}
                   bounds={{ x: c.x, y: c.y + 137, width: 86, height: 24 }}
                   relativeTo={c}
                   text="User Data:"
@@ -308,7 +314,8 @@ export function SpriteProperties({ onClose }: { onClose: () => void }) {
               relativeTo={c}
               text="Advanced"
             />
-            <Label
+            <Text
+              variant={TextVariant.Control}
               bounds={{ x: c.x, y: c.y + 130 + (userDataOpen ? 78 : 0), width: 154, height: 24 }}
               relativeTo={c}
               text="Transparent Color:"
@@ -331,7 +338,8 @@ export function SpriteProperties({ onClose }: { onClose: () => void }) {
                 aria-label="Transparent Color"
               />
             ) : (
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 bounds={{
                   x: c.x + 154,
                   y: c.y + 130 + (userDataOpen ? 78 : 0),
@@ -342,7 +350,8 @@ export function SpriteProperties({ onClose }: { onClose: () => void }) {
                 text="(only for indexed images)"
               />
             )}
-            <Label
+            <Text
+              variant={TextVariant.Control}
               bounds={{ x: c.x, y: c.y + 157 + (userDataOpen ? 78 : 0), width: 154, height: 24 }}
               relativeTo={c}
               text="Pixel Aspect Ratio:"
@@ -360,7 +369,8 @@ export function SpriteProperties({ onClose }: { onClose: () => void }) {
               onValueChange={setRatio}
               aria-label="Pixel Aspect Ratio"
             />
-            <Label
+            <Text
+              variant={TextVariant.Control}
               bounds={{ x: c.x, y: c.y + 192 + (userDataOpen ? 78 : 0), width: 154, height: 24 }}
               relativeTo={c}
               text="Color Profile:"

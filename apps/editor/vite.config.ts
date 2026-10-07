@@ -15,8 +15,16 @@ import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-import { editorSeo } from "../../infra/editor-seo.ts";
+import {
+  DEVELOPMENT_PORTS,
+  DevelopmentApp,
+  developmentServerIdentity,
+  developmentSiteProxy,
+} from "../../infra/dev-site.ts";
 import { packageLocalAliases } from "../../infra/package-local-aliases.ts";
+import { publicPackageAssets } from "../../infra/public-package-assets.ts";
+import { siteHtml, SiteIconStyle } from "../../infra/site-html.ts";
+import { editorOffline } from "./build/editor-offline.ts";
 
 const appRoot = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(appRoot, "../..");
@@ -278,6 +286,7 @@ function itchDistribution() {
     name: "xprite-itch-distribution",
     transformIndexHtml(html: string) {
       return html
+        .replace(/\s*<link\b[^>]*rel="canonical"[^>]*>/g, "")
         .replace(/\s*<link\b[^>]*rel="manifest"[^>]*>/g, "")
         .replace(/\s*<meta\b[^>]*name="(?:apple-)?mobile-web-app-capable"[^>]*>/g, "");
     },
@@ -285,9 +294,6 @@ function itchDistribution() {
       await Promise.all([
         unlink(resolve(editorOutput, "sw.js")),
         unlink(resolve(editorOutput, "manifest.webmanifest")),
-        unlink(resolve(editorOutput, "404.html")),
-        unlink(resolve(editorOutput, "robots.txt")),
-        unlink(resolve(editorOutput, "sitemap.xml")),
         writeFile(
           resolve(editorOutput, "release.json"),
           `${JSON.stringify(
@@ -315,6 +321,7 @@ function preserveEditorStyleEffects() {
 }
 
 export default defineConfig({
+  optimizeDeps: { exclude: ["@bokuweb/zstd-wasm"] },
   base: isItchBuild ? "./" : "/",
   define: {
     __XPRITE_ITCH__: JSON.stringify(isItchBuild),
@@ -324,16 +331,35 @@ export default defineConfig({
   root: appRoot,
   publicDir: resolve(appRoot, "assets/public"),
   plugins: [
+    developmentServerIdentity(DevelopmentApp.Editor, repositoryRoot),
     packageLocalAliases(),
-    editorSeo(projectMetadata.version),
+    siteHtml(SiteIconStyle.Editor),
+    publicPackageAssets(import.meta.url, "@xprite/site-assets", [
+      "icon.svg",
+      "favicon.ico",
+      "favicon-32.png",
+    ]),
     react(),
     debugInputMiddleware(),
     bundleLicenseNotices(),
     preserveEditorStyleEffects(),
+    ...(!isItchBuild ? [editorOffline(editorOutput)] : []),
     ...(isItchBuild ? [itchDistribution()] : []),
   ],
   resolve: {
     alias: [
+      {
+        find: "@xprite/ui/pattern-data",
+        replacement: resolve(repositoryRoot, "packages/ui/assets/patterns/macintosh/catalog.json"),
+      },
+      {
+        find: /^@xprite\/editor-ui$/,
+        replacement: resolve(repositoryRoot, "packages/editor-ui/src/index.ts"),
+      },
+      {
+        find: "@xprite/editor-ui/",
+        replacement: `${resolve(repositoryRoot, "packages/editor-ui/src")}/`,
+      },
       {
         find: "@xprite/bedrock/",
         replacement: `${bedrockSource}/`,
@@ -360,7 +386,13 @@ export default defineConfig({
       },
     ],
   },
-  server: { host: "0.0.0.0", fs: { allow: [repositoryRoot] } },
+  server: {
+    host: "0.0.0.0",
+    port: DEVELOPMENT_PORTS[DevelopmentApp.Editor],
+    strictPort: true,
+    fs: { allow: [repositoryRoot] },
+    proxy: developmentSiteProxy(DevelopmentApp.Editor),
+  },
   preview: { host: "0.0.0.0" },
   build: {
     outDir: editorOutput,

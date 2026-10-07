@@ -1,0 +1,348 @@
+{
+  "source": "http://computer-demo.localhost:5173/",
+  "language": "zh-CN",
+  "controls": [
+    {
+      "label": "文件",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 44,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "编辑",
+      "rect": {
+        "x": 44,
+        "y": 0,
+        "width": 44,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "精灵",
+      "rect": {
+        "x": 88,
+        "y": 0,
+        "width": 44,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "图层",
+      "rect": {
+        "x": 132,
+        "y": 0,
+        "width": 44,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "帧",
+      "rect": {
+        "x": 176,
+        "y": 0,
+        "width": 30,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "选择",
+      "rect": {
+        "x": 206,
+        "y": 0,
+        "width": 44,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "视图",
+      "rect": {
+        "x": 250,
+        "y": 0,
+        "width": 44,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "帮助",
+      "rect": {
+        "x": 294,
+        "y": 0,
+        "width": 44,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "设置",
+      "rect": {
+        "x": 1376,
+        "y": 22,
+        "width": 32,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "关闭 主页",
+      "rect": {
+        "x": 132,
+        "y": 22,
+        "width": 28,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "关于",
+      "rect": {
+        "x": 8,
+        "y": 64,
+        "width": 64,
+        "height": 74
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "新建文件...",
+      "rect": {
+        "x": 80,
+        "y": 72,
+        "width": 124,
+        "height": 14
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "打开文件...",
+      "rect": {
+        "x": 80,
+        "y": 94,
+        "width": 124,
+        "height": 14
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "恢复文件...",
+      "rect": {
+        "x": 80,
+        "y": 116,
+        "width": 124,
+        "height": 14
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "hello.aseprite",
+      "rect": {
+        "x": 14,
+        "y": 184,
+        "width": 1336,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "下载 hello.aseprite",
+      "rect": {
+        "x": 1352,
+        "y": 183,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "固定 hello.aseprite",
+      "rect": {
+        "x": 1382,
+        "y": 187,
+        "width": 16,
+        "height": 16
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "删除 hello.aseprite 的浏览器副本",
+      "rect": {
+        "x": 1402,
+        "y": 183,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "hello.aseprite",
+      "rect": {
+        "x": 14,
+        "y": 206,
+        "width": 1336,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "下载 hello.aseprite",
+      "rect": {
+        "x": 1352,
+        "y": 205,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "固定 hello.aseprite",
+      "rect": {
+        "x": 1382,
+        "y": 209,
+        "width": 16,
+        "height": 16
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "删除 hello.aseprite 的浏览器副本",
+      "rect": {
+        "x": 1402,
+        "y": 205,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "hello.aseprite",
+      "rect": {
+        "x": 14,
+        "y": 228,
+        "width": 1336,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "下载 hello.aseprite",
+      "rect": {
+        "x": 1352,
+        "y": 227,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "固定 hello.aseprite",
+      "rect": {
+        "x": 1382,
+        "y": 231,
+        "width": 16,
+        "height": 16
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "删除 hello.aseprite 的浏览器副本",
+      "rect": {
+        "x": 1402,
+        "y": 227,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "example.aseprite",
+      "rect": {
+        "x": 14,
+        "y": 250,
+        "width": 1336,
+        "height": 22
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "下载 example.aseprite",
+      "rect": {
+        "x": 1352,
+        "y": 249,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "固定 example.aseprite",
+      "rect": {
+        "x": 1382,
+        "y": 253,
+        "width": 16,
+        "height": 16
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "删除 example.aseprite 的浏览器副本",
+      "rect": {
+        "x": 1402,
+        "y": 249,
+        "width": 22,
+        "height": 24
+      },
+      "value": "",
+      "pressed": null
+    },
+    {
+      "label": "添加到桌面",
+      "rect": {
+        "x": 1350,
+        "y": 808,
+        "width": 82,
+        "height": 32
+      },
+      "value": "",
+      "pressed": null
+    }
+  ],
+  "canvasViewport": null
+}

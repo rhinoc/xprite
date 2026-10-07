@@ -1,10 +1,13 @@
-import { useEffect, useState, useRef, type CSSProperties } from "react";
-
 import {
-  centerThemePixel,
-  themeFontHeight,
-  measureThemeText,
-} from "$/base/components/theme-controls";
+  useEffect,
+  useState,
+  useRef,
+  type CSSProperties,
+  type ReactNode,
+  type MouseEventHandler,
+} from "react";
+
+import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import {
   DEFAULT_SURFACE_VIEWPORT,
@@ -16,13 +19,17 @@ import { menuMnemonicIndex, SUBMENU_OPEN_DELAY_MS } from "$/components/menu/poli
 import { Text, TextVariant } from "$/components/text";
 
 import styles from "$/components/menu/menu.module.css";
+import navigationStyles from "$/components/menu/navigation.module.css";
 
 const MENUBAR_DEFAULT_BOUNDS: SurfaceBounds = { x: 0, y: 0, width: 1920, height: 22 };
 const MENUBAR_LABEL = "Application menu";
 const MENU_TRIGGER_HORIZONTAL_PADDING = 16;
+const MENU_TRIGGER_ICON_WIDTH = 32;
 
 export interface MenubarMenu {
   label: string;
+  /** Icon or other title content; label remains the accessible name. */
+  content?: ReactNode;
   mnemonic?: string;
   /** Markup position used to derive the source mnemonic character. */
   mnemonicIndex?: number;
@@ -37,9 +44,40 @@ function mnemonicIndex(menu: MenubarMenu) {
 function mnemonic(menu: MenubarMenu) {
   return [...menu.label][mnemonicIndex(menu)] ?? "";
 }
+export enum MenubarLayout {
+  Positioned = "positioned",
+  Flow = "flow",
+}
+
+export interface MenubarNavigationLink {
+  label: string;
+  /** Optional visible icon/content; label remains the accessible name. */
+  content?: ReactNode;
+  href: string;
+  /** Start the group pinned to the trailing edge; subsequent links join it. */
+  end?: boolean;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+  current?: boolean;
+  lang?: string;
+  hrefLang?: string;
+  target?: string;
+  rel?: string;
+}
 export interface MenubarProps {
-  menus: readonly MenubarMenu[];
+  menus?: readonly MenubarMenu[];
+  /** Menus before the application commands, such as a brand menu. */
+  leadingMenus?: readonly MenubarMenu[];
+  layout?: MenubarLayout;
+  /** System menus pinned to the trailing edge in the flow layout. */
+  trailingMenus?: readonly MenubarMenu[];
+  /** Native page links rendered as a flat system-style navigation bar. */
+  links?: readonly MenubarNavigationLink[];
+  leadingContent?: ReactNode;
+  /** Controls beside links in the flow/navigation layout. */
+  trailingContent?: ReactNode;
   bounds?: SurfaceBounds;
+  /** Scene width while retaining the theme's natural menu-bar height. */
+  width?: number;
   viewport?: SurfaceViewport;
   label?: string;
   onMenuOpen?: (index: number) => void;
@@ -47,15 +85,29 @@ export interface MenubarProps {
 }
 /** Flat bitmap-theme menu surface with a two-pixel logical item border. */
 export function Menubar({
-  menus,
-  bounds = MENUBAR_DEFAULT_BOUNDS,
+  menus = [],
+  leadingMenus = [],
+  trailingMenus = [],
+  layout = MenubarLayout.Positioned,
+  links,
+  leadingContent,
+  trailingContent,
+  bounds: suppliedBounds,
+  width,
   viewport = DEFAULT_SURFACE_VIEWPORT,
   label = MENUBAR_LABEL,
   onMenuOpen,
   expandOnHover = false,
 }: MenubarProps) {
   const { definition: theme, language, translateSource } = useTheme();
-  const displayMenus = menus.map((menu) => ({ ...menu, label: translateSource(menu.label) }));
+  const bounds = suppliedBounds ?? {
+    ...MENUBAR_DEFAULT_BOUNDS,
+    width: width ?? MENUBAR_DEFAULT_BOUNDS.width,
+    height: theme.dimensions.menubar_height ?? MENUBAR_DEFAULT_BOUNDS.height,
+  };
+  const { measureThemeText, themeFontHeight } = useThemeText();
+  const allMenus = [...leadingMenus, ...menus, ...trailingMenus];
+  const displayMenus = allMenus.map((menu) => ({ ...menu, label: translateSource(menu.label) }));
   const [opened, setOpened] = useState(-1),
     [hovered, setHovered] = useState(-1);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -86,7 +138,10 @@ export function Menubar({
   const positions = displayMenus.map((menu) => {
     const position = {
       x: left,
-      width: measureThemeText(menu.label) + MENU_TRIGGER_HORIZONTAL_PADDING,
+      width: menu.content
+        ? MENU_TRIGGER_ICON_WIDTH
+        : measureThemeText(menu.label) +
+          (theme.dimensions.menubar_horizontal_padding ?? MENU_TRIGGER_HORIZONTAL_PADDING),
     };
     left += position.width;
     return position;
@@ -102,7 +157,7 @@ export function Menubar({
       )
         return;
       if (language !== "en") return;
-      const index = menus.findIndex(
+      const index = allMenus.findIndex(
         (menu) => mnemonic(menu).toLowerCase() === event.key.toLowerCase(),
       );
       if (index >= 0) {
@@ -112,7 +167,126 @@ export function Menubar({
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [menus, language]);
+  }, [menus, leadingMenus, trailingMenus, language]);
+  if (
+    links ||
+    leadingMenus.length > 0 ||
+    trailingMenus.length > 0 ||
+    layout === MenubarLayout.Flow
+  ) {
+    const entries = links ?? [];
+    const menuOnly = entries.length === 0;
+    const trailingStart = entries.findIndex((link) => link.end);
+    const primary = trailingStart < 0 ? entries : entries.slice(0, trailingStart);
+    const trailing = trailingStart < 0 ? [] : entries.slice(trailingStart);
+    const renderLink = (link: MenubarNavigationLink) => (
+      <a
+        key={link.href}
+        href={link.href}
+        lang={link.lang}
+        hrefLang={link.hrefLang}
+        target={link.target}
+        rel={link.rel}
+        onClick={link.onClick}
+        className={navigationStyles.link}
+        data-ui-menubar-link="true"
+        data-ui-menubar-end={link.end || undefined}
+        aria-current={link.current ? "page" : undefined}
+        aria-label={link.content !== undefined ? translateSource(link.label) : undefined}
+      >
+        {link.content ?? translateSource(link.label)}
+      </a>
+    );
+    const renderMenus = (start: number, end: number) => (
+      <div
+        className={navigationStyles.menus}
+        data-ui-menubar-menus="true"
+        role={menuOnly ? "presentation" : "menubar"}
+        aria-label={menuOnly ? undefined : translateSource(label)}
+      >
+        {displayMenus.slice(start, end).map((menu, offset) => {
+          const index = start + offset;
+          return (
+            <Menu
+              key={index}
+              label={menu.label}
+              items={menu.items}
+              expanded={opened === index}
+              onExpandedChange={(open) =>
+                setOpened((previous) => (open ? index : previous === index ? -1 : previous))
+              }
+              onNavigate={(direction) =>
+                setOpened((index + direction + allMenus.length) % allMenus.length)
+              }
+              renderTrigger={({ buttonRef, ...props }) => (
+                <button
+                  {...props}
+                  ref={buttonRef}
+                  type="button"
+                  role="menuitem"
+                  className={navigationStyles.link}
+                  data-ui-menubar-link="true"
+                  data-open={opened === index || undefined}
+                  data-icon={menu.content !== undefined || undefined}
+                  tabIndex={index === Math.max(0, opened) ? 0 : -1}
+                  onPointerEnter={(event) => {
+                    cancelHoverOpen();
+                    if (event.pointerType === "mouse") {
+                      if (opened >= 0) setOpened(index);
+                      else if (expandOnHover)
+                        hoverTimer.current = setTimeout(() => {
+                          hoverTimer.current = null;
+                          setOpened(index);
+                        }, SUBMENU_OPEN_DELAY_MS);
+                    }
+                  }}
+                  onPointerLeave={cancelHoverOpen}
+                  onKeyDown={(event) => {
+                    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+                      event.preventDefault();
+                      setOpened(
+                        (index + (event.key === "ArrowLeft" ? -1 : 1) + allMenus.length) %
+                          allMenus.length,
+                      );
+                    } else props.onKeyDown?.(event);
+                  }}
+                >
+                  {menu.content ?? menu.label}
+                </button>
+              )}
+            />
+          );
+        })}
+      </div>
+    );
+    return (
+      <nav
+        role={menuOnly ? "menubar" : undefined}
+        aria-label={translateSource(label)}
+        className={navigationStyles.bar}
+        data-ui-menubar="navigation"
+      >
+        {leadingMenus.length > 0 && renderMenus(0, leadingMenus.length)}
+        {leadingContent && (
+          <span className={navigationStyles.leading} data-ui-menubar-leading="true">
+            {leadingContent}
+          </span>
+        )}
+        <div className={navigationStyles.items} data-ui-menubar-items="true">
+          {menus.length > 0 && renderMenus(leadingMenus.length, leadingMenus.length + menus.length)}
+          {primary.map(renderLink)}
+        </div>
+        {(trailingContent || trailingMenus.length > 0 || trailing.length > 0) && (
+          <div className={navigationStyles.trailing} data-ui-menubar-trailing="true">
+            {trailingMenus.length > 0 &&
+              renderMenus(leadingMenus.length + menus.length, allMenus.length)}
+            {trailingContent}
+            {trailing.map(renderLink)}
+          </div>
+        )}
+      </nav>
+    );
+  }
   return (
     <div
       role="menubar"
@@ -191,26 +365,44 @@ export function Menubar({
                   transform: `scale(${sx}, ${sy})`,
                 }}
               >
-                <Text
-                  variant={TextVariant.PositionedPixel}
-                  text={menu.label}
-                  x={
-                    centerThemePixel(
-                      positions[index].x,
-                      positions[index].width,
-                      measureThemeText(menu.label),
-                    ) - positions[index].x
-                  }
-                  y={centerThemePixel(bounds.y, bounds.height, themeFontHeight()) - bounds.y}
-                  color={
-                    opened === index
-                      ? theme.colors.menuitem_highlight_text
-                      : hovered === index
-                        ? theme.colors.menuitem_hot_text
-                        : theme.colors.menuitem_normal_text
-                  }
-                />
-                {language === "en" &&
+                {menu.content ? (
+                  <span
+                    className={styles.menuTriggerContent}
+                    style={{
+                      color:
+                        opened === index
+                          ? theme.colors.menuitem_highlight_text
+                          : hovered === index
+                            ? theme.colors.menuitem_hot_text
+                            : theme.colors.menuitem_normal_text,
+                    }}
+                  >
+                    {menu.content}
+                  </span>
+                ) : (
+                  <Text
+                    variant={TextVariant.PositionedPixel}
+                    text={menu.label}
+                    x={
+                      centerThemePixel(
+                        positions[index].x,
+                        positions[index].width,
+                        measureThemeText(menu.label),
+                      ) - positions[index].x
+                    }
+                    y={centerThemePixel(bounds.y, bounds.height, themeFontHeight()) - bounds.y}
+                    color={
+                      opened === index
+                        ? theme.colors.menuitem_highlight_text
+                        : hovered === index
+                          ? theme.colors.menuitem_hot_text
+                          : theme.colors.menuitem_normal_text
+                    }
+                  />
+                )}
+                {!menu.content &&
+                  language === "en" &&
+                  theme.dimensions.menubar_mnemonics_visible !== 0 &&
                   mnemonicIndex(menu) >= 0 &&
                   mnemonicIndex(menu) < [...menu.label].length && (
                     <span

@@ -1,10 +1,11 @@
-import { MAX_IMAGE_PIXELS } from "$/base/image-limits";
+import { MAX_DOCUMENT_PIXEL_BYTES } from "$/base/image-limits";
 import type { Rgba } from "$/base/primitives";
 import { cloneClipboardColorProfile } from "$/clipboard/image";
 import { cloneClipboardTileset, mergeClipboardTileset } from "$/clipboard/tile";
 import type { TimelineClipboard } from "$/clipboard/types";
 import { workingColorProfile } from "$/color/icc-profile";
 import type { AsepriteImageSamples } from "$/color/samples";
+import { cloneStoredPixelBuffer } from "$/document/pixel-storage";
 import { refreshTilemapProjections } from "$/tilemap/model";
 import { validTimelineRange } from "$/timeline/operations/timeline-range";
 import {
@@ -63,7 +64,7 @@ function cloner() {
     if (!cel) return null;
     let image = pixels.get(cel.pixels);
     if (!image) {
-      image = { ...cel.pixels, data: cel.pixels.data.slice() };
+      image = cloneStoredPixelBuffer(cel.pixels);
       pixels.set(cel.pixels, image);
     }
     let asepriteSamples = cel.asepriteSamples;
@@ -91,8 +92,6 @@ function cloner() {
       source: cel.source
         ? {
             ...cel.source,
-            pixels: undefined,
-            asepritePixels: undefined,
             linkedFrame: undefined,
             userData: cel.source.userData
               ? {
@@ -170,7 +169,9 @@ function pasteTimelineClipboardRaw(t: SpriteTimeline, data: TimelineClipboard): 
   if (!data.layers.length || !data.frames.length) return t;
   const images = new Set(t.frames.flatMap((f) => f.cels.flatMap((c) => (c ? [c.pixels] : []))));
   const added = new Set(data.frames.flatMap((f) => f.cels.flatMap((c) => (c ? [c.pixels] : []))));
-  if ([...images, ...added].reduce((n, p) => n + p.data.byteLength, 0) > MAX_IMAGE_PIXELS * 4)
+  if (
+    [...images, ...added].reduce((n, p) => n + p.width * p.height * 4, 0) > MAX_DOCUMENT_PIXEL_BYTES
+  )
     return t;
   const clone = cloner(),
     clonePalette = paletteCloner();

@@ -15,6 +15,8 @@ export async function encodeLosslessWebp(source, destination) {
     "-z",
     "9",
     "-exact",
+    "-metadata",
+    "all",
     "-quiet",
     filePath(source),
     "-o",

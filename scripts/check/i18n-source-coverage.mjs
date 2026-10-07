@@ -209,14 +209,36 @@ export function inspectI18nSources(repositoryRoot, catalog) {
       collectBindings(ast);
       const sourceCalls = new Set(sourceTranslators);
       const keyCalls = new Set(keyTranslators);
+      const textComponents = new Set(["Text"]);
+      const translatedTextComponents = new Set();
+      const textVariants = new Set();
       for (const declaration of ast.program.body) {
         if (declaration.type !== "ImportDeclaration") continue;
         for (const specifier of declaration.specifiers) {
           const imported = specifier.imported?.name;
           if (sourceTranslators.has(imported)) sourceCalls.add(specifier.local.name);
           if (keyTranslators.has(imported)) keyCalls.add(specifier.local.name);
+          if (declaration.source.value === "@xprite/ui") {
+            if (imported === "Text") {
+              textComponents.add(specifier.local.name);
+              translatedTextComponents.add(specifier.local.name);
+            }
+            if (imported === "TextVariant") textVariants.add(specifier.local.name);
+          }
         }
       }
+      const translatesControlText = (opening) => {
+        if (!translatedTextComponents.has(opening?.name?.name)) return false;
+        const variant = opening.attributes.find(
+          (attribute) => attribute.type === "JSXAttribute" && attribute.name.name === "variant",
+        )?.value?.expression;
+        // ControlText translates its text through the UI provider; inline/pixel text does not.
+        return (
+          variant?.type === "MemberExpression" &&
+          textVariants.has(variant.object.name) &&
+          variant.property.name === "Control"
+        );
+      };
       const inspectLabels = (node) => {
         if (node?.type === "ObjectExpression")
           node.properties.forEach((property) => {
@@ -276,7 +298,9 @@ export function inspectI18nSources(repositoryRoot, catalog) {
           const native =
             parent?.name?.type === "JSXIdentifier" &&
             (/^[a-z]/.test(parent.name.name) ||
-              (parent.name.name === "Text" && node.name.name === "text"));
+              (textComponents.has(parent.name.name) &&
+                node.name.name === "text" &&
+                !translatesControlText(parent)));
           inspectMessage(node.value, native);
         } else if (node.type === "JSXElement" || node.type === "JSXFragment") {
           for (const child of node.children)

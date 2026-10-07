@@ -14,7 +14,7 @@
 
 .tool:focus-visible {
   outline: var(--ui-button-tool-focus-width, 2px) solid
-    var(--ui-button-tool-focus, var(--ui-focus-ring-color, #202528));
+    var(--ui-button-tool-focus, var(--ui-focus-ring-color));
   outline-offset: var(--ui-button-tool-focus-offset, -4px);
 }
 

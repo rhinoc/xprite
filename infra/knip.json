@@ -3,11 +3,20 @@
   "ignoreBinaries": ["c\\+\\+", "clang\\+\\+", "ego-browser"],
   "ignoreDependencies": ["@posthog/cli", "dependency-cruiser", "edgeone"],
   "workspaces": {
+    "services/share": {
+      "entry": ["src/worker.ts"]
+    },
     ".": {
       "entry": [
         "scripts/**/*.{js,cjs,mjs,jsx,ts,tsx,cts,mts}",
         ".agents/skills/**/scripts/*.mjs",
         "infra/dependency-cruiser*.cjs"
+      ],
+      "project": [
+        "*.{js,cjs,mjs,jsx,ts,tsx,cts,mts}",
+        "infra/**/*.{js,cjs,mjs,jsx,ts,tsx,cts,mts}",
+        "scripts/**/*.{js,cjs,mjs,jsx,ts,tsx,cts,mts}",
+        ".agents/skills/**/scripts/*.mjs"
       ]
     },
     "apps/editor": {
@@ -19,8 +28,41 @@
         "src/managers/menus/shortcut-availability.ts"
       ]
     },
+    "apps/growth": {
+      "entry": ["src/main.tsx", "src/public-main.tsx"]
+    },
+    "apps/tools": {
+      "entry": [
+        "src/main.tsx",
+        "src/gif-main.tsx",
+        "src/animal-crossing-main.tsx",
+        "src/tools-main.tsx",
+        "src/ssg.tsx"
+      ]
+    },
+    "apps/growth/content": {
+      "entry": ["help/index.ts", "tools/index.ts", "navigation/index.ts", "articles/index.ts"]
+    },
     "packages/ui": {
       "entry": ["src/{index,assets,canvas,cursor,popover,utils}.ts"]
+    },
+    "packages/editor-ui": {
+      "entry": ["src/index.ts", "src/timeline/index.ts", "src/appearance/index.ts"]
+    },
+    "apps/wechat": {
+      "entry": [
+        "src/bootstrap.mjs",
+        "src/mount-editor.tsx",
+        "build/build.mts",
+        "src/adapters/platform/inactive-browser-host.ts",
+        "src/adapters/runtime/react.mjs"
+      ],
+      "paths": {
+        "xprite-real-react": ["node_modules/react/index.js"]
+      }
+    },
+    "packages/site-shell": {
+      "entry": ["src/index.ts", "src/adapters/browser.ts", "src/startup.ts"]
     }
   }
 }

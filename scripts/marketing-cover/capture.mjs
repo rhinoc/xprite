@@ -1,7 +1,15 @@
 const fs = await import("node:fs/promises");
 const { pathToFileURL } = await import("node:url");
+const { dirname, resolve } = await import("node:path");
 const { spawnSync } = await import("node:child_process");
 const run = globalThis.xpriteCoverRun;
+const firstPlan = run.jobs[0] ? JSON.parse(await fs.readFile(run.jobs[0].plan, "utf8")) : null;
+const repositoryRoot =
+  run.root ?? (firstPlan ? resolve(dirname(firstPlan.script), "../..") : process.cwd());
+const { captureBrowserScreenshot } = await import(
+  pathToFileURL(resolve(repositoryRoot, "scripts/base/screenshot.mjs")).href
+);
+const CAPTURE_DPR = 1;
 const task = run.spaceId
   ? await taskSpace(Number(run.spaceId))
   : await taskSpace("Xprite封面原尺寸截图");
@@ -13,7 +21,7 @@ async function nativeViewport(page, size, mobile) {
   await page.cdp("Emulation.setDeviceMetricsOverride", {
     width: size[0],
     height: size[1],
-    deviceScaleFactor: 1,
+    deviceScaleFactor: CAPTURE_DPR,
     mobile,
   });
   await page.cdp("Emulation.setTouchEmulationEnabled", { enabled: mobile, maxTouchPoints: 1 });
@@ -34,7 +42,7 @@ async function captureEditor(page, plan, captures, name, mobile) {
     return true;
   }, plan.locale);
   if (languageChanged) await page.reload();
-  await page.waitForSelector('loc=css:[aria-label="Pixel editor"]', {
+  await page.waitForSelector('loc=css:[data-slot="editor-window"]', {
     state: "visible",
     timeout: 20000,
   });
@@ -51,21 +59,22 @@ async function captureEditor(page, plan, captures, name, mobile) {
   await page.fill(`loc=role:textbox[name='${labels.zoom}']`, String(plan.zooms[name]));
   await page.press(`loc=role:textbox[name='${labels.zoom}']`, "Enter");
   await page.mouse.move(0, 0);
-  await page.evaluate(
-    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
-  );
-  await page.screenshot({ path: target.path });
-  const png = await fs.readFile(target.path);
-  const size = [png.readUInt32BE(16), png.readUInt32BE(20)];
+  const capture = await captureBrowserScreenshot(page, {
+    path: target.path,
+    expectedDpr: CAPTURE_DPR,
+    metadataPath: target.path.replace(/\.png$/i, ".json"),
+  });
+  const size = [capture.pixels.width, capture.pixels.height];
   if (size[0] !== target.size[0] || size[1] !== target.size[1])
     throw new Error(`截图尺寸不匹配：${name} ${size}, expected ${target.size}`);
   captures.push({
     name,
     source: source.href,
     size,
-    deviceScaleFactor: 1,
+    deviceScaleFactor: CAPTURE_DPR,
     locale: plan.locale,
     capturedAt: new Date().toISOString(),
+    capture,
   });
 }
 
@@ -90,7 +99,6 @@ for (const job of run.jobs) {
   previewPage ??= await task.newPage();
   await nativeViewport(previewPage, plan.canvas, false);
   await previewPage.goto(pathToFileURL(plan.html).href);
-  await previewPage.evaluate(() => document.fonts.ready);
   await previewPage.waitForFunction(
     () =>
       document.documentElement.dataset.coverReady === "true" &&
@@ -98,24 +106,12 @@ for (const job of run.jobs) {
     undefined,
     { timeout: 10000 },
   );
-  await previewPage.screenshot({ path: plan.render_output });
-  if (plan.output_size[0] !== plan.canvas[0] || plan.output_size[1] !== plan.canvas[1]) {
-    const resized = spawnSync(
-      "sips",
-      [
-        "--resampleHeightWidth",
-        String(plan.output_size[1]),
-        String(plan.output_size[0]),
-        plan.render_output,
-        "--out",
-        plan.output,
-      ],
-      { encoding: "utf8" },
-    );
-    if (resized.status !== 0) throw new Error(resized.stderr || resized.stdout);
-  }
-  const exported = await fs.readFile(plan.output);
-  const dimensions = [exported.readUInt32BE(16), exported.readUInt32BE(20)];
+  const capture = await captureBrowserScreenshot(previewPage, {
+    path: plan.output,
+    expectedDpr: CAPTURE_DPR,
+    metadataPath: plan.output.replace(/\.png$/i, ".json"),
+  });
+  const dimensions = [capture.pixels.width, capture.pixels.height];
   if (dimensions[0] !== plan.output_size[0] || dimensions[1] !== plan.output_size[1])
     throw new Error("封面尺寸不匹配");
   const result = {
@@ -124,7 +120,8 @@ for (const job of run.jobs) {
     renderSize: plan.canvas,
     language: plan.language,
     screenshotResizing: false,
-    finalImageResizing: plan.output !== plan.render_output,
+    finalImageResizing: false,
+    capture,
     captures,
   };
   results.push(result);

@@ -1,0 +1,50 @@
+.playbackToolbar {
+  flex: 0 0 auto;
+}
+.playbackActions {
+  flex-wrap: nowrap;
+  gap: 0;
+}
+.frameInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-4);
+  white-space: nowrap;
+}
+
+.layout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 12px;
+}
+.previewWindow {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 260px;
+}
+.animationWindow {
+  flex: 0 0 auto;
+  margin-left: 32px;
+}
+.playbackToolbar {
+  flex: 0 0 auto;
+}
+@media (max-width: 700px) {
+  .animationWindow {
+    margin-left: 12px;
+  }
+}
+@media (min-width: 1001px) {
+  .layout {
+    gap: 0;
+  }
+  .animationWindow {
+    margin-top: -6px;
+    margin-left: 64px;
+    z-index: 3;
+  }
+}

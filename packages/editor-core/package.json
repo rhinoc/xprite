@@ -30,6 +30,8 @@
   },
   "dependencies": {
     "@xprite/bedrock": "workspace:*",
-    "fflate": "^0.8.3"
+    "fflate": "^0.8.3",
+    "qr": "0.7.2",
+    "qrcode": "1.5.4"
   }
 }

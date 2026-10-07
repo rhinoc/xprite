@@ -1,4 +1,6 @@
+import { defaultUiTheme } from "$/base/theme/default-theme";
 import { themeGlyphAssets } from "$/base/theme/theme-assets";
+import type { UiTheme, UiThemeTokens } from "$/base/theme/theme-definition";
 import { loadThemeModule } from "$/base/theme/theme-module-loader";
 import type { UiColorRole } from "$/base/theme/theme-name-types";
 import type { UiStyleDefinition, UiAppearance } from "$/base/theme/theme-types";
@@ -15,29 +17,48 @@ export interface UiAssetBundle {
   language: string;
   theme: UiStyleDefinition;
   variant: UiAppearance;
+  uiTheme: UiTheme;
+  tokens?: UiThemeTokens;
   lightThemeColorRoles?: Readonly<Record<string, readonly UiColorRole[]>>;
 }
 
-const assetsPromises = new Map<UiAppearance, Promise<UiAssetBundle>>();
-const cachedAssets = new Map<UiAppearance, UiAssetBundle>();
-const assetListeners = new Set<() => void>();
+const themeCaches = new WeakMap<
+  UiTheme,
+  {
+    promises: Map<UiAppearance, Promise<UiAssetBundle>>;
+    assets: Map<UiAppearance, UiAssetBundle>;
+    listeners: Map<UiAppearance, Set<() => void>>;
+  }
+>();
+function themeCache(uiTheme: UiTheme) {
+  let cache = themeCaches.get(uiTheme);
+  if (!cache) {
+    cache = { promises: new Map(), assets: new Map(), listeners: new Map() };
+    themeCaches.set(uiTheme, cache);
+  }
+  return cache;
+}
 const softwareSources = new Map<string, Promise<HTMLCanvasElement>>();
-let assetRevision = 0;
 let fusionPixelFontPromise: Promise<boolean> | undefined;
 const FUSION_PIXEL_FONT_LOAD_SAMPLE = "10px FusionPixelZhHans";
 
-export function subscribeThemeAssets(listener: () => void) {
-  assetListeners.add(listener);
-  return () => assetListeners.delete(listener);
-}
-
-export function themeAssetsRevision() {
-  return assetRevision;
-}
-
-function publishThemeAssets() {
-  assetRevision++;
-  for (const listener of assetListeners) listener();
+export function subscribeThemeAssets(
+  variant: UiAppearance,
+  uiTheme: UiTheme,
+  listener: () => void,
+) {
+  const { listeners } = themeCache(uiTheme);
+  let selected = listeners.get(variant);
+  if (!selected) {
+    selected = new Set();
+    listeners.set(variant, selected);
+  }
+  const current = selected;
+  current.add(listener);
+  return () => {
+    current.delete(listener);
+    if (!current.size && listeners.get(variant) === current) listeners.delete(variant);
+  };
 }
 
 function loadFusionPixelFont() {
@@ -82,16 +103,31 @@ function loadImage(url: string) {
   return result;
 }
 
+async function loadThemeFonts(typography: UiStyleDefinition["typography"]): Promise<void> {
+  if (!typography || typeof document === "undefined" || !document.fonts) return;
+  await Promise.all(
+    Object.values(typography).map((font) =>
+      document.fonts.load(`${font.fontSize}px ${font.fontFamily}`),
+    ),
+  );
+}
+
 /** Load the selected theme module, its atlas, and shared font atlases once. */
-export function preloadThemeAssets(variant: UiAppearance, language = "en") {
+export function preloadThemeAssets(
+  variant: UiAppearance,
+  language = "en",
+  uiTheme: UiTheme = defaultUiTheme,
+) {
+  const { promises: assetsPromises, assets: cachedAssets } = themeCache(uiTheme);
   const existing = assetsPromises.get(variant);
   if (existing) return existing;
-  const promise = loadThemeModule(variant).then(async (module) => {
+  const promise = loadThemeModule(variant, uiTheme).then(async (module) => {
     const [sheet, defaultFont, miniFont, cjkFontReady] = await Promise.all([
       loadImage(module.sheetUrl),
       loadImage(defaultFontUrl),
       loadImage(miniFontUrl),
       loadFusionPixelFont(),
+      loadThemeFonts(module.definition.typography),
     ]);
     const assets: UiAssetBundle = {
       sheet,
@@ -102,10 +138,12 @@ export function preloadThemeAssets(variant: UiAppearance, language = "en") {
       language,
       theme: module.definition,
       variant,
+      uiTheme,
+      tokens: module.tokens,
       lightThemeColorRoles: module.lightThemeColorRoles,
     };
     cachedAssets.set(variant, assets);
-    publishThemeAssets();
+    for (const listener of themeCache(uiTheme).listeners.get(variant) ?? []) listener();
     return assets;
   });
   assetsPromises.set(variant, promise);
@@ -115,6 +153,6 @@ export function preloadThemeAssets(variant: UiAppearance, language = "en") {
   return promise;
 }
 
-export function getThemeAssets(variant: UiAppearance) {
-  return cachedAssets.get(variant) ?? null;
+export function getThemeAssets(variant: UiAppearance, uiTheme: UiTheme = defaultUiTheme) {
+  return themeCache(uiTheme).assets.get(variant) ?? null;
 }

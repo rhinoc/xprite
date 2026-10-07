@@ -1,0 +1,2853 @@
+{
+  "copyright": "Apple Computer, Inc.",
+  "sources": [
+    "https://github.com/mihaip/infinite-mac/tree/main/Images",
+    "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.8.0.HD.dsk.zip"
+  ],
+  "selection": {
+    "included": 125,
+    "twoColor": 36,
+    "fixedColor": 89,
+    "excluded": [
+      {
+        "version": "7.5",
+        "rid": 7041,
+        "name": "System 7.5 7041",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "983968abacc03db4e81489a97cc1ea2e57c610ed536a33d1d9fa755dad7e6d2b",
+        "w": 32,
+        "h": 512,
+        "period": [32, 512],
+        "colors": 6,
+        "flags": [
+          {
+            "axis": "y",
+            "wrap": 0.2958,
+            "internal95": 0.0604
+          }
+        ],
+        "exclusionReason": "Vertical color ramp has a visible reset at the repeated boundary"
+      }
+    ],
+    "deduplication": "Equal repeating pixels; two-color patterns also merge translations and inverted masks. Related source entries remain recorded."
+  },
+  "patterns": [
+    {
+      "id": "mono-system7-01",
+      "source": {
+        "version": "7.0",
+        "index": 1,
+        "rid": 0,
+        "name": "Classic 01",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "12a3ae445661ce5dee78d0650d33362dec29c4f82af05e7e57fb595bbbacf0ca",
+        "w": 8,
+        "h": 8,
+        "period": [1, 1],
+        "colors": 1,
+        "flags": [],
+        "related": [
+          {
+            "version": "7.0",
+            "index": 20,
+            "rid": 0,
+            "name": "Classic 20",
+            "resourceType": "PAT#",
+            "sourceFile": "System Folder/System",
+            "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+            "patternSha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "w": 8,
+            "h": 8,
+            "period": [1, 1],
+            "colors": 1,
+            "flags": [],
+            "duplicateOf": "Classic 01"
+          },
+          {
+            "version": "7.5",
+            "rid": 129,
+            "name": "System 7.5 129",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+            "resourceSha256": "b5023adc65c58c00c91374399ea2a403bf71d0fc7d688c5e5a813e151be709ae",
+            "w": 8,
+            "h": 8,
+            "period": [1, 1],
+            "colors": 1,
+            "flags": [],
+            "duplicateOf": "Classic 01"
+          },
+          {
+            "version": "7.5",
+            "rid": 21225,
+            "name": "System 7.5 21225",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+            "resourceSha256": "68f9f5940e9b4501c9ddc655d42ee6ec05e40ae7cd138b28beff79519ed70326",
+            "w": 64,
+            "h": 64,
+            "period": [1, 1],
+            "colors": 1,
+            "flags": [],
+            "duplicateOf": "Classic 01"
+          },
+          {
+            "version": "8.0",
+            "rid": 20013,
+            "name": "French Blue accent dark",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+            "resourceSha256": "8f8cdfe3d851000dff5fb932f6d88ca8898f47995894d1e2f5e44d8bc48b4167",
+            "w": 16,
+            "h": 16,
+            "period": [1, 1],
+            "colors": 1,
+            "flags": [],
+            "duplicateOf": "Classic 01"
+          },
+          {
+            "version": "8.0",
+            "rid": 20014,
+            "name": "French Blue accent light",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+            "resourceSha256": "7d0bb9c88d1d776221d4a58ffe91421a5f12c4a7bf1fd7771f25094fd11cdd24",
+            "w": 16,
+            "h": 16,
+            "period": [1, 1],
+            "colors": 1,
+            "flags": [],
+            "duplicateOf": "Classic 01"
+          },
+          {
+            "version": "8.0",
+            "rid": 20015,
+            "name": "Ivy accent",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+            "resourceSha256": "649dd399bb201f6f71c1b9a4d228d991b6ae2e6184b094a15d155bcf0ae17c64",
+            "w": 16,
+            "h": 16,
+            "period": [1, 1],
+            "colors": 1,
+            "flags": [],
+            "duplicateOf": "Classic 01"
+          },
+          {
+            "version": "8.0",
+            "rid": 20016,
+            "name": "Lime accent",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+            "resourceSha256": "8063640f0517cca8212eac9e5f0fe5dff841048a1f5c60c2a036a38b3d4c84ac",
+            "w": 16,
+            "h": 16,
+            "period": [1, 1],
+            "colors": 1,
+            "flags": [],
+            "duplicateOf": "Classic 01"
+          },
+          {
+            "version": "8.0",
+            "rid": 20017,
+            "name": "Nutmeg accent",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+            "resourceSha256": "5a64f2bd18df527905a2ccdff0c1417e6932e632c3ac5c5bb0841af3610880b4",
+            "w": 16,
+            "h": 16,
+            "period": [1, 1],
+            "colors": 1,
+            "flags": [],
+            "duplicateOf": "Classic 01"
+          },
+          {
+            "version": "8.0",
+            "rid": 20018,
+            "name": "Olive accent dark",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+            "resourceSha256": "9d93992872a17edd26524ecee0f180a26a99a25f8d9498463247bc647781c746",
+            "w": 16,
+            "h": 16,
+            "period": [1, 1],
+            "colors": 1,
+            "flags": [],
+            "duplicateOf": "Classic 01"
+          },
+          {
+            "version": "8.0",
+            "rid": 20019,
+            "name": "Olive accent light",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+            "resourceSha256": "4ce0221e91bd5b6e9eb62f4dccf5ff32661cc2f9ff737a92327092b1c1213732",
+            "w": 16,
+            "h": 16,
+            "period": [1, 1],
+            "colors": 1,
+            "flags": [],
+            "duplicateOf": "Classic 01"
+          },
+          {
+            "version": "8.0",
+            "rid": 20020,
+            "name": "Plum accent",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+            "resourceSha256": "69cbd11c0cddef4ee4d2fed04449f1ec1d205a8bb345b9ea3d00c67f95c8d276",
+            "w": 16,
+            "h": 16,
+            "period": [1, 1],
+            "colors": 1,
+            "flags": [],
+            "duplicateOf": "Classic 01"
+          },
+          {
+            "version": "8.0",
+            "rid": 20021,
+            "name": "Rose accent",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+            "resourceSha256": "124ca3e140d890039ab9c6657a5039c7911f8d7ab8e2770467c43d3ce961565d",
+            "w": 16,
+            "h": 16,
+            "period": [1, 1],
+            "colors": 1,
+            "flags": [],
+            "duplicateOf": "Classic 01"
+          },
+          {
+            "version": "8.0",
+            "rid": 20022,
+            "name": "Teal accent",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+            "resourceSha256": "221939b89691e4d52f2d09421ee429e294f58e112c9570955a016f7ef5d3ffda",
+            "w": 16,
+            "h": 16,
+            "period": [1, 1],
+            "colors": 1,
+            "flags": [],
+            "duplicateOf": "Classic 01"
+          }
+        ]
+      },
+      "tileSha256": "d52a2fb4ffe7157f00dad55027f50acdb26305a37fbc6e9968f9ed448b49e7af",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-02",
+      "source": {
+        "version": "7.0",
+        "index": 2,
+        "rid": 0,
+        "name": "Classic 02",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "94b25b1479f9417faea6a09b80caaa1070731c31195c486f204a2dac94602325",
+        "w": 8,
+        "h": 8,
+        "period": [4, 4],
+        "colors": 2,
+        "flags": [],
+        "related": [
+          {
+            "version": "7.0",
+            "index": 22,
+            "rid": 0,
+            "name": "Classic 22",
+            "resourceType": "PAT#",
+            "sourceFile": "System Folder/System",
+            "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+            "patternSha256": "071aa527ffdd11d6c824a52ee79e6d872ae9c6b1cc81675750f949276b74a8c7",
+            "w": 8,
+            "h": 8,
+            "period": [4, 4],
+            "colors": 2,
+            "flags": [],
+            "duplicateOf": "Classic 02"
+          }
+        ]
+      },
+      "tileSha256": "b298e50d316dd86f49a08595b09336b4f47f86fed6f5c2040a1ebbf5db321c82",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-03",
+      "source": {
+        "version": "7.0",
+        "index": 3,
+        "rid": 0,
+        "name": "Classic 03",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "35970e1d253baab23dbd086180f263fa2506796d950f710b0abeff7828ac9772",
+        "w": 8,
+        "h": 8,
+        "period": [4, 2],
+        "colors": 2,
+        "flags": [],
+        "related": [
+          {
+            "version": "7.0",
+            "index": 23,
+            "rid": 0,
+            "name": "Classic 23",
+            "resourceType": "PAT#",
+            "sourceFile": "System Folder/System",
+            "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+            "patternSha256": "b05163bb0e8ecf940f4e8897f0835bc32956f656b6960f3e5dbd983833a21545",
+            "w": 8,
+            "h": 8,
+            "period": [4, 2],
+            "colors": 2,
+            "flags": [],
+            "duplicateOf": "Classic 03"
+          },
+          {
+            "version": "7.5",
+            "rid": 150,
+            "name": "System 7.5 150",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+            "resourceSha256": "834a5014568578dc240fd7338cc7e504e035a7983062d568c395afa8db58a8ef",
+            "w": 8,
+            "h": 8,
+            "period": [4, 2],
+            "colors": 2,
+            "flags": [],
+            "duplicateOf": "Classic 03"
+          }
+        ]
+      },
+      "tileSha256": "c5755d4498292231333406300159fb6efe051feefe4966610f59f810797bcdec",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-04",
+      "source": {
+        "version": "7.0",
+        "index": 4,
+        "rid": 0,
+        "name": "Classic 04",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "77ce8ffa3e5e0bacf8b693a1edd26f22e7a4039aafca3c944e4020a977ecbc8a",
+        "w": 8,
+        "h": 8,
+        "period": [2, 2],
+        "colors": 2,
+        "flags": [],
+        "related": [
+          {
+            "version": "7.5",
+            "rid": 134,
+            "name": "System 7.5 134",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+            "resourceSha256": "c0151f21a8d408e28786d3c2bc2cc89da1ce3d94cd52e2c1c06cfeb2dd9e8335",
+            "w": 8,
+            "h": 8,
+            "period": [2, 2],
+            "colors": 2,
+            "flags": [],
+            "duplicateOf": "Classic 04"
+          },
+          {
+            "version": "8.0",
+            "rid": 20025,
+            "name": "Gray",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+            "resourceSha256": "c0151f21a8d408e28786d3c2bc2cc89da1ce3d94cd52e2c1c06cfeb2dd9e8335",
+            "w": 8,
+            "h": 8,
+            "period": [2, 2],
+            "colors": 2,
+            "flags": [],
+            "duplicateOf": "Classic 04"
+          },
+          {
+            "version": "8.0",
+            "rid": 20057,
+            "name": "1-bit Gray",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+            "resourceSha256": "e5b95734b417454e265b89f273f022955186294a7f8d2493343cf78f1a68726f",
+            "w": 8,
+            "h": 8,
+            "period": [2, 2],
+            "colors": 2,
+            "flags": [],
+            "duplicateOf": "Classic 04"
+          }
+        ]
+      },
+      "tileSha256": "cc86a438e18aee1bcf6edc3c13f0d3e8f20b4a633bbfedeb35785b34488a45d8",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-05",
+      "source": {
+        "version": "7.0",
+        "index": 5,
+        "rid": 0,
+        "name": "Classic 05",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "b3bb52741a618f79a183b4bf45d00bead674c6fc5721669284e17c6feb7d93cc",
+        "w": 8,
+        "h": 8,
+        "period": [2, 2],
+        "colors": 2,
+        "flags": [],
+        "related": [
+          {
+            "version": "7.0",
+            "index": 24,
+            "rid": 0,
+            "name": "Classic 24",
+            "resourceType": "PAT#",
+            "sourceFile": "System Folder/System",
+            "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+            "patternSha256": "39d916b0e44dc1f5011899c42a7bdbbcd989b162851e49e02dd32a56ca9be853",
+            "w": 8,
+            "h": 8,
+            "period": [2, 2],
+            "colors": 2,
+            "flags": [],
+            "duplicateOf": "Classic 05"
+          }
+        ]
+      },
+      "tileSha256": "b18c7374f56f6f63c2fa0b2fad3c5e2a3d54fa882d145c4c3d1efd9a9cbf5fef",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-06",
+      "source": {
+        "version": "7.0",
+        "index": 6,
+        "rid": 0,
+        "name": "Classic 06",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "6893a08c9c4cc97c22799a6aa7af6f8b8bc22d541a5e4253b180bbc974c9d497",
+        "w": 8,
+        "h": 8,
+        "period": [2, 1],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "2c7496b3aed7d6273e8745cb0eb8f6cdc528044aec2bcaa3b2a5addd7135e990",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-07",
+      "source": {
+        "version": "7.0",
+        "index": 7,
+        "rid": 0,
+        "name": "Classic 07",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "40759a5987ef49e5780b5aecc9fa3b87b7a3be27e6221b1419e5217f30551d02",
+        "w": 8,
+        "h": 8,
+        "period": [4, 4],
+        "colors": 2,
+        "flags": [],
+        "related": [
+          {
+            "version": "7.0",
+            "index": 26,
+            "rid": 0,
+            "name": "Classic 26",
+            "resourceType": "PAT#",
+            "sourceFile": "System Folder/System",
+            "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+            "patternSha256": "ee0a75f5567d1ffd17d984c66458c61ec33894f891b0b14dfba93cdece0807ae",
+            "w": 8,
+            "h": 8,
+            "period": [4, 4],
+            "colors": 2,
+            "flags": [],
+            "duplicateOf": "Classic 07"
+          }
+        ]
+      },
+      "tileSha256": "dca2d0fcb6b881db03ed186cd2107548e0dd50d3f6358605b9baca84ade8884f",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-08",
+      "source": {
+        "version": "7.0",
+        "index": 8,
+        "rid": 0,
+        "name": "Classic 08",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "d07a1b83c17a5afd8a7611664b11ba88a2ed5d768b669a9a3e29b9ff607afdf8",
+        "w": 8,
+        "h": 8,
+        "period": [4, 1],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "585d72e9f24f7afa14bb4bc899830b959e233e48f985871121c3e37fdea15b5c",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-09",
+      "source": {
+        "version": "7.0",
+        "index": 9,
+        "rid": 0,
+        "name": "Classic 09",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "fd438d4bf6d4ea1d376939298592f9466c203094db296398a1e369c1a2d87a16",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "c790bc35fddfd4bab9ccae0a4bffb5499ed6cbc57a6e2d011b162050bc3514d6",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-10",
+      "source": {
+        "version": "7.0",
+        "index": 10,
+        "rid": 0,
+        "name": "Classic 10",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "508df0ce38b554afe8bf55ffeaf00e418f69f5a0926110b42a90471e9096b181",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": [],
+        "related": [
+          {
+            "version": "7.5",
+            "rid": 141,
+            "name": "System 7.5 141",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+            "resourceSha256": "51d9deaae20d68a1948494af5529e8efcb5399b355ff60d9e6335e9f4433d139",
+            "w": 8,
+            "h": 8,
+            "period": [8, 8],
+            "colors": 2,
+            "flags": [],
+            "duplicateOf": "Classic 10"
+          }
+        ]
+      },
+      "tileSha256": "75227a0c55a8d010a12719d2517472ef2c405c0df95b4a2ac75a047405e230c9",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-11",
+      "source": {
+        "version": "7.0",
+        "index": 11,
+        "rid": 0,
+        "name": "Classic 11",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "60b0175cf3f7bf37c334ab59f0dad797272dfd73d77e7d6331a5be171178cf9c",
+        "w": 8,
+        "h": 8,
+        "period": [4, 4],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "a975b4fcbb0f70965c7c22987e46b3efc14145a7fb002a4f0f9dfbe1ad690b1b",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-12",
+      "source": {
+        "version": "7.0",
+        "index": 12,
+        "rid": 0,
+        "name": "Classic 12",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "ae5587a1e136cf4534786d760b4708e3eec4ec0354e2467bfec9fb479745f395",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "7f5e30fbac72edfa52e4f1436af81b0fa920a64467968cc96886465e9f323342",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-13",
+      "source": {
+        "version": "7.0",
+        "index": 13,
+        "rid": 0,
+        "name": "Classic 13",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "b1b0bee5378188f5250138bcce25855f2617f9c55b20b9628e13d367c47404a9",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "386c51b5c33048c049295f409e274f5dc6f4c347c171c30bd7127d913f8f637c",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-14",
+      "source": {
+        "version": "7.0",
+        "index": 14,
+        "rid": 0,
+        "name": "Classic 14",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "82be77a58bcecd551220292dd67144898a39aa2756e205a6561f93eb84989d74",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "f22ffde71a37cf752161248cebb30d6048a2e6ff7c77a49e05f63d22cf73cd39",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-15",
+      "source": {
+        "version": "7.0",
+        "index": 15,
+        "rid": 0,
+        "name": "Classic 15",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "605bfc474ab5f2a46d064d13f8c5248aeb0089efe73f653851eb76fae6daae91",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "5197d939c5d71182e66f0ae985e2bed6a9852ee4bdaf96eb64a90c4131a84745",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-16",
+      "source": {
+        "version": "7.0",
+        "index": 16,
+        "rid": 0,
+        "name": "Classic 16",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "dc0798040d9486af908f95b8012229076d1212e220537e6811a42a6ebb900247",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "16ff7996c091a2e972848995fdc7021aca3e83df3b9c436588250ae1edcc623b",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-17",
+      "source": {
+        "version": "7.0",
+        "index": 17,
+        "rid": 0,
+        "name": "Classic 17",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "17ba78ebf832f8a55c2937ca92c32ecca2eb7461e1ac4e1873305b3d6e447c74",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "daa67b6afe2adff3fa0cf40f3c02cd34c8500df50e2505ff41f7f7f3b7b8b0d4",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-18",
+      "source": {
+        "version": "7.0",
+        "index": 18,
+        "rid": 0,
+        "name": "Classic 18",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "e93ab0781ca339ad3e3818533f5a475713c01cd5d5e3f31d8baab7acbaf11878",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "0c907742c5410eebeff511070cc7c68ab9d5ae89e97d8826e0accbe5658734d3",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-19",
+      "source": {
+        "version": "7.0",
+        "index": 19,
+        "rid": 0,
+        "name": "Classic 19",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "7da21b42b9c7473a0daf02d04166187d4ae7a1fde90e6e49909e77e2f5e25bcf",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "fddf639af0d973225936eac151d921ccf3a7af33720d345e5c1569a03f970efb",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-21",
+      "source": {
+        "version": "7.0",
+        "index": 21,
+        "rid": 0,
+        "name": "Classic 21",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "ceead58eea7db84d460ff5fa3b248678ba4ea7bd0249e1c7591cc381573d7619",
+        "w": 8,
+        "h": 8,
+        "period": [8, 4],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "fb2f89750e036be3a5c53849fc17c5ba22141608bb83028a0e5fc92e421a3f54",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-25",
+      "source": {
+        "version": "7.0",
+        "index": 25,
+        "rid": 0,
+        "name": "Classic 25",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "e2cfc77ad4cf3961435d11f523d3dfede302f828cc4f1edb6ab5557f6e6e81bc",
+        "w": 8,
+        "h": 8,
+        "period": [1, 2],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "3d250f15b45cb61a5a27f267cc54af92016994b6810ae5a92516ab5e26680ea6",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-27",
+      "source": {
+        "version": "7.0",
+        "index": 27,
+        "rid": 0,
+        "name": "Classic 27",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "993e8d8be40d896257ca43366b4e7c88768153029a02269e6fc270e6d76076a3",
+        "w": 8,
+        "h": 8,
+        "period": [1, 4],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "9cfe3b83d9a5ee90a86f1baf470f573734152b04524f2d8363ef5418039f1649",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-28",
+      "source": {
+        "version": "7.0",
+        "index": 28,
+        "rid": 0,
+        "name": "Classic 28",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "5ac9831b2e30eb285ef34f8501620f878432d5c04331ad1ae47f977a83ba41a5",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "ea298cde7deafdde880a73d479c56081b71fd6f59714bc1981ef29cdcb586f2f",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-29",
+      "source": {
+        "version": "7.0",
+        "index": 29,
+        "rid": 0,
+        "name": "Classic 29",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "c0f7bf76d4485ad1d679dd8a65ea86e349c8216d70c513aa916a8ade81ae2366",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "1d46dfb758e6ebb3ba201e48e24a2015b8847b605e16c92a9cd0760a72059672",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-30",
+      "source": {
+        "version": "7.0",
+        "index": 30,
+        "rid": 0,
+        "name": "Classic 30",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "30b1e089ee89b29fd736a39913663365a0d99fc5b6fba30339631c37a7fe4d11",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "cf4bf90684c5b8dcff46a006984ab6af52056cfe766ebf871ca2aead3ae2d8a9",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-31",
+      "source": {
+        "version": "7.0",
+        "index": 31,
+        "rid": 0,
+        "name": "Classic 31",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "400f04318fd46f096b8725d7a75026d4afc9abfdcf4eb8ee282a29916fe18b45",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "68c180f9739e931bbd03fb496c79798362952445f27a74600ab900ee3343b5ec",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-32",
+      "source": {
+        "version": "7.0",
+        "index": 32,
+        "rid": 0,
+        "name": "Classic 32",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "99e1a650bd65d987032c96ecc8604d18c60c4059a614791737fe288c4bc8210e",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "e186ff8baabac48640b26fd877fae0669fc23add2fa9638fafdd9d45bbacbf4d",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-33",
+      "source": {
+        "version": "7.0",
+        "index": 33,
+        "rid": 0,
+        "name": "Classic 33",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "83dbfdd0a94f62ddb13a12f2b38c9eec7be72180b611b73e2ba074926fd88aab",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "631bf492ddb5c147d400bf606f3d2bdab9a1dede047ddbd5701b3eadf6bcc971",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-34",
+      "source": {
+        "version": "7.0",
+        "index": 34,
+        "rid": 0,
+        "name": "Classic 34",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "f605b364e9a8548a4a2cf94b5697ab1aa578668341663eb85838da3b7ac2c9be",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "37b97afb52913c21da66294b3bc3c88d0e0d217b8e0e29f18a83dcc9cf5ae4f9",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-35",
+      "source": {
+        "version": "7.0",
+        "index": 35,
+        "rid": 0,
+        "name": "Classic 35",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "7d9402919fd2d59c36a11775993a48be874174038425348a04c4c2a89e3214e1",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "6ca0ea9d5e900e92f54fffeb77912cbd941db58f1687c7c9a484db3ab845980f",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-36",
+      "source": {
+        "version": "7.0",
+        "index": 36,
+        "rid": 0,
+        "name": "Classic 36",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "6c668b920cd474b510749836bc0cfdfc64631057945c893c9658fab93d66d032",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "022b08c6748a2dcd8994bda100194c8690d7b966d428b23d20222b68bb0abd3c",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-37",
+      "source": {
+        "version": "7.0",
+        "index": 37,
+        "rid": 0,
+        "name": "Classic 37",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "8ec8752be78252ae33e6a821b3d535551f2a6093e9eed3ee2d6c83f2c8d078d1",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "a38c14b12d554829c06f390fcd50fc9aee3c4a03bae3e4257858233a3a4245ee",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system7-38",
+      "source": {
+        "version": "7.0",
+        "index": 38,
+        "rid": 0,
+        "name": "Classic 38",
+        "resourceType": "PAT#",
+        "sourceFile": "System Folder/System",
+        "resourceSha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315",
+        "patternSha256": "2555aa62a0e886dc24e887c0c6c98904708c2be0ad0a5ffd043c2d7bea28dc9f",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "1c4ff442a5ae5e2040292db49c969f2e7a5df567cf8d8fe38fcf57e8bd4b99be",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "system75-128",
+      "source": {
+        "version": "7.5",
+        "rid": 128,
+        "name": "System 7.5 128",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "df439047edd88866aff050e3c4dadff8fbc05f3c4448a35e6c969211ac0c43a6",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 32,
+        "flags": []
+      },
+      "tileSha256": "ca35e2a57f03463cd0a971a3d6be68c3193c847aca1ae48a4de5b4de65ddbc07",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-136",
+      "source": {
+        "version": "7.5",
+        "rid": 136,
+        "name": "System 7.5 136",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "eb41e4429f6a5ae015d7c662f840ecbd4cc69123ebac4bc375d5c18cdeccd27c",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 3,
+        "flags": []
+      },
+      "tileSha256": "d0c4a4ad3fc3113cd82b19efe243b38d13a1c26ab5e2639ea1a8668dcbea0bef",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "system75-19688",
+      "source": {
+        "version": "7.5",
+        "rid": 19688,
+        "name": "System 7.5 19688",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "c304cd7d4558ae0ed8bd5bef0744f9e35290378a3d59f2bff15b8fde3ddfb073",
+        "w": 16,
+        "h": 16,
+        "period": [8, 8],
+        "colors": 3,
+        "flags": []
+      },
+      "tileSha256": "59bf0676c8986c9acbb2673ea091cbce4055c91c350dede5d0bd85187dcab302",
+      "originalWidth": 16,
+      "originalHeight": 16
+    },
+    {
+      "id": "system75-130",
+      "source": {
+        "version": "7.5",
+        "rid": 130,
+        "name": "System 7.5 130",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "885ad17d991f289e40a841de5cfd2a347b232a4d352d38ffaf001c68b6dd015e",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 4,
+        "flags": []
+      },
+      "tileSha256": "fa54b107b5178166a6f2b46bb213e665baa8de15ad4f7d27b06af002b0e1f4e5",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-131",
+      "source": {
+        "version": "7.5",
+        "rid": 131,
+        "name": "System 7.5 131",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "4e4a956d0b7ef9c3d490c0618e31297de6253b2fcab638437cf78236b84c18d4",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 13,
+        "flags": []
+      },
+      "tileSha256": "0bd1f8c6791b76a4e10825206cb90f33d36204cf5009751b814b31a363a68d81",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-132",
+      "source": {
+        "version": "7.5",
+        "rid": 132,
+        "name": "System 7.5 132",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "edd1dd30264989e7d4acd1c00c94e2cf081219f38497e8ea3f720c4b1339bd36",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 7,
+        "flags": []
+      },
+      "tileSha256": "573ba4ee0faa4fce85aaf9dbe63f653f6330c66660e9ac474b72470bbe0984c7",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-133",
+      "source": {
+        "version": "7.5",
+        "rid": 133,
+        "name": "System 7.5 133",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "ee891cec646cff8aee95aaf0bf51843d905a04dbd4aad4b11267983a1ae5f623",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 5,
+        "flags": []
+      },
+      "tileSha256": "a774bb3ed20dd69316fa78ed67f7711eb2917b3d10bf3aeee22ed083f5ae34b8",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-137",
+      "source": {
+        "version": "7.5",
+        "rid": 137,
+        "name": "System 7.5 137",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "2023ca39d6001a0f0129c8201fb592c10bcb3e3de63ca7faa4cb4006c1b85519",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 17,
+        "flags": []
+      },
+      "tileSha256": "8ce940c9069eaa0f7b8d5fa10f0a6153cc556fa79a8cbc48fa75bec2ce08bfe8",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-139",
+      "source": {
+        "version": "7.5",
+        "rid": 139,
+        "name": "System 7.5 139",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "aa801c6b1786affd7dc6c231b7f730c4809b79bf1d8ca4fa8d6d6d9f3c98006f",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 4,
+        "flags": []
+      },
+      "tileSha256": "22acd99ac54f53b614fca158c8240f9d07dc423f8400225a758a7472ec5f2446",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "mono-system75-142",
+      "source": {
+        "version": "7.5",
+        "rid": 142,
+        "name": "System 7.5 142",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "2a007aa17098ccca14c2a1b88dfa24af7388bf08fa10ce6c07d0eb224274310a",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "e7210ab962ce5ff15e894156311a191adb263f1e74e761e1dab4ed7f1d4936e3",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "mono-system75-144",
+      "source": {
+        "version": "7.5",
+        "rid": 144,
+        "name": "System 7.5 144",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "18094e45b263478890d101e12f6cfcfc9b54b794e742da73e75aa56a92fc4382",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "32aa7a49d0c6ebe146bc4585d3a5e07eb58ef65386e02c38829e85a663370808",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "system75-145",
+      "source": {
+        "version": "7.5",
+        "rid": 145,
+        "name": "System 7.5 145",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "63b86996fb6cf14dfc0681c71e92e47f4e234433bf6e27d61297e5f5838d416e",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 4,
+        "flags": []
+      },
+      "tileSha256": "ad1423de5f1a7878d89de5bab29cfb78a30f7ab815c37a1724793aaad4cd2e3e",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "system75-146",
+      "source": {
+        "version": "7.5",
+        "rid": 146,
+        "name": "System 7.5 146",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "268deb97260000382e38df363db040a2196af5a2a6ee375747b9e763141b9d5a",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 3,
+        "flags": []
+      },
+      "tileSha256": "3279964c04cd5d5784ce7065211b477f8f6cb4e5bf36006f95370ab6ceedc78a",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "system75-147",
+      "source": {
+        "version": "7.5",
+        "rid": 147,
+        "name": "System 7.5 147",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "b82cf61e8673537535cc651624cba3f2e2a13a0b769a53d339d9f96ab92a62a0",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 3,
+        "flags": [
+          {
+            "axis": "x",
+            "wrap": 0.175,
+            "internal95": 0.1083
+          },
+          {
+            "axis": "y",
+            "wrap": 0.175,
+            "internal95": 0.1083
+          }
+        ]
+      },
+      "tileSha256": "11fa1708657af74ae0747a98fd2c9b9e9147baef261ed16d209782945039cefd",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "system75-148",
+      "source": {
+        "version": "7.5",
+        "rid": 148,
+        "name": "System 7.5 148",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "b281d74f279c4c82e52f79da67bf8c251dd8250ec4662c2694acd1d4c5d36493",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 3,
+        "flags": []
+      },
+      "tileSha256": "711af6694afc4596ad834df8928f375fa632ca83ef6860bce4e1388776852aaa",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "system75-149",
+      "source": {
+        "version": "7.5",
+        "rid": 149,
+        "name": "System 7.5 149",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "3347940bb9b03da37af73cb1d3ec1f066bd932d7579e45ccf0b181b2112bb4e4",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 4,
+        "flags": []
+      },
+      "tileSha256": "bc7334f713a747fbb4b23e01cf25bc8e8213780e87b3f603b57912d87d06d04f",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "system75-151",
+      "source": {
+        "version": "7.5",
+        "rid": 151,
+        "name": "System 7.5 151",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "c2795b1b0be78e5f2a15586db2c36cb130b4456aefd1606f97db87fdec10a0a5",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 8,
+        "flags": []
+      },
+      "tileSha256": "9fb06f80e1ee484dbc73b8455e3862f2f0f30441f5cb6aa7eeddb993fccec069",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "system75-547",
+      "source": {
+        "version": "7.5",
+        "rid": 547,
+        "name": "System 7.5 547",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "7afe4edb2361c5af6666398f9eee3c2a202838e863a2438e991abd0ae25c53a2",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 22,
+        "flags": []
+      },
+      "tileSha256": "6e55cd6457f7f26c6a51095d6398c55a96e387025d21607886d4c6876a3b71a8",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-870",
+      "source": {
+        "version": "7.5",
+        "rid": 870,
+        "name": "System 7.5 870",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "619c7c8cd7ed5c74f94d51733d17a583d1f6b486cd6278b94cb9105dd5f8d245",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 12,
+        "flags": []
+      },
+      "tileSha256": "3ef640235b2d3e9c998e720cf7b10ead2c6f049528099114c3fc72420272c7e6",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-987",
+      "source": {
+        "version": "7.5",
+        "rid": 987,
+        "name": "System 7.5 987",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "9a6d6808c3795d7105b1515ce43945c067275e01e0dfe78f747710535c7bb541",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 3,
+        "flags": []
+      },
+      "tileSha256": "9d094dc7012eb94d601b4c850de29ed4bacacd162dee34d67a1d686d6792c1cf",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-1111",
+      "source": {
+        "version": "7.5",
+        "rid": 1111,
+        "name": "System 7.5 1111",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "c3a44cb3b6ef6893ee3dcc4b3334d821b4e5d2aa3de69f76ef18cec21c1c9bea",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 21,
+        "flags": [],
+        "related": [
+          {
+            "version": "8.0",
+            "rid": 20052,
+            "name": "Circuits",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+            "resourceSha256": "c3a44cb3b6ef6893ee3dcc4b3334d821b4e5d2aa3de69f76ef18cec21c1c9bea",
+            "w": 64,
+            "h": 64,
+            "period": [64, 64],
+            "colors": 21,
+            "flags": [],
+            "duplicateOf": "System 7.5 1111"
+          }
+        ]
+      },
+      "tileSha256": "c06f00556da78db9a14c3ee9e5527f5acd77981b149fcadf3148267ba0c880b7",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-3727",
+      "source": {
+        "version": "7.5",
+        "rid": 3727,
+        "name": "System 7.5 3727",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "5fe48072ad4e343a0668345ee7a6d8ad2f05ed9665374f5ee1e4453bc6c404d3",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 38,
+        "flags": []
+      },
+      "tileSha256": "3eb5611726df8774dad9d7bd4038f5846f05e3d411cb75587c13efe74ab4a02d",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-4193",
+      "source": {
+        "version": "7.5",
+        "rid": 4193,
+        "name": "System 7.5 4193",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "7280f4da7cb168773f8b5fdd4350a2aed5feb9d439c42a9c013ea9dc44f70b10",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 12,
+        "flags": []
+      },
+      "tileSha256": "a13d76134f00d89b65035f6acc90d08638366df3ed9eb4d2d63cfef8c66d7cc1",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-6006",
+      "source": {
+        "version": "7.5",
+        "rid": 6006,
+        "name": "System 7.5 6006",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "00e9308122610c3f674eb8dd7be0696f2ba28b43da4f9ceadf3e25055f94ee82",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 22,
+        "flags": []
+      },
+      "tileSha256": "d0f7daa891b20473224ef503f729d8000f87593a20926ac373452638ff9e48dc",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-6741",
+      "source": {
+        "version": "7.5",
+        "rid": 6741,
+        "name": "System 7.5 6741",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "33fef3af6e8a032e0dbf533ccb1c849e27c238e6b78d1deb32171a083edbc1ef",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 32,
+        "flags": []
+      },
+      "tileSha256": "89c1c3cde3a119c3fd5e7c84d986953b65861e853c4a52a622cfce3901dfbca1",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-7321",
+      "source": {
+        "version": "7.5",
+        "rid": 7321,
+        "name": "System 7.5 7321",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "214d7a4438686f6377c10f1ec976e539f71a62ae3f4854d66d8652022d3fb831",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 3,
+        "flags": []
+      },
+      "tileSha256": "6f8b2195558321f5ec003643540dc9c642b2572702a22b00b78c29db9e49d862",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "system75-7344",
+      "source": {
+        "version": "7.5",
+        "rid": 7344,
+        "name": "System 7.5 7344",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "0dab3f1994fa5a880eeaeb2595d0e98a2b4a97462d896ee25f2a2de4e743a3ce",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 24,
+        "flags": []
+      },
+      "tileSha256": "fbb1caa10f8c1efd90ffe85147c29a320d9dcbc30d095f685bed9e6c33675a9f",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-7527",
+      "source": {
+        "version": "7.5",
+        "rid": 7527,
+        "name": "System 7.5 7527",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "e339a6c3036e8e6e390d7bf07ff8a71cee4290f4c0bae675bc540d71d80df097",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 26,
+        "flags": []
+      },
+      "tileSha256": "d094f23b20625273fde04899c88cd0d9736d0e75f89d5d7361a5e983e9851ae5",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-8388",
+      "source": {
+        "version": "7.5",
+        "rid": 8388,
+        "name": "System 7.5 8388",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "892015e4c61881566d5fcf0a532328612ec164814cd6a609b9a048765ba8274c",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 21,
+        "flags": []
+      },
+      "tileSha256": "dae632ce226193e8892d581134324b146734e5a136993053152c54228e94d877",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-8448",
+      "source": {
+        "version": "7.5",
+        "rid": 8448,
+        "name": "System 7.5 8448",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "d32294bf5d97f05a4955a9e457c5e4c6f3d4ef2a14464cc1db365f6f5f2d3674",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 38,
+        "flags": []
+      },
+      "tileSha256": "166bfb3e625b50ab8125e96a17266d7f6a6cee6b850bb7262af7b04f8a64675d",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-9695",
+      "source": {
+        "version": "7.5",
+        "rid": 9695,
+        "name": "System 7.5 9695",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "79a473e31db25e2ba01d9d7048e912cd833ff5b97d04e7995dc11c91f1af9a39",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 18,
+        "flags": []
+      },
+      "tileSha256": "481ac3dbe24ccbd44f1fab82714aa792c3b76937c0a647515c7c309dae09488f",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-10042",
+      "source": {
+        "version": "7.5",
+        "rid": 10042,
+        "name": "System 7.5 10042",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "952c881f9b7368ba66dcedfe5372b3175d1df69eab80f9d8fdb61f31105d41f1",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 21,
+        "flags": []
+      },
+      "tileSha256": "a828dac765c3f6500f663a9c698517d7ddc1ca25af4ce9eb8e511412fce972b3",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-11703",
+      "source": {
+        "version": "7.5",
+        "rid": 11703,
+        "name": "System 7.5 11703",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "4d89fb92300be89fc0e155637cf07e6e28137e5ed73d092ba6b761ea4658abe4",
+        "w": 32,
+        "h": 32,
+        "period": [32, 32],
+        "colors": 21,
+        "flags": []
+      },
+      "tileSha256": "8dcbe969443b12b49289055eb98a91565974e6a853495cf901c7e570a758afe5",
+      "originalWidth": 32,
+      "originalHeight": 32
+    },
+    {
+      "id": "system75-12484",
+      "source": {
+        "version": "7.5",
+        "rid": 12484,
+        "name": "System 7.5 12484",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "d6a7f390b2d46e22eb8bb7619391cdeec81dad591c84b4efcbd519d97404168c",
+        "w": 16,
+        "h": 16,
+        "period": [16, 16],
+        "colors": 13,
+        "flags": [],
+        "related": [
+          {
+            "version": "8.0",
+            "rid": 20038,
+            "name": "Blue Ridges",
+            "resourceType": "ppat",
+            "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+            "resourceSha256": "d6a7f390b2d46e22eb8bb7619391cdeec81dad591c84b4efcbd519d97404168c",
+            "w": 16,
+            "h": 16,
+            "period": [16, 16],
+            "colors": 13,
+            "flags": [],
+            "duplicateOf": "System 7.5 12484"
+          }
+        ]
+      },
+      "tileSha256": "860c3f2e201f69e301a8c1f8f2bfab1c24072a72d3b66d98802b1159bd1fe31d",
+      "originalWidth": 16,
+      "originalHeight": 16
+    },
+    {
+      "id": "system75-12593",
+      "source": {
+        "version": "7.5",
+        "rid": 12593,
+        "name": "System 7.5 12593",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "7043d21ac07c60b19d71ca224cb276294024e26ae0047f65305ca63e3e2800cf",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 12,
+        "flags": []
+      },
+      "tileSha256": "4f499e04c89e595bb035177c6cb5f340fc51472bf1697321cbf938d0d254d97f",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-12821",
+      "source": {
+        "version": "7.5",
+        "rid": 12821,
+        "name": "System 7.5 12821",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "9115b29bc26ca18916a28b2fb813b2e48581a8c1f6c70f360d7876d83d854cb4",
+        "w": 32,
+        "h": 32,
+        "period": [32, 32],
+        "colors": 7,
+        "flags": []
+      },
+      "tileSha256": "e7c9eb5b5acaa0a526a65decffdaefc2c36d5fcc04e27b46b29b3464ef5edfff",
+      "originalWidth": 32,
+      "originalHeight": 32
+    },
+    {
+      "id": "system75-13096",
+      "source": {
+        "version": "7.5",
+        "rid": 13096,
+        "name": "System 7.5 13096",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "8751930abf3d6f70d0e83f23ced7f3223eb4f42acdfc92e19628252d92bf6cf8",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 30,
+        "flags": []
+      },
+      "tileSha256": "412b86f2581777d55f890d3e87965c0d8cd001f67ce8b285fd45d0a2f63fab2d",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-13665",
+      "source": {
+        "version": "7.5",
+        "rid": 13665,
+        "name": "System 7.5 13665",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "2e538cf4054e46f4ce5695845e8a66b72f7f92b3eaf97f9d2e13871b6f1fd9c6",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 35,
+        "flags": []
+      },
+      "tileSha256": "40b94055c83e49102add3051ba0a75663ceed8c62e404b95720e41a86e6e0d30",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-16825",
+      "source": {
+        "version": "7.5",
+        "rid": 16825,
+        "name": "System 7.5 16825",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "fc710e82494174aba9336ffa86e8f3a54d2c7b8342be5865e1b783f95c6ac946",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 30,
+        "flags": []
+      },
+      "tileSha256": "2d5d4fb092766c4249db41bc7e6a82dc4f34ba393617d6174ba24e5278ddb522",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-16974",
+      "source": {
+        "version": "7.5",
+        "rid": 16974,
+        "name": "System 7.5 16974",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "9089c8fe939a7a9b665285b37dacab938f27904bdc85d9941b81464c42d38586",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 22,
+        "flags": []
+      },
+      "tileSha256": "c5c502e6492e58a2958664f8199e7e2c9d30d2e7797ec7af1f2acf1e55bb6eaf",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-17803",
+      "source": {
+        "version": "7.5",
+        "rid": 17803,
+        "name": "System 7.5 17803",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "956177eb2f087779321eda9144ea5df487b3431567b981f30d8f377f11e3a5b1",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 12,
+        "flags": []
+      },
+      "tileSha256": "d78fa241113ee195cfd29bb4f3a36de6915179c4dfed6715fe9cb109118ffc4a",
+      "originalWidth": 8,
+      "originalHeight": 8
+    },
+    {
+      "id": "system75-18078",
+      "source": {
+        "version": "7.5",
+        "rid": 18078,
+        "name": "System 7.5 18078",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "0da9506c9b89014aa5fa9d1f62f9cde99796e29391ff5ce00b3f921e02680720",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 34,
+        "flags": []
+      },
+      "tileSha256": "e1c75980507a4e241996673cee22f97016972cf6161eace7cfff114585477831",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-20318",
+      "source": {
+        "version": "7.5",
+        "rid": 20318,
+        "name": "System 7.5 20318",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "b6cbd90fd1f0b816220769b3181d41de88daf7a58d8c7bf0337bf03fb4ce1263",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 31,
+        "flags": []
+      },
+      "tileSha256": "be2b60eda887dc1908f79b1d09bb19edd870d22f41c08622e31c498ae20e15bf",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-20446",
+      "source": {
+        "version": "7.5",
+        "rid": 20446,
+        "name": "System 7.5 20446",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "49878910e46e37e7eeca1d872d1140ae670d9ef0c43903bf5e11bb5784635e14",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 40,
+        "flags": []
+      },
+      "tileSha256": "3212c7f38d6e223d8743607bebf6f34a82786092daed644a97b98d392aa5c158",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-22348",
+      "source": {
+        "version": "7.5",
+        "rid": 22348,
+        "name": "System 7.5 22348",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "71dfb4cbb67c4ac126f294a7b89be742f5cbbf03d016499f379e8321a470b1f9",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 33,
+        "flags": []
+      },
+      "tileSha256": "4ea0f63ab3f3a9c19ee2b13894f3e467f955caab028bb21e56dd7b29241fab73",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-23295",
+      "source": {
+        "version": "7.5",
+        "rid": 23295,
+        "name": "System 7.5 23295",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "ffb729713c56062830338013cc1e50ea5f2d2dcaf8c7bdc48d669b047bef8927",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 36,
+        "flags": []
+      },
+      "tileSha256": "600a2a4824568509c1c6e619e0a94efbc60aef02b673c441b269e9eb943aa945",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-24517",
+      "source": {
+        "version": "7.5",
+        "rid": 24517,
+        "name": "System 7.5 24517",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "3c5b772287af30147aba89bd6c2e5c1dcf1ac59f7bf7fcb9399023de5149e12f",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 27,
+        "flags": []
+      },
+      "tileSha256": "942691b9a7bbc95e9537537bf92887eba2c0f260e3f986672d77d83865efb98a",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-24642",
+      "source": {
+        "version": "7.5",
+        "rid": 24642,
+        "name": "System 7.5 24642",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "a19e068f2f2549ba4aa47e8fecbfa3513b2a3d33d94a856bfd0a6ad9015bee3c",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 20,
+        "flags": []
+      },
+      "tileSha256": "9b2fc0685787b4ffe0098c0fbba01d6871669923b7fcb298e220803dc2427f59",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-24817",
+      "source": {
+        "version": "7.5",
+        "rid": 24817,
+        "name": "System 7.5 24817",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "3dd58a5b4219a672ef44b0a1954778617dc5159833f2f4bee06178cacf4ee790",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 22,
+        "flags": []
+      },
+      "tileSha256": "818987c05bcec4f3af05a5b35a75c2e6e93b762f2f44938dff4e200e00c6d1a9",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-28851",
+      "source": {
+        "version": "7.5",
+        "rid": 28851,
+        "name": "System 7.5 28851",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "3da209fcc6ab492894dce6e83bd9eab9503697ff5d6ad71e24af1e9607fd9be2",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 31,
+        "flags": []
+      },
+      "tileSha256": "7f2bf5d8f583053937a1cb07a6c81b21c16b3ad816e2c1f8aba0933ae51018bc",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-28920",
+      "source": {
+        "version": "7.5",
+        "rid": 28920,
+        "name": "System 7.5 28920",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "9d38c26c4ddb481c06fadddb5960b6117cffaaf08cb1f2bd898a4f83c3eab089",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 31,
+        "flags": []
+      },
+      "tileSha256": "c62f22dfcb81bf54151d9995022e51914756249ea6cb0b1dcc741917ee58b305",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-29907",
+      "source": {
+        "version": "7.5",
+        "rid": 29907,
+        "name": "System 7.5 29907",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "49b6daae3fe2010f837d680af7f5f49212a3251b208887b81a9726c74a5a12f6",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 19,
+        "flags": []
+      },
+      "tileSha256": "a3dbb3aa06d9de74ec1737cb30da66192df4af8523f609bcf8827c2c22ba94e1",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-30711",
+      "source": {
+        "version": "7.5",
+        "rid": 30711,
+        "name": "System 7.5 30711",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "0d15f3986162f091213f9dc0adff14dafc7d1dd3c433eb7eb40510aecd94fa93",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 33,
+        "flags": []
+      },
+      "tileSha256": "6a7f404f7555639b23ea64a9a2339328a640364aff6c20d00b6f3faec2e91331",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-31689",
+      "source": {
+        "version": "7.5",
+        "rid": 31689,
+        "name": "System 7.5 31689",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "efdfb9863ca039c85c68f2de727981df91f5203b2a44e6363bd68644c81fcb9f",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 32,
+        "flags": []
+      },
+      "tileSha256": "fb907b27c41f8d3b7b77c5a29be458a3a32892c61bb1b4ec1bfe2bace2a02581",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-32623",
+      "source": {
+        "version": "7.5",
+        "rid": 32623,
+        "name": "System 7.5 32623",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "2cfe7334c0c20bd902cbdb5a33a6e9f5962e8948dc239b65b7947457794490b2",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 19,
+        "flags": []
+      },
+      "tileSha256": "d054d3a49d12497fe64a2845c75e4e63542620ca0256ed6cd2f55bd35e4870cf",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "system75-2767",
+      "source": {
+        "version": "7.5",
+        "rid": 2767,
+        "name": "System 7.5 2767",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "471b9d1fd1bd5b4bcafe3d5db6d1a81c45a9b88b6292728d80283b70a465aeb6",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 13,
+        "flags": []
+      },
+      "tileSha256": "177931e1e08372e1c4d08f41247f3c916c04d48b3b519ef12afb883f9957548e",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "system75-30930",
+      "source": {
+        "version": "7.5",
+        "rid": 30930,
+        "name": "System 7.5 30930",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "0cbef93387d1ba8557a70e37b90fe67825596b41cf826268453fa101932b2f59",
+        "w": 512,
+        "h": 32,
+        "period": [512, 32],
+        "colors": 7,
+        "flags": []
+      },
+      "tileSha256": "31ba48ad668e26846844d8992ee253299e6a07067331145c44b85dd313771a72",
+      "originalWidth": 512,
+      "originalHeight": 32
+    },
+    {
+      "id": "system75-32307",
+      "source": {
+        "version": "7.5",
+        "rid": 32307,
+        "name": "System 7.5 32307",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Patterns",
+        "resourceSha256": "c3a6d41a600055b1c57378ef89cb624be4fea17cdaa96e1c497341b3cc05c4aa",
+        "w": 512,
+        "h": 32,
+        "period": [512, 32],
+        "colors": 6,
+        "flags": []
+      },
+      "tileSha256": "d246046d1d975bb24fe07b323657d99708667ac2f641a7f3a091e84e54d2f21c",
+      "originalWidth": 512,
+      "originalHeight": 32
+    },
+    {
+      "id": "macos8-embossed-mac-os-logo",
+      "source": {
+        "version": "8.0",
+        "rid": -4010,
+        "name": "Embossed Mac OS Logo",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "e613815be9db4c8ef28b377cbbe0de1ed5bf4c47f7e0d487c38c375d18d520e9",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 73,
+        "flags": []
+      },
+      "tileSha256": "3e1868ef3d49c8b8e43c56069573ab0bdae68051e0171ead8c9fb11b9062a8f9",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-aquamarine-accent",
+      "source": {
+        "version": "8.0",
+        "rid": 20000,
+        "name": "Aquamarine accent",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "d5313406118cdb09625ad33424a3e4ce34761e4df3a1c601db2a2a93d939f47b",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 31,
+        "flags": []
+      },
+      "tileSha256": "c720d659b84d872bcdf856ab79054734ef3c438edd0735282fd7ae178998b2a9",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-copper-accent",
+      "source": {
+        "version": "8.0",
+        "rid": 20001,
+        "name": "Copper accent",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "9781aa8dc24431ad6ea9fa46b2c36ef0db7059c89b7f16af6d29be273ce21a35",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 16,
+        "flags": []
+      },
+      "tileSha256": "7b8044bfb19c2e71f7ac46b1c235f3703b9ff49e34e2510db05d59fa9230bcbf",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-crimson-accent",
+      "source": {
+        "version": "8.0",
+        "rid": 20002,
+        "name": "Crimson accent",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "ff8dda3e09656a8e60ac8b7f803922e798dd8bec1c126c86e8fdb81f8a6b0840",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 11,
+        "flags": []
+      },
+      "tileSha256": "60f9e7a4afc6fcf694bb06070248d8231d7c0e55abbf9e7003db263f63be3624",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-emerald-green-accent",
+      "source": {
+        "version": "8.0",
+        "rid": 20003,
+        "name": "Emerald Green accent",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "353341253c643ef22a32facf5177d98382d7a53e5383dc358ebb56e1721ba9d9",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 17,
+        "flags": []
+      },
+      "tileSha256": "27f42a91b04bef92133972e0ecca5735b378fab6b7927ff22d74edd8f78c951c",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-gold-accent",
+      "source": {
+        "version": "8.0",
+        "rid": 20004,
+        "name": "Gold accent",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "f44422f0244c92aced5088d08b871f289e79512747ada56e574d26aca2ec7e5e",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 15,
+        "flags": []
+      },
+      "tileSha256": "2729ef32f01452b1c7b5e470d6a7dc5f0b87c407bf0a27ad624a1beb5b045bee",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-lavender-accent",
+      "source": {
+        "version": "8.0",
+        "rid": 20005,
+        "name": "Lavender accent",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "1144b627af20e3f9c2a05fcbcd33db9c68c6784a0ed955e02d683042cda4ad24",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 9,
+        "flags": []
+      },
+      "tileSha256": "da124777fd3487a020607cc6b4ac588f88bdcbdc0ea65cdaa6fc0b3bf6a632a7",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-magenta-accent",
+      "source": {
+        "version": "8.0",
+        "rid": 20006,
+        "name": "Magenta accent",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "7c290f4a70703ae2c8d0165732c887fe1a2ce4996500825328f6b9e4700d0e21",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 6,
+        "flags": []
+      },
+      "tileSha256": "c40c9f1b7ec0090fce3d4c014b0252df5358f17dd8a97e30fcd92de68f1c0b99",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-sapphire-blue-accent",
+      "source": {
+        "version": "8.0",
+        "rid": 20007,
+        "name": "Sapphire Blue accent",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "14a57e9f17c3eb7f0a1d9e0158514052ccab2636ee2609b2a58692f2cf1dca45",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 59,
+        "flags": []
+      },
+      "tileSha256": "ab84cc7d334e3d9df4377ba138d4a43e308e566db6360cd2a34c781518be63ae",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-silver-accent",
+      "source": {
+        "version": "8.0",
+        "rid": 20008,
+        "name": "Silver accent",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "508c326e14eff19b496fe2b385302ed23ff31528749ac5a1b4f9e2d0c89e9df5",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 14,
+        "flags": []
+      },
+      "tileSha256": "0b5f9ca845059c44228980110882aecea8ed9cbeb1f7ed420d551bb630548cca",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-turquoise-accent",
+      "source": {
+        "version": "8.0",
+        "rid": 20009,
+        "name": "Turquoise accent",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "f032f6e475e7a1b22f7d79d72f639ec59cd11cf75f8a0d3f378aa53444fed950",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 33,
+        "flags": []
+      },
+      "tileSha256": "43ae0d20176dad1d1ebe62749e9f69264d852bdc1a87026a800b13da62a63f64",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-turquoise-dark-accent",
+      "source": {
+        "version": "8.0",
+        "rid": 20010,
+        "name": "Turquoise dark accent",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "e8833af88a266a75ffae869ee51757ec401bde75a6756553fd5a53f22d4eb323",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 29,
+        "flags": []
+      },
+      "tileSha256": "62d9cae2085a149cfdd08c7449a5d66388be71620e4df487d78fcaf71253520b",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-black-white-accent",
+      "source": {
+        "version": "8.0",
+        "rid": 20011,
+        "name": "Black & White accent",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "165be6341308ee3942633468d53c1d732175789c536d4a0902564cfb05d7ee0f",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 2,
+        "flags": []
+      },
+      "tileSha256": "1cd11beabddf72aac41ed46925eb857bf9a827672b7c4c8c140605476c3f58dd",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-copland-blue",
+      "source": {
+        "version": "8.0",
+        "rid": 20026,
+        "name": "Copland Blue",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "9d1c47cde2684a5676ccddef9aaea74d5b0d6a717e66dc6417a238134535e7db",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 24,
+        "flags": []
+      },
+      "tileSha256": "b38196b4c1bbe27b2bf38371cf48ef92b1d4ec5aa82c357e6a390710a6946eca",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-fibers",
+      "source": {
+        "version": "8.0",
+        "rid": 20027,
+        "name": "Fibers",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "9de86db5c3586cf3438ef3e666ec3914cabae8848a86b546a8a796cd7b0d63ac",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 29,
+        "flags": []
+      },
+      "tileSha256": "cf2cb94adaf8f69289bb8559b72accef1808a8825ad42f57af4709b6bae79435",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-it-s-purple",
+      "source": {
+        "version": "8.0",
+        "rid": 20028,
+        "name": "It's Purple",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "b024841e67a8d6383c4c581cdd3d2220bd69ed5af9bf61001aad68ca21b8fab8",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 25,
+        "flags": []
+      },
+      "tileSha256": "de2c73ba0b47ffa46b8467cec8c61b316fca7c7ec292519076f73b09e1850064",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "macos8-neon-clouds",
+      "source": {
+        "version": "8.0",
+        "rid": 20030,
+        "name": "Neon Clouds",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "a11ec9bd059bff8d8097dacb9b2ab66bcf3c16252bfdf2fc0fcac506e28ddbc8",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 230,
+        "flags": []
+      },
+      "tileSha256": "f74340d6912dc33ce866e52d4489e7f9fc3d9326f685bb43cc494ca3cc26d451",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-blue-cord",
+      "source": {
+        "version": "8.0",
+        "rid": 20034,
+        "name": "Blue Cord",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "920e8da192c28cd154cff1d63c00b52525a76cb510c2244f53c7492ede981d36",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 24,
+        "flags": []
+      },
+      "tileSha256": "8d40145792672d46b89ab4e996eed2da90646eb1bd1abdcda7a43920f3e2a79d",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-granite",
+      "source": {
+        "version": "8.0",
+        "rid": 20035,
+        "name": "Granite",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "c9ddba28777efd5b4e14062f0d921ffc49f63ed7a200b50bd5d732f4ae8703cf",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 87,
+        "flags": []
+      },
+      "tileSha256": "01b9d40b3ec19dfd8081e1a07a6ac55f67e918f4f48972a81a00dae2263f0365",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-bumpy-blue",
+      "source": {
+        "version": "8.0",
+        "rid": 20036,
+        "name": "Bumpy Blue",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "f9b103599960369cbe21c6e98957377c953f21cbc2630991552f37dbe389de89",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 24,
+        "flags": []
+      },
+      "tileSha256": "74ad67b7ee7d92352c8e471023a6b3dbb6714a3bb99e9be9435a1b2d8503c981",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-raised-lavender",
+      "source": {
+        "version": "8.0",
+        "rid": 20037,
+        "name": "Raised Lavender",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "ca730a75c1188a2a2d2a4ed4127041ef0c2b6462ab5d44ced67f606e352a2c1c",
+        "w": 64,
+        "h": 64,
+        "period": [64, 64],
+        "colors": 32,
+        "flags": []
+      },
+      "tileSha256": "5f13f9ac71cc249598912a08b077cb460e0914fb433532238f617b975d3fdf76",
+      "originalWidth": 64,
+      "originalHeight": 64
+    },
+    {
+      "id": "macos8-terra-cotta",
+      "source": {
+        "version": "8.0",
+        "rid": 20039,
+        "name": "Terra Cotta",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "de0054b1e7b9312eae50e38c6d2d2170ea13faaa6db25eec5443c66dc90c6d2d",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 39,
+        "flags": []
+      },
+      "tileSha256": "7b0c4e0bbcef6fb9429deba7984f7a83c80a27c553424535647f34571bee801e",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-the-rocks",
+      "source": {
+        "version": "8.0",
+        "rid": 20040,
+        "name": "The Rocks",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "12ece10673bd0064bb35be5db0410a1e0df2046cb7e8241913e312eb6a872b65",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 190,
+        "flags": []
+      },
+      "tileSha256": "abe1ecb40ec47efcca4dc9d4f4c5b8b82442fd9722e194bfca24d222b224c0d5",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-tulips",
+      "source": {
+        "version": "8.0",
+        "rid": 20041,
+        "name": "Tulips",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "336383ae68fc663e656f63d6bba45336a764d77d435541f8fe8bb041a1c7924d",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 107,
+        "flags": []
+      },
+      "tileSha256": "8967de134011d611ca27a8bdf74407c38c431cb11f9d7cc242e827a7d46054d3",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-sidewalk",
+      "source": {
+        "version": "8.0",
+        "rid": 20042,
+        "name": "Sidewalk",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "b4755b8efca5846af2e786484c58d0595750d3d1108f42cf49f2ea3450d27940",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 143,
+        "flags": []
+      },
+      "tileSha256": "34ecf2854951c9f5730064fe8ab7c6624ce76184cdfa42d3eb569cf2ddfabe10",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-rubber-bands",
+      "source": {
+        "version": "8.0",
+        "rid": 20043,
+        "name": "Rubber Bands",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "73c10136d95e478f748177b3150b6193cdc1eb30943999b511045220b38b8eb1",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 231,
+        "flags": []
+      },
+      "tileSha256": "d107c2ac3db3cbd7cb06a69a047cadec98dafc60435e3354e24cad9853d8b715",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-grass",
+      "source": {
+        "version": "8.0",
+        "rid": 20044,
+        "name": "Grass",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "0329d513a8ded2ce843bbddaba97527a6aeda3260a18da0af4cafa93990a08f8",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 229,
+        "flags": []
+      },
+      "tileSha256": "82fa9fde088601c228a380d360c4f462a5b92322c67765d457af20806f58d1bc",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-bark",
+      "source": {
+        "version": "8.0",
+        "rid": 20045,
+        "name": "Bark",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "aebf8fac440b8ff512e5c30775c57ebcc7861863c8a06b15325ae9e2c639a5e7",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 189,
+        "flags": []
+      },
+      "tileSha256": "cdb6bfc4f57d9ea9322cc460e1b44842e4c966ed17b05f0ab0d3b7433543936b",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-denim",
+      "source": {
+        "version": "8.0",
+        "rid": 20046,
+        "name": "Denim",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "8b17cb5973eff6128e31abf82764692f898eecbf67ff460bf00229acf7be75a5",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 93,
+        "flags": []
+      },
+      "tileSha256": "0c494f382bb28e7c837d92c44a03c1ff2f1819cd1edc54e977865abb5a58255f",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-bricks",
+      "source": {
+        "version": "8.0",
+        "rid": 20047,
+        "name": "Bricks",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "a0b07390f0f04e2f4f1450ca00f5da4affdc4356c5c7da7f434ccf18478e9670",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 118,
+        "flags": []
+      },
+      "tileSha256": "3ac1c983964b4823bc27354eb5ecc3adbfb733e09b7b496e39bf262677390564",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-notes",
+      "source": {
+        "version": "8.0",
+        "rid": 20048,
+        "name": "Notes",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "960d558bbaadfbdbfc97424e60e65e1582de690688c9b0e36d62ef648e14212b",
+        "w": 256,
+        "h": 64,
+        "period": [256, 64],
+        "colors": 103,
+        "flags": []
+      },
+      "tileSha256": "7be47a6d440d997321a87e157383f30a970a30050bd9742a72fdd6c8d155dbbc",
+      "originalWidth": 256,
+      "originalHeight": 64
+    },
+    {
+      "id": "macos8-stained-glass-window",
+      "source": {
+        "version": "8.0",
+        "rid": 20049,
+        "name": "Stained Glass Window",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "6cf1390bc84e788dc1cb79084a5bccf0a4c82f6b8127406f57979758fbb69b64",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 230,
+        "flags": []
+      },
+      "tileSha256": "ecbb9f5fd148d9e5c2870e9f1100dc1e3c60cd2c6c01f4374ab9bf5774f57f3c",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-teddy-bears",
+      "source": {
+        "version": "8.0",
+        "rid": 20051,
+        "name": "Teddy Bears",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "218037e25b1e62fa7703934b04c7a947fcff2e4c578332ef5b02a4bd61c201bb",
+        "w": 128,
+        "h": 128,
+        "period": [128, 128],
+        "colors": 98,
+        "flags": []
+      },
+      "tileSha256": "b0e6e50d607b4ce65f16998fceaf5381e94a1cc2fc907f658671475fde182f5d",
+      "originalWidth": 128,
+      "originalHeight": 128
+    },
+    {
+      "id": "macos8-powerbook-traditional",
+      "source": {
+        "version": "8.0",
+        "rid": 20080,
+        "name": "PowerBook Traditional",
+        "resourceType": "ppat",
+        "sourceFile": "System Folder/Control Panels/Desktop Pictures",
+        "resourceSha256": "894f940f4482e408ecef757a2921612070aa6e881b18aadf408f9501e76814fc",
+        "w": 8,
+        "h": 8,
+        "period": [8, 8],
+        "colors": 3,
+        "flags": []
+      },
+      "tileSha256": "7df83e8d79f0c3d9d7299e5297936839217a1bd3d8eb1551f109ea807e6b39fe",
+      "originalWidth": 8,
+      "originalHeight": 8
+    }
+  ]
+}

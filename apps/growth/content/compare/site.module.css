@@ -1,0 +1,62 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: calc(100% + var(--ui-document-scrollbar-size, 16px));
+}
+.skipLink {
+  position: absolute;
+  top: -100px;
+  left: 20px;
+  padding: 4px 10px;
+  background: var(--ui-color-paper);
+  z-index: 200;
+}
+.skipLink:focus {
+  top: 24px;
+}
+.documents {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  justify-items: center;
+  gap: 32px 12px;
+  padding: 28px 20px 40px;
+}
+.directory {
+  min-height: 360px;
+  margin-top: 12px;
+}
+.article {
+  min-width: 0;
+}
+.readingStack {
+  min-width: 0;
+}
+.related {
+  position: relative;
+  margin: 28px 0 0 56px;
+}
+.tableScroll {
+  max-width: 100%;
+  margin: 24px 0;
+  overflow-x: auto;
+  border: 1px solid var(--ui-color-line);
+}
+.tableScroll table {
+  min-width: 640px;
+}
+@media (max-width: 640px) {
+  .documents {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 8px;
+  }
+  .article {
+    min-width: 0;
+  }
+  .readingStack {
+    width: 100%;
+  }
+  .related {
+    margin-left: 20px;
+  }
+}

@@ -10,10 +10,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
-import { Button } from "@xprite/ui";
-import { type SurfaceBounds } from "@xprite/ui";
-import { useUi } from "@xprite/ui";
-import { Tooltip, TooltipGroup } from "@xprite/ui";
+import { Button, type SurfaceBounds, useUi, Tooltip, TooltipGroup } from "@xprite/ui";
 import { centerUiPixel } from "@xprite/ui/assets";
 import { uiMetrics } from "@xprite/ui/assets";
 import { UiPart, UiIcon, type UiPartName } from "@xprite/ui/assets";
@@ -448,6 +445,7 @@ export function ToolGroupRail({
                 }
                 {...stylusPointerInputProps()}
                 data-ui-tool-owner={owner}
+                data-ui-tool={tool.value}
                 data-ui-group-index={index}
                 style={buttonStyle}
                 onPointerDown={(event) => {
@@ -584,6 +582,7 @@ export function ToolGroupRail({
                     title={tool.label}
                     {...stylusPointerInputProps()}
                     data-ui-tool-owner={owner}
+                    data-ui-tool={tool.value}
                     data-ui-group-index={open}
                     data-ui-tool-index={index}
                     style={{ zIndex: "var(--ui-tool-popup-layer)" }}

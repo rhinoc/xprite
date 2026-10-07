@@ -5,3 +5,60 @@
   pointer-events: auto;
   touch-action: pan-x pan-y;
 }
+
+.messageFrame {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid var(--xse-border);
+  background: var(--xse-window);
+  box-shadow:
+    inset 0 0 0 2px var(--ui-alert-frame-mid),
+    inset 0 0 0 4px var(--xse-border);
+}
+
+.messageContent {
+  position: absolute;
+  inset: -1px;
+}
+
+.messageFrame::before,
+.messageFrame::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border: 1px solid;
+}
+.messageFrame::before {
+  inset: 0;
+  border-color: var(--ui-alert-frame-light) var(--ui-alert-frame-dark) var(--ui-alert-frame-dark)
+    var(--ui-alert-frame-light);
+}
+.messageFrame::after {
+  inset: 2px;
+  border-color: var(--ui-alert-frame-dark) var(--ui-alert-frame-light) var(--ui-alert-frame-light)
+    var(--ui-alert-frame-dark);
+}
+.messageCorners {
+  z-index: 1;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.messageCorners::before,
+.messageCorners::after {
+  content: "";
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  background: var(--ui-alert-frame-dark);
+}
+.messageCorners::before {
+  top: 0;
+  right: 0;
+  box-shadow: -2px 2px 0 var(--ui-alert-frame-dark);
+}
+.messageCorners::after {
+  bottom: 0;
+  left: 0;
+  box-shadow: 2px -2px 0 var(--ui-alert-frame-dark);
+}

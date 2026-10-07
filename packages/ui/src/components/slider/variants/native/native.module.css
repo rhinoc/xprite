@@ -1,0 +1,152 @@
+.root {
+  appearance: none;
+  box-sizing: border-box;
+  width: var(--ui-native-slider-width, 220px);
+  height: var(--ui-native-slider-height, 24px);
+  margin: 0;
+  background: transparent;
+  cursor: var(--ui-cursor-hand, pointer);
+  touch-action: pan-y;
+}
+.root:focus-visible {
+  outline: var(--ui-focus-ring-width, 1px) solid var(--ui-focus-ring-color, currentColor);
+  outline-offset: 2px;
+}
+.root:disabled {
+  opacity: var(--ui-control-disabled-opacity, 0.5);
+  cursor: default;
+}
+.root::-webkit-slider-runnable-track {
+  box-sizing: border-box;
+  height: var(--ui-native-slider-track-height, 6px);
+  border: var(--ui-native-slider-track-border, 1px) solid
+    var(--ui-native-slider-border, currentColor);
+  border-radius: var(--ui-native-slider-radius, 0);
+  border-image: var(--ui-native-slider-track-image, none) 2 3 fill / 2px 3px / 0 stretch;
+  image-rendering: pixelated;
+  background: var(
+    --ui-native-slider-track-paint,
+    linear-gradient(
+      to right,
+      var(--ui-native-slider-fill) 0 var(--ui-native-slider-progress),
+      var(--ui-native-slider-track-face) var(--ui-native-slider-progress) 100%
+    )
+  );
+}
+.root::-webkit-slider-thumb {
+  appearance: none;
+  box-sizing: border-box;
+  width: var(--ui-native-slider-thumb-width, 14px);
+  height: var(--ui-native-slider-thumb-height, 18px);
+  margin-top: var(--ui-native-slider-thumb-offset, -7px);
+  border: var(--ui-native-slider-thumb-border, 1px) solid
+    var(--ui-native-slider-border, currentColor);
+  border-radius: var(--ui-native-slider-radius, 0);
+  background: var(--ui-native-slider-thumb-image, var(--ui-native-slider-thumb-face));
+  image-rendering: pixelated;
+  box-shadow: var(--ui-native-slider-thumb-shadow, none);
+}
+.root::-moz-range-track {
+  box-sizing: border-box;
+  height: var(--ui-native-slider-track-height, 6px);
+  border: var(--ui-native-slider-track-border, 1px) solid
+    var(--ui-native-slider-border, currentColor);
+  border-radius: var(--ui-native-slider-radius, 0);
+  border-image: var(--ui-native-slider-track-image, none) 2 3 fill / 2px 3px / 0 stretch;
+  image-rendering: pixelated;
+  background: var(--ui-native-slider-track-paint, var(--ui-native-slider-track-face));
+}
+.root::-moz-range-progress {
+  height: 4px;
+  background: var(--ui-native-slider-progress-paint, var(--ui-native-slider-fill));
+}
+.root::-moz-range-thumb {
+  box-sizing: border-box;
+  width: var(--ui-native-slider-thumb-width, 14px);
+  height: var(--ui-native-slider-thumb-height, 18px);
+  border: var(--ui-native-slider-thumb-border, 1px) solid
+    var(--ui-native-slider-border, currentColor);
+  border-radius: var(--ui-native-slider-radius, 0);
+  background: var(--ui-native-slider-thumb-image, var(--ui-native-slider-thumb-face));
+  image-rendering: pixelated;
+  box-shadow: var(--ui-native-slider-thumb-shadow, none);
+}
+
+.root[data-orientation="vertical"] {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  width: var(--ui-native-slider-vertical-width, 28px);
+  height: var(--ui-native-slider-vertical-height, 128px);
+  touch-action: none;
+}
+.root[data-orientation="vertical"]::-webkit-slider-runnable-track {
+  width: 10px;
+  height: 100%;
+  border: 1px solid var(--ui-color-ink);
+  border-radius: 6px;
+  border-image: none;
+  background: repeating-conic-gradient(var(--ui-color-ink) 0% 25%, var(--ui-color-paper) 0% 50%) 0 0
+    / 2px 2px;
+}
+.root[data-orientation="vertical"]::-webkit-slider-thumb {
+  width: 24px;
+  height: 12px;
+  margin: 0 0 0 -8px;
+  border: 1px solid var(--ui-color-ink);
+  border-radius: 5px;
+  background: linear-gradient(
+    to bottom,
+    var(--ui-color-paper) 0 2px,
+    var(--ui-color-chrome) 2px 5px,
+    var(--ui-color-ink) 5px 6px,
+    var(--ui-color-paper) 6px 7px,
+    var(--ui-color-chrome) 7px
+  );
+  box-shadow: 0 1px 0 var(--ui-color-ink);
+}
+.root[data-orientation="vertical"]::-moz-range-track {
+  width: 10px;
+  height: 100%;
+  border: 1px solid var(--ui-color-ink);
+  border-radius: 6px;
+  border-image: none;
+  background: repeating-conic-gradient(var(--ui-color-ink) 0% 25%, var(--ui-color-paper) 0% 50%) 0 0
+    / 2px 2px;
+}
+.root[data-orientation="vertical"]::-moz-range-progress {
+  background: transparent;
+  width: 10px;
+}
+.root[data-orientation="vertical"]::-moz-range-thumb {
+  width: 24px;
+  height: 12px;
+  border: 1px solid var(--ui-color-ink);
+  border-radius: 5px;
+  background: var(--ui-color-chrome);
+  box-shadow: 0 1px 0 var(--ui-color-ink);
+}
+.ticked {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.ticks {
+  position: absolute;
+  inset: auto 7px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.ticks > span {
+  width: 1px;
+  height: 5px;
+  background: var(--ui-color-ink);
+}
+.ticked[data-orientation="vertical"] .ticks {
+  inset: 6px auto 6px calc(50% + 6px);
+  flex-direction: column;
+}
+.ticked[data-orientation="vertical"] .ticks > span {
+  width: 5px;
+  height: 1px;
+}

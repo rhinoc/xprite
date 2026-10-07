@@ -114,6 +114,7 @@ export function renderTimelineFrame(
       right = Math.min(width, Math.ceil(b.x + b.width)),
       bottom = Math.min(height, Math.ceil(b.y + b.height));
     if (right <= left || bottom <= top) return;
+    const source = image.data;
     const unscaled =
       Number.isInteger(b.x) &&
       Number.isInteger(b.y) &&
@@ -127,22 +128,17 @@ export function renderTimelineFrame(
           from = ((y - b.y) * image.width + left - b.x) * 4;
         const end = at + (right - left) * 4;
         if (copy) {
-          out.data.set(image.data.subarray(from, from + end - at), at);
+          out.data.set(source.subarray(from, from + end - at), at);
           continue;
         }
         if (mode === 0)
           for (; at < end; at += 4, from += 4) {
-            if (
-              image.data[from] ||
-              image.data[from + 1] ||
-              image.data[from + 2] ||
-              image.data[from + 3]
-            )
-              blendNormalAt(out.data, at, image.data, from, opacity);
+            if (source[from] || source[from + 1] || source[from + 2] || source[from + 3])
+              blendNormalAt(out.data, at, source, from, opacity);
           }
         else
           for (; at < end; at += 4, from += 4)
-            blendImageAt(out.data, at, image.data, from, opacity, mode);
+            blendImageAt(out.data, at, source, from, opacity, mode);
       }
       return;
     }
@@ -163,7 +159,7 @@ export function renderTimelineFrame(
         4;
       let at = (y * width + left) * 4;
       for (let x = 0; x < columns.length; x++, at += 4)
-        blendImageAt(out.data, at, image.data, row + columns[x], opacity, mode);
+        blendImageAt(out.data, at, source, row + columns[x], opacity, mode);
     }
   }
   function render(

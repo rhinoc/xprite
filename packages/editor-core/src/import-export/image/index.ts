@@ -11,3 +11,4 @@ export * from "$/import-export/image/sheet-packing";
 export * from "$/import-export/image/import";
 export * from "$/import-export/image/webp-lossless";
 export * from "$/import-export/image/webp-export";
+export * from "$/import-export/image/project-preview";

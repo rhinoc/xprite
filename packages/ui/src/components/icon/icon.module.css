@@ -1,0 +1,8 @@
+.root {
+  display: block;
+  flex: 0 0 auto;
+  width: var(--ui-system-icon-size, 16px);
+  height: var(--ui-system-icon-size, 16px);
+  background: currentColor;
+  mask: var(--ui-system-icon-image) center / contain no-repeat;
+}

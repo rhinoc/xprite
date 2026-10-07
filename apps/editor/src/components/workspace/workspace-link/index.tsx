@@ -6,8 +6,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 
-import { Text, TextVariant, type SurfaceBounds, type SurfaceViewport } from "@xprite/ui";
-import { useUi } from "@xprite/ui";
+import { Text, TextVariant, type SurfaceBounds, type SurfaceViewport, useUi } from "@xprite/ui";
 import { centerUiPixel } from "@xprite/ui/assets";
 import { DEFAULT_SURFACE_VIEWPORT, surfaceLayout } from "@xprite/ui/canvas";
 

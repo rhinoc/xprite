@@ -5,6 +5,7 @@ import path from "node:path";
 import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";
 
+import { assertSamePngColorSpace, preservePngColorSpace } from "../../base/screenshot.mjs";
 import { sceneIds } from "./scenes.mjs";
 
 export const COMPARISON_METHOD =
@@ -44,10 +45,13 @@ export function compareCase(baseline, candidate, baselineDir, candidateDir, id) 
     const image = PNG.sync.read(bytes);
     if (image.width !== entry.viewport.width || image.height !== entry.viewport.height)
       throw Error(`${id}: raw PNG dimensions do not match the viewport.`);
-    return image;
+    return { bytes, image };
   };
-  const reference = readImage(baselineDir, expected),
-    image = readImage(candidateDir, actual);
+  const referenceCapture = readImage(baselineDir, expected),
+    candidateCapture = readImage(candidateDir, actual);
+  assertSamePngColorSpace(referenceCapture.bytes, candidateCapture.bytes, id);
+  const reference = referenceCapture.image,
+    image = candidateCapture.image;
   const pixelsSame = reference.data.equals(image.data);
   const score = ({ name, x, y, width, height }) => {
     if (
@@ -100,7 +104,7 @@ export function compareCase(baseline, candidate, baselineDir, candidateDir, id) 
       threshold: 0,
       includeAA: true,
     });
-    fs.writeFileSync(diffPath, PNG.sync.write(diff));
+    fs.writeFileSync(diffPath, preservePngColorSpace(referenceCapture.bytes, PNG.sync.write(diff)));
   } else fs.rmSync(diffPath, { force: true });
   const geometrySame = JSON.stringify(expected.regions) === JSON.stringify(actual.regions);
   return {

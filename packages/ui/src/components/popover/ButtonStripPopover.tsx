@@ -2,6 +2,7 @@ import { useLayoutEffect, type CSSProperties, type ReactNode, type RefObject } f
 import { createPortal } from "react-dom";
 
 import { useTheme } from "$/base/theme/theme-context";
+import { ThemeScope } from "$/base/theme/theme-scope";
 import { DEFAULT_SURFACE_VIEWPORT } from "$/components/canvas-surface";
 import {
   measurePopoverAnchor,
@@ -112,28 +113,30 @@ export function ButtonStripPopover({
   const bounds = { x: popover.x, y: popover.y, width, height };
 
   return createPortal(
-    <div
-      ref={controller.panelRef}
-      className={styles.popup}
-      role="toolbar"
-      aria-label={label}
-      aria-orientation="horizontal"
-      data-button-strip=""
-      data-popup=""
-      style={
-        {
-          ...anchoredPopoverStyle(popover, bounds, { constrainToViewport: false }),
-          color: theme.colors.text,
-          "--ui-strip-cell-width": `${anchor.bounds.width * sx}px`,
-          "--ui-strip-cell-height": `${anchor.bounds.height * sy}px`,
-          "--ui-strip-border-overlap": `${BUTTON_BORDER_OVERLAP}px`,
-        } as CSSProperties
-      }
-    >
-      <TooltipGroup>
-        <div className={styles.buttons}>{children}</div>
-      </TooltipGroup>
-    </div>,
+    <ThemeScope>
+      <div
+        ref={controller.panelRef}
+        className={styles.popup}
+        role="toolbar"
+        aria-label={label}
+        aria-orientation="horizontal"
+        data-button-strip=""
+        data-popup=""
+        style={
+          {
+            ...anchoredPopoverStyle(popover, bounds, { constrainToViewport: false }),
+            color: theme.colors.text,
+            "--ui-strip-cell-width": `${anchor.bounds.width * sx}px`,
+            "--ui-strip-cell-height": `${anchor.bounds.height * sy}px`,
+            "--ui-strip-border-overlap": `${BUTTON_BORDER_OVERLAP}px`,
+          } as CSSProperties
+        }
+      >
+        <TooltipGroup>
+          <div className={styles.buttons}>{children}</div>
+        </TooltipGroup>
+      </div>
+    </ThemeScope>,
     anchorRef.current.ownerDocument.body,
   );
 }

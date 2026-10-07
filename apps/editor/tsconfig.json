@@ -24,7 +24,8 @@
         "./src/*",
         "../../packages/editor-core/src/*",
         "../../packages/bedrock/browser/*",
-        "../../packages/ui/src/*"
+        "../../packages/ui/src/*",
+        "../../packages/editor-ui/src/*"
       ],
       "$assets/*": ["./assets/*", "../../packages/ui/assets/*"]
     }
@@ -32,8 +33,17 @@
   "include": ["src"],
   "exclude": ["src/**/*.test.ts"],
   "references": [
-    { "path": "../../packages/bedrock/tsconfig.browser.build.json" },
-    { "path": "../../packages/editor-core/tsconfig.build.json" },
-    { "path": "../../packages/ui/tsconfig.json" }
+    {
+      "path": "../../packages/bedrock/tsconfig.browser.build.json"
+    },
+    {
+      "path": "../../packages/editor-core/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/ui/tsconfig.json"
+    },
+    {
+      "path": "../../packages/editor-ui/tsconfig.json"
+    }
   ]
 }

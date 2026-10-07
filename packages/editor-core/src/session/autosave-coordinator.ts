@@ -1,3 +1,6 @@
+const INITIAL_RETRY_DELAY_MS = 5_000;
+const MAX_RETRY_DELAY_MS = 60_000;
+
 /** Scheduling belongs to the host, so the coordinator also works outside a browser. */
 export interface AutosaveClock {
   now(): number;
@@ -30,7 +33,7 @@ export interface AutosaveOptions<Snapshot, Head> {
 
 export interface AutosaveCoordinator<Head> {
   notifyCommitted(revision: number): void;
-  /** Drains changes committed during a save too. Rejects on failure; never retries in a loop. */
+  /** Drains changes committed during a save too. Rejects on failure; retries are delayed. */
   flush(): Promise<void>;
   retry(): Promise<void>;
   getState(): AutosaveState<Head>;
@@ -58,6 +61,7 @@ export function createAutosaveCoordinator<Snapshot, Head>(
   let firstPendingAt: number | null = null;
   let inFlight: Promise<void> | null = null;
   let captureUnavailable = false;
+  let failures = 0;
 
   function publish(update: Partial<AutosaveState<Head>>) {
     if (disposed) return;
@@ -79,7 +83,23 @@ export function createAutosaveCoordinator<Snapshot, Head>(
     timer = options.clock.setTimeout(() => {
       scheduled = false;
       void flush().catch(() => {
-        /* Error is retained in state until an explicit retry or edit. */
+        /* The failure remains visible until a checkpoint succeeds. */
+      });
+    }, delay);
+  }
+
+  function scheduleRetry() {
+    if (disposed) return;
+    clearTimer();
+    const delay = Math.min(
+      MAX_RETRY_DELAY_MS,
+      INITIAL_RETRY_DELAY_MS * 2 ** Math.max(0, failures - 1),
+    );
+    scheduled = true;
+    timer = options.clock.setTimeout(() => {
+      scheduled = false;
+      void flush().catch(() => {
+        // Keep the failed revision visible; subsequent retries use a longer delay.
       });
     }, delay);
   }
@@ -96,9 +116,12 @@ export function createAutosaveCoordinator<Snapshot, Head>(
         throw new Error("Autosave capture is older than the latest committed revision");
       }
       const savingRevision = captured.revision;
-      publish({ status: "saving", committedRevision: savingRevision, error: null });
+      // Retain the previous failure while retrying; only a durable acknowledgement
+      // clears the warning, including when edits arrive during the retry.
+      publish({ status: "saving", committedRevision: savingRevision });
       const head = await options.save(captured.snapshot, state.head);
       if (disposed) return;
+      failures = 0;
       publish({
         head,
         persistedRevision: savingRevision,
@@ -121,7 +144,9 @@ export function createAutosaveCoordinator<Snapshot, Head>(
       .catch((error: unknown) => {
         clearTimer();
         firstPendingAt = null;
+        failures++;
         publish({ status: "error", error });
+        scheduleRetry();
         throw error;
       })
       .finally(() => {
@@ -143,16 +168,24 @@ export function createAutosaveCoordinator<Snapshot, Head>(
       if (disposed || revision < state.committedRevision || revision <= state.persistedRevision)
         return;
       const isNewRevision = revision > state.committedRevision;
+      // New edits update the pending snapshot without restarting or bypassing
+      // the retry delay. A storage failure must not trigger a save on every stroke.
+      if (state.status === "error") {
+        publish({ committedRevision: revision });
+        return;
+      }
       publish({
         committedRevision: revision,
         status: inFlight ? "saving" : "ready",
-        error: null,
       });
       // The current drain captures the newest revision after its outstanding write.
       if (!inFlight && (isNewRevision || !scheduled)) schedule();
     },
     flush,
-    retry: flush,
+    retry() {
+      failures = 0;
+      return flush();
+    },
     getState: () => state,
     dispose() {
       disposed = true;

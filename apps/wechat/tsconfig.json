@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["miniprogram-api-typings", "vite/client"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "paths": {
+      "$/*": [
+        "./src/*",
+        "../editor/src/*",
+        "../../packages/editor-core/src/*",
+        "../../packages/editor-ui/src/*",
+        "../../packages/ui/src/*",
+        "../../packages/bedrock/browser/*"
+      ],
+      "@xprite/bedrock/common/*": ["../../packages/bedrock/common/*"],
+      "$assets/*": ["../editor/assets/*", "../../packages/ui/assets/*"]
+    },
+    "jsx": "react-jsx"
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}

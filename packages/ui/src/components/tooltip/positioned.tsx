@@ -10,6 +10,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
+import { ThemeScope } from "$/base/theme/theme-scope";
 import { composeEventHandlers } from "$/base/utils/compose-event-handlers";
 import { surfaceLayout, type SurfaceBounds } from "$/components/canvas-surface/geometry";
 import type { TooltipPlacementOption } from "$/components/tooltip/geometry";
@@ -19,6 +20,7 @@ import type {
   TooltipGroupState,
   TooltipTriggerProps,
   TooltipTriggerContent,
+  TooltipTextMetrics,
 } from "$/components/tooltip/types";
 import { useTooltipTrigger } from "$/components/tooltip/use-tooltip-trigger";
 
@@ -36,6 +38,7 @@ export interface PositionedTooltipProps {
   targetBounds?: SurfaceBounds;
   targetOffsetX?: number;
   measureText: (text: string) => number;
+  textMetrics?: TooltipTextMetrics;
   render: (layout: PositionedTooltipLayout) => ReactNode;
 }
 
@@ -94,20 +97,22 @@ export function PositionedTooltip({ children, render, ...options }: PositionedTo
       {layout &&
         displayBounds &&
         createPortal(
-          <div
-            role="tooltip"
-            id={id}
-            aria-label={options.text}
-            className={styles.surface}
-            style={{
-              left: layout.origin.x + displayBounds.left,
-              top: layout.origin.y + displayBounds.top,
-              width: displayBounds.width,
-              height: displayBounds.height,
-            }}
-          >
-            {render(layout)}
-          </div>,
+          <ThemeScope>
+            <div
+              role="tooltip"
+              id={id}
+              aria-label={options.text}
+              className={styles.surface}
+              style={{
+                left: layout.origin.x + displayBounds.left,
+                top: layout.origin.y + displayBounds.top,
+                width: displayBounds.width,
+                height: displayBounds.height,
+              }}
+            >
+              {render(layout)}
+            </div>
+          </ThemeScope>,
           document.body,
         )}
     </>

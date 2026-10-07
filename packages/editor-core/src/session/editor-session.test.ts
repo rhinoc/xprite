@@ -28,6 +28,25 @@ describe("editor-session", () => {
       for (let i = 0; i < result.data.length; i += 4) result.data.set([red, 20, 30, 255], i);
       return result;
     };
+    const recentCatalog = (items) =>
+      items.map((item) => {
+        item.id ??= `stored:${item.name}`;
+        item.contentVersion ??= {};
+        return {
+          id: item.id,
+          name: item.name,
+          width: item.image.width,
+          height: item.image.height,
+          bytes: item.image.data.byteLength,
+          contentVersion: item.contentVersion,
+        };
+      });
+    const mergeRecent = (items, previous) =>
+      items.map((item) =>
+        "image" in item
+          ? { ...structuredClone(item), contentVersion: item.contentVersion }
+          : { ...previous.find((old) => old.id === item.id), name: item.name },
+      );
     const deferred = () => {
       let resolve, reject;
       const promise = new Promise((a, b) => {
@@ -434,10 +453,10 @@ describe("editor-session", () => {
         aid = recent.find((i) => i.name === "A").id,
         bid = recent.find((i) => i.name === "B").id;
       dirty(h.core);
-      assert.equal(h.session.openRecent(bid), "activated");
+      assert.equal(await h.session.openRecent(bid), "activated");
       assert.equal(h.session.getSnapshot().documentActivationKind, "activate");
       assert.equal(h.core.getSnapshot().dirty, true);
-      assert.equal(h.session.openRecent(aid), "confirmation");
+      assert.equal(await h.session.openRecent(aid), "confirmation");
       await h.session.confirmReplacement();
       assert.equal(h.core.getSnapshot().document.name, "A");
       assert.equal(h.session.getSnapshot().documentActivationKind, "replace");
@@ -743,6 +762,7 @@ describe("editor-session", () => {
       const saving = h.session.save();
       await flush();
       assert.ok(payload, "Aseprite writer receives a project before its await");
+      assert.equal(payload.pngImage, undefined, "committed ASE save defers its PNG projection");
       const writtenByte = payload.timeline.frames[0].cels[0].pixels.data[0];
       h.core.drawing.settings.setSettings({ tool: "pencil", foreground: [255, 0, 91, 255] });
       h.core.pointerDown({ x: 0, y: 0 });
@@ -751,23 +771,26 @@ describe("editor-session", () => {
       assert.equal(await saving, "created");
       assert.equal(payload.timeline.frames[0].cels[0].pixels.data[0], writtenByte);
       assert.equal(persisted[0].project.timeline.frames[0].cels[0].pixels.data[0], writtenByte);
+      assert.equal(
+        persisted[0].project,
+        payload,
+        "the recent record reuses the immutable offered save graph",
+      );
       assert.equal(h.core.getSnapshot().dirty, true);
       assert.equal(h.core.getSnapshot().document.name, "Original");
       h.session.dispose();
     });
     await test("persistent recents hydrate before a new import and retain exact RGBA across sessions", async () => {
       let persisted = [{ name: "Stored.png", image: image(91) }];
+      let reads = 0;
       const ports = {
-        loadRecentImages: async () =>
-          persisted.map((item) => ({
-            name: item.name,
-            image: { ...item.image, data: new Uint8ClampedArray(item.image.data) },
-          })),
+        listRecentImages: async () => recentCatalog(persisted),
+        readRecentImage: async (id) => {
+          reads++;
+          return persisted.find((item) => item.id === id) ?? null;
+        },
         saveRecentImages: async (items) => {
-          persisted = items.map((item) => ({
-            name: item.name,
-            image: { ...item.image, data: new Uint8ClampedArray(item.image.data) },
-          }));
+          persisted = mergeRecent(items, persisted);
         },
       };
       const first = harness(ports);
@@ -777,18 +800,61 @@ describe("editor-session", () => {
         persisted.map((item) => item.name),
         ["Fresh.png", "Stored.png"],
       );
+      assert.equal(reads, 0, "new import preserves durable metadata without reading old pixels");
       const second = harness(ports);
       await second.session.restoreRecent();
       const stored = second.session
         .getSnapshot()
         .recentFiles.find((item) => item.name === "Stored.png");
       assert.ok(stored);
-      assert.equal(second.session.openRecent(stored.id), "created");
+      assert.equal(await second.session.openRecent(stored.id), "created");
       assert.equal(second.core.canvas.composite().data[0], 91);
     });
-    await test("bootstrap cannot replace persisted recent bytes or use a same-name shortcut", async () => {
+    await test("lazy recent reads cannot restore deleted or superseded documents", async () => {
+      const token = {};
+      const snapshot = { id: "lazy", name: "Lazy.png", image: image(123), contentVersion: token };
+      const pending = deferred();
       const h = harness({
-        loadRecentImages: async () => [{ name: "Sample", image: image(199) }],
+        listRecentImages: async () => recentCatalog([snapshot]),
+        readRecentImage: () => pending.promise,
+      });
+      await h.session.restoreRecent();
+      const opening = h.session.openRecent(snapshot.id);
+      assert.equal(h.session.getSnapshot().busy, true);
+      h.session.clearRecentFiles();
+      pending.resolve(snapshot);
+      assert.equal(await opening, "ignored");
+      assert.equal(h.core.getSnapshot().document.name, "Original");
+      assert.deepEqual(h.session.getSnapshot().recentFiles, []);
+      assert.equal(h.session.getSnapshot().busy, false);
+      h.session.dispose();
+    });
+    await test("a lazy payload failure leaves the catalog and active document intact", async () => {
+      const snapshot = {
+        id: "bad",
+        name: "Unavailable.aseprite",
+        image: image(123),
+        contentVersion: {},
+      };
+      const h = harness({
+        listRecentImages: async () => recentCatalog([snapshot]),
+        readRecentImage: async () => {
+          throw new Error("Missing payload");
+        },
+      });
+      await h.session.restoreRecent();
+      assert.equal(await h.session.openRecent("bad"), "error");
+      assert.equal(h.session.getSnapshot().recentFiles.length, 1);
+      assert.equal(h.core.getSnapshot().document.name, "Original");
+      assert.equal(h.session.getSnapshot().busy, false);
+      assert.equal(h.session.getSnapshot().error.message, "Missing payload");
+      h.session.dispose();
+    });
+    await test("bootstrap cannot replace persisted recent bytes or use a same-name shortcut", async () => {
+      const records = [{ id: "sample", name: "Sample", image: image(199), contentVersion: {} }];
+      const h = harness({
+        listRecentImages: async () => recentCatalog(records),
+        readRecentImage: async (id) => records.find((item) => item.id === id) ?? null,
         saveRecentImages: async () => {
           throw new Error("bootstrap must not overwrite recents");
         },
@@ -797,7 +863,7 @@ describe("editor-session", () => {
       assert.equal(h.core.canvas.composite().data[0], 77);
       assert.equal(h.session.getSnapshot().error, null);
       const recent = h.session.getSnapshot().recentFiles[0];
-      h.session.openRecent(recent.id);
+      await h.session.openRecent(recent.id);
       assert.equal(h.core.canvas.composite().data[0], 199);
     });
     await test("unremembered examples skip recents but later imports hydrate before writing", async () => {
@@ -805,7 +871,7 @@ describe("editor-session", () => {
       const pending = deferred();
       const saved = [];
       const h = harness({
-        loadRecentImages: () => {
+        listRecentImages: () => {
           reads++;
           return pending.promise;
         },
@@ -821,16 +887,88 @@ describe("editor-session", () => {
       await flush();
       assert.equal(reads, 1);
       assert.equal(saved.length, 0, "pending hydration cannot erase older recent files");
-      pending.resolve([{ id: "old", name: "Old.png", image: image(199) }]);
+      pending.resolve(recentCatalog([{ id: "old", name: "Old.png", image: image(199) }]));
       await importing;
       await h.session.flushPersistence();
       assert.ok(saved.at(-1).some((item) => item.name === "Old.png"));
       assert.ok(saved.at(-1).some((item) => item.name === "New.png"));
     });
+    await test("recent count changes wait for the cold catalog and keep only the latest preference", async () => {
+      const pending = deferred();
+      let lists = 0,
+        contentReads = 0;
+      const saved = [];
+      const catalog = recentCatalog([
+        { id: "newest", name: "Newest.png", image: image(11) },
+        { id: "older", name: "Older.png", image: image(22) },
+        { id: "oldest", name: "Oldest.png", image: image(33) },
+      ]);
+      const h = harness({
+        listRecentImages: () => {
+          lists++;
+          return pending.promise;
+        },
+        readRecentImage: async () => {
+          contentReads++;
+          return null;
+        },
+        saveRecentImages: async (items) => {
+          saved.push(items);
+        },
+      });
+      h.session.setRecentItemsLimit(3);
+      h.session.setRecentItemsLimit(2);
+      await flush();
+      assert.equal(lists, 1, "consecutive preference changes share the pending catalog load");
+      assert.deepEqual(
+        saved,
+        [],
+        "a preference change cannot clear cold durable records before hydration",
+      );
+      pending.resolve(catalog);
+      await h.session.restoreRecent();
+      await flush();
+      await h.session.flushPersistence();
+      assert.equal(saved.length, 1, "only the latest pending preference publishes the catalog");
+      assert.deepEqual(
+        saved[0].map((item) => item.id),
+        ["newest", "older"],
+      );
+      assert.ok(
+        saved[0].every((item) => !("image" in item)),
+        "limit updates persist lightweight entries",
+      );
+      assert.equal(contentReads, 0);
+      h.session.dispose();
+    });
+    await test("clearing recents cancels count persistence waiting for hydration", async () => {
+      const pending = deferred();
+      const saved = [];
+      const h = harness({
+        listRecentImages: () => pending.promise,
+        saveRecentImages: async (items) => {
+          saved.push(items);
+        },
+      });
+      h.session.setRecentItemsLimit(2);
+      const hydration = h.session.restoreRecent();
+      h.session.clearRecentFiles();
+      pending.resolve(recentCatalog([{ id: "stale", name: "Stale.png", image: image(33) }]));
+      await hydration;
+      await flush();
+      await h.session.flushPersistence();
+      assert.deepEqual(
+        saved,
+        [],
+        "workspace clear owns persistence; a stale limit callback cannot publish another replacement",
+      );
+      assert.deepEqual(h.session.getSnapshot().recentFiles, []);
+      h.session.dispose();
+    });
     await test("failed recent hydration never clears existing durable storage", async () => {
       let writes = 0;
       const h = harness({
-        loadRecentImages: async () => {
+        listRecentImages: async () => {
           throw new Error("Storage blocked");
         },
         saveRecentImages: async () => {
@@ -848,7 +986,7 @@ describe("editor-session", () => {
       const writes = [];
       let count = 0;
       const h = harness({
-        loadRecentImages: async () => [],
+        listRecentImages: async () => [],
         saveRecentImages: async (items) => {
           writes.push(items.map((item) => item.name));
           if (++count === 1) await firstWrite.promise;
@@ -990,9 +1128,10 @@ describe("editor-session", () => {
     await test("same-name files keep distinct persistent identities while repeated Save updates one file", async () => {
       let persisted = [];
       const shared = {
-        loadRecentImages: async () => structuredClone(persisted),
+        listRecentImages: async () => recentCatalog(persisted),
+        readRecentImage: async (id) => persisted.find((item) => item.id === id) ?? null,
         saveRecentImages: async (items) => {
-          persisted = structuredClone(items);
+          persisted = mergeRecent(items, persisted);
         },
         decode: async (token) => image(token === "first" ? 11 : 99),
       };
@@ -1011,9 +1150,9 @@ describe("editor-session", () => {
         reloaded.session.getSnapshot().recentFiles.map((item) => item.id),
         ids,
       );
-      reloaded.session.openRecent(ids[1]);
+      await reloaded.session.openRecent(ids[1]);
       assert.equal(reloaded.core.canvas.composite().data[0], 11);
-      reloaded.session.openRecent(ids[0]);
+      await reloaded.session.openRecent(ids[0]);
       assert.equal(reloaded.core.canvas.composite().data[0], 99);
     });
     await test("PNG export excludes reference guides while display and project retain them", async () => {

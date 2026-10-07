@@ -39,7 +39,7 @@ import {
 } from "$/managers/canvas/canvas-manager";
 import {
   workingColorProfile,
-  convertPixelsToSrgb,
+  PresentationColorCache,
   INLINE_TEXT_MOVE_REGION_PADDING,
 } from "$/managers/canvas/canvas-presentation";
 import { tileNumberLabels } from "$/managers/canvas/canvas-presentation";
@@ -128,8 +128,12 @@ import { useTouchInputPreferences } from "$/managers/preferences/use-touch-input
 import { useShortcutManager } from "$/managers/shortcuts/use-shortcut-manager";
 import { parseEditorColor } from "$/managers/tools/color-control";
 import { ToolTilemapDisplayMode } from "$/managers/tools/tool-options";
-import { usePresentationMetrics, type SurfaceBounds } from "@xprite/ui";
-import { ContextMenu, PointerClickSequence } from "@xprite/ui";
+import {
+  usePresentationMetrics,
+  type SurfaceBounds,
+  ContextMenu,
+  PointerClickSequence,
+} from "@xprite/ui";
 import {
   measureUiText,
   uiFontHeight,
@@ -499,6 +503,7 @@ export function EditorCanvas({
         : undefined;
     const simpleCrosshair = cursorPreferences.paintingCursorType === PaintingCursorType.Simple;
     const imageCanvas = document.createElement("canvas");
+    const presentationColors = new PresentationColorCache();
     const imageContext = imageCanvas.getContext("2d", {
       willReadFrequently: true,
     });
@@ -1416,6 +1421,7 @@ export function EditorCanvas({
       centerDotCursorActive = centerOnly && !symmetryDrag && !axisHover && !!doc;
       paintingCursorZoom = state.view.zoom;
       if (!doc) {
+        presentationColors.clear();
         stopAntsTimer();
         present();
         updatePaintingCursor();
@@ -1516,13 +1522,25 @@ export function EditorCanvas({
             const raster = tiledMode
               ? { pixels: editor.previewComposite(), x: 0, y: 0 }
               : editor.previewRaster(borrowRaster);
-            const image = convertPixelsToSrgb(raster.pixels, workingColorProfile(doc.timeline));
+            const image = presentationColors.convert(
+              raster.pixels,
+              workingColorProfile(doc.timeline),
+              state.preview ||
+                state.linePreview ||
+                state.inlineText ||
+                state.floatingPaste ||
+                state.selectionTransform
+                ? null
+                : state.pixelRevision,
+              state.rasterChange,
+            );
             const upload = rasterUploadLayout(raster, doc, zoom * CANVAS_BACKING_SCALE);
             const uploadWidth = Math.max(1, upload.width);
             const uploadHeight = Math.max(1, upload.height);
+            const pixelsData = image.data;
             const sameSource =
-              imageData?.data.buffer === image.data.buffer &&
-              imageData.data.byteOffset === image.data.byteOffset &&
+              imageData?.data.buffer === pixelsData.buffer &&
+              imageData.data.byteOffset === pixelsData.byteOffset &&
               imageData.width === image.width &&
               imageData.height === image.height;
             const sameGeometry =
@@ -1536,7 +1554,7 @@ export function EditorCanvas({
             if (imageCanvas.height !== uploadHeight) imageCanvas.height = uploadHeight;
             if (!sameSource)
               imageData = new ImageData(
-                image.data as Uint8ClampedArray<ArrayBuffer>,
+                pixelsData as Uint8ClampedArray<ArrayBuffer>,
                 image.width,
                 image.height,
               );
@@ -1555,7 +1573,6 @@ export function EditorCanvas({
               sameGeometry &&
               upload.width > 0 &&
               upload.height > 0 &&
-              image === raster.pixels &&
               change?.pixels === raster.pixels &&
               change.fromRevision <= imageRevision &&
               change.revision === state.pixelRevision

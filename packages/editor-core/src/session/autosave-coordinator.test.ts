@@ -120,11 +120,12 @@ describe("autosave-coordinator", () => {
     {
       const timer = clock();
       let fails = true,
-        calls = 0;
+        calls = 0,
+        revision = 7;
       const coordinator = createAutosaveCoordinator({
         projectId: "errors",
         clock: timer,
-        capture: () => ({ revision: 7, snapshot: "data" }),
+        capture: () => ({ revision, snapshot: "data" }),
         save: async () => {
           calls++;
           if (fails) throw new Error("full");
@@ -135,12 +136,21 @@ describe("autosave-coordinator", () => {
       await assert.rejects(coordinator.flush(), /full/);
       assert.equal(coordinator.getState().status, "error");
       assert.equal(coordinator.getState().persistedRevision, -1);
-      timer.advance(30000);
+      revision = 8;
+      coordinator.notifyCommitted(revision);
+      assert.equal(coordinator.getState().status, "error", "editing retains the unsaved warning");
+      assert.equal(coordinator.getState().committedRevision, 8);
+      timer.advance(4999);
       await tick();
       assert.equal(calls, 1);
+      timer.advance(1);
+      await tick();
+      assert.equal(calls, 2, "background retry waits for the cooldown");
+      assert.equal(coordinator.getState().status, "error");
       fails = false;
       await coordinator.retry();
-      assert.equal(coordinator.getState().persistedRevision, 7);
+      assert.equal(coordinator.getState().persistedRevision, 8, "retry saves the latest edit");
+      assert.equal(timer.pending, 0, "successful retry clears the scheduled retry");
     }
     {
       const timer = clock(),

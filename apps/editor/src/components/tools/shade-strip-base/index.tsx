@@ -9,10 +9,7 @@ import {
 
 import { tUi } from "$/i18n";
 import { TOOL_COLOR_CHANNEL_MAX as UINT8_MAX } from "$/managers/tools/color-control";
-import { CanvasSurface, type SurfaceViewport } from "@xprite/ui";
-import { Menu } from "@xprite/ui";
-import { useUi } from "@xprite/ui";
-import { Tooltip } from "@xprite/ui";
+import { CanvasSurface, type SurfaceViewport, Menu, useUi, Tooltip } from "@xprite/ui";
 import {
   centerUiPixel,
   measureUiText,

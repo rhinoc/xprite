@@ -1,0 +1,661 @@
+{
+  "capturedOn": "2026-10-04",
+  "sourceUrl": "http://showcase.localhost:5173/editor",
+  "sourceApplication": "Current Xprite development application in Chromium, with touch input available",
+  "browser": "Ego Lite Chromium on macOS",
+  "language": "zh-CN",
+  "captureMethod": "Complete native viewport screenshots. Preparation states use ego-browser Page.screenshot at CSS resolution. Playback uses Chrome CDP Page.captureScreenshot at devicePixelRatio 1; PNG bytes are saved directly.",
+  "interfaceTreatment": "No injected styles, hidden controls, replaced tabs, drawn highlights, or app-state injection. New-file values, palette selection, active layer and frame, and Play/Stop use actual editor controls. hello.aseprite is loaded through the actual file input.",
+  "demonstrationDocument": {
+    "name": "hello.aseprite",
+    "width": 128,
+    "height": 80,
+    "background": "white",
+    "foreground": "#000000",
+    "zoomPercent": 300,
+    "layers": ["Background", "Hello"],
+    "animationFrames": 8,
+    "source": "../hello/hello.aseprite",
+    "sourceSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79",
+    "frameDurationsMs": [120, 130, 120, 130, 120, 130, 120, 130],
+    "loopDurationMs": 1000
+  },
+  "spritePixelsInScreenshot": {
+    "x": 382,
+    "y": 172,
+    "width": 768,
+    "height": 480
+  },
+  "nativeControlCenters": {
+    "newSprite": {
+      "capture": "home.png",
+      "x": 142,
+      "y": 79
+    },
+    "create": {
+      "capture": "create.png",
+      "x": 674,
+      "y": 677
+    },
+    "play": {
+      "capture": "animation.png",
+      "x": 279.234375,
+      "y": 770.1953125
+    }
+  },
+  "captures": [
+    {
+      "file": "home.png",
+      "width": 1389,
+      "height": 970,
+      "sha256": "143fbaef3b9066006fafcda44eaace61c701ad4838dced6b64b08287b3e83992",
+      "capturedAt": "2026-10-04T06:34:24.848Z",
+      "state": "Native Home before creating the demonstration document"
+    },
+    {
+      "file": "create.png",
+      "width": 1389,
+      "height": 970,
+      "sha256": "e9e29987334848ca5aa83864cf3434378ccf2d3da8e5b8ff7b6937f5ad52f8a5",
+      "capturedAt": "2026-10-04T06:35:17.754Z",
+      "state": "Native New Sprite dialog: hello, 128 by 80, RGBA, white background"
+    },
+    {
+      "file": "editor.png",
+      "width": 1389,
+      "height": 970,
+      "sha256": "8ea141f711a1020c5919262a3df859e0756085b461396eb388c6976cb7c20c11",
+      "capturedAt": "2026-10-04T06:36:30.708Z",
+      "state": "Native one-frame white hello document at 300% zoom, black foreground selected"
+    },
+    {
+      "file": "animation.png",
+      "width": 1389,
+      "height": 970,
+      "sha256": "0d9931c81c28d43978d5785c256810e404d2e84c87d4af5fa3b8ed0468de6caa",
+      "capturedAt": "2026-10-04T06:44:11.291Z",
+      "state": "The final hello.aseprite opened in Xprite, two layers and eight frames, stopped on frame one",
+      "sourceFrameIndex": 0,
+      "durationMs": 120,
+      "playing": false,
+      "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79"
+    },
+    {
+      "file": "playback/1.png",
+      "width": 1389,
+      "height": 970,
+      "sha256": "8ea6997a4343055a7cb2e266c5f1e766d33bbe15ec9168c8518c520104716b01",
+      "capturedAt": "2026-10-04T06:44:14.468Z",
+      "artworkPixelsVerified": 10240,
+      "artworkColorMapping": {
+        "255,255,255": "255,255,255",
+        "88,169,157": "126,165,158",
+        "153,169,91": "157,168,103",
+        "216,115,77": "186,125,86",
+        "228,169,71": "207,173,91",
+        "173,119,164": "158,125,161",
+        "112,141,184": "127,140,180"
+      },
+      "frame": 1,
+      "playing": true,
+      "frames": [
+        {
+          "index": 0,
+          "label": "第 1 帧，时长 120 毫秒",
+          "pressed": "true"
+        },
+        {
+          "index": 1,
+          "label": "第 2 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 2,
+          "label": "第 3 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 3,
+          "label": "第 4 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 4,
+          "label": "第 5 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 5,
+          "label": "第 6 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 6,
+          "label": "第 7 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 7,
+          "label": "第 8 帧，时长 130 毫秒",
+          "pressed": "false"
+        }
+      ],
+      "viewport": {
+        "width": 1389,
+        "height": 970,
+        "devicePixelRatio": 1
+      },
+      "source": "http://showcase.localhost:5173/editor",
+      "sourceFrameIndex": 0,
+      "durationMs": 120,
+      "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79"
+    },
+    {
+      "file": "playback/2.png",
+      "width": 1389,
+      "height": 970,
+      "sha256": "fcae722a01edbedd978cde2f7e8e0fd393c4a311b1c637126be9a84f8ad2faae",
+      "capturedAt": "2026-10-04T06:44:14.587Z",
+      "artworkPixelsVerified": 10240,
+      "artworkColorMapping": {
+        "255,255,255": "255,255,255",
+        "112,141,184": "127,140,180",
+        "88,169,157": "126,165,158",
+        "228,169,71": "207,173,91",
+        "153,169,91": "157,168,103",
+        "216,115,77": "186,125,86",
+        "173,119,164": "158,125,161"
+      },
+      "frame": 2,
+      "playing": true,
+      "frames": [
+        {
+          "index": 0,
+          "label": "第 1 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 1,
+          "label": "第 2 帧，时长 130 毫秒",
+          "pressed": "true"
+        },
+        {
+          "index": 2,
+          "label": "第 3 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 3,
+          "label": "第 4 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 4,
+          "label": "第 5 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 5,
+          "label": "第 6 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 6,
+          "label": "第 7 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 7,
+          "label": "第 8 帧，时长 130 毫秒",
+          "pressed": "false"
+        }
+      ],
+      "viewport": {
+        "width": 1389,
+        "height": 970,
+        "devicePixelRatio": 1
+      },
+      "source": "http://showcase.localhost:5173/editor",
+      "sourceFrameIndex": 1,
+      "durationMs": 130,
+      "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79"
+    },
+    {
+      "file": "playback/3.png",
+      "width": 1389,
+      "height": 970,
+      "sha256": "4e220b076dc7c7796b26a4d63cdf067e92fe81da8f7b4bfb43e90736e159031e",
+      "capturedAt": "2026-10-04T06:44:14.721Z",
+      "artworkPixelsVerified": 10240,
+      "artworkColorMapping": {
+        "255,255,255": "255,255,255",
+        "112,141,184": "127,140,180",
+        "88,169,157": "126,165,158",
+        "153,169,91": "157,168,103",
+        "228,169,71": "207,173,91",
+        "216,115,77": "186,125,86",
+        "173,119,164": "158,125,161"
+      },
+      "frame": 3,
+      "playing": true,
+      "frames": [
+        {
+          "index": 0,
+          "label": "第 1 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 1,
+          "label": "第 2 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 2,
+          "label": "第 3 帧，时长 120 毫秒",
+          "pressed": "true"
+        },
+        {
+          "index": 3,
+          "label": "第 4 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 4,
+          "label": "第 5 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 5,
+          "label": "第 6 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 6,
+          "label": "第 7 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 7,
+          "label": "第 8 帧，时长 130 毫秒",
+          "pressed": "false"
+        }
+      ],
+      "viewport": {
+        "width": 1389,
+        "height": 970,
+        "devicePixelRatio": 1
+      },
+      "source": "http://showcase.localhost:5173/editor",
+      "sourceFrameIndex": 2,
+      "durationMs": 120,
+      "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79"
+    },
+    {
+      "file": "playback/4.png",
+      "width": 1389,
+      "height": 970,
+      "sha256": "3a83f816e10bcdd2abd08f14713b3ec116b221d6199150f2b4a1f7d87985f8ae",
+      "capturedAt": "2026-10-04T06:44:14.826Z",
+      "artworkPixelsVerified": 10240,
+      "artworkColorMapping": {
+        "255,255,255": "255,255,255",
+        "112,141,184": "127,140,180",
+        "88,169,157": "126,165,158",
+        "173,119,164": "158,125,161",
+        "153,169,91": "157,168,103",
+        "228,169,71": "207,173,91",
+        "216,115,77": "186,125,86"
+      },
+      "frame": 4,
+      "playing": true,
+      "frames": [
+        {
+          "index": 0,
+          "label": "第 1 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 1,
+          "label": "第 2 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 2,
+          "label": "第 3 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 3,
+          "label": "第 4 帧，时长 130 毫秒",
+          "pressed": "true"
+        },
+        {
+          "index": 4,
+          "label": "第 5 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 5,
+          "label": "第 6 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 6,
+          "label": "第 7 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 7,
+          "label": "第 8 帧，时长 130 毫秒",
+          "pressed": "false"
+        }
+      ],
+      "viewport": {
+        "width": 1389,
+        "height": 970,
+        "devicePixelRatio": 1
+      },
+      "source": "http://showcase.localhost:5173/editor",
+      "sourceFrameIndex": 3,
+      "durationMs": 130,
+      "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79"
+    },
+    {
+      "file": "playback/5.png",
+      "width": 1389,
+      "height": 970,
+      "sha256": "322a556544a32c0214ad8af7e993aeeb13fcf7becaecc9e3781ea6ea9cb8729b",
+      "capturedAt": "2026-10-04T06:44:14.968Z",
+      "artworkPixelsVerified": 10240,
+      "artworkColorMapping": {
+        "255,255,255": "255,255,255",
+        "88,169,157": "126,165,158",
+        "112,141,184": "127,140,180",
+        "173,119,164": "158,125,161",
+        "216,115,77": "186,125,86",
+        "153,169,91": "157,168,103",
+        "228,169,71": "207,173,91"
+      },
+      "frame": 5,
+      "playing": true,
+      "frames": [
+        {
+          "index": 0,
+          "label": "第 1 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 1,
+          "label": "第 2 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 2,
+          "label": "第 3 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 3,
+          "label": "第 4 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 4,
+          "label": "第 5 帧，时长 120 毫秒",
+          "pressed": "true"
+        },
+        {
+          "index": 5,
+          "label": "第 6 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 6,
+          "label": "第 7 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 7,
+          "label": "第 8 帧，时长 130 毫秒",
+          "pressed": "false"
+        }
+      ],
+      "viewport": {
+        "width": 1389,
+        "height": 970,
+        "devicePixelRatio": 1
+      },
+      "source": "http://showcase.localhost:5173/editor",
+      "sourceFrameIndex": 4,
+      "durationMs": 120,
+      "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79"
+    },
+    {
+      "file": "playback/6.png",
+      "width": 1389,
+      "height": 970,
+      "sha256": "6fd64c48c2f4386d8a9e92f9b8a9b2047f78731c7f685aa6640d25617a0e7ae7",
+      "capturedAt": "2026-10-04T06:44:15.070Z",
+      "artworkPixelsVerified": 10240,
+      "artworkColorMapping": {
+        "255,255,255": "255,255,255",
+        "112,141,184": "127,140,180",
+        "228,169,71": "207,173,91",
+        "216,115,77": "186,125,86",
+        "173,119,164": "158,125,161",
+        "88,169,157": "126,165,158",
+        "153,169,91": "157,168,103"
+      },
+      "frame": 6,
+      "playing": true,
+      "frames": [
+        {
+          "index": 0,
+          "label": "第 1 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 1,
+          "label": "第 2 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 2,
+          "label": "第 3 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 3,
+          "label": "第 4 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 4,
+          "label": "第 5 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 5,
+          "label": "第 6 帧，时长 130 毫秒",
+          "pressed": "true"
+        },
+        {
+          "index": 6,
+          "label": "第 7 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 7,
+          "label": "第 8 帧，时长 130 毫秒",
+          "pressed": "false"
+        }
+      ],
+      "viewport": {
+        "width": 1389,
+        "height": 970,
+        "devicePixelRatio": 1
+      },
+      "source": "http://showcase.localhost:5173/editor",
+      "sourceFrameIndex": 5,
+      "durationMs": 130,
+      "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79"
+    },
+    {
+      "file": "playback/7.png",
+      "width": 1389,
+      "height": 970,
+      "sha256": "9afe9e84f7574db13694dc0bbaccd57762464f22f4f2eef30ac131d2e1219baa",
+      "capturedAt": "2026-10-04T06:44:15.210Z",
+      "artworkPixelsVerified": 10240,
+      "artworkColorMapping": {
+        "255,255,255": "255,255,255",
+        "228,169,71": "207,173,91",
+        "173,119,164": "158,125,161",
+        "216,115,77": "186,125,86",
+        "112,141,184": "127,140,180",
+        "88,169,157": "126,165,158",
+        "153,169,91": "157,168,103"
+      },
+      "frame": 7,
+      "playing": true,
+      "frames": [
+        {
+          "index": 0,
+          "label": "第 1 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 1,
+          "label": "第 2 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 2,
+          "label": "第 3 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 3,
+          "label": "第 4 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 4,
+          "label": "第 5 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 5,
+          "label": "第 6 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 6,
+          "label": "第 7 帧，时长 120 毫秒",
+          "pressed": "true"
+        },
+        {
+          "index": 7,
+          "label": "第 8 帧，时长 130 毫秒",
+          "pressed": "false"
+        }
+      ],
+      "viewport": {
+        "width": 1389,
+        "height": 970,
+        "devicePixelRatio": 1
+      },
+      "source": "http://showcase.localhost:5173/editor",
+      "sourceFrameIndex": 6,
+      "durationMs": 120,
+      "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79"
+    },
+    {
+      "file": "playback/8.png",
+      "width": 1389,
+      "height": 970,
+      "sha256": "c23616422ec5fff5c77aaccf709fb6f71d6edbce8096eb83d560ec5dff07e9b1",
+      "capturedAt": "2026-10-04T06:44:15.348Z",
+      "artworkPixelsVerified": 10240,
+      "artworkColorMapping": {
+        "255,255,255": "255,255,255",
+        "153,169,91": "157,168,103",
+        "228,169,71": "207,173,91",
+        "216,115,77": "186,125,86",
+        "173,119,164": "158,125,161",
+        "112,141,184": "127,140,180",
+        "88,169,157": "126,165,158"
+      },
+      "frame": 8,
+      "playing": true,
+      "frames": [
+        {
+          "index": 0,
+          "label": "第 1 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 1,
+          "label": "第 2 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 2,
+          "label": "第 3 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 3,
+          "label": "第 4 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 4,
+          "label": "第 5 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 5,
+          "label": "第 6 帧，时长 130 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 6,
+          "label": "第 7 帧，时长 120 毫秒",
+          "pressed": "false"
+        },
+        {
+          "index": 7,
+          "label": "第 8 帧，时长 130 毫秒",
+          "pressed": "true"
+        }
+      ],
+      "viewport": {
+        "width": 1389,
+        "height": 970,
+        "devicePixelRatio": 1
+      },
+      "source": "http://showcase.localhost:5173/editor",
+      "sourceFrameIndex": 7,
+      "durationMs": 130,
+      "sourceAsepriteSha256": "34ad024bc3aa5674f1dc27e585e665e6caa1252cdb3e69999860d4ec3e6e1f79"
+    }
+  ],
+  "filmProjection": {
+    "width": 1389,
+    "height": 970,
+    "scale": 1,
+    "fit": "exact uniform scale",
+    "preserveAspectRatio": true,
+    "letterboxing": false
+  },
+  "playbackVerification": "For each captured frame, the Current frame input, sole pressed timeline frame and real Stop control are read before and after capture. All 10,240 sprite-pixel centers must match the corresponding native Aseprite export through one exact, bijective RGB palette mapping. The mapping records Chromium/macOS display color management; screenshot pixels are not recolored.",
+  "filmComposition": "During writing only native Aseprite-exported integer-pixel writing frames are projected into the measured blank sprite rectangle. Before playback the complete native animation.png appears. During playback the complete native playback/1.png through 8.png are chosen by the same native frame durations; no editor chrome, frame number, highlight, canvas artwork or Play/Stop icon is composited over the captured playback UI.",
+  "presentationAssets": {
+    "directory": "display/",
+    "manifest": "display/captures.json",
+    "treatment": "Separate copies with the verified compositor ICC added; original capture bytes and encoded image samples remain unchanged.",
+    "colorDiagnosis": "color-reference/proof.json",
+    "browserDecodeCheck": "display/color-check.json"
+  }
+}

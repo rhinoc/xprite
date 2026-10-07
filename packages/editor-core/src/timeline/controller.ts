@@ -1,5 +1,5 @@
 import { UINT16_MAX, UINT8_MAX } from "$/base/numeric-constants";
-import type { PixelBuffer } from "$/base/primitives";
+import { cloneStoredPixelBuffer } from "$/document/pixel-storage";
 import {
   AsepriteTagDirection,
   type AsepriteTag,
@@ -263,7 +263,7 @@ export class TimelineController {
                       : { ...cel.tilemap, tiles: cel.tilemap.tiles.slice() },
                 }
               : {}),
-            pixels: layer.flags & 16 ? cel.pixels : clonePixels(cel.pixels),
+            pixels: layer.flags & 16 ? cel.pixels : cloneStoredPixelBuffer(cel.pixels),
             ...(cel.asepriteSamples
               ? {
                   asepriteSamples:
@@ -831,8 +831,4 @@ export class TimelineController {
       true,
     );
   }
-}
-
-function clonePixels(image: PixelBuffer): PixelBuffer {
-  return { width: image.width, height: image.height, data: new Uint8ClampedArray(image.data) };
 }

@@ -1,0 +1,2722 @@
+{
+  "frames": [
+    {
+      "filename": "hello-writing 0.aseprite",
+      "frame": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 1.aseprite",
+      "frame": { "x": 128, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 2.aseprite",
+      "frame": { "x": 256, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 3.aseprite",
+      "frame": { "x": 384, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 4.aseprite",
+      "frame": { "x": 512, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 5.aseprite",
+      "frame": { "x": 640, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 6.aseprite",
+      "frame": { "x": 768, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 7.aseprite",
+      "frame": { "x": 896, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 8.aseprite",
+      "frame": { "x": 1024, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 9.aseprite",
+      "frame": { "x": 1152, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 10.aseprite",
+      "frame": { "x": 1280, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 11.aseprite",
+      "frame": { "x": 1408, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 12.aseprite",
+      "frame": { "x": 1536, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 13.aseprite",
+      "frame": { "x": 1664, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 14.aseprite",
+      "frame": { "x": 1792, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 15.aseprite",
+      "frame": { "x": 1920, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 16.aseprite",
+      "frame": { "x": 2048, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 17.aseprite",
+      "frame": { "x": 2176, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 18.aseprite",
+      "frame": { "x": 2304, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 19.aseprite",
+      "frame": { "x": 2432, "y": 0, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 20.aseprite",
+      "frame": { "x": 0, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 21.aseprite",
+      "frame": { "x": 128, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 22.aseprite",
+      "frame": { "x": 256, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 23.aseprite",
+      "frame": { "x": 384, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 24.aseprite",
+      "frame": { "x": 512, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 25.aseprite",
+      "frame": { "x": 640, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 26.aseprite",
+      "frame": { "x": 768, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 27.aseprite",
+      "frame": { "x": 896, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 28.aseprite",
+      "frame": { "x": 1024, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 29.aseprite",
+      "frame": { "x": 1152, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 30.aseprite",
+      "frame": { "x": 1280, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 31.aseprite",
+      "frame": { "x": 1408, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 32.aseprite",
+      "frame": { "x": 1536, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 33.aseprite",
+      "frame": { "x": 1664, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 34.aseprite",
+      "frame": { "x": 1792, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 35.aseprite",
+      "frame": { "x": 1920, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 36.aseprite",
+      "frame": { "x": 2048, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 37.aseprite",
+      "frame": { "x": 2176, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 38.aseprite",
+      "frame": { "x": 2304, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 39.aseprite",
+      "frame": { "x": 2432, "y": 80, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 40.aseprite",
+      "frame": { "x": 0, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 41.aseprite",
+      "frame": { "x": 128, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 42.aseprite",
+      "frame": { "x": 256, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 43.aseprite",
+      "frame": { "x": 384, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 44.aseprite",
+      "frame": { "x": 512, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 45.aseprite",
+      "frame": { "x": 640, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 46.aseprite",
+      "frame": { "x": 768, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 47.aseprite",
+      "frame": { "x": 896, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 48.aseprite",
+      "frame": { "x": 1024, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 49.aseprite",
+      "frame": { "x": 1152, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 50.aseprite",
+      "frame": { "x": 1280, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 51.aseprite",
+      "frame": { "x": 1408, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 52.aseprite",
+      "frame": { "x": 1536, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 53.aseprite",
+      "frame": { "x": 1664, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 54.aseprite",
+      "frame": { "x": 1792, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 55.aseprite",
+      "frame": { "x": 1920, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 56.aseprite",
+      "frame": { "x": 2048, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 57.aseprite",
+      "frame": { "x": 2176, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 58.aseprite",
+      "frame": { "x": 2304, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 59.aseprite",
+      "frame": { "x": 2432, "y": 160, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 60.aseprite",
+      "frame": { "x": 0, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 61.aseprite",
+      "frame": { "x": 128, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 62.aseprite",
+      "frame": { "x": 256, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 63.aseprite",
+      "frame": { "x": 384, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 64.aseprite",
+      "frame": { "x": 512, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 65.aseprite",
+      "frame": { "x": 640, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 66.aseprite",
+      "frame": { "x": 768, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 67.aseprite",
+      "frame": { "x": 896, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 68.aseprite",
+      "frame": { "x": 1024, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 69.aseprite",
+      "frame": { "x": 1152, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 70.aseprite",
+      "frame": { "x": 1280, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 71.aseprite",
+      "frame": { "x": 1408, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 72.aseprite",
+      "frame": { "x": 1536, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 73.aseprite",
+      "frame": { "x": 1664, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 74.aseprite",
+      "frame": { "x": 1792, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 75.aseprite",
+      "frame": { "x": 1920, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 76.aseprite",
+      "frame": { "x": 2048, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 77.aseprite",
+      "frame": { "x": 2176, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 78.aseprite",
+      "frame": { "x": 2304, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 79.aseprite",
+      "frame": { "x": 2432, "y": 240, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 80.aseprite",
+      "frame": { "x": 0, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 81.aseprite",
+      "frame": { "x": 128, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 82.aseprite",
+      "frame": { "x": 256, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 83.aseprite",
+      "frame": { "x": 384, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 84.aseprite",
+      "frame": { "x": 512, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 85.aseprite",
+      "frame": { "x": 640, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 86.aseprite",
+      "frame": { "x": 768, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 87.aseprite",
+      "frame": { "x": 896, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 88.aseprite",
+      "frame": { "x": 1024, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 89.aseprite",
+      "frame": { "x": 1152, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 90.aseprite",
+      "frame": { "x": 1280, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 91.aseprite",
+      "frame": { "x": 1408, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 92.aseprite",
+      "frame": { "x": 1536, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 93.aseprite",
+      "frame": { "x": 1664, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 94.aseprite",
+      "frame": { "x": 1792, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 95.aseprite",
+      "frame": { "x": 1920, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 96.aseprite",
+      "frame": { "x": 2048, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 97.aseprite",
+      "frame": { "x": 2176, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 98.aseprite",
+      "frame": { "x": 2304, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 99.aseprite",
+      "frame": { "x": 2432, "y": 320, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 100.aseprite",
+      "frame": { "x": 0, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 101.aseprite",
+      "frame": { "x": 128, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 102.aseprite",
+      "frame": { "x": 256, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 103.aseprite",
+      "frame": { "x": 384, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 104.aseprite",
+      "frame": { "x": 512, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 105.aseprite",
+      "frame": { "x": 640, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 106.aseprite",
+      "frame": { "x": 768, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 107.aseprite",
+      "frame": { "x": 896, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 108.aseprite",
+      "frame": { "x": 1024, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 109.aseprite",
+      "frame": { "x": 1152, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 110.aseprite",
+      "frame": { "x": 1280, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 111.aseprite",
+      "frame": { "x": 1408, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 112.aseprite",
+      "frame": { "x": 1536, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 113.aseprite",
+      "frame": { "x": 1664, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 114.aseprite",
+      "frame": { "x": 1792, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 115.aseprite",
+      "frame": { "x": 1920, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 116.aseprite",
+      "frame": { "x": 2048, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 117.aseprite",
+      "frame": { "x": 2176, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 118.aseprite",
+      "frame": { "x": 2304, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 119.aseprite",
+      "frame": { "x": 2432, "y": 400, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 120.aseprite",
+      "frame": { "x": 0, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 121.aseprite",
+      "frame": { "x": 128, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 122.aseprite",
+      "frame": { "x": 256, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 123.aseprite",
+      "frame": { "x": 384, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 124.aseprite",
+      "frame": { "x": 512, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 125.aseprite",
+      "frame": { "x": 640, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 126.aseprite",
+      "frame": { "x": 768, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 127.aseprite",
+      "frame": { "x": 896, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 128.aseprite",
+      "frame": { "x": 1024, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 129.aseprite",
+      "frame": { "x": 1152, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 130.aseprite",
+      "frame": { "x": 1280, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 131.aseprite",
+      "frame": { "x": 1408, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 132.aseprite",
+      "frame": { "x": 1536, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 133.aseprite",
+      "frame": { "x": 1664, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 134.aseprite",
+      "frame": { "x": 1792, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 135.aseprite",
+      "frame": { "x": 1920, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 136.aseprite",
+      "frame": { "x": 2048, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 137.aseprite",
+      "frame": { "x": 2176, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 138.aseprite",
+      "frame": { "x": 2304, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 139.aseprite",
+      "frame": { "x": 2432, "y": 480, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 140.aseprite",
+      "frame": { "x": 0, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 141.aseprite",
+      "frame": { "x": 128, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 142.aseprite",
+      "frame": { "x": 256, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 143.aseprite",
+      "frame": { "x": 384, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 144.aseprite",
+      "frame": { "x": 512, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 145.aseprite",
+      "frame": { "x": 640, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 146.aseprite",
+      "frame": { "x": 768, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 147.aseprite",
+      "frame": { "x": 896, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 148.aseprite",
+      "frame": { "x": 1024, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 149.aseprite",
+      "frame": { "x": 1152, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 150.aseprite",
+      "frame": { "x": 1280, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 151.aseprite",
+      "frame": { "x": 1408, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 152.aseprite",
+      "frame": { "x": 1536, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 153.aseprite",
+      "frame": { "x": 1664, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 154.aseprite",
+      "frame": { "x": 1792, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 155.aseprite",
+      "frame": { "x": 1920, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 156.aseprite",
+      "frame": { "x": 2048, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 157.aseprite",
+      "frame": { "x": 2176, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 158.aseprite",
+      "frame": { "x": 2304, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 159.aseprite",
+      "frame": { "x": 2432, "y": 560, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 160.aseprite",
+      "frame": { "x": 0, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 161.aseprite",
+      "frame": { "x": 128, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 162.aseprite",
+      "frame": { "x": 256, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 163.aseprite",
+      "frame": { "x": 384, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 164.aseprite",
+      "frame": { "x": 512, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 165.aseprite",
+      "frame": { "x": 640, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 166.aseprite",
+      "frame": { "x": 768, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 167.aseprite",
+      "frame": { "x": 896, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 168.aseprite",
+      "frame": { "x": 1024, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 169.aseprite",
+      "frame": { "x": 1152, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 170.aseprite",
+      "frame": { "x": 1280, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 171.aseprite",
+      "frame": { "x": 1408, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 172.aseprite",
+      "frame": { "x": 1536, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 173.aseprite",
+      "frame": { "x": 1664, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 174.aseprite",
+      "frame": { "x": 1792, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 175.aseprite",
+      "frame": { "x": 1920, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 176.aseprite",
+      "frame": { "x": 2048, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 177.aseprite",
+      "frame": { "x": 2176, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 178.aseprite",
+      "frame": { "x": 2304, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 179.aseprite",
+      "frame": { "x": 2432, "y": 640, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 180.aseprite",
+      "frame": { "x": 0, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 181.aseprite",
+      "frame": { "x": 128, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 182.aseprite",
+      "frame": { "x": 256, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 183.aseprite",
+      "frame": { "x": 384, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 184.aseprite",
+      "frame": { "x": 512, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 185.aseprite",
+      "frame": { "x": 640, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 186.aseprite",
+      "frame": { "x": 768, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 187.aseprite",
+      "frame": { "x": 896, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 188.aseprite",
+      "frame": { "x": 1024, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 189.aseprite",
+      "frame": { "x": 1152, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 190.aseprite",
+      "frame": { "x": 1280, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 191.aseprite",
+      "frame": { "x": 1408, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 192.aseprite",
+      "frame": { "x": 1536, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 193.aseprite",
+      "frame": { "x": 1664, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 194.aseprite",
+      "frame": { "x": 1792, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 195.aseprite",
+      "frame": { "x": 1920, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 196.aseprite",
+      "frame": { "x": 2048, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 197.aseprite",
+      "frame": { "x": 2176, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 198.aseprite",
+      "frame": { "x": 2304, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 199.aseprite",
+      "frame": { "x": 2432, "y": 720, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 200.aseprite",
+      "frame": { "x": 0, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 201.aseprite",
+      "frame": { "x": 128, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 202.aseprite",
+      "frame": { "x": 256, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 203.aseprite",
+      "frame": { "x": 384, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 204.aseprite",
+      "frame": { "x": 512, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 205.aseprite",
+      "frame": { "x": 640, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 206.aseprite",
+      "frame": { "x": 768, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 207.aseprite",
+      "frame": { "x": 896, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 208.aseprite",
+      "frame": { "x": 1024, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 209.aseprite",
+      "frame": { "x": 1152, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 210.aseprite",
+      "frame": { "x": 1280, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 211.aseprite",
+      "frame": { "x": 1408, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 212.aseprite",
+      "frame": { "x": 1536, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 213.aseprite",
+      "frame": { "x": 1664, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 214.aseprite",
+      "frame": { "x": 1792, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 215.aseprite",
+      "frame": { "x": 1920, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 216.aseprite",
+      "frame": { "x": 2048, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 217.aseprite",
+      "frame": { "x": 2176, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 218.aseprite",
+      "frame": { "x": 2304, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 219.aseprite",
+      "frame": { "x": 2432, "y": 800, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 220.aseprite",
+      "frame": { "x": 0, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 221.aseprite",
+      "frame": { "x": 128, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 222.aseprite",
+      "frame": { "x": 256, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 223.aseprite",
+      "frame": { "x": 384, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 224.aseprite",
+      "frame": { "x": 512, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 225.aseprite",
+      "frame": { "x": 640, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 226.aseprite",
+      "frame": { "x": 768, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 227.aseprite",
+      "frame": { "x": 896, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 228.aseprite",
+      "frame": { "x": 1024, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 229.aseprite",
+      "frame": { "x": 1152, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 230.aseprite",
+      "frame": { "x": 1280, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 231.aseprite",
+      "frame": { "x": 1408, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 232.aseprite",
+      "frame": { "x": 1536, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 233.aseprite",
+      "frame": { "x": 1664, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 234.aseprite",
+      "frame": { "x": 1792, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 235.aseprite",
+      "frame": { "x": 1920, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 236.aseprite",
+      "frame": { "x": 2048, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 237.aseprite",
+      "frame": { "x": 2176, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 238.aseprite",
+      "frame": { "x": 2304, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 239.aseprite",
+      "frame": { "x": 2432, "y": 880, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 240.aseprite",
+      "frame": { "x": 0, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 241.aseprite",
+      "frame": { "x": 128, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 242.aseprite",
+      "frame": { "x": 256, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 243.aseprite",
+      "frame": { "x": 384, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 244.aseprite",
+      "frame": { "x": 512, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 245.aseprite",
+      "frame": { "x": 640, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 246.aseprite",
+      "frame": { "x": 768, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 247.aseprite",
+      "frame": { "x": 896, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 248.aseprite",
+      "frame": { "x": 1024, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 249.aseprite",
+      "frame": { "x": 1152, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 250.aseprite",
+      "frame": { "x": 1280, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 251.aseprite",
+      "frame": { "x": 1408, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 252.aseprite",
+      "frame": { "x": 1536, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 253.aseprite",
+      "frame": { "x": 1664, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 254.aseprite",
+      "frame": { "x": 1792, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 255.aseprite",
+      "frame": { "x": 1920, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 256.aseprite",
+      "frame": { "x": 2048, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 257.aseprite",
+      "frame": { "x": 2176, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 258.aseprite",
+      "frame": { "x": 2304, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 259.aseprite",
+      "frame": { "x": 2432, "y": 960, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 260.aseprite",
+      "frame": { "x": 0, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 261.aseprite",
+      "frame": { "x": 128, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 262.aseprite",
+      "frame": { "x": 256, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 263.aseprite",
+      "frame": { "x": 384, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 264.aseprite",
+      "frame": { "x": 512, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 265.aseprite",
+      "frame": { "x": 640, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 266.aseprite",
+      "frame": { "x": 768, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 267.aseprite",
+      "frame": { "x": 896, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 268.aseprite",
+      "frame": { "x": 1024, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 269.aseprite",
+      "frame": { "x": 1152, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 270.aseprite",
+      "frame": { "x": 1280, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 271.aseprite",
+      "frame": { "x": 1408, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 272.aseprite",
+      "frame": { "x": 1536, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 273.aseprite",
+      "frame": { "x": 1664, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 274.aseprite",
+      "frame": { "x": 1792, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 275.aseprite",
+      "frame": { "x": 1920, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 276.aseprite",
+      "frame": { "x": 2048, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 277.aseprite",
+      "frame": { "x": 2176, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 278.aseprite",
+      "frame": { "x": 2304, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 279.aseprite",
+      "frame": { "x": 2432, "y": 1040, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 280.aseprite",
+      "frame": { "x": 0, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 281.aseprite",
+      "frame": { "x": 128, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 282.aseprite",
+      "frame": { "x": 256, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 283.aseprite",
+      "frame": { "x": 384, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 284.aseprite",
+      "frame": { "x": 512, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 285.aseprite",
+      "frame": { "x": 640, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 286.aseprite",
+      "frame": { "x": 768, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 287.aseprite",
+      "frame": { "x": 896, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 288.aseprite",
+      "frame": { "x": 1024, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 289.aseprite",
+      "frame": { "x": 1152, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 290.aseprite",
+      "frame": { "x": 1280, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 291.aseprite",
+      "frame": { "x": 1408, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 292.aseprite",
+      "frame": { "x": 1536, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 293.aseprite",
+      "frame": { "x": 1664, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 294.aseprite",
+      "frame": { "x": 1792, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 295.aseprite",
+      "frame": { "x": 1920, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 296.aseprite",
+      "frame": { "x": 2048, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    },
+    {
+      "filename": "hello-writing 297.aseprite",
+      "frame": { "x": 2176, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 298.aseprite",
+      "frame": { "x": 2304, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 299.aseprite",
+      "frame": { "x": 2432, "y": 1120, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 33
+    },
+    {
+      "filename": "hello-writing 300.aseprite",
+      "frame": { "x": 0, "y": 1200, "w": 128, "h": 80 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 80 },
+      "sourceSize": { "w": 128, "h": 80 },
+      "duration": 34
+    }
+  ],
+  "meta": {
+    "app": "https://www.aseprite.org/",
+    "version": "1.3.18.5-5-g1af985278-dev",
+    "image": "writing.png",
+    "format": "RGBA8888",
+    "size": { "w": 2560, "h": 1280 },
+    "scale": "1",
+    "layers": [{ "name": "Hello", "opacity": 255, "blendMode": "normal" }]
+  }
+}

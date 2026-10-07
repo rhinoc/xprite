@@ -1,5 +1,13 @@
 [
   {
+    "directory": "services/share",
+    "source": "src",
+    "tsconfig": "tsconfig.json",
+    "aliases": {
+      "$/": "src"
+    }
+  },
+  {
     "directory": "apps/editor",
     "source": "src",
     "tsconfig": "tsconfig.json",
@@ -15,6 +23,24 @@
     "aliases": {
       "$/": "src",
       "$assets/": "../../packages/ui/assets"
+    }
+  },
+  {
+    "directory": "apps/tools",
+    "source": "src",
+    "tsconfig": "tsconfig.json",
+    "aliases": {
+      "$/": "src",
+      "$assets/": "assets"
+    }
+  },
+  {
+    "directory": "apps/growth",
+    "source": "src",
+    "tsconfig": "tsconfig.json",
+    "aliases": {
+      "$/": "src",
+      "$content/": "content"
     }
   },
   {
@@ -40,6 +66,23 @@
     "tsconfig": "tsconfig.browser.json",
     "aliases": {
       "$/": "browser"
+    }
+  },
+  {
+    "directory": "packages/editor-ui",
+    "source": "src",
+    "tsconfig": "tsconfig.json",
+    "aliases": {
+      "$/": "src"
+    }
+  },
+  {
+    "directory": "apps/wechat",
+    "source": "src",
+    "tsconfig": "tsconfig.json",
+    "aliases": {
+      "$/": "src",
+      "$assets/": "../editor/assets"
     }
   }
 ]

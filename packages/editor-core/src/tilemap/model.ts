@@ -1,4 +1,6 @@
+import { MAX_DOCUMENT_PIXEL_BYTES } from "$/base/image-limits";
 import { MAX_IMAGE_PIXELS } from "$/base/image-limits";
+import { encodedPixels } from "$/document/pixel-storage";
 import { assertDimension, assertPixelCount } from "$/document/pixel-validation";
 import type { AsepriteTileset } from "$/import-export/aseprite/model";
 import { TilesetMode, type TilemapImage } from "$/tilemap/types";
@@ -857,11 +859,12 @@ export function assertTilemapTimeline(t: SpriteTimeline): void {
     arrays = new Set<ArrayBufferView>(),
     maps = new Map<TilemapImage, Set<AsepriteTileset>>();
   let bytes = 0;
+  const deferredImages = new Set<PixelBuffer>();
   const retain = (data: ArrayBufferView) => {
     if (arrays.has(data)) return;
     arrays.add(data);
     bytes += data.byteLength;
-    if (bytes > MAX_IMAGE_PIXELS * 4)
+    if (bytes > MAX_DOCUMENT_PIXEL_BYTES)
       throw new RangeError("Tilemap document memory exceeds the editor limit");
   };
   for (const set of t.tilesets ?? []) {
@@ -901,7 +904,14 @@ export function assertTilemapTimeline(t: SpriteTimeline): void {
     for (const frame of t.frames) {
       const cel = frame.cels[li];
       if (!cel) continue;
-      retain(cel.pixels.data);
+      if (encodedPixels(cel.pixels)) {
+        if (!deferredImages.has(cel.pixels)) {
+          deferredImages.add(cel.pixels);
+          bytes += cel.pixels.width * cel.pixels.height * 4;
+          if (bytes > MAX_DOCUMENT_PIXEL_BYTES)
+            throw new RangeError("Tilemap document memory exceeds the editor limit");
+        }
+      } else retain(cel.pixels.data);
       const map = cel.tilemap;
       if ((layer.kind === "tilemap" && !map) || (map && !set))
         throw new Error("Cel type does not match Tilemap layer");

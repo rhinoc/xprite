@@ -8,12 +8,13 @@ This license applies to the Xprite brand icon, logo and mascot artwork in:
 
 - apps/editor/assets/examples/xprite/xprite.ase (the brand artwork source project)
 - apps/editor/assets/examples/xprite/xprite-preview.webp
-- apps/editor/assets/public/icon.svg
+- apps/growth/public/icon.svg
+- apps/growth/public/menu-icon.svg
 - apps/editor/assets/public/icon-192.png
 - apps/editor/assets/public/icon-512.png
-- apps/editor/assets/public/favicon.ico
+- apps/growth/public/favicon.ico
 - apps/editor/assets/public/favicon-16.png
-- apps/editor/assets/public/favicon-32.png
+- apps/growth/public/favicon-32.png
 - apps/editor/assets/public/startup-loading.webp
 - apps/editor/assets/home/icon-frame-1.webp
 - apps/editor/assets/home/icon-frame-2.webp
@@ -21,9 +22,9 @@ This license applies to the Xprite brand icon, logo and mascot artwork in:
 Copies, resized versions and animation frames of these brand assets, including
 scripts/marketing-cover/inputs/icon.png, are covered by the same terms.
 
-The bundled example is the source project for the Xprite brand icon and
-favicons. Its inclusion as an editable example does not grant an open artwork
-license. The source project and its previews, exports and animation frames
+The xprite.ase source project is the artwork for the Xprite brand icon and
+favicons. Its inclusion does not grant an open artwork license.
+The source project and its previews, exports and animation frames
 are covered by this same brand asset license.
 
 These assets are licensed separately from the software. They are not covered

@@ -1,0 +1,118 @@
+.layerRow {
+  position: relative;
+  flex: 0 0 auto;
+}
+.layerRow > canvas {
+  display: block;
+}
+.layerNameHit {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: var(--ui-cursor-default, default);
+}
+.layerNameHit:focus-visible,
+.hit:focus-visible {
+  outline: 1px solid var(--ui-focus-ring-color);
+  outline-offset: -1px;
+}
+.timeline {
+  position: relative;
+  min-width: 0;
+  flex: 1;
+}
+.scrollPlane {
+  position: relative;
+}
+.surface {
+  position: sticky;
+  left: 0;
+  display: block;
+}
+.selectionSurface {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+.hit {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: var(--ui-cursor-default, default);
+  touch-action: manipulation;
+}
+.dock {
+  position: relative;
+  display: flex;
+  flex: 0 1 auto;
+  min-height: 104px;
+  min-width: 0;
+}
+.dock::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border: var(--timeline-grid-edge, 0px) solid var(--timeline-grid-ink, transparent);
+  pointer-events: none;
+}
+.layerViewport {
+  align-self: flex-start;
+  flex: 0 0 clamp(144px, 28%, 240px);
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  overscroll-behavior: none;
+}
+.layerViewport::-webkit-scrollbar {
+  display: none;
+}
+.layers {
+  position: relative;
+}
+.tagSpacer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+}
+.layerHeader {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  z-index: 2;
+}
+.headerSkin {
+  position: absolute;
+  inset: 0;
+}
+.layerSlot {
+  position: absolute;
+  left: 0;
+}
+@media (max-width: 700px) {
+  .layerViewport {
+    flex-basis: 144px;
+  }
+}
+
+.headerHit {
+  z-index: 2;
+}
+
+.layerViewport:focus-visible,
+.timeline > [data-slot="scroll-viewport"]:focus-visible {
+  outline: 2px solid var(--ui-focus-ring-color);
+  outline-offset: -2px;
+}

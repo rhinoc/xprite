@@ -1,4 +1,5 @@
 export { cn } from "$/base/utils/cn";
+export { connectWindowWorkspace } from "$/base/utils/window-workspace";
 export * from "$/base/utils/dom-geometry";
 export { formatShortcutForPlatform } from "$/base/utils/format-shortcut";
 export { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";

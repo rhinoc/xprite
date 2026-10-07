@@ -19,12 +19,19 @@ import {
   type PlaybackSettings,
 } from "$/managers/timeline/timeline-presentation";
 import { UINT8_MAX } from "$/managers/timeline/timeline-presentation";
-import { Button, Input, Label } from "@xprite/ui";
-import { Checkbox, CheckboxVariant } from "@xprite/ui";
-import { Slider } from "@xprite/ui";
-import { Divider } from "@xprite/ui";
-import { type SurfaceBounds } from "@xprite/ui";
-import { Menu, type MenuItem } from "@xprite/ui";
+import {
+  Button,
+  Input,
+  Text,
+  TextVariant,
+  Checkbox,
+  CheckboxVariant,
+  Slider,
+  Divider,
+  type SurfaceBounds,
+  Menu,
+  type MenuItem,
+} from "@xprite/ui";
 import { UiPart } from "@xprite/ui/assets";
 import { surfaceLayout } from "@xprite/ui/canvas";
 import { clientRect } from "@xprite/ui/utils";
@@ -183,7 +190,12 @@ export function OnionSkinSettingsPanel({
                 onClick={() => onTimelinePositionChange?.(timelineDockPositions[i])}
               />
             ))}
-            <Label {...common} bounds={b(92, 30, 102, 30)} text="First Frame:" />
+            <Text
+              variant={TextVariant.Control}
+              {...common}
+              bounds={b(92, 30, 102, 30)}
+              text="First Frame:"
+            />
             <Input
               {...common}
               bounds={b(204, 30, 96, 30)}
@@ -211,7 +223,12 @@ export function OnionSkinSettingsPanel({
             />
             {timelinePanelPreferences.thumbnailsEnabled && (
               <>
-                <Label {...common} bounds={b(92, 96, 102, 30)} text="Thumbnail Size:" />
+                <Text
+                  variant={TextVariant.Control}
+                  {...common}
+                  bounds={b(92, 96, 102, 30)}
+                  text="Thumbnail Size:"
+                />
                 <Slider
                   {...common}
                   bounds={b(204, 96, 236, 30)}
@@ -290,7 +307,12 @@ export function OnionSkinSettingsPanel({
               pushedPart="button_selected"
               onClick={() => onChange(resetOnionSkinOptions(value))}
             />
-            <Label {...common} bounds={b(2, 194 + thumbnailExtra, 110, 32)} text="Opacity:" />
+            <Text
+              variant={TextVariant.Control}
+              {...common}
+              bounds={b(2, 194 + thumbnailExtra, 110, 32)}
+              text="Opacity:"
+            />
             <Slider
               {...common}
               bounds={b(122, 194 + thumbnailExtra, 318, 32)}
@@ -302,7 +324,12 @@ export function OnionSkinSettingsPanel({
               aria-label="Onion skin opacity"
               onValueChange={(opacityBase) => patch({ opacityBase })}
             />
-            <Label {...common} bounds={b(2, 234 + thumbnailExtra, 110, 32)} text="Opacity Step:" />
+            <Text
+              variant={TextVariant.Control}
+              {...common}
+              bounds={b(2, 234 + thumbnailExtra, 110, 32)}
+              text="Opacity Step:"
+            />
             <Slider
               {...common}
               bounds={b(122, 234 + thumbnailExtra, 318, 32)}

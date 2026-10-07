@@ -1,0 +1,11 @@
+GSAP 3.15.0
+https://gsap.com
+
+Copyright 2008-2026, GreenSock. All rights reserved.
+Author: Jack Doyle, jack@greensock.com
+
+Subject to the Standard "No Charge" GSAP License:
+https://gsap.com/standard-license
+
+GSAP retains its own license separately from the application's license.
+It is used for the public showcase's title and button entrance and positioning animations.

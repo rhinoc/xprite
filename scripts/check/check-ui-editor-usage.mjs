@@ -1,37 +1,99 @@
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import ts from "typescript-compiler-api";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const editorDir = path.join(rootDir, "apps/editor/src");
 const uiDir = path.join(rootDir, "packages/ui/src");
 const uiEntryPath = path.join(uiDir, "index.ts");
-const editorConfigPath = path.join(rootDir, "apps/editor/tsconfig.json");
-
-const configRead = ts.readConfigFile(editorConfigPath, ts.sys.readFile);
-if (configRead.error) {
-  throw new Error(ts.flattenDiagnosticMessageText(configRead.error.messageText, "\n"));
-}
-
-const parsedConfig = ts.parseJsonConfigFileContent(
-  configRead.config,
-  ts.sys,
-  path.dirname(editorConfigPath),
-  {},
-  editorConfigPath,
+const pageApplications = [
+  {
+    directory: "apps/editor",
+    entries: ["src/main.tsx", "src/adapters/minitool/main.tsx"],
+  },
+  {
+    directory: "apps/tools",
+    entries: [
+      "src/main.tsx",
+      "src/tools-main.tsx",
+      "src/gif-main.tsx",
+      "src/animal-crossing-main.tsx",
+      "src/ssg.tsx",
+    ],
+  },
+  {
+    directory: "apps/growth",
+    entries: ["src/main.tsx", "src/public-main.tsx", "src/public-ssg.tsx"],
+  },
+  {
+    directory: "apps/gallery",
+    entries: ["src/main.tsx"],
+  },
+];
+// Gallery chrome is real UI, but its configuration-driven component cards are demos.
+const componentPreviewBoundary = {
+  filename: path.join(rootDir, "apps/gallery/src/Gallery.tsx"),
+  name: "GalleryCard",
+};
+const pageDirectories = pageApplications.map(({ directory }) =>
+  path.join(rootDir, directory, "src"),
 );
+const renderDirectories = [
+  ...pageDirectories,
+  uiDir,
+  path.join(rootDir, "packages/editor-ui/src"),
+  path.join(rootDir, "packages/site-shell/src"),
+];
+const aliasScopes = JSON.parse(
+  fs.readFileSync(path.join(rootDir, "infra/package-import-scopes.json"), "utf8"),
+).map(({ directory, source, aliases }) => ({
+  source: path.join(rootDir, directory, source),
+  aliases: Object.entries(aliases)
+    .sort(([left], [right]) => right.length - left.length)
+    .map(([prefix, target]) => [prefix, path.resolve(rootDir, directory, target)]),
+}));
+
+const configurations = pageApplications.map(({ directory }) => {
+  const configPath = path.join(rootDir, directory, "tsconfig.json");
+  const read = ts.readConfigFile(configPath, ts.sys.readFile);
+  if (read.error) throw new Error(ts.flattenDiagnosticMessageText(read.error.messageText, "\n"));
+  return ts.parseJsonConfigFileContent(
+    read.config,
+    ts.sys,
+    path.dirname(configPath),
+    {},
+    configPath,
+  );
+});
 const paths = {
-  ...parsedConfig.options.paths,
+  ...configurations[0].options.paths,
   "@xprite/ui": [uiEntryPath],
   "@xprite/ui/*": [path.join(uiDir, "*")],
+  "@xprite/editor-ui": [path.join(rootDir, "packages/editor-ui/src/index.ts")],
+  "@xprite/editor-ui/*": [path.join(rootDir, "packages/editor-ui/src/*")],
+  "@xprite/editor-core": [path.join(rootDir, "packages/editor-core/src/index.ts")],
+  "@xprite/editor-core/*": [path.join(rootDir, "packages/editor-core/src/*")],
+  "@xprite/bedrock/*": [path.join(rootDir, "packages/bedrock/*")],
 };
+const options = { ...configurations[0].options, noEmit: true, paths };
+const host = ts.createCompilerHost(options);
+const resolveModule = (name, importer) => {
+  const scope = aliasScopes.find(({ source }) => isWithin(source, importer));
+  const alias = scope?.aliases.find(([prefix]) => name.startsWith(prefix));
+  const target = alias ? path.join(alias[1], name.slice(alias[0].length)) : name;
+  return ts.resolveModuleName(target, importer, options, ts.sys).resolvedModule;
+};
+host.resolveModuleNames = (names, importer) => names.map((name) => resolveModule(name, importer));
 const program = ts.createProgram({
   rootNames: [
-    ...parsedConfig.fileNames.filter((file) => !/\.test\.[cm]?tsx?$/.test(file)),
+    ...configurations.flatMap(({ fileNames }) =>
+      fileNames.filter((file) => !/\.(?:test|spec)\.[cm]?tsx?$/.test(file)),
+    ),
     uiEntryPath,
   ],
-  options: { ...parsedConfig.options, noEmit: true, paths },
+  options,
+  host,
 });
 const checker = program.getTypeChecker();
 
@@ -92,12 +154,10 @@ function findLazyTargets(symbol) {
     };
     visit(declaration.initializer);
     for (const specifier of imports) {
-      const resolved = ts.resolveModuleName(
+      const resolved = resolveModule(
         specifier,
         declaration.getSourceFile().fileName,
-        program.getCompilerOptions(),
-        ts.sys,
-      ).resolvedModule?.resolvedFileName;
+      )?.resolvedFileName;
       const moduleFile = resolved && program.getSourceFile(resolved);
       const moduleSymbol = moduleFile && checker.getSymbolAtLocation(moduleFile);
       if (!moduleSymbol) continue;
@@ -167,16 +227,21 @@ function getComponentPropsType(symbol) {
     canonicalSymbol(symbol)?.valueDeclaration ?? canonicalSymbol(symbol)?.declarations?.[0];
   if (!declaration) return undefined;
   const componentType = checker.getTypeOfSymbolAtLocation(canonicalSymbol(symbol), declaration);
-  const signature = componentType.getCallSignatures()[0];
-  const propsParameter = signature?.getParameters()[0];
-  if (!propsParameter) return undefined;
-  return checker.getTypeOfSymbolAtLocation(
-    propsParameter,
-    propsParameter.valueDeclaration ?? declaration,
-  );
+  const propsTypes = componentType.getCallSignatures().flatMap((signature) => {
+    const propsParameter = signature.getParameters()[0];
+    return propsParameter
+      ? [
+          checker.getTypeOfSymbolAtLocation(
+            propsParameter,
+            propsParameter.valueDeclaration ?? declaration,
+          ),
+        ]
+      : [];
+  });
+  return propsTypes.length ? checker.getUnionType(propsTypes) : undefined;
 }
 
-function getVariantDefault(functionNode, propsType, variantValues) {
+function getVariantDefaults(functionNode, propsType, variantValues) {
   const parameter = functionNode?.parameters[0];
   const patterns = [];
   if (parameter && ts.isObjectBindingPattern(parameter.name)) patterns.push(parameter.name);
@@ -206,11 +271,37 @@ function getVariantDefault(functionNode, propsType, variantValues) {
       if (!ts.isIdentifier(propertyName) || propertyName.text !== "variant" || !binding.initializer)
         continue;
       const values = typeLiteralValues(checker.getTypeAtLocation(binding.initializer));
-      if (values.length === 1) return values[0];
+      if (values.length) return values;
     }
   }
 
-  if (!propsType) return undefined;
+  // A theme-dependent default can be computed in the component body, e.g.
+  // suppliedVariant ?? theme.areaVariant ?? "mini". Omitted props are empty here.
+  const context = makeComponentContext(functionNode, []);
+  if (context.variantSymbols.size && functionNode.body && ts.isBlock(functionNode.body)) {
+    for (const statement of functionNode.body.statements) {
+      if (!ts.isVariableStatement(statement)) continue;
+      for (const declaration of statement.declarationList.declarations) {
+        if (!declaration.initializer) continue;
+        let usesVariant = false;
+        const visit = (node) => {
+          if (
+            ts.isIdentifier(node) &&
+            context.variantSymbols.has(canonicalSymbol(checker.getSymbolAtLocation(node)))
+          )
+            usesVariant = true;
+          ts.forEachChild(node, visit);
+        };
+        visit(declaration.initializer);
+        if (!usesVariant) continue;
+        const defaults = literalValuesFromExpression(declaration.initializer, context);
+        if (defaults.length && defaults.every((value) => variantValues.includes(value)))
+          return defaults;
+      }
+    }
+  }
+
+  if (!propsType) return [];
   const constituents = propsType.isUnion() ? propsType.types : [propsType];
   for (const constituent of constituents) {
     const property = checker.getPropertyOfType(constituent, "variant");
@@ -220,9 +311,9 @@ function getVariantDefault(functionNode, propsType, variantValues) {
       property.valueDeclaration ?? functionNode ?? uiEntryPath,
     );
     const defaults = typeLiteralValues(propertyType);
-    if (defaults.length === 1 && variantValues.includes(defaults[0])) return defaults[0];
+    if (defaults.length === 1 && variantValues.includes(defaults[0])) return defaults;
   }
-  return undefined;
+  return [];
 }
 
 const uiEntry = program.getSourceFile(uiEntryPath);
@@ -251,16 +342,30 @@ for (const exportedSymbol of checker.getExportsOfModule(uiModule)) {
     functionNode,
     propsType,
     variants,
-    defaultVariant: getVariantDefault(functionNode, propsType, variants),
+    defaultVariants: getVariantDefaults(functionNode, propsType, variants),
   });
 }
 
 function sourceKind(symbol) {
   const declarations = canonicalSymbol(symbol)?.declarations ?? [];
+  if (
+    declarations.some(
+      (declaration) =>
+        path.resolve(declaration.getSourceFile().fileName) === componentPreviewBoundary.filename &&
+        declaration.name?.text === componentPreviewBoundary.name,
+    )
+  )
+    return undefined;
   if (declarations.some((declaration) => isWithin(uiDir, declaration.getSourceFile().fileName)))
     return "ui";
-  if (declarations.some((declaration) => isWithin(editorDir, declaration.getSourceFile().fileName)))
-    return "editor";
+  if (
+    declarations.some((declaration) =>
+      renderDirectories.some((directory) =>
+        isWithin(directory, declaration.getSourceFile().fileName),
+      ),
+    )
+  )
+    return "page";
   return undefined;
 }
 
@@ -401,7 +506,7 @@ function jsxVariantValues(attributes, context) {
 function getComponentCallVariant(component, attributes, parentContext) {
   const { hasVariant, values } = jsxVariantValues(attributes, parentContext);
   if (hasVariant && values.length) return values;
-  if (!hasVariant && component?.defaultVariant) return [component.defaultVariant];
+  if (!hasVariant && component?.defaultVariants.length) return component.defaultVariants;
   if (!hasVariant && component?.variants.length === 1) return [component.variants[0]];
   if (!hasVariant) return undefined;
   return values;
@@ -428,12 +533,20 @@ function getJsxParts(node) {
   return { tagName: node.tagName, attributes: node.attributes };
 }
 
-function findEditorRoots(mainFile) {
+function findPageRoots(mainFile) {
   const roots = new Set();
+  const addRoot = (symbol) => {
+    if (symbol && sourceKind(symbol) && findFunctionLike(symbol)) roots.add(symbol);
+  };
   const visit = (node) => {
     if (ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node)) {
       const symbol = getJsxNameSymbol(getJsxParts(node).tagName);
-      if (symbol && sourceKind(symbol) === "editor" && findFunctionLike(symbol)) roots.add(symbol);
+      addRoot(symbol);
+    }
+    // Tool entry points pass a JSX-producing application factory to the bootstrap.
+    if (ts.isCallExpression(node)) {
+      addRoot(getJsxNameSymbol(node.expression));
+      for (const argument of node.arguments) addRoot(getJsxNameSymbol(argument));
     }
     ts.forEachChild(node, visit);
   };
@@ -441,16 +554,16 @@ function findEditorRoots(mainFile) {
   return [...roots];
 }
 
-const mainPath = path.join(editorDir, "main.tsx");
-const mainFile = program.getSourceFile(mainPath);
-if (!mainFile)
-  throw new Error("Could not load apps/editor/src/main.tsx with the TypeScript program.");
-const entryFiles = program
-  .getSourceFiles()
-  .filter(
-    (file) => isWithin(editorDir, file.fileName) && path.basename(file.fileName) === "main.tsx",
-  );
-const roots = [...new Set(entryFiles.flatMap(findEditorRoots))];
+const entryPaths = pageApplications.flatMap(({ directory, entries }) =>
+  entries.map((entry) => path.join(rootDir, directory, entry)),
+);
+const entryFiles = entryPaths.map((filename) => {
+  const file = program.getSourceFile(filename);
+  if (!file) throw new Error(`Could not load page entry: ${path.relative(rootDir, filename)}.`);
+  return file;
+});
+const missingEntries = entryFiles.filter((file) => !findPageRoots(file).length);
+const roots = [...new Set(entryFiles.flatMap(findPageRoots))];
 const usedComponents = new Set();
 const usedVariants = new Map();
 const unresolvedVariantUses = [];
@@ -460,6 +573,7 @@ const visited = new Set();
 while (queue.length) {
   const task = queue.shift();
   const symbol = canonicalSymbol(task.symbol);
+  if (!sourceKind(symbol)) continue;
   const functionNode = findFunctionLike(symbol);
   if (!functionNode) {
     for (const target of findLazyTargets(symbol))
@@ -468,8 +582,8 @@ while (queue.length) {
   }
   const publicComponent = publicComponents.get(symbol);
   let variantValues = task.variantValues;
-  if (!variantValues?.length && publicComponent?.defaultVariant)
-    variantValues = [publicComponent.defaultVariant];
+  if (!variantValues?.length && publicComponent?.defaultVariants.length)
+    variantValues = publicComponent.defaultVariants;
   const visitKey = serialForSymbol(symbol) + "::" + [...(variantValues ?? [])].sort().join(",");
   if (visited.has(visitKey)) continue;
   visited.add(visitKey);
@@ -548,19 +662,21 @@ for (const component of publicComponents.values()) {
 missingVariants.sort();
 
 if (roots.length && missingVariants.length) {
-  console.warn("\nOptional public variants not used by the Editor (informational):");
+  console.warn("\nOptional public variants not used by production pages (informational):");
   for (const name of missingVariants) console.warn("  - " + name);
 }
 
-if (!roots.length) {
-  console.error(
-    "UI Editor usage check failed: no Editor component was found in apps/editor/src/main.tsx.",
-  );
+console.log(
+  "UI usage scope: editor, tools, growth and gallery chrome; configuration-driven gallery cards excluded.",
+);
+if (!roots.length || missingEntries.length) {
+  console.error("UI usage check failed: page entries without a reachable rendering component:");
+  for (const file of missingEntries) console.error("  - " + path.relative(rootDir, file.fileName));
   process.exitCode = 1;
 } else if (missingComponents.length || unresolvedVariantUses.length) {
-  console.error("UI Editor usage check failed.");
+  console.error("UI usage check failed.");
   if (missingComponents.length) {
-    console.error("\nPublic components not reachable from the Editor render graph:");
+    console.error("\nPublic components not reachable from production page render graphs:");
     for (const name of missingComponents) console.error("  - " + name);
   }
   if (unresolvedVariantUses.length) {
@@ -570,7 +686,7 @@ if (!roots.length) {
   process.exitCode = 1;
 } else {
   console.log(
-    "UI Editor usage check passed: " +
+    "UI usage check passed: " +
       publicComponents.size +
       " public components are reachable; " +
       [...usedVariants.values()].reduce((sum, variants) => sum + variants.size, 0) +
@@ -579,6 +695,6 @@ if (!roots.length) {
         (sum, component) => sum + component.variants.length,
         0,
       ) +
-      " declared variants are used by the Editor.",
+      " declared variants are used by page UI (component previews excluded).",
   );
 }

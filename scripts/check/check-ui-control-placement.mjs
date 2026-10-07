@@ -14,12 +14,12 @@ const source = `
 import type { ButtonProps } from "$/components/button";
 import type { CheckboxProps } from "$/components/checkbox";
 import type { InputProps } from "$/components/input";
-import type { LabelProps } from "$/components/label";
+import { TextVariant, type ControlTextProps } from "$/components/text";
 import type { ComboboxProps } from "$/components/combobox";
 import type { SliderProps } from "$/components/slider";
 import type { CurveEditorProps } from "$/components/curve-editor";
 import type { DividerProps } from "$/components/divider";
-import type { StandardListBoxProps } from "$/components/list-box";
+import type { SingleListBoxProps } from "$/components/list-box";
 import type { PositionedControlPlacement } from "$/components/control-flow";
 
 const box = { x: 0, y: 0, width: 100, height: 32 };
@@ -36,13 +36,13 @@ const list = { items: [], value: "", onValueChange: change, "aria-label": "List"
 ({ ...checkbox } satisfies CheckboxProps);
 ({ ...checkbox, bounds: box } satisfies CheckboxProps);
 ({ value: "", pixelSize: size } satisfies InputProps);
-({ text: "Label" } satisfies LabelProps);
+({ variant: TextVariant.Control, text: "Label" } satisfies ControlTextProps);
 ({ ...combo, pixelSize: size } satisfies ComboboxProps);
 ({ ...scalar, bounds: box } satisfies SliderProps);
 ({ ...scalar, pixelSize: size } satisfies SliderProps);
 ({ ...curve, pixelSize: size } satisfies CurveEditorProps);
 ({ pixelSize: size } satisfies DividerProps);
-({ ...list, pixelSize: size } satisfies StandardListBoxProps);
+({ ...list, pixelSize: size } satisfies SingleListBoxProps);
 
 // @ts-expect-error An authored origin needs complete bounds.
 ({ relativeTo: { x: 0, y: 0 } } satisfies ButtonProps);
@@ -57,7 +57,7 @@ const list = { items: [], value: "", onValueChange: change, "aria-label": "List"
 // @ts-expect-error A flow checkbox cannot use an authored origin.
 ({ ...checkbox, relativeTo: box } satisfies CheckboxProps);
 // @ts-expect-error A flow label cannot use an authored origin.
-({ text: "Label", relativeTo: box } satisfies LabelProps);
+({ variant: TextVariant.Control, text: "Label", relativeTo: box } satisfies ControlTextProps);
 // @ts-expect-error A flow combobox cannot use an authored origin.
 ({ ...combo, relativeTo: box } satisfies ComboboxProps);
 // @ts-expect-error A slider requires coordinate bounds or explicit flow size.
@@ -67,7 +67,7 @@ const list = { items: [], value: "", onValueChange: change, "aria-label": "List"
 // @ts-expect-error A divider requires coordinate bounds or explicit flow size.
 ({} satisfies DividerProps);
 // @ts-expect-error A list requires coordinate bounds or explicit flow size.
-({ ...list } satisfies StandardListBoxProps);
+({ ...list } satisfies SingleListBoxProps);
 `;
 const options = {
   ...parsed.options,

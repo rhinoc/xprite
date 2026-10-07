@@ -1,0 +1,17 @@
+Apple classic Macintosh desktop pattern artwork
+Copyright Apple Computer, Inc. All rights reserved.
+
+assets/patterns/macintosh/ contains decoded repeating patterns from System 7.0,
+System 7.5 and Mac OS 8.0 PAT# / ppat resources. These resources are not original
+Xprite artwork and are not relicensed under the package's MIT License.
+Availability in a preservation archive is not a grant of permission from Apple.
+
+Preservation sources:
+https://github.com/mihaip/infinite-mac/tree/main/Images
+https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.8.0.HD.dsk.zip
+
+provenance.json records source resource IDs, exact repeating-period extraction,
+related duplicate/inverted variants, dimensions and output hashes. Fixed-color
+PNG files retain source RGB16 values; two-color SVG masks preserve pixel shape.
+Their optional runtime colors are chosen by the user, not attributed to Apple.
+The program and stylesheet are separate from the underlying pattern artwork.

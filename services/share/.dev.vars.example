@@ -1,0 +1,2 @@
+# Copy to .dev.vars and fill with a random secret (for example openssl rand -hex 32).
+IP_HASH_SECRET=

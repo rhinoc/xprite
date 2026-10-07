@@ -4,11 +4,12 @@ import { useWorkspaceLayoutConfiguration } from "$/components/shared/editor-layo
 import { BackupIndicator } from "$/components/shell/backup-indicator";
 import { FunctionalStatusText } from "$/components/shell/live-status";
 import type { HomeViewFooterSegment } from "$/components/workspace/home-view-base";
+import { tUi } from "$/i18n";
 import { stepAsepriteZoom } from "$/managers/canvas/canvas-manager";
 import type { useEditor } from "$/managers/editor/editor-state-manager";
 import { useEditorDocumentView } from "$/managers/shell/editor-document-view";
 import { parseEditorColor } from "$/managers/tools/color-control";
-import { Button, Input, Label, ScrollArea, Text, TextVariant, useUi } from "@xprite/ui";
+import { Button, Input, ScrollArea, Text, TextVariant, useUi } from "@xprite/ui";
 import { UiIcon } from "@xprite/ui/assets";
 
 import styles from "$/components/shell/status-bar/status-bar.module.css";
@@ -21,6 +22,9 @@ export function StatusBar({
   directory,
   dimensions,
   backupActive = false,
+  recoveryProblem,
+  retryRecovery,
+  saveRecoveryCopy,
   about,
 }: {
   editor: Editor;
@@ -28,6 +32,9 @@ export function StatusBar({
   directory: string;
   dimensions: string;
   backupActive?: boolean;
+  recoveryProblem?: string;
+  retryRecovery?: () => void;
+  saveRecoveryCopy?: () => void;
   about?: {
     attribution: readonly HomeViewFooterSegment[];
     profile: string;
@@ -65,8 +72,23 @@ export function StatusBar({
         event.stopPropagation();
       }}
     >
-      <div className="xse-status-indicators">
-        {about ? (
+      <div
+        className="xse-status-indicators"
+        data-recovery-error={recoveryProblem ? "true" : undefined}
+      >
+        {recoveryProblem ? (
+          <div className={styles.recoveryProblem} role="status">
+            <Text
+              variant={TextVariant.Control}
+              text={recoveryProblem}
+              color={uiStyle.colors.status_bar_text}
+            />
+            <Button onClick={retryRecovery} disabled={backupActive}>
+              {tUi("ui.recovery.retry.save")}
+            </Button>
+            {hasDocument && <Button onClick={saveRecoveryCopy}>{tUi("ui.save.as")}</Button>}
+          </div>
+        ) : about ? (
           <div className={styles.about}>
             {about.attribution.map((segment, index) => {
               const label = (
@@ -112,7 +134,8 @@ export function StatusBar({
             relativeTo={{ x: 0, y: 0 }}
           />
         ) : (
-          <Label
+          <Text
+            variant={TextVariant.Control}
             text={
               notice ||
               (!showDocumentName

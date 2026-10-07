@@ -17,6 +17,8 @@ const aliasScopes = JSON.parse(
 const configs = [
   "apps/editor/tsconfig.json",
   "apps/gallery/tsconfig.json",
+  "apps/tools/tsconfig.json",
+  "packages/editor-ui/tsconfig.json",
   "packages/ui/tsconfig.json",
   "packages/bedrock/tsconfig.browser.json",
   "packages/bedrock/tsconfig.common.json",

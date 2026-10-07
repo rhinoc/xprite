@@ -1,0 +1,39 @@
+{
+  "license": "https://unsplash.com/license",
+  "verifiedAt": "2026-10-04",
+  "usage": "Unsplash license permits free commercial use, download, copying, modification and distribution. Do not sell unmodified photos or compile a competing photo service.",
+  "candidates": [
+    {
+      "file": "ocean-john-lockwood.jpg",
+      "title": "Wavy ocean in aerial photography",
+      "author": "John Lockwood",
+      "source": "https://unsplash.com/photos/wavy-ocean-in-aerial-photography-LUiw-54S7Ek",
+      "authorProfile": "https://unsplash.com/@justjohnl",
+      "download": "https://images.unsplash.com/photo-1543839482-6a65ff225d59?fm=jpg&q=90&w=2880",
+      "width": 2880,
+      "height": 4593,
+      "notes": "Turquoise water with white wave lines. Portrait original: a landscape cover crop from the lower half gives dark clear water behind the clock; avoid top foam under white text. Best if wanting saturated iPad-style nature color."
+    },
+    {
+      "file": "mountain-lake-wolfgang-hasselmann.jpg",
+      "title": "Mountain landscape with a calm lake at dawn",
+      "author": "Wolfgang Hasselmann",
+      "source": "https://unsplash.com/photos/mountain-landscape-with-a-calm-lake-at-dawn-JCqW61z2Sz0",
+      "authorProfile": "https://unsplash.com/@wolfgang_hasselmann",
+      "download": "https://images.unsplash.com/photo-1758140373251-abacf91624a1?fm=jpg&q=90&w=2880",
+      "width": 2880,
+      "height": 4320,
+      "notes": "Quiet layered blue mountain silhouettes and peach sky. Portrait original; landscape crop should use center at about 65% image height to keep the lake and mountains. White text needs slight local shadow or lockscreen dimming. Recommended for restrained aesthetic."
+    },
+    {
+      "file": "sunrise-clouds-balazs-busznyak.jpg",
+      "title": "A Sunrise Undercast",
+      "author": "Balazs Busznyak",
+      "source": "https://unsplash.com/photos/landscape-photography-of-white-clouds-over-mountain-sEgyKdPI-fU",
+      "download": "https://images.unsplash.com/photo-1516737596199-bc8623c34995?fm=jpg&q=90&w=2880",
+      "width": 2880,
+      "height": 1618,
+      "notes": "Landscape original, cloud sea with peach dawn above; clean muted large color areas. Straight cover crop is safe, but default white clock needs a subtle dark lockscreen overlay because the upper sky is bright."
+    }
+  ]
+}

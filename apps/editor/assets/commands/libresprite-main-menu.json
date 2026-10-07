@@ -110,6 +110,11 @@
             },
             {
               "kind": "item",
+              "label": "Export Animal Crossing QR Codes...",
+              "command": "ExportAnimalCrossing"
+            },
+            {
+              "kind": "item",
               "label": "Repeat Last Export",
               "mnemonic": "L",
               "mnemonicIndex": 7,
@@ -118,6 +123,11 @@
               "shortcutBindingContext": "Any"
             }
           ]
+        },
+        {
+          "kind": "item",
+          "label": "Share...",
+          "command": "Share"
         },
         {
           "kind": "item",

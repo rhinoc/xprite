@@ -1,9 +1,7 @@
 import { useState, type CSSProperties } from "react";
 
 import { tUi, tUiSource } from "$/i18n";
-import { Button } from "@xprite/ui";
-import { useUi } from "@xprite/ui";
-import { Tooltip } from "@xprite/ui";
+import { Button, useUi, Tooltip } from "@xprite/ui";
 import { UiIcon } from "@xprite/ui/assets";
 
 import styles from "$/components/palette/palette-warning/palette-warning.module.css";

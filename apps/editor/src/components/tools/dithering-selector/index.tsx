@@ -1,9 +1,13 @@
 import { useCallback } from "react";
 
 import { TOOL_CONTROL_CHANNEL_MAX as UINT8_MAX } from "$/managers/tools/tool-options";
-import { CanvasSurface, type SurfaceBounds, type SurfaceViewport } from "@xprite/ui";
-import { Combobox } from "@xprite/ui";
-import { useUi } from "@xprite/ui";
+import {
+  CanvasSurface,
+  type SurfaceBounds,
+  type SurfaceViewport,
+  Combobox,
+  useUi,
+} from "@xprite/ui";
 import { paintUiText, useUiAssets } from "@xprite/ui/assets";
 import { DEFAULT_SURFACE_VIEWPORT, surfaceLayout } from "@xprite/ui/canvas";
 

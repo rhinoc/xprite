@@ -28,10 +28,11 @@ import {
   ControlFlowItem,
   Input,
   InputTouchActivation,
-  Label,
   Slider,
   SliderVariant,
   useUi,
+  Text,
+  TextVariant,
 } from "@xprite/ui";
 import { measureUiText, uiFontHeight, uiMetrics } from "@xprite/ui/assets";
 import { UI_SCALE } from "@xprite/ui/canvas";
@@ -238,7 +239,11 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
             {editor.zoom < 100 && (
               <>
                 <ControlFlowItem>
-                  <Label bounds={{ x: 370, y: 10, width: 122, height: 14 }} text="Downsampling:" />
+                  <Text
+                    variant={TextVariant.Control}
+                    bounds={{ x: 370, y: 10, width: 122, height: 14 }}
+                    text="Downsampling:"
+                  />
                 </ControlFlowItem>
                 <ControlFlowItem>
                   <Combobox
@@ -274,7 +279,11 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
         {editor.tool === "eyedropper" && (
           <>
             <ControlFlowItem>
-              <Label bounds={{ x: 166, y: 10, width: 42, height: 14 }} text="Pick:" />
+              <Text
+                variant={TextVariant.Control}
+                bounds={{ x: 166, y: 10, width: 42, height: 14 }}
+                text="Pick:"
+              />
             </ControlFlowItem>
             <ControlFlowItem>
               <Combobox
@@ -301,7 +310,11 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
               />
             </ControlFlowItem>
             <ControlFlowItem>
-              <Label bounds={{ x: 392, y: 10, width: 68, height: 14 }} text="Sample:" />
+              <Text
+                variant={TextVariant.Control}
+                bounds={{ x: 392, y: 10, width: 68, height: 14 }}
+                text="Sample:"
+              />
             </ControlFlowItem>
             <ControlFlowItem>
               <Combobox
@@ -326,7 +339,8 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
         {(isBucket || isWand) && (
           <>
             <ControlFlowItem>
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 bounds={{ x: isWand ? 684 : 204, y: 10, width: 90, height: 14 }}
                 text="Tolerance:"
                 font="mini"
@@ -472,7 +486,8 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
               height: 32,
             }}
           >
-            <Label
+            <Text
+              variant={TextVariant.Control}
               bounds={{
                 x: opacityLabelX,
                 y: 10,
@@ -538,7 +553,8 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
         {sprayX !== null && (
           <>
             <ControlFlowItem>
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 bounds={{ x: sprayX, y: 10, width: sprayLabelWidth, height: 14 }}
                 text="Spray:"
                 font="mini"

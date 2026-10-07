@@ -10,9 +10,10 @@ import {
   Combobox,
   Divider,
   Input,
-  Label,
   focusDialogContainer,
   isDialogPopupTarget,
+  Text,
+  TextVariant,
 } from "@xprite/ui";
 import { centerUiPixel, measureUiText, useUiAssets } from "@xprite/ui/assets";
 import { isImeKeyboardEvent } from "@xprite/ui/utils";
@@ -230,7 +231,8 @@ export function SaveAsDialog({
           }));
           return (
             <>
-              <Label
+              <Text
+                variant={TextVariant.Control}
                 text={fileNameLabel}
                 bounds={{
                   x: client.x + 2,

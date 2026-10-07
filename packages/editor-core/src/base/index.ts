@@ -5,3 +5,4 @@ export * from "$/base/numeric-constants";
 export * from "$/base/image";
 export * from "$/base/pointer-input";
 export * from "$/base/primitives";
+export * from "$/base/zlib";

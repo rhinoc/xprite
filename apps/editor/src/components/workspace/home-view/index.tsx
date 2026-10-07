@@ -14,6 +14,7 @@ export interface EditorHomeViewProps {
   onOpen: () => void;
   onOpenRecent: (id: string) => void;
   onAbout: () => void;
+  onFeedback?: () => void;
   onRecover?: () => void;
   onPinRecent?: (id: string, pinned: boolean) => void;
   onDownloadRecent?: (id: string) => void;
@@ -29,7 +30,6 @@ export function EditorHomeView(props: EditorHomeViewProps) {
     <PrimitiveHomeView
       {...props}
       repositoryHref={about.repositoryHref}
-      profileHref={about.profileHref}
       labels={
         {
           home: tUi("ui.home"),
@@ -38,10 +38,10 @@ export function EditorHomeView(props: EditorHomeViewProps) {
           newFile: "New File...",
           openFile: "Open File...",
           recoverFiles: tUi("ui.recover.files.6d880af2"),
-          versionFooter: about.versionFooter,
+          footerSegments: about.footerSegments,
           star: tUi("ui.home.star.on.github"),
+          feedback: tUi("feedback.open"),
           about: tUi("ui.about"),
-          profile: `@${about.profile}`,
           recentFilesScroll: tUi("ui.recent.files.scroll"),
           pinFile: (name) => tUi("ui.action.name", { action: tUi("ui.pin"), name }),
           downloadFile: (name) => tUi("ui.action.name", { action: tUi("ui.download"), name }),

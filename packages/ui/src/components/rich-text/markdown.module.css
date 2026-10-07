@@ -1,0 +1,127 @@
+.root {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: var(--ui-document-inset);
+  color: var(--ui-document-text);
+  background: var(--ui-document-face);
+  font-family: var(--ui-font-family);
+  font-size: var(--ui-document-font-size);
+  line-height: var(--ui-document-line-height);
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+.heading {
+  margin-block: 2em;
+  scroll-margin-block-start: var(--ui-space-4, 8px);
+}
+
+.heading:first-child {
+  margin-top: 0;
+}
+
+.headingBeforeHeading {
+  margin-block-end: var(--ui-space-4, 8px);
+}
+
+.joinedHeading {
+  margin-block-start: 0;
+}
+
+.root h1,
+.root h2,
+.root h3,
+.root h4,
+.root h5,
+.root h6 {
+  margin: 0;
+  font: inherit;
+}
+
+.root p,
+.root ul,
+.root ol {
+  margin: 0 0 1em;
+}
+
+.root ul,
+.root ol {
+  padding-inline-start: var(--ui-document-list-indent);
+}
+
+.root ul {
+  list-style: none;
+}
+
+.root ul > li {
+  position: relative;
+}
+
+.root ul > li::before {
+  content: "-";
+  position: absolute;
+  inset-inline-start: -1em;
+}
+
+.root li + li {
+  margin-block-start: var(--ui-space-2, 4px);
+}
+
+.root strong {
+  font-weight: inherit;
+}
+
+.root .text {
+  display: inline;
+  vertical-align: baseline;
+  white-space: inherit;
+}
+
+.root code {
+  font-family: inherit;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  padding: 0 var(--ui-space-1, 2px);
+}
+
+.root a {
+  color: var(--ui-document-link);
+  text-decoration: none;
+  text-underline-offset: 0.2em;
+}
+
+.root a:hover {
+  color: var(--ui-document-link-hover);
+  text-decoration: underline;
+}
+
+.root a:focus-visible {
+  outline: var(--ui-focus-ring-width, 1px) dotted currentColor;
+  outline-offset: var(--ui-space-1, 2px);
+}
+
+.figure {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 1em;
+}
+
+.imageViewport {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.imageViewport img {
+  display: block;
+  margin-inline: auto;
+  max-width: none;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.figure figcaption {
+  margin-top: var(--ui-space-4, 8px);
+  font-size: var(--ui-text-default-size);
+  line-height: var(--ui-reading-line-height);
+  text-align: center;
+}

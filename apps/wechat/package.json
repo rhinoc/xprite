@@ -1,0 +1,34 @@
+{
+  "name": "@xprite/wechat-app",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./runtime/canvas": "./src/adapters/runtime/canvas.mjs",
+    "./runtime/geometry": "./src/adapters/runtime/geometry.mjs",
+    "./runtime/fonts": "./src/adapters/runtime/fonts.mjs",
+    "./runtime/environment": "./src/adapters/runtime/environment.mjs"
+  },
+  "dependencies": {
+    "@xprite/bedrock": "workspace:*",
+    "@xprite/editor-app": "workspace:*",
+    "@xprite/editor-core": "workspace:*",
+    "@xprite/editor-ui": "workspace:*",
+    "@xprite/ui": "workspace:*",
+    "core-js-pure": "3.50.0",
+    "fflate": "^0.8.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "css-loader": "7.1.5",
+    "esbuild-loader": "4.5.0",
+    "mini-css-extract-plugin": "2.10.2",
+    "miniprogram-api-typings": "5.2.3",
+    "miniprogram-element": "2.2.23",
+    "miniprogram-render": "2.2.29",
+    "mp-webpack-plugin": "1.6.6",
+    "postcss": "8.5.28",
+    "postcss-selector-parser": "7.1.6",
+    "webpack": "5.111.1"
+  }
+}

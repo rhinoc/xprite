@@ -16,3 +16,4 @@ export * from "$/canvas/controller";
 export * from "$/canvas/tiled-canvas";
 export * from "$/canvas/view";
 export * from "$/canvas/zoom";
+export * from "$/canvas/transparency-preview";
