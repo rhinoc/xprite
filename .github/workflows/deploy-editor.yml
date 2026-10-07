@@ -53,6 +53,8 @@ jobs:
           node-version: "24"
           cache: pnpm
 
+      - run: pnpm install --frozen-lockfile
+
       - name: Validate public documentation
         run: pnpm run check:public-docs
 
@@ -68,7 +70,6 @@ jobs:
           echo "POSTHOG_RELEASE=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
           echo "DEPLOY_REF=$(git describe --tags --exact-match HEAD 2>/dev/null || git rev-parse --short HEAD)" >> "$GITHUB_ENV"
 
-      - run: pnpm install --frozen-lockfile
       - name: Validate EdgeOne configuration
         run: pnpm exec edgeone validate
 

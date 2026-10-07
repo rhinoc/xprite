@@ -8,7 +8,11 @@ packages:
 allowBuilds:
   '@posthog/cli': true
   core-js: true
+  # The pure polyfill's postinstall only prints a funding message.
+  core-js-pure: false
   esbuild: true
+  # Wrangler uses workerd's installer to select its native runtime binary.
+  workerd: true
 
 # dependency-cruiser 18 uses the TypeScript compiler API that changed in v7.
 packageExtensions:
