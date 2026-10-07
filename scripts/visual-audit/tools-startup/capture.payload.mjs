@@ -140,6 +140,18 @@ for (const scene of captureConfig.scenes) {
     height: scene.layout.height,
     deviceScaleFactor: 1,
     mobile: false,
+    scale: 1,
+    screenWidth: scene.layout.width,
+    screenHeight: scene.layout.height,
+    positionX: 0,
+    positionY: 0,
+    viewport: {
+      x: 0,
+      y: 0,
+      width: scene.layout.width,
+      height: scene.layout.height,
+      scale: 1,
+    },
   });
   await page.cdp("Emulation.setEmulatedMedia", {
     features: [{ name: "prefers-color-scheme", value: scene.appearance.system }],

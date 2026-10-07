@@ -24,6 +24,8 @@ Each phase waits for fonts and successfully loaded images and requires two
 consecutive identical PNGs with stable region geometry. Dedicated
 `xprite-tools-startup-*.localhost` origins isolate capture storage from user data.
 Both phases use the same viewport, saved preference and system preference.
+Emulated screen dimensions and the visible viewport are pinned to the scene's
+dimensions at scale 1 and DPR 1, so browser-window fitting cannot change rasterization.
 Source hashes must remain unchanged across the entire capture.
 
 `scripts/base/screenshot.mjs` supplies native PNG capture, actual DPR and dimension
