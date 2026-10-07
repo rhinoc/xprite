@@ -202,6 +202,7 @@
 }
 .introduction {
   padding: 0;
+  will-change: transform;
 }
 .examples {
   display: block;
@@ -260,6 +261,8 @@
 }
 .readmeWindow {
   width: 100%;
+  /* Rasterize the draggable note in local coordinates before and after hydration. */
+  will-change: transform;
 }
 @media (min-width: 1001px) {
   .emptyContent {
