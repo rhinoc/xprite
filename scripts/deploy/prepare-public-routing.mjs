@@ -1,5 +1,5 @@
 import { readFile, readdir, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { build } from "esbuild";
@@ -49,6 +49,7 @@ export const middleware = createPublicMiddleware(${options});
 export const config = { matcher: ["/:path*"] };`,
       loader: "ts",
       sourcefile: "editor-middleware.ts",
+      resolveDir: dirname(ROUTING_SOURCE),
     },
     bundle: true,
     format: "esm",
