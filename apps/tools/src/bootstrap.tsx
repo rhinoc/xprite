@@ -14,6 +14,17 @@ interface ToolApplication {
   dispose(): void;
 }
 
+const DESKTOP_APPEARANCE_BY_EDITOR: Record<AppearanceMode, DesktopAppearance> = {
+  [AppearanceMode.Light]: DesktopAppearance.Light,
+  [AppearanceMode.Dark]: DesktopAppearance.Dark,
+  [AppearanceMode.System]: DesktopAppearance.System,
+};
+const EDITOR_APPEARANCE_BY_DESKTOP: Record<DesktopAppearance, AppearanceMode> = {
+  [DesktopAppearance.Light]: AppearanceMode.Light,
+  [DesktopAppearance.Dark]: AppearanceMode.Dark,
+  [DesktopAppearance.System]: AppearanceMode.System,
+};
+
 /** Keep the generated HTML visible until bitmap controls can mount immediately. */
 export async function mountToolApplication(
   rootId: string,
@@ -30,10 +41,11 @@ export async function mountToolApplication(
     data.application = application ?? previousApplication;
   });
   hot?.prune(() => application?.dispose());
+  const preferences = normalizeDesktopPreferences(readBrowserDesktopPreferences(), {
+    appearance: DESKTOP_APPEARANCE_BY_EDITOR[browserToolAppearance.readAppearance()],
+  });
   const appearance = resolveAppearanceMode(
-    normalizeDesktopPreferences(readBrowserDesktopPreferences(), {
-      appearance: browserToolAppearance.readAppearance() as DesktopAppearance,
-    }).appearance as AppearanceMode,
+    EDITOR_APPEARANCE_BY_DESKTOP[preferences.appearance],
     window.matchMedia("(prefers-color-scheme: dark)").matches
       ? AppearanceMode.Dark
       : AppearanceMode.Light,

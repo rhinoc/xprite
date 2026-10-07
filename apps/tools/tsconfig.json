@@ -25,6 +25,7 @@
     }
   },
   "include": ["src"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"],
   "references": [
     {
       "path": "../../packages/bedrock/tsconfig.browser.build.json"
