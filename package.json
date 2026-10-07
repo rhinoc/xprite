@@ -30,6 +30,7 @@
     "deploy:validate": "node scripts/deploy/editor-deployment.mjs validate",
     "deploy:prepare": "node scripts/deploy/editor-deployment.mjs prepare",
     "deploy:editor": "node scripts/deploy/editor-deployment.mjs publish",
+    "canary:refresh": "node scripts/deploy/refresh-canary-url.mjs",
     "build:gallery": "pnpm --filter @xprite/gallery-app run build",
     "gallery:generate": "node scripts/generate-gallery-components.mjs",
     "visual:baseline": "node scripts/visual-audit/xprite/capture.mjs --baseline",

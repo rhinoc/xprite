@@ -1,0 +1,43 @@
+name: Refresh Canary access
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployment_url:
+        description: "Existing Canary deployment URL"
+        required: true
+        type: string
+      release:
+        description: "Exact deployed preview commit SHA"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    name: Refresh preview access link
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: preview
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Generate and verify access link
+        run: node scripts/deploy/refresh-canary-url.mjs
+        env:
+          CANARY_URL: ${{ inputs.deployment_url }}
+          CANARY_RELEASE: ${{ inputs.release }}
+          EDGEONE_API_TOKEN: ${{ secrets.EDGEONE_API_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: canary-access-${{ github.run_id }}
+          path: .tmp/canary/preview-access.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
