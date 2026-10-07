@@ -25,4 +25,5 @@ export type {
   UiStyle,
   UiThemeSnapshot,
 } from "$/components/theme/appearance";
-export { default as systemHelpIconUrl } from "$assets/icons/system/help.svg?url";
+export const systemHelpIconUrl: string = systemHelpIconAssetUrl;
+import systemHelpIconAssetUrl from "$assets/icons/system/help.svg?url";
