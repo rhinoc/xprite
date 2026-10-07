@@ -9,6 +9,8 @@ import {
   PublicIndex,
   PublicHtml,
   PublicStatus,
+  type PublicWindowProps,
+  type PublicNavigationProps,
 } from "$/components/public/static-ui";
 import {
   ShowcaseStaticHero,
@@ -19,6 +21,42 @@ import { macintoshTheme } from "@xprite/ui";
 import { loadUiThemeSnapshot } from "@xprite/ui/assets";
 
 import "$/components/public/desktop.module.css";
+
+function windowProps(props: Record<string, unknown>): PublicWindowProps {
+  if (typeof props.title !== "string" || typeof props.content !== "string")
+    throw new TypeError("Public window markup requires a title and content.");
+  return { ...props, title: props.title, content: props.content };
+}
+
+function navigationLink(value: unknown): PublicNavigationProps["links"][number] {
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    !("label" in value) ||
+    typeof value.label !== "string" ||
+    !("href" in value) ||
+    typeof value.href !== "string"
+  )
+    throw new TypeError("Public navigation links require a label and URL.");
+  return { ...value, label: value.label, href: value.href };
+}
+
+function navigationProps(props: Record<string, unknown>): PublicNavigationProps {
+  if (
+    typeof props.label !== "string" ||
+    typeof props.brandLabel !== "string" ||
+    typeof props.brandHref !== "string" ||
+    !Array.isArray(props.links)
+  )
+    throw new TypeError("Public navigation markup requires labels, a brand URL and links.");
+  return {
+    ...props,
+    label: props.label,
+    brandLabel: props.brandLabel,
+    brandHref: props.brandHref,
+    links: props.links.map(navigationLink),
+  };
+}
 
 export async function preparePublicUi() {
   const theme = await loadUiThemeSnapshot("light", macintoshTheme);
@@ -50,13 +88,13 @@ export async function preparePublicUi() {
       ) : kind === "showcase-stories" ? (
         <ShowcaseStoryContent language={props.language as "en" | "zh-CN"} />
       ) : kind === "window" ? (
-        <PublicWindow {...(props as Parameters<typeof PublicWindow>[0])} />
+        <PublicWindow {...windowProps(props)} />
       ) : kind === "icon" ? (
         <PublicIcon {...(props as Parameters<typeof PublicIcon>[0])} />
       ) : kind === "button" ? (
         <PublicButton {...(props as Parameters<typeof PublicButton>[0])} />
       ) : (
-        <PublicNavigation {...(props as Parameters<typeof PublicNavigation>[0])} />
+        <PublicNavigation {...navigationProps(props)} />
       );
     const scope = (
       <DesktopProvider

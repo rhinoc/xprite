@@ -73,7 +73,10 @@ export function createBrowserDesktop(defaults?: DesktopPreferences) {
           `[data-ui-theme="${themeId}"]`,
         )) {
           scope.dataset.uiAppearance = appearance;
-          for (const [name, value] of Object.entries(tokens)) scope.style.setProperty(name, value);
+          for (const [name, value] of Object.entries(tokens)) {
+            if (value === undefined) scope.style.removeProperty(name);
+            else scope.style.setProperty(name, value);
+          }
         }
       },
     },
