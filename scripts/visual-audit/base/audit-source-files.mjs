@@ -19,6 +19,8 @@ const workspaceFiles = [
   "scripts/base/screenshot.mjs",
   "infra/site-html.ts",
   "infra/public-package-assets.ts",
+  "infra/react-ssg-renderer.ts",
+  "infra/react-ssg-style-names.ts",
   "infra/dev-site.ts",
   "infra/dev-site.json",
   "packages/editor-ui/package.json",

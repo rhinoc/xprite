@@ -8,9 +8,6 @@ import {
   classicSliderTrackImage,
 } from "$/base/theme/themes/macintosh/appearance-artwork";
 import { macintoshBalloonPointers } from "$/base/theme/themes/macintosh/balloon-artwork";
-
-import "$assets/fonts/macintosh/fonts.css";
-
 import { macintoshBalloonImage } from "$/base/theme/themes/macintosh/balloon-frame";
 import { macintoshColorRoles } from "$/base/theme/themes/macintosh/color-roles";
 import fontMetrics from "$/base/theme/themes/macintosh/font-metrics.json";

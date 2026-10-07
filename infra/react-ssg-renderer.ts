@@ -5,7 +5,7 @@ import { dirname, extname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { build, type Plugin } from "esbuild";
-import { transform } from "lightningcss";
+import { bundleAsync } from "lightningcss";
 
 import { ssgScopedName } from "./react-ssg-style-names.ts";
 
@@ -98,23 +98,33 @@ export async function createReactSsgRenderer<T>(options: {
         contents: `export default ${JSON.stringify(assetUrl(args.path))};`,
         loader: "js",
       }));
-      context.onLoad({ filter: /\.css$/ }, (args) => {
+      context.onLoad({ filter: /\.css$/ }, async (args) => {
         files.add(args.path);
         const prefix = ssgScopedName("", args.path);
-        const result = transform({
+        const result = await bundleAsync({
           filename: args.path,
-          code: readFileSync(args.path),
           cssModules: { pattern: `${prefix}[local]` },
           analyzeDependencies: true,
           minify: true,
+          resolver: {
+            read(filename) {
+              files.add(filename);
+              return readFileSync(filename, "utf8");
+            },
+            resolve: resolveSource,
+          },
         });
         let stylesheet = result.code.toString();
         for (const dependency of result.dependencies ?? []) {
+          if (dependency.type === "file") {
+            files.add(dependency.filePath);
+            continue;
+          }
           if (dependency.type !== "url")
             throw new Error(`Unsupported CSS dependency in ${args.path}`);
           const url = /^(?:https?:|data:|\/)/.test(dependency.url)
             ? dependency.url
-            : assetUrl(resolveSource(dependency.url, args.path));
+            : assetUrl(resolveSource(dependency.url, dependency.loc.filePath));
           stylesheet = stylesheet.replaceAll(dependency.placeholder, url);
         }
         css.set(args.path, stylesheet);
