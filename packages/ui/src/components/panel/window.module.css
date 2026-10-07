@@ -99,10 +99,24 @@
 }
 :global([data-ui-panel-variant="window"][data-ui-window-kind="dialog"]),
 :global([data-ui-panel-variant="window"][data-ui-window-kind="about"]) {
-  border: var(--ui-panel-dialog-frame-width, 4px) double
-    var(--ui-window-frame-ink, var(--ui-color-border));
+  border: var(--ui-panel-dialog-frame-width, 4px) solid transparent;
   box-shadow: var(--ui-panel-dialog-shadow-offset, 2px) var(--ui-panel-dialog-shadow-offset, 2px) 0
     var(--ui-window-frame-ink, var(--ui-color-border));
+}
+/* Explicit pixel-wide rings avoid fractional strokes from a CSS double border. */
+:global([data-ui-panel-variant="window"][data-ui-window-kind="dialog"])::before,
+:global([data-ui-panel-variant="window"][data-ui-window-kind="about"])::before,
+:global([data-ui-panel-variant="window"][data-ui-window-kind="dialog"])::after,
+:global([data-ui-panel-variant="window"][data-ui-window-kind="about"])::after {
+  content: "";
+  position: absolute;
+  inset: calc(0px - var(--ui-panel-dialog-frame-width, 4px));
+  border: 1px solid var(--ui-window-frame-ink, var(--ui-color-border));
+  pointer-events: none;
+}
+:global([data-ui-panel-variant="window"][data-ui-window-kind="dialog"])::after,
+:global([data-ui-panel-variant="window"][data-ui-window-kind="about"])::after {
+  inset: -1px;
 }
 :global([data-ui-window-kind="dialog"] > [data-slot="panel-header"]),
 :global([data-ui-window-kind="about"] > [data-slot="panel-header"]) {
