@@ -1,20 +1,24 @@
 import * as THREE from "three";
 
 import { DeviceDemoScreen } from "$/adapters/showcase/device-demo-screen";
+import { configureDisplayTexture } from "$/adapters/showcase/display-render-pass";
 import type { HelloSpriteProject } from "$/adapters/showcase/hello-sprite-project";
 import { FILM_START } from "$/managers/showcase/ipad-story";
 import { ShowcaseDevice } from "$/managers/showcase/showcase-device";
 import type { ShowcaseLanguage } from "$/managers/showcase/showcase-language";
 
 /** Native viewport-sized demonstrations cover each device's complete display UV. */
-export function createDeviceDisplays(language: ShowcaseLanguage, project: HelloSpriteProject) {
+export function createDeviceDisplays(
+  language: ShowcaseLanguage,
+  project: HelloSpriteProject,
+  maxAnisotropy: number,
+) {
   const screens = ([ShowcaseDevice.Computer, ShowcaseDevice.Phone] as const).map((device) => {
     const film = new DeviceDemoScreen(device, language, project);
     const texture = new THREE.CanvasTexture(film.canvas);
     texture.flipY = false;
     texture.colorSpace = THREE.SRGBColorSpace;
-    texture.minFilter = THREE.LinearFilter;
-    texture.generateMipmaps = false;
+    configureDisplayTexture(texture, maxAnisotropy);
     return { device, film, texture, time: FILM_START };
   });
   const phoneFilm = screens.find((screen) => screen.device === ShowcaseDevice.Phone)!.film;

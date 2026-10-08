@@ -6,7 +6,7 @@ const GRAY_LEVELS = 40;
 const DITHER_STRENGTH = 0.6;
 const NEUTRAL_CHROMA_THRESHOLD = 0.14;
 
-/** One low-resolution palette pass for devices, displays and scene overlays. */
+/** Low-resolution palette pass for device hardware and scene overlays. */
 export class ClassicGameFilter {
   private readonly target = new THREE.WebGLRenderTarget(1, 1, {
     type: THREE.HalfFloatType,

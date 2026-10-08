@@ -6,6 +6,11 @@ import { HDRLoader } from "three/addons/loaders/HDRLoader.js";
 import { afterBrowserPaint } from "$/adapters/showcase/browser-scheduling";
 import { ClassicGameFilter } from "$/adapters/showcase/classic-game-filter";
 import { createDeviceDisplays } from "$/adapters/showcase/device-models";
+import {
+  DisplayRenderPass,
+  ShowcaseRenderLayer,
+  configureDisplayTexture,
+} from "$/adapters/showcase/display-render-pass";
 import { HelloSpriteProject } from "$/adapters/showcase/hello-sprite-project";
 import { IpadPointerTilt } from "$/adapters/showcase/ipad-pointer-tilt";
 import { IpadScreen } from "$/adapters/showcase/ipad-screen";
@@ -118,8 +123,6 @@ const SCREEN_SURFACE = 0.14;
 const CAMERA_FOV = 30;
 const MAX_PIXEL_RATIO = 2;
 const SHADER_BATCH_MESHES = 12;
-const DEVICE_RENDER_LAYER = 0;
-const PENCIL_RENDER_LAYER = 1;
 const HAND_ENVIRONMENT_INTENSITY = 0.22;
 const HAND_CREATE_ROTATION = -2.98;
 const BACKGROUND_COLOR = 0xffffff;
@@ -253,8 +256,10 @@ export async function mountScene(
   renderer.toneMappingExposure = 1.1;
   renderer.autoClear = false;
   const gameFilter = new ClassicGameFilter();
+  const displaysPass = new DisplayRenderPass();
   renderer.domElement.setAttribute("aria-hidden", "true");
   const scene = new THREE.Scene();
+  scene.matrixWorldAutoUpdate = false;
   const camera = new THREE.PerspectiveCamera(CAMERA_FOV, 1, CAMERA_MIN_NEAR, CAMERA_FAR);
   const interaction = new THREE.Group();
   const product = new THREE.Group();
@@ -262,15 +267,15 @@ export async function mountScene(
   interaction.add(product);
   scene.environmentIntensity = 0.7;
   const fill = new THREE.HemisphereLight(0xffffff, 0xa6adbb, 0.75);
-  fill.layers.enable(PENCIL_RENDER_LAYER);
+  fill.layers.enable(ShowcaseRenderLayer.Foreground);
   scene.add(fill);
   const key = new THREE.DirectionalLight(0xfff6ed, 1.8);
   key.position.set(-4, 6, 10);
-  key.layers.enable(PENCIL_RENDER_LAYER);
+  key.layers.enable(ShowcaseRenderLayer.Foreground);
   scene.add(key);
   const rim = new THREE.DirectionalLight(0xe9efff, 1);
   rim.position.set(7, 2, 3);
-  rim.layers.enable(PENCIL_RENDER_LAYER);
+  rim.layers.enable(ShowcaseRenderLayer.Foreground);
   scene.add(rim);
   const shadow = contactShadow();
   interaction.add(shadow.mesh);
@@ -309,6 +314,7 @@ export async function mountScene(
     shadow.texture.dispose();
     disposeObject(scene);
     gameFilter.dispose();
+    displaysPass.dispose();
     renderer.dispose();
     renderer.domElement.remove();
   };
@@ -330,7 +336,7 @@ export async function mountScene(
       parent.add(model);
       return model;
     };
-    devices = createDeviceDisplays(language, project);
+    devices = createDeviceDisplays(language, project, renderer.capabilities.getMaxAnisotropy());
     const [ipad, pencil, hand, computer, phone] = await Promise.all([
       loadModel(IPAD_MODEL_FILE),
       loadModel("apple-pencil.glb"),
@@ -359,7 +365,7 @@ export async function mountScene(
     });
     attachDeviceShadow(computer);
     attachDeviceShadow(phone);
-    const phoneHand = new PhoneDemoHand(phone, hand, PENCIL_RENDER_LAYER);
+    const phoneHand = new PhoneDemoHand(phone, hand, ShowcaseRenderLayer.Foreground);
     const slides = [computer, interaction, phone];
     const pickableModels = [computer, ipad, phone];
     const hoverBounds = pickableModels.map((model) => {
@@ -421,6 +427,7 @@ export async function mountScene(
       invalidate();
     };
     const raycaster = new THREE.Raycaster();
+    raycaster.layers.enable(ShowcaseRenderLayer.Display);
     const pickBounds = bodyBounds.map(() => new THREE.Box3());
     const pickDevice = (point: { x: number; y: number }) => {
       const local = clientToLocal(renderer.domElement, point);
@@ -464,7 +471,7 @@ export async function mountScene(
       }
       return undefined;
     };
-    pencil.traverse((node) => node.layers.set(PENCIL_RENDER_LAYER));
+    pencil.traverse((node) => node.layers.set(ShowcaseRenderLayer.Foreground));
     const screenMesh = ipad.getObjectByName("Screen");
     if (!(screenMesh instanceof THREE.Mesh)) throw new Error("Missing iPad screen");
     const original = screenMesh.material as THREE.Material;
@@ -472,7 +479,7 @@ export async function mountScene(
     screenTexture = new THREE.CanvasTexture(screen.canvas);
     screenTexture.flipY = false;
     screenTexture.colorSpace = THREE.SRGBColorSpace;
-    screenTexture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    configureDisplayTexture(screenTexture, renderer.capabilities.getMaxAnisotropy());
     screenTexture.minFilter = THREE.LinearMipmapLinearFilter;
     screenTexture.magFilter = THREE.LinearFilter;
     screenTexture.generateMipmaps = true;
@@ -484,6 +491,7 @@ export async function mountScene(
         !(display.material instanceof THREE.MeshBasicMaterial)
       )
         throw new Error("Missing showcase display material");
+      display.layers.set(ShowcaseRenderLayer.Display);
       display.material.color.setScalar(0);
       return display.material;
     });
@@ -497,11 +505,12 @@ export async function mountScene(
           material.envMapIntensity = HAND_ENVIRONMENT_INTENSITY;
       }
     });
-    // Warm both layer variants before the entrance; compileAsync uses parallel shader compilation.
-    camera.layers.enable(PENCIL_RENDER_LAYER);
+    // Warm hardware, foreground and native displays before the entrance.
+    camera.layers.enable(ShowcaseRenderLayer.Foreground);
+    camera.layers.enable(ShowcaseRenderLayer.Display);
     await compileSceneShaders(renderer, scene, camera, signal);
     signal.throwIfAborted();
-    camera.layers.set(DEVICE_RENDER_LAYER);
+    camera.layers.set(ShowcaseRenderLayer.Device);
     renderer.domElement.style.opacity = "0";
     host.append(renderer.domElement);
     pointerTilt = new IpadPointerTilt(host, invalidate, () => motion.hasSelection);
@@ -581,6 +590,7 @@ export async function mountScene(
         const wallpaperVisible = ipadTime < LAUNCH_TIMING.opened;
         if (screenTexture!.generateMipmaps !== wallpaperVisible) {
           screenTexture!.generateMipmaps = wallpaperVisible;
+          screenTexture!.magFilter = wallpaperVisible ? THREE.LinearFilter : THREE.NearestFilter;
           screenTexture!.minFilter = wallpaperVisible
             ? THREE.LinearMipmapLinearFilter
             : THREE.LinearFilter;
@@ -927,15 +937,16 @@ export async function mountScene(
       // Every layer shares the full-page canvas, including forearms and contact shadows.
       scene.updateMatrixWorld();
       gameFilter.begin(renderer);
-      camera.layers.set(DEVICE_RENDER_LAYER);
+      camera.layers.set(ShowcaseRenderLayer.Device);
       renderer.render(scene, camera);
       if (pencil.visible || phoneHand.visible) {
         renderer.clearDepth();
-        camera.layers.set(PENCIL_RENDER_LAYER);
+        camera.layers.set(ShowcaseRenderLayer.Foreground);
         renderer.render(scene, camera);
       }
-      camera.layers.set(DEVICE_RENDER_LAYER);
+      camera.layers.set(ShowcaseRenderLayer.Device);
       gameFilter.finish(renderer);
+      displaysPass.render(renderer, scene, camera, pencil.visible || phoneHand.visible);
     };
 
     let layoutKey: string | undefined;
