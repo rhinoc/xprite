@@ -16,7 +16,12 @@ import {
 import { publicDesktopStartupScript } from "../../../infra/public-desktop-startup.ts";
 import { applySiteIcons, siteIcons } from "../../../infra/site-html.ts";
 import { ARTICLES, ARTICLE_PATHS, ARTICLE_REDIRECTS } from "../content/articles/index.ts";
-import { ANIMAL_CROSSING_TOOL, GIF_SHEET_TOOL, TOOLS_HOME } from "../content/tools/index.ts";
+import {
+  ANIMAL_CROSSING_TOOL,
+  GIF_SHEET_TOOL,
+  TOOLS_HOME,
+  TOOL_PATHS,
+} from "../content/tools/index.ts";
 import { SHOWCASE_PAGES } from "../src/managers/showcase/showcase-pages.ts";
 import {
   ARTICLE_CONTENT_ROOT,
