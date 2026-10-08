@@ -1044,6 +1044,12 @@ export async function mountScene(
         pointerTilt!.reset();
         invalidate();
       },
+      showOverview: () => {
+        motion.showOverview();
+        previewDevice(undefined);
+        pointerTilt!.reset();
+        invalidate();
+      },
       previewDevice,
       observeDeviceSelection: (callback) => {
         stopDeviceSelection();

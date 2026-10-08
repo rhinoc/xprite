@@ -635,6 +635,7 @@ export function EditorCanvas({
     let zoomGesture: { pointer: number; gesture: CanvasZoomGesture } | null = null;
     let shortcutDrag: CanvasShortcutDrag | null = null;
     let activePointer: number | null = null;
+    let activePointerButton: number | undefined;
     const syncQuickTool = (focusCanvas = false) => {
       const editingText =
         document.activeElement instanceof Element &&
@@ -2443,6 +2444,7 @@ export function EditorCanvas({
       }
       canvas.setPointerCapture(event.pointerId);
       activePointer = event.pointerId;
+      activePointerButton = event.button;
       if (shortcutDrag) return;
       const pressedState = getSnapshot();
       if (
@@ -2771,7 +2773,7 @@ export function EditorCanvas({
         for (const sample of samples) editor.pointerMove(sample === event ? next : input(sample));
       }
     };
-    const up = (event: PointerEvent) => {
+    const up = (event: PointerEvent, releasedInput?: PointerInput) => {
       traceInput("pointerup", event);
       // Some browsers coalesce the final displacement into pointerup only.
       if (stagedTouch && event.pointerId === activePointer) move(event);
@@ -2871,7 +2873,7 @@ export function EditorCanvas({
         });
         let completed = false;
         try {
-          editor.pointerUp(input(event));
+          editor.pointerUp(releasedInput ?? input(event));
           completed = true;
         } finally {
           traceInput("stroke-end-completed", event, {
@@ -2920,7 +2922,21 @@ export function EditorCanvas({
       schedule();
     };
     const gotCapture = (event: PointerEvent) => traceInput("gotpointercapture", event);
-    const lostCapture = (event: PointerEvent) => cancel(event, "lostpointercapture");
+    const lostCapture = (event: PointerEvent) => {
+      // Some browsers release capture without delivering pointerup to the canvas.
+      // A released mouse/pen completes the edit; touch cancellation still belongs
+      // to navigation arbitration. Capture events do not carry the pressed button.
+      if (
+        activePointer === event.pointerId &&
+        event.pointerType !== "touch" &&
+        event.buttons === 0
+      ) {
+        traceInput("lostpointercapture-release", event);
+        up(event, { ...(latestPointerInput ?? input(event)), button: activePointerButton });
+        return;
+      }
+      cancel(event, "lostpointercapture");
+    };
     const leave = () => {
       inside = false;
       pointerScreen = null;

@@ -23,7 +23,8 @@ export class ShowcaseMotion {
   private target = 0;
   private from = 0;
   private snapElapsed = SNAP_DURATION_MS;
-  private focusElapsed = 0;
+  private focusElapsed = FOCUS_DURATION_MS;
+  private focusFrom = 0;
   private selected = false;
   private dragOrigin = 0;
   private dragging = false;
@@ -40,12 +41,13 @@ export class ShowcaseMotion {
       : this.entranceElapsed === undefined
         ? 0
         : Math.min(ENTER_TOTAL_MS, this.entranceElapsed + delta);
-    if (this.selected) this.focusElapsed += delta;
-    this.focus = !this.selected
-      ? 0
-      : reducedMotion
-        ? 1
-        : easeInOut(this.focusElapsed / FOCUS_DURATION_MS);
+    this.focusElapsed += delta;
+    const focusTarget = this.selected ? 1 : 0;
+    const focusProgress = reducedMotion ? 1 : easeInOut(this.focusElapsed / FOCUS_DURATION_MS);
+    this.focus =
+      focusProgress === 1
+        ? focusTarget
+        : this.focusFrom + (focusTarget - this.focusFrom) * focusProgress;
     if (!this.dragging) {
       this.snapElapsed += delta;
       const progress = reducedMotion ? 1 : easeOut(this.snapElapsed / SNAP_DURATION_MS);
@@ -74,7 +76,7 @@ export class ShowcaseMotion {
   get needsFrame(): boolean {
     return (
       this.entranceElapsed !== ENTER_TOTAL_MS ||
-      (this.selected && this.focus < 1) ||
+      this.focus !== (this.selected ? 1 : 0) ||
       (!this.dragging && this.position !== this.target)
     );
   }
@@ -99,10 +101,25 @@ export class ShowcaseMotion {
       if (distance > count / 2) distance -= count;
       if (distance < -count / 2) distance += count;
     }
+    if (!this.selected) {
+      this.focusFrom = this.focus;
+      this.focusElapsed = 0;
+    }
     this.selected = true;
     this.target += distance;
     this.from = this.position;
     this.snapElapsed = 0;
+    this.dragging = false;
+  }
+
+  showOverview() {
+    const count = SHOWCASE_DEVICES.length;
+    this.position = this.target = ((this.target % count) + count) % count;
+    this.from = this.position;
+    this.snapElapsed = SNAP_DURATION_MS;
+    this.focusFrom = this.focus;
+    this.focusElapsed = 0;
+    this.selected = false;
     this.dragging = false;
   }
 

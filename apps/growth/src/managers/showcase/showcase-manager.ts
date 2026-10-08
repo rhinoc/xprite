@@ -7,8 +7,10 @@ import {
 import {
   advanceFilmTime,
   FILM_DURATION,
+  FILM_SETTLE_DURATION,
   FILM_START,
   FILM_INTERACTION_START,
+  FILM_OUTRO_START,
   MILLISECONDS_PER_SECOND,
 } from "$/managers/showcase/ipad-story";
 import {
@@ -29,6 +31,7 @@ export enum ShowcaseStatus {
 interface ShowcaseState {
   playing: boolean;
   started: boolean;
+  editingHighlighted: boolean;
   status: ShowcaseStatus;
   language: ShowcaseLanguage;
   device: ShowcaseDevice;
@@ -40,11 +43,13 @@ interface ShowcaseState {
 
 // A slow rendered frame should not stretch every entrance into an extra hold.
 const MAX_FRAME_SECONDS = 0.25;
+const RESULT_HOLD_SECONDS = 2;
 
 export class ShowcaseManager {
   private state: ShowcaseState = {
     playing: false,
     started: false,
+    editingHighlighted: false,
     status: ShowcaseStatus.Loading,
     language: ShowcaseLanguage.English,
     device: ShowcaseDevice.Computer,
@@ -106,6 +111,7 @@ export class ShowcaseManager {
       status: ShowcaseStatus.Loading,
       playing: false,
       started: false,
+      editingHighlighted: false,
       musicAvailable: true,
       deviceText: SHOWCASE_COPY[this.state.language].titleEnd[this.state.device].device,
     });
@@ -132,10 +138,9 @@ export class ShowcaseManager {
       );
       await scene.setLanguage(this.state.language);
       if (generation !== this.mounted) return;
-      const reducedMotion = this.port.prefersReducedMotion();
       this.update({
         status: ShowcaseStatus.Ready,
-        playing: this.state.started && !reducedMotion,
+        playing: this.state.started,
       });
       scene.render(this.filmTime);
       this.removeVisibility = this.port.observeVisibility(element, (visible) => {
@@ -205,6 +210,12 @@ export class ShowcaseManager {
         time = FILM_DURATION;
       }
       this.filmTime = time;
+      if (time >= FILM_OUTRO_START && !this.state.editingHighlighted)
+        this.update({ editingHighlighted: true });
+      if (this.endingTime >= FILM_SETTLE_DURATION + RESULT_HOLD_SECONDS) {
+        this.scene?.showOverview();
+        this.update({ started: false, playing: false, editingHighlighted: false });
+      }
     }
     if (this.visible) this.scene?.render(this.filmTime + this.endingTime);
     this.previousTime = now;
@@ -233,7 +244,8 @@ export class ShowcaseManager {
         reducedMotion,
       ),
       started: true,
-      playing: this.state.status === ShowcaseStatus.Ready && !reducedMotion,
+      editingHighlighted: reducedMotion,
+      playing: true,
     });
     this.wake();
   };

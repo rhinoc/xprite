@@ -35,6 +35,7 @@ export function SiteMenubar({
   applications,
   menus = [],
   leadingContent,
+  trailingContent,
   language = "en",
   languages,
   systemItems = [],
@@ -45,6 +46,7 @@ export function SiteMenubar({
   applications: readonly MenuItem[];
   menus?: readonly MenubarMenu[];
   leadingContent?: ReactNode;
+  trailingContent?: ReactNode;
   language?: string;
   languages?: readonly SiteLanguage[];
   systemItems?: readonly MenuItem[];
@@ -154,6 +156,7 @@ export function SiteMenubar({
           },
         ]}
         leadingContent={leadingContent}
+        trailingContent={trailingContent}
         menus={menus}
         trailingMenus={[
           {

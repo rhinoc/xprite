@@ -98,6 +98,7 @@ export interface PublicNavigationProps {
   links: readonly PublicNavigationLink[];
   menus?: readonly MenubarMenu[];
   leadingContent?: ReactNode;
+  trailingContent?: ReactNode;
 }
 export function PublicNavigation({
   label,
@@ -109,6 +110,7 @@ export function PublicNavigation({
   links,
   menus = [],
   leadingContent,
+  trailingContent,
 }: PublicNavigationProps) {
   const chinese = language.startsWith("zh");
   const otherLanguage = links.find((link) => link.icon === "language");
@@ -151,6 +153,7 @@ export function PublicNavigation({
         brandImage={brandImage}
         menus={menus}
         leadingContent={leadingContent}
+        trailingContent={trailingContent}
       />
       <noscript>
         <Menubar label={label} links={[{ label: brandLabel, href: brandHref }, ...links]} />

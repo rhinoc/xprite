@@ -26,6 +26,7 @@ export interface ShowcaseScene {
   observeInvalidation(callback: () => void): () => void;
   isDemoReady(): boolean;
   setDevice(device: ShowcaseDevice): void;
+  showOverview(): void;
   previewDevice(device?: ShowcaseDevice): void;
   observeDeviceSelection(callback: (device: ShowcaseDevice) => void): () => void;
   beginDrag(): void;

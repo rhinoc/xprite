@@ -114,7 +114,7 @@ export function Showcase({
         <PublicNavigation
           label="Xprite"
           language={state.language}
-          leadingContent={
+          trailingContent={
             <ShowcaseSoundControl
               language={state.language}
               muted={state.musicMuted}
@@ -168,13 +168,6 @@ export function Showcase({
               data-showcase-screen
               collapsible
               data-ui-window-priority="primary"
-              footer={
-                <div className={styles.action}>
-                  <Button href="/editor" slots={{}}>
-                    {copy.open}
-                  </Button>
-                </div>
-              }
             >
               <div className={styles.main}>
                 <div ref={intro} className={styles.intro} data-overview={!state.started}>
@@ -309,6 +302,15 @@ export function Showcase({
                       </Button>
                     </Panel>
                   )}
+                  <div
+                    className={styles.action}
+                    data-highlighted={state.editingHighlighted}
+                    onPointerDown={(event) => event.stopPropagation()}
+                  >
+                    <Button href="/editor" slots={{}}>
+                      {copy.open}
+                    </Button>
+                  </div>
                   <span id="device-navigation-hint" className={styles.announcement}>
                     {copy.navigation}
                   </span>

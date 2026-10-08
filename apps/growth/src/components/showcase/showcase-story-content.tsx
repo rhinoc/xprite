@@ -23,6 +23,7 @@ import {
 } from "@xprite/ui";
 
 import "$/components/showcase/showcase-stories.module.css";
+import "$/components/showcase/showcase-typography.module.css";
 
 const EDITOR_URL = "/editor";
 const WORKSPACE_LAYOUT_PATH = "/showcase/workspace-layout";
@@ -163,7 +164,7 @@ export function ShowcaseStaticHero({ language }: { language: ShowcaseContentLang
         <PublicNavigation
           label="Xprite"
           language={language}
-          leadingContent={<ShowcaseSoundControl language={language} />}
+          trailingContent={<ShowcaseSoundControl language={language} />}
           brandLabel={copy.home}
           brandHref={`/showcase/${language}/`}
           links={[
@@ -195,13 +196,6 @@ export function ShowcaseStaticHero({ language }: { language: ShowcaseContentLang
             data-showcase-screen
             collapsible
             data-ui-window-priority="primary"
-            footer={
-              <div data-showcase-action>
-                <Button href={EDITOR_URL} slots={{}}>
-                  {copy.open}
-                </Button>
-              </div>
-            }
           >
             <div data-showcase-static-intro>
               <div>
@@ -212,13 +206,20 @@ export function ShowcaseStaticHero({ language }: { language: ShowcaseContentLang
                 <p data-showcase-product-description>{copy.productDescription.join(" ")}</p>
               </RichText>
             </div>
-            <img
-              data-showcase-static-preview
-              src={`/showcase/devices/computer/${language}/animation.png`}
-              width={1440}
-              height={840}
-              alt="Xprite"
-            />
+            <div data-showcase-static-stage>
+              <img
+                data-showcase-static-preview
+                src={`/showcase/devices/computer/${language}/animation.png`}
+                width={1440}
+                height={840}
+                alt="Xprite"
+              />
+              <div data-showcase-action>
+                <Button href={EDITOR_URL} slots={{}}>
+                  {copy.open}
+                </Button>
+              </div>
+            </div>
           </Panel>
 
           <nav data-showcase-shortcuts aria-label={copy.tools}>
