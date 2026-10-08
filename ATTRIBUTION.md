@@ -108,6 +108,12 @@ The iPad showcase uses Three.js 0.186.1 by the three.js authors. Its upstream
 MIT license is retained in [`LICENSES/three-MIT.txt`](LICENSES/three-MIT.txt)
 and distributed with the application. Source: [Three.js](https://threejs.org/).
 
+The showcase's compressed models use Meshoptimizer by Arseny Kapoulkine. Its
+Meshopt decoder is bundled through Three.js, and gltfpack 1.3.0 prepares the runtime
+assets. The upstream MIT notice is retained in
+[`LICENSES/meshoptimizer-MIT.txt`](LICENSES/meshoptimizer-MIT.txt). Source:
+[Meshoptimizer](https://github.com/zeux/meshoptimizer).
+
 ## GSAP
 
 The public showcase's title and button animations use GSAP 3.15.0 by GreenSock under the

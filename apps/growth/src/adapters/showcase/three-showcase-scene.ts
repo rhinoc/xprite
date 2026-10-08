@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { HDRLoader } from "three/addons/loaders/HDRLoader.js";
 
@@ -8,6 +9,7 @@ import { createDeviceDisplays } from "$/adapters/showcase/device-models";
 import { HelloSpriteProject } from "$/adapters/showcase/hello-sprite-project";
 import { IpadPointerTilt } from "$/adapters/showcase/ipad-pointer-tilt";
 import { IpadScreen } from "$/adapters/showcase/ipad-screen";
+import modelManifest from "$/adapters/showcase/model-manifest.json";
 import { observeOverviewDeviceSelection } from "$/adapters/showcase/overview-device-selection";
 import {
   PENCIL_WRITING_TIMING,
@@ -98,11 +100,9 @@ const CONTACT_SHADOW_VERTICAL_CLEARANCE = 0.15;
 const CONTACT_SHADOW_DEPTH_CLEARANCE = 1.1;
 
 const ASSET_ROOT = "/showcase/ipad/";
-const MODEL_REVISION = "licensed-devices-20261004-display";
+const MODEL_REVISION = modelManifest.revision;
 const IPAD_MODEL_FILE = "ipad.glb";
-const IPAD_MODEL_REVISION = "usb-c-side-face-20261004";
 const PHONE_MODEL_FILE = "iphone.glb";
-const PHONE_MODEL_REVISION = "dynamic-island-clearance-20261004";
 const SCREEN_WIDTH = 9.38;
 const SCREEN_HEIGHT = (SCREEN_WIDTH * 834) / 1194;
 const TABLET_WIDTH = 10;
@@ -282,6 +282,7 @@ export async function mountScene(
   const motionPreference = window.matchMedia(REDUCED_MOTION_QUERY);
   let previousFrame = performance.now();
   const loader = new GLTFLoader();
+  loader.setMeshoptDecoder(MeshoptDecoder);
   const pmrem = new THREE.PMREMGenerator(renderer);
   let environment: THREE.WebGLRenderTarget | undefined;
   let screenTexture: THREE.CanvasTexture | undefined;
@@ -315,13 +316,7 @@ export async function mountScene(
 
   try {
     const loadModel = async (file: string, parent: THREE.Object3D = product) => {
-      const revision =
-        file === IPAD_MODEL_FILE
-          ? IPAD_MODEL_REVISION
-          : file === PHONE_MODEL_FILE
-            ? PHONE_MODEL_REVISION
-            : MODEL_REVISION;
-      const { scene: model } = await loader.loadAsync(`${ASSET_ROOT}${file}?v=${revision}`);
+      const { scene: model } = await loader.loadAsync(`${ASSET_ROOT}${file}?v=${MODEL_REVISION}`);
       if (disposed) {
         disposeObject(model);
         throw new Error("Scene disposed");

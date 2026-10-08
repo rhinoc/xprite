@@ -1,0 +1,91 @@
+{
+  "tool": "gltfpack 1.3.0",
+  "revision": "9e98d7a14a0e788d",
+  "models": {
+    "macbook-pro.glb": {
+      "source": "scripts/showcase/devices/macbook-pro.blend",
+      "sourceSha256": "806b4af4b27b81c580e2e88cb9235353f6474419719beac21943ff8209d513a7",
+      "exportedBytes": 7855284,
+      "bytes": 697496,
+      "sha256": "01d2ad20155cdf1ac783a5f753ac8392c61adfb6a002ebb06a19d258883b8e04",
+      "original": {
+        "vertices": 153906,
+        "triangles": 112625,
+        "meshes": 61
+      },
+      "optimized": {
+        "vertices": 58014,
+        "triangles": 58479,
+        "meshes": 61
+      }
+    },
+    "iphone.glb": {
+      "source": "scripts/showcase/devices/iphone.blend",
+      "sourceSha256": "da7d4d496fa6aabdffaec1379b95950aff2cca9bf1f7822526c3fb739a6c4636",
+      "exportedBytes": 394412,
+      "bytes": 69468,
+      "sha256": "5d3ec1298d0a8cd24ac1b40b1adb297f9982e4c64990aa449eeb62a275302b41",
+      "original": {
+        "vertices": 9643,
+        "triangles": 8515,
+        "meshes": 30
+      },
+      "optimized": {
+        "vertices": 5194,
+        "triangles": 5353,
+        "meshes": 30
+      }
+    },
+    "ipad.glb": {
+      "source": "scripts/showcase/ipad/ipad-showcase.blend",
+      "sourceSha256": "9b0c48c678de751eaf8991135408de34f88df026b47e6c15f5a1d11f3a3f2e23",
+      "exportedBytes": 484236,
+      "bytes": 61392,
+      "sha256": "52065d8e184a76af68ccd866ceca065a7924d33ead51cb0e0b275092c3cbd083",
+      "original": {
+        "vertices": 14289,
+        "triangles": 21872,
+        "meshes": 54
+      },
+      "optimized": {
+        "vertices": 4269,
+        "triangles": 7178,
+        "meshes": 18
+      }
+    },
+    "apple-pencil.glb": {
+      "source": "scripts/showcase/ipad/ipad-showcase.blend",
+      "sourceSha256": "9b0c48c678de751eaf8991135408de34f88df026b47e6c15f5a1d11f3a3f2e23",
+      "exportedBytes": 47300,
+      "bytes": 11072,
+      "sha256": "b5b6db287f70ad293a48d40ec59be4c11cfedecd358aa9109624650182efab40",
+      "original": {
+        "vertices": 1216,
+        "triangles": 2416,
+        "meshes": 4
+      },
+      "optimized": {
+        "vertices": 612,
+        "triangles": 1208,
+        "meshes": 4
+      }
+    },
+    "hand.glb": {
+      "source": "scripts/showcase/ipad/hand-tap.blend",
+      "sourceSha256": "304e207eeaf037cb2d3e8bc8dc87e39b4e57c474d4970ec8052d33564acbf59c",
+      "exportedBytes": 517068,
+      "bytes": 35300,
+      "sha256": "7e4a9864daabd283e28c905829e86aa0aade9a79bd25642bf87e4bcd2d3f2c94",
+      "original": {
+        "vertices": 13231,
+        "triangles": 15368,
+        "meshes": 3
+      },
+      "optimized": {
+        "vertices": 2769,
+        "triangles": 5388,
+        "meshes": 3
+      }
+    }
+  }
+}
