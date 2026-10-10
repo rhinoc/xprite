@@ -32,6 +32,7 @@ export interface SitePage {
   title: string;
   description?: string;
   dateModified?: string;
+  document?: string;
   indexable: boolean;
   translations?: readonly { language: PublicLanguage; path: string }[];
 }
@@ -50,6 +51,7 @@ function placeholderPages(definitions: readonly PlannedPageDefinition[]): SitePa
         path,
         language,
         title: definition.title[language],
+        document: definition.document,
         indexable: false,
         translations,
       })),
