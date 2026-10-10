@@ -101,9 +101,10 @@ layer/frame/palette counts.
 Browser/device/OS properties use PostHog's standard event field names.
 The same visit ID joins a user's operations within this page load; it is not saved
 to browser storage or reused across reloads.
-`entry_referring_domain` contains only the hostname and optional port read from
+`entry_referring_domain` and `referring_domain` contain only the hostname read from
 `document.referrer`; `entry_referrer_present` distinguishes a supplied referrer
 from missing information. Missing referrer still cannot establish the true source.
+The shared SDK still persists `$referrer` and `$referring_domain` (`save_referrer: true`).
 
 When an editor URL contains exactly the recognized attribution values
 `utm_source=compare`, `utm_medium=referral`, and one of `utm_campaign=aseprite-online`,
@@ -132,7 +133,8 @@ caller-supplied fields such as `email` and `name`; it has no general field delet
 list. Event whitelisting and URL/campaign filtering remain enabled, including
 removal of raw URL query/hash parameters.
 Only the fixed comparison attribution above is accepted from a URL. The SDK's
-automatic campaign/referrer persistence is disabled; outgoing standard UTM,
+automatic campaign persistence is disabled, while referrer persistence stays on so
+`$referrer` and `$referring_domain` remain available. Outgoing standard UTM,
 click identifiers and search keywords are removed, including initial/session fields.
 Exceptions include a sanitized message/stack and error source, with allowlisted
 `pwa_*` and `file_write_*` exception properties: operation

@@ -25,7 +25,12 @@ Comparison (`/compare/`) and file-guide (`/learn/`) landing pages both use
 `page_type: article`.
 
 All events include `page_type`, `page_path`, nullable `tool_name`, nullable
-`referring_domain`, `release`, `visit_id`, and boolean `internal_traffic`.
+`referring_domain`, `entry_referrer_present`, nullable `entry_referring_domain`,
+`release`, `visit_id`, and boolean `internal_traffic`.
+`referring_domain` and `entry_referring_domain` are the referrer hostname from
+`document.referrer`. SDK initialization keeps `save_referrer: true`, so PostHog
+`$referrer` and `$referring_domain` still persist across visits. Campaign
+parameter persistence stays off.
 The existing capability/version fields and editor attribution remain. URL
 queries/fragments and arbitrary campaign values are stripped before delivery.
 
@@ -36,13 +41,13 @@ cross-page join key. Different origins, devices or cleared/unavailable browser
 storage cannot share the anonymous visitor. Person profiles, identify/alias,
 automatic click capture and session recording remain disabled.
 
-| Event | Boundary | Additional properties |
-| --- | --- | --- |
-| `$pageview` | Initial document load or different path | Common context |
-| `site_cta_click` | Activated internal product destination; includes middle-click and keyboard links | `cta_target`, `target_page_path` |
-| `tool_file_opened` | Manager finished parsing and has usable preview pixels | `file_id`, allowlisted `input_format`, `open_source` (`file` or `example`) |
-| `tool_output_handed_off` | Generated output passed to `downloadBlob`; adapter returned successfully | `file_id`, `output_format` |
-| `tool_operation_failed` | Open or export failed | `operation`, allowlisted `error_category` |
+| Event                    | Boundary                                                                         | Additional properties                                                      |
+| ------------------------ | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `$pageview`              | Initial document load or different path                                          | Common context                                                             |
+| `site_cta_click`         | Activated internal product destination; includes middle-click and keyboard links | `cta_target`, `target_page_path`                                           |
+| `tool_file_opened`       | Manager finished parsing and has usable preview pixels                           | `file_id`, allowlisted `input_format`, `open_source` (`file` or `example`) |
+| `tool_output_handed_off` | Generated output passed to `downloadBlob`; adapter returned successfully         | `file_id`, `output_format`                                                 |
+| `tool_operation_failed`  | Open or export failed                                                            | `operation`, allowlisted `error_category`                                  |
 
 Join tool open/output by `visit_id`, `tool_name` and `file_id`. File identifiers
 are counters within the document visit, never filenames or content hashes.

@@ -246,7 +246,8 @@ export class BrowserTelemetry {
         person_profiles: "never",
         persistence: "localStorage",
         save_campaign_params: false,
-        save_referrer: false,
+        // Persist SDK $referrer / $referring_domain. Custom entry_* fields stay separate.
+        save_referrer: true,
         respect_dnt: true,
         disable_capture_url_hashes: true,
         autocapture: false,
