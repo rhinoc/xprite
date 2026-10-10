@@ -1,33 +1,59 @@
-# Aseprite to PNG
+---
+updated: 2026-10-10
+---
 
-Use the [Xprite viewer](/tools/viewer/) to extract a transparent PNG frame from an `.aseprite` project. Open a local file, select a frame and visible layers, then download the rendered image.
+# Aseprite to PNG: Export a Frame with a Transparent Background
 
-The PNG contains one frame at the source canvas dimensions. Keep the `.aseprite` original for further editing.
+The [Xprite viewer](/tools/viewer/?utm_source=learn&utm_medium=referral&utm_campaign=aseprite-to-png) opens `.aseprite` projects directly and exports any frame as a PNG. The image keeps its transparent background and has the same size as the canvas. The file is processed on your device and never uploaded, and you don't need Aseprite.
 
-## Choose a frame and download PNG
+The PNG holds one frame with its layers merged. Layers and animation stay in the original `.aseprite` file.
 
-Choose **Open file** or drop an `.ase` or `.aseprite` file into the viewer. Use **Example** if you want to try the controls first. Select the frame you need on the timeline and check the visible layers.
+## How to export
 
-For an animated project, open the arrow beside the export button and select **Current frame (.png)**. For a single-frame range, the export button already downloads PNG. The filename includes the source frame number so that individual downloads are easier to identify.
+1. **Open the project**: in the viewer, choose **File → Open file…**, or drag an `.ase` or `.aseprite` file onto the page. To try it first, choose **File → Open example**.
+2. **Pick a frame**: click a frame in the timeline, or move between frames with the previous and next frame buttons or the Left and Right arrow keys. The status bar shows the current frame number and its duration.
+3. **Check the layers**: click the eye icon next to a layer, such as the background, to hide it. The export only includes visible layers, and your file isn't changed.
+4. **Export the PNG**: choose **File → Export current frame (.png)**. The file is named `project-frame-N.png`, where N starts at 1, so repeated exports are easy to tell apart.
 
-To turn the whole animation into a shareable moving image, use the [Aseprite to GIF guide](/learn/aseprite-to-gif/). For a sprite sheet, use the editor's **File → Export Sprite Sheet** workflow.
+![The viewer's timeline: playback buttons on top, eye icons on the left to show or hide layers, and frame cells you can click](images/viewer-timeline-en.png)
 
-## Keep transparency and crisp pixels
+![The viewer's File menu, with Export animation (.gif) and Export current frame (.png)](images/viewer-file-menu-en.png)
 
-The viewer's checkerboard marks transparent areas, which stay transparent in the exported PNG. If the project has an opaque background layer, hide it before exporting to get a transparent background. PNG preserves alpha transparency in the rendered frame.
+To export the whole animation, use **Export animation (.gif)** instead, as described in [Aseprite to GIF](/learn/aseprite-to-gif/). To lay out every frame on one sprite sheet, open the project in the [Xprite editor](/?utm_source=learn&utm_medium=referral&utm_campaign=aseprite-to-png) and choose **File → Export → Export Sprite Sheet**.
 
-A 32 × 32 project produces a 32 × 32 PNG at any viewer zoom. If a destination enlarges it with smoothing, the display can look blurry. Set the destination's image scaling to nearest-neighbor, or resize a separate copy in an editor when the destination requires a larger image.
+## What the PNG contains
 
-Visible layers are composited into one image. Keep the project file to retain layer names, hidden content, animation tags and other editable information. Aseprite also recommends its project format for editable work. [Aseprite save documentation](https://www.aseprite.org/docs/save/)
+|  | In the PNG |
+| --- | --- |
+| Size | Same as the canvas, whatever the viewer's zoom |
+| Transparency | Kept in full, including semi-transparent pixels |
+| Layers | Visible layers merged into one image |
+| Frames | The current frame only |
 
-## Open the right kind of ASE file
+The checkerboard in the preview marks transparent areas, and they stay transparent in the PNG. If the project has an opaque background layer, hide it to get a transparent background.
 
-`.aseprite` is an Aseprite project extension. `.ase` is also used for Adobe Swatch Exchange palettes; those palette files are a different format and cannot be converted into sprite images by this viewer. Renaming one does not convert it. [Aseprite file-extension FAQ](https://www.aseprite.org/faq/)
+A 32 × 32 project exports a 32 × 32 PNG. If it looks blurry in another app, that app is smoothing the image as it scales it up; set its scaling method to nearest neighbor to keep the pixels sharp. For a large finished image, use **File → Export → Export As...** in the editor and enter a percentage under **Resize**. For example, 400 makes it four times larger.
 
-A corrupt or incomplete project can fail to decode. The viewer also limits input files and decoded pixel data to **64 MiB**, with separate canvas, layer, and frame checks. A small compressed file is not necessarily a small image in memory. Reduce a copy in the originating editor when its dimensions or contents exceed these limits.
+## If the file won't open
 
-## Keep the source and continue editing
+First, check that the file comes from Aseprite. `.ase` and `.aseprite` are the same format, but [Adobe swatch exchange files](https://www.aseprite.org/faq/) also use the `.ase` extension. The viewer can't open those swatch files, and renaming them doesn't help.
 
-**Edit** opens the original project in Xprite. Layer visibility changes made just for previewing are not transferred. Save a separate project if you change the artwork, and keep the PNG as the delivery image. The [save and recovery guide](/help/#save-and-recover) explains browser file saving.
+Next, check the project's size. The viewer checks these limits when it opens a project:
 
-Xprite is an independent editor and viewer with its own Aseprite format support. Compare important outputs with the original application before using them in a production asset pipeline.
+- Each side of the canvas is at most 32,768 pixels
+- At most 4,096 frames
+- At most 256 layers
+
+## FAQ
+
+### Are layers I hide saved to my file?
+
+No. Showing and hiding layers only affects the preview and the export. **File → Edit in Xprite** also opens the original file.
+
+### Can I export every frame at once?
+
+The viewer exports one frame at a time. For every frame, export a sprite sheet from the Xprite editor, or export a GIF.
+
+---
+
+[Open the viewer to export a PNG](/tools/viewer/?utm_source=learn&utm_medium=referral&utm_campaign=aseprite-to-png). To change the project in your browser, see [Edit Aseprite files online](/compare/aseprite-online/).

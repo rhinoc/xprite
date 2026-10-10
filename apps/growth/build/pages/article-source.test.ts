@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 
 import { describe, it } from "vitest";
 
+import { resolveArticleDates } from "../../content/articles/frontmatter.ts";
 import { ARTICLES } from "../../content/articles/index.ts";
 import { PublicLanguage } from "../../content/site/language.ts";
 import { SITE_PAGES } from "../../content/site/pages.ts";
@@ -33,11 +34,17 @@ describe("article publication dates", () => {
     );
   });
 
-  it("keeps the registry date when an article has no frontmatter", () => {
-    assert.equal(english.datePublished, undefined);
-    assert.equal(english.dateModified, article.dateModified);
+  it("uses English frontmatter for the English page", () => {
+    assert.equal(english.dateModified, "2026-10-10");
+    assert.equal(english.datePublished, "2026-10-10");
     const page = SITE_PAGES.find((item) => item.path === ENGLISH_PATH);
-    assert.equal(pageLastModified(page!), article.dateModified);
+    assert.equal(pageLastModified(page!), english.dateModified);
+  });
+
+  it("keeps the registry date when an article has no frontmatter", () => {
+    const dates = resolveArticleDates(article.dateModified, {});
+    assert.equal(dates.datePublished, undefined);
+    assert.equal(dates.dateModified, article.dateModified);
   });
 
   it("publishes the comparison screenshots from the article folder", () => {
@@ -46,6 +53,10 @@ describe("article publication dates", () => {
       "images/touch-settings.png",
       "images/shortcut-toolbar.png",
       "images/save-as-browser-or-files.png",
+      "images/editor-with-aseprite-en.png",
+      "images/touch-settings-en.png",
+      "images/shortcut-toolbar-en.png",
+      "images/save-as-browser-or-files-en.png",
     ]) {
       const image = articleImageAsset(article, href);
       assert.equal(image.publicPath, `/compare/articles/${href}`);
