@@ -201,7 +201,7 @@ OPFS 的读写放在专门的 Worker 里，用同步访问句柄（`createSyncAc
 
 「文件」→「分享…」不上传任何东西。作品被压缩后写进链接 `#share=` 之后的部分（URL 片段）。浏览器访问网址时不会把 `#` 之后的内容发给服务器，所以分享不经过任何服务器。
 
-![「分享…」对话框：可以只分享当前帧或可见图层，下方是生成的链接和字符数（截图来自本地开发环境）](images/share-dialog.png)
+![「分享…」对话框：上方是以 https://xprite.cc/editor#share= 开头的分享链接和字符数，下方可以选择只分享当前帧或可见图层](images/share-dialog.png)
 
 ```article-diagram
 {
