@@ -9,8 +9,18 @@ import { HELLO_ARTWORK_BOUNDS } from "$/managers/showcase/hello-project";
 import { ShowcaseManager } from "$/managers/showcase/showcase-manager";
 import { DesktopProvider } from "@xprite/site-shell";
 import { createBrowserDesktop } from "@xprite/site-shell/browser";
+import { createBrowserSiteTelemetry } from "@xprite/site-shell/telemetry/browser";
 import { PageScrollArea, macintoshTheme } from "@xprite/ui";
 import { CursorProvider } from "@xprite/ui/cursor";
+
+createBrowserSiteTelemetry({
+  production: import.meta.env.PROD,
+  token: import.meta.env.VITE_POSTHOG_PROJECT_TOKEN ?? "",
+  region: import.meta.env.VITE_POSTHOG_REGION ?? "US",
+  version: __XPRITE_VERSION__,
+  release: __XPRITE_RELEASE__,
+  captureLinks: true,
+});
 
 const manager = new ShowcaseManager(
   createShowcasePort({

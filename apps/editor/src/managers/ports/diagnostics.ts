@@ -1,6 +1,30 @@
 export const MAX_DIAGNOSTIC_RECORDS = 200;
 export const DIAGNOSTIC_RETENTION_DAYS = 7;
 
+export enum PwaDiagnosticStage {
+  Register = "register",
+  Activation = "activation",
+  Status = "status",
+  Prepare = "prepare",
+  Update = "update",
+  Install = "install",
+  Persistence = "persistence",
+}
+
+export enum PwaFailure {
+  Timeout = "timeout",
+  InvalidResponse = "invalid-response",
+  MessageError = "message-error",
+  PostMessage = "post-message",
+  CacheNotReady = "cache-not-ready",
+  NoWorker = "no-worker",
+}
+
+export enum FileWriteStage {
+  Permission = "permission",
+  Write = "write",
+}
+
 export enum DiagnosticSource {
   ReactBoundary = "react-boundary",
   GlobalError = "global-error",

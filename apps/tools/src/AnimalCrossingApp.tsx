@@ -7,11 +7,16 @@ import { AnimalCrossingManager } from "$/managers/animal-crossing/animal-crossin
 import { ToolHostManager } from "$/managers/tools/tool-host-manager";
 import { DesktopAppearance } from "@xprite/site-shell";
 import { createBrowserDesktop } from "@xprite/site-shell/browser";
+import type { SiteTelemetryPort } from "@xprite/site-shell/telemetry";
 import type { UiThemeSnapshot } from "@xprite/ui/assets";
-export function createAnimalCrossingApplication(initialTheme?: UiThemeSnapshot) {
+export function createAnimalCrossingApplication(
+  initialTheme?: UiThemeSnapshot,
+  telemetry?: SiteTelemetryPort,
+) {
   const manager = new AnimalCrossingManager(
     createBrowserAnimalCrossingPort(),
     browserIslandPreview,
+    telemetry,
   );
   const host = new ToolHostManager(browserToolHost);
   const desktop = createBrowserDesktop({

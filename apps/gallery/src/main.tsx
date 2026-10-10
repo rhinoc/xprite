@@ -6,7 +6,17 @@ import { browserIconClipboard } from "$/adapters/icon-clipboard";
 import Gallery from "$/Gallery";
 import { DesktopProvider } from "@xprite/site-shell";
 import { createBrowserDesktop } from "@xprite/site-shell/browser";
+import { createBrowserSiteTelemetry } from "@xprite/site-shell/telemetry/browser";
 import { CursorProvider } from "@xprite/ui/cursor";
+
+createBrowserSiteTelemetry({
+  production: import.meta.env.PROD,
+  token: import.meta.env.VITE_POSTHOG_PROJECT_TOKEN ?? "",
+  region: import.meta.env.VITE_POSTHOG_REGION ?? "US",
+  version: __XPRITE_VERSION__,
+  release: __XPRITE_RELEASE__,
+  captureLinks: true,
+});
 
 const desktop = createBrowserDesktop();
 

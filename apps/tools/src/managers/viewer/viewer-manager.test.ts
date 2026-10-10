@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "vitest";
 
 import type { ViewerPort } from "$/managers/ports/viewer";
-import { ViewerManager } from "$/managers/viewer/viewer-manager";
+import { ViewerManager, ViewerExportFormat } from "$/managers/viewer/viewer-manager";
 import type { SessionProject } from "@xprite/editor-core/session";
 import { AppearanceMode } from "@xprite/editor-ui/appearance";
 
@@ -68,5 +68,71 @@ describe("viewer presentation frame reuse", () => {
     assert.deepEqual(first.data, firstBytes);
     assert.deepEqual([...imported.image.data], [128, 64, 32, 255]);
     manager.dispose();
+  });
+});
+
+describe("viewer telemetry result boundaries", () => {
+  it("waits for download handoff, keeps the last parsed file identity, and excludes cancellation", async () => {
+    const events: { event: string; properties: Readonly<Record<string, unknown>> }[] = [];
+    let readFailure: Error | null = null;
+    let exportFailure: Error | null = null;
+    let handoff = Promise.resolve();
+    const port: ViewerPort = {
+      readWheel: () => ({ precise: false, magnify: false, zoom: false, shift: false, unit: 1 }),
+      readAppearance: () => AppearanceMode.Light,
+      watchAppearance: () => () => {},
+      read: async () => {
+        if (readFailure) throw readFailure;
+        return project(1.8);
+      },
+      example: async () => new File([], "example.ase"),
+      saveFrame: async () => {
+        if (exportFailure) throw exportFailure;
+        await handoff;
+      },
+      saveAnimation: async () => {},
+      edit: async () => {},
+    };
+    const manager = new ViewerManager(port, {
+      enabled: true,
+      capture: (event, properties) => events.push({ event, properties }),
+    });
+    await manager.open(new File([], "private-project.aseprite"));
+    assert.ok(manager.getSnapshot().pixels);
+    assert.equal(events.length, 1);
+    assert.equal(events[0].event, "tool_file_opened");
+    const fileId = events[0].properties.file_id;
+    let completeHandoff!: () => void;
+    handoff = new Promise((resolve) => {
+      completeHandoff = resolve;
+    });
+    const exporting = manager.exportFile(ViewerExportFormat.Png);
+    assert.equal(events.length, 1);
+    completeHandoff();
+    await exporting;
+    assert.equal(events[1].event, "tool_output_handed_off");
+    assert.equal(events[1].properties.file_id, fileId);
+
+    exportFailure = new DOMException("cancelled", "AbortError");
+    await manager.exportFile(ViewerExportFormat.Png);
+    assert.equal(events.length, 2);
+    exportFailure = new Error("private download path");
+    await manager.exportFile(ViewerExportFormat.Png);
+    assert.equal(events[2].event, "tool_operation_failed");
+    assert.equal(events[2].properties.operation, "export");
+
+    readFailure = new Error("private parsing details");
+    await manager.open(new File([], "another-private-project.aseprite"));
+    assert.equal(events[3].event, "tool_operation_failed");
+    assert.equal(events[3].properties.error_category, "decode");
+    exportFailure = null;
+    await manager.exportFile(ViewerExportFormat.Png);
+    assert.equal(events[4].event, "tool_output_handed_off");
+    assert.equal(events[4].properties.file_id, fileId);
+    assert.ok(!JSON.stringify(events).includes("private"));
+
+    manager.dispose();
+    await manager.open(new File([], "closed.ase"));
+    assert.equal(events.length, 5);
   });
 });

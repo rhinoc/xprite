@@ -6,6 +6,8 @@ import { ToolApplicationRoot } from "$/tool-application-root";
 import { AppearanceMode, resolveAppearanceMode } from "@xprite/editor-ui/appearance";
 import { normalizeDesktopPreferences, DesktopAppearance } from "@xprite/site-shell";
 import { readBrowserDesktopPreferences } from "@xprite/site-shell/browser";
+import type { SiteTelemetryPort } from "@xprite/site-shell/telemetry";
+import { createBrowserSiteTelemetry } from "@xprite/site-shell/telemetry/browser";
 import { macintoshTheme } from "@xprite/ui";
 import { preloadUiAssets, type UiThemeSnapshot } from "@xprite/ui/assets";
 
@@ -28,9 +30,20 @@ const EDITOR_APPEARANCE_BY_DESKTOP: Record<DesktopAppearance, AppearanceMode> = 
 /** Keep the generated HTML visible until bitmap controls can mount immediately. */
 export async function mountToolApplication(
   rootId: string,
-  createApplication: (initialTheme?: UiThemeSnapshot) => ToolApplication,
+  createApplication: (
+    initialTheme?: UiThemeSnapshot,
+    telemetry?: SiteTelemetryPort,
+  ) => ToolApplication,
   hot: ImportMeta["hot"],
 ) {
+  const telemetry = createBrowserSiteTelemetry({
+    production: import.meta.env.PROD,
+    token: import.meta.env.VITE_POSTHOG_PROJECT_TOKEN ?? "",
+    region: import.meta.env.VITE_POSTHOG_REGION ?? "US",
+    version: __XPRITE_VERSION__,
+    release: __XPRITE_RELEASE__,
+    captureLinks: true,
+  });
   let active = true;
   let application: ToolApplication | undefined;
   let root: Root | undefined = hot?.data.root;
@@ -62,7 +75,7 @@ export async function mountToolApplication(
   // Attach events after the original static artwork is decoded, keeping its first paint intact.
   await Promise.all([...document.images].map((image) => image.decode()));
   if (!active) return;
-  application = createApplication(initialThemes[appearance]);
+  application = createApplication(initialThemes[appearance], telemetry);
   const view = (
     <StrictMode>
       <ToolApplicationRoot

@@ -7,11 +7,15 @@ import { viewerCompareSearch } from "$/managers/viewer/compare-attribution";
 import { ViewerManager } from "$/managers/viewer/viewer-manager";
 import { DesktopAppearance } from "@xprite/site-shell";
 import { createBrowserDesktop } from "@xprite/site-shell/browser";
+import type { SiteTelemetryPort } from "@xprite/site-shell/telemetry";
 import type { UiThemeSnapshot } from "@xprite/ui/assets";
 
-export function createViewerApplication(initialTheme?: UiThemeSnapshot) {
+export function createViewerApplication(
+  initialTheme?: UiThemeSnapshot,
+  telemetry?: SiteTelemetryPort,
+) {
   const port = createBrowserViewerPort(viewerCompareSearch(window.location.search));
-  const manager = new ViewerManager(port);
+  const manager = new ViewerManager(port, telemetry);
   const host = new ToolHostManager(browserToolHost);
   const desktop = createBrowserDesktop({
     appearance: (initialTheme?.appearance ?? host.getAppearanceMode()) as DesktopAppearance,

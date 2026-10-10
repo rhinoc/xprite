@@ -1,7 +1,8 @@
 import { browserToolAppearance } from "$/adapters/preview/browser-appearance";
+import { handOffToolOutput } from "$/adapters/preview/browser-download";
 import { readToolWheel } from "$/adapters/preview/browser-preview";
 import type { GifSheetPort } from "$/managers/ports/gif-sheet";
-import { downloadBlob } from "@xprite/bedrock/browser/file-system";
+import { ToolFailureCategory, ToolOperationError } from "$/managers/ports/telemetry";
 import { encodePngBlob } from "@xprite/bedrock/browser/images";
 import { decodeGifAnimation } from "@xprite/editor-core/import-export";
 import exampleUrl from "@xprite/site-assets/showcase/ipad/hello/hello.gif?url";
@@ -15,7 +16,11 @@ export function createBrowserGifSheetPort(): GifSheetPort {
     ...browserToolAppearance,
     readWheel: readToolWheel,
     async read(file) {
-      if (file.size > MAX_GIF_BYTES) throw new Error("Choose a GIF no larger than 64 MiB.");
+      if (file.size > MAX_GIF_BYTES)
+        throw new ToolOperationError(
+          ToolFailureCategory.Limit,
+          "Choose a GIF no larger than 64 MiB.",
+        );
       const animation = decodeGifAnimation(new Uint8Array(await file.arrayBuffer()), {
         includeStatic: true,
       });
@@ -29,10 +34,10 @@ export function createBrowserGifSheetPort(): GifSheetPort {
       return new File([await response.blob()], EXAMPLE_FILENAME, { type: "image/gif" });
     },
     async savePng(pixels, name) {
-      downloadBlob(await encodePngBlob(pixels), name);
+      await handOffToolOutput(() => encodePngBlob(pixels), name);
     },
     async saveJson(content, name) {
-      downloadBlob(new Blob([content], { type: JSON_TYPE }), name);
+      await handOffToolOutput(() => new Blob([content], { type: JSON_TYPE }), name);
     },
   };
 }

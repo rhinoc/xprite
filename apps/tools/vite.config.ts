@@ -14,6 +14,7 @@ import { packageLocalAliases } from "../../infra/package-local-aliases.ts";
 import { publicPackageAssets } from "../../infra/public-package-assets.ts";
 import { ssgScopedName } from "../../infra/react-ssg-style-names.ts";
 import { siteHtml } from "../../infra/site-html.ts";
+import { siteTelemetryDefines } from "../../infra/site-telemetry.ts";
 import { toolsStartupPages } from "./build/startup-pages.ts";
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -27,6 +28,7 @@ const GIF_PATH = "/tools/gif-to-sprite-sheet/";
 
 export default defineConfig(({ command }) => ({
   root,
+  define: siteTelemetryDefines(),
   appType: "mpa",
   base: TOOLS_BASE_PATH,
   publicDir: false,

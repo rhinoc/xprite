@@ -1,5 +1,12 @@
 import type { GifSheetPort } from "$/managers/ports/gif-sheet";
+import { ToolFailureCategory } from "$/managers/ports/telemetry";
 import { ToolViewport } from "$/managers/preview/tool-viewport";
+import {
+  ToolTelemetry,
+  ToolOpenSource,
+  ToolOperation,
+  ToolOutputFormat,
+} from "$/managers/telemetry/tool-telemetry";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import type { EditorDocument } from "@xprite/editor-core/document";
 import {
@@ -10,6 +17,7 @@ import {
   type SpriteSheetResult,
 } from "@xprite/editor-core/import-export";
 import { AppearanceMode } from "@xprite/editor-ui/appearance";
+import type { SiteTelemetryPort } from "@xprite/site-shell/telemetry";
 
 export { SheetLayout as GifSheetLayout } from "@xprite/editor-core/import-export";
 export enum GifSheetStatus {
@@ -76,8 +84,13 @@ export class GifSheetManager {
   private request = 0;
   private closed = false;
   private listeners = new Set<() => void>();
+  private readonly telemetry: ToolTelemetry;
   private stopAppearance: () => void;
-  constructor(private readonly port: GifSheetPort) {
+  constructor(
+    private readonly port: GifSheetPort,
+    telemetry?: SiteTelemetryPort,
+  ) {
+    this.telemetry = new ToolTelemetry(telemetry);
     this.viewport = new ToolViewport(port.readWheel);
     this.snapshot.appearanceMode = port.readAppearance();
     this.stopAppearance = port.watchAppearance((appearanceMode) => this.update({ appearanceMode }));
@@ -94,13 +107,17 @@ export class GifSheetManager {
     this.snapshot = { ...this.snapshot, ...patch };
     for (const listener of this.listeners) listener();
   }
-  async open(file: File) {
+  async open(file: File, source = ToolOpenSource.File) {
+    if (this.closed) return;
     const request = ++this.request;
     this.update({ status: GifSheetStatus.Loading, error: null, downloading: false });
+    let failureCategory = ToolFailureCategory.UnsupportedFormat;
     try {
       if (!GIF_FILENAME.test(file.name)) throw new Error("Choose a GIF file.");
+      failureCategory = ToolFailureCategory.Decode;
       const animation = await this.port.read(file);
       if (this.closed || request !== this.request) return;
+      failureCategory = ToolFailureCategory.Preview;
       const project = rasterAnimationProject(animation);
       this.document = {
         name: file.name,
@@ -126,27 +143,33 @@ export class GifSheetManager {
         frames: animation.frames.length,
         settings: { ...DEFAULT_SETTINGS, count: Math.ceil(Math.sqrt(animation.frames.length)) },
       });
-      this.render();
+      if (this.render()) this.telemetry.opened(request, file, source);
+      else this.telemetry.failed(ToolOperation.Open, ToolFailureCategory.Preview);
     } catch (reason) {
-      if (!this.closed && request === this.request)
+      if (!this.closed && request === this.request) {
+        this.telemetry.failed(ToolOperation.Open, failureCategory, reason);
         this.update({
           status: this.document ? GifSheetStatus.Ready : GifSheetStatus.Empty,
           error: reason instanceof Error ? reason.message : "This GIF could not be opened.",
         });
+      }
     }
   }
   async openExample() {
+    if (this.closed) return;
     const request = ++this.request;
     this.update({ status: GifSheetStatus.Loading, error: null });
     try {
       const file = await this.port.example();
-      if (!this.closed && request === this.request) await this.open(file);
+      if (!this.closed && request === this.request) await this.open(file, ToolOpenSource.Example);
     } catch (reason) {
-      if (!this.closed && request === this.request)
+      if (!this.closed && request === this.request) {
+        this.telemetry.failed(ToolOperation.Open, ToolFailureCategory.ExampleFetch, reason);
         this.update({
           status: this.document ? GifSheetStatus.Ready : GifSheetStatus.Empty,
           error: reason instanceof Error ? reason.message : "The example could not be loaded.",
         });
+      }
     }
   }
   changeSettings(patch: Partial<GifSheetSettings>) {
@@ -182,7 +205,7 @@ export class GifSheetManager {
     this.render();
   }
   private render() {
-    if (!this.document) return;
+    if (!this.document) return false;
     try {
       const settings = this.snapshot.settings;
       const name = this.snapshot.name.replace(GIF_FILENAME, ".png");
@@ -211,25 +234,38 @@ export class GifSheetManager {
         filenameFormat: "{title}-{frame}.png",
       });
       this.update({ pixels: this.result.pixels, error: null });
+      return true;
     } catch (reason) {
       this.result = null;
       this.update({
         pixels: null,
         error: reason instanceof Error ? reason.message : "This layout could not be generated.",
       });
+      return false;
     }
   }
   async download(format: GifSheetDownload) {
-    if (!this.result || this.snapshot.status !== GifSheetStatus.Ready || this.snapshot.downloading)
+    if (
+      this.closed ||
+      !this.result ||
+      this.snapshot.status !== GifSheetStatus.Ready ||
+      this.snapshot.downloading
+    )
       return;
     const request = this.request;
+    const fileId = this.snapshot.identity;
     const result = this.result;
     const base = this.snapshot.name.replace(GIF_FILENAME, "");
     this.update({ downloading: true, error: null });
     try {
       if (format === GifSheetDownload.Png) await this.port.savePng(result.pixels, `${base}.png`);
       else await this.port.saveJson(JSON.stringify(result.data, null, 2), `${base}.json`);
+      this.telemetry.handedOff(
+        fileId,
+        format === GifSheetDownload.Png ? ToolOutputFormat.Png : ToolOutputFormat.Json,
+      );
     } catch (reason) {
+      this.telemetry.failed(ToolOperation.Export, ToolFailureCategory.Handoff, reason);
       if (!this.closed && request === this.request)
         this.update({
           error: reason instanceof Error ? reason.message : "The download failed. Try again.",

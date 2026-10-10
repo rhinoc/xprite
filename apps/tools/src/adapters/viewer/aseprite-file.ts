@@ -1,3 +1,4 @@
+import { ToolFailureCategory, ToolOperationError } from "$/managers/ports/telemetry";
 import {
   AsepriteCodecError,
   decodeAsepriteProject,
@@ -37,7 +38,10 @@ async function inflate(bytes: Uint8Array, expected: number): Promise<Uint8Array>
 
 export async function decodeViewerFile(file: File) {
   if (file.size > MAX_PROJECT_BYTES)
-    throw new Error("The file exceeds the supported project size.");
+    throw new ToolOperationError(
+      ToolFailureCategory.Limit,
+      "The file exceeds the supported project size.",
+    );
   const bytes = new Uint8Array(await file.arrayBuffer());
   const limits = EDITOR_ASEPRITE_LIMITS;
   return decodeAsepriteProject(bytes, {

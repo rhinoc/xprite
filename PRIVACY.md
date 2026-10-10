@@ -2,9 +2,9 @@
 
 [简体中文](PRIVACY.zh.md)
 
-Last updated: October 7, 2026.
+Last updated: October 8, 2026.
 
-This notice describes data used by the Xprite web editor. Xprite does not require an account. A site that embeds or hosts Xprite, such as itch.io, may have its own privacy practices.
+This notice describes data used by the Xprite web editor, showcase, UI gallery, articles and standalone tools. Xprite does not require an account. A site that embeds or hosts Xprite, such as itch.io, may have its own privacy practices.
 
 ## Work stored in your browser
 
@@ -14,9 +14,11 @@ The Share command creates a URL containing the compressed editable project in it
 
 ## Usage data
 
-Production web builds with analytics enabled send usage events to PostHog Cloud in the United States. These events cover page visits, startup stages and readiness, view changes, restoring, opening and editing documents, manual save/export attempts and results, selected interface actions, and sanitized errors. They may include browser and device capabilities, the page path without URL query parameters or fragments, a referring hostname, time the page or editor view was visible, document dimensions or format, and approximate location such as country, region or city. They do not include artwork pixels, document names, local file paths, or account details. Background recovery writes are not recorded as manual saves.
+Production web builds with analytics enabled send usage events to PostHog Cloud in the United States. These events cover page visits, editor and tool entry clicks, successfully parsed files with usable previews, outputs handed to the browser for downloading, open/export error categories, startup stages and readiness, view changes, restoring, opening and editing documents, manual save/export attempts and results, selected interface actions, and sanitized errors. They may include browser and device capabilities, the page path without URL query parameters or fragments, a referring hostname, time the page or editor view was visible, document dimensions or format, and approximate location such as country, region or city. They do not include artwork pixels, document names, local file paths, or account details. Background recovery writes are not recorded as manual saves.
 
-PostHog saves a visitor identifier in this browser's `localStorage` to count return visits. It uses the request IP address to add approximate location to new events, then discards the raw IP before storing the event. Person profiles, session recordings and automatic click capture are disabled. Analytics failures do not interrupt the editor.
+PostHog saves a visitor identifier in this browser's `localStorage` to count return visits. It uses the request IP address to add approximate location to new events, then discards the raw IP before storing the event. Person profiles, session recordings and automatic click capture are disabled. Analytics failures do not interrupt the editor or tools.
+
+The anonymous identifier can connect public-page and editor actions in the same browser on the same site. Each document load also has its own visit identifier. Path changes record a page visit; query/hash changes and hydration do not duplicate visits. Development and acceptance browsers can set a local internal-traffic marker, which travels with events so those visits can be excluded from analysis. A download event means the output was handed to the browser, not that a file was written to disk.
 
 Submitting the feedback dialog sends your selected type, written content and optional email to PostHog with the visit context. Unsubmitted drafts remain in memory until the page is reloaded. A failed submission keeps the draft for retry.
 

@@ -5,6 +5,7 @@ import { createRoot, hydrateRoot } from "react-dom/client";
 import { PublicIndex, PublicNavigation } from "$/components/public/static-ui";
 import { DesktopProvider } from "@xprite/site-shell";
 import { createBrowserDesktop } from "@xprite/site-shell/browser";
+import { createBrowserSiteTelemetry } from "@xprite/site-shell/telemetry/browser";
 import { PageScrollArea, ScrollArea, macintoshTheme } from "@xprite/ui";
 import { loadUiThemeSnapshot } from "@xprite/ui/assets";
 import {
@@ -17,6 +18,15 @@ import {
 } from "@xprite/ui/utils";
 
 import styles from "$/public-controls.module.css";
+
+createBrowserSiteTelemetry({
+  production: import.meta.env.PROD,
+  token: import.meta.env.VITE_POSTHOG_PROJECT_TOKEN ?? "",
+  region: import.meta.env.VITE_POSTHOG_REGION ?? "US",
+  version: __XPRITE_VERSION__,
+  release: __XPRITE_RELEASE__,
+  captureLinks: true,
+});
 
 const SCROLL_CONTROLS = ".guide-image, .compare_tableScroll, main pre";
 const DOCUMENT_SCROLL_CONTROLS = "[data-public-reader-scroll]";
