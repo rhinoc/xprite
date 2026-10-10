@@ -2,13 +2,25 @@ import { ARTICLES, localizedArticle } from "../../content/articles/index.ts";
 import { SHOWCASE_PAGES } from "../../content/showcase/pages.ts";
 import { PublicLanguage } from "../../content/site/language.ts";
 import { showcaseLabel } from "../../content/site/navigation.ts";
-import { SITE_PAGES } from "../../content/site/pages.ts";
+import { SITE_PAGES, SitePageKind, type SitePage } from "../../content/site/pages.ts";
 import { TOOLS_HOME, ANIMAL_CROSSING_TOOL, GIF_SHEET_TOOL } from "../../content/tools/index.ts";
+import { readArticleDocument } from "../pages/article-source.ts";
 
 const SITE_URL = "https://xprite.cc/";
 
+/** Article `updated` frontmatter wins over the shared registry date, per language. */
+export function pageLastModified(page: SitePage): string | undefined {
+  if (page.kind !== SitePageKind.Article || !page.language) return page.dateModified;
+  const article = ARTICLES.find(
+    (item) => localizedArticle(item, page.language!).path === page.path,
+  );
+  if (!article) return page.dateModified;
+  return readArticleDocument(article, page.language).dateModified;
+}
+
 export function sitemap(): string {
   const entries = SITE_PAGES.filter((page) => page.indexable).map((page) => {
+    const dateModified = pageLastModified(page);
     const translations = page.translations ?? [];
     const alternates = translations.length
       ? [...translations, { language: "x-default", path: translations[0].path }]
@@ -18,7 +30,7 @@ export function sitemap(): string {
           )
           .join("")
       : "";
-    return `  <url><loc>${new URL(page.path, SITE_URL).href}</loc>${page.dateModified ? `<lastmod>${page.dateModified}</lastmod>` : ""}${alternates}</url>`;
+    return `  <url><loc>${new URL(page.path, SITE_URL).href}</loc>${dateModified ? `<lastmod>${dateModified}</lastmod>` : ""}${alternates}</url>`;
   });
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${entries.join("\n")}\n</urlset>\n`;
 }

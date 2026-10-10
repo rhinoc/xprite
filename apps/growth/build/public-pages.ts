@@ -18,7 +18,7 @@ import { localizedSiteHref, PublicLanguage } from "../content/site/language.ts";
 import { showcaseLabel } from "../content/site/navigation.ts";
 import { PLANNED_PAGES, SITE_REDIRECTS } from "../content/site/pages.ts";
 import { TOOLS_HOME } from "../content/tools/index.ts";
-import { ARTICLE_CONTENT_ROOT, articleHtml } from "./pages/article-pages.ts";
+import { ARTICLE_CONTENT_ROOT, articleHtml, articleImageResources } from "./pages/article-pages.ts";
 import { GUIDE_STYLE_PATH, CHINESE_FONT_PATH } from "./pages/document-resources.ts";
 import { GUIDES, GUIDE_ROOT, guideHtml, guideImageResources } from "./pages/guide-pages.ts";
 import { plannedPageHtml } from "./pages/planned-pages.ts";
@@ -116,6 +116,7 @@ function publicPageResources(): Map<string, string> {
     ],
   ]);
   for (const [path, source] of guideImageResources()) resources.set(path, source);
+  for (const [path, source] of articleImageResources()) resources.set(path, source);
   return resources;
 }
 
