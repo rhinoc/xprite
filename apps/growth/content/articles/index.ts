@@ -13,6 +13,7 @@ export interface PublicArticle {
   summary: string;
   topic: string;
   dateModified: string;
+  datePublished?: string;
 }
 
 export const ARTICLE_COLLECTIONS = {

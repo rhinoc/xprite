@@ -1,7 +1,3 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-
 import { Marked, Renderer } from "marked";
 import type { Tokens } from "marked";
 
@@ -37,6 +33,7 @@ import {
 } from "../public-theme.ts";
 import { siteNavigationHref } from "../site-navigation.ts";
 import { publicArticleClasses, renderPublicUi } from "../static-ui-renderer.ts";
+import { articleImageAsset, readArticleDocument } from "./article-source.ts";
 import { GUIDE_STYLE_PATH, CHINESE_FONT_PATH } from "./document-resources.ts";
 
 const SITE_URL = "https://xprite.cc/";
@@ -53,9 +50,7 @@ const HTML_ENTITIES: Readonly<Record<string, string>> = {
   "'": "&#39;",
 };
 
-export const ARTICLE_CONTENT_ROOT = resolve(
-  fileURLToPath(new URL("../../content/", import.meta.url)),
-);
+export { ARTICLE_CONTENT_ROOT } from "./article-source.ts";
 
 enum ArticleCollection {
   Compare = "compare",
@@ -164,6 +159,7 @@ function articlePageHtml(
         image: SOCIAL_IMAGE_URL,
         inLanguage: language,
         dateModified: article.dateModified,
+        ...(article.datePublished ? { datePublished: article.datePublished } : {}),
         author: { "@type": "Organization", name: "Xprite", url: SITE_URL },
         publisher: { "@type": "Organization", name: "Xprite", url: SITE_URL },
       }
@@ -255,21 +251,23 @@ ${publicUiScope(
 </body></html>\n`;
 }
 
+function articleImageHtml(
+  article: Pick<PublicArticle, "collection" | "slug">,
+  href: string,
+  alt: string,
+): string {
+  if (!alt.trim()) throw new Error(`Article image needs alt text: ${article.slug}`);
+  const image = articleImageAsset(article, href);
+  return `<img src="${escapeHtml(image.publicPath)}" alt="${escapeHtml(alt)}" width="${image.width}" height="${image.height}" loading="lazy" decoding="async">`;
+}
+
 function articleContent(
   article: PublicArticle & { language: PublicLanguage },
   classes: Record<string, string>,
+  markdown: string,
 ) {
   const language = article.language;
   const text = (en: string, zh: string) => pageText(language, en, zh);
-  const markdown = readFileSync(
-    resolve(
-      ARTICLE_CONTENT_ROOT,
-      article.collection,
-      "articles",
-      `${article.slug}${language === PublicLanguage.SimplifiedChinese ? ".zh-CN" : ""}.md`,
-    ),
-    "utf8",
-  );
   const renderer = new Renderer();
   const parser = new Marked({ gfm: true, async: false });
   const tokens = parser.lexer(markdown);
@@ -298,6 +296,7 @@ function articleContent(
     return `<h${heading.depth} id="${escapeHtml(ids.get(heading) ?? headingId(heading.text))}">${this.parser.parseInline(heading.tokens)}</h${heading.depth}>\n`;
   };
   renderer.html = ({ text }) => escapeHtml(text);
+  renderer.image = ({ href, text: alt }: Tokens.Image) => articleImageHtml(article, href, alt);
   renderer.code = function (code: Tokens.Code) {
     if (code.lang !== ARTICLE_DIAGRAM_LANGUAGE) return Renderer.prototype.code.call(this, code);
     const diagram = parseArticleDiagram(code.text);
@@ -357,8 +356,14 @@ export function articleHtml(path: string, indexable: boolean): string {
   }
   const article = articles.find((item) => item.path === path);
   if (!article) throw Error(`Unknown article path: ${path}`);
+  const document = readArticleDocument(article, language);
+  const publishedArticle = {
+    ...article,
+    dateModified: document.dateModified,
+    ...(document.datePublished ? { datePublished: document.datePublished } : {}),
+  };
   const parent = localizedCollection(article.collection, language);
-  const content = articleContent(article, classes);
+  const content = articleContent(publishedArticle, classes, document.body);
   const learning = article.collection === ArticleCollection.Learn;
   const callout = learning
     ? {
@@ -373,14 +378,31 @@ export function articleHtml(path: string, indexable: boolean): string {
   return articlePageHtml(
     article,
     indexable,
-    `<div data-public-sidebar>${content.toc}</div><div class="${classes.readingStack}">${publicDesktopWindow(`${article.topic}.txt`, `${publicStatus(parent.label, `${text("Updated", "更新")}: ${article.dateModified}`, parent.path)}<div data-public-reader-scroll><article class="${classes.article}">${publicRichText(content.heading + content.html, { "data-public-document-content": true })}</article></div>`, "data-public-document", `<a href="${parent.path}">${text(`Back to ${parent.label}`, `返回${parent.label}`)}</a>${publicDesktopButton(callout.url, callout.label)}`)}${publicDesktopWindow(
+    `<div data-public-sidebar>${content.toc}</div><div class="${classes.readingStack}">${publicDesktopWindow(`${article.topic}.txt`, `${publicStatus(parent.label, `${text("Updated", "更新")}: ${publishedArticle.dateModified}`, parent.path)}<div data-public-reader-scroll><article class="${classes.article}">${publicRichText(content.heading + content.html, { "data-public-document-content": true })}</article></div>`, "data-public-document", `<a href="${parent.path}">${text(`Back to ${parent.label}`, `返回${parent.label}`)}</a>${publicDesktopButton(callout.url, callout.label)}`)}${publicDesktopWindow(
       text("Related documents", "相关文档"),
       articleList(relatedDocuments, classes),
       `class="${classes.related}" data-public-related-window`,
       text(`${relatedDocuments.length} documents`, `${relatedDocuments.length} 篇文档`),
     )}</div>`,
     classes,
-    article,
+    publishedArticle,
     content.headline,
   );
+}
+
+/** Copies markdown images into the public site next to their article collection. */
+export function articleImageResources(): Map<string, string> {
+  const resources = new Map<string, string>();
+  for (const article of ARTICLES) {
+    for (const language of Object.values(PublicLanguage)) {
+      const document = readArticleDocument(article, language);
+      const parser = new Marked({ gfm: true, async: false });
+      parser.walkTokens(parser.lexer(document.body), (token) => {
+        if (token.type !== "image") return;
+        const image = articleImageAsset(article, token.href);
+        resources.set(image.publicPath, image.source);
+      });
+    }
+  }
+  return resources;
 }

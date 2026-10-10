@@ -26,9 +26,9 @@ export const CHINESE_ARTICLES = {
   "aseprite-on-ipad": {
     title: "iPad 上的 Aseprite：免费接着画，或买 App | Xprite",
     description:
-      "Aseprite 官方安装包只有 Windows、macOS 和 Ubuntu，没有 iPad。免费在 Safari 打开图层和动画并存回 .aseprite，用 Xprite。要笔身双击、挤压或 iCloud 同步，再比较 Pixquare、Resprite 和 Pixaki Pro 的买法和转换时会丢掉什么。导入后先用副本看帧时长、标签和瓦片地图是否还在。",
+      "iPad 上没有 Aseprite 的官方安装包。你可以用 Xprite，在 Safari 里免费打开图层、帧和动画，画完再存回 .aseprite。如果要笔身双击、挤压，或者 iCloud 同步，再比较 Pixquare、Resprite 和 Pixaki Pro。导入时还要看帧时长、标签和瓦片地图。换设备前，你要自己另存一份文件。",
     summary:
-      "免费在浏览器打开并保存 Aseprite 工程，用 Xprite。要笔身手势和 iCloud，再比较 Pixquare、Resprite 和 Pixaki Pro。",
+      "你可以在浏览器里免费打开并保存 Aseprite 工程。要笔身手势和 iCloud 时，再比较 Pixquare、Resprite 和 Pixaki Pro。",
     topic: "iPad 与触控",
   },
   "piskel-alternatives": {
