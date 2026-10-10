@@ -1352,7 +1352,7 @@ export default function Gallery({ iconClipboard, theme, onThemeChange }: Gallery
 
   const handleComponentSelect = (slug: string) => {
     if (slug !== componentSlug) clearConsole();
-    const pathname = `${import.meta.env.BASE_URL}components/${slug}`;
+    const pathname = `${import.meta.env.BASE_URL}${slug}`;
     if (window.location.pathname !== pathname) window.history.pushState(null, "", pathname);
     setComponentSlug(slug);
     setGalleryPage("components");
@@ -1361,7 +1361,7 @@ export default function Gallery({ iconClipboard, theme, onThemeChange }: Gallery
   const handleGalleryPageChange = (page: string) => {
     const nextPage = page === "icons" ? "icons" : "components";
     const selectedSlug = componentSlug ?? DEFAULT_COMPONENT_SLUG;
-    const pathname = `${import.meta.env.BASE_URL}${nextPage === "icons" ? "icons" : `components/${selectedSlug}`}`;
+    const pathname = `${import.meta.env.BASE_URL}${nextPage === "icons" ? "icons" : selectedSlug}`;
     if (window.location.pathname !== pathname) window.history.pushState(null, "", pathname);
     setComponentSlug(selectedSlug);
     setGalleryPage(nextPage);
@@ -1417,7 +1417,7 @@ export default function Gallery({ iconClipboard, theme, onThemeChange }: Gallery
           label={t("Gallery menu")}
           applicationName={t("UI Gallery")}
 
-          applications={siteApplications("/gallery/", language, true)}
+          applications={siteApplications("/components/", language, true)}
           language={language}
           languages={[
             {
@@ -1584,8 +1584,8 @@ function componentSlugFromName(name: string) {
 function readComponentSlug() {
   const route = window.location.pathname
     .slice(import.meta.env.BASE_URL.length)
-    .match(/^components\/([^/]+)\/?$/);
-  return route?.[1] ?? DEFAULT_COMPONENT_SLUG;
+    .match(/^([^/]+)\/?$/);
+  return route && route[1] !== "icons" ? route[1] : DEFAULT_COMPONENT_SLUG;
 }
 
 function readGalleryPage() {

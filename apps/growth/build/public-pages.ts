@@ -13,15 +13,20 @@ import {
 } from "../../../infra/dev-site.ts";
 import { applySiteIcons } from "../../../infra/site-html.ts";
 import { ARTICLE_PATHS } from "../content/articles/index.ts";
+import { GUIDE_PAGES } from "../content/help/pages.ts";
 import { SHOWCASE_PAGES } from "../content/showcase/pages.ts";
 import { localizedSiteHref, PublicLanguage } from "../content/site/language.ts";
 import { showcaseLabel } from "../content/site/navigation.ts";
-import { PLANNED_PAGES, SITE_REDIRECTS } from "../content/site/pages.ts";
+import { DOCUMENT_PAGES, SITE_REDIRECTS } from "../content/site/pages.ts";
 import { TOOLS_HOME } from "../content/tools/index.ts";
 import { ARTICLE_CONTENT_ROOT, articleHtml, articleImageResources } from "./pages/article-pages.ts";
+import {
+  documentHtml,
+  documentImageResources,
+  documentSourcePath,
+} from "./pages/document-pages.ts";
 import { GUIDE_STYLE_PATH, CHINESE_FONT_PATH } from "./pages/document-resources.ts";
 import { GUIDES, GUIDE_ROOT, guideHtml, guideImageResources } from "./pages/guide-pages.ts";
-import { plannedPageHtml, plannedPageImageResources } from "./pages/planned-pages.ts";
 import {
   PUBLIC_THEME_STYLE_PATH,
   PUBLIC_FONT_STYLE_PATH,
@@ -48,8 +53,8 @@ const PUBLIC_ROOT = resolve(REPOSITORY_ROOT, "apps/growth/public");
 const ASSET_MANIFEST_PATH = "/package.json";
 const REDIRECTS_FILE = resolve(REPOSITORY_ROOT, "edgeone.json");
 const APP_PATHS = ["/", "/editor", "/editor/", "/tools/viewer/"];
-const SHOWCASE_PATH = "/showcase";
-const SHOWCASE_HTML_PATH = `${SHOWCASE_PATH}/index.html`;
+/** The about page's application template; its built copy is rewritten per language. */
+const SHOWCASE_HTML_PATH = "/showcase/index.html";
 const SHOWCASE_PATHS: readonly string[] = Object.values(SHOWCASE_PAGES).map((page) => page.path);
 const DEVELOPMENT_PREFIXES = ["/@", "/src/", "/content/", "/node_modules/"];
 const SUCCESS_STATUS = 200;
@@ -117,7 +122,7 @@ function publicPageResources(): Map<string, string> {
   ]);
   for (const [path, source] of guideImageResources()) resources.set(path, source);
   for (const [path, source] of articleImageResources()) resources.set(path, source);
-  for (const [path, source] of plannedPageImageResources()) resources.set(path, source);
+  for (const [path, source] of documentImageResources()) resources.set(path, source);
   return resources;
 }
 
@@ -141,7 +146,7 @@ function notFoundHtml(language = PublicLanguage.English): string {
           { label: text("Open editor", "打开编辑器"), href: "/" },
           {
             label: text("User guide", "使用指南"),
-            href: `/help/${language}/`,
+            href: GUIDE_PAGES[language].path,
             icon: "help",
             end: true,
           },
@@ -241,13 +246,14 @@ function developmentRoutes(
   let routingData: { redirects: Record<string, string>; notFoundHtml: string } | undefined;
   const guidePages = new Map<PublicLanguage, string>();
   const comparisonPages = new Map<string, string>();
-  const plannedPages = new Map<string, string>();
+  const documentPages = new Map<string, string>();
+  const documentSources = new Set(DOCUMENT_PAGES.map(documentSourcePath));
   const invalidate = (_event: string, filename: string) => {
     if (ui.files.has(filename)) {
       uiDirty = true;
       guidePages.clear();
       comparisonPages.clear();
-      plannedPages.clear();
+      documentPages.clear();
       routingData = undefined;
       // Public documents embed theme tokens and markup in HTML, outside React HMR.
       server.ws.send({ type: "custom", event: "public-ui:invalidate" });
@@ -256,8 +262,8 @@ function developmentRoutes(
       resources = undefined;
       guidePages.clear();
     }
-    if (filename.startsWith(`${CONTENT_ROOT}${sep}`)) {
-      plannedPages.clear();
+    if (filename.startsWith(`${CONTENT_ROOT}${sep}`) || documentSources.has(filename)) {
+      documentPages.clear();
       routingData = undefined;
     }
     if (filename.startsWith(`${ARTICLE_CONTENT_ROOT}${sep}`)) {
@@ -266,7 +272,7 @@ function developmentRoutes(
     if (filename === REDIRECTS_FILE || filename === resolve(PUBLIC_ROOT, "404.html"))
       routingData = undefined;
   };
-  server.watcher.add([CONTENT_ROOT, REDIRECTS_FILE]);
+  server.watcher.add([CONTENT_ROOT, REDIRECTS_FILE, ...documentSources]);
   server.watcher.on("all", invalidate);
   server.httpServer?.once("close", () => server.watcher.off("all", invalidate));
   server.middlewares.use(
@@ -335,11 +341,11 @@ function developmentRoutes(
           }
           return send(response, request.method, HTML_TYPE, await controls(pathname, html));
         }
-        if (PLANNED_PAGES.some((page) => page.path === pathname)) {
-          let html = plannedPages.get(pathname);
+        if (DOCUMENT_PAGES.some((page) => page.path === pathname)) {
+          let html = documentPages.get(pathname);
           if (html === undefined) {
-            html = plannedPageHtml(pathname);
-            plannedPages.set(pathname, html);
+            html = documentHtml(pathname, false);
+            documentPages.set(pathname, html);
           }
           return send(response, request.method, HTML_TYPE, await controls(pathname, html));
         }
@@ -375,7 +381,7 @@ function developmentRoutes(
           ...resources.keys(),
           ...GUIDES.map((item) => item.path),
           ...ARTICLE_PATHS,
-          ...PLANNED_PAGES.map((page) => page.path),
+          ...DOCUMENT_PAGES.map((page) => page.path),
         ];
         if (pathname !== ASSET_MANIFEST_PATH && isPublishedFile(PUBLIC_ROOT, pathname))
           return nextVite();
@@ -423,7 +429,7 @@ export async function growthPublicPages(): Promise<Plugin> {
         }
         if (
           ARTICLE_PATHS.includes(pathname) ||
-          PLANNED_PAGES.some((page) => page.path === pathname)
+          DOCUMENT_PAGES.some((page) => page.path === pathname)
         ) {
           const filename = resolve(root, `.${pathname}`, "index.html");
           if (isPublishedFile(root, `${pathname}index.html`)) {
@@ -471,6 +477,8 @@ export async function growthPublicPages(): Promise<Plugin> {
           ),
         );
       }
+      // The template's own address now redirects to the about page.
+      await rm(resolve(output, `.${SHOWCASE_HTML_PATH}`));
       for (const guide of GUIDES) {
         const filename = resolve(output, `.${guide.path}`, "index.html");
         await mkdir(dirname(filename), { recursive: true });
@@ -481,10 +489,10 @@ export async function growthPublicPages(): Promise<Plugin> {
         await mkdir(dirname(filename), { recursive: true });
         await writeFile(filename, controls(articleHtml(path, indexable)));
       }
-      for (const page of PLANNED_PAGES) {
+      for (const page of DOCUMENT_PAGES) {
         const filename = resolve(output, `.${page.path}`, "index.html");
         await mkdir(dirname(filename), { recursive: true });
-        await writeFile(filename, controls(plannedPageHtml(page.path, indexable)));
+        await writeFile(filename, controls(documentHtml(page.path, indexable)));
       }
       const desktopStylesheetFile = resolve(output, `.${GROWTH_DESKTOP_STYLE_PATH}`);
       await mkdir(dirname(desktopStylesheetFile), { recursive: true });

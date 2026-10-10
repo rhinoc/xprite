@@ -4,25 +4,21 @@ import {
   localizedArticle,
   localizedCollection,
 } from "../articles/index.ts";
-import { CREATE_PAGES } from "../create/index.ts";
-import { DESIGN_SCHOOL_PAGES } from "../design-school/index.ts";
 import { GUIDE_PAGES } from "../help/pages.ts";
-import { LEGAL_PAGES } from "../legal/index.ts";
-import { PRODUCT_PAGES } from "../product/index.ts";
-import { RESOURCE_PAGES } from "../resources/index.ts";
 import { SHOWCASE_PAGES } from "../showcase/pages.ts";
-import { SUPPORT_PAGES } from "../support/index.ts";
 import { EDITOR_TOOL, TOOLS, TOOLS_HOME } from "../tools/index.ts";
-import { localizedSiteHref, PublicLanguage } from "./language.ts";
-import type { PlannedPageDefinition } from "./planned-page.ts";
+import { documentTranslations, SITE_DOCUMENTS } from "./documents.ts";
+import { PublicLanguage } from "./language.ts";
 
 export enum SitePageKind {
   Editor = "editor",
   Tool = "tool",
+  /** The about page: the website home built from the showcase application. */
   Showcase = "showcase",
   Guide = "guide",
   Article = "article",
-  Placeholder = "placeholder",
+  /** A Markdown body such as the privacy notice; see `SITE_DOCUMENTS`. */
+  Document = "document",
 }
 
 export interface SitePage {
@@ -32,6 +28,7 @@ export interface SitePage {
   title: string;
   description?: string;
   dateModified?: string;
+  /** Markdown source relative to the repository root, for document pages. */
   document?: string;
   indexable: boolean;
   translations?: readonly { language: PublicLanguage; path: string }[];
@@ -39,36 +36,19 @@ export interface SitePage {
 
 const PUBLIC_LANGUAGES = Object.values(PublicLanguage);
 
-function placeholderPages(definitions: readonly PlannedPageDefinition[]): SitePage[] {
-  return definitions.flatMap((definition) => {
-    const translations = PUBLIC_LANGUAGES.map((language) => ({
-      language,
-      path: localizedSiteHref(definition.path, language),
-    }));
-    return [
-      ...translations.map(({ language, path }) => ({
-        kind: SitePageKind.Placeholder,
-        path,
-        language,
-        title: definition.title[language],
-        document: definition.document,
-        indexable: false,
-        translations,
-      })),
-      ...placeholderPages(definition.children ?? []),
-    ];
-  });
-}
-
-/** Reserved pages render their title while their content is being prepared. */
-export const PLANNED_PAGES: readonly SitePage[] = placeholderPages([
-  ...CREATE_PAGES,
-  ...RESOURCE_PAGES,
-  ...DESIGN_SCHOOL_PAGES,
-  ...SUPPORT_PAGES,
-  ...PRODUCT_PAGES,
-  ...LEGAL_PAGES,
-]);
+/** Documents publish only the languages they are written in. */
+export const DOCUMENT_PAGES: readonly SitePage[] = SITE_DOCUMENTS.flatMap((document) => {
+  const translations = documentTranslations(document);
+  return translations.map(({ language, path }) => ({
+    kind: SitePageKind.Document,
+    path,
+    language,
+    title: document.title[language]!,
+    document: document.sources[language],
+    indexable: true,
+    translations,
+  }));
+});
 
 const localizedPublishedPages: readonly SitePage[] = PUBLIC_LANGUAGES.flatMap((language) => [
   {
@@ -142,12 +122,28 @@ export const SITE_PAGES: readonly SitePage[] = [
     indexable: true,
   })),
   ...localizedPublishedPages,
-  ...PLANNED_PAGES,
+  ...DOCUMENT_PAGES,
 ];
 
-export const SITE_REDIRECTS: Readonly<Record<string, string>> = Object.fromEntries(
-  SITE_PAGES.filter((page) => page.path !== "/" && page.path.endsWith("/")).flatMap(({ path }) => [
-    [path.slice(0, -1), path],
-    [`${path}index.html`, path],
+/** Addresses production served before the `/zh-CN/` root prefix; nothing else is redirected. */
+const LEGACY_PAGES: readonly (readonly [string, string])[] = [
+  ["/help/en/", GUIDE_PAGES[PublicLanguage.English].path],
+  ["/help/zh-CN/", GUIDE_PAGES[PublicLanguage.SimplifiedChinese].path],
+  ["/showcase/", SHOWCASE_PAGES[PublicLanguage.English].path],
+  ["/showcase/en/", SHOWCASE_PAGES[PublicLanguage.English].path],
+  ["/showcase/zh-CN/", SHOWCASE_PAGES[PublicLanguage.SimplifiedChinese].path],
+];
+
+export const SITE_REDIRECTS: Readonly<Record<string, string>> = Object.fromEntries([
+  ...SITE_PAGES.filter((page) => page.path !== "/" && page.path.endsWith("/")).flatMap(
+    ({ path }) => [
+      [path.slice(0, -1), path],
+      [`${path}index.html`, path],
+    ],
+  ),
+  ...LEGACY_PAGES.flatMap(([legacy, path]) => [
+    [legacy.slice(0, -1), path],
+    [legacy, path],
+    [`${legacy}index.html`, path],
   ]),
-);
+]);

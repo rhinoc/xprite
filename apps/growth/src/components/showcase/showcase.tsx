@@ -1,3 +1,4 @@
+import { GUIDE_PAGES } from "$content/help/pages";
 import { SHOWCASE_PAGES } from "$content/showcase/pages";
 import { useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react";
 import type { CSSProperties } from "react";
@@ -154,7 +155,7 @@ export function Showcase({
             {
               label: copy.help,
               icon: "help",
-              href: `/help/${state.language}/`,
+              href: GUIDE_PAGES[state.language].path,
             },
           ]}
         />
@@ -338,7 +339,7 @@ export function Showcase({
                 slots={{ leading: <Icon kind={IconKind.Document} size={IconSize.Large} /> }}
                 compactOnSmallScreens
                 text={copy.help}
-                href={`/help/${state.language}/`}
+                href={GUIDE_PAGES[state.language].path}
               />
               <Button
                 variant={ButtonVariant.Tile}

@@ -9,7 +9,7 @@ import { pageLastModified, sitemap } from "../seo/discovery.ts";
 import { articleImageAsset, readArticleDocument } from "./article-source.ts";
 
 const ARTICLE_SLUG = "aseprite-on-ipad";
-const CHINESE_PATH = "/compare/zh-CN/aseprite-on-ipad/";
+const CHINESE_PATH = "/zh-CN/compare/aseprite-on-ipad/";
 const ENGLISH_PATH = "/compare/aseprite-on-ipad/";
 
 describe("article publication dates", () => {

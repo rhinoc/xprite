@@ -1,5 +1,7 @@
+import { GUIDE_PAGES } from "$content/help/pages";
 import { showcaseDiscovery } from "$content/showcase/index";
-import { localizedSiteHref } from "$content/site/language";
+import { documentLinks } from "$content/site/documents";
+import { localizedSiteHref, publicLanguage } from "$content/site/language";
 
 import {
   WindowWorkspace,
@@ -32,7 +34,12 @@ const TOOL_ICONS = {
 export function ShowcaseDiscovery({ language }: { language: DiscoveryLanguage }) {
   const { copy, tools, fileGuides, comparisons } = showcaseDiscovery(language);
   const documents = [
-    { href: `/help/${language}/`, label: copy.userGuide, icon: IconKind.NotePad },
+    { href: GUIDE_PAGES[language].path, label: copy.userGuide, icon: IconKind.NotePad },
+    // About articles are written in Chinese only, so English lists none.
+    ...documentLinks(publicLanguage(language), "/about/").map((link) => ({
+      ...link,
+      icon: IconKind.Document,
+    })),
     ...[...fileGuides, ...comparisons].map((article) => ({
       href: localizedSiteHref(article.path, language),
       label: article.shortTitle[language],

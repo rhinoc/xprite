@@ -80,4 +80,4 @@ Xprite 查看器在本地处理文件，不上传云端。编辑器存到「浏�
 
 ---
 
-想直接动手，可以[在查看器中打开文件](/tools/viewer/?lang=zh-CN&utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online)，或者[用 Xprite 编辑](/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online)。只需要导出动图的话，可以看 [Aseprite 转 GIF](/learn/zh-CN/aseprite-to-gif/)；在 iPad 上编辑的方案见 [iPad 上的 Aseprite](/compare/zh-CN/aseprite-on-ipad/)。
+想直接动手，可以[在查看器中打开文件](/tools/viewer/?lang=zh-CN&utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online)，或者[用 Xprite 编辑](/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online)。只需要导出动图的话，可以看 [Aseprite 转 GIF](/zh-CN/learn/aseprite-to-gif/)；在 iPad 上编辑的方案见 [iPad 上的 Aseprite](/zh-CN/compare/aseprite-on-ipad/)。

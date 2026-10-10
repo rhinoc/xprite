@@ -60,7 +60,7 @@ export const VIEWER_TOOL = {
   fileLabel: "Choose an Aseprite file",
   openLabel: "Open file",
   dropLabel: "Drop an .ase or .aseprite file",
-  guidePath: "/help/en/",
+  guidePath: "/help/",
 } as const;
 
 export const GIF_SHEET_TOOL = {
@@ -78,7 +78,7 @@ export const GIF_SHEET_TOOL = {
   fileLabel: "Choose a GIF file",
   openLabel: "Open GIF",
   dropLabel: "Drop a GIF file",
-  guidePath: "/help/en/",
+  guidePath: "/help/",
 } as const;
 
 export const ANIMAL_CROSSING_TOOL = {
@@ -97,7 +97,7 @@ export const ANIMAL_CROSSING_TOOL = {
   fileLabel: "Choose artwork or an Animal Crossing QR image",
   openLabel: "Open file",
   dropLabel: "Drop artwork, a QR image or an .acnl file",
-  guidePath: "/help/en/",
+  guidePath: "/help/",
 } as const;
 
 export const EDITOR_TOOL = {

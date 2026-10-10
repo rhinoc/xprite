@@ -19,7 +19,7 @@ PNG 只包含一帧合成后的画面，图层和动画仍然留在原来的 `.a
 
 ![查看器的「文件」菜单，包含「导出动画（.gif）」和「导出当前帧（.png）」](images/viewer-file-menu.png)
 
-要导出整段动画，改用「导出动画（.gif）」，步骤见 [Aseprite 转 GIF](/learn/zh-CN/aseprite-to-gif/)。要把所有帧排成一张精灵表，在 [Xprite 编辑器](/?utm_source=learn&utm_medium=referral&utm_campaign=aseprite-to-png)里用「文件」→「导出」→「导出精灵表」。
+要导出整段动画，改用「导出动画（.gif）」，步骤见 [Aseprite 转 GIF](/zh-CN/learn/aseprite-to-gif/)。要把所有帧排成一张精灵表，在 [Xprite 编辑器](/?utm_source=learn&utm_medium=referral&utm_campaign=aseprite-to-png)里用「文件」→「导出」→「导出精灵表」。
 
 ## 导出的 PNG 包含什么
 
@@ -56,4 +56,4 @@ PNG 只包含一帧合成后的画面，图层和动画仍然留在原来的 `.a
 
 ---
 
-[打开查看器导出 PNG](/tools/viewer/?lang=zh-CN&utm_source=learn&utm_medium=referral&utm_campaign=aseprite-to-png)。需要在浏览器里修改工程，可以看[在线编辑 Aseprite](/compare/zh-CN/aseprite-online/)。
+[打开查看器导出 PNG](/tools/viewer/?lang=zh-CN&utm_source=learn&utm_medium=referral&utm_campaign=aseprite-to-png)。需要在浏览器里修改工程，可以看[在线编辑 Aseprite](/zh-CN/compare/aseprite-online/)。

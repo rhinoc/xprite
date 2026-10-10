@@ -84,7 +84,7 @@ export function ToolFrame({
                 placement="top-left"
               >
                 <Button
-                  href={localizedSiteHref(tool?.guidePath ?? "/help/en/", language)}
+                  href={localizedSiteHref(tool?.guidePath ?? "/help/", language)}
                   appearance={ButtonAppearance.Quiet}
                   slots={{ leading: <Icon kind={IconKind.Help} size={IconSize.Small} /> }}
                   aria-label={t("Read Me")}
@@ -128,7 +128,7 @@ export function ToolFrame({
                 slots={{ leading: <Icon kind={IconKind.Document} size={IconSize.Large} /> }}
                 text={t("User guide")}
 
-                href={localizedSiteHref(tool?.guidePath ?? "/help/en/", language)}
+                href={localizedSiteHref(tool?.guidePath ?? "/help/", language)}
               />
             </nav>
           </aside>

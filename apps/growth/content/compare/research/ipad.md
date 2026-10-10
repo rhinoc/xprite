@@ -52,7 +52,7 @@ Verification date: 2026-10-04. Scope: continue an existing desktop Aseprite proj
 
 ## Xprite evidence boundaries
 
-- Browser save is per browser/device, does not sync, and disappears when site data is cleared; File Manager save may use downloads. Offline use requires initial resource preparation. Pen/touch defaults and shortcut toolbar are documented. [Current English guide](https://xprite.cc/help/en/#save-and-recover), [touch](https://xprite.cc/help/en/#fingers-and-a-pen), [offline](https://xprite.cc/help/en/#add-to-desktop-and-use-offline)
+- Browser save is per browser/device, does not sync, and disappears when site data is cleared; File Manager save may use downloads. Offline use requires initial resource preparation. Pen/touch defaults and shortcut toolbar are documented. [Current English guide](https://xprite.cc/help/#save-and-recover), [touch](https://xprite.cc/help/#fingers-and-a-pen), [offline](https://xprite.cc/help/#add-to-desktop-and-use-offline)
 - Current implementation reads Aseprite image/group/tilemap layers and preflights unsupported semantics before installation: `packages/editor-core/src/import-export/aseprite/project.ts`. This code reading establishes implementation intent, not device or project fidelity.
 - Current guide source: `apps/growth/content/help/README.en.md`. Public article contains no blanket “fully compatible” or Pencil performance claim.
 

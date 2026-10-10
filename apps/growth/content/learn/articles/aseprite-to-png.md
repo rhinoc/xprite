@@ -28,6 +28,6 @@ A corrupt or incomplete project can fail to decode. The viewer also limits input
 
 ## Keep the source and continue editing
 
-**Edit** opens the original project in Xprite. Layer visibility changes made just for previewing are not transferred. Save a separate project if you change the artwork, and keep the PNG as the delivery image. The [save and recovery guide](/help/en/#save-and-recover) explains browser file saving.
+**Edit** opens the original project in Xprite. Layer visibility changes made just for previewing are not transferred. Save a separate project if you change the artwork, and keep the PNG as the delivery image. The [save and recovery guide](/help/#save-and-recover) explains browser file saving.
 
 Xprite is an independent editor and viewer with its own Aseprite format support. Compare important outputs with the original application before using them in a production asset pipeline.

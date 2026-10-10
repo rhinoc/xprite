@@ -3,8 +3,10 @@ import { appendFile, cp, lstat, mkdir, readFile, readdir, rm, writeFile } from "
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import galleryRoutes from "../../apps/gallery/build/generated-routes.json" with { type: "json" };
+import componentRoutes from "../../apps/gallery/build/generated-routes.json" with { type: "json" };
 import { siteServingConfiguration } from "../../apps/growth/build/routing/site-configuration.ts";
+import { GUIDE_PAGES } from "../../apps/growth/content/help/pages.ts";
+import { SHOWCASE_PAGES } from "../../apps/growth/content/showcase/pages.ts";
 import { SITE_PAGES, SitePageKind } from "../../apps/growth/content/site/pages.ts";
 import { GIF_SHEET_TOOL, TOOLS_HOME, TOOLS } from "../../apps/growth/content/tools/index.ts";
 
@@ -39,10 +41,27 @@ const REQUIRED_DISCOVERY_FILES = [
   ...SOCIAL_IMAGE_PATHS.map((path) => path.slice(1)),
 ];
 const REQUIRED_SITE_PAGES = [
-  "gallery/index.html",
+  "components/index.html",
   ...SITE_PAGES.map(({ path }) => `${path.slice(1)}index.html`),
   "404.html",
 ];
+
+/** Production served the component docs under /gallery/ with /gallery/components/<slug>. */
+function legacyGalleryRedirects() {
+  return componentRoutes
+    .filter((path) => path !== "/components/")
+    .flatMap((path) => {
+      const legacy = path.replace(
+        /^\/components\/(icons$)?/,
+        (_, icons) => `/gallery/${icons ?? "components/"}`,
+      );
+      return [legacy, `${legacy}/`].map((source) => ({
+        source,
+        destination: path,
+        statusCode: 301,
+      }));
+    });
+}
 
 function environmentValue(name) {
   return process.env[name]?.trim() ?? "";
@@ -114,8 +133,8 @@ async function prepareDeployment() {
       const url = new URL(resource, `https://xprite.cc/${page}`);
       if (url.origin !== "https://xprite.cc")
         throw new Error(`Page entry assets must belong to the website: ${page}.`);
-      if (page.startsWith("gallery/") && !url.pathname.startsWith("/gallery/"))
-        throw new Error(`Gallery entry assets must use the /gallery/ base: ${resource}.`);
+      if (page.startsWith("components/") && !url.pathname.startsWith("/components/"))
+        throw new Error(`Component docs entry assets must use the /components/ base: ${resource}.`);
       await readFile(join(outputDirectory, decodeURIComponent(url.pathname)));
     }
   }
@@ -137,14 +156,14 @@ async function prepareDeployment() {
     caches: configuration.caches,
     rewrites: [
       ...(configuration.rewrites ?? []),
-      ...galleryRoutes
-        .filter((path) => path !== "/gallery/")
+      ...componentRoutes
+        .filter((path) => path !== "/components/")
         .flatMap((path) => [
-          { source: path, destination: "/gallery/index.html" },
-          { source: `${path}/`, destination: "/gallery/index.html" },
+          { source: path, destination: "/components/index.html" },
+          { source: `${path}/`, destination: "/components/index.html" },
         ]),
     ],
-    ...(configuration.redirects ? { redirects: configuration.redirects } : {}),
+    redirects: [...(configuration.redirects ?? []), ...legacyGalleryRedirects()],
   };
   if (environment === "preview") {
     await writeFile(join(deploymentDirectory, "robots.txt"), "User-agent: *\nAllow: /\n");
@@ -239,22 +258,22 @@ function hasPageLanguage(html, language) {
 async function verifyShowcasePages(url, environment) {
   for (const language of PUBLIC_PAGE_LANGUAGES) {
     const showcaseUrl = new URL(url);
-    showcaseUrl.pathname = `/showcase/${language}/`;
+    showcaseUrl.pathname = SHOWCASE_PAGES[language].path;
     const page = await fetch(showcaseUrl, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
     const html = await page.text();
-    const label = `Showcase (${language})`;
+    const label = `About page (${language})`;
     if (!page.ok || !hasPageLanguage(html, language) || !html.includes('id="root"'))
       throw new Error(`${label} page is unavailable or has an incorrect language.`);
     if (environment === "production") {
-      const canonical = `https://xprite.cc/showcase/${language}/`;
+      const canonical = `https://xprite.cc${SHOWCASE_PAGES[language].path}`;
       if (!html.includes(`rel="canonical" href="${canonical}"`))
         throw new Error(`${label} has an incorrect canonical URL.`);
       for (const alternateLanguage of PUBLIC_PAGE_LANGUAGES) {
-        const alternate = `https://xprite.cc/showcase/${alternateLanguage}/`;
+        const alternate = `https://xprite.cc${SHOWCASE_PAGES[alternateLanguage].path}`;
         if (!html.includes(`hreflang="${alternateLanguage}" href="${alternate}"`))
           throw new Error(`${label} is missing the ${alternateLanguage} language link.`);
       }
-      if (!html.includes('hreflang="x-default" href="https://xprite.cc/showcase/en/"'))
+      if (!html.includes(`hreflang="x-default" href="https://xprite.cc${SHOWCASE_PAGES.en.path}"`))
         throw new Error(`${label} is missing the default language link.`);
       if (!html.includes('content="index, follow"'))
         throw new Error(`${label} must be indexable in production.`);
@@ -284,7 +303,7 @@ async function verifyApplicationPages(url, environment) {
             : "animal-crossing-root",
       indexable: true,
     })),
-    ...galleryRoutes.flatMap((path) =>
+    ...componentRoutes.flatMap((path) =>
       (path.endsWith("/") ? [path] : [path, `${path}/`]).map((path) => ({
         path,
         root: "root",
@@ -300,12 +319,12 @@ async function verifyApplicationPages(url, environment) {
     if (!response.ok || !html.includes(`id="${entry.root}"`))
       throw new Error(`Application page is unavailable: ${entry.path}.`);
     if (
-      entry.path.startsWith("/gallery/") &&
+      entry.path.startsWith("/components/") &&
       Array.from(html.matchAll(MODULE_ENTRY_PATTERN)).some(
-        (match) => !new URL(match[1], pageUrl).pathname.startsWith("/gallery/"),
+        (match) => !new URL(match[1], pageUrl).pathname.startsWith("/components/"),
       )
     )
-      throw new Error(`Gallery route returned another application's entry: ${entry.path}.`);
+      throw new Error(`Component docs route returned another application's entry: ${entry.path}.`);
     await verifyPageEntryAssets(html, pageUrl, entry.path, verifiedAssets);
     if (entry.indexable) {
       if (
@@ -315,7 +334,7 @@ async function verifyApplicationPages(url, environment) {
         throw new Error(`Application page has an incorrect canonical URL: ${entry.path}.`);
     }
     if (
-      (environment === "preview" || entry.path.startsWith("/gallery/")) &&
+      (environment === "preview" || entry.path.startsWith("/components/")) &&
       !html.includes('content="noindex, follow"')
     )
       throw new Error(`Application page must not be indexed: ${entry.path}.`);
@@ -392,12 +411,12 @@ async function verifyDeployment(result, expected) {
       await verifyPageEntryAssets(html, url, "Editor");
       for (const language of PUBLIC_PAGE_LANGUAGES) {
         const guideUrl = new URL(url);
-        guideUrl.pathname = `/help/${language}/`;
+        guideUrl.pathname = GUIDE_PAGES[language].path;
         const guide = await fetch(guideUrl, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
         const guideHtml = await guide.text();
         if (!guide.ok || !hasPageLanguage(guideHtml, language))
           throw new Error(`Public guide is unavailable: ${language}.`);
-        const canonical = `https://xprite.cc/help/${language}/`;
+        const canonical = `https://xprite.cc${GUIDE_PAGES[language].path}`;
         if (
           expected.environment === "production" &&
           !guideHtml.includes(`rel="canonical" href="${canonical}"`)
@@ -431,18 +450,22 @@ async function verifyDeployment(result, expected) {
           throw new Error(`Article page is unavailable or has incorrect metadata: ${path}.`);
       }
       for (const { path, language } of SITE_PAGES.filter(
-        (page) => page.kind === SitePageKind.Placeholder,
+        (page) => page.kind === SitePageKind.Document,
       )) {
         const pageUrl = new URL(path, url);
         const page = await fetch(pageUrl, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
         const html = await page.text();
+        const metadata =
+          expected.environment === "production"
+            ? `rel="canonical" href="https://xprite.cc${path}"`
+            : 'content="noindex, follow"';
         if (
           !page.ok ||
           !hasPageLanguage(html, language) ||
           !html.includes("<h1") ||
-          !html.includes('content="noindex, follow"')
+          !html.includes(metadata)
         )
-          throw new Error(`Reserved page is unavailable or must not be indexed: ${path}.`);
+          throw new Error(`Document page is unavailable or has incorrect metadata: ${path}.`);
       }
       const missingUrl = new URL(url);
       missingUrl.pathname = `/deployment-not-found-${expected.release}`;
@@ -499,11 +522,11 @@ async function publishDeployment() {
     const url = new URL(result.url).href.replaceAll("(", "%28").replaceAll(")", "%29");
     await appendFile(
       process.env.GITHUB_STEP_SUMMARY,
-      `Deployed **${settings.name}** (${settings.environment}).\n\nCommit: \`${expected.release}\`.\n\n[Open deployment](${url})\n\nRelease metadata, editor and localized showcase entry assets, public guides, comparison pages, all tool and gallery entry assets, gallery subroutes and custom HTTP 404 verified. PostHog ingestion still requires browser/network verification.\n`,
+      `Deployed **${settings.name}** (${settings.environment}).\n\nCommit: \`${expected.release}\`.\n\n[Open deployment](${url})\n\nRelease metadata, editor and localized about-page entry assets, public guides, articles and documents, all tool and component-docs entry assets, component-docs subroutes and custom HTTP 404 verified. PostHog ingestion still requires browser/network verification.\n`,
     );
   }
   console.log(
-    "Deployed release, editor, localized showcase, all tools, gallery subroutes and their entry assets, public pages and custom HTTP 404 verified.",
+    "Deployed release, editor, localized about pages, all tools, component-docs subroutes and their entry assets, public pages and custom HTTP 404 verified.",
   );
 }
 

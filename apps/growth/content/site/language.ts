@@ -12,8 +12,12 @@ export function publicLanguage(value = "en"): PublicLanguage {
     : PublicLanguage.English;
 }
 
+/** Localized pages live under one root `/zh-CN/` prefix; English paths stay unprefixed. */
+const LOCALIZED_SECTIONS = /^\/(?:learn|compare|help|about|privacy)(?:\/|$)/;
+const LOCALIZED_PREFIX = /^\/zh-CN(?=\/|$)/;
+
 export function articleLanguage(path: string): PublicLanguage {
-  return path.split("/").includes(PublicLanguage.SimplifiedChinese)
+  return LOCALIZED_PREFIX.test(new URL(path, LOCAL_SITE_ORIGIN).pathname)
     ? PublicLanguage.SimplifiedChinese
     : PublicLanguage.English;
 }
@@ -24,23 +28,10 @@ export function localizedSiteHref(href: string, language: PublicLanguage | strin
   const url = new URL(href, LOCAL_SITE_ORIGIN);
   if (url.origin !== LOCAL_SITE_ORIGIN) return href;
   const selected = publicLanguage(language);
-  if (
-    /^\/(?:learn|compare|create|resources|design-school|support|legal|how-it-works|features)(?:\/|$)/.test(
-      url.pathname,
-    ) &&
-    !/\.[a-z]+$/i.test(url.pathname)
-  ) {
-    const path = url.pathname.replace(/\/zh-CN(?=\/|$)/, "");
-    url.pathname =
-      selected === PublicLanguage.SimplifiedChinese
-        ? path.replace(
-            /^\/(learn|compare|create|resources|design-school|support|legal|how-it-works|features)/,
-            "/$1/zh-CN",
-          )
-        : path;
-  } else if (/^\/(?:showcase|help)\/(?:en|zh-CN)(?:\/|$)/.test(url.pathname)) {
-    url.pathname = url.pathname.replace(/\/(en|zh-CN)(?=\/|$)/, `/${selected}`);
-  } else if (/^\/(?:tools|gallery)(?:\/|$)/.test(url.pathname)) {
+  const path = url.pathname.replace(LOCALIZED_PREFIX, "") || "/";
+  if (LOCALIZED_SECTIONS.test(path) && !/\.[a-z0-9]+$/i.test(path)) {
+    url.pathname = selected === PublicLanguage.SimplifiedChinese ? `/zh-CN${path}` : path;
+  } else if (/^\/(?:tools|components)(?:\/|$)/.test(url.pathname)) {
     if (selected === PublicLanguage.SimplifiedChinese)
       url.searchParams.set(LANGUAGE_PARAMETER, selected);
     else url.searchParams.delete(LANGUAGE_PARAMETER);

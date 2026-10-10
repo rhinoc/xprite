@@ -27,9 +27,9 @@ For access, Pixquare advertises a one-time unlock; Resprite offers subscriptions
 
 ## Xprite: browser editing and file backups
 
-Xprite is worth trying when you want to open the editor through a link. Its [touch guide](/help/en/#fingers-and-a-pen) explains finger navigation and pen drawing; the [shortcut toolbar](/help/en/#shortcut-toolbar) supplies selection movements and modifiers on screen.
+Xprite is worth trying when you want to open the editor through a link. Its [touch guide](/help/#fingers-and-a-pen) explains finger navigation and pen drawing; the [shortcut toolbar](/help/#shortcut-toolbar) supplies selection movements and modifiers on screen.
 
-Browser saves stay in the current browser and do not sync between devices. Use **File → Save As → File Manager** for an independent file; unsupported save-dialog browsers use a download. Prepare offline resources during the first connected visit before relying on offline editing. See [save and recover](/help/en/#save-and-recover) and [offline use](/help/en/#add-to-desktop-and-use-offline).
+Browser saves stay in the current browser and do not sync between devices. Use **File → Save As → File Manager** for an independent file; unsupported save-dialog browsers use a download. Prepare offline resources during the first connected visit before relying on offline editing. See [save and recover](/help/#save-and-recover) and [offline use](/help/#add-to-desktop-and-use-offline).
 
 ## Check one representative project first
 

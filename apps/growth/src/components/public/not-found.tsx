@@ -1,3 +1,4 @@
+import { GUIDE_PAGES } from "$content/help/pages";
 import { SHOWCASE_PAGES } from "$content/showcase/pages";
 import { PublicLanguage, localizedSiteHref } from "$content/site/language";
 
@@ -73,7 +74,7 @@ export function PublicNotFound({ language }: { language: PublicLanguage }) {
         />
         <PublicIcon
           label={text("User guide", "使用指南")}
-          href={`/help/${language}/`}
+          href={GUIDE_PAGES[language].path}
           variant={IconKind.Document}
         />
       </nav>

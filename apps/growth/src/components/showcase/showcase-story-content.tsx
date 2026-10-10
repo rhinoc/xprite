@@ -1,4 +1,6 @@
+import { GUIDE_PAGES } from "$content/help/pages";
 import { SHOWCASE_HERO_COPY, SHOWCASE_STORY_COPY } from "$content/showcase/index";
+import { SHOWCASE_PAGES } from "$content/showcase/pages";
 import type { Ref } from "react";
 
 import { PublicNavigation } from "$/components/public/static-ui";
@@ -186,20 +188,20 @@ export function ShowcaseStaticHero({ language }: { language: ShowcaseContentLang
           language={language}
           trailingContent={<ShowcaseSoundControl language={language} />}
           brandLabel={copy.home}
-          brandHref={`/showcase/${language}/`}
+          brandHref={SHOWCASE_PAGES[language].path}
           links={[
             { label: copy.tools, href: "/tools/" },
             { label: copy.goToEditor, href: EDITOR_URL },
             {
               label: copy.languageSwitch,
-              href: `/showcase/${otherLanguage}/`,
+              href: SHOWCASE_PAGES[otherLanguage].path,
               hrefLang: otherLanguage,
               end: true,
               icon: "language",
             },
             {
               label: copy.help,
-              href: `/help/${language}/`,
+              href: GUIDE_PAGES[language].path,
               icon: "help",
             },
           ]}
@@ -249,7 +251,7 @@ export function ShowcaseStaticHero({ language }: { language: ShowcaseContentLang
               slots={{ leading: <Icon kind={IconKind.Document} size={IconSize.Large} /> }}
               compactOnSmallScreens
               text={copy.help}
-              href={`/help/${language}/`}
+              href={GUIDE_PAGES[language].path}
             />
             <Button
               variant={ButtonVariant.Tile}

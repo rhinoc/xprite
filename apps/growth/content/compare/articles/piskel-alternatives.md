@@ -53,4 +53,4 @@ Product facts checked against official documentation and Xprite's editor control
 - [Piskel overview](https://www.piskelapp.com/), [editor save and import panels](https://www.piskelapp.com/p/create/sprite/), [FAQ](https://www.piskelapp.com/faq/), and [offline downloads](https://www.piskelapp.com/download/).
 - [Pixelorama overview](https://pixelorama.org/), [import formats](https://pixelorama.org/user_manual/Import), [installation](https://pixelorama.org/user_manual/installation), [FAQ](https://pixelorama.org/faq), and [saving and exporting](https://pixelorama.org/user_manual/save_and_export), and [v1.2.2 Aseprite export](https://github.com/Orama-Interactive/Pixelorama/releases/tag/v1.2.2).
 - [Pixilart features](https://www.pixilart.com/features), [help and project files](https://www.pixilart.com/help), [community](https://www.pixilart.com/), and [PRO cloud storage](https://www.pixilart.com/subscribe).
-- [Xprite user guide](/help/en/). Format and timeline statements were also checked against the current editor source.
+- [Xprite user guide](/help/). Format and timeline statements were also checked against the current editor source.

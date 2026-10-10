@@ -1,5 +1,5 @@
 import { siteApplications, siteFooterGroups, showcaseLabel } from "$content/site/navigation";
-import { PLANNED_PAGES } from "$content/site/pages";
+import { DOCUMENT_PAGES } from "$content/site/pages";
 import { type HTMLAttributes, type ReactNode } from "react";
 
 import { SiteFooter, SiteMenubar, type SiteFooterProps } from "@xprite/site-shell";
@@ -124,18 +124,19 @@ export function PublicNavigation({
   const chinese = language.startsWith("zh");
   const otherLanguage = links.find((link) => link.icon === "language");
   const help = links.find((link) => link.icon === "help");
-  const plannedPage = PLANNED_PAGES.find((page) => page.path === currentHref.split("?")[0]);
+  const path = currentHref.split("?")[0].replace(/^\/zh-CN(?=\/)/, "");
+  const documentPage = DOCUMENT_PAGES.find((page) => page.path === currentHref.split("?")[0]);
   const applicationName =
-    plannedPage?.title ??
-    (currentHref.startsWith("/help")
+    documentPage?.title ??
+    (path.startsWith("/help")
       ? chinese
         ? "使用指南"
         : "User guide"
-      : currentHref.startsWith("/learn")
+      : path.startsWith("/learn")
         ? chinese
           ? "文件导出指南"
           : "File guides"
-        : currentHref.startsWith("/compare")
+        : path.startsWith("/compare")
           ? chinese
             ? "编辑器比较"
             : "Compare"

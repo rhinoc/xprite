@@ -1,5 +1,6 @@
 import { editorApplicationMetadata } from "../application/index";
 import { ARTICLES } from "../articles/index";
+import { GUIDE_PAGES } from "../help/pages.ts";
 import { localizedSiteHref } from "../site/language.ts";
 import { showcaseLabel } from "../site/navigation";
 import { TOOLS } from "../tools/index";
@@ -111,7 +112,7 @@ export function showcaseSearchMetadata(
         inLanguage: language,
         mainEntity: { "@id": application["@id"] },
         relatedLink: [
-          new URL(`/help/${language}/`, siteUrl).href,
+          new URL(GUIDE_PAGES[language].path, siteUrl).href,
           ...TOOLS.map((tool) => new URL(tool.path, siteUrl).href),
           ...ARTICLES.map((article) => new URL(article.path, siteUrl).href),
         ],

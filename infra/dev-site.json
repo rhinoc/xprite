@@ -6,6 +6,6 @@
     "tools": 5176
   },
   "growthBase": "/__growth/",
-  "galleryBase": "/gallery/",
+  "galleryBase": "/components/",
   "identityPath": "/__xprite/dev-server"
 }

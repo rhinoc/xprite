@@ -72,4 +72,4 @@ Pixelorama。同样免费开源，也能直接打开 `.piskel`。
 
 ---
 
-想在浏览器里试试，可以[打开 Xprite](/?utm_source=compare&utm_medium=referral&utm_campaign=piskel-alternatives) 导入一段 GIF。要和 Aseprite 工程打交道，可以看[在线编辑 Aseprite](/compare/zh-CN/aseprite-online/)。
+想在浏览器里试试，可以[打开 Xprite](/?utm_source=compare&utm_medium=referral&utm_campaign=piskel-alternatives) 导入一段 GIF。要和 Aseprite 工程打交道，可以看[在线编辑 Aseprite](/zh-CN/compare/aseprite-online/)。

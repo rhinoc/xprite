@@ -6,7 +6,7 @@ Aseprite's official downloads are desktop applications for Windows, macOS, and L
 
 ## Inspect an Aseprite file
 
-For a quick check, use the [Xprite Aseprite file viewer](/tools/viewer/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online). It opens local `.ase` and `.aseprite` files, previews frames and animation tags, and exports a PNG frame or a GIF animation. Its **Edit** button carries the original file into the editor. Preview-only layer visibility changes do not carry across. [Xprite user guide](/help/en/)
+For a quick check, use the [Xprite Aseprite file viewer](/tools/viewer/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online). It opens local `.ase` and `.aseprite` files, previews frames and animation tags, and exports a PNG frame or a GIF animation. Its **Edit** button carries the original file into the editor. Preview-only layer visibility changes do not carry across. [Xprite user guide](/help/)
 
 This is useful when someone sends you a project and you first need to inspect its contents. If you only need an image for a message or an animation preview, the viewer may finish the job. If the task requires drawing or changing the document, open the editor.
 
@@ -20,11 +20,11 @@ Use PNG or GIF to share the finished artwork; keep a project file for further ed
 | Pixelorama | Free web version alongside desktop apps          | Documents Aseprite import; v1.2.2 added Aseprite export      | Check import limitations and the output; `.pxo` remains its own project format                                    |
 | Aseprite   | Official desktop downloads                       | Native format and workflow                                   | Requires a desktop installation                                                                                   |
 
-See the documented import and export options: [Xprite user guide](/help/en/), [Novaboard developer page](https://marcel0ll.itch.io/novaboard), [Manabit import and export](https://manabit.app/docs/features/import-export/), [Pixelorama import](https://pixelorama.org/user_manual/Import), [Pixelorama v1.2.2 release](https://github.com/Orama-Interactive/Pixelorama/releases/tag/v1.2.2).
+See the documented import and export options: [Xprite user guide](/help/), [Novaboard developer page](https://marcel0ll.itch.io/novaboard), [Manabit import and export](https://manabit.app/docs/features/import-export/), [Pixelorama import](https://pixelorama.org/user_manual/Import), [Pixelorama v1.2.2 release](https://github.com/Orama-Interactive/Pixelorama/releases/tag/v1.2.2).
 
 ## Browser editors
 
-**Choose Xprite to inspect an Aseprite file or edit it in your browser and save an Aseprite copy.** Its viewer's **Edit** button opens the original file in the editor. Use **File → Save As → File Manager** to save a separate result on your device, then reopen it in the next application and check layers, tags, and timing. [Xprite user guide](/help/en/)
+**Choose Xprite to inspect an Aseprite file or edit it in your browser and save an Aseprite copy.** Its viewer's **Edit** button opens the original file in the editor. Use **File → Save As → File Manager** to save a separate result on your device, then reopen it in the next application and check layers, tags, and timing. [Xprite user guide](/help/)
 
 **Consider Novaboard when you want a free browser animation workspace and image or game-asset output.** Its developer lists timeline tags, onion skinning, indexed color, and non-destructive layer effects. Those are reasons to investigate it for drawing and animation. For an existing project, check the imported structure and confirm its save options before promising an `.aseprite` file back to someone. [Novaboard developer page](https://marcel0ll.itch.io/novaboard)
 
@@ -46,7 +46,7 @@ Product facts checked against official documentation and developer pages on **20
 
 - [Aseprite FAQ and desktop downloads](https://www.aseprite.org/faq/)
 - [Aseprite documentation](https://www.aseprite.org/docs/)
-- [Xprite user guide](/help/en/)
+- [Xprite user guide](/help/)
 - [Novaboard developer page](https://marcel0ll.itch.io/novaboard)
 - [Manabit import and export](https://manabit.app/docs/features/import-export/)
 - [Manabit free access](https://manabit.app/docs/features/available-for-free/)

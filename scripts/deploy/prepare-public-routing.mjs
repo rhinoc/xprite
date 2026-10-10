@@ -9,7 +9,7 @@ const ROUTING_SOURCE = fileURLToPath(
 );
 const MIDDLEWARE_FILENAME = "middleware.js";
 const PRIVATE_FILES = new Set(["edgeone.json", MIDDLEWARE_FILENAME]);
-const ENTRY_PATHS = ["/", "/editor", "/editor/", "/tools/viewer/", "/showcase", "/showcase/"];
+const ENTRY_PATHS = ["/", "/editor", "/editor/", "/tools/viewer/"];
 const INDEX_FILENAME = "index.html";
 
 async function publishedFiles(directory, prefix = "") {

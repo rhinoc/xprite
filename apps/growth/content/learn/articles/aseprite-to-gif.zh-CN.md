@@ -19,7 +19,7 @@ GIF 只保存渲染后的画面，图层和标签留在原来的 `.aseprite` 里
 
 ![查看器的「文件」菜单，包含「导出动画（.gif）」和「导出当前帧（.png）」](images/viewer-file-menu.png)
 
-只有一帧的工程不能导出 GIF，「导出动画（.gif）」会显示为不可用，这时用「导出当前帧（.png）」，步骤见 [Aseprite 转 PNG](/learn/zh-CN/aseprite-to-png/)。
+只有一帧的工程不能导出 GIF，「导出动画（.gif）」会显示为不可用，这时用「导出当前帧（.png）」，步骤见 [Aseprite 转 PNG](/zh-CN/learn/aseprite-to-png/)。
 
 ## 导出的 GIF 和原工程有什么不同
 
@@ -61,4 +61,4 @@ GIF 导出另有一个总量上限：画布宽 × 高 × 导出帧数不能超�
 
 ---
 
-[打开查看器导出 GIF](/tools/viewer/?lang=zh-CN&utm_source=learn&utm_medium=referral&utm_campaign=aseprite-to-gif)。需要在浏览器里修改工程，可以看[在线编辑 Aseprite](/compare/zh-CN/aseprite-online/)。
+[打开查看器导出 GIF](/tools/viewer/?lang=zh-CN&utm_source=learn&utm_medium=referral&utm_campaign=aseprite-to-gif)。需要在浏览器里修改工程，可以看[在线编辑 Aseprite](/zh-CN/compare/aseprite-online/)。

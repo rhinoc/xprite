@@ -1,8 +1,13 @@
 import { ARTICLES, localizedArticle } from "../../content/articles/index.ts";
+import { GUIDE_PAGES } from "../../content/help/pages.ts";
 import { SHOWCASE_PAGES } from "../../content/showcase/pages.ts";
 import { PublicLanguage } from "../../content/site/language.ts";
-import { showcaseLabel } from "../../content/site/navigation.ts";
-import { SITE_PAGES, SitePageKind, type SitePage } from "../../content/site/pages.ts";
+import {
+  DOCUMENT_PAGES,
+  SITE_PAGES,
+  SitePageKind,
+  type SitePage,
+} from "../../content/site/pages.ts";
 import { TOOLS_HOME, ANIMAL_CROSSING_TOOL, GIF_SHEET_TOOL } from "../../content/tools/index.ts";
 import { readArticleDocument } from "../pages/article-source.ts";
 
@@ -22,14 +27,17 @@ export function sitemap(): string {
   const entries = SITE_PAGES.filter((page) => page.indexable).map((page) => {
     const dateModified = pageLastModified(page);
     const translations = page.translations ?? [];
-    const alternates = translations.length
-      ? [...translations, { language: "x-default", path: translations[0].path }]
-          .map(
-            (item) =>
-              `<xhtml:link rel="alternate" hreflang="${item.language}" href="${new URL(item.path, SITE_URL).href}"/>`,
-          )
-          .join("")
-      : "";
+    const english = translations.find((item) => item.language === PublicLanguage.English);
+    // A page written in one language has no alternates.
+    const alternates =
+      translations.length > 1
+        ? [...translations, ...(english ? [{ language: "x-default", path: english.path }] : [])]
+            .map(
+              (item) =>
+                `<xhtml:link rel="alternate" hreflang="${item.language}" href="${new URL(item.path, SITE_URL).href}"/>`,
+            )
+            .join("")
+        : "";
     return `  <url><loc>${new URL(page.path, SITE_URL).href}</loc>${dateModified ? `<lastmod>${dateModified}</lastmod>` : ""}${alternates}</url>`;
   });
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${entries.join("\n")}\n</urlset>\n`;
@@ -49,10 +57,7 @@ Xprite is independent of Aseprite. File-format support is not a guarantee of com
 ## Product overview
 
 ${Object.entries(SHOWCASE_PAGES)
-  .map(
-    ([language, page]) =>
-      `- [${showcaseLabel(language)}](${new URL(page.path, SITE_URL).href}): ${page.description}`,
-  )
+  .map(([, page]) => `- [${page.title}](${new URL(page.path, SITE_URL).href}): ${page.description}`)
   .join("\n")}
 
 ## Applications
@@ -65,8 +70,9 @@ ${Object.entries(SHOWCASE_PAGES)
 
 ## User guides
 
-- [English guide](${SITE_URL}help/en/): Browser saving, recovery, touch controls, and offline use.
-- [中文使用指南](${SITE_URL}help/zh-CN/): 浏览器保存、恢复、触摸操作与离线使用。
+${Object.values(GUIDE_PAGES)
+  .map((page) => `- [${page.title}](${new URL(page.path, SITE_URL).href}): ${page.description}`)
+  .join("\n")}
 
 ## File workflows and comparisons
 
@@ -77,6 +83,10 @@ ${Object.values(PublicLanguage)
       `- [${article.title}](${new URL(article.path, SITE_URL).href}): ${article.summary}`,
   )
   .join("\n")}
+
+## About and privacy
+
+${DOCUMENT_PAGES.map((page) => `- [${page.title}](${new URL(page.path, SITE_URL).href})`).join("\n")}
 
 ## Optional
 

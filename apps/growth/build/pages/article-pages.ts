@@ -96,7 +96,7 @@ function libraryFolders(language: PublicLanguage): string {
       publicIconLink(text("Applications", "应用程序"), href("/tools/")) +
       publicIconLink(text("File guides", "文件导出指南"), href("/learn/")) +
       publicIconLink(text("Comparisons", "编辑器比较"), href("/compare/")) +
-      publicIconLink(text("User guide", "使用指南"), href("/help/en/"), "document")
+      publicIconLink(text("User guide", "使用指南"), href("/help/"), "document")
     }</div>`,
     "data-public-folders",
     text("4 items", "4 项"),
@@ -232,7 +232,7 @@ ${publicUiScope(
       { label: text("Compare", "编辑器比较"), href: href("/compare/") },
       { label: text("Guides", "文件导出指南"), href: href("/learn/") },
       { label: text("Editor", "编辑器"), href: editorUrl(article) },
-      { label: text("User guide", "使用指南"), href: href("/help/en/"), icon: "help", end: true },
+      { label: text("User guide", "使用指南"), href: href("/help/"), icon: "help", end: true },
       {
         label: language === PublicLanguage.English ? "简体中文" : "English",
         href: localizedSiteHref(

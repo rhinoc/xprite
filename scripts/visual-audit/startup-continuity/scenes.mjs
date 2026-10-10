@@ -12,19 +12,19 @@ const articleRegions = [
 ];
 const showcasePage = (language) => ({
   name: `showcase-${language}`,
-  path: `/showcase/${language}/`,
+  path: language === "en" ? "/about/" : "/zh-CN/about/",
   ready: "[data-showcase-desktop]",
   regions: [pageRegion, { name: "main", selectors: ["main"] }],
 });
 const guidePage = (language) => ({
   name: `help-${language}`,
-  path: `/help/${language}/`,
+  path: language === "en" ? "/help/" : "/zh-CN/help/",
   ready: publicReady,
   regions: [...articleRegions, { name: "contents", selectors: ['[data-public-island="index"]'] }],
 });
 const articlePage = (language) => ({
   name: `article-${language}`,
-  path: language === "en" ? "/compare/aseprite-online/" : "/compare/zh-CN/aseprite-online/",
+  path: language === "en" ? "/compare/aseprite-online/" : "/zh-CN/compare/aseprite-online/",
   ready: publicReady,
   regions: articleRegions,
 });
@@ -39,10 +39,10 @@ const representativePages = [
   guidePage("zh-CN"),
   { name: "learn", path: "/learn/", ready: publicReady, regions: publicRegions },
   articlePage("zh-CN"),
-  { name: "planned", path: "/create/zh-CN/", ready: publicReady, regions: publicRegions },
+  { name: "document", path: "/zh-CN/privacy/", ready: publicReady, regions: articleRegions },
   ...["macintosh", "aseprite"].map((theme) => ({
     name: `gallery-${theme}`,
-    path: "/gallery/",
+    path: "/components/",
     galleryTheme: theme,
     ready: "#root[data-gallery-ready] main",
     regions: [{ name: "page", selectors: ["#gallery-startup", "#root"] }],

@@ -18,8 +18,8 @@ const TEMPORARY_REDIRECT_STATUS = 307;
 
 // Put shared artwork before the tools runtime: these files belong to growth's public package.
 const GROWTH_ROUTES =
-  "^/(?:__growth(?:/|$)|(?:showcase|help|learn|compare|create|resources|design-school|support|legal|how-it-works|features)(?:/|\\?|$)|theme(?:/|$)|fusion-pixel/|tools/animal-crossing/|(?:menu-icon\\.svg|social-preview\\.png|robots\\.txt|sitemap\\.xml|llms\\.txt|404\\.html)(?:\\?|$))";
-const GALLERY_ROUTES = "^/gallery(?:/|\\?|$)";
+  "^/(?:__growth(?:/|$)|(?:showcase|about|help|learn|compare|privacy|zh-CN)(?:/|\\?|$)|theme(?:/|$)|fusion-pixel/|tools/animal-crossing/|(?:menu-icon\\.svg|social-preview\\.png|robots\\.txt|sitemap\\.xml|llms\\.txt|404\\.html)(?:\\?|$))";
+const GALLERY_ROUTES = "^/components(?:/|\\?|$)";
 const TOOLS_ROUTES = "^/tools(?:/(?!animal-crossing/)|\\?|$)";
 const EDITOR_ROUTES =
   "^/(?:$|\\?|editor(?:/|\\?|$)|src/|@|node_modules/|assets/|__debug/|(?:index\\.html|favicon[^/]*|icon[^/]*|startup[^/]*|manifest\\.webmanifest|sw\\.js)(?:\\?|$))";

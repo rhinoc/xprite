@@ -18,7 +18,7 @@ The viewer uses the source frame durations and the selected tag's playback direc
 
 GIF supports a limited color palette and transparent or opaque pixels. It cannot preserve partially transparent pixels like PNG. Gradients and soft edges can change during conversion. For a still image with smooth transparency, [export a PNG frame](/learn/aseprite-to-png/) instead.
 
-The GIF keeps the canvas dimensions. Viewer zoom controls the preview size. Use the editor to resize the artwork or change the animation itself. [Xprite user guide](/help/en/)
+The GIF keeps the canvas dimensions. Viewer zoom controls the preview size. Use the editor to resize the artwork or change the animation itself. [Xprite user guide](/help/)
 
 ## Large files and export limits
 

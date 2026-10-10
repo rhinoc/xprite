@@ -35,7 +35,7 @@ const [editorHtml, viewerHtml, gifSheetHtml, toolsHtml, animalCrossingHtml] = aw
       SitePageKind.Showcase,
       SitePageKind.Guide,
       SitePageKind.Article,
-      SitePageKind.Placeholder,
+      SitePageKind.Document,
     ].includes(page.kind),
   ).map(({ path }) => readFile(resolve(growthOutput, `.${path}`, INDEX_FILENAME), "utf8")),
 ]);
@@ -45,7 +45,7 @@ await mkdir(siteOutput, { recursive: true });
 await cp(editorOutput, siteOutput, { recursive: true });
 await cp(growthOutput, siteOutput, { recursive: true });
 await cp(toolsOutput, resolve(siteOutput, "tools"), { recursive: true });
-await cp(galleryOutput, resolve(siteOutput, "gallery"), { recursive: true });
+await cp(galleryOutput, resolve(siteOutput, "components"), { recursive: true });
 await writeFile(
   resolve(siteOutput, INDEX_FILENAME),
   applyEditorSearchMetadata(editorHtml, project.version, indexable),

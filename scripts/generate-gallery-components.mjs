@@ -699,11 +699,10 @@ await writeFile(
   routesPath,
   `${JSON.stringify(
     [
-      "/gallery/",
-      "/gallery/icons",
+      "/components/",
+      "/components/icons",
       ...components.map(
-        ({ name }) =>
-          `/gallery/components/${name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase()}`,
+        ({ name }) => `/components/${name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase()}`,
       ),
     ],
     null,
