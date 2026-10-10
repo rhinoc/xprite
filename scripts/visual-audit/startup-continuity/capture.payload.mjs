@@ -69,18 +69,20 @@ for (const scene of continuityConfig.scenes) {
     await page.waitForFunction(() => window.__xpriteStartupMonitor?.initialized, undefined, {
       timeout: continuityConfig.startupTimeoutMilliseconds,
     });
-    await page.waitForFunction(
-      () => [...document.images].every((image) => image.complete && image.naturalWidth > 0),
-      undefined,
-      { timeout: continuityConfig.startupTimeoutMilliseconds },
-    );
-    await page.evaluate(() => document.fonts.ready.then(() => undefined));
+    await page.waitForFunction(() => window.__xpriteStartupMonitor?.imagesReady, undefined, {
+      timeout: continuityConfig.startupTimeoutMilliseconds,
+    });
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+      await window.__xpriteStartupMonitor.decodeImages();
+    });
     result.staticScreenshot = await capture("static");
     await page.cdp("Network.setBlockedURLs", { urls: [] });
     await page.goto(url);
     await page.waitForFunction(() => window.__xpriteStartupMonitor?.complete, undefined, {
       timeout: continuityConfig.startupTimeoutMilliseconds,
     });
+    await page.evaluate(() => window.__xpriteStartupMonitor.decodeImages());
     result.readyScreenshot = await capture("ready");
     result.observation = await page.evaluate(() => window.__xpriteStartupMonitor.stop());
     result.passed = result.observation.complete && result.observation.failures.length === 0;

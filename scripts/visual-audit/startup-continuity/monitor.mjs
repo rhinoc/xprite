@@ -31,6 +31,43 @@ export function installStartupMonitor(config, geometry) {
     // Theme scopes and island hosts use display:contents; inspect their children.
     return [...node.children].some(visible);
   };
+  const clippedOverflow = new Set(["auto", "scroll", "hidden", "clip"]);
+  const requiredImages = () =>
+    [...document.images].filter((image) => {
+      if (image.loading !== "lazy") return true;
+      const viewport = geometry.viewportSize(window);
+      const rect = geometry.clientRect(image);
+      let left = Math.max(0, rect.left);
+      let top = Math.max(0, rect.top);
+      let right = Math.min(viewport.width, rect.right);
+      let bottom = Math.min(viewport.height, rect.bottom);
+      for (let current = image; current; current = current.parentElement) {
+        const style = geometry.computedStyle(current);
+        if (
+          current.hidden ||
+          style.display === "none" ||
+          style.visibility === "hidden" ||
+          style.visibility === "collapse" ||
+          Number(style.opacity) === 0
+        )
+          return false;
+        if (current === image) continue;
+        if (clippedOverflow.has(style.overflowX) || clippedOverflow.has(style.overflowY)) {
+          const clip = geometry.clientRect(current);
+          if (clippedOverflow.has(style.overflowX)) {
+            left = Math.max(left, clip.left);
+            right = Math.min(right, clip.right);
+          }
+          if (clippedOverflow.has(style.overflowY)) {
+            top = Math.max(top, clip.top);
+            bottom = Math.min(bottom, clip.bottom);
+          }
+        }
+      }
+      return right > left && bottom > top;
+    });
+  const imagesReady = () =>
+    requiredImages().every((image) => image.complete && image.naturalWidth > 0);
   const fail = (reason) => {
     if (!failures.some((failure) => failure.reason === reason))
       failures.push({ at: performance.now(), reason });
@@ -73,6 +110,12 @@ export function installStartupMonitor(config, geometry) {
   };
   frame = requestAnimationFrame(tick);
   window.__xpriteStartupMonitor = {
+    get imagesReady() {
+      return imagesReady();
+    },
+    async decodeImages() {
+      await Promise.all(requiredImages().map((image) => image.decode()));
+    },
     get initialized() {
       return regions.every(({ seen }) => seen);
     },
@@ -83,7 +126,7 @@ export function installStartupMonitor(config, geometry) {
         performance.now() - readyAt >= config.readyObservationMilliseconds &&
         regions.every(({ seen }) => seen) &&
         document.fonts.status === "loaded" &&
-        [...document.images].every((image) => image.complete && image.naturalWidth > 0)
+        imagesReady()
       );
     },
     stop() {

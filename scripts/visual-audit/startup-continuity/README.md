@@ -4,9 +4,12 @@ The pre-push hook runs `pnpm run visual:continuity --port 5173` against the runn
 site and its app proxies. `XPRITE_VISUAL_PORT` selects an existing site server.
 The audit does not build apps, start servers, or change screenshot baselines.
 
-All 112 scenes are required: two viewports and four saved/system appearance pairs
-for the editor, both showcase languages, both help languages, Learn and Compare
-directories, a representative article, all four tools, and both Gallery skins.
+All 41 scenes are required. Eight templates cover both viewports and saved Light
+and Dark: editor, Chinese showcase, Chinese help, Learn directory, Chinese article,
+planned page, and both Gallery skins. Editor, Chinese showcase and Macintosh Gallery
+also cover both system appearances at the wide viewport. English showcase, help
+and article have an additional wide Light sample. Tool continuity is observed
+within the existing 32 exact SSG/ready pairs, using the same captures.
 Each scene uses a fresh, isolated localhost origin, disabled network cache, DPR 1,
 and fourfold CPU slowdown. Existing user storage is never cleared or modified.
 
@@ -14,7 +17,10 @@ Each scene first blocks external runtime modules and requires visible initial
 content. It saves a native full-viewport PNG, then starts a fresh navigation with
 runtime modules enabled. A probe installed before parsing observes DOM mutations
 and animation frames until the page is ready, then for at least 500 ms and ten
-frames with loaded fonts and images. It checks the page, navigation, document, and contents
+frames with loaded fonts and required images. Eager images must load; lazy images
+must load only when they intersect the viewport and their scroll/clip ancestors.
+Offscreen lazy images do not delay the first-paint capture. Required images are
+decoded before the static screenshot. It checks the page, navigation, document, and contents
 regions applicable to that route. Content removal, hidden/transparent regions,
 missing initial content, runtime errors, failed public/tool hydration, timeouts, failed
 screenshots, and incomplete observation block push. Source hashes must remain

@@ -5,9 +5,18 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { transform } from "esbuild";
+
 import { parseEgoReport, printEgoNonReportLines } from "../../base/ego-report.mjs";
 import { collectVisualSources } from "../base/audit-source-files.mjs";
 import { generateImageReport } from "../report.mjs";
+import { installStartupMonitor } from "../startup-continuity/monitor.mjs";
+import {
+  CPU_SLOWDOWN,
+  MINIMUM_READY_FRAMES,
+  READY_OBSERVATION_MILLISECONDS,
+  STARTUP_TIMEOUT_MILLISECONDS,
+} from "../startup-continuity/scenes.mjs";
 import { compareStartupPair } from "./compare.mjs";
 import { MINIMUM_SIMILARITY, PIXELMATCH_THRESHOLD, scenes } from "./scenes.mjs";
 
@@ -43,6 +52,9 @@ const sources = () => {
     "apps/growth/public/showcase/ipad/hello",
     "apps/growth/public/showcase/textures",
     "packages/editor-ui/src",
+    "packages/site-shell/src",
+    "infra",
+    "scripts/visual-audit/startup-continuity",
     "scripts/visual-audit/tools-startup",
   ])
     walk(directory);
@@ -50,6 +62,7 @@ const sources = () => {
     "apps/tools/index.html",
     "apps/tools/viewer/index.html",
     "apps/tools/gif-to-sprite-sheet/index.html",
+    "apps/tools/animal-crossing-qr/index.html",
     "apps/tools/vite.config.ts",
     "apps/tools/package.json",
     "apps/growth/public/favicon-32.png",
@@ -89,11 +102,21 @@ try {
   save();
   const installed = path.join(os.homedir(), ".local/bin/ego-browser");
   const payload = fs.readFileSync(new URL("./capture.payload.mjs", import.meta.url), "utf8");
+  const geometry = await transform(
+    fs.readFileSync(path.join(root, "packages/ui/src/base/utils/dom-geometry.ts"), "utf8"),
+    { loader: "ts", format: "iife", globalName: "StartupGeometry" },
+  );
   const config = {
     output,
     port,
     spaceId,
     scenes,
+    cpuSlowdown: CPU_SLOWDOWN,
+    minimumReadyFrames: MINIMUM_READY_FRAMES,
+    readyObservationMilliseconds: READY_OBSERVATION_MILLISECONDS,
+    startupTimeoutMilliseconds: STARTUP_TIMEOUT_MILLISECONDS,
+    geometrySource: geometry.code,
+    monitorSource: installStartupMonitor.toString(),
     screenshotModule: new URL("../../base/screenshot.mjs", import.meta.url).href,
   };
   const streams = { stdout: "", stderr: "" };
@@ -137,11 +160,19 @@ try {
   )
     throw Error("Every SSG/ready pair is required; partial capture cannot pass.");
   for (const scene of scenes) {
-    const result = compareStartupPair(
-      output,
-      scene,
-      report.pairs.find(({ id }) => id === scene.id),
-    );
+    const pair = report.pairs.find(({ id }) => id === scene.id);
+    const observation = pair.ready?.observation;
+    const expectedRegions = ["page", "navigation", "main"];
+    if (
+      !observation?.complete ||
+      observation.failures?.length !== 0 ||
+      JSON.stringify(observation.regions?.map(({ name }) => name)) !==
+        JSON.stringify(expectedRegions) ||
+      !observation.regions.every(({ seen }) => seen)
+    )
+      throw Error(`${scene.id}: startup continuity failed or evidence is incomplete.`);
+    const result = compareStartupPair(output, scene, pair);
+    result.observation = observation;
     manifest.results.push(result);
     save();
     console.log(
