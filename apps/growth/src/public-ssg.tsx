@@ -1,5 +1,7 @@
 import { renderToString } from "react-dom/server";
 
+export { articleStyleClasses } from "$/components/articles/article-styles";
+
 import { PublicArticleDiagram } from "$/components/articles/article-diagram";
 import { PublicNotFound } from "$/components/public/not-found";
 import {

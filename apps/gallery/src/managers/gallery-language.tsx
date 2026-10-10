@@ -61,7 +61,7 @@ const CHINESE: Readonly<Record<string, string>> = {
   Pause: "暂停",
 };
 
-export function translateGalleryText(source: string, language: PublicLanguage): string {
+function translateGalleryText(source: string, language: PublicLanguage): string {
   if (source === "ui.close.name")
     return language === PublicLanguage.SimplifiedChinese ? "关闭 {name}" : "Close {name}";
   if (language === PublicLanguage.English) return source;

@@ -100,7 +100,7 @@ export function ShareProjectDialog({
           <ShareMessage>{source.name}</ShareMessage>
         </header>
         {manager.showReductions && (
-          <div className={styles.reductions}>
+          <div>
             <ShareSection title={tUi("share.reduceTitle")}>
               <ShareMessage muted>{tUi("share.reduceHelp")}</ShareMessage>
               <div className={styles.options}>

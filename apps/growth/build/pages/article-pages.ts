@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { transform } from "lightningcss";
 import { Marked, Renderer } from "marked";
 import type { Tokens } from "marked";
 
@@ -37,7 +36,7 @@ import {
   publicStatus,
 } from "../public-theme.ts";
 import { siteNavigationHref } from "../site-navigation.ts";
-import { renderPublicUi } from "../static-ui-renderer.ts";
+import { publicArticleClasses, renderPublicUi } from "../static-ui-renderer.ts";
 import { GUIDE_STYLE_PATH, CHINESE_FONT_PATH } from "./document-resources.ts";
 
 const SITE_URL = "https://xprite.cc/";
@@ -57,10 +56,6 @@ const HTML_ENTITIES: Readonly<Record<string, string>> = {
 export const ARTICLE_CONTENT_ROOT = resolve(
   fileURLToPath(new URL("../../content/", import.meta.url)),
 );
-export const ARTICLE_STYLE_SOURCE = fileURLToPath(
-  new URL("../../src/components/articles/article.module.css", import.meta.url),
-);
-export const ARTICLE_STYLE_PATH = "/compare/site.css";
 
 enum ArticleCollection {
   Compare = "compare",
@@ -75,24 +70,6 @@ const headingId = (text: string) =>
     .replace(/\s+/g, "-")
     .replace(/[^\p{L}\p{N}_-]/gu, "");
 const jsonForHtml = (value: unknown) => JSON.stringify(value).replace(/</g, "\\u003c");
-
-function articleStyles() {
-  const result = transform({
-    filename: ARTICLE_STYLE_SOURCE,
-    code: Buffer.from(readFileSync(ARTICLE_STYLE_SOURCE, "utf8")),
-    cssModules: { pattern: "compare_[local]" },
-    minify: true,
-  });
-  const classes = Object.fromEntries(
-    Object.entries(result.exports ?? {}).map(([name, item]) => [name, item.name]),
-  );
-  return { css: result.code.toString(), classes };
-}
-
-/** CSS Modules are compiled for static HTML, without a browser JavaScript bundle. */
-export function articleStylesheet(): string {
-  return articleStyles().css;
-}
 
 function editorUrl(article?: PublicArticle): string {
   const url = new URL(SITE_URL);
@@ -241,7 +218,6 @@ ${language === PublicLanguage.SimplifiedChinese ? `<link rel="preload" href="${C
 <link rel="stylesheet" href="${PUBLIC_FONT_STYLE_PATH}">
 <link rel="stylesheet" href="${PUBLIC_THEME_STYLE_PATH}">
 <link rel="stylesheet" href="${GUIDE_STYLE_PATH}">
-<link rel="stylesheet" href="${ARTICLE_STYLE_PATH}">
 <link rel="stylesheet" href="${GROWTH_DESKTOP_STYLE_PATH}">
 <script type="application/ld+json">${jsonForHtml(schema)}</script>
 <script type="application/ld+json">${jsonForHtml(breadcrumbData(collection, article))}</script>
@@ -356,7 +332,7 @@ function articleContent(
 
 /** Only reviewed manifest entries render; research and drafts have no public routes. */
 export function articleHtml(path: string, indexable: boolean): string {
-  const { classes } = articleStyles();
+  const classes = publicArticleClasses();
   const language = articleLanguage(path);
   const text = (en: string, zh: string) => pageText(language, en, zh);
   const collections = Object.keys(ARTICLE_COLLECTIONS).map((key) =>

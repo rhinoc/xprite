@@ -18,13 +18,7 @@ import { localizedSiteHref, PublicLanguage } from "../content/site/language.ts";
 import { showcaseLabel } from "../content/site/navigation.ts";
 import { PLANNED_PAGES, SITE_REDIRECTS } from "../content/site/pages.ts";
 import { TOOLS_HOME } from "../content/tools/index.ts";
-import {
-  ARTICLE_CONTENT_ROOT,
-  ARTICLE_STYLE_PATH,
-  ARTICLE_STYLE_SOURCE,
-  articleHtml,
-  articleStylesheet,
-} from "./pages/article-pages.ts";
+import { ARTICLE_CONTENT_ROOT, articleHtml } from "./pages/article-pages.ts";
 import { GUIDE_STYLE_PATH, CHINESE_FONT_PATH } from "./pages/document-resources.ts";
 import { GUIDES, GUIDE_ROOT, guideHtml, guideImageResources } from "./pages/guide-pages.ts";
 import { plannedPageHtml } from "./pages/planned-pages.ts";
@@ -246,7 +240,6 @@ function developmentRoutes(
   const guidePages = new Map<PublicLanguage, string>();
   const comparisonPages = new Map<string, string>();
   const plannedPages = new Map<string, string>();
-  let comparisonCss: string | undefined;
   const invalidate = (_event: string, filename: string) => {
     if (ui.files.has(filename)) {
       uiDirty = true;
@@ -265,14 +258,13 @@ function developmentRoutes(
       plannedPages.clear();
       routingData = undefined;
     }
-    if (filename.startsWith(`${ARTICLE_CONTENT_ROOT}${sep}`) || filename === ARTICLE_STYLE_SOURCE) {
+    if (filename.startsWith(`${ARTICLE_CONTENT_ROOT}${sep}`)) {
       comparisonPages.clear();
-      comparisonCss = undefined;
     }
     if (filename === REDIRECTS_FILE || filename === resolve(PUBLIC_ROOT, "404.html"))
       routingData = undefined;
   };
-  server.watcher.add([CONTENT_ROOT, ARTICLE_STYLE_SOURCE, REDIRECTS_FILE]);
+  server.watcher.add([CONTENT_ROOT, REDIRECTS_FILE]);
   server.watcher.on("all", invalidate);
   server.httpServer?.once("close", () => server.watcher.off("all", invalidate));
   server.middlewares.use(
@@ -349,10 +341,6 @@ function developmentRoutes(
           }
           return send(response, request.method, HTML_TYPE, await controls(pathname, html));
         }
-        if (pathname === ARTICLE_STYLE_PATH) {
-          comparisonCss ??= articleStylesheet();
-          return send(response, request.method, CONTENT_TYPES[".css"], comparisonCss);
-        }
         if (pathname === GROWTH_DESKTOP_STYLE_PATH) {
           return send(response, request.method, CONTENT_TYPES[".css"], ui.css);
         }
@@ -386,7 +374,6 @@ function developmentRoutes(
           ...GUIDES.map((item) => item.path),
           ...ARTICLE_PATHS,
           ...PLANNED_PAGES.map((page) => page.path),
-          ARTICLE_STYLE_PATH,
         ];
         if (pathname !== ASSET_MANIFEST_PATH && isPublishedFile(PUBLIC_ROOT, pathname))
           return nextVite();
@@ -497,7 +484,6 @@ export async function growthPublicPages(): Promise<Plugin> {
         await mkdir(dirname(filename), { recursive: true });
         await writeFile(filename, controls(plannedPageHtml(page.path, indexable)));
       }
-      await writeFile(resolve(output, `.${ARTICLE_STYLE_PATH}`), articleStylesheet());
       const desktopStylesheetFile = resolve(output, `.${GROWTH_DESKTOP_STYLE_PATH}`);
       await mkdir(dirname(desktopStylesheetFile), { recursive: true });
       await writeFile(desktopStylesheetFile, ui.css);
