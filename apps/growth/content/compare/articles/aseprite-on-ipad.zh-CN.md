@@ -3,7 +3,7 @@ published: 2026-10-10
 updated: 2026-10-10
 ---
 
-# iPad 上的 Aseprite：在浏览器里免费接着画，或者买一个 App
+# iPad 上能用 Aseprite 吗？免费方案和 3 款 App 对比
 
 Aseprite 没有 iPad 版，[官方](https://www.aseprite.org/faq/#what-do-i-get-when-i-buy-aseprite)只提供 Windows、macOS 和 Ubuntu 三种平台的安装包。所以要在 iPad 上接着改 `.aseprite` 工程，就得换一个能读这种文件的编辑器，大致有两种选择：
 
