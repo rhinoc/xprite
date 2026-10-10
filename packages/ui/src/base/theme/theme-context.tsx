@@ -109,13 +109,14 @@ export function UIProvider({
   );
   const matches = (candidate: UiAssetBundle | ThemeModule | ThemeContextValue | null) =>
     candidate?.variant === variant && candidate.uiTheme === uiTheme;
+  // Retain the initial content while a saved appearance loads after hydration.
   const current = matches(loaded)
     ? loaded
     : matches(parent)
       ? parent
       : matches(initial)
         ? initial
-        : loaded;
+        : (loaded ?? initial);
   const value = React.useMemo<ThemeContextValue | null>(
     () =>
       current

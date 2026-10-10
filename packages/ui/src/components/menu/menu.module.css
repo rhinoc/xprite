@@ -72,6 +72,20 @@
   cursor: var(--ui-cursor-default, default);
 }
 
+.collapsedDestinations[hidden] {
+  display: none;
+}
+
+.menuItemLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 .menuBar {
   position: absolute;
   z-index: var(--ui-z-menu-bar, 20);

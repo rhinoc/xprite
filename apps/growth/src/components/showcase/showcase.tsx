@@ -1,7 +1,9 @@
+import { SHOWCASE_PAGES } from "$content/showcase/pages";
 import { useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react";
 import type { CSSProperties } from "react";
 
-import { PublicNavigation } from "$/components/public/static-ui";
+import { PublicFooter, PublicNavigation } from "$/components/public/static-ui";
+import { ShowcaseOverviewPreview } from "$/components/showcase/showcase-overview-preview";
 import { ShowcaseSoundControl } from "$/components/showcase/showcase-sound-control";
 import { ShowcaseStories } from "$/components/showcase/showcase-stories";
 import { useDeviceSwipe } from "$/components/showcase/use-device-swipe";
@@ -9,19 +11,19 @@ import type {
   ShowcaseIntroMotion,
   ShowcaseIntroMount,
   ShowcaseTrailMount,
+  ShowcaseStoryAnimationsMount,
 } from "$/managers/ports/showcase";
 import { SHOWCASE_DEVICE_NAMES, SHOWCASE_DEVICES } from "$/managers/showcase/showcase-device";
+
+import "$/components/public/site-preset.module.css";
+import "$/components/public/desktop.module.css";
+
 import {
   SHOWCASE_BRAND_NAME,
   SHOWCASE_COPY,
   ShowcaseLanguage,
 } from "$/managers/showcase/showcase-language";
-
-import "$/components/public/site-preset.module.css";
-import "$/components/public/desktop.module.css";
-
 import { ShowcaseManager, ShowcaseStatus } from "$/managers/showcase/showcase-manager";
-import { SHOWCASE_PAGES } from "$/managers/showcase/showcase-pages";
 import {
   Button,
   ButtonAppearance,
@@ -45,10 +47,12 @@ export function Showcase({
   manager,
   mountTrail,
   mountIntro,
+  mountStoryAnimations,
 }: {
   manager: ShowcaseManager;
   mountTrail: ShowcaseTrailMount;
   mountIntro: ShowcaseIntroMount;
+  mountStoryAnimations: ShowcaseStoryAnimationsMount;
 }) {
   const page = useRef<HTMLDivElement>(null);
   const trail = useRef<HTMLCanvasElement>(null);
@@ -92,7 +96,7 @@ export function Showcase({
     };
   }, [manager, mountIntro]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (host.current) void manager.mount(host.current);
     return () => manager.unmount();
   }, [manager]);
@@ -240,6 +244,9 @@ export function Showcase({
                   data-overview={!state.started}
                   {...swipe}
                 >
+                  {state.status !== ShowcaseStatus.Ready && (
+                    <ShowcaseOverviewPreview alt={copy.stage} />
+                  )}
                   <div
                     ref={host}
                     className={styles.canvas}
@@ -291,10 +298,7 @@ export function Showcase({
                       <RichText>
                         <p>{copy.error}</p>
                       </RichText>
-                      <Button
-                        slots={{}}
-                        onClick={() => host.current && void manager.mount(host.current)}
-                      >
+                      <Button slots={{}} onClick={() => manager.selectDevice(state.device)}>
                         {copy.retry}
                       </Button>
                       <Button slots={{}} href="/editor" aria-label={copy.direct}>
@@ -346,8 +350,9 @@ export function Showcase({
             </nav>
           </WindowWorkspace>
         </div>
-        <ShowcaseStories language={state.language} />
+        <ShowcaseStories language={state.language} mountAnimations={mountStoryAnimations} />
       </main>
+      <PublicFooter language={state.language} />
     </div>
   );
 }

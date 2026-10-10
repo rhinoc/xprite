@@ -1,5 +1,7 @@
 import { renderToString } from "react-dom/server";
 
+import { PublicArticleDiagram } from "$/components/articles/article-diagram";
+import { PublicNotFound } from "$/components/public/not-found";
 import {
   PublicWindow,
   PublicNavigation,
@@ -9,6 +11,7 @@ import {
   PublicIndex,
   PublicHtml,
   PublicStatus,
+  PublicFooter,
   type PublicWindowProps,
   type PublicNavigationProps,
 } from "$/components/public/static-ui";
@@ -18,9 +21,9 @@ import {
 } from "$/components/showcase/showcase-story-content";
 import { DesktopProvider, DesktopManager } from "@xprite/site-shell";
 import { macintoshTheme } from "@xprite/ui";
-import { loadUiThemeSnapshot } from "@xprite/ui/assets";
 
 import "$/components/public/desktop.module.css";
+import { loadUiThemeSnapshot } from "@xprite/ui/assets";
 
 function windowProps(props: Record<string, unknown>): PublicWindowProps {
   if (typeof props.title !== "string" || typeof props.content !== "string")
@@ -63,19 +66,28 @@ export async function preparePublicUi() {
   return (
     kind:
       | "window"
+      | "not-found"
       | "icon"
       | "navigation"
       | "button"
       | "showcase-hero"
       | "showcase-stories"
       | "rich-text"
+      | "article-diagram"
       | "index"
       | "page"
+      | "site-footer"
       | "status",
     props: Record<string, unknown>,
   ) => {
     const content =
-      kind === "status" ? (
+      kind === "site-footer" ? (
+        <PublicFooter {...(props as Parameters<typeof PublicFooter>[0])} />
+      ) : kind === "article-diagram" ? (
+        <PublicArticleDiagram {...(props as Parameters<typeof PublicArticleDiagram>[0])} />
+      ) : kind === "not-found" ? (
+        <PublicNotFound {...(props as Parameters<typeof PublicNotFound>[0])} />
+      ) : kind === "status" ? (
         <PublicStatus {...(props as Parameters<typeof PublicStatus>[0])} />
       ) : kind === "page" ? (
         <PublicHtml html={String(props.content)} />
@@ -110,7 +122,7 @@ export async function preparePublicUi() {
     );
     const identifierPrefix = `public-${kind}-${String(props.label ?? "").replace(/[^a-z0-9]/gi, "-")}-`;
     return renderToString(
-      kind === "index" || kind === "navigation" ? (
+      kind === "index" || kind === "navigation" || kind === "site-footer" ? (
         <div
           style={{ display: "contents" }}
           data-public-island={kind}

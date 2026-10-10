@@ -20,7 +20,10 @@ import {
   type GalleryPropSchema,
 } from "$/generated-ui-components";
 import { GALLERY_THEMES } from "$/managers/appearance";
+import { useGalleryTranslation } from "$/managers/gallery-language";
+import { useGalleryLanguage } from "$/managers/gallery-language";
 import type { IconClipboard } from "$/managers/ports/icon-clipboard";
+import { PublicLanguage } from "@xprite/growth-content/language";
 import { siteApplications } from "@xprite/growth-content/navigation";
 import menuIconUrl from "@xprite/site-assets/menu-icon.svg";
 import { SiteMenubar } from "@xprite/site-shell";
@@ -130,12 +133,14 @@ function useGalleryElementSize<ElementType extends HTMLElement>() {
 }
 
 function GallerySectionHeading({ text }: { text: string }) {
+  const t = useGalleryTranslation();
+
   const { ref, width } = useGalleryElementSize<HTMLHeadingElement>();
   return (
-    <h2 aria-label={text} className={styles["gallery-section-heading"]} ref={ref}>
+    <h2 aria-label={t(text)} className={styles["gallery-section-heading"]} ref={ref}>
       <Divider
         pixelSize={{ width: width / ARTWORK_SCALE, height: SECTION_HEADING_HEIGHT }}
-        text={text}
+        text={t(text)}
       />
     </h2>
   );
@@ -161,18 +166,20 @@ function GalleryNavigationSearch({
   value: string;
   onValueChange: (value: string) => void;
 }) {
+  const t = useGalleryTranslation();
+
   const { ref, width } = useGalleryElementSize<HTMLDivElement>();
   return (
     <div className={styles["gallery-search"]}>
       <div className={styles["gallery-search-entry"]} ref={ref}>
         {width > 0 && (
           <Input
-            aria-label="Find a component, prop, or icon"
+            aria-label={t("Find a component, prop, or icon")}
             pixelWidth={width / ARTWORK_SCALE}
             id="gallery-filter"
             leading={<UiIcon part="icon_search" scale={2} color="currentColor" />}
             onValueChange={onValueChange}
-            placeholder="Search"
+            placeholder={t("Search")}
             size={24}
             type="search"
             value={value}
@@ -200,6 +207,8 @@ function GalleryScrollRegion({
   contentRevision = 0,
   scrollbarVariant,
 }: GalleryScrollRegionProps) {
+  const t = useGalleryTranslation();
+
   return (
     <ScrollArea
       className={`${styles["gallery-scroll-region"]} ${className}`}
@@ -210,7 +219,7 @@ function GalleryScrollRegion({
       contentClassName={[styles["gallery-scroll-content"], contentClassName]
         .filter(Boolean)
         .join(" ")}
-      aria-label={`${ariaLabel} scroll`}
+      aria-label={t(`${ariaLabel} scroll`)}
       viewportProps={{
         "aria-label": ariaLabel,
         "data-ui-scroll-region-focus": "true",
@@ -224,6 +233,8 @@ function GalleryScrollRegion({
 }
 
 function GalleryNavigationGroup({ label }: { label: string }) {
+  const t = useGalleryTranslation();
+
   const { ref, width } = useGalleryElementSize<HTMLDivElement>();
   return (
     <div
@@ -237,7 +248,7 @@ function GalleryNavigationGroup({ label }: { label: string }) {
             width: width / ARTWORK_SCALE,
             height: COMPONENT_NAV_GROUP_LABEL_HEIGHT / ARTWORK_SCALE,
           }}
-          text={label}
+          text={t(label)}
         />
       )}
     </div>
@@ -253,10 +264,12 @@ function GalleryComponentNavigation({
   componentSlug: string;
   onSelect: (slug: string) => void;
 }) {
+  const t = useGalleryTranslation();
+
   const { ref, width, height } = useGalleryElementSize<HTMLElement>();
   const items = useMemo<ListBoxItem[]>(
     () => [
-      { value: "icons", label: "Atlas icons" },
+      { value: "icons", label: t("Atlas icons") },
       ...Object.values(GalleryComponentGroup).flatMap((group): ListBoxItem[] => {
         const entries = components.filter((component) => component.group === group);
         return entries.length
@@ -277,17 +290,17 @@ function GalleryComponentNavigation({
     : "";
 
   return (
-    <nav aria-label="UI components" className={styles["gallery-component-nav"]} ref={ref}>
+    <nav aria-label={t("UI components")} className={styles["gallery-component-nav"]} ref={ref}>
       {width > 0 && height > 0 && (
         <ListBox
-          aria-label="UI components"
+          aria-label={t("UI components")}
           bounds={{ x: 0, y: 0, width, height }}
           font="default"
           frameStyle={ListBoxFrameStyle.Single}
           scrollbarVariant="transparent"
           itemHeight={COMPONENT_NAV_ITEM_HEIGHT}
           separatorHeight={COMPONENT_NAV_GROUP_HEIGHT}
-          renderGroup={(item) => <GalleryNavigationGroup label={item.label ?? ""} />}
+          renderGroup={(item) => <GalleryNavigationGroup label={t(item.label ?? "")} />}
           items={items}
           onValueChange={onSelect}
           value={selectedValue}
@@ -422,12 +435,14 @@ function CallbackControl({
   enabled: boolean;
   onChange: (value: boolean) => void;
 }) {
+  const t = useGalleryTranslation();
+
   return (
     <GalleryFormControl>
       <Checkbox
-        aria-label={schema.name}
+        aria-label={t(schema.name)}
         checked={enabled}
-        label={schema.name}
+        label={t(schema.name)}
         mini
         onCheckedChange={onChange}
       />
@@ -444,17 +459,19 @@ function JsonControl({
   value: unknown;
   onChange: (value: unknown) => void;
 }) {
+  const t = useGalleryTranslation();
+
   const [draft, setDraft] = useState(() => stringify(value));
   const [invalid, setInvalid] = useState(false);
 
   return (
-    <Field label={schema.name} layout={FieldLayout.Horizontal}>
+    <Field label={t(schema.name)} layout={FieldLayout.Horizontal}>
       <TextArea
         presentation={TextAreaPresentation.Code}
         resize={TextAreaResize.Vertical}
         height={JSON_EDITOR_HEIGHT}
         scrollbarVariant="mini"
-        aria-label={schema.name}
+        aria-label={t(schema.name)}
         aria-invalid={invalid}
         onChange={(event) => {
           const nextDraft = event.target.value;
@@ -487,6 +504,8 @@ function PropControl({
   callbackEnabled: boolean;
   onCallbackChange: (value: boolean) => void;
 }) {
+  const t = useGalleryTranslation();
+
   if (schema.kind === "callback")
     return (
       <CallbackControl enabled={callbackEnabled} onChange={onCallbackChange} schema={schema} />
@@ -499,9 +518,9 @@ function PropControl({
     return (
       <GalleryFormControl>
         <Checkbox
-          aria-label={schema.name}
+          aria-label={t(schema.name)}
           checked={Boolean(value)}
-          label={schema.name}
+          label={t(schema.name)}
           mini
           onCheckedChange={onChange}
         />
@@ -510,18 +529,18 @@ function PropControl({
 
   if (schema.kind === "enum")
     return (
-      <Field label={schema.name} layout={FieldLayout.Horizontal}>
+      <Field label={t(schema.name)} layout={FieldLayout.Horizontal}>
         <GalleryFormControl>
           {(pixelWidth) => (
             <Combobox
-              aria-label={schema.name}
+              aria-label={t(schema.name)}
               pixelWidth={pixelWidth}
               onValueChange={(nextValue) => {
                 const option = schema.options?.find((candidate) => String(candidate) === nextValue);
                 onChange(nextValue === DEFAULT_ENUM_VALUE ? undefined : (option ?? nextValue));
               }}
               options={[
-                ...(!schema.required ? [{ value: DEFAULT_ENUM_VALUE, label: "(default)" }] : []),
+                ...(!schema.required ? [{ value: DEFAULT_ENUM_VALUE, label: t("(default)") }] : []),
                 ...(schema.options ?? []).map((option) => ({
                   value: String(option),
                   label: String(option),
@@ -535,11 +554,11 @@ function PropControl({
     );
 
   return (
-    <Field label={schema.name} layout={FieldLayout.Horizontal}>
+    <Field label={t(schema.name)} layout={FieldLayout.Horizontal}>
       <GalleryFormControl>
         {(pixelWidth) => (
           <Input
-            aria-label={schema.name}
+            aria-label={t(schema.name)}
             pixelWidth={pixelWidth}
             onValueChange={(nextValue) =>
               onChange(schema.kind === "number" ? Number(nextValue) : nextValue)
@@ -631,6 +650,8 @@ function GalleryPreviewContent({
   definition: GalleryComponentDefinition;
   props: EditableProps;
 }) {
+  const t = useGalleryTranslation();
+
   const { style } = useUi();
   if (definition.name === "CanvasSurface") return <GalleryCanvasPreview props={props} />;
   if (definition.name === "PageScrollArea") return <GalleryPageScrollPreview props={props} />;
@@ -645,15 +666,15 @@ function GalleryPreviewContent({
       return createElement(definition.component, markupProps);
     return (
       <RichText {...markupProps}>
-        <h1>Sprite notes</h1>
+        <h1>{t("Sprite notes")}</h1>
         <p>{children as ReactNode}</p>
-        <h2>Animation</h2>
+        <h2>{t("Animation")}</h2>
         <ul>
-          <li>8 frames</li>
-          <li>Transparent background</li>
+          <li>{t("8 frames")}</li>
+          <li>{t("Transparent background")}</li>
         </ul>
         <p>
-          <a href="#export">Export the animation</a>
+          <a href="#export">{t("Export the animation")}</a>
         </p>
       </RichText>
     );
@@ -686,7 +707,7 @@ function GalleryPreviewContent({
     return (
       <div className={styles["gallery-button-actions"]}>
         {preview}
-        <Button href="#navigation-preview" text="Open editor" slots={{}} />
+        <Button href="#navigation-preview" text={t("Open editor")} slots={{}} />
       </div>
     );
   }
@@ -694,12 +715,14 @@ function GalleryPreviewContent({
 }
 
 function GalleryFieldPreview({ props }: { props: EditableProps }) {
+  const t = useGalleryTranslation();
+
   const initialValue = typeof props.children === "string" ? props.children : "12";
   const [value, setValue] = useState(initialValue);
   useEffect(() => setValue(initialValue), [initialValue]);
   return (
     <Field {...props} label={props.label as ReactNode}>
-      <Input aria-label="Brush size" value={value} onValueChange={setValue} />
+      <Input aria-label={t("Brush size")} value={value} onValueChange={setValue} />
     </Field>
   );
 }
@@ -712,6 +735,8 @@ interface GalleryCardProps {
 }
 
 function GalleryCard({ definition, events, onRecordEvent, onClearConsole }: GalleryCardProps) {
+  const t = useGalleryTranslation();
+
   const [props, setProps] = useState<EditableProps>(() => ({ ...definition.initialProps }));
   const [enabledCallbacks, setEnabledCallbacks] = useState<Record<string, boolean>>(() =>
     callbackDefaults(definition),
@@ -914,7 +939,7 @@ function GalleryCard({ definition, events, onRecordEvent, onClearConsole }: Gall
 
   return (
     <WindowWorkspace className={styles["gallery-card"]}>
-      <GallerySectionHeading text="Preview" />
+      <GallerySectionHeading text={t("Preview")} />
       <div
         className={`${styles["gallery-variant-grid"]} ${
           hasVariants ? "" : styles["gallery-variant-grid-single"]
@@ -1047,8 +1072,8 @@ function GalleryCard({ definition, events, onRecordEvent, onClearConsole }: Gall
             previewProps.children = (
               <Button
                 slots={{}}
-                text={typeof props.children === "string" ? props.children : "Help"}
-                aria-label="Tooltip help"
+                text={t(typeof props.children === "string" ? props.children : "Help")}
+                aria-label={t("Tooltip help")}
               />
             );
           }
@@ -1097,7 +1122,7 @@ function GalleryCard({ definition, events, onRecordEvent, onClearConsole }: Gall
               <div
                 className={styles["gallery-preview"]}
                 role="region"
-                aria-label={`${definition.name} ${variant ?? ""} preview`.replace(/\s+/g, " ")}
+                aria-label={t(`${definition.name} ${variant ?? ""} preview`.replace(/\s+/g, " "))}
                 data-gallery-preview
               >
                 <div
@@ -1132,10 +1157,10 @@ function GalleryCard({ definition, events, onRecordEvent, onClearConsole }: Gall
         variant={PanelVariant.Window}
         windowKind={PanelWindowKind.Utility}
         collapsible
-        title="Console"
+        title={t("Console")}
       >
         <GalleryScrollRegion
-          ariaLabel="Console output"
+          ariaLabel={t("Console output")}
           className={styles["gallery-console-scroll"]}
           contentClassName={styles["gallery-console-output"]}
           contentRevision={events.length}
@@ -1148,7 +1173,7 @@ function GalleryCard({ definition, events, onRecordEvent, onClearConsole }: Gall
       <Panel
         className={styles["gallery-props"]}
         contentPadding={ContentPadding.Standard}
-        title="Parameters"
+        title={t("Parameters")}
         variant={PanelVariant.Window}
         windowKind={PanelWindowKind.Utility}
         collapsible
@@ -1157,11 +1182,11 @@ function GalleryCard({ definition, events, onRecordEvent, onClearConsole }: Gall
           <div className={styles["gallery-filter"]}>
             <div className={styles["gallery-filter-entry"]}>
               <Input
-                aria-label="Filter parameters"
+                aria-label={t("Filter parameters")}
                 pixelWidth={FILTER_ENTRY_PIXEL_WIDTH}
                 mini
                 onValueChange={setPropFilter}
-                placeholder="Filter…"
+                placeholder={t("Filter…")}
                 size={24}
                 style={{ maxWidth: "100%" }}
                 type="search"
@@ -1170,9 +1195,9 @@ function GalleryCard({ definition, events, onRecordEvent, onClearConsole }: Gall
             </div>
           </div>
           <Button
-            aria-label="Reset parameters"
+            aria-label={t("Reset parameters")}
             onClick={reset}
-            text="Reset"
+            text={t("Reset")}
             variant={ButtonVariant.Standard}
           />
         </div>
@@ -1193,14 +1218,14 @@ function GalleryCard({ definition, events, onRecordEvent, onClearConsole }: Gall
         {hostPropCount > 0 && (
           <Panel
             className={styles["gallery-host-props"]}
-            title="Advanced parameters"
+            title={t("Advanced parameters")}
             variant={PanelVariant.Window}
             windowKind={PanelWindowKind.Utility}
             collapsible
             defaultCollapsed
           >
             <GalleryScrollRegion
-              ariaLabel="Advanced parameters"
+              ariaLabel={t("Advanced parameters")}
               className={styles["gallery-host-props-scroll"]}
               contentClassName={styles["gallery-fields"]}
               contentRevision={hostProps.length}
@@ -1232,6 +1257,9 @@ interface GalleryProps {
 }
 
 export default function Gallery({ iconClipboard, theme, onThemeChange }: GalleryProps) {
+  const t = useGalleryTranslation();
+  const { language, setLanguage } = useGalleryLanguage();
+
   const [open, setOpen] = useState(true);
   const [consoleEvents, setConsoleEvents] = useState<string[]>([]);
   const recordConsoleEvent = useCallback((event: string) => {
@@ -1343,11 +1371,11 @@ export default function Gallery({ iconClipboard, theme, onThemeChange }: Gallery
 
   const applicationMenus = [
     {
-      label: "Edit",
+      label: t("Edit"),
       mnemonicIndex: -1,
       items: [
         {
-          label: "Clear Console",
+          label: t("Clear Console"),
           disabled: !open || galleryPage !== "components" || consoleEvents.length === 0,
           onSelect: clearConsole,
         },
@@ -1386,15 +1414,28 @@ export default function Gallery({ iconClipboard, theme, onThemeChange }: Gallery
         }
       >
         <SiteMenubar
-          label="Gallery menu"
-          applicationName="UI Gallery"
+          label={t("Gallery menu")}
+          applicationName={t("UI Gallery")}
 
-          applications={siteApplications("/gallery/", "en", true)}
+          applications={siteApplications("/gallery/", language, true)}
+          language={language}
+          languages={[
+            {
+              value: PublicLanguage.English,
+              label: "English",
+              onSelect: () => setLanguage(PublicLanguage.English),
+            },
+            {
+              value: PublicLanguage.SimplifiedChinese,
+              label: "简体中文",
+              onSelect: () => setLanguage(PublicLanguage.SimplifiedChinese),
+            },
+          ]}
           menus={applicationMenus}
           brandImage={menuIconUrl}
           systemItems={[
             {
-              label: "Theme",
+              label: t("Theme"),
               separator: true,
               children: GALLERY_THEMES.map((option) => ({
                 label: option.label,
@@ -1407,7 +1448,11 @@ export default function Gallery({ iconClipboard, theme, onThemeChange }: Gallery
         />
       </header>
       {!open && (
-        <Button onClick={() => setOpen(true)} text="UI Gallery" variant={ButtonVariant.Standard} />
+        <Button
+          onClick={() => setOpen(true)}
+          text={t("UI Gallery")}
+          variant={ButtonVariant.Standard}
+        />
       )}
       {width > 0 && height > 0 && (
         <Dialog
@@ -1416,7 +1461,7 @@ export default function Gallery({ iconClipboard, theme, onThemeChange }: Gallery
             setOpen(nextOpen);
             if (!nextOpen) clearConsole();
           }}
-          title="UI Gallery"
+          title={t("UI Gallery")}
           bounds={userWindowBounds ?? windowBounds}
           onBoundsChange={setUserWindowBounds}
           sceneBounds={{ width, height }}
@@ -1427,9 +1472,9 @@ export default function Gallery({ iconClipboard, theme, onThemeChange }: Gallery
         >
           {({ clientBounds }) => (
             <div className={styles["gallery"]} style={{ height: clientBounds.height }}>
-              <Toast text={copyNotice?.text ?? null} />
+              <Toast text={copyNotice ? t(copyNotice.text) : null} />
               <div className={styles["gallery-body"]}>
-                <aside className={styles["gallery-sidebar"]} aria-label="Gallery navigation">
+                <aside className={styles["gallery-sidebar"]} aria-label={t("Gallery navigation")}>
                   <GalleryNavigationSearch value={filter} onValueChange={setFilter} />
                   <div className={styles["gallery-sidebar-content"]}>
                     <GalleryComponentNavigation
@@ -1448,16 +1493,16 @@ export default function Gallery({ iconClipboard, theme, onThemeChange }: Gallery
                   </div>
                 </aside>
                 <div className={styles["gallery-content"]}>
-                  <GallerySectionHeading text={pageTitle} />
+                  <GallerySectionHeading text={t(pageTitle)} />
                   <section
                     className={styles["gallery-tab-content"]}
                     hidden={galleryPage !== "components"}
-                    aria-label="Components"
+                    aria-label={t("Components")}
                   >
                     {activeComponent && (
                       <div className={styles["gallery-detail-content"]}>
                         <GalleryScrollRegion
-                          ariaLabel={`${activeComponent.name} page`}
+                          ariaLabel={t(`${activeComponent.name} page`)}
                           scrollbarVariant="regular"
                           className={styles["gallery-detail-scroll"]}
                           contentClassName={styles["gallery-detail-scroll-content"]}
@@ -1476,10 +1521,10 @@ export default function Gallery({ iconClipboard, theme, onThemeChange }: Gallery
                   <section
                     className={`${styles["gallery-tab-content"]} ${styles["gallery-icons"]}`}
                     hidden={galleryPage !== "icons"}
-                    aria-label="Icons"
+                    aria-label={t("Icons")}
                   >
                     <GalleryScrollRegion
-                      ariaLabel="UI atlas icons"
+                      ariaLabel={t("UI atlas icons")}
                       scrollbarVariant="regular"
                       className={styles["gallery-icon-scroll"]}
                       contentClassName={styles["gallery-icon-groups"]}
@@ -1492,9 +1537,9 @@ export default function Gallery({ iconClipboard, theme, onThemeChange }: Gallery
                         <section
                           className={styles["gallery-icon-group"]}
                           key={group.title}
-                          aria-label={group.title}
+                          aria-label={t(group.title)}
                         >
-                          <GallerySectionHeading text={group.title} />
+                          <GallerySectionHeading text={t(group.title)} />
                           <div className={styles["gallery-icon-grid"]}>
                             {group.icons.map((icon) => {
                               const scale = Math.max(
@@ -1505,7 +1550,7 @@ export default function Gallery({ iconClipboard, theme, onThemeChange }: Gallery
                                 <Button
                                   className={styles["gallery-icon-card"]}
                                   key={icon.name}
-                                  aria-label={`Copy ${icon.name}`}
+                                  aria-label={t(`Copy ${icon.name}`)}
                                   paintArtwork={false}
                                   style={{ width: "100%", height: "auto" }}
                                   onClick={() => void copyIconKey(icon.name)}

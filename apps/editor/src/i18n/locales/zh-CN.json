@@ -1490,7 +1490,7 @@
   "ui.foreground.tile.user.properties": "前景瓦片 {value1} 用户属性",
   "ui.foreground.tile": "前景瓦片 {value1}",
   "ui.background.tile": "背景瓦片 {value1}",
-  "ui.online.pixel.art.editor.animation.tool": "{value1} - 在线像素画编辑器与动画工具",
+  "ui.online.pixel.art.editor.animation.tool": "{value1}｜免费在线像素画与动画编辑器",
   "ui.sprite.canvas.2": "精灵画布：{value1}",
   "ui.do.you.really.want.to.delete.the.selected.backup.s": "确定要删除选中的 {value1} 份备份吗？",
   "ui.copy.of": "{value1}的副本",

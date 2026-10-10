@@ -258,9 +258,6 @@
     display: flex;
   }
 }
-.readmeWindow {
-  width: 100%;
-}
 @media (min-width: 1001px) {
   .emptyContent {
     gap: 0;

@@ -108,7 +108,7 @@ The shell does not override the theme font, and bootstrap waits for the active
 skin’s declared fonts before hydration. This changes typography only; guide
 operations and existing guide screenshots are unaffected.
 
-## Animal Crossing design QR codes
+## Animal Crossing Design Converter
 
 `/tools/animal-crossing-qr/` accepts local PNGs and Aseprite projects with embedded
 image or tilemap layers. The manager renders a chosen frame through editor-core,

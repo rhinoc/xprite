@@ -1,24 +1,23 @@
+import { themeCjkFontFamily, themeFontFamily } from "$/base/theme/font-families";
 import type { UiThemeTokens } from "$/base/theme/theme-definition";
 import type { UiStyleDefinition } from "$/base/theme/theme-types";
 import { panelWindowTokens } from "$/base/theme/window-chrome-tokens";
 
-const DEFAULT_FONT_FAMILY = "PixelArtBitmap";
-const FONT_FALLBACKS = "FusionPixelZhHans, monospace";
 const CODE_FONT_FAMILY = "ui-monospace, monospace";
 
 /** Resolve both roles from this skin, without importing any other skin's fonts. */
 export function semanticFontFamilies(typography: UiStyleDefinition["typography"]) {
-  const primary = typography?.default?.fontFamily ?? DEFAULT_FONT_FAMILY;
-  const compact = typography?.mini?.fontFamily ?? primary;
   return {
-    primary: `${primary}, ${FONT_FALLBACKS}`,
-    compact: `${compact}, ${FONT_FALLBACKS}`,
+    primary: themeFontFamily(typography?.default),
+    compact: themeFontFamily(typography?.mini ?? typography?.default),
+    cjk: themeCjkFontFamily(typography?.default),
   };
 }
 
 interface SemanticPresentationPalette {
   primaryFont: string;
   compactFont: string;
+  cjkFont: string;
   ink: string;
   mutedInk: string;
   paper: string;
@@ -34,6 +33,7 @@ interface SemanticPresentationPalette {
 export function semanticPresentationTokens({
   primaryFont,
   compactFont,
+  cjkFont,
   ink,
   mutedInk,
   paper,
@@ -48,6 +48,7 @@ export function semanticPresentationTokens({
     ...panelWindowTokens,
     "--ui-font-family": primaryFont,
     "--ui-font-family-compact": compactFont,
+    "--ui-font-family-cjk": `${cjkFont}, monospace`,
     "--ui-color-ink": ink,
     "--ui-color-muted-ink": mutedInk,
     "--ui-color-paper": paper,

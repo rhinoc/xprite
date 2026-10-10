@@ -49,8 +49,8 @@
   min-height: 248px;
 }
 
-.notice,
-.reductions {
+.shareContent:has(.columns),
+.notice {
   padding-top: calc(var(--ui-space-4) * 2);
   border-top: var(--ui-border-width) solid var(--ui-color-border);
 }

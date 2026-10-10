@@ -21,10 +21,10 @@
     "@xprite/editor-ui": "workspace:*",
     "@xprite/growth-content": "workspace:*",
     "@xprite/site-assets": "workspace:*",
+    "@xprite/site-shell": "workspace:*",
     "@xprite/ui": "workspace:*",
     "core-js": "3.50.0",
     "fflate": "^0.8.3",
-    "posthog-js": "^1.435.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "zustand": "^5.0.15"

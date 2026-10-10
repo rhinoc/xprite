@@ -112,7 +112,7 @@
   border: 0;
   margin: 0;
   background: transparent;
-  cursor: pointer;
+  cursor: var(--ui-cursor-hand, pointer);
 }
 :global(
   [data-ui-note] :is([data-ui-note-close], [data-ui-note-collapse], [data-ui-note-resize]) svg
@@ -133,7 +133,7 @@
   width: var(--ui-note-resize-size);
   height: var(--ui-note-resize-size);
   touch-action: none;
-  cursor: nwse-resize;
+  cursor: var(--ui-cursor-resize-se, nwse-resize);
 }
 :global([data-ui-note] [data-slot="note-content"][hidden]) {
   display: none;

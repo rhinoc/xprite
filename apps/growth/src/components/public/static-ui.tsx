@@ -1,7 +1,8 @@
-import { siteApplications } from "$content/navigation/index";
+import { siteApplications, siteFooterGroups, showcaseLabel } from "$content/site/navigation";
+import { PLANNED_PAGES } from "$content/site/pages";
 import { type HTMLAttributes, type ReactNode } from "react";
 
-import { SiteMenubar } from "@xprite/site-shell";
+import { SiteFooter, SiteMenubar, type SiteFooterProps } from "@xprite/site-shell";
 import {
   Button,
   Icon,
@@ -33,6 +34,21 @@ export function PublicHtml({ html }: { html: string }) {
   return <div style={{ display: "contents" }} dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
+export function PublicFooter({
+  language = "en",
+  groups = siteFooterGroups(language),
+}: {
+  language?: string;
+  groups?: SiteFooterProps["groups"];
+}) {
+  return (
+    <SiteFooter
+      groups={groups}
+      label={language.startsWith("zh") ? "网站导航" : "Website navigation"}
+    />
+  );
+}
+
 export interface PublicWindowProps {
   title: string;
   content: string;
@@ -48,33 +64,26 @@ export function PublicWindow({ title, content, attributes, footer, heading }: Pu
       windowKind={
         attributes && "data-public-contents" in attributes
           ? PanelWindowKind.Utility
-          : attributes && "data-public-error-window" in attributes
-            ? PanelWindowKind.Dialog
-            : PanelWindowKind.Document
+          : PanelWindowKind.Document
       }
-      collapsible={!(attributes && "data-public-error-window" in attributes)}
       defaultCollapsed={!!attributes && "data-public-related-window" in attributes}
       data-ui-window-priority={
         attributes && "data-public-document" in attributes ? "primary" : undefined
       }
       windowChrome={PanelWindowChrome.Emphasized}
-      contentPadding={
-        attributes && "data-public-error-window" in attributes ? 24 : ContentPadding.None
-      }
+      contentPadding={ContentPadding.None}
       tone={
         attributes && "data-public-directory-window" in attributes
           ? SurfaceTone.Informative
           : attributes && "data-public-related-window" in attributes
             ? SurfaceTone.Accent
-            : attributes && "data-public-error-window" in attributes
+            : attributes && "data-public-contents" in attributes
               ? SurfaceTone.Warning
-              : attributes && "data-public-contents" in attributes
-                ? SurfaceTone.Warning
-                : attributes && "data-public-folders" in attributes
-                  ? SurfaceTone.Accent
-                  : attributes && "data-public-document" in attributes
-                    ? SurfaceTone.Positive
-                    : SurfaceTone.Neutral
+              : attributes && "data-public-folders" in attributes
+                ? SurfaceTone.Accent
+                : attributes && "data-public-document" in attributes
+                  ? SurfaceTone.Positive
+                  : SurfaceTone.Neutral
       }
       title={heading ? <h1 data-public-window-heading>{title}</h1> : title}
       aria-label={title}
@@ -115,21 +124,22 @@ export function PublicNavigation({
   const chinese = language.startsWith("zh");
   const otherLanguage = links.find((link) => link.icon === "language");
   const help = links.find((link) => link.icon === "help");
-  const applicationName = currentHref.startsWith("/help")
-    ? chinese
-      ? "使用指南"
-      : "User guide"
-    : currentHref.startsWith("/learn")
+  const plannedPage = PLANNED_PAGES.find((page) => page.path === currentHref.split("?")[0]);
+  const applicationName =
+    plannedPage?.title ??
+    (currentHref.startsWith("/help")
       ? chinese
-        ? "文件导出指南"
-        : "File guides"
-      : currentHref.startsWith("/compare")
+        ? "使用指南"
+        : "User guide"
+      : currentHref.startsWith("/learn")
         ? chinese
-          ? "工具比较"
-          : "Compare"
-        : chinese
-          ? "设备演示"
-          : "Device demos";
+          ? "文件导出指南"
+          : "File guides"
+        : currentHref.startsWith("/compare")
+          ? chinese
+            ? "编辑器比较"
+            : "Compare"
+          : showcaseLabel(language));
   const languages = otherLanguage
     ? [
         { value: language, label: chinese ? "简体中文" : "English", href: currentHref },

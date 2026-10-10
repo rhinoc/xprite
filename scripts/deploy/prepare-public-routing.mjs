@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 
 const ROUTING_SOURCE = fileURLToPath(
-  new URL("../../apps/growth/build/public-routing.ts", import.meta.url),
+  new URL("../../apps/growth/build/routing/public-routing.ts", import.meta.url),
 );
 const MIDDLEWARE_FILENAME = "middleware.js";
 const PRIVATE_FILES = new Set(["edgeone.json", MIDDLEWARE_FILENAME]);

@@ -23,7 +23,7 @@
 
 .root:disabled {
   pointer-events: none;
-  cursor: default;
+  cursor: var(--ui-cursor-default, default);
 }
 
 .root:disabled[data-tooltip-trigger] {

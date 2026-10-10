@@ -1,5 +1,12 @@
+import { ToolFailureCategory } from "$/managers/ports/telemetry";
 import type { ViewerPort } from "$/managers/ports/viewer";
 import { ToolViewport } from "$/managers/preview/tool-viewport";
+import {
+  ToolTelemetry,
+  ToolOpenSource,
+  ToolOperation,
+  ToolOutputFormat,
+} from "$/managers/telemetry/tool-telemetry";
 import { ViewerFrameCache } from "$/managers/viewer/frame-cache";
 import { MAX_IMAGE_PIXELS, type PixelBuffer } from "@xprite/editor-core/base";
 import { activateTimelineCel, type EditorDocument } from "@xprite/editor-core/document";
@@ -24,6 +31,7 @@ import {
   type SpriteTimeline,
 } from "@xprite/editor-core/timeline";
 import { AppearanceMode } from "@xprite/editor-ui/appearance";
+import type { SiteTelemetryPort } from "@xprite/site-shell/telemetry";
 
 export enum ViewerStatus {
   Empty = "empty",
@@ -115,8 +123,13 @@ export class ViewerManager {
   private player = new AnimationPreviewPlayer();
   private request = 0;
   private closed = false;
+  private readonly telemetry: ToolTelemetry;
   private readonly stopAppearance: () => void;
-  constructor(private readonly port: ViewerPort) {
+  constructor(
+    private readonly port: ViewerPort,
+    telemetry?: SiteTelemetryPort,
+  ) {
+    this.telemetry = new ToolTelemetry(telemetry);
     this.viewport = new ToolViewport(port.readWheel);
     this.snapshot = { ...this.snapshot, appearanceMode: port.readAppearance() };
     this.stopAppearance = port.watchAppearance((mode) => this.update({ appearanceMode: mode }));
@@ -209,17 +222,21 @@ export class ViewerManager {
       duration: this.project.timeline.frames[frame].duration,
     });
   }
-  async open(file: File) {
+  async open(file: File, source = ToolOpenSource.File) {
+    if (this.closed) return;
     if (!ACCEPTED_FILENAME.test(file.name)) {
+      this.telemetry.failed(ToolOperation.Open, ToolFailureCategory.UnsupportedFormat);
       this.update({ error: "Choose an .ase or .aseprite file." });
       return;
     }
     const request = ++this.request;
     this.player.stop(this.playbackSettings());
     this.update({ status: ViewerStatus.Loading, playing: false, error: null });
+    let failureCategory = ToolFailureCategory.Decode;
     try {
       const project = await this.port.read(file);
       if (this.closed || request !== this.request) return;
+      failureCategory = ToolFailureCategory.Preview;
       this.project = project;
       this.frameCache.clear();
       this.file = file;
@@ -263,8 +280,10 @@ export class ViewerManager {
         layers,
       });
       this.render(INITIAL_FRAME);
+      if (this.snapshot.pixels) this.telemetry.opened(request, file, source);
     } catch (reason) {
       if (this.closed || request !== this.request) return;
+      this.telemetry.failed(ToolOperation.Open, failureCategory, reason);
       this.update({
         status: this.project ? ViewerStatus.Ready : ViewerStatus.Empty,
         error: reason instanceof Error ? reason.message : "This file could not be opened.",
@@ -272,14 +291,16 @@ export class ViewerManager {
     }
   }
   async openExample() {
+    if (this.closed) return;
     const request = ++this.request;
     this.player.stop(this.playbackSettings());
     this.update({ status: ViewerStatus.Loading, playing: false, error: null });
     try {
       const file = await this.port.example();
-      if (!this.closed && request === this.request) await this.open(file);
-    } catch {
+      if (!this.closed && request === this.request) await this.open(file, ToolOpenSource.Example);
+    } catch (reason) {
       if (this.closed || request !== this.request) return;
+      this.telemetry.failed(ToolOperation.Open, ToolFailureCategory.ExampleFetch, reason);
       this.update({
         status: this.project ? ViewerStatus.Ready : ViewerStatus.Empty,
         error: "The example could not be loaded. Choose a file to continue.",
@@ -379,14 +400,17 @@ export class ViewerManager {
   async exportFile(
     format = this.snapshot.animated ? ViewerExportFormat.Gif : ViewerExportFormat.Png,
   ) {
-    if (!this.project || !this.snapshot.pixels || this.snapshot.exporting) return;
+    if (this.closed || !this.project || !this.snapshot.pixels || this.snapshot.exporting) return;
     const request = this.request;
+    const fileId = this.snapshot.identity;
     const tag = this.selectedSourceTag();
     const base = this.snapshot.name.replace(ACCEPTED_FILENAME, "");
     const tagSuffix = tag ? `-${tag.name.replace(/[/\\:*?"<>|]/g, "-")}` : "";
     this.update({ exporting: true, error: null });
+    let failureCategory = ToolFailureCategory.Encode;
     try {
       if (format === ViewerExportFormat.Png) {
+        failureCategory = ToolFailureCategory.Handoff;
         await this.port.saveFrame(
           this.snapshot.pixels,
           `${base}-frame-${this.snapshot.frame + FRAME_STEP}.png`,
@@ -413,9 +437,15 @@ export class ViewerManager {
           );
         const frames = renderExportAnimation(document, options);
         const bytes = encodeGif(frames, { loopCount });
+        failureCategory = ToolFailureCategory.Handoff;
         await this.port.saveAnimation(bytes, name);
       }
+      this.telemetry.handedOff(
+        fileId,
+        format === ViewerExportFormat.Png ? ToolOutputFormat.Png : ToolOutputFormat.Gif,
+      );
     } catch (reason) {
+      this.telemetry.failed(ToolOperation.Export, failureCategory, reason);
       if (request === this.request)
         this.update({
           error:
@@ -428,7 +458,8 @@ export class ViewerManager {
     }
   }
   async openEditor() {
-    if (!this.file || this.snapshot.openingEditor) return;
+    if (this.closed || !this.file || this.snapshot.openingEditor) return;
+    this.telemetry.editorEntry();
     this.update({ openingEditor: true, error: null });
     try {
       await this.port.edit(this.file);

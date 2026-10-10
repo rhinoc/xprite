@@ -40,7 +40,11 @@ export function measureThemeText(
     return [...text].reduce(
       (width, char) =>
         width +
-        ((metrics.advances[String(char.codePointAt(0))] ?? metrics.fontSize) * scale) /
+        ((metrics.advances[String(char.codePointAt(0))] ??
+          (isCjkGlyph(char.codePointAt(0)!)
+            ? (metrics.cjkAdvance ?? metrics.fontSize)
+            : metrics.fontSize)) *
+          scale) /
           RASTER_SCALE,
       0,
     );

@@ -68,7 +68,7 @@ export function ReadOnlyTimeline({
   visibilityDisabled,
 }: ReadOnlyTimelineProps) {
   const assets = useUiAssets();
-  const { style: theme } = useUi();
+  const { style: theme, translateSource: t } = useUi();
   const gridSurface = theme.parts.timeline_normal.surface;
   const selectionBorderPart = assets?.style.controlParts?.timeline?.selectionBorderPart;
   const layerViewport = useRef<HTMLDivElement>(null);
@@ -174,7 +174,7 @@ export function ReadOnlyTimeline({
         style={{ height: visibleHeight }}
         role="region"
         tabIndex={0}
-        aria-label="Layers"
+        aria-label={t("Layers")}
         onScroll={(event) => {
           const y = scrollPosition(event.currentTarget).y;
           setVerticalScroll(y);
@@ -390,7 +390,7 @@ export function ReadOnlyTimeline({
                 height: TAG_LABEL_HEIGHT,
               }}
               type="button"
-              aria-label={`Tag ${tag.name}`}
+              aria-label={t(`Tag ${tag.name}`)}
               title={`${tag.name} · ${tag.from + FIRST_FRAME}–${tag.to + FIRST_FRAME}`}
               aria-pressed={selectedTag === index}
               onClick={() => onTag(index)}
@@ -407,7 +407,7 @@ export function ReadOnlyTimeline({
                 height: FRAME_HEADER_HEIGHT,
               }}
               type="button"
-              aria-label={`Frame ${index + FIRST_FRAME}`}
+              aria-label={t(`Frame ${index + FIRST_FRAME}`)}
               title={`Frame ${index + FIRST_FRAME} · ${timeline.frames[index].duration} ms`}
               aria-pressed={index === frame}
               onClick={() => onFrame(index)}
@@ -426,7 +426,7 @@ export function ReadOnlyTimeline({
                   height: ROW_HEIGHT,
                 }}
                 type="button"
-                aria-label={`${layer.name}, frame ${index + FIRST_FRAME}`}
+                aria-label={t(`${layer.name}, frame ${index + FIRST_FRAME}`)}
                 aria-pressed={selectedLayer === layerIndex && frame === index}
                 onClick={() => {
                   onLayer(layerIndex);

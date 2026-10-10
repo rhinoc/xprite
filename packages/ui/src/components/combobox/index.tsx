@@ -124,6 +124,7 @@ export function Combobox({
   } | null>(null);
   const [popup, setPopup] = useState<PopupLayout | null>(null),
     [scroll, setScroll] = useState(0);
+  const [hotOption, setHotOption] = useState<number | null>(null);
   const [focused, setFocused] = useState(false),
     [hovered, setHovered] = useState(false),
     [arrowHot, setArrowHot] = useState(false),
@@ -141,6 +142,7 @@ export function Combobox({
   const close = useCallback(
     (restore = true) => {
       gesture.current = null;
+      setHotOption(null);
       setPressed(false);
       setPopup(null);
       const input = anchor.current?.querySelector<HTMLInputElement>("input");
@@ -166,6 +168,7 @@ export function Combobox({
   }, []);
   const open = () => {
     if (disabled || !anchor.current || !options.length) return;
+    setHotOption(null);
     editableInputWasFocused.current =
       editable &&
       anchor.current.querySelector<HTMLInputElement>("input") === document.activeElement;
@@ -601,7 +604,13 @@ export function Combobox({
               id={id}
               role="listbox"
               aria-label={displayLabel}
-              aria-activedescendant={selected >= 0 ? `${id}-${selected}` : undefined}
+              aria-activedescendant={
+                hotOption !== null
+                  ? `${id}-${hotOption}`
+                  : selected >= 0
+                    ? `${id}-${selected}`
+                    : undefined
+              }
               tabIndex={0}
               style={{
                 ...anchoredPopoverStyle(popup, popup.bounds, { zIndex: 9000 }),
@@ -609,6 +618,7 @@ export function Combobox({
               }}
               onKeyDown={(event) => {
                 event.stopPropagation();
+                setHotOption(null);
                 if (["Escape", "Enter", " "].includes(event.key)) {
                   event.preventDefault();
                   close();
@@ -643,6 +653,7 @@ export function Combobox({
                   ensureVisible(next);
                 }
               }}
+              onPointerLeave={() => setHotOption(null)}
             >
               <span
                 aria-hidden="true"
@@ -687,7 +698,8 @@ export function Combobox({
                   >
                     {options.map((option, index) => {
                       const y = rowOffsets[index] - scroll,
-                        active = index === selected;
+                        active = index === selected,
+                        highlighted = hotOption === null ? active : index === hotOption;
                       if (option.separator)
                         return (
                           <span
@@ -721,7 +733,7 @@ export function Combobox({
                             top: y,
                             width: "100%",
                             height: rowHeight,
-                            background: active
+                            background: highlighted
                               ? theme.colors.listitem_selected_face
                               : option.disabled && !popupMenu
                                 ? theme.colors.face
@@ -738,7 +750,11 @@ export function Combobox({
                             >
                               <path
                                 d={theme.controlParts.menu.checkedVector.path}
-                                fill={theme.colors.listitem_selected_text}
+                                fill={
+                                  highlighted
+                                    ? theme.colors.listitem_selected_text
+                                    : theme.colors.listitem_normal_text
+                                }
                               />
                             </svg>
                           )}
@@ -747,7 +763,7 @@ export function Combobox({
                             text={translateSource(option.label)}
                             x={
                               labelInset +
-                              (popupMenu && (active || option.disabled)
+                              (popupMenu && (active || highlighted || option.disabled)
                                 ? (theme.dimensions.menu_text_state_offset_x ?? 0)
                                 : 0)
                             }
@@ -761,7 +777,7 @@ export function Combobox({
                                 ? popupMenu
                                   ? theme.colors.menuitem_disabled_text
                                   : theme.colors.disabled
-                                : active
+                                : highlighted
                                   ? theme.colors.listitem_selected_text
                                   : theme.colors.listitem_normal_text
                             }
@@ -805,6 +821,14 @@ export function Combobox({
                         popup.viewport.sceneHeight,
                       height:
                         (rowHeights[index] * popup.viewport.height) / popup.viewport.sceneHeight,
+                    }}
+                    onPointerEnter={(event) => {
+                      if (event.pointerType === "mouse")
+                        setHotOption(option.disabled || option.separator ? null : index);
+                    }}
+                    onPointerMove={(event) => {
+                      if (event.pointerType === "mouse")
+                        setHotOption(option.disabled || option.separator ? null : index);
                     }}
                     onPointerDown={(event) => {
                       if (event.button !== 0) return;

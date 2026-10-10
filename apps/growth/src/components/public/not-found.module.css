@@ -1,0 +1,64 @@
+.desktop {
+  display: grid;
+  grid-template-columns: minmax(0, 680px) 128px;
+  align-content: center;
+  align-items: start;
+  justify-content: center;
+  gap: var(--ui-space-8, 32px);
+  width: calc(100% - 48px);
+  min-height: calc(100svh - var(--ui-menu-navigation-height, 20px));
+  margin: 0 auto;
+  padding: var(--ui-space-8, 32px) 0;
+  box-sizing: border-box;
+}
+.window {
+  min-width: 0;
+}
+.content {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--ui-space-7, 24px);
+  padding: 48px 40px;
+}
+.icon {
+  image-rendering: pixelated;
+}
+.message {
+  display: grid;
+  gap: var(--ui-space-6, 16px);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-space-5, 12px);
+  margin-top: var(--ui-space-4, 8px);
+}
+.shortcuts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ui-space-7, 24px);
+  padding-top: var(--ui-space-4, 8px);
+}
+@media (max-width: 700px) {
+  .desktop {
+    grid-template-columns: minmax(0, 1fr);
+    width: calc(100% - 24px);
+    gap: var(--ui-space-7, 24px);
+  }
+  .content {
+    padding: var(--ui-space-7, 24px);
+    gap: var(--ui-space-6, 16px);
+  }
+  .shortcuts {
+    flex-direction: row;
+    justify-content: center;
+    padding: 0;
+  }
+}
+@media (max-width: 400px) {
+  .content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -17,6 +17,7 @@ import { ToolHostManager } from "$/managers/tools/tool-host-manager";
 import { ViewerManager } from "$/managers/viewer/viewer-manager";
 import { ToolApplicationRoot } from "$/tool-application-root";
 import { AppearanceMode } from "@xprite/editor-ui/appearance";
+import { PublicLanguage } from "@xprite/growth-content/language";
 import { DesktopManager, DesktopAppearance } from "@xprite/site-shell";
 import { macintoshTheme } from "@xprite/ui";
 import { loadUiThemeSnapshot, type UiThemeSnapshot } from "@xprite/ui/assets";
@@ -37,7 +38,7 @@ export async function renderToolPage(rootId: string) {
     light: await loadUiThemeSnapshot("light", macintoshTheme),
     dark: await loadUiThemeSnapshot("dark", macintoshTheme),
   };
-  const render = (appearance: "light" | "dark") => {
+  const render = (appearance: "light" | "dark", language: PublicLanguage) => {
     const ports = {
       readAppearance: () => (appearance === "dark" ? AppearanceMode.Dark : AppearanceMode.Light),
       watchAppearance: () => () => {},
@@ -77,7 +78,7 @@ export async function renderToolPage(rootId: string) {
         );
       return renderToString(
         <StrictMode>
-          <ToolApplicationRoot rootId={rootId} artwork={artwork}>
+          <ToolApplicationRoot rootId={rootId} artwork={artwork} language={language}>
             <ToolAppearance desktop={desktop} initialTheme={themes[appearance]}>
               {view}
             </ToolAppearance>
@@ -90,5 +91,12 @@ export async function renderToolPage(rootId: string) {
       host.dispose();
     }
   };
-  return { light: render("light"), dark: render("dark"), themes, artwork };
+  return {
+    light: render("light", PublicLanguage.English),
+    dark: render("dark", PublicLanguage.English),
+    chineseLight: render("light", PublicLanguage.SimplifiedChinese),
+    chineseDark: render("dark", PublicLanguage.SimplifiedChinese),
+    themes,
+    artwork,
+  };
 }

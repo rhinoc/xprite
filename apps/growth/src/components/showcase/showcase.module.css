@@ -69,9 +69,6 @@
   bottom: 50%;
   transform: translate(50%, 50%) scale(2);
 }
-:global([data-showcase-static-stage]) {
-  position: relative;
-}
 
 .productDescription {
   width: min(680px, 100%);
@@ -186,7 +183,8 @@
   overflow: hidden;
   text-align: center;
 }
-.stage {
+.stage,
+:global([data-showcase-static-stage]) {
   position: relative;
   overflow: hidden;
   flex: 0 0 auto;
@@ -232,6 +230,22 @@
   overflow: visible;
   pointer-events: none;
 }
+.overviewPoster {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+.overviewPreview {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: auto;
+  transform: translateY(-50%);
+  image-rendering: pixelated;
+}
 .canvas canvas {
   position: absolute;
   top: calc(-1 * var(--film-render-top, 0px));
@@ -244,6 +258,7 @@
 .loading,
 .error {
   position: absolute;
+  z-index: 2;
   left: 50%;
   top: 45%;
   transform: translate(-50%, -50%);
@@ -255,6 +270,9 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: var(--ui-space-2) var(--ui-space-4);
+  background: var(--ui-color-paper);
+  pointer-events: none;
 }
 .loadingSpinner {
   display: inline-block;
@@ -440,16 +458,6 @@
   min-width: 0;
   margin: 0;
 }
-:global([data-showcase-static-preview]) {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 9;
-  min-height: 320px;
-  max-height: 480px;
-  object-fit: contain;
-  image-rendering: pixelated;
-}
 @media (max-width: 1000px) {
   :global([data-showcase-desktop]) {
     grid-template-columns: minmax(0, 1fr) 128px;
@@ -466,7 +474,7 @@
     margin: 16px auto 24px;
   }
   .stage,
-  :global([data-showcase-static-preview]) {
+  :global([data-showcase-static-stage]) {
     aspect-ratio: auto;
     height: clamp(300px, 52svh, 440px);
     min-height: 0;
@@ -488,9 +496,17 @@
     gap: 12px;
   }
 }
+@media (max-width: 700px) and (orientation: portrait) {
+  .overviewPreview {
+    top: 0;
+    height: 100%;
+    object-fit: contain;
+    transform: none;
+  }
+}
 @media (max-height: 540px) and (orientation: landscape) {
   .stage,
-  :global([data-showcase-static-preview]) {
+  :global([data-showcase-static-stage]) {
     min-height: 240px;
     max-height: 360px;
   }

@@ -11,6 +11,11 @@
     <a href="./CONTRIBUTING.md">参与开发</a> ·
     <a href="https://github.com/rhinoc/xprite/issues">问题反馈</a>
   </p>
+  <p>
+    <a href="https://alternativeto.net/software/xprite/about/?utm_source=badge&utm_medium=referral">
+      <img src="https://alternativeto.net/static/badges/badge-compact-color.svg" alt="AlternativeTo 上的 Xprite" width="171" height="55" />
+    </a>
+  </p>
 </div>
 
 ![在电脑和手机浏览器中使用 Xprite 精灵编辑器](./scripts/marketing-cover/output/xprite-readme-cover.png)

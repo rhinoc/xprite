@@ -2,14 +2,15 @@ import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { siteServingConfiguration } from "../../apps/growth/build/routing/site-configuration.ts";
 import {
   applyEditorSearchMetadata,
   applyGifSheetSearchMetadata,
   applyAnimalCrossingSearchMetadata,
   applyViewerSearchMetadata,
   applyToolsHomeSearchMetadata,
-} from "../../apps/growth/build/seo.ts";
-import { ARTICLE_PATHS } from "../../apps/growth/content/articles/index.ts";
+} from "../../apps/growth/build/seo/index.ts";
+import { SITE_PAGES, SitePageKind } from "../../apps/growth/content/site/pages.ts";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const editorOutput = resolve(repositoryRoot, "apps/editor/dist");
@@ -29,13 +30,14 @@ const [editorHtml, viewerHtml, gifSheetHtml, toolsHtml, animalCrossingHtml] = aw
   readFile(resolve(toolsOutput, INDEX_FILENAME), "utf8"),
   readFile(resolve(toolsOutput, "animal-crossing-qr", INDEX_FILENAME), "utf8"),
   readFile(resolve(galleryOutput, INDEX_FILENAME), "utf8"),
-  readFile(resolve(growthOutput, "showcase/en/index.html"), "utf8"),
-  readFile(resolve(growthOutput, "showcase/zh-CN/index.html"), "utf8"),
-  readFile(resolve(growthOutput, "help/en/index.html"), "utf8"),
-  readFile(resolve(growthOutput, "help/zh-CN/index.html"), "utf8"),
-  ...ARTICLE_PATHS.map((path) =>
-    readFile(resolve(growthOutput, `.${path}`, INDEX_FILENAME), "utf8"),
-  ),
+  ...SITE_PAGES.filter((page) =>
+    [
+      SitePageKind.Showcase,
+      SitePageKind.Guide,
+      SitePageKind.Article,
+      SitePageKind.Placeholder,
+    ].includes(page.kind),
+  ).map(({ path }) => readFile(resolve(growthOutput, `.${path}`, INDEX_FILENAME), "utf8")),
 ]);
 
 await rm(siteOutput, { recursive: true, force: true });
@@ -66,6 +68,12 @@ await writeFile(
 await writeFile(
   resolve(siteOutput, "tools", "animal-crossing-qr", INDEX_FILENAME),
   applyAnimalCrossingSearchMetadata(animalCrossingHtml, project.version, indexable),
+);
+
+const configuration = JSON.parse(await readFile(resolve(repositoryRoot, "edgeone.json"), "utf8"));
+await writeFile(
+  resolve(siteOutput, "edgeone.json"),
+  `${JSON.stringify(siteServingConfiguration(configuration), null, 2)}\n`,
 );
 
 console.log("Independent editor, growth, tools, and gallery outputs assembled in .tmp/site.");

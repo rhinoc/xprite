@@ -52,6 +52,37 @@ function groupedProject(): SessionProject {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("ASE project file save preserves group metadata", () => {
+  it("does not write or fall back to another destination when overwrite permission is denied", async () => {
+    const write = vi.fn();
+    const picker = vi.fn();
+    const project = groupedProject();
+    const before = structuredClone(project);
+    await assert.rejects(
+      saveAseprite(project, "Groups.aseprite", SessionSaveIntent.Save, {
+        fileHandle: {
+          name: "Groups.aseprite",
+          createWritable: write,
+          requestPermission: async () => "denied",
+        },
+        fileHandlePermissionActivation: true,
+        saveFilePicker: picker,
+      }),
+      (reason: unknown) => {
+        const error = reason as Error & {
+          diagnosticDetails?: { fileWrite?: Record<string, unknown> };
+        };
+        assert.equal(error.name, "FileWritePermissionError");
+        assert.equal(error.diagnosticDetails?.fileWrite?.stage, "permission");
+        assert.equal(error.diagnosticDetails?.fileWrite?.permission, "denied");
+        assert.equal(error.diagnosticDetails?.fileWrite?.user_activation, true);
+        return true;
+      },
+    );
+    assert.equal(write.mock.calls.length, 0);
+    assert.equal(picker.mock.calls.length, 0);
+    assert.deepEqual(project, before);
+  });
+
   it("exposes the same once-read input for identity hashing", async () => {
     const encoded = encodeAsepriteSync(
       asepriteFromProject(groupedProject(), { preserveGroupMetadata: true }),

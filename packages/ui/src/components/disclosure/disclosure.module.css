@@ -1,0 +1,17 @@
+.root {
+  color: var(--ui-color-ink);
+  background: var(--ui-color-paper);
+  border: 1px solid var(--ui-color-line);
+  font: var(--ui-reading-body-size) / var(--ui-reading-line-height) var(--ui-font-family);
+}
+.summary {
+  padding: 12px 16px;
+  cursor: pointer;
+}
+.summary:focus-visible {
+  outline: 1px dotted currentColor;
+  outline-offset: -4px;
+}
+.content {
+  padding: 0 16px 16px;
+}

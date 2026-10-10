@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { ARTICLES } from "../content/articles/index.ts";
+import { siteFooterGroups } from "../content/site/navigation.ts";
 import { renderPublicUi } from "./static-ui-renderer.ts";
 
 const DESKTOP_PATTERN_ASSET_ROOT = fileURLToPath(
@@ -43,7 +44,10 @@ const articlePatterns = new Map(
     .map((path, index) => [path, shuffledPatterns[index % shuffledPatterns.length].id]),
 );
 export function publicPattern(path: string): string {
-  return articlePatterns.get(path) ?? colorPatterns[patternHash(path) % colorPatterns.length].id;
+  const originalPath = path.replace(/\/zh-CN(?=\/|$)/, "");
+  return (
+    articlePatterns.get(originalPath) ?? colorPatterns[patternHash(path) % colorPatterns.length].id
+  );
 }
 
 export const GROWTH_DESKTOP_STYLE_PATH = "/theme/growth-desktop.css";
@@ -69,12 +73,18 @@ export function publicDesktopWindow(
 export function publicDesktopNavigation(props: Record<string, unknown>): string {
   return renderPublicUi("navigation", props);
 }
+export function publicSiteFooter(language = "en"): string {
+  return renderPublicUi("site-footer", { language, groups: siteFooterGroups(language) });
+}
 export function publicDesktopButton(href: string, label: string, className?: string): string {
   return renderPublicUi("button", { href, label, className });
 }
+export function publicNotFound(language: string): string {
+  return renderPublicUi("not-found", { language });
+}
 /** Apply the theme once around server-composed page content. */
-export function publicUiScope(content: string): string {
-  return renderPublicUi("page", { content });
+export function publicUiScope(content: string, language = "en"): string {
+  return renderPublicUi("page", { content, language });
 }
 export function publicStatus(label: string, trailing: string, href?: string): string {
   return renderPublicUi("status", { label, trailing, href });

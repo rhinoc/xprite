@@ -11,6 +11,11 @@
     <a href="./CONTRIBUTING.md">Contributing</a> ·
     <a href="https://github.com/rhinoc/xprite/issues">Feedback</a>
   </p>
+  <p>
+    <a href="https://alternativeto.net/software/xprite/about/?utm_source=badge&utm_medium=referral">
+      <img src="https://alternativeto.net/static/badges/badge-compact-color.svg" alt="Xprite on AlternativeTo" width="171" height="55" />
+    </a>
+  </p>
 </div>
 
 ![Xprite sprite editor in desktop and phone browsers](./scripts/marketing-cover/output/xprite-readme-cover.png)

@@ -4,16 +4,14 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import galleryRoutes from "../../apps/gallery/build/generated-routes.json" with { type: "json" };
-import { ARTICLE_PATHS } from "../../apps/growth/content/articles/index.ts";
-import {
-  GIF_SHEET_TOOL,
-  TOOLS_HOME,
-  TOOLS,
-  TOOL_PATHS,
-} from "../../apps/growth/content/tools/index.ts";
+import { siteServingConfiguration } from "../../apps/growth/build/routing/site-configuration.ts";
+import { SITE_PAGES, SitePageKind } from "../../apps/growth/content/site/pages.ts";
+import { GIF_SHEET_TOOL, TOOLS_HOME, TOOLS } from "../../apps/growth/content/tools/index.ts";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
-const configuration = JSON.parse(await readFile(join(repositoryRoot, "edgeone.json"), "utf8"));
+const configuration = siteServingConfiguration(
+  JSON.parse(await readFile(join(repositoryRoot, "edgeone.json"), "utf8")),
+);
 const outputDirectory = resolve(repositoryRoot, configuration.outputDirectory);
 const deploymentDirectory = join(repositoryRoot, ".tmp/deploy/editor");
 const resultPath = join(repositoryRoot, ".tmp/deploy/result.json");
@@ -41,14 +39,8 @@ const REQUIRED_DISCOVERY_FILES = [
   ...SOCIAL_IMAGE_PATHS.map((path) => path.slice(1)),
 ];
 const REQUIRED_SITE_PAGES = [
-  "index.html",
   "gallery/index.html",
-  "help/en/index.html",
-  "help/zh-CN/index.html",
-  "showcase/en/index.html",
-  "showcase/zh-CN/index.html",
-  ...TOOL_PATHS.map((path) => `${path.slice(1)}index.html`),
-  ...ARTICLE_PATHS.map((path) => `${path.slice(1)}index.html`),
+  ...SITE_PAGES.map(({ path }) => `${path.slice(1)}index.html`),
   "404.html",
 ];
 
@@ -364,9 +356,12 @@ async function verifySearchDiscovery(url, environment) {
       !xml.includes("<urlset")
     )
       throw new Error("Production must serve and advertise an XML sitemap.");
-    for (const path of ["/", ...TOOL_PATHS, ...ARTICLE_PATHS])
+    for (const { path } of SITE_PAGES.filter((page) => page.indexable))
       if (!xml.includes(`<loc>https://xprite.cc${path}</loc>`))
         throw new Error(`The canonical page is missing from the sitemap: ${path}.`);
+    for (const { path } of SITE_PAGES.filter((page) => !page.indexable))
+      if (xml.includes(`<loc>https://xprite.cc${path}</loc>`))
+        throw new Error(`An unfinished page must not appear in the sitemap: ${path}.`);
   } else if (sitemap.status !== 404 || robotsText.includes("Sitemap:")) {
     throw new Error("Preview deployments must not publish or advertise a sitemap.");
   }
@@ -414,7 +409,9 @@ async function verifyDeployment(result, expected) {
       await verifyShowcasePages(url, expected.environment);
       await verifyApplicationPages(url, expected.environment);
       await verifySearchDiscovery(url, expected.environment);
-      for (const path of ARTICLE_PATHS) {
+      for (const { path, language } of SITE_PAGES.filter(
+        (page) => page.kind === SitePageKind.Article,
+      )) {
         const comparisonUrl = new URL(url);
         comparisonUrl.pathname = path;
         const comparison = await fetch(comparisonUrl, {
@@ -427,11 +424,25 @@ async function verifyDeployment(result, expected) {
             : 'content="noindex, follow"';
         if (
           !comparison.ok ||
-          !hasPageLanguage(articleHtml, "en") ||
+          !hasPageLanguage(articleHtml, language) ||
           !articleHtml.includes("<h1") ||
           !articleHtml.includes(metadata)
         )
           throw new Error(`Article page is unavailable or has incorrect metadata: ${path}.`);
+      }
+      for (const { path, language } of SITE_PAGES.filter(
+        (page) => page.kind === SitePageKind.Placeholder,
+      )) {
+        const pageUrl = new URL(path, url);
+        const page = await fetch(pageUrl, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+        const html = await page.text();
+        if (
+          !page.ok ||
+          !hasPageLanguage(html, language) ||
+          !html.includes("<h1") ||
+          !html.includes('content="noindex, follow"')
+        )
+          throw new Error(`Reserved page is unavailable or must not be indexed: ${path}.`);
       }
       const missingUrl = new URL(url);
       missingUrl.pathname = `/deployment-not-found-${expected.release}`;

@@ -1,10 +1,11 @@
 import { useLayoutEffect, useRef, type ReactNode, type RefObject, type ReactPortal } from "react";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import { createRoot, hydrateRoot } from "react-dom/client";
 
-import { PublicIndex, PublicNavigation } from "$/components/public/static-ui";
+import { PublicFooter, PublicIndex, PublicNavigation } from "$/components/public/static-ui";
 import { DesktopProvider } from "@xprite/site-shell";
 import { createBrowserDesktop } from "@xprite/site-shell/browser";
+import { createBrowserSiteTelemetry } from "@xprite/site-shell/telemetry/browser";
 import { PageScrollArea, ScrollArea, macintoshTheme } from "@xprite/ui";
 import { loadUiThemeSnapshot } from "@xprite/ui/assets";
 import {
@@ -18,9 +19,28 @@ import {
 
 import styles from "$/public-controls.module.css";
 
+createBrowserSiteTelemetry({
+  production: import.meta.env.PROD,
+  token: import.meta.env.VITE_POSTHOG_PROJECT_TOKEN ?? "",
+  region: import.meta.env.VITE_POSTHOG_REGION ?? "US",
+  version: __XPRITE_VERSION__,
+  release: __XPRITE_RELEASE__,
+  captureLinks: true,
+});
+
 const SCROLL_CONTROLS = ".guide-image, .compare_tableScroll, main pre";
 const DOCUMENT_SCROLL_CONTROLS = "[data-public-reader-scroll]";
 const DOCUMENT_SECTION_INSET = 16;
+
+function PublicControlsReady() {
+  useLayoutEffect(() => {
+    document.documentElement.dataset.publicControlsReady = "true";
+    return () => {
+      delete document.documentElement.dataset.publicControlsReady;
+    };
+  }, []);
+  return null;
+}
 
 function PublicDocumentContent({
   nodes,
@@ -125,7 +145,7 @@ async function mountPublicControls() {
     </DesktopProvider>
   );
   for (const island of document.querySelectorAll<HTMLElement>(
-    '[data-public-island="index"], [data-public-island="navigation"]',
+    '[data-public-island="index"], [data-public-island="navigation"], [data-public-island="site-footer"]',
   )) {
     const props = JSON.parse(island.dataset.publicProps ?? "{}");
     hydrateRoot(
@@ -140,68 +160,80 @@ async function mountPublicControls() {
       >
         {island.dataset.publicIsland === "navigation" ? (
           <PublicNavigation {...props} />
+        ) : island.dataset.publicIsland === "site-footer" ? (
+          <PublicFooter {...props} />
         ) : (
           <PublicIndex {...props} />
         )}
       </DesktopProvider>,
-      { identifierPrefix: island.dataset.publicIdentifier },
+      {
+        identifierPrefix: island.dataset.publicIdentifier,
+        onRecoverableError(error) {
+          island.dataset.publicHydrationError = String(error);
+          console.error(error);
+        },
+      },
     );
   }
-  for (const region of document.querySelectorAll<HTMLElement>(SCROLL_CONTROLS)) {
-    const slot = document.createElement("div");
-    const preformatted = region.tagName === "PRE";
-    const html = preformatted ? region.outerHTML : region.innerHTML;
-    const className = preformatted ? styles.code : region.className;
-    region.replaceWith(slot);
-    portals.push(
-      createPortal(
-        scope(
-          <ScrollArea
-            className={className}
-            scrollY={false}
-            reserveScrollbarGutter
-            contentClassName={styles.scrollContent}
-            aria-label={
-              region.getAttribute("aria-label") ??
-              (language.startsWith("zh") ? "内容横向滚动" : "Content scroll")
-            }
-            viewportProps={{ tabIndex: 0, "data-ui-scroll-region-focus": "true" }}
-            contentStyle={{ minHeight: 0 }}
-          >
-            <div dangerouslySetInnerHTML={{ __html: html }} />
-          </ScrollArea>,
+  // Replace native scroll regions and mount their content in one commit.
+  flushSync(() => {
+    for (const region of document.querySelectorAll<HTMLElement>(SCROLL_CONTROLS)) {
+      const slot = document.createElement("div");
+      const preformatted = region.tagName === "PRE";
+      const html = preformatted ? region.outerHTML : region.innerHTML;
+      const className = preformatted ? styles.code : region.className;
+      region.replaceWith(slot);
+      portals.push(
+        createPortal(
+          scope(
+            <ScrollArea
+              className={className}
+              scrollY={false}
+              reserveScrollbarGutter
+              contentClassName={styles.scrollContent}
+              aria-label={
+                region.getAttribute("aria-label") ??
+                (language.startsWith("zh") ? "内容横向滚动" : "Content scroll")
+              }
+              viewportProps={{ tabIndex: 0, "data-ui-scroll-region-focus": "true" }}
+              contentStyle={{ minHeight: 0 }}
+            >
+              <div dangerouslySetInnerHTML={{ __html: html }} />
+            </ScrollArea>,
+          ),
+          slot,
+          `scroll-${portals.length}`,
         ),
-        slot,
-        `scroll-${portals.length}`,
+      );
+    }
+    for (const region of document.querySelectorAll<HTMLElement>(DOCUMENT_SCROLL_CONTROLS)) {
+      const slot = document.createElement("div");
+      const nodes = Array.from(region.childNodes);
+      region.replaceWith(slot);
+      portals.push(
+        createPortal(
+          scope(<PublicDocumentScroller nodes={nodes} language={language} />),
+          slot,
+          `document-${portals.length}`,
+        ),
+      );
+    }
+    const host = document.createElement("div");
+    host.style.display = "contents";
+    document.body.append(host);
+    createRoot(host).render(
+      scope(
+        <>
+          <PageScrollArea
+            documentGutter
+            aria-label={language.startsWith("zh") ? "页面滚动" : "Page scroll"}
+          />
+          {portals}
+          <PublicControlsReady />
+        </>,
       ),
     );
-  }
-  for (const region of document.querySelectorAll<HTMLElement>(DOCUMENT_SCROLL_CONTROLS)) {
-    const slot = document.createElement("div");
-    const nodes = Array.from(region.childNodes);
-    region.replaceWith(slot);
-    portals.push(
-      createPortal(
-        scope(<PublicDocumentScroller nodes={nodes} language={language} />),
-        slot,
-        `document-${portals.length}`,
-      ),
-    );
-  }
-  const host = document.createElement("div");
-  host.style.display = "contents";
-  document.body.append(host);
-  createRoot(host).render(
-    scope(
-      <>
-        <PageScrollArea
-          documentGutter
-          aria-label={language.startsWith("zh") ? "页面滚动" : "Page scroll"}
-        />
-        {portals}
-      </>,
-    ),
-  );
+  });
 }
 
 void mountPublicControls();

@@ -1567,6 +1567,12 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     suggestedNewSpriteBaseName: workspace.suggestNewSpriteBaseName(),
     pixelationOptions,
     error,
+    canSaveErrorAs: workflow.error?.operation === SessionOperation.Save && session.canSave(),
+    saveErrorAs: () => {
+      dismissError();
+      cancelReplacement();
+      performDocumentSave(SessionSaveIntent.SaveAs, SaveTarget.FileSystem);
+    },
     activation,
     exitCount,
     requestImport,

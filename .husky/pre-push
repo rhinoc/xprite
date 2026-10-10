@@ -1,5 +1,6 @@
 pnpm run check
 pnpm run check:dependencies
+pnpm run visual:continuity --port "${XPRITE_VISUAL_PORT:-5173}"
 pnpm run visual:capture --port "${XPRITE_VISUAL_PORT:-5173}"
 pnpm run visual:compare
 pnpm run visual:startup --port "${XPRITE_TOOLS_VISUAL_PORT:-5176}"

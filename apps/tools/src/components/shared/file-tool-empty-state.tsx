@@ -1,4 +1,5 @@
 import { ToolArtworkKind, useToolArtwork } from "$/components/shared/tool-artwork";
+import { useToolTranslation } from "$/managers/locale/tool-language";
 import { TOOL_EXAMPLES, type PublicTool } from "$/managers/tools/tool-catalog";
 import {
   ContentAlign,
@@ -35,6 +36,8 @@ export function FileToolEmptyState({
   onChooseFile(): void;
   onExample(): Promise<void>;
 }) {
+  const t = useToolTranslation();
+
   const artwork = useToolArtwork();
   const example = TOOL_EXAMPLES[tool.path];
   return (
@@ -45,7 +48,7 @@ export function FileToolEmptyState({
           tone={SurfaceTone.Informative}
           contentPadding={ContentPadding.Spacious}
           variant={PanelVariant.Window}
-          title={tool.openLabel}
+          title={t(tool.openLabel)}
           windowKind={PanelWindowKind.Dialog}
           className={styles.introduction}
           data-ui-window-priority="primary"
@@ -53,19 +56,19 @@ export function FileToolEmptyState({
         >
           <h1 className={styles.headline}>
             <Text variant={TextVariant.Reading} wrap>
-              {tool.fileLabel}
+              {t(tool.fileLabel)}
             </Text>
           </h1>
           <div className={styles.fileDrop}>
             <p className={styles.dropHint}>
               <Text variant={TextVariant.Reading} wrap>
-                {busy ? "Opening…" : tool.dropLabel}
+                {t(busy ? "Opening…" : tool.dropLabel)}
               </Text>
             </p>
             <ControlFlow className={styles.emptyActions}>
               <Button
                 slots={{}}
-                text={tool.openLabel}
+                text={t(tool.openLabel)}
                 font="default"
                 disabled={busy}
                 onClick={onChooseFile}
@@ -73,14 +76,14 @@ export function FileToolEmptyState({
             </ControlFlow>
           </div>
           <p className={styles.fileTypes}>
-            <Text
-              variant={TextVariant.Reading}
-              tone={TextTone.Muted}
-              wrap
-            >{`Accepted files: ${tool.accept
-              .split(",")
-              .filter((type) => type.startsWith("."))
-              .join(" · ")}`}</Text>
+            <Text variant={TextVariant.Reading} tone={TextTone.Muted} wrap>
+              {t(
+                `Accepted files: ${tool.accept
+                  .split(",")
+                  .filter((type) => type.startsWith("."))
+                  .join(" · ")}`,
+              )}
+            </Text>
           </p>
         </Panel>
         <Panel
@@ -90,16 +93,16 @@ export function FileToolEmptyState({
           contentAlign={ContentAlign.Center}
           contentPadding={EXAMPLE_CONTENT_PADDING}
           variant={PanelVariant.Window}
-          title={example.name}
+          title={t(example.name)}
           className={styles.examples}
           data-ui-window-active="false"
-          aria-label="Try example"
+          aria-label={t("Try example")}
           collapsible
         >
           <div className={styles.exampleArtwork}>
             <PixelImage
               src={artwork(ToolArtworkKind.Example, tool.path, example.preview)}
-              alt={example.alt}
+              alt={t(example.alt)}
               width={example.width}
               height={example.height}
               fit={PixelImageFit.Contain}
@@ -108,7 +111,7 @@ export function FileToolEmptyState({
           </div>
           <Button
             slots={{}}
-            text="Open example"
+            text={t("Open example")}
             font="default"
             disabled={busy}
             onClick={() => void onExample()}

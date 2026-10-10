@@ -9,7 +9,7 @@ import {
   observeShowcaseLanguage,
   readShowcaseLanguage,
 } from "$/adapters/showcase/browser-language";
-import { afterBrowserPaint } from "$/adapters/showcase/browser-scheduling";
+import { afterBrowserPaint, whenBrowserVisible } from "$/adapters/showcase/browser-scheduling";
 import { observeShowcaseNavigation } from "$/adapters/showcase/showcase-navigation";
 import type { ShowcasePort, ShowcaseScreenContent } from "$/managers/ports/showcase";
 
@@ -23,6 +23,7 @@ export function createShowcasePort(content: ShowcaseScreenContent): ShowcasePort
     saveMusicVolume,
     mountMusic: mountBackgroundMusic,
     mount: async (host, language, signal) => {
+      await whenBrowserVisible(host, signal);
       await afterBrowserPaint(signal);
       const { mountScene } = await import("$/adapters/showcase/three-showcase-scene");
       signal.throwIfAborted();

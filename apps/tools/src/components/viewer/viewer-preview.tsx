@@ -1,5 +1,6 @@
 import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
 import { ToolZoomControl } from "$/components/shared/tool-zoom-control";
+import { useToolTranslation } from "$/managers/locale/tool-language";
 import {
   ALL_FRAMES_TAG,
   type ViewerManager,
@@ -36,6 +37,8 @@ export function ViewerPreview({
   manager: ViewerManager;
   snapshot: ViewerSnapshot;
 }) {
+  const t = useToolTranslation();
+
   const navigation = manager.viewport;
   const pixels = snapshot.pixels!;
   const frameLabel = `Frame ${snapshot.frame + FRAME_OFFSET} of ${snapshot.frames}`;
@@ -53,8 +56,8 @@ export function ViewerPreview({
           navigation={navigation}
           identity={snapshot.identity}
           pixels={pixels}
-          label={frameLabel}
-          navigationLabel="Sprite preview. Space to play or pause, arrow keys to change frame."
+          label={t(frameLabel)}
+          navigationLabel={t("Sprite preview. Space to play or pause, arrow keys to change frame.")}
           onKeyDown={(event) => {
             if (event.altKey || event.ctrlKey || event.metaKey) return;
             if (event.key === " ") {
@@ -78,7 +81,7 @@ export function ViewerPreview({
         tone={SurfaceTone.Accent}
         contentLayout={ContentLayout.Column}
         variant={PanelVariant.Window}
-        title="Animation"
+        title={t("Animation")}
         windowKind={PanelWindowKind.Utility}
         collapsible
         className={styles.animationWindow}
@@ -87,14 +90,14 @@ export function ViewerPreview({
           <ControlFlow
             className={styles.playbackActions}
             role="group"
-            aria-label="Playback controls"
+            aria-label={t("Playback controls")}
           >
             <Button
               icon="ani_first"
               pixelSize={PLAYBACK_BUTTON_SIZE}
               pushedPart="buttonset_item_pushed"
-              aria-label="First frame"
-              title="First frame (Home)"
+              aria-label={t("First frame")}
+              title={t("First frame (Home)")}
               disabled={snapshot.frames <= FRAME_OFFSET}
               onClick={() => manager.inspectFrame(0)}
             />
@@ -102,8 +105,8 @@ export function ViewerPreview({
               icon="ani_previous"
               pixelSize={PLAYBACK_BUTTON_SIZE}
               pushedPart="buttonset_item_pushed"
-              aria-label="Previous frame"
-              title="Previous frame (Left)"
+              aria-label={t("Previous frame")}
+              title={t("Previous frame (Left)")}
               disabled={!snapshot.animated}
               onClick={() => manager.stepFrame(-FRAME_OFFSET)}
             />
@@ -111,8 +114,8 @@ export function ViewerPreview({
               icon={snapshot.playing ? "ani_stop" : "ani_play"}
               pixelSize={PLAYBACK_BUTTON_SIZE}
               pushedPart="buttonset_item_pushed"
-              aria-label={snapshot.playing ? "Pause animation" : "Play animation"}
-              title={snapshot.playing ? "Pause animation (Space)" : "Play animation (Space)"}
+              aria-label={t(snapshot.playing ? "Pause animation" : "Play animation")}
+              title={t(snapshot.playing ? "Pause animation (Space)" : "Play animation (Space)")}
               selected={snapshot.playing}
               disabled={!snapshot.animated}
               onClick={() => manager.togglePlayback()}
@@ -121,8 +124,8 @@ export function ViewerPreview({
               icon="ani_next"
               pixelSize={PLAYBACK_BUTTON_SIZE}
               pushedPart="buttonset_item_pushed"
-              aria-label="Next frame"
-              title="Next frame (Right)"
+              aria-label={t("Next frame")}
+              title={t("Next frame (Right)")}
               disabled={!snapshot.animated}
               onClick={() => manager.stepFrame(FRAME_OFFSET)}
             />
@@ -130,8 +133,8 @@ export function ViewerPreview({
               icon="ani_last"
               pixelSize={PLAYBACK_BUTTON_SIZE}
               pushedPart="buttonset_item_pushed"
-              aria-label="Last frame"
-              title="Last frame (End)"
+              aria-label={t("Last frame")}
+              title={t("Last frame (End)")}
               disabled={snapshot.frames <= FRAME_OFFSET}
               onClick={() => manager.inspectFrame(snapshot.frames - FRAME_OFFSET)}
             />
@@ -139,11 +142,11 @@ export function ViewerPreview({
           {snapshot.tags.length > 0 && (
             <Combobox
               pixelWidth={RANGE_WIDTH}
-              aria-label="Animation range"
+              aria-label={t("Animation range")}
               value={snapshot.selectedTag}
               onValueChange={(value) => manager.selectTag(value)}
               options={[
-                { value: ALL_FRAMES_TAG, label: "All frames" },
+                { value: ALL_FRAMES_TAG, label: t("All frames") },
                 ...snapshot.tags.map((tag) => ({ value: tag.id, label: tag.name })),
               ]}
             />
@@ -166,22 +169,20 @@ export function ViewerPreview({
         />
         <StatusBar
           placement={StatusBarPlacement.Inline}
-          aria-label="Preview status"
+          aria-label={t("Preview status")}
           role="group"
           leading={
             <>
-              <Text
-                variant={TextVariant.Reading}
-                tone={TextTone.Muted}
-              >{`${pixels.width} × ${pixels.height} px`}</Text>
-              <div className={styles.frameInfo} title="Current frame and its duration">
-                <Text
-                  variant={TextVariant.Reading}
-                >{`${snapshot.frame + FRAME_OFFSET} / ${snapshot.frames}`}</Text>
-                <Text
-                  variant={TextVariant.Reading}
-                  tone={TextTone.Muted}
-                >{`${snapshot.duration} ms`}</Text>
+              <Text variant={TextVariant.Reading} tone={TextTone.Muted}>
+                {t(`${pixels.width} × ${pixels.height} px`)}
+              </Text>
+              <div className={styles.frameInfo} title={t("Current frame and its duration")}>
+                <Text variant={TextVariant.Reading}>
+                  {t(`${snapshot.frame + FRAME_OFFSET} / ${snapshot.frames}`)}
+                </Text>
+                <Text variant={TextVariant.Reading} tone={TextTone.Muted}>
+                  {t(`${snapshot.duration} ms`)}
+                </Text>
               </div>
             </>
           }

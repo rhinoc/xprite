@@ -1,10 +1,12 @@
 import type { CSSProperties, ReactNode } from "react";
 
+import { useToolLanguage } from "$/managers/locale/tool-language";
 import { TOOLS_HOME, type PublicTool } from "$/managers/tools/tool-catalog";
-import { siteApplications } from "@xprite/growth-content/navigation";
-import { SiteMenubar } from "@xprite/site-shell";
+import { localizedSiteHref, PublicLanguage } from "@xprite/growth-content/language";
+import { siteApplications, siteFooterGroups } from "@xprite/growth-content/navigation";
+import { SiteFooter, SiteMenubar } from "@xprite/site-shell";
 import {
-  RichText,
+  ButtonAppearance,
   ButtonVariant,
   Button,
   Icon,
@@ -14,10 +16,7 @@ import {
   PatternVariant,
   PageScrollArea,
   PageScrollbarMode,
-  Note,
-  NoteVariant,
-  NoteDismissBehavior,
-  NoteColor,
+  Tooltip,
   useUi,
   IconSize,
 } from "@xprite/ui";
@@ -30,15 +29,15 @@ export function ToolFrame({
   menus = [],
   children,
   reserveGutter = true,
-  readme,
 }: {
   tool?: PublicTool;
   filename?: string;
   menus?: readonly MenubarMenu[];
   children: ReactNode;
   reserveGutter?: boolean;
-  readme?: ReactNode;
 }) {
+  const { language, setLanguage, translate: t } = useToolLanguage();
+
   const { appearance } = useUi();
   const variables = {
     colorScheme: appearance,
@@ -59,7 +58,7 @@ export function ToolFrame({
       scrollbarMode={PageScrollbarMode.Native}
       className={`${styles.page} xse-global`}
       style={variables}
-      aria-label="Page scroll"
+      aria-label={t("Page scroll")}
     >
       <div
         className={styles.shell}
@@ -67,15 +66,45 @@ export function ToolFrame({
       >
         <header className={styles.header}>
           <SiteMenubar
-            label="Tool navigation"
-            applicationName={tool?.label ?? "Tools"}
+            label={t("Tool navigation")}
+            applicationName={t(tool?.label ?? "Tools")}
 
             applications={siteApplications(
               tool?.path ?? TOOLS_HOME.path,
-              "en",
+              language,
               import.meta.env.DEV,
             )}
             menus={menus}
+            leadingContent={
+              <Tooltip
+                text={[
+                  t(tool?.summary ?? "Open an application from the Applications folder."),
+                  t(tool?.privacy ?? "Files stay on your device. No cloud upload."),
+                ].join("\n")}
+                placement="top-left"
+              >
+                <Button
+                  href={localizedSiteHref(tool?.guidePath ?? "/help/en/", language)}
+                  appearance={ButtonAppearance.Quiet}
+                  slots={{ leading: <Icon kind={IconKind.Help} size={IconSize.Small} /> }}
+                  aria-label={t("Read Me")}
+                  role="menuitem"
+                />
+              </Tooltip>
+            }
+            language={language}
+            languages={[
+              {
+                value: PublicLanguage.English,
+                label: "English",
+                onSelect: () => setLanguage(PublicLanguage.English),
+              },
+              {
+                value: PublicLanguage.SimplifiedChinese,
+                label: "简体中文",
+                onSelect: () => setLanguage(PublicLanguage.SimplifiedChinese),
+              },
+            ]}
           />
         </header>
         <WindowWorkspace
@@ -87,51 +116,27 @@ export function ToolFrame({
           </div>
 
           <aside className={styles.utilities} data-ui-desktop-layer>
-            {!filename && (
-              <>
-                <Note
-                  variant={NoteVariant.Window}
-                  dismissBehavior={NoteDismissBehavior.Collapse}
-                  color={NoteColor.Yellow}
-                  aria-label="Read Me"
-                  title="Read Me"
-                  defaultCollapsed={false}
-                  className={styles.readmeWindow}
-                  data-ui-window-active="false"
-                >
-                  <RichText>
-                    {readme ?? (
-                      <>
-                        <p>
-                          <strong>{tool?.label ?? TOOLS_HOME.name}</strong>
-                        </p>
-                        <p>
-                          {tool?.summary ?? "Open an application from the Applications folder."}
-                        </p>
-                      </>
-                    )}
-                    <p>{tool?.privacy ?? "Files stay on your device. No cloud upload."}</p>
-                  </RichText>
-                </Note>
-              </>
-            )}
-            <nav className={styles.shortcuts} aria-label="Desktop shortcuts">
+            <nav className={styles.shortcuts} aria-label={t("Desktop shortcuts")}>
               <Button
                 variant={ButtonVariant.Tile}
                 slots={{ leading: <Icon kind={IconKind.Folder} size={IconSize.Large} /> }}
-                text="Applications"
-                href="/tools/"
+                text={t("Applications")}
+                href={localizedSiteHref("/tools/", language)}
               />
               <Button
                 variant={ButtonVariant.Tile}
                 slots={{ leading: <Icon kind={IconKind.Document} size={IconSize.Large} /> }}
-                text="User guide"
+                text={t("User guide")}
 
-                href={tool?.guidePath ?? "/help/en/"}
+                href={localizedSiteHref(tool?.guidePath ?? "/help/en/", language)}
               />
             </nav>
           </aside>
         </WindowWorkspace>
+        <SiteFooter
+          groups={siteFooterGroups(language)}
+          label={language === PublicLanguage.SimplifiedChinese ? "网站导航" : "Website navigation"}
+        />
       </div>
     </PageScrollArea>
   );

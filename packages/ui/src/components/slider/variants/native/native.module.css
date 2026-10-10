@@ -14,7 +14,7 @@
 }
 .root:disabled {
   opacity: var(--ui-control-disabled-opacity, 0.5);
-  cursor: default;
+  cursor: var(--ui-cursor-default, default);
 }
 .root::-webkit-slider-runnable-track {
   box-sizing: border-box;

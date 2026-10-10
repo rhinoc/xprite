@@ -205,6 +205,12 @@ function translateItems(
     ...(item.children ? { children: translateItems(item.children, translateSource) } : {}),
   }));
 }
+function menuDestinations(items: readonly MenuItem[]): readonly MenuItem[] {
+  return items.flatMap((item) => [
+    ...(item.href ? [item] : []),
+    ...(item.children ? menuDestinations(item.children) : []),
+  ]);
+}
 function MenuArtwork({ panel, active }: { panel: Panel; active: number }) {
   const { definition: theme } = useTheme();
   const MENU_METRICS = menuMetrics(theme.dimensions);
@@ -533,8 +539,8 @@ function MenuItemTarget({
   ...props
 }: HTMLAttributes<HTMLElement> & {
   item: MenuItem;
-  targetRef: (node: HTMLElement | null) => void;
-  onActivate: () => void;
+  targetRef?: (node: HTMLElement | null) => void;
+  onActivate?: () => void;
   onNavigate: () => void;
 }) {
   if (item.href) {
@@ -557,7 +563,11 @@ function MenuItemTarget({
           item.onClick?.(event);
           onNavigate();
         }}
-      />
+      >
+        <span className={styles.menuItemLabel} aria-hidden="true">
+          {item.label}
+        </span>
+      </a>
     );
   }
   return (
@@ -567,7 +577,7 @@ function MenuItemTarget({
       type="button"
       disabled={item.disabled}
       onClick={(event) => {
-        if (event.detail === 0) onActivate();
+        if (event.detail === 0) onActivate?.();
       }}
     />
   );
@@ -593,6 +603,7 @@ export function Menu<Trigger extends HTMLElement = HTMLButtonElement>({
     [items, language, translateSource],
   );
   const displayLabel = translateSource(label);
+  const destinations = useMemo(() => menuDestinations(localizedItems), [localizedItems]);
   const id = useId(),
     trigger = useRef<Trigger | null>(null),
     tree = useRef<HTMLDivElement>(null);
@@ -943,6 +954,21 @@ export function Menu<Trigger extends HTMLElement = HTMLButtonElement>({
           }
         },
       })}
+      {destinations.length > 0 && (
+        <div hidden className={styles.collapsedDestinations}>
+          {destinations
+            .filter((item) => !panels.some((panel) => panel.items.includes(item)))
+            .map((item, index) => (
+              <MenuItemTarget
+                key={index}
+                item={item}
+                aria-label={item.label}
+                tabIndex={-1}
+                onNavigate={() => close()}
+              />
+            ))}
+        </div>
+      )}
       {layout &&
         createPortal(
           <ThemeScope>

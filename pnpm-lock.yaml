@@ -124,6 +124,9 @@ importers:
       '@xprite/site-assets':
         specifier: workspace:*
         version: link:../growth/public
+      '@xprite/site-shell':
+        specifier: workspace:*
+        version: link:../../packages/site-shell
       '@xprite/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -133,9 +136,6 @@ importers:
       fflate:
         specifier: ^0.8.3
         version: 0.8.3
-      posthog-js:
-        specifier: ^1.435.6
-        version: 1.435.6(@types/react@18.3.31)(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -328,6 +328,9 @@ importers:
       '@xprite/ui':
         specifier: workspace:*
         version: link:../ui
+      posthog-js:
+        specifier: ^1.435.6
+        version: 1.435.6(@types/react@18.3.31)(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1

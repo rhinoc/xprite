@@ -20,7 +20,7 @@ function scrub(text: string, documentNames: readonly string[]): string {
     .replace(/\b[A-Z]:\\[^\s]+|\/(?:Users|home)\/[^\s]+/g, "[local path]");
 }
 
-/** Structured diagnostic details can contain source files and artwork; none are forwarded. */
+/** Scrub exception text independently from the allowlisted diagnostic metadata. */
 export function telemetryException(
   record: DiagnosticRecord,
   documentNames: readonly string[],

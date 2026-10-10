@@ -66,7 +66,7 @@ cancellation. No separate event name is created for each operation phase.
 `editor_startup` is deduplicated across React effect replay. A stalled event is an
 observation, not a terminal failure: the same visit can subsequently become ready.
 Failures before the main JavaScript module or optional SDK starts remain outside
-this event stream. Common properties include `telemetry_schema_version: 2`, secure
+this event stream. Common properties include `telemetry_schema_version: 3`, secure
 context and availability of structuredClone, IndexedDB and the native save picker.
 
 Checkpoint durations are cumulative within `visit_id`; use the latest checkpoint,
@@ -134,7 +134,14 @@ removal of raw URL query/hash parameters.
 Only the fixed comparison attribution above is accepted from a URL. The SDK's
 automatic campaign/referrer persistence is disabled; outgoing standard UTM,
 click identifiers and search keywords are removed, including initial/session fields.
-Exceptions include a sanitized message/stack and error source. The official SDK
+Exceptions include a sanitized message/stack and error source, with allowlisted
+`pwa_*` and `file_write_*` exception properties: operation
+stage, bounded timings/retry count, worker states/version, browser availability,
+whether the registration function appears native, and write permission/activation.
+Worker URLs, file names and arbitrary diagnostic details stay local. A status
+query retries once on timeout while its activated worker and session remain current;
+returning to a failed offline session can trigger a fresh status query.
+The official SDK
 parses stack frames and attaches CLI-injected chunk/release IDs. Key actions are
 added to the SDK's bounded `$exception_steps` buffer for diagnostic context, and
 sanitized exceptions also produce structured error logs. Console contents,
@@ -155,6 +162,9 @@ apply to this explicit submission; only the user retries it. Local development
 and Do Not Track still disable sending. No Surveys configuration is required.
 Filter the PostHog event list on `feedback_submitted` to read the submitted fields.
 
+The shared adapter, public-page/tool event boundaries and internal-traffic query
+policy are documented in the [website telemetry contract](../../../../../packages/site-shell/src/telemetry/README.md).
+
 ## Configuration and deployment
 
 1. Use a PostHog free account without adding a payment method. Choose an existing
@@ -168,7 +178,7 @@ Filter the PostHog event list on `feedback_submitted` to read the submitted fiel
    The SDK uses `https://us.i.posthog.com` or `https://eu.i.posthog.com` for
    ingestion. Local development never reports.
 4. Deploy the static editor output to EdgeOne Makers. From repository root, use
-   build command `pnpm run build:editor` and output directory `apps/editor/dist`.
+   build command `pnpm run build:site` and output directory `.tmp/site`.
    Analytics requires no edge functions or hosting runtime variables. Inject
    the public build variables in the actual build environment: EdgeOne for Git
    integration, or GitHub Actions for CLI uploads. The ignored local env file
@@ -192,7 +202,7 @@ Filter the PostHog event list on `feedback_submitted` to read the submitted fiel
    verification, then verify an untagged return visit has no compare fields.
    Check the viewer's Continue editing path as well. Invalid source, medium or
    campaign values and unrelated query/hash values must not appear in events.
-8. After deployment, filter on `telemetry_schema_version: 2` and verify incomplete
+8. After deployment, filter on `telemetry_schema_version: 3` and verify incomplete
    startup stages, a hidden-page checkpoint, New/file-picker cancellation, manual
    browser/file-system saves and export failure. Join save/export requested and
    results within `editor_operation` by both `visit_id` and `operation_id`, filtering

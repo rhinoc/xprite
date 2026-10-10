@@ -6,10 +6,19 @@ import { transform } from "lightningcss";
 import { Marked, Renderer } from "marked";
 import type { Tokens } from "marked";
 
-import { publicDesktopStartupScript } from "../../../infra/public-desktop-startup.ts";
-import { siteIcons } from "../../../infra/site-html.ts";
-import { ARTICLE_COLLECTIONS, ARTICLES, type PublicArticle } from "../content/articles/index.ts";
-import { SHOWCASE_PAGES } from "../src/managers/showcase/showcase-pages.ts";
+import { publicDesktopStartupScript } from "../../../../infra/public-desktop-startup.ts";
+import { siteIcons } from "../../../../infra/site-html.ts";
+import { ARTICLE_DIAGRAM_LANGUAGE, parseArticleDiagram } from "../../content/articles/diagram.ts";
+import {
+  ARTICLE_COLLECTIONS,
+  ARTICLES,
+  localizedArticle,
+  localizedCollection,
+  type PublicArticle,
+} from "../../content/articles/index.ts";
+import { SHOWCASE_PAGES } from "../../content/showcase/pages.ts";
+import { articleLanguage, localizedSiteHref, PublicLanguage } from "../../content/site/language.ts";
+import { showcaseLabel } from "../../content/site/navigation.ts";
 import {
   PUBLIC_THEME_ATTRIBUTES,
   PUBLIC_THEME_STYLE_PATH,
@@ -24,14 +33,17 @@ import {
   publicIndex,
   publicRichText,
   publicUiScope,
+  publicSiteFooter,
   publicStatus,
-} from "./public-theme.ts";
-import { siteNavigationHref } from "./site-navigation.ts";
+} from "../public-theme.ts";
+import { siteNavigationHref } from "../site-navigation.ts";
+import { renderPublicUi } from "../static-ui-renderer.ts";
+import { GUIDE_STYLE_PATH, CHINESE_FONT_PATH } from "./document-resources.ts";
 
 const SITE_URL = "https://xprite.cc/";
 const SOCIAL_IMAGE_URL = new URL("social-preview.png", SITE_URL).href;
-const GUIDE_STYLE_PATH = "/help/guide.css";
-const CONTENT_LANGUAGE = "en";
+const pageText = (language: PublicLanguage, english: string, chinese: string) =>
+  language === PublicLanguage.SimplifiedChinese ? chinese : english;
 const ARTICLE_HEADING_DEPTH = 1;
 const CONTENTS_HEADING_DEPTH = 2;
 const HTML_ENTITIES: Readonly<Record<string, string>> = {
@@ -42,7 +54,12 @@ const HTML_ENTITIES: Readonly<Record<string, string>> = {
   "'": "&#39;",
 };
 
-export const ARTICLE_CONTENT_ROOT = resolve(fileURLToPath(new URL("../content/", import.meta.url)));
+export const ARTICLE_CONTENT_ROOT = resolve(
+  fileURLToPath(new URL("../../content/", import.meta.url)),
+);
+export const ARTICLE_STYLE_SOURCE = fileURLToPath(
+  new URL("../../src/components/articles/article.module.css", import.meta.url),
+);
 export const ARTICLE_STYLE_PATH = "/compare/site.css";
 
 enum ArticleCollection {
@@ -61,10 +78,8 @@ const jsonForHtml = (value: unknown) => JSON.stringify(value).replace(/</g, "\\u
 
 function articleStyles() {
   const result = transform({
-    filename: resolve(ARTICLE_CONTENT_ROOT, "compare/site.module.css"),
-    code: Buffer.from(
-      readFileSync(resolve(ARTICLE_CONTENT_ROOT, "compare/site.module.css"), "utf8"),
-    ),
+    filename: ARTICLE_STYLE_SOURCE,
+    code: Buffer.from(readFileSync(ARTICLE_STYLE_SOURCE, "utf8")),
     cssModules: { pattern: "compare_[local]" },
     minify: true,
   });
@@ -89,28 +104,35 @@ function editorUrl(article?: PublicArticle): string {
   return `${url.pathname}${url.search}${url.hash}`;
 }
 
-function articleList(articles: readonly PublicArticle[], classes: Record<string, string>) {
+function articleList(
+  articles: readonly (PublicArticle & { language: PublicLanguage })[],
+  classes: Record<string, string>,
+) {
   return `<div class="${classes.documents}">${articles
-    .map((article) => publicIconLink(article.title.split(":")[0], article.path, "document"))
+    .map((article) =>
+      publicIconLink(article.shortTitle[article.language], article.path, "document"),
+    )
     .join("\n")}</div>`;
 }
 
-function libraryFolders(): string {
+function libraryFolders(language: PublicLanguage): string {
+  const text = (en: string, zh: string) => pageText(language, en, zh);
+  const href = (path: string) => localizedSiteHref(path, language);
   return publicDesktopWindow(
     "Xprite",
     `<div data-public-folder-items>${
-      publicIconLink("Applications", "/tools/") +
-      publicIconLink("File guides", "/learn/") +
-      publicIconLink("Comparisons", "/compare/") +
-      publicIconLink("User guide", "/help/en/", "document")
+      publicIconLink(text("Applications", "应用程序"), href("/tools/")) +
+      publicIconLink(text("File guides", "文件导出指南"), href("/learn/")) +
+      publicIconLink(text("Comparisons", "编辑器比较"), href("/compare/")) +
+      publicIconLink(text("User guide", "使用指南"), href("/help/en/"), "document")
     }</div>`,
     "data-public-folders",
-    "4 items",
+    text("4 items", "4 项"),
   );
 }
 
 function breadcrumbData(
-  collection: (typeof ARTICLE_COLLECTIONS)[ArticleCollection],
+  collection: ReturnType<typeof localizedCollection>,
   article?: PublicArticle,
 ) {
   return {
@@ -139,7 +161,9 @@ function breadcrumbData(
 }
 
 function articlePageHtml(
-  page: Pick<PublicArticle, "title" | "description" | "path" | "collection">,
+  page: Pick<PublicArticle, "title" | "description" | "path" | "collection"> & {
+    language: PublicLanguage;
+  },
   indexable: boolean,
   body: string,
   classes: Record<string, string>,
@@ -147,7 +171,11 @@ function articlePageHtml(
   headline = page.title,
 ): string {
   const canonical = new URL(page.path, SITE_URL).href;
-  const collection = ARTICLE_COLLECTIONS[page.collection];
+  const language = page.language;
+  const text = (en: string, zh: string) => pageText(language, en, zh);
+  const href = (path: string) => localizedSiteHref(path, language);
+  const collection = localizedCollection(page.collection, language);
+  const articles = ARTICLES.map((item) => localizedArticle(item, language));
   const schema = article
     ? {
         "@context": "https://schema.org",
@@ -157,7 +185,7 @@ function articlePageHtml(
         url: canonical,
         mainEntityOfPage: canonical,
         image: SOCIAL_IMAGE_URL,
-        inLanguage: CONTENT_LANGUAGE,
+        inLanguage: language,
         dateModified: article.dateModified,
         author: { "@type": "Organization", name: "Xprite", url: SITE_URL },
         publisher: { "@type": "Organization", name: "Xprite", url: SITE_URL },
@@ -168,21 +196,30 @@ function articlePageHtml(
         name: page.title,
         description: page.description,
         url: canonical,
-        inLanguage: CONTENT_LANGUAGE,
-        hasPart: ARTICLES.filter((item) => item.collection === page.collection).map((item) => ({
-          "@type": "Article",
-          name: item.title,
-          url: new URL(item.path, SITE_URL).href,
-        })),
+        inLanguage: language,
+        hasPart: articles
+          .filter((item) => item.collection === page.collection)
+          .map((item) => ({
+            "@type": "Article",
+            name: item.title,
+            url: new URL(item.path, SITE_URL).href,
+          })),
       };
   return `<!doctype html>
-<html lang="${CONTENT_LANGUAGE}" ${PUBLIC_THEME_ATTRIBUTES}><head>
+<html lang="${language}" ${PUBLIC_THEME_ATTRIBUTES}><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <script>${publicDesktopStartupScript()}</script>
 <title>${escapeHtml(page.title)}</title>
 <meta name="description" content="${escapeHtml(page.description)}">
 <meta name="robots" content="${indexable ? "index, follow" : "noindex, follow"}">
 ${indexable ? `<link rel="canonical" href="${canonical}">` : ""}
+${Object.values(PublicLanguage)
+  .map(
+    (value) =>
+      `<link rel="alternate" hreflang="${value}" href="${new URL(localizedSiteHref(page.path, value), SITE_URL).href}">`,
+  )
+  .join("\n")}
+<link rel="alternate" hreflang="x-default" href="${new URL(localizedSiteHref(page.path, PublicLanguage.English), SITE_URL).href}">
 <meta property="og:type" content="${article ? "article" : "website"}">
 <meta property="og:site_name" content="Xprite">
 <meta property="og:title" content="${escapeHtml(page.title)}">
@@ -200,6 +237,7 @@ ${article ? `<meta property="article:modified_time" content="${article.dateModif
 <meta name="twitter:image" content="${SOCIAL_IMAGE_URL}">
 ${siteIcons()}
 <link rel="preload" href="${PUBLIC_FONT_PATH}?v=ec44f36e057a" as="font" type="font/woff2" crossorigin>
+${language === PublicLanguage.SimplifiedChinese ? `<link rel="preload" href="${CHINESE_FONT_PATH}" as="font" type="font/woff2" crossorigin>` : ""}
 <link rel="stylesheet" href="${PUBLIC_FONT_STYLE_PATH}">
 <link rel="stylesheet" href="${PUBLIC_THEME_STYLE_PATH}">
 <link rel="stylesheet" href="${GUIDE_STYLE_PATH}">
@@ -208,28 +246,52 @@ ${siteIcons()}
 <script type="application/ld+json">${jsonForHtml(schema)}</script>
 <script type="application/ld+json">${jsonForHtml(breadcrumbData(collection, article))}</script>
 </head><body data-growth-desktop data-ui-desktop-pattern="${publicPattern(page.path)}">
-${publicUiScope(`<a class="${classes.skipLink}" href="#main">Skip to content</a>
+${publicUiScope(
+  `<a class="${classes.skipLink}" href="#main">${text("Skip to content", "跳到正文")}</a>
 <header class="${classes.header}">${publicDesktopNavigation({
-  label: "Website navigation",
-  currentHref: page.path,
-  brandLabel: "Xprite showcase",
-  brandHref: SHOWCASE_PAGES[CONTENT_LANGUAGE].path,
-  brandImage: "/menu-icon.svg",
-  links: [
-    { label: "Tools", href: "/tools/" },
-    { label: "Compare", href: "/compare/" },
-    { label: "Guides", href: "/learn/" },
-    { label: "Editor", href: editorUrl(article) },
-    { label: "User guide", href: "/help/en/", icon: "help", end: true },
-  ],
-})}</header>
-<main id="main" data-public-desktop>${body}<nav data-public-shortcuts aria-label="Desktop shortcuts">${publicIconLink(collection.label, collection.path)}</nav></main>`)}
+    label: text("Website navigation", "网站导航"),
+    language,
+    currentHref: page.path,
+    brandLabel: showcaseLabel(language),
+    brandHref: SHOWCASE_PAGES[language].path,
+    brandImage: "/menu-icon.svg",
+    links: [
+      { label: text("Tools", "工具"), href: href("/tools/") },
+      { label: text("Compare", "编辑器比较"), href: href("/compare/") },
+      { label: text("Guides", "文件导出指南"), href: href("/learn/") },
+      { label: text("Editor", "编辑器"), href: editorUrl(article) },
+      { label: text("User guide", "使用指南"), href: href("/help/en/"), icon: "help", end: true },
+      {
+        label: language === PublicLanguage.English ? "简体中文" : "English",
+        href: localizedSiteHref(
+          page.path,
+          language === PublicLanguage.English
+            ? PublicLanguage.SimplifiedChinese
+            : PublicLanguage.English,
+        ),
+        icon: "language",
+      },
+    ],
+  })}</header>
+<main id="main" data-public-desktop>${body}<nav data-public-shortcuts aria-label="${text("Desktop shortcuts", "桌面快捷入口")}">${publicIconLink(collection.label, collection.path)}</nav></main>${publicSiteFooter(language)}`,
+  language,
+)}
 </body></html>\n`;
 }
 
-function articleContent(article: PublicArticle, classes: Record<string, string>) {
+function articleContent(
+  article: PublicArticle & { language: PublicLanguage },
+  classes: Record<string, string>,
+) {
+  const language = article.language;
+  const text = (en: string, zh: string) => pageText(language, en, zh);
   const markdown = readFileSync(
-    resolve(ARTICLE_CONTENT_ROOT, article.collection, "articles", `${article.slug}.md`),
+    resolve(
+      ARTICLE_CONTENT_ROOT,
+      article.collection,
+      "articles",
+      `${article.slug}${language === PublicLanguage.SimplifiedChinese ? ".zh-CN" : ""}.md`,
+    ),
     "utf8",
   );
   const renderer = new Renderer();
@@ -260,24 +322,29 @@ function articleContent(article: PublicArticle, classes: Record<string, string>)
     return `<h${heading.depth} id="${escapeHtml(ids.get(heading) ?? headingId(heading.text))}">${this.parser.parseInline(heading.tokens)}</h${heading.depth}>\n`;
   };
   renderer.html = ({ text }) => escapeHtml(text);
+  renderer.code = function (code: Tokens.Code) {
+    if (code.lang !== ARTICLE_DIAGRAM_LANGUAGE) return Renderer.prototype.code.call(this, code);
+    const diagram = parseArticleDiagram(code.text);
+    return renderPublicUi("article-diagram", { diagram, language, label: diagram.label });
+  };
   renderer.link = function ({ href, tokens: inlineTokens }: Tokens.Link) {
     if (!/^(?:https?:\/\/|#|\/(?!\/))/i.test(href))
       throw Error(`Unsupported article link in ${article.slug}: ${href}`);
-    return `<a href="${escapeHtml(siteNavigationHref(href))}">${this.parser.parseInline(inlineTokens)}</a>`;
+    return `<a href="${escapeHtml(localizedSiteHref(siteNavigationHref(href), language))}">${this.parser.parseInline(inlineTokens)}</a>`;
   };
   renderer.table = function (table: Tokens.Table) {
-    return `<div class="${classes.tableScroll}" role="region" aria-label="File and editor comparison table" tabindex="0">${Renderer.prototype.table.call(this, table)}</div>`;
+    return `<div class="${classes.tableScroll}" role="region" aria-label="${text("File and editor comparison table", "文件与编辑器比较表")}" tabindex="0">${Renderer.prototype.table.call(this, table)}</div>`;
   };
   parser.setOptions({ renderer });
   const outline = headings.filter((heading) => heading.depth === CONTENTS_HEADING_DEPTH);
   const toc = publicDesktopWindow(
-    "Contents",
+    text("Contents", "目录"),
     publicIndex(
-      "On this page",
+      text("On this page", "本文内容"),
       outline.map((heading) => ({ href: `#${ids.get(heading)!}`, label: heading.text })),
     ),
     "data-public-contents",
-    `${outline.length} sections`,
+    text(`${outline.length} sections`, `${outline.length} 个章节`),
   );
   return {
     heading: parser.parser([title]),
@@ -290,49 +357,51 @@ function articleContent(article: PublicArticle, classes: Record<string, string>)
 /** Only reviewed manifest entries render; research and drafts have no public routes. */
 export function articleHtml(path: string, indexable: boolean): string {
   const { classes } = articleStyles();
-  const collection = Object.values(ARTICLE_COLLECTIONS).find((item) => item.path === path);
+  const language = articleLanguage(path);
+  const text = (en: string, zh: string) => pageText(language, en, zh);
+  const collections = Object.keys(ARTICLE_COLLECTIONS).map((key) =>
+    localizedCollection(key as keyof typeof ARTICLE_COLLECTIONS, language),
+  );
+  const articles = ARTICLES.map((article) => localizedArticle(article, language));
+  const collection = collections.find((item) => item.path === path);
   if (collection) {
+    const documents = articles.filter((item) => item.collection === collection.collection);
     return articlePageHtml(
       collection,
       indexable,
-      `<div data-public-sidebar>${libraryFolders()}</div>${publicDesktopWindow(
+      `<div data-public-sidebar>${libraryFolders(language)}</div>${publicDesktopWindow(
         collection.label,
-        `${publicStatus(`${ARTICLES.filter((item) => item.collection === collection.collection).length} documents`, "Icon view")}${articleList(
-          ARTICLES.filter((item) => item.collection === collection.collection),
-          classes,
-        )}`,
+        articleList(documents, classes),
         `class="${classes.directory}" data-public-document data-public-directory-window`,
-        `<a href="/editor">Open Xprite</a><span>Xprite Library</span>`,
+        `<span>${text(`${documents.length} documents`, `${documents.length} 篇文档`)}</span><a href="/editor">${text("Open Xprite", "打开 Xprite")}</a>`,
         true,
       )}`,
       classes,
     );
   }
-  const article = ARTICLES.find((item) => item.path === path);
+  const article = articles.find((item) => item.path === path);
   if (!article) throw Error(`Unknown article path: ${path}`);
-  const parent = ARTICLE_COLLECTIONS[article.collection];
+  const parent = localizedCollection(article.collection, language);
   const content = articleContent(article, classes);
   const learning = article.collection === ArticleCollection.Learn;
   const callout = learning
     ? {
-        url: "/tools/viewer/",
-        label: "Open free viewer",
+        url: localizedSiteHref("/tools/viewer/", language),
+        label: text("Open viewer", "打开查看器"),
       }
     : {
         url: editorUrl(article),
-        label: "Open Xprite",
+        label: text("Open Xprite", "打开 Xprite"),
       };
+  const relatedDocuments = articles.filter((item) => item.slug !== article.slug);
   return articlePageHtml(
     article,
     indexable,
-    `<div data-public-sidebar>${content.toc}</div><div class="${classes.readingStack}">${publicDesktopWindow(`${article.topic}.txt`, `${publicStatus(parent.label, `${learning ? "Updated" : "Checked"}: ${article.dateModified}`, parent.path)}<div data-public-reader-scroll><article class="${classes.article}">${publicRichText(content.heading + content.html, { "data-public-document-content": true })}</article></div>`, "data-public-document", `<a href="${parent.path}">Back to ${parent.label}</a>${publicDesktopButton(callout.url, callout.label)}`)}${publicDesktopWindow(
-      "Related documents",
-      articleList(
-        ARTICLES.filter((item) => item.slug !== article.slug),
-        classes,
-      ),
+    `<div data-public-sidebar>${content.toc}</div><div class="${classes.readingStack}">${publicDesktopWindow(`${article.topic}.txt`, `${publicStatus(parent.label, `${text("Updated", "更新")}: ${article.dateModified}`, parent.path)}<div data-public-reader-scroll><article class="${classes.article}">${publicRichText(content.heading + content.html, { "data-public-document-content": true })}</article></div>`, "data-public-document", `<a href="${parent.path}">${text(`Back to ${parent.label}`, `返回${parent.label}`)}</a>${publicDesktopButton(callout.url, callout.label)}`)}${publicDesktopWindow(
+      text("Related documents", "相关文档"),
+      articleList(relatedDocuments, classes),
       `class="${classes.related}" data-public-related-window`,
-      "Xprite Library",
+      text(`${relatedDocuments.length} documents`, `${relatedDocuments.length} 篇文档`),
     )}</div>`,
     classes,
     article,

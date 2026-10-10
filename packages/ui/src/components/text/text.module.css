@@ -32,7 +32,7 @@
 }
 
 .cjkRun {
-  font-family: FusionPixelZhHans, monospace;
+  font-family: var(--ui-font-family-cjk);
 }
 
 .reading,

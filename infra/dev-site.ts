@@ -1,5 +1,6 @@
 import type { Plugin, ProxyOptions } from "vite";
 
+import { watchDevelopmentDependencies } from "./dev-dependencies.ts";
 import configuration from "./dev-site.json" with { type: "json" };
 
 export enum DevelopmentApp {
@@ -17,7 +18,7 @@ const TEMPORARY_REDIRECT_STATUS = 307;
 
 // Put shared artwork before the tools runtime: these files belong to growth's public package.
 const GROWTH_ROUTES =
-  "^/(?:__growth(?:/|$)|showcase(?:/|$)|help(?:/|$)|learn(?:/|$)|compare(?:/|$)|theme(?:/|$)|tools/animal-crossing/|(?:menu-icon\\.svg|social-preview\\.png|robots\\.txt|sitemap\\.xml|llms\\.txt|404\\.html)(?:\\?|$))";
+  "^/(?:__growth(?:/|$)|(?:showcase|help|learn|compare|create|resources|design-school|support|legal|how-it-works|features)(?:/|\\?|$)|theme(?:/|$)|fusion-pixel/|tools/animal-crossing/|(?:menu-icon\\.svg|social-preview\\.png|robots\\.txt|sitemap\\.xml|llms\\.txt|404\\.html)(?:\\?|$))";
 const GALLERY_ROUTES = "^/gallery(?:/|\\?|$)";
 const TOOLS_ROUTES = "^/tools(?:/(?!animal-crossing/)|\\?|$)";
 const EDITOR_ROUTES =
@@ -43,10 +44,12 @@ export function developmentSiteProxy(app: DevelopmentApp): Record<string, ProxyO
 
 /** Let the launcher distinguish this workspace's servers from unrelated occupied ports. */
 export function developmentServerIdentity(app: DevelopmentApp, root: string): Plugin {
+  let stopWatchingDependencies: (() => void) | undefined;
   return {
     name: "xprite-development-server-identity",
     apply: "serve",
     configureServer(server) {
+      stopWatchingDependencies = watchDevelopmentDependencies(server, root);
       server.middlewares.use((request, response, next) => {
         const url = new URL(request.url ?? "/", "http://localhost");
         if (
@@ -64,6 +67,9 @@ export function developmentServerIdentity(app: DevelopmentApp, root: string): Pl
         response.setHeader("Cache-Control", "no-store");
         response.end(JSON.stringify({ app, root }));
       });
+    },
+    closeBundle() {
+      stopWatchingDependencies?.();
     },
   };
 }

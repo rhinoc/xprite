@@ -8,6 +8,10 @@
     <meta name="theme-color" content="#c8c9c1" />
     <!-- xprite-site-icons -->
     <title>Xprite UI Gallery</title>
+    <script>
+      document.documentElement.lang =
+        new URLSearchParams(location.search).get("lang") === "zh-CN" ? "zh-CN" : "en";
+    </script>
     <style>
       html,
       body,
@@ -22,10 +26,23 @@
         color: #c0c0c0;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       }
+      #gallery-startup {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        margin: 0;
+        color: #222222;
+      }
     </style>
   </head>
   <body>
     <div id="root"></div>
+    <p id="gallery-startup" role="status" aria-live="polite">Loading components…</p>
+    <script>
+      if (document.documentElement.lang === "zh-CN")
+        document.getElementById("gallery-startup").textContent = "正在加载组件…";
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

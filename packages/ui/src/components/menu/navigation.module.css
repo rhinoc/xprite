@@ -41,6 +41,7 @@
   line-height: var(--ui-menu-navigation-line-height);
   white-space: nowrap;
   text-decoration: none;
+  cursor: var(--ui-cursor-default, default);
 }
 .link:is(:hover, :focus-visible, :active, [aria-current="page"], [data-open="true"]) {
   color: var(--ui-menu-navigation-highlight-ink, var(--xse-selected-text));

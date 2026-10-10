@@ -48,8 +48,9 @@
   --ui-panel-window-footer-font-size: 16px;
   --ui-panel-window-footer-line-height: 18px;
   --ui-panel-window-footer-font: var(--ui-font-family-compact);
-  --ui-font-family: ChiKareGo2, FusionPixelZhHans, monospace;
-  --ui-font-family-compact: FindersKeepers, FusionPixelZhHans, monospace;
+  --ui-font-family: ChiKareGo2, MacintoshCjkPixel, monospace;
+  --ui-font-family-compact: FindersKeepers, MacintoshCjkPixel, monospace;
+  --ui-font-family-cjk: MacintoshCjkPixel, monospace;
   --ui-color-ink: #000000;
   --ui-color-muted-ink: #888888;
   --ui-color-paper: #ffffff;
@@ -256,8 +257,9 @@
   --ui-panel-window-footer-font-size: 16px;
   --ui-panel-window-footer-line-height: 18px;
   --ui-panel-window-footer-font: var(--ui-font-family-compact);
-  --ui-font-family: ChiKareGo2, FusionPixelZhHans, monospace;
-  --ui-font-family-compact: FindersKeepers, FusionPixelZhHans, monospace;
+  --ui-font-family: ChiKareGo2, MacintoshCjkPixel, monospace;
+  --ui-font-family-compact: FindersKeepers, MacintoshCjkPixel, monospace;
+  --ui-font-family-cjk: MacintoshCjkPixel, monospace;
   --ui-color-ink: #ffffff;
   --ui-color-muted-ink: #aaaaaa;
   --ui-color-paper: #000000;

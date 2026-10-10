@@ -284,6 +284,8 @@ export async function mountScene(
   let devices: ReturnType<typeof createDeviceDisplays> | undefined;
   let selectedDevice = ShowcaseDevice.Computer;
   const motion = new ShowcaseMotion();
+  // The static poster already shows the resting overview; continue from the same pose.
+  motion.finishEntrance();
   const motionPreference = window.matchMedia(REDUCED_MOTION_QUERY);
   let previousFrame = performance.now();
   const loader = new GLTFLoader();

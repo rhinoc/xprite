@@ -1,3 +1,4 @@
+import { themeFontFamily } from "$/base/theme/font-families";
 import { themeGlyphAssets } from "$/base/theme/theme-assets";
 import { useTheme } from "$/base/theme/theme-context";
 import { cn } from "$/base/utils/cn";
@@ -74,7 +75,7 @@ export function PositionedPixelText({
             }),
         ...(metrics
           ? {
-              fontFamily: `${metrics.fontFamily}, FusionPixelZhHans, monospace`,
+              fontFamily: themeFontFamily(metrics),
               fontSize: `${(metrics.fontSize * scale) / 2}px`,
               lineHeight: `${(metrics.lineHeight * scale) / 2}px`,
             }

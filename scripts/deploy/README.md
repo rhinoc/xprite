@@ -50,6 +50,14 @@ deployed production revision.
 
 ## Search indexing and sharing
 
+Canonical page metadata is registered in `apps/growth/content/site/pages.ts`.
+Assembly and deployment preparation derive required page files, canonical redirects
+and exact rewrites from that registry. Titles reserved for future content have
+working bilingual routes but remain `noindex, follow` and absent from the sitemap.
+The root path continues to open the editor; the website Home link opens Showcase.
+Use the root package scripts for assembly and deployment. They enable Node 24's
+TypeScript transformation for the shared source registry and its enums.
+
 The showcase has separate `/showcase/en/` and `/showcase/zh-CN/` static entry
 pages. Both are required by assembly and deployment validation. Growth generates
 localized titles, descriptions, Open Graph metadata, self canonical links, and

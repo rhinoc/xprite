@@ -1,4 +1,5 @@
 import { defaultUiTheme } from "$/base/theme/default-theme";
+import { themeCjkFontFamily } from "$/base/theme/font-families";
 import { themeGlyphAssets } from "$/base/theme/theme-assets";
 import type { UiTheme, UiThemeTokens } from "$/base/theme/theme-definition";
 import { loadThemeModule } from "$/base/theme/theme-module-loader";
@@ -39,8 +40,9 @@ function themeCache(uiTheme: UiTheme) {
   return cache;
 }
 const softwareSources = new Map<string, Promise<HTMLCanvasElement>>();
-let fusionPixelFontPromise: Promise<boolean> | undefined;
-const FUSION_PIXEL_FONT_LOAD_SAMPLE = "10px FusionPixelZhHans";
+const cjkFontPromises = new Map<string, Promise<boolean>>();
+const CJK_FONT_LOAD_SIZE = 10;
+const CJK_LANGUAGE_PATTERN = /^(?:zh|ja|ko)(?:-|$)/i;
 
 export function subscribeThemeAssets(
   variant: UiAppearance,
@@ -61,18 +63,20 @@ export function subscribeThemeAssets(
   };
 }
 
-function loadFusionPixelFont() {
-  if (fusionPixelFontPromise) return fusionPixelFontPromise;
-  fusionPixelFontPromise = (async () => {
+function loadCjkFont(family: string) {
+  const existing = cjkFontPromises.get(family);
+  if (existing) return existing;
+  const pending = (async () => {
     if (typeof document === "undefined" || !document.fonts) return false;
     try {
-      const faces = await document.fonts.load(FUSION_PIXEL_FONT_LOAD_SAMPLE, "中");
-      return faces.some((face) => face.family === "FusionPixelZhHans" && face.status === "loaded");
+      const faces = await document.fonts.load(`${CJK_FONT_LOAD_SIZE}px ${family}`, "中");
+      return faces.some((face) => face.family === family && face.status === "loaded");
     } catch {
       return false;
     }
   })();
-  return fusionPixelFontPromise;
+  cjkFontPromises.set(family, pending);
+  return pending;
 }
 
 function loadImage(url: string) {
@@ -120,13 +124,30 @@ export function preloadThemeAssets(
 ) {
   const { promises: assetsPromises, assets: cachedAssets } = themeCache(uiTheme);
   const existing = assetsPromises.get(variant);
-  if (existing) return existing;
+  if (existing) {
+    return existing.then(async (assets) => {
+      const current = cachedAssets.get(variant) ?? assets;
+      if (current.cjkFontReady || !CJK_LANGUAGE_PATTERN.test(language)) return current;
+      const cjkFontReady = await loadCjkFont(themeCjkFontFamily(current.theme.typography?.default));
+      const latest = cachedAssets.get(variant) ?? current;
+      if (latest.cjkFontReady || !cjkFontReady) return latest;
+      const ready = { ...latest, cjkFontReady };
+      cachedAssets.set(variant, ready);
+      for (const listener of themeCache(uiTheme).listeners.get(variant) ?? []) listener();
+      return ready;
+    });
+  }
   const promise = loadThemeModule(variant, uiTheme).then(async (module) => {
+    // Bitmap text and editor rasterization need the fallback ready synchronously.
+    // Native-font skins can let actual CJK text request it, without blocking English startup.
+    const needsCjkFont = !module.definition.typography || CJK_LANGUAGE_PATTERN.test(language);
     const [sheet, defaultFont, miniFont, cjkFontReady] = await Promise.all([
       loadImage(module.sheetUrl),
       loadImage(defaultFontUrl),
       loadImage(miniFontUrl),
-      loadFusionPixelFont(),
+      needsCjkFont
+        ? loadCjkFont(themeCjkFontFamily(module.definition.typography?.default))
+        : Promise.resolve(false),
       loadThemeFonts(module.definition.typography),
     ]);
     const assets: UiAssetBundle = {

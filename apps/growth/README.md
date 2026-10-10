@@ -48,14 +48,16 @@ A wheel burst over the device stage advances one device in its dominant horizont
 
 ## Help and SEO
 
-Maintain both guide languages and their screenshot records together under `content/help/`. The `build/public-pages.ts` plugin renders static pages from this same source, checks section links and image catalog entries, and serves exact public routes. `build/seo.ts` owns search metadata. `build/public-routing.ts` provides the deployed public-path guard.
+Maintain both guide languages and their screenshot records together under `content/help/`. The `build/public-pages.ts` plugin assembles static pages and serves exact public routes. Page renderers in `build/pages/` read the formal content and check guide section links and image catalog entries. `build/seo/` owns search metadata and discovery files; `build/routing/` owns deployed serving rules and the public-path guard.
+
+`content/site/pages.ts` registers canonical public pages from each content scope. The registry supplies sitemap entries, redirects, deployment rewrites and required output files. New design scenes, resources, design-school, support, product and legal pages currently render only their localized title. They remain `noindex, follow` and are excluded from the sitemap until their content is published. The editor remains at `/`; the website Home link points to the localized Showcase.
 
 The public-page resource map serves `/theme/fonts.css`, `/theme/chikarego2.woff2` and `/theme/finderskeepers.woff2` directly from `packages/ui/assets/fonts/macintosh/`. Marketing pages, guides, articles and the 404 page share these Macintosh fonts; Fusion Pixel remains the CJK fallback. Fonts are copied only into build output, and their originals stay with the UI package. Latin display sizes follow the fonts’ 16px grid. This typography change does not change user operations, so the guide content requires no additional instructions.
 
 ## Compare
 
 The English selection column at `/compare/` is static HTML with no application
-runtime. Its manifest and renderer live in `content/articles/index.ts` and `build/article-pages.ts`; Markdown
+runtime. Its manifest and renderer live in `content/articles/index.ts` and `build/pages/article-pages.ts`; Markdown
 articles and source dossiers live in `content/compare/`. Only manifest articles
 are published. Research and reserve drafts stay out of the output and sitemap.
 See [the editorial workflow](content/compare/README.md) for verification rules,
@@ -114,13 +116,18 @@ Growth retains port 5175. Its development modules and hot-update connection use
 
 Non-editor pages use `@xprite/site-shell`. The rainbow menu opens desktop appearance,
 page language and background choices. The right-hand application name opens
-Tools, Guides and Compare submenus, alongside editor and showcase links.
+design scenes, resources, tools, tutorials and help, product, and legal submenus, alongside editor and Home links.
 Current-page commands sit between the system menu and application switcher.
-The data-only navigation registry and article catalog live in `content/navigation/`
+The data-only navigation registry and article catalog live in `content/site/navigation.ts`
 and `content/articles/`; editor code consumes only guide/tool data. Desktop
 preferences use a separate origin-scoped browser record and do not write editor
 preferences. Both user-guide languages describe these entry points. Existing guide
 screenshots show editor controls, which this menu change does not move.
+
+The menu and shared footer use the same navigation hierarchy. `@xprite/site-shell`
+receives the groups as data, keeping the shell independent of growth. Public pages
+and tools render footer columns on wide screens and native disclosures on narrow
+screens. Articles share presentation components and styles in `src/components/articles/`.
 
 The desktop pattern menu now uses the curated original System 7/7.5/Mac OS 8
 collection in the UI asset package. Two-color masks can use a separately saved
