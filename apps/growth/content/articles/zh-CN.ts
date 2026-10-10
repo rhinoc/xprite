@@ -33,10 +33,11 @@ export const CHINESE_ARTICLES = {
     topic: "iPad 与触控",
   },
   "piskel-alternatives": {
-    title: "Piskel 替代工具",
+    title: "Piskel 替代工具：3 款像素动画编辑器对比 | Xprite",
     description:
-      "比较浏览器像素画、精灵动画、离线创作和 Aseprite 文件工作流程，按实际任务选择 Piskel 的替代工具。",
-    summary: "根据文件、动画和浏览器或桌面使用需求，选择下一款编辑器。",
+      "Piskel 适合画小型精灵动画。要继续编辑 .piskel、在浏览器里改 .aseprite、用笔和手指画，或者把作品发到社区，本文对比 Pixelorama、Xprite 和 Pixilart，并说明怎样把 Piskel 作品搬到 Xprite。",
+    summary:
+      "Pixelorama 能直接打开 .piskel；Xprite 适合编辑 .aseprite 和触控绘画；Pixilart 适合分享作品。",
     topic: "编辑器替代工具",
   },
   "aseprite-to-gif": {

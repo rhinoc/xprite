@@ -1,56 +1,75 @@
-# Piskel 替代工具
+---
+updated: 2026-10-10
+---
 
-Piskel 适合在浏览器中制作小型动画精灵，并导出 GIF 和精灵表。当某项任务变得不便，例如组织动画片段、在其他应用中继续编辑图层工程、用手写笔和手指绘画，或在创作社区分享作品时，可以考虑其他工具。
+# Piskel 替代工具：3 款像素动画编辑器对比
 
-已有 `.piskel` 工程时，可以先了解 Pixelorama。需要浏览器编辑、Aseprite 文件和触控操作时，可以尝试 Xprite。希望把绘画与社区参与结合时，可以了解 Pixilart。
+[Piskel](https://www.piskelapp.com/) 是免费开源的浏览器精灵编辑器，画小型循环动画、导出 GIF 和精灵表都很顺手。项目变大以后，常见的需求是整理多段动画、和用 Aseprite 的人交换工程、在平板上用笔画，或者把作品发到社区。按需求选工具：
 
-## 工具比较
+- 已经有一批 `.piskel` 工程，想继续编辑：用 Pixelorama，它能直接打开 `.piskel`。
+- 要在浏览器里编辑 `.aseprite`，或者在 iPad 上用笔和手指画：用 Xprite。
+- 想边画边发作品、参加社区活动：用 Pixilart。
 
-| 下一步任务 | 可考虑的工具 | 原因 | 更换前需要检查 |
-| --- | --- | --- | --- |
-| 制作小型循环精灵并快速导出 | 继续使用 Piskel | 实时预览、图层、洋葱皮、GIF 和 PNG 精灵表 | 除导出图片外，也保存可编辑的 `.piskel` 副本 |
-| 继续编辑 Piskel 工程，并更好地组织动画 | Pixelorama | 文档列出 `.piskel` 导入、帧标签、洋葱皮和音频图层 | 用自己的文件检查图层、帧顺序和时长 |
-| 在浏览器中编辑并交换 Aseprite 工程 | Xprite | `.ase`、`.aseprite` 读写以及图层、帧时间轴 | 通过 GIF 或 PNG 转移 Piskel 作品，按需重建图层 |
-| 手写笔绘画，同时用手指导航 | Xprite | 分离手写笔绘画与手指平移，手势可设置 | 在实际设备上检查选区和时间轴操作 |
-| 发布作品并参加绘画挑战 | Pixilart | 编辑器与画廊、挑战和教程相结合 | 保留 `.pixil` 工程；可编辑云端同步是付费 PRO 功能 |
+|  | Piskel | Xprite | Pixelorama | Pixilart |
+| --- | --- | --- | --- | --- |
+| 价格 | 🆓 免费，有广告 | 🆓 免费 | 🆓 免费，Steam 版 💰 | 🆓 免费，PRO 💰 |
+| 打开 `.piskel` | ✅ 原生格式 | ❌ 需转成 GIF 或精灵表 | ✅ 支持 | — |
+| `.aseprite` 工程 | ❌ 不支持 | ✅ 打开和保存 | ✅ 导入，v1.2.2 起可导出 | — |
+| 动画 | ✅ 图层、洋葱皮 | ✅ 标签、帧时长、洋葱皮 | ✅ 标签、音频图层 | ✅ 每帧时长、洋葱皮 |
+| 触控 | — | ✅ 手指和笔分工 | ⚠️ Android 版实验中 | ✅ 有手机 App |
+| 离线与桌面版 | ⚠️ 桌面版维护有限 | ⚠️ 先联网打开一次 | ✅ 免费桌面版 | — |
 
-## 适合继续使用 Piskel 的情况
+## 继续用 Piskel 的情况
 
-制作短步行动画、图标动画或课堂练习时，Piskel 已提供主要功能，包括复制帧、图层和洋葱皮，预览可以调整播放速度。保存面板支持下载 `.piskel` 工程及浏览器本地副本；后者只能从相应浏览器访问，需要便携备份时请保存工程文件。
+画短的走路动画、图标动画，或者课堂练习，Piskel 已经够用：图层、洋葱皮、实时预览都有，预览可以随时调播放速度。导出支持 GIF、PNG 精灵表和 ZIP。
 
-Piskel 也提供 Windows、macOS 和 Linux 离线下载。下载页说明这些版本按尽力而为原则发布，质量验证有限，应检查是否适合当前系统。Piskel for Kids 提供无广告、无社交功能的教学编辑器。
+Piskel 也提供 Windows、macOS 和 Linux 离线版，不过[官方](https://www.piskelapp.com/download)只做有限测试，更新也没有固定时间，推荐优先用网页版。面向孩子和老师的 [Piskel for Kids](https://www.piskelapp.com/faq) 没有广告，也没有画廊等社交功能。
 
-## Pixelorama：导入 Piskel 工程
+## Pixelorama：直接打开 `.piskel`
 
-Pixelorama 的导入文档列出了 `.piskel`，需要迁移可编辑工程时可以先检查它。继续创作前，先用副本比较图层、帧数和播放效果。
+[Pixelorama](https://pixelorama.org/user_manual/Import) 可以导入 `.piskel`，也能导入 `.aseprite`、PSD 和 Krita 文件，是迁移旧工程最直接的选择。
 
-Pixelorama 提供帧标签、音频图层和非破坏性效果，适合一个工程包含多段动画，或需要与声音对齐的情况。它有免费的桌面和 Web 版本，付费 Steam 版提供相同绘画功能及 Steam 平台便利。持续创作使用 `.pxo`，向他人或游戏引擎交付时另行导出图片。v1.2.2 也增加了 Aseprite 导出，使用交接流程前应检查输出文件。
+- **动画**：帧标签可以在一个工程里分开多段动画，音频图层可以把动画和声音对齐。
+- **平台**：Windows、macOS、Linux 桌面版和网页版免费；[Steam 版](https://pixelorama.org/user_manual/installation)付费，功能相同，多了自动更新等 Steam 功能。Android 版还在实验阶段。
+- **文件**：工程保存为 `.pxo`。从 [v1.2.2](https://github.com/Orama-Interactive/Pixelorama/releases/tag/v1.2.2) 起也能导出 `.aseprite`。
 
-## Xprite：浏览器编辑与触控
+## Xprite：在浏览器里编辑 Aseprite 工程
 
-需要交换 Aseprite 工程，或同时用手写笔和手指操作时，可以尝试 Xprite。其时间轴支持图层、帧时长和动画标签，PNG 精灵表和 GIF 动画导入可用于把已渲染的 Piskel 作品带入新工程。
+Xprite 按原格式读写 `.aseprite`，图层、标签和帧时长都会保留，适合和用 Aseprite 的人来回交换文件。
 
-Xprite 指南介绍了双指平移与捏合缩放、手势撤销重做，以及手写笔绘画配合手指平移。浏览器副本留在当前设备和浏览器中；**文件 → 另存为 → 资源管理器**可保存便携文件。离线编辑前应在联网时准备好离线资源。经常操作小选区或大量帧时，建议在实际设备上体验这些控件。
+- **触控**：用笔以后，笔负责画，手指负责平移；双指轻点撤销，三指轻点重做。手势可以在「编辑」→「首选项」→「触摸」里调整。
+- **保存**：「文件」→「另存为」可以存到「浏览器」或「资源管理器」。存在浏览器里的工程只能在同一台设备的同一个浏览器里打开，要带走的文件存到「资源管理器」。
+- **离线**：先联网打开一次编辑器，之后可以离线使用。
 
-## Pixilart：绘画与社区
+Xprite 不能直接打开 `.piskel`，迁移方法见下文。
 
-Pixilart 把绘画编辑器与画廊、挑战和教程结合，动画控件包括单帧速度和洋葱皮。请在发布图片的同时保留可编辑的 `.pixil` 文件。
+## Pixilart：画完直接发到社区
 
-可编辑 `.pixil` 的云端存储及桌面与移动设备同步需要 PRO，PRO 也提供无广告体验。发布图片时，另存工程副本供后续编辑。Pixilart 的画廊、挑战和教程适合希望分享作品并向其他创作者学习的人。
+[Pixilart](https://www.pixilart.com/features) 把编辑器和作品社区放在一起，网页和手机 App 都能画。动画可以给每一帧单独设时长，也有洋葱皮。画布边长不超过 700 像素。
 
-## 迁移作品时保留原文件
+免费版可以正常使用。[PRO](https://www.pixilart.com/subscribe) 每月 4.99 美元，去掉广告，并在电脑和手机之间同步可编辑的 `.pixil` 文件。
 
-迁移前保存 `.piskel` 工程并导出参考动画。用于 Xprite 时，可用 GIF 转移渲染帧；需要控制切帧方式时，可以使用 PNG 精灵表。普通精灵表不包含播放时长，应另行记录帧尺寸、顺序和间隔。
+## 把 Piskel 作品搬到 Xprite
 
-两种方式都转移渲染后的像素，无法重建 Piskel 的独立图层、图层名称或可编辑工程设置。与 RGBA PNG 相比，GIF 还会限制颜色和透明度。需要重建图层结构时，可单独导出各图层图片。新工程保存并成功重新打开前，请保留原文件。
+Xprite 读不了 `.piskel`，可以先在 Piskel 里导出成图片：
 
-[打开 Xprite 并尝试一个精灵副本](/?utm_source=compare&utm_medium=referral&utm_campaign=piskel-alternatives)。先导入一小段动画，检查帧，做一次修改并保存便携工程，再迁移更多作品。
+1. **保存原工程**：在 Piskel 里下载一份 `.piskel` 文件留底。
+2. **导出动画**：导出 GIF；需要自己控制切帧时，导出 PNG 精灵表。
+3. **打开 GIF**：在 Xprite 里用「文件」→「打开...」打开 GIF，每一帧和帧时长都会读进来。
+4. **导入精灵表**：用 PNG 精灵表时，改用「文件」→「导入精灵表」，在画布上框出一帧的边界来切分。精灵表不带帧时长，导入后在时间轴上重新设置。
 
-## 资料来源
+GIF 和精灵表都只带合成后的像素，Piskel 里的分层、图层名不会保留。需要分层时，在 Piskel 里逐个图层导出，再在 Xprite 里重建。GIF 最多 256 色，半透明像素也会变成不透明，对颜色要求高时用 PNG 精灵表。
 
-产品信息依据官方文档和 Xprite 编辑器控件，于 **2026 年 10 月 4 日**核对。文件保留程度和设备操作体验尚未独立测试。
+## 常见问题
 
-- [Piskel 简介](https://www.piskelapp.com/)、[编辑器保存与导入面板](https://www.piskelapp.com/p/create/sprite/)、[常见问题](https://www.piskelapp.com/faq/)、[离线下载](https://www.piskelapp.com/download/)。
-- [Pixelorama 简介](https://pixelorama.org/)、[导入格式](https://pixelorama.org/user_manual/Import)、[安装](https://pixelorama.org/user_manual/installation)、[常见问题](https://pixelorama.org/faq)、[保存与导出](https://pixelorama.org/user_manual/save_and_export)、[v1.2.2 Aseprite 导出](https://github.com/Orama-Interactive/Pixelorama/releases/tag/v1.2.2)。
-- [Pixilart 功能](https://www.pixilart.com/features)、[帮助与工程文件](https://www.pixilart.com/help)、[社区](https://www.pixilart.com/)、[PRO 云端存储](https://www.pixilart.com/subscribe)。
-- [Xprite 使用指南](/help/zh-CN/)。文件格式和时间轴相关内容也参考了当前编辑器代码。
+### Piskel 能打开 `.aseprite` 吗？
+
+不能。Piskel 只导入 `.piskel`、GIF 和 PNG。
+
+### 哪个工具最接近 Piskel？
+
+Pixelorama。同样免费开源，也能直接打开 `.piskel`。
+
+---
+
+想在浏览器里试试，可以[打开 Xprite](/?utm_source=compare&utm_medium=referral&utm_campaign=piskel-alternatives) 导入一段 GIF。要和 Aseprite 工程打交道，可以看[在线编辑 Aseprite](/compare/zh-CN/aseprite-online/)。
