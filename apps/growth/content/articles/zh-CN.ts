@@ -47,9 +47,10 @@ export const CHINESE_ARTICLES = {
     topic: "动画导出",
   },
   "aseprite-to-png": {
-    title: "Aseprite 转 PNG",
-    description: "在线将 Aseprite 单帧导出为透明 PNG，选择帧和可见图层，保留原始尺寸并下载到本地。",
-    summary: "选择帧和可见图层，下载保留工程原始尺寸的透明 PNG。",
+    title: "Aseprite 转 PNG：导出透明背景的单帧图片 | Xprite",
+    description:
+      "用 Xprite 查看器在浏览器里打开 .aseprite，选择帧和可见图层，免费导出透明 PNG，尺寸和画布一致。文件在本地处理，不用安装 Aseprite。",
+    summary: "4 步导出任意一帧为透明 PNG，保留原始尺寸和半透明像素。",
     topic: "透明图片",
   },
 } as const;
