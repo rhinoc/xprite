@@ -1,17 +1,17 @@
 export const CHINESE_COLLECTIONS = {
   learn: {
     label: "文件导出指南",
-    title: "Aseprite 文件指南：导出 PNG 和 GIF | Xprite",
+    title: "Aseprite 转 PNG、GIF：文件导出指南 | Xprite",
     headline: "Aseprite 文件导出指南",
     description:
-      "在浏览器中打开 Aseprite 工程，免费导出 PNG 单帧或 GIF 动画，并检查透明度、播放时长和文件限制。",
+      "在浏览器里打开 Aseprite 工程，免费导出透明 PNG 单帧或 GIF 动画。按步骤说明 Xprite 查看器的操作，以及导出后尺寸、透明度和帧时长的变化。",
   },
   compare: {
     label: "编辑器比较",
     title: "像素画编辑器比较 | Xprite",
     headline: "像素画编辑器比较",
     description:
-      "按动画、文件格式和输入方式，比较浏览器、iPad 上的 Aseprite、Piskel、Xprite 及其他像素画编辑器。",
+      "比较 iPad 上的 Aseprite 替代方案、浏览器里编辑 .aseprite 的工具，以及 Piskel 的替代工具。按文件格式、动画、触控和价格挑选像素画编辑器。",
   },
 } as const;
 
