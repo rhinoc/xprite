@@ -1,15 +1,16 @@
 import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 
 import { Marked, Renderer } from "marked";
 import type { Tokens } from "marked";
 
+import { ARTICLE_DIAGRAM_LANGUAGE, parseArticleDiagram } from "../../content/articles/diagram.ts";
 import { localizedSiteHref, PublicLanguage } from "../../content/site/language.ts";
 import { PLANNED_PAGES, type SitePage } from "../../content/site/pages.ts";
 import { publicDesktopWindow, publicRichText } from "../public-theme.ts";
 import { siteNavigationHref } from "../site-navigation.ts";
-import { publicArticleClasses } from "../static-ui-renderer.ts";
-import { ARTICLE_CONTENT_ROOT } from "./article-source.ts";
+import { publicArticleClasses, renderPublicUi } from "../static-ui-renderer.ts";
+import { ARTICLE_CONTENT_ROOT, markdownImageAsset } from "./article-source.ts";
 import { publicDocumentHtml } from "./document-page.ts";
 
 const ESCAPED: Readonly<Record<string, string>> = { "&": "&amp;", "<": "&lt;", '"': "&quot;" };
@@ -28,15 +29,41 @@ export function plannedPageSource(page: Pick<SitePage, "document" | "language">)
   return existsSync(source) ? readFileSync(source, "utf8") : undefined;
 }
 
+/** Images sit in an images folder beside the page markdown, e.g. content/support/images. */
+function plannedPageImage(page: Pick<SitePage, "document" | "path">, href: string) {
+  if (!page.document) throw Error(`Planned page has no document: ${page.path}`);
+  const directory = dirname(page.document);
+  return markdownImageAsset(directory, directory, href);
+}
+
+/** Copies images used by written planned pages into the public site. */
+export function plannedPageImageResources(): Map<string, string> {
+  const resources = new Map<string, string>();
+  for (const page of PLANNED_PAGES) {
+    const markdown = plannedPageSource(page);
+    if (!markdown) continue;
+    const parser = new Marked({ gfm: true, async: false });
+    parser.walkTokens(parser.lexer(markdown), (token) => {
+      if (token.type !== "image") return;
+      const image = plannedPageImage(page, token.href);
+      resources.set(image.publicPath, image.source);
+    });
+  }
+  return resources;
+}
+
 /** A written page renders its markdown body; links stay in the page language. */
-function plannedPageContent(markdown: string, page: SitePage) {
+export function plannedPageContent(markdown: string, page: SitePage) {
   const language = page.language!;
   const parser = new Marked({ gfm: true, async: false });
   const tokens = parser.lexer(markdown);
   const sections = new Set<string>();
   for (const token of tokens) if (token.type === "heading") sections.add(sectionId(token.text));
   parser.walkTokens(tokens, (token) => {
-    if (token.type === "image") throw Error(`Planned pages do not take images: ${page.path}`);
+    if (token.type === "image") {
+      if (!token.text.trim()) throw Error(`Planned page image needs alt text: ${page.path}`);
+      plannedPageImage(page, token.href);
+    }
     if (token.type !== "link") return;
     if (!/^(?:https?:\/\/|#|\/(?!\/))/i.test(token.href))
       throw Error(`Unsupported link in ${page.path}: ${token.href}`);
@@ -48,6 +75,15 @@ function plannedPageContent(markdown: string, page: SitePage) {
     return `<h${depth} id="${escapeText(sectionId(text))}">${this.parser.parseInline(inline)}</h${depth}>\n`;
   };
   renderer.html = ({ text }) => escapeText(text);
+  renderer.image = ({ href, text: alt }: Tokens.Image) => {
+    const image = plannedPageImage(page, href);
+    return `<img src="${escapeText(image.publicPath)}" alt="${escapeText(alt)}" width="${image.width}" height="${image.height}" loading="lazy" decoding="async">`;
+  };
+  renderer.code = function (code: Tokens.Code) {
+    if (code.lang !== ARTICLE_DIAGRAM_LANGUAGE) return Renderer.prototype.code.call(this, code);
+    const diagram = parseArticleDiagram(code.text);
+    return renderPublicUi("article-diagram", { diagram, language, label: diagram.label });
+  };
   renderer.link = function ({ href, tokens: inline }: Tokens.Link) {
     const target = localizedSiteHref(siteNavigationHref(href), language);
     return `<a href="${escapeText(target)}">${this.parser.parseInline(inline)}</a>`;

@@ -51,26 +51,36 @@ export function readArticleDocument(
 
 function pngSize(bytes: Buffer): { width: number; height: number } {
   if (bytes.length < 24 || bytes.toString("ascii", 1, 4) !== PNG_SIGNATURE)
-    throw new TypeError("Article images must be PNG files.");
+    throw new TypeError("Markdown images must be PNG files.");
   return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) };
 }
 
-/** Resolves a markdown image next to its article and checks the file stays in that folder. */
-export function articleImageAsset(
-  article: Pick<PublicArticle, "collection" | "slug">,
+/** Resolves a markdown image inside a content folder and checks the file stays in that folder. */
+export function markdownImageAsset(
+  directory: string,
+  publicDirectory: string,
   href: string,
 ): ArticleImageAsset {
   if (!ARTICLE_IMAGE_HREF.test(href))
-    throw new TypeError(`Article image path must be images/<name>.png: ${href}`);
-  const articlesDirectory = resolve(ARTICLE_CONTENT_ROOT, article.collection, "articles");
-  const source = resolve(articlesDirectory, href);
-  if (!source.startsWith(`${articlesDirectory}${sep}`))
-    throw new TypeError(`Article image escapes its folder: ${href}`);
+    throw new TypeError(`Markdown image path must be images/<name>.png: ${href}`);
+  const contentDirectory = resolve(ARTICLE_CONTENT_ROOT, directory);
+  const source = resolve(contentDirectory, href);
+  if (!source.startsWith(`${contentDirectory}${sep}`))
+    throw new TypeError(`Markdown image escapes its folder: ${href}`);
   const size = pngSize(readFileSync(source));
   return {
-    publicPath: `/${article.collection}/articles/${href}`,
+    publicPath: `/${publicDirectory}/${href}`,
     source,
     width: size.width,
     height: size.height,
   };
+}
+
+/** Resolves a markdown image next to its article. */
+export function articleImageAsset(
+  article: Pick<PublicArticle, "collection" | "slug">,
+  href: string,
+): ArticleImageAsset {
+  const directory = `${article.collection}/articles`;
+  return markdownImageAsset(directory, directory, href);
 }
