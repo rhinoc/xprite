@@ -55,7 +55,7 @@ export const ARTICLES: readonly PublicArticle[] = [
     slug: "aseprite-on-ipad",
     path: "/compare/aseprite-on-ipad/",
     title: "Aseprite on iPad",
-    shortTitle: { en: "Aseprite on iPad", "zh-CN": "iPad 像素编辑工具" },
+    shortTitle: { en: "Aseprite on iPad", "zh-CN": "iPad 上的 Aseprite" },
     description:
       "Looking for Aseprite on iPad? Compare native pixel art apps and browser editors by Apple Pencil input, animation, and .aseprite project compatibility.",
     summary:

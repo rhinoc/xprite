@@ -24,11 +24,11 @@ export const CHINESE_ARTICLES = {
     topic: "浏览器编辑",
   },
   "aseprite-on-ipad": {
-    title: "2026年最适合在 iPad 上使用的像素化编辑工具",
+    title: "iPad 上的 Aseprite：免费接着画，或买 App | Xprite",
     description:
-      "比较 2026 年适合在 iPad 上使用的 Xprite、Pixquare、Resprite 和 Pixaki Pro，按费用、Apple Pencil 手势、动画、Tilemap 和文件格式选择像素画编辑器。",
+      "Aseprite 官方安装包只有 Windows、macOS 和 Ubuntu，没有 iPad。免费在 Safari 打开图层和动画并存回 .aseprite，用 Xprite。要笔身双击、挤压或 iCloud 同步，再比较 Pixquare、Resprite 和 Pixaki Pro 的买法和转换时会丢掉什么。导入后先用副本看帧时长、标签和瓦片地图是否还在。",
     summary:
-      "免费绘画和离线编辑可选 Xprite；需要 Apple Pencil 笔身快捷操作，可比较 Pixquare、Resprite 和 Pixaki Pro。",
+      "免费在浏览器打开并保存 Aseprite 工程，用 Xprite。要笔身手势和 iCloud，再比较 Pixquare、Resprite 和 Pixaki Pro。",
     topic: "iPad 与触控",
   },
   "piskel-alternatives": {
