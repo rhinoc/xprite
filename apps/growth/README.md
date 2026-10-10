@@ -1,15 +1,16 @@
 # Growth pages
 
-This app owns the public help pages, website SEO, and the device showcase. Its page runtime and Three.js dependency are separate from the editor. The editor reads only Markdown, image catalog data, and image URLs through the private `@xprite/growth-content/help` package in `content/`.
+This app owns the public help pages, the about page (the device showcase), document pages such as the privacy notice, and website SEO. Its page runtime and Three.js dependency are separate from the editor. The editor reads only Markdown, image catalog data, and image URLs through the private `@xprite/growth-content/help` package in `content/`.
 
 ## Development
 
 From the repository root, run `pnpm run dev:growth`, then open:
 
-- `http://localhost:5175/showcase` for the MacBook Pro, iPad, and iPhone showcase.
+- `http://localhost:5175/about/` for the MacBook Pro, iPad, and iPhone showcase (the about page).
 - `http://localhost:5175/compare/` for the selection column and its three initial articles.
-- `http://localhost:5175/help/en/` for the English guide.
-- `http://localhost:5175/help/zh-CN/` for the Chinese guide.
+- `http://localhost:5175/help/` for the English guide.
+- `http://localhost:5175/zh-CN/help/` for the Chinese guide.
+- `http://localhost:5175/privacy/` for the privacy notice rendered from `PRIVACY.md`.
 
 The app uses its own fixed port, 5175. Reuse the running server and HMR after editing. `pnpm run preview:growth` serves an existing growth build on port 4175. Do not run builds or tests during development.
 
@@ -50,7 +51,7 @@ A wheel burst over the device stage advances one device in its dominant horizont
 
 Maintain both guide languages and their screenshot records together under `content/help/`. The `build/public-pages.ts` plugin assembles static pages and serves exact public routes. Page renderers in `build/pages/` read the formal content and check guide section links and image catalog entries. `build/seo/` owns search metadata and discovery files; `build/routing/` owns deployed serving rules and the public-path guard.
 
-`content/site/pages.ts` registers canonical public pages from each content scope. The registry supplies sitemap entries, redirects, deployment rewrites and required output files. New design scenes, resources, design-school, support, product and legal pages currently render only their localized title. They remain `noindex, follow` and are excluded from the sitemap until their content is published. The editor remains at `/`; the website Home link points to the localized Showcase.
+`content/site/pages.ts` registers canonical public pages from each content scope. The registry supplies sitemap entries, redirects, deployment rewrites and required output files. English pages are unprefixed; Chinese pages share the root `/zh-CN/` prefix (`localizedSiteHref` in `content/site/language.ts`), while tools and component docs use `?lang=zh-CN`. `content/site/documents.ts` lists Markdown document pages: the privacy notice (from the repository-root `PRIVACY.md` and `PRIVACY.zh.md`) and the Chinese about articles in `content/about/`. A document publishes only the languages it is written in, so every registered page has content. Register only pages with written content. The editor remains at `/`; the website Home link points to the localized about page.
 
 The public-page resource map serves `/theme/fonts.css`, `/theme/chikarego2.woff2` and `/theme/finderskeepers.woff2` directly from `packages/ui/assets/fonts/macintosh/`. Marketing pages, guides, articles and the 404 page share these Macintosh fonts; Fusion Pixel remains the CJK fallback. Fonts are copied only into build output, and their originals stay with the UI package. Latin display sizes follow the fonts’ 16px grid. This typography change does not change user operations, so the guide content requires no additional instructions.
 

@@ -93,14 +93,15 @@ Use `http://127.0.0.1:5173` on this computer, or `http://<LAN-IP>:5173` from ano
 device on the same subnet. The launcher prints the available IP addresses.
 The editor server proxies the other apps at their public paths:
 
-| Page | Path |
-| --- | --- |
-| Editor | `/` or `/editor` |
-| Showcase | `/showcase/en/` or `/showcase/zh-CN/` |
-| Articles | `/learn/` and `/compare/` |
-| User guide | `/help/en/` or `/help/zh-CN/` |
-| Tools | `/tools/` and its tool routes |
-| Component gallery | `/gallery/`, `/gallery/components/<slug>` and `/gallery/icons` |
+| Page           | Path                                                         |
+| -------------- | ------------------------------------------------------------ |
+| Editor         | `/` or `/editor`                                             |
+| About page     | `/about/` or `/zh-CN/about/`                                 |
+| Articles       | `/learn/` and `/compare/` (Chinese under `/zh-CN/`)          |
+| User guide     | `/help/` or `/zh-CN/help/`                                   |
+| Privacy notice | `/privacy/` or `/zh-CN/privacy/`                             |
+| Tools          | `/tools/` and its tool routes                                |
+| Component docs | `/components/`, `/components/<slug>` and `/components/icons` |
 
 Navigation, assets and hot-update WebSockets use the same requesting origin.
 Only TCP port 5173 needs to be reachable from the other device. HTTP on a LAN IP
@@ -109,7 +110,7 @@ and some clipboard/file APIs still require a secure origin.
 
 Start apps separately with `pnpm run dev:editor`, `pnpm run dev:growth`,
 `pnpm run dev:tools` or `pnpm run dev:gallery`. Their backend ports remain
-5173, 5175, 5176 and 5174 respectively. Gallery uses `/gallery/` on its own
+5173, 5175, 5176 and 5174 respectively. Gallery uses `/components/` on its own
 server too. All servers must be running for cross-app navigation. Proxy rules
 are centralized in `infra/dev-site.ts`, with ports in `infra/dev-site.json`; production builds retain their
 existing paths and separate outputs. An unrelated process on a required port

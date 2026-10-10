@@ -5,10 +5,11 @@ site and its app proxies. `XPRITE_VISUAL_PORT` selects an existing site server.
 The audit does not build apps, start servers, or change screenshot baselines.
 
 All 41 scenes are required. Eight templates cover both viewports and saved Light
-and Dark: editor, Chinese showcase, Chinese help, Learn directory, Chinese article,
-planned page, and both Gallery skins. Editor, Chinese showcase and Macintosh Gallery
-also cover both system appearances at the wide viewport. English showcase, help
-and article have an additional wide Light sample. Tool continuity is observed
+and Dark: editor, Chinese about page (`/zh-CN/about/`), Chinese help, Learn
+directory, Chinese article, Chinese privacy document, and both component-docs
+skins (`/components/`). Editor, Chinese about page and Macintosh component docs
+also cover both system appearances at the wide viewport. English about page,
+help and article have an additional wide Light sample. Tool continuity is observed
 within the existing 32 exact SSG/ready pairs, using the same captures.
 Each scene uses a fresh, isolated localhost origin, disabled network cache, DPR 1,
 and fourfold CPU slowdown. Existing user storage is never cleared or modified.
