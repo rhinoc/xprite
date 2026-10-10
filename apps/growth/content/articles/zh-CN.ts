@@ -1,26 +1,27 @@
 export const CHINESE_COLLECTIONS = {
   learn: {
     label: "文件导出指南",
-    title: "Aseprite 文件指南：导出 PNG 和 GIF | Xprite",
+    title: "Aseprite 转 PNG、GIF：文件导出指南 | Xprite",
     headline: "Aseprite 文件导出指南",
     description:
-      "在浏览器中打开 Aseprite 工程，免费导出 PNG 单帧或 GIF 动画，并检查透明度、播放时长和文件限制。",
+      "在浏览器里打开 Aseprite 工程，免费导出透明 PNG 单帧或 GIF 动画。按步骤说明 Xprite 查看器的操作，以及导出后尺寸、透明度和帧时长的变化。",
   },
   compare: {
     label: "编辑器比较",
     title: "像素画编辑器比较 | Xprite",
     headline: "像素画编辑器比较",
     description:
-      "按动画、文件格式和输入方式，比较浏览器、iPad 上的 Aseprite、Piskel、Xprite 及其他像素画编辑器。",
+      "比较 iPad 上的 Aseprite 替代方案、浏览器里编辑 .aseprite 的工具，以及 Piskel 的替代工具。按文件格式、动画、触控和价格挑选像素画编辑器。",
   },
 } as const;
 
 export const CHINESE_ARTICLES = {
   "aseprite-online": {
-    title: "在线编辑 Aseprite",
+    title: "在线编辑 Aseprite：4 个浏览器工具对比 | Xprite",
     description:
-      "在浏览器中打开 Aseprite 工程，按导入、编辑和输出需求比较 Xprite、Novaboard、Manabit 和 Pixelorama。",
-    summary: "根据现有精灵文件，以及后续需要的可编辑工程、图片或动画，选择浏览器工具。",
+      "Aseprite 官方没有网页版。Xprite、Novaboard、Manabit 和 Pixelorama 都能在浏览器里打开 .aseprite，本文按导入保留的内容、能否存回 .aseprite、是否要登录和离线使用对比这四个工具。",
+    summary:
+      "Xprite 和 Pixelorama 能把改动存回 .aseprite；Novaboard 和 Manabit 更适合在浏览器里从头画动画。",
     topic: "浏览器编辑",
   },
   "aseprite-on-ipad": {
@@ -32,23 +33,25 @@ export const CHINESE_ARTICLES = {
     topic: "iPad 与触控",
   },
   "piskel-alternatives": {
-    title: "Piskel 替代工具",
+    title: "Piskel 替代工具：3 款像素动画编辑器对比 | Xprite",
     description:
-      "比较浏览器像素画、精灵动画、离线创作和 Aseprite 文件工作流程，按实际任务选择 Piskel 的替代工具。",
-    summary: "根据文件、动画和浏览器或桌面使用需求，选择下一款编辑器。",
+      "Piskel 适合画小型精灵动画。要继续编辑 .piskel、在浏览器里改 .aseprite、用笔和手指画，或者把作品发到社区，本文对比 Pixelorama、Xprite 和 Pixilart，并说明怎样把 Piskel 作品搬到 Xprite。",
+    summary:
+      "Pixelorama 能直接打开 .piskel；Xprite 适合编辑 .aseprite 和触控绘画；Pixilart 适合分享作品。",
     topic: "编辑器替代工具",
   },
   "aseprite-to-gif": {
-    title: "Aseprite 转 GIF",
+    title: "Aseprite 转 GIF：在浏览器里导出动画 | Xprite",
     description:
-      "在浏览器中免费将 Aseprite 动画导出为 GIF，选择动画标签、检查时长和透明度，再下载结果。文件在本地处理。",
-    summary: "将完整动画或单个标签导出为 GIF，分享前检查颜色、透明度和时长。",
+      "用 Xprite 查看器在浏览器里打开 .aseprite，选择动画标签，免费导出 GIF，不用安装 Aseprite。文件在本地处理，本文也说明 GIF 对帧时长、颜色和透明度的影响。",
+    summary: "4 步把整段动画或一个标签导出为 GIF，并说明帧时长、颜色和透明度的变化。",
     topic: "动画导出",
   },
   "aseprite-to-png": {
-    title: "Aseprite 转 PNG",
-    description: "在线将 Aseprite 单帧导出为透明 PNG，选择帧和可见图层，保留原始尺寸并下载到本地。",
-    summary: "选择帧和可见图层，下载保留工程原始尺寸的透明 PNG。",
+    title: "Aseprite 转 PNG：导出透明背景的单帧图片 | Xprite",
+    description:
+      "用 Xprite 查看器在浏览器里打开 .aseprite，选择帧和可见图层，免费导出透明 PNG，尺寸和画布一致。文件在本地处理，不用安装 Aseprite。",
+    summary: "4 步导出任意一帧为透明 PNG，保留原始尺寸和半透明像素。",
     topic: "透明图片",
   },
 } as const;

@@ -10,6 +10,7 @@ export const SUPPORT_PAGES: readonly PlannedPageDefinition[] = [
     children: [
       {
         path: "/support/faq/",
+        document: "support/faq",
         title: {
           en: "Frequently asked questions",
           "zh-CN": "常见问题",
@@ -17,6 +18,7 @@ export const SUPPORT_PAGES: readonly PlannedPageDefinition[] = [
       },
       {
         path: "/support/files/",
+        document: "support/files",
         title: {
           en: "Saving, recovery and files",
           "zh-CN": "保存、恢复与文件问题",
@@ -24,6 +26,7 @@ export const SUPPORT_PAGES: readonly PlannedPageDefinition[] = [
       },
       {
         path: "/support/browsers/",
+        document: "support/browsers",
         title: {
           en: "Browsers and devices",
           "zh-CN": "浏览器与设备问题",
