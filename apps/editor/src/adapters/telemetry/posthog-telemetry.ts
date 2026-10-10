@@ -186,7 +186,7 @@ export class PostHogTelemetry implements TelemetryPort {
         person_profiles: "never",
         persistence: "localStorage",
         save_campaign_params: false,
-        save_referrer: false,
+        save_referrer: true,
         respect_dnt: true,
         disable_capture_url_hashes: true,
         autocapture: false,
