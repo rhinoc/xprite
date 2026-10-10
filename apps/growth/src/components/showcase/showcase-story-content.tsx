@@ -1,6 +1,11 @@
+import { GUIDE_PAGES } from "$content/help/pages";
 import { SHOWCASE_HERO_COPY, SHOWCASE_STORY_COPY } from "$content/showcase/index";
+import { SHOWCASE_PAGES } from "$content/showcase/pages";
+import type { Ref } from "react";
 
 import { PublicNavigation } from "$/components/public/static-ui";
+import { ShowcaseDiscovery } from "$/components/showcase/showcase-discovery";
+import { ShowcaseOverviewPreview } from "$/components/showcase/showcase-overview-preview";
 import { ShowcaseSoundControl } from "$/components/showcase/showcase-sound-control";
 import {
   PatternVariant,
@@ -20,6 +25,9 @@ import {
   ButtonVariant,
   Icon,
   IconSize,
+  Text,
+  TextRole,
+  TextVariant,
 } from "@xprite/ui";
 
 import "$/components/showcase/showcase-stories.module.css";
@@ -37,10 +45,17 @@ const splitHeading = (title: string) =>
   ));
 
 /** Shared React composition for server pages and live language changes. */
-export function ShowcaseStoryContent({ language }: { language: ShowcaseContentLanguage }) {
+export function ShowcaseStoryContent({
+  language,
+  hostRef,
+}: {
+  language: ShowcaseContentLanguage;
+  hostRef?: Ref<HTMLDivElement>;
+}) {
   const copy = SHOWCASE_STORY_COPY[language];
   return (
     <div
+      ref={hostRef}
       data-showcase-stories
       data-growth-desktop
       data-ui-desktop-pattern={PatternVariant.MacOS8BlueCord}
@@ -108,7 +123,8 @@ export function ShowcaseStoryContent({ language }: { language: ShowcaseContentLa
                   srcSet={`${WORKSPACE_LAYOUT_PATH}/${language}/poster.png`}
                 />
                 <img
-                  src={`${WORKSPACE_LAYOUT_PATH}/${language}/layout.gif`}
+                  src={`${WORKSPACE_LAYOUT_PATH}/${language}/poster.png`}
+                  data-showcase-animation-src={`${WORKSPACE_LAYOUT_PATH}/${language}/layout.gif`}
                   width={1080}
                   height={720}
                   alt={copy.layoutAlt}
@@ -146,6 +162,12 @@ export function ShowcaseStoryContent({ language }: { language: ShowcaseContentLa
           </Note>
         </WindowWorkspace>
       </section>
+      <ShowcaseDiscovery language={language} />
+      <section id="faq" data-showcase-faq aria-labelledby="faq-title">
+        <Text as="h2" id="faq-title" variant={TextVariant.Reading} textRole={TextRole.Heading}>
+          {language === "zh-CN" ? "常见问题" : "FAQ"}
+        </Text>
+      </section>
     </div>
   );
 }
@@ -166,20 +188,20 @@ export function ShowcaseStaticHero({ language }: { language: ShowcaseContentLang
           language={language}
           trailingContent={<ShowcaseSoundControl language={language} />}
           brandLabel={copy.home}
-          brandHref={`/showcase/${language}/`}
+          brandHref={SHOWCASE_PAGES[language].path}
           links={[
             { label: copy.tools, href: "/tools/" },
             { label: copy.goToEditor, href: EDITOR_URL },
             {
               label: copy.languageSwitch,
-              href: `/showcase/${otherLanguage}/`,
+              href: SHOWCASE_PAGES[otherLanguage].path,
               hrefLang: otherLanguage,
               end: true,
               icon: "language",
             },
             {
               label: copy.help,
-              href: `/help/${language}/`,
+              href: GUIDE_PAGES[language].path,
               icon: "help",
             },
           ]}
@@ -207,13 +229,7 @@ export function ShowcaseStaticHero({ language }: { language: ShowcaseContentLang
               </RichText>
             </div>
             <div data-showcase-static-stage>
-              <img
-                data-showcase-static-preview
-                src={`/showcase/devices/computer/${language}/animation.png`}
-                width={1440}
-                height={840}
-                alt="Xprite"
-              />
+              <ShowcaseOverviewPreview alt={copy.titleOverview} />
               <div data-showcase-action>
                 <Button href={EDITOR_URL} slots={{}}>
                   {copy.open}
@@ -235,7 +251,7 @@ export function ShowcaseStaticHero({ language }: { language: ShowcaseContentLang
               slots={{ leading: <Icon kind={IconKind.Document} size={IconSize.Large} /> }}
               compactOnSmallScreens
               text={copy.help}
-              href={`/help/${language}/`}
+              href={GUIDE_PAGES[language].path}
             />
             <Button
               variant={ButtonVariant.Tile}

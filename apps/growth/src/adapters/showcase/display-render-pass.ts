@@ -53,7 +53,8 @@ export class DisplayRenderPass {
       renderer.clearDepth();
       scene.overrideMaterial = this.depth;
       camera.layers.set(ShowcaseRenderLayer.Device);
-      camera.layers.enable(ShowcaseRenderLayer.Display);
+      // Displays write their own depth in the color pass. Rendering them here
+      // with a different shader can make their pixels fail the later depth test.
       renderer.render(scene, camera);
       if (foregroundVisible) {
         scene.overrideMaterial = this.foregroundDepth;

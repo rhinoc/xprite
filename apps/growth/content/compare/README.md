@@ -11,7 +11,7 @@ does not promise traffic, rankings, or complete Aseprite compatibility.
   expansion outlines. These files are editorial input, never public routes.
 - `drafts/`: completed reserve articles, excluded from routing and the sitemap.
 - `site.module.css`: the static column's CSS Module, compiled by the page renderer.
-- `../articles/index.ts` and `../../build/article-pages.ts`: metadata, manifest, renderer,
+- `../articles/index.ts` and `../../build/pages/article-pages.ts`: metadata, manifest, renderer,
   routes, and canonical redirects.
 
 Adding a Markdown file alone does not publish it. Add a reviewed article to the

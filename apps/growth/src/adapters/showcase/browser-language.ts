@@ -1,5 +1,7 @@
+import { SHOWCASE_SEARCH_ATTRIBUTE, showcaseSearchMetadata } from "$content/showcase/index";
+import { SHOWCASE_PAGES, SHOWCASE_SITE_URL } from "$content/showcase/pages";
+
 import { SHOWCASE_COPY, ShowcaseLanguage } from "$/managers/showcase/showcase-language";
-import { SHOWCASE_PAGES, SHOWCASE_SITE_URL } from "$/managers/showcase/showcase-pages";
 
 export function readShowcaseLanguage(): ShowcaseLanguage {
   return window.location.pathname === SHOWCASE_PAGES[ShowcaseLanguage.Chinese].path
@@ -21,6 +23,15 @@ export function applyShowcaseLanguage(language: ShowcaseLanguage): void {
   const canonical = new URL(path, SHOWCASE_SITE_URL).href;
   document.querySelector('link[rel="canonical"]')?.setAttribute("href", canonical);
   document.querySelector('meta[property="og:url"]')?.setAttribute("content", canonical);
+  document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", copy.title);
+  document
+    .querySelector('meta[name="twitter:description"]')
+    ?.setAttribute("content", copy.description);
+  const schema = document.querySelector<HTMLScriptElement>(`script[${SHOWCASE_SEARCH_ATTRIBUTE}]`);
+  if (schema)
+    schema.textContent = JSON.stringify(
+      showcaseSearchMetadata(language, SHOWCASE_PAGES[language], SHOWCASE_SITE_URL),
+    );
   if (url.pathname === path && !url.search) return;
   url.pathname = path;
   url.search = "";

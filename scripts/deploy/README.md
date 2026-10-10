@@ -50,12 +50,25 @@ deployed production revision.
 
 ## Search indexing and sharing
 
-The showcase has separate `/showcase/en/` and `/showcase/zh-CN/` static entry
-pages. Both are required by assembly and deployment validation. Growth generates
+Canonical page metadata is registered in `apps/growth/content/site/pages.ts`.
+Assembly and deployment preparation derive required page files, canonical redirects
+and exact rewrites from that registry. Every
+registered page has written content; documents (`content/site/documents.ts`)
+publish only the languages they are written in. English pages are unprefixed and
+Chinese pages share one root `/zh-CN/` prefix (`/zh-CN/help/`, `/zh-CN/compare/…`);
+tools and component docs switch language with `?lang=zh-CN` instead. The root
+path continues to open the editor; the website Home link opens the about page.
+Use the root package scripts for assembly and deployment. They enable Node 24's
+TypeScript transformation for the shared source registry and its enums.
+
+The about page (built from the showcase application) has separate `/about/` and
+`/zh-CN/about/` static entry pages. Both are required by assembly and deployment validation. Growth generates
 localized titles, descriptions, Open Graph metadata, self canonical links, and
 reciprocal `hreflang` plus `x-default` annotations before assembly. The sitemap
-lists both language URLs. `edgeone.json` normalizes trailing slashes and directs
-the neutral showcase entry to English; language selection uses no query string.
+lists both language URLs. `edgeone.json` normalizes trailing slashes; language
+selection uses no query string. Addresses that production served before this
+layout (`/help/en/`, `/help/zh-CN/`, `/showcase/…`, `/gallery/…`) redirect with
+HTTP 301 to their new pages; `/showcase/` asset folders are unchanged.
 
 The production website uses `https://xprite.cc/` as its canonical application URL.
 The editor keeps Home at `/` and documents at `/editor`; `/home`, `/home/` and
@@ -66,7 +79,7 @@ fallback from returning the editor with HTTP 200 for nonexistent paths. Middlewa
 is generated after `release.json` and serving configuration are written. The pinned
 CLI runs inside the artifact directory so it discovers this middleware.
 
-Public guides live at `/help/en/` and `/help/zh-CN/`. The Vite plugin in
+Public guides live at `/help/` and `/zh-CN/help/`. The Vite plugin in
 `apps/growth/build/public-pages.ts` renders the same Markdown that the editor's Help
 menu reads, validates section links and image catalog entries, and copies only
 referenced screenshots. Images carry their catalog dimensions; the guides need
@@ -95,7 +108,7 @@ through its ordinary workspace API after startup. Other editor URLs never read
 the transfer store. Its static HTML has its own metadata and sitemap entry.
 
 The independent growth server (`pnpm run dev:growth`, port 5175) serves public
-guides and `/showcase` directly from source. Unknown public paths return the
+guides and the about pages directly from source. Unknown public paths return the
 custom HTTP 404 page in growth development and Vite preview.
 
 `pnpm run build:site` builds editor, growth, tools, and gallery independently and merges
@@ -103,11 +116,12 @@ their outputs into `.tmp/site`. It applies website search metadata to the merged
 editor HTML without changing `apps/editor/dist`. Growth owns guide source,
 showcase assets, static public pages, and SEO code; the editor reads only the
 small `@xprite/growth-content/help` data module. The deployment command validates
-all required entry files in `.tmp/site` before staging an upload. Gallery assets
-use `/gallery/` in both development and production. Its component and icon routes
+all required entry files in `.tmp/site` before staging an upload. Component docs (the gallery app)
+use `/components/` in both development and production. Its component and icon routes
 come from `apps/gallery/build/generated-routes.json`, regenerated alongside the
 component catalog by `gallery:generate`; staging adds exact rewrites and middleware
-entries for those routes, including direct visits and reloads. Gallery remains
+entries for those routes, including direct visits and reloads, and redirects the
+former `/gallery/` routes. Component docs remain
 `noindex, follow` and is excluded from the public sitemap.
 
 Shared website icon links are defined in `infra/site-html.ts`. Vite entry templates
@@ -119,7 +133,7 @@ editor installation metadata with their owning pages.
 
 `pnpm run dev` starts the independent app servers and connects them through the
 shared development proxy. Website navigation stays on the current origin;
-`/tools/` and `/gallery/` keep their own runtime and asset paths. The backend ports
+`/tools/` and `/components/` keep their own runtime and asset paths. The backend ports
 are implementation details of the development servers, not navigation destinations.
 
 The initial HTML contains visible product text during startup. The assembled

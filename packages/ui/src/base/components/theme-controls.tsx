@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { entrySelection } from "$/base/controls/control-policy";
+import { themeFontFamily } from "$/base/theme/font-families";
 import { paintPartSurface } from "$/base/theme/paint-part-surface";
 import {
   glyphSets,
@@ -66,6 +67,7 @@ export function useThemeAssets(variant?: UiAppearance): UiAssetBundle | null {
 const cjkPixelGlyphCache = new Map<string, HTMLCanvasElement>();
 const CJK_PIXEL_GLYPH_CACHE_LIMIT = 512;
 const CJK_PIXEL_COVERAGE_THRESHOLD = 64;
+const CJK_FONT_LANGUAGE = "zh";
 /**
  * Canvas fillText antialiases Fusion Pixel's deliberately pixel-shaped outlines.
  * Center the measured ink inside the Aseprite atlas line height, discard only
@@ -278,8 +280,13 @@ export function paintThemeText(
     scale = options.scale ?? 2;
   const metrics = assets.theme.typography?.[font];
   if (metrics) {
+    if (!assets.cjkFontReady && [...text].some((char) => isCjkGlyph(char.codePointAt(0)!))) {
+      void preloadThemeAssets(assets.variant, CJK_FONT_LANGUAGE, assets.uiTheme).catch((error) =>
+        console.error(error),
+      );
+    }
     context.save();
-    context.font = `${(metrics.fontSize * scale) / RASTER_SCALE}px ${metrics.fontFamily}, FusionPixelZhHans, monospace`;
+    context.font = `${(metrics.fontSize * scale) / RASTER_SCALE}px ${themeFontFamily(metrics)}`;
     context.textAlign = "left";
     context.textBaseline = "middle";
     context.fillStyle = options.color ?? assets.theme.colors.text;

@@ -19,10 +19,13 @@ function toolAtPath(path: string): SiteToolName | null {
   return Object.values(SiteToolName).find((tool) => path === `${TOOLS_PREFIX}${tool}`) ?? null;
 }
 
-function pageAtPath(path: string): SitePageType {
-  if (path === "/" || path === EDITOR_PATH) return SitePageType.Editor;
-  if (path === "/showcase" || path.startsWith("/showcase/")) return SitePageType.Showcase;
-  if (path === "/gallery" || path.startsWith("/gallery/")) return SitePageType.Gallery;
+/** Page types keep their original values; the about page reports as "showcase". */
+function pageAtPath(requestPath: string): SitePageType {
+  if (requestPath === "/" || requestPath === EDITOR_PATH) return SitePageType.Editor;
+  // Chinese pages share their English page type under the root /zh-CN/ prefix.
+  const path = requestPath.replace(/^\/zh-CN(?=\/|$)/u, "");
+  if (path === "/about" || path.startsWith("/about/")) return SitePageType.Showcase;
+  if (path === "/components" || path.startsWith("/components/")) return SitePageType.Gallery;
   if (
     path === "/compare" ||
     path.startsWith("/compare/") ||

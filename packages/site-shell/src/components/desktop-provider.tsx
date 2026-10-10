@@ -9,6 +9,7 @@ import {
 
 import { UIProvider, macintoshTheme, useUi, useSystemAppearance, type UiTheme } from "@xprite/ui";
 import type { UiThemeSnapshot } from "@xprite/ui/assets";
+import { CursorProvider } from "@xprite/ui/cursor";
 
 import { DesktopAppearance, DesktopManager } from "../managers/desktop";
 
@@ -34,6 +35,8 @@ export function DesktopProvider({
   children,
   theme = macintoshTheme,
   language = "en",
+  translateSource,
+  translateKey,
   initialTheme,
   preloadArtwork = false,
   scope = true,
@@ -43,6 +46,8 @@ export function DesktopProvider({
   children: ReactNode;
   theme?: UiTheme;
   language?: string;
+  translateSource?: (source: string) => string;
+  translateKey?: (key: string) => string;
   initialTheme?: UiThemeSnapshot;
   preloadArtwork?: boolean;
   scope?: boolean;
@@ -62,12 +67,16 @@ export function DesktopProvider({
         theme={theme}
         appearance={appearance}
         language={language}
+        translateSource={translateSource}
+        translateKey={translateKey}
         initialTheme={initialTheme}
         preloadArtwork={preloadArtwork}
         scope={scope}
       >
-        {documentTheme && <DocumentTheme manager={manager} />}
-        {children}
+        <CursorProvider>
+          {documentTheme && <DocumentTheme manager={manager} />}
+          {children}
+        </CursorProvider>
       </UIProvider>
     </DesktopContext.Provider>
   );

@@ -323,6 +323,7 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
     if (this.closed) return Promise.reject(new Error("Image session is closed"));
     const existing =
       intent === SessionSaveIntent.Save ? this.compatibleDocumentHandle(documentKey) : undefined;
+    const fileHandlePermissionActivation = globalThis.navigator?.userActivation?.isActive ?? false;
     let fileHandlePermission: (() => Promise<"granted" | "denied" | "prompt">) | undefined;
     if (existing?.requestPermission) {
       let permissionResult: Promise<
@@ -385,6 +386,7 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
           },
           ...(existing ? { fileHandle: existing } : {}),
           ...(fileHandlePermission ? { fileHandlePermission } : {}),
+          ...(existing ? { fileHandlePermissionActivation } : {}),
           ...(saveFilePicker ? { saveFilePicker } : {}),
           ...(documentKey && intent !== SessionSaveIntent.Export
             ? { onFileHandleSaved: (handle) => this.rememberDocumentHandle(documentKey, handle) }

@@ -38,6 +38,7 @@ export {
 } from "$/components/surface/content";
 export * from "$/components/combobox";
 export * from "$/components/divider";
+export * from "$/components/disclosure";
 export * from "$/components/pattern";
 export * from "$/components/icon";
 export * from "$/components/note";

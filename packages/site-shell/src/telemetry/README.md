@@ -17,12 +17,15 @@ initial load and each different `location.pathname` capture `$pageview`.
 React Strict Mode and hydration do not add pageviews. A return to a previous
 path does add one. BFCache restoration retains the original document visit.
 Queued events retain their page context from the time of capture.
-Gallery component and icon routes use `page_type: gallery`, including their
-client-side path changes. Gallery site-entry links use the same CTA listener;
-component preview callbacks are not tool file or output events.
+Component docs routes (`/components/`, its component and icon routes) keep
+`page_type: gallery`, including their client-side path changes. Their
+site-entry links use the same CTA listener; component preview callbacks are not
+tool file or output events. The about page (`/about/`) keeps
+`page_type: showcase`.
 
 Comparison (`/compare/`) and file-guide (`/learn/`) landing pages both use
-`page_type: article`.
+`page_type: article`. Chinese pages under `/zh-CN/` report the page type of
+their English counterpart; `/privacy/` reports `other`.
 
 All events include `page_type`, `page_path`, nullable `tool_name`, nullable
 `referring_domain`, `entry_referrer_present`, nullable `entry_referring_domain`,

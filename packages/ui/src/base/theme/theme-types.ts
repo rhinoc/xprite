@@ -24,6 +24,9 @@ export interface UiTooltipPointerArtwork {
 
 interface UiFontMetrics {
   fontFamily: string;
+  /** Script fallback and advance must match the face used by DOM and Canvas. */
+  cjkFontFamily?: string;
+  cjkAdvance?: number;
   /** CSS pixels at the standard artwork scale (2). */
   fontSize: number;
   lineHeight: number;

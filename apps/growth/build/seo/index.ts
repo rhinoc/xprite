@@ -1,19 +1,18 @@
 import type { Plugin } from "vite";
 
+import { editorApplicationMetadata } from "../../content/application/index.ts";
 import {
   GIF_SHEET_TOOL,
   ANIMAL_CROSSING_TOOL,
   VIEWER_TOOL,
   TOOLS_HOME,
   DIRECTORY_TOOLS,
-} from "../content/tools/index.ts";
+} from "../../content/tools/index.ts";
 
 const SITE_URL = "https://xprite.cc/";
 const SOCIAL_IMAGE_URL = new URL("social-preview.png", SITE_URL).href;
 const VIEWER_URL = new URL(VIEWER_TOOL.path, SITE_URL).href;
 const VIEWER_DESCRIPTION = VIEWER_TOOL.description;
-const APPLICATION_DESCRIPTION =
-  "Pixel art and animation in your browser. Open and save .ase/.aseprite projects, use touch and stylus input, and customize your workspace.";
 const CANONICAL_ELEMENT_PATTERN = /\s*<link\b[^>]*rel=["']canonical["'][^>]*>/gi;
 const ROBOTS_ELEMENT_PATTERN = /\s*<meta\b[^>]*name=["']robots["'][^>]*>/gi;
 const HEAD_CLOSE_PATTERN = /<\/head>/i;
@@ -35,27 +34,9 @@ export function applyEditorSearchMetadata(
 ): string {
   const content = applyPageSearchMetadata(html, indexable);
   if (!indexable) return content;
-  const application = {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "@id": `${SITE_URL}#application`,
-    name: "Xprite",
-    url: SITE_URL,
-    description: APPLICATION_DESCRIPTION,
-    image: SOCIAL_IMAGE_URL,
-    applicationCategory: "MultimediaApplication",
-    operatingSystem: "Any",
-    browserRequirements: "Requires JavaScript and a modern web browser",
-    softwareVersion: version,
-    isAccessibleForFree: true,
-    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-    author: { "@type": "Person", name: "rhinoc", url: "https://github.com/rhinoc" },
-    license: "https://github.com/rhinoc/xprite/blob/main/LICENSE",
-    sameAs: ["https://github.com/rhinoc/xprite", "https://rhinoc.itch.io/xprite"],
-  };
   return content.replace(
     HEAD_CLOSE_PATTERN,
-    `<script type="application/ld+json">${JSON.stringify(application)}</script>\n</head>`,
+    `<script type="application/ld+json">${JSON.stringify(editorApplicationMetadata(version))}</script>\n</head>`,
   );
 }
 

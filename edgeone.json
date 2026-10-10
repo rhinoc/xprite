@@ -27,36 +27,6 @@
       "statusCode": 301
     },
     {
-      "source": "/help",
-      "destination": "/help/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/help/",
-      "destination": "/help/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/help/en",
-      "destination": "/help/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/help/zh-CN",
-      "destination": "/help/zh-CN/",
-      "statusCode": 301
-    },
-    {
-      "source": "/help/en/index.html",
-      "destination": "/help/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/help/zh-CN/index.html",
-      "destination": "/help/zh-CN/",
-      "statusCode": 301
-    },
-    {
       "source": "/tools/viewer",
       "destination": "/tools/viewer/",
       "statusCode": 301
@@ -64,41 +34,6 @@
     {
       "source": "/tools/viewer/index.html",
       "destination": "/tools/viewer/",
-      "statusCode": 301
-    },
-    {
-      "source": "/showcase",
-      "destination": "/showcase/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/showcase/",
-      "destination": "/showcase/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/showcase/index.html",
-      "destination": "/showcase/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/showcase/en",
-      "destination": "/showcase/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/showcase/zh-CN",
-      "destination": "/showcase/zh-CN/",
-      "statusCode": 301
-    },
-    {
-      "source": "/showcase/en/index.html",
-      "destination": "/showcase/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/showcase/zh-CN/index.html",
-      "destination": "/showcase/zh-CN/",
       "statusCode": 301
     },
     {
@@ -203,12 +138,17 @@
     },
     {
       "source": "/gallery",
-      "destination": "/gallery/",
+      "destination": "/components/",
+      "statusCode": 301
+    },
+    {
+      "source": "/gallery/",
+      "destination": "/components/",
       "statusCode": 301
     },
     {
       "source": "/gallery/index.html",
-      "destination": "/gallery/",
+      "destination": "/components/",
       "statusCode": 301
     }
   ],
@@ -222,24 +162,8 @@
       "destination": "/index.html"
     },
     {
-      "source": "/help/en/",
-      "destination": "/help/en/index.html"
-    },
-    {
-      "source": "/help/zh-CN/",
-      "destination": "/help/zh-CN/index.html"
-    },
-    {
       "source": "/tools/viewer/",
       "destination": "/tools/viewer/index.html"
-    },
-    {
-      "source": "/showcase/en/",
-      "destination": "/showcase/en/index.html"
-    },
-    {
-      "source": "/showcase/zh-CN/",
-      "destination": "/showcase/zh-CN/index.html"
     },
     {
       "source": "/compare/",
@@ -280,10 +204,6 @@
     {
       "source": "/tools/animal-crossing-qr/",
       "destination": "/tools/animal-crossing-qr/index.html"
-    },
-    {
-      "source": "/gallery/",
-      "destination": "/gallery/index.html"
     }
   ],
   "headers": [
@@ -405,6 +325,33 @@
       ]
     },
     {
+      "source": "/about/*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/privacy/*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/zh-CN/*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
       "source": "/tools/gif-to-sprite-sheet/",
       "headers": [
         {
@@ -432,7 +379,7 @@
       ]
     },
     {
-      "source": "/gallery/*",
+      "source": "/components/*",
       "headers": [
         {
           "key": "Cache-Control",
@@ -495,6 +442,22 @@
       "cacheTtl": 0
     },
     {
+      "source": "/about/*",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/privacy/*",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/zh-CN/*",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/help/*",
+      "cacheTtl": 0
+    },
+    {
       "source": "/tools/gif-to-sprite-sheet/",
       "cacheTtl": 0
     },
@@ -507,7 +470,7 @@
       "cacheTtl": 0
     },
     {
-      "source": "/gallery/*",
+      "source": "/components/*",
       "cacheTtl": 0
     }
   ]

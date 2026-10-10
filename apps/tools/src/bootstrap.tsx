@@ -2,6 +2,7 @@ import { StrictMode, type ReactNode } from "react";
 import { hydrateRoot, type Root } from "react-dom/client";
 
 import { browserToolAppearance } from "$/adapters/preview/browser-appearance";
+import { readToolLanguage, writeToolLanguage } from "$/adapters/tools/browser-language";
 import { ToolApplicationRoot } from "$/tool-application-root";
 import { AppearanceMode, resolveAppearanceMode } from "@xprite/editor-ui/appearance";
 import { normalizeDesktopPreferences, DesktopAppearance } from "@xprite/site-shell";
@@ -63,7 +64,8 @@ export async function mountToolApplication(
       ? AppearanceMode.Dark
       : AppearanceMode.Light,
   );
-  await preloadUiAssets(appearance, "en", macintoshTheme);
+  const language = readToolLanguage();
+  await preloadUiAssets(appearance, language, macintoshTheme);
   const initialThemes = JSON.parse(
     document.getElementById("tool-initial-themes")!.textContent!,
   ) as Record<"light" | "dark", UiThemeSnapshot>;
@@ -80,6 +82,8 @@ export async function mountToolApplication(
     <StrictMode>
       <ToolApplicationRoot
         rootId={rootId}
+        language={language}
+        onLanguageChange={writeToolLanguage}
         artwork={
           root ? {} : JSON.parse(document.getElementById("tool-initial-artwork")!.textContent!)
         }

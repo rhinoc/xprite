@@ -5,6 +5,11 @@
 :global([data-showcase-stories]) {
   padding-bottom: 24px;
 }
+:global([data-showcase-faq]) {
+  width: calc(100% - 64px);
+  max-width: 1200px;
+  margin: 64px auto;
+}
 :global([data-showcase-stories] > [data-showcase-story]:last-child) {
   margin-bottom: 0;
 }
@@ -78,7 +83,8 @@
   }
 }
 @media (max-width: 600px) {
-  :global([data-showcase-story]) {
+  :global([data-showcase-story]),
+  :global([data-showcase-faq]) {
     width: calc(100% - 24px);
     margin-block: 24px;
   }

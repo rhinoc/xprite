@@ -41,7 +41,13 @@
       ]
     },
     "apps/growth/content": {
-      "entry": ["help/index.ts", "tools/index.ts", "navigation/index.ts", "articles/index.ts"]
+      "entry": [
+        "help/index.ts",
+        "tools/index.ts",
+        "site/navigation.ts",
+        "articles/index.ts",
+        "site/pages.ts"
+      ]
     },
     "packages/ui": {
       "entry": ["src/{index,assets,canvas,cursor,popover,utils}.ts"]

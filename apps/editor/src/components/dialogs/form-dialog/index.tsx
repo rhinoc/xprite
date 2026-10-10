@@ -727,7 +727,7 @@ export function FormDialog({
                     focusAppearance={
                       layout?.initialFocusAction === action.label ? "always" : undefined
                     }
-                    font={layout ? "default" : undefined}
+                    font="default"
                     part={layout ? "button_normal" : undefined}
                     hotPart={layout ? "button_hot" : undefined}
                     focusedPart={layout ? "button_focused" : undefined}

@@ -2,6 +2,7 @@ import { useRef, useState, type ReactNode } from "react";
 
 import { FileToolEmptyState } from "$/components/shared/file-tool-empty-state";
 import { ToolFrame } from "$/components/shared/tool-frame";
+import { useToolTranslation } from "$/managers/locale/tool-language";
 import type { PublicTool } from "$/managers/tools/tool-catalog";
 import {
   ContentPadding,
@@ -39,6 +40,8 @@ export function FileToolShell({
   onOpen(file: File): Promise<void>;
   onExample(): Promise<void>;
 }) {
+  const t = useToolTranslation();
+
   const input = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const chooseFile = () => input.current?.click();
@@ -49,10 +52,10 @@ export function FileToolShell({
       reserveGutter={ready}
       menus={[
         {
-          label: "File",
+          label: t("File"),
           items: [
             { label: `${tool.openLabel}…`, disabled: busy, onSelect: chooseFile },
-            { label: "Open example", disabled: busy, onSelect: () => void onExample() },
+            { label: t("Open example"), disabled: busy, onSelect: () => void onExample() },
             ...fileItems.map((item, index) => ({
               ...item,
               separator: index === 0 || item.separator,
@@ -67,7 +70,7 @@ export function FileToolShell({
           type="file"
           accept={tool.accept}
           className={styles.fileInput}
-          aria-label={tool.fileLabel}
+          aria-label={t(tool.fileLabel)}
           onChange={(event) => {
             const file = event.currentTarget.files?.[0];
             event.currentTarget.value = "";
@@ -82,13 +85,13 @@ export function FileToolShell({
             className={styles.error}
           >
             <Text variant={TextVariant.Reading} wrap>
-              {error}
+              {t(error)}
             </Text>
           </Panel>
         )}
         <section
           className={styles.workspace}
-          aria-label={tool.label}
+          aria-label={t(tool.label)}
           aria-busy={busy}
           onDragEnter={(event) => {
             if (event.dataTransfer.types.includes("Files")) {
@@ -125,7 +128,7 @@ export function FileToolShell({
                 scrollX={false}
                 reserveScrollbarGutter
                 className={styles.loadedScroll}
-                aria-label={`${tool.label} workspace`}
+                aria-label={t(`${tool.label} workspace`)}
               >
                 {children}
               </ScrollArea>
@@ -135,7 +138,7 @@ export function FileToolShell({
           </div>
           {dragging && (
             <div className={styles.dropOverlay}>
-              <Text variant={TextVariant.Reading}>Drop to open</Text>
+              <Text variant={TextVariant.Reading}>{t("Drop to open")}</Text>
             </div>
           )}
         </section>

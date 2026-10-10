@@ -28,6 +28,15 @@ Emulated screen dimensions and the visible viewport are pinned to the scene's
 dimensions at scale 1 and DPR 1, so browser-window fitting cannot change rasterization.
 Source hashes must remain unchanged across the entire capture.
 
+The same navigation also observes startup continuity with fourfold CPU slowdown.
+A probe installed before parsing watches the page, navigation and main regions
+until readiness, then for at least 500 ms and ten frames. Content disappearance,
+runtime errors, hydration failures or incomplete observation block the push.
+Each ready capture records its observation; no second tool capture is needed.
+Image readiness includes every eager image and lazy images intersecting both
+the viewport and their scroll/clip ancestors. Required images are decoded before
+capture; offscreen lazy images do not delay first paint.
+
 `scripts/base/screenshot.mjs` supplies native PNG capture, actual DPR and dimension
 checks, byte hashes and PNG color-space checks. Screenshots are not resized,
 masked or normalized. Every decoded RGBA pixel in the complete viewport must match exactly, including

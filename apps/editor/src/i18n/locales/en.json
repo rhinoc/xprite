@@ -1490,7 +1490,7 @@
   "ui.foreground.tile.user.properties": "Foreground tile {value1} user properties",
   "ui.foreground.tile": "Foreground tile {value1}",
   "ui.background.tile": "Background tile {value1}",
-  "ui.online.pixel.art.editor.animation.tool": "{value1} - Online Pixel Art Editor & Animation Tool",
+  "ui.online.pixel.art.editor.animation.tool": "Pixel Art Editor Online: Draw & Animate Free | {value1}",
   "ui.sprite.canvas.2": "Sprite canvas: {value1}",
   "ui.do.you.really.want.to.delete.the.selected.backup.s": "Do you really want to delete the selected {value1} backup(s)?",
   "ui.copy.of": "Copy of {value1}",

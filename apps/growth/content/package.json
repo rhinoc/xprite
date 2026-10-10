@@ -5,6 +5,8 @@
   "exports": {
     "./help": "./help/index.ts",
     "./tools": "./tools/index.ts",
-    "./navigation": "./navigation/index.ts"
+    "./navigation": "./site/navigation.ts",
+    "./language": "./site/language.ts",
+    "./pages": "./site/pages.ts"
   }
 }

@@ -1,15 +1,16 @@
 # Growth pages
 
-This app owns the public help pages, website SEO, and the device showcase. Its page runtime and Three.js dependency are separate from the editor. The editor reads only Markdown, image catalog data, and image URLs through the private `@xprite/growth-content/help` package in `content/`.
+This app owns the public help pages, the about page (the device showcase), document pages such as the privacy notice, and website SEO. Its page runtime and Three.js dependency are separate from the editor. The editor reads only Markdown, image catalog data, and image URLs through the private `@xprite/growth-content/help` package in `content/`.
 
 ## Development
 
 From the repository root, run `pnpm run dev:growth`, then open:
 
-- `http://localhost:5175/showcase` for the MacBook Pro, iPad, and iPhone showcase.
+- `http://localhost:5175/about/` for the MacBook Pro, iPad, and iPhone showcase (the about page).
 - `http://localhost:5175/compare/` for the selection column and its three initial articles.
-- `http://localhost:5175/help/en/` for the English guide.
-- `http://localhost:5175/help/zh-CN/` for the Chinese guide.
+- `http://localhost:5175/help/` for the English guide.
+- `http://localhost:5175/zh-CN/help/` for the Chinese guide.
+- `http://localhost:5175/privacy/` for the privacy notice rendered from `PRIVACY.md`.
 
 The app uses its own fixed port, 5175. Reuse the running server and HMR after editing. `pnpm run preview:growth` serves an existing growth build on port 4175. Do not run builds or tests during development.
 
@@ -48,14 +49,16 @@ A wheel burst over the device stage advances one device in its dominant horizont
 
 ## Help and SEO
 
-Maintain both guide languages and their screenshot records together under `content/help/`. The `build/public-pages.ts` plugin renders static pages from this same source, checks section links and image catalog entries, and serves exact public routes. `build/seo.ts` owns search metadata. `build/public-routing.ts` provides the deployed public-path guard.
+Maintain both guide languages and their screenshot records together under `content/help/`. The `build/public-pages.ts` plugin assembles static pages and serves exact public routes. Page renderers in `build/pages/` read the formal content and check guide section links and image catalog entries. `build/seo/` owns search metadata and discovery files; `build/routing/` owns deployed serving rules and the public-path guard.
+
+`content/site/pages.ts` registers canonical public pages from each content scope. The registry supplies sitemap entries, redirects, deployment rewrites and required output files. English pages are unprefixed; Chinese pages share the root `/zh-CN/` prefix (`localizedSiteHref` in `content/site/language.ts`), while tools and component docs use `?lang=zh-CN`. `content/site/documents.ts` lists Markdown document pages: the privacy notice (from the repository-root `PRIVACY.md` and `PRIVACY.zh.md`) and the about articles in `content/about/` (How Xprite Works and Features, in English and Chinese). A document publishes only the languages it is written in, so every registered page has content. Register only pages with written content. The editor remains at `/`; the website's About Xprite link points to the localized about page.
 
 The public-page resource map serves `/theme/fonts.css`, `/theme/chikarego2.woff2` and `/theme/finderskeepers.woff2` directly from `packages/ui/assets/fonts/macintosh/`. Marketing pages, guides, articles and the 404 page share these Macintosh fonts; Fusion Pixel remains the CJK fallback. Fonts are copied only into build output, and their originals stay with the UI package. Latin display sizes follow the fonts’ 16px grid. This typography change does not change user operations, so the guide content requires no additional instructions.
 
 ## Compare
 
 The English selection column at `/compare/` is static HTML with no application
-runtime. Its manifest and renderer live in `content/articles/index.ts` and `build/article-pages.ts`; Markdown
+runtime. Its manifest and renderer live in `content/articles/index.ts` and `build/pages/article-pages.ts`; Markdown
 articles and source dossiers live in `content/compare/`. Only manifest articles
 are published. Research and reserve drafts stay out of the output and sitemap.
 See [the editorial workflow](content/compare/README.md) for verification rules,
@@ -114,13 +117,18 @@ Growth retains port 5175. Its development modules and hot-update connection use
 
 Non-editor pages use `@xprite/site-shell`. The rainbow menu opens desktop appearance,
 page language and background choices. The right-hand application name opens
-Tools, Guides and Compare submenus, alongside editor and showcase links.
+design scenes, resources, tools, tutorials and help, product, and legal submenus, alongside editor and Home links.
 Current-page commands sit between the system menu and application switcher.
-The data-only navigation registry and article catalog live in `content/navigation/`
+The data-only navigation registry and article catalog live in `content/site/navigation.ts`
 and `content/articles/`; editor code consumes only guide/tool data. Desktop
 preferences use a separate origin-scoped browser record and do not write editor
 preferences. Both user-guide languages describe these entry points. Existing guide
 screenshots show editor controls, which this menu change does not move.
+
+The menu and shared footer use the same navigation hierarchy. `@xprite/site-shell`
+receives the groups as data, keeping the shell independent of growth. Public pages
+and tools render footer columns on wide screens and native disclosures on narrow
+screens. Articles share presentation components and styles in `src/components/articles/`.
 
 The desktop pattern menu now uses the curated original System 7/7.5/Mac OS 8
 collection in the UI asset package. Two-color masks can use a separately saved

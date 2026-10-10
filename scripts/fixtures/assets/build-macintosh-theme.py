@@ -384,8 +384,8 @@ import {readFileSync} from 'node:fs';
 import {registerHooks} from 'node:module';
 import {pathToFileURL} from 'node:url';
 registerHooks({resolve(specifier,context,next){
-  if (specifier.startsWith('$/')) specifier=pathToFileURL(process.cwd()+'/packages/ui/src/'+specifier.slice(2)+'.ts').href;
-  return next(specifier.startsWith('.') && !specifier.endsWith('.ts') ? specifier+'.ts' : specifier,context);
+  if (specifier.startsWith('$/')) specifier=pathToFileURL(process.cwd()+'/packages/ui/src/'+specifier.slice(2)+(specifier.endsWith('.json') ? '' : '.ts')).href;
+  return next(specifier.startsWith('.') && !specifier.endsWith('.ts') && !specifier.endsWith('.json') ? specifier+'.ts' : specifier,context);
 }});
 const {moduleURL,palettes}=JSON.parse(readFileSync(0,'utf8'));
 const {macintoshPublicSurfaceTokens}=await import(moduleURL);

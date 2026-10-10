@@ -23,11 +23,18 @@
   padding: 28px 20px 40px;
 }
 .directory {
-  min-height: 360px;
   margin-top: 12px;
 }
 .article {
   min-width: 0;
+}
+.article img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 16px 0;
+  border: 1px solid var(--ui-color-line);
+  image-rendering: pixelated;
 }
 .readingStack {
   min-width: 0;

@@ -4,8 +4,6 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import { dirname, extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { Marked, Renderer } from "marked";
-import type { Tokens } from "marked";
 import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from "vite";
 
 import {
@@ -13,25 +11,23 @@ import {
   GROWTH_DEVELOPMENT_BASE,
   developmentSiteProxy,
 } from "../../../infra/dev-site.ts";
-import { publicDesktopStartupScript } from "../../../infra/public-desktop-startup.ts";
-import { applySiteIcons, siteIcons } from "../../../infra/site-html.ts";
-import { ARTICLES, ARTICLE_PATHS, ARTICLE_REDIRECTS } from "../content/articles/index.ts";
+import { applySiteIcons } from "../../../infra/site-html.ts";
+import { ARTICLE_PATHS } from "../content/articles/index.ts";
+import { GUIDE_PAGES } from "../content/help/pages.ts";
+import { SHOWCASE_PAGES } from "../content/showcase/pages.ts";
+import { localizedSiteHref, PublicLanguage } from "../content/site/language.ts";
+import { showcaseLabel } from "../content/site/navigation.ts";
+import { DOCUMENT_PAGES, SITE_REDIRECTS } from "../content/site/pages.ts";
+import { TOOLS_HOME } from "../content/tools/index.ts";
+import { ARTICLE_CONTENT_ROOT, articleHtml, articleImageResources } from "./pages/article-pages.ts";
 import {
-  ANIMAL_CROSSING_TOOL,
-  GIF_SHEET_TOOL,
-  TOOLS_HOME,
-  TOOL_PATHS,
-} from "../content/tools/index.ts";
-import { SHOWCASE_PAGES } from "../src/managers/showcase/showcase-pages.ts";
+  documentHtml,
+  documentImageResources,
+  documentSourcePath,
+} from "./pages/document-pages.ts";
+import { GUIDE_STYLE_PATH, CHINESE_FONT_PATH } from "./pages/document-resources.ts";
+import { GUIDES, GUIDE_ROOT, guideHtml, guideImageResources } from "./pages/guide-pages.ts";
 import {
-  ARTICLE_CONTENT_ROOT,
-  ARTICLE_STYLE_PATH,
-  articleHtml,
-  articleStylesheet,
-} from "./article-pages.ts";
-import { createPublicMiddleware } from "./public-routing.ts";
-import {
-  PUBLIC_THEME_ATTRIBUTES,
   PUBLIC_THEME_STYLE_PATH,
   PUBLIC_FONT_STYLE_PATH,
   PUBLIC_FONT_PATH,
@@ -39,37 +35,26 @@ import {
   GROWTH_DESKTOP_STYLE_PATH,
   PUBLIC_HELP_ICON_PATH,
   PUBLIC_LANGUAGE_ICON_PATH,
-  publicPattern,
-  publicIconLink,
-  publicDesktopWindow,
   publicDesktopNavigation,
-  publicDesktopButton,
-  publicRichText,
-  publicIndex,
+  publicNotFound,
   publicUiScope,
+  publicSiteFooter,
 } from "./public-theme.ts";
-import { applyPageSearchMetadata } from "./seo.ts";
-import { applyShowcaseSearchMetadata } from "./showcase-seo.ts";
-import { siteNavigationHref } from "./site-navigation.ts";
+import { createPublicMiddleware } from "./routing/public-routing.ts";
+import { sitemap, robots, languageModelIndex } from "./seo/discovery.ts";
+import { applyPageSearchMetadata } from "./seo/index.ts";
+import { applyShowcaseSearchMetadata } from "./seo/showcase-seo.ts";
 import { createPublicUiRenderer, PUBLIC_UI_ASSET_PREFIX } from "./static-ui-renderer.ts";
 
-enum GuideLanguage {
-  English = "en",
-  SimplifiedChinese = "zh-CN",
-}
-
-const SITE_URL = "https://xprite.cc/";
 const REPOSITORY_ROOT = fileURLToPath(new URL("../../../", import.meta.url));
 const APP_ROOT = resolve(REPOSITORY_ROOT, "apps/growth");
-const GUIDE_ROOT = resolve(REPOSITORY_ROOT, "apps/growth/content/help");
+const CONTENT_ROOT = resolve(APP_ROOT, "content");
 const PUBLIC_ROOT = resolve(REPOSITORY_ROOT, "apps/growth/public");
 const ASSET_MANIFEST_PATH = "/package.json";
-const GUIDE_STYLE_PATH = "/help/guide.css";
 const REDIRECTS_FILE = resolve(REPOSITORY_ROOT, "edgeone.json");
-const CHINESE_FONT_PATH = "/help/fusion-pixel.woff2";
 const APP_PATHS = ["/", "/editor", "/editor/", "/tools/viewer/"];
-const SHOWCASE_PATH = "/showcase";
-const SHOWCASE_HTML_PATH = `${SHOWCASE_PATH}/index.html`;
+/** The about page's application template; its built copy is rewritten per language. */
+const SHOWCASE_HTML_PATH = "/showcase/index.html";
 const SHOWCASE_PATHS: readonly string[] = Object.values(SHOWCASE_PAGES).map((page) => page.path);
 const DEVELOPMENT_PREFIXES = ["/@", "/src/", "/content/", "/node_modules/"];
 const SUCCESS_STATUS = 200;
@@ -84,50 +69,6 @@ const CONTENT_TYPES: Readonly<Record<string, string>> = {
   ".png": "image/png",
   ".woff2": "font/woff2",
 };
-const GUIDES = [
-  {
-    language: GuideLanguage.English,
-    path: "/help/en/",
-    title: "Xprite User Guide",
-    description:
-      "Save and recover projects, arrange your workspace, use touch and pen input, and install Xprite for offline editing.",
-    openEditor: "Open editor",
-    navigation: "User guide navigation",
-  },
-  {
-    language: GuideLanguage.SimplifiedChinese,
-    path: "/help/zh-CN/",
-    title: "Xprite 使用指南",
-    description:
-      "Xprite 浏览器保存与恢复、工作区布局、触摸与手写笔、快捷操作栏及安装与离线使用指南。",
-    openEditor: "打开编辑器",
-    navigation: "使用指南导航",
-  },
-] as const;
-type Guide = (typeof GUIDES)[number];
-interface PublicPage {
-  language: GuideLanguage;
-  path: string;
-  title: string;
-  description: string;
-  navigation: string;
-}
-const HTML_ENTITIES: Readonly<Record<string, string>> = {
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': "&quot;",
-  "'": "&#39;",
-};
-const escapeHtml = (value: string) =>
-  value.replace(/[&<>"']/g, (character) => HTML_ENTITIES[character]);
-const headingId = (text: string) =>
-  text
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^\p{L}\p{N}_-]/gu, "");
-
 function publicRedirects(): Record<string, string> {
   const configuration = JSON.parse(readFileSync(REDIRECTS_FILE, "utf8"));
   return {
@@ -136,7 +77,7 @@ function publicRedirects(): Record<string, string> {
         .filter((item: { source: string }) => item.source.startsWith("/"))
         .map((item: { source: string; destination: string }) => [item.source, item.destination]),
     ),
-    ...ARTICLE_REDIRECTS,
+    ...SITE_REDIRECTS,
   };
 }
 
@@ -171,245 +112,63 @@ function publicPageResources(): Map<string, string> {
         "packages/ui/assets/fonts/fusion-pixel/fusion-pixel-10px-zh-hans.woff2",
       ),
     ],
+    [
+      "/fusion-pixel/fusion-pixel-10px-zh-hans.woff2",
+      resolve(
+        REPOSITORY_ROOT,
+        "packages/ui/assets/fonts/fusion-pixel/fusion-pixel-10px-zh-hans.woff2",
+      ),
+    ],
   ]);
-  const catalog = JSON.parse(readFileSync(resolve(GUIDE_ROOT, "images/catalog.json"), "utf8"));
-  for (const guide of GUIDES) {
-    const markdown = readFileSync(resolve(GUIDE_ROOT, `README.${guide.language}.md`), "utf8");
-    const parser = new Marked({ gfm: false });
-    parser.walkTokens(parser.lexer(markdown), (token) => {
-      if (token.type !== "image") return;
-      const source = resolve(GUIDE_ROOT, token.href);
-      if (
-        !token.href.startsWith("images/") ||
-        !source.startsWith(`${GUIDE_ROOT}${sep}`) ||
-        !catalog[token.href]
-      )
-        throw Error(`Guide image is not catalogued: ${token.href}`);
-      resources.set(`/help/${token.href}`, source);
-    });
-  }
+  for (const [path, source] of guideImageResources()) resources.set(path, source);
+  for (const [path, source] of articleImageResources()) resources.set(path, source);
+  for (const [path, source] of documentImageResources()) resources.set(path, source);
   return resources;
 }
 
-function guideHtml(guide: Guide, indexable: boolean): string {
-  const markdown = readFileSync(resolve(GUIDE_ROOT, `README.${guide.language}.md`), "utf8");
-  const catalog = JSON.parse(readFileSync(resolve(GUIDE_ROOT, "images/catalog.json"), "utf8"));
-  const renderer = new Renderer();
-  renderer.heading = function ({ tokens, depth, text }: Tokens.Heading) {
-    return `<h${depth} id="${escapeHtml(headingId(text))}">${this.parser.parseInline(tokens)}</h${depth}>\n`;
-  };
-  renderer.html = ({ text }) => escapeHtml(text);
-  renderer.image = ({ href, text }: Tokens.Image) => {
-    const dimensions = catalog[href];
-    if (!dimensions) throw Error(`Guide image is not catalogued: ${href}`);
-    return `<span class="guide-image" tabindex="0" aria-label="${escapeHtml(text)}"><img src="${escapeHtml(`/help/${href}`)}" alt="${escapeHtml(text)}" width="${Math.round(dimensions.displayWidth)}" height="${Math.round(dimensions.displayHeight)}" style="width:${dimensions.displayWidth}px;height:${dimensions.displayHeight}px" loading="lazy" decoding="async"></span>`;
-  };
-  renderer.link = function ({ href, tokens }: Tokens.Link) {
-    const text = this.parser.parseInline(tokens);
-    if (!/^(?:https?:\/\/|#|\/(?!\/))/i.test(href)) throw Error(`Unsupported guide link: ${href}`);
-    return `<a href="${escapeHtml(siteNavigationHref(href))}">${text}</a>`;
-  };
-  const parser = new Marked({ gfm: false, async: false, renderer });
-  const tokens = parser.lexer(markdown);
-  const firstSectionIndex = tokens.findIndex(
-    (token) => token.type === "heading" && token.depth === 2,
-  );
-  const introduction = tokens.slice(0, firstSectionIndex);
-  const contentsToken = introduction.find((token) => token.type === "list");
-  const headings = new Set(
-    tokens
-      .filter((token): token is Tokens.Heading => token.type === "heading")
-      .map((token) => headingId(token.text)),
-  );
-  parser.walkTokens(tokens, (token) => {
-    if (
-      token.type === "link" &&
-      token.href.startsWith("#") &&
-      !headings.has(decodeURIComponent(token.href.slice(1)))
-    )
-      throw Error(`Broken guide section link: ${token.href}`);
-  });
-  const other = GUIDES.find((item) => item.language !== guide.language)!;
-  const alternates = `${GUIDES.map((item) => `<link rel="alternate" hreflang="${item.language}" href="${new URL(item.path, SITE_URL).href}">`).join("\n")}
-<link rel="alternate" hreflang="x-default" href="${new URL(GUIDES[0].path, SITE_URL).href}">`;
-  return pageHtml(
-    guide,
-    indexable,
-    `<div data-public-sidebar>${publicDesktopWindow(
-      guide.language === GuideLanguage.English ? "Contents" : "目录",
-      publicIndex(
-        guide.navigation,
-        tokens
-          .filter((token): token is Tokens.Heading => token.type === "heading" && token.depth === 2)
-          .map((heading) => ({ href: `#${headingId(heading.text)}`, label: heading.text })),
-      ),
-      "data-public-contents",
-    )}</div>${publicDesktopWindow(guide.language === GuideLanguage.English ? "Xprite Help" : "Xprite 使用指南", `<div data-public-reader-scroll><article>${publicRichText(parser.parser(tokens.filter((token) => token !== contentsToken)), { "data-public-document-content": true })}</article></div>`, "data-public-document", `<span>${guide.language === GuideLanguage.English ? "User guide" : "使用指南"}</span><a href="/editor">${guide.openEditor}</a>`)}<nav data-public-shortcuts aria-label="${guide.navigation}">${publicIconLink(guide.openEditor, "/editor", "application")}${publicIconLink(guide.language === GuideLanguage.English ? "Applications" : "工具", "/tools/")}${publicIconLink(guide.language === GuideLanguage.English ? "File guides" : "文件导出", "/learn/")}</nav>`,
-    [
-      {
-        label: guide.language === GuideLanguage.SimplifiedChinese ? "文件导出" : "File guides",
-        href: "/learn/",
-      },
-      {
-        label: guide.language === GuideLanguage.SimplifiedChinese ? "工具比较" : "Compare",
-        href: "/compare/",
-      },
-      { label: guide.openEditor, href: "/editor" },
-      {
-        label: guide.language === GuideLanguage.SimplifiedChinese ? "切换语言" : "Switch language",
-        href: other.path,
-        hrefLang: other.language,
-        icon: "language",
-        end: true,
-      },
-      {
-        label: guide.language === GuideLanguage.SimplifiedChinese ? "使用指南" : "User guide",
-        href: guide.path,
-        icon: "help",
-      },
-    ],
-    alternates,
-  );
-}
-
-function pageHtml(
-  page: PublicPage,
-  indexable: boolean,
-  body: string,
-  links: readonly {
-    label: string;
-    href: string;
-    hrefLang?: string;
-    icon?: "language" | "help";
-    end?: boolean;
-  }[],
-  alternates = "",
-  mainClass = "",
-): string {
-  const indexing = indexable
-    ? `<link rel="canonical" href="${new URL(page.path, SITE_URL).href}">\n${alternates}`
-    : "";
-  return `<!doctype html>
-<html lang="${page.language}" ${PUBLIC_THEME_ATTRIBUTES}><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<script>${publicDesktopStartupScript()}</script>
-<title>${escapeHtml(page.title)}</title>
-<meta name="description" content="${escapeHtml(page.description)}">
-<meta name="robots" content="${indexable ? "index, follow" : "noindex, follow"}">
-${indexing}
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Xprite">
-<meta property="og:title" content="${escapeHtml(page.title)}">
-<meta property="og:description" content="${escapeHtml(page.description)}">
-<meta property="og:url" content="${new URL(page.path, SITE_URL).href}">
-<meta property="og:image" content="${SITE_URL}social-preview.png">
-<meta property="og:image:width" content="1920">
-<meta property="og:image:height" content="820">
-<meta property="og:image:alt" content="Xprite pixel art editor in desktop and phone browsers">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${escapeHtml(page.title)}">
-<meta name="twitter:description" content="${escapeHtml(page.description)}">
-<meta name="twitter:image" content="${SITE_URL}social-preview.png">
-${siteIcons()}
-<link rel="preload" href="${PUBLIC_FONT_PATH}?v=ec44f36e057a" as="font" type="font/woff2" crossorigin>
-${page.language === GuideLanguage.SimplifiedChinese ? `<link rel="preload" href="${CHINESE_FONT_PATH}" as="font" type="font/woff2" crossorigin>` : ""}
-<link rel="stylesheet" href="${PUBLIC_FONT_STYLE_PATH}">
-<link rel="stylesheet" href="${PUBLIC_THEME_STYLE_PATH}">
-<link rel="stylesheet" href="${GUIDE_STYLE_PATH}">
-<link rel="stylesheet" href="${GROWTH_DESKTOP_STYLE_PATH}">
-</head><body data-growth-desktop data-ui-desktop-pattern="${publicPattern(page.path)}">
-${publicUiScope(`<header>${publicDesktopNavigation({ label: page.navigation, language: page.language, currentHref: page.path, brandLabel: page.language === GuideLanguage.English ? "Xprite showcase" : "Xprite 设备演示", brandHref: SHOWCASE_PAGES[page.language].path, brandImage: "/menu-icon.svg", links })}</header>
-<main class="${mainClass}" data-public-desktop>${body}</main>`)}
-</body></html>\n`;
-}
-
-function sitemap(): string {
-  const urls = [
-    "/",
-    ...GUIDES.map((guide) => guide.path),
-    ...TOOL_PATHS,
-    ...SHOWCASE_PATHS,
-    ...ARTICLE_PATHS,
-  ];
-  const entries = urls.map((path) => {
-    const article = ARTICLES.find((item) => item.path === path);
-    const translations = GUIDES.some((guide) => guide.path === path)
-      ? GUIDES.map((guide) => ({ language: guide.language, path: guide.path }))
-      : SHOWCASE_PATHS.includes(path)
-        ? Object.entries(SHOWCASE_PAGES).map(([language, page]) => ({ language, path: page.path }))
-        : [];
-    const alternates = translations.length
-      ? [...translations, { language: "x-default", path: translations[0].path }]
-          .map(
-            (item) =>
-              `<xhtml:link rel="alternate" hreflang="${item.language}" href="${new URL(item.path, SITE_URL).href}"/>`,
-          )
-          .join("")
-      : "";
-    return `  <url><loc>${new URL(path, SITE_URL).href}</loc>${article ? `<lastmod>${article.dateModified}</lastmod>` : ""}${alternates}</url>`;
-  });
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${entries.join("\n")}\n</urlset>\n`;
-}
-
-function robots(indexable: boolean): string {
-  return `User-agent: *\nAllow: /\n${indexable ? `Sitemap: ${SITE_URL}sitemap.xml\n` : ""}`;
-}
-
-function languageModelIndex(): string {
-  return `# Xprite
-
-> Free browser pixel art editor and Aseprite file viewer. Open local sprite projects, edit pixels and animations, and export images.
-
-Xprite is independent of Aseprite. File-format support is not a guarantee of complete compatibility. The viewer processes selected files on the device and exports a current PNG frame or a GIF animation. It limits file size and decoded pixels; large or unsupported projects may be rejected. Keep original project files.
-
-## Applications
-
-- [Pixel art editor](${SITE_URL}): Create and edit sprites, layers, and animation frames.
-- [All tools](${new URL(TOOLS_HOME.path, SITE_URL).href}): Free local browser tools with no file uploads.
-- [Aseprite viewer](${SITE_URL}tools/viewer/): Inspect local .ase and .aseprite files and export PNG or GIF.
-- [Animal Crossing design QR codes](${new URL(ANIMAL_CROSSING_TOOL.path, SITE_URL).href}): Convert PNG images and Aseprite tilemap layers into NookLink QR codes.
-- [GIF to Sprite Sheet](${new URL(GIF_SHEET_TOOL.path, SITE_URL).href}): Convert GIF frames into PNG sheets and JSON frame coordinates and timing.
-
-## User guides
-
-- [English guide](${SITE_URL}help/en/): Browser saving, recovery, touch controls, and offline use.
-- [中文使用指南](${SITE_URL}help/zh-CN/): 浏览器保存、恢复、触摸操作与离线使用。
-
-## File workflows and comparisons
-
-${ARTICLES.map((article) => `- [${article.title}](${new URL(article.path, SITE_URL).href}): ${article.summary}`).join("\n")}
-
-## Optional
-
-- [Source repository](https://github.com/rhinoc/xprite): Source code and issue reports.
-- [Sitemap](${SITE_URL}sitemap.xml): Canonical public pages.
-`;
-}
-
-function notFoundHtml(): string {
-  return applySiteIcons(readFileSync(resolve(PUBLIC_ROOT, "404.html"), "utf8")).replace(
+function notFoundHtml(language = PublicLanguage.English): string {
+  const text = (en: string, zh: string) =>
+    language === PublicLanguage.SimplifiedChinese ? zh : en;
+  const template = applySiteIcons(readFileSync(resolve(PUBLIC_ROOT, "404.html"), "utf8"))
+    .replace('<html lang="en"', `<html lang="${language}"`)
+    .replace("Page not found — Xprite", text("Page not found — Xprite", "找不到页面 — Xprite"));
+  const html = template.replace(
     "<!-- public-not-found -->",
     publicUiScope(
       `<header data-public-error-header>${publicDesktopNavigation({
-        label: "Website navigation",
-        brandLabel: "Xprite showcase",
-        brandHref: SHOWCASE_PAGES[GuideLanguage.English].path,
+        label: text("Website navigation", "网站导航"),
+        language,
+        currentHref: "/404.html",
+        brandLabel: showcaseLabel(language),
+        brandHref: SHOWCASE_PAGES[language].path,
         links: [
-          { label: "Tools", href: TOOLS_HOME.path },
-          { label: "Open editor", href: "/" },
-          { label: "User guide", href: "/help/en/", icon: "help", end: true },
+          { label: text("Tools", "工具"), href: localizedSiteHref(TOOLS_HOME.path, language) },
+          { label: text("Open editor", "打开编辑器"), href: "/" },
+          {
+            label: text("User guide", "使用指南"),
+            href: GUIDE_PAGES[language].path,
+            icon: "help",
+            end: true,
+          },
+          {
+            label: language === PublicLanguage.English ? "简体中文" : "English",
+            href: `/404.html?lang=${language === PublicLanguage.English ? PublicLanguage.SimplifiedChinese : PublicLanguage.English}`,
+            icon: "language",
+          },
         ],
       })}</header>` +
-        publicDesktopWindow(
-          "Xprite",
-          publicRichText(
-            `<h1 id="error-title">Page not found</h1><p>The address may be incorrect, or the page may have moved.</p>`,
-          ) +
-            `<nav data-public-error-actions aria-label="Continue">${publicDesktopButton("/showcase/en/", "Go to showcase")}${publicDesktopButton("/", "Open editor")}</nav>`,
-          'aria-labelledby="error-title" data-public-error-window',
-          "Error 404",
-        ),
+        publicNotFound(language) +
+        publicSiteFooter(language),
+      language,
     ),
+  );
+  if (language === PublicLanguage.SimplifiedChinese) return html;
+  const chineseBody = notFoundHtml(PublicLanguage.SimplifiedChinese).match(
+    /<body[^>]*>([\s\S]*?)<\/body>/,
+  )![1];
+  return html.replace(
+    "</body>",
+    `<template id="public-chinese-error">${chineseBody}</template><script>{const lang=new URLSearchParams(location.search).get('lang');if(lang==='zh-CN'||(lang!=='en'&&location.pathname.split('/').includes('zh-CN'))){document.documentElement.lang='zh-CN';document.title='找不到页面 — Xprite';document.body.innerHTML=document.getElementById('public-chinese-error').innerHTML}}</script></body>`,
   );
 }
 
@@ -485,14 +244,16 @@ function developmentRoutes(
   server.watcher.add([...ui.files]);
   let resources: Map<string, string> | undefined;
   let routingData: { redirects: Record<string, string>; notFoundHtml: string } | undefined;
-  const guidePages = new Map<GuideLanguage, string>();
+  const guidePages = new Map<PublicLanguage, string>();
   const comparisonPages = new Map<string, string>();
-  let comparisonCss: string | undefined;
+  const documentPages = new Map<string, string>();
+  const documentSources = new Set(DOCUMENT_PAGES.map(documentSourcePath));
   const invalidate = (_event: string, filename: string) => {
     if (ui.files.has(filename)) {
       uiDirty = true;
       guidePages.clear();
       comparisonPages.clear();
+      documentPages.clear();
       routingData = undefined;
       // Public documents embed theme tokens and markup in HTML, outside React HMR.
       server.ws.send({ type: "custom", event: "public-ui:invalidate" });
@@ -501,14 +262,17 @@ function developmentRoutes(
       resources = undefined;
       guidePages.clear();
     }
+    if (filename.startsWith(`${CONTENT_ROOT}${sep}`) || documentSources.has(filename)) {
+      documentPages.clear();
+      routingData = undefined;
+    }
     if (filename.startsWith(`${ARTICLE_CONTENT_ROOT}${sep}`)) {
       comparisonPages.clear();
-      comparisonCss = undefined;
     }
     if (filename === REDIRECTS_FILE || filename === resolve(PUBLIC_ROOT, "404.html"))
       routingData = undefined;
   };
-  server.watcher.add([GUIDE_ROOT, ARTICLE_CONTENT_ROOT, REDIRECTS_FILE]);
+  server.watcher.add([CONTENT_ROOT, REDIRECTS_FILE, ...documentSources]);
   server.watcher.on("all", invalidate);
   server.httpServer?.once("close", () => server.watcher.off("all", invalidate));
   server.middlewares.use(
@@ -543,6 +307,14 @@ function developmentRoutes(
         }
         await pendingUi;
         response.setHeader("X-Robots-Tag", "noindex, follow");
+        if (pathname === "/404.html") {
+          return send(
+            response,
+            request.method,
+            HTML_TYPE,
+            await controls(pathname, notFoundHtml()),
+          );
+        }
         if (SHOWCASE_PATHS.includes(pathname)) {
           const language = Object.entries(SHOWCASE_PAGES).find(
             ([, page]) => page.path === pathname,
@@ -569,9 +341,13 @@ function developmentRoutes(
           }
           return send(response, request.method, HTML_TYPE, await controls(pathname, html));
         }
-        if (pathname === ARTICLE_STYLE_PATH) {
-          comparisonCss ??= articleStylesheet();
-          return send(response, request.method, CONTENT_TYPES[".css"], comparisonCss);
+        if (DOCUMENT_PAGES.some((page) => page.path === pathname)) {
+          let html = documentPages.get(pathname);
+          if (html === undefined) {
+            html = documentHtml(pathname, false);
+            documentPages.set(pathname, html);
+          }
+          return send(response, request.method, HTML_TYPE, await controls(pathname, html));
         }
         if (pathname === GROWTH_DESKTOP_STYLE_PATH) {
           return send(response, request.method, CONTENT_TYPES[".css"], ui.css);
@@ -605,7 +381,7 @@ function developmentRoutes(
           ...resources.keys(),
           ...GUIDES.map((item) => item.path),
           ...ARTICLE_PATHS,
-          ARTICLE_STYLE_PATH,
+          ...DOCUMENT_PAGES.map((page) => page.path),
         ];
         if (pathname !== ASSET_MANIFEST_PATH && isPublishedFile(PUBLIC_ROOT, pathname))
           return nextVite();
@@ -651,7 +427,10 @@ export async function growthPublicPages(): Promise<Plugin> {
           request.url = `${pathname}index.html${url.search}`;
           return next();
         }
-        if (ARTICLE_PATHS.includes(pathname)) {
+        if (
+          ARTICLE_PATHS.includes(pathname) ||
+          DOCUMENT_PAGES.some((page) => page.path === pathname)
+        ) {
           const filename = resolve(root, `.${pathname}`, "index.html");
           if (isPublishedFile(root, `${pathname}index.html`)) {
             void readFile(filename, "utf8")
@@ -698,6 +477,8 @@ export async function growthPublicPages(): Promise<Plugin> {
           ),
         );
       }
+      // The template's own address now redirects to the about page.
+      await rm(resolve(output, `.${SHOWCASE_HTML_PATH}`));
       for (const guide of GUIDES) {
         const filename = resolve(output, `.${guide.path}`, "index.html");
         await mkdir(dirname(filename), { recursive: true });
@@ -708,7 +489,11 @@ export async function growthPublicPages(): Promise<Plugin> {
         await mkdir(dirname(filename), { recursive: true });
         await writeFile(filename, controls(articleHtml(path, indexable)));
       }
-      await writeFile(resolve(output, `.${ARTICLE_STYLE_PATH}`), articleStylesheet());
+      for (const page of DOCUMENT_PAGES) {
+        const filename = resolve(output, `.${page.path}`, "index.html");
+        await mkdir(dirname(filename), { recursive: true });
+        await writeFile(filename, controls(documentHtml(page.path, indexable)));
+      }
       const desktopStylesheetFile = resolve(output, `.${GROWTH_DESKTOP_STYLE_PATH}`);
       await mkdir(dirname(desktopStylesheetFile), { recursive: true });
       await writeFile(desktopStylesheetFile, ui.css);

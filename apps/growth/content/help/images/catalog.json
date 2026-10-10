@@ -88,5 +88,17 @@
     "height": 40,
     "displayWidth": 104,
     "displayHeight": 40
+  },
+  "images/zh/browser-compatibility-check.webp": {
+    "width": 1736,
+    "height": 1392,
+    "displayWidth": 868,
+    "displayHeight": 696
+  },
+  "images/en/browser-compatibility-check.webp": {
+    "width": 1736,
+    "height": 1392,
+    "displayWidth": 868,
+    "displayHeight": 696
   }
 }

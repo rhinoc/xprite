@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
+import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
 import { tUi, tUiSource, useUiLanguage } from "$/i18n";
 import {
@@ -17,12 +18,13 @@ import {
   TextArea,
   TextVariant,
 } from "@xprite/ui";
+import { useUiAssets } from "@xprite/ui/assets";
 
 import styles from "$/components/dialogs/share-project/share-project.module.css";
 
-const DIALOG_BOUNDS = { x: 0, y: 0, width: 720, height: 410 };
-const EXPANDED_DIALOG_HEIGHT = 680;
-const REDUCTIONS_ONLY_DIALOG_HEIGHT = 410;
+const DIALOG_BOUNDS = { x: 0, y: 0, width: 720, height: 600 };
+const DEFAULT_WINDOW_TITLEBAR_HEIGHT = 34;
+const DEFAULT_WINDOW_BORDER_WIDTH = 12;
 const MIN_DIALOG_WIDTH = 280;
 const LINK_HEIGHT = 192;
 const URL_ROWS = 6;
@@ -61,22 +63,32 @@ export function ShareProjectDialog({
 }) {
   useUiLanguage();
   const manager = useProjectSharing(source);
-  const minHeight = manager.showReductions
-    ? manager.stage === ShareLinkStage.Rejected || (!manager.artifact?.url && manager.error)
-      ? REDUCTIONS_ONLY_DIALOG_HEIGHT
-      : EXPANDED_DIALOG_HEIGHT
-    : DIALOG_BOUNDS.height;
+  const scene = useSceneBounds();
+  const assets = useUiAssets();
+  const surface = assets?.style.parts.window.surface;
+  const chromeHeight =
+    (surface?.titlebar?.height ?? DEFAULT_WINDOW_TITLEBAR_HEIGHT) +
+    (surface?.borderWidth ?? DEFAULT_WINDOW_BORDER_WIDTH);
+  const width = Math.min(DIALOG_BOUNDS.width, scene.width);
+  const height = Math.min(scene.height, DIALOG_BOUNDS.height);
+  const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
   return (
     <EditorDialog
       open
       modal
-      centerOnOpen
       constrainToViewport
+      resizable={false}
       title={tUiSource("Share...")}
-      defaultBounds={DIALOG_BOUNDS}
+      bounds={{
+        x: position?.x ?? Math.max(0, Math.round((scene.width - width) / 2)),
+        y: position?.y ?? Math.max(0, Math.round((scene.height - height) / 2)),
+        width,
+        height,
+      }}
+      onBoundsChange={({ x, y }) => setPosition({ x, y })}
       minSize={{
         width: MIN_DIALOG_WIDTH,
-        height: minHeight,
+        height: chromeHeight,
       }}
       contentLayout={OverlayContentLayout.Flow}
       onOpenChange={(open) => {
@@ -86,6 +98,57 @@ export function ShareProjectDialog({
       <div className={styles.body}>
         <header className={styles.summary}>
           <ShareMessage>{source.name}</ShareMessage>
+        </header>
+        {manager.showReductions && (
+          <div>
+            <ShareSection title={tUi("share.reduceTitle")}>
+              <ShareMessage muted>{tUi("share.reduceHelp")}</ShareMessage>
+              <div className={styles.options}>
+                <Checkbox
+                  label={tUi("share.currentFrame")}
+                  checked={manager.reductions.currentFrame}
+                  disabled={!manager.available.currentFrame}
+                  onCheckedChange={(checked) =>
+                    manager.setReduction(ShareReduction.CurrentFrame, checked)
+                  }
+                />
+                <Checkbox
+                  label={tUi("share.visibleLayers")}
+                  checked={
+                    manager.reductions.visibleLayers || manager.reductions.flattenVisibleLayers
+                  }
+                  disabled={
+                    !manager.available.visibleLayers || manager.reductions.flattenVisibleLayers
+                  }
+                  onCheckedChange={(checked) =>
+                    manager.setReduction(ShareReduction.VisibleLayers, checked)
+                  }
+                />
+                <Checkbox
+                  label={tUi("share.flattenLayers")}
+                  checked={manager.reductions.flattenVisibleLayers}
+                  disabled={!manager.available.flattenVisibleLayers}
+                  onCheckedChange={(checked) =>
+                    manager.setReduction(ShareReduction.FlattenVisibleLayers, checked)
+                  }
+                />
+                <Checkbox
+                  label={tUi("share.cleanTransparent")}
+                  checked={manager.reductions.cleanTransparentRgb}
+                  disabled={!manager.available.cleanTransparentRgb}
+                  onCheckedChange={(checked) =>
+                    manager.setReduction(ShareReduction.CleanTransparentRgb, checked)
+                  }
+                />
+              </div>
+              {(manager.reductions.flattenVisibleLayers ||
+                manager.reductions.cleanTransparentRgb) && (
+                <ShareMessage>{tUi("share.reductionConsequences")}</ShareMessage>
+              )}
+            </ShareSection>
+          </div>
+        )}
+        <div className={styles.shareContent} aria-busy={manager.busy}>
           {!manager.busy && (manager.artifact || manager.showReductions) && (
             <ShareMessage muted>
               {tUi("share.contentCount", {
@@ -94,8 +157,6 @@ export function ShareProjectDialog({
               })}
             </ShareMessage>
           )}
-        </header>
-        <div className={styles.shareContent} aria-busy={manager.busy}>
           {manager.busy ? (
             <div className={styles.pending} role="status">
               <ShareMessage>{tUiSource("Preparing share link…")}</ShareMessage>
@@ -167,55 +228,6 @@ export function ShareProjectDialog({
             </div>
           )}
         </div>
-        {manager.showReductions && (
-          <div className={styles.reductions}>
-            <ShareSection title={tUi("share.reduceTitle")}>
-              <ShareMessage muted>{tUi("share.reduceHelp")}</ShareMessage>
-              <div className={styles.options}>
-                <Checkbox
-                  label={tUi("share.currentFrame")}
-                  checked={manager.reductions.currentFrame}
-                  disabled={!manager.available.currentFrame}
-                  onCheckedChange={(checked) =>
-                    manager.setReduction(ShareReduction.CurrentFrame, checked)
-                  }
-                />
-                <Checkbox
-                  label={tUi("share.visibleLayers")}
-                  checked={
-                    manager.reductions.visibleLayers || manager.reductions.flattenVisibleLayers
-                  }
-                  disabled={
-                    !manager.available.visibleLayers || manager.reductions.flattenVisibleLayers
-                  }
-                  onCheckedChange={(checked) =>
-                    manager.setReduction(ShareReduction.VisibleLayers, checked)
-                  }
-                />
-                <Checkbox
-                  label={tUi("share.flattenLayers")}
-                  checked={manager.reductions.flattenVisibleLayers}
-                  disabled={!manager.available.flattenVisibleLayers}
-                  onCheckedChange={(checked) =>
-                    manager.setReduction(ShareReduction.FlattenVisibleLayers, checked)
-                  }
-                />
-                <Checkbox
-                  label={tUi("share.cleanTransparent")}
-                  checked={manager.reductions.cleanTransparentRgb}
-                  disabled={!manager.available.cleanTransparentRgb}
-                  onCheckedChange={(checked) =>
-                    manager.setReduction(ShareReduction.CleanTransparentRgb, checked)
-                  }
-                />
-              </div>
-              {(manager.reductions.flattenVisibleLayers ||
-                manager.reductions.cleanTransparentRgb) && (
-                <ShareMessage>{tUi("share.reductionConsequences")}</ShareMessage>
-              )}
-            </ShareSection>
-          </div>
-        )}
       </div>
     </EditorDialog>
   );

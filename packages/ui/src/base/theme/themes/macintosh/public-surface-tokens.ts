@@ -1,9 +1,13 @@
 import { desktopPatternTokens } from "$/base/theme/desktop-pattern-tokens";
 import { noteTokens } from "$/base/theme/note-tokens";
 import { pixelFrameImage } from "$/base/theme/pixel-frame";
-import { semanticPresentationTokens } from "$/base/theme/semantic-presentation-tokens";
+import {
+  semanticFontFamilies,
+  semanticPresentationTokens,
+} from "$/base/theme/semantic-presentation-tokens";
 import type { UiAppearance } from "$/base/theme/theme-types";
 import { macintoshBalloonImage } from "$/base/theme/themes/macintosh/balloon-frame";
+import { macintoshTypography } from "$/base/theme/themes/macintosh/typography";
 import { panelWindowKindTokens } from "$/base/theme/window-chrome-tokens";
 
 type Palette = {
@@ -33,10 +37,12 @@ const SURFACE_TONES = {
 /** Tokens shared by native controls and static public-page first paint. */
 export function macintoshPublicSurfaceTokens(palette: Palette, appearance: UiAppearance = "light") {
   const tones = SURFACE_TONES[appearance];
+  const fonts = semanticFontFamilies(macintoshTypography);
   return {
     ...semanticPresentationTokens({
-      primaryFont: "ChiKareGo2, FusionPixelZhHans, monospace",
-      compactFont: "FindersKeepers, FusionPixelZhHans, monospace",
+      primaryFont: fonts.primary,
+      compactFont: fonts.compact,
+      cjkFont: fonts.cjk,
       ink: palette.ink,
       mutedInk: palette.muted,
       paper: palette.paper,

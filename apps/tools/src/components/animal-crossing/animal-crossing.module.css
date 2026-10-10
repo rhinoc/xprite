@@ -68,12 +68,6 @@
   flex: 1;
   min-height: 300px;
 }
-.previewHint {
-  padding: var(--ui-space-4);
-}
-.exampleCredit {
-  margin: 0 0 var(--ui-space-2);
-}
 .gridOverlay {
   position: absolute;
   inset: 0;
@@ -81,35 +75,52 @@
   pointer-events: none;
 }
 .gridCell {
-  position: absolute;
-  box-sizing: border-box;
-  border: 1px solid var(--xse-border);
+  --ui-button-quiet-min-height: 0;
+  --ui-button-quiet-padding: 0;
+  --ui-button-quiet-active-face: transparent;
+  pointer-events: auto;
   opacity: 0.45;
 }
+.gridCell[data-appearance="quiet"] {
+  border: var(--tile-border-width, 0) solid var(--xse-border);
+  box-shadow: var(--tile-shadow, none);
+}
+.cellBorder {
+  --tile-border-width: 1px;
+}
 .selectedCell {
-  border-width: 2px;
-  box-shadow: inset 0 0 0 1px var(--ui-theme-paper);
+  --tile-border-width: 2px;
+  --tile-shadow: inset 0 0 0 1px var(--ui-theme-paper);
   opacity: 1;
-}
-.tileSelection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ui-space-2);
-  padding: var(--ui-space-4);
-}
-.tileScroll {
-  height: 80px;
-  max-height: 112px;
-}
-.tileButtons {
-  gap: var(--ui-space-2);
 }
 .qrArtwork {
   display: flex;
   justify-content: center;
   width: 202px;
   max-width: 100%;
+  align-self: center;
   background: white;
+}
+.outputContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-4);
+  padding: var(--ui-space-4);
+  min-width: 0;
+}
+.outputSelection {
+  justify-content: center;
+}
+.outputTitle {
+  text-align: center;
+}
+.outputActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ui-space-2);
+}
+.outputActions > :only-child {
+  grid-column: 1 / -1;
 }
 .outputEmpty {
   min-height: 250px;
@@ -144,9 +155,6 @@
   }
 }
 @media (max-width: 760px) {
-  .tileScroll {
-    height: 112px;
-  }
   .layout {
     display: flex;
     flex-direction: column;
@@ -197,9 +205,6 @@
   display: block;
   position: absolute;
   inset: 0;
-}
-.groundNote {
-  padding: var(--ui-space-4);
 }
 
 .layout {

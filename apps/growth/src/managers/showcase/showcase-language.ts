@@ -1,7 +1,7 @@
 import { SHOWCASE_HERO_COPY } from "$content/showcase/index";
+import { SHOWCASE_PAGES } from "$content/showcase/pages";
 
 import { ShowcaseDevice } from "$/managers/showcase/showcase-device";
-import { SHOWCASE_PAGES } from "$/managers/showcase/showcase-pages";
 
 export enum ShowcaseLanguage {
   Chinese = "zh-CN",

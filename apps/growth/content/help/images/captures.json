@@ -285,5 +285,41 @@
       "[role=\"toolbar\"][aria-label=\"Shortcuts\"] button[aria-label=\"Duplicate Drag\"]",
       "[role=\"toolbar\"][aria-label=\"Shortcuts\"] button[aria-label=\"From Center\"]"
     ]
+  },
+  "images/en/browser-compatibility-check.webp": {
+    "width": 1736,
+    "height": 1392,
+    "capturedAt": "2026-10-10T10:38:34.365Z",
+    "source": "http://127.0.0.1:5173/editor",
+    "viewport": {
+      "width": 1100,
+      "height": 760
+    },
+    "deviceScaleFactor": 2,
+    "clip": {
+      "x": 116,
+      "y": 32,
+      "width": 868,
+      "height": 696
+    },
+    "selectors": ["[role=\"dialog\"][aria-label=\"Preferences\"]"]
+  },
+  "images/zh/browser-compatibility-check.webp": {
+    "width": 1736,
+    "height": 1392,
+    "capturedAt": "2026-10-10T10:41:37.521Z",
+    "source": "http://127.0.0.1:5173/editor",
+    "viewport": {
+      "width": 1100,
+      "height": 760
+    },
+    "deviceScaleFactor": 2,
+    "clip": {
+      "x": 116,
+      "y": 32,
+      "width": 868,
+      "height": 696
+    },
+    "selectors": ["[role=\"dialog\"][aria-label=\"首选项\"]"]
   }
 }

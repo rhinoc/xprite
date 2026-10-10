@@ -120,12 +120,12 @@ try {
     for (const host of hosts) {
       const origin = `http://${host}:${configuration.ports.editor}`;
       console.log(`  ${origin}/editor`);
-      console.log(`  ${origin}/showcase/en/`);
+      console.log(`  ${origin}/about/`);
       console.log(`  ${origin}/learn/`);
       console.log(`  ${origin}/compare/`);
-      console.log(`  ${origin}/help/zh-CN/`);
+      console.log(`  ${origin}/zh-CN/help/`);
       console.log(`  ${origin}/tools/`);
-      console.log(`  ${origin}/gallery/`);
+      console.log(`  ${origin}/components/`);
     }
   }
 } catch (error) {

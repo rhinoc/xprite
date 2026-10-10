@@ -10,7 +10,6 @@ import {
 import { macintoshBalloonPointers } from "$/base/theme/themes/macintosh/balloon-artwork";
 import { macintoshBalloonImage } from "$/base/theme/themes/macintosh/balloon-frame";
 import { macintoshColorRoles } from "$/base/theme/themes/macintosh/color-roles";
-import fontMetrics from "$/base/theme/themes/macintosh/font-metrics.json";
 import {
   macintoshGeometry,
   macintoshSheetHashes,
@@ -21,6 +20,7 @@ import {
   macintoshMenuShortcutGlyphs,
   macintoshMenuLabelGlyphs,
 } from "$/base/theme/themes/macintosh/shortcut-artwork";
+import { macintoshTypography } from "$/base/theme/themes/macintosh/typography";
 import darkSheetUrl from "$assets/themes/macintosh/macintosh-dark-sheet.webp";
 import lightSheetUrl from "$assets/themes/macintosh/macintosh-light-sheet.webp";
 
@@ -158,7 +158,7 @@ export function macintoshArtwork(appearance: UiAppearance): UiThemeArtwork {
         textbox_placeholder_text: palette.muted,
         palette_entries_separator: appearance === "dark" ? "#5a5a5a" : "#a5a5a5",
       },
-      typography: { default: fontMetrics.chikarego2, mini: fontMetrics.finderskeepers },
+      typography: macintoshTypography,
       controlParts: {
         timeline: {
           thumbnailInset: TIMELINE_THUMBNAIL_INSET,

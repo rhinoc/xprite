@@ -2,6 +2,7 @@ import { useEffect, useSyncExternalStore } from "react";
 
 import { FileToolShell } from "$/components/shared/file-tool-shell";
 import { ViewerPreview } from "$/components/viewer/viewer-preview";
+import { useToolTranslation } from "$/managers/locale/tool-language";
 import { VIEWER_TOOL } from "$/managers/tools/tool-catalog";
 import {
   ViewerStatus,
@@ -10,6 +11,8 @@ import {
 } from "$/managers/viewer/viewer-manager";
 
 export function ViewerPage({ manager }: { manager: ViewerManager }) {
+  const t = useToolTranslation();
+
   const snapshot = useSyncExternalStore(
     manager.subscribe,
     manager.getSnapshot,
@@ -40,17 +43,17 @@ export function ViewerPage({ manager }: { manager: ViewerManager }) {
       onExample={() => manager.openExample()}
       fileItems={[
         {
-          label: "Edit in Xprite",
+          label: t("Edit in Xprite"),
           disabled: !ready || busy || snapshot.openingEditor,
           onSelect: () => void manager.openEditor(),
         },
         {
-          label: "Export animation (.gif)",
+          label: t("Export animation (.gif)"),
           disabled: !ready || busy || snapshot.exporting || !snapshot.animated,
           onSelect: () => void manager.exportFile(ViewerExportFormat.Gif),
         },
         {
-          label: "Export current frame (.png)",
+          label: t("Export current frame (.png)"),
           disabled: !ready || busy || snapshot.exporting,
           onSelect: () => void manager.exportFile(ViewerExportFormat.Png),
         },

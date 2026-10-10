@@ -228,6 +228,7 @@ export function FlowForm({
           <Button
             key={`${action.label}-${index}`}
             text={action.label}
+            font="default"
             data-ui-form-action={action.label}
             disabled={action.disabled}
             onClick={action.onClick}

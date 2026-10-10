@@ -23,6 +23,7 @@ import { adjacentDevice, ShowcaseDevice } from "$/managers/showcase/showcase-dev
 import { SHOWCASE_COPY, ShowcaseLanguage } from "$/managers/showcase/showcase-language";
 
 export enum ShowcaseStatus {
+  Idle = "idle",
   Loading = "loading",
   Ready = "ready",
   Error = "error",
@@ -50,7 +51,7 @@ export class ShowcaseManager {
     playing: false,
     started: false,
     editingHighlighted: false,
-    status: ShowcaseStatus.Loading,
+    status: ShowcaseStatus.Idle,
     language: ShowcaseLanguage.English,
     device: ShowcaseDevice.Computer,
     deviceText: SHOWCASE_COPY[ShowcaseLanguage.English].titleEnd[ShowcaseDevice.Computer].device,
@@ -60,6 +61,8 @@ export class ShowcaseManager {
   };
   private listeners = new Set<() => void>();
   private scene?: ShowcaseScene;
+  private host?: HTMLElement;
+  private pendingDevice?: ShowcaseDevice;
   private music?: ShowcaseMusic;
   private frame?: number;
   private previousTime = 0;
@@ -98,17 +101,16 @@ export class ShowcaseManager {
     this.listeners.forEach((notify) => notify());
   }
 
-  async mount(element: HTMLElement): Promise<void> {
+  mount(element: HTMLElement): void {
     this.unmount();
-    const generation = ++this.mounted;
+    this.host = element;
     this.removeLanguage = this.port.observeLanguage(this.setLanguage);
-    this.loading = new AbortController();
     this.endingTime = 0;
     this.filmTime = FILM_START;
     this.deviceNameElapsed = DEVICE_NAME_SCRAMBLE_MILLISECONDS;
     this.deviceNameTick = -1;
     this.update({
-      status: ShowcaseStatus.Loading,
+      status: ShowcaseStatus.Idle,
       playing: false,
       started: false,
       editingHighlighted: false,
@@ -119,9 +121,33 @@ export class ShowcaseManager {
       this.state.musicMuted,
       musicVolumeGain(this.state.musicVolume),
       () => {
-        if (generation === this.mounted) this.update({ musicAvailable: false, musicMuted: true });
+        if (this.host === element) this.update({ musicAvailable: false, musicMuted: true });
       },
     );
+    this.removeVisibility = this.port.observeVisibility(element, (visible) => {
+      this.visible = visible;
+      this.previousTime = this.port.now();
+      if (!visible && this.frame !== undefined) {
+        this.port.cancelFrame(this.frame);
+        this.frame = undefined;
+      } else if (visible) this.wake();
+    });
+    void this.loadScene(element);
+  }
+
+  private async loadScene(element: HTMLElement): Promise<void> {
+    const generation = ++this.mounted;
+    this.disposeScene();
+    this.loading = new AbortController();
+    this.dragging = false;
+    this.filmTime = FILM_START;
+    this.endingTime = 0;
+    this.update({
+      status: ShowcaseStatus.Loading,
+      started: false,
+      playing: false,
+      editingHighlighted: false,
+    });
     try {
       const scene = await this.port.mount(element, this.state.language, this.loading.signal);
       if (generation !== this.mounted) {
@@ -136,24 +162,25 @@ export class ShowcaseManager {
         this.moveDevice,
         () => this.state.started && this.visible,
       );
-      await scene.setLanguage(this.state.language);
-      if (generation !== this.mounted) return;
+      let language: ShowcaseLanguage;
+      do {
+        language = this.state.language;
+        await scene.setLanguage(language);
+        if (generation !== this.mounted) return;
+      } while (language !== this.state.language);
+      scene.render(this.filmTime);
       this.update({
         status: ShowcaseStatus.Ready,
         playing: this.state.started,
       });
-      scene.render(this.filmTime);
-      this.removeVisibility = this.port.observeVisibility(element, (visible) => {
-        this.visible = visible;
-        this.previousTime = this.port.now();
-        if (!visible && this.frame !== undefined) {
-          this.port.cancelFrame(this.frame);
-          this.frame = undefined;
-        } else if (visible) this.wake();
-      });
       this.previousTime = this.port.now();
+      const device = this.pendingDevice;
+      this.pendingDevice = undefined;
+      if (device !== undefined) this.selectDevice(device);
+      else this.wake();
     } catch (error) {
       if (generation === this.mounted) {
+        this.disposeScene();
         console.error("Unable to mount showcase", error);
         this.update({ status: ShowcaseStatus.Error, playing: false });
       }
@@ -227,6 +254,12 @@ export class ShowcaseManager {
   };
 
   selectDevice = (device: ShowcaseDevice) => {
+    if (this.state.status !== ShowcaseStatus.Ready && this.host) {
+      this.pendingDevice = device;
+      this.update({ device });
+      if (this.state.status !== ShowcaseStatus.Loading) void this.loadScene(this.host);
+      return;
+    }
     if (this.state.status !== ShowcaseStatus.Ready) return;
     this.scene?.setDevice(device);
     if (device === this.state.device && this.state.started) return;
@@ -282,6 +315,7 @@ export class ShowcaseManager {
         },
         (error: unknown) => {
           if (scene !== this.scene || language !== this.state.language) return;
+          this.disposeScene();
           console.error("Unable to load showcase language", error);
           this.update({ status: ShowcaseStatus.Error, playing: false });
         },
@@ -308,19 +342,11 @@ export class ShowcaseManager {
     this.music?.setMuted(musicMuted);
   };
 
-  unmount() {
-    this.music?.dispose();
-    this.music = undefined;
-    this.dragging = false;
-    ++this.mounted;
+  private disposeScene() {
     this.loading?.abort();
     this.loading = undefined;
     if (this.frame !== undefined) this.port.cancelFrame(this.frame);
     this.frame = undefined;
-    this.removeVisibility?.();
-    this.removeVisibility = undefined;
-    this.removeLanguage?.();
-    this.removeLanguage = undefined;
     this.removeInvalidation?.();
     this.removeInvalidation = undefined;
     this.removeDeviceSelection?.();
@@ -329,5 +355,19 @@ export class ShowcaseManager {
     this.removeDeviceNavigation?.();
     this.removeDeviceNavigation = undefined;
     this.scene = undefined;
+  }
+
+  unmount() {
+    ++this.mounted;
+    this.disposeScene();
+    this.music?.dispose();
+    this.music = undefined;
+    this.dragging = false;
+    this.removeVisibility?.();
+    this.removeVisibility = undefined;
+    this.removeLanguage?.();
+    this.removeLanguage = undefined;
+    this.host = undefined;
+    this.pendingDevice = undefined;
   }
 }

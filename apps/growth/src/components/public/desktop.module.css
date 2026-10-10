@@ -105,24 +105,10 @@
   }
 }
 :global([data-public-error]) {
-  display: grid;
-  place-items: center;
-  min-height: 100svh;
   margin: 0;
-  padding: 24px;
-}
-:global([data-public-error] [data-slot="panel"]) {
-  width: min(100%, 420px);
 }
 :global([data-public-error-header]) {
-  position: absolute;
-  inset: 0 0 auto;
-}
-:global([data-public-error-actions]) {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 12px;
+  height: var(--ui-menu-navigation-height, 20px);
 }
 @media (min-width: 1001px) {
   :global([data-public-document]) {

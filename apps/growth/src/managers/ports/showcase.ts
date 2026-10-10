@@ -2,6 +2,7 @@ import type { ShowcaseDevice } from "$/managers/showcase/showcase-device";
 import type { ShowcaseLanguage } from "$/managers/showcase/showcase-language";
 
 export type ShowcaseTrailMount = (canvas: HTMLCanvasElement, surface: HTMLElement) => () => void;
+export type ShowcaseStoryAnimationsMount = (element: HTMLElement) => () => void;
 export const SHOWCASE_OVERVIEW_TOP_PROPERTY = "--film-overview-top";
 export const SHOWCASE_FOCUSED_TOP_PROPERTY = "--film-focused-top";
 

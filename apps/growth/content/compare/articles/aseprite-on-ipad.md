@@ -1,46 +1,141 @@
-# Aseprite on iPad: choose a tool for your desktop project
+---
+published: 2026-10-10
+updated: 2026-10-10
+---
 
-You have a layered sprite or animation on your computer and want to keep working with an Apple Pencil. Can you install Aseprite on the iPad? Its official packages cover Windows, macOS and Linux; there is no official iPadOS package in the published download offering. The practical choice is another editor that can read your project, followed by a checked export back to desktop. [Aseprite FAQ](https://www.aseprite.org/faq/#what-do-i-get-when-i-buy-aseprite)
+# Can You Use Aseprite on iPad? A Free Option and 3 Apps Compared
 
-Pixquare, Resprite and Pixaki Pro all publish Aseprite import and export support. Xprite offers a browser route. The useful question is which route preserves the parts of **your** project that you need to edit tomorrow. A file opening successfully is only the first check.
+There's no iPad version of Aseprite. The [official](https://www.aseprite.org/faq/#what-do-i-get-when-i-buy-aseprite) downloads are for Windows, macOS and Ubuntu only. To keep working on an `.aseprite` project on iPad, you need a different editor that can read the format. There are two main routes:
 
-This comparison uses official documentation checked on **October 4, 2026** and Xprite’s current guide. We have not conducted an iPad device test or a desktop–iPad–desktop file round trip for these products. Pencil feel, performance and project fidelity remain unmeasured here.
+- Keep drawing for free: open Xprite in Safari, import the project, and save it back to `.aseprite` when you're done. There's nothing to install and no in-app purchases.
+- Buy an iPad app: Pixquare, Resprite and Pixaki Pro all import `.aseprite` projects and support double-tap on Apple Pencil. The first two also support squeeze on Apple Pencil Pro.
 
-## Choose around the work you need to continue
+Price isn't the only difference. The table compares the four editors feature by feature.
 
-| Editor     | Pen and touch workflow                                                                                        | Animation workflow                                                                    | Aseprite file handoff                                                                                           |
-| ---------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Pixquare   | Pencil-only drawing, finger navigation and Pencil Pro squeeze actions are documented.                         | Onion skin settings and frame navigation; tilemap layers can also animate.            | Imports `.ase` / `.aseprite`; exports ASEPRITE. Import can convert to `.px` or retain the original format.      |
-| Resprite   | Apple Pencil drawing, touch shortcuts and a radial brush menu are advertised.                                 | Layer/frame timeline, clips and onion skin; optional finger gestures navigate frames. | Imports `.ase` / `.aseprite` into `.resprite`; exports `.aseprite`, with documented conversion losses.          |
-| Pixaki Pro | Apple Pencil support; configurable single-finger action and multitouch gestures.                              | Scrubbable timeline, held frames and onion skin.                                      | Imports and exports Aseprite documents; claims to retain layers and cels. Pro is required for advanced formats. |
-| Xprite     | Pen draws; after first pen use, fingers pan by default. Touch undo/redo and a shortcut toolbar are available. | Editable layers and frames in the browser editor.                                     | Opens and saves Aseprite projects; check a copy of your particular file before adopting the workflow.           |
+|  | Xprite | Pixquare | Resprite | Pixaki Pro |
+| --- | --- | --- | --- | --- |
+| Price | 🆓 Free, no in-app purchases | 💰 One-time, $24.99 for all devices | 💰 Subscription or one-time | 💰 Intro is free, Pro is extra |
+| Platforms | ✅ Browser | ✅ iPhone, iPad, Mac | ✅ iPhone, iPad, Android, Windows, Mac | ⚠️ iPad only |
+| Import `.aseprite` | ✅ Opens directly | ✅ Can keep the original format | ⚠️ Converted to `.resprite`, with losses | ✅ Yes |
+| Export `.aseprite` | ✅ Writes the original format | ✅ Yes | ⚠️ Some effects are lost | ✅ Keeps layers and cels |
+| Onion skin | ✅ Yes, plus tags | ✅ Yes | ✅ Yes, plus clips | ✅ Yes, plus held frames |
+| Tilemaps | ✅ Editable | ✅ Can be animated | ⚠️ Yes, but imported ones can't be edited | — |
+| Double-tap on Apple Pencil | ❌ No | ✅ Follows system settings | ✅ Customizable | ✅ Yes |
+| Squeeze | ❌ No | ✅ Opens a menu or the palette | ✅ Customizable | — |
+| Offline | ⚠️ Open once online first | ✅ Projects stored on the device | ✅ Projects stored on the device | ✅ Projects stored on the device |
+| Sync across devices | ⚠️ Save files by hand | ✅ iCloud sync | ⚠️ Export `.resprite` by hand | ✅ iCloud sync |
 
-These are documented capabilities, not a performance ranking. Try the task you repeat most: draw a one-pixel contour, move a selection precisely, switch frames and undo without reaching for a keyboard.
+## What Pixquare, Resprite and Pixaki do better
 
-## Native apps: examine both directions of conversion
+These three apps are strongest at Apple Pencil and finger input:
 
-**Pixquare** gives an important choice at import. Converting an Aseprite file to its `.px` working format differs from importing in the original format. Its guide says retaining the original format disables automatic saving, automatic backup and timelapse recording. Choose deliberately before a long session, and keep an independent copy. The export guide lists ASEPRITE separately from flattened delivery formats. Neither page establishes complete preservation of every Aseprite feature. [Import options](https://docs.pixquare.art/pixquare-file/create-import), [export formats](https://docs.pixquare.art/pixquare-file/exporting)
+|  | Double-tap | Squeeze | One finger |
+| --- | --- | --- | --- |
+| Pixquare | Follows system settings | Opens the tool menu or the palette | Pan, or switch frames and layers |
+| Resprite | 6 actions to choose from | Can be set to similar actions | — |
+| Pixaki | Supported on Apple Pencil (2nd generation) | — | Current tool, eraser, pan or nothing |
 
-**Resprite** publishes unusually specific compatibility limits. Imported durations are truncated to 100 ms units, overlapping tags cannot remain unchanged, and indexed pixels become color pixels. Aseprite tilemap layers are not imported as editable Resprite maps. Going back, Resprite tilemaps become raster pixels and live layer styles are skipped rather than automatically rendered into the export. An animation with carefully tuned timing or an editable map therefore needs particular scrutiny. [Aseprite compatibility](https://resprite.fengeon.com/docs/files/aseprite)
+Here are the details on controls and pricing:
 
-**Pixaki Pro** explicitly offers Aseprite import and export, with layers and cels retained according to its guide. Its animation model uses a project speed and held frames, so inspect timing after conversion rather than assuming a familiar preview proves equivalence. Its published claim does not establish preservation of tags, slices, indexed editing or editable tilemaps. [Aseprite export](https://pixaki.com/user-guide/export/), [animation model](https://pixaki.com/user-guide/animation/)
+- Pixquare: you can set the canvas so only the pencil draws. One finger then either pans or swipes between frames and layers. The iPhone-only version is $7.99; within 3 days of your first download, the all-devices version is $19.99.
+- Resprite: double-tap can be set to eraser, eyedropper, previous tool, paint bucket, pencil or undo. Pressing past a pressure threshold triggers a second action, and brush size follows pressure. The trial exports every format without a watermark but has a daily limit; Premium removes the limit and adds color adjustments, advanced outlines, symmetry and custom fonts. Purchases don't carry over between app stores, but iPhone and iPad share one purchase under the same Apple Account. The Mac version needs a Mac with Apple silicon.
+- Pixaki: the free Intro version is limited to 3 layers plus 1 reference layer, 8 frames and a 160 × 160 canvas. Pro unlocks `.aseprite` import and export, canvases up to 8192 px per side, and up to 2 MP in total. Projects stored in iCloud open on several devices, and you share them with others as `.pixaki` files.
 
-For access, Pixquare advertises a one-time unlock; Resprite offers subscriptions and a one-time purchase, with trial export attempts limited per day; Pixaki separates free Intro from paid Pro. Check your regional store before buying. Pixaki Intro’s basic formats do not cover this advanced handoff. [Pixquare FAQ](https://www.pixquare.art/faqs), [Resprite](https://resprite.fengeon.com/), [trial limits](https://resprite.fengeon.com/faq/purchase/premium-unlocks), [Pixaki editions](https://pixaki.com/)
+All three also export PSD and video, which Xprite doesn't. Pixaki is also good for fine-tuning animation timing: drag the timeline left and right and the canvas follows. Set a frame to 2× its duration and you get one held frame. Durations follow the project's frame rate, so at 10 fps, 1× is 0.1 seconds and 3× is 0.3 seconds. Layers come in three kinds: animation, static and reference.
 
-## A browser route with explicit file backups
+## When to use Xprite
 
-Xprite is worth trying when you want to open the editor through a link. Its [touch guide](/help/en/#fingers-and-a-pen) explains finger navigation and pen drawing; the [shortcut toolbar](/help/en/#shortcut-toolbar) supplies selection movements and modifiers on screen.
+If you move the same `.aseprite` file back and forth between a computer and an iPad and don't want to buy another editor, Xprite does the job. It runs in the browser, is free, and has no in-app purchases. When you open an 8-bit indexed or 16-bit grayscale project, the color mode stays the same, so you can keep drawing straight away. It exports `.aseprite`, PNG, GIF, APNG and sprite sheets; JPEG and WebP depend on the browser.
 
-Browser saves stay in the current browser and do not sync between devices. Use **File → Save As → File Manager** for an independent file; unsupported save-dialog browsers use a download. Prepare offline resources during the first connected visit before relying on offline editing. See [save and recover](/help/en/#save-and-recover) and [offline use](/help/en/#add-to-desktop-and-use-offline).
+![Xprite with example.aseprite open: layers and frames in the timeline at the bottom, and onion skin turned on](images/editor-with-aseprite-en.png)
 
-## Check one representative project first
+In Xprite, Apple Pencil and fingers split the work: once it detects a pencil, the pencil draws and your finger pans. After you reload the page, use the pencil once more for it to switch again. This is the **Automatic: draw with fingers until a pen is used** setting under **Single-finger action** in **Edit → Preferences → Touch**, and you can pick a fixed option there instead.
 
-Duplicate your desktop original and choose a file containing the features you actually use. Import it, inspect layers and animation timing, make a small edit, then export an Aseprite copy. Reopen that copy on desktop and inspect the same layers, tags, palette and tilemap structure. Keep the tablet’s editable original alongside it.
+![The Touch page in Preferences, with Single-finger action set to Automatic: draw with fingers until a pen is used](images/touch-settings-en.png)
 
-Prefer the route that passes this check for your work. A PNG, GIF or sprite sheet can deliver finished pixels, but cannot replace a layered project backup.
+Without a keyboard, these help:
 
-[Try Xprite with a copy of your project](/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-on-ipad).
+- Gestures: tap with two fingers to undo and with three fingers to redo; keep your fingers down to repeat. Pan, zoom and touch-and-hold to pick a color are also supported. You can turn these on and off as described in [Fingers and a pen](/help/#fingers-and-a-pen).
+- Shortcut toolbar: turn it on in **View → Show → Shortcut Toolbar**. With a selection, the arrow buttons move it 1 pixel at a time, and **Constrain**, **From Center** and **Duplicate Drag** stand in for modifier keys. See [Shortcut toolbar](/help/#shortcut-toolbar).
+- Add to Home Screen: in Safari, tap the Share button, then **Add to Home Screen**. After opening it once while online, you can draw offline. If it doesn't open offline, open it once more while online. See [Add to desktop and use offline](/help/#add-to-desktop-and-use-offline).
+- Sharing: **File → Share...** packs the project into a link or QR code on your device, without uploading it anywhere. The other person opens a copy, so you can't edit together. If the project is too big, export a file instead.
 
-## Sources
+![The shortcut toolbar along the left edge of the window, with arrow buttons and a button at the bottom for more icons](images/shortcut-toolbar-en.png)
 
-Official pages checked October 4, 2026. Additional references for the table: [Pixquare gestures](https://docs.pixquare.art/interface-and-gestures/gestures-and-quick-actions), [drawing settings](https://docs.pixquare.art/settings/drawing), [onion skin settings](https://docs.pixquare.art/settings/animation), [tilemaps](https://docs.pixquare.art/misc/tilemap-tileset-system), [Resprite timeline](https://resprite.fengeon.com/docs/animation/timeline), [Pixaki touch settings](https://pixaki.com/user-guide/settings/).
+Xprite has no settings for double-tap or squeeze, though. If you rely on those gestures, one of the three apps above is a better fit.
+
+## How to bring `.aseprite` files to iPad
+
+To edit the same project on a computer and an iPad:
+
+```article-diagram
+{
+  "kind": "flow",
+  "label": "One .aseprite file between a computer and an iPad",
+  "steps": [
+    {
+      "label": "Import the project",
+      "detail": "Open Xprite in Safari and import the .aseprite file. Layers and frames come in together."
+    },
+    {
+      "label": "Edit layers and frames",
+      "detail": "Keep drawing on the iPad, or adjust the animation."
+    },
+    {
+      "label": "Save as .aseprite",
+      "detail": "File → Save As → File Manager saves the file to this device."
+    },
+    {
+      "label": "Copy it back to the computer",
+      "detail": "Open it in your usual editor and keep working."
+    }
+  ]
+}
+```
+
+Xprite opens `.ase` and `.aseprite` and keeps the following when it reads and writes them:
+
+- Image layers, layer groups, tilemap layers and tilesets
+- Frame durations in milliseconds
+- Tag direction (forward, reverse, ping-pong, reverse ping-pong) and repeat count
+- Slices
+
+Xprite can't open files with a color depth other than 8, 16 or 32 bits, or files over the limits of 32,768 pixels per canvas side, 4,096 frames or 256 layers. When that happens, the project you have open isn't replaced.
+
+**File → Save As** offers two places to save (steps in [Save and recover](/help/#save-and-recover)):
+
+- File Manager: saves the file to this device. If the browser has no save dialog, the file is downloaded.
+- Browser: the project only opens again in this browser on this device. Clearing site data also deletes its recovery backups.
+
+![The Save As dialog, with Browser and File Manager side by side under Save destination](images/save-as-browser-or-files-en.png)
+
+The other three apps each convert something when they import an `.aseprite` project:
+
+- [Pixquare](https://docs.pixquare.art/pixquare-file/create-import): you can convert to `.px` on import or keep the original format. If you keep the original format, autosave, auto-backup and timelapse are turned off. Pixquare can also [export](https://docs.pixquare.art/pixquare-file/exporting) `.aseprite`.
+- [Resprite](https://resprite.fengeon.com/docs/files/aseprite): projects are converted to `.resprite`, and some information is lost:
+  - Frame durations are cut down to steps of 100 ms; anything shorter counts as 100 ms
+  - Overlapping tags and tag repeat counts aren't kept, and reverse ping-pong becomes ping-pong
+  - Indexed color becomes regular color, and palette color names are lost
+  - Tilemaps in the `.aseprite` file can't be edited as maps
+  - When you export back to `.aseprite`, Resprite tilemaps become plain pixels, live styles such as outlines and shadows aren't drawn into the image, and group opacity and blend modes aren't kept
+- [Pixaki](https://pixaki.com/user-guide/export/): import and export need Pro, and exports keep layers and cels. Frame duration is the project frame rate × held frames, which differs from the millisecond durations `.aseprite` stores.
+
+PNG, GIF and sprite sheets have no layers. They're fine for delivering finished work, but save a separate `.aseprite` copy of anything you'll keep editing. If you only need an animated image, see [Aseprite to GIF](/learn/aseprite-to-gif/). To just open a project in the browser, see [Edit Aseprite files online](/compare/aseprite-online/).
+
+## FAQ
+
+### Is there an iPad version of Aseprite?
+
+No. Aseprite is only available for Windows, macOS and Ubuntu.
+
+### Can I use Xprite without an `.aseprite` file?
+
+Yes. You can start a new canvas and draw or animate right away, and import an `.ase` or `.aseprite` file whenever you have one.
+
+### Is a two-finger tap the same as double-tap on Apple Pencil?
+
+No. A two-finger tap means tapping the canvas with your fingers, and Xprite uses it for undo by default. Double-tap means tapping the side of Apple Pencil. Xprite has no setting for it; Pixquare, Resprite and Pixaki do.
+
+---
+
+To see how it feels, open [Xprite](/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-on-ipad) in Safari, import a project, and try undo, switching frames and saving.

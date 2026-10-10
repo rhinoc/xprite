@@ -18,6 +18,7 @@ export function themeTokens(
     ...semanticPresentationTokens({
       primaryFont: fonts.primary,
       compactFont: fonts.compact,
+      cjkFont: fonts.cjk,
       ink: colors.text,
       mutedInk: colors.disabled,
       paper: colors.window_face,

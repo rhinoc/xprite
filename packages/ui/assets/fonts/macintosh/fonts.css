@@ -1,4 +1,14 @@
 @font-face {
+  font-family: MacintoshCjkPixel;
+  src: url("../fusion-pixel/fusion-pixel-10px-zh-hans.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  /* The ten-pixel CJK grid shares the sixteen-pixel em used by both Macintosh faces. */
+  size-adjust: 62.5%;
+}
+
+@font-face {
   font-family: ChiKareGo2;
   src: url("./chikarego2.woff2?v=ec44f36e057a") format("woff2");
   font-style: normal;

@@ -11,7 +11,7 @@
 }
 :global(details[data-ui-desktop-window] > summary) {
   list-style: none;
-  cursor: default;
+  cursor: var(--ui-cursor-default, default);
 }
 :global(details[data-ui-desktop-window] > summary::-webkit-details-marker) {
   display: none;
@@ -35,5 +35,5 @@
   user-select: none;
 }
 :global([data-ui-window-dragging]) {
-  cursor: grabbing;
+  cursor: var(--ui-cursor-move, move);
 }

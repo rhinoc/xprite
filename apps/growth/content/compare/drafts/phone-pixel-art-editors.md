@@ -29,10 +29,10 @@ Before making it your main project store, check how to export and recover unfini
 
 ## Xprite: arrange the controls and keep a file copy
 
-Xprite documents two-finger pan and zoom, two-finger undo and three-finger redo. After pen use, fingers pan while the pen draws; Touch preferences let you choose finger behavior. Its shortcut toolbar supplies selection modifiers and one-pixel movement controls that otherwise need keyboard input. [Xprite touch and shortcut guide](https://xprite.cc/help/en/#fingers-and-a-pen)
+Xprite documents two-finger pan and zoom, two-finger undo and three-finger redo. After pen use, fingers pan while the pen draws; Touch preferences let you choose finger behavior. Its shortcut toolbar supplies selection modifiers and one-pixel movement controls that otherwise need keyboard input. [Xprite touch and shortcut guide](https://xprite.cc/help/#fingers-and-a-pen)
 
-Use Workspace layout to arrange panels for the space you have. Then try a complete drawing, including selection adjustment and frame changes. Keep only the controls that help that task visible. [Workspace guide](https://xprite.cc/help/en/#arrange-your-workspace)
+Use Workspace layout to arrange panels for the space you have. Then try a complete drawing, including selection adjustment and frame changes. Keep only the controls that help that task visible. [Workspace guide](https://xprite.cc/help/#arrange-your-workspace)
 
-Save an external copy with File → Save As → File Manager. Browser projects and recovery data stay in that browser; clearing site data removes them, and they do not sync. Prepare offline resources while connected before expecting an offline session. [Saving guide](https://xprite.cc/help/en/#save-and-recover), [Offline guide](https://xprite.cc/help/en/#add-to-desktop-and-use-offline)
+Save an external copy with File → Save As → File Manager. Browser projects and recovery data stay in that browser; clearing site data removes them, and they do not sync. Prepare offline resources while connected before expecting an offline session. [Saving guide](https://xprite.cc/help/#save-and-recover), [Offline guide](https://xprite.cc/help/#add-to-desktop-and-use-offline)
 
 For any candidate, finish the trial by closing and reopening the project and opening its output where you intend to use it. That gives you a concrete basis for choosing on your phone.

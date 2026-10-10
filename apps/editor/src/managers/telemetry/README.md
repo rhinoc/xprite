@@ -140,7 +140,9 @@ Exceptions include a sanitized message/stack and error source, with allowlisted
 `pwa_*` and `file_write_*` exception properties: operation
 stage, bounded timings/retry count, worker states/version, browser availability,
 whether the registration function appears native, and write permission/activation.
-Worker URLs, file names and arbitrary diagnostic details stay local.
+Worker URLs, file names and arbitrary diagnostic details stay local. A status
+query retries once on timeout while its activated worker and session remain current;
+returning to a failed offline session can trigger a fresh status query.
 The official SDK
 parses stack frames and attaches CLI-injected chunk/release IDs. Key actions are
 added to the SDK's bounded `$exception_steps` buffer for diagnostic context, and
@@ -178,7 +180,7 @@ policy are documented in the [website telemetry contract](../../../../../package
    The SDK uses `https://us.i.posthog.com` or `https://eu.i.posthog.com` for
    ingestion. Local development never reports.
 4. Deploy the static editor output to EdgeOne Makers. From repository root, use
-   build command `pnpm run build:editor` and output directory `apps/editor/dist`.
+   build command `pnpm run build:site` and output directory `.tmp/site`.
    Analytics requires no edge functions or hosting runtime variables. Inject
    the public build variables in the actual build environment: EdgeOne for Git
    integration, or GitHub Actions for CLI uploads. The ignored local env file

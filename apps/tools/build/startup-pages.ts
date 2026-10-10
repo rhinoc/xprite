@@ -6,7 +6,16 @@ import type { Plugin, ViteDevServer } from "vite";
 
 import { publicDesktopStartupScript } from "../../../infra/public-desktop-startup.ts";
 import type { SsgAsset } from "../../../infra/react-ssg-renderer.ts";
+import { prependSiteHeadContent } from "../../../infra/site-html.ts";
 import { APPEARANCE_MODE_STORAGE_KEY } from "../../../packages/editor-ui/src/appearance/index.ts";
+import { PublicLanguage } from "../../growth/content/site/language.ts";
+import {
+  TOOLS_HOME,
+  VIEWER_TOOL,
+  GIF_SHEET_TOOL,
+  ANIMAL_CROSSING_TOOL,
+  translateToolText,
+} from "../../growth/content/tools/index.ts";
 import { createSsgRenderer } from "./ssg-renderer.ts";
 
 const ASSET_PATH = "/ssg-assets/";
@@ -18,6 +27,12 @@ const ASSET_TYPES: Readonly<Record<string, string>> = {
   ".webp": "image/webp",
   ".jpg": "image/jpeg",
   ".woff2": "font/woff2",
+};
+const TOOL_BY_ROOT = {
+  "tools-root": TOOLS_HOME,
+  "viewer-root": VIEWER_TOOL,
+  "gif-sheet-root": GIF_SHEET_TOOL,
+  "animal-crossing-root": ANIMAL_CROSSING_TOOL,
 };
 const ROOT_IDS = ["tools-root", "viewer-root", "gif-sheet-root", "animal-crossing-root"];
 const jsonForHtml = (value: unknown) => JSON.stringify(value).replaceAll("<", "\\u003c");
@@ -85,15 +100,17 @@ export function toolsStartupPages(): Plugin {
         if (!rootId) return html;
         const runtime = await load();
         const page = await runtime.render(rootId);
-        const root = `<div id="${rootId}" data-tool-startup-view>${page.light}</div><template data-tool-theme="dark">${page.dark}</template><script id="tool-initial-themes" type="application/json">${jsonForHtml(page.themes)}</script><script id="tool-initial-artwork" type="application/json">${jsonForHtml(page.artwork)}</script><script>if(document.documentElement.dataset.toolAppearance==='dark'){document.getElementById(${JSON.stringify(rootId)}).innerHTML=document.querySelector('template[data-tool-theme="dark"]').innerHTML}</script>`;
+        const tool = TOOL_BY_ROOT[rootId as keyof typeof TOOL_BY_ROOT];
+        const localeHead = `<script>document.documentElement.lang=new URLSearchParams(location.search).get('lang')==='zh-CN'?'zh-CN':'en'</script>`;
+        const localeSwitch = `{const root=document.getElementById(${JSON.stringify(rootId)});const zh=document.documentElement.lang==='zh-CN';const dark=document.documentElement.dataset.toolAppearance==='dark';const template=zh?document.querySelector('template[data-tool-locale="zh-CN-'+(dark?'dark':'light')+'"]'):dark?document.querySelector('template[data-tool-theme="dark"]'):null;if(template)root.innerHTML=template.innerHTML;document.title=zh?${jsonForHtml(translateToolText(tool.title, PublicLanguage.SimplifiedChinese))}:${jsonForHtml(tool.title)};const meta=document.querySelector('meta[name="description"]');if(meta)meta.content=zh?${jsonForHtml(translateToolText(tool.description, PublicLanguage.SimplifiedChinese))}:${jsonForHtml(tool.description)}}`;
+        const root = `<div id="${rootId}" data-tool-startup-view>${page.light}</div><template data-tool-theme="dark">${page.dark}</template><template data-tool-locale="zh-CN-light">${page.chineseLight}</template><template data-tool-locale="zh-CN-dark">${page.chineseDark}</template><script id="tool-initial-themes" type="application/json">${jsonForHtml(page.themes)}</script><script id="tool-initial-artwork" type="application/json">${jsonForHtml(page.artwork)}</script><script>${localeSwitch}</script>`;
         const appearance = publicDesktopStartupScript(APPEARANCE_MODE_STORAGE_KEY);
         const bodyStyle = `html[data-tool-appearance="light"]{color-scheme:light;background:${page.themes.light.definition.colors.workspace}}html[data-tool-appearance="dark"]{color-scheme:dark;background:${page.themes.dark.definition.colors.workspace}}`;
         return {
-          html: html
+          html: prependSiteHeadContent(html, `${localeHead}<script>${appearance}</script>`)
             .replace('<html lang="en">', '<html lang="en" data-tool-appearance="light">')
             .replace(new RegExp(`<div id="${rootId}">[\\s\\S]*?<\\/div>`), root),
           tags: [
-            { tag: "script", children: appearance, injectTo: "head-prepend" },
             {
               tag: "style",
               attrs: { "data-tool-ssg-style": "" },

@@ -52,6 +52,25 @@
   --ui-cursor-resize-nw: var(--ui-cursor-size-nw);
   --ui-cursor-resize-horizontal: var(--ui-cursor-size-we);
   --ui-cursor-resize-vertical: var(--ui-cursor-size-ns);
+  cursor: var(--ui-cursor-default, default);
+}
+
+:global(:where(:root a[href])) {
+  cursor: var(--ui-cursor-hand, pointer);
+}
+
+:global(:where(:root a[href][aria-disabled="true"])) {
+  cursor: var(--ui-cursor-default, default);
+}
+
+:global(:where(:root button, :root select)),
+:global(
+  :where(
+    :root
+      input:is([type="button"], [type="submit"], [type="reset"], [type="checkbox"], [type="radio"])
+  )
+) {
+  cursor: var(--ui-cursor-default, default);
 }
 
 .scope {

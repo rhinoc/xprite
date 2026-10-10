@@ -45,11 +45,11 @@ Checked: **2026-10-04**. Method: official pages and live editor menus in ego-bro
 
 | Claim                                    | Current repository evidence                                                                                                                     | Public support                                            |
 | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| Aseprite reading/writing                 | `apps/editor/src/adapters/files/aseprite-files.ts`: decode and encode paths                                                                     | [User guide](https://xprite.cc/help/en/#save-and-recover) |
+| Aseprite reading/writing                 | `apps/editor/src/adapters/files/aseprite-files.ts`: decode and encode paths                                                                     | [User guide](https://xprite.cc/help/#save-and-recover) |
 | PNG sheet import                         | `packages/editor-core/src/import-export/image/import-sprite-sheet.ts`; workflow at `apps/editor/src/managers/workspace/use-editor-workflows.ts` | Current menu implementation; not an imported-file test    |
 | Animated GIF import                      | `apps/editor/src/adapters/files/animated-images.ts` invokes GIF decoder                                                                         | Current implementation; not a round-trip test             |
 | Timeline duration/tags                   | `packages/editor-core/src/timeline/types.ts`; `apps/editor/src/managers/timeline/timeline-manager.ts`                                           | Current implementation                                    |
-| Touch, local saving, offline preparation | `apps/growth/content/help/README.en.md`                                                                                                         | [Guide](https://xprite.cc/help/en/)                       |
+| Touch, local saving, offline preparation | `apps/growth/content/help/README.en.md`                                                                                                         | [Guide](https://xprite.cc/help/)                       |
 | `.piskel` project support                | No parser surfaced in targeted app/core source search                                                                                           | Do not promise native Piskel import                       |
 
 ## Migration editorial rules

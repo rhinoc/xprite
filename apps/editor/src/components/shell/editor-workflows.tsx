@@ -212,6 +212,8 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
     suggestedNewSpriteBaseName,
     pixelationOptions,
     error,
+    canSaveErrorAs,
+    saveErrorAs,
     requestImport,
     sequenceImport,
     sequenceDuration,
@@ -774,6 +776,7 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
           message={error}
           fields={[]}
           actions={[
+            ...(canSaveErrorAs ? [{ label: "Save As...", onClick: saveErrorAs }] : []),
             {
               label: "OK",
               onClick: () => {

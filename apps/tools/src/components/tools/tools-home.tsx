@@ -1,9 +1,9 @@
 import { ToolFrame } from "$/components/shared/tool-frame";
+import { useToolTranslation } from "$/managers/locale/tool-language";
+import { useToolLanguage } from "$/managers/locale/tool-language";
 import { DIRECTORY_TOOLS } from "$/managers/tools/tool-catalog";
+import { localizedSiteHref } from "@xprite/growth-content/language";
 import {
-  Text,
-  TextVariant,
-  TextTone,
   ButtonVariant,
   Icon,
   IconKind,
@@ -13,9 +13,8 @@ import {
   ScrollArea,
   SurfaceTone,
   PanelWindowChrome,
-  StatusBar,
-  StatusBarPlacement,
   IconSize,
+  Tooltip,
 } from "@xprite/ui";
 
 import styles from "$/components/tools/tools-home.module.css";
@@ -40,7 +39,7 @@ const APPLICATIONS = {
     formats: "GIF → PNG + JSON",
   },
   "/tools/animal-crossing-qr/": {
-    label: "Animal Crossing QR",
+    label: "Animal Crossing Design Converter",
     icon: IconKind.Map,
     description: "Create island design QR codes.",
     formats: "PNG · Aseprite · QR",
@@ -48,60 +47,45 @@ const APPLICATIONS = {
 } as const;
 
 export function ToolsHome() {
+  const t = useToolTranslation();
+  const { language } = useToolLanguage();
+
   return (
-    <ToolFrame
-      readme={
-        <>
-          <p>
-            <strong>Applications</strong>
-          </p>
-          {DIRECTORY_TOOLS.map((tool) => (
-            <p key={tool.path}>
-              <strong>{APPLICATIONS[tool.path].label}</strong>
-              <br />
-              {APPLICATIONS[tool.path].description}
-              <br />
-              {APPLICATIONS[tool.path].formats}
-            </p>
-          ))}
-        </>
-      }
-    >
-      <main aria-label="Applications">
+    <ToolFrame>
+      <main aria-label={t("Applications")}>
         <Panel
           variant={PanelVariant.Window}
-          title="Applications"
+          title={t("Applications")}
           tone={SurfaceTone.Accent}
           windowChrome={PanelWindowChrome.Emphasized}
           className={styles.main}
           data-ui-window-priority="primary"
           data-ui-window-active="true"
-          footer={<span>{`${DIRECTORY_TOOLS.length} applications`}</span>}
+          footer={<span>{t(`${DIRECTORY_TOOLS.length} applications`)}</span>}
         >
-          <StatusBar placement={StatusBarPlacement.Header}>
-            <Text variant={TextVariant.Reading}>{`${DIRECTORY_TOOLS.length} applications`}</Text>
-            <Text variant={TextVariant.Reading} tone={TextTone.Muted}>
-              Free · on your device
-            </Text>
-          </StatusBar>
           <ScrollArea
             scrollX={false}
             reserveScrollbarGutter={false}
             className={styles.scrollArea}
-            aria-label="Tools directory"
+            aria-label={t("Tools directory")}
           >
             <div className={styles.content}>
               <div className={styles.applications}>
                 {DIRECTORY_TOOLS.map((tool) => {
                   const application = APPLICATIONS[tool.path];
                   return (
-                    <Button
-                      variant={ButtonVariant.Tile}
-                      slots={{ leading: <Icon kind={application.icon} size={IconSize.Large} /> }}
+                    <Tooltip
                       key={tool.path}
-                      href={tool.path}
-                      text={application.label}
-                    />
+                      text={`${t(application.description)}\n${t(application.formats)}`}
+                      placement="auto"
+                    >
+                      <Button
+                        variant={ButtonVariant.Tile}
+                        slots={{ leading: <Icon kind={application.icon} size={IconSize.Large} /> }}
+                        href={localizedSiteHref(tool.path, language)}
+                        text={t(application.label)}
+                      />
+                    </Tooltip>
                   );
                 })}
               </div>

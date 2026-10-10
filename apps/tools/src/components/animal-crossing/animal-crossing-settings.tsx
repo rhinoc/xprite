@@ -1,3 +1,4 @@
+import { useToolTranslation } from "$/managers/locale/tool-language";
 const PANEL_CONTENT_GAP = 8;
 import { useState } from "react";
 
@@ -39,6 +40,8 @@ export function AnimalCrossingSettingsPanel({
   manager: AnimalCrossingManager;
   snapshot: AnimalCrossingSnapshot;
 }) {
+  const t = useToolTranslation();
+
   const [authorOpen, setAuthorOpen] = useState(false);
   const [spacingOpen, setSpacingOpen] = useState(
     !!(
@@ -54,9 +57,9 @@ export function AnimalCrossingSettingsPanel({
     key: "cellWidth" | "cellHeight" | "offsetX" | "offsetY" | "spacingX" | "spacingY",
     label: string,
   ) => (
-    <Field label={label}>
+    <Field label={t(label)}>
       <Input
-        aria-label={label}
+        aria-label={t(label)}
         pixelWidth={NUMBER_WIDTH}
         value={String(settings[key])}
         inputMode="numeric"
@@ -69,9 +72,9 @@ export function AnimalCrossingSettingsPanel({
     </Field>
   );
   const text = (key: "title" | "creator" | "town", label: string) => (
-    <Field label={label}>
+    <Field label={t(label)}>
       <Input
-        aria-label={label}
+        aria-label={t(label)}
         pixelWidth={TEXT_WIDTH}
         value={settings[key]}
         disabled={busy}
@@ -93,29 +96,29 @@ export function AnimalCrossingSettingsPanel({
         windowKind={PanelWindowKind.Utility}
         collapsible
         className={styles.settingsPanel}
-        title={<Text variant={TextVariant.Reading}>Design information</Text>}
-        aria-label="Design information"
+        title={<Text variant={TextVariant.Reading}>{t("Design information")}</Text>}
+        aria-label={t("Design information")}
       >
         <div className={styles.detail}>
-          <Text variant={TextVariant.Control} text="Title" />
+          <Text variant={TextVariant.Control} text={t("Title")} />
           <Text variant={TextVariant.Reading} wrap>
             {settings.title}
           </Text>
         </div>
         <div className={styles.detail}>
-          <Text variant={TextVariant.Control} text="Creator" />
+          <Text variant={TextVariant.Control} text={t("Creator")} />
           <Text variant={TextVariant.Reading} wrap>
             {settings.creator}
           </Text>
         </div>
         <div className={styles.detail}>
-          <Text variant={TextVariant.Control} text="Island / town" />
+          <Text variant={TextVariant.Control} text={t("Island / town")} />
           <Text variant={TextVariant.Reading} wrap>
             {settings.town}
           </Text>
         </div>
         <Text variant={TextVariant.Reading} tone={TextTone.Muted} wrap>
-          Ready to export. The original design is preserved.
+          {t("Ready to export. The original design is preserved.")}
         </Text>
       </Panel>
     );
@@ -131,13 +134,13 @@ export function AnimalCrossingSettingsPanel({
         windowKind={PanelWindowKind.Utility}
         collapsible
         className={styles.settingsPanel}
-        title={<Text variant={TextVariant.Reading}>Design information</Text>}
-        aria-label="Design information"
+        title={<Text variant={TextVariant.Reading}>{t("Design information")}</Text>}
+        aria-label={t("Design information")}
       >
         {text("title", "Title")}
         <Button
           slots={{}}
-          text="Creator and island"
+          text={t("Creator and island")}
           aria-expanded={authorOpen}
           disabled={busy}
           onClick={() => setAuthorOpen(!authorOpen)}
@@ -149,9 +152,9 @@ export function AnimalCrossingSettingsPanel({
           </>
         )}
         {snapshot.frameCount > MIN_SIZE && (
-          <Field label="Frame">
+          <Field label={t("Frame")}>
             <Combobox
-              aria-label="Source frame"
+              aria-label={t("Source frame")}
               pixelWidth={TEXT_WIDTH}
               value={String(snapshot.frame)}
               disabled={busy}
@@ -174,18 +177,18 @@ export function AnimalCrossingSettingsPanel({
         windowKind={PanelWindowKind.Utility}
         collapsible
         className={styles.settingsPanel}
-        title={<Text variant={TextVariant.Reading}>Image layout</Text>}
-        aria-label="Image layout"
+        title={<Text variant={TextVariant.Reading}>{t("Image layout")}</Text>}
+        aria-label={t("Image layout")}
       >
-        <Field label="Convert as">
+        <Field label={t("Convert as")}>
           <Combobox
-            aria-label="Image layout"
+            aria-label={t("Image layout")}
             pixelWidth={LAYOUT_WIDTH}
             value={snapshot.layout}
             disabled={busy}
             options={[
-              { value: AnimalCrossingLayout.Single, label: "One design" },
-              { value: AnimalCrossingLayout.Tiles, label: "Split into tiles" },
+              { value: AnimalCrossingLayout.Single, label: t("One design") },
+              { value: AnimalCrossingLayout.Tiles, label: t("Split into tiles") },
             ]}
             onValueChange={(layout) => manager.setLayout(layout as AnimalCrossingLayout)}
           />
@@ -198,7 +201,7 @@ export function AnimalCrossingSettingsPanel({
             </div>
             <Button
               slots={{}}
-              text="Offsets and spacing"
+              text={t("Offsets and spacing")}
               aria-expanded={spacingOpen}
               disabled={busy}
               onClick={() => setSpacingOpen(!spacingOpen)}
@@ -218,12 +221,12 @@ export function AnimalCrossingSettingsPanel({
           </>
         )}
         <Text variant={TextVariant.Reading} tone={TextTone.Muted} wrap>
-          Each design is 32 × 32 pixels with up to 15 colors and transparency.
+          {t("Each design is 32 × 32 pixels with up to 15 colors and transparency.")}
         </Text>
         <Button
           slots={{}}
           className={styles.wideButton}
-          text="Generate QR codes"
+          text={t("Generate QR codes")}
           disabled={busy}
           onClick={() => manager.generate()}
         />
