@@ -305,7 +305,7 @@ Xprite 的界面照着 Aseprite 1.3 还原：对话框的尺寸和控件位置�
 - 会话录屏和自动点击采集均已关闭。
 - 浏览器开启“不跟踪（Do Not Track）”后重新打开 Xprite，此后不再发送使用数据。
 
-完整说明见[隐私政策](https://github.com/rhinoc/xprite/blob/main/PRIVACY.zh.md)。
+完整说明见[隐私说明](/zh-CN/privacy/)。
 
 ## 开源
 

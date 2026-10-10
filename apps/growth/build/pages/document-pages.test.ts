@@ -30,10 +30,17 @@ describe("document pages", () => {
       assert.ok(documentSource(page).startsWith(`# ${page.title}\n`), page.path);
   });
 
-  it("publish the privacy notice in both languages and the about articles in Chinese", () => {
+  it("publish the privacy notice and the about articles in both languages", () => {
     assert.deepEqual(
       DOCUMENT_PAGES.map((page) => page.path),
-      ["/privacy/", "/zh-CN/privacy/", "/zh-CN/about/how-it-works/", "/zh-CN/about/features/"],
+      [
+        "/privacy/",
+        "/zh-CN/privacy/",
+        "/about/how-it-works/",
+        "/zh-CN/about/how-it-works/",
+        "/about/features/",
+        "/zh-CN/about/features/",
+      ],
     );
   });
 
@@ -46,14 +53,20 @@ describe("document pages", () => {
     }
   });
 
-  it("pair translated documents and leave single-language documents unpaired", () => {
+  it("pair each translated document with its other language", () => {
     const privacy = documentHtml("/zh-CN/privacy/", true);
     assert.match(privacy, /<link rel="canonical" href="https:\/\/xprite\.cc\/zh-CN\/privacy\/">/);
     assert.match(privacy, /hreflang="en" href="https:\/\/xprite\.cc\/privacy\/"/);
     assert.match(privacy, /hreflang="x-default" href="https:\/\/xprite\.cc\/privacy\/"/);
     const article = documentHtml("/zh-CN/about/how-it-works/", true);
-    assert.doesNotMatch(article, /hreflang=/);
+    assert.match(article, /hreflang="en" href="https:\/\/xprite\.cc\/about\/how-it-works\/"/);
     assert.match(article, /<title>工作原理 \| Xprite<\/title>/);
+    const english = documentHtml("/about/how-it-works/", true);
+    assert.match(
+      english,
+      /hreflang="zh-CN" href="https:\/\/xprite\.cc\/zh-CN\/about\/how-it-works\/"/,
+    );
+    assert.match(english, /<title>How Xprite Works<\/title>/);
   });
 
   it("drop the repository language link and describe the page from its introduction", () => {

@@ -20,13 +20,19 @@ export const SITE_DOCUMENTS: readonly SiteDocumentDefinition[] = [
   },
   {
     path: "/about/how-it-works/",
-    sources: { "zh-CN": `${ABOUT_CONTENT}/how-it-works.zh-CN.md` },
-    title: { "zh-CN": "工作原理" },
+    sources: {
+      en: `${ABOUT_CONTENT}/how-it-works.en.md`,
+      "zh-CN": `${ABOUT_CONTENT}/how-it-works.zh-CN.md`,
+    },
+    title: { en: "How Xprite Works", "zh-CN": "工作原理" },
   },
   {
     path: "/about/features/",
-    sources: { "zh-CN": `${ABOUT_CONTENT}/features.zh-CN.md` },
-    title: { "zh-CN": "功能介绍" },
+    sources: {
+      en: `${ABOUT_CONTENT}/features.en.md`,
+      "zh-CN": `${ABOUT_CONTENT}/features.zh-CN.md`,
+    },
+    title: { en: "Features", "zh-CN": "功能介绍" },
   },
 ];
 
