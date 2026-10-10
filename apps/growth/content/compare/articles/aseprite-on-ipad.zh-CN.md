@@ -120,7 +120,7 @@ Xprite 能打开 `.ase` 和 `.aseprite`，读入和写回时保留这些内容�
   - 再导出成 `.aseprite` 时，Resprite 的瓦片地图变成普通像素，描边、阴影等实时样式不会画进图，组的不透明度和混合模式不保留
 - [Pixaki](https://pixaki.com/user-guide/export/)：需要 Pro 才能导入和导出，导出时保留图层和单元格。帧时长按「工程帧率 × 保持帧」计算，和 `.aseprite` 按毫秒记录的方式不同。
 
-PNG、GIF 和精灵表不带图层，适合交付成品，还要改的工程就另存一份 `.aseprite`。只需要动图的话，可以看 [Aseprite 转 GIF](/learn/aseprite-to-gif/)；只想在浏览器里打开工程，可以看 [在线编辑 Aseprite](/compare/aseprite-online/)。
+PNG、GIF 和精灵表不带图层，适合交付成品，还要改的工程就另存一份 `.aseprite`。只需要动图的话，可以看 [Aseprite 转 GIF](/learn/zh-CN/aseprite-to-gif/)；只想在浏览器里打开工程，可以看 [在线编辑 Aseprite](/compare/zh-CN/aseprite-online/)。
 
 ## 常见问题
 

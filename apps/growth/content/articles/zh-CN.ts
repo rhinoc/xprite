@@ -17,10 +17,11 @@ export const CHINESE_COLLECTIONS = {
 
 export const CHINESE_ARTICLES = {
   "aseprite-online": {
-    title: "在线编辑 Aseprite",
+    title: "在线编辑 Aseprite：4 个浏览器工具对比 | Xprite",
     description:
-      "在浏览器中打开 Aseprite 工程，按导入、编辑和输出需求比较 Xprite、Novaboard、Manabit 和 Pixelorama。",
-    summary: "根据现有精灵文件，以及后续需要的可编辑工程、图片或动画，选择浏览器工具。",
+      "Aseprite 官方没有网页版。Xprite、Novaboard、Manabit 和 Pixelorama 都能在浏览器里打开 .aseprite，本文按导入保留的内容、能否存回 .aseprite、是否要登录和离线使用对比这四个工具。",
+    summary:
+      "Xprite 和 Pixelorama 能把改动存回 .aseprite；Novaboard 和 Manabit 更适合在浏览器里从头画动画。",
     topic: "浏览器编辑",
   },
   "aseprite-on-ipad": {
