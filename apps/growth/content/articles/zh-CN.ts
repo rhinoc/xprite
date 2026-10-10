@@ -40,10 +40,10 @@ export const CHINESE_ARTICLES = {
     topic: "编辑器替代工具",
   },
   "aseprite-to-gif": {
-    title: "Aseprite 转 GIF",
+    title: "Aseprite 转 GIF：在浏览器里导出动画 | Xprite",
     description:
-      "在浏览器中免费将 Aseprite 动画导出为 GIF，选择动画标签、检查时长和透明度，再下载结果。文件在本地处理。",
-    summary: "将完整动画或单个标签导出为 GIF，分享前检查颜色、透明度和时长。",
+      "用 Xprite 查看器在浏览器里打开 .aseprite，选择动画标签，免费导出 GIF，不用安装 Aseprite。文件在本地处理，本文也说明 GIF 对帧时长、颜色和透明度的影响。",
+    summary: "4 步把整段动画或一个标签导出为 GIF，并说明帧时长、颜色和透明度的变化。",
     topic: "动画导出",
   },
   "aseprite-to-png": {
