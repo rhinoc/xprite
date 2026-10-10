@@ -27,7 +27,7 @@ export interface ArticleImageAsset {
   height: number;
 }
 
-export function articleMarkdownPath(
+function articleMarkdownPath(
   article: Pick<PublicArticle, "collection" | "slug">,
   language: PublicLanguage,
 ): string {
