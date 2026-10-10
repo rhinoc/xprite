@@ -29,6 +29,7 @@ import {
   type TelemetryPort,
   type TelemetryProperties,
 } from "$/managers/ports/telemetry";
+import { telemetryDiagnosticDetails } from "$/managers/telemetry/diagnostic-telemetry";
 import {
   documentTelemetryContext,
   workspaceTelemetryContext,
@@ -443,6 +444,7 @@ export class TelemetryManager {
         this.exceptionFingerprints.delete(this.exceptionFingerprints.keys().next().value!);
       this.port.captureException(exception, {
         ...this.context(),
+        ...telemetryDiagnosticDetails(record),
         error_source: record.source,
         ...(record.source === DiagnosticSource.Session &&
         record.context &&

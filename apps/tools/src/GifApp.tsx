@@ -6,10 +6,14 @@ import { GifSheetManager } from "$/managers/gif-sheet/gif-sheet-manager";
 import { ToolHostManager } from "$/managers/tools/tool-host-manager";
 import { DesktopAppearance } from "@xprite/site-shell";
 import { createBrowserDesktop } from "@xprite/site-shell/browser";
+import type { SiteTelemetryPort } from "@xprite/site-shell/telemetry";
 import type { UiThemeSnapshot } from "@xprite/ui/assets";
 
-export function createGifSheetApplication(initialTheme?: UiThemeSnapshot) {
-  const manager = new GifSheetManager(createBrowserGifSheetPort());
+export function createGifSheetApplication(
+  initialTheme?: UiThemeSnapshot,
+  telemetry?: SiteTelemetryPort,
+) {
+  const manager = new GifSheetManager(createBrowserGifSheetPort(), telemetry);
   const host = new ToolHostManager(browserToolHost);
   const desktop = createBrowserDesktop({
     appearance: (initialTheme?.appearance ?? host.getAppearanceMode()) as DesktopAppearance,

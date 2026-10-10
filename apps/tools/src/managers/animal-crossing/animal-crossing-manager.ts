@@ -1,7 +1,14 @@
 import { IslandPreviewManager } from "$/managers/animal-crossing/ground/ground-manager";
 import type { AnimalCrossingPort } from "$/managers/ports/animal-crossing";
 import type { IslandPreviewPort } from "$/managers/ports/animal-crossing-ground";
+import { ToolFailureCategory } from "$/managers/ports/telemetry";
 import { ToolViewport } from "$/managers/preview/tool-viewport";
+import {
+  ToolTelemetry,
+  ToolOpenSource,
+  ToolOperation,
+  ToolOutputFormat,
+} from "$/managers/telemetry/tool-telemetry";
 import type { EditorDocument } from "@xprite/editor-core/document";
 import {
   ANIMAL_CROSSING_SIZE,
@@ -13,6 +20,7 @@ import {
   type AnimalCrossingSettings,
 } from "@xprite/editor-core/import-export";
 import type { SessionProject } from "@xprite/editor-core/session";
+import type { SiteTelemetryPort } from "@xprite/site-shell/telemetry";
 
 export type { AnimalCrossingSettings } from "@xprite/editor-core/import-export";
 export enum AnimalCrossingLayout {
@@ -65,11 +73,14 @@ export class AnimalCrossingManager {
   private project: SessionProject | undefined;
   private request = 0;
   private closed = false;
+  private readonly telemetry: ToolTelemetry;
   private listeners = new Set<() => void>();
   constructor(
     private readonly port: AnimalCrossingPort,
     groundPort?: IslandPreviewPort,
+    telemetry?: SiteTelemetryPort,
   ) {
+    this.telemetry = new ToolTelemetry(telemetry);
     this.ground = new IslandPreviewManager(groundPort);
     this.viewport = new ToolViewport(port.readWheel);
     this.snapshot = this.readSnapshot();
@@ -101,14 +112,16 @@ export class AnimalCrossingManager {
   async open(file: File): Promise<void> {
     await this.openFile(file);
   }
-  private async openFile(file: File): Promise<boolean> {
+  private async openFile(file: File, openSource = ToolOpenSource.File): Promise<boolean> {
     if (this.closed || this.snapshot.downloading) return false;
     const request = ++this.request;
     this.conversion.clearError();
     this.update({ loading: true, error: null });
+    let failureCategory = ToolFailureCategory.Decode;
     try {
       const source = await this.port.read(file);
       if (this.closed || request !== this.request) return false;
+      failureCategory = ToolFailureCategory.Preview;
       const rendered = source.project ? this.render(0, file.name, source.project) : null;
       const pixels = rendered?.pixels ?? source.pixels;
       const settings = rendered?.settings ?? defaultAnimalCrossingSettings(pixels);
@@ -133,13 +146,18 @@ export class AnimalCrossingManager {
         loading: false,
         error: null,
       });
+      if (this.snapshot.source && !this.snapshot.error)
+        this.telemetry.opened(request, file, openSource);
+      else this.telemetry.failed(ToolOperation.Open, ToolFailureCategory.Preview);
       return true;
     } catch (reason) {
-      if (!this.closed && request === this.request)
+      if (!this.closed && request === this.request) {
+        this.telemetry.failed(ToolOperation.Open, failureCategory, reason);
         this.update({
           loading: false,
           error: String(reason instanceof Error ? reason.message : reason),
         });
+      }
       return false;
     }
   }
@@ -234,10 +252,13 @@ export class AnimalCrossingManager {
   async download() {
     const { result, name } = this.snapshot;
     if (this.closed || !result || this.snapshot.loading || this.snapshot.downloading) return;
+    const fileId = this.snapshot.identity;
     this.update({ downloading: true, error: null });
     try {
       await this.port.save(result, `${name.replace(/\.[^.]+$/, "")}-animal-crossing.zip`);
+      this.telemetry.handedOff(fileId, ToolOutputFormat.Zip);
     } catch (reason) {
+      this.telemetry.failed(ToolOperation.Export, ToolFailureCategory.Handoff, reason);
       this.update({ error: reason instanceof Error ? reason.message : String(reason) });
     } finally {
       this.update({ downloading: false });
@@ -248,10 +269,13 @@ export class AnimalCrossingManager {
     const pattern = result?.patterns[selected];
     if (this.closed || !qr || !pattern || this.snapshot.loading || this.snapshot.downloading)
       return;
+    const fileId = this.snapshot.identity;
     this.update({ downloading: true, error: null });
     try {
       await this.port.saveQr(qr, `r${pattern.row + 1}-c${pattern.column + 1}-qr.png`);
+      this.telemetry.handedOff(fileId, ToolOutputFormat.Png);
     } catch (reason) {
+      this.telemetry.failed(ToolOperation.Export, ToolFailureCategory.Handoff, reason);
       this.update({ error: reason instanceof Error ? reason.message : String(reason) });
     } finally {
       this.update({ downloading: false });
@@ -263,15 +287,17 @@ export class AnimalCrossingManager {
     try {
       const file = await this.port.example();
       if (this.closed || request !== this.request) return;
-      const opened = await this.openFile(file);
+      const opened = await this.openFile(file, ToolOpenSource.Example);
       if (opened && !this.closed && this.snapshot.source && !this.snapshot.error) {
         this.update({ example: true });
         this.changeSettings({ title: EXAMPLE_TITLE, creator: EXAMPLE_CREATOR, town: "Bywater" });
         this.generate();
       }
     } catch (reason) {
-      if (!this.closed && request === this.request)
+      if (!this.closed && request === this.request) {
+        this.telemetry.failed(ToolOperation.Open, ToolFailureCategory.ExampleFetch, reason);
         this.update({ error: reason instanceof Error ? reason.message : String(reason) });
+      }
     }
   }
   dispose() {

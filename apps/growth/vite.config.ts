@@ -16,6 +16,7 @@ import { packageLocalAliases } from "../../infra/package-local-aliases.ts";
 import { publicDesktopStartupScript } from "../../infra/public-desktop-startup.ts";
 import { ssgScopedName } from "../../infra/react-ssg-style-names.ts";
 import { siteHtml } from "../../infra/site-html.ts";
+import { siteTelemetryDefines } from "../../infra/site-telemetry.ts";
 import { growthPublicPages } from "./build/public-pages.ts";
 import { growthSeo } from "./build/seo.ts";
 
@@ -28,6 +29,7 @@ const PREVIEW_PORT = 4175;
 
 export default defineConfig(({ command, isPreview }) => ({
   root: appRoot,
+  define: siteTelemetryDefines(),
   base: command === "serve" && !isPreview ? GROWTH_DEVELOPMENT_BASE : "/",
   resolve: {
     alias: [

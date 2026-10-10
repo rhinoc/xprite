@@ -15,6 +15,7 @@ import {
 import { packageLocalAliases } from "../../infra/package-local-aliases.ts";
 import { publicPackageAssets } from "../../infra/public-package-assets.ts";
 import { siteHtml } from "../../infra/site-html.ts";
+import { siteTelemetryDefines } from "../../infra/site-telemetry.ts";
 
 const appRoot = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(appRoot, "../..");
@@ -24,6 +25,7 @@ const uiStylesheet = resolve(repositoryRoot, "packages/ui/dist/style.css");
 
 export default defineConfig({
   root: appRoot,
+  define: siteTelemetryDefines(),
   base: GALLERY_DEVELOPMENT_BASE,
   resolve: {
     alias: [

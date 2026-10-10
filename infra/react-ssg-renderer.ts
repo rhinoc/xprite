@@ -13,6 +13,7 @@ const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const aliases: Record<string, string> = {
   "@xprite/growth-content/navigation": "apps/growth/content/navigation/index.ts",
   "@xprite/site-shell/startup": "packages/site-shell/src/startup.ts",
+  "@xprite/site-shell/telemetry": "packages/site-shell/src/managers/ports/telemetry.ts",
   "@xprite/site-shell": "packages/site-shell/src/index.ts",
   "@xprite/growth-content/tools": "apps/growth/content/tools/index.ts",
   "@xprite/ui/pattern-data": "packages/ui/assets/patterns/macintosh/catalog.json",

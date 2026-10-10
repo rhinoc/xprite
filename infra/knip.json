@@ -62,7 +62,13 @@
       }
     },
     "packages/site-shell": {
-      "entry": ["src/index.ts", "src/adapters/browser.ts", "src/startup.ts"]
+      "entry": [
+        "src/index.ts",
+        "src/adapters/browser.ts",
+        "src/startup.ts",
+        "src/managers/ports/telemetry.ts",
+        "src/telemetry/posthog.ts"
+      ]
     }
   }
 }
