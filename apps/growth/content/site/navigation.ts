@@ -5,7 +5,10 @@ import { TOOLS, TOOLS_HOME, translateToolText } from "../tools/index.ts";
 import { documentLinks } from "./documents.ts";
 import { localizedSiteHref, publicLanguage, PublicLanguage } from "./language.ts";
 
-const HOME_LABELS = { en: "Home", "zh-CN": "首页" } as const;
+/** Page titles end with the site name; menu labels do not repeat it. */
+const TITLE_SUFFIX = / \| Xprite$/;
+
+const HOME_LABELS = { en: "About Xprite", "zh-CN": "关于 Xprite" } as const;
 
 export function showcasePath(language = "en"): string {
   return SHOWCASE_PAGES[publicLanguage(language)].path;
@@ -41,7 +44,7 @@ function navigationTree(language: PublicLanguage, guideHref?: string): Navigatio
     language === PublicLanguage.SimplifiedChinese ? chinese : english;
   const articleLinks = (collection: "learn" | "compare") =>
     ARTICLES.filter((article) => article.collection === collection).map((article) => ({
-      label: localizedArticle(article, language).title,
+      label: localizedArticle(article, language).title.replace(TITLE_SUFFIX, ""),
       href: localizedSiteHref(article.path, language),
     }));
   return [
