@@ -7,18 +7,18 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Aseprite Viewer": "Aseprite 查看器",
   "GIF to Sprite Sheet": "GIF 转精灵表",
   "Animal Crossing Design Converter": "动物森友会设计转换器",
-  "Processed on your device. No cloud upload.": "文件在你的设备上处理，不上传云端。",
-  "Files stay on your device. No cloud upload.": "文件留在你的设备上，不上传云端。",
+  "Processed on your device. No cloud upload.": "文件在本地处理，不上传云端。",
+  "Files stay on your device. No cloud upload.": "文件只在本地处理，不上传云端。",
   "Pixel Art Tools | Xprite": "像素画工具 | Xprite",
   "Pixel art tools": "像素画工具",
   "Create pixel art, preview Aseprite projects and convert GIF animations into sprite sheets. Files are processed on your device without uploading them to the cloud.":
-    "创作像素画、预览 Aseprite 工程，将 GIF 动画转换为精灵表。文件在你的设备上处理，不上传云端。",
+    "创作像素画、预览 Aseprite 工程，将 GIF 动画转换为精灵表。文件在本地处理，不上传云端。",
   "Inspect an Aseprite file": "查看 Aseprite 文件",
   "Aseprite Viewer | Xprite": "Aseprite 查看器 | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "预览 Aseprite 工程，导出 PNG 单帧或 GIF 动画。",
   "Open Aseprite projects, preview layers and animation, and export PNG frames or GIF animations in your browser. Files stay on your device, with no cloud upload.":
-    "在浏览器中打开 Aseprite 工程、查看图层和动画，导出 PNG 单帧或 GIF 动画。文件留在你的设备上，不上传云端。",
+    "在浏览器中打开 Aseprite 工程、查看图层和动画，导出 PNG 单帧或 GIF 动画。文件只在本地处理，不上传云端。",
   "Choose an Aseprite file": "选择 Aseprite 文件",
   "Open file": "打开文件",
   "Open file…": "打开文件…",
@@ -28,18 +28,18 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Convert GIF animations into PNG sprite sheets with JSON frame data.":
     "将 GIF 动画转换为 PNG 精灵表，并导出 JSON 帧数据。",
   "Turn GIF animations into PNG sprite sheets with custom layouts and spacing. Download frame coordinates and timing as JSON. Files stay on your device, with no cloud upload.":
-    "将 GIF 动画排成 PNG 精灵表，设置排列方式和间距，下载包含帧坐标和时长的 JSON。文件留在你的设备上，不上传云端。",
+    "将 GIF 动画排成 PNG 精灵表，设置排列方式和间距，下载包含帧坐标和时长的 JSON。文件只在本地处理，不上传云端。",
   "Choose a GIF file": "选择 GIF 文件",
   "Open GIF": "打开 GIF",
   "Open GIF…": "打开 GIF…",
   "Drop a GIF file": "拖入 GIF 文件",
-  "Make a design for your island": "为你的岛屿制作设计",
+  "Make a design for your island": "制作岛屿设计",
   "Animal Crossing Design Converter: PNG & Aseprite | Xprite":
     "动物森友会设计转换器：PNG 与 Aseprite | Xprite",
   "Convert PNG images and Aseprite tilemaps into island designs, or open an existing design QR code and export it unchanged.":
     "将 PNG 图片和 Aseprite 瓦片地图转换为岛屿设计，或打开已有设计二维码并原样导出。",
   "Create Animal Crossing island design QR codes from PNG images and Aseprite tilemaps, or read normal design QR images and export their original data. Files stay on your device.":
-    "用 PNG 图片和 Aseprite 瓦片地图生成动物森友会设计二维码，或读取普通设计二维码并导出原始数据。文件留在你的设备上。",
+    "用 PNG 图片和 Aseprite 瓦片地图生成动物森友会设计二维码，或读取普通设计二维码并导出原始数据。文件只在本地处理。",
   "Choose artwork or an Animal Crossing QR image": "选择作品或动物森友会二维码图片",
   "Drop artwork, a QR image or an .acnl file": "拖入作品、二维码图片或 .acnl 文件",
   "Free online pixel art editor": "免费在线像素画编辑器",
