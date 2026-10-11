@@ -83,6 +83,7 @@ async function mountPublicControls() {
         initialTheme={theme}
         preloadArtwork={false}
         scope={false}
+        cursorVariables={false}
       >
         {island.dataset.publicIsland === "article-diagram" ? (
           <PublicArticleDiagram {...props} />
@@ -123,6 +124,7 @@ async function mountPublicControls() {
         language={language}
         preloadArtwork={false}
         scope={false}
+        cursorVariables={false}
         documentTheme
       >
         <PublicControlsReady />

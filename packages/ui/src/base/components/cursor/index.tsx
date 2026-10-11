@@ -72,9 +72,19 @@ const cursorCaches = new WeakMap<UiTheme["cursors"], Map<string, string>>();
 const cursorVariable = (role: CursorRole) =>
   `--ui-cursor-${role === "normal" ? "default" : role === "normal_add" ? "copy" : role === "forbidden" ? "disabled" : role.replaceAll("_", "-")}`;
 
-function artworkCursor(role: CursorRole, scale: number, fallback: string, theme: UiTheme) {
+function artworkCursor(
+  role: CursorRole,
+  scale: number,
+  fallback: string,
+  theme: UiTheme,
+  artworkUrl?: (svg: string) => string,
+) {
   const artwork = theme.cursors[role];
   if (!artwork) return fallback;
+  if (artworkUrl) {
+    const svg = scaledCursorSvg(artwork, scale);
+    return cursorValue(artworkUrl(svg), artwork, scale, fallback);
+  }
   let cache = cursorCaches.get(theme.cursors);
   if (!cache) {
     cache = new Map();
@@ -83,13 +93,26 @@ function artworkCursor(role: CursorRole, scale: number, fallback: string, theme:
   const key = `${role}:${scale}:${fallback}`;
   const cached = cache.get(key);
   if (cached) return cached;
-  const svg = artwork.svg
-    .replace(`width="${artwork.width}"`, `width="${artwork.width * scale}"`)
-    .replace(`height="${artwork.height}"`, `height="${artwork.height * scale}"`);
-  const centerOffset = Math.floor(scale / 2);
-  const result = `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${artwork.hotspot.x * scale + centerOffset} ${artwork.hotspot.y * scale + centerOffset}, ${fallback}`;
+  const svg = scaledCursorSvg(artwork, scale);
+  const result = cursorValue(
+    `data:image/svg+xml,${encodeURIComponent(svg)}`,
+    artwork,
+    scale,
+    fallback,
+  );
   cache.set(key, result);
   return result;
+}
+
+function scaledCursorSvg(artwork: UiCursorArtwork, scale: number) {
+  return artwork.svg
+    .replace(`width="${artwork.width}"`, `width="${artwork.width * scale}"`)
+    .replace(`height="${artwork.height}"`, `height="${artwork.height * scale}"`);
+}
+
+function cursorValue(url: string, artwork: UiCursorArtwork, scale: number, fallback: string) {
+  const centerOffset = Math.floor(scale / 2);
+  return `url(${JSON.stringify(url)}) ${artwork.hotspot.x * scale + centerOffset} ${artwork.hotspot.y * scale + centerOffset}, ${fallback}`;
 }
 
 /** Cursor roles inherit the subtree's artwork size or system-cursor preference. */
@@ -109,10 +132,13 @@ export function cursorScopeStyle({
   native = false,
   scale = MIN_CURSOR_SCALE,
   theme = defaultUiTheme,
+  artworkUrl,
 }: {
   native?: boolean;
   scale?: number;
   theme?: UiTheme;
+  /** Map cursor SVG markup to a URL, e.g. a hashed file; defaults to an inline data URI. */
+  artworkUrl?: (svg: string) => string;
 }): CSSProperties {
   const resolvedScale = Number.isFinite(scale)
     ? Math.max(MIN_CURSOR_SCALE, Math.min(MAX_CURSOR_SCALE, Math.trunc(scale)))
@@ -122,7 +148,7 @@ export function cursorScopeStyle({
       const role = name as CursorRole;
       return [
         cursorVariable(role),
-        native ? fallback : artworkCursor(role, resolvedScale, fallback, theme),
+        native ? fallback : artworkCursor(role, resolvedScale, fallback, theme, artworkUrl),
       ];
     }),
   ) as CSSProperties;
@@ -130,15 +156,26 @@ export function cursorScopeStyle({
 
 export interface CursorProviderProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
+  /**
+   * Write the cursor artwork variables inline. Disable when a stylesheet already defines them,
+   * e.g. prerendered pages where every server-rendered scope would repeat ~0.5 MB of SVG.
+   */
+  variables?: boolean;
 }
 
 /** Makes the package cursor variables available to a subtree without adding a layout box. */
-export function CursorProvider({ children, className, style, ...props }: CursorProviderProps) {
+export function CursorProvider({
+  children,
+  className,
+  style,
+  variables = true,
+  ...props
+}: CursorProviderProps) {
   const { uiTheme } = useTheme();
   return (
     <div
       {...props}
-      style={{ ...cursorScopeStyle({ theme: uiTheme }), ...style }}
+      style={variables ? { ...cursorScopeStyle({ theme: uiTheme }), ...style } : style}
       className={[styles.scope, styles.cursorScope, className].filter(Boolean).join(" ")}
     >
       {children}

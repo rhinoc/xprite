@@ -48,6 +48,7 @@ export function DesktopProvider({
   preloadArtwork = false,
   scope = true,
   documentTheme = false,
+  cursorVariables = true,
 }: {
   manager: DesktopManager;
   children: ReactNode;
@@ -59,6 +60,8 @@ export function DesktopProvider({
   preloadArtwork?: boolean;
   scope?: boolean;
   documentTheme?: boolean;
+  /** False when a page stylesheet defines the cursor variables once for the whole document. */
+  cursorVariables?: boolean;
 }) {
   const preferences = useSyncExternalStore(
     manager.subscribe,
@@ -84,7 +87,7 @@ export function DesktopProvider({
         preloadArtwork={preloadArtwork}
         scope={scope}
       >
-        <CursorProvider>
+        <CursorProvider variables={cursorVariables}>
           {documentTheme && <DocumentTheme manager={manager} />}
           {children}
         </CursorProvider>
