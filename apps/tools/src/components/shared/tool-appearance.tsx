@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
 
 import { useToolLanguage } from "$/managers/locale/tool-language";
+import { AppearanceMode } from "@xprite/editor-ui/appearance";
 import { DesktopAppearance, DesktopProvider, type DesktopManager } from "@xprite/site-shell";
 import { macintoshTheme, UiColorScheme } from "@xprite/ui";
 import type { UiThemeSnapshot } from "@xprite/ui/assets";
@@ -8,6 +9,12 @@ import type { UiThemeSnapshot } from "@xprite/ui/assets";
 export function desktopAppearanceForColorScheme(colorScheme?: UiColorScheme) {
   if (!colorScheme) return undefined;
   return colorScheme === UiColorScheme.Dark ? DesktopAppearance.Dark : DesktopAppearance.Light;
+}
+
+export function desktopAppearanceForMode(mode: AppearanceMode): DesktopAppearance {
+  if (mode === AppearanceMode.Dark) return DesktopAppearance.Dark;
+  if (mode === AppearanceMode.System) return DesktopAppearance.System;
+  return DesktopAppearance.Light;
 }
 
 export function ToolAppearance({

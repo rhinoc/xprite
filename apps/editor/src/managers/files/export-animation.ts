@@ -17,6 +17,7 @@ import {
   encodeImageBlob,
   ImageEncodingFormat,
 } from "@xprite/bedrock/browser/images";
+import type { JsonStoragePort } from "@xprite/bedrock/browser/json-storage";
 import type { ExportFileOptions } from "@xprite/editor-core";
 import { UINT8_MAX } from "@xprite/editor-core/base";
 import { workingColorProfile } from "@xprite/editor-core/color";
@@ -49,7 +50,7 @@ export interface AnimationExportPorts {
   encodePng?: typeof encodePng;
   encodeImage?: typeof encodeImageBlob;
   save?(artifact: ExportArtifact): Promise<void>;
-  storage?: Pick<Storage, "getItem" | "setItem">;
+  storage?: JsonStoragePort;
   rememberExport?(record: ExportRecord): void;
   getLastExport?(): ExportRecord | null;
 }

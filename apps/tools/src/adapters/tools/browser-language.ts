@@ -8,7 +8,8 @@ import {
 /** The startup HTML selects the same locale before hydration. */
 export function readToolLanguage(): PublicLanguage {
   const preference = readBrowserLanguagePreference();
-  if (preference) return preference;
+  if (preference === "zh-CN") return PublicLanguage.SimplifiedChinese;
+  if (preference === "en") return PublicLanguage.English;
   return document.documentElement.lang === PublicLanguage.SimplifiedChinese
     ? PublicLanguage.SimplifiedChinese
     : PublicLanguage.English;

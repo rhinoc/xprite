@@ -72,6 +72,10 @@ const CHINESE_TOOL_COPY = {
     label: "动物森友会设计转换器",
     summary: "将 PNG 或 Aseprite 图块转换成设计二维码，也可以打开已有设计。",
   },
+  "/tools/pixelate/": {
+    label: "图片转像素画",
+    summary: "将图片转换为像素画，或还原放大的像素网格。",
+  },
 } as const;
 
 /** The landing page links to published tools and articles from their owning registries. */

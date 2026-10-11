@@ -13,6 +13,7 @@ export function FileToolShell({
   tool,
   filename,
   ready,
+  processing = false,
   busy,
   error,
   fileItems = [],
@@ -24,6 +25,7 @@ export function FileToolShell({
   tool: PublicTool;
   filename: string;
   ready: boolean;
+  processing?: boolean;
   busy: boolean;
   error: string | null;
   fileItems?: readonly MenuItem[];
@@ -40,6 +42,7 @@ export function FileToolShell({
   return (
     <ToolFrame
       tool={tool}
+      processing={processing}
       help={help}
       filename={ready ? filename : undefined}
       menus={[

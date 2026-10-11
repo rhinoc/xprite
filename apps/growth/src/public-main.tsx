@@ -25,6 +25,13 @@ createBrowserSiteTelemetry({
 });
 
 const DOCUMENT_SCROLL_CONTROLS = "[data-public-reader-scroll]";
+const DEFAULT_BRAND_IMAGE = "/menu-icon.svg";
+
+function withViteBase(path: string): string {
+  const base = import.meta.env.BASE_URL;
+  if (!path.startsWith("/") || path.startsWith("//") || path.startsWith(base)) return path;
+  return `${base}${path.slice(1)}`;
+}
 
 function PublicControlsReady() {
   useLayoutEffect(() => {
@@ -58,6 +65,11 @@ async function mountPublicControls() {
     '[data-public-island="index"], [data-public-island="navigation"], [data-public-island="site-footer"], [data-public-island="features"], [data-public-island="article-diagram"]',
   )) {
     const props = JSON.parse(island.dataset.publicProps ?? "{}");
+    if (island.dataset.publicIsland === "navigation") {
+      const brandImage =
+        typeof props.brandImage === "string" ? props.brandImage : DEFAULT_BRAND_IMAGE;
+      props.brandImage = withViteBase(brandImage);
+    }
     if (island.dataset.publicIsland === "index" && island.closest("[data-public-contents]"))
       contents = new DocumentContentsManager(
         props.items.map((item: { href: string }) => item.href),

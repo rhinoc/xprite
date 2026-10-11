@@ -5,7 +5,12 @@ import { DOCUMENT_PAGES } from "$content/site/pages";
 import { useLayoutEffect, useRef, useSyncExternalStore, type HTMLAttributes } from "react";
 
 import type { DocumentContentsManager } from "$/managers/public/document-contents-manager";
-import { SiteFooter, SiteMenubar, type SiteFooterProps } from "@xprite/site-shell";
+import {
+  SiteFooter,
+  SiteMenubar,
+  type SiteFooterProps,
+  type SiteLanguage,
+} from "@xprite/site-shell";
 import { writeBrowserLanguagePreference } from "@xprite/site-shell/browser";
 import {
   Button,
@@ -184,7 +189,7 @@ export function PublicNavigation({
           ? "编辑器比较"
           : "Compare"
         : showcaseLabel(language));
-  const languages = otherLanguage
+  const languages: readonly SiteLanguage[] | undefined = otherLanguage
     ? [
         { value: language, label: chinese ? "简体中文" : "English", href: currentHref },
         {

@@ -28,6 +28,7 @@ const TOOL_ICONS = {
   "/tools/viewer/": IconKind.Search,
   "/tools/gif-to-sprite-sheet/": IconKind.Image,
   "/tools/animal-crossing-qr/": IconKind.Map,
+  "/tools/pixelate/": IconKind.Image,
 } as const;
 
 /** Applications and documents share a Finder-like desktop, rendered identically by SSG. */

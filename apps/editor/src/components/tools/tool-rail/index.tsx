@@ -13,7 +13,7 @@ import {
 import { useShortcutManager } from "$/managers/shortcuts/use-shortcut-manager";
 import { useToolRailModel, type ToolRailModel } from "$/managers/tools/tool-rail-model";
 import toolTips from "$assets/commands/aseprite-tool-tips.json";
-import { Button, Tooltip, useUi } from "@xprite/ui";
+import { Button, Tooltip, TooltipPlacement, useUi } from "@xprite/ui";
 import { uiMetrics } from "@xprite/ui/assets";
 import { UI_SCALE } from "@xprite/ui/canvas";
 import {
@@ -230,7 +230,7 @@ export function ToolRail({
       </div>
       <Tooltip
         text={editor.previewVisible ? toolTips.actions.preview_hide : toolTips.actions.preview_show}
-        placement={horizontal ? "top" : "auto"}
+        placement={horizontal ? TooltipPlacement.Top : TooltipPlacement.Auto}
       >
         <Button
           bounds={controlBounds}
@@ -254,7 +254,7 @@ export function ToolRail({
         text={
           editor.timelineVisible ? toolTips.actions.timeline_hide : toolTips.actions.timeline_show
         }
-        placement={horizontal ? "top" : "auto"}
+        placement={horizontal ? TooltipPlacement.Top : TooltipPlacement.Auto}
       >
         <Button
           bounds={controlBounds}

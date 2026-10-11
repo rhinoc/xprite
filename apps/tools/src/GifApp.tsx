@@ -2,6 +2,7 @@ import { createBrowserGifSheetPort } from "$/adapters/gif-sheet/browser-gif-shee
 import { browserToolHost } from "$/adapters/tools/browser-tool-host";
 import { GifSheetPage } from "$/components/gif-sheet/gif-sheet-page";
 import {
+  desktopAppearanceForMode,
   desktopAppearanceForColorScheme,
   ToolAppearance,
 } from "$/components/shared/tool-appearance";
@@ -19,7 +20,8 @@ export function createGifSheetApplication(
   const host = new ToolHostManager(browserToolHost);
   const desktop = createBrowserDesktop({
     appearance:
-      desktopAppearanceForColorScheme(initialTheme?.colorScheme) ?? host.getAppearanceMode(),
+      desktopAppearanceForColorScheme(initialTheme?.colorScheme) ??
+      desktopAppearanceForMode(host.getAppearanceMode()),
   });
   return {
     view: (

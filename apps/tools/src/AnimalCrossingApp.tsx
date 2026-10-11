@@ -3,6 +3,7 @@ import { browserIslandPreview } from "$/adapters/animal-crossing/ground/browser-
 import { browserToolHost } from "$/adapters/tools/browser-tool-host";
 import { AnimalCrossingPage } from "$/components/animal-crossing/animal-crossing-page";
 import {
+  desktopAppearanceForMode,
   desktopAppearanceForColorScheme,
   ToolAppearance,
 } from "$/components/shared/tool-appearance";
@@ -23,7 +24,8 @@ export function createAnimalCrossingApplication(
   const host = new ToolHostManager(browserToolHost);
   const desktop = createBrowserDesktop({
     appearance:
-      desktopAppearanceForColorScheme(initialTheme?.colorScheme) ?? host.getAppearanceMode(),
+      desktopAppearanceForColorScheme(initialTheme?.colorScheme) ??
+      desktopAppearanceForMode(host.getAppearanceMode()),
   });
   return {
     view: (

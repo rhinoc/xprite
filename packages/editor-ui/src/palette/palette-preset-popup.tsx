@@ -13,6 +13,8 @@ import {
   TextVariant,
   Scrollbar,
   CanvasSurface,
+  FontRole,
+  ScrollbarStyle,
   type SurfaceBounds,
 } from "@xprite/ui";
 import {
@@ -135,8 +137,8 @@ function PaletteResourceList({
           assets,
           choice.name,
           bounds.x + 26,
-          y + Math.floor((ROW_HEIGHT - uiFontHeight("default")) / 2) + 1,
-          { font: "default", color: ink },
+          y + Math.floor((ROW_HEIGHT - uiFontHeight(FontRole.Primary)) / 2) + 1,
+          { font: FontRole.Primary, color: ink },
         );
         const chipStart = bounds.x + 22;
         const chipY = y + ROW_HEIGHT - 12 + (index === 0 ? 1 : 0);
@@ -203,7 +205,6 @@ function PaletteResourceList({
       <div
         role="listbox"
         aria-label={translate("Palettes")}
-        closeLabel={translate("Close {name}", { name: translate("Palettes") })}
         aria-activedescendant={selectedId ? `palette-option-${selectedId}` : undefined}
         tabIndex={0}
         className="xse-palette-resource-list"
@@ -305,7 +306,7 @@ function PaletteResourceList({
           visibleSize={visibleHeight}
           value={scroll}
           onValueChange={setScrollTop}
-          variant="mini"
+          scrollbarStyle={ScrollbarStyle.Compact}
           aria-label="Palettes scroll"
         />
       )}
@@ -482,7 +483,7 @@ export function PalettePresetPopup({
           bounds={loadBounds}
           relativeTo={client}
           text={translate("Load")}
-          font="default"
+          font={FontRole.Primary}
           part="button_normal"
           hotPart="button_hot"
           pushedPart="button_selected"
@@ -499,7 +500,7 @@ export function PalettePresetPopup({
           bounds={folderBounds}
           relativeTo={client}
           text={translate("Open Folder")}
-          font="default"
+          font={FontRole.Primary}
           part="button_normal"
           hotPart="button_hot"
           pushedPart="button_selected"
