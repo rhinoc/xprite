@@ -11,7 +11,7 @@ import {
 } from "@xprite/ui";
 
 export type { DialogContext, DialogProps } from "@xprite/ui";
-export type { PopoverContext, PopoverProps } from "@xprite/ui";
+export type { PopoverProps } from "@xprite/ui";
 
 /** Supplies editor scene bounds to generic dialog and popover surfaces. */
 export function EditorDialog(props: DialogProps) {

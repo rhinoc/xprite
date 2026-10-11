@@ -18,7 +18,7 @@ const bundledPaletteFiles = import.meta.glob("../../../assets/palette-presets/**
   import: "default",
 }) as Record<string, string>;
 
-export interface BundledPalettePreset {
+interface BundledPalettePreset {
   id: string;
   name: string;
   group: string;
@@ -28,43 +28,6 @@ export interface BundledPalettePreset {
   licenseUrl?: string;
   sourceUrl?: string | null;
   colors: Rgba[];
-}
-
-/** Match Aseprite's base::compare_filenames for preset resource names. */
-export function comparePaletteResourceNames(a: string, b: string): number {
-  let ai = 0,
-    bi = 0;
-  while (ai < a.length && bi < b.length) {
-    const ac = a.charCodeAt(ai),
-      bc = b.charCodeAt(bi);
-    const aDigit = ac >= 48 && ac <= 57,
-      bDigit = bc >= 48 && bc <= 57;
-    if (aDigit && bDigit) {
-      let an = 0,
-        bn = 0;
-      while (ai < a.length) {
-        const digit = a.charCodeAt(ai) - 48;
-        if (digit < 0 || digit > 9) break;
-        an = an * 10 + digit;
-        ai++;
-      }
-      while (bi < b.length) {
-        const digit = b.charCodeAt(bi) - 48;
-        if (digit < 0 || digit > 9) break;
-        bn = bn * 10 + digit;
-        bi++;
-      }
-      if (an !== bn) return an < bn ? -1 : 1;
-      continue;
-    }
-    const lowerA = ac >= 65 && ac <= 90 ? ac + 32 : ac;
-    const lowerB = bc >= 65 && bc <= 90 ? bc + 32 : bc;
-    if (lowerA !== lowerB) return lowerA < lowerB ? -1 : 1;
-    ai++;
-    bi++;
-  }
-  if (ai === a.length && bi === b.length) return 0;
-  return ai === a.length ? -1 : 1;
 }
 
 let bundledPaletteCache: BundledPalettePreset[] | null = null;
@@ -130,7 +93,7 @@ export interface PalettePresetPorts {
 }
 
 /** Bundled palette presets are loaded from the repository catalog. */
-export function readBundledPalettePresets(): BundledPalettePreset[] {
+function readBundledPalettePresets(): BundledPalettePreset[] {
   if (!bundledPaletteCache) {
     const entries: BundledPalettePreset[] = [];
     for (const item of paletteCatalog as {
