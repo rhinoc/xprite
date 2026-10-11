@@ -15,6 +15,7 @@ const exampleButton = `button[aria-label=${JSON.stringify(config.sampleName)}]`;
 const EDITOR_MODULE_FAILURE_MESSAGE = "Failed to load editor module";
 const EDITOR_HOME_RETRIES = 1;
 const EDITOR_HOME_READY_TIMEOUT_MILLISECONDS = 30_000;
+const EDITOR_VIEW_RETRIES = 1;
 const settle = () =>
   page.evaluate(async () => {
     await document.fonts.ready;
@@ -324,14 +325,28 @@ try {
         continue;
       }
 
-      await page.click(exampleButton);
-      await page.waitForSelector(labeled("canvas", ui.canvas), { timeout: 30000 });
-      await page.waitForFunction(
-        (selector) => document.querySelector(selector)?.value === "1",
-        labeled("input", ui.currentFrame),
-      );
-      await page.fill(labeled("input", ui.zoom), "400");
-      await page.press(labeled("input", ui.zoom), "Enter");
+      const openEditorView = async () => {
+        await page.click(exampleButton);
+        await page.waitForSelector(labeled("canvas", ui.canvas), { timeout: 30000 });
+        await page.waitForFunction(
+          (selector) => document.querySelector(selector)?.value === "1",
+          labeled("input", ui.currentFrame),
+        );
+        await page.fill(labeled("input", ui.zoom), "400");
+        await page.press(labeled("input", ui.zoom), "Enter");
+      };
+      for (let attempt = 0; ; attempt++) {
+        try {
+          await openEditorView();
+          break;
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          const zoomControlMissing =
+            message.includes(labeled("input", ui.zoom)) && message.includes("matched 0 elements");
+          if (!zoomControlMissing || attempt >= EDITOR_VIEW_RETRIES) throw error;
+          await loadEditorHome(`${origin}/home`);
+        }
+      }
       await parkedPointer(width, height);
       await capture("editor", labeled("canvas", ui.canvas));
 
