@@ -77,6 +77,7 @@ export interface ColorPickerProps {
   onValueChange: (value: string) => void;
   onScreenColorChange?: (value: string) => void;
   title?: string;
+  showCloseButton?: boolean;
   /** Aseprite scene coordinates of the color button; popup fits below or above it. */
   anchor?: SurfaceBounds;
 }
@@ -186,6 +187,7 @@ export function ColorPicker({
   onValueChange,
   onScreenColorChange,
   title = "Color",
+  showCloseButton = false,
   anchor,
 }: ColorPickerProps) {
   const colorProfile = useColorProfile();
@@ -342,6 +344,7 @@ export function ColorPicker({
         onOpenChange={onOpenChange}
         label={title}
         bounds={bounds}
+        showCloseButton={showCloseButton}
         closeOnEnter
         closeOnOutsideClick={!screenPicker.busy}
         scrollX={false}

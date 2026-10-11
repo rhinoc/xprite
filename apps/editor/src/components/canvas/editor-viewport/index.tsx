@@ -276,6 +276,7 @@ function FunctionalViewport({ showScrollbars }: { showScrollbars: boolean }) {
               autoScroll={preferences.autoScroll}
               zoomFromCenterWithWheel={preferences.zoomFromCenterWithWheel}
               surfaceBounds={surfaceBounds}
+              uiElementScale={uiElementScale}
               cursor={canvasManager.input?.cursors.editorCursor(state.settings.tool)}
             />
           </div>

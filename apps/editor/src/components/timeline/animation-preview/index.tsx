@@ -66,7 +66,7 @@ export function AnimationPreview({
   onRewindOnStopChange,
 }: AnimationPreviewProps) {
   const scene = useSceneBounds();
-  const { resolve: resolveWheel } = useWheelInput();
+  const { resolve: resolveWheel, connect: connectWheel } = useWheelInput();
   const assets = useUiAssets();
   const [options, setOptions] = useState<PlaybackSettings>({ ...defaultPlaybackSettings }),
     [view, setView] = useState<PreviewView>(initialView),
@@ -76,6 +76,8 @@ export function AnimationPreview({
   const player = useAnimationPreviewManager();
   const latest = useRef({ snapshot, options });
   latest.current = { snapshot, options };
+  const previewHost = useRef<HTMLDivElement | null>(null);
+  const wheelHandler = useRef<(event: WheelEvent, canvas: HTMLCanvasElement) => void>(() => {});
   const drag = useRef<{
     pointer: number;
     x: number;
@@ -156,6 +158,13 @@ export function AnimationPreview({
     handle = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(handle);
   }, [open]);
+  useEffect(() => {
+    if (!open) return;
+    const canvas = previewHost.current?.querySelector("canvas");
+    if (!canvas) return;
+    const wheel = (event: WheelEvent) => wheelHandler.current(event, canvas);
+    return connectWheel(canvas, wheel);
+  }, [open, identity, id, t, snapshot.document, connectWheel]);
   if (!open || !t || !snapshot.document) return null;
   player.sync(t.activeFrame);
   const frame = Math.min(player.frame, t.frames.length - 1),
@@ -228,110 +237,118 @@ export function AnimationPreview({
         </>
       )}
     >
-      {({ clientBounds: c }) => (
-        <CanvasSurface
-          bounds={c}
-          style={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            width: surfaceLayout(c).width,
-            height: surfaceLayout(c).height,
-            touchAction: "none",
-          }}
-          dependencies={[
-            assets,
-            t,
-            frame,
-            snapshot.pixelRevision,
-            view.zoom,
-            pan.x,
-            pan.y,
-            doc.width,
-            doc.height,
-          ]}
-          aria-label="Animation preview canvas"
-          {...stylusPointerInputProps()}
-          onPointerDown={(event) => {
-            if (event.button > 2) return;
-            event.preventDefault();
-            event.stopPropagation();
-            const r = clientRect(event.currentTarget);
-            drag.current = {
-              pointer: event.pointerId,
-              x: clientPoint(event).x,
-              y: clientPoint(event).y,
-              pan,
-              sx: r.width / c.width,
-              sy: r.height / c.height,
+      {({ clientBounds: c }) => {
+        wheelHandler.current = (event, canvas) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const decision = resolveWheel(event, EditorWheelSurface.Zoom);
+          const delta = clientDeltaToLocal(canvas, { x: decision.x, y: decision.y });
+          const steps = wheelZoomSteps(decision, { x: delta.x / 2, y: delta.y / 2 });
+          if (!steps) return;
+          const r = clientRect(canvas),
+            anchor = {
+              x: (((clientPoint(event).x - r.left) * c.width) / r.width - 6) / 2,
+              y: (((clientPoint(event).y - r.top) * c.height) / r.height - 6) / 2,
             };
-            event.currentTarget.setPointerCapture(event.pointerId);
-          }}
-          onPointerMove={(event) => {
-            const d = drag.current;
-            if (!d || d.pointer !== event.pointerId) return;
-            event.preventDefault();
-            updateView({
-              ...view,
-              follow: false,
-              pan: {
-                x: d.pan.x + (clientPoint(event).x - d.x) / d.sx / 2,
-                y: d.pan.y + (clientPoint(event).y - d.y) / d.sy / 2,
-              },
-            });
-          }}
-          onPointerUp={(event) => {
-            if (drag.current?.pointer === event.pointerId) {
-              drag.current = null;
-              if (event.currentTarget.hasPointerCapture(event.pointerId))
-                event.currentTarget.releasePointerCapture(event.pointerId);
-            }
-          }}
-          onPointerCancel={() => {
-            drag.current = null;
-          }}
-          onContextMenu={(event) => event.preventDefault()}
-          onWheel={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            const decision = resolveWheel(event.nativeEvent, EditorWheelSurface.Zoom);
-            const delta = clientDeltaToLocal(event.currentTarget, { x: decision.x, y: decision.y });
-            const steps = wheelZoomSteps(decision, { x: delta.x / 2, y: delta.y / 2 });
-            if (!steps) return;
-            const r = clientRect(event.currentTarget),
-              anchor = {
-                x: (((clientPoint(event).x - r.left) * c.width) / r.width - 6) / 2,
-                y: (((clientPoint(event).y - r.top) * c.height) / r.height - 6) / 2,
-              };
-            const next = libreSpriteZoomAtAnchor(
-              stepZoom(view.zoom, steps),
-              { width: (c.width - 12) / 2, height: (c.height - 12) / 2 },
-              doc,
-              { zoom: view.zoom, pan },
-              anchor,
-            );
-            updateView({ ...view, ...next });
-          }}
-          paint={(ctx) => {
-            if (!assets) return;
-            const width = Math.max(1, Math.round(c.width - 12)),
-              height = Math.max(1, Math.round(c.height - 12));
-            const image = renderTimelinePreview(
-              t,
-              frame,
-              doc,
-              { width, height },
-              view.zoom,
-              pan,
-              parseEditorColor(assets.style.colors.editor_face),
-            );
-            ctx.putImageData(new ImageData(new Uint8ClampedArray(image.data), width, height), 6, 6);
-            paintUiPart(ctx, assets, "editor_selected", c.x, c.y, c.width, c.height, {
-              drawCenter: false,
-            });
-          }}
-        />
-      )}
+          const next = libreSpriteZoomAtAnchor(
+            stepZoom(view.zoom, steps),
+            { width: (c.width - 12) / 2, height: (c.height - 12) / 2 },
+            doc,
+            { zoom: view.zoom, pan },
+            anchor,
+          );
+          updateView({ ...view, ...next });
+        };
+        return (
+          <div ref={previewHost} style={{ position: "absolute", inset: 0 }}>
+            <CanvasSurface
+              bounds={c}
+              style={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                width: surfaceLayout(c).width,
+                height: surfaceLayout(c).height,
+                touchAction: "none",
+              }}
+              dependencies={[
+                assets,
+                t,
+                frame,
+                snapshot.pixelRevision,
+                view.zoom,
+                pan.x,
+                pan.y,
+                doc.width,
+                doc.height,
+              ]}
+              aria-label="Animation preview canvas"
+              {...stylusPointerInputProps()}
+              onPointerDown={(event) => {
+                if (event.button > 2) return;
+                event.preventDefault();
+                event.stopPropagation();
+                const r = clientRect(event.currentTarget);
+                drag.current = {
+                  pointer: event.pointerId,
+                  x: clientPoint(event).x,
+                  y: clientPoint(event).y,
+                  pan,
+                  sx: r.width / c.width,
+                  sy: r.height / c.height,
+                };
+                event.currentTarget.setPointerCapture(event.pointerId);
+              }}
+              onPointerMove={(event) => {
+                const d = drag.current;
+                if (!d || d.pointer !== event.pointerId) return;
+                event.preventDefault();
+                updateView({
+                  ...view,
+                  follow: false,
+                  pan: {
+                    x: d.pan.x + (clientPoint(event).x - d.x) / d.sx / 2,
+                    y: d.pan.y + (clientPoint(event).y - d.y) / d.sy / 2,
+                  },
+                });
+              }}
+              onPointerUp={(event) => {
+                if (drag.current?.pointer === event.pointerId) {
+                  drag.current = null;
+                  if (event.currentTarget.hasPointerCapture(event.pointerId))
+                    event.currentTarget.releasePointerCapture(event.pointerId);
+                }
+              }}
+              onPointerCancel={() => {
+                drag.current = null;
+              }}
+              onContextMenu={(event) => event.preventDefault()}
+              paint={(ctx) => {
+                if (!assets) return;
+                const width = Math.max(1, Math.round(c.width - 12)),
+                  height = Math.max(1, Math.round(c.height - 12));
+                const image = renderTimelinePreview(
+                  t,
+                  frame,
+                  doc,
+                  { width, height },
+                  view.zoom,
+                  pan,
+                  parseEditorColor(assets.style.colors.editor_face),
+                );
+                ctx.putImageData(
+                  new ImageData(new Uint8ClampedArray(image.data), width, height),
+                  6,
+                  6,
+                );
+                paintUiPart(ctx, assets, "editor_selected", c.x, c.y, c.width, c.height, {
+                  drawCenter: false,
+                });
+              }}
+            />
+          </div>
+        );
+      }}
     </EditorDialog>
   );
 }

@@ -31,6 +31,10 @@ Editor release configuration and tag/manual deployment instructions are in
 [deploy/README.md](deploy/README.md). Root `deploy:*` scripts prepare and publish
 the static editor to EdgeOne Makers.
 
+The pre-push hook runs `pnpm run check:growth-ssr`, which builds Growth's static
+pages and blocks the push if React reports that `useLayoutEffect` ran during
+server rendering.
+
 For itch.io, run `pnpm run itch:pack` to build an uploadable ZIP, or build with
 `pnpm run build:itch` and upload through `pnpm run deploy:itch username/project`.
 See [the itch.io distribution instructions](deploy/ITCH.md).

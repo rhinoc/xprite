@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 
 import type { PaletteBrowserChoice, PaletteTranslate } from "$/palette/model";
 import type { Rgba } from "@xprite/editor-core/base";
 import {
+  createUiPortal,
   Popover,
   type PopoverContext,
   Button,
@@ -53,6 +53,8 @@ const ROW_HEIGHT = 40;
 const SCROLLBAR_SIZE = 12;
 const SCROLLBAR_INSET = 7;
 const SCROLLBAR_WIDTH = SCROLLBAR_SIZE + SCROLLBAR_INSET;
+const PIXEL_WHEEL_SCROLL_MULTIPLIER = 2;
+const REFRESH_BUTTON_WIDTH = 32;
 
 function samePalette(a: readonly Rgba[], b: readonly Rgba[]) {
   return (
@@ -81,6 +83,7 @@ function PaletteResourceList({
   translate: PaletteTranslate;
 }) {
   const assets = useUiAssets();
+  const list = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
   const activeIndex = choices.findIndex((choice) => choice.id === selectedId);
   const contentHeight = choices.length * ROW_HEIGHT;
@@ -90,6 +93,29 @@ function PaletteResourceList({
   const first = Math.max(0, Math.floor(scroll / ROW_HEIGHT));
   const last = Math.min(choices.length, Math.ceil((scroll + visibleHeight) / ROW_HEIGHT));
   const contentWidth = Math.max(0, bounds.width - SCROLLBAR_WIDTH);
+  useEffect(() => {
+    const node = list.current;
+    if (!node) return;
+    const wheel = (event: WheelEvent) => {
+      if (!event.deltaY) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const delta = clientDeltaToSurface(
+        node,
+        { x: event.deltaX, y: event.deltaY },
+        { width: bounds.width, height: bounds.height },
+      );
+      const scrollDelta =
+        event.deltaMode === WheelEvent.DOM_DELTA_LINE
+          ? event.deltaY * ROW_HEIGHT
+          : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+            ? event.deltaY * visibleHeight
+            : delta.y * PIXEL_WHEEL_SCROLL_MULTIPLIER;
+      setScrollTop((value) => Math.max(0, Math.min(maxScroll, value + Math.round(scrollDelta))));
+    };
+    node.addEventListener("wheel", wheel, { passive: false });
+    return () => node.removeEventListener("wheel", wheel);
+  }, [bounds.width, bounds.height, maxScroll, visibleHeight]);
   const paint = useCallback(
     (context: CanvasRenderingContext2D) => {
       if (!assets) return;
@@ -215,16 +241,7 @@ function PaletteResourceList({
           width: surface.width,
           height: surface.height,
         }}
-        onWheel={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          const delta = clientDeltaToSurface(
-            event.currentTarget,
-            { x: event.deltaX, y: event.deltaY },
-            DEFAULT_SURFACE_VIEWPORT,
-          );
-          setScrollTop((value) => Math.max(0, Math.min(maxScroll, value + Math.round(delta.y))));
-        }}
+        ref={list}
         onKeyDown={(event) => {
           if (
             event.key === "ArrowDown" ||
@@ -368,8 +385,8 @@ export function PalettePresetPopup({
       height: 32,
     });
     setPopupScene({ width: anchor.availableWidth, height: anchor.availableHeight });
-    const width = Math.max(1, Math.floor(anchor.availableWidth / 2)),
-      height = Math.max(1, Math.floor((anchor.availableHeight * 3) / 4));
+    const width = Math.max(1, Math.floor(anchor.availableWidth / 2));
+    const height = Math.max(1, Math.floor((anchor.availableHeight * 3) / 4));
     setBounds({
       x: Math.max(0, Math.min(anchor.availableWidth - width, anchor.bounds.x)),
       y: Math.max(0, Math.min(anchor.availableHeight - height, anchor.bottom + 1)),
@@ -383,14 +400,14 @@ export function PalettePresetPopup({
   const renderContents = ({ clientBounds: client }: PopoverContext) => {
     const searchBounds = {
       x: client.x + 2,
-      y: client.y - 1,
+      y: client.y + 1,
       width: Math.max(32, client.width - 45),
-      height: 40,
+      height: 38,
     };
     const refreshBounds = {
-      x: client.x + client.width - 32,
+      x: client.x + client.width - REFRESH_BUTTON_WIDTH,
       y: client.y + 1,
-      width: 32,
+      width: REFRESH_BUTTON_WIDTH,
       height: 36,
     };
     const listBounds = {
@@ -528,13 +545,14 @@ export function PalettePresetPopup({
       {open &&
         bounds &&
         portalTarget &&
-        createPortal(
+        createUiPortal(
           <Popover
             open
             label={translate("Palettes")}
             closeLabel={translate("Close {name}", { name: translate("Palettes") })}
             sceneBounds={sceneBounds ?? popupScene}
             bounds={bounds}
+            showCloseButton={false}
             onOpenChange={setOpen}
             autoFocus={false}
             closeOnEnter={false}

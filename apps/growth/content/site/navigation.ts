@@ -91,7 +91,11 @@ export function siteApplications(
 ): readonly SiteApplicationItem[] {
   const selectedLanguage = publicLanguage(language);
   const tool = TOOLS.find((tool) => tool.path === currentPath);
-  const declaredGuide = guideHref ?? (tool && "guidePath" in tool ? tool.guidePath : undefined);
+  const declaredGuide =
+    guideHref ??
+    (tool && "guidePath" in tool && typeof tool.guidePath === "string"
+      ? tool.guidePath
+      : undefined);
   const helpHref =
     declaredGuide &&
     (declaredGuide.startsWith("#") ||

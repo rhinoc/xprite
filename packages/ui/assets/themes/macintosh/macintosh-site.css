@@ -57,7 +57,7 @@
   --ui-panel-window-title-gap: 7px;
   --ui-panel-window-title-inset: 3px;
   --ui-panel-window-title-font-size: 16px;
-  --ui-panel-window-title-line-height: 12px;
+  --ui-panel-window-title-line-height: 16px;
   --ui-panel-window-title-font: var(--xse-font, var(--ui-font-family, monospace));
   --ui-panel-window-stripe-height: 12px;
   --ui-panel-window-stripe-width: 1px;
@@ -296,7 +296,7 @@
   --ui-panel-window-title-gap: 7px;
   --ui-panel-window-title-inset: 3px;
   --ui-panel-window-title-font-size: 16px;
-  --ui-panel-window-title-line-height: 12px;
+  --ui-panel-window-title-line-height: 16px;
   --ui-panel-window-title-font: var(--xse-font, var(--ui-font-family, monospace));
   --ui-panel-window-stripe-height: 12px;
   --ui-panel-window-stripe-width: 1px;

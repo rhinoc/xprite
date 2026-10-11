@@ -2,7 +2,13 @@ import { ARTICLES } from "$content/articles/index";
 import { publicLanguage } from "$content/site/language";
 import { siteApplications, siteFooterGroups, showcaseLabel } from "$content/site/navigation";
 import { DOCUMENT_PAGES } from "$content/site/pages";
-import { useLayoutEffect, useRef, useSyncExternalStore, type HTMLAttributes } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useSyncExternalStore,
+  type HTMLAttributes,
+} from "react";
 
 import type { DocumentContentsManager } from "$/managers/public/document-contents-manager";
 import {
@@ -46,6 +52,8 @@ import {
 
 import "$/components/public/site-preset.module.css";
 import scrollStyles from "$/public-controls.module.css";
+
+const useClientLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 /** Business markup is kept intact; shared controls own their anatomy and skin. */
 export function PublicHtml({ html }: { html: string }) {
@@ -280,7 +288,7 @@ export function PublicIndex({
     contents?.getServerSnapshot ?? noContentsSnapshot,
   );
   const viewport = useRef<HTMLDivElement>(null);
-  useLayoutEffect(() => {
+  useClientLayoutEffect(() => {
     const scroller = viewport.current;
     const link = scroller?.querySelector<HTMLElement>('a[aria-current="location"]');
     if (!scroller || !link) return;

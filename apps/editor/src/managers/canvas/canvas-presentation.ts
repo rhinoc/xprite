@@ -43,6 +43,7 @@ export {
   selectionTransformPivotPoint,
   selectionShaderOffset,
   sliceKeyAt,
+  sliceGestureTargetAt,
   stepZoom,
   stepAsepriteZoom,
   symmetryAxisPosition,

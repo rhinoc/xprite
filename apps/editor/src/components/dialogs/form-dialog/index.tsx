@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { FlowForm } from "$/components/dialogs/form-dialog/flow-form";
@@ -116,6 +116,7 @@ const MESSAGE_WIDTH_PADDING = 48;
 const FORM_DIALOG_CHROME_HEIGHT = 46;
 const FORM_DIALOG_CHROME_WIDTH = 24;
 const NATIVE_ACTION_SIZE = { width: 120, height: 34 };
+const useClientLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 function wrapMessage(message: string, width: number): string[] {
   const lines: string[] = [];
   for (const paragraph of message.split("\n")) {
@@ -351,7 +352,7 @@ export function FormDialog({
     width: dialogWidth - FORM_DIALOG_CHROME_WIDTH,
     height: height - FORM_DIALOG_CHROME_HEIGHT,
   };
-  useEffect(() => {
+  useClientLayoutEffect(() => {
     if (embedded && open) onLayoutSizeChange?.(embeddedSize);
   }, [embedded, open, embeddedSize.width, embeddedSize.height, onLayoutSizeChange]);
   const renderContent = (client: SurfaceBounds) =>

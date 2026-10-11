@@ -55,6 +55,7 @@ import {
   canTransformTimelineSelection,
   selectionModeForInput,
   sliceKeyAt,
+  sliceGestureTargetAt,
   selectionHandlePositions,
   asepriteSelectionHandleRect as handleRect,
   hitSelectionHandles,
@@ -106,6 +107,7 @@ import {
   EditorWheelSurface,
   EditorWheelAction as WheelAction,
 } from "$/managers/input/use-wheel-input";
+import { EditorCursorName } from "$/managers/ports/platform";
 import {
   checkerboardCellSize,
   type CanvasDisplayPreferences,
@@ -156,6 +158,7 @@ import styles from "$/components/canvas/editor-canvas.module.css";
 const SYMMETRY_AUXILIARY_ALPHA_DIVISOR = 4;
 const PIVOT_HANDLE_HIT_RADIUS = 3;
 const CANVAS_BACKING_SCALE = 2;
+const PAINTING_CURSOR_SCALE_AT_STANDARD_UI = 2;
 const RGBA_CHANNEL_COUNT = 4;
 const PAINTING_CURSOR_CENTER = 3;
 const CENTER_DOT_COLOR_BIT = 8;
@@ -287,6 +290,7 @@ export interface EditorCanvasProps {
   autoScroll?: boolean;
   zoomFromCenterWithWheel?: boolean;
   surfaceBounds?: SurfaceBounds;
+  uiElementScale: number;
 }
 const defaultSurfaceBounds: SurfaceBounds = {
   x: 166,
@@ -337,6 +341,7 @@ export function EditorCanvas({
   autoScroll = true,
   zoomFromCenterWithWheel = false,
   surfaceBounds = defaultSurfaceBounds,
+  uiElementScale,
 }: EditorCanvasProps) {
   const canvasManager = useCanvasManager();
   const overlayState = useCanvasOverlayState();
@@ -461,7 +466,9 @@ export function EditorCanvas({
     const hoverCanvas = document.createElement("canvas");
     const hoverContext = hoverCanvas.getContext("2d");
     const paintingScale =
-      cursorPreferences.paintingCursorType === PaintingCursorType.SpriteUnscaled ? 1 : 2;
+      cursorPreferences.paintingCursorType === PaintingCursorType.SpriteUnscaled
+        ? 1
+        : Math.max(1, Math.round(PAINTING_CURSOR_SCALE_AT_STANDARD_UI * uiElementScale));
     const paintingColor =
       cursorPreferences.colorType === CursorColorType.Specific
         ? cursorPreferences.color
@@ -1016,6 +1023,8 @@ export function EditorCanvas({
     const updatePaintingCursor = () => {
       if (
         simpleCrosshair ||
+        quickTool === CanvasToolId.Hand ||
+        quickTool === CanvasToolId.Move ||
         (!paintingCursorActive && !centerDotCursorActive) ||
         !inside ||
         !pointerScreen
@@ -1104,6 +1113,7 @@ export function EditorCanvas({
               pendingPaintingCursor !== key ||
               !inside ||
               quickTool === CanvasToolId.Hand ||
+              quickTool === CanvasToolId.Move ||
               pan ||
               hoveredTransform
             )
@@ -1226,6 +1236,7 @@ export function EditorCanvas({
         paintingTool &&
         !forbiddenPaint &&
         !quickToolActive &&
+        quickTool !== CanvasToolId.Move &&
         !hoveredTransform &&
         !pan &&
         quickTool !== CanvasToolId.Hand &&
@@ -1233,6 +1244,7 @@ export function EditorCanvas({
       const selectionActive =
         selectionTool &&
         !quickToolActive &&
+        quickTool !== CanvasToolId.Move &&
         !hoveredTransform &&
         !pan &&
         quickTool !== CanvasToolId.Hand &&
@@ -1277,24 +1289,31 @@ export function EditorCanvas({
         state.view.brushPreview,
         effectBoundary,
       );
-      const brushBoundary = paintingActive && previewPolicy.edges;
+      // Match the native drawing state: hide the painted stamp preview while
+      // drawing, but keep the brush boundary cursor visible.
+      const showBrushFillPreview = !state.preview && previewPolicy.fill;
+      const showBrushBoundary = previewPolicy.edges;
+      const brushBoundary = paintingActive && showBrushBoundary;
       const centerOnly = selectionActive || (brushBoundary && !tileMode);
       const nextCursor = pan
-        ? canvasInputPort.cursors.cursorStyle("scroll", "grabbing")
-        : quickTool === CanvasToolId.Hand
-          ? canvasInputPort.cursors.cursorStyle("hand", "grab")
-          : quickToolActive
-            ? canvasInputPort.cursors.editorCursor("eyedropper")
-            : state.settings.tool === "hand"
-              ? canvasInputPort.cursors.cursorStyle("hand", "grab")
+        ? canvasInputPort.cursors.cursorStyle("scroll", "move")
+        : quickToolActive
+          ? canvasInputPort.cursors.editorCursor("eyedropper")
+          : quickTool === CanvasToolId.Move
+            ? canvasInputPort.cursors.cursorStyle(EditorCursorName.Move, "move")
+            : quickTool === CanvasToolId.Hand || state.settings.tool === "hand"
+              ? canvasInputPort.cursors.cursorStyle("scroll", "move")
               : hoveredTransform
-                ? hoveredTransform === "bounds" || hoveredTransform === "pivot"
+                ? hoveredTransform === "bounds"
                   ? canvasInputPort.cursors.cursorStyle("move-selection", "move")
-                  : canvasInputPort.cursors.selectionHandleCursor(
-                      hoveredTransform,
-                      state.selectionTransform?.bounds ?? doc?.selection ?? { width: 1, height: 1 },
-                      state.selectionTransform?.angle ?? 0,
-                    )
+                  : hoveredTransform === "pivot"
+                    ? canvasInputPort.cursors.cursorStyle("hand", "grab")
+                    : canvasInputPort.cursors.selectionHandleCursor(
+                        hoveredTransform,
+                        state.selectionTransform?.bounds ??
+                          doc?.selection ?? { width: 1, height: 1 },
+                        state.selectionTransform?.angle ?? 0,
+                      )
                 : movingSelection
                   ? selectionCopyModifier
                     ? canvasInputPort.cursors.cursorStyle("normal_add", "copy")
@@ -1311,42 +1330,34 @@ export function EditorCanvas({
                         : (cursor ?? cursors[state.settings.tool] ?? "crosshair");
       if (canvas.style.cursor !== nextCursor) canvas.style.cursor = nextCursor;
       if (
+        inside &&
         state.settings.tool === "slice" &&
         doc?.timeline &&
-        state.pointer &&
+        rawCursorPoint &&
         !pan &&
         quickTool !== CanvasToolId.Hand
       ) {
-        const p = state.pointer,
-          active = (doc.timeline.slices ?? [])
-            .filter((s) => state.selectedSliceIds?.includes(s.id))
-            .map((s) => sliceKeyAt(s, doc.timeline!.activeFrame)?.bounds)
-            .filter((b): b is NonNullable<typeof b> => !!b);
-        let sliceCursor = "crosshair";
-        if (active.length) {
-          const x = Math.min(...active.map((b) => b.x)),
-            y = Math.min(...active.map((b) => b.y)),
-            right = Math.max(...active.map((b) => b.x + b.width)),
-            bottom = Math.max(...active.map((b) => b.y + b.height)),
-            tol = Math.max(0.5, 2 / state.view.zoom),
-            near = (a: number, b: number) => Math.abs(a - b) <= tol,
-            left = near(p.x, x),
-            east = near(p.x, right),
-            top = near(p.y, y),
-            south = near(p.y, bottom);
-          if ((left || east) && (top || south))
-            sliceCursor = left === top ? "nwse-resize" : "nesw-resize";
-          else if (left || east) sliceCursor = "ew-resize";
-          else if (top || south) sliceCursor = "ns-resize";
-        }
-        if (
-          sliceCursor === "crosshair" &&
-          (doc.timeline.slices ?? []).some((s) => {
-            const b = sliceKeyAt(s, doc.timeline!.activeFrame)?.bounds;
-            return b && p.x >= b.x && p.y >= b.y && p.x < b.x + b.width && p.y < b.y + b.height;
-          })
-        )
-          sliceCursor = "move";
+        const sliceTarget =
+          state.view.slices && doc.timeline.slices
+            ? sliceGestureTargetAt({
+                slices: doc.timeline.slices,
+                selectedSliceIds: state.selectedSliceIds ?? [],
+                frame: doc.timeline.activeFrame,
+                cursor: rawCursorPoint,
+                zoom: state.view.zoom,
+                shift: modifierKeys.shiftKey,
+              })
+            : null;
+        const sliceCursor = !sliceTarget
+          ? (cursor ?? canvasInputPort.cursors.cursorStyle("crosshair", "crosshair"))
+          : sliceTarget.mode === "move"
+            ? canvasInputPort.cursors.cursorStyle("move", "move")
+            : sliceTarget.handle
+              ? canvasInputPort.cursors.cursorStyle(
+                  `size_${sliceTarget.handle}`,
+                  `${sliceTarget.handle}-resize`,
+                )
+              : canvasInputPort.cursors.cursorStyle("move", "move");
         canvas.style.cursor = sliceCursor;
       }
       const axisHover =
@@ -1379,7 +1390,9 @@ export function EditorCanvas({
           pointer.x < bounds.x + bounds.width + pad &&
           pointer.y < bounds.y + bounds.height + pad;
         const textCursor =
-          inMoveArea && !inText ? canvasInputPort.cursors.cursorStyle("move", "move") : "default";
+          inMoveArea && !inText
+            ? canvasInputPort.cursors.cursorStyle(EditorCursorName.Move, "move")
+            : canvasInputPort.cursors.cursorStyle(EditorCursorName.Normal);
         if (canvas.style.cursor !== textCursor) canvas.style.cursor = textCursor;
       }
       paintingCursorActive =
@@ -2101,9 +2114,10 @@ export function EditorCanvas({
       if (
         inside &&
         !pan &&
+        !symmetryDrag &&
+        !axisHover &&
         quickTool !== CanvasToolId.Hand &&
         !floating &&
-        !state.preview &&
         doc.layer.visible &&
         !doc.layer.locked &&
         state.view.brushPreview &&
@@ -2111,7 +2125,7 @@ export function EditorCanvas({
         paintingActive &&
         state.settings.tool !== "gradient"
       ) {
-        if (previewGeometry && (previewPolicy.fill || previewPolicy.edges)) {
+        if (previewGeometry && (showBrushFillPreview || showBrushBoundary)) {
           const { mask: m, at } = previewGeometry;
           const path = new Path2D();
           const boundaryEdges: [number, number, number, number][] = [];
@@ -2129,7 +2143,7 @@ export function EditorCanvas({
                 if (!has(x - 1, y)) boundaryEdges.push([px, py, px, py + 1]);
                 if (!has(x + 1, y)) boundaryEdges.push([px + 1, py, px + 1, py + 1]);
               }
-          if (previewPolicy.fill && hoverContext) {
+          if (showBrushFillPreview && hoverContext) {
             const raster = cursorPreviewRaster(state, previewGeometry);
             if (raster) {
               hoverCanvas.width = raster.width;
@@ -2158,7 +2172,7 @@ export function EditorCanvas({
               context.restore();
             }
           }
-          if (previewPolicy.edges) outlineBrushBoundary(boundaryEdges);
+          if (showBrushBoundary) outlineBrushBoundary(boundaryEdges);
         }
       }
       context.restore();
@@ -3172,7 +3186,7 @@ export function EditorCanvas({
       if (!doc || !timeline || state.view.slices === false) return null;
       const at = screenToDocument(screenPoint(event), viewport(), doc, state.view);
       return (
-        [...(timeline.slices ?? [])].reverse().find((slice) => {
+        (timeline.slices ?? []).find((slice) => {
           const bounds = sliceKeyAt(slice, timeline.activeFrame)?.bounds;
           return (
             bounds &&
@@ -3311,6 +3325,7 @@ export function EditorCanvas({
     cursorPreferences,
     canvasInputPort,
     shortcuts,
+    uiElementScale,
   ]);
   useLayoutEffect(() => {
     resizeCanvas.current?.();
