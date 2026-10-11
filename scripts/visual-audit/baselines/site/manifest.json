@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
-  "capturedAt": "2026-10-11T12:11:14.909Z",
+  "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+  "capturedAt": "2026-10-11T12:54:40.822Z",
   "captureComplete": true,
   "sourceHashes": {
-    ".husky/pre-push": "8bccccd2cbf89dac5439916800b8263e9f45eddc20561a98ebda3518879f529f",
+    ".husky/pre-push": "2c77214e0ea597a6d6ffaf24eb921eefa5b6b044df35d06d7c514e60a40d4792",
     "apps/editor/assets/commands/aseprite-tool-tips.json": "e9e275e9d3b024deaa66850fa53e43713f155b70afd619d6d8c9d3ad86c47c26",
     "apps/editor/assets/commands/libresprite-keyboard-shortcuts.json": "36bfd19176989e659289b5e89927f29d7e4f2fe4e9389a1520552bd8711560d1",
     "apps/editor/assets/commands/libresprite-main-menu.json": "8fa90cc4b0762674fd9d3630eecf357be5ae8e8f48c2e5e1cdcca98e721bb00b",
@@ -638,15 +638,15 @@
     "apps/editor/tsconfig.json": "cd0d145f336b0875203b1f574754e4a319e211357d4656ea6c53df505c504fec",
     "apps/editor/tsconfig.node.json": "285cdbd9e55a38d0fc4f9f94a8217931355e031be3514af2700505be78a8fde6",
     "apps/editor/vite.config.ts": "bd7858e05b707fef49fe65be168bc6e7d55e60797eac7151d12ebe95da06a53d",
-    "apps/growth/build/pages/article-pages.ts": "6cd73db1ce2186ff79ef91170fcdf8f892103a578101a13e77dbcc717dffd30e",
+    "apps/growth/build/pages/article-pages.ts": "5c3b6cad45931c7b8710b661a00bc5b2112abef2c7901e9b257755bb6ee9cef4",
     "apps/growth/build/pages/article-source.test.ts": "222f93c17910e014836ad29365d198d8c77c2873bc2d6cf656de812fc21b5a44",
     "apps/growth/build/pages/article-source.ts": "d3a2dca1817d732ab7642b6c01ea9c2d78eedf401a37232d336203a5d43fcece",
     "apps/growth/build/pages/document-page.ts": "5508d6045afbe2e579e4543ffb9ec6484eb29e68240596ca31fbe4c590ae3998",
-    "apps/growth/build/pages/document-pages.test.ts": "69821570056f19b4e6e44e6939e1bd9664e8d495a3645269aca5b6a0e8a98e15",
+    "apps/growth/build/pages/document-pages.test.ts": "3d0e0b16cb5f772d36c9cdae903b33048ab83d766e2585229b4da4b199fc47ed",
     "apps/growth/build/pages/document-pages.ts": "8984706c2af34675b2ecf884a7660b31eec3822f765a4fe19a6cfbd7c91d456e",
     "apps/growth/build/pages/document-resources.ts": "c7872b444beaaabc3eac9e781d662ba91205251c112e84b34ac881599cd91e2f",
     "apps/growth/build/pages/feature-directory.ts": "9140429d752334aecbbf0a4f2030232ec5150e0e1736af29783fd0d8758b6bcd",
-    "apps/growth/build/pages/guide-pages.ts": "c6383dda15cc57ffdb60baecaaf4741a30c1801e5822824fe3b37f147d97fec1",
+    "apps/growth/build/pages/guide-pages.ts": "238ef4c03a45bd109c1c40cd8500d19a22cd09ce9bd99ce52bf7e09f29f2d7b5",
     "apps/growth/build/public-pages.ts": "5a0bd1faa88c5e56b806c540064a4820804a8aa86402c16ad07d09cdb9b53876",
     "apps/growth/build/public-theme.ts": "14e7a2a8acb350650b3150b6626e72622412dff16c48e4e4fc25925a1af631fc",
     "apps/growth/build/routing/public-routing.ts": "4df1eb43f81792486ee8e1e31dfe096bd7a216f677c81e7aad6677a4ea3342b2",
@@ -676,9 +676,9 @@
     "apps/growth/content/articles/zh-CN.ts": "785bb181d643dd680abd18ab151d230766f4ff3ff73d388f962f94e24c2cf19c",
     "apps/growth/content/compare/README.md": "32ee42c96c7e14aeb23aaff5536ce522f9523bddc9d2995f1315ebc5ec046649",
     "apps/growth/content/compare/articles/aseprite-on-ipad.md": "14238e469462288fbe5eb53c6bf6e3daa0824b776a6a46ea61ce2770fe210831",
-    "apps/growth/content/compare/articles/aseprite-on-ipad.zh-CN.md": "611121dfbe22cd3538b657cd9d54e1fb888065351a7e3a25e378ddda51576a4a",
+    "apps/growth/content/compare/articles/aseprite-on-ipad.zh-CN.md": "470f6a5f0e672d71f90ca2eb5af7d2586481ea5853dc906abc17a0146ccf0fe9",
     "apps/growth/content/compare/articles/aseprite-online.md": "4443a94de055e6853f5eb3abfe7a6b882e1881704005d38350fae6a86a7b68c2",
-    "apps/growth/content/compare/articles/aseprite-online.zh-CN.md": "7272eeb441d8d688ded0c8e3e1863ec387775f4f97b14c296c0e334e9935c98d",
+    "apps/growth/content/compare/articles/aseprite-online.zh-CN.md": "96bdfe137532a2c394db540e2d52d24e1f8183bfc4f162b81ed00ef8294724f2",
     "apps/growth/content/compare/articles/images/editor-with-aseprite-en.png": "d806755f80f27f33e4243975c74a0e3072b65979ce841b7b9da8a4ff195cc3c9",
     "apps/growth/content/compare/articles/images/editor-with-aseprite.png": "448ed558405ee880174c9bcade11082af7115530a50fb5aad1d86b6c5f61eb5d",
     "apps/growth/content/compare/articles/images/save-as-browser-or-files-en.png": "81e544945fbb228a321faa35ee82cfee6bafa97ba4c842673d798110b541496f",
@@ -697,27 +697,27 @@
     "apps/growth/content/compare/research/ipad.md": "34caed1c40ae7848612a35e6c450f1e514d184a1a9c4658e5ffcdef38a7148c2",
     "apps/growth/content/compare/research/mobile.md": "b59ab9f99bdb36308d170301a307e3bee03611b5cbbb1e0cbcbef69b673a9dfc",
     "apps/growth/content/compare/research/piskel.md": "3d767ee3388b0867959eef9a71d2d2fdad7430d66b3d6306e048f1209e999415",
-    "apps/growth/content/features/details/aseprite-projects.en.md": "0c2a974e8e0a9c05f824b2d431bd048afeee8450b28d435c4eba2eb35f957f53",
-    "apps/growth/content/features/details/aseprite-projects.zh-CN.md": "03dc973b45b6d723375d6c31ca2ce786b5fa6a64d8f5f65f5b197717c43edfde",
-    "apps/growth/content/features/details/draw-pixel-art.en.md": "3c2f0a2ec00fb5281b9efe5e727612d82e7dcd893f2297a9ee62a6eeba3a278d",
-    "apps/growth/content/features/details/draw-pixel-art.zh-CN.md": "dc6cd0cdf9f7b95872c77fd93faf3b16c9d8819b4df79f5ce1bd828d765777fe",
-    "apps/growth/content/features/details/drawing-process.en.md": "e01158c45150200505e66a0a56f1b458df72fe13cefbdecf01dea12225dd68f9",
-    "apps/growth/content/features/details/drawing-process.zh-CN.md": "1747efb94660fc42384e10ea874b44936dc8d65b06d697be45a68f4aebe3f9d7",
-    "apps/growth/content/features/details/export-images-and-animation.en.md": "9cf7735b753a4ffdf8b0b927dc4bd0e650870dd0f4548bf049c57ed42c10eea1",
-    "apps/growth/content/features/details/export-images-and-animation.zh-CN.md": "be9e28eb6c2ba4eda60492fb289bde14fa4507f65264cf789bdcc17082c784ba",
-    "apps/growth/content/features/details/frame-animation.en.md": "5e562f2be6f92dca9e593446119c8d9712113cefa6ba25f0cb6b74e2573c5d5f",
-    "apps/growth/content/features/details/frame-animation.zh-CN.md": "6e531a8d14ae43a976eec746bf77b6e5e9cf896c0dffeb629f571bb19232c03d",
-    "apps/growth/content/features/details/layers-and-colors.en.md": "78a6b3c27e7316a33aebb7ab08b0d149b0a2b271165efbb5b711192440dc53fa",
-    "apps/growth/content/features/details/layers-and-colors.zh-CN.md": "7b2bef6df545388141b7960a03845d2851d5d1ce56f72676b8ffb0a8f4f473c0",
-    "apps/growth/content/features/details/share-artwork.en.md": "cee19b940dc824f9184b747fec6cc65a51b978888c3a42fa4e24fccc8200b652",
-    "apps/growth/content/features/details/share-artwork.zh-CN.md": "f6e1593e1b99bddd5a42ebc432f5438d6df63a009aecb7c23f929dd37ad0f89a",
-    "apps/growth/content/features/details/tilemaps.en.md": "f30a43b57d30a576516927b04bcd7dddf7854a85e02e6985e0a676c19f05573d",
-    "apps/growth/content/features/details/tilemaps.zh-CN.md": "d1464863f9c7f244aab416c47d940478b357c18a2756fd09d8a5268d3b3b6075",
-    "apps/growth/content/features/details/touch-drawing.en.md": "dc865608e3b07e4fa879e8a6edce1cbe723a9953b521e3ae4bf15723a4ebf86b",
-    "apps/growth/content/features/details/touch-drawing.zh-CN.md": "7ceca9a9fe1e3ae763e7e44b2310773de53643b59b5a002d5366e22b24329bd5",
-    "apps/growth/content/features/details/workspace-layout.en.md": "4dca3536a4556a7ca98ca443c342726960c12c6c9886d4985e73058461f127d5",
-    "apps/growth/content/features/details/workspace-layout.zh-CN.md": "498c22f98b32123ae16f6b9b2f6ff13bbb9ddad7ad40fa65729d76f49174fcd6",
-    "apps/growth/content/features/index.ts": "47c31fafbbdcd7d80ef0681dcfc179e99027a6611012064e6ee1a9c508b17e87",
+    "apps/growth/content/features/details/aseprite-projects.en.md": "1811122a24fe3ad6e98dc819323c5766628c21d4082f1d74006909955ecc9768",
+    "apps/growth/content/features/details/aseprite-projects.zh-CN.md": "509338425c0575050062b52c4de78c5b481e4902c327d2a90e8563a850ec597c",
+    "apps/growth/content/features/details/draw-pixel-art.en.md": "057df78e990810b4575f71c14b7219fed03074f91ff1b248c0a857d2161a53ac",
+    "apps/growth/content/features/details/draw-pixel-art.zh-CN.md": "1862848298868a9fda1a1f4ea1330cb6ad0be31a78592c22b5231fb0628dcea7",
+    "apps/growth/content/features/details/drawing-process.en.md": "63063b430de8dd1638fde4821f2242b0be068f0113c9586eb949d81b58ffa2a4",
+    "apps/growth/content/features/details/drawing-process.zh-CN.md": "97a335d27d823d2e5431a154a9d9a799b44875ce1475ce27c10bcc7da6183369",
+    "apps/growth/content/features/details/export-images-and-animation.en.md": "1c13342355c0eb9921dcdb746dcc7576ede1c2c20b94ed2da0c4ea36aaee836a",
+    "apps/growth/content/features/details/export-images-and-animation.zh-CN.md": "59209105ba196ce12be8c1d59a63ba8fa5e82ad1a9ba70741ad5fa4b4a21fa8c",
+    "apps/growth/content/features/details/frame-animation.en.md": "0b5c698bae9fb9cd2ea7b8d47cdff9a921543840e8a54b31c362de0b967a2aad",
+    "apps/growth/content/features/details/frame-animation.zh-CN.md": "2499a812f97134416f3dfddc8869e4931e908f3c3eb8ac0357aa0f331ebb1270",
+    "apps/growth/content/features/details/layers-and-colors.en.md": "d77ec06deeadcf5257b7ab35c6f39f534f6ed650141861073353c040eb275cf1",
+    "apps/growth/content/features/details/layers-and-colors.zh-CN.md": "3dcdad3f7d6911c34f6678b660ca957b03894b584f5e4ea74869fa498b1abbc6",
+    "apps/growth/content/features/details/share-artwork.en.md": "28d91bc3939141c6991536398bd3e71dff63133371d31559b92582b05569c359",
+    "apps/growth/content/features/details/share-artwork.zh-CN.md": "496d23c06d27bdb38fa95d2690e0cb012700be05ee5b18115144699b23b43fd9",
+    "apps/growth/content/features/details/tilemaps.en.md": "8856cb6c30f400fe19c8ec1a14e4c0f9df878e598546fab0e097c351b709da44",
+    "apps/growth/content/features/details/tilemaps.zh-CN.md": "dc55e667bffc688b2bd901debe8fa225a0c0126913688ad171c93a5f1c18e5d5",
+    "apps/growth/content/features/details/touch-drawing.en.md": "39f695d1d1b4cace17b080e505eed15dd52edb77241e0b1ab4f83295852b2404",
+    "apps/growth/content/features/details/touch-drawing.zh-CN.md": "0898a7862cbc4f2c331d2a0cf70829d9044695e4593cefa65331f903dbf320e0",
+    "apps/growth/content/features/details/workspace-layout.en.md": "7b6dc5788c70fc2ba7629747e3f2d9b208b8b55e5966aaa4fc1153e8d63f4a51",
+    "apps/growth/content/features/details/workspace-layout.zh-CN.md": "4b55560274cfaddb410115ea8db61c715ca39d3838a5dc4221ec888932bd8b0e",
+    "apps/growth/content/features/index.ts": "cd66c83730ff0d67513083a1ec5f8b61f5075ab0a35c7e412ee96371a1ffc70d",
     "apps/growth/content/features/media.ts": "464c08ea27315e3e119979ab707dae7413af6a047bd191bf3a702d2a55116033",
     "apps/growth/content/help/README.en.md": "1923e3181a58d5396a7b9ea31b54340a313f4a52cc95b10584c644aae8dacb84",
     "apps/growth/content/help/README.zh-CN.md": "679bea777841e86b5a99bf6cc8e3add437e46a7da7d8afd726c22c379881b60f",
@@ -758,12 +758,12 @@
     "apps/growth/content/showcase/index.ts": "4e0eb7af6915a13474c69399ae02701012eaf0df66c5cd887e6a729d59cef2e2",
     "apps/growth/content/showcase/media.ts": "ba183100e8b1c8c08cd9c741b213f52739b767c69a61c5f9ec9b22498d9f90b2",
     "apps/growth/content/showcase/pages.ts": "b06aae293fcfed29080e7df99f289ee97b827ea2f785f95803778dc02f795c6d",
-    "apps/growth/content/site/documents.ts": "e56d9bd1777a422d76e3aef08a340007e46ce917e62ee2c07c56898930b5dee3",
+    "apps/growth/content/site/documents.ts": "76ae66b38da9fc44d81dee2f1bf5dd308c6c7d6d6e98e280a657e20b79e3f8c7",
     "apps/growth/content/site/images.ts": "912c6a8688e284583abe194c5abb085b695a4d65f79763642982cb2cda93ac7b",
-    "apps/growth/content/site/language.test.ts": "d7f5155ecb080869e2e34915f192472ee4d49ed4aac1a295b98f52070128a3ba",
-    "apps/growth/content/site/language.ts": "ad5c0c4c46dcf6cf8408e3ac5789eec5965a43a223dbb16d480f4b1cae3d80d4",
+    "apps/growth/content/site/language.test.ts": "ba36d2159b42e2b799232714181f85aa784e340d6caac7fefb3423cca6f3ad2a",
+    "apps/growth/content/site/language.ts": "9d0f5f02fa1dcf088a5fd4d395dfdd7b0e99e336028e83bdbcc9826cdbbc0879",
     "apps/growth/content/site/navigation.ts": "4b985bcc3065ac0068e1111719a80103e6124ab2f89588fca5affa0c8732c149",
-    "apps/growth/content/site/pages.ts": "29aaaa6743cd5b4e399f8d630c164640c40104ef78d0202f584c89a590818343",
+    "apps/growth/content/site/pages.ts": "aba7b69961cb982624dd227685040619f16497333424586bee28d5739aff1f88",
     "apps/growth/content/tools/index.ts": "827c6562968f8aacface1e32e92a4088e201937043d0e322160b72ba29855f93",
     "apps/growth/content/tools/viewer-help.ts": "900e4c798243de44428064e35c286784eef0c34948e25ceef725fce7c21bc574",
     "apps/growth/content/tools/zh-CN.ts": "f230b6062043a073f1138bc419ad7544342e4415e47f26057e3859a66bf13f66",
@@ -1021,7 +1021,7 @@
     "apps/growth/src/adapters/public/document-contents.ts": "55bf354fd846392a68fbab32c5caac295b41d30b5def0bd2af24c625baf7f180",
     "apps/growth/src/adapters/public/document-navigation.ts": "7eee63fe9a4eb4b56aef6cb31573a9914104e93f147d6e80bde7a0e20089d8e1",
     "apps/growth/src/adapters/showcase/background-music.ts": "f58f23edad79007ebb042447953032382a296c525dd961baa716cc87ee28a60f",
-    "apps/growth/src/adapters/showcase/browser-language.ts": "7fb2cb0ea12356e95e8dde4d75715ed4d9967ba71d9c58dd579c12f5022c384c",
+    "apps/growth/src/adapters/showcase/browser-language.ts": "135d1ed11de51fe801e7b478ce200be81a14d86f542c2a94dec260cc21b66d56",
     "apps/growth/src/adapters/showcase/browser-scheduling.ts": "8c07df434a791a8b85152ca3c8b74223d1c8b46969b7405f1730c587937fbff8",
     "apps/growth/src/adapters/showcase/browser-showcase.ts": "42e354f9b0dcb778f2283e4480391ba75a3a656c47e2491e4f3dc8eb8ffb8ebf",
     "apps/growth/src/adapters/showcase/classic-game-filter.ts": "f41f78620861902bace9bbef66d64c98bb932e7d1ab3459560564a67bea69094",
@@ -1052,13 +1052,13 @@
     "apps/growth/src/components/features/feature-directory.tsx": "dd0b68090d9538fe72b0f6864907a97d8eece934d7bc11b2a5d91ee6fe99b38c",
     "apps/growth/src/components/public/desktop.module.css": "1c2f2e0e699f8e215f1f9fedcbeebb4dbcaa957ead25f6ac4b553afbe58c2f53",
     "apps/growth/src/components/public/not-found.module.css": "7151aaed14907e6ef9a3489a5e61126a40ce67b2630f0f20057fd6bdc9c22b83",
-    "apps/growth/src/components/public/not-found.tsx": "388c6621695ec538c63c0b38e0cc489161bb23cac063dadbac465a9d77fbbaae",
+    "apps/growth/src/components/public/not-found.tsx": "2b2bc165c58fe751418bfda75f764fc77ef25db0a9662978323536f640e2cdac",
     "apps/growth/src/components/public/public-image.module.css": "6c06a0f5d870cb62040f6e4f28d0d3f8acb2c6f396a6469227f225851c08ff8a",
     "apps/growth/src/components/public/public-image.tsx": "be754b211449c91cdfb15e2d5a1139c94ae779f83d3f2986e785a2ae327e48cf",
     "apps/growth/src/components/public/site-preset.module.css": "a7d6854168c035071f76e1bc856ee36aa8dedd35bc701dad328b071e72e9e1ab",
-    "apps/growth/src/components/public/static-ui.tsx": "143ac8d8792b69d8eab52eaed6570bb4b04190ed9c72b212b99efe3333c19471",
+    "apps/growth/src/components/public/static-ui.tsx": "fbc407679beae718ec086652659538779300a4e325f3fbcc618a5a3e18b85841",
     "apps/growth/src/components/showcase/showcase-discovery.module.css": "9b5b31bfaefe8e9bb49e2a8703a3bb71bbec2aebcd13de2fb777352351066bdc",
-    "apps/growth/src/components/showcase/showcase-discovery.tsx": "9f2802cc3a8b882314856090d9bc063dd570850557b73dace1a49523bbd2f9cf",
+    "apps/growth/src/components/showcase/showcase-discovery.tsx": "aa8891c8514f0c581e19fef7af0445b520e7a091720d597211e7a7af2a0b9b4d",
     "apps/growth/src/components/showcase/showcase-faq.module.css": "7f5fbb50a15fbd84ab022cdb382e9551876194f80b7760fccfef830e19af5001",
     "apps/growth/src/components/showcase/showcase-faq.tsx": "d0f55f580d29da43d665b6c145b74480041cdbb77222588e42680cc7f74e9902",
     "apps/growth/src/components/showcase/showcase-intro.tsx": "c9c4636ecccd278dc80fcbe8428ea6c0f9ae79328bcb3da102863b5d7213f673",
@@ -1092,7 +1092,7 @@
     "apps/growth/src/public-ssg.tsx": "f6f861be170ef8057a287e66a1306b7147feaeec244b909adb508ef70dacbb98",
     "apps/growth/vite.config.ts": "e3f4f5f3bbc159cdaeb5908717fa6a29a7596e8e41a35a8429211e63a1a55bb8",
     "apps/tools/build/ssg-renderer.ts": "3eac55db2b6a5c90a38aa9ae0fe13b4e14434e8780ba2a76c0c13b4cb45d1fcb",
-    "apps/tools/build/startup-pages.ts": "9778ccb879fd621d4e32a70445ba597daeba7f529dd4fb7f3bc7b3689464fe03",
+    "apps/tools/build/startup-pages.ts": "70ffbac8dcbb9eb4abb3affbf057186e8f7c6252800b5a9e0a4f0ce561ae389c",
     "apps/tools/src/AnimalCrossingApp.tsx": "1c27be21bcfa9a6b64744aa2eea4280dd4669a89ba442cc15f914a294cfc5350",
     "apps/tools/src/App.tsx": "051f7b7008fce9e9d07e277a7513f340dd8c5acac25c4ca128e053cabd5b88f3",
     "apps/tools/src/GifApp.tsx": "94abd5bbe578fdb8fa8b112f30e111d9eb191bfcde9033b28185a610a2b16ea1",
@@ -1107,7 +1107,7 @@
     "apps/tools/src/adapters/preview/browser-appearance.ts": "7c1d55183cff987855d558286b9c05ca9947f8720525987f5aff26e878e062c8",
     "apps/tools/src/adapters/preview/browser-download.ts": "04b51f65682594a0f87732cf5cf61aef1acf8ca08cafb0adabe02db55ede8e94",
     "apps/tools/src/adapters/preview/browser-preview.ts": "3bbfd4cc9b67fbb9927fa3353a1605fb69437416acde4e313a26039edaa81c01",
-    "apps/tools/src/adapters/tools/browser-language.ts": "f284fbd3c4072db8b9ea4e565d2e80b64d8332cf2b0cbac57c57eab5c8eda747",
+    "apps/tools/src/adapters/tools/browser-language.ts": "f2b13ea5392050cda74295e34c5cff268e0d648cce4641f6df0d21f3625ef4da",
     "apps/tools/src/adapters/tools/browser-tool-host.ts": "b8ae5a25cc2b34ae38aa4ed1497ac648f8c6c5785ab7c72da503c97ffb0eecfc",
     "apps/tools/src/adapters/viewer/aseprite-file.ts": "1f57c55d711b4049cd1978811a40b0d41b0029f10fb3fd951486e6ee5d735605",
     "apps/tools/src/adapters/viewer/browser-viewer.ts": "f4351feae9fbc52a88732af466e0c8040540196da0f5213e8af6432c5a2a8c37",
@@ -1183,13 +1183,13 @@
     "infra/package-local-aliases.ts": "758fc2cc451da367085c5e87f8d0849c862fd0cbce5212268ff005da0b7baf52",
     "infra/public-desktop-startup.ts": "ebd78591183218d214d05c08cac80d2c022983b203887d256680a3dbcd2ae9c0",
     "infra/public-package-assets.ts": "dbe64b8d41866dedc68379fcd03103cb366bcd5563c85c608db25a23bca57dab",
-    "infra/react-ssg-renderer.ts": "01e0f4ad9c166df9fe51efde0ed53d4c8e924fa417134054d9be6f0a56a80ea9",
+    "infra/react-ssg-renderer.ts": "c5ab32a5df99759655b98c0539b559e3e29a26d52b3e4b64caf39c6e727afc57",
     "infra/react-ssg-style-names.ts": "9640d585dc7a8a0206d840a368e0ff2937309b9219166071e3955b4ff07e1ecb",
     "infra/site-html.ts": "c1cff4296bd0e017044d4bde6f333e7fa5ec85bcda413eaf3a058425c5143175",
     "infra/site-telemetry.ts": "9dae1a3d7afa55c7b13385a49ca00a7199d8cb9e57a84eb668a934a784e83b50",
     "infra/tsconfig.dependency-cruiser.json": "d898f50ef61c69e17306be623d9c48789769396559940adf68bc1d09edfd3509",
     "infra/vitest.config.ts": "c0288a13b776dbba4442b4dc797a1c899474d0a212435f7b6057d2d5389fd41c",
-    "package.json": "b9044d11f662175fe30a9bb7628f6c871ba089918aec8d77fc1b86ab3135ece1",
+    "package.json": "b9897f5c8b578223a9950fec2b52bfe08678ef3c7852dfef60ffd0f5ef93ce39",
     "packages/bedrock/browser/clipboard.ts": "6e19a831d0de2d901fe0a05d87433d0e4ea8bfc7acdd005c5cc716526747f11a",
     "packages/bedrock/browser/exclusive-lock.ts": "80ef812a097a9aecb1eb44dd05c18a08e96c5be359d0af7343846a186f9e8ff7",
     "packages/bedrock/browser/eyedropper.ts": "90e8aaf7b69334a4482dbda16b0bc66b4b0fdd0726dfc58b8927250031f2a99e",
@@ -1584,7 +1584,7 @@
     "packages/editor-ui/src/timeline/tag-artwork.ts": "e54b25b8a131fbe235078c6b97d7dcf641b5821e16b289f831eed3605945e710",
     "packages/editor-ui/src/timeline/tag-bands.ts": "ee800b809515bbf51538b2ba12f67b29e37903d975e7a68f489f67256117d8f4",
     "packages/editor-ui/src/timeline/timeline.module.css": "da779f1252a49e06bce09d449e12ec65906513f03719e4db49745dc46a12b328",
-    "packages/site-shell/src/adapters/browser.ts": "087d94302112cd65d667e33e8c802c0c01b7ccaa32fd8ccb92dda557084c6d65",
+    "packages/site-shell/src/adapters/browser.ts": "2c713af1f594d7ba43fdeb84d878962c70fd077ef8241cfe1c207baff681ac7c",
     "packages/site-shell/src/components/desktop-provider.tsx": "f45b7af2568a511b3f21106f73bfbe994bad73d93f55422605697876636766cc",
     "packages/site-shell/src/components/pattern-colors.module.css": "a9e7736bb4a4ad581dc19ad47990072ee0233414635dc4d794817dfa9a6ebb0d",
     "packages/site-shell/src/components/pattern-colors.tsx": "5ec85f8a0ab64cf22814680f33e9a3722febf14f46341db680da7114212ce7e6",
@@ -1592,6 +1592,7 @@
     "packages/site-shell/src/components/site-footer.tsx": "e309f186a346bb22536bf87d584a4e2d8858cfc1484483dd060296ece459e788",
     "packages/site-shell/src/components/site-menubar.tsx": "f539c5f892cfad8852ff3e7cd858bd7ec17d920c5f011e84190b1986af405070",
     "packages/site-shell/src/index.ts": "7cd7ad48f9f9479e21540678d503f1ae6f9fc735d729e0ef36c119dd393aa9b9",
+    "packages/site-shell/src/language-preference.ts": "ab6a85569d5a2cc99dcc5bee5b65f9d3831f00dbf0b7d609955c39c13964e889",
     "packages/site-shell/src/managers/desktop.ts": "e6158b42c68e7bce24ea0db5b2b435556403ddc16d8a03728e16795dee88193a",
     "packages/site-shell/src/managers/ports/telemetry.ts": "f18e7c1545398cb62e0fcd7ef4c5ccb81c4dc41f0731eea9d2f5c1ba8ba99fb0",
     "packages/site-shell/src/startup.ts": "74b5989bf6a09ec3a31e1b423660a6120e9f2af05cd35cbf3755254dd3697309",
@@ -2123,17 +2124,17 @@
     "packages/ui/tsconfig.json": "1d848cee570d64ce32162da15c04b7fa8e0c844ce064d91b38682467bdd471c5",
     "packages/ui/vite.config.ts": "4461c02d22002cacb254e22f7cc6499851e6a2029683e1495457cac8c7eb8368",
     "pnpm-lock.yaml": "43f73060291a7bdcb85938089e73d13bfa3d9fce75676db09938191da41ad647",
-    "scripts/base/screenshot.mjs": "5bbe88a8e470fbbd3baff0ca538602b4c5605b85c109553669804864b885235b",
-    "scripts/visual-audit/site/README.md": "4dcc4d6ec4114e0e835c845e067d913f83ac177da4f5ecb185438d96001d9fdd",
+    "scripts/base/screenshot.mjs": "7328e19aaf2f408419ec755d603a6e52b1b51b3c387fb590ea16c29701ad013f",
+    "scripts/visual-audit/site/README.md": "6ecdf0408abcccdf39f37c73c35b670cdb35e0f6d5c68dbbbd96dc98a62ab3d7",
     "scripts/visual-audit/site/audit.mjs": "66bf931f99dd429d5e12d0dfdc6a319144d6943ed2a475f56eb38ab816688b51",
-    "scripts/visual-audit/site/capture.payload.mjs": "6366a89c660c150a1a117fb53323acbb810fd088c43d0fcdc96dee54cfd02f77",
+    "scripts/visual-audit/site/capture.payload.mjs": "0deacc47e428eaf14a5c90ee3fcad14b6e0191924a9d4d022b95a8a6fc7b9216",
     "scripts/visual-audit/site/compare.mjs": "5ebf90159c474d4b10e384b3146bfedd8c7129bb684c370997b453a87d259d42",
     "scripts/visual-audit/site/report.mjs": "ec9f9f5366a9239b1dc739feecf0d048daf20f537a081264ce9a472ff015f764",
-    "scripts/visual-audit/site/scenes.mjs": "011bca7cb78dc26d986081fd8045813ba692f33d1cbf7fcc16fd541b33884630",
+    "scripts/visual-audit/site/scenes.mjs": "4131755b3752b745e3243097dac7df879b3926b29a479e491889b1a0761d63f7",
     "scripts/visual-audit/site/sources.mjs": "19e78a016dc040ea7ee423018fdab627b358eb07ca0be634355804deae975d59",
-    "scripts/visual-audit/tools-startup/scenes.mjs": "009bacd70dab131bc4bfbe348b1d9b4ff4e1da8c27fc6ae8a6c826d8f9513cdd"
+    "scripts/visual-audit/tools-startup/scenes.mjs": "8bba4f27b52bd875a1b48b81d85833a68475d222db949d040d3aac79e068eb1b"
   },
-  "sourceDigest": "57274d422e9ff4b4adeaab0de87fcfaeba96f4b63b4b8d1896ca2b7b76154262",
+  "sourceDigest": "2253afd99d5b42339090b4b2ac6abac6e4c836f369781fd99ea95c8d4d30a239",
   "scenes": [
     "about-zh-CN-wide-light",
     "about-zh-CN-compact-light",
@@ -2172,7 +2173,7 @@
   "cases": [
     {
       "id": "about-zh-CN-wide-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "about-zh-CN-wide-light.png",
       "contract": {
         "id": "about-zh-CN-wide-light",
@@ -2208,7 +2209,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:11:16.950Z",
+        "capturedAt": "2026-10-11T12:54:41.937Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2272,7 +2273,7 @@
     },
     {
       "id": "about-zh-CN-compact-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "about-zh-CN-compact-light.png",
       "contract": {
         "id": "about-zh-CN-compact-light",
@@ -2308,7 +2309,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:11:17.896Z",
+        "capturedAt": "2026-10-11T12:54:42.693Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2372,13 +2373,13 @@
     },
     {
       "id": "about-features-zh-CN-compact-dark",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "about-features-zh-CN-compact-dark.png",
       "contract": {
         "id": "about-features-zh-CN-compact-dark",
         "page": {
           "name": "about-features",
-          "path": "/zh-CN/about/features/",
+          "path": "/zh-CN/features/",
           "language": "zh-CN",
           "phase": "ready",
           "ready": "html[data-public-controls-ready]",
@@ -2408,7 +2409,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:11:21.034Z",
+        "capturedAt": "2026-10-11T12:54:44.435Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2436,7 +2437,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "f3ffc3d79315f7bae5f01b8e786f9c714345051778b0f070f776c60aabb6f4b7",
+        "sha256": "3f8396b08b3fa523f6c11c0de8141c3798d62f1baa933732b156616c4e9ae8cb",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2468,11 +2469,11 @@
         }
       ],
       "platform": "MacIntel",
-      "path": "/zh-CN/about/features/"
+      "path": "/zh-CN/features/"
     },
     {
       "id": "about-how-it-works-en-wide-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "about-how-it-works-en-wide-light.png",
       "contract": {
         "id": "about-how-it-works-en-wide-light",
@@ -2508,7 +2509,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:11:25.032Z",
+        "capturedAt": "2026-10-11T12:54:47.008Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2572,7 +2573,7 @@
     },
     {
       "id": "compare-zh-CN-compact-dark",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "compare-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-zh-CN-compact-dark",
@@ -2608,7 +2609,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:11:28.908Z",
+        "capturedAt": "2026-10-11T12:54:49.148Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2672,7 +2673,7 @@
     },
     {
       "id": "compare-aseprite-on-ipad-en-wide-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "compare-aseprite-on-ipad-en-wide-light.png",
       "contract": {
         "id": "compare-aseprite-on-ipad-en-wide-light",
@@ -2708,7 +2709,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:11:35.911Z",
+        "capturedAt": "2026-10-11T12:54:52.042Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2772,7 +2773,7 @@
     },
     {
       "id": "compare-aseprite-online-zh-CN-compact-dark",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "compare-aseprite-online-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-aseprite-online-zh-CN-compact-dark",
@@ -2808,7 +2809,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:11:39.650Z",
+        "capturedAt": "2026-10-11T12:54:54.758Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2872,7 +2873,7 @@
     },
     {
       "id": "compare-piskel-alternatives-en-wide-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "compare-piskel-alternatives-en-wide-light.png",
       "contract": {
         "id": "compare-piskel-alternatives-en-wide-light",
@@ -2908,7 +2909,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:11:45.537Z",
+        "capturedAt": "2026-10-11T12:54:57.460Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2972,7 +2973,7 @@
     },
     {
       "id": "features-aseprite-projects-zh-CN-compact-dark",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "features-aseprite-projects-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-aseprite-projects-zh-CN-compact-dark",
@@ -3008,7 +3009,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:11:49.281Z",
+        "capturedAt": "2026-10-11T12:54:59.268Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3072,7 +3073,7 @@
     },
     {
       "id": "features-draw-pixel-art-en-wide-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "features-draw-pixel-art-en-wide-light.png",
       "contract": {
         "id": "features-draw-pixel-art-en-wide-light",
@@ -3108,7 +3109,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:11:51.908Z",
+        "capturedAt": "2026-10-11T12:55:01.104Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3172,7 +3173,7 @@
     },
     {
       "id": "features-drawing-process-zh-CN-compact-dark",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "features-drawing-process-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-drawing-process-zh-CN-compact-dark",
@@ -3208,7 +3209,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:11:54.062Z",
+        "capturedAt": "2026-10-11T12:55:02.853Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3272,7 +3273,7 @@
     },
     {
       "id": "features-export-images-and-animation-en-wide-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "features-export-images-and-animation-en-wide-light.png",
       "contract": {
         "id": "features-export-images-and-animation-en-wide-light",
@@ -3308,7 +3309,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:11:56.199Z",
+        "capturedAt": "2026-10-11T12:55:04.510Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3372,7 +3373,7 @@
     },
     {
       "id": "features-frame-animation-zh-CN-compact-dark",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "features-frame-animation-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-frame-animation-zh-CN-compact-dark",
@@ -3408,7 +3409,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:11:58.148Z",
+        "capturedAt": "2026-10-11T12:55:06.391Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3472,7 +3473,7 @@
     },
     {
       "id": "features-layers-and-colors-en-wide-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "features-layers-and-colors-en-wide-light.png",
       "contract": {
         "id": "features-layers-and-colors-en-wide-light",
@@ -3508,7 +3509,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:00.283Z",
+        "capturedAt": "2026-10-11T12:55:08.197Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3572,7 +3573,7 @@
     },
     {
       "id": "features-share-artwork-zh-CN-compact-dark",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "features-share-artwork-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-share-artwork-zh-CN-compact-dark",
@@ -3608,7 +3609,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:02.421Z",
+        "capturedAt": "2026-10-11T12:55:09.847Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3672,7 +3673,7 @@
     },
     {
       "id": "features-tilemaps-en-wide-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "features-tilemaps-en-wide-light.png",
       "contract": {
         "id": "features-tilemaps-en-wide-light",
@@ -3708,7 +3709,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:08.889Z",
+        "capturedAt": "2026-10-11T12:55:11.696Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3772,7 +3773,7 @@
     },
     {
       "id": "features-touch-drawing-zh-CN-compact-dark",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "features-touch-drawing-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-touch-drawing-zh-CN-compact-dark",
@@ -3808,7 +3809,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:12.934Z",
+        "capturedAt": "2026-10-11T12:55:13.444Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3872,7 +3873,7 @@
     },
     {
       "id": "features-workspace-layout-en-wide-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "features-workspace-layout-en-wide-light.png",
       "contract": {
         "id": "features-workspace-layout-en-wide-light",
@@ -3908,7 +3909,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:17.381Z",
+        "capturedAt": "2026-10-11T12:55:15.156Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3972,7 +3973,7 @@
     },
     {
       "id": "help-zh-CN-compact-dark",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "help-zh-CN-compact-dark.png",
       "contract": {
         "id": "help-zh-CN-compact-dark",
@@ -4008,7 +4009,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:24.050Z",
+        "capturedAt": "2026-10-11T12:55:18.229Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4072,7 +4073,7 @@
     },
     {
       "id": "privacy-en-wide-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "privacy-en-wide-light.png",
       "contract": {
         "id": "privacy-en-wide-light",
@@ -4108,7 +4109,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:28.095Z",
+        "capturedAt": "2026-10-11T12:55:20.098Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4172,7 +4173,7 @@
     },
     {
       "id": "tools-viewer-empty-en-wide-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "tools-viewer-empty-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-empty-en-wide-light",
@@ -4209,7 +4210,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:32.775Z",
+        "capturedAt": "2026-10-11T12:55:21.381Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4273,7 +4274,7 @@
     },
     {
       "id": "tools-viewer-loaded-en-wide-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "tools-viewer-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-loaded-en-wide-light",
@@ -4315,7 +4316,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:36.402Z",
+        "capturedAt": "2026-10-11T12:55:22.935Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4386,13 +4387,13 @@
     },
     {
       "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
         "page": {
           "name": "tools-gif-to-sprite-sheet-empty",
-          "path": "/tools/gif-to-sprite-sheet/?lang=zh-CN",
+          "path": "/tools/gif-to-sprite-sheet/",
           "language": "zh-CN",
           "phase": "ready",
           "ready": "#gif-sheet-root[data-tool-ready]",
@@ -4423,7 +4424,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:38.451Z",
+        "capturedAt": "2026-10-11T12:55:24.161Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4483,17 +4484,17 @@
         }
       ],
       "platform": "MacIntel",
-      "path": "/tools/gif-to-sprite-sheet/?lang=zh-CN"
+      "path": "/tools/gif-to-sprite-sheet/"
     },
     {
       "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
         "page": {
           "name": "tools-gif-to-sprite-sheet-loaded",
-          "path": "/tools/gif-to-sprite-sheet/?lang=zh-CN",
+          "path": "/tools/gif-to-sprite-sheet/",
           "language": "zh-CN",
           "phase": "ready",
           "ready": "#gif-sheet-root[data-tool-ready]",
@@ -4529,7 +4530,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:40.159Z",
+        "capturedAt": "2026-10-11T12:55:25.626Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4596,11 +4597,11 @@
         }
       ],
       "platform": "MacIntel",
-      "path": "/tools/gif-to-sprite-sheet/?lang=zh-CN"
+      "path": "/tools/gif-to-sprite-sheet/"
     },
     {
       "id": "tools-pixelate-empty-en-wide-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "tools-pixelate-empty-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-empty-en-wide-light",
@@ -4637,7 +4638,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:41.801Z",
+        "capturedAt": "2026-10-11T12:55:27.084Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4701,7 +4702,7 @@
     },
     {
       "id": "tools-pixelate-loaded-en-wide-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "tools-pixelate-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-loaded-en-wide-light",
@@ -4743,7 +4744,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:44.656Z",
+        "capturedAt": "2026-10-11T12:55:28.848Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4814,7 +4815,7 @@
     },
     {
       "id": "tools-animal-crossing-qr-empty-en-compact-dark",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "tools-animal-crossing-qr-empty-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-empty-en-compact-dark",
@@ -4851,7 +4852,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:47.587Z",
+        "capturedAt": "2026-10-11T12:55:30.051Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4915,7 +4916,7 @@
     },
     {
       "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "tools-animal-crossing-qr-loaded-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
@@ -4957,7 +4958,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:50.391Z",
+        "capturedAt": "2026-10-11T12:55:31.370Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5028,13 +5029,13 @@
     },
     {
       "id": "about-features-en-compact-dark",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "about-features-en-compact-dark.png",
       "contract": {
         "id": "about-features-en-compact-dark",
         "page": {
           "name": "about-features",
-          "path": "/about/features/",
+          "path": "/features/",
           "language": "en",
           "phase": "ready",
           "ready": "html[data-public-controls-ready]",
@@ -5064,7 +5065,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:53.768Z",
+        "capturedAt": "2026-10-11T12:55:33.186Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5092,7 +5093,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "183518aad7f9b9dd23353ff3ebf8bc4414852614c13c855d4abc984fd62c5188",
+        "sha256": "26f8bbbe493f422ab030a60c9d4ea1a90f904084cc1485cdebba873fde34b423",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5124,17 +5125,17 @@
         }
       ],
       "platform": "MacIntel",
-      "path": "/about/features/"
+      "path": "/features/"
     },
     {
       "id": "feature-window-features-draw-pixel-art-en-wide-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "feature-window-features-draw-pixel-art-en-wide-light.png",
       "contract": {
         "id": "feature-window-features-draw-pixel-art-en-wide-light",
         "page": {
           "name": "feature-window-features-draw-pixel-art",
-          "path": "/about/features/",
+          "path": "/features/",
           "language": "en",
           "phase": "ready",
           "ready": "html[data-public-controls-ready]",
@@ -5170,7 +5171,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:12:56.940Z",
+        "capturedAt": "2026-10-11T12:55:35.201Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5198,7 +5199,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "5e2cdaace8286d36335cfffbb4c0095565e059ff9180ca1e74ca5a3d5fe5de23",
+        "sha256": "dc29c348ff357b793c0d9a56b384d803a2b485368f3c580a4c75b3fc5430e0ed",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5237,17 +5238,17 @@
         }
       ],
       "platform": "MacIntel",
-      "path": "/about/features/"
+      "path": "/features/"
     },
     {
       "id": "feature-window-features-layers-and-colors-zh-CN-compact-dark",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "feature-window-features-layers-and-colors-zh-CN-compact-dark.png",
       "contract": {
         "id": "feature-window-features-layers-and-colors-zh-CN-compact-dark",
         "page": {
           "name": "feature-window-features-layers-and-colors",
-          "path": "/zh-CN/about/features/",
+          "path": "/zh-CN/features/",
           "language": "zh-CN",
           "phase": "ready",
           "ready": "html[data-public-controls-ready]",
@@ -5284,7 +5285,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:13:00.675Z",
+        "capturedAt": "2026-10-11T12:55:37.078Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5312,7 +5313,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "9e4f642c6ab464bb6ba90777193fbdc4c12be166c1dcc98c697135fdcad1f6ec",
+        "sha256": "a2d7f285b312fbb7bcaf18a29845a1aa7f1395e1e9cb34c7f02700a693f39562",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5351,17 +5352,17 @@
         }
       ],
       "platform": "MacIntel",
-      "path": "/zh-CN/about/features/"
+      "path": "/zh-CN/features/"
     },
     {
       "id": "site-footer-en-wide-light",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "site-footer-en-wide-light.png",
       "contract": {
         "id": "site-footer-en-wide-light",
         "page": {
           "name": "site-footer",
-          "path": "/about/features/",
+          "path": "/features/",
           "language": "en",
           "phase": "ready",
           "ready": "html[data-public-controls-ready]",
@@ -5388,7 +5389,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:13:04.061Z",
+        "capturedAt": "2026-10-11T12:55:38.793Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5416,7 +5417,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "686fca998c5809262f1fdda7ec431e19106a8b3735cbff69c094d9219195dc62",
+        "sha256": "3fe8bdf1e7eb68fdbfccb5408f28bca4e982ce99715377262145467b3a71845a",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5441,17 +5442,17 @@
         }
       ],
       "platform": "MacIntel",
-      "path": "/about/features/"
+      "path": "/features/"
     },
     {
       "id": "site-footer-zh-CN-compact-dark",
-      "runId": "0f278d64-f8aa-4116-b12e-ebe270e74927",
+      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
       "file": "site-footer-zh-CN-compact-dark.png",
       "contract": {
         "id": "site-footer-zh-CN-compact-dark",
         "page": {
           "name": "site-footer",
-          "path": "/zh-CN/about/features/",
+          "path": "/zh-CN/features/",
           "language": "zh-CN",
           "phase": "ready",
           "ready": "html[data-public-controls-ready]",
@@ -5478,7 +5479,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:13:07.159Z",
+        "capturedAt": "2026-10-11T12:55:40.387Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5506,7 +5507,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "a156f86aa71be6f306e908d9bcda3ea229ba84a302cd4e5d50614bf0bd67f3d9",
+        "sha256": "f48ff35165b87977213e6d001732402ac84daf74466e1ee763b4c6fa019e0a7a",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5531,7 +5532,7 @@
         }
       ],
       "platform": "MacIntel",
-      "path": "/zh-CN/about/features/"
+      "path": "/zh-CN/features/"
     }
   ],
   "browser": {
