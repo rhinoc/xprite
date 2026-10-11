@@ -91,31 +91,6 @@
   flex: 1;
   min-height: 0;
 }
-.gridOverlay {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-.gridCell {
-  --ui-button-quiet-min-height: 0;
-  --ui-button-quiet-padding: 0;
-  --ui-button-quiet-active-face: transparent;
-  pointer-events: auto;
-  opacity: 0.45;
-}
-.gridCell[data-appearance="quiet"] {
-  border: var(--tile-border-width, 0) solid var(--xse-border);
-  box-shadow: var(--tile-shadow, none);
-}
-.cellBorder {
-  --tile-border-width: 1px;
-}
-.selectedCell {
-  --tile-border-width: 2px;
-  --tile-shadow: inset 0 0 0 1px var(--ui-theme-paper);
-  opacity: 1;
-}
 .qrArtwork {
   display: grid;
   place-items: center;
