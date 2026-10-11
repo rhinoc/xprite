@@ -14,6 +14,7 @@ import {
   type SurfaceBounds,
   type SurfaceViewport,
 } from "$/components/canvas-surface";
+import { dropdownArrowOffsetY } from "$/components/combobox/arrow-position";
 import type { ControlPlacement } from "$/components/control-flow/placement";
 import { useFieldControl } from "$/components/field/Field";
 import type { InputTouchActivation } from "$/components/input/touch-activation";
@@ -549,11 +550,11 @@ export function Combobox({
                 ? bounds.width - (theme.dimensions.combobox_arrow_inset ?? 17)
                 : bounds.width - 24
             }
-            y={
-              theme.dimensions.combobox_arrow_centered
-                ? (bounds.height - theme.parts[arrowIcon].height * 2) / 2
-                : centerThemePixel(bounds.y + 6, bounds.height - 16, 16) - bounds.y
-            }
+            y={dropdownArrowOffsetY(
+              bounds,
+              theme.parts[arrowIcon].height * RASTER_SCALE,
+              !!theme.dimensions.combobox_arrow_centered,
+            )}
           />
           {!editable && (
             <span

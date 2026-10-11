@@ -392,3 +392,16 @@
     margin-left: -16px;
   }
 }
+
+.outputArtwork {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-space-2);
+  flex-wrap: wrap;
+  width: 100%;
+}
+.designArtwork {
+  flex: 0 0 auto;
+  image-rendering: pixelated;
+}

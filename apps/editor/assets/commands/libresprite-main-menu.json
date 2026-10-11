@@ -78,51 +78,22 @@
           "shortcutBindingContext": "Any"
         },
         {
-          "kind": "menu",
-          "label": "Export",
+          "kind": "item",
+          "label": "Export...",
           "mnemonic": "E",
           "mnemonicIndex": 0,
-          "children": [
-            {
-              "kind": "item",
-              "label": "Export As...",
-              "mnemonic": "E",
-              "mnemonicIndex": 0,
-              "command": "SaveFileCopyAs",
-              "shortcut": "Ctrl+Alt+Shift+S",
-              "shortcutBindingContext": "Any"
-            },
-            {
-              "kind": "item",
-              "label": "Export Sprite Sheet",
-              "mnemonic": "S",
-              "mnemonicIndex": 7,
-              "command": "ExportSpriteSheet",
-              "shortcut": "Ctrl+E",
-              "shortcutBindingContext": "Any"
-            },
-            {
-              "kind": "item",
-              "label": "Export Tileset",
-              "mnemonic": "T",
-              "mnemonicIndex": 7,
-              "command": "ExportTileset"
-            },
-            {
-              "kind": "item",
-              "label": "Export Animal Crossing QR Codes...",
-              "command": "ExportAnimalCrossing"
-            },
-            {
-              "kind": "item",
-              "label": "Repeat Last Export",
-              "mnemonic": "L",
-              "mnemonicIndex": 7,
-              "command": "RepeatLastExport",
-              "shortcut": "Ctrl+Shift+X",
-              "shortcutBindingContext": "Any"
-            }
-          ]
+          "command": "SaveFileCopyAs",
+          "shortcut": "Ctrl+Alt+Shift+S",
+          "shortcutBindingContext": "Any"
+        },
+        {
+          "kind": "item",
+          "label": "Repeat Last Export",
+          "mnemonic": "L",
+          "mnemonicIndex": 7,
+          "command": "RepeatLastExport",
+          "shortcut": "Ctrl+Shift+X",
+          "shortcutBindingContext": "Any"
         },
         {
           "kind": "item",

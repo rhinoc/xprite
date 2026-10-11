@@ -20,21 +20,27 @@ import {
   importSpriteSheetAsepriteLayout,
 } from "$/managers/files/policies/sprite-sheet-geometry";
 export interface SpriteSheetDialogProps {
+  embedded?: boolean;
+  active?: boolean;
+  onLayoutSizeChange?: (size: { width: number; height: number }) => void;
+  onPreview?: (result: SpriteSheetPreviewResult | null) => void;
   initialSource?: SpriteSheetDialogOptions["source"];
   onClose(): void;
   onExport(options: SpriteSheetDialogOptions): void;
   busy?: boolean;
   documentKey?: string;
-  onPreview?(result: SpriteSheetPreviewResult | null): void;
 }
 /** Source export_sprite_sheet.xml's four source-skinned section tabs. The form
  * primitive owns all geometry, focus, controls and styling. */
 export function SpriteSheetDialog({
+  embedded = false,
+  active = true,
+  onLayoutSizeChange,
+  onPreview,
   initialSource,
   onClose,
   onExport,
   busy = false,
-  onPreview,
   documentKey,
 }: SpriteSheetDialogProps) {
   const model = useSpriteSheetDialogModel(documentKey);
@@ -49,6 +55,10 @@ export function SpriteSheetDialog({
     [expanded, setExpanded] = useState(false);
   useEffect(() => {
     if (!onPreview) return;
+    if (!active) {
+      onPreview(null);
+      return;
+    }
     if (!preview) {
       onPreview(null);
       return;
@@ -61,7 +71,7 @@ export function SpriteSheetDialog({
       }
     }, 120);
     return () => clearTimeout(timer);
-  }, [o, preview, onPreview]);
+  }, [o, preview, active, onPreview]);
   useEffect(() => () => onPreview?.(null), [onPreview]);
   const update = <K extends keyof SpriteSheetDialogOptions>(
     key: K,
@@ -148,7 +158,7 @@ export function SpriteSheetDialog({
           ]),
       check("mergeDuplicates", "Merge Duplicates", "flags"),
       check("ignoreEmpty", "Ignore Empty", "flags"),
-      check("powerOfTwo", "Size=x²", "flags"),
+      check("powerOfTwo", "Size=2^n", "flags"),
     ],
     sprite: [
       {
@@ -230,7 +240,9 @@ export function SpriteSheetDialog({
         : []),
     ],
   };
-  const fields = expanded ? Object.values(sections).flat() : [...sections[tab]];
+  const fields = (expanded ? Object.values(sections).flat() : [...sections[tab]]).filter(
+    (field) => !embedded || field.key !== "source",
+  );
   fields.push(check("openGenerated", "Open Sprite Sheet", "footer"), {
     key: "preview",
     label: "Preview",
@@ -243,8 +255,10 @@ export function SpriteSheetDialog({
   const sourceLayout = spriteSheetAsepriteLayout(tab, o);
   return (
     <FormDialog
+      embedded={embedded}
+      onLayoutSizeChange={onLayoutSizeChange}
       open
-      title="Export Sprite Sheet"
+      title={initialSource === "tilesets" ? "Tileset" : "Sprite Sheet"}
       helpUrl="https://www.aseprite.org/docs/sprite-sheet/#export"
       width={tab === "output" && o.dataEnabled ? 586 : 584}
       layout={expanded ? undefined : sourceLayout}

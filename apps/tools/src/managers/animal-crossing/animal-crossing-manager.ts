@@ -9,11 +9,14 @@ import {
   ToolOperation,
   ToolOutputFormat,
 } from "$/managers/telemetry/tool-telemetry";
+import type { PixelBuffer } from "@xprite/editor-core/base";
 import type { EditorDocument } from "@xprite/editor-core/document";
 import {
   ANIMAL_CROSSING_SIZE,
   animalCrossingGrid,
-  AnimalCrossingConversion,
+  animalCrossingQrPixels,
+  importedAnimalCrossingResult,
+  type ImportedAnimalCrossingPattern,
   type AnimalCrossingConversionSnapshot,
   defaultAnimalCrossingSettings,
   animalCrossingDocumentSource,
@@ -30,6 +33,15 @@ export enum AnimalCrossingLayout {
 
 const EXAMPLE_TITLE = "Winding stone";
 const EXAMPLE_CREATOR = "Amy";
+const PREVIEW_DELAY_MS = 200;
+const GEOMETRY_KEYS = [
+  "cellWidth",
+  "cellHeight",
+  "offsetX",
+  "offsetY",
+  "spacingX",
+  "spacingY",
+] as const;
 const INITIAL_SIZE = { width: ANIMAL_CROSSING_SIZE, height: ANIMAL_CROSSING_SIZE };
 export interface AnimalCrossingSnapshot extends AnimalCrossingConversionSnapshot {
   name: string;
@@ -42,6 +54,7 @@ export interface AnimalCrossingSnapshot extends AnimalCrossingConversionSnapshot
   identity: number;
   frame: number;
   frameCount: number;
+  pending: boolean;
 }
 type AnimalCrossingToolState = Omit<
   AnimalCrossingSnapshot,
@@ -64,10 +77,21 @@ export class AnimalCrossingManager {
     identity: 0,
     frame: 0,
     frameCount: 1,
+    pending: false,
   };
-  private readonly conversion = new AnimalCrossingConversion(
-    defaultAnimalCrossingSettings(INITIAL_SIZE),
-  );
+  private conversion: AnimalCrossingConversionSnapshot = {
+    source: null,
+    settings: defaultAnimalCrossingSettings(INITIAL_SIZE),
+    importedQr: false,
+    result: null,
+    selected: 0,
+    qr: null,
+    error: null,
+  };
+  private previewTimer: ReturnType<typeof setTimeout> | undefined;
+  private previewController: AbortController | null = null;
+  private previewRevision = 0;
+  private gridDraft: { settings: AnimalCrossingSettings; selected: number } | null = null;
   private snapshot: AnimalCrossingSnapshot;
   private tileDraft = defaultAnimalCrossingSettings(INITIAL_SIZE);
   private project: SessionProject | undefined;
@@ -94,28 +118,34 @@ export class AnimalCrossingManager {
     return () => this.listeners.delete(listener);
   };
   private readSnapshot(): AnimalCrossingSnapshot {
-    const conversion = this.conversion.getSnapshot();
+    const conversion = this.conversion;
     return { ...this.state, ...conversion, error: this.state.error ?? conversion.error };
   }
   private update(patch: Partial<AnimalCrossingToolState>) {
     if (this.closed) return;
     this.state = { ...this.state, ...patch };
     this.snapshot = this.readSnapshot();
-    this.ground.setDesign(
-      this.snapshot.result,
-      this.snapshot.selected,
-      this.snapshot.source,
-      this.snapshot.settings,
-    );
+    if (!this.snapshot.pending && !this.snapshot.loading)
+      this.ground.setDesign(
+        this.snapshot.result,
+        this.snapshot.selected,
+        this.snapshot.source,
+        this.snapshot.settings,
+      );
     for (const listener of this.listeners) listener();
   }
   async open(file: File): Promise<void> {
     await this.openFile(file);
   }
-  private async openFile(file: File, openSource = ToolOpenSource.File): Promise<boolean> {
+  private async openFile(
+    file: File,
+    openSource = ToolOpenSource.File,
+    example = false,
+  ): Promise<boolean> {
     if (this.closed || this.snapshot.downloading) return false;
     const request = ++this.request;
-    this.conversion.clearError();
+    this.cancelPreview();
+    this.conversion.error = null;
     this.update({ loading: true, error: null });
     let failureCategory = ToolFailureCategory.Decode;
     try {
@@ -130,12 +160,19 @@ export class AnimalCrossingManager {
         settings.creator = source.pattern.creator;
         settings.town = source.pattern.town;
       }
-      this.conversion.setSource(pixels, settings, source.pattern);
+      if (example)
+        Object.assign(settings, {
+          title: EXAMPLE_TITLE,
+          creator: EXAMPLE_CREATOR,
+          town: "Bywater",
+        });
+      this.setSource(pixels, settings, source.pattern);
       this.tileDraft = { ...settings };
       this.project = source.project;
       this.update({
         name: file.name,
-        example: false,
+        example,
+        pending: !source.pattern,
         layout:
           pixels.width > settings.cellWidth || pixels.height > settings.cellHeight
             ? AnimalCrossingLayout.Tiles
@@ -149,6 +186,7 @@ export class AnimalCrossingManager {
       if (this.snapshot.source && !this.snapshot.error)
         this.telemetry.opened(request, file, openSource);
       else this.telemetry.failed(ToolOperation.Open, ToolFailureCategory.Preview);
+      if (!source.pattern && !example) await this.generate();
       return true;
     } catch (reason) {
       if (!this.closed && request === this.request) {
@@ -183,8 +221,9 @@ export class AnimalCrossingManager {
     )
       return;
     try {
-      this.conversion.setSource(this.render(frame).pixels);
-      this.update({ frame, error: null });
+      this.setSource(this.render(frame).pixels, this.snapshot.settings);
+      this.update({ frame, pending: true, error: null });
+      this.schedulePreview(0);
     } catch (reason) {
       this.update({ error: reason instanceof Error ? reason.message : String(reason) });
     }
@@ -216,42 +255,177 @@ export class AnimalCrossingManager {
     this.update({ layout });
   }
   getGrid(converted: boolean) {
-    const pixels = converted ? this.snapshot.result?.pixels : this.snapshot.source;
+    const pixels = converted ? this.conversion.result?.pixels : this.conversion.source;
     if (!pixels) return null;
     try {
       return animalCrossingGrid(
         pixels,
-        converted ? defaultAnimalCrossingSettings(pixels) : this.snapshot.settings,
+        converted ? defaultAnimalCrossingSettings(pixels) : this.conversion.settings,
       );
     } catch {
       return null;
     }
   }
-  changeSettings(patch: Partial<AnimalCrossingSettings>) {
-    if (this.closed || this.snapshot.importedQr) return;
-    this.conversion.changeSettings(patch);
-    this.update({ error: null });
+  private cancelPreview() {
+    this.previewRevision++;
+    if (this.previewTimer !== undefined) clearTimeout(this.previewTimer);
+    this.previewTimer = undefined;
+    this.previewController?.abort();
+    this.previewController = null;
   }
-  generate() {
+  private setSource(
+    pixels: PixelBuffer,
+    settings: AnimalCrossingSettings,
+    pattern?: ImportedAnimalCrossingPattern,
+  ) {
+    this.cancelPreview();
+    if (this.conversion.source) this.port.releasePreview(this.conversion.source);
+    this.gridDraft = null;
+    const result = pattern ? importedAnimalCrossingResult(pattern) : null;
+    this.conversion = {
+      source: pixels,
+      settings: { ...settings },
+      importedQr: !!pattern,
+      result,
+      selected: 0,
+      qr: result ? animalCrossingQrPixels(result.patterns[0].bytes) : null,
+      error: null,
+    };
+  }
+  private schedulePreview(delay: number) {
+    this.cancelPreview();
+    this.previewTimer = setTimeout(() => {
+      this.previewTimer = undefined;
+      void this.generate();
+    }, delay);
+  }
+  beginGridEdit = () => {
+    if (
+      this.closed ||
+      this.snapshot.importedQr ||
+      this.snapshot.downloading ||
+      this.snapshot.loading ||
+      this.gridDraft
+    )
+      return;
+    this.gridDraft = { settings: { ...this.snapshot.settings }, selected: this.snapshot.selected };
+    this.cancelPreview();
+  };
+  endGridEdit = (cancel = false) => {
+    const draft = this.gridDraft;
+    if (this.closed) {
+      this.gridDraft = null;
+      return;
+    }
+    if (!draft) return;
+    this.gridDraft = null;
+    if (cancel) {
+      this.conversion = { ...this.conversion, ...draft };
+      this.update({ pending: true });
+    }
+    if (this.snapshot.pending) this.schedulePreview(0);
+  };
+  changeSettings = (patch: Partial<AnimalCrossingSettings>) => {
+    if (
+      this.closed ||
+      this.snapshot.importedQr ||
+      this.snapshot.loading ||
+      this.snapshot.downloading ||
+      !this.snapshot.source
+    )
+      return;
+    if (
+      !Object.entries(patch).some(
+        ([key, value]) => this.snapshot.settings[key as keyof AnimalCrossingSettings] !== value,
+      )
+    )
+      return;
+    const previous = this.getGrid(false),
+      selected = this.snapshot.selected;
+    const settings = { ...this.snapshot.settings, ...patch };
+    this.conversion = { ...this.conversion, settings, error: null };
+    if (GEOMETRY_KEYS.some((key) => patch[key] !== undefined)) {
+      const next = this.getGrid(false);
+      this.conversion.selected = next
+        ? Math.min(previous ? Math.floor(selected / previous.columns) : 0, next.rows - 1) *
+            next.columns +
+          Math.min(previous ? selected % previous.columns : 0, next.columns - 1)
+        : 0;
+    }
+    this.update({ pending: true, error: null });
+    if (!this.gridDraft) this.schedulePreview(PREVIEW_DELAY_MS);
+  };
+  async generate() {
+    const { source, settings, selected, importedQr } = this.conversion;
+    if (
+      this.closed ||
+      !source ||
+      this.snapshot.loading ||
+      this.snapshot.downloading ||
+      importedQr ||
+      this.gridDraft
+    )
+      return;
+    this.cancelPreview();
+    const revision = this.previewRevision,
+      identity = this.snapshot.identity;
+    const controller = new AbortController();
+    this.previewController = controller;
+    this.update({ pending: true, error: null });
+    try {
+      const preview = await this.port.preview(source, { ...settings }, selected, controller.signal);
+      if (this.closed || revision !== this.previewRevision || identity !== this.snapshot.identity)
+        return;
+      this.conversion = { ...this.conversion, ...preview, error: null };
+      this.update({ pending: false, error: null });
+    } catch (reason) {
+      if (
+        !this.closed &&
+        revision === this.previewRevision &&
+        identity === this.snapshot.identity
+      ) {
+        this.conversion = { ...this.conversion, result: null, qr: null, error: null };
+        this.update({
+          pending: false,
+          error: reason instanceof Error ? reason.message : String(reason),
+        });
+      }
+    } finally {
+      if (revision === this.previewRevision) this.previewController = null;
+    }
+  }
+  select = (selected: number) => {
     if (
       this.closed ||
       this.snapshot.loading ||
       this.snapshot.downloading ||
-      this.snapshot.importedQr
+      !Number.isInteger(selected) ||
+      selected === this.snapshot.selected ||
+      !this.getGrid(false)?.cells[selected]
     )
       return;
-    this.conversion.generate();
-    this.update({ error: null });
-  }
-  select(selected: number) {
-    if (this.closed) return;
-    const snapshot = this.conversion.getSnapshot();
-    this.conversion.select(selected);
-    if (snapshot !== this.conversion.getSnapshot()) this.update({});
-  }
+    if (this.snapshot.pending) {
+      this.conversion = { ...this.conversion, selected };
+      this.update({});
+      if (!this.gridDraft) this.schedulePreview(0);
+      return;
+    }
+    const pattern = this.conversion.result?.patterns[selected];
+    if (pattern) {
+      this.conversion = { ...this.conversion, selected, qr: animalCrossingQrPixels(pattern.bytes) };
+      this.update({});
+    }
+  };
   async download() {
     const { result, name } = this.snapshot;
-    if (this.closed || !result || this.snapshot.loading || this.snapshot.downloading) return;
+    if (
+      this.closed ||
+      !result ||
+      this.snapshot.pending ||
+      this.snapshot.loading ||
+      this.snapshot.downloading
+    )
+      return;
     const fileId = this.snapshot.identity;
     this.update({ downloading: true, error: null });
     try {
@@ -267,7 +441,14 @@ export class AnimalCrossingManager {
   async downloadQr() {
     const { qr, result, selected } = this.snapshot;
     const pattern = result?.patterns[selected];
-    if (this.closed || !qr || !pattern || this.snapshot.loading || this.snapshot.downloading)
+    if (
+      this.closed ||
+      !qr ||
+      !pattern ||
+      this.snapshot.pending ||
+      this.snapshot.loading ||
+      this.snapshot.downloading
+    )
       return;
     const fileId = this.snapshot.identity;
     this.update({ downloading: true, error: null });
@@ -287,7 +468,7 @@ export class AnimalCrossingManager {
     try {
       const file = await this.port.example();
       if (this.closed || request !== this.request) return;
-      const opened = await this.openFile(file, ToolOpenSource.Example);
+      const opened = await this.openFile(file, ToolOpenSource.Example, true);
       if (opened && !this.closed && this.snapshot.source && !this.snapshot.error) {
         this.update({ example: true });
         this.changeSettings({ title: EXAMPLE_TITLE, creator: EXAMPLE_CREATOR, town: "Bywater" });
@@ -302,6 +483,8 @@ export class AnimalCrossingManager {
   }
   dispose() {
     this.closed = true;
+    this.cancelPreview();
+    if (this.conversion.source) this.port.releasePreview(this.conversion.source);
     this.ground.dispose();
     this.request++;
     this.listeners.clear();

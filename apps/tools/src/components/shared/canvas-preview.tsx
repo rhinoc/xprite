@@ -29,6 +29,8 @@ export function ToolCanvasPreview({
   label,
   navigationLabel = label,
   onKeyDown,
+  viewportPadding = 0,
+  navigationEnabled = true,
   onPixelSelect,
   overlay,
 }: {
@@ -38,12 +40,21 @@ export function ToolCanvasPreview({
   label: string;
   navigationLabel?: string;
   onKeyDown?: KeyboardEventHandler<HTMLDivElement>;
+  viewportPadding?: number;
+  navigationEnabled?: boolean;
   onPixelSelect?: (point: { x: number; y: number }) => void;
-  overlay?: (view: ReturnType<ToolViewport["getSnapshot"]>) => ReactNode;
+  overlay?: (
+    view: ReturnType<ToolViewport["getSnapshot"]> & {
+      size: { width: number; height: number };
+      pinching: boolean;
+    },
+  ) => ReactNode;
 }) {
   const t = useToolTranslation();
 
   const checker = useUiChecker();
+  const [size, setSize] = useState({ width: 1, height: 1 });
+  const [pinching, setPinching] = useState(false);
   const view = useSyncExternalStore(
     navigation.subscribe,
     navigation.getSnapshot,
@@ -54,20 +65,33 @@ export function ToolCanvasPreview({
   useEffect(() => {
     navigation.setDocument(identity, { width: pixels.width, height: pixels.height });
   }, [navigation, identity, pixels.width, pixels.height]);
+  useEffect(() => navigation.setPadding(viewportPadding), [navigation, viewportPadding]);
   useEffect(() => {
-    if (stage.current) return observeElementSize(stage.current, (size) => navigation.setSize(size));
+    if (stage.current)
+      return observeElementSize(stage.current, (size) => {
+        setSize(size);
+        navigation.setSize(size);
+      });
   }, [navigation]);
   return (
     <div ref={stage} className={styles.stage}>
       <PanSurface
         className={styles.navigation}
+        enabled={navigationEnabled}
         pan={view.pan}
         onPan={navigation.pan}
         handTool
+        preserveChildFocus
         panButtons={PAN_BUTTONS}
-        onPinchStart={navigation.startPinch}
+        onPinchStart={(gesture) => {
+          setPinching(true);
+          navigation.startPinch(gesture);
+        }}
         onPinch={navigation.movePinch}
-        onPinchEnd={navigation.finishPinch}
+        onPinchEnd={() => {
+          setPinching(false);
+          return navigation.finishPinch();
+        }}
         onDoubleClick={navigation.fit}
         onWheelEvent={(event, node) => {
           if (event.defaultPrevented || (!event.deltaX && !event.deltaY)) return;
@@ -129,7 +153,7 @@ export function ToolCanvasPreview({
           checker={checker}
           aria-label={t(label)}
         />
-        {overlay?.(view)}
+        {overlay?.({ ...view, size, pinching })}
       </PanSurface>
     </div>
   );

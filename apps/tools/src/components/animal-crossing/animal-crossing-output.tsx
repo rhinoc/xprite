@@ -46,7 +46,7 @@ export function AnimalCrossingOutput({
   const [helpOpen, setHelpOpen] = useState(false);
   const { result, qr, selected } = snapshot;
   const pattern = result?.patterns[selected];
-  const busy = snapshot.loading || snapshot.downloading;
+  const busy = snapshot.loading || snapshot.downloading || snapshot.pending;
   const downloadButton =
     result && result.patterns.length > FIRST_COORDINATE
       ? {
@@ -100,15 +100,32 @@ export function AnimalCrossingOutput({
                 />
               </div>
             )}
-            <div className={styles.qrArtwork}>
-              <div className={styles.qrImage}>
-                <CanvasSurface
-                  bounds={{ x: 0, y: 0, width: qr.width, height: qr.height }}
-                  viewport={QR_VIEWPORT}
-                  pixels={qr}
-                  style={{ width: "100%", height: "100%" }}
-                  aria-label={t("Animal Crossing design QR code")}
-                />
+            <div
+              className={styles.outputArtwork}
+              style={{ visibility: snapshot.pending ? "hidden" : undefined }}
+            >
+              <CanvasSurface
+                className={styles.designArtwork}
+                bounds={{
+                  x: 0,
+                  y: 0,
+                  width: pattern.pixels.width,
+                  height: pattern.pixels.height,
+                }}
+                style={{ width: 160, height: 160 }}
+                pixels={pattern.pixels}
+                aria-label={t("Selected converted design")}
+              />
+              <div className={styles.qrArtwork}>
+                <div className={styles.qrImage}>
+                  <CanvasSurface
+                    bounds={{ x: 0, y: 0, width: qr.width, height: qr.height }}
+                    viewport={QR_VIEWPORT}
+                    pixels={qr}
+                    style={{ width: "100%", height: "100%" }}
+                    aria-label={t("Animal Crossing design QR code")}
+                  />
+                </div>
               </div>
             </div>
             <div className={styles.outputActions}>
@@ -136,7 +153,11 @@ export function AnimalCrossingOutput({
         ) : (
           <div className={styles.outputEmpty}>
             <Text variant={TextVariant.Reading} tone={TextTone.Muted} wrap>
-              {t("Generate designs to preview and download their QR codes.")}
+              {t(
+                snapshot.pending
+                  ? "Updating the selected design and QR code…"
+                  : "Generate designs to preview and download their QR codes.",
+              )}
             </Text>
           </div>
         )}

@@ -5,11 +5,12 @@ export function exportFileAsepriteLayout(
   pixelRatio: boolean,
   playCount = false,
   webpMode = false,
+  includeFormat = true,
 ): FormLayout {
   const extra = (Number(playSubtags) + Number(pixelRatio)) * 32;
   const playCountHeight = playCount ? 40 : 0;
   const webpModeHeight = webpMode ? 40 : 0;
-  return {
+  const layout: FormLayout = {
     height: 382 + extra + playCountHeight + webpModeHeight,
     initialFocusAction: "Export",
     fields: {
@@ -82,6 +83,29 @@ export function exportFileAsepriteLayout(
       Cancel: { x: 336, y: 302 + extra + playCountHeight + webpModeHeight, width: 120, height: 34 },
     },
   };
+  if (!includeFormat) {
+    const formatRowHeight = 38;
+    const fields = Object.fromEntries(
+      Object.entries(layout.fields).filter(([key]) => key !== "format"),
+    );
+    return {
+      ...layout,
+      height: layout.height! - formatRowHeight,
+      fields: Object.fromEntries(
+        Object.entries(fields).map(([key, field]) => [
+          key,
+          key === "output" ? field : { ...field, y: field.y - formatRowHeight },
+        ]),
+      ),
+      actions: Object.fromEntries(
+        Object.entries(layout.actions!).map(([key, action]) => [
+          key,
+          { ...action, y: action.y - formatRowHeight },
+        ]),
+      ),
+    };
+  }
+  return layout;
 }
 export const gifOptionsAsepriteLayout: FormLayout = {
   height: 222,

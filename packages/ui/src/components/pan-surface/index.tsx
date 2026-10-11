@@ -25,6 +25,10 @@ export interface PanSurfaceProps extends HTMLAttributes<HTMLDivElement> {
   /** CSS pixels per content coordinate before any ancestor transform. */
   coordinateScale?: PanPoint;
   handTool?: boolean;
+  /** Allow primary touch panning while mouse input remains available for selection. */
+  touchPan?: boolean;
+  /** Keep keyboard focus on an interactive overlay already inside this surface. */
+  preserveChildFocus?: boolean;
   panButtons?: readonly number[];
   enabled?: boolean;
   cursor?: { hand?: CSSProperties["cursor"]; dragging?: CSSProperties["cursor"] };
@@ -41,6 +45,8 @@ export function PanSurface({
   onPinchEnd,
   coordinateScale = { x: 1, y: 1 },
   handTool = false,
+  touchPan = false,
+  preserveChildFocus = false,
   panButtons,
   enabled = true,
   cursor,
@@ -59,6 +65,21 @@ export function PanSurface({
     activation?: PointerDragActivation;
   } | null>(null);
   const contacts = useRef(new Map<number, PanPoint>());
+  const captures = useRef(new Map<number, HTMLElement>());
+  const releasePointer = (pointer: number) => {
+    const target = captures.current.get(pointer);
+    if (target?.hasPointerCapture(pointer)) target.releasePointerCapture(pointer);
+    captures.current.delete(pointer);
+  };
+  const capturePointer = (node: HTMLDivElement, pointer: number) => {
+    const focused = document.activeElement;
+    const target =
+      preserveChildFocus && focused instanceof HTMLElement && node.contains(focused)
+        ? focused
+        : node;
+    target.setPointerCapture(pointer);
+    captures.current.set(pointer, target);
+  };
   const pinching = useRef(false);
   const [spaceHeld, setSpaceHeld] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -73,13 +94,8 @@ export function PanSurface({
 
   useEffect(() => {
     const reset = () => {
-      const active = drag.current;
-      if (active && surface.current?.hasPointerCapture(active.pointer))
-        surface.current.releasePointerCapture(active.pointer);
+      for (const pointer of captures.current.keys()) releasePointer(pointer);
       drag.current = null;
-      for (const pointer of contacts.current.keys())
-        if (surface.current?.hasPointerCapture(pointer))
-          surface.current.releasePointerCapture(pointer);
       contacts.current.clear();
       if (pinching.current) onPinchEnd?.();
       pinching.current = false;
@@ -140,7 +156,7 @@ export function PanSurface({
   };
   const endTouch = (node: HTMLDivElement, pointer: number) => {
     if (!contacts.current.delete(pointer)) return;
-    if (node.hasPointerCapture(pointer)) node.releasePointerCapture(pointer);
+    releasePointer(pointer);
     let finishedPan: PanPoint | void = undefined;
     if (pinching.current && contacts.current.size < 2) {
       pinching.current = false;
@@ -163,7 +179,7 @@ export function PanSurface({
       {...props}
       ref={surface}
       {...(enabled &&
-      (panButtons?.includes(PRIMARY_PAN_POINTER_BUTTON) ?? !!(handTool || spaceHeld))
+      (panButtons?.includes(PRIMARY_PAN_POINTER_BUTTON) ?? !!(handTool || spaceHeld || touchPan))
         ? stylusPointerInputProps()
         : {})}
       tabIndex={props.tabIndex ?? 0}
@@ -193,7 +209,9 @@ export function PanSurface({
           event.defaultPrevented ||
           !(panButtons
             ? panButtons.includes(event.button)
-            : event.button === 1 || (event.button === 0 && (handTool || spaceHeld)))
+            : event.button === 1 ||
+              (event.button === 0 &&
+                (handTool || spaceHeld || (touchPan && event.pointerType === "touch"))))
         )
           return;
         if (onPinchStart && event.pointerType === "touch" && contacts.current.size >= 2) {
@@ -202,8 +220,9 @@ export function PanSurface({
         }
         event.preventDefault();
         const node = event.currentTarget;
-        node.focus({ preventScroll: true });
-        node.setPointerCapture(event.pointerId);
+        if (!preserveChildFocus || !node.contains(document.activeElement))
+          node.focus({ preventScroll: true });
+        capturePointer(node, event.pointerId);
         if (onPinchStart && event.pointerType === "touch") {
           contacts.current.set(event.pointerId, clientPoint(event));
           if (contacts.current.size >= 2) {
@@ -257,8 +276,7 @@ export function PanSurface({
           return;
         }
         if (drag.current?.pointer !== event.pointerId) return;
-        if (event.currentTarget.hasPointerCapture(event.pointerId))
-          event.currentTarget.releasePointerCapture(event.pointerId);
+        releasePointer(event.pointerId);
         stop();
       }}
       onPointerCancel={(event) => {
@@ -267,6 +285,7 @@ export function PanSurface({
           endTouch(event.currentTarget, event.pointerId);
           return;
         }
+        releasePointer(event.pointerId);
         stop();
       }}
       onLostPointerCapture={(event) => {

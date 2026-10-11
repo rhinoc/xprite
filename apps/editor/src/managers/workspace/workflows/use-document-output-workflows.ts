@@ -4,16 +4,20 @@ import {
   createAnimalCrossingExportSource,
   type AnimalCrossingExportSource,
 } from "$/managers/files/animal-crossing-export";
+import type { AnimalCrossingExportOptions } from "$/managers/files/animal-crossing-export-options";
 import {
   exportDocumentAnimation,
   exportDocumentSpriteSheet,
   repeatLastExport,
   type AnimationExportPorts,
 } from "$/managers/files/export-animation";
+import { ExportDestination } from "$/managers/files/export-destination";
+import { ExportKind } from "$/managers/files/export-preferences";
 import {
   createShareProjectSource,
   type ShareProjectSource,
 } from "$/managers/files/project-sharing";
+import { tilesetExportSource } from "$/managers/files/tileset-export-source";
 import type { EditorPlatformPorts } from "$/managers/ports/platform";
 import { TelemetryFeature, TelemetryFeatureAction } from "$/managers/ports/telemetry";
 import { reportingExport } from "$/managers/telemetry/reporting-export";
@@ -56,8 +60,9 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
     useState<AnimalCrossingExportSource | null>(null);
   const [shareSource, setShareSource] = useState<ShareProjectSource | null>(null);
   const [exportDocument, setExportDocument] = useState<EditorDocument | null>(null);
-  const [sheetSource, setSheetSource] = useState<SpriteSheetOptions["source"]>(undefined);
-  const [sheetExport, setSheetExport] = useState<EditorDocument | null>(null);
+  const [exportDestination, setExportDestination] = useState(ExportDestination.Image);
+  const lastExportDestination = useRef<ExportDestination | null>(null);
+  const [animalCrossingBusy, setAnimalCrossingBusy] = useState(false);
   const [sheetImport, setSheetImport] = useState<{
     core: RasterEditor;
     id: number | undefined;
@@ -66,6 +71,13 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
   const [exportBusy, setExportBusy] = useState(false);
   const exportKey = useRef(workspace.active.id);
   const ownerKey = workspace.active.id;
+  const showSheetPreview = useCallback(
+    (result: SpriteSheetResult | null) => {
+      core.importExport.previewSpriteSheet(result?.pixels ?? null);
+    },
+    [core],
+  );
+  useEffect(() => () => core.importExport.previewSpriteSheet(null), [core, ownerKey]);
   const exportOperation = useMemo(
     () =>
       new DocumentOutputExportOperation(
@@ -73,12 +85,6 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
         setExportBusy,
       ),
     [workspace],
-  );
-  const sheetPreviewCore = useRef<RasterEditor | null>(null);
-  const showSheetPreview = useCallback(
-    (result: SpriteSheetResult | null) =>
-      sheetPreviewCore.current?.importExport.previewSpriteSheet(result?.pixels ?? null),
-    [],
   );
   useEffect(() => {
     if (
@@ -93,13 +99,9 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
     setAnimalCrossingSource(null);
     setShareSource(null);
     setExportDocument(null);
-    setSheetExport(null);
+    setAnimalCrossingBusy(false);
     setSheetImport(null);
-    return () => {
-      disconnect();
-      sheetPreviewCore.current?.importExport.previewSpriteSheet(null);
-      sheetPreviewCore.current = null;
-    };
+    return disconnect;
   }, [exportOperation, core, ownerKey]);
 
   const prepareExport = (detached = true) => {
@@ -150,7 +152,7 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
     );
   };
   const performExport = (exportOptions: ExportFileOptions) => {
-    if (!exportDocument || sheetExport || sheetImport) return;
+    if (!exportDocument || sheetImport) return;
     return runExport(
       exportDocument,
       (ports) =>
@@ -158,28 +160,34 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
           ...ports,
           webp: platform.files.webp,
         }),
-      () => setExportDocument(null),
+      clearExport,
     );
   };
+  const openGeneratedSheet = (
+    document: EditorDocument,
+    exportOptions: SpriteSheetOptions,
+    result: SpriteSheetResult,
+  ) => {
+    if (!exportOptions.openGenerated) return;
+    workspace.createDocumentFromImage(
+      result.pixels,
+      document.palette?.map((color) =>
+        colorProfileToSrgb(color, workingColorProfile(document.timeline)),
+      ),
+      exportOptions.name,
+    );
+    options.openGeneratedDocument();
+  };
   const performSheetExport = (exportOptions: SpriteSheetOptions) => {
-    if (!sheetExport) return;
+    if (!exportDocument) return;
+    const source =
+      exportOptions.source === "tilesets" ? tilesetExportSource(exportDocument) : exportDocument;
     return runExport(
-      sheetExport,
-      (ports) => exportDocumentSpriteSheet(sheetExport, exportOptions, ports),
+      source,
+      (ports) => exportDocumentSpriteSheet(source, exportOptions, ports),
       (result) => {
-        sheetPreviewCore.current?.importExport.previewSpriteSheet(null);
-        sheetPreviewCore.current = null;
-        setSheetExport(null);
-        if (exportOptions.openGenerated) {
-          workspace.createDocumentFromImage(
-            result.pixels,
-            sheetExport.palette?.map((color) =>
-              colorProfileToSrgb(color, workingColorProfile(sheetExport.timeline)),
-            ),
-            exportOptions.name,
-          );
-          options.openGeneratedDocument();
-        }
+        clearExport();
+        openGeneratedSheet(source, exportOptions, result);
       },
     );
   };
@@ -201,16 +209,92 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
     const document = core.getSnapshot().document;
     if (document) setSheetImport({ core, id: document.id, image: core.canvas.exportComposite() });
   };
-  const openExportFileDialog = () => {
+  const canExportTileset =
+    !!exportDocument &&
+    exportDocument.timeline?.layers[exportDocument.timeline.activeLayer]?.kind === "tilemap";
+  const destinationAvailable = (destination: ExportDestination, document: EditorDocument) =>
+    destination === ExportDestination.Tileset
+      ? document.timeline?.layers[document.timeline.activeLayer]?.kind === "tilemap"
+      : destination !== ExportDestination.AnimalCrossing || !!platform.files.animalCrossingExport;
+  const animalCrossingSourceFor = (document: EditorDocument) => {
+    const source = createAnimalCrossingExportSource(document);
+    const remembered = workspace.getExportPreferences(exportKey.current).animalCrossing;
+    return remembered ? { ...source, settings: { ...remembered.settings } } : source;
+  };
+  const rememberAnimalCrossingExport = useCallback(
+    (exportOptions: AnimalCrossingExportOptions) => {
+      if (workspace.active.id !== exportKey.current || !exportDocument) return;
+      workspace.rememberExport(workspace.getExportPreferenceId(exportKey.current), {
+        type: ExportKind.AnimalCrossing,
+        options: exportOptions,
+      });
+    },
+    [workspace, exportDocument],
+  );
+  const selectExportDestination = (destination: ExportDestination) => {
+    if (
+      !exportDocument ||
+      exportBusy ||
+      animalCrossingBusy ||
+      !destinationAvailable(destination, exportDocument)
+    )
+      return;
+    if (destination === ExportDestination.AnimalCrossing && !animalCrossingSource) {
+      try {
+        setAnimalCrossingSource(animalCrossingSourceFor(exportDocument));
+      } catch (reason) {
+        session.reportError(reason);
+        return;
+      }
+    }
+    core.importExport.previewSpriteSheet(null);
+    lastExportDestination.current = destination;
+    setExportDestination(destination);
+  };
+  function clearExport() {
+    core.importExport.previewSpriteSheet(null);
+    setExportDocument(null);
+    setAnimalCrossingSource(null);
+  }
+  const closeExport = () => {
+    if (!exportOperation.busy && !animalCrossingBusy) clearExport();
+  };
+  const openExport = (requested?: ExportDestination) => {
     const document = prepareExport();
-    if (document) {
+    if (!document) return;
+    const last = workspace.getLastExport(workspace.active.id);
+    const remembered =
+      lastExportDestination.current ??
+      (last?.type === ExportKind.AnimalCrossing
+        ? ExportDestination.AnimalCrossing
+        : last?.type === ExportKind.Sheet
+          ? last.options.source === "tilesets"
+            ? ExportDestination.Tileset
+            : ExportDestination.SpriteSheet
+          : ExportDestination.Image);
+    const destination =
+      requested ??
+      (destinationAvailable(remembered, document) ? remembered : ExportDestination.Image);
+    if (!destinationAvailable(destination, document)) return;
+    try {
+      setAnimalCrossingSource(
+        destination === ExportDestination.AnimalCrossing ? animalCrossingSourceFor(document) : null,
+      );
       telemetry.featureUsed(TelemetryFeature.Export, TelemetryFeatureAction.Open);
+      lastExportDestination.current = destination;
+      setExportDestination(destination);
       setExportDocument(document);
+    } catch (reason) {
+      session.reportError(reason);
     }
   };
+  const lastExport = workspace.getLastExport(workspace.active.id);
+  const currentDocument = core.getSnapshot().document;
+  const currentTimeline = currentDocument?.timeline;
+  const activeTilemap = currentTimeline?.layers[currentTimeline.activeLayer]?.kind === "tilemap";
   const actions = {
-    exportFile: openExportFileDialog,
-    exportCopy: openExportFileDialog,
+    exportFile: () => openExport(),
+    exportCopy: () => openExport(),
     share: platform.files.sharing
       ? () => {
           const document = prepareExport(false);
@@ -224,85 +308,60 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
         }
       : undefined,
     exportAnimalCrossing: platform.files.animalCrossingExport
-      ? () => {
-          const document = prepareExport();
-          if (!document) return;
-          try {
-            setAnimalCrossingSource(createAnimalCrossingExportSource(document));
-          } catch (reason) {
-            session.reportError(reason);
-          }
-        }
+      ? () => openExport(ExportDestination.AnimalCrossing)
       : undefined,
-    exportSpriteSheet: () => {
-      const document = prepareExport();
-      if (document) {
-        telemetry.featureUsed(TelemetryFeature.Export, TelemetryFeatureAction.Open);
-        setSheetSource(undefined);
-        sheetPreviewCore.current = core;
-        setSheetExport(document);
-      }
-    },
-    exportTileset: () => {
-      const document = prepareExport();
-      if (document?.timeline?.layers[document.timeline.activeLayer]?.kind === "tilemap") {
-        document.timeline.range = {
-          kind: "layers",
-          layers: [document.timeline.activeLayer],
-          frames: [document.timeline.activeFrame],
-        };
-        setSheetSource("tilesets");
-        sheetPreviewCore.current = core;
-        setSheetExport(document);
-      }
-    },
+    exportSpriteSheet: () => openExport(ExportDestination.SpriteSheet),
+    exportTileset: () => openExport(ExportDestination.Tileset),
     importSpriteSheet: () => {
       if (prepareExport(false)) openSheetImport();
     },
     canRepeatExport:
-      !!core.getSnapshot().document && !!workspace.getLastExport(workspace.active.id),
+      !!currentDocument &&
+      !!lastExport &&
+      (lastExport.type !== ExportKind.AnimalCrossing || !!platform.files.animalCrossingExport) &&
+      (lastExport.type !== ExportKind.Sheet ||
+        lastExport.options.source !== "tilesets" ||
+        activeTilemap),
     repeatLastExport: () => {
       if (exportOperation.busy) return;
       const document = prepareExport();
       if (!document) return;
-      void runExport(document, (ports) =>
-        repeatLastExport(document, {
-          ...ports,
-          webp: platform.files.webp,
-        }),
+      void runExport(
+        document,
+        (ports) =>
+          repeatLastExport(document, {
+            ...ports,
+            webp: platform.files.webp,
+            animalCrossing: platform.files.animalCrossingExport,
+          }),
+        (result) => {
+          if (lastExport?.type === ExportKind.Sheet && "pixels" in result)
+            openGeneratedSheet(document, lastExport.options, result);
+        },
       );
     },
   };
   return {
     actions,
     animalCrossingSource,
-    setAnimalCrossingSource,
+    setAnimalCrossingBusy,
+    rememberAnimalCrossingExport,
     shareSource,
     setShareSource,
     exportDocument,
-    setExportDocument,
-    exportBusy,
+    closeExport,
+    exportDestination,
+    selectExportDestination,
+    canExportTileset,
+    exportBusy: exportBusy || animalCrossingBusy,
     exportKey,
     showSheetPreview,
-    sheetSource,
-    sheetExport,
     sheetImport: sheetImport ? { image: sheetImport.image } : null,
     setSheetImport,
     openSheetImport,
     performExport,
     performSheetExport,
     performSheetImport,
-    closeSheetExport: () => {
-      sheetPreviewCore.current?.importExport.previewSpriteSheet(null);
-      sheetPreviewCore.current = null;
-      setSheetExport(null);
-    },
-    hasOpenDialog: !!(
-      animalCrossingSource ||
-      shareSource ||
-      exportDocument ||
-      sheetExport ||
-      sheetImport
-    ),
+    hasOpenDialog: !!(animalCrossingSource || shareSource || exportDocument || sheetImport),
   };
 }

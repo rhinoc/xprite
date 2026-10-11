@@ -5,6 +5,7 @@ import { describe, it } from "vitest";
 import { AnimalCrossingManager } from "$/managers/animal-crossing/animal-crossing-manager";
 import type { AnimalCrossingPort } from "$/managers/ports/animal-crossing";
 import {
+  animalCrossingQrPixels,
   convertAnimalCrossing,
   defaultAnimalCrossingSettings,
   readAnimalCrossingPattern,
@@ -16,6 +17,11 @@ function pixels(value = 128) {
 }
 function port(patch: Partial<AnimalCrossingPort> = {}): AnimalCrossingPort {
   return {
+    preview: async (pixels, settings, selected) => {
+      const result = convertAnimalCrossing(pixels, settings);
+      return { result, selected, qr: animalCrossingQrPixels(result.patterns[selected].bytes) };
+    },
+    releasePreview: () => {},
     readWheel: () => ({ precise: false, magnify: false, zoom: false, shift: false, unit: 1 }),
     read: async () => ({ pixels: pixels() }),
     example: async () => new File([], "example.png"),
@@ -46,7 +52,7 @@ describe("Animal Crossing tool lifecycle", () => {
     );
     await manager.open(new File([], "imported.acnl"));
     manager.changeSettings({ title: "New name" });
-    manager.generate();
+    await manager.generate();
     await manager.download();
     assert.equal(manager.getSnapshot().importedQr, true);
     assert.deepEqual(saved, bytes);
@@ -75,7 +81,7 @@ describe("Animal Crossing tool lifecycle", () => {
     );
     await manager.open(new File([], "frames.aseprite"));
     manager.changeSettings({ title: "Frame draft" });
-    manager.generate();
+    await manager.generate();
     assert.ok(manager.getSnapshot().qr);
     manager.setFrame(1);
     assert.equal(manager.getSnapshot().frame, 1);
@@ -110,7 +116,7 @@ describe("Animal Crossing tool lifecycle", () => {
     resolveOld({ pixels: pixels() });
     await old;
     assert.equal(manager.getSnapshot(), current);
-    manager.generate();
+    await manager.generate();
     const saving = manager.download();
     assert.equal(manager.getSnapshot().downloading, true);
     const downloading = manager.getSnapshot();

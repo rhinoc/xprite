@@ -451,7 +451,7 @@ function PreferencesChrome({
             "File > Save:",
             "File > Export (one image):",
             "File > Export (animation):",
-            "File > Export Sprite Sheet:",
+            "File > Export (sprite sheet):",
           ].map((text, index) =>
             label(
               text,

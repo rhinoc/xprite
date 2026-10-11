@@ -6,7 +6,11 @@ import {
   AnimalCrossingExportManager,
   type AnimalCrossingExportPort,
 } from "$/managers/files/animal-crossing-export";
-import { defaultAnimalCrossingSettings } from "@xprite/editor-core/import-export";
+import {
+  animalCrossingQrPixels,
+  convertAnimalCrossing,
+  defaultAnimalCrossingSettings,
+} from "@xprite/editor-core/import-export";
 
 const pixels = {
   width: 2,
@@ -21,11 +25,18 @@ function source() {
   };
 }
 
+const preview: AnimalCrossingExportPort["preview"] = async (pixels, settings, selected) => {
+  const result = convertAnimalCrossing(pixels, settings);
+  return { result, selected, qr: animalCrossingQrPixels(result.patterns[selected].bytes) };
+};
+
 describe("editor Animal Crossing exports", () => {
   it("captures the selected artifact and refuses duplicate downloads while saving", async () => {
     const names: string[] = [];
     let resolveSave!: () => void;
     const port: AnimalCrossingExportPort = {
+      releasePreview: () => {},
+      preview,
       save: async (_result, name) => {
         names.push(name);
       },
@@ -37,7 +48,7 @@ describe("editor Animal Crossing exports", () => {
       },
     };
     const manager = new AnimalCrossingExportManager(source(), port);
-    manager.generate();
+    await manager.generate();
     manager.select(1);
     const saving = manager.downloadQr();
     manager.select(0);
@@ -57,6 +68,8 @@ describe("editor Animal Crossing exports", () => {
   it("ignores a failed old export after cleanup and a new connection", async () => {
     let rejectSave!: (reason: Error) => void;
     const port: AnimalCrossingExportPort = {
+      releasePreview: () => {},
+      preview,
       save: () =>
         new Promise<void>((_resolve, reject) => {
           rejectSave = reject;
@@ -65,7 +78,7 @@ describe("editor Animal Crossing exports", () => {
     };
     const manager = new AnimalCrossingExportManager(source(), port);
     const disconnect = manager.connect();
-    manager.generate();
+    await manager.generate();
     const saving = manager.download();
     disconnect();
     const disconnectAgain = manager.connect();
@@ -78,5 +91,45 @@ describe("editor Animal Crossing exports", () => {
     await manager.downloadQr();
     assert.equal(manager.getSnapshot().error, null);
     disconnectAgain();
+  });
+  it("rejects stale preview completions and prevents downloading a pending draft", async () => {
+    type Preview = Awaited<ReturnType<AnimalCrossingExportPort["preview"]>>;
+    const calls: { signal: AbortSignal; complete(): Promise<void> }[] = [];
+    let downloads = 0;
+    const port: AnimalCrossingExportPort = {
+      releasePreview: () => {},
+      preview: (pixels, settings, selected, signal) =>
+        new Promise<Preview>((resolve) => {
+          calls.push({
+            signal,
+            complete: async () => resolve(await preview(pixels, settings, selected, signal)),
+          });
+        }),
+      save: async () => {
+        downloads++;
+      },
+      saveQr: async () => {
+        downloads++;
+      },
+    };
+    const manager = new AnimalCrossingExportManager(source(), port);
+    const first = manager.generate();
+    await calls[0].complete();
+    await first;
+    manager.changeSettings({ title: "Superseded" });
+    await manager.downloadQr();
+    assert.equal(downloads, 0);
+    const obsolete = manager.generate();
+    manager.changeSettings({ title: "Latest" });
+    assert.equal(calls[1].signal.aborted, true);
+    const latest = manager.generate();
+    await calls[2].complete();
+    await latest;
+    const current = manager.getSnapshot();
+    assert.equal(current.result!.patterns[0].title, "Latest 1-1");
+    await calls[1].complete();
+    await obsolete;
+    assert.equal(manager.getSnapshot(), current);
+    assert.equal(current.pending, false);
   });
 });

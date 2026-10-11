@@ -1,0 +1,33 @@
+.stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  outline: none;
+}
+.artwork {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.gridHandle {
+  z-index: 1;
+  touch-action: none;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.gridHandle[data-visible] {
+  pointer-events: auto;
+}
+.handleHint {
+  position: absolute;
+  left: var(--ui-space-2, 4px);
+  bottom: var(--ui-space-2, 4px);
+  width: calc(100% - 8px);
+  height: 24px;
+  background: var(--ui-color-face, #cfc8b8);
+  pointer-events: none;
+}
