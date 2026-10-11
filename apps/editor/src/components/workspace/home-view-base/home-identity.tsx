@@ -7,7 +7,7 @@ import { UI_SCALE_X, UI_SCALE_Y } from "@xprite/ui/canvas";
 
 import styles from "$/components/workspace/home-view-base/home-view-base.module.css";
 
-const HOME_IDENTITY_ACTION_HEIGHT = 28;
+const HOME_IDENTITY_ACTION_HEIGHT = 14;
 const HOME_STAR_ICON_SIZE = 14;
 const HOME_STAR_ICON_GAP = 4;
 
