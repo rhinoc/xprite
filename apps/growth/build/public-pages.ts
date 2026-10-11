@@ -46,6 +46,7 @@ import { sitemap, robots, languageModelIndex } from "./seo/discovery.ts";
 import { applyPageSearchMetadata } from "./seo/index.ts";
 import { applyShowcaseSearchMetadata } from "./seo/showcase-seo.ts";
 import { createPublicUiRenderer, PUBLIC_UI_ASSET_PREFIX } from "./static-ui-renderer.ts";
+import { versionPublishedStylesheets } from "./stylesheet-versions.ts";
 
 const REPOSITORY_ROOT = fileURLToPath(new URL("../../../", import.meta.url));
 const APP_ROOT = resolve(REPOSITORY_ROOT, "apps/growth");
@@ -524,6 +525,8 @@ export async function growthPublicPages(): Promise<Plugin> {
       await writeFile(resolve(output, "llms.txt"), languageModelIndex());
       if (indexable) await writeFile(resolve(output, "sitemap.xml"), sitemap());
       else await rm(resolve(output, "sitemap.xml"), { force: true });
+      // Last step: every stylesheet the pages link to now has its final bytes.
+      await versionPublishedStylesheets(output);
     },
   };
 }
