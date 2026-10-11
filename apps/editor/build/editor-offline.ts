@@ -4,6 +4,8 @@ import { resolve } from "node:path";
 
 import type { Plugin } from "vite";
 
+import { versionOutputDirectory } from "../../../infra/content-versions.ts";
+
 const WORKER_FILENAME = "sw.js";
 const INDEX_FILENAME = "index.html";
 const OFFLINE_SHELL_PREFIX = "editor-offline-";
@@ -39,6 +41,8 @@ export function editorOffline(outputDirectory: string): Plugin {
     },
     async writeBundle() {
       if (!production) return;
+      // Version stable-name references first: the precache integrity covers the final bytes.
+      await versionOutputDirectory(outputDirectory);
       const workerPath = resolve(outputDirectory, WORKER_FILENAME);
       const [workerSource, html, files] = await Promise.all([
         readFile(workerPath, "utf8"),

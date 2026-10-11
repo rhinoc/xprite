@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
+import { contentVersionedOutput } from "../../infra/content-versions.ts";
 import {
   DEVELOPMENT_PORTS,
   COMPONENTS_DEVELOPMENT_BASE,
@@ -48,6 +49,7 @@ export default defineConfig({
     ],
   },
   plugins: [
+    contentVersionedOutput(),
     developmentServerIdentity(DevelopmentApp.Components, repositoryRoot),
     packageLocalAliases(),
     siteHtml(),

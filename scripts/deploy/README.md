@@ -210,6 +210,27 @@ nor uploaded; error events still work, with minified stacks. When configured,
 the existing root build injects/uploads maps and deletes them before packaging.
 An upload failure blocks deployment of that build.
 
+## Stable-name asset versions
+
+Vite names bundled files after their content. Files copied verbatim or generated
+outside the bundle (`/theme/*.css`, `/help/guide.css`, fonts, icons, the web app
+manifest, public images) keep the same URL in every release, and EdgeOne caches
+them at the edge. Without a version, a page from a new release can load the
+previous release's stylesheet; this broke the about page notes when their
+selectors were renamed.
+
+Every app therefore ends its build with `versionOutputDirectory()` from
+`infra/content-versions.ts`: growth after writing its static pages, the editor
+before computing the offline precache integrity, and tools/components through the
+`contentVersionedOutput()` Vite plugin. It appends `?v=<first 12 hex of sha256>`
+to each local HTML `href`/`src` and CSS `url()`/`@import` that resolves to a
+stable-name file in that app's output, rewriting stylesheets before taking their
+own hash. `sw.js` keeps its URL because the URL identifies the service worker.
+
+`scripts/check/check-asset-versions.mjs` (`pnpm run check:asset-versions`) fails
+when any HTML, CSS or script in the assembled site references such a file without
+a version. `build:site` and `deploy:prepare` both run it.
+
 ## Publishing
 
 First commit the workflow to the default branch. Tags must point to commits

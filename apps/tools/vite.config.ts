@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
+import { contentVersionedOutput } from "../../infra/content-versions.ts";
 import {
   DEVELOPMENT_PORTS,
   DevelopmentApp,
@@ -37,6 +38,7 @@ export default defineConfig(({ command }) => ({
   publicDir: false,
   css: { modules: { generateScopedName: ssgScopedName } },
   plugins: [
+    contentVersionedOutput(),
     developmentServerIdentity(DevelopmentApp.Tools, repositoryRoot),
     packageLocalAliases(),
     siteHtml(),
