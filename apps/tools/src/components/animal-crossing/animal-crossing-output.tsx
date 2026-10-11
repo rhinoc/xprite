@@ -100,32 +100,15 @@ export function AnimalCrossingOutput({
                 />
               </div>
             )}
-            <div
-              className={styles.outputArtwork}
-              style={{ visibility: snapshot.pending ? "hidden" : undefined }}
-            >
-              <CanvasSurface
-                className={styles.designArtwork}
-                bounds={{
-                  x: 0,
-                  y: 0,
-                  width: pattern.pixels.width,
-                  height: pattern.pixels.height,
-                }}
-                style={{ width: 160, height: 160 }}
-                pixels={pattern.pixels}
-                aria-label={t("Selected converted design")}
-              />
-              <div className={styles.qrArtwork}>
-                <div className={styles.qrImage}>
-                  <CanvasSurface
-                    bounds={{ x: 0, y: 0, width: qr.width, height: qr.height }}
-                    viewport={QR_VIEWPORT}
-                    pixels={qr}
-                    style={{ width: "100%", height: "100%" }}
-                    aria-label={t("Animal Crossing design QR code")}
-                  />
-                </div>
+            <div className={styles.qrArtwork}>
+              <div className={styles.qrImage}>
+                <CanvasSurface
+                  bounds={{ x: 0, y: 0, width: qr.width, height: qr.height }}
+                  viewport={QR_VIEWPORT}
+                  pixels={qr}
+                  style={{ width: "100%", height: "100%" }}
+                  aria-label={t("Animal Crossing design QR code")}
+                />
               </div>
             </div>
             <div className={styles.outputActions}>
