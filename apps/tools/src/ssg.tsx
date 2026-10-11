@@ -3,11 +3,13 @@ import { renderToString } from "react-dom/server";
 
 import { AnimalCrossingPage } from "$/components/animal-crossing/animal-crossing-page";
 import { GifSheetPage } from "$/components/gif-sheet/gif-sheet-page";
+import { PixelationPage } from "$/components/pixelation/pixelation-page";
 import { ToolAppearance } from "$/components/shared/tool-appearance";
 import { ToolArtworkKind, toolArtworkKey } from "$/components/shared/tool-artwork";
 import { ViewerPage } from "$/components/viewer/viewer-page";
 import { AnimalCrossingManager } from "$/managers/animal-crossing/animal-crossing-manager";
 import { GifSheetManager } from "$/managers/gif-sheet/gif-sheet-manager";
+import { PixelationManager } from "$/managers/pixelation/pixelation-manager";
 import type { AnimalCrossingPort } from "$/managers/ports/animal-crossing";
 import type { GifSheetPort } from "$/managers/ports/gif-sheet";
 import type { ViewerPort } from "$/managers/ports/viewer";
@@ -43,6 +45,8 @@ export async function renderToolPage(rootId: string) {
       readAppearance: () => (appearance === "dark" ? AppearanceMode.Dark : AppearanceMode.Light),
       watchAppearance: () => () => {},
       readWheel: unavailable,
+      preview: unavailable,
+      releasePreview: () => {},
       read: unavailable,
       example: unavailable,
       save: unavailable,
@@ -62,12 +66,25 @@ export async function renderToolPage(rootId: string) {
         ? new ViewerManager(ports)
         : rootId === "gif-sheet-root"
           ? new GifSheetManager(ports)
-          : rootId === "animal-crossing-root"
-            ? new AnimalCrossingManager({ ...ports, read: unavailable })
-            : null;
+          : rootId === "pixelation-root"
+            ? new PixelationManager({
+                paletteResources: () => ({ choices: [], defaultPalette: [] }),
+                detectGrid: unavailable,
+                read: unavailable,
+                example: unavailable,
+                convert: unavailable,
+                save: unavailable,
+                edit: unavailable,
+                dispose: () => {},
+              })
+            : rootId === "animal-crossing-root"
+              ? new AnimalCrossingManager({ ...ports, read: unavailable })
+              : null;
     try {
       const view =
-        manager instanceof AnimalCrossingManager ? (
+        manager instanceof PixelationManager ? (
+          <PixelationPage manager={manager} />
+        ) : manager instanceof AnimalCrossingManager ? (
           <AnimalCrossingPage manager={manager} />
         ) : manager instanceof ViewerManager ? (
           <ViewerPage manager={manager} />

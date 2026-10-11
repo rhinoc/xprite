@@ -55,6 +55,7 @@ export class IslandPreviewManager {
   };
   private result: AnimalCrossingResult | null = null;
   private original: ReturnType<typeof sourceIslandSurface> | null = null;
+  private originalSource: { pixels: PixelBuffer; settings: AnimalCrossingSettings } | null = null;
   private selected = 0;
   private scene: IslandScene | null = null;
   private request = 0;
@@ -80,6 +81,8 @@ export class IslandPreviewManager {
   private surface(): IslandSurface | null {
     if (!this.result) return null;
     const repeat = this.snapshot.arrangement === IslandArrangement.Repeat;
+    if (this.snapshot.colors === IslandColors.Original && !this.original && this.originalSource)
+      this.original = sourceIslandSurface(this.originalSource.pixels, this.originalSource.settings);
     const original = this.snapshot.colors === IslandColors.Original && this.original;
     const pixels = original
       ? repeat
@@ -116,10 +119,15 @@ export class IslandPreviewManager {
     source: PixelBuffer | null,
     settings: AnimalCrossingSettings,
   ) {
+    if (result === this.result && selected === this.selected) return;
     const newResult = !!result && result !== this.result;
-    if (newResult) this.original = source ? sourceIslandSurface(source, settings) : null;
+    if (newResult) {
+      this.original = null;
+      this.originalSource = source ? { pixels: source, settings: { ...settings } } : null;
+    }
     if (!result) {
       this.original = null;
+      this.originalSource = null;
       this.nearbyCache = null;
     }
     this.result = result;
@@ -192,6 +200,7 @@ export class IslandPreviewManager {
     this.unmount();
     this.result = null;
     this.original = null;
+    this.originalSource = null;
     this.nearbyCache = null;
     this.listeners.clear();
   }

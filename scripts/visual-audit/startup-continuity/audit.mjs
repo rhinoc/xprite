@@ -30,7 +30,11 @@ for (let index = 0; index < args.length; index += 2) {
   options.set(args[index], args[index + 1]);
 }
 const port = Number(options.get("--port") ?? 5173);
-const spaceId = options.has("--space") ? Number(options.get("--space")) : undefined;
+const spaceId = options.has("--space")
+  ? Number(options.get("--space"))
+  : process.env.XPRITE_VISUAL_SPACE_ID === undefined
+    ? undefined
+    : Number(process.env.XPRITE_VISUAL_SPACE_ID);
 if (!Number.isInteger(port) || port <= 0 || port > 65535) throw Error("Invalid site port.");
 if (spaceId !== undefined && (!Number.isInteger(spaceId) || spaceId <= 0))
   throw Error("Invalid task space.");

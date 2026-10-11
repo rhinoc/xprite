@@ -93,6 +93,24 @@ export const ANIMAL_CROSSING_TOOL = {
   dropLabel: "Drop artwork, a QR image or an .acnl file",
 } as const;
 
+export const PIXELATE_TOOL = {
+  path: "/tools/pixelate/",
+  name: "Xprite Pixel Art Converter",
+  label: "Image to Pixel Art",
+  startTitle: "Turn an image into pixel art",
+  title: "Image to Pixel Art: Free Online Converter | Xprite",
+  headline: "Image to pixel art",
+  summary: "Convert images to pixel art or recover enlarged pixel grids, with local previews.",
+  privacy: TOOL_FILE_PRIVACY,
+  description:
+    "Convert photos and illustrations, recover enlarged pixel grids, download PNG or continue editing. Files stay on your device.",
+  accept: ".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp",
+  fileLabel: "Choose an image to pixelate",
+  openLabel: "Open image",
+  dropLabel: "Drop a PNG, JPEG or WebP image",
+  guidePath: "/help/en/",
+} as const;
+
 export const EDITOR_TOOL = {
   path: "/",
   name: "Xprite Editor",
@@ -103,6 +121,6 @@ export const EDITOR_TOOL = {
     "Create pixel art and animations in Xprite. Open and save Aseprite projects in your browser.",
 } as const;
 
-export const TOOLS = [VIEWER_TOOL, GIF_SHEET_TOOL, ANIMAL_CROSSING_TOOL];
+export const TOOLS = [VIEWER_TOOL, GIF_SHEET_TOOL, PIXELATE_TOOL, ANIMAL_CROSSING_TOOL];
 export const TOOL_PATHS = TOOLS.map((tool) => tool.path);
 export type PublicTool = (typeof TOOLS)[number];

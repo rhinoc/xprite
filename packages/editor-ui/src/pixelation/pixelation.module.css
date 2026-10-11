@@ -1,0 +1,70 @@
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-3);
+  min-width: 0;
+}
+.fields,
+.presets {
+  flex-wrap: wrap;
+  gap: var(--ui-space-3);
+}
+.comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ui-space-4);
+  min-width: 0;
+}
+.image {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+.stage {
+  position: relative;
+  height: 260px;
+  width: 100%;
+  overflow: hidden;
+  background: var(--ui-color-canvas);
+}
+.canvas {
+  position: absolute;
+  display: block;
+  image-rendering: pixelated;
+}
+@media (max-width: 600px) {
+  .stage {
+    height: 180px;
+  }
+}
+
+.stacked {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.paletteControl {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+.paletteHeader {
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ui-space-2);
+}
+.paletteScroll {
+  max-height: 128px;
+  min-height: 0;
+}
+.paletteGrid {
+  display: grid;
+  grid-template-columns: repeat(8, max-content);
+  gap: 2px;
+  padding: 2px;
+}
+.paletteActions {
+  flex-wrap: wrap;
+  gap: var(--ui-space-2);
+}

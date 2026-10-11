@@ -1,8 +1,35 @@
 import type { EditorDocument } from "$/document/types";
-import { defaultAnimalCrossingSettings } from "$/import-export/animal-crossing/codec";
+import {
+  ANIMAL_CROSSING_SIZE,
+  MAX_ANIMAL_CROSSING_PATTERNS,
+  animalCrossingGrid,
+  defaultAnimalCrossingSettings,
+} from "$/import-export/animal-crossing/codec";
 import { renderExport } from "$/import-export/image/export-plan";
 import { TILESET_EMBEDDED_PIXELS_FLAG } from "$/tilemap";
 import { layerAncestors } from "$/timeline";
+
+function fitPatternCount(
+  pixels: Pick<EditorDocument, "width" | "height">,
+  settings: ReturnType<typeof defaultAnimalCrossingSettings>,
+  stepWidth = 1,
+  stepHeight = 1,
+) {
+  if (settings.offsetX >= pixels.width) settings.offsetX = 0;
+  if (settings.offsetY >= pixels.height) settings.offsetY = 0;
+  const count = () =>
+    Math.ceil((pixels.width - settings.offsetX) / (settings.cellWidth + settings.spacingX)) *
+    Math.ceil((pixels.height - settings.offsetY) / (settings.cellHeight + settings.spacingY));
+  const initialCount = count();
+  if (initialCount <= MAX_ANIMAL_CROSSING_PATTERNS) return;
+  const factor = Math.ceil(Math.sqrt(initialCount / MAX_ANIMAL_CROSSING_PATTERNS));
+  settings.cellWidth = Math.min(pixels.width, settings.cellWidth * factor);
+  settings.cellHeight = Math.min(pixels.height, settings.cellHeight * factor);
+  while (count() > MAX_ANIMAL_CROSSING_PATTERNS) {
+    settings.cellWidth = Math.min(pixels.width, settings.cellWidth + Math.max(1, stepWidth));
+    settings.cellHeight = Math.min(pixels.height, settings.cellHeight + Math.max(1, stepHeight));
+  }
+}
 
 /** Export a visible frame, using its visible tilemap grid as the initial slicing geometry. */
 export function animalCrossingDocumentSource(
@@ -45,6 +72,41 @@ export function animalCrossingDocumentSource(
     if (cel) {
       settings.offsetX = ((cel.x % tileset.tileWidth) + tileset.tileWidth) % tileset.tileWidth;
       settings.offsetY = ((cel.y % tileset.tileHeight) + tileset.tileHeight) % tileset.tileHeight;
+    }
+    const tileWidth = Math.max(1, tileset.tileWidth);
+    const tileHeight = Math.max(1, tileset.tileHeight);
+    const patternCount = () =>
+      Math.ceil((pixels.width - settings.offsetX) / (settings.cellWidth + settings.spacingX)) *
+      Math.ceil((pixels.height - settings.offsetY) / (settings.cellHeight + settings.spacingY));
+    if (
+      settings.offsetX >= pixels.width ||
+      settings.offsetY >= pixels.height ||
+      patternCount() > MAX_ANIMAL_CROSSING_PATTERNS
+    ) {
+      const fallback = defaultAnimalCrossingSettings(pixels);
+      settings.offsetX = 0;
+      settings.offsetY = 0;
+      settings.cellWidth = Math.min(
+        pixels.width,
+        Math.ceil(Math.max(fallback.cellWidth, tileWidth) / tileWidth) * tileWidth,
+      );
+      settings.cellHeight = Math.min(
+        pixels.height,
+        Math.ceil(Math.max(fallback.cellHeight, tileHeight) / tileHeight) * tileHeight,
+      );
+      fitPatternCount(pixels, settings, tileWidth, tileHeight);
+    }
+    try {
+      animalCrossingGrid(pixels, settings);
+    } catch {
+      const fallback = defaultAnimalCrossingSettings(pixels);
+      settings.cellWidth = fallback.cellWidth;
+      settings.cellHeight = fallback.cellHeight;
+      settings.offsetX = fallback.offsetX;
+      settings.offsetY = fallback.offsetY;
+      settings.spacingX = fallback.spacingX;
+      settings.spacingY = fallback.spacingY;
+      fitPatternCount(pixels, settings, ANIMAL_CROSSING_SIZE, ANIMAL_CROSSING_SIZE);
     }
   }
   return { name: document.name, pixels, settings };

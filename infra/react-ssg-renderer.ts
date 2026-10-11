@@ -16,6 +16,7 @@ const aliases: Record<string, string> = {
   "@xprite/growth-content/language": "apps/growth/content/site/language.ts",
   "@xprite/growth-content/navigation": "apps/growth/content/site/navigation.ts",
   "@xprite/site-shell/telemetry": "packages/site-shell/src/managers/ports/telemetry.ts",
+  "@xprite/site-shell/browser": "packages/site-shell/src/adapters/browser.ts",
   "@xprite/site-shell/startup": "packages/site-shell/src/startup.ts",
   "@xprite/site-shell": "packages/site-shell/src/index.ts",
   "@xprite/growth-content/tools": "apps/growth/content/tools/index.ts",

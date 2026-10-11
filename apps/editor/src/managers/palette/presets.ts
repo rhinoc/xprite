@@ -1,73 +1,17 @@
 import { tUi } from "$/i18n";
 import { createPaletteFromSprite } from "$/managers/palette/palette-operations";
-import paletteCatalog from "$assets/palette-presets/catalog.json";
 import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
 import { browserLocalStorage as localStorage } from "@xprite/bedrock/browser/localstorage";
 import { MAX_PALETTE_COLORS, MIN_PALETTE_COLORS, type Rgba } from "@xprite/editor-core";
 import { UINT8_MAX, type PixelBuffer } from "@xprite/editor-core/base";
 import { AsepriteCelType, AsepriteLayerType } from "@xprite/editor-core/import-export";
 import type { SessionProject } from "@xprite/editor-core/session";
+import { readBundledPalettePresets } from "@xprite/editor-ui/palette-presets";
 
 const defaultKey = "xse.palette.default.v2";
 const presetsKey = "xse.palette.presets.v1";
 const IMAGE_PALETTE_MAX_COLORS = 256;
 const PALETTE_IMAGE_EXTENSION = /\.(?:png|jpe?g|gif|webp|bmp|avif|ico|tiff?|svg)$/i;
-const bundledPaletteFiles = import.meta.glob("../../../assets/palette-presets/**/*.gpl", {
-  eager: true,
-  query: "?raw",
-  import: "default",
-}) as Record<string, string>;
-
-export interface BundledPalettePreset {
-  id: string;
-  name: string;
-  group: string;
-  author: string | null;
-  authorUrl: string | null;
-  license: string;
-  licenseUrl?: string;
-  sourceUrl?: string | null;
-  colors: Rgba[];
-}
-
-/** Match Aseprite's base::compare_filenames for preset resource names. */
-export function comparePaletteResourceNames(a: string, b: string): number {
-  let ai = 0,
-    bi = 0;
-  while (ai < a.length && bi < b.length) {
-    const ac = a.charCodeAt(ai),
-      bc = b.charCodeAt(bi);
-    const aDigit = ac >= 48 && ac <= 57,
-      bDigit = bc >= 48 && bc <= 57;
-    if (aDigit && bDigit) {
-      let an = 0,
-        bn = 0;
-      while (ai < a.length) {
-        const digit = a.charCodeAt(ai) - 48;
-        if (digit < 0 || digit > 9) break;
-        an = an * 10 + digit;
-        ai++;
-      }
-      while (bi < b.length) {
-        const digit = b.charCodeAt(bi) - 48;
-        if (digit < 0 || digit > 9) break;
-        bn = bn * 10 + digit;
-        bi++;
-      }
-      if (an !== bn) return an < bn ? -1 : 1;
-      continue;
-    }
-    const lowerA = ac >= 65 && ac <= 90 ? ac + 32 : ac;
-    const lowerB = bc >= 65 && bc <= 90 ? bc + 32 : bc;
-    if (lowerA !== lowerB) return lowerA < lowerB ? -1 : 1;
-    ai++;
-    bi++;
-  }
-  if (ai === a.length && bi === b.length) return 0;
-  return ai === a.length ? -1 : 1;
-}
-
-let bundledPaletteCache: BundledPalettePreset[] | null = null;
 
 function copyPalette(value: unknown): Rgba[] | null {
   if (
@@ -127,49 +71,6 @@ export interface PalettePreset {
 export interface PalettePresetPorts {
   decodeAsepriteBlob?: (blob: Blob, fileName: string) => Promise<SessionProject>;
   decodeImageBlob?: (blob: Blob) => Promise<PixelBuffer>;
-}
-
-/** Bundled palette presets are loaded from the repository catalog. */
-export function readBundledPalettePresets(): BundledPalettePreset[] {
-  if (!bundledPaletteCache) {
-    const entries: BundledPalettePreset[] = [];
-    for (const item of paletteCatalog as {
-      id: string;
-      name: string;
-      file: string;
-      group: string;
-      author: string | null;
-      authorUrl: string | null;
-      license: string;
-      licenseUrl?: string;
-      sourceUrl?: string | null;
-    }[]) {
-      const path = `../../../assets/palette-presets/${item.file}`;
-      const source = bundledPaletteFiles[path];
-      if (!source) continue;
-      try {
-        entries.push({
-          id: item.id,
-          name: item.name,
-          group: item.group,
-          author: item.author,
-          authorUrl: item.authorUrl,
-          license: item.license,
-          ...(item.licenseUrl ? { licenseUrl: item.licenseUrl } : {}),
-          ...(item.sourceUrl ? { sourceUrl: item.sourceUrl } : {}),
-          colors: parsePaletteText(source),
-        });
-      } catch {
-        // A broken bundled palette should not prevent the remaining presets
-        // from being available in the picker.
-      }
-    }
-    bundledPaletteCache = entries;
-  }
-  return bundledPaletteCache.map((entry) => ({
-    ...entry,
-    colors: entry.colors.map((color) => [...color] as unknown as Rgba),
-  }));
 }
 
 export function readPalettePresets(): PalettePreset[] {

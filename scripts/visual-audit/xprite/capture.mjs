@@ -39,7 +39,11 @@ const port = Number(value("--port", "5173"));
 const baselineRoot = path.join(root, "scripts/visual-audit/baselines/xprite");
 if (!baseline && (output === baselineRoot || output.startsWith(`${baselineRoot}${path.sep}`)))
   throw Error("Candidate captures must not overwrite the locked baselines.");
-const spaceId = args.includes("--space") ? Number(value("--space")) : undefined;
+const spaceId = args.includes("--space")
+  ? Number(value("--space"))
+  : process.env.XPRITE_VISUAL_SPACE_ID === undefined
+    ? undefined
+    : Number(process.env.XPRITE_VISUAL_SPACE_ID);
 if (!Number.isInteger(port) || port <= 0 || port > 65535) throw Error("Invalid --port.");
 if (spaceId !== undefined && (!Number.isInteger(spaceId) || spaceId <= 0))
   throw Error("Invalid --space.");

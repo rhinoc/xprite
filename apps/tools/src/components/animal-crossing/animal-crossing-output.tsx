@@ -46,7 +46,7 @@ export function AnimalCrossingOutput({
   const [helpOpen, setHelpOpen] = useState(false);
   const { result, qr, selected } = snapshot;
   const pattern = result?.patterns[selected];
-  const busy = snapshot.loading || snapshot.downloading;
+  const busy = snapshot.loading || snapshot.downloading || snapshot.pending;
   const downloadButton =
     result && result.patterns.length > FIRST_COORDINATE
       ? {
@@ -136,7 +136,11 @@ export function AnimalCrossingOutput({
         ) : (
           <div className={styles.outputEmpty}>
             <Text variant={TextVariant.Reading} tone={TextTone.Muted} wrap>
-              {t("Generate designs to preview and download their QR codes.")}
+              {t(
+                snapshot.pending
+                  ? "Updating the selected design and QR code…"
+                  : "Generate designs to preview and download their QR codes.",
+              )}
             </Text>
           </div>
         )}

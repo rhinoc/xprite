@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { FormDialog, type FormField } from "$/components/dialogs/form-dialog";
 import { tUi } from "$/i18n";
@@ -9,6 +9,7 @@ import {
   MAX_WEBP_EXPORT_LOOP_COUNT,
   useExportFileDialogModel,
   type ExportFileDialogOptions,
+  type ImageExportCapabilities,
 } from "$/managers/dialogs/export-file-dialog-model";
 import {
   readGifExportPreferences,
@@ -25,6 +26,11 @@ import { DEFAULT_FILE_PREFERENCES } from "$/managers/preferences/file-preference
 import type { FilePreferences } from "$/managers/preferences/file-preferences";
 
 export interface ExportFileDialogProps {
+  embedded?: boolean;
+  formatRequest?: { format: ExportOutputFormat };
+  onFormatChange?: (format: ExportOutputFormat) => void;
+  imageCapabilities?: ImageExportCapabilities;
+  onLayoutSizeChange?: (size: { width: number; height: number }) => void;
   onClose: () => void;
   onExport: (options: ExportFileDialogOptions) => void;
   busy?: boolean;
@@ -34,13 +40,18 @@ export interface ExportFileDialogProps {
 /** Aseprite export_file.xml field order and en.ini strings. Unsupported output
  * behaviors remain visibly disabled rather than being silently ignored. */
 export function ExportFileDialog({
+  embedded = false,
+  formatRequest,
+  onFormatChange,
+  imageCapabilities,
+  onLayoutSizeChange,
   onClose,
   onExport,
   busy = false,
   documentKey,
   filePreferences = DEFAULT_FILE_PREFERENCES,
 }: ExportFileDialogProps) {
-  const manager = useExportFileDialogModel(documentKey, filePreferences);
+  const manager = useExportFileDialogModel(documentKey, filePreferences, imageCapabilities);
   const document = manager.document;
   const indexed = document.indexed;
   const opaqueIndexed = document.opaqueIndexed;
@@ -76,7 +87,7 @@ export function ExportFileDialog({
         : /\.webp$/i.test(options.name)
           ? ExportOutputFormat.Webp
           : ExportOutputFormat.Png;
-  const [outputFormat, setOutputFormat] = useState(initialFormat);
+  const [outputFormat, setOutputFormat] = useState(formatRequest?.format ?? initialFormat);
   const staticImage = outputFormat === ExportOutputFormat.Jpeg;
   const webpImage = outputFormat === ExportOutputFormat.Webp;
   const applyOutputFormat = (selected: ExportOutputFormat, name: string) => {
@@ -113,6 +124,17 @@ export function ExportFileDialog({
     const stem = options.name.trim().replace(/\.[^.]*$/, "") || "untitled";
     applyOutputFormat(selected, `${stem}.${selected}`);
   };
+  const appliedFormatRequest = useRef<ExportFileDialogProps["formatRequest"]>();
+  useEffect(() => {
+    if (!formatRequest || appliedFormatRequest.current === formatRequest || busy) return;
+    appliedFormatRequest.current = formatRequest;
+    chooseOutputFormat(formatRequest.format);
+    setGifOptions(false);
+    setImageOptions(false);
+  }, [formatRequest, busy, chooseOutputFormat]);
+  useEffect(() => {
+    onFormatChange?.(outputFormat);
+  }, [outputFormat, onFormatChange]);
   const nameStem = options.name.trim().replace(/\.[^.]*$/, "") || "untitled";
   const plan = {
     ...options,
@@ -146,6 +168,8 @@ export function ExportFileDialog({
     const prefs = readImageExportPreferences(format);
     return (
       <FormDialog
+        embedded={embedded}
+        onLayoutSizeChange={onLayoutSizeChange}
         key="image-options"
         open
         title={format === ImageExportFormat.Jpeg ? "JPEG Options" : "WebP Options"}
@@ -197,7 +221,20 @@ export function ExportFileDialog({
               });
             },
           },
-          { label: "Cancel", disabled: busy, onClick: () => setImageOptions(false) },
+          ...(embedded
+            ? [
+                {
+                  label: tUi("ui.export.back"),
+                  disabled: busy,
+                  onClick: () => setImageOptions(false),
+                },
+              ]
+            : []),
+          {
+            label: "Cancel",
+            disabled: busy,
+            onClick: embedded ? onClose : () => setImageOptions(false),
+          },
         ]}
       />
     );
@@ -205,6 +242,8 @@ export function ExportFileDialog({
   if (gifOptions)
     return (
       <FormDialog
+        embedded={embedded}
+        onLayoutSizeChange={onLayoutSizeChange}
         key="gif-options"
         open
         title="GIF Options"
@@ -214,6 +253,7 @@ export function ExportFileDialog({
           {
             key: "interlaced",
             label: "Interlaced",
+            disabled: busy,
             type: "checkbox",
             value: !!options.gifInterlaced,
             onChange: (v) => update("gifInterlaced", v),
@@ -221,6 +261,7 @@ export function ExportFileDialog({
           {
             key: "loop",
             label: "Animation Loop",
+            disabled: busy,
             type: "checkbox",
             value: options.loopCount !== 1,
             onChange: changeLoop,
@@ -231,11 +272,12 @@ export function ExportFileDialog({
             type: "checkbox",
             value: !!options.gifPreservePaletteOrder,
             onChange: (v) => update("gifPreservePaletteOrder", v),
-            disabled: !indexed || opaqueIndexed,
+            disabled: busy || !indexed || opaqueIndexed,
           },
           {
             key: "dontShow",
             label: "Don't show this alert again",
+            disabled: busy,
             type: "checkbox",
             value: gifPrefs.dontShow,
             onChange: (value) => setGifPrefs((old) => ({ ...old, dontShow: value })),
@@ -272,7 +314,13 @@ export function ExportFileDialog({
     outputFormat === ExportOutputFormat.Gif ||
     outputFormat === ExportOutputFormat.Apng ||
     (webpImage && options.frames !== "current");
-  const layout = exportFileAsepriteLayout(showSubtags, showPixelRatio, showPlayCount, webpImage);
+  const layout = exportFileAsepriteLayout(
+    showSubtags,
+    showPixelRatio,
+    showPlayCount,
+    webpImage,
+    !embedded,
+  );
   let preferred = 1;
   while (preferred < 10 && (document.width * preferred < 240 || document.height * preferred < 240))
     preferred++;
@@ -461,15 +509,17 @@ export function ExportFileDialog({
         ]
       : []),
   ];
-  return (
+  const form = (
     <FormDialog
+      embedded={embedded}
+      onLayoutSizeChange={onLayoutSizeChange}
       key="export-file"
       open
-      title="Export File"
+      title={embedded ? tUi("ui.export.images.animation") : "Export File"}
       width={480}
       layout={layout}
       helpUrl="https://www.aseprite.org/docs/exporting/"
-      fields={fields}
+      fields={embedded ? fields.filter((field) => field.key !== "format") : fields}
       onOpenChange={(open) => {
         if (!open && !busy) onClose();
       }}
@@ -479,4 +529,5 @@ export function ExportFileDialog({
       ]}
     />
   );
+  return form;
 }

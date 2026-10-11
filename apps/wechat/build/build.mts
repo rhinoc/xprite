@@ -47,6 +47,7 @@ const fonts = await Promise.all(
     ["Aseprite", "packages/ui/assets/fonts/aseprite/aseprite.woff2"],
     ["FusionPixel12", "packages/ui/assets/fonts/fusion-pixel/fusion-12.woff2"],
     ["FusionPixel10", "packages/ui/assets/fonts/fusion-pixel/fusion-10.woff2"],
+    ["FusionPixel10Aseprite", "packages/ui/assets/fonts/fusion-pixel/fusion-10-aseprite.woff2"],
     ["FusionPixel8", "packages/ui/assets/fonts/fusion-pixel/fusion-8.woff2"],
   ].map(async ([family, filename]) => ({
     family,

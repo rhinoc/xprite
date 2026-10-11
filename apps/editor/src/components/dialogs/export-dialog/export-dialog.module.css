@@ -1,0 +1,20 @@
+.body {
+  min-width: 0;
+}
+.selector {
+  position: relative;
+}
+.panel {
+  min-width: 0;
+}
+.panel[hidden] {
+  display: none;
+}
+
+.menuArrow {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  right: var(--ui-space-4, 8px);
+  pointer-events: none;
+}

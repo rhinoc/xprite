@@ -1,13 +1,15 @@
 import { UINT8_MAX } from "$/base/numeric-constants";
 import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { assertPixelBuffer, clampByte } from "$/document/pixel-validation";
+import { optimizePalette, paletteCoordinates } from "$/import-export/image/import/quantization";
 import type { ExtractPaletteOptions, PaletteEntry } from "$/import-export/image/import/types";
 
-const HISTOGRAM_BINS = 32 * 32 * 32 * 16;
+const HISTOGRAM_BINS = 32 * 32 * 32 * 16 + 1;
 const MAX_EXACT_COLORS = 16_384;
-const REDUCTION_CACHE_SIZE = 16 * 16 * 16 * 4;
+const REDUCTION_CACHE_SIZE = 65_536;
 
 function colorKey(data: Uint8ClampedArray, offset: number): number {
+  if (data[offset + 3] === 0) return 0;
   return (
     (data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | data[offset + 3] | 0
   );
@@ -31,10 +33,15 @@ function paletteLimit(value: number | undefined): number {
 }
 
 function histogramIndex(r: number, g: number, b: number, a: number): number {
+  if (!a) return HISTOGRAM_BINS - 1;
   return (r >>> 3) | ((g >>> 3) << 5) | ((b >>> 3) << 10) | ((a >>> 4) << 15);
 }
 
-function histogramPalette(image: PixelBuffer, maxColors: number): PaletteEntry[] {
+function histogramPalette(
+  image: PixelBuffer,
+  maxColors: number,
+  ignoreTransparent: boolean,
+): PaletteEntry[] {
   const counts = new Uint32Array(HISTOGRAM_BINS);
   const sumR = new Float64Array(HISTOGRAM_BINS);
   const sumG = new Float64Array(HISTOGRAM_BINS);
@@ -42,12 +49,15 @@ function histogramPalette(image: PixelBuffer, maxColors: number): PaletteEntry[]
   const sumA = new Float64Array(HISTOGRAM_BINS);
   const touched: number[] = [];
   const { data } = image;
+  let total = 0;
 
   for (let offset = 0; offset < data.length; offset += 4) {
-    const r = data[offset];
-    const g = data[offset + 1];
-    const b = data[offset + 2];
     const a = data[offset + 3];
+    if (ignoreTransparent && !a) continue;
+    total++;
+    const r = a ? data[offset] : 0;
+    const g = a ? data[offset + 1] : 0;
+    const b = a ? data[offset + 2] : 0;
     const index = histogramIndex(r, g, b, a);
     if (counts[index] === 0) touched.push(index);
     counts[index] += 1;
@@ -58,9 +68,8 @@ function histogramPalette(image: PixelBuffer, maxColors: number): PaletteEntry[]
   }
 
   touched.sort((left, right) => counts[right] - counts[left] || left - right);
-  const total = image.width * image.height;
   const entries: PaletteEntry[] = [];
-  for (let i = 0; i < touched.length && i < maxColors; i += 1) {
+  for (let i = 0; i < touched.length; i += 1) {
     const index = touched[i];
     const count = counts[index];
     entries.push({
@@ -74,7 +83,7 @@ function histogramPalette(image: PixelBuffer, maxColors: number): PaletteEntry[]
       coverage: count / total,
     });
   }
-  return entries;
+  return optimizePalette(entries, maxColors);
 }
 
 /**
@@ -91,8 +100,11 @@ export function extractPalette(
   const exact = new Map<number, number>();
   const data = image.data;
   let overflowed = false;
+  let total = 0;
 
   for (let offset = 0; offset < data.length; offset += 4) {
+    if (options.ignoreTransparent && !data[offset + 3]) continue;
+    total++;
     const key = colorKey(data, offset);
     const previous = exact.get(key);
     if (previous !== undefined) {
@@ -105,17 +117,16 @@ export function extractPalette(
     }
   }
 
-  if (overflowed) return histogramPalette(image, maxColors);
+  if (overflowed) return histogramPalette(image, maxColors, options.ignoreTransparent ?? false);
 
-  const total = image.width * image.height;
-  return [...exact.entries()]
+  const entries = [...exact.entries()]
     .sort(([keyA, countA], [keyB, countB]) => countB - countA || (keyA >>> 0) - (keyB >>> 0))
-    .slice(0, maxColors)
     .map(([key, count]) => ({
       color: colorFromKey(key),
       count,
       coverage: count / total,
     }));
+  return optimizePalette(entries, maxColors);
 }
 
 /** Count distinct RGBA values with a bounded result for large images. */
@@ -152,38 +163,50 @@ function validatePalette(palette: readonly Rgba[]): Rgba[] {
   });
 }
 
-/** Reduce colors with a small quantized lookup cache, avoiding O(pixels * colors). */
-export function reduceToPalette(image: PixelBuffer, palette: readonly Rgba[]): PixelBuffer {
+/** Perceptual matching with exact RGBA cache keys; colors within a coarse bin may differ. */
+export function reduceToPalette(
+  image: PixelBuffer,
+  palette: readonly Rgba[],
+  options: { preserveAlpha?: boolean } = {},
+): PixelBuffer {
   assertPixelBuffer(image);
   const colors = validatePalette(palette);
-  const cache = new Int16Array(REDUCTION_CACHE_SIZE);
-  cache.fill(-1);
+  const transparent = colors.some((color) => color[3] === 0);
+  const cache = new Map<number, number>();
+  const coordinates = colors.map((color) =>
+    paletteCoordinates(
+      options.preserveAlpha && color[3] ? [color[0], color[1], color[2], UINT8_MAX] : color,
+    ),
+  );
   const output = new Uint8ClampedArray(image.data.length);
   const source = image.data;
-
   const nearest = (r: number, g: number, b: number, a: number): number => {
-    const cacheKey = (r >>> 4) | ((g >>> 4) << 4) | ((b >>> 4) << 8) | ((a >>> 6) << 12);
-    const cached = cache[cacheKey];
-    if (cached >= 0) return cached;
-    let best = 0;
-    let bestDistance = Number.POSITIVE_INFINITY;
-    for (let i = 0; i < colors.length; i += 1) {
-      const color = colors[i];
-      const dr = r - color[0];
-      const dg = g - color[1];
-      const db = b - color[2];
-      const da = a - color[3];
-      const distance = dr * dr + dg * dg + db * db + da * da;
+    const opacity = options.preserveAlpha && a ? UINT8_MAX : a;
+    const cacheKey = opacity ? (r << 24) | (g << 16) | (b << 8) | opacity : 0;
+    const cached = cache.get(cacheKey);
+    if (cached !== undefined) return cached;
+    const sample = paletteCoordinates([r, g, b, opacity]);
+    let best = 0,
+      bestDistance = Number.POSITIVE_INFINITY;
+    for (let i = 0; i < coordinates.length; i++) {
+      if (options.preserveAlpha && a && !colors[i][3]) continue;
+      const color = coordinates[i];
+      const dl = sample[0] - color[0],
+        da = sample[1] - color[1],
+        db = sample[2] - color[2],
+        opacityDifference = sample[3] - color[3];
+      const distance = dl * dl + da * da + db * db + opacityDifference * opacityDifference;
       if (distance < bestDistance) {
         bestDistance = distance;
         best = i;
       }
     }
-    cache[cacheKey] = best;
+    if (cache.size < REDUCTION_CACHE_SIZE) cache.set(cacheKey, best);
     return best;
   };
 
   for (let offset = 0; offset < source.length; offset += 4) {
+    if ((transparent || options.preserveAlpha) && source[offset + 3] === 0) continue;
     const index = nearest(
       source[offset],
       source[offset + 1],
@@ -194,7 +217,24 @@ export function reduceToPalette(image: PixelBuffer, palette: readonly Rgba[]): P
     output[offset] = color[0];
     output[offset + 1] = color[1];
     output[offset + 2] = color[2];
-    output[offset + 3] = color[3];
+    output[offset + 3] = options.preserveAlpha ? source[offset + 3] : color[3];
   }
   return { width: image.width, height: image.height, data: output };
+}
+
+/** Palette generation counts visible RGB independently of coverage. */
+export function extractPixelationPalette(
+  image: PixelBuffer,
+  options: ExtractPaletteOptions = {},
+): PaletteEntry[] {
+  const data = new Uint8ClampedArray(image.data);
+  for (let offset = 3; offset < data.length; offset += 4)
+    if (data[offset]) data[offset] = UINT8_MAX;
+  const entries = extractPalette(
+    { width: image.width, height: image.height, data },
+    { ...options, ignoreTransparent: true },
+  );
+  return entries.length
+    ? entries
+    : [{ color: [0, 0, 0, 0], count: image.width * image.height, coverage: 1 }];
 }

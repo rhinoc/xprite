@@ -13,8 +13,36 @@ const COLOR_CHUNKS = new Set(["iCCP", "sRGB", "gAMA", "cHRM", "cICP"]);
 const MAX_PROFILE_BYTES = 16 * 1024 * 1024;
 const SCREENSHOT_SCHEMA_VERSION = 1;
 const CHROMIUM_CAPTURE_METHOD = "Chromium CDP native PNG";
+const SCREENSHOT_CAPTURE_RETRIES = 2;
+const SCREENSHOT_RETRY_DELAY_MILLISECONDS = 1_000;
+const PAGE_NAVIGATION_RETRIES = 2;
+const PAGE_NAVIGATION_RETRY_DELAY_MILLISECONDS = 1_000;
+const SCREENSHOT_TIMEOUT_MESSAGE = "CDP request timed out: Page.captureScreenshot";
+const TRANSIENT_NAVIGATION_ERROR =
+  /net::ERR_(?:CONNECTION_REFUSED|CONNECTION_RESET|EMPTY_RESPONSE|HTTP_RESPONSE_CODE_FAILURE)/;
+const COMMITTED_INTERACTIVE_NAVIGATION_TIMEOUT =
+  /page\.goto timed out after \d+ms waiting for load; navigation committed at .+ with document\.readyState="interactive"/;
 const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const filename = (value) => (value instanceof URL ? fileURLToPath(value) : value);
+
+/** Retry only failed navigations that report a transient local-server connection error. */
+export async function navigateWithTransientRetry(page, url) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await page.goto(url);
+      return;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (COMMITTED_INTERACTIVE_NAVIGATION_TIMEOUT.test(message)) return;
+      if (attempt >= PAGE_NAVIGATION_RETRIES || !TRANSIENT_NAVIGATION_ERROR.test(message))
+        throw error;
+      await page.goto("about:blank");
+      await new Promise((resolve) =>
+        setTimeout(resolve, PAGE_NAVIGATION_RETRY_DELAY_MILLISECONDS * (attempt + 1)),
+      );
+    }
+  }
+}
 
 function pngChunks(value) {
   const bytes = Buffer.isBuffer(value) ? value : Buffer.from(value);
@@ -234,18 +262,31 @@ export async function captureBrowserPng(page, { clip, expectedDpr } = {}) {
     width: (right - left) / dpr,
     height: (bottom - top) / dpr,
   };
-  const screenshot = await page.cdp("Page.captureScreenshot", {
-    format: "png",
-    fromSurface: true,
-    captureBeyondViewport: false,
-    clip: {
-      x: left / dpr,
-      y: top / dpr,
-      width: captureClip.width,
-      height: captureClip.height,
-      scale: 1,
-    },
-  });
+  let screenshot;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      screenshot = await page.cdp("Page.captureScreenshot", {
+        format: "png",
+        fromSurface: true,
+        captureBeyondViewport: false,
+        clip: {
+          x: left / dpr,
+          y: top / dpr,
+          width: captureClip.width,
+          height: captureClip.height,
+          scale: 1,
+        },
+      });
+      break;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (attempt >= SCREENSHOT_CAPTURE_RETRIES || !message.includes(SCREENSHOT_TIMEOUT_MESSAGE))
+        throw error;
+      await new Promise((resolve) =>
+        setTimeout(resolve, SCREENSHOT_RETRY_DELAY_MILLISECONDS * (attempt + 1)),
+      );
+    }
+  }
   const bytes = Buffer.from(screenshot.data, "base64");
   const metadata = screenshotMetadata(bytes, {
     viewport,

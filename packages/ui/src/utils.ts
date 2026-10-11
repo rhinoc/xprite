@@ -18,3 +18,5 @@ export {
   stylusPointerInputProps,
   StylusInputMode,
 } from "$/base/utils/stylus-input";
+
+export { dropdownArrowOffsetY } from "$/components/combobox/arrow-position";

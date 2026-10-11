@@ -19,6 +19,11 @@ export function focusDialogContainer(root: HTMLElement | null) {
 export function isDialogPopupTarget(root: HTMLElement | null, target: EventTarget | null) {
   if (!root || !(target instanceof Node)) return false;
   if (isOwnedOverlayTarget(root, target)) return true;
+  if (target instanceof Element) {
+    const ownerId = target.closest("[data-popup-for]")?.getAttribute("data-popup-for");
+    const owner = ownerId ? root.ownerDocument.getElementById(ownerId) : null;
+    if (owner && root.contains(owner)) return true;
+  }
   return [...root.querySelectorAll<HTMLElement>("[aria-controls]")].some((trigger) => {
     const popup = root.ownerDocument.getElementById(trigger.getAttribute("aria-controls") ?? "");
     return !!popup && (popup.contains(target) || trigger.contains(target));

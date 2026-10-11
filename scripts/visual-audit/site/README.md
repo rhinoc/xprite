@@ -1,9 +1,9 @@
 # Growth and tools regression gate
 
-`pre-push` uses a compact, checked-in matrix of 31 scenes. Each non-About,
+`pre-push` uses a compact, checked-in matrix of 33 scenes. Each non-About,
 non-tool canonical content route is represented once with one selected locale,
 viewport and appearance. The About page is represented at both wide and compact
-sizes in one locale. All three tools include empty and example-loaded states, each in one
+sizes in one locale. All four tools include empty and example-loaded states, each in one
 selected locale, viewport and appearance. The Features directory and shared footer have sampled
 states, and two representative feature windows cover both locales, including an
 illustration scroll state. Languages, sizes and appearances are distributed

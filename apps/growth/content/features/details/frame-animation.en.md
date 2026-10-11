@@ -14,4 +14,4 @@ Use **File → Export → Export As...** for GIF, APNG or WebP animation. You ca
 
 ## Keep working
 
-[Open editor](/editor) · [All features](/about/features/) · [User guide](/help/)
+[Open editor](/editor) · [All features](/features/) · [User guide](/help/)

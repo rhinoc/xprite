@@ -6,6 +6,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./browser": "./src/adapters/browser.ts",
+    "./language-preference": "./src/language-preference.ts",
     "./startup": "./src/startup.ts",
     "./telemetry": "./src/managers/ports/telemetry.ts",
     "./telemetry/browser": "./src/telemetry/posthog.ts"

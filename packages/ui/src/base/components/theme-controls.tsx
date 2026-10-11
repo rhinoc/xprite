@@ -72,12 +72,14 @@ const CJK_PIXEL_GLYPH_CACHE_LIMIT = 512;
 const CJK_PIXEL_COVERAGE_THRESHOLD = 64;
 const CJK_FONT_LANGUAGE = "zh";
 /**
- * Draw the CJK face at its own pixel size, then center that ink in the Latin
- * line box. Discard faint edge coverage and snap retained pixels to solid opacity.
+ * Draw the CJK face at its own pixel size on the typography's CJK baseline, so
+ * every glyph keeps its designed vertical position next to the Latin atlas.
+ * Center the ink horizontally in the fixed advance, discard faint edge coverage
+ * and snap retained pixels to solid opacity.
  */
 function cjkPixelGlyph(
   char: string,
-  metrics: UiFontDefinition,
+  metrics: Extract<UiFontDefinition, { renderer: UiFontRenderer.Bitmap }>,
   scale: number,
   color: string,
   usePixelFont: boolean,
@@ -85,8 +87,9 @@ function cjkPixelGlyph(
   const line = Math.max(1, Math.round((metrics.lineHeight * scale) / RASTER_SCALE));
   const fontSize = Math.max(1, Math.round((metrics.cjkFontSize * scale) / RASTER_SCALE));
   const advance = Math.max(1, Math.round((metrics.cjkAdvance * scale) / RASTER_SCALE));
+  const baseline = Math.round((metrics.cjkBaseline * scale) / RASTER_SCALE);
   const family = usePixelFont ? metrics.cjkFontFamily : metrics.fallbackFontFamily;
-  const key = `${family}:${fontSize}:${line}:${advance}:${color}:${char}`;
+  const key = `${family}:${fontSize}:${line}:${baseline}:${advance}:${color}:${char}`;
   const cached = cjkPixelGlyphCache.get(key);
   if (cached) {
     cjkPixelGlyphCache.delete(key);
@@ -104,7 +107,8 @@ function cjkPixelGlyph(
   maskContext.textAlign = "left";
   maskContext.textBaseline = "alphabetic";
   maskContext.fillStyle = "#fff";
-  maskContext.fillText(char, 0, Math.round(probe / 2));
+  const probeBaseline = Math.round(probe / 2);
+  maskContext.fillText(char, 0, probeBaseline);
   const probed = maskContext.getImageData(0, 0, probe, probe);
   let minX = probe;
   let minY = probe;
@@ -128,7 +132,7 @@ function cjkPixelGlyph(
     const inkWidth = maxX - minX + 1;
     const inkHeight = maxY - minY + 1;
     const destX = Math.round((advance - inkWidth) / 2);
-    const destY = Math.round((line - inkHeight) / 2);
+    const destY = baseline - (probeBaseline - minY);
     const ink = maskContext.getImageData(minX, minY, inkWidth, inkHeight);
     for (let index = 0; index < ink.data.length; index += 4) {
       const covered = ink.data[index + 3] >= CJK_PIXEL_COVERAGE_THRESHOLD;

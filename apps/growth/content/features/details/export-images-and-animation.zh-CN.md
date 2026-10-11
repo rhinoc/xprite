@@ -14,4 +14,4 @@ PNG 适合单帧图像，GIF、APNG 和 WebP 可以保存动画。导出图片�
 
 ## 继续使用
 
-[打开编辑器](/editor) · [返回功能目录](/about/features/) · [使用指南](/help/)
+[打开编辑器](/editor) · [返回功能目录](/features/) · [使用指南](/help/)

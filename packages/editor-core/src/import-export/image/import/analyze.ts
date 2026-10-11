@@ -1,6 +1,7 @@
 import { UINT8_MAX } from "$/base/numeric-constants";
 import type { PixelBuffer } from "$/base/primitives";
 import { assertPixelBuffer } from "$/document/pixel-validation";
+import { detectPixelGrid } from "$/import-export/image/import/grid";
 import { PixelArtClassification } from "$/import-export/image/import/types";
 import type {
   PixelArtAnalysis,
@@ -206,5 +207,6 @@ export function analyzePixelArt(
     userOverride,
     overrideApplied,
     isHeuristic: true,
+    grid: detectPixelGrid(image),
   };
 }

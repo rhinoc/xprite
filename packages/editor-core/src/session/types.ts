@@ -2,11 +2,13 @@ import type { PixelBuffer, Rgba } from "$/base/primitives";
 import type { EditorProject } from "$/document/project";
 import type {
   PixelArtAnalysis,
+  PixelGridAnalysis,
   PixelArtClassification,
   PixelateOptions,
-  PixelationMethod,
+  PixelationSettings,
 } from "$/import-export/image/import";
 export interface SessionSource<Source> {
+  readonly palette?: readonly Rgba[];
   readonly source: Source;
   readonly name: string;
 }
@@ -89,13 +91,7 @@ export interface SessionSize {
   background?: "transparent" | "white" | "black";
   palette?: readonly Rgba[];
 }
-export interface SessionPixelationOptions {
-  targetWidth: number;
-  targetHeight: number;
-  maxColors: number;
-  method: PixelationMethod;
-  preserveDimensions: boolean;
-}
+
 export enum SessionOperation {
   Initialization = "initialization",
   Import = "import",
@@ -111,6 +107,9 @@ export interface SessionError {
   readonly message: string;
 }
 export interface SessionPendingImport {
+  readonly sourcePalette: readonly Rgba[];
+  readonly grid: PixelGridAnalysis | null;
+  readonly pixels: PixelBuffer;
   readonly name: string;
   readonly width: number;
   readonly height: number;
@@ -135,7 +134,11 @@ export interface EditorSessionSnapshot {
   readonly saving: boolean;
   readonly pendingImport: SessionPendingImport | null;
   readonly replacement: SessionReplacement | null;
-  readonly pixelationOptions: Readonly<SessionPixelationOptions>;
+  readonly pixelationPreview: PixelBuffer | null;
+  readonly pixelationPalette: readonly Rgba[];
+  readonly pixelationPreviewing: boolean;
+  readonly pixelationError: string | null;
+  readonly pixelationOptions: Readonly<PixelationSettings>;
   readonly newSize: Readonly<SessionSize>;
   readonly error: SessionError | null;
   readonly notice: string;

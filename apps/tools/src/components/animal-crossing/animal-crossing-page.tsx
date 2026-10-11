@@ -12,6 +12,7 @@ import {
 } from "$/managers/animal-crossing/animal-crossing-manager";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import { ANIMAL_CROSSING_TOOL } from "$/managers/tools/tool-catalog";
+import { AnimalCrossingGridOverlay } from "@xprite/editor-ui/animal-crossing";
 import { ANIMAL_CROSSING_HELP, AnimalCrossingHelpSection } from "@xprite/growth-content/tools";
 import {
   ContentLayout,
@@ -23,7 +24,6 @@ import {
   Panel,
   PanelVariant,
   Button,
-  ButtonAppearance,
   Checkbox,
   Combobox,
   ControlFlow,
@@ -34,7 +34,7 @@ const ZOOM_WIDTH = 70;
 const ZOOM_VALUES = [0, 1, 2, 4, 8, 12, 16];
 const FIT = 0;
 const PERCENT = 100;
-const FIRST_COORDINATE = 1;
+const GRID_HANDLE_PADDING = 32;
 enum AnimalCrossingPreview {
   Original = "original",
   Converted = "converted",
@@ -54,6 +54,7 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
   );
   const [preview, setPreview] = useState(AnimalCrossingPreview.Original);
   const [showGrid, setShowGrid] = useState(true);
+  const [editingGrid, setEditingGrid] = useState(false);
   const { source, result } = snapshot;
   useEffect(() => {
     if (result) setPreview(AnimalCrossingPreview.Converted);
@@ -171,6 +172,8 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
                   <div className={styles.previewStage}>
                     <ToolCanvasPreview
                       navigation={manager.viewport}
+                      navigationEnabled={!editingGrid}
+                      viewportPadding={tiled && !converted ? GRID_HANDLE_PADDING : 0}
                       identity={snapshot.identity}
                       pixels={pixels}
                       label={t(
@@ -191,33 +194,29 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
                           : undefined
                       }
                       overlay={
-                        tiled && (showGrid || result)
+                        tiled && showGrid
                           ? (current) => (
-                              <div className={styles.gridOverlay}>
-                                {grid!.cells.map((cell, index) => (
-                                  <Button
-                                    slots={{}}
-                                    appearance={ButtonAppearance.Quiet}
-                                    key={index}
-                                    className={`${styles.gridCell} ${showGrid ? styles.cellBorder : ""} ${result && index === snapshot.selected ? styles.selectedCell : ""}`}
-                                    aria-label={t(
-                                      `Select row ${Math.floor(index / grid!.columns) + FIRST_COORDINATE}, column ${(index % grid!.columns) + FIRST_COORDINATE}`,
-                                    )}
-                                    aria-pressed={!!result && index === snapshot.selected}
-                                    disabled={!result || busy}
-                                    onClick={(event) => {
-                                      if (event.detail === 0) manager.select(index);
-                                    }}
-                                    style={{
-                                      position: "absolute",
-                                      left: current.origin.x + cell.x * current.zoom,
-                                      top: current.origin.y + cell.y * current.zoom,
-                                      width: cell.width * current.zoom,
-                                      height: cell.height * current.zoom,
-                                    }}
-                                  />
-                                ))}
-                              </div>
+                              <AnimalCrossingGridOverlay
+                                source={pixels}
+                                settings={snapshot.settings}
+                                grid={grid}
+                                selected={snapshot.selected}
+                                view={current}
+                                size={current.size}
+                                disabled={busy || (converted && snapshot.pending)}
+                                editable={!converted && !snapshot.importedQr}
+                                navigating={current.pinching}
+                                onSettingsChange={manager.changeSettings}
+                                onSelect={manager.select}
+                                onBeginEdit={() => {
+                                  setEditingGrid(true);
+                                  manager.beginGridEdit();
+                                }}
+                                onEndEdit={(cancel) => {
+                                  setEditingGrid(false);
+                                  manager.endGridEdit(cancel);
+                                }}
+                              />
                             )
                           : undefined
                       }

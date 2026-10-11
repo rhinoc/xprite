@@ -14,4 +14,4 @@ Share links are generated on your device without uploading artwork. Anyone with 
 
 ## Keep working
 
-[Open editor](/editor) · [All features](/about/features/) · [User guide](/help/)
+[Open editor](/editor) · [All features](/features/) · [User guide](/help/)

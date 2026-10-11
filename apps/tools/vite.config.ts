@@ -25,6 +25,7 @@ const uiSource = resolve(repositoryRoot, "packages/ui/src");
 const PREVIEW_PORT = 4176;
 const TOOLS_BASE_PATH = "/tools/";
 const VIEWER_PATH = "/tools/viewer/";
+const PIXELATE_PATH = "/tools/pixelate/";
 const ANIMAL_CROSSING_PATH = "/tools/animal-crossing-qr/";
 const GIF_PATH = "/tools/gif-to-sprite-sheet/";
 
@@ -63,7 +64,7 @@ export default defineConfig(({ command }) => ({
             response.end();
             return;
           }
-          for (const path of [VIEWER_PATH, GIF_PATH, ANIMAL_CROSSING_PATH]) {
+          for (const path of [VIEWER_PATH, GIF_PATH, PIXELATE_PATH, ANIMAL_CROSSING_PATH]) {
             if (url.pathname === path.slice(0, -1) || url.pathname === `${path}index.html`) {
               response.writeHead(301, { Location: `${path}${url.search}` });
               response.end();
@@ -133,6 +134,7 @@ export default defineConfig(({ command }) => ({
     emptyOutDir: true,
     rolldownOptions: {
       input: {
+        pixelate: resolve(root, "pixelate/index.html"),
         animalCrossing: resolve(root, "animal-crossing-qr/index.html"),
         viewer: resolve(root, "viewer/index.html"),
         gifToSpriteSheet: resolve(root, "gif-to-sprite-sheet/index.html"),

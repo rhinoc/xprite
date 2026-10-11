@@ -5,6 +5,7 @@ import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { Alert } from "$/components/dialogs/alert";
 import { useEffectActions } from "$/components/dialogs/effect-actions";
 import { FormDialog } from "$/components/dialogs/form-dialog";
+import { PixelationDialog } from "$/components/dialogs/pixelation-dialog";
 import {
   useEditorWorkflowBoundary,
   useEditorWorkflowHandlers,
@@ -15,7 +16,6 @@ import { useTimelineActions } from "$/components/timeline/timeline-actions";
 import { TilemapDialog } from "$/components/tools/tilemap-controls";
 import { tUi, tUiSource } from "$/i18n";
 import { ClipboardRegion } from "$/managers/clipboard";
-import { PixelationMethod, PixelArtClassification } from "$/managers/files/import-options";
 import { useEditorPreferences } from "$/managers/preferences/use-editor-preferences";
 import { formatEditorColor } from "$/managers/tools/color-control";
 import {
@@ -46,26 +46,15 @@ const SaveAsDialog = lazy(() =>
     default: module.SaveAsDialog,
   })),
 );
-const AnimalCrossingDialog = lazy(() =>
-  import("$/components/dialogs/animal-crossing-dialog").then((module) => ({
-    default: module.AnimalCrossingDialog,
-  })),
-);
-const ExportFileDialog = lazy(() =>
-  import("$/components/dialogs/export-file-dialog").then((module) => ({
-    default: module.ExportFileDialog,
-  })),
+const ExportDialog = lazy(() =>
+  import("$/components/dialogs/export-dialog").then((module) => ({ default: module.ExportDialog })),
 );
 const ShareProjectDialog = lazy(() =>
   import("$/components/dialogs/share-project").then((module) => ({
     default: module.ShareProjectDialog,
   })),
 );
-const SpriteSheetDialog = lazy(() =>
-  import("$/components/dialogs/sprite-sheet-dialog").then((module) => ({
-    default: module.SpriteSheetDialog,
-  })),
-);
+
 const ImportSpriteSheetDialog = lazy(() =>
   import("$/components/dialogs/sprite-sheet-dialog").then((module) => ({
     default: module.ImportSpriteSheetDialog,
@@ -174,17 +163,19 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
     textSize,
     animalCrossingSource,
     animalCrossingExportPort,
-    setAnimalCrossingSource,
+    setAnimalCrossingBusy,
+    rememberAnimalCrossingExport,
     shareSource,
     setShareSource,
     exportDocument,
-    setExportDocument,
+    closeExport,
+    exportDestination,
+    selectExportDestination,
+    canExportTileset,
     exportBusy,
     exportKey,
-    sheetFileIntent,
     showSheetPreview,
-    sheetSource,
-    sheetExport,
+    sheetFileIntent,
     sheetImport,
     setSheetImport,
     closingSaveBusy,
@@ -211,6 +202,11 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
     newSize,
     suggestedNewSpriteBaseName,
     pixelationOptions,
+    pixelationPreview,
+    pixelationPalette,
+    getPixelationPaletteChoices,
+    pixelationPreviewing,
+    pixelationError,
     error,
     canSaveErrorAs,
     saveErrorAs,
@@ -223,7 +219,6 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
     cancelFileImport,
     actions,
     handleCanvasPointerDown,
-    closeSheetExport,
     handleNewSpriteOpenChange,
     updateNewSpriteSize,
     createNewSprite,
@@ -411,22 +406,6 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
             },
           ]}
         />
-        {sheetExport && (
-          <Suspense fallback={null}>
-            <SpriteSheetDialog
-              initialSource={sheetSource}
-              documentKey={exportKey.current}
-              onPreview={showSheetPreview}
-              onClose={() => {
-                closeSheetExport();
-              }}
-              busy={exportBusy}
-              onExport={(options) => {
-                void performSheetExport(options);
-              }}
-            />
-          </Suspense>
-        )}
         {sheetImport && (
           <Suspense fallback={null}>
             <ImportSpriteSheetDialog
@@ -442,15 +421,6 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
             />
           </Suspense>
         )}
-        {animalCrossingSource && animalCrossingExportPort && (
-          <Suspense fallback={null}>
-            <AnimalCrossingDialog
-              source={animalCrossingSource}
-              port={animalCrossingExportPort}
-              onClose={() => setAnimalCrossingSource(null)}
-            />
-          </Suspense>
-        )}
         {shareSource && (
           <Suspense fallback={null}>
             <ShareProjectDialog source={shareSource} onClose={() => setShareSource(null)} />
@@ -458,11 +428,22 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
         )}
         {exportDocument && (
           <Suspense fallback={null}>
-            <ExportFileDialog
+            <ExportDialog
+              destination={exportDestination}
+              onSheetPreview={showSheetPreview}
+              onDestinationChange={selectExportDestination}
+              canExportTileset={canExportTileset}
+              animalCrossingSource={animalCrossingSource}
+              animalCrossingPort={animalCrossingExportPort}
+              onAnimalCrossingBusyChange={setAnimalCrossingBusy}
+              onAnimalCrossingExported={rememberAnimalCrossingExport}
+              onSheetExport={(options) => {
+                void performSheetExport(options);
+              }}
               documentKey={exportKey.current}
               filePreferences={getFilePreferences()}
               busy={exportBusy}
-              onClose={() => setExportDocument(null)}
+              onClose={closeExport}
               onExport={(options) => {
                 void performExport(options);
               }}
@@ -565,83 +546,24 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
             },
           ]}
         />
-        <FormDialog
-          open={!!pending && !error}
-          onOpenChange={(open) => {
-            if (!open) discardEmptyImport();
-          }}
-          title="Pixelate Image"
-          message={
-            pending?.classification === PixelArtClassification.LikelyPhoto
-              ? "This image appears to be a photograph. Choose pixelation options or keep the original."
-              : "Pixel art detection is uncertain. Choose pixelation options or keep the original."
-          }
-          fields={[
-            {
-              type: "number",
-              key: "width",
-              label: "Width",
-              value: pixelationOptions.targetWidth,
-              min: 1,
-              max: 16384,
-              onChange: (targetWidth) => setPixelationOptions({ targetWidth }),
-            },
-            {
-              type: "number",
-              key: "height",
-              label: "Height",
-              value: pixelationOptions.targetHeight,
-              min: 1,
-              max: 16384,
-              onChange: (targetHeight) => setPixelationOptions({ targetHeight }),
-            },
-            {
-              type: "number",
-              key: "colors",
-              label: "Colors",
-              value: pixelationOptions.maxColors,
-              min: 2,
-              max: 256,
-              onChange: (maxColors) => setPixelationOptions({ maxColors }),
-            },
-            {
-              type: "select",
-              key: "method",
-              label: "Method",
-              value: pixelationOptions.method,
-              onChange: (method) =>
-                setPixelationOptions({
-                  method: method as PixelationMethod,
-                }),
-              options: [
-                { label: "Nearest-neighbor", value: PixelationMethod.Nearest },
-                { label: "Box average", value: PixelationMethod.Box },
-              ],
-            },
-            {
-              type: "checkbox",
-              key: "preserve",
-              label: "Keep original dimensions",
-              value: pixelationOptions.preserveDimensions,
-              onChange: (preserveDimensions) => setPixelationOptions({ preserveDimensions }),
-            },
-          ]}
-          actions={[
-            {
-              label: "Cancel",
-              onClick: discardEmptyImport,
-            },
-            {
-              label: "Keep original",
-              onClick: acceptOriginalImport,
-            },
-            {
-              label: "Pixelate & Import",
-              onClick: acceptPixelatedImport,
-              disabled: busy,
-            },
-          ]}
-        />
+        {!!pending && !error && (
+          <PixelationDialog
+            workflow={{
+              pending,
+              pixelationOptions,
+              pixelationPreview,
+              pixelationPalette,
+              getPixelationPaletteChoices,
+              pixelationPreviewing,
+              pixelationError,
+              setPixelationOptions,
+              busy,
+              discardEmptyImport,
+              acceptOriginalImport,
+              acceptPixelatedImport,
+            }}
+          />
+        )}
         {saveAsOpen && (
           <Suspense fallback={null}>
             <SaveAsDialog

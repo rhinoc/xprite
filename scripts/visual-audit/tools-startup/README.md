@@ -4,16 +4,16 @@ The pre-push hook runs `pnpm run visual:startup` after the existing editor visua
 gate. It captures the current tool pages from the running unified site on port 5173. Set `XPRITE_VISUAL_PORT` for an existing site server on another port.
 The audit never builds or starts a server.
 
-The Features directory and each of the three tools have one registered startup
-pair. Their locale, viewport and appearance are distributed across the four pages:
+The Features directory and each of the four tools have one registered startup
+pair. Their locale, viewport and appearance are distributed across the five pages:
 Features uses Simplified Chinese at wide Light; the viewer uses English at compact
 Dark; GIF conversion uses Simplified Chinese at wide Dark; and Animal Crossing
-uses English at compact Light. This gives four required pairs and eight screenshots
-at DPR 1. The scene registry is the complete approved matrix; per-run selection
-and threshold overrides are unsupported.
+uses English at compact Light; Pixelate uses Simplified Chinese at compact Light.
+This gives five required pairs and ten screenshots at DPR 1. The scene registry is
+the complete approved matrix; per-run selection and threshold overrides are unsupported.
 `--space ID` reuses an existing agent-owned Ego space when recovering a failed
 capture; a supplied space remains available to its caller. An audit that creates
-its own space closes it on success. Every recovery still captures all four pairs.
+its own space closes it on success. Every recovery still captures all five pairs.
 
 For each pair, external runtime JavaScript modules are blocked before navigation.
 The generated HTML, critical CSS, fonts, images and real inline appearance script

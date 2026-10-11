@@ -1,24 +1,18 @@
-import { EditorDialog } from "$/components/dialogs/overlay";
+import { useEffect } from "react";
+
+import { AnimalCrossingSourceGrid } from "$/components/dialogs/animal-crossing-dialog/source-grid";
+import { FormDialog, type FormField } from "$/components/dialogs/form-dialog";
 import { tUiSource, useUiLanguage } from "$/i18n";
 import {
   useAnimalCrossingExport,
   type AnimalCrossingExportSource,
   type AnimalCrossingExportPort,
 } from "$/managers/files/animal-crossing-export";
-import {
-  Button,
-  CanvasSurface,
-  Combobox,
-  ControlFlow,
-  Input,
-  OverlayContentLayout,
-  Text,
-  TextVariant,
-} from "@xprite/ui";
+import type { AnimalCrossingExportOptions } from "$/managers/files/animal-crossing-export-options";
+import { animalCrossingExportLayout } from "$/managers/files/policies/animal-crossing-export-geometry";
+import { CanvasSurface, Text, TextVariant } from "@xprite/ui";
 
 import styles from "$/components/dialogs/animal-crossing-dialog/animal-crossing-dialog.module.css";
-const NUMBER_SIZE = { width: 44, height: 16 };
-const TEXT_SIZE = { width: 100, height: 16 };
 const QR_VIEWPORT = { sceneWidth: 3, sceneHeight: 3, width: 1, height: 1 };
 const PATTERN_VIEWPORT = { sceneWidth: 1, sceneHeight: 1, width: 4, height: 4 };
 const PATTERN_CHECKER = {
@@ -26,144 +20,179 @@ const PATTERN_CHECKER = {
   light: [192, 192, 192] as const,
   dark: [128, 128, 128] as const,
 };
-const DIALOG_BOUNDS = { x: 0, y: 0, width: 740, height: 620 };
-const NUMERIC_FIELDS = [
-  ["cellWidth", "Cell width"],
-  ["cellHeight", "Cell height"],
-  ["offsetX", "Start X"],
-  ["offsetY", "Start Y"],
-  ["spacingX", "Spacing X"],
-  ["spacingY", "Spacing Y"],
+const NUMBER_FIELDS = [
+  ["cellWidth", "Cell width", "cell"],
+  ["cellHeight", "Cell height", "cell"],
+  ["offsetX", "Start X", "offset"],
+  ["offsetY", "Start Y", "offset"],
+  ["spacingX", "Spacing X", "spacing"],
+  ["spacingY", "Spacing Y", "spacing"],
 ] as const;
 const TEXT_FIELDS = [
   ["title", "Pattern title"],
   ["creator", "Creator"],
   ["town", "Island / town"],
 ] as const;
+
 export function AnimalCrossingDialog({
+  active,
   source,
   port,
   onClose,
+  onBusyChange,
+  onExported,
+  onLayoutSizeChange,
 }: {
+  active: boolean;
   source: AnimalCrossingExportSource;
   port: AnimalCrossingExportPort;
   onClose(): void;
+  onBusyChange(busy: boolean): void;
+  onExported(options: AnimalCrossingExportOptions): void;
+  onLayoutSizeChange(size: { width: number; height: number }): void;
 }) {
   useUiLanguage();
-  const manager = useAnimalCrossingExport(source, port);
+  const manager = useAnimalCrossingExport(source, port, onExported, active);
+  useEffect(() => {
+    onBusyChange(manager.busy);
+  }, [manager.busy, onBusyChange]);
   const pattern = manager.result?.patterns[manager.selected];
+  const ready = !!pattern && !!manager.qr;
+  const geometry = animalCrossingExportLayout();
+  const fields: FormField[] = [
+    ...TEXT_FIELDS.map(([key, label]): FormField => ({
+      key,
+      label,
+      type: "text",
+      value: manager.settings[key],
+      disabled: manager.busy,
+      onChange: (value) => manager.changeSettings({ [key]: value }),
+    })),
+    ...NUMBER_FIELDS.map(([key, label, row]): FormField => ({
+      key,
+      label,
+      row,
+      type: "number",
+      value: manager.settings[key],
+      min: key.startsWith("cell") ? 1 : 0,
+      step: 1,
+      disabled: manager.busy,
+      onChange: (value) => manager.changeSettings({ [key]: value }),
+      onDraftChange: (draft) => {
+        const value = Number(draft);
+        if (
+          draft.trim() &&
+          Number.isSafeInteger(value) &&
+          value >= (key.startsWith("cell") ? 1 : 0)
+        )
+          manager.changeSettings({ [key]: value });
+      },
+    })),
+  ];
   return (
-    <EditorDialog
+    <FormDialog
       open
-      modal
-      centerOnOpen
-      constrainToViewport
-      contentLayout={OverlayContentLayout.Flow}
-      title={tUiSource("Animal Crossing QR Codes")}
-      defaultBounds={DIALOG_BOUNDS}
+      embedded
+      title="Animal Crossing QR Codes"
+      width={geometry.width}
+      layout={geometry.layout}
+      fields={fields}
+      onLayoutSizeChange={onLayoutSizeChange}
+      submitOnEnter={false}
       onOpenChange={(open) => {
         if (!open && !manager.busy) onClose();
       }}
-    >
-      <div className={styles.body}>
-        <Text variant={TextVariant.Inline} wrap>
-          {tUiSource(
-            "Set the source cell size, start and spacing before generating. Each cell becomes one 32 × 32 design with a shared 15-color palette and transparency.",
+      content={(client) => (
+        <>
+          <AnimalCrossingSourceGrid
+            source={source}
+            settings={manager.settings}
+            grid={manager.grid}
+            selected={manager.selected}
+            bounds={geometry.grid}
+            disabled={manager.busy}
+            onSettingsChange={manager.changeSettings}
+            onSelect={manager.select}
+            onBeginEdit={manager.beginGridEdit}
+            onEndEdit={manager.endGridEdit}
+          />
+          {ready && pattern && manager.qr && (
+            <>
+              <div
+                className={styles.preview}
+                style={{
+                  visibility: manager.pending ? "hidden" : undefined,
+                  left: geometry.preview.x,
+                  top: geometry.preview.y,
+                  width: geometry.preview.width,
+                }}
+              >
+                <div className={styles.selectedPattern}>
+                  <CanvasSurface
+                    bounds={{
+                      x: 0,
+                      y: 0,
+                      width: pattern.pixels.width,
+                      height: pattern.pixels.height,
+                    }}
+                    viewport={PATTERN_VIEWPORT}
+                    pixels={pattern.pixels}
+                    checker={PATTERN_CHECKER}
+                    aria-label={tUiSource("Design preview")}
+                  />
+                </div>
+                <div className={styles.selectedQr}>
+                  <CanvasSurface
+                    bounds={{ x: 0, y: 0, width: manager.qr.width, height: manager.qr.height }}
+                    viewport={QR_VIEWPORT}
+                    pixels={manager.qr}
+                    aria-label={tUiSource("Design QR code")}
+                  />
+                </div>
+              </div>
+            </>
           )}
-        </Text>
-        <ControlFlow className={styles.fields}>
-          {TEXT_FIELDS.map(([key, label]) => (
-            <div className={styles.field} key={key}>
-              <Text variant={TextVariant.Control} text={tUiSource(label)} />
-              <Input
-                aria-label={tUiSource(label)}
-                pixelSize={TEXT_SIZE}
-                value={manager.settings[key]}
-                disabled={manager.busy}
-                onValueChange={(value) => manager.changeSettings({ [key]: value })}
-              />
-            </div>
-          ))}
-          {NUMERIC_FIELDS.map(([key, label]) => (
-            <div className={styles.field} key={key}>
-              <Text variant={TextVariant.Control} text={tUiSource(label)} />
-              <Input
-                aria-label={tUiSource(label)}
-                pixelSize={NUMBER_SIZE}
-                value={String(manager.settings[key])}
-                inputMode="numeric"
-                min={key.startsWith("cell") ? 1 : 0}
-                step={1}
-                disabled={manager.busy}
-                onCommit={(value) => manager.changeSettings({ [key]: Number(value) })}
-              />
-            </div>
-          ))}
-        </ControlFlow>
-        <Button
-          text={tUiSource("Generate QR codes")}
-          disabled={manager.busy}
-          onClick={manager.generate}
-        />
-        {manager.result && pattern && manager.qr && (
-          <>
-            <Combobox
-              aria-label={tUiSource("Design to scan")}
-              pixelSize={TEXT_SIZE}
-              value={String(manager.selected)}
-              options={manager.result.patterns.map((pattern, index) => ({
-                value: String(index),
-                label: `${pattern.row + 1}, ${pattern.column + 1} · ${pattern.title}`,
-              }))}
-              onValueChange={(value) => manager.select(Number(value))}
-            />
-            <div className={styles.preview}>
-              <CanvasSurface
-                bounds={{ x: 0, y: 0, width: pattern.pixels.width, height: pattern.pixels.height }}
-                viewport={PATTERN_VIEWPORT}
-                pixels={pattern.pixels}
-                checker={PATTERN_CHECKER}
-                aria-label={tUiSource("Design preview")}
-              />
-              <CanvasSurface
-                bounds={{ x: 0, y: 0, width: manager.qr.width, height: manager.qr.height }}
-                viewport={QR_VIEWPORT}
-                pixels={manager.qr}
-                aria-label={tUiSource("Design QR code")}
-              />
-            </div>
+          {manager.pending && (
             <Text
-              variant={TextVariant.Inline}
+              variant={TextVariant.Control}
               wrap
-            >{`${manager.result.columns} × ${manager.result.rows} · ${tUiSource("Row, column")}: ${pattern.row + 1}, ${pattern.column + 1}`}</Text>
-          </>
-        )}
-        <Text variant={TextVariant.Inline} wrap>
-          {tUiSource(
-            "Scan in Nintendo Switch App → NookLink → Designs, then download in the game's Custom Designs app before scanning the next tile. ZIP includes QR images, .acnl files and tile coordinates.",
+              bounds={{
+                x: client.x + geometry.preview.x,
+                y: client.y + geometry.preview.y,
+                width: geometry.preview.width,
+                height: 84,
+              }}
+              relativeTo={client}
+              text={tUiSource("Updating preview…")}
+            />
           )}
-        </Text>
-        {manager.error && (
-          <div role="alert">
-            <Text variant={TextVariant.Inline} wrap>
-              {tUiSource(manager.error)}
+          <div
+            className={styles.help}
+            style={{ left: 0, top: geometry.helpY, width: geometry.settingsWidth }}
+          >
+            <Text variant={TextVariant.Inline} wrap scale={2} lineHeight={22}>
+              {manager.error
+                ? tUiSource(manager.error)
+                : `${tUiSource("Click a cell to select it. Hover or tap its edges to show resize handles. Move the grid at its origin; adjust spacing above or to the left.")}
+
+${tUiSource("Scan in Nintendo Switch App → NookLink → Designs.")}`}
             </Text>
           </div>
-        )}
-        <ControlFlow className={styles.actions}>
-          <Button
-            text={tUiSource("Download current QR")}
-            disabled={!manager.qr || manager.busy}
-            onClick={() => void manager.downloadQr()}
-          />
-          <Button
-            text={tUiSource(manager.busy ? "Exporting…" : "Download ZIP")}
-            disabled={!manager.result || manager.busy}
-            onClick={() => void manager.download()}
-          />
-          <Button text={tUiSource("Close")} disabled={manager.busy} onClick={onClose} />
-        </ControlFlow>
-      </div>
-    </EditorDialog>
+        </>
+      )}
+      actions={[
+        {
+          label: "Download current QR",
+          disabled: !ready || manager.busy || manager.pending,
+          onClick: () => void manager.downloadQr(),
+        },
+        {
+          label: manager.busy ? "Exporting…" : "Download ZIP",
+          disabled: !manager.result || manager.busy || manager.pending,
+          onClick: () => void manager.download(),
+        },
+        { label: "Cancel", disabled: manager.busy, onClick: onClose },
+      ]}
+    />
   );
 }

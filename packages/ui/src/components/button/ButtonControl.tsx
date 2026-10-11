@@ -287,6 +287,7 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
         disabled={disabled || isReadOnly}
         data-slot="button"
         data-variant={variant}
+        data-readonly-color={isReadOnly || undefined}
         data-appearance={appearance}
         data-content-slots={nativeContent || undefined}
         data-selected={selected || undefined}

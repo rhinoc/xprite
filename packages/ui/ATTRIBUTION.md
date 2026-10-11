@@ -34,6 +34,11 @@ files, release 2026.09.25 by TakWolf. The bundled font bytes are unchanged.
 License: [SIL Open Font License 1.1](LICENSES/fusion-pixel-font/OFL.txt).
 Source: [TakWolf/fusion-pixel-font](https://github.com/TakWolf/fusion-pixel-font).
 The release URL and SHA-256 hashes are in `assets/fonts/fusion-pixel/README.md`.
+`fusion-10-aseprite.woff2` is a modified version of the 10px file, renamed
+"Fusion Pixel 10px Prop zh-Hans Xprite Aseprite": its outlines are moved down
+71 units and its vertical metrics set to 714/285 so Han glyphs share the
+Aseprite UI font's baseline. `scripts/fixtures/assets/build-aseprite-cjk-font.py`
+derives it.
 
 ## Pixel Code
 

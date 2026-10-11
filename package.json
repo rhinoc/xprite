@@ -7,6 +7,7 @@
   "scripts": {
     "assets:desktop-patterns": "python3 scripts/fixtures/assets/import-desktop-patterns.py",
     "assets:startup-font": "python3 scripts/fixtures/assets/build-startup-font.py",
+    "assets:aseprite-cjk-font": "python3 scripts/fixtures/assets/build-aseprite-cjk-font.py",
     "minitool:pack": "node scripts/minitool/pack.mts",
     "prepare": "husky",
     "build:ui": "pnpm --filter @xprite/ui run build",

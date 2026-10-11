@@ -24,6 +24,7 @@ const compact = layouts.find((layout) => layout.name === "compact");
 const toolLanguages = new Map([
   ["/tools/viewer/", PublicLanguage.English],
   ["/tools/gif-to-sprite-sheet/", PublicLanguage.SimplifiedChinese],
+  ["/tools/pixelate/", PublicLanguage.English],
   ["/tools/animal-crossing-qr/", PublicLanguage.English],
 ]);
 
@@ -67,19 +68,25 @@ for (const page of SITE_PAGES.filter(
   translatedRoutes.set(canonical, group);
 }
 
+const routeOrderKey = (path) => (path === FEATURES_PATH ? "/about/features/" : path);
 const routeGroups = [...translatedRoutes.entries()].sort(([left], [right]) =>
-  left.localeCompare(right),
+  routeOrderKey(left).localeCompare(routeOrderKey(right)),
 );
 const routes = routeGroups.flatMap(([canonical, translations], index) => {
+  const featureDirectoryRoute = canonical === FEATURES_PATH;
   const preferredLanguage =
-    canonical === "/about/"
+    canonical === "/about/" || featureDirectoryRoute
       ? PublicLanguage.SimplifiedChinese
       : index % 2 === 0
         ? PublicLanguage.English
         : PublicLanguage.SimplifiedChinese;
   const selected =
     translations.find((page) => page.language === preferredLanguage) ?? translations[0];
-  const page = publicRoutePage(selected, selected.language, routeName(canonical));
+  const page = publicRoutePage(
+    selected,
+    selected.language,
+    featureDirectoryRoute ? "about-features" : routeName(canonical),
+  );
   if (canonical === "/about/")
     return [
       makeScene(page, wide, light),
@@ -87,8 +94,8 @@ const routes = routeGroups.flatMap(([canonical, translations], index) => {
         id: `${page.name}-${page.language}-${compact.name}-${light.name}`,
       }),
     ];
-  const layout = index % 2 === 0 ? wide : compact;
-  const appearance = index % 2 === 0 ? light : dark;
+  const layout = featureDirectoryRoute ? compact : index % 2 === 0 ? wide : compact;
+  const appearance = featureDirectoryRoute ? dark : index % 2 === 0 ? light : dark;
   return [makeScene(page, layout, appearance)];
 });
 

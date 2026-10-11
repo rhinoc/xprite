@@ -3,7 +3,6 @@ export enum PublicLanguage {
   SimplifiedChinese = "zh-CN",
 }
 
-const LANGUAGE_PARAMETER = "lang";
 const LOCAL_SITE_ORIGIN = "https://xprite.cc";
 
 export function publicLanguage(value = "en"): PublicLanguage {
@@ -32,9 +31,7 @@ export function localizedSiteHref(href: string, language: PublicLanguage | strin
   if (LOCALIZED_SECTIONS.test(path) && !/\.[a-z0-9]+$/i.test(path)) {
     url.pathname = selected === PublicLanguage.SimplifiedChinese ? `/zh-CN${path}` : path;
   } else if (/^\/(?:tools|components)(?:\/|$)/.test(url.pathname)) {
-    if (selected === PublicLanguage.SimplifiedChinese)
-      url.searchParams.set(LANGUAGE_PARAMETER, selected);
-    else url.searchParams.delete(LANGUAGE_PARAMETER);
+    url.searchParams.delete("lang");
   }
   return `${url.pathname}${url.search}${url.hash}`;
 }

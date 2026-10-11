@@ -16,7 +16,8 @@
   outline-offset: var(--ui-button-color-focus-offset, 1px);
 }
 
-.color:disabled {
+.color:disabled,
+.color[data-readonly-color]:disabled {
   opacity: 1;
 }
 

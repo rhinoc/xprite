@@ -8,9 +8,7 @@ import {
   type PaletteColor,
 } from "$/managers/palette/palette-operations";
 import {
-  comparePaletteResourceNames,
   deletePalettePreset,
-  readBundledPalettePresets,
   readDefaultPalette,
   readPaletteFile,
   readPalettePresets,
@@ -26,6 +24,8 @@ import {
 import { useEditorPlatformPorts } from "$/managers/platform/editor-platform-context";
 import { measuredEditorViewport } from "$/managers/workspace/editor-layout";
 import { executeEditorCommand } from "@xprite/editor-core";
+import { comparePaletteResourceNames } from "@xprite/editor-core/import-export";
+import { readBundledPalettePresets } from "@xprite/editor-ui/palette-presets";
 
 export function comparePaletteResources(a: string, b: string): number {
   return comparePaletteResourceNames(a, b);

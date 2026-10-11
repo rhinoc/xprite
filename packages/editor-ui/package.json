@@ -6,13 +6,18 @@
   "exports": {
     ".": "./src/index.ts",
     "./timeline": "./src/timeline/index.ts",
-    "./appearance": "./src/appearance/index.ts"
+    "./appearance": "./src/appearance/index.ts",
+    "./palette-presets": "./src/palette-presets.ts",
+    "./palette/model": "./src/palette/model.ts",
+    "./animal-crossing": "./src/animal-crossing/index.ts",
+    "./animal-crossing/preview": "./src/animal-crossing/preview.ts"
   },
   "scripts": {
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
     "@xprite/editor-core": "workspace:*",
+    "@xprite/palette-assets": "workspace:*",
     "@xprite/ui": "workspace:*",
     "react": "^18.3.1"
   }

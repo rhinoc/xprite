@@ -33,6 +33,7 @@ export class ToolViewport {
   private size: ToolSize = { width: 1, height: 1 };
   private document: ToolSize = { width: 1, height: 1 };
   private identity = -1;
+  private padding = 0;
   private view: ToolView = { zoom: 1, fit: true, pan: { x: 0, y: 0 }, origin: { x: 0, y: 0 } };
   private readonly listeners = new Set<() => void>();
   private pinch: {
@@ -95,11 +96,16 @@ export class ToolViewport {
     if (this.view.fit) this.fit();
     else this.update(this.view.zoom, this.view.pan);
   }
+  setPadding(padding: number) {
+    if (padding === this.padding) return;
+    this.padding = padding;
+    if (this.view.fit) this.fit();
+  }
   fit = () => {
     const available = Math.min(
       MAX_FIT_ZOOM,
-      this.size.width / this.document.width,
-      this.size.height / this.document.height,
+      Math.max(1, this.size.width - this.padding * 2) / this.document.width,
+      Math.max(1, this.size.height - this.padding * 2) / this.document.height,
       this.maxZoom(),
     );
     const zoom =

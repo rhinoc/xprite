@@ -9,7 +9,15 @@ import {
 } from "$/editor/persistence-snapshot";
 import { RasterEditor } from "$/editor/RasterEditor";
 import type { EditorSnapshot } from "$/editor/types";
-import { PixelArtClassification, PixelationMethod } from "$/import-export/image/import";
+import {
+  type PixelationSettings,
+  type PixelGridAnalysis,
+  PixelArtClassification,
+  defaultPixelationSettings,
+  extractPixelationPalette,
+  updatePixelationSettings,
+  pixelationSettingsOptions,
+} from "$/import-export/image/import";
 import {
   RecentImageStore,
   createBlankImage,
@@ -22,7 +30,6 @@ import type {
   SessionSource,
   SessionInitialOptions,
   SessionSize,
-  SessionPixelationOptions,
   RecentIdentityPort,
 } from "$/session/types";
 import { SessionOperation, SessionOutcome, SessionSaveIntent } from "$/session/types";
@@ -52,6 +59,8 @@ function layerState(state: EditorSnapshot) {
     : "";
 }
 interface Candidate {
+  sourcePalette: readonly Rgba[];
+  grid?: PixelGridAnalysis;
   recentIdentity?: string;
   recentAlias?: string;
   pixels: PixelBuffer;
@@ -63,7 +72,7 @@ interface Candidate {
 type Replacement<S> =
   | { kind: "source"; source: SessionSource<S> }
   | { kind: "candidate"; candidate: Candidate }
-  | { kind: "accepted"; candidate: Candidate; pixels: PixelBuffer }
+  | { kind: "accepted"; candidate: Candidate; pixels: PixelBuffer; palette?: readonly Rgba[] }
   | { kind: "new"; size: SessionSize }
   | { kind: "recent"; id: string; name: string }
   | { kind: "close"; exit: boolean };
@@ -77,7 +86,7 @@ const cancelled = (reason: unknown) =>
   typeof reason === "object" && reason !== null && "name" in reason && reason.name === "AbortError";
 
 /** Application use cases with injected IO. Construction has no effects; snapshots
- * contain metadata only, and no React, DOM, File, Worker or ambient timer enters this layer. */
+ * expose immutable pixel buffers for pending previews; no React, DOM, File, Worker or ambient timer enters this layer. */
 export class EditorSession<Source> {
   private readonly recent: RecentImageStore;
   private readonly listeners = new Set<() => void>();
@@ -87,6 +96,7 @@ export class EditorSession<Source> {
   private bootstrapping = false;
   private bootstrapPromise: Promise<void> | null = null;
   private candidate: Candidate | null = null;
+  private previewVersion = 0;
   private replacement: Replacement<Source> | null = null;
   private hydration: Promise<void> | null = null;
   private persistence = Promise.resolve();
@@ -114,13 +124,12 @@ export class EditorSession<Source> {
       saving: false,
       pendingImport: null,
       replacement: null,
-      pixelationOptions: {
-        targetWidth: 64,
-        targetHeight: 64,
-        maxColors: 32,
-        method: PixelationMethod.Nearest,
-        preserveDimensions: false,
-      },
+      pixelationOptions: defaultPixelationSettings({ width: 64, height: 64 }),
+      pixelationPreview: null,
+      pixelationPalette: [],
+      pixelationPreviewing: false,
+      pixelationError: null,
+
       newSize: { ...this.acceptedNewSize },
       error: null,
       notice: "",
@@ -190,10 +199,19 @@ export class EditorSession<Source> {
   }
   private invalidate(except?: Source) {
     ++this.generation;
+    ++this.previewVersion;
     for (const source of this.ownedSources.keys()) if (source !== except) this.release(source);
     this.candidate = null;
     this.replacement = null;
-    this.publish({ busy: false, pendingImport: null, replacement: null });
+    this.publish({
+      busy: false,
+      pendingImport: null,
+      replacement: null,
+      pixelationPreview: null,
+      pixelationPalette: [],
+      pixelationPreviewing: false,
+      pixelationError: null,
+    });
     return this.generation;
   }
   private hasUnsavedWork() {
@@ -482,15 +500,17 @@ export class EditorSession<Source> {
         ? (this.recentIdentities?.resolve(recentAlias) ?? recentAlias)
         : null;
       if (!this.valid(generation)) return SessionOutcome.Ignored;
-      const analysis = project
-        ? { classification: PixelArtClassification.LikelyPixelArt }
-        : await this.ports.analyze(pixels);
+      const analysis = project ? null : await this.ports.analyze(pixels);
       if (!this.valid(generation)) return SessionOutcome.Ignored;
       this.release(source.source, generation);
       const candidate: Candidate = {
+        sourcePalette: (source.palette ?? this.editor.getSnapshot().palette).map(
+          (color) => [...color] as Rgba,
+        ),
         pixels,
         name: source.name,
-        classification: analysis.classification,
+        classification: analysis?.classification ?? PixelArtClassification.LikelyPixelArt,
+        ...(analysis ? { grid: analysis.grid } : {}),
         checkpoint: before,
         ...(recentIdentity ? { recentIdentity } : {}),
         ...(recentAlias ? { recentAlias } : {}),
@@ -514,7 +534,10 @@ export class EditorSession<Source> {
     }
   }
   private offerCandidate(candidate: Candidate): SessionOutcome {
-    if (candidate.classification === PixelArtClassification.LikelyPixelArt)
+    if (
+      candidate.classification === PixelArtClassification.LikelyPixelArt &&
+      !candidate.grid?.reliable
+    )
       return this.install(
         candidate.pixels,
         candidate.name,
@@ -530,17 +553,20 @@ export class EditorSession<Source> {
       busy: false,
       replacement: null,
       pendingImport: {
+        sourcePalette: candidate.sourcePalette,
+        grid: candidate.grid ?? null,
+        pixels: candidate.pixels,
         name: candidate.name,
         width: candidate.pixels.width,
         height: candidate.pixels.height,
         classification: candidate.classification,
       },
-      pixelationOptions: {
-        ...this.state.pixelationOptions,
-        targetWidth: Math.max(1, Math.round(candidate.pixels.width / 8)),
-        targetHeight: Math.max(1, Math.round(candidate.pixels.height / 8)),
-      },
+      pixelationOptions: defaultPixelationSettings(candidate.pixels, candidate.grid),
+      pixelationPreview: null,
+      pixelationPalette: [],
+      pixelationError: null,
     });
+    void this.previewPixelation();
     return SessionOutcome.Pending;
   }
   private askReplacement(intent: Replacement<Source>) {
@@ -588,7 +614,7 @@ export class EditorSession<Source> {
             intent.pixels,
             intent.candidate.name,
             true,
-            intent.candidate.project?.palette,
+            intent.palette ?? intent.candidate.project?.palette,
             true,
             intent.candidate.project,
             intent.candidate.recentIdentity ?? null,
@@ -606,12 +632,52 @@ export class EditorSession<Source> {
   cancelImport() {
     if (!this.disposed) this.invalidate();
   }
-  setPixelationOptions(options: Partial<SessionPixelationOptions>) {
-    if (!this.disposed)
-      this.publish({
-        pixelationOptions: { ...this.state.pixelationOptions, ...options },
-      });
+  setPixelationOptions(options: Partial<PixelationSettings>) {
+    if (this.disposed || this.state.busy || !this.candidate) return;
+    this.publish({
+      pixelationOptions: updatePixelationSettings(
+        this.state.pixelationOptions,
+        options,
+        this.candidate.pixels,
+      ),
+      pixelationPreview: null,
+      pixelationPalette: [],
+    });
+    void this.previewPixelation();
   }
+  private async previewPixelation() {
+    const candidate = this.candidate;
+    if (!candidate || this.disposed) return;
+    const version = ++this.previewVersion,
+      generation = this.generation;
+    this.publish({ pixelationPreviewing: true, pixelationError: null });
+    try {
+      const options = pixelationSettingsOptions(
+        this.state.pixelationOptions,
+        candidate.pixels,
+        candidate.grid,
+      );
+      const pixels = await this.ports.pixelate(candidate.pixels, options);
+      if (this.valid(generation) && version === this.previewVersion)
+        this.publish({
+          pixelationPreview: pixels,
+          pixelationPreviewing: false,
+          pixelationPalette:
+            this.state.pixelationOptions.reduceColors && this.state.pixelationOptions.palette
+              ? this.state.pixelationOptions.palette
+              : extractPixelationPalette(pixels).map((entry) => entry.color),
+        });
+    } catch (reason) {
+      if (this.valid(generation) && version === this.previewVersion)
+        this.publish({
+          pixelationPreview: null,
+          pixelationPalette: [],
+          pixelationPreviewing: false,
+          pixelationError: reason instanceof Error ? reason.message : String(reason),
+        });
+    }
+  }
+
   setNewSize(size: Partial<SessionSize>) {
     if (!this.disposed) this.publish({ newSize: { ...this.state.newSize, ...size } });
   }
@@ -647,29 +713,36 @@ export class EditorSession<Source> {
       return SessionOutcome.Error;
     }
   }
-  async pixelate(options?: Partial<SessionPixelationOptions>): Promise<SessionOutcome> {
+  async pixelate(options?: Partial<PixelationSettings>): Promise<SessionOutcome> {
     if (this.disposed || !this.candidate || this.state.busy) return SessionOutcome.Ignored;
     if (options) this.setPixelationOptions(options);
+    const acceptedPalette =
+      this.state.pixelationOptions.reduceColors && this.state.pixelationOptions.palette
+        ? this.state.pixelationOptions.palette
+        : undefined;
     const candidate = this.candidate,
       generation = this.generation;
     let completionGeneration = generation;
     this.publish({ busy: true, error: null });
     try {
-      const pixels = await this.ports.pixelate(candidate.pixels, {
-        ...this.state.pixelationOptions,
-      });
+      const pixels =
+        this.state.pixelationPreview ??
+        (await this.ports.pixelate(
+          candidate.pixels,
+          pixelationSettingsOptions(this.state.pixelationOptions, candidate.pixels, candidate.grid),
+        ));
       if (!this.valid(generation)) return SessionOutcome.Ignored;
       this.invalidate();
       completionGeneration = this.generation;
       if (this.changedSince(candidate.checkpoint)) {
-        this.askReplacement({ kind: "accepted", candidate, pixels });
+        this.askReplacement({ kind: "accepted", candidate, pixels, palette: acceptedPalette });
         return SessionOutcome.Confirmation;
       }
       return this.install(
         pixels,
         candidate.name,
         true,
-        candidate.project?.palette,
+        acceptedPalette,
         true,
         candidate.project,
         candidate.recentIdentity ?? null,
