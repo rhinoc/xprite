@@ -15,4 +15,4 @@ Local names are short. Each file is the upstream `fusion-pixel-{size}px-proporti
 | `fusion-10.woff2` | `FusionPixel10` | 10px | `30cff04a27ec139dc1eb948f6f3d3b48d6c25cc59ba5ed011d229ed6ffc3c2c9` |
 | `fusion-8.woff2` | `FusionPixel8` | 8px | `c68edc7ba14e595bd34d7bb9295c8364315dd275d561a61efe520c51b599da8a` |
 
-The native grid is the size in the table. The Aseprite skin draws primary Chinese with `FusionPixel10` at 14px. A different CSS size scales the pixel grid.
+The native grid is the size in the table. The Aseprite skin draws primary Chinese with `FusionPixel10` at 14px and compact Chinese with `FusionPixel10` at 10px to match the mini bitmap font's 10px rendered glyph height. A different CSS size scales the pixel grid.

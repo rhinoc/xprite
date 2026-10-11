@@ -150,7 +150,7 @@ export function useEditorRuntime(
     colorProfile,
     startup,
     appearanceMode,
-    systemAppearance,
+    systemAppearance: systemAppearanceMode,
     resolvedAppearance,
     appearance,
     changeAppearanceMode,

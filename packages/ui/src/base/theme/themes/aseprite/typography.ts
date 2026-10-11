@@ -17,7 +17,7 @@ function bitmapFont(glyphs: UiGlyphMap, url: string, width: number, height: numb
     fontSize: mini ? 12 : 14,
     lineHeight,
     // Primary Chinese uses the 10px face at the 14px English line.
-    // Compact stays on the 10px grid.
+    // Mini bitmap glyphs are 5px tall at 2x, so compact Chinese fills a 10px line.
     cjkFontFamily: "FusionPixel10",
     cjkFontSize: mini ? 10 : 14,
     cjkAdvance: mini ? 10 : 14,
