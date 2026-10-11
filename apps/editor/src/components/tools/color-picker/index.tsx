@@ -31,6 +31,7 @@ import {
   type EditorHsvaChannel,
 } from "$/managers/tools/color-control";
 import {
+  FontRole,
   Button,
   ButtonVariant,
   Divider,
@@ -40,9 +41,10 @@ import {
   useUi,
   Text,
   TextVariant,
+  Icon,
 } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
-import { measureUiText, UiIcon, UiPart } from "@xprite/ui/assets";
+import { measureUiText, UiPart } from "@xprite/ui/assets";
 import { surfaceLayout } from "@xprite/ui/canvas";
 import { cn } from "@xprite/ui/utils";
 
@@ -363,7 +365,7 @@ export function ColorPicker({
                 pushedPart="buttonset_item_pushed"
                 relativeTo={c}
                 text={item}
-                font="mini"
+                font={FontRole.Compact}
                 color={uiStyle.colors.text}
                 selected={item === mode}
                 aria-label={tUi("ui.color.mode.2", { value1: tUiSource(item) })}
@@ -440,8 +442,8 @@ export function ColorPicker({
                     : undefined
                 }
               >
-                <UiIcon
-                  part="tool_eyedropper"
+                <Icon
+                  kind="tool_eyedropper"
                   scale={SCREEN_PICKER_ICON_SCALE}
                   style={{ position: "relative", zIndex: 1, pointerEvents: "none" }}
                 />

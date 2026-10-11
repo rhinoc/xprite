@@ -1,9 +1,11 @@
+import { FEATURES_PATH } from "$content/features";
 import { GUIDE_PAGES } from "$content/help/pages";
 import { SHOWCASE_PAGES } from "$content/showcase/pages";
+import { localizedSiteHref } from "$content/site/language";
 import { useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react";
-import type { CSSProperties } from "react";
 
 import { PublicFooter, PublicNavigation } from "$/components/public/static-ui";
+import { ShowcaseIntro } from "$/components/showcase/showcase-intro";
 import { ShowcaseOverviewPreview } from "$/components/showcase/showcase-overview-preview";
 import { ShowcaseSoundControl } from "$/components/showcase/showcase-sound-control";
 import { ShowcaseStories } from "$/components/showcase/showcase-stories";
@@ -30,11 +32,10 @@ import {
   ButtonAppearance,
   WindowWorkspace,
   IconKind,
-  PatternVariant,
+  PatternId,
   Panel,
   PanelVariant,
   Icon,
-  PanelWindowChrome,
   ContentPadding,
   SurfaceTone,
   RichText,
@@ -71,9 +72,6 @@ export function Showcase({
       ? ShowcaseLanguage.English
       : ShowcaseLanguage.Chinese;
   const titleEnd = copy.titleEnd[state.device];
-  const deviceLetters = Array.from(titleEnd.device);
-  const deviceGlyphs = Array.from(state.deviceText);
-  const overviewLetters = Array.from(copy.titleOverview);
   const { dragging, ...swipe } = useDeviceSwipe(manager);
   const titleDescription = state.started
     ? `${titleEnd.prefix}${titleEnd.device}${titleEnd.suffix}`
@@ -112,26 +110,17 @@ export function Showcase({
       className={styles.page}
       data-growth-desktop
       lang={state.language}
-      data-ui-desktop-pattern={PatternVariant.MacOS8BlueCord}
+      data-ui-desktop-pattern={PatternId.MacOS8BlueCord}
     >
       <canvas ref={trail} className={styles.pixelTrail} aria-hidden="true" />
       <header ref={header} className={styles.header}>
         <PublicNavigation
           label="Xprite"
           language={state.language}
-          trailingContent={
-            <ShowcaseSoundControl
-              language={state.language}
-              muted={state.musicMuted}
-              volume={state.musicVolume}
-              available={state.musicAvailable}
-              onVolumeChange={manager.setMusicVolume}
-            />
-          }
           brandLabel={copy.home}
           brandHref={SHOWCASE_PAGES[state.language].path}
           links={[
-            { label: copy.tools, href: "/tools/" },
+            { label: copy.features, href: localizedSiteHref(FEATURES_PATH, state.language) },
             { label: copy.goToEditor, href: "/editor" },
             {
               label: copy.languageSwitch,
@@ -152,11 +141,6 @@ export function Showcase({
                 manager.setLanguage(targetLanguage);
               },
             },
-            {
-              label: copy.help,
-              icon: "help",
-              href: GUIDE_PAGES[state.language].path,
-            },
           ]}
         />
       </header>
@@ -164,77 +148,37 @@ export function Showcase({
         <div id="showcase-demo" data-showcase-hero>
           <WindowWorkspace data-showcase-desktop>
             <Panel
-              variant={PanelVariant.Window}
-              windowChrome={PanelWindowChrome.Emphasized}
+              variant={PanelVariant.Document}
+              emphasized
               contentPadding={ContentPadding.None}
               title={state.language === ShowcaseLanguage.Chinese ? "设备演示" : "Device demos"}
               className={styles.heroWindow}
-              tone={SurfaceTone.Informative}
+              tone={SurfaceTone.Info}
               data-showcase-screen
               collapsible
               data-ui-window-priority="primary"
+              extra={
+                state.musicActivated && (
+                  <ShowcaseSoundControl
+                    language={state.language}
+                    muted={state.musicMuted}
+                    volume={state.musicVolume}
+                    available={state.musicAvailable}
+                    onVolumeChange={manager.setMusicVolume}
+                  />
+                )
+              }
             >
               <div className={styles.main}>
-                <div ref={intro} className={styles.intro} data-overview={!state.started}>
-                  <h1 className={styles.title} aria-label={deviceTitle}>
-                    <span ref={titleLine} className={styles.titleLine}>
-                      <span className={styles.titleLead} aria-hidden="true">
-                        {copy.titleLead}
-                      </span>
-                      <span
-                        className={styles.titleBrand}
-                        data-wordmark={SHOWCASE_BRAND_NAME}
-                        aria-hidden="true"
-                      >
-                        {SHOWCASE_BRAND_NAME}
-                      </span>
-                    </span>
-                    <span ref={subtitle} className={styles.titleEnd} aria-hidden="true">
-                      {state.started ? (
-                        <>
-                          {titleEnd.prefix}
-                          <span className={styles.deviceName}>
-                            {deviceLetters.map((letter, index) => (
-                              <span key={index} className={styles.deviceLetter}>
-                                <span className={styles.deviceMeasure}>{letter}</span>
-                                <span className={styles.deviceWord}>{deviceGlyphs[index]}</span>
-                              </span>
-                            ))}
-                          </span>
-                          {titleEnd.suffix}
-                        </>
-                      ) : (
-                        <span key={state.language} className={styles.overviewPrompt}>
-                          {overviewLetters.map((letter, index) => (
-                            <span
-                              key={index}
-                              className={styles.overviewLetter}
-                              style={{ "--film-letter-index": index } as CSSProperties}
-                            >
-                              {letter}
-                            </span>
-                          ))}
-                          <span
-                            className={styles.overviewCursor}
-                            style={
-                              { "--film-letter-index": overviewLetters.length } as CSSProperties
-                            }
-                          >
-                            _
-                          </span>
-                        </span>
-                      )}
-                    </span>
-                  </h1>
-                  <RichText className={styles.productDescription}>
-                    {copy.productDescription.map((phrase, index) => (
-                      <span key={phrase}>
-                        {index > 0 ? " " : ""}
-                        {phrase}
-                      </span>
-                    ))}
-                  </RichText>
-                </div>
+                <ShowcaseIntro
+                  language={state.language}
+                  started={state.started}
+                  device={state.device}
+                  deviceText={state.deviceText}
+                  introRef={intro}
+                  titleLineRef={titleLine}
+                  subtitleRef={subtitle}
+                />
                 <section
                   ref={stage}
                   className={styles.stage}
@@ -273,7 +217,7 @@ export function Showcase({
                           }}
                           onFocus={() => manager.previewDevice(device)}
                           onBlur={() => manager.previewDevice()}
-                          onClick={() => manager.selectDevice(device)}
+                          onClick={() => manager.activateDevice(device)}
                         >
                           {`${copy.chooseDevice}: ${copy.titleEnd[device].device}`}
                         </Button>
@@ -288,7 +232,7 @@ export function Showcase({
                   )}
                   {state.status === ShowcaseStatus.Error && (
                     <Panel
-                      variant={PanelVariant.Window}
+                      variant={PanelVariant.Document}
                       title="Xprite"
                       tone={SurfaceTone.Warning}
                       contentPadding={24}
@@ -326,13 +270,13 @@ export function Showcase({
               </div>
             </Panel>
 
-            <nav data-showcase-shortcuts aria-label={copy.tools}>
+            <nav data-showcase-shortcuts aria-label={copy.features}>
               <Button
                 variant={ButtonVariant.Tile}
                 slots={{ leading: <Icon kind={IconKind.Folder} size={IconSize.Large} /> }}
                 compactOnSmallScreens
-                text={copy.tools}
-                href="/tools/"
+                text={copy.features}
+                href={localizedSiteHref(FEATURES_PATH, state.language)}
               />
               <Button
                 variant={ButtonVariant.Tile}

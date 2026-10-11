@@ -2,19 +2,19 @@ import type { HTMLAttributes } from "react";
 
 import { cn } from "$/base/utils/cn";
 import {
-  DEFAULT_PATTERN,
+  DEFAULT_PATTERN_ID,
   PatternKind,
   patternColorImage,
   patternDefinition,
 } from "$/components/pattern/catalog";
-import { PatternVariant } from "$/components/pattern/variants";
+import { PatternId } from "$/components/pattern/variants";
 
 import styles from "$/components/pattern/pattern.module.css";
 
-export { PatternVariant } from "$/components/pattern/variants";
+export { PatternId } from "$/components/pattern/variants";
 export {
   PATTERNS,
-  DEFAULT_PATTERN,
+  DEFAULT_PATTERN_ID,
   PatternGroup,
   PatternKind,
   patternDefinition,
@@ -28,7 +28,7 @@ export type { PatternDefinition } from "$/components/pattern/catalog";
 const DEFAULT_PATTERN_SCALE = 2;
 
 export interface PatternProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: PatternVariant;
+  pattern?: PatternId;
   /** A local swatch that does not inherit the host's desktop selection. */
   preview?: boolean;
   scale?: number;
@@ -38,7 +38,7 @@ export interface PatternProps extends HTMLAttributes<HTMLDivElement> {
 
 /** Original repeating pixels; two-color shapes can use an independent foreground/background pair. */
 export function Pattern({
-  variant = DEFAULT_PATTERN,
+  pattern = DEFAULT_PATTERN_ID,
   className,
   preview = false,
   scale = DEFAULT_PATTERN_SCALE,
@@ -47,20 +47,20 @@ export function Pattern({
   style,
   ...props
 }: PatternProps) {
-  const pattern = patternDefinition(variant);
+  const definition = patternDefinition(pattern);
   const localColors = preview || foreground !== undefined || background !== undefined;
   return (
     <div
       {...props}
       className={cn(styles.root, className)}
-      data-ui-desktop-pattern={variant}
+      data-ui-desktop-pattern={pattern}
       data-ui-pattern-preview={preview || undefined}
       style={{
         ...(scale !== DEFAULT_PATTERN_SCALE
-          ? { backgroundSize: `${pattern.width * scale}px ${pattern.height * scale}px` }
+          ? { backgroundSize: `${definition.width * scale}px ${definition.height * scale}px` }
           : {}),
-        ...(localColors && pattern.kind === PatternKind.TwoColor
-          ? { backgroundImage: patternColorImage(pattern, foreground, background) }
+        ...(localColors && definition.kind === PatternKind.TwoColor
+          ? { backgroundImage: patternColorImage(definition, foreground, background) }
           : {}),
         ...style,
       }}

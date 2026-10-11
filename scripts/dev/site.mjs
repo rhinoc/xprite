@@ -121,10 +121,9 @@ try {
       const origin = `http://${host}:${configuration.ports.editor}`;
       console.log(`  ${origin}/editor`);
       console.log(`  ${origin}/about/`);
-      console.log(`  ${origin}/learn/`);
       console.log(`  ${origin}/compare/`);
       console.log(`  ${origin}/zh-CN/help/`);
-      console.log(`  ${origin}/tools/`);
+      console.log(`  ${origin}/tools/viewer/`);
       console.log(`  ${origin}/components/`);
     }
   }

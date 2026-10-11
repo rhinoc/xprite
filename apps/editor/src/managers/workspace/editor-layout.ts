@@ -45,7 +45,7 @@ export function editorCanvasBounds(pane: { width: number; height: number }, show
 }
 
 // Model adapters live above EditorSurface, so share each editor's measured
-// viewport without querying an unrelated gallery or document's DOM node.
+// viewport without querying another page or document's DOM node.
 const measuredViewports = new WeakMap<object, { width: number; height: number }>();
 export function setMeasuredEditorViewport(
   editor: object,

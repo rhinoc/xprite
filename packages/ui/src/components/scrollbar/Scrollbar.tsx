@@ -4,34 +4,41 @@ import {
 } from "$/base/components/scrollbar/primitive";
 import { useTheme } from "$/base/theme/theme-context";
 import { ThemePart, type AtlasPartName } from "$/base/theme/theme-part";
-import type { ScrollbarVariant } from "$/components/scrollbar/types";
-import { scrollbarVariants } from "$/components/scrollbar/variants";
+import { ScrollbarStyle } from "$/base/theme/theme-types";
+import { scrollbarStyles } from "$/components/scrollbar/variants";
 
 import styles from "$/components/scrollbar/scrollbar.module.css";
 
 export interface ScrollbarProps extends Omit<
   ScrollbarPrimitiveProps,
-  "minimumThumbSize" | "renderArtwork" | "variant" | "arrowExtent" | "fixedThumbSize"
+  "minimumThumbSize" | "renderArtwork" | "variant" | "arrowExtent"
 > {
-  variant?: ScrollbarVariant;
+  scrollbarStyle?: ScrollbarStyle;
 }
 
 /** Themed scrollbar with shared pointer, keyboard, and range behavior. */
-export function Scrollbar({ variant: suppliedVariant, className, ...props }: ScrollbarProps) {
+export function Scrollbar({ scrollbarStyle: suppliedStyle, className, ...props }: ScrollbarProps) {
   const { definition } = useTheme();
-  const variant = suppliedVariant ?? definition.controlParts?.scrollbar?.areaVariant ?? "mini";
-  const minimumThumbSize = definition.dimensions.scrollbar_size * 4;
-  const variantStyle = scrollbarVariants[variant];
-  const classic = variant === "regular" ? definition.controlParts?.scrollbar : undefined;
+  const themeStyle = definition.controlParts?.scrollbar?.areaStyle;
+  const scrollbarStyle =
+    suppliedStyle ??
+    (themeStyle === ScrollbarStyle.Classic ? ScrollbarStyle.Classic : ScrollbarStyle.Compact);
+  const variantStyle = scrollbarStyles[scrollbarStyle];
+  const classic =
+    scrollbarStyle === ScrollbarStyle.Classic ? definition.controlParts?.scrollbar : undefined;
+  const minimumThumbSize = classic?.minimumThumbSize ?? definition.dimensions.scrollbar_size * 4;
+  const compactThumb =
+    scrollbarStyle === ScrollbarStyle.Classic
+      ? undefined
+      : definition.controlParts?.scrollbar?.compactThumb;
 
   return (
     <ScrollbarPrimitive
       {...props}
       className={`${styles.scrollbar}${className ? ` ${className}` : ""}`}
-      variant={variant}
+      variant={variantStyle.variant}
       minimumThumbSize={minimumThumbSize}
       arrowExtent={classic?.arrowExtent}
-      fixedThumbSize={classic?.thumbSize}
       renderArtwork={({ bounds, layout, geometry, horizontal, hover }) => {
         if (classic) {
           const extent = horizontal ? bounds.width : bounds.height;
@@ -123,21 +130,42 @@ export function Scrollbar({ variant: suppliedVariant, className, ...props }: Scr
               transformOrigin: "top left",
             }}
           >
-            <ThemePart part={backgroundPart} scale={2} drawCenter className={styles.track} />
-            {geometry.length > 0 && (
-              <ThemePart
-                part={thumbPart}
-                scale={2}
-                drawCenter
-                className={styles.thumb}
-                style={{
-                  left: horizontal ? geometry.position : 0,
-                  top: horizontal ? 0 : geometry.position,
-                  width: horizontal ? geometry.length : bounds.width,
-                  height: horizontal ? bounds.height : geometry.length,
-                }}
-              />
+            {compactThumb ? (
+              (variantStyle.variant !== "transparent" || hover) && (
+                <span
+                  className={styles.compactTrack}
+                  style={{ borderWidth: compactThumb.borderWidth }}
+                />
+              )
+            ) : (
+              <ThemePart part={backgroundPart} scale={2} drawCenter className={styles.track} />
             )}
+            {geometry.length > 0 &&
+              (compactThumb ? (
+                <span
+                  className={styles.compactThumb}
+                  style={{
+                    left: horizontal ? geometry.position : 0,
+                    top: horizontal ? 0 : geometry.position,
+                    width: horizontal ? geometry.length : bounds.width,
+                    height: horizontal ? bounds.height : geometry.length,
+                    borderWidth: compactThumb.borderWidth,
+                  }}
+                />
+              ) : (
+                <ThemePart
+                  part={thumbPart}
+                  scale={2}
+                  drawCenter
+                  className={styles.thumb}
+                  style={{
+                    left: horizontal ? geometry.position : 0,
+                    top: horizontal ? 0 : geometry.position,
+                    width: horizontal ? geometry.length : bounds.width,
+                    height: horizontal ? bounds.height : geometry.length,
+                  }}
+                />
+              ))}
           </span>
         );
       }}

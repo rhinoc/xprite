@@ -12,7 +12,7 @@
   border-bottom: 1px solid var(--ui-menu-navigation-ink, var(--ui-color-border));
   background: var(--ui-menu-navigation-face, var(--ui-color-paper));
   color: var(--ui-menu-navigation-ink, var(--ui-color-ink));
-  font: var(--ui-menu-navigation-font-size, var(--ui-text-default-size)) /
+  font: var(--ui-menu-navigation-font-size, var(--ui-text-primary-size)) /
     var(--ui-menu-navigation-line-height) var(--ui-font-family);
   -webkit-font-smoothing: none;
   overflow: hidden;
@@ -43,10 +43,19 @@
   text-decoration: none;
   cursor: var(--ui-cursor-default, default);
 }
-.link:is(:hover, :focus-visible, :active, [aria-current="page"], [data-open="true"]) {
+.link:is([aria-current="page"], [data-open="true"]),
+a.link:is(:hover, :focus-visible, :active) {
   color: var(--ui-menu-navigation-highlight-ink, var(--xse-selected-text));
   background: var(--ui-menu-navigation-highlight-face, var(--xse-selected));
   outline: none;
+}
+.link[aria-haspopup="menu"][aria-expanded="false"] {
+  color: inherit;
+  background: transparent;
+}
+.link:focus-visible {
+  outline: 1px dotted currentColor;
+  outline-offset: -2px;
 }
 .items {
   display: flex;

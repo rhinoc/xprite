@@ -9,7 +9,7 @@ import { paintTimelineTagArtwork } from "$/timeline/tag-artwork";
 import { TIMELINE_TAG_BAND_HEIGHT, useTimelineTagBands } from "$/timeline/tag-bands";
 import { workingColorProfile } from "@xprite/editor-core/color";
 import { timelineTags, type SpriteTimeline } from "@xprite/editor-core/timeline";
-import { CanvasSurface, ScrollArea, useUi } from "@xprite/ui";
+import { CanvasSurface, FontRole, ScrollArea, useUi } from "@xprite/ui";
 import { getUiChecker, measureUiText, paintUiPart, useUiAssets } from "@xprite/ui/assets";
 import {
   clientDeltaToLocal,
@@ -81,7 +81,8 @@ export function ReadOnlyTimeline({
   const [verticalScroll, setVerticalScroll] = useState(0);
   const tags = timelineTags(timeline);
   const measureText = useCallback(
-    (text: string) => measureUiText(text, "default", ARTWORK_SCALE, assets?.style.typography),
+    (text: string) =>
+      measureUiText(text, FontRole.Primary, ARTWORK_SCALE, assets?.style.typography),
     [assets],
   );
   const bands = useTimelineTagBands(tags, identity, FRAME_WIDTH, measureText);

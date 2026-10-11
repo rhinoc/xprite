@@ -6,12 +6,12 @@ import { ThemeContext } from "$/base/theme/theme-context-instance";
 export function ThemeScope({ style, ...props }: HTMLAttributes<HTMLDivElement>) {
   const context = useContext(ThemeContext);
   if (!context) throw new Error("ThemeScope must be used inside UIProvider");
-  const { uiTheme, variant, tokens } = context;
+  const { uiTheme, colorScheme, tokens } = context;
   return (
     <div
       {...props}
       data-ui-theme={uiTheme.id}
-      data-ui-appearance={variant}
+      data-ui-appearance={colorScheme}
       style={
         { display: "contents", color: "var(--xse-text)", ...tokens, ...style } as CSSProperties
       }

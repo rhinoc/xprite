@@ -11,7 +11,6 @@ import {
 import {
   ContentLayout,
   ContentPadding,
-  PanelWindowChrome,
   SurfaceTone,
   Text,
   TextVariant,
@@ -22,7 +21,6 @@ import {
   Input,
   Panel,
   PanelVariant,
-  PanelWindowKind,
 } from "@xprite/ui";
 
 import styles from "$/components/animal-crossing/animal-crossing.module.css";
@@ -42,7 +40,6 @@ export function AnimalCrossingSettingsPanel({
 }) {
   const t = useToolTranslation();
 
-  const [authorOpen, setAuthorOpen] = useState(false);
   const [spacingOpen, setSpacingOpen] = useState(
     !!(
       snapshot.settings.offsetX ||
@@ -87,13 +84,13 @@ export function AnimalCrossingSettingsPanel({
   if (snapshot.importedQr)
     return (
       <Panel
-        windowChrome={PanelWindowChrome.Emphasized}
+        emphasized
         tone={SurfaceTone.Accent}
         contentLayout={ContentLayout.Column}
         contentPadding={ContentPadding.Compact}
         contentGap={PANEL_CONTENT_GAP}
-        variant={PanelVariant.Window}
-        windowKind={PanelWindowKind.Utility}
+        scrollable
+        variant={PanelVariant.Utility}
         collapsible
         className={styles.settingsPanel}
         title={<Text variant={TextVariant.Reading}>{t("Design information")}</Text>}
@@ -125,32 +122,21 @@ export function AnimalCrossingSettingsPanel({
   return (
     <aside className={styles.settingsColumn} data-ui-desktop-layer>
       <Panel
-        windowChrome={PanelWindowChrome.Emphasized}
+        emphasized
         tone={SurfaceTone.Accent}
         contentLayout={ContentLayout.Column}
         contentPadding={ContentPadding.Compact}
         contentGap={PANEL_CONTENT_GAP}
-        variant={PanelVariant.Window}
-        windowKind={PanelWindowKind.Utility}
+        scrollable
+        variant={PanelVariant.Utility}
         collapsible
         className={styles.settingsPanel}
         title={<Text variant={TextVariant.Reading}>{t("Design information")}</Text>}
         aria-label={t("Design information")}
       >
         {text("title", "Title")}
-        <Button
-          slots={{}}
-          text={t("Creator and island")}
-          aria-expanded={authorOpen}
-          disabled={busy}
-          onClick={() => setAuthorOpen(!authorOpen)}
-        />
-        {authorOpen && (
-          <>
-            {text("creator", "Creator")}
-            {text("town", "Island / town")}
-          </>
-        )}
+        {text("creator", "Creator")}
+        {text("town", "Island / town")}
         {snapshot.frameCount > MIN_SIZE && (
           <Field label={t("Frame")}>
             <Combobox
@@ -168,13 +154,13 @@ export function AnimalCrossingSettingsPanel({
         )}
       </Panel>
       <Panel
-        windowChrome={PanelWindowChrome.Emphasized}
+        emphasized
         tone={SurfaceTone.Accent}
         contentLayout={ContentLayout.Column}
         contentPadding={ContentPadding.Compact}
         contentGap={PANEL_CONTENT_GAP}
-        variant={PanelVariant.Window}
-        windowKind={PanelWindowKind.Utility}
+        scrollable
+        variant={PanelVariant.Utility}
         collapsible
         className={styles.settingsPanel}
         title={<Text variant={TextVariant.Reading}>{t("Image layout")}</Text>}
@@ -221,7 +207,11 @@ export function AnimalCrossingSettingsPanel({
           </>
         )}
         <Text variant={TextVariant.Reading} tone={TextTone.Muted} wrap>
-          {t("Each design is 32 × 32 pixels with up to 15 colors and transparency.")}
+          {t(
+            snapshot.layout === AnimalCrossingLayout.Single
+              ? "Resize the whole image to one 32 × 32 design, with up to 15 colors and transparency."
+              : "Each design is 32 × 32 pixels with up to 15 colors and transparency.",
+          )}
         </Text>
         <Button
           slots={{}}

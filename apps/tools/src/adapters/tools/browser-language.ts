@@ -1,5 +1,5 @@
 import { localizedSiteHref, PublicLanguage } from "@xprite/growth-content/language";
-import { TOOLS, TOOLS_HOME, translateToolText } from "@xprite/growth-content/tools";
+import { TOOLS, translateToolText } from "@xprite/growth-content/tools";
 
 /** The startup HTML selects the same locale before hydration. */
 export function readToolLanguage(): PublicLanguage {
@@ -10,7 +10,8 @@ export function readToolLanguage(): PublicLanguage {
 
 export function writeToolLanguage(language: PublicLanguage) {
   document.documentElement.lang = language;
-  const tool = TOOLS.find((item) => window.location.pathname === item.path) ?? TOOLS_HOME;
+  const tool = TOOLS.find((item) => window.location.pathname === item.path);
+  if (!tool) throw Error(`Unknown tool page: ${window.location.pathname}`);
   document.title = translateToolText(tool.title, language);
   const description = document.querySelector('meta[name="description"]');
   description?.setAttribute("content", translateToolText(tool.description, language));

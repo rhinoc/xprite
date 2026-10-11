@@ -43,7 +43,7 @@ export function useSelectionActions() {
   return useContext(Context)?.actions ?? null;
 }
 /** Scene-level controller owns document identity, preview cancellation, and the
- * Aseprite modal lifecycle. Gallery/mockups only mount this host and provider. */
+ * Aseprite modal lifecycle. Component previews only mount this host and provider. */
 export function SelectionDialogsHost({ enabled = true }: { enabled?: boolean }) {
   const registry = useContext(Context);
   const editor = useSelectionDialogModel(enabled);

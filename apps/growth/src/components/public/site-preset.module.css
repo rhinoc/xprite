@@ -1,11 +1,3 @@
-@font-face {
-  font-family: FusionPixelZhHans;
-  src: url("/help/fusion-pixel.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
 /* Website reading chrome and the animated About copy have their own metrics.
    Component text continues to use the active UI theme's reading/compact roles. */
 :global(:root),

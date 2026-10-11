@@ -10,7 +10,7 @@ import { pixelImageLayout, PIXEL_IMAGE_DEFAULT_BOX } from "$/components/pixel-im
 import styles from "$/components/pixel-image/pixel-image.module.css";
 
 export enum PixelImageFit {
-  Pixel = "pixel",
+  PixelAligned = "pixel-aligned",
   Contain = "contain",
 }
 
@@ -36,7 +36,7 @@ export function PixelImage({
   height,
   className,
   initialBox = PIXEL_IMAGE_DEFAULT_BOX,
-  fit = PixelImageFit.Pixel,
+  fit = PixelImageFit.PixelAligned,
   checker = true,
 }: PixelImageProps) {
   const host = useRef<HTMLDivElement>(null);

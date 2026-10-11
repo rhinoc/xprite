@@ -13,7 +13,7 @@ export function publicLanguage(value = "en"): PublicLanguage {
 }
 
 /** Localized pages live under one root `/zh-CN/` prefix; English paths stay unprefixed. */
-const LOCALIZED_SECTIONS = /^\/(?:learn|compare|help|about|privacy)(?:\/|$)/;
+const LOCALIZED_SECTIONS = /^\/(?:learn|compare|help|about|features|privacy)(?:\/|$)/;
 const LOCALIZED_PREFIX = /^\/zh-CN(?=\/|$)/;
 
 export function articleLanguage(path: string): PublicLanguage {

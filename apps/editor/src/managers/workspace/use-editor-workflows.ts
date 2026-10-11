@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { changeUiLanguage, tUi, type UiLanguage } from "$/i18n";
 import { ClipboardRegion, createClipboardActions } from "$/managers/clipboard";
+import { useDiagnosticsPort } from "$/managers/diagnostics/diagnostics-context";
 import { useEditor, useEditorManagerContext } from "$/managers/editor/editor-state-manager";
 import { editorSceneForTab } from "$/managers/editor/editor-ui-store";
 import {
@@ -15,6 +16,7 @@ import { useWheelDevice, WheelDevice } from "$/managers/input/wheel-device-conte
 import { useEditorPaletteModel } from "$/managers/palette/editor-palette-model";
 import { readDefaultPalette } from "$/managers/palette/presets";
 import { useEditorPlatformPorts } from "$/managers/platform/editor-platform-context";
+import { InteractionBlocker, WorkspaceDiagnosticAction } from "$/managers/ports/diagnostics";
 import {
   DocumentOpenMethod,
   TelemetryFeature,
@@ -129,6 +131,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
   if (!platform) throw new Error("Editor workflow manager requires platform ports");
   const { core } = useEditorManagerContext();
   if (!core) throw new Error("Editor workflow manager requires an active RasterEditor");
+  const diagnostics = useDiagnosticsPort();
   const { workspace, active } = useEditorRuntimeManagerContext();
   const workspaceSnapshot = useSyncExternalStore(
     workspace.subscribe,
@@ -390,31 +393,61 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     openGeneratedDocument: () =>
       editor.openTab("document", automaticViewTransition(EditorViewChangeReason.DocumentGenerated)),
   });
-  const modalOpen = !!(
-    aboutOpen ||
-    feedback.open ||
-    dialog ||
-    newTilemapDialog ||
-    preferencesOpen ||
-    saveAsOpen ||
-    newDialog ||
-    duplicateSpriteOpen ||
-    keyboardShortcutsOpen ||
-    output.hasOpenDialog ||
-    deleteRecoveryIds ||
-    deleteBrowserCopyItem ||
-    sequenceImport ||
-    pending ||
-    replacement ||
-    error ||
-    exitNotice
-  );
+  const modalBlockers = [
+    ...(aboutOpen ? [InteractionBlocker.AboutDialog] : []),
+    ...(feedback.open ? [InteractionBlocker.FeedbackDialog] : []),
+    ...(dialog ? [InteractionBlocker.InputDialog] : []),
+    ...(newTilemapDialog ? [InteractionBlocker.NewTilemapDialog] : []),
+    ...(preferencesOpen ? [InteractionBlocker.PreferencesDialog] : []),
+    ...(saveAsOpen ? [InteractionBlocker.SaveAsDialog] : []),
+    ...(newDialog ? [InteractionBlocker.NewDocumentDialog] : []),
+    ...(duplicateSpriteOpen ? [InteractionBlocker.DuplicateSpriteDialog] : []),
+    ...(keyboardShortcutsOpen ? [InteractionBlocker.KeyboardShortcutsDialog] : []),
+    ...(output.hasOpenDialog ? [InteractionBlocker.OutputDialog] : []),
+    ...(deleteRecoveryIds ? [InteractionBlocker.DeleteRecoveryDialog] : []),
+    ...(deleteBrowserCopyItem ? [InteractionBlocker.DeleteBrowserCopyDialog] : []),
+    ...(sequenceImport ? [InteractionBlocker.SequenceImportDialog] : []),
+    ...(pending ? [InteractionBlocker.ImportConfirmation] : []),
+    ...(replacement ? [InteractionBlocker.ReplacementConfirmation] : []),
+    ...(error ? [InteractionBlocker.ErrorDialog] : []),
+    ...(exitNotice ? [InteractionBlocker.ExitConfirmation] : []),
+  ];
+  const modalOpen = modalBlockers.length > 0;
   const operationBusy = output.exportBusy || saveAsBusy || recoveryBusy || closingSaveBusy;
+  const interactionBlockers = [
+    ...modalBlockers,
+    ...(output.exportBusy ? [InteractionBlocker.ExportBusy] : []),
+    ...(saveAsBusy ? [InteractionBlocker.SaveAsBusy] : []),
+    ...(recoveryBusy ? [InteractionBlocker.RecoveryBusy] : []),
+    ...(closingSaveBusy ? [InteractionBlocker.ClosingSaveBusy] : []),
+    ...(workspaceSnapshot.importBatch ? [InteractionBlocker.ImportBatch] : []),
+    ...(busy ? [InteractionBlocker.SessionBusy] : []),
+    ...(workflow.saving ? [InteractionBlocker.SessionSaving] : []),
+    ...(workflow.prompt === "error" ? [InteractionBlocker.SessionPromptError] : []),
+    ...(workflow.prompt === "replacement" ? [InteractionBlocker.SessionPromptReplacement] : []),
+    ...(workflow.prompt === "pixelation" ? [InteractionBlocker.SessionPromptPixelation] : []),
+  ];
+  if (!session.canStartInteraction() && !busy && !workflow.saving && workflow.prompt === null)
+    interactionBlockers.push(InteractionBlocker.SessionUnavailable);
+  const interactionBlockerSignature = interactionBlockers.join(",");
+  const previousInteractionBlockerSignature = useRef("");
+  useEffect(() => {
+    if (!interactionBlockerSignature) {
+      previousInteractionBlockerSignature.current = "";
+      return;
+    }
+    if (previousInteractionBlockerSignature.current === interactionBlockerSignature) return;
+    previousInteractionBlockerSignature.current = interactionBlockerSignature;
+    diagnostics.recordWorkspaceEvent({
+      action: WorkspaceDiagnosticAction.InteractionBlocked,
+      blockers: interactionBlockerSignature.split(",") as InteractionBlocker[],
+    });
+  }, [diagnostics, interactionBlockerSignature]);
   function canStartInteraction() {
     return (
       !modalOpen &&
       !operationBusy &&
-      !workspace.getSnapshot().importBatch &&
+      !workspaceSnapshot.importBatch &&
       session.canStartInteraction()
     );
   }
@@ -809,19 +842,18 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       if (canStartInteraction() && state.document) setDuplicateSpriteOpen(true);
     },
     keyboardShortcuts: () => {
-      if (canStartInteraction()) setKeyboardShortcutsOpen(true);
+      if (!modalOpen) setKeyboardShortcutsOpen(true);
     },
     userGuide: () => {
-      if (!canStartInteraction()) return;
       timelineActions?.flushPendingLayerProperties?.();
       setRecoveryOpen(false);
       editor.openTab(HelpDocumentTab.Guide);
     },
     about: () => {
-      if (canStartInteraction()) setAboutOpen(true);
+      if (!modalOpen) setAboutOpen(true);
     },
     feedback: () => {
-      if (canStartInteraction()) feedback.show();
+      if (!modalOpen) feedback.show();
     },
     donate: () => {
       telemetry.featureUsed(TelemetryFeature.Donate, TelemetryFeatureAction.Click);
@@ -852,6 +884,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     },
     canSave: session.canSave(),
     canStartInteraction: canStartInteraction(),
+    canOpenModal: !modalOpen,
     new: () => {
       if (!canStartInteraction()) return;
       timelineActions?.flushPendingLayerProperties?.();
@@ -860,7 +893,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       setNewDialog(true);
     },
     preferences: () => {
-      if (canStartInteraction()) setPreferencesOpen(true);
+      if (!modalOpen) setPreferencesOpen(true);
     },
     recentFiles,
     loadRecentFiles: () => {

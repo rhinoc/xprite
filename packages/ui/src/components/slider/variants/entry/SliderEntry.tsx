@@ -1,11 +1,9 @@
 import * as React from "react";
-import { createPortal } from "react-dom";
 
 import { Input } from "$/base/components/theme-controls";
 import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { ThemePart } from "$/base/theme/theme-part";
-import { ThemeScope } from "$/base/theme/theme-scope";
 import { clientPoint, clientRect } from "$/base/utils/dom-geometry";
 import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
 import { usesNativeTextEditing } from "$/base/utils/native-text-input";
@@ -20,8 +18,10 @@ import {
 import type { ControlPlacement, SizedControlPlacement } from "$/components/control-flow/placement";
 import { InputTouchActivation } from "$/components/input/touch-activation";
 import { measurePopoverAnchor, anchoredPopoverStyle } from "$/components/popover/anchored";
+import { SliderValueFormat } from "$/components/slider/types";
 import { Text, TextVariant } from "$/components/text";
-import { Tooltip } from "$/components/tooltip";
+import { createUiPortal } from "$/components/theme/portal";
+import { Tooltip, TooltipPlacement } from "$/components/tooltip";
 
 import styles from "$/components/slider/variants/entry/entry.module.css";
 
@@ -32,7 +32,7 @@ interface SliderEntryContentProps {
   onValueChange: (value: number) => void;
   suffix?: string;
   /** AlphaEntry conversion: stored 0..255, displayed/dragged as 0..100%. */
-  valueFormat?: "integer" | "percentage";
+  valueFormat?: SliderValueFormat;
   disabled?: boolean;
   readOnly?: boolean;
   mini?: boolean;
@@ -58,7 +58,7 @@ export function SliderEntry(props: SliderEntryProps) {
     max,
     onValueChange,
     suffix,
-    valueFormat = "integer",
+    valueFormat = SliderValueFormat.Integer,
     disabled,
     readOnly,
     mini,
@@ -71,6 +71,7 @@ export function SliderEntry(props: SliderEntryProps) {
   const { translateKey, translateSource, definition: theme } = useTheme();
   const { measureThemeText } = useThemeText();
   const host = React.useRef<HTMLSpanElement>(null);
+  const anchorId = React.useId();
   const slider = React.useRef<HTMLDivElement>(null);
   const [popup, setPopup] = React.useState<Popup | null>(null);
   const drag = React.useRef<{
@@ -79,7 +80,7 @@ export function SliderEntry(props: SliderEntryProps) {
     x: number;
     value: number;
   } | null>(null);
-  const percentage = valueFormat === "percentage";
+  const percentage = valueFormat === SliderValueFormat.Percentage;
   const lo = percentage ? 0 : min,
     hi = percentage ? 100 : Math.max(min, max);
   const displayValue = percentage ? Math.round((value * 100) / UINT8_MAX) : value;
@@ -289,6 +290,7 @@ export function SliderEntry(props: SliderEntryProps) {
   return (
     <span
       ref={host}
+      id={anchorId}
       className={styles.sliderEntryHost}
       onPointerDownCapture={(event) => {
         if (disabled || readOnly || !host.current?.contains(event.target as Node)) return;
@@ -316,7 +318,11 @@ export function SliderEntry(props: SliderEntryProps) {
         if (event.key === "Enter" || event.key === "Tab") close();
       }}
     >
-      <Tooltip text={tooltipText} placement="bottom" disabled={disabled || !!popup}>
+      <Tooltip
+        text={tooltipText}
+        placement={TooltipPlacement.Bottom}
+        disabled={disabled || !!popup}
+      >
         {(getTriggerProps) => (
           <Input
             {...getTriggerProps()}
@@ -350,56 +356,55 @@ export function SliderEntry(props: SliderEntryProps) {
       </Tooltip>
       {popup &&
         layout &&
-        createPortal(
-          <ThemeScope>
-            <div
-              ref={slider}
-              data-popup=""
-              {...stylusPointerInputProps(!disabled && !readOnly)}
-              role="slider"
-              aria-label={`${displayLabel} ${translateKey("ui.slider")}`}
-              aria-valuemin={lo}
-              aria-valuemax={hi}
-              aria-valuenow={displayValue}
-              aria-valuetext={text}
-              onContextMenu={(event) => event.preventDefault()}
-              onPointerDown={(event) => {
-                event.preventDefault();
-                event.currentTarget.setPointerCapture(event.pointerId);
-                drag.current = {
-                  pointer: event.pointerId,
-                  mode: event.button === 0 ? "absolute" : "relative",
-                  x: clientPoint(event).x,
-                  value: displayValue,
-                };
-                if (event.button === 0) {
-                  const rect = clientRect(event.currentTarget);
-                  change(
-                    Math.max(
-                      lo,
-                      Math.min(
-                        hi,
-                        lo +
-                          Math.trunc(
-                            ((hi - lo + 1) * (clientPoint(event).x - rect.left)) / rect.width,
-                          ),
-                      ),
+        createUiPortal(
+          <div
+            ref={slider}
+            data-popup=""
+            data-popup-for={anchorId}
+            {...stylusPointerInputProps(!disabled && !readOnly)}
+            role="slider"
+            aria-label={`${displayLabel} ${translateKey("ui.slider")}`}
+            aria-valuemin={lo}
+            aria-valuemax={hi}
+            aria-valuenow={displayValue}
+            aria-valuetext={text}
+            onContextMenu={(event) => event.preventDefault()}
+            onPointerDown={(event) => {
+              event.preventDefault();
+              event.currentTarget.setPointerCapture(event.pointerId);
+              drag.current = {
+                pointer: event.pointerId,
+                mode: event.button === 0 ? "absolute" : "relative",
+                x: clientPoint(event).x,
+                value: displayValue,
+              };
+              if (event.button === 0) {
+                const rect = clientRect(event.currentTarget);
+                change(
+                  Math.max(
+                    lo,
+                    Math.min(
+                      hi,
+                      lo +
+                        Math.trunc(
+                          ((hi - lo + 1) * (clientPoint(event).x - rect.left)) / rect.width,
+                        ),
                     ),
-                  );
-                }
-                selectText();
-              }}
-              className={styles.sliderPopup}
-              style={{
-                ...anchoredPopoverStyle(popup, popup.bounds, {
-                  zIndex: 10020,
-                  constrainToViewport: false,
-                }),
-              }}
-            >
-              {popupArt}
-            </div>
-          </ThemeScope>,
+                  ),
+                );
+              }
+              selectText();
+            }}
+            className={styles.sliderPopup}
+            style={{
+              ...anchoredPopoverStyle(popup, popup.bounds, {
+                zIndex: 10020,
+                constrainToViewport: false,
+              }),
+            }}
+          >
+            {popupArt}
+          </div>,
           document.body,
         )}
     </span>

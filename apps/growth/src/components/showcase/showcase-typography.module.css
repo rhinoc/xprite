@@ -1,7 +1,30 @@
-:global([data-showcase-stories] [data-story-copy]) {
+:global([data-showcase-stories] [data-showcase-note]) {
   --ui-note-font-family: var(--ui-font-family-compact);
-  --ui-note-font-size: 16px;
-  --ui-note-line-height: 22px;
-  --ui-reading-heading-size: 20px;
-  --ui-reading-heading-line-height: 26px;
+  --ui-note-font-size: var(--site-scene-summary-size);
+  --ui-note-line-height: var(--site-scene-summary-line-height);
+  --ui-note-content-padding: var(--ui-space-6, 16px);
+  --ui-note-window-content-top: var(--ui-space-6, 16px);
+  --ui-reading-heading-size: var(--site-scene-headline-size);
+  --ui-reading-heading-line-height: var(--site-scene-headline-line-height);
+  --ui-code-line-height: var(--ui-note-line-height);
+}
+
+:global([data-showcase-note] [data-slot="rich-text"] :is(h2, h3)) {
+  margin: 0 0 var(--ui-space-4, 8px);
+}
+
+:global([data-showcase-note] [data-slot="rich-text"] :is(p, ul, ol)) {
+  margin: 0;
+}
+
+:global([data-showcase-note] [data-slot="rich-text"] > :is(p, ul, ol) + *) {
+  margin-block-start: var(--ui-space-6, 16px);
+}
+
+:global([data-showcase-note] [data-slot="rich-text"] > :last-child) {
+  margin-block-end: 0;
+}
+
+:global([data-showcase-note] [data-slot="rich-text"] :is(ul, ol)) {
+  padding-inline-start: var(--ui-space-6, 16px);
 }

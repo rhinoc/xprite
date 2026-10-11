@@ -1,28 +1,19 @@
 import { useId } from "react";
 
 import { cn } from "$/base/utils/cn";
+import { borderStyle as resolveBorderStyle } from "$/components/border";
 import type { PanelGroupProps } from "$/components/panel/types";
-import { PanelGroupBorder } from "$/components/panel/types";
+import { PanelBorderStyle } from "$/components/panel/types";
 import { surfaceAttributes, surfaceStyle } from "$/components/surface/content";
 
 import styles from "$/components/panel/group.module.css";
 
-interface PanelGroupFrameProps extends PanelGroupProps {
-  /** Existing containers can retain their body slot and authored content spacing. */
-  bodySlot?: string;
-  insetContent?: boolean;
-  rootSlot?: string;
-}
-
-/** Shared frame rendering for group boxes and theme-selected panel frames. */
+/** Captioned panel frame selected by the active theme. */
 export function PanelGroupFrame({
   title,
   extra,
-  groupBorder = PanelGroupBorder.Single,
+  border = true,
   children,
-  bodySlot = "group-box-body",
-  rootSlot = "group-box",
-  insetContent = true,
   className,
   role = "group",
   tone,
@@ -32,8 +23,9 @@ export function PanelGroupFrame({
   contentAlign,
   style,
   ...props
-}: PanelGroupFrameProps) {
+}: PanelGroupProps) {
   const titleId = useId();
+  const resolvedBorder = resolveBorderStyle(border, PanelBorderStyle.Single);
   const hasTitle = title !== undefined && title !== null && title !== false && title !== "";
   const hasExtra = extra !== undefined && extra !== null && extra !== false;
   return (
@@ -46,10 +38,9 @@ export function PanelGroupFrame({
         props["aria-labelledby"] ?? (props["aria-label"] || !hasTitle ? undefined : titleId)
       }
       className={cn(styles.root, className)}
-      data-slot={rootSlot}
-      data-group-box-variant={groupBorder}
+      data-slot="panel"
+      data-group-box-variant={resolvedBorder ?? "none"}
       data-group-box-header={hasTitle || hasExtra || undefined}
-      data-group-box-inset={insetContent || undefined}
     >
       {(hasTitle || hasExtra) && (
         <div className={styles.header} data-slot="group-box-header">
@@ -70,7 +61,7 @@ export function PanelGroupFrame({
           )}
         </div>
       )}
-      <div className={styles.body} data-slot={bodySlot} data-ui-surface-content>
+      <div className={styles.body} data-slot="panel-body" data-ui-surface-content>
         {children}
       </div>
     </section>

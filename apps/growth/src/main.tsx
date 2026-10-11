@@ -11,7 +11,13 @@ import { ShowcaseManager } from "$/managers/showcase/showcase-manager";
 import { DesktopAppearance, DesktopProvider } from "@xprite/site-shell";
 import { createBrowserDesktop } from "@xprite/site-shell/browser";
 import { createBrowserSiteTelemetry } from "@xprite/site-shell/telemetry/browser";
-import { PageScrollArea, macintoshTheme } from "@xprite/ui";
+import {
+  ScrollArea,
+  ScrollAreaTarget,
+  ScrollbarRendering,
+  UiColorScheme,
+  macintoshTheme,
+} from "@xprite/ui";
 import { loadUiThemeSnapshot, type UiThemeSnapshot } from "@xprite/ui/assets";
 import { CursorProvider } from "@xprite/ui/cursor";
 
@@ -42,14 +48,18 @@ function ShowcaseApp({ initialTheme }: { initialTheme: UiThemeSnapshot }) {
       preloadArtwork={false}
     >
       <CursorProvider>
-        <PageScrollArea aria-label={language === "zh-CN" ? "页面滚动" : "Page scroll"}>
+        <ScrollArea
+          target={ScrollAreaTarget.Page}
+          scrollbarRendering={ScrollbarRendering.Browser}
+          aria-label={language === "zh-CN" ? "页面滚动" : "Page scroll"}
+        >
           <Showcase
             manager={manager}
             mountTrail={mountPixelTrail}
             mountIntro={mountShowcaseIntro}
             mountStoryAnimations={mountShowcaseStoryAnimations}
           />
-        </PageScrollArea>
+        </ScrollArea>
       </CursorProvider>
     </DesktopProvider>
   );
@@ -67,7 +77,9 @@ async function mountShowcase() {
         ? DesktopAppearance.Dark
         : DesktopAppearance.Light
       : preference;
-  const initialTheme = await loadUiThemeSnapshot(appearance, macintoshTheme);
+  const colorScheme =
+    appearance === DesktopAppearance.Dark ? UiColorScheme.Dark : UiColorScheme.Light;
+  const initialTheme = await loadUiThemeSnapshot(colorScheme, macintoshTheme);
   if (!active) return;
   root = createRoot(document.getElementById("root")!);
   root.render(

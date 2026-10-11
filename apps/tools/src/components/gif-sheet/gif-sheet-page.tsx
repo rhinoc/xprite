@@ -12,7 +12,6 @@ import { useToolTranslation } from "$/managers/locale/tool-language";
 import { GIF_SHEET_TOOL } from "$/managers/tools/tool-catalog";
 import {
   ContentLayout,
-  PanelWindowChrome,
   SurfaceTone,
   Field,
   FieldLayout,
@@ -22,10 +21,8 @@ import {
   Checkbox,
   Combobox,
   ControlFlow,
-  ControlFlowVariant,
   Panel,
   PanelVariant,
-  PanelWindowKind,
   Input,
 } from "@xprite/ui";
 
@@ -64,7 +61,7 @@ export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
   const grid =
     settings.layout === GifSheetLayout.Rows || settings.layout === GifSheetLayout.Columns;
   const numeric = (key: "count" | "borderPadding" | "shapePadding", label: string, max: number) => (
-    <Field layout={FieldLayout.Spread} label={t(`${label}:`)}>
+    <Field layout={FieldLayout.SpaceBetween} label={t(`${label}:`)}>
       <Input
         pixelWidth={ENTRY_WIDTH}
         aria-label={t(label)}
@@ -105,14 +102,14 @@ export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
         <div className={styles.layout}>
           {ready && (
             <Panel
-              windowChrome={PanelWindowChrome.Emphasized}
+              emphasized
               contentLayout={ContentLayout.Fill}
-              variant={PanelVariant.Window}
+              variant={PanelVariant.Document}
               title={snapshot.name}
               className={styles.preview}
               data-ui-window-priority="primary"
             >
-              <ControlFlow variant={ControlFlowVariant.Toolbar} className={shell.previewToolbar}>
+              <ControlFlow toolbar className={shell.previewToolbar}>
                 <Field layout={FieldLayout.Inline} label={t("Zoom:")}>
                   <Combobox
                     pixelWidth={ZOOM_WIDTH}
@@ -152,15 +149,15 @@ export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
           {(loaded || (busy && snapshot.name)) && (
             <aside className={styles.inspector} data-ui-desktop-layer>
               <Panel
-                windowChrome={PanelWindowChrome.Emphasized}
+                emphasized
                 tone={SurfaceTone.Accent}
-                variant={PanelVariant.Window}
+                scrollable
+                variant={PanelVariant.Utility}
                 title={t("Sheet layout")}
-                windowKind={PanelWindowKind.Utility}
                 collapsible
               >
                 <ControlFlow className={styles.settings} aria-label={t("Sheet settings")}>
-                  <Field layout={FieldLayout.Spread} label={t("Layout:")}>
+                  <Field layout={FieldLayout.SpaceBetween} label={t("Layout:")}>
                     <Combobox
                       pixelWidth={LAYOUT_WIDTH}
                       aria-label={t("Sheet type")}

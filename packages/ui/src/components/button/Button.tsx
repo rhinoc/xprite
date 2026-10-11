@@ -21,7 +21,7 @@ export const Button = forwardRef<
   if (props.href !== undefined)
     return <ButtonLink {...props} ref={ref as Ref<HTMLAnchorElement>} />;
 
-  const { variant = ButtonVariant.Standard, menu, ...buttonProps } = props;
+  const { variant = ButtonVariant.Push, menu, ...buttonProps } = props;
   const buttonRef = ref as Ref<HTMLButtonElement>;
   if (variant === ButtonVariant.Split)
     return <SplitButtonContent {...buttonProps} menu={menu} ref={buttonRef} />;

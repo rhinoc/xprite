@@ -74,8 +74,8 @@ function read(
   defaults: Readonly<EditorChromePreferences>,
 ): EditorChromePreferences {
   try {
-    const stored = storage?.getItem(EDITOR_CHROME_PREFERENCES_KEY);
-    return stored ? normalize(JSON.parse(stored), defaults) : { ...defaults };
+    const stored = storage?.readJson(EDITOR_CHROME_PREFERENCES_KEY);
+    return stored ? normalize(stored, defaults) : { ...defaults };
   } catch {
     return { ...defaults };
   }
@@ -99,7 +99,7 @@ export class EditorChromePreferencesManager {
     });
     this.committedUiElementScale = this.snapshot.uiElementScale;
     try {
-      const saved = JSON.parse(storage?.getItem(WORKSPACE_CHROME_PREFERENCES_KEY) ?? "null");
+      const saved = storage?.readJson(WORKSPACE_CHROME_PREFERENCES_KEY);
       if (saved && typeof saved === "object" && !Array.isArray(saved)) {
         for (const [key, value] of Object.entries(saved)) {
           if (value && typeof value === "object" && !Array.isArray(value)) {
@@ -165,11 +165,11 @@ export class EditorChromePreferencesManager {
     if (changed) this.snapshot = next;
     if (this.activeLayoutKey) this.workspaceChrome[this.activeLayoutKey] = layoutChrome(next);
     try {
-      this.storage?.setItem(
-        EDITOR_CHROME_PREFERENCES_KEY,
-        JSON.stringify({ ...next, uiElementScale: this.committedUiElementScale }),
-      );
-      this.storage?.setItem(WORKSPACE_CHROME_PREFERENCES_KEY, JSON.stringify(this.workspaceChrome));
+      this.storage?.writeJson(EDITOR_CHROME_PREFERENCES_KEY, {
+        ...next,
+        uiElementScale: this.committedUiElementScale,
+      });
+      this.storage?.writeJson(WORKSPACE_CHROME_PREFERENCES_KEY, this.workspaceChrome);
     } catch {
       // Keep the current value for this session when browser storage is unavailable.
     }

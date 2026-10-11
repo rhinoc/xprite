@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-import { useUi } from "@xprite/ui";
-import { UiIcon, centerUiPixel } from "@xprite/ui/assets";
+import { useUi, Icon } from "@xprite/ui";
+import { centerUiPixel } from "@xprite/ui/assets";
 
 import styles from "$/components/shell/backup-indicator/backup-indicator.module.css";
 
@@ -42,8 +42,8 @@ export function BackupIndicator({ active }: BackupIndicatorProps) {
         height: INDICATOR_SIZE,
       }}
     >
-      <UiIcon
-        part={name}
+      <Icon
+        kind={name}
         scale={ICON_SCALE}
         x={iconX}
         y={iconY}

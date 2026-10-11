@@ -56,7 +56,7 @@ export class AnimalCrossingManager {
   private state: AnimalCrossingToolState = {
     name: "",
     example: false,
-    previewOpen: true,
+    previewOpen: false,
     layout: AnimalCrossingLayout.Single,
     loading: false,
     downloading: false,

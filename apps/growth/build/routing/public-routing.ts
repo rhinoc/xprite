@@ -33,9 +33,13 @@ export function createPublicMiddleware(options: PublicRoutingOptions) {
     }
     const destination = options.redirects[pathname];
     if (destination) {
+      const target = new URL(destination, url);
+      const parameters = new URLSearchParams(url.search);
+      target.searchParams.forEach((value, key) => parameters.set(key, value));
+      target.search = parameters.toString();
       return new Response(null, {
         status: REDIRECT_STATUS,
-        headers: { Location: `${destination}${url.search}` },
+        headers: { Location: `${target.pathname}${target.search}${target.hash}` },
       });
     }
     if (pathname === ERROR_PAGE_PATH || !paths.has(pathname)) {

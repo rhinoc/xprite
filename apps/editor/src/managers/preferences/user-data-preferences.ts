@@ -24,9 +24,9 @@ export function readUserDataVisibilityPreferences(
   storage: PreferenceStoragePort,
 ): UserDataVisibilityPreferences {
   try {
-    const saved = JSON.parse(
-      storage.getItem(USER_DATA_VISIBILITY_PREFERENCE_KEY) ?? "null",
-    ) as Partial<Record<UserDataVisibilityScope, unknown>> | null;
+    const saved = storage.readJson(USER_DATA_VISIBILITY_PREFERENCE_KEY) as Partial<
+      Record<UserDataVisibilityScope, unknown>
+    > | null;
     return Object.fromEntries(
       Object.values(UserDataVisibilityScope).map((scope) => [
         scope,
@@ -45,7 +45,7 @@ export function writeUserDataVisibilityPreferences(
   preferences: UserDataVisibilityPreferences,
 ): void {
   try {
-    storage.setItem(USER_DATA_VISIBILITY_PREFERENCE_KEY, JSON.stringify(preferences));
+    storage.writeJson(USER_DATA_VISIBILITY_PREFERENCE_KEY, preferences);
   } catch {
     /* Keep the updated visibility choices for this session if storage is unavailable. */
   }

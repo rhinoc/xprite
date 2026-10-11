@@ -24,15 +24,10 @@ implement explicit ports; only `worker.ts` connects concrete persistence adapter
 The package imports no frontend, UI, or editor implementation. Root import and
 dependency checks enforce these boundaries. D1 statements are parameterized;
 SQL triggers protect immutable records, legal state transitions, and exactly-once
-physical-capacity release. No ORM, authentication service, or schema fallback is
-required.
+physical-capacity release.
 
-Local reference research found LibreSprite's share command delegates to native
-sharing or a browser file download; it is not a cloud-storage implementation.
-No reference implementation was copied. The bounded file inspector was written
-from the [official ASE format](https://github.com/aseprite/aseprite/blob/main/docs/ase-file-specs.md).
-Historical `.docs/monorepo-architecture.md` describes older paths; current
-repository instructions and package boundaries take precedence.
+The bounded file inspector follows the
+[official ASE format](https://github.com/aseprite/aseprite/blob/main/docs/ase-file-specs.md).
 
 ## Rules and ownership
 
@@ -232,9 +227,8 @@ only when configuring a release workflow. Frontend deployment remains independen
 
 Before connecting the editor, configure its sharing adapter with the Worker URL
 and verify browser access from the supported user regions. Keep all cloud requests
-out of editor startup and local persistence. User-visible sharing instructions
-and privacy documentation must be updated with that frontend integration; this
-backend-only change leaves current browser operations unchanged.
+out of editor startup and local persistence. Update user-visible sharing instructions and privacy documentation when the
+frontend integration is released.
 
 ## Platform references
 

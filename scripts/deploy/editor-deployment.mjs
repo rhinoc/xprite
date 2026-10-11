@@ -3,12 +3,12 @@ import { appendFile, cp, lstat, mkdir, readFile, readdir, rm, writeFile } from "
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import componentRoutes from "../../apps/gallery/build/generated-routes.json" with { type: "json" };
+import componentRoutes from "../../apps/components/build/generated-routes.json" with { type: "json" };
 import { siteServingConfiguration } from "../../apps/growth/build/routing/site-configuration.ts";
 import { GUIDE_PAGES } from "../../apps/growth/content/help/pages.ts";
 import { SHOWCASE_PAGES } from "../../apps/growth/content/showcase/pages.ts";
 import { SITE_PAGES, SitePageKind } from "../../apps/growth/content/site/pages.ts";
-import { GIF_SHEET_TOOL, TOOLS_HOME, TOOLS } from "../../apps/growth/content/tools/index.ts";
+import { GIF_SHEET_TOOL, TOOLS } from "../../apps/growth/content/tools/index.ts";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const configuration = siteServingConfiguration(
@@ -46,8 +46,8 @@ const REQUIRED_SITE_PAGES = [
   "404.html",
 ];
 
-/** Production served the component docs under /gallery/ with /gallery/components/<slug>. */
-function legacyGalleryRedirects() {
+/** Previous public addresses under /gallery/ open the current /components/ pages. */
+function previousComponentAddressRedirects() {
   return componentRoutes
     .filter((path) => path !== "/components/")
     .flatMap((path) => {
@@ -163,7 +163,7 @@ async function prepareDeployment() {
           { source: `${path}/`, destination: "/components/index.html" },
         ]),
     ],
-    redirects: [...(configuration.redirects ?? []), ...legacyGalleryRedirects()],
+    redirects: [...(configuration.redirects ?? []), ...previousComponentAddressRedirects()],
   };
   if (environment === "preview") {
     await writeFile(join(deploymentDirectory, "robots.txt"), "User-agent: *\nAllow: /\n");
@@ -292,7 +292,6 @@ async function verifyApplicationPages(url, environment) {
   const pages = [
     { path: "/editor", root: "root", indexable: false },
     { path: "/editor/", root: "root", indexable: false },
-    { path: TOOLS_HOME.path, root: "tools-root", indexable: true },
     ...TOOLS.map((tool) => ({
       path: tool.path,
       root:

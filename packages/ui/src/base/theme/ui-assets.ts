@@ -1,17 +1,16 @@
 import type { UiAssetBundle, UiBitmap } from "$/base/theme/theme-assets-store";
 import type { UiTheme } from "$/base/theme/theme-definition";
 import type { UiColorRole } from "$/base/theme/theme-name-types";
-import type { UiAppearance, UiStyleDefinition } from "$/base/theme/theme-types";
+import type { UiColorScheme, UiStyleDefinition } from "$/base/theme/theme-types";
 
 export interface UiAssets {
   sheet: UiBitmap;
   sheetUrl: string;
-  defaultFont: UiBitmap;
-  miniFont: UiBitmap;
+  fontAtlases: UiAssetBundle["fontAtlases"];
   cjkFontReady: boolean;
   language: string;
   style: UiStyle;
-  appearance: UiAppearance;
+  colorScheme: UiColorScheme;
   theme: UiTheme;
   colorRoles?: Readonly<Record<string, readonly UiColorRole[]>>;
 }
@@ -21,7 +20,7 @@ export interface UiStyle {
   dimensions: UiStyleDefinition["dimensions"];
   colors: UiStyleDefinition["colors"];
   parts: UiStyleDefinition["parts"];
-  typography?: UiStyleDefinition["typography"];
+  typography: UiStyleDefinition["typography"];
   controlParts?: UiStyleDefinition["controlParts"];
 }
 
@@ -35,20 +34,18 @@ export function exposeUiAssets(assets: UiAssetBundle): UiAssets {
   const {
     theme,
     uiTheme,
-    variant,
+    colorScheme,
     lightThemeColorRoles,
     sheet,
     sheetUrl,
-    defaultFont,
-    miniFont,
+    fontAtlases,
     cjkFontReady,
     language,
   } = assets;
   const uiAssets: UiAssets = {
     sheet,
     sheetUrl,
-    defaultFont,
-    miniFont,
+    fontAtlases,
     cjkFontReady,
     language,
     style: {
@@ -59,7 +56,7 @@ export function exposeUiAssets(assets: UiAssetBundle): UiAssets {
       typography: theme.typography,
       controlParts: theme.controlParts,
     },
-    appearance: variant,
+    colorScheme,
     theme: uiTheme,
     ...(lightThemeColorRoles ? { colorRoles: lightThemeColorRoles } : {}),
   };

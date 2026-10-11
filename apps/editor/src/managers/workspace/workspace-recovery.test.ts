@@ -5,6 +5,8 @@ import { build } from "esbuild";
 import { IDBFactory } from "fake-indexeddb";
 import { describe, it } from "vitest";
 
+import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
+
 describe("workspace-recovery", () => {
   it("workspace-recovery behavior", async () => {
     const { outputFiles } = await build({
@@ -28,10 +30,10 @@ describe("workspace-recovery", () => {
     );
     {
       const memory = new Map();
-      const storage = {
+      const storage = createJsonStorage({
         getItem: (key) => memory.get(key) ?? null,
         setItem: (key, value) => memory.set(key, value),
-      };
+      });
       const first = new RecoverySettingsStore("one", storage),
         second = new RecoverySettingsStore("two", storage);
       assert.deepEqual(first.load(), { enabled: true, intervalMinutes: 2, retentionDays: 7 });
@@ -56,10 +58,10 @@ describe("workspace-recovery", () => {
         createBrowserProjectStorage({ databaseName: name, factory, preferOpfs: false }),
       );
     const preferenceMemory = new Map();
-    const preferenceStorage = {
+    const preferenceStorage = createJsonStorage({
       getItem: (key) => preferenceMemory.get(key) ?? null,
       setItem: (key, value) => preferenceMemory.set(key, value),
-    };
+    });
     let nextRecoveryId = 0;
     const newRecovery = ({
       repository,

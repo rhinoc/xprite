@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useRef } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
@@ -14,12 +14,11 @@ import {
   Combobox,
   ControlFlow,
   Slider,
-  SliderVariant,
   Text,
   TextVariant,
 } from "@xprite/ui";
 import { RASTER_SCALE } from "@xprite/ui/canvas";
-import { layoutSize, observeResize } from "@xprite/ui/utils";
+import { useElementSize } from "@xprite/ui/utils";
 
 import styles from "$/components/replay/replay.module.css";
 
@@ -49,18 +48,10 @@ function ReplayKeys() {
 function ReplayProgress() {
   const { manager, snapshot } = useReplay();
   const host = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(1);
-  useLayoutEffect(() => {
-    const node = host.current;
-    if (!node) return;
-    const measure = () => setWidth(Math.max(1, layoutSize(node).width));
-    measure();
-    return observeResize([node], measure);
-  }, []);
+  const width = Math.max(1, useElementSize(host).width);
   return (
     <div ref={host} className={styles.progress}>
       <Slider
-        variant={SliderVariant.Normal}
         pixelSize={{ width: width / RASTER_SCALE, height: PROGRESS_PIXEL_HEIGHT }}
         aria-label={tUi("replay.position")}
         label={`${replayTimeLabel(snapshot.position)} / ${replayTimeLabel(snapshot.duration)}`}
@@ -114,7 +105,7 @@ function ReplayPreview() {
         <ControlFlow className={styles.toolbar}>
           <ControlFlow className={styles.actions}>
             <Button
-              variant={ButtonVariant.Standard}
+              variant={ButtonVariant.Push}
               text={tUi("replay.import")}
               disabled={snapshot.busy}
               onClick={() => void manager.import()}
@@ -134,7 +125,7 @@ function ReplayPreview() {
             />
             {snapshot.imported && (
               <Button
-                variant={ButtonVariant.Standard}
+                variant={ButtonVariant.Push}
                 text={tUi("replay.project")}
                 disabled={snapshot.busy}
                 onClick={manager.showProjectReplay}
@@ -170,7 +161,7 @@ function ReplayPreview() {
             </Text>
             {snapshot.unsaved && (
               <Button
-                variant={ButtonVariant.Standard}
+                variant={ButtonVariant.Push}
                 text={tUi("replay.retrySave")}
                 disabled={snapshot.saving}
                 onClick={() => void manager.retrySave()}

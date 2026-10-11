@@ -1,5 +1,12 @@
 import type { UiColorRole } from "$/base/theme/theme-name-types";
-import type { UiAppearance, UiStyleDefinition } from "$/base/theme/theme-types";
+import type { UiColorScheme, UiStyleDefinition } from "$/base/theme/theme-types";
+
+export interface UiCursorArtwork {
+  svg: string;
+  width: number;
+  height: number;
+  hotspot: { x: number; y: number };
+}
 
 export type UiThemeTokens = Readonly<Partial<Record<`--${string}`, string>>>;
 
@@ -15,5 +22,7 @@ export interface UiThemeArtwork {
 export interface UiTheme {
   readonly id: string;
   readonly label: string;
-  readonly load: (appearance: UiAppearance) => Promise<UiThemeArtwork>;
+  readonly cursors: Readonly<Record<string, UiCursorArtwork>>;
+  readonly typography: UiStyleDefinition["typography"];
+  readonly load: (colorScheme: UiColorScheme) => Promise<UiThemeArtwork>;
 }

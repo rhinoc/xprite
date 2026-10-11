@@ -25,7 +25,7 @@ function pageAtPath(requestPath: string): SitePageType {
   // Chinese pages share their English page type under the root /zh-CN/ prefix.
   const path = requestPath.replace(/^\/zh-CN(?=\/|$)/u, "");
   if (path === "/about" || path.startsWith("/about/")) return SitePageType.Showcase;
-  if (path === "/components" || path.startsWith("/components/")) return SitePageType.Gallery;
+  if (path === "/components" || path.startsWith("/components/")) return SitePageType.Components;
   if (
     path === "/compare" ||
     path.startsWith("/compare/") ||

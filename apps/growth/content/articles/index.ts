@@ -26,15 +26,6 @@ export const ARTICLE_COLLECTIONS = {
     description:
       "Choose a pixel art editor for your browser or iPad. Compare Aseprite, Piskel, Xprite, and tablet apps by animation, file formats, and input.",
   },
-  learn: {
-    collection: "learn",
-    path: "/learn/",
-    label: "File guides",
-    title: "Aseprite File Guides: PNG and GIF Export | Xprite",
-    headline: "Aseprite file guides",
-    description:
-      "Open an Aseprite project in your browser and export a PNG frame or GIF animation for free. Check transparency, timing, and file-size limits.",
-  },
 } as const;
 
 export const ARTICLES: readonly PublicArticle[] = [
@@ -75,32 +66,6 @@ export const ARTICLES: readonly PublicArticle[] = [
     summary:
       "Pixelorama opens .piskel directly; Xprite suits .aseprite editing and touch drawing; Pixilart suits sharing your work.",
     topic: "Editor alternatives",
-    dateModified: ARTICLE_UPDATE_DATE,
-  },
-  {
-    collection: "learn",
-    slug: "aseprite-to-gif",
-    path: "/learn/aseprite-to-gif/",
-    title: "Aseprite to GIF: Export an Animation in Your Browser | Xprite",
-    shortTitle: { en: "Aseprite to GIF", "zh-CN": "Aseprite 转 GIF" },
-    description:
-      "Open an .aseprite file in the Xprite viewer, pick an animation tag, and export a GIF for free without installing Aseprite. Files stay on your device. Also covers how GIF changes frame timing, colors and transparency.",
-    summary:
-      "Export a whole animation or one tag as GIF in 4 steps, and see what happens to frame timing, colors and transparency.",
-    topic: "Animation export",
-    dateModified: ARTICLE_UPDATE_DATE,
-  },
-  {
-    collection: "learn",
-    slug: "aseprite-to-png",
-    path: "/learn/aseprite-to-png/",
-    title: "Aseprite to PNG: Export a Frame with a Transparent Background | Xprite",
-    shortTitle: { en: "Aseprite to PNG", "zh-CN": "Aseprite 转 PNG" },
-    description:
-      "Open an .aseprite file in the Xprite viewer, pick a frame and visible layers, and export a transparent PNG at the canvas size for free. Files stay on your device, and you don't need Aseprite.",
-    summary:
-      "Export any frame as a transparent PNG in 4 steps, keeping its original size and semi-transparent pixels.",
-    topic: "Transparent images",
     dateModified: ARTICLE_UPDATE_DATE,
   },
 ];

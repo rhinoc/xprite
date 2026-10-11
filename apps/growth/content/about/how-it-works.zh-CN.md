@@ -268,7 +268,7 @@ const actual = coalesced.filter(
 
 ## 布局：从桌面窗口到手机竖屏
 
-Xprite 的界面照着 Aseprite 1.3 还原：对话框的尺寸和控件位置取自 Aseprite 1.3.18 的实测数据，并有测试保证一致；主题贴图沿用 Aseprite 的像素风格；中文界面使用 Fusion Pixel 像素字体。
+Xprite 的界面照着 Aseprite 1.3 还原：对话框的尺寸和控件位置取自 Aseprite 1.3.18 的实测数据，并有测试保证一致；主题贴图沿用 Aseprite 的像素风格；中文界面使用缝合像素字体。
 
 宽屏上是熟悉的桌面布局：顶部菜单栏，左边调色板，右边工具栏，底部时间轴。
 

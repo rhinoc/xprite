@@ -1,7 +1,7 @@
 // Executed by ego-browser nodejs; the wrapper supplies continuityConfig.
 const fs = await import("node:fs/promises");
 const { captureBrowserScreenshot } = await import(continuityConfig.screenshotModule);
-const task = await taskSpace("Xprite startup continuity");
+const task = await taskSpace(continuityConfig.spaceId ?? "Xprite startup continuity");
 if (task.ownership !== "agent") throw Error("Startup continuity requires an agent-owned space.");
 console.log(`CONTINUITY_SPACE:${task.spaceId}`);
 const page = task.page("p1");
@@ -52,7 +52,8 @@ for (const scene of continuityConfig.scenes) {
     source: `if(location.origin===${JSON.stringify(origin)}){
       localStorage.setItem("xprite.site.desktop-preferences",${JSON.stringify(JSON.stringify({ appearance: scene.appearance.saved }))});
       localStorage.setItem("xse.ui.appearance-mode.v1",${JSON.stringify(scene.appearance.saved)});
-      localStorage.setItem("xprite.gallery.appearance",${JSON.stringify(JSON.stringify({ theme: scene.page.galleryTheme ?? "macintosh" }))});
+      ${scene.page.language ? `localStorage.setItem("xse.ui.language.v1",${JSON.stringify(scene.page.language)});` : ""}
+      localStorage.setItem("xprite.components.appearance",${JSON.stringify(JSON.stringify({ theme: scene.page.componentsTheme ?? "macintosh" }))});
       ${continuityConfig.geometrySource}
       (${continuityConfig.monitorSource})(${JSON.stringify(monitorConfig)},StartupGeometry);
     }`,
@@ -82,6 +83,10 @@ for (const scene of continuityConfig.scenes) {
     await page.waitForFunction(() => window.__xpriteStartupMonitor?.complete, undefined, {
       timeout: continuityConfig.startupTimeoutMilliseconds,
     });
+    const language = await page.evaluate(() => document.documentElement.lang);
+    if (scene.page.language && language !== scene.page.language)
+      throw Error(`${scene.id}: expected ${scene.page.language}, received ${language}.`);
+    result.language = language;
     await page.evaluate(() => window.__xpriteStartupMonitor.decodeImages());
     result.readyScreenshot = await capture("ready");
     result.observation = await page.evaluate(() => window.__xpriteStartupMonitor.stop());
@@ -105,5 +110,5 @@ for (const scene of continuityConfig.scenes) {
 }
 await page.cdp("Network.setCacheDisabled", { cacheDisabled: false });
 await page.cdp("Emulation.setCPUThrottlingRate", { rate: 1 });
-await task.finish({ keep: [] });
+if (continuityConfig.spaceId === undefined) await task.finish({ keep: [] });
 console.log(`STARTUP_CONTINUITY_REPORT:${JSON.stringify({ results })}`);

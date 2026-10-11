@@ -1,12 +1,12 @@
+import { windowKindTypographyTokens, windowTypographyTokens } from "$/base/theme/typography-tokens";
+
 /** Window-purpose metrics shared by themes; each theme can override individual tokens. */
 export const panelWindowKindTokens = {
+  ...windowKindTypographyTokens,
   "--ui-panel-utility-shadow-offset": "1px",
   "--ui-panel-utility-title-height": "22px",
   "--ui-panel-utility-title-inset": "4px",
   "--ui-panel-utility-title-gap": "6px",
-  "--ui-panel-utility-font-size": "16px",
-  "--ui-panel-utility-line-height": "16px",
-  "--ui-panel-utility-font": "var(--ui-font-family-compact)",
   "--ui-panel-utility-stripe-height": "10px",
   "--ui-panel-utility-stripe-grid": "2px 2px",
   "--ui-panel-utility-stripe-leading-width": "8px",
@@ -14,25 +14,15 @@ export const panelWindowKindTokens = {
   "--ui-panel-dialog-shadow-offset": "2px",
   "--ui-panel-dialog-title-min-height": "32px",
   "--ui-panel-dialog-title-padding": "12px 16px 0",
-  "--ui-panel-about-font-size": "16px",
-  "--ui-panel-about-line-height": "20px",
-  "--ui-panel-about-font": "var(--ui-font-family-compact)",
-  "--ui-panel-note-frame-width": "1px",
-  "--ui-panel-note-shadow-offset": "3px",
-  "--ui-panel-note-title-height": "32px",
-  "--ui-panel-note-title-inset": "16px",
-  "--ui-panel-note-title-edge-width": "3px",
 } as const;
 
 /** Every theme has usable window typography even when its artwork supplies no extra tokens. */
 export const panelWindowTokens = {
   ...panelWindowKindTokens,
+  ...windowTypographyTokens,
   "--ui-panel-window-title-height": "28px",
   "--ui-panel-window-title-gap": "10px",
   "--ui-panel-window-title-inset": "6px",
-  "--ui-panel-window-title-font-size": "16px",
-  "--ui-panel-window-title-line-height": "16px",
-  "--ui-panel-window-title-font": "var(--ui-font-family)",
   "--ui-panel-window-stripe-height": "16px",
   "--ui-panel-window-stripe-width": "1px",
   "--ui-panel-window-stripe-step": "3px",
@@ -42,7 +32,4 @@ export const panelWindowTokens = {
   "--ui-panel-window-footer-height": "24px",
   "--ui-panel-window-footer-gap": "8px",
   "--ui-panel-window-footer-padding": "3px 10px",
-  "--ui-panel-window-footer-font-size": "16px",
-  "--ui-panel-window-footer-line-height": "18px",
-  "--ui-panel-window-footer-font": "var(--ui-font-family-compact)",
 } as const;

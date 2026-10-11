@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { build } from "esbuild";
 import { it } from "vitest";
 
+import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
+
 async function loadChromePreferencesManager() {
   const bundle = await build({
     entryPoints: ["apps/editor/src/managers/shell/editor-chrome-preferences.ts"],
@@ -20,10 +22,10 @@ async function loadChromePreferencesManager() {
 it("links layout chrome and settings, retaining per-layout changes after switching and reloading", async () => {
   const EditorChromePreferencesManager = await loadChromePreferencesManager();
   const values = new Map();
-  const storage = {
+  const storage = createJsonStorage({
     getItem: (key) => values.get(key) ?? null,
     setItem: (key, value) => values.set(key, value),
-  };
+  });
   const compact = {
     showEditorMenuBar: false,
     showShortcutToolbar: true,
@@ -77,10 +79,10 @@ it("uses keyboard hints only for the first shortcut default, independently of la
   const EditorChromePreferencesManager = await loadChromePreferencesManager();
   for (const keyboardLikelyAvailable of [false, true]) {
     const values = new Map();
-    const storage = {
+    const storage = createJsonStorage({
       getItem: (key) => values.get(key) ?? null,
       setItem: (key, value) => values.set(key, value),
-    };
+    });
     const wide = {
       showEditorMenuBar: true,
       showShortcutToolbar: false,

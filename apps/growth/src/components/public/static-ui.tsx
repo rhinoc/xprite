@@ -1,7 +1,10 @@
+import { ARTICLES } from "$content/articles/index";
+import { publicLanguage } from "$content/site/language";
 import { siteApplications, siteFooterGroups, showcaseLabel } from "$content/site/navigation";
 import { DOCUMENT_PAGES } from "$content/site/pages";
-import { type HTMLAttributes, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useSyncExternalStore, type HTMLAttributes } from "react";
 
+import type { DocumentContentsManager } from "$/managers/public/document-contents-manager";
 import { SiteFooter, SiteMenubar, type SiteFooterProps } from "@xprite/site-shell";
 import {
   Button,
@@ -13,25 +16,59 @@ import {
   TextVariant,
   TextRole,
   ContentPadding,
-  NavigationList,
+  ListBox,
+  ListBoxMode,
   RichText,
   SurfaceTone,
-  PanelWindowChrome,
   Menubar,
   Panel,
   PanelVariant,
-  PanelWindowKind,
   type MenubarNavigationLink,
   type MenubarMenu,
   ButtonVariant,
   IconSize,
+  ScrollArea,
+  ScrollbarRendering,
 } from "@xprite/ui";
+import {
+  clientRect,
+  clientToLocal,
+  layoutSize,
+  scrollPosition,
+  setScrollPosition,
+} from "@xprite/ui/utils";
 
 import "$/components/public/site-preset.module.css";
+import scrollStyles from "$/public-controls.module.css";
 
 /** Business markup is kept intact; shared controls own their anatomy and skin. */
 export function PublicHtml({ html }: { html: string }) {
   return <div style={{ display: "contents" }} dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
+export function PublicReaderScroll({
+  content,
+  language = "en",
+}: {
+  content: string;
+  language?: string;
+}) {
+  return (
+    <ScrollArea
+      className={scrollStyles.documentScroll}
+      scrollbarRendering={ScrollbarRendering.Browser}
+      scrollX={false}
+      reserveScrollbarGutter
+      aria-label={language.startsWith("zh") ? "文档滚动" : "Document scroll"}
+      viewportProps={{
+        tabIndex: 0,
+        "data-public-reader-scroll": "",
+        "data-ui-scroll-region-focus": "true",
+      }}
+    >
+      <PublicHtml html={content} />
+    </ScrollArea>
+  );
 }
 
 export function PublicFooter({
@@ -50,31 +87,38 @@ export function PublicFooter({
 }
 
 export interface PublicWindowProps {
+  language?: string;
   title: string;
   content: string;
   attributes?: HTMLAttributes<HTMLElement>;
   footer?: string;
   heading?: boolean;
 }
-export function PublicWindow({ title, content, attributes, footer, heading }: PublicWindowProps) {
+export function PublicWindow({
+  title,
+  content,
+  attributes,
+  footer,
+  heading,
+  language,
+}: PublicWindowProps) {
   return (
     <Panel
       {...attributes}
-      variant={PanelVariant.Window}
-      windowKind={
+      variant={
         attributes && "data-public-contents" in attributes
-          ? PanelWindowKind.Utility
-          : PanelWindowKind.Document
+          ? PanelVariant.Utility
+          : PanelVariant.Document
       }
       defaultCollapsed={!!attributes && "data-public-related-window" in attributes}
       data-ui-window-priority={
         attributes && "data-public-document" in attributes ? "primary" : undefined
       }
-      windowChrome={PanelWindowChrome.Emphasized}
+      emphasized
       contentPadding={ContentPadding.None}
       tone={
         attributes && "data-public-directory-window" in attributes
-          ? SurfaceTone.Informative
+          ? SurfaceTone.Info
           : attributes && "data-public-related-window" in attributes
             ? SurfaceTone.Accent
             : attributes && "data-public-contents" in attributes
@@ -82,20 +126,25 @@ export function PublicWindow({ title, content, attributes, footer, heading }: Pu
               : attributes && "data-public-folders" in attributes
                 ? SurfaceTone.Accent
                 : attributes && "data-public-document" in attributes
-                  ? SurfaceTone.Positive
+                  ? SurfaceTone.Success
                   : SurfaceTone.Neutral
       }
       title={heading ? <h1 data-public-window-heading>{title}</h1> : title}
       aria-label={title}
       footer={footer ? <PublicHtml html={footer} /> : undefined}
     >
-      <PublicHtml html={content} />
+      {attributes &&
+      ("data-public-document" in attributes || "data-public-contents" in attributes) ? (
+        <PublicHtml html={content} />
+      ) : (
+        <PublicReaderScroll content={content} language={language} />
+      )}
     </Panel>
   );
 }
 
 interface PublicNavigationLink extends MenubarNavigationLink {
-  icon?: "help" | "language";
+  icon?: "language";
 }
 export interface PublicNavigationProps {
   label: string;
@@ -106,8 +155,6 @@ export interface PublicNavigationProps {
   currentHref?: string;
   links: readonly PublicNavigationLink[];
   menus?: readonly MenubarMenu[];
-  leadingContent?: ReactNode;
-  trailingContent?: ReactNode;
 }
 export function PublicNavigation({
   label,
@@ -118,29 +165,24 @@ export function PublicNavigation({
   currentHref = brandHref,
   links,
   menus = [],
-  leadingContent,
-  trailingContent,
 }: PublicNavigationProps) {
   const chinese = language.startsWith("zh");
   const otherLanguage = links.find((link) => link.icon === "language");
-  const help = links.find((link) => link.icon === "help");
   const path = currentHref.split("?")[0].replace(/^\/zh-CN(?=\/)/, "");
+  const article = ARTICLES.find((article) => article.path === path);
   const documentPage = DOCUMENT_PAGES.find((page) => page.path === currentHref.split("?")[0]);
   const applicationName =
+    article?.shortTitle[publicLanguage(language)] ??
     documentPage?.title ??
     (path.startsWith("/help")
       ? chinese
         ? "使用指南"
         : "User guide"
-      : path.startsWith("/learn")
+      : path.startsWith("/compare")
         ? chinese
-          ? "文件导出指南"
-          : "File guides"
-        : path.startsWith("/compare")
-          ? chinese
-            ? "编辑器比较"
-            : "Compare"
-          : showcaseLabel(language));
+          ? "编辑器比较"
+          : "Compare"
+        : showcaseLabel(language));
   const languages = otherLanguage
     ? [
         { value: language, label: chinese ? "简体中文" : "English", href: currentHref },
@@ -157,14 +199,11 @@ export function PublicNavigation({
       <SiteMenubar
         label={label}
         applicationName={applicationName}
-
-        applications={siteApplications(currentHref, language, import.meta.env.DEV, help?.href)}
+        applications={siteApplications(currentHref, language)}
         language={language}
         languages={languages}
         brandImage={brandImage}
         menus={menus}
-        leadingContent={leadingContent}
-        trailingContent={trailingContent}
       />
       <noscript>
         <Menubar label={label} links={[{ label: brandLabel, href: brandHref }, ...links]} />
@@ -220,19 +259,46 @@ export function PublicRichText({
 export function PublicIndex({
   label,
   items,
+  contents,
 }: {
   label: string;
   items: { label: string; href: string }[];
+  contents?: DocumentContentsManager;
 }) {
+  const activeHref = useSyncExternalStore(
+    contents?.subscribe ?? subscribeNoContents,
+    contents?.getSnapshot ?? noContentsSnapshot,
+    contents?.getServerSnapshot ?? noContentsSnapshot,
+  );
+  const viewport = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const scroller = viewport.current;
+    const link = scroller?.querySelector<HTMLElement>('a[aria-current="location"]');
+    if (!scroller || !link) return;
+    const rect = clientRect(link);
+    const top = clientToLocal(scroller, { x: rect.left, y: rect.top }).y;
+    const bottom = clientToLocal(scroller, { x: rect.left, y: rect.bottom }).y;
+    const height = layoutSize(scroller).height;
+    const delta = top < 0 ? top : bottom > height ? bottom - height : 0;
+    if (delta) setScrollPosition(scroller, { y: scrollPosition(scroller).y + delta });
+  }, [activeHref]);
   return (
-    <NavigationList
+    <ListBox
+      mode={ListBoxMode.Navigation}
+      border={false}
       aria-label={label}
       items={items}
+      activeHref={activeHref ?? items[0]?.href}
+      scrollbarRendering={ScrollbarRendering.Browser}
+      scrollViewportRef={viewport}
       className="public-index"
-      style={{ maxHeight: "var(--public-index-height, calc(100svh - 200px))" }}
+      style={{ maxHeight: "100%" }}
     />
   );
 }
+
+const subscribeNoContents = () => () => {};
+const noContentsSnapshot = (): string | undefined => undefined;
 
 export function PublicStatus({
   label,

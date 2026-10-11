@@ -1,16 +1,15 @@
 import { themeCjkFontFamily, themeFontFamily } from "$/base/theme/font-families";
 import type { UiThemeTokens } from "$/base/theme/theme-definition";
 import type { UiStyleDefinition } from "$/base/theme/theme-types";
+import { readingTypographyTokens } from "$/base/theme/typography-tokens";
 import { panelWindowTokens } from "$/base/theme/window-chrome-tokens";
-
-const CODE_FONT_FAMILY = "ui-monospace, monospace";
 
 /** Resolve both roles from this skin, without importing any other skin's fonts. */
 export function semanticFontFamilies(typography: UiStyleDefinition["typography"]) {
   return {
-    primary: themeFontFamily(typography?.default),
-    compact: themeFontFamily(typography?.mini ?? typography?.default),
-    cjk: themeCjkFontFamily(typography?.default),
+    primary: themeFontFamily(typography.primary),
+    compact: themeFontFamily(typography.compact),
+    cjk: themeCjkFontFamily(typography.primary),
   };
 }
 
@@ -46,6 +45,7 @@ export function semanticPresentationTokens({
 }: SemanticPresentationPalette): UiThemeTokens {
   return {
     ...panelWindowTokens,
+    ...readingTypographyTokens,
     "--ui-font-family": primaryFont,
     "--ui-font-family-compact": compactFont,
     "--ui-font-family-cjk": `${cjkFont}, monospace`,
@@ -59,7 +59,7 @@ export function semanticPresentationTokens({
     "--ui-color-desktop": desktop,
     "--ui-color-chrome": chrome,
     "--ui-font-weight-normal": "400",
-    "--ui-color-danger-ink": "#a11",
+    "--ui-color-error-ink": "#a11",
     "--ui-color-danger-muted-ink": "#8b1c1c",
     "--ui-chrome-face": chrome,
     "--ui-theme-font-size": "9.566px",
@@ -70,24 +70,13 @@ export function semanticPresentationTokens({
     "--ui-menu-underline-height": "2px",
     "--ui-text-flow-line-height": "1.35",
     "--ui-group-box-title-height": "16px",
-    "--ui-text-default-size": "14px",
+    "--ui-text-primary-size": "14px",
     "--ui-text-compact-size": "12px",
     "--ui-text-mini-size": "12px",
     "--ui-text-mini-cjk-size": "10px",
     "--ui-text-mini-line": "10px",
-    "--ui-reading-body-size": "16px",
-    "--ui-reading-caption-size": "14px",
-    "--ui-reading-heading-size": "24px",
-    "--ui-reading-title-size": "32px",
-    "--ui-reading-line-height": "1.5",
-    "--ui-reading-heading-line-height": "1.5",
-    "--ui-reading-title-line-height": "1.5",
-    "--ui-code-font": CODE_FONT_FAMILY,
-    "--ui-code-size": "12px",
-    "--ui-code-line-height": "1.5",
-    "--ui-code-tab-size": "2",
     "--ui-field-font": "var(--ui-font-family)",
-    "--ui-field-font-size": "var(--ui-text-size, var(--ui-text-default-size))",
+    "--ui-field-font-size": "var(--ui-text-size, var(--ui-text-primary-size))",
     "--ui-field-line-height": "1.5",
     "--ui-textarea-code-line-height": "1.35",
     "--ui-textarea-code-padding": "6px",

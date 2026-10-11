@@ -4,13 +4,14 @@ The pre-push hook runs `pnpm run visual:continuity --port 5173` against the runn
 site and its app proxies. `XPRITE_VISUAL_PORT` selects an existing site server.
 The audit does not build apps, start servers, or change screenshot baselines.
 
-All 41 scenes are required. Eight templates cover both viewports and saved Light
-and Dark: editor, Chinese about page (`/zh-CN/about/`), Chinese help, Learn
-directory, Chinese article, Chinese privacy document, and both component-docs
-skins (`/components/`). Editor, Chinese about page and Macintosh component docs
-also cover both system appearances at the wide viewport. English about page,
-help and article have an additional wide Light sample. Tool continuity is observed
-within the existing 32 exact SSG/ready pairs, using the same captures.
+All 24 registered scenes are required. The editor covers English and Simplified
+Chinese at both viewports with saved Light and Dark, plus both system appearances
+at the wide viewport. The Simplified Chinese About page (`/zh-CN/about/`) covers
+both viewports and saved appearances, plus both system appearances at the wide
+viewport. Other templates are sampled across languages, viewports and appearances:
+help, Features, an article, privacy, and both component-docs skins. Tool startup
+continuity is observed within the registered exact SSG/ready pairs, using the same
+captures.
 Each scene uses a fresh, isolated localhost origin, disabled network cache, DPR 1,
 and fourfold CPU slowdown. Existing user storage is never cleared or modified.
 
@@ -38,3 +39,7 @@ scene's event trace with timestamps and failures, and `report.json`. A timeout
 also saves the page's current screenshot; it may show recovered content, so use
 the trace to locate an earlier disappearance. Every run invalidates its report
 before capture. Missing or partial evidence cannot reuse a previous pass.
+
+Use `--space ID` to reuse an agent-owned browser space for related checks.
+The caller finishes a supplied space after all work; standalone successful audits
+close only the space they created. Recovery still observes every scene.

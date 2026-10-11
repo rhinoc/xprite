@@ -84,10 +84,10 @@ The repository's `.gitattributes` keeps Git hook files on LF line endings even
 when `core.autocrlf` is enabled. `pnpm install` installs the hooks automatically;
 the generated `.husky/_` directory does not need to be committed.
 
-`pnpm run dev` starts the independent editor, growth, tools and gallery servers,
+`pnpm run dev` starts the independent editor, growth, tools and components servers,
 reusing this workspace's existing servers on their fixed ports. It performs no
-builds. Shared UI output must already exist; regenerate the gallery catalog with
-`pnpm run gallery:generate` after adding or removing public UI components.
+builds. Shared UI output must already exist; regenerate the component catalog with
+`pnpm run components:generate` after adding or removing public UI components.
 
 Use `http://127.0.0.1:5173` on this computer, or `http://<LAN-IP>:5173` from another
 device on the same subnet. The launcher prints the available IP addresses.
@@ -109,15 +109,15 @@ is not a secure browser context; HTTPS-only capabilities such as service workers
 and some clipboard/file APIs still require a secure origin.
 
 Start apps separately with `pnpm run dev:editor`, `pnpm run dev:growth`,
-`pnpm run dev:tools` or `pnpm run dev:gallery`. Their backend ports remain
-5173, 5175, 5176 and 5174 respectively. Gallery uses `/components/` on its own
+`pnpm run dev:tools` or `pnpm run dev:components`. Their backend ports remain
+5173, 5175, 5176 and 5174 respectively. Web Components uses `/components/` on its own
 server too. All servers must be running for cross-app navigation. Proxy rules
 are centralized in `infra/dev-site.ts`, with ports in `infra/dev-site.json`; production builds retain their
 existing paths and separate outputs. An unrelated process on a required port
 causes an error instead of silently moving an app to another port.
 
 Use root-relative paths for navigation between website pages, including menu
-items, help and article links, and gallery examples. Do not hardcode the
+items, help and article links, and component examples. Do not hardcode the
 production website origin in navigation or switch it based on development mode.
 Canonical URLs, search metadata and production service configuration retain
 their explicit production origins.
@@ -137,7 +137,7 @@ pnpm run build
 `pnpm run check:ui-editor-usage` requires public UI components to be reachable
 from production page render graphs: editor, browser tools, showcase, help and
 article pages, including their SSG renderers and shared presentation packages.
-Gallery's normal page UI, including its menubar and navigation, counts as usage.
+Web Components' normal page UI, including its menubar and navigation, counts as usage.
 Its configuration-driven component cards and the previews they render are
 excluded and cannot satisfy component usage requirements. The check
 rejects invalid or unresolved variant usages; unused legal variants are reported
@@ -170,7 +170,7 @@ and tool tooltip catalog. It rejects unknown keys, missing interpolation values,
 uncatalogued labels and workflow errors, native DOM literals, and messages
 assembled with string concatenation or template literals. It follows unambiguous
 local constants; runtime data and complex expressions still need review. The
-development gallery is outside this editor language check.
+development components app is outside this editor language check.
 
 The same check runs in the pre-commit hook, in `pnpm run check` before pushing,
 and in the GitHub Actions **I18n coverage** workflow on pull requests and pushes.

@@ -1,6 +1,6 @@
 # Editor telemetry
 
-The first integration sends events directly from the browser to PostHog Cloud.
+The browser transport sends editor events to PostHog Cloud.
 Analytics is optional: local diagnostics, editing, file pickers, export and recovery
 continue to work when configuration is absent or reporting fails.
 
@@ -74,7 +74,7 @@ not their sum. Visible time includes idle time and is not proof of user activity
 Hidden/pagehide can be followed by a return or BFCache restoration, so these events
 do not declare a completed session. Checkpoints use the SDK's immediate sendBeacon
 transport as best-effort delivery. A missing checkpoint cannot prove a crash or
-abandonment. They add no persistent timer state or artwork data.
+abandonment.
 
 `view_changed` records `from_view`, `to_view`, `trigger` and `reason`. Views are
 `home`, `editor`, `guide` and `recovery`; selecting another document within the
@@ -89,7 +89,7 @@ hook observes committed React views; the telemetry manager suppresses repeated
 views, including StrictMode effect replay. Intermediate updates that have already
 been superseded and the empty editor's automatic Home fallback are not reported as
 separate editor visits. `editor_ready` measures startup readiness, not entry into
-the editor view. This adds no navigation persistence fields or changes to routes.
+the editor view.
 
 For a document-availability funnel, combine `document_opened` and
 `document_restored` in one step. `document_opened` alone excludes work resumed
@@ -229,7 +229,5 @@ separately. GeoIP applies to newly ingested events, not historical events.
 - [PostHog exception wire schema](https://posthog.com/docs/error-tracking/issues-and-exceptions)
 - [PostHog JavaScript configuration](https://posthog.com/docs/libraries/js/config)
 
-Local references contain desktop workspace lifecycle behavior but no equivalent
-web telemetry implementation. `.docs/feature-4-workspace-progress.md` is historical
-evidence only; the current `DocumentWorkspace` and `persistenceRevision` contract
-define the observation boundaries. No reference implementation was copied.
+Workspace observation follows the current `DocumentWorkspace` and
+`persistenceRevision` contracts.

@@ -4,7 +4,7 @@ import {
   SHOWCASE_PAGES,
   SHOWCASE_SITE_URL,
 } from "../../content/showcase/pages.ts";
-import { publicUiScope, publicSiteFooter } from "../public-theme.ts";
+import { publicStaticPage } from "../public-theme.ts";
 import { renderPublicUi } from "../static-ui-renderer.ts";
 import { applyPageSearchMetadata } from "./index.ts";
 
@@ -39,7 +39,7 @@ export function applyShowcaseSearchMetadata(
     .replace(PRODUCT_PAGE_SCHEMA_PATTERN, "")
     .replace(
       SHOWCASE_STATIC_PATTERN,
-      `<!-- showcase-static-start -->${publicUiScope(`<main>${renderPublicUi("showcase-hero", { language })}${renderPublicUi("showcase-stories", { language })}</main>${publicSiteFooter(language)}`, language)}<!-- showcase-static-end -->`,
+      `<!-- showcase-static-start -->${publicStaticPage(renderPublicUi("showcase-page", { language }))}<!-- showcase-static-end -->`,
     )
     .replace(CHINESE_FONT_PRELOAD_PATTERN, language === CHINESE_SHOWCASE_LANGUAGE ? "$&" : "")
     .replace(CANONICAL_ELEMENT_PATTERN, "")

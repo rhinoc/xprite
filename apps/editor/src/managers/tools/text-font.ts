@@ -1,5 +1,11 @@
 import type { EditorTextFontOptions } from "$/managers/ports/platform";
-import { bitmapTextFontSize, normalizeTextFontSize, type ToolSettings } from "@xprite/editor-core";
+import {
+  bitmapTextFontSize,
+  bitmapTextFontSizes,
+  normalizeTextFontSize,
+  MAX_TEXT_FONT_SIZE,
+  type ToolSettings,
+} from "@xprite/editor-core";
 
 export {
   TextFontFamily,
@@ -35,13 +41,20 @@ export function textFontSettings(options: EditorTextFontOptions): Partial<ToolSe
 
 const STANDARD_FONT_SIZES = [8, 9, 10, 11, 12, 14, 16, 18, 22, 24, 26, 28, 36, 48, 72];
 
-export function textFontSizeOptions(family: string) {
-  const base = bitmapTextFontSize(family);
+export function textFontSizeOptions(family: string, detectedSizes: readonly number[] = []) {
+  const nativeSizes = [...bitmapTextFontSizes(family), ...detectedSizes].filter(
+    (size) => Number.isInteger(size) && size > 0 && size <= MAX_TEXT_FONT_SIZE,
+  );
   const sizes = [
-    ...new Set([...STANDARD_FONT_SIZES, ...(base ? [base, base * 2, base * 3] : [])]),
-  ].sort((a, b) => a - b);
+    ...new Set([
+      ...STANDARD_FONT_SIZES,
+      ...nativeSizes.flatMap((base) => [base, base * 2, base * 3]),
+    ]),
+  ]
+    .filter((size) => size <= MAX_TEXT_FONT_SIZE)
+    .sort((a, b) => a - b);
   return sizes.map((size) => ({
     value: String(size),
-    label: `${size}${base && size % base === 0 ? "*" : ""}`,
+    label: `${size}${nativeSizes.some((base) => size % base === 0) ? "*" : ""}`,
   }));
 }

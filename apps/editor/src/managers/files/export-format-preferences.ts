@@ -1,3 +1,4 @@
+import { createJsonStorage, type JsonStoragePort } from "@xprite/bedrock/browser/json-storage";
 /** Aseprite GIF options are global format preferences, independent of documents. */
 import { optionalLocalStorage } from "@xprite/bedrock/browser/localstorage";
 import { WebpCompression } from "@xprite/editor-core/import-export";
@@ -8,15 +9,16 @@ export interface GifExportPreferences {
   preservePaletteOrder: boolean;
   dontShow: boolean;
 }
-type SettingsStorage = Pick<Storage, "getItem" | "setItem">;
+
 const key = "xse.export.gif-options.v1";
-function storage(): SettingsStorage | undefined {
-  return optionalLocalStorage();
+function storage(): JsonStoragePort | undefined {
+  const source = optionalLocalStorage();
+  return source ? createJsonStorage(source) : undefined;
 }
 export function readGifExportPreferences(store = storage()): GifExportPreferences {
   let saved: Partial<GifExportPreferences> = {};
   try {
-    saved = JSON.parse(store?.getItem(key) ?? "{}") ?? {};
+    saved = store?.readJson<Partial<GifExportPreferences>>(key) ?? {};
   } catch {}
   return {
     interlaced: saved.interlaced === true,
@@ -27,7 +29,7 @@ export function readGifExportPreferences(store = storage()): GifExportPreference
 }
 export function writeGifExportPreferences(value: GifExportPreferences, store = storage()): void {
   try {
-    store?.setItem(key, JSON.stringify(value));
+    store?.writeJson(key, value);
   } catch {
     /* Export itself does not depend on settings storage. */
   }
@@ -51,7 +53,10 @@ export function readImageExportPreferences(
 ): ImageExportPreferences {
   let saved: Partial<ImageExportPreferences> = {};
   try {
-    saved = JSON.parse(store?.getItem(imageKey) ?? "{}")[format] ?? {};
+    saved =
+      (store?.readJson<Partial<Record<ImageExportFormat, Partial<ImageExportPreferences>>>>(
+        imageKey,
+      ) ?? {})[format] ?? {};
   } catch {}
   return {
     webpCompression: Object.values(WebpCompression).includes(
@@ -75,8 +80,8 @@ export function writeImageExportPreferences(
   store = storage(),
 ): void {
   try {
-    const saved = JSON.parse(store?.getItem(imageKey) ?? "{}");
-    store?.setItem(imageKey, JSON.stringify({ ...saved, [format]: value }));
+    const saved = store?.readJson(imageKey) ?? {};
+    store?.writeJson(imageKey, { ...saved, [format]: value });
   } catch {
     /* Export is independent of preference storage. */
   }

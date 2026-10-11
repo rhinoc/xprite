@@ -10,7 +10,6 @@ import {
 
 import "$/components/timeline/editor-timeline/editor-timeline.module.css";
 import { useWorkspaceLayoutConfiguration } from "$/components/shared/editor-layout-context";
-import { useElementSize } from "$/components/shared/use-size";
 import { useAnimationActions } from "$/components/timeline/animation-actions";
 import { animationPlaybackMenuItems } from "$/components/timeline/animation-settings";
 import { TimelineCopyOutline } from "$/components/timeline/editor-timeline/timeline-copy-outline";
@@ -36,22 +35,21 @@ import { useWheelInput } from "$/managers/input/use-wheel-input";
 import { defaultTimelinePanelPreferences } from "$/managers/preferences/timeline-panel-preferences";
 import { useTimelineLayerColumnWidthPreference } from "$/managers/preferences/use-panel-layout-preferences";
 import { useTimelineDockPreferences } from "$/managers/timeline/timeline-layout-preferences";
-import { TimelineWheelAction } from "$/managers/timeline/timeline-manager";
-import { useTimelineManager } from "$/managers/timeline/timeline-manager";
-import { defaultOnionSkinSettings } from "$/managers/timeline/timeline-presentation";
+import { TimelineWheelAction, useTimelineManager } from "$/managers/timeline/timeline-manager";
 import {
+  defaultOnionSkinSettings,
   defaultPlaybackSettings,
   type PlaybackSettings,
-} from "$/managers/timeline/timeline-presentation";
-import {
   canMergeDown,
   canConvertBackground,
   layerSubtree,
+  layerAncestors,
+  layerEditable,
+  timelineTags,
+  type TimelineRange,
+  type SpriteTimeline,
+  UINT8_MAX,
 } from "$/managers/timeline/timeline-presentation";
-import { layerAncestors, layerEditable } from "$/managers/timeline/timeline-presentation";
-import { timelineTags, type TimelineRange } from "$/managers/timeline/timeline-presentation";
-import type { SpriteTimeline } from "$/managers/timeline/timeline-presentation";
-import { UINT8_MAX } from "$/managers/timeline/timeline-presentation";
 import {
   getTimelineRangeGeometry,
   getTimelineDropGeometry,
@@ -80,15 +78,22 @@ import {
   type MenuItem,
   Button,
   Tooltip,
+  TooltipPlacement,
   CanvasSurface,
   Scrollbar,
+  ScrollbarStyle,
   useUi,
 } from "@xprite/ui";
-import { paintUiPart, paintUiIcon, measureUiText, useUiAssets } from "@xprite/ui/assets";
-import type { UiPartName } from "@xprite/ui/assets";
-import { UI_SCALE } from "@xprite/ui/canvas";
-import { UI_SCALE_X as sx, UI_SCALE_Y as sy } from "@xprite/ui/canvas";
 import {
+  paintUiPart,
+  paintUiIcon,
+  measureUiText,
+  useUiAssets,
+  type UiPartName,
+} from "@xprite/ui/assets";
+import { UI_SCALE, UI_SCALE_X as sx, UI_SCALE_Y as sy } from "@xprite/ui/canvas";
+import {
+  useElementSize,
   computedStyle,
   layoutSize,
   scrollBy,
@@ -101,6 +106,7 @@ import {
   clientDeltaToLocal,
   PointerDragAxis,
   PointerResizeGesture,
+  usePointerGesture,
   stylusPointerInputProps,
 } from "@xprite/ui/utils";
 
@@ -238,45 +244,24 @@ function EditorTimelineContent({
   const frameLeft = 2 + columnWidth;
   const timelineBottom = Math.max(88, timelineSize.height / sy);
   const rowsHeight = Math.max(rowSize, timelineBottom - rowTop);
-  const columnDrag = useRef<{
-    id: number;
-    gesture: PointerResizeGesture;
-    requestedWidth: number;
-    handle: HTMLElement;
-    endResize: () => void;
-  } | null>(null);
-  const moveColumnResize = (event: ReactPointerEvent<HTMLElement>) => {
-    const drag = columnDrag.current;
-    if (!drag || drag.id !== event.pointerId) return;
+  type ColumnResize = { gesture: PointerResizeGesture; requestedWidth: number; endResize(): void };
+  const moveColumnResize = (event: ReactPointerEvent<HTMLElement>, drag: ColumnResize) => {
     const width = drag.gesture.valueAt(event);
-    if (width === null) return;
-    columnResizeScheduler.schedule(() => setColumnWidth(Math.round(width)));
+    if (width !== null) columnResizeScheduler.schedule(() => setColumnWidth(Math.round(width)));
   };
-  const finishColumnResize = (event: ReactPointerEvent<HTMLElement>) => {
-    const drag = columnDrag.current;
-    if (!drag || drag.id !== event.pointerId) return;
-    moveColumnResize(event);
-    columnResizeScheduler.flush();
-    columnDrag.current = null;
-    drag.endResize();
-    if (drag.handle.hasPointerCapture(drag.id)) drag.handle.releasePointerCapture(drag.id);
-  };
-  const cancelColumnResize = useCallback(() => {
-    const drag = columnDrag.current;
-    if (!drag) return;
-    columnResizeScheduler.cancel();
-    columnDrag.current = null;
-    setColumnWidth(drag.requestedWidth);
-    drag.endResize();
-    if (drag.handle.hasPointerCapture(drag.id)) drag.handle.releasePointerCapture(drag.id);
-  }, [columnResizeScheduler, setColumnWidth]);
-  useEffect(() => {
-    window.addEventListener("blur", cancelColumnResize);
-    return () => {
-      window.removeEventListener("blur", cancelColumnResize);
-      cancelColumnResize();
-    };
-  }, [cancelColumnResize]);
+  const columnResize = usePointerGesture<ColumnResize>({
+    onMove: moveColumnResize,
+    onCommit: (event, drag) => {
+      moveColumnResize(event, drag);
+      columnResizeScheduler.flush();
+      drag.endResize();
+    },
+    onCancel: (drag) => {
+      columnResizeScheduler.cancel();
+      setColumnWidth(drag.requestedWidth);
+      drag.endResize();
+    },
+  });
   const actions = useTimelineActions();
   const flagDrag = useRef<{
     kind: "visible" | "locked" | "continuous" | "collapsed";
@@ -1275,7 +1260,7 @@ function EditorTimelineContent({
           return (
             <Tooltip
               key={shortcut}
-              placement="bottom"
+              placement={TooltipPlacement.Bottom}
               text={`${tUiSource(label)}\n\n${tUi("ui.timeline.playback.shortcut", { shortcut })}${i === 2 ? `\n\n${tUi("ui.timeline.playback.right.click.settings")}` : ""}`}
             >
               {(getTooltipProps) =>
@@ -1300,7 +1285,7 @@ function EditorTimelineContent({
           );
         })}
         <Tooltip
-          placement="bottom"
+          placement={TooltipPlacement.Bottom}
           text={`${tUi("ui.new.layer")}\n\n${tUi("ui.timeline.playback.shortcut", { shortcut: "Shift+N" })}`}
         >
           {(getTooltipProps) => (
@@ -1330,7 +1315,7 @@ function EditorTimelineContent({
           label={tUi("ui.layer.menu")}
           items={layerToolbarItems}
           renderTrigger={(props) => (
-            <Tooltip placement="bottom" text={tUi("ui.layer.menu")}>
+            <Tooltip placement={TooltipPlacement.Bottom} text={tUi("ui.layer.menu")}>
               {(getTooltipProps) => (
                 <Button
                   {...getTooltipProps(props)}
@@ -1586,7 +1571,7 @@ function EditorTimelineContent({
               if (frameScroll.current) setScrollPosition(frameScroll.current, { x: next });
               setFrameScrollOffset(next);
             }}
-            variant="transparent"
+            scrollbarStyle={ScrollbarStyle.Transparent}
             aria-label={tUi("ui.timeline.frame.scroll")}
           />
         )}
@@ -1604,7 +1589,7 @@ function EditorTimelineContent({
               if (frameScroll.current) setScrollPosition(frameScroll.current, { y: next });
               setLayerScrollOffset(next);
             }}
-            variant="mini"
+            scrollbarStyle={ScrollbarStyle.Compact}
             aria-label={tUi("ui.timeline.layer.scroll")}
           />
         )}
@@ -1632,13 +1617,11 @@ function EditorTimelineContent({
             touchAction: "none",
           }}
           onPointerDown={(e) => {
-            if (e.button !== 0 || columnDrag.current) return;
+            if (e.button !== 0 || columnResize.active.current) return;
             e.preventDefault();
             e.stopPropagation();
             e.currentTarget.focus();
-            e.currentTarget.setPointerCapture(e.pointerId);
-            columnDrag.current = {
-              id: e.pointerId,
+            columnResize.start(e, () => ({
               gesture: new PointerResizeGesture(e, {
                 axis: PointerDragAxis.Horizontal,
                 initialValue: columnWidth,
@@ -1647,17 +1630,16 @@ function EditorTimelineContent({
                   Math.max(1, timelineSize.width),
               }),
               requestedWidth: requestedColumnWidth,
-              handle: e.currentTarget,
               endResize: beginResize(),
-            };
+            }));
           }}
-          onPointerMove={moveColumnResize}
-          onPointerUp={finishColumnResize}
-          onPointerCancel={cancelColumnResize}
-          onLostPointerCapture={cancelColumnResize}
+          onPointerMove={columnResize.move}
+          onPointerUp={columnResize.finish}
+          onPointerCancel={columnResize.cancel}
+          onLostPointerCapture={columnResize.cancel}
           onKeyDown={(e) => {
-            if (e.key === "Escape" && columnDrag.current) {
-              cancelColumnResize();
+            if (e.key === "Escape" && columnResize.active.current) {
+              columnResize.cancel();
               e.preventDefault();
               e.stopPropagation();
             }

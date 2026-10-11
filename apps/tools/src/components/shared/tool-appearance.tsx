@@ -1,9 +1,14 @@
 import { type ReactNode } from "react";
 
 import { useToolLanguage } from "$/managers/locale/tool-language";
-import { DesktopProvider, type DesktopManager } from "@xprite/site-shell";
-import { macintoshTheme } from "@xprite/ui";
+import { DesktopAppearance, DesktopProvider, type DesktopManager } from "@xprite/site-shell";
+import { macintoshTheme, UiColorScheme } from "@xprite/ui";
 import type { UiThemeSnapshot } from "@xprite/ui/assets";
+
+export function desktopAppearanceForColorScheme(colorScheme?: UiColorScheme) {
+  if (!colorScheme) return undefined;
+  return colorScheme === UiColorScheme.Dark ? DesktopAppearance.Dark : DesktopAppearance.Light;
+}
 
 export function ToolAppearance({
   desktop,

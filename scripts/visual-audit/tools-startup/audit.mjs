@@ -29,7 +29,7 @@ for (let index = 0; index < args.length; index += 2) {
     throw Error("Use --port PORT and optional --space ID; all startup scenes are required.");
   options.set(args[index], args[index + 1]);
 }
-const port = Number(options.get("--port") ?? "5176");
+const port = Number(options.get("--port") ?? "5173");
 const spaceId = options.has("--space") ? Number(options.get("--space")) : undefined;
 if (!Number.isInteger(port) || port <= 0 || port > 65535)
   throw Error("Invalid tools startup port.");
@@ -48,6 +48,9 @@ const sources = () => {
   for (const directory of [
     "apps/tools/src",
     "apps/tools/build",
+    "apps/growth/src",
+    "apps/growth/build",
+    "apps/growth/content/about",
     "apps/growth/content/tools",
     "apps/growth/public/showcase/ipad/hello",
     "apps/growth/public/showcase/textures",
@@ -59,7 +62,6 @@ const sources = () => {
   ])
     walk(directory);
   for (const file of [
-    "apps/tools/index.html",
     "apps/tools/viewer/index.html",
     "apps/tools/gif-to-sprite-sheet/index.html",
     "apps/tools/animal-crossing-qr/index.html",

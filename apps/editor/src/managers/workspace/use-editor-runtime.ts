@@ -13,15 +13,15 @@ import {
   APPEARANCE_MODE_STORAGE_KEY,
   type ResolvedAppearance,
 } from "@xprite/editor-ui/appearance";
+import { UiColorScheme } from "@xprite/ui";
 
-export type EditorUiAssetsPreloader = (appearance: ResolvedAppearance) => Promise<unknown>;
+export type EditorUiAssetsPreloader = (colorScheme: UiColorScheme) => Promise<unknown>;
 export type EditorRuntimeStartup = "loading" | "ready" | "error";
-type SystemAppearance = "light" | "dark";
 
 /** Owns workspace startup, persistence flushing, and disposal for one editor app instance. */
 export function useEditorRuntime(
   workspace: DocumentWorkspace,
-  systemAppearanceMode: SystemAppearance,
+  systemAppearanceMode: UiColorScheme,
   preloadUiAssets: EditorUiAssetsPreloader,
   workspaceLifetime: WorkspaceLifetime,
 ) {
@@ -39,9 +39,10 @@ export function useEditorRuntime(
     readAppearanceMode(preferenceStorage),
   );
   const systemAppearance =
-    systemAppearanceMode === "dark" ? AppearanceMode.Dark : AppearanceMode.Light;
+    systemAppearanceMode === UiColorScheme.Dark ? AppearanceMode.Dark : AppearanceMode.Light;
   const resolvedAppearance = resolveAppearanceMode(appearanceMode, systemAppearance);
   const appearance: ResolvedAppearance = resolvedAppearance;
+  const colorScheme = appearance === AppearanceMode.Dark ? UiColorScheme.Dark : UiColorScheme.Light;
   const appearanceRef = useRef(appearance);
   appearanceRef.current = appearance;
   const changeAppearanceMode = useCallback((mode: AppearanceMode) => setAppearanceMode(mode), []);
@@ -64,7 +65,7 @@ export function useEditorRuntime(
 
   useEffect(() => {
     let live = true;
-    void preloadUiAssets(appearance).then(
+    void preloadUiAssets(colorScheme).then(
       () => {
         if (live) active.core.canvas.setView({ appearance });
       },
@@ -75,7 +76,7 @@ export function useEditorRuntime(
     return () => {
       live = false;
     };
-  }, [active.core, active.session, preloadUiAssets, appearance]);
+  }, [active.core, active.session, preloadUiAssets, appearance, colorScheme]);
 
   const lifetime = useRef(0);
   useEffect(() => {
@@ -83,7 +84,9 @@ export function useEditorRuntime(
     let live = true;
     telemetry.startup(TelemetryStartupStage.Workspace, TelemetryStartupStatus.Started);
     telemetry.startup(TelemetryStartupStage.UiAssets, TelemetryStartupStatus.Started);
-    const assets = preloadUiAssets(appearanceRef.current).catch((reason) => {
+    const assets = preloadUiAssets(
+      appearanceRef.current === AppearanceMode.Dark ? UiColorScheme.Dark : UiColorScheme.Light,
+    ).catch((reason) => {
       if (live) telemetry.startup(TelemetryStartupStage.UiAssets, TelemetryStartupStatus.Failed);
       throw reason;
     });
@@ -102,7 +105,9 @@ export function useEditorRuntime(
         let readyAppearance = appearanceRef.current;
         try {
           do {
-            await preloadUiAssets(readyAppearance);
+            await preloadUiAssets(
+              readyAppearance === AppearanceMode.Dark ? UiColorScheme.Dark : UiColorScheme.Light,
+            );
             if (readyAppearance === appearanceRef.current) break;
             readyAppearance = appearanceRef.current;
           } while (live);
@@ -156,6 +161,7 @@ export function useEditorRuntime(
     systemAppearance,
     resolvedAppearance,
     appearance,
+    colorScheme,
     changeAppearanceMode,
     persistAppearanceMode,
   };

@@ -6,8 +6,9 @@ const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url))
 const helpDirectory = "apps/growth/content/help";
 const publicDirectories = [
   helpDirectory,
+  "apps/growth/content/about",
+  "apps/growth/content/features",
   "apps/growth/content/compare/articles",
-  "apps/growth/content/learn/articles",
   "apps/editor/assets/public",
   "apps/growth/public",
 ];

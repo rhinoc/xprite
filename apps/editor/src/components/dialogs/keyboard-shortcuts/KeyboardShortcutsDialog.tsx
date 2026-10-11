@@ -15,14 +15,16 @@ import {
   Dialog,
   Input,
   Scrollbar,
+  ScrollbarStyle,
   Text,
   TextVariant,
   useUi,
   focusDialogContainer,
   isDialogPopupTarget,
+  Icon,
 } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
-import { UiIcon, UiPart } from "@xprite/ui/assets";
+import { UiPart } from "@xprite/ui/assets";
 import { DEFAULT_SURFACE_VIEWPORT, surfaceLayout } from "@xprite/ui/canvas";
 import { isImeKeyboardEvent } from "@xprite/ui/utils";
 
@@ -683,7 +685,7 @@ export function KeyboardShortcutsDialog({
                 bounds={searchEntryBounds}
                 relativeTo={client}
                 value={searchDraft}
-                leading={<UiIcon part="icon_search" scale={2} color="currentColor" />}
+                leading={<Icon kind="icon_search" scale={2} color="currentColor" />}
                 size={24}
                 aria-label={labels.search}
                 autoComplete="off"
@@ -778,7 +780,7 @@ export function KeyboardShortcutsDialog({
                 visibleSize={listHeight - 32}
                 value={scrollTop}
                 onValueChange={setScrollTop}
-                variant="mini"
+                scrollbarStyle={ScrollbarStyle.Compact}
                 aria-label={tUi("ui.scroll", { value1: translateSource(labels.list) })}
               />
               {itemOptions && (

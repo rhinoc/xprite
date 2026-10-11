@@ -24,10 +24,11 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: 260px;
+  min-height: 0;
 }
 .animationWindow {
-  flex: 0 0 auto;
+  --tool-window-max-height: 45%;
+  flex: 0 1 auto;
   margin-left: 32px;
 }
 .playbackToolbar {

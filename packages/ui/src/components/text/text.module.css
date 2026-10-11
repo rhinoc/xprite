@@ -38,7 +38,7 @@
 .reading,
 .richText {
   color: var(--ui-color-ink);
-  font-family: var(--ui-font-family);
+  font-family: var(--ui-reading-body-font);
   font-size: var(--ui-reading-body-size);
   line-height: var(--ui-reading-line-height);
   font-weight: 400;
@@ -57,24 +57,28 @@
   min-width: 0;
 }
 .reading[data-text-role="caption"] {
+  font-family: var(--ui-reading-caption-font);
   font-size: var(--ui-reading-caption-size);
+  line-height: var(--ui-reading-caption-line-height);
 }
 .reading[data-text-role="heading"],
 .richText h2,
 .richText h3 {
+  font-family: var(--ui-reading-heading-font);
   font-size: var(--ui-reading-heading-size);
   line-height: var(--ui-reading-heading-line-height);
 }
 .reading[data-text-role="title"],
 .richText h1 {
+  font-family: var(--ui-reading-title-font);
   font-size: var(--ui-reading-title-size);
   line-height: var(--ui-reading-title-line-height);
 }
 .reading[data-tone="muted"] {
   color: var(--ui-color-muted-ink);
 }
-.reading[data-tone="danger"] {
-  color: var(--ui-color-danger-ink);
+.reading[data-tone="error"] {
+  color: var(--ui-color-error-ink);
 }
 .richText {
   min-width: 0;

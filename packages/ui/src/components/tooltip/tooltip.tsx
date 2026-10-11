@@ -3,12 +3,14 @@ import { useCallback, type CSSProperties } from "react";
 import { useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { ThemeIcon, ThemePart } from "$/base/theme/theme-part";
+import { FontRole, UiFontRenderer } from "$/base/theme/theme-types";
 import { clientRect } from "$/base/utils/dom-geometry";
 import { surfaceLayout, type SurfaceBounds } from "$/components/canvas-surface/geometry";
 import { RASTER_SCALE } from "$/components/canvas-surface/metrics";
 import { Text, TextVariant } from "$/components/text";
 import { BalloonFrame, balloonBody } from "$/components/tooltip/balloon-frame";
 import { tooltipArrow, type TooltipPlacementOption } from "$/components/tooltip/geometry";
+import { TooltipPlacement } from "$/components/tooltip/geometry";
 import { PositionedTooltip } from "$/components/tooltip/positioned";
 import type { PositionedTooltipLayout, TooltipTriggerContent } from "$/components/tooltip/types";
 
@@ -68,16 +70,20 @@ function TooltipArtwork({ layout }: { layout: PositionedTooltipLayout }) {
   const { bounds, viewport } = layout;
   const skin = theme.controlParts?.tooltip;
   const balloon = skin?.balloon;
-  const font = skin?.font ?? "default";
+  const font = skin?.font ?? FontRole.Primary;
   const inset = skin?.padding ?? theme.dimensions.tooltip_text_inset ?? TOOLTIP_TEXT_INSET;
   const pointerSize = skin?.pointerSize ?? 0;
   const pointer =
     skin?.pointerArtworks?.[layout.placement] ??
-    skin?.pointerArtworks?.[layout.placement === "bottom" ? "bottom-left" : "top-left"];
+    skin?.pointerArtworks?.[
+      layout.placement === TooltipPlacement.Bottom
+        ? TooltipPlacement.BottomLeft
+        : TooltipPlacement.TopLeft
+    ];
   const body = balloon
     ? balloonBody(bounds, layout.placement, pointerSize, pointer?.bodyInsets)
     : { left: 0, top: 0 };
-  const lineHeight = theme.typography?.[font]?.lineHeight ?? TOOLTIP_LINE_HEIGHT;
+  const lineHeight = theme.typography[font].lineHeight;
   const scaleX = viewport.width / viewport.sceneWidth;
   const scaleY = viewport.height / viewport.sceneHeight;
   const displayBounds = surfaceLayout(bounds, viewport);
@@ -159,31 +165,32 @@ export function Tooltip({ text, ...props }: TooltipProps) {
   const { translateSource, definition, tokens } = useTheme();
   const { measureThemeText } = useThemeText();
   const skin = definition.controlParts?.tooltip;
-  const font = skin?.font ?? "default";
-  const metrics = definition.typography?.[font];
+  const font = skin?.font ?? FontRole.Primary;
+  const metrics = definition.typography[font];
   const inset = skin?.padding ?? definition.dimensions.tooltip_text_inset ?? TOOLTIP_TEXT_INSET;
-  const textMetrics = metrics
-    ? {
-        inset,
-        lineHeight: metrics.lineHeight,
-        widthPadding: inset * 2 + (skin?.balloon ? BALLOON_WIDTH_RESERVE : 0),
-        heightPadding: inset * 2 + (skin?.balloon ? BALLOON_HEIGHT_RESERVE : 0),
-        pointerSize: skin?.pointerSize,
-        pointerInsets: skin?.pointerArtworks
-          ? Object.fromEntries(
-              Object.entries(skin.pointerArtworks).map(([key, value]) => [key, value.bodyInsets]),
-            )
-          : undefined,
-      }
-    : undefined;
+  const textMetrics =
+    metrics.renderer === UiFontRenderer.Native
+      ? {
+          inset,
+          lineHeight: metrics.lineHeight,
+          widthPadding: inset * 2 + (skin?.balloon ? BALLOON_WIDTH_RESERVE : 0),
+          heightPadding: inset * 2 + (skin?.balloon ? BALLOON_HEIGHT_RESERVE : 0),
+          pointerSize: skin?.pointerSize,
+          pointerInsets: skin?.pointerArtworks
+            ? Object.fromEntries(
+                Object.entries(skin.pointerArtworks).map(([key, value]) => [key, value.bodyInsets]),
+              )
+            : undefined,
+        }
+      : undefined;
   const measure = useCallback(
     (text: string) =>
-      metrics
+      metrics.renderer === UiFontRenderer.Native
         ? measureThemeText(text, font)
         : measureTooltipText(
             text,
             tokens["--ui-font-family"] ?? "inherit",
-            tokens["--ui-text-default-size"] ?? `${TOOLTIP_LINE_HEIGHT}px`,
+            tokens["--ui-text-primary-size"] ?? `${TOOLTIP_LINE_HEIGHT}px`,
           ),
     [metrics, measureThemeText, font, tokens],
   );

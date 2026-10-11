@@ -104,12 +104,6 @@
   outline-offset: -1px;
 }
 
-:global(.xse-floating-tab) {
-  position: fixed;
-  z-index: 10000;
-  pointer-events: none;
-}
-
 :global(.xse-editor-window[data-ui-appearance="dark"] .xse-workspace-pane) {
   background: var(--xse-window-panel-dark, #333333);
 }

@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./features": "./features/index.ts",
     "./help": "./help/index.ts",
     "./tools": "./tools/index.ts",
     "./navigation": "./site/navigation.ts",

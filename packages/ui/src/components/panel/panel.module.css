@@ -6,6 +6,14 @@
   border: var(--ui-border-width, 1px) solid var(--ui-color-border);
   box-shadow: inset 1px 1px var(--ui-panel-highlight);
 }
+.root[data-group-box-variant="etched"] {
+  border-color: var(--ui-group-box-etched-edge, var(--ui-color-border));
+  box-shadow: inset 0 0 0 1px var(--ui-group-box-highlight, var(--ui-panel-highlight));
+}
+.root[data-group-box-variant="none"] {
+  border: 0;
+  box-shadow: none;
+}
 .header {
   display: flex;
   align-items: center;

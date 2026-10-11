@@ -1,5 +1,7 @@
 import "$/base/theme/primitive-theme.module.css";
 
+export type { Border, BorderOptions } from "$/components/border";
+
 export {
   CanvasSurface,
   type CanvasSurfaceProps,
@@ -22,14 +24,10 @@ export * from "$/components/menu";
 export * from "$/components/theme";
 export * from "$/components/text";
 export * from "$/components/field";
+export { FocusRingBehavior } from "$/components/focus-ring";
 export * from "$/components/rich-text";
 export * from "$/components/input";
 export * from "$/components/list-box";
-export {
-  NavigationList,
-  type NavigationListProps,
-  type NavigationListItem,
-} from "$/components/list-box/navigation";
 export {
   ContentAlign,
   ContentLayout,
@@ -41,7 +39,6 @@ export * from "$/components/divider";
 export * from "$/components/disclosure";
 export * from "$/components/pattern";
 export * from "$/components/icon";
-export * from "$/components/note";
 export * from "$/components/window-workspace";
 export * from "$/components/splitter";
 export * from "$/components/slider";

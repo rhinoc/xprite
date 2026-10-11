@@ -1,4 +1,5 @@
 import { ARTICLES, localizedArticle } from "../../content/articles/index.ts";
+import { FEATURES_PATH } from "../../content/features/index.ts";
 import { GUIDE_PAGES } from "../../content/help/pages.ts";
 import { SHOWCASE_PAGES } from "../../content/showcase/pages.ts";
 import { PublicLanguage } from "../../content/site/language.ts";
@@ -8,7 +9,7 @@ import {
   SitePageKind,
   type SitePage,
 } from "../../content/site/pages.ts";
-import { TOOLS_HOME, ANIMAL_CROSSING_TOOL, GIF_SHEET_TOOL } from "../../content/tools/index.ts";
+import { ANIMAL_CROSSING_TOOL, GIF_SHEET_TOOL } from "../../content/tools/index.ts";
 import { readArticleDocument } from "../pages/article-source.ts";
 
 const SITE_URL = "https://xprite.cc/";
@@ -63,7 +64,7 @@ ${Object.entries(SHOWCASE_PAGES)
 ## Applications
 
 - [Pixel art editor](${SITE_URL}): Create and edit sprites, layers, and animation frames.
-- [All tools](${new URL(TOOLS_HOME.path, SITE_URL).href}): Free local browser tools with no file uploads.
+- [Features](${new URL(FEATURES_PATH, SITE_URL).href}): Browse drawing, animation, file conversion, workspace and game design features.
 - [Aseprite viewer](${SITE_URL}tools/viewer/): Inspect local .ase and .aseprite files and export PNG or GIF.
 - [Animal Crossing Design Converter](${new URL(ANIMAL_CROSSING_TOOL.path, SITE_URL).href}): Convert PNG images and Aseprite tilemap layers into NookLink QR codes.
 - [GIF to Sprite Sheet](${new URL(GIF_SHEET_TOOL.path, SITE_URL).href}): Convert GIF frames into PNG sheets and JSON frame coordinates and timing.
@@ -74,7 +75,7 @@ ${Object.values(GUIDE_PAGES)
   .map((page) => `- [${page.title}](${new URL(page.path, SITE_URL).href}): ${page.description}`)
   .join("\n")}
 
-## File workflows and comparisons
+## Editor comparisons
 
 ${Object.values(PublicLanguage)
   .flatMap((language) => ARTICLES.map((article) => localizedArticle(article, language)))

@@ -4,28 +4,16 @@ import "$/components/workspace/document-tabs/document-tabs.module.css";
 import type { MouseEvent, ReactNode } from "react";
 
 import { useEditorLayout } from "$/components/shared/editor-layout-context";
-import { PixelArtIcon } from "$/components/shared/pixel-art-icon";
 import { useEditorActions } from "$/components/shell/editor-actions";
 import { WORKSPACE_LAYOUT_SELECTOR_WIDTH } from "$/components/workspace/workspace-layout-selector";
-import { EDITOR_EXTERNAL_LINKS } from "$/config/external-links";
 import { tUi } from "$/i18n";
 import type { useEditor } from "$/managers/editor/editor-state-manager";
 import type { EditorTab } from "$/managers/editor/editor-ui-store";
 import { HelpDocumentTab } from "$/managers/shell/help";
-import {
-  Button,
-  ButtonVariant,
-  ContextMenu,
-  Tabs,
-  useUi,
-  type TabDragPoint,
-  type TabItem,
-} from "@xprite/ui";
-import { UiIcon } from "@xprite/ui/assets";
+import { ContextMenu, Tabs, useUi, type TabDragPoint, type TabItem, Icon } from "@xprite/ui";
 
 type Editor = ReturnType<typeof useEditor>;
 const WORKSPACE_LAYOUT_BUTTON_WIDTH = 32;
-const WORKSPACE_SETTINGS_BUTTON_WIDTH = 32;
 const DOCUMENT_FLAG_WIDTH = 32;
 const DOCUMENT_MENU_TOGGLE_WIDTH = 32;
 const RECOVERY_TAB_ID = "recovery";
@@ -92,7 +80,6 @@ export function DocumentTabs({
   const { sceneWidth } = useEditorLayout();
   const actions = useEditorActions();
   const { style, translateSource } = useUi();
-  const [unread, setUnread] = useState(true);
   const [contextTab, setContextTab] = useState("home");
   const visible = visibleDocumentIds ? new Set(visibleDocumentIds) : undefined;
   const sourceTabs = useMemo(
@@ -169,7 +156,6 @@ export function DocumentTabs({
   });
   const trailingContentWidth = showWorkspaceControls
     ? DOCUMENT_FLAG_WIDTH +
-      WORKSPACE_SETTINGS_BUTTON_WIDTH +
       (showWorkspaceLayoutButton
         ? WORKSPACE_LAYOUT_BUTTON_WIDTH +
           (workspaceLayoutOpen ? WORKSPACE_LAYOUT_SELECTOR_WIDTH : 0)
@@ -200,8 +186,8 @@ export function DocumentTabs({
           onClick={onWorkspaceLayoutToggle}
         >
           <span className="xse-layout-icon-frame" aria-hidden="true">
-            <UiIcon
-              part="icon_layout"
+            <Icon
+              kind="icon_layout"
               className="xse-layout-icon"
               color="var(--xse-layout-button-icon-color, var(--xse-window-menuitem-normal-text, currentColor))"
               x={0}
@@ -211,18 +197,6 @@ export function DocumentTabs({
           </span>
         </button>
       )}
-      <Button
-        variant={ButtonVariant.FlatIcon}
-        paintArtwork={false}
-        className="xse-workspace-settings-button"
-        style={{ width: WORKSPACE_SETTINGS_BUTTON_WIDTH, height: "100%" }}
-        aria-label={tUi("ui.settings")}
-        title={tUi("ui.settings")}
-        disabled={!actions?.canStartInteraction}
-        onClick={() => actions?.preferences()}
-      >
-        <PixelArtIcon name="workspace-settings" />
-      </Button>
       <span className="xse-document-notifications">
         <span
           aria-hidden="true"
@@ -232,18 +206,17 @@ export function DocumentTabs({
             top: 0,
             width: DOCUMENT_FLAG_WIDTH,
             height: "100%",
-            background: unread ? style.colors.flag_active : style.colors.flag_normal,
+            background: style.colors.flag_active,
           }}
         />
-        <UiIcon part={unread ? "flag_highlight" : "flag_normal"} x={0} y={0} scale={2} />
-        <a
+        <Icon kind="flag_highlight" x={0} y={0} scale={2} />
+        <button
+          type="button"
           className="xse-notifications-button"
-          href={EDITOR_EXTERNAL_LINKS.xpriteIssues}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={tUi("ui.github.issues")}
-          title={tUi("ui.github.issues")}
-          onClick={() => setUnread(false)}
+          aria-label={tUi("feedback.open")}
+          title={tUi("feedback.open")}
+          disabled={!actions?.canOpenModal}
+          onClick={() => actions?.feedback()}
         />
       </span>
     </span>
@@ -291,8 +264,8 @@ export function DocumentTabs({
           leadingContentWidth={leadingContentWidth}
           trailingContentWidth={trailingContentWidth}
           paneId={paneId}
-          ariaLabel="Document tabs and workspace controls"
-          tabListLabel="Documents"
+          aria-label="Document tabs and workspace controls"
+          tabListAriaLabel="Documents"
           onDragMove={(id, point) => {
             if (id !== RECOVERY_TAB_ID && id !== HelpDocumentTab.Guide) onDragMove?.(id, point);
           }}

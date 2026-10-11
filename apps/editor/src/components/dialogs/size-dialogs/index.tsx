@@ -17,19 +17,18 @@ import {
   type DialogViewTransform,
 } from "$/managers/dialogs/input-values";
 import {
+  FontRole,
   Button,
   Checkbox,
   Combobox,
   Divider,
   Input,
-  focusDialogContainer,
-  isDialogPopupTarget,
+  useModalFocus,
   type SurfaceBounds,
   Text,
   TextVariant,
 } from "@xprite/ui";
-import { centerUiPixel } from "@xprite/ui/assets";
-import type { UiPartName } from "@xprite/ui/assets";
+import { centerUiPixel, type UiPartName } from "@xprite/ui/assets";
 import { isImeKeyboardEvent, stylusPointerInputProps } from "@xprite/ui/utils";
 
 import "$/components/dialogs/size-dialogs/size-dialogs.module.css";
@@ -69,7 +68,7 @@ const names = [
   "Bottom Right",
 ];
 /** Purpose-built source dialogs: every bound is relative to XML's remapped
- * client region. Apps/gallery supply domain actions and no layout or paint. */
+ * client region. The components app supplies domain actions and no layout or paint. */
 export function DocumentSizeDialogs(props: DocumentSizeDialogsProps) {
   return props.kind ? (
     <SizeDialog
@@ -427,7 +426,7 @@ function SizeDialog({
           )}
           <Button
             text="OK"
-            font="default"
+            font={FontRole.Primary}
             mnemonicIndex={0}
             disabled={!allValid}
             bounds={{
@@ -445,7 +444,7 @@ function SizeDialog({
           />
           <Button
             text="Cancel"
-            font="default"
+            font={FontRole.Primary}
             mnemonicIndex={0}
             bounds={{
               x: client.x + client.width - 120,
@@ -513,67 +512,35 @@ export function SizeDialogShell({
     } | null>(null),
     callbacks = useRef({ onClose, onAccept });
   callbacks.current = { onClose, onAccept };
-  useEffect(() => {
-    if (suspended) return;
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null,
-      root = host.current;
-    const first = () => {
-      initializeFocus(root, { selectText: true });
-    };
-    first();
-    const owned = (target: EventTarget | null) => isDialogPopupTarget(root, target);
-    const focus = (e: FocusEvent) => {
-      if (!root?.contains(e.target as Node) && !owned(e.target)) focusDialogContainer(root);
-    };
-    const key = (e: KeyboardEvent) => {
-      if (isImeKeyboardEvent(e)) return;
-      if (owned(e.target)) return;
-      if (e.key === "Escape") {
-        e.preventDefault();
-        e.stopPropagation();
+  useModalFocus({
+    open: !suspended,
+    rootRef: host,
+    initialFocus: (root) => initializeFocus(root, { selectText: true }),
+    onKeyDown: (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
         callbacks.current.onClose();
       }
       if (
-        e.key === "Enter" &&
-        e.target instanceof HTMLInputElement &&
-        e.target.getAttribute("role") !== "combobox"
+        event.key === "Enter" &&
+        event.target instanceof HTMLInputElement &&
+        event.target.getAttribute("role") !== "combobox"
       ) {
-        e.preventDefault();
-        e.stopPropagation();
+        event.preventDefault();
+        event.stopPropagation();
         callbacks.current.onAccept();
       }
-      if (e.altKey && e.key.toLowerCase() === "o") {
-        e.preventDefault();
+      if (event.altKey && event.key.toLowerCase() === "o") {
+        event.preventDefault();
         callbacks.current.onAccept();
       }
-      if (e.altKey && e.key.toLowerCase() === "c") {
-        e.preventDefault();
+      if (event.altKey && event.key.toLowerCase() === "c") {
+        event.preventDefault();
         callbacks.current.onClose();
       }
-      if (e.key === "Tab") {
-        const nodes = [
-            ...(root?.querySelectorAll<HTMLElement>(
-              'button:not(:disabled),input:not(:disabled),[tabindex="0"]',
-            ) ?? []),
-          ],
-          i = nodes.indexOf(document.activeElement as HTMLElement);
-        if (
-          nodes.length &&
-          (i < 0 || (e.shiftKey && i === 0) || (!e.shiftKey && i === nodes.length - 1))
-        ) {
-          e.preventDefault();
-          nodes[e.shiftKey ? nodes.length - 1 : 0].focus();
-        }
-      }
-    };
-    document.addEventListener("focusin", focus);
-    document.addEventListener("keydown", key, true);
-    return () => {
-      document.removeEventListener("focusin", focus);
-      document.removeEventListener("keydown", key, true);
-      if (previous?.isConnected) previous.focus({ preventScroll: true });
-    };
-  }, [suspended, initializeFocus]);
+    },
+  });
   const bounds = {
     x: position?.x ?? preferredOrigin?.x ?? centerUiPixel(scene.x, scene.width, width),
     y: position?.y ?? preferredOrigin?.y ?? centerUiPixel(scene.y, scene.height, height),

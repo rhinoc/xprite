@@ -9,20 +9,16 @@ import {
 import { ReadOnlyTimeline } from "@xprite/editor-ui/timeline";
 import {
   ContentLayout,
-  PanelWindowChrome,
   SurfaceTone,
-  StatusBarPlacement,
   Text,
   TextVariant,
   TextTone,
   Button,
   Combobox,
   ControlFlow,
-  ControlFlowVariant,
   StatusBar,
   Panel,
   PanelVariant,
-  PanelWindowKind,
 } from "@xprite/ui";
 
 import styles from "$/components/viewer/viewer.module.css";
@@ -45,9 +41,9 @@ export function ViewerPreview({
   return (
     <div className={styles.layout}>
       <Panel
-        windowChrome={PanelWindowChrome.Emphasized}
+        emphasized
         contentLayout={ContentLayout.Fill}
-        variant={PanelVariant.Window}
+        variant={PanelVariant.Document}
         title={snapshot.name}
         className={styles.previewWindow}
         data-ui-window-priority="primary"
@@ -77,16 +73,16 @@ export function ViewerPreview({
         />
       </Panel>
       <Panel
-        windowChrome={PanelWindowChrome.Emphasized}
+        emphasized
         tone={SurfaceTone.Accent}
         contentLayout={ContentLayout.Column}
-        variant={PanelVariant.Window}
+        scrollable
+        variant={PanelVariant.Utility}
         title={t("Animation")}
-        windowKind={PanelWindowKind.Utility}
         collapsible
         className={styles.animationWindow}
       >
-        <ControlFlow variant={ControlFlowVariant.Toolbar} className={styles.playbackToolbar}>
+        <ControlFlow toolbar className={styles.playbackToolbar}>
           <ControlFlow
             className={styles.playbackActions}
             role="group"
@@ -168,7 +164,7 @@ export function ViewerPreview({
           onPlayback={() => manager.togglePlayback()}
         />
         <StatusBar
-          placement={StatusBarPlacement.Inline}
+          border={false}
           aria-label={t("Preview status")}
           role="group"
           leading={

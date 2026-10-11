@@ -6,14 +6,16 @@ import { Marked, Renderer } from "marked";
 import type { Tokens } from "marked";
 
 import { GUIDE_PAGES } from "../../content/help/pages.ts";
-import { PublicLanguage } from "../../content/site/language.ts";
+import { localizedSiteHref, PublicLanguage } from "../../content/site/language.ts";
 import {
   publicDesktopWindow,
+  publicReaderScroll,
   publicIndex,
   publicRichText,
   publicIconLink,
 } from "../public-theme.ts";
 import { siteNavigationHref } from "../site-navigation.ts";
+import { renderPublicUi } from "../static-ui-renderer.ts";
 import { publicDocumentHtml } from "./document-page.ts";
 
 const SITE_URL = "https://xprite.cc/";
@@ -74,7 +76,13 @@ export function guideHtml(guide: Guide, indexable: boolean): string {
   renderer.image = ({ href, text }: Tokens.Image) => {
     const dimensions = catalog[href];
     if (!dimensions) throw Error(`Guide image is not catalogued: ${href}`);
-    return `<span class="guide-image" tabindex="0" aria-label="${escapeHtml(text)}"><img src="${escapeHtml(`/help/${href}`)}" alt="${escapeHtml(text)}" width="${Math.round(dimensions.displayWidth)}" height="${Math.round(dimensions.displayHeight)}" style="width:${dimensions.displayWidth}px;height:${dimensions.displayHeight}px" loading="lazy" decoding="async"></span>`;
+    return renderPublicUi("image", {
+      src: `/help/${href}`,
+      alt: text,
+      width: dimensions.width,
+      height: dimensions.height,
+      displayWidth: dimensions.displayWidth,
+    });
   };
   renderer.link = function ({ href, tokens }: Tokens.Link) {
     const text = this.parser.parseInline(tokens);
@@ -116,12 +124,8 @@ export function guideHtml(guide: Guide, indexable: boolean): string {
           .map((heading) => ({ href: `#${headingId(heading.text)}`, label: heading.text })),
       ),
       "data-public-contents",
-    )}</div>${publicDesktopWindow(guide.language === PublicLanguage.English ? "Xprite Help" : "Xprite 使用指南", `<div data-public-reader-scroll><article>${publicRichText(parser.parser(tokens.filter((token) => token !== contentsToken)), { "data-public-document-content": true })}</article></div>`, "data-public-document", `<a href="/editor">${guide.openEditor}</a>`)}<nav data-public-shortcuts aria-label="${guide.navigation}">${publicIconLink(guide.openEditor, "/editor", "application")}${publicIconLink(guide.language === PublicLanguage.English ? "Applications" : "工具", "/tools/")}${publicIconLink(guide.language === PublicLanguage.English ? "File guides" : "文件导出", "/learn/")}</nav>`,
+    )}</div>${publicDesktopWindow(guide.language === PublicLanguage.English ? "Xprite Help" : "Xprite 使用指南", publicReaderScroll(`<article>${publicRichText(parser.parser(tokens.filter((token) => token !== contentsToken)), { "data-public-document-content": true })}</article>`, guide.language), "data-public-document", `<a href="/editor">${guide.openEditor}</a>`)}<nav data-public-shortcuts aria-label="${guide.navigation}">${publicIconLink(guide.openEditor, "/editor", "application")}${publicIconLink(guide.language === PublicLanguage.English ? "Features" : "功能", localizedSiteHref("/about/features/", guide.language))}</nav>`,
     [
-      {
-        label: guide.language === PublicLanguage.SimplifiedChinese ? "文件导出" : "File guides",
-        href: "/learn/",
-      },
       {
         label: guide.language === PublicLanguage.SimplifiedChinese ? "工具比较" : "Compare",
         href: "/compare/",
@@ -133,11 +137,6 @@ export function guideHtml(guide: Guide, indexable: boolean): string {
         hrefLang: other.language,
         icon: "language",
         end: true,
-      },
-      {
-        label: guide.language === PublicLanguage.SimplifiedChinese ? "使用指南" : "User guide",
-        href: guide.path,
-        icon: "help",
       },
     ],
     alternates,

@@ -9,8 +9,7 @@ runtime, development server, build output, and public assets independent from
 - Keep scene rendering, animation timing, and page composition here. Do not import
   editor app internals or editor-core for the presentation.
 - Reuse `@xprite/ui` controls and geometry helpers. Use CSS Modules and tokens.
-- Components, managers, and adapters are local organization for this scene;
-  the editor's document/workspace architecture is not required here.
+- Group scene components, managers and adapters by their presentation scope.
 - Preserve editable Blender source, model generators, and asset provenance.
 - Showcase assets live in `public/showcase/ipad/`; public help source lives in
   `content/help/`. The private `@xprite/growth-content` package exports guide and tool catalog

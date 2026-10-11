@@ -1,5 +1,4 @@
 export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
-  "Xprite Tools": "Xprite 工具",
   "Xprite Editor": "Xprite 编辑器",
   "Xprite Aseprite Viewer": "Xprite Aseprite 查看器",
   "Xprite GIF to Sprite Sheet": "Xprite GIF 转精灵表",
@@ -9,10 +8,6 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Animal Crossing Design Converter": "动物森友会设计转换器",
   "Processed on your device. No cloud upload.": "文件在本地处理，不上传云端。",
   "Files stay on your device. No cloud upload.": "文件只在本地处理，不上传云端。",
-  "Pixel Art Tools | Xprite": "像素画工具 | Xprite",
-  "Pixel art tools": "像素画工具",
-  "Create pixel art, preview Aseprite projects and convert GIF animations into sprite sheets. Files are processed on your device without uploading them to the cloud.":
-    "创作像素画、预览 Aseprite 工程，将 GIF 动画转换为精灵表。文件在本地处理，不上传云端。",
   "Inspect an Aseprite file": "查看 Aseprite 文件",
   "Aseprite Viewer | Xprite": "Aseprite 查看器 | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
@@ -50,9 +45,7 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
     "在 Xprite 中创作像素画与动画，在浏览器中打开和保存 Aseprite 工程。",
   Applications: "应用程序",
   Tools: "工具",
-  "All tools": "全部工具",
   "Tool navigation": "工具导航",
-  "Tools directory": "工具目录",
   "Desktop shortcuts": "桌面快捷入口",
   "Page scroll": "页面滚动",
   "Read Me": "使用说明",
@@ -139,10 +132,11 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Tile grid": "图块网格",
   "Each design is 32 × 32 pixels with up to 15 colors and transparency.":
     "每个设计为 32 × 32 像素，最多使用 15 种颜色并支持透明区域。",
+  "Resize the whole image to one 32 × 32 design, with up to 15 colors and transparency.":
+    "整张图片缩放为一个 32 × 32 设计。每个设计最多使用 15 种颜色，支持透明区域。",
   "Design information": "设计信息",
   Title: "标题",
   Creator: "作者",
-  "Creator and island": "作者与岛屿",
   "Island / town": "岛屿／城镇",
   "Ready to export. The original design is preserved.": "可以导出了。原设计保持不变。",
   "Image layout": "图片布局",
@@ -158,8 +152,9 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Offsets and spacing": "偏移与间距",
   "Generate QR codes": "生成二维码",
   "Download QR PNG": "下载二维码 PNG",
+  Download: "下载",
+  "Download options": "下载选项",
   "Design QR code": "设计二维码",
-  "Selected tile": "所选图块",
   "Design to scan": "要扫描的设计",
   "Design tiles": "设计图块",
   "Animal Crossing design QR code": "动物森友会设计二维码",
@@ -167,7 +162,7 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "In Nintendo Switch App, open NookLink → Designs and scan this QR code. Download it in the game before scanning the next tile. Nintendo Switch Online membership is required.":
     "在 Nintendo Switch App 中打开 NookLink → 我的设计，扫描二维码。在扫描下一块之前，先在游戏中下载当前设计。需要 Nintendo Switch Online 会员。",
   "Generate designs to preview and download their QR codes.": "生成设计后即可预览和下载二维码。",
-  "Island preview": "岛屿预览",
+  "3D preview": "3D 预览",
   "Preview status": "预览状态",
   Settings: "设置",
   Ground: "地面",

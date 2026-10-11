@@ -6,6 +6,7 @@ import { PixelArtIcon } from "$/components/shared/pixel-art-icon";
 import { tUi } from "$/i18n";
 import { SaveTarget } from "$/managers/workspace/save-target";
 import {
+  FontRole,
   Button,
   Combobox,
   Divider,
@@ -288,7 +289,7 @@ export function SaveAsDialog({
                     aria-pressed={item.selected}
                     selected={item.selected}
                     text={item.label}
-                    font="mini"
+                    font={FontRole.Compact}
                     textOffset={{ x: 0, y: SAVE_AS_TARGET_TEXT_OFFSET_Y }}
                     color={optionTextColor}
                     style={{ color: optionTextColor }}
@@ -328,7 +329,7 @@ export function SaveAsDialog({
               <Button
                 text={tUi("ui.save")}
                 mnemonicIndex={0}
-                font="default"
+                font={FontRole.Primary}
                 part="button_normal"
                 hotPart="button_hot"
                 focusedPart="button_focused"
@@ -346,7 +347,7 @@ export function SaveAsDialog({
               <Button
                 text={tUi("ui.cancel")}
                 mnemonicIndex={0}
-                font="default"
+                font={FontRole.Primary}
                 part="button_normal"
                 hotPart="button_hot"
                 focusedPart="button_focused"

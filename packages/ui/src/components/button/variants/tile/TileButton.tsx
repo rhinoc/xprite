@@ -1,10 +1,7 @@
 import { forwardRef, type Ref } from "react";
 
-import {
-  ButtonTileSize,
-  type ButtonTileProps,
-  type ButtonTileLinkProps,
-} from "$/components/button/types";
+import { type ButtonTileProps, type ButtonTileLinkProps } from "$/components/button/types";
+import { IconSize } from "$/components/icon";
 
 import "$/components/button/variants/tile/tile.module.css";
 
@@ -15,7 +12,7 @@ export const TileButton = forwardRef<
 >(function TileButton(
   {
     variant: _variant,
-    tileSize = ButtonTileSize.Regular,
+    tileSize = IconSize.Large,
     compactOnSmallScreens = false,
     text,
     slots,

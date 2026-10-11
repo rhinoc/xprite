@@ -1,4 +1,4 @@
-import type { UiStyleDefinition } from "$/base/theme/theme-types";
+import type { UiAtlasDefinition } from "$/base/theme/theme-types";
 import themeSheetAssetUrl from "$assets/themes/aseprite/aseprite-theme-sheet.webp";
 
 export const themeDefinition = {
@@ -3665,6 +3665,6 @@ export const themeDefinition = {
       slices: null,
     },
   },
-} satisfies UiStyleDefinition;
+} satisfies UiAtlasDefinition;
 
 export const sheetUrl: string = themeSheetAssetUrl;

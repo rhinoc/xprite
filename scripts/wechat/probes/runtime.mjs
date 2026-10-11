@@ -103,11 +103,11 @@ export default function createApp() {
     report.browserApis["document.fonts"] = !!document.fonts;
     try {
       await installWechatFonts(window, wx, __XPRITE_PROBE_FONTS__);
-      const faces = await document.fonts.load("10px FusionPixelZhHans", "中");
+      const faces = await document.fonts.load("12px FusionPixel12", "中");
       report.browserApis.adaptedFontFamilies = faces.map((face) => face.family);
       const canvas = wx.createOffscreenCanvas({ type: "2d", width: 16, height: 16 });
       const context = canvas.getContext("2d");
-      context.font = "10px FusionPixelZhHans";
+      context.font = "12px FusionPixel12";
       context.textBaseline = "top";
       context.fillText("中", 0, 0);
       report.browserApis.adaptedCjkWidth = context.measureText("中").width;

@@ -9,7 +9,14 @@ import {
 
 import { tUi } from "$/i18n";
 import { TOOL_COLOR_CHANNEL_MAX as UINT8_MAX } from "$/managers/tools/color-control";
-import { CanvasSurface, type SurfaceViewport, Menu, useUi, Tooltip } from "@xprite/ui";
+import {
+  CanvasSurface,
+  type SurfaceViewport,
+  Menu,
+  useUi,
+  Tooltip,
+  TooltipPlacement,
+} from "@xprite/ui";
 import {
   centerUiPixel,
   measureUiText,
@@ -279,7 +286,11 @@ export function ShadeStrip<TColor extends ShadeColor = ShadeColor>({
           ]),
         ]}
         renderTrigger={({ buttonRef, ...props }) => (
-          <Tooltip text="Shades" placement="bottom" disabled={!!props["aria-expanded"]}>
+          <Tooltip
+            text="Shades"
+            placement={TooltipPlacement.Bottom}
+            disabled={!!props["aria-expanded"]}
+          >
             <button
               {...props}
               ref={buttonRef}

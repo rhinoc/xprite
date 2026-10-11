@@ -34,7 +34,7 @@ import { SHORTCUT_DEFINITIONS, ShortcutBindingKind } from "$/managers/shortcuts/
 import { useShortcutManager } from "$/managers/shortcuts/use-shortcut-manager";
 import { WorkspaceContextPresentation } from "$/managers/workspace/workspace-panel-layout";
 import catalog from "$assets/commands/libresprite-main-menu.json";
-import { Menu, MenuCheckType, Menubar, Tooltip } from "@xprite/ui";
+import { Menu, MenuCheckType, Menubar, Tooltip, TooltipPlacement } from "@xprite/ui";
 import { uiFontHeight } from "@xprite/ui/assets";
 import { UI_SCALE_Y } from "@xprite/ui/canvas";
 
@@ -132,7 +132,7 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
     NewFile: { onSelect: actions.new, disabled: !actions.canStartInteraction },
     Options: {
       onSelect: actions.preferences,
-      disabled: !actions.canStartInteraction,
+      disabled: !actions.canOpenModal,
     },
     OpenFile: {
       onSelect: actions.open,
@@ -192,7 +192,10 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
       onSelect: actions.duplicateSprite,
       disabled: documentUnavailable || !actions.canStartInteraction,
     },
-    KeyboardShortcuts: { onSelect: actions.keyboardShortcuts },
+    KeyboardShortcuts: {
+      onSelect: actions.keyboardShortcuts,
+      disabled: !actions.canOpenModal,
+    },
     SpriteSize: {
       onSelect: () => sizeActions?.openSpriteSize(),
       disabled: documentUnavailable || !sizeActions,
@@ -933,7 +936,6 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
       {
         label: tUi("ui.user.guide"),
         onSelect: actions.userGuide,
-        disabled: !actions.canStartInteraction,
       },
       ...(pwaManager &&
       pwaState?.supported &&
@@ -943,14 +945,14 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
             {
               label: tUi("ui.pwa.desktop.add"),
               onSelect: () => void pwaManager.install(),
-              disabled: pwaState.installBusy || !actions.canStartInteraction,
+              disabled: pwaState.installBusy,
             },
           ]
         : []),
       {
         label: tUi("feedback.title"),
         onSelect: actions.feedback,
-        disabled: !actions.canStartInteraction,
+        disabled: !actions.canOpenModal,
       },
       {
         label: "Donate",
@@ -965,7 +967,7 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
         mnemonicIndex: 0,
         separator: true,
         onSelect: actions.about,
-        disabled: !actions.canStartInteraction,
+        disabled: !actions.canOpenModal,
       },
     ],
   });
@@ -1003,7 +1005,11 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
             }
           }}
           renderTrigger={({ buttonRef, ...props }) => (
-            <Tooltip text="Menu" placement="auto" disabled={!!props["aria-expanded"]}>
+            <Tooltip
+              text="Menu"
+              placement={TooltipPlacement.Auto}
+              disabled={!!props["aria-expanded"]}
+            >
               <button
                 {...props}
                 ref={buttonRef}

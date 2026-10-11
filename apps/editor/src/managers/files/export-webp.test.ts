@@ -8,6 +8,7 @@ import {
 import { lastDocumentExport } from "$/managers/files/export-preferences";
 import type { WebpExportPort } from "$/managers/ports/webp-export";
 import { DocumentPreferencesManager } from "$/managers/preferences/document-preferences";
+import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
 import type { EditorDocument } from "@xprite/editor-core/document";
 import {
   assembleWebpAnimation,
@@ -38,12 +39,12 @@ function document(): EditorDocument {
 }
 function storage() {
   const values = new Map<string, string>();
-  return {
+  return createJsonStorage({
     getItem: (key: string) => values.get(key) ?? null,
     setItem: (key: string, value: string) => {
       values.set(key, value);
     },
-  };
+  });
 }
 const options = {
   name: "result.webp",

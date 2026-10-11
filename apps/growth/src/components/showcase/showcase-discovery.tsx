@@ -7,7 +7,6 @@ import {
   WindowWorkspace,
   Panel,
   PanelVariant,
-  PanelWindowChrome,
   ContentPadding,
   SurfaceTone,
   Button,
@@ -19,6 +18,7 @@ import {
   Text,
   TextVariant,
   Tooltip,
+  TooltipPlacement,
 } from "@xprite/ui";
 
 import styles from "$/components/showcase/showcase-discovery.module.css";
@@ -32,7 +32,7 @@ const TOOL_ICONS = {
 
 /** Applications and documents share a Finder-like desktop, rendered identically by SSG. */
 export function ShowcaseDiscovery({ language }: { language: DiscoveryLanguage }) {
-  const { copy, tools, fileGuides, comparisons } = showcaseDiscovery(language);
+  const { copy, tools, comparisons } = showcaseDiscovery(language);
   const documents = [
     { href: GUIDE_PAGES[language].path, label: copy.userGuide, icon: IconKind.NotePad },
     // About articles are written in Chinese only, so English lists none.
@@ -40,7 +40,7 @@ export function ShowcaseDiscovery({ language }: { language: DiscoveryLanguage })
       ...link,
       icon: IconKind.Document,
     })),
-    ...[...fileGuides, ...comparisons].map((article) => ({
+    ...comparisons.map((article) => ({
       href: localizedSiteHref(article.path, language),
       label: article.shortTitle[language],
       icon: IconKind.Document,
@@ -52,8 +52,8 @@ export function ShowcaseDiscovery({ language }: { language: DiscoveryLanguage })
       <WindowWorkspace className={styles.workspace}>
         <Panel
           id="pixel-art-tools"
-          variant={PanelVariant.Window}
-          windowChrome={PanelWindowChrome.Emphasized}
+          variant={PanelVariant.Document}
+          emphasized
           tone={SurfaceTone.Neutral}
           contentPadding={ContentPadding.None}
           className={styles.toolsWindow}
@@ -64,18 +64,18 @@ export function ShowcaseDiscovery({ language }: { language: DiscoveryLanguage })
             <>
               <Text variant={TextVariant.Reading}>{itemCount(tools.length)}</Text>
               <Button
-                href={localizedSiteHref("/tools/", language)}
+                href={localizedSiteHref("/about/features/", language)}
                 appearance={ButtonAppearance.Quiet}
                 slots={{}}
               >
-                {copy.allTools}
+                {copy.allFeatures}
               </Button>
             </>
           }
         >
           <nav className={styles.applications} aria-label={copy.toolsTitle}>
             {tools.map((tool) => (
-              <Tooltip key={tool.href} text={tool.summary} placement="auto">
+              <Tooltip key={tool.href} text={tool.summary} placement={TooltipPlacement.Auto}>
                 <Button
                   variant={ButtonVariant.Tile}
                   slots={{ leading: <Icon kind={TOOL_ICONS[tool.path]} size={IconSize.Large} /> }}
@@ -89,8 +89,8 @@ export function ShowcaseDiscovery({ language }: { language: DiscoveryLanguage })
         </Panel>
         <Panel
           id="guides-and-comparisons"
-          variant={PanelVariant.Window}
-          windowChrome={PanelWindowChrome.Emphasized}
+          variant={PanelVariant.Document}
+          emphasized
           tone={SurfaceTone.Neutral}
           contentPadding={ContentPadding.None}
           className={styles.libraryWindow}
@@ -99,13 +99,6 @@ export function ShowcaseDiscovery({ language }: { language: DiscoveryLanguage })
           footer={
             <>
               <Text variant={TextVariant.Reading}>{itemCount(documents.length)}</Text>
-              <Button
-                href={localizedSiteHref("/learn/", language)}
-                appearance={ButtonAppearance.Quiet}
-                slots={{}}
-              >
-                {copy.fileGuides}
-              </Button>
               <Button
                 href={localizedSiteHref("/compare/", language)}
                 appearance={ButtonAppearance.Quiet}

@@ -234,6 +234,10 @@ export function computedStyle(element: Element) {
 export function viewportSize(host: Window = window): GeometrySize {
   return { width: host.innerWidth, height: host.innerHeight };
 }
+/** Available viewport area excluding the document's scrollbar gutters. */
+export function viewportContentSize(host: Window = window): GeometrySize {
+  return layoutSize(host.document.documentElement);
+}
 export function displayPixelRatio(host: Window = window) {
   return host.devicePixelRatio || 1;
 }

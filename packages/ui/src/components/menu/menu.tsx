@@ -12,16 +12,15 @@ import {
   type ReactNode,
   type Ref,
 } from "react";
-import { createPortal } from "react-dom";
 
 import { measureThemeText, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { ThemeIcon, ThemePart } from "$/base/theme/theme-part";
 import { ThemeRepeat } from "$/base/theme/theme-repeat";
-import { ThemeScope } from "$/base/theme/theme-scope";
+import { FontRole } from "$/base/theme/theme-types";
 import {
   computedStyle,
-  viewportSize,
+  viewportContentSize,
   hitElement,
   clientPoint,
   clientRect,
@@ -44,6 +43,7 @@ import {
 import { menuShortcutArtwork, menuTextArtwork } from "$/components/menu/shortcut-artwork";
 import { ScrollArea } from "$/components/scrollbar";
 import { Text, TextVariant } from "$/components/text";
+import { createUiPortal } from "$/components/theme/portal";
 
 import styles from "$/components/menu/menu.module.css";
 
@@ -83,7 +83,17 @@ function menuMetrics(dimensions: Record<string, number>): MenuMetrics {
 
 export enum MenuActivation {
   Click = "click",
+  Press = "press",
   ContextMenu = "contextmenu",
+}
+
+function disabledMenuTrigger(node: HTMLElement | null): boolean {
+  return !!node && (node.matches(":disabled") || node.getAttribute("aria-disabled") === "true");
+}
+
+export enum MenuOpeningInput {
+  Pointer = "pointer",
+  Keyboard = "keyboard",
 }
 
 export enum MenuCheckType {
@@ -119,6 +129,10 @@ export interface MenuProps<Trigger extends HTMLElement = HTMLButtonElement> {
   label: string;
   items: readonly MenuItem[];
   activation?: MenuActivation;
+  /** Input that opened a menu controlled by its owning menu bar. */
+  openingInput?: MenuOpeningInput;
+  /** Whether activating an already open trigger closes its menu. */
+  toggleOnTrigger?: boolean;
   expanded?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
   /** Adjacent top-level menus, after a child has handled Left/Right. */
@@ -158,7 +172,7 @@ function measureMenu(
       ? menuShortcutArtwork(
           item.shortcut,
           shortcutGlyphs,
-          (text) => measure(text, "default", textScale),
+          (text) => measure(text, FontRole.Primary, textScale),
           textScale / DEFAULT_MENU_METRICS.textScale,
         ).width
       : 0;
@@ -171,7 +185,7 @@ function measureMenu(
           menuTextArtwork(
             item.label,
             labelGlyphs,
-            (text) => measure(text, "default", textScale),
+            (text) => measure(text, FontRole.Primary, textScale),
             textScale / DEFAULT_MENU_METRICS.textScale,
           ).width + (MENU_METRICS.shortcutColumnAligned ? columnWidth : shortcutWidth(item)),
       ),
@@ -219,7 +233,7 @@ function MenuArtwork({ panel, active }: { panel: Panel; active: number }) {
   const layout = surfaceLayout(bounds, viewport);
   const sx = layout.width / bounds.width,
     sy = layout.height / bounds.height;
-  const fontHeight = themeFontHeight("default", panel.textScale);
+  const fontHeight = themeFontHeight(FontRole.Primary, panel.textScale);
   const iconColumn = panel.items.some((item) => item.icon)
     ? panel.rowHeight + MENU_METRICS.itemInset
     : 0;
@@ -227,7 +241,7 @@ function MenuArtwork({ panel, active }: { panel: Panel; active: number }) {
     menuShortcutArtwork(
       value,
       theme.controlParts?.menu?.shortcutGlyphs,
-      (text) => measureThemeText(text, "default", panel.textScale),
+      (text) => measureThemeText(text, FontRole.Primary, panel.textScale),
       panel.textScale / DEFAULT_MENU_METRICS.textScale,
     );
   const shortcutColumnWidth = Math.max(
@@ -249,7 +263,7 @@ function MenuArtwork({ panel, active }: { panel: Panel; active: number }) {
         {menuTextArtwork(
           value,
           theme.controlParts?.menu?.labelGlyphs,
-          (text) => measureThemeText(text, "default", panel.textScale),
+          (text) => measureThemeText(text, FontRole.Primary, panel.textScale),
           panel.textScale / DEFAULT_MENU_METRICS.textScale,
         ).segments.map((segment, index) =>
           segment.glyph ? (
@@ -290,11 +304,11 @@ function MenuArtwork({ panel, active }: { panel: Panel; active: number }) {
                 dx +
                 measureThemeText(
                   [...value].slice(0, mnemonic).join(""),
-                  "default",
+                  FontRole.Primary,
                   panel.textScale,
                 ),
               top: top + Math.floor((panel.rowHeight - fontHeight) / 2) + dy + fontHeight,
-              width: measureThemeText([...value][mnemonic], "default", panel.textScale),
+              width: measureThemeText([...value][mnemonic], FontRole.Primary, panel.textScale),
               background: ink,
             }}
           />
@@ -589,6 +603,8 @@ export function Menu<Trigger extends HTMLElement = HTMLButtonElement>({
   items,
   renderTrigger,
   activation = MenuActivation.Click,
+  openingInput = MenuOpeningInput.Pointer,
+  toggleOnTrigger = true,
   expanded,
   onExpandedChange,
   onNavigate,
@@ -607,6 +623,14 @@ export function Menu<Trigger extends HTMLElement = HTMLButtonElement>({
   const id = useId(),
     trigger = useRef<Trigger | null>(null),
     tree = useRef<HTMLDivElement>(null);
+  const anchorId = `${id}-trigger`;
+  const assignTrigger = useCallback(
+    (node: Trigger | null) => {
+      trigger.current = node;
+      if (node instanceof HTMLElement && !node.id) node.id = anchorId;
+    },
+    [anchorId],
+  );
   const returnFocus = useRef<HTMLElement | null>(null);
   const triggerPress = useRef<number | null>(null);
   const skipTriggerClick = useRef(false);
@@ -644,6 +668,7 @@ export function Menu<Trigger extends HTMLElement = HTMLButtonElement>({
   );
   useEffect(() => cancelTimer, [cancelTimer]);
   const open = (keyboard = false, point?: { x: number; y: number }) => {
+    if (disabledMenuTrigger(trigger.current)) return;
     const node = trigger.current;
     if (!node) return;
     const focused = node.ownerDocument.activeElement;
@@ -660,11 +685,11 @@ export function Menu<Trigger extends HTMLElement = HTMLButtonElement>({
     setTouchRows(nextTouchRows);
     const nextRowHeight = MENU_METRICS.rowHeight;
     const cssFontSize = Number.parseFloat(computedStyle(node).getPropertyValue("--ui-text-size"));
-    const defaultFontHeight = themeFontHeight("default", 1);
+    const primaryFontHeight = themeFontHeight(FontRole.Primary, 1);
     const textScale =
       Number.isFinite(cssFontSize) && cssFontSize > 0
-        ? cssFontSize / defaultFontHeight
-        : themeFontHeight("default", 2) / defaultFontHeight;
+        ? cssFontSize / primaryFontHeight
+        : themeFontHeight(FontRole.Primary, 2) / primaryFontHeight;
     cancelTimer();
     const rect = clientRect(node),
       sceneElement = node.closest<HTMLElement>("[data-ui-scene]"),
@@ -673,9 +698,10 @@ export function Menu<Trigger extends HTMLElement = HTMLButtonElement>({
       viewport = sceneElement ? sceneViewport(sceneElement) : DEFAULT_SURFACE_VIEWPORT;
     const sx = viewport.width / viewport.sceneWidth,
       sy = viewport.height / viewport.sceneHeight,
+      availableViewport = viewportContentSize(window),
       workarea = {
-        width: scene ? viewport.sceneWidth : viewportSize(window).width / sx,
-        height: scene ? viewport.sceneHeight : viewportSize(window).height / sy,
+        width: scene ? viewport.sceneWidth : availableViewport.width / sx,
+        height: scene ? viewport.sceneHeight : availableViewport.height / sy,
       },
       size = measureMenu(
         localizedItems,
@@ -717,10 +743,12 @@ export function Menu<Trigger extends HTMLElement = HTMLButtonElement>({
     onExpandedChange?.(true);
   };
   useEffect(() => {
+    if (layout && disabledMenuTrigger(trigger.current)) close();
+  });
+  useEffect(() => {
     if (expanded === undefined) return;
     if (expanded) {
-      const selectFirst = theme.controlParts?.menu?.selectFirstOnOpen !== false;
-      if (selectFirst || !layout) open(selectFirst);
+      if (!layout) open(openingInput === MenuOpeningInput.Keyboard);
     } else {
       cancelTimer();
       setLayout(null);
@@ -902,31 +930,37 @@ export function Menu<Trigger extends HTMLElement = HTMLButtonElement>({
   return (
     <>
       {renderTrigger({
-        buttonRef: trigger,
+        buttonRef: assignTrigger,
         type: "button",
         "aria-label": displayLabel,
         "aria-haspopup": "menu",
         "aria-expanded": !!layout,
         "aria-controls": layout ? id : undefined,
         onClick:
-          activation === MenuActivation.Click
+          activation !== MenuActivation.ContextMenu
             ? (event) => {
+                if (disabledMenuTrigger(event.currentTarget)) return;
                 if (skipTriggerClick.current && event.detail !== 0) {
                   skipTriggerClick.current = false;
                   return;
                 }
                 skipTriggerClick.current = false;
-                if (layout) close();
+                if (layout && toggleOnTrigger) close();
                 else open(event.detail === 0);
               }
             : undefined,
         onPointerDown:
-          activation === MenuActivation.Click && theme.controlParts?.menu?.pressToOpen
+          activation === MenuActivation.Press
             ? (event) => {
-                if (event.pointerType !== "mouse" || event.button !== 0) return;
+                if (
+                  disabledMenuTrigger(event.currentTarget) ||
+                  event.pointerType !== "mouse" ||
+                  event.button !== 0
+                )
+                  return;
                 event.preventDefault();
                 skipTriggerClick.current = true;
-                if (layout) close();
+                if (layout && toggleOnTrigger) close();
                 else {
                   open();
                   triggerPress.current = event.pointerId;
@@ -937,6 +971,7 @@ export function Menu<Trigger extends HTMLElement = HTMLButtonElement>({
         onContextMenu:
           activation === MenuActivation.ContextMenu
             ? (event) => {
+                if (disabledMenuTrigger(event.currentTarget)) return;
                 trigger.current = event.currentTarget;
                 event.preventDefault();
                 open(
@@ -948,6 +983,7 @@ export function Menu<Trigger extends HTMLElement = HTMLButtonElement>({
               }
             : undefined,
         onKeyDown: (event) => {
+          if (disabledMenuTrigger(event.currentTarget)) return;
           if (event.key === "ArrowDown" || event.key === "ArrowUp") {
             event.preventDefault();
             open(true);
@@ -970,260 +1006,258 @@ export function Menu<Trigger extends HTMLElement = HTMLButtonElement>({
         </div>
       )}
       {layout &&
-        createPortal(
-          <ThemeScope>
-            <div
-              ref={tree}
-              className={styles.menuTree}
-              onPointerDown={(event) => {
-                if (event.button !== 0) return;
-                // A native link must keep its own click target and browser gestures.
-                if (event.target instanceof Element && event.target.closest("a[href]")) return;
-                if (event.pointerType === "touch") {
-                  if (!event.isPrimary || touchContact.current) {
-                    touchContact.current = null;
-                    return;
-                  }
-                  // Pointer cancellation of compatibility mouse events does not
-                  // cancel native touch scrolling governed by touch-action.
-                  event.preventDefault();
-                  touchContact.current = {
-                    id: event.pointerId,
-                    x: clientPoint(event).x,
-                    y: clientPoint(event).y,
-                    moved: false,
-                  };
-                  return;
-                }
-                event.preventDefault();
-                pointer.current = event.pointerId;
-                event.currentTarget.setPointerCapture(event.pointerId);
-              }}
-              onPointerMove={(event) => {
-                const contact = touchContact.current;
-                if (contact?.id === event.pointerId) {
-                  if (
-                    Math.hypot(
-                      clientPoint(event).x - contact.x,
-                      clientPoint(event).y - contact.y,
-                    ) >= 8
-                  )
-                    contact.moved = true;
-                  return;
-                }
-                if (pointer.current !== event.pointerId) return;
-                const item = pointed(clientPoint(event).x, clientPoint(event).y);
-                if (item) hover(item.depth, item.index);
-              }}
-              onPointerUp={(event) => {
-                const contact = touchContact.current;
-                if (contact?.id === event.pointerId) {
+        createUiPortal(
+          <div
+            ref={tree}
+            className={styles.menuTree}
+            data-popup=""
+            data-popup-for={`${id}-trigger`}
+            onPointerDown={(event) => {
+              if (event.button !== 0) return;
+              // A native link must keep its own click target and browser gestures.
+              if (event.target instanceof Element && event.target.closest("a[href]")) return;
+              if (event.pointerType === "touch") {
+                if (!event.isPrimary || touchContact.current) {
                   touchContact.current = null;
-                  if (!contact.moved) {
-                    const item = pointed(clientPoint(event).x, clientPoint(event).y);
-                    if (item) {
-                      event.preventDefault();
-                      compatibilityMouse.current.complete(event.nativeEvent);
-                      select(item.depth, item.index);
-                    }
-                  }
                   return;
                 }
-                if (pointer.current !== event.pointerId) return;
-                pointer.current = null;
-                const item = pointed(clientPoint(event).x, clientPoint(event).y);
-                if (event.currentTarget.hasPointerCapture(event.pointerId))
-                  event.currentTarget.releasePointerCapture(event.pointerId);
-                if (item && !panels[item.depth]?.items[item.index]?.href)
-                  select(item.depth, item.index);
-              }}
-              onPointerCancel={(event) => {
-                if (event.pointerType === "touch") touchContact.current = null;
-                else close();
-              }}
-              onLostPointerCapture={() => {
-                pointer.current = null;
-              }}
-            >
-              {panels.map((panel, depth) => {
-                const { bounds, viewport, origin } = panel.layout,
-                  sx = viewport.width / viewport.sceneWidth,
-                  sy = viewport.height / viewport.sceneHeight;
-                return (
-                  <ScrollArea
-                    key={depth}
-                    ref={(node) => {
-                      if (node) panelNodes.current.set(depth, node);
-                      else panelNodes.current.delete(depth);
-                    }}
-                    role="menu"
-                    id={depth === 0 ? id : `${id}-${depth}`}
-                    aria-label={panel.label}
-                    tabIndex={-1}
-                    className={`${styles.menuPanel} ${panel.touchRows ? styles.touchRows : ""}`}
-                    viewport={viewport}
-                    scrollX={bounds.width > layout.workarea.width}
-                    scrollY={bounds.height > layout.workarea.height}
+                // Pointer cancellation of compatibility mouse events does not
+                // cancel native touch scrolling governed by touch-action.
+                event.preventDefault();
+                touchContact.current = {
+                  id: event.pointerId,
+                  x: clientPoint(event).x,
+                  y: clientPoint(event).y,
+                  moved: false,
+                };
+                return;
+              }
+              event.preventDefault();
+              pointer.current = event.pointerId;
+              event.currentTarget.setPointerCapture(event.pointerId);
+            }}
+            onPointerMove={(event) => {
+              const contact = touchContact.current;
+              if (contact?.id === event.pointerId) {
+                if (
+                  Math.hypot(clientPoint(event).x - contact.x, clientPoint(event).y - contact.y) >=
+                  8
+                )
+                  contact.moved = true;
+                return;
+              }
+              if (pointer.current !== event.pointerId) return;
+              const item = pointed(clientPoint(event).x, clientPoint(event).y);
+              if (item) hover(item.depth, item.index);
+            }}
+            onPointerUp={(event) => {
+              const contact = touchContact.current;
+              if (contact?.id === event.pointerId) {
+                touchContact.current = null;
+                if (!contact.moved) {
+                  const item = pointed(clientPoint(event).x, clientPoint(event).y);
+                  if (item) {
+                    event.preventDefault();
+                    compatibilityMouse.current.complete(event.nativeEvent);
+                    select(item.depth, item.index);
+                  }
+                }
+                return;
+              }
+              if (pointer.current !== event.pointerId) return;
+              pointer.current = null;
+              const item = pointed(clientPoint(event).x, clientPoint(event).y);
+              if (event.currentTarget.hasPointerCapture(event.pointerId))
+                event.currentTarget.releasePointerCapture(event.pointerId);
+              if (item && !panels[item.depth]?.items[item.index]?.href)
+                select(item.depth, item.index);
+            }}
+            onPointerCancel={(event) => {
+              if (event.pointerType === "touch") touchContact.current = null;
+              else close();
+            }}
+            onLostPointerCapture={() => {
+              pointer.current = null;
+            }}
+          >
+            {panels.map((panel, depth) => {
+              const { bounds, viewport, origin } = panel.layout,
+                sx = viewport.width / viewport.sceneWidth,
+                sy = viewport.height / viewport.sceneHeight;
+              return (
+                <ScrollArea
+                  key={depth}
+                  ref={(node) => {
+                    if (node) panelNodes.current.set(depth, node);
+                    else panelNodes.current.delete(depth);
+                  }}
+                  role="menu"
+                  id={depth === 0 ? id : `${id}-${depth}`}
+                  aria-label={panel.label}
+                  tabIndex={-1}
+                  className={`${styles.menuPanel} ${panel.touchRows ? styles.touchRows : ""}`}
+                  viewport={viewport}
+                  scrollX={bounds.width > layout.workarea.width}
+                  scrollY={bounds.height > layout.workarea.height}
+                  style={{
+                    boxShadow: "var(--ui-menu-popup-shadow, none)",
+                    clipPath: "var(--ui-menu-popup-clip, none)",
+                    pointerEvents: "auto",
+                    left: origin.x + Math.floor(bounds.x * sx),
+                    top: origin.y + Math.floor(bounds.y * sy),
+                    width: Math.min(
+                      surfaceLayout(bounds, viewport).width,
+                      Math.floor(layout.workarea.width * sx),
+                    ),
+                    height: Math.min(bounds.height, layout.workarea.height) * sy,
+                    touchAction: touchRows ? "pan-y" : undefined,
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.altKey || event.ctrlKey || event.metaKey) return;
+                    const index = active[depth] ?? -1,
+                      entries = panel.items;
+                    const handled = () => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      cancelTimer();
+                    };
+                    if (event.key === "Escape" || (event.key === "ArrowLeft" && depth > 0)) {
+                      handled();
+                      if (depth > 0) {
+                        setPath((old) => old.slice(0, depth - 1));
+                        setActive((old) => old.slice(0, depth));
+                        setFocusLevel(depth - 1);
+                      } else close();
+                      return;
+                    }
+                    if (event.key === "ArrowRight") {
+                      handled();
+                      if (entries[index]?.children?.length && !entries[index]?.disabled)
+                        openChild(depth, index, true);
+                      else onNavigate?.(1);
+                      return;
+                    }
+                    if (event.key === "ArrowLeft") {
+                      handled();
+                      onNavigate?.(-1);
+                      return;
+                    }
+                    if (event.key === "Tab") {
+                      close();
+                      return;
+                    }
+                    if (event.key === "Enter" || event.key === " ") {
+                      handled();
+                      select(depth, index, true);
+                      return;
+                    }
+                    const mnemonic =
+                      language === "en" && event.key.length === 1
+                        ? menuMnemonicMatch(entries, event.key)
+                        : -1;
+                    if (mnemonic >= 0) {
+                      handled();
+                      select(depth, mnemonic, true);
+                      return;
+                    }
+                    const enabled = entries
+                        .map((item, index) => (item.disabled ? -1 : index))
+                        .filter((index) => index >= 0),
+                      offset = enabled.indexOf(index);
+                    let next: number | undefined;
+                    if (event.key === "ArrowDown") next = enabled[(offset + 1) % enabled.length];
+                    else if (event.key === "ArrowUp")
+                      next =
+                        enabled[
+                          offset < 0
+                            ? enabled.length - 1
+                            : (offset - 1 + enabled.length) % enabled.length
+                        ];
+                    else if (event.key === "Home") next = enabled[0];
+                    else if (event.key === "End") next = enabled[enabled.length - 1];
+                    else if (
+                      event.key.length === 1 &&
+                      !entries.some((item) => menuMnemonicIndex(item) >= 0)
+                    )
+                      next = [...enabled.slice(offset + 1), ...enabled.slice(0, offset + 1)].find(
+                        (index) =>
+                          entries[index].label.toLowerCase().startsWith(event.key.toLowerCase()),
+                      );
+                    if (next !== undefined) {
+                      handled();
+                      setPath((old) => old.slice(0, depth));
+                      setActive((old) => [...old.slice(0, depth), next]);
+                      setFocusLevel(depth);
+                    }
+                  }}
+                >
+                  <div
+                    className={styles.menuSurface}
                     style={{
-                      boxShadow: "var(--ui-menu-popup-shadow, none)",
-                      clipPath: "var(--ui-menu-popup-clip, none)",
-                      pointerEvents: "auto",
-                      left: origin.x + Math.floor(bounds.x * sx),
-                      top: origin.y + Math.floor(bounds.y * sy),
-                      width: Math.min(
-                        surfaceLayout(bounds, viewport).width,
-                        Math.floor(layout.workarea.width * sx),
-                      ),
-                      height: Math.min(bounds.height, layout.workarea.height) * sy,
-                      touchAction: touchRows ? "pan-y" : undefined,
-                    }}
-                    onKeyDown={(event) => {
-                      if (event.altKey || event.ctrlKey || event.metaKey) return;
-                      const index = active[depth] ?? -1,
-                        entries = panel.items;
-                      const handled = () => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        cancelTimer();
-                      };
-                      if (event.key === "Escape" || (event.key === "ArrowLeft" && depth > 0)) {
-                        handled();
-                        if (depth > 0) {
-                          setPath((old) => old.slice(0, depth - 1));
-                          setActive((old) => old.slice(0, depth));
-                          setFocusLevel(depth - 1);
-                        } else close();
-                        return;
-                      }
-                      if (event.key === "ArrowRight") {
-                        handled();
-                        if (entries[index]?.children?.length && !entries[index]?.disabled)
-                          openChild(depth, index, true);
-                        else onNavigate?.(1);
-                        return;
-                      }
-                      if (event.key === "ArrowLeft") {
-                        handled();
-                        onNavigate?.(-1);
-                        return;
-                      }
-                      if (event.key === "Tab") {
-                        close();
-                        return;
-                      }
-                      if (event.key === "Enter" || event.key === " ") {
-                        handled();
-                        select(depth, index, true);
-                        return;
-                      }
-                      const mnemonic =
-                        language === "en" && event.key.length === 1
-                          ? menuMnemonicMatch(entries, event.key)
-                          : -1;
-                      if (mnemonic >= 0) {
-                        handled();
-                        select(depth, mnemonic, true);
-                        return;
-                      }
-                      const enabled = entries
-                          .map((item, index) => (item.disabled ? -1 : index))
-                          .filter((index) => index >= 0),
-                        offset = enabled.indexOf(index);
-                      let next: number | undefined;
-                      if (event.key === "ArrowDown") next = enabled[(offset + 1) % enabled.length];
-                      else if (event.key === "ArrowUp")
-                        next =
-                          enabled[
-                            offset < 0
-                              ? enabled.length - 1
-                              : (offset - 1 + enabled.length) % enabled.length
-                          ];
-                      else if (event.key === "Home") next = enabled[0];
-                      else if (event.key === "End") next = enabled[enabled.length - 1];
-                      else if (
-                        event.key.length === 1 &&
-                        !entries.some((item) => menuMnemonicIndex(item) >= 0)
-                      )
-                        next = [...enabled.slice(offset + 1), ...enabled.slice(0, offset + 1)].find(
-                          (index) =>
-                            entries[index].label.toLowerCase().startsWith(event.key.toLowerCase()),
-                        );
-                      if (next !== undefined) {
-                        handled();
-                        setPath((old) => old.slice(0, depth));
-                        setActive((old) => [...old.slice(0, depth), next]);
-                        setFocusLevel(depth);
-                      }
+                      width: surfaceLayout(bounds, viewport).width,
+                      height: surfaceLayout(bounds, viewport).height,
                     }}
                   >
-                    <div
-                      className={styles.menuSurface}
-                      style={{
-                        width: surfaceLayout(bounds, viewport).width,
-                        height: surfaceLayout(bounds, viewport).height,
-                      }}
-                    >
-                      <MenuArtwork panel={panel} active={path[depth] ?? active[depth] ?? -1} />
-                      {panel.items.map((item, index) => (
-                        <MenuItemTarget
-                          key={index}
-                          item={item}
-                          targetRef={(node) => {
-                            const key = `${depth}:${index}`;
-                            if (node) nodes.current.set(key, node);
-                            else nodes.current.delete(key);
-                          }}
-                          role={
-                            item.checked === undefined
-                              ? "menuitem"
-                              : item.checkType === MenuCheckType.Checkbox
-                                ? "menuitemcheckbox"
-                                : "menuitemradio"
-                          }
-                          aria-checked={item.checked}
-                          aria-label={item.label}
-                          aria-haspopup={item.children?.length ? "menu" : undefined}
-                          aria-expanded={item.children?.length ? path[depth] === index : undefined}
-                          aria-controls={
-                            item.children?.length && path[depth] === index
-                              ? `${id}-${depth + 1}`
-                              : undefined
-                          }
-                          tabIndex={-1}
-                          {...stylusPointerInputProps(!item.disabled)}
-                          data-menu-owner={id}
-                          data-menu-depth={depth}
-                          data-menu-index={index}
-                          className={styles.menuItemHitTarget}
-                          style={{
-                            left: MENU_METRICS.itemInset * sx,
-                            top: panel.rows[index] * sy,
-                            width: (bounds.width - MENU_METRICS.itemInset * 2) * sx,
-                            height: panel.rowHeight * sy,
-                          }}
-                          onPointerEnter={(event) => {
-                            if (event.pointerType !== "touch") hover(depth, index);
-                          }}
-                          onPointerLeave={() => {
-                            cancelTimer();
-                            // MenuItem::onProcessMessage(kMouseLeaveMessage) keeps
-                            // only an item whose submenu is open highlighted.
-                            if (path[depth] !== index)
-                              setActive((old) =>
-                                old[depth] === index ? [...old.slice(0, depth), -1] : old,
-                              );
-                          }}
-                          aria-disabled={item.disabled || undefined}
-                          onActivate={() => select(depth, index, true)}
-                          onNavigate={() => close()}
-                        />
-                      ))}
-                    </div>
-                  </ScrollArea>
-                );
-              })}
-            </div>
-          </ThemeScope>,
+                    <MenuArtwork panel={panel} active={path[depth] ?? active[depth] ?? -1} />
+                    {panel.items.map((item, index) => (
+                      <MenuItemTarget
+                        key={index}
+                        item={item}
+                        targetRef={(node) => {
+                          const key = `${depth}:${index}`;
+                          if (node) nodes.current.set(key, node);
+                          else nodes.current.delete(key);
+                        }}
+                        role={
+                          item.checked === undefined
+                            ? "menuitem"
+                            : item.checkType === MenuCheckType.Checkbox
+                              ? "menuitemcheckbox"
+                              : "menuitemradio"
+                        }
+                        aria-checked={item.checked}
+                        aria-label={item.label}
+                        aria-haspopup={item.children?.length ? "menu" : undefined}
+                        aria-expanded={item.children?.length ? path[depth] === index : undefined}
+                        aria-controls={
+                          item.children?.length && path[depth] === index
+                            ? `${id}-${depth + 1}`
+                            : undefined
+                        }
+                        tabIndex={-1}
+                        {...stylusPointerInputProps(!item.disabled)}
+                        data-menu-owner={id}
+                        data-menu-depth={depth}
+                        data-menu-index={index}
+                        className={styles.menuItemHitTarget}
+                        style={{
+                          left: MENU_METRICS.itemInset * sx,
+                          top: panel.rows[index] * sy,
+                          width: (bounds.width - MENU_METRICS.itemInset * 2) * sx,
+                          height: panel.rowHeight * sy,
+                        }}
+                        onPointerEnter={(event) => {
+                          if (event.pointerType !== "touch") hover(depth, index);
+                        }}
+                        onPointerLeave={() => {
+                          cancelTimer();
+                          // MenuItem::onProcessMessage(kMouseLeaveMessage) keeps
+                          // only an item whose submenu is open highlighted.
+                          if (path[depth] !== index)
+                            setActive((old) =>
+                              old[depth] === index ? [...old.slice(0, depth), -1] : old,
+                            );
+                        }}
+                        aria-disabled={item.disabled || undefined}
+                        onActivate={() => select(depth, index, true)}
+                        onNavigate={() => close()}
+                      />
+                    ))}
+                  </div>
+                </ScrollArea>
+              );
+            })}
+          </div>,
           document.body,
         )}
     </>

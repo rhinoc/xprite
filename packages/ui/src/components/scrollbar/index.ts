@@ -1,8 +1,10 @@
 export { Scrollbar, type ScrollbarProps } from "$/components/scrollbar/Scrollbar";
-export { ScrollArea, type ScrollAreaProps } from "$/components/scrollbar/ScrollArea";
+export { ScrollArea } from "$/components/scrollbar/ScrollArea";
 export {
-  PageScrollArea,
-  PageScrollbarMode,
-  type PageScrollAreaProps,
-} from "$/components/scrollbar/PageScrollArea";
-export type { ScrollbarVariant } from "$/components/scrollbar/types";
+  ScrollAreaTarget,
+  ScrollbarRendering,
+  type ScrollAreaProps,
+  type ScrollAreaElementProps,
+  type ScrollAreaPageProps,
+} from "$/components/scrollbar/scroll-area-types";
+export { ScrollbarStyle } from "$/base/theme/theme-types";

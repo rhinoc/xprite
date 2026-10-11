@@ -78,7 +78,7 @@ export function PatternColors({
         }}
       >
         <Pattern
-          variant={pattern.id}
+          pattern={pattern.id}
           preview
           foreground={validForeground ?? pattern.defaultForeground}
           background={validBackground ?? pattern.defaultBackground}

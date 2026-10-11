@@ -3,7 +3,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { EditorDialog } from "$/components/dialogs/overlay";
 import { tUi, tUiSource } from "$/i18n";
 import { DialogEffectTarget } from "$/managers/dialogs/effect-dialog-manager";
-import { Button, isDialogPopupTarget, Checkbox } from "@xprite/ui";
+import { FontRole, Button, isDialogPopupTarget, Checkbox, FocusRingBehavior } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 import { isImeKeyboardEvent } from "@xprite/ui/utils";
 export interface EditorFilterWindowProps {
@@ -131,9 +131,9 @@ export function EditorFilterWindow({
                   bounds={{ x, y: c.y + i * 42, width: 100, height: 34 }}
                   relativeTo={c}
                   text={label}
-                  font="default"
+                  font={FontRole.Primary}
                   mnemonicIndex={0}
-                  focusAppearance="always"
+                  focusRing={FocusRingBehavior.Always}
                   part="button_normal"
                   hotPart="button_hot"
                   focusedPart="button_focused"
@@ -159,7 +159,7 @@ export function EditorFilterWindow({
                   bounds={{ x: x + offset, y: c.y + 126, width: w, height: 30 }}
                   relativeTo={c}
                   text={label}
-                  font="mini"
+                  font={FontRole.Compact}
                   selected={!!(channels & bit)}
                   disabled={bit === 8 && !alphaEnabled}
                   aria-label={tUi("ui.modify.channel", { value1: tUiSource(label) })}
@@ -171,7 +171,7 @@ export function EditorFilterWindow({
                   bounds={{ x, y: c.y + 150, width: 100, height: 30 }}
                   relativeTo={c}
                   text="Index"
-                  font="mini"
+                  font={FontRole.Compact}
                   selected={!!(channels & 32)}
                   aria-label="Modify index channel"
                   onClick={() => onChannels(channels & 32 ? 0 : 32)}
@@ -181,7 +181,7 @@ export function EditorFilterWindow({
                 bounds={{ x, y: c.y + 150 + (depth === 8 ? 24 : 0), width: 100, height: 30 }}
                 relativeTo={c}
                 text={target === DialogEffectTarget.All ? "All" : "Selected"}
-                font="mini"
+                font={FontRole.Compact}
                 aria-label="Filter cel target"
                 onClick={() =>
                   onTarget(

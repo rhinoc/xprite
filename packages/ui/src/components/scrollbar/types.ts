@@ -1,1 +1,4 @@
-export type ScrollbarVariant = "mini" | "regular" | "transparent";
+export enum ScrollbarRendering {
+  Skinned = "skinned",
+  Browser = "browser",
+}

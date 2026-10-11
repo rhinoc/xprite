@@ -1,4 +1,5 @@
 .desktop {
+  isolation: isolate;
   display: grid;
   grid-template-columns: minmax(0, 680px) 128px;
   align-content: center;
@@ -6,13 +7,24 @@
   justify-content: center;
   gap: var(--ui-space-8, 32px);
   width: calc(100% - 48px);
-  min-height: calc(100svh - var(--ui-menu-navigation-height, 20px));
+  min-height: calc(100dvh - var(--ui-menu-navigation-height, 20px));
   margin: 0 auto;
   padding: var(--ui-space-8, 32px) 0;
   box-sizing: border-box;
 }
 .window {
+  transform: translateZ(0);
   min-width: 0;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.window > :global([data-slot="panel-body"]) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 .content {
   display: grid;
@@ -44,6 +56,7 @@
 @media (max-width: 700px) {
   .desktop {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
     width: calc(100% - 24px);
     gap: var(--ui-space-7, 24px);
   }

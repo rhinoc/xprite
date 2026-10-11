@@ -67,12 +67,12 @@ export function createBrowserDesktop(defaults?: DesktopPreferences) {
         if (image) document.documentElement.style.setProperty("--ui-pattern-override-image", image);
         else document.documentElement.style.removeProperty("--ui-pattern-override-image");
       },
-      applyTheme(tokens, appearance, themeId) {
-        document.documentElement.dataset.uiAppearance = appearance;
+      applyTheme(tokens, colorScheme, themeId) {
+        document.documentElement.dataset.uiAppearance = colorScheme;
         for (const scope of document.querySelectorAll<HTMLElement>(
           `[data-ui-theme="${themeId}"]`,
         )) {
-          scope.dataset.uiAppearance = appearance;
+          scope.dataset.uiAppearance = colorScheme;
           for (const [name, value] of Object.entries(tokens)) {
             if (value === undefined) scope.style.removeProperty(name);
             else scope.style.setProperty(name, value);

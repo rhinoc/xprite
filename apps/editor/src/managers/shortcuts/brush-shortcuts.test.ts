@@ -3,8 +3,10 @@ import assert from "node:assert/strict";
 import { describe, it } from "vitest";
 
 import { SHORTCUT_DEFINITIONS, ShortcutManager } from "$/managers/shortcuts/shortcut-manager";
+import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
 
-const createManager = () => new ShortcutManager({ getItem: () => null, setItem: () => {} });
+const createManager = () =>
+  new ShortcutManager(createJsonStorage({ getItem: () => null, setItem: () => {} }));
 
 describe("brush shortcuts", () => {
   it("uses the original size keys, including a shifted plus and keypad plus", () => {

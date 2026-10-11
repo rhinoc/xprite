@@ -1,34 +1,35 @@
 .layout {
+  --animal-output-height: 286px;
   display: grid;
   grid-template-columns: 250px minmax(280px, 1fr) 340px;
   align-items: start;
   gap: 16px;
   flex: 1;
-  min-height: 640px;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
   padding: 20px 16px;
   background: var(--tool-wash);
 }
 .singleLayout .previewPanel {
-  height: auto;
+  height: 100%;
 }
 .singleLayout .previewStage {
-  flex: 0 0 auto;
-  height: 400px;
+  flex: 1;
+  height: auto;
 }
 .settingsColumn {
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-4);
   min-width: 0;
+  min-height: 0;
 }
 .sideColumn {
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-4);
   min-width: 0;
-}
-.miniPreviewPanel {
-  min-width: 0;
+  min-height: 0;
 }
 .settingsPanel,
 .outputPanel,
@@ -63,10 +64,32 @@
 .previewToolbar {
   gap: var(--ui-space-2);
 }
+.groundDisclosure {
+  --ui-disclosure-summary-padding: var(--ui-space-4, 8px);
+  --ui-disclosure-content-padding: 0;
+  flex: 0 0 auto;
+  min-height: 0;
+}
+.groundDisclosure[open] {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+.groundDisclosure::details-content {
+  display: contents;
+}
+.groundDisclosure > :global([data-slot="disclosure-summary"]) {
+  flex: 0 0 auto;
+}
+.groundDisclosure > :global([data-slot="disclosure-content"]) {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
 .previewStage {
   display: flex;
   flex: 1;
-  min-height: 300px;
+  min-height: 0;
 }
 .gridOverlay {
   position: absolute;
@@ -94,36 +117,52 @@
   opacity: 1;
 }
 .qrArtwork {
-  display: flex;
-  justify-content: center;
-  width: 202px;
-  max-width: 100%;
-  align-self: center;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  container-type: size;
+}
+.qrImage {
+  width: min(202px, 100cqw, 100cqh);
+  height: min(202px, 100cqw, 100cqh);
   background: white;
 }
 .outputContent {
-  display: flex;
-  flex-direction: column;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
   gap: var(--ui-space-4);
   padding: var(--ui-space-4);
   min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+.tiledOutput {
+  grid-template-rows: auto minmax(0, 1fr) auto;
 }
 .outputSelection {
+  display: flex;
   justify-content: center;
 }
-.outputTitle {
-  text-align: center;
-}
 .outputActions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ui-space-2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--ui-space-2, 4px);
 }
-.outputActions > :only-child {
-  grid-column: 1 / -1;
+.outputPanel {
+  height: 100%;
+  flex: 1 1 auto;
+}
+.importHelp {
+  padding: var(--ui-space-6, 16px);
 }
 .outputEmpty {
-  min-height: 250px;
+  min-height: 0;
+  flex: 1;
   display: grid;
   place-items: center;
   text-align: center;
@@ -132,39 +171,49 @@
   .layout,
   .singleLayout {
     grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-rows: minmax(0, 1fr) minmax(0, 2fr);
     min-height: 0;
-    flex: 0 0 auto;
+    flex: 1;
   }
   .settingsColumn {
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr);
   }
   .layout > .settingsPanel {
     grid-column: 1 / -1;
   }
   .previewPanel {
-    height: auto;
+    height: 100%;
   }
   .previewContent {
     height: auto;
   }
   .previewStage {
-    flex: 0 0 auto;
-    height: 360px;
+    flex: 1;
+    height: auto;
   }
 }
 @media (max-width: 760px) {
   .layout {
-    display: flex;
-    flex-direction: column;
-    flex: 0 0 auto;
+    --animal-output-height: 236px;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows:
+      minmax(0, min(96px, 18%)) minmax(0, 1fr)
+      minmax(0, min(var(--animal-output-height), 44%));
+    flex: 1;
     min-height: 0;
+  }
+  .layout[data-ground-preview-open="true"] {
+    grid-template-rows:
+      minmax(0, 60px) minmax(0, 1fr)
+      minmax(0, min(var(--animal-output-height), 44%));
   }
   .settingsColumn {
     width: 100%;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .settingsPanel,
   .previewPanel,
@@ -174,17 +223,99 @@
   }
   .previewStage,
   .singleLayout .previewStage {
-    height: 300px;
-    min-height: 300px;
+    height: auto;
+    min-height: 0;
   }
-  .outputEmpty {
-    min-height: 120px;
+  .groundDisclosure {
+    --ui-disclosure-summary-padding: var(--ui-space-2, 4px);
+  }
+  .previewToolbar {
+    --ui-toolbar-padding: var(--ui-space-2, 4px) var(--ui-space-4, 8px);
+  }
+  .previewPanel :global([data-slot="status-bar"]) {
+    --ui-reading-line-height: 16px;
+  }
+  .outputContent {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .tiledOutput {
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .qrArtwork {
+    grid-column: 1;
+    grid-row: 1 / -1;
+  }
+  .outputSelection,
+  .outputActions {
+    grid-column: 2;
+  }
+  .outputSelection {
+    align-self: end;
+  }
+  .tiledOutput .outputActions {
+    align-self: start;
+  }
+}
+@media (max-width: 480px) {
+  .layout {
+    --animal-output-height: 260px;
+    grid-template-rows:
+      minmax(0, min(96px, 18%)) minmax(0, 1fr)
+      minmax(0, min(var(--animal-output-height), 44%));
+  }
+  .outputContent {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  .tiledOutput {
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  .qrArtwork {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .outputSelection {
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 0;
+    align-self: auto;
+  }
+  .outputActions {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .tiledOutput .outputActions {
+    grid-column: 2;
+    align-self: auto;
+  }
+}
+@media (max-width: 360px) {
+  .layout {
+    --animal-output-height: 286px;
+  }
+  .outputContent {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  .tiledOutput {
+    grid-template-rows: minmax(0, 1fr) auto auto;
+  }
+  .outputSelection,
+  .tiledOutput .outputActions {
+    grid-column: 1;
+  }
+  .tiledOutput .outputActions {
+    grid-row: 3;
   }
 }
 
 .groundView {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
 }
 .groundToolbar,
 .cameraToolbar,
@@ -196,7 +327,8 @@
   padding-top: 0;
 }
 .groundCanvas {
-  height: 200px;
+  flex: 1;
+  min-height: 0;
   position: relative;
   overflow: hidden;
   background: #c9e7ee;
@@ -208,29 +340,41 @@
 }
 
 .layout {
+  --animal-layout-gap: 24px;
   background: transparent;
   padding: 12px 0 0;
-  gap: 24px;
+  gap: var(--animal-layout-gap);
 }
 .settingsColumn {
   margin-top: 48px;
   gap: 24px;
+  max-height: calc(100% - 48px);
 }
 .sideColumn {
   margin-top: 80px;
   gap: 24px;
+  max-height: calc(100% - 80px);
+  height: min(var(--animal-output-height), calc(100% - 80px));
 }
 @media (max-width: 1120px) {
   .settingsColumn {
     margin-top: 0;
+    max-height: 100%;
   }
   .sideColumn {
     margin-top: 40px;
+    max-height: calc(100% - 40px);
+    height: min(var(--animal-output-height), calc(100% - 40px));
   }
 }
-@media (max-width: 700px) {
+@media (max-width: 760px) {
+  .layout {
+    --animal-layout-gap: 12px;
+  }
   .sideColumn {
     margin-top: 0;
+    max-height: 100%;
+    height: 100%;
   }
 }
 @media (min-width: 1121px) {

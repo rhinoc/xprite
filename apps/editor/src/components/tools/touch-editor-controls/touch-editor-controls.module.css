@@ -1,7 +1,6 @@
 /* Pointer mode keeps the wide shell in document flow; compact layout supplies a flex host. */
 :global(.xse-editor-window[data-ui-input-mode="pointer"] .xse-touch-composition),
-:global(.xse-editor-window[data-ui-input-mode="pointer"] .xse-touch-main),
-:global(.xse-editor-window[data-ui-input-mode="pointer"] .xse-timeline-shell) {
+:global(.xse-editor-window[data-ui-input-mode="pointer"] .xse-touch-main) {
   display: contents;
 }
 
@@ -77,9 +76,6 @@
 }
 :global(.xse-editor-window[data-ui-input-mode="touch"] .xse-tab-strip::-webkit-scrollbar) {
   display: none;
-}
-:global(.xse-editor-window[data-ui-input-mode="touch"] .xse-document-tab) {
-  touch-action: none;
 }
 :global(.xse-editor-window[data-ui-input-mode="touch"] .xse-status) {
   --xse-status-bar-height: 26px;

@@ -37,7 +37,7 @@
   color: transparent;
   caret-color: transparent;
   background: transparent;
-  font: var(--ui-text-size, var(--ui-text-default-size, 14px))/1 var(--xse-font);
+  font: var(--ui-text-size, var(--ui-text-primary-size, 14px))/1 var(--xse-font);
   font-kerning: none;
   font-variant-ligatures: none;
   font-synthesis: none;

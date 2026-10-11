@@ -9,7 +9,7 @@ export enum SiteTelemetryEvent {
 export enum SitePageType {
   Editor = "editor",
   Showcase = "showcase",
-  Gallery = "gallery",
+  Components = "components",
   Article = "article",
   Help = "help",
   Tools = "tools",

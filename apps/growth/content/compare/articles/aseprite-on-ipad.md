@@ -120,7 +120,7 @@ The other three apps each convert something when they import an `.aseprite` proj
   - When you export back to `.aseprite`, Resprite tilemaps become plain pixels, live styles such as outlines and shadows aren't drawn into the image, and group opacity and blend modes aren't kept
 - [Pixaki](https://pixaki.com/user-guide/export/): import and export need Pro, and exports keep layers and cels. Frame duration is the project frame rate × held frames, which differs from the millisecond durations `.aseprite` stores.
 
-PNG, GIF and sprite sheets have no layers. They're fine for delivering finished work, but save a separate `.aseprite` copy of anything you'll keep editing. If you only need an animated image, see [Aseprite to GIF](/learn/aseprite-to-gif/). To just open a project in the browser, see [Edit Aseprite files online](/compare/aseprite-online/).
+PNG, GIF and sprite sheets have no layers. They're fine for delivering finished work, but save a separate `.aseprite` copy of anything you'll keep editing. If you only need an animated image, see [Aseprite to GIF](/tools/viewer/#export-gif). To just open a project in the browser, see [Edit Aseprite files online](/compare/aseprite-online/).
 
 ## FAQ
 

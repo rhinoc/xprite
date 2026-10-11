@@ -11,6 +11,7 @@ import {
   Panel,
   PanelVariant,
   SurfaceTone,
+  ScrollArea,
   Text,
   TextRole,
   TextVariant,
@@ -50,12 +51,23 @@ export function PublicArticleDiagram({ diagram }: { diagram: ArticleDiagramSpec 
           {diagram.label}
         </Text>
       </figcaption>
-      <div className={styles.scroll} role="region" aria-label={diagram.label} tabIndex={0}>
+      <ScrollArea
+        scrollY={false}
+        contentClassName={styles.layout}
+        aria-label={diagram.label}
+        viewportProps={{
+          role: "region",
+          "aria-label": diagram.label,
+          tabIndex: 0,
+          style: { touchAction: "pan-x pan-y", overscrollBehaviorY: "auto" },
+          "data-ui-scroll-region-focus": "true",
+        }}
+      >
         {diagram.kind === ArticleDiagramKind.Map ? (
           <div className={styles.map}>
             <Panel
-              variant={PanelVariant.Group}
-              tone={SurfaceTone.Informative}
+              variant={PanelVariant.Content}
+              tone={SurfaceTone.Info}
               contentPadding={ContentPadding.Compact}
               className={styles.rootNode}
             >
@@ -65,11 +77,11 @@ export function PublicArticleDiagram({ diagram }: { diagram: ArticleDiagramSpec 
               {diagram.branches.map((branch) => (
                 <li key={branch.label} className={styles.branch}>
                   <Panel
-                    variant={PanelVariant.Group}
+                    variant={PanelVariant.Content}
                     contentPadding={ContentPadding.Compact}
-                    tone={branch.featured ? SurfaceTone.Positive : SurfaceTone.Neutral}
+                    tone={branch.featured ? SurfaceTone.Success : SurfaceTone.Neutral}
                     title={
-                      <Text variant={TextVariant.Reading} textRole={TextRole.Caption}>
+                      <Text variant={TextVariant.Reading} textRole={TextRole.Caption} wrap>
                         {branch.label}
                       </Text>
                     }
@@ -91,7 +103,7 @@ export function PublicArticleDiagram({ diagram }: { diagram: ArticleDiagramSpec 
             {diagram.steps.map((step) => (
               <li key={step.label} className={styles.step}>
                 <Panel
-                  variant={PanelVariant.Group}
+                  variant={PanelVariant.Content}
                   contentPadding={ContentPadding.Compact}
                   tone={SurfaceTone.Neutral}
                   className={styles.stepNode}
@@ -102,7 +114,7 @@ export function PublicArticleDiagram({ diagram }: { diagram: ArticleDiagramSpec 
             ))}
           </ol>
         )}
-      </div>
+      </ScrollArea>
     </figure>
   );
 }

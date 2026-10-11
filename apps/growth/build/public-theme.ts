@@ -84,7 +84,45 @@ export function publicNotFound(language: string): string {
 }
 /** Apply the theme once around server-composed page content. */
 export function publicUiScope(content: string, language = "en"): string {
-  return renderPublicUi("page", { content, language });
+  return publicStaticPage(renderPublicUi("page", { content, language }));
+}
+
+/** Resolve templates before the browser paints or React hydrates any island. */
+function initializePublicPage() {
+  const DARK_APPEARANCE = "dark";
+  const LIGHT_APPEARANCE = "light";
+  const THEME_TEMPLATE_SELECTOR = "template[data-public-ui-dark]";
+  const WORKSPACE_SELECTOR = "[data-ui-desktop-workspace],[data-public-desktop]";
+  const WINDOW_SELECTOR = "[data-ui-desktop-window]";
+  const PRIMARY_PRIORITY = "primary";
+  const root = document.documentElement;
+  const dark = root.dataset.toolAppearance === DARK_APPEARANCE;
+  root.dataset.uiAppearance = dark ? DARK_APPEARANCE : LIGHT_APPEARANCE;
+  const template = document.querySelector<HTMLTemplateElement>(THEME_TEMPLATE_SELECTOR);
+  if (template) {
+    if (dark) template.previousElementSibling!.replaceWith(template.content);
+    template.remove();
+  }
+  for (const workspace of document.querySelectorAll(WORKSPACE_SELECTOR)) {
+    const windows = Array.from(workspace.querySelectorAll<HTMLElement>(WINDOW_SELECTOR)).filter(
+      (node) => node.closest(WORKSPACE_SELECTOR) === workspace,
+    );
+    const active =
+      windows.find((node) => node.dataset.uiWindowPriority === PRIMARY_PRIORITY) ?? windows[0];
+    for (const node of windows) node.dataset.uiWindowActive = String(node === active);
+  }
+}
+
+export function publicPageStartupScript(): string {
+  return `(${initializePublicPage.toString()})()`;
+}
+
+export function publicStaticPage(markup: string): string {
+  return `${markup}<script>${publicPageStartupScript()}</script>`;
+}
+
+export function publicReaderScroll(content: string, language = "en"): string {
+  return renderPublicUi("reader", { content, language });
 }
 export function publicStatus(label: string, trailing: string, href?: string): string {
   return renderPublicUi("status", { label, trailing, href });

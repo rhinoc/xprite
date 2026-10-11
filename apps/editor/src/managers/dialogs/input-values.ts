@@ -1,9 +1,14 @@
 import { useEditorPlatformPorts } from "$/managers/platform/editor-platform-context";
 import type { PreferenceStoragePort } from "$/managers/ports/platform";
-import { evaluateSizeExpression, parseSpriteDimension } from "@xprite/editor-core";
-import { CanvasAnchor, type SpriteResizeMethod } from "@xprite/editor-core";
-import { PixelResizeMethod } from "@xprite/editor-core";
-import { MAX_IMAGE_DIMENSION, MAX_IMAGE_PIXELS } from "@xprite/editor-core";
+import {
+  evaluateSizeExpression,
+  parseSpriteDimension,
+  CanvasAnchor,
+  type SpriteResizeMethod,
+  PixelResizeMethod,
+  MAX_IMAGE_DIMENSION,
+  MAX_IMAGE_PIXELS,
+} from "@xprite/editor-core";
 
 export interface DialogRect {
   x: number;
@@ -84,7 +89,7 @@ export function useDialogInputPreferences() {
 
 function readNewSpriteChoices(storage: PreferenceStoragePort | null): NewSpriteChoices {
   try {
-    const saved = JSON.parse(storage?.getItem(NEW_SPRITE_CHOICES_KEY) ?? "null");
+    const saved = storage?.readJson(NEW_SPRITE_CHOICES_KEY);
     return {
       colorDepth: saved?.colorDepth === 8 || saved?.colorDepth === 16 ? saved.colorDepth : 32,
       background:
@@ -102,7 +107,7 @@ function writeNewSpriteChoices(
   storage: PreferenceStoragePort | null,
 ): void {
   try {
-    storage?.setItem(NEW_SPRITE_CHOICES_KEY, JSON.stringify(value));
+    storage?.writeJson(NEW_SPRITE_CHOICES_KEY, value);
   } catch {
     // The current dialog selection remains usable when browser storage is unavailable.
   }
@@ -124,15 +129,17 @@ function readDocumentSizePreferences(
   storage: PreferenceStoragePort | null,
 ): DocumentSizePreferences {
   try {
-    const saved = JSON.parse(storage?.getItem(SIZE_DIALOG_PREFERENCES_KEY) ?? "{}");
+    const saved =
+      storage?.readJson<Partial<DocumentSizePreferences>>(SIZE_DIALOG_PREFERENCES_KEY) ?? {};
+    const method = saved.method ?? DialogSpriteResizeMethod.Nearest;
     const supportedMethod = [
       DialogSpriteResizeMethod.Nearest,
       DialogSpriteResizeMethod.Bilinear,
       DialogSpriteResizeMethod.RotSprite,
-    ].includes(saved.method);
+    ].includes(method);
     return {
       lockRatio: saved.lockRatio === true,
-      method: supportedMethod ? saved.method : DialogSpriteResizeMethod.Nearest,
+      method: supportedMethod ? method : DialogSpriteResizeMethod.Nearest,
       trim: saved.trim === true,
     };
   } catch {
@@ -145,7 +152,7 @@ function writeDocumentSizePreferences(
   storage: PreferenceStoragePort | null,
 ): void {
   try {
-    storage?.setItem(SIZE_DIALOG_PREFERENCES_KEY, JSON.stringify(value));
+    storage?.writeJson(SIZE_DIALOG_PREFERENCES_KEY, value);
   } catch {
     // Resizing works when browser storage is unavailable.
   }

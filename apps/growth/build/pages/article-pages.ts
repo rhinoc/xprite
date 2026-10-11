@@ -21,6 +21,7 @@ import {
   PUBLIC_FONT_STYLE_PATH,
   GROWTH_DESKTOP_STYLE_PATH,
   publicDesktopWindow,
+  publicReaderScroll,
   publicIconLink,
   publicPattern,
   publicDesktopNavigation,
@@ -54,7 +55,6 @@ export { ARTICLE_CONTENT_ROOT } from "./article-source.ts";
 
 enum ArticleCollection {
   Compare = "compare",
-  Learn = "learn",
 }
 const escapeHtml = (value: string) =>
   value.replace(/[&<>"']/g, (character) => HTML_ENTITIES[character]);
@@ -93,13 +93,12 @@ function libraryFolders(language: PublicLanguage): string {
   return publicDesktopWindow(
     "Xprite",
     `<div data-public-folder-items>${
-      publicIconLink(text("Applications", "应用程序"), href("/tools/")) +
-      publicIconLink(text("File guides", "文件导出指南"), href("/learn/")) +
+      publicIconLink(text("Features", "功能"), href("/about/features/")) +
       publicIconLink(text("Comparisons", "编辑器比较"), href("/compare/")) +
       publicIconLink(text("User guide", "使用指南"), href("/help/"), "document")
     }</div>`,
     "data-public-folders",
-    text("4 items", "4 项"),
+    text("3 items", "3 项"),
   );
 }
 
@@ -228,11 +227,9 @@ ${publicUiScope(
     brandHref: SHOWCASE_PAGES[language].path,
     brandImage: "/menu-icon.svg",
     links: [
-      { label: text("Tools", "工具"), href: href("/tools/") },
+      { label: text("Features", "功能"), href: href("/about/features/") },
       { label: text("Compare", "编辑器比较"), href: href("/compare/") },
-      { label: text("Guides", "文件导出指南"), href: href("/learn/") },
       { label: text("Editor", "编辑器"), href: editorUrl(article) },
-      { label: text("User guide", "使用指南"), href: href("/help/"), icon: "help", end: true },
       {
         label: language === PublicLanguage.English ? "简体中文" : "English",
         href: localizedSiteHref(
@@ -258,7 +255,13 @@ function articleImageHtml(
 ): string {
   if (!alt.trim()) throw new Error(`Article image needs alt text: ${article.slug}`);
   const image = articleImageAsset(article, href);
-  return `<img src="${escapeHtml(image.publicPath)}" alt="${escapeHtml(alt)}" width="${image.width}" height="${image.height}" loading="lazy" decoding="async">`;
+  return renderPublicUi("image", {
+    src: image.publicPath,
+    alt,
+    width: image.width,
+    height: image.height,
+    framed: true,
+  });
 }
 
 function articleContent(
@@ -308,7 +311,7 @@ function articleContent(
     return `<a href="${escapeHtml(localizedSiteHref(siteNavigationHref(href), language))}">${this.parser.parseInline(inlineTokens)}</a>`;
   };
   renderer.table = function (table: Tokens.Table) {
-    return `<div class="${classes.tableScroll}" role="region" aria-label="${text("File and editor comparison table", "文件与编辑器比较表")}" tabindex="0">${Renderer.prototype.table.call(this, table)}</div>`;
+    return `<div class="${classes.tableScroll}" data-public-scroll-x role="region" aria-label="${text("File and editor comparison table", "文件与编辑器比较表")}" tabindex="0">${Renderer.prototype.table.call(this, table)}</div>`;
   };
   parser.setOptions({ renderer });
   const outline = headings.filter((heading) => heading.depth === CONTENTS_HEADING_DEPTH);
@@ -346,7 +349,7 @@ export function articleHtml(path: string, indexable: boolean): string {
       indexable,
       `<div data-public-sidebar>${libraryFolders(language)}</div>${publicDesktopWindow(
         collection.label,
-        articleList(documents, classes),
+        publicReaderScroll(articleList(documents, classes), language),
         `class="${classes.directory}" data-public-document data-public-directory-window`,
         `<span>${text(`${documents.length} documents`, `${documents.length} 篇文档`)}</span><a href="/editor">${text("Open Xprite", "打开 Xprite")}</a>`,
         true,
@@ -364,21 +367,15 @@ export function articleHtml(path: string, indexable: boolean): string {
   };
   const parent = localizedCollection(article.collection, language);
   const content = articleContent(publishedArticle, classes, document.body);
-  const learning = article.collection === ArticleCollection.Learn;
-  const callout = learning
-    ? {
-        url: localizedSiteHref("/tools/viewer/", language),
-        label: text("Open viewer", "打开查看器"),
-      }
-    : {
-        url: editorUrl(article),
-        label: text("Open Xprite", "打开 Xprite"),
-      };
+  const callout = {
+    url: editorUrl(article),
+    label: text("Open Xprite", "打开 Xprite"),
+  };
   const relatedDocuments = articles.filter((item) => item.slug !== article.slug);
   return articlePageHtml(
     article,
     indexable,
-    `<div data-public-sidebar>${content.toc}</div><div class="${classes.readingStack}">${publicDesktopWindow(`${article.topic}.txt`, `${publicStatus(parent.label, `${text("Updated", "更新")}: ${publishedArticle.dateModified}`, parent.path)}<div data-public-reader-scroll><article class="${classes.article}">${publicRichText(content.heading + content.html, { "data-public-document-content": true })}</article></div>`, "data-public-document", `<a href="${parent.path}">${text(`Back to ${parent.label}`, `返回${parent.label}`)}</a>${publicDesktopButton(callout.url, callout.label)}`)}${publicDesktopWindow(
+    `<div data-public-sidebar>${content.toc}</div><div class="${classes.readingStack}" data-public-reading-stack>${publicDesktopWindow(article.shortTitle[language], `${publicStatus(parent.label, `${text("Updated", "更新")}: ${publishedArticle.dateModified}`, parent.path)}${publicReaderScroll(`<article class="${classes.article}">${publicRichText(content.heading + content.html, { "data-public-document-content": true })}</article>`, language)}`, "data-public-document", `<a href="${parent.path}">${text(`Back to ${parent.label}`, `返回${parent.label}`)}</a>${publicDesktopButton(callout.url, callout.label)}`)}${publicDesktopWindow(
       text("Related documents", "相关文档"),
       articleList(relatedDocuments, classes),
       `class="${classes.related}" data-public-related-window`,

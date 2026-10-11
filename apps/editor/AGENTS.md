@@ -29,7 +29,6 @@ Organize by business scope first, then by technical role within that scope.
 - `App.tsx` is the composition root: instantiate adapters, inject ports into managers, provide manager APIs, then render components.
 - `editor-core` stays platform independent. It may depend on `bedrock/common`, not app code, React, UI, or browser adapters.
 - Put generic browser API wrappers in `bedrock/browser`; keep app-specific keys, project recovery, and file workflows in editor managers/adapters.
-- Do not keep compatibility re-exports or aliases for migrated `services/` or `editor-react/` paths.
 
 ## State
 

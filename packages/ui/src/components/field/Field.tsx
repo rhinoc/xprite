@@ -16,7 +16,7 @@ export enum FieldLayout {
   Vertical = "vertical",
   Horizontal = "horizontal",
   Inline = "inline",
-  Spread = "spread",
+  SpaceBetween = "space-between",
 }
 export interface FieldControlAttributes {
   id?: string;

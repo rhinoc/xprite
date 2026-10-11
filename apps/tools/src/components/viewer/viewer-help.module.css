@@ -1,0 +1,14 @@
+.help:global([data-ui-window-kind="note"]) {
+  width: 100%;
+}
+.body {
+  max-height: min(320px, 52svh);
+}
+.body :global([data-slot="scroll-content"]) {
+  box-sizing: border-box;
+  padding-inline: 2px;
+}
+.help,
+.section {
+  scroll-margin-top: calc(var(--ui-menu-navigation-height, 20px) + var(--ui-space-4));
+}

@@ -6,16 +6,26 @@ import { Marked, Renderer } from "marked";
 import type { Tokens } from "marked";
 
 import { ARTICLE_DIAGRAM_LANGUAGE, parseArticleDiagram } from "../../content/articles/diagram.ts";
-import { GUIDE_PAGES } from "../../content/help/pages.ts";
+import { FEATURES_PATH } from "../../content/features/index.ts";
+import { featureMedia } from "../../content/features/media.ts";
 import { localizedSiteHref, PublicLanguage } from "../../content/site/language.ts";
 import { DOCUMENT_PAGES, type SitePage } from "../../content/site/pages.ts";
-import { publicDesktopWindow, publicRichText } from "../public-theme.ts";
+import {
+  publicDesktopWindow,
+  publicIndex,
+  publicRichText,
+  publicReaderScroll,
+} from "../public-theme.ts";
 import { siteNavigationHref } from "../site-navigation.ts";
 import { publicArticleClasses, renderPublicUi } from "../static-ui-renderer.ts";
 import { ARTICLE_CONTENT_ROOT, markdownImageAsset } from "./article-source.ts";
 import { publicDocumentHtml } from "./document-page.ts";
+import { featureGroups } from "./feature-directory.ts";
 
 const SITE_URL = "https://xprite.cc/";
+const CONTENTS_HEADING_DEPTH = 2;
+const FEATURE_WINDOW_TITLE = /^# [^\n]+\n+/;
+const FEATURE_WINDOW_LINKS = /^## (?:继续使用|Keep working)\s*$/m;
 const REPOSITORY_ROOT = resolve(fileURLToPath(new URL("../../../../", import.meta.url)));
 const ESCAPED: Readonly<Record<string, string>> = { "&": "&amp;", "<": "&lt;", '"': "&quot;" };
 const escapeText = (value: string) => value.replace(/[&<"]/g, (character) => ESCAPED[character]);
@@ -92,7 +102,13 @@ export function documentContent(markdown: string, page: SitePage) {
   renderer.html = ({ text }) => escapeText(text);
   renderer.image = ({ href, text: alt }: Tokens.Image) => {
     const image = documentImage(page, href);
-    return `<img src="${escapeText(image.publicPath)}" alt="${escapeText(alt)}" width="${image.width}" height="${image.height}" loading="lazy" decoding="async">`;
+    return renderPublicUi("image", {
+      src: image.publicPath,
+      alt,
+      width: image.width,
+      height: image.height,
+      framed: true,
+    });
   };
   renderer.code = function (code: Tokens.Code) {
     if (code.lang !== ARTICLE_DIAGRAM_LANGUAGE) return Renderer.prototype.code.call(this, code);
@@ -104,7 +120,7 @@ export function documentContent(markdown: string, page: SitePage) {
     return `<a href="${escapeText(target)}">${this.parser.parseInline(inline)}</a>`;
   };
   renderer.table = function (table: Tokens.Table) {
-    return `<div class="${publicArticleClasses().tableScroll}" role="region" aria-label="${escapeText(page.title)}" tabindex="0">${Renderer.prototype.table.call(this, table)}</div>`;
+    return `<div class="${publicArticleClasses().tableScroll}" data-public-scroll-x role="region" aria-label="${escapeText(page.title)}" tabindex="0">${Renderer.prototype.table.call(this, table)}</div>`;
   };
   parser.setOptions({ renderer });
   const introduction = tokens.find(
@@ -121,7 +137,13 @@ export function documentContent(markdown: string, page: SitePage) {
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">")
     : "";
-  return { html: parser.parser(tokens), description };
+  const outline = tokens
+    .filter(
+      (token): token is Tokens.Heading =>
+        token.type === "heading" && token.depth === CONTENTS_HEADING_DEPTH,
+    )
+    .map((heading) => ({ href: `#${sectionId(heading.text)}`, label: heading.text }));
+  return { html: parser.parser(tokens), description, outline };
 }
 
 /** A written document such as the privacy notice or an about-page article. */
@@ -131,6 +153,37 @@ export function documentHtml(path: string, indexable: boolean): string {
   const language = page.language;
   const chinese = language === PublicLanguage.SimplifiedChinese;
   const content = documentContent(documentSource(page), page);
+  const isFeatures = page.path.endsWith(FEATURES_PATH);
+  const groups = isFeatures
+    ? featureGroups(documentSource(page)).map((group) => ({
+        ...group,
+        items: group.items.map((item) => {
+          const media = featureMedia(item.href, language);
+          const target = localizedSiteHref(item.href, language);
+          const detail = DOCUMENT_PAGES.find((candidate) => candidate.path === target);
+          if (!detail) return { ...item, media };
+          const source = documentSource(detail)
+            .replace(FEATURE_WINDOW_TITLE, "")
+            .split(FEATURE_WINDOW_LINKS)[0];
+          return { ...item, media, contentHtml: documentContent(source, detail).html };
+        }),
+      }))
+    : [];
+  const itemCount = groups.reduce((count, group) => count + group.items.length, 0);
+  const body = isFeatures
+    ? renderPublicUi("features", {
+        language,
+        description: content.description,
+        groups,
+      })
+    : `<article>${publicRichText(content.html, { "data-public-document-content": true })}</article>`;
+  const contents = content.outline.length
+    ? `<div data-public-sidebar>${publicDesktopWindow(
+        chinese ? "目录" : "Contents",
+        publicIndex(chinese ? "本文内容" : "On this page", content.outline),
+        "data-public-contents",
+      )}</div>`
+    : "<div></div>";
   const translations = page.translations ?? [];
   const other = translations.find((item) => item.language !== language);
   const english = translations.find((item) => item.language === PublicLanguage.English);
@@ -147,20 +200,15 @@ ${english ? `<link rel="alternate" hreflang="x-default" href="${new URL(english.
       navigation: chinese ? "网站导航" : "Website navigation",
     },
     indexable,
-    `<div></div>${publicDesktopWindow(
+    `${contents}${publicDesktopWindow(
       page.title,
-      `<div data-public-reader-scroll><article>${publicRichText(content.html, { "data-public-document-content": true })}</article></div>`,
+      publicReaderScroll(body, language),
       "data-public-document",
-      `<a href="/editor">${chinese ? "打开编辑器" : "Open editor"}</a>`,
+      `${isFeatures ? `<span>${chinese ? `${itemCount} 项` : `${itemCount} items`}</span>` : ""}<a href="/editor">${chinese ? "打开编辑器" : "Open editor"}</a>`,
+      isFeatures,
     )}<div></div>`,
     [
       { label: chinese ? "打开编辑器" : "Open editor", href: "/" },
-      {
-        label: chinese ? "使用指南" : "User guide",
-        href: GUIDE_PAGES[language].path,
-        icon: "help",
-        end: true,
-      },
       ...(other
         ? [
             {

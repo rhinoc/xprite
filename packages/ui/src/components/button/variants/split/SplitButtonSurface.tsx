@@ -5,8 +5,8 @@ import { ButtonControl } from "$/components/button/ButtonControl";
 import { ButtonAppearance, type ButtonProps, type ButtonSlots } from "$/components/button/types";
 import { DEFAULT_SURFACE_VIEWPORT, surfaceLayout } from "$/components/canvas-surface";
 import { RASTER_SCALE } from "$/components/canvas-surface/metrics";
-import { Menu } from "$/components/menu";
-import { UiIcon } from "$/components/theme/appearance";
+import { Icon } from "$/components/icon";
+import { Menu, MenuActivation } from "$/components/menu";
 
 import contentStyles from "$/components/button/content/content.module.css";
 import quietStyles from "$/components/button/content/quiet.module.css";
@@ -26,10 +26,11 @@ export const SplitButtonSurface = forwardRef<HTMLButtonElement, SplitButtonSurfa
       viewport = DEFAULT_SURFACE_VIEWPORT,
       menu,
       disabled,
+      readOnly = false,
       slots,
       className,
       style,
-      appearance = ButtonAppearance.Default,
+      appearance,
       ...props
     },
     ref,
@@ -86,25 +87,28 @@ export const SplitButtonSurface = forwardRef<HTMLButtonElement, SplitButtonSurfa
         <ButtonControl
           {...props}
           appearance={appearance}
+          readOnly={readOnly}
           ref={ref}
           disabled={disabled}
           slots={slots}
           className={cn(styles.segment, styles.primary)}
         />
         <Menu
+          activation={MenuActivation.Press}
           label={menu?.label ?? props["aria-label"] ?? props.text ?? props.label ?? ""}
           items={menu?.items ?? []}
           renderTrigger={(trigger) => (
             <ButtonControl
               {...trigger}
               appearance={appearance}
+              readOnly={readOnly}
               title={menu?.description}
               disabled={menuDisabled}
               selected={!!trigger["aria-expanded"]}
               className={cn(styles.segment, styles.expand)}
               style={{ flexBasis: expandWidth, width: expandWidth }}
               slots={{
-                content: <UiIcon part="combobox_arrow_down" scale={2} color="currentColor" />,
+                content: <Icon kind="combobox_arrow_down" scale={2} color="currentColor" />,
               }}
             />
           )}

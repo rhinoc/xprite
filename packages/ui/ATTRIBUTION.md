@@ -27,12 +27,21 @@ This package includes a WOFF2 conversion of the bitmap font and generated glyph
 atlas/metrics for browser text rendering. The font material remains available
 under CC BY 4.0.
 
-## Fusion Pixel Font
+## Fusion Pixel
 
-The UI includes the 10px monospaced Simplified Chinese fallback from Fusion
-Pixel Font release 2026.09.01. It is licensed under the SIL Open Font License
-1.1; the upstream and bundled notices are in `LICENSES/fusion-pixel-font/`.
+The UI includes the official Fusion Pixel proportional Simplified Chinese WOFF2
+files, release 2026.09.25 by TakWolf. The bundled font bytes are unchanged.
+License: [SIL Open Font License 1.1](LICENSES/fusion-pixel-font/OFL.txt).
 Source: [TakWolf/fusion-pixel-font](https://github.com/TakWolf/fusion-pixel-font).
+The release URL and SHA-256 hashes are in `assets/fonts/fusion-pixel/README.md`.
+
+## Pixel Code
+
+Copyright © 2022 Qwerasd. Source: [Pixel Code](https://github.com/qwerasd205/PixelCode),
+release v2.2. The UI includes the original Regular WOFF2 font for code text,
+licensed under the SIL Open Font License 1.1. The bundled notice is in
+`LICENSES/pixel-code/OFL.txt`; download provenance and the source hash are in
+`assets/fonts/pixel-code/README.md`.
 
 ## ChiKareGo2 and FindersKeepers
 
@@ -45,7 +54,7 @@ outlines are unchanged. The Macintosh theme uses ChiKareGo2 for
 controls and FindersKeepers for balloon help and compact text.
 
 The design reference is [Classic Macintosh UI Kit by Brian Levy](https://www.figma.com/design/vtQqsdZXxS62lGC06GeFll/Classic-Macintosh-UI-Kit--Community-).
-Stepped button frames, balloon frames and pointers, generic warning contours,
+Stepped button frames, balloon frames and pointers, disclosure triangles, generic warning contours,
 frame geometry and scrollbar track textures are adapted from the Kit's
 geometry under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), in
 accordance with [Figma's free Community file licensing](https://help.figma.com/hc/en-us/articles/360042296374-Figma-Community-copyright-and-licensing).

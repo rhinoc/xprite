@@ -18,9 +18,7 @@ export function compareStartupPair(directory, scene, pair) {
     "header",
     "main",
     "headline",
-    ...(scene.page.name === "tools"
-      ? ["viewer", "gifSheet", "editor", "animalCrossing"]
-      : ["examples"]),
+    ...(scene.page.publicPage ? ["viewer", "gifSheet", "editor", "animalCrossing"] : ["examples"]),
   ];
   const read = (entry, phase) => {
     if (entry.phase !== phase || entry.file !== `${scene.id}-${phase}.png`)
@@ -41,8 +39,8 @@ export function compareStartupPair(directory, scene, pair) {
       entry.screenshot.viewport?.dpr !== 1 ||
       entry.appearance !== scene.appearance.resolved ||
       entry.url !== pair.url ||
-      new URL(entry.url).pathname !== scene.page.path ||
-      entry.language !== "en" ||
+      `${new URL(entry.url).pathname}${new URL(entry.url).search}` !== scene.page.path ||
+      entry.language !== scene.page.language ||
       JSON.stringify(entry.regions?.map(({ name }) => name)) !== JSON.stringify(expectedRegions)
     )
       throw Error(

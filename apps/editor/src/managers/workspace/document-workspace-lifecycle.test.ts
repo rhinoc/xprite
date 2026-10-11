@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { WorkspaceSessionPorts } from "$/managers/ports/workspace-session";
 import { DocumentWorkspace } from "$/managers/workspace/document-workspace";
 import type { WorkspaceRecovery } from "$/managers/workspace/workspace-recovery";
+import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
 import { analyzePixelArt } from "@xprite/editor-core/import-export";
 
 /** Sessions share file resources across document tabs and temporary sample initialization. */
@@ -51,7 +52,7 @@ describe("workspace file resource lifetime", () => {
       ports,
       recovery,
       createId: () => `lifetime-${++id}`,
-      preferenceStorage: { getItem: () => null, setItem() {} },
+      preferenceStorage: createJsonStorage({ getItem: () => null, setItem() {} }),
     });
     await workspace.initialize();
     expect(seedProject).toHaveBeenCalledOnce();

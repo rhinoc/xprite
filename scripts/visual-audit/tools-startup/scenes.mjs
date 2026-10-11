@@ -5,7 +5,7 @@ export const layouts = [
   { name: "compact", width: 390, height: 844 },
 ];
 export const pages = [
-  { name: "tools", path: "/tools/", rootId: "tools-root" },
+  { name: "features", path: "/about/features/", publicPage: true },
   { name: "viewer", path: "/tools/viewer/", rootId: "viewer-root" },
   { name: "gif-sheet", path: "/tools/gif-to-sprite-sheet/", rootId: "gif-sheet-root" },
   { name: "animal-crossing", path: "/tools/animal-crossing-qr/", rootId: "animal-crossing-root" },
@@ -16,13 +16,26 @@ export const appearances = [
   { name: "system-light", saved: "system", system: "light", resolved: "light" },
   { name: "system-dark", saved: "system", system: "dark", resolved: "dark" },
 ];
-export const scenes = pages.flatMap((page) =>
-  layouts.flatMap((layout) =>
-    appearances.map((appearance) => ({
-      id: `${page.name}-${layout.name}-${appearance.name}`,
-      page,
-      layout,
-      appearance,
-    })),
-  ),
-);
+
+const selectedCoverage = [
+  { language: "zh-CN", layout: layouts[0], appearance: appearances[0] },
+  { language: "en", layout: layouts[1], appearance: appearances[1] },
+  { language: "zh-CN", layout: layouts[0], appearance: appearances[1] },
+  { language: "en", layout: layouts[1], appearance: appearances[0] },
+];
+
+export const scenes = pages.map((page, index) => {
+  const coverage = selectedCoverage[index];
+  const languagePath =
+    coverage.language === "en"
+      ? page.path
+      : page.publicPage
+        ? `/zh-CN${page.path}`
+        : `${page.path}?lang=zh-CN`;
+  return {
+    id: `${page.name}-${coverage.language}-${coverage.layout.name}-${coverage.appearance.name}`,
+    page: { ...page, language: coverage.language, path: languagePath },
+    layout: coverage.layout,
+    appearance: coverage.appearance,
+  };
+});

@@ -1,5 +1,4 @@
 import { Fragment, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 
 import { FormDialog } from "$/components/dialogs/form-dialog";
 import { useTimelineActions } from "$/components/timeline/timeline-actions";
@@ -20,7 +19,12 @@ import {
   UserDataVisibilityScope,
 } from "$/managers/user-data/user-data-manager";
 import { TIMELINE_TAG_BAND_HEIGHT } from "@xprite/editor-ui/timeline";
-import { Button, ButtonVariant, ContextMenu as EditorContextMenu } from "@xprite/ui";
+import {
+  createUiPortal,
+  Button,
+  ButtonVariant,
+  ContextMenu as EditorContextMenu,
+} from "@xprite/ui";
 import { measureUiText } from "@xprite/ui/assets";
 import { UI_SCALE_X as sx, UI_SCALE_Y as sy } from "@xprite/ui/canvas";
 import { clientPoint, clientScale, stylusPointerInputProps } from "@xprite/ui/utils";
@@ -119,7 +123,7 @@ export function TagPropertiesDialog({
     close();
   };
   if (!request || !draft || !container) return null;
-  return createPortal(
+  return createUiPortal(
     <>
       <FormDialog
         open

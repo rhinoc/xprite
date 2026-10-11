@@ -47,13 +47,15 @@ import { ProjectRepository } from "$/managers/storage/project-repository";
 import { reportingSessionPorts } from "$/managers/telemetry/reporting-session-ports";
 import { useTelemetry } from "$/managers/telemetry/telemetry-context";
 import type { TelemetryManager } from "$/managers/telemetry/telemetry-manager";
+import { FontCatalogProvider } from "$/managers/tools/font-catalog-context";
+import { FontCatalogManager } from "$/managers/tools/font-catalog-manager";
 import { DocumentWorkspace } from "$/managers/workspace/document-workspace";
 import { EditorRuntimeManagerProvider } from "$/managers/workspace/editor-runtime-context";
 import { useEditorRuntime } from "$/managers/workspace/use-editor-runtime";
 import { WorkspaceLifetime } from "$/managers/workspace/workspace-lifetime";
 import { WorkspaceRecovery } from "$/managers/workspace/workspace-recovery";
 import { randomId } from "@xprite/bedrock/browser/runtime-crypto";
-import { UIProvider, useSystemAppearance } from "@xprite/ui";
+import { UIProvider, useSystemColorScheme } from "@xprite/ui";
 import { preloadUiAssets } from "@xprite/ui/assets";
 
 const PROJECT_DATABASE_NAME = DEFAULT_PROJECT_DATABASE_NAME;
@@ -109,10 +111,10 @@ function EditorApplication({
   initialTab: EditorTab;
   initialProject?: Promise<EditorInitialProject | Error | null> | null;
 }) {
-  const systemAppearanceMode = useSystemAppearance();
+  const systemColorScheme = useSystemColorScheme();
   const runtime = useEditorRuntime(
     workspace,
-    systemAppearanceMode,
+    systemColorScheme,
     preloadUiAssets,
     workspaceLifetime,
   );
@@ -175,7 +177,7 @@ function EditorApplication({
         <WheelDeviceProvider {...wheelDevice}>
           <CanvasInputProvider controller={workspace.inputController}>
             <UIProvider
-              appearance={runtime.appearance}
+              colorScheme={runtime.colorScheme}
               language={language}
               translateKey={(key) => tUi(key as Parameters<typeof tUi>[0])}
               translateSource={tUiSource}
@@ -288,24 +290,28 @@ export default function App({
       }),
   );
   useEffect(() => pwa.start(), [pwa]);
+  const [fontCatalog] = useState(() => new FontCatalogManager(platform.font.localFonts));
+  useEffect(() => fontCatalog.start(), [fontCatalog]);
   const [uiStore] = useState(() =>
     createEditorUiStore(initialTab, platform.preferences, platform.navigation.location?.read()),
   );
 
   return (
     <EditorPlatformProvider ports={platform}>
-      <EditorChromePreferencesProvider manager={chromePreferences}>
-        <PwaProvider manager={pwa}>
-          <EditorApplication
-            workspace={workspace}
-            workspaceLifetime={workspaceLifetime}
-            uiStore={uiStore}
-            home={home}
-            initialTab={initialTab}
-            initialProject={initialProject}
-          />
-        </PwaProvider>
-      </EditorChromePreferencesProvider>
+      <FontCatalogProvider manager={fontCatalog}>
+        <EditorChromePreferencesProvider manager={chromePreferences}>
+          <PwaProvider manager={pwa}>
+            <EditorApplication
+              workspace={workspace}
+              workspaceLifetime={workspaceLifetime}
+              uiStore={uiStore}
+              home={home}
+              initialTab={initialTab}
+              initialProject={initialProject}
+            />
+          </PwaProvider>
+        </EditorChromePreferencesProvider>
+      </FontCatalogProvider>
     </EditorPlatformProvider>
   );
 }

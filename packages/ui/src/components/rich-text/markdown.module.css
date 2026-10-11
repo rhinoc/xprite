@@ -106,22 +106,17 @@
   margin: 0 auto 1em;
 }
 
-.imageViewport {
-  max-width: 100%;
-  overflow-x: auto;
-}
-
-.imageViewport img {
+.image {
   display: block;
   margin-inline: auto;
-  max-width: none;
+  max-width: 100%;
   height: auto;
   image-rendering: pixelated;
 }
 
 .figure figcaption {
   margin-top: var(--ui-space-4, 8px);
-  font-size: var(--ui-text-default-size);
+  font-size: var(--ui-text-primary-size);
   line-height: var(--ui-reading-line-height);
   text-align: center;
 }

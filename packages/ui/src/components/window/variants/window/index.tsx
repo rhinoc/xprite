@@ -1,17 +1,6 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type PointerEvent as ReactPointerEvent,
-  type ReactNode,
-} from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
 import { useTheme } from "$/base/theme/theme-context";
-import { clientPoint, clientRect } from "$/base/utils/dom-geometry";
-import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
-import { PointerDragActivation, PointerDragAxis } from "$/base/utils/pointer-drag-activation";
 import { stylusPointerInputProps } from "$/base/utils/stylus-input";
 import { Button } from "$/components/button";
 import {
@@ -19,12 +8,21 @@ import {
   type SurfaceBounds,
   type SurfaceViewport,
 } from "$/components/canvas-surface";
-import { DIALOG_EDITABLE_SELECTOR, focusDialogContainer } from "$/components/window/focus";
+import { PanelFrame, PanelFrameLayout } from "$/components/panel/frame";
+import {
+  ScenePanelSkin,
+  OverlayContentLayout,
+  type ScenePanelFrameProps,
+} from "$/components/panel/scene-frame";
+import { FloatingLayer, FloatingLayerKind } from "$/components/window/floating-layer";
+import { useModalInputDismiss } from "$/components/window/focus";
+import { useWindowGesture, WindowGestureEdge } from "$/components/window/gesture";
+import { OverlayInteractionScope, useOverlayInteraction } from "$/components/window/interaction";
 import { windowMetrics } from "$/components/window/metrics";
-import { OverlayFrame, OverlayContentLayout } from "$/components/window/overlay-frame";
+import { useSceneFocusReveal } from "$/components/window/scene-focus";
 import { useVisibleSceneBounds } from "$/components/window/visible-scene-bounds";
 
-import styles from "$/components/window/overlay.module.css";
+import styles from "$/components/window/gesture.module.css";
 
 export interface WindowVariantContext {
   bounds: SurfaceBounds;
@@ -48,7 +46,7 @@ export interface WindowVariantProps {
   relativeTo?: { x: number; y: number };
   minSize?: { width: number; height: number };
   resizable?: boolean;
-  moveable?: boolean;
+  movable?: boolean;
   autoFocus?: boolean;
   /** Modal owners are responsible for a focus trap and blocking the backdrop. */
   modal?: boolean;
@@ -60,20 +58,9 @@ export interface WindowVariantProps {
   children?: ReactNode | ((context: WindowVariantContext) => ReactNode);
   titlebarActions?: ReactNode | ((context: WindowVariantContext) => ReactNode);
   className?: string;
+  /** Replace presentation while retaining window placement and interaction. */
+  renderFrame?: (props: ScenePanelFrameProps) => ReactNode;
 }
-
-type Edge = "move" | "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
-type Gesture = {
-  pointer: number;
-  activation: PointerDragActivation;
-  edge: Edge;
-  x: number;
-  y: number;
-  bounds: SurfaceBounds;
-  sx: number;
-  sy: number;
-  node: HTMLElement;
-};
 
 const DEFAULT_BOUNDS: SurfaceBounds = { x: 1350, y: 110, width: 500, height: 400 };
 const DEFAULT_WINDOW_BORDER = windowMetrics.border;
@@ -97,7 +84,7 @@ export function WindowVariant({
   relativeTo = { x: 0, y: 0 },
   minSize = { width: MINIMUM_WIDTH, height: MINIMUM_HEIGHT },
   resizable = true,
-  moveable = true,
+  movable = true,
   autoFocus = true,
   modal = false,
   showCloseButton = true,
@@ -108,6 +95,7 @@ export function WindowVariant({
   children,
   titlebarActions,
   className,
+  renderFrame,
 }: WindowVariantProps) {
   const { definition: theme, translateKey, translateSource } = useTheme();
   const WINDOW_BORDER = theme.parts.window.surface?.borderWidth ?? DEFAULT_WINDOW_BORDER;
@@ -126,7 +114,6 @@ export function WindowVariant({
   const displayDescription = description ? translateSource(description) : undefined;
   const [localBounds, setLocalBounds] = useState(defaultBounds);
   const root = useRef<HTMLDivElement | null>(null);
-  const gesture = useRef<Gesture | null>(null);
   const available = useVisibleSceneBounds(
     root,
     open,
@@ -174,146 +161,52 @@ export function WindowVariant({
   const context = { bounds, clientBounds, viewport };
   const sx = viewport.width / viewport.sceneWidth;
   const sy = viewport.height / viewport.sceneHeight;
-  const stop = useCallback(() => {
-    const active = gesture.current;
-    gesture.current = null;
-    if (active?.node.hasPointerCapture(active.pointer))
-      active.node.releasePointerCapture(active.pointer);
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("blur", stop);
-    if (!open) stop();
-    return () => {
-      window.removeEventListener("blur", stop);
-      stop();
-    };
-  }, [open, stop]);
-
-  useEffect(() => {
-    stop();
-  }, [available.x, available.y, availableWidth, availableHeight, stop]);
-
-  useEffect(() => {
-    if (open && autoFocus) root.current?.focus({ preventScroll: true });
-  }, [open, autoFocus]);
-
-  useEffect(() => {
-    const document = root.current?.ownerDocument;
-    if (!open || !modal || !document) return;
-    const dismissInput = (event: PointerEvent) => {
-      const active = document.activeElement;
-      if (
-        event.button === 0 &&
-        event.isPrimary &&
-        active instanceof HTMLElement &&
-        root.current?.contains(active) &&
-        active.matches(DIALOG_EDITABLE_SELECTOR) &&
-        event.target instanceof Element &&
-        !event.target.closest(DIALOG_EDITABLE_SELECTOR)
-      )
-        focusDialogContainer(root.current);
-    };
-    document.addEventListener("pointerdown", dismissInput, true);
-    return () => document.removeEventListener("pointerdown", dismissInput, true);
-  }, [open, modal]);
-
   const publish = (next: SurfaceBounds) => {
     setMoved(true);
     if (!controlledBounds) setLocalBounds(next);
     onBoundsChange?.(next);
   };
 
-  const start = (event: ReactPointerEvent<HTMLElement>, edge: Edge) => {
-    if (event.button !== 0) return;
-    event.preventDefault();
-    event.stopPropagation();
-    stop();
-    if (autoFocus) root.current?.focus({ preventScroll: true });
-    const rect = clientRect(root.current!);
-    gesture.current = {
-      pointer: event.pointerId,
-      activation: new PointerDragActivation(
-        event,
-        edge === "e" || edge === "w"
-          ? PointerDragAxis.Horizontal
-          : edge === "n" || edge === "s"
-            ? PointerDragAxis.Vertical
-            : PointerDragAxis.Both,
-      ),
-      edge,
-      x: clientPoint(event).x,
-      y: clientPoint(event).y,
-      bounds: { ...bounds },
-      sx: rect.width / bounds.width,
-      sy: rect.height / bounds.height,
-      node: event.currentTarget,
-    };
-    event.currentTarget.setPointerCapture(event.pointerId);
+  const gesture = useWindowGesture({
+    open,
+    root,
+    bounds,
+    available,
+    contentWidth,
+    contentHeight,
+    minimumWidth: MINIMUM_WIDTH,
+    minimumHeight: MINIMUM_HEIGHT,
+    minSize,
+    border: WINDOW_BORDER,
+    titlebar: WINDOW_TITLEBAR,
+    constrainToViewport,
+    autoFocus,
+    onBoundsChange: publish,
+  });
+  const interaction = useOverlayInteraction({
+    open,
+    rootRef: root,
+    autoFocus,
+    escapeWithinRoot: true,
+    onDismiss: () => {
+      gesture.stop();
+      onOpenChange(false);
+    },
+  });
+  const clientLayoutBounds = {
+    x: bounds.x + WINDOW_BORDER,
+    y: bounds.y + WINDOW_TITLEBAR,
+    width: Math.max(0, width - WINDOW_BORDER * 2),
+    height: Math.max(0, height - WINDOW_TITLEBAR - WINDOW_BORDER),
   };
+  const focusReveal = useSceneFocusReveal(bounds, clientLayoutBounds, viewport);
 
-  const move = (event: ReactPointerEvent<HTMLElement>) => {
-    const active = gesture.current;
-    if (!active || active.pointer !== event.pointerId) return;
-    if (!active.activation.update(event)) return;
-    const dx = Math.round((clientPoint(event).x - active.x) / active.sx);
-    const dy = Math.round((clientPoint(event).y - active.y) / active.sy);
-    const b = active.bounds;
-    if (active.edge === "move") {
-      publish({
-        ...b,
-        width: contentWidth,
-        height: contentHeight,
-        x: Math.max(
-          available.x + (constrainToViewport ? 0 : WINDOW_BORDER - b.width),
-          Math.min(availableRight - (constrainToViewport ? b.width : WINDOW_BORDER), b.x + dx),
-        ),
-        y: Math.max(
-          available.y,
-          Math.min(availableBottom - (constrainToViewport ? b.height : WINDOW_TITLEBAR), b.y + dy),
-        ),
-      });
-      return;
-    }
-    const minimumWidth = Math.min(
-      constrainToViewport ? availableWidth : Infinity,
-      Math.max(MINIMUM_WIDTH, minSize.width),
-    );
-    const minimumHeight = Math.min(
-      constrainToViewport ? availableHeight : Infinity,
-      Math.max(MINIMUM_HEIGHT, minSize.height),
-    );
-    let left = b.x;
-    let top = b.y;
-    let right = b.x + b.width;
-    let bottom = b.y + b.height;
-    if (active.edge.includes("w"))
-      left = Math.max(
-        constrainToViewport ? available.x : -Infinity,
-        Math.min(right - minimumWidth, left + dx),
-      );
-    if (active.edge.includes("e"))
-      right = Math.min(
-        constrainToViewport ? availableRight : Infinity,
-        Math.max(left + minimumWidth, right + dx),
-      );
-    if (active.edge.includes("n"))
-      top = Math.max(
-        constrainToViewport ? available.y : -Infinity,
-        Math.min(bottom - minimumHeight, top + dy),
-      );
-    if (active.edge.includes("s"))
-      bottom = Math.min(
-        constrainToViewport ? availableBottom : Infinity,
-        Math.max(top + minimumHeight, bottom + dy),
-      );
-    publish({ x: left, y: top, width: right - left, height: bottom - top });
-  };
+  useModalInputDismiss(root, open, modal);
 
   if (!open) return null;
 
   const zone = (
-    edge: Edge,
+    edge: WindowGestureEdge,
     x: number,
     y: number,
     w: number,
@@ -326,22 +219,22 @@ export function WindowVariant({
       {...stylusPointerInputProps()}
       data-window-handle={edge}
       className={styles.handle}
-      onPointerDown={(event) => start(event, edge)}
+      onPointerDown={(event) => gesture.start(event, edge)}
       style={{
         left: x * sx,
         top: y * sy,
         width: Math.max(0, w * sx),
         height: Math.max(0, h * sy),
-        cursor: `var(--ui-cursor-${edge === "move" ? "move" : `resize-${edge}`}, ${cursor})`,
+        cursor: `var(--ui-cursor-${edge === WindowGestureEdge.Move ? "move" : `resize-${edge}`}, ${cursor})`,
       }}
     />
   );
 
   const chrome = (
     <>
-      {moveable &&
+      {movable &&
         zone(
-          "move",
+          WindowGestureEdge.Move,
           WINDOW_BORDER,
           WINDOW_BORDER,
           width - WINDOW_BORDER * 2,
@@ -350,9 +243,16 @@ export function WindowVariant({
         )}
       {resizable && (
         <>
-          {zone("n", WINDOW_BORDER, 0, width - WINDOW_BORDER * 2, WINDOW_BORDER, "n-resize")}
           {zone(
-            "s",
+            WindowGestureEdge.North,
+            WINDOW_BORDER,
+            0,
+            width - WINDOW_BORDER * 2,
+            WINDOW_BORDER,
+            "n-resize",
+          )}
+          {zone(
+            WindowGestureEdge.South,
             WINDOW_BORDER,
             height - WINDOW_BORDER,
             width - WINDOW_BORDER * 2,
@@ -360,7 +260,7 @@ export function WindowVariant({
             "s-resize",
           )}
           {zone(
-            "w",
+            WindowGestureEdge.West,
             0,
             WINDOW_TITLEBAR,
             WINDOW_BORDER,
@@ -368,18 +268,32 @@ export function WindowVariant({
             "w-resize",
           )}
           {zone(
-            "e",
+            WindowGestureEdge.East,
             width - WINDOW_BORDER,
             WINDOW_TITLEBAR,
             WINDOW_BORDER,
             height - WINDOW_TITLEBAR - WINDOW_BORDER,
             "e-resize",
           )}
-          {zone("nw", 0, 0, WINDOW_BORDER, WINDOW_TITLEBAR, "nw-resize")}
-          {zone("ne", width - WINDOW_BORDER, 0, WINDOW_BORDER, WINDOW_TITLEBAR, "ne-resize")}
-          {zone("sw", 0, height - WINDOW_BORDER, WINDOW_BORDER, WINDOW_BORDER, "sw-resize")}
+          {zone(WindowGestureEdge.NorthWest, 0, 0, WINDOW_BORDER, WINDOW_TITLEBAR, "nw-resize")}
           {zone(
-            "se",
+            WindowGestureEdge.NorthEast,
+            width - WINDOW_BORDER,
+            0,
+            WINDOW_BORDER,
+            WINDOW_TITLEBAR,
+            "ne-resize",
+          )}
+          {zone(
+            WindowGestureEdge.SouthWest,
+            0,
+            height - WINDOW_BORDER,
+            WINDOW_BORDER,
+            WINDOW_BORDER,
+            "sw-resize",
+          )}
+          {zone(
+            WindowGestureEdge.SouthEast,
             width - WINDOW_BORDER,
             height - WINDOW_BORDER,
             WINDOW_BORDER,
@@ -407,7 +321,7 @@ export function WindowVariant({
           insetContent={false}
           aria-label={closeLabel ?? translateKey("ui.close.name").replace("{name}", displayTitle)}
           onClick={() => {
-            stop();
+            gesture.stop();
             onOpenChange(false);
           }}
         />
@@ -415,52 +329,48 @@ export function WindowVariant({
     </>
   );
 
+  const presentation: ScenePanelFrameProps = {
+    skin: ScenePanelSkin.Window,
+    bounds,
+    clientBounds,
+    clientLayoutBounds,
+    viewport,
+    label: displayTitle,
+    clientOverflow: constrainToViewport ? "auto" : "hidden",
+    contentLayout,
+    viewportRef: focusReveal.viewportRef,
+    children: typeof children === "function" ? children(context) : children,
+  };
   return (
-    <OverlayFrame
-      variant="window"
-      bounds={bounds}
-      clientBounds={clientBounds}
-      clientLayoutBounds={{
-        x: bounds.x + WINDOW_BORDER,
-        y: bounds.y + WINDOW_TITLEBAR,
-        width: Math.max(0, width - WINDOW_BORDER * 2),
-        height: Math.max(0, height - WINDOW_TITLEBAR - WINDOW_BORDER),
-      }}
-      viewport={viewport}
-      relativeTo={relativeTo}
-      label={displayTitle}
-      description={displayDescription}
-      modal={modal}
-      className={className}
-      clientOverflow={constrainToViewport ? "auto" : "hidden"}
-      contentLayout={contentLayout}
-      onRootRef={(node) => {
-        root.current = node;
-        onRootRef?.(node);
-      }}
-      rootProps={{
-        onPointerMove: move,
-        onPointerUp: (event) => {
-          if (gesture.current?.pointer === event.pointerId) {
-            move(event);
-            stop();
-          }
-        },
-        onPointerCancel: stop,
-        onLostPointerCapture: stop,
-        onKeyDown: (event) => {
-          if (isImeKeyboardEvent(event.nativeEvent)) return;
-          if (event.key === "Escape" && event.currentTarget.contains(event.target as Node)) {
-            event.preventDefault();
-            event.stopPropagation();
-            stop();
-            onOpenChange(false);
-          }
-        },
-      }}
-      chrome={chrome}
-    >
-      {typeof children === "function" ? children(context) : children}
-    </OverlayFrame>
+    <OverlayInteractionScope owner={interaction.owner}>
+      <FloatingLayer
+        kind={FloatingLayerKind.Window}
+        bounds={bounds}
+        viewport={viewport}
+        relativeTo={relativeTo}
+        className={className}
+        onRootRef={(node) => {
+          root.current = node;
+          onRootRef?.(node);
+        }}
+        rootProps={{
+          role: "dialog",
+          "aria-modal": modal,
+          "aria-label": displayTitle,
+          "aria-description": displayDescription,
+          tabIndex: -1,
+          onFocusCapture: focusReveal.onFocusCapture,
+          ...gesture.rootProps,
+          onKeyDown: interaction.onKeyDown,
+        }}
+      >
+        {renderFrame ? (
+          renderFrame(presentation)
+        ) : (
+          <PanelFrame layout={PanelFrameLayout.Scene} {...presentation} />
+        )}
+        {chrome}
+      </FloatingLayer>
+    </OverlayInteractionScope>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useSyncExternalStore } from "react";
 
 import { FileToolShell } from "$/components/shared/file-tool-shell";
+import { ViewerHelp } from "$/components/viewer/viewer-help";
 import { ViewerPreview } from "$/components/viewer/viewer-preview";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import { VIEWER_TOOL } from "$/managers/tools/tool-catalog";
@@ -35,6 +36,7 @@ export function ViewerPage({ manager }: { manager: ViewerManager }) {
   return (
     <FileToolShell
       tool={VIEWER_TOOL}
+      help={<ViewerHelp />}
       filename={snapshot.name}
       busy={busy}
       ready={ready}

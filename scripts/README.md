@@ -35,9 +35,9 @@ cursors into the corresponding `packages/ui/assets/` source directories.
 
 Unit tests use Vitest and live beside the implementation: `module.ts` is tested by `module.test.ts`. Run them with `pnpm test`, or run one file with `pnpm exec vitest run path/to/module.test.ts`.
 
-`pnpm run check:ui-editor-usage` uses the TypeScript compiler API to trace rendered components from the Editor entry through local wrappers, lazy imports, and UI component composition. Missing public `@xprite/ui` components, invalid variant values, and variant usages the checker cannot resolve fail the check. Legal variants that the Editor does not use are informational and do not fail it; Gallery usage does not count toward Editor coverage. Its implementation is in `check/`; the root `check` and pre-commit hook both run it.
+`pnpm run check:ui-editor-usage` uses the TypeScript compiler API to trace rendered components from the Editor entry through local wrappers, lazy imports, and UI component composition. Missing public `@xprite/ui` components, invalid variant values, and variant usages the checker cannot resolve fail the check. Legal variants that the Editor does not use are informational and do not fail it; components app usage does not count toward Editor coverage. Its implementation is in `check/`; the root `check` and pre-commit hook both run it.
 
-`pnpm run check:stale-css` runs `check-unused-css` against the Editor, Gallery, and UI source trees. The checker reports unused CSS Module classes and class references missing from their stylesheets. The root `check` runs it.
+`pnpm run check:stale-css` runs `check-unused-css` against the Editor, components, and UI source trees. The checker reports unused CSS Module classes and class references missing from their stylesheets. The root `check` runs it.
 
 UI regression compares current Xprite screenshots with its own checked-in
 baselines. Use `pnpm run visual:capture` and `pnpm run visual:compare` against
@@ -51,16 +51,15 @@ worker while the next scene is being captured. Incomplete runs retain their
 images and comparison reports but cannot pass the gate.
 If the editor is running on another port, set `XPRITE_VISUAL_PORT` when pushing
 so the hook captures that server; the default is 5173.
-The old Aseprite UI screenshot comparison and source snapshot workflow has been removed.
 
 Pre-push also runs `pnpm run visual:startup` to compare the generated SSG first
 paint with the interactive first paint on all three tool pages, in wide and
 compact layouts with Light, Dark and both System preferences. This separate gate
-requires at least 99% whole-viewport pixelmatch similarity at threshold 0.1 and
-unchanged region geometry. Capture failure or incomplete evidence blocks the
+requires exact equality of every decoded RGBA pixel across the whole viewport
+and unchanged region geometry (100% similarity). Capture failure or incomplete evidence blocks the
 push. Reports and both raw images are saved in `.tmp/tools-startup-visual/`.
-The default tools port is 5176; `XPRITE_TOOLS_VISUAL_PORT` targets another existing
-server. See [the SSG capture contract](visual-audit/tools-startup/README.md).
+The hook targets the unified site on port 5173; `XPRITE_VISUAL_PORT` selects
+another existing site server. See [the SSG capture contract](visual-audit/tools-startup/README.md).
 
 ## Shared screenshots
 
@@ -116,5 +115,4 @@ retains only repeating PAT#/ppat resources, merges exact repeat/phase/inverted
 two-color duplicates, and excludes the visually reviewed vertical gradient.
 Full PICT desktop photographs are not imported. Source hashes, original dimensions,
 related variants and tile hashes remain in asset provenance. After changing the
-public Pattern API, regenerate gallery descriptors with `pnpm run gallery:generate`.
-No visual baseline or audit threshold is changed by this asset importer.
+public Pattern API, regenerate component catalog descriptors with `pnpm run components:generate`.

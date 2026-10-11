@@ -2208,5 +2208,9 @@
   "ui.hide.name": "隐藏{name}",
   "ui.collapse.note": "收起便笺",
   "ui.expand.note": "展开便笺",
-  "ui.resize.note": "调整便笺大小"
+  "ui.resize.note": "调整便笺大小",
+  "ui.local.font.listing.unavailable": "当前浏览器无法列出本机字体",
+  "ui.allow.local.font.access": "请在浏览器提示中允许读取本机字体",
+  "ui.loading.local.fonts": "正在读取本机字体…",
+  "ui.could.not.load.local.fonts": "无法读取本机字体，请检查浏览器权限"
 }

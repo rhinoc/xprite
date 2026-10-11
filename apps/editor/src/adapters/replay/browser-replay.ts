@@ -1,6 +1,5 @@
-import type { ReplayPort } from "$/managers/ports/replay";
-import type { ReplayCursorAppearance } from "$/managers/ports/replay";
-import { downloadBlob, isAbortError, pickOpenFiles } from "@xprite/bedrock/browser/file-system";
+import { type ReplayPort, type ReplayCursorAppearance } from "$/managers/ports/replay";
+import { downloadBlob, selectBrowserFiles } from "@xprite/bedrock/browser/file-system";
 import { REPLAY_MAX_BYTES } from "@xprite/editor-core";
 import { getCursorArtwork, type CursorRole } from "@xprite/ui/cursor";
 import { clientDeltaToLocal, computedStyle, layoutSize, snapLocalToPixels } from "@xprite/ui/utils";
@@ -59,32 +58,7 @@ function nativeCursorRole(cursor: string): CursorRole {
 }
 
 async function chooseReplay(): Promise<Uint8Array | null> {
-  const picker = pickOpenFiles({ multiple: false });
-  let file: File | undefined;
-  if (picker) {
-    try {
-      file = await (await picker)[0]?.getFile();
-    } catch (error) {
-      if (isAbortError(error)) return null;
-      throw error;
-    }
-  } else {
-    file = await new Promise<File | undefined>((resolve) => {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = ".xprite-replay";
-      input.hidden = true;
-      const finish = () => {
-        const selected = input.files?.[0];
-        input.remove();
-        resolve(selected);
-      };
-      input.addEventListener("change", finish, { once: true });
-      input.addEventListener("cancel", finish, { once: true });
-      document.body.append(input);
-      input.click();
-    });
-  }
+  const [file] = await selectBrowserFiles({ accept: ".xprite-replay", preferNative: true });
   if (!file) return null;
   if (file.size > REPLAY_MAX_BYTES)
     throw new RangeError("Replay files must be smaller than 256 MiB.");

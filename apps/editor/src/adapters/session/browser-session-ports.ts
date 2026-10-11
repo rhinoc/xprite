@@ -251,6 +251,10 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
   };
   private getWorker() {
     if (this.closed) throw new Error("Image session is closed");
+    if (this.worker?.isFailed) {
+      this.worker.close();
+      this.worker = null;
+    }
     return (
       this.worker ??
       (this.worker = new ImageImportWorkerClient({

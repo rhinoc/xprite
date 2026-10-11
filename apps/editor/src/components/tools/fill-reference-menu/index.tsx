@@ -2,7 +2,7 @@ import {
   ToolFillReference as FillReference,
   type ToolFillReference,
 } from "$/managers/tools/tool-options";
-import { Button, Menu, MenuCheckType, Tooltip } from "@xprite/ui";
+import { Button, Menu, MenuCheckType, Tooltip, TooltipPlacement } from "@xprite/ui";
 import type { SurfaceBounds, SurfaceViewport } from "@xprite/ui";
 
 export interface FillReferenceMenuProps {
@@ -43,7 +43,7 @@ export function FillReferenceMenu({
       renderTrigger={(props) => (
         <Tooltip
           text="Paint bucket settings"
-          placement="bottom"
+          placement={TooltipPlacement.Bottom}
           disabled={!!props["aria-expanded"]}
         >
           <Button

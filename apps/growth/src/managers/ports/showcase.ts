@@ -16,6 +16,7 @@ export type ShowcaseIntroMount = (
 ) => ShowcaseIntroMotion;
 
 export interface ShowcaseMusic {
+  start(): void;
   setMuted(muted: boolean): void;
   setVolume(volume: number): void;
   dispose(): void;

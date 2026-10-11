@@ -80,4 +80,4 @@ The Xprite viewer processes files on your device and doesn't upload them. Projec
 
 ---
 
-To get started, [open a file in the viewer](/tools/viewer/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online) or [edit it in Xprite](/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online). If you only need an animated image, see [Aseprite to GIF](/learn/aseprite-to-gif/). For editing on an iPad, see [Aseprite on iPad](/compare/aseprite-on-ipad/).
+To get started, [open a file in the viewer](/tools/viewer/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online) or [edit it in Xprite](/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online). If you only need an animated image, see [Aseprite to GIF](/tools/viewer/#export-gif). For editing on an iPad, see [Aseprite on iPad](/compare/aseprite-on-ipad/).

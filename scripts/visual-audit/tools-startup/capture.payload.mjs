@@ -26,20 +26,30 @@ await page.cdp("Emulation.setCPUThrottlingRate", { rate: captureConfig.cpuSlowdo
 await page.cdp("DOM.enable");
 await page.cdp("CSS.enable");
 
+const pageRoot = (scene) => (scene.page.publicPage ? "body" : `#${scene.page.rootId}`);
+const pageReady = (scene) =>
+  scene.page.publicPage
+    ? "html[data-public-controls-ready]"
+    : `#${scene.page.rootId}[data-tool-ready]`;
 const regions = async (scene) => {
-  const root = `#${scene.page.rootId}`;
+  const root = pageRoot(scene);
+  const localeQuery = scene.page.language === "zh-CN" ? "?lang=zh-CN" : "";
   const selectors = {
     header: `${root} header`,
     main: `${root} main`,
-    headline: scene.page.name === "tools" ? `${root} main [data-slot="panel-title"]` : `${root} h1`,
-    ...(scene.page.name === "tools"
+    headline: scene.page.publicPage
+      ? `${root} main h1`
+      : `${root} main [data-ui-window-priority="primary"] [data-slot="panel-title"]`,
+    ...(scene.page.publicPage
       ? {
-          viewer: `${root} main a[href="/tools/viewer/"]`,
-          gifSheet: `${root} main a[href="/tools/gif-to-sprite-sheet/"]`,
-          editor: `${root} main a[href="/"]`,
-          animalCrossing: `${root} main a[href="/tools/animal-crossing-qr/"]`,
+          viewer: `${root} main a[href="/tools/viewer/${localeQuery}"]`,
+          gifSheet: `${root} main a[href="/tools/gif-to-sprite-sheet/${localeQuery}"]`,
+          editor: `${root} main a[href="/editor"]`,
+          animalCrossing: `${root} main a[href="/tools/animal-crossing-qr/${localeQuery}"]`,
         }
-      : { examples: `${root} [data-slot="panel"][aria-label="Try example"]` }),
+      : {
+          examples: `${root} [data-slot="panel"][aria-label="${scene.page.language === "zh-CN" ? "试用示例" : "Try example"}"]`,
+        }),
   };
   const document = await page.cdp("DOM.getDocument");
   const result = [];
@@ -62,10 +72,13 @@ const regions = async (scene) => {
 };
 
 const capture = async (scene, phase, url) => {
-  const selector =
-    phase === "ssg"
+  const selector = scene.page.publicPage
+    ? phase === "ssg"
+      ? pageRoot(scene)
+      : pageReady(scene)
+    : phase === "ssg"
       ? `#${scene.page.rootId}[data-tool-startup-view]`
-      : `#${scene.page.rootId}[data-tool-ready] .xse-global`;
+      : `${pageReady(scene)} .xse-global`;
   await page.goto(url);
   await page.waitForSelector(selector, {
     state: "visible",
@@ -85,18 +98,22 @@ const capture = async (scene, phase, url) => {
     label: "clear pointer before startup capture",
   });
   const state = await page.evaluate(
-    ({ rootId, phase }) => {
-      const root = document.getElementById(rootId);
-      if (!root || root.hasAttribute("data-tool-startup-view") !== (phase === "ssg"))
-        throw Error(`Wrong startup phase: ${phase}`);
+    ({ rootId, publicPage, phase }) => {
+      const root = publicPage ? document.body : document.getElementById(rootId);
+      const staticView = publicPage
+        ? !document.documentElement.hasAttribute("data-public-controls-ready")
+        : root?.hasAttribute("data-tool-startup-view");
+      if (!root || staticView !== (phase === "ssg")) throw Error(`Wrong startup phase: ${phase}`);
       if (root.hasAttribute("data-tool-hydration-error"))
         throw Error(root.dataset.toolHydrationError);
+      const publicError = document.querySelector("[data-public-hydration-error]");
+      if (publicError) throw Error(publicError.dataset.publicHydrationError);
       return {
         url: location.href,
         language: document.documentElement.lang,
       };
     },
-    { rootId: scene.page.rootId, phase },
+    { rootId: scene.page.rootId ?? null, publicPage: !!scene.page.publicPage, phase },
   );
   const document = await page.cdp("DOM.getDocument");
   const { nodeId } = await page.cdp("DOM.querySelector", {
@@ -124,7 +141,9 @@ const capture = async (scene, phase, url) => {
         const root = document.getElementById(rootId);
         if (root?.hasAttribute("data-tool-hydration-error"))
           throw Error(root.dataset.toolHydrationError);
-      }, scene.page.rootId);
+        const publicError = document.querySelector("[data-public-hydration-error]");
+        if (publicError) throw Error(publicError.dataset.publicHydrationError);
+      }, scene.page.rootId ?? null);
       const observation =
         phase === "ready"
           ? await page.evaluate(() => window.__xpriteStartupMonitor.stop())
@@ -186,15 +205,16 @@ for (const scene of captureConfig.scenes) {
   });
   const initialization = await page.cdp("Page.addScriptToEvaluateOnNewDocument", {
     source: `if(location.origin===${JSON.stringify(origin)}){
+      localStorage.setItem("xprite.site.desktop-preferences",${JSON.stringify(JSON.stringify({ appearance: scene.appearance.saved }))});
       localStorage.setItem("xse.ui.appearance-mode.v1",${JSON.stringify(scene.appearance.saved)});
       ${captureConfig.geometrySource}
       (${captureConfig.monitorSource})(${JSON.stringify({
         regions: [
-          { name: "page", selectors: [`#${scene.page.rootId}`] },
-          { name: "navigation", selectors: [`#${scene.page.rootId} header`] },
-          { name: "main", selectors: [`#${scene.page.rootId} main`] },
+          { name: "page", selectors: [pageRoot(scene)] },
+          { name: "navigation", selectors: [`${pageRoot(scene)} header`] },
+          { name: "main", selectors: [`${pageRoot(scene)} main`] },
         ],
-        ready: `#${scene.page.rootId}[data-tool-ready]`,
+        ready: pageReady(scene),
         minimumReadyFrames: captureConfig.minimumReadyFrames,
         readyObservationMilliseconds: captureConfig.readyObservationMilliseconds,
       })},StartupGeometry);
@@ -230,5 +250,5 @@ for (const scene of captureConfig.scenes) {
 }
 await page.cdp("Network.setCacheDisabled", { cacheDisabled: false });
 await page.cdp("Emulation.setCPUThrottlingRate", { rate: 1 });
-await task.finish({ keep: [] });
+if (captureConfig.spaceId === undefined) await task.finish({ keep: [] });
 console.log(`TOOLS_STARTUP_REPORT:${JSON.stringify({ pairs })}`);

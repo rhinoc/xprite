@@ -1,0 +1,21 @@
+.root,
+.picture {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+.image {
+  transform: translateZ(0);
+  box-sizing: border-box;
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+  image-rendering: pixelated;
+}
+.root[data-framed] {
+  margin-block: 16px;
+}
+.root[data-framed] .image {
+  border: 1px solid var(--ui-color-line);
+}

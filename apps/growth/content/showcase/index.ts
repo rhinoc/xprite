@@ -1,9 +1,9 @@
-import { editorApplicationMetadata } from "../application/index";
-import { ARTICLES } from "../articles/index";
+import { editorApplicationMetadata } from "../application/index.ts";
+import { ARTICLES } from "../articles/index.ts";
 import { GUIDE_PAGES } from "../help/pages.ts";
 import { localizedSiteHref } from "../site/language.ts";
-import { showcaseLabel } from "../site/navigation";
-import { TOOLS } from "../tools/index";
+import { showcaseLabel } from "../site/navigation.ts";
+import { TOOLS } from "../tools/index.ts";
 
 export const SHOWCASE_SEARCH_ATTRIBUTE = "data-showcase-search";
 
@@ -19,7 +19,7 @@ export const SHOWCASE_HERO_COPY = {
     open: "Start editing",
     goToEditor: "Go to editor",
     home: showcaseLabel("en"),
-    tools: "Tools",
+    features: "Features",
     help: "User guide",
     languageSwitch: "Switch to 中文",
   },
@@ -34,7 +34,7 @@ export const SHOWCASE_HERO_COPY = {
     open: "开始编辑",
     goToEditor: "进入编辑器",
     home: showcaseLabel("zh-CN"),
-    tools: "工具",
+    features: "功能",
     help: "使用指南",
     languageSwitch: "切换到 English",
   },
@@ -43,20 +43,18 @@ export const SHOWCASE_HERO_COPY = {
 export const SHOWCASE_DISCOVERY_COPY = {
   en: {
     toolsTitle: "Tools",
-    allTools: "All tools",
+    allFeatures: "All features",
     readme: "Read Me",
     userGuide: "User guide",
-    fileGuides: "File guides",
-    comparisons: "Editor comparisons",
+    comparisons: "Comparisons",
     resources: "Library",
   },
   "zh-CN": {
     toolsTitle: "工具",
-    allTools: "全部工具",
+    allFeatures: "全部功能",
     readme: "工具说明",
     userGuide: "使用指南",
-    fileGuides: "文件导出",
-    comparisons: "编辑器比较",
+    comparisons: "比较",
     resources: "资料库",
   },
 } as const;
@@ -87,7 +85,6 @@ export function showcaseDiscovery(language: keyof typeof SHOWCASE_DISCOVERY_COPY
         ? CHINESE_TOOL_COPY[tool.path]
         : { label: tool.label, summary: tool.summary }),
     })),
-    fileGuides: ARTICLES.filter((article) => article.collection === "learn"),
     comparisons: ARTICLES.filter((article) => article.collection === "compare"),
   };
 }

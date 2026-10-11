@@ -1,28 +1,31 @@
-import { ARTICLES, localizedArticle } from "../articles/index.ts";
 import { GUIDE_PAGES } from "../help/pages.ts";
 import { SHOWCASE_PAGES } from "../showcase/pages.ts";
-import { TOOLS, TOOLS_HOME, translateToolText } from "../tools/index.ts";
+import { EDITOR_TOOL, TOOLS, translateToolText } from "../tools/index.ts";
 import { documentLinks } from "./documents.ts";
 import { localizedSiteHref, publicLanguage, PublicLanguage } from "./language.ts";
 
-/** Page titles end with the site name; menu labels do not repeat it. */
-const TITLE_SUFFIX = / \| Xprite$/;
-
-const HOME_LABELS = { en: "About Xprite", "zh-CN": "关于 Xprite" } as const;
+const ABOUT_LABELS = { en: "About", "zh-CN": "关于" } as const;
 
 export function showcasePath(language = "en"): string {
   return SHOWCASE_PAGES[publicLanguage(language)].path;
 }
 
-/** The about page is the website home; the root URL opens the editor. */
+/** The product overview is the website home; the root URL opens the editor. */
 export function showcaseLabel(language = "en"): string {
-  return HOME_LABELS[publicLanguage(language)];
+  return ABOUT_LABELS[publicLanguage(language)];
+}
+
+enum FooterGroupOrder {
+  Product,
+  Tools,
+  Resources,
 }
 
 interface NavigationNode {
   label: string;
   href?: string;
   children?: readonly NavigationNode[];
+  footerOrder?: FooterGroupOrder;
 }
 
 export interface SiteApplicationItem {
@@ -42,47 +45,39 @@ export interface SiteFooterGroup {
 function navigationTree(language: PublicLanguage, guideHref?: string): NavigationNode[] {
   const text = (english: string, chinese: string) =>
     language === PublicLanguage.SimplifiedChinese ? chinese : english;
-  const articleLinks = (collection: "learn" | "compare") =>
-    ARTICLES.filter((article) => article.collection === collection).map((article) => ({
-      label: localizedArticle(article, language).title.replace(TITLE_SUFFIX, ""),
-      href: localizedSiteHref(article.path, language),
-    }));
   return [
     { label: showcaseLabel(language), href: showcasePath(language) },
-    { label: text("Start editing", "开始创作"), href: "/editor" },
     {
       label: text("Tools", "工具"),
-      href: localizedSiteHref(TOOLS_HOME.path, language),
-      children: TOOLS.map((tool) => ({
-        label: translateToolText(tool.label, language),
-        href: localizedSiteHref(tool.path, language),
-      })),
-    },
-    {
-      label: text("Tutorials and help", "教程与帮助"),
+      footerOrder: FooterGroupOrder.Tools,
       children: [
-        {
-          label: text("User guide", "使用指南"),
-          href: localizedSiteHref(guideHref ?? GUIDE_PAGES[language].path, language),
-        },
-        {
-          label: text("File guides", "文件导出指南"),
-          href: localizedSiteHref("/learn/", language),
-          children: articleLinks("learn"),
-        },
+        { label: text("Pixel Art Editor", "像素编辑器"), href: EDITOR_TOOL.path },
+        ...TOOLS.map((tool) => ({
+          label: translateToolText(tool.label, language),
+          href: localizedSiteHref(tool.path, language),
+        })),
       ],
     },
     {
-      label: text("Product", "产品介绍"),
+      label: text("Resources", "资料"),
+      footerOrder: FooterGroupOrder.Resources,
       children: [
-        { label: text("Meet Xprite", "认识 Xprite"), href: showcasePath(language) },
-        ...documentLinks(language, "/about/"),
         {
-          label: text("Editor comparisons", "编辑器比较"),
-          href: localizedSiteHref("/compare/", language),
-          children: articleLinks("compare"),
+          label:
+            guideHref?.startsWith("/tools/") || guideHref?.startsWith("#")
+              ? text("Read Me", "使用说明")
+              : text("User guide", "使用指南"),
+          href: localizedSiteHref(guideHref ?? GUIDE_PAGES[language].path, language),
         },
         ...documentLinks(language, "/privacy/"),
+      ],
+    },
+    {
+      label: text("Product", "产品"),
+      footerOrder: FooterGroupOrder.Product,
+      children: [
+        { label: showcaseLabel(language), href: showcasePath(language) },
+        ...documentLinks(language, "/about/"),
       ],
     },
   ];
@@ -92,11 +87,18 @@ function navigationTree(language: PublicLanguage, guideHref?: string): Navigatio
 export function siteApplications(
   currentPath: string,
   language = "en",
-  includeComponents = false,
   guideHref?: string,
 ): readonly SiteApplicationItem[] {
   const selectedLanguage = publicLanguage(language);
-  const helpHref = guideHref ?? TOOLS.find((tool) => tool.path === currentPath)?.guidePath;
+  const tool = TOOLS.find((tool) => tool.path === currentPath);
+  const declaredGuide = guideHref ?? (tool && "guidePath" in tool ? tool.guidePath : undefined);
+  const helpHref =
+    declaredGuide &&
+    (declaredGuide.startsWith("#") ||
+      declaredGuide === currentPath ||
+      declaredGuide.startsWith(`${currentPath}#`))
+      ? undefined
+      : declaredGuide;
   const normalizeCurrent = (path: string) => {
     const pathname = path.split("?")[0];
     return pathname === "/editor" ? "/" : pathname;
@@ -124,25 +126,32 @@ export function siteApplications(
     }
     return application(node.label, node.href!);
   };
-  return [
-    ...navigationTree(selectedLanguage, helpHref).map(item),
-    ...(includeComponents
-      ? [
-          application(
-            selectedLanguage === PublicLanguage.SimplifiedChinese ? "UI 组件库" : "UI Components",
-            localizedSiteHref("/components/", selectedLanguage),
-          ),
-        ]
-      : []),
-  ];
+  return navigationTree(selectedLanguage, helpHref).map(item);
 }
 
-export function siteFooterGroups(language = "en"): readonly SiteFooterGroup[] {
+export function siteFooterGroups(language = "en", guideHref?: string): readonly SiteFooterGroup[] {
+  const tree = navigationTree(publicLanguage(language), guideHref);
   const links = (node: NavigationNode): { label: string; href: string }[] => [
     ...(node.href ? [{ label: node.label, href: node.href }] : []),
-    ...(node.children?.flatMap(links) ?? []),
+    ...(node.children ?? []).flatMap(links),
   ];
-  return navigationTree(publicLanguage(language))
-    .filter((node) => node.children)
-    .map((node) => ({ label: node.label, links: links(node) }));
+  const topLevelLinks = tree.filter((node) => node.footerOrder === undefined).flatMap(links);
+  return tree
+    .filter((node) => node.footerOrder !== undefined)
+    .sort((left, right) => left.footerOrder! - right.footerOrder!)
+    .map((node) => {
+      const entries = [
+        ...(node.footerOrder === FooterGroupOrder.Product ? topLevelLinks : []),
+        ...links(node),
+      ];
+      const seen = new Set<string>();
+      return {
+        label: node.label,
+        links: entries.filter((link) => {
+          if (seen.has(link.href)) return false;
+          seen.add(link.href);
+          return true;
+        }),
+      };
+    });
 }

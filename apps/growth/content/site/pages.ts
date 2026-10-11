@@ -4,11 +4,12 @@ import {
   localizedArticle,
   localizedCollection,
 } from "../articles/index.ts";
+import { FEATURES_PATH } from "../features/index.ts";
 import { GUIDE_PAGES } from "../help/pages.ts";
 import { SHOWCASE_PAGES } from "../showcase/pages.ts";
-import { EDITOR_TOOL, TOOLS, TOOLS_HOME } from "../tools/index.ts";
+import { EDITOR_TOOL, TOOLS, VIEWER_TOOL, ViewerHelpSection } from "../tools/index.ts";
 import { documentTranslations, SITE_DOCUMENTS } from "./documents.ts";
-import { PublicLanguage } from "./language.ts";
+import { localizedSiteHref, PublicLanguage } from "./language.ts";
 
 export enum SitePageKind {
   Editor = "editor",
@@ -114,7 +115,7 @@ export const SITE_PAGES: readonly SitePage[] = [
     description: EDITOR_TOOL.description,
     indexable: true,
   },
-  ...[TOOLS_HOME, ...TOOLS].map((tool) => ({
+  ...TOOLS.map((tool) => ({
     kind: SitePageKind.Tool,
     path: tool.path,
     title: tool.title,
@@ -127,11 +128,18 @@ export const SITE_PAGES: readonly SitePage[] = [
 
 /** Addresses production served before the `/zh-CN/` root prefix; nothing else is redirected. */
 const LEGACY_PAGES: readonly (readonly [string, string])[] = [
+  ["/tools/", FEATURES_PATH],
   ["/help/en/", GUIDE_PAGES[PublicLanguage.English].path],
   ["/help/zh-CN/", GUIDE_PAGES[PublicLanguage.SimplifiedChinese].path],
   ["/showcase/", SHOWCASE_PAGES[PublicLanguage.English].path],
   ["/showcase/en/", SHOWCASE_PAGES[PublicLanguage.English].path],
   ["/showcase/zh-CN/", SHOWCASE_PAGES[PublicLanguage.SimplifiedChinese].path],
+];
+
+const FILE_GUIDE_SECTIONS: readonly (readonly [string, ViewerHelpSection])[] = [
+  ["/learn/", ViewerHelpSection.Overview],
+  ["/learn/aseprite-to-png/", ViewerHelpSection.Png],
+  ["/learn/aseprite-to-gif/", ViewerHelpSection.Gif],
 ];
 
 export const SITE_REDIRECTS: Readonly<Record<string, string>> = Object.fromEntries([
@@ -146,4 +154,15 @@ export const SITE_REDIRECTS: Readonly<Record<string, string>> = Object.fromEntri
     [legacy, path],
     [`${legacy}index.html`, path],
   ]),
+  ...PUBLIC_LANGUAGES.flatMap((language) =>
+    FILE_GUIDE_SECTIONS.flatMap(([path, section]) => {
+      const source = localizedSiteHref(path, language);
+      const destination = localizedSiteHref(`${VIEWER_TOOL.path}#${section}`, language);
+      return [
+        [source.slice(0, -1), destination],
+        [source, destination],
+        [`${source}index.html`, destination],
+      ];
+    }),
+  ),
 ]);

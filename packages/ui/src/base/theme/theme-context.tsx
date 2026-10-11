@@ -13,23 +13,24 @@ import {
 import type { UiColorRole } from "$/base/theme/theme-name-types";
 import { ThemeScope } from "$/base/theme/theme-scope";
 import { themeTokens } from "$/base/theme/theme-tokens";
-import type { UiStyleDefinition, UiAppearance } from "$/base/theme/theme-types";
+import { UiColorScheme, type UiStyleDefinition } from "$/base/theme/theme-types";
 
 export type { AtlasPartName } from "$/base/theme/theme-name-types";
-export type { UiStyleDefinition, UiAppearance } from "$/base/theme/theme-types";
+export { UiColorScheme };
+export type { UiStyleDefinition } from "$/base/theme/theme-types";
 
-export function useSystemTheme(): UiAppearance {
-  const read = (): UiAppearance =>
+export function useSystemTheme(): UiColorScheme {
+  const read = (): UiColorScheme =>
     typeof window !== "undefined" &&
     typeof window.matchMedia === "function" &&
     window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  const [theme, setTheme] = React.useState<UiAppearance>(read);
+      ? UiColorScheme.Dark
+      : UiColorScheme.Light;
+  const [colorScheme, setColorScheme] = React.useState<UiColorScheme>(read);
   React.useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
     const query = window.matchMedia("(prefers-color-scheme: dark)");
-    const update = () => setTheme(query.matches ? "dark" : "light");
+    const update = () => setColorScheme(query.matches ? UiColorScheme.Dark : UiColorScheme.Light);
     update();
     if (typeof query.addEventListener === "function") {
       query.addEventListener("change", update);
@@ -38,7 +39,7 @@ export function useSystemTheme(): UiAppearance {
     query.addListener(update);
     return () => query.removeListener(update);
   }, []);
-  return theme;
+  return colorScheme;
 }
 
 export type ThemeColorRole = UiColorRole;
@@ -47,7 +48,7 @@ export type ThemeColorRoleIndex = Readonly<Record<string, readonly ThemeColorRol
 const identity = (text: string) => text;
 
 export interface UIProviderProps {
-  appearance?: UiAppearance;
+  colorScheme?: UiColorScheme;
   uiTheme?: UiTheme;
   language?: string;
   /** Wait for bitmap artwork before mounting controls. CSS-only pages can disable this. */
@@ -61,7 +62,7 @@ export interface UIProviderProps {
 }
 
 export function UIProvider({
-  appearance,
+  colorScheme: requestedColorScheme,
   uiTheme: requestedTheme,
   language,
   preloadArtwork = true,
@@ -73,17 +74,18 @@ export function UIProvider({
 }: UIProviderProps) {
   const parent = React.useContext(ThemeContext);
   const uiTheme = requestedTheme ?? parent?.uiTheme ?? defaultUiTheme;
-  const variant = appearance ?? parent?.variant ?? initialTheme?.appearance ?? "light";
+  const colorScheme =
+    requestedColorScheme ?? parent?.colorScheme ?? initialTheme?.colorScheme ?? UiColorScheme.Light;
   const resolvedLanguage = language ?? parent?.language ?? "en";
   const [loaded, setLoaded] = React.useState<UiAssetBundle | ThemeModule | null>(() =>
-    initialTheme ? null : getThemeAssets(variant, uiTheme),
+    initialTheme ? null : getThemeAssets(colorScheme, uiTheme),
   );
 
   React.useEffect(() => {
     let active = true;
     const loading = preloadArtwork
-      ? preloadThemeAssets(variant, resolvedLanguage, uiTheme)
-      : loadThemeModule(variant, uiTheme);
+      ? preloadThemeAssets(colorScheme, resolvedLanguage, uiTheme)
+      : loadThemeModule(colorScheme, uiTheme);
     void loading
       .then((assets) => {
         if (active) setLoaded(assets);
@@ -92,14 +94,14 @@ export function UIProvider({
     return () => {
       active = false;
     };
-  }, [variant, uiTheme, resolvedLanguage, preloadArtwork]);
+  }, [colorScheme, uiTheme, resolvedLanguage, preloadArtwork]);
 
   const initial = React.useMemo<ThemeModule | null>(
     () =>
       initialTheme && initialTheme.themeId === uiTheme.id
         ? {
             uiTheme,
-            variant: initialTheme.appearance,
+            colorScheme: initialTheme.colorScheme,
             tokens: initialTheme.tokens,
             definition: initialTheme.definition,
             sheetUrl: initialTheme.sheetUrl,
@@ -108,8 +110,8 @@ export function UIProvider({
     [initialTheme, uiTheme],
   );
   const matches = (candidate: UiAssetBundle | ThemeModule | ThemeContextValue | null) =>
-    candidate?.variant === variant && candidate.uiTheme === uiTheme;
-  // Retain the initial content while a saved appearance loads after hydration.
+    candidate?.colorScheme === colorScheme && candidate.uiTheme === uiTheme;
+  // Retain the initial content while a saved color scheme loads after hydration.
   const current = matches(loaded)
     ? loaded
     : matches(parent)
@@ -121,7 +123,7 @@ export function UIProvider({
     () =>
       current
         ? {
-            variant: current.variant,
+            colorScheme: current.colorScheme,
             uiTheme: current.uiTheme,
             tokens: themeTokens(
               {
@@ -169,10 +171,10 @@ function normalizeColor(value: string) {
 export function remapThemeColor(
   value: string,
   theme: UiStyleDefinition,
-  variant: UiAppearance,
+  colorScheme: UiColorScheme,
   lightColorRoles: ThemeColorRoleIndex = {},
 ) {
-  if (variant === "light") return value;
+  if (colorScheme === UiColorScheme.Light) return value;
   const roles = lightColorRoles[normalizeColor(value)];
   if (!roles) return value;
   const destinations = [...new Set(roles.map((role) => themeColor(role, theme)))];

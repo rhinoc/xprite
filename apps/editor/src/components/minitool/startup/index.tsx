@@ -1,5 +1,5 @@
 import { tUi, useUiLanguage } from "$/i18n";
-import { Panel, Text, TextVariant } from "@xprite/ui";
+import { Panel, Text, TextInk, TextVariant } from "@xprite/ui";
 
 import styles from "$/components/minitool/startup/startup.module.css";
 
@@ -16,13 +16,13 @@ export function MiniToolStartup({ message }: MiniToolStartupProps) {
       <Panel
         className={styles.panel}
         title={
-          <Text variant={TextVariant.Inline} scale={2} color="light">
+          <Text variant={TextVariant.Inline} scale={2} inkTone={TextInk.Light}>
             {tUi(failed ? "ui.minitool.startup.failed" : "ui.minitool.startup.opening")}
           </Text>
         }
       >
         {message && (
-          <Text variant={TextVariant.Inline} scale={2} color="light" wrap>
+          <Text variant={TextVariant.Inline} scale={2} inkTone={TextInk.Light} wrap>
             {message}
           </Text>
         )}

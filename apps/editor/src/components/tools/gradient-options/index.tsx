@@ -7,6 +7,7 @@ import {
   TOOL_CONTROL_CHANNEL_MAX as UINT8_MAX,
 } from "$/managers/tools/tool-options";
 import {
+  FontRole,
   ControlFlowItem,
   Text,
   TextVariant,
@@ -16,8 +17,10 @@ import {
   Combobox,
   Checkbox,
   Slider,
-  SliderVariant,
+  SliderRendering,
+  SliderValueFormat,
   Tooltip,
+  TooltipPlacement,
 } from "@xprite/ui";
 import type { SurfaceBounds, SurfaceViewport } from "@xprite/ui";
 
@@ -49,7 +52,7 @@ function GradientOptions({
           <Tooltip
             key={value}
             text={value === GradientType.Linear ? "Linear Gradient" : "Radial Gradient"}
-            placement="bottom"
+            placement={TooltipPlacement.Bottom}
           >
             <Button
               {...common}
@@ -104,7 +107,7 @@ export interface GradientContextBarProps extends Omit<GradientOptionsProps, "bou
   onFillReferenceChange: (value: ToolFillReference) => void;
   onOpacityChange: (value: number) => void;
 }
-/** Owns the complete gradient field layout, so gallery/mockups only bind state.
+/** Owns the complete gradient field layout, so component previews only bind state.
  * Capture aseprite-light-gradient-v1-widgets.json at source GUI scale 1:
  * tolerance82, entry132, contiguous163, gear229, types248, matrix281,
  * opacity label423, slider462; coordinates here are doubled Aseprite GUI pixels. */
@@ -138,7 +141,7 @@ export function GradientContextBar({
           {...common}
           bounds={bounds(2, 90)}
           text="Tolerance:"
-          font="mini"
+          font={FontRole.Compact}
         />
       </ControlFlowItem>
       <ControlFlowItem>
@@ -183,18 +186,18 @@ export function GradientContextBar({
           {...common}
           bounds={bounds(684, 68)}
           text="Opacity:"
-          font="mini"
+          font={FontRole.Compact}
         />
       </ControlFlowItem>
       <ControlFlowItem>
         <Slider
           {...common}
           bounds={bounds(760, 66)}
-          variant={SliderVariant.Entry}
+          rendering={SliderRendering.NumberEntry}
           min={0}
           max={UINT8_MAX}
           value={opacity}
-          valueFormat="percentage"
+          valueFormat={SliderValueFormat.Percentage}
           aria-label="Ink opacity"
           tooltip="Opacity (paint intensity)"
           onValueChange={onOpacityChange}

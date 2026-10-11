@@ -11,7 +11,6 @@ import {
   IconSize,
   Panel,
   PanelVariant,
-  PanelWindowChrome,
   SurfaceTone,
   Text,
   TextRole,
@@ -28,8 +27,8 @@ export function PublicNotFound({ language }: { language: PublicLanguage }) {
     <main className={styles.desktop}>
       <Panel
         className={styles.window}
-        variant={PanelVariant.Window}
-        windowChrome={PanelWindowChrome.Emphasized}
+        variant={PanelVariant.Document}
+        emphasized
         tone={SurfaceTone.Neutral}
         contentPadding={ContentPadding.None}
         collapsible={false}
@@ -51,13 +50,13 @@ export function PublicNotFound({ language }: { language: PublicLanguage }) {
             </Text>
             <Text as="p" variant={TextVariant.Reading} tone={TextTone.Muted} wrap>
               {text(
-                "The link may be incorrect, or the page may have moved. You can return home or keep creating in the editor.",
-                "链接可能有误，或页面已经移动。你可以返回首页，或打开编辑器继续创作。",
+                "The link may be incorrect, or the page may have moved. Read about Xprite or keep creating in the editor.",
+                "链接可能有误，或页面已经移动。可以了解 Xprite，或打开编辑器继续创作。",
               )}
             </Text>
             <nav className={styles.actions} aria-label={text("Continue", "继续使用")}>
               <Button href={SHOWCASE_PAGES[language].path} slots={{}}>
-                {text("Back to home", "返回首页")}
+                {text("About Xprite", "关于 Xprite")}
               </Button>
               <Button href="/editor" slots={{}}>
                 {text("Open editor", "打开编辑器")}
@@ -68,8 +67,8 @@ export function PublicNotFound({ language }: { language: PublicLanguage }) {
       </Panel>
       <nav className={styles.shortcuts} aria-label={text("Resources", "常用入口")}>
         <PublicIcon
-          label={text("Applications", "应用程序")}
-          href={localizedSiteHref("/tools/", language)}
+          label={text("Features", "功能")}
+          href={localizedSiteHref("/about/features/", language)}
           variant={IconKind.Folder}
         />
         <PublicIcon

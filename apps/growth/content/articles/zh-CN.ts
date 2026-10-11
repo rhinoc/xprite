@@ -1,11 +1,4 @@
 export const CHINESE_COLLECTIONS = {
-  learn: {
-    label: "文件导出指南",
-    title: "Aseprite 转 PNG、GIF：文件导出指南 | Xprite",
-    headline: "Aseprite 文件导出指南",
-    description:
-      "在浏览器里打开 Aseprite 工程，免费导出透明 PNG 单帧或 GIF 动画。按步骤说明 Xprite 查看器的操作，以及导出后尺寸、透明度和帧时长的变化。",
-  },
   compare: {
     label: "编辑器比较",
     title: "像素画编辑器比较 | Xprite",
@@ -39,19 +32,5 @@ export const CHINESE_ARTICLES = {
     summary:
       "Pixelorama 能直接打开 .piskel；Xprite 适合编辑 .aseprite 和触控绘画；Pixilart 适合分享作品。",
     topic: "编辑器替代工具",
-  },
-  "aseprite-to-gif": {
-    title: "Aseprite 转 GIF：在浏览器里导出动画 | Xprite",
-    description:
-      "用 Xprite 查看器在浏览器里打开 .aseprite，选择动画标签，免费导出 GIF，不用安装 Aseprite。文件在本地处理，本文也说明 GIF 对帧时长、颜色和透明度的影响。",
-    summary: "4 步把整段动画或一个标签导出为 GIF，并说明帧时长、颜色和透明度的变化。",
-    topic: "动画导出",
-  },
-  "aseprite-to-png": {
-    title: "Aseprite 转 PNG：导出透明背景的单帧图片 | Xprite",
-    description:
-      "用 Xprite 查看器在浏览器里打开 .aseprite，选择帧和可见图层，免费导出透明 PNG，尺寸和画布一致。文件在本地处理，不用安装 Aseprite。",
-    summary: "4 步导出任意一帧为透明 PNG，保留原始尺寸和半透明像素。",
-    topic: "透明图片",
   },
 } as const;

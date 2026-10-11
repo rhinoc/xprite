@@ -1,6 +1,6 @@
-import type { ScrollbarVariantStyle } from "$/components/scrollbar/variants/types";
+import type { ScrollbarArtwork } from "$/components/scrollbar/variants/types";
 
-export const transparentScrollbarVariant: ScrollbarVariantStyle = {
+export const transparentScrollbarStyle: ScrollbarArtwork = {
   variant: "transparent",
   artworkPrefix: "transparent_scrollbar",
   hoverArtwork: true,

@@ -10,6 +10,7 @@ import {
 import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { ThemeIcon, ThemePart, type AtlasPartName } from "$/base/theme/theme-part";
+import { FontRole } from "$/base/theme/theme-types";
 import { composeEventHandlers } from "$/base/utils/compose-event-handlers";
 import { clientPoint, clientRect } from "$/base/utils/dom-geometry";
 import { stylusPointerInputProps } from "$/base/utils/stylus-input";
@@ -20,10 +21,10 @@ import {
   type SurfaceBounds,
   type SurfaceViewport,
 } from "$/components/canvas-surface";
-import { CheckboxVariant } from "$/components/checkbox/types";
+import { CheckboxShape, CheckboxMode } from "$/components/checkbox/types";
 import { checkboxVariants } from "$/components/checkbox/variants";
 import type { ControlPlacement } from "$/components/control-flow/placement";
-import { Text, TextVariant, type PixelFont } from "$/components/text";
+import { Text, TextVariant } from "$/components/text";
 import { isCjk } from "$/components/text/text-runs";
 
 import styles from "$/components/checkbox/checkbox.module.css";
@@ -41,7 +42,8 @@ interface CheckboxContentProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Wrap the label within the supplied box instead of clipping long text. */
   wrapLabel?: boolean;
   mnemonicIndex?: number;
-  variant?: CheckboxVariant;
+  shape?: CheckboxShape;
+  mode?: CheckboxMode;
   disabled?: boolean;
   textOffsetY?: number;
   style?: CSSProperties;
@@ -66,7 +68,8 @@ export function Checkbox({
   mini = false,
   wrapLabel = false,
   mnemonicIndex,
-  variant = CheckboxVariant.Checkbox,
+  shape = CheckboxShape.Square,
+  mode = CheckboxMode.Toggle,
   disabled = false,
   textOffsetY = 0,
   style,
@@ -97,9 +100,9 @@ export function Checkbox({
     theme.dimensions.checkbox_label_offset ?? DEFAULT_CHECKBOX_LABEL_OFFSET;
   const CHECKBOX_ICON_OFFSET =
     theme.dimensions.checkbox_icon_offset ?? DEFAULT_CHECKBOX_ICON_OFFSET;
-  const variantStyle = checkboxVariants[variant];
+  const variantStyle = checkboxVariants[shape];
   const displayLabel = translateSource(label);
-  const font: PixelFont = mini ? "mini" : "default";
+  const font = mini ? FontRole.Compact : FontRole.Primary;
   const bounds: SurfaceBounds = suppliedBounds ?? {
     x: 0,
     y: 0,
@@ -136,8 +139,9 @@ export function Checkbox({
     return () => window.removeEventListener("blur", cancel);
   }, [cancel, disabled]);
 
+  const nextValue = (current: boolean) => (mode === CheckboxMode.Radio ? true : !current);
   const commit = (value: boolean) => {
-    onCheckedChange(variantStyle.role === "radio" ? true : value);
+    onCheckedChange(mode === CheckboxMode.Radio ? true : value);
     if (button.current) onCommitted?.(button.current);
   };
   const ink = disabled ? theme.colors.disabled : theme.colors.text;
@@ -178,7 +182,7 @@ export function Checkbox({
       {...props}
       ref={button}
       type="button"
-      role={variant}
+      role={mode === CheckboxMode.Radio ? "radio" : "checkbox"}
       aria-label={displayAriaLabel}
       aria-describedby={ariaDescribedBy}
       {...stylusPointerInputProps(!disabled)}
@@ -212,7 +216,7 @@ export function Checkbox({
         event.currentTarget.focus({ preventScroll: true });
         pointer.current = { id: event.pointerId, initial: checked };
         event.currentTarget.setPointerCapture(event.pointerId);
-        setPreview(variantStyle.nextValue(checked));
+        setPreview(nextValue(checked));
       }, onPointerDown)}
       onPointerMove={composeEventHandlers((event) => {
         const active = pointer.current;
@@ -224,7 +228,7 @@ export function Checkbox({
           clientPoint(event).y >= rect.top &&
           clientPoint(event).y < rect.bottom;
         setHover(inside);
-        setPreview(inside ? variantStyle.nextValue(active.initial) : active.initial);
+        setPreview(inside ? nextValue(active.initial) : active.initial);
       }, onPointerMove)}
       onPointerUp={composeEventHandlers((event) => {
         const active = pointer.current;
@@ -245,9 +249,7 @@ export function Checkbox({
         if (event.key === " ") {
           event.preventDefault();
           keyValue.current =
-            keyValue.current === null
-              ? variantStyle.nextValue(checked)
-              : variantStyle.nextValue(keyValue.current);
+            keyValue.current === null ? nextValue(checked) : nextValue(keyValue.current);
           setPreview(keyValue.current);
         } else if (event.key === "Enter") event.preventDefault();
         else if (event.key === "Escape" && (pointer.current || keyValue.current !== null)) {

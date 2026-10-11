@@ -14,6 +14,7 @@ export interface EditorHomeViewProps {
   onOpen: () => void;
   onOpenRecent: (id: string) => void;
   onAbout: () => void;
+  onSettings?: () => void;
   onFeedback?: () => void;
   onRecover?: () => void;
   onPinRecent?: (id: string, pinned: boolean) => void;
@@ -40,6 +41,7 @@ export function EditorHomeView(props: EditorHomeViewProps) {
           recoverFiles: tUi("ui.recover.files.6d880af2"),
           footerSegments: about.footerSegments,
           star: tUi("ui.home.star.on.github"),
+          settings: tUi("ui.settings"),
           feedback: tUi("feedback.open"),
           about: tUi("ui.about"),
           recentFilesScroll: tUi("ui.recent.files.scroll"),

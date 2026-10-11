@@ -19,20 +19,15 @@ import styles from "$/components/control-flow/control-flow.module.css";
 
 const ControlFlowContext = createContext(false);
 
-export enum ControlFlowVariant {
-  Standard = "standard",
-  Toolbar = "toolbar",
-}
-
 export interface ControlFlowProps extends HTMLAttributes<HTMLDivElement> {
   enabled?: boolean;
-  variant?: ControlFlowVariant;
+  toolbar?: boolean;
 }
 
 /** Reflows existing scene controls without changing their artwork or event handlers. */
 export function ControlFlow({
   enabled = true,
-  variant = ControlFlowVariant.Standard,
+  toolbar = false,
   className,
   children,
   ...props
@@ -41,12 +36,8 @@ export function ControlFlow({
     <ControlFlowContext.Provider value={enabled}>
       <div
         {...props}
-        data-ui-control-flow={variant}
-        className={cn(
-          enabled && styles.root,
-          variant === ControlFlowVariant.Toolbar && styles.toolbar,
-          className,
-        )}
+        data-ui-control-flow
+        className={cn(enabled && styles.root, toolbar && styles.toolbar, className)}
       >
         {children}
       </div>

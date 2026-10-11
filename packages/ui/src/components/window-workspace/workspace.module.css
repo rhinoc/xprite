@@ -11,7 +11,6 @@
 }
 :global(details[data-ui-desktop-window] > summary) {
   list-style: none;
-  cursor: var(--ui-cursor-default, default);
 }
 :global(details[data-ui-desktop-window] > summary::-webkit-details-marker) {
   display: none;
@@ -34,6 +33,12 @@
   touch-action: none;
   user-select: none;
 }
-:global([data-ui-window-dragging]) {
+:global([data-ui-desktop-workspace] [data-ui-desktop-window] > [data-slot="panel-header"]),
+:global([data-ui-desktop-workspace] [data-ui-desktop-window] > summary) {
+  cursor: var(--ui-cursor-move, move);
+}
+:global([data-ui-window-dragging]),
+:global([data-ui-window-dragging] > [data-slot="panel-header"]),
+:global([data-ui-window-dragging] > [data-slot="panel-header"] *) {
   cursor: var(--ui-cursor-move, move);
 }

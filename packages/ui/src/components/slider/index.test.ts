@@ -16,7 +16,7 @@ describe("slider-family", () => {
       await build({
         stdin: {
           contents:
-            'export { Slider } from "./packages/ui/src/components/slider/Slider.tsx"; export { UIProvider } from "./packages/ui/src/components/theme/appearance.tsx";',
+            'export { Slider } from "./packages/ui/src/components/slider/Slider.tsx"; export { SliderMode, SliderRendering, SliderValueFormat } from "./packages/ui/src/components/slider/types.ts"; export { UIProvider } from "./packages/ui/src/components/theme/provider.tsx";',
           resolveDir: process.cwd(),
           loader: "tsx",
         },
@@ -45,29 +45,31 @@ describe("slider-family", () => {
         "aria-label": "Value",
         onValueChange() {},
       };
-      for (const variant of ["normal"]) {
-        const html = render({ ...common, variant, min: 0, max: 100, value: 42 });
-        assert.match(html, /role="slider"/);
-        assert.match(html, /aria-valuenow="42"/);
-        assert.match(html, /aria-valuemin="0"/);
-        assert.match(html, /aria-valuemax="100"/);
-      }
-      const range = render({ ...common, variant: "threshold", value: [0.2, 0.8] });
+      const pixel = render({ ...common, min: 0, max: 100, value: 42 });
+      assert.match(pixel, /role="slider"/);
+      assert.match(pixel, /aria-valuenow="42"/);
+      assert.match(pixel, /aria-valuemin="0"/);
+      assert.match(pixel, /aria-valuemax="100"/);
+      const range = render({
+        ...common,
+        mode: family.SliderMode.Range,
+        value: [0.2, 0.8],
+      });
       assert.match(range, /aria-label="Value"/);
       assert.match(range, /role="group"/);
       const entry = render({
         ...common,
-        variant: "entry",
+        rendering: family.SliderRendering.NumberEntry,
         min: 0,
         max: 255,
         value: 128,
-        valueFormat: "percentage",
+        valueFormat: family.SliderValueFormat.Percentage,
       });
       assert.match(entry, /<input/);
       assert.match(entry, /value="50%"/);
       const disabled = render({
         ...common,
-        variant: "entry",
+        rendering: family.SliderRendering.NumberEntry,
         min: 0,
         max: 10,
         value: 3,
@@ -75,7 +77,7 @@ describe("slider-family", () => {
       });
       assert.match(disabled, /disabled=""/);
       console.log(
-        "Slider family: normal, threshold, entry, percentage and disabled semantics verified; only one component export.",
+        "Slider family: pixel, range, number-entry, percentage and disabled semantics verified; only one component export.",
       );
     } finally {
       await rm(directory, { recursive: true, force: true });

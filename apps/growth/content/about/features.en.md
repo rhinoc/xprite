@@ -1,75 +1,28 @@
 # Features
 
-Xprite is a free, open-source online editor for pixel art and animation. Its interface and controls are close to Aseprite's, and it opens and saves `.aseprite` files directly. It works in the browser on computers, tablets and phones, with nothing to install and no account needed. [Open the editor](/editor) to get started.
+Draw pixel art and animate sprites, inspect Aseprite files, or convert artwork with Xprite’s browser tools.
 
-## Draw pixel art
+## Drawing and animation
 
-The toolbar has these tools:
+- [Draw pixel art](/features/draw-pixel-art/ "image"): Draw with pencils, fills, gradients and shape tools. Refine details with selections and custom brushes, add text, and use symmetry or tiled previews.
+- [Work with layers and colors](/features/layers-and-colors/ "document"): Organize artwork in layers and use RGB, grayscale or indexed color. Import palettes, generate colors from an image, and adjust hue, brightness or color curves.
+- [Animate frame by frame](/features/frame-animation/ "image"): Add and arrange frames on the timeline, with onion skinning for reference. Tags divide animations into sections, while linked cels share an image across frames.
+- [Build tilemaps](/features/tilemaps/ "map"): Assemble scenes with tilemap layers and export tilesets as PNG. Reuse tiles to create game maps and repeating scene artwork.
 
-| Category | Tools |
-| --- | --- |
-| Drawing | Pencil, Spray, Eraser, Paint Bucket, Gradient, Contour, Text |
-| Shapes | Line, Curve, Rectangle, Filled Rectangle, Ellipse, Filled Ellipse, Polygon |
-| Selection | Rectangular Marquee, Elliptical Marquee, Lasso, Polygonal Lasso, Magic Wand |
-| Effects | Blur, Jumble |
-| Other | Eyedropper, Move, Slice, Hand, Zoom |
+## Files and conversion
 
-- **View → Symmetry Options**: draw with horizontal, vertical or 45° diagonal symmetry.
-- **View → Tiled Mode**: preview the canvas as tiles to draw seamless patterns.
-- **Edit → New Brush**: save a selection as a custom brush.
-- The Text tool and **Edit → Insert Text** support Chinese text.
+- [Aseprite Viewer](/tools/viewer/ "search"): Open `.ase` and `.aseprite` projects to inspect layers and animation. Change layer visibility, export a PNG frame, or download an animated GIF.
+- [GIF to Sprite Sheet](/tools/gif-to-sprite-sheet/ "image"): Arrange GIF frames into a PNG sprite sheet with layout, spacing and padding controls. Export frame coordinates and timing for use in other software.
+- [Edit Aseprite projects](/features/aseprite-projects/ "document"): Keep layers, frames and tags when opening projects. Save as `.aseprite` to continue in Aseprite. Xprite cannot run Aseprite scripts or extensions.
+- [Export images and animation](/features/export-images-and-animation/ "image"): Export PNG images and sprite sheets, or animated GIF, APNG and WebP. Import existing images or animations to keep editing them.
 
-## Make animations
+## Workspace and sharing
 
-- The timeline manages layers and frames, and **Frame → Tags** names sections of frames.
-- **View → Show Onion Skin**: see the previous and next frames while you draw.
-- **Frame → Duplicate Linked Cel(s)**: share one image across frames, so editing it updates them all.
-- **Frame → Reverse Frames**: reverse the order of the selected frames.
-- Export animated GIF, APNG and WebP, or export a PNG sprite sheet.
+- [Draw on tablets and phones](/features/touch-drawing/ "application"): Draw with touch or a pen. Pan with two fingers, pinch to zoom, and tap with two fingers to undo. The shortcut toolbar provides common modifier actions for touch editing.
+- [Arrange your workspace](/features/workspace-layout/ "folder"): Move, resize and dock panels, then save the layout. Save projects in your browser or as files, and add Xprite to your Home Screen for offline editing.
+- [Record your drawing process](/features/drawing-process/ "note-pad"): Record work from the first sketch to the finished sprite. Replay the recording or export it as a GIF using the editor's drawing process controls.
+- [Share artwork](/features/share-artwork/ "document"): Create a share link or QR code that opens your sprite for viewing and editing. Links are generated on your device without uploading the project file.
 
-## Manage colors
+## Game designs
 
-- **Sprite → Color Mode**: RGB Color, Grayscale and Indexed.
-- Palettes can be imported from `.gpl`, `.pal`, `.ase` and other files, or generated from an image.
-- **Edit → Adjustments**: Brightness/Contrast, Hue/Saturation, Color Curve.
-- **Edit → FX**: Outline, Convolution Matrix, Median Blur.
-- **Select → Color Range**: select by color.
-
-## Build tilemaps
-
-**Layer → New... → New Tilemap Layer** creates a tilemap so you can build scenes from tiles. **File → Export → Export Tileset** exports the tileset as a PNG.
-
-## Work with Aseprite files
-
-- Open `.ase` and `.aseprite` projects with their layers, frames and tags.
-- Save as `.aseprite` and keep editing in Aseprite.
-- Open PNG, JPEG, GIF, WebP and other images too. Animations are imported frame by frame, and photos can be pixelated before importing.
-
-Xprite doesn't implement every Aseprite feature yet and can't run Aseprite scripts or extensions. For formats and limits, see the [user guide](/help/#open-and-export-files).
-
-## Draw on tablets and phones
-
-- Works with touch screens and pens such as Apple Pencil: drag with two fingers to pan, pinch to zoom, and tap with two fingers to undo.
-- **View → Show → Shortcut Toolbar**: buttons stand in for keyboard modifiers, such as **Constrain**, **From Center** and **Duplicate Drag**.
-- **Workspace layout**: move panels around and save the arrangement with **Save current...**.
-- Add Xprite to your desktop or Home Screen to open it like an app and use it offline.
-
-See the [user guide](/help/) for step-by-step instructions.
-
-## Record and share
-
-- **Sprite → Drawing Process**: record how you draw, then replay it or export it as a GIF.
-- **File → Share...**: pack your sprite into a link or QR code. It's created on your device and never uploaded; the other person opens it to view and edit.
-- **File → Export → Export Animal Crossing QR Codes...**: turn your sprite into Animal Crossing design QR codes. You can also use the [Animal Crossing design converter](/tools/animal-crossing-qr/).
-
-## FAQ
-
-### Is my work uploaded?
-
-Not while you edit. Your work is saved in the current browser or as a file on your device. See [How Xprite works](/about/how-it-works/).
-
-### Which browsers are supported?
-
-Xprite has no minimum browser version. Some features depend on what the browser supports, which you can check in **Edit → Preferences → Diagnostics**. See the [user guide](/help/#browsers-and-devices).
-
-For more questions, see the [user guide FAQ](/help/#faq).
+- [Animal Crossing Design Converter](/tools/animal-crossing-qr/ "map"): Turn PNG images or Aseprite tiles into design QR codes and preview them on an island. Open existing design QR images or `.acnl` files to inspect and export designs.

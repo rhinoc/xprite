@@ -9,7 +9,7 @@ import { normalizeDesktopPreferences, DesktopAppearance } from "@xprite/site-she
 import { readBrowserDesktopPreferences } from "@xprite/site-shell/browser";
 import type { SiteTelemetryPort } from "@xprite/site-shell/telemetry";
 import { createBrowserSiteTelemetry } from "@xprite/site-shell/telemetry/browser";
-import { macintoshTheme } from "@xprite/ui";
+import { FontRole, UiColorScheme, macintoshTheme } from "@xprite/ui";
 import { preloadUiAssets, type UiThemeSnapshot } from "@xprite/ui/assets";
 
 interface ToolApplication {
@@ -64,20 +64,23 @@ export async function mountToolApplication(
       ? AppearanceMode.Dark
       : AppearanceMode.Light,
   );
+  const colorScheme = appearance === AppearanceMode.Dark ? UiColorScheme.Dark : UiColorScheme.Light;
   const language = readToolLanguage();
-  await preloadUiAssets(appearance, language, macintoshTheme);
+  await preloadUiAssets(colorScheme, language, macintoshTheme);
   const initialThemes = JSON.parse(
     document.getElementById("tool-initial-themes")!.textContent!,
-  ) as Record<"light" | "dark", UiThemeSnapshot>;
+  ) as Record<UiColorScheme, UiThemeSnapshot>;
+  const typography = initialThemes[colorScheme].definition.typography;
   await Promise.all(
-    Object.values(initialThemes[appearance].definition.typography ?? {}).map((font) =>
-      document.fonts.load(`${font.fontSize}px ${font.fontFamily}`),
-    ),
+    [FontRole.Primary, FontRole.Compact].map((role) => {
+      const font = typography[role];
+      return document.fonts.load(`${font.fontSize}px ${font.fontFamily}`);
+    }),
   );
   // Attach events after the original static artwork is decoded, keeping its first paint intact.
   await Promise.all([...document.images].map((image) => image.decode()));
   if (!active) return;
-  application = createApplication(initialThemes[appearance], telemetry);
+  application = createApplication(initialThemes[colorScheme], telemetry);
   const view = (
     <StrictMode>
       <ToolApplicationRoot

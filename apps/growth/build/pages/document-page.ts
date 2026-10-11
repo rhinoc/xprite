@@ -43,7 +43,7 @@ export function publicDocumentHtml(
     label: string;
     href: string;
     hrefLang?: string;
-    icon?: "language" | "help";
+    icon?: "language";
     end?: boolean;
   }[],
   alternates = "",

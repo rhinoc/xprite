@@ -14,7 +14,7 @@ export function Disclosure({ title, children, className, ...props }: DisclosureP
   return (
     <details {...props} className={cn(styles.root, className)} data-slot="disclosure">
       <summary className={styles.summary} data-slot="disclosure-summary">
-        {title}
+        <span className={styles.title}>{title}</span>
       </summary>
       <div className={styles.content} data-slot="disclosure-content">
         {children}

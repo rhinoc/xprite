@@ -40,6 +40,7 @@ interface ShowcaseState {
   musicMuted: boolean;
   musicVolume: ShowcaseMusicVolume;
   musicAvailable: boolean;
+  musicActivated: boolean;
 }
 
 // A slow rendered frame should not stretch every entrance into an extra hold.
@@ -58,6 +59,7 @@ export class ShowcaseManager {
     musicMuted: false,
     musicVolume: DEFAULT_MUSIC_VOLUME,
     musicAvailable: true,
+    musicActivated: false,
   };
   private listeners = new Set<() => void>();
   private scene?: ShowcaseScene;
@@ -115,6 +117,7 @@ export class ShowcaseManager {
       started: false,
       editingHighlighted: false,
       musicAvailable: true,
+      musicActivated: false,
       deviceText: SHOWCASE_COPY[this.state.language].titleEnd[this.state.device].device,
     });
     this.music = this.port.mountMusic(
@@ -156,7 +159,7 @@ export class ShowcaseManager {
       }
       this.scene = scene;
       this.removeInvalidation = scene.observeInvalidation(this.wake);
-      this.removeDeviceSelection = scene.observeDeviceSelection(this.selectDevice);
+      this.removeDeviceSelection = scene.observeDeviceSelection(this.activateDevice);
       this.removeDeviceNavigation = this.port.observeDeviceNavigation(
         element,
         this.moveDevice,
@@ -251,6 +254,13 @@ export class ShowcaseManager {
     const animateFilm = this.state.playing && this.scene?.isDemoReady();
     if (this.visible && (animateName || animateFilm || this.scene?.needsFrame()))
       this.frame = this.port.requestFrame(this.tick);
+  };
+
+  activateDevice = (device: ShowcaseDevice) => {
+    if (!this.host) return;
+    this.music?.start();
+    if (!this.state.musicActivated) this.update({ musicActivated: true });
+    this.selectDevice(device);
   };
 
   selectDevice = (device: ShowcaseDevice) => {

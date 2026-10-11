@@ -4,6 +4,7 @@ import path from "node:path";
 import { build, type PluginBuild } from "esbuild";
 import { afterEach, describe, it } from "vitest";
 
+import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
 import { TilemapDisplayMode } from "@xprite/editor-core";
 
 let restoreWindowTimers: (() => void) | null = null;
@@ -120,10 +121,10 @@ describe("bundled-recents", () => {
         ports: new BrowserSessionPorts(),
         recovery: new WorkspaceRecovery(),
         createId: () => `test-${++nextId}`,
-        preferenceStorage: {
+        preferenceStorage: createJsonStorage({
           getItem: (key) => preferenceStorage.get(key) ?? null,
           setItem: (key, value) => preferenceStorage.set(key, value),
-        },
+        }),
       });
     const workspace = createWorkspace();
     await workspace.initialize();
@@ -228,10 +229,10 @@ describe("document-workspace [feature-1-6]", () => {
         ports: new BrowserSessionPorts(),
         recovery: new WorkspaceRecovery(),
         createId: () => `test-${++nextId}`,
-        preferenceStorage: {
+        preferenceStorage: createJsonStorage({
           getItem: (key) => preferenceStorage.get(key) ?? null,
           setItem: (key, value) => preferenceStorage.set(key, value),
-        },
+        }),
       });
     const tick = async () => {
       for (let i = 0; i < 8; i++) await Promise.resolve();

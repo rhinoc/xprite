@@ -1,6 +1,7 @@
 import { tUi } from "$/i18n";
 import { createPaletteFromSprite } from "$/managers/palette/palette-operations";
 import paletteCatalog from "$assets/palette-presets/catalog.json";
+import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
 import { browserLocalStorage as localStorage } from "@xprite/bedrock/browser/localstorage";
 import { MAX_PALETTE_COLORS, MIN_PALETTE_COLORS, type Rgba } from "@xprite/editor-core";
 import { UINT8_MAX, type PixelBuffer } from "@xprite/editor-core/base";
@@ -90,14 +91,14 @@ function copyPalette(value: unknown): Rgba[] | null {
 
 function readStorage(key: string): unknown {
   try {
-    return JSON.parse(localStorage.getItem(key) ?? "null");
+    return createJsonStorage(localStorage).readJson(key);
   } catch {
     return null;
   }
 }
 
 function writeStorage(key: string, value: unknown): void {
-  localStorage.setItem(key, JSON.stringify(value));
+  createJsonStorage(localStorage).writeJson(key, value);
 }
 
 export function readDefaultPalette(): Rgba[] {

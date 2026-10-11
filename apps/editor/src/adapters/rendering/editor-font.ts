@@ -3,7 +3,8 @@ import type { EditorTextFontOptions } from "$/managers/ports/platform";
 import {
   bitmapTextFontSize,
   DEFAULT_TEXT_FONT_SIZE,
-  FUSION_PIXEL_FONT_SIZE,
+  FusionPixelFontSize,
+  fusionPixelFontSize,
   normalizeTextFontSize,
   textFontScale,
   TextFontFamily,
@@ -11,15 +12,22 @@ import {
   type BitmapFont,
   type BitmapGlyph,
 } from "@xprite/editor-core";
-import type { UiAppearance } from "@xprite/ui";
-import { getUiAssets, uiGlyphAssets } from "@xprite/ui/assets";
+import { asepriteTheme, FontRole, UiColorScheme, UiFontRenderer } from "@xprite/ui";
+import { getUiAssets } from "@xprite/ui/assets";
 
 const bundledFonts = new Map<TextFontFamily, BitmapFont>();
 const ALIAS_COVERAGE_THRESHOLD = 128;
 const DEFAULT_FONT_DESCENT = 2;
 const MINI_FONT_DESCENT = 1;
 const MAX_STROKE_WIDTH = 10;
-const FUSION_PIXEL_CSS_FAMILY = "FusionPixelZhHans";
+const FUSION_PIXEL_12 = "FusionPixel12";
+const FUSION_PIXEL_10 = "FusionPixel10";
+const FUSION_PIXEL_8 = "FusionPixel8";
+const FUSION_PIXEL_FAMILIES = {
+  [FusionPixelFontSize.Px8]: FUSION_PIXEL_8,
+  [FusionPixelFontSize.Px10]: FUSION_PIXEL_10,
+  [FusionPixelFontSize.Px12]: FUSION_PIXEL_12,
+};
 const FUSION_PIXEL_COVERAGE_THRESHOLD = 64;
 const GENERIC_FONT_FAMILIES = new Set([
   "serif",
@@ -32,23 +40,24 @@ const GENERIC_FONT_FAMILIES = new Set([
 
 /** Read the bundled atlas without changing its pixel coverage. */
 function prepareEditorTextFont(
-  appearance: UiAppearance,
+  colorScheme: UiColorScheme,
   family = TextFontFamily.Aseprite,
 ): BitmapFont {
   const cached = bundledFonts.get(family);
   if (cached) return cached;
   const mini = family === TextFontFamily.AsepriteMini;
-  const assets = getUiAssets(appearance);
-  const atlas = mini ? assets?.miniFont : assets?.defaultFont;
+  const role = mini ? FontRole.Compact : FontRole.Primary;
+  const assets = getUiAssets(colorScheme, asepriteTheme);
+  const atlas = assets?.fontAtlases[role];
+  const definition = asepriteTheme.typography[role];
+  if (definition.renderer !== UiFontRenderer.Bitmap)
+    throw new Error("Editor font requires a bitmap atlas");
   if (!(atlas instanceof HTMLCanvasElement)) throw new Error("Pixel UI text atlas is not ready");
   const context = atlas.getContext("2d", { willReadFrequently: true });
   if (!context) throw new Error("Cannot read pixel UI text atlas");
   const font = bitmapFontFromAtlas(
     context.getImageData(0, 0, atlas.width, atlas.height),
-    (mini ? uiGlyphAssets.miniGlyphMetrics : uiGlyphAssets.defaultGlyphMetrics) as Record<
-      string,
-      number[]
-    >,
+    definition.atlas.glyphs,
   );
   bundledFonts.set(family, font);
   return font;
@@ -67,31 +76,32 @@ function textCharacters(text: string): string[] {
 
 /** Return final-size pixels; consumers must not scale a system font's 7px raster. */
 export function rasterizeEditorTextFont(
-  appearance: UiAppearance,
+  appearance: "light" | "dark",
   text: string,
   options: Partial<EditorTextFontOptions> = {},
 ): BitmapFont {
+  const colorScheme = appearance === "dark" ? UiColorScheme.Dark : UiColorScheme.Light;
   const family = options.family?.trim() || TextFontFamily.Aseprite;
   const size = normalizeTextFontSize(options.size ?? DEFAULT_TEXT_FONT_SIZE);
   const characters = textCharacters(text);
   if (family.toLowerCase() === TextFontFamily.FusionPixel.toLowerCase())
-    return rasterizeFusionPixelFont(appearance, characters, size).font;
+    return rasterizeFusionFont(colorScheme, characters, fusionFace(size)).font;
   const baseSize = bitmapTextFontSize(family);
   if (!baseSize) return rasterizeSystemFont(characters, cssFontFamily(family), size, options).font;
 
   const mini = family.toLowerCase() === TextFontFamily.AsepriteMini.toLowerCase();
   const source = prepareEditorTextFont(
-    appearance,
+    colorScheme,
     mini ? TextFontFamily.AsepriteMini : TextFontFamily.Aseprite,
   );
   const scale = textFontScale(family, size);
   const fontHeight = source.height * scale;
   const sourceBaseline = fontHeight - (mini ? MINI_FONT_DESCENT : DEFAULT_FONT_DESCENT) * scale;
   const missing = characters.filter((char) => !source.glyphs[char]);
-  // Keep supported glyphs from the selected sheet and use the same bundled
-  // Chinese pixel font as the UI for missing glyphs.
+  // Keep supported glyphs from the selected sheet. Missing glyphs use the
+  // Fusion Pixel face whose grid is nearest to this line.
   const fallback = missing.length
-    ? rasterizeFusionPixelFont(appearance, missing, fontHeight)
+    ? rasterizeFusionFont(colorScheme, missing, fusionFace(fontHeight))
     : null;
   const baseline = Math.max(sourceBaseline, fallback?.baseline ?? 0);
   const glyphs: Record<string, BitmapGlyph> = {};
@@ -112,32 +122,40 @@ export function rasterizeEditorTextFont(
   };
 }
 
-/** Rasterize the 10px pixel face once, then enlarge its mask without resampling. */
-function rasterizeFusionPixelFont(
-  appearance: UiAppearance,
+function fusionFace(pixelHeight: number): { family: string; size: number; scale: number } {
+  const size = fusionPixelFontSize(pixelHeight);
+  return {
+    family: FUSION_PIXEL_FAMILIES[size],
+    size,
+    scale: textFontScale(TextFontFamily.FusionPixel, pixelHeight),
+  };
+}
+
+/** Rasterize one Fusion Pixel face at its design size, then enlarge that mask by whole pixels. */
+function rasterizeFusionFont(
+  colorScheme: UiColorScheme,
   characters: readonly string[],
-  size: number,
+  face: { family: string; size: number; scale: number },
 ): { font: BitmapFont; baseline: number } {
-  if (!getUiAssets(appearance)?.cjkFontReady)
+  if (!getUiAssets(colorScheme)?.cjkFontReady)
     throw new Error("The bundled Chinese pixel font is not ready");
   const source = rasterizeSystemFont(
     characters,
-    cssFontFamily(FUSION_PIXEL_CSS_FAMILY),
-    FUSION_PIXEL_FONT_SIZE,
+    cssFontFamily(face.family),
+    face.size,
     { antialias: false },
     FUSION_PIXEL_COVERAGE_THRESHOLD,
   );
-  const scale = textFontScale(TextFontFamily.FusionPixel, size);
   const glyphs: Record<string, BitmapGlyph> = {};
   for (const char of characters)
-    glyphs[char] = scaleAndAlignGlyph(source.font.glyphs[char], scale, 0);
+    glyphs[char] = scaleAndAlignGlyph(source.font.glyphs[char], face.scale, 0);
   return {
     font: {
-      height: FUSION_PIXEL_FONT_SIZE * scale,
-      lineHeight: source.font.lineHeight * scale,
+      height: face.size * face.scale,
+      lineHeight: source.font.lineHeight * face.scale,
       glyphs,
     },
-    baseline: source.baseline * scale,
+    baseline: source.baseline * face.scale,
   };
 }
 
@@ -157,7 +175,9 @@ function cssFontFamily(family: string) {
   const primary = GENERIC_FONT_FAMILIES.has(family.toLowerCase())
     ? family
     : `"${family.replace(/[\\"]/g, "\\$&")}"`;
-  return family === FUSION_PIXEL_CSS_FAMILY ? primary : `${primary}, "${FUSION_PIXEL_CSS_FAMILY}"`;
+  return family === FUSION_PIXEL_12 || family === FUSION_PIXEL_10 || family === FUSION_PIXEL_8
+    ? primary
+    : `${primary}, "${FUSION_PIXEL_12}"`;
 }
 
 function rasterizeSystemFont(

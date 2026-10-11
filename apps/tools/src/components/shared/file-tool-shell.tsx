@@ -4,15 +4,7 @@ import { FileToolEmptyState } from "$/components/shared/file-tool-empty-state";
 import { ToolFrame } from "$/components/shared/tool-frame";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import type { PublicTool } from "$/managers/tools/tool-catalog";
-import {
-  ContentPadding,
-  SurfaceTone,
-  Text,
-  TextVariant,
-  Panel,
-  ScrollArea,
-  type MenuItem,
-} from "@xprite/ui";
+import { ContentPadding, SurfaceTone, Text, TextVariant, Panel, type MenuItem } from "@xprite/ui";
 
 import styles from "$/components/shared/tool-frame.module.css";
 
@@ -27,7 +19,7 @@ export function FileToolShell({
   children,
   onOpen,
   onExample,
-  scrollWorkspace = false,
+  help,
 }: {
   tool: PublicTool;
   filename: string;
@@ -35,7 +27,7 @@ export function FileToolShell({
   busy: boolean;
   error: string | null;
   fileItems?: readonly MenuItem[];
-  scrollWorkspace?: boolean;
+  help?: ReactNode;
   children?: ReactNode;
   onOpen(file: File): Promise<void>;
   onExample(): Promise<void>;
@@ -48,8 +40,8 @@ export function FileToolShell({
   return (
     <ToolFrame
       tool={tool}
+      help={help}
       filename={ready ? filename : undefined}
-      reserveGutter={ready}
       menus={[
         {
           label: t("File"),
@@ -123,18 +115,7 @@ export function FileToolShell({
                 onExample={onExample}
               />
             )}
-            {ready && scrollWorkspace ? (
-              <ScrollArea
-                scrollX={false}
-                reserveScrollbarGutter
-                className={styles.loadedScroll}
-                aria-label={t(`${tool.label} workspace`)}
-              >
-                {children}
-              </ScrollArea>
-            ) : (
-              children
-            )}
+            {children}
           </div>
           {dragging && (
             <div className={styles.dropOverlay}>

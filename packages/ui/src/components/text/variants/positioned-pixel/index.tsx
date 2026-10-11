@@ -1,30 +1,39 @@
 import { themeFontFamily } from "$/base/theme/font-families";
-import { themeGlyphAssets } from "$/base/theme/theme-assets";
 import { useTheme } from "$/base/theme/theme-context";
+import { FontRole } from "$/base/theme/theme-types";
+import { UiFontRenderer, type UiFontDefinition } from "$/base/theme/theme-types";
 import { cn } from "$/base/utils/cn";
 import { textRuns } from "$/components/text/text-runs";
-import type { PositionedPixelTextProps } from "$/components/text/types";
+import { type PositionedPixelTextProps } from "$/components/text/types";
 
 import primitiveStyles from "$/base/theme/primitive-theme.module.css";
 import styles from "$/components/text/variants/positioned-pixel/positioned.module.css";
 
-const MINI_FONT_ATLAS_WIDTH = 177;
-const MINI_FONT_ATLAS_HEIGHT = 154;
-const MINI_FONT_LINE_HEIGHT = 10;
-const MINI_CJK_FONT_SIZE = 10;
-const DEFAULT_FONT_SIZE = 14;
-const MINI_FONT_FALLBACK_SIZE = 10;
+function cjkRunStyle(
+  font: UiFontDefinition,
+  scale: number,
+  titleCjk: boolean,
+): React.CSSProperties {
+  const titleFamily = titleCjk ? font.titleCjkFontFamily : undefined;
+  const titleSize = titleCjk ? font.titleCjkFontSize : undefined;
+  const family = titleFamily ?? font.cjkFontFamily;
+  const size = titleSize ?? font.cjkFontSize;
+  return {
+    fontFamily: `${family}, monospace`,
+    fontSize: `${(size * scale) / 2}px`,
+    lineHeight: `${(font.lineHeight * scale) / 2}px`,
+  };
+}
 
-const miniGlyphs = themeGlyphAssets.miniGlyphMetrics as Record<string, number[]>;
-
-function miniGlyphStyle(char: string, scale: number, color: string) {
-  const glyph = miniGlyphs[String(char.codePointAt(0))];
+function atlasGlyphStyle(char: string, scale: number, color: string, font: UiFontDefinition) {
+  if (font.renderer !== UiFontRenderer.Bitmap) return null;
+  const glyph = font.atlas.glyphs[String(char.codePointAt(0))];
   if (!glyph) return null;
 
   const [sourceX, sourceY, width, height] = glyph;
   const glyphWidth = Math.max(1, Math.round(width * scale));
   const glyphHeight = Math.max(1, Math.round(height * scale));
-  const atlasUrl = `url("${themeGlyphAssets.miniGlyphAtlasUrl}")`;
+  const atlasUrl = `url("${font.atlas.url}")`;
   return {
     width: glyphWidth,
     height: glyphHeight,
@@ -34,11 +43,11 @@ function miniGlyphStyle(char: string, scale: number, color: string) {
     maskMode: "alpha" as const,
     maskPosition: `${-Math.round(sourceX * scale)}px ${-Math.round(sourceY * scale)}px`,
     maskRepeat: "no-repeat" as const,
-    maskSize: `${Math.round(MINI_FONT_ATLAS_WIDTH * scale)}px ${Math.round(MINI_FONT_ATLAS_HEIGHT * scale)}px`,
+    maskSize: `${Math.round(font.atlas.width * scale)}px ${Math.round(font.atlas.height * scale)}px`,
     WebkitMaskImage: atlasUrl,
     WebkitMaskPosition: `${-Math.round(sourceX * scale)}px ${-Math.round(sourceY * scale)}px`,
     WebkitMaskRepeat: "no-repeat" as const,
-    WebkitMaskSize: `${Math.round(MINI_FONT_ATLAS_WIDTH * scale)}px ${Math.round(MINI_FONT_ATLAS_HEIGHT * scale)}px`,
+    WebkitMaskSize: `${Math.round(font.atlas.width * scale)}px ${Math.round(font.atlas.height * scale)}px`,
   };
 }
 
@@ -47,15 +56,16 @@ export function PositionedPixelText({
   x,
   y,
   color,
-  font = "default",
+  font = FontRole.Primary,
   scale = 2,
+  titleCjk = false,
   style,
 }: Omit<PositionedPixelTextProps, "variant">) {
   const { definition } = useTheme();
-  const metrics = definition.typography?.[font];
-  const runs = font === "mini" && !metrics ? textRuns(text) : [];
-  const baseFontSize = font === "mini" ? MINI_FONT_FALLBACK_SIZE : DEFAULT_FONT_SIZE;
-  const baseLineHeight = font === "mini" ? MINI_FONT_LINE_HEIGHT : DEFAULT_FONT_SIZE;
+  const metrics = definition.typography[font];
+  const bitmapInDom = metrics.renderer === UiFontRenderer.Bitmap && metrics.atlasInDom;
+  const runs = metrics.renderer === UiFontRenderer.Bitmap ? textRuns(text) : [];
+  const scaledFontSize = bitmapInDom ? metrics.lineHeight : metrics.fontSize;
   return (
     <span
       aria-hidden="true"
@@ -70,10 +80,10 @@ export function PositionedPixelText({
         ...(scale === 2
           ? {}
           : {
-              fontSize: `${(baseFontSize * scale) / 2}px`,
-              lineHeight: `${(baseLineHeight * scale) / 2}px`,
+              fontSize: `${(scaledFontSize * scale) / 2}px`,
+              lineHeight: `${(metrics.lineHeight * scale) / 2}px`,
             }),
-        ...(metrics
+        ...(metrics.renderer === UiFontRenderer.Native
           ? {
               fontFamily: themeFontFamily(metrics),
               fontSize: `${(metrics.fontSize * scale) / 2}px`,
@@ -84,43 +94,33 @@ export function PositionedPixelText({
       }}
       data-font={font}
     >
-      {font === "mini" && !metrics
+      {bitmapInDom
         ? runs.map((run, index) =>
             run.cjk ? (
               <span
                 key={index}
-                className={styles.miniCjk}
-                style={{
-                  fontFamily: "FusionPixelZhHans, monospace",
-                  ...(scale === 2
-                    ? {}
-                    : {
-                        fontSize: `${(MINI_CJK_FONT_SIZE * scale) / 2}px`,
-                        lineHeight: `${(MINI_FONT_LINE_HEIGHT * scale) / 2}px`,
-                      }),
-                }}
+                className={styles.fallbackCjk}
+                style={cjkRunStyle(metrics, scale, titleCjk)}
               >
                 {run.text}
               </span>
             ) : (
               [...run.text].map((char, charIndex) => {
-                const glyphStyle = miniGlyphStyle(char, scale, color);
+                const glyphStyle = atlasGlyphStyle(char, scale, color, metrics);
                 return glyphStyle ? (
                   <span
                     key={`${index}:${charIndex}`}
                     aria-hidden="true"
-                    className={styles.miniGlyph}
+                    className={styles.atlasGlyph}
                     style={glyphStyle}
                   />
                 ) : (
                   <span
                     key={`${index}:${charIndex}`}
-                    className={styles.miniLatin}
+                    className={styles.fallbackLatin}
                     style={{
-                      fontFamily: "sans-serif",
-                      ...(scale === 2
-                        ? {}
-                        : { fontSize: `${(MINI_FONT_FALLBACK_SIZE * scale) / 2}px` }),
+                      fontFamily: metrics.fallbackFontFamily,
+                      fontSize: `${(metrics.cjkFontSize * scale) / 2}px`,
                     }}
                   >
                     {char}
@@ -129,7 +129,17 @@ export function PositionedPixelText({
               })
             ),
           )
-        : text}
+        : metrics.renderer === UiFontRenderer.Bitmap
+          ? runs.map((run, index) =>
+              run.cjk ? (
+                <span key={index} style={cjkRunStyle(metrics, scale, titleCjk)}>
+                  {run.text}
+                </span>
+              ) : (
+                <span key={index}>{run.text}</span>
+              ),
+            )
+          : text}
     </span>
   );
 }

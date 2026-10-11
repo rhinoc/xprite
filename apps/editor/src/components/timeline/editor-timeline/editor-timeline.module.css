@@ -34,7 +34,7 @@
 }
 :global(.xse-timeline .xse-timeline-layer-name) {
   left: 72px;
-  font-size: var(--ui-text-default-size, 14px);
+  font-size: var(--ui-text-primary-size, 14px);
 }
 :global(.xse-timeline) {
   position: relative;
@@ -105,19 +105,6 @@
   text-align: left;
   background: transparent;
   color: transparent;
-}
-:global(.xse-timeline-layer-action) {
-  position: absolute;
-  top: 0;
-  width: 23.996px;
-  height: 23.984px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: var(--ui-cursor-default, default);
-}
-:global(.xse-timeline-layer-action:disabled) {
-  cursor: var(--ui-cursor-default, default);
 }
 :global(.xse-timeline-cell:focus-visible),
 :global(.xse-timeline-layer-name:focus-visible) {

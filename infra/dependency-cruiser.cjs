@@ -7,6 +7,24 @@ const tsConfigFileName = process.env.XPRITE_DEPENDENCY_CRUISER_TSCONFIG
 module.exports = {
   forbidden: [
     {
+      name: "growth-does-not-import-editor-or-other-apps",
+      severity: "error",
+      from: { path: "^apps/growth/(src|content|build)/" },
+      to: { path: "^apps/(editor|tools|components|wechat)/|^packages/editor-core/" },
+    },
+    {
+      name: "growth-content-is-data-only",
+      severity: "error",
+      from: { path: "^apps/growth/content/" },
+      to: { path: "^apps/growth/(src|build)/|^packages/(ui|editor-ui|bedrock/browser)/" },
+    },
+    {
+      name: "growth-components-use-ui-and-manager-ports",
+      severity: "error",
+      from: { path: "^apps/growth/src/components/" },
+      to: { path: "^packages/(editor-core|bedrock)/" },
+    },
+    {
       name: "editor-ui-does-not-import-app-or-platform-code",
       severity: "error",
       from: { path: "^packages/editor-ui/src/" },

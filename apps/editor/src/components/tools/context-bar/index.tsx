@@ -21,6 +21,7 @@ import {
   getToolControlCapabilities as getXpriteToolCapabilities,
 } from "$/managers/tools/tool-options";
 import {
+  FontRole,
   Button,
   Checkbox,
   Combobox,
@@ -29,7 +30,8 @@ import {
   Input,
   InputTouchActivation,
   Slider,
-  SliderVariant,
+  SliderRendering,
+  SliderValueFormat,
   useUi,
   Text,
   TextVariant,
@@ -41,17 +43,18 @@ function sliderEntryWidth({
   min,
   max,
   suffix = "",
-  valueFormat = "integer",
+  valueFormat = SliderValueFormat.Integer,
   mini = false,
 }: {
   min: number;
   max: number;
   suffix?: string;
-  valueFormat?: "integer" | "percentage";
+  valueFormat?: SliderValueFormat;
   mini?: boolean;
 }) {
-  const font = mini ? "mini" : "default";
-  const display = (value: number) => `${value}${valueFormat === "percentage" ? "%" : ""}`;
+  const font = mini ? FontRole.Compact : FontRole.Primary;
+  const display = (value: number) =>
+    `${value}${valueFormat === SliderValueFormat.Percentage ? "%" : ""}`;
   return (
     Math.max(
       measureUiText(display(min), font),
@@ -61,7 +64,7 @@ function sliderEntryWidth({
 }
 
 function checkboxSize(label: string, mini = false) {
-  const font = mini ? "mini" : "default";
+  const font = mini ? FontRole.Compact : FontRole.Primary;
   return {
     width: Math.max(28, measureUiText(label, font) + 36),
     height: Math.max(16, uiFontHeight(font)) + 8,
@@ -121,12 +124,12 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
     (capabilities.controls.opacity ||
       (capabilities.settings.hasInk &&
         (editor.ink === AsepriteInk.AlphaCompositing || editor.ink === AsepriteInk.LockAlpha)));
-  const opacityLabelWidth = measureUiText("Opacity:", "mini");
+  const opacityLabelWidth = measureUiText("Opacity:", FontRole.Compact);
   const opacityLabelX = take(showOpacity, opacityLabelWidth);
   const opacityWidth = sliderEntryWidth({
     min: 0,
     max: UINT8_MAX,
-    valueFormat: "percentage",
+    valueFormat: SliderValueFormat.Percentage,
   });
   const opacityX = take(showOpacity, opacityWidth);
   const shadeX = take(
@@ -136,7 +139,7 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
   const dynamicsX = take(!isGradient && capabilities.controls.dynamics, 30);
   const sprayWidthWidth = sliderEntryWidth({ min: 1, max: 32 });
   const spraySpeedWidth = sliderEntryWidth({ min: 1, max: 100 });
-  const sprayLabelWidth = measureUiText("Spray:", "mini");
+  const sprayLabelWidth = measureUiText("Spray:", FontRole.Compact);
   const sprayX = take(
     editor.tool === "spray",
     sprayLabelWidth + 8 + sprayWidthWidth + 8 + spraySpeedWidth,
@@ -343,7 +346,7 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
                 variant={TextVariant.Control}
                 bounds={{ x: isWand ? 684 : 204, y: 10, width: 90, height: 14 }}
                 text="Tolerance:"
-                font="mini"
+                font={FontRole.Compact}
               />
             </ControlFlowItem>
             <ControlFlowItem>
@@ -439,7 +442,7 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
         {sizeX !== null && (
           <ControlFlowItem>
             <Slider
-              variant={SliderVariant.Entry}
+              rendering={SliderRendering.NumberEntry}
               bounds={{ x: sizeX, y: 0, width: brushSizeWidth, height: 32 }}
               value={editor.brushSize}
               min={1}
@@ -454,7 +457,7 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
         {angleX !== null && (
           <ControlFlowItem>
             <Slider
-              variant={SliderVariant.Entry}
+              rendering={SliderRendering.NumberEntry}
               bounds={{ x: angleX, y: 0, width: angleWidth, height: 32 }}
               min={-180}
               max={180}
@@ -495,15 +498,15 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
                 height: 14,
               }}
               text="Opacity:"
-              font="mini"
+              font={FontRole.Compact}
             />
             <Slider
-              variant={SliderVariant.Entry}
+              rendering={SliderRendering.NumberEntry}
               bounds={{ x: opacityX, y: 0, width: opacityWidth, height: 32 }}
               value={editor.inkOpacity}
               min={0}
               max={UINT8_MAX}
-              valueFormat="percentage"
+              valueFormat={SliderValueFormat.Percentage}
               aria-label="Ink opacity"
               tooltip="Opacity (paint intensity)"
               onValueChange={editor.setInkOpacity}
@@ -557,12 +560,12 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
                 variant={TextVariant.Control}
                 bounds={{ x: sprayX, y: 10, width: sprayLabelWidth, height: 14 }}
                 text="Spray:"
-                font="mini"
+                font={FontRole.Compact}
               />
             </ControlFlowItem>
             <ControlFlowItem>
               <Slider
-                variant={SliderVariant.Entry}
+                rendering={SliderRendering.NumberEntry}
                 bounds={{
                   x: sprayX + sprayLabelWidth + 8,
                   y: 0,
@@ -579,7 +582,7 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
             </ControlFlowItem>
             <ControlFlowItem>
               <Slider
-                variant={SliderVariant.Entry}
+                rendering={SliderRendering.NumberEntry}
                 bounds={{
                   x: sprayX + sprayLabelWidth + 16 + sprayWidthWidth,
                   y: 0,

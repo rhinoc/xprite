@@ -1,7 +1,16 @@
 import { useEffect, useId, useRef, type CSSProperties } from "react";
 
 import { currentUiLanguage, tUi, useUiLanguage } from "$/i18n";
-import { Button, Panel, Text, TextVariant, UIProvider, useUi } from "@xprite/ui";
+import {
+  Button,
+  Panel,
+  ScrollArea,
+  Text,
+  TextVariant,
+  UIProvider,
+  UiColorScheme,
+  useUi,
+} from "@xprite/ui";
 import { isImeKeyboardEvent } from "@xprite/ui/utils";
 
 import styles from "$/components/minitool/welcome/welcome.module.css";
@@ -70,19 +79,21 @@ function WelcomeDialog({ saving, onDismiss }: MiniToolWelcomeDialogProps) {
             </span>
           }
         >
-          <div className={styles.description}>
-            {[copy.description, copy.saving, copy.links].map((text) => (
-              <Text
-                key={text}
-                variant={TextVariant.Inline}
-                scale={2}
-                ink={uiStyle.colors.text}
-                wrap
-              >
-                {text}
-              </Text>
-            ))}
-          </div>
+          <ScrollArea className={styles.description} scrollX={false} aria-label={copy.title}>
+            <div className={styles.descriptionContent}>
+              {[copy.description, copy.saving, copy.links].map((text) => (
+                <Text
+                  key={text}
+                  variant={TextVariant.Inline}
+                  scale={2}
+                  ink={uiStyle.colors.text}
+                  wrap
+                >
+                  {text}
+                </Text>
+              ))}
+            </div>
+          </ScrollArea>
           <div className={styles.actions}>
             <Button
               ref={close}
@@ -100,7 +111,7 @@ function WelcomeDialog({ saving, onDismiss }: MiniToolWelcomeDialogProps) {
 /** Imported exclusively by the mini tool entry; the editor starts after dismissal. */
 export function MiniToolWelcomeDialog(props: MiniToolWelcomeDialogProps) {
   return (
-    <UIProvider appearance="light" language={currentUiLanguage()}>
+    <UIProvider colorScheme={UiColorScheme.Light} language={currentUiLanguage()}>
       <WelcomeDialog {...props} />
     </UIProvider>
   );

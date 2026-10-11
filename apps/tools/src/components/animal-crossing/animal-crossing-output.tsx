@@ -6,27 +6,34 @@ import type {
 } from "$/managers/animal-crossing/animal-crossing-manager";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import {
-  PanelWindowChrome,
   SurfaceTone,
-  Field,
-  FieldLayout,
+  ContentLayout,
+  Dialog,
+  OverlayContentLayout,
+  RichText,
   Text,
   TextVariant,
-  TextRole,
   TextTone,
   Button,
+  ButtonAppearance,
+  ButtonVariant,
+  Icon,
+  IconKind,
+  IconSize,
+  Tooltip,
   CanvasSurface,
   Combobox,
-  ControlFlow,
   Panel,
   PanelVariant,
-  PanelWindowKind,
 } from "@xprite/ui";
 
 import styles from "$/components/animal-crossing/animal-crossing.module.css";
-const SELECT_WIDTH = 94;
+const SELECT_WIDTH = 80;
 const QR_VIEWPORT = { sceneWidth: 2, sceneHeight: 2, width: 1, height: 1 };
 const FIRST_COORDINATE = 1;
+const IMPORT_HELP_BOUNDS = { x: 0, y: 0, width: 420, height: 260 };
+const DOWNLOAD_MENU_WIDTH = 20;
+const HELP_BUTTON_SIZE = { width: 12, height: 12 };
 export function AnimalCrossingOutput({
   manager,
   snapshot,
@@ -40,97 +47,118 @@ export function AnimalCrossingOutput({
   const { result, qr, selected } = snapshot;
   const pattern = result?.patterns[selected];
   const busy = snapshot.loading || snapshot.downloading;
+  const downloadButton =
+    result && result.patterns.length > FIRST_COORDINATE
+      ? {
+          variant: ButtonVariant.Split as const,
+          menu: {
+            label: t("Download options"),
+            expandWidth: DOWNLOAD_MENU_WIDTH,
+            items: [
+              {
+                label: t(`Download all ${result.patterns.length} designs`),
+                disabled: busy,
+                onSelect: () => void manager.download(),
+              },
+            ],
+          },
+        }
+      : { variant: ButtonVariant.Push as const };
   return (
-    <Panel
-      windowChrome={PanelWindowChrome.Emphasized}
-      tone={SurfaceTone.Warning}
-      variant={PanelVariant.Window}
-      windowKind={PanelWindowKind.Utility}
-      collapsible
-      className={styles.outputPanel}
-      title={t("Design QR code")}
-      aria-label={t("Design QR code")}
-    >
-      {pattern && qr && result ? (
-        <div className={styles.outputContent}>
-          {result.patterns.length > FIRST_COORDINATE && (
-            <Field
-              layout={FieldLayout.Inline}
-              className={styles.outputSelection}
-              label={
-                <Text variant={TextVariant.Reading} textRole={TextRole.Caption}>
-                  {t("Selected tile")}
-                </Text>
-              }
-            >
-              <Combobox
-                aria-label={t("Design to scan")}
-                pixelWidth={SELECT_WIDTH}
-                value={String(selected)}
-                disabled={busy}
-                options={result.patterns.map((item, index) => ({
-                  value: String(index),
-                  label: t(
-                    `Row ${item.row + FIRST_COORDINATE}, column ${item.column + FIRST_COORDINATE}`,
-                  ),
-                }))}
-                onValueChange={(value) => manager.select(Number(value))}
-              />
-            </Field>
-          )}
-          <Text
-            variant={TextVariant.Reading}
-            textRole={TextRole.Caption}
-            className={styles.outputTitle}
-            wrap
+    <>
+      <Panel
+        emphasized
+        tone={SurfaceTone.Warning}
+        contentLayout={ContentLayout.Fill}
+        variant={PanelVariant.Utility}
+        collapsible
+        className={styles.outputPanel}
+        title={t("Design QR code")}
+        aria-label={t("Design QR code")}
+      >
+        {pattern && qr && result ? (
+          <div
+            className={`${styles.outputContent} ${result.patterns.length > FIRST_COORDINATE ? styles.tiledOutput : ""}`}
           >
-            {pattern.title}
-          </Text>
-          <div className={styles.qrArtwork}>
-            <CanvasSurface
-              bounds={{ x: 0, y: 0, width: qr.width, height: qr.height }}
-              viewport={QR_VIEWPORT}
-              pixels={qr}
-              style={{ maxWidth: "100%", height: "auto", aspectRatio: "1" }}
-              aria-label={t("Animal Crossing design QR code")}
-            />
-          </div>
-          <ControlFlow className={styles.outputActions}>
             {result.patterns.length > FIRST_COORDINATE && (
-              <Button
-                slots={{}}
-                text={t(`Download all ${result.patterns.length} designs`)}
-                disabled={busy}
-                onClick={() => void manager.download()}
-              />
+              <div className={styles.outputSelection}>
+                <Combobox
+                  aria-label={t("Design to scan")}
+                  pixelWidth={SELECT_WIDTH}
+                  value={String(selected)}
+                  disabled={busy}
+                  title={t(
+                    `Row ${pattern.row + FIRST_COORDINATE}, column ${pattern.column + FIRST_COORDINATE}`,
+                  )}
+                  options={result.patterns.map((item, index) => ({
+                    value: String(index),
+                    label: t(
+                      `Row ${item.row + FIRST_COORDINATE}, column ${item.column + FIRST_COORDINATE}`,
+                    ),
+                  }))}
+                  onValueChange={(value) => manager.select(Number(value))}
+                />
+              </div>
             )}
-            <Button
-              slots={{}}
-              text={t("How to import")}
-              aria-expanded={helpOpen}
-              onClick={() => setHelpOpen(!helpOpen)}
-            />
-          </ControlFlow>
-          {helpOpen && (
-            <Text
-              variant={TextVariant.Reading}
-              textRole={TextRole.Caption}
-              tone={TextTone.Muted}
-              wrap
-            >
-              {t(
-                "In Nintendo Switch App, open NookLink → Designs and scan this QR code. Download it in the game before scanning the next tile. Nintendo Switch Online membership is required.",
-              )}
+            <div className={styles.qrArtwork}>
+              <div className={styles.qrImage}>
+                <CanvasSurface
+                  bounds={{ x: 0, y: 0, width: qr.width, height: qr.height }}
+                  viewport={QR_VIEWPORT}
+                  pixels={qr}
+                  style={{ width: "100%", height: "100%" }}
+                  aria-label={t("Animal Crossing design QR code")}
+                />
+              </div>
+            </div>
+            <div className={styles.outputActions}>
+              <Button
+                {...downloadButton}
+                slots={{}}
+                text={t("Download")}
+                aria-label={t("Download QR PNG")}
+                disabled={busy}
+                onClick={() => void manager.downloadQr()}
+              />
+              <Tooltip text={t("How to import")}>
+                <Button
+                  appearance={ButtonAppearance.Quiet}
+                  pixelSize={HELP_BUTTON_SIZE}
+                  insetContent={false}
+                  slots={{ leading: <Icon kind={IconKind.Help} size={IconSize.Small} /> }}
+                  aria-label={t("How to import")}
+                  aria-haspopup="dialog"
+                  onClick={() => setHelpOpen(true)}
+                />
+              </Tooltip>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.outputEmpty}>
+            <Text variant={TextVariant.Reading} tone={TextTone.Muted} wrap>
+              {t("Generate designs to preview and download their QR codes.")}
             </Text>
-          )}
-        </div>
-      ) : (
-        <div className={styles.outputEmpty}>
-          <Text variant={TextVariant.Reading} tone={TextTone.Muted} wrap>
-            {t("Generate designs to preview and download their QR codes.")}
-          </Text>
-        </div>
-      )}
-    </Panel>
+          </div>
+        )}
+      </Panel>
+      <Dialog
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        title={t("How to import")}
+        portal
+        centerOnOpen
+        defaultBounds={IMPORT_HELP_BOUNDS}
+        resizable={false}
+        contentLayout={OverlayContentLayout.Flow}
+      >
+        <RichText className={styles.importHelp}>
+          <p>
+            {t(
+              "In Nintendo Switch App, open NookLink → Designs and scan this QR code. Download it in the game before scanning the next tile. Nintendo Switch Online membership is required.",
+            )}
+          </p>
+        </RichText>
+      </Dialog>
+    </>
   );
 }

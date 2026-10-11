@@ -11,14 +11,14 @@ import {
   GROWTH_DEVELOPMENT_BASE,
   developmentSiteProxy,
 } from "../../../infra/dev-site.ts";
+import { publicDesktopStartupScript } from "../../../infra/public-desktop-startup.ts";
 import { applySiteIcons } from "../../../infra/site-html.ts";
 import { ARTICLE_PATHS } from "../content/articles/index.ts";
-import { GUIDE_PAGES } from "../content/help/pages.ts";
+import { FEATURES_PATH } from "../content/features/index.ts";
 import { SHOWCASE_PAGES } from "../content/showcase/pages.ts";
 import { localizedSiteHref, PublicLanguage } from "../content/site/language.ts";
 import { showcaseLabel } from "../content/site/navigation.ts";
 import { DOCUMENT_PAGES, SITE_REDIRECTS } from "../content/site/pages.ts";
-import { TOOLS_HOME } from "../content/tools/index.ts";
 import { ARTICLE_CONTENT_ROOT, articleHtml, articleImageResources } from "./pages/article-pages.ts";
 import {
   documentHtml,
@@ -38,6 +38,7 @@ import {
   publicDesktopNavigation,
   publicNotFound,
   publicUiScope,
+  publicPageStartupScript,
   publicSiteFooter,
 } from "./public-theme.ts";
 import { createPublicMiddleware } from "./routing/public-routing.ts";
@@ -58,6 +59,7 @@ const SHOWCASE_HTML_PATH = "/showcase/index.html";
 const SHOWCASE_PATHS: readonly string[] = Object.values(SHOWCASE_PAGES).map((page) => page.path);
 const DEVELOPMENT_PREFIXES = ["/@", "/src/", "/content/", "/node_modules/"];
 const SUCCESS_STATUS = 200;
+const NOT_FOUND_STATUS = 404;
 const FORWARDED_STATUS = 204;
 const HEAD_METHOD = "HEAD";
 const VIEWER_PATH = "/tools/viewer/";
@@ -100,6 +102,14 @@ function publicPageResources(): Map<string, string> {
       PUBLIC_FONT_STYLE_PATH,
       resolve(REPOSITORY_ROOT, "packages/ui/assets/fonts/macintosh/fonts.css"),
     ],
+    [
+      "/pixel-code/fonts.css",
+      resolve(REPOSITORY_ROOT, "packages/ui/assets/fonts/pixel-code/fonts.css"),
+    ],
+    [
+      "/pixel-code/pixel-code.woff2",
+      resolve(REPOSITORY_ROOT, "packages/ui/assets/fonts/pixel-code/pixel-code.woff2"),
+    ],
     [GUIDE_STYLE_PATH, resolve(GUIDE_ROOT, "site.css")],
     [
       PUBLIC_THEME_STYLE_PATH,
@@ -107,17 +117,19 @@ function publicPageResources(): Map<string, string> {
     ],
     [
       CHINESE_FONT_PATH,
-      resolve(
-        REPOSITORY_ROOT,
-        "packages/ui/assets/fonts/fusion-pixel/fusion-pixel-10px-zh-hans.woff2",
-      ),
+      resolve(REPOSITORY_ROOT, "packages/ui/assets/fonts/fusion-pixel/fusion-12.woff2"),
     ],
     [
-      "/fusion-pixel/fusion-pixel-10px-zh-hans.woff2",
-      resolve(
-        REPOSITORY_ROOT,
-        "packages/ui/assets/fonts/fusion-pixel/fusion-pixel-10px-zh-hans.woff2",
-      ),
+      "/fusion-pixel/fonts.css",
+      resolve(REPOSITORY_ROOT, "packages/ui/assets/fonts/fusion-pixel/fonts.css"),
+    ],
+    [
+      "/fusion-pixel/fusion-10.woff2",
+      resolve(REPOSITORY_ROOT, "packages/ui/assets/fonts/fusion-pixel/fusion-10.woff2"),
+    ],
+    [
+      "/fusion-pixel/fusion-8.woff2",
+      resolve(REPOSITORY_ROOT, "packages/ui/assets/fonts/fusion-pixel/fusion-8.woff2"),
     ],
   ]);
   for (const [path, source] of guideImageResources()) resources.set(path, source);
@@ -130,6 +142,7 @@ function notFoundHtml(language = PublicLanguage.English): string {
   const text = (en: string, zh: string) =>
     language === PublicLanguage.SimplifiedChinese ? zh : en;
   const template = applySiteIcons(readFileSync(resolve(PUBLIC_ROOT, "404.html"), "utf8"))
+    .replace("</head>", `<script>${publicDesktopStartupScript()}</script></head>`)
     .replace('<html lang="en"', `<html lang="${language}"`)
     .replace("Page not found — Xprite", text("Page not found — Xprite", "找不到页面 — Xprite"));
   const html = template.replace(
@@ -142,14 +155,8 @@ function notFoundHtml(language = PublicLanguage.English): string {
         brandLabel: showcaseLabel(language),
         brandHref: SHOWCASE_PAGES[language].path,
         links: [
-          { label: text("Tools", "工具"), href: localizedSiteHref(TOOLS_HOME.path, language) },
+          { label: text("Features", "功能"), href: localizedSiteHref(FEATURES_PATH, language) },
           { label: text("Open editor", "打开编辑器"), href: "/" },
-          {
-            label: text("User guide", "使用指南"),
-            href: GUIDE_PAGES[language].path,
-            icon: "help",
-            end: true,
-          },
           {
             label: language === PublicLanguage.English ? "简体中文" : "English",
             href: `/404.html?lang=${language === PublicLanguage.English ? PublicLanguage.SimplifiedChinese : PublicLanguage.English}`,
@@ -168,7 +175,7 @@ function notFoundHtml(language = PublicLanguage.English): string {
   )![1];
   return html.replace(
     "</body>",
-    `<template id="public-chinese-error">${chineseBody}</template><script>{const lang=new URLSearchParams(location.search).get('lang');if(lang==='zh-CN'||(lang!=='en'&&location.pathname.split('/').includes('zh-CN'))){document.documentElement.lang='zh-CN';document.title='找不到页面 — Xprite';document.body.innerHTML=document.getElementById('public-chinese-error').innerHTML}}</script></body>`,
+    `<template id="public-chinese-error">${chineseBody}</template><script>{const lang=new URLSearchParams(location.search).get('lang');if(lang==='zh-CN'||(lang!=='en'&&location.pathname.split('/').includes('zh-CN'))){document.documentElement.lang='zh-CN';document.title='找不到页面 — Xprite';document.body.innerHTML=document.getElementById('public-chinese-error').innerHTML;${publicPageStartupScript()}}}</script></body>`,
   );
 }
 
@@ -184,10 +191,12 @@ function send(
   method: string | undefined,
   type: string,
   body: string | Buffer,
+  status = SUCCESS_STATUS,
 ) {
-  response.statusCode = SUCCESS_STATUS;
+  response.statusCode = status;
   response.setHeader("Content-Type", type);
   response.setHeader("X-Robots-Tag", "noindex, follow");
+  if (status === NOT_FOUND_STATUS) response.setHeader("Cache-Control", "no-store");
   response.end(method === HEAD_METHOD ? undefined : body);
 }
 
@@ -313,6 +322,7 @@ function developmentRoutes(
             request.method,
             HTML_TYPE,
             await controls(pathname, notFoundHtml()),
+            NOT_FOUND_STATUS,
           );
         }
         if (SHOWCASE_PATHS.includes(pathname)) {

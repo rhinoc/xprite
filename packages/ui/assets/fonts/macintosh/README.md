@@ -13,4 +13,8 @@ adjusted to integer browser baselines; no glyph outlines were edited.
 at 16 CSS pixels (1024 font units per em). Both use 12px line boxes at 16px font size, matching the kit's 16/12 styles.
 The control baseline is 10px and the compact text baseline is 9px.
 
-The font CSS is imported by the Macintosh skin. Aseprite retains its own font.
+The Macintosh skin uses Fusion Pixel for Chinese text. ChiKareGo2 pairs with the
+12px face: `size-adjust: 75%` turns the theme's 16px CSS size into a 12px request.
+FindersKeepers pairs with the 10px face: `size-adjust: 62.5%` turns that same 16px
+CSS size into a 10px request. The files stay in `assets/fonts/fusion-pixel/`.
+The Aseprite text tool uses the 12px face, and a 7px line's missing glyphs use the 8px face.

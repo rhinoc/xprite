@@ -1,9 +1,10 @@
 import type { HomeViewFooterSegment } from "$/components/workspace/home-view-base";
 import { EDITOR_EXTERNAL_LINKS } from "$/config/external-links";
-import { currentUiLanguage, tUi } from "$/i18n";
-import { showcaseLabel, showcasePath } from "@xprite/growth-content/navigation";
+import { currentUiLanguage } from "$/i18n";
+import { showcasePath } from "@xprite/growth-content/navigation";
 
 const AUTHOR_PREFIX = "by";
+const BRAND_LABEL = "Xprite";
 const WEBSITE_ORIGIN = "https://xprite.cc";
 
 const XPRITE_GITHUB_PROFILE = {
@@ -24,13 +25,11 @@ export function getEditorHomeAbout(): EditorHomeAbout {
     attribution: [{ text: `${AUTHOR_PREFIX} ` }],
     footerSegments: [
       {
-        text: showcaseLabel(currentUiLanguage()),
+        text: BRAND_LABEL,
         href: `${WEBSITE_ORIGIN}${showcasePath(currentUiLanguage())}`,
       },
-      { text: AUTHOR_PREFIX },
+      { text: AUTHOR_PREFIX, separator: false },
       { text: XPRITE_GITHUB_PROFILE.handle, href: XPRITE_GITHUB_PROFILE.href, separator: false },
-      { text: tUi("ui.home.license"), href: EDITOR_EXTERNAL_LINKS.xpriteLicense },
-      { text: tUi("ui.home.credits"), href: EDITOR_EXTERNAL_LINKS.xpriteCredits },
     ],
     repositoryHref: EDITOR_EXTERNAL_LINKS.xpriteRepository,
     profile: XPRITE_GITHUB_PROFILE.handle,

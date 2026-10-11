@@ -104,6 +104,27 @@ importers:
         specifier: ^5.0.2
         version: 5.0.2(@types/node@26.6.1)(vite@8.3.1(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
 
+  apps/components:
+    dependencies:
+      '@xprite/growth-content':
+        specifier: workspace:*
+        version: link:../growth/content
+      '@xprite/site-assets':
+        specifier: workspace:*
+        version: link:../growth/public
+      '@xprite/site-shell':
+        specifier: workspace:*
+        version: link:../../packages/site-shell
+      '@xprite/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+
   apps/editor:
     dependencies:
       '@bokuweb/zstd-wasm':
@@ -146,27 +167,6 @@ importers:
         specifier: ^5.0.15
         version: 5.0.15(@types/react@18.3.31)(react@18.3.1)
 
-  apps/gallery:
-    dependencies:
-      '@xprite/growth-content':
-        specifier: workspace:*
-        version: link:../growth/content
-      '@xprite/site-assets':
-        specifier: workspace:*
-        version: link:../growth/public
-      '@xprite/site-shell':
-        specifier: workspace:*
-        version: link:../../packages/site-shell
-      '@xprite/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
-
   apps/growth:
     dependencies:
       '@xprite/site-shell':
@@ -175,9 +175,6 @@ importers:
       '@xprite/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      gsap:
-        specifier: ^3.15.0
-        version: 3.15.0
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -2605,9 +2602,6 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
-
-  gsap@3.15.0:
-    resolution: {integrity: sha512-dMW4CWBTUK1AEEDeZc1g4xpPGIrSf9fJF960qbTZmN/QwZIWY5wgliS6JWl9/25fpTGJrMRtSjGtOmPnfjZB+A==}
 
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
@@ -5541,8 +5535,6 @@ snapshots:
   gopd@1.2.0: {}
 
   graceful-fs@4.2.11: {}
-
-  gsap@3.15.0: {}
 
   has-flag@4.0.0: {}
 

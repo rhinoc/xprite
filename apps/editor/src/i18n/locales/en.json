@@ -2208,5 +2208,9 @@
   "ui.hide.name": "Hide {name}",
   "ui.collapse.note": "Collapse note",
   "ui.expand.note": "Expand note",
-  "ui.resize.note": "Resize note"
+  "ui.resize.note": "Resize note",
+  "ui.local.font.listing.unavailable": "Local font listing is unavailable in this browser",
+  "ui.allow.local.font.access": "Allow local font access in the browser prompt",
+  "ui.loading.local.fonts": "Loading local fonts…",
+  "ui.could.not.load.local.fonts": "Could not load local fonts. Check browser permissions"
 }

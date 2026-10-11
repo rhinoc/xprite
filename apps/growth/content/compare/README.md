@@ -99,4 +99,4 @@ review and hook rules. No baseline or threshold change is part of this column.
 The column does not change editor operations and requires no new user-guide
 chapter; link to existing save, touch, layout, and offline sections instead.
 
-The shared article renderer also serves `/learn/` file guides from `content/learn/articles/`. New guides target a specific downloadable output and link to the existing viewer. They use no new attribution fields.
+PNG and GIF export instructions live on `/tools/viewer/`, alongside the export commands. Former `/learn/` routes redirect to the viewer’s help sections.

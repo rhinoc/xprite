@@ -20,12 +20,14 @@ import {
 } from "$/managers/timeline/timeline-presentation";
 import { UINT8_MAX } from "$/managers/timeline/timeline-presentation";
 import {
+  FontRole,
   Button,
   Input,
   Text,
   TextVariant,
   Checkbox,
-  CheckboxVariant,
+  CheckboxShape,
+  CheckboxMode,
   Slider,
   Divider,
   type SurfaceBounds,
@@ -281,7 +283,8 @@ export function OnionSkinSettingsPanel({
               {...common}
             />
             <Checkbox
-              variant={CheckboxVariant.Radio}
+              mode={CheckboxMode.Radio}
+              shape={CheckboxShape.Round}
               {...common}
               bounds={b(0, 152 + thumbnailExtra, 156, 34)}
               label="Merge Frames"
@@ -289,7 +292,8 @@ export function OnionSkinSettingsPanel({
               onCheckedChange={() => patch({ type: "merge" })}
             />
             <Checkbox
-              variant={CheckboxVariant.Radio}
+              mode={CheckboxMode.Radio}
+              shape={CheckboxShape.Round}
               {...common}
               bounds={b(164, 152 + thumbnailExtra, 148, 34)}
               label="Red/Blue Tint"
@@ -300,7 +304,7 @@ export function OnionSkinSettingsPanel({
               {...common}
               bounds={b(320, 152 + thumbnailExtra, 120, 34)}
               text="Reset"
-              font="default"
+              font={FontRole.Primary}
               part="button_normal"
               hotPart="button_hot"
               focusedPart="button_focused"
@@ -356,7 +360,8 @@ export function OnionSkinSettingsPanel({
               onCheckedChange={(currentLayer) => patch({ currentLayer })}
             />
             <Checkbox
-              variant={CheckboxVariant.Radio}
+              mode={CheckboxMode.Radio}
+              shape={CheckboxShape.Round}
               {...common}
               bounds={b(0, 338 + thumbnailExtra, 144, 24)}
               label="Behind sprite"
@@ -364,7 +369,8 @@ export function OnionSkinSettingsPanel({
               onCheckedChange={() => patch({ position: "behind" })}
             />
             <Checkbox
-              variant={CheckboxVariant.Radio}
+              mode={CheckboxMode.Radio}
+              shape={CheckboxShape.Round}
               {...common}
               bounds={b(152, 338 + thumbnailExtra, 176, 24)}
               label="In front of sprite"
@@ -377,7 +383,7 @@ export function OnionSkinSettingsPanel({
               bounds={b(300, 386 + thumbnailExtra, 140, 34)}
               text="Set as Defaults"
               disabledTextShadow
-              font="default"
+              font={FontRole.Primary}
               part="button_normal"
               hotPart="button_hot"
               focusedPart="button_focused"

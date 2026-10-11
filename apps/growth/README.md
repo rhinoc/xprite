@@ -23,7 +23,7 @@ The editor and viewer remain independent applications. Links to their published 
 - Chapters, labels, and timing: `src/managers/showcase/ipad-story.ts`.
 - Editable lettering and native export: `../../scripts/showcase/ipad/hello-path.json` and `generate-hello.py`; see `hello-assets.md` in that directory.
 - Actual layered artwork and GIF: `public/showcase/ipad/hello/hello.aseprite` and `hello.gif`. `frames.json` records native frame durations, writing tips and source hashes.
-- `public/` is the shared, asset-only `@xprite/site-assets` workspace for website branding and example artwork. Editor and viewer import the same editable example; editor imports its first-frame PNG. Editor and gallery publish selected brand files through `infra/public-package-assets.ts`, preserving their public URLs. The workspace manifest is excluded from public serving and build output.
+- `public/` is the shared, asset-only `@xprite/site-assets` workspace for website branding and example artwork. Editor and viewer import the same editable example; editor imports its first-frame PNG. Editor and web components publish selected brand files through `infra/public-package-assets.ts`, preserving their public URLs. The workspace manifest is excluded from public serving and build output.
 - Artifact links and canvas mapping: `src/managers/showcase/hello-project.ts`; native PNG sequence loading: `src/adapters/showcase/hello-sprite-project.ts`.
 - Playback state: `src/managers/showcase/showcase-manager.ts`.
 - Device order and names: `src/managers/showcase/showcase-device.ts`; swipe handling: `src/components/showcase/use-device-swipe.ts`.
@@ -37,9 +37,7 @@ The editor and viewer remain independent applications. Links to their published 
 - Runtime models, environment, screen captures, and asset provenance: `public/showcase/ipad/`.
 - Editable Blender source and generator: `../../scripts/showcase/ipad/`; see that directory's README for model dimensions and regeneration instructions.
 
-This presentation does not change editor controls, gestures, document creation, or saving behavior. It requires no new editor usage-guide chapter.
-
-Writing is displayed from unchanged native Aseprite PNG exports, without browser stroke rasterization. `motion.json` supplies a continuous arc-length path for the Pencil and retimes the writing PNGs to match that path over ten seconds; the integer cel-tip positions do not drive the pen. Playback uses eight whole-editor captures of the actual `hello.aseprite` file, selected with the ASE's original 120/130ms durations; the artwork, timeline selection and current-frame field therefore advance together. Changing the animation document requires re-exporting its assets and re-capturing the corresponding editor frames. The page is an authored film, not an embedded live editor session.
+Writing is displayed from unchanged native Aseprite PNG exports, without browser stroke rasterization. `motion.json` supplies a continuous arc-length path for the Pencil and retimes the writing PNGs to match that path over ten seconds; the integer cel-tip positions do not drive the pen. Playback uses eight whole-editor captures of the actual `hello.aseprite` file, selected with the ASE's original 120/130ms durations; the artwork, timeline selection and current-frame field therefore advance together. Changing the animation document requires re-exporting its assets and re-capturing the corresponding editor frames. The page plays an authored film from native editor captures.
 
 The Pencil renders into a transparent viewport extending beyond the stage, while the device and hand retain the stage's original composition. Pixel-frame texture updates are independent of the Pencil's display-rate movement.
 
@@ -51,9 +49,9 @@ A wheel burst over the device stage advances one device in its dominant horizont
 
 Maintain both guide languages and their screenshot records together under `content/help/`. The `build/public-pages.ts` plugin assembles static pages and serves exact public routes. Page renderers in `build/pages/` read the formal content and check guide section links and image catalog entries. `build/seo/` owns search metadata and discovery files; `build/routing/` owns deployed serving rules and the public-path guard.
 
-`content/site/pages.ts` registers canonical public pages from each content scope. The registry supplies sitemap entries, redirects, deployment rewrites and required output files. English pages are unprefixed; Chinese pages share the root `/zh-CN/` prefix (`localizedSiteHref` in `content/site/language.ts`), while tools and component docs use `?lang=zh-CN`. `content/site/documents.ts` lists Markdown document pages: the privacy notice (from the repository-root `PRIVACY.md` and `PRIVACY.zh.md`) and the about articles in `content/about/` (How Xprite Works and Features, in English and Chinese). A document publishes only the languages it is written in, so every registered page has content. Register only pages with written content. The editor remains at `/`; the website's About Xprite link points to the localized about page.
+`content/site/pages.ts` registers canonical public pages from each content scope. The registry supplies sitemap entries, redirects, deployment rewrites and required output files. English pages are unprefixed; Chinese pages share the root `/zh-CN/` prefix (`localizedSiteHref` in `content/site/language.ts`), while tools and component docs use `?lang=zh-CN`. `content/site/documents.ts` lists Markdown document pages: the privacy notice (from the repository-root `PRIVACY.md` and `PRIVACY.zh.md`) and the about articles in `content/about/` (How Xprite Works and Features, in English and Chinese). A document publishes only the languages it is written in, so every registered page has content. Register only pages with written content. The editor remains at `/`; the website's About link points to the localized about page.
 
-The public-page resource map serves `/theme/fonts.css`, `/theme/chikarego2.woff2` and `/theme/finderskeepers.woff2` directly from `packages/ui/assets/fonts/macintosh/`. Marketing pages, guides, articles and the 404 page share these Macintosh fonts; Fusion Pixel remains the CJK fallback. Fonts are copied only into build output, and their originals stay with the UI package. Latin display sizes follow the fonts’ 16px grid. This typography change does not change user operations, so the guide content requires no additional instructions.
+The public-page resource map serves `/theme/fonts.css`, `/theme/chikarego2.woff2` and `/theme/finderskeepers.woff2` directly from `packages/ui/assets/fonts/macintosh/`. Marketing pages, guides, articles and the 404 page share these Macintosh fonts; Fusion Pixel remains the CJK fallback. Fonts are copied only into build output, and their originals stay with the UI package. Latin display sizes follow the fonts’ 16px grid.
 
 ## Compare
 
@@ -64,12 +62,9 @@ are published. Research and reserve drafts stay out of the output and sitemap.
 See [the editorial workflow](content/compare/README.md) for verification rules,
 the initial batch, attribution, and evidence required to expand the column.
 
-The column adds no editor operations, gestures, or save behavior, so it links to
-existing guide sections without adding a user-guide chapter.
-
 ## Performance
 
-`src/adapters/showcase/browser-showcase.ts` loads the Three.js scene through a dynamic import after the page has had a paint opportunity. The showcase uses `UIProvider` with `preloadArtwork={false}` because its buttons use CSS, so bitmap theme sheets and the Chinese font do not block page mounting. Only the Chinese HTML preloads Fusion Pixel, using the same font URL as the guide. Screen assets start loading alongside models and lighting. All three screens share one `HelloSpriteProject`, including its manifest, motion path, and writing sheet. Mutable manifests use HTTP revalidation; writing sheets retain their source hashes.
+`src/adapters/showcase/browser-showcase.ts` loads the Three.js scene through a dynamic import after the page has had a paint opportunity. The showcase uses `UIProvider` with `preloadArtwork={false}` because its buttons use CSS, so bitmap theme sheets and the Chinese font do not block page mounting. Only the Chinese HTML preloads Fusion Pixel 12, using the same font URL as the guide. Screen assets start loading alongside models and lighting. All three screens share one `HelloSpriteProject`, including its manifest, motion path, and writing sheet. Mutable manifests use HTTP revalidation; writing sheets retain their source hashes.
 
 Each screen loads only the current language's captures initially, retaining them for subsequent switches. The other language loads on demand. Pending language loads pause the demonstration clock; obsolete language requests cannot replace a newer selection. This reduces initial capture loads from 72 PNGs to 36. Their native dimensions imply about 134 MiB less RGBA pixel data before a language switch; this is an asset-size estimate, not a browser heap measurement.
 
@@ -98,11 +93,10 @@ static documents load `/theme/macintosh.css`, generated from the UI package's
 resource map serves and publishes that stylesheet. Colors remain owned by the
 UI theme, and these pages do not alter editor appearance or storage settings.
 
-The showcase uses `PageScrollArea` for document scrolling. Help, comparison, article
+The showcase uses `ScrollAreaTarget.Page` for document scrolling. Help, comparison, article
 and 404 HTML include the separately bundled `controls/index.html` entry, which
 mounts shared link buttons, document scrollbars and local `ScrollArea` controls.
 Static content and ordinary links remain usable before JavaScript is available.
-The UI enhancement does not change editor operations or guide content.
 
 ## Unified development access
 
@@ -110,8 +104,8 @@ Run `pnpm run dev` from the repository root to start or reuse all four independe
 app servers. Access showcase, articles and help through `http://<LAN-IP>:5173`
 at their normal website paths. See [development setup](../../CONTRIBUTING.md).
 Growth retains port 5175. Its development modules and hot-update connection use
-`/__growth/` to avoid editor module collisions; public URLs remain `/showcase/`,
-`/help/`, `/learn/` and `/compare/`. The production base remains `/`.
+`/__growth/` to avoid editor module collisions; public URLs include `/about/`,
+`/help/` and `/compare/`. The production base remains `/`.
 
 ## System menu and page navigation
 
@@ -122,8 +116,8 @@ Current-page commands sit between the system menu and application switcher.
 The data-only navigation registry and article catalog live in `content/site/navigation.ts`
 and `content/articles/`; editor code consumes only guide/tool data. Desktop
 preferences use a separate origin-scoped browser record and do not write editor
-preferences. Both user-guide languages describe these entry points. Existing guide
-screenshots show editor controls, which this menu change does not move.
+preferences. Each page supplies help for its own instructions; the editor guide is linked
+from site resource navigation.
 
 The menu and shared footer use the same navigation hierarchy. `@xprite/site-shell`
 receives the groups as data, keeping the shell independent of growth. Public pages
@@ -133,5 +127,19 @@ screens. Articles share presentation components and styles in `src/components/ar
 The desktop pattern menu now uses the curated original System 7/7.5/Mac OS 8
 collection in the UI asset package. Two-color masks can use a separately saved
 foreground/background pair through Pattern colors; fixed-color PNGs keep their
-original palette. The previous imitation IDs are removed. Both guide languages
-describe the source groups, color preview and Apply/Cancel behavior.
+original palette. The pattern menu groups source tiles and exposes color preview with Apply/Cancel.
+
+The Features page at `/about/features/` and `/zh-CN/about/features/` renders grouped
+editor and tool icons from the localized Markdown in `content/about/features.*.md`.
+The menu and footer link directly to individual tools; desktop directory shortcuts
+open Features. `/tools/` redirects to Features.
+
+Features entries open movable, resizable windows in the directory. Window content
+comes from `content/features/details/`, and the same content has localized direct
+URLs under `/features/<task>/` and `/zh-CN/features/<task>/`. Each window provides
+an explicit editor or tool launch action.
+
+Feature-window media references existing About, comparison, guide and shared public
+assets through `content/features/media.ts`. Animation and workspace media are shared
+with About through `content/showcase/media.ts`; reuse URLs and originals rather
+than adding feature-specific image copies.

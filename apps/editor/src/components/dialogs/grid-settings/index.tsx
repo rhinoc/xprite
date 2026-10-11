@@ -16,7 +16,7 @@ import {
   type GridSettingsView,
 } from "$/managers/dialogs/grid-settings-manager";
 import { evaluateDialogNumber, type DialogRect } from "$/managers/dialogs/input-values";
-import { Button, Input, Text, TextVariant, Divider } from "@xprite/ui";
+import { FontRole, Button, Input, Text, TextVariant, Divider } from "@xprite/ui";
 
 interface GridSettingsProps {
   bounds: DialogRect;
@@ -107,7 +107,7 @@ function GridSettings({ bounds, onAccept, onClose, suspended }: GridSettingsProp
           />
           <Button
             text="OK"
-            font="default"
+            font={FontRole.Primary}
             mnemonicIndex={0}
             disabled={!valid}
             bounds={{ x: client.x + 80, y: client.y + 92, width: 120, height: 34 }}
@@ -120,7 +120,7 @@ function GridSettings({ bounds, onAccept, onClose, suspended }: GridSettingsProp
           />
           <Button
             text="Cancel"
-            font="default"
+            font={FontRole.Primary}
             mnemonicIndex={0}
             bounds={{ x: client.x + 208, y: client.y + 92, width: 120, height: 34 }}
             relativeTo={client}

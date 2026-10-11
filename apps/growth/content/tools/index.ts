@@ -1,6 +1,8 @@
 import { PublicLanguage } from "../site/language.ts";
 import { TOOL_CHINESE_TEXT } from "./zh-CN.ts";
 
+export { VIEWER_EXPORT_HELP, ViewerHelpSection } from "./viewer-help.ts";
+
 export function translateToolText(source: string, language: string): string {
   if (source === "ui.close.name")
     return language === PublicLanguage.SimplifiedChinese ? "关闭 {name}" : "Close {name}";
@@ -36,15 +38,6 @@ export function translateToolText(source: string, language: string): string {
 export const TOOL_FILE_PRIVACY = "Processed on your device. No cloud upload.";
 
 /** Data-only tool registry, shared by public discovery and the standalone tools app. */
-export const TOOLS_HOME = {
-  path: "/tools/",
-  name: "Xprite Tools",
-  title: "Pixel Art Tools | Xprite",
-  headline: "Pixel art tools",
-  description:
-    "Create pixel art, preview Aseprite projects and convert GIF animations into sprite sheets. Files are processed on your device without uploading them to the cloud.",
-} as const;
-
 export const VIEWER_TOOL = {
   path: "/tools/viewer/",
   name: "Xprite Aseprite Viewer",
@@ -60,7 +53,6 @@ export const VIEWER_TOOL = {
   fileLabel: "Choose an Aseprite file",
   openLabel: "Open file",
   dropLabel: "Drop an .ase or .aseprite file",
-  guidePath: "/help/",
 } as const;
 
 export const GIF_SHEET_TOOL = {
@@ -78,7 +70,6 @@ export const GIF_SHEET_TOOL = {
   fileLabel: "Choose a GIF file",
   openLabel: "Open GIF",
   dropLabel: "Drop a GIF file",
-  guidePath: "/help/",
 } as const;
 
 export const ANIMAL_CROSSING_TOOL = {
@@ -97,7 +88,6 @@ export const ANIMAL_CROSSING_TOOL = {
   fileLabel: "Choose artwork or an Animal Crossing QR image",
   openLabel: "Open file",
   dropLabel: "Drop artwork, a QR image or an .acnl file",
-  guidePath: "/help/",
 } as const;
 
 export const EDITOR_TOOL = {
@@ -111,6 +101,5 @@ export const EDITOR_TOOL = {
 } as const;
 
 export const TOOLS = [VIEWER_TOOL, GIF_SHEET_TOOL, ANIMAL_CROSSING_TOOL];
-export const DIRECTORY_TOOLS = [EDITOR_TOOL, ...TOOLS];
-export const TOOL_PATHS = [TOOLS_HOME.path, ...TOOLS.map((tool) => tool.path)];
+export const TOOL_PATHS = TOOLS.map((tool) => tool.path);
 export type PublicTool = (typeof TOOLS)[number];

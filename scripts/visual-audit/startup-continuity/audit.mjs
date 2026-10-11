@@ -21,10 +21,19 @@ import {
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const output = path.join(root, ".tmp/startup-continuity");
 const args = process.argv.slice(2);
-if (args.length !== 0 && (args.length !== 2 || args[0] !== "--port"))
-  throw Error("Use optional --port PORT; every startup continuity scene is required.");
-const port = Number(args[1] ?? 5173);
+const options = new Map();
+for (let index = 0; index < args.length; index += 2) {
+  if (!["--port", "--space"].includes(args[index]) || !args[index + 1] || options.has(args[index]))
+    throw Error(
+      "Use --port PORT and optional --space ID; every startup continuity scene is required.",
+    );
+  options.set(args[index], args[index + 1]);
+}
+const port = Number(options.get("--port") ?? 5173);
+const spaceId = options.has("--space") ? Number(options.get("--space")) : undefined;
 if (!Number.isInteger(port) || port <= 0 || port > 65535) throw Error("Invalid site port.");
+if (spaceId !== undefined && (!Number.isInteger(spaceId) || spaceId <= 0))
+  throw Error("Invalid task space.");
 const digest = (value) => createHash("sha256").update(value).digest("hex");
 const sourceHashes = () => {
   const files = new Set(collectVisualSources(root));
@@ -38,7 +47,7 @@ const sourceHashes = () => {
   for (const directory of [
     "apps/growth/src",
     "apps/growth/build",
-    "apps/gallery/src",
+    "apps/components/src",
     "apps/tools/src",
     "apps/tools/build",
     "packages/site-shell/src",
@@ -49,9 +58,8 @@ const sourceHashes = () => {
   for (const file of [
     "apps/growth/showcase/index.html",
     "apps/growth/vite.config.ts",
-    "apps/gallery/index.html",
-    "apps/gallery/vite.config.ts",
-    "apps/tools/index.html",
+    "apps/components/index.html",
+    "apps/components/vite.config.ts",
     "apps/tools/viewer/index.html",
     "apps/tools/gif-to-sprite-sheet/index.html",
     "apps/tools/animal-crossing-qr/index.html",
@@ -94,6 +102,7 @@ try {
   const config = {
     output,
     port,
+    spaceId,
     runId: manifest.runId,
     scenes,
     cpuSlowdown: CPU_SLOWDOWN,

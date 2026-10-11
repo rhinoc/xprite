@@ -1,23 +1,19 @@
 import { defaultUiTheme } from "$/base/theme/default-theme";
-import { themeCjkFontFamily } from "$/base/theme/font-families";
-import { themeGlyphAssets } from "$/base/theme/theme-assets";
 import type { UiTheme, UiThemeTokens } from "$/base/theme/theme-definition";
 import { loadThemeModule } from "$/base/theme/theme-module-loader";
 import type { UiColorRole } from "$/base/theme/theme-name-types";
-import type { UiStyleDefinition, UiAppearance } from "$/base/theme/theme-types";
-
-const { defaultGlyphAtlasUrl: defaultFontUrl, miniGlyphAtlasUrl: miniFontUrl } = themeGlyphAssets;
+import { FontRole, UiFontRenderer } from "$/base/theme/theme-types";
+import type { UiStyleDefinition, UiColorScheme } from "$/base/theme/theme-types";
 
 export type UiBitmap = HTMLImageElement | HTMLCanvasElement;
 export interface UiAssetBundle {
   sheet: UiBitmap;
   sheetUrl: string;
-  defaultFont: UiBitmap;
-  miniFont: UiBitmap;
+  fontAtlases: Readonly<Partial<Record<FontRole, UiBitmap>>>;
   cjkFontReady: boolean;
   language: string;
   theme: UiStyleDefinition;
-  variant: UiAppearance;
+  colorScheme: UiColorScheme;
   uiTheme: UiTheme;
   tokens?: UiThemeTokens;
   lightThemeColorRoles?: Readonly<Record<string, readonly UiColorRole[]>>;
@@ -26,9 +22,9 @@ export interface UiAssetBundle {
 const themeCaches = new WeakMap<
   UiTheme,
   {
-    promises: Map<UiAppearance, Promise<UiAssetBundle>>;
-    assets: Map<UiAppearance, UiAssetBundle>;
-    listeners: Map<UiAppearance, Set<() => void>>;
+    promises: Map<UiColorScheme, Promise<UiAssetBundle>>;
+    assets: Map<UiColorScheme, UiAssetBundle>;
+    listeners: Map<UiColorScheme, Set<() => void>>;
   }
 >();
 function themeCache(uiTheme: UiTheme) {
@@ -41,35 +37,61 @@ function themeCache(uiTheme: UiTheme) {
 }
 const softwareSources = new Map<string, Promise<HTMLCanvasElement>>();
 const cjkFontPromises = new Map<string, Promise<boolean>>();
-const CJK_FONT_LOAD_SIZE = 10;
+const FONT_ROLES: readonly FontRole[] = [FontRole.Primary, FontRole.Compact];
 const CJK_LANGUAGE_PATTERN = /^(?:zh|ja|ko)(?:-|$)/i;
+const TEXT_TOOL_CJK_FACES = [
+  { family: "FusionPixel8", size: 8 },
+  { family: "FusionPixel10", size: 10 },
+  { family: "FusionPixel12", size: 12 },
+];
+
+function cjkFaceRequests(typography: UiStyleDefinition["typography"]) {
+  const faces = FONT_ROLES.map((role) => ({
+    family: typography[role].cjkFontFamily,
+    size: typography[role].cjkFontSize,
+  }));
+  if (typography[FontRole.Primary].renderer === UiFontRenderer.Bitmap)
+    faces.push(...TEXT_TOOL_CJK_FACES);
+  const seen = new Set<string>();
+  return faces.filter((face) => {
+    if (seen.has(face.family)) return false;
+    seen.add(face.family);
+    return true;
+  });
+}
+
+function loadThemeCjkFonts(typography: UiStyleDefinition["typography"]) {
+  return Promise.all(
+    cjkFaceRequests(typography).map((face) => loadCjkFont(face.family, face.size)),
+  ).then((ready) => ready.every(Boolean));
+}
 
 export function subscribeThemeAssets(
-  variant: UiAppearance,
+  colorScheme: UiColorScheme,
   uiTheme: UiTheme,
   listener: () => void,
 ) {
   const { listeners } = themeCache(uiTheme);
-  let selected = listeners.get(variant);
+  let selected = listeners.get(colorScheme);
   if (!selected) {
     selected = new Set();
-    listeners.set(variant, selected);
+    listeners.set(colorScheme, selected);
   }
   const current = selected;
   current.add(listener);
   return () => {
     current.delete(listener);
-    if (!current.size && listeners.get(variant) === current) listeners.delete(variant);
+    if (!current.size && listeners.get(colorScheme) === current) listeners.delete(colorScheme);
   };
 }
 
-function loadCjkFont(family: string) {
+function loadCjkFont(family: string, size: number) {
   const existing = cjkFontPromises.get(family);
   if (existing) return existing;
   const pending = (async () => {
     if (typeof document === "undefined" || !document.fonts) return false;
     try {
-      const faces = await document.fonts.load(`${CJK_FONT_LOAD_SIZE}px ${family}`, "中");
+      const faces = await document.fonts.load(`${size}px ${family}`, "中");
       return faces.some((face) => face.family === family && face.status === "loaded");
     } catch {
       return false;
@@ -108,72 +130,79 @@ function loadImage(url: string) {
 }
 
 async function loadThemeFonts(typography: UiStyleDefinition["typography"]): Promise<void> {
-  if (!typography || typeof document === "undefined" || !document.fonts) return;
+  if (typeof document === "undefined" || !document.fonts) return;
   await Promise.all(
-    Object.values(typography).map((font) =>
-      document.fonts.load(`${font.fontSize}px ${font.fontFamily}`),
-    ),
+    FONT_ROLES.map((role) => {
+      const font = typography[role];
+      return document.fonts.load(`${font.fontSize}px ${font.fontFamily}`);
+    }),
   );
 }
 
-/** Load the selected theme module, its atlas, and shared font atlases once. */
+/** Load the selected theme module, its atlas, and its declared fonts once. */
 export function preloadThemeAssets(
-  variant: UiAppearance,
+  colorScheme: UiColorScheme,
   language = "en",
   uiTheme: UiTheme = defaultUiTheme,
 ) {
   const { promises: assetsPromises, assets: cachedAssets } = themeCache(uiTheme);
-  const existing = assetsPromises.get(variant);
+  const existing = assetsPromises.get(colorScheme);
   if (existing) {
     return existing.then(async (assets) => {
-      const current = cachedAssets.get(variant) ?? assets;
+      const current = cachedAssets.get(colorScheme) ?? assets;
       if (current.cjkFontReady || !CJK_LANGUAGE_PATTERN.test(language)) return current;
-      const cjkFontReady = await loadCjkFont(themeCjkFontFamily(current.theme.typography?.default));
-      const latest = cachedAssets.get(variant) ?? current;
+      const cjkFontReady = await loadThemeCjkFonts(current.theme.typography);
+      const latest = cachedAssets.get(colorScheme) ?? current;
       if (latest.cjkFontReady || !cjkFontReady) return latest;
       const ready = { ...latest, cjkFontReady };
-      cachedAssets.set(variant, ready);
-      for (const listener of themeCache(uiTheme).listeners.get(variant) ?? []) listener();
+      cachedAssets.set(colorScheme, ready);
+      for (const listener of themeCache(uiTheme).listeners.get(colorScheme) ?? []) listener();
       return ready;
     });
   }
-  const promise = loadThemeModule(variant, uiTheme).then(async (module) => {
-    // Bitmap text and editor rasterization need the fallback ready synchronously.
-    // Native-font skins can let actual CJK text request it, without blocking English startup.
-    const needsCjkFont = !module.definition.typography || CJK_LANGUAGE_PATTERN.test(language);
-    const [sheet, defaultFont, miniFont, cjkFontReady] = await Promise.all([
+  const promise = loadThemeModule(colorScheme, uiTheme).then(async (module) => {
+    const typography = module.definition.typography;
+    const needsCjkFont =
+      typography[FontRole.Primary].renderer === UiFontRenderer.Bitmap ||
+      CJK_LANGUAGE_PATTERN.test(language);
+    const [sheet, fonts, cjkFontReady] = await Promise.all([
       loadImage(module.sheetUrl),
-      loadImage(defaultFontUrl),
-      loadImage(miniFontUrl),
-      needsCjkFont
-        ? loadCjkFont(themeCjkFontFamily(module.definition.typography?.default))
-        : Promise.resolve(false),
-      loadThemeFonts(module.definition.typography),
+      Promise.all(
+        FONT_ROLES.map(async (role) => {
+          const font = typography[role];
+          return [
+            role,
+            font.renderer === UiFontRenderer.Bitmap ? await loadImage(font.atlas.url) : undefined,
+          ] as const;
+        }),
+      ),
+      needsCjkFont ? loadThemeCjkFonts(typography) : Promise.resolve(false),
+      loadThemeFonts(typography),
     ]);
+    const fontAtlases = Object.fromEntries(fonts.filter(([, atlas]) => atlas !== undefined));
     const assets: UiAssetBundle = {
       sheet,
       sheetUrl: module.sheetUrl,
-      defaultFont,
-      miniFont,
+      fontAtlases,
       cjkFontReady,
       language,
       theme: module.definition,
-      variant,
+      colorScheme,
       uiTheme,
       tokens: module.tokens,
       lightThemeColorRoles: module.lightThemeColorRoles,
     };
-    cachedAssets.set(variant, assets);
-    for (const listener of themeCache(uiTheme).listeners.get(variant) ?? []) listener();
+    cachedAssets.set(colorScheme, assets);
+    for (const listener of themeCache(uiTheme).listeners.get(colorScheme) ?? []) listener();
     return assets;
   });
-  assetsPromises.set(variant, promise);
+  assetsPromises.set(colorScheme, promise);
   void promise.catch(() => {
-    if (assetsPromises.get(variant) === promise) assetsPromises.delete(variant);
+    if (assetsPromises.get(colorScheme) === promise) assetsPromises.delete(colorScheme);
   });
   return promise;
 }
 
-export function getThemeAssets(variant: UiAppearance, uiTheme: UiTheme = defaultUiTheme) {
-  return themeCache(uiTheme).assets.get(variant) ?? null;
+export function getThemeAssets(colorScheme: UiColorScheme, uiTheme: UiTheme = defaultUiTheme) {
+  return themeCache(uiTheme).assets.get(colorScheme) ?? null;
 }

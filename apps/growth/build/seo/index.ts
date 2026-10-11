@@ -1,13 +1,7 @@
 import type { Plugin } from "vite";
 
 import { editorApplicationMetadata } from "../../content/application/index.ts";
-import {
-  GIF_SHEET_TOOL,
-  ANIMAL_CROSSING_TOOL,
-  VIEWER_TOOL,
-  TOOLS_HOME,
-  DIRECTORY_TOOLS,
-} from "../../content/tools/index.ts";
+import { GIF_SHEET_TOOL, ANIMAL_CROSSING_TOOL, VIEWER_TOOL } from "../../content/tools/index.ts";
 
 const SITE_URL = "https://xprite.cc/";
 const SOCIAL_IMAGE_URL = new URL("social-preview.png", SITE_URL).href;
@@ -115,26 +109,4 @@ export function growthSeo(): Plugin {
       return applyPageSearchMetadata(html, indexable);
     },
   };
-}
-
-export function applyToolsHomeSearchMetadata(html: string, indexable: boolean): string {
-  const content = applyPageSearchMetadata(html, indexable);
-  if (!indexable) return content;
-  const collection = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: TOOLS_HOME.name,
-    url: new URL(TOOLS_HOME.path, SITE_URL).href,
-    description: TOOLS_HOME.description,
-    hasPart: DIRECTORY_TOOLS.map((tool) => ({
-      "@type": "WebApplication",
-      name: tool.name,
-      url: new URL(tool.path, SITE_URL).href,
-      description: tool.description,
-    })),
-  };
-  return content.replace(
-    HEAD_CLOSE_PATTERN,
-    `<script type="application/ld+json">${JSON.stringify(collection)}</script>\n</head>`,
-  );
 }

@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { themeTokens } from "$/base/theme/theme-tokens";
+import { UiColorScheme } from "$/base/theme/theme-types";
 import { macintoshArtwork } from "$/base/theme/themes/macintosh/artwork";
 
 describe("nested theme tokens", () => {
   it("clears optional skin tokens when the next skin does not define them", () => {
-    const artwork = macintoshArtwork("light");
+    const artwork = macintoshArtwork(UiColorScheme.Light);
     const parent = themeTokens({
       ...artwork,
       tokens: { "--custom-frame": "striped", "--xse-text": "red" },

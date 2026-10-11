@@ -111,15 +111,15 @@ The independent growth server (`pnpm run dev:growth`, port 5175) serves public
 guides and the about pages directly from source. Unknown public paths return the
 custom HTTP 404 page in growth development and Vite preview.
 
-`pnpm run build:site` builds editor, growth, tools, and gallery independently and merges
+`pnpm run build:site` builds editor, growth, tools, and web components independently and merges
 their outputs into `.tmp/site`. It applies website search metadata to the merged
 editor HTML without changing `apps/editor/dist`. Growth owns guide source,
 showcase assets, static public pages, and SEO code; the editor reads only the
 small `@xprite/growth-content/help` data module. The deployment command validates
-all required entry files in `.tmp/site` before staging an upload. Component docs (the gallery app)
+all required entry files in `.tmp/site` before staging an upload. Component docs (the web components app)
 use `/components/` in both development and production. Its component and icon routes
-come from `apps/gallery/build/generated-routes.json`, regenerated alongside the
-component catalog by `gallery:generate`; staging adds exact rewrites and middleware
+come from `apps/components/build/generated-routes.json`, regenerated alongside the
+component catalog by `components:generate`; staging adds exact rewrites and middleware
 entries for those routes, including direct visits and reloads, and redirects the
 former `/gallery/` routes. Component docs remain
 `noindex, follow` and is excluded from the public sitemap.
@@ -246,7 +246,7 @@ hidden files, symlinks and leftover source maps.
 After upload, the script verifies the commit/environment in `/release.json`,
 loads the editor HTML and checks its JavaScript module entry and linked stylesheets,
 both guide pages and their indexing metadata, both localized showcase pages,
-every tool page, all generated gallery routes, and an unknown path's custom HTTP 404 response. Tool and gallery checks also verify their module entries and linked stylesheets. Showcase checks
+every tool page, all generated component routes, and an unknown path's custom HTTP 404 response. Tool and component checks also verify their module entries and linked stylesheets. Showcase checks
 require the correct HTML language and mount point, same-origin JavaScript module
 entry and linked stylesheets with successful HTTP responses and matching content
 types. Production pages must have their own canonical URL, both language links,
@@ -275,7 +275,7 @@ pnpm run deploy:editor
 ```
 
 Use `build:site` for website releases. The general `build` script builds only
-the editor and component gallery; it does not produce the combined website.
+the editor and web components; it does not produce the combined website.
 
 Set the same variables as the workflow, plus `EDGEONE_ENV`, the actual commit
 SHA in `POSTHOG_RELEASE`, and optionally `DEPLOY_REF`. Set `POSTHOG_RELEASE`

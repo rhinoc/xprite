@@ -6,6 +6,7 @@ import { PixelSurface } from "$/base/theme/pixel-surface";
 import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { ThemePart } from "$/base/theme/theme-part";
+import { FontRole } from "$/base/theme/theme-types";
 import type { UiPartDefinition } from "$/base/theme/theme-types";
 import { computedStyle } from "$/base/utils/dom-geometry";
 import type { SurfaceBounds, SurfaceViewport } from "$/components/canvas-surface";
@@ -195,7 +196,8 @@ export function ColorArtwork({
     ],
   );
   const textX =
-    centerThemePixel(bounds.x, bounds.width, measureThemeText(textLabel, "mini")) - bounds.x;
+    centerThemePixel(bounds.x, bounds.width, measureThemeText(textLabel, FontRole.Compact)) -
+    bounds.x;
   const textY = centerThemePixel(bounds.y, bounds.height, 10) - bounds.y - 2;
   const showChecker = swatch.opacity < 1;
   const checker = React.useMemo(
@@ -286,7 +288,7 @@ export function ColorArtwork({
           x={textX}
           y={textY}
           color={ink}
-          font="mini"
+          font={FontRole.Compact}
           scale={2}
           style={{ opacity: disabled ? 125 / 255 : 1 }}
         />
