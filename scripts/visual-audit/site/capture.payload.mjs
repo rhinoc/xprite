@@ -128,6 +128,7 @@ try {
       source: `if(location.origin===${JSON.stringify(origin)}){
       localStorage.setItem("xprite.site.desktop-preferences",${JSON.stringify(JSON.stringify({ appearance: scene.appearance.saved }))});
       localStorage.setItem("xse.ui.appearance-mode.v1",${JSON.stringify(scene.appearance.saved)});
+      localStorage.setItem("xse.ui.language.v1",${JSON.stringify(scene.page.language)});
       ${siteConfig.geometrySource}
       window.__siteVisualErrors=[];
       window.addEventListener("error",event=>window.__siteVisualErrors.push(String(event.error??event.message)));

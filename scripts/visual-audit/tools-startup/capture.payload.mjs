@@ -33,7 +33,6 @@ const pageReady = (scene) =>
     : `#${scene.page.rootId}[data-tool-ready]`;
 const regions = async (scene) => {
   const root = pageRoot(scene);
-  const localeQuery = scene.page.language === "zh-CN" ? "?lang=zh-CN" : "";
   const selectors = {
     header: `${root} header`,
     main: `${root} main`,
@@ -42,10 +41,10 @@ const regions = async (scene) => {
       : `${root} main [data-ui-window-priority="primary"] [data-slot="panel-title"]`,
     ...(scene.page.publicPage
       ? {
-          viewer: `${root} main a[href="/tools/viewer/${localeQuery}"]`,
-          gifSheet: `${root} main a[href="/tools/gif-to-sprite-sheet/${localeQuery}"]`,
+          viewer: `${root} main a[href="/tools/viewer/"]`,
+          gifSheet: `${root} main a[href="/tools/gif-to-sprite-sheet/"]`,
           editor: `${root} main a[href="/editor"]`,
-          animalCrossing: `${root} main a[href="/tools/animal-crossing-qr/${localeQuery}"]`,
+          animalCrossing: `${root} main a[href="/tools/animal-crossing-qr/"]`,
         }
       : {
           examples: `${root} [data-slot="panel"][aria-label="${scene.page.language === "zh-CN" ? "试用示例" : "Try example"}"]`,
@@ -207,6 +206,7 @@ for (const scene of captureConfig.scenes) {
     source: `if(location.origin===${JSON.stringify(origin)}){
       localStorage.setItem("xprite.site.desktop-preferences",${JSON.stringify(JSON.stringify({ appearance: scene.appearance.saved }))});
       localStorage.setItem("xse.ui.appearance-mode.v1",${JSON.stringify(scene.appearance.saved)});
+      localStorage.setItem("xse.ui.language.v1",${JSON.stringify(scene.page.language)});
       ${captureConfig.geometrySource}
       (${captureConfig.monitorSource})(${JSON.stringify({
         regions: [
