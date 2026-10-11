@@ -79,12 +79,24 @@ export interface EditorFontPort {
 }
 
 interface EditorFilePort {
+  decodePaletteImageBytes?(
+    bytes: Uint8Array,
+    name: string,
+  ): Promise<{ pixels: PixelBuffer; alpha: boolean; grayscale: boolean } | null>;
+  savePaletteFile?(
+    request: PaletteFileSaveRequest,
+  ): Promise<{ name: string; bytes: Uint8Array } | null>;
   animalCrossingExport?: AnimalCrossingExportPort;
   sharing?: ProjectSharingPort;
   webp?: WebpExportPort;
   decodeAsepriteBlob(blob: Blob, fileName: string): Promise<SessionProject>;
   decodeImageBlob?(blob: Blob): Promise<PixelBuffer>;
   selectReferenceImage(signal: AbortSignal): Promise<PixelBuffer | null>;
+}
+export interface PaletteFileSaveRequest {
+  name: string;
+  formats: readonly { extension: string; mime: string; description: string }[];
+  encode(extension: string): Uint8Array;
 }
 
 export enum EditorWheelAction {
@@ -96,6 +108,7 @@ export enum EditorWheelAction {
   Foreground = "foreground",
   Background = "background",
   CellSize = "cell-size",
+  Hue = "hue",
 }
 
 export enum EditorWheelInputKind {

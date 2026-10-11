@@ -7,3 +7,5 @@ export * from "$/import-export/animal-crossing";
 export * from "$/import-export/animal-crossing/document-source";
 export * from "$/import-export/recovery";
 export * from "$/import-export/palette/resources";
+export * from "$/import-export/palette";
+export * from "$/import-export/palette-raster";

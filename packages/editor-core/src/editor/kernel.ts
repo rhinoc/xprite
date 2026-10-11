@@ -198,6 +198,9 @@ export class EditorKernel {
   getHistorySnapshot() {
     return this.history.getHistorySnapshot();
   }
+  coalesceLastChange(label: string): boolean {
+    return this.history.coalesceLastChange(label);
+  }
   getHistoryOptions() {
     return this.history.getOptions();
   }

@@ -1,16 +1,26 @@
-import { UINT16_VALUE_COUNT, UINT8_MAX } from "$/base/numeric-constants";
+import { MAX_DOCUMENT_PIXEL_BYTES } from "$/base/image-limits";
+import { UINT8_MAX } from "$/base/numeric-constants";
 import type { Rgba } from "$/base/primitives";
 
-/** Browser allocation guard; Aseprite doc::Palette is otherwise unbounded for RGB sprites. */
+/** PaletteSize's signed integer range is separate from addressable indexed pixels. */
 export const MIN_PALETTE_COLORS = 1;
-export const MAX_PALETTE_COLORS = UINT16_VALUE_COUNT;
-
-/** doc::Palette::resize defaults newly appended entries to opaque black. */
-export function resizePaletteColors(colors: readonly (readonly number[])[], size: number): Rgba[] {
+export const MAX_PALETTE_COLORS = 0x7fffffff;
+const ESTIMATED_PALETTE_ENTRY_BYTES = 64;
+export const MAX_ALLOCATED_PALETTE_COLORS = Math.floor(
+  MAX_DOCUMENT_PIXEL_BYTES / ESTIMATED_PALETTE_ENTRY_BYTES,
+);
+export function assertPaletteAllocation(size: number): void {
   if (!Number.isInteger(size) || size < MIN_PALETTE_COLORS || size > MAX_PALETTE_COLORS)
     throw new RangeError(
       `Palette size must be between ${MIN_PALETTE_COLORS} and ${MAX_PALETTE_COLORS}.`,
     );
+  if (size > MAX_ALLOCATED_PALETTE_COLORS)
+    throw new RangeError("Palette exceeds the browser memory budget.");
+}
+
+/** doc::Palette::resize defaults newly appended entries to opaque black. */
+export function resizePaletteColors(colors: readonly (readonly number[])[], size: number): Rgba[] {
+  assertPaletteAllocation(size);
   return Array.from({ length: size }, (_, index) => {
     const color = colors[index];
     return color ? [color[0], color[1], color[2], color[3] ?? UINT8_MAX] : [0, 0, 0, UINT8_MAX];

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useStore } from "zustand";
 
 import { WorkingColorTarget } from "$/managers/colors/working-color-target";
 import { useEditorFields } from "$/managers/editor/editor-state-manager";
@@ -52,6 +53,8 @@ export interface TilemapPaletteModel {
   workingColorTarget: WorkingColorTarget;
   setWorkingColorTarget(value: WorkingColorTarget): void;
   tilesetEditable: boolean;
+  selectedTiles: number[];
+  setSelectedTiles(value: number[] | ((current: number[]) => number[])): void;
   setTilesetEditable(value: boolean): void;
   active: boolean;
   tileset: TilemapTilesetPreview | null;
@@ -139,7 +142,8 @@ export function useTilemapPaletteModel(): TilemapPaletteModel {
     "tilesetEditable",
     "setTilesetEditable",
   ]);
-  const { core } = useEditorManagerContext();
+  const { core, uiStore } = useEditorManagerContext();
+  const selection = useStore(uiStore, (state) => state.tilesetSelection);
   const snapshot = useEditorSnapshot(core);
   const activeSet = activeTileset(snapshot);
   const runtime = useOptionalEditorRuntimeManagerContext();
@@ -162,8 +166,31 @@ export function useTilemapPaletteModel(): TilemapPaletteModel {
     movedTileset.current = null;
   }, [core, activeSet?.source.id]);
   const timeline = snapshot?.document?.timeline;
+  const selectedTiles =
+    selection?.owner === core &&
+    selection.documentKey === documentKey &&
+    selection.tilesetId === activeSet?.source.id
+      ? selection.indices.filter((index) => index >= 0 && index < activeSet.source.tileCount)
+      : [];
   return {
     ...workflow,
+    selectedTiles,
+    setSelectedTiles: (value) => {
+      if (!core || !activeSet) return;
+      const saved = uiStore.getState().tilesetSelection;
+      const current =
+        saved?.owner === core &&
+        saved.documentKey === documentKey &&
+        saved.tilesetId === activeSet.source.id
+          ? saved.indices
+          : [];
+      uiStore.getState().setTilesetSelection({
+        owner: core,
+        documentKey,
+        tilesetId: activeSet.source.id,
+        indices: typeof value === "function" ? value(current) : value,
+      });
+    },
     gestureOwner,
     isGestureOwnerCurrent,
     active: timeline?.layers[timeline.activeLayer]?.kind === "tilemap",

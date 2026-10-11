@@ -15,7 +15,7 @@ import {
   createAsepriteIndexWriter,
   createIndexedShadingWriter,
 } from "$/color/operations/color-mode";
-import { PaletteController } from "$/color/palette/controller";
+import { PaletteController, PaletteScope } from "$/color/palette/controller";
 import { DocumentController } from "$/document/controller";
 import {
   ensureTimeline,
@@ -636,19 +636,35 @@ class EditorComposition {
     );
     this.color = new PaletteController({
       getPalette: () => this.doc?.palette ?? this.palette,
-      getColor: (target) => this.settings[target],
-      setColor: (target, color) => {
+      getSystemPalette: () => this.palette,
+      getColor: (target, scope) => {
+        const index =
+          this.settings[target === "foreground" ? "foregroundIndex" : "backgroundIndex"];
+        return scope === PaletteScope.System && index != null
+          ? (this.color.systemPalette[index] ?? this.settings[target])
+          : this.settings[target];
+      },
+      setColor: (target, color, index) => {
         this.drawing.settings.setSettings(
-          target === "foreground" ? { foreground: color } : { background: color },
+          target === "foreground"
+            ? { foreground: color, foregroundIndex: index ?? null }
+            : { background: color, backgroundIndex: index ?? null },
         );
       },
-      commitPalette: (colors) => {
-        if (this.doc) {
+      commitPalette: (colors, options) => {
+        if (this.doc && options?.scope !== PaletteScope.System) {
+          const before = this.doc.palette;
           this.changeDocument(
             (document) => updateAsepriteFramePalette(document, colors),
             false,
-            "Set Palette",
+            options?.label ?? "Set Palette",
           );
+          if (
+            options?.mergePrevious &&
+            this.doc.palette !== before &&
+            this.host.kernel.coalesceLastChange(options.label)
+          )
+            this.publish();
         } else {
           this.palette = colors.map((color) => [...color] as unknown as Rgba);
           this.publish();

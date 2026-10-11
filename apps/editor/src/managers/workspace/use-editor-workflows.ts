@@ -39,6 +39,7 @@ import { usePwaManager } from "$/managers/pwa/pwa-context";
 import { DEFAULT_EDITOR_CHROME_PREFERENCES } from "$/managers/shell/editor-chrome-preferences";
 import { useEditorChromePreferences } from "$/managers/shell/editor-chrome-preferences-context";
 import { HELP_LINKS, HelpLink, HelpDocumentTab } from "$/managers/shell/help";
+import { ShortcutBindingKind, shortcutIdentity } from "$/managers/shortcuts/shortcut-catalog";
 import { shortcutContexts } from "$/managers/shortcuts/shortcut-contexts";
 import { SHORTCUT_DEFINITIONS } from "$/managers/shortcuts/shortcut-manager";
 import { useTelemetryFeatures } from "$/managers/telemetry/use-telemetry-features";
@@ -455,6 +456,57 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       session.canStartInteraction()
     );
   }
+  const palettePopupShortcut = useRef(() => {});
+  const palettePopupAvailable = useRef(false);
+  const palettePopupVisible = useRef(false);
+  palettePopupVisible.current = dialog === "color";
+  palettePopupAvailable.current = dialog === "color" || canStartInteraction();
+  palettePopupShortcut.current = () => {
+    if (dialog === "color" && colorTarget === "foreground") {
+      editor.setPaletteEditable(false);
+      setDialog(null);
+    } else {
+      editor.setPaletteEditable(true);
+      setColorTarget("foreground");
+      setDialog("color");
+    }
+  };
+  useEffect(() => {
+    const params = { edit: "switch", popup: "foreground" };
+    const unregister = workspace.shortcuts.registerMenuCommand(
+      shortcutIdentity(ShortcutBindingKind.Command, "PaletteEditor", "Any", params),
+      {
+        execute: () => palettePopupShortcut.current(),
+        canExecute: () => palettePopupAvailable.current,
+      },
+    );
+    const key = (event: KeyboardEvent) => {
+      if (
+        event.target instanceof Element &&
+        event.target.closest('[role="dialog"]') &&
+        !palettePopupVisible.current
+      )
+        return;
+      if (
+        !palettePopupAvailable.current ||
+        event.defaultPrevented ||
+        !workspace.shortcuts.matchesCommandShortcut(
+          normalizeKeyboardEvent(event),
+          "PaletteEditor",
+          params,
+        )
+      )
+        return;
+      event.preventDefault();
+      event.stopPropagation();
+      palettePopupShortcut.current();
+    };
+    document.addEventListener("keydown", key, true);
+    return () => {
+      unregister();
+      document.removeEventListener("keydown", key, true);
+    };
+  }, [workspace]);
   // Saving keeps ordinary editing available; only starting another workflow
   // consults session.canStartInteraction(), which also protects native pickers.
   const canDispatchEditorInput = () =>

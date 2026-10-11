@@ -153,6 +153,22 @@ for (const entry of [...definitions.values()].filter(
 }
 for (const entry of bindings.actions) add(ShortcutBindingKind.Action, entry);
 
+add(
+  ShortcutBindingKind.Command,
+  { id: "PaletteEditor", shortcut: "A", context: "Any" },
+  "Edit Palette",
+);
+add(
+  ShortcutBindingKind.Command,
+  {
+    id: "PaletteEditor",
+    shortcut: "F4",
+    context: "Any",
+    params: { edit: "switch", popup: "foreground" },
+  },
+  "Edit Palette and Foreground Color",
+);
+
 const extraActions: CatalogEntry[] = [
   { id: "CornerRadius", shortcut: "C", context: "Shape" },
   { id: "FineControl", shortcut: "Ctrl", context: "Selection Transform" },

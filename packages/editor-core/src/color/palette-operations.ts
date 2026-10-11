@@ -1,5 +1,5 @@
 import { UINT8_MAX } from "$/base/numeric-constants";
-import { MAX_PALETTE_COLORS } from "$/color/palette-resize";
+import { MAX_ALLOCATED_PALETTE_COLORS } from "$/color/palette-resize";
 /** Pure palette commands from ColorBar, doc/palette.cpp and doc/sort_palette.cpp. */
 export enum PaletteOperation {
   Reverse = "reverse",
@@ -32,7 +32,7 @@ export function dropPaletteColors(
   const original = colors.map(
     (color) => [color[0], color[1], color[2], color[3] ?? UINT8_MAX] as PaletteRgba,
   );
-  const capacityExceeded = copy && colors.length + picks.length > MAX_PALETTE_COLORS;
+  const capacityExceeded = copy && colors.length + picks.length > MAX_ALLOCATED_PALETTE_COLORS;
   if (!picks.length || capacityExceeded || !Number.isFinite(target))
     return {
       colors: original,
@@ -40,7 +40,7 @@ export function dropPaletteColors(
       remap: original.map((_, index) => index),
       capacityExceeded,
     };
-  target = Math.max(0, Math.min(MAX_PALETTE_COLORS - picks.length, Math.floor(target)));
+  target = Math.max(0, Math.min(MAX_ALLOCATED_PALETTE_COLORS - picks.length, Math.floor(target)));
   const before = !copy && target > picks[0] ? target + picks.length : target;
   while (original.length < before) original.push([0, 0, 0, UINT8_MAX]);
   const picked = new Set(picks);

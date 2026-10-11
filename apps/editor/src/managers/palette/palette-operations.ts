@@ -1,11 +1,5 @@
 import { formatEditorColor } from "$/managers/tools/color-control";
-import {
-  extractPalette,
-  resizePaletteColors,
-  UINT8_MAX,
-  type PixelBuffer,
-  type Rgba,
-} from "@xprite/editor-core";
+import { resizePaletteColors, UINT8_MAX, type Rgba } from "@xprite/editor-core";
 
 export type PaletteColor = Rgba;
 export const PALETTE_COLOR_CHANNEL_MAX = UINT8_MAX;
@@ -33,8 +27,4 @@ export function resizeEditorPalette(
   count: number,
 ): PaletteColor[] {
   return resizePaletteColors(normalizeEditorPalette(colors), count);
-}
-
-export function createPaletteFromSprite(image: PixelBuffer, maxColors: number): PaletteColor[] {
-  return extractPalette(image, { maxColors: Math.trunc(maxColors) }).map((entry) => entry.color);
 }

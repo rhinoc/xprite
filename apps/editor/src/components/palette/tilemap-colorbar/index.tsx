@@ -196,8 +196,9 @@ export function InlineTileset({ bounds }: { bounds: SurfaceBounds }) {
   const assets = useUiAssets();
   const [boxSize, setBoxSize] = useState(16),
     [scrollY, setScrollY] = useState(0);
-  const [selected, setSelected] = useState<number[]>([]),
-    [anchor, setAnchor] = useState(0),
+  const selected = editor.selectedTiles;
+  const setSelected = editor.setSelectedTiles;
+  const [anchor, setAnchor] = useState(0),
     [dropBefore, setDropBefore] = useState<number | null>(null);
   const touch = useRef<{
     owner: object;
@@ -248,11 +249,10 @@ export function InlineTileset({ bounds }: { bounds: SurfaceBounds }) {
     return () => window.removeEventListener("blur", cancelGestures);
   });
   useEffect(() => {
-    setSelected([]);
     setScrollY(0);
     setHasRemapSource(false);
     setResizePreview(null);
-  }, [set?.id]);
+  }, [editor.gestureOwner]);
   const count = set?.tileCount ?? 0,
     displayCount = resizePreview ?? count,
     innerHeight = Math.max(1, bounds.height - 12),

@@ -5,7 +5,7 @@ import { transform } from "esbuild";
 import { describe, it } from "vitest";
 
 import { UINT8_MAX } from "$/base/numeric-constants";
-import { MAX_PALETTE_COLORS } from "$/color/palette-resize";
+const TEST_PALETTE_CAPACITY = 64;
 
 describe("palette-operations", () => {
   it("palette-operations behavior", async () => {
@@ -15,8 +15,8 @@ describe("palette-operations", () => {
         `const UINT8_MAX = ${UINT8_MAX};\n`,
       )
       .replace(
-        /^import \{ MAX_PALETTE_COLORS \} from "\$\/color\/palette-resize";\r?\n/m,
-        `const MAX_PALETTE_COLORS = ${MAX_PALETTE_COLORS};\n`,
+        /^import \{ MAX_ALLOCATED_PALETTE_COLORS \} from "\$\/color\/palette-resize";\r?\n/m,
+        `const MAX_ALLOCATED_PALETTE_COLORS = ${TEST_PALETTE_CAPACITY};\n`,
       );
     const { code } = await transform(source, { loader: "ts", format: "esm" });
     const { operatePalette: op, dropPaletteColors: drop } = await import(
@@ -98,19 +98,19 @@ describe("palette-operations", () => {
     check(drop(palette, [], 2).colors, palette);
     check(drop(palette, [1], 5).colors, [red, blue, black, black, black, green]);
     check(palette, [red, green, blue, black]);
-    const fullPalette = Array.from({ length: MAX_PALETTE_COLORS }, () => black);
+    const fullPalette = Array.from({ length: TEST_PALETTE_CAPACITY }, () => black);
     const blockedCopy = drop(fullPalette, [0], 0, true);
     check(blockedCopy.capacityExceeded, true);
-    check(blockedCopy.colors.length, MAX_PALETTE_COLORS);
+    check(blockedCopy.colors.length, TEST_PALETTE_CAPACITY);
     check(blockedCopy.selected, [0]);
-    check(blockedCopy.remap[MAX_PALETTE_COLORS - 1], MAX_PALETTE_COLORS - 1);
-    const finalSlotCopy = drop(fullPalette.slice(1), [0], MAX_PALETTE_COLORS * 2, true);
+    check(blockedCopy.remap[TEST_PALETTE_CAPACITY - 1], TEST_PALETTE_CAPACITY - 1);
+    const finalSlotCopy = drop(fullPalette.slice(1), [0], TEST_PALETTE_CAPACITY * 2, true);
     check(finalSlotCopy.capacityExceeded, false);
-    check(finalSlotCopy.colors.length, MAX_PALETTE_COLORS);
-    check(finalSlotCopy.selected, [MAX_PALETTE_COLORS - 1]);
-    const fullPaletteMove = drop(fullPalette, [0], MAX_PALETTE_COLORS * 2);
-    check(fullPaletteMove.colors.length, MAX_PALETTE_COLORS);
-    check(fullPaletteMove.selected, [MAX_PALETTE_COLORS - 1]);
+    check(finalSlotCopy.colors.length, TEST_PALETTE_CAPACITY);
+    check(finalSlotCopy.selected, [TEST_PALETTE_CAPACITY - 1]);
+    const fullPaletteMove = drop(fullPalette, [0], TEST_PALETTE_CAPACITY * 2);
+    check(fullPaletteMove.colors.length, TEST_PALETTE_CAPACITY);
+    check(fullPaletteMove.selected, [TEST_PALETTE_CAPACITY - 1]);
     console.log(
       `${checks} total palette fixtures passed including move/copy drops, destination selection, extension and immutability.`,
     );

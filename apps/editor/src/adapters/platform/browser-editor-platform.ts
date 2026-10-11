@@ -2,6 +2,7 @@ import { browserColorSampling } from "$/adapters/colors/browser-color-sampling";
 import { decodeAsepriteBlob } from "$/adapters/files/aseprite-files";
 import { createBrowserAnimalCrossingExportPort } from "$/adapters/files/browser-animal-crossing-export";
 import { decodeImage } from "$/adapters/files/images";
+import { saveBrowserPaletteFile, decodeBrowserPaletteImage } from "$/adapters/files/palette-files";
 import { createReferenceImageSelector } from "$/adapters/files/reference-image";
 import { createBrowserWebpExportPort } from "$/adapters/files/webp-export";
 import { browserPointerSamples } from "$/adapters/input/browser-pointer-samples";
@@ -55,6 +56,8 @@ export function createBrowserEditorPlatformPorts(): EditorPlatformPorts {
     userPresets: new IndexedDbUserPresets(),
     shortcutFiles: createBrowserShortcutFilePort(primaryModifier),
     files: {
+      savePaletteFile: saveBrowserPaletteFile,
+      decodePaletteImageBytes: decodeBrowserPaletteImage,
       animalCrossingExport: createBrowserAnimalCrossingExportPort(),
       sharing:
         !__XPRITE_ITCH__ && typeof Worker === "function"

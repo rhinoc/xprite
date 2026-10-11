@@ -1,0 +1,41 @@
+.root {
+  position: relative;
+  user-select: none;
+}
+.background,
+.frame {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  pointer-events: none;
+}
+.frame {
+  width: 100%;
+  height: 100%;
+}
+.area {
+  position: absolute;
+}
+.indicators {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: var(--ui-cursor-eyedropper, crosshair);
+  touch-action: none;
+}
+.input:focus-visible {
+  outline: 1px dotted var(--ui-color-ink);
+  outline-offset: -1px;
+}
