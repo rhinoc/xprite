@@ -167,8 +167,6 @@ importers:
         specifier: ^5.0.15
         version: 5.0.15(@types/react@18.3.31)(react@18.3.1)
 
-  apps/editor/assets/palette-presets: {}
-
   apps/growth:
     dependencies:
       '@xprite/site-shell':
@@ -317,13 +315,15 @@ importers:
         version: link:../editor-core
       '@xprite/palette-assets':
         specifier: workspace:*
-        version: link:../../apps/editor/assets/palette-presets
+        version: link:../palette-assets
       '@xprite/ui':
         specifier: workspace:*
         version: link:../ui
       react:
         specifier: ^18.3.1
         version: 18.3.1
+
+  packages/palette-assets: {}
 
   packages/site-shell:
     dependencies:

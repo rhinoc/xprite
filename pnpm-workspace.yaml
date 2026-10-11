@@ -2,7 +2,6 @@ packages:
   - apps/*
   - apps/growth/content
   - apps/growth/public
-  - apps/editor/assets/palette-presets
   - packages/*
   - services/*
 
