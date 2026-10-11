@@ -224,7 +224,7 @@
   border: 0;
   background: var(--xse-window-tooltip-face);
   color: var(--xse-window-tooltip-text);
-  cursor: move;
+  cursor: var(--ui-cursor-move, move);
   touch-action: none;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -307,7 +307,7 @@
   min-height: 0;
 }
 :global(.xse-floating-workspace-titlebar) {
-  cursor: move;
+  cursor: var(--ui-cursor-move, move);
   touch-action: none;
 }
 :global(.xse-floating-workspace-resize) {
@@ -320,7 +320,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  cursor: nwse-resize;
+  cursor: var(--ui-cursor-resize-se, nwse-resize);
   touch-action: none;
 }
 :global(.xse-floating-workspace-resize::after) {
@@ -343,7 +343,7 @@
 }
 :global(.xse-floating-workspace-resize[data-resize-x="left"]:not([data-resize-y="top"])),
 :global(.xse-floating-workspace-resize[data-resize-y="top"]:not([data-resize-x="left"])) {
-  cursor: nesw-resize;
+  cursor: var(--ui-cursor-resize-ne, nesw-resize);
 }
 :global(.xse-floating-workspace-resize[data-resize-x="left"]::after) {
   left: 0;
@@ -545,12 +545,12 @@
 :global(.xse-floating-workspace-resize[data-resize-axis="horizontal"]) {
   width: var(--xse-workspace-bar-gap, 4px);
   height: 100%;
-  cursor: ew-resize;
+  cursor: var(--ui-cursor-resize-horizontal, ew-resize);
 }
 :global(.xse-floating-workspace-resize[data-resize-axis="vertical"]) {
   width: 100%;
   height: var(--xse-workspace-bar-gap, 4px);
-  cursor: ns-resize;
+  cursor: var(--ui-cursor-resize-vertical, ns-resize);
 }
 :global(.xse-floating-workspace-resize[data-resize-axis]::after) {
   inset: 0;

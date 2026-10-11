@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { tUi, tUiSource } from "$/i18n";
+import { useWheelInput } from "$/managers/input/use-wheel-input";
 import {
   Button,
   Combobox,
@@ -26,7 +27,7 @@ import {
 import type { SurfaceBounds } from "@xprite/ui";
 import { UiPart } from "@xprite/ui/assets";
 import { DEFAULT_SURFACE_VIEWPORT, surfaceLayout } from "@xprite/ui/canvas";
-import { isImeKeyboardEvent } from "@xprite/ui/utils";
+import { clientDeltaToSurface, isImeKeyboardEvent } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/keyboard-shortcuts/keyboard-shortcuts.module.css";
 
@@ -113,6 +114,8 @@ function ShortcutList({
   labels,
 }: ShortcutListProps) {
   const { style, translateSource } = useUi();
+  const { connect: connectWheel } = useWheelInput();
+  const listInput = useRef<HTMLDivElement | null>(null);
   const viewport = DEFAULT_SURFACE_VIEWPORT;
   const layout = surfaceLayout(bounds, viewport);
   const origin = {
@@ -124,6 +127,47 @@ function ShortcutList({
   const contentHeight = rows.length * rowHeight;
   const maxScroll = Math.max(0, contentHeight - bodyHeight);
   const currentScroll = Math.max(0, Math.min(maxScroll, scrollTop));
+  const wheelState = useRef({
+    bounds,
+    bodyHeight,
+    currentScroll,
+    maxScroll,
+    onScrollTopChange,
+    rowHeight,
+  });
+  wheelState.current = {
+    bounds,
+    bodyHeight,
+    currentScroll,
+    maxScroll,
+    onScrollTopChange,
+    rowHeight,
+  };
+  useEffect(() => {
+    const node = listInput.current;
+    if (!node) return;
+    const wheel = (event: WheelEvent) => {
+      if (!event.deltaY) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const current = wheelState.current;
+      const delta = clientDeltaToSurface(
+        node,
+        { x: 0, y: event.deltaY },
+        { width: current.bounds.width, height: current.bounds.height },
+      );
+      const scrollDelta =
+        event.deltaMode === WheelEvent.DOM_DELTA_LINE
+          ? event.deltaY * current.rowHeight
+          : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+            ? event.deltaY * current.bodyHeight
+            : delta.y;
+      current.onScrollTopChange(
+        Math.max(0, Math.min(current.maxScroll, current.currentScroll + Math.round(scrollDelta))),
+      );
+    };
+    return connectWheel(node, wheel);
+  }, [connectWheel]);
   const colors = style.colors;
   const visibleStart = Math.max(0, Math.floor(currentScroll / rowHeight));
   const visibleEnd = Math.min(rows.length, Math.ceil((currentScroll + bodyHeight) / rowHeight));
@@ -149,10 +193,7 @@ function ShortcutList({
         width: layout.width,
         height: layout.height,
       }}
-      onWheel={(event) => {
-        event.stopPropagation();
-        onScrollTopChange(Math.max(0, Math.min(maxScroll, currentScroll + event.deltaY)));
-      }}
+      ref={listInput}
       onKeyDown={(event) => {
         if (!rows.length) return;
         let next = selectedIndex;

@@ -1,9 +1,11 @@
 import { useSyncExternalStore } from "react";
 
 import { FileToolShell } from "$/components/shared/file-tool-shell";
+import { ToolHelp } from "$/components/shared/tool-help";
 import type { PixelationManager } from "$/managers/pixelation/pixelation-manager";
 import { PIXELATE_TOOL } from "$/managers/tools/tool-catalog";
 import { PixelationComparison, PixelationControls } from "@xprite/editor-ui";
+import { PIXELATE_HELP, PixelateHelpSection } from "@xprite/growth-content/tools";
 import {
   Button,
   ContentLayout,
@@ -28,6 +30,7 @@ export function PixelationPage({ manager }: { manager: PixelationManager }) {
       processing={busy || state.converting}
       busy={busy}
       error={state.error}
+      help={<ToolHelp id={PixelateHelpSection.Overview} content={PIXELATE_HELP} />}
       onOpen={(file) => manager.open(file)}
       onExample={() => manager.openExample()}
       fileItems={[

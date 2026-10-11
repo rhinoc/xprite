@@ -428,7 +428,7 @@ export function TimelineTags({
                     ? `rgba(${UINT8_MAX},${UINT8_MAX},${UINT8_MAX},.3)`
                     : "transparent",
                 touchAction: "none",
-                cursor: "move",
+                cursor: "var(--ui-cursor-move, move)",
                 pointerEvents: "auto",
               }}
               onClick={(event) => {
@@ -519,7 +519,7 @@ export function TimelineTags({
                   top: (bandTop + 28) * sy,
                   width: 6 * sx,
                   height: 10 * sy,
-                  cursor: "ew-resize",
+                  cursor: "var(--ui-cursor-resize-horizontal, ew-resize)",
                   touchAction: "none",
                   pointerEvents: "auto",
                 }}

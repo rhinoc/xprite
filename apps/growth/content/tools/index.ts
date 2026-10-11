@@ -3,6 +3,7 @@ import { TOOL_CHINESE_TEXT } from "./zh-CN.ts";
 
 export { ANIMAL_CROSSING_HELP, AnimalCrossingHelpSection } from "./animal-crossing-help.ts";
 export { GIF_SHEET_HELP, GifSheetHelpSection } from "./gif-sheet-help.ts";
+export { PIXELATE_HELP, PixelateHelpSection } from "./pixelate-help.ts";
 export type { ToolHelpContent } from "./help.ts";
 export { VIEWER_EXPORT_HELP, ViewerHelpSection } from "./viewer-help.ts";
 
@@ -108,7 +109,6 @@ export const PIXELATE_TOOL = {
   fileLabel: "Choose an image to pixelate",
   openLabel: "Open image",
   dropLabel: "Drop a PNG, JPEG or WebP image",
-  guidePath: "/help/en/",
 } as const;
 
 export const EDITOR_TOOL = {

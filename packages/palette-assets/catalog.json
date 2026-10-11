@@ -99,6 +99,17 @@
     "sourceUrl": "https://github.com/LibreSprite/LibreSprite/blob/eb34acdf27805504fe6637093685944877b51fe5/data/palettes/arne32.gpl"
   },
   {
+    "id": "Artkal S (199 RGB)",
+    "name": "Artkal S (199 RGB)",
+    "file": "beads/artkal-s-rgb-reference.gpl",
+    "group": "Fuse Bead Palettes",
+    "author": "Community contributors",
+    "authorUrl": "https://github.com/maxcleme/beadcolors",
+    "license": "MIT",
+    "licenseUrl": "https://github.com/maxcleme/beadcolors/blob/f97ff4283d03cef5cd7e1071a86f5892e0c0c61b/LICENSE",
+    "sourceUrl": "https://github.com/maxcleme/beadcolors/blob/f97ff4283d03cef5cd7e1071a86f5892e0c0c61b/raw/artkal_s.csv"
+  },
+  {
     "id": "Atari 2600 NTSC",
     "name": "Atari 2600 NTSC",
     "file": "libresprite/atari2600-ntsc.gpl",
@@ -341,6 +352,17 @@
     "sourceUrl": "https://github.com/LibreSprite/LibreSprite/blob/eb34acdf27805504fe6637093685944877b51fe5/data/palettes/google-ui.gpl"
   },
   {
+    "id": "Hama Midi (92 RGB)",
+    "name": "Hama Midi (92 RGB)",
+    "file": "beads/hama-midi.gpl",
+    "group": "Fuse Bead Palettes",
+    "author": "Community contributors",
+    "authorUrl": "https://github.com/maxcleme/beadcolors",
+    "license": "MIT",
+    "licenseUrl": "https://github.com/maxcleme/beadcolors/blob/f97ff4283d03cef5cd7e1071a86f5892e0c0c61b/LICENSE",
+    "sourceUrl": "https://github.com/maxcleme/beadcolors/blob/f97ff4283d03cef5cd7e1071a86f5892e0c0c61b/raw/hama.csv"
+  },
+  {
     "id": "Horror Dark",
     "name": "Horror Dark",
     "file": "paleto/horror-dark.gpl",
@@ -372,6 +394,17 @@
     "license": "GPL-2.0-only",
     "licenseUrl": "https://github.com/LibreSprite/LibreSprite/blob/eb34acdf27805504fe6637093685944877b51fe5/LICENSE.txt",
     "sourceUrl": "https://github.com/LibreSprite/LibreSprite/blob/eb34acdf27805504fe6637093685944877b51fe5/data/palettes/jmp.gpl"
+  },
+  {
+    "id": "MARD 221",
+    "name": "MARD 221",
+    "file": "beads/mard-221.gpl",
+    "group": "Fuse Bead Palettes",
+    "author": "Community contributors",
+    "authorUrl": "https://github.com/maxcleme/beadcolors",
+    "license": "MIT",
+    "licenseUrl": "https://github.com/maxcleme/beadcolors/blob/f97ff4283d03cef5cd7e1071a86f5892e0c0c61b/LICENSE",
+    "sourceUrl": "https://github.com/maxcleme/beadcolors/blob/f97ff4283d03cef5cd7e1071a86f5892e0c0c61b/raw/mard.csv"
   },
   {
     "id": "Master System",
@@ -416,6 +449,17 @@
     "license": "GPL-2.0-only",
     "licenseUrl": "https://github.com/LibreSprite/LibreSprite/blob/eb34acdf27805504fe6637093685944877b51fe5/LICENSE.txt",
     "sourceUrl": "https://github.com/LibreSprite/LibreSprite/blob/eb34acdf27805504fe6637093685944877b51fe5/data/palettes/nes-ntsc.gpl"
+  },
+  {
+    "id": "Perler (103 RGB)",
+    "name": "Perler (103 RGB)",
+    "file": "beads/perler.gpl",
+    "group": "Fuse Bead Palettes",
+    "author": "Community contributors",
+    "authorUrl": "https://github.com/maxcleme/beadcolors",
+    "license": "MIT",
+    "licenseUrl": "https://github.com/maxcleme/beadcolors/blob/f97ff4283d03cef5cd7e1071a86f5892e0c0c61b/LICENSE",
+    "sourceUrl": "https://github.com/maxcleme/beadcolors/blob/f97ff4283d03cef5cd7e1071a86f5892e0c0c61b/raw/perler.csv"
   },
   {
     "id": "PICO-8",

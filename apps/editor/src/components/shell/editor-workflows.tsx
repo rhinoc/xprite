@@ -677,6 +677,7 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
                 if (!open) setDialog(null);
               }}
               title={colorTarget === "foreground" ? "Foreground Color" : "Background Color"}
+              showCloseButton
               value={formatEditorColor(state.settings[colorTarget])}
               onValueChange={(value) =>
                 colorTarget === "foreground"

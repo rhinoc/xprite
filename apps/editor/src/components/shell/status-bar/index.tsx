@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 
 import { useWorkspaceLayoutConfiguration } from "$/components/shared/editor-layout-context";
 import { BackupIndicator } from "$/components/shell/backup-indicator";
@@ -7,6 +7,7 @@ import type { HomeViewFooterSegment } from "$/components/workspace/home-view-bas
 import { tUi } from "$/i18n";
 import { stepAsepriteZoom } from "$/managers/canvas/canvas-manager";
 import type { useEditor } from "$/managers/editor/editor-state-manager";
+import { useWheelInput } from "$/managers/input/use-wheel-input";
 import { useEditorDocumentView } from "$/managers/shell/editor-document-view";
 import { parseEditorColor } from "$/managers/tools/color-control";
 import { FontRole, Button, Input, ScrollArea, Text, TextVariant, useUi, Icon } from "@xprite/ui";
@@ -41,6 +42,10 @@ export function StatusBar({
   };
 }) {
   const { style: uiStyle } = useUi();
+  const { connect: connectWheel } = useWheelInput();
+  const zoomControl = useRef<HTMLDivElement | null>(null);
+  const latestEditor = useRef(editor);
+  latestEditor.current = editor;
   const workspaceLayoutConfiguration = useWorkspaceLayoutConfiguration();
   const showDocumentName = workspaceLayoutConfiguration.chrome.showDocumentNameInStatus;
   const documentView = useEditorDocumentView();
@@ -56,6 +61,20 @@ export function StatusBar({
     !showDocumentName && filename
       ? editor.notice.replaceAll(filename, "").replace(/\s+/g, " ").trim()
       : editor.notice;
+  useEffect(() => {
+    const input = zoomControl.current?.querySelector<HTMLInputElement>(
+      'input[data-label-source="Zoom"]',
+    );
+    if (!input) return;
+    const wheel = (event: WheelEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const current = latestEditor.current;
+      const direction = Math.sign(event.deltaX) - Math.sign(event.deltaY);
+      if (direction) current.setZoom(stepAsepriteZoom(current.zoom, direction));
+    };
+    return connectWheel(input, wheel);
+  }, [about, editor.functional, hasDocument, connectWheel]);
   return (
     <ScrollArea
       className="xse-status"
@@ -147,7 +166,7 @@ export function StatusBar({
       </div>
       {!about && backupActive && <BackupIndicator active />}
       {!about && (!editor.functional || hasDocument) && (
-        <div className="xse-status-actions">
+        <div className="xse-status-actions" ref={zoomControl}>
           <span className={styles.frameIcon} aria-hidden="true">
             <Icon kind="icon_frame" x={0} y={0} scale={2} color={uiStyle.colors.status_bar_text} />
           </span>
@@ -186,12 +205,6 @@ export function StatusBar({
             value={editor.zoom.toFixed(1)}
             suffix="%"
             aria-label="Zoom"
-            onWheel={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              const direction = Math.sign(event.deltaX) - Math.sign(event.deltaY);
-              if (direction) editor.setZoom(stepAsepriteZoom(editor.zoom, direction));
-            }}
             onCommit={(value) =>
               editor.setZoom(Math.max(100 / 64, Math.min(6400, Number(value) || 100)))
             }

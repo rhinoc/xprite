@@ -1613,7 +1613,7 @@ function EditorTimelineContent({
               ? interactions.rangeCursor === TimelineRangeCursor.Copy
                 ? "var(--ui-cursor-copy, copy)"
                 : "var(--ui-cursor-move, move)"
-              : "col-resize",
+              : "var(--ui-cursor-resize-horizontal, col-resize)",
             touchAction: "none",
           }}
           onPointerDown={(e) => {
@@ -1699,14 +1699,14 @@ function EditorTimelineContent({
                   bottom: 0,
                   width: 3 * UI_SCALE,
                   ...(timelinePosition === "left" ? { right: 0 } : { left: 0 }),
-                  cursor: "ew-resize",
+                  cursor: "var(--ui-cursor-resize-horizontal, ew-resize)",
                 }
               : {
                   left: 0,
                   right: 0,
                   height: 3 * UI_SCALE,
                   ...(timelinePosition === "top" ? { bottom: 0 } : { top: 0 }),
-                  cursor: "ns-resize",
+                  cursor: "var(--ui-cursor-resize-vertical, ns-resize)",
                 }),
           }}
           onPointerDown={(event) => {

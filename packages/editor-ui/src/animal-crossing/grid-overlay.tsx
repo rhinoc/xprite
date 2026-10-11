@@ -151,14 +151,14 @@ export function AnimalCrossingGridOverlay({
       handle: GridHandle.Move,
       x: origin.x,
       y: origin.y,
-      cursor: "move",
+      cursor: "var(--ui-cursor-move, move)",
       hit: square(origin.x, origin.y),
     },
     {
       handle: GridHandle.Width,
       x: right,
       y: selectedBox.y + selectedBox.height / 2,
-      cursor: "ew-resize",
+      cursor: "var(--ui-cursor-resize-horizontal, ew-resize)",
       hit: {
         x: right - HANDLE_HIT_RADIUS,
         y: selectedBox.y + HANDLE_HIT_RADIUS,
@@ -170,7 +170,7 @@ export function AnimalCrossingGridOverlay({
       handle: GridHandle.Height,
       x: selectedBox.x + selectedBox.width / 2,
       y: bottom,
-      cursor: "ns-resize",
+      cursor: "var(--ui-cursor-resize-vertical, ns-resize)",
       hit: {
         x: selectedBox.x + HANDLE_HIT_RADIUS,
         y: bottom - HANDLE_HIT_RADIUS,
@@ -182,14 +182,14 @@ export function AnimalCrossingGridOverlay({
       handle: GridHandle.Corner,
       x: right,
       y: bottom,
-      cursor: "nwse-resize",
+      cursor: "var(--ui-cursor-resize-se, nwse-resize)",
       hit: square(right, bottom),
     },
     {
       handle: GridHandle.SpacingX,
       x: firstRight + spacingWidth / 2,
       y: origin.y - GAP_HANDLE_OFFSET,
-      cursor: "ew-resize",
+      cursor: "var(--ui-cursor-resize-horizontal, ew-resize)",
       hit: {
         x: firstRight - HANDLE_HIT_RADIUS,
         y: origin.y - GAP_HANDLE_OFFSET - HANDLE_HIT_RADIUS,
@@ -201,7 +201,7 @@ export function AnimalCrossingGridOverlay({
       handle: GridHandle.SpacingY,
       x: origin.x - GAP_HANDLE_OFFSET,
       y: firstBottom + spacingHeight / 2,
-      cursor: "ns-resize",
+      cursor: "var(--ui-cursor-resize-vertical, ns-resize)",
       hit: {
         x: origin.x - GAP_HANDLE_OFFSET - HANDLE_HIT_RADIUS,
         y: firstBottom - HANDLE_HIT_RADIUS,

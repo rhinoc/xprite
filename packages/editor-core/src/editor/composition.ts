@@ -857,6 +857,7 @@ class EditorComposition {
         getOptions: () => ({
           useKeys: !!this.settings.sliceUseKeys,
           zoom: this.view.zoom,
+          slicesVisible: this.view.slices,
           defaultSliceColor: this.settings.defaultSliceColor,
         }),
         beginEdit: (label) => {

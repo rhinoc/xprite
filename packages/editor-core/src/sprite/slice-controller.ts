@@ -21,10 +21,22 @@ export interface SliceEditTransaction {
 
 export interface SliceControllerPort {
   getTimeline(): SliceTimelineState | null;
-  getOptions(): { useKeys: boolean; zoom: number; defaultSliceColor?: string };
+  getOptions(): {
+    useKeys: boolean;
+    zoom: number;
+    slicesVisible?: boolean;
+    defaultSliceColor?: string;
+  };
   beginEdit(label: string): SliceEditTransaction | null;
   setPointer(point: Point): void;
   publish(): void;
+}
+
+export interface SliceGestureTarget {
+  bounds: Rect;
+  handle?: string;
+  mode: "move" | "resize" | "center";
+  selectedSliceIds: readonly string[];
 }
 
 export interface SliceControllerSnapshot {
@@ -42,6 +54,145 @@ type SliceDrag = {
 };
 
 const point = (value: Point): Point => ({ x: Math.floor(value.x), y: Math.floor(value.y) });
+const SLICE_HANDLE_TOLERANCE_SCREEN = 5;
+const SLICE_CENTER_HANDLE_BEFORE_SCREEN = 2;
+const SLICE_CENTER_HANDLE_WIDTH_SCREEN = 5;
+
+function unionSliceBounds(
+  slices: readonly SpriteSlice[],
+  selectedSliceIds: readonly string[],
+  frame: number,
+): Rect | undefined {
+  const bounds = slices
+    .filter((slice) => selectedSliceIds.includes(slice.id))
+    .map((slice) => sliceKeyAt(slice, frame)?.bounds)
+    .filter((value): value is Rect => !!value);
+  if (!bounds.length) return;
+  const x = Math.min(...bounds.map((value) => value.x));
+  const y = Math.min(...bounds.map((value) => value.y));
+  return {
+    x,
+    y,
+    width: Math.max(...bounds.map((value) => value.x + value.width)) - x,
+    height: Math.max(...bounds.map((value) => value.y + value.height)) - y,
+  };
+}
+
+function resizeHandle(bounds: Rect, cursor: Point, tolerance: number): string | undefined {
+  const left = Math.abs(cursor.x - bounds.x) <= tolerance;
+  const right = Math.abs(cursor.x - (bounds.x + bounds.width)) <= tolerance;
+  const top = Math.abs(cursor.y - bounds.y) <= tolerance;
+  const bottom = Math.abs(cursor.y - (bounds.y + bounds.height)) <= tolerance;
+  const withinX = cursor.x >= bounds.x && cursor.x <= bounds.x + bounds.width;
+  const withinY = cursor.y >= bounds.y && cursor.y <= bounds.y + bounds.height;
+  return top && withinX
+    ? left
+      ? "nw"
+      : right
+        ? "ne"
+        : "n"
+    : bottom && withinX
+      ? left
+        ? "sw"
+        : right
+          ? "se"
+          : "s"
+      : left && withinY
+        ? "w"
+        : right && withinY
+          ? "e"
+          : undefined;
+}
+
+function centerResizeHandle(
+  bounds: Rect,
+  center: Rect,
+  cursor: Point,
+  zoom: number,
+): string | undefined {
+  const left = bounds.x + center.x;
+  const top = bounds.y + center.y;
+  const right = left + center.width;
+  const bottom = top + center.height;
+  const band = (value: number, edge: number) => {
+    const start = edge - SLICE_CENTER_HANDLE_BEFORE_SCREEN / zoom;
+    return value >= start && value < start + SLICE_CENTER_HANDLE_WIDTH_SCREEN / zoom;
+  };
+  const horzTop =
+    cursor.x >= bounds.x && cursor.x <= bounds.x + bounds.width && band(cursor.y, top);
+  const horzBottom =
+    cursor.x >= bounds.x && cursor.x <= bounds.x + bounds.width && band(cursor.y, bottom);
+  const vertLeft =
+    cursor.y >= bounds.y && cursor.y <= bounds.y + bounds.height && band(cursor.x, left);
+  const vertRight =
+    cursor.y >= bounds.y && cursor.y <= bounds.y + bounds.height && band(cursor.x, right);
+  return horzTop
+    ? vertLeft
+      ? "nw"
+      : vertRight
+        ? "ne"
+        : "n"
+    : horzBottom
+      ? vertLeft
+        ? "sw"
+        : vertRight
+          ? "se"
+          : "s"
+      : vertLeft
+        ? "w"
+        : vertRight
+          ? "e"
+          : undefined;
+}
+
+/** Resolve the active slice operation so cursor feedback and pointer-down agree. */
+export function sliceGestureTargetAt({
+  slices,
+  selectedSliceIds,
+  frame,
+  cursor,
+  zoom,
+  shift = false,
+}: {
+  slices: readonly SpriteSlice[];
+  selectedSliceIds: readonly string[];
+  frame: number;
+  cursor: Point;
+  zoom: number;
+  shift?: boolean;
+}): SliceGestureTarget | null {
+  const slice = slices.find((candidate) => {
+    const bounds = sliceKeyAt(candidate, frame)?.bounds;
+    return (
+      bounds &&
+      cursor.x >= bounds.x &&
+      cursor.y >= bounds.y &&
+      cursor.x < bounds.x + bounds.width &&
+      cursor.y < bounds.y + bounds.height
+    );
+  });
+  if (!slice) return null;
+  const selected = selectedSliceIds.includes(slice.id)
+    ? [...selectedSliceIds]
+    : shift
+      ? [...new Set([...selectedSliceIds, slice.id])]
+      : [slice.id];
+  const bounds = unionSliceBounds(slices, selected, frame);
+  const key = sliceKeyAt(slice, frame);
+  if (!bounds || !key) return null;
+
+  const tolerance = SLICE_HANDLE_TOLERANCE_SCREEN / zoom;
+  const outerHandle = resizeHandle(key.bounds, cursor, tolerance);
+  const center = key.center;
+  const centerHandle = center ? centerResizeHandle(key.bounds, center, cursor, zoom) : undefined;
+  const mode = outerHandle ? "resize" : centerHandle ? "center" : "move";
+  return {
+    selectedSliceIds: selected,
+    bounds,
+    mode,
+    handle: outerHandle ?? centerHandle,
+  };
+}
 
 export class SpriteSliceController {
   private selectedSliceIds: string[] = [];
@@ -80,24 +231,6 @@ export class SpriteSliceController {
     const timeline = this.port.getTimeline();
     const existing = new Set(timeline?.slices.map((slice) => slice.id) ?? []);
     this.selectedSliceIds = this.selectedSliceIds.filter((id) => existing.has(id));
-  }
-
-  private selectedSliceBounds(): Rect | undefined {
-    const timeline = this.port.getTimeline();
-    if (!timeline) return;
-    const bounds = timeline.slices
-      .filter((slice) => this.selectedSliceIds.includes(slice.id))
-      .map((slice) => sliceKeyAt(slice, timeline.activeFrame)?.bounds)
-      .filter((value): value is Rect => !!value);
-    if (!bounds.length) return;
-    const x = Math.min(...bounds.map((value) => value.x));
-    const y = Math.min(...bounds.map((value) => value.y));
-    return {
-      x,
-      y,
-      width: Math.max(...bounds.map((value) => value.x + value.width)) - x,
-      height: Math.max(...bounds.map((value) => value.y + value.height)) - y,
-    };
   }
 
   selectSlice(id: string, add = false) {
@@ -247,114 +380,27 @@ export class SpriteSliceController {
     const start = point(input);
     const slices = timeline.slices;
     const frame = timeline.activeFrame;
-    const { zoom } = this.port.getOptions();
-    const bounds = this.selectedSliceBounds();
-    const tolerance = Math.max(0.5, 2 / zoom);
-    let handle: string | undefined;
-    if (bounds) {
-      const near = (a: number, b: number) => Math.abs(a - b) <= tolerance;
-      const left = near(input.x, bounds.x);
-      const right = near(input.x, bounds.x + bounds.width);
-      const top = near(input.y, bounds.y);
-      const bottom = near(input.y, bounds.y + bounds.height);
-      const withinX =
-        input.x >= bounds.x - tolerance && input.x <= bounds.x + bounds.width + tolerance;
-      const withinY =
-        input.y >= bounds.y - tolerance && input.y <= bounds.y + bounds.height + tolerance;
-      handle =
-        top && withinX
-          ? left
-            ? "nw"
-            : right
-              ? "ne"
-              : "n"
-          : bottom && withinX
-            ? left
-              ? "sw"
-              : right
-                ? "se"
-                : "s"
-            : left && withinY
-              ? "w"
-              : right && withinY
-                ? "e"
-                : undefined;
-    }
-    const hit = [...slices].reverse().find((slice) => {
-      const sliceBounds = sliceKeyAt(slice, frame)?.bounds;
-      return (
-        sliceBounds &&
-        input.x >= sliceBounds.x &&
-        input.y >= sliceBounds.y &&
-        input.x < sliceBounds.x + sliceBounds.width &&
-        input.y < sliceBounds.y + sliceBounds.height
-      );
-    });
-    if (hit && !this.selectedSliceIds.includes(hit.id)) handle = undefined;
-    if (hit && !this.selectedSliceIds.includes(hit.id) && !input.shift)
-      this.selectedSliceIds = [hit.id];
-    else if (hit && input.shift)
-      this.selectedSliceIds = [...new Set([...this.selectedSliceIds, hit.id])];
-    let centerHandle: string | undefined;
-    let centerDistance = Infinity;
-    if (hit) {
-      const key = sliceKeyAt(hit, frame);
-      if (key?.center) {
-        const b = key.bounds;
-        const c = key.center;
-        const x = b.x + c.x;
-        const y = b.y + c.y;
-        const near = (a: number, value: number) => Math.abs(a - value) <= tolerance;
-        const left = near(input.x, x);
-        const right = near(input.x, x + c.width);
-        const top = near(input.y, y);
-        const bottom = near(input.y, y + c.height);
-        const withinX = input.x >= b.x && input.x <= b.x + b.width;
-        const withinY = input.y >= b.y && input.y <= b.y + b.height;
-        centerHandle =
-          top && withinX
-            ? left
-              ? "nw"
-              : right
-                ? "ne"
-                : "n"
-            : bottom && withinX
-              ? left
-                ? "sw"
-                : right
-                  ? "se"
-                  : "s"
-              : left && withinY
-                ? "w"
-                : right && withinY
-                  ? "e"
-                  : undefined;
-        centerDistance = Math.min(
-          Math.abs(input.x - x),
-          Math.abs(input.x - x - c.width),
-          Math.abs(input.y - y),
-          Math.abs(input.y - y - c.height),
-        );
-      }
-    }
-    const outerDistance = bounds
-      ? Math.min(
-          Math.abs(input.x - bounds.x),
-          Math.abs(input.x - bounds.x - bounds.width),
-          Math.abs(input.y - bounds.y),
-          Math.abs(input.y - bounds.y - bounds.height),
-        )
-      : Infinity;
-    const useCenter = !!centerHandle && (!handle || centerDistance < outerDistance);
-    if (hit || handle) {
+    const { slicesVisible = true, zoom } = this.port.getOptions();
+    const target =
+      slicesVisible &&
+      sliceGestureTargetAt({
+        slices,
+        selectedSliceIds: this.selectedSliceIds,
+        frame,
+        cursor: input,
+        zoom,
+        shift: input.shift,
+      });
+    if (target) {
+      this.selectedSliceIds = [...target.selectedSliceIds];
       this.transaction = this.port.beginEdit("Move Slice");
       this.sliceDrag = {
         start,
         moved: false,
-        mode: useCenter ? "center" : handle ? "resize" : "move",
+        mode: target.mode,
         base: slices,
-        bounds: this.selectedSliceBounds(),
-        handle: useCenter ? centerHandle : handle,
+        bounds: target.bounds,
+        handle: target.handle,
       };
     } else {
       this.selectedSliceIds = [];

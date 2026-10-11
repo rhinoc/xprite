@@ -128,6 +128,7 @@ export function OnionSkinSettingsPanel({
       onOpenChange={onOpenChange}
       label="Timeline Settings"
       bounds={{ x: at.x + at.width / 2 - size.width / 2, y, ...size }}
+      showCloseButton={false}
     >
       {({ clientBounds: c }) => {
         const b = (x: number, y: number, width: number, height: number) => ({
