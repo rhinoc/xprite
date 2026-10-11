@@ -9,7 +9,8 @@ console.log(`CONTINUITY_SPACE:${task.spaceId}`);
 const page = task.page("p1");
 const results = [];
 const EDITOR_MODULE_FAILURE_MESSAGE = "Failed to load editor module";
-const RUNTIME_PAGE_RETRIES = 1;
+const RUNTIME_PAGE_RETRIES = 2;
+const RUNTIME_PAGE_RETRY_DELAY_MILLISECONDS = 1_000;
 const MODULE_URLS = [
   "*.js",
   "*.js?*",
@@ -108,6 +109,9 @@ for (const scene of continuityConfig.scenes) {
       if (!runtimeState.retryable || attempt === RUNTIME_PAGE_RETRIES)
         throw Error(runtimeState.error || `${scene.id}: startup did not complete.`);
       await page.goto("about:blank");
+      await new Promise((resolve) =>
+        setTimeout(resolve, RUNTIME_PAGE_RETRY_DELAY_MILLISECONDS * (attempt + 1)),
+      );
     }
     if (!runtimeReady)
       throw Error(`${scene.id}: startup did not complete after a transient module failure.`);

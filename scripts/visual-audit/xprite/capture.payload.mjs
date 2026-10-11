@@ -13,8 +13,9 @@ let browser;
 let currentScene;
 const exampleButton = `button[aria-label=${JSON.stringify(config.sampleName)}]`;
 const EDITOR_MODULE_FAILURE_MESSAGE = "Failed to load editor module";
-const EDITOR_HOME_RETRIES = 1;
+const EDITOR_HOME_RETRIES = 2;
 const EDITOR_HOME_READY_TIMEOUT_MILLISECONDS = 30_000;
+const EDITOR_HOME_RETRY_DELAY_MILLISECONDS = 1_000;
 const EDITOR_VIEW_RETRIES = 1;
 const settle = () =>
   page.evaluate(async () => {
@@ -65,7 +66,12 @@ const loadEditorHome = async (url) => {
       )
         throw error;
     }
-    if (attempt < EDITOR_HOME_RETRIES) await page.goto("about:blank");
+    if (attempt < EDITOR_HOME_RETRIES) {
+      await page.goto("about:blank");
+      await new Promise((resolve) =>
+        setTimeout(resolve, EDITOR_HOME_RETRY_DELAY_MILLISECONDS * (attempt + 1)),
+      );
+    }
   }
   throw lastError ?? Error("Editor Home did not become ready after a transient startup error.");
 };
