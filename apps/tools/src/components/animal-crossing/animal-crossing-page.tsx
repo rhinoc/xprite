@@ -5,12 +5,14 @@ import { AnimalCrossingOutput } from "$/components/animal-crossing/animal-crossi
 import { AnimalCrossingSettingsPanel } from "$/components/animal-crossing/animal-crossing-settings";
 import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
+import { ToolHelp } from "$/components/shared/tool-help";
 import {
   AnimalCrossingLayout,
   type AnimalCrossingManager,
 } from "$/managers/animal-crossing/animal-crossing-manager";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import { ANIMAL_CROSSING_TOOL } from "$/managers/tools/tool-catalog";
+import { ANIMAL_CROSSING_HELP, AnimalCrossingHelpSection } from "@xprite/growth-content/tools";
 import {
   ContentLayout,
   Disclosure,
@@ -67,6 +69,7 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
   return (
     <FileToolShell
       tool={ANIMAL_CROSSING_TOOL}
+      help={<ToolHelp id={AnimalCrossingHelpSection.Overview} content={ANIMAL_CROSSING_HELP} />}
       filename={snapshot.name}
       ready={!!source}
       busy={busy}
