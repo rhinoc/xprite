@@ -48,3 +48,28 @@ export function siteHtml(style = SiteIconStyle.Website): Plugin {
     },
   };
 }
+
+/** Vite's injected bundle stylesheets: `<link rel="stylesheet" crossorigin href="<base>assets/…css">`. */
+const BUNDLE_STYLESHEET_PATTERN =
+  /<link\b(?=[^>]*\brel="stylesheet")(?=[^>]*\bhref="[^"]*\/assets\/[^"]+\.css")(?![^>]*\bmedia=)[^>]*?\s*\/?>/g;
+
+/**
+ * Load bundled stylesheets without blocking first paint. Prerendered growth pages ship
+ * their first-paint CSS separately (growth-desktop.css); the bundle CSS (~130 KB of shared
+ * UI rules) only matters once scripts run, yet it held back FCP. The link keeps its
+ * document position, so the cascade is unchanged once it applies. Tools pages keep
+ * blocking CSS: their empty-stage layout depends on it and would shift.
+ */
+export function deferStylesheets(html: string): string {
+  return html.replace(BUNDLE_STYLESHEET_PATTERN, (link) =>
+    link.replace(/\s*\/?>$/, ` media="print" onload="this.media='all'">`),
+  );
+}
+
+export function deferredBundleStylesheets(): Plugin {
+  return {
+    name: "xprite-deferred-bundle-stylesheets",
+    apply: "build",
+    transformIndexHtml: { order: "post", handler: deferStylesheets },
+  };
+}

@@ -15,7 +15,11 @@ import {
 import { packageLocalAliases } from "../../infra/package-local-aliases.ts";
 import { publicDesktopStartupScript } from "../../infra/public-desktop-startup.ts";
 import { ssgScopedName } from "../../infra/react-ssg-style-names.ts";
-import { prependSiteHeadContent, siteHtml } from "../../infra/site-html.ts";
+import {
+  deferredBundleStylesheets,
+  prependSiteHeadContent,
+  siteHtml,
+} from "../../infra/site-html.ts";
 import { siteTelemetryDefines } from "../../infra/site-telemetry.ts";
 import { growthPublicPages } from "./build/public-pages.ts";
 import { growthSeo } from "./build/seo/index.ts";
@@ -47,6 +51,7 @@ export default defineConfig(({ command, isPreview }) => ({
     developmentServerIdentity(DevelopmentApp.Growth, repositoryRoot),
     packageLocalAliases(),
     siteHtml(),
+    deferredBundleStylesheets(),
     growthSeo(),
     {
       name: "public-desktop-startup",
