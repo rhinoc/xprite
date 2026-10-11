@@ -1,5 +1,5 @@
 import type { Rgba } from "$/base/primitives";
-import { MAX_PALETTE_COLORS } from "$/color/palette-resize";
+import { MAX_ALLOCATED_PALETTE_COLORS } from "$/color/palette-resize";
 
 /** Keep source indices as well as colors, including holes in a palette selection. */
 export interface PaletteClipboard {
@@ -36,7 +36,7 @@ export function canPastePaletteEntries(
   }
   return (
     destinations.size > 0 &&
-    last + Math.max(0, sourceCount - destinations.size) < MAX_PALETTE_COLORS
+    last + Math.max(0, sourceCount - destinations.size) < MAX_ALLOCATED_PALETTE_COLORS
   );
 }
 

@@ -1,0 +1,6 @@
+.wheelOptions {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  z-index: 3;
+}

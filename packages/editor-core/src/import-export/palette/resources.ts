@@ -1,8 +1,9 @@
 import { UINT8_MAX } from "$/base/numeric-constants";
 import type { Rgba } from "$/base/primitives";
 import { MAX_PALETTE_COLORS, MIN_PALETTE_COLORS } from "$/color/palette-resize";
+import { PaletteFileFormat, readPaletteData } from "$/import-export/palette";
 
-export const EDITOR_DEFAULT_PALETTE_KEY = "xse.palette.default.v2";
+export const EDITOR_DEFAULT_PALETTE_KEY = "xse.palette.default.v3";
 export const EDITOR_PALETTE_PRESETS_KEY = "xse.palette.presets.v1";
 export interface PalettePreset {
   name: string;
@@ -119,7 +120,15 @@ export function parsePaletteText(source: string): Rgba[] {
 
 export function readStoredPalette(source: string | null): Rgba[] | null {
   try {
-    return copyStoredPalette(JSON.parse(source ?? "null"));
+    const stored = JSON.parse(source ?? "null") as { bytes?: unknown } | null;
+    if (
+      !Array.isArray(stored?.bytes) ||
+      !stored.bytes.every((value) => Number.isInteger(value) && value >= 0 && value <= UINT8_MAX)
+    )
+      return null;
+    return copyStoredPalette(
+      readPaletteData(Uint8Array.from(stored.bytes), PaletteFileFormat.Aseprite),
+    );
   } catch {
     return null;
   }

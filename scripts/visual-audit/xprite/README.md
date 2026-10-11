@@ -148,9 +148,12 @@ and touch interactions need additional scenes.
 ## HTML image diff report
 
 `pnpm run visual:report` creates `.tmp/visual-report/index.html` from the saved
-editor captures and tool SSG/ready captures. The single HTML file embeds the
-original PNGs and diagnostic red diff images, so it can be opened without a
-server or accompanying image folders. Filter changed or unavailable scenes,
+editor captures, website/tool baseline captures and tool SSG/ready captures. The
+single HTML file embeds original PNGs and red/white diagnostic diff images:
+red marks any changed RGBA channel, white marks identical pixels. It opens
+without a server or accompanying image folders and defaults to scenes with
+pixel differences or changed geometry, including differences below the gate
+threshold. Identical scenes remain hidden unless selected. Filter unavailable scenes,
 search by language/page, and click a picture to inspect it at its original size.
 Each scene lists pixel difference, similarity, geometry, capture time, and
 evidence errors. Missing, stale, partial or incompatible evidence is labelled

@@ -10,6 +10,12 @@ import {
 import type { CanvasQuickTool } from "$/managers/input/policies/quick-tool";
 import type { PreferenceStoragePort } from "$/managers/ports/platform";
 import {
+  normalizeColorSelectorPreferences,
+  readColorSelectorPreferences,
+  writeColorSelectorPreferences,
+  type ColorSelectorPreferences,
+} from "$/managers/preferences/color-selector-preferences";
+import {
   normalizePanelLayoutPreferences,
   readPanelLayoutPreferences,
   writePanelLayoutPreferences,
@@ -72,6 +78,13 @@ export interface EditorUiState {
   autoSelectLayerModifier: boolean;
   workingColorTarget: WorkingColorTarget;
   tilesetEditable: boolean;
+  tilesetSelection: {
+    owner: object;
+    documentKey: number | string | null;
+    tilesetId: number;
+    indices: number[];
+  } | null;
+  setTilesetSelection(value: EditorUiState["tilesetSelection"]): void;
   previousTool: EditorTool | null;
   tab: EditorTab;
   recoveryOpen: boolean;
@@ -79,6 +92,8 @@ export interface EditorUiState {
   openTabs: EditorTab[];
   notice: string;
   panelLayoutPreferences: PanelLayoutPreferences;
+  colorSelectorPreferences: ColorSelectorPreferences;
+  setColorSelectorPreferences(value: Partial<ColorSelectorPreferences>): void;
   beginPanelLayoutResize(): () => void;
   setPaletteBoxSize(value: Updater<number>): void;
   setTimelineLayerColumnWidth(value: Updater<number>): void;
@@ -150,6 +165,8 @@ export function createEditorUiStore(
     autoSelectLayerModifier: false,
     workingColorTarget: WorkingColorTarget.Foreground,
     tilesetEditable: false,
+    tilesetSelection: null,
+    setTilesetSelection: (tilesetSelection) => set({ tilesetSelection }),
     previousTool: null,
     tab: restoreActiveTab(initialTab, storage, pathname),
     recoveryOpen: false,
@@ -157,6 +174,14 @@ export function createEditorUiStore(
     openTabs: ["home", "document"],
     notice: "",
     panelLayoutPreferences: readPanelLayoutPreferences(storage),
+    colorSelectorPreferences: readColorSelectorPreferences(storage),
+    setColorSelectorPreferences: (patch) =>
+      set((state) => ({
+        colorSelectorPreferences: normalizeColorSelectorPreferences({
+          ...state.colorSelectorPreferences,
+          ...patch,
+        }),
+      })),
     beginPanelLayoutResize: () => {
       panelLayoutResizeDepth++;
       let finished = false;
@@ -273,6 +298,8 @@ export function createEditorUiStore(
         state.panelLayoutPreferences !== previous.panelLayoutPreferences
       )
         writePanelLayoutPreferences(state.panelLayoutPreferences, storage);
+      if (state.colorSelectorPreferences !== previous.colorSelectorPreferences)
+        writeColorSelectorPreferences(state.colorSelectorPreferences, storage);
     });
   }
   return store;

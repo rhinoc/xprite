@@ -541,6 +541,38 @@ export class EditorHistory {
       this.savedStateLost = true;
     }
   }
+  /** Combine adjacent live edits without crossing a saved state or a history branch. */
+  coalesceLastChange(label: string): boolean {
+    const current = this.current;
+    const previous = current?.parent;
+    if (
+      !current ||
+      !previous ||
+      current.label !== label ||
+      previous.label !== label ||
+      previous === this.savedState ||
+      current === this.savedState
+    )
+      return false;
+    const index = this.past.indexOf(current);
+    if (
+      index < 1 ||
+      this.past[index - 1] !== previous ||
+      this.past.some((entry) => entry !== current && entry.parent === previous)
+    )
+      return false;
+    const merged: Entry = {
+      ...current,
+      parent: previous.parent,
+      beforeId: previous.beforeId,
+      beforeRasterId: previous.beforeRasterId,
+      command: new CommandTransaction(label, [previous.command, current.command]),
+    };
+    this.past.splice(index - 1, 2, merged);
+    this.current = merged;
+    this.invalidateHistorySnapshot();
+    return true;
+  }
   private retainedBytes(): number {
     // Bound retained history, while preserving at least the latest transaction.
     let bytes = 0;

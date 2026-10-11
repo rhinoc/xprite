@@ -18,6 +18,8 @@ describe("palette-resize", () => {
       paletteResizeHandle,
       paletteResizeTarget,
       MAX_PALETTE_COLORS,
+      MAX_ALLOCATED_PALETTE_COLORS,
+      assertPaletteAllocation,
       createAsepriteIndexWriter,
     } = await import(
       `data:text/javascript;base64,${Buffer.from(result.outputFiles[0].contents).toString("base64")}`
@@ -41,7 +43,9 @@ describe("palette-resize", () => {
     assert.equal(paletteResizeTarget({ x: 60, y: 100 }, geometry), 7);
     assert.equal(paletteResizeTarget({ x: 0, y: 0 }, geometry), 0);
     assert.equal(paletteResizeTarget({ x: 140, y: 124 }, geometry), 15);
-    assert.equal(paletteResizeTarget({ x: 1e6, y: 1e6 }, geometry), MAX_PALETTE_COLORS);
+    assert.equal(paletteResizeTarget({ x: 1e12, y: 1e12 }, geometry), MAX_PALETTE_COLORS);
+    assert.equal(resizePaletteColors(colors, 100_000).length, 100_000);
+    assert.throws(() => assertPaletteAllocation(MAX_ALLOCATED_PALETTE_COLORS + 1), RangeError);
     const editor = new RasterEditor();
     const image = {
       width: 2,
@@ -68,11 +72,9 @@ describe("palette-resize", () => {
     assert.equal(editor.getSnapshot().palette.length, 5);
     editor.color.setPalette(resizePaletteColors(colors, 300));
     assert.equal(editor.getSnapshot().palette.length, 300);
-    assert.throws(
-      () =>
-        editor.color.setPalette(Array.from({ length: MAX_PALETTE_COLORS + 1 }, () => colors[0])),
-      RangeError,
-    );
+    const oversizedPalette = [];
+    oversizedPalette.length = MAX_ALLOCATED_PALETTE_COLORS + 1;
+    assert.throws(() => editor.color.setPalette(oversizedPalette), RangeError);
     assert.equal(editor.getSnapshot().palette.length, 300);
     const indexedPalette = [
       [0, 0, 0, 0],

@@ -517,6 +517,17 @@ export class ShortcutManager {
     );
     return definition ? this.bindings(definition).join(", ") : fallback;
   }
+  matchesCommandShortcut(
+    input: ShortcutInput,
+    commandId: string,
+    params?: Record<string, string>,
+  ): boolean {
+    const key = shortcutIdentity(ShortcutBindingKind.Command, commandId, "Any", params);
+    const definition = SHORTCUT_DEFINITIONS.find((entry) => entry.key === key);
+    return Boolean(
+      definition && this.bindings(definition).some((binding) => shortcutMatches(binding, input)),
+    );
+  }
   async importDraft(draft: ShortcutOverrides): Promise<ShortcutOverrides | null> {
     if (!this.files) return null;
     const entries = await this.files.read();

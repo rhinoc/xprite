@@ -5,7 +5,7 @@ import {
   cloneAsepriteImageGraph,
   assertAsepriteColorTimeline,
 } from "$/color/operations/color-mode";
-import { MAX_PALETTE_COLORS } from "$/color/palette-resize";
+import { assertPaletteAllocation } from "$/color/palette-resize";
 import { activateTimelineCel } from "$/document/document";
 import { assertTimelineMemoryBudget } from "$/document/memory-budget";
 import { copyEditorImage } from "$/document/pixel-ownership";
@@ -46,8 +46,7 @@ export class DocumentController {
 
   loadImage(image: PixelBuffer, name = "Untitled", initialPalette?: readonly Rgba[]): void {
     assertPixelBuffer(image);
-    if (initialPalette && initialPalette.length > MAX_PALETTE_COLORS)
-      throw new RangeError(`Palette exceeds ${MAX_PALETTE_COLORS} colors`);
+    if (initialPalette) assertPaletteAllocation(initialPalette.length);
     const document: EditorDocument = {
       format: "png",
       name,

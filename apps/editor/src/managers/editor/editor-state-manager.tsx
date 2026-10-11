@@ -53,7 +53,7 @@ import { measuredEditorViewport } from "$/managers/workspace/editor-layout";
 import { useOptionalEditorRuntimeManagerContext } from "$/managers/workspace/editor-runtime-context";
 import {
   appendMissingPaletteColor,
-  MAX_PALETTE_COLORS,
+  MAX_ALLOCATED_PALETTE_COLORS,
   getXpriteToolCapabilities,
   hexToRgba,
   operatePalette,
@@ -76,7 +76,7 @@ import {
   type RasterEditor,
   type Rgba,
 } from "@xprite/editor-core";
-import { UINT8_MAX } from "@xprite/editor-core";
+import { UINT8_MAX, PaletteHistoryLabel, PaletteScope } from "@xprite/editor-core";
 
 const editorTools = [
   EditorToolId.Marquee,
@@ -624,11 +624,36 @@ function useEditorState(
     setTimelinePanelPreferencesState(next);
     if (core && state?.document) core.timeline.setOnionSkin(next.onionSkin);
   }, [core, state?.document?.id, documentPreferenceId, preferenceStorage, workspace]);
+  useEffect(() => {
+    if (!core) return;
+    if (preview.tab === "document") core.color.useDocumentPalette();
+    else core.color.useSystemPalette();
+  }, [core, preview.tab, state?.document?.id]);
   const common = {
     quickTool,
     autoSelectLayerModifier,
     functional: Boolean(core),
-    paletteCapacityAvailable: (state?.palette ?? preview.paletteColors).length < MAX_PALETTE_COLORS,
+    paletteEditable:
+      preview.paletteEditable &&
+      Boolean(state?.document) &&
+      preview.tab === "document" &&
+      state?.document?.timeline?.colorDepth !== 16,
+    setPaletteEditable: (value: boolean | ((current: boolean) => boolean)) =>
+      preview.setPaletteEditable(
+        typeof value === "function"
+          ? value(
+              Boolean(state?.document) &&
+                preview.tab === "document" &&
+                state?.document?.timeline?.colorDepth !== 16 &&
+                preview.paletteEditable,
+            )
+          : value,
+      ),
+    paletteCapacityAvailable:
+      (core && preview.tab !== "document"
+        ? core.color.systemPalette
+        : (state?.palette ?? preview.paletteColors)
+      ).length < MAX_ALLOCATED_PALETTE_COLORS,
     setSampledColor: (
       target: "foreground" | "background",
       value: string,
@@ -636,7 +661,10 @@ function useEditorState(
     ) => {
       const color = hexToRgba(value);
       const snapshot = core?.getSnapshot();
-      const palette = snapshot?.palette ?? preview.paletteColors;
+      const palette =
+        core && preview.tab !== "document"
+          ? core.color.systemPalette
+          : (snapshot?.palette ?? preview.paletteColors);
       const hex = rgbaToHex(color);
       const match = palette.findIndex((entry) => rgbaToHex(entry) === hex);
       const index =
@@ -689,11 +717,26 @@ function useEditorState(
   };
   if (!core || !state) return { ...preview, ...common };
   const settings = state.settings;
+  const paletteScope = preview.tab === "document" ? PaletteScope.Document : PaletteScope.System;
+  const visiblePalette =
+    paletteScope === PaletteScope.Document ? state.palette : core.color.systemPalette;
+  const foreground =
+    paletteScope === PaletteScope.System && settings.foregroundIndex != null
+      ? (visiblePalette[settings.foregroundIndex] ?? settings.foreground)
+      : settings.foreground;
+  const background =
+    paletteScope === PaletteScope.System && settings.backgroundIndex != null
+      ? (visiblePalette[settings.backgroundIndex] ?? settings.background)
+      : settings.background;
   const colorIndex = (color: Rgba, previous: number | null) => {
     const hex = rgbaToHex(color);
-    if (previous !== null && state.palette[previous] && rgbaToHex(state.palette[previous]) === hex)
+    if (
+      previous !== null &&
+      visiblePalette[previous] &&
+      rgbaToHex(visiblePalette[previous]) === hex
+    )
       return previous;
-    const index = state.palette.findIndex((value) => rgbaToHex(value) === hex);
+    const index = visiblePalette.findIndex((value) => rgbaToHex(value) === hex);
     return index < 0 ? null : index;
   };
   const valueOf = <T,>(value: T | ((old: T) => T), old: T): T =>
@@ -705,33 +748,42 @@ function useEditorState(
       target === "foreground"
         ? (snapshot.settings.foregroundIndex ?? preview.paletteIndex)
         : (snapshot.settings.backgroundIndex ?? preview.backgroundIndex);
-    if (
-      preview.paletteEditable &&
-      index !== null &&
-      index !== undefined &&
-      index >= 0 &&
-      index < snapshot.palette.length
-    ) {
-      const palette = snapshot.palette.map((entry, at) => (at === index ? color : entry));
-      core.color.setPalette(palette);
+    if (target === "foreground" && common.paletteEditable) {
+      const selected = new Set(
+        preview.getPaletteSelection().filter((at) => at >= 0 && at < snapshot.palette.length),
+      );
+      if (
+        !selected.size &&
+        index !== null &&
+        index !== undefined &&
+        index >= 0 &&
+        index < snapshot.palette.length
+      )
+        selected.add(index);
+      if (selected.size) {
+        const palette = snapshot.palette.map((entry, at) => (selected.has(at) ? color : entry));
+        core.color.setPalette(palette, { label: PaletteHistoryLabel.Change, coalesce: true });
+        const foregroundIndex =
+          index !== null && index !== undefined && selected.has(index)
+            ? index
+            : selected.values().next().value!;
+        core.drawing.settings.setSettings({ foreground: color, foregroundIndex });
+        return;
+      }
     }
-    core.drawing.settings.setSettings({ [target]: color });
+    core.drawing.settings.setSettings({
+      [target]: color,
+      [target === "foreground" ? "foregroundIndex" : "backgroundIndex"]: null,
+    });
   };
   const setForeground: typeof preview.setForeground = (value) =>
-    changeWorkingColor(
-      "foreground",
-      valueOf(value, rgbaToHex(core.getSnapshot().settings.foreground)),
-    );
+    changeWorkingColor("foreground", valueOf(value, rgbaToHex(foreground)));
   const setBackground: typeof preview.setBackground = (value) =>
-    changeWorkingColor(
-      "background",
-      valueOf(value, rgbaToHex(core.getSnapshot().settings.background)),
-    );
+    changeWorkingColor("background", valueOf(value, rgbaToHex(background)));
   const setPaletteColors: typeof preview.setPaletteColors = (value) =>
     core.color.setPalette(
-      valueOf(value, core.getSnapshot().palette).map(
-        (c) => [c[0], c[1], c[2], c[3] ?? UINT8_MAX] as Rgba,
-      ),
+      valueOf(value, visiblePalette).map((c) => [c[0], c[1], c[2], c[3] ?? UINT8_MAX] as Rgba),
+      { scope: paletteScope },
     );
   const setTool: typeof preview.setTool = (value) => {
     uiStore.getState().setQuickTool(null);
@@ -764,52 +816,48 @@ function useEditorState(
       core.drawing.settings.setSettings({ gradientDither }),
     tool: settings.tool as EditorTool,
     setTool,
-    paletteIndex: colorIndex(settings.foreground, settings.foregroundIndex ?? preview.paletteIndex),
+    paletteIndex: colorIndex(foreground, settings.foregroundIndex ?? preview.paletteIndex),
     setPaletteIndex: (value: Parameters<typeof preview.setPaletteIndex>[0]) => {
       const snapshot = core.getSnapshot();
       const index = valueOf(value, snapshot.settings.foregroundIndex ?? preview.paletteIndex);
       preview.setPaletteIndex(index);
       core.drawing.settings.setSettings({
         foregroundIndex: index,
-        ...(index !== null && snapshot.palette[index]
-          ? { foreground: snapshot.palette[index] }
-          : {}),
+        ...(index !== null && visiblePalette[index] ? { foreground: visiblePalette[index] } : {}),
       });
     },
-    backgroundIndex: colorIndex(
-      settings.background,
-      settings.backgroundIndex ?? preview.backgroundIndex,
-    ),
+    backgroundIndex: colorIndex(background, settings.backgroundIndex ?? preview.backgroundIndex),
     setBackgroundIndex: (value: Parameters<typeof preview.setBackgroundIndex>[0]) => {
       const snapshot = core.getSnapshot();
       const index = valueOf(value, snapshot.settings.backgroundIndex ?? preview.backgroundIndex);
       preview.setBackgroundIndex(index);
       core.drawing.settings.setSettings({
         backgroundIndex: index,
-        ...(index !== null && snapshot.palette[index]
-          ? { background: snapshot.palette[index] }
-          : {}),
+        ...(index !== null && visiblePalette[index] ? { background: visiblePalette[index] } : {}),
       });
     },
-    foreground: rgbaToHex(settings.foreground),
+    foreground: rgbaToHex(foreground),
     setForeground,
-    background: rgbaToHex(settings.background),
+    background: rgbaToHex(background),
     setBackground,
-    paletteColors: state.palette,
+    paletteColors: visiblePalette,
     setPaletteColors,
     applyPaletteOperation: (
       operation: PaletteOperation,
       indices: readonly number[] = preview.getPaletteSelection(),
-    ) => core.color.applyPaletteOperation(operation, preview.paletteAscending, indices),
+    ) =>
+      core.color.applyPaletteOperation(operation, preview.paletteAscending, indices, {
+        scope: paletteScope,
+      }),
     stepPaletteColor: (target: "foreground" | "background", step: number) => {
-      const index = core.color.stepPaletteColor(target, step);
+      const index = core.color.stepPaletteColor(target, step, paletteScope);
       if (index !== null) {
         if (target === "foreground") preview.setPaletteIndex(index);
         else preview.setBackgroundIndex(index);
       }
     },
     addPaletteColor: (target: "foreground" | "background") => {
-      const result = core.color.addPaletteColor(target, preview.paletteEditable);
+      const result = core.color.addPaletteColor(target, common.paletteEditable, paletteScope);
       if (result.foregroundIndex !== undefined) preview.setPaletteIndex(result.foregroundIndex);
       if (result.backgroundIndex !== undefined) preview.setBackgroundIndex(result.backgroundIndex);
     },

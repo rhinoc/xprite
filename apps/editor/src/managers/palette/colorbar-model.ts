@@ -30,6 +30,7 @@ export interface PaletteColorbarModel extends ColorbarState {
 /** Colorbar selector and state commands without exposing the editor core. */
 export function usePaletteColorbarModel(): PaletteColorbarModel {
   const editor = useEditorFields([
+    "tab",
     "addPaletteColor",
     "background",
     "colorHover",
@@ -70,7 +71,7 @@ export function usePaletteColorbarModel(): PaletteColorbarModel {
     addPaletteColor: editor.addPaletteColor,
     setNotice: editor.setNotice,
     colorHover: editor.colorHover,
-    hasDocument: Boolean(snapshot?.document),
+    hasDocument: editor.tab === "document" && Boolean(snapshot?.document),
     tilemapActive,
     showTileFields: tilemapActive && snapshot?.settings.tilemapMode === TilemapDisplayMode.Tiles,
   };

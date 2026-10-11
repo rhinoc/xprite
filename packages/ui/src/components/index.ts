@@ -48,6 +48,7 @@ export * from "$/components/control-flow";
 export * from "$/components/button";
 export * from "$/components/checkbox";
 export * from "$/components/curve-editor";
+export * from "$/components/color-selector";
 
 export * from "$/components/pixel-image";
 export * from "$/components/status-bar";

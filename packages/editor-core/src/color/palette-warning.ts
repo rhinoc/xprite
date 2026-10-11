@@ -1,6 +1,6 @@
 import { UINT8_MAX } from "$/base/numeric-constants";
 import type { Rgba } from "$/base/primitives";
-import { MAX_PALETTE_COLORS } from "$/color/palette-resize";
+import { MAX_ALLOCATED_PALETTE_COLORS } from "$/color/palette-resize";
 
 /** Palette::findExactMatch compares all four channels, including transparent RGB. */
 export function paletteColorIndex(palette: readonly (readonly number[])[], color: Rgba): number {
@@ -16,7 +16,7 @@ export function paletteColorIndex(palette: readonly (readonly number[])[], color
 export function appendMissingPaletteColor(
   palette: readonly (readonly number[])[],
   color: Rgba,
-  maximum = MAX_PALETTE_COLORS,
+  maximum = MAX_ALLOCATED_PALETTE_COLORS,
 ): { palette: readonly (readonly number[])[]; index: number; added: boolean } {
   const index = paletteColorIndex(palette, color);
   if (index >= 0) return { palette, index, added: false };

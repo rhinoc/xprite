@@ -46,6 +46,7 @@ export enum EditorWheelSurface {
   Palette = "palette",
   Zoom = "zoom",
   ToolRail = "tool-rail",
+  ColorSelector = "color-selector",
 }
 
 export function resolveWheelDecision(
@@ -82,6 +83,8 @@ function resolveSurfaceWheelInput(
   surface: EditorWheelSurface,
   preferences: EditorWheelPreferences = {},
 ): WheelAction | null {
+  if (surface === EditorWheelSurface.ColorSelector)
+    return input.kind === EditorWheelInputKind.Magnify ? null : WheelAction.Hue;
   if (surface === EditorWheelSurface.ToolRail) {
     return input.kind === EditorWheelInputKind.Magnify || input.ctrl || input.meta
       ? null

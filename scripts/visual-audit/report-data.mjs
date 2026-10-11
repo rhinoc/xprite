@@ -2,11 +2,10 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";
 
 import { assertSamePngColorSpace, preservePngColorSpace } from "../base/screenshot.mjs";
-import { scenes, PIXELMATCH_THRESHOLD, MINIMUM_SIMILARITY } from "./tools-startup/scenes.mjs";
+import { scenes, MINIMUM_SIMILARITY } from "./tools-startup/scenes.mjs";
 import { assertCaptureContract } from "./xprite/compare-case.mjs";
 import { languageDirectory, languages, sceneIds } from "./xprite/scenes.mjs";
 
@@ -40,7 +39,7 @@ function sourceWarning(root, manifest) {
 }
 
 /** Diagnostic scoring stays separate from acceptance; invalid evidence never certifies a push. */
-function inspectImages(entry, reference, candidate, output, threshold, minimumSimilarity = 0.99) {
+function inspectImages(entry, reference, candidate, output, minimumSimilarity = 0.99) {
   if (!entry.reference || !entry.candidate) {
     entry.warnings.push("缺少基线或候选图像，无法计算像素差异。");
     return;
@@ -56,26 +55,18 @@ function inspectImages(entry, reference, candidate, output, threshold, minimumSi
     if (a.width !== b.width || a.height !== b.height)
       throw Error(`图像尺寸不同：${a.width} × ${a.height} / ${b.width} × ${b.height}。`);
     const diff = new PNG({ width: a.width, height: a.height });
-    let differentPixels = pixelmatch(a.data, b.data, diff.data, a.width, a.height, {
-      threshold,
-      includeAA: true,
-    });
-    if (threshold === 0) {
-      differentPixels = 0;
-      for (let offset = 0; offset < a.data.length; offset += 4) {
-        if (
-          a.data[offset] === b.data[offset] &&
-          a.data[offset + 1] === b.data[offset + 1] &&
-          a.data[offset + 2] === b.data[offset + 2] &&
-          a.data[offset + 3] === b.data[offset + 3]
-        )
-          continue;
-        differentPixels++;
-        diff.data[offset] = 255;
-        diff.data[offset + 1] = 0;
-        diff.data[offset + 2] = 0;
-        diff.data[offset + 3] = 255;
-      }
+    let differentPixels = 0;
+    for (let offset = 0; offset < a.data.length; offset += 4) {
+      const same =
+        a.data[offset] === b.data[offset] &&
+        a.data[offset + 1] === b.data[offset + 1] &&
+        a.data[offset + 2] === b.data[offset + 2] &&
+        a.data[offset + 3] === b.data[offset + 3];
+      diff.data[offset] = 255;
+      diff.data[offset + 1] = same ? 255 : 0;
+      diff.data[offset + 2] = same ? 255 : 0;
+      diff.data[offset + 3] = 255;
+      if (!same) differentPixels++;
     }
     entry.differentPixels = differentPixels;
     entry.totalPixels = a.width * a.height;
@@ -115,7 +106,15 @@ function inspectImages(entry, reference, candidate, output, threshold, minimumSi
   }
 }
 
-export function collectImageReport({ root, baselineRoot, candidateRoot, toolsRoot, output }) {
+export function collectImageReport({
+  root,
+  baselineRoot,
+  candidateRoot,
+  toolsRoot,
+  siteBaselineRoot,
+  siteCandidateRoot,
+  output,
+}) {
   fs.mkdirSync(output, { recursive: true });
   const cases = [];
   for (const language of languages) {
@@ -152,7 +151,7 @@ export function collectImageReport({ root, baselineRoot, candidateRoot, toolsRoo
               : `仅供诊断：${error.message}`,
           );
         }
-        inspectImages(entry, before, after, output, 0);
+        inspectImages(entry, before, after, output);
       } else entry.warnings.push("此场景没有完整的采集记录。");
       cases.push(entry);
     }
@@ -175,7 +174,7 @@ export function collectImageReport({ root, baselineRoot, candidateRoot, toolsRoo
         "未达到规定采集状态，只用于查看当前界面，不能通过推送校验。",
       ],
     };
-    if (before) inspectImages(entry, before, { sha256: failure.screenshot?.sha256 }, output, 0);
+    if (before) inspectImages(entry, before, { sha256: failure.screenshot?.sha256 }, output);
     cases.unshift(entry);
   }
   const toolReport = readJson(path.join(toolsRoot, "comparison.json"));
@@ -205,10 +204,43 @@ export function collectImageReport({ root, baselineRoot, candidateRoot, toolsRoo
         { sha256: pair.ssg.screenshot?.sha256, regions: pair.ssg.regions },
         { sha256: pair.ready.screenshot?.sha256, regions: pair.ready.regions },
         output,
-        PIXELMATCH_THRESHOLD,
         MINIMUM_SIMILARITY,
       );
     else entry.warnings.push("此场景没有完整的 SSG / 交互就绪图像。");
+    cases.push(entry);
+  }
+  const siteBaseline = readJson(path.join(siteBaselineRoot, "manifest.json"));
+  const siteCandidate = readJson(path.join(siteCandidateRoot, "manifest.json"));
+  const siteWarning = sourceWarning(root, siteCandidate);
+  const siteIds = new Set([...(siteBaseline?.scenes ?? []), ...(siteCandidate?.scenes ?? [])]);
+  for (const id of siteIds) {
+    const before = siteBaseline?.cases?.find((entry) => entry.id === id);
+    const after = siteCandidate?.cases?.find((entry) => entry.id === id);
+    const entry = {
+      id: `site-${id}`,
+      name: `网站与工具 / ${id}`,
+      reference: imagePath(siteBaselineRoot, before?.file),
+      candidate: imagePath(siteCandidateRoot, after?.file),
+      capturedAt: after?.screenshot?.capturedAt,
+      warnings: [],
+    };
+    if (siteWarning) entry.warnings.push(siteWarning);
+    if (siteCandidate?.captureComplete !== true)
+      entry.warnings.push("本轮网站与工具页采集未完成，不能通过推送校验。");
+    if (before && after) {
+      if (
+        JSON.stringify(before.contract) !== JSON.stringify(after.contract) ||
+        JSON.stringify(siteBaseline.browser) !== JSON.stringify(siteCandidate.browser) ||
+        before.platform !== after.platform
+      )
+        entry.warnings.push("采集状态或浏览器不同，差异仅供诊断。");
+      inspectImages(
+        entry,
+        { sha256: before.screenshot?.sha256, regions: before.regions },
+        { sha256: after.screenshot?.sha256, regions: after.regions },
+        output,
+      );
+    } else entry.warnings.push("此场景没有完整的网站与工具页采集记录。");
     cases.push(entry);
   }
   return cases;

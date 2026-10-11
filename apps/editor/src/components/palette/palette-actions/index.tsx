@@ -3,21 +3,22 @@ import { useEffect, useRef, useState } from "react";
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { Alert } from "$/components/dialogs/alert";
 import { FormDialog } from "$/components/dialogs/form-dialog";
+import { PaletteGenerationDialog } from "$/components/palette/palette-generation-dialog";
 import { tUi, tUiSource, useUiLanguage } from "$/i18n";
 import {
-  comparePaletteResources as comparePaletteResourceNames,
-  loadDefaultEditorPalette as readDefaultPalette,
-  listBundledPalettePresets as readBundledPalettePresets,
-  listSavedPalettePresets as readPalettePresets,
-  removeEditorPalettePreset as deletePalettePreset,
-  saveEditorPaletteAsDefault as saveDefaultPalette,
-  saveEditorPalettePreset as savePalettePreset,
-  serializeEditorPaletteAsAse as serializeAsePalette,
-  serializeEditorPaletteAsGpl as serializeGplPalette,
+  comparePaletteResources,
+  loadDefaultEditorPalette,
+  listBundledPalettePresets,
+  listSavedPalettePresets,
   usePaletteActionsModel,
+  PaletteEntrySize,
+  PaletteUsageSelection,
+  PaletteColorSelectorMode,
+  PaletteExportFormat,
+  PALETTE_EXPORT_FORMATS,
+  paletteSizeValue,
+  type PaletteGenerationDraft,
 } from "$/managers/palette/palette-actions-model";
-import { resizeEditorPalette } from "$/managers/palette/palette-operations";
-import { MAX_EDITOR_PALETTE_COLORS } from "$/managers/palette/palette-view";
 import {
   PalettePresetPopup,
   type PaletteBrowserChoice,
@@ -26,89 +27,86 @@ import {
 import { Button, Menu, type MenuItem } from "@xprite/ui";
 
 enum PaletteDialog {
-  Preset = "preset",
-  Quantize = "quantize",
+  Generate = "generate",
   Size = "size",
-  Transparent = "transparent",
+  Save = "save",
+  Preset = "preset",
 }
-
-function download(name: string, blob: Blob): void {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = name;
-  document.body.append(link);
-  link.click();
-  link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
-}
-
-/** Palette Presets and Palette Options commands for the palette toolbar. */
 export function PaletteActions() {
   const editor = usePaletteActionsModel();
   const sceneBounds = useSceneBounds();
   useUiLanguage();
-  const [presets, setPresets] = useState(readPalettePresets);
-  const [bundledPresets] = useState(readBundledPalettePresets);
+  const [presets, setPresets] = useState(listSavedPalettePresets);
+  const [bundledPresets] = useState(listBundledPalettePresets);
   const [dialog, setDialog] = useState<PaletteDialog | null>(null);
-  const [presetName, setPresetName] = useState("");
-  const [colorCount, setColorCount] = useState(32);
-  const [paletteSize, setPaletteSize] = useState(32);
-  const [transparentIndex, setTransparentIndex] = useState(0);
-  const [transparentDocumentKey, setTransparentDocumentKey] = useState(editor.documentKey);
+  const [generation, setGeneration] = useState<PaletteGenerationDraft>(
+    editor.initialGenerationDraft,
+  );
+  const [size, setSize] = useState("256");
+  const [filename, setFilename] = useState("palette.ase");
+  const [format, setFormat] = useState<PaletteExportFormat>(PaletteExportFormat.Aseprite);
   const [error, setError] = useState<string | null>(null);
-  const [loadingPalette, setLoadingPalette] = useState(false);
+  const [busy, setBusy] = useState(false);
   const picker = useRef<HTMLInputElement>(null);
-  const imagePicker = useRef<HTMLInputElement>(null);
-  const loadRequest = useRef(0);
-  const currentDocumentKey = useRef(editor.documentKey);
-  currentDocumentKey.current = editor.documentKey;
-  const colors = editor.colors;
+  const request = useRef(0);
+  const owner = useRef(editor.operationOwner);
+  owner.current = editor.operationOwner;
   useEffect(() => {
-    setDialog((current) => (current === PaletteDialog.Transparent ? null : current));
-    loadRequest.current += 1;
-    setLoadingPalette(false);
-  }, [editor.documentKey]);
+    setDialog(null);
+    request.current++;
+    setBusy(false);
+  }, [editor.operationOwner]);
   useEffect(
     () => () => {
-      loadRequest.current += 1;
+      request.current++;
     },
     [],
   );
-  const apply = (palette: readonly (readonly number[])[]) => {
-    try {
-      editor.applyPalette(palette);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Unable to load palette.");
-    }
-  };
   const attempt = (action: () => void) => {
     try {
       action();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Palette operation failed.");
+      setError(caught instanceof Error ? caught.message : tUi("ui.palette.operation.failed"));
     }
   };
-  const loadPaletteFile = async (file: File) => {
-    const request = ++loadRequest.current;
-    const documentKey = editor.documentKey;
-    setLoadingPalette(true);
+  const load = async (file: File) => {
+    const id = ++request.current;
+    const operationOwner = editor.operationOwner;
+    setBusy(true);
     try {
-      const palette = await editor.loadPaletteFromFile(file);
-      if (request !== loadRequest.current || documentKey !== currentDocumentKey.current) return;
-      apply(palette);
+      const colors = await editor.loadPaletteFromFile(file);
+      if (id === request.current && operationOwner === owner.current) editor.applyPalette(colors);
     } catch (caught) {
-      if (request === loadRequest.current && documentKey === currentDocumentKey.current)
-        setError(caught instanceof Error ? caught.message : "Unable to load palette file.");
+      if (id === request.current && operationOwner === owner.current)
+        setError(caught instanceof Error ? caught.message : tUi("ui.palette.operation.failed"));
     } finally {
-      if (request === loadRequest.current) setLoadingPalette(false);
+      if (id === request.current) setBusy(false);
     }
   };
-  const paletteChoices: PaletteBrowserChoice[] = [
+  const save = async () => {
+    const id = ++request.current;
+    setBusy(true);
+    try {
+      await editor.savePalette(filename, format, dialog === PaletteDialog.Preset);
+      setPresets(listSavedPalettePresets());
+      if (id === request.current) setDialog(null);
+    } catch (caught) {
+      if (id === request.current)
+        setError(caught instanceof Error ? caught.message : tUi("ui.palette.operation.failed"));
+    } finally {
+      if (id === request.current) setBusy(false);
+    }
+  };
+  const openSave = (preset: boolean) => {
+    setFilename(`${editor.documentName.replace(/\.[^.]+$/, "") || "palette"}.ase`);
+    setFormat(PaletteExportFormat.Aseprite);
+    setDialog(preset ? PaletteDialog.Preset : PaletteDialog.Save);
+  };
+  const choices: PaletteBrowserChoice[] = [
     ...bundledPresets.map((preset) => ({
       ...preset,
       id: `builtin:${preset.id}`,
-      source: PalettePresetKind.Builtin,
+      source: PalettePresetKind.Builtin as const,
     })),
     ...presets.map((preset) => ({
       id: `saved:${preset.name.toLocaleLowerCase()}`,
@@ -116,115 +114,132 @@ export function PaletteActions() {
       group: "Saved Presets",
       author: null,
       colors: preset.colors,
-      source: PalettePresetKind.Saved,
+      source: PalettePresetKind.Saved as const,
     })),
-  ].sort((a, b) => comparePaletteResourceNames(a.name, b.name));
-  const savePreset = () =>
-    attempt(() => {
-      savePalettePreset(presetName, colors);
-      setPresets(readPalettePresets());
-      setDialog(null);
-    });
-  const generate = () =>
-    attempt(() => {
-      if (!editor.hasDocument) return;
-      const next = editor.extractSpritePalette(Math.trunc(colorCount));
-      if (!next.length) throw new Error("The sprite has no colors to extract.");
-      apply(next);
-      setDialog(null);
-    });
-  const saveFile = async (format: "gpl" | "ase") => {
-    try {
-      const name = editor.documentName.replace(/\.[^.]+$/, "") || "palette";
-      if (format === "ase") {
-        const bytes = await serializeAsePalette(colors);
-        download(
-          `${name}.ase`,
-          new Blob([new Uint8Array(bytes) as BlobPart], { type: "application/x-aseprite" }),
-        );
-      } else {
-        download(
-          `${name}.gpl`,
-          new Blob([serializeGplPalette(colors, name)], { type: "text/plain" }),
-        );
-      }
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Unable to save palette.");
-    }
-  };
-  const optionsItems: MenuItem[] = [
+  ].sort((a, b) => comparePaletteResources(a.name, b.name));
+  const items: MenuItem[] = [
     {
-      label: "Edit Palette",
+      label: tUi("ui.palette.menu.edit"),
+      mnemonic: "p",
       checked: editor.paletteEditable,
+      shortcut: editor.editPaletteShortcut,
       onSelect: () => editor.setPaletteEditable((value) => !value),
     },
     {
-      label: tUi("ui.touch.swap.colors"),
+      label: tUi("ui.palette.menu.size"),
+      mnemonic: "z",
       disabled: !editor.hasDocument,
-      onSelect: editor.swapColors,
-    },
-    {
-      label: "Palette Size...",
       onSelect: () => {
-        setPaletteSize(colors.length);
+        setSize(String(editor.colors.length));
         setDialog(PaletteDialog.Size);
       },
     },
     {
-      label: tUi("ui.transparent.index.ellipsis"),
-      disabled: !editor.indexedColorMode || editor.maxTransparentPaletteIndex < 0,
-      onSelect: () => {
-        setTransparentIndex(editor.transparentPaletteIndex);
-        setTransparentDocumentKey(editor.documentKey);
-        setDialog(PaletteDialog.Transparent);
-      },
-    },
-    {
-      label: "Load Palette...",
+      label: tUi("ui.palette.menu.select"),
+      mnemonic: "e",
       separator: true,
-      disabled: loadingPalette,
-      onSelect: () => picker.current?.click(),
-    },
-    {
-      label: tUi("ui.load.palette.from.image.ellipsis"),
-      disabled: loadingPalette,
-      onSelect: () => imagePicker.current?.click(),
-    },
-    { label: "Load Default Palette", onSelect: () => apply(readDefaultPalette()) },
-    {
-      label: "Save Palette",
       children: [
-        { label: "GIMP Palette (.gpl)", onSelect: () => void saveFile("gpl") },
-        { label: "Aseprite Palette (.ase)", onSelect: () => void saveFile("ase") },
+        {
+          label: tUi("ui.palette.used.colors"),
+          disabled: !editor.hasDocument,
+          onSelect: () => editor.selectColors(PaletteUsageSelection.Used),
+        },
+        {
+          label: tUi("ui.palette.unused.colors"),
+          disabled: !editor.hasDocument,
+          onSelect: () => editor.selectColors(PaletteUsageSelection.Unused),
+        },
+        {
+          label: tUi("ui.palette.used.tiles"),
+          separator: true,
+          disabled: !editor.canSelectTiles,
+          onSelect: () => editor.selectTiles(PaletteUsageSelection.Used),
+        },
+        {
+          label: tUi("ui.palette.unused.tiles"),
+          disabled: !editor.canSelectTiles,
+          onSelect: () => editor.selectTiles(PaletteUsageSelection.Unused),
+        },
       ],
     },
     {
-      label: "Save Palette as Preset...",
-      onSelect: () => {
-        setPresetName("");
-        setDialog(PaletteDialog.Preset);
-      },
-    },
-    { label: "Save Palette as Default", onSelect: () => attempt(() => saveDefaultPalette(colors)) },
-    {
-      label: "Delete Preset",
-      disabled: !presets.length,
-      children: presets.map((preset) => ({
-        label: preset.name,
-        onSelect: () =>
-          attempt(() => {
-            deletePalettePreset(preset.name);
-            setPresets(readPalettePresets());
-          }),
-      })),
+      label: tUi("ui.palette.small.size"),
+      mnemonic: "s",
+      separator: true,
+      checked: editor.boxSize === PaletteEntrySize.Small,
+      onSelect: () => editor.setBoxSize(PaletteEntrySize.Small),
     },
     {
-      label: "Create Palette from Current Sprite...",
+      label: tUi("ui.palette.medium.size"),
+      mnemonic: "m",
+      checked: editor.boxSize === PaletteEntrySize.Medium,
+      onSelect: () => editor.setBoxSize(PaletteEntrySize.Medium),
+    },
+    {
+      label: tUi("ui.palette.large.size"),
+      mnemonic: "l",
+      checked: editor.boxSize === PaletteEntrySize.Large,
+      onSelect: () => editor.setBoxSize(PaletteEntrySize.Large),
+    },
+    {
+      label: tUi("ui.palette.tint.shade.tone"),
+      separator: true,
+      checked: editor.selectorMode === PaletteColorSelectorMode.TintShadeTone,
+      onSelect: () => editor.setSelectorMode(PaletteColorSelectorMode.TintShadeTone),
+    },
+    {
+      label: tUi("ui.palette.color.spectrum"),
+      checked: editor.selectorMode === PaletteColorSelectorMode.Spectrum,
+      onSelect: () => editor.setSelectorMode(PaletteColorSelectorMode.Spectrum),
+    },
+    {
+      label: tUi("ui.palette.rgb.color.wheel"),
+      checked: editor.selectorMode === PaletteColorSelectorMode.RgbWheel,
+      onSelect: () => editor.setSelectorMode(PaletteColorSelectorMode.RgbWheel),
+    },
+    {
+      label: tUi("ui.palette.ryb.color.wheel"),
+      checked: editor.selectorMode === PaletteColorSelectorMode.RybWheel,
+      onSelect: () => editor.setSelectorMode(PaletteColorSelectorMode.RybWheel),
+    },
+    {
+      label: tUi("ui.palette.normal.map.color.wheel"),
+      checked: editor.selectorMode === PaletteColorSelectorMode.NormalMapWheel,
+      onSelect: () => editor.setSelectorMode(PaletteColorSelectorMode.NormalMapWheel),
+    },
+    {
+      label: tUi("ui.palette.load"),
+      mnemonic: "o",
+      separator: true,
+      disabled: busy,
+      onSelect: () => picker.current?.click(),
+    },
+    {
+      label: "Load Default Palette",
+      onSelect: () => attempt(() => editor.applyPalette(loadDefaultEditorPalette())),
+    },
+    {
+      label: tUi("ui.palette.menu.save"),
+      mnemonic: "a",
+      disabled: !editor.canSavePalette || busy,
+      onSelect: () => openSave(false),
+    },
+    {
+      label: "Save Palette as Preset",
+      disabled: !editor.canSavePalette || busy,
+      onSelect: () => openSave(true),
+    },
+    {
+      label: "Save Palette as Default",
+      onSelect: () => attempt(editor.saveAsDefault),
+    },
+    {
+      label: tUi("ui.palette.new.from.sprite"),
       separator: true,
       disabled: !editor.hasDocument,
       onSelect: () => {
-        setColorCount(Math.min(256, Math.max(1, colors.length)));
-        setDialog(PaletteDialog.Quantize);
+        setGeneration(editor.initialGenerationDraft());
+        setDialog(PaletteDialog.Generate);
       },
     },
   ];
@@ -233,15 +248,15 @@ export function PaletteActions() {
       <PalettePresetPopup
         sceneBounds={sceneBounds}
         translate={tUiSource}
-        choices={paletteChoices}
-        activePalette={colors}
-        hasDocument={editor.hasDocument}
-        onLoad={apply}
-        onRefresh={() => setPresets(readPalettePresets())}
+        hasDocument={true}
+        choices={choices}
+        activePalette={editor.colors}
+        onLoad={(colors) => attempt(() => editor.applyPalette(colors))}
+        onRefresh={() => setPresets(listSavedPalettePresets())}
       />
       <Menu
         label="Palette options"
-        items={optionsItems}
+        items={items}
         renderTrigger={(props) => (
           <Button
             tintDisabledIcon
@@ -255,71 +270,52 @@ export function PaletteActions() {
       <input
         ref={picker}
         type="file"
-        accept=".gpl,.pal,.ase,.aseprite,image/*"
+        accept=".act,.col,.gpl,.hex,.pal,.ase,.aseprite,.bmp,.pcx,.tga,.ico,.fli,.flc,image/*"
         hidden
-        disabled={loadingPalette}
+        disabled={busy}
         aria-label={tUi("ui.load.palette.file")}
         onChange={(event) => {
           const file = event.currentTarget.files?.[0];
           event.currentTarget.value = "";
-          if (!file) return;
-          void loadPaletteFile(file);
+          if (file) void load(file);
         }}
       />
-      <input
-        ref={imagePicker}
-        type="file"
-        accept="image/*"
-        hidden
-        disabled={loadingPalette}
-        aria-label={tUi("ui.load.palette.from.image.ellipsis")}
-        onChange={(event) => {
-          const file = event.currentTarget.files?.[0];
-          event.currentTarget.value = "";
-          if (file) void loadPaletteFile(file);
-        }}
-      />
-      <FormDialog
-        open={dialog === PaletteDialog.Preset}
+      <PaletteGenerationDialog
+        open={dialog === PaletteDialog.Generate}
+        value={generation}
+        onChange={setGeneration}
+        paletteCount={editor.colors.length}
+        selectedCount={editor.selectedColors.length}
         onOpenChange={(open) => {
           if (!open) setDialog(null);
         }}
-        title="Save Palette as Preset"
-        fields={[
-          { key: "name", label: "Name:", type: "text", value: presetName, onChange: setPresetName },
-        ]}
-        actions={[
-          { label: "Save", disabled: !presetName.trim(), onClick: savePreset },
-          { label: "Cancel", onClick: () => setDialog(null) },
-        ]}
-        width={320}
+        onGenerate={() =>
+          attempt(() => {
+            if (editor.generatePalette(generation)) setDialog(null);
+          })
+        }
       />
       <FormDialog
-        open={dialog === PaletteDialog.Quantize}
+        open={busy && dialog === null}
         onOpenChange={(open) => {
-          if (!open) setDialog(null);
+          if (!open) {
+            request.current++;
+            setBusy(false);
+          }
         }}
-        title="Palette from Sprite"
-        fields={[
-          {
-            key: "count",
-            label: "Number of colors:",
-            type: "number",
-            value: colorCount,
-            min: 1,
-            max: 256,
-            onChange: setColorCount,
-          },
-        ]}
+        title="Load Palette"
+        message={tUi("ui.palette.loading")}
+        fields={[]}
         actions={[
           {
-            label: "OK",
-            disabled: !Number.isInteger(colorCount) || colorCount < 1 || colorCount > 256,
-            onClick: generate,
+            label: "Cancel",
+            onClick: () => {
+              request.current++;
+              setBusy(false);
+            },
           },
-          { label: "Cancel", onClick: () => setDialog(null) },
         ]}
-        width={320}
+        width={300}
       />
       <FormDialog
         open={dialog === PaletteDialog.Size}
@@ -327,68 +323,68 @@ export function PaletteActions() {
           if (!open) setDialog(null);
         }}
         title="Palette Size"
+        selectInitialInput
         fields={[
           {
             key: "size",
-            label: "Colors:",
-            type: "number",
-            value: paletteSize,
-            min: 1,
-            max: MAX_EDITOR_PALETTE_COLORS,
-            onChange: setPaletteSize,
+            label: tUi("ui.palette.number.of.colors"),
+            type: "text",
+            value: size,
+            onChange: setSize,
           },
         ]}
         actions={[
           {
             label: "OK",
-            disabled:
-              !Number.isInteger(paletteSize) ||
-              paletteSize < 1 ||
-              paletteSize > MAX_EDITOR_PALETTE_COLORS,
-            onClick: () => {
-              apply(resizeEditorPalette(colors, paletteSize));
-              setDialog(null);
-            },
+            disabled: !editor.hasDocument || paletteSizeValue(size) === null,
+            onClick: () =>
+              attempt(() => {
+                if (editor.resizePalette(size)) setDialog(null);
+              }),
           },
           { label: "Cancel", onClick: () => setDialog(null) },
         ]}
-        width={280}
+        width={320}
       />
       <FormDialog
-        open={dialog === PaletteDialog.Transparent && editor.documentKey === transparentDocumentKey}
+        open={dialog === PaletteDialog.Save || dialog === PaletteDialog.Preset}
+        title={dialog === PaletteDialog.Preset ? "Save Palette as Preset" : "Save Palette"}
         onOpenChange={(open) => {
-          if (!open) setDialog(null);
+          if (!open && !busy) setDialog(null);
         }}
-        title={tUi("ui.transparent.index")}
         fields={[
           {
-            key: "transparentIndex",
-            label: tUi("ui.palette.index.colon"),
-            type: "number",
-            value: transparentIndex,
-            min: 0,
-            max: editor.maxTransparentPaletteIndex,
-            onChange: setTransparentIndex,
+            key: "filename",
+            label: "File name:",
+            type: "text",
+            value: filename,
+            disabled: busy,
+            onChange: setFilename,
+          },
+          {
+            key: "format",
+            label: tUi("ui.save.format"),
+            type: "select",
+            value: format,
+            disabled: busy,
+            options: PALETTE_EXPORT_FORMATS.map((item) => ({
+              label: item.description,
+              value: item.extension,
+            })),
+            onChange: (value) => {
+              setFormat(value as PaletteExportFormat);
+              setFilename((name) => name.replace(/\.[^./]+$/, "") + `.${value}`);
+            },
           },
         ]}
         actions={[
-          {
-            label: "OK",
-            disabled:
-              !editor.indexedColorMode ||
-              !Number.isInteger(transparentIndex) ||
-              transparentIndex < 0 ||
-              transparentIndex > editor.maxTransparentPaletteIndex,
-            onClick: () => {
-              if (editor.setTransparentPaletteIndex(transparentIndex)) setDialog(null);
-            },
-          },
-          { label: "Cancel", onClick: () => setDialog(null) },
+          { label: "Save", disabled: busy || !filename.trim(), onClick: () => void save() },
+          { label: "Cancel", disabled: busy, onClick: () => setDialog(null) },
         ]}
-        width={280}
+        width={420}
       />
       <Alert
-        open={!!error}
+        open={Boolean(error)}
         onOpenChange={(open) => {
           if (!open) setError(null);
         }}
