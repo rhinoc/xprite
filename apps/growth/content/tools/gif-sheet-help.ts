@@ -38,7 +38,7 @@ export const GIF_SHEET_HELP = {
       },
     ],
     closing:
-      "精灵表包含 GIF 的所有帧，不裁剪空白，也不合并重复帧。需要这些选项时，在 Xprite 编辑器中打开 GIF，在「导出精灵表」中勾选「裁剪精灵」或「合并重复项」。",
+      "精灵表包含 GIF 的所有帧，不裁剪空白，也不合并重复帧。需要这些选项时，在 Xprite 编辑器中打开 GIF，在「导出」对话框中选择「精灵表」，再勾选「裁剪精灵」或「合并重复项」。",
   },
   [PublicLanguage.English]: {
     title: "Export a sprite sheet and frame data",
@@ -69,6 +69,6 @@ export const GIF_SHEET_HELP = {
       },
     ],
     closing:
-      "The sheet includes every GIF frame without trimming empty space or merging duplicate frames. For those options, open the GIF in the Xprite editor and check Trim Sprite or Merge Duplicates in Export Sprite Sheet.",
+      "The sheet includes every GIF frame without trimming empty space or merging duplicate frames. For those options, open the GIF in the Xprite editor, choose Sprite Sheet in the Export dialog, and check Trim Sprite or Merge Duplicates.",
   },
 } as const satisfies Record<PublicLanguage, ToolHelpContent>;
