@@ -14,6 +14,9 @@ block, for example `XPRITE_DEV_PORT_BASE=5273 pnpm dev`. That worktree uses
 inside the same checkout. Choose another unused base for each additional
 worktree; the default checkout continues to use 5173–5176.
 
+Set `XPRITE_VISUAL_SPACE_ID` to reuse one agent-owned Ego browser space across
+all pre-push capture stages after a browser capture interruption.
+
 `pnpm run check:public-docs` rejects Xiaohongshu / 小红书, RedNote, XHS and
 platform links in root Markdown (except `AGENTS.md`), the user guide and its
 text assets, public text assets, and the editor HTML entry. It reports file and
