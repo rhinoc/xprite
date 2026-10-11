@@ -25,11 +25,11 @@ export function PixelationPage({ manager }: { manager: PixelationManager }) {
       tool={PIXELATE_TOOL}
       filename={state.name}
       ready={!!state.source}
+      processing={busy || state.converting}
       busy={busy}
       error={state.error}
       onOpen={(file) => manager.open(file)}
       onExample={() => manager.openExample()}
-      scrollWorkspace
       fileItems={[
         {
           label: "Download PNG",

@@ -26,21 +26,24 @@ import styles from "$/components/shared/tool-frame.module.css";
 export function ToolFrame({
   tool,
   filename,
+  processing = false,
   menus = [],
   children,
   help,
 }: {
   tool: PublicTool;
   filename?: string;
+  processing?: boolean;
   menus?: readonly MenubarMenu[];
   children: ReactNode;
   help?: ReactNode;
 }) {
   const { language, setLanguage, translate: t } = useToolLanguage();
   const guidePath = "guidePath" in tool ? tool.guidePath : undefined;
+  const toolPath: string = tool.path;
   const samePageGuide =
     typeof guidePath === "string" &&
-    (guidePath.startsWith("#") || guidePath === tool.path || guidePath.startsWith(`${tool.path}#`));
+    (guidePath.startsWith("#") || guidePath === toolPath || guidePath.startsWith(`${toolPath}#`));
   const helpHref =
     help && typeof guidePath === "string" && !samePageGuide
       ? localizedSiteHref(guidePath, language)
@@ -68,7 +71,10 @@ export function ToolFrame({
       style={variables}
       aria-label={t("Page scroll")}
     >
-      <div className={styles.shell} data-tool-state={filename ? "ready" : "empty"}>
+      <div
+        className={styles.shell}
+        data-tool-state={filename ? (processing ? "processing" : "ready") : "empty"}
+      >
         <div className={styles.screen}>
           <header className={styles.header}>
             <SiteMenubar

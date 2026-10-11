@@ -1,0 +1,28 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "paths": {
+      "$/*": [
+        "./src/*",
+        "../editor/src/*",
+        "../../packages/editor-core/src/*",
+        "../../packages/editor-ui/src/*",
+        "../../packages/ui/src/*",
+        "../../packages/bedrock/browser/*"
+      ],
+      "@xprite/bedrock/browser/*": ["../../packages/bedrock/browser/*"],
+      "@xprite/bedrock/common/*": ["../../packages/bedrock/common/*"],
+      "@xprite/editor-app/*": ["../editor/src/*"],
+      "@xprite/editor-core": ["../../packages/editor-core/src/index.ts"],
+      "@xprite/editor-core/*": ["../../packages/editor-core/src/*"],
+      "@xprite/editor-ui": ["../../packages/editor-ui/src/index.ts"],
+      "@xprite/editor-ui/*": ["../../packages/editor-ui/src/*"],
+      "@xprite/ui": ["../../packages/ui/src/index.ts"],
+      "@xprite/ui/*": ["../../packages/ui/src/*"],
+      "$assets/*": ["../editor/assets/*", "../../packages/ui/assets/*"]
+    }
+  },
+  "references": []
+}

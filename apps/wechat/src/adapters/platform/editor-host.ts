@@ -6,6 +6,7 @@ import {
 } from "$/adapters/session/workspace-session";
 import { WechatBinaryStore } from "$/adapters/storage/binary-store";
 import { createWechatProjectStorage } from "$/adapters/storage/wechat-project-storage";
+import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
 import {
   createBrowserEditorPlatformPorts,
   decodeAsepriteBlob,
@@ -18,13 +19,13 @@ export const createWechatEditorHost: EditorHostFactory = () => {
   const store = new WechatBinaryStore();
   const platform = createBrowserEditorPlatformPorts();
   platform.startupScreen = undefined;
-  platform.preferences = {
+  platform.preferences = createJsonStorage({
     getItem: (key) => {
       const value: unknown = wx.getStorageSync(key);
       return typeof value === "string" ? value : null;
     },
     setItem: (key, value) => wx.setStorageSync(key, value),
-  };
+  });
   platform.userPresets = {
     load: async () => store.readJson("user-presets", null),
     save: async (value) => store.writeJson("user-presets", value),

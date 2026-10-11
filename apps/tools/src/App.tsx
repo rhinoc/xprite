@@ -1,6 +1,7 @@
 import { browserToolHost } from "$/adapters/tools/browser-tool-host";
 import { createBrowserViewerPort } from "$/adapters/viewer/browser-viewer";
 import {
+  desktopAppearanceForMode,
   desktopAppearanceForColorScheme,
   ToolAppearance,
 } from "$/components/shared/tool-appearance";
@@ -21,7 +22,8 @@ export function createViewerApplication(
   const host = new ToolHostManager(browserToolHost);
   const desktop = createBrowserDesktop({
     appearance:
-      desktopAppearanceForColorScheme(initialTheme?.colorScheme) ?? host.getAppearanceMode(),
+      desktopAppearanceForColorScheme(initialTheme?.colorScheme) ??
+      desktopAppearanceForMode(host.getAppearanceMode()),
   });
   return {
     view: (

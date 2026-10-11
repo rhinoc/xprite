@@ -92,6 +92,7 @@ export function PixelationControls({
         <Combobox
           pixelWidth={METHOD_WIDTH}
           value={settings.mode}
+          aria-label={translate("Action")}
           disabled={disabled}
           options={[
             { value: PixelationMode.Convert, label: translate("Convert image") },
@@ -169,6 +170,7 @@ export function PixelationControls({
             <Combobox
               pixelWidth={METHOD_WIDTH}
               value={settings.method}
+              aria-label={translate("Method")}
               disabled={disabled}
               options={[
                 { value: PixelationMethod.Structure, label: translate("Preserve edges") },

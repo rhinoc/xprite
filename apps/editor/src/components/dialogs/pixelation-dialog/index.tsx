@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
@@ -41,12 +41,24 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   const sceneBounds = useSceneBounds();
   const [choices, setChoices] = useState(workflow.getPixelationPaletteChoices);
   const labels = pixelationDialogLabels(workflow.pixelationOptions);
-  const rootRef = useModalFocus(!!pending, workflow.discardEmptyImport);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  useModalFocus({
+    open: !!pending,
+    rootRef,
+    onKeyDown: (event) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      workflow.discardEmptyImport();
+    },
+  });
   if (!pending) return null;
   return (
     <EditorDialog
       open
-      onRootRef={rootRef}
+      onRootRef={(node) => {
+        rootRef.current = node;
+      }}
       modal
       centerOnOpen
       constrainToViewport

@@ -80,7 +80,11 @@ export function AnimalCrossingSourceGrid({
     documentToScreen({ x: 0, y: 0 }, viewport, document, { zoom, pan: { x: 0, y: 0 } });
   const toCanvasView = (view: View) => {
     const origin = centeredOrigin(view.zoom);
-    return { zoom: view.zoom, pan: { x: view.pan.x - origin.x, y: view.pan.y - origin.y } };
+    return {
+      zoom: view.zoom,
+      pan: { x: view.pan.x - origin.x, y: view.pan.y - origin.y },
+      tiledMode: undefined,
+    };
   };
   const fromCanvasView = (view: View): View => {
     const origin = centeredOrigin(view.zoom);
