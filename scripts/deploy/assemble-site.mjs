@@ -10,6 +10,7 @@ import {
   applyViewerSearchMetadata,
 } from "../../apps/growth/build/seo/index.ts";
 import { SITE_PAGES, SitePageKind } from "../../apps/growth/content/site/pages.ts";
+import { checkAssetVersions } from "../check/check-asset-versions.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const editorOutput = resolve(repositoryRoot, "apps/editor/dist");
@@ -68,5 +69,8 @@ await writeFile(
   resolve(siteOutput, "edgeone.json"),
   `${JSON.stringify(siteServingConfiguration(configuration), null, 2)}\n`,
 );
+
+// Each app versions its own stable-name assets; the combined site must have none left.
+await checkAssetVersions(siteOutput);
 
 console.log("Independent editor, growth, tools, and components outputs assembled in .tmp/site.");

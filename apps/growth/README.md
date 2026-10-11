@@ -93,6 +93,11 @@ static documents load `/theme/macintosh.css`, generated from the UI package's
 resource map serves and publishes that stylesheet. Colors remain owned by the
 UI theme, and these pages do not alter editor appearance or storage settings.
 
+`/theme/*.css`, `/help/guide.css`, fonts and images keep stable file names. The
+growth build ends with the shared `versionOutputDirectory()` from
+`infra/content-versions.ts`, which appends `?v=<content hash>` to every such page
+and stylesheet reference; see `scripts/deploy/README.md`.
+
 The showcase uses `ScrollAreaTarget.Page` for document scrolling. Help, comparison, article
 and 404 HTML include the separately bundled `controls/index.html` entry, which
 mounts shared link buttons, document scrollbars and local `ScrollArea` controls.

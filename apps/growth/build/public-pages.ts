@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from "vite";
 
+import { versionOutputDirectory } from "../../../infra/content-versions.ts";
 import {
   DevelopmentApp,
   GROWTH_DEVELOPMENT_BASE,
@@ -524,6 +525,8 @@ export async function growthPublicPages(): Promise<Plugin> {
       await writeFile(resolve(output, "llms.txt"), languageModelIndex());
       if (indexable) await writeFile(resolve(output, "sitemap.xml"), sitemap());
       else await rm(resolve(output, "sitemap.xml"), { force: true });
+      // Last step: every page and stylesheet now has its final references and bytes.
+      await versionOutputDirectory(output);
     },
   };
 }

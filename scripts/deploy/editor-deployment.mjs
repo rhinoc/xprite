@@ -9,6 +9,7 @@ import { GUIDE_PAGES } from "../../apps/growth/content/help/pages.ts";
 import { SHOWCASE_PAGES } from "../../apps/growth/content/showcase/pages.ts";
 import { SITE_PAGES, SitePageKind } from "../../apps/growth/content/site/pages.ts";
 import { GIF_SHEET_TOOL, PIXELATE_TOOL, TOOLS } from "../../apps/growth/content/tools/index.ts";
+import { checkAssetVersions } from "../check/check-asset-versions.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const configuration = siteServingConfiguration(
@@ -141,6 +142,7 @@ async function prepareDeployment() {
   await Promise.all(REQUIRED_DISCOVERY_FILES.map((file) => readFile(join(outputDirectory, file))));
   if (environment === "production") await readFile(join(outputDirectory, "sitemap.xml"));
   await verifyStaticFiles(outputDirectory);
+  await checkAssetVersions(outputDirectory);
   await rm(deploymentDirectory, { recursive: true, force: true });
   await mkdir(dirname(deploymentDirectory), { recursive: true });
   await cp(outputDirectory, deploymentDirectory, { recursive: true });

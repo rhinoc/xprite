@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
+import { contentVersionedOutput } from "../../infra/content-versions.ts";
 import {
   DEVELOPMENT_PORTS,
   DevelopmentApp,
@@ -344,7 +345,7 @@ export default defineConfig({
     bundleLicenseNotices(),
     preserveEditorStyleEffects(),
     ...(!isItchBuild ? [editorOffline(editorOutput)] : []),
-    ...(isItchBuild ? [itchDistribution()] : []),
+    ...(isItchBuild ? [itchDistribution(), contentVersionedOutput()] : []),
   ],
   resolve: {
     alias: [

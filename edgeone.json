@@ -699,6 +699,33 @@
       ]
     },
     {
+      "source": "/tools/pixelate/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/features/*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/404.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
       "source": "/components/*",
       "headers": [
         {
@@ -787,6 +814,18 @@
     },
     {
       "source": "/tools/animal-crossing-qr/",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/tools/pixelate/",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/features/*",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/404.html",
       "cacheTtl": 0
     },
     {
