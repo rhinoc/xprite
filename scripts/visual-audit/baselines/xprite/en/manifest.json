@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "xprite-baseline",
-  "capturedAt": "2026-10-11T12:10:46.054Z",
+  "capturedAt": "2026-10-11T12:31:50.099Z",
   "captureMethod": "Chromium CDP native PNG, DPR 1, isolated Vite HMR transport, no resize or masking",
   "theme": "light",
   "language": "en",
@@ -9,11 +9,11 @@
     "file": "apps/growth/public/showcase/ipad/hello/hello.aseprite",
     "sha256": "3fc1e6823932ac1c08d6af4e43702a8c9a5af1744d4d681324cee5293f4c25da"
   },
-  "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
+  "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
   "sourceHashes": {
     "apps/editor/assets/commands/aseprite-tool-tips.json": "e9e275e9d3b024deaa66850fa53e43713f155b70afd619d6d8c9d3ad86c47c26",
     "apps/editor/assets/commands/libresprite-keyboard-shortcuts.json": "36bfd19176989e659289b5e89927f29d7e4f2fe4e9389a1520552bd8711560d1",
-    "apps/editor/assets/commands/libresprite-main-menu.json": "8fa90cc4b0762674fd9d3630eecf357be5ae8e8f48c2e5e1cdcca98e721bb00b",
+    "apps/editor/assets/commands/libresprite-main-menu.json": "3f8e173da89ddb360e396c68a20c74244f5418cf41ad47735d0b3ddd61b839ad",
     "apps/editor/assets/examples/hello/hello-project.ts": "45865fb2a03d9d0d7cac01ce59071bc4dfdfadd37dfdd881ff6018c63b1fdb07",
     "apps/editor/assets/examples/xprite/xprite-preview.webp": "2a9d5fada2596d5c241b32babef5d50fd9b178035150d629a6be02b9199b3829",
     "apps/editor/assets/home/icon-frame-1.webp": "2e3c97b7b7d1f5e2125abf80b363f0812c4e593ca26d6b8737aa917ceaef1320",
@@ -42,6 +42,7 @@
     "apps/editor/assets/icons/xprite/zoom-actual.webp": "2fff927197fa255d1029f646c10bfa8fe6983eec79182df1e3d3c7c2cb23c89d",
     "apps/editor/assets/icons/xprite/zoom-in.webp": "f76612d2b8d6b9a9d1288fd8d2d2c967a1f6950264db351c4a343b3199ed9dca",
     "apps/editor/assets/icons/xprite/zoom-out.webp": "5151b05c5aa1992608b27918f5fe77dedb81b1734fcddc5a4e7c1fcf1c775bf1",
+    "apps/editor/assets/palette-presets/catalog.json": "ff9c62311140485e80b34b325afc4797a3a7a151937563d107f79c6b6c52828d",
     "apps/editor/assets/public/favicon-16.png": "d053bb69bf89d38ddd0133f33a0a716de715309878a0698bf5de8953accc42b2",
     "apps/editor/assets/public/icon-192.png": "89599b930700e933c3f68501361d74671e722ce40804c479f1d96a5d7ec8212d",
     "apps/editor/assets/public/icon-512.png": "4464e6246f4c2d7e17a078b44465fa7e4c9e933990c0bd8de29aae656601b37f",
@@ -60,7 +61,7 @@
     "apps/editor/src/adapters/files/animated-images.ts": "4e9e02ef919dc4a7f5e8d52f2506fb789dfe24a7fd1e6a97c4cb39a02e6db7f8",
     "apps/editor/src/adapters/files/aseprite-files.test.ts": "555491f564672c3ae547410f7d347fbd9ff2ef6d68c6469811500eb67ae3feca",
     "apps/editor/src/adapters/files/aseprite-files.ts": "5a8b5382dc1ccf88949d3cbd3e31836bf4788d9df875fe96080e0d0b6c25efd0",
-    "apps/editor/src/adapters/files/browser-animal-crossing-export.ts": "d2d41a74707555e57aa2f7b92cae7afe0458a8378e41af2bff73325e2e59387f",
+    "apps/editor/src/adapters/files/browser-animal-crossing-export.ts": "6f1d636ce5f0cb6153bd6946a2bc24a03aa752dbec7b51b4073abbb50ab89395",
     "apps/editor/src/adapters/files/images.test.ts": "e97533f67ced9887cbecba4c9a3c70e9cf4e170fdf0766e7df218b8a5d3e9403",
     "apps/editor/src/adapters/files/images.ts": "e6225213c62fde9578cf86d5d3de6dc44b003ac16f303fccd88cb688e127ba19",
     "apps/editor/src/adapters/files/reference-image.ts": "6578f3ab26afd1e976a037e6d17df4b6b91b1f057f322d5823fc83db4c4f25b3",
@@ -135,13 +136,13 @@
     "apps/editor/src/adapters/telemetry/browser-attribution.ts": "569df94337537b15e5171f2809db5207e3bf8d06eb0d46c64fbcc887f883011f",
     "apps/editor/src/adapters/telemetry/browser-telemetry-lifecycle.ts": "12e768cb92a86d3ae378dfe9600248ec9cf7ee3f7db4a441f7a0ab632452a2e9",
     "apps/editor/src/adapters/telemetry/posthog-telemetry.ts": "03dfce77539c8fcebd12c40cd1425fd7a1f3803a93ca4cff0b372045c4acf3d5",
-    "apps/editor/src/adapters/viewer/editor-transfer.ts": "08728d18212896e8b0ad15e2bcc66ff04813e699b3245d07c62923112130e570",
+    "apps/editor/src/adapters/viewer/editor-transfer.ts": "3f7c57b9d9462e93447164d70c0736ddbb349d6280793e8a2064b429917141b1",
     "apps/editor/src/adapters/workers/aseprite-import-client.ts": "07f6d73bfc243b2dcca9dc8a99af28e9ecc6ca9fbc11c681333a7f70d1d21ea2",
     "apps/editor/src/adapters/workers/aseprite-import-protocol.ts": "c425df10771b9a1b5590d5101e56ba0601d7b66a0ee70ef790b4e54d0ff50bc5",
     "apps/editor/src/adapters/workers/aseprite-import-worker.ts": "9345b8136beebf179b7806b3b855f5bdb4ed34c7ae1091afcadbc1d2f2361503",
     "apps/editor/src/adapters/workers/import-client.ts": "310588fe7c09c2070615ac5e435ff292fa1a62c7aff1be237337dd0861073268",
     "apps/editor/src/adapters/workers/import-worker-types.ts": "f481c35bcdc1e38f1641aebbe092eb00724426e22405dbc363d92c6057ed5efc",
-    "apps/editor/src/adapters/workers/import-worker.ts": "ee0d71ae00eb8b090555ecfefe5e96b1f69741d1b32d51d715cda82d2b3517b8",
+    "apps/editor/src/adapters/workers/import-worker.ts": "62af9a7f99867697acc06788c68763310b9167e79c6bfa2ac742ab5648caad49",
     "apps/editor/src/adapters/workers/recent-snapshot.test.ts": "a2a2ab994640f5fff8d73e62fae261fac57e86b1b5973d0c26282d473055e423",
     "apps/editor/src/adapters/workers/recent-snapshot.ts": "8f3686ae769d020b2fd8860aee804c5b01564cb7b5b36aff4708ca36c2c94a77",
     "apps/editor/src/adapters/workers/recovery-codec-client.ts": "53c3c0a90cdc3ce02917fb718e52f60ef992925c4761eb8917f7bf17d7d6e39f",
@@ -172,8 +173,9 @@
     "apps/editor/src/components/canvas/scene-bounds/index.tsx": "ca8a98366957dee2d07db2403c9ab9644a7554c13fbd0fcfc02e3b4111394841",
     "apps/editor/src/components/dialogs/about/index.tsx": "175d7750fbe473d78aff58ce546daaf05ead24a37b1352248898cc2cc7f944a4",
     "apps/editor/src/components/dialogs/alert/index.tsx": "c7a0b8878e194c322bf7a6adac8ab3058f5af1f033544e04b0f8521bd7c17fe9",
-    "apps/editor/src/components/dialogs/animal-crossing-dialog/animal-crossing-dialog.module.css": "c6b7865326068e6c058d85858b0460993a8b4a3e985735fef4492d1bf29e279b",
-    "apps/editor/src/components/dialogs/animal-crossing-dialog/index.tsx": "1d53a5b7aa861431027037e9092a64fe3c874f1ea3fc1c2a4c7d65033a7fe147",
+    "apps/editor/src/components/dialogs/animal-crossing-dialog/animal-crossing-dialog.module.css": "d072256451d0dac7e9e44bdb10a791159c8537ea35ce6ed1161f3016bb7138a9",
+    "apps/editor/src/components/dialogs/animal-crossing-dialog/index.tsx": "160740dcb1b69065497dcc77a85889587f35f908f4f55d377085274e6424d9c9",
+    "apps/editor/src/components/dialogs/animal-crossing-dialog/source-grid.tsx": "95ccec03291f703f9894bff7da0f68c7fcc78afcece2c15ef05fe496a90a616d",
     "apps/editor/src/components/dialogs/canvas-display-preferences/index.tsx": "9090e70f8cd270e7baeff2112ef59b4a522aa33a0cba2e622d674073ee43bd4d",
     "apps/editor/src/components/dialogs/cursor-preferences/index.tsx": "8ccbca89af1b3683247469703f3daf8118178003b9587d900290e20812623e22",
     "apps/editor/src/components/dialogs/diagnostics-preferences/index.tsx": "d0970f0f9af3b4fd07c561f70a280335cab894f30ff957b202581f075d0dd3c5",
@@ -184,15 +186,17 @@
     "apps/editor/src/components/dialogs/effect-dialogs/curve-point-dialog.tsx": "430c7f4610d37a468c401688fbe09fc1319e04c78f983c42a8bdb7094a208338",
     "apps/editor/src/components/dialogs/effect-dialogs/index.tsx": "d2156130b4b9c9d69006b8226a8aa8980e73338c8fb4a13b8745c3fd9f06a031",
     "apps/editor/src/components/dialogs/experimental-preferences/index.tsx": "373918f2746560d545a0fa4b994d4dfe01e021b0c802f00ef1fd1128bc51cb41",
-    "apps/editor/src/components/dialogs/export-file-dialog/export-file-dialog.test.ts": "ba71bb778c7c04e60165d8816166d050ff0a88c735eabeae412d2917306294eb",
-    "apps/editor/src/components/dialogs/export-file-dialog/index.tsx": "deadce64cc47774c3ceffd35f830c08e8d3f020ba3ef4854f16be54376aa7b0b",
+    "apps/editor/src/components/dialogs/export-dialog/export-dialog.module.css": "aa364df7955ae5ef877a0d95298f0ecbc2591bf68149683d860498b70aaf1ad5",
+    "apps/editor/src/components/dialogs/export-dialog/index.tsx": "f264840f675ca045359c4355b6d33d54ca092e190a1bc4d2ab9a3486482347c7",
+    "apps/editor/src/components/dialogs/export-file-dialog/export-file-dialog.test.ts": "9eaeff03fec8aaadfb82ccc0ec8fd7693156cf4668d947b6a9b7deb722f79a1c",
+    "apps/editor/src/components/dialogs/export-file-dialog/index.tsx": "9b8bf6011b9f412d2541603efad39c8b8383eea180cb5a34073f86b0bbd2d8c2",
     "apps/editor/src/components/dialogs/feedback/feedback.module.css": "532d7bd30342801fb1c740b06ded260a832fdf8dae19bebdc612422ec2ddf58e",
     "apps/editor/src/components/dialogs/feedback/index.tsx": "ef16f64f7e08fd845175958ec16ca701c764fffeb2b2432aeff3901161a664c9",
     "apps/editor/src/components/dialogs/files-preferences/index.tsx": "f314eb713637e6dc4df096093295c6c77bed39d82ecb11c79f4ee6009b551779",
     "apps/editor/src/components/dialogs/filter-window/index.tsx": "1b6d8299639deec8c1159ff1d8c5b934ab827e008ffae89073465971c9e48a40",
     "apps/editor/src/components/dialogs/form-dialog/flow-form.module.css": "8898455d9d72eaacca24eb5c3c533ad2e12ee8e1dbedf7f99b1e6ee5dabd14ae",
-    "apps/editor/src/components/dialogs/form-dialog/flow-form.tsx": "ad8edcef6c657082a4d4e71733c5fe22feac98a067fcd9ee81836b84a749cce6",
-    "apps/editor/src/components/dialogs/form-dialog/index.tsx": "a186053f3ae6a41b33142d49b12e45793ad23912d7e00e991999ec584be5a7d9",
+    "apps/editor/src/components/dialogs/form-dialog/flow-form.tsx": "0dadd10eb1efa8c7ba08b1e3e098f53c7aca1d0ec97c89b443ffb9d9f49ccc31",
+    "apps/editor/src/components/dialogs/form-dialog/index.tsx": "7850fffa875f969c524255546aaa04c8b90a632880554036f12780d0059bb066",
     "apps/editor/src/components/dialogs/grid-settings/index.tsx": "4452eb57746e576da5c7ce2bff07b22f03e40d989b3d124f6857e1fa8a5cc49e",
     "apps/editor/src/components/dialogs/import-sprite-sheet-overlay/index.tsx": "ed665dcc3ceeb83a413bf0dc1cb001d67caceaa6bc9f0102223bba03386db844",
     "apps/editor/src/components/dialogs/keyboard-shortcuts/KeyboardShortcutsDialog.tsx": "00654a82929aba19223f52b36036f99180b84a1ebe37223f03aa26a5e57edc21",
@@ -202,10 +206,8 @@
     "apps/editor/src/components/dialogs/keyboard-shortcuts/keyboard-shortcuts.module.css": "33448fd9d5eeb3bd83a03289992375d284c5d351f8d3b97e52713843b942b756",
     "apps/editor/src/components/dialogs/new-sprite-dialog/index.tsx": "6b4a0fd2cdef6ec9d0fc40dc20412bc8cd7276d990085a467ebac4e059008dbc",
     "apps/editor/src/components/dialogs/new-sprite-dialog/new-sprite-dialog.module.css": "ac890630c5db29a172c6ad5bd3f1b7a3ebbe4c7e489cdaa82c761dd5cc5af427",
-    "apps/editor/src/components/dialogs/overlay/index.tsx": "2095a55e46b3854fe208d72b26e824d6191bb9ececa58fe810edce7b5866d1db",
-    "apps/editor/src/components/dialogs/pixelation-dialog/index.tsx": "7ba28c34dc33b48f7b8c354612781e11ed3b8298275c01efc0f744ed96040a47",
-    "apps/editor/src/components/dialogs/pixelation-dialog/pixelation-dialog.module.css": "f6d10c9d1b47cffbc5849b6efe7c5d5624fafac578b4c33bb4c91fd0d0910b14",
-    "apps/editor/src/components/dialogs/preferences-dialog/index.tsx": "2b5383265c130b385b5f674f8e319b1102b35eb0f5d5296730892b131f87850d",
+    "apps/editor/src/components/dialogs/overlay/index.tsx": "de6edb4eadaf3687b3e4d7a981d9a0d45b66efde03337f3963088645f861e68b",
+    "apps/editor/src/components/dialogs/preferences-dialog/index.tsx": "e814b03460f2b3c8ffbcfb815bd4adb07731473599094e6f27d902bf951fb0db",
     "apps/editor/src/components/dialogs/preferences-dialog/preferences-dialog-layout.tsx": "ef56787c3dbb7677901a2bdc29b47d78574a3daea3d4a6ce287aa93e31b968f3",
     "apps/editor/src/components/dialogs/preferences-dialog/preferences-dialog.module.css": "baafd204a8ffad7b3195e949d4c90abf653150edd90657fa09dd674ec9f9e707",
     "apps/editor/src/components/dialogs/preferences-dialog/preferences-search-catalog.ts": "df6678eaf7e10378e7a2d207cd9620bf0c6ef2fe914ef726d996365a84824230",
@@ -219,7 +221,7 @@
     "apps/editor/src/components/dialogs/size-dialogs/index.tsx": "ecec3a9a2e6cda002ba75ccd1fcf8752060991467e6bbe7db9f79cb90d8cbed5",
     "apps/editor/src/components/dialogs/size-dialogs/size-dialogs.module.css": "f2899fbbc5743e064e49aa565ef61bdcc8f77790c158cf19adc20222b98b3994",
     "apps/editor/src/components/dialogs/slice-properties-dialog/index.tsx": "e5b60da98c64d92ac5cb7bba2984e3ecd5faea6f0bb0aa27f3efc6826e107bc0",
-    "apps/editor/src/components/dialogs/sprite-sheet-dialog/index.tsx": "2b2862e0a8a6be5df92df097643d513c0ef2626be41c5c37992db0147853e8d2",
+    "apps/editor/src/components/dialogs/sprite-sheet-dialog/index.tsx": "e6244017e9cfd2f24d5b84009d65c9719e67c105e0db19e3b2cf2dd384cfdb50",
     "apps/editor/src/components/dialogs/text-dialog/index.tsx": "14ad76268db285f45196f9d4b3ef72b64a0b7cd5a87503847634896e5c16db40",
     "apps/editor/src/components/dialogs/touch-input-preferences/index.tsx": "61cbd0c310cd02c12c9eb28bf05666cb1c5316cd39822fd36ee347dd1d689efd",
     "apps/editor/src/components/dialogs/undo-history-window.module.css": "b386c1622c5d7203e4c2309461e40c183abff0c25a2a52228d6be9fc17648990",
@@ -242,7 +244,9 @@
     "apps/editor/src/components/palette/editor-colorbar/index.tsx": "edc3d4bf60c899f2b9a042aa31464a5229e99c2802e62db99d93767ed7c45474",
     "apps/editor/src/components/palette/editor-palette/editor-palette.module.css": "b555ca1e041f1f9a6d326f2c207eee5b83161435ae6c70b9c0216717dd7df80e",
     "apps/editor/src/components/palette/editor-palette/index.tsx": "20aa924396315ef0e392959c81c99c6d7dae0019e432980422cb16f804dda062",
-    "apps/editor/src/components/palette/palette-actions/index.tsx": "375156854c990fc1eeef50609489a625d71de07ab8fc19dad02a3abb84d0f97a",
+    "apps/editor/src/components/palette/palette-actions/index.tsx": "cf13dceefa2d3702d18bc5783acfd8bdd1d6922cca88fbe68252071325319b62",
+    "apps/editor/src/components/palette/palette-preset-popup/index.tsx": "8e167647b3a92e88511abf0c8d94f9902c94448ac6bf0885372b81dc5b95cdf1",
+    "apps/editor/src/components/palette/palette-preset-popup/palette-preset-popup.module.css": "2692af9a75744f13c8175e4ea55c6cd7f92bca0177b43182ca384898180cc631",
     "apps/editor/src/components/palette/palette-surface/index.tsx": "97acde6b737d0249cbea4754d11372df53508df40e130df33215f67906aa1c0b",
     "apps/editor/src/components/palette/palette-toolbar/index.tsx": "f1240b6d23de8fd3f5694daa8e598c02030f06bd4d51c8bab11687d2e74a24da",
     "apps/editor/src/components/palette/palette-toolbar/palette-toolbar.module.css": "be034c7ebf261cdabdf5033b9de00991663ea4a27f0d37b44641ed79459ee052",
@@ -265,13 +269,13 @@
     "apps/editor/src/components/shell/backup-indicator/index.tsx": "58e4d636b39fa5f95e91c0640d732b3ddcf79675fc3b4a4ede66fea787be87fd",
     "apps/editor/src/components/shell/editor-actions.tsx": "aad0192b657ace160d4f9239b203d45c9a258b7595a35d053e9e62dba594105e",
     "apps/editor/src/components/shell/editor-menubar.module.css": "843c5d13a0c1730f638b99c80809317d198aeb77f33536bd2efa372c889175a5",
-    "apps/editor/src/components/shell/editor-menubar.tsx": "3916ed910e9db55420a21ab64b8f101247924f148bb4027724d7c57a43fee74c",
+    "apps/editor/src/components/shell/editor-menubar.tsx": "f54558cff94c4c58ba589bb5610520029212a6635176538f667df6eb7439a0c9",
     "apps/editor/src/components/shell/editor-startup.tsx": "41bd7e04b689885cf3d83ef0415c028ca0616a1399252341d27dd90f99a71430",
     "apps/editor/src/components/shell/editor-statusbar-host/index.tsx": "526141740498bb88e29695388a7a2af7538f227422bb7df76b392c51299833cc",
     "apps/editor/src/components/shell/editor-view/index.tsx": "838c25ba2e66a14e2e0af64d2c4bc88d84ba185fd5677ad37ddf131d0e3e6e5e",
     "apps/editor/src/components/shell/editor-view/workspace-docking.module.css": "915ba5198554a55d3bb4598f2b08cebaed4e63f7ba84d56c0a354b9db6201edf",
     "apps/editor/src/components/shell/editor-workflows.module.css": "af1ecefc4d15f6678a020a9f2cf4b1842cfbb36f1c386266b07f751dc8315a7e",
-    "apps/editor/src/components/shell/editor-workflows.tsx": "5c9b4b5494b0604b0b8601ebc2afa6def54e6cf54808712253515e20a44ad95c",
+    "apps/editor/src/components/shell/editor-workflows.tsx": "47a4f5e7fa68ef0ad7372f9083daf391f93bed71acb25c97434d1365aeccec28",
     "apps/editor/src/components/shell/input-mode-notice/index.tsx": "1a9244e4f82062f50e312b5b28bbc18986c6091c7314f49ee92a7d63411fa654",
     "apps/editor/src/components/shell/live-status.module.css": "8f4c21612cb6e066231db71edd4b8b634f772c2565a3075e37c940f4836b312c",
     "apps/editor/src/components/shell/live-status.tsx": "a67d351858192ce4b91cffb5f688de32e3839ca58e6628ef43eef27c0b51a638",
@@ -360,8 +364,8 @@
     "apps/editor/src/embedded-runtime.ts": "11308453ec703eff62709432e4a4e5856e21156cbdab502cfe89e1a201bfd38a",
     "apps/editor/src/host-contracts.ts": "081f9b1f40a289f9f24570c6eeeda8e0608d48d85ed09339a67e814c112218e1",
     "apps/editor/src/i18n/index.ts": "038be644917e00db2e18fa6375ba883fc8fa667ffddc300dc02a6a10942fc981",
-    "apps/editor/src/i18n/locales/en.json": "f933306720c6626f9000def18d4e26bf167b1fef5481831f60b8168db73fe695",
-    "apps/editor/src/i18n/locales/zh-CN.json": "e43581404fe5b93c05d7989dfc3365b21ab8da335a215e05eeceeeb21f3b797e",
+    "apps/editor/src/i18n/locales/en.json": "00ddc97162cdc2b3c98ab637382330936da2825a857ee11fabead9aeb1fc75eb",
+    "apps/editor/src/i18n/locales/zh-CN.json": "cf547fdc89b4898effac9f1b9f538a0691414e16f460e261fa2346c6d774a22c",
     "apps/editor/src/main.tsx": "e8e55235237f8f4b8ba720cf60a4a84a626b4cb65289b5a094d3253f54310b07",
     "apps/editor/src/managers/agent/agent-tool-definitions.ts": "5caa6790160bfb9a94f60c73e4012503a1127bd206c86f99d7d0de8cb6f67b52",
     "apps/editor/src/managers/agent/agent-tools-manager.ts": "15eebc94001025c1f0917fe41b0598bedb576e5c7d3c65b10bb0d13b35749b00",
@@ -386,7 +390,7 @@
     "apps/editor/src/managers/diagnostics/technical-support.ts": "6af22fc628e5aae683f5a0244725370ce81358e3adeaa6ed4e6ed54bc1387ca6",
     "apps/editor/src/managers/dialogs/document-feature-manager.ts": "86cf2ea24851ef1d869e31e65938722cef9cd604d3828665281351a4989fc9fc",
     "apps/editor/src/managers/dialogs/effect-dialog-manager.ts": "ee99e5b8d90a2030ab2d0c196e3eb2feeec988d751b9d5f682b7b366677e7895",
-    "apps/editor/src/managers/dialogs/export-file-dialog-model.ts": "ba4ed82c28c9739f83667b870a7e68449039f5e407c137aad540dcd8702d0180",
+    "apps/editor/src/managers/dialogs/export-file-dialog-model.ts": "6770af5c84e3192c6ad815180ade68a05aa89f0b335b90671c36d23c7df1df78",
     "apps/editor/src/managers/dialogs/form-layout.ts": "9742205a817843ca3bde154e46146daf16aec8551a270f3b1c9c30ee906c7c6a",
     "apps/editor/src/managers/dialogs/grid-settings-manager.ts": "48085ad35c151a65a7b5c419022459395c92799f06766fc6b78b7fe3aabf6e24",
     "apps/editor/src/managers/dialogs/import-sprite-sheet.ts": "94f41922b862ce45860830bacdfe291fa2f42122417811c9f95e1deae0a979e4",
@@ -395,7 +399,7 @@
     "apps/editor/src/managers/dialogs/preferences-model.ts": "60603445709033f5060706052d3fc64cd57102568f7049a1b77e2f24b74b6d03",
     "apps/editor/src/managers/dialogs/preferences-search.ts": "63cc7605de49010f4ac145e1a0a8620d4a055e47e7ae2d35f9e8b1afe458a8c7",
     "apps/editor/src/managers/dialogs/slice-properties-model.ts": "64904262226b19c9008d958351710268ef56e0f71eb14cd950d8b76aa2869670",
-    "apps/editor/src/managers/dialogs/sprite-sheet-dialog-model.ts": "79bf99d488a5df2b6b67f28fdbdabaa6a1cef35de1f4cad6bec144c548cc6742",
+    "apps/editor/src/managers/dialogs/sprite-sheet-dialog-model.ts": "90e765722def6ca586ffa26b555e28d6932069fe71538e1068d124e32e828f34",
     "apps/editor/src/managers/dialogs/undo-history-manager.ts": "a8d336899ddfd134e735f61c368bfd4505d516f61de5f2bfa97b64cd358dfb54",
     "apps/editor/src/managers/editor/editor-state-manager.tsx": "c5b83806215f1ff5ebd44260ea2cb1067be6486b858ee8a194c3fffd2f187347",
     "apps/editor/src/managers/editor/editor-state-source.test.ts": "0521c4c868548b2097d39fdd21f18dbb309bed67ba8a5bb0741c44f37284ec3b",
@@ -406,13 +410,17 @@
     "apps/editor/src/managers/editor/use-editor-snapshot.ts": "1cc2f2d5b539000e0947fe41f963f24356758d2ccbb409713b402cc2333380de",
     "apps/editor/src/managers/editor/use-ink-settings.ts": "08012a4f7dfbe96ffc75f349fd73abc96668f11b3f547c251408fcf2e2d9da92",
     "apps/editor/src/managers/feedback/use-feedback.ts": "ee8abe65761a7c3e532a83fb14b01f60874c593de94e4ef5919311aa9a920954",
-    "apps/editor/src/managers/files/animal-crossing-export.test.ts": "f9c59af097c4eaa5450247092110a09125d78a0bc6164603999272adcdd43034",
-    "apps/editor/src/managers/files/animal-crossing-export.ts": "4b38a374db4edad9a15a31bb0302ea4d1fab0c61be601b096dff6a2de67ba2e5",
-    "apps/editor/src/managers/files/export-animation.ts": "9b76c956bb71b61cc530c0478fcc29a022591f15277dd23e3bf863889729f74e",
+    "apps/editor/src/managers/files/animal-crossing-export-options.ts": "640e83e6a8cafd9a5be14647aa326daccc16ad54abe15d7aa909a0c2a1babbdf",
+    "apps/editor/src/managers/files/animal-crossing-export.test.ts": "b079ae67ec46e2517fceceb40aee23522e2267dcf7729eddd12ded27b5c74644",
+    "apps/editor/src/managers/files/animal-crossing-export.ts": "7f530e41b59c95a171ef1de06f7a68ad219a025e842e19f6e4028f1d90631f2a",
+    "apps/editor/src/managers/files/export-animation.ts": "99f9bed0bab480c11e7ad830a0d2d5cfaca6308c288dd1d0f2965e652184dcda",
+    "apps/editor/src/managers/files/export-destination.ts": "9be5846954ca8dc4cf75ba73f23609fe9a9de47747fd56aa6ce78c393e768710",
     "apps/editor/src/managers/files/export-file-options.ts": "68d091a869cfecd9447539fa99a203089896b0c60c2bafae670d28f8a3ebfedc",
     "apps/editor/src/managers/files/export-format-preferences.ts": "37e09b1e3c14fca528370a756ccc33027145b45c7b90d4df075824fea8449d28",
-    "apps/editor/src/managers/files/export-preferences.ts": "a7c1d40fbcee8de16656c44ff1ad757192c1a281a61591c597417c8234937e17",
+    "apps/editor/src/managers/files/export-preferences.ts": "bf780332452dcc594fc03bfad5d6750479222efc330101e9cd0a28c444dedadb",
     "apps/editor/src/managers/files/export-webp.test.ts": "9131c9a0fb76f8f70eef1ead7974d65501031466101205606ac511963c994f44",
+    "apps/editor/src/managers/files/import-options.ts": "8e7438972a5f14dd76bee41536c44d9ee4cb4cbe64ef16f829c74426e286024d",
+    "apps/editor/src/managers/files/policies/animal-crossing-export-geometry.ts": "b9e3f0c21827db869bbec151f1dd08aef70ba4c257cfa513559e8f7f15c4bdb2",
     "apps/editor/src/managers/files/policies/aseprite-widget-geometry/export-file-geometry.test.ts": "8b42f2413317871d16ee7868d2fd7334d3d749332132d1fefabe41dea52cebc3",
     "apps/editor/src/managers/files/policies/aseprite-widget-geometry/export-file.provenance.json": "8908c95d4749bbd604a4cc2254807dcee908dfd18eec4f858bf39af8e293d32f",
     "apps/editor/src/managers/files/policies/aseprite-widget-geometry/export-file.widgets.json": "362079a5d7275d7c7f8ae2069e59e1557a4de10f49e0f5822844c539e33b3795",
@@ -430,10 +438,11 @@
     "apps/editor/src/managers/files/policies/aseprite-widget-geometry/gif-options.widgets.json": "993d6e3efc3ea03638b28a9ff9cd6e95c8e35acfac60607bd755f2a8dd137b5c",
     "apps/editor/src/managers/files/policies/aseprite-widget-geometry/import-sheet.provenance.json": "b9178af693e997259a5a489bf679b61de9b0a670c40c15b19531fc2e2e0ffab8",
     "apps/editor/src/managers/files/policies/aseprite-widget-geometry/import-sheet.widgets.json": "7e249fed91e940003ee13aec3aab0c1e2c1710a0c9b81a9168599a2adb1f0d25",
-    "apps/editor/src/managers/files/policies/export-file-geometry.ts": "327ddbe2941b27423a96f9d217f79e0d6942867f5f8d04bafd6a4a329c0fcaae",
+    "apps/editor/src/managers/files/policies/export-file-geometry.ts": "462b2404e19cc5ca3447f3528231f0030c6fe066732ce089a3a0332bc04c7694",
     "apps/editor/src/managers/files/policies/sprite-sheet-geometry.ts": "df00559c99b67f7a4abfc6f4fe59691fa4c1a4fc047ae742da696999cb9f6856",
     "apps/editor/src/managers/files/project-sharing.ts": "2248616cfe03b1f408bc4c66736e01737e152f494746d3a51213ec8c63c635b2",
     "apps/editor/src/managers/files/sharing-policy.ts": "4c2ff36938015f6b81293673812ed737fbcdf3c4b0d2fc921fb90daa7a874953",
+    "apps/editor/src/managers/files/tileset-export-source.ts": "7c143c193ad617c6dd81038f209500f812ce71a9c0d956237c20f187a194f5f7",
     "apps/editor/src/managers/input/canvas-input-context.tsx": "931e537d12e9b4babc9223269105ce33bc73e1a850badcdb61c1e0caa7907692",
     "apps/editor/src/managers/input/controllers/brush-size-drag.test.ts": "964304d8a766d292ce4fb5fe9b67fd812d4c01f743e960fbbefcb99a1fd912dd",
     "apps/editor/src/managers/input/controllers/brush-size-drag.ts": "f61f9549d5a4ac818b1410b8295017da19c200346cb7a67a95c51265c6111f9d",
@@ -470,19 +479,19 @@
     "apps/editor/src/managers/palette/colorbar-model.ts": "b4ef569f50890dee8f7c41b04c5265954d9ee904402863b50adfffa1f3bc81cc",
     "apps/editor/src/managers/palette/editor-palette-model.ts": "d34bf972c1de5d605b299465eea2ce21b7cd71f96b99ac89b03e7ca8f286261f",
     "apps/editor/src/managers/palette/interaction-cursors.ts": "e378d11c95c87191ab2ab2c868587815ad988b231d5bdb62fe3a51db3becf2af",
-    "apps/editor/src/managers/palette/palette-actions-model.ts": "46da009be89f6c5cb0e205ba9798a5563017fd9e5d8d59c19c6264e87d7d1087",
+    "apps/editor/src/managers/palette/palette-actions-model.ts": "3565148714511eb0739dfc60761009ae04ba0be5c1408d4b074fb26328bdd0b7",
     "apps/editor/src/managers/palette/palette-operations.ts": "cfbcf57e0cd89625129911a3b2bc37dc87a6009a4a10119dd032346e941bb3a0",
     "apps/editor/src/managers/palette/palette-toolbar-model.ts": "9206c6048f2fa748110ccedbc1f5db4bd4586ffb0a2a257c7fd6626dc076dd70",
     "apps/editor/src/managers/palette/palette-view.ts": "e43a94325f4cf9ccef98c91ff376c0aac9d13acbfd0593613b1fd93f7cfc7548",
     "apps/editor/src/managers/palette/policies/palette-layout.ts": "626af7d5dc59ba03df13a3464d284d102a40f5371c7e196cab643bb1a1a261d0",
     "apps/editor/src/managers/palette/policies/palette-selection.test.ts": "a2cf0b98a34e9920769c9aaea18a950feb382859e875013d78ac6fcc1df3dbc4",
     "apps/editor/src/managers/palette/policies/palette-selection.ts": "130c9275150a4d9392bef0456a19366d35f88bc650b7c02bf5bdd08a6154e43a",
-    "apps/editor/src/managers/palette/presets.ts": "f5fe81bd483bd5db3ed9d963949558b9799fd3f7b73cb5f94ff893cae5a2d360",
+    "apps/editor/src/managers/palette/presets.ts": "5cf6da52d796b88c1e959045a3aa31ec90ce30bcaafe4e0174008e89a0e005d5",
     "apps/editor/src/managers/palette/tilemap-model.ts": "072d7aaf93cd3628d0acc26c67f1b0960cf05349545f77622a010f55c1b74920",
     "apps/editor/src/managers/palette/transparent-index.ts": "ec4107bbc05085e0bd78ece424ef27fdb4541c727116cf06972dcd3a3dabdb28",
     "apps/editor/src/managers/platform/editor-platform-context.tsx": "58232396d609fda48e9936fd19757a287651c51fb1c615d3380ab2cb9075bf2d",
     "apps/editor/src/managers/ports/agent-tools.ts": "bb9d5bf65e63aaded740d63f0ea3989aeb782d02cebe0c720af86e3b10938f8d",
-    "apps/editor/src/managers/ports/animal-crossing-export.ts": "f18dea687c418765c78cd2635fa047a7010a641e8964dabb2492db26d0c89d8b",
+    "apps/editor/src/managers/ports/animal-crossing-export.ts": "8f89a41f6aa18eb1b494f27cc94e4ae4c3f498ef1390064b2036fff8147c41d8",
     "apps/editor/src/managers/ports/color-sampling.ts": "94235c9f4c49fec12e6c8847d8538c76ff03ccb8353e6e339306e748b2a2a8ea",
     "apps/editor/src/managers/ports/diagnostics.ts": "954b184223219e686b5bd1c6fd54cf976fdd9c9fce30fd0492ab4d7255480622",
     "apps/editor/src/managers/ports/editor-host.ts": "1089129e9c29d2ec9af2dbe387a42b26d281b3306eb5f7391052667c195db263",
@@ -606,7 +615,7 @@
     "apps/editor/src/managers/workspace/dock-edge.ts": "2f9e6a4face4cb19d543bc01b909e5c05102d39d8d060b811383aec891c4ca99",
     "apps/editor/src/managers/workspace/document-workspace-lifecycle.test.ts": "359b07fde02b19482a087bb06530e740346217b28ff9bb8f988adf81c1a04b89",
     "apps/editor/src/managers/workspace/document-workspace.test.ts": "8199cfa4e06ee5a5a660173a42858cfa58b5d0fe4e0852421425d0b14c0d8428",
-    "apps/editor/src/managers/workspace/document-workspace.ts": "83dda7acf8bb1791a1ecb93571b0462854a170dc19eefe2dfbf7dce7b7d59333",
+    "apps/editor/src/managers/workspace/document-workspace.ts": "5e58d12b9230f4ab6921137e557c040d4cfea376326e50c59fda1e31ebb41efd",
     "apps/editor/src/managers/workspace/editor-document-pane.tsx": "39f0cf3f39dc54e3aeacc7c4d487de95ae240deefb9eb5a2c0997de3ce5ee3d1",
     "apps/editor/src/managers/workspace/editor-layout.test.ts": "3928d0f4f21ac865961726901032d3e68d16e64521fb256c7ebeb8c99ea687ff",
     "apps/editor/src/managers/workspace/editor-layout.ts": "e397636f04abef74b966211792abc0d5d15011ef481169f9bf09d2e3f03e4f41",
@@ -619,12 +628,12 @@
     "apps/editor/src/managers/workspace/save-target.ts": "6ff7c57feef7bc1b6066b12d569be7fa158b85619d3932a502e06f8ea817b28e",
     "apps/editor/src/managers/workspace/sprite-names.ts": "483cd92113e7180d6b2de5db71e1baa19702f41e7330e2986398a79e438ad44d",
     "apps/editor/src/managers/workspace/use-editor-runtime.ts": "2d4b064ffadee95ff45e330b84d251589c165046ac7d1fb81574e64e86a2a8e7",
-    "apps/editor/src/managers/workspace/use-editor-workflows.ts": "911b97acdbfc63949a7153e9dec98c2165bb1bac552fae601fac0582dbce2035",
+    "apps/editor/src/managers/workspace/use-editor-workflows.ts": "3b0fe3fff4790fc0f93fbe5192e80597c04ac9e1ee870a44eaecfa3758d97efa",
     "apps/editor/src/managers/workspace/use-workspace-panel-layout.ts": "a0dfb39adae67d13cf0b866b265ec08607082044c0a93822bfce30df2d2a987e",
     "apps/editor/src/managers/workspace/workflow-action-snapshot.ts": "86c0680b45542698003d0dec968424527e39a2f8730770b4e95d0b8fbac6ee85",
     "apps/editor/src/managers/workspace/workflows/document-output-export-operation.test.ts": "a9f7ea29981b2e0b5b3df2aecc9172262069c457f01d467fe9824469b583c495",
     "apps/editor/src/managers/workspace/workflows/document-output-export-operation.ts": "5daf905b8980e93387100b821715323e77a6033bce038d52f0abdc9973bf2879",
-    "apps/editor/src/managers/workspace/workflows/use-document-output-workflows.ts": "4341cff250b30d163ac61a4b5c97b2b78da11413ccc8582b9de139b58e687479",
+    "apps/editor/src/managers/workspace/workflows/use-document-output-workflows.ts": "1c1558334c68e0cbd58b2a6e643591089fa744689e72f376b0c92be4952dc9dd",
     "apps/editor/src/managers/workspace/workspace-lifetime.test.ts": "6ffd928a1dad92fcace13e714b8b5e0514575d531ea47c2bc1ba173d869f307f",
     "apps/editor/src/managers/workspace/workspace-lifetime.ts": "b877e28529a58a83ea2907f342d9e30b8442b7f90da97fe3181208f17089a594",
     "apps/editor/src/managers/workspace/workspace-panel-drop-guides.test.ts": "9cae23f435e19b88dceebcd05dd9800507307275b37679f504a7b3c16232e378",
@@ -643,7 +652,7 @@
     "apps/editor/src/vite-env.d.ts": "f27172866f06fe409d289e3da5d7c45903c8db74a6babb5a776758c4cf50263f",
     "apps/editor/tsconfig.json": "cd0d145f336b0875203b1f574754e4a319e211357d4656ea6c53df505c504fec",
     "apps/editor/tsconfig.node.json": "285cdbd9e55a38d0fc4f9f94a8217931355e031be3514af2700505be78a8fde6",
-    "apps/editor/vite.config.ts": "bd7858e05b707fef49fe65be168bc6e7d55e60797eac7151d12ebe95da06a53d",
+    "apps/editor/vite.config.ts": "7af45e7ee0884d0034e8f798b816bf17acc26293ca8d07b7d3c115da7c52602d",
     "apps/growth/content/about/images/save-as-location-en.png": "81e544945fbb228a321faa35ee82cfee6bafa97ba4c842673d798110b541496f",
     "apps/growth/content/about/images/save-as-location.png": "19733aaccba898c345852c1fa30f4dc46aa6bee0ba9e3c8ad8b9d7aa27431df3",
     "apps/growth/content/about/images/share-dialog-en.png": "0384e8fb2d5f326a94c59c5f0e7ffd4541d5616fd276f6324c9a5098c546a593",
@@ -668,7 +677,7 @@
     "apps/growth/content/compare/articles/images/touch-settings.png": "d6ca3e20450aec26a66faa177d88ab94efb1d98183190cd0a5b0f87c3f94be72",
     "apps/growth/content/compare/articles/images/viewer-file-menu-en.png": "1401cd37306d26a9fc5d93a207adf8061904483ea2293c6f8ddc2dfd94847fb1",
     "apps/growth/content/compare/articles/images/viewer-file-menu.png": "c7a5d21ada54fd8fd1a19b5357864b87eae8249fdd31e16f9271cdd6b149d843",
-    "apps/growth/content/features/index.ts": "47c31fafbbdcd7d80ef0681dcfc179e99027a6611012064e6ee1a9c508b17e87",
+    "apps/growth/content/features/index.ts": "cd66c83730ff0d67513083a1ec5f8b61f5075ab0a35c7e412ee96371a1ffc70d",
     "apps/growth/content/features/media.ts": "464c08ea27315e3e119979ab707dae7413af6a047bd191bf3a702d2a55116033",
     "apps/growth/content/help/images/captures.json": "9a52c8e0c43018e9abe3199d822f0db23d36395a931c2e748366445c52080d80",
     "apps/growth/content/help/images/catalog.json": "5ed6814eab4f5f8592470668aff65bada857cbac0e5b518d84fee883d052708a",
@@ -703,19 +712,19 @@
     "apps/growth/content/showcase/index.ts": "4e0eb7af6915a13474c69399ae02701012eaf0df66c5cd887e6a729d59cef2e2",
     "apps/growth/content/showcase/media.ts": "ba183100e8b1c8c08cd9c741b213f52739b767c69a61c5f9ec9b22498d9f90b2",
     "apps/growth/content/showcase/pages.ts": "b06aae293fcfed29080e7df99f289ee97b827ea2f785f95803778dc02f795c6d",
-    "apps/growth/content/site/documents.ts": "e56d9bd1777a422d76e3aef08a340007e46ce917e62ee2c07c56898930b5dee3",
+    "apps/growth/content/site/documents.ts": "76ae66b38da9fc44d81dee2f1bf5dd308c6c7d6d6e98e280a657e20b79e3f8c7",
     "apps/growth/content/site/images.ts": "912c6a8688e284583abe194c5abb085b695a4d65f79763642982cb2cda93ac7b",
-    "apps/growth/content/site/language.test.ts": "d7f5155ecb080869e2e34915f192472ee4d49ed4aac1a295b98f52070128a3ba",
-    "apps/growth/content/site/language.ts": "ad5c0c4c46dcf6cf8408e3ac5789eec5965a43a223dbb16d480f4b1cae3d80d4",
+    "apps/growth/content/site/language.test.ts": "ba36d2159b42e2b799232714181f85aa784e340d6caac7fefb3423cca6f3ad2a",
+    "apps/growth/content/site/language.ts": "9d0f5f02fa1dcf088a5fd4d395dfdd7b0e99e336028e83bdbcc9826cdbbc0879",
     "apps/growth/content/site/navigation.ts": "4b985bcc3065ac0068e1111719a80103e6124ab2f89588fca5affa0c8732c149",
-    "apps/growth/content/site/pages.ts": "29aaaa6743cd5b4e399f8d630c164640c40104ef78d0202f584c89a590818343",
-    "apps/growth/content/tools/index.ts": "827c6562968f8aacface1e32e92a4088e201937043d0e322160b72ba29855f93",
+    "apps/growth/content/site/pages.ts": "aba7b69961cb982624dd227685040619f16497333424586bee28d5739aff1f88",
+    "apps/growth/content/tools/index.ts": "1a4ca2bd51bab627c9c9088fb896e3e627faf99466462c8a0d2a10b44a7a2d8f",
     "apps/growth/content/tools/viewer-help.ts": "900e4c798243de44428064e35c286784eef0c34948e25ceef725fce7c21bc574",
     "apps/growth/content/tools/zh-CN.ts": "f230b6062043a073f1138bc419ad7544342e4415e47f26057e3859a66bf13f66",
     "apps/growth/public/favicon-32.png": "a63bfbf0275dbffcf715eb4295da8179464a829ac39bcebe1d42320b64ee3a52",
     "apps/growth/public/icon.svg": "f31b3da31c46e16a1362cda29d53646c94b640fb9b6294cc80398ef6dc4800af",
     "apps/growth/public/menu-icon.svg": "40099468bf636c55642bc6898c578f81fb517b0e812a07840dd80c47acaff01f",
-    "apps/growth/public/package.json": "52ad85f948a9bfc95d76594230f218305c697afee63207be47f77219662dc756",
+    "apps/growth/public/package.json": "76042d54c1ea2f554369884574e05a27f672343fdf1420b9e8db1155b1a45774",
     "apps/growth/public/showcase/audio/sources.json": "eebed8344eac6bfecee1a7610daa60a7e5cd58a6ec3a2f006d5a1a39ddf0c417",
     "apps/growth/public/showcase/devices/catalog.json": "117632f262dbf43b53a5c04069ad94fbd78fc875d9f3e4988c263dcba765c238",
     "apps/growth/public/showcase/devices/computer/en/animation.geometry.json": "f2e676cf2714498018344c6f3482e27e247c62249b4947b0dcf3b805cb14e2f9",
@@ -961,12 +970,10 @@
     "apps/growth/public/tools/animal-crossing/kenney-tiny-town/map.json": "42def997610aa659133c43510098a587615e55639529e55ffe10bf265c841607",
     "apps/growth/public/tools/animal-crossing/kenney-tiny-town/tileset.png": "3a54d99ecde790d4fdea207a3644cf130fc56fa838f1beb1507c185a95b8e902",
     "apps/growth/public/tools/animal-crossing/kenney-village.png": "a63f8e1e4f4ff43fcecb15888367cb5f488bafe7b9ff445dbee0c0bce9d8c8de",
-    "apps/growth/public/tools/pixelate/provenance.json": "f3f0d6139c9fb2533fe64de86776910578ea2f66e7c604ba2b9df6d408d36236",
-    "apps/growth/public/tools/pixelate/young-hare.jpg": "d7e6a6fea4c2a92928b21e51f7b7e79f3f510034da34d31798a106a9debf42e0",
     "infra/dev-site.json": "6d87f8102f70aa7e91c8bf73bec65360ceb78e44af0a9be06e00f715c9265b46",
     "infra/dev-site.ts": "ce8144d614c0d2065f7fb9024bdbbbf61c85b6f6904d1b257617933933f6376a",
     "infra/public-package-assets.ts": "dbe64b8d41866dedc68379fcd03103cb366bcd5563c85c608db25a23bca57dab",
-    "infra/react-ssg-renderer.ts": "01e0f4ad9c166df9fe51efde0ed53d4c8e924fa417134054d9be6f0a56a80ea9",
+    "infra/react-ssg-renderer.ts": "c5ab32a5df99759655b98c0539b559e3e29a26d52b3e4b64caf39c6e727afc57",
     "infra/react-ssg-style-names.ts": "9640d585dc7a8a0206d840a368e0ff2937309b9219166071e3955b4ff07e1ecb",
     "infra/site-html.ts": "c1cff4296bd0e017044d4bde6f333e7fa5ec85bcda413eaf3a058425c5143175",
     "packages/bedrock/browser/clipboard.ts": "6e19a831d0de2d901fe0a05d87433d0e4ea8bfc7acdd005c5cc716526747f11a",
@@ -991,7 +998,7 @@
     "packages/bedrock/browser/worker-request-channel.test.ts": "119018411f17d44fae660e7e61a27873706c287f4074de3db3b1d439bf2cd4c1",
     "packages/bedrock/browser/worker-request-channel.ts": "8771ba037bdd75cd8ebe0f801abc30f068f32a2d93f586b910fe423b4296ad5e",
     "packages/bedrock/package.json": "3ebaaf7f410dfce62460724153ceab6098eeedd1ee5fc7420ea026de59dbbdae",
-    "packages/editor-core/package.json": "b3024f3af083757d50b9f12c1f6b6590f0fd5ba74333c76636842496a45cfd89",
+    "packages/editor-core/package.json": "577bb979c5c14448b664ce410dd54ddc6f41fb96009388ddb31672420f3e6db5",
     "packages/editor-core/src/base/clone.ts": "517873c7c4124130b9f20ba9a1b360fa099efe5aec1870cea0bd8324f61b4a8b",
     "packages/editor-core/src/base/errors.ts": "3378fe077cba633e48bd4dffd62ec86860fcd71b58da8bb5700359f16eb4307e",
     "packages/editor-core/src/base/image-limits.ts": "5806c0e1f8a63c3ca269d363b7db8dd1c6b786b300ad0da2a0c8ff7e7f4ae2bd",
@@ -1176,7 +1183,7 @@
     "packages/editor-core/src/import-export/animal-crossing/codec.ts": "cced5114d2810cffd2970704230851362ea37a9e1e8976a014d5e75fd8310a11",
     "packages/editor-core/src/import-export/animal-crossing/conversion.test.ts": "061f32837e7cc2e623886bf083e2d588d36cef8d28121daf3ec7a6023021893a",
     "packages/editor-core/src/import-export/animal-crossing/conversion.ts": "48be21cc862d8b4c71d6094d6e98c1dc0752816548b81bf5b82eca9db6776ea0",
-    "packages/editor-core/src/import-export/animal-crossing/document-source.ts": "6cf784d7901c71fa61b14b9275ef47ac55e91fb927131bcbae23ba3eac0fe4b7",
+    "packages/editor-core/src/import-export/animal-crossing/document-source.ts": "5ca3511acb15356a0a0244d21b40651716042cf1f6af5bf5a6aa3a702c2e5dc0",
     "packages/editor-core/src/import-export/animal-crossing/index.ts": "3b01c225aabf8fa64a0f001e48abb4349496a464ab8bfb61160b90776a8c57fb",
     "packages/editor-core/src/import-export/animal-crossing/palette.ts": "f89b81754639ab6105eb9af740e628f4cd83f6968974be19da58fddd070ae6e5",
     "packages/editor-core/src/import-export/aseprite/animation-loop-properties.test.ts": "855b3d79fa2087654572d3a53e1eb231ffdf665ea9ce98002a46d43d1d7a5ac2",
@@ -1215,19 +1222,12 @@
     "packages/editor-core/src/import-export/image/gif-import.ts": "c06fa2cb9fdcd3282547f038f8a9d526ade04700fc8793cd621806c4171b7990",
     "packages/editor-core/src/import-export/image/import-overlay.ts": "8f5e6fdee4639a23e10d75ec9150916f5e4540d10268179d56ddb0c8d5c637f3",
     "packages/editor-core/src/import-export/image/import-sprite-sheet.ts": "00c7f2a437df5f0f220f3b2c37af145057572eb256c6c32104bfe156865f8c58",
-    "packages/editor-core/src/import-export/image/import/analyze.ts": "c04453bb954fac9921360b2af0f0bd16d864ac71ef6855336cc59b46a059f8b5",
-    "packages/editor-core/src/import-export/image/import/contours.ts": "741fbf9169438fe462436d94aab194a1b314d61e6de3092a6cd691aafc720c31",
-    "packages/editor-core/src/import-export/image/import/denoise.ts": "d02a48c1a61e35f84cfbf2c150e74bde7d38733f1e0fefe1cea470268549f1ad",
-    "packages/editor-core/src/import-export/image/import/grid.ts": "6cbd8ad5b122b15314eaad4e254b94d7a394d093ba13b64babc0483a96d43a4a",
+    "packages/editor-core/src/import-export/image/import/analyze.ts": "7587dd869f71cc2a530751c3c5813ccf55551fab41af935139bf1b5bc3518a9d",
     "packages/editor-core/src/import-export/image/import/index.test.ts": "f63a12069d62f1c477239175b626a0215c7ccc5798f6566a90833bf1f6809047",
-    "packages/editor-core/src/import-export/image/import/index.ts": "b9abdda455c5f899e6163b1df56aa7df31ee575b3d7c3a5bcc8293d2ad7210d1",
-    "packages/editor-core/src/import-export/image/import/palette.ts": "c57f8cc5d05f3339402e695334fc3d7050dd5304b49f26e55ff58972f24cc4c0",
-    "packages/editor-core/src/import-export/image/import/pixelate.ts": "8dc62beb2cb62e556f65f3796b7eef8e2ee9fb5f2695fa7b065dfd0c069499ed",
-    "packages/editor-core/src/import-export/image/import/quantization.ts": "b72b057e2837fa41324dc739085c4dd1403b880511ca3e2ad92cfc8b222fd61b",
-    "packages/editor-core/src/import-export/image/import/resize.ts": "bd29d8fb1b4ad5fb6d4e43cd9096dc4102fd2bbd3ba41fcdce026d4cc8f1d33a",
-    "packages/editor-core/src/import-export/image/import/sampling.ts": "b17790165ff3f56a6e4917d396c507f6228ed438977ddf385bcc5d3a402cda2f",
-    "packages/editor-core/src/import-export/image/import/settings.ts": "053035c551fea5e9570002633d019019213d6151deb2f52b36335254892205ac",
-    "packages/editor-core/src/import-export/image/import/types.ts": "377ae9ee52772d9f9000a12a7d821d2fddb2b64982944bbf75bfecece71c52df",
+    "packages/editor-core/src/import-export/image/import/index.ts": "7f36e2e24e3a9bce879c92f491111e3b7f23bd12ce9ac13189f1ce662a4eaa17",
+    "packages/editor-core/src/import-export/image/import/palette.ts": "33f7daa11306eebc9eaebee1965516527fde039f642954243c3cd4ec4d15a6fa",
+    "packages/editor-core/src/import-export/image/import/pixelate.ts": "d814f83e7059646d54ba75be13c759c63055a68c973cfd63cccd307802d593dc",
+    "packages/editor-core/src/import-export/image/import/types.ts": "053db5f286cfdab39ddfda4f6762828eae3ad35a3e844cd32d0850098c3a9873",
     "packages/editor-core/src/import-export/image/index.ts": "c3317225cf71ae0d3da5c305aa7c8eb2ebdac44ae8a58fbffea8b7d7554ec6ac",
     "packages/editor-core/src/import-export/image/project-preview.test.ts": "d04404baf8c286a6bf862f0858c6468e635774cf5b4b529a13d3ba09b7cc4755",
     "packages/editor-core/src/import-export/image/project-preview.ts": "7ef2db180e44874b96d283226c2c90ee3d02219bf740ca79afd23e375bd0cda7",
@@ -1237,8 +1237,7 @@
     "packages/editor-core/src/import-export/image/webp-export.ts": "6b169e91f5466a3efe4095daa30dd9e1bbb3e88d9349ed101691c23a12bf7952",
     "packages/editor-core/src/import-export/image/webp-import.ts": "4a02ed48a1dbec0bf0619cc0f4d505fd0881193811cbc0e296220d270a6d84c4",
     "packages/editor-core/src/import-export/image/webp-lossless.ts": "c6be4bdcccb0eee2cdb2a44218df3382cbdfa6d8e7a119b1315a2630984df26b",
-    "packages/editor-core/src/import-export/index.ts": "8beb7e883c13ed17860bfa00553599dcadc34c678911b00c2d19e0959379f782",
-    "packages/editor-core/src/import-export/palette/resources.ts": "465882818f9139f1eb27cc8d9e6e613eb568ecc54e73c56c296196fe2ddf9ca4",
+    "packages/editor-core/src/import-export/index.ts": "460e837bbf113d31b9bf00b776cec1eff3824ab50642e1dea5bbca68ae9f4a00",
     "packages/editor-core/src/import-export/qr-code.ts": "711bac318c7e2aba36f5f1302638b3c122760d9a20279dc7afbce9434d67bb3c",
     "packages/editor-core/src/import-export/qrcode-core.d.ts": "c8120d5025830ebdda1475dc8f2d3c2eafdc98105869aa530ad3b2b354a83cd0",
     "packages/editor-core/src/import-export/recovery/codec.test.ts": "a5d627b4c4ff5efc5827ff8e4a09fd78fe322a3dff192ac22784539228f8e91c",
@@ -1275,13 +1274,13 @@
     "packages/editor-core/src/session/autosave-coordinator.test.ts": "c2be9a0f1d91a7bb4aa9a08e828abf326fd73ebecf7b7d27523fd4a77cab56bc",
     "packages/editor-core/src/session/autosave-coordinator.ts": "75b6f32a21bf102a6a3509dbce92a063ef539d43197021a8ea5afb1220ee58e6",
     "packages/editor-core/src/session/editor-session.test.ts": "ca2711ccc686af735f2de1e6baf4d4f4c6fce3ab1e851bd8c07d2c62fd3b7f56",
-    "packages/editor-core/src/session/editor-session.ts": "b1e121c6477c3a53be5b3d320ca25926fd6c1113da0eb2c28c0314c9866016ae",
+    "packages/editor-core/src/session/editor-session.ts": "461f4e425bbc327b0ac2328702c2955dfdb3b362bac01c51fdc1d6d68361092f",
     "packages/editor-core/src/session/index.ts": "7193a98a4d1b7ca9292dd0ed36c91bdf436d3660ba4d2239b383024bc1d3f3a9",
     "packages/editor-core/src/session/persistence-snapshot.test.ts": "6ded96d829b020abd18483e75948e09440ef8331ce48e45eddd23a434f07b79b",
     "packages/editor-core/src/session/recent-images.test.ts": "4b54b5c468877988d1a09c549bb769ab886aaf6459ed0a272a227bdb692d5639",
     "packages/editor-core/src/session/recent-images.ts": "bd9876eba8c911a78a775a8bc5da0e582f59844a4eb15919a0b14731b7096833",
     "packages/editor-core/src/session/save-project.test.ts": "72e16a7b15dce25b232d4b032b4d083c6d345714d33c8e962e3ec65738451f2a",
-    "packages/editor-core/src/session/types.ts": "c709237847f1f9662dcec6167d9ecd6b813d94fb45129d230a5cfc758f360ac9",
+    "packages/editor-core/src/session/types.ts": "7593844e041acd863755a37720e31b5314d76a3d42da924db793d2daec3f4be3",
     "packages/editor-core/src/sprite/controller.ts": "c04616f7bb4d3d31999430ce28a1224aefb726e435354f58c2baf0261d32902c",
     "packages/editor-core/src/sprite/dimensions.test.ts": "74b918b5fd8535f9a90f52b3b3568daf03994d3a8346bd1c3d528535a01b0637",
     "packages/editor-core/src/sprite/dimensions.ts": "f5488188520f93450ec4742eb5942b2944224ab37427b864bda19b42ce15892f",
@@ -1338,19 +1337,17 @@
     "packages/editor-core/src/timeline/timeline.ts": "836f1f8a9e71eebb27f9f14c02f8e94b20c7dd2ca71dad9998a2ac67653fda56",
     "packages/editor-core/src/timeline/types.ts": "e1288dd3a6e1d761f5336533d3e2ca87a358027ebf10c5ff6fdbf3ce9f8e8cf2",
     "packages/editor-core/src/timeline/viewport-renderer.ts": "1538c1fdd40810137228fc6ade348e373d45b85e41de7d020d2f50f4c8998d88",
-    "packages/editor-ui/package.json": "09925bed4e1516f4a64c70a35003ae7d22fd3db2cbd4e85b0096c58bf156d32c",
+    "packages/editor-ui/package.json": "50f506c60151bd7789dd98c83959a03e03e238ab8dd22a895087933167a7724b",
+    "packages/editor-ui/src/animal-crossing/grid-overlay.module.css": "cb9cacfcd56d6745dc461683d9e37b9d3b23f43c633efc3445e6d6c2597665e3",
+    "packages/editor-ui/src/animal-crossing/grid-overlay.tsx": "93336bd553365a21540a0abe74082161b98245fac681f965aba659a0da610f76",
+    "packages/editor-ui/src/animal-crossing/index.ts": "7a1ec4b3f9a80c86ea1dbb5588af7e20c0747df913d6d346106808ade727b209",
+    "packages/editor-ui/src/animal-crossing/preview-client.ts": "b684731fafaa2d0aa73db36689a54b2b365d33cc30ff345d2ac13284c3b367bd",
+    "packages/editor-ui/src/animal-crossing/preview-types.ts": "8f8532d97c6e9dbacc28c0d81168acf2ec83726e434277f9da3fdb918be75bc8",
+    "packages/editor-ui/src/animal-crossing/preview-worker.ts": "ccee1ed10d7676f86dc016437ef327de6cb5c8af355f798610e7791ac35150ab",
+    "packages/editor-ui/src/animal-crossing/preview.ts": "f4acd6cac3ce7da3cf8a37c7dc894e6c735717188a33cbb6236c244fac4c836e",
     "packages/editor-ui/src/appearance/index.ts": "d36d250e54836ffc9771fa9460ca91a840db154ff29fdd8ab1425db895dc4327",
     "packages/editor-ui/src/assets.d.ts": "00a558ca41e878c67239d4026b1d53eca70a77ab92c0cc5c5240b4fea185e4d4",
-    "packages/editor-ui/src/env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
-    "packages/editor-ui/src/index.ts": "e2b6f48ae5a2f4e9b2effa9b3876750b7a18189d0521f8bb99b128cfeea10ca3",
-    "packages/editor-ui/src/palette-presets.ts": "a99abee0549b59b3446194af9bacc5800d1f284aa54821e9f36ed638d57ca817",
-    "packages/editor-ui/src/palette/index.ts": "64383823d62155af7b28c54003e5f44f17361091397714fcaf02b99c651e2193",
-    "packages/editor-ui/src/palette/model.ts": "b2e2676a40cfc17e541135f446f59592ca886af330c26e1c1d5d05c800de3023",
-    "packages/editor-ui/src/palette/palette-preset-popup.module.css": "2692af9a75744f13c8175e4ea55c6cd7f92bca0177b43182ca384898180cc631",
-    "packages/editor-ui/src/palette/palette-preset-popup.tsx": "df02501c7b5399e5af57a79f02627ba9822c9ea6a54fe4e4cdfc588df00ff250",
-    "packages/editor-ui/src/pixelation/index.tsx": "b0bd67a742d6912c1ac07c90dd5e145ac4ddecfadd2ea369ea1f0d9fb8278911",
-    "packages/editor-ui/src/pixelation/palette-control.tsx": "e14cf5e4f3cf8cf68545bd8c4d9f57fa0cfa916b762f626b155738d21ed1be18",
-    "packages/editor-ui/src/pixelation/pixelation.module.css": "80f344ff0d13cac21c28294733afe82923d87a1e26122d20dc5724144cad18ad",
+    "packages/editor-ui/src/index.ts": "bf868c2db741c1e3adf5b1cb109ef784725b54fd990dbe23b2af96609cc8141c",
     "packages/editor-ui/src/timeline/cel-artwork.ts": "8f3e43c17d957f235fe500d7c135130bbf8c973fa02a9d1bcecfbda8ec148101",
     "packages/editor-ui/src/timeline/cel-thumbnail.ts": "f855ba0e78d1523c344a134738af2ae925e1a5ebc55c403bc691646cd88c032c",
     "packages/editor-ui/src/timeline/frame-artwork.ts": "41355b9e1121fc1ac032c90518d3d2f797333c6a634d889e1920e228a721b9bb",
@@ -1678,7 +1675,7 @@
     "packages/ui/src/canvas.ts": "fc0013b1616f6228b20283dcfba6c2e542c1acbfd7e60253445ca307cfdc8392",
     "packages/ui/src/components/border.ts": "6415b6a2652c766daf13ef3a5bac97fd9659301268fb4e7fba3b7177c1936c79",
     "packages/ui/src/components/button/Button.tsx": "5ec65ef5a84670814d3324b990187c30e3a8305c546aaee0a64c805466f8d7c2",
-    "packages/ui/src/components/button/ButtonControl.tsx": "aef75d348910e038fa07cf343b898f16dc477b4e8239ea36fab91805ad96b669",
+    "packages/ui/src/components/button/ButtonControl.tsx": "214c3edc3defdca35df59be5a3a32abe2b8d3ea6bb5694a0fb4675bc6958fc48",
     "packages/ui/src/components/button/button-semantics.test.ts": "069b99ca40ad2466a051bd8f0b32fe74a2c2741fcd4eb2252aa930e169555024",
     "packages/ui/src/components/button/button.module.css": "15279b6ea810dff77d9264b69bdd2f5ea173bd0dbd3308b783bc1b8c5716e2d5",
     "packages/ui/src/components/button/content/ButtonContent.tsx": "97bcf9a6631ec13001bf0095902663febbf8852901e73e576f5605063585acfe",
@@ -1688,7 +1685,7 @@
     "packages/ui/src/components/button/index.ts": "acd8bb82e58650317b437694f33258ab5316aa1965c8d228ecb33c867621e488",
     "packages/ui/src/components/button/types.ts": "524fb757a8e428a18fe1f4a47a1169e821cc7b91b516da952b6a307d494fdbf2",
     "packages/ui/src/components/button/variants/color/ColorArtwork.tsx": "241036531ce986fb5a7dc9e3277e393891a75a84b87b8aeaea1c0c80318f88a0",
-    "packages/ui/src/components/button/variants/color/color.module.css": "bfb71f917a566cb1a5672a180eed71b7c878db33ccd136646e302018a0d4522d",
+    "packages/ui/src/components/button/variants/color/color.module.css": "f77fb803c8966fd8a0e1c5f579b75db29bfe412e73f89d951a0c4298397d37f3",
     "packages/ui/src/components/button/variants/color/index.ts": "eaa0477b044ce1ce3eb01b71bf35e2b460f9fd770608738d8e0667b738a62d3d",
     "packages/ui/src/components/button/variants/flat-icon/FlatIconArtwork.tsx": "df3e9ea29c22e1f6488b0df1d6eac20da1aa57c8b336f7d702725d42d7803df1",
     "packages/ui/src/components/button/variants/flat-icon/flat-icon.module.css": "fd79259e8dbbdd16d5841e64ad6ad4dff4d06f6ba82c86cd6837feffc691ae95",
@@ -1722,8 +1719,9 @@
     "packages/ui/src/components/checkbox/variants/radio/index.ts": "e0f8914023b6aa2e403f7d171495d2db96d269bdc36ed6b77dd4445fcab12fc1",
     "packages/ui/src/components/checkbox/variants/types.ts": "a77e33bfa7a982a2c41d07d396bb7f15353cf5a7d6b7d5618a99947ff50b560a",
     "packages/ui/src/components/color-button/model.ts": "3d39b01906909e5da625f474710eb8ad5b469f6707e908bc073574d8e60930eb",
+    "packages/ui/src/components/combobox/arrow-position.ts": "c84920ab061dd993549754117baec1e75404ef820cb74ed4a0f970b3b9284a78",
     "packages/ui/src/components/combobox/combobox.module.css": "2be4ebe68df6b8ab2c7abb3c447f06450d62a7083ebb4e64abed59f1b861e6de",
-    "packages/ui/src/components/combobox/index.tsx": "f392f4a3e88b8aff74741585a921630e0606e78c8720030603ccd3682a88cf91",
+    "packages/ui/src/components/combobox/index.tsx": "5f5950dafd4a670354640fc2b84936ddd5a6465a3e75c1249dae6539cc0f29a1",
     "packages/ui/src/components/control-flow/control-flow.module.css": "36b29373a81d8d29161cd55f05a7735156557af46229d3d44d81b7f6c22338f9",
     "packages/ui/src/components/control-flow/index.tsx": "3233eeabe8dab0eaba8f66a3eb01760b7d796ebf7d44cd5e5dc4ed9d5936f860",
     "packages/ui/src/components/control-flow/placement.ts": "5713071803c3a414a482574e2539acc0006dcca774b8be0db94d51c95114e392",
@@ -1766,7 +1764,7 @@
     "packages/ui/src/components/menu/policy.ts": "eb7c7162bb59b3fed3de06d9e3421ad073621c8d3cd47ec3ac046966ee15a1c4",
     "packages/ui/src/components/menu/shortcut-artwork.ts": "a05b5d16d3dd79ef821bdbab4ffdb0877695340858e4b3ca1e25d9cc623ab1ab",
     "packages/ui/src/components/menu/use-context-menu-target.ts": "bd05c84d873570528b027c1d0bc4fdea7e9054c172187f206e4d31208f400e98",
-    "packages/ui/src/components/pan-surface/index.tsx": "a591711e830ebfbc00d08c4ca0cbf075765b44650ac106aab1ea38f7f8bf4a28",
+    "packages/ui/src/components/pan-surface/index.tsx": "e0b1c2a9e2ec85dec17fe7b66db93c3f2c12ebc3fee74367e942446b889ce823",
     "packages/ui/src/components/panel/frame.tsx": "276e7e803eaaa16e44851bd3d00c014389e1fcc78a60c2832342351c983e2389",
     "packages/ui/src/components/panel/group-frame.tsx": "407e2371e890f900fceee6fc676800ff8db4379f461ebb0935e8ff241b3a829a",
     "packages/ui/src/components/panel/group.module.css": "4c186c128b1622ff7cc4c61b3c289a6d3a81729e1b5bc3b24972c63b29ae080f",
@@ -1870,26 +1868,26 @@
     "packages/ui/src/components/window/dialog.tsx": "0d86382a5d8c33e330c2665e260c326e9056b02eb4cc606b10372ac7e2c6b1ff",
     "packages/ui/src/components/window/floating-layer.module.css": "1b5836af95cb09cc45b91ffa1bd5fad7249be20e0390576bb2116d39209cbff5",
     "packages/ui/src/components/window/floating-layer.tsx": "7004281ff4f0f6f2e470bcb1fd7000fab4e4b21dc4bfe98693848d0e191e4c74",
-    "packages/ui/src/components/window/focus.ts": "d529e98845449b00db0e5c1a5cd079565a1b139a9261b9a8a7319823861b4b1e",
+    "packages/ui/src/components/window/focus.ts": "a73d27d6d6371150ed9806b1d266091ea271aa2e3b212ed5cbe599bcff4a7d71",
     "packages/ui/src/components/window/gesture.module.css": "7530c42b719ce87c40bd83154a33ec17aee430a25c85f8ac48bd200dda0e1567",
     "packages/ui/src/components/window/gesture.ts": "88783e2814a14b06c2960f1600a9368a71c68935466dc1897c728c5603fc16b1",
     "packages/ui/src/components/window/index.ts": "ff522e92109150336b8bbbcb693d5b33b7fc967f6533ed210c3eb81f1936ac9c",
     "packages/ui/src/components/window/interaction.tsx": "dde67956816e270dc1ee2b753b1266f8745e931afcd90f4017e7fac9a3ae2198",
     "packages/ui/src/components/window/metrics.ts": "6289782745abe398032da4591cc334a29dc5807b9028283d6e444fdfc696cced",
     "packages/ui/src/components/window/scene-focus.ts": "a3ed2bc9e4bf7075d8d77818d30f161a6cf4614af27f76bae4b60802b833a609",
-    "packages/ui/src/components/window/variants/popup/index.tsx": "acea0742c60258e0f24e81a8646ef007153820fefe324f2f284a6d4536a9e1f0",
+    "packages/ui/src/components/window/variants/popup/index.tsx": "e1796c3330a8e9753e9d70dcd88962bc732f12a11257173fa22131123f3c7e4e",
     "packages/ui/src/components/window/variants/window/index.tsx": "cae8ba77e724605a308190ae7106535b2a0e093fbc0bf52a4727d481329730f5",
     "packages/ui/src/components/window/visible-scene-bounds.ts": "ba71c4e263a10b3e923e3d1c323781a98d8b3d6c79eed80f8a33ddf5d1c8ac27",
     "packages/ui/src/cursor.ts": "3aee0fb2a841cf199acf58cf4b889a650395c4d015374d5d61672a8300145899",
     "packages/ui/src/index.ts": "241091be7c449d0d0c89e3a2deee5a5dd7e36db985761f991cd7076cca4e5a61",
     "packages/ui/src/popover.ts": "4c72ba441746f3f637366a333b9f29025e0924fd250be94835964babe3a19963",
-    "packages/ui/src/utils.ts": "d24281aa31852ac3091c051f5540657181efef98562179f5fea043e493dcd512",
+    "packages/ui/src/utils.ts": "e94a8f06a7e2473088a9884194f2cae9261611ef2eea27924d12f5b830600152",
     "packages/ui/src/vite-env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
     "packages/ui/tsconfig.json": "1d848cee570d64ce32162da15c04b7fa8e0c844ce064d91b38682467bdd471c5",
     "packages/ui/vite.config.ts": "4461c02d22002cacb254e22f7cc6499851e6a2029683e1495457cac8c7eb8368",
-    "scripts/base/screenshot.mjs": "5bbe88a8e470fbbd3baff0ca538602b4c5605b85c109553669804864b885235b"
+    "scripts/base/screenshot.mjs": "7328e19aaf2f408419ec755d603a6e52b1b51b3c387fb590ea16c29701ad013f"
   },
-  "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+  "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
   "browser": {
     "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
     "platform": "MacIntel"
@@ -1901,7 +1899,7 @@
       "sha256": "e8d74719b6e1ac2f04c721024e888b441183aaf1fcf0e959779aaa884b1a09d9",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:26.278Z",
+        "capturedAt": "2026-10-11T12:31:38.520Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -1937,7 +1935,7 @@
           "height": 900
         }
       },
-      "url": "http://xprite-visual-wide-en.localhost:5473/",
+      "url": "http://xprite-visual-wide-en.localhost:5373/",
       "mode": "wide",
       "view": "home",
       "viewport": {
@@ -1992,9 +1990,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -2008,7 +2006,7 @@
       "sha256": "a1ebc27c4848f933034f5eaac96ef8adf0009e41fdd397d0c13d43a195184540",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:26.869Z",
+        "capturedAt": "2026-10-11T12:31:38.882Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2044,7 +2042,7 @@
           "height": 900
         }
       },
-      "url": "http://xprite-visual-wide-en.localhost:5473/",
+      "url": "http://xprite-visual-wide-en.localhost:5373/",
       "mode": "wide",
       "view": "recovery",
       "viewport": {
@@ -2071,9 +2069,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -2084,10 +2082,10 @@
     {
       "id": "editor-wide",
       "file": "editor-wide.png",
-      "sha256": "67edfab6aaa4b613e0a1005c0a623c0957b84506d9768fa5a24a992a65224587",
+      "sha256": "3652711cb6d9b37cecce5bc98f8d8fed8f906cb2a01f8aa165dfd195a70cc4cf",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:28.843Z",
+        "capturedAt": "2026-10-11T12:31:39.813Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2115,7 +2113,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "67edfab6aaa4b613e0a1005c0a623c0957b84506d9768fa5a24a992a65224587",
+        "sha256": "3652711cb6d9b37cecce5bc98f8d8fed8f906cb2a01f8aa165dfd195a70cc4cf",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2123,7 +2121,7 @@
           "height": 900
         }
       },
-      "url": "http://xprite-visual-wide-en.localhost:5473/editor",
+      "url": "http://xprite-visual-wide-en.localhost:5373/editor",
       "mode": "wide",
       "view": "editor",
       "viewport": {
@@ -2187,9 +2185,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -2200,10 +2198,10 @@
     {
       "id": "preferences-wide",
       "file": "preferences-wide.png",
-      "sha256": "07f7a87609be377fe9cd2b6868910c4b76e5cc11d49dc51ba33bcff17bfdaa27",
+      "sha256": "db486c16ed927df2452135311c4ad0651d6338cc3f968b6099c6c7fa8200d170",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:29.604Z",
+        "capturedAt": "2026-10-11T12:31:40.107Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2231,7 +2229,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "07f7a87609be377fe9cd2b6868910c4b76e5cc11d49dc51ba33bcff17bfdaa27",
+        "sha256": "db486c16ed927df2452135311c4ad0651d6338cc3f968b6099c6c7fa8200d170",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2239,7 +2237,7 @@
           "height": 900
         }
       },
-      "url": "http://xprite-visual-wide-en.localhost:5473/editor",
+      "url": "http://xprite-visual-wide-en.localhost:5373/editor",
       "mode": "wide",
       "view": "preferences",
       "viewport": {
@@ -2310,9 +2308,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -2323,10 +2321,10 @@
     {
       "id": "edit-menu-wide",
       "file": "edit-menu-wide.png",
-      "sha256": "a4910eed2771bcabf466537c753cc7b943621435a77c53e606ecec62ad0737eb",
+      "sha256": "767ec1a0feaa8bbde454947f25396a43899f16bd0b2be25004b9e312f3405dd7",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:30.205Z",
+        "capturedAt": "2026-10-11T12:31:40.509Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2354,7 +2352,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "a4910eed2771bcabf466537c753cc7b943621435a77c53e606ecec62ad0737eb",
+        "sha256": "767ec1a0feaa8bbde454947f25396a43899f16bd0b2be25004b9e312f3405dd7",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2362,7 +2360,7 @@
           "height": 900
         }
       },
-      "url": "http://xprite-visual-wide-en.localhost:5473/editor",
+      "url": "http://xprite-visual-wide-en.localhost:5373/editor",
       "mode": "wide",
       "view": "edit-menu",
       "viewport": {
@@ -2433,9 +2431,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -2446,10 +2444,10 @@
     {
       "id": "new-sprite-wide",
       "file": "new-sprite-wide.png",
-      "sha256": "cfec91ddc906331ff843326dfdb4421e73dc7deba260abe159ead7eed50db298",
+      "sha256": "80e6b190c7badc03ca28af26d737ca9fa13f8ab20a613d9cafb97338bc802d6a",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:31.055Z",
+        "capturedAt": "2026-10-11T12:31:40.814Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2477,7 +2475,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "cfec91ddc906331ff843326dfdb4421e73dc7deba260abe159ead7eed50db298",
+        "sha256": "80e6b190c7badc03ca28af26d737ca9fa13f8ab20a613d9cafb97338bc802d6a",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2485,7 +2483,7 @@
           "height": 900
         }
       },
-      "url": "http://xprite-visual-wide-en.localhost:5473/editor",
+      "url": "http://xprite-visual-wide-en.localhost:5373/editor",
       "mode": "wide",
       "view": "new-sprite",
       "viewport": {
@@ -2556,9 +2554,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -2569,10 +2567,10 @@
     {
       "id": "save-as-wide",
       "file": "save-as-wide.png",
-      "sha256": "dfe119e0572c2c68fb09a01919d603f6611c51764d5545af10b1b2e59b246e01",
+      "sha256": "62481b35e2173247af1d8a85e0744923f982f5cd1c7d2d2e10489e03bf6adfae",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:31.612Z",
+        "capturedAt": "2026-10-11T12:31:41.224Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2600,7 +2598,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "dfe119e0572c2c68fb09a01919d603f6611c51764d5545af10b1b2e59b246e01",
+        "sha256": "62481b35e2173247af1d8a85e0744923f982f5cd1c7d2d2e10489e03bf6adfae",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2608,7 +2606,7 @@
           "height": 900
         }
       },
-      "url": "http://xprite-visual-wide-en.localhost:5473/editor",
+      "url": "http://xprite-visual-wide-en.localhost:5373/editor",
       "mode": "wide",
       "view": "save-as",
       "viewport": {
@@ -2679,9 +2677,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -2692,10 +2690,10 @@
     {
       "id": "export-file-wide",
       "file": "export-file-wide.png",
-      "sha256": "672501d987854d5c65b5680f9b29b8b4bd759aa47898969ca3b32b55b720489d",
+      "sha256": "26abf8d7c3f5bd5c469a846fb1bfa7bd9c1c71af85715c7a653eaf875a0e52b0",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:32.145Z",
+        "capturedAt": "2026-10-11T12:31:41.593Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2723,7 +2721,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "672501d987854d5c65b5680f9b29b8b4bd759aa47898969ca3b32b55b720489d",
+        "sha256": "26abf8d7c3f5bd5c469a846fb1bfa7bd9c1c71af85715c7a653eaf875a0e52b0",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2731,7 +2729,7 @@
           "height": 900
         }
       },
-      "url": "http://xprite-visual-wide-en.localhost:5473/editor",
+      "url": "http://xprite-visual-wide-en.localhost:5373/editor",
       "mode": "wide",
       "view": "export-file",
       "viewport": {
@@ -2796,15 +2794,15 @@
         {
           "name": "export-file",
           "x": 480,
-          "y": 240,
+          "y": 238,
           "width": 480,
-          "height": 422
+          "height": 426
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -2815,10 +2813,10 @@
     {
       "id": "gif-options-wide",
       "file": "gif-options-wide.png",
-      "sha256": "bb9306fd942c2cb7de7028a24f45e792a5aae14fd62895e3c201e608be3a802c",
+      "sha256": "b7a0b98d910a31b65d797c799e34a7fa2940a0c70e0fa7b795dc8356d5f556b0",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:32.567Z",
+        "capturedAt": "2026-10-11T12:31:42.074Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2846,7 +2844,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "bb9306fd942c2cb7de7028a24f45e792a5aae14fd62895e3c201e608be3a802c",
+        "sha256": "b7a0b98d910a31b65d797c799e34a7fa2940a0c70e0fa7b795dc8356d5f556b0",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2854,7 +2852,7 @@
           "height": 900
         }
       },
-      "url": "http://xprite-visual-wide-en.localhost:5473/editor",
+      "url": "http://xprite-visual-wide-en.localhost:5373/editor",
       "mode": "wide",
       "view": "gif-options",
       "viewport": {
@@ -2919,15 +2917,15 @@
         {
           "name": "gif-options",
           "x": 446,
-          "y": 340,
+          "y": 318,
           "width": 548,
-          "height": 222
+          "height": 264
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -2938,10 +2936,10 @@
     {
       "id": "color-picker-wide",
       "file": "color-picker-wide.png",
-      "sha256": "8c0bc7612dee7d3aa1ebb937a422d9e9dc4e39b2f995b786ac2a0a166d0a0a0c",
+      "sha256": "165deb2a8a71ecc40c26121afe084b9c2feb17a384ef4a07b92b0a9a16009d34",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:33.419Z",
+        "capturedAt": "2026-10-11T12:31:42.670Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2969,7 +2967,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "8c0bc7612dee7d3aa1ebb937a422d9e9dc4e39b2f995b786ac2a0a166d0a0a0c",
+        "sha256": "165deb2a8a71ecc40c26121afe084b9c2feb17a384ef4a07b92b0a9a16009d34",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2977,7 +2975,7 @@
           "height": 900
         }
       },
-      "url": "http://xprite-visual-wide-en.localhost:5473/editor",
+      "url": "http://xprite-visual-wide-en.localhost:5373/editor",
       "mode": "wide",
       "view": "color-picker",
       "viewport": {
@@ -3048,9 +3046,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -3061,10 +3059,10 @@
     {
       "id": "tooltip-wide",
       "file": "tooltip-wide.png",
-      "sha256": "6eddb12ad5186a59d8cb639b0f1a12c0352807a0712b89583a50b6dfb1ded518",
+      "sha256": "b31c736606b344ad693dd8a167bb99d72dc4bf8ad1c905dd0c1dd911a39911d0",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:34.097Z",
+        "capturedAt": "2026-10-11T12:31:43.268Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3092,7 +3090,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "6eddb12ad5186a59d8cb639b0f1a12c0352807a0712b89583a50b6dfb1ded518",
+        "sha256": "b31c736606b344ad693dd8a167bb99d72dc4bf8ad1c905dd0c1dd911a39911d0",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3100,7 +3098,7 @@
           "height": 900
         }
       },
-      "url": "http://xprite-visual-wide-en.localhost:5473/editor",
+      "url": "http://xprite-visual-wide-en.localhost:5373/editor",
       "mode": "wide",
       "view": "tooltip",
       "viewport": {
@@ -3172,9 +3170,9 @@
       ],
       "tooltip": "Pencil Tool\n\nShortcut: B",
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -3188,7 +3186,7 @@
       "sha256": "02644e875af0195db7049696109a74b32f2247c62f902a544f964aa85e0b5242",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:34.414Z",
+        "capturedAt": "2026-10-11T12:31:43.467Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3224,7 +3222,7 @@
           "height": 900
         }
       },
-      "url": "http://xprite-visual-wide-en.localhost:5473/editor",
+      "url": "http://xprite-visual-wide-en.localhost:5373/editor",
       "mode": "wide",
       "view": "layer-properties",
       "viewport": {
@@ -3295,9 +3293,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -3311,7 +3309,7 @@
       "sha256": "c5b7bd88474d839738ee429015f1f1fe577be547ac1c6a44f090888d0258827c",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:38.048Z",
+        "capturedAt": "2026-10-11T12:31:45.268Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3347,7 +3345,7 @@
           "height": 844
         }
       },
-      "url": "http://xprite-visual-compact-en.localhost:5473/",
+      "url": "http://xprite-visual-compact-en.localhost:5373/",
       "mode": "compact",
       "view": "home",
       "viewport": {
@@ -3402,9 +3400,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -3418,7 +3416,7 @@
       "sha256": "1701845c4595bf13091e77133563337744b96b59f4b3c382544e1b9ea3294ad8",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:38.378Z",
+        "capturedAt": "2026-10-11T12:31:45.488Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3454,7 +3452,7 @@
           "height": 844
         }
       },
-      "url": "http://xprite-visual-compact-en.localhost:5473/",
+      "url": "http://xprite-visual-compact-en.localhost:5373/",
       "mode": "compact",
       "view": "recovery",
       "viewport": {
@@ -3481,9 +3479,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -3497,7 +3495,7 @@
       "sha256": "483ee514bbe2bc4c6cffbef1eff7665f0022b676c96de9b7356ce210b9898586",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:39.804Z",
+        "capturedAt": "2026-10-11T12:31:46.296Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3533,7 +3531,7 @@
           "height": 844
         }
       },
-      "url": "http://xprite-visual-compact-en.localhost:5473/editor",
+      "url": "http://xprite-visual-compact-en.localhost:5373/editor",
       "mode": "compact",
       "view": "editor",
       "viewport": {
@@ -3583,9 +3581,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -3599,7 +3597,7 @@
       "sha256": "fc64e6b3d061bc8e13ed8a2dd8fde70568ef7e143bb64db44b0a0cffcf9a7266",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:40.163Z",
+        "capturedAt": "2026-10-11T12:31:46.477Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3635,7 +3633,7 @@
           "height": 844
         }
       },
-      "url": "http://xprite-visual-compact-en.localhost:5473/editor",
+      "url": "http://xprite-visual-compact-en.localhost:5373/editor",
       "mode": "compact",
       "view": "preferences",
       "viewport": {
@@ -3692,9 +3690,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -3708,7 +3706,7 @@
       "sha256": "c0bf3fc752dbb12ad8531085b89d9ce628cab38f02b92709aaf856345d15afee",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:41.091Z",
+        "capturedAt": "2026-10-11T12:31:47.085Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3744,7 +3742,7 @@
           "height": 844
         }
       },
-      "url": "http://xprite-visual-compact-en.localhost:5473/editor",
+      "url": "http://xprite-visual-compact-en.localhost:5373/editor",
       "mode": "compact",
       "view": "edit-menu",
       "viewport": {
@@ -3808,9 +3806,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -3824,7 +3822,7 @@
       "sha256": "7643fa5485540b3664b3219b0ef9115108f6717e90fd7691de288ac9951ca5b8",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:42.038Z",
+        "capturedAt": "2026-10-11T12:31:47.373Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3860,7 +3858,7 @@
           "height": 844
         }
       },
-      "url": "http://xprite-visual-compact-en.localhost:5473/editor",
+      "url": "http://xprite-visual-compact-en.localhost:5373/editor",
       "mode": "compact",
       "view": "new-sprite",
       "viewport": {
@@ -3917,9 +3915,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -3933,7 +3931,7 @@
       "sha256": "2a407f5e3b6259120ad778d833652822685b43146fe29b4ed1e3b76fdf8bf1e5",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:42.724Z",
+        "capturedAt": "2026-10-11T12:31:47.644Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3969,7 +3967,7 @@
           "height": 844
         }
       },
-      "url": "http://xprite-visual-compact-en.localhost:5473/editor",
+      "url": "http://xprite-visual-compact-en.localhost:5373/editor",
       "mode": "compact",
       "view": "save-as",
       "viewport": {
@@ -4026,9 +4024,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -4039,10 +4037,10 @@
     {
       "id": "export-file-compact",
       "file": "export-file-compact.png",
-      "sha256": "58e71973629518a08c96d4a2150cd6e531e7c56a13efa060a6012861d3660d2b",
+      "sha256": "61e6c46d8a849158469b6398e591d580a1fb0f0ce12c0b30d5cd100a212d8709",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:43.288Z",
+        "capturedAt": "2026-10-11T12:31:47.963Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4070,7 +4068,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "58e71973629518a08c96d4a2150cd6e531e7c56a13efa060a6012861d3660d2b",
+        "sha256": "61e6c46d8a849158469b6398e591d580a1fb0f0ce12c0b30d5cd100a212d8709",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4078,7 +4076,7 @@
           "height": 844
         }
       },
-      "url": "http://xprite-visual-compact-en.localhost:5473/editor",
+      "url": "http://xprite-visual-compact-en.localhost:5373/editor",
       "mode": "compact",
       "view": "export-file",
       "viewport": {
@@ -4129,15 +4127,15 @@
         {
           "name": "export-file",
           "x": 0,
-          "y": 167,
+          "y": 168,
           "width": 390,
           "height": 510
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -4148,10 +4146,10 @@
     {
       "id": "gif-options-compact",
       "file": "gif-options-compact.png",
-      "sha256": "8bac58989c769bf1167dd8a5beb97a639b1a3d24b38990cd7883ca177595d9a3",
+      "sha256": "152990da43ffd66b4d549eb7235f9aee959a4a161a784504d1d53bdf123a1394",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:43.622Z",
+        "capturedAt": "2026-10-11T12:31:48.358Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4179,7 +4177,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "8bac58989c769bf1167dd8a5beb97a639b1a3d24b38990cd7883ca177595d9a3",
+        "sha256": "152990da43ffd66b4d549eb7235f9aee959a4a161a784504d1d53bdf123a1394",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4187,7 +4185,7 @@
           "height": 844
         }
       },
-      "url": "http://xprite-visual-compact-en.localhost:5473/editor",
+      "url": "http://xprite-visual-compact-en.localhost:5373/editor",
       "mode": "compact",
       "view": "gif-options",
       "viewport": {
@@ -4238,15 +4236,15 @@
         {
           "name": "gif-options",
           "x": 0,
-          "y": 272,
+          "y": 250,
           "width": 390,
-          "height": 300
+          "height": 344
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -4260,7 +4258,7 @@
       "sha256": "63b05c166dc45c8a55defaba10105310d062a94979684dd49f173d927b986bde",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:44.292Z",
+        "capturedAt": "2026-10-11T12:31:48.754Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4296,7 +4294,7 @@
           "height": 844
         }
       },
-      "url": "http://xprite-visual-compact-en.localhost:5473/editor",
+      "url": "http://xprite-visual-compact-en.localhost:5373/editor",
       "mode": "compact",
       "view": "color-picker",
       "viewport": {
@@ -4353,9 +4351,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -4366,10 +4364,10 @@
     {
       "id": "tooltip-compact",
       "file": "tooltip-compact.png",
-      "sha256": "5695366c89303a4cbafaa9cb5a292c983363f4da60cd605264eda72a8cb38c57",
+      "sha256": "e3b7f8ad97258a973968354d45202206e21534b2387552aa8aa1537856b6ae78",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:44.953Z",
+        "capturedAt": "2026-10-11T12:31:49.291Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4397,7 +4395,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "5695366c89303a4cbafaa9cb5a292c983363f4da60cd605264eda72a8cb38c57",
+        "sha256": "e3b7f8ad97258a973968354d45202206e21534b2387552aa8aa1537856b6ae78",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4405,7 +4403,7 @@
           "height": 844
         }
       },
-      "url": "http://xprite-visual-compact-en.localhost:5473/editor",
+      "url": "http://xprite-visual-compact-en.localhost:5373/editor",
       "mode": "compact",
       "view": "tooltip",
       "viewport": {
@@ -4463,9 +4461,9 @@
       ],
       "tooltip": "Pencil Tool\n\nShortcut: B",
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
@@ -4479,7 +4477,7 @@
       "sha256": "d05c072f21601d16e5604d63718e96ef7d5913dc85c61924dd64371de514c0ff",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:10:45.276Z",
+        "capturedAt": "2026-10-11T12:31:49.464Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4515,7 +4513,7 @@
           "height": 844
         }
       },
-      "url": "http://xprite-visual-compact-en.localhost:5473/editor",
+      "url": "http://xprite-visual-compact-en.localhost:5373/editor",
       "mode": "compact",
       "view": "layer-properties",
       "viewport": {
@@ -4572,9 +4570,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-11T12:10:46.054Z",
-        "sourceDigest": "fb879ea419801ed662103fe79782a1df4b2d0c6767091f2ab0f928e2a00bf484",
-        "gitRevision": "751eabb361f2b0ed30fe86172e605bf1c0601f9d",
+        "capturedAt": "2026-10-11T12:31:50.099Z",
+        "sourceDigest": "12f6a466aff7021901d1cf3d418c31dd062472c3d96c0fb8a1bfe0712fd42a38",
+        "gitRevision": "73dd4a5bf9f22d11be92eb5d1aa7f2d70c2e94d8",
         "browser": {
           "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
           "platform": "MacIntel"
