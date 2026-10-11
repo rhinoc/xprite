@@ -66,6 +66,8 @@ export type UiFontDefinition = UiFontMetrics &
     | {
         renderer: UiFontRenderer.Bitmap;
         atlas: { url: string; width: number; height: number; glyphs: UiGlyphMap };
+        /** CJK baseline from the top of the line box, in CSS pixels at scale 2. */
+        cjkBaseline: number;
         /** DOM can use a font face or preserve the source bitmap glyphs. */
         atlasInDom: boolean;
       }
