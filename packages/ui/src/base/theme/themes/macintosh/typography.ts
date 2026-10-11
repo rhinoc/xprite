@@ -30,6 +30,6 @@ export const macintoshTypography = {
 /** Window text follows the native Macintosh title and footer metrics. */
 export const macintoshWindowTypographyTokens = {
   "--ui-panel-utility-line-height": "8px",
-  "--ui-panel-window-title-line-height": "12px",
+  "--ui-panel-window-title-line-height": "16px",
   "--ui-panel-window-title-font": "var(--xse-font, var(--ui-font-family, monospace))",
 } satisfies UiThemeTokens;

@@ -400,9 +400,9 @@ export function PalettePresetPopup({
   const renderContents = ({ clientBounds: client }: PopoverContext) => {
     const searchBounds = {
       x: client.x + 2,
-      y: client.y - 1,
+      y: client.y + 1,
       width: Math.max(32, client.width - 45),
-      height: 40,
+      height: 38,
     };
     const refreshBounds = {
       x: client.x + client.width - REFRESH_BUTTON_WIDTH,
