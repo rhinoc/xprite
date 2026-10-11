@@ -16,9 +16,10 @@ function bitmapFont(glyphs: UiGlyphMap, url: string, width: number, height: numb
     fontFamily: "Aseprite",
     fontSize: mini ? 12 : 14,
     lineHeight,
-    // Primary Chinese uses the 10px face at the 14px English line.
-    // Mini bitmap glyphs are 5px tall at 2x, so compact Chinese fills a 10px line.
-    cjkFontFamily: "FusionPixel10",
+    // Primary Chinese uses the 10px face at the 14px English line, shifted onto
+    // Aseprite's baseline (10 of 14). Mini bitmap glyphs are 5px tall at 2x, so
+    // compact Chinese keeps the unshifted 10px grid (baseline 9 of 10).
+    cjkFontFamily: mini ? "FusionPixel10" : "FusionPixel10Aseprite",
     cjkFontSize: mini ? 10 : 14,
     cjkAdvance: mini ? 10 : 14,
     fallbackFontFamily: "sans-serif",
@@ -26,6 +27,7 @@ function bitmapFont(glyphs: UiGlyphMap, url: string, width: number, height: numb
     advances: Object.fromEntries(
       Object.entries(glyphs).map(([code, glyph]) => [code, glyph[2] * 2]),
     ),
+    cjkBaseline: mini ? 9 : 10,
     atlas: { url, width, height, glyphs },
     atlasInDom: mini,
   };

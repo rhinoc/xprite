@@ -154,6 +154,9 @@ release artifacts and are bundled unchanged from
 is under the [SIL Open Font License 1.1](LICENSES/fusion-pixel-font/OFL.txt).
 File names and SHA-256 hashes are in
 [the shared font provenance](packages/ui/assets/fonts/fusion-pixel/README.md).
+`packages/ui/assets/fonts/fusion-pixel/fusion-10-aseprite.woff2` is a renamed
+modified version of the 10px file whose outlines and vertical metrics are
+shifted onto the Aseprite UI font's baseline (`pnpm assets:aseprite-cjk-font`).
 
 ## ICC regression profile
 
