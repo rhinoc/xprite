@@ -1,4 +1,7 @@
+import { useRef } from "react";
+
 import { useDialogEditorSource } from "$/managers/dialogs/internal-editor-source";
+import { tilesetExportSource } from "$/managers/files/tileset-export-source";
 import { timelineTags } from "@xprite/editor-core";
 import type { PixelBuffer } from "@xprite/editor-core";
 import { INT16_MIN } from "@xprite/editor-core/base";
@@ -87,7 +90,10 @@ export function getImportSpriteSheetTileCounts(
 }
 
 export function useSpriteSheetDialogModel(documentKey?: string) {
-  const { document, exportPreferences } = useDialogEditorSource(documentKey);
+  const source = useDialogEditorSource(documentKey);
+  // Canvas previews publish a temporary sheet document; continue rendering the original source.
+  const document = useRef(source.document).current;
+  const exportPreferences = source.exportPreferences;
   const view = document
     ? {
         name: document.name,
@@ -116,13 +122,18 @@ export function useSpriteSheetDialogModel(documentKey?: string) {
         ? {
             ...options,
             source: initialSource,
-            ...(initialSource === "tilesets" ? { layers: "selected" as const } : {}),
+            ...(initialSource === "tilesets"
+              ? { layers: "selected" as const, frames: "current" as const }
+              : {}),
           }
         : options;
     },
     renderPreview(options: SpriteSheetDialogOptions): SpriteSheetPreviewResult | null {
       if (!document) return null;
-      return renderSpriteSheet(document, options);
+      return renderSpriteSheet(
+        options.source === "tilesets" ? tilesetExportSource(document) : document,
+        options,
+      );
     },
   };
 }

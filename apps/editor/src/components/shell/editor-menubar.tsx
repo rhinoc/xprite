@@ -335,21 +335,6 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
       onSelect: () => editor.setFrame(frameCount),
       disabled: !hasDocumentTimeline,
     },
-    ExportAnimalCrossing: {
-      onSelect: actions.exportAnimalCrossing,
-      disabled: documentUnavailable || !actions.exportAnimalCrossing,
-    },
-    ExportTileset: {
-      onSelect: actions.exportTileset,
-      disabled:
-        documentUnavailable ||
-        !actions.exportTileset ||
-        timeline?.layers[timeline.activeLayer]?.kind !== "tilemap",
-    },
-    ExportSpriteSheet: {
-      onSelect: actions.exportSpriteSheet,
-      disabled: documentUnavailable || !actions.exportSpriteSheet,
-    },
     ImportSpriteSheet: {
       onSelect: actions.importSpriteSheet,
       disabled: documentUnavailable || !actions.importSpriteSheet,

@@ -10,6 +10,7 @@
 - [Paste an external image](#paste-an-external-image)
 - [Pick a color from the screen](#pick-a-color-from-the-screen)
 - [Add to desktop and use offline](#add-to-desktop-and-use-offline)
+- [Export Animal Crossing designs](#export-animal-crossing-designs)
 - [Share a sprite](#share-a-sprite)
 - [Drawing replay](#drawing-replay)
 - [Browsers and devices](#browsers-and-devices)
@@ -147,6 +148,10 @@ Screen color picking needs desktop Chrome or Edge, with Xprite opened over HTTPS
 ![Install button in the Chrome address bar.](images/en/chrome-install-button.webp)
 
 Open the editor once while online before using it offline. If it doesn't open offline, connect and open it again.
+
+## Export Animal Crossing designs
+
+In **File → Export…**, choose **Export format → Games & Crafts → Animal Crossing**. Click a source-image cell to select its QR code. Hover the selected cell’s right edge, bottom edge or lower-right corner and drag to resize. Drag at the grid origin to move the grid; spacing handles appear above or to the left. Handles appear on hover; on touchscreens, tap an edge to reveal its handle, then drag. Values can also be entered on the left.
 
 ## Share a sprite
 

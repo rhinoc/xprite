@@ -1,6 +1,8 @@
 import type { EditorDocument } from "$/document/types";
 import {
+  ANIMAL_CROSSING_SIZE,
   MAX_ANIMAL_CROSSING_PATTERNS,
+  animalCrossingGrid,
   defaultAnimalCrossingSettings,
 } from "$/import-export/animal-crossing/codec";
 import { renderExport } from "$/import-export/image/export-plan";
@@ -93,6 +95,18 @@ export function animalCrossingDocumentSource(
         Math.ceil(Math.max(fallback.cellHeight, tileHeight) / tileHeight) * tileHeight,
       );
       fitPatternCount(pixels, settings, tileWidth, tileHeight);
+    }
+    try {
+      animalCrossingGrid(pixels, settings);
+    } catch {
+      const fallback = defaultAnimalCrossingSettings(pixels);
+      settings.cellWidth = fallback.cellWidth;
+      settings.cellHeight = fallback.cellHeight;
+      settings.offsetX = fallback.offsetX;
+      settings.offsetY = fallback.offsetY;
+      settings.spacingX = fallback.spacingX;
+      settings.spacingY = fallback.spacingY;
+      fitPatternCount(pixels, settings, ANIMAL_CROSSING_SIZE, ANIMAL_CROSSING_SIZE);
     }
   }
   return { name: document.name, pixels, settings };

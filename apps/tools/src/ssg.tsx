@@ -45,6 +45,8 @@ export async function renderToolPage(rootId: string) {
       readAppearance: () => (appearance === "dark" ? AppearanceMode.Dark : AppearanceMode.Light),
       watchAppearance: () => () => {},
       readWheel: unavailable,
+      preview: unavailable,
+      releasePreview: () => {},
       read: unavailable,
       example: unavailable,
       save: unavailable,

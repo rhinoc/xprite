@@ -46,26 +46,15 @@ const SaveAsDialog = lazy(() =>
     default: module.SaveAsDialog,
   })),
 );
-const AnimalCrossingDialog = lazy(() =>
-  import("$/components/dialogs/animal-crossing-dialog").then((module) => ({
-    default: module.AnimalCrossingDialog,
-  })),
-);
-const ExportFileDialog = lazy(() =>
-  import("$/components/dialogs/export-file-dialog").then((module) => ({
-    default: module.ExportFileDialog,
-  })),
+const ExportDialog = lazy(() =>
+  import("$/components/dialogs/export-dialog").then((module) => ({ default: module.ExportDialog })),
 );
 const ShareProjectDialog = lazy(() =>
   import("$/components/dialogs/share-project").then((module) => ({
     default: module.ShareProjectDialog,
   })),
 );
-const SpriteSheetDialog = lazy(() =>
-  import("$/components/dialogs/sprite-sheet-dialog").then((module) => ({
-    default: module.SpriteSheetDialog,
-  })),
-);
+
 const ImportSpriteSheetDialog = lazy(() =>
   import("$/components/dialogs/sprite-sheet-dialog").then((module) => ({
     default: module.ImportSpriteSheetDialog,
@@ -174,17 +163,19 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
     textSize,
     animalCrossingSource,
     animalCrossingExportPort,
-    setAnimalCrossingSource,
+    setAnimalCrossingBusy,
+    rememberAnimalCrossingExport,
     shareSource,
     setShareSource,
     exportDocument,
-    setExportDocument,
+    closeExport,
+    exportDestination,
+    selectExportDestination,
+    canExportTileset,
     exportBusy,
     exportKey,
-    sheetFileIntent,
     showSheetPreview,
-    sheetSource,
-    sheetExport,
+    sheetFileIntent,
     sheetImport,
     setSheetImport,
     closingSaveBusy,
@@ -228,7 +219,6 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
     cancelFileImport,
     actions,
     handleCanvasPointerDown,
-    closeSheetExport,
     handleNewSpriteOpenChange,
     updateNewSpriteSize,
     createNewSprite,
@@ -416,22 +406,6 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
             },
           ]}
         />
-        {sheetExport && (
-          <Suspense fallback={null}>
-            <SpriteSheetDialog
-              initialSource={sheetSource}
-              documentKey={exportKey.current}
-              onPreview={showSheetPreview}
-              onClose={() => {
-                closeSheetExport();
-              }}
-              busy={exportBusy}
-              onExport={(options) => {
-                void performSheetExport(options);
-              }}
-            />
-          </Suspense>
-        )}
         {sheetImport && (
           <Suspense fallback={null}>
             <ImportSpriteSheetDialog
@@ -447,15 +421,6 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
             />
           </Suspense>
         )}
-        {animalCrossingSource && animalCrossingExportPort && (
-          <Suspense fallback={null}>
-            <AnimalCrossingDialog
-              source={animalCrossingSource}
-              port={animalCrossingExportPort}
-              onClose={() => setAnimalCrossingSource(null)}
-            />
-          </Suspense>
-        )}
         {shareSource && (
           <Suspense fallback={null}>
             <ShareProjectDialog source={shareSource} onClose={() => setShareSource(null)} />
@@ -463,11 +428,22 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
         )}
         {exportDocument && (
           <Suspense fallback={null}>
-            <ExportFileDialog
+            <ExportDialog
+              destination={exportDestination}
+              onSheetPreview={showSheetPreview}
+              onDestinationChange={selectExportDestination}
+              canExportTileset={canExportTileset}
+              animalCrossingSource={animalCrossingSource}
+              animalCrossingPort={animalCrossingExportPort}
+              onAnimalCrossingBusyChange={setAnimalCrossingBusy}
+              onAnimalCrossingExported={rememberAnimalCrossingExport}
+              onSheetExport={(options) => {
+                void performSheetExport(options);
+              }}
               documentKey={exportKey.current}
               filePreferences={getFilePreferences()}
               busy={exportBusy}
-              onClose={() => setExportDocument(null)}
+              onClose={closeExport}
               onExport={(options) => {
                 void performExport(options);
               }}

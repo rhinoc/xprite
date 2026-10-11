@@ -145,7 +145,13 @@ function FlowField({
             disabled={field.disabled}
             value={String(field.value)}
             inputMode={field.type === "number" ? "decimal" : "text"}
-            onValueChange={field.type === "text" ? field.onChange : undefined}
+            onValueChange={
+              field.type === "text"
+                ? field.onChange
+                : field.type === "number"
+                  ? field.onDraftChange
+                  : undefined
+            }
             onCommit={commit}
           />
         )}
@@ -174,9 +180,11 @@ export function FlowForm({
   layout,
   onHeightChange,
   onColorClick,
+  actionSize,
 }: Pick<FormDialogProps, "fields" | "actions" | "layout"> & {
   message?: string;
   onHeightChange: (height: number) => void;
+  actionSize?: { width: number; height: number };
   onColorClick: (field: FormField, anchor: SurfaceBounds) => void;
 }) {
   const rows = [...new Set(fields.map((field) => field.row ?? field.key))];
@@ -230,6 +238,14 @@ export function FlowForm({
             key={`${action.label}-${index}`}
             text={action.label}
             font={FontRole.Primary}
+            pixelSize={
+              actionSize
+                ? {
+                    width: actionSize.width / RASTER_SCALE,
+                    height: actionSize.height / RASTER_SCALE,
+                  }
+                : undefined
+            }
             data-ui-form-action={action.label}
             disabled={action.disabled}
             onClick={action.onClick}

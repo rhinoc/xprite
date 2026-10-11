@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
-  "capturedAt": "2026-10-11T12:54:40.822Z",
+  "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
+  "capturedAt": "2026-10-11T13:34:17.041Z",
   "captureComplete": true,
   "sourceHashes": {
-    ".husky/pre-push": "2c77214e0ea597a6d6ffaf24eb921eefa5b6b044df35d06d7c514e60a40d4792",
+    ".husky/pre-push": "fc89d199fe88ef98f043334760268db7ca676408bb9ea62b3ca5c12aacbd9b3f",
     "apps/editor/assets/commands/aseprite-tool-tips.json": "e9e275e9d3b024deaa66850fa53e43713f155b70afd619d6d8c9d3ad86c47c26",
     "apps/editor/assets/commands/libresprite-keyboard-shortcuts.json": "36bfd19176989e659289b5e89927f29d7e4f2fe4e9389a1520552bd8711560d1",
-    "apps/editor/assets/commands/libresprite-main-menu.json": "8fa90cc4b0762674fd9d3630eecf357be5ae8e8f48c2e5e1cdcca98e721bb00b",
+    "apps/editor/assets/commands/libresprite-main-menu.json": "3f8e173da89ddb360e396c68a20c74244f5418cf41ad47735d0b3ddd61b839ad",
     "apps/editor/assets/examples/hello/hello-project.ts": "45865fb2a03d9d0d7cac01ce59071bc4dfdfadd37dfdd881ff6018c63b1fdb07",
     "apps/editor/assets/examples/xprite/xprite-preview.webp": "2a9d5fada2596d5c241b32babef5d50fd9b178035150d629a6be02b9199b3829",
     "apps/editor/assets/home/icon-frame-1.webp": "2e3c97b7b7d1f5e2125abf80b363f0812c4e593ca26d6b8737aa917ceaef1320",
@@ -54,7 +54,7 @@
     "apps/editor/src/adapters/files/animated-images.ts": "4e9e02ef919dc4a7f5e8d52f2506fb789dfe24a7fd1e6a97c4cb39a02e6db7f8",
     "apps/editor/src/adapters/files/aseprite-files.test.ts": "555491f564672c3ae547410f7d347fbd9ff2ef6d68c6469811500eb67ae3feca",
     "apps/editor/src/adapters/files/aseprite-files.ts": "5a8b5382dc1ccf88949d3cbd3e31836bf4788d9df875fe96080e0d0b6c25efd0",
-    "apps/editor/src/adapters/files/browser-animal-crossing-export.ts": "d2d41a74707555e57aa2f7b92cae7afe0458a8378e41af2bff73325e2e59387f",
+    "apps/editor/src/adapters/files/browser-animal-crossing-export.ts": "6f1d636ce5f0cb6153bd6946a2bc24a03aa752dbec7b51b4073abbb50ab89395",
     "apps/editor/src/adapters/files/images.test.ts": "e97533f67ced9887cbecba4c9a3c70e9cf4e170fdf0766e7df218b8a5d3e9403",
     "apps/editor/src/adapters/files/images.ts": "e6225213c62fde9578cf86d5d3de6dc44b003ac16f303fccd88cb688e127ba19",
     "apps/editor/src/adapters/files/reference-image.ts": "6578f3ab26afd1e976a037e6d17df4b6b91b1f057f322d5823fc83db4c4f25b3",
@@ -166,8 +166,9 @@
     "apps/editor/src/components/canvas/scene-bounds/index.tsx": "ca8a98366957dee2d07db2403c9ab9644a7554c13fbd0fcfc02e3b4111394841",
     "apps/editor/src/components/dialogs/about/index.tsx": "175d7750fbe473d78aff58ce546daaf05ead24a37b1352248898cc2cc7f944a4",
     "apps/editor/src/components/dialogs/alert/index.tsx": "c7a0b8878e194c322bf7a6adac8ab3058f5af1f033544e04b0f8521bd7c17fe9",
-    "apps/editor/src/components/dialogs/animal-crossing-dialog/animal-crossing-dialog.module.css": "c6b7865326068e6c058d85858b0460993a8b4a3e985735fef4492d1bf29e279b",
-    "apps/editor/src/components/dialogs/animal-crossing-dialog/index.tsx": "1d53a5b7aa861431027037e9092a64fe3c874f1ea3fc1c2a4c7d65033a7fe147",
+    "apps/editor/src/components/dialogs/animal-crossing-dialog/animal-crossing-dialog.module.css": "d072256451d0dac7e9e44bdb10a791159c8537ea35ce6ed1161f3016bb7138a9",
+    "apps/editor/src/components/dialogs/animal-crossing-dialog/index.tsx": "160740dcb1b69065497dcc77a85889587f35f908f4f55d377085274e6424d9c9",
+    "apps/editor/src/components/dialogs/animal-crossing-dialog/source-grid.tsx": "95ccec03291f703f9894bff7da0f68c7fcc78afcece2c15ef05fe496a90a616d",
     "apps/editor/src/components/dialogs/canvas-display-preferences/index.tsx": "9090e70f8cd270e7baeff2112ef59b4a522aa33a0cba2e622d674073ee43bd4d",
     "apps/editor/src/components/dialogs/cursor-preferences/index.tsx": "8ccbca89af1b3683247469703f3daf8118178003b9587d900290e20812623e22",
     "apps/editor/src/components/dialogs/diagnostics-preferences/index.tsx": "d0970f0f9af3b4fd07c561f70a280335cab894f30ff957b202581f075d0dd3c5",
@@ -178,15 +179,17 @@
     "apps/editor/src/components/dialogs/effect-dialogs/curve-point-dialog.tsx": "430c7f4610d37a468c401688fbe09fc1319e04c78f983c42a8bdb7094a208338",
     "apps/editor/src/components/dialogs/effect-dialogs/index.tsx": "d2156130b4b9c9d69006b8226a8aa8980e73338c8fb4a13b8745c3fd9f06a031",
     "apps/editor/src/components/dialogs/experimental-preferences/index.tsx": "373918f2746560d545a0fa4b994d4dfe01e021b0c802f00ef1fd1128bc51cb41",
-    "apps/editor/src/components/dialogs/export-file-dialog/export-file-dialog.test.ts": "ba71bb778c7c04e60165d8816166d050ff0a88c735eabeae412d2917306294eb",
-    "apps/editor/src/components/dialogs/export-file-dialog/index.tsx": "deadce64cc47774c3ceffd35f830c08e8d3f020ba3ef4854f16be54376aa7b0b",
+    "apps/editor/src/components/dialogs/export-dialog/export-dialog.module.css": "aa364df7955ae5ef877a0d95298f0ecbc2591bf68149683d860498b70aaf1ad5",
+    "apps/editor/src/components/dialogs/export-dialog/index.tsx": "f264840f675ca045359c4355b6d33d54ca092e190a1bc4d2ab9a3486482347c7",
+    "apps/editor/src/components/dialogs/export-file-dialog/export-file-dialog.test.ts": "9eaeff03fec8aaadfb82ccc0ec8fd7693156cf4668d947b6a9b7deb722f79a1c",
+    "apps/editor/src/components/dialogs/export-file-dialog/index.tsx": "9b8bf6011b9f412d2541603efad39c8b8383eea180cb5a34073f86b0bbd2d8c2",
     "apps/editor/src/components/dialogs/feedback/feedback.module.css": "532d7bd30342801fb1c740b06ded260a832fdf8dae19bebdc612422ec2ddf58e",
     "apps/editor/src/components/dialogs/feedback/index.tsx": "ef16f64f7e08fd845175958ec16ca701c764fffeb2b2432aeff3901161a664c9",
     "apps/editor/src/components/dialogs/files-preferences/index.tsx": "f314eb713637e6dc4df096093295c6c77bed39d82ecb11c79f4ee6009b551779",
     "apps/editor/src/components/dialogs/filter-window/index.tsx": "1b6d8299639deec8c1159ff1d8c5b934ab827e008ffae89073465971c9e48a40",
     "apps/editor/src/components/dialogs/form-dialog/flow-form.module.css": "8898455d9d72eaacca24eb5c3c533ad2e12ee8e1dbedf7f99b1e6ee5dabd14ae",
-    "apps/editor/src/components/dialogs/form-dialog/flow-form.tsx": "ad8edcef6c657082a4d4e71733c5fe22feac98a067fcd9ee81836b84a749cce6",
-    "apps/editor/src/components/dialogs/form-dialog/index.tsx": "a186053f3ae6a41b33142d49b12e45793ad23912d7e00e991999ec584be5a7d9",
+    "apps/editor/src/components/dialogs/form-dialog/flow-form.tsx": "0dadd10eb1efa8c7ba08b1e3e098f53c7aca1d0ec97c89b443ffb9d9f49ccc31",
+    "apps/editor/src/components/dialogs/form-dialog/index.tsx": "7850fffa875f969c524255546aaa04c8b90a632880554036f12780d0059bb066",
     "apps/editor/src/components/dialogs/grid-settings/index.tsx": "4452eb57746e576da5c7ce2bff07b22f03e40d989b3d124f6857e1fa8a5cc49e",
     "apps/editor/src/components/dialogs/import-sprite-sheet-overlay/index.tsx": "ed665dcc3ceeb83a413bf0dc1cb001d67caceaa6bc9f0102223bba03386db844",
     "apps/editor/src/components/dialogs/keyboard-shortcuts/KeyboardShortcutsDialog.tsx": "00654a82929aba19223f52b36036f99180b84a1ebe37223f03aa26a5e57edc21",
@@ -199,7 +202,7 @@
     "apps/editor/src/components/dialogs/overlay/index.tsx": "2095a55e46b3854fe208d72b26e824d6191bb9ececa58fe810edce7b5866d1db",
     "apps/editor/src/components/dialogs/pixelation-dialog/index.tsx": "7ba28c34dc33b48f7b8c354612781e11ed3b8298275c01efc0f744ed96040a47",
     "apps/editor/src/components/dialogs/pixelation-dialog/pixelation-dialog.module.css": "f6d10c9d1b47cffbc5849b6efe7c5d5624fafac578b4c33bb4c91fd0d0910b14",
-    "apps/editor/src/components/dialogs/preferences-dialog/index.tsx": "2b5383265c130b385b5f674f8e319b1102b35eb0f5d5296730892b131f87850d",
+    "apps/editor/src/components/dialogs/preferences-dialog/index.tsx": "e814b03460f2b3c8ffbcfb815bd4adb07731473599094e6f27d902bf951fb0db",
     "apps/editor/src/components/dialogs/preferences-dialog/preferences-dialog-layout.tsx": "ef56787c3dbb7677901a2bdc29b47d78574a3daea3d4a6ce287aa93e31b968f3",
     "apps/editor/src/components/dialogs/preferences-dialog/preferences-dialog.module.css": "baafd204a8ffad7b3195e949d4c90abf653150edd90657fa09dd674ec9f9e707",
     "apps/editor/src/components/dialogs/preferences-dialog/preferences-search-catalog.ts": "df6678eaf7e10378e7a2d207cd9620bf0c6ef2fe914ef726d996365a84824230",
@@ -213,7 +216,7 @@
     "apps/editor/src/components/dialogs/size-dialogs/index.tsx": "ecec3a9a2e6cda002ba75ccd1fcf8752060991467e6bbe7db9f79cb90d8cbed5",
     "apps/editor/src/components/dialogs/size-dialogs/size-dialogs.module.css": "f2899fbbc5743e064e49aa565ef61bdcc8f77790c158cf19adc20222b98b3994",
     "apps/editor/src/components/dialogs/slice-properties-dialog/index.tsx": "e5b60da98c64d92ac5cb7bba2984e3ecd5faea6f0bb0aa27f3efc6826e107bc0",
-    "apps/editor/src/components/dialogs/sprite-sheet-dialog/index.tsx": "2b2862e0a8a6be5df92df097643d513c0ef2626be41c5c37992db0147853e8d2",
+    "apps/editor/src/components/dialogs/sprite-sheet-dialog/index.tsx": "e6244017e9cfd2f24d5b84009d65c9719e67c105e0db19e3b2cf2dd384cfdb50",
     "apps/editor/src/components/dialogs/text-dialog/index.tsx": "14ad76268db285f45196f9d4b3ef72b64a0b7cd5a87503847634896e5c16db40",
     "apps/editor/src/components/dialogs/touch-input-preferences/index.tsx": "61cbd0c310cd02c12c9eb28bf05666cb1c5316cd39822fd36ee347dd1d689efd",
     "apps/editor/src/components/dialogs/undo-history-window.module.css": "b386c1622c5d7203e4c2309461e40c183abff0c25a2a52228d6be9fc17648990",
@@ -259,13 +262,13 @@
     "apps/editor/src/components/shell/backup-indicator/index.tsx": "58e4d636b39fa5f95e91c0640d732b3ddcf79675fc3b4a4ede66fea787be87fd",
     "apps/editor/src/components/shell/editor-actions.tsx": "aad0192b657ace160d4f9239b203d45c9a258b7595a35d053e9e62dba594105e",
     "apps/editor/src/components/shell/editor-menubar.module.css": "843c5d13a0c1730f638b99c80809317d198aeb77f33536bd2efa372c889175a5",
-    "apps/editor/src/components/shell/editor-menubar.tsx": "3916ed910e9db55420a21ab64b8f101247924f148bb4027724d7c57a43fee74c",
+    "apps/editor/src/components/shell/editor-menubar.tsx": "f54558cff94c4c58ba589bb5610520029212a6635176538f667df6eb7439a0c9",
     "apps/editor/src/components/shell/editor-startup.tsx": "41bd7e04b689885cf3d83ef0415c028ca0616a1399252341d27dd90f99a71430",
     "apps/editor/src/components/shell/editor-statusbar-host/index.tsx": "526141740498bb88e29695388a7a2af7538f227422bb7df76b392c51299833cc",
     "apps/editor/src/components/shell/editor-view/index.tsx": "838c25ba2e66a14e2e0af64d2c4bc88d84ba185fd5677ad37ddf131d0e3e6e5e",
     "apps/editor/src/components/shell/editor-view/workspace-docking.module.css": "915ba5198554a55d3bb4598f2b08cebaed4e63f7ba84d56c0a354b9db6201edf",
     "apps/editor/src/components/shell/editor-workflows.module.css": "af1ecefc4d15f6678a020a9f2cf4b1842cfbb36f1c386266b07f751dc8315a7e",
-    "apps/editor/src/components/shell/editor-workflows.tsx": "5c9b4b5494b0604b0b8601ebc2afa6def54e6cf54808712253515e20a44ad95c",
+    "apps/editor/src/components/shell/editor-workflows.tsx": "afa2bf39b57e810c85202838b6760f620982f764ae02dff55fc0e5abdef4d2a3",
     "apps/editor/src/components/shell/input-mode-notice/index.tsx": "1a9244e4f82062f50e312b5b28bbc18986c6091c7314f49ee92a7d63411fa654",
     "apps/editor/src/components/shell/live-status.module.css": "8f4c21612cb6e066231db71edd4b8b634f772c2565a3075e37c940f4836b312c",
     "apps/editor/src/components/shell/live-status.tsx": "a67d351858192ce4b91cffb5f688de32e3839ca58e6628ef43eef27c0b51a638",
@@ -354,8 +357,8 @@
     "apps/editor/src/embedded-runtime.ts": "11308453ec703eff62709432e4a4e5856e21156cbdab502cfe89e1a201bfd38a",
     "apps/editor/src/host-contracts.ts": "081f9b1f40a289f9f24570c6eeeda8e0608d48d85ed09339a67e814c112218e1",
     "apps/editor/src/i18n/index.ts": "038be644917e00db2e18fa6375ba883fc8fa667ffddc300dc02a6a10942fc981",
-    "apps/editor/src/i18n/locales/en.json": "f933306720c6626f9000def18d4e26bf167b1fef5481831f60b8168db73fe695",
-    "apps/editor/src/i18n/locales/zh-CN.json": "e43581404fe5b93c05d7989dfc3365b21ab8da335a215e05eeceeeb21f3b797e",
+    "apps/editor/src/i18n/locales/en.json": "18fe6ae926b308ddf480b9d772b1b2c76a38430954b4311ed64ce92ee0b5c064",
+    "apps/editor/src/i18n/locales/zh-CN.json": "128aea145127b4a457caeac5027e5d69d32ca3cb39837fb6e77e8fc31a1b37b6",
     "apps/editor/src/main.tsx": "e8e55235237f8f4b8ba720cf60a4a84a626b4cb65289b5a094d3253f54310b07",
     "apps/editor/src/managers/agent/agent-tool-definitions.ts": "5caa6790160bfb9a94f60c73e4012503a1127bd206c86f99d7d0de8cb6f67b52",
     "apps/editor/src/managers/agent/agent-tools-manager.ts": "15eebc94001025c1f0917fe41b0598bedb576e5c7d3c65b10bb0d13b35749b00",
@@ -380,7 +383,7 @@
     "apps/editor/src/managers/diagnostics/technical-support.ts": "6af22fc628e5aae683f5a0244725370ce81358e3adeaa6ed4e6ed54bc1387ca6",
     "apps/editor/src/managers/dialogs/document-feature-manager.ts": "86cf2ea24851ef1d869e31e65938722cef9cd604d3828665281351a4989fc9fc",
     "apps/editor/src/managers/dialogs/effect-dialog-manager.ts": "ee99e5b8d90a2030ab2d0c196e3eb2feeec988d751b9d5f682b7b366677e7895",
-    "apps/editor/src/managers/dialogs/export-file-dialog-model.ts": "ba4ed82c28c9739f83667b870a7e68449039f5e407c137aad540dcd8702d0180",
+    "apps/editor/src/managers/dialogs/export-file-dialog-model.ts": "6770af5c84e3192c6ad815180ade68a05aa89f0b335b90671c36d23c7df1df78",
     "apps/editor/src/managers/dialogs/form-layout.ts": "9742205a817843ca3bde154e46146daf16aec8551a270f3b1c9c30ee906c7c6a",
     "apps/editor/src/managers/dialogs/grid-settings-manager.ts": "48085ad35c151a65a7b5c419022459395c92799f06766fc6b78b7fe3aabf6e24",
     "apps/editor/src/managers/dialogs/import-sprite-sheet.ts": "94f41922b862ce45860830bacdfe291fa2f42122417811c9f95e1deae0a979e4",
@@ -389,7 +392,7 @@
     "apps/editor/src/managers/dialogs/preferences-model.ts": "60603445709033f5060706052d3fc64cd57102568f7049a1b77e2f24b74b6d03",
     "apps/editor/src/managers/dialogs/preferences-search.ts": "63cc7605de49010f4ac145e1a0a8620d4a055e47e7ae2d35f9e8b1afe458a8c7",
     "apps/editor/src/managers/dialogs/slice-properties-model.ts": "64904262226b19c9008d958351710268ef56e0f71eb14cd950d8b76aa2869670",
-    "apps/editor/src/managers/dialogs/sprite-sheet-dialog-model.ts": "79bf99d488a5df2b6b67f28fdbdabaa6a1cef35de1f4cad6bec144c548cc6742",
+    "apps/editor/src/managers/dialogs/sprite-sheet-dialog-model.ts": "90e765722def6ca586ffa26b555e28d6932069fe71538e1068d124e32e828f34",
     "apps/editor/src/managers/dialogs/undo-history-manager.ts": "a8d336899ddfd134e735f61c368bfd4505d516f61de5f2bfa97b64cd358dfb54",
     "apps/editor/src/managers/editor/editor-state-manager.tsx": "c5b83806215f1ff5ebd44260ea2cb1067be6486b858ee8a194c3fffd2f187347",
     "apps/editor/src/managers/editor/editor-state-source.test.ts": "0521c4c868548b2097d39fdd21f18dbb309bed67ba8a5bb0741c44f37284ec3b",
@@ -400,13 +403,16 @@
     "apps/editor/src/managers/editor/use-editor-snapshot.ts": "1cc2f2d5b539000e0947fe41f963f24356758d2ccbb409713b402cc2333380de",
     "apps/editor/src/managers/editor/use-ink-settings.ts": "08012a4f7dfbe96ffc75f349fd73abc96668f11b3f547c251408fcf2e2d9da92",
     "apps/editor/src/managers/feedback/use-feedback.ts": "ee8abe65761a7c3e532a83fb14b01f60874c593de94e4ef5919311aa9a920954",
-    "apps/editor/src/managers/files/animal-crossing-export.test.ts": "f9c59af097c4eaa5450247092110a09125d78a0bc6164603999272adcdd43034",
-    "apps/editor/src/managers/files/animal-crossing-export.ts": "4b38a374db4edad9a15a31bb0302ea4d1fab0c61be601b096dff6a2de67ba2e5",
-    "apps/editor/src/managers/files/export-animation.ts": "9b76c956bb71b61cc530c0478fcc29a022591f15277dd23e3bf863889729f74e",
+    "apps/editor/src/managers/files/animal-crossing-export-options.ts": "640e83e6a8cafd9a5be14647aa326daccc16ad54abe15d7aa909a0c2a1babbdf",
+    "apps/editor/src/managers/files/animal-crossing-export.test.ts": "b079ae67ec46e2517fceceb40aee23522e2267dcf7729eddd12ded27b5c74644",
+    "apps/editor/src/managers/files/animal-crossing-export.ts": "7f530e41b59c95a171ef1de06f7a68ad219a025e842e19f6e4028f1d90631f2a",
+    "apps/editor/src/managers/files/export-animation.ts": "99f9bed0bab480c11e7ad830a0d2d5cfaca6308c288dd1d0f2965e652184dcda",
+    "apps/editor/src/managers/files/export-destination.ts": "9be5846954ca8dc4cf75ba73f23609fe9a9de47747fd56aa6ce78c393e768710",
     "apps/editor/src/managers/files/export-file-options.ts": "68d091a869cfecd9447539fa99a203089896b0c60c2bafae670d28f8a3ebfedc",
     "apps/editor/src/managers/files/export-format-preferences.ts": "37e09b1e3c14fca528370a756ccc33027145b45c7b90d4df075824fea8449d28",
-    "apps/editor/src/managers/files/export-preferences.ts": "a7c1d40fbcee8de16656c44ff1ad757192c1a281a61591c597417c8234937e17",
+    "apps/editor/src/managers/files/export-preferences.ts": "bf780332452dcc594fc03bfad5d6750479222efc330101e9cd0a28c444dedadb",
     "apps/editor/src/managers/files/export-webp.test.ts": "9131c9a0fb76f8f70eef1ead7974d65501031466101205606ac511963c994f44",
+    "apps/editor/src/managers/files/policies/animal-crossing-export-geometry.ts": "b9e3f0c21827db869bbec151f1dd08aef70ba4c257cfa513559e8f7f15c4bdb2",
     "apps/editor/src/managers/files/policies/aseprite-widget-geometry/export-file-geometry.test.ts": "8b42f2413317871d16ee7868d2fd7334d3d749332132d1fefabe41dea52cebc3",
     "apps/editor/src/managers/files/policies/aseprite-widget-geometry/export-file.provenance.json": "8908c95d4749bbd604a4cc2254807dcee908dfd18eec4f858bf39af8e293d32f",
     "apps/editor/src/managers/files/policies/aseprite-widget-geometry/export-file.widgets.json": "362079a5d7275d7c7f8ae2069e59e1557a4de10f49e0f5822844c539e33b3795",
@@ -424,10 +430,11 @@
     "apps/editor/src/managers/files/policies/aseprite-widget-geometry/gif-options.widgets.json": "993d6e3efc3ea03638b28a9ff9cd6e95c8e35acfac60607bd755f2a8dd137b5c",
     "apps/editor/src/managers/files/policies/aseprite-widget-geometry/import-sheet.provenance.json": "b9178af693e997259a5a489bf679b61de9b0a670c40c15b19531fc2e2e0ffab8",
     "apps/editor/src/managers/files/policies/aseprite-widget-geometry/import-sheet.widgets.json": "7e249fed91e940003ee13aec3aab0c1e2c1710a0c9b81a9168599a2adb1f0d25",
-    "apps/editor/src/managers/files/policies/export-file-geometry.ts": "327ddbe2941b27423a96f9d217f79e0d6942867f5f8d04bafd6a4a329c0fcaae",
+    "apps/editor/src/managers/files/policies/export-file-geometry.ts": "462b2404e19cc5ca3447f3528231f0030c6fe066732ce089a3a0332bc04c7694",
     "apps/editor/src/managers/files/policies/sprite-sheet-geometry.ts": "df00559c99b67f7a4abfc6f4fe59691fa4c1a4fc047ae742da696999cb9f6856",
     "apps/editor/src/managers/files/project-sharing.ts": "2248616cfe03b1f408bc4c66736e01737e152f494746d3a51213ec8c63c635b2",
     "apps/editor/src/managers/files/sharing-policy.ts": "4c2ff36938015f6b81293673812ed737fbcdf3c4b0d2fc921fb90daa7a874953",
+    "apps/editor/src/managers/files/tileset-export-source.ts": "7c143c193ad617c6dd81038f209500f812ce71a9c0d956237c20f187a194f5f7",
     "apps/editor/src/managers/input/canvas-input-context.tsx": "931e537d12e9b4babc9223269105ce33bc73e1a850badcdb61c1e0caa7907692",
     "apps/editor/src/managers/input/controllers/brush-size-drag.test.ts": "964304d8a766d292ce4fb5fe9b67fd812d4c01f743e960fbbefcb99a1fd912dd",
     "apps/editor/src/managers/input/controllers/brush-size-drag.ts": "f61f9549d5a4ac818b1410b8295017da19c200346cb7a67a95c51265c6111f9d",
@@ -476,7 +483,7 @@
     "apps/editor/src/managers/palette/transparent-index.ts": "ec4107bbc05085e0bd78ece424ef27fdb4541c727116cf06972dcd3a3dabdb28",
     "apps/editor/src/managers/platform/editor-platform-context.tsx": "58232396d609fda48e9936fd19757a287651c51fb1c615d3380ab2cb9075bf2d",
     "apps/editor/src/managers/ports/agent-tools.ts": "bb9d5bf65e63aaded740d63f0ea3989aeb782d02cebe0c720af86e3b10938f8d",
-    "apps/editor/src/managers/ports/animal-crossing-export.ts": "f18dea687c418765c78cd2635fa047a7010a641e8964dabb2492db26d0c89d8b",
+    "apps/editor/src/managers/ports/animal-crossing-export.ts": "8f89a41f6aa18eb1b494f27cc94e4ae4c3f498ef1390064b2036fff8147c41d8",
     "apps/editor/src/managers/ports/color-sampling.ts": "94235c9f4c49fec12e6c8847d8538c76ff03ccb8353e6e339306e748b2a2a8ea",
     "apps/editor/src/managers/ports/diagnostics.ts": "954b184223219e686b5bd1c6fd54cf976fdd9c9fce30fd0492ab4d7255480622",
     "apps/editor/src/managers/ports/editor-host.ts": "1089129e9c29d2ec9af2dbe387a42b26d281b3306eb5f7391052667c195db263",
@@ -618,7 +625,7 @@
     "apps/editor/src/managers/workspace/workflow-action-snapshot.ts": "86c0680b45542698003d0dec968424527e39a2f8730770b4e95d0b8fbac6ee85",
     "apps/editor/src/managers/workspace/workflows/document-output-export-operation.test.ts": "a9f7ea29981b2e0b5b3df2aecc9172262069c457f01d467fe9824469b583c495",
     "apps/editor/src/managers/workspace/workflows/document-output-export-operation.ts": "5daf905b8980e93387100b821715323e77a6033bce038d52f0abdc9973bf2879",
-    "apps/editor/src/managers/workspace/workflows/use-document-output-workflows.ts": "4341cff250b30d163ac61a4b5c97b2b78da11413ccc8582b9de139b58e687479",
+    "apps/editor/src/managers/workspace/workflows/use-document-output-workflows.ts": "1c1558334c68e0cbd58b2a6e643591089fa744689e72f376b0c92be4952dc9dd",
     "apps/editor/src/managers/workspace/workspace-lifetime.test.ts": "6ffd928a1dad92fcace13e714b8b5e0514575d531ea47c2bc1ba173d869f307f",
     "apps/editor/src/managers/workspace/workspace-lifetime.ts": "b877e28529a58a83ea2907f342d9e30b8442b7f90da97fe3181208f17089a594",
     "apps/editor/src/managers/workspace/workspace-panel-drop-guides.test.ts": "9cae23f435e19b88dceebcd05dd9800507307275b37679f504a7b3c16232e378",
@@ -719,8 +726,8 @@
     "apps/growth/content/features/details/workspace-layout.zh-CN.md": "4b55560274cfaddb410115ea8db61c715ca39d3838a5dc4221ec888932bd8b0e",
     "apps/growth/content/features/index.ts": "cd66c83730ff0d67513083a1ec5f8b61f5075ab0a35c7e412ee96371a1ffc70d",
     "apps/growth/content/features/media.ts": "464c08ea27315e3e119979ab707dae7413af6a047bd191bf3a702d2a55116033",
-    "apps/growth/content/help/README.en.md": "1923e3181a58d5396a7b9ea31b54340a313f4a52cc95b10584c644aae8dacb84",
-    "apps/growth/content/help/README.zh-CN.md": "679bea777841e86b5a99bf6cc8e3add437e46a7da7d8afd726c22c379881b60f",
+    "apps/growth/content/help/README.en.md": "1b8d5c12a14d3a80a55f783cae833f36651cd95e3578e1f0bce1b3bde4d44803",
+    "apps/growth/content/help/README.zh-CN.md": "9f94c0a3fea32a6ff0ac6ecfd791d3dc4723f4949f3b98980da3e9944a8c4b33",
     "apps/growth/content/help/images/README.md": "3b3a3aafc70e5eaf36e4b455741515aad55f5687447a8632d9f7254efc501fe2",
     "apps/growth/content/help/images/captures.json": "9a52c8e0c43018e9abe3199d822f0db23d36395a931c2e748366445c52080d80",
     "apps/growth/content/help/images/catalog.json": "5ed6814eab4f5f8592470668aff65bada857cbac0e5b518d84fee883d052708a",
@@ -1097,7 +1104,7 @@
     "apps/tools/src/App.tsx": "051f7b7008fce9e9d07e277a7513f340dd8c5acac25c4ca128e053cabd5b88f3",
     "apps/tools/src/GifApp.tsx": "94abd5bbe578fdb8fa8b112f30e111d9eb191bfcde9033b28185a610a2b16ea1",
     "apps/tools/src/PixelationApp.tsx": "2a421c57ad9aa3ed543fdac802f7d8ff02080d789e31a4d562af251c2c7d7a2e",
-    "apps/tools/src/adapters/animal-crossing/browser-animal-crossing.ts": "85407f281f4f896ab3744f5c5dd04ef15bfd5c92bbce0182709179af78028a3e",
+    "apps/tools/src/adapters/animal-crossing/browser-animal-crossing.ts": "47bc3936ccc103c0e80267daf60a66c2f4194892f812f04c3aa78d8924481296",
     "apps/tools/src/adapters/animal-crossing/ground/browser-ground-preview.ts": "6f0cbf8c5c8603d5a61852f53c84e4d96bbd3c801e8e7fc66ed55281c258527b",
     "apps/tools/src/adapters/animal-crossing/ground/three-island-scene.ts": "9a16c9f3719ae23f866676e4287386c115e69d8016db7c19a3d12919dbd6b4d7",
     "apps/tools/src/adapters/gif-sheet/browser-gif-sheet.ts": "e930b745db357efb665143ea9c737ef4040ed1fdd3ccba9a9cbb940c89d82325",
@@ -1115,16 +1122,16 @@
     "apps/tools/src/animal-crossing-main.tsx": "f4f4571d5c0ff4fdfc5f15bc698168282467e4235a0ce59a74909e0aacb50d73",
     "apps/tools/src/bootstrap.tsx": "a574ad4085be09e11e9dac9b9b6801df3834afccc83bb19489914c05a9ed3e0f",
     "apps/tools/src/components/animal-crossing/animal-crossing-ground.tsx": "adb2b8151c044a0615ac21dee6619668acbbb42ef3b7f4ad60d9be4a4c9c8291",
-    "apps/tools/src/components/animal-crossing/animal-crossing-output.tsx": "a24ad9eb3ea00008fb2d3dbdea0255bccdc2c6ca716930b60b54a7b71eebb4d9",
-    "apps/tools/src/components/animal-crossing/animal-crossing-page.tsx": "cbb5a8dddaded6cb8805931577780000ee1ee52a01cac476c706722a2f69f643",
+    "apps/tools/src/components/animal-crossing/animal-crossing-output.tsx": "93c385c250d97401545c1e2de635fc3f7e7ede86d2057c902cfc804456ab6dc7",
+    "apps/tools/src/components/animal-crossing/animal-crossing-page.tsx": "2d369a57ad38db708082f3a8a1a2e43661ce94676aa8d36feaac1d09130ddf25",
     "apps/tools/src/components/animal-crossing/animal-crossing-settings.tsx": "d1fe6e9de7e88cf0451a6b4580f2265e1e7488dfb5cb46270524cc36fc0faa81",
-    "apps/tools/src/components/animal-crossing/animal-crossing.module.css": "c67997038acefc5b6d19fbc94c23943a76cbff9b221b7be54effd78d8380b998",
+    "apps/tools/src/components/animal-crossing/animal-crossing.module.css": "2133ea60b1111afd9ebe843725e67a1aa7e21f70a9a7f09745038524a883de78",
     "apps/tools/src/components/gif-sheet/gif-sheet-page.tsx": "415e92160c78bdc162d3609b9b704dace53c794c804009091725ebae83616231",
     "apps/tools/src/components/gif-sheet/gif-sheet.module.css": "f23f0d194fa7bbf8d1a60135b0f773135bf4e2001d23e7b6536406b8a7c70581",
     "apps/tools/src/components/pixelation/pixelation-page.tsx": "01f4919c65ab8deececdd11522e5dc4b4a59d49b4ca94489ef2bb38b23407eb4",
     "apps/tools/src/components/pixelation/pixelation.module.css": "db6b97c620c6fe26f364cc7448fe039246ce1cc2de2d184fbac5e14e76c08f5b",
     "apps/tools/src/components/shared/canvas-preview.module.css": "1faa04d69e8a71ad1d5eb69fa6aeaed1108614abb9e8f7acfa24b7f56f4e5ff2",
-    "apps/tools/src/components/shared/canvas-preview.tsx": "f4d3c8d64ef23502d4ca85a4456b3b3ed055c8cfec241bd81749cdf2afedf949",
+    "apps/tools/src/components/shared/canvas-preview.tsx": "d0627f2f054e7a3d9ca5e235ea96062eb140921a91335b0816e5ef7cde11ba13",
     "apps/tools/src/components/shared/file-tool-empty-state.tsx": "7656df018b892c79666076151ff596bde522601c34b26e7a3a52881136186c38",
     "apps/tools/src/components/shared/file-tool-shell.tsx": "16b2026db8fc1366f73cb14e30df024579a51f5a62e5506a67eae41ac8136f6f",
     "apps/tools/src/components/shared/tool-appearance.tsx": "91d4aef7a7f97edf72889b34d868510875df3cd07b6821ceee93eb14496be6b2",
@@ -1140,23 +1147,23 @@
     "apps/tools/src/env.d.ts": "1e2d430235e00172c1818a54ff2b7424ff689f9d3d2fd9836482073d9e4634b8",
     "apps/tools/src/gif-main.tsx": "12a729cb0b2f6387c340d4849065c6bbf2579d721a364cbb207bd0e1300006f5",
     "apps/tools/src/main.tsx": "7caa00cbf61153a447f1bbf4375fb7c230f1046d5ff0320f305fd2eb39ca9dcb",
-    "apps/tools/src/managers/animal-crossing/animal-crossing-manager.test.ts": "43fde287c3390901f01fb833f297bb9fd859ae0df53fe0de264d0af6617aa306",
-    "apps/tools/src/managers/animal-crossing/animal-crossing-manager.ts": "c3188a16c3fce261ff32680fd9eb86e6b54437eac3bca4d16d1986ab82d87246",
-    "apps/tools/src/managers/animal-crossing/ground/ground-manager.ts": "97018091e50a41ff780ba1ced38153c77a44d9d199b6ce6f0c1f15ff2de1e2bb",
+    "apps/tools/src/managers/animal-crossing/animal-crossing-manager.test.ts": "65d7edfdeac027204e6c5eefbf28ccca08d2c18a4acb70b1149ae966a8bf8a3f",
+    "apps/tools/src/managers/animal-crossing/animal-crossing-manager.ts": "606324045a82beef2b4d4d3971eb15ca182c56c69bb258de9f2d5aa4f9f5df22",
+    "apps/tools/src/managers/animal-crossing/ground/ground-manager.ts": "cd264e0439e77275ff82569369b0093a5b5b2a4b186e7fa8e3b775ed4da89e2e",
     "apps/tools/src/managers/animal-crossing/ground/nearby-surface.ts": "e90fa63725bf324c7ada1953e14f617779d95af2046322c20cd405f4a1c3a104",
     "apps/tools/src/managers/animal-crossing/ground/source-surface.ts": "6da7e3efe9f2b0f102fbbe64b864580e51fae018fefb1116245c71c7138f21c8",
     "apps/tools/src/managers/gif-sheet/gif-sheet-manager.ts": "1ec6442ada269d67e51dbfbb8c8776967d183aab1ac7e23f657eec59ef5f803f",
     "apps/tools/src/managers/locale/tool-language.tsx": "81da0c7ed131dd24e362e859b74e03f4a96206e35e773f84c1885fd1a3ebf83f",
     "apps/tools/src/managers/pixelation/pixelation-manager.ts": "7918626a5e22441c7d93082a5962cc341fffd511e2bc5d86e00be09bcb99d3b7",
     "apps/tools/src/managers/ports/animal-crossing-ground.ts": "420ec1668836086eac873cce557aa43abc10d426f35dba57cbd6364be79467bc",
-    "apps/tools/src/managers/ports/animal-crossing.ts": "0c6b184ba5b7feddd4fe75e98fba92c199368d3a3cb9520722012b676588e2a0",
+    "apps/tools/src/managers/ports/animal-crossing.ts": "08a4f421a39a2d33a2f579e1911326adb7a99badb01cd3d948554ed07c584117",
     "apps/tools/src/managers/ports/gif-sheet.ts": "8b1c955df0e7c8c54c75cd91c2f35615ec9790bda6977ae69a6b82faa03f821f",
     "apps/tools/src/managers/ports/pixelation.ts": "31d338dc48b54d7d90dd7f0c4cff84ff26de24c659467ee9ec32dd45eebf9dd3",
     "apps/tools/src/managers/ports/preview.ts": "05cecfe9f6efb251602b0b494ec656055100577d472aaf21333805c88ef56cd4",
     "apps/tools/src/managers/ports/telemetry.ts": "f838e1514acee783c6c420acda813484d35fb1722805be3f179b21c9862f0e2c",
     "apps/tools/src/managers/ports/tool-host.ts": "69c101979c293268fcedde5fe13594079924316e0f56f8b51d9e4c6540df9f93",
     "apps/tools/src/managers/ports/viewer.ts": "13da0f08eaeb0c321953473bb324c565f16789afa9a21e3444c7fba7b170b947",
-    "apps/tools/src/managers/preview/tool-viewport.ts": "b10b23ce2148b8e418a1936bbfd503133b55f971738677a3252d1896637a1e0c",
+    "apps/tools/src/managers/preview/tool-viewport.ts": "9ea990bb4e1cd1bc3f42197f0cc4a061cbabb682a8375e129a24b20504e72135",
     "apps/tools/src/managers/telemetry/tool-telemetry.ts": "abb445fa4b372cc64920b1347faeff5ca3efc524cfafff85c63f37d36c64f595",
     "apps/tools/src/managers/tools/tool-catalog.ts": "9fc011be9567004c1752de54ba205b2b09336a687db7e2f19a759e0ee2f51f32",
     "apps/tools/src/managers/tools/tool-host-manager.ts": "74cd3c762a94617a35312d55ff8756148500071a94014ce079bfaac0988b6c41",
@@ -1166,7 +1173,7 @@
     "apps/tools/src/managers/viewer/viewer-manager.test.ts": "b8d88b526d6b7302819c75bd2834a8a6066a54bd15cbe33477f3df1bcebbeba2",
     "apps/tools/src/managers/viewer/viewer-manager.ts": "4bc7a2eaf34683b28a366c84a4f139cf3402de3e8366ef444d9a4daabc1bd725",
     "apps/tools/src/pixelation-main.tsx": "6d95ef17c9b641cf16abdf54c2e6100c07475b00e3b4d70d5da5cfbaefd11eee",
-    "apps/tools/src/ssg.tsx": "5eb0c73bf03df992b725cf54f6e386a63a5469c81d65f9f6beecb787e5b60df6",
+    "apps/tools/src/ssg.tsx": "279880271248a927cf6b0766b4e6a056ee0c767305395c9cd19de9327fc00f31",
     "apps/tools/src/tool-application-root.tsx": "150890d9c591d3f001141f416a5359eb4e6063350ef1f09e07955da1cd395997",
     "apps/tools/vite.config.ts": "148324dfb57bbfb21374f94c183c077cbe9c25c14c43a012a0334997e48794d0",
     "infra/dependency-cruiser-known-violations.json": "9030078df566932a81c9dfe714bc502cd6237b3f8956cdfc294c5325f197e37f",
@@ -1212,7 +1219,7 @@
     "packages/bedrock/browser/worker-request-channel.test.ts": "119018411f17d44fae660e7e61a27873706c287f4074de3db3b1d439bf2cd4c1",
     "packages/bedrock/browser/worker-request-channel.ts": "8771ba037bdd75cd8ebe0f801abc30f068f32a2d93f586b910fe423b4296ad5e",
     "packages/bedrock/package.json": "3ebaaf7f410dfce62460724153ceab6098eeedd1ee5fc7420ea026de59dbbdae",
-    "packages/editor-core/package.json": "b3024f3af083757d50b9f12c1f6b6590f0fd5ba74333c76636842496a45cfd89",
+    "packages/editor-core/package.json": "577bb979c5c14448b664ce410dd54ddc6f41fb96009388ddb31672420f3e6db5",
     "packages/editor-core/src/base/clone.ts": "517873c7c4124130b9f20ba9a1b360fa099efe5aec1870cea0bd8324f61b4a8b",
     "packages/editor-core/src/base/errors.ts": "3378fe077cba633e48bd4dffd62ec86860fcd71b58da8bb5700359f16eb4307e",
     "packages/editor-core/src/base/image-limits.ts": "5806c0e1f8a63c3ca269d363b7db8dd1c6b786b300ad0da2a0c8ff7e7f4ae2bd",
@@ -1397,7 +1404,7 @@
     "packages/editor-core/src/import-export/animal-crossing/codec.ts": "cced5114d2810cffd2970704230851362ea37a9e1e8976a014d5e75fd8310a11",
     "packages/editor-core/src/import-export/animal-crossing/conversion.test.ts": "061f32837e7cc2e623886bf083e2d588d36cef8d28121daf3ec7a6023021893a",
     "packages/editor-core/src/import-export/animal-crossing/conversion.ts": "48be21cc862d8b4c71d6094d6e98c1dc0752816548b81bf5b82eca9db6776ea0",
-    "packages/editor-core/src/import-export/animal-crossing/document-source.ts": "6cf784d7901c71fa61b14b9275ef47ac55e91fb927131bcbae23ba3eac0fe4b7",
+    "packages/editor-core/src/import-export/animal-crossing/document-source.ts": "5ca3511acb15356a0a0244d21b40651716042cf1f6af5bf5a6aa3a702c2e5dc0",
     "packages/editor-core/src/import-export/animal-crossing/index.ts": "3b01c225aabf8fa64a0f001e48abb4349496a464ab8bfb61160b90776a8c57fb",
     "packages/editor-core/src/import-export/animal-crossing/palette.ts": "f89b81754639ab6105eb9af740e628f4cd83f6968974be19da58fddd070ae6e5",
     "packages/editor-core/src/import-export/aseprite/animation-loop-properties.test.ts": "855b3d79fa2087654572d3a53e1eb231ffdf665ea9ce98002a46d43d1d7a5ac2",
@@ -1559,7 +1566,14 @@
     "packages/editor-core/src/timeline/timeline.ts": "836f1f8a9e71eebb27f9f14c02f8e94b20c7dd2ca71dad9998a2ac67653fda56",
     "packages/editor-core/src/timeline/types.ts": "e1288dd3a6e1d761f5336533d3e2ca87a358027ebf10c5ff6fdbf3ce9f8e8cf2",
     "packages/editor-core/src/timeline/viewport-renderer.ts": "1538c1fdd40810137228fc6ade348e373d45b85e41de7d020d2f50f4c8998d88",
-    "packages/editor-ui/package.json": "09925bed4e1516f4a64c70a35003ae7d22fd3db2cbd4e85b0096c58bf156d32c",
+    "packages/editor-ui/package.json": "2b5ca5bea6116ba807daa2cd7686e850e2d0bab53a2e4a2e5cbd07f76c778845",
+    "packages/editor-ui/src/animal-crossing/grid-overlay.module.css": "cb9cacfcd56d6745dc461683d9e37b9d3b23f43c633efc3445e6d6c2597665e3",
+    "packages/editor-ui/src/animal-crossing/grid-overlay.tsx": "93336bd553365a21540a0abe74082161b98245fac681f965aba659a0da610f76",
+    "packages/editor-ui/src/animal-crossing/index.ts": "7a1ec4b3f9a80c86ea1dbb5588af7e20c0747df913d6d346106808ade727b209",
+    "packages/editor-ui/src/animal-crossing/preview-client.ts": "b684731fafaa2d0aa73db36689a54b2b365d33cc30ff345d2ac13284c3b367bd",
+    "packages/editor-ui/src/animal-crossing/preview-types.ts": "8f8532d97c6e9dbacc28c0d81168acf2ec83726e434277f9da3fdb918be75bc8",
+    "packages/editor-ui/src/animal-crossing/preview-worker.ts": "ccee1ed10d7676f86dc016437ef327de6cb5c8af355f798610e7791ac35150ab",
+    "packages/editor-ui/src/animal-crossing/preview.ts": "f4acd6cac3ce7da3cf8a37c7dc894e6c735717188a33cbb6236c244fac4c836e",
     "packages/editor-ui/src/appearance/index.ts": "d36d250e54836ffc9771fa9460ca91a840db154ff29fdd8ab1425db895dc4327",
     "packages/editor-ui/src/assets.d.ts": "00a558ca41e878c67239d4026b1d53eca70a77ab92c0cc5c5240b4fea185e4d4",
     "packages/editor-ui/src/env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
@@ -1958,8 +1972,9 @@
     "packages/ui/src/components/checkbox/variants/radio/index.ts": "e0f8914023b6aa2e403f7d171495d2db96d269bdc36ed6b77dd4445fcab12fc1",
     "packages/ui/src/components/checkbox/variants/types.ts": "a77e33bfa7a982a2c41d07d396bb7f15353cf5a7d6b7d5618a99947ff50b560a",
     "packages/ui/src/components/color-button/model.ts": "3d39b01906909e5da625f474710eb8ad5b469f6707e908bc073574d8e60930eb",
+    "packages/ui/src/components/combobox/arrow-position.ts": "c84920ab061dd993549754117baec1e75404ef820cb74ed4a0f970b3b9284a78",
     "packages/ui/src/components/combobox/combobox.module.css": "2be4ebe68df6b8ab2c7abb3c447f06450d62a7083ebb4e64abed59f1b861e6de",
-    "packages/ui/src/components/combobox/index.tsx": "f392f4a3e88b8aff74741585a921630e0606e78c8720030603ccd3682a88cf91",
+    "packages/ui/src/components/combobox/index.tsx": "5f5950dafd4a670354640fc2b84936ddd5a6465a3e75c1249dae6539cc0f29a1",
     "packages/ui/src/components/control-flow/control-flow.module.css": "36b29373a81d8d29161cd55f05a7735156557af46229d3d44d81b7f6c22338f9",
     "packages/ui/src/components/control-flow/index.tsx": "3233eeabe8dab0eaba8f66a3eb01760b7d796ebf7d44cd5e5dc4ed9d5936f860",
     "packages/ui/src/components/control-flow/placement.ts": "5713071803c3a414a482574e2539acc0006dcca774b8be0db94d51c95114e392",
@@ -2002,7 +2017,7 @@
     "packages/ui/src/components/menu/policy.ts": "eb7c7162bb59b3fed3de06d9e3421ad073621c8d3cd47ec3ac046966ee15a1c4",
     "packages/ui/src/components/menu/shortcut-artwork.ts": "a05b5d16d3dd79ef821bdbab4ffdb0877695340858e4b3ca1e25d9cc623ab1ab",
     "packages/ui/src/components/menu/use-context-menu-target.ts": "bd05c84d873570528b027c1d0bc4fdea7e9054c172187f206e4d31208f400e98",
-    "packages/ui/src/components/pan-surface/index.tsx": "a591711e830ebfbc00d08c4ca0cbf075765b44650ac106aab1ea38f7f8bf4a28",
+    "packages/ui/src/components/pan-surface/index.tsx": "e0b1c2a9e2ec85dec17fe7b66db93c3f2c12ebc3fee74367e942446b889ce823",
     "packages/ui/src/components/panel/frame.tsx": "276e7e803eaaa16e44851bd3d00c014389e1fcc78a60c2832342351c983e2389",
     "packages/ui/src/components/panel/group-frame.tsx": "407e2371e890f900fceee6fc676800ff8db4379f461ebb0935e8ff241b3a829a",
     "packages/ui/src/components/panel/group.module.css": "4c186c128b1622ff7cc4c61b3c289a6d3a81729e1b5bc3b24972c63b29ae080f",
@@ -2106,7 +2121,7 @@
     "packages/ui/src/components/window/dialog.tsx": "0d86382a5d8c33e330c2665e260c326e9056b02eb4cc606b10372ac7e2c6b1ff",
     "packages/ui/src/components/window/floating-layer.module.css": "1b5836af95cb09cc45b91ffa1bd5fad7249be20e0390576bb2116d39209cbff5",
     "packages/ui/src/components/window/floating-layer.tsx": "7004281ff4f0f6f2e470bcb1fd7000fab4e4b21dc4bfe98693848d0e191e4c74",
-    "packages/ui/src/components/window/focus.ts": "d529e98845449b00db0e5c1a5cd079565a1b139a9261b9a8a7319823861b4b1e",
+    "packages/ui/src/components/window/focus.ts": "a73d27d6d6371150ed9806b1d266091ea271aa2e3b212ed5cbe599bcff4a7d71",
     "packages/ui/src/components/window/gesture.module.css": "7530c42b719ce87c40bd83154a33ec17aee430a25c85f8ac48bd200dda0e1567",
     "packages/ui/src/components/window/gesture.ts": "88783e2814a14b06c2960f1600a9368a71c68935466dc1897c728c5603fc16b1",
     "packages/ui/src/components/window/index.ts": "ff522e92109150336b8bbbcb693d5b33b7fc967f6533ed210c3eb81f1936ac9c",
@@ -2119,7 +2134,7 @@
     "packages/ui/src/cursor.ts": "3aee0fb2a841cf199acf58cf4b889a650395c4d015374d5d61672a8300145899",
     "packages/ui/src/index.ts": "241091be7c449d0d0c89e3a2deee5a5dd7e36db985761f991cd7076cca4e5a61",
     "packages/ui/src/popover.ts": "4c72ba441746f3f637366a333b9f29025e0924fd250be94835964babe3a19963",
-    "packages/ui/src/utils.ts": "d24281aa31852ac3091c051f5540657181efef98562179f5fea043e493dcd512",
+    "packages/ui/src/utils.ts": "e94a8f06a7e2473088a9884194f2cae9261611ef2eea27924d12f5b830600152",
     "packages/ui/src/vite-env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
     "packages/ui/tsconfig.json": "1d848cee570d64ce32162da15c04b7fa8e0c844ce064d91b38682467bdd471c5",
     "packages/ui/vite.config.ts": "4461c02d22002cacb254e22f7cc6499851e6a2029683e1495457cac8c7eb8368",
@@ -2134,7 +2149,7 @@
     "scripts/visual-audit/site/sources.mjs": "19e78a016dc040ea7ee423018fdab627b358eb07ca0be634355804deae975d59",
     "scripts/visual-audit/tools-startup/scenes.mjs": "8bba4f27b52bd875a1b48b81d85833a68475d222db949d040d3aac79e068eb1b"
   },
-  "sourceDigest": "2253afd99d5b42339090b4b2ac6abac6e4c836f369781fd99ea95c8d4d30a239",
+  "sourceDigest": "86da9c332a754c33f7a5aee0e6c7bc77811d998876b859779811dac115237b5d",
   "scenes": [
     "about-zh-CN-wide-light",
     "about-zh-CN-compact-light",
@@ -2173,7 +2188,7 @@
   "cases": [
     {
       "id": "about-zh-CN-wide-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "about-zh-CN-wide-light.png",
       "contract": {
         "id": "about-zh-CN-wide-light",
@@ -2209,7 +2224,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:54:41.937Z",
+        "capturedAt": "2026-10-11T13:34:18.317Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2273,7 +2288,7 @@
     },
     {
       "id": "about-zh-CN-compact-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "about-zh-CN-compact-light.png",
       "contract": {
         "id": "about-zh-CN-compact-light",
@@ -2309,7 +2324,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:54:42.693Z",
+        "capturedAt": "2026-10-11T13:34:19.131Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2373,7 +2388,7 @@
     },
     {
       "id": "about-features-zh-CN-compact-dark",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "about-features-zh-CN-compact-dark.png",
       "contract": {
         "id": "about-features-zh-CN-compact-dark",
@@ -2409,7 +2424,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:54:44.435Z",
+        "capturedAt": "2026-10-11T13:34:21.251Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2473,7 +2488,7 @@
     },
     {
       "id": "about-how-it-works-en-wide-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "about-how-it-works-en-wide-light.png",
       "contract": {
         "id": "about-how-it-works-en-wide-light",
@@ -2509,7 +2524,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:54:47.008Z",
+        "capturedAt": "2026-10-11T13:34:24.372Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2573,7 +2588,7 @@
     },
     {
       "id": "compare-zh-CN-compact-dark",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "compare-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-zh-CN-compact-dark",
@@ -2609,7 +2624,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:54:49.148Z",
+        "capturedAt": "2026-10-11T13:34:27.028Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2673,7 +2688,7 @@
     },
     {
       "id": "compare-aseprite-on-ipad-en-wide-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "compare-aseprite-on-ipad-en-wide-light.png",
       "contract": {
         "id": "compare-aseprite-on-ipad-en-wide-light",
@@ -2709,7 +2724,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:54:52.042Z",
+        "capturedAt": "2026-10-11T13:34:30.426Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2773,7 +2788,7 @@
     },
     {
       "id": "compare-aseprite-online-zh-CN-compact-dark",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "compare-aseprite-online-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-aseprite-online-zh-CN-compact-dark",
@@ -2809,7 +2824,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:54:54.758Z",
+        "capturedAt": "2026-10-11T13:34:33.416Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2873,7 +2888,7 @@
     },
     {
       "id": "compare-piskel-alternatives-en-wide-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "compare-piskel-alternatives-en-wide-light.png",
       "contract": {
         "id": "compare-piskel-alternatives-en-wide-light",
@@ -2909,7 +2924,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:54:57.460Z",
+        "capturedAt": "2026-10-11T13:34:35.994Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2973,7 +2988,7 @@
     },
     {
       "id": "features-aseprite-projects-zh-CN-compact-dark",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "features-aseprite-projects-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-aseprite-projects-zh-CN-compact-dark",
@@ -3009,7 +3024,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:54:59.268Z",
+        "capturedAt": "2026-10-11T13:34:38.002Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3073,7 +3088,7 @@
     },
     {
       "id": "features-draw-pixel-art-en-wide-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "features-draw-pixel-art-en-wide-light.png",
       "contract": {
         "id": "features-draw-pixel-art-en-wide-light",
@@ -3109,7 +3124,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:01.104Z",
+        "capturedAt": "2026-10-11T13:34:40.964Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3173,7 +3188,7 @@
     },
     {
       "id": "features-drawing-process-zh-CN-compact-dark",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "features-drawing-process-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-drawing-process-zh-CN-compact-dark",
@@ -3209,7 +3224,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:02.853Z",
+        "capturedAt": "2026-10-11T13:34:47.837Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3273,7 +3288,7 @@
     },
     {
       "id": "features-export-images-and-animation-en-wide-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "features-export-images-and-animation-en-wide-light.png",
       "contract": {
         "id": "features-export-images-and-animation-en-wide-light",
@@ -3309,7 +3324,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:04.510Z",
+        "capturedAt": "2026-10-11T13:34:52.223Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3373,7 +3388,7 @@
     },
     {
       "id": "features-frame-animation-zh-CN-compact-dark",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "features-frame-animation-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-frame-animation-zh-CN-compact-dark",
@@ -3409,7 +3424,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:06.391Z",
+        "capturedAt": "2026-10-11T13:34:56.010Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3473,7 +3488,7 @@
     },
     {
       "id": "features-layers-and-colors-en-wide-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "features-layers-and-colors-en-wide-light.png",
       "contract": {
         "id": "features-layers-and-colors-en-wide-light",
@@ -3509,7 +3524,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:08.197Z",
+        "capturedAt": "2026-10-11T13:34:58.738Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3573,7 +3588,7 @@
     },
     {
       "id": "features-share-artwork-zh-CN-compact-dark",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "features-share-artwork-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-share-artwork-zh-CN-compact-dark",
@@ -3609,7 +3624,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:09.847Z",
+        "capturedAt": "2026-10-11T13:35:00.898Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3673,7 +3688,7 @@
     },
     {
       "id": "features-tilemaps-en-wide-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "features-tilemaps-en-wide-light.png",
       "contract": {
         "id": "features-tilemaps-en-wide-light",
@@ -3709,7 +3724,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:11.696Z",
+        "capturedAt": "2026-10-11T13:35:03.067Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3773,7 +3788,7 @@
     },
     {
       "id": "features-touch-drawing-zh-CN-compact-dark",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "features-touch-drawing-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-touch-drawing-zh-CN-compact-dark",
@@ -3809,7 +3824,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:13.444Z",
+        "capturedAt": "2026-10-11T13:35:05.530Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3873,7 +3888,7 @@
     },
     {
       "id": "features-workspace-layout-en-wide-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "features-workspace-layout-en-wide-light.png",
       "contract": {
         "id": "features-workspace-layout-en-wide-light",
@@ -3909,7 +3924,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:15.156Z",
+        "capturedAt": "2026-10-11T13:35:07.966Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3973,7 +3988,7 @@
     },
     {
       "id": "help-zh-CN-compact-dark",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "help-zh-CN-compact-dark.png",
       "contract": {
         "id": "help-zh-CN-compact-dark",
@@ -4009,7 +4024,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:18.229Z",
+        "capturedAt": "2026-10-11T13:35:12.761Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4073,7 +4088,7 @@
     },
     {
       "id": "privacy-en-wide-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "privacy-en-wide-light.png",
       "contract": {
         "id": "privacy-en-wide-light",
@@ -4109,7 +4124,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:20.098Z",
+        "capturedAt": "2026-10-11T13:35:15.104Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4173,7 +4188,7 @@
     },
     {
       "id": "tools-viewer-empty-en-wide-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "tools-viewer-empty-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-empty-en-wide-light",
@@ -4210,7 +4225,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:21.381Z",
+        "capturedAt": "2026-10-11T13:35:17.969Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4274,7 +4289,7 @@
     },
     {
       "id": "tools-viewer-loaded-en-wide-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "tools-viewer-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-loaded-en-wide-light",
@@ -4316,7 +4331,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:22.935Z",
+        "capturedAt": "2026-10-11T13:35:19.633Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4387,7 +4402,7 @@
     },
     {
       "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
@@ -4424,7 +4439,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:24.161Z",
+        "capturedAt": "2026-10-11T13:35:20.949Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4488,7 +4503,7 @@
     },
     {
       "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
@@ -4530,7 +4545,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:25.626Z",
+        "capturedAt": "2026-10-11T13:35:22.601Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4601,7 +4616,7 @@
     },
     {
       "id": "tools-pixelate-empty-en-wide-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "tools-pixelate-empty-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-empty-en-wide-light",
@@ -4638,7 +4653,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:27.084Z",
+        "capturedAt": "2026-10-11T13:35:24.331Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4702,7 +4717,7 @@
     },
     {
       "id": "tools-pixelate-loaded-en-wide-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "tools-pixelate-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-loaded-en-wide-light",
@@ -4744,7 +4759,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:28.848Z",
+        "capturedAt": "2026-10-11T13:35:27.446Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4815,7 +4830,7 @@
     },
     {
       "id": "tools-animal-crossing-qr-empty-en-compact-dark",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "tools-animal-crossing-qr-empty-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-empty-en-compact-dark",
@@ -4852,7 +4867,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:30.051Z",
+        "capturedAt": "2026-10-11T13:35:30.918Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4916,7 +4931,7 @@
     },
     {
       "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "tools-animal-crossing-qr-loaded-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
@@ -4958,7 +4973,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:31.370Z",
+        "capturedAt": "2026-10-11T13:35:34.766Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4986,7 +5001,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "c50abdfaaa637e6179b3e59517e215929e49d103514264a0fdaff0896e9426b2",
+        "sha256": "7326d83ef459c6812da09e7eb751b681b23ea8811b2a2ec24add5194e2c5f5bb",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5029,7 +5044,7 @@
     },
     {
       "id": "about-features-en-compact-dark",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "about-features-en-compact-dark.png",
       "contract": {
         "id": "about-features-en-compact-dark",
@@ -5065,7 +5080,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:33.186Z",
+        "capturedAt": "2026-10-11T13:35:38.497Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5129,7 +5144,7 @@
     },
     {
       "id": "feature-window-features-draw-pixel-art-en-wide-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "feature-window-features-draw-pixel-art-en-wide-light.png",
       "contract": {
         "id": "feature-window-features-draw-pixel-art-en-wide-light",
@@ -5171,7 +5186,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:35.201Z",
+        "capturedAt": "2026-10-11T13:35:45.779Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5242,7 +5257,7 @@
     },
     {
       "id": "feature-window-features-layers-and-colors-zh-CN-compact-dark",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "feature-window-features-layers-and-colors-zh-CN-compact-dark.png",
       "contract": {
         "id": "feature-window-features-layers-and-colors-zh-CN-compact-dark",
@@ -5285,7 +5300,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:37.078Z",
+        "capturedAt": "2026-10-11T13:35:49.811Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5313,7 +5328,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "a2d7f285b312fbb7bcaf18a29845a1aa7f1395e1e9cb34c7f02700a693f39562",
+        "sha256": "dbaf911c6bfdce149b271f241a169b6f7d5e21e33c159658f09d8aec752ab830",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5356,7 +5371,7 @@
     },
     {
       "id": "site-footer-en-wide-light",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "site-footer-en-wide-light.png",
       "contract": {
         "id": "site-footer-en-wide-light",
@@ -5389,7 +5404,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:38.793Z",
+        "capturedAt": "2026-10-11T13:35:52.555Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5446,7 +5461,7 @@
     },
     {
       "id": "site-footer-zh-CN-compact-dark",
-      "runId": "82957c3e-483d-4786-b793-c5ce9845a8cc",
+      "runId": "cea04fd2-db43-4ad4-9d61-d3d073dbf5cf",
       "file": "site-footer-zh-CN-compact-dark.png",
       "contract": {
         "id": "site-footer-zh-CN-compact-dark",
@@ -5479,7 +5494,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T12:55:40.387Z",
+        "capturedAt": "2026-10-11T13:35:54.995Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,

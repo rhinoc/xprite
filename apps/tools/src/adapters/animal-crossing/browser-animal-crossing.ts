@@ -9,12 +9,14 @@ import {
   readAnimalCrossingQr,
   readAnimalCrossingPattern,
 } from "@xprite/editor-core/import-export";
+import { createAnimalCrossingPreviewRenderer } from "@xprite/editor-ui/animal-crossing/preview";
 import exampleUrl from "@xprite/site-assets/tools/animal-crossing/acnh/winding-cobblestone.png?url";
 
 const MAX_FILE_BYTES = 64 * 1024 * 1024;
 const MAX_IMAGE_PIXELS = 16 * 1024 * 1024;
 export function createBrowserAnimalCrossingPort(): AnimalCrossingPort {
   return {
+    ...createAnimalCrossingPreviewRenderer(),
     readWheel: readToolWheel,
     async read(file) {
       if (file.size > MAX_FILE_BYTES)

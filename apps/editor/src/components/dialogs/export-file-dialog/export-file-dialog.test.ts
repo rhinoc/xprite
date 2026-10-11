@@ -11,7 +11,7 @@ describe("export-dialog-flow [feature-7-12]", () => {
   it("export-dialog-flow behavior", async () => {
     // Execute the real shared component with a small deterministic hook dispatcher.
     // UI primitives are element stubs; callbacks/state and browser prefs are real.
-    const hookSource = `export const useState=(value)=>globalThis.__exportDialogHooks.state(value);export const useEffect=()=>{};export const useSyncExternalStore=(_,get)=>get();`;
+    const hookSource = `export const useState=(value)=>globalThis.__exportDialogHooks.state(value);export const useEffect=()=>{};export const useRef=(current)=>({current});export const useSyncExternalStore=(_,get)=>get();`;
     const result = await build({
       entryPoints: ["apps/editor/src/components/dialogs/export-file-dialog/index.tsx"],
       bundle: true,

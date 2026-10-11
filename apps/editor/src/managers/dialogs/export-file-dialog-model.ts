@@ -44,10 +44,17 @@ interface ExportFileDocumentView {
   loopCount?: number;
 }
 
-export function useExportFileDialogModel(
-  documentKey?: string,
-  defaults: ExportExtensionDefaults = DEFAULT_FILE_PREFERENCES,
-) {
+export interface ImageExportCapabilities {
+  jpeg: boolean;
+  webp: boolean;
+  webpLossless: boolean;
+  webpLossy: boolean;
+  checked: boolean;
+}
+
+export function useImageExportCapabilities(
+  provided?: ImageExportCapabilities,
+): ImageExportCapabilities {
   const webp = useEditorPlatformPorts()?.files.webp;
   const [imageEncoding, setImageEncoding] = useState({
     jpeg: false,
@@ -57,6 +64,7 @@ export function useExportFileDialogModel(
     checked: false,
   });
   useEffect(() => {
+    if (provided) return;
     let active = true;
     void Promise.all([
       isImageEncodingSupported(ImageEncodingFormat.Jpeg),
@@ -76,7 +84,16 @@ export function useExportFileDialogModel(
     return () => {
       active = false;
     };
-  }, [webp]);
+  }, [webp, provided]);
+  return provided ?? imageEncoding;
+}
+
+export function useExportFileDialogModel(
+  documentKey?: string,
+  defaults: ExportExtensionDefaults = DEFAULT_FILE_PREFERENCES,
+  capabilities?: ImageExportCapabilities,
+) {
+  const imageEncoding = useImageExportCapabilities(capabilities);
   const source = useDialogEditorSource(documentKey);
   const document = source.document;
   const timeline = document?.timeline;
