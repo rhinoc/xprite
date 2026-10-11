@@ -28,7 +28,7 @@ export function RecordingBar() {
       }}
       modal={false}
       autoFocus={false}
-      moveable
+      movable
       resizable={false}
       constrainToViewport
       onRootRef={(node) => node?.setAttribute("data-replay-controls", "true")}

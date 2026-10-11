@@ -4,7 +4,7 @@ import { useColorProfile } from "$/components/tools/color-profile";
 import { PALETTE_COLOR_CHANNEL_MAX as UINT8_MAX } from "$/managers/palette/palette-operations";
 import { getPaletteSelectionFrames as paletteSelectionGeometry } from "$/managers/palette/palette-view";
 import { displayEditorColorInSrgb as colorProfileToSrgb } from "$/managers/tools/color-control";
-import { CanvasSurface, type SurfaceBounds } from "@xprite/ui";
+import { FontRole, CanvasSurface, type SurfaceBounds } from "@xprite/ui";
 import {
   paintUiText,
   measureUiText,
@@ -219,9 +219,9 @@ export function PaletteSurface({
             context,
             assets,
             text,
-            x + Math.floor((cellSize - measureUiText(text, "mini")) / 4) * 2,
+            x + Math.floor((cellSize - measureUiText(text, FontRole.Compact)) / 4) * 2,
             y + Math.floor((cellSize - 10) / 4) * 2,
-            { font: "mini", color: negative },
+            { font: FontRole.Compact, color: negative },
           );
         }
       }

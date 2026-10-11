@@ -4,25 +4,25 @@ import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
 import { ColorPicker } from "$/components/tools/color-picker";
 import { EditorColorButton } from "$/components/tools/editor-color-button";
-import { FONT_FAMILY_OPTIONS } from "$/components/tools/font-selector";
 import { FontOptions } from "$/components/tools/font-selector/font-options";
 import { tUiSource } from "$/i18n";
+import { useFontCatalog } from "$/managers/tools/font-catalog-context";
 import {
   bitmapTextFontSize,
   normalizeTextFontSize,
   textFontSizeOptions,
 } from "$/managers/tools/text-font";
 import {
+  FontRole,
   Button,
   Combobox,
   Divider,
   Input,
-  focusDialogContainer,
-  isDialogPopupTarget,
+  useModalFocus,
   Text,
   TextVariant,
+  type SurfaceBounds,
 } from "@xprite/ui";
-import type { SurfaceBounds } from "@xprite/ui";
 import { centerUiPixel, measureUiText } from "@xprite/ui/assets";
 import { sceneViewport } from "@xprite/ui/canvas";
 import { clientRect, isImeKeyboardEvent } from "@xprite/ui/utils";
@@ -84,6 +84,7 @@ export function TextDialog({
   const [draftText, setDraftText] = useState(text);
   const errorId = useId();
   const [draftFontName, setDraftFontName] = useState(fontName);
+  const fontCatalog = useFontCatalog(open ? draftFontName : undefined);
   const [draftBold, setDraftBold] = useState(bold);
   const [draftItalic, setDraftItalic] = useState(italic);
   const [draftSize, setDraftSize] = useState(fontSize);
@@ -131,56 +132,23 @@ export function TextDialog({
     setDraftFontName(latest.current.fontName);
     setDraftBold(latest.current.bold);
     setDraftItalic(latest.current.italic);
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const first = () =>
-      host.current
-        ?.querySelector<HTMLInputElement>('input[data-label-source="Text"]')
-        ?.focus({ preventScroll: true });
-    first();
-    const ownedPopup = (target: EventTarget | null) => isDialogPopupTarget(host.current, target);
-    const focus = (event: FocusEvent) => {
-      if (
-        !latest.current.colorOpen &&
-        !host.current?.contains(event.target as Node) &&
-        !ownedPopup(event.target)
-      )
-        focusDialogContainer(host.current);
-    };
-    const key = (event: KeyboardEvent) => {
-      if (isImeKeyboardEvent(event)) return;
-      if (ownedPopup(event.target)) return;
-      if (event.key === "Escape") {
-        event.preventDefault();
-        event.stopPropagation();
-        if (latest.current.colorOpen) setColorOpen(false);
-        else latest.current.onOpenChange(false);
-      }
-      if (latest.current.colorOpen) return;
-      if (event.key !== "Tab") return;
-      const nodes = [
-        ...(host.current?.querySelectorAll<HTMLElement>(
-          'button:not(:disabled), input:not(:disabled), [tabindex="0"]',
-        ) ?? []),
-      ];
-      const current = nodes.indexOf(document.activeElement as HTMLElement);
-      if (
-        nodes.length &&
-        (current < 0 ||
-          (event.shiftKey && current === 0) ||
-          (!event.shiftKey && current === nodes.length - 1))
-      ) {
-        event.preventDefault();
-        nodes[event.shiftKey ? nodes.length - 1 : 0].focus();
-      }
-    };
-    document.addEventListener("focusin", focus);
-    document.addEventListener("keydown", key, true);
-    return () => {
-      document.removeEventListener("focusin", focus);
-      document.removeEventListener("keydown", key, true);
-      if (previous?.isConnected) previous.focus({ preventScroll: true });
-    };
   }, [open]);
+  useModalFocus({
+    open,
+    rootRef: host,
+    initialFocus: (root) =>
+      root
+        .querySelector<HTMLInputElement>('input[data-label-source="Text"]')
+        ?.focus({ preventScroll: true }),
+    isSuspended: () => latest.current.colorOpen,
+    onKeyDown: (event) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (latest.current.colorOpen) setColorOpen(false);
+      else latest.current.onOpenChange(false);
+    },
+  });
   if (!open) return null;
   const labelWidth = Math.max(
     ...["Text:", "Font:", "Color:"].map((label) => measureUiText(tUiSource(label)) + 4),
@@ -332,7 +300,9 @@ export function TextDialog({
                 bounds={fontBounds}
                 relativeTo={client}
                 value={draftFontName}
-                options={FONT_FAMILY_OPTIONS}
+                options={fontCatalog.options}
+                onOpen={fontCatalog.requestLocalFonts}
+                fitPopupToContent
                 onValueChange={(value) => {
                   const family = value.trim() || "Aseprite";
                   setDraftFontName(family);
@@ -353,7 +323,7 @@ export function TextDialog({
                 }}
                 relativeTo={client}
                 value={String(draftSize)}
-                options={textFontSizeOptions(draftFontName)}
+                options={textFontSizeOptions(draftFontName, fontCatalog.bitmapSizes)}
                 onValueChange={(value) => {
                   const number = Number(value);
                   if (Number.isFinite(number) && number > 0)
@@ -368,7 +338,7 @@ export function TextDialog({
                   aria-pressed={index === 0 ? draftBold : draftItalic}
                   selected={index === 0 ? draftBold : draftItalic}
                   text={label}
-                  font="mini"
+                  font={FontRole.Compact}
                   part="buttonset_item_normal"
                   bounds={{
                     x: fieldX + 432 + index * 26,
@@ -421,7 +391,7 @@ export function TextDialog({
               <Button
                 text="OK"
                 mnemonicIndex={0}
-                font="default"
+                font={FontRole.Primary}
                 part="button_normal"
                 hotPart="button_hot"
                 focusedPart="button_focused"
@@ -439,7 +409,7 @@ export function TextDialog({
               <Button
                 text="Cancel"
                 mnemonicIndex={0}
-                font="default"
+                font={FontRole.Primary}
                 part="button_normal"
                 hotPart="button_hot"
                 focusedPart="button_focused"

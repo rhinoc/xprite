@@ -99,7 +99,7 @@ export class ShortcutManager {
     private readonly primaryModifier = EditorPrimaryModifier.Control,
   ) {
     try {
-      this.overrides = this.normalizeOverrides(JSON.parse(storage.getItem(STORAGE_KEY) ?? "{}"));
+      this.overrides = this.normalizeOverrides(storage.readJson(STORAGE_KEY) ?? {});
     } catch {
       /* Use source defaults when preferences are unavailable. */
     }
@@ -209,7 +209,7 @@ export class ShortcutManager {
   apply(draft: ShortcutOverrides) {
     this.overrides = this.normalizeOverrides(draft);
     try {
-      this.storage.setItem(STORAGE_KEY, JSON.stringify(this.overrides));
+      this.storage.writeJson(STORAGE_KEY, this.overrides);
     } catch {
       /* Keep the new bindings for the current workspace when storage is unavailable. */
     }

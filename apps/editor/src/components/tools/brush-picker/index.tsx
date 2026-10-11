@@ -1,5 +1,4 @@
 import * as React from "react";
-import { createPortal } from "react-dom";
 
 import { tUi, tUiSource } from "$/i18n";
 import { useUserPresets } from "$/managers/preferences/use-user-presets";
@@ -19,13 +18,17 @@ import {
   type ToolColor as Rgba,
 } from "$/managers/tools/tool-options";
 import {
+  createUiPortal,
   Button,
+  FontRole,
+  ScrollArea,
   Divider,
   type ButtonProps,
   Menu,
   MenuCheckType,
   type MenuItem,
   Tooltip,
+  TooltipPlacement,
   type SurfaceBounds,
   type SurfaceViewport,
   useUi,
@@ -180,7 +183,7 @@ export function BrushPicker({
   });
   disabled = disabled || !presets.ready;
   const id = React.useId();
-  const width = Math.max(106, measureUiText("Save Brush Here", "mini") + 16 + 26 - 2 + 8);
+  const width = Math.max(106, measureUiText("Save Brush Here", FontRole.Compact) + 16 + 26 - 2 + 8);
   const height = 8 + 38 + 8 + (slots.length + 1) * 30;
   const open = () => openPopover({ width, height, offsetY: -4 });
   React.useEffect(() => {
@@ -261,12 +264,13 @@ export function BrushPicker({
   };
   return (
     <>
-      <Tooltip text="Brush Type" placement="bottom" disabled={!!popup || disabled}>
+      <Tooltip text="Brush Type" placement={TooltipPlacement.Bottom} disabled={!!popup || disabled}>
         <BrushButton
           bounds={bounds}
           relativeTo={relativeTo}
           viewport={viewport}
           brush={value}
+          id={`${id}-trigger`}
           buttonRef={trigger}
           disabled={disabled}
           selected={!!popup}
@@ -292,10 +296,12 @@ export function BrushPicker({
       </Tooltip>
       {popup &&
         pb &&
-        createPortal(
+        createUiPortal(
           <div
             ref={panel}
             id={id}
+            data-popup=""
+            data-popup-for={`${id}-trigger`}
             role="dialog"
             aria-label={tUi("ui.brushes")}
             style={{
@@ -303,171 +309,183 @@ export function BrushPicker({
               backgroundColor: uiStyle.colors.menuitem_normal_face,
             }}
           >
-            <UiPart
-              part="menu"
-              scale={2}
-              drawCenter
-              aria-hidden="true"
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                pointerEvents: "none",
-              }}
-            />
-            <Divider
-              bounds={{ x: pb.x + 4, y: pb.y + 42, width: pb.width - 8, height: 8 }}
-              relativeTo={pb}
+            <ScrollArea
+              style={{ height: "100%" }}
               viewport={popup.viewport}
-            />
-            {SHAPES.map((shape, index) => (
-              <BrushButton
-                key={shape}
-                bounds={{ x: pb.x + 4 + index * 32, y: pb.y + 4, width: 34, height: 38 }}
+              scrollX={false}
+              contentStyle={{ height: surfaceLayout(pb, popup.viewport).height, minHeight: 0 }}
+              aria-label={tUi("ui.brushes")}
+            >
+              <UiPart
+                part="menu"
+                scale={2}
+                drawCenter
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  pointerEvents: "none",
+                }}
+              />
+              <Divider
+                bounds={{ x: pb.x + 4, y: pb.y + 42, width: pb.width - 8, height: 8 }}
                 relativeTo={pb}
                 viewport={popup.viewport}
-                brush={{ shape, size: 7, angle: shape === "line" ? 44 : 0 }}
-                aria-label={tUi("ui.brush.2", { value1: tUiSource(names[shape]) })}
-                selected={value.shape === shape}
-                onClick={() => onValueChange({ ...value, shape, image: undefined })}
               />
-            ))}
-            {slots.map((slot, index) => {
-              const y = pb.y + 50 + index * 30;
-              const update = (next: Partial<UserBrushSlot>) =>
-                setSlots((items) =>
-                  items.map((item) => (item.id === slot.id ? { ...item, ...next } : item)),
-                );
-              return (
-                <React.Fragment key={slot.id}>
-                  <BrushButton
-                    bounds={{ x: pb.x + 4, y, width: 34, height: 30 }}
-                    relativeTo={pb}
-                    viewport={popup.viewport}
-                    brush={slot.value}
-                    aria-label={tUi("ui.saved.brush", { value1: index + 1 })}
-                    onClick={() => applySlot(slot)}
-                  />
-                  <Button
-                    bounds={{ x: pb.x + 38, y, width: width - 70, height: 30 }}
-                    relativeTo={pb}
-                    viewport={popup.viewport}
-                    disabled
-                    aria-label={tUi("ui.shortcut.for.saved.brush.not.configured", {
-                      value1: index + 1,
-                    })}
-                  />
-                  <Menu
-                    label={tUi("ui.saved.brush.options", { value1: index + 1 })}
-                    items={[
-                      {
-                        label: "Save Brush Here",
-                        onSelect: () =>
-                          update({
-                            ...captureSlot(true, slot.id),
-                          }),
-                      },
-                      {
-                        label: "Locked",
-                        checkType: MenuCheckType.Checkbox,
-                        checked: slot.locked,
-                        separator: true,
-                        onSelect: () => update({ locked: !slot.locked }),
-                      },
-                      {
-                        label: "Delete",
-                        onSelect: () =>
-                          setSlots((items) => items.filter((item) => item.id !== slot.id)),
-                      },
-                      { label: "Delete All", separator: true, onSelect: () => setSlots(() => []) },
-                      ...flagItems(slot.flags, (next) => update({ flags: next })).map(
-                        (item, i) => ({ ...item, separator: i === 0 }),
-                      ),
-                    ]}
-                    renderTrigger={(props) => (
-                      <Button
-                        {...props}
-                        bounds={{ x: pb.x + width - 30, y, width: 26, height: 30 }}
-                        relativeTo={pb}
-                        viewport={popup.viewport}
-                        icon="icon_arrow_down"
-                      />
-                    )}
-                  />
-                </React.Fragment>
-              );
-            })}
-            <Button
-              bounds={{
-                x: pb.x + 4,
-                y: pb.y + 50 + slots.length * 30,
-                width: width - 32,
-                height: 30,
-              }}
-              relativeTo={pb}
-              viewport={popup.viewport}
-              text="Save Brush Here"
-              onClick={() =>
-                setSlots((items) => [
-                  ...items,
-                  {
-                    ...captureSlot(true),
-                  },
-                ])
-              }
-            />
-            <Menu
-              label="Brush options"
-              items={[
-                {
-                  label: "Brush from Selection",
-                  disabled: !onCreateFromSelection || !canCreateFromSelection,
-                  onSelect: createFromSelection,
-                },
-                {
-                  label: "Aligned to Source",
-                  checkType: MenuCheckType.Radio,
-                  checked:
-                    value.image?.pattern !== BrushImagePattern.AlignedToDestination &&
-                    value.image?.pattern !== BrushImagePattern.PaintBrush,
-                  disabled: value.shape !== "image",
-                  onSelect: () => setImagePattern(BrushImagePattern.AlignedToSource),
-                },
-                {
-                  label: "Aligned to Destination",
-                  checkType: MenuCheckType.Radio,
-                  checked: value.image?.pattern === BrushImagePattern.AlignedToDestination,
-                  disabled: value.shape !== "image",
-                  onSelect: () => setImagePattern(BrushImagePattern.AlignedToDestination),
-                },
-                {
-                  label: "Paint Brush",
-                  checkType: MenuCheckType.Radio,
-                  checked: value.image?.pattern === BrushImagePattern.PaintBrush,
-                  disabled: value.shape !== "image",
-                  onSelect: () => setImagePattern(BrushImagePattern.PaintBrush),
-                },
-                ...flagItems(flags, setFlags).map((item, index) => ({
-                  ...item,
-                  separator: index === 0,
-                })),
-              ]}
-              renderTrigger={(props) => (
-                <Button
-                  {...props}
-                  bounds={{
-                    x: pb.x + width - 30,
-                    y: pb.y + 50 + slots.length * 30,
-                    width: 26,
-                    height: 30,
-                  }}
+              {SHAPES.map((shape, index) => (
+                <BrushButton
+                  key={shape}
+                  bounds={{ x: pb.x + 4 + index * 32, y: pb.y + 4, width: 34, height: 38 }}
                   relativeTo={pb}
                   viewport={popup.viewport}
-                  icon="icon_arrow_down"
+                  brush={{ shape, size: 7, angle: shape === "line" ? 44 : 0 }}
+                  aria-label={tUi("ui.brush.2", { value1: tUiSource(names[shape]) })}
+                  selected={value.shape === shape}
+                  onClick={() => onValueChange({ ...value, shape, image: undefined })}
                 />
-              )}
-            />
+              ))}
+              {slots.map((slot, index) => {
+                const y = pb.y + 50 + index * 30;
+                const update = (next: Partial<UserBrushSlot>) =>
+                  setSlots((items) =>
+                    items.map((item) => (item.id === slot.id ? { ...item, ...next } : item)),
+                  );
+                return (
+                  <React.Fragment key={slot.id}>
+                    <BrushButton
+                      bounds={{ x: pb.x + 4, y, width: 34, height: 30 }}
+                      relativeTo={pb}
+                      viewport={popup.viewport}
+                      brush={slot.value}
+                      aria-label={tUi("ui.saved.brush", { value1: index + 1 })}
+                      onClick={() => applySlot(slot)}
+                    />
+                    <Button
+                      bounds={{ x: pb.x + 38, y, width: width - 70, height: 30 }}
+                      relativeTo={pb}
+                      viewport={popup.viewport}
+                      disabled
+                      aria-label={tUi("ui.shortcut.for.saved.brush.not.configured", {
+                        value1: index + 1,
+                      })}
+                    />
+                    <Menu
+                      label={tUi("ui.saved.brush.options", { value1: index + 1 })}
+                      items={[
+                        {
+                          label: "Save Brush Here",
+                          onSelect: () =>
+                            update({
+                              ...captureSlot(true, slot.id),
+                            }),
+                        },
+                        {
+                          label: "Locked",
+                          checkType: MenuCheckType.Checkbox,
+                          checked: slot.locked,
+                          separator: true,
+                          onSelect: () => update({ locked: !slot.locked }),
+                        },
+                        {
+                          label: "Delete",
+                          onSelect: () =>
+                            setSlots((items) => items.filter((item) => item.id !== slot.id)),
+                        },
+                        {
+                          label: "Delete All",
+                          separator: true,
+                          onSelect: () => setSlots(() => []),
+                        },
+                        ...flagItems(slot.flags, (next) => update({ flags: next })).map(
+                          (item, i) => ({ ...item, separator: i === 0 }),
+                        ),
+                      ]}
+                      renderTrigger={(props) => (
+                        <Button
+                          {...props}
+                          bounds={{ x: pb.x + width - 30, y, width: 26, height: 30 }}
+                          relativeTo={pb}
+                          viewport={popup.viewport}
+                          icon="icon_arrow_down"
+                        />
+                      )}
+                    />
+                  </React.Fragment>
+                );
+              })}
+              <Button
+                bounds={{
+                  x: pb.x + 4,
+                  y: pb.y + 50 + slots.length * 30,
+                  width: width - 32,
+                  height: 30,
+                }}
+                relativeTo={pb}
+                viewport={popup.viewport}
+                text="Save Brush Here"
+                onClick={() =>
+                  setSlots((items) => [
+                    ...items,
+                    {
+                      ...captureSlot(true),
+                    },
+                  ])
+                }
+              />
+              <Menu
+                label="Brush options"
+                items={[
+                  {
+                    label: "Brush from Selection",
+                    disabled: !onCreateFromSelection || !canCreateFromSelection,
+                    onSelect: createFromSelection,
+                  },
+                  {
+                    label: "Aligned to Source",
+                    checkType: MenuCheckType.Radio,
+                    checked:
+                      value.image?.pattern !== BrushImagePattern.AlignedToDestination &&
+                      value.image?.pattern !== BrushImagePattern.PaintBrush,
+                    disabled: value.shape !== "image",
+                    onSelect: () => setImagePattern(BrushImagePattern.AlignedToSource),
+                  },
+                  {
+                    label: "Aligned to Destination",
+                    checkType: MenuCheckType.Radio,
+                    checked: value.image?.pattern === BrushImagePattern.AlignedToDestination,
+                    disabled: value.shape !== "image",
+                    onSelect: () => setImagePattern(BrushImagePattern.AlignedToDestination),
+                  },
+                  {
+                    label: "Paint Brush",
+                    checkType: MenuCheckType.Radio,
+                    checked: value.image?.pattern === BrushImagePattern.PaintBrush,
+                    disabled: value.shape !== "image",
+                    onSelect: () => setImagePattern(BrushImagePattern.PaintBrush),
+                  },
+                  ...flagItems(flags, setFlags).map((item, index) => ({
+                    ...item,
+                    separator: index === 0,
+                  })),
+                ]}
+                renderTrigger={(props) => (
+                  <Button
+                    {...props}
+                    bounds={{
+                      x: pb.x + width - 30,
+                      y: pb.y + 50 + slots.length * 30,
+                      width: 26,
+                      height: 30,
+                    }}
+                    relativeTo={pb}
+                    viewport={popup.viewport}
+                    icon="icon_arrow_down"
+                  />
+                )}
+              />
+            </ScrollArea>
           </div>,
           document.body,
         )}

@@ -7,6 +7,10 @@ import type {
 import type { RecoveryCompression } from "$/adapters/workers/recovery-compression";
 import { RecoverySnapshotDeltaSender } from "$/adapters/workers/recovery-snapshot-delta";
 import {
+  WorkerRequestChannel,
+  type WorkerRequestTransport,
+} from "@xprite/bedrock/browser/worker-request-channel";
+import {
   clonePersistenceSnapshot,
   isCommittedPersistenceSnapshot,
   type EditorPersistenceSnapshot,
@@ -25,16 +29,10 @@ export enum RecoveryCodecSnapshotOwnership {
   Immutable = "immutable",
 }
 
-export interface RecoveryCodecWorkerLike {
-  postMessage(request: RecoveryCodecRequest): void;
-  addEventListener(type: "message" | "error" | "messageerror", listener: EventListener): void;
-  removeEventListener(type: "message" | "error" | "messageerror", listener: EventListener): void;
-  terminate?(): void;
-}
 export interface RecoveryCodecClientOptions {
   /** null selects the in-process fallback for workerless embedded hosts/tests. */
-  worker?: RecoveryCodecWorkerLike | null;
-  workerFactory?: () => RecoveryCodecWorkerLike;
+  worker?: WorkerRequestTransport<RecoveryCodecRequest> | null;
+  workerFactory?: () => WorkerRequestTransport<RecoveryCodecRequest>;
   onFatalError?: (error: Error) => void;
 }
 
@@ -52,53 +50,16 @@ function restoreWorkerError(value: string | SerializedRecoveryCodecError): Error
 
 /** Browser infrastructure only: no editor commands, storage or UI concerns. */
 export class RecoveryCodecClient {
-  private worker: RecoveryCodecWorkerLike | null;
-  private readonly workerFactory?: () => RecoveryCodecWorkerLike;
+  private worker: WorkerRequestTransport<RecoveryCodecRequest> | null;
+  private readonly workerFactory?: () => WorkerRequestTransport<RecoveryCodecRequest>;
   private readonly onFatalError?: (error: Error) => void;
   private fallbackCodec?: Promise<typeof import("$/adapters/workers/recovery-codec")>;
   private fallbackCompression?: RecoveryCompression;
   private readonly snapshotDelta = new RecoverySnapshotDeltaSender();
   private closed = false;
   private failure: Error | null = null;
-  private nextId = 1;
+  private channel: WorkerRequestChannel<RecoveryCodecRequest, RecoveryCodecResponse> | null = null;
   private encodeQueue: Promise<unknown> = Promise.resolve();
-  private pending = new Map<
-    number,
-    {
-      operation: RecoveryCodecRequest["operation"];
-      resolve(value: CodecResult): void;
-      reject(error: unknown): void;
-    }
-  >();
-  private readonly onMessage = (event: Event) => {
-    const response = (event as MessageEvent<RecoveryCodecResponse>).data;
-    if (!response || !Number.isSafeInteger(response.id)) return;
-    const pending = this.pending.get(response.id);
-    if (!pending) return;
-    this.pending.delete(response.id);
-    if (response.ok) {
-      try {
-        // Packed recent snapshots contain compressed binary references, not
-        // usable pixel descriptors. Hydrate only fully restored runtime graphs.
-        pending.resolve(
-          pending.operation === "decode" || pending.operation === "unpack-recent"
-            ? hydratePixelStorage(response.result)
-            : response.result,
-        );
-      } catch (reason) {
-        pending.reject(reason);
-      }
-    } else {
-      this.snapshotDelta.clear();
-      pending.reject(restoreWorkerError(response.error));
-    }
-  };
-  private readonly onError = () => {
-    this.snapshotDelta.clear();
-    this.failure = new Error("Recovery codec worker failed");
-    this.rejectAll(this.failure);
-    this.onFatalError?.(this.failure);
-  };
   constructor(options: RecoveryCodecClientOptions = {}) {
     if (options.worker !== undefined && options.workerFactory)
       throw new Error("Provide worker or workerFactory, not both");
@@ -117,9 +78,22 @@ export class RecoveryCodecClient {
         this.worker = null;
       } // Capability/CSP construction failure: retain autosave.
     }
-    this.worker?.addEventListener("message", this.onMessage);
-    this.worker?.addEventListener("error", this.onError);
-    this.worker?.addEventListener("messageerror", this.onError);
+    this.attachChannel();
+  }
+  private attachChannel() {
+    const firstRequestId = this.channel?.nextRequestId() ?? 1;
+    this.channel = this.worker
+      ? new WorkerRequestChannel(this.worker, {
+          firstRequestId,
+          closedError: () => new Error("Recovery codec client is closed"),
+          transportError: () => new Error("Recovery codec worker failed"),
+          onFatalError: (error) => {
+            this.snapshotDelta.clear();
+            this.failure = error;
+            this.onFatalError?.(error);
+          },
+        })
+      : null;
   }
   async encode(snapshot: EditorPersistenceSnapshot): Promise<Uint8Array> {
     this.assertOpen();
@@ -147,11 +121,11 @@ export class RecoveryCodecClient {
       this.assertOpen();
       const request: RecoveryCodecRequest = isCommittedPersistenceSnapshot(owned)
         ? {
-            id: this.nextId++,
+            id: this.channel!.nextRequestId(),
             operation: "encode-delta",
             delta: this.snapshotDelta.encode(owned),
           }
-        : { id: this.nextId++, operation: "encode", snapshot: owned };
+        : { id: this.channel!.nextRequestId(), operation: "encode", snapshot: owned };
       if (request.operation === "encode-delta") {
         const bytes = [...request.delta.additions.values()].reduce(
           (sum, value) =>
@@ -200,7 +174,7 @@ export class RecoveryCodecClient {
     this.assertOpen();
     if (!this.worker) return (await this.getFallbackCodec()).decodeRecoverySnapshot(bytes);
     return this.request({
-      id: this.nextId++,
+      id: this.channel!.nextRequestId(),
       operation: "decode",
       bytes,
     }) as Promise<EditorPersistenceSnapshot>;
@@ -220,7 +194,7 @@ export class RecoveryCodecClient {
       return packRecentSnapshot(owned, this.fallbackCompression);
     }
     return this.request({
-      id: this.nextId++,
+      id: this.channel!.nextRequestId(),
       operation: "pack-recent",
       snapshot,
     }) as Promise<PackedRecentSnapshot>;
@@ -233,7 +207,7 @@ export class RecoveryCodecClient {
       return unpackRecentSnapshot(snapshot);
     }
     return this.request({
-      id: this.nextId++,
+      id: this.channel!.nextRequestId(),
       operation: "unpack-recent",
       snapshot,
     }) as Promise<RecentSnapshot>;
@@ -242,17 +216,18 @@ export class RecoveryCodecClient {
     return (this.fallbackCodec ??= import("$/adapters/workers/recovery-codec"));
   }
   private request(request: RecoveryCodecRequest): Promise<CodecResult> {
-    return new Promise((resolve, reject) => {
-      this.pending.set(request.id, { operation: request.operation, resolve, reject });
-      try {
-        // Structured cloning preserves shared cel identities; no transfer list can
-        // detach live document buffers or the caller's stored snapshot bytes.
-        this.worker!.postMessage(request);
-      } catch (error) {
+    return this.channel!.request(request, (response) => {
+      if (!response.ok) {
         this.snapshotDelta.clear();
-        this.pending.delete(request.id);
-        reject(error);
+        throw restoreWorkerError(response.error);
       }
+      // Packed recent snapshots require pixel hydration only after decoding.
+      return request.operation === "decode" || request.operation === "unpack-recent"
+        ? hydratePixelStorage(response.result)
+        : response.result;
+    }).catch((error: unknown) => {
+      this.snapshotDelta.clear();
+      throw error;
     });
   }
   private assertOpen(): void {
@@ -261,30 +236,17 @@ export class RecoveryCodecClient {
       if (!this.workerFactory) throw this.failure;
       // The failed request has already been rejected. The next explicit retry
       // gets a fresh pure codec worker; no document/storage operation is replayed.
-      this.worker?.removeEventListener("message", this.onMessage);
-      this.worker?.removeEventListener("error", this.onError);
-      this.worker?.removeEventListener("messageerror", this.onError);
-      this.worker?.terminate?.();
+      this.channel?.close(this.failure);
       this.worker = this.workerFactory();
-      this.worker.addEventListener("message", this.onMessage);
-      this.worker.addEventListener("error", this.onError);
-      this.worker.addEventListener("messageerror", this.onError);
+      this.attachChannel();
       this.failure = null;
     }
-  }
-  private rejectAll(error: Error): void {
-    for (const pending of this.pending.values()) pending.reject(error);
-    this.pending.clear();
   }
   close(): void {
     if (this.closed) return;
     this.closed = true;
     this.fallbackCompression?.clear();
     this.snapshotDelta.clear();
-    this.rejectAll(new Error("Recovery codec client is closed"));
-    this.worker?.removeEventListener("message", this.onMessage);
-    this.worker?.removeEventListener("error", this.onError);
-    this.worker?.removeEventListener("messageerror", this.onError);
-    this.worker?.terminate?.();
+    this.channel?.close(new Error("Recovery codec client is closed"));
   }
 }

@@ -22,23 +22,34 @@ const MAXIMUM_CAPTURE_ATTEMPTS = 12;
 const REQUIRED_IDENTICAL_CAPTURES = 2;
 await page.cdp("Network.enable");
 await page.cdp("Network.setCacheDisabled", { cacheDisabled: true });
+await page.cdp("Emulation.setCPUThrottlingRate", { rate: captureConfig.cpuSlowdown });
 await page.cdp("DOM.enable");
 await page.cdp("CSS.enable");
 
+const pageRoot = (scene) => (scene.page.publicPage ? "body" : `#${scene.page.rootId}`);
+const pageReady = (scene) =>
+  scene.page.publicPage
+    ? "html[data-public-controls-ready]"
+    : `#${scene.page.rootId}[data-tool-ready]`;
 const regions = async (scene) => {
-  const root = `#${scene.page.rootId}`;
+  const root = pageRoot(scene);
+  const localeQuery = scene.page.language === "zh-CN" ? "?lang=zh-CN" : "";
   const selectors = {
     header: `${root} header`,
     main: `${root} main`,
-    headline: scene.page.name === "tools" ? `${root} main [data-slot="panel-title"]` : `${root} h1`,
-    ...(scene.page.name === "tools"
+    headline: scene.page.publicPage
+      ? `${root} main h1`
+      : `${root} main [data-ui-window-priority="primary"] [data-slot="panel-title"]`,
+    ...(scene.page.publicPage
       ? {
-          viewer: `${root} main a[href="/tools/viewer/"]`,
-          gifSheet: `${root} main a[href="/tools/gif-to-sprite-sheet/"]`,
-          editor: `${root} main a[href="/"]`,
-          animalCrossing: `${root} main a[href="/tools/animal-crossing-qr/"]`,
+          viewer: `${root} main a[href="/tools/viewer/${localeQuery}"]`,
+          gifSheet: `${root} main a[href="/tools/gif-to-sprite-sheet/${localeQuery}"]`,
+          editor: `${root} main a[href="/editor"]`,
+          animalCrossing: `${root} main a[href="/tools/animal-crossing-qr/${localeQuery}"]`,
         }
-      : { examples: `${root} [data-slot="panel"][aria-label="Try example"]` }),
+      : {
+          examples: `${root} [data-slot="panel"][aria-label="${scene.page.language === "zh-CN" ? "试用示例" : "Try example"}"]`,
+        }),
   };
   const document = await page.cdp("DOM.getDocument");
   const result = [];
@@ -61,38 +72,48 @@ const regions = async (scene) => {
 };
 
 const capture = async (scene, phase, url) => {
-  const selector =
-    phase === "ssg"
+  const selector = scene.page.publicPage
+    ? phase === "ssg"
+      ? pageRoot(scene)
+      : pageReady(scene)
+    : phase === "ssg"
       ? `#${scene.page.rootId}[data-tool-startup-view]`
-      : `#${scene.page.rootId}[data-tool-ready] .xse-global`;
+      : `${pageReady(scene)} .xse-global`;
   await page.goto(url);
-  await page.waitForSelector(selector, { state: "visible", timeout: 30000 });
-  await page.waitForFunction(
-    () =>
-      document.fonts.status === "loaded" &&
-      [...document.images].every((image) => image.complete && image.naturalWidth > 0),
-    undefined,
-    { timeout: 30000 },
-  );
-  await page.evaluate(async () => {
-    await Promise.all([...document.images].map((image) => image.decode()));
+  await page.waitForSelector(selector, {
+    state: "visible",
+    timeout: captureConfig.startupTimeoutMilliseconds,
   });
+  await page.waitForFunction(
+    () => document.fonts.status === "loaded" && window.__xpriteStartupMonitor?.imagesReady,
+    undefined,
+    { timeout: captureConfig.startupTimeoutMilliseconds },
+  );
+  await page.evaluate(() => window.__xpriteStartupMonitor.decodeImages());
+  if (phase === "ready")
+    await page.waitForFunction(() => window.__xpriteStartupMonitor?.complete, undefined, {
+      timeout: captureConfig.startupTimeoutMilliseconds,
+    });
   await page.mouse.move(scene.layout.width - 1, scene.layout.height - 1, {
     label: "clear pointer before startup capture",
   });
   const state = await page.evaluate(
-    ({ rootId, phase }) => {
-      const root = document.getElementById(rootId);
-      if (!root || root.hasAttribute("data-tool-startup-view") !== (phase === "ssg"))
-        throw Error(`Wrong startup phase: ${phase}`);
+    ({ rootId, publicPage, phase }) => {
+      const root = publicPage ? document.body : document.getElementById(rootId);
+      const staticView = publicPage
+        ? !document.documentElement.hasAttribute("data-public-controls-ready")
+        : root?.hasAttribute("data-tool-startup-view");
+      if (!root || staticView !== (phase === "ssg")) throw Error(`Wrong startup phase: ${phase}`);
       if (root.hasAttribute("data-tool-hydration-error"))
         throw Error(root.dataset.toolHydrationError);
+      const publicError = document.querySelector("[data-public-hydration-error]");
+      if (publicError) throw Error(publicError.dataset.publicHydrationError);
       return {
         url: location.href,
         language: document.documentElement.lang,
       };
     },
-    { rootId: scene.page.rootId, phase },
+    { rootId: scene.page.rootId ?? null, publicPage: !!scene.page.publicPage, phase },
   );
   const document = await page.cdp("DOM.getDocument");
   const { nodeId } = await page.cdp("DOM.querySelector", {
@@ -120,8 +141,34 @@ const capture = async (scene, phase, url) => {
         const root = document.getElementById(rootId);
         if (root?.hasAttribute("data-tool-hydration-error"))
           throw Error(root.dataset.toolHydrationError);
-      }, scene.page.rootId);
-      return { phase, file, screenshot, regions: after, appearance, ...state };
+        const publicError = document.querySelector("[data-public-hydration-error]");
+        if (publicError) throw Error(publicError.dataset.publicHydrationError);
+      }, scene.page.rootId ?? null);
+      const observation =
+        phase === "ready"
+          ? await page.evaluate(() => window.__xpriteStartupMonitor.stop())
+          : undefined;
+      if (observation)
+        await fs.writeFile(
+          `${captureConfig.output}/${scene.id}-continuity.json`,
+          JSON.stringify(observation, null, 2),
+        );
+      if (
+        phase === "ready" &&
+        (!observation?.complete ||
+          observation.failures.length ||
+          !observation.regions.every(({ seen }) => seen))
+      )
+        throw Error(`${scene.id}: startup content disappeared or observation did not complete.`);
+      return {
+        phase,
+        file,
+        screenshot,
+        regions: after,
+        appearance,
+        ...(observation ? { observation } : {}),
+        ...state,
+      };
     }
   }
   throw Error(`${scene.id}/${phase}: screenshots did not stabilize.`);
@@ -157,20 +204,51 @@ for (const scene of captureConfig.scenes) {
     features: [{ name: "prefers-color-scheme", value: scene.appearance.system }],
   });
   const initialization = await page.cdp("Page.addScriptToEvaluateOnNewDocument", {
-    source: `if(location.origin===${JSON.stringify(origin)})localStorage.setItem("xse.ui.appearance-mode.v1",${JSON.stringify(scene.appearance.saved)});`,
+    source: `if(location.origin===${JSON.stringify(origin)}){
+      localStorage.setItem("xprite.site.desktop-preferences",${JSON.stringify(JSON.stringify({ appearance: scene.appearance.saved }))});
+      localStorage.setItem("xse.ui.appearance-mode.v1",${JSON.stringify(scene.appearance.saved)});
+      ${captureConfig.geometrySource}
+      (${captureConfig.monitorSource})(${JSON.stringify({
+        regions: [
+          { name: "page", selectors: [pageRoot(scene)] },
+          { name: "navigation", selectors: [`${pageRoot(scene)} header`] },
+          { name: "main", selectors: [`${pageRoot(scene)} main`] },
+        ],
+        ready: pageReady(scene),
+        minimumReadyFrames: captureConfig.minimumReadyFrames,
+        readyObservationMilliseconds: captureConfig.readyObservationMilliseconds,
+      })},StartupGeometry);
+    }`,
   });
-  // Block external runtime modules only; the real inline appearance script and CSS still run.
-  await page.cdp("Network.setBlockedURLs", { urls: MODULE_URLS });
-  const ssg = await capture(scene, "ssg", url);
-  await page.cdp("Network.setBlockedURLs", { urls: [] });
-  const ready = await capture(scene, "ready", url);
-  const pair = { id: scene.id, url, ssg, ready };
-  pairs.push(pair);
-  await fs.writeFile(`${captureConfig.output}/${scene.id}.json`, JSON.stringify(pair, null, 2));
-  console.log(`CAPTURE_PAIR:${scene.id}`);
-  await page.cdp("Page.removeScriptToEvaluateOnNewDocument", {
-    identifier: initialization.identifier,
-  });
+  try {
+    // Block runtime modules; the inline appearance script and CSS still run.
+    await page.cdp("Network.setBlockedURLs", { urls: MODULE_URLS });
+    const ssg = await capture(scene, "ssg", url);
+    await page.cdp("Network.setBlockedURLs", { urls: [] });
+    const ready = await capture(scene, "ready", url);
+    const pair = { id: scene.id, url, ssg, ready };
+    pairs.push(pair);
+    await fs.writeFile(`${captureConfig.output}/${scene.id}.json`, JSON.stringify(pair, null, 2));
+    console.log(`CAPTURE_PAIR:${scene.id}`);
+  } catch (error) {
+    const observation = await page.evaluate(() => window.__xpriteStartupMonitor?.stop() ?? null);
+    await fs.writeFile(
+      `${captureConfig.output}/${scene.id}-continuity.json`,
+      JSON.stringify({ observation, error: String(error) }, null, 2),
+    );
+    await captureBrowserScreenshot(page, {
+      path: `${captureConfig.output}/${scene.id}-failure.png`,
+      expectedDpr: 1,
+    });
+    throw error;
+  } finally {
+    await page.cdp("Network.setBlockedURLs", { urls: [] });
+    await page.cdp("Page.removeScriptToEvaluateOnNewDocument", {
+      identifier: initialization.identifier,
+    });
+  }
 }
-await task.finish({ keep: [] });
+await page.cdp("Network.setCacheDisabled", { cacheDisabled: false });
+await page.cdp("Emulation.setCPUThrottlingRate", { rate: 1 });
+if (captureConfig.spaceId === undefined) await task.finish({ keep: [] });
 console.log(`TOOLS_STARTUP_REPORT:${JSON.stringify({ pairs })}`);

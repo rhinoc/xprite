@@ -1,25 +1,25 @@
 import { defaultUiTheme } from "$/base/theme/default-theme";
 import type { UiTheme, UiThemeArtwork } from "$/base/theme/theme-definition";
-import type { UiStyleDefinition, UiAppearance } from "$/base/theme/theme-types";
+import type { UiStyleDefinition, UiColorScheme } from "$/base/theme/theme-types";
 
 export interface ThemeModule extends UiThemeArtwork {
-  variant: UiAppearance;
+  colorScheme: UiColorScheme;
   uiTheme: UiTheme;
 }
 
 /** Serializable metadata for rendering and hydrating before bitmap resources load. */
 export interface UiThemeSnapshot {
   themeId: string;
-  appearance: UiAppearance;
+  colorScheme: UiColorScheme;
   definition: UiStyleDefinition;
   sheetUrl: string;
   tokens?: UiThemeArtwork["tokens"];
 }
 
-const modulePromises = new WeakMap<UiTheme, Map<UiAppearance, Promise<ThemeModule>>>();
+const modulePromises = new WeakMap<UiTheme, Map<UiColorScheme, Promise<ThemeModule>>>();
 
 export function loadThemeModule(
-  variant: UiAppearance,
+  colorScheme: UiColorScheme,
   uiTheme: UiTheme = defaultUiTheme,
 ): Promise<ThemeModule> {
   let cache = modulePromises.get(uiTheme);
@@ -27,12 +27,14 @@ export function loadThemeModule(
     cache = new Map();
     modulePromises.set(uiTheme, cache);
   }
-  const cached = cache.get(variant);
+  const cached = cache.get(colorScheme);
   if (cached) return cached;
-  const promise = uiTheme.load(variant).then((artwork) => ({ ...artwork, variant, uiTheme }));
-  cache.set(variant, promise);
+  const promise = uiTheme
+    .load(colorScheme)
+    .then((artwork) => ({ ...artwork, colorScheme, uiTheme }));
+  cache.set(colorScheme, promise);
   void promise.catch(() => {
-    if (cache.get(variant) === promise) cache.delete(variant);
+    if (cache.get(colorScheme) === promise) cache.delete(colorScheme);
   });
   return promise;
 }

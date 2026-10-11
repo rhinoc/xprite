@@ -14,6 +14,7 @@ import {
   writeTimelinePanelDefaults,
   type TimelinePanelPreferences,
 } from "$/managers/preferences/timeline-panel-preferences";
+import { JsonWriteResult } from "@xprite/bedrock/browser/json-storage";
 import {
   DEFAULT_VIEW,
   clampZoom,
@@ -91,7 +92,7 @@ function viewportPreferences(value: unknown): DocumentPreferences["viewport"] {
 /** Preference records use durable identities, never display names or artwork snapshots. */
 export class DocumentPreferencesManager {
   private readonly cache = new Map<string, DocumentPreferences>();
-  private readonly serialized = new Map<string, string>();
+  private readonly storedKeys = new Set<string>();
   private readonly persisted = new Map<string, DocumentPreferences>();
   private readonly capturedViews = new Map<
     string,
@@ -115,7 +116,7 @@ export class DocumentPreferencesManager {
       /* The initial generation remains usable in this workspace. */
     }
     try {
-      this.defaultView = viewPreferences(JSON.parse(storage?.getItem(DEFAULT_VIEW_KEY) ?? "null"));
+      this.defaultView = viewPreferences(storage?.readJson(DEFAULT_VIEW_KEY));
     } catch {
       /* Retain default visibility when stored preferences are unavailable. */
     }
@@ -125,7 +126,7 @@ export class DocumentPreferencesManager {
   setDefaultView(value: DocumentViewOptions) {
     this.defaultView = viewPreferences(value);
     try {
-      this.storage?.setItem(DEFAULT_VIEW_KEY, JSON.stringify(this.defaultView));
+      this.storage?.writeJson(DEFAULT_VIEW_KEY, this.defaultView);
     } catch {
       /* Defaults remain available in this workspace. */
     }
@@ -139,15 +140,16 @@ export class DocumentPreferencesManager {
     if (cached) return cached;
     let next: DocumentPreferences = { timeline: this.defaults };
     try {
-      const saved = JSON.parse(
-        this.storage?.getItem(DOCUMENT_PREFERENCE_PREFIX + encodeURIComponent(key)) ?? "null",
-      );
+      const saved = this.storage?.readJson<
+        Partial<DocumentPreferences> & { version: number; generation: number }
+      >(DOCUMENT_PREFERENCE_PREFIX + encodeURIComponent(key));
       if (saved?.version === 1 && saved.generation === this.generation) {
-        this.serialized.set(key, JSON.stringify(saved));
+        this.storedKeys.add(key);
         const viewport = viewportPreferences(saved.viewport);
         next = {
           ...(viewport ? { viewport } : {}),
-          ...(Number.isSafeInteger(saved.site?.frame) &&
+          ...(saved.site &&
+          Number.isSafeInteger(saved.site.frame) &&
           saved.site.frame >= 0 &&
           Number.isSafeInteger(saved.site?.layer) &&
           saved.site.layer >= 0
@@ -173,13 +175,13 @@ export class DocumentPreferencesManager {
       !!preferences.view ||
       !!preferences.viewport ||
       !!preferences.display ||
-      this.serialized.has(key)
+      this.storedKeys.has(key)
     );
   }
   resetAll() {
     this.generation++;
     this.cache.clear();
-    this.serialized.clear();
+    this.storedKeys.clear();
     this.persisted.clear();
     this.capturedViews.clear();
     try {
@@ -190,7 +192,7 @@ export class DocumentPreferencesManager {
   }
   reset(key: string) {
     this.cache.set(key, { timeline: this.defaults });
-    this.serialized.delete(key);
+    this.storedKeys.delete(key);
     this.persisted.delete(key);
     this.capturedViews.delete(key);
   }
@@ -295,20 +297,16 @@ export class DocumentPreferencesManager {
   }
   private write(key: string, value: DocumentPreferences): boolean {
     if (this.persisted.get(key) === value) return false;
-    const serialized = JSON.stringify({ version: 1, generation: this.generation, ...value });
-    if (this.serialized.get(key) === serialized) {
-      this.cache.set(key, value);
-      this.persisted.set(key, value);
-      return false;
-    }
     this.cache.set(key, value);
-    try {
-      this.storage?.setItem(DOCUMENT_PREFERENCE_PREFIX + encodeURIComponent(key), serialized);
-      this.serialized.set(key, serialized);
+    const result = this.storage.writeJson(
+      DOCUMENT_PREFERENCE_PREFIX + encodeURIComponent(key),
+      { version: 1, generation: this.generation, ...value },
+      { force: !this.storedKeys.has(key) },
+    );
+    if (result !== JsonWriteResult.Unavailable) {
+      this.storedKeys.add(key);
       this.persisted.set(key, value);
-    } catch {
-      /* Keep the updated record in memory when storage is unavailable. */
     }
-    return true;
+    return result !== JsonWriteResult.Unchanged;
   }
 }

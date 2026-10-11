@@ -1,0 +1,31 @@
+@font-face {
+  font-family: FusionPixel12;
+  src: url("../fusion-pixel/fusion-12.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: FusionPixel10;
+  src: url("../fusion-pixel/fusion-10.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: FusionPixel8;
+  src: url("../fusion-pixel/fusion-8.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Aseprite;
+  src: url("./aseprite.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+}

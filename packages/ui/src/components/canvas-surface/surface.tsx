@@ -8,6 +8,10 @@ import {
 
 import { resizeCanvasBuffer } from "$/base/components/canvas/canvas-buffer";
 import {
+  configureCanvasPresentation,
+  presentCanvasPixels,
+} from "$/base/components/canvas/canvas-pixel-presentation";
+import {
   queueCanvasPresentation,
   cancelCanvasPresentation,
 } from "$/base/components/canvas/canvas-presentation";
@@ -16,7 +20,7 @@ import {
   type CanvasPixelSource,
   type SurfaceChecker,
 } from "$/base/components/canvas/canvas-renderer";
-import { displayPixelRatio, observeResize } from "$/base/utils/dom-geometry";
+import { observeResize } from "$/base/utils/dom-geometry";
 import {
   DEFAULT_SURFACE_VIEWPORT,
   surfaceLayout,
@@ -130,10 +134,7 @@ export function CanvasSurface({
     let frame = 0;
     const present = (rect: DOMRect) => {
       if (cancelled || !painted) return;
-      renderer.setPixelRatio(
-        (displayPixelRatio(window) * rect.width) / layout.width,
-        (displayPixelRatio(window) * rect.height) / layout.height,
-      );
+      configureCanvasPresentation(target, renderer, rect);
       if (
         presentedWidth === renderer.pixelWidth &&
         presentedHeight === renderer.pixelHeight &&
@@ -141,40 +142,17 @@ export function CanvasSurface({
         target.height === renderer.pixelHeight
       )
         return;
-      if (target.width !== renderer.pixelWidth) target.width = renderer.pixelWidth;
-      if (target.height !== renderer.pixelHeight) target.height = renderer.pixelHeight;
-      const presentation = target.getContext("2d");
-      if (!presentation) return;
-      // Aligned integer copies have exactly the same pixel-center map as the
-      // software sampler. Present them without reading and expanding every pixel.
       if (
-        source &&
-        bounds.width === sourceWidth &&
-        bounds.height === sourceHeight &&
-        Number.isInteger(target.width / sourceWidth) &&
-        Number.isInteger(target.height / sourceHeight) &&
-        layout.left === (bounds.x * viewport.width) / viewport.sceneWidth &&
-        layout.top === (bounds.y * viewport.height) / viewport.sceneHeight
-      ) {
-        presentation.setTransform(1, 0, 0, 1, 0, 0);
-        presentation.clearRect(0, 0, target.width, target.height);
-        presentation.imageSmoothingEnabled = false;
-        presentation.drawImage(
+        !presentCanvasPixels(target, renderer, {
           source,
-          0,
-          0,
-          sourceWidth,
-          sourceHeight,
-          0,
-          0,
-          target.width,
-          target.height,
-        );
-      } else {
-        const samples =
-          pixelSource ?? (pixels ??= context!.getImageData(0, 0, sourceWidth, sourceHeight));
-        presentation.putImageData(renderer.render(samples, checker), 0, 0);
-      }
+          width: sourceWidth,
+          height: sourceHeight,
+          checker,
+          readPixels: () =>
+            pixelSource ?? (pixels ??= context!.getImageData(0, 0, sourceWidth, sourceHeight)),
+        })
+      )
+        return;
       presentedWidth = target.width;
       presentedHeight = target.height;
     };

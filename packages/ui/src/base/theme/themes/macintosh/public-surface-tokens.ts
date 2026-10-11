@@ -1,9 +1,18 @@
 import { desktopPatternTokens } from "$/base/theme/desktop-pattern-tokens";
 import { noteTokens } from "$/base/theme/note-tokens";
 import { pixelFrameImage } from "$/base/theme/pixel-frame";
-import { semanticPresentationTokens } from "$/base/theme/semantic-presentation-tokens";
-import type { UiAppearance } from "$/base/theme/theme-types";
+import {
+  semanticFontFamilies,
+  semanticPresentationTokens,
+} from "$/base/theme/semantic-presentation-tokens";
+import { UiColorScheme } from "$/base/theme/theme-types";
 import { macintoshBalloonImage } from "$/base/theme/themes/macintosh/balloon-frame";
+import { macintoshDisclosureTokens } from "$/base/theme/themes/macintosh/disclosure-artwork";
+import {
+  macintoshTypography,
+  macintoshWindowTypographyTokens,
+} from "$/base/theme/themes/macintosh/typography";
+import { toastTokens } from "$/base/theme/toast-tokens";
 import { panelWindowKindTokens } from "$/base/theme/window-chrome-tokens";
 
 type Palette = {
@@ -18,25 +27,32 @@ type Palette = {
 const SURFACE_TONES = {
   light: {
     accent: "#c8c3e6",
-    informative: "#cee5f1",
-    positive: "#d4ede2",
+    info: "#cee5f1",
+    success: "#d4ede2",
     warning: "#f4edba",
+    error: "#f5d1d1",
   },
   dark: {
     accent: "#48405b",
-    informative: "#334855",
-    positive: "#3c4c33",
+    info: "#334855",
+    success: "#3c4c33",
     warning: "#47452d",
+    error: "#553333",
   },
 } as const;
 
 /** Tokens shared by native controls and static public-page first paint. */
-export function macintoshPublicSurfaceTokens(palette: Palette, appearance: UiAppearance = "light") {
-  const tones = SURFACE_TONES[appearance];
+export function macintoshPublicSurfaceTokens(
+  palette: Palette,
+  colorScheme: UiColorScheme = UiColorScheme.Light,
+) {
+  const tones = SURFACE_TONES[colorScheme];
+  const fonts = semanticFontFamilies(macintoshTypography);
   return {
     ...semanticPresentationTokens({
-      primaryFont: "ChiKareGo2, FusionPixelZhHans, monospace",
-      compactFont: "FindersKeepers, FusionPixelZhHans, monospace",
+      primaryFont: fonts.primary,
+      compactFont: fonts.compact,
+      cjkFont: fonts.cjk,
       ink: palette.ink,
       mutedInk: palette.muted,
       paper: palette.paper,
@@ -48,16 +64,17 @@ export function macintoshPublicSurfaceTokens(palette: Palette, appearance: UiApp
       link: palette.ink,
     }),
     ...noteTokens("var(--ui-font-family-compact)"),
+    ...toastTokens(colorScheme),
+    ...macintoshDisclosureTokens(palette.ink, palette.paper, colorScheme),
     ...desktopPatternTokens(),
     ...panelWindowKindTokens,
+    ...macintoshWindowTypographyTokens,
     "--ui-panel-utility-title-height": "10px",
     "--ui-panel-utility-title-inset": "1px",
     "--ui-panel-utility-title-gap": "2px",
-    "--ui-panel-utility-font-size": "16px",
-    "--ui-panel-utility-line-height": "8px",
     "--ui-panel-utility-stripe-height": "7px",
     "--ui-menu-underline-height": "1px",
-    "--ui-text-default-size": "16px",
+    "--ui-text-primary-size": "16px",
     "--ui-text-compact-size": "16px",
     "--ui-font-size-control": "16px",
     "--ui-button-surface-font-size": "16px",
@@ -85,15 +102,9 @@ export function macintoshPublicSurfaceTokens(palette: Palette, appearance: UiApp
     "--ui-panel-window-footer-height": "24px",
     "--ui-panel-window-footer-gap": "8px",
     "--ui-panel-window-footer-padding": "3px 10px",
-    "--ui-panel-window-footer-font-size": "16px",
-    "--ui-panel-window-footer-line-height": "18px",
-    "--ui-panel-window-footer-font": "var(--ui-font-family-compact)",
     "--ui-panel-window-title-height": "18px",
     "--ui-panel-window-title-gap": "7px",
     "--ui-panel-window-title-inset": "3px",
-    "--ui-panel-window-title-font-size": "16px",
-    "--ui-panel-window-title-line-height": "12px",
-    "--ui-panel-window-title-font": "var(--xse-font, var(--ui-font-family, monospace))",
     "--ui-panel-window-stripe-height": "12px",
     "--ui-panel-window-stripe-width": "1px",
     "--ui-panel-window-stripe-step": "2px",

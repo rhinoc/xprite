@@ -3,18 +3,20 @@ import { useRef, useState } from "react";
 import { DEFAULT_MUSIC_VOLUME, ShowcaseMusicVolume } from "$/managers/showcase/music-volume";
 import {
   Dialog,
+  Button,
+  ButtonAppearance,
   Icon,
   IconKind,
-  MenubarButton,
+  IconSize,
   OverlayContentLayout,
   Slider,
   SliderOrientation,
-  SliderVariant,
+  SliderRendering,
   Text,
   TextVariant,
   type SurfaceBounds,
 } from "@xprite/ui";
-import { clientRect, viewportSize } from "@xprite/ui/utils";
+import { clientRect, viewportContentSize } from "@xprite/ui/utils";
 
 import styles from "$/components/showcase/showcase-sound-control.module.css";
 
@@ -24,7 +26,7 @@ const PANEL_GAP = 4;
 const VOLUME_STEP = 1;
 const CONTROL_TEXT_SCALE = 2;
 
-/** Menu-bar access to the classic sound panel's vertical, ticked volume control. */
+/** Device demo access to the classic sound panel's vertical, ticked volume control. */
 export function ShowcaseSoundControl({
   language,
   muted = false,
@@ -55,7 +57,7 @@ export function ShowcaseSoundControl({
     }
     if (!trigger.current) return;
     const rect = clientRect(trigger.current);
-    const viewport = viewportSize();
+    const viewport = viewportContentSize();
     setBounds({
       x: Math.max(0, Math.min(rect.left, viewport.width - PANEL_WIDTH)),
       y: Math.max(0, Math.min(rect.bottom + PANEL_GAP, viewport.height - PANEL_HEIGHT)),
@@ -65,17 +67,21 @@ export function ShowcaseSoundControl({
   };
   return (
     <>
-      <MenubarButton
-        icon
+      <Button
+        appearance={ButtonAppearance.Quiet}
+        className={styles.trigger}
+        slots={{
+          leading: (
+            <Icon kind={muted ? IconKind.VolumeMuted : IconKind.Volume} size={IconSize.Small} />
+          ),
+        }}
         buttonRef={trigger}
         aria-label={title}
         aria-haspopup="dialog"
         aria-expanded={!!bounds}
         disabled={!available || !onVolumeChange}
         onClick={toggle}
-      >
-        <Icon kind={muted ? IconKind.VolumeMuted : IconKind.Volume} />
-      </MenubarButton>
+      />
       {bounds && (
         <Dialog
           portal
@@ -87,7 +93,7 @@ export function ShowcaseSoundControl({
           onOpenChange={(open) => {
             if (!open) close();
           }}
-          moveable
+          movable
           resizable={false}
           minSize={{ width: PANEL_WIDTH, height: PANEL_HEIGHT }}
           contentLayout={OverlayContentLayout.Flow}
@@ -104,7 +110,7 @@ export function ShowcaseSoundControl({
             </Text>
             <Icon kind={IconKind.Volume} />
             <Slider
-              variant={SliderVariant.Native}
+              rendering={SliderRendering.BrowserRange}
               orientation={SliderOrientation.Vertical}
               showTicks
               min={ShowcaseMusicVolume.Muted}

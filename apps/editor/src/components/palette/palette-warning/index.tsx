@@ -1,8 +1,7 @@
 import { useState, type CSSProperties } from "react";
 
 import { tUi, tUiSource } from "$/i18n";
-import { Button, useUi, Tooltip } from "@xprite/ui";
-import { UiIcon } from "@xprite/ui/assets";
+import { Button, useUi, Tooltip, TooltipPlacement, Icon } from "@xprite/ui";
 
 import styles from "$/components/palette/palette-warning/palette-warning.module.css";
 
@@ -47,7 +46,7 @@ export function PaletteWarning({
     "--ui-palette-warning-hot": uiStyle.colors.hot_face,
   };
   return (
-    <Tooltip text={label} placement="left">
+    <Tooltip text={label} placement={TooltipPlacement.Left}>
       <Button
         className={styles.warningButton}
         style={style}
@@ -62,7 +61,7 @@ export function PaletteWarning({
         data-hot={hot && !disabled ? "true" : undefined}
       >
         <span className={styles.warningFace}>
-          <UiIcon part="warning_box" x={4} y={4} scale={2} />
+          <Icon kind="warning_box" x={4} y={4} scale={2} />
         </span>
       </Button>
     </Tooltip>

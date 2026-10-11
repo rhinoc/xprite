@@ -6,7 +6,7 @@ export interface WindowDisclosureProps {
   collapsed?: boolean;
   onCollapsedChange?(collapsed: boolean): void;
 }
-const INTERACTIVE_CAPTION_CONTENT = "button, a, input, select, textarea";
+const INTERACTIVE_CAPTION_CONTENT = "button, a, input, select, textarea, [contenteditable]";
 
 /** System 7.5 WindowShade: click activates, drag moves, double-click rolls up the titlebar. */
 export function useWindowDisclosure({
@@ -26,10 +26,18 @@ export function useWindowDisclosure({
     if (next !== current) change(next);
   };
   const click = (event: MouseEvent<HTMLElement>) => {
-    if (!(event.target as Element).closest(INTERACTIVE_CAPTION_CONTENT)) event.preventDefault();
+    if (
+      event.currentTarget.contains(event.target as Node) &&
+      !(event.target as Element).closest(INTERACTIVE_CAPTION_CONTENT)
+    )
+      event.preventDefault();
   };
   const doubleClick = (event: MouseEvent<HTMLElement>) => {
-    if ((event.target as Element).closest(INTERACTIVE_CAPTION_CONTENT)) return;
+    if (
+      !event.currentTarget.contains(event.target as Node) ||
+      (event.target as Element).closest(INTERACTIVE_CAPTION_CONTENT)
+    )
+      return;
     event.preventDefault();
     change(!current);
   };
@@ -38,5 +46,5 @@ export function useWindowDisclosure({
     event.preventDefault();
     change(!current);
   };
-  return { collapsed: current, toggle, click, doubleClick, keyDown };
+  return { collapsed: current, change, toggle, click, doubleClick, keyDown };
 }

@@ -14,27 +14,21 @@ const pageApplications = [
   },
   {
     directory: "apps/tools",
-    entries: [
-      "src/main.tsx",
-      "src/tools-main.tsx",
-      "src/gif-main.tsx",
-      "src/animal-crossing-main.tsx",
-      "src/ssg.tsx",
-    ],
+    entries: ["src/main.tsx", "src/gif-main.tsx", "src/animal-crossing-main.tsx", "src/ssg.tsx"],
   },
   {
     directory: "apps/growth",
     entries: ["src/main.tsx", "src/public-main.tsx", "src/public-ssg.tsx"],
   },
   {
-    directory: "apps/gallery",
+    directory: "apps/components",
     entries: ["src/main.tsx"],
   },
 ];
-// Gallery chrome is real UI, but its configuration-driven component cards are demos.
+// Components chrome is real UI, but its configuration-driven component cards are demos.
 const componentPreviewBoundary = {
-  filename: path.join(rootDir, "apps/gallery/src/Gallery.tsx"),
-  name: "GalleryCard",
+  filename: path.join(rootDir, "apps/components/src/Components.tsx"),
+  name: "ComponentsCard",
 };
 const pageDirectories = pageApplications.map(({ directory }) =>
   path.join(rootDir, directory, "src"),
@@ -667,7 +661,7 @@ if (roots.length && missingVariants.length) {
 }
 
 console.log(
-  "UI usage scope: editor, tools, growth and gallery chrome; configuration-driven gallery cards excluded.",
+  "UI usage scope: editor, tools, growth and components chrome; configuration-driven component cards excluded.",
 );
 if (!roots.length || missingEntries.length) {
   console.error("UI usage check failed: page entries without a reachable rendering component:");

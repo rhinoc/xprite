@@ -25,9 +25,7 @@ await recordWorkspaceLayout(page, {
 
 Use `zh-CN` for the Chinese version. The helper requests a 1080 × 720 native
 viewport at DPR 1, reads targets through the shared geometry boundary, and saves
-unaltered compositor PNG frames with monotonic capture timestamps. It operates
-real panel handles and splitters; it does not reconstruct the UI or synthesize
-layout transitions. `recording.json` stores action and frame times;
+unaltered compositor PNG frames with monotonic capture timestamps. It operates real panel handles and splitters. `recording.json` stores action and frame times;
 `frames.ffconcat` preserves their recorded durations for encoding.
 
 Encode the frames with FFmpeg, keeping the original pixel dimensions:

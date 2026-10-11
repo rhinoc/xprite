@@ -48,10 +48,43 @@ export enum WorkspaceDiagnosticAction {
   DocumentClosed = "document-closed",
   BrowserProjectSaved = "browser-project-saved",
   BrowserProjectSavedAs = "browser-project-saved-as",
+  InteractionBlocked = "interaction-blocked",
+}
+
+export enum InteractionBlocker {
+  AboutDialog = "about-dialog",
+  FeedbackDialog = "feedback-dialog",
+  InputDialog = "input-dialog",
+  NewTilemapDialog = "new-tilemap-dialog",
+  PreferencesDialog = "preferences-dialog",
+  SaveAsDialog = "save-as-dialog",
+  NewDocumentDialog = "new-document-dialog",
+  DuplicateSpriteDialog = "duplicate-sprite-dialog",
+  KeyboardShortcutsDialog = "keyboard-shortcuts-dialog",
+  OutputDialog = "output-dialog",
+  DeleteRecoveryDialog = "delete-recovery-dialog",
+  DeleteBrowserCopyDialog = "delete-browser-copy-dialog",
+  SequenceImportDialog = "sequence-import-dialog",
+  ImportConfirmation = "import-confirmation",
+  ReplacementConfirmation = "replacement-confirmation",
+  ErrorDialog = "error-dialog",
+  ExitConfirmation = "exit-confirmation",
+  ExportBusy = "export-busy",
+  SaveAsBusy = "save-as-busy",
+  RecoveryBusy = "recovery-busy",
+  ClosingSaveBusy = "closing-save-busy",
+  ImportBatch = "import-batch",
+  SessionBusy = "session-busy",
+  SessionSaving = "session-saving",
+  SessionPromptError = "session-prompt-error",
+  SessionPromptReplacement = "session-prompt-replacement",
+  SessionPromptPixelation = "session-prompt-pixelation",
+  SessionUnavailable = "session-unavailable",
 }
 
 export interface WorkspaceDiagnosticEvent {
   readonly action: WorkspaceDiagnosticAction;
+  readonly blockers?: readonly InteractionBlocker[];
   readonly slotId?: string;
   readonly projectId?: string;
   readonly previousProjectId?: string;

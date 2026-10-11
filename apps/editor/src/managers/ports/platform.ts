@@ -1,16 +1,18 @@
 import type { AnimalCrossingExportPort } from "$/managers/ports/animal-crossing-export";
 import type { ColorSamplingPort } from "$/managers/ports/color-sampling";
+import type { LocalFontsPort } from "$/managers/ports/local-fonts";
 import type { ProjectSharingPort } from "$/managers/ports/sharing";
 import type { ShortcutFilePort } from "$/managers/ports/shortcut-files";
 import type { UserPresetStoragePort } from "$/managers/ports/user-presets";
 import type { WebpExportPort } from "$/managers/ports/webp-export";
 import type { DetectedWheelDevice, WheelDevice } from "$/managers/ports/wheel-device";
+import type { JsonStoragePort } from "@xprite/bedrock/browser/json-storage";
 import type { EditorSnapshot, Point } from "@xprite/editor-core";
 import type { BitmapFont, PixelBuffer } from "@xprite/editor-core/base";
 import type { SessionProject } from "@xprite/editor-core/session";
 
 /** Browser storage operations required by application preference managers. */
-export interface PreferenceStoragePort {
+export interface PreferenceStoragePort extends JsonStoragePort {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
 }
@@ -72,6 +74,7 @@ export interface EditorTextFontOptions {
 }
 
 export interface EditorFontPort {
+  localFonts?: LocalFontsPort;
   rasterize(appearance: "light" | "dark", text: string, options: EditorTextFontOptions): BitmapFont;
 }
 
@@ -81,6 +84,7 @@ interface EditorFilePort {
   webp?: WebpExportPort;
   decodeAsepriteBlob(blob: Blob, fileName: string): Promise<SessionProject>;
   decodeImageBlob?(blob: Blob): Promise<PixelBuffer>;
+  selectReferenceImage(signal: AbortSignal): Promise<PixelBuffer | null>;
 }
 
 export enum EditorWheelAction {

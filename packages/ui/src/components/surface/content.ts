@@ -6,9 +6,10 @@ import "$/components/surface/surface.module.css";
 export enum SurfaceTone {
   Neutral = "neutral",
   Accent = "accent",
-  Informative = "informative",
-  Positive = "positive",
+  Info = "info",
+  Success = "success",
   Warning = "warning",
+  Error = "error",
 }
 
 export enum ContentLayout {
@@ -20,7 +21,7 @@ export enum ContentLayout {
 export enum ContentPadding {
   None = "none",
   Compact = "compact",
-  Standard = "standard",
+  Medium = "medium",
   Spacious = "spacious",
 }
 

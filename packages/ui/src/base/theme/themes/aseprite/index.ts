@@ -1,33 +1,40 @@
 import type { UiTheme } from "$/base/theme/theme-definition";
+import { FontRole, UiColorScheme } from "$/base/theme/theme-types";
+import { asepriteCursors } from "$/base/theme/themes/aseprite/cursors";
+import { asepriteTypography } from "$/base/theme/themes/aseprite/typography";
+import { toastTokens } from "$/base/theme/toast-tokens";
 import { panelWindowKindTokens } from "$/base/theme/window-chrome-tokens";
 import { RASTER_SCALE } from "$/components/canvas-surface/metrics";
 
 export const asepriteTheme: UiTheme = {
   id: "aseprite",
   label: "Aseprite",
-  async load(appearance) {
-    const { themeDefinition, ...artwork } = await (appearance === "dark"
+  cursors: asepriteCursors,
+  typography: asepriteTypography,
+  async load(colorScheme) {
+    await import("$assets/fonts/aseprite/fonts.css");
+    const { themeDefinition, ...artwork } = await (colorScheme === UiColorScheme.Dark
       ? import("$/base/theme/generated/themes/aseprite-dark")
       : import("$/base/theme/generated/themes/aseprite-light"));
     return {
       ...artwork,
       definition: {
         ...themeDefinition,
+        typography: asepriteTypography,
         controlParts: {
           button: {
-            font: "mini",
+            font: FontRole.Compact,
             // The bitmap button frame reserves its final row for the shadow.
             frameIconOffset: { x: 0, y: -RASTER_SCALE / 2 },
           },
         },
       },
       tokens: {
+        ...toastTokens(colorScheme),
         ...panelWindowKindTokens,
         "--ui-panel-window-title-height": "28px",
         "--ui-panel-window-title-gap": "10px",
         "--ui-panel-window-title-inset": "6px",
-        "--ui-panel-window-title-font-size": "16px",
-        "--ui-panel-window-title-line-height": "16px",
         "--ui-panel-window-title-font": "var(--xse-font, var(--ui-font-family, monospace))",
         "--ui-panel-window-stripe-height": "16px",
         "--ui-panel-window-stripe-width": "1px",
@@ -38,9 +45,6 @@ export const asepriteTheme: UiTheme = {
         "--ui-panel-window-footer-height": "24px",
         "--ui-panel-window-footer-gap": "8px",
         "--ui-panel-window-footer-padding": "3px 10px",
-        "--ui-panel-window-footer-font-size": "16px",
-        "--ui-panel-window-footer-line-height": "18px",
-        "--ui-panel-window-footer-font": "var(--ui-font-family-compact)",
 
         "--ui-curve-background": "#000",
         "--ui-curve-border": "#ff0",

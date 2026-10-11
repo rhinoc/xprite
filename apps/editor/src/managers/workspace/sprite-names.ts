@@ -23,8 +23,8 @@ export class SpriteNames {
     const date = `${now.getFullYear()}${month}${day}`;
     if (this.sequence.date !== date) this.sequence = { date, index: 0 };
     try {
-      const saved = JSON.parse(
-        this.storage.getItem(SPRITE_NAME_SEQUENCE_KEY) ?? "null",
+      const saved = this.storage.readJson(
+        SPRITE_NAME_SEQUENCE_KEY,
       ) as Partial<SpriteNameSequence> | null;
       if (
         saved?.date === date &&
@@ -63,7 +63,7 @@ export class SpriteNames {
     if (index <= this.sequence.index) return;
     this.sequence.index = index;
     try {
-      this.storage.setItem(SPRITE_NAME_SEQUENCE_KEY, JSON.stringify(this.sequence));
+      this.storage.writeJson(SPRITE_NAME_SEQUENCE_KEY, this.sequence);
     } catch {
       // Naming remains usable for this workspace when storage is unavailable.
     }

@@ -172,7 +172,9 @@ export function PanSurface({
         ...style,
         ...(enabled && (handTool || spaceHeld || dragging)
           ? {
-              cursor: dragging ? (cursor?.dragging ?? "grabbing") : (cursor?.hand ?? "grab"),
+              cursor: dragging
+                ? (cursor?.dragging ?? "var(--ui-cursor-scroll, grabbing)")
+                : (cursor?.hand ?? "var(--ui-cursor-hand, grab)"),
             }
           : {}),
       }}

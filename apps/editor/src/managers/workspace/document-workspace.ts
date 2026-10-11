@@ -8,11 +8,11 @@ import {
   type ExportRecord,
 } from "$/managers/files/export-preferences";
 import { CanvasPointerController } from "$/managers/input/controllers/pointer-controller";
-import { WorkspaceDiagnosticAction } from "$/managers/ports/diagnostics";
-import type {
-  DiagnosticsPort,
-  WorkspaceDiagnosticEvent,
-  WorkspaceDiagnosticSnapshot,
+import {
+  WorkspaceDiagnosticAction,
+  type DiagnosticsPort,
+  type WorkspaceDiagnosticEvent,
+  type WorkspaceDiagnosticSnapshot,
 } from "$/managers/ports/diagnostics";
 import type { EditorPrimaryModifier, PreferenceStoragePort } from "$/managers/ports/platform";
 import type { ShortcutFilePort } from "$/managers/ports/shortcut-files";
@@ -21,8 +21,8 @@ import type { WorkspaceSessionPorts } from "$/managers/ports/workspace-session";
 import {
   DEFAULT_CANVAS_DISPLAY_PREFERENCES,
   normalizeCanvasDisplayPreferences,
+  type CanvasDisplayPreferences,
 } from "$/managers/preferences/canvas-display-preferences";
-import type { CanvasDisplayPreferences } from "$/managers/preferences/canvas-display-preferences";
 import {
   DEFAULT_CURSOR_PREFERENCES,
   normalizeCursorPreferences,
@@ -42,8 +42,8 @@ import {
   DEFAULT_FILE_PREFERENCES,
   fileNameWithExtension,
   normalizeFilePreferences,
+  type FilePreferences,
 } from "$/managers/preferences/file-preferences";
-import type { FilePreferences } from "$/managers/preferences/file-preferences";
 import {
   gridBoundsPreferencesFromView,
   normalizeGridBoundsPreferences,
@@ -52,18 +52,18 @@ import {
 import {
   DEFAULT_GUIDE_SLICE_PREFERENCES,
   normalizeGuideSlicePreferences,
+  type GuideSlicePreferences,
 } from "$/managers/preferences/guide-slice-preferences";
-import type { GuideSlicePreferences } from "$/managers/preferences/guide-slice-preferences";
 import {
   defaultSelectionPreferences,
   normalizeSelectionPreferences,
+  type SelectionPreferences,
 } from "$/managers/preferences/selection-preferences";
-import type { SelectionPreferences } from "$/managers/preferences/selection-preferences";
 import {
   defaultTimelineInteractionPreferences,
   normalizeTimelineInteractionPreferences,
+  type TimelineInteractionPreferences,
 } from "$/managers/preferences/timeline-interaction-preferences";
-import type { TimelineInteractionPreferences } from "$/managers/preferences/timeline-interaction-preferences";
 import type {
   TimelinePanelPreferences,
   TimelinePanelPreferencesPatch,
@@ -79,8 +79,8 @@ import {
   readUserDataVisibilityPreferences,
   UserDataVisibilityScope,
   writeUserDataVisibilityPreferences,
+  type UserDataVisibilityPreferences,
 } from "$/managers/preferences/user-data-preferences";
-import type { UserDataVisibilityPreferences } from "$/managers/preferences/user-data-preferences";
 import { UserPresetsManager } from "$/managers/preferences/user-presets";
 import { ShortcutManager } from "$/managers/shortcuts/shortcut-manager";
 import { DockEdge } from "$/managers/workspace/dock-edge";
@@ -104,10 +104,17 @@ import {
   exampleProjectName,
 } from "$assets/examples/hello/hello-project";
 import { canPickSaveFile } from "@xprite/bedrock/browser/file-system";
-import { DEFAULT_VIEW, DocumentViewTarget, RasterEditor, fitScreenZoom } from "@xprite/editor-core";
-import type { UndoOptions } from "@xprite/editor-core";
-import type { EditorPersistenceSnapshot } from "@xprite/editor-core";
-import type { PixelBuffer, ToolSettings, Rgba } from "@xprite/editor-core";
+import {
+  DEFAULT_VIEW,
+  DocumentViewTarget,
+  RasterEditor,
+  fitScreenZoom,
+  type UndoOptions,
+  type EditorPersistenceSnapshot,
+  type PixelBuffer,
+  type ToolSettings,
+  type Rgba,
+} from "@xprite/editor-core";
 import {
   rasterAnimationProject,
   assertRasterAnimationCapacity,
@@ -119,12 +126,10 @@ import {
   SessionOutcome,
   SessionSaveIntent,
   RecentImageStore,
-} from "@xprite/editor-core/session";
-import type {
-  EditorSessionPorts,
-  SessionSize,
-  SessionSource,
-  SessionProject,
+  type EditorSessionPorts,
+  type SessionSize,
+  type SessionSource,
+  type SessionProject,
 } from "@xprite/editor-core/session";
 import projectUrl from "@xprite/site-assets/showcase/ipad/hello/hello.aseprite?url";
 
@@ -385,9 +390,9 @@ export class DocumentWorkspace {
     );
     this.documentPreferences = new DocumentPreferencesManager(preferenceStorage);
     try {
-      this.persistentToolPreferences = JSON.parse(
-        preferenceStorage?.getItem(TOOL_PREFERENCES_KEY) ?? "null",
-      );
+      this.persistentToolPreferences =
+        preferenceStorage?.readJson<typeof this.persistentToolPreferences>(TOOL_PREFERENCES_KEY) ??
+        null;
     } catch {
       /* Use defaults when saved preferences are unavailable or malformed. */
     }
@@ -398,7 +403,12 @@ export class DocumentWorkspace {
     this.canvasDisplayPreferenceKey = "xse.workspace.canvas-display-preferences.v1";
     this.filePreferenceKey = "xse.workspace.file-preferences.v1";
     try {
-      const saved = JSON.parse(this.preferenceStorage?.getItem(this.undoPreferenceKey) ?? "null");
+      const saved = this.preferenceStorage?.readJson<{
+        maxBytes: number;
+        allowNonlinearHistory: boolean;
+        gotoModified?: boolean;
+        showTooltip?: boolean;
+      }>(this.undoPreferenceKey);
       if (
         saved &&
         Number.isSafeInteger(saved.maxBytes) &&
@@ -428,51 +438,49 @@ export class DocumentWorkspace {
     }
     try {
       this.guideSlicePreferences = normalizeGuideSlicePreferences(
-        JSON.parse(this.preferenceStorage?.getItem(this.guideSlicePreferenceKey) ?? "null"),
+        this.preferenceStorage?.readJson(this.guideSlicePreferenceKey),
       );
     } catch {
       /* Keep source defaults when preferences are unavailable. */
     }
     try {
       this.cursorPreferences = normalizeCursorPreferences(
-        JSON.parse(this.preferenceStorage?.getItem(this.cursorPreferenceKey) ?? "null"),
+        this.preferenceStorage?.readJson(this.cursorPreferenceKey),
       );
     } catch {
       /* Keep defaults when saved preferences cannot be read. */
     }
     try {
       this.canvasDisplayPreferences = normalizeCanvasDisplayPreferences(
-        JSON.parse(this.preferenceStorage?.getItem(this.canvasDisplayPreferenceKey) ?? "null"),
+        this.preferenceStorage?.readJson(this.canvasDisplayPreferenceKey),
       );
     } catch {
       /* Keep source defaults when preferences are unavailable. */
     }
     try {
       this.filePreferences = normalizeFilePreferences(
-        JSON.parse(this.preferenceStorage?.getItem(this.filePreferenceKey) ?? "null"),
+        this.preferenceStorage?.readJson(this.filePreferenceKey),
       );
     } catch {
       /* Keep source defaults when preferences are unavailable. */
     }
     try {
       this.selectionPreferences = normalizeSelectionPreferences(
-        JSON.parse(this.preferenceStorage?.getItem(this.selectionPreferenceKey) ?? "null"),
+        this.preferenceStorage?.readJson(this.selectionPreferenceKey),
       );
     } catch {
       /* Keep source defaults when preferences are unavailable. */
     }
     try {
       this.timelineInteractionPreferences = normalizeTimelineInteractionPreferences(
-        JSON.parse(
-          this.preferenceStorage?.getItem(this.timelineInteractionPreferenceKey) ?? "null",
-        ),
+        this.preferenceStorage?.readJson(this.timelineInteractionPreferenceKey),
       );
     } catch {
       /* Keep source defaults when preferences are unavailable. */
     }
     try {
       this.editorPreferences = normalizeEditorPreferences(
-        JSON.parse(this.preferenceStorage?.getItem(this.editorPreferenceKey) ?? "null"),
+        this.preferenceStorage?.readJson(this.editorPreferenceKey),
       );
     } catch {
       /* Keep defaults when storage is unavailable. */
@@ -505,7 +513,7 @@ export class DocumentWorkspace {
     this.unsubscribeRecovery = this.recovery.subscribe(() => this.notifyIfTabsChanged());
     try {
       this.touchInputPreferences = normalizeTouchInputPreferences(
-        JSON.parse(this.preferenceStorage?.getItem(TOUCH_INPUT_PREFERENCE_KEY) ?? "null"),
+        this.preferenceStorage?.readJson(TOUCH_INPUT_PREFERENCE_KEY),
       );
     } catch {
       /* Automatic input remains available when preferences cannot be read. */
@@ -520,7 +528,7 @@ export class DocumentWorkspace {
     this.touchInputPreferences = next;
     this.inputController.setFingerMode(next.fingerMode);
     try {
-      this.preferenceStorage?.setItem(TOUCH_INPUT_PREFERENCE_KEY, JSON.stringify(next));
+      this.preferenceStorage?.writeJson(TOUCH_INPUT_PREFERENCE_KEY, next);
     } catch {
       /* Keep input usable for this workspace when preferences cannot be written. */
     }
@@ -582,7 +590,7 @@ export class DocumentWorkspace {
       });
     }
     try {
-      this.preferenceStorage?.setItem(this.editorPreferenceKey, JSON.stringify(next));
+      this.preferenceStorage?.writeJson(this.editorPreferenceKey, next);
     } catch {
       /* Keep preferences for this workspace. */
     }
@@ -950,7 +958,7 @@ export class DocumentWorkspace {
       for (const slot of this.slots) if (slot !== this.active) slot.session.refreshRecent();
     }
     try {
-      this.preferenceStorage?.setItem(this.filePreferenceKey, JSON.stringify(next));
+      this.preferenceStorage?.writeJson(this.filePreferenceKey, next);
     } catch {
       /* Keep the updated file preferences for this session when storage is unavailable. */
     }
@@ -962,7 +970,7 @@ export class DocumentWorkspace {
     if (keys.every((key) => next[key] === this.cursorPreferences[key])) return;
     this.cursorPreferences = next;
     try {
-      this.preferenceStorage?.setItem(this.cursorPreferenceKey, JSON.stringify(next));
+      this.preferenceStorage?.writeJson(this.cursorPreferenceKey, next);
     } catch {
       /* Keep changes in this workspace when storage is unavailable. */
     }
@@ -985,7 +993,7 @@ export class DocumentWorkspace {
     if (keys.every((key) => next[key] === this.canvasDisplayPreferences[key])) return;
     this.canvasDisplayPreferences = next;
     try {
-      this.preferenceStorage?.setItem(this.canvasDisplayPreferenceKey, JSON.stringify(next));
+      this.preferenceStorage?.writeJson(this.canvasDisplayPreferenceKey, next);
     } catch {
       /* Keep the updated display preferences for this session when storage is unavailable. */
     }
@@ -1003,7 +1011,7 @@ export class DocumentWorkspace {
     this.sharedSettings = { ...this.sharedSettings, ...next };
     for (const slot of this.slots) slot.core.drawing.settings.setSettings(next);
     try {
-      this.preferenceStorage?.setItem(this.guideSlicePreferenceKey, JSON.stringify(next));
+      this.preferenceStorage?.writeJson(this.guideSlicePreferenceKey, next);
     } catch {
       /* Keep the updated colors for this session when storage is unavailable. */
     }
@@ -1035,7 +1043,7 @@ export class DocumentWorkspace {
     this.sharedSettings = { ...this.sharedSettings, ...settings };
     for (const slot of this.slots) slot.core.drawing.settings.setSettings(settings);
     try {
-      this.preferenceStorage?.setItem(this.selectionPreferenceKey, JSON.stringify(next));
+      this.preferenceStorage?.writeJson(this.selectionPreferenceKey, next);
     } catch {
       /* Keep the updated selection behavior for this session. */
     }
@@ -1052,7 +1060,7 @@ export class DocumentWorkspace {
       for (const slot of this.slots)
         slot.core.timeline.setPlaybackOptions({ rewindOnStop: next.rewindOnStop });
     try {
-      this.preferenceStorage?.setItem(this.timelineInteractionPreferenceKey, JSON.stringify(next));
+      this.preferenceStorage?.writeJson(this.timelineInteractionPreferenceKey, next);
     } catch {
       /* Keep the updated timeline behavior for this session. */
     }
@@ -1075,7 +1083,7 @@ export class DocumentWorkspace {
     this.undoOptions = { ...options };
     for (const slot of this.slots) slot.core.history.setOptions(options);
     try {
-      this.preferenceStorage?.setItem(this.undoPreferenceKey, JSON.stringify(options));
+      this.preferenceStorage?.writeJson(this.undoPreferenceKey, options);
     } catch (error) {
       this.active.session.reportError(error);
     }
@@ -1248,9 +1256,9 @@ export class DocumentWorkspace {
           };
           this.sharedSettings = { ...this.sharedSettings, selectionAutoOpaque };
           try {
-            this.preferenceStorage?.setItem(
+            this.preferenceStorage?.writeJson(
               this.selectionPreferenceKey,
-              JSON.stringify(this.selectionPreferences),
+              this.selectionPreferences,
             );
           } catch {
             /* Keep the updated selection behavior for this session. */

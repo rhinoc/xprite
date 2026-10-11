@@ -1,97 +1,61 @@
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 
-import crosshair from "$assets/cursors/aseprite/crosshair.svg?raw";
-import eyedropper from "$assets/cursors/aseprite/eyedropper.svg?raw";
-import forbidden from "$assets/cursors/aseprite/forbidden.svg?raw";
-import hand from "$assets/cursors/aseprite/hand.svg?raw";
-import magnifier from "$assets/cursors/aseprite/magnifier.svg?raw";
-import manifest from "$assets/cursors/aseprite/manifest.json";
-import move from "$assets/cursors/aseprite/move.svg?raw";
-import move_selection from "$assets/cursors/aseprite/move_selection.svg?raw";
-import normal from "$assets/cursors/aseprite/normal.svg?raw";
-import normal_add from "$assets/cursors/aseprite/normal_add.svg?raw";
-import rotate_e from "$assets/cursors/aseprite/rotate_e.svg?raw";
-import rotate_n from "$assets/cursors/aseprite/rotate_n.svg?raw";
-import rotate_ne from "$assets/cursors/aseprite/rotate_ne.svg?raw";
-import rotate_nw from "$assets/cursors/aseprite/rotate_nw.svg?raw";
-import rotate_s from "$assets/cursors/aseprite/rotate_s.svg?raw";
-import rotate_se from "$assets/cursors/aseprite/rotate_se.svg?raw";
-import rotate_sw from "$assets/cursors/aseprite/rotate_sw.svg?raw";
-import rotate_w from "$assets/cursors/aseprite/rotate_w.svg?raw";
-import scroll from "$assets/cursors/aseprite/scroll.svg?raw";
-import size_e from "$assets/cursors/aseprite/size_e.svg?raw";
-import size_n from "$assets/cursors/aseprite/size_n.svg?raw";
-import size_ne from "$assets/cursors/aseprite/size_ne.svg?raw";
-import size_ns from "$assets/cursors/aseprite/size_ns.svg?raw";
-import size_nw from "$assets/cursors/aseprite/size_nw.svg?raw";
-import size_s from "$assets/cursors/aseprite/size_s.svg?raw";
-import size_se from "$assets/cursors/aseprite/size_se.svg?raw";
-import size_sw from "$assets/cursors/aseprite/size_sw.svg?raw";
-import size_w from "$assets/cursors/aseprite/size_w.svg?raw";
-import size_we from "$assets/cursors/aseprite/size_we.svg?raw";
-import skew_e from "$assets/cursors/aseprite/skew_e.svg?raw";
-import skew_n from "$assets/cursors/aseprite/skew_n.svg?raw";
-import skew_ne from "$assets/cursors/aseprite/skew_ne.svg?raw";
-import skew_nw from "$assets/cursors/aseprite/skew_nw.svg?raw";
-import skew_s from "$assets/cursors/aseprite/skew_s.svg?raw";
-import skew_se from "$assets/cursors/aseprite/skew_se.svg?raw";
-import skew_sw from "$assets/cursors/aseprite/skew_sw.svg?raw";
-import skew_w from "$assets/cursors/aseprite/skew_w.svg?raw";
+import { defaultUiTheme } from "$/base/theme/default-theme";
+import { useTheme } from "$/base/theme/theme-context";
+import type { UiTheme, UiCursorArtwork } from "$/base/theme/theme-definition";
 
 import styles from "$/base/components/cursor/cursor.module.css";
 export const cursorScopeClassName = styles.cursorScope;
 
-const artwork = {
-  crosshair,
-  eyedropper,
-  forbidden,
-  hand,
-  magnifier,
-  move,
-  move_selection,
-  normal,
-  normal_add,
-  rotate_e,
-  rotate_n,
-  rotate_ne,
-  rotate_nw,
-  rotate_s,
-  rotate_se,
-  rotate_sw,
-  rotate_w,
-  scroll,
-  size_e,
-  size_n,
-  size_ne,
-  size_ns,
-  size_nw,
-  size_s,
-  size_se,
-  size_sw,
-  size_w,
-  size_we,
-  skew_e,
-  skew_n,
-  skew_ne,
-  skew_nw,
-  skew_s,
-  skew_se,
-  skew_sw,
-  skew_w,
-};
+const CURSOR_FALLBACKS = {
+  crosshair: "crosshair",
+  eyedropper: "crosshair",
+  forbidden: "not-allowed",
+  hand: "grab",
+  magnifier: "zoom-in",
+  move: "move",
+  move_selection: "move",
+  normal: "default",
+  normal_add: "copy",
+  scroll: "grabbing",
+  rotate_e: "crosshair",
+  rotate_n: "crosshair",
+  rotate_ne: "crosshair",
+  rotate_nw: "crosshair",
+  rotate_s: "crosshair",
+  rotate_se: "crosshair",
+  rotate_sw: "crosshair",
+  rotate_w: "crosshair",
+  size_e: "e-resize",
+  size_n: "n-resize",
+  size_ne: "ne-resize",
+  size_nw: "nw-resize",
+  size_ns: "ns-resize",
+  size_s: "s-resize",
+  size_se: "se-resize",
+  size_sw: "sw-resize",
+  size_w: "w-resize",
+  size_we: "ew-resize",
+  skew_e: "e-resize",
+  skew_n: "n-resize",
+  skew_ne: "ne-resize",
+  skew_nw: "nw-resize",
+  skew_s: "s-resize",
+  skew_se: "se-resize",
+  skew_sw: "sw-resize",
+  skew_w: "w-resize",
+} as const;
 
-const CURSOR_BASE_SIZE = 16;
-export type CursorRole = keyof typeof artwork;
+export type CursorRole = keyof typeof CURSOR_FALLBACKS;
 
-/** Original cursor artwork and hotspot for canvas or other non-DOM presentations. */
-export function getCursorArtwork(role: CursorRole) {
-  const hotspot = manifest.cursors[role].sizes["16"];
-  return {
-    svg: artwork[role],
-    width: CURSOR_BASE_SIZE,
-    height: CURSOR_BASE_SIZE,
-    hotspot: { x: hotspot.hotspotX, y: hotspot.hotspotY },
-  };
+/** Read artwork from the selected theme for canvas or non-DOM presentations. */
+export function getCursorArtwork(
+  role: CursorRole,
+  theme: UiTheme = defaultUiTheme,
+): UiCursorArtwork {
+  const artwork = theme.cursors[role];
+  if (!artwork) throw new Error(`Theme ${theme.id} has no cursor artwork for ${role}`);
+  return artwork;
 }
 
 type Direction = "n" | "ne" | "e" | "se" | "s" | "sw" | "w" | "nw";
@@ -104,22 +68,27 @@ export type CursorName =
 
 const MIN_CURSOR_SCALE = 1;
 const MAX_CURSOR_SCALE = 4;
-const cursorCache = new Map<string, string>();
+const cursorCaches = new WeakMap<UiTheme["cursors"], Map<string, string>>();
 const cursorVariable = (role: CursorRole) =>
   `--ui-cursor-${role === "normal" ? "default" : role === "normal_add" ? "copy" : role === "forbidden" ? "disabled" : role.replaceAll("_", "-")}`;
 
-function artworkCursor(role: CursorRole, scale: number, fallback: string) {
+function artworkCursor(role: CursorRole, scale: number, fallback: string, theme: UiTheme) {
+  const artwork = theme.cursors[role];
+  if (!artwork) return fallback;
+  let cache = cursorCaches.get(theme.cursors);
+  if (!cache) {
+    cache = new Map();
+    cursorCaches.set(theme.cursors, cache);
+  }
   const key = `${role}:${scale}:${fallback}`;
-  const cached = cursorCache.get(key);
+  const cached = cache.get(key);
   if (cached) return cached;
-  const size = CURSOR_BASE_SIZE * scale;
-  const svg = artwork[role]
-    .replace(/width="16"/, `width="${size}"`)
-    .replace(/height="16"/, `height="${size}"`);
-  const hotspot = manifest.cursors[role].sizes["16"];
+  const svg = artwork.svg
+    .replace(`width="${artwork.width}"`, `width="${artwork.width * scale}"`)
+    .replace(`height="${artwork.height}"`, `height="${artwork.height * scale}"`);
   const centerOffset = Math.floor(scale / 2);
-  const result = `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${hotspot.hotspotX * scale + centerOffset} ${hotspot.hotspotY * scale + centerOffset}, ${fallback}`;
-  cursorCache.set(key, result);
+  const result = `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${artwork.hotspot.x * scale + centerOffset} ${artwork.hotspot.y * scale + centerOffset}, ${fallback}`;
+  cache.set(key, result);
   return result;
 }
 
@@ -132,44 +101,28 @@ export function cursorStyle(name: CursorName, fallback = "default") {
         ? name.replace("scale-", "size_")
         : name.replace("-", "_")
   ) as CursorRole;
-  return `var(${cursorVariable(role)}, ${artworkCursor(role, MIN_CURSOR_SCALE, fallback)})`;
+  return `var(${cursorVariable(role)}, ${fallback})`;
 }
 
 /** Generic UI cursor configuration, also usable on an existing scope element. */
 export function cursorScopeStyle({
   native = false,
   scale = MIN_CURSOR_SCALE,
+  theme = defaultUiTheme,
 }: {
   native?: boolean;
   scale?: number;
+  theme?: UiTheme;
 }): CSSProperties {
   const resolvedScale = Number.isFinite(scale)
     ? Math.max(MIN_CURSOR_SCALE, Math.min(MAX_CURSOR_SCALE, Math.trunc(scale)))
     : MIN_CURSOR_SCALE;
   return Object.fromEntries(
-    Object.keys(artwork).map((name) => {
+    Object.entries(CURSOR_FALLBACKS).map(([name, fallback]) => {
       const role = name as CursorRole;
-      const fallback =
-        role === "normal"
-          ? "default"
-          : role === "normal_add"
-            ? "copy"
-            : role === "forbidden"
-              ? "not-allowed"
-              : role === "hand"
-                ? "grab"
-                : role === "scroll"
-                  ? "grabbing"
-                  : role === "magnifier"
-                    ? "zoom-in"
-                    : role.startsWith("move")
-                      ? "move"
-                      : role.startsWith("size_") || role.startsWith("skew_")
-                        ? `${role.slice(5) === "we" ? "ew" : role.slice(5)}-resize`
-                        : "crosshair";
       return [
         cursorVariable(role),
-        native ? fallback : artworkCursor(role, resolvedScale, fallback),
+        native ? fallback : artworkCursor(role, resolvedScale, fallback, theme),
       ];
     }),
   ) as CSSProperties;
@@ -180,10 +133,12 @@ export interface CursorProviderProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 /** Makes the package cursor variables available to a subtree without adding a layout box. */
-export function CursorProvider({ children, className, ...props }: CursorProviderProps) {
+export function CursorProvider({ children, className, style, ...props }: CursorProviderProps) {
+  const { uiTheme } = useTheme();
   return (
     <div
       {...props}
+      style={{ ...cursorScopeStyle({ theme: uiTheme }), ...style }}
       className={[styles.scope, styles.cursorScope, className].filter(Boolean).join(" ")}
     >
       {children}

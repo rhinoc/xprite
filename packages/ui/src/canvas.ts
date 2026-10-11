@@ -1,4 +1,8 @@
 export { CanvasRenderer } from "$/base/components/canvas/canvas-renderer";
+export {
+  configureCanvasPresentation,
+  presentCanvasPixels,
+} from "$/base/components/canvas/canvas-pixel-presentation";
 export { resizeCanvasBuffer } from "$/base/components/canvas/canvas-buffer";
 export * from "$/components/canvas-surface/metrics";
 export {

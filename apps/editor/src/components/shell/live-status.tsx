@@ -6,9 +6,8 @@ import { tUiSource } from "$/i18n";
 import type { CanvasQuickTool } from "$/managers/canvas/canvas-manager";
 import { useLiveStatusManager } from "$/managers/shell/live-status-manager";
 import { formatEditorColor, type EditorColor } from "$/managers/tools/color-control";
-import { Text, TextVariant, useUi } from "@xprite/ui";
+import { Text, TextVariant, useUi, Icon } from "@xprite/ui";
 import { measureUiText } from "@xprite/ui/assets";
-import { UiIcon } from "@xprite/ui/assets";
 import type { UiPartName } from "@xprite/ui/assets";
 import { UI_SCALE_X as sx, UI_SCALE_Y as sy } from "@xprite/ui/canvas";
 import { UI_SCALE } from "@xprite/ui/canvas";
@@ -126,9 +125,9 @@ export function FunctionalStatusText({
     const iconY = (Math.trunc(statusSceneHeight / 2) - Math.trunc(iconHeight / 2)) * UI_SCALE;
     cursor += (indicator.icon === "eyedropper" ? 32 : 16) + 8;
     return (
-      <UiIcon
+      <Icon
         key={index}
-        part={iconPart}
+        kind={iconPart}
         x={x}
         y={iconY}
         scale={2}

@@ -4,13 +4,14 @@ import {
   clientDeltaToLocal,
   clientScale,
   computedStyle,
-  viewportSize,
+  viewportContentSize,
 } from "$/base/utils/dom-geometry";
 import { PointerDragActivation } from "$/base/utils/pointer-drag-activation";
+import { preserveWindowFootprints } from "$/base/utils/window-workspace-layout";
 
 const SURFACE_SELECTOR = "[data-ui-desktop-window]";
 const LAYER_SELECTOR = "[data-ui-desktop-layer]";
-const HEADER_SELECTOR = "[data-slot='panel-header'], [data-slot='note-header'], summary";
+const HEADER_SELECTOR = "[data-slot='panel-header'], summary";
 const INTERACTIVE_SELECTOR = "button, a, input, textarea, select, [contenteditable]";
 const WORKSPACE_ATTRIBUTE = "data-ui-desktop-workspace";
 const FIRST_ACTIVE_RANK = 10;
@@ -26,6 +27,7 @@ export function connectWindowWorkspace(
   const priorIsolation = root.style.isolation;
   root.setAttribute(WORKSPACE_ATTRIBUTE, "true");
   root.style.isolation = "isolate";
+  const releaseFootprints = preserveWindowFootprints(root);
   let rank = FIRST_ACTIVE_RANK;
   const prior = new Map<HTMLElement, { zIndex: string; position: string; translate: string }>();
   const priorActive = new Map<HTMLElement, string | null>();
@@ -90,12 +92,13 @@ export function connectWindowWorkspace(
   };
   const pointerDown = (event: PointerEvent) => {
     activate(event);
-    if (event.button !== 0) return;
+    if (event.button !== 0 || !event.isPrimary) return;
     const target = event.target as Element;
     if (target.closest(INTERACTIVE_SELECTOR)) return;
     const surface = surfaceFor(target);
     const header = target.closest<HTMLElement>(HEADER_SELECTOR);
     if (!surface || !header || header.parentElement !== surface) return;
+    finish(undefined, true);
     remember(surface);
     drag = {
       pointer: event.pointerId,
@@ -115,7 +118,7 @@ export function connectWindowWorkspace(
       return;
     event.preventDefault();
     const point = clientPoint(event);
-    const viewport = viewportSize(root.ownerDocument.defaultView ?? undefined);
+    const viewport = viewportContentSize(root.ownerDocument.defaultView ?? undefined);
     const menuHeight =
       (Number.parseFloat(
         computedStyle(gesture.surface).getPropertyValue("--ui-menu-navigation-height"),
@@ -146,6 +149,7 @@ export function connectWindowWorkspace(
   const finish = (event?: PointerEvent, cancel = false) => {
     const gesture = drag;
     if (!gesture || (event && gesture.pointer !== event.pointerId)) return;
+    drag = undefined;
     if (cancel && gesture.moved) {
       positions.set(gesture.surface, gesture.original);
       gesture.surface.style.translate = `${gesture.original.x}px ${gesture.original.y}px`;
@@ -153,10 +157,11 @@ export function connectWindowWorkspace(
     gesture.surface.removeAttribute("data-ui-window-dragging");
     if (gesture.header.hasPointerCapture(gesture.pointer))
       gesture.header.releasePointerCapture(gesture.pointer);
-    drag = undefined;
   };
   const pointerUp = (event: PointerEvent) => finish(event);
   const pointerCancel = (event: PointerEvent) => finish(event, true);
+  const lostPointerCapture = (event: PointerEvent) => finish(event, true);
+  const blur = () => finish(undefined, true);
   const shadeWindow = (target: EventTarget | null) => {
     if (!staticWindowShade || !(target instanceof Element) || target.closest(INTERACTIVE_SELECTOR))
       return;
@@ -191,6 +196,9 @@ export function connectWindowWorkspace(
   root.addEventListener("pointermove", pointerMove, { capture: true, passive: false });
   root.addEventListener("pointerup", pointerUp, true);
   root.addEventListener("pointercancel", pointerCancel, true);
+  root.addEventListener("lostpointercapture", lostPointerCapture, true);
+  const windowHost = root.ownerDocument.defaultView;
+  windowHost?.addEventListener("blur", blur);
   root.addEventListener("focusin", activate, true);
   root.addEventListener("click", click, true);
   root.addEventListener("dblclick", doubleClick, true);
@@ -201,10 +209,13 @@ export function connectWindowWorkspace(
   if (initial) setActive(initial);
   return () => {
     finish(undefined, true);
+    releaseFootprints();
     root.removeEventListener("pointerdown", pointerDown, true);
     root.removeEventListener("pointermove", pointerMove, true);
     root.removeEventListener("pointerup", pointerUp, true);
     root.removeEventListener("pointercancel", pointerCancel, true);
+    root.removeEventListener("lostpointercapture", lostPointerCapture, true);
+    windowHost?.removeEventListener("blur", blur);
     root.removeEventListener("focusin", activate, true);
     root.removeEventListener("click", click, true);
     root.removeEventListener("dblclick", doubleClick, true);

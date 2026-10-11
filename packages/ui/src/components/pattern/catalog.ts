@@ -1,4 +1,4 @@
-import { PatternVariant } from "$/components/pattern/variants";
+import { PatternId } from "$/components/pattern/variants";
 
 export enum PatternGroup {
   System7 = "system7",
@@ -10,7 +10,7 @@ export enum PatternKind {
   Color = "color",
 }
 export interface PatternDefinition {
-  id: PatternVariant;
+  id: PatternId;
   label: string;
   labelZh: string;
   group: PatternGroup;
@@ -1619,10 +1619,10 @@ export const PATTERNS = [
     file: "macos8-powerbook-traditional.png",
   },
 ] as readonly PatternDefinition[];
-export const DEFAULT_PATTERN = PatternVariant.System7Pattern04;
+export const DEFAULT_PATTERN_ID = PatternId.System7Pattern04;
 export const PATTERN_DEFAULT_FOREGROUND = "#000000";
 export const PATTERN_DEFAULT_BACKGROUND = "#ffffff";
-export function patternDefinition(id: PatternVariant): PatternDefinition {
+export function patternDefinition(id: PatternId): PatternDefinition {
   return PATTERNS.find((pattern) => pattern.id === id)!;
 }
 export function normalizePatternColor(value: string): string | undefined {

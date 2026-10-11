@@ -14,7 +14,7 @@ import {
   type SurfaceBounds,
   type SurfaceViewport,
 } from "$/components/canvas-surface";
-import { Menu, type MenuItem } from "$/components/menu/menu";
+import { Menu, MenuActivation, MenuOpeningInput, type MenuItem } from "$/components/menu/menu";
 import { menuMnemonicIndex, SUBMENU_OPEN_DELAY_MS } from "$/components/menu/policy";
 import { Text, TextVariant } from "$/components/text";
 
@@ -82,6 +82,8 @@ export interface MenubarProps {
   label?: string;
   onMenuOpen?: (index: number) => void;
   expandOnHover?: boolean;
+  /** The opening gesture is independent of the menu-bar layout and skin. */
+  menuActivation?: MenuActivation.Click | MenuActivation.Press;
 }
 /** Flat bitmap-theme menu surface with a two-pixel logical item border. */
 export function Menubar({
@@ -98,6 +100,7 @@ export function Menubar({
   label = MENUBAR_LABEL,
   onMenuOpen,
   expandOnHover = false,
+  menuActivation = MenuActivation.Press,
 }: MenubarProps) {
   const { definition: theme, language, translateSource } = useTheme();
   const bounds = suppliedBounds ?? {
@@ -110,6 +113,11 @@ export function Menubar({
   const displayMenus = allMenus.map((menu) => ({ ...menu, label: translateSource(menu.label) }));
   const [opened, setOpened] = useState(-1),
     [hovered, setHovered] = useState(-1);
+  const [openingInput, setOpeningInput] = useState(MenuOpeningInput.Pointer);
+  const openMenu = (index: number, input: MenuOpeningInput) => {
+    setOpeningInput(input);
+    setOpened(index);
+  };
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelHoverOpen = () => {
     if (hoverTimer.current === null) return;
@@ -162,7 +170,7 @@ export function Menubar({
       );
       if (index >= 0) {
         event.preventDefault();
-        setOpened(index);
+        openMenu(index, MenuOpeningInput.Keyboard);
       }
     };
     window.addEventListener("keydown", key);
@@ -208,15 +216,21 @@ export function Menubar({
           const index = start + offset;
           return (
             <Menu
+              activation={menuActivation}
+              toggleOnTrigger={!expandOnHover}
               key={index}
               label={menu.label}
               items={menu.items}
               expanded={opened === index}
+              openingInput={openingInput}
               onExpandedChange={(open) =>
                 setOpened((previous) => (open ? index : previous === index ? -1 : previous))
               }
               onNavigate={(direction) =>
-                setOpened((index + direction + allMenus.length) % allMenus.length)
+                openMenu(
+                  (index + direction + allMenus.length) % allMenus.length,
+                  MenuOpeningInput.Keyboard,
+                )
               }
               renderTrigger={({ buttonRef, ...props }) => (
                 <button
@@ -232,11 +246,11 @@ export function Menubar({
                   onPointerEnter={(event) => {
                     cancelHoverOpen();
                     if (event.pointerType === "mouse") {
-                      if (opened >= 0) setOpened(index);
+                      if (opened >= 0) openMenu(index, MenuOpeningInput.Pointer);
                       else if (expandOnHover)
                         hoverTimer.current = setTimeout(() => {
                           hoverTimer.current = null;
-                          setOpened(index);
+                          openMenu(index, MenuOpeningInput.Pointer);
                         }, SUBMENU_OPEN_DELAY_MS);
                     }
                   }}
@@ -244,9 +258,10 @@ export function Menubar({
                   onKeyDown={(event) => {
                     if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
                       event.preventDefault();
-                      setOpened(
+                      openMenu(
                         (index + (event.key === "ArrowLeft" ? -1 : 1) + allMenus.length) %
                           allMenus.length,
+                        MenuOpeningInput.Keyboard,
                       );
                     } else props.onKeyDown?.(event);
                   }}
@@ -265,6 +280,7 @@ export function Menubar({
         aria-label={translateSource(label)}
         className={navigationStyles.bar}
         data-ui-menubar="navigation"
+        onPointerDownCapture={cancelHoverOpen}
       >
         {leadingMenus.length > 0 && renderMenus(0, leadingMenus.length)}
         {leadingContent && (
@@ -307,14 +323,19 @@ export function Menubar({
     >
       {displayMenus.map((menu, index) => (
         <Menu
+          activation={menuActivation}
+          toggleOnTrigger={!expandOnHover}
           key={menu.label}
           label={menu.label}
           items={menu.items}
           expanded={opened === index}
+          openingInput={openingInput}
           onExpandedChange={(value) =>
             setOpened((previous) => (value ? index : previous === index ? -1 : previous))
           }
-          onNavigate={(direction) => setOpened((index + direction + menus.length) % menus.length)}
+          onNavigate={(direction) =>
+            openMenu((index + direction + menus.length) % menus.length, MenuOpeningInput.Keyboard)
+          }
           renderTrigger={({ buttonRef, ...props }) => (
             <button
               {...props}
@@ -329,11 +350,11 @@ export function Menubar({
                 cancelHoverOpen();
                 setHovered(index);
                 if (event.pointerType === "mouse") {
-                  if (opened >= 0) setOpened(index);
+                  if (opened >= 0) openMenu(index, MenuOpeningInput.Pointer);
                   else if (expandOnHover)
                     hoverTimer.current = setTimeout(() => {
                       hoverTimer.current = null;
-                      setOpened(index);
+                      openMenu(index, MenuOpeningInput.Pointer);
                     }, SUBMENU_OPEN_DELAY_MS);
                 }
               }}
@@ -344,8 +365,9 @@ export function Menubar({
               onKeyDown={(event) => {
                 if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
                   event.preventDefault();
-                  setOpened(
+                  openMenu(
                     (index + (event.key === "ArrowLeft" ? -1 : 1) + menus.length) % menus.length,
+                    MenuOpeningInput.Keyboard,
                   );
                 } else props.onKeyDown?.(event);
               }}

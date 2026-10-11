@@ -26,7 +26,16 @@ import {
   parseEditorColor,
   TOOL_COLOR_CHANNEL_MAX,
 } from "$/managers/tools/color-control";
-import { Button, Input, Combobox, CurveEditor, Text, TextVariant, Slider } from "@xprite/ui";
+import {
+  FontRole,
+  Button,
+  Input,
+  Combobox,
+  CurveEditor,
+  Text,
+  TextVariant,
+  Slider,
+} from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 
 const COLOR_CURVE_BODY_WIDTH = 256;
@@ -419,7 +428,7 @@ export function EffectDialogs({
                     }}
                     relativeTo={c}
                     text={["HSV", "HSL", "HSV+", "HSL+"][i]}
-                    font="mini"
+                    font={FontRole.Compact}
                     selected={spec.mode === mode}
                     aria-label={mode}
                     onClick={() => patch({ mode })}
@@ -509,7 +518,7 @@ export function EffectDialogs({
                     bounds={{ x: c.x + 106, y: c.y + 76 + i * 24, width: 68, height: 30 }}
                     relativeTo={c}
                     text={place === "outside" ? "Outside" : "Inside"}
-                    font="mini"
+                    font={FontRole.Compact}
                     selected={spec.place === place}
                     aria-label={tUi("ui.outline.2", { value1: tUiSource(place) })}
                     onClick={() => patch({ place })}

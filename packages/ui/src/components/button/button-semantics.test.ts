@@ -6,10 +6,10 @@ import { asepriteTheme } from "$/base/theme/themes/aseprite";
 import { macintoshTheme } from "$/base/theme/themes/macintosh";
 import { Button } from "$/components/button/Button";
 import { ButtonVariant } from "$/components/button/types";
-import { UIProvider, loadUiThemeSnapshot } from "$/components/theme/appearance";
+import { UIProvider, UiColorScheme, loadUiThemeSnapshot } from "$/components/theme/provider";
 
 async function render(children: ReturnType<typeof createElement>, theme = asepriteTheme) {
-  const initialTheme = await loadUiThemeSnapshot("light", theme);
+  const initialTheme = await loadUiThemeSnapshot(UiColorScheme.Light, theme);
   return renderToStaticMarkup(createElement(UIProvider, { theme, initialTheme, children }));
 }
 
@@ -35,7 +35,7 @@ describe("one Button family with native action and navigation semantics", () => 
   it("renders an action as a button when no URL is provided", async () => {
     const html = await render(
       createElement(Button, {
-        variant: ButtonVariant.Standard,
+        variant: ButtonVariant.Push,
         text: "Apply",
         slots: { trailing: "↗" },
       }),

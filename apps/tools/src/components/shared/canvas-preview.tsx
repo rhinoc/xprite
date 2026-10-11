@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from "react";
 
+import { useToolTranslation } from "$/managers/locale/tool-language";
 import type { ToolViewport } from "$/managers/preview/tool-viewport";
 import { CanvasSurface, PanSurface, type CanvasPixelSource } from "@xprite/ui";
 import { UiPart, useUiChecker } from "@xprite/ui/assets";
@@ -14,11 +15,13 @@ import {
   clientPoint,
   clientToLocal,
   clientDeltaToLocal,
+  PointerDragActivation,
 } from "@xprite/ui/utils";
 
 import styles from "$/components/shared/canvas-preview.module.css";
 
 const PAN_BUTTONS = [0, 1];
+const SELECT_BUTTON = 0;
 export function ToolCanvasPreview({
   navigation,
   identity,
@@ -26,6 +29,7 @@ export function ToolCanvasPreview({
   label,
   navigationLabel = label,
   onKeyDown,
+  onPixelSelect,
   overlay,
 }: {
   navigation: ToolViewport;
@@ -34,8 +38,11 @@ export function ToolCanvasPreview({
   label: string;
   navigationLabel?: string;
   onKeyDown?: KeyboardEventHandler<HTMLDivElement>;
+  onPixelSelect?: (point: { x: number; y: number }) => void;
   overlay?: (view: ReturnType<ToolViewport["getSnapshot"]>) => ReactNode;
 }) {
+  const t = useToolTranslation();
+
   const checker = useUiChecker();
   const view = useSyncExternalStore(
     navigation.subscribe,
@@ -43,6 +50,7 @@ export function ToolCanvasPreview({
     navigation.getSnapshot,
   );
   const stage = useRef<HTMLDivElement>(null);
+  const selection = useRef<{ pointer: number; activation: PointerDragActivation } | null>(null);
   useEffect(() => {
     navigation.setDocument(identity, { width: pixels.width, height: pixels.height });
   }, [navigation, identity, pixels.width, pixels.height]);
@@ -71,8 +79,35 @@ export function ToolCanvasPreview({
           );
         }}
         tabIndex={0}
-        aria-label={navigationLabel}
+        aria-label={t(navigationLabel)}
         onKeyDown={onKeyDown}
+        onPointerDown={(event) => {
+          selection.current =
+            onPixelSelect && event.isPrimary && event.button === SELECT_BUTTON
+              ? { pointer: event.pointerId, activation: new PointerDragActivation(event) }
+              : null;
+        }}
+        onPointerMove={(event) => {
+          if (selection.current?.pointer === event.pointerId)
+            selection.current.activation.update(event);
+        }}
+        onPointerUp={(event) => {
+          const active = selection.current;
+          selection.current = null;
+          if (!active || active.pointer !== event.pointerId || active.activation.update(event))
+            return;
+          const point = clientToLocal(event.currentTarget, clientPoint(event));
+          onPixelSelect?.({
+            x: (point.x - view.origin.x) / view.zoom,
+            y: (point.y - view.origin.y) / view.zoom,
+          });
+        }}
+        onPointerCancel={() => {
+          selection.current = null;
+        }}
+        onLostPointerCapture={() => {
+          selection.current = null;
+        }}
       >
         <UiPart
           part="editor_normal"
@@ -92,7 +127,7 @@ export function ToolCanvasPreview({
           }}
           pixels={pixels}
           checker={checker}
-          aria-label={label}
+          aria-label={t(label)}
         />
         {overlay?.(view)}
       </PanSurface>

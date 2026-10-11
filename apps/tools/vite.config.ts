@@ -15,6 +15,8 @@ import { publicPackageAssets } from "../../infra/public-package-assets.ts";
 import { ssgScopedName } from "../../infra/react-ssg-style-names.ts";
 import { siteHtml } from "../../infra/site-html.ts";
 import { siteTelemetryDefines } from "../../infra/site-telemetry.ts";
+import { FEATURES_PATH } from "../growth/content/features/index.ts";
+import { localizedSiteHref, PublicLanguage } from "../growth/content/site/language.ts";
 import { toolsStartupPages } from "./build/startup-pages.ts";
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -46,7 +48,22 @@ export default defineConfig(({ command }) => ({
         server.middlewares.use((request, response, next) => {
           const url = new URL(request.url ?? "/", "http://localhost");
           response.setHeader("X-Robots-Tag", "noindex, follow");
-          for (const path of [TOOLS_BASE_PATH, VIEWER_PATH, GIF_PATH, ANIMAL_CROSSING_PATH]) {
+          if (
+            [
+              TOOLS_BASE_PATH,
+              TOOLS_BASE_PATH.slice(0, -1),
+              `${TOOLS_BASE_PATH}index.html`,
+            ].includes(url.pathname)
+          ) {
+            const language = url.searchParams.get("lang") ?? PublicLanguage.English;
+            url.searchParams.delete("lang");
+            response.writeHead(301, {
+              Location: `${localizedSiteHref(FEATURES_PATH, language)}${url.search}`,
+            });
+            response.end();
+            return;
+          }
+          for (const path of [VIEWER_PATH, GIF_PATH, ANIMAL_CROSSING_PATH]) {
             if (url.pathname === path.slice(0, -1) || url.pathname === `${path}index.html`) {
               response.writeHead(301, { Location: `${path}${url.search}` });
               response.end();
@@ -117,7 +134,6 @@ export default defineConfig(({ command }) => ({
     rolldownOptions: {
       input: {
         animalCrossing: resolve(root, "animal-crossing-qr/index.html"),
-        toolsHome: resolve(root, "index.html"),
         viewer: resolve(root, "viewer/index.html"),
         gifToSpriteSheet: resolve(root, "gif-to-sprite-sheet/index.html"),
       },

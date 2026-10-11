@@ -20,7 +20,16 @@ import {
   useUserDataVisibility,
   UserDataVisibilityScope,
 } from "$/managers/user-data/user-data-manager";
-import { Button, Input, Text, TextVariant, Checkbox, Combobox, Divider } from "@xprite/ui";
+import {
+  FontRole,
+  Button,
+  Input,
+  Text,
+  TextVariant,
+  Checkbox,
+  Combobox,
+  Divider,
+} from "@xprite/ui";
 
 const SPRITE_PROPERTIES_DIALOG_WIDTH = 578;
 const SPRITE_USER_DATA_COLOR_FIELD = { x: 88, y: 105, width: 424, height: 24 };
@@ -440,7 +449,7 @@ export function SpriteProperties({ onClose }: { onClose: () => void }) {
               }}
               relativeTo={c}
               text="OK"
-              font="default"
+              font={FontRole.Primary}
               mnemonicIndex={0}
               aria-label="OK"
               onClick={accept}
@@ -454,7 +463,7 @@ export function SpriteProperties({ onClose }: { onClose: () => void }) {
               }}
               relativeTo={c}
               text="Cancel"
-              font="default"
+              font={FontRole.Primary}
               mnemonicIndex={0}
               aria-label="Cancel"
               onClick={onClose}

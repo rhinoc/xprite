@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog, useEditorDialogInitialFocus } from "$/components/dialogs/overlay";
@@ -12,6 +11,7 @@ import {
   MIN_TILEMAP_BASE_INDEX as INT16_MIN,
 } from "$/managers/tools/tool-options";
 import {
+  createUiPortal,
   Button,
   Input,
   isDialogPopupTarget,
@@ -109,7 +109,7 @@ export function TilemapDialog({
     height: windowHeight,
   };
   const rowShift = convert && !properties ? -36 : 0;
-  return createPortal(
+  return createUiPortal(
     <div
       ref={host}
       className="xse-dialog-backdrop"

@@ -1,15 +1,22 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 
 import { useTheme } from "$/base/theme/theme-context";
-import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
 import { Button } from "$/components/button";
 import {
   DEFAULT_SURFACE_VIEWPORT,
   type SurfaceBounds,
   type SurfaceViewport,
 } from "$/components/canvas-surface";
+import { PanelFrame, PanelFrameLayout } from "$/components/panel/frame";
+import {
+  ScenePanelSkin,
+  type ScenePanelFrameProps,
+  type OverlayContentLayout,
+} from "$/components/panel/scene-frame";
+import { FloatingLayer, FloatingLayerKind } from "$/components/window/floating-layer";
+import { OverlayInteractionScope, useOverlayInteraction } from "$/components/window/interaction";
 import { windowMetrics } from "$/components/window/metrics";
-import { OverlayFrame, type OverlayContentLayout } from "$/components/window/overlay-frame";
+import { useSceneFocusReveal } from "$/components/window/scene-focus";
 import { useVisibleSceneBounds } from "$/components/window/visible-scene-bounds";
 
 const POPUP_CLOSE_BUTTON_WIDTH = 18;
@@ -39,6 +46,8 @@ export interface PopupVariantProps {
   scrollX?: boolean;
   scrollY?: boolean;
   children?: ReactNode | ((context: PopupVariantContext) => ReactNode);
+  /** Replace presentation while retaining popup placement and interaction. */
+  renderFrame?: (props: ScenePanelFrameProps) => ReactNode;
 }
 
 /** Theme-skinned popup border with focus restoration and outside dismissal. */
@@ -60,6 +69,7 @@ export function PopupVariant({
   scrollX,
   scrollY,
   children,
+  renderFrame,
 }: PopupVariantProps) {
   const root = useRef<HTMLDivElement | null>(null);
   const available = useVisibleSceneBounds(
@@ -71,8 +81,6 @@ export function PopupVariant({
   );
   const availableWidth = available.width;
   const availableHeight = available.height;
-  const close = useRef(onOpenChange);
-  close.current = onOpenChange;
   const { translateSource, translateKey } = useTheme();
   const displayLabel = translateSource(label);
   const contentWidth = Math.max(windowMetrics.popupMinimumWidth, requested.width);
@@ -113,53 +121,63 @@ export function PopupVariant({
     height: POPUP_CLOSE_BUTTON_HEIGHT,
   };
 
-  useEffect(() => {
-    if (!open) return;
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    if (autoFocus) root.current?.focus({ preventScroll: true });
-    let restoreFocus = true;
-    const pointer = (event: PointerEvent) => {
-      if (closeOnOutsideClick && root.current && !root.current.contains(event.target as Node)) {
-        restoreFocus = false;
-        close.current(false);
-      }
-    };
-    const key = (event: KeyboardEvent) => {
-      if (event.defaultPrevented) return;
-      if (event.key === "Escape" || (closeOnEnter && event.key === "Enter")) {
-        event.preventDefault();
-        event.stopPropagation();
-        close.current(false);
-      }
-    };
-    document.addEventListener("pointerdown", pointer, true);
-    document.addEventListener("keydown", key);
-    return () => {
-      document.removeEventListener("pointerdown", pointer, true);
-      document.removeEventListener("keydown", key);
-      if (restoreFocus && previous?.isConnected) previous.focus({ preventScroll: true });
-    };
-  }, [open, autoFocus, closeOnOutsideClick, closeOnEnter]);
-
+  const interaction = useOverlayInteraction({
+    open,
+    rootRef: root,
+    autoFocus,
+    restoreFocus: true,
+    closeOnEnter,
+    closeOnOutsidePointer: closeOnOutsideClick,
+    onDismiss: () => onOpenChange(false),
+  });
+  const focusReveal = useSceneFocusReveal(bounds, clientLayoutBounds, viewport);
   if (!open) return null;
+  const presentation: ScenePanelFrameProps = {
+    skin: ScenePanelSkin.Popup,
+    bounds,
+    clientBounds,
+    clientLayoutBounds,
+    viewport,
+    label: displayLabel,
+    contentLayout,
+    scrollX,
+    scrollY,
+    viewportRef: focusReveal.viewportRef,
+    children:
+      typeof children === "function" ? children({ bounds, clientBounds, viewport }) : children,
+  };
+
   return (
-    <OverlayFrame
-      variant="popup"
-      bounds={bounds}
-      clientBounds={clientBounds}
-      clientLayoutBounds={clientLayoutBounds}
-      viewport={viewport}
-      relativeTo={relativeTo}
-      label={displayLabel}
-      className={className}
-      contentLayout={contentLayout}
-      scrollX={scrollX}
-      scrollY={scrollY}
-      onRootRef={(node) => {
-        root.current = node;
-      }}
-      chrome={
-        showCloseButton && (
+    <OverlayInteractionScope owner={interaction.owner}>
+      <FloatingLayer
+        kind={FloatingLayerKind.Popup}
+        bounds={bounds}
+        viewport={viewport}
+        relativeTo={relativeTo}
+        className={className}
+        onRootRef={(node) => {
+          root.current = node;
+        }}
+        rootProps={{
+          role: "dialog",
+          "aria-modal": false,
+          "aria-label": displayLabel,
+          tabIndex: -1,
+          onFocusCapture: focusReveal.onFocusCapture,
+          onPointerDown: (event) => event.stopPropagation(),
+          onWheel: (event) => event.stopPropagation(),
+          onKeyDown: (event) => {
+            interaction.onKeyDown(event);
+            event.stopPropagation();
+          },
+        }}
+      >
+        {renderFrame ? (
+          renderFrame(presentation)
+        ) : (
+          <PanelFrame layout={PanelFrameLayout.Scene} {...presentation} />
+        )}
+        {showCloseButton && (
           <Button
             bounds={closeButtonBounds}
             relativeTo={bounds}
@@ -172,25 +190,8 @@ export function PopupVariant({
             aria-label={translateKey("ui.close.name").replace("{name}", displayLabel)}
             onClick={() => onOpenChange(false)}
           />
-        )
-      }
-      rootProps={{
-        onPointerDown: (event) => event.stopPropagation(),
-        onWheel: (event) => event.stopPropagation(),
-        onKeyDown: (event) => {
-          if (isImeKeyboardEvent(event.nativeEvent)) return;
-          if (
-            event.key === "Escape" ||
-            (closeOnEnter && event.key === "Enter" && !event.defaultPrevented)
-          ) {
-            event.preventDefault();
-            close.current(false);
-          }
-          event.stopPropagation();
-        },
-      }}
-    >
-      {typeof children === "function" ? children({ bounds, clientBounds, viewport }) : children}
-    </OverlayFrame>
+        )}
+      </FloatingLayer>
+    </OverlayInteractionScope>
   );
 }

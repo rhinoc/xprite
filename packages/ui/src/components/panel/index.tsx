@@ -2,11 +2,8 @@ import * as React from "react";
 
 import { useTheme } from "$/base/theme/theme-context";
 import { cn } from "$/base/utils/cn";
-import {
-  surfaceAttributes,
-  surfaceStyle,
-  type SurfaceContentProps,
-} from "$/components/surface/content";
+import { borderStyle as resolveBorderStyle } from "$/components/border";
+import { surfaceAttributes, surfaceStyle } from "$/components/surface/content";
 
 export {
   ContentAlign,
@@ -14,135 +11,100 @@ export {
   ContentPadding,
   SurfaceTone,
 } from "$/components/surface/content";
+import { PanelFrame } from "$/components/panel/frame";
 import { PanelGroupFrame } from "$/components/panel/group-frame";
+import { PanelNoteSurface } from "$/components/panel/note-surface";
 import {
-  useWindowDisclosure,
-  type WindowDisclosureProps,
-} from "$/components/window-workspace/disclosure";
+  PanelBorderStyle,
+  PanelVariant,
+  type PanelProps,
+  type PanelWindowProps,
+} from "$/components/panel/types";
+export { PanelVariant } from "$/components/panel/types";
+export type { PanelProps } from "$/components/panel/types";
+export { PanelFrame, PanelFrameLayout } from "$/components/panel/frame";
+export type { PanelFrameProps, FlowPanelFrameProps } from "$/components/panel/frame";
+export { ScenePanelSkin, OverlayContentLayout } from "$/components/panel/scene-frame";
+export type { ScenePanelFrameProps } from "$/components/panel/scene-frame";
+import { useWindowDisclosure } from "$/components/window-workspace/disclosure";
 
 import "$/components/window-workspace/workspace.module.css";
 import styles from "$/components/panel/panel.module.css";
-import windowStyles from "$/components/panel/window.module.css";
 
-export enum PanelVariant {
-  Standard = "standard",
-  Window = "window",
-  Group = "group",
-}
+export {
+  PanelBorderStyle,
+  PanelTitleAlignment,
+  PanelDismissBehavior,
+  PanelNoteColor,
+} from "$/components/panel/types";
 
-export { PanelGroupBorder } from "$/components/panel/types";
-import type { PanelGroupBorder } from "$/components/panel/types";
-
-export enum PanelWindowKind {
-  Document = "document",
-  Utility = "utility",
-  Dialog = "dialog",
-  Note = "note",
-  About = "about",
-}
-
-export enum PanelWindowChrome {
-  Standard = "standard",
-  Emphasized = "emphasized",
-}
-
-export interface PanelProps
-  extends
-    Omit<React.HTMLAttributes<HTMLElement>, "title">,
-    SurfaceContentProps,
-    WindowDisclosureProps {
-  title?: React.ReactNode;
-  groupBorder?: PanelGroupBorder;
-  variant?: PanelVariant;
-  windowChrome?: PanelWindowChrome;
-  /** The chrome of a Window panel, chosen for its purpose. */
-  windowKind?: PanelWindowKind;
-  extra?: React.ReactNode;
-  /** Status content along the bottom edge of the Window variant. */
-  footer?: React.ReactNode;
-  children?: React.ReactNode;
-}
-
-export function Panel({
-  title,
-  extra,
-  footer,
-  children,
-  className,
-  variant = PanelVariant.Standard,
-  windowChrome,
-  groupBorder,
-  tone,
-  contentLayout,
-  contentPadding,
-  contentGap,
-  contentAlign,
-  style,
-  windowKind = PanelWindowKind.Document,
-  collapsible = windowKind === PanelWindowKind.Document || windowKind === PanelWindowKind.Utility,
+function PanelWindow({
+  collapsible,
   defaultCollapsed,
   collapsed,
   onCollapsedChange,
-  ...props
-}: PanelProps) {
-  const { definition } = useTheme();
+  ...frame
+}: PanelWindowProps) {
   const disclosure = useWindowDisclosure({ defaultCollapsed, collapsed, onCollapsedChange });
-  const WindowRoot = collapsible ? "details" : "section";
-  const WindowHeader = collapsible ? "summary" : "div";
+  const canCollapse = collapsible ?? frame.variant !== PanelVariant.Dialog;
+  return (
+    <PanelFrame
+      {...frame}
+      as={canCollapse ? "details" : "section"}
+      {...(canCollapse ? { open: !disclosure.collapsed, onToggle: disclosure.toggle } : {})}
+      headerProps={
+        canCollapse
+          ? {
+              onClick: disclosure.click,
+              onDoubleClick: disclosure.doubleClick,
+              onKeyDown: disclosure.keyDown,
+            }
+          : undefined
+      }
+    />
+  );
+}
+
+export function Panel(allProps: PanelProps) {
+  const { definition } = useTheme();
+  const titleId = React.useId();
+  if (allProps.variant === PanelVariant.Note || allProps.variant === PanelVariant.NoteWindow) {
+    const { variant, ...props } = allProps;
+    return <PanelNoteSurface {...props} windowed={variant === PanelVariant.NoteWindow} />;
+  }
+  if (
+    allProps.variant === PanelVariant.Document ||
+    allProps.variant === PanelVariant.Utility ||
+    allProps.variant === PanelVariant.Dialog
+  )
+    return <PanelWindow {...allProps} />;
+  const {
+    variant: _variant,
+    title,
+    extra,
+    border,
+    children,
+    className,
+    tone,
+    contentLayout,
+    contentPadding,
+    contentGap,
+    contentAlign,
+    style,
+    ...props
+  } = allProps;
+  const resolvedBorder = resolveBorderStyle(border ?? true, PanelBorderStyle.Single);
   const surface = { tone, contentLayout, contentPadding, contentGap, contentAlign };
-  const attributes = surfaceAttributes(surface);
-  const mergedStyle = surfaceStyle(surface, style);
-  if (variant === PanelVariant.Window)
-    return (
-      <WindowRoot
-        aria-label={typeof title === "string" ? title : undefined}
-        {...props}
-        {...attributes}
-        style={mergedStyle}
-        className={cn(windowStyles.window, className)}
-        data-slot="panel"
-        data-ui-panel-variant="window"
-        data-ui-panel-window-chrome={windowChrome}
-        data-ui-window-kind={windowKind}
-        data-ui-desktop-window
-        {...(collapsible ? { open: !disclosure.collapsed, onToggle: disclosure.toggle } : {})}
-      >
-        <WindowHeader
-          className={windowStyles.header}
-          data-slot="panel-header"
-          onClick={collapsible ? disclosure.click : undefined}
-          onDoubleClick={collapsible ? disclosure.doubleClick : undefined}
-          onKeyDown={collapsible ? disclosure.keyDown : undefined}
-        >
-          <span className={windowStyles.title} data-slot="panel-title">
-            {title}
-          </span>
-          {extra && (
-            <span className={windowStyles.extra} data-slot="panel-extra">
-              {extra}
-            </span>
-          )}
-        </WindowHeader>
-        <div className={windowStyles.body} data-slot="panel-body" data-ui-surface-content>
-          {children}
-        </div>
-        {footer && <div data-slot="panel-footer">{footer}</div>}
-      </WindowRoot>
-    );
-  const cutout = definition.controlParts?.panel?.header === "cutout";
-  if (cutout || variant === PanelVariant.Group)
+  if (definition.controlParts?.panel?.header === "cutout")
     return (
       <PanelGroupFrame
         {...props}
         {...surface}
-        style={style}
         title={title}
         extra={extra}
+        border={border}
         className={className}
-        rootSlot={variant === PanelVariant.Group ? "group-box" : "panel"}
-        bodySlot={variant === PanelVariant.Group ? "group-box-body" : "panel-body"}
-        groupBorder={groupBorder}
-        insetContent={variant === PanelVariant.Group}
+        style={style}
       >
         {children}
       </PanelGroupFrame>
@@ -151,13 +113,18 @@ export function Panel({
     <section
       className={cn(styles.root, className)}
       data-slot="panel"
+      data-group-box-variant={resolvedBorder ?? "none"}
       {...props}
-      {...attributes}
-      style={mergedStyle}
+      role={props.role ?? "group"}
+      aria-labelledby={
+        props["aria-labelledby"] ?? (props["aria-label"] || !title ? undefined : titleId)
+      }
+      {...surfaceAttributes(surface)}
+      style={surfaceStyle(surface, style)}
     >
       {(title || extra) && (
         <div className={styles.header} data-slot="panel-header">
-          <span>{title}</span>
+          <span id={titleId}>{title}</span>
           <span className={styles.extra} data-slot="panel-extra">
             {extra}
           </span>

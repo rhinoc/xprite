@@ -1,23 +1,22 @@
 import type { CSSProperties, ReactNode } from "react";
 
-import { TOOLS_HOME, type PublicTool } from "$/managers/tools/tool-catalog";
-import { siteApplications } from "@xprite/growth-content/navigation";
-import { SiteMenubar } from "@xprite/site-shell";
+import { useToolLanguage } from "$/managers/locale/tool-language";
+import type { PublicTool } from "$/managers/tools/tool-catalog";
+import { FEATURES_PATH } from "@xprite/growth-content/features";
+import { localizedSiteHref, PublicLanguage } from "@xprite/growth-content/language";
+import { siteApplications, siteFooterGroups } from "@xprite/growth-content/navigation";
+import { SiteFooter, SiteMenubar } from "@xprite/site-shell";
 import {
-  RichText,
   ButtonVariant,
   Button,
   Icon,
   IconKind,
   type MenubarMenu,
   WindowWorkspace,
-  PatternVariant,
-  PageScrollArea,
-  PageScrollbarMode,
-  Note,
-  NoteVariant,
-  NoteDismissBehavior,
-  NoteColor,
+  PatternId,
+  ScrollArea,
+  ScrollAreaTarget,
+  ScrollbarRendering,
   useUi,
   IconSize,
 } from "@xprite/ui";
@@ -29,20 +28,27 @@ export function ToolFrame({
   filename,
   menus = [],
   children,
-  reserveGutter = true,
-  readme,
+  help,
 }: {
-  tool?: PublicTool;
+  tool: PublicTool;
   filename?: string;
   menus?: readonly MenubarMenu[];
   children: ReactNode;
-  reserveGutter?: boolean;
-  readme?: ReactNode;
+  help?: ReactNode;
 }) {
-  const { appearance } = useUi();
+  const { language, setLanguage, translate: t } = useToolLanguage();
+  const guidePath = "guidePath" in tool ? tool.guidePath : undefined;
+  const samePageGuide =
+    typeof guidePath === "string" &&
+    (guidePath.startsWith("#") || guidePath === tool.path || guidePath.startsWith(`${tool.path}#`));
+  const helpHref =
+    help && typeof guidePath === "string" && !samePageGuide
+      ? localizedSiteHref(guidePath, language)
+      : undefined;
+
+  const { colorScheme } = useUi();
   const variables = {
-    colorScheme: appearance,
-    "--tool-page-gutter": "0px",
+    colorScheme,
     "--tool-empty-paper": "var(--ui-color-desktop)",
     "--tool-empty-card": "var(--ui-color-paper)",
     "--tool-empty-ink": "var(--ui-color-ink)",
@@ -54,85 +60,80 @@ export function ToolFrame({
     "--tool-link": "var(--ui-color-link)",
   } as CSSProperties;
   return (
-    <PageScrollArea
-      reserveGutter={reserveGutter}
-      scrollbarMode={PageScrollbarMode.Native}
+    <ScrollArea
+      target={ScrollAreaTarget.Page}
+      scrollbarRendering={ScrollbarRendering.Browser}
+      reserveScrollbarGutter
       className={`${styles.page} xse-global`}
       style={variables}
-      aria-label="Page scroll"
+      aria-label={t("Page scroll")}
     >
-      <div
-        className={styles.shell}
-        data-tool-state={tool ? (filename ? "ready" : "empty") : "directory"}
-      >
-        <header className={styles.header}>
-          <SiteMenubar
-            label="Tool navigation"
-            applicationName={tool?.label ?? "Tools"}
+      <div className={styles.shell} data-tool-state={filename ? "ready" : "empty"}>
+        <div className={styles.screen}>
+          <header className={styles.header}>
+            <SiteMenubar
+              label={t("Tool navigation")}
+              applicationName={t(tool.label)}
+              applications={siteApplications(tool.path, language, helpHref)}
+              menus={menus}
+              help={
+                helpHref
+                  ? {
+                      href: helpHref,
+                      label: t("Read Me"),
+                      tooltip: [t(tool.summary), t(tool.privacy)].join("\n"),
+                    }
+                  : undefined
+              }
+              language={language}
+              languages={[
+                {
+                  value: PublicLanguage.English,
+                  label: "English",
+                  onSelect: () => setLanguage(PublicLanguage.English),
+                },
+                {
+                  value: PublicLanguage.SimplifiedChinese,
+                  label: "简体中文",
+                  onSelect: () => setLanguage(PublicLanguage.SimplifiedChinese),
+                },
+              ]}
+            />
+          </header>
+          <WindowWorkspace
+            data-ui-desktop-pattern={PatternId.MacOS8CoplandBlue}
+            className={styles.desktop}
+          >
+            <div className={styles.content} data-ui-desktop-layer>
+              {children}
+            </div>
 
-            applications={siteApplications(
-              tool?.path ?? TOOLS_HOME.path,
-              "en",
-              import.meta.env.DEV,
-            )}
-            menus={menus}
-          />
-        </header>
-        <WindowWorkspace
-          data-ui-desktop-pattern={PatternVariant.MacOS8CoplandBlue}
-          className={styles.desktop}
-        >
-          <div className={styles.content} data-ui-desktop-layer>
-            {children}
-          </div>
-
-          <aside className={styles.utilities} data-ui-desktop-layer>
-            {!filename && (
-              <>
-                <Note
-                  variant={NoteVariant.Window}
-                  dismissBehavior={NoteDismissBehavior.Collapse}
-                  color={NoteColor.Yellow}
-                  aria-label="Read Me"
-                  title="Read Me"
-                  defaultCollapsed={false}
-                  className={styles.readmeWindow}
-                  data-ui-window-active="false"
-                >
-                  <RichText>
-                    {readme ?? (
-                      <>
-                        <p>
-                          <strong>{tool?.label ?? TOOLS_HOME.name}</strong>
-                        </p>
-                        <p>
-                          {tool?.summary ?? "Open an application from the Applications folder."}
-                        </p>
-                      </>
-                    )}
-                    <p>{tool?.privacy ?? "Files stay on your device. No cloud upload."}</p>
-                  </RichText>
-                </Note>
-              </>
-            )}
-            <nav className={styles.shortcuts} aria-label="Desktop shortcuts">
-              <Button
-                variant={ButtonVariant.Tile}
-                slots={{ leading: <Icon kind={IconKind.Folder} size={IconSize.Large} /> }}
-                text="Applications"
-                href="/tools/"
-              />
-              <Button
-                variant={ButtonVariant.Tile}
-                slots={{ leading: <Icon kind={IconKind.Document} size={IconSize.Large} /> }}
-                text="User guide"
-
-                href={tool?.guidePath ?? "/help/en/"}
-              />
-            </nav>
-          </aside>
-        </WindowWorkspace>
+            <aside className={styles.utilities} data-ui-desktop-layer>
+              <nav className={styles.shortcuts} aria-label={t("Desktop shortcuts")}>
+                <Button
+                  variant={ButtonVariant.Tile}
+                  slots={{ leading: <Icon kind={IconKind.Folder} size={IconSize.Large} /> }}
+                  text={language === PublicLanguage.SimplifiedChinese ? "功能" : "Features"}
+                  href={localizedSiteHref(FEATURES_PATH, language)}
+                />
+                {helpHref && (
+                  <Button
+                    variant={ButtonVariant.Tile}
+                    slots={{ leading: <Icon kind={IconKind.Document} size={IconSize.Large} /> }}
+                    text={t("Read Me")}
+                    href={helpHref}
+                  />
+                )}
+              </nav>
+              {help && <div className={styles.helpFrame}>{help}</div>}
+            </aside>
+          </WindowWorkspace>
+        </div>
+        <SiteFooter
+          groups={siteFooterGroups(language, helpHref)}
+          label={language === PublicLanguage.SimplifiedChinese ? "网站导航" : "Website navigation"}
+        />
       </div>
-    </PageScrollArea>
+    </ScrollArea>
   );
 }

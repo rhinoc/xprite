@@ -22,8 +22,8 @@ import {
   TOOL_COLOR_CHANNEL_MAX as UINT8_MAX,
   type EditorColorProfile as AsepriteColorProfile,
 } from "$/managers/tools/color-control";
-import { CanvasSurface, useUi, type SurfaceBounds } from "@xprite/ui";
-import { UiIcon, UiPart } from "@xprite/ui/assets";
+import { CanvasSurface, useUi, type SurfaceBounds, Icon, FocusRingBehavior } from "@xprite/ui";
+import { UiPart } from "@xprite/ui/assets";
 import { surfaceLayout } from "@xprite/ui/canvas";
 import { clientPoint, clientToSurface, stylusPointerInputProps } from "@xprite/ui/utils";
 
@@ -468,8 +468,8 @@ export function ColorFields({
           }}
         >
           {mainHeight > 0 && (
-            <UiIcon
-              part="color_wheel_indicator"
+            <Icon
+              kind="color_wheel_indicator"
               x={Math.floor(saturation * controlCells) * 2 - 4}
               y={Math.floor((1 - value) * mainRows) * 2 - 4}
               color={value < 0.5 ? "#fff" : "#000"}
@@ -477,8 +477,8 @@ export function ColorFields({
             />
           )}
           {showHueBar && (
-            <UiIcon
-              part="color_wheel_indicator"
+            <Icon
+              kind="color_wheel_indicator"
               x={Math.floor(hue * controlCells) * 2 - 4}
               y={mainHeight + 4}
               color="#000"
@@ -486,8 +486,8 @@ export function ColorFields({
             />
           )}
           {showAlphaBar && (
-            <UiIcon
-              part="color_wheel_indicator"
+            <Icon
+              kind="color_wheel_indicator"
               x={Math.floor(opacity * controlCells) * 2 - 4}
               y={mainHeight + (showHueBar ? COLOR_SELECTOR_BAR_HEIGHT : 0) + 4}
               color="#000"
@@ -522,7 +522,7 @@ export function ColorFields({
           value={color}
           bounds={colorBounds[index]}
           relativeTo={bounds}
-          focusAppearance="always"
+          focusRing={FocusRingBehavior.Always}
           aria-pressed={
             target !== undefined
               ? selectorTarget ===

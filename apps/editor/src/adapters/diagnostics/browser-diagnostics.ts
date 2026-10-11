@@ -5,6 +5,7 @@ import {
   DIAGNOSTIC_RETENTION_DAYS,
   MAX_DIAGNOSTIC_RECORDS,
   DiagnosticSource,
+  WorkspaceDiagnosticAction,
   type DiagnosticCaptureDetails,
   type DiagnosticRecord,
   type DiagnosticsPort,
@@ -87,6 +88,13 @@ function recordId(timestamp: number, serial: number): string {
   return `${timestamp}-${serial}-${random}`;
 }
 
+function isInteractionBlockedRecord(record: DiagnosticRecord): boolean {
+  return (
+    record.source === DiagnosticSource.Workspace &&
+    record.workspaceEvent?.action === WorkspaceDiagnosticAction.InteractionBlocked
+  );
+}
+
 function detectCapability(probe: () => boolean): boolean {
   try {
     return probe();
@@ -143,7 +151,10 @@ export class BrowserDiagnostics implements DiagnosticsPort {
         timestamp,
         source: DiagnosticSource.Workspace,
         name: event.action,
-        message: `${event.action}${event.documentName ? `: ${event.documentName}` : ""}`,
+        message:
+          event.action === WorkspaceDiagnosticAction.InteractionBlocked
+            ? `${event.action}: ${event.blockers?.join(", ") || "unknown"}`
+            : `${event.action}${event.documentName ? `: ${event.documentName}` : ""}`,
         context: JSON.stringify(event),
         workspaceEvent: { ...event },
       };
@@ -162,7 +173,10 @@ export class BrowserDiagnostics implements DiagnosticsPort {
   async syncRecentToDevelopmentLog(): Promise<void> {
     if (!import.meta.env.DEV || typeof window === "undefined") return;
     try {
-      const records = await this.getRecent();
+      const records = (await this.getRecent()).filter(
+        (record) => !isInteractionBlockedRecord(record),
+      );
+      if (!records.length) return;
       for (let offset = 0; offset < records.length; offset += DIAGNOSTIC_BATCH_SIZE) {
         const response = await fetch(DEVELOPMENT_DIAGNOSTICS_ENDPOINT, {
           method: "POST",
@@ -291,6 +305,11 @@ export class BrowserDiagnostics implements DiagnosticsPort {
   }
 
   private queueRecord(record: DiagnosticRecord): void {
+    const replacesInteractionBlocked = isInteractionBlockedRecord(record);
+    if (replacesInteractionBlocked) {
+      this.memory = this.memory.filter((item) => !isInteractionBlockedRecord(item));
+      this.pending = this.pending.filter((item) => !isInteractionBlockedRecord(item));
+    }
     this.memory.push(record);
     if (this.memory.length > MAX_DIAGNOSTIC_RECORDS)
       this.memory.splice(0, this.memory.length - MAX_DIAGNOSTIC_RECORDS);
@@ -299,7 +318,7 @@ export class BrowserDiagnostics implements DiagnosticsPort {
     } catch {
       // Optional observers must not interrupt local diagnostic persistence.
     }
-    if (import.meta.env.DEV && typeof window !== "undefined") {
+    if (!replacesInteractionBlocked && import.meta.env.DEV && typeof window !== "undefined") {
       try {
         void fetch(DEVELOPMENT_DIAGNOSTICS_ENDPOINT, {
           method: "POST",

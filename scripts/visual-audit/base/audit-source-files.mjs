@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-// Source inventory for the editor app and every workspace it consumes. Gallery
+// Source inventory for the editor app and every workspace it consumes. Components
 // sources are intentionally separate because they do not enter the editor build.
 const visualSource = /\.(?:[cm]?[jt]sx?|css|svg|png|jpe?g|gif|webp|avif|json|woff2?|ttf|otf)$/i;
 const workspaceRoots = [

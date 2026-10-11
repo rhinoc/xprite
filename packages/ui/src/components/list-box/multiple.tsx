@@ -11,13 +11,15 @@ import {
 
 import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
-import { ThemePart } from "$/base/theme/theme-part";
 import { cn } from "$/base/utils/cn";
 import { layoutSize, scrollElementIntoView, observeResize } from "$/base/utils/dom-geometry";
 import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
 import { DEFAULT_SURFACE_VIEWPORT, type SurfaceViewport } from "$/components/canvas-surface";
-import { Divider, DividerVariant } from "$/components/divider";
-import { ListBoxSelectionMode } from "$/components/list-box/types";
+import { Divider, DividerAppearance } from "$/components/divider";
+import { listBoxBorderStyle } from "$/components/list-box/border";
+import { ListBoxFrame } from "$/components/list-box/frame";
+import { ListBoxBorderStyle } from "$/components/list-box/types";
+import { ListBoxMode, type ListBoxPresentationProps } from "$/components/list-box/types";
 import { ScrollArea } from "$/components/scrollbar";
 import { Text, TextVariant } from "$/components/text";
 
@@ -28,9 +30,9 @@ const SECTION_HEIGHT = 54;
 const HEADING_HEIGHT = 46;
 const TEXT_INSET = 4;
 const FRAME_INSET_X = 6;
+const BORDER_WIDTH = 1;
 const FRAME_INSET_TOP = 8;
 const FRAME_INSET_BOTTOM = 6;
-const ARTWORK_SCALE = 2;
 const useClientLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 export type MultipleListBoxItem =
@@ -38,8 +40,9 @@ export type MultipleListBoxItem =
   | { separator: true; label: string; heading?: boolean };
 type MultipleListBoxOption = Exclude<MultipleListBoxItem, { separator: true }>;
 
-export interface MultipleListBoxProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-  selectionMode: ListBoxSelectionMode.Multiple;
+export interface MultipleListBoxProps
+  extends Omit<HTMLAttributes<HTMLDivElement>, "children">, ListBoxPresentationProps {
+  mode: ListBoxMode.Multiple;
   items: readonly MultipleListBoxItem[];
   values: readonly string[];
   onValuesChange: (values: readonly string[]) => void;
@@ -59,7 +62,8 @@ export interface MultipleListBoxProps extends Omit<HTMLAttributes<HTMLDivElement
 
 /** A framed, scrolling workspace list with section headings and controlled multiple selection. */
 export function MultipleListBox({
-  selectionMode: _selectionMode,
+  mode: _mode,
+  border = true,
   items,
   values,
   onValuesChange,
@@ -129,12 +133,38 @@ export function MultipleListBox({
       );
     }
   };
+  const borderStyle = listBoxBorderStyle(border);
+  const thickBorder = borderStyle === ListBoxBorderStyle.Thick;
+  const borderless = borderStyle === undefined;
+  const singleBorder = borderStyle === ListBoxBorderStyle.Single;
+  const skin = theme.controlParts?.listBox;
+  const insetX = borderless
+    ? 0
+    : singleBorder
+      ? BORDER_WIDTH
+      : thickBorder
+        ? FRAME_INSET_X
+        : (skin?.contentInset ?? FRAME_INSET_X);
+  const insetTop = borderless
+    ? 0
+    : singleBorder
+      ? BORDER_WIDTH
+      : thickBorder
+        ? FRAME_INSET_TOP
+        : (skin?.contentInset ?? FRAME_INSET_TOP);
+  const insetBottom = borderless
+    ? 0
+    : singleBorder
+      ? BORDER_WIDTH
+      : thickBorder
+        ? FRAME_INSET_BOTTOM
+        : (skin?.contentInset ?? FRAME_INSET_BOTTOM);
   const rootStyle = {
-    "--list-frame-x": `${FRAME_INSET_X * sx}px`,
-    "--list-frame-top": `${FRAME_INSET_TOP * sy}px`,
-    "--list-frame-bottom": `${FRAME_INSET_BOTTOM * sy}px`,
+    "--list-frame-x": `${insetX * sx}px`,
+    "--list-frame-top": `${insetTop * sy}px`,
+    "--list-frame-bottom": `${insetBottom * sy}px`,
     "--list-face": theme.colors.background,
-    "--list-frame-face": theme.colors.window_face,
+    "--list-frame-face": borderless ? theme.colors.background : theme.colors.window_face,
     ...style,
   } as CSSProperties;
 
@@ -222,7 +252,9 @@ export function MultipleListBox({
                   renderGroup(item)
                 ) : (
                   <Divider
-                    variant={item.heading ? DividerVariant.InViewHeading : DividerVariant.InView}
+                    appearance={
+                      item.heading ? DividerAppearance.Heading : DividerAppearance.Content
+                    }
                     bounds={{ x: 0, y: 0, width: Math.max(1, contentWidth), height }}
                     viewport={viewport}
                     text={item.label}
@@ -282,12 +314,7 @@ export function MultipleListBox({
           );
         })}
       </ScrollArea>
-      <ThemePart
-        part={hasFocus ? "editor_selected" : "editor_normal"}
-        scale={ARTWORK_SCALE}
-        drawCenter={false}
-        className={styles.frame}
-      />
+      <ListBoxFrame border={border} focused={hasFocus} className={styles.frame} />
     </div>
   );
 }

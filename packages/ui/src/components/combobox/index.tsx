@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useId, useRef, useState, type InputHTMLAttributes } from "react";
-import { createPortal } from "react-dom";
 
 import { Input } from "$/base/components/theme-controls";
 import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { ThemePart, ThemeIcon } from "$/base/theme/theme-part";
 import { ThemeRepeat } from "$/base/theme/theme-repeat";
-import { ThemeScope } from "$/base/theme/theme-scope";
+import { ScrollbarStyle } from "$/base/theme/theme-types";
 import { hitElement, clientPoint, clientRect } from "$/base/utils/dom-geometry";
 import {
   surfaceLayout,
@@ -21,6 +20,7 @@ import type { InputTouchActivation } from "$/components/input/touch-activation";
 import { measurePopoverAnchor, anchoredPopoverStyle } from "$/components/popover/anchored";
 import { Scrollbar } from "$/components/scrollbar";
 import { Text, TextVariant } from "$/components/text";
+import { createUiPortal } from "$/components/theme/portal";
 
 import styles from "$/components/combobox/combobox.module.css";
 interface ComboboxContentProps {
@@ -31,6 +31,8 @@ interface ComboboxContentProps {
   onValueChange: (value: string) => void;
   /** Live edits for dependent drafts; onValueChange remains the commit callback. */
   onDraftValueChange?: (value: string) => void;
+  /** User activation for lazily loading options or requesting browser access. */
+  onOpen?: () => void;
   disabled?: boolean;
   /** Editable scene entry; typed values and list choices use the same commit callback. */
   editable?: boolean;
@@ -69,6 +71,7 @@ export function Combobox({
   options,
   onValueChange,
   onDraftValueChange,
+  onOpen,
   disabled = false,
   editable = false,
   fitPopupToContent = false,
@@ -124,13 +127,18 @@ export function Combobox({
   } | null>(null);
   const [popup, setPopup] = useState<PopupLayout | null>(null),
     [scroll, setScroll] = useState(0);
+  const [hotOption, setHotOption] = useState<number | null>(null);
   const [focused, setFocused] = useState(false),
     [hovered, setHovered] = useState(false),
     [arrowHot, setArrowHot] = useState(false),
     [pressed, setPressed] = useState(false);
   const rowHeights = options.map((o) => (o.separator ? (popupMenu ? 8 : 16) : rowHeight));
-  const rowOffsets = options.map((_, i) => rowHeights.slice(0, i).reduce((a, b) => a + b, 0));
-  const contentHeight = rowHeights.reduce((a, b) => a + b, 0);
+  let contentHeight = 0;
+  const rowOffsets = rowHeights.map((height) => {
+    const offset = contentHeight;
+    contentHeight += height;
+    return offset;
+  });
   const selected = options.findIndex((option) => option.value === value),
     text = selected >= 0 ? translateSource(options[selected].label) : value,
     displayLabel = translateSource(label),
@@ -141,6 +149,7 @@ export function Combobox({
   const close = useCallback(
     (restore = true) => {
       gesture.current = null;
+      setHotOption(null);
       setPressed(false);
       setPopup(null);
       const input = anchor.current?.querySelector<HTMLInputElement>("input");
@@ -164,11 +173,8 @@ export function Combobox({
     )
       current.onValueChange(current.options[index].value);
   }, []);
-  const open = () => {
-    if (disabled || !anchor.current || !options.length) return;
-    editableInputWasFocused.current =
-      editable &&
-      anchor.current.querySelector<HTMLInputElement>("input") === document.activeElement;
+  const measurePopup = useCallback((): PopupLayout | null => {
+    if (!anchor.current) return null;
     const anchorBounds = measurePopoverAnchor(anchor.current, DEFAULT_SURFACE_VIEWPORT, bounds);
     const { viewport, origin, availableWidth, availableHeight } = anchorBounds;
     const popupWidth = Math.min(
@@ -191,23 +197,61 @@ export function Combobox({
     );
     const height = innerHeight + insetY + bottomInset,
       y = bottom + height <= availableHeight ? bottom : Math.max(0, top - height);
-    setScroll(
-      Math.max(
-        0,
-        Math.min(
-          contentHeight - innerHeight,
-          (rowOffsets[selected] ?? 0) - Math.floor(innerHeight / 2) + rowHeight / 2,
-        ),
-      ),
-    );
-    setPopup({
+    return {
       bounds: { x, y, width: popupWidth, height },
       viewport,
       origin,
       availableHeight,
       innerHeight,
-    });
+    };
+  }, [
+    options,
+    contentHeight,
+    bounds.x,
+    bounds.y,
+    bounds.width,
+    bounds.height,
+    rowHeight,
+    insetY,
+    bottomInset,
+    fitPopupToContent,
+    measureThemeText,
+    translateSource,
+  ]);
+  const open = () => {
+    if (disabled || !anchor.current || !options.length) return;
+    const measured = measurePopup();
+    if (!measured) return;
+    setHotOption(null);
+    editableInputWasFocused.current =
+      editable &&
+      anchor.current.querySelector<HTMLInputElement>("input") === document.activeElement;
+    setScroll(
+      Math.max(
+        0,
+        Math.min(
+          contentHeight - measured.innerHeight,
+          (rowOffsets[selected] ?? 0) - Math.floor(measured.innerHeight / 2) + rowHeight / 2,
+        ),
+      ),
+    );
+    setPopup(measured);
+    onOpen?.();
   };
+  useEffect(() => {
+    if (!popup) return;
+    const measured = measurePopup();
+    if (
+      !measured ||
+      (measured.innerHeight === popup.innerHeight &&
+        measured.bounds.y === popup.bounds.y &&
+        measured.bounds.width === popup.bounds.width &&
+        measured.bounds.x === popup.bounds.x)
+    )
+      return;
+    setScroll((old) => Math.max(0, Math.min(contentHeight - measured.innerHeight, old)));
+    setPopup(measured);
+  }, [popup, measurePopup, contentHeight]);
   useEffect(() => {
     if (disabled) close(false);
   }, [disabled, close]);
@@ -326,6 +370,7 @@ export function Combobox({
     <>
       <span
         ref={anchor}
+        id={`${id}-anchor`}
         className={styles.anchor}
         data-disabled={disabled || undefined}
         style={{
@@ -593,125 +638,112 @@ export function Combobox({
         )}
       </span>
       {popup &&
-        createPortal(
-          <ThemeScope>
-            <div
-              ref={list}
-              className={styles.popup}
-              id={id}
-              role="listbox"
-              aria-label={displayLabel}
-              aria-activedescendant={selected >= 0 ? `${id}-${selected}` : undefined}
-              tabIndex={0}
+        createUiPortal(
+          <div
+            ref={list}
+            className={styles.popup}
+            id={id}
+            data-popup=""
+            data-popup-for={`${id}-anchor`}
+            role="listbox"
+            aria-label={displayLabel}
+            aria-activedescendant={
+              hotOption !== null
+                ? `${id}-${hotOption}`
+                : selected >= 0
+                  ? `${id}-${selected}`
+                  : undefined
+            }
+            tabIndex={0}
+            style={{
+              ...anchoredPopoverStyle(popup, popup.bounds, { zIndex: 9000 }),
+              outline: "none",
+            }}
+            onKeyDown={(event) => {
+              event.stopPropagation();
+              setHotOption(null);
+              if (["Escape", "Enter", " "].includes(event.key)) {
+                event.preventDefault();
+                close();
+                return;
+              }
+              if (event.key === "Tab") {
+                close(false);
+                return;
+              }
+              const enabled = options
+                .map((option, index) => (option.disabled || option.separator ? -1 : index))
+                .filter((index) => index >= 0);
+              if (!enabled.length) return;
+              let next: number | undefined;
+              const at = enabled.indexOf(selected);
+              if (event.key === "Home") next = enabled[0];
+              else if (event.key === "End") next = enabled[enabled.length - 1];
+              else if (["ArrowDown", "ArrowUp", "PageDown", "PageUp"].includes(event.key)) {
+                const delta =
+                  (event.key.endsWith("Down") ? 1 : -1) *
+                  (event.key.startsWith("Page")
+                    ? Math.max(1, Math.floor(popup.innerHeight / rowHeight))
+                    : 1);
+                next = enabled[Math.max(0, Math.min(enabled.length - 1, at + delta))];
+              } else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey)
+                next = [...enabled.slice(at + 1), ...enabled.slice(0, at + 1)].find((index) =>
+                  options[index].label.toLowerCase().startsWith(event.key.toLowerCase()),
+                );
+              if (next !== undefined) {
+                event.preventDefault();
+                choose(next);
+                ensureVisible(next);
+              }
+            }}
+            onPointerLeave={() => setHotOption(null)}
+          >
+            <span
+              aria-hidden="true"
+              className={styles.viewport}
               style={{
-                ...anchoredPopoverStyle(popup, popup.bounds, { zIndex: 9000 }),
-                outline: "none",
-              }}
-              onKeyDown={(event) => {
-                event.stopPropagation();
-                if (["Escape", "Enter", " "].includes(event.key)) {
-                  event.preventDefault();
-                  close();
-                  return;
-                }
-                if (event.key === "Tab") {
-                  close(false);
-                  return;
-                }
-                const enabled = options
-                  .map((option, index) => (option.disabled || option.separator ? -1 : index))
-                  .filter((index) => index >= 0);
-                if (!enabled.length) return;
-                let next: number | undefined;
-                const at = enabled.indexOf(selected);
-                if (event.key === "Home") next = enabled[0];
-                else if (event.key === "End") next = enabled[enabled.length - 1];
-                else if (["ArrowDown", "ArrowUp", "PageDown", "PageUp"].includes(event.key)) {
-                  const delta =
-                    (event.key.endsWith("Down") ? 1 : -1) *
-                    (event.key.startsWith("Page")
-                      ? Math.max(1, Math.floor(popup.innerHeight / rowHeight))
-                      : 1);
-                  next = enabled[Math.max(0, Math.min(enabled.length - 1, at + delta))];
-                } else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey)
-                  next = [...enabled.slice(at + 1), ...enabled.slice(0, at + 1)].find((index) =>
-                    options[index].label.toLowerCase().startsWith(event.key.toLowerCase()),
-                  );
-                if (next !== undefined) {
-                  event.preventDefault();
-                  choose(next);
-                  ensureVisible(next);
-                }
+                width: surfaceLayout(popup.bounds, popup.viewport).width,
+                height: surfaceLayout(popup.bounds, popup.viewport).height,
               }}
             >
               <span
-                aria-hidden="true"
-                className={styles.viewport}
                 style={{
-                  width: surfaceLayout(popup.bounds, popup.viewport).width,
-                  height: surfaceLayout(popup.bounds, popup.viewport).height,
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  width: popup.bounds.width,
+                  height: popup.bounds.height,
+                  transform: `scale(${surfaceLayout(popup.bounds, popup.viewport).width / popup.bounds.width}, ${surfaceLayout(popup.bounds, popup.viewport).height / popup.bounds.height})`,
+                  transformOrigin: "top left",
+                  background: theme.colors.window_face,
                 }}
               >
+                <ThemePart
+                  part={popupMenu ? "menu" : editable ? "sunken_normal" : "sunken_focused"}
+                  scale={2}
+                  drawCenter
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: popup.bounds.width,
+                    height: popup.bounds.height,
+                  }}
+                />
                 <span
                   style={{
                     position: "absolute",
-                    left: 0,
-                    top: 0,
-                    width: popup.bounds.width,
-                    height: popup.bounds.height,
-                    transform: `scale(${surfaceLayout(popup.bounds, popup.viewport).width / popup.bounds.width}, ${surfaceLayout(popup.bounds, popup.viewport).height / popup.bounds.height})`,
-                    transformOrigin: "top left",
-                    background: theme.colors.window_face,
+                    left: insetX,
+                    top: insetY,
+                    width: popup.bounds.width - insetX * 2 - (scrollbar ? barSize : 0),
+                    height: popup.innerHeight,
+                    overflow: "hidden",
                   }}
                 >
-                  <ThemePart
-                    part={popupMenu ? "menu" : editable ? "sunken_normal" : "sunken_focused"}
-                    scale={2}
-                    drawCenter
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      width: popup.bounds.width,
-                      height: popup.bounds.height,
-                    }}
-                  />
-                  <span
-                    style={{
-                      position: "absolute",
-                      left: insetX,
-                      top: insetY,
-                      width: popup.bounds.width - insetX * 2 - (scrollbar ? barSize : 0),
-                      height: popup.innerHeight,
-                      overflow: "hidden",
-                    }}
-                  >
-                    {options.map((option, index) => {
-                      const y = rowOffsets[index] - scroll,
-                        active = index === selected;
-                      if (option.separator)
-                        return (
-                          <span
-                            key={index}
-                            style={{
-                              position: "absolute",
-                              left: 0,
-                              top: y,
-                              width: "100%",
-                              height: rowHeights[index],
-                              background: theme.colors.listitem_normal_face,
-                            }}
-                          >
-                            <ThemeRepeat
-                              part="separator_horz"
-                              length={popup.bounds.width - insetX * 2 - (scrollbar ? barSize : 0)}
-                              y={
-                                popupMenu
-                                  ? centerText(y, rowHeights[index], 1) - y
-                                  : centerThemePixel(y, rowHeights[index], 10) - y
-                              }
-                            />
-                          </span>
-                        );
+                  {options.map((option, index) => {
+                    const y = rowOffsets[index] - scroll,
+                      active = index === selected,
+                      highlighted = hotOption === null ? active : index === hotOption;
+                    if (option.separator)
                       return (
                         <span
                           key={index}
@@ -720,135 +752,169 @@ export function Combobox({
                             left: 0,
                             top: y,
                             width: "100%",
-                            height: rowHeight,
-                            background: active
-                              ? theme.colors.listitem_selected_face
-                              : option.disabled && !popupMenu
-                                ? theme.colors.face
-                                : theme.colors.listitem_normal_face,
+                            height: rowHeights[index],
+                            background: theme.colors.listitem_normal_face,
                           }}
                         >
-                          {active && popupMenu && theme.controlParts?.menu?.checkedVector && (
-                            <svg
-                              width={12}
-                              height={12}
-                              viewBox="0 0 12 12"
-                              shapeRendering="crispEdges"
-                              style={{ position: "absolute", left: 0, top: (rowHeight - 12) / 2 }}
-                            >
-                              <path
-                                d={theme.controlParts.menu.checkedVector.path}
-                                fill={theme.colors.listitem_selected_text}
-                              />
-                            </svg>
-                          )}
-                          <Text
-                            variant={TextVariant.PositionedPixel}
-                            text={translateSource(option.label)}
-                            x={
-                              labelInset +
-                              (popupMenu && (active || option.disabled)
-                                ? (theme.dimensions.menu_text_state_offset_x ?? 0)
-                                : 0)
-                            }
+                          <ThemeRepeat
+                            part="separator_horz"
+                            length={popup.bounds.width - insetX * 2 - (scrollbar ? barSize : 0)}
                             y={
                               popupMenu
-                                ? centerText(y, rowHeight, themeFontHeight()) - y
-                                : centerThemePixel(y, rowHeight, 14) - y
-                            }
-                            color={
-                              option.disabled
-                                ? popupMenu
-                                  ? theme.colors.menuitem_disabled_text
-                                  : theme.colors.disabled
-                                : active
-                                  ? theme.colors.listitem_selected_text
-                                  : theme.colors.listitem_normal_text
+                                ? centerText(y, rowHeights[index], 1) - y
+                                : centerThemePixel(y, rowHeights[index], 10) - y
                             }
                           />
                         </span>
                       );
-                    })}
-                  </span>
+                    return (
+                      <span
+                        key={index}
+                        style={{
+                          position: "absolute",
+                          left: 0,
+                          top: y,
+                          width: "100%",
+                          height: rowHeight,
+                          background: highlighted
+                            ? theme.colors.listitem_selected_face
+                            : option.disabled && !popupMenu
+                              ? theme.colors.face
+                              : theme.colors.listitem_normal_face,
+                        }}
+                      >
+                        {active && popupMenu && theme.controlParts?.menu?.checkedVector && (
+                          <svg
+                            width={12}
+                            height={12}
+                            viewBox="0 0 12 12"
+                            shapeRendering="crispEdges"
+                            style={{ position: "absolute", left: 0, top: (rowHeight - 12) / 2 }}
+                          >
+                            <path
+                              d={theme.controlParts.menu.checkedVector.path}
+                              fill={
+                                highlighted
+                                  ? theme.colors.listitem_selected_text
+                                  : theme.colors.listitem_normal_text
+                              }
+                            />
+                          </svg>
+                        )}
+                        <Text
+                          variant={TextVariant.PositionedPixel}
+                          text={translateSource(option.label)}
+                          x={
+                            labelInset +
+                            (popupMenu && (active || highlighted || option.disabled)
+                              ? (theme.dimensions.menu_text_state_offset_x ?? 0)
+                              : 0)
+                          }
+                          y={
+                            popupMenu
+                              ? centerText(y, rowHeight, themeFontHeight()) - y
+                              : centerThemePixel(y, rowHeight, 14) - y
+                          }
+                          color={
+                            option.disabled
+                              ? popupMenu
+                                ? theme.colors.menuitem_disabled_text
+                                : theme.colors.disabled
+                              : highlighted
+                                ? theme.colors.listitem_selected_text
+                                : theme.colors.listitem_normal_text
+                          }
+                        />
+                      </span>
+                    );
+                  })}
                 </span>
               </span>
-              <div
-                className={styles.optionHitArea}
-                style={{
-                  left: (insetX * popup.viewport.width) / popup.viewport.sceneWidth,
-                  top: (insetY * popup.viewport.height) / popup.viewport.sceneHeight,
-                  width:
-                    ((popup.bounds.width - insetX * 2 - (scrollbar ? barSize : 0)) *
-                      popup.viewport.width) /
-                    popup.viewport.sceneWidth,
-                  height: (popup.innerHeight * popup.viewport.height) / popup.viewport.sceneHeight,
-                  overflow: "hidden",
-                }}
-              >
-                {options.map((option, index) => (
-                  <button
-                    key={option.value}
-                    id={`${id}-${index}`}
-                    type="button"
-                    role={option.separator ? "separator" : "option"}
-                    aria-label={translateSource(option.label)}
-                    aria-selected={index === selected}
-                    disabled={option.disabled || option.separator}
-                    tabIndex={-1}
-                    data-ui-combo-owner={id}
-                    data-ui-combo-option={index}
-                    className={styles.optionHit}
-                    style={{
-                      left: 0,
-                      top:
-                        ((rowOffsets[index] - scroll) * popup.viewport.height) /
-                        popup.viewport.sceneHeight,
-                      height:
-                        (rowHeights[index] * popup.viewport.height) / popup.viewport.sceneHeight,
-                    }}
-                    onPointerDown={(event) => {
-                      if (event.button !== 0) return;
-                      if (event.pointerType !== "mouse") {
-                        event.stopPropagation();
-                        return;
-                      }
-                      event.preventDefault();
-                      gesture.current = {
-                        pointer: event.pointerId,
-                        entered: true,
-                        arrow: false,
-                      };
-                      list.current?.setPointerCapture(event.pointerId);
-                      choose(index);
-                    }}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      choose(index);
-                      close();
-                    }}
-                  />
-                ))}
-              </div>
-              {scrollbar && (
-                <Scrollbar
-                  bounds={{
-                    x: popup.bounds.x + popup.bounds.width - insetX - barSize,
-                    y: popup.bounds.y + insetY,
-                    width: barSize,
-                    height: popup.innerHeight,
+            </span>
+            <div
+              className={styles.optionHitArea}
+              style={{
+                left: (insetX * popup.viewport.width) / popup.viewport.sceneWidth,
+                top: (insetY * popup.viewport.height) / popup.viewport.sceneHeight,
+                width:
+                  ((popup.bounds.width - insetX * 2 - (scrollbar ? barSize : 0)) *
+                    popup.viewport.width) /
+                  popup.viewport.sceneWidth,
+                height: (popup.innerHeight * popup.viewport.height) / popup.viewport.sceneHeight,
+                overflow: "hidden",
+              }}
+            >
+              {options.map((option, index) => (
+                <button
+                  key={option.value}
+                  id={`${id}-${index}`}
+                  type="button"
+                  role={option.separator ? "separator" : "option"}
+                  aria-label={translateSource(option.label)}
+                  aria-selected={index === selected}
+                  disabled={option.disabled || option.separator}
+                  tabIndex={-1}
+                  data-ui-combo-owner={id}
+                  data-ui-combo-option={index}
+                  className={styles.optionHit}
+                  style={{
+                    left: 0,
+                    top:
+                      ((rowOffsets[index] - scroll) * popup.viewport.height) /
+                      popup.viewport.sceneHeight,
+                    height:
+                      (rowHeights[index] * popup.viewport.height) / popup.viewport.sceneHeight,
                   }}
-                  relativeTo={popup.bounds}
-                  viewport={popup.viewport}
-                  variant={popupMenu ? "regular" : "mini"}
-                  contentSize={contentHeight}
-                  visibleSize={popup.innerHeight}
-                  value={scroll}
-                  onValueChange={setScroll}
-                  aria-label={translateKey("ui.options.scroll").replace("{name}", displayLabel)}
+                  onPointerEnter={(event) => {
+                    if (event.pointerType === "mouse")
+                      setHotOption(option.disabled || option.separator ? null : index);
+                  }}
+                  onPointerMove={(event) => {
+                    if (event.pointerType === "mouse")
+                      setHotOption(option.disabled || option.separator ? null : index);
+                  }}
+                  onPointerDown={(event) => {
+                    if (event.button !== 0) return;
+                    if (event.pointerType !== "mouse") {
+                      event.stopPropagation();
+                      return;
+                    }
+                    event.preventDefault();
+                    gesture.current = {
+                      pointer: event.pointerId,
+                      entered: true,
+                      arrow: false,
+                    };
+                    list.current?.setPointerCapture(event.pointerId);
+                    choose(index);
+                  }}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    choose(index);
+                    close();
+                  }}
                 />
-              )}
+              ))}
             </div>
-          </ThemeScope>,
+            {scrollbar && (
+              <Scrollbar
+                bounds={{
+                  x: popup.bounds.x + popup.bounds.width - insetX - barSize,
+                  y: popup.bounds.y + insetY,
+                  width: barSize,
+                  height: popup.innerHeight,
+                }}
+                relativeTo={popup.bounds}
+                viewport={popup.viewport}
+                scrollbarStyle={popupMenu ? ScrollbarStyle.Classic : ScrollbarStyle.Compact}
+                contentSize={contentHeight}
+                visibleSize={popup.innerHeight}
+                value={scroll}
+                onValueChange={setScroll}
+                aria-label={translateKey("ui.options.scroll").replace("{name}", displayLabel)}
+              />
+            )}
+          </div>,
           document.body,
         )}
     </>

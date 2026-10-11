@@ -21,14 +21,14 @@ const SEPARATOR_LABEL_BACKGROUND_PADDING = 8;
 const SEPARATOR_LABEL_BACKGROUND_TOP = 0;
 const SEPARATOR_LABEL_VERTICAL_BLEED = 1;
 
-export enum DividerVariant {
-  Standard = "standard",
-  InView = "in-view",
-  InViewHeading = "in-view-heading",
+export enum DividerAppearance {
+  Panel = "panel",
+  Content = "content",
+  Heading = "heading",
 }
 
 interface DividerContentProps {
-  variant?: DividerVariant;
+  appearance?: DividerAppearance;
   viewport?: SurfaceViewport;
   text?: string;
   vertical?: boolean;
@@ -40,7 +40,7 @@ export type DividerProps = DividerContentProps & SizedControlPlacement;
 /** Themed horizontal or vertical divider with an optional section label. */
 export function Divider(props: DividerProps) {
   const {
-    variant = DividerVariant.Standard,
+    appearance = DividerAppearance.Panel,
     bounds: suppliedBounds,
     relativeTo = { x: 0, y: 0 },
     viewport = DEFAULT_SURFACE_VIEWPORT,
@@ -57,8 +57,8 @@ export function Divider(props: DividerProps) {
   const part = (vertical ? "separator_vert" : "separator_horz") as AtlasPartName;
   const spriteSize = (vertical ? definition.parts[part].width : definition.parts[part].height) * 2;
   const hasHorizontalLabel = !!displayText && !vertical;
-  const inView = variant !== DividerVariant.Standard;
-  const heading = variant === DividerVariant.InViewHeading;
+  const inView = appearance !== DividerAppearance.Panel;
+  const heading = appearance === DividerAppearance.Heading;
   const background = heading
     ? "var(--ui-heading-face)"
     : inView
@@ -68,9 +68,10 @@ export function Divider(props: DividerProps) {
     ? centerThemePixel(bounds.y, bounds.height, themeFontHeight()) - bounds.y
     : SEPARATOR_HORIZONTAL_LABEL_TOP;
   const labelTextBottom = textY + themeFontHeight();
-  const labelClipBottom = hasHorizontalLabel
-    ? Math.max(0, labelTextBottom - bounds.height) + SEPARATOR_LABEL_VERTICAL_BLEED
-    : 0;
+  const labelClipBottom =
+    hasHorizontalLabel && !heading
+      ? Math.max(0, labelTextBottom - bounds.height) + SEPARATOR_LABEL_VERTICAL_BLEED
+      : 0;
   const clipBottomPx = bounds.height > 0 ? (labelClipBottom * layout.height) / bounds.height : 0;
 
   return (
@@ -119,16 +120,18 @@ export function Divider(props: DividerProps) {
         )}
         {hasHorizontalLabel && (
           <>
-            <span
-              className={styles.labelFace}
-              style={{
-                left: SEPARATOR_LABEL_BACKGROUND_LEFT,
-                top: SEPARATOR_LABEL_BACKGROUND_TOP,
-                width: measureThemeText(displayText) + SEPARATOR_LABEL_BACKGROUND_PADDING,
-                height: bounds.height + labelClipBottom,
-                background,
-              }}
-            />
+            {!heading && (
+              <span
+                className={styles.labelFace}
+                style={{
+                  left: SEPARATOR_LABEL_BACKGROUND_LEFT,
+                  top: SEPARATOR_LABEL_BACKGROUND_TOP,
+                  width: measureThemeText(displayText) + SEPARATOR_LABEL_BACKGROUND_PADDING,
+                  height: bounds.height + labelClipBottom,
+                  background,
+                }}
+              />
+            )}
             <Text
               variant={TextVariant.PositionedPixel}
               text={displayText}

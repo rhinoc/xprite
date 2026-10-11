@@ -55,8 +55,7 @@ so deployment metadata changes cannot mix editor versions. Public help,
 showcase and viewer routes are outside the editor navigation fallback.
 
 The Home entry uses shared controls and tooltips to add a desktop shortcut and
-report offline readiness. The first successful save may show one brief shared
-Toast; there are no installation-failure dialogs or update controls. Complete
+report offline readiness. The first successful save may show a brief shared Toast. Complete
 new resource caches activate silently, without reloading open pages. The next
 manual refresh or reopen uses the new shell. Old immutable hashed resources
 remain available to pages that are still running. Desktop shortcuts do not

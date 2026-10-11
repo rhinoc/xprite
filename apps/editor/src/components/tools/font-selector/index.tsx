@@ -1,12 +1,13 @@
 import { FontOptions } from "$/components/tools/font-selector/font-options";
 import { tUiSource } from "$/i18n";
+import { useFontCatalog } from "$/managers/tools/font-catalog-context";
 import {
   bitmapTextFontSize,
   normalizeTextFontSize,
   textFontSizeOptions,
-  TextFontFamily,
 } from "$/managers/tools/text-font";
 import {
+  FontRole,
   Button,
   Combobox,
   ControlFlowItem,
@@ -19,25 +20,6 @@ import {
 } from "@xprite/ui";
 import { centerUiPixel, measureUiText } from "@xprite/ui/assets";
 import { surfaceLayout } from "@xprite/ui/canvas";
-
-const FONT_FAMILIES = [
-  TextFontFamily.Aseprite,
-  TextFontFamily.AsepriteMini,
-  TextFontFamily.FusionPixel,
-  "Arial",
-  "Arial Black",
-  "Courier New",
-  "Georgia",
-  "Helvetica",
-  "monospace",
-  "sans-serif",
-  "serif",
-  "Tahoma",
-  "Times New Roman",
-  "Trebuchet MS",
-  "Verdana",
-] as const;
-export const FONT_FAMILY_OPTIONS = FONT_FAMILIES.map((name) => ({ value: name, label: name }));
 
 export interface FontSelectorProps {
   origin: { x: number; y: number };
@@ -79,6 +61,7 @@ export function FontSelector({
   onStrokeWidthChange,
   disabled,
 }: FontSelectorProps) {
+  const fontCatalog = useFontCatalog(fontName);
   const face: SurfaceBounds = { ...origin, width: 256, height: 32 };
   return (
     <>
@@ -93,7 +76,9 @@ export function FontSelector({
           bounds={face}
           relativeTo={relativeTo}
           value={fontName}
-          options={FONT_FAMILY_OPTIONS}
+          options={fontCatalog.options}
+          onOpen={fontCatalog.requestLocalFonts}
+          fitPopupToContent
           onValueChange={(value) => onFontChange(value.trim() || "Aseprite")}
         />
       </ControlFlowItem>
@@ -108,7 +93,7 @@ export function FontSelector({
           bounds={{ x: origin.x + 264, y: origin.y, width: 86, height: 32 }}
           relativeTo={relativeTo}
           value={String(fontSize)}
-          options={textFontSizeOptions(fontName)}
+          options={textFontSizeOptions(fontName, fontCatalog.bitmapSizes)}
           onValueChange={(value) => {
             const parsed = Number(value);
             if (Number.isFinite(parsed) && parsed > 0) onSizeChange(normalizeTextFontSize(parsed));
@@ -221,7 +206,8 @@ function FontStyleButton({
     layout = surfaceLayout(bounds),
     parent = surfaceLayout({ ...relativeTo, width: 1, height: 1 });
   const textX =
-    centerUiPixel(bounds.x + 6, bounds.width - 12, measureUiText(text, "mini")) - bounds.x;
+    centerUiPixel(bounds.x + 6, bounds.width - 12, measureUiText(text, FontRole.Compact)) -
+    bounds.x;
   const shadowY = centerUiPixel(bounds.y + 6, bounds.height - 16, 10) - bounds.y;
   return (
     <>
@@ -251,7 +237,7 @@ function FontStyleButton({
           text={text}
           x={textX + 2}
           y={shadowY + 2}
-          font="mini"
+          font={FontRole.Compact}
           color={uiStyle.colors.background}
         />
         <Text
@@ -259,7 +245,7 @@ function FontStyleButton({
           text={text}
           x={textX}
           y={8}
-          font="mini"
+          font={FontRole.Compact}
           color={disabled ? uiStyle.colors.disabled : uiStyle.colors.text}
         />
       </span>

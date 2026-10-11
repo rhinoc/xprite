@@ -6,7 +6,7 @@ import { standardButtonVariant } from "$/components/button/variants/standard";
 import { toolButtonVariant } from "$/components/button/variants/tool";
 
 export const buttonVariants = {
-  [ButtonVariant.Standard]: standardButtonVariant,
+  [ButtonVariant.Push]: standardButtonVariant,
   [ButtonVariant.Icon]: iconButtonVariant,
   [ButtonVariant.FlatIcon]: flatIconButtonVariant,
   [ButtonVariant.Color]: colorButtonVariant,

@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 
 import { ColorPicker } from "$/components/tools/color-picker";
 import { EditorColorButton } from "$/components/tools/editor-color-button";
@@ -11,6 +10,8 @@ import {
   type ToolSelectionMode,
 } from "$/managers/tools/tool-options";
 import {
+  createUiPortal,
+  FontRole,
   Button,
   Combobox,
   ControlFlowItem,
@@ -199,7 +200,7 @@ export function SelectionOptions({
               variant={TextVariant.Control}
               bounds={CONTROL_BOUNDS.cornerRadiusLabel}
               text="R:"
-              font="mini"
+              font={FontRole.Compact}
             />
           </ControlFlowItem>
           <ControlFlowItem>
@@ -224,7 +225,7 @@ export function SelectionOptions({
         </>
       )}
       {colorPickerOpen &&
-        createPortal(
+        createUiPortal(
           <ColorPicker
             open
             onOpenChange={(open) => setColorPickerOpen(open)}

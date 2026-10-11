@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
+import { FontRole } from "$/base/theme/theme-types";
 import { layoutSize, observeResize } from "$/base/utils/dom-geometry";
 import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
 import { Button } from "$/components/button";
@@ -29,17 +30,12 @@ const ALERT_LAYOUT = {
   bottomPadding: 12,
 };
 
-export enum AlertDialogActionVariant {
-  Normal = "normal",
-  Primary = "primary",
-}
-
 export interface AlertDialogAction {
   label: string;
   onClick: () => void;
   disabled?: boolean;
   mnemonicIndex?: number;
-  variant?: AlertDialogActionVariant;
+  primary?: boolean;
 }
 
 export interface AlertDialogProps {
@@ -309,7 +305,7 @@ export function AlertDialog({
                   height: buttonHeight,
                 }}
                 text={action.label}
-                font="default"
+                font={FontRole.Primary}
                 part={index === defaultActionIndex ? "button_focused" : "button_normal"}
                 hotPart="button_hot"
                 focusedPart="button_focused"
@@ -395,18 +391,10 @@ export function AlertDialog({
                   }}
                   relativeTo={client}
                   text={action.label}
-                  font="default"
-                  part={
-                    action.variant === AlertDialogActionVariant.Primary
-                      ? "button_selected"
-                      : "button_normal"
-                  }
+                  font={FontRole.Primary}
+                  part={action.primary ? "button_selected" : "button_normal"}
                   hotPart="button_hot"
-                  focusedPart={
-                    action.variant === AlertDialogActionVariant.Primary
-                      ? "button_selected"
-                      : "button_focused"
-                  }
+                  focusedPart={action.primary ? "button_selected" : "button_focused"}
                   pushedPart="button_selected"
                   mnemonicIndex={action.mnemonicIndex}
                   disabled={action.disabled}

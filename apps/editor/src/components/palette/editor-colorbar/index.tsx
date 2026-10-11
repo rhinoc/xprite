@@ -5,7 +5,6 @@ import {
   useEditorLayoutSettings,
   DEFAULT_COLORBAR_SELECTOR_HEIGHT,
 } from "$/components/shared/editor-layout-context";
-import { useElementSize } from "$/components/shared/use-size";
 import { useEditorActions } from "$/components/shell/editor-actions";
 import { ColorFields } from "$/components/tools/color-controls";
 import { tUi } from "$/i18n";
@@ -13,6 +12,7 @@ import { useWorkingColorControls } from "$/managers/colors/working-color-control
 import { useWorkingColorDrag } from "$/managers/colors/working-color-drag";
 import { usePaletteColorbarModel } from "$/managers/palette/colorbar-model";
 import { UI_SCALE_X, UI_SCALE_Y, surfaceLayout } from "@xprite/ui/canvas";
+import { useElementSize } from "@xprite/ui/utils";
 
 import "$/components/palette/editor-colorbar/editor-colorbar.module.css";
 

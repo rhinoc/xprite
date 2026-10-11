@@ -31,7 +31,7 @@ export function saveMusicVolume(volume: number): void {
   }
 }
 
-/** Playback begins inside a trusted gesture, independently of model loading and selection. */
+/** Playback is activated explicitly by the device demo workflow. */
 export function mountBackgroundMusic(
   muted: boolean,
   volume: number,
@@ -39,10 +39,10 @@ export function mountBackgroundMusic(
 ): ShowcaseMusic {
   const audio = new Audio(MUSIC_URL);
   audio.loop = true;
-  audio.preload = "none";
+  audio.preload = "auto";
   audio.volume = volume;
   audio.muted = muted;
-  let started = false;
+  let activated = false;
   let disposed = false;
   let unavailable = false;
 
@@ -53,11 +53,11 @@ export function mountBackgroundMusic(
     onUnavailable();
   };
   const play = () => {
-    if (disposed || unavailable || audio.muted || document.hidden || !audio.paused) return;
+    if (!activated || disposed || unavailable || audio.muted || document.hidden || !audio.paused)
+      return;
     void audio.play().then(
       () => {
         if (disposed || audio.muted || document.hidden) audio.pause();
-        else started = true;
       },
       (error: unknown) => {
         if (
@@ -69,21 +69,18 @@ export function mountBackgroundMusic(
       },
     );
   };
-  const activate = (event: PointerEvent | KeyboardEvent) => {
-    if (!event.isTrusted || event.defaultPrevented) return;
-    play();
-  };
   const visibility = () => {
     if (document.hidden) audio.pause();
-    else if (started) play();
+    else play();
   };
   audio.addEventListener("error", failed);
-  window.addEventListener("pointerdown", activate);
-  window.addEventListener("pointerup", activate);
-  window.addEventListener("keydown", activate);
   document.addEventListener("visibilitychange", visibility);
 
   return {
+    start() {
+      activated = true;
+      play();
+    },
     setMuted(nextMuted) {
       audio.muted = nextMuted;
       try {
@@ -101,9 +98,6 @@ export function mountBackgroundMusic(
       if (disposed) return;
       disposed = true;
       audio.removeEventListener("error", failed);
-      window.removeEventListener("pointerdown", activate);
-      window.removeEventListener("pointerup", activate);
-      window.removeEventListener("keydown", activate);
       document.removeEventListener("visibilitychange", visibility);
       audio.pause();
       audio.removeAttribute("src");

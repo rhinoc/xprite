@@ -2,28 +2,33 @@ import { describe, expect, it } from "vitest";
 
 import { themeDefinition } from "$/base/theme/generated/themes/aseprite-light";
 import { themeTokens } from "$/base/theme/theme-tokens";
-import type { UiAppearance } from "$/base/theme/theme-types";
+import { UiColorScheme } from "$/base/theme/theme-types";
 import { macintoshArtwork } from "$/base/theme/themes/macintosh/artwork";
 
-const APPEARANCES: UiAppearance[] = ["light", "dark"];
+const COLOR_SCHEMES = [UiColorScheme.Light, UiColorScheme.Dark];
 
 describe("Macintosh control contract", () => {
-  it.each(APPEARANCES)("covers every existing control part and color role in %s", (appearance) => {
-    const { definition } = macintoshArtwork(appearance);
-    expect(Object.keys(definition.parts).sort()).toEqual(Object.keys(themeDefinition.parts).sort());
-    expect(Object.keys(definition.colors).sort()).toEqual(
-      Object.keys(themeDefinition.colors).sort(),
-    );
-    for (const part of Object.values(definition.parts)) {
-      expect(part.x + part.width).toBeLessThanOrEqual(definition.sheet.width);
-      expect(part.y + part.height).toBeLessThanOrEqual(definition.sheet.height);
-    }
-  });
+  it.each(COLOR_SCHEMES)(
+    "covers every existing control part and color role in %s",
+    (colorScheme) => {
+      const { definition } = macintoshArtwork(colorScheme);
+      expect(Object.keys(definition.parts).sort()).toEqual(
+        Object.keys(themeDefinition.parts).sort(),
+      );
+      expect(Object.keys(definition.colors).sort()).toEqual(
+        Object.keys(themeDefinition.colors).sort(),
+      );
+      for (const part of Object.values(definition.parts)) {
+        expect(part.x + part.width).toBeLessThanOrEqual(definition.sheet.width);
+        expect(part.y + part.height).toBeLessThanOrEqual(definition.sheet.height);
+      }
+    },
+  );
 
-  it.each(APPEARANCES)(
-    "keeps normal, selected, and window title text legible in %s",
-    (appearance) => {
-      const { colors } = macintoshArtwork(appearance).definition;
+  it.each(COLOR_SCHEMES)(
+    "keeps unselected, selected, and window title text legible in %s",
+    (colorScheme) => {
+      const { colors } = macintoshArtwork(colorScheme).definition;
       for (const [ink, face] of [
         [colors.text, colors.window_face],
         [colors.listitem_normal_text, colors.listitem_normal_face],
@@ -35,10 +40,10 @@ describe("Macintosh control contract", () => {
         expect(ink).not.toBe(face);
     },
   );
-  it.each(APPEARANCES)(
+  it.each(COLOR_SCHEMES)(
     "provides non-atlas visual slots and safe icon roles in %s",
-    (appearance) => {
-      const artwork = macintoshArtwork(appearance);
+    (colorScheme) => {
+      const artwork = macintoshArtwork(colorScheme);
       const tokens = themeTokens(artwork);
       for (const key of [
         "--ui-field-face",

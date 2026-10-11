@@ -1,6 +1,9 @@
 import type { AtlasPartName, UiColorRole } from "$/base/theme/theme-name-types";
 
-export type UiAppearance = "light" | "dark";
+export enum UiColorScheme {
+  Light = "light",
+  Dark = "dark",
+}
 
 export interface UiMenuGlyph {
   width: number;
@@ -22,13 +25,56 @@ export interface UiTooltipPointerArtwork {
   bodyInsets: { left: number; top: number; right: number; bottom: number };
 }
 
+export enum UiFontRenderer {
+  Native = "native",
+  Bitmap = "bitmap",
+}
+
+export enum FontRole {
+  Primary = "primary",
+  Compact = "compact",
+}
+
+export enum ScrollbarStyle {
+  Compact = "compact",
+  Classic = "classic",
+  Transparent = "transparent",
+}
+export type UiGlyphMap = Readonly<Record<string, readonly number[]>>;
+
 interface UiFontMetrics {
   fontFamily: string;
+  cjkFontFamily: string;
+  cjkFontSize: number;
+  cjkAdvance: number;
+  /** CJK face for tab and window titles. CSS pixels at scale 2. */
+  titleCjkFontFamily?: string;
+  titleCjkFontSize?: number;
+  titleCjkAdvance?: number;
+  fallbackAdvance: number;
+  fallbackFontFamily: string;
   /** CSS pixels at the standard artwork scale (2). */
   fontSize: number;
   lineHeight: number;
   advances: Readonly<Record<string, number>>;
   glyphBleed?: number;
+}
+
+export type UiFontDefinition = UiFontMetrics &
+  (
+    | { renderer: UiFontRenderer.Native }
+    | {
+        renderer: UiFontRenderer.Bitmap;
+        atlas: { url: string; width: number; height: number; glyphs: UiGlyphMap };
+        /** DOM can use a font face or preserve the source bitmap glyphs. */
+        atlasInDom: boolean;
+      }
+  );
+
+export interface UiTypography {
+  [FontRole.Primary]: UiFontDefinition;
+  [FontRole.Compact]: UiFontDefinition;
+  alignmentScale: number;
 }
 
 export interface UiPartDefinition {
@@ -85,8 +131,9 @@ export interface UiStyleDefinition {
   sheet: { width: number; height: number };
   dimensions: Record<string, number>;
   colors: Record<string, string>;
-  typography?: Partial<Record<"default" | "mini", UiFontMetrics>>;
-  parts: Record<AtlasPartName, UiPartDefinition>;
+  typography: UiTypography;
+  /** Logical part bindings supplied by this theme; unused source-atlas entries are not required. */
+  parts: Readonly<Record<string, UiPartDefinition>>;
   /** Component skin bindings let themes reuse atlas parts without changing behavior. */
   controlParts?: {
     timeline?: {
@@ -104,10 +151,10 @@ export interface UiStyleDefinition {
     };
     button?: {
       part?: AtlasPartName;
-      textOffsetY?: Partial<Record<"default" | "mini", number>>;
+      textOffsetY?: Partial<Record<FontRole, number>>;
       /** Align icons with the visible face when the frame includes atlas shadow pixels. */
       frameIconOffset?: { x: number; y: number };
-      font: "default" | "mini";
+      font: FontRole;
       outline?: {
         radius: number;
         minimumWidth: number;
@@ -117,7 +164,7 @@ export interface UiStyleDefinition {
     };
     tooltip?: {
       balloon: boolean;
-      font?: "default" | "mini";
+      font?: FontRole;
       padding?: number;
       pointerSize?: number;
       pointerArtworks?: Readonly<Record<string, UiTooltipPointerArtwork>>;
@@ -135,20 +182,20 @@ export interface UiStyleDefinition {
       contentInset: number;
       rowHeight: number;
       textInset: number;
-      font: "default" | "mini";
+      font: FontRole;
     };
     menu?: {
       checkedVector: { width: number; height: number; path: string };
       arrowPart: AtlasPartName;
       shortcutGlyphs?: Readonly<Record<string, UiMenuGlyph>>;
       labelGlyphs?: Readonly<Record<string, UiMenuGlyph>>;
-      selectFirstOnOpen?: boolean;
-      pressToOpen?: boolean;
     };
     scrollbar?: {
       arrowExtent: number;
-      thumbSize: number;
-      areaVariant?: "regular" | "mini" | "transparent";
+      minimumThumbSize: number;
+      areaStyle?: ScrollbarStyle;
+      /** Border styling for compact thumbs and tracks. */
+      compactThumb?: { borderWidth: number };
     };
     alert?: {
       minimumWidth: number;
@@ -174,3 +221,6 @@ export interface UiStyleDefinition {
     };
   };
 }
+
+/** Atlas metadata is completed with fonts by the owning theme. */
+export type UiAtlasDefinition = Omit<UiStyleDefinition, "typography">;

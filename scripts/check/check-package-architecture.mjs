@@ -9,6 +9,11 @@ const dependencyCruiserCli = path.join(
 );
 const scopes = [
   {
+    name: "growth-app",
+    tsConfig: "apps/growth/tsconfig.json",
+    sources: ["apps/growth/src", "apps/growth/content", "apps/growth/build"],
+  },
+  {
     name: "editor-ui",
     tsConfig: "packages/editor-ui/tsconfig.json",
     sources: ["packages/editor-ui/src"],

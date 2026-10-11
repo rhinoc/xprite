@@ -62,7 +62,7 @@ export function useEditorLayoutPreferences() {
         writeNumber(COLORBAR_SPLIT_POSITION_KEY, value),
       readWorkspacePanelLayoutSelection(): WorkspaceLayoutSelection {
         try {
-          const saved = JSON.parse(storage?.getItem(WORKSPACE_LAYOUT_SELECTION_KEY) ?? "null");
+          const saved = storage?.readJson(WORKSPACE_LAYOUT_SELECTION_KEY);
           if (saved && typeof saved === "object") {
             const mode = workspaceLayoutMode(saved.mode);
             const configuration =
@@ -85,7 +85,7 @@ export function useEditorLayoutPreferences() {
       },
       writeWorkspacePanelLayoutSelection(value: WorkspaceLayoutSelection) {
         try {
-          storage?.setItem(WORKSPACE_LAYOUT_SELECTION_KEY, JSON.stringify(value));
+          storage?.writeJson(WORKSPACE_LAYOUT_SELECTION_KEY, value);
         } catch {
           // The current layout remains available for this session.
         }
@@ -95,7 +95,7 @@ export function useEditorLayoutPreferences() {
         fallback: WorkspacePanelLayout,
       ): WorkspacePanelLayout {
         try {
-          const saved = JSON.parse(storage?.getItem(WORKSPACE_LAYOUTS_KEY) ?? "null");
+          const saved = storage?.readJson<Record<string, unknown>>(WORKSPACE_LAYOUTS_KEY);
           if (
             saved &&
             typeof saved === "object" &&
@@ -113,21 +113,21 @@ export function useEditorLayoutPreferences() {
         value: WorkspacePanelLayout,
       ) {
         try {
-          const saved = JSON.parse(storage?.getItem(WORKSPACE_LAYOUTS_KEY) ?? "null");
+          const saved = storage?.readJson<Record<string, unknown>>(WORKSPACE_LAYOUTS_KEY);
           const layouts: Partial<Record<WorkspacePanelArrangement, WorkspacePanelLayout>> = {};
           if (saved && typeof saved === "object" && !Array.isArray(saved)) {
             if (validWorkspacePanelLayout(saved.stacked)) layouts.stacked = saved.stacked;
             if (validWorkspacePanelLayout(saved.docked)) layouts.docked = saved.docked;
           }
           layouts[arrangement] = value;
-          storage?.setItem(WORKSPACE_LAYOUTS_KEY, JSON.stringify(layouts));
+          storage?.writeJson(WORKSPACE_LAYOUTS_KEY, layouts);
         } catch {
           // The current layout remains available for this session.
         }
       },
       readSavedWorkspacePanelLayouts(): SavedWorkspacePanelLayout[] {
         try {
-          const saved = JSON.parse(storage?.getItem(SAVED_WORKSPACE_LAYOUTS_KEY) ?? "[]");
+          const saved = storage?.readJson(SAVED_WORKSPACE_LAYOUTS_KEY) ?? [];
           if (!Array.isArray(saved)) return [];
           const ids = new Set<string>();
           const names = new Set<string>();
@@ -165,7 +165,7 @@ export function useEditorLayoutPreferences() {
       },
       writeSavedWorkspacePanelLayouts(value: readonly SavedWorkspacePanelLayout[]) {
         try {
-          storage?.setItem(SAVED_WORKSPACE_LAYOUTS_KEY, JSON.stringify(value));
+          storage?.writeJson(SAVED_WORKSPACE_LAYOUTS_KEY, value);
         } catch {
           // Saved layouts remain available for this session when browser storage is unavailable.
         }

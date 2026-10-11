@@ -63,5 +63,5 @@
   tab-size: var(--ui-code-tab-size);
 }
 .root[data-invalid="true"] {
-  outline: var(--ui-focus-ring-width, 1px) solid var(--ui-color-danger-ink);
+  outline: var(--ui-focus-ring-width, 1px) solid var(--ui-color-error-ink);
 }

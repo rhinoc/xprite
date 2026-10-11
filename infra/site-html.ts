@@ -9,6 +9,13 @@ const SITE_ICONS_PLACEHOLDER = "<!-- xprite-site-icons -->";
 const WEBSITE_ICON_PATH = "menu-icon.svg";
 const TOUCH_ICON_PATH = "icon-192.png?v=xprite-3";
 const EDITOR_ICON_VERSION = "v=xprite-2";
+const CHARSET_ELEMENT_PATTERN = /<meta\b[^>]*\bcharset\s*=[^>]*>/i;
+
+/** Keep the encoding declaration ahead of large first-paint scripts. */
+export function prependSiteHeadContent(html: string, content: string): string {
+  if (!CHARSET_ELEMENT_PATTERN.test(html)) throw new Error("Site HTML must declare its charset");
+  return html.replace(CHARSET_ELEMENT_PATTERN, (charset) => `${charset}\n${content}`);
+}
 
 /** Shared branding; root URLs stay outside each app's Vite base. */
 export function siteIcons(style = SiteIconStyle.Website, base = "/"): string {

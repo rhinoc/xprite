@@ -65,6 +65,10 @@ export class ShowcaseMotion {
     return easeOut((this.entranceElapsed ?? 0) / ENTER_FADE_MS);
   }
 
+  finishEntrance() {
+    this.entranceElapsed = ENTER_TOTAL_MS;
+  }
+
   deviceEntrance(index: number) {
     return easeOut(((this.entranceElapsed ?? 0) - index * ENTER_STAGGER_MS) / ENTER_DURATION_MS);
   }

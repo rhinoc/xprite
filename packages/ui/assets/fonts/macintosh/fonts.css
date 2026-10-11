@@ -1,3 +1,25 @@
+@import "../pixel-code/fonts.css";
+
+@font-face {
+  font-family: MacintoshCjkPixel;
+  src: url("../fusion-pixel/fusion-12.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  /* 16px CSS × 75% requests the 12px Fusion Pixel grid. */
+  size-adjust: 75%;
+}
+
+@font-face {
+  font-family: MacintoshCjkCompact;
+  src: url("../fusion-pixel/fusion-10.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  /* 16px CSS × 62.5% requests the 10px Fusion Pixel grid. */
+  size-adjust: 62.5%;
+}
+
 @font-face {
   font-family: ChiKareGo2;
   src: url("./chikarego2.woff2?v=ec44f36e057a") format("woff2");

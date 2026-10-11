@@ -17,7 +17,7 @@
     }
   },
   {
-    "directory": "apps/gallery",
+    "directory": "apps/components",
     "source": "src",
     "tsconfig": "tsconfig.json",
     "aliases": {

@@ -1,11 +1,11 @@
 import { useRef } from "react";
 
 import { InlineTileset, TilemapModeBar } from "$/components/palette/tilemap-colorbar";
-import { useElementSize } from "$/components/shared/use-size";
 import { tUi } from "$/i18n";
 import { useTilesetInspectorView } from "$/managers/inspector/tileset-view";
 import { Text, TextVariant } from "@xprite/ui";
 import { UI_SCALE_X, UI_SCALE_Y } from "@xprite/ui/canvas";
+import { useElementSize } from "@xprite/ui/utils";
 
 import "$/components/inspector/editor-tileset/editor-tileset.module.css";
 

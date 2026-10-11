@@ -1,18 +1,19 @@
 import type * as React from "react";
 
+import type { FontRole } from "$/base/theme/theme-types";
 import type { SurfaceViewport } from "$/components/canvas-surface";
 import type { ControlPlacement } from "$/components/control-flow/placement";
+import type { FocusRingBehavior } from "$/components/focus-ring";
+import type { IconSize } from "$/components/icon";
 import type { MenuItem } from "$/components/menu";
-import type { PixelFont } from "$/components/text";
-import type { UiPartName } from "$/components/theme/appearance";
+import type { UiPartName } from "$/components/theme/provider";
 
 export enum ButtonAppearance {
-  Default = "default",
   Quiet = "quiet",
 }
 
 export enum ButtonVariant {
-  Standard = "standard",
+  Push = "push",
   Icon = "icon",
   FlatIcon = "flat-icon",
   Color = "color",
@@ -41,15 +42,13 @@ interface ButtonContentProps extends Omit<
 > {
   children?: React.ReactNode;
   href?: never;
-  /** Content composition for standard or split buttons in normal flow layout. */
+  /** Content composition for push or split buttons in normal flow layout. */
   slots?: ButtonSlots;
-  /** Button presentation and interaction. Pixel artwork is the default for editor controls. */
+  /** Button structure and interaction. The push button is used when omitted. */
   variant?: Exclude<ButtonVariant, ButtonVariant.Tile>;
-  /** Quiet renders themed text and slots without a control frame. */
-  appearance?: ButtonAppearance;
   /** Dropdown action for the split variant. */
   menu?: ButtonMenuConfig;
-  /** Disable interaction for a color preview while preserving its swatch appearance. */
+  /** Disable interaction for a preview while preserving its original artwork. */
   readOnly?: boolean;
   selected?: boolean;
   /** Override the pressed appearance during an interaction such as drag sampling. */
@@ -60,7 +59,7 @@ interface ButtonContentProps extends Omit<
   pushedPart?: UiPartName;
   focusedPart?: UiPartName;
   selectedPart?: UiPartName;
-  focusAppearance?: "always" | "keyboard";
+  focusRing?: FocusRingBehavior;
   icon?: UiPartName;
   selectedIcon?: UiPartName;
   tintDisabledIcon?: boolean;
@@ -72,7 +71,7 @@ interface ButtonContentProps extends Omit<
   /** Optional content placed before a touch label. */
   leading?: React.ReactNode;
   labelScale?: number;
-  font?: PixelFont;
+  font?: FontRole;
   insetContent?: boolean;
   /** Composite containers can paint overlapping faces while retaining button semantics. */
   paintArtwork?: boolean;
@@ -90,28 +89,42 @@ interface ButtonContentProps extends Omit<
   iconOffset?: { x: number; y: number };
 }
 
-export type ButtonProps = ButtonContentProps & ControlPlacement;
+type ColorButtonOptions = Pick<ButtonContentProps, "swatchColor" | "swatchValue" | "mask">;
+type NonColorButtonOptions = { [Key in keyof ColorButtonOptions]?: never };
+type QuietButtonOptions = { appearance?: ButtonAppearance.Quiet };
+type ButtonVariantOptions =
+  | (QuietButtonOptions &
+      NonColorButtonOptions & {
+        variant?: Exclude<
+          ButtonVariant,
+          ButtonVariant.Color | ButtonVariant.Split | ButtonVariant.Tile
+        >;
+        menu?: never;
+      })
+  | (ColorButtonOptions & { variant: ButtonVariant.Color; menu?: never; appearance?: never })
+  | (QuietButtonOptions &
+      NonColorButtonOptions & { variant: ButtonVariant.Split; menu?: ButtonMenuConfig });
+
+export type ButtonProps = Omit<ButtonContentProps, "variant" | "menu" | keyof ColorButtonOptions> &
+  ControlPlacement &
+  ButtonVariantOptions;
 
 /** Link buttons retain the browser's URL, new-tab, download, and keyboard behavior. */
 export interface ButtonLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   href: string;
-  variant?: ButtonVariant.Standard;
-  appearance?: ButtonAppearance;
+  variant?: ButtonVariant.Push;
+  appearance?: ButtonAppearance.Quiet;
   text?: string;
   slots?: ButtonSlots;
   disabled?: boolean;
   selected?: boolean;
 }
 
-export enum ButtonTileSize {
-  Regular = "regular",
-  Compact = "compact",
-}
 interface TileContentProps {
   variant: ButtonVariant.Tile;
   text?: string;
   slots?: ButtonSlots;
-  tileSize?: ButtonTileSize;
+  tileSize?: IconSize.Medium | IconSize.Large;
   compactOnSmallScreens?: boolean;
 }
 export interface ButtonTileProps

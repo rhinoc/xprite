@@ -6,10 +6,15 @@
   <p>
     <a href="https://xprite.cc"><strong>在线体验</strong></a> ·
     <a href="./README.md">English</a> ·
-    <a href="https://xprite.cc/help/zh-CN/">使用指南</a> ·
+    <a href="https://xprite.cc/zh-CN/help/">使用指南</a> ·
     <a href="./PRIVACY.zh.md">隐私说明</a> ·
     <a href="./CONTRIBUTING.md">参与开发</a> ·
     <a href="https://github.com/rhinoc/xprite/issues">问题反馈</a>
+  </p>
+  <p>
+    <a href="https://alternativeto.net/software/xprite/about/?utm_source=badge&utm_medium=referral">
+      <img src="https://alternativeto.net/static/badges/badge-compact-color.svg" alt="AlternativeTo 上的 Xprite" width="171" height="55" />
+    </a>
   </p>
 </div>
 

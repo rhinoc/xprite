@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { FormDialog } from "$/components/dialogs/form-dialog";
@@ -26,6 +25,8 @@ import {
 } from "$/managers/user-data/user-data-manager";
 import type { AsepriteUserData } from "$/managers/user-data/user-data-manager";
 import {
+  createUiPortal,
+  FontRole,
   Button,
   Divider,
   Input,
@@ -33,7 +34,6 @@ import {
   TextVariant,
   Combobox,
   Slider,
-  SliderVariant,
 } from "@xprite/ui";
 
 const LAYER_PROPERTIES_DEFAULT_WIDTH = 390;
@@ -314,7 +314,6 @@ function LayerPropertiesWindow({
                       text="Opacity:"
                     />
                     <Slider
-                      variant={SliderVariant.Normal}
                       bounds={{
                         x: client.x + LAYER_PROPERTIES_CONTROL_FIELD_OFFSET,
                         y: client.y + 78,
@@ -604,7 +603,7 @@ function FramePropertiesWindow({
                 }}
                 relativeTo={client}
                 text="OK"
-                font="default"
+                font={FontRole.Primary}
                 mnemonicIndex={0}
                 aria-label="OK"
                 onClick={accept}
@@ -618,7 +617,7 @@ function FramePropertiesWindow({
                 }}
                 relativeTo={client}
                 text="Cancel"
-                font="default"
+                font={FontRole.Primary}
                 mnemonicIndex={0}
                 aria-label="Cancel"
                 onClick={() => onOpenChange(false)}
@@ -836,7 +835,7 @@ export function TimelineDialogs({ layerName = "Layer", firstFrame = 1 }: Timelin
     <>
       <div ref={sceneRoot} style={{ display: "contents" }} />
       {portalTarget &&
-        createPortal(
+        createUiPortal(
           <>
             {dialog === "cel-properties" && (
               <CelProperties onClose={() => setDialog(null)} flushRef={celFlush} />
@@ -917,7 +916,7 @@ export function TimelineDialogs({ layerName = "Layer", firstFrame = 1 }: Timelin
       {gotoFrameOpen &&
         timeline &&
         portalTarget &&
-        createPortal(
+        createUiPortal(
           <FormDialog
             open
             title="Go to Frame"

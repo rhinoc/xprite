@@ -1,15 +1,13 @@
 import {
-  TOOLS_HOME,
   VIEWER_TOOL,
   GIF_SHEET_TOOL,
   ANIMAL_CROSSING_TOOL,
-  DIRECTORY_TOOLS,
   type PublicTool,
 } from "@xprite/growth-content/tools";
 import viewerPreview from "@xprite/site-assets/showcase/ipad/hello/hello-frame-01.png?url";
 import islandPreview from "@xprite/site-assets/tools/animal-crossing/acnh/winding-cobblestone.png?url";
 
-export { TOOLS_HOME, VIEWER_TOOL, GIF_SHEET_TOOL, ANIMAL_CROSSING_TOOL, DIRECTORY_TOOLS };
+export { VIEWER_TOOL, GIF_SHEET_TOOL, ANIMAL_CROSSING_TOOL };
 export type { PublicTool };
 
 export const TOOL_EXAMPLES = {

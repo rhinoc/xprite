@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 import { composeEventHandlers } from "$/base/utils/compose-event-handlers";
-import { viewportSize, clientPoint, clientRect } from "$/base/utils/dom-geometry";
+import { viewportContentSize, clientPoint, clientRect } from "$/base/utils/dom-geometry";
 import {
   DEFAULT_SURFACE_VIEWPORT,
   sceneViewport,
@@ -10,8 +10,9 @@ import {
 import {
   autoTooltipPlacement,
   tooltipPosition,
+  TooltipPlacement,
   type TooltipPlacementOption,
-  type TooltipPlacement,
+  type TooltipPosition,
 } from "$/components/tooltip/geometry";
 import { wrapTooltipText } from "$/components/tooltip/text-layout";
 import { subscribeTooltipDismissal } from "$/components/tooltip/tooltip-dismissal";
@@ -55,7 +56,7 @@ export function useTooltipTrigger({
   delay = DEFAULT_TOOLTIP_DELAY,
   maxWidth = DEFAULT_TOOLTIP_MAX_WIDTH,
   disabled = false,
-  placement = "top-right",
+  placement = TooltipPlacement.TopRight,
   targetOffsetX = 0,
   targetBounds,
   measureText,
@@ -137,9 +138,10 @@ export function useTooltipTrigger({
               height: Math.round(rect.height / sy),
             };
         positionedTargetBounds.x += targetOffsetX;
+        const availableViewport = viewportContentSize(window);
         const available = {
-          width: sceneRect ? viewport.sceneWidth : viewportSize(window).width / sx,
-          height: sceneRect ? viewport.sceneHeight : viewportSize(window).height / sy,
+          width: sceneRect ? viewport.sceneWidth : availableViewport.width / sx,
+          height: sceneRect ? viewport.sceneHeight : availableViewport.height / sy,
         };
         const workArea = {
           x: 0,
@@ -164,10 +166,15 @@ export function useTooltipTrigger({
         const bodyHeight =
           lines.length * (textMetrics?.lineHeight ?? TOOLTIP_LINE_HEIGHT) +
           (textMetrics?.heightPadding ?? TOOLTIP_HEIGHT_PADDING);
-        const sizeForPlacement = (side: TooltipPlacement) => {
+        const sizeForPlacement = (side: TooltipPosition) => {
+          const sideName = String(side);
           const insets =
             textMetrics?.pointerInsets?.[side] ??
-            textMetrics?.pointerInsets?.[side === "bottom" ? "bottom-left" : "top-left"];
+            textMetrics?.pointerInsets?.[
+              side === TooltipPlacement.Bottom
+                ? TooltipPlacement.BottomLeft
+                : TooltipPlacement.TopLeft
+            ];
           if (insets)
             return {
               width: Math.min(workArea.width, bodyWidth + insets.left + insets.right),
@@ -177,13 +184,15 @@ export function useTooltipTrigger({
           return {
             width: Math.min(
               workArea.width,
-              bodyWidth + (side === "left" || side === "right" ? pointer : 0),
+              bodyWidth +
+                (side === TooltipPlacement.Left || side === TooltipPlacement.Right ? pointer : 0),
             ),
-            height: bodyHeight + (side.includes("top") || side.includes("bottom") ? pointer : 0),
+            height:
+              bodyHeight + (sideName.includes("top") || sideName.includes("bottom") ? pointer : 0),
           };
         };
         let resolvedPlacement =
-          placement === "auto"
+          placement === TooltipPlacement.Auto
             ? autoTooltipPlacement(
                 positionedTargetBounds,
                 { width: bodyWidth, height: bodyHeight },

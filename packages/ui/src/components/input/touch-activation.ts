@@ -11,7 +11,7 @@ import { usesNativeTextEditing } from "$/base/utils/native-text-input";
 import { PointerClickSequence } from "$/components/menu/pointer-gestures";
 
 export enum InputTouchActivation {
-  Native = "native",
+  SingleTap = "single-tap",
   DoubleTap = "double-tap",
 }
 

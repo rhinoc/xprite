@@ -2,7 +2,7 @@ import { Component, type ErrorInfo, type ReactNode } from "react";
 
 import { Alert } from "$/components/dialogs/alert";
 import { currentUiLanguage, tUi, tUiSource } from "$/i18n";
-import { AlertDialogActionVariant, UIProvider, useUi } from "@xprite/ui";
+import { UIProvider, UiColorScheme, useUi } from "@xprite/ui";
 
 import styles from "$/components/errors/app-error-boundary.module.css";
 
@@ -66,7 +66,7 @@ function ErrorScreen({
           {
             label: tUi("ui.diagnostics.error.reload"),
             onClick: reloadEditor,
-            variant: AlertDialogActionVariant.Primary,
+            primary: true,
           },
           {
             label: exporting
@@ -124,7 +124,7 @@ export class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorB
     if (!this.state.failed) return this.props.children;
     return (
       <UIProvider
-        appearance="dark"
+        colorScheme={UiColorScheme.Dark}
         language={currentUiLanguage()}
         translateKey={translateKey}
         translateSource={tUiSource}

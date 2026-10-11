@@ -1,10 +1,10 @@
 import { createContext } from "react";
 
 import type { UiTheme, UiThemeTokens } from "$/base/theme/theme-definition";
-import type { UiAppearance, UiStyleDefinition } from "$/base/theme/theme-types";
+import type { UiColorScheme, UiStyleDefinition } from "$/base/theme/theme-types";
 
 export interface ThemeContextValue {
-  variant: UiAppearance;
+  colorScheme: UiColorScheme;
   uiTheme: UiTheme;
   tokens: UiThemeTokens;
   definition: UiStyleDefinition;

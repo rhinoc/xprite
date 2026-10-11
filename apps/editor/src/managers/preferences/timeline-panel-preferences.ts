@@ -57,8 +57,8 @@ function normalize(value: unknown): TimelinePanelPreferences {
 
 function read(key: string, storage?: PreferenceStoragePort): TimelinePanelPreferences | null {
   try {
-    const stored = storage?.getItem(key);
-    return stored ? normalize(JSON.parse(stored)) : null;
+    const stored = storage?.readJson(key);
+    return stored ? normalize(stored) : null;
   } catch {
     return null;
   }
@@ -88,7 +88,7 @@ export function writeTimelinePanelPreferences(
     const key = documentName
       ? `${DOCUMENT_KEY_PREFIX}${encodeURIComponent(documentName)}`
       : DEFAULTS_KEY;
-    storage?.setItem(key, JSON.stringify(normalize(value)));
+    storage?.writeJson(key, normalize(value));
   } catch {
     // Preferences remain active for the current session when storage is unavailable.
   }

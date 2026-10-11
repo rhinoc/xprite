@@ -3,7 +3,7 @@
   gap: var(--ui-field-gap, 8px);
   min-width: 0;
   font-family: var(--ui-font-family);
-  font-size: var(--ui-text-size, var(--ui-text-default-size));
+  font-size: var(--ui-text-size, var(--ui-text-primary-size));
   color: var(--ui-color-ink);
 }
 .root[data-layout="horizontal"] {
@@ -21,7 +21,7 @@
   grid-template-columns: max-content minmax(0, max-content);
   align-items: center;
 }
-.root[data-layout="spread"] {
+.root[data-layout="space-between"] {
   grid-template-columns: minmax(0, 1fr) max-content;
   align-items: center;
   width: 100%;
@@ -39,7 +39,7 @@
   color: var(--ui-color-muted-ink);
 }
 .error {
-  color: var(--ui-color-danger-ink);
+  color: var(--ui-color-error-ink);
 }
 @media (max-width: 640px) {
   .root[data-layout="horizontal"] {

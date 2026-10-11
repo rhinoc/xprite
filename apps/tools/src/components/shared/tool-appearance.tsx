@@ -1,8 +1,14 @@
 import { type ReactNode } from "react";
 
-import { DesktopProvider, type DesktopManager } from "@xprite/site-shell";
-import { macintoshTheme } from "@xprite/ui";
+import { useToolLanguage } from "$/managers/locale/tool-language";
+import { DesktopAppearance, DesktopProvider, type DesktopManager } from "@xprite/site-shell";
+import { macintoshTheme, UiColorScheme } from "@xprite/ui";
 import type { UiThemeSnapshot } from "@xprite/ui/assets";
+
+export function desktopAppearanceForColorScheme(colorScheme?: UiColorScheme) {
+  if (!colorScheme) return undefined;
+  return colorScheme === UiColorScheme.Dark ? DesktopAppearance.Dark : DesktopAppearance.Light;
+}
 
 export function ToolAppearance({
   desktop,
@@ -13,11 +19,14 @@ export function ToolAppearance({
   children: ReactNode;
   initialTheme?: UiThemeSnapshot;
 }) {
+  const { language, translate } = useToolLanguage();
   return (
     <DesktopProvider
       manager={desktop}
       theme={macintoshTheme}
-      language="en"
+      language={language}
+      translateSource={translate}
+      translateKey={translate}
       initialTheme={initialTheme}
       preloadArtwork
     >

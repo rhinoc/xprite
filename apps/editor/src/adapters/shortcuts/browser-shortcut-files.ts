@@ -4,6 +4,7 @@ import {
   type ShortcutFileEntry,
   type ShortcutFilePort,
 } from "$/managers/ports/shortcut-files";
+import { downloadBlob, selectBrowserFiles } from "@xprite/bedrock/browser/file-system";
 
 const FILE_EXTENSION = ".aseprite-keys";
 const MAX_FILE_SIZE = 1024 * 1024;
@@ -104,37 +105,15 @@ export function createBrowserShortcutFilePort(
   primaryModifier: EditorPrimaryModifier,
 ): ShortcutFilePort {
   return {
-    read: () =>
-      new Promise((resolve, reject) => {
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = FILE_EXTENSION;
-        input.addEventListener("cancel", () => resolve(null), { once: true });
-        input.addEventListener(
-          "change",
-          async () => {
-            const file = input.files?.[0];
-            if (!file) return resolve(null);
-            try {
-              if (file.size > MAX_FILE_SIZE)
-                throw new Error("Keyboard shortcuts file is too large.");
-              resolve(parseShortcutFile(await file.text(), primaryModifier));
-            } catch (error) {
-              reject(error);
-            }
-          },
-          { once: true },
-        );
-        input.click();
-      }),
+    read: async () => {
+      const [file] = await selectBrowserFiles({ accept: FILE_EXTENSION });
+      if (!file) return null;
+      if (file.size > MAX_FILE_SIZE) throw new Error("Keyboard shortcuts file is too large.");
+      return parseShortcutFile(await file.text(), primaryModifier);
+    },
     write: async (entries) => {
       const blob = new Blob([serializeShortcutFile(entries)], { type: "application/xml" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `keyboard-shortcuts${FILE_EXTENSION}`;
-      link.click();
-      window.setTimeout(() => URL.revokeObjectURL(url), 0);
+      downloadBlob(blob, `keyboard-shortcuts${FILE_EXTENSION}`);
     },
   };
 }

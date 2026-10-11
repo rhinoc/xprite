@@ -12,7 +12,6 @@ export function scrollbarGeometry(
   visibleSize: number,
   value: number,
   minimumThumbSize = 0,
-  fixedThumbSize?: number,
 ): ScrollbarGeometry {
   const size = Math.max(0, Math.trunc(barSize));
   const content = Math.max(0, Math.trunc(contentSize));
@@ -22,9 +21,7 @@ export function scrollbarGeometry(
   const length =
     maximum === 0
       ? size
-      : fixedThumbSize !== undefined
-        ? Math.min(size, Math.max(0, Math.trunc(fixedThumbSize)))
-        : Math.min(size, Math.max(Math.min(minimum, size), Math.trunc((size * visible) / content)));
+      : Math.min(size, Math.max(Math.min(minimum, size), Math.trunc((size * visible) / content)));
   const travel = size - length;
   const position =
     maximum === 0 ? 0 : Math.max(0, Math.min(travel, Math.trunc((travel * value) / maximum)));

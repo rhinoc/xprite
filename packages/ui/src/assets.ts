@@ -1,5 +1,4 @@
 export {
-  UiIcon,
   UiPart,
   centerUiPixel,
   getUiAssets,
@@ -12,11 +11,10 @@ export {
   preloadUiAssets,
   uiControlSize,
   uiFontHeight,
-  uiGlyphAssets,
   uiMetrics,
   useUiAssets,
   useUiChecker,
-} from "$/components/theme/appearance";
+} from "$/components/theme/provider";
 export type {
   UiPartName,
   UiAssets,
@@ -24,6 +22,6 @@ export type {
   UiColorRole,
   UiStyle,
   UiThemeSnapshot,
-} from "$/components/theme/appearance";
+} from "$/components/theme/provider";
 export const systemHelpIconUrl: string = systemHelpIconAssetUrl;
 import systemHelpIconAssetUrl from "$assets/icons/system/help.svg?url";

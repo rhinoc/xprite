@@ -1,5 +1,9 @@
 import type { UiTooltipPointerArtwork } from "$/base/theme/theme-types";
-import type { TooltipRect, TooltipPlacement } from "$/components/tooltip/geometry";
+import {
+  TooltipPlacement,
+  type TooltipPosition,
+  type TooltipRect,
+} from "$/components/tooltip/geometry";
 import type { PositionedTooltipLayout } from "$/components/tooltip/types";
 
 import styles from "$/components/tooltip/tooltip.module.css";
@@ -14,15 +18,19 @@ const BALLOON_SHADOW = 1;
 
 export function balloonBody(
   bounds: TooltipRect,
-  placement: TooltipPlacement,
+  placement: TooltipPosition,
   pointerSize: number,
   suppliedInsets?: { left: number; top: number; right: number; bottom: number },
 ) {
-  const left = suppliedInsets?.left ?? (placement === "left" ? pointerSize : 0);
-  const top = suppliedInsets?.top ?? (placement.includes("top") ? pointerSize : 0);
-  const right = bounds.width - (suppliedInsets?.right ?? (placement === "right" ? pointerSize : 0));
+  const placementName = String(placement);
+  const left = suppliedInsets?.left ?? (placement === TooltipPlacement.Left ? pointerSize : 0);
+  const top = suppliedInsets?.top ?? (placementName.includes("top") ? pointerSize : 0);
+  const right =
+    bounds.width -
+    (suppliedInsets?.right ?? (placement === TooltipPlacement.Right ? pointerSize : 0));
   const bottom =
-    bounds.height - (suppliedInsets?.bottom ?? (placement.includes("bottom") ? pointerSize : 0));
+    bounds.height -
+    (suppliedInsets?.bottom ?? (placementName.includes("bottom") ? pointerSize : 0));
   return { left, top, right, bottom, width: right - left, height: bottom - top };
 }
 
@@ -80,13 +88,13 @@ export function BalloonFrame({
       verticalInset,
     } = pointerArtwork;
     const x =
-      placement === "top" || placement === "bottom"
+      placement === TooltipPlacement.Top || placement === TooltipPlacement.Bottom
         ? cx - pw / 2
         : horizontal === "left"
           ? horizontalInset
           : bounds.width - pw - horizontalInset;
     const y =
-      placement === "left" || placement === "right"
+      placement === TooltipPlacement.Left || placement === TooltipPlacement.Right
         ? cy - ph / 2
         : vertical === "top"
           ? verticalInset

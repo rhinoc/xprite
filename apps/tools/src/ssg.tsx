@@ -5,7 +5,6 @@ import { AnimalCrossingPage } from "$/components/animal-crossing/animal-crossing
 import { GifSheetPage } from "$/components/gif-sheet/gif-sheet-page";
 import { ToolAppearance } from "$/components/shared/tool-appearance";
 import { ToolArtworkKind, toolArtworkKey } from "$/components/shared/tool-artwork";
-import { ToolsHome } from "$/components/tools/tools-home";
 import { ViewerPage } from "$/components/viewer/viewer-page";
 import { AnimalCrossingManager } from "$/managers/animal-crossing/animal-crossing-manager";
 import { GifSheetManager } from "$/managers/gif-sheet/gif-sheet-manager";
@@ -17,8 +16,9 @@ import { ToolHostManager } from "$/managers/tools/tool-host-manager";
 import { ViewerManager } from "$/managers/viewer/viewer-manager";
 import { ToolApplicationRoot } from "$/tool-application-root";
 import { AppearanceMode } from "@xprite/editor-ui/appearance";
+import { PublicLanguage } from "@xprite/growth-content/language";
 import { DesktopManager, DesktopAppearance } from "@xprite/site-shell";
-import { macintoshTheme } from "@xprite/ui";
+import { UiColorScheme, macintoshTheme } from "@xprite/ui";
 import { loadUiThemeSnapshot, type UiThemeSnapshot } from "@xprite/ui/assets";
 
 const unavailable = () => {
@@ -33,11 +33,12 @@ export async function renderToolPage(rootId: string) {
       preview.preview,
     ]),
   );
-  const themes: Record<"light" | "dark", UiThemeSnapshot> = {
-    light: await loadUiThemeSnapshot("light", macintoshTheme),
-    dark: await loadUiThemeSnapshot("dark", macintoshTheme),
+  const themes: Record<UiColorScheme, UiThemeSnapshot> = {
+    [UiColorScheme.Light]: await loadUiThemeSnapshot(UiColorScheme.Light, macintoshTheme),
+    [UiColorScheme.Dark]: await loadUiThemeSnapshot(UiColorScheme.Dark, macintoshTheme),
   };
-  const render = (appearance: "light" | "dark") => {
+  const render = (appearance: "light" | "dark", language: PublicLanguage) => {
+    const colorScheme = appearance === "dark" ? UiColorScheme.Dark : UiColorScheme.Light;
     const ports = {
       readAppearance: () => (appearance === "dark" ? AppearanceMode.Dark : AppearanceMode.Light),
       watchAppearance: () => () => {},
@@ -72,13 +73,11 @@ export async function renderToolPage(rootId: string) {
           <ViewerPage manager={manager} />
         ) : manager instanceof GifSheetManager ? (
           <GifSheetPage manager={manager} />
-        ) : (
-          <ToolsHome />
-        );
+        ) : null;
       return renderToString(
         <StrictMode>
-          <ToolApplicationRoot rootId={rootId} artwork={artwork}>
-            <ToolAppearance desktop={desktop} initialTheme={themes[appearance]}>
+          <ToolApplicationRoot rootId={rootId} artwork={artwork} language={language}>
+            <ToolAppearance desktop={desktop} initialTheme={themes[colorScheme]}>
               {view}
             </ToolAppearance>
           </ToolApplicationRoot>
@@ -90,5 +89,12 @@ export async function renderToolPage(rootId: string) {
       host.dispose();
     }
   };
-  return { light: render("light"), dark: render("dark"), themes, artwork };
+  return {
+    light: render("light", PublicLanguage.English),
+    dark: render("dark", PublicLanguage.English),
+    chineseLight: render("light", PublicLanguage.SimplifiedChinese),
+    chineseDark: render("dark", PublicLanguage.SimplifiedChinese),
+    themes,
+    artwork,
+  };
 }

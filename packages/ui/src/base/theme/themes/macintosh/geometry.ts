@@ -4088,7 +4088,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
   },
-} satisfies Omit<UiStyleDefinition, "colors">;
+} satisfies Omit<UiStyleDefinition, "colors" | "typography">;
 
 export const macintoshSheetHashes = {
   light: "d5140e80aa74d47fb0288a4c06fb5a37abbb728b9693f013dfbee16b9fea7882",

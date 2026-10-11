@@ -261,7 +261,7 @@ function usePreviewEditorState(
     applyInkShade(value);
   };
   const previousShadeVisible = useRef(false);
-  // Functional palette is owned by core; the local bank belongs only to gallery/mockup.
+  // Functional palette is owned by core; the local bank belongs only to component previews.
   const shadePalette = activePalette ?? paletteColors;
   const previousShadePalette = useRef(shadePalette);
   useEffect(() => {

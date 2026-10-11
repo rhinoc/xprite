@@ -5,6 +5,7 @@ import {
   visibleTimelineLayers,
   type SpriteTimeline,
 } from "@xprite/editor-core/timeline";
+import { FontRole } from "@xprite/ui";
 import {
   paintUiIcon,
   paintUiPart,
@@ -114,7 +115,7 @@ export function paintLayerRowArtwork(
     assets,
     layer.name,
     tx + 8,
-    y + Math.floor((height - uiFontHeight("default", 2, assets.style.typography)) / 2),
+    y + Math.floor((height - uiFontHeight(FontRole.Primary, 2, assets.style.typography)) / 2),
     { color },
   );
   if (layer.flags & (8 | 64)) {
@@ -122,7 +123,7 @@ export function paintLayerRowArtwork(
     ctx.fillRect(
       tx + 8,
       y + (layer.flags & 8 ? height - 4 : Math.floor(height / 2)),
-      measureUiText(layer.name, "default", 2, assets.style.typography),
+      measureUiText(layer.name, FontRole.Primary, 2, assets.style.typography),
       2,
     );
   }

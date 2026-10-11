@@ -1,10 +1,27 @@
 # Pixel Art UI Primitives
 
-Reusable Aseprite-styled React components for the editor and other pixel-art
-apps. This package owns the Aseprite light/dark theme, cursor atlas, and font
-assets, component artwork, layout, and reusable interaction behavior. Editor state,
-commands, file formats, and color-profile conversion stay in the app; controls
-receive values and callbacks through props.
+Reusable React controls, layout and interaction primitives for pixel-art apps.
+Visual themes supply artwork, fonts, cursors and presentation tokens. Applications
+own document state, commands, file formats and color-profile conversion; controls
+receive values and callbacks.
+
+Window presentation and interaction can be composed independently. `PanelFrame`
+renders window artwork and content, using `PanelFrameLayout.Flow` for page layout
+or Scene for authored editor coordinates. Compose dismissal, dragging, resizing
+and disclosure through the interaction helpers. `Panel` supplies a disclosure preset.
+
+`FloatingLayer` places arbitrary content in scene coordinates; its `rootProps`
+receive the owning control's role, label, focus and keyboard handlers.
+`useOverlayInteraction` supplies dismissal and focus restoration, with
+`OverlayInteractionScope` preserving child-layer ownership through React portals.
+`useWindowGesture` supplies dragging and resizing. Modal hosts use `useModalFocus`
+for focus containment and restoration and retain their backdrop and submission
+rules.
+
+`Dialog` and `Popover` compose these parts with their default scene artwork.
+Their `renderFrame` prop replaces presentation without replacing placement or
+interaction. `usePopoverPosition` supplies anchoring alone; `useAnchoredPopover`
+combines it with the shared dismissal behavior for an existing popup element.
 
 Assets are grouped by purpose, then source: `assets/themes/aseprite/` contains
 the theme sheets and source definitions, `assets/cursors/aseprite/` contains
@@ -23,6 +40,19 @@ has distinct modes, each mode-specific implementation and style lives in
 `variants/<variant>` beneath that family. Internal primitives live in `src/base/components`, control policies in
 `src/base/controls`, theme assets and context in `src/base/theme`, and generic
 helpers in `src/base/utils`.
+
+Public options name one dimension at a time: `variant` selects a control
+structure, `mode` selects behavior, `border` configures the frame, `rendering`
+selects how a value is drawn, and `layout` arranges content. `tone`, `size`,
+`density`, `font`, and `placement` describe semantic color, dimensions, spacing,
+typography, and position. Omit an option to use its documented default.
+`Neutral`, `Info`, `Success`, `Warning`, and `Error` are shared tone names.
+`Accent` is a surface tone; `Muted` is a text tone. `FontRole.Primary` and
+`FontRole.Compact` select text sizing roles.
+`UiColorScheme.Light` and `Dark` select the light or dark palette; `theme` selects
+the independent visual skin, such as Aseprite or Macintosh.
+Use `TextInk.Light` or `Dark` for explicit inline pixel-text contrast, and
+`TextAlignment.Left`, `Center`, or `Right` for positioned control labels.
 
 Drag handles reuse `PointerDragActivation` from `@xprite/ui/utils` to distinguish
 taps from dragging. It owns the activation distance (8 client pixels for touch,
@@ -65,19 +95,29 @@ docking through `onDragMove` and `onDragEnd`; `onReorder` is optional. Context
 menus on draggable tabs should use `LongPressActivation.Release`, so holding
 and dragging can finish before a stationary release opens the menu.
 
-The package includes a unified Aseprite-themed `Button` with theme, icon, color,
-touch, and tool appearance variants. Selection is a state prop; theme buttons are
-the default. The color variant accepts `readOnly` for inert previews that keep
-their original color. It also includes labels, entries, and text; checkboxes,
+`ButtonVariant` selects Push, Icon, FlatIcon, Color, Tool, Split, or Tile
+structure; Push is the default. `ButtonAppearance.Quiet` removes the raised frame
+where supported. Selection is a state prop. `readOnly` keeps button previews
+inert without changing their artwork, including quiet buttons and split-button
+dropdowns. It also includes labels, entries, and text; checkboxes,
 sliders, comboboxes, menus, tooltips, scrollbars, overlays, touch panels, and
 canvas surfaces. Editor-specific panels and workflows are composed by the app
 from these reusable controls.
+
+`MenuActivation` chooses Click, Press or ContextMenu independently of theme
+artwork. Menubar uses Press by default and exposes `menuActivation` separately
+from its layout. `Menu` defaults to toggling an open trigger; hover-enabled
+menubars keep it open when activated. Flow menu titles highlight only while
+their menu is open; keyboard focus uses an outline. Disabled or read-only
+triggers cannot open a menu.
 
 Behavior composition should reuse an existing DOM element. `Tooltip` adds its
 events and ARIA description to the child, and measures the interactive element
 that receives the event. Custom trigger components must pass those props to
 their actual control. Existing refs are preserved. `TooltipGroup` similarly
 reuses one existing container for its shared pointer-leave boundary.
+`TooltipPlacement.Top`, `Bottom`, side and corner values set a fixed position;
+`TooltipPlacement.Auto` chooses a side that fits.
 
 For explicit composition, pass a function child and merge the control's props
 through `getTriggerProps`:
@@ -101,7 +141,7 @@ import { Button, Tooltip } from "@xprite/ui";
 
 The getter keeps existing handlers, invokes them before tooltip behavior, and
 respects `stopPropagation`. Calling `preventDefault` still permits tooltip
-behavior, as it did when that behavior lived on an ancestor. Keep containers
+behavior. Keep containers
 that own layout, clipping, scrolling, or an interaction region shared by
 multiple controls; component boundaries alone do not require DOM wrappers.
 
@@ -110,8 +150,15 @@ content or interaction handlers retain an HTML host. Shared atlas regions cache
 their source clips. Color button frames and repeated divider tiles use compact
 rendering at integer presentation scales. Fractional scales retain their
 original per-slice/per-tile viewports so edge resampling stays unchanged.
-Transparent color checker cells retain their original painter and cache their
-geometry rather than introducing gradient edge differences.
+Color checkers cache the geometry of their source-pixel cells.
+
+`ScrollAreaTarget.Element` is the default for local viewports; use
+`target={ScrollAreaTarget.Page}` for native document scrolling, anchors and fixed
+elements. The default `scrollbarRendering` is Skinned; set
+`scrollbarRendering={ScrollbarRendering.Browser}` for browser scrollbars.
+`scrollbarStyle` selects Compact, Classic or Transparent artwork. `reserveScrollbarGutter` defaults to
+false for Element and true for Page. `documentGutter` enhances an existing static
+document. Element and Page have separate option types.
 
 `ScrollArea` batches observer-driven measurements across nested areas, ignores
 bounded SVG artwork changes, and does not attach geometry observers when both
@@ -127,33 +174,33 @@ the handlers to their DOM root, as `Tabs` does. A function child receives
 retain their ancestor-first order, and bubbling handlers retain their
 child-first order; `preventDefault` suppresses opening a context menu.
 
-`CursorProvider` makes the package cursor styles available to a subtree, and
-`cursorStyle` returns an image cursor string with its atlas hotspot for canvas
-and other imperative surfaces. Import `@xprite/ui/style.css` to include the
-cursor artwork and CSS variables.
+`CursorProvider` supplies the active theme's cursor variables to a subtree.
+`cursorStyle` returns the CSS reference for a cursor role; `getCursorArtwork`
+provides its image and hotspot for canvas and other imperative surfaces.
+Import `@xprite/ui/style.css` for the shared cursor styles.
 
-`Slider` exposes `Normal`, `Threshold`, `TimelineRange`, and `Entry` modes through
-`SliderVariant`. `SliderVariant.TimelineRange` provides a discrete, two-handle
-timeline selection with themed artwork, keyboard support, and captured pointer
-input; an editor adapter translates handle movement into editor settings. The
-`Entry` mode retains its compact `mini` option, and threshold/color-channel
-controls keep using the theme's mini slider artwork where appropriate.
+`SliderMode.Value` is the default for a single value; `SliderMode.Range` accepts
+a pair of endpoints. `SliderRendering.Pixel` draws the theme's slider;
+`NumberEntry` supplies the editable number and popup slider, while
+`BrowserRange` uses an HTML range input. Range uses pixel rendering. Color
+channel sliders use the theme's artwork where appropriate.
+`SliderValueFormat.Integer` and `Percentage` control number-entry formatting.
+`DividerAppearance.Panel`, `Content`, and `Heading` select the divider's context.
 
-Movable windows and anchored popups share the `Overlay` component. Select the
-behavior with `OverlayVariant.Window` or `OverlayVariant.Popup`:
+`Dialog` supplies movable windows; `Popover` supplies anchored popup surfaces.
+Opening, modality, movement and dismissal are explicit behavior props.
 
 ```tsx
-import { Overlay, OverlayVariant } from "@xprite/ui";
+import { Dialog } from "@xprite/ui";
 
-<Overlay
-  variant={OverlayVariant.Window}
+<Dialog
   open={open}
   onOpenChange={setOpen}
   title="Document"
   defaultBounds={{ x: 40, y: 40, width: 420, height: 300 }}
 >
   {content}
-</Overlay>;
+</Dialog>;
 ```
 
 ```tsx
@@ -161,19 +208,18 @@ import {
   Button,
   ButtonVariant,
   Checkbox,
-  Entry,
+  Input,
   Text,
   TextVariant,
   Panel,
-  Text,
-  TextVariant,
   UIProvider,
+  UiColorScheme,
 } from "@xprite/ui";
 import "@xprite/ui/style.css";
 
 export function ToolCard() {
   return (
-    <UIProvider appearance="dark">
+    <UIProvider colorScheme={UiColorScheme.Dark}>
       <Panel title="Brush">
         <Text variant={TextVariant.Inline}>Brush size</Text>
         <Text
@@ -184,21 +230,21 @@ export function ToolCard() {
           color="currentColor"
         />
         <Text variant={TextVariant.Control} text="Project name" />
-        <Entry value="" aria-label="Project name" />
+        <Input value="" readOnly aria-label="Project name" />
         <Checkbox
           bounds={{ x: 0, y: 0, width: 132, height: 32 }}
           label="Pixel perfect"
           checked
           onCheckedChange={() => {}}
         />
-        <Button variant={ButtonVariant.Standard} text="Apply" />
+        <Button variant={ButtonVariant.Push} text="Apply" />
       </Panel>
     </UIProvider>
   );
 }
 ```
 
-The gallery app is a visual showcase of this package's current exports. Assets
+The components app is a visual showcase of this package's current exports. Assets
 and font licenses are listed in `ATTRIBUTION.md` and `LICENSES/`.
 
 `RichText` displays read-only rich content through one component. Pass JSX as
@@ -235,7 +281,51 @@ native scroll position.
 `Combobox` can set `fitPopupToContent` to widen its option list to fit labels
 without changing the trigger size. The popup remains constrained to the viewport.
 
+## Independent themes
+
+A visual theme owns its font descriptors, cursor artwork, atlas bindings and
+presentation tokens. `UiTheme` supplies synchronous `typography` and `cursors`
+metadata, then loads light or dark artwork and font-face CSS through
+`load(colorScheme)`. `UIProvider` takes `colorScheme` and `theme` separately.
+
+To add a theme, add its entry, font metadata/CSS and artwork under
+`base/theme/themes/<name>/` and keep original font/image assets in `assets/`.
+Expose the entry and pass it to `UIProvider`. Existing native-font and bitmap
+renderers require no changes to shared controls. Bitmap descriptors provide the
+atlas URL, dimensions and glyph map; native descriptors provide the font family
+and advances. Both declare CJK fallback metrics and the text alignment grid.
+Only declared bitmap atlases are loaded. `UiAssets.fontAtlases` and
+`UiAssets.style.typography` describe the selected theme together.
+
+Themes provide the logical part bindings used by their controls. Reusing another theme's asset
+set is an explicit choice in the theme entry, as with the current pixel cursors.
+An empty cursor set uses system cursor fallbacks. Cursor caches are scoped to the
+artwork set, and `CursorProvider` supplies the current theme's cursor variables.
+
+Control input rules belong to components and their application owners. Menus
+opened with a pointer start without a selected item; keyboard opening selects
+the first enabled item. A controlled menu receives `MenuOpeningInput` from its
+owner. Theme configuration supplies visual properties such as popup frames,
+focus marks and tooltip artwork.
+
 ## Typography and color tokens
+
+`base/theme/typography-tokens.ts` owns shared reading and window typography.
+Each role has a family, size and line-height token:
+
+| Role            | Family                         | Size                                | Line height                           |
+| --------------- | ------------------------------ | ----------------------------------- | ------------------------------------- |
+| Window title    | `--ui-panel-window-title-font` | `--ui-panel-window-title-font-size` | `--ui-panel-window-title-line-height` |
+| Content title   | `--ui-reading-title-font`      | `--ui-reading-title-size`           | `--ui-reading-title-line-height`      |
+| Content heading | `--ui-reading-heading-font`    | `--ui-reading-heading-size`         | `--ui-reading-heading-line-height`    |
+| Body            | `--ui-reading-body-font`       | `--ui-reading-body-size`            | `--ui-reading-line-height`            |
+| Caption         | `--ui-reading-caption-font`    | `--ui-reading-caption-size`         | `--ui-reading-caption-line-height`    |
+| Code            | `--ui-code-font`               | `--ui-code-size`                    | `--ui-code-line-height`               |
+
+Macintosh window overrides live beside the font metrics in
+`base/theme/themes/macintosh/typography.ts`. Font-face size adjustment stays in
+the font asset CSS; changing a reading role does not redefine the glyph grid.
+The growth site's typography preset supplies showcase note and heading metrics.
 
 `base/theme/semantic-presentation-tokens.ts` supplies complete defaults for every
 skin: primary/compact/code font roles, reading/field/code metrics, metadata,
@@ -245,9 +335,8 @@ pure helpers; regenerate static token CSS with `pnpm run assets:macintosh-theme`
 
 Use `--ui-color-border` for hard control edges and `--ui-color-line` for subdued
 separators. Note palettes and typography live in `base/theme/note-tokens.ts`;
-components bind those roles rather than redefining palette values. Window fonts
-use the active skin's compact role, so another skin does not import Macintosh
-fonts. Component CSS consumes these guaranteed variables without visual literals.
+components bind those roles rather than redefining palette values. Window titles and footers use their dedicated font tokens. Component CSS
+consumes these variables.
 
 Pages may provide a cohesive typography preset for deliberate locale or marketing
 metrics; growth imports its site preset for both static and interactive rendering.
@@ -257,9 +346,13 @@ colors retain their original data.
 
 ## Macintosh desktop windows
 
-`PanelVariant.Window` composes the titlebar, body and optional footer. Choose
-`PanelWindowKind.Document`, `Utility`, `Dialog`, `About` or `Note` by the surface's
-purpose. Document and Utility windows support WindowShade by default: a titlebar
+Window panels compose the titlebar, body and optional footer. Choose
+`PanelVariant.Document`, `Utility` or `Dialog` by the surface's purpose.
+Dialog captions are centered by default. `titleAlign={PanelTitleAlignment.Start}`
+left-aligns the title, and `titleFont={FontRole.Compact}` uses the compact font.
+Set `emphasized` for a stronger frame and titlebar. Document and Utility panels
+enable WindowShade by default; Dialog panels keep a fixed caption. Set
+`collapsible` explicitly to choose the behavior. A titlebar
 single click activates; a double click rolls the body up or restores it.
 `collapsed` / `onCollapsedChange` support controlled state; `defaultCollapsed`
 sets the initial state. Enter or Space on a focused caption also toggles it.
@@ -272,9 +365,16 @@ press Escape during dragging to cancel the movement. Mark layout ancestors with
 Static public pages use `connectWindowWorkspace(root, { staticWindowShade: true })`
 to apply the same titlebar behavior to server-rendered window markup.
 
-`Note` uses the source kit's seven paper colors and its close, corner collapse
-and resize controls. Set `NoteDismissBehavior.Collapse` and supply `title` to
-keep a named caption after closing so the note can be restored.
+`PanelVariant.Note` renders plain paper using the source kit's seven colors
+through `noteColor={PanelNoteColor.Yellow}`. `PanelVariant.NoteWindow` adds close,
+corner collapse and resize controls.
+Set `PanelDismissBehavior.Collapse` and supply `title` to keep a named caption
+after closing so the note can be restored.
+
+`Icon` takes `kind` for desktop artwork, system glyphs and theme atlas parts.
+Desktop artwork and glyphs use `size`; atlas parts retain their source-pixel
+`scale`, position, tint and state options. The Icon page in Web Components displays all
+icons together; search by name and click an icon to copy its key.
 
 `Icon` uses the original Mac OS 8.0 Platinum icon pixels under
 `assets/icons/desktop/macos8/`, including native 16×16 artwork for menu rows;
@@ -284,18 +384,35 @@ tiles. Articles select a stable tile from their canonical path.
 
 `ButtonVariant.Tile` composes an icon through `slots.leading` and a caption
 through `text` or `slots.content`, with native button or link behavior.
-`PanelVariant.Group` supplies a captioned border; `PanelGroupBorder` chooses
-a single or etched edge. `TextVariant.Control` supplies theme translation,
+`PanelVariant.Content` follows the active theme's panel presentation.
+Omit `border` for its single frame, pass `border={false}` for no frame, or set
+`border={{ style: PanelBorderStyle.Etched }}` for an etched frame. `TextVariant.Control` supplies theme translation,
 alignment and optional pixel bounds without implying an HTML form label.
-`ListBoxSelectionMode` chooses single or multiple selection; separators group
-rows, while `renderItem` and `renderGroup` supply custom content.
+`ListBoxMode.Single` is the default; Multiple accepts a collection of selected
+values, while Navigation takes native `NavigationListBoxItem` links. `activeHref`
+marks the current location. Link focus, modifier clicks and new-tab behavior stay
+native. `border` configures the frame independently of the selection mode: omit it
+or pass `true` for the skin's inset frame, pass `false` to remove the frame, or
+pass `{ style: ListBoxBorderStyle.Single }`, `{ style: ListBoxBorderStyle.Inset }`
+or `{ style: ListBoxBorderStyle.Thick }` to choose a frame. Frame insets and focus
+artwork follow that setting. Separators group selection rows, and
+`renderItem` / `renderGroup` supply custom content.
+
+`CheckboxMode.Toggle` changes a boolean; Radio selects it without clearing it.
+`CheckboxShape.Square` and `CheckboxShape.Round` independently choose the square or round
+artwork. The behavior determines the ARIA role and selection rule.
 
 The pattern catalog is generated from the curated original desktop resources
-with `pnpm run assets:desktop-patterns`. `PatternVariant` and `PATTERNS` describe
-125 retained tiles; removed imitation IDs have no compatibility aliases.
+with `pnpm run assets:desktop-patterns`. `PatternId` and `PATTERNS` describe
+125 retained tiles.
 `Pattern` accepts `foreground` and `background` for two-color masks, `preview`
 to isolate a swatch from the host's desktop override, and `scale` for display
 size. Fixed-color artwork uses original PNG pixels. Source records and exclusions
 are retained with the assets. Two-color patterns share shapes across inverted,
 translated and recolored source variants, and can be recolored without copying
 assets. Apple pattern artwork is licensed separately from the UI software.
+
+`Toast` accepts `tone={ToastTone.Info}`, `Success`, `Warning` or `Error` for
+blue, green, yellow or red message colors in light and dark color schemes.
+`ToastTone.Neutral` is the default and uses the skin's ordinary notice colors.
+The caller owns the message duration; `text={null}` hides it.

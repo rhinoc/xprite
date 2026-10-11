@@ -1,6 +1,6 @@
 import type { Ink } from "$/managers/preferences/tool-ink-settings";
 import { ToolInk as AsepriteInk } from "$/managers/tools/tool-options";
-import { Button, Menu, MenuCheckType, Tooltip } from "@xprite/ui";
+import { Button, Menu, MenuCheckType, Tooltip, TooltipPlacement } from "@xprite/ui";
 import type { SurfaceBounds, SurfaceViewport } from "@xprite/ui";
 import type { UiPartName } from "@xprite/ui/assets";
 
@@ -55,7 +55,7 @@ export function InkPicker({
         },
       ]}
       renderTrigger={(props) => (
-        <Tooltip text="Ink" placement="bottom" disabled={!!props["aria-expanded"]}>
+        <Tooltip text="Ink" placement={TooltipPlacement.Bottom} disabled={!!props["aria-expanded"]}>
           <Button
             {...props}
             bounds={bounds}

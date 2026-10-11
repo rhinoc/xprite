@@ -26,8 +26,8 @@ export class RecentFilesCatalog {
 
   constructor(private readonly storage: PreferenceStoragePort) {
     try {
-      const saved = JSON.parse(
-        storage.getItem(RECENT_FILES_CATALOG_KEY) ?? "null",
+      const saved = storage.readJson(
+        RECENT_FILES_CATALOG_KEY,
       ) as Partial<RecentFilesCatalogState> | null;
       if (saved?.identityRecentIds && typeof saved.identityRecentIds === "object") {
         for (const [identity, recentId] of Object.entries(saved.identityRecentIds))
@@ -151,14 +151,11 @@ export class RecentFilesCatalog {
 
   private persist() {
     try {
-      this.storage.setItem(
-        RECENT_FILES_CATALOG_KEY,
-        JSON.stringify({
-          identityRecentIds: Object.fromEntries(this.identityRecentIds),
-          dismissedProjectIds: [...this.dismissedProjectIds],
-          pinnedRecentIds: [...this.pinnedRecentIds],
-        } satisfies RecentFilesCatalogState),
-      );
+      this.storage.writeJson(RECENT_FILES_CATALOG_KEY, {
+        identityRecentIds: Object.fromEntries(this.identityRecentIds),
+        dismissedProjectIds: [...this.dismissedProjectIds],
+        pinnedRecentIds: [...this.pinnedRecentIds],
+      } satisfies RecentFilesCatalogState);
     } catch {
       // Keep the current catalog useful even when preferences cannot be persisted.
     }

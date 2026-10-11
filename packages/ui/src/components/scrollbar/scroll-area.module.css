@@ -29,3 +29,13 @@
   min-width: 100%;
   min-height: 100%;
 }
+
+.viewport[data-ui-scroll-rendering="browser"] {
+  scrollbar-width: auto;
+}
+
+.viewport[data-ui-scroll-rendering="browser"]::-webkit-scrollbar {
+  display: block;
+  width: auto;
+  height: auto;
+}

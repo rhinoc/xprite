@@ -1,11 +1,13 @@
 import { browserToolHost } from "$/adapters/tools/browser-tool-host";
 import { createBrowserViewerPort } from "$/adapters/viewer/browser-viewer";
-import { ToolAppearance } from "$/components/shared/tool-appearance";
+import {
+  desktopAppearanceForColorScheme,
+  ToolAppearance,
+} from "$/components/shared/tool-appearance";
 import { ViewerPage } from "$/components/viewer/viewer-page";
 import { ToolHostManager } from "$/managers/tools/tool-host-manager";
 import { viewerCompareSearch } from "$/managers/viewer/compare-attribution";
 import { ViewerManager } from "$/managers/viewer/viewer-manager";
-import { DesktopAppearance } from "@xprite/site-shell";
 import { createBrowserDesktop } from "@xprite/site-shell/browser";
 import type { SiteTelemetryPort } from "@xprite/site-shell/telemetry";
 import type { UiThemeSnapshot } from "@xprite/ui/assets";
@@ -18,7 +20,8 @@ export function createViewerApplication(
   const manager = new ViewerManager(port, telemetry);
   const host = new ToolHostManager(browserToolHost);
   const desktop = createBrowserDesktop({
-    appearance: (initialTheme?.appearance ?? host.getAppearanceMode()) as DesktopAppearance,
+    appearance:
+      desktopAppearanceForColorScheme(initialTheme?.colorScheme) ?? host.getAppearanceMode(),
   });
   return {
     view: (

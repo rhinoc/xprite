@@ -8,10 +8,10 @@ import {
   GifSheetStatus,
   type GifSheetManager,
 } from "$/managers/gif-sheet/gif-sheet-manager";
+import { useToolTranslation } from "$/managers/locale/tool-language";
 import { GIF_SHEET_TOOL } from "$/managers/tools/tool-catalog";
 import {
   ContentLayout,
-  PanelWindowChrome,
   SurfaceTone,
   Field,
   FieldLayout,
@@ -21,10 +21,8 @@ import {
   Checkbox,
   Combobox,
   ControlFlow,
-  ControlFlowVariant,
   Panel,
   PanelVariant,
-  PanelWindowKind,
   Input,
 } from "@xprite/ui";
 
@@ -41,6 +39,8 @@ const MAX_PADDING = 4096;
 const MIN_COUNT = 1;
 
 export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
+  const t = useToolTranslation();
+
   const snapshot = useSyncExternalStore(
     manager.subscribe,
     manager.getSnapshot,
@@ -61,10 +61,10 @@ export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
   const grid =
     settings.layout === GifSheetLayout.Rows || settings.layout === GifSheetLayout.Columns;
   const numeric = (key: "count" | "borderPadding" | "shapePadding", label: string, max: number) => (
-    <Field layout={FieldLayout.Spread} label={`${label}:`}>
+    <Field layout={FieldLayout.SpaceBetween} label={t(`${label}:`)}>
       <Input
         pixelWidth={ENTRY_WIDTH}
-        aria-label={label}
+        aria-label={t(label)}
         inputMode="numeric"
         min={key === "count" ? MIN_COUNT : 0}
         max={max}
@@ -87,12 +87,12 @@ export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
       onExample={() => manager.openExample()}
       fileItems={[
         {
-          label: "Export sprite sheet (.png)",
+          label: t("Export sprite sheet (.png)"),
           disabled: !loaded || !ready || busy || snapshot.downloading,
           onSelect: () => void manager.download(GifSheetDownload.Png),
         },
         {
-          label: "Export frame data (.json)",
+          label: t("Export frame data (.json)"),
           disabled: !loaded || !ready || busy || snapshot.downloading,
           onSelect: () => void manager.download(GifSheetDownload.Json),
         },
@@ -102,18 +102,18 @@ export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
         <div className={styles.layout}>
           {ready && (
             <Panel
-              windowChrome={PanelWindowChrome.Emphasized}
+              emphasized
               contentLayout={ContentLayout.Fill}
-              variant={PanelVariant.Window}
+              variant={PanelVariant.Document}
               title={snapshot.name}
               className={styles.preview}
               data-ui-window-priority="primary"
             >
-              <ControlFlow variant={ControlFlowVariant.Toolbar} className={shell.previewToolbar}>
-                <Field layout={FieldLayout.Inline} label="Zoom:">
+              <ControlFlow toolbar className={shell.previewToolbar}>
+                <Field layout={FieldLayout.Inline} label={t("Zoom:")}>
                   <Combobox
                     pixelWidth={ZOOM_WIDTH}
-                    aria-label="Preview zoom"
+                    aria-label={t("Preview zoom")}
                     value={String(zoom)}
                     options={zooms.map((value) => ({
                       value: String(value),
@@ -129,44 +129,45 @@ export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
                 </Field>
                 <span
                   className={shell.previewDimensions}
-                  title={`Source: ${snapshot.frameWidth} × ${snapshot.frameHeight} px`}
+                  title={t(`Source: ${snapshot.frameWidth} × ${snapshot.frameHeight} px`)}
                 >
-                  <Text
-                    variant={TextVariant.Reading}
-                    tone={TextTone.Muted}
-                  >{`${snapshot.pixels!.width} × ${snapshot.pixels!.height} px · ${snapshot.frames} frames`}</Text>
+                  <Text variant={TextVariant.Reading} tone={TextTone.Muted}>
+                    {t(
+                      `${snapshot.pixels!.width} × ${snapshot.pixels!.height} px · ${snapshot.frames} frames`,
+                    )}
+                  </Text>
                 </span>
               </ControlFlow>
               <ToolCanvasPreview
                 navigation={navigation}
                 identity={snapshot.identity}
                 pixels={snapshot.pixels!}
-                label="Sprite sheet preview. Drag to pan, scroll to zoom, double-click to fit."
+                label={t("Sprite sheet preview. Drag to pan, scroll to zoom, double-click to fit.")}
               />
             </Panel>
           )}
           {(loaded || (busy && snapshot.name)) && (
             <aside className={styles.inspector} data-ui-desktop-layer>
               <Panel
-                windowChrome={PanelWindowChrome.Emphasized}
+                emphasized
                 tone={SurfaceTone.Accent}
-                variant={PanelVariant.Window}
-                title="Sheet layout"
-                windowKind={PanelWindowKind.Utility}
+                scrollable
+                variant={PanelVariant.Utility}
+                title={t("Sheet layout")}
                 collapsible
               >
-                <ControlFlow className={styles.settings} aria-label="Sheet settings">
-                  <Field layout={FieldLayout.Spread} label="Layout:">
+                <ControlFlow className={styles.settings} aria-label={t("Sheet settings")}>
+                  <Field layout={FieldLayout.SpaceBetween} label={t("Layout:")}>
                     <Combobox
                       pixelWidth={LAYOUT_WIDTH}
-                      aria-label="Sheet type"
+                      aria-label={t("Sheet type")}
                       value={settings.layout}
                       disabled={!loaded}
                       options={[
-                        { value: GifSheetLayout.Rows, label: "By rows" },
-                        { value: GifSheetLayout.Columns, label: "By columns" },
-                        { value: GifSheetLayout.Horizontal, label: "Horizontal" },
-                        { value: GifSheetLayout.Vertical, label: "Vertical" },
+                        { value: GifSheetLayout.Rows, label: t("By rows") },
+                        { value: GifSheetLayout.Columns, label: t("By columns") },
+                        { value: GifSheetLayout.Horizontal, label: t("Horizontal") },
+                        { value: GifSheetLayout.Vertical, label: t("Vertical") },
                       ]}
                       onValueChange={(layout) =>
                         manager.changeSettings({ layout: layout as GifSheetLayout })
@@ -182,8 +183,8 @@ export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
                   {numeric("borderPadding", "Border padding", MAX_PADDING)}
                   {numeric("shapePadding", "Frame spacing", MAX_PADDING)}
                   <Checkbox
-                    label="Power of two"
-                    title="Round sheet dimensions up without scaling frames"
+                    label={t("Power of two")}
+                    title={t("Round sheet dimensions up without scaling frames")}
                     checked={settings.powerOfTwo}
                     disabled={!loaded}
                     onCheckedChange={(powerOfTwo) => manager.changeSettings({ powerOfTwo })}

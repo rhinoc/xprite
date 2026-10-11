@@ -37,7 +37,7 @@
 }
 
 .option:disabled {
-  cursor: default;
+  cursor: var(--ui-cursor-default, default);
 }
 
 .innerFrame {

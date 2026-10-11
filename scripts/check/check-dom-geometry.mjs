@@ -15,8 +15,9 @@ const aliasScopes = JSON.parse(
   ]),
 }));
 const configs = [
+  "apps/growth/tsconfig.json",
   "apps/editor/tsconfig.json",
-  "apps/gallery/tsconfig.json",
+  "apps/components/tsconfig.json",
   "apps/tools/tsconfig.json",
   "packages/editor-ui/tsconfig.json",
   "packages/ui/tsconfig.json",

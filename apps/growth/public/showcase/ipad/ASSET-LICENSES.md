@@ -89,9 +89,8 @@ fonts named by the Classic Macintosh UI Kit. Original font sources, attribution
 terms and browser-metric adjustments are recorded in
 `packages/ui/assets/fonts/macintosh/README.md`; their originals stay in that
 shared UI directory. Public pages serve the same WOFF2 files through `/theme/`.
-Chinese text uses **Fusion Pixel** as a fallback, with its SIL Open Font License
-1.1 notice in `LICENSES/fusion-pixel-font/OFL.txt`. Latin display sizes use the
-Macintosh fonts’ 16px grid; Chinese headings retain the 10px CJK grid.
+Chinese text in the authored captures uses **Fusion Pixel**. Latin display sizes use the
+Macintosh fonts’ 16px grid; the captures retain their original source pixels.
 
 The former **Doto** wordmark font is retained with its asset provenance as a Google Fonts
 Latin WOFF2 subset with the `wght` (100–900) and `ROND` (0–100) variable axes.

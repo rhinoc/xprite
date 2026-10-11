@@ -1,0 +1,81 @@
+.desktop {
+  width: calc(100% - 64px);
+  max-width: 1200px;
+  margin: 80px auto 64px;
+}
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 6fr);
+  align-items: start;
+  gap: 0;
+}
+.toolsWindow {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 72px -28px 0 0;
+  z-index: 2;
+}
+.libraryWindow {
+  grid-column: 2;
+  grid-row: 1;
+  margin-left: -20px;
+  z-index: 1;
+}
+.applications,
+.documents {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 28px 16px;
+  padding: 32px 24px;
+}
+.applications {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-height: 224px;
+}
+.documents {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.applications :global([data-ui-desktop-icon]),
+.documents :global([data-ui-desktop-icon]) {
+  width: min(100%, 128px);
+}
+@media (max-width: 900px) {
+  .workspace {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .toolsWindow {
+    margin-right: -16px;
+  }
+  .libraryWindow {
+    margin-left: -16px;
+  }
+  .applications {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: 0;
+  }
+}
+@media (max-width: 640px) {
+  .desktop {
+    width: calc(100% - 24px);
+    margin: 32px auto;
+  }
+  .workspace {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .toolsWindow,
+  .libraryWindow {
+    width: 100%;
+    margin: 0;
+  }
+  .applications {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .applications,
+  .documents {
+    gap: 20px 12px;
+    padding: 24px 16px;
+  }
+}

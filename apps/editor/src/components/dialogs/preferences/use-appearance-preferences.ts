@@ -16,7 +16,7 @@ export interface AppearancePreferencesBindings {
   onAccept?: () => void;
   onCancel?: () => void;
 }
-/** Shared adapter for the editor and gallery; transaction rules stay in the pure core. */
+/** Shared adapter for the editor and web components; transaction rules stay in the pure core. */
 export function useAppearancePreferences(bindings: AppearancePreferencesBindings) {
   const latest = useRef(bindings);
   latest.current = bindings;

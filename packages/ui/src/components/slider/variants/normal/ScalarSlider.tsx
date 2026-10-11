@@ -3,6 +3,7 @@ import * as React from "react";
 import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { ThemeIcon, ThemePart, type AtlasPartName } from "$/base/theme/theme-part";
+import { FontRole } from "$/base/theme/theme-types";
 import { cn } from "$/base/utils/cn";
 import { clientPoint, clientRect } from "$/base/utils/dom-geometry";
 import { stylusPointerInputProps } from "$/base/utils/stylus-input";
@@ -13,13 +14,13 @@ import {
 } from "$/components/canvas-surface";
 import { sizedControlBounds } from "$/components/control-flow/placement";
 import { position } from "$/components/slider/position";
-import type { ScalarSliderProps } from "$/components/slider/types";
+import type { ValueSliderProps } from "$/components/slider/types";
 import { Text, TextVariant } from "$/components/text";
 
 import styles from "$/components/slider/slider.module.css";
 
 /** ui::Slider input semantics and SkinTheme::paintSlider split-color skins. */
-export function ScalarSlider(props: ScalarSliderProps) {
+export function ScalarSlider(props: ValueSliderProps) {
   const {
     bounds: suppliedBounds,
     relativeTo,
@@ -171,8 +172,8 @@ export function ScalarSlider(props: ScalarSliderProps) {
     </span>
   );
   const text = label ?? String(value),
-    font = labelFont ?? "default",
-    textHeight = font === "mini" ? 10 : 14;
+    font = labelFont ?? FontRole.Primary,
+    textHeight = font === FontRole.Compact ? 10 : 14;
   const textX = centerThemePixel(bounds.x, bounds.width, measureThemeText(text, font)) - bounds.x;
   const textY =
     centerThemePixel(bounds.y + 8, bounds.height - 18, textHeight) - bounds.y + (focused ? 2 : 0);

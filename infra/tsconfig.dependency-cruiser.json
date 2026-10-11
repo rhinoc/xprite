@@ -9,7 +9,7 @@
   },
   "include": [
     "../apps/editor/src/**/*",
-    "../apps/gallery/src/**/*",
+    "../apps/components/src/**/*",
     "../packages/editor-core/src/**/*",
     "../packages/ui/src/**/*",
     "../packages/bedrock/browser/**/*",

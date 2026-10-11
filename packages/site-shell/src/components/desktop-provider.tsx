@@ -7,8 +7,16 @@ import {
   type Context,
 } from "react";
 
-import { UIProvider, macintoshTheme, useUi, useSystemAppearance, type UiTheme } from "@xprite/ui";
+import {
+  UIProvider,
+  UiColorScheme,
+  macintoshTheme,
+  useUi,
+  useSystemColorScheme,
+  type UiTheme,
+} from "@xprite/ui";
 import type { UiThemeSnapshot } from "@xprite/ui/assets";
+import { CursorProvider } from "@xprite/ui/cursor";
 
 import { DesktopAppearance, DesktopManager } from "../managers/desktop";
 
@@ -21,10 +29,10 @@ export function useDesktop() {
 }
 
 function DocumentTheme({ manager }: { manager: DesktopManager }) {
-  const { tokens, appearance, theme } = useUi();
+  const { tokens, colorScheme, theme } = useUi();
   useEffect(
-    () => manager.applyTheme(tokens, appearance, theme.id),
-    [manager, tokens, appearance, theme],
+    () => manager.applyTheme(tokens, colorScheme, theme.id),
+    [manager, tokens, colorScheme, theme],
   );
   return null;
 }
@@ -34,6 +42,8 @@ export function DesktopProvider({
   children,
   theme = macintoshTheme,
   language = "en",
+  translateSource,
+  translateKey,
   initialTheme,
   preloadArtwork = false,
   scope = true,
@@ -43,6 +53,8 @@ export function DesktopProvider({
   children: ReactNode;
   theme?: UiTheme;
   language?: string;
+  translateSource?: (source: string) => string;
+  translateKey?: (key: string) => string;
   initialTheme?: UiThemeSnapshot;
   preloadArtwork?: boolean;
   scope?: boolean;
@@ -53,21 +65,29 @@ export function DesktopProvider({
     manager.getSnapshot,
     manager.getServerSnapshot,
   );
-  const system = useSystemAppearance();
-  const appearance =
-    preferences.appearance === DesktopAppearance.System ? system : preferences.appearance;
+  const system = useSystemColorScheme();
+  const colorScheme =
+    preferences.appearance === DesktopAppearance.System
+      ? system
+      : preferences.appearance === DesktopAppearance.Dark
+        ? UiColorScheme.Dark
+        : UiColorScheme.Light;
   return (
     <DesktopContext.Provider value={manager}>
       <UIProvider
         theme={theme}
-        appearance={appearance}
+        colorScheme={colorScheme}
         language={language}
+        translateSource={translateSource}
+        translateKey={translateKey}
         initialTheme={initialTheme}
         preloadArtwork={preloadArtwork}
         scope={scope}
       >
-        {documentTheme && <DocumentTheme manager={manager} />}
-        {children}
+        <CursorProvider>
+          {documentTheme && <DocumentTheme manager={manager} />}
+          {children}
+        </CursorProvider>
       </UIProvider>
     </DesktopContext.Provider>
   );

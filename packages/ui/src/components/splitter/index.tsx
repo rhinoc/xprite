@@ -4,19 +4,22 @@ import { stylusPointerInputProps } from "$/base/utils/stylus-input";
 
 import styles from "$/components/splitter/splitter.module.css";
 
-export type SplitterAxis = "horizontal" | "vertical";
+export enum SplitterDirection {
+  Horizontal = "horizontal",
+  Vertical = "vertical",
+}
 
 export interface SplitterProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   "role" | "aria-orientation" | "children"
 > {
   /** Direction in which the splitter divides the surrounding content. */
-  axis: SplitterAxis;
+  direction: SplitterDirection;
 }
 
 /** Focusable separator primitive. Resize policy and state belong to the caller. */
 export const Splitter = forwardRef<HTMLDivElement, SplitterProps>(function Splitter(
-  { axis, className, tabIndex, ...props },
+  { direction, className, tabIndex, ...props },
   ref,
 ) {
   return (
@@ -27,8 +30,8 @@ export const Splitter = forwardRef<HTMLDivElement, SplitterProps>(function Split
       className={className ? `${styles.splitter} ${className}` : styles.splitter}
       role="separator"
       tabIndex={tabIndex ?? 0}
-      aria-orientation={axis === "horizontal" ? "vertical" : "horizontal"}
-      data-axis={axis}
+      aria-orientation={direction === SplitterDirection.Horizontal ? "vertical" : "horizontal"}
+      data-axis={direction}
     />
   );
 });

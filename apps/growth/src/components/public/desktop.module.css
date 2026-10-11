@@ -3,14 +3,40 @@
   background-color: var(--ui-color-desktop);
 }
 :global([data-public-desktop]) {
+  isolation: isolate;
+  --public-desktop-margin-top: 28px;
+  --public-desktop-margin-bottom: 48px;
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: 220px minmax(0, 760px) 120px;
   align-items: start;
   gap: 24px;
   width: calc(100% - 64px);
   max-width: 1180px;
-  margin: 28px auto 48px;
+  height: calc(
+    100dvh - var(--ui-menu-navigation-height, 20px) - var(--public-desktop-margin-top) -
+      var(--public-desktop-margin-bottom)
+  );
+  margin: var(--public-desktop-margin-top) auto var(--public-desktop-margin-bottom);
   padding: 0;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
+  overflow: clip;
+}
+:global([data-public-desktop] [data-ui-panel-variant="window"]) {
+  transform: translateZ(0);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: var(--public-window-max-height, 100%);
+}
+:global([data-public-desktop] [data-slot="panel-body"]) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 :global([data-public-sidebar]) {
   display: grid;
@@ -18,6 +44,19 @@
   margin-top: 64px;
   position: sticky;
   top: 40px;
+  min-height: 0;
+  height: calc(100% - 64px);
+  max-height: calc(100% - 64px);
+  grid-template-rows: minmax(0, 1fr);
+}
+:global([data-public-contents]) {
+  align-self: start;
+}
+:global([data-public-contents] .public-index) {
+  --ui-navigation-list-face: var(--ui-surface-face);
+  --ui-navigation-list-ink: var(--ui-surface-ink);
+  --ui-navigation-list-selected-face: var(--ui-surface-ink);
+  --ui-navigation-list-selected-ink: var(--ui-surface-face);
 }
 :global([data-public-shortcuts]) {
   display: flex;
@@ -38,6 +77,17 @@
 :global([data-public-document]) {
   min-width: 0;
   margin-top: 16px;
+  height: calc(100% - 16px);
+}
+:global(details[data-public-document]:not([open])) {
+  height: auto;
+}
+:global([data-public-document] [data-slot="panel-body"]) {
+  overflow: hidden;
+}
+:global(.public-index) {
+  min-height: 0;
+  max-height: 100%;
 }
 :global([data-public-document-content]) {
   padding: 24px;
@@ -47,6 +97,7 @@
     grid-template-columns: 190px minmax(0, 1fr);
     gap: 20px;
     width: calc(100% - 40px);
+    grid-template-rows: minmax(0, 1fr) auto;
   }
   :global([data-public-shortcuts]) {
     grid-column: 1 / -1;
@@ -56,73 +107,64 @@
 }
 @media (max-width: 640px) {
   :global([data-public-desktop]) {
+    --public-desktop-margin-top: 16px;
     display: flex;
     flex-direction: column;
     gap: 20px;
     width: calc(100% - 24px);
-    margin-top: 16px;
   }
   :global([data-public-sidebar]) {
     position: static;
     width: 100%;
     margin: 0;
     gap: 20px;
+    height: auto;
+    flex: 0 1 auto;
+    max-height: 25%;
   }
   :global([data-public-document]) {
     width: 100%;
     margin: 0;
+    height: auto;
+    flex: 1;
+  }
+  :global(details[data-public-document]:not([open])) {
+    flex: 0 0 auto;
   }
   :global([data-public-folder-items]) {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 6px;
     padding: 10px;
   }
-  :global(.public-index) {
-    --public-index-height: 180px;
-  }
   :global([data-public-shortcuts]) {
     width: 100%;
     gap: 12px;
     justify-content: center;
+    flex: 0 0 auto;
   }
   :global([data-public-document-content]) {
     padding: 20px;
   }
 }
 :global([data-public-reader-scroll]) {
-  height: max(400px, calc(100svh - 220px));
+  flex: 1;
+  min-height: 0;
+  height: 100%;
   overflow-y: auto;
-  scrollbar-gutter: stable;
+  scrollbar-width: none;
+}
+:global([data-public-reader-scroll]::-webkit-scrollbar) {
+  display: none;
 }
 :global([data-public-reader-scroll] h1),
 :global([data-public-reader-scroll] h2) {
   scroll-margin-top: 16px;
 }
-@media (max-width: 640px) {
-  :global([data-public-reader-scroll]) {
-    height: 70svh;
-    min-height: 360px;
-  }
-}
 :global([data-public-error]) {
-  display: grid;
-  place-items: center;
-  min-height: 100svh;
   margin: 0;
-  padding: 24px;
-}
-:global([data-public-error] [data-slot="panel"]) {
-  width: min(100%, 420px);
 }
 :global([data-public-error-header]) {
-  position: absolute;
-  inset: 0 0 auto;
-}
-:global([data-public-error-actions]) {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 12px;
+  height: var(--ui-menu-navigation-height, 20px);
 }
 @media (min-width: 1001px) {
   :global([data-public-document]) {

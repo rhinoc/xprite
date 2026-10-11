@@ -1,6 +1,7 @@
 import {
   useId,
   useRef,
+  useState,
   useLayoutEffect,
   type HTMLAttributes,
   type KeyboardEvent,
@@ -9,6 +10,7 @@ import {
 
 import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
+import { FontRole } from "$/base/theme/theme-types";
 import { cn } from "$/base/utils/cn";
 import { scrollElementIntoView, observeResize } from "$/base/utils/dom-geometry";
 import {
@@ -19,16 +21,24 @@ import {
 import { sizedControlBounds } from "$/components/control-flow/placement";
 import type { SizedControlPlacement } from "$/components/control-flow/placement";
 import { Divider } from "$/components/divider";
+import { listBoxBorderStyle } from "$/components/list-box/border";
 import { ListBoxFrame } from "$/components/list-box/frame";
 import { MultipleListBox, type MultipleListBoxProps } from "$/components/list-box/multiple";
-import { ListBoxSelectionMode, ListBoxFrameStyle } from "$/components/list-box/types";
-import { ScrollArea, type ScrollbarVariant } from "$/components/scrollbar";
-import { Text, TextVariant, type PixelFont } from "$/components/text";
+import { NavigationListBox, type NavigationListBoxProps } from "$/components/list-box/navigation";
+import { ListBoxBorderStyle } from "$/components/list-box/types";
+import { ListBoxMode, type ListBoxPresentationProps } from "$/components/list-box/types";
+import { ScrollArea, type ScrollbarStyle } from "$/components/scrollbar";
+import { Text, TextVariant } from "$/components/text";
 
 import styles from "$/components/list-box/list-box.module.css";
 
-export { ListBoxSelectionMode, ListBoxFrameStyle } from "$/components/list-box/types";
+export { ListBoxMode, ListBoxBorderStyle } from "$/components/list-box/types";
+export type { ListBoxPresentationProps } from "$/components/list-box/types";
 export type { MultipleListBoxItem, MultipleListBoxProps } from "$/components/list-box/multiple";
+export type {
+  NavigationListBoxItem,
+  NavigationListBoxProps,
+} from "$/components/list-box/navigation";
 
 const LIST_CONTENT_INSET_X = 6;
 const LIST_CONTENT_INSET_Y = 8;
@@ -43,8 +53,9 @@ export type ListBoxItem =
   | { value: string; label: string; disabled?: boolean; separator?: false }
   | { separator: true; label?: string };
 
-interface SingleListBoxContentProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-  selectionMode?: ListBoxSelectionMode.Single;
+interface SingleListBoxContentProps
+  extends Omit<HTMLAttributes<HTMLDivElement>, "children">, ListBoxPresentationProps {
+  mode?: ListBoxMode.Single;
   viewport?: SurfaceViewport;
   items: readonly ListBoxItem[];
   value: string;
@@ -52,11 +63,8 @@ interface SingleListBoxContentProps extends Omit<HTMLAttributes<HTMLDivElement>,
   "aria-label": string;
   itemHeight?: number;
   /** Override the skin's compact font for navigation and other reading lists. */
-  font?: PixelFont;
-  /** Navigation lists may omit the input frame while retaining list behavior. */
-  framed?: boolean;
-  frameStyle?: ListBoxFrameStyle;
-  scrollbarVariant?: ScrollbarVariant;
+  font?: FontRole;
+  scrollbarStyle?: ScrollbarStyle;
   separatorHeight?: number;
   renderItem?: (
     item: Exclude<ListBoxItem, { separator: true }>,
@@ -77,7 +85,7 @@ type PositionedItem = {
 /** Theme-aware, single-selection pixel-art list box with pixel-aligned row artwork. */
 function SingleListBox(allProps: SingleListBoxProps) {
   const {
-    selectionMode: _selectionMode,
+    mode: _mode,
     bounds: suppliedBounds,
     pixelSize: _pixelSize,
     relativeTo = { x: 0, y: 0 },
@@ -87,9 +95,8 @@ function SingleListBox(allProps: SingleListBoxProps) {
     onValueChange,
     itemHeight: suppliedItemHeight,
     font: suppliedFont,
-    framed = true,
-    frameStyle = ListBoxFrameStyle.Theme,
-    scrollbarVariant,
+    border = true,
+    scrollbarStyle,
     separatorHeight = LIST_SEPARATOR_HEIGHT,
     renderItem,
     renderGroup,
@@ -102,21 +109,31 @@ function SingleListBox(allProps: SingleListBoxProps) {
   const skin = theme.controlParts?.listBox;
   const { themeFontHeight, centerThemePixel: centerText } = useThemeText();
   const itemHeight = suppliedItemHeight ?? skin?.rowHeight ?? LIST_ITEM_HEIGHT;
-  const singleFrame = framed && frameStyle === ListBoxFrameStyle.Single;
+  const borderStyle = listBoxBorderStyle(border);
+  const framed = borderStyle !== undefined;
+  const thickBorder = borderStyle === ListBoxBorderStyle.Thick;
+  const singleFrame = borderStyle === ListBoxBorderStyle.Single;
+  const [focused, setFocused] = useState(false);
   const insetX = singleFrame
     ? SINGLE_FRAME_BORDER_WIDTH
     : framed
-      ? (skin?.contentInset ?? LIST_CONTENT_INSET_X)
+      ? thickBorder
+        ? LIST_CONTENT_INSET_X
+        : (skin?.contentInset ?? LIST_CONTENT_INSET_X)
       : 0;
   const insetY = singleFrame
     ? SINGLE_FRAME_BORDER_WIDTH
     : framed
-      ? (skin?.contentInset ?? LIST_CONTENT_INSET_Y)
+      ? thickBorder
+        ? LIST_CONTENT_INSET_Y
+        : (skin?.contentInset ?? LIST_CONTENT_INSET_Y)
       : 0;
   const trailing = singleFrame
     ? SINGLE_FRAME_BORDER_WIDTH
     : framed
-      ? (skin?.contentInset ?? LIST_CONTENT_TRAILING)
+      ? thickBorder
+        ? LIST_CONTENT_TRAILING
+        : (skin?.contentInset ?? LIST_CONTENT_TRAILING)
       : 0;
   const textInset = skin?.textInset ?? LIST_TEXT_INSET_X;
   const font = suppliedFont ?? skin?.font;
@@ -194,6 +211,14 @@ function SingleListBox(allProps: SingleListBoxProps) {
         height: layout.height,
         ...props.style,
       }}
+      onFocus={(event) => {
+        setFocused(true);
+        props.onFocus?.(event);
+      }}
+      onBlur={(event) => {
+        setFocused(false);
+        props.onBlur?.(event);
+      }}
       onKeyDown={(event) => {
         onKeyDown?.(event);
         if (event.defaultPrevented) return;
@@ -209,7 +234,7 @@ function SingleListBox(allProps: SingleListBoxProps) {
           transform: `scale(${scaleX}, ${scaleY})`,
         }}
       >
-        {framed && <ListBoxFrame frameStyle={frameStyle} />}
+        {framed && <ListBoxFrame border={border} focused={focused} />}
         <span
           style={{
             position: "absolute",
@@ -223,7 +248,7 @@ function SingleListBox(allProps: SingleListBoxProps) {
       </span>
       <ScrollArea
         scrollX={false}
-        scrollbarVariant={scrollbarVariant}
+        scrollbarStyle={scrollbarStyle}
         viewportRef={scrollViewport}
         viewport={viewport}
         aria-label={translateSource(props["aria-label"])}
@@ -334,10 +359,11 @@ function SingleListBox(allProps: SingleListBoxProps) {
   );
 }
 
-export type ListBoxProps = SingleListBoxProps | MultipleListBoxProps;
+export type ListBoxProps = SingleListBoxProps | MultipleListBoxProps | NavigationListBoxProps;
 
 export function ListBox(props: ListBoxProps) {
-  return props.selectionMode === ListBoxSelectionMode.Multiple ? (
+  if (props.mode === ListBoxMode.Navigation) return <NavigationListBox {...props} />;
+  return props.mode === ListBoxMode.Multiple ? (
     <MultipleListBox {...props} />
   ) : (
     <SingleListBox {...props} />

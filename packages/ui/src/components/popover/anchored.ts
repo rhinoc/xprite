@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { viewportSize, clientRect } from "$/base/utils/dom-geometry";
+import { viewportContentSize, clientRect } from "$/base/utils/dom-geometry";
 import {
   DEFAULT_SURFACE_VIEWPORT,
   sceneViewport,
@@ -8,6 +8,7 @@ import {
   type SurfaceBounds,
   type SurfaceViewport,
 } from "$/components/canvas-surface";
+import { OverlayDismissReason, useOverlayInteraction } from "$/components/window/interaction";
 
 export interface AnchoredPopoverState {
   x: number;
@@ -35,14 +36,8 @@ export interface AnchoredPopoverOpenOptions {
   offsetY?: number;
 }
 
-export enum AnchoredPopoverDismissReason {
-  OutsidePointer = "outside-pointer",
-  Escape = "escape",
-  Resize = "resize",
-  WindowBlur = "window-blur",
-}
 export interface AnchoredPopoverOptions {
-  onDismiss?: (reason: AnchoredPopoverDismissReason, event: Event) => void;
+  onDismiss?: (reason: OverlayDismissReason, event: Event) => void;
   keepOpenOnOtherOverlays?: boolean;
 }
 
@@ -59,8 +54,9 @@ export function measurePopoverAnchor(
   const origin = { x: scene?.left ?? 0, y: scene?.top ?? 0 };
   const sx = viewport.width / viewport.sceneWidth;
   const sy = viewport.height / viewport.sceneHeight;
-  const availableWidth = scene ? viewport.sceneWidth : viewportSize(window).width / sx;
-  const availableHeight = scene ? viewport.sceneHeight : viewportSize(window).height / sy;
+  const availableViewport = viewportContentSize(window);
+  const availableWidth = scene ? viewport.sceneWidth : availableViewport.width / sx;
+  const availableHeight = scene ? viewport.sceneHeight : availableViewport.height / sy;
   const authoredAnchor =
     !!scene &&
     !!authoredBounds &&
@@ -84,22 +80,15 @@ export function measurePopoverAnchor(
   return { bounds, top, bottom, viewport, origin, availableWidth, availableHeight };
 }
 
-/** Shared trigger anchoring and dismissal behavior for bitmap scene popovers. */
-export function useAnchoredPopover<
-  TTrigger extends HTMLElement = HTMLElement,
-  TPanel extends HTMLElement = HTMLElement,
->(baseViewport: SurfaceViewport = DEFAULT_SURFACE_VIEWPORT, options: AnchoredPopoverOptions = {}) {
-  const optionsRef = React.useRef(options);
-  optionsRef.current = options;
+/** Trigger-relative scene placement without dismissal or focus behavior. */
+export function usePopoverPosition<TTrigger extends HTMLElement = HTMLElement>(
+  baseViewport: SurfaceViewport = DEFAULT_SURFACE_VIEWPORT,
+) {
   const triggerRef = React.useRef<TTrigger>(null);
-  const panelRef = React.useRef<TPanel>(null);
   const activeTrigger = React.useRef<TTrigger | null>(null);
   const [popover, setPopover] = React.useState<AnchoredPopoverState | null>(null);
 
-  const close = React.useCallback((restoreFocus = false) => {
-    setPopover(null);
-    if (restoreFocus) (activeTrigger.current ?? triggerRef.current)?.focus({ preventScroll: true });
-  }, []);
+  const close = React.useCallback(() => setPopover(null), []);
 
   const open = React.useCallback(
     (
@@ -126,53 +115,52 @@ export function useAnchoredPopover<
     [baseViewport],
   );
 
-  React.useEffect(() => {
-    if (!popover) return;
-    const outside = (event: PointerEvent) => {
-      const target = event.target;
-      if (!(target instanceof Node)) {
-        optionsRef.current.onDismiss?.(AnchoredPopoverDismissReason.OutsidePointer, event);
-        return close();
-      }
-      const element = target instanceof Element ? target : null;
-      if (
-        panelRef.current?.contains(target) ||
-        (activeTrigger.current ?? triggerRef.current)?.contains(target) ||
-        (optionsRef.current.keepOpenOnOtherOverlays !== false &&
-          element?.closest('[role="menu"],[data-popup],[data-floating-window]'))
-      )
-        return;
-      optionsRef.current.onDismiss?.(AnchoredPopoverDismissReason.OutsidePointer, event);
-      close();
-    };
-    const key = (event: KeyboardEvent) => {
-      if (event.defaultPrevented) return;
-      if (event.key === "Escape" && !document.querySelector('[role="menu"]')) {
-        event.preventDefault();
-        optionsRef.current.onDismiss?.(AnchoredPopoverDismissReason.Escape, event);
-        close(true);
-      }
-    };
-    const resize = (event: Event) => {
-      optionsRef.current.onDismiss?.(AnchoredPopoverDismissReason.Resize, event);
-      close();
-    };
-    const blur = (event: Event) => {
-      optionsRef.current.onDismiss?.(AnchoredPopoverDismissReason.WindowBlur, event);
-      close();
-    };
-    // Canvas and other controls may consume bubbling pointer events.
-    document.addEventListener("pointerdown", outside, true);
-    document.addEventListener("keydown", key);
-    window.addEventListener("resize", resize);
-    window.addEventListener("blur", blur);
-    return () => {
-      document.removeEventListener("pointerdown", outside, true);
-      document.removeEventListener("keydown", key);
-      window.removeEventListener("resize", resize);
-      window.removeEventListener("blur", blur);
-    };
-  }, [popover, close]);
+  return { triggerRef, activeTrigger, popover, open, close };
+}
+
+/** Anchored popup preset composed from placement and shared overlay interactions. */
+export function useAnchoredPopover<
+  TTrigger extends HTMLElement = HTMLElement,
+  TPanel extends HTMLElement = HTMLElement,
+>(baseViewport: SurfaceViewport = DEFAULT_SURFACE_VIEWPORT, options: AnchoredPopoverOptions = {}) {
+  const {
+    triggerRef,
+    activeTrigger,
+    popover,
+    open,
+    close: closePosition,
+  } = usePopoverPosition<TTrigger>(baseViewport);
+  const panelRef = React.useRef<TPanel>(null);
+  const optionsRef = React.useRef(options);
+  optionsRef.current = options;
+  const close = React.useCallback(
+    (restoreFocus = false) => {
+      closePosition();
+      if (restoreFocus)
+        (activeTrigger.current ?? triggerRef.current)?.focus({ preventScroll: true });
+    },
+    [closePosition, activeTrigger, triggerRef],
+  );
+  useOverlayInteraction({
+    open: !!popover,
+    rootRef: panelRef,
+    triggerRef: activeTrigger,
+    closeOnOutsidePointer: true,
+    closeOnResize: true,
+    closeOnWindowBlur: true,
+    ignoreOutside: (event) =>
+      optionsRef.current.keepOpenOnOtherOverlays !== false &&
+      event.target instanceof Element &&
+      !!event.target.closest('[role="menu"],[data-popup],[data-floating-window]'),
+    ignoreEscape: (event) =>
+      !!(
+        event.target instanceof Node ? event.target.ownerDocument : panelRef.current?.ownerDocument
+      )?.querySelector('[role="menu"]'),
+    onDismiss: (reason, event) => {
+      optionsRef.current.onDismiss?.(reason, event);
+      close(reason === OverlayDismissReason.Escape);
+    },
+  });
 
   return { triggerRef, panelRef, popover, open, close };
 }
@@ -196,8 +184,7 @@ export function anchoredPopoverStyle(
       : {
           maxHeight:
             (popover.availableHeight * popover.viewport.height) / popover.viewport.sceneHeight,
-          overflowY: "auto" as const,
-          overscrollBehavior: "contain" as const,
+          overflow: "hidden" as const,
         }),
   };
 }

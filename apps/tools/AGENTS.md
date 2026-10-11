@@ -1,6 +1,6 @@
 # Tools application
 
-This package contains independent browser tools. The directory is served at `/tools/`. The read-only Aseprite viewer
+This package contains independent browser tools. The feature directory belongs to growth at `/about/features/`. The read-only Aseprite viewer
 is served at `/tools/viewer/`; the GIF converter is served at `/tools/gif-to-sprite-sheet/`.
 
 - Components use public tool manager APIs, `@xprite/ui` controls and the shared
@@ -14,12 +14,14 @@ is served at `/tools/viewer/`; the GIF converter is served at `/tools/gif-to-spr
 - Scope styles with CSS Modules. Keep application entry points and deployment
   integration separate from the editor.
 - Use the editor's saved appearance only as an initial value when no public-desktop
-  preference exists. The user-requested system menu shares appearance and background
+  preference exists. The system menu shares appearance and background
   preferences through `@xprite/site-shell`; it must not write editor preferences.
 - Follow root instructions: do not run builds or tests during development.
-
 - `ToolFrame` owns the tool switcher and page chrome; `FileToolShell` owns file
-  selection, drag/drop, the empty-state introduction and example previews. Tool
-  pages provide their actual content and action slots, not a duplicate shell.
+  selection, drag/drop, the empty-state introduction and example previews. Tool pages provide content and action slots to these shared shells.
+- `ToolFrame` keeps the menubar and tool desktop together in one `100dvh` first
+  screen, followed by the footer. Keep this geometry in empty and loaded states
+  on desktop and mobile. Fit example artwork to the available space; scroll
+  overflowing help and settings inside their own themed regions.
 - The shared, data-only registry lives in `@xprite/growth-content/tools`. Add tools
   there for directory, navigation and discovery; keep tool runtime code here.

@@ -6,17 +6,19 @@ import {
   type MouseEventHandler,
   type ReactNode,
 } from "react";
-import { createPortal } from "react-dom";
 
 import { useThemeText } from "$/base/theme/text-metrics";
-import { ThemeScope } from "$/base/theme/theme-scope";
+import { useTheme } from "$/base/theme/theme-context";
+import { FontRole } from "$/base/theme/theme-types";
 import { composeEventHandlers } from "$/base/utils/compose-event-handlers";
 import { clientPoint, clientRect } from "$/base/utils/dom-geometry";
 import { UI_SCALE_X } from "$/components/canvas-surface/geometry";
 import { UI_SCALE } from "$/components/canvas-surface/metrics";
+import { Icon } from "$/components/icon";
 import { useTabInteractions, type TabDragPoint } from "$/components/tabs/use-tab-interactions";
 import { Text, TextVariant } from "$/components/text";
-import { UiIcon, UiPart, uiMetrics, useUi, type UiPartName } from "$/components/theme/appearance";
+import { createUiPortal } from "$/components/theme/portal";
+import { UiPart, uiMetrics, useUi, type UiPartName } from "$/components/theme/provider";
 
 import styles from "$/components/tabs/tabs.module.css";
 
@@ -49,8 +51,7 @@ export interface TabsProps extends Omit<HTMLAttributes<HTMLDivElement>, "onClose
   paneId?: string;
   onDragMove?: (id: string, point: TabDragPoint) => void;
   onDragEnd?: (id: string, point: TabDragPoint, cancelled: boolean) => void;
-  ariaLabel?: string;
-  tabListLabel?: string;
+  tabListAriaLabel?: string;
   onDoubleClickEmpty?: () => void;
   onContextMenu?: MouseEventHandler<HTMLDivElement>;
   /** Optional content in the free area before the tabs. */
@@ -78,8 +79,7 @@ export function Tabs({
   paneId,
   onDragMove,
   onDragEnd,
-  ariaLabel = "Tabs",
-  tabListLabel = "Tabs",
+  tabListAriaLabel = "Tabs",
   onDoubleClickEmpty,
   onContextMenu,
   onDoubleClick,
@@ -94,8 +94,10 @@ export function Tabs({
   ...props
 }: TabsProps) {
   const { style, translateKey, translateSource } = useUi();
+  const { definition } = useTheme();
   const metrics = uiMetrics(style);
   const { measureThemeText } = useThemeText();
+  const titleCjkAdvance = definition.typography[FontRole.Primary].titleCjkAdvance;
   const labelInset = style.dimensions.tabs_text_inset ?? 8;
   const [denseUi, setDenseUi] = useState(false);
   const interactions = useTabInteractions({
@@ -129,7 +131,7 @@ export function Tabs({
     const label = tab.translateLabel ? translateSource(tab.label) : tab.label;
     const fittingWidth = Math.max(
       MINIMUM_CONTENT_TAB_WIDTH,
-      measureThemeText(label) +
+      measureThemeText(label, FontRole.Primary, UI_SCALE, titleCjkAdvance) +
         (style.dimensions.tabs_horizontal_padding ?? DEFAULT_TAB_HORIZONTAL_PADDING) +
         (tab.icon ? TAB_ICON_LABEL_GAP : 0) +
         (tab.closable !== false && onClose ? closeWidth : 0),
@@ -215,8 +217,8 @@ export function Tabs({
           }}
         >
           {tab.icon && (
-            <UiIcon
-              part={active ? tab.icon.active : tab.icon.inactive}
+            <Icon
+              kind={active ? tab.icon.active : tab.icon.inactive}
               x={labelInset}
               y={6}
               scale={2}
@@ -225,6 +227,7 @@ export function Tabs({
           )}
           <Text
             variant={TextVariant.PositionedPixel}
+            titleCjk
             text={label}
             x={tab.icon ? labelInset + TAB_ICON_LABEL_GAP : labelInset}
             y={8}
@@ -248,8 +251,8 @@ export function Tabs({
                 }}
               />
             )}
-            <UiIcon
-              part={icon}
+            <Icon
+              kind={icon}
               x={tabWidth - closeWidth + 6}
               y={8}
               scale={2}
@@ -273,28 +276,26 @@ export function Tabs({
   });
   const floatingTab =
     isFloating && dragging && typeof document !== "undefined"
-      ? createPortal(
-          <ThemeScope>
-            <div
-              className={styles.floatingTab}
-              aria-hidden="true"
-              style={{
-                left: dragging.x - dragging.offsetX,
-                top: dragging.y - dragging.offsetY,
-                width: tabGeometry[dragging.originIndex]?.width ?? fixedTabWidth,
-                height: faceHeight + bottomHeight,
-                transformOrigin: "top left",
-                transform: `scale(${dragging.scaleX}, ${dragging.scaleY})`,
-              }}
-            >
-              {artwork(
-                tabs.find((tab) => tab.id === dragging.value)!,
-                0,
-                true,
-                true,
-              )}
-            </div>
-          </ThemeScope>,
+      ? createUiPortal(
+          <div
+            className={styles.floatingTab}
+            aria-hidden="true"
+            style={{
+              left: dragging.x - dragging.offsetX,
+              top: dragging.y - dragging.offsetY,
+              width: tabGeometry[dragging.originIndex]?.width ?? fixedTabWidth,
+              height: faceHeight + bottomHeight,
+              transformOrigin: "top left",
+              transform: `scale(${dragging.scaleX}, ${dragging.scaleY})`,
+            }}
+          >
+            {artwork(
+              tabs.find((tab) => tab.id === dragging.value)!,
+              0,
+              true,
+              true,
+            )}
+          </div>,
           document.body,
         )
       : null;
@@ -314,7 +315,7 @@ export function Tabs({
           ...rootStyle,
         } as CSSProperties
       }
-      aria-label={translateSource(ariaLabel)}
+      aria-label={translateSource(props["aria-label"] ?? "Tabs")}
       onContextMenu={onContextMenu}
       onDoubleClick={composeEventHandlers((event) => {
         if (!(event.target as Element).closest('[role="tab"],button,[role="menu"]')) {
@@ -420,7 +421,7 @@ export function Tabs({
           )}
       </div>
       {trailingContent}
-      <div className={styles.tabList} role="tablist" aria-label={translateSource(tabListLabel)}>
+      <div className={styles.tabList} role="tablist" aria-label={translateSource(tabListAriaLabel)}>
         {tabs.map((tab, index) => (
           <div
             key={tab.id}

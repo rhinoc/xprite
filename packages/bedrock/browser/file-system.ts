@@ -60,6 +60,71 @@ export function pickOpenFiles(
   return sharesTopLevelOrigin() && typeof picker === "function" ? picker(options) : null;
 }
 
+export interface BrowserFileSelectionOptions extends OpenFilePickerOptions {
+  accept?: string;
+  preferNative?: boolean;
+  signal?: AbortSignal;
+}
+
+/** Select files with one cancellation and cleanup lifecycle for native and input pickers. */
+export async function selectBrowserFiles({
+  accept = "",
+  multiple = false,
+  preferNative = false,
+  signal,
+}: BrowserFileSelectionOptions = {}): Promise<File[]> {
+  signal?.throwIfAborted();
+  const native = preferNative ? pickOpenFiles({ multiple }) : null;
+  if (native) {
+    try {
+      const handles = await native;
+      signal?.throwIfAborted();
+      const files = await Promise.all(handles.map((handle) => handle.getFile()));
+      signal?.throwIfAborted();
+      return files;
+    } catch (error) {
+      if (!signal?.aborted && isAbortError(error)) return [];
+      throw error;
+    }
+  }
+  return new Promise((resolve, reject) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = accept;
+    input.multiple = multiple;
+    input.hidden = true;
+    const dispose = () => {
+      input.removeEventListener("change", change);
+      input.removeEventListener("cancel", cancel);
+      signal?.removeEventListener("abort", abort);
+      input.remove();
+    };
+    const change = () => {
+      const files = Array.from(input.files ?? []);
+      dispose();
+      resolve(files);
+    };
+    const cancel = () => {
+      dispose();
+      resolve([]);
+    };
+    const abort = () => {
+      dispose();
+      reject(signal?.reason);
+    };
+    input.addEventListener("change", change);
+    input.addEventListener("cancel", cancel);
+    signal?.addEventListener("abort", abort, { once: true });
+    try {
+      document.body.append(input);
+      input.click();
+    } catch (error) {
+      dispose();
+      reject(error);
+    }
+  });
+}
+
 export function canPickSaveFile(): boolean {
   return (
     sharesTopLevelOrigin() &&

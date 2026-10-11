@@ -1,6 +1,7 @@
 import { encodePng } from "$/adapters/files/images";
 import { importAsepriteInWorker } from "$/adapters/workers/aseprite-import-client";
 import { tUi } from "$/i18n";
+import { FileWriteStage } from "$/managers/ports/diagnostics";
 import {
   downloadBlob,
   isAbortError,
@@ -35,6 +36,15 @@ import {
 const ASEPRITE_MIME = "application/x-aseprite";
 const DEVELOPMENT_DIAGNOSTIC_ARTIFACT_ENDPOINT = "/__debug/diagnostic-artifact";
 const DEVELOPMENT_ARTIFACT_NAME_FALLBACK = "unnamed.aseprite";
+const FILE_WRITE_PERMISSION_ERROR_NAME = "FileWritePermissionError";
+
+function fileWriteError(
+  reason: unknown,
+  stage: FileWriteStage,
+  details: Readonly<Record<string, unknown>> = {},
+): Error {
+  return withDiagnosticDetails(reason, { fileWrite: { stage, ...details } });
+}
 /** Aseprite project budget. This bounds both the encoded file and the
  * sum of decoded cel bytes before any timeline graph is allocated. */
 export const DEFAULT_MAX_ASEPRITE_PROJECT_BYTES = EDITOR_ASEPRITE_LIMITS.maxFileBytes;
@@ -55,6 +65,8 @@ export interface AsepriteFileOptions {
   fileHandle?: SaveFileHandle;
   /** Permission request started synchronously by the owning adapter's user-gesture handler. */
   fileHandlePermission?: () => Promise<"granted" | "denied" | "prompt">;
+  /** Capture activation before loading the codec; do not retain file names in telemetry. */
+  fileHandlePermissionActivation?: boolean;
   /** Called after the destination selected by the picker has been written. */
   onFileHandleSaved?: (handle: SaveFileHandle) => void;
   onFileDataSaved?: (blob: Blob, name: string, bytes?: Uint8Array) => void;
@@ -369,14 +381,38 @@ export async function saveAseprite(
   };
   if (intent === SessionSaveIntent.Save && options.fileHandle) {
     const handle = options.fileHandle;
-    const permission = options.fileHandlePermission?.() ?? requestFileWritePermission(handle);
-    if (permission && (await permission) !== "granted")
-      throw new Error(
+    const activation =
+      options.fileHandlePermissionActivation ??
+      globalThis.navigator?.userActivation?.isActive ??
+      false;
+    const startedAt = performance.now();
+    let permission: "granted" | "denied" | "prompt" | undefined;
+    try {
+      permission = await (options.fileHandlePermission?.() ?? requestFileWritePermission(handle));
+    } catch (reason) {
+      throw fileWriteError(reason, FileWriteStage.Permission, {
+        user_activation: activation,
+        elapsed_ms: Math.round(performance.now() - startedAt),
+      });
+    }
+    if (permission !== undefined && permission !== "granted") {
+      const error = new Error(
         tUi("ui.write.permission.was.not.granted.for", { value1: handle.name ?? fileName }),
       );
+      error.name = FILE_WRITE_PERMISSION_ERROR_NAME;
+      throw fileWriteError(error, FileWriteStage.Permission, {
+        permission,
+        user_activation: activation,
+        elapsed_ms: Math.round(performance.now() - startedAt),
+      });
+    }
     const format = fileFormat(handle.name);
     const output = await encodeOutput(format);
-    await writeFileHandle(handle, output.blob);
+    try {
+      await writeFileHandle(handle, output.blob);
+    } catch (reason) {
+      throw fileWriteError(reason, FileWriteStage.Write, { permission: permission ?? null });
+    }
     options.onFileDataSaved?.(output.blob, handle.name || fileName, output.bytes);
     return { method: "file", name: handle.name || fileName, format };
   }
@@ -420,7 +456,11 @@ export async function saveAseprite(
       }
       const format = fileFormat(handle.name);
       const output = await encodeOutput(format);
-      await writeFileHandle(handle, output.blob);
+      try {
+        await writeFileHandle(handle, output.blob);
+      } catch (reason) {
+        throw fileWriteError(reason, FileWriteStage.Write);
+      }
       options.onFileDataSaved?.(output.blob, handle.name || fileName, output.bytes);
       options.onFileHandleSaved?.(handle);
       return { method: "picker", name: handle.name || fileName, format };

@@ -1,11 +1,11 @@
-import type { ScrollbarVariant } from "$/components/scrollbar/types";
-import { miniScrollbarVariant } from "$/components/scrollbar/variants/mini";
-import { regularScrollbarVariant } from "$/components/scrollbar/variants/regular";
-import { transparentScrollbarVariant } from "$/components/scrollbar/variants/transparent";
-import type { ScrollbarVariantStyle } from "$/components/scrollbar/variants/types";
+import { ScrollbarStyle } from "$/base/theme/theme-types";
+import { miniScrollbarStyle } from "$/components/scrollbar/variants/mini";
+import { regularScrollbarStyle } from "$/components/scrollbar/variants/regular";
+import { transparentScrollbarStyle } from "$/components/scrollbar/variants/transparent";
+import type { ScrollbarArtwork } from "$/components/scrollbar/variants/types";
 
-export const scrollbarVariants = {
-  mini: miniScrollbarVariant,
-  regular: regularScrollbarVariant,
-  transparent: transparentScrollbarVariant,
-} satisfies Record<ScrollbarVariant, ScrollbarVariantStyle>;
+export const scrollbarStyles = {
+  [ScrollbarStyle.Compact]: miniScrollbarStyle,
+  [ScrollbarStyle.Classic]: regularScrollbarStyle,
+  [ScrollbarStyle.Transparent]: transparentScrollbarStyle,
+} satisfies Record<ScrollbarStyle, ScrollbarArtwork>;

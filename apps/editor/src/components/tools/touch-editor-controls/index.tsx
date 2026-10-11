@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 import { PixelArtIcon, type PixelArtIconName } from "$/components/shared/pixel-art-icon";
-import { useElementSize } from "$/components/shared/use-size";
 import { useEditorActions } from "$/components/shell/editor-actions";
 import { SymmetryControlMode } from "$/components/tools/symmetry-controls";
 import { toolGroups } from "$/components/tools/tool-rail";
@@ -17,6 +16,7 @@ import {
   useTouchEditorSnapshotModel,
 } from "$/managers/tools/touch-control-model";
 import {
+  TooltipPlacement,
   Button,
   ButtonVariant,
   Menu,
@@ -27,9 +27,15 @@ import {
   ButtonStripAnchor,
 } from "@xprite/ui";
 import type { UiPartName } from "@xprite/ui/assets";
+import {
+  useElementSize,
+  layoutSize,
+  borderSize,
+  computedStyle,
+  observeResize,
+} from "@xprite/ui/utils";
 
 import "$/components/tools/touch-editor-controls/touch-editor-controls.module.css";
-import { layoutSize, borderSize, computedStyle, observeResize } from "@xprite/ui/utils";
 
 const symmetryOptions = [
   {
@@ -171,7 +177,7 @@ export function TouchShortcutRail({
   const [overflowOpen, setOverflowOpen] = useState(false);
   const railSize = useElementSize(rail);
   const horizontal = railSize.width > railSize.height;
-  const tooltipPlacement = horizontal ? "top" : "auto";
+  const tooltipPlacement = horizontal ? TooltipPlacement.Top : TooltipPlacement.Auto;
   const [symmetryMenuOpen, setSymmetryMenuOpen] = useState(false);
   const measuredButtonExtents = useRef(new Map<TouchShortcutId, number>());
   const shortcutActionsRef = useRef<TouchShortcutAction[]>([]);
@@ -665,7 +671,7 @@ export function TouchShortcutRail({
         open={overflowOpen}
         onOpenChange={setOverflowOpen}
         anchorRef={moreButton}
-        placement={horizontal ? ButtonStripAnchor.Below : ButtonStripAnchor.Side}
+        placement={horizontal ? ButtonStripAnchor.Bottom : ButtonStripAnchor.Side}
         count={overflowedShortcutIds.length}
         label={tUiSource("More")}
       >

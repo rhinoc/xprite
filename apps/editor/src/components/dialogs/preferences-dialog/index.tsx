@@ -36,8 +36,8 @@ import {
   DEFAULT_CANVAS_DISPLAY_PREFERENCES,
   resetCanvasDisplaySection,
   type CanvasDisplayColorKey,
+  type CanvasDisplayPreferences,
 } from "$/managers/preferences/canvas-display-preferences";
-import type { CanvasDisplayPreferences } from "$/managers/preferences/canvas-display-preferences";
 import {
   DEFAULT_CURSOR_PREFERENCES,
   type CursorPreferences,
@@ -47,8 +47,10 @@ import {
   DEFAULT_EDITOR_PREFERENCES,
   type EditorPreferences,
 } from "$/managers/preferences/editor-preferences";
-import { DEFAULT_FILE_PREFERENCES } from "$/managers/preferences/file-preferences";
-import type { FilePreferences } from "$/managers/preferences/file-preferences";
+import {
+  DEFAULT_FILE_PREFERENCES,
+  type FilePreferences,
+} from "$/managers/preferences/file-preferences";
 import {
   DEFAULT_GRID_BOUNDS_PREFERENCES,
   type GridBoundsPreferences,
@@ -85,6 +87,7 @@ import type { RecoverySettings } from "$/managers/workspace/recovery-settings";
 import { WorkspaceContextPresentation } from "$/managers/workspace/workspace-panel-layout";
 import { AppearanceMode } from "@xprite/editor-ui/appearance";
 import {
+  FontRole,
   Button,
   ButtonVariant,
   Combobox,
@@ -92,12 +95,14 @@ import {
   Input,
   ListBox,
   Scrollbar,
+  ScrollbarStyle,
   type ListBoxItem,
   type SurfaceBounds,
   useUi,
-  isDialogPopupTarget,
+  useModalFocus,
+  Icon,
 } from "@xprite/ui";
-import { UiIcon, centerUiPixel, useUiAssets } from "@xprite/ui/assets";
+import { centerUiPixel, useUiAssets } from "@xprite/ui/assets";
 import { setScrollPosition, scrollPosition, isImeKeyboardEvent } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/preferences-dialog/preferences-dialog.module.css";
@@ -409,7 +414,7 @@ function PreferencesChrome({
             value={search}
             onValueChange={onSearchChange}
             placeholder="Search"
-            leading={<UiIcon part="icon_search" scale={2} color="currentColor" />}
+            leading={<Icon kind="icon_search" scale={2} color="currentColor" />}
           />
           {search && (
             <Button
@@ -969,54 +974,20 @@ export function PreferencesDialog({
       if (narrowScrollViewport.current) setScrollPosition(narrowScrollViewport.current, { y: 0 });
       return;
     }
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const focusDialog = () => dialogRoot.current?.focus({ preventScroll: true });
-    focusDialog();
-    const focus = (event: FocusEvent) => {
-      if (resetConfirmation.current) return;
-      const target = event.target;
-      if (!host.current?.contains(target as Node) && !isDialogPopupTarget(host.current, target))
-        focusDialog();
-    };
-    const key = (event: KeyboardEvent) => {
-      if (isImeKeyboardEvent(event)) return;
-      if (resetConfirmation.current) return;
-      if (isDialogPopupTarget(host.current, event.target)) return;
-      if (event.key === "Escape") {
-        event.preventDefault();
-        event.stopPropagation();
-        if (searchRef.current) {
-          clearSearch();
-          return;
-        }
-        callbacks.current.cancel();
-        return;
-      }
-      if (event.key !== "Tab") return;
-      const nodes = [
-        ...(host.current?.querySelectorAll<HTMLElement>(
-          'button:not(:disabled), input:not(:disabled), [tabindex="0"]',
-        ) ?? []),
-      ];
-      const index = nodes.indexOf(document.activeElement as HTMLElement);
-      if (
-        nodes.length &&
-        (index < 0 ||
-          (event.shiftKey && index === 0) ||
-          (!event.shiftKey && index === nodes.length - 1))
-      ) {
-        event.preventDefault();
-        nodes[event.shiftKey ? nodes.length - 1 : 0].focus();
-      }
-    };
-    document.addEventListener("focusin", focus);
-    document.addEventListener("keydown", key, true);
-    return () => {
-      document.removeEventListener("focusin", focus);
-      document.removeEventListener("keydown", key, true);
-      if (previous?.isConnected) previous.focus({ preventScroll: true });
-    };
   }, [open]);
+  useModalFocus({
+    open,
+    rootRef: host,
+    initialFocus: () => dialogRoot.current?.focus({ preventScroll: true }),
+    isSuspended: () => !!resetConfirmation.current,
+    onKeyDown: (event) => {
+      if (resetConfirmation.current || event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (searchRef.current) clearSearch();
+      else callbacks.current.cancel();
+    },
+  });
   if (!open) return null;
   const minimumWidth = Math.min(PREFERENCES_MIN_NARROW_WIDTH, clientBounds.width);
   const minimumHeight = Math.min(PREFERENCES_MIN_NARROW_HEIGHT, clientBounds.height);
@@ -1111,7 +1082,7 @@ export function PreferencesDialog({
           onBoundsChange={setWindowBounds}
           onOpenChange={cancel}
           minSize={{ width: minimumWidth, height: minimumHeight }}
-          moveable={!narrowLayout}
+          movable={!narrowLayout}
           resizable={!narrowLayout}
           autoFocus={false}
           onRootRef={(node) => {
@@ -1209,7 +1180,7 @@ export function PreferencesDialog({
                         else clearSearch();
                       }}
                       placeholder="Search"
-                      leading={<UiIcon part="icon_search" scale={2} color="currentColor" />}
+                      leading={<Icon kind="icon_search" scale={2} color="currentColor" />}
                     />
                     {search && (
                       <Button
@@ -1910,7 +1881,7 @@ export function PreferencesDialog({
                       if (narrowScrollViewport.current)
                         setScrollPosition(narrowScrollViewport.current, { y: value });
                     }}
-                    variant="mini"
+                    scrollbarStyle={ScrollbarStyle.Compact}
                     aria-label={tUi("ui.preferences.scroll", { value1: tUiSource(section) })}
                   />
                 )}
@@ -1950,7 +1921,7 @@ export function PreferencesDialog({
                       aria-label={String(label)}
                       text={String(label)}
                       mnemonicIndex={0}
-                      font="default"
+                      font={FontRole.Primary}
                       bounds={preferencesBox(
                         client,
                         Number(x),

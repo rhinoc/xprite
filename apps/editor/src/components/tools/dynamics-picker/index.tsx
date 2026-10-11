@@ -1,5 +1,4 @@
 import * as React from "react";
-import { createPortal } from "react-dom";
 
 import { DitheringSelector } from "$/components/tools/dithering-selector";
 import { tUi, tUiSource } from "$/i18n";
@@ -12,14 +11,18 @@ import {
   DynamicsColorFlow as AsepriteDynamicsColorDirection,
 } from "$/managers/tools/tool-options";
 import {
+  createUiPortal,
+  FontRole,
   Button,
+  ScrollArea,
   Text,
   TextVariant,
   Checkbox,
   Slider,
-  SliderVariant,
+  SliderMode,
   Divider,
   Tooltip,
+  TooltipPlacement,
   type SurfaceBounds,
   type SurfaceViewport,
   useUi,
@@ -117,11 +120,12 @@ export function DynamicsPicker({
   const common = { relativeTo: pb ?? undefined, viewport: popup?.viewport ?? viewport };
   return (
     <>
-      <Tooltip text="Dynamics" placement="bottom" disabled={!!popup}>
+      <Tooltip text="Dynamics" placement={TooltipPlacement.Bottom} disabled={!!popup}>
         <Button
           bounds={bounds}
           relativeTo={relativeTo}
           viewport={viewport}
+          id={`${id}-trigger`}
           buttonRef={trigger}
           icon={active ? "dynamics_on" : "dynamics"}
           iconOffset={{ x: 2, y: 0 }}
@@ -147,10 +151,12 @@ export function DynamicsPicker({
       </Tooltip>
       {popup &&
         pb &&
-        createPortal(
+        createUiPortal(
           <div
             ref={panel}
             id={id}
+            data-popup=""
+            data-popup-for={`${id}-trigger`}
             role="dialog"
             aria-label={tUi("ui.dynamics")}
             onPointerEnter={() => {
@@ -177,44 +183,67 @@ export function DynamicsPicker({
               backgroundColor: uiStyle.colors.menuitem_normal_face,
             }}
           >
-            <UiPart
-              part="menu"
-              scale={2}
-              drawCenter
-              aria-hidden="true"
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                pointerEvents: "none",
-              }}
-            />
-            <Tooltip text="Stabilizer radius to avoid shaky lines" placement="bottom">
-              <Checkbox
-                {...common}
-                bounds={b(6, 6, 112, 32)}
-                label="Stabilizer"
-                checked={value.stabilizer}
-                onCheckedChange={(enabled) => onValueChange(setDynamicsStabilizer(value, enabled))}
+            <ScrollArea
+              style={{ height: "100%" }}
+              viewport={popup.viewport}
+              scrollX={false}
+              contentStyle={{ height: surfaceLayout(pb, popup.viewport).height, minHeight: 0 }}
+              aria-label={tUi("ui.dynamics")}
+            >
+              <UiPart
+                part="menu"
+                scale={2}
+                drawCenter
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  pointerEvents: "none",
+                }}
               />
-            </Tooltip>
-            <Slider
-              {...common}
-              bounds={b(126, 6, width - 132, 32)}
-              variant={SliderVariant.Normal}
-              font="mini"
-              min={0}
-              max={64}
-              value={value.stabilizer ? value.stabilizerFactor : 0}
-              aria-label="Stabilizer factor"
-              onValueChange={(factor) =>
-                update({ stabilizerFactor: factor, stabilizer: factor > 0 })
-              }
-            />
-            {showOptionsGrid &&
-              ["", "Pressure", "Velocity", "Size", "", "", "Angle", "", "", "Gradient", "", ""].map(
-                (text, index) => {
+              <Tooltip
+                text="Stabilizer radius to avoid shaky lines"
+                placement={TooltipPlacement.Bottom}
+              >
+                <Checkbox
+                  {...common}
+                  bounds={b(6, 6, 112, 32)}
+                  label="Stabilizer"
+                  checked={value.stabilizer}
+                  onCheckedChange={(enabled) =>
+                    onValueChange(setDynamicsStabilizer(value, enabled))
+                  }
+                />
+              </Tooltip>
+              <Slider
+                {...common}
+                bounds={b(126, 6, width - 132, 32)}
+                font={FontRole.Compact}
+                min={0}
+                max={64}
+                value={value.stabilizer ? value.stabilizerFactor : 0}
+                aria-label="Stabilizer factor"
+                onValueChange={(factor) =>
+                  update({ stabilizerFactor: factor, stabilizer: factor > 0 })
+                }
+              />
+              {showOptionsGrid &&
+                [
+                  "",
+                  "Pressure",
+                  "Velocity",
+                  "Size",
+                  "",
+                  "",
+                  "Angle",
+                  "",
+                  "",
+                  "Gradient",
+                  "",
+                  "",
+                ].map((text, index) => {
                   const col = index % 3,
                     row = Math.floor(index / 3),
                     parameter = PARAMETERS[row - 1];
@@ -252,168 +281,166 @@ export function DynamicsPicker({
                       }}
                     />
                   );
-                },
+                })}
+              {active && (
+                <Divider
+                  bounds={b(6, headingY, contentWidth, 22)}
+                  relativeTo={pb}
+                  text="Min/Max Values"
+                />
               )}
-            {active && (
-              <Divider
-                bounds={b(6, headingY, contentWidth, 22)}
-                relativeTo={pb}
-                text="Min/Max Values"
-              />
-            )}
-            {PARAMETERS.map((parameter) => {
-              const y = rows[parameter];
-              if (y === undefined) return null;
-              return (
-                <React.Fragment key={parameter}>
+              {PARAMETERS.map((parameter) => {
+                const y = rows[parameter];
+                if (y === undefined) return null;
+                return (
+                  <React.Fragment key={parameter}>
+                    <Text
+                      variant={TextVariant.Control}
+                      {...common}
+                      bounds={b(8, y, 74, parameter === "gradient" ? 30 : 28)}
+                      text={NAMES[parameter]}
+                      font={FontRole.Compact}
+                    />
+                    {parameter === "gradient" ? (
+                      <>
+                        <DitheringSelector
+                          {...common}
+                          bounds={b(82, y, contentWidth - 76, 58)}
+                          value={value.matrixName}
+                          onValueChange={(matrixName) => update({ matrixName })}
+                        />
+                        <Text
+                          variant={TextVariant.Control}
+                          {...common}
+                          bounds={b(8, y + 30, 74, 28)}
+                          font={FontRole.Compact}
+                          text={
+                            value.colorFromTo ===
+                            AsepriteDynamicsColorDirection.BackgroundToForeground
+                              ? "BG > FG"
+                              : "FG > BG"
+                          }
+                        />
+                        <button
+                          aria-label={tUi("ui.gradient.direction")}
+                          title={tUi("ui.gradient.direction")}
+                          onClick={() =>
+                            update({
+                              colorFromTo:
+                                value.colorFromTo ===
+                                AsepriteDynamicsColorDirection.BackgroundToForeground
+                                  ? AsepriteDynamicsColorDirection.ForegroundToBackground
+                                  : AsepriteDynamicsColorDirection.BackgroundToForeground,
+                            })
+                          }
+                          style={{
+                            position: "absolute",
+                            left:
+                              surfaceLayout(b(6, 0, 0, 0), popup.viewport).left -
+                              surfaceLayout(pb, popup.viewport).left,
+                            top:
+                              surfaceLayout(b(0, y + 30, 0, 0), popup.viewport).top -
+                              surfaceLayout(pb, popup.viewport).top,
+                            width: (76 * popup.viewport.width) / popup.viewport.sceneWidth,
+                            height: (28 * popup.viewport.height) / popup.viewport.sceneHeight,
+                            background: "transparent",
+                            border: 0,
+                            padding: 0,
+                            cursor: "var(--ui-cursor-default,default)",
+                          }}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <Slider
+                          {...common}
+                          bounds={b(82, y, contentWidth - 76, 28)}
+                          font={FontRole.Compact}
+                          min={parameter === "size" ? 1 : -180}
+                          max={parameter === "size" ? 64 : 180}
+                          value={parameter === "size" ? value.minSize : value.minAngle}
+                          aria-label={tUi("ui.minimum", { value1: tUiSource(parameter) })}
+                          onValueChange={(n) =>
+                            update(parameter === "size" ? { minSize: n } : { minAngle: n })
+                          }
+                        />
+                        <Slider
+                          {...common}
+                          bounds={b(82, y + 28, contentWidth - 76, 28)}
+                          font={FontRole.Compact}
+                          min={parameter === "size" ? 1 : -180}
+                          max={parameter === "size" ? 64 : 180}
+                          value={parameter === "size" ? brushSize : brushAngle}
+                          aria-label={tUi("ui.maximum", { value1: tUiSource(parameter) })}
+                          onValueChange={
+                            parameter === "size" ? onBrushSizeChange : onBrushAngleChange
+                          }
+                        />
+                      </>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+              {active && (
+                <Divider
+                  bounds={b(6, sensorHeadingY, contentWidth, 22)}
+                  relativeTo={pb}
+                  text="Sensor Threshold"
+                />
+              )}
+              {pressure && (
+                <>
                   <Text
                     variant={TextVariant.Control}
                     {...common}
-                    bounds={b(8, y, 74, parameter === "gradient" ? 30 : 28)}
-                    text={NAMES[parameter]}
-                    font="mini"
+                    bounds={b(8, pressureY, 74, 28)}
+                    text="Pressure"
+                    font={FontRole.Compact}
                   />
-                  {parameter === "gradient" ? (
-                    <>
-                      <DitheringSelector
-                        {...common}
-                        bounds={b(82, y, contentWidth - 76, 58)}
-                        value={value.matrixName}
-                        onValueChange={(matrixName) => update({ matrixName })}
-                      />
-                      <Text
-                        variant={TextVariant.Control}
-                        {...common}
-                        bounds={b(8, y + 30, 74, 28)}
-                        font="mini"
-                        text={
-                          value.colorFromTo ===
-                          AsepriteDynamicsColorDirection.BackgroundToForeground
-                            ? "BG > FG"
-                            : "FG > BG"
-                        }
-                      />
-                      <button
-                        aria-label={tUi("ui.gradient.direction")}
-                        title={tUi("ui.gradient.direction")}
-                        onClick={() =>
-                          update({
-                            colorFromTo:
-                              value.colorFromTo ===
-                              AsepriteDynamicsColorDirection.BackgroundToForeground
-                                ? AsepriteDynamicsColorDirection.ForegroundToBackground
-                                : AsepriteDynamicsColorDirection.BackgroundToForeground,
-                          })
-                        }
-                        style={{
-                          position: "absolute",
-                          left:
-                            surfaceLayout(b(6, 0, 0, 0), popup.viewport).left -
-                            surfaceLayout(pb, popup.viewport).left,
-                          top:
-                            surfaceLayout(b(0, y + 30, 0, 0), popup.viewport).top -
-                            surfaceLayout(pb, popup.viewport).top,
-                          width: (76 * popup.viewport.width) / popup.viewport.sceneWidth,
-                          height: (28 * popup.viewport.height) / popup.viewport.sceneHeight,
-                          background: "transparent",
-                          border: 0,
-                          padding: 0,
-                          cursor: "var(--ui-cursor-default,default)",
-                        }}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <Slider
-                        {...common}
-                        bounds={b(82, y, contentWidth - 76, 28)}
-                        variant={SliderVariant.Normal}
-                        font="mini"
-                        min={parameter === "size" ? 1 : -180}
-                        max={parameter === "size" ? 64 : 180}
-                        value={parameter === "size" ? value.minSize : value.minAngle}
-                        aria-label={tUi("ui.minimum", { value1: tUiSource(parameter) })}
-                        onValueChange={(n) =>
-                          update(parameter === "size" ? { minSize: n } : { minAngle: n })
-                        }
-                      />
-                      <Slider
-                        {...common}
-                        bounds={b(82, y + 28, contentWidth - 76, 28)}
-                        variant={SliderVariant.Normal}
-                        font="mini"
-                        min={parameter === "size" ? 1 : -180}
-                        max={parameter === "size" ? 64 : 180}
-                        value={parameter === "size" ? brushSize : brushAngle}
-                        aria-label={tUi("ui.maximum", { value1: tUiSource(parameter) })}
-                        onValueChange={
-                          parameter === "size" ? onBrushSizeChange : onBrushAngleChange
-                        }
-                      />
-                    </>
-                  )}
-                </React.Fragment>
-              );
-            })}
-            {active && (
-              <Divider
-                bounds={b(6, sensorHeadingY, contentWidth, 22)}
-                relativeTo={pb}
-                text="Sensor Threshold"
+                  <Slider
+                    mode={SliderMode.Range}
+                    {...common}
+                    bounds={b(82, pressureY, contentWidth - 76, 28)}
+                    aria-label="Pressure threshold"
+                    value={[value.minPressureThreshold, value.maxPressureThreshold]}
+                    sensorValue={sensor.pressure}
+                    onValueChange={([minPressureThreshold, maxPressureThreshold]) =>
+                      update({ minPressureThreshold, maxPressureThreshold })
+                    }
+                  />
+                </>
+              )}
+              {velocity && (
+                <>
+                  <Text
+                    variant={TextVariant.Control}
+                    {...common}
+                    bounds={b(8, velocityY, 74, 28)}
+                    text="Velocity"
+                    font={FontRole.Compact}
+                  />
+                  <Slider
+                    mode={SliderMode.Range}
+                    {...common}
+                    bounds={b(82, velocityY, contentWidth - 76, 28)}
+                    aria-label="Velocity threshold"
+                    value={[value.minVelocityThreshold, value.maxVelocityThreshold]}
+                    sensorValue={sensor.velocity}
+                    onValueChange={([minVelocityThreshold, maxVelocityThreshold]) =>
+                      update({ minVelocityThreshold, maxVelocityThreshold })
+                    }
+                  />
+                </>
+              )}
+              <Divider bounds={b(6, separatorY, contentWidth, 8)} relativeTo={pb} />
+              <Checkbox
+                {...common}
+                bounds={b(6, sharedY, contentWidth, 24)}
+                label="Same in all Tools"
+                checked={shared}
+                onCheckedChange={onSharedChange}
               />
-            )}
-            {pressure && (
-              <>
-                <Text
-                  variant={TextVariant.Control}
-                  {...common}
-                  bounds={b(8, pressureY, 74, 28)}
-                  text="Pressure"
-                  font="mini"
-                />
-                <Slider
-                  variant={SliderVariant.Threshold}
-                  {...common}
-                  bounds={b(82, pressureY, contentWidth - 76, 28)}
-                  aria-label="Pressure threshold"
-                  value={[value.minPressureThreshold, value.maxPressureThreshold]}
-                  sensorValue={sensor.pressure}
-                  onValueChange={([minPressureThreshold, maxPressureThreshold]) =>
-                    update({ minPressureThreshold, maxPressureThreshold })
-                  }
-                />
-              </>
-            )}
-            {velocity && (
-              <>
-                <Text
-                  variant={TextVariant.Control}
-                  {...common}
-                  bounds={b(8, velocityY, 74, 28)}
-                  text="Velocity"
-                  font="mini"
-                />
-                <Slider
-                  variant={SliderVariant.Threshold}
-                  {...common}
-                  bounds={b(82, velocityY, contentWidth - 76, 28)}
-                  aria-label="Velocity threshold"
-                  value={[value.minVelocityThreshold, value.maxVelocityThreshold]}
-                  sensorValue={sensor.velocity}
-                  onValueChange={([minVelocityThreshold, maxVelocityThreshold]) =>
-                    update({ minVelocityThreshold, maxVelocityThreshold })
-                  }
-                />
-              </>
-            )}
-            <Divider bounds={b(6, separatorY, contentWidth, 8)} relativeTo={pb} />
-            <Checkbox
-              {...common}
-              bounds={b(6, sharedY, contentWidth, 24)}
-              label="Same in all Tools"
-              checked={shared}
-              onCheckedChange={onSharedChange}
-            />
+            </ScrollArea>
           </div>,
           document.body,
         )}

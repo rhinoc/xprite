@@ -44,8 +44,10 @@ const scopeAliases = {
 const project = JSON.parse(await readFile(resolve(appRoot, "project.config.json"), "utf8"));
 const fonts = await Promise.all(
   [
-    ["PixelArtBitmap", "packages/ui/assets/fonts/aseprite/aseprite.woff2"],
-    ["FusionPixelZhHans", "packages/ui/assets/fonts/fusion-pixel/fusion-pixel-10px-zh-hans.woff2"],
+    ["Aseprite", "packages/ui/assets/fonts/aseprite/aseprite.woff2"],
+    ["FusionPixel12", "packages/ui/assets/fonts/fusion-pixel/fusion-12.woff2"],
+    ["FusionPixel10", "packages/ui/assets/fonts/fusion-pixel/fusion-10.woff2"],
+    ["FusionPixel8", "packages/ui/assets/fonts/fusion-pixel/fusion-8.woff2"],
   ].map(async ([family, filename]) => ({
     family,
     source: `data:font/woff2;base64,${(await readFile(resolve(repositoryRoot, filename))).toString("base64")}`,

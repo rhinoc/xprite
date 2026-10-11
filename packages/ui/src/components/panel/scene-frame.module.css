@@ -1,0 +1,46 @@
+.artwork {
+  position: absolute;
+  inset: 0;
+  overflow: var(--ui-window-artwork-overflow, hidden);
+  pointer-events: none;
+}
+
+.artworkScale {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+}
+
+.skin {
+  position: absolute;
+  inset: 0;
+}
+
+.title {
+  position: absolute;
+  top: var(--ui-window-title-top, 10px);
+  left: var(--ui-window-title-inset, 10px);
+  width: calc(100% - var(--ui-window-title-reserved-width, 36px));
+  height: var(--ui-window-title-height, 16px);
+  overflow-x: clip;
+  overflow-y: visible;
+  clip-path: inset(-1px 0 -1px 0);
+}
+
+.title > span {
+  box-sizing: border-box;
+  max-width: var(--ui-window-title-max-width, none);
+  overflow: var(--ui-window-title-overflow, visible);
+  text-overflow: ellipsis;
+}
+
+.client {
+  position: absolute;
+  overscroll-behavior: contain;
+  touch-action: pan-x pan-y;
+}
+
+.contentPlane {
+  position: relative;
+}

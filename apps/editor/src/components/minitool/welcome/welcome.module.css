@@ -45,15 +45,15 @@
 }
 
 .description {
+  flex: 1 1 auto;
   min-height: 0;
-  overflow-y: auto;
 }
 
-.description > * {
+.descriptionContent > * {
   display: block;
 }
 
-.description > * + * {
+.descriptionContent > * + * {
   margin-top: var(--ui-space-4, 8px);
 }
 
