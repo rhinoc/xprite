@@ -24,6 +24,7 @@ const compact = layouts.find((layout) => layout.name === "compact");
 const toolLanguages = new Map([
   ["/tools/viewer/", PublicLanguage.English],
   ["/tools/gif-to-sprite-sheet/", PublicLanguage.SimplifiedChinese],
+  ["/tools/pixelate/", PublicLanguage.English],
   ["/tools/animal-crossing-qr/", PublicLanguage.English],
 ]);
 
