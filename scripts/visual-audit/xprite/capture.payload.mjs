@@ -403,7 +403,7 @@ try {
         if (selected.has(`gif-options-${mode}`)) {
           const formatTrigger = `${exportDialog} ${labeled("button", ui.exportFormat)}`;
           await page.click(formatTrigger);
-          await page.click(labeled('[role="menuitem"]', ui.gifFormat));
+          await page.click(labeled('[role="menuitemradio"]', ui.gifFormat));
           await page.waitForFunction(
             ({ selector, label }) => document.querySelector(selector)?.textContent?.includes(label),
             { selector: formatTrigger, label: ui.gifFormat },
