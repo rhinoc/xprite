@@ -121,7 +121,15 @@ use `/components/` in both development and production. Its component and icon ro
 come from `apps/components/build/generated-routes.json`, regenerated alongside the
 component catalog by `components:generate`; staging adds exact rewrites and middleware
 entries for those routes, including direct visits and reloads, and redirects the
-former `/gallery/` routes. Component docs remain
+former `/gallery/` routes. EdgeOne reads at most 100 redirects, 100 rewrites and
+30 header rules and silently ignores the rest, so `deploy:prepare` compacts repeated rule shapes
+into `:name` placeholders (`infra/edgeone-serving-rules.ts`), checks that every generated exact
+rule still resolves to the same destination, and fails before upload if a list is still over
+its limit. The middleware keeps the full exact path list. `pnpm run check` runs
+`check:components-generated`, which fails when the committed component catalog or route list
+differs from what `components:generate` produces. After a deployment,
+`pnpm run deploy:verify <url>` re-runs the post-upload checks against the prepared
+`.tmp/deploy/editor` release. Component docs remain
 `noindex, follow` and is excluded from the public sitemap.
 
 Shared website icon links are defined in `infra/site-html.ts`. Vite entry templates

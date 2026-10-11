@@ -9,6 +9,7 @@ import { GUIDE_PAGES } from "../../apps/growth/content/help/pages.ts";
 import { SHOWCASE_PAGES } from "../../apps/growth/content/showcase/pages.ts";
 import { SITE_PAGES, SitePageKind } from "../../apps/growth/content/site/pages.ts";
 import { GIF_SHEET_TOOL, PIXELATE_TOOL, TOOLS } from "../../apps/growth/content/tools/index.ts";
+import { assertEdgeOneRuleLimits, compactServingRules } from "../../infra/edgeone-serving-rules.ts";
 import { checkAssetVersions } from "../check/check-asset-versions.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
@@ -171,9 +172,12 @@ async function prepareDeployment() {
     await writeFile(join(deploymentDirectory, "robots.txt"), "User-agent: *\nAllow: /\n");
     await rm(join(deploymentDirectory, "sitemap.xml"), { force: true });
   }
+  // EdgeOne reads at most 100 redirects and 100 rewrites; later rules are silently ignored.
+  const uploadedConfiguration = compactServingRules(servingConfiguration);
+  assertEdgeOneRuleLimits(uploadedConfiguration);
   await writeFile(
     join(deploymentDirectory, "edgeone.json"),
-    `${JSON.stringify(servingConfiguration, null, 2)}\n`,
+    `${JSON.stringify(uploadedConfiguration, null, 2)}\n`,
   );
   await writeFile(
     join(deploymentDirectory, "release.json"),
@@ -396,7 +400,9 @@ async function verifySearchDiscovery(url, environment) {
 
 async function verifyDeployment(result, expected) {
   const url = new URL(result.url);
-  if (url.protocol !== "https:") throw new Error("EdgeOne must return an HTTPS deployment URL.");
+  const local = url.protocol === "http:" && ["127.0.0.1", "localhost"].includes(url.hostname);
+  if (url.protocol !== "https:" && !local)
+    throw new Error("EdgeOne must return an HTTPS deployment URL.");
   const releaseUrl = new URL(url);
   releaseUrl.pathname = "/release.json";
   releaseUrl.searchParams.set("release", expected.release);
@@ -533,6 +539,14 @@ async function publishDeployment() {
   );
 }
 
+/** Re-run the post-upload checks against a URL serving the prepared artifact. */
+async function verifyPublishedDeployment(url) {
+  if (!url) throw new Error("Pass the deployment URL to verify, for example https://xprite.cc.");
+  const expected = JSON.parse(await readFile(join(deploymentDirectory, "release.json"), "utf8"));
+  await verifyDeployment({ url }, expected);
+  console.log(`Deployment at ${url} verified for release ${expected.release}.`);
+}
+
 try {
   switch (process.argv[2]) {
     case "validate":
@@ -544,8 +558,11 @@ try {
     case "publish":
       await publishDeployment();
       break;
+    case "verify":
+      await verifyPublishedDeployment(process.argv[3]);
+      break;
     default:
-      throw new Error("Use validate, prepare or publish.");
+      throw new Error("Use validate, prepare, publish or verify <url>.");
   }
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
