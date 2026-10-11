@@ -68,7 +68,7 @@ export function PublicNotFound({ language }: { language: PublicLanguage }) {
       <nav className={styles.shortcuts} aria-label={text("Resources", "常用入口")}>
         <PublicIcon
           label={text("Features", "功能")}
-          href={localizedSiteHref("/about/features/", language)}
+          href={localizedSiteHref("/features/", language)}
           variant={IconKind.Folder}
         />
         <PublicIcon

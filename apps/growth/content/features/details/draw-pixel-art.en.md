@@ -14,4 +14,4 @@ These drawing tools work on still images and animation frames. See [Layers and c
 
 ## Keep working
 
-[Open editor](/editor) · [All features](/about/features/) · [User guide](/help/)
+[Open editor](/editor) · [All features](/features/) · [User guide](/help/)

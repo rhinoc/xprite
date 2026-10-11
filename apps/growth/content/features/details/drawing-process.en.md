@@ -14,4 +14,4 @@ Replays are saved with browser projects. PNG and Aseprite files do not include r
 
 ## Keep working
 
-[Open editor](/editor) · [All features](/about/features/) · [User guide](/help/)
+[Open editor](/editor) · [All features](/features/) · [User guide](/help/)

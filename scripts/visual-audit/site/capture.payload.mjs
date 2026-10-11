@@ -1,6 +1,8 @@
 // Executed by ego-browser; the wrapper supplies siteConfig.
 const fs = await import("node:fs/promises");
-const { captureBrowserScreenshot } = await import(siteConfig.screenshotModule);
+const { captureBrowserScreenshot, navigateWithTransientRetry } = await import(
+  siteConfig.screenshotModule
+);
 const task = await taskSpace(siteConfig.spaceId ?? "Xprite growth and tools visual regression");
 if (task.ownership !== "agent")
   throw Error("Visual capture requires an agent-owned browser space.");
@@ -128,6 +130,7 @@ try {
       source: `if(location.origin===${JSON.stringify(origin)}){
       localStorage.setItem("xprite.site.desktop-preferences",${JSON.stringify(JSON.stringify({ appearance: scene.appearance.saved }))});
       localStorage.setItem("xse.ui.appearance-mode.v1",${JSON.stringify(scene.appearance.saved)});
+      localStorage.setItem("xse.ui.language.v1",${JSON.stringify(scene.page.language)});
       ${siteConfig.geometrySource}
       window.__siteVisualErrors=[];
       window.addEventListener("error",event=>window.__siteVisualErrors.push(String(event.error??event.message)));
@@ -138,7 +141,7 @@ try {
       await page.cdp("Network.setBlockedURLs", {
         urls: scene.page.phase === "ssg" ? MODULE_URLS : [],
       });
-      await page.goto(origin + scene.page.path);
+      await navigateWithTransientRetry(page, origin + scene.page.path);
       await page.waitForSelector(scene.page.ready, { timeout: siteConfig.timeout });
       if (scene.page.action === "example") {
         await page.waitForSelector('[data-tool-state="empty"]');

@@ -60,7 +60,7 @@ sitemap and HTTP serving rules remain owned by growth and deployment scripts.
 
 ## Features and shared shell
 
-`/about/features/` groups editor features and standalone tools into one directory.
+`/features/` groups editor features and standalone tools into one directory.
 The shared menu and footer link directly to each tool, and the desktop Features
 shortcut opens the localized directory. `ToolFrame` centralizes browser appearance and
 navigation; `FileToolShell` owns local file selection, drag/drop, the short empty

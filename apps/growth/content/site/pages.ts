@@ -126,7 +126,7 @@ export const SITE_PAGES: readonly SitePage[] = [
   ...DOCUMENT_PAGES,
 ];
 
-/** Addresses production served before the `/zh-CN/` root prefix; nothing else is redirected. */
+/** Public paths retained as redirects after their canonical route changed. */
 const LEGACY_PAGES: readonly (readonly [string, string])[] = [
   ["/tools/", FEATURES_PATH],
   ["/help/en/", GUIDE_PAGES[PublicLanguage.English].path],

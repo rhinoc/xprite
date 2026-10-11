@@ -14,4 +14,4 @@ PNG works for individual frames, while GIF, APNG and WebP support animation. Ima
 
 ## Keep working
 
-[Open editor](/editor) · [All features](/about/features/) · [User guide](/help/)
+[Open editor](/editor) · [All features](/features/) · [User guide](/help/)

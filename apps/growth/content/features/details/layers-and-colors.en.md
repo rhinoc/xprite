@@ -14,4 +14,4 @@ Layers organize the artwork, while color mode determines how colors are represen
 
 ## Keep working
 
-[Open editor](/editor) · [All features](/about/features/) · [User guide](/help/)
+[Open editor](/editor) · [All features](/features/) · [User guide](/help/)

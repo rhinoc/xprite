@@ -14,4 +14,4 @@ Automatic mode chooses a layout for the window size. Editing a saved layout over
 
 ## Keep working
 
-[Open editor](/editor) · [All features](/about/features/) · [User guide](/help/)
+[Open editor](/editor) · [All features](/features/) · [User guide](/help/)
