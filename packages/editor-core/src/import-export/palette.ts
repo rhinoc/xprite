@@ -11,6 +11,7 @@ import {
 import { encodeGif, storeDeflate } from "$/import-export/image/encoders";
 import { crc32 } from "@xprite/bedrock/common/crc32";
 import { joinBytes } from "@xprite/bedrock/common/join-bytes";
+import { decodeUtf8 } from "@xprite/bedrock/common/utf8";
 
 export enum PaletteFileFormat {
   Aseprite = "ase",
@@ -36,7 +37,7 @@ const RGBA_CHANNELS = 4;
 const COL_MAGIC = 0xb123;
 const BLACK: Rgba = [0, 0, 0, UINT8_MAX];
 const PALETTE_COLUMNS = 16;
-const ascii = (value: string) => new TextEncoder().encode(value);
+const ascii = (value: string) => Uint8Array.from(value, (character) => character.charCodeAt(0));
 const u32 = (value: number) => Uint8Array.of(value >>> 24, value >>> 16, value >>> 8, value);
 const byte = (value: string): number => {
   const number = Number(value);
@@ -168,8 +169,7 @@ export function readPaletteData(bytes: Uint8Array, extension: string): Rgba[] | 
       (type) => type === format,
     )
   ) {
-    const lines = new TextDecoder()
-      .decode(bytes)
+    const lines = decodeUtf8(bytes)
       .replace(/^\uFEFF/, "")
       .replace(/\r/g, "")
       .split("\n")
@@ -210,7 +210,7 @@ export function readPaletteData(bytes: Uint8Array, extension: string): Rgba[] | 
       const length = view.getUint32(at);
       const end = at + 12 + length;
       if (end > bytes.length) throw new Error("Incomplete PNG chunk.");
-      const type = new TextDecoder().decode(bytes.subarray(at + 4, at + 8));
+      const type = decodeUtf8(bytes.subarray(at + 4, at + 8));
       if (type === "PLTE") colors = rgbTriples(bytes, length / RGB_CHANNELS, at + 8);
       if (type === "tRNS" && colors)
         colors = colors.map((color, index) => [

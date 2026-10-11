@@ -8,6 +8,7 @@ import type { PixelBuffer } from "$/base/primitives";
 import { readPaletteData } from "$/import-export/palette";
 import { crc32 } from "@xprite/bedrock/common/crc32";
 import { joinBytes } from "@xprite/bedrock/common/join-bytes";
+import { decodeUtf8 } from "@xprite/bedrock/common/utf8";
 
 export interface PaletteRasterImage {
   pixels: PixelBuffer;
@@ -73,7 +74,7 @@ export function decodePalettePng(
       crc32(bytes.subarray(at + 4, at + 8 + length)) !== view.getUint32(at + 8 + length)
     )
       throw new Error("Invalid PNG chunk.");
-    const name = new TextDecoder().decode(bytes.subarray(at + 4, at + 8));
+    const name = decodeUtf8(bytes.subarray(at + 4, at + 8));
     if (name === "IDAT") compressed.push(bytes.subarray(at + 8, at + 8 + length));
     if (name === "tRNS") transparency = bytes.subarray(at + 8, at + 8 + length);
     if (name === "IEND") {

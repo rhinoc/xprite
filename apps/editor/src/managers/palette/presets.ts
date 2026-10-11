@@ -61,7 +61,7 @@ export function readDefaultPalette(): Rgba[] {
   const fallback =
     bundled.find((preset) => preset.id === "DB32") ??
     bundled.find((preset) => preset.id === "VGA 13h");
-  const saved = readStoredPalette(localStorage.getItem(defaultKey));
+  const saved = readStoredPalette(JSON.stringify(readStorage(defaultKey)));
   return copyPalette(saved) ?? fallback?.colors.map((color) => [...color] as unknown as Rgba) ?? [];
 }
 

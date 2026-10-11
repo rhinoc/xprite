@@ -2,8 +2,8 @@ import type { AsepriteImageSamples } from "$/base/image";
 import type { Rgba } from "$/base/primitives";
 import { encodeAsepriteSamples, paletteForColors } from "$/color/samples";
 import type { EditorDocument } from "$/document/types";
-import { TILE_INDEX_MASK } from "$/tilemap/index";
-import { LAYER_BACKGROUND } from "$/timeline/index";
+import { TILE_INDEX_MASK } from "$/tilemap/model";
+import { LAYER_BACKGROUND } from "$/timeline/timeline";
 
 const RGBA_CHANNELS = 4;
 const INDEXED_DEPTH = 8;

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
+import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { Alert } from "$/components/dialogs/alert";
 import { FormDialog } from "$/components/dialogs/form-dialog";
 import { PaletteGenerationDialog } from "$/components/palette/palette-generation-dialog";
@@ -33,6 +34,7 @@ enum PaletteDialog {
 }
 export function PaletteActions() {
   const editor = usePaletteActionsModel();
+  const sceneBounds = useSceneBounds();
   useUiLanguage();
   const [presets, setPresets] = useState(listSavedPalettePresets);
   const [bundledPresets] = useState(listBundledPalettePresets);
