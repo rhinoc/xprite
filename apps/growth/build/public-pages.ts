@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from "vite";
 
-import { versionOutputDirectory } from "../../../infra/content-versions.ts";
+import { shareDuplicateFonts, versionOutputDirectory } from "../../../infra/content-versions.ts";
 import {
   DevelopmentApp,
   GROWTH_DEVELOPMENT_BASE,
@@ -119,6 +119,10 @@ function publicPageResources(): Map<string, string> {
     [
       CHINESE_FONT_PATH,
       resolve(REPOSITORY_ROOT, "packages/ui/assets/fonts/fusion-pixel/fusion-12.woff2"),
+    ],
+    [
+      "/fusion-pixel/fusion-12-base.woff2",
+      resolve(REPOSITORY_ROOT, "packages/ui/assets/fonts/fusion-pixel/fusion-12-base.woff2"),
     ],
     [
       "/fusion-pixel/fonts.css",
@@ -525,6 +529,8 @@ export async function growthPublicPages(): Promise<Plugin> {
       await writeFile(resolve(output, "llms.txt"), languageModelIndex());
       if (indexable) await writeFile(resolve(output, "sitemap.xml"), sitemap());
       else await rm(resolve(output, "sitemap.xml"), { force: true });
+      // One URL per font, whether a page reaches it through Vite, /theme/fonts.css or the SSG CSS.
+      await shareDuplicateFonts(output, { directory: PUBLIC_UI_ASSET_PREFIX });
       // Last step: every page and stylesheet now has its final references and bytes.
       await versionOutputDirectory(output);
     },

@@ -46,8 +46,10 @@ function ShowcaseApp({ initialTheme }: { initialTheme: UiThemeSnapshot }) {
       language={language}
       initialTheme={initialTheme}
       preloadArtwork={false}
+      // /theme/growth-desktop.css defines the cursors once on :root; inline copies cost ~0.5 MB.
+      cursorVariables={false}
     >
-      <CursorProvider>
+      <CursorProvider variables={false}>
         <ScrollArea
           target={ScrollAreaTarget.Page}
           scrollbarRendering={ScrollbarRendering.Browser}

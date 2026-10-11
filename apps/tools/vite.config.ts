@@ -38,7 +38,7 @@ export default defineConfig(({ command }) => ({
   publicDir: false,
   css: { modules: { generateScopedName: ssgScopedName } },
   plugins: [
-    contentVersionedOutput(),
+    contentVersionedOutput({ sharedFontDirectory: "ssg-assets" }),
     developmentServerIdentity(DevelopmentApp.Tools, repositoryRoot),
     packageLocalAliases(),
     siteHtml(),

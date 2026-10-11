@@ -9,7 +9,7 @@
  * `?v=<content hash>` of the exact bytes it was built with.
  */
 import { createHash } from "node:crypto";
-import { readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve, sep } from "node:path";
 
 import type { Plugin } from "vite";
@@ -215,7 +215,12 @@ export async function versionOutputDirectory(
 }
 
 /** Last build step for apps whose output Vite writes without later page generation. */
-export function contentVersionedOutput(options: ContentVersionOptions = {}): Plugin {
+export function contentVersionedOutput(
+  options: ContentVersionOptions & {
+    /** Output directory of `<sha256>.<ext>` assets; given, fonts share one URL first. */
+    sharedFontDirectory?: string;
+  } = {},
+): Plugin {
   let output = "";
   let base = "/";
   let build = false;
@@ -230,7 +235,10 @@ export function contentVersionedOutput(options: ContentVersionOptions = {}): Plu
       order: "post",
       sequential: true,
       async handler() {
-        if (build) await versionOutputDirectory(output, { base });
+        if (!build) return;
+        if (options.sharedFontDirectory)
+          await shareDuplicateFonts(output, { base, directory: options.sharedFontDirectory });
+        await versionOutputDirectory(output, { base });
       },
     },
   };
@@ -288,4 +296,82 @@ export async function findUnversionedReferences(
     (left, right) =>
       left.file.localeCompare(right.file) || left.reference.localeCompare(right.reference),
   );
+}
+
+const FONT_PATTERN = /\.(?:woff2?|ttf|otf)$/i;
+
+export interface SharedFontOptions extends ContentVersionOptions {
+  /** Directory below the output root (and `base`) that holds `<sha256>.<ext>` assets. */
+  directory: string;
+}
+
+/**
+ * Points every HTML and CSS reference to a font file at one URL per font content.
+ *
+ * A page can reach the same font through the Vite bundle (`assets/name-Hash8.woff2`),
+ * a copied public file and a server-rendered asset store. Each URL is a separate
+ * download and a separate `FontFace`, so a 651 KB font loaded three times. References
+ * become `<base><directory>/<sha256>.<ext>`; the copy is written there when missing.
+ * Run before `versionOutputDirectory`; the shared names are content-addressed.
+ */
+export async function shareDuplicateFonts(
+  outputDirectory: string,
+  { base = "/", directory }: SharedFontOptions,
+): Promise<string[]> {
+  const output = resolve(outputDirectory);
+  const files = await outputFiles(output);
+  const known = new Set(files);
+  const folder = directory.replace(/^\/+|\/+$/g, "");
+  const store = resolve(output, folder);
+  const prefix = `${base.endsWith("/") ? base : `${base}/`}${folder}/`;
+  const shared = new Map<string, Promise<string>>();
+  const sharedUrl = (filename: string) => {
+    let url = shared.get(filename);
+    if (!url) {
+      url = readFile(filename).then(async (bytes) => {
+        const name = `${createHash(HASH_ALGORITHM).update(bytes).digest("hex")}${filename.slice(filename.lastIndexOf(".")).toLowerCase()}`;
+        const target = join(store, name);
+        if (!known.has(target)) {
+          await mkdir(store, { recursive: true });
+          await writeFile(target, bytes);
+          known.add(target);
+        }
+        return `${prefix}${name}`;
+      });
+      shared.set(filename, url);
+    }
+    return url;
+  };
+  const rewritten: string[] = [];
+  for (const filename of files) {
+    const kind = filename.endsWith(HTML_EXTENSION)
+      ? "html"
+      : filename.endsWith(CSS_EXTENSION)
+        ? "css"
+        : undefined;
+    if (!kind) continue;
+    const source = await readFile(filename, "utf8");
+    const urls = new Map<string, string>();
+    rewriteReferences(source, kind, (value) => {
+      const reference = splitReference(value);
+      if (!reference || !FONT_PATTERN.test(reference.pathname)) return value;
+      const target = referencedFile(output, filename, reference.pathname, base);
+      if (target && known.has(target) && !target.startsWith(`${store}${sep}`))
+        urls.set(value, target);
+      return value;
+    });
+    if (!urls.size) continue;
+    const resolved = new Map<string, string>();
+    for (const [value, target] of urls) resolved.set(value, await sharedUrl(target));
+    const result = rewriteReferences(source, kind, (value) => {
+      const url = resolved.get(value);
+      const reference = url ? splitReference(value) : undefined;
+      return url && reference ? `${url}${reference.hash}` : value;
+    });
+    if (result !== source) {
+      await writeFile(filename, result);
+      rewritten.push(relative(output, filename));
+    }
+  }
+  return rewritten.sort();
 }

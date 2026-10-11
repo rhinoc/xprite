@@ -31,9 +31,10 @@ Editor release configuration and tag/manual deployment instructions are in
 [deploy/README.md](deploy/README.md). Root `deploy:*` scripts prepare and publish
 the static editor to EdgeOne Makers.
 
-The pre-push hook runs `pnpm run check:growth-ssr`, which builds Growth's static
-pages and blocks the push if React reports that `useLayoutEffect` ran during
-server rendering.
+The pre-push hook runs `pnpm run check:growth-ssr`, which builds Growth's and
+Tools' static pages and blocks the push if React reports that `useLayoutEffect`
+ran during server rendering, if a page is larger than 1 MiB, or if a page inlines
+theme cursor artwork in a `style` attribute.
 
 For itch.io, run `pnpm run itch:pack` to build an uploadable ZIP, or build with
 `pnpm run build:itch` and upload through `pnpm run deploy:itch username/project`.
@@ -115,9 +116,9 @@ or `LIBRESPRITE_SOURCE`. Retained Aseprite tools use
 | `fixtures/`                                | Prepares deterministic test data and generated assets.                                   |
 | `e2e/`                                     | End-to-end browser flows, package integration checks, and Aseprite compatibility checks. |
 | `performance/`                             | Benchmarks and performance checks.                                                       |
-| `visual-audit/aseprite/`                   | Exports document frame oracles and regenerates widget geometry evidence.                  |
-| `visual-audit/xprite/`                     | Captures current Home/editor scenes and compares them with Xprite baselines.               |
-| `visual-audit/baselines/xprite/{zh,en}/`   | Checked-in raw screenshot baselines and capture provenance, grouped by language.           |
+| `visual-audit/aseprite/`                   | Exports document frame oracles and regenerates widget geometry evidence.                 |
+| `visual-audit/xprite/`                     | Captures current Home/editor scenes and compares them with Xprite baselines.             |
+| `visual-audit/baselines/xprite/{zh,en}/`   | Checked-in raw screenshot baselines and capture provenance, grouped by language.         |
 | `visual-audit/` and `visual-audit/checks/` | Runs visual gates and compares screenshots, pixels, and audit manifests.                 |
 
 `pnpm run assets:desktop-patterns` decodes the preserved System 7.0, System 7.5

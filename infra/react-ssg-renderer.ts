@@ -46,6 +46,27 @@ export interface SsgAsset {
   type: string;
 }
 
+/**
+ * A `:root` rule that defines the theme cursors once, each SVG stored as a hashed asset.
+ * Inline on every server-rendered scope they cost ~0.5 MB apiece; custom properties
+ * inherit, so pages render the scope with `cursorVariables={false}` and use this rule.
+ */
+export function cursorStylesheet(
+  variables: (artworkUrl: (svg: string) => string) => Record<string, string>,
+  assets: Map<string, SsgAsset>,
+  assetPrefix: string,
+): string {
+  const declarations = Object.entries(
+    variables((svg) => {
+      const bytes = Buffer.from(svg);
+      const name = `${createHash("sha256").update(bytes).digest("hex")}.svg`;
+      assets.set(name, { bytes, type: "image/svg+xml" });
+      return `${assetPrefix}${name}`;
+    }),
+  ).map(([name, value]) => `${name}:${value}`);
+  return `:root{${declarations.join(";")}}`;
+}
+
 export async function createReactSsgRenderer<T>(options: {
   entry: string;
   assetPrefix: string;
