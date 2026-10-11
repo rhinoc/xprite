@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
-  "capturedAt": "2026-10-11T15:42:18.607Z",
+  "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+  "capturedAt": "2026-10-11T17:03:44.037Z",
   "captureComplete": true,
   "sourceHashes": {
-    ".husky/pre-push": "8bccccd2cbf89dac5439916800b8263e9f45eddc20561a98ebda3518879f529f",
+    ".husky/pre-push": "33ca7f87e8309f092541367814d7460a706bb4115a142ab5ff7cf848c4fb3611",
     "apps/editor/assets/commands/aseprite-tool-tips.json": "e9e275e9d3b024deaa66850fa53e43713f155b70afd619d6d8c9d3ad86c47c26",
     "apps/editor/assets/commands/libresprite-keyboard-shortcuts.json": "36bfd19176989e659289b5e89927f29d7e4f2fe4e9389a1520552bd8711560d1",
     "apps/editor/assets/commands/libresprite-main-menu.json": "3f8e173da89ddb360e396c68a20c74244f5418cf41ad47735d0b3ddd61b839ad",
@@ -154,12 +154,12 @@
     "apps/editor/src/components/canvas/canvas-size-overlay/index.tsx": "7a23b60964978f7c6b38d6906384237f7dc98808b44a022fcb504e4a4797bf41",
     "apps/editor/src/components/canvas/create-canvas-command-context.ts": "a9f6dbe216e17271aef466b712029aea8d5407d9eb2649b3787bdf86433f45fb",
     "apps/editor/src/components/canvas/editor-canvas.module.css": "89b9f2327c56f1793d725d649ff533548053af6b3a6f2785f1973796e270e6f6",
-    "apps/editor/src/components/canvas/editor-canvas.tsx": "37672906f0f5cff9e3f3f7cb00c1692b410e5a8a210c1a0d86c95da058c20c59",
+    "apps/editor/src/components/canvas/editor-canvas.tsx": "ed04bcbba81ba70305ceef7982e6730129fad00771ea1953a2095acc0b5e61f7",
     "apps/editor/src/components/canvas/editor-frame/index.tsx": "dd4d081f9c1a9817f8d3ebacd1f32844089bf2a428f8637fa7892da0232f2d61",
     "apps/editor/src/components/canvas/editor-surface/editor-surface.module.css": "9d59fecb162bc6d42f04a69c828d79c391745cf81514200f0c2a2e6e73418929",
     "apps/editor/src/components/canvas/editor-surface/index.tsx": "43c940c50fe646fd8f9ead86abfc02dec960f894c7a660f2a64d0c52af19a2c1",
     "apps/editor/src/components/canvas/editor-viewport/editor-viewport.module.css": "338360d42ba6d9377266f084a3d195427704773632d3bfc162759be0e4883abd",
-    "apps/editor/src/components/canvas/editor-viewport/index.tsx": "0f80c23ab326c122b7d550c4006ce531edb4cb80223fa6e033a627d02c041181",
+    "apps/editor/src/components/canvas/editor-viewport/index.tsx": "86869bc82375cdd78e696c8b2323281b406dbea758fd3ff8bab500ad81bac90d",
     "apps/editor/src/components/canvas/inline-text-editor/InlineTextEditor.tsx": "987154c48853e9d8e3b5467cd42b8abf30b7084e327d9f0fea95421b72e5d5b6",
     "apps/editor/src/components/canvas/inline-text-editor/index.tsx": "5eb66fbfdc7e5a090fe74859b7484039e76040caa80892f676a9419467084153",
     "apps/editor/src/components/canvas/inline-text-editor/inline-text-editor.module.css": "5c4b197b151f63eaed3cd142ce950eacad0bc2257e6bf69d95ee79cb877e0c3f",
@@ -167,7 +167,7 @@
     "apps/editor/src/components/canvas/scene-bounds/index.tsx": "ca8a98366957dee2d07db2403c9ab9644a7554c13fbd0fcfc02e3b4111394841",
     "apps/editor/src/components/dialogs/about/index.tsx": "175d7750fbe473d78aff58ce546daaf05ead24a37b1352248898cc2cc7f944a4",
     "apps/editor/src/components/dialogs/alert/index.tsx": "c7a0b8878e194c322bf7a6adac8ab3058f5af1f033544e04b0f8521bd7c17fe9",
-    "apps/editor/src/components/dialogs/animal-crossing-dialog/animal-crossing-dialog.module.css": "d072256451d0dac7e9e44bdb10a791159c8537ea35ce6ed1161f3016bb7138a9",
+    "apps/editor/src/components/dialogs/animal-crossing-dialog/animal-crossing-dialog.module.css": "de3f0bb0d844a6eb75ff6cc1576dbc7f2167343e540bf7ddc6cdcd6850866a21",
     "apps/editor/src/components/dialogs/animal-crossing-dialog/index.tsx": "160740dcb1b69065497dcc77a85889587f35f908f4f55d377085274e6424d9c9",
     "apps/editor/src/components/dialogs/animal-crossing-dialog/source-grid.tsx": "f54d14ca0bd80ed534cccaf6df348b950ecd3e1d513ee9ca1d420815945471e0",
     "apps/editor/src/components/dialogs/canvas-display-preferences/index.tsx": "9090e70f8cd270e7baeff2112ef59b4a522aa33a0cba2e622d674073ee43bd4d",
@@ -181,7 +181,7 @@
     "apps/editor/src/components/dialogs/effect-dialogs/index.tsx": "d2156130b4b9c9d69006b8226a8aa8980e73338c8fb4a13b8745c3fd9f06a031",
     "apps/editor/src/components/dialogs/experimental-preferences/index.tsx": "373918f2746560d545a0fa4b994d4dfe01e021b0c802f00ef1fd1128bc51cb41",
     "apps/editor/src/components/dialogs/export-dialog/export-dialog.module.css": "aa364df7955ae5ef877a0d95298f0ecbc2591bf68149683d860498b70aaf1ad5",
-    "apps/editor/src/components/dialogs/export-dialog/index.tsx": "f264840f675ca045359c4355b6d33d54ca092e190a1bc4d2ab9a3486482347c7",
+    "apps/editor/src/components/dialogs/export-dialog/index.tsx": "3d896598fb55f16f02a83b9b3cb5a7c3e3661b0c24882ce97025cb96db1e28e2",
     "apps/editor/src/components/dialogs/export-file-dialog/export-file-dialog.test.ts": "9eaeff03fec8aaadfb82ccc0ec8fd7693156cf4668d947b6a9b7deb722f79a1c",
     "apps/editor/src/components/dialogs/export-file-dialog/index.tsx": "9b8bf6011b9f412d2541603efad39c8b8383eea180cb5a34073f86b0bbd2d8c2",
     "apps/editor/src/components/dialogs/feedback/feedback.module.css": "532d7bd30342801fb1c740b06ded260a832fdf8dae19bebdc612422ec2ddf58e",
@@ -190,10 +190,10 @@
     "apps/editor/src/components/dialogs/filter-window/index.tsx": "1b6d8299639deec8c1159ff1d8c5b934ab827e008ffae89073465971c9e48a40",
     "apps/editor/src/components/dialogs/form-dialog/flow-form.module.css": "8898455d9d72eaacca24eb5c3c533ad2e12ee8e1dbedf7f99b1e6ee5dabd14ae",
     "apps/editor/src/components/dialogs/form-dialog/flow-form.tsx": "0dadd10eb1efa8c7ba08b1e3e098f53c7aca1d0ec97c89b443ffb9d9f49ccc31",
-    "apps/editor/src/components/dialogs/form-dialog/index.tsx": "7850fffa875f969c524255546aaa04c8b90a632880554036f12780d0059bb066",
+    "apps/editor/src/components/dialogs/form-dialog/index.tsx": "6c7b0d111f8eeca30077027beb815baa20acce740003b7cbb8b2fc25b5037e4c",
     "apps/editor/src/components/dialogs/grid-settings/index.tsx": "4452eb57746e576da5c7ce2bff07b22f03e40d989b3d124f6857e1fa8a5cc49e",
     "apps/editor/src/components/dialogs/import-sprite-sheet-overlay/index.tsx": "ed665dcc3ceeb83a413bf0dc1cb001d67caceaa6bc9f0102223bba03386db844",
-    "apps/editor/src/components/dialogs/keyboard-shortcuts/KeyboardShortcutsDialog.tsx": "00654a82929aba19223f52b36036f99180b84a1ebe37223f03aa26a5e57edc21",
+    "apps/editor/src/components/dialogs/keyboard-shortcuts/KeyboardShortcutsDialog.tsx": "46865b86da13fe9a5a2bc85afedf0b3dd31b0a884361a6b455fcf0f3aa0932ea",
     "apps/editor/src/components/dialogs/keyboard-shortcuts/ShortcutCaptureDialog.tsx": "d9cf93de48c848a674ae0fe0521b3bbe9dfb544fb7f41642175d1f4a322be642",
     "apps/editor/src/components/dialogs/keyboard-shortcuts/ShortcutDragOptions.tsx": "f7f47ef25e2d4bf71f2dd5859cb25d7e4fc42e7c843c0bf2d0afa277f2dafb75",
     "apps/editor/src/components/dialogs/keyboard-shortcuts/index.tsx": "2ee2c2dd9ebf5cebe534a65669c6d2ace47a728341c2bebcbc03165582c05f8b",
@@ -270,7 +270,7 @@
     "apps/editor/src/components/shell/editor-view/index.tsx": "838c25ba2e66a14e2e0af64d2c4bc88d84ba185fd5677ad37ddf131d0e3e6e5e",
     "apps/editor/src/components/shell/editor-view/workspace-docking.module.css": "915ba5198554a55d3bb4598f2b08cebaed4e63f7ba84d56c0a354b9db6201edf",
     "apps/editor/src/components/shell/editor-workflows.module.css": "af1ecefc4d15f6678a020a9f2cf4b1842cfbb36f1c386266b07f751dc8315a7e",
-    "apps/editor/src/components/shell/editor-workflows.tsx": "afa2bf39b57e810c85202838b6760f620982f764ae02dff55fc0e5abdef4d2a3",
+    "apps/editor/src/components/shell/editor-workflows.tsx": "12ef02292118400d19339bfe085b3b027b0c217de7668556642786db757633e0",
     "apps/editor/src/components/shell/input-mode-notice/index.tsx": "1a9244e4f82062f50e312b5b28bbc18986c6091c7314f49ee92a7d63411fa654",
     "apps/editor/src/components/shell/live-status.module.css": "8f4c21612cb6e066231db71edd4b8b634f772c2565a3075e37c940f4836b312c",
     "apps/editor/src/components/shell/live-status.tsx": "a67d351858192ce4b91cffb5f688de32e3839ca58e6628ef43eef27c0b51a638",
@@ -278,14 +278,14 @@
     "apps/editor/src/components/shell/pwa/index.tsx": "0162e268b45a8639f6dffb43f46abfda4ebd3b0d67b5c2aa640c08227fd67f07",
     "apps/editor/src/components/shell/startup-animation-bootstrap.ts": "eefb860e5be1ca207c468004a30c50e92db213c399c07fcaa62812dded0677db",
     "apps/editor/src/components/shell/startup-animation.ts": "f4604784e9f3d1bc549bbc1eaa167db8afe2200c7fe2fb58e7171243101edfe8",
-    "apps/editor/src/components/shell/status-bar/index.tsx": "25363281719b84592194eb3168d3c1f5f9be094f16bc448150fdf64e04948e49",
+    "apps/editor/src/components/shell/status-bar/index.tsx": "2b06f09d5a5323166d7f4c2cdb492a1e325e706befa30f5091bc6fa53f845747",
     "apps/editor/src/components/shell/status-bar/status-bar.module.css": "93fb1475a15d813fe5da1bd44fab4f236f4411e85c0762c12e11f8c9414cb2d7",
     "apps/editor/src/components/timeline/animation-actions/index.tsx": "9a06dc8245539924dc368c9732a57b6698e33444a0a0a36ce2ed5d5ce89b0606",
-    "apps/editor/src/components/timeline/animation-preview/index.tsx": "5173c29074915fac327a25617fc3e6a44656ab569e614d7f5e5ffea3cfb95145",
+    "apps/editor/src/components/timeline/animation-preview/index.tsx": "b07c03884ed0f57c9b599320d131957c2210940f7ff37d9fff2fc4cf113a63ff",
     "apps/editor/src/components/timeline/animation-settings/animation-settings.test.ts": "e9ed7b35c0ea4be560c6ef550e4f96fb687bb49845ca74374e98fd1c9e248789",
-    "apps/editor/src/components/timeline/animation-settings/index.tsx": "eb53a1b3e67e513d285fed2ec25a40ce0e53a629b677fc4ab297f946adcd581c",
+    "apps/editor/src/components/timeline/animation-settings/index.tsx": "d7d26e62c24b003c3893a030f616d30d386bf9a4b291fc73dce0bb4464434a4a",
     "apps/editor/src/components/timeline/editor-timeline/editor-timeline.module.css": "d87cf883fddb4a2305b342c309bc25b8b72ca010152233307c73ca004b3693a6",
-    "apps/editor/src/components/timeline/editor-timeline/index.tsx": "6eb59306666cafca319493eba1ede4290a6f7c1b4c6a5e0203a8f5f6c5b319d0",
+    "apps/editor/src/components/timeline/editor-timeline/index.tsx": "93891ef5b0f617658bce222e39b63784bf1111049f8225be11f8dfb8853c9650",
     "apps/editor/src/components/timeline/editor-timeline/timeline-copy-outline.tsx": "7466facb9b7a16208188ecb5589aafe039270020d6bbbbc927d17fa40c7bace1",
     "apps/editor/src/components/timeline/editor-timeline/use-timeline-interactions.test.ts": "4817d2311da7352146d8afc45248508977791d318b5593edb997fcfbe1913c48",
     "apps/editor/src/components/timeline/editor-timeline/use-timeline-interactions.ts": "1763044236ca927eefc79841a02c665b908e34afe5a2f189e76bf1da7a4223c6",
@@ -297,12 +297,12 @@
     "apps/editor/src/components/timeline/timeline-actions/index.tsx": "9f92db09ffffe2e3ace8346cc872a7913a332589cc07149598b9939c265493dc",
     "apps/editor/src/components/timeline/timeline-cell/index.tsx": "b7b50d5b9cd5100925f405a5fd97dc04626368877b4756e618605edece409f06",
     "apps/editor/src/components/timeline/timeline-dialogs/index.tsx": "e4446e74c1e117a9824e25a9d1a4c59f49e961c7e256a41821914578e1983077",
-    "apps/editor/src/components/timeline/timeline-tags/index.tsx": "703aa2a2901a4404e02955c8176dab673ceb64bf04b4f927e3db9f710596a28c",
+    "apps/editor/src/components/timeline/timeline-tags/index.tsx": "df88397b72b07d7a338dcfeb9263afa102b73d05fa22b57f5c9e0e26c686e590",
     "apps/editor/src/components/tools/brush-picker/index.tsx": "d18a3dc6c60c39b80c5d6afaecb2b61b1266c37b08c8dc0c87a5b8f89d77087e",
     "apps/editor/src/components/tools/color-controls/color-controls.module.css": "d41eaad0d55923defe09384a4e9a4d01f3edad7a9a171ba984634fd919a653b4",
     "apps/editor/src/components/tools/color-controls/index.tsx": "e9c30e649f4d57d81d71e4d248c2b34c5920b3944f937b762ef20ebe01c36277",
     "apps/editor/src/components/tools/color-picker/color-picker.module.css": "77e1ecd2fcb29169f6f339ed73a2a6c80c40f702191ed8de5b980baf130e3a7e",
-    "apps/editor/src/components/tools/color-picker/index.tsx": "62aa9c8043eaaa8153d025d49e3110dba50e91c9c7823e972682b6a14d4af822",
+    "apps/editor/src/components/tools/color-picker/index.tsx": "3e18d8afa3f279b7b3ea0c674f424fca8aa785d0edb0ca6d16e9c505d771070a",
     "apps/editor/src/components/tools/color-profile/index.tsx": "9f747197cded552ed2e2da3a79c2c69d464f5a77764d1223d4c8271a31a7625d",
     "apps/editor/src/components/tools/context-bar/context-bar.module.css": "2f5bcaa2afb1a2ff2510eeb09bf2a3adc81b10cbe9776ca1be6574fdf9492a03",
     "apps/editor/src/components/tools/context-bar/index.tsx": "c823bc968ac80b58c5836419344d9d4307e07c9058f20b3e7046cac53cd656cc",
@@ -355,7 +355,7 @@
     "apps/editor/src/components/workspace/workspace-link/index.tsx": "e991e0d194e32e8a48d165ade54315ae521364bfdc78b24fbaa1b33bf9d9ddc8",
     "apps/editor/src/components/workspace/workspace-link/workspace-link.module.css": "60cf1837711bc2b6f053bf10e273a688391f97c97e25feac35c127e1ef6d2546",
     "apps/editor/src/components/workspace/workspace-panel-dock/index.tsx": "10e3e7e15a0604050ddc92a411a8e51a181decc5a8b74442cdbce36d3a886edd",
-    "apps/editor/src/components/workspace/workspace-panel-dock/workspace-panel-dock.module.css": "0c9f9ad05855781fb985cc73593db50123e17936278bfd7bda62460e2ebbcd0e",
+    "apps/editor/src/components/workspace/workspace-panel-dock/workspace-panel-dock.module.css": "a0107b0dafc32683d27c00eed6a5b4abc45a37e20e1037c1e59325d0a5c07647",
     "apps/editor/src/config/external-links.ts": "a2af536ef3f07639d50c3f608aa86307d1e08bf07a73bf4311827724d5dfa78d",
     "apps/editor/src/embedded-runtime.ts": "11308453ec703eff62709432e4a4e5856e21156cbdab502cfe89e1a201bfd38a",
     "apps/editor/src/host-contracts.ts": "081f9b1f40a289f9f24570c6eeeda8e0608d48d85ed09339a67e814c112218e1",
@@ -366,7 +366,7 @@
     "apps/editor/src/managers/agent/agent-tool-definitions.ts": "5caa6790160bfb9a94f60c73e4012503a1127bd206c86f99d7d0de8cb6f67b52",
     "apps/editor/src/managers/agent/agent-tools-manager.ts": "15eebc94001025c1f0917fe41b0598bedb576e5c7d3c65b10bb0d13b35749b00",
     "apps/editor/src/managers/canvas/canvas-manager.ts": "5d6b47b5dba699e0e491389b5023a84a75bf320b82ea8c81487f2a9a0a118963",
-    "apps/editor/src/managers/canvas/canvas-presentation.ts": "4b1ded0408a75e00916a245a924346a3d9c18c34cfc222afbd74f9aa584aa899",
+    "apps/editor/src/managers/canvas/canvas-presentation.ts": "900bc4be3adf8b7b5ed6de65769afba58c927a2aa0fe949a712576488b7b2ce2",
     "apps/editor/src/managers/canvas/cursor-preview.ts": "70db0183b856902edb5f9c9e6b8837003386f3097a222e36331a380f42fff3a7",
     "apps/editor/src/managers/canvas/raster-upload-layout.test.ts": "02e7fc43766c3b86ce4e06264c60e21e60a33fc42e1b723a5c3ac50072edb83b",
     "apps/editor/src/managers/canvas/raster-upload-layout.ts": "33e5a9a07abc0275cc37cb3f378a9f601f83859adc545bed5b96ed89e98e6213",
@@ -774,12 +774,13 @@
     "apps/growth/content/site/images.ts": "912c6a8688e284583abe194c5abb085b695a4d65f79763642982cb2cda93ac7b",
     "apps/growth/content/site/language.test.ts": "ba36d2159b42e2b799232714181f85aa784e340d6caac7fefb3423cca6f3ad2a",
     "apps/growth/content/site/language.ts": "9d0f5f02fa1dcf088a5fd4d395dfdd7b0e99e336028e83bdbcc9826cdbbc0879",
-    "apps/growth/content/site/navigation.ts": "4b985bcc3065ac0068e1111719a80103e6124ab2f89588fca5affa0c8732c149",
+    "apps/growth/content/site/navigation.ts": "bbecce3d37eede5ca6508e47f9919cf9065a1987f0cf436bec8b676400337d75",
     "apps/growth/content/site/pages.ts": "aba7b69961cb982624dd227685040619f16497333424586bee28d5739aff1f88",
     "apps/growth/content/tools/animal-crossing-help.ts": "b229b1bcf51a06dbc95722f7d4f3ba60abce4e92a7d9bf1bfab9186a79407da5",
     "apps/growth/content/tools/gif-sheet-help.ts": "01b441e882c3dbcf1b921a85fd1e392537b93d1004c57add2c023c74cb862fde",
     "apps/growth/content/tools/help.ts": "7c7d6fe861699bbf62dd46a510253400d256a4f4897a17017136a848cf4e5b3b",
-    "apps/growth/content/tools/index.ts": "f8ffe72724812218a1a7d0be46cb1c1561939bb095e5b5b645356c93ce315a80",
+    "apps/growth/content/tools/index.ts": "67830cd258f96fbc671aac84a0237d5846aa8d246b0be1d847c5b084a8949703",
+    "apps/growth/content/tools/pixelate-help.ts": "b03765f6c30c597c897ab7762c256984b605a8b9b93cf6d8fc2c4c94d9536b39",
     "apps/growth/content/tools/viewer-help.ts": "42b96ada68c3f06bbd2411fb036b0a7d0e185043e491e45c9c97b6eb7cdb74fb",
     "apps/growth/content/tools/zh-CN.ts": "f230b6062043a073f1138bc419ad7544342e4415e47f26057e3859a66bf13f66",
     "apps/growth/public/favicon-32.png": "a63bfbf0275dbffcf715eb4295da8179464a829ac39bcebe1d42320b64ee3a52",
@@ -1071,7 +1072,7 @@
     "apps/growth/src/components/public/public-image.module.css": "6c06a0f5d870cb62040f6e4f28d0d3f8acb2c6f396a6469227f225851c08ff8a",
     "apps/growth/src/components/public/public-image.tsx": "be754b211449c91cdfb15e2d5a1139c94ae779f83d3f2986e785a2ae327e48cf",
     "apps/growth/src/components/public/site-preset.module.css": "a7d6854168c035071f76e1bc856ee36aa8dedd35bc701dad328b071e72e9e1ab",
-    "apps/growth/src/components/public/static-ui.tsx": "12a5325d7b234147ca43704e551057068e9f0310c2c082568482c244784efe36",
+    "apps/growth/src/components/public/static-ui.tsx": "add8085f8ae3d9d312a7c240f1f85678c8ed76badd079941f231105c6296aafd",
     "apps/growth/src/components/showcase/showcase-discovery.module.css": "9b5b31bfaefe8e9bb49e2a8703a3bb71bbec2aebcd13de2fb777352351066bdc",
     "apps/growth/src/components/showcase/showcase-discovery.tsx": "5e84ccb785f0d2125152391ce6199c9411fdd8a6809ce786427fb5055c4f06cd",
     "apps/growth/src/components/showcase/showcase-faq.module.css": "7f5fbb50a15fbd84ab022cdb382e9551876194f80b7760fccfef830e19af5001",
@@ -1136,7 +1137,7 @@
     "apps/tools/src/components/animal-crossing/animal-crossing.module.css": "2133ea60b1111afd9ebe843725e67a1aa7e21f70a9a7f09745038524a883de78",
     "apps/tools/src/components/gif-sheet/gif-sheet-page.tsx": "5c22acfcf129dbdb75b7ea581c7eb0f128406fa6ac3e821dc4bff70cd069195b",
     "apps/tools/src/components/gif-sheet/gif-sheet.module.css": "f23f0d194fa7bbf8d1a60135b0f773135bf4e2001d23e7b6536406b8a7c70581",
-    "apps/tools/src/components/pixelation/pixelation-page.tsx": "e12a67e05c25f54f73f835445fb3c17771f8fe3d323fd3ec7bc6522a205e10b2",
+    "apps/tools/src/components/pixelation/pixelation-page.tsx": "68b0ddfe77b23a438acf94ad05eb60672518747f0bca35df672d77a6dac276d5",
     "apps/tools/src/components/pixelation/pixelation.module.css": "db6b97c620c6fe26f364cc7448fe039246ce1cc2de2d184fbac5e14e76c08f5b",
     "apps/tools/src/components/shared/canvas-preview.module.css": "1faa04d69e8a71ad1d5eb69fa6aeaed1108614abb9e8f7acfa24b7f56f4e5ff2",
     "apps/tools/src/components/shared/canvas-preview.tsx": "d0627f2f054e7a3d9ca5e235ea96062eb140921a91335b0816e5ef7cde11ba13",
@@ -1204,7 +1205,7 @@
     "infra/site-telemetry.ts": "9dae1a3d7afa55c7b13385a49ca00a7199d8cb9e57a84eb668a934a784e83b50",
     "infra/tsconfig.dependency-cruiser.json": "d898f50ef61c69e17306be623d9c48789769396559940adf68bc1d09edfd3509",
     "infra/vitest.config.ts": "c0288a13b776dbba4442b4dc797a1c899474d0a212435f7b6057d2d5389fd41c",
-    "package.json": "613b13d48ef59b37b673a53a5eb6deb1f12fe5993642360bc34af0628860d8b9",
+    "package.json": "e464e580b13dd6e78acce49891173a5e4d0245c63a25732012d84a5b543a04d9",
     "packages/bedrock/browser/clipboard.ts": "6e19a831d0de2d901fe0a05d87433d0e4ea8bfc7acdd005c5cc716526747f11a",
     "packages/bedrock/browser/exclusive-lock.ts": "80ef812a097a9aecb1eb44dd05c18a08e96c5be359d0af7343846a186f9e8ff7",
     "packages/bedrock/browser/eyedropper.ts": "90e8aaf7b69334a4482dbda16b0bc66b4b0fdd0726dfc58b8927250031f2a99e",
@@ -1373,7 +1374,7 @@
     "packages/editor-core/src/editor/commands/shortcuts.test.ts": "86daa2b3d2f38fbaab9b3bb1994036e90dd5025166304e8708af39342552ae60",
     "packages/editor-core/src/editor/commands/shortcuts.ts": "707a943bf8eda069314034792c00854657756f18693c9342f2087bf34b49b75d",
     "packages/editor-core/src/editor/commands/types.ts": "62e1385edbb327c4b517cf28c7ef134f526d0be826852888234c1a73b0fa7f81",
-    "packages/editor-core/src/editor/composition.ts": "a9f4099a88e2ab04ff7726fa3c3714012f6b34362e94658859df36660dad860d",
+    "packages/editor-core/src/editor/composition.ts": "806cb2df60b9eaefd242bb6e8e7bac6597429b00a92867a4176b98541bf1975e",
     "packages/editor-core/src/editor/index.ts": "6571726cc8e28f8183246ec5170b115a9d6d48b132831a72b8d8d8f5c1777323",
     "packages/editor-core/src/editor/input/priority-gesture-controller.ts": "3995d946215f2df39f2cc53aeb7470d27c68ff0d0c6863cc12ac419a1f69300f",
     "packages/editor-core/src/editor/input/router.ts": "f87655d6eb10c3ab0120593d8cdcfbf394254a9073d4cdaeeaf68b3792936860",
@@ -1534,7 +1535,7 @@
     "packages/editor-core/src/sprite/index.ts": "2a50723b367dfcd762e43042b293beae89bdb8c4860457c334d06001def1a285",
     "packages/editor-core/src/sprite/properties.test.ts": "600c01687910310deea4106880e4f2ea48499e19cfac2b7472be7c394deb50c2",
     "packages/editor-core/src/sprite/properties.ts": "f65799ec0bf526438b4ded761fe0359ef4ae503bd794171bd2440bce0f4232ad",
-    "packages/editor-core/src/sprite/slice-controller.ts": "226479923ff3f91293a3cb6ed363ed87a937be3c5b8487ea7ecdb12967447038",
+    "packages/editor-core/src/sprite/slice-controller.ts": "5606ed873a23b4c4f977512ce800b055bf145e0b866a636631eee13b90e59175",
     "packages/editor-core/src/sprite/slice-metadata.test.ts": "eaeb6b81c9e97465ce825cdd8d93cd4180807525ebef57d6034bc6e015527ece",
     "packages/editor-core/src/sprite/slice-metadata.ts": "51ebb0e3dea2c469c805bdb2c89768e6c15d0d386d2027563f1606c8c40d37aa",
     "packages/editor-core/src/sprite/slices.ts": "7a6486a22fd84c281248f92536d6f8562c9429b8d4ab4b119a2dfe8f4bcdc62b",
@@ -1585,7 +1586,7 @@
     "packages/editor-core/src/timeline/viewport-renderer.ts": "1538c1fdd40810137228fc6ade348e373d45b85e41de7d020d2f50f4c8998d88",
     "packages/editor-ui/package.json": "2b5ca5bea6116ba807daa2cd7686e850e2d0bab53a2e4a2e5cbd07f76c778845",
     "packages/editor-ui/src/animal-crossing/grid-overlay.module.css": "cb9cacfcd56d6745dc461683d9e37b9d3b23f43c633efc3445e6d6c2597665e3",
-    "packages/editor-ui/src/animal-crossing/grid-overlay.tsx": "93336bd553365a21540a0abe74082161b98245fac681f965aba659a0da610f76",
+    "packages/editor-ui/src/animal-crossing/grid-overlay.tsx": "3f55c7ceeeb79c9edc96b2f13e651e7057c35e1a7faef6b4b1087b6839fc451f",
     "packages/editor-ui/src/animal-crossing/index.ts": "7a1ec4b3f9a80c86ea1dbb5588af7e20c0747df913d6d346106808ade727b209",
     "packages/editor-ui/src/animal-crossing/preview-client.ts": "b684731fafaa2d0aa73db36689a54b2b365d33cc30ff345d2ac13284c3b367bd",
     "packages/editor-ui/src/animal-crossing/preview-types.ts": "8f8532d97c6e9dbacc28c0d81168acf2ec83726e434277f9da3fdb918be75bc8",
@@ -1595,11 +1596,11 @@
     "packages/editor-ui/src/assets.d.ts": "00a558ca41e878c67239d4026b1d53eca70a77ab92c0cc5c5240b4fea185e4d4",
     "packages/editor-ui/src/env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
     "packages/editor-ui/src/index.ts": "e2b6f48ae5a2f4e9b2effa9b3876750b7a18189d0521f8bb99b128cfeea10ca3",
-    "packages/editor-ui/src/palette-presets.ts": "a99abee0549b59b3446194af9bacc5800d1f284aa54821e9f36ed638d57ca817",
+    "packages/editor-ui/src/palette-presets.ts": "2643a4f5e899e34b1e64a8f58ec4ed22740e647917d64aabf9a8efa372bac319",
     "packages/editor-ui/src/palette/index.ts": "64383823d62155af7b28c54003e5f44f17361091397714fcaf02b99c651e2193",
     "packages/editor-ui/src/palette/model.ts": "b2e2676a40cfc17e541135f446f59592ca886af330c26e1c1d5d05c800de3023",
     "packages/editor-ui/src/palette/palette-preset-popup.module.css": "2692af9a75744f13c8175e4ea55c6cd7f92bca0177b43182ca384898180cc631",
-    "packages/editor-ui/src/palette/palette-preset-popup.tsx": "10d7b3a2882e4e82adca91f0f175124131ef381f1c460e271d50e2fa64c196f4",
+    "packages/editor-ui/src/palette/palette-preset-popup.tsx": "e40f4d16486a7e9ce8e26a1f74f4071e74f7e02feceec0c956f1c55dc3bdb558",
     "packages/editor-ui/src/pixelation/index.tsx": "6a2c0a23450976aa4d0e5e386af7b019b2d649b895a4765fb17259324b5e44ad",
     "packages/editor-ui/src/pixelation/palette-control.tsx": "e14cf5e4f3cf8cf68545bd8c4d9f57fa0cfa916b762f626b155738d21ed1be18",
     "packages/editor-ui/src/pixelation/pixelation.module.css": "80f344ff0d13cac21c28294733afe82923d87a1e26122d20dc5724144cad18ad",
@@ -1854,7 +1855,7 @@
     "packages/ui/assets/themes/aseprite/aseprite-theme-sheet.webp": "f3ee9649c81778883c1b91b02678d6de6a767fcd729210f13eead7cde78c6a09",
     "packages/ui/assets/themes/macintosh/macintosh-dark-sheet.webp": "049ec910079a45c9fab405485c173c1d7d60c8495d2f386b7303dcecebbfc7c0",
     "packages/ui/assets/themes/macintosh/macintosh-light-sheet.webp": "d5140e80aa74d47fb0288a4c06fb5a37abbb728b9693f013dfbee16b9fea7882",
-    "packages/ui/assets/themes/macintosh/macintosh-site.css": "6f96d5ad1d78f47f2f57eefd48416f67200f430c19a33e5c65fd68b856ec234a",
+    "packages/ui/assets/themes/macintosh/macintosh-site.css": "f47758e3c86b43a5b9710b3988933b5ea77355f9e2a69203bbf1d28295d9dda9",
     "packages/ui/assets/themes/macintosh/palette.json": "c431b097a69cb8da37026d0196062d2d98674dc2e51a55c9ab9d725dfb8eda6e",
     "packages/ui/package.json": "c8f9906805dc7fefbc29eb9bfce3f20192ca40af610324f1b33c78b259a3c04b",
     "packages/ui/src/assets.ts": "ab0915af3b2a0085d8d83257f582d6968a4260e35cd9d9bbc1c921a563060b69",
@@ -1921,7 +1922,7 @@
     "packages/ui/src/base/theme/themes/macintosh/index.ts": "4119bc273f36bec55301c45f413a20a5c202fcc17503944bd45d4bd03761d96e",
     "packages/ui/src/base/theme/themes/macintosh/public-surface-tokens.ts": "b58aab18d61d537dcb72a512e8c1504f74c648da520c54f23e3df05b87a72ee1",
     "packages/ui/src/base/theme/themes/macintosh/shortcut-artwork.ts": "58be70d0a9795833505fb6bb33bd3cc9190c5898df23c3d44d33d0e880fcc376",
-    "packages/ui/src/base/theme/themes/macintosh/typography.ts": "b528af9b62db8bc6794a92d16c4825ae1012f52b9aea5de1779f068f44f2b2ab",
+    "packages/ui/src/base/theme/themes/macintosh/typography.ts": "e81edb4b3d7c4741e460eb5eaa76ccd60492ea984e919d6b022f69e61c446a6b",
     "packages/ui/src/base/theme/toast-tokens.ts": "60e61f4b6e018805c3dcddd80d4cd2ac469dc08f4a2a5610ff44cf910f61dbf2",
     "packages/ui/src/base/theme/typography-tokens.ts": "7ecebda0d0485af706af0a4dbc6a849a480a0bebca493892f597d280254f5dca",
     "packages/ui/src/base/theme/ui-assets.ts": "caefd3294ae4761e8bb6a3b3b9c3977964833d46a49e07ce4e0adb2483b0b560",
@@ -2000,7 +2001,7 @@
     "packages/ui/src/components/curve-editor/curve-editor.module.css": "4eeff8d77b51c306639d238c8cef149dec1f679948752a6535075d36071616da",
     "packages/ui/src/components/curve-editor/index.test.ts": "21c8ae89c959bab4287d0336a2625743d2549e8b3ae2c68142b421737b8610f9",
     "packages/ui/src/components/curve-editor/index.tsx": "715a17304321297b59055aa426cf906c7d7c8a98ee3b199b5591ea70d330628a",
-    "packages/ui/src/components/disclosure/disclosure.module.css": "827201d6e535521fbe0a7abd618eb0157d137b7440244a9cfaedaa59131d28bc",
+    "packages/ui/src/components/disclosure/disclosure.module.css": "d357a41a3851d763467928301d701285b9984e1967c81d9052afbf7b8a54c052",
     "packages/ui/src/components/disclosure/index.tsx": "925053a1e427763ba4d5747d3f607cd59230ce03b2529e714b8b396d237d782e",
     "packages/ui/src/components/divider/divider.module.css": "e6303b775b943e0d92d123ce01a5ce13cad4807c1a2fd0a17e5d3b1dbf9911f0",
     "packages/ui/src/components/divider/index.tsx": "193d8986226e0644cefddc90d22535ce96ea182ec60bbd1a3570d683054c6e3c",
@@ -2114,7 +2115,7 @@
     "packages/ui/src/components/text/variants/positioned-pixel/index.tsx": "c31cd3b30c3d6677f4f9307b76b59874087a13d6b363318c6e7c412e4bff2377",
     "packages/ui/src/components/text/variants/positioned-pixel/positioned.module.css": "055cc22cdf162fac9b41275012941c2470d45aa1603dd6c1f73994292e7110cc",
     "packages/ui/src/components/theme/index.ts": "2eedda3837f1fafd2927d5745b052da9f4fb660682663bc9e966a5b9e3f52b61",
-    "packages/ui/src/components/theme/portal.tsx": "2887aeee090f48aeca43ded2d015e5f2872890c4c8817535e86acf4662226f34",
+    "packages/ui/src/components/theme/portal.tsx": "2acf2455151086cb038dd9f7427fae2c7f57477906bd3f4b330e555119101c85",
     "packages/ui/src/components/theme/provider.tsx": "51346937766ab053264a08ab51745d8c7d94ccb2d834b04acf21d64ab66fcf58",
     "packages/ui/src/components/toast/index.tsx": "003b6084ec28757a194a7872c199a8cf8968003be6a47cc1721a828205a34457",
     "packages/ui/src/components/toast/toast.module.css": "646e794de7cca35d30553c207d78abd493f663b975d7a29c64950baeee4e1e9c",
@@ -2168,7 +2169,7 @@
     "scripts/visual-audit/site/sources.mjs": "19e78a016dc040ea7ee423018fdab627b358eb07ca0be634355804deae975d59",
     "scripts/visual-audit/tools-startup/scenes.mjs": "8bba4f27b52bd875a1b48b81d85833a68475d222db949d040d3aac79e068eb1b"
   },
-  "sourceDigest": "4be88475ba966adb612c461f6e2b856041365cf6fd3585ec62851905b99988a1",
+  "sourceDigest": "d1c011c85dd9d67ff30d12dfab5591f6e3eea87505d0799d7d2d091f260906e2",
   "scenes": [
     "about-zh-CN-wide-light",
     "about-zh-CN-compact-light",
@@ -2207,7 +2208,7 @@
   "cases": [
     {
       "id": "about-zh-CN-wide-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "about-zh-CN-wide-light.png",
       "contract": {
         "id": "about-zh-CN-wide-light",
@@ -2243,7 +2244,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:42:21.498Z",
+        "capturedAt": "2026-10-11T17:03:44.961Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2271,7 +2272,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "7233da9baa63ec99a7a30b2438eea4a994a4d5532b2b18007d4729d39e9cdbc8",
+        "sha256": "4530216c51ee647b2b7a8dd26ed9b61bf732adf290e2f276d94bc67e24778a71",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2307,7 +2308,7 @@
     },
     {
       "id": "about-zh-CN-compact-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "about-zh-CN-compact-light.png",
       "contract": {
         "id": "about-zh-CN-compact-light",
@@ -2343,7 +2344,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:42:23.605Z",
+        "capturedAt": "2026-10-11T17:03:45.620Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2407,7 +2408,7 @@
     },
     {
       "id": "about-features-zh-CN-compact-dark",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "about-features-zh-CN-compact-dark.png",
       "contract": {
         "id": "about-features-zh-CN-compact-dark",
@@ -2443,7 +2444,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:42:26.464Z",
+        "capturedAt": "2026-10-11T17:03:47.399Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2507,7 +2508,7 @@
     },
     {
       "id": "about-how-it-works-en-wide-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "about-how-it-works-en-wide-light.png",
       "contract": {
         "id": "about-how-it-works-en-wide-light",
@@ -2543,7 +2544,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:42:32.657Z",
+        "capturedAt": "2026-10-11T17:03:49.929Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2571,7 +2572,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "a26a71522f88c926d01c302cf481f74e61bcbcb6783591a2422bfdeaa21fcd19",
+        "sha256": "7426c9af3cc5450dc8cb0e25c0abbc4fa29b4174b8567e53efc24662d552f188",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2607,7 +2608,7 @@
     },
     {
       "id": "compare-zh-CN-compact-dark",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "compare-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-zh-CN-compact-dark",
@@ -2643,7 +2644,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:42:35.365Z",
+        "capturedAt": "2026-10-11T17:03:52.136Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2671,7 +2672,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "4a0baa4b6d3612c205e9a9d9c714b4d756650443e301c255930b59b1f06784f9",
+        "sha256": "9b6ce7afbb2303308eb5913a7b59416481824e6be26e72b8ac7903f380c2873c",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2707,7 +2708,7 @@
     },
     {
       "id": "compare-aseprite-on-ipad-en-wide-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "compare-aseprite-on-ipad-en-wide-light.png",
       "contract": {
         "id": "compare-aseprite-on-ipad-en-wide-light",
@@ -2743,7 +2744,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:42:40.080Z",
+        "capturedAt": "2026-10-11T17:03:55.296Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2771,7 +2772,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "7d5578bccdfd7792026cd75f826d1fe484c5b25dadd135aaf19cf1808f3f4694",
+        "sha256": "26f9f93c74a25dabd1f18f1523fe3580741eb24a58551f374bbb83ce4e70367d",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2807,7 +2808,7 @@
     },
     {
       "id": "compare-aseprite-online-zh-CN-compact-dark",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "compare-aseprite-online-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-aseprite-online-zh-CN-compact-dark",
@@ -2843,7 +2844,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:42:44.572Z",
+        "capturedAt": "2026-10-11T17:03:58.172Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2871,7 +2872,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "cc16e8a2feed35b06b2edfcd37b344b47c4c8bb92c93bd125bf887f1364d1b0b",
+        "sha256": "4c39a0c8d0165977e091688e5a7e8bdb8769a80ba30cf35f6a618e032676f162",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2907,7 +2908,7 @@
     },
     {
       "id": "compare-piskel-alternatives-en-wide-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "compare-piskel-alternatives-en-wide-light.png",
       "contract": {
         "id": "compare-piskel-alternatives-en-wide-light",
@@ -2943,7 +2944,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:42:48.048Z",
+        "capturedAt": "2026-10-11T17:04:00.925Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3007,7 +3008,7 @@
     },
     {
       "id": "features-aseprite-projects-zh-CN-compact-dark",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "features-aseprite-projects-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-aseprite-projects-zh-CN-compact-dark",
@@ -3043,7 +3044,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:42:50.383Z",
+        "capturedAt": "2026-10-11T17:04:02.792Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3071,7 +3072,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "7a282d15f2ca7858123b1c3b338e25106a846caf56bbb872bd1af5403fd76671",
+        "sha256": "2aea72ec56940025add3533326c661a61ceabb768aad86bb7d2ca20912983c00",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3107,7 +3108,7 @@
     },
     {
       "id": "features-draw-pixel-art-en-wide-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "features-draw-pixel-art-en-wide-light.png",
       "contract": {
         "id": "features-draw-pixel-art-en-wide-light",
@@ -3143,7 +3144,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:42:52.574Z",
+        "capturedAt": "2026-10-11T17:04:04.675Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3171,7 +3172,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "47c8e3c2159d78b5c65a25f1fd2b76a41e86d34baab7095468792a793f112bdf",
+        "sha256": "8ab22fee236d5790a52b084ba0b029e5e5c5bf8f083fa1f64b6d155b15f3a23a",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3207,7 +3208,7 @@
     },
     {
       "id": "features-drawing-process-zh-CN-compact-dark",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "features-drawing-process-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-drawing-process-zh-CN-compact-dark",
@@ -3243,7 +3244,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:42:54.803Z",
+        "capturedAt": "2026-10-11T17:04:06.362Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3307,7 +3308,7 @@
     },
     {
       "id": "features-export-images-and-animation-en-wide-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "features-export-images-and-animation-en-wide-light.png",
       "contract": {
         "id": "features-export-images-and-animation-en-wide-light",
@@ -3343,7 +3344,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:42:56.723Z",
+        "capturedAt": "2026-10-11T17:04:08.001Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3371,7 +3372,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "c9a457e71ac4c6577eeccdf4ddab8562ac0c052ecb15da32a98d75b631934d6a",
+        "sha256": "416f6ac1dbb1823ca395d90033f25709531b532be1df116846ab0c2cc399d9b4",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3407,7 +3408,7 @@
     },
     {
       "id": "features-frame-animation-zh-CN-compact-dark",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "features-frame-animation-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-frame-animation-zh-CN-compact-dark",
@@ -3443,7 +3444,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:01.227Z",
+        "capturedAt": "2026-10-11T17:04:09.677Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3507,7 +3508,7 @@
     },
     {
       "id": "features-layers-and-colors-en-wide-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "features-layers-and-colors-en-wide-light.png",
       "contract": {
         "id": "features-layers-and-colors-en-wide-light",
@@ -3543,7 +3544,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:04.171Z",
+        "capturedAt": "2026-10-11T17:04:11.222Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3571,7 +3572,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "582f9b1edf0f492bbf76b4444832e9a6232a0d172b442cf2c1d3be6d7e8b4541",
+        "sha256": "e3ab5a9a60d3fc2cd5dfe7fc9c26efafef4b39e077eb80d8f82b42ffc7d545ac",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3607,7 +3608,7 @@
     },
     {
       "id": "features-share-artwork-zh-CN-compact-dark",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "features-share-artwork-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-share-artwork-zh-CN-compact-dark",
@@ -3643,7 +3644,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:06.164Z",
+        "capturedAt": "2026-10-11T17:04:12.991Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3707,7 +3708,7 @@
     },
     {
       "id": "features-tilemaps-en-wide-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "features-tilemaps-en-wide-light.png",
       "contract": {
         "id": "features-tilemaps-en-wide-light",
@@ -3743,7 +3744,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:08.240Z",
+        "capturedAt": "2026-10-11T17:04:14.934Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3771,7 +3772,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "b29b8842b6ef0faa47aa28179bfceff5f3dd701a83b0971d4c982a88b895bb6f",
+        "sha256": "d599bc4ab67f4b75a803e8712014f6570060ca303b0de4049f36db58c34a6b18",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3807,7 +3808,7 @@
     },
     {
       "id": "features-touch-drawing-zh-CN-compact-dark",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "features-touch-drawing-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-touch-drawing-zh-CN-compact-dark",
@@ -3843,7 +3844,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:10.107Z",
+        "capturedAt": "2026-10-11T17:04:17.043Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3907,7 +3908,7 @@
     },
     {
       "id": "features-workspace-layout-en-wide-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "features-workspace-layout-en-wide-light.png",
       "contract": {
         "id": "features-workspace-layout-en-wide-light",
@@ -3943,7 +3944,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:12.646Z",
+        "capturedAt": "2026-10-11T17:04:18.983Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3971,7 +3972,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "a65bc5cccc0eb5b75d0e5f02feb243ab6571434634af4f09561292e4acf89663",
+        "sha256": "6e790afb76a5b7d4f79a379503719988aba5c1dbc1d45ed25623f036e8ab94dd",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4007,7 +4008,7 @@
     },
     {
       "id": "help-zh-CN-compact-dark",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "help-zh-CN-compact-dark.png",
       "contract": {
         "id": "help-zh-CN-compact-dark",
@@ -4043,7 +4044,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:15.504Z",
+        "capturedAt": "2026-10-11T17:04:22.118Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4071,7 +4072,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "9d9a3ee654fb784d076fc6c06d784c5427daee422c288b70a006442d1036622e",
+        "sha256": "9d8e524f81be34510a24c36bf4d67e6059a240c260fda841e85f7c71e52518fd",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4107,7 +4108,7 @@
     },
     {
       "id": "privacy-en-wide-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "privacy-en-wide-light.png",
       "contract": {
         "id": "privacy-en-wide-light",
@@ -4143,7 +4144,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:17.033Z",
+        "capturedAt": "2026-10-11T17:04:23.934Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4171,7 +4172,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "3bc0a7c053ce6adc34e2bd3e8a5e71a7b7d10e596977cd6740da10e046760d0c",
+        "sha256": "299c2a486c25e1fe1ec2e827cad79fb848ef644273c4b6f915cd75b64c9c2c18",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4207,7 +4208,7 @@
     },
     {
       "id": "tools-viewer-empty-en-wide-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "tools-viewer-empty-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-empty-en-wide-light",
@@ -4244,7 +4245,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:19.166Z",
+        "capturedAt": "2026-10-11T17:04:25.237Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4272,7 +4273,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "8f15ffe0e39db5a323f40b4370aa50cd420af9216d3660a8b6ee50200b080cfd",
+        "sha256": "2b84c2f4d77a4a0e4b9fe440296d01bd600daec177b0bb28cecd9f79eb08ae4d",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4308,7 +4309,7 @@
     },
     {
       "id": "tools-viewer-loaded-en-wide-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "tools-viewer-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-loaded-en-wide-light",
@@ -4350,7 +4351,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:21.553Z",
+        "capturedAt": "2026-10-11T17:04:26.647Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4378,7 +4379,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "bba862596d0a8e3d329866974642dd924717392db83d717ecd2b6f9d7826ebcf",
+        "sha256": "09c765a23296b566f70c387a6623cf96d99ba4bbc0d6e6568a76433eeb23422b",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4421,7 +4422,7 @@
     },
     {
       "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
@@ -4458,7 +4459,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:23.098Z",
+        "capturedAt": "2026-10-11T17:04:27.829Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4486,7 +4487,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "90dabe2200e700aa9f63806706978ebb3de8d298869f2692d22fcd4ed044d42f",
+        "sha256": "9a82000f3688c9d51665b813b0c0e4362481933e73e494b027287e6a1253c9b4",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4522,7 +4523,7 @@
     },
     {
       "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
@@ -4564,7 +4565,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:24.706Z",
+        "capturedAt": "2026-10-11T17:04:29.135Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4592,7 +4593,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "c0ca0cf3d575563989af746ddeb287ef97071d06b08444719228796ca02de77d",
+        "sha256": "be8a3b9c68c164a289e8eaaf703871de04411c90fc4dd2b9c29cdb63d39c9d50",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4635,7 +4636,7 @@
     },
     {
       "id": "tools-pixelate-empty-en-wide-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "tools-pixelate-empty-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-empty-en-wide-light",
@@ -4672,7 +4673,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:26.168Z",
+        "capturedAt": "2026-10-11T17:04:30.392Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4700,7 +4701,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "d1c03a556e2854c935a50f88e3b225e6fd6a5ef4cb5e0bc4a40a8433fc1cee07",
+        "sha256": "2e613912a26fc1342a997d258912d7d6da50da350ec52eaaccf6e3705d8b9a20",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4736,7 +4737,7 @@
     },
     {
       "id": "tools-pixelate-loaded-en-wide-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "tools-pixelate-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-loaded-en-wide-light",
@@ -4778,7 +4779,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:28.493Z",
+        "capturedAt": "2026-10-11T17:04:32.001Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4806,7 +4807,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "1f48ce0a1b75baba1b73f560c36ec5ce8389760a2634ef3d5f2119db326bce03",
+        "sha256": "0387e3f4f5a78c566a954426bc47cf46e80a589b03733e5752f924a4937dcca7",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4849,7 +4850,7 @@
     },
     {
       "id": "tools-animal-crossing-qr-empty-en-compact-dark",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "tools-animal-crossing-qr-empty-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-empty-en-compact-dark",
@@ -4886,7 +4887,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:29.778Z",
+        "capturedAt": "2026-10-11T17:04:33.227Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4914,7 +4915,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "9de482d79c3acc2ce8ca112a31ca12f589d90bc59c611d5bfad671e522335106",
+        "sha256": "d87a67b29e9771e719502255e04dcfb5f380538e69151770f5a3547b44df7e66",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4950,7 +4951,7 @@
     },
     {
       "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "tools-animal-crossing-qr-loaded-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
@@ -4992,7 +4993,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:31.159Z",
+        "capturedAt": "2026-10-11T17:04:34.504Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5020,7 +5021,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "21bcfd51cae892c4cfd7b0f29f69645fe31897a9a47b8b510d98c0bcda1a6c24",
+        "sha256": "8f9dd76f0b9d1709f3986c53f5ffc157556bf0f167e20c3c33c544b106537e90",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5063,7 +5064,7 @@
     },
     {
       "id": "about-features-en-compact-dark",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "about-features-en-compact-dark.png",
       "contract": {
         "id": "about-features-en-compact-dark",
@@ -5099,7 +5100,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:33.908Z",
+        "capturedAt": "2026-10-11T17:04:36.126Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5163,7 +5164,7 @@
     },
     {
       "id": "feature-window-features-draw-pixel-art-en-wide-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "feature-window-features-draw-pixel-art-en-wide-light.png",
       "contract": {
         "id": "feature-window-features-draw-pixel-art-en-wide-light",
@@ -5205,7 +5206,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:37.060Z",
+        "capturedAt": "2026-10-11T17:04:38.048Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5276,7 +5277,7 @@
     },
     {
       "id": "feature-window-features-layers-and-colors-zh-CN-compact-dark",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "feature-window-features-layers-and-colors-zh-CN-compact-dark.png",
       "contract": {
         "id": "feature-window-features-layers-and-colors-zh-CN-compact-dark",
@@ -5319,7 +5320,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:38.969Z",
+        "capturedAt": "2026-10-11T17:04:40.195Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5347,7 +5348,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "a2d7f285b312fbb7bcaf18a29845a1aa7f1395e1e9cb34c7f02700a693f39562",
+        "sha256": "dbaf911c6bfdce149b271f241a169b6f7d5e21e33c159658f09d8aec752ab830",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5390,7 +5391,7 @@
     },
     {
       "id": "site-footer-en-wide-light",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "site-footer-en-wide-light.png",
       "contract": {
         "id": "site-footer-en-wide-light",
@@ -5423,7 +5424,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:40.656Z",
+        "capturedAt": "2026-10-11T17:04:41.733Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5480,7 +5481,7 @@
     },
     {
       "id": "site-footer-zh-CN-compact-dark",
-      "runId": "5de276a0-1cbe-45f7-9373-5bff85225b3a",
+      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
       "file": "site-footer-zh-CN-compact-dark.png",
       "contract": {
         "id": "site-footer-zh-CN-compact-dark",
@@ -5513,7 +5514,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T15:43:42.238Z",
+        "capturedAt": "2026-10-11T17:04:43.412Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
