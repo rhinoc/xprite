@@ -4,7 +4,7 @@ import type {
   AnimalCrossingResult,
 } from "@xprite/editor-core/import-export";
 
-export interface AnimalCrossingPreview {
+interface AnimalCrossingPreview {
   result: AnimalCrossingResult;
   selected: number;
   qr: PixelBuffer;
