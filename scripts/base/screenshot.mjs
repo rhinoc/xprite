@@ -20,6 +20,8 @@ const PAGE_NAVIGATION_RETRY_DELAY_MILLISECONDS = 1_000;
 const SCREENSHOT_TIMEOUT_MESSAGE = "CDP request timed out: Page.captureScreenshot";
 const TRANSIENT_NAVIGATION_ERROR =
   /net::ERR_(?:CONNECTION_REFUSED|CONNECTION_RESET|EMPTY_RESPONSE|HTTP_RESPONSE_CODE_FAILURE)/;
+const COMMITTED_INTERACTIVE_NAVIGATION_TIMEOUT =
+  /page\.goto timed out after \d+ms waiting for load; navigation committed at .+ with document\.readyState="interactive"/;
 const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const filename = (value) => (value instanceof URL ? fileURLToPath(value) : value);
 
@@ -30,10 +32,9 @@ export async function navigateWithTransientRetry(page, url) {
       await page.goto(url);
       return;
     } catch (error) {
-      if (
-        attempt >= PAGE_NAVIGATION_RETRIES ||
-        !TRANSIENT_NAVIGATION_ERROR.test(error instanceof Error ? error.message : String(error))
-      )
+      const message = error instanceof Error ? error.message : String(error);
+      if (COMMITTED_INTERACTIVE_NAVIGATION_TIMEOUT.test(message)) return;
+      if (attempt >= PAGE_NAVIGATION_RETRIES || !TRANSIENT_NAVIGATION_ERROR.test(message))
         throw error;
       await page.goto("about:blank");
       await new Promise((resolve) =>
