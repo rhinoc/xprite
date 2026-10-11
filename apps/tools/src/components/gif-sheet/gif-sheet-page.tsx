@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 
 import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
+import { ToolHelp } from "$/components/shared/tool-help";
 import {
   GifSheetDownload,
   GifSheetLayout,
@@ -10,6 +11,7 @@ import {
 } from "$/managers/gif-sheet/gif-sheet-manager";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import { GIF_SHEET_TOOL } from "$/managers/tools/tool-catalog";
+import { GIF_SHEET_HELP, GifSheetHelpSection } from "@xprite/growth-content/tools";
 import {
   ContentLayout,
   SurfaceTone,
@@ -79,6 +81,7 @@ export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
   return (
     <FileToolShell
       tool={GIF_SHEET_TOOL}
+      help={<ToolHelp id={GifSheetHelpSection.Overview} content={GIF_SHEET_HELP} />}
       filename={snapshot.name}
       busy={busy}
       ready={ready}

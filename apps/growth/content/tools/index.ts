@@ -1,6 +1,9 @@
 import { PublicLanguage } from "../site/language.ts";
 import { TOOL_CHINESE_TEXT } from "./zh-CN.ts";
 
+export { ANIMAL_CROSSING_HELP, AnimalCrossingHelpSection } from "./animal-crossing-help.ts";
+export { GIF_SHEET_HELP, GifSheetHelpSection } from "./gif-sheet-help.ts";
+export type { ToolHelpContent } from "./help.ts";
 export { VIEWER_EXPORT_HELP, ViewerHelpSection } from "./viewer-help.ts";
 
 export function translateToolText(source: string, language: string): string {

@@ -1,7 +1,7 @@
 import { useEffect, useSyncExternalStore } from "react";
 
 import { FileToolShell } from "$/components/shared/file-tool-shell";
-import { ViewerHelp } from "$/components/viewer/viewer-help";
+import { ToolHelp } from "$/components/shared/tool-help";
 import { ViewerPreview } from "$/components/viewer/viewer-preview";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import { VIEWER_TOOL } from "$/managers/tools/tool-catalog";
@@ -10,6 +10,7 @@ import {
   ViewerExportFormat,
   type ViewerManager,
 } from "$/managers/viewer/viewer-manager";
+import { VIEWER_EXPORT_HELP, ViewerHelpSection } from "@xprite/growth-content/tools";
 
 export function ViewerPage({ manager }: { manager: ViewerManager }) {
   const t = useToolTranslation();
@@ -36,7 +37,7 @@ export function ViewerPage({ manager }: { manager: ViewerManager }) {
   return (
     <FileToolShell
       tool={VIEWER_TOOL}
-      help={<ViewerHelp />}
+      help={<ToolHelp id={ViewerHelpSection.Overview} content={VIEWER_EXPORT_HELP} />}
       filename={snapshot.name}
       busy={busy}
       ready={ready}

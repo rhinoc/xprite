@@ -1,5 +1,6 @@
 import { useToolLanguage } from "$/managers/locale/tool-language";
-import { VIEWER_EXPORT_HELP, ViewerHelpSection } from "@xprite/growth-content/tools";
+import type { PublicLanguage } from "@xprite/growth-content/language";
+import type { ToolHelpContent } from "@xprite/growth-content/tools";
 import {
   Disclosure,
   Panel,
@@ -10,14 +11,21 @@ import {
   ScrollArea,
 } from "@xprite/ui";
 
-import styles from "$/components/viewer/viewer-help.module.css";
+import styles from "$/components/shared/tool-help.module.css";
 
-export function ViewerHelp() {
+/** A tool's help note: introduction, collapsible task sections and a closing paragraph. */
+export function ToolHelp({
+  id,
+  content,
+}: {
+  id: string;
+  content: Readonly<Record<PublicLanguage, ToolHelpContent>>;
+}) {
   const { language } = useToolLanguage();
-  const help = VIEWER_EXPORT_HELP[language];
+  const help = content[language];
   return (
     <Panel
-      id={ViewerHelpSection.Overview}
+      id={id}
       className={styles.help}
       aria-label={help.title}
       title={help.title}
@@ -49,7 +57,7 @@ export function ViewerHelp() {
           </Disclosure>
         ))}
         <RichText>
-          <p>{help.editing}</p>
+          <p>{help.closing}</p>
         </RichText>
       </ScrollArea>
     </Panel>
