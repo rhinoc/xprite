@@ -4,7 +4,7 @@ import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
 import { isOwnedOverlayTarget } from "$/components/window/interaction";
 
 const DIALOG_SELECTOR = '[role="dialog"]';
-export const DIALOG_EDITABLE_SELECTOR =
+const DIALOG_EDITABLE_SELECTOR =
   'input,textarea,[contenteditable="true"],[contenteditable="plaintext-only"]';
 
 /** Keep modal focus without reopening an editable control's software keyboard. */
