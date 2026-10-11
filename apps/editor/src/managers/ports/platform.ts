@@ -1,5 +1,6 @@
 import type { AnimalCrossingExportPort } from "$/managers/ports/animal-crossing-export";
 import type { ColorSamplingPort } from "$/managers/ports/color-sampling";
+import type { ExportOutputPort } from "$/managers/ports/export-output";
 import type { LocalFontsPort } from "$/managers/ports/local-fonts";
 import type { ProjectSharingPort } from "$/managers/ports/sharing";
 import type { ShortcutFilePort } from "$/managers/ports/shortcut-files";
@@ -87,6 +88,7 @@ interface EditorFilePort {
     request: PaletteFileSaveRequest,
   ): Promise<{ name: string; bytes: Uint8Array } | null>;
   animalCrossingExport?: AnimalCrossingExportPort;
+  exportOutput?: ExportOutputPort;
   sharing?: ProjectSharingPort;
   webp?: WebpExportPort;
   decodeAsepriteBlob(blob: Blob, fileName: string): Promise<SessionProject>;

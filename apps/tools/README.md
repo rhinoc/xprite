@@ -163,3 +163,14 @@ Tool-host and initial-artwork contexts keep their identities across hot updates,
 so independently refreshed providers and consumers remain connected. Static asset
 resolution reads the current asset package's exports and watches its manifest,
 avoiding stale Node package-export caches after adding an example asset.
+
+## Fuse Bead Pattern Maker
+
+`/tools/fuse-beads/` opens PNG, JPEG, WebP and Aseprite artwork locally. Its manager owns
+source frames, grid dimensions, aspect locking, brand selection, board selection and output
+state. It does not read or write editor preferences, projects, history or palette state.
+The color records in `@xprite/palette-assets/beads` and the quantization, raster chart and
+vector PDF functions in editor-core are shared with the editor exporter. The page uses
+`FileToolShell`, native shared controls and `ToolCanvasPreview` for file input and navigation.
+The original Hello artwork is reused through `@xprite/site-assets`; it is not copied.
+The entry participates in the tool registry, site discovery, static first paint and hydration.

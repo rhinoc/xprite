@@ -25,6 +25,7 @@ import styles from "$/components/showcase/showcase-discovery.module.css";
 
 type DiscoveryLanguage = Parameters<typeof showcaseDiscovery>[0];
 const TOOL_ICONS = {
+  "/tools/fuse-beads/": IconKind.Image,
   "/tools/viewer/": IconKind.Search,
   "/tools/gif-to-sprite-sheet/": IconKind.Image,
   "/tools/animal-crossing-qr/": IconKind.Map,

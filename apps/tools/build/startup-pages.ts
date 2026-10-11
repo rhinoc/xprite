@@ -17,6 +17,7 @@ import {
   GIF_SHEET_TOOL,
   PIXELATE_TOOL,
   ANIMAL_CROSSING_TOOL,
+  BEADS_TOOL,
   TOOL_HEADING_ID,
   toolHeading,
   translateToolText,
@@ -38,8 +39,9 @@ const TOOL_BY_ROOT = {
   "gif-sheet-root": GIF_SHEET_TOOL,
   "pixelation-root": PIXELATE_TOOL,
   "animal-crossing-root": ANIMAL_CROSSING_TOOL,
+  "beads-root": BEADS_TOOL,
 };
-const ROOT_IDS = ["viewer-root", "gif-sheet-root", "pixelation-root", "animal-crossing-root"];
+const ROOT_IDS = ["viewer-root", "gif-sheet-root", "pixelation-root", "animal-crossing-root", "beads-root"];
 const jsonForHtml = (value: unknown) => JSON.stringify(value).replaceAll("<", "\\u003c");
 const escapeHtml = (value: string) =>
   value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");

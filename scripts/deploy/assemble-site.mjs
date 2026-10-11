@@ -7,6 +7,7 @@ import {
   applyEditorSearchMetadata,
   applyGifSheetSearchMetadata,
   applyAnimalCrossingSearchMetadata,
+  applyBeadSearchMetadata,
   applyPixelateSearchMetadata,
   applyViewerSearchMetadata,
 } from "../../apps/growth/build/seo/index.ts";
@@ -24,12 +25,13 @@ const indexable = process.env.EDGEONE_ENV !== "preview";
 const project = JSON.parse(await readFile(resolve(repositoryRoot, "package.json"), "utf8"));
 
 // Require all independently built entry points before replacing the combined artifact.
-const [editorHtml, viewerHtml, gifSheetHtml, animalCrossingHtml, pixelateHtml] = await Promise.all([
+const [editorHtml, viewerHtml, gifSheetHtml, animalCrossingHtml, pixelateHtml, beadHtml] = await Promise.all([
   readFile(resolve(editorOutput, INDEX_FILENAME), "utf8"),
   readFile(resolve(toolsOutput, "viewer", INDEX_FILENAME), "utf8"),
   readFile(resolve(toolsOutput, "gif-to-sprite-sheet", INDEX_FILENAME), "utf8"),
   readFile(resolve(toolsOutput, "animal-crossing-qr", INDEX_FILENAME), "utf8"),
   readFile(resolve(toolsOutput, "pixelate", INDEX_FILENAME), "utf8"),
+  readFile(resolve(toolsOutput, "fuse-beads", INDEX_FILENAME), "utf8"),
   readFile(resolve(componentsOutput, INDEX_FILENAME), "utf8"),
   ...SITE_PAGES.filter((page) =>
     [
@@ -69,6 +71,11 @@ await writeFile(
 await writeFile(
   resolve(siteOutput, "tools", "pixelate", INDEX_FILENAME),
   applyPixelateSearchMetadata(pixelateHtml, project.version, indexable),
+);
+
+await writeFile(
+  resolve(siteOutput, "tools", "fuse-beads", INDEX_FILENAME),
+  applyBeadSearchMetadata(beadHtml, project.version, indexable),
 );
 
 const configuration = JSON.parse(await readFile(resolve(repositoryRoot, "edgeone.json"), "utf8"));

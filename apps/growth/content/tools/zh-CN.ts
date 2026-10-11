@@ -1,4 +1,47 @@
 export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
+  "Click the overview to inspect a board.": "点击总览中的图案，可查看对应底板。",
+  "Xprite Fuse Bead Pattern Maker": "Xprite 拼豆图纸生成器",
+  "Fuse Bead Pattern Maker": "拼豆图纸生成器",
+  "Make a fuse bead pattern": "制作拼豆图纸",
+  "Fuse Bead Pattern Maker: PNG & PDF | Xprite": "拼豆图纸生成器：PNG 与 PDF | Xprite",
+  "Fuse bead pattern maker": "拼豆图纸生成器",
+  "Create bead charts with MARD, Artkal, Perler or Hama colors and a material list.":
+    "使用 MARD、Artkal、Perler 或 Hama 色卡生成拼豆图纸与用料表。",
+  "Open artwork, choose MARD, Artkal, Perler or Hama colors, preview bead boards and download PNG charts or paginated PDFs. Files stay on your device.":
+    "打开作品，选择 MARD、Artkal、Perler 或 Hama 色卡，查看底板图纸，下载 PNG 或分页 PDF。文件只在本地处理。",
+  "Choose an image or Aseprite file for a bead pattern":
+    "选择用于制作拼豆图纸的图片或 Aseprite 文件",
+  "Open artwork": "打开作品",
+  "Drop a PNG, JPEG, WebP or Aseprite file": "拖入 PNG、JPEG、WebP 或 Aseprite 文件",
+  "Hello pixel art example": "Hello 像素画示例",
+  "Bead pattern": "拼豆图案",
+  Brand: "品牌",
+  "Board size": "底板尺寸",
+  "Color codes in cells": "格内显示色号",
+  "Output name": "输出名称",
+  "Each grid cell is one bead. Transparent pixels stay empty.":
+    "每个格子对应一颗拼豆，透明像素为空格。",
+  "Colors are screen references; physical beads may differ.":
+    "色卡仅供屏幕参考，实物颜色可能有差异。",
+  Materials: "用料",
+  Beads: "拼豆数",
+  "Color code": "色号",
+  Quantity: "数量",
+  "Board preview": "底板预览",
+  "Pattern overview": "图案总览",
+  "Source image": "原图",
+  "Download PDF": "下载 PDF",
+  "Bead chart": "拼豆图纸",
+  Board: "底板",
+  "Preview board": "预览底板",
+  "Bead chart preview": "拼豆图纸预览",
+  "PDF includes an overview, separate boards and a material list.":
+    "PDF 包含总览、逐板图纸和用料表。",
+  "The PNG chart is too large. Export a PDF with separate boards instead.":
+    "PNG 图纸过大，请改用按底板分页的 PDF。",
+  "Embed external tilesets before opening this project.":
+    "请在 Aseprite 中嵌入外部瓦片集后再打开工程。",
+  "Choose a PNG, JPEG, WebP or Aseprite file.": "请选择 PNG、JPEG、WebP 或 Aseprite 文件。",
   "Xprite Editor": "Xprite 编辑器",
   "Xprite Aseprite Viewer": "Xprite Aseprite 查看器",
   "Xprite GIF to Sprite Sheet": "Xprite GIF 转精灵表",

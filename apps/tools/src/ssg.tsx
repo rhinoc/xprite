@@ -2,15 +2,18 @@ import { StrictMode } from "react";
 import { renderToString } from "react-dom/server";
 
 import { AnimalCrossingPage } from "$/components/animal-crossing/animal-crossing-page";
+import { BeadPage } from "$/components/beads/bead-page";
 import { GifSheetPage } from "$/components/gif-sheet/gif-sheet-page";
 import { PixelationPage } from "$/components/pixelation/pixelation-page";
 import { ToolAppearance } from "$/components/shared/tool-appearance";
 import { ToolArtworkKind, toolArtworkKey } from "$/components/shared/tool-artwork";
 import { ViewerPage } from "$/components/viewer/viewer-page";
 import { AnimalCrossingManager } from "$/managers/animal-crossing/animal-crossing-manager";
+import { BeadToolManager } from "$/managers/beads/bead-tool-manager";
 import { GifSheetManager } from "$/managers/gif-sheet/gif-sheet-manager";
 import { PixelationManager } from "$/managers/pixelation/pixelation-manager";
 import type { AnimalCrossingPort } from "$/managers/ports/animal-crossing";
+import type { BeadToolPort } from "$/managers/ports/beads";
 import type { GifSheetPort } from "$/managers/ports/gif-sheet";
 import type { ViewerPort } from "$/managers/ports/viewer";
 import { TOOL_EXAMPLES } from "$/managers/tools/tool-catalog";
@@ -59,36 +62,41 @@ export async function renderToolPage(rootId: string) {
       saveQr: unavailable,
       savePng: unavailable,
       saveJson: unavailable,
+      savePdf: unavailable,
       saveFrame: unavailable,
       saveAnimation: unavailable,
       edit: unavailable,
-    } satisfies ViewerPort & GifSheetPort & AnimalCrossingPort;
+    } satisfies ViewerPort & GifSheetPort & AnimalCrossingPort & BeadToolPort;
     const host = new ToolHostManager(ports);
     const desktop = new DesktopManager(undefined, {
       appearance: appearance === "dark" ? DesktopAppearance.Dark : DesktopAppearance.Light,
     });
     const manager =
-      rootId === "viewer-root"
-        ? new ViewerManager(ports)
-        : rootId === "gif-sheet-root"
-          ? new GifSheetManager(ports)
-          : rootId === "pixelation-root"
-            ? new PixelationManager({
-                paletteResources: () => ({ choices: [], defaultPalette: [] }),
-                detectGrid: unavailable,
-                read: unavailable,
-                example: unavailable,
-                convert: unavailable,
-                save: unavailable,
-                edit: unavailable,
-                dispose: () => {},
-              })
-            : rootId === "animal-crossing-root"
-              ? new AnimalCrossingManager({ ...ports, read: unavailable })
-              : null;
+      rootId === "beads-root"
+        ? new BeadToolManager(ports)
+        : rootId === "viewer-root"
+          ? new ViewerManager(ports)
+          : rootId === "gif-sheet-root"
+            ? new GifSheetManager(ports)
+            : rootId === "pixelation-root"
+              ? new PixelationManager({
+                  paletteResources: () => ({ choices: [], defaultPalette: [] }),
+                  detectGrid: unavailable,
+                  read: unavailable,
+                  example: unavailable,
+                  convert: unavailable,
+                  save: unavailable,
+                  edit: unavailable,
+                  dispose: () => {},
+                })
+              : rootId === "animal-crossing-root"
+                ? new AnimalCrossingManager({ ...ports, read: unavailable })
+                : null;
     try {
       const view =
-        manager instanceof PixelationManager ? (
+        manager instanceof BeadToolManager ? (
+          <BeadPage manager={manager} />
+        ) : manager instanceof PixelationManager ? (
           <PixelationPage manager={manager} />
         ) : manager instanceof AnimalCrossingManager ? (
           <AnimalCrossingPage manager={manager} />

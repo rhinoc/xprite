@@ -1,4 +1,5 @@
 import { createBrowserAnimalCrossingExportPort } from "$/adapters/files/browser-animal-crossing-export";
+import { createBrowserExportOutputPort } from "$/adapters/files/browser-export-output";
 import { createReferenceImageSelector } from "$/adapters/files/reference-image";
 import { browserPointerSamples } from "$/adapters/input/browser-pointer-samples";
 import { connectBrowserStylusTouchDefaults } from "$/adapters/input/browser-stylus-touch";
@@ -33,6 +34,7 @@ export const createMiniToolEditorHostPorts: EditorHostFactory = () => ({
       close: () => {},
     },
     files: {
+      exportOutput: createBrowserExportOutputPort(),
       animalCrossingExport: createBrowserAnimalCrossingExportPort(),
       decodeAsepriteBlob,
       decodeImageBlob: decodeImage,

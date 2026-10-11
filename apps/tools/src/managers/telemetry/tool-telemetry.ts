@@ -19,8 +19,9 @@ export enum ToolOutputFormat {
   Gif = "gif",
   Json = "json",
   Zip = "zip",
+  Pdf = "pdf",
 }
-const INPUT_FORMATS = new Set(["ase", "aseprite", "gif", "png", "jpg", "jpeg", "acnl"]);
+const INPUT_FORMATS = new Set(["ase", "aseprite", "gif", "png", "jpg", "jpeg", "webp", "acnl"]);
 const UNKNOWN_FORMAT = "unknown";
 
 /** Called only at workflow result boundaries; never receives pixels, names or error messages. */

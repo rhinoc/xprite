@@ -11,6 +11,7 @@
 - [Pick a color from the screen](#pick-a-color-from-the-screen)
 - [Add to desktop and use offline](#add-to-desktop-and-use-offline)
 - [Export Animal Crossing designs](#export-animal-crossing-designs)
+- [Export a fuse bead pattern](#export-a-fuse-bead-pattern)
 - [Share a sprite](#share-a-sprite)
 - [Drawing replay](#drawing-replay)
 - [Browsers and devices](#browsers-and-devices)
@@ -152,6 +153,12 @@ Open the editor once while online before using it offline. If it doesn't open of
 ## Export Animal Crossing designs
 
 In **File → Export…**, choose **Export format → Games & Crafts → Animal Crossing**. Click a source-image cell to select its QR code. Hover the selected cell’s right edge, bottom edge or lower-right corner and drag to resize. Drag at the grid origin to move the grid; spacing handles appear above or to the left. Handles appear on hover; on touchscreens, tap an edge to reveal its handle, then drag. Values can also be entered on the left.
+
+## Export a fuse bead pattern
+
+In **File → Export…**, choose **Export format → Games & Crafts → Fuse beads** to export the current frame's visible layers. Each pixel becomes one cell; transparent pixels stay empty. Exporting leaves the sprite's colors unchanged.
+
+Use **Preview board** to view each board of a larger pattern. PDF output includes an overview, one page per board and a material list.
 
 ## Share a sprite
 

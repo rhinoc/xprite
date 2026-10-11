@@ -1,6 +1,6 @@
 import {
   downloadExportArtifact,
-  type AnimationExportPorts,
+  type ExportExecutionPorts,
 } from "$/managers/files/export-animation";
 import { TelemetryDownloadKind, TelemetryOperationOutcome } from "$/managers/ports/telemetry";
 import { telemetryFileFormat } from "$/managers/telemetry/document-context";
@@ -14,7 +14,8 @@ export async function reportingExport<T>(
   telemetry: TelemetryManager,
   document: EditorDocument,
   documentKey: string | undefined,
-  exporting: (ports: AnimationExportPorts) => Promise<T>,
+  exporting: (ports: ExportExecutionPorts) => Promise<T>,
+  save = downloadExportArtifact,
 ): Promise<T> {
   if (!telemetry.enabled) return exporting({});
   const context = telemetry.documentContext(document, documentKey);
@@ -28,7 +29,7 @@ export async function reportingExport<T>(
   try {
     const result = await exporting({
       save: async (artifact) => {
-        await downloadExportArtifact(artifact);
+        await save(artifact);
         bytes += artifact.blob.size;
         fileCount++;
         formats.add(telemetryFileFormat(artifact.name));

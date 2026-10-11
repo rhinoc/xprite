@@ -8,6 +8,7 @@
 - [GIF 转精灵表](/tools/gif-to-sprite-sheet/ "image")：把 GIF 动画帧排列为 PNG 精灵表，设置布局、间距和边距。需要在其他软件中使用时，可以同时导出帧坐标和时长数据。
 - [图片转像素画](/tools/pixelate/ "image")：把照片和插画转换为像素画，或还原被放大的像素网格，可实时预览并使用自定义调色板。可以下载 PNG，也可以在 Xprite 中继续编辑。
 - [动物森友会设计转换器](/tools/animal-crossing-qr/ "map")：把 PNG 图片或 Aseprite 图块转换为设计二维码，预览图案在岛屿上的效果。也可以打开已有设计二维码或 `.acnl` 文件，查看并导出设计。
+- [拼豆图纸生成器](/tools/fuse-beads/ "image")：选择 MARD、Artkal、Perler 或 Hama 色卡，设置格数，查看逐板图纸和用料数量。可下载 PNG 图纸，或按底板分页的 PDF。
 
 ## 功能说明
 

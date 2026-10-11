@@ -1,6 +1,7 @@
 import { useRef } from "react";
 
 import { useDialogEditorSource } from "$/managers/dialogs/internal-editor-source";
+import { SheetExporterId, normalizeSheetExportOptions } from "$/managers/files/exporters/sheet";
 import { tilesetExportSource } from "$/managers/files/tileset-export-source";
 import { timelineTags } from "@xprite/editor-core";
 import type { PixelBuffer } from "@xprite/editor-core";
@@ -106,13 +107,18 @@ export function useSpriteSheetDialogModel(documentKey?: string) {
     createInitialOptions(
       initialSource?: SpriteSheetDialogOptions["source"],
     ): SpriteSheetDialogOptions {
+      const remembered = normalizeSheetExportOptions(
+        exportPreferences.options?.[
+          initialSource === "tilesets" ? SheetExporterId.Tileset : SheetExporterId.SpriteSheet
+        ],
+      );
       const options = document
-        ? exportPreferences.sheet
+        ? remembered
           ? {
-              ...structuredClone(exportPreferences.sheet),
+              ...structuredClone(remembered),
               frame: document.timeline?.activeFrame ?? 0,
               area:
-                exportPreferences.sheet.area === "selection" && document.selection
+                remembered.area === "selection" && document.selection
                   ? ("selection" as const)
                   : ("canvas" as const),
             }

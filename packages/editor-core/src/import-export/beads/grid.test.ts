@@ -1,0 +1,69 @@
+import { describe, expect, it } from "vitest";
+
+import { renderBeadChart } from "$/import-export/beads/chart";
+import { beadBoards, beadGridPixels, mapBeadGrid } from "$/import-export/beads/grid";
+import { encodeBeadPdf } from "$/import-export/beads/pdf";
+
+const colors = [
+  { code: "H01", name: "Black", rgb: [0, 0, 0] as const },
+  { code: "H02", name: "Red", rgb: [200, 0, 0] as const },
+];
+
+describe("bead charts", () => {
+  it("keeps hidden transparent RGB empty and resolves RGB ties in palette order without changing input", () => {
+    const source = {
+      width: 3,
+      height: 1,
+      data: new Uint8ClampedArray([190, 0, 0, 255, 200, 0, 0, 0, 100, 0, 0, 1]),
+    };
+    const before = source.data.slice();
+    const grid = mapBeadGrid(source, colors);
+    expect([...grid.cells]).toEqual([1, -1, 0]);
+    expect(grid.usage.map(({ color, quantity }) => [color.code, quantity])).toEqual([
+      ["H01", 1],
+      ["H02", 1],
+    ]);
+    expect(grid.total).toBe(2);
+    expect(Array.from(beadGridPixels(grid).data)).toEqual([
+      200, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 255,
+    ]);
+    expect(source.data).toEqual(before);
+  });
+  it("includes both partial edge boards in row-major order", () => {
+    expect(beadBoards({ width: 31, height: 30 }, 29)).toEqual([
+      { column: 0, row: 0, x: 0, y: 0, width: 29, height: 29 },
+      { column: 1, row: 0, x: 29, y: 0, width: 2, height: 29 },
+      { column: 0, row: 1, x: 0, y: 29, width: 29, height: 1 },
+      { column: 1, row: 1, x: 29, y: 29, width: 2, height: 1 },
+    ]);
+  });
+  it("rasterizes an empty cell as a blank grid cell instead of assigning a bead color", () => {
+    const grid = mapBeadGrid(
+      { width: 2, height: 1, data: new Uint8ClampedArray([200, 0, 0, 255, 200, 0, 0, 0]) },
+      colors,
+    );
+    const chart = renderBeadChart(grid, false, 29);
+    const rgbaAt = (x: number, y: number) =>
+      Array.from(chart.data.slice((y * chart.width + x) * 4, (y * chart.width + x) * 4 + 4));
+    expect(rgbaAt(24, 24)).toEqual([200, 0, 0, 255]);
+    expect(rgbaAt(72, 24)).toEqual([255, 255, 255, 255]);
+  });
+  it("writes overview, edge boards and material pages with valid PDF object offsets and stream byte lengths", () => {
+    const source = { width: 31, height: 30, data: new Uint8ClampedArray(31 * 30 * 4) };
+    source.data.set([200, 0, 0, 255], (29 * 31 + 30) * 4);
+    const pdf = new TextDecoder().decode(
+      encodeBeadPdf(mapBeadGrid(source, colors), "Hama", 29, true),
+    );
+    expect(pdf.startsWith("%PDF-1.4\n")).toBe(true);
+    expect(pdf).toContain("/Count 6");
+    expect(pdf).toContain("board row 2, column 2");
+    expect(pdf).toContain("Columns 30-31, rows 30-30");
+    expect(pdf).toContain("Total: 1 beads");
+    const xref = Number(pdf.match(/startxref\n(\d+)/)![1]);
+    expect(pdf.slice(xref, xref + 4)).toBe("xref");
+    for (const [index, match] of [...pdf.slice(xref).matchAll(/(\d{10}) 00000 n/g)].entries())
+      expect(pdf.slice(Number(match[1])).startsWith(`${index + 1} 0 obj`)).toBe(true);
+    for (const match of pdf.matchAll(/\/Length (\d+) >>\nstream\n([\s\S]*?)endstream/g))
+      expect(match[2].length).toBe(Number(match[1]));
+  });
+});

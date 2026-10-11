@@ -180,6 +180,10 @@ export const SHOWCASE_DISCOVERY_COPY = {
 } as const;
 
 const CHINESE_TOOL_COPY = {
+  "/tools/fuse-beads/": {
+    label: "拼豆图纸生成器",
+    summary: "选择品牌色卡与格数，导出 PNG 图纸或按底板分页的 PDF。",
+  },
   "/tools/viewer/": {
     label: "Aseprite 查看器",
     summary: "查看图层和动画，导出 PNG 图片或 GIF 动画。",

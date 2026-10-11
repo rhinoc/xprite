@@ -5,6 +5,7 @@
   "license": "GPL-2.0-only",
   "type": "module",
   "scripts": {
+    "assets:bead-palettes": "node scripts/fixtures/assets/generate-bead-palettes.mjs",
     "assets:desktop-patterns": "python3 scripts/fixtures/assets/import-desktop-patterns.py",
     "assets:startup-font": "python3 scripts/fixtures/assets/build-startup-font.py",
     "assets:aseprite-cjk-font": "python3 scripts/fixtures/assets/build-aseprite-cjk-font.py",

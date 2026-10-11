@@ -209,8 +209,11 @@ export class DocumentPreferencesManager {
       ...current,
       exports: {
         ...current.exports,
-        [record.type]: structuredClone(record.options),
-        lastType: record.type,
+        options: {
+          ...current.exports?.options,
+          [record.exporter]: structuredClone(record.options),
+        },
+        lastExporter: record.exporter,
       },
     });
   }

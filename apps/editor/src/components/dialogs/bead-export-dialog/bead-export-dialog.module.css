@@ -1,0 +1,33 @@
+.preview {
+  position: absolute;
+  overflow: auto;
+  background: var(--ui-color-workspace, #60535e);
+}
+.description {
+  position: absolute;
+  left: 328px;
+  top: 328px;
+  width: 424px;
+}
+.materials {
+  position: absolute;
+  left: 0;
+  top: 366px;
+  width: 308px;
+  height: 72px;
+  overflow: auto;
+}
+.table {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  border-spacing: 0;
+}
+.swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: var(--ui-space-4, 8px);
+  border: 1px solid currentColor;
+}

@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./beads": "./beads/index.ts",
     "./*": "./*"
   }
 }

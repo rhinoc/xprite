@@ -28,6 +28,10 @@ describe("export-dialog-flow [feature-7-12]", () => {
               path: "jsx",
               namespace: "harness",
             }));
+            build.onResolve({ filter: /^\$\/managers\/files\/export-file-options$/ }, () => ({
+              path: "export-output-format",
+              namespace: "harness",
+            }));
             build.onResolve(
               { filter: /^\$\/managers\/dialogs\/export-file-dialog-model$/ },
               () => ({ path: "export-file-model", namespace: "harness" }),
@@ -53,9 +57,11 @@ describe("export-dialog-flow [feature-7-12]", () => {
                   ? hookSource
                   : args.path === "jsx"
                     ? `export const jsx=(type,props)=>({type,props});export const jsxs=jsx;`
-                    : args.path === "export-file-model"
-                      ? `export const MAX_EXPORT_LOOP_COUNT=65536;export const MAX_WEBP_EXPORT_LOOP_COUNT=65535;export const ExportOutputFormat={Png:"png",Gif:"gif",Apng:"apng",Jpeg:"jpg",Webp:"webp"};export const ExportTagDirection={Forward:"forward",Reverse:"reverse",PingPong:"ping-pong",PingPongReverse:"ping-pong-reverse"};export function useExportFileDialogModel(){const document=globalThis.__exportDialogDocument;return{document,imageEncoding:globalThis.__exportImageEncoding??{jpeg:true,webp:true,webpLossless:true,webpLossy:true,checked:true},createInitialOptions:()=>({name:"animation.gif",scalePercent:100,area:"canvas",layers:"visible",frame:0,frames:"all",loopCount:document.loopCount}),inspect:()=>({valid:true,frameCount:2})}}`
-                      : `export function FormDialog(){};export function Alert(){}`,
+                    : args.path === "export-output-format"
+                      ? `export const ExportOutputFormat={Png:"png",Gif:"gif",Apng:"apng",Jpeg:"jpg",Webp:"webp"};`
+                      : args.path === "export-file-model"
+                        ? `export const MAX_EXPORT_LOOP_COUNT=65536;export const MAX_WEBP_EXPORT_LOOP_COUNT=65535;export const ExportTagDirection={Forward:"forward",Reverse:"reverse",PingPong:"ping-pong",PingPongReverse:"ping-pong-reverse"};export function useExportFileDialogModel(){const document=globalThis.__exportDialogDocument;return{document,imageEncoding:globalThis.__exportImageEncoding??{jpeg:true,webp:true,webpLossless:true,webpLossy:true,checked:true},createInitialOptions:()=>({name:"animation.gif",scalePercent:100,area:"canvas",layers:"visible",frame:0,frames:"all",loopCount:document.loopCount}),inspect:()=>({valid:true,frameCount:2})}}`
+                        : `export function FormDialog(){};export function Alert(){}`,
               loader: "js",
             }));
             build.onLoad({ filter: /.*/, namespace: "styles" }, () => ({

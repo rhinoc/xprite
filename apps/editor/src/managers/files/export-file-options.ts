@@ -1,3 +1,10 @@
+export enum ExportOutputFormat {
+  Png = "png",
+  Gif = "gif",
+  Apng = "apng",
+  Jpeg = "jpg",
+  Webp = "webp",
+}
 import {
   DEFAULT_FILE_PREFERENCES,
   type ExportExtensionDefaults,

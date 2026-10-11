@@ -16,6 +16,7 @@ import {
   PIXELATE_TOOL,
   TOOLS,
   VIEWER_TOOL,
+  BEADS_TOOL,
 } from "../../content/tools/index.ts";
 
 const SITE_URL = "https://xprite.cc/";
@@ -164,6 +165,14 @@ export function applyAnimalCrossingSearchMetadata(
     name: ANIMAL_CROSSING_TOOL.name,
     url: new URL(ANIMAL_CROSSING_TOOL.path, SITE_URL).href,
     description: ANIMAL_CROSSING_TOOL.description,
+  });
+}
+
+export function applyBeadSearchMetadata(html: string, version: string, indexable: boolean): string {
+  return applyToolSearchMetadata(html, version, indexable, {
+    name: BEADS_TOOL.name,
+    url: new URL(BEADS_TOOL.path, SITE_URL).href,
+    description: BEADS_TOOL.description,
   });
 }
 

@@ -5,6 +5,7 @@ export {
   countDistinctColors,
   reduceToPalette,
 } from "$/import-export/image/import/palette";
+export { resizeNearest } from "$/import-export/image/import/resize";
 export { pixelateImage } from "$/import-export/image/import/pixelate";
 export {
   PixelArtClassification,

@@ -4,6 +4,7 @@ export * from "$/import-export/image";
 export * from "$/import-export/file-names";
 export * from "$/import-export/sharing";
 export * from "$/import-export/animal-crossing";
+export * from "$/import-export/beads";
 export * from "$/import-export/animal-crossing/document-source";
 export * from "$/import-export/recovery";
 export * from "$/import-export/palette/resources";

@@ -1,15 +1,12 @@
 import { tUi } from "$/i18n";
-import { createAnimalCrossingExportSource } from "$/managers/files/animal-crossing-export";
-import { AnimalCrossingDownloadKind } from "$/managers/files/animal-crossing-export-options";
 import {
   DEFAULT_IMAGE_EXPORT_QUALITY,
   DEFAULT_JPEG_MATTE,
   ImageExportFormat,
   writeImageExportPreferences,
 } from "$/managers/files/export-format-preferences";
-import { ExportKind, type ExportRecord } from "$/managers/files/export-preferences";
-import { tilesetExportSource } from "$/managers/files/tileset-export-source";
-import type { AnimalCrossingExportPort } from "$/managers/ports/animal-crossing-export";
+import type { ExportRecord } from "$/managers/files/export-preferences";
+import type { ExportArtifact } from "$/managers/ports/export-output";
 import type { WebpExportPort } from "$/managers/ports/webp-export";
 import { downloadBlob } from "@xprite/bedrock/browser/file-system";
 import {
@@ -25,8 +22,6 @@ import { colorProfileToSrgb } from "@xprite/editor-core/color";
 import type { EditorDocument } from "@xprite/editor-core/document";
 import { WebpCompression } from "@xprite/editor-core/import-export";
 import {
-  convertAnimalCrossing,
-  animalCrossingQrPixels,
   renderExportAnimation,
   sequenceFilename,
   encodeApng,
@@ -40,19 +35,13 @@ import {
 } from "@xprite/editor-core/import-export";
 import { animationExportLoopCount } from "@xprite/editor-core/timeline";
 
-export interface ExportArtifact {
-  name: string;
-  blob: Blob;
-}
-export interface AnimationExportPorts {
+export interface ExportExecutionPorts {
   webp?: WebpExportPort;
-  animalCrossing?: AnimalCrossingExportPort;
   encodePng?: typeof encodePng;
   encodeImage?: typeof encodeImageBlob;
   save?(artifact: ExportArtifact): Promise<void>;
   storage?: JsonStoragePort;
   rememberExport?(record: ExportRecord): void;
-  getLastExport?(): ExportRecord | null;
 }
 export async function downloadExportArtifact({ name, blob }: ExportArtifact): Promise<void> {
   downloadBlob(blob, name);
@@ -66,7 +55,7 @@ async function compress(bytes: Uint8Array): Promise<Uint8Array> {
 export async function exportDocumentAnimation(
   doc: EditorDocument,
   options: ExportFileOptions,
-  ports: AnimationExportPorts = {},
+  ports: ExportExecutionPorts = {},
 ): Promise<{ names: string[]; artifacts: ExportArtifact[] }> {
   // Render all source state before the first await; selection/edits/tab switches
   // while encoding cannot mix frames from different document revisions.
@@ -146,13 +135,12 @@ export async function exportDocumentAnimation(
       },
       ports.storage,
     );
-  ports.rememberExport?.({ type: ExportKind.Animation, options });
   return { names: artifacts.map((a) => a.name), artifacts };
 }
 export async function exportDocumentSpriteSheet(
   doc: EditorDocument,
   options: SpriteSheetOptions,
-  ports: AnimationExportPorts = {},
+  ports: ExportExecutionPorts = {},
 ): Promise<SpriteSheetResult & { names: string[] }> {
   const result = renderSpriteSheet(doc, options),
     artifacts: ExportArtifact[] = [];
@@ -169,37 +157,5 @@ export async function exportDocumentSpriteSheet(
   if (!artifacts.length && !options.openGenerated)
     throw new Error("Enable an output file or Open Sprite Sheet.");
   for (const artifact of artifacts) await (ports.save ?? downloadExportArtifact)(artifact);
-  ports.rememberExport?.({ type: ExportKind.Sheet, options });
   return { ...result, names: artifacts.map((a) => a.name) };
-}
-export async function repeatLastExport(doc: EditorDocument, ports: AnimationExportPorts = {}) {
-  const last = ports.getLastExport?.();
-  if (!last) throw new Error("No previous export for this document.");
-  if (last.type === ExportKind.AnimalCrossing) {
-    const port = ports.animalCrossing;
-    if (!port) throw new Error(tUi("ui.export.animal.crossing.unavailable"));
-    const source = createAnimalCrossingExportSource(doc);
-    const result = convertAnimalCrossing(source.pixels, last.options.settings);
-    const names: string[] = [];
-    if (last.options.download === AnimalCrossingDownloadKind.Archive) {
-      const name = `${source.name.replace(/\.[^.]+$/, "")}-animal-crossing.zip`;
-      await port.save(result, name);
-      names.push(name);
-    } else {
-      const pattern = result.patterns[last.options.selected];
-      if (!pattern) throw new Error(tUi("ui.export.design.unavailable"));
-      const name = `r${pattern.row + 1}-c${pattern.column + 1}-qr.png`;
-      await port.saveQr(animalCrossingQrPixels(pattern.bytes), name);
-      names.push(name);
-    }
-    ports.rememberExport?.(last);
-    return { names };
-  }
-  return last.type === ExportKind.Sheet
-    ? exportDocumentSpriteSheet(
-        last.options.source === "tilesets" ? tilesetExportSource(doc) : doc,
-        last.options,
-        ports,
-      )
-    : exportDocumentAnimation(doc, last.options, ports);
 }
