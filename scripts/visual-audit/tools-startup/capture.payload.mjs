@@ -1,6 +1,8 @@
 // Executed by ego-browser nodejs; the wrapper supplies captureConfig.
 const fs = await import("node:fs/promises");
-const { captureBrowserScreenshot } = await import(captureConfig.screenshotModule);
+const { captureBrowserScreenshot, navigateWithTransientRetry } = await import(
+  captureConfig.screenshotModule
+);
 const task = await taskSpace(captureConfig.spaceId ?? "Xprite SSG first paint comparison");
 if (task.ownership !== "agent") throw Error("Startup capture requires an agent-owned space.");
 console.log(`CAPTURE_SPACE:${task.spaceId}`);
@@ -78,7 +80,7 @@ const capture = async (scene, phase, url) => {
     : phase === "ssg"
       ? `#${scene.page.rootId}[data-tool-startup-view]`
       : `${pageReady(scene)} .xse-global`;
-  await page.goto(url);
+  await navigateWithTransientRetry(page, url);
   await page.waitForSelector(selector, {
     state: "visible",
     timeout: captureConfig.startupTimeoutMilliseconds,

@@ -1,7 +1,9 @@
 // Executed by ego-browser nodejs; the wrapper supplies captureConfig.
 const fs = await import("node:fs/promises");
 const config = captureConfig;
-const { captureBrowserScreenshot } = await import(config.screenshotModule);
+const { captureBrowserScreenshot, navigateWithTransientRetry } = await import(
+  config.screenshotModule
+);
 const task = await taskSpace(config.spaceId ?? "Xprite visual regression");
 if (task.ownership !== "agent") throw Error("Capture requires an agent-owned task space.");
 console.log(`CAPTURE_SPACE:${task.spaceId}`);
@@ -10,6 +12,9 @@ const cases = [];
 let browser;
 let currentScene;
 const exampleButton = `button[aria-label=${JSON.stringify(config.sampleName)}]`;
+const EDITOR_MODULE_FAILURE_MESSAGE = "Failed to load editor module";
+const EDITOR_HOME_RETRIES = 1;
+const EDITOR_HOME_READY_TIMEOUT_MILLISECONDS = 30_000;
 const settle = () =>
   page.evaluate(async () => {
     await document.fonts.ready;
@@ -22,6 +27,46 @@ const parkedPointer = async (width, height) => {
       document.activeElement.blur();
   });
   await page.waitForSelector('[role="tooltip"]', { state: "hidden" });
+};
+
+const loadEditorHome = async (url) => {
+  let lastError;
+  for (let attempt = 0; attempt <= EDITOR_HOME_RETRIES; attempt++) {
+    try {
+      await navigateWithTransientRetry(page, url);
+      await page.waitForFunction(
+        ({ selector, failureMessage }) =>
+          !!document.querySelector(selector) ||
+          (document.querySelector('[role="alert"]')?.innerText ?? "").includes(failureMessage),
+        { selector: exampleButton, failureMessage: EDITOR_MODULE_FAILURE_MESSAGE },
+        { timeout: EDITOR_HOME_READY_TIMEOUT_MILLISECONDS },
+      );
+      const state = await page.evaluate(
+        ({ selector, failureMessage }) => {
+          const error = document.querySelector('[role="alert"]')?.innerText ?? "";
+          return {
+            ready: !!document.querySelector(selector),
+            retryable: error.includes(failureMessage),
+            error,
+          };
+        },
+        { selector: exampleButton, failureMessage: EDITOR_MODULE_FAILURE_MESSAGE },
+      );
+      if (state.ready) return;
+      if (!state.retryable) throw Error(state.error || "Editor Home did not become ready.");
+      lastError = Error(state.error);
+    } catch (error) {
+      lastError = error;
+      const message = error instanceof Error ? error.message : String(error);
+      if (
+        !/net::ERR_(?:CONNECTION_REFUSED|CONNECTION_RESET|EMPTY_RESPONSE)/.test(message) &&
+        !message.includes(EDITOR_MODULE_FAILURE_MESSAGE)
+      )
+        throw error;
+    }
+    if (attempt < EDITOR_HOME_RETRIES) await page.goto("about:blank");
+  }
+  throw lastError ?? Error("Editor Home did not become ready after a transient startup error.");
 };
 
 try {
@@ -251,8 +296,7 @@ try {
         await page.waitForSelector(labeled("canvas", ui.canvas));
       };
 
-      await page.goto(`${origin}/home`);
-      await page.waitForSelector(exampleButton, { timeout: 30000 });
+      await loadEditorHome(`${origin}/home`);
       await page.hover(exampleButton, { label: "highlight example recent file" });
       await page.waitForSelector(`button[aria-label=${JSON.stringify(ui.pin)}]`);
       await capture("home", labeled("section", ui.home));

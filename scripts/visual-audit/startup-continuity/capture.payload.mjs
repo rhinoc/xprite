@@ -1,11 +1,15 @@
 // Executed by ego-browser nodejs; the wrapper supplies continuityConfig.
 const fs = await import("node:fs/promises");
-const { captureBrowserScreenshot } = await import(continuityConfig.screenshotModule);
+const { captureBrowserScreenshot, navigateWithTransientRetry } = await import(
+  continuityConfig.screenshotModule
+);
 const task = await taskSpace(continuityConfig.spaceId ?? "Xprite startup continuity");
 if (task.ownership !== "agent") throw Error("Startup continuity requires an agent-owned space.");
 console.log(`CONTINUITY_SPACE:${task.spaceId}`);
 const page = task.page("p1");
 const results = [];
+const EDITOR_MODULE_FAILURE_MESSAGE = "Failed to load editor module";
+const RUNTIME_PAGE_RETRIES = 1;
 const MODULE_URLS = [
   "*.js",
   "*.js?*",
@@ -66,7 +70,7 @@ for (const scene of continuityConfig.scenes) {
   try {
     // Prove the original first paint is available without runtime modules.
     await page.cdp("Network.setBlockedURLs", { urls: MODULE_URLS });
-    await page.goto(url);
+    await navigateWithTransientRetry(page, url);
     await page.waitForFunction(() => window.__xpriteStartupMonitor?.initialized, undefined, {
       timeout: continuityConfig.startupTimeoutMilliseconds,
     });
@@ -79,10 +83,34 @@ for (const scene of continuityConfig.scenes) {
     });
     result.staticScreenshot = await capture("static");
     await page.cdp("Network.setBlockedURLs", { urls: [] });
-    await page.goto(url);
-    await page.waitForFunction(() => window.__xpriteStartupMonitor?.complete, undefined, {
-      timeout: continuityConfig.startupTimeoutMilliseconds,
-    });
+    let runtimeReady = false;
+    for (let attempt = 0; attempt <= RUNTIME_PAGE_RETRIES; attempt++) {
+      await navigateWithTransientRetry(page, url);
+      await page.waitForFunction(
+        (failureMessage) =>
+          !!window.__xpriteStartupMonitor?.complete ||
+          (document.querySelector('[role="alert"]')?.innerText ?? "").includes(failureMessage),
+        EDITOR_MODULE_FAILURE_MESSAGE,
+        { timeout: continuityConfig.startupTimeoutMilliseconds },
+      );
+      const runtimeState = await page.evaluate((failureMessage) => {
+        const error = document.querySelector('[role="alert"]')?.innerText ?? "";
+        return {
+          ready: !!window.__xpriteStartupMonitor?.complete,
+          retryable: error.includes(failureMessage),
+          error,
+        };
+      }, EDITOR_MODULE_FAILURE_MESSAGE);
+      if (runtimeState.ready) {
+        runtimeReady = true;
+        break;
+      }
+      if (!runtimeState.retryable || attempt === RUNTIME_PAGE_RETRIES)
+        throw Error(runtimeState.error || `${scene.id}: startup did not complete.`);
+      await page.goto("about:blank");
+    }
+    if (!runtimeReady)
+      throw Error(`${scene.id}: startup did not complete after a transient module failure.`);
     const language = await page.evaluate(() => document.documentElement.lang);
     if (scene.page.language && language !== scene.page.language)
       throw Error(`${scene.id}: expected ${scene.page.language}, received ${language}.`);
