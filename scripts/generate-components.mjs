@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { mkdir, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import * as ts from "typescript-compiler-api";
@@ -882,24 +882,49 @@ const data = components
 
 const output = `// Generated from the public React components and prop types in packages/ui/src/components/index.ts.\n// Run pnpm components:generate to refresh.\nimport type { ComponentType } from "react";\n${imports}\n\nexport interface ComponentsPropSchema {\n  name: string;\n  kind: "string" | "number" | "boolean" | "enum" | "array" | "callback" | "node" | "json";\n  required: boolean;\n  hostProp: boolean;\n  type: string;\n  options?: readonly (string | number)[];\n}\n\nexport enum ComponentsGroup {\n  Controls = "Controls",\n  Typography = "Typography",\n  Containers = "Containers",\n  Navigation = "Navigation",\n  Overlays = "Overlays",\n  Media = "Media",\n  Others = "Others",\n}\n\ninterface ComponentsMode {\n  value: string | number;\n  props: readonly ComponentsPropSchema[];\n  initialProps: Record<string, unknown>;\n}\n\ninterface ComponentsVariant {\n  modes?: readonly ComponentsMode[];\n  value: string | number;\n  props: readonly ComponentsPropSchema[];\n  initialProps: Record<string, unknown>;\n}\n\nexport interface ComponentsDefinition {\n  group: ComponentsGroup;\n  variants?: readonly ComponentsVariant[];\n  variantProperty?: string;\n  behaviorProperty?: string;\n  name: string;\n  component: ComponentType<Record<string, unknown>>;\n  props: readonly ComponentsPropSchema[];\n  initialProps: Record<string, unknown>;\n  description?: string;\n  previewKind?: string;\n}\n\nexport const generatedUIComponents: readonly ComponentsDefinition[] = [\n${data}\n];\n`;
 
-await mkdir(dirname(outputPath), { recursive: true });
-await writeFile(outputPath, output);
-await mkdir(dirname(routesPath), { recursive: true });
-await writeFile(
-  routesPath,
-  `${JSON.stringify(
-    [
-      "/components/",
-      ...components.map(
-        ({ name }) => `/components/${name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase()}`,
-      ),
-    ],
-    null,
-    2,
-  )}\n`,
-);
-execFileSync("pnpm", ["exec", "oxfmt", "--config", "infra/oxfmt.json", "--write", outputPath], {
+const routes = `${JSON.stringify(
+  [
+    "/components/",
+    ...components.map(
+      ({ name }) => `/components/${name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase()}`,
+    ),
+  ],
+  null,
+  2,
+)}\n`;
+// --check regenerates into .tmp and fails when the committed catalog or routes have drifted.
+const checkOnly = process.argv.includes("--check");
+const checkDirectory = resolve(repositoryRoot, ".tmp/components-generate-check");
+const catalogTarget = checkOnly
+  ? resolve(checkDirectory, "generated-ui-components.ts")
+  : outputPath;
+const routesTarget = checkOnly ? resolve(checkDirectory, "generated-routes.json") : routesPath;
+await mkdir(dirname(catalogTarget), { recursive: true });
+await writeFile(catalogTarget, output);
+await mkdir(dirname(routesTarget), { recursive: true });
+await writeFile(routesTarget, routes);
+execFileSync("pnpm", ["exec", "oxfmt", "--config", "infra/oxfmt.json", "--write", catalogTarget], {
   cwd: repositoryRoot,
   stdio: "ignore",
 });
-console.log(`Generated component catalog entries for ${components.length} public UI components.`);
+if (checkOnly) {
+  const stale = [];
+  for (const [generated, committed] of [
+    [catalogTarget, outputPath],
+    [routesTarget, routesPath],
+  ]) {
+    const expected = await readFile(generated, "utf8");
+    const actual = await readFile(committed, "utf8").catch(() => "");
+    if (expected !== actual) stale.push(relative(repositoryRoot, committed));
+  }
+  await rm(checkDirectory, { recursive: true, force: true });
+  if (stale.length) {
+    console.error(
+      `Generated component files are stale: ${stale.join(", ")}. Run pnpm run components:generate and commit the result.`,
+    );
+    process.exit(1);
+  }
+  console.log(`Generated component files match ${components.length} public UI components.`);
+} else {
+  console.log(`Generated component catalog entries for ${components.length} public UI components.`);
+}
