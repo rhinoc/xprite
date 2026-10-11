@@ -21,7 +21,7 @@ compare with this set, rather than a reason to update baselines automatically.
 | `edit-menu` | Top Edit menu in wide layout; application menu's Edit submenu in compact layout | [PNG](../baselines/xprite/zh/edit-menu-wide.png) | [PNG](../baselines/xprite/zh/edit-menu-compact.png) |
 | `new-sprite` | New Sprite dialog, initial draft, no sprite created | [PNG](../baselines/xprite/zh/new-sprite-wide.png) | [PNG](../baselines/xprite/zh/new-sprite-compact.png) |
 | `save-as` | Save As dialog for the example, default destination, no save submitted | [PNG](../baselines/xprite/zh/save-as-wide.png) | [PNG](../baselines/xprite/zh/save-as-compact.png) |
-| `export-file` | Unified Export dialog for the example, default PNG format, no export submitted | [PNG](../baselines/xprite/zh/export-file-wide.png) | [PNG](../baselines/xprite/zh/export-file-compact.png) |
+| `export-file` | Unified Export dialog for the example, current output format, no export submitted | [PNG](../baselines/xprite/zh/export-file-wide.png) | [PNG](../baselines/xprite/zh/export-file-compact.png) |
 | `gif-options` | GIF Options after selecting GIF in Export format, no export confirmed | [PNG](../baselines/xprite/zh/gif-options-wide.png) | [PNG](../baselines/xprite/zh/gif-options-compact.png) |
 | `recovery` | Recovery tab in fresh storage, no previous user sessions | [PNG](../baselines/xprite/zh/recovery-wide.png) | [PNG](../baselines/xprite/zh/recovery-compact.png) |
 | `color-picker` | Foreground popup opened from the color button, white RGB color | [PNG](../baselines/xprite/zh/color-picker-wide.png) | [PNG](../baselines/xprite/zh/color-picker-compact.png) |

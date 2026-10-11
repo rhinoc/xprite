@@ -105,7 +105,7 @@ try {
       exportFormat: "ui.export.format.selector",
       gifFormat: "ui.export.format.gif",
       exportAction: "ui.export",
-      gifOptions: "ui.gif.options",
+      gifInterlaced: "ui.interlaced",
       foreground: "ui.foreground.color.c5308777",
       restoreColor: "ui.restore.original.color",
       pencil: "ui.pencil",
@@ -409,10 +409,12 @@ try {
             { selector: formatTrigger, label: ui.gifFormat },
           );
           await page.click(`${exportDialog} ${labeled("button", ui.exportAction)}`);
-          await page.waitForSelector(labeled('[role="dialog"]', ui.gifOptions));
+          await page.waitForSelector(
+            `${exportDialog} ${labeled('button[role="checkbox"]', ui.gifInterlaced)}`,
+          );
           await parkedPointer(width, height);
-          await capture("gif-options", labeled('[role="dialog"]', ui.gifOptions));
-          await closeDialog(ui.gifOptions);
+          await capture("gif-options", exportDialog);
+          await closeDialog(ui.exportFile);
         } else await closeDialog(ui.exportFile);
       }
       if (selected.has(`color-picker-${mode}`)) {
