@@ -143,6 +143,9 @@ The Simplified Chinese pixel fallback font is Fusion Pixel Font, 10px monospaced
 `zh_hans`, release 2026.09.01. The font is licensed under SIL Open Font License
 1.1. The release's upstream font notices are retained in
 `LICENSES/fusion-pixel-font/`. See the [upstream project](https://github.com/TakWolf/fusion-pixel-font).
+`packages/ui/assets/fonts/fusion-pixel/fusion-pixel-10px-zh-hans-aseprite.woff2`
+is a renamed modified version whose outlines and vertical metrics are shifted
+onto the Aseprite UI font's baseline (`pnpm assets:aseprite-cjk-font`).
 
 ## ICC regression profile
 

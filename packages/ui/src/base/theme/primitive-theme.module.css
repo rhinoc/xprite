@@ -16,6 +16,16 @@
   font-display: swap;
 }
 
+/* Same glyphs on Aseprite's 14px baseline; see scripts/fixtures/assets/build-aseprite-cjk-font.py. */
+@font-face {
+  font-family: FusionPixelZhHansAseprite;
+  src: url("../../../assets/fonts/fusion-pixel/fusion-pixel-10px-zh-hans-aseprite.woff2")
+    format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 :global(:root) {
   --ui-border-width: 1px;
   --ui-space-1: 2px;

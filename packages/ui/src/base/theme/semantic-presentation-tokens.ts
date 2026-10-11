@@ -3,16 +3,25 @@ import type { UiStyleDefinition } from "$/base/theme/theme-types";
 import { panelWindowTokens } from "$/base/theme/window-chrome-tokens";
 
 const DEFAULT_FONT_FAMILY = "PixelArtBitmap";
-const FONT_FALLBACKS = "FusionPixelZhHans, monospace";
+/** Fusion Pixel shifted onto the Aseprite font's baseline and 1em line box. */
+const ASEPRITE_CJK_FONT_FAMILY = "FusionPixelZhHansAseprite";
+const CJK_FONT_FAMILY = "FusionPixelZhHans";
 const CODE_FONT_FAMILY = "ui-monospace, monospace";
+
+function fontFallbacks(family: string) {
+  return family === DEFAULT_FONT_FAMILY
+    ? `${ASEPRITE_CJK_FONT_FAMILY}, ${CJK_FONT_FAMILY}, monospace`
+    : `${CJK_FONT_FAMILY}, monospace`;
+}
 
 /** Resolve both roles from this skin, without importing any other skin's fonts. */
 export function semanticFontFamilies(typography: UiStyleDefinition["typography"]) {
   const primary = typography?.default?.fontFamily ?? DEFAULT_FONT_FAMILY;
   const compact = typography?.mini?.fontFamily ?? primary;
   return {
-    primary: `${primary}, ${FONT_FALLBACKS}`,
-    compact: `${compact}, ${FONT_FALLBACKS}`,
+    primary: `${primary}, ${fontFallbacks(primary)}`,
+    compact: `${compact}, ${fontFallbacks(compact)}`,
+    cjk: primary === DEFAULT_FONT_FAMILY ? ASEPRITE_CJK_FONT_FAMILY : CJK_FONT_FAMILY,
   };
 }
 

@@ -40,7 +40,8 @@ function themeCache(uiTheme: UiTheme) {
 }
 const softwareSources = new Map<string, Promise<HTMLCanvasElement>>();
 let fusionPixelFontPromise: Promise<boolean> | undefined;
-const FUSION_PIXEL_FONT_LOAD_SAMPLE = "10px FusionPixelZhHans";
+/** The 10px-grid face and the copy shifted onto the Aseprite baseline. */
+const FUSION_PIXEL_FONT_FAMILIES = ["FusionPixelZhHans", "FusionPixelZhHansAseprite"];
 
 export function subscribeThemeAssets(
   variant: UiAppearance,
@@ -66,8 +67,14 @@ function loadFusionPixelFont() {
   fusionPixelFontPromise = (async () => {
     if (typeof document === "undefined" || !document.fonts) return false;
     try {
-      const faces = await document.fonts.load(FUSION_PIXEL_FONT_LOAD_SAMPLE, "中");
-      return faces.some((face) => face.family === "FusionPixelZhHans" && face.status === "loaded");
+      const loaded = await Promise.all(
+        FUSION_PIXEL_FONT_FAMILIES.map(async (family) =>
+          (await document.fonts.load(`10px ${family}`, "中")).some(
+            (face) => face.family === family && face.status === "loaded",
+          ),
+        ),
+      );
+      return loaded.every(Boolean);
     } catch {
       return false;
     }

@@ -67,10 +67,20 @@ const cjkPixelGlyphCache = new Map<string, HTMLCanvasElement>();
 const CJK_PIXEL_GLYPH_CACHE_LIMIT = 512;
 const CJK_PIXEL_COVERAGE_THRESHOLD = 64;
 /**
+ * Each atlas pairs with the Fusion Pixel face whose ascent places Han on the
+ * same baseline as the bitmap Latin glyphs. The default atlas uses the face
+ * shifted onto Aseprite's 10/14 em baseline (714/1000); the 10px mini atlas
+ * keeps the unshifted 10px-grid face (900/1000) so its glyphs stay crisp.
+ */
+const CJK_PIXEL_FACES: Record<PixelFont, { family: string; ascent: number }> = {
+  default: { family: "FusionPixelZhHansAseprite", ascent: 0.714 },
+  mini: { family: "FusionPixelZhHans", ascent: 0.9 },
+};
+/**
  * Canvas fillText antialiases Fusion Pixel's deliberately pixel-shaped outlines.
- * Center the measured ink inside the Aseprite atlas line height, discard only
- * faint edge coverage, and snap retained pixels to solid opacity to preserve
- * thin strokes without cropping glyphs with different ascent/descent metrics.
+ * Draw on the atlas baseline, so every glyph keeps its designed vertical
+ * position, discard only faint edge coverage, and snap retained pixels to solid
+ * opacity to preserve thin strokes.
  */
 function cjkPixelGlyph(
   char: string,
@@ -80,7 +90,7 @@ function cjkPixelGlyph(
   usePixelFont: boolean,
 ) {
   const size = themeFontHeight(font, scale);
-  const key = `${size}:${color}:${usePixelFont ? "pixel" : "system"}:${char}`;
+  const key = `${font}:${size}:${color}:${usePixelFont ? "pixel" : "system"}:${char}`;
   const cached = cjkPixelGlyphCache.get(key);
   if (cached) {
     cjkPixelGlyphCache.delete(key);
@@ -94,15 +104,12 @@ function cjkPixelGlyph(
   const maskContext = mask.getContext("2d", { willReadFrequently: true });
   if (!maskContext) return null;
   maskContext.clearRect(0, 0, size, size);
-  maskContext.font = `${size}px ${usePixelFont ? "FusionPixelZhHans" : "sans-serif"}`;
+  const face = CJK_PIXEL_FACES[font];
+  maskContext.font = `${size}px ${usePixelFont ? face.family : "sans-serif"}`;
   maskContext.textAlign = "left";
   maskContext.textBaseline = "alphabetic";
   maskContext.fillStyle = "#fff";
-  const metrics = maskContext.measureText(char);
-  const baselineY = Math.round(
-    (size + metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) / 2,
-  );
-  maskContext.fillText(char, 0, baselineY, size);
+  maskContext.fillText(char, 0, Math.round(size * face.ascent), size);
   const pixels = maskContext.getImageData(0, 0, size, size);
   for (let index = 0; index < pixels.data.length; index += 4) {
     const alpha = pixels.data[index + 3];

@@ -46,6 +46,10 @@ const fonts = await Promise.all(
   [
     ["PixelArtBitmap", "packages/ui/assets/fonts/aseprite/aseprite.woff2"],
     ["FusionPixelZhHans", "packages/ui/assets/fonts/fusion-pixel/fusion-pixel-10px-zh-hans.woff2"],
+    [
+      "FusionPixelZhHansAseprite",
+      "packages/ui/assets/fonts/fusion-pixel/fusion-pixel-10px-zh-hans-aseprite.woff2",
+    ],
   ].map(async ([family, filename]) => ({
     family,
     source: `data:font/woff2;base64,${(await readFile(resolve(repositoryRoot, filename))).toString("base64")}`,

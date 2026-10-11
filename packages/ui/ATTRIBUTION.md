@@ -33,6 +33,10 @@ The UI includes the 10px monospaced Simplified Chinese fallback from Fusion
 Pixel Font release 2026.09.01. It is licensed under the SIL Open Font License
 1.1; the upstream and bundled notices are in `LICENSES/fusion-pixel-font/`.
 Source: [TakWolf/fusion-pixel-font](https://github.com/TakWolf/fusion-pixel-font).
+`fusion-pixel-10px-zh-hans-aseprite.woff2` is a modified version renamed
+"Fusion Pixel 10px Mono zh_hans Xprite Aseprite": its outlines are moved down
+71 units and its vertical metrics set to 714/285 so Han glyphs share the Aseprite
+UI font's baseline. `scripts/fixtures/assets/build-aseprite-cjk-font.py` derives it.
 
 ## ChiKareGo2 and FindersKeepers
 

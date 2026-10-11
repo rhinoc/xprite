@@ -38,6 +38,7 @@ export function themeTokens(
     "--ui-menu-navigation-highlight-ink": colors.selected_text,
     "--ui-window-title-background": "transparent",
     "--xse-font": fonts.primary,
+    "--ui-font-family-cjk": fonts.cjk,
     "--ui-window-title-inset": "10px",
     "--ui-window-title-reserved-width": "36px",
     "--ui-window-title-offset": "0px",
