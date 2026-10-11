@@ -15,6 +15,7 @@ import { PublicLanguage } from "../../growth/content/site/language.ts";
 import {
   VIEWER_TOOL,
   GIF_SHEET_TOOL,
+  PIXELATE_TOOL,
   ANIMAL_CROSSING_TOOL,
   translateToolText,
 } from "../../growth/content/tools/index.ts";
@@ -33,9 +34,10 @@ const ASSET_TYPES: Readonly<Record<string, string>> = {
 const TOOL_BY_ROOT = {
   "viewer-root": VIEWER_TOOL,
   "gif-sheet-root": GIF_SHEET_TOOL,
+  "pixelation-root": PIXELATE_TOOL,
   "animal-crossing-root": ANIMAL_CROSSING_TOOL,
 };
-const ROOT_IDS = ["viewer-root", "gif-sheet-root", "animal-crossing-root"];
+const ROOT_IDS = ["viewer-root", "gif-sheet-root", "pixelation-root", "animal-crossing-root"];
 const jsonForHtml = (value: unknown) => JSON.stringify(value).replaceAll("<", "\\u003c");
 
 /** The HTML and the browser hydrate the same page components and UI controls. */

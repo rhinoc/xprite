@@ -83,7 +83,7 @@ workerScope.addEventListener("message", (event) => {
         operation: ImportWorkerOperation.Pixelate,
         result,
       },
-      [result.data.buffer],
+      [result.data.buffer as ArrayBuffer],
     );
   } catch (error) {
     const failure =

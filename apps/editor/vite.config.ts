@@ -357,7 +357,7 @@ export default defineConfig({
         replacement: resolve(repositoryRoot, "packages/editor-ui/src/index.ts"),
       },
       {
-        find: "@xprite/editor-ui/",
+        find: /^@xprite\/editor-ui\//,
         replacement: `${resolve(repositoryRoot, "packages/editor-ui/src")}/`,
       },
       {

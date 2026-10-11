@@ -1,12 +1,13 @@
 import { IndexedDbDatabase } from "@xprite/bedrock/browser/indexeddb";
 import { randomId } from "@xprite/bedrock/browser/runtime-crypto";
+import type { Rgba } from "@xprite/editor-core/base";
 
 const DATABASE_NAME = "xprite.viewer-transfer";
 const STORE_NAME = "files";
 const TRANSFER_LIFETIME_MS = 10 * 60 * 1000;
 
 /** Only an explicit Continue editing action stages the original file for the editor. */
-export async function transferViewerFile(file: File): Promise<string> {
+export async function transferViewerFile(file: File, palette?: readonly Rgba[]): Promise<string> {
   const database = new IndexedDbDatabase({
     databaseName: DATABASE_NAME,
     stores: [{ name: STORE_NAME, options: { keyPath: "token" } }],
@@ -26,7 +27,7 @@ export async function transferViewerFile(file: File): Promise<string> {
             if (entry.value.expires <= now) entry.delete();
             entry.continue();
           };
-          store.put({ token, file, name: file.name, expires: now + TRANSFER_LIFETIME_MS });
+          store.put({ token, file, name: file.name, palette, expires: now + TRANSFER_LIFETIME_MS });
           transaction.oncomplete = () => resolve();
           transaction.onerror = transaction.onabort = () =>
             reject(transaction.error ?? new Error("Unable to transfer the file."));
