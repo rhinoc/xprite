@@ -2,6 +2,8 @@ import { EditorPrimaryModifier } from "$/managers/ports/platform";
 import { ShortcutBindingKind } from "$/managers/ports/shortcut-files";
 import type { ShortcutDefinition } from "$/managers/shortcuts/shortcut-catalog";
 
+const MACOS_PREFERENCES_SHORTCUT = "Cmd+,";
+
 // Native bindings explicitly mapped to Command. Editing actions and document
 // tab navigation keep physical Ctrl even on Apple platforms.
 const PRIMARY_MODIFIER_COMMANDS = new Set([
@@ -54,7 +56,10 @@ export function defaultShortcutBindings(
       PRIMARY_MODIFIER_COMMANDS.has(definition.id)) ||
     (definition.kind === ShortcutBindingKind.Action && definition.id === "AutoSelectLayer") ||
     (definition.kind === ShortcutBindingKind.QuickTool && definition.id === "move");
-  return useCommand
+  const bindings = useCommand
     ? definition.defaults.map((binding) => binding.replace(/(^|\+)Ctrl(?=\+|$)/g, "$1Cmd"))
     : definition.defaults;
+  return definition.kind === ShortcutBindingKind.Command && definition.id === "Options"
+    ? [...bindings, MACOS_PREFERENCES_SHORTCUT]
+    : bindings;
 }
