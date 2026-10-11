@@ -101,7 +101,9 @@ try {
       menu: "ui.menu",
       newSprite: "ui.new.sprite",
       saveAs: "ui.save.as",
-      exportFile: "ui.export.file",
+      exportFile: "ui.export",
+      exportFormat: "ui.export.format.selector",
+      gifFormat: "ui.export.format.gif",
       exportAction: "ui.export",
       gifOptions: "ui.gif.options",
       foreground: "ui.foreground.color.c5308777",
@@ -394,13 +396,19 @@ try {
       }
       if (selected.has(`export-file-${mode}`) || selected.has(`gif-options-${mode}`)) {
         await page.keyboard.press("ControlOrMeta+Alt+Shift+s");
-        await page.waitForSelector(labeled('[role="dialog"]', ui.exportFile));
+        const exportDialog = labeled('[role="dialog"]', ui.exportFile);
+        await page.waitForSelector(exportDialog);
         await parkedPointer(width, height);
-        await capture("export-file", labeled('[role="dialog"]', ui.exportFile));
+        await capture("export-file", exportDialog);
         if (selected.has(`gif-options-${mode}`)) {
-          await page.click(
-            `${labeled('[role="dialog"]', ui.exportFile)} ${labeled("button", ui.exportAction)}`,
+          const formatTrigger = `${exportDialog} ${labeled("button", ui.exportFormat)}`;
+          await page.click(formatTrigger);
+          await page.click(labeled('[role="menuitem"]', ui.gifFormat));
+          await page.waitForFunction(
+            ({ selector, label }) => document.querySelector(selector)?.textContent?.includes(label),
+            { selector: formatTrigger, label: ui.gifFormat },
           );
+          await page.click(`${exportDialog} ${labeled("button", ui.exportAction)}`);
           await page.waitForSelector(labeled('[role="dialog"]', ui.gifOptions));
           await parkedPointer(width, height);
           await capture("gif-options", labeled('[role="dialog"]', ui.gifOptions));
