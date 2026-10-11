@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 
 import { cn } from "$/base/utils/cn";
-import { SliderOrientation, type NativeSliderProps } from "$/components/slider/types";
+import { SliderOrientation, type BrowserRangeSliderProps } from "$/components/slider/types";
 
 import styles from "$/components/slider/variants/native/native.module.css";
 
@@ -22,7 +22,7 @@ export function NativeSlider({
   "aria-label": ariaLabel,
   "aria-valuetext": ariaValueText,
   disabled,
-}: NativeSliderProps) {
+}: BrowserRangeSliderProps) {
   const progress = max > min ? Math.max(0, Math.min(1, (value - min) / (max - min))) : 0;
   const input = (
     <input

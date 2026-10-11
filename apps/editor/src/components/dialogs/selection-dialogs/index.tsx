@@ -13,15 +13,18 @@ import {
 } from "$/managers/tools/color-control";
 import { ToolSelectionMode, ToolSelectionModifier } from "$/managers/tools/tool-options";
 import {
+  FontRole,
   Button,
   Input,
   isDialogPopupTarget,
   Text,
   TextVariant,
   Checkbox,
-  CheckboxVariant,
+  CheckboxShape,
+  CheckboxMode,
   Divider,
   Slider,
+  FocusRingBehavior,
 } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 import { measureUiText } from "@xprite/ui/assets";
@@ -271,7 +274,8 @@ export function SelectionDialogs({
                   onValueChange={setQuantity}
                 />
                 <Checkbox
-                  variant={CheckboxVariant.Radio}
+                  mode={CheckboxMode.Radio}
+                  shape={CheckboxShape.Round}
                   bounds={{
                     x: c.x + modifyEntryX,
                     y: c.y + 38,
@@ -284,7 +288,8 @@ export function SelectionDialogs({
                   onCheckedChange={() => setBrush("circle")}
                 />
                 <Checkbox
-                  variant={CheckboxVariant.Radio}
+                  mode={CheckboxMode.Radio}
+                  shape={CheckboxShape.Round}
                   bounds={{
                     x: c.x + modifyEntryX,
                     y: c.y + 70,
@@ -316,9 +321,9 @@ export function SelectionDialogs({
               hotPart="button_hot"
               focusedPart="button_focused"
               pushedPart="button_selected"
-              focusAppearance={isColor ? "always" : "keyboard"}
+              focusRing={isColor ? FocusRingBehavior.Always : FocusRingBehavior.Keyboard}
               text="OK"
-              font="default"
+              font={FontRole.Primary}
               mnemonicIndex={0}
               aria-label="OK"
               onClick={accept}
@@ -336,7 +341,7 @@ export function SelectionDialogs({
               focusedPart="button_focused"
               pushedPart="button_selected"
               text="Cancel"
-              font="default"
+              font={FontRole.Primary}
               mnemonicIndex={0}
               aria-label="Cancel"
               onClick={close}

@@ -27,36 +27,6 @@
       "statusCode": 301
     },
     {
-      "source": "/help",
-      "destination": "/help/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/help/",
-      "destination": "/help/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/help/en",
-      "destination": "/help/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/help/zh-CN",
-      "destination": "/help/zh-CN/",
-      "statusCode": 301
-    },
-    {
-      "source": "/help/en/index.html",
-      "destination": "/help/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/help/zh-CN/index.html",
-      "destination": "/help/zh-CN/",
-      "statusCode": 301
-    },
-    {
       "source": "/tools/viewer",
       "destination": "/tools/viewer/",
       "statusCode": 301
@@ -64,41 +34,6 @@
     {
       "source": "/tools/viewer/index.html",
       "destination": "/tools/viewer/",
-      "statusCode": 301
-    },
-    {
-      "source": "/showcase",
-      "destination": "/showcase/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/showcase/",
-      "destination": "/showcase/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/showcase/index.html",
-      "destination": "/showcase/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/showcase/en",
-      "destination": "/showcase/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/showcase/zh-CN",
-      "destination": "/showcase/zh-CN/",
-      "statusCode": 301
-    },
-    {
-      "source": "/showcase/en/index.html",
-      "destination": "/showcase/en/",
-      "statusCode": 301
-    },
-    {
-      "source": "/showcase/zh-CN/index.html",
-      "destination": "/showcase/zh-CN/",
       "statusCode": 301
     },
     {
@@ -142,36 +77,6 @@
       "statusCode": 301
     },
     {
-      "source": "/learn",
-      "destination": "/learn/",
-      "statusCode": 301
-    },
-    {
-      "source": "/learn/index.html",
-      "destination": "/learn/",
-      "statusCode": 301
-    },
-    {
-      "source": "/learn/aseprite-to-gif",
-      "destination": "/learn/aseprite-to-gif/",
-      "statusCode": 301
-    },
-    {
-      "source": "/learn/aseprite-to-gif/index.html",
-      "destination": "/learn/aseprite-to-gif/",
-      "statusCode": 301
-    },
-    {
-      "source": "/learn/aseprite-to-png",
-      "destination": "/learn/aseprite-to-png/",
-      "statusCode": 301
-    },
-    {
-      "source": "/learn/aseprite-to-png/index.html",
-      "destination": "/learn/aseprite-to-png/",
-      "statusCode": 301
-    },
-    {
       "source": "/tools/gif-to-sprite-sheet",
       "destination": "/tools/gif-to-sprite-sheet/",
       "statusCode": 301
@@ -183,12 +88,12 @@
     },
     {
       "source": "/tools",
-      "destination": "/tools/",
+      "destination": "/about/features/",
       "statusCode": 301
     },
     {
       "source": "/tools/index.html",
-      "destination": "/tools/",
+      "destination": "/about/features/",
       "statusCode": 301
     },
     {
@@ -203,12 +108,312 @@
     },
     {
       "source": "/gallery",
-      "destination": "/gallery/",
+      "destination": "/components/",
+      "statusCode": 301
+    },
+    {
+      "source": "/gallery/",
+      "destination": "/components/",
       "statusCode": 301
     },
     {
       "source": "/gallery/index.html",
-      "destination": "/gallery/",
+      "destination": "/components/",
+      "statusCode": 301
+    },
+    {
+      "source": "/learn",
+      "destination": "/tools/viewer/#viewer-help",
+      "statusCode": 301
+    },
+    {
+      "source": "/learn/",
+      "destination": "/tools/viewer/#viewer-help",
+      "statusCode": 301
+    },
+    {
+      "source": "/learn/index.html",
+      "destination": "/tools/viewer/#viewer-help",
+      "statusCode": 301
+    },
+    {
+      "source": "/learn/aseprite-to-png",
+      "destination": "/tools/viewer/#export-png",
+      "statusCode": 301
+    },
+    {
+      "source": "/learn/aseprite-to-png/",
+      "destination": "/tools/viewer/#export-png",
+      "statusCode": 301
+    },
+    {
+      "source": "/learn/aseprite-to-png/index.html",
+      "destination": "/tools/viewer/#export-png",
+      "statusCode": 301
+    },
+    {
+      "source": "/learn/aseprite-to-gif",
+      "destination": "/tools/viewer/#export-gif",
+      "statusCode": 301
+    },
+    {
+      "source": "/learn/aseprite-to-gif/",
+      "destination": "/tools/viewer/#export-gif",
+      "statusCode": 301
+    },
+    {
+      "source": "/learn/aseprite-to-gif/index.html",
+      "destination": "/tools/viewer/#export-gif",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/learn",
+      "destination": "/tools/viewer/?lang=zh-CN#viewer-help",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/learn/",
+      "destination": "/tools/viewer/?lang=zh-CN#viewer-help",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/learn/index.html",
+      "destination": "/tools/viewer/?lang=zh-CN#viewer-help",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/learn/aseprite-to-png",
+      "destination": "/tools/viewer/?lang=zh-CN#export-png",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/learn/aseprite-to-png/",
+      "destination": "/tools/viewer/?lang=zh-CN#export-png",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/learn/aseprite-to-png/index.html",
+      "destination": "/tools/viewer/?lang=zh-CN#export-png",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/learn/aseprite-to-gif",
+      "destination": "/tools/viewer/?lang=zh-CN#export-gif",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/learn/aseprite-to-gif/",
+      "destination": "/tools/viewer/?lang=zh-CN#export-gif",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/learn/aseprite-to-gif/index.html",
+      "destination": "/tools/viewer/?lang=zh-CN#export-gif",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/",
+      "destination": "/about/features/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/draw-pixel-art",
+      "destination": "/features/draw-pixel-art/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/draw-pixel-art/index.html",
+      "destination": "/features/draw-pixel-art/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/layers-and-colors",
+      "destination": "/features/layers-and-colors/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/layers-and-colors/index.html",
+      "destination": "/features/layers-and-colors/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/frame-animation",
+      "destination": "/features/frame-animation/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/frame-animation/index.html",
+      "destination": "/features/frame-animation/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/tilemaps",
+      "destination": "/features/tilemaps/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/tilemaps/index.html",
+      "destination": "/features/tilemaps/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/aseprite-projects",
+      "destination": "/features/aseprite-projects/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/aseprite-projects/index.html",
+      "destination": "/features/aseprite-projects/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/export-images-and-animation",
+      "destination": "/features/export-images-and-animation/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/export-images-and-animation/index.html",
+      "destination": "/features/export-images-and-animation/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/touch-drawing",
+      "destination": "/features/touch-drawing/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/touch-drawing/index.html",
+      "destination": "/features/touch-drawing/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/workspace-layout",
+      "destination": "/features/workspace-layout/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/workspace-layout/index.html",
+      "destination": "/features/workspace-layout/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/drawing-process",
+      "destination": "/features/drawing-process/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/drawing-process/index.html",
+      "destination": "/features/drawing-process/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/share-artwork",
+      "destination": "/features/share-artwork/",
+      "statusCode": 301
+    },
+    {
+      "source": "/features/share-artwork/index.html",
+      "destination": "/features/share-artwork/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/draw-pixel-art",
+      "destination": "/zh-CN/features/draw-pixel-art/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/draw-pixel-art/index.html",
+      "destination": "/zh-CN/features/draw-pixel-art/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/layers-and-colors",
+      "destination": "/zh-CN/features/layers-and-colors/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/layers-and-colors/index.html",
+      "destination": "/zh-CN/features/layers-and-colors/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/frame-animation",
+      "destination": "/zh-CN/features/frame-animation/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/frame-animation/index.html",
+      "destination": "/zh-CN/features/frame-animation/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/tilemaps",
+      "destination": "/zh-CN/features/tilemaps/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/tilemaps/index.html",
+      "destination": "/zh-CN/features/tilemaps/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/aseprite-projects",
+      "destination": "/zh-CN/features/aseprite-projects/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/aseprite-projects/index.html",
+      "destination": "/zh-CN/features/aseprite-projects/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/export-images-and-animation",
+      "destination": "/zh-CN/features/export-images-and-animation/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/export-images-and-animation/index.html",
+      "destination": "/zh-CN/features/export-images-and-animation/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/touch-drawing",
+      "destination": "/zh-CN/features/touch-drawing/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/touch-drawing/index.html",
+      "destination": "/zh-CN/features/touch-drawing/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/workspace-layout",
+      "destination": "/zh-CN/features/workspace-layout/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/workspace-layout/index.html",
+      "destination": "/zh-CN/features/workspace-layout/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/drawing-process",
+      "destination": "/zh-CN/features/drawing-process/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/drawing-process/index.html",
+      "destination": "/zh-CN/features/drawing-process/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/share-artwork",
+      "destination": "/zh-CN/features/share-artwork/",
+      "statusCode": 301
+    },
+    {
+      "source": "/zh-CN/features/share-artwork/index.html",
+      "destination": "/zh-CN/features/share-artwork/",
       "statusCode": 301
     }
   ],
@@ -222,24 +427,8 @@
       "destination": "/index.html"
     },
     {
-      "source": "/help/en/",
-      "destination": "/help/en/index.html"
-    },
-    {
-      "source": "/help/zh-CN/",
-      "destination": "/help/zh-CN/index.html"
-    },
-    {
       "source": "/tools/viewer/",
       "destination": "/tools/viewer/index.html"
-    },
-    {
-      "source": "/showcase/en/",
-      "destination": "/showcase/en/index.html"
-    },
-    {
-      "source": "/showcase/zh-CN/",
-      "destination": "/showcase/zh-CN/index.html"
     },
     {
       "source": "/compare/",
@@ -258,32 +447,92 @@
       "destination": "/compare/piskel-alternatives/index.html"
     },
     {
-      "source": "/learn/",
-      "destination": "/learn/index.html"
-    },
-    {
-      "source": "/learn/aseprite-to-gif/",
-      "destination": "/learn/aseprite-to-gif/index.html"
-    },
-    {
-      "source": "/learn/aseprite-to-png/",
-      "destination": "/learn/aseprite-to-png/index.html"
-    },
-    {
       "source": "/tools/gif-to-sprite-sheet/",
       "destination": "/tools/gif-to-sprite-sheet/index.html"
-    },
-    {
-      "source": "/tools/",
-      "destination": "/tools/index.html"
     },
     {
       "source": "/tools/animal-crossing-qr/",
       "destination": "/tools/animal-crossing-qr/index.html"
     },
     {
-      "source": "/gallery/",
-      "destination": "/gallery/index.html"
+      "source": "/features/draw-pixel-art/",
+      "destination": "/features/draw-pixel-art/index.html"
+    },
+    {
+      "source": "/features/layers-and-colors/",
+      "destination": "/features/layers-and-colors/index.html"
+    },
+    {
+      "source": "/features/frame-animation/",
+      "destination": "/features/frame-animation/index.html"
+    },
+    {
+      "source": "/features/tilemaps/",
+      "destination": "/features/tilemaps/index.html"
+    },
+    {
+      "source": "/features/aseprite-projects/",
+      "destination": "/features/aseprite-projects/index.html"
+    },
+    {
+      "source": "/features/export-images-and-animation/",
+      "destination": "/features/export-images-and-animation/index.html"
+    },
+    {
+      "source": "/features/touch-drawing/",
+      "destination": "/features/touch-drawing/index.html"
+    },
+    {
+      "source": "/features/workspace-layout/",
+      "destination": "/features/workspace-layout/index.html"
+    },
+    {
+      "source": "/features/drawing-process/",
+      "destination": "/features/drawing-process/index.html"
+    },
+    {
+      "source": "/features/share-artwork/",
+      "destination": "/features/share-artwork/index.html"
+    },
+    {
+      "source": "/zh-CN/features/draw-pixel-art/",
+      "destination": "/zh-CN/features/draw-pixel-art/index.html"
+    },
+    {
+      "source": "/zh-CN/features/layers-and-colors/",
+      "destination": "/zh-CN/features/layers-and-colors/index.html"
+    },
+    {
+      "source": "/zh-CN/features/frame-animation/",
+      "destination": "/zh-CN/features/frame-animation/index.html"
+    },
+    {
+      "source": "/zh-CN/features/tilemaps/",
+      "destination": "/zh-CN/features/tilemaps/index.html"
+    },
+    {
+      "source": "/zh-CN/features/aseprite-projects/",
+      "destination": "/zh-CN/features/aseprite-projects/index.html"
+    },
+    {
+      "source": "/zh-CN/features/export-images-and-animation/",
+      "destination": "/zh-CN/features/export-images-and-animation/index.html"
+    },
+    {
+      "source": "/zh-CN/features/touch-drawing/",
+      "destination": "/zh-CN/features/touch-drawing/index.html"
+    },
+    {
+      "source": "/zh-CN/features/workspace-layout/",
+      "destination": "/zh-CN/features/workspace-layout/index.html"
+    },
+    {
+      "source": "/zh-CN/features/drawing-process/",
+      "destination": "/zh-CN/features/drawing-process/index.html"
+    },
+    {
+      "source": "/zh-CN/features/share-artwork/",
+      "destination": "/zh-CN/features/share-artwork/index.html"
     }
   ],
   "headers": [
@@ -405,7 +654,7 @@
       ]
     },
     {
-      "source": "/tools/gif-to-sprite-sheet/",
+      "source": "/about/*",
       "headers": [
         {
           "key": "Cache-Control",
@@ -414,7 +663,25 @@
       ]
     },
     {
-      "source": "/tools/",
+      "source": "/privacy/*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/zh-CN/*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/tools/gif-to-sprite-sheet/",
       "headers": [
         {
           "key": "Cache-Control",
@@ -432,7 +699,7 @@
       ]
     },
     {
-      "source": "/gallery/*",
+      "source": "/components/*",
       "headers": [
         {
           "key": "Cache-Control",
@@ -495,6 +762,22 @@
       "cacheTtl": 0
     },
     {
+      "source": "/about/*",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/privacy/*",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/zh-CN/*",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/help/*",
+      "cacheTtl": 0
+    },
+    {
       "source": "/tools/gif-to-sprite-sheet/",
       "cacheTtl": 0
     },
@@ -507,7 +790,7 @@
       "cacheTtl": 0
     },
     {
-      "source": "/gallery/*",
+      "source": "/components/*",
       "cacheTtl": 0
     }
   ]

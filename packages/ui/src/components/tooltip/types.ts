@@ -1,14 +1,14 @@
 import type { HTMLAttributes, ReactElement } from "react";
 
 import type { SurfaceBounds, SurfaceViewport } from "$/components/canvas-surface/geometry";
-import type { TooltipPlacement } from "$/components/tooltip/geometry";
+import type { TooltipPosition } from "$/components/tooltip/geometry";
 
 export interface PositionedTooltipLayout {
   bounds: SurfaceBounds;
   lines: readonly string[];
   viewport: SurfaceViewport;
   origin: { x: number; y: number };
-  placement: TooltipPlacement;
+  placement: TooltipPosition;
   target: SurfaceBounds;
 }
 

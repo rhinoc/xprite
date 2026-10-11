@@ -57,7 +57,7 @@
   outline-offset: 2px;
 }
 
-:global([data-ui-desktop-icon][data-size="compact"]) {
+:global([data-ui-desktop-icon][data-size="40"]) {
   --desktop-icon-artwork-size: 40px;
 }
 

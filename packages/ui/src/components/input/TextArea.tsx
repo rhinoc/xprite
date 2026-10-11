@@ -11,6 +11,7 @@ import {
 } from "react";
 
 import { useTheme } from "$/base/theme/theme-context";
+import { ScrollbarStyle } from "$/base/theme/theme-types";
 import { cn } from "$/base/utils/cn";
 import {
   layoutSize,
@@ -22,7 +23,6 @@ import {
 } from "$/base/utils/dom-geometry";
 import { useFieldControl } from "$/components/field/Field";
 import { Scrollbar } from "$/components/scrollbar/Scrollbar";
-import type { ScrollbarVariant } from "$/components/scrollbar/types";
 
 import styles from "$/components/input/text-area.module.css";
 
@@ -43,7 +43,7 @@ const INITIAL_METRICS = {
 };
 
 export enum TextAreaPresentation {
-  Plain = "plain",
+  Text = "text",
   Code = "code",
 }
 export enum TextAreaResize {
@@ -52,7 +52,7 @@ export enum TextAreaResize {
   Both = "both",
 }
 export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
-  scrollbarVariant?: ScrollbarVariant;
+  scrollbarStyle?: ScrollbarStyle;
   presentation?: TextAreaPresentation;
   resize?: TextAreaResize;
   height?: number;
@@ -66,8 +66,8 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
     style,
     onInput,
     onScroll,
-    scrollbarVariant,
-    presentation = TextAreaPresentation.Plain,
+    scrollbarStyle,
+    presentation = TextAreaPresentation.Text,
     resize = TextAreaResize.None,
     height,
     padding,
@@ -82,9 +82,11 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
   const generatedId = useId();
   const id = fieldAttributes.id ?? generatedId;
   const [metrics, setMetrics] = useState(INITIAL_METRICS);
-  const areaVariant = scrollbarVariant ?? definition.controlParts?.scrollbar?.areaVariant;
+  const areaStyle = scrollbarStyle ?? definition.controlParts?.scrollbar?.areaStyle;
+  const verticalStyle = areaStyle ?? ScrollbarStyle.Compact;
+  const horizontalStyle = scrollbarStyle ?? areaStyle ?? ScrollbarStyle.Transparent;
   const barSize =
-    areaVariant === "regular"
+    verticalStyle === ScrollbarStyle.Classic
       ? (definition.controlParts?.scrollbar?.arrowExtent ??
         (definition.dimensions.scrollbar_default_size ?? definition.dimensions.scrollbar_size) *
           ARTWORK_SCALE)
@@ -197,7 +199,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
       />
       {metrics.vertical && verticalExtent > 0 && (
         <Scrollbar
-          variant={areaVariant ?? "mini"}
+          scrollbarStyle={verticalStyle}
           aria-label={props["aria-label"]}
           aria-controls={id}
           bounds={{
@@ -215,7 +217,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
       )}
       {metrics.horizontal && horizontalExtent > 0 && (
         <Scrollbar
-          variant={areaVariant ?? "transparent"}
+          scrollbarStyle={horizontalStyle}
           aria-label={props["aria-label"]}
           aria-controls={id}
           orientation="horizontal"

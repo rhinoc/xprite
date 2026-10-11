@@ -1,0 +1,28 @@
+.faq {
+  width: 100%;
+  --ui-note-font-size: var(--ui-text-primary-size);
+  --ui-note-line-height: var(--site-scene-summary-line-height);
+  --ui-note-content-padding: var(--ui-space-6, 16px);
+  --ui-reading-body-size: var(--ui-text-primary-size);
+  --ui-disclosure-font-size: var(--ui-text-primary-size);
+  --ui-disclosure-summary-padding: var(--ui-space-5, 12px) var(--ui-space-6, 16px);
+  --ui-disclosure-content-padding: var(--ui-space-2, 4px) var(--ui-space-6, 16px)
+    var(--ui-space-6, 16px)
+    calc(
+      var(--ui-space-6, 16px) + var(--ui-disclosure-indicator-size, 11px) +
+        var(--ui-disclosure-label-gap, 5px)
+    );
+}
+
+.title {
+  margin-bottom: var(--ui-space-6, 16px);
+}
+
+.questions {
+  max-height: min(360px, 60svh);
+}
+
+.guide {
+  margin-top: var(--ui-space-6, 16px);
+  padding-inline: var(--ui-space-6, 16px);
+}

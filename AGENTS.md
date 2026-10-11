@@ -18,9 +18,9 @@ Use root `package.json` scripts for current tools and commands.
 │   │       └── i18n/
 │   │           ├── index.ts
 │   │           └── locales/
-    │   ├── growth/{src,content,build,public}/
+│   ├── growth/{src,content,build,public}/
 │   ├── tools/{src,index.html,viewer,gif-to-sprite-sheet}/
-│   └── gallery/src/
+│   └── components/src/
 ├── packages/
 │   ├── bedrock/{browser,common}/
 │   ├── editor-core/src/<feature>/
@@ -82,7 +82,9 @@ assets, including fonts, stay in `packages/ui/assets`.
 - Keep `packages/ui` independent of editor code.
 - For drag handles, reuse `PointerDragActivation` from `@xprite/ui/utils`; for one-dimensional resize values, use `PointerResizeGesture`. Keep activation thresholds in the shared helper, and keep size limits, previews, and commit/cancel behavior with the owning control.
 - Use CSS Modules and design tokens.
+- Public pages use `SiteMenubar` from `@xprite/site-shell` for the top bar. Keep the brand icon and page menus on the left, application navigation and the help icon on the right. All menus open automatically on mouse hover. Supply help link data through its `help` prop only when the page has relevant instructions of its own; omit help otherwise. The shared shell owns the control and placement. The editor guide belongs in site resource navigation.
 - Read DOM coordinates, sizes, presentation scale, scroll positions, computed styles, and hit targets only through `@xprite/ui/utils` geometry methods. Inside `packages/ui`, use `base/utils/dom-geometry`. Use `clientToLocal` and `clientDeltaToLocal` for coordinate conversion; do not combine native screen and layout units manually. Direct native geometry access is restricted to this boundary and enforced by `check:dom-geometry`.
+- Use `viewportContentSize` for page-edge collision bounds of menus, tooltips, popovers, and draggable windows so reserved scrollbar gutters remain outside their usable area.
 - Use enums for fixed sets. Use named constants for fixed numbers and strings.
 - Do not keep compatibility exports or aliases for moved code.
 - Before launch, support only current internal APIs and storage schemas. Do not add migrations or legacy fallbacks for past project versions.
@@ -90,8 +92,8 @@ assets, including fonts, stay in `packages/ui/assets`.
 ---
 
 开发过程中，不用跑任何构建和测试。Git hook 会在提交和推送时自动运行对应的静态检查，单元测试和构建不在 hook 中运行。
-`pre-push` 必须采集当前界面的候选截图并运行像素对比；采集失败、整张截图像素相似度低于 99% 或区域几何变化都必须阻止推送。超过 1% 的视觉差异或区域几何变化须先展示给用户并得到明确确认，确认前不得推送或发布。不得自动更新基线、修改阈值、跳过场景或绕过 hook；对像素校验脚本、规则和基线的修改也须先取得用户确认。
-`pre-push` 还须对工具页的 SSG 首屏与水合后交互就绪首屏进行整张截图对比：所有解码后的 RGBA 像素必须完全一致（100%，零差异），区域几何必须一致；不得容忍颜色差异、忽略抗锯齿像素、遮罩或缩放截图；采集失败或不完整须阻止推送。
+`pre-push` 必须按已批准的场景矩阵采集当前界面候选截图并运行像素对比；采集失败、整张截图像素相似度低于 99% 或区域几何变化都必须阻止推送。超过 1% 的视觉差异或区域几何变化须先展示给用户并得到明确确认，确认前不得推送或发布。编辑器场景覆盖中文和英文，并覆盖宽屏和窄屏；“关于”页面覆盖宽屏和窄屏、选择一种语言；其他页面在语言、尺寸和外观之间交错覆盖。场景矩阵中每个场景都必须采集，不得在单次运行中跳过。不得自动更新基线、修改阈值或绕过 hook；对像素校验脚本、覆盖规则和基线的后续修改须先取得用户确认。
+`pre-push` 还须对工具页场景矩阵中的 SSG 首屏与水合后交互就绪首屏进行整张截图对比：所有解码后的 RGBA 像素必须完全一致（100%，零差异），区域几何必须一致；不得容忍颜色差异、忽略抗锯齿像素、遮罩或缩放截图；采集失败或不完整须阻止推送。
 dev 端口有 HMR，不需要你手动刷新/重新构建/重启服务。
 若端口被占用，直接复用原端口，不要修改端口号，原端口明显出现异常时杀死原进程进行重启。
 
@@ -128,7 +130,7 @@ UI 开发流程：
 - 指南写给正在使用编辑器的人：直接说明操作入口、手势、设置后果和数据保存行为。不要复述眼前可见的界面、加载动画、提示出现与消失、窗口自动排版等过程，也不要把文档受众、编写范围和内部维护要求写进正文。避免产品介绍、营销文案和重复解释同一操作。
 - 每段帮助须能说明如何使用应用：用户从当前页面就能看出的内容、Aseprite 原版已有的操作，以及对用户操作没有帮助的内容都删除。访客标识、访问统计和隐私说明放在仓库 README 或 PRIVACY 文档；许可、鸣谢和推广也不加入帮助正文。
 - 章节按编辑器的日常任务和使用流程组织：保存恢复、工作区和输入操作在前，分享、回放、AI 等可选功能在后，问题反馈放末尾。新功能放到相关任务的位置，不因刚实现就插到文档最前面；中英文目录和正文顺序保持一致。
-- 章节名使用用户能理解的具体控件或任务名称，如“快捷操作栏”，不使用“不用键盘编辑”“官网操作差异”等自造标题。不要为切换语言、曲线控制点等原版已有功能开章节。通常指出入口、说明不明显的行为即可；不要逐步解释打开入口后已经可见的下一步、确认、取消等按钮。截图用于定位不易找到的入口，不截图解释常规确认按钮。
+- 章节名使用当前控件或具体任务名称，如“快捷操作栏”。不要为切换语言、曲线控制点等原版已有功能开章节。通常指出入口、说明不明显的行为即可；不要逐步解释打开入口后已经可见的下一步、确认、取消等按钮。截图用于定位不易找到的入口，不截图解释常规确认按钮。
 - 对外文档和公开页面禁止出现小红书相关内容，包括中文名称、Xiaohongshu、RedNote、XHS 及相关链接。不得在仓库首页、使用指南或公开页面中加入体验版说明；平台专用说明仅放在开发者文档或对应运行环境内。`check:public-docs` 在 CI、部署和 Git hook 中强制检查。
 - 使用指南面向最终用户，只解释实际使用操作。itch.io 发布与部署、小红书创作后台预览、开发环境、构建及调试流程放在对应的开发者文档中，不加入用户指南。
 - 只有编辑器变更使现有指南失效，或新增了界面不能直接表达且需要用户了解的操作、限制、数据保存后果时，才维护相关章节，并同步中英文。仅修正或补充必要内容，不因每次变更扩写教程；普通布局、外观、控件文字和显而易见的交互变化不要求修改指南。非编辑器页面和独立小工具的变更不触发编辑器指南更新。

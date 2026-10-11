@@ -1,5 +1,6 @@
 import type { CSSProperties, HTMLAttributes } from "react";
 
+import type { FontRole } from "$/base/theme/theme-types";
 import type { SurfaceViewport } from "$/components/canvas-surface/geometry";
 import type { ControlPlacement } from "$/components/control-flow/placement";
 
@@ -18,9 +19,20 @@ export enum TextRole {
 }
 
 export enum TextTone {
-  Default = "default",
+  Neutral = "neutral",
   Muted = "muted",
-  Danger = "danger",
+  Error = "error",
+}
+
+export enum TextInk {
+  Light = "light",
+  Dark = "dark",
+}
+
+export enum TextAlignment {
+  Left = "left",
+  Center = "center",
+  Right = "right",
 }
 
 export interface ReadingTextProps extends HTMLAttributes<HTMLElement> {
@@ -28,13 +40,11 @@ export interface ReadingTextProps extends HTMLAttributes<HTMLElement> {
   children: string;
   textRole?: TextRole;
   tone?: TextTone;
-  as?: "span" | "p" | "h1" | "h2" | "h3" | "strong";
+  as?: "span" | "p" | "h1" | "h2" | "h3" | "strong" | "figcaption";
   /** Preserve explicit newlines and wrap at the available reading width. */
   wrap?: boolean;
   ink?: string;
 }
-
-export type PixelFont = "default" | "mini";
 
 export interface InlineTextProps {
   variant: TextVariant.Inline;
@@ -45,7 +55,7 @@ export interface InlineTextProps {
   scale?: number;
   /** CSS-pixel line height for wrapped copy; glyph size still follows scale. */
   lineHeight?: number;
-  color?: "dark" | "light";
+  inkTone?: TextInk;
   ink?: string;
 }
 
@@ -55,18 +65,20 @@ export interface PositionedPixelTextProps {
   x: number;
   y: number;
   color: string;
-  font?: PixelFont;
+  font?: FontRole;
   scale?: number;
   style?: CSSProperties;
+  /** Use the theme's title CJK face. Tabs and window titles set this. */
+  titleCjk?: boolean;
 }
 
 interface ControlTextContentProps extends HTMLAttributes<HTMLSpanElement> {
   variant: TextVariant.Control;
   viewport?: SurfaceViewport;
   text: string;
-  font?: PixelFont;
+  font?: FontRole;
   color?: string;
-  align?: "left" | "center" | "right";
+  align?: TextAlignment;
   fill?: string;
   wrap?: boolean;
 }

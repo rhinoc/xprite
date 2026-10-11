@@ -78,10 +78,9 @@ function normalize(value: unknown): EffectPreferences {
  * parameter defaults are saved only when the command accepts the window. */
 export class EffectDialogPreferences {
   private state = defaults();
-  private serialized = "";
   constructor(private readonly storage?: PreferenceStoragePort) {
     try {
-      const saved = JSON.parse(storage?.getItem(STORAGE_KEY) ?? "null");
+      const saved = storage?.readJson(STORAGE_KEY);
       if (saved?.version === 1) this.state = normalize(saved.preferences);
     } catch {
       /* Defaults remain available if persisted preferences are malformed. */
@@ -132,13 +131,6 @@ export class EffectDialogPreferences {
   }
   private update(value: EffectPreferences) {
     this.state = normalize(value);
-    const serialized = JSON.stringify({ version: 1, preferences: this.state });
-    if (serialized === this.serialized) return;
-    try {
-      this.storage?.setItem(STORAGE_KEY, serialized);
-      this.serialized = serialized;
-    } catch {
-      /* The current workspace still remembers the updated settings. */
-    }
+    this.storage?.writeJson(STORAGE_KEY, { version: 1, preferences: this.state });
   }
 }

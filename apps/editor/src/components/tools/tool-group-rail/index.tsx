@@ -8,16 +8,22 @@ import {
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { createPortal } from "react-dom";
 
-import { Button, type SurfaceBounds, useUi, Tooltip, TooltipGroup } from "@xprite/ui";
-import { centerUiPixel } from "@xprite/ui/assets";
-import { uiMetrics } from "@xprite/ui/assets";
-import { UiPart, UiIcon, type UiPartName } from "@xprite/ui/assets";
-import { surfaceLayout, UI_SCALE_X as sx, UI_SCALE_Y as sy } from "@xprite/ui/canvas";
-import { UI_SCALE } from "@xprite/ui/canvas";
 import {
-  viewportSize,
+  TooltipPlacement,
+  createUiPortal,
+  Button,
+  type SurfaceBounds,
+  useUi,
+  Tooltip,
+  TooltipGroup,
+  Icon,
+} from "@xprite/ui";
+import { centerUiPixel, uiMetrics, UiPart, type UiPartName } from "@xprite/ui/assets";
+import { surfaceLayout, UI_SCALE_X as sx, UI_SCALE_Y as sy, UI_SCALE } from "@xprite/ui/canvas";
+import { placeAnchoredPopover, PopoverSide } from "@xprite/ui/popover";
+import {
+  viewportContentSize,
   hitElement,
   clientPoint,
   clientRect,
@@ -27,6 +33,8 @@ import {
 import styles from "$/components/tools/tool-group-rail/tool-group-rail.module.css";
 
 const PRIMARY_TOOL_POINTER_BUTTON = 0;
+const TOOL_GROUP_POPUP_INSET = 4;
+const TOOL_GROUP_POPUP_GAP = 1;
 const PRIMARY_TOOL_POINTER_BUTTON_MASK = 1;
 
 export interface ToolOption {
@@ -150,8 +158,8 @@ function ToolStripArtwork({
               pointerEvents: "none",
             }}
           >
-            <UiIcon
-              part={tool.icon}
+            <Icon
+              kind={tool.icon}
               scale={2}
               x={centerUiPixel(box.x, box.width, icon.width * 2) - box.x}
               y={centerUiPixel(box.y, box.height, icon.height * 2) - box.y}
@@ -246,25 +254,26 @@ export function ToolGroupRail({
         return;
       }
       const rect = clientRect(trigger);
+      const viewport = viewportContentSize(window);
       const width = (optionCount - 1) * popupFacePitch + bounds.width;
       const height = bounds.height + UI_SCALE;
-      if (layout === "row") {
-        const left = Math.max(4, Math.min(rect.left, viewportSize(window).width - width - 4));
-        const below = rect.bottom + 1;
-        const top =
-          below + height <= viewportSize(window).height - 4
-            ? below
-            : Math.max(4, rect.top - height - 1);
-        setPopupPlacement({ left, top, width, height });
-      } else {
-        const left = rect.left - width >= 4 ? rect.left - width : rect.right + 1;
-        setPopupPlacement({
-          left: Math.max(4, Math.min(left, viewportSize(window).width - width - 4)),
-          top: Math.max(4, Math.min(rect.top, viewportSize(window).height - height - 4)),
-          width,
-          height,
-        });
-      }
+      const placed = placeAnchoredPopover(
+        { x: rect.left, y: rect.top, width: rect.width, height: rect.height },
+        { width, height },
+        viewport,
+        {
+          side: layout === "row" ? PopoverSide.Bottom : PopoverSide.Left,
+          inset: TOOL_GROUP_POPUP_INSET,
+          gap: layout === "row" ? TOOL_GROUP_POPUP_GAP : 0,
+          fallbackGap: TOOL_GROUP_POPUP_GAP,
+        },
+      );
+      setPopupPlacement({
+        left: placed.x,
+        top: placed.y,
+        width: placed.width,
+        height: placed.height,
+      });
     };
     update();
     window.addEventListener("resize", update);
@@ -389,7 +398,7 @@ export function ToolGroupRail({
       layout,
     ],
   );
-  const tooltipPlacement = layout === "row" ? "top" : "auto";
+  const tooltipPlacement = layout === "row" ? TooltipPlacement.Top : TooltipPlacement.Auto;
 
   return (
     <TooltipGroup retainWarm={open !== null}>
@@ -527,7 +536,7 @@ export function ToolGroupRail({
         {!onActiveToolPress &&
           open !== null &&
           popupPlacement &&
-          createPortal(
+          createUiPortal(
             <div
               ref={popup}
               className={styles.popup}

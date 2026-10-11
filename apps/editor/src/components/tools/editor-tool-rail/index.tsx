@@ -1,7 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useRef, type RefObject } from "react";
 
-import { useElementSize } from "$/components/shared/use-size";
 import { EditorContextBar } from "$/components/tools/editor-context-bar";
 import { ToolRail, toolGroups } from "$/components/tools/tool-rail";
 import { tUi, tUiSource } from "$/i18n";
@@ -9,6 +7,7 @@ import { useEditorChromePreferences } from "$/managers/shell/editor-chrome-prefe
 import { useToolRailModel, type ToolRailModel } from "$/managers/tools/tool-rail-model";
 import { WorkspaceContextPresentation } from "$/managers/workspace/workspace-panel-layout";
 import {
+  createUiPortal,
   Button,
   ButtonVariant,
   OverlayContentLayout,
@@ -19,10 +18,12 @@ import {
 } from "@xprite/ui";
 import {
   anchoredPopoverStyle,
+  placeAnchoredPopover,
+  usePopoverContentSize,
   useAnchoredPopover,
   type AnchoredPopoverState,
 } from "@xprite/ui/popover";
-import { layoutSize, clientRect, clientScale, observeResize } from "@xprite/ui/utils";
+import { useElementSize, clientRect } from "@xprite/ui/utils";
 
 import styles from "$/components/tools/editor-tool-rail/editor-tool-rail.module.css";
 
@@ -39,69 +40,6 @@ const TOOL_OPTIONS_POPUP_INSETS = {
   top: TOOL_OPTIONS_POPUP_INSET,
   bottom: TOOL_OPTIONS_POPUP_INSET,
 };
-
-function useToolOptionsSize(content: RefObject<HTMLDivElement>, popover: AnchoredPopoverState) {
-  const [size, setSize] = useState({
-    width: MAX_TOOL_OPTIONS_POPUP_WIDTH,
-    height: INITIAL_TOOL_OPTIONS_POPUP_HEIGHT,
-    ready: false,
-  });
-  const scaleX = popover.viewport.width / popover.viewport.sceneWidth;
-  const scaleY = popover.viewport.height / popover.viewport.sceneHeight;
-  const maximumWidth = Math.min(MAX_TOOL_OPTIONS_POPUP_WIDTH, popover.availableWidth);
-  useLayoutEffect(() => {
-    const node = content.current;
-    if (!node) return;
-    let frame = 0;
-    const measure = () => {
-      const rect = clientRect(node);
-      let occupiedWidth = 0;
-      for (const control of node.querySelectorAll<HTMLElement>(TOOL_OPTIONS_CONTENT_CONTROLS)) {
-        const box = clientRect(control);
-        if (!box.width || !box.height) continue;
-        // Include intrinsic width so a scroll gutter cannot keep narrowing a wrapped control.
-        const intrinsicWidth =
-          Number.parseFloat(control.style.width) * clientScale(control).x || box.width;
-        occupiedWidth = Math.max(occupiedWidth, box.right - rect.left, intrinsicWidth);
-      }
-      const viewport = node.closest<HTMLElement>("[data-ui-window-client]");
-      const gutter = viewport
-        ? Math.max(
-            0,
-            (layoutSize(viewport.parentElement)?.width ?? layoutSize(viewport).width) -
-              layoutSize(viewport).width,
-          ) * clientScale(viewport).x
-        : 0;
-      const padding = TOOL_OPTIONS_POPUP_INSET * 2;
-      const next = {
-        width: Math.min(maximumWidth, Math.ceil((occupiedWidth + gutter) / scaleX) + padding),
-        height: Math.ceil(rect.height / scaleY) + padding,
-        ready: true,
-      };
-      setSize((current) =>
-        current.ready && current.width === next.width && current.height === next.height
-          ? current
-          : next,
-      );
-    };
-    const schedule = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(measure);
-    };
-    const resize = observeResize([node], schedule);
-
-    const mutation = new MutationObserver(schedule);
-    mutation.observe(node, { childList: true, subtree: true, attributes: true });
-    measure();
-    return () => {
-      cancelAnimationFrame(frame);
-      resize();
-      mutation.disconnect();
-    };
-    // Converge wrapped widths and scroll gutters before painting the opening position.
-  }, [content, maximumWidth, scaleX, scaleY, size.width, size.height]);
-  return size;
-}
 
 function ToolOptionsPopup({
   popover,
@@ -126,32 +64,30 @@ function ToolOptionsPopup({
     .flatMap((group) => group.tools)
     .find((option) => option.value === tool);
   const content = useRef<HTMLDivElement>(null);
-  const contentSize = useToolOptionsSize(content, popover);
+  const contentSize = usePopoverContentSize(content, popover, {
+    maximumWidth: MAX_TOOL_OPTIONS_POPUP_WIDTH,
+    initialHeight: INITIAL_TOOL_OPTIONS_POPUP_HEIGHT,
+    inset: TOOL_OPTIONS_POPUP_INSET,
+    items: TOOL_OPTIONS_CONTENT_CONTROLS,
+  });
   const scaleX = popover.viewport.width / popover.viewport.sceneWidth;
   const scaleY = popover.viewport.height / popover.viewport.sceneHeight;
   const triggerRect = clientRect(trigger);
   const anchorLeft = triggerRect ? (triggerRect.left - popover.origin.x) / scaleX : popover.x;
   const anchorTop = triggerRect ? (triggerRect.top - popover.origin.y) / scaleY : popover.y;
   const anchorBottom = triggerRect ? (triggerRect.bottom - popover.origin.y) / scaleY : popover.y;
-  const below = Math.max(0, popover.availableHeight - anchorBottom - TOOL_OPTIONS_POPUP_ANCHOR_GAP);
-  const above = Math.max(0, anchorTop - TOOL_OPTIONS_POPUP_ANCHOR_GAP);
-  const bounds = {
-    x: 0,
-    y: 0,
-    width: Math.min(contentSize.width, popover.availableWidth),
-    height: Math.min(contentSize.height, Math.max(above, below) || popover.availableHeight),
-  };
-  const left = Math.max(0, Math.min(anchorLeft, popover.availableWidth - bounds.width));
-  const requestedTop =
-    below >= contentSize.height || below >= above
-      ? anchorBottom + TOOL_OPTIONS_POPUP_ANCHOR_GAP
-      : anchorTop - TOOL_OPTIONS_POPUP_ANCHOR_GAP - bounds.height;
-  const top = Math.max(0, Math.min(requestedTop, popover.availableHeight - bounds.height));
+  const placed = placeAnchoredPopover(
+    { x: anchorLeft, y: anchorTop, width: 0, height: anchorBottom - anchorTop },
+    contentSize,
+    { width: popover.availableWidth, height: popover.availableHeight },
+    { gap: TOOL_OPTIONS_POPUP_ANCHOR_GAP, fitHeight: true },
+  );
+  const bounds = { ...placed, x: 0, y: 0 };
   return (
     <div
       ref={panelRef}
       style={{
-        ...anchoredPopoverStyle(popover, { ...bounds, x: left, y: top }),
+        ...anchoredPopoverStyle(popover, placed),
         visibility: contentSize.ready ? "visible" : "hidden",
       }}
     >
@@ -245,7 +181,7 @@ export function EditorToolRail() {
       />
       {toolOptionsPopupEnabled &&
         popover &&
-        createPortal(
+        createUiPortal(
           <ToolOptionsPopup
             popover={popover}
             panelRef={panelRef}

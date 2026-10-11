@@ -9,6 +9,7 @@ import {
   useDialogInputPreferences,
 } from "$/managers/dialogs/input-values";
 import {
+  FontRole,
   Button,
   ButtonVariant,
   Checkbox,
@@ -19,9 +20,11 @@ import {
   isDialogPopupTarget,
   type SurfaceBounds,
   Text,
+  TextAlignment,
   TextVariant,
+  Icon,
 } from "@xprite/ui";
-import { centerUiPixel, UiIcon, useUiAssets } from "@xprite/ui/assets";
+import { centerUiPixel, useUiAssets } from "@xprite/ui/assets";
 import type { UiPartName } from "@xprite/ui/assets";
 import { isImeKeyboardEvent } from "@xprite/ui/utils";
 
@@ -388,7 +391,7 @@ export function NewSpriteDialog({
                   width: dimensionSeparatorWidth,
                   height: 14,
                 }}
-                align="center"
+                align={TextAlignment.Center}
                 relativeTo={client}
               />
               <Text
@@ -446,8 +449,8 @@ export function NewSpriteDialog({
                   setAspectRatio(currentWidth / currentHeight);
                 }}
               >
-                <UiIcon
-                  part={
+                <Icon
+                  kind={
                     aspectRatio === null
                       ? "timeline_open_padlock_normal"
                       : "timeline_closed_padlock_normal"
@@ -541,7 +544,7 @@ export function NewSpriteDialog({
               <Button
                 text="OK"
                 mnemonicIndex={0}
-                font="default"
+                font={FontRole.Primary}
                 part="button_normal"
                 hotPart="button_hot"
                 focusedPart="button_focused"
@@ -561,7 +564,7 @@ export function NewSpriteDialog({
               <Button
                 text="Cancel"
                 mnemonicIndex={0}
-                font="default"
+                font={FontRole.Primary}
                 part="button_normal"
                 hotPart="button_hot"
                 focusedPart="button_focused"
@@ -607,7 +610,7 @@ function NewSpriteOption({
       selected={selected}
       text={label}
       icon={icon}
-      font="mini"
+      font={FontRole.Compact}
       color={assets?.style.colors.button_hot_text}
       part="buttonset_item_normal"
       hotPart="buttonset_item_hot"

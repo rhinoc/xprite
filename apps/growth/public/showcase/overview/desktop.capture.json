@@ -1,0 +1,14 @@
+{
+  "source": "apps/growth/src/adapters/showcase/three-showcase-scene.ts",
+  "modelRevision": "9e98d7a14a0e788d",
+  "filmTime": 3,
+  "selection": null,
+  "viewport": {
+    "width": 1600,
+    "height": 1000
+  },
+  "width": 1600,
+  "height": 900,
+  "transparent": true,
+  "sha256": "4f7e869b7b24d566237219d95dea17de407bdda5232b838e1ab18f10414153c2"
+}

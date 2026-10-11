@@ -9,8 +9,7 @@ runtime, development server, build output, and public assets independent from
 - Keep scene rendering, animation timing, and page composition here. Do not import
   editor app internals or editor-core for the presentation.
 - Reuse `@xprite/ui` controls and geometry helpers. Use CSS Modules and tokens.
-- Components, managers, and adapters are local organization for this scene;
-  the editor's document/workspace architecture is not required here.
+- Group scene components, managers and adapters by their presentation scope.
 - Preserve editable Blender source, model generators, and asset provenance.
 - Showcase assets live in `public/showcase/ipad/`; public help source lives in
   `content/help/`. The private `@xprite/growth-content` package exports guide and tool catalog
@@ -23,3 +22,10 @@ runtime, development server, build output, and public assets independent from
   mapping instead of storing another font copy in `public/`.
 - Keep website routing and search metadata in `build/`. Deploy by combining built
   apps through the root `build:site` pipeline, without modifying editor output.
+- Keep shared page, language and navigation data in `content/site/`; individual
+  content scopes own their definitions. Menu and footer use the same hierarchy.
+- The localized Showcase is the website Home; `/` still opens the editor.
+- Register title-only planned pages as non-indexable. Exclude them from discovery
+  until they have published content, while retaining usable navigation routes.
+- Keep article presentation in `src/components/articles/` and page renderers in
+  `build/pages/`. Content modules must not import page runtime or build plugins.

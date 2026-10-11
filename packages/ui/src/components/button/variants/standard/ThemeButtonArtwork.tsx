@@ -7,7 +7,8 @@ import {
   type AtlasPartName,
   type UiPartProps,
 } from "$/base/theme/theme-part";
-import { Text, TextVariant, type PixelFont } from "$/components/text";
+import { FontRole } from "$/base/theme/theme-types";
+import { Text, TextVariant } from "$/components/text";
 
 import styles from "$/components/button/button.module.css";
 
@@ -24,7 +25,7 @@ interface ThemeButtonArtworkProps {
   text?: string;
   textX: number;
   textY: number;
-  font: PixelFont;
+  font: FontRole;
   ink: string;
   shadowColor: string;
   disabled: boolean;

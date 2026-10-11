@@ -1,5 +1,5 @@
 import { tUi } from "$/i18n";
-import { Button, Menu, Tooltip } from "@xprite/ui";
+import { Button, Menu, Tooltip, TooltipPlacement } from "@xprite/ui";
 import type { UiPartName } from "@xprite/ui/assets";
 
 import styles from "$/components/tools/symmetry-controls/symmetry-controls.module.css";
@@ -68,7 +68,7 @@ export function SymmetryControls({
   return (
     <div className={styles.controls} role="group" aria-label={tUi("ui.symmetry.controls")}>
       {SYMMETRY_OPTIONS.map((item, index) => (
-        <Tooltip key={item.mode} text={item.label} placement="bottom">
+        <Tooltip key={item.mode} text={item.label} placement={TooltipPlacement.Bottom}>
           <Button
             className={styles.symmetryButton}
             aria-label={item.label}
@@ -103,7 +103,11 @@ export function SymmetryControls({
           { label: "Reset Symmetry to View Center", onSelect: onResetViewCenter },
         ]}
         renderTrigger={(props) => (
-          <Tooltip text="Symmetry Options" placement="bottom" disabled={!!props["aria-expanded"]}>
+          <Tooltip
+            text="Symmetry Options"
+            placement={TooltipPlacement.Bottom}
+            disabled={!!props["aria-expanded"]}
+          >
             <Button
               {...props}
               className={styles.symmetryButton}

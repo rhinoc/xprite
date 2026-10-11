@@ -33,11 +33,11 @@ import {
   WORKSPACE_BAR_GAP,
   WORKSPACE_WINDOW_GAP,
 } from "$/managers/workspace/workspace-panel-geometry";
-import { workspaceLayoutConfigurationForPreset } from "$/managers/workspace/workspace-panel-layout";
-import type {
-  WorkspaceLayoutConfiguration,
-  WorkspaceLayoutMode,
-  WorkspaceLayoutPresetId,
+import {
+  workspaceLayoutConfigurationForPreset,
+  type WorkspaceLayoutConfiguration,
+  type WorkspaceLayoutMode,
+  type WorkspaceLayoutPresetId,
 } from "$/managers/workspace/workspace-panel-layout";
 import { CanvasScaleProvider, ScrollArea, useUi } from "@xprite/ui";
 import { uiMetrics } from "@xprite/ui/assets";
@@ -45,7 +45,7 @@ import { UI_SCALE } from "@xprite/ui/canvas";
 import { cursorScopeClassName, cursorScopeStyle } from "@xprite/ui/cursor";
 
 import "$/components/canvas/editor-surface/editor-surface.module.css";
-import { layoutSize, observeResize } from "@xprite/ui/utils";
+import { useElementSize } from "@xprite/ui/utils";
 
 const UI_COMPACT_WIDTH_THRESHOLD = 768; // CSS px; UI density is independent of workspace layout.
 const WIDE_LAYOUT_MIN_ASPECT_RATIO = 1.2;
@@ -100,27 +100,9 @@ export function EditorSurface({
   const chromePreferences = useEditorChromePreferences();
   const uiElementScale = chromePreferences.uiElementScale;
   const hostRef = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ width: 0, height: 0 });
+  const size = useElementSize(hostRef, { retainPositiveSize: true });
   const measured = size.width > 0 && size.height > 0;
   const [inputInteractionMode, setInputInteractionMode] = useState(initialInteractionMode);
-  useLayoutEffect(() => {
-    const host = hostRef.current;
-    if (!host) return;
-    const resize = () => {
-      const width = layoutSize(host).width;
-      const height = layoutSize(host).height;
-      if (width <= 0 || height <= 0) return;
-      setSize((current) =>
-        current.width === width && current.height === height ? current : { width, height },
-      );
-    };
-    resize();
-    const observer = observeResize([host], resize);
-
-    return () => {
-      observer();
-    };
-  }, []);
   useEffect(() => {
     const updateMode = (event: PointerEvent) => {
       const mode =

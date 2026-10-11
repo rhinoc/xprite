@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 
+import { useToolTranslation } from "$/managers/locale/tool-language";
 import type { ToolViewport } from "$/managers/preview/tool-viewport";
 import { Combobox, Field, FieldLayout } from "@xprite/ui";
 
@@ -9,6 +10,8 @@ const PERCENT = 100;
 const ZOOM_WIDTH = 72;
 
 export function ToolZoomControl({ navigation }: { navigation: ToolViewport }) {
+  const t = useToolTranslation();
+
   const view = useSyncExternalStore(
     navigation.subscribe,
     navigation.getSnapshot,
@@ -18,11 +21,11 @@ export function ToolZoomControl({ navigation }: { navigation: ToolViewport }) {
   const choices = [FIT_ZOOM, ...PRESET_ZOOMS];
   if (!choices.includes(value)) choices.push(value);
   return (
-    <Field label="Zoom:" layout={FieldLayout.Inline}>
+    <Field label={t("Zoom:")} layout={FieldLayout.Inline}>
       <Combobox
         pixelWidth={ZOOM_WIDTH}
         value={String(value)}
-        aria-label="Preview zoom"
+        aria-label={t("Preview zoom")}
         onValueChange={(next) =>
           Number(next) === FIT_ZOOM ? navigation.fit() : navigation.setZoom(Number(next))
         }

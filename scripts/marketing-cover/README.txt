@@ -36,7 +36,7 @@ itch 尺寸 630x500：
 - 没有尺寸参数时，读取 config.json 的 canvas.width/height，默认为 1920x1080。
 - --layout auto 根据宽高比选择原版或位置微调版；--layout wide / compact 可固定选择。
 - 两版保留原版左右构图和设备比例；compact 使用 1120x888.89 的参考画布，保留设备比例并减小 630x500 的上下边距，电脑窗口右侧延伸到画布外。
-- 不同输出比例保留左右构图；不把品牌和文案重排到上方。
+- 不同输出比例沿用左右构图和设备比例。
 - 直接在目标尺寸的画布上排版并截图，不生成大图后再缩小。
 - 网页视口按最终模板中的内容区域大小采集，DPR 固定为 1；截图按原始像素显示，最终封面也不缩放或重新编码。
 - 网页和封面截图统一使用 scripts/base/screenshot.mjs，等待字体就绪并校验实际 PNG 尺寸；JSON 记录视口、像素比例、PNG 色彩标签和原始字节 SHA-256。
@@ -53,7 +53,7 @@ itch 尺寸 630x500：
 输出目录：
   output/<宽>x<高>/<zh 或 en>/
 每个目录包括 xprite-cover-zh/en.png、同名 HTML 和截图元数据 JSON、config.json、desktop.png、mobile.png 及各自的截图元数据 JSON，以及 capture-plan.json、capture-record.json 和 source-manifest.json。
-manifest 记录最终尺寸、素材 SHA-256、界面语言和布局；截图记录包含实际访问地址、时间和共享采集元数据。采集不再生成 -large.png，已有历史 -large.png 文件不会自动删除。
+manifest 记录最终尺寸、素材 SHA-256、界面语言和布局；截图记录包含实际访问地址、时间和共享采集元数据。
 
 布局和素材：
 - layout.desktop：[x,y,width,height]；height 是网页内容高度，不包括浏览器框。
@@ -89,7 +89,7 @@ Cover Studio controls:
 - Snap: canvas edges, centers, halves/thirds/quarters and nearby layer edges/centers. Applies to movement, corner resizing and arrow handles. Hold Alt to bypass.
 - To front / To back: buttons or Cmd/Ctrl+Shift+] / Cmd/Ctrl+Shift+[.
 - Interface language is English; English and Chinese cover presets remain available.
-- Layout files and browser autosave use schema 2. No old-format migration or compatibility layer.
+- Layout files and browser autosave use schema 2.
 
 Reuse a layout across languages:
 - Apply layout imports the active document from a saved layout into the currently selected cover. It retains the current language, corresponding screenshot assets and existing translated text matched by layer ID.

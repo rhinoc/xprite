@@ -10,8 +10,9 @@ import {
   MultiSlicePropertiesDialog,
 } from "$/components/dialogs/slice-properties-dialog";
 import { tUi } from "$/i18n";
-import { cursorPreviewGeometry, cursorPreviewRaster } from "$/managers/canvas/canvas-manager";
 import {
+  cursorPreviewGeometry,
+  cursorPreviewRaster,
   CanvasPointerController,
   CanvasToolId,
   CanvasZoomGesture,
@@ -41,25 +42,19 @@ import {
   workingColorProfile,
   PresentationColorCache,
   INLINE_TEXT_MOVE_REGION_PADDING,
-} from "$/managers/canvas/canvas-presentation";
-import { tileNumberLabels } from "$/managers/canvas/canvas-presentation";
-import { tiledCanvasLayout } from "$/managers/canvas/canvas-presentation";
-import {
+  tileNumberLabels,
+  tiledCanvasLayout,
   resolveSymmetryMode,
   clipSymmetryLine,
   symmetryHandles,
   symmetryAxisPosition,
   type SymmetryHandle,
-} from "$/managers/canvas/canvas-presentation";
-import { offsetGridLines } from "$/managers/canvas/canvas-presentation";
-import {
+  offsetGridLines,
   SelectionMode,
   canMoveSelectionPixels,
   canTransformTimelineSelection,
   selectionModeForInput,
-} from "$/managers/canvas/canvas-presentation";
-import { sliceKeyAt } from "$/managers/canvas/canvas-presentation";
-import {
+  sliceKeyAt,
   selectionHandlePositions,
   asepriteSelectionHandleRect as handleRect,
   hitSelectionHandles,
@@ -73,37 +68,34 @@ import {
   type SelectionBoundarySegment,
   maskContains,
   type SelectionHandle,
-} from "$/managers/canvas/canvas-presentation";
-import {
   createAsepriteSelectionAntsState,
   paintAsepriteSelectionAnts,
   requestAsepriteSelectionAntsTick,
   syncAsepriteSelectionAnts,
   type AsepriteSelectionAntsState,
-} from "$/managers/canvas/canvas-presentation";
-import type { Point, PointerInput, PixelMask } from "$/managers/canvas/canvas-presentation";
-import {
+  type Point,
+  type PointerInput,
+  type PixelMask,
   clampCanvasPan,
   documentToScreen,
   screenToDocument,
   stepZoom,
-} from "$/managers/canvas/canvas-presentation";
-import {
   libreSpriteGridGeometry,
   libreSpritePixelGridGeometry,
   documentLayerEdgeGeometry,
   documentAutoGuideGeometry,
   documentGuideDashVisible,
+  getAutoCelGuides,
+  libreSpriteWorkingBrushColor,
+  isBackgroundLayer,
+  isSelectionTool,
+  isShapeTool,
+  isTwoPointShape,
+  getXpriteToolCapabilities,
+  timelineWheelFrameIndex,
+  AsepriteInk,
+  UINT8_MAX,
 } from "$/managers/canvas/canvas-presentation";
-import { getAutoCelGuides } from "$/managers/canvas/canvas-presentation";
-import { libreSpriteWorkingBrushColor } from "$/managers/canvas/canvas-presentation";
-import { isBackgroundLayer } from "$/managers/canvas/canvas-presentation";
-import { isSelectionTool } from "$/managers/canvas/canvas-presentation";
-import { isShapeTool } from "$/managers/canvas/canvas-presentation";
-import { isTwoPointShape } from "$/managers/canvas/canvas-presentation";
-import { getXpriteToolCapabilities } from "$/managers/canvas/canvas-presentation";
-import { timelineWheelFrameIndex } from "$/managers/canvas/canvas-presentation";
-import { AsepriteInk, UINT8_MAX } from "$/managers/canvas/canvas-presentation";
 import { useColorSource } from "$/managers/colors/color-sources";
 import { useTouchInteractionPreferences } from "$/managers/input/input-interaction-context";
 import {
@@ -129,6 +121,7 @@ import { useShortcutManager } from "$/managers/shortcuts/use-shortcut-manager";
 import { parseEditorColor } from "$/managers/tools/color-control";
 import { ToolTilemapDisplayMode } from "$/managers/tools/tool-options";
 import {
+  FontRole,
   usePresentationMetrics,
   type SurfaceBounds,
   ContextMenu,
@@ -141,8 +134,13 @@ import {
   paintUiText,
   useUiAssets,
 } from "@xprite/ui/assets";
-import { UI_SCALE_X, UI_SCALE_Y, surfaceLayout } from "@xprite/ui/canvas";
-import { CanvasRenderer, resizeCanvasBuffer } from "@xprite/ui/canvas";
+import {
+  configureCanvasPresentation,
+  presentCanvasPixels,
+  surfaceLayout,
+  CanvasRenderer,
+  resizeCanvasBuffer,
+} from "@xprite/ui/canvas";
 import {
   layoutSize,
   displayPixelRatio,
@@ -448,47 +446,14 @@ export function EditorCanvas({
       const sourceWidth = Math.trunc(surfaceBounds.width);
       const sourceHeight = Math.trunc(surfaceBounds.height);
       if (sourceWidth <= 0 || sourceHeight <= 0) return;
-      const rect = clientRect(canvas),
-        dpr = displayPixelRatio(window) || 1,
-        ratioX = (dpr * rect.width) / renderer.layout.width,
-        ratioY = (dpr * rect.height) / renderer.layout.height;
-      renderer.setPixelRatio(ratioX, ratioY);
-      presentedPixelRatio = dpr;
-      if (canvas.width !== renderer.pixelWidth) canvas.width = renderer.pixelWidth;
-      if (canvas.height !== renderer.pixelHeight) canvas.height = renderer.pixelHeight;
-
-      // Only use the browser sampler for exact integer copies. Fractional
-      // DPR/browser zoom must share CanvasSurface's rational pixel-center map;
-      // rounding a unit tile first changes the scale and moves the document.
-      const scaleX = canvas.width / sourceWidth;
-      const scaleY = canvas.height / sourceHeight;
-      if (
-        Number.isInteger(scaleX) &&
-        Number.isInteger(scaleY) &&
-        renderer.layout.left === surfaceBounds.x * UI_SCALE_X &&
-        renderer.layout.top === surfaceBounds.y * UI_SCALE_Y
-      ) {
-        presentation.setTransform(1, 0, 0, 1, 0, 0);
-        presentation.clearRect(0, 0, canvas.width, canvas.height);
-        presentation.imageSmoothingEnabled = false;
-        presentation.drawImage(
-          sourceCanvas,
-          0,
-          0,
-          sourceWidth,
-          sourceHeight,
-          0,
-          0,
-          canvas.width,
-          canvas.height,
-        );
-        return;
-      }
-      presentation.putImageData(
-        renderer.render(context.getImageData(0, 0, sourceWidth, sourceHeight)),
-        0,
-        0,
-      );
+      presentedPixelRatio = configureCanvasPresentation(canvas, renderer);
+      presentCanvasPixels(canvas, renderer, {
+        source: sourceCanvas,
+        croppedSource: true,
+        width: sourceWidth,
+        height: sourceHeight,
+        readPixels: () => context.getImageData(0, 0, sourceWidth, sourceHeight),
+      });
     };
     const baseCanvas = document.createElement("canvas");
     const baseContext = baseCanvas.getContext("2d", { alpha: false, willReadFrequently: true });
@@ -1793,7 +1758,10 @@ export function EditorCanvas({
               const x = cx * 2 - Math.trunc(width / 2);
               context.fillStyle = autoGuidesColor;
               context.fillRect(x, y, width, lineHeight * 2);
-              paintUiText(context, assets, value, x, y, { font: "default", color: guideTextColor });
+              paintUiText(context, assets, value, x, y, {
+                font: FontRole.Primary,
+                color: guideTextColor,
+              });
             };
             const numberY = Math.trunc((cy - fontSize / 2) * 2);
             paint(label.number, numberY);
@@ -1835,7 +1803,7 @@ export function EditorCanvas({
             }
         if (assets) {
           const text = `${guide.distance}px`,
-            width = measureUiText(text, "default"),
+            width = measureUiText(text, FontRole.Primary),
             height = 14;
           const x =
             guide.axis === "horizontal"
@@ -1848,7 +1816,7 @@ export function EditorCanvas({
           context.setTransform(1, 0, 0, 1, 0, 0);
           context.fillRect(x * 2, y * 2, width, height);
           paintUiText(context, assets, text, x * 2, y * 2, {
-            font: "default",
+            font: FontRole.Primary,
             color: guideTextColor,
           });
         }

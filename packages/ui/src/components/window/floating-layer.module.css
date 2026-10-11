@@ -1,0 +1,14 @@
+.window,
+.popup {
+  position: absolute;
+  outline: none;
+  pointer-events: auto;
+}
+
+.window {
+  z-index: var(--ui-layer-floating, 100);
+}
+
+.popup {
+  z-index: var(--ui-layer-popup, 100);
+}

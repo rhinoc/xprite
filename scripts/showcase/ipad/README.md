@@ -1,80 +1,14 @@
-# Editable iPad showcase models
+# Editable iPad showcase assets
 
-The `/showcase` page opens with all three devices in a stationary overview.
-Clicking or tapping an actual device surface selects it; the camera then focuses
-that device before its film clock advances. Empty-space clicks, scrolling, and
-hovering never start a demo. Hovering raises the model by 0.18 scene units and
-enlarges it by 8%, easing back when the pointer leaves. The overview uses physical
-device width ratios (355.7 : 247.6 : 76.7 mm) with wider spacing; focused demos
-retain their viewport framing. Reduced motion disables
-this effect and shows completed artwork only after device selection. The iPad's
-initial display is a lit lock screen with its padlock already open. The page has
-no transport, chapter navigation, or download footer. Its language comes from
-`/showcase/en/` or `/showcase/zh-CN/`; the neutral `/showcase` entry redirects to
-English. The top-right globe link toggles languages and changes that path without restarting
-the demo or music. Browser Back/Forward follows the language in the URL. Each
-language has a generated HTML page with localized metadata, a self canonical,
-reciprocal hreflang links, and a sitemap entry. Query parameters and browser or
-stored language preferences do not select the showcase language.
-
-All three devices have the same soft radial contact-shadow treatment. The
-MacBook and iPhone shadows are sized and positioned from each model's local
-bounds; their parent model supplies overview scaling, hover lift, tilt, and
-carousel movement. The iPad keeps its authored shadow placement.
-
-The supplied Tokyo lofi MP3 loops at 25% volume after the first trusted pointer
-or keyboard interaction, independently of model loading and demo selection. The
-bottom-right Pixelarticons speaker button toggles mute and saves the preference
-under `xprite.showcase.music.muted`. Hidden pages pause the music; visible pages
-resume previously started playback. Unmounting releases the audio element and
-its interaction listeners. A media-loading failure disables the music button.
+Tablet, Pencil and hand source files are maintained here. Runtime exports and
+capture manifests live in `apps/growth/public/showcase/ipad/`. Page composition,
+navigation and playback are maintained by the growth app; see its
+[README](../../../apps/growth/README.md).
 
 Physical dimensions follow Apple's technical specifications for the
 [16-inch MacBook Pro](https://support.apple.com/en-gb/111838),
 [11-inch iPad Pro](https://support.apple.com/en-kw/111974) in landscape orientation,
 and [iPhone 15 Pro Max](https://support.apple.com/en-ie/111828).
-
-After selecting a device, horizontal dragging, swiping, wheel scrolling, or the
-keyboard's Left/Right arrow keys switch devices. Before selection, these gestures
-leave the overview intact. Tab exposes device choices with a model hover preview;
-Enter or Space selects the focused choice. There is no bottom
-device picker or visible gesture hint. Screen-reader instructions and device
-change announcements remain attached to the focusable model area.
-
-Device selection starts at the hand's unlock entrance instead of waiting
-through the opening hold. `managers/showcase/ipad-story.ts` maps elapsed playback
-time onto the unchanged source-film clock: idle transitions last 80 ms, unlock
-runs at 2×, app-launch and Play taps at 1.5×, creation at 1.6×, and the Pencil
-arrives over 0.9 seconds. Drawing starts about 5 seconds after interaction instead
-of 13 seconds. Writing runs at 2.5×, completing the ten-second source sequence in
-four seconds; the native animation's frame durations stay unchanged. The manager
-consumes elapsed time across segment boundaries so the fingertip, screen
-transition and Pencil always share a clock.
-
-All three devices show **Start editing** at `DEVICE_DEMO_TIME.play`, when the
-finished animation begins playback. The button does not wait for the film's end
-or for additional animation loops. The iPad screen shares this playback constant
-with the computer and phone demonstrations.
-
-All English page text, including the static Xprite wordmark, uses the existing
-Aseprite bitmap font. Chinese text uses Fusion Pixel. The overview
-heading sits slightly lower and its second line says **Choose your device**
-(**选择你的设备** in Chinese), without a scramble effect. Selecting or switching
-devices resolves random glyphs to the localized device name over 700 ms;
-the surrounding words stay static and the heading has no entrance animation.
-Each character reserves its final glyph's width during the transition, with
-fullwidth scramble glyphs in Chinese positions to avoid trailing blank space.
-Chinese heading text uses Fusion Pixel. The page takes its coral accent and warm
-neutral colors from the editor's light theme. The tablet
-has no authored pitch, yaw or roll; pointer tilt only applies within its projected
-bounds and settles to zero when the pointer leaves. With reduced motion enabled, the heading
-stays static and device selection shows the completed artwork without
-playing the device motion.
-
-The desktop background tiles the original 4 × 4 SVG at
-`public/showcase/textures/macintosh-dither.svg`. Its two-pixel checker blocks use
-the theme's warm gray over an ivory base, with crisp edges and a transparent
-Three.js canvas so the same pattern continues behind all three devices.
 
 Open `ipad-showcase.blend` in Blender to edit the tablet, Apple Pencil, materials, camera, and lights. The Pencil collection is hidden in the saved tablet view. `hand-tap.blend` contains the separate imported WebXR hand rig and editable pointing pose. `pencil-writing-rig.blend` contains the writing motion with editable tip, grip, wrist and barrel-roll controls; see [pencil-writing-rig.md](pencil-writing-rig.md).
 
@@ -198,12 +132,12 @@ repository's visual-audit candidates and baselines.
 
 ## Real pixel artwork and synchronized playback
 
-Create and export the actual documents with `python3 scripts/showcase/ipad/generate-hello.py`; see [hello-assets.md](hello-assets.md) for the integer-pixel source and native Aseprite export workflow. The page footer links to the editable eight-frame `hello.aseprite` and its GIF export. A separate 301-frame `hello-writing.aseprite` records the ten-second drawing process.
+Create and export the actual documents with `python3 scripts/showcase/ipad/generate-hello.py`; see [hello-assets.md](hello-assets.md) for the integer-pixel source and native Aseprite export workflow. The editable eight-frame animation is `hello.aseprite`, with a matching GIF export. A separate 301-frame `hello-writing.aseprite` records the ten-second drawing process.
 
 The movie displays exported PNG frames; it does not draw vector strokes into a canvas. The Pencil follows a continuous floating-point curve from `motion.json`, and the unchanged writing PNGs are retimed to the corresponding arc-length positions over ten seconds. The saved writing ASE's original cel durations are retained as source data. During animation playback, the whole editor image comes from one of eight real captures of `hello.aseprite`: artwork, layer cels, selected frame and current-frame field advance as a unit, using the document's exact 120/130ms durations. Re-capture all eight UI states after editing that animation. [capture-playback.md](capture-playback.md) documents the reproducible browser workflow and frame-content checks. The total frame count stays eight throughout playback.
 
 ## Stable display rendering
 
-The camera near plane follows 5% of the current viewing distance, including the wide three-device overview, so depth precision can distinguish the tablet display at Z 0.121 from the glass at Z 0.1175. The far plane expands when needed for tall overview viewports. Hover and the camera trajectory remain unchanged.
+The camera near plane follows 5% of the current viewing distance, including the wide three-device overview, so depth precision can distinguish the tablet display at Z 0.121 from the glass at Z 0.1175. The far plane expands when needed for tall overview viewports.
 
-The wallpaper/system-screen canvas uses trilinear mipmap minification to avoid photo-detail shimmer during tilt. Once the application finishes opening, the texture switches back to base-level linear filtering for the native pixel editor. The photography and editor captures are unchanged.
+The wallpaper/system-screen canvas uses trilinear mipmap minification to avoid photo-detail shimmer during tilt. Once the application finishes opening, the texture switches back to base-level linear filtering for the native pixel editor.

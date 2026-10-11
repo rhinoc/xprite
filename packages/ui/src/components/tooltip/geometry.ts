@@ -6,37 +6,40 @@ export interface TooltipRect {
   width: number;
   height: number;
 }
-export type TooltipPlacement =
-  | "top"
-  | "bottom"
-  | "left"
-  | "right"
-  | "left-top"
-  | "left-bottom"
-  | "right-top"
-  | "right-bottom"
-  | "top-left"
-  | "top-right"
-  | "bottom-left"
-  | "bottom-right";
-export type TooltipPlacementOption = TooltipPlacement | "auto";
+export enum TooltipPlacement {
+  Top = "top",
+  Bottom = "bottom",
+  Left = "left",
+  Right = "right",
+  LeftTop = "left-top",
+  LeftBottom = "left-bottom",
+  RightTop = "right-top",
+  RightBottom = "right-bottom",
+  TopLeft = "top-left",
+  TopRight = "top-right",
+  BottomLeft = "bottom-left",
+  BottomRight = "bottom-right",
+  Auto = "auto",
+}
+export type TooltipPosition = Exclude<TooltipPlacement, TooltipPlacement.Auto>;
+export type TooltipPlacementOption = TooltipPlacement;
 const LEFT = 0x00040000,
   RIGHT = 0x00100000,
   TOP = 0x00200000,
   BOTTOM = 0x00800000;
-const flags: Record<TooltipPlacement, number> = {
-  top: TOP,
-  bottom: BOTTOM,
-  left: LEFT,
-  right: RIGHT,
-  "left-top": TOP | LEFT,
-  "left-bottom": BOTTOM | LEFT,
-  "right-top": TOP | RIGHT,
-  "right-bottom": BOTTOM | RIGHT,
-  "top-left": TOP | LEFT,
-  "top-right": TOP | RIGHT,
-  "bottom-left": BOTTOM | LEFT,
-  "bottom-right": BOTTOM | RIGHT,
+const flags: Record<TooltipPosition, number> = {
+  [TooltipPlacement.Top]: TOP,
+  [TooltipPlacement.Bottom]: BOTTOM,
+  [TooltipPlacement.Left]: LEFT,
+  [TooltipPlacement.Right]: RIGHT,
+  [TooltipPlacement.LeftTop]: TOP | LEFT,
+  [TooltipPlacement.LeftBottom]: BOTTOM | LEFT,
+  [TooltipPlacement.RightTop]: TOP | RIGHT,
+  [TooltipPlacement.RightBottom]: BOTTOM | RIGHT,
+  [TooltipPlacement.TopLeft]: TOP | LEFT,
+  [TooltipPlacement.TopRight]: TOP | RIGHT,
+  [TooltipPlacement.BottomLeft]: BOTTOM | LEFT,
+  [TooltipPlacement.BottomRight]: BOTTOM | RIGHT,
 };
 const half = (value: number) => Math.trunc(value / 2);
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
@@ -55,14 +58,14 @@ export function autoTooltipPlacement(
   target: TooltipRect,
   size: Pick<TooltipRect, "width" | "height">,
   workArea: TooltipRect,
-): TooltipPlacement {
+): TooltipPosition {
   const leftSpace = target.x - workArea.x;
   const rightSpace = workArea.x + workArea.width - (target.x + target.width);
   const fitsLeft = leftSpace >= size.width;
   const fitsRight = rightSpace >= size.width;
-  if (fitsRight && (!fitsLeft || rightSpace >= leftSpace)) return "top-left";
-  if (fitsLeft) return "top-right";
-  return "top";
+  if (fitsRight && (!fitsLeft || rightSpace >= leftSpace)) return TooltipPlacement.TopLeft;
+  if (fitsLeft) return TooltipPlacement.TopRight;
+  return TooltipPlacement.Top;
 }
 
 /** Port of Aseprite TipWindow::pointAt. Inputs are integer GUI pixels in one coordinate
@@ -72,8 +75,8 @@ export function tooltipPosition(
   target: TooltipRect,
   size: { width: number; height: number },
   workArea: TooltipRect,
-  preferred: TooltipPlacement,
-): { bounds: TooltipRect; placement: TooltipPlacement } | null {
+  preferred: TooltipPosition,
+): { bounds: TooltipRect; placement: TooltipPosition } | null {
   let align = flags[preferred];
   const { width, height } = size;
   for (let attempt = 0; attempt < 4; attempt++) {
@@ -96,13 +99,14 @@ export function tooltipPosition(
       let arrowAlign = align;
       if (x !== preferredX && align & (TOP | BOTTOM)) arrowAlign &= ~(LEFT | RIGHT);
       else if (y !== preferredY && align & (LEFT | RIGHT)) arrowAlign &= ~(TOP | BOTTOM);
-      const lateralCorner = preferred.startsWith("left-") || preferred.startsWith("right-");
+      const preferredName = String(preferred);
+      const lateralCorner = preferredName.startsWith("left-") || preferredName.startsWith("right-");
       const placement =
-        (Object.keys(flags) as TooltipPlacement[]).find(
+        (Object.keys(flags) as TooltipPosition[]).find(
           (key) =>
             flags[key] === arrowAlign &&
             (key.startsWith("left-") || key.startsWith("right-")) === lateralCorner,
-        ) ?? (Object.keys(flags) as TooltipPlacement[]).find((key) => flags[key] === arrowAlign)!;
+        ) ?? (Object.keys(flags) as TooltipPosition[]).find((key) => flags[key] === arrowAlign)!;
       return { bounds, placement };
     }
     if (attempt === 0 || attempt === 2) {
@@ -122,7 +126,7 @@ export function tooltipPosition(
 export function tooltipArrow(
   bounds: TooltipRect,
   target: TooltipRect,
-  placement: TooltipPlacement,
+  placement: TooltipPosition,
 ): { clip: TooltipRect; atlas: TooltipRect } {
   const align = flags[placement];
   const clip = { x: 0, y: 0, width: 0, height: 0 };

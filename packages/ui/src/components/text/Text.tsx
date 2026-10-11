@@ -1,6 +1,7 @@
 import { useTheme } from "$/base/theme/theme-context";
 import { textRuns } from "$/components/text/text-runs";
 import {
+  TextInk,
   TextRole,
   TextTone,
   TextVariant,
@@ -13,34 +14,36 @@ import { PositionedPixelText } from "$/components/text/variants/positioned-pixel
 
 import styles from "$/components/text/text.module.css";
 
-const INLINE_FONT_SIZE = 7;
-
 function InlineText({
   children,
   className = "",
   wrap = false,
   scale = 1,
   lineHeight,
-  color,
+  inkTone,
   ink,
 }: InlineTextProps) {
   const runs = textRuns(children);
   const { definition } = useTheme();
-  const height = Math.round(
-    ((definition.typography?.default?.fontSize ?? INLINE_FONT_SIZE * 2) / 2) * scale,
-  );
-  const leading = Math.max(height, Math.round(lineHeight ?? height));
+  const height = Math.round((definition.typography.primary.fontSize / 2) * scale);
+  const cjkHeight = Math.round((definition.typography.primary.cjkFontSize / 2) * scale);
+  const leading = Math.max(height, cjkHeight, Math.round(lineHeight ?? height));
 
   return (
     <span
       className={`${styles.inline} ${wrap ? styles.wrap : ""} ${className}`.trim()}
       data-slot="inline-text"
-      data-color={color}
+      data-ink-tone={inkTone}
       style={{
         height: wrap ? undefined : height,
         lineHeight: `${leading}px`,
         color:
-          ink ?? (color === "light" ? "#fff" : color === "dark" ? "#000" : "var(--ui-color-ink)"),
+          ink ??
+          (inkTone === TextInk.Light
+            ? "#fff"
+            : inkTone === TextInk.Dark
+              ? "#000"
+              : "var(--ui-color-ink)"),
       }}
     >
       {runs.map((run, index) => {
@@ -49,7 +52,7 @@ function InlineText({
             key={`${index}:${run.text}`}
             className={`${styles.inlineRun} ${run.cjk ? styles.cjkRun : styles.latinRun}`}
             style={{
-              fontSize: `${height}px`,
+              fontSize: `${run.cjk ? cjkHeight : height}px`,
               lineHeight: `${leading}px`,
             }}
           >
@@ -65,7 +68,7 @@ function ReadingText({
   children,
   className = "",
   textRole = TextRole.Body,
-  tone = TextTone.Default,
+  tone = TextTone.Neutral,
   as: Element = "span",
   wrap = false,
   ink,

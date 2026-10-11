@@ -10,18 +10,25 @@ Original PNG/SVG exports, rather than scaled Figma previews, supplied the
 measurements. The kit has no dark counterpart; dark mode is a palette adaptation.
 Folder tabs and native range sliders additionally reference Apple's
 [Mac OS 8 Human Interface Guidelines](https://dev.os9.ca/techpubs/mac/HIGOS8Guide/thig-29.html).
-Their scalable drawings live in `appearance-artwork.ts`; Apple screenshots and
-icon assets are not bundled. Tabs use 22px faces and a 24px strip, with widths
+Their scalable drawings live in `appearance-artwork.ts`; The UI asset attribution lists the bundled artwork and its licenses. Tabs use 22px faces and a 24px strip, with widths
 computed from captions and optional actions. Native sliders use a 5px rail and
 13×16px directional thumb. These are themed adaptations of later classic Mac
 controls, separate from the System 7 Figma sample comparisons.
 User images and color swatches retain their colors.
 
+Disclosure controls use the Kit's 6×11 collapsed and 11×6 expanded pixel triangles,
+with its stippled lavender fill. The 11×11 indicator slot keeps labels aligned in
+both states. Apple's Mac OS 8 HIG pages 37–38 and 84 supply the expand/collapse
+behavior and 5px gap from the collapsed tip to its label. The Macintosh binding
+uses a borderless 20px row and indents revealed content to the label; native
+details retain keyboard and script-free fragment navigation. Dark colors adapt
+the same contour to the theme palette.
+Disclosures on Note paper retain black ink and the light stipple in both appearances.
+
 Buttons use orthogonal SVG nine-slice contours, with 1px edges and 3px corner
 caps. Standard faces are 80×20, compact faces are 80×16, and default-action rings
 are 88×28. Slotted buttons, native links and pixel buttons share the same frame.
-Optional theme bindings select the standard part and per-font baseline offset;
-Aseprite keeps its original parts, dimensions and typography.
+Optional theme bindings select the standard part and per-font baseline offset.
 
 The window titlebar is 19px including its bottom separator. Six 1px stripes have
 2px pitch and equal margins; an opaque title cutout separates the text from the
@@ -36,16 +43,15 @@ frames have a 2px outer stroke, 1px gap and 1px inner stroke.
 
 Classic scrollbars have 16px hollow arrow ends and 16px fixed thumbs, with 2px
 thumb side borders. The 4×2 track texture follows the original export. ScrollArea
-and PageScrollArea select these bars through theme metadata; Aseprite retains
-its compact scrollbars. Explicit mini/transparent variants remain extensions.
+element and page variants select these bars through theme metadata. Explicit mini/transparent variants remain extensions.
 
 Balloon help uses FindersKeepers, 12px padding, a stepped 15×15 frame and eight
 independent pointer contours. Pointer insets and text offsets are measured per
 contour. Placement fitting remeasures the actual pointer after an edge flip.
 Center-edge placements are extensions of the reference corner shapes.
 
-The native DOM renderer consumes optional vector/surface/typography metadata.
-Themes without it retain the existing atlas renderer. Atlas derivatives retain
+The theme declares its font renderer, metrics and resource bindings. Parts
+provide atlas, vector or surface artwork for the shared rendering primitives. Atlas derivatives retain
 Aseprite attribution; generic Figma frames, textures and warning/pointer contours
-retain the Kit attribution. Apple/Susan Kare icon collections are not bundled.
+retain the Kit attribution.
 See `packages/ui/ATTRIBUTION.md` and `assets/fonts/macintosh/README.md`.

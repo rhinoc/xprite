@@ -1,18 +1,20 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { useRef, type CSSProperties } from "react";
 
 import { useWorkspaceLayoutConfiguration } from "$/components/shared/editor-layout-context";
 import type { RecoveryItem } from "$/managers/workspace/recovery-presentation";
 import {
+  FontRole,
   Button,
   ButtonVariant,
   ListBox,
-  ListBoxSelectionMode,
+  ListBoxMode,
+  ListBoxBorderStyle,
   useUi,
   type MultipleListBoxItem,
 } from "@xprite/ui";
 import { uiControlSize } from "@xprite/ui/assets";
 import { UI_SCALE_X, UI_SCALE_Y } from "@xprite/ui/canvas";
-import { layoutSize, observeResize } from "@xprite/ui/utils";
+import { useElementSize } from "@xprite/ui/utils";
 
 import styles from "$/components/workspace/recovery-view-base/recovery-view-base.module.css";
 
@@ -41,7 +43,6 @@ export interface RecoveryViewProps {
   onDelete?: (ids: readonly string[]) => void;
 }
 
-const useClientLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 const STACKED_BUTTON_GUTTER = 4;
 const STACKED_BUTTON_GAP = 4;
 const STACKED_BUTTON_HEIGHT = 40;
@@ -150,17 +151,10 @@ export function RecoveryView({
   const host = useRef<HTMLElement>(null);
   const { style: uiStyle } = useUi();
   const { recovery: configuration } = useWorkspaceLayoutConfiguration();
-  const [width, setWidth] = useState(configuration.minimumWidth);
-
-  useClientLayoutEffect(() => {
-    const node = host.current;
-    if (!node) return;
-    const measure = () => setWidth(Math.max(1, Math.floor(layoutSize(node).width / UI_SCALE_X)));
-    measure();
-    const observer = observeResize([node], measure);
-
-    return () => observer();
-  }, []);
+  const measured = useElementSize(host);
+  const width = measured.ready
+    ? Math.max(1, Math.floor(measured.width / UI_SCALE_X))
+    : configuration.minimumWidth;
 
   const selectedIds = selection.filter((id) => items.some((item) => item.id === id));
   const locked = busy || loading;
@@ -228,7 +222,7 @@ export function RecoveryView({
           viewport={viewport}
           bounds={toolbar.buttons[0]}
           text={recoverText}
-          font="default"
+          font={FontRole.Primary}
           disabledTextShadow
           disabled={locked || !selectedIds.length}
           onClick={() => recover(selectedIds)}
@@ -247,7 +241,7 @@ export function RecoveryView({
           viewport={viewport}
           bounds={toolbar.buttons[1]}
           text={labels.refresh}
-          font="default"
+          font={FontRole.Primary}
           disabledTextShadow
           disabled={locked}
           onClick={onRefresh}
@@ -257,14 +251,15 @@ export function RecoveryView({
           viewport={viewport}
           bounds={toolbar.buttons[2]}
           text={labels.delete}
-          font="default"
+          font={FontRole.Primary}
           disabledTextShadow
           disabled={locked || !selectedIds.length || !onDelete}
           onClick={() => onDelete?.(selectedIds)}
         />
       </div>
       <ListBox
-        selectionMode={ListBoxSelectionMode.Multiple}
+        mode={ListBoxMode.Multiple}
+        border={{ style: ListBoxBorderStyle.Thick }}
         className={styles.list}
         items={listItems}
         values={selectedIds}

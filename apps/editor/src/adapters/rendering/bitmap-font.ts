@@ -36,7 +36,7 @@ function codePointString(key: string): string {
   return key;
 }
 
-function checkedTuple(key: string, value: number[]): BitmapGlyphTuple {
+function checkedTuple(key: string, value: readonly number[]): BitmapGlyphTuple {
   if (!Array.isArray(value) || value.length < 4) {
     throw new TypeError(`Glyph ${key} must be an [x, y, width, height] tuple`);
   }
@@ -85,7 +85,7 @@ function alphaValue(
  */
 export function bitmapFontFromAtlas(
   image: { width: number; height: number; data: Uint8ClampedArray },
-  glyphs: Readonly<Record<string, number[]>>,
+  glyphs: Readonly<Record<string, readonly number[]>>,
   options: BitmapFontFromAtlasOptions = {},
 ): BitmapFont {
   if (!image || !Number.isSafeInteger(image.width) || !Number.isSafeInteger(image.height)) {

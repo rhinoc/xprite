@@ -19,7 +19,6 @@ body {
   font-weight: var(--ui-font-weight-normal);
   font-synthesis: none;
   overflow-wrap: anywhere;
-  padding-inline-end: 16px;
 }
 
 main {
@@ -35,19 +34,9 @@ header {
   position: sticky;
   top: 0;
   z-index: 100;
-  width: calc(100% + var(--ui-document-scrollbar-size, 16px));
+  width: 100%;
   padding: 0;
   margin: 0;
-}
-
-.guide-image {
-  display: block;
-  max-width: 100%;
-  overflow-x: auto;
-}
-
-.guide-image img {
-  max-width: none;
 }
 
 .viewer {

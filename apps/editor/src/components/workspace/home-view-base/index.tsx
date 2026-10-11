@@ -1,11 +1,4 @@
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
+import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 
 import { useWorkspaceLayoutConfiguration } from "$/components/shared/editor-layout-context";
 import { PixelArtIcon } from "$/components/shared/pixel-art-icon";
@@ -14,10 +7,19 @@ import {
   type HomeIdentityLabels,
 } from "$/components/workspace/home-view-base/home-identity";
 import { WorkspaceLink, WorkspaceLinkVariant } from "$/components/workspace/workspace-link";
-import { Button, ButtonVariant, ScrollArea, Text, TextVariant, Tooltip, useUi } from "@xprite/ui";
-import { measureUiText, UiIcon, UiPart } from "@xprite/ui/assets";
+import {
+  Button,
+  ButtonVariant,
+  ScrollArea,
+  Text,
+  TextVariant,
+  Tooltip,
+  useUi,
+  Icon,
+} from "@xprite/ui";
+import { measureUiText, UiPart } from "@xprite/ui/assets";
 import { UI_SCALE_X, UI_SCALE_Y } from "@xprite/ui/canvas";
-import { layoutSize, observeResize } from "@xprite/ui/utils";
+import { useElementSize } from "@xprite/ui/utils";
 
 import styles from "$/components/workspace/home-view-base/home-view-base.module.css";
 
@@ -70,6 +72,7 @@ export interface HomeViewProps {
   labels: HomeViewLabels;
   mascot?: (hovered: boolean) => ReactNode;
   repositoryHref: string;
+  onSettings?: () => void;
   onFeedback?: () => void;
   onAbout: () => void;
   onNew: () => void;
@@ -83,14 +86,13 @@ export interface HomeViewProps {
   deleteBrowserCopyDisabled?: boolean;
 }
 
-const useClientLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
-
 /** Home content uses normal layout flow; only themed artwork sits over its parent panel. */
 export function HomeView({
   files,
   labels,
   mascot,
   repositoryHref,
+  onSettings,
   onFeedback,
   onAbout,
   onNew,
@@ -107,23 +109,13 @@ export function HomeView({
   const { style } = useUi();
   const workspaceLayoutConfiguration = useWorkspaceLayoutConfiguration();
   const homeConfiguration = workspaceLayoutConfiguration.home;
-  const [size, setSize] = useState({ width: 2, height: 2 });
+  const measured = useElementSize(host);
+  const size = {
+    width: Math.max(2, Math.floor(measured.width / UI_SCALE_X)),
+    height: Math.max(2, Math.floor(measured.height / UI_SCALE_Y)),
+  };
   const [mascotHovered, setMascotHovered] = useState(false);
   const [hotFile, setHotFile] = useState<string | null>(null);
-
-  useClientLayoutEffect(() => {
-    const node = host.current;
-    if (!node) return;
-    const measure = () => {
-      const width = Math.max(2, Math.floor(layoutSize(node).width / UI_SCALE_X));
-      const height = Math.max(2, Math.floor(layoutSize(node).height / UI_SCALE_Y));
-      setSize((old) => (old.width === width && old.height === height ? old : { width, height }));
-    };
-    measure();
-    const observer = observeResize([node], measure);
-
-    return () => observer();
-  }, []);
 
   const viewport = {
     sceneWidth: size.width,
@@ -222,7 +214,12 @@ export function HomeView({
               {labels.recoverFiles}
             </WorkspaceLink>
           </nav>
-          <HomeIdentity labels={labels} onFeedback={onFeedback} repositoryHref={repositoryHref} />
+          <HomeIdentity
+            labels={labels}
+            onSettings={onSettings}
+            onFeedback={onFeedback}
+            repositoryHref={repositoryHref}
+          />
         </header>
       )}
 
@@ -309,8 +306,8 @@ export function HomeView({
                       disabled={!onPinRecent}
                       onClick={() => onPinRecent?.(file.id, !file.pinned)}
                     >
-                      <UiIcon
-                        part={file.pinned ? "pinned" : "unpinned"}
+                      <Icon
+                        kind={file.pinned ? "pinned" : "unpinned"}
                         scale={2}
                         color={colors.text}
                         style={{ left: 0, top: 2, pointerEvents: "none" }}
@@ -334,8 +331,8 @@ export function HomeView({
                       disabled={deleteBrowserCopyDisabled || file.isOpen}
                       onClick={() => onDeleteBrowserCopy(file.id)}
                     >
-                      <UiIcon
-                        part="tab_close_icon_normal"
+                      <Icon
+                        kind="tab_close_icon_normal"
                         scale={2}
                         color={colors.text}
                         style={{ position: "relative", pointerEvents: "none" }}

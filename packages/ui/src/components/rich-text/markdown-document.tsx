@@ -9,9 +9,11 @@ import {
 } from "react";
 
 import { themeFontHeight } from "$/base/theme/text-metrics";
-import { layoutSize, observeResize, scrollElementIntoView } from "$/base/utils/dom-geometry";
+import { FontRole } from "$/base/theme/theme-types";
+import { layoutSize, observeResize } from "$/base/utils/dom-geometry";
+import { scrollFragmentTarget } from "$/base/utils/page-fragment";
 import { UI_SCALE } from "$/components/canvas-surface/metrics";
-import { Divider, DividerVariant } from "$/components/divider";
+import { Divider, DividerAppearance } from "$/components/divider";
 import type { MarkdownRichTextProps } from "$/components/rich-text/types";
 import { Text, TextVariant } from "$/components/text";
 import { useUi } from "$/components/theme";
@@ -46,7 +48,7 @@ const DOCUMENT_TEXT_SCALE = 3;
 const DOCUMENT_CAPTION_SCALE = 2;
 const DOCUMENT_HEADING_SCALE = 4;
 const DOCUMENT_TITLE_SCALE = 5;
-const DOCUMENT_LINE_GAP = themeFontHeight("default", 1);
+const DOCUMENT_LINE_GAP = themeFontHeight(FontRole.Primary, 1);
 
 function headingId(text: string): string {
   return text
@@ -141,9 +143,9 @@ export function MarkdownDocument({
     "--ui-document-link": uiStyle.colors.link_text,
     "--ui-document-link-hover": uiStyle.colors.link_hover,
     "--ui-document-inset": `${DOCUMENT_CONTENT_INSET}px`,
-    "--ui-document-font-size": `${themeFontHeight("default", DOCUMENT_TEXT_SCALE)}px`,
-    "--ui-document-line-height": `${themeFontHeight("default", DOCUMENT_TEXT_SCALE) + DOCUMENT_LINE_GAP}px`,
-    "--ui-document-list-indent": `${themeFontHeight("default", DOCUMENT_HEADING_SCALE)}px`,
+    "--ui-document-font-size": `${themeFontHeight(FontRole.Primary, DOCUMENT_TEXT_SCALE)}px`,
+    "--ui-document-line-height": `${themeFontHeight(FontRole.Primary, DOCUMENT_TEXT_SCALE) + DOCUMENT_LINE_GAP}px`,
+    "--ui-document-list-indent": `${themeFontHeight(FontRole.Primary, DOCUMENT_HEADING_SCALE)}px`,
     ...style,
   } as CSSProperties;
   const textRun = (text: string, scale: number, key?: number) => (
@@ -178,7 +180,7 @@ export function MarkdownDocument({
               const target = [...(root.current?.querySelectorAll<HTMLElement>("[id]") ?? [])].find(
                 (element) => element.id === id,
               );
-              scrollElementIntoView(target, { block: "start", inline: "nearest" });
+              if (target) scrollFragmentTarget(target);
               target?.focus({ preventScroll: true });
             }}
           >
@@ -208,17 +210,16 @@ export function MarkdownDocument({
           const image = resolveImage?.(block.source);
           return image ? (
             <figure className={styles.figure} key={index}>
-              <div className={styles.imageViewport} tabIndex={0} aria-label={block.alt}>
-                <img
-                  src={image.src}
-                  alt={block.alt}
-                  width={image.width}
-                  height={image.height}
-                  style={{ width: image.width, height: image.height }}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
+              <img
+                className={styles.image}
+                src={image.src}
+                alt={block.alt}
+                width={image.width}
+                height={image.height}
+                style={{ width: image.width }}
+                loading="lazy"
+                decoding="async"
+              />
               {block.alt && <figcaption>{textRun(block.alt, DOCUMENT_CAPTION_SCALE)}</figcaption>}
             </figure>
           ) : (
@@ -245,7 +246,7 @@ export function MarkdownDocument({
             >
               {index > 0 && !followsHeading && contentWidth > 0 && (
                 <Divider
-                  variant={DividerVariant.InView}
+                  appearance={DividerAppearance.Content}
                   pixelSize={{
                     width: contentWidth / UI_SCALE,
                     height: DOCUMENT_SEPARATOR_HEIGHT / UI_SCALE,
@@ -254,8 +255,8 @@ export function MarkdownDocument({
               )}
               <Heading
                 style={{
-                  fontSize: themeFontHeight("default", headingScale),
-                  lineHeight: `${themeFontHeight("default", headingScale) + DOCUMENT_LINE_GAP}px`,
+                  fontSize: themeFontHeight(FontRole.Primary, headingScale),
+                  lineHeight: `${themeFontHeight(FontRole.Primary, headingScale) + DOCUMENT_LINE_GAP}px`,
                 }}
               >
                 {inline(block.text, headingScale)}

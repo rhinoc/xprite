@@ -1,6 +1,6 @@
 export interface LocalStoragePort {
   getItem(key: string): string | null;
-  setItem(key: string, value: string): void;
+  setItem(key: string, value: string): boolean;
   removeItem(key: string): void;
 }
 
@@ -46,9 +46,7 @@ export function removeLocalStorage(key: string): boolean {
 /** Non-throwing Storage-compatible facade for app preference services. */
 export const browserLocalStorage: LocalStoragePort = {
   getItem: readLocalStorage,
-  setItem: (key, value) => {
-    writeLocalStorage(key, value);
-  },
+  setItem: writeLocalStorage,
   removeItem: (key) => {
     removeLocalStorage(key);
   },

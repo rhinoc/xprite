@@ -1,7 +1,7 @@
 import {
-  PatternVariant,
+  PatternId,
   normalizePatternColor,
-  type UiAppearance,
+  type UiColorScheme,
   type UiThemeTokens,
 } from "@xprite/ui";
 
@@ -13,7 +13,7 @@ export enum DesktopAppearance {
 
 export interface DesktopPreferences {
   appearance: DesktopAppearance;
-  pattern?: PatternVariant;
+  pattern?: PatternId;
   patternForeground?: string;
   patternBackground?: string;
 }
@@ -23,7 +23,7 @@ export interface DesktopPort {
   write(preferences: DesktopPreferences): void;
   subscribe(listener: () => void): () => void;
   apply(preferences: DesktopPreferences): void;
-  applyTheme?(tokens: UiThemeTokens, appearance: UiAppearance, themeId: string): void;
+  applyTheme?(tokens: UiThemeTokens, colorScheme: UiColorScheme, themeId: string): void;
 }
 
 export const DEFAULT_DESKTOP_PREFERENCES: DesktopPreferences = {
@@ -40,7 +40,7 @@ export function normalizeDesktopPreferences(
     appearance: Object.values(DesktopAppearance).includes(saved.appearance!)
       ? saved.appearance!
       : defaults.appearance,
-    pattern: Object.values(PatternVariant).includes(saved.pattern!) ? saved.pattern : undefined,
+    pattern: Object.values(PatternId).includes(saved.pattern!) ? saved.pattern : undefined,
     patternForeground:
       typeof saved.patternForeground === "string"
         ? normalizePatternColor(saved.patternForeground)
@@ -90,7 +90,7 @@ export class DesktopManager {
     for (const notify of this.listeners) notify();
   }
   setAppearance = (appearance: DesktopAppearance) => this.update({ ...this.state, appearance });
-  setPattern = (pattern?: PatternVariant) => this.update({ ...this.state, pattern });
+  setPattern = (pattern?: PatternId) => this.update({ ...this.state, pattern });
   setPatternColors = (foreground: string, background: string) => {
     const nextForeground = normalizePatternColor(foreground);
     const nextBackground = normalizePatternColor(background);
@@ -101,6 +101,6 @@ export class DesktopManager {
         patternBackground: nextBackground,
       });
   };
-  applyTheme = (tokens: UiThemeTokens, appearance: UiAppearance, themeId: string) =>
-    this.port?.applyTheme?.(tokens, appearance, themeId);
+  applyTheme = (tokens: UiThemeTokens, colorScheme: UiColorScheme, themeId: string) =>
+    this.port?.applyTheme?.(tokens, colorScheme, themeId);
 }

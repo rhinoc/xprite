@@ -1,3 +1,8 @@
 export { Slider } from "$/components/slider/Slider";
-export { SliderVariant, SliderOrientation } from "$/components/slider/types";
-export type { NativeSliderProps, SliderProps } from "$/components/slider/types";
+export {
+  SliderMode,
+  SliderOrientation,
+  SliderRendering,
+  SliderValueFormat,
+} from "$/components/slider/types";
+export type { BrowserRangeSliderProps, SliderProps } from "$/components/slider/types";

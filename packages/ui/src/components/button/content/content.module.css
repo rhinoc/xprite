@@ -75,9 +75,6 @@
 .content {
   line-height: var(--ui-button-content-line-height);
 }
-.content:lang(zh) {
-  transform: translateY(0.1em);
-}
 
 .leading,
 .trailing {

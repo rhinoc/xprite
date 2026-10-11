@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 
-import { Button, Checkbox, UIProvider, CanvasScaleProvider } from "@xprite/ui";
+import { Button, Checkbox, UIProvider, CanvasScaleProvider, UiColorScheme } from "@xprite/ui";
 import { preloadUiAssets } from "@xprite/ui/assets";
 import { provideDomGeometry } from "@xprite/ui/utils";
 
@@ -12,12 +12,12 @@ export async function mountSharedControls(
   provideDomGeometry(container.ownerDocument, geometry.provider);
   (window as unknown as { __xpriteNativeLayout: () => Promise<unknown> }).__xpriteNativeLayout =
     () => geometry.flush();
-  await preloadUiAssets("dark", "zh-CN");
+  await preloadUiAssets(UiColorScheme.Dark, "zh-CN");
   function Controls() {
     const [checked, setChecked] = useState(true);
     const [count, setCount] = useState(0);
     return (
-      <UIProvider appearance="dark" language="zh-CN">
+      <UIProvider colorScheme={UiColorScheme.Dark} language="zh-CN">
         <CanvasScaleProvider scale={1}>
           <div
             style={{

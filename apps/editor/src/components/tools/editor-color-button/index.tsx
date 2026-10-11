@@ -27,6 +27,8 @@ function displayColor(value: string, profile?: AsepriteColorProfile) {
 export type EditorColorButtonProps = Omit<
   ButtonProps,
   | "variant"
+  | "appearance"
+  | "menu"
   | "value"
   | "swatchValue"
   | "swatchColor"
@@ -39,11 +41,12 @@ export type EditorColorButtonProps = Omit<
 
 /** Editor adapter: keep document color-space conversion outside the reusable control. */
 export function EditorColorButton(props: EditorColorButtonProps) {
+  const { value, mask, ...buttonProps } = props;
   const profile = useColorProfile();
   const button = useRef<HTMLButtonElement | null>(null);
   useColorSource(button, () => {
     try {
-      return { color: hexToRgba(props.value), profile };
+      return { color: hexToRgba(value), profile };
     } catch {
       return null;
     }
@@ -59,12 +62,13 @@ export function EditorColorButton(props: EditorColorButtonProps) {
   );
   return (
     <Button
-      {...props}
+      {...buttonProps}
       buttonRef={buttonRef}
       variant={ButtonVariant.Color}
-      value={props.value}
-      swatchValue={props.value}
-      swatchColor={displayColor(props.value, profile)}
+      value={value}
+      swatchValue={value}
+      swatchColor={displayColor(value, profile)}
+      mask={mask}
     />
   );
 }

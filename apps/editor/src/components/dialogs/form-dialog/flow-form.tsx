@@ -1,11 +1,11 @@
 import { Fragment, useEffect, useRef } from "react";
 
 import type { FormDialogProps, FormField } from "$/components/dialogs/form-dialog";
-import { useElementSize } from "$/components/shared/use-size";
 import { EditorColorButton } from "$/components/tools/editor-color-button";
 import { WorkspaceLink, WorkspaceLinkVariant } from "$/components/workspace/workspace-link";
 import { tUi, tUiSource } from "$/i18n";
 import {
+  FontRole,
   Button,
   ButtonVariant,
   Checkbox,
@@ -18,6 +18,7 @@ import {
 } from "@xprite/ui";
 import { RASTER_SCALE } from "@xprite/ui/canvas";
 import { measurePopoverAnchor } from "@xprite/ui/popover";
+import { useElementSize } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/form-dialog/flow-form.module.css";
 
@@ -60,7 +61,7 @@ function FlowField({
     return (
       <div className={styles.standalone}>
         <Button
-          variant={field.icon ? ButtonVariant.FlatIcon : ButtonVariant.Standard}
+          variant={field.icon ? ButtonVariant.FlatIcon : ButtonVariant.Push}
           icon={field.icon}
           text={field.icon ? undefined : field.label}
           label={field.icon ? field.label : undefined}
@@ -228,6 +229,7 @@ export function FlowForm({
           <Button
             key={`${action.label}-${index}`}
             text={action.label}
+            font={FontRole.Primary}
             data-ui-form-action={action.label}
             disabled={action.disabled}
             onClick={action.onClick}

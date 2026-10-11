@@ -5,6 +5,7 @@ import { buttonInkRole } from "$/base/controls/control-policy";
 import { useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import type { AtlasPartName } from "$/base/theme/theme-part";
+import { FontRole } from "$/base/theme/theme-types";
 import { cn } from "$/base/utils/cn";
 import { ButtonContent } from "$/components/button/content/ButtonContent";
 import { ButtonAppearance, ButtonVariant, type ButtonProps } from "$/components/button/types";
@@ -15,7 +16,8 @@ import { ThemeButtonArtwork } from "$/components/button/variants/standard/ThemeB
 import { ToolButtonContent } from "$/components/button/variants/tool/ToolButtonContent";
 import { DEFAULT_SURFACE_VIEWPORT, surfaceLayout } from "$/components/canvas-surface";
 import { RASTER_SCALE } from "$/components/canvas-surface/metrics";
-import { UiIcon } from "$/components/theme/appearance";
+import { FocusRingBehavior } from "$/components/focus-ring";
+import { Icon } from "$/components/icon";
 
 import styles from "$/components/button/button.module.css";
 import contentStyles from "$/components/button/content/content.module.css";
@@ -41,8 +43,8 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
     {
       children,
       slots,
-      variant = ButtonVariant.Standard,
-      appearance = ButtonAppearance.Default,
+      variant = ButtonVariant.Push,
+      appearance,
       readOnly = false,
       selected = false,
       bounds: suppliedBounds,
@@ -54,7 +56,7 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
       pushedPart,
       focusedPart,
       selectedPart,
-      focusAppearance = "keyboard",
+      focusRing = FocusRingBehavior.Keyboard,
       icon,
       selectedIcon,
       tintDisabledIcon = false,
@@ -97,15 +99,15 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
   ) {
     const variantStyle = buttonVariants[variant];
     const quiet = appearance === ButtonAppearance.Quiet;
-    const slotted = variant === ButtonVariant.Standard && slots !== undefined;
+    const slotted = variant === ButtonVariant.Push && slots !== undefined;
     const nativeContent = slotted || quiet;
     const isFlatIcon = variantStyle.flatIcon === true && !quiet;
     const { definition: theme, translateSource, language } = useTheme();
     const part =
       suppliedPart ??
-      (variant === ButtonVariant.Standard ? theme.controlParts?.button?.part : undefined) ??
+      (variant === ButtonVariant.Push ? theme.controlParts?.button?.part : undefined) ??
       variantStyle.defaultPart;
-    const font = suppliedFont ?? theme.controlParts?.button?.font ?? "mini";
+    const font = suppliedFont ?? theme.controlParts?.button?.font ?? FontRole.Compact;
     const { measureThemeText, themeFontHeight, centerThemePixel } = useThemeText();
     const displayText = text === undefined ? undefined : translateSource(text);
     const displayLabel = label === undefined ? undefined : translateSource(label);
@@ -145,7 +147,7 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
     const isButtonSet = part.startsWith("buttonset_item");
     const isTool = variantStyle.tool === true && !quiet;
     const isColor = variantStyle.color === true && !quiet;
-    const isReadOnlyColor = isColor && readOnly;
+    const isReadOnly = readOnly;
     const usesThemeArtwork = variantStyle.themeArtwork === true && !nativeContent;
     const activePart = (() => {
       if (disabled || isColor) return part;
@@ -282,7 +284,7 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
         }}
         className={classes}
         type={props.type ?? "button"}
-        disabled={disabled || isReadOnlyColor}
+        disabled={disabled || isReadOnly}
         data-slot="button"
         data-variant={variant}
         data-appearance={appearance}
@@ -326,7 +328,9 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
           onLostPointerCapture?.(event);
         }}
         onFocus={(event) => {
-          setFocused(focusAppearance === "always" || event.currentTarget.matches(":focus-visible"));
+          setFocused(
+            focusRing === FocusRingBehavior.Always || event.currentTarget.matches(":focus-visible"),
+          );
           onFocus?.(event);
         }}
         onBlur={(event) => {
@@ -416,8 +420,8 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
             text={text}
             mask={mask}
             disabled={disabled}
-            hot={!isReadOnlyColor && (hover || focused)}
-            pressed={!isReadOnlyColor && pressed}
+            hot={!isReadOnly && (hover || focused)}
+            pressed={!isReadOnly && pressed}
           />
         )}
         {isTool && (
@@ -449,7 +453,7 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
                     leading:
                       leading ??
                       (drawIcon ? (
-                        <UiIcon part={drawIcon} scale={RASTER_SCALE} color="currentColor" />
+                        <Icon kind={drawIcon} scale={RASTER_SCALE} color="currentColor" />
                       ) : undefined),
                   }
                 : undefined)

@@ -1,7 +1,7 @@
 import { useId, useState } from "react";
 
 import { tUiSource } from "$/i18n";
-import { Button, Checkbox, Divider, Popover, type SurfaceBounds } from "@xprite/ui";
+import { FontRole, Button, Checkbox, Divider, Popover, type SurfaceBounds } from "@xprite/ui";
 
 export interface FontOptionsProps {
   bounds: SurfaceBounds;
@@ -24,7 +24,7 @@ export function FontOptions({
     <>
       <Button
         text="..."
-        font="mini"
+        font={FontRole.Compact}
         aria-label="More Font Options"
         aria-expanded={open}
         aria-controls={open ? id : undefined}

@@ -7,22 +7,25 @@ import { UI_SCALE_X, UI_SCALE_Y } from "@xprite/ui/canvas";
 
 import styles from "$/components/workspace/home-view-base/home-view-base.module.css";
 
-const HOME_IDENTITY_ACTION_HEIGHT = 28;
+const HOME_IDENTITY_ACTION_HEIGHT = 14;
 const HOME_STAR_ICON_SIZE = 14;
 const HOME_STAR_ICON_GAP = 4;
 
 export interface HomeIdentityLabels {
   star: string;
+  settings: string;
   feedback: string;
 }
 
 export function HomeIdentity({
   labels,
   repositoryHref,
+  onSettings,
   onFeedback,
 }: {
   labels: HomeIdentityLabels;
   repositoryHref: string;
+  onSettings?: () => void;
   onFeedback?: () => void;
 }) {
   const linkBounds = (text: string, leadingWidth = 0) => ({
@@ -50,6 +53,17 @@ export function HomeIdentity({
           color="var(--ui-home-text)"
         >
           {labels.star}
+        </WorkspaceLink>
+        <WorkspaceLink
+          layout="flow"
+          bounds={linkBounds(labels.settings)}
+          onClick={onSettings}
+          disabled={!onSettings}
+          variant={WorkspaceLinkVariant.Workspace}
+          className={styles.starLink}
+          color="var(--ui-home-text)"
+        >
+          {labels.settings}
         </WorkspaceLink>
         <WorkspaceLink
           layout="flow"

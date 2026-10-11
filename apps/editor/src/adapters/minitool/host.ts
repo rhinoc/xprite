@@ -1,4 +1,5 @@
 import { createBrowserAnimalCrossingExportPort } from "$/adapters/files/browser-animal-crossing-export";
+import { createReferenceImageSelector } from "$/adapters/files/reference-image";
 import { browserPointerSamples } from "$/adapters/input/browser-pointer-samples";
 import { connectBrowserStylusTouchDefaults } from "$/adapters/input/browser-stylus-touch";
 import { BrowserWheelInput } from "$/adapters/input/browser-wheel";
@@ -18,13 +19,14 @@ import { rasterizeEditorTextFont } from "$/adapters/rendering/editor-font";
 import { ReferenceViewportCache } from "$/adapters/rendering/reference-viewport-cache";
 import type { EditorHostFactory } from "$/managers/ports/editor-host";
 import { EditorPrimaryModifier } from "$/managers/ports/platform";
+import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
 import { encodeRecoverySnapshot, decodeRecoverySnapshot } from "@xprite/editor-core/import-export";
 import { cursorStyle, type CursorName } from "@xprite/ui/cursor";
 
 export const createMiniToolEditorHostPorts: EditorHostFactory = () => ({
   platform: {
     navigation: { openExternal: () => {} },
-    preferences: miniToolPreferences,
+    preferences: createJsonStorage(miniToolPreferences),
     userPresets: {
       load: () => readJson("user-presets", null),
       save: (value) => writeJson("user-presets", value),
@@ -34,6 +36,7 @@ export const createMiniToolEditorHostPorts: EditorHostFactory = () => ({
       animalCrossingExport: createBrowserAnimalCrossingExportPort(),
       decodeAsepriteBlob,
       decodeImageBlob: decodeImage,
+      selectReferenceImage: createReferenceImageSelector(decodeImage),
     },
     input: {
       keyboardLikelyAvailable: false,

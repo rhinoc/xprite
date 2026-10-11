@@ -1,14 +1,15 @@
 import * as React from "react";
 
 import { entrySelection } from "$/base/controls/control-policy";
+import { themeFontFamily } from "$/base/theme/font-families";
 import { paintPartSurface } from "$/base/theme/paint-part-surface";
 import {
-  glyphSets,
   isCjkGlyph,
   measureThemeText,
   themeFontHeight,
   useThemeText,
   centerThemePixel,
+  themeFontKey,
 } from "$/base/theme/text-metrics";
 import {
   getThemeAssets,
@@ -21,10 +22,12 @@ import {
   remapThemeColor,
   useTheme,
   type UiStyleDefinition,
-  type UiAppearance,
+  type UiColorScheme,
 } from "$/base/theme/theme-context";
 import { ThemePart, type AtlasPartName, type UiPartName } from "$/base/theme/theme-part";
 import { themeTextCache } from "$/base/theme/theme-text-cache";
+import { FontRole } from "$/base/theme/theme-types";
+import { UiFontRenderer, type UiFontDefinition } from "$/base/theme/theme-types";
 import { cn } from "$/base/utils/cn";
 import { borderSize, observeElementSize, rangeRect } from "$/base/utils/dom-geometry";
 import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
@@ -33,31 +36,32 @@ import { surfaceLayout, DEFAULT_SURFACE_VIEWPORT } from "$/components/canvas-sur
 import { RASTER_SCALE } from "$/components/canvas-surface/metrics";
 import type { ControlPlacement } from "$/components/control-flow/placement";
 import { useFieldControl } from "$/components/field/Field";
+import { FocusRingBehavior } from "$/components/focus-ring";
 import { InputTouchActivation, useInputTouchActivation } from "$/components/input/touch-activation";
-import { Text, TextVariant, type PixelFont } from "$/components/text";
+import { Text, TextVariant } from "$/components/text";
 
 import styles from "$/base/components/theme-controls.module.css";
 
 export { getThemeAssets, preloadThemeAssets };
 export type { UiAssetBundle, UiBitmap };
 
-export function useThemeAssets(variant?: UiAppearance): UiAssetBundle | null {
+export function useThemeAssets(colorScheme?: UiColorScheme): UiAssetBundle | null {
   const context = useTheme();
-  const requestedVariant = variant ?? context.variant;
+  const requestedColorScheme = colorScheme ?? context.colorScheme;
   const subscribe = React.useCallback(
-    (listener: () => void) => subscribeThemeAssets(requestedVariant, context.uiTheme, listener),
-    [requestedVariant, context.uiTheme],
+    (listener: () => void) => subscribeThemeAssets(requestedColorScheme, context.uiTheme, listener),
+    [requestedColorScheme, context.uiTheme],
   );
   const getSnapshot = React.useCallback(
-    () => getThemeAssets(requestedVariant, context.uiTheme),
-    [requestedVariant, context.uiTheme],
+    () => getThemeAssets(requestedColorScheme, context.uiTheme),
+    [requestedColorScheme, context.uiTheme],
   );
   const assets = React.useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
   React.useEffect(() => {
-    void preloadThemeAssets(requestedVariant, context.language, context.uiTheme).catch((error) =>
-      console.error(error),
+    void preloadThemeAssets(requestedColorScheme, context.language, context.uiTheme).catch(
+      (error) => console.error(error),
     );
-  }, [requestedVariant, context.language, context.uiTheme]);
+  }, [requestedColorScheme, context.language, context.uiTheme]);
   return React.useMemo(
     () => (assets ? { ...assets, language: context.language } : null),
     [assets, context.language],
@@ -66,31 +70,26 @@ export function useThemeAssets(variant?: UiAppearance): UiAssetBundle | null {
 const cjkPixelGlyphCache = new Map<string, HTMLCanvasElement>();
 const CJK_PIXEL_GLYPH_CACHE_LIMIT = 512;
 const CJK_PIXEL_COVERAGE_THRESHOLD = 64;
+const CJK_FONT_LANGUAGE = "zh";
 /**
- * Each atlas pairs with the Fusion Pixel face whose ascent places Han on the
- * same baseline as the bitmap Latin glyphs. The default atlas uses the face
- * shifted onto Aseprite's 10/14 em baseline (714/1000); the 10px mini atlas
- * keeps the unshifted 10px-grid face (900/1000) so its glyphs stay crisp.
- */
-const CJK_PIXEL_FACES: Record<PixelFont, { family: string; ascent: number }> = {
-  default: { family: "FusionPixelZhHansAseprite", ascent: 0.714 },
-  mini: { family: "FusionPixelZhHans", ascent: 0.9 },
-};
-/**
- * Canvas fillText antialiases Fusion Pixel's deliberately pixel-shaped outlines.
- * Draw on the atlas baseline, so every glyph keeps its designed vertical
- * position, discard only faint edge coverage, and snap retained pixels to solid
- * opacity to preserve thin strokes.
+ * Draw the CJK face at its own pixel size on the typography's CJK baseline, so
+ * every glyph keeps its designed vertical position next to the Latin atlas.
+ * Center the ink horizontally in the fixed advance, discard faint edge coverage
+ * and snap retained pixels to solid opacity.
  */
 function cjkPixelGlyph(
   char: string,
-  font: PixelFont,
+  metrics: Extract<UiFontDefinition, { renderer: UiFontRenderer.Bitmap }>,
   scale: number,
   color: string,
   usePixelFont: boolean,
 ) {
-  const size = themeFontHeight(font, scale);
-  const key = `${font}:${size}:${color}:${usePixelFont ? "pixel" : "system"}:${char}`;
+  const line = Math.max(1, Math.round((metrics.lineHeight * scale) / RASTER_SCALE));
+  const fontSize = Math.max(1, Math.round((metrics.cjkFontSize * scale) / RASTER_SCALE));
+  const advance = Math.max(1, Math.round((metrics.cjkAdvance * scale) / RASTER_SCALE));
+  const baseline = Math.round((metrics.cjkBaseline * scale) / RASTER_SCALE);
+  const family = usePixelFont ? metrics.cjkFontFamily : metrics.fallbackFontFamily;
+  const key = `${family}:${fontSize}:${line}:${baseline}:${advance}:${color}:${char}`;
   const cached = cjkPixelGlyphCache.get(key);
   if (cached) {
     cjkPixelGlyphCache.delete(key);
@@ -98,37 +97,59 @@ function cjkPixelGlyph(
     return cached;
   }
   if (typeof document === "undefined") return null;
+  const probe = Math.max(line, fontSize) * 3;
   const mask = document.createElement("canvas");
-  mask.width = size;
-  mask.height = size;
+  mask.width = probe;
+  mask.height = probe;
   const maskContext = mask.getContext("2d", { willReadFrequently: true });
   if (!maskContext) return null;
-  maskContext.clearRect(0, 0, size, size);
-  const face = CJK_PIXEL_FACES[font];
-  maskContext.font = `${size}px ${usePixelFont ? face.family : "sans-serif"}`;
+  maskContext.font = `${fontSize}px ${family}`;
   maskContext.textAlign = "left";
   maskContext.textBaseline = "alphabetic";
   maskContext.fillStyle = "#fff";
-  maskContext.fillText(char, 0, Math.round(size * face.ascent), size);
-  const pixels = maskContext.getImageData(0, 0, size, size);
-  for (let index = 0; index < pixels.data.length; index += 4) {
-    const alpha = pixels.data[index + 3];
-    pixels.data[index] = UINT8_MAX;
-    pixels.data[index + 1] = UINT8_MAX;
-    pixels.data[index + 2] = UINT8_MAX;
-    pixels.data[index + 3] = alpha >= CJK_PIXEL_COVERAGE_THRESHOLD ? UINT8_MAX : 0;
+  const probeBaseline = Math.round(probe / 2);
+  maskContext.fillText(char, 0, probeBaseline);
+  const probed = maskContext.getImageData(0, 0, probe, probe);
+  let minX = probe;
+  let minY = probe;
+  let maxX = -1;
+  let maxY = -1;
+  for (let y = 0; y < probe; y++) {
+    for (let x = 0; x < probe; x++) {
+      if (probed.data[(y * probe + x) * 4 + 3] < CJK_PIXEL_COVERAGE_THRESHOLD) continue;
+      if (x < minX) minX = x;
+      if (y < minY) minY = y;
+      if (x > maxX) maxX = x;
+      if (y > maxY) maxY = y;
+    }
   }
-  maskContext.putImageData(pixels, 0, 0);
-
   const glyph = document.createElement("canvas");
-  glyph.width = size;
-  glyph.height = size;
+  glyph.width = advance;
+  glyph.height = line;
   const glyphContext = glyph.getContext("2d");
   if (!glyphContext) return null;
+  if (maxX >= minX && maxY >= minY) {
+    const inkWidth = maxX - minX + 1;
+    const inkHeight = maxY - minY + 1;
+    const destX = Math.round((advance - inkWidth) / 2);
+    const destY = baseline - (probeBaseline - minY);
+    const ink = maskContext.getImageData(minX, minY, inkWidth, inkHeight);
+    for (let index = 0; index < ink.data.length; index += 4) {
+      const covered = ink.data[index + 3] >= CJK_PIXEL_COVERAGE_THRESHOLD;
+      ink.data[index] = UINT8_MAX;
+      ink.data[index + 1] = UINT8_MAX;
+      ink.data[index + 2] = UINT8_MAX;
+      ink.data[index + 3] = covered ? UINT8_MAX : 0;
+    }
+    const inkCanvas = document.createElement("canvas");
+    inkCanvas.width = inkWidth;
+    inkCanvas.height = inkHeight;
+    inkCanvas.getContext("2d")?.putImageData(ink, 0, 0);
+    glyphContext.drawImage(inkCanvas, destX, destY);
+  }
+  glyphContext.globalCompositeOperation = "source-in";
   glyphContext.fillStyle = color;
-  glyphContext.fillRect(0, 0, size, size);
-  glyphContext.globalCompositeOperation = "destination-in";
-  glyphContext.drawImage(mask, 0, 0);
+  glyphContext.fillRect(0, 0, advance, line);
   cjkPixelGlyphCache.set(key, glyph);
   while (cjkPixelGlyphCache.size > CJK_PIXEL_GLYPH_CACHE_LIMIT) {
     cjkPixelGlyphCache.delete(cjkPixelGlyphCache.keys().next().value!);
@@ -159,7 +180,12 @@ export function paintThemePart(
     source.surface &&
     paintPartSurface(context, source.surface, assets.theme.colors, x, y, width, height, {
       face: options.fill
-        ? remapThemeColor(options.fill, assets.theme, assets.variant, assets.lightThemeColorRoles)
+        ? remapThemeColor(
+            options.fill,
+            assets.theme,
+            assets.colorScheme,
+            assets.lightThemeColorRoles,
+          )
         : undefined,
       ink: options.color,
       drawCenter: options.drawCenter,
@@ -173,7 +199,7 @@ export function paintThemePart(
     context.fillStyle = remapThemeColor(
       options.fill,
       assets.theme,
-      assets.variant,
+      assets.colorScheme,
       assets.lightThemeColorRoles,
     );
     context.fillRect(x, y, width, height);
@@ -279,14 +305,19 @@ export function paintThemeText(
   text: string,
   x: number,
   y: number,
-  options: { font?: PixelFont; color?: string; scale?: number } = {},
+  options: { font?: FontRole; color?: string; scale?: number } = {},
 ) {
-  const font = options.font ?? "default",
+  const font = themeFontKey(options.font ?? FontRole.Primary),
     scale = options.scale ?? 2;
-  const metrics = assets.theme.typography?.[font];
-  if (metrics) {
+  const metrics = assets.theme.typography[font];
+  if (metrics.renderer === UiFontRenderer.Native) {
+    if (!assets.cjkFontReady && [...text].some((char) => isCjkGlyph(char.codePointAt(0)!))) {
+      void preloadThemeAssets(assets.colorScheme, CJK_FONT_LANGUAGE, assets.uiTheme).catch(
+        (error) => console.error(error),
+      );
+    }
     context.save();
-    context.font = `${(metrics.fontSize * scale) / RASTER_SCALE}px ${metrics.fontFamily}, FusionPixelZhHans, monospace`;
+    context.font = `${(metrics.fontSize * scale) / RASTER_SCALE}px ${themeFontFamily(metrics)}`;
     context.textAlign = "left";
     context.textBaseline = "middle";
     context.fillStyle = options.color ?? assets.theme.colors.text;
@@ -298,16 +329,16 @@ export function paintThemeText(
     context.restore();
     return;
   }
-  const image = tint(
-    font === "mini" ? assets.miniFont : assets.defaultFont,
-    options.color ?? assets.theme.colors.text,
-  );
+  const atlas = assets.fontAtlases[font];
+  if (!atlas) throw new Error(`Font atlas is not ready: ${font}`);
+  const glyphs = metrics.atlas.glyphs;
+  const image = tint(atlas, options.color ?? assets.theme.colors.text);
   context.imageSmoothingEnabled = false;
   // Cache only the pixel-aligned, plain compositing path used by the bitmap UI.
   // Shadows, blend modes and fractional transforms retain per-glyph semantics.
   const hasCjkFallback = [...text].some((char) => {
     const codepoint = char.codePointAt(0)!;
-    return !glyphSets[font][String(codepoint)] && isCjkGlyph(codepoint);
+    return !glyphs[String(codepoint)] && isCjkGlyph(codepoint);
   });
   if (
     !hasCjkFallback &&
@@ -331,7 +362,7 @@ export function paintThemeText(
       Number.isInteger(transform.e) &&
       Number.isInteger(transform.f)
     ) {
-      const run = themeTextCache.get(image, glyphSets[font], text);
+      const run = themeTextCache.get(image, glyphs, text);
       if (run) {
         context.drawImage(run, Math.floor(x), Math.floor(y), run.width * scale, run.height * scale);
         return;
@@ -341,12 +372,12 @@ export function paintThemeText(
   let cursor = Math.floor(x);
   for (const char of text) {
     const codepoint = char.codePointAt(0)!;
-    const glyph = glyphSets[font][String(codepoint)];
+    const glyph = glyphs[String(codepoint)];
     if (!glyph && isCjkGlyph(codepoint)) {
-      const fallbackAdvance = themeFontHeight(font, scale);
+      const fallbackAdvance = (metrics.cjkAdvance * scale) / RASTER_SCALE;
       const bitmap = cjkPixelGlyph(
         char,
-        font,
+        metrics,
         scale,
         options.color ?? assets.theme.colors.text,
         assets.cjkFontReady,
@@ -355,7 +386,7 @@ export function paintThemeText(
       cursor += fallbackAdvance;
       continue;
     }
-    const fallbackGlyph = glyph ?? glyphSets[font]["63"];
+    const fallbackGlyph = glyph ?? glyphs["63"];
     if (!fallbackGlyph) continue;
     const [sx, sy, width, height] = fallbackGlyph;
     context.drawImage(
@@ -378,7 +409,7 @@ export function themeControlSize(
   theme: Pick<UiStyleDefinition, "parts" | "typography">,
   part: AtlasPartName,
   text = "",
-  font: PixelFont = "default",
+  font: FontRole = FontRole.Primary,
   icon?: AtlasPartName,
 ) {
   const frame = theme.parts[part];
@@ -423,8 +454,8 @@ interface InputContentProps extends Omit<
   textInset?: number;
   /** Optional vertical stretching of Input frame slices, in scene pixels. */
   frameScaleTop?: number;
-  /** Aseprite-style modal focus indicators stay visible after pointer activation. */
-  focusAppearance?: "always" | "keyboard";
+  /** Keep the focus ring visible after pointer activation. */
+  focusRing?: FocusRingBehavior;
   onCommit?: (value: string) => void;
   /** DoubleTap reserves casual touch/pen taps for controls rather than the keyboard. */
   touchActivation?: InputTouchActivation;
@@ -444,7 +475,7 @@ interface EntryTextPositions {
 
 /** Align painted caret and selection geometry with the browser-rendered entry text. */
 function measureRenderedEntryOffset(container: HTMLSpanElement, offset: number, fallback: number) {
-  const textNode = container.querySelector<HTMLElement>('[data-font="default"]')?.firstChild;
+  const textNode = container.querySelector<HTMLElement>('[data-font="primary"]')?.firstChild;
   if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return fallback;
   const length = textNode.textContent?.length ?? 0;
   const position = Math.max(0, Math.min(length, offset));
@@ -485,6 +516,7 @@ export function Input({
   focusedPart,
   textInset: suppliedTextInset,
   frameScaleTop,
+  focusRing = FocusRingBehavior.Keyboard,
   onCommit,
   onValueChange,
   style,
@@ -495,7 +527,7 @@ export function Input({
   onSelect,
   onCompositionStart,
   onCompositionEnd,
-  touchActivation = InputTouchActivation.Native,
+  touchActivation = InputTouchActivation.SingleTap,
   onTouchTap,
   onPointerDown,
   onPointerMove,
@@ -530,7 +562,7 @@ export function Input({
     theme,
     part ?? (mini ? "sunken_mini_normal" : "sunken_normal"),
     measuredText,
-    mini ? "mini" : "default",
+    mini ? FontRole.Compact : FontRole.Primary,
   );
   const contentMinimumWidth = textInset + measureThemeText(measuredText) + INPUT_TEXT_INSET;
   const bounds = suppliedBounds ?? {
@@ -794,7 +826,9 @@ export function Input({
           onSelect?.(e);
         }}
         onFocus={(e) => {
-          setFocused(true);
+          setFocused(
+            focusRing === FocusRingBehavior.Always || e.currentTarget.matches(":focus-visible"),
+          );
           updateSelection(e.currentTarget);
           onFocus?.(e);
         }}

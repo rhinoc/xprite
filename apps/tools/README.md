@@ -4,7 +4,7 @@ Standalone read-only Aseprite viewer at `/tools/viewer/`. Run from the repositor
 with `pnpm run dev:tools`; the development server uses port 5176. The root
 `build:site` pipeline combines this application's independent build with the
 editor and growth applications. For access through one LAN IP and port, run
-`pnpm run dev` and open `http://<LAN-IP>:5173/tools/`. Cross-app links and
+`pnpm run dev` and open `http://<LAN-IP>:5173/tools/viewer/`. Cross-app links and
 hot-update WebSockets are proxied without changing the browser's origin; the
 standalone tools server remains on 5176. See [development setup](../../CONTRIBUTING.md).
 
@@ -21,7 +21,7 @@ presentation extracted from the editor. Editing actions stay with the editor;
 the viewer exposes inspection, visibility and group expansion only. The shared
 appearance policy uses the editor's saved Light/Dark/System choice initially.
 The rainbow system menu controls the separate public-desktop appearance and background;
-these settings are shared with showcase, guides, articles and gallery, and never
+these settings are shared with showcase, guides, articles and web components, and never
 write editor preferences.
 
 The bundled Example animation imports
@@ -58,29 +58,30 @@ editor preferences, recents or recovery records are written by conversion.
 The root `build:tools` output is assembled under `/tools/`; website metadata,
 sitemap and HTTP serving rules remain owned by growth and deployment scripts.
 
-## Tool directory and shared shell
+## Features and shared shell
 
-`/tools/` lists all tools. The shared Menubar starts with the Xprite logo, followed
-by a tool menu; All tools returns to the directory. The logo opens the showcase,
-and a help bubble at the trailing edge opens the tool guide. Page actions and
-filenames sit in the toolbar below it. `ToolFrame` centralizes browser appearance and
+`/about/features/` groups editor features and standalone tools into one directory.
+The shared menu and footer link directly to each tool, and the desktop Features
+shortcut opens the localized directory. `ToolFrame` centralizes browser appearance and
 navigation; `FileToolShell` owns local file selection, drag/drop, the short empty
 state and the centered **Try example** preview. Examples appear only before opening a
 file and are hidden while loading or inspecting a file. Pages contribute their own toolbar
-buttons and content. Theme follows the editor preference with no override buttons.
+buttons and content. The system menu manages public-desktop appearance preferences.
 
-The registry in `@xprite/growth-content/tools` feeds the tool menu, directory,
-sitemap and discovery metadata. Preview URLs import original artwork through
+The registry in `@xprite/growth-content/tools` feeds the tool menu, sitemap and
+discovery metadata. Features entries live in the localized `content/about/features.*.md`
+files in growth. Preview URLs import original artwork through
 `@xprite/site-assets`. A new tool adds its descriptor, manager/adapter/view, HTML
-entry and Vite build input; the shared shell can be reused without copying it.
-Files selected in the current two tools are processed locally and are not sent
+entry, Vite build input and a Features entry in both languages; the shared shell can
+be reused without copying it.
+Files selected in the tools are processed locally and are not sent
 to cloud storage or conversion services.
 
 ## Static first paint
 
 `build/startup-pages.ts` generates static HTML during the existing Vite build.
-`src/ssg.tsx` calls React's `renderToString` on the actual `ToolsHome`, `ViewerPage`
-and `GifSheetPage`, using their ordinary manager-owned empty states. Pages and
+`src/ssg.tsx` calls React's `renderToString` on the actual `ViewerPage`, `GifSheetPage`
+and `AnimalCrossingPage`, using their ordinary manager-owned empty states. Pages and
 controls have one implementation. Production serves HTML, CSS and assets from
 the static build; no request-time rendering service is deployed.
 
@@ -93,9 +94,7 @@ JavaScript the default is Light. Development previews the same generation path.
 `src/bootstrap.tsx` waits for fonts and bitmap resources, then calls `hydrateRoot`
 with the same initial theme metadata. Shared UI atlas controls provide responsive
 first-paint artwork until browser measurements are available. Hydration errors
-fail the startup visual gate alongside pixel and geometry changes. This changes
-loading only, so the user guide needs no update.
-
+fail the startup visual gate alongside pixel and geometry changes.
 All tool routes use the Macintosh skin from `@xprite/ui`. Light/Dark/System is
 shared through the public desktop preferences; the editor appearance is a read-only
 initial value when no public preference exists. `ToolAppearance`, browser
@@ -105,10 +104,8 @@ provider's palette tokens; the system menu changes the shared public appearance.
 Typography also comes from the skin: ChiKareGo2 for ordinary copy and controls,
 FindersKeepers for the theme’s mini text, and Fusion Pixel for CJK glyphs.
 The shell does not override the theme font, and bootstrap waits for the active
-skin’s declared fonts before hydration. This changes typography only; guide
-operations and existing guide screenshots are unaffected.
-
-## Animal Crossing design QR codes
+skin’s declared fonts before hydration.
+## Animal Crossing Design Converter
 
 `/tools/animal-crossing-qr/` accepts local PNGs and Aseprite projects with embedded
 image or tilemap layers. The manager renders a chosen frame through editor-core,
@@ -123,7 +120,7 @@ the existing static-first render/hydration pipeline and tools registry.
 
 Tool navigation/actions use shared slotted `Button` surfaces; panels, inputs,
 comboboxes and previews use the UI package. The directory and file empty states
-use `ScrollArea` with reserved gutters, while `PageScrollArea` covers document
+use `ScrollArea` with reserved gutters, while `ScrollAreaTarget.Page` covers document
 overflow on small screens. Responsive card previews use
 `PixelImageFit.Contain`. Initial artwork URLs are published with the SSG payload
 and supplied to hydration, so the same image URLs and CSS dimensions are used
@@ -143,13 +140,12 @@ sampling coordinates, 15-color reconstruction palette and error are retained in
 `apps/growth/public/tools/animal-crossing/acnh/provenance.json`. The custom credit
 policy is retained in `LICENSES/aforestlife-acnh.txt`; it is not a CC license or
 original game data. Example loading generates nine designs and credits Amy.
-The former Kenney CC0 village remains a fixture, not the default.
+The Kenney CC0 village is retained as a fixture.
 
 The lazy Three.js adapter renders a grass plane and alpha-tested design overlay.
 `IslandPreviewManager` owns scene lifetime, seasonal ground, original/QR colors,
 nearby 3×3/repeated-cell placement, filtering, repeat count and camera presets.
-Components size the host through shared geometry utilities. Procedural seasonal
-grass approximations contain no Nintendo texture rips. Source-color surfaces use
+Components size the host through shared geometry utilities. Procedural seasonal grass textures are generated by the preview adapter. Source-color surfaces use
 the same cell geometry and nearest sampling as QR conversion; QR exports still
 use the older import palette. The preview does not emulate built-in path clipping
 or game lighting. The center pane always shows the 2D sprite sheet, while a

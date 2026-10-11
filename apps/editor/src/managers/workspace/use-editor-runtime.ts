@@ -16,12 +16,11 @@ import {
 
 export type EditorUiAssetsPreloader = (appearance: ResolvedAppearance) => Promise<unknown>;
 export type EditorRuntimeStartup = "loading" | "ready" | "error";
-type SystemAppearance = "light" | "dark";
 
 /** Owns workspace startup, persistence flushing, and disposal for one editor app instance. */
 export function useEditorRuntime(
   workspace: DocumentWorkspace,
-  systemAppearanceMode: SystemAppearance,
+  systemAppearanceMode: ResolvedAppearance,
   preloadUiAssets: EditorUiAssetsPreloader,
   workspaceLifetime: WorkspaceLifetime,
 ) {
@@ -38,9 +37,7 @@ export function useEditorRuntime(
   const [appearanceMode, setAppearanceMode] = useState<AppearanceMode>(() =>
     readAppearanceMode(preferenceStorage),
   );
-  const systemAppearance =
-    systemAppearanceMode === "dark" ? AppearanceMode.Dark : AppearanceMode.Light;
-  const resolvedAppearance = resolveAppearanceMode(appearanceMode, systemAppearance);
+  const resolvedAppearance = resolveAppearanceMode(appearanceMode, systemAppearanceMode);
   const appearance: ResolvedAppearance = resolvedAppearance;
   const appearanceRef = useRef(appearance);
   appearanceRef.current = appearance;
@@ -153,7 +150,7 @@ export function useEditorRuntime(
     colorProfile,
     startup,
     appearanceMode,
-    systemAppearance,
+    systemAppearance: systemAppearanceMode,
     resolvedAppearance,
     appearance,
     changeAppearanceMode,

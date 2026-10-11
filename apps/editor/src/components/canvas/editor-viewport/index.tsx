@@ -1,5 +1,5 @@
 import "$/components/canvas/editor-viewport/editor-viewport.module.css";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { EditorCanvas } from "$/components/canvas/editor-canvas";
 import { EditorFrame, asepriteEditorFrameBounds } from "$/components/canvas/editor-frame";
@@ -24,7 +24,7 @@ import {
 import { useEditorPreferences } from "$/managers/preferences/use-editor-preferences";
 import { useEditorChromePreferences } from "$/managers/shell/editor-chrome-preferences-context";
 import { UI_SCALE_X, UI_SCALE_Y, surfaceLayout } from "@xprite/ui/canvas";
-import { layoutSize, observeResize } from "@xprite/ui/utils";
+import { useElementSize } from "@xprite/ui/utils";
 
 export function EditorViewport({
   src,
@@ -184,24 +184,17 @@ function FunctionalViewport({ showScrollbars }: { showScrollbars: boolean }) {
   const commands = canvasManager.commands;
   if (!state || !commands) throw new Error("FunctionalViewport requires an editor manager");
   const viewportRef = useRef<HTMLDivElement>(null);
-  const [viewportSize, setViewportSize] = useState<{ width: number; height: number } | null>(null);
-  useLayoutEffect(() => {
-    const node = viewportRef.current;
-    if (!node) return;
-    const measure = () => {
-      const next = {
-        width: Math.max(0, Math.round(layoutSize(node).width)),
-        height: Math.max(0, Math.round(layoutSize(node).height)),
-      };
-      setViewportSize((current) =>
-        current?.width === next.width && current.height === next.height ? current : next,
-      );
-    };
-    measure();
-    const observer = observeResize([node], measure);
-
-    return () => observer();
-  }, []);
+  const measuredViewport = useElementSize(viewportRef);
+  const viewportSize = useMemo(
+    () =>
+      measuredViewport.ready
+        ? {
+            width: Math.max(0, Math.round(measuredViewport.width)),
+            height: Math.max(0, Math.round(measuredViewport.height)),
+          }
+        : null,
+    [measuredViewport],
+  );
   const previousViewport = useRef<{
     editorIdentity: number;
     documentId: number | undefined;

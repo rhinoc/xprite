@@ -37,8 +37,7 @@ export function readPanelLayoutPreferences(
   storage?: PreferenceStoragePort,
 ): PanelLayoutPreferences {
   try {
-    const saved = storage?.getItem(STORAGE_KEY);
-    return normalizePanelLayoutPreferences(saved ? JSON.parse(saved) : undefined);
+    return normalizePanelLayoutPreferences(storage?.readJson(STORAGE_KEY));
   } catch {
     return normalizePanelLayoutPreferences(undefined);
   }
@@ -49,7 +48,7 @@ export function writePanelLayoutPreferences(
   storage?: PreferenceStoragePort,
 ): void {
   try {
-    storage?.setItem(STORAGE_KEY, JSON.stringify(normalizePanelLayoutPreferences(value)));
+    storage?.writeJson(STORAGE_KEY, normalizePanelLayoutPreferences(value));
   } catch {
     // Keep the active workspace layout when preference storage is unavailable.
   }

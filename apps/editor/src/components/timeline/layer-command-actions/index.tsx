@@ -4,13 +4,11 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
 
-import { readReferenceImage } from "$/managers/files/read-reference-image";
-import { useTimelineManager } from "$/managers/timeline/timeline-manager";
+import { useReferenceLayerCommand } from "$/managers/timeline/reference-layer-command";
 export interface LayerCommandActions {
   openReferenceLayer: () => void;
 }
@@ -39,54 +37,10 @@ export function LayerCommandHost({
   onError?: (message: string) => void;
 }) {
   const registry = useContext(Context);
-  const timelineManager = useTimelineManager();
-  const { identity, getSnapshot, commands } = timelineManager;
-  const currentIdentity = useRef(identity);
-  currentIdentity.current = identity;
-  const picker = useRef<HTMLInputElement | null>(null);
-  useEffect(() => () => picker.current?.remove(), []);
+  const openReferenceLayer = useReferenceLayerCommand(enabled, onError);
   useEffect(
-    () =>
-      registry?.register({
-        openReferenceLayer: () => {
-          const snapshot = getSnapshot();
-          if (!enabled || !snapshot?.document) return;
-          picker.current?.remove();
-          const input = document.createElement("input");
-          input.type = "file";
-          input.accept = "image/*";
-          input.hidden = true;
-          input.setAttribute("aria-label", "Open reference layer image");
-          document.body.append(input);
-          picker.current = input;
-          const ownerIdentity = identity,
-            id = snapshot.document.id;
-          input.addEventListener("cancel", () => input.remove(), { once: true });
-          input.addEventListener(
-            "change",
-            async () => {
-              const file = input.files?.[0];
-              input.remove();
-              if (!file || id === undefined) return;
-              try {
-                const pixels = await readReferenceImage(file);
-                const currentSnapshot = getSnapshot();
-                if (
-                  currentIdentity.current !== ownerIdentity ||
-                  currentSnapshot?.document?.id !== id
-                )
-                  return;
-                commands.addReferenceLayer(pixels);
-              } catch (error) {
-                onError?.(error instanceof Error ? error.message : String(error));
-              }
-            },
-            { once: true },
-          );
-          input.click();
-        },
-      }),
-    [registry?.register, getSnapshot, identity, commands, enabled, onError],
+    () => registry?.register({ openReferenceLayer }),
+    [registry?.register, openReferenceLayer],
   );
   return null;
 }

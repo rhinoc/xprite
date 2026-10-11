@@ -8,31 +8,31 @@
   -webkit-font-smoothing: none;
 }
 
-.positioned[data-font="default"] {
-  font-size: var(--ui-text-size, var(--ui-text-default-size));
-  line-height: var(--ui-text-size, var(--ui-text-default-size));
+.positioned[data-font="primary"] {
+  font-size: var(--ui-text-size, var(--ui-text-primary-size));
+  line-height: var(--ui-text-size, var(--ui-text-primary-size));
 }
 
-.positioned[data-font="mini"] {
+.positioned[data-font="compact"] {
   font-size: var(--ui-text-mini-size);
   line-height: var(--ui-text-mini-line);
 }
 
-.miniLatin,
-.miniCjk {
+.fallbackLatin,
+.fallbackCjk {
   line-height: var(--ui-text-mini-line);
 }
 
-.miniLatin {
+.fallbackLatin {
   font-size: var(--ui-text-mini-cjk-size);
   font-family: sans-serif;
 }
 
-.miniCjk {
+.fallbackCjk {
   font-size: var(--ui-text-mini-cjk-size);
 }
 
-.miniGlyph {
+.atlasGlyph {
   display: inline-block;
   vertical-align: top;
 }

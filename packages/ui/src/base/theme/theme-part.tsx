@@ -45,8 +45,8 @@ export function ThemeIcon({
   pressed?: boolean;
   focused?: boolean;
 }) {
-  const { definition: theme, variant, uiTheme, sheetUrl } = useTheme();
-  const assets = getThemeAssets(variant, uiTheme);
+  const { definition: theme, colorScheme, uiTheme, sheetUrl } = useTheme();
+  const assets = getThemeAssets(colorScheme, uiTheme);
   const source = theme.parts[part];
   const tintColor =
     color ?? (source.foregroundRole ? theme.colors[source.foregroundRole] : undefined);
@@ -179,8 +179,8 @@ export function ThemePart({
   children,
   ...props
 }: UiPartProps) {
-  const { definition: theme, variant, uiTheme, sheetUrl } = useTheme();
-  const assets = getThemeAssets(variant, uiTheme);
+  const { definition: theme, colorScheme, uiTheme, sheetUrl } = useTheme();
+  const assets = getThemeAssets(colorScheme, uiTheme);
   const source = theme.parts[part];
   const slices = source.slices;
   const geometryStyle = {

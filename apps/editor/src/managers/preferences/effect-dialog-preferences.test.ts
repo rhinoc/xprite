@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "vitest";
 
 import { EffectDialogPreferences } from "$/managers/preferences/effect-dialog-preferences";
+import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
 import {
   EffectKind,
   EffectTarget,
@@ -13,12 +14,12 @@ import {
 
 function storage() {
   const values = new Map<string, string>();
-  return {
+  return createJsonStorage({
     getItem: (key: string) => values.get(key) ?? null,
     setItem: (key: string, value: string) => {
       values.set(key, value);
     },
-  };
+  });
 }
 const hue: Extract<EffectSpec, { kind: EffectKind.HueSaturation }> = {
   kind: EffectKind.HueSaturation,

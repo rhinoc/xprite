@@ -11,12 +11,10 @@ another browser's document memory.
 
 The editor HTML advertises `/agent/editor.md` with a `rel="describedby"`
 Markdown link in its head. The document is shipped as a static editor asset and
-explains how to discover the current schemas through `describe()`. This adds no
-visible control. The editor's outer accessible name recommends `window.xpriteAgent`
+explains how to discover the current schemas through `describe()`.  The editor's outer accessible name recommends `window.xpriteAgent`
 for browser drawing and editing, gives the `describe()` call and the documentation
 URL in the current UI language. Semantic snapshots can surface these without
-inspecting the head. Screen-reader users can hear this additional description.
-Screenshots alone do not expose either metadata entry.
+inspecting the head.
 
 The interface is available after workspace recovery completes and is removed
 when the editor unmounts. Calls return `{ ok: true, data }` or
@@ -143,9 +141,6 @@ read context and reconsider the edit. `describe()` provides current schemas.
 
 Aseprite's local `tests/scripts/tools.lua` and `app_transaction.lua` demonstrate
 explicit drawing targets and grouping multiple operations into one undo step.
-Their headers and `src/doc/LICENSE.txt` identify MIT licensing. This interface
-uses the repository's existing raster and history implementations; it does not
-embed Aseprite Lua or copy the reference scripting implementation. Historical
-`.docs/` notes were reviewed as context, not treated as current API contracts.
+Their headers and `src/doc/LICENSE.txt` identify MIT licensing. The interface uses the repository’s raster and history implementations.
 WebMCP registration follows the current imperative `document.modelContext`
 interface; browsers without it still expose the page JS interface.

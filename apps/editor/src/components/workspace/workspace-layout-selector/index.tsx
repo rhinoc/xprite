@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 
 import { Alert } from "$/components/dialogs/alert";
 import { FormDialog } from "$/components/dialogs/form-dialog";
@@ -13,7 +12,7 @@ import {
   type WorkspaceLayoutMode,
   type WorkspacePanelLayout,
 } from "$/managers/workspace/workspace-panel-layout";
-import { Combobox } from "@xprite/ui";
+import { createUiPortal, Combobox } from "@xprite/ui";
 import { UI_SCALE } from "@xprite/ui/canvas";
 
 import "$/components/workspace/workspace-layout-selector/workspace-layout-selector.module.css";
@@ -203,7 +202,7 @@ export function WorkspaceLayoutSelector({
       ? document.querySelector<HTMLElement>("[data-workspace-layout-combo-slot]")
       : null;
   const selector = slot
-    ? createPortal(
+    ? createUiPortal(
         <Combobox
           pixelSize={LAYOUT_COMBOBOX_SIZE}
           value={value}

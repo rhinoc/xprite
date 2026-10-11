@@ -1,4 +1,4 @@
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { AnimalCrossingGroundView } from "$/components/animal-crossing/animal-crossing-ground";
 import { AnimalCrossingOutput } from "$/components/animal-crossing/animal-crossing-output";
@@ -9,25 +9,22 @@ import {
   AnimalCrossingLayout,
   type AnimalCrossingManager,
 } from "$/managers/animal-crossing/animal-crossing-manager";
+import { useToolTranslation } from "$/managers/locale/tool-language";
 import { ANIMAL_CROSSING_TOOL } from "$/managers/tools/tool-catalog";
 import {
   ContentLayout,
-  PanelWindowChrome,
-  SurfaceTone,
+  Disclosure,
   StatusBar,
-  StatusBarPlacement,
   Text,
   TextVariant,
   TextTone,
   Panel,
   PanelVariant,
-  PanelWindowKind,
   Button,
+  ButtonAppearance,
   Checkbox,
   Combobox,
   ControlFlow,
-  ControlFlowVariant,
-  ScrollArea,
 } from "@xprite/ui";
 
 import styles from "$/components/animal-crossing/animal-crossing.module.css";
@@ -41,6 +38,8 @@ enum AnimalCrossingPreview {
   Converted = "converted",
 }
 export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager }) {
+  const t = useToolTranslation();
+
   const snapshot = useSyncExternalStore(
     manager.subscribe,
     manager.getSnapshot,
@@ -54,6 +53,10 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
   const [preview, setPreview] = useState(AnimalCrossingPreview.Original);
   const [showGrid, setShowGrid] = useState(true);
   const { source, result } = snapshot;
+  useEffect(() => {
+    if (result) setPreview(AnimalCrossingPreview.Converted);
+  }, [result]);
+  const groundOpen = !!result && snapshot.previewOpen;
   const busy = snapshot.loading || snapshot.downloading;
   const converted = !!result && preview === AnimalCrossingPreview.Converted;
   const pixels = converted ? result!.pixels : source;
@@ -64,7 +67,6 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
   return (
     <FileToolShell
       tool={ANIMAL_CROSSING_TOOL}
-      scrollWorkspace
       filename={snapshot.name}
       ready={!!source}
       busy={busy}
@@ -73,15 +75,25 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
       onExample={() => manager.openExample()}
       fileItems={[
         {
-          label: "Download QR PNG",
+          label: t("Download QR PNG"),
           disabled: !result || busy,
           onSelect: () => void manager.downloadQr(),
         },
+        ...(result && result.patterns.length > 1
+          ? [
+              {
+                label: t(`Download all ${result.patterns.length} designs`),
+                disabled: busy,
+                onSelect: () => void manager.download(),
+              },
+            ]
+          : []),
       ]}
     >
       {source && pixels && (
         <div
           className={`${styles.layout} ${snapshot.layout === AnimalCrossingLayout.Single ? styles.singleLayout : ""}`}
+          data-ground-preview-open={groundOpen || undefined}
         >
           <AnimalCrossingSettingsPanel
             key={snapshot.identity}
@@ -89,164 +101,138 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
             snapshot={snapshot}
           />
           <Panel
-            windowChrome={PanelWindowChrome.Emphasized}
+            emphasized
             contentLayout={ContentLayout.Fill}
-            variant={PanelVariant.Window}
+            variant={PanelVariant.Document}
             title={snapshot.name}
             className={styles.previewPanel}
             data-ui-window-priority="primary"
-            aria-label={snapshot.importedQr ? "Imported design" : "Sprite sheet"}
+            aria-label={t(snapshot.importedQr ? "Imported design" : "Sprite sheet")}
           >
-            <StatusBar placement={StatusBarPlacement.Header}>
-              <Text variant={TextVariant.Reading}>
-                {snapshot.importedQr ? "Imported design" : "Sprite sheet"}
-              </Text>
-              <Text
-                variant={TextVariant.Reading}
-                tone={TextTone.Muted}
-              >{`${pixels.width} × ${pixels.height} px`}</Text>
-            </StatusBar>
             <div className={styles.previewContent}>
-              <ControlFlow variant={ControlFlowVariant.Toolbar} className={styles.previewToolbar}>
-                {result && (
-                  <>
-                    <Button
-                      slots={{}}
-                      text="Original"
-                      selected={preview === AnimalCrossingPreview.Original}
-                      onClick={() => setPreview(AnimalCrossingPreview.Original)}
-                    />
-                    <Button
-                      slots={{}}
-                      text="Converted"
-                      selected={preview === AnimalCrossingPreview.Converted}
-                      onClick={() => setPreview(AnimalCrossingPreview.Converted)}
-                    />
-                  </>
-                )}
-                <Combobox
-                  aria-label="Preview zoom"
-                  pixelWidth={ZOOM_WIDTH}
-                  value={String(zoom)}
-                  options={zooms.map((value) => ({
-                    value: String(value),
-                    label: value === FIT ? "Fit" : `${Math.round(value * PERCENT)}%`,
-                    disabled: value !== FIT && !manager.viewport.canZoom(value),
-                  }))}
-                  onValueChange={(value) =>
-                    Number(value) === FIT
-                      ? manager.viewport.fit()
-                      : manager.viewport.setZoom(Number(value))
-                  }
-                />
-                {tiled && (
-                  <Checkbox label="Tile grid" checked={showGrid} onCheckedChange={setShowGrid} />
-                )}
-                {result && (
-                  <Button
-                    slots={{}}
-                    text="Preview"
-                    selected={snapshot.previewOpen}
-                    aria-expanded={snapshot.previewOpen}
-                    onClick={() => manager.setPreviewOpen(!snapshot.previewOpen)}
-                  />
-                )}
-              </ControlFlow>
-              <div className={styles.previewStage}>
-                <ToolCanvasPreview
-                  navigation={manager.viewport}
-                  identity={snapshot.identity}
-                  pixels={pixels}
-                  label="Pattern preview. Drag to pan, scroll to zoom, double-click to fit."
-                  overlay={
-                    tiled && showGrid
-                      ? (current) => (
-                          <div className={styles.gridOverlay} aria-hidden="true">
-                            {grid!.cells.map((cell, index) => (
-                              <div
-                                key={index}
-                                className={`${styles.gridCell} ${index === snapshot.selected ? styles.selectedCell : ""}`}
-                                style={{
-                                  left: current.origin.x + cell.x * current.zoom,
-                                  top: current.origin.y + cell.y * current.zoom,
-                                  width: cell.width * current.zoom,
-                                  height: cell.height * current.zoom,
-                                }}
-                              />
-                            ))}
-                          </div>
-                        )
-                      : undefined
-                  }
-                />
-              </div>
-              {result && result.patterns.length > FIRST_COORDINATE && (
-                <div className={styles.tileSelection}>
-                  <Text
-                    variant={TextVariant.Reading}
-                  >{`${result.columns} × ${result.rows} tiles · select a tile for Preview and QR`}</Text>
-                  <ScrollArea className={styles.tileScroll} aria-label="Design tiles">
-                    <ControlFlow className={styles.tileButtons}>
-                      {result.patterns.map((pattern, index) => (
+              {result && (
+                <Disclosure
+                  className={styles.groundDisclosure}
+                  title={t("3D preview")}
+                  open={groundOpen}
+                  onToggle={(event) => {
+                    if (event.currentTarget.open !== groundOpen)
+                      manager.setPreviewOpen(event.currentTarget.open);
+                  }}
+                >
+                  {groundOpen && <AnimalCrossingGroundView manager={manager.ground} />}
+                </Disclosure>
+              )}
+              {!groundOpen && (
+                <>
+                  <ControlFlow toolbar className={styles.previewToolbar}>
+                    {result && (
+                      <>
                         <Button
                           slots={{}}
-                          key={index}
-                          text={`${pattern.row + FIRST_COORDINATE},${pattern.column + FIRST_COORDINATE}`}
-                          aria-label={`Select row ${pattern.row + FIRST_COORDINATE}, column ${pattern.column + FIRST_COORDINATE}`}
-                          selected={index === snapshot.selected}
-                          disabled={busy}
-                          onClick={() => manager.select(index)}
+                          text={t("Original")}
+                          selected={preview === AnimalCrossingPreview.Original}
+                          onClick={() => setPreview(AnimalCrossingPreview.Original)}
                         />
-                      ))}
-                    </ControlFlow>
-                  </ScrollArea>
-                </div>
+                        <Button
+                          slots={{}}
+                          text={t("Converted")}
+                          selected={preview === AnimalCrossingPreview.Converted}
+                          onClick={() => setPreview(AnimalCrossingPreview.Converted)}
+                        />
+                      </>
+                    )}
+                    <Combobox
+                      aria-label={t("Preview zoom")}
+                      pixelWidth={ZOOM_WIDTH}
+                      value={String(zoom)}
+                      options={zooms.map((value) => ({
+                        value: String(value),
+                        label: value === FIT ? "Fit" : `${Math.round(value * PERCENT)}%`,
+                        disabled: value !== FIT && !manager.viewport.canZoom(value),
+                      }))}
+                      onValueChange={(value) =>
+                        Number(value) === FIT
+                          ? manager.viewport.fit()
+                          : manager.viewport.setZoom(Number(value))
+                      }
+                    />
+                    {tiled && (
+                      <Checkbox
+                        label={t("Tile grid")}
+                        checked={showGrid}
+                        onCheckedChange={setShowGrid}
+                      />
+                    )}
+                  </ControlFlow>
+                  <div className={styles.previewStage}>
+                    <ToolCanvasPreview
+                      navigation={manager.viewport}
+                      identity={snapshot.identity}
+                      pixels={pixels}
+                      label={t(
+                        "Pattern preview. Drag to pan, scroll to zoom, double-click to fit.",
+                      )}
+                      onPixelSelect={
+                        tiled && result && !busy
+                          ? (point) => {
+                              const index = grid!.cells.findIndex(
+                                (cell) =>
+                                  point.x >= cell.x &&
+                                  point.x < cell.x + cell.width &&
+                                  point.y >= cell.y &&
+                                  point.y < cell.y + cell.height,
+                              );
+                              if (index >= 0) manager.select(index);
+                            }
+                          : undefined
+                      }
+                      overlay={
+                        tiled && (showGrid || result)
+                          ? (current) => (
+                              <div className={styles.gridOverlay}>
+                                {grid!.cells.map((cell, index) => (
+                                  <Button
+                                    slots={{}}
+                                    appearance={ButtonAppearance.Quiet}
+                                    key={index}
+                                    className={`${styles.gridCell} ${showGrid ? styles.cellBorder : ""} ${result && index === snapshot.selected ? styles.selectedCell : ""}`}
+                                    aria-label={t(
+                                      `Select row ${Math.floor(index / grid!.columns) + FIRST_COORDINATE}, column ${(index % grid!.columns) + FIRST_COORDINATE}`,
+                                    )}
+                                    aria-pressed={!!result && index === snapshot.selected}
+                                    disabled={!result || busy}
+                                    onClick={(event) => {
+                                      if (event.detail === 0) manager.select(index);
+                                    }}
+                                    style={{
+                                      position: "absolute",
+                                      left: current.origin.x + cell.x * current.zoom,
+                                      top: current.origin.y + cell.y * current.zoom,
+                                      width: cell.width * current.zoom,
+                                      height: cell.height * current.zoom,
+                                    }}
+                                  />
+                                ))}
+                              </div>
+                            )
+                          : undefined
+                      }
+                    />
+                  </div>
+                </>
               )}
-              <div className={styles.previewHint}>
-                {snapshot.example && (
-                  <p className={styles.exampleCredit}>
-                    ACNH Winding Cobblestone Path by{" "}
-                    <a
-                      href="https://aforestlife.com/2021/11/11/winding-cobblestone-path-from-bywater-shire-themed-island/"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Amy · A Forest Life
-                    </a>
-                    {" · MA-0515-5045-1390. Reconstructed from the published preview."}
-                  </p>
-                )}
-                <Text variant={TextVariant.Reading} tone={TextTone.Muted} wrap>
-                  {snapshot.importedQr
-                    ? "Ready to export the original design."
-                    : result
-                      ? "QR export uses the New Leaf import palette. Check Converted for the exported colors."
-                      : "Set the image layout, then generate designs. The grid shows the source area of each tile."}
-                </Text>
-              </div>
             </div>
+            <StatusBar
+              aria-label={t("Preview status")}
+              trailing={
+                <Text variant={TextVariant.Reading} tone={TextTone.Muted}>
+                  {t(`${pixels.width} × ${pixels.height} px`)}
+                </Text>
+              }
+            />
           </Panel>
           <div className={styles.sideColumn} data-ui-desktop-layer>
-            {result && snapshot.previewOpen && (
-              <Panel
-                windowChrome={PanelWindowChrome.Emphasized}
-                tone={SurfaceTone.Warning}
-                variant={PanelVariant.Window}
-                title="Island preview"
-                windowKind={PanelWindowKind.Utility}
-                collapsible
-                className={styles.miniPreviewPanel}
-                aria-label="Island preview"
-              >
-                <StatusBar placement={StatusBarPlacement.Header}>
-                  <Text
-                    variant={TextVariant.Reading}
-                    tone={TextTone.Muted}
-                  >{`Tile ${result.patterns[snapshot.selected].row + FIRST_COORDINATE},${result.patterns[snapshot.selected].column + FIRST_COORDINATE}`}</Text>
-                </StatusBar>
-                <AnimalCrossingGroundView manager={manager.ground} />
-              </Panel>
-            )}
             <AnimalCrossingOutput manager={manager} snapshot={snapshot} />
           </div>
         </div>

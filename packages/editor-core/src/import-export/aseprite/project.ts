@@ -30,6 +30,7 @@ import { assertLayerHierarchy } from "$/timeline/layer-operations";
 import { ensureLayerUuids, layerUuidsEnabled } from "$/timeline/layer-uuid";
 import { compositeTimeline } from "$/timeline/operations/composite-timeline";
 import { timelineTags } from "$/timeline/operations/timeline-range";
+import { layerEditable } from "$/timeline/timeline";
 import {
   layerAncestors,
   assertSupportedAnimationTags,
@@ -288,6 +289,10 @@ export function projectFromAseprite(
     }),
   };
   assertLayerHierarchy(timeline);
+  const firstEditableLayer = timeline.layers.findIndex(
+    (layer, index) => layer.visible && layerEditable(timeline, index),
+  );
+  if (firstEditableLayer >= 0) timeline.activeLayer = firstEditableLayer;
   const doc: EditorDocument = {
     name: "Imported sprite",
     width: sprite.width,

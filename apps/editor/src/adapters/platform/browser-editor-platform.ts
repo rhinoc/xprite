@@ -2,12 +2,12 @@ import { browserColorSampling } from "$/adapters/colors/browser-color-sampling";
 import { decodeAsepriteBlob } from "$/adapters/files/aseprite-files";
 import { createBrowserAnimalCrossingExportPort } from "$/adapters/files/browser-animal-crossing-export";
 import { decodeImage } from "$/adapters/files/images";
+import { createReferenceImageSelector } from "$/adapters/files/reference-image";
 import { createBrowserWebpExportPort } from "$/adapters/files/webp-export";
 import { browserPointerSamples } from "$/adapters/input/browser-pointer-samples";
 import { connectBrowserStylusTouchDefaults } from "$/adapters/input/browser-stylus-touch";
 import { BrowserWheelInput } from "$/adapters/input/browser-wheel";
-import { debugInput } from "$/adapters/input/debug-input-log";
-import type { DebugInputEvent } from "$/adapters/input/debug-input-log";
+import { debugInput, type DebugInputEvent } from "$/adapters/input/debug-input-log";
 import {
   editorCursor,
   paintingCrosshairPixels,
@@ -18,6 +18,7 @@ import { createPaintingCursorRenderer } from "$/adapters/input/painting-cursors"
 import { releaseEditorFocus } from "$/adapters/input/release-editor-focus";
 import { createBrowserEditorLocation } from "$/adapters/platform/browser-editor-location";
 import { createBrowserStartupScreen } from "$/adapters/platform/browser-startup-screen";
+import { createBrowserLocalFontsPort } from "$/adapters/rendering/browser-local-fonts";
 import { rasterizeEditorTextFont } from "$/adapters/rendering/editor-font";
 import { ReferenceViewportCache } from "$/adapters/rendering/reference-viewport-cache";
 import { createBrowserProjectSharing } from "$/adapters/sharing/browser-project-sharing";
@@ -28,6 +29,7 @@ import {
   type EditorCursorName,
   type EditorPlatformPorts,
 } from "$/managers/ports/platform";
+import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
 import { browserLocalStorage } from "@xprite/bedrock/browser/localstorage";
 import { cursorStyle, type CursorName } from "@xprite/ui/cursor";
 
@@ -49,7 +51,7 @@ export function createBrowserEditorPlatformPorts(): EditorPlatformPorts {
       },
     },
     colorSampling: browserColorSampling,
-    preferences: browserLocalStorage,
+    preferences: createJsonStorage(browserLocalStorage),
     userPresets: new IndexedDbUserPresets(),
     shortcutFiles: createBrowserShortcutFilePort(primaryModifier),
     files: {
@@ -60,6 +62,7 @@ export function createBrowserEditorPlatformPorts(): EditorPlatformPorts {
           : undefined,
       decodeAsepriteBlob,
       decodeImageBlob: decodeImage,
+      selectReferenceImage: createReferenceImageSelector(decodeImage),
       webp: createBrowserWebpExportPort(),
     },
     input: {
@@ -86,6 +89,7 @@ export function createBrowserEditorPlatformPorts(): EditorPlatformPorts {
         debugInput(kind, event, details as Partial<DebugInputEvent> | undefined, options),
     },
     font: {
+      localFonts: createBrowserLocalFontsPort(),
       rasterize: rasterizeEditorTextFont,
     },
   };

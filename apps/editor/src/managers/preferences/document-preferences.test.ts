@@ -4,16 +4,17 @@ import { describe, it } from "vitest";
 
 import { DEFAULT_CANVAS_DISPLAY_PREFERENCES } from "$/managers/preferences/canvas-display-preferences";
 import { DocumentPreferencesManager } from "$/managers/preferences/document-preferences";
+import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
 import { DEFAULT_VIEW } from "@xprite/editor-core";
 
 function memoryStorage() {
   const values = new Map<string, string>();
-  return {
+  return createJsonStorage({
     getItem: (key: string) => values.get(key) ?? null,
     setItem: (key: string, value: string) => {
       values.set(key, value);
     },
-  };
+  });
 }
 
 describe("document preferences", () => {
@@ -51,13 +52,15 @@ describe("document preferences", () => {
   it("retries unchanged captures and copies after storage failures", () => {
     const storage = memoryStorage();
     let failWrites = true;
-    const manager = new DocumentPreferencesManager({
-      getItem: storage.getItem,
-      setItem(key, value) {
-        if (failWrites) throw new Error("Storage unavailable");
-        storage.setItem(key, value);
-      },
-    });
+    const manager = new DocumentPreferencesManager(
+      createJsonStorage({
+        getItem: storage.getItem,
+        setItem(key, value) {
+          if (failWrites) throw new Error("Storage unavailable");
+          storage.setItem(key, value);
+        },
+      }),
+    );
     manager.captureView("slot:first", DEFAULT_VIEW);
     failWrites = false;
     assert.equal(manager.captureView("slot:first", DEFAULT_VIEW), true);
@@ -78,13 +81,15 @@ describe("document preferences", () => {
   it("restores the durable value after reverting a failed write", () => {
     const storage = memoryStorage();
     let failWrites = false;
-    const manager = new DocumentPreferencesManager({
-      getItem: storage.getItem,
-      setItem(key, value) {
-        if (failWrites) throw new Error("Storage unavailable");
-        storage.setItem(key, value);
-      },
-    });
+    const manager = new DocumentPreferencesManager(
+      createJsonStorage({
+        getItem: storage.getItem,
+        setItem(key, value) {
+          if (failWrites) throw new Error("Storage unavailable");
+          storage.setItem(key, value);
+        },
+      }),
+    );
     manager.captureView("slot:first", DEFAULT_VIEW);
     failWrites = true;
     manager.captureView("slot:first", { ...DEFAULT_VIEW, grid: true });

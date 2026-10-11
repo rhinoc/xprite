@@ -56,13 +56,20 @@ const fixtures = vi.hoisted(() => {
 
 vi.mock("@xprite/ui/assets", () => ({
   getUiAssets: () => ({
-    defaultFont: fixtures.defaultFont,
-    miniFont: fixtures.miniFont,
+    fontAtlases: { primary: fixtures.defaultFont, compact: fixtures.miniFont },
     cjkFontReady: true,
   }),
-  uiGlyphAssets: {
-    defaultGlyphMetrics: { "65": [0, 0, 2, 7] },
-    miniGlyphMetrics: { "65": [0, 0, 2, 5] },
+}));
+
+vi.mock("@xprite/ui", () => ({
+  FontRole: { Primary: "primary", Compact: "compact" },
+  UiColorScheme: { Light: "light", Dark: "dark" },
+  UiFontRenderer: { Bitmap: "bitmap", Native: "native" },
+  asepriteTheme: {
+    typography: {
+      primary: { renderer: "bitmap", atlas: { glyphs: { "65": [0, 0, 2, 7] } } },
+      compact: { renderer: "bitmap", atlas: { glyphs: { "65": [0, 0, 2, 5] } } },
+    },
   },
 }));
 
@@ -92,21 +99,52 @@ describe("editor font rendering", () => {
     );
     assert.ok(mixed.glyphs["中"]);
     assert.equal(mixed.lineHeight, original.lineHeight);
-    assert.equal(mixed.glyphs["中"].advance, 10);
-    assert.ok(fixtures.fonts.some((font) => font.includes('10px "FusionPixelZhHans"')));
+    assert.equal(mixed.glyphs["中"].advance, 12);
+    assert.ok(fixtures.fonts.some((font) => font.includes('12px "FusionPixel12"')));
   });
 
-  it("offers Fusion Pixel as a solid 10px face with integer enlargement", () => {
+  it("uses the 8px Fusion Pixel face when a 7px line needs Chinese", () => {
+    rasterizeEditorTextFont("light", "中", { family: "Aseprite", size: 7 });
+    assert.ok(fixtures.fonts.some((font) => font.includes('8px "FusionPixel8"')));
+  });
+
+  it("offers Fusion Pixel as a solid 12px face with integer enlargement", () => {
     const font = rasterizeEditorTextFont("light", "中文", {
       family: "Fusion Pixel",
       size: 29,
       antialias: true,
     });
-    assert.equal(font.height, 20);
-    assert.equal(font.glyphs["中"].advance, 20);
+    assert.equal(font.height, 24);
+    assert.equal(font.glyphs["中"].advance, 24);
     assert.ok(font.glyphs["中"].alpha.every((alpha) => alpha === 0 || alpha === 255));
     assert.deepEqual(Array.from(font.glyphs["中"].alpha.slice(0, 6)), [0, 0, 255, 255, 255, 255]);
-    assert.ok(fixtures.fonts.every((font) => font.includes('10px "FusionPixelZhHans"')));
+    assert.ok(fixtures.fonts.every((font) => font.includes('12px "FusionPixel12"')));
+  });
+
+  it.each([
+    [8, 8, 8],
+    [10, 10, 10],
+    [12, 12, 12],
+    [16, 8, 16],
+    [20, 10, 20],
+    [24, 12, 24],
+    [30, 10, 30],
+    [32, 8, 32],
+    [11, 10, 10],
+    [18, 8, 16],
+    [7, 8, 8],
+  ])("selects a native Fusion Pixel grid for size %i", (size, nativeSize, height) => {
+    const font = rasterizeEditorTextFont("light", "中文", {
+      family: "Fusion Pixel",
+      size,
+      antialias: true,
+    });
+    assert.equal(font.height, height);
+    assert.equal(font.glyphs["中"].advance, height);
+    assert.ok(font.glyphs["中"].alpha.every((alpha) => alpha === 0 || alpha === 255));
+    assert.ok(
+      fixtures.fonts.every((face) => face.includes(`${nativeSize}px "FusionPixel${nativeSize}"`)),
+    );
   });
 
   it("does not synthesize bold, italic or outlines on the bundled bitmap", () => {

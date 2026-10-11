@@ -28,6 +28,7 @@ import {
   useTilemapPaletteModel,
 } from "$/managers/palette/tilemap-model";
 import {
+  FontRole,
   ContextMenu as EditorContextMenu,
   Button,
   Scrollbar,
@@ -884,9 +885,9 @@ export function TileFields({ bounds, style }: { bounds: SurfaceBounds; style?: C
           context,
           assets,
           label,
-          centerUiPixel(x, square, measureUiText(label, "mini")),
-          centerUiPixel(y, verticalSize, uiFontHeight("mini")) - 1,
-          { font: "mini", color: "#000" },
+          centerUiPixel(x, square, measureUiText(label, FontRole.Compact)),
+          centerUiPixel(y, verticalSize, uiFontHeight(FontRole.Compact)) - 1,
+          { font: FontRole.Compact, color: "#000" },
         );
       }
     }

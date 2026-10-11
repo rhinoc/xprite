@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { createPortal } from "react-dom";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { FlowForm } from "$/components/dialogs/form-dialog/flow-form";
@@ -11,6 +10,8 @@ import { WorkspaceLink, WorkspaceLinkVariant } from "$/components/workspace/work
 import { tUiSource, useUiLanguage, tUi } from "$/i18n";
 import type { FormLayout } from "$/managers/dialogs/form-layout";
 import {
+  createUiPortal,
+  FontRole,
   Button,
   ButtonVariant,
   OverlayContentLayout,
@@ -18,12 +19,13 @@ import {
   Combobox,
   Divider,
   Input,
-  focusDialogContainer,
+  useModalFocus,
   isDialogPopupTarget,
   type ButtonProps,
   type SurfaceBounds,
   Text,
   TextVariant,
+  FocusRingBehavior,
 } from "@xprite/ui";
 import { measureUiText } from "@xprite/ui/assets";
 import { isImeKeyboardEvent } from "@xprite/ui/utils";
@@ -163,8 +165,6 @@ export function FormDialog({
   const [flowHeight, setFlowHeight] = useState<number | null>(null);
   const currentActions = useRef(actions);
   currentActions.current = actions;
-  const close = useRef(onOpenChange);
-  close.current = onOpenChange;
   useEffect(() => {
     const marker = portalMarker.current;
     if (marker) setPortalTarget(marker.closest<HTMLElement>("[data-ui-scene]") ?? document.body);
@@ -242,17 +242,11 @@ export function FormDialog({
         }
       : null,
   );
-  useEffect(() => {
-    if (!open) {
-      setPosition(null);
-      setColorFieldKey(null);
-      setFlowHeight(null);
-      return;
-    }
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const root = host.current;
-    const ownedPopup = (target: EventTarget | null) => isDialogPopupTarget(root, target);
-    const first = () => {
+  useModalFocus({
+    open: open && !!portalTarget,
+    rootRef: host,
+    focusableSelector: focusable,
+    initialFocus: (root) => {
       const target =
         (layout?.initialFocusAction
           ? root?.querySelector<HTMLElement>(
@@ -265,20 +259,17 @@ export function FormDialog({
       if (target instanceof HTMLInputElement)
         initializeFocus(root, { selectText: selectInitialInput, typing });
       else target?.focus({ preventScroll: true });
-    };
-    first();
-    const focus = (event: FocusEvent) => {
-      if (!root?.contains(event.target as Node) && !ownedPopup(event.target))
-        focusDialogContainer(root);
-    };
+    },
+  });
+  useEffect(() => {
+    if (!open) {
+      setPosition(null);
+      setColorFieldKey(null);
+      setFlowHeight(null);
+      return;
+    }
     const key = (event: KeyboardEvent) => {
-      if (isImeKeyboardEvent(event)) return;
-      if (ownedPopup(event.target as Node)) return;
-      if (event.key === "Escape") {
-        event.preventDefault();
-        event.stopPropagation();
-        close.current(false);
-      }
+      if (isImeKeyboardEvent(event) || isDialogPopupTarget(host.current, event.target)) return;
       if (
         submitOnEnter &&
         event.key === "Enter" &&
@@ -291,41 +282,12 @@ export function FormDialog({
           event.stopPropagation();
           action.onClick();
         }
-        return;
-      }
-      if (event.key !== "Tab") return;
-      const nodes = [...(root?.querySelectorAll<HTMLElement>(focusable) ?? [])];
-      if (!nodes.length) {
-        event.preventDefault();
-        focusDialogContainer(root);
-        return;
-      }
-      const current = nodes.indexOf(document.activeElement as HTMLElement);
-      if (
-        current < 0 ||
-        (event.shiftKey && current === 0) ||
-        (!event.shiftKey && current === nodes.length - 1)
-      ) {
-        event.preventDefault();
-        nodes[event.shiftKey ? nodes.length - 1 : 0].focus();
       }
     };
-    document.addEventListener("focusin", focus);
-    document.addEventListener("keydown", key, true);
-    return () => {
-      document.removeEventListener("focusin", focus);
-      document.removeEventListener("keydown", key, true);
-      if (previous?.isConnected) previous.focus({ preventScroll: true });
-    };
-  }, [
-    open,
-    submitOnEnter,
-    portalTarget,
-    layout?.initialFocusAction,
-    selectInitialInput,
-    initializeFocus,
-    typing,
-  ]);
+    const document = host.current?.ownerDocument;
+    document?.addEventListener("keydown", key, true);
+    return () => document?.removeEventListener("keydown", key, true);
+  }, [open, submitOnEnter, portalTarget]);
   const bounds = {
     x: position?.x ?? Math.round((scene.width - dialogWidth) / 2),
     y: position?.y ?? Math.max(0, Math.round((scene.height - height) / 2)),
@@ -446,7 +408,7 @@ export function FormDialog({
                   }
                   relativeTo={client}
                   text={tab.label}
-                  focusAppearance="always"
+                  focusRing={FocusRingBehavior.Always}
                   selected={tabs.selectedValues?.includes(tab.value) ?? tabs.value === tab.value}
                   part="buttonset_item_normal"
                   hotPart="buttonset_item_hot"
@@ -541,7 +503,7 @@ export function FormDialog({
                       bounds={{ x: columnX, y, width: columnWidth, height: authored?.height ?? 30 }}
                       relativeTo={client}
                       text={field.label}
-                      font="default"
+                      font={FontRole.Primary}
                       part="button_normal"
                       hotPart="button_hot"
                       onClick={field.onClick}
@@ -674,7 +636,7 @@ export function FormDialog({
                         }}
                         relativeTo={client}
                         text="..."
-                        font="default"
+                        font={FontRole.Primary}
                         part="buttonset_item_normal"
                         hotPart="buttonset_item_hot"
                         pushedPart="buttonset_item_pushed"
@@ -724,10 +686,12 @@ export function FormDialog({
                     relativeTo={client}
                     text={action.label}
                     data-ui-form-action={action.label}
-                    focusAppearance={
-                      layout?.initialFocusAction === action.label ? "always" : undefined
+                    focusRing={
+                      layout?.initialFocusAction === action.label
+                        ? FocusRingBehavior.Always
+                        : undefined
                     }
-                    font={layout ? "default" : undefined}
+                    font={FontRole.Primary}
                     part={layout ? "button_normal" : undefined}
                     hotPart={layout ? "button_hot" : undefined}
                     focusedPart={layout ? "button_focused" : undefined}
@@ -748,7 +712,7 @@ export function FormDialog({
   return (
     <>
       <span ref={portalMarker} aria-hidden="true" style={{ display: "none" }} />
-      {dialog && portalTarget ? createPortal(dialog, portalTarget) : null}
+      {dialog && portalTarget ? createUiPortal(dialog, portalTarget) : null}
     </>
   );
 }

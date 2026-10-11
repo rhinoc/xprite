@@ -37,7 +37,6 @@ export interface ScrollbarPrimitiveProps extends Omit<
   minimumThumbSize?: number;
   variant?: string;
   arrowExtent?: number;
-  fixedThumbSize?: number;
   renderArtwork: (state: ScrollbarArtworkState) => React.ReactNode;
 }
 
@@ -53,7 +52,6 @@ export function ScrollbarPrimitive({
   onValueChange,
   minimumThumbSize = 0,
   arrowExtent = 0,
-  fixedThumbSize,
   variant = "default",
   renderArtwork,
   style,
@@ -84,7 +82,6 @@ export function ScrollbarPrimitive({
     visibleSize,
     value,
     minimumThumbSize,
-    fixedThumbSize,
   );
   const geometry = { ...track, position: track.position + inset };
   const layout = surfaceLayout(bounds, viewport);

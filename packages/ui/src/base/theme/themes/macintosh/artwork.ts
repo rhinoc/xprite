@@ -1,7 +1,12 @@
 import { pixelFrameImage, pixelFocusImage } from "$/base/theme/pixel-frame";
 import type { UiThemeArtwork } from "$/base/theme/theme-definition";
 import type { UiColorRole } from "$/base/theme/theme-name-types";
-import type { UiAppearance, UiPartDefinition } from "$/base/theme/theme-types";
+import {
+  FontRole,
+  ScrollbarStyle,
+  UiColorScheme,
+  type UiPartDefinition,
+} from "$/base/theme/theme-types";
 import {
   folderTabImage,
   classicSliderThumbImage,
@@ -10,7 +15,6 @@ import {
 import { macintoshBalloonPointers } from "$/base/theme/themes/macintosh/balloon-artwork";
 import { macintoshBalloonImage } from "$/base/theme/themes/macintosh/balloon-frame";
 import { macintoshColorRoles } from "$/base/theme/themes/macintosh/color-roles";
-import fontMetrics from "$/base/theme/themes/macintosh/font-metrics.json";
 import {
   macintoshGeometry,
   macintoshSheetHashes,
@@ -21,6 +25,7 @@ import {
   macintoshMenuShortcutGlyphs,
   macintoshMenuLabelGlyphs,
 } from "$/base/theme/themes/macintosh/shortcut-artwork";
+import { macintoshTypography } from "$/base/theme/themes/macintosh/typography";
 import darkSheetUrl from "$assets/themes/macintosh/macintosh-dark-sheet.webp";
 import lightSheetUrl from "$assets/themes/macintosh/macintosh-light-sheet.webp";
 
@@ -42,22 +47,22 @@ const TIMELINE_SURFACES: Record<string, UiColorRole> = {
 // Shared grid edges are painted once, on the right and bottom of each cell.
 const TIMELINE_THUMBNAIL_INSET = [0, TIMELINE_BORDER_WIDTH, TIMELINE_BORDER_WIDTH, 0] as const;
 
-export function macintoshArtwork(appearance: UiAppearance): UiThemeArtwork {
-  const palette = macintoshPalettes[appearance];
-  const sourceSheetUrl = appearance === "dark" ? darkSheetUrl : lightSheetUrl;
+export function macintoshArtwork(colorScheme: UiColorScheme): UiThemeArtwork {
+  const palette = macintoshPalettes[colorScheme];
+  const sourceSheetUrl = colorScheme === UiColorScheme.Dark ? darkSheetUrl : lightSheetUrl;
   const sheetUrl = sourceSheetUrl.startsWith("data:")
     ? sourceSheetUrl
-    : `${sourceSheetUrl}${sourceSheetUrl.includes("?") ? "&" : "?"}v=${macintoshSheetHashes[appearance]}`;
+    : `${sourceSheetUrl}${sourceSheetUrl.includes("?") ? "&" : "?"}v=${macintoshSheetHashes[colorScheme]}`;
   const trackColors = [241, 237, 22, 239, 23, 238, 241, 254];
   const trackPixels = trackColors
     .map((channel, index) => {
-      const value = appearance === "dark" ? 255 - channel : channel;
+      const value = colorScheme === UiColorScheme.Dark ? 255 - channel : channel;
       return `<rect x="${index % 4}" y="${Math.floor(index / 4)}" width="1" height="1" fill="rgb(${value},${value},${value})"/>`;
     })
     .join("");
   const trackImage = `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="4" height="2" shape-rendering="crispEdges">${trackPixels}</svg>`)}")`;
-  const tabInactive = appearance === "dark" ? "#222222" : "#cccccc";
-  const tabShade = appearance === "dark" ? "#777777" : "#888888";
+  const tabInactive = colorScheme === UiColorScheme.Dark ? "#222222" : "#cccccc";
+  const tabShade = colorScheme === UiColorScheme.Dark ? "#777777" : "#888888";
   const tabSurface = (active: boolean) => ({
     borderRole: "text" as const,
     borderWidth: 0,
@@ -111,7 +116,7 @@ export function macintoshArtwork(appearance: UiAppearance): UiThemeArtwork {
       ...macintoshGeometry,
       provenance: {
         ...macintoshGeometry.provenance,
-        sheetSha256: macintoshSheetHashes[appearance],
+        sheetSha256: macintoshSheetHashes[colorScheme],
       },
       parts: {
         ...macintoshGeometry.parts,
@@ -150,15 +155,15 @@ export function macintoshArtwork(appearance: UiAppearance): UiThemeArtwork {
       },
       colors: {
         ...colors,
-        timeline_active: appearance === "dark" ? "#505050" : "#d8d8d8",
-        timeline_active_hover: appearance === "dark" ? "#5c5c5c" : "#cccccc",
-        timeline_clicked: appearance === "dark" ? "#505050" : "#d8d8d8",
-        menuitem_disabled_text: appearance === "dark" ? "#5a5a5a" : "#a5a5a5",
+        timeline_active: colorScheme === UiColorScheme.Dark ? "#505050" : "#d8d8d8",
+        timeline_active_hover: colorScheme === UiColorScheme.Dark ? "#5c5c5c" : "#cccccc",
+        timeline_clicked: colorScheme === UiColorScheme.Dark ? "#505050" : "#d8d8d8",
+        menuitem_disabled_text: colorScheme === UiColorScheme.Dark ? "#5a5a5a" : "#a5a5a5",
         separator_label: palette.ink,
         textbox_placeholder_text: palette.muted,
-        palette_entries_separator: appearance === "dark" ? "#5a5a5a" : "#a5a5a5",
+        palette_entries_separator: colorScheme === UiColorScheme.Dark ? "#5a5a5a" : "#a5a5a5",
       },
-      typography: { default: fontMetrics.chikarego2, mini: fontMetrics.finderskeepers },
+      typography: macintoshTypography,
       controlParts: {
         timeline: {
           thumbnailInset: TIMELINE_THUMBNAIL_INSET,
@@ -167,20 +172,20 @@ export function macintoshArtwork(appearance: UiAppearance): UiThemeArtwork {
         canvasSurface: {
           checker: {
             cellSize: 1,
-            light: appearance === "dark" ? [56, 56, 56] : [238, 238, 238],
-            dark: appearance === "dark" ? [44, 44, 44] : [224, 224, 224],
+            light: colorScheme === UiColorScheme.Dark ? [56, 56, 56] : [238, 238, 238],
+            dark: colorScheme === UiColorScheme.Dark ? [44, 44, 44] : [224, 224, 224],
           },
         },
         checkable: { focus: "icon" },
         button: {
           part: "button_normal",
-          textOffsetY: { mini: 1 },
-          font: "default",
+          textOffsetY: { [FontRole.Compact]: 1 },
+          font: FontRole.Primary,
           outline: { radius: 4, minimumWidth: 80, minimumHeight: 20, pixelCorners: true },
         },
         tooltip: {
           balloon: true,
-          font: "mini",
+          font: FontRole.Compact,
           padding: 12,
           pointerSize: 17,
           pointerArtworks: macintoshBalloonPointers,
@@ -210,13 +215,11 @@ export function macintoshArtwork(appearance: UiAppearance): UiThemeArtwork {
           contentInset: 4,
           rowHeight: 16,
           textInset: 2,
-          font: "mini",
+          font: FontRole.Compact,
         },
         menu: {
           shortcutGlyphs: macintoshMenuShortcutGlyphs,
           labelGlyphs: macintoshMenuLabelGlyphs,
-          selectFirstOnOpen: false,
-          pressToOpen: true,
           checkedVector: {
             width: 12,
             height: 12,
@@ -224,7 +227,12 @@ export function macintoshArtwork(appearance: UiAppearance): UiThemeArtwork {
           },
           arrowPart: "combobox_arrow_right",
         },
-        scrollbar: { arrowExtent: 16, thumbSize: 16, areaVariant: "regular" },
+        scrollbar: {
+          arrowExtent: 16,
+          minimumThumbSize: 16,
+          areaStyle: ScrollbarStyle.Classic,
+          compactThumb: { borderWidth: 1 },
+        },
         splitButton: { arrowOpen: "drop_down_button_right_selected" },
         combobox: {
           popupMenu: true,
@@ -239,7 +247,7 @@ export function macintoshArtwork(appearance: UiAppearance): UiThemeArtwork {
     },
     sheetUrl,
     tokens: {
-      ...macintoshPublicSurfaceTokens(palette, appearance),
+      ...macintoshPublicSurfaceTokens(palette, colorScheme),
       "--ui-tooltip-frame-image": macintoshBalloonImage(palette.ink, palette.paper),
       "--ui-text-flow-line-height": "16px",
       "--ui-control-caption-size": "16px",
@@ -253,10 +261,10 @@ export function macintoshArtwork(appearance: UiAppearance): UiThemeArtwork {
       "--ui-group-box-title-size": "16px",
       "--ui-group-box-title-height": "16px",
       "--ui-group-box-font-smoothing": "none",
-      "--ui-group-box-primary-edge": palette.line,
-      "--ui-alert-frame-light": appearance === "dark" ? "#252500" : "#dadaff",
-      "--ui-alert-frame-mid": appearance === "dark" ? "#323232" : "#cdcdcd",
-      "--ui-alert-frame-dark": appearance === "dark" ? "#78784c" : "#8787b3",
+      "--ui-group-box-etched-edge": palette.line,
+      "--ui-alert-frame-light": colorScheme === UiColorScheme.Dark ? "#252500" : "#dadaff",
+      "--ui-alert-frame-mid": colorScheme === UiColorScheme.Dark ? "#323232" : "#cdcdcd",
+      "--ui-alert-frame-dark": colorScheme === UiColorScheme.Dark ? "#78784c" : "#8787b3",
       "--ui-heading-face": palette.ink,
       "--ui-heading-ink": palette.paper,
       "--ui-input-text-inset": "5px",

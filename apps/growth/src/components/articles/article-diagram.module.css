@@ -1,0 +1,112 @@
+.diagram {
+  --article-diagram-gap: var(--ui-space-7, 24px);
+  --article-diagram-connector: var(--ui-border-width, 1px);
+  --article-diagram-line: var(--ui-color-border);
+  --article-diagram-node-width: 160px;
+  --article-diagram-map-width: 640px;
+  margin: var(--ui-space-7, 24px) 0;
+  color: var(--ui-color-ink);
+}
+.caption {
+  margin-bottom: var(--ui-space-4, 8px);
+}
+.layout {
+  max-width: 100%;
+  padding: var(--ui-space-4, 8px) var(--article-diagram-connector);
+}
+.nodeCopy {
+  display: grid;
+  justify-items: center;
+  gap: var(--ui-space-2, 3px);
+  text-align: center;
+}
+.map {
+  display: grid;
+  grid-template-columns: minmax(120px, 160px) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--article-diagram-gap);
+  min-width: var(--article-diagram-map-width);
+}
+.rootNode {
+  position: relative;
+}
+.rootNode::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 100%;
+  top: 50%;
+  width: var(--article-diagram-gap);
+  border-top: var(--article-diagram-connector) solid var(--article-diagram-line);
+}
+.diagram .branches,
+.diagram .items,
+.diagram .flow {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.branch {
+  position: relative;
+  padding: var(--ui-space-4, 8px) 0 var(--ui-space-4, 8px) var(--article-diagram-gap);
+}
+.branch::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0;
+  bottom: 0;
+  border-left: var(--article-diagram-connector) solid var(--article-diagram-line);
+}
+.branch:first-child::before {
+  top: 50%;
+}
+.branch:last-child::before {
+  bottom: 50%;
+}
+.branch::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 50%;
+  width: var(--article-diagram-gap);
+  border-top: var(--article-diagram-connector) solid var(--article-diagram-line);
+}
+.items {
+  display: grid;
+  gap: var(--ui-space-3, 4px);
+}
+.diagram .flow {
+  --article-diagram-gap: var(--ui-space-6, 16px);
+  display: flex;
+  gap: var(--article-diagram-gap);
+  width: max-content;
+  min-width: 100%;
+}
+.step {
+  position: relative;
+  display: flex;
+  flex: 1 0 var(--article-diagram-node-width);
+  width: var(--article-diagram-node-width);
+}
+.stepNode {
+  width: 100%;
+}
+.step:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  inset-inline-start: calc(-1 * var(--article-diagram-gap));
+  width: var(--article-diagram-gap);
+  border-top: var(--article-diagram-connector) solid var(--article-diagram-line);
+}
+.step:not(:first-child)::after {
+  content: "";
+  position: absolute;
+  top: calc(50% - 3px);
+  inset-inline-start: -6px;
+  width: 5px;
+  height: 5px;
+  border-top: var(--article-diagram-connector) solid var(--article-diagram-line);
+  border-right: var(--article-diagram-connector) solid var(--article-diagram-line);
+  transform: rotate(45deg);
+}

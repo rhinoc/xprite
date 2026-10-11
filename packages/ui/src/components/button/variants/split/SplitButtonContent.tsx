@@ -2,6 +2,7 @@ import { forwardRef } from "react";
 
 import { themeControlSize } from "$/base/components/theme-controls";
 import { useTheme } from "$/base/theme/theme-context";
+import { FontRole } from "$/base/theme/theme-types";
 import { cn } from "$/base/utils/cn";
 import { ButtonControl } from "$/components/button/ButtonControl";
 import { ButtonAppearance, type ButtonProps } from "$/components/button/types";
@@ -54,7 +55,7 @@ export const SplitButtonContent = forwardRef<HTMLButtonElement, SplitButtonConte
       theme,
       "drop_down_button_left_normal",
       props.text === undefined ? undefined : translateSource(props.text),
-      props.font ?? "mini",
+      props.font ?? FontRole.Compact,
       props.icon,
     );
     const bounds = suppliedBounds ?? {

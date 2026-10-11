@@ -2,11 +2,12 @@ import * as React from "react";
 
 import { useThemeText, isCjkGlyph, centerThemePixel } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
+import { FontRole } from "$/base/theme/theme-types";
 import { cn } from "$/base/utils/cn";
 import { computedStyle } from "$/base/utils/dom-geometry";
 import { surfaceLayout, DEFAULT_SURFACE_VIEWPORT } from "$/components/canvas-surface";
 import { RASTER_SCALE } from "$/components/canvas-surface/metrics";
-import type { ControlTextProps, PixelFont } from "$/components/text/types";
+import { TextAlignment, type ControlTextProps } from "$/components/text/types";
 import { PositionedPixelText } from "$/components/text/variants/positioned-pixel";
 
 import styles from "$/components/text/variants/control/control.module.css";
@@ -29,9 +30,9 @@ export function ControlText({
   relativeTo = { x: 0, y: 0 },
   viewport = DEFAULT_SURFACE_VIEWPORT,
   text,
-  font = "default",
+  font = FontRole.Primary,
   color,
-  align = "left",
+  align = TextAlignment.Left,
   fill,
   wrap = false,
   style,
@@ -45,7 +46,7 @@ export function ControlText({
   const labelRef = React.useRef<HTMLSpanElement>(null);
   const [inkBounds, setInkBounds] = React.useState<{
     text: string;
-    font: PixelFont;
+    font: FontRole;
     right: number;
   } | null>(null);
   const bounds = suppliedBounds ?? {
@@ -55,7 +56,7 @@ export function ControlText({
     height: pixelSize ? pixelSize.height * RASTER_SCALE : themeFontHeight(font),
   };
   React.useLayoutEffect(() => {
-    if (align !== "right") return;
+    if (align !== TextAlignment.Right) return;
     let active = true;
     const measureInkRight = () => {
       const textElement = labelRef.current?.querySelector<HTMLElement>("[data-font]");
@@ -96,15 +97,13 @@ export function ControlText({
   const textHeight = themeFontHeight(font);
   const textY = centerThemePixel(bounds.y, bounds.height, textHeight) - bounds.y;
   const containsCjk = [...displayText].some((char) => isCjkGlyph(char.codePointAt(0)!));
-  const glyphBleed = containsCjk
-    ? CJK_LABEL_GLYPH_BLEED
-    : (theme.typography?.[font]?.glyphBleed ?? 0);
+  const glyphBleed = containsCjk ? CJK_LABEL_GLYPH_BLEED : (theme.typography[font].glyphBleed ?? 0);
   const clipTop = Math.max(0, -textY) + glyphBleed;
   const clipBottom = Math.max(0, textY + textHeight - bounds.height) + glyphBleed;
   const textX =
-    align === "center"
+    align === TextAlignment.Center
       ? centerThemePixel(bounds.x, bounds.width, measureThemeText(displayText, font)) - bounds.x
-      : align === "right"
+      : align === TextAlignment.Right
         ? bounds.width -
           (inkBounds?.text === displayText && inkBounds.font === font
             ? inkBounds.right
@@ -158,7 +157,7 @@ export function ControlText({
                   width: bounds.width,
                   whiteSpace: "normal",
                   overflowWrap: "anywhere",
-                  textAlign: align,
+                  textAlign: align as React.CSSProperties["textAlign"],
                   top: "50%",
                   transform: "translateY(-50%)",
                 }

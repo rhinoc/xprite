@@ -6,7 +6,6 @@ import { PaletteSurface, type PaletteRgba } from "$/components/palette/palette-s
 import { PaletteToolbar } from "$/components/palette/palette-toolbar";
 import { InlineTileset, TilemapModeBar } from "$/components/palette/tilemap-colorbar";
 import { useEditorLayoutSettings } from "$/components/shared/editor-layout-context";
-import { useElementSize } from "$/components/shared/use-size";
 import { useColorProfile } from "$/components/tools/color-profile";
 import { tUi, useUiLanguage } from "$/i18n";
 import { useColorSource } from "$/managers/colors/color-sources";
@@ -43,6 +42,7 @@ import { parseEditorColor } from "$/managers/tools/color-control";
 import { Scrollbar, TOUCH_LONG_PRESS_DELAY_MS, TOUCH_MOVE_THRESHOLD } from "@xprite/ui";
 import { UI_SCALE_X, UI_SCALE_Y, surfaceLayout } from "@xprite/ui/canvas";
 import {
+  useElementSize,
   clientPoint,
   hitElement,
   clientScale,

@@ -1,6 +1,11 @@
-import { useSyncExternalStore, useState, type ReactNode, type MouseEventHandler } from "react";
+import { useSyncExternalStore, useState, type MouseEventHandler } from "react";
 
 import {
+  Button,
+  ButtonAppearance,
+  Icon,
+  IconKind,
+  IconSize,
   Menubar,
   MenubarLayout,
   MenuCheckType,
@@ -8,6 +13,8 @@ import {
   Pattern,
   PatternGroup,
   PatternKind,
+  Tooltip,
+  TooltipPlacement,
   type PatternDefinition,
   type MenubarMenu,
   type MenuItem,
@@ -26,16 +33,22 @@ export interface SiteLanguage {
   disabled?: boolean;
 }
 
+export interface SiteMenubarHelp {
+  label: string;
+  href: string;
+  tooltip?: string;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+}
+
 const noSubscribe = () => () => {};
 const defaultSnapshot = () => DEFAULT_DESKTOP_PREFERENCES;
 
-/** Desktop settings and application commands on the left; all site navigation on the right. */
+/** Brand and application menus on the left; site navigation and help on the right. */
 export function SiteMenubar({
   applicationName,
   applications,
   menus = [],
-  leadingContent,
-  trailingContent,
+  help,
   language = "en",
   languages,
   systemItems = [],
@@ -45,8 +58,7 @@ export function SiteMenubar({
   applicationName: string;
   applications: readonly MenuItem[];
   menus?: readonly MenubarMenu[];
-  leadingContent?: ReactNode;
-  trailingContent?: ReactNode;
+  help?: SiteMenubarHelp;
   language?: string;
   languages?: readonly SiteLanguage[];
   systemItems?: readonly MenuItem[];
@@ -73,7 +85,7 @@ export function SiteMenubar({
     icon: (
       <Pattern
         preview
-        variant={pattern.id}
+        pattern={pattern.id}
         scale={16 / Math.max(pattern.width, pattern.height)}
         foreground={preferences.patternForeground}
         background={preferences.patternBackground}
@@ -92,6 +104,7 @@ export function SiteMenubar({
     <>
       <Menubar
         layout={MenubarLayout.Flow}
+        expandOnHover
         label={label}
         leadingMenus={[
           {
@@ -155,8 +168,20 @@ export function SiteMenubar({
             ],
           },
         ]}
-        leadingContent={leadingContent}
-        trailingContent={trailingContent}
+        trailingContent={
+          help && (
+            <Tooltip text={help.tooltip ?? help.label} placement={TooltipPlacement.TopRight}>
+              <Button
+                href={help.href}
+                onClick={help.onClick}
+                appearance={ButtonAppearance.Quiet}
+                slots={{ leading: <Icon kind={IconKind.Help} size={IconSize.Small} /> }}
+                aria-label={help.label}
+                role="menuitem"
+              />
+            </Tooltip>
+          )
+        }
         menus={menus}
         trailingMenus={[
           {

@@ -14,12 +14,20 @@ author pages identify a Creative Commons Attribution license without a version:
 [FindersKeepers](https://www.pentacom.jp/pentacom/bitfontmaker2/gallery/?id=3809).
 Original sources and browser-metric adjustments are recorded in
 [the shared font provenance](packages/ui/assets/fonts/macintosh/README.md).
-Fusion Pixel remains the CJK fallback under its existing SIL Open Font License.
+Fusion Pixel provides the CJK faces under the SIL Open Font License, recorded in `LICENSES/fusion-pixel-font/OFL.txt`.
 
 The Macintosh menu's Command symbol and ellipsis artwork match the menu export
 from Brian Levy's [Classic Macintosh UI Kit](https://www.figma.com/design/vtQqsdZXxS62lGC06GeFll/Classic-Macintosh-UI-Kit--Community-).
 Their theme descriptions are in
 `packages/ui/src/base/theme/themes/macintosh/shortcut-artwork.ts`.
+
+## Pixel Code
+
+Code text uses Pixel Code Regular v2.2 by Qwerasd, under the
+[SIL Open Font License 1.1](LICENSES/pixel-code-OFL.txt).
+The original WOFF2 font is bundled without changes; its release URL and hash
+are recorded in [the shared font provenance](packages/ui/assets/fonts/pixel-code/README.md).
+Source: [qwerasd205/PixelCode](https://github.com/qwerasd205/PixelCode).
 
 ## Xprite brand assets
 
@@ -137,15 +145,18 @@ see also the upstream
 [source license header](https://github.com/aseprite/aseprite/blob/main/data/strings/en.ini).
 Use of these materials does not imply endorsement by Aseprite or its authors.
 
-## Fusion Pixel Font
+## Fusion Pixel
 
-The Simplified Chinese pixel fallback font is Fusion Pixel Font, 10px monospaced
-`zh_hans`, release 2026.09.01. The font is licensed under SIL Open Font License
-1.1. The release's upstream font notices are retained in
-`LICENSES/fusion-pixel-font/`. See the [upstream project](https://github.com/TakWolf/fusion-pixel-font).
-`packages/ui/assets/fonts/fusion-pixel/fusion-pixel-10px-zh-hans-aseprite.woff2`
-is a renamed modified version whose outlines and vertical metrics are shifted
-onto the Aseprite UI font's baseline (`pnpm assets:aseprite-cjk-font`).
+The Chinese pixel font is Fusion Pixel, proportional Simplified Chinese release
+2026.09.25 by TakWolf. The 12px, 10px and 8px WOFF2 files are the official
+release artifacts and are bundled unchanged from
+[the upstream project](https://github.com/TakWolf/fusion-pixel-font). The font
+is under the [SIL Open Font License 1.1](LICENSES/fusion-pixel-font/OFL.txt).
+File names and SHA-256 hashes are in
+[the shared font provenance](packages/ui/assets/fonts/fusion-pixel/README.md).
+`packages/ui/assets/fonts/fusion-pixel/fusion-10-aseprite.woff2` is a renamed
+modified version of the 10px file whose outlines and vertical metrics are
+shifted onto the Aseprite UI font's baseline (`pnpm assets:aseprite-cjk-font`).
 
 ## ICC regression profile
 

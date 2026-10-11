@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { createBrowserAgentToolsPort } from "$/adapters/agent/browser-agent-tools";
 import { createBrowserEditorHostPorts } from "$/adapters/platform/browser-editor-host";
@@ -47,13 +47,16 @@ import { ProjectRepository } from "$/managers/storage/project-repository";
 import { reportingSessionPorts } from "$/managers/telemetry/reporting-session-ports";
 import { useTelemetry } from "$/managers/telemetry/telemetry-context";
 import type { TelemetryManager } from "$/managers/telemetry/telemetry-manager";
+import { FontCatalogProvider } from "$/managers/tools/font-catalog-context";
+import { FontCatalogManager } from "$/managers/tools/font-catalog-manager";
 import { DocumentWorkspace } from "$/managers/workspace/document-workspace";
 import { EditorRuntimeManagerProvider } from "$/managers/workspace/editor-runtime-context";
 import { useEditorRuntime } from "$/managers/workspace/use-editor-runtime";
 import { WorkspaceLifetime } from "$/managers/workspace/workspace-lifetime";
 import { WorkspaceRecovery } from "$/managers/workspace/workspace-recovery";
 import { randomId } from "@xprite/bedrock/browser/runtime-crypto";
-import { UIProvider, useSystemAppearance } from "@xprite/ui";
+import { AppearanceMode, type ResolvedAppearance } from "@xprite/editor-ui/appearance";
+import { UiColorScheme, UIProvider, useSystemColorScheme } from "@xprite/ui";
 import { preloadUiAssets } from "@xprite/ui/assets";
 
 const PROJECT_DATABASE_NAME = DEFAULT_PROJECT_DATABASE_NAME;
@@ -109,11 +112,20 @@ function EditorApplication({
   initialTab: EditorTab;
   initialProject?: Promise<EditorInitialProject | Error | null> | null;
 }) {
-  const systemAppearanceMode = useSystemAppearance();
+  const systemColorScheme = useSystemColorScheme();
+  const systemAppearance =
+    systemColorScheme === UiColorScheme.Dark ? AppearanceMode.Dark : AppearanceMode.Light;
+  const preloadEditorUiAssets = useCallback(
+    (appearance: ResolvedAppearance) =>
+      preloadUiAssets(
+        appearance === AppearanceMode.Dark ? UiColorScheme.Dark : UiColorScheme.Light,
+      ),
+    [],
+  );
   const runtime = useEditorRuntime(
     workspace,
-    systemAppearanceMode,
-    preloadUiAssets,
+    systemAppearance,
+    preloadEditorUiAssets,
     workspaceLifetime,
   );
   const telemetry = useTelemetry();
@@ -175,7 +187,11 @@ function EditorApplication({
         <WheelDeviceProvider {...wheelDevice}>
           <CanvasInputProvider controller={workspace.inputController}>
             <UIProvider
-              appearance={runtime.appearance}
+              colorScheme={
+                runtime.appearance === AppearanceMode.Dark
+                  ? UiColorScheme.Dark
+                  : UiColorScheme.Light
+              }
               language={language}
               translateKey={(key) => tUi(key as Parameters<typeof tUi>[0])}
               translateSource={tUiSource}
@@ -288,24 +304,28 @@ export default function App({
       }),
   );
   useEffect(() => pwa.start(), [pwa]);
+  const [fontCatalog] = useState(() => new FontCatalogManager(platform.font.localFonts));
+  useEffect(() => fontCatalog.start(), [fontCatalog]);
   const [uiStore] = useState(() =>
     createEditorUiStore(initialTab, platform.preferences, platform.navigation.location?.read()),
   );
 
   return (
     <EditorPlatformProvider ports={platform}>
-      <EditorChromePreferencesProvider manager={chromePreferences}>
-        <PwaProvider manager={pwa}>
-          <EditorApplication
-            workspace={workspace}
-            workspaceLifetime={workspaceLifetime}
-            uiStore={uiStore}
-            home={home}
-            initialTab={initialTab}
-            initialProject={initialProject}
-          />
-        </PwaProvider>
-      </EditorChromePreferencesProvider>
+      <FontCatalogProvider manager={fontCatalog}>
+        <EditorChromePreferencesProvider manager={chromePreferences}>
+          <PwaProvider manager={pwa}>
+            <EditorApplication
+              workspace={workspace}
+              workspaceLifetime={workspaceLifetime}
+              uiStore={uiStore}
+              home={home}
+              initialTab={initialTab}
+              initialProject={initialProject}
+            />
+          </PwaProvider>
+        </EditorChromePreferencesProvider>
+      </FontCatalogProvider>
     </EditorPlatformProvider>
   );
 }

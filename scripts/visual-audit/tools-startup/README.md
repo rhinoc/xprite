@@ -1,21 +1,24 @@
 # SSG and interactive first paint
 
 The pre-push hook runs `pnpm run visual:startup` after the existing editor visual
-gate. It captures the current tool pages from the running tools server on port 5176. Set `XPRITE_TOOLS_VISUAL_PORT` for an existing server on another port.
+gate. It captures the current tool pages from the running unified site on port 5173. Set `XPRITE_VISUAL_PORT` for an existing site server on another port.
 The audit never builds or starts a server.
 
-The tool directory, Aseprite viewer, GIF converter and Animal Crossing QR tool each have wide (1440 × 900)
-and compact (390 × 844) captures. Each layout covers saved Light and Dark choices
-against the opposite system preference, plus System with both light and dark
-system preferences: 32 required pairs, 64 screenshots, English UI and DPR 1.
-No scene-selection or threshold overrides are accepted by the gate.
+The Features directory and each of the three tools have one registered startup
+pair. Their locale, viewport and appearance are distributed across the four pages:
+Features uses Simplified Chinese at wide Light; the viewer uses English at compact
+Dark; GIF conversion uses Simplified Chinese at wide Dark; and Animal Crossing
+uses English at compact Light. This gives four required pairs and eight screenshots
+at DPR 1. The scene registry is the complete approved matrix; per-run selection
+and threshold overrides are unsupported.
 `--space ID` reuses an existing agent-owned Ego space when recovering a failed
-capture; success closes that space. Every recovery still captures all 32 pairs.
+capture; a supplied space remains available to its caller. An audit that creates
+its own space closes it on success. Every recovery still captures all four pairs.
 
 For each pair, external runtime JavaScript modules are blocked before navigation.
 The generated HTML, critical CSS, fonts, images and real inline appearance script
 remain available. The audit checks that the static shell is visible. It then
-unblocks modules and navigates to the same URL, requiring hydration to finish
+unblocks modules and navigates to the same URL, requiring tool hydration or public-page controls to finish
 before taking the second screenshot. React recovery errors fail capture. These
 are compositor captures of the live page; they are not screenshots reconstructed
 from an HTML string or crops of a selected area.
@@ -27,6 +30,15 @@ Both phases use the same viewport, saved preference and system preference.
 Emulated screen dimensions and the visible viewport are pinned to the scene's
 dimensions at scale 1 and DPR 1, so browser-window fitting cannot change rasterization.
 Source hashes must remain unchanged across the entire capture.
+
+The same navigation also observes startup continuity with fourfold CPU slowdown.
+A probe installed before parsing watches the page, navigation and main regions
+until readiness, then for at least 500 ms and ten frames. Content disappearance,
+runtime errors, hydration failures or incomplete observation block the push.
+Each ready capture records its observation; no second tool capture is needed.
+Image readiness includes every eager image and lazy images intersecting both
+the viewport and their scroll/clip ancestors. Required images are decoded before
+capture; offscreen lazy images do not delay first paint.
 
 `scripts/base/screenshot.mjs` supplies native PNG capture, actual DPR and dimension
 checks, byte hashes and PNG color-space checks. Screenshots are not resized,

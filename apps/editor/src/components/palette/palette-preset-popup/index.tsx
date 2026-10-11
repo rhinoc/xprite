@@ -1,21 +1,23 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 
 import { EditorPopover, type PopoverContext } from "$/components/dialogs/overlay";
 import { tUi } from "$/i18n";
 import type { PaletteColor as Rgba } from "$/managers/palette/palette-operations";
 import {
+  createUiPortal,
+  FontRole,
   Button,
   Input,
   Text,
   TextVariant,
   Scrollbar,
+  ScrollbarStyle,
   CanvasSurface,
   type SurfaceBounds,
+  Icon,
 } from "@xprite/ui";
 import {
   uiFontHeight,
-  UiIcon,
   paintUiIcon,
   paintUiPart,
   paintUiText,
@@ -130,8 +132,8 @@ function PaletteResourceList({
           assets,
           choice.name,
           bounds.x + 26,
-          y + Math.floor((ROW_HEIGHT - uiFontHeight("default")) / 2) + 1,
-          { font: "default", color: ink },
+          y + Math.floor((ROW_HEIGHT - uiFontHeight(FontRole.Primary)) / 2) + 1,
+          { font: FontRole.Primary, color: ink },
         );
         const chipStart = bounds.x + 22;
         const chipY = y + ROW_HEIGHT - 12 + (index === 0 ? 1 : 0);
@@ -288,7 +290,7 @@ function PaletteResourceList({
           visibleSize={visibleHeight}
           value={scroll}
           onValueChange={setScrollTop}
-          variant="mini"
+          scrollbarStyle={ScrollbarStyle.Compact}
           aria-label="Palettes scroll"
         />
       )}
@@ -419,7 +421,7 @@ export function PalettePresetPopup({
               pointerEvents: "none",
             }}
           >
-            <UiIcon part="icon_search" scale={2} x={6} y={12} color={assets.style.colors.text} />
+            <Icon kind="icon_search" scale={2} x={6} y={12} color={assets.style.colors.text} />
             {!searchDraft && (
               <Text
                 variant={TextVariant.PositionedPixel}
@@ -457,7 +459,7 @@ export function PalettePresetPopup({
           bounds={loadBounds}
           relativeTo={client}
           text="Load"
-          font="default"
+          font={FontRole.Primary}
           part="button_normal"
           hotPart="button_hot"
           pushedPart="button_selected"
@@ -469,7 +471,7 @@ export function PalettePresetPopup({
           bounds={folderBounds}
           relativeTo={client}
           text="Open Folder"
-          font="default"
+          font={FontRole.Primary}
           part="button_normal"
           hotPart="button_hot"
           pushedPart="button_selected"
@@ -496,7 +498,7 @@ export function PalettePresetPopup({
       {open &&
         bounds &&
         portalTarget &&
-        createPortal(
+        createUiPortal(
           <EditorPopover
             open
             label="Palettes"

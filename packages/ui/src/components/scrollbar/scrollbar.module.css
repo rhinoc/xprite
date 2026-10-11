@@ -22,6 +22,27 @@
   position: absolute;
 }
 
+.compactTrack {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: var(--ui-theme-line, var(--xse-border));
+  background: var(--ui-theme-wash, var(--xse-window));
+}
+
+.compactThumb {
+  position: absolute;
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: var(--xse-border);
+  background: var(--ui-theme-paper, var(--xse-window));
+}
+
+.scrollbar[data-scrollbar-hovered="true"] .compactThumb {
+  background: var(--ui-theme-wash, var(--xse-window));
+}
+
 .track::after {
   content: "";
   position: absolute;

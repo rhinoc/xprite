@@ -32,16 +32,16 @@
       "entry": ["src/main.tsx", "src/public-main.tsx"]
     },
     "apps/tools": {
-      "entry": [
-        "src/main.tsx",
-        "src/gif-main.tsx",
-        "src/animal-crossing-main.tsx",
-        "src/tools-main.tsx",
-        "src/ssg.tsx"
-      ]
+      "entry": ["src/main.tsx", "src/gif-main.tsx", "src/animal-crossing-main.tsx", "src/ssg.tsx"]
     },
     "apps/growth/content": {
-      "entry": ["help/index.ts", "tools/index.ts", "navigation/index.ts", "articles/index.ts"]
+      "entry": [
+        "help/index.ts",
+        "tools/index.ts",
+        "site/navigation.ts",
+        "articles/index.ts",
+        "site/pages.ts"
+      ]
     },
     "packages/ui": {
       "entry": ["src/{index,assets,canvas,cursor,popover,utils}.ts"]

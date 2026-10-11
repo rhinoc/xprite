@@ -9,11 +9,14 @@ import { bundleAsync } from "lightningcss";
 
 import { ssgScopedName } from "./react-ssg-style-names.ts";
 
+const RAW_ASSET_NAMESPACE = "raw-asset";
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const aliases: Record<string, string> = {
-  "@xprite/growth-content/navigation": "apps/growth/content/navigation/index.ts",
-  "@xprite/site-shell/startup": "packages/site-shell/src/startup.ts",
+  "@xprite/growth-content/features": "apps/growth/content/features/index.ts",
+  "@xprite/growth-content/language": "apps/growth/content/site/language.ts",
+  "@xprite/growth-content/navigation": "apps/growth/content/site/navigation.ts",
   "@xprite/site-shell/telemetry": "packages/site-shell/src/managers/ports/telemetry.ts",
+  "@xprite/site-shell/startup": "packages/site-shell/src/startup.ts",
   "@xprite/site-shell": "packages/site-shell/src/index.ts",
   "@xprite/growth-content/tools": "apps/growth/content/tools/index.ts",
   "@xprite/ui/pattern-data": "packages/ui/assets/patterns/macintosh/catalog.json",
@@ -91,9 +94,17 @@ export async function createReactSsgRenderer<T>(options: {
   const plugin: Plugin = {
     name: "react-ssg",
     setup(context) {
-      context.onResolve({ filter: /^(?:\$|@xprite\/)|\?url$/ }, async (args) => {
+      context.onResolve({ filter: /^(?:\$|@xprite\/)|\?(?:url|raw)$/ }, async (args) => {
         const source = resolveSource(args.path, args.importer);
+        if (args.path.endsWith("?raw")) return { path: source, namespace: RAW_ASSET_NAMESPACE };
         return context.resolve(source, { kind: args.kind, resolveDir: dirname(args.importer) });
+      });
+      context.onLoad({ filter: /.*/, namespace: RAW_ASSET_NAMESPACE }, (args) => {
+        files.add(args.path);
+        return {
+          contents: `export default ${JSON.stringify(readFileSync(args.path, "utf8"))};`,
+          loader: "js",
+        };
       });
       context.onLoad({ filter: /\.(?:png|gif|svg|webp|woff2|jpg)$/ }, (args) => ({
         contents: `export default ${JSON.stringify(assetUrl(args.path))};`,
@@ -110,7 +121,14 @@ export async function createReactSsgRenderer<T>(options: {
           resolver: {
             read(filename) {
               files.add(filename);
-              return readFileSync(filename, "utf8");
+              // Custom-property URLs must be absolute before Lightning CSS analyzes var() use sites.
+              return readFileSync(filename, "utf8").replace(
+                /url\(\s*(["']?)([^"')]+)\1\s*\)/g,
+                (match, _quote, resource: string) =>
+                  /^(?:https?:|data:|\/|#)/.test(resource)
+                    ? match
+                    : `url(${JSON.stringify(assetUrl(resolveSource(resource, filename)))})`,
+              );
             },
             resolve: resolveSource,
           },

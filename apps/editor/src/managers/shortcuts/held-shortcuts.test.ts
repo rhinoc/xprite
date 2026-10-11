@@ -11,6 +11,7 @@ import {
   ShortcutDragAction,
   ShortcutManager,
 } from "$/managers/shortcuts/shortcut-manager";
+import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
 import { RasterEditor } from "@xprite/editor-core";
 
 const findDefinition = (kind: ShortcutBindingKind, id: string) => {
@@ -18,7 +19,7 @@ const findDefinition = (kind: ShortcutBindingKind, id: string) => {
   assert.ok(definition);
   return definition;
 };
-const emptyStorage = { getItem: () => null, setItem: () => {} };
+const emptyStorage = createJsonStorage({ getItem: () => null, setItem: () => {} });
 
 describe("held tool and drag shortcuts", () => {
   it("matches native quick tools exactly and keeps physical Control for Mac drag values", () => {
@@ -52,12 +53,12 @@ describe("held tool and drag shortcuts", () => {
 
   it("keeps independent binding/vector drafts and persists only applied changes", () => {
     const stored = new Map<string, string>();
-    const storage = {
+    const storage = createJsonStorage({
       getItem: (key: string) => stored.get(key) ?? null,
       setItem: (key: string, value: string) => {
         stored.set(key, value);
       },
-    };
+    });
     const manager = new ShortcutManager(storage);
     const brush = findDefinition(ShortcutBindingKind.Drag, "BrushSize");
     let draft = manager.updateDragVector(manager.beginDraft(), brush, { x: 0, y: 8 });

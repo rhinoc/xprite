@@ -8,11 +8,10 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
-import { createPortal } from "react-dom";
 
-import { ThemeScope } from "$/base/theme/theme-scope";
 import { composeEventHandlers } from "$/base/utils/compose-event-handlers";
 import { surfaceLayout, type SurfaceBounds } from "$/components/canvas-surface/geometry";
+import { createUiPortal } from "$/components/theme/portal";
 import type { TooltipPlacementOption } from "$/components/tooltip/geometry";
 import { useTooltipDelay } from "$/components/tooltip/tooltip-provider";
 import type {
@@ -96,23 +95,21 @@ export function PositionedTooltip({ children, render, ...options }: PositionedTo
       {trigger}
       {layout &&
         displayBounds &&
-        createPortal(
-          <ThemeScope>
-            <div
-              role="tooltip"
-              id={id}
-              aria-label={options.text}
-              className={styles.surface}
-              style={{
-                left: layout.origin.x + displayBounds.left,
-                top: layout.origin.y + displayBounds.top,
-                width: displayBounds.width,
-                height: displayBounds.height,
-              }}
-            >
-              {render(layout)}
-            </div>
-          </ThemeScope>,
+        createUiPortal(
+          <div
+            role="tooltip"
+            id={id}
+            aria-label={options.text}
+            className={styles.surface}
+            style={{
+              left: layout.origin.x + displayBounds.left,
+              top: layout.origin.y + displayBounds.top,
+              width: displayBounds.width,
+              height: displayBounds.height,
+            }}
+          >
+            {render(layout)}
+          </div>,
           document.body,
         )}
     </>

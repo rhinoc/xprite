@@ -1,3 +1,4 @@
+import { FontRole } from "@xprite/ui";
 import {
   centerUiPixel,
   measureUiText,
@@ -42,10 +43,10 @@ export function paintTimelineFrameArtwork(
     ctx,
     assets,
     label,
-    centerUiPixel(x, width, measureUiText(label, "mini", 2, assets.style.typography)),
-    centerUiPixel(y, height, uiFontHeight("mini", 2, assets.style.typography)),
+    centerUiPixel(x, width, measureUiText(label, FontRole.Compact, 2, assets.style.typography)),
+    centerUiPixel(y, height, uiFontHeight(FontRole.Compact, 2, assets.style.typography)),
     {
-      font: "mini",
+      font: FontRole.Compact,
       color: selected
         ? assets.style.colors.timeline_active_text
         : assets.style.colors.timeline_normal_text,

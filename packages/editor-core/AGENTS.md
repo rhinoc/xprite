@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This package contains platform-independent editor logic.
-It does not contain React components or browser UI code.
-The editor app can use this package. This package can use `packages/bedrock`.
+Platform-independent document, drawing, history and session logic. Dependencies
+are limited to `bedrock/common`; browser APIs and UI live in their owning layers.
+Follow the [root repository rules](../../AGENTS.md).
 
 ## Folder structure
 
@@ -45,21 +45,6 @@ src/
 Each feature `index.ts` is the public entry point for that feature.
 Do not keep compatibility exports or aliases for moved code.
 
-## Architecture layers
-
-The arrows show the direction of dependency.
-
-```text
-apps/editor/src/App.tsx (composition root)
-  ├── components ──> packages/ui
-  ├── components ──> managers
-  ├── managers ──> editor-core ──> bedrock/common
-  ├── managers ──> app store
-  └── adapters ──> bedrock/browser ──> bedrock/common
-
-managers declare ports; adapters implement them; App.tsx wires concrete adapters.
-```
-
 ## Key Principle
 
 - Put feature folders at the top level. Put technical subfolders inside a feature.
@@ -79,7 +64,6 @@ managers declare ports; adapters implement them; App.tsx wires concrete adapters
 
 ## Best Practice
 
-- Keep each file in the feature that owns its behavior.
 - Use a feature `index.ts` for imports from another feature.
 - Keep direct file imports inside the same feature.
 - Use an enum for a fixed set of named values.

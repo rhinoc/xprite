@@ -4,7 +4,6 @@ These baselines record Xprite's current UI using the built-in `example.aseprite`
 project. The current bundled sample is the original Hello animation from
 `apps/growth/public/showcase/ipad/hello/hello.aseprite`. Existing locked baselines
 may record the earlier Xprite sample; a fixture mismatch still fails the gate.
-The former Aseprite UI screenshot comparison workflow has been retired.
 Aseprite document/algorithm compatibility checks and widget geometry fixtures
 remain separate.
 

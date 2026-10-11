@@ -28,8 +28,8 @@ function normalizeColor(value) {
 function themeModule(theme, atlasFile, lightColorRoles) {
   const lines = [
     `import themeSheetAssetUrl from "$assets/themes/aseprite/${atlasFile}";`,
-    'import type { UiStyleDefinition } from "$/base/theme/theme-types";',
-    `export const themeDefinition = ${JSON.stringify(theme, null, 2)} satisfies UiStyleDefinition;`,
+    'import type { UiAtlasDefinition } from "$/base/theme/theme-types";',
+    `export const themeDefinition = ${JSON.stringify(theme, null, 2)} satisfies UiAtlasDefinition;`,
     "export const sheetUrl: string = themeSheetAssetUrl;",
   ];
   if (lightColorRoles)

@@ -13,8 +13,8 @@ import quietStyles from "$/components/button/content/quiet.module.css";
 export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(function ButtonLink(
   {
     href,
-    variant = ButtonVariant.Standard,
-    appearance = ButtonAppearance.Default,
+    variant = ButtonVariant.Push,
+    appearance,
     children,
     text,
     slots,

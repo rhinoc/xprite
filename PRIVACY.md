@@ -1,10 +1,10 @@
-# Xprite Privacy Notice
+# Privacy Notice
 
 [简体中文](PRIVACY.zh.md)
 
 Last updated: October 8, 2026.
 
-This notice describes data used by the Xprite web editor, showcase, UI gallery, articles and standalone tools. Xprite does not require an account. A site that embeds or hosts Xprite, such as itch.io, may have its own privacy practices.
+This notice describes data used by the Xprite web editor, showcase, web components, articles and standalone tools. Xprite does not require an account. A site that embeds or hosts Xprite, such as itch.io, may have its own privacy practices.
 
 ## Work stored in your browser
 

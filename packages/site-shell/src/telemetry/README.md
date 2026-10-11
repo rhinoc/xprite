@@ -1,6 +1,6 @@
 # Shared website telemetry
 
-The editor, showcase, gallery, public articles/help and tools bootstrap use
+The editor, showcase, web components, public articles/help and tools bootstrap use
 `@xprite/site-shell/telemetry/browser`. Managers consume the data-only
 `@xprite/site-shell/telemetry` port; static rendering never initializes the SDK.
 The editor's workflow/error/feedback contract remains in its manager ports.
@@ -17,12 +17,15 @@ initial load and each different `location.pathname` capture `$pageview`.
 React Strict Mode and hydration do not add pageviews. A return to a previous
 path does add one. BFCache restoration retains the original document visit.
 Queued events retain their page context from the time of capture.
-Gallery component and icon routes use `page_type: gallery`, including their
-client-side path changes. Gallery site-entry links use the same CTA listener;
-component preview callbacks are not tool file or output events.
+Component docs routes (`/components/`, its component and icon routes) keep
+`page_type: components`, including their client-side path changes. Their
+site-entry links use the same CTA listener; component preview callbacks are not
+tool file or output events. The about page (`/about/`) keeps
+`page_type: showcase`.
 
-Comparison (`/compare/`) and file-guide (`/learn/`) landing pages both use
-`page_type: article`.
+Comparison (`/compare/`) landing pages use
+`page_type: article`. Chinese pages under `/zh-CN/` report the page type of
+their English counterpart; `/privacy/` reports `other`.
 
 All events include `page_type`, `page_path`, nullable `tool_name`, nullable
 `referring_domain`, `entry_referrer_present`, nullable `entry_referring_domain`,
@@ -31,7 +34,7 @@ All events include `page_type`, `page_path`, nullable `tool_name`, nullable
 `document.referrer`. SDK initialization keeps `save_referrer: true`, so PostHog
 `$referrer` and `$referring_domain` still persist across visits. Campaign
 parameter persistence stays off.
-The existing capability/version fields and editor attribution remain. URL
+Events include capability/version fields and editor attribution. URL
 queries/fragments and arbitrary campaign values are stripped before delivery.
 
 Use the SDK's anonymous `distinct_id` or `$session_id` for a cross-page funnel.
@@ -105,7 +108,6 @@ showcase/editor and viewer/open/download chains, stable anonymous identity,
 new document visit IDs, one initial pageview, and no success on cancellation.
 A local isolated capture inspection is not proof of PostHog ingestion.
 Keep the complete existing pre-push editor and tools-startup pixel audits.
-This feature changes no user guide or intended UI appearance.
 
 Sources: [PostHog SPA pageviews](https://posthog.com/tutorials/single-page-app-pageviews),
 [JavaScript configuration](https://posthog.com/docs/libraries/js/config),

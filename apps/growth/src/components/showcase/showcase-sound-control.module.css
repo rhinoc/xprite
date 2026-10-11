@@ -1,3 +1,9 @@
+.trigger {
+  --ui-button-quiet-min-height: var(--ui-panel-window-title-height, 16px);
+  --ui-button-quiet-line-height: var(--ui-panel-window-title-line-height, 12px);
+  --ui-button-quiet-padding: 0 var(--ui-space-2, 4px);
+}
+
 .panel {
   display: flex;
   flex-direction: column;

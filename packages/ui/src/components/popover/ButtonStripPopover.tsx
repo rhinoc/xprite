@@ -1,21 +1,20 @@
 import { useLayoutEffect, type CSSProperties, type ReactNode, type RefObject } from "react";
-import { createPortal } from "react-dom";
 
 import { useTheme } from "$/base/theme/theme-context";
-import { ThemeScope } from "$/base/theme/theme-scope";
 import { DEFAULT_SURFACE_VIEWPORT } from "$/components/canvas-surface";
 import {
   measurePopoverAnchor,
   useAnchoredPopover,
   anchoredPopoverStyle,
 } from "$/components/popover/anchored";
+import { createUiPortal } from "$/components/theme/portal";
 import { TooltipGroup } from "$/components/tooltip";
 
 import styles from "$/components/popover/button-strip-popover.module.css";
 
 export enum ButtonStripAnchor {
   Side = "side",
-  Below = "below",
+  Bottom = "bottom",
 }
 
 const BUTTON_BORDER_OVERLAP = 2;
@@ -49,7 +48,7 @@ export function ButtonStripPopover({
   open,
   onOpenChange,
   anchorRef,
-  placement = ButtonStripAnchor.Below,
+  placement = ButtonStripAnchor.Bottom,
   count,
   label,
   children,
@@ -112,31 +111,29 @@ export function ButtonStripPopover({
   const height = anchor.bounds.height;
   const bounds = { x: popover.x, y: popover.y, width, height };
 
-  return createPortal(
-    <ThemeScope>
-      <div
-        ref={controller.panelRef}
-        className={styles.popup}
-        role="toolbar"
-        aria-label={label}
-        aria-orientation="horizontal"
-        data-button-strip=""
-        data-popup=""
-        style={
-          {
-            ...anchoredPopoverStyle(popover, bounds, { constrainToViewport: false }),
-            color: theme.colors.text,
-            "--ui-strip-cell-width": `${anchor.bounds.width * sx}px`,
-            "--ui-strip-cell-height": `${anchor.bounds.height * sy}px`,
-            "--ui-strip-border-overlap": `${BUTTON_BORDER_OVERLAP}px`,
-          } as CSSProperties
-        }
-      >
-        <TooltipGroup>
-          <div className={styles.buttons}>{children}</div>
-        </TooltipGroup>
-      </div>
-    </ThemeScope>,
+  return createUiPortal(
+    <div
+      ref={controller.panelRef}
+      className={styles.popup}
+      role="toolbar"
+      aria-label={label}
+      aria-orientation="horizontal"
+      data-button-strip=""
+      data-popup=""
+      style={
+        {
+          ...anchoredPopoverStyle(popover, bounds, { constrainToViewport: false }),
+          color: theme.colors.text,
+          "--ui-strip-cell-width": `${anchor.bounds.width * sx}px`,
+          "--ui-strip-cell-height": `${anchor.bounds.height * sy}px`,
+          "--ui-strip-border-overlap": `${BUTTON_BORDER_OVERLAP}px`,
+        } as CSSProperties
+      }
+    >
+      <TooltipGroup>
+        <div className={styles.buttons}>{children}</div>
+      </TooltipGroup>
+    </div>,
     anchorRef.current.ownerDocument.body,
   );
 }

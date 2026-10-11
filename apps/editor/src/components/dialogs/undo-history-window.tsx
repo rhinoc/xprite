@@ -1,7 +1,7 @@
 import { EditorDialog } from "$/components/dialogs/overlay";
 import { tUi, tUiSource, useUiLanguage } from "$/i18n";
 import { useUndoHistoryManager } from "$/managers/dialogs/undo-history-manager";
-import { ScrollArea, Text, TextVariant } from "@xprite/ui";
+import { FontRole, ScrollArea, Text, TextVariant } from "@xprite/ui";
 
 import styles from "$/components/dialogs/undo-history-window.module.css";
 
@@ -64,7 +64,7 @@ export function UndoHistoryWindow({
                 x={16}
                 y={7}
                 color="currentColor"
-                font="mini"
+                font={FontRole.Compact}
               />
             </button>
           ))}

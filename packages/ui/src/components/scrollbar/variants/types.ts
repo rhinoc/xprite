@@ -1,7 +1,5 @@
-import type { ScrollbarVariant } from "$/components/scrollbar/types";
-
-export interface ScrollbarVariantStyle {
-  variant: ScrollbarVariant;
+export interface ScrollbarArtwork {
+  variant: "mini" | "regular" | "transparent";
   artworkPrefix: "mini_scrollbar" | "scrollbar" | "transparent_scrollbar";
   hoverArtwork: boolean;
 }

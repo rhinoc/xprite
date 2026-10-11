@@ -1,5 +1,6 @@
 import type { CSSProperties, HTMLAttributes } from "react";
 
+import { ThemeIcon, type UiPartName } from "$/base/theme/theme-part";
 import applicationSmallUrl from "$assets/icons/desktop/macos8/application-small.webp?url";
 import applicationUrl from "$assets/icons/desktop/macos8/application.webp?url";
 import documentSmallUrl from "$assets/icons/desktop/macos8/document-small.webp?url";
@@ -62,23 +63,53 @@ export enum IconSize {
 const DEFAULT_ICON_SIZE = IconSize.Small;
 const SMALL_ICON_SIZE = IconSize.Small;
 
-export interface IconProps extends Omit<
+interface IconAttributes extends Omit<
   HTMLAttributes<HTMLElement>,
-  "children" | "dangerouslySetInnerHTML"
-> {
+  "children" | "dangerouslySetInnerHTML" | "color"
+> {}
+type GlyphIconKind = IconKind.Help | IconKind.Language | IconKind.Volume | IconKind.VolumeMuted;
+interface AtlasPresentationOptions {
+  scale?: number;
+  x?: number;
+  y?: number;
+  hovered?: boolean;
+  pressed?: boolean;
+  focused?: boolean;
+}
+type NonAtlasPresentationOptions = { [Key in keyof AtlasPresentationOptions]?: never };
+interface CatalogIconProps extends IconAttributes, NonAtlasPresentationOptions {
   kind?: IconKind;
   size?: number;
+  color?: never;
 }
+interface GlyphIconProps extends IconAttributes, NonAtlasPresentationOptions {
+  kind: GlyphIconKind;
+  size?: number;
+  color?: string;
+}
+interface AtlasIconProps extends IconAttributes, AtlasPresentationOptions {
+  kind: UiPartName;
+  size?: never;
+  color?: string;
+}
+export type IconProps = CatalogIconProps | GlyphIconProps | AtlasIconProps;
 
-/** Decorative raster artwork or a glyph colored by the active theme. */
+/** Draw the named desktop artwork, system glyph or active-theme icon. */
 export function Icon({
   kind = IconKind.Application,
   size = DEFAULT_ICON_SIZE,
+  color,
+  scale,
+  x,
+  y,
+  hovered,
+  pressed,
+  focused,
   className,
   style,
   ...props
 }: IconProps) {
-  const glyph = GLYPH_URLS[kind];
+  const glyph = GLYPH_URLS[kind as IconKind];
   if (glyph)
     return (
       <span
@@ -89,6 +120,7 @@ export function Icon({
         data-kind={kind}
         style={
           {
+            color,
             ...style,
             "--ui-system-icon-size": `${size}px`,
             "--ui-system-icon-image": `url("${glyph}")`,
@@ -97,6 +129,22 @@ export function Icon({
       />
     );
   const artwork = ARTWORK_URLS[kind as keyof typeof ARTWORK_URLS];
+  if (!artwork)
+    return (
+      <ThemeIcon
+        {...props}
+        part={kind as UiPartName}
+        color={color}
+        scale={scale}
+        x={x}
+        y={y}
+        hovered={hovered}
+        pressed={pressed}
+        focused={focused}
+        className={className}
+        style={style}
+      />
+    );
   return (
     <img
       {...props}

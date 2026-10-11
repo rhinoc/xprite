@@ -10,7 +10,6 @@ import {
 } from "react";
 
 import { useEditorLayoutSettings } from "$/components/shared/editor-layout-context";
-import { useElementSize } from "$/components/shared/use-size";
 import {
   WorkspaceDropGuides,
   workspaceDropTargetLabel,
@@ -77,23 +76,27 @@ import {
   type WorkspacePanelLayout,
   type WorkspacePanelResizeTarget,
   type TimelineDockPosition,
+  WorkspaceContextPresentation,
 } from "$/managers/workspace/workspace-panel-layout";
-import { WorkspaceContextPresentation } from "$/managers/workspace/workspace-panel-layout";
 import { useWorkspaceResizeScheduler } from "$/managers/workspace/workspace-resize-scheduler";
 import {
+  FontRole,
   Button,
   ButtonVariant,
   ContextMenu as EditorContextMenu,
   LongPressActivation,
   Splitter,
+  SplitterDirection,
   Tabs,
   Text,
   TextVariant,
   useUi,
+  Icon,
 } from "@xprite/ui";
-import { UiIcon, uiMetrics, type UiPartName } from "@xprite/ui/assets";
+import { uiMetrics, type UiPartName } from "@xprite/ui/assets";
 import { UI_SCALE } from "@xprite/ui/canvas";
 import {
+  useElementSize,
   hitElements,
   clientPoint,
   layoutSize,
@@ -1388,8 +1391,8 @@ export function WorkspacePanelDock({
       width={displayedPane.tabs.length * 75 + 8}
       paneId={pane.id}
       dragEnabled={layoutEditing}
-      ariaLabel="Panels"
-      tabListLabel="Panels"
+      aria-label="Panels"
+      tabListAriaLabel="Panels"
       onValueChange={(tab) => {
         if (floating)
           updateFloat(pane.id, (current) => ({ ...current, active: tab as WorkspacePanelId }));
@@ -1501,8 +1504,8 @@ export function WorkspacePanelDock({
             onPointerCancel={cancelPaneMove}
             onLostPointerCapture={cancelPaneMove}
           >
-            <UiIcon
-              part="icon_layout"
+            <Icon
+              kind="icon_layout"
               scale={2}
               color="var(--xse-workspace-pane-handle-icon-color, var(--xse-window-tooltip-text, #000000))"
             />
@@ -1536,7 +1539,9 @@ export function WorkspacePanelDock({
         {renderTabContent(node.first, owner, tab)}
         <Splitter
           className="xse-workspace-panel-splitter"
-          axis={node.axis}
+          direction={
+            node.axis === "horizontal" ? SplitterDirection.Horizontal : SplitterDirection.Vertical
+          }
           aria-label={tUi("ui.resize.panels")}
           aria-valuemin={4}
           aria-valuemax={96}
@@ -1718,7 +1723,11 @@ export function WorkspacePanelDock({
           ) : (
             <Splitter
               className="xse-workspace-panel-splitter"
-              axis={node.axis}
+              direction={
+                node.axis === "horizontal"
+                  ? SplitterDirection.Horizontal
+                  : SplitterDirection.Vertical
+              }
               data-tool-pane-side={toolPaneSide}
               aria-label={tUi("ui.resize.panels")}
               onPointerDown={startResize}
@@ -1800,8 +1809,8 @@ export function WorkspacePanelDock({
                 onPointerCancel={cancelPaneMove}
                 onLostPointerCapture={cancelPaneMove}
               >
-                <UiIcon
-                  part="icon_layout"
+                <Icon
+                  kind="icon_layout"
                   scale={2}
                   color="var(--xse-workspace-pane-handle-icon-color, var(--xse-window-tooltip-text, #000000))"
                 />
@@ -1821,8 +1830,8 @@ export function WorkspacePanelDock({
             onPointerCancel={cancelPaneMove}
             onLostPointerCapture={cancelPaneMove}
           >
-            <UiIcon
-              part="icon_layout"
+            <Icon
+              kind="icon_layout"
               scale={2}
               color="var(--xse-workspace-pane-handle-icon-color, var(--xse-window-tooltip-text, #000000))"
             />
@@ -2088,8 +2097,8 @@ export function WorkspacePanelDock({
           ),
         );
         const floatingIcon = (
-          <UiIcon
-            part={iconPart}
+          <Icon
+            kind={iconPart}
             scale={iconScale}
             color={layoutEditing ? "var(--xse-window-tooltip-text)" : undefined}
             style={{ position: "relative" }}
@@ -2206,6 +2215,7 @@ export function WorkspacePanelDock({
             <span className="xse-floating-workspace-caption">
               <Text
                 variant={TextVariant.PositionedPixel}
+                titleCjk
                 text={tUiSource(panelLabel(displayedPane.active))}
                 x={0}
                 y={0}
@@ -2352,7 +2362,7 @@ export function WorkspacePanelDock({
               x={4}
               y={4}
               color="currentColor"
-              font="mini"
+              font={FontRole.Compact}
             />
           </span>
         </div>
@@ -2363,8 +2373,8 @@ export function WorkspacePanelDock({
           style={{ left: dragHandle.x, top: dragHandle.y }}
           aria-hidden="true"
         >
-          <UiIcon
-            part="icon_layout"
+          <Icon
+            kind="icon_layout"
             scale={2}
             color="var(--xse-workspace-pane-handle-icon-color, var(--xse-window-tooltip-text, #000000))"
           />

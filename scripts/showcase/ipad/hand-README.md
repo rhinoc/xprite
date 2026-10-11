@@ -8,7 +8,7 @@ Run from the repository root:
 blender --background --python scripts/showcase/ipad/hand-pose.py
 ```
 
-This imports the source, preserves its original weighted hand topology, curls the fingers with the source skeleton, smoothly extends the wrist mesh into a forearm, adds conformal index and thumb nail surfaces, and exports the posed presentation mesh to `apps/growth/public/showcase/ipad/hand.glb`. No runtime skinning library is needed.
+This imports the source, preserves its original weighted hand topology, curls the fingers with the source skeleton, smoothly extends the wrist mesh into a forearm, adds conformal index and thumb nail surfaces, and exports the posed presentation mesh to `apps/growth/public/showcase/ipad/hand.glb`. The GLB contains the posed presentation mesh.
 
 Open `hand-tap.blend` to edit the complete weighted hand, its `HandRig` pose bones, materials, nails, preview camera, and lights. `CURL_DEGREES`, `WRIST_LIFT_DEGREES`, and `SCALE` in `hand-pose.py` are the repeatable art-direction controls. The generated nail surfaces should be regenerated after changing finger curl angles. Manual Blender edits should be saved under a different name before rerunning the script.
 

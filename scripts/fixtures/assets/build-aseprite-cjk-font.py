@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
-"""Derive the Fusion Pixel face that sits on the Aseprite UI font's baseline.
+"""Derive the Fusion Pixel 10px face that sits on the Aseprite UI font's baseline.
 
 Requires fonttools and brotli.
 
 Aseprite's WOFF2 has a 10/14 em ascent; at the 14px UI size its capitals ink
-rows -10..+1 around the baseline. Fusion Pixel (1000 upm, 900/100 metrics) inks
-Han glyphs about 1px higher at 14px, which makes mixed lines taller with
-`line-height: normal` and pushes Han into the row above with a fixed 14px line.
+rows -10..+1 around the baseline. Fusion Pixel 10px (1000 upm, 1100/300
+metrics) inks Han glyphs about 1px higher at 14px, which makes mixed lines
+taller with `line-height: normal` and pushes Han into the row above with a fixed
+14px line.
 
 The derived face moves every outline down 71 units (1px at 14px) and matches
 Aseprite's line box (714/285, just under Aseprite's 320/448 and 128/448 em
 ratios so neither rounding nor FreeType's hinted ceil/floor of the scaled
-metrics can make the box taller than Aseprite's). Keep the original face for
-10px-grid uses such as the text tool and mini CJK runs: 71 units is 0.71px at
-10px.
+metrics can make the box taller than Aseprite's). Only the primary 14px
+Aseprite role uses it; compact text and the text tool keep the official
+10px-grid face, because 71 units is 0.71px at 10px.
 """
 
 from pathlib import Path
@@ -25,13 +26,13 @@ from fontTools.ttLib import TTFont
 SHIFT = 71
 ASCENT = 714
 DESCENT = 285
-FAMILY = "Fusion Pixel 10px Mono zh_hans Xprite Aseprite"
-POSTSCRIPT = "FusionPixel10pxMonozh_hansXpriteAseprite-Regular"
+FAMILY = "Fusion Pixel 10px Prop zh-Hans Xprite Aseprite"
+POSTSCRIPT = "FusionPixel10pxPropzh-HansXpriteAseprite-Regular"
 
 root = Path(__file__).resolve().parents[3]
 fonts = root / "packages/ui/assets/fonts/fusion-pixel"
-source = fonts / "fusion-pixel-10px-zh-hans.woff2"
-output = fonts / "fusion-pixel-10px-zh-hans-aseprite.woff2"
+source = fonts / "fusion-10.woff2"
+output = fonts / "fusion-10-aseprite.woff2"
 
 font = TTFont(source, recalcTimestamp=False)
 charstrings = font["CFF "].cff.topDictIndex[0].CharStrings

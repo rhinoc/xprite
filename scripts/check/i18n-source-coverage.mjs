@@ -22,7 +22,7 @@ const messageFields = new Set([
   "aria-valuetext",
   "emptyText",
   "buttonLabel",
-  "tabListLabel",
+  "tabListAriaLabel",
   "confirm",
   "cancel",
   "search",

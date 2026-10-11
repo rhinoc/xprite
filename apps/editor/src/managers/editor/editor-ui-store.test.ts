@@ -10,15 +10,16 @@ import {
   EditorViewChangeReason,
 } from "$/managers/editor/editor-view-transition";
 import { HelpDocumentTab } from "$/managers/shell/help";
+import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
 
 function memoryStorage() {
   const values = new Map<string, string>();
-  return {
+  return createJsonStorage({
     getItem: (key: string) => values.get(key) ?? null,
     setItem: (key: string, value: string) => {
       values.set(key, value);
     },
-  };
+  });
 }
 
 describe("editor tab recovery", () => {
@@ -49,16 +50,16 @@ describe("editor tab recovery", () => {
   it("uses the startup preference without a valid record and tolerates storage failures", () => {
     assert.equal(createEditorUiStore("home", memoryStorage()).getState().tab, "home");
     assert.equal(createEditorUiStore("document", memoryStorage()).getState().tab, "document");
-    const invalidStorage = { getItem: () => "invalid", setItem: () => {} };
+    const invalidStorage = createJsonStorage({ getItem: () => "invalid", setItem: () => {} });
     assert.equal(createEditorUiStore("home", invalidStorage).getState().tab, "home");
-    const unavailableStorage = {
+    const unavailableStorage = createJsonStorage({
       getItem: () => {
         throw new Error("Storage unavailable");
       },
       setItem: () => {
         throw new Error("Storage unavailable");
       },
-    };
+    });
     const store = createEditorUiStore("home", unavailableStorage);
     assert.equal(store.getState().tab, "home");
     store.getState().openTab("document");

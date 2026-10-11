@@ -72,7 +72,7 @@ import { WORKSPACE_WINDOW_GAP } from "$/managers/workspace/workspace-panel-geome
 import { useWorkspaceResizeScheduler } from "$/managers/workspace/workspace-resize-scheduler";
 import type { AppearanceMode } from "@xprite/editor-ui/appearance";
 import examplePreview from "@xprite/site-assets/showcase/ipad/hello/hello-frame-01.png?url";
-import { ScrollArea, Splitter, type TabDragPoint } from "@xprite/ui";
+import { ScrollArea, Splitter, SplitterDirection, type TabDragPoint } from "@xprite/ui";
 
 import "$/components/shell/editor-view/workspace-docking.module.css";
 import {
@@ -428,7 +428,8 @@ function DocumentScene() {
       onNew={actions.new}
       onOpen={actions.open}
       onAbout={actions.about}
-      onFeedback={actions.canStartInteraction ? actions.feedback : undefined}
+      onSettings={actions.canOpenModal ? actions.preferences : undefined}
+      onFeedback={actions.canOpenModal ? actions.feedback : undefined}
       onOpenRecent={actions.openRecent}
       onRecover={actions.recoverFiles}
       onPinRecent={actions.pinRecent}
@@ -757,7 +758,9 @@ function WorkspaceSplitHandle({
   return (
     <Splitter
       className="xse-workspace-splitter"
-      axis={node.axis}
+      direction={
+        node.axis === "horizontal" ? SplitterDirection.Horizontal : SplitterDirection.Vertical
+      }
       aria-valuemin={15}
       aria-valuemax={85}
       aria-valuenow={Math.round(node.ratio * 100)}

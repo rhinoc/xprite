@@ -28,6 +28,7 @@ export interface EditorActions {
   clipboardCapabilities: ClipboardCapabilities;
   canSave: boolean;
   canStartInteraction: boolean;
+  canOpenModal: boolean;
   new: () => void;
   preferences: () => void;
   open: () => void;

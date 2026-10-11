@@ -9,8 +9,7 @@ import { stepAsepriteZoom } from "$/managers/canvas/canvas-manager";
 import type { useEditor } from "$/managers/editor/editor-state-manager";
 import { useEditorDocumentView } from "$/managers/shell/editor-document-view";
 import { parseEditorColor } from "$/managers/tools/color-control";
-import { Button, Input, ScrollArea, Text, TextVariant, useUi } from "@xprite/ui";
-import { UiIcon } from "@xprite/ui/assets";
+import { FontRole, Button, Input, ScrollArea, Text, TextVariant, useUi, Icon } from "@xprite/ui";
 
 import styles from "$/components/shell/status-bar/status-bar.module.css";
 
@@ -150,13 +149,7 @@ export function StatusBar({
       {!about && (!editor.functional || hasDocument) && (
         <div className="xse-status-actions">
           <span className={styles.frameIcon} aria-hidden="true">
-            <UiIcon
-              part="icon_frame"
-              x={0}
-              y={0}
-              scale={2}
-              color={uiStyle.colors.status_bar_text}
-            />
+            <Icon kind="icon_frame" x={0} y={0} scale={2} color={uiStyle.colors.status_bar_text} />
           </span>
           <div className="xse-status-frame-controls">
             <Input
@@ -178,7 +171,7 @@ export function StatusBar({
             />
             <Button
               text="+"
-              font="default"
+              font={FontRole.Primary}
               pixelSize={{ width: 11, height: 12 }}
               textOffset={{ x: 2, y: 1 }}
               aria-label="Add frame"
