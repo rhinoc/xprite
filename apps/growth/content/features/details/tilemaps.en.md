@@ -14,4 +14,4 @@ A tileset PNG preserves the source tiles. Save an `.aseprite` project to keep ed
 
 ## Keep working
 
-[Open editor](/editor) · [All features](/about/features/) · [User guide](/help/)
+[Open editor](/editor) · [All features](/features/) · [User guide](/help/)

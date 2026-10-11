@@ -1,4 +1,4 @@
-import { FEATURE_DETAILS, FEATURE_DETAIL_PATH } from "../features/index.ts";
+import { FEATURE_DETAILS, FEATURE_DETAIL_PATH, FEATURES_PATH } from "../features/index.ts";
 import { localizedSiteHref, PublicLanguage } from "./language.ts";
 
 /** A page whose body is one Markdown file per written language. */
@@ -40,7 +40,7 @@ export const SITE_DOCUMENTS: readonly SiteDocumentDefinition[] = [
     navigationTitle: { en: "How it works" },
   },
   {
-    path: "/about/features/",
+    path: FEATURES_PATH,
     sources: {
       en: `${ABOUT_CONTENT}/features.en.md`,
       "zh-CN": `${ABOUT_CONTENT}/features.zh-CN.md`,

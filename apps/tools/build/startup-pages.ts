@@ -4,6 +4,8 @@ import { dirname, extname, isAbsolute, resolve } from "node:path";
 
 import type { Plugin, ViteDevServer } from "vite";
 
+import { SITE_LANGUAGE_PREFERENCE_KEY } from "@xprite/site-shell/language-preference";
+
 import { publicDesktopStartupScript } from "../../../infra/public-desktop-startup.ts";
 import type { SsgAsset } from "../../../infra/react-ssg-renderer.ts";
 import { prependSiteHeadContent } from "../../../infra/site-html.ts";
@@ -100,7 +102,7 @@ export function toolsStartupPages(): Plugin {
         const runtime = await load();
         const page = await runtime.render(rootId);
         const tool = TOOL_BY_ROOT[rootId as keyof typeof TOOL_BY_ROOT];
-        const localeHead = `<script>document.documentElement.lang=new URLSearchParams(location.search).get('lang')==='zh-CN'?'zh-CN':'en'</script>`;
+        const localeHead = `<script>try{const lang=localStorage.getItem(${JSON.stringify(SITE_LANGUAGE_PREFERENCE_KEY)});if(lang==='zh-CN'||lang==='en')document.documentElement.lang=lang}catch{}</script>`;
         const localeSwitch = `{const root=document.getElementById(${JSON.stringify(rootId)});const zh=document.documentElement.lang==='zh-CN';const dark=document.documentElement.dataset.toolAppearance==='dark';const template=zh?document.querySelector('template[data-tool-locale="zh-CN-'+(dark?'dark':'light')+'"]'):dark?document.querySelector('template[data-tool-theme="dark"]'):null;if(template)root.innerHTML=template.innerHTML;document.title=zh?${jsonForHtml(translateToolText(tool.title, PublicLanguage.SimplifiedChinese))}:${jsonForHtml(tool.title)};const meta=document.querySelector('meta[name="description"]');if(meta)meta.content=zh?${jsonForHtml(translateToolText(tool.description, PublicLanguage.SimplifiedChinese))}:${jsonForHtml(tool.description)}}`;
         const root = `<div id="${rootId}" data-tool-startup-view>${page.light}</div><template data-tool-theme="dark">${page.dark}</template><template data-tool-locale="zh-CN-light">${page.chineseLight}</template><template data-tool-locale="zh-CN-dark">${page.chineseDark}</template><script id="tool-initial-themes" type="application/json">${jsonForHtml(page.themes)}</script><script id="tool-initial-artwork" type="application/json">${jsonForHtml(page.artwork)}</script><script>${localeSwitch}</script>`;
         const appearance = publicDesktopStartupScript(APPEARANCE_MODE_STORAGE_KEY);

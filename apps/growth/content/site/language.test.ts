@@ -15,13 +15,18 @@ describe("localized site links", () => {
     );
     assert.equal(localizedSiteHref("/help/#save-and-recover", zh), "/zh-CN/help/#save-and-recover");
     assert.equal(localizedSiteHref("/about/", zh), "/zh-CN/about/");
+    assert.equal(localizedSiteHref("/features/", zh), "/zh-CN/features/");
     assert.equal(localizedSiteHref("/privacy/", zh), "/zh-CN/privacy/");
     assert.equal(localizedSiteHref("/zh-CN/learn/aseprite-to-gif/", en), "/learn/aseprite-to-gif/");
     assert.equal(localizedSiteHref("/zh-CN/help/", zh), "/zh-CN/help/");
   });
 
-  it("switch tools and component docs with a query", () => {
-    assert.equal(localizedSiteHref("/tools/viewer/", zh), "/tools/viewer/?lang=zh-CN");
+  it("keeps tool and component URLs independent of language", () => {
+    assert.equal(localizedSiteHref("/tools/viewer/", zh), "/tools/viewer/");
+    assert.equal(
+      localizedSiteHref("/tools/viewer/?lang=zh-CN&source=menu", en),
+      "/tools/viewer/?source=menu",
+    );
     assert.equal(localizedSiteHref("/components/?lang=zh-CN", en), "/components/");
   });
 

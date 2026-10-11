@@ -14,4 +14,4 @@ Add Xprite to your Home Screen to open it like an app. After the initial online 
 
 ## Keep working
 
-[Open editor](/editor) · [All features](/about/features/) · [User guide](/help/)
+[Open editor](/editor) · [All features](/features/) · [User guide](/help/)

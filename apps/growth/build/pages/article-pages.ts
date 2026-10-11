@@ -93,7 +93,7 @@ function libraryFolders(language: PublicLanguage): string {
   return publicDesktopWindow(
     "Xprite",
     `<div data-public-folder-items>${
-      publicIconLink(text("Features", "功能"), href("/about/features/")) +
+      publicIconLink(text("Features", "功能"), href("/features/")) +
       publicIconLink(text("Comparisons", "编辑器比较"), href("/compare/")) +
       publicIconLink(text("User guide", "使用指南"), href("/help/"), "document")
     }</div>`,
@@ -227,7 +227,7 @@ ${publicUiScope(
     brandHref: SHOWCASE_PAGES[language].path,
     brandImage: "/menu-icon.svg",
     links: [
-      { label: text("Features", "功能"), href: href("/about/features/") },
+      { label: text("Features", "功能"), href: href("/features/") },
       { label: text("Compare", "编辑器比较"), href: href("/compare/") },
       { label: text("Editor", "编辑器"), href: editorUrl(article) },
       {

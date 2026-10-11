@@ -64,7 +64,7 @@ export function ShowcaseDiscovery({ language }: { language: DiscoveryLanguage })
             <>
               <Text variant={TextVariant.Reading}>{itemCount(tools.length)}</Text>
               <Button
-                href={localizedSiteHref("/about/features/", language)}
+                href={localizedSiteHref("/features/", language)}
                 appearance={ButtonAppearance.Quiet}
                 slots={{}}
               >

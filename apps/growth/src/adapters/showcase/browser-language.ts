@@ -2,6 +2,7 @@ import { SHOWCASE_SEARCH_ATTRIBUTE, showcaseSearchMetadata } from "$content/show
 import { SHOWCASE_PAGES, SHOWCASE_SITE_URL } from "$content/showcase/pages";
 
 import { SHOWCASE_COPY, ShowcaseLanguage } from "$/managers/showcase/showcase-language";
+import { writeBrowserLanguagePreference } from "@xprite/site-shell/browser";
 
 export function readShowcaseLanguage(): ShowcaseLanguage {
   return window.location.pathname === SHOWCASE_PAGES[ShowcaseLanguage.Chinese].path
@@ -10,6 +11,7 @@ export function readShowcaseLanguage(): ShowcaseLanguage {
 }
 
 export function applyShowcaseLanguage(language: ShowcaseLanguage): void {
+  writeBrowserLanguagePreference(language);
   const copy = SHOWCASE_COPY[language];
   document.documentElement.lang = language;
   document.title = copy.title;

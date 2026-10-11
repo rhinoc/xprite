@@ -49,7 +49,7 @@ A wheel burst over the device stage advances one device in its dominant horizont
 
 Maintain both guide languages and their screenshot records together under `content/help/`. The `build/public-pages.ts` plugin assembles static pages and serves exact public routes. Page renderers in `build/pages/` read the formal content and check guide section links and image catalog entries. `build/seo/` owns search metadata and discovery files; `build/routing/` owns deployed serving rules and the public-path guard.
 
-`content/site/pages.ts` registers canonical public pages from each content scope. The registry supplies sitemap entries, redirects, deployment rewrites and required output files. English pages are unprefixed; Chinese pages share the root `/zh-CN/` prefix (`localizedSiteHref` in `content/site/language.ts`), while tools and component docs use `?lang=zh-CN`. `content/site/documents.ts` lists Markdown document pages: the privacy notice (from the repository-root `PRIVACY.md` and `PRIVACY.zh.md`) and the about articles in `content/about/` (How Xprite Works and Features, in English and Chinese). A document publishes only the languages it is written in, so every registered page has content. Register only pages with written content. The editor remains at `/`; the website's About link points to the localized about page.
+`content/site/pages.ts` registers canonical public pages from each content scope. The registry supplies sitemap entries, redirects, deployment rewrites and required output files. English pages are unprefixed; Chinese pages share the root `/zh-CN/` prefix (`localizedSiteHref` in `content/site/language.ts`). The editor, public pages and tools share the saved language preference `xse.ui.language.v1`; tools keep the same URL in both languages. `content/site/documents.ts` lists Markdown document pages: the privacy notice (from the repository-root `PRIVACY.md` and `PRIVACY.zh.md`) and the about articles in `content/about/` (How Xprite Works and Features, in English and Chinese). A document publishes only the languages it is written in, so every registered page has content. Register only pages with written content. The editor remains at `/`; the website's About link points to the localized about page.
 
 The public-page resource map serves `/theme/fonts.css`, `/theme/chikarego2.woff2` and `/theme/finderskeepers.woff2` directly from `packages/ui/assets/fonts/macintosh/`. Marketing pages, guides, articles and the 404 page share these Macintosh fonts; Fusion Pixel remains the CJK fallback. Fonts are copied only into build output, and their originals stay with the UI package. Latin display sizes follow the fonts’ 16px grid.
 
@@ -129,7 +129,7 @@ collection in the UI asset package. Two-color masks can use a separately saved
 foreground/background pair through Pattern colors; fixed-color PNGs keep their
 original palette. The pattern menu groups source tiles and exposes color preview with Apply/Cancel.
 
-The Features page at `/about/features/` and `/zh-CN/about/features/` renders grouped
+The Features page at `/features/` and `/zh-CN/features/` renders grouped
 editor and tool icons from the localized Markdown in `content/about/features.*.md`.
 The menu and footer link directly to individual tools; desktop directory shortcuts
 open Features. `/tools/` redirects to Features.

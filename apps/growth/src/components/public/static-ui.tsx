@@ -6,6 +6,7 @@ import { useLayoutEffect, useRef, useSyncExternalStore, type HTMLAttributes } fr
 
 import type { DocumentContentsManager } from "$/managers/public/document-contents-manager";
 import { SiteFooter, SiteMenubar, type SiteFooterProps } from "@xprite/site-shell";
+import { writeBrowserLanguagePreference } from "@xprite/site-shell/browser";
 import {
   Button,
   Icon,
@@ -190,7 +191,10 @@ export function PublicNavigation({
           value: chinese ? "en" : "zh-CN",
           label: chinese ? "English" : "简体中文",
           href: otherLanguage.href,
-          onClick: otherLanguage.onClick,
+          onClick: (event) => {
+            writeBrowserLanguagePreference(chinese ? "en" : "zh-CN");
+            otherLanguage.onClick?.(event);
+          },
         },
       ]
     : undefined;

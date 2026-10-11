@@ -124,7 +124,7 @@ export function guideHtml(guide: Guide, indexable: boolean): string {
           .map((heading) => ({ href: `#${headingId(heading.text)}`, label: heading.text })),
       ),
       "data-public-contents",
-    )}</div>${publicDesktopWindow(guide.language === PublicLanguage.English ? "Xprite Help" : "Xprite 使用指南", publicReaderScroll(`<article>${publicRichText(parser.parser(tokens.filter((token) => token !== contentsToken)), { "data-public-document-content": true })}</article>`, guide.language), "data-public-document", `<a href="/editor">${guide.openEditor}</a>`)}<nav data-public-shortcuts aria-label="${guide.navigation}">${publicIconLink(guide.openEditor, "/editor", "application")}${publicIconLink(guide.language === PublicLanguage.English ? "Features" : "功能", localizedSiteHref("/about/features/", guide.language))}</nav>`,
+    )}</div>${publicDesktopWindow(guide.language === PublicLanguage.English ? "Xprite Help" : "Xprite 使用指南", publicReaderScroll(`<article>${publicRichText(parser.parser(tokens.filter((token) => token !== contentsToken)), { "data-public-document-content": true })}</article>`, guide.language), "data-public-document", `<a href="/editor">${guide.openEditor}</a>`)}<nav data-public-shortcuts aria-label="${guide.navigation}">${publicIconLink(guide.openEditor, "/editor", "application")}${publicIconLink(guide.language === PublicLanguage.English ? "Features" : "功能", localizedSiteHref("/features/", guide.language))}</nav>`,
     [
       {
         label: guide.language === PublicLanguage.SimplifiedChinese ? "工具比较" : "Compare",

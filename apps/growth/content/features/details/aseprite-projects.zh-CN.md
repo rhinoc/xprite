@@ -14,4 +14,4 @@ Xprite 不能运行 Aseprite 脚本和扩展，个别工程可能无法完全兼
 
 ## 继续使用
 
-[打开编辑器](/editor) · [返回功能目录](/about/features/) · [使用指南](/help/)
+[打开编辑器](/editor) · [返回功能目录](/features/) · [使用指南](/help/)

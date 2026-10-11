@@ -38,8 +38,8 @@ describe("document pages", () => {
         "/zh-CN/privacy/",
         "/about/how-it-works/",
         "/zh-CN/about/how-it-works/",
-        "/about/features/",
-        "/zh-CN/about/features/",
+        "/features/",
+        "/zh-CN/features/",
       ],
     );
   });

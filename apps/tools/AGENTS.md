@@ -1,6 +1,6 @@
 # Tools application
 
-This package contains independent browser tools. The feature directory belongs to growth at `/about/features/`. The read-only Aseprite viewer
+This package contains independent browser tools. The feature directory belongs to growth at `/features/`. The read-only Aseprite viewer
 is served at `/tools/viewer/`; the GIF converter is served at `/tools/gif-to-sprite-sheet/`.
 
 - Components use public tool manager APIs, `@xprite/ui` controls and the shared

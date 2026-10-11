@@ -14,4 +14,4 @@ Xprite cannot run Aseprite scripts or extensions, and some projects may not be f
 
 ## Keep working
 
-[Open editor](/editor) · [All features](/about/features/) · [User guide](/help/)
+[Open editor](/editor) · [All features](/features/) · [User guide](/help/)

@@ -1,4 +1,4 @@
-export const FEATURES_PATH = "/about/features/";
+export const FEATURES_PATH = "/features/";
 export const FEATURE_DETAIL_PATH = "/features/";
 
 export const FEATURE_DETAILS = [
