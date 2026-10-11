@@ -151,11 +151,12 @@ type Layout = {
   touchRows: boolean;
   textScale: number;
 };
+type MenuTextMeasurer = (text: string, font?: FontRole, scale?: number) => number;
 function measureMenu(
   items: readonly MenuItem[],
   rowHeight: number = DEFAULT_MENU_METRICS.rowHeight,
   textScale: number = DEFAULT_MENU_METRICS.textScale,
-  measure: typeof measureThemeText = measureThemeText,
+  measure: MenuTextMeasurer = measureThemeText,
   MENU_METRICS: MenuMetrics = DEFAULT_MENU_METRICS,
   shortcutGlyphs?: Parameters<typeof menuShortcutArtwork>[1],
   labelGlyphs?: Parameters<typeof menuTextArtwork>[1],
