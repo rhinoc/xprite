@@ -35,6 +35,7 @@ import {
   UiColorScheme,
 } from "@xprite/ui";
 import { loadUiThemeSnapshot } from "@xprite/ui/assets";
+import { cursorScopeStyle } from "@xprite/ui/cursor";
 
 import "$/components/public/desktop.module.css";
 import showcaseStyles from "$/components/showcase/showcase.module.css";
@@ -93,6 +94,11 @@ function navigationProps(props: Record<string, unknown>): PublicNavigationProps 
     brandHref: props.brandHref,
     links: props.links.map(navigationLink),
   };
+}
+
+/** Cursor variables for the page stylesheet; fragments omit them so each one stays small. */
+export function publicCursorVariables(artworkUrl: (svg: string) => string) {
+  return cursorScopeStyle({ theme: macintoshTheme, artworkUrl }) as Record<string, string>;
 }
 
 export async function preparePublicUi() {
@@ -190,6 +196,7 @@ export async function preparePublicUi() {
         initialTheme={themes[colorScheme]}
         preloadArtwork={false}
         scope={kind === "page" || kind === "showcase-page"}
+        cursorVariables={false}
       >
         {content}
       </DesktopProvider>
