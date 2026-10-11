@@ -31,10 +31,10 @@ export const GIF_SHEET_HELP = {
         steps: [
           "按「导出 PNG 精灵表」中的步骤设置布局。",
           "点「文件」→「导出帧数据（.json）」。",
-          "JSON 对应当前布局。修改布局后，PNG 和 JSON 需要一起重新导出。",
+          "点「文件」→「导出精灵表（.png）」，导出同一布局的精灵表。",
         ],
         notes:
-          "frames 数组按播放顺序列出各帧：frame 是帧在精灵表中的 x、y、w、h，duration 是 GIF 的帧时长，单位为毫秒。帧名为 GIF 名-帧号.png，帧号从 0 开始。meta 记录精灵表的文件名和尺寸，不包含 GIF 的循环次数。文件名与 GIF 相同，扩展名为 .json。",
+          "JSON 对应当前布局，修改布局后 PNG 和 JSON 需要一起重新导出。frames 数组按播放顺序列出各帧：frame 是帧在精灵表中的 x、y、w、h，duration 是 GIF 的帧时长，单位为毫秒。帧名为 GIF 名-帧号.png，帧号从 0 开始。meta 记录精灵表的文件名和尺寸，不包含 GIF 的循环次数。文件名与 GIF 相同，扩展名为 .json。",
       },
     ],
     closing:
@@ -62,10 +62,10 @@ export const GIF_SHEET_HELP = {
         steps: [
           "Set the layout as described in Export a PNG sprite sheet.",
           "Choose File → Export frame data (.json).",
-          "The JSON matches the current layout. After changing the layout, export the PNG and JSON again together.",
+          "Choose File → Export sprite sheet (.png) to export the sheet with the same layout.",
         ],
         notes:
-          "The frames array lists frames in playback order: frame gives each frame’s x, y, w and h on the sheet, and duration is the GIF frame duration in milliseconds. Frames are named name-N.png, with N starting at 0. meta records the sheet’s file name and size but not the GIF’s loop count. The file uses the GIF’s name with a .json extension.",
+          "The JSON matches the current layout; after changing the layout, export the PNG and JSON again together. The frames array lists frames in playback order: frame gives each frame’s x, y, w and h on the sheet, and duration is the GIF frame duration in milliseconds. Frames are named name-N.png, with N starting at 0. meta records the sheet’s file name and size but not the GIF’s loop count. The file uses the GIF’s name with a .json extension.",
       },
     ],
     closing:
