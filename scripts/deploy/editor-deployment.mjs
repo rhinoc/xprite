@@ -8,7 +8,7 @@ import { siteServingConfiguration } from "../../apps/growth/build/routing/site-c
 import { GUIDE_PAGES } from "../../apps/growth/content/help/pages.ts";
 import { SHOWCASE_PAGES } from "../../apps/growth/content/showcase/pages.ts";
 import { SITE_PAGES, SitePageKind } from "../../apps/growth/content/site/pages.ts";
-import { GIF_SHEET_TOOL, TOOLS } from "../../apps/growth/content/tools/index.ts";
+import { GIF_SHEET_TOOL, PIXELATE_TOOL, TOOLS } from "../../apps/growth/content/tools/index.ts";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const configuration = siteServingConfiguration(
@@ -299,7 +299,9 @@ async function verifyApplicationPages(url, environment) {
           ? "viewer-root"
           : tool.path === GIF_SHEET_TOOL.path
             ? "gif-sheet-root"
-            : "animal-crossing-root",
+            : tool.path === PIXELATE_TOOL.path
+              ? "pixelation-root"
+              : "animal-crossing-root",
       indexable: true,
     })),
     ...componentRoutes.flatMap((path) =>
