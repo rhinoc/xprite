@@ -1,12 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
+import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { Alert } from "$/components/dialogs/alert";
 import { FormDialog } from "$/components/dialogs/form-dialog";
-import {
-  PalettePresetPopup,
-  type PaletteBrowserChoice,
-} from "$/components/palette/palette-preset-popup";
-import { tUi, useUiLanguage } from "$/i18n";
+import { tUi, tUiSource, useUiLanguage } from "$/i18n";
 import {
   comparePaletteResources as comparePaletteResourceNames,
   loadDefaultEditorPalette as readDefaultPalette,
@@ -21,6 +18,11 @@ import {
 } from "$/managers/palette/palette-actions-model";
 import { resizeEditorPalette } from "$/managers/palette/palette-operations";
 import { MAX_EDITOR_PALETTE_COLORS } from "$/managers/palette/palette-view";
+import {
+  PalettePresetPopup,
+  type PaletteBrowserChoice,
+  PalettePresetKind,
+} from "@xprite/editor-ui";
 import { Button, Menu, type MenuItem } from "@xprite/ui";
 
 enum PaletteDialog {
@@ -44,6 +46,7 @@ function download(name: string, blob: Blob): void {
 /** Palette Presets and Palette Options commands for the palette toolbar. */
 export function PaletteActions() {
   const editor = usePaletteActionsModel();
+  const sceneBounds = useSceneBounds();
   useUiLanguage();
   const [presets, setPresets] = useState(readPalettePresets);
   const [bundledPresets] = useState(readBundledPalettePresets);
@@ -105,7 +108,7 @@ export function PaletteActions() {
     ...bundledPresets.map((preset) => ({
       ...preset,
       id: `builtin:${preset.id}`,
-      source: "builtin" as const,
+      source: PalettePresetKind.Builtin,
     })),
     ...presets.map((preset) => ({
       id: `saved:${preset.name.toLocaleLowerCase()}`,
@@ -113,7 +116,7 @@ export function PaletteActions() {
       group: "Saved Presets",
       author: null,
       colors: preset.colors,
-      source: "saved" as const,
+      source: PalettePresetKind.Saved,
     })),
   ].sort((a, b) => comparePaletteResourceNames(a.name, b.name));
   const savePreset = () =>
@@ -228,18 +231,13 @@ export function PaletteActions() {
   return (
     <>
       <PalettePresetPopup
+        sceneBounds={sceneBounds}
+        translate={tUiSource}
         choices={paletteChoices}
         activePalette={colors}
         hasDocument={editor.hasDocument}
         onLoad={apply}
         onRefresh={() => setPresets(readPalettePresets())}
-        onOpenFolder={(choice) =>
-          setError(
-            tUi("ui.is.bundled.with.this.web.app.and.has.no.local.folder.to.open", {
-              value1: choice.name,
-            }),
-          )
-        }
       />
       <Menu
         label="Palette options"

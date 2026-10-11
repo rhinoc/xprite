@@ -8,6 +8,15 @@ builds and only stops processes that it started. Shared proxy rules and server i
 fixed ports and development bases live in `infra/dev-site.json`. See
 [development setup](../CONTRIBUTING.md).
 
+To run another worktree at the same time, give its four-server stack a free port
+block, for example `XPRITE_DEV_PORT_BASE=5273 pnpm dev`. That worktree uses
+5273–5276 for editor, components, growth, and tools, with its proxy routes kept
+inside the same checkout. Choose another unused base for each additional
+worktree; the default checkout continues to use 5173–5176.
+
+Set `XPRITE_VISUAL_SPACE_ID` to reuse one agent-owned Ego browser space across
+all pre-push capture stages after a browser capture interruption.
+
 `pnpm run check:public-docs` rejects Xiaohongshu / 小红书, RedNote, XHS and
 platform links in root Markdown (except `AGENTS.md`), the user guide and its
 text assets, public text assets, and the editor HTML entry. It reports file and

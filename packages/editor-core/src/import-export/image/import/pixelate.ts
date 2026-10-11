@@ -1,14 +1,79 @@
-import { UINT8_MAX } from "$/base/numeric-constants";
 import type { PixelBuffer, Rgba } from "$/base/primitives";
+import { assertDimension, assertPixelBuffer } from "$/document/pixel-validation";
+import { protectPixelationContours } from "$/import-export/image/import/contours";
+import { smoothPixelation } from "$/import-export/image/import/denoise";
 import {
-  assertDimension,
-  assertPixelBuffer,
-  assertPixelCount,
-  clampByte,
-} from "$/document/pixel-validation";
-import { extractPalette, reduceToPalette } from "$/import-export/image/import/palette";
-import { PixelationMethod } from "$/import-export/image/import/types";
+  detectPixelGrid,
+  pixelGridCuts,
+  MAX_RECOVERED_GRID_SIZE,
+} from "$/import-export/image/import/grid";
+import { reduceToPalette, extractPixelationPalette } from "$/import-export/image/import/palette";
+import { resizeBox, resizeNearest } from "$/import-export/image/import/resize";
+import { samplePixelation } from "$/import-export/image/import/sampling";
+import { PixelationMethod, PixelationMode } from "$/import-export/image/import/types";
 import type { PixelateOptions, PixelationSize } from "$/import-export/image/import/types";
+
+const WORKING_SCALE = 4;
+const MAX_WORKING_PIXELS = 1_048_576;
+const MAX_OUTLINE_STRENGTH = 100;
+function prepareSource(
+  image: PixelBuffer,
+  target: PixelationSize,
+  outlineStrength: number,
+): PixelBuffer {
+  const scale = Math.min(
+    WORKING_SCALE,
+    Math.sqrt(MAX_WORKING_PIXELS / (target.width * target.height)),
+  );
+  const width = Math.min(image.width, Math.max(1, Math.ceil(target.width * scale)));
+  const height = Math.min(image.height, Math.max(1, Math.ceil(target.height * scale)));
+  const working =
+    image.width === width && image.height === height
+      ? image
+      : resizeBox(image, width, height, "premultiplied");
+  return protectPixelationContours(working, outlineStrength);
+}
+function sampleImage(
+  image: PixelBuffer,
+  options: PixelateOptions,
+  method: PixelationMethod,
+): PixelBuffer {
+  const mode = options.mode ?? PixelationMode.Convert;
+  if (mode !== PixelationMode.Convert && mode !== PixelationMode.RecoverGrid)
+    throw new RangeError("Unknown pixelation mode.");
+  if (mode === PixelationMode.RecoverGrid) {
+    const grid = options.grid ?? detectPixelGrid(image);
+    if ("reliable" in grid && !grid.reliable)
+      throw new Error(
+        "No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.",
+      );
+    const x = pixelGridCuts(image.width, grid.cellWidth, grid.offsetX),
+      y = pixelGridCuts(image.height, grid.cellHeight, grid.offsetY);
+    const width = x.length - 1,
+      height = y.length - 1;
+    if (width > MAX_RECOVERED_GRID_SIZE || height > MAX_RECOVERED_GRID_SIZE)
+      throw new RangeError("Choose larger cells to restore this image.");
+    if (grid.width !== width || grid.height !== height)
+      throw new RangeError("The grid no longer matches this image.");
+    return samplePixelation(image, width, height, PixelationMethod.Dominant, { x, y });
+  }
+  const target = resolveTargetSize(image, options);
+  const strength = options.outlineStrength ?? 0;
+  if (!Number.isFinite(strength) || strength < 0 || strength > MAX_OUTLINE_STRENGTH)
+    throw new RangeError("Outline protection must be between 0 and 100.");
+  const alphaMode = options.alphaMode ?? "straight";
+  if (alphaMode !== "straight" && alphaMode !== "premultiplied")
+    throw new RangeError("alphaMode must be 'straight' or 'premultiplied'");
+  const prepared =
+    strength || method === PixelationMethod.Dominant || method === PixelationMethod.Structure
+      ? prepareSource(image, target, strength)
+      : image;
+  if (method === PixelationMethod.Nearest)
+    return resizeNearest(prepared, target.width, target.height);
+  if (method === PixelationMethod.Box)
+    return resizeBox(prepared, target.width, target.height, alphaMode);
+  return samplePixelation(prepared, target.width, target.height, method);
+}
 
 function sizeFromBlock(blockSize: number | PixelationSize, image: PixelBuffer): PixelationSize {
   if (typeof blockSize === "number") {
@@ -66,98 +131,10 @@ function resolveTargetSize(image: PixelBuffer, options: PixelateOptions): Pixela
   return { width: targetWidth, height: targetHeight };
 }
 
-function resizeNearest(image: PixelBuffer, width: number, height: number): PixelBuffer {
-  assertDimension(width, "width");
-  assertDimension(height, "height");
-  assertPixelCount(width, height);
-  const output = new Uint8ClampedArray(width * height * 4);
-  const source = image.data;
-  for (let y = 0; y < height; y += 1) {
-    const sourceY = Math.min(image.height - 1, Math.floor((y * image.height) / height));
-    for (let x = 0; x < width; x += 1) {
-      const sourceX = Math.min(image.width - 1, Math.floor((x * image.width) / width));
-      const sourceOffset = (sourceY * image.width + sourceX) * 4;
-      const outputOffset = (y * width + x) * 4;
-      output[outputOffset] = source[sourceOffset];
-      output[outputOffset + 1] = source[sourceOffset + 1];
-      output[outputOffset + 2] = source[sourceOffset + 2];
-      output[outputOffset + 3] = source[sourceOffset + 3];
-    }
-  }
-  return { width, height, data: output };
-}
-
-function resizeBox(
-  image: PixelBuffer,
-  width: number,
-  height: number,
-  alphaMode: "straight" | "premultiplied",
-): PixelBuffer {
-  assertDimension(width, "width");
-  assertDimension(height, "height");
-  assertPixelCount(width, height);
-  const output = new Uint8ClampedArray(width * height * 4);
-  const source = image.data;
-  for (let y = 0; y < height; y += 1) {
-    const sourceTop = (y * image.height) / height;
-    const sourceBottom = ((y + 1) * image.height) / height;
-    const firstY = Math.floor(sourceTop);
-    const lastY = Math.min(image.height - 1, Math.ceil(sourceBottom) - 1);
-    for (let x = 0; x < width; x += 1) {
-      const sourceLeft = (x * image.width) / width;
-      const sourceRight = ((x + 1) * image.width) / width;
-      const firstX = Math.floor(sourceLeft);
-      const lastX = Math.min(image.width - 1, Math.ceil(sourceRight) - 1);
-      let weightTotal = 0;
-      let red = 0;
-      let green = 0;
-      let blue = 0;
-      let alpha = 0;
-      for (let sourceY = firstY; sourceY <= lastY; sourceY += 1) {
-        const yWeight = Math.min(sourceBottom, sourceY + 1) - Math.max(sourceTop, sourceY);
-        if (yWeight <= 0) continue;
-        for (let sourceX = firstX; sourceX <= lastX; sourceX += 1) {
-          const weight =
-            yWeight * (Math.min(sourceRight, sourceX + 1) - Math.max(sourceLeft, sourceX));
-          if (weight <= 0) continue;
-          const sourceOffset = (sourceY * image.width + sourceX) * 4;
-          const sourceAlpha = source[sourceOffset + 3];
-          weightTotal += weight;
-          alpha += sourceAlpha * weight;
-          if (alphaMode === "premultiplied") {
-            const alphaWeight = sourceAlpha / UINT8_MAX;
-            red += source[sourceOffset] * alphaWeight * weight;
-            green += source[sourceOffset + 1] * alphaWeight * weight;
-            blue += source[sourceOffset + 2] * alphaWeight * weight;
-          } else {
-            red += source[sourceOffset] * weight;
-            green += source[sourceOffset + 1] * weight;
-            blue += source[sourceOffset + 2] * weight;
-          }
-        }
-      }
-      const outputOffset = (y * width + x) * 4;
-      const averageAlpha = weightTotal === 0 ? 0 : alpha / weightTotal;
-      output[outputOffset + 3] = clampByte(averageAlpha);
-      if (alphaMode === "premultiplied") {
-        const alphaTotal = alpha / UINT8_MAX;
-        output[outputOffset] = clampByte(alphaTotal === 0 ? 0 : red / alphaTotal);
-        output[outputOffset + 1] = clampByte(alphaTotal === 0 ? 0 : green / alphaTotal);
-        output[outputOffset + 2] = clampByte(alphaTotal === 0 ? 0 : blue / alphaTotal);
-      } else {
-        output[outputOffset] = clampByte(weightTotal === 0 ? 0 : red / weightTotal);
-        output[outputOffset + 1] = clampByte(weightTotal === 0 ? 0 : green / weightTotal);
-        output[outputOffset + 2] = clampByte(weightTotal === 0 ? 0 : blue / weightTotal);
-      }
-    }
-  }
-  return { width, height, data: output };
-}
-
 function validateMethod(value: PixelationMethod | undefined): PixelationMethod {
   const method = value ?? PixelationMethod.Nearest;
-  if (method !== PixelationMethod.Nearest && method !== PixelationMethod.Box)
-    throw new RangeError("method must be 'nearest' or 'box'");
+  if (!Object.values(PixelationMethod).includes(method))
+    throw new RangeError("Unknown pixelation method.");
   return method;
 }
 
@@ -171,30 +148,32 @@ function validateMaxColors(value: number | undefined): number | undefined {
 /**
  * Pixelate an RGBA buffer without touching the source. Nearest mode follows
  * nearest-neighbor `floor(dst * src / dst)` mapping. Box mode averages the
- * source area covered by each destination pixel and can optionally preserve
- * transparent-edge colors with premultiplied alpha.
+ * source area covered by each destination pixel. Local dominant and structural
+ * sampling preserve contrasting regions; grid recovery restores one RGBA pixel
+ * per detected cell. Color reduction keeps alpha independent of the RGB budget.
  */
 export function pixelateImage(image: PixelBuffer, options: PixelateOptions = {}): PixelBuffer {
   assertPixelBuffer(image);
   const method = validateMethod(options.method);
-  const target = resolveTargetSize(image, options);
-  const alphaMode = options.alphaMode ?? "straight";
-  if (alphaMode !== "straight" && alphaMode !== "premultiplied")
-    throw new RangeError("alphaMode must be 'straight' or 'premultiplied'");
-  const reduced =
-    method === PixelationMethod.Nearest
-      ? resizeNearest(image, target.width, target.height)
-      : resizeBox(image, target.width, target.height, alphaMode);
+  const sampled = sampleImage(image, options, method);
+  const reduced = options.removeNoise ? smoothPixelation(sampled) : sampled;
   const maxColors = validateMaxColors(options.maxColors);
   let result = reduced;
   if (maxColors !== undefined || options.palette !== undefined) {
     let palette: readonly Rgba[];
     if (options.palette !== undefined) {
-      palette = options.palette.slice(0, maxColors ?? 256);
+      if (!options.palette.length || options.palette.length > 256)
+        throw new RangeError("Choose a palette with 1 to 256 colors.");
+      if (
+        !options.palette.some((color) => color[3] > 0) &&
+        reduced.data.some((value, index) => index % 4 === 3 && value > 0)
+      )
+        throw new Error("Choose a palette containing a visible color.");
+      palette = options.palette;
     } else {
-      palette = extractPalette(reduced, { maxColors }).map((entry) => entry.color);
+      palette = extractPixelationPalette(reduced, { maxColors }).map((entry) => entry.color);
     }
-    result = reduceToPalette(reduced, palette);
+    result = reduceToPalette(reduced, palette, { preserveAlpha: true });
   }
   if (
     options.preserveDimensions &&

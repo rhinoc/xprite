@@ -115,6 +115,7 @@ import {
   type ToolSettings,
   type Rgba,
 } from "@xprite/editor-core";
+import { colorProfileToSrgb, workingColorProfile } from "@xprite/editor-core/color";
 import {
   rasterAnimationProject,
   assertRasterAnimationCapacity,
@@ -2196,13 +2197,19 @@ export class DocumentWorkspace {
     }
   }
   async openSource(source: SessionSource<string>) {
+    const active = this.active.core.getSnapshot();
+    const profile = workingColorProfile(active.document?.timeline);
+    const importSource = {
+      ...source,
+      palette: active.palette.map((color) => colorProfileToSrgb(color, profile)),
+    };
     const slot = this.appendSlot(source.name);
     this.ports.bindSourceToDocument(source.source, slot.id);
     this.select(slot.id);
     this.recordWorkspaceEvent(WorkspaceDiagnosticAction.SourceImportStarted, slot, {
       documentName: source.name,
     });
-    const result = await slot.session.requestImport(source);
+    const result = await slot.session.requestImport(importSource);
     this.linkRecentFileToWorkspaceProject(slot.id);
     this.recordWorkspaceEvent(WorkspaceDiagnosticAction.SourceImportCompleted, slot, {
       documentName: slot.core.getSnapshot().document?.name ?? source.name,

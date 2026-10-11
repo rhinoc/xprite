@@ -67,12 +67,21 @@ export interface AnimalCrossingResult {
 export function defaultAnimalCrossingSettings(
   pixels: Pick<PixelBuffer, "width" | "height">,
 ): AnimalCrossingSettings {
+  let cellWidth = Math.min(ANIMAL_CROSSING_SIZE, pixels.width);
+  let cellHeight = Math.min(ANIMAL_CROSSING_SIZE, pixels.height);
+  const patternCount = () =>
+    Math.ceil(pixels.width / cellWidth) * Math.ceil(pixels.height / cellHeight);
+  while (patternCount() > MAX_ANIMAL_CROSSING_PATTERNS) {
+    const factor = Math.ceil(Math.sqrt(patternCount() / MAX_ANIMAL_CROSSING_PATTERNS));
+    cellWidth = Math.min(pixels.width, cellWidth * factor);
+    cellHeight = Math.min(pixels.height, cellHeight * factor);
+  }
   return {
     title: "Pattern",
     creator: "Xprite",
     town: "Island",
-    cellWidth: Math.min(ANIMAL_CROSSING_SIZE, pixels.width),
-    cellHeight: Math.min(ANIMAL_CROSSING_SIZE, pixels.height),
+    cellWidth,
+    cellHeight,
     offsetX: 0,
     offsetY: 0,
     spacingX: 0,

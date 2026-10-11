@@ -1,20 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
-import { EditorPopover, type PopoverContext } from "$/components/dialogs/overlay";
-import { tUi } from "$/i18n";
-import type { PaletteColor as Rgba } from "$/managers/palette/palette-operations";
+import type { PaletteBrowserChoice, PaletteTranslate } from "$/palette/model";
+import type { Rgba } from "@xprite/editor-core/base";
 import {
-  createUiPortal,
-  FontRole,
+  Popover,
+  type PopoverContext,
   Button,
+  Icon,
   Input,
   Text,
   TextVariant,
   Scrollbar,
-  ScrollbarStyle,
   CanvasSurface,
   type SurfaceBounds,
-  Icon,
 } from "@xprite/ui";
 import {
   uiFontHeight,
@@ -24,26 +23,28 @@ import {
   useUiAssets,
 } from "@xprite/ui/assets";
 import { DEFAULT_SURFACE_VIEWPORT, surfaceLayout } from "@xprite/ui/canvas";
+
+import "$/palette/palette-preset-popup.module.css";
 import { measurePopoverAnchor } from "@xprite/ui/popover";
-
-import "$/components/palette/palette-preset-popup/palette-preset-popup.module.css";
-
-export interface PaletteBrowserChoice {
-  id: string;
-  name: string;
-  group: string;
-  author: string | null;
-  colors: readonly Rgba[];
-  source: "builtin" | "saved";
-}
+import { clientDeltaToSurface } from "@xprite/ui/utils";
+const identity: PaletteTranslate = (source, values) =>
+  Object.entries(values ?? {}).reduce(
+    (text, [key, value]) => text.replaceAll(`{${key}}`, String(value)),
+    source,
+  );
 
 interface PalettePresetPopupProps {
   choices: readonly PaletteBrowserChoice[];
   activePalette: readonly Rgba[];
   hasDocument: boolean;
-  onLoad: (palette: readonly Rgba[]) => void;
+  onLoad: (palette: readonly Rgba[], choice: PaletteBrowserChoice) => void;
+  sceneBounds?: Pick<SurfaceBounds, "width" | "height">;
+  translate?: PaletteTranslate;
+  maxColors?: number;
+  disabled?: boolean;
+  requireVisibleColors?: boolean;
   onRefresh: () => void;
-  onOpenFolder: (choice: PaletteBrowserChoice) => void;
+  onOpenFolder?: (choice: PaletteBrowserChoice) => void;
 }
 
 const ROW_HEIGHT = 40;
@@ -66,6 +67,7 @@ function PaletteResourceList({
   selectedId,
   onSelect,
   onLoad,
+  translate,
 }: {
   client: SurfaceBounds;
   bounds: SurfaceBounds;
@@ -74,6 +76,7 @@ function PaletteResourceList({
   selectedId: string | null;
   onSelect: (choice: PaletteBrowserChoice) => void;
   onLoad: (choice: PaletteBrowserChoice) => void;
+  translate: PaletteTranslate;
 }) {
   const assets = useUiAssets();
   const [scrollTop, setScrollTop] = useState(0);
@@ -132,8 +135,8 @@ function PaletteResourceList({
           assets,
           choice.name,
           bounds.x + 26,
-          y + Math.floor((ROW_HEIGHT - uiFontHeight(FontRole.Primary)) / 2) + 1,
-          { font: FontRole.Primary, color: ink },
+          y + Math.floor((ROW_HEIGHT - uiFontHeight("default")) / 2) + 1,
+          { font: "default", color: ink },
         );
         const chipStart = bounds.x + 22;
         const chipY = y + ROW_HEIGHT - 12 + (index === 0 ? 1 : 0);
@@ -141,7 +144,11 @@ function PaletteResourceList({
         context.beginPath();
         context.rect(chipStart, y, Math.max(0, bounds.x + contentWidth - chipStart), ROW_HEIGHT);
         context.clip();
-        for (let colorIndex = 0; colorIndex < choice.colors.length; colorIndex++) {
+        for (
+          let colorIndex = 0;
+          colorIndex < Math.min(choice.colors.length, Math.ceil(contentWidth / 8));
+          colorIndex++
+        ) {
           const color = choice.colors[colorIndex];
           const x = chipStart + colorIndex * 8;
           context.fillStyle = `rgb(${color[0]},${color[1]},${color[2]})`;
@@ -195,7 +202,8 @@ function PaletteResourceList({
     <>
       <div
         role="listbox"
-        aria-label={tUi("ui.palettes")}
+        aria-label={translate("Palettes")}
+        closeLabel={translate("Close {name}", { name: translate("Palettes") })}
         aria-activedescendant={selectedId ? `palette-option-${selectedId}` : undefined}
         tabIndex={0}
         className="xse-palette-resource-list"
@@ -209,10 +217,12 @@ function PaletteResourceList({
         onWheel={(event) => {
           event.preventDefault();
           event.stopPropagation();
-          const factor = DEFAULT_SURFACE_VIEWPORT.sceneHeight / DEFAULT_SURFACE_VIEWPORT.height;
-          setScrollTop((value) =>
-            Math.max(0, Math.min(maxScroll, value + Math.round(event.deltaY * factor))),
+          const delta = clientDeltaToSurface(
+            event.currentTarget,
+            { x: event.deltaX, y: event.deltaY },
+            DEFAULT_SURFACE_VIEWPORT,
           );
+          setScrollTop((value) => Math.max(0, Math.min(maxScroll, value + Math.round(delta.y))));
         }}
         onKeyDown={(event) => {
           if (
@@ -241,6 +251,8 @@ function PaletteResourceList({
           } else if (event.key === "Enter") {
             event.preventDefault();
             event.stopPropagation();
+            const choice = choices[activeIndex];
+            if (choice) onLoad(choice);
           }
         }}
       >
@@ -268,7 +280,10 @@ function PaletteResourceList({
               viewport={DEFAULT_SURFACE_VIEWPORT}
               paintArtwork={false}
               role="option"
-              aria-label={tUi("ui.colors.2", { value1: choice.name, value2: choice.colors.length })}
+              aria-label={translate("{value1} ({value2} colors)", {
+                value1: choice.name,
+                value2: choice.colors.length,
+              })}
               aria-selected={choice.id === selectedId}
               tabIndex={-1}
               onClick={() => onSelect(choice)}
@@ -290,7 +305,7 @@ function PaletteResourceList({
           visibleSize={visibleHeight}
           value={scroll}
           onValueChange={setScrollTop}
-          scrollbarStyle={ScrollbarStyle.Compact}
+          variant="mini"
           aria-label="Palettes scroll"
         />
       )}
@@ -305,25 +320,26 @@ export function PalettePresetPopup({
   onLoad,
   onRefresh,
   onOpenFolder,
+  sceneBounds,
+  translate = identity,
+  maxColors = Infinity,
+  disabled = false,
+  requireVisibleColors = false,
 }: PalettePresetPopupProps) {
   const assets = useUiAssets();
   const trigger = useRef<HTMLButtonElement>(null),
     marker = useRef<HTMLSpanElement>(null);
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+  const [popupScene, setPopupScene] = useState<Pick<SurfaceBounds, "width" | "height">>();
   const [open, setOpen] = useState(false),
     [bounds, setBounds] = useState<SurfaceBounds | null>(null);
-  const [searchDraft, setSearchDraft] = useState(""),
-    [search, setSearch] = useState("");
+  const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const lastSearch = useRef(search);
   useEffect(() => {
     const node = marker.current;
     if (node) setPortalTarget(node.closest<HTMLElement>("[data-ui-scene]") ?? document.body);
   }, []);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setSearch(searchDraft), 250);
-    return () => window.clearTimeout(timer);
-  }, [searchDraft]);
   const visibleChoices = useMemo(() => {
     const terms = search.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
     return choices.filter((choice) => {
@@ -350,6 +366,7 @@ export function PalettePresetPopup({
       width: 30,
       height: 32,
     });
+    setPopupScene({ width: anchor.availableWidth, height: anchor.availableHeight });
     const width = Math.max(1, Math.floor(anchor.availableWidth / 2)),
       height = Math.max(1, Math.floor((anchor.availableHeight * 3) / 4));
     setBounds({
@@ -400,9 +417,9 @@ export function PalettePresetPopup({
         <Input
           bounds={searchBounds}
           relativeTo={client}
-          value={searchDraft}
-          onValueChange={setSearchDraft}
-          aria-label="Search palettes"
+          value={search}
+          onValueChange={setSearch}
+          aria-label={translate("Search palettes")}
           className="xse-palette-search"
           size={32}
           textInset={26}
@@ -422,10 +439,10 @@ export function PalettePresetPopup({
             }}
           >
             <Icon kind="icon_search" scale={2} x={6} y={12} color={assets.style.colors.text} />
-            {!searchDraft && (
+            {!search && (
               <Text
                 variant={TextVariant.PositionedPixel}
-                text={tUi("ui.search")}
+                text={translate("Search")}
                 x={26}
                 y={13}
                 color={assets.style.colors.entry_suffix}
@@ -440,44 +457,55 @@ export function PalettePresetPopup({
           hotPart="buttonset_item_hot"
           pushedPart="buttonset_item_pushed"
           icon="arrow_circle_cw"
-          aria-label="Refresh"
+          aria-label={translate("Refresh")}
           onClick={() => {
             onRefresh();
             setSelectedId(null);
           }}
         />
         <PaletteResourceList
+          translate={translate}
           client={client}
           bounds={listBounds}
           choices={visibleChoices}
           currentPalette={activePalette}
           selectedId={selected?.id ?? null}
           onSelect={(choice) => setSelectedId(choice.id)}
-          onLoad={(choice) => hasDocument && onLoad(choice.colors)}
+          onLoad={(choice) =>
+            hasDocument &&
+            choice.colors.length <= maxColors &&
+            (!requireVisibleColors || choice.colors.some((color) => color[3] > 0)) &&
+            onLoad(choice.colors, choice)
+          }
         />
         <Button
           bounds={loadBounds}
           relativeTo={client}
-          text="Load"
-          font={FontRole.Primary}
+          text={translate("Load")}
+          font="default"
           part="button_normal"
           hotPart="button_hot"
           pushedPart="button_selected"
           mnemonicIndex={0}
-          disabled={!hasDocument || !selected}
-          onClick={() => selected && onLoad(selected.colors)}
+          disabled={
+            !hasDocument ||
+            !selected ||
+            selected.colors.length > maxColors ||
+            (requireVisibleColors && !selected.colors.some((color) => color[3] > 0))
+          }
+          onClick={() => selected && onLoad(selected.colors, selected)}
         />
         <Button
           bounds={folderBounds}
           relativeTo={client}
-          text="Open Folder"
-          font={FontRole.Primary}
+          text={translate("Open Folder")}
+          font="default"
           part="button_normal"
           hotPart="button_hot"
           pushedPart="button_selected"
           mnemonicIndex={0}
-          disabled={!hasDocument || !selected}
-          onClick={() => selected && onOpenFolder(selected)}
+          disabled={!hasDocument || !selected || !onOpenFolder}
+          onClick={() => selected && onOpenFolder?.(selected)}
         />
       </>
     );
@@ -488,9 +516,10 @@ export function PalettePresetPopup({
       <Button
         buttonRef={trigger}
         tintDisabledIcon
+        disabled={disabled}
         pixelSize={{ width: 15, height: 16 }}
         icon="pal_presets"
-        aria-label="Palette presets"
+        aria-label={translate("Palette presets")}
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => (open ? setOpen(false) : show())}
@@ -498,10 +527,12 @@ export function PalettePresetPopup({
       {open &&
         bounds &&
         portalTarget &&
-        createUiPortal(
-          <EditorPopover
+        createPortal(
+          <Popover
             open
-            label="Palettes"
+            label={translate("Palettes")}
+            closeLabel={translate("Close {name}", { name: translate("Palettes") })}
+            sceneBounds={sceneBounds ?? popupScene}
             bounds={bounds}
             onOpenChange={setOpen}
             autoFocus={false}
@@ -509,7 +540,7 @@ export function PalettePresetPopup({
             closeOnOutsideClick
           >
             {renderContents}
-          </EditorPopover>,
+          </Popover>,
           portalTarget,
         )}
     </>

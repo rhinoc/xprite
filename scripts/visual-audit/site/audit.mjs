@@ -31,7 +31,11 @@ fs.mkdirSync(output, { recursive: true });
 
 if (mode === "capture") {
   const port = Number(options.get("--port") ?? "5173");
-  const spaceId = options.has("--space") ? Number(options.get("--space")) : undefined;
+  const spaceId = options.has("--space")
+    ? Number(options.get("--space"))
+    : process.env.XPRITE_VISUAL_SPACE_ID === undefined
+      ? undefined
+      : Number(process.env.XPRITE_VISUAL_SPACE_ID);
   if (
     !Number.isInteger(port) ||
     port < 1 ||

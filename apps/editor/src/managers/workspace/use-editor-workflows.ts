@@ -14,6 +14,7 @@ import { useEditorSnapshot } from "$/managers/editor/use-editor-snapshot";
 import { useFeedback } from "$/managers/feedback/use-feedback";
 import { useWheelDevice, WheelDevice } from "$/managers/input/wheel-device-context";
 import { useEditorPaletteModel } from "$/managers/palette/editor-palette-model";
+import { readPalettePresets } from "$/managers/palette/presets";
 import { readDefaultPalette } from "$/managers/palette/presets";
 import { useEditorPlatformPorts } from "$/managers/platform/editor-platform-context";
 import { InteractionBlocker, WorkspaceDiagnosticAction } from "$/managers/ports/diagnostics";
@@ -82,6 +83,7 @@ import {
   validateBitmapText,
 } from "@xprite/editor-core";
 import type { EditorCommand, RasterEditor } from "@xprite/editor-core";
+import { comparePaletteResourceNames } from "@xprite/editor-core/import-export";
 import {
   SessionSaveIntent,
   SessionOutcome,
@@ -89,6 +91,8 @@ import {
   type SessionSource,
 } from "@xprite/editor-core/session";
 import { AppearanceMode } from "@xprite/editor-ui/appearance";
+import { readBundledPalettePresets } from "@xprite/editor-ui/palette-presets";
+import { PalettePresetKind } from "@xprite/editor-ui/palette/model";
 
 type TimelineWorkflowActions = {
   flushPendingLayerProperties?: () => void;
@@ -1599,6 +1603,25 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     newSize,
     suggestedNewSpriteBaseName: workspace.suggestNewSpriteBaseName(),
     pixelationOptions,
+    pixelationPreview: workflow.pixelationPreview,
+    pixelationPalette: workflow.pixelationPalette,
+    getPixelationPaletteChoices: () =>
+      [
+        ...readBundledPalettePresets().map((preset) => ({
+          ...preset,
+          id: `builtin:${preset.id}`,
+          source: PalettePresetKind.Builtin,
+        })),
+        ...readPalettePresets().map((preset) => ({
+          ...preset,
+          id: `saved:${preset.name.toLocaleLowerCase()}`,
+          group: "Saved Presets",
+          author: null,
+          source: PalettePresetKind.Saved,
+        })),
+      ].sort((a, b) => comparePaletteResourceNames(a.name, b.name)),
+    pixelationPreviewing: workflow.pixelationPreviewing,
+    pixelationError: workflow.pixelationError,
     error,
     canSaveErrorAs: workflow.error?.operation === SessionOperation.Save && session.canSave(),
     saveErrorAs: () => {

@@ -28,7 +28,9 @@ module.exports = {
       name: "editor-ui-does-not-import-app-or-platform-code",
       severity: "error",
       from: { path: "^packages/editor-ui/src/" },
-      to: { path: "^apps/|^packages/bedrock/browser/" },
+      to: {
+        path: "^apps/(?!editor/assets/palette-presets/(?:catalog\\.json|.+\\.gpl)$)|^packages/bedrock/browser/",
+      },
     },
     {
       name: "appearance-policy-is-headless",
@@ -139,7 +141,7 @@ module.exports = {
       severity: "error",
       from: { path: "^apps/editor/src/managers/" },
       to: {
-        path: "^apps/editor/src/components/|^apps/editor/src/adapters/|^packages/ui/|^packages/editor-ui/src/(?!appearance/)",
+        path: "^apps/editor/src/components/|^apps/editor/src/adapters/|^packages/ui/|^packages/editor-ui/src/(?!(?:appearance/|palette/model\\.ts$|palette-presets\\.ts$))",
       },
     },
     {

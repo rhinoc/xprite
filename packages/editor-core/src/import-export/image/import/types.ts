@@ -45,11 +45,31 @@ export interface PixelArtAnalysis {
   overrideApplied: boolean;
   /** This is a heuristic and must never silently replace a user's choice. */
   isHeuristic: true;
+  grid: PixelGridAnalysis;
 }
 
 export enum PixelationMethod {
   Nearest = "nearest",
   Box = "box",
+  Dominant = "dominant",
+  Structure = "structure",
+}
+
+export enum PixelationMode {
+  Convert = "convert",
+  RecoverGrid = "recover-grid",
+}
+export interface PixelGridGeometry {
+  width: number;
+  height: number;
+  cellWidth: number;
+  cellHeight: number;
+  offsetX: number;
+  offsetY: number;
+}
+export interface PixelGridAnalysis extends PixelGridGeometry {
+  confidence: number;
+  reliable: boolean;
 }
 
 export interface PixelationSize {
@@ -58,7 +78,10 @@ export interface PixelationSize {
 }
 
 export interface PixelateOptions {
-  /** Nearest-neighbor or a coverage-weighted box average. */
+  mode?: PixelationMode;
+  grid?: PixelGridGeometry;
+  outlineStrength?: number;
+  /** Sampling rule used to choose one representative color per output cell. */
   method?: PixelationMethod;
   /** The low-resolution dimensions to generate. */
   targetWidth?: number;
@@ -68,10 +91,12 @@ export interface PixelateOptions {
   blockSize?: number | PixelationSize;
   /** Nearest-neighbor upscale to the source dimensions after pixelation. */
   preserveDimensions?: boolean;
-  /** Reduce the result to at most this many colors (maximum 256). */
+  /** Limit RGB colors (maximum 256); alpha coverage remains independent. */
   maxColors?: number;
   /** Optional palette to use for reduction; otherwise a deterministic palette is extracted. */
   palette?: readonly Rgba[];
+  /** Light smoothing of similar neighboring colors on the working grid. */
+  removeNoise?: boolean;
   /** Box mode defaults to straight channel means; premultiplied is useful for compositing. */
   alphaMode?: "straight" | "premultiplied";
 }
@@ -85,4 +110,24 @@ export interface PaletteEntry {
 export interface ExtractPaletteOptions {
   /** Number of entries to return. Values above 256 are capped. */
   maxColors?: number;
+  ignoreTransparent?: boolean;
+}
+
+/** Shared conversion draft used by import and standalone tools. */
+export interface PixelationSettings {
+  mode: PixelationMode;
+  reduceColors: boolean;
+  outlineStrength: number;
+  autoGrid: boolean;
+  gridCellWidth: number;
+  gridCellHeight: number;
+  targetWidth: number;
+  targetHeight: number;
+  maxColors: number;
+  method: PixelationMethod;
+  preserveDimensions: boolean;
+  removeNoise: boolean;
+  lockAspectRatio: boolean;
+  palette: readonly Rgba[] | null;
+  paletteName: string;
 }

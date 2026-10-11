@@ -11,6 +11,15 @@ const SERVER_START_TIMEOUT_MS = 30_000;
 const REQUEST_TIMEOUT_MS = 2_000;
 const START_POLL_INTERVAL_MS = 250;
 const IS_WINDOWS = process.platform === "win32";
+const apps = Object.keys(configuration.ports);
+const portBase = process.env.XPRITE_DEV_PORT_BASE;
+let ports = configuration.ports;
+if (portBase !== undefined) {
+  const base = Number(portBase);
+  if (!Number.isInteger(base) || base < 1024 || base + apps.length - 1 > 65535)
+    throw new Error("XPRITE_DEV_PORT_BASE must be an integer from 1024 to 65532.");
+  ports = Object.fromEntries(apps.map((app, index) => [app, base + index]));
+}
 const children = new Set();
 let stopping = false;
 
@@ -53,7 +62,7 @@ function isListening(port) {
 }
 
 async function assertServer(app) {
-  const port = configuration.ports[app];
+  const port = ports[app];
   const response = await fetch(`http://127.0.0.1:${port}${configuration.identityPath}`, {
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
@@ -65,7 +74,7 @@ async function assertServer(app) {
 }
 
 async function start(app) {
-  const port = configuration.ports[app];
+  const port = ports[app];
   if (await isListening(port)) {
     try {
       await assertServer(app);
@@ -118,7 +127,7 @@ try {
     ]);
     console.log("Unified development entry points:");
     for (const host of hosts) {
-      const origin = `http://${host}:${configuration.ports.editor}`;
+      const origin = `http://${host}:${ports.editor}`;
       console.log(`  ${origin}/editor`);
       console.log(`  ${origin}/about/`);
       console.log(`  ${origin}/compare/`);

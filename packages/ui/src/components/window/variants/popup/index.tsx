@@ -42,6 +42,7 @@ export interface PopupVariantProps {
   closeOnEnter?: boolean;
   closeOnOutsideClick?: boolean;
   showCloseButton?: boolean;
+  closeLabel?: string;
   contentLayout?: OverlayContentLayout;
   scrollX?: boolean;
   scrollY?: boolean;
@@ -65,6 +66,7 @@ export function PopupVariant({
   closeOnEnter = false,
   closeOnOutsideClick = true,
   showCloseButton = true,
+  closeLabel,
   contentLayout,
   scrollX,
   scrollY,
@@ -187,7 +189,7 @@ export function PopupVariant({
             pushedPart="window_button_selected"
             icon="window_close_icon"
             insetContent={false}
-            aria-label={translateKey("ui.close.name").replace("{name}", displayLabel)}
+            aria-label={closeLabel ?? translateKey("ui.close.name").replace("{name}", displayLabel)}
             onClick={() => onOpenChange(false)}
           />
         )}

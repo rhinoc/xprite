@@ -12,7 +12,31 @@ export enum DevelopmentApp {
   Tools = "tools",
 }
 
-export const DEVELOPMENT_PORTS: Readonly<Record<DevelopmentApp, number>> = configuration.ports;
+const DEVELOPMENT_APP_ORDER = [
+  DevelopmentApp.Editor,
+  DevelopmentApp.Components,
+  DevelopmentApp.Growth,
+  DevelopmentApp.Tools,
+] as const;
+const PORT_BASE_ENVIRONMENT_VARIABLE = "XPRITE_DEV_PORT_BASE";
+
+function developmentPorts(): Readonly<Record<DevelopmentApp, number>> {
+  const configuredBase = process.env[PORT_BASE_ENVIRONMENT_VARIABLE];
+  if (configuredBase === undefined) return configuration.ports;
+  const base = Number(configuredBase);
+  if (!Number.isInteger(base) || base < 1024 || base + DEVELOPMENT_APP_ORDER.length - 1 > 65535)
+    throw new Error(
+      `${PORT_BASE_ENVIRONMENT_VARIABLE} must be an available base port from 1024 to 65532.`,
+    );
+  return Object.freeze(
+    Object.fromEntries(DEVELOPMENT_APP_ORDER.map((app, index) => [app, base + index])) as Record<
+      DevelopmentApp,
+      number
+    >,
+  );
+}
+
+export const DEVELOPMENT_PORTS = developmentPorts();
 export const GROWTH_DEVELOPMENT_BASE = configuration.growthBase;
 export const COMPONENTS_DEVELOPMENT_BASE = configuration.componentsBase;
 const DEVELOPMENT_IDENTITY_PATH = configuration.identityPath;

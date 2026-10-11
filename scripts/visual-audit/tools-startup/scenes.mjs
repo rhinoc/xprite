@@ -9,6 +9,7 @@ export const pages = [
   { name: "viewer", path: "/tools/viewer/", rootId: "viewer-root" },
   { name: "gif-sheet", path: "/tools/gif-to-sprite-sheet/", rootId: "gif-sheet-root" },
   { name: "animal-crossing", path: "/tools/animal-crossing-qr/", rootId: "animal-crossing-root" },
+  { name: "pixelate", path: "/tools/pixelate/", rootId: "pixelation-root" },
 ];
 export const appearances = [
   { name: "light", saved: "light", system: "dark", resolved: "light" },
@@ -22,6 +23,7 @@ const selectedCoverage = [
   { language: "en", layout: layouts[1], appearance: appearances[1] },
   { language: "zh-CN", layout: layouts[0], appearance: appearances[1] },
   { language: "en", layout: layouts[1], appearance: appearances[0] },
+  { language: "zh-CN", layout: layouts[1], appearance: appearances[0] },
 ];
 
 export const scenes = pages.map((page, index) => {
