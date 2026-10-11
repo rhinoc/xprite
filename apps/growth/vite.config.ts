@@ -86,6 +86,8 @@ export default defineConfig(({ command, isPreview }) => ({
   build: {
     outDir: growthOutput,
     emptyOutDir: true,
+    // Fonts stay files so every stylesheet that declares one can share its URL.
+    assetsInlineLimit: (file) => (/\.(?:woff2?|ttf|otf)$/i.test(file) ? false : undefined),
     rolldownOptions: {
       input: {
         showcase: resolve(appRoot, "showcase/index.html"),

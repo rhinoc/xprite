@@ -2,19 +2,19 @@ import assert from "node:assert/strict";
 
 import { describe, it } from "vitest";
 
-import type { SsgAsset } from "../../../infra/react-ssg-renderer.ts";
-import { PUBLIC_UI_ASSET_PREFIX, publicCursorStylesheet } from "./static-ui-renderer.ts";
+import { cursorStylesheet, type SsgAsset } from "./react-ssg-renderer.ts";
 
-describe("public cursor stylesheet", () => {
+describe("cursor stylesheet", () => {
   it("defines every cursor once as a hashed SVG file instead of inline markup", () => {
     const assets = new Map<string, SsgAsset>();
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"/>';
-    const css = publicCursorStylesheet(
+    const css = cursorStylesheet(
       (artworkUrl) => ({
         "--ui-cursor-default": `url("${artworkUrl(svg)}") 1 1, default`,
         "--ui-cursor-hand": `url("${artworkUrl(svg)}") 5 0, grab`,
       }),
       assets,
+      "/tools/ssg-assets/",
     );
     assert.equal(assets.size, 1);
     const [[name, asset]] = [...assets];
@@ -23,8 +23,8 @@ describe("public cursor stylesheet", () => {
     assert.equal(asset.bytes.toString(), svg);
     assert.equal(
       css,
-      `:root{--ui-cursor-default:url("${PUBLIC_UI_ASSET_PREFIX}${name}") 1 1, default;` +
-        `--ui-cursor-hand:url("${PUBLIC_UI_ASSET_PREFIX}${name}") 5 0, grab}`,
+      `:root{--ui-cursor-default:url("/tools/ssg-assets/${name}") 1 1, default;` +
+        `--ui-cursor-hand:url("/tools/ssg-assets/${name}") 5 0, grab}`,
     );
     assert.ok(!css.includes("data:"));
   });

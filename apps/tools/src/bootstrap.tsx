@@ -10,7 +10,7 @@ import { readBrowserDesktopPreferences } from "@xprite/site-shell/browser";
 import type { SiteTelemetryPort } from "@xprite/site-shell/telemetry";
 import { createBrowserSiteTelemetry } from "@xprite/site-shell/telemetry/browser";
 import { FontRole, UiColorScheme, macintoshTheme } from "@xprite/ui";
-import { preloadUiAssets, type UiThemeSnapshot } from "@xprite/ui/assets";
+import { loadUiThemeSnapshot, preloadUiAssets, type UiThemeSnapshot } from "@xprite/ui/assets";
 
 interface ToolApplication {
   view: ReactNode;
@@ -67,10 +67,10 @@ export async function mountToolApplication(
   const colorScheme = appearance === AppearanceMode.Dark ? UiColorScheme.Dark : UiColorScheme.Light;
   const language = readToolLanguage();
   await preloadUiAssets(colorScheme, language, macintoshTheme);
-  const initialThemes = JSON.parse(
-    document.getElementById("tool-initial-themes")!.textContent!,
-  ) as Record<UiColorScheme, UiThemeSnapshot>;
-  const typography = initialThemes[colorScheme].definition.typography;
+  // The page was rendered from this theme module; its asset URLs are content-addressed in both
+  // builds, so hydration matches without 279 KB of theme JSON embedded in every page.
+  const initialTheme = await loadUiThemeSnapshot(colorScheme, macintoshTheme);
+  const typography = initialTheme.definition.typography;
   await Promise.all(
     [FontRole.Primary, FontRole.Compact].map((role) => {
       const font = typography[role];
@@ -80,7 +80,7 @@ export async function mountToolApplication(
   // Attach events after the original static artwork is decoded, keeping its first paint intact.
   await Promise.all([...document.images].map((image) => image.decode()));
   if (!active) return;
-  application = createApplication(initialThemes[colorScheme], telemetry);
+  application = createApplication(initialTheme, telemetry);
   const view = (
     <StrictMode>
       <ToolApplicationRoot

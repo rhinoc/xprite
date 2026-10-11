@@ -3,55 +3,72 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const SSR_LAYOUT_EFFECT_WARNING = "Warning: useLayoutEffect does nothing on the server";
-const GROWTH_OUTPUT = "apps/growth/dist";
-// Static pages are ~0.4 MB. Crawlers stop reading HTML at 15 MB; keep a wide margin.
+// Both apps prerender pages with the UI package; check each build's warnings and HTML.
+const BUILDS = [
+  { name: "Growth", script: "build:growth", output: "apps/growth/dist" },
+  { name: "Tools", script: "build:tools", output: "apps/tools/dist" },
+];
+// Static pages are 0.25-0.6 MB. Crawlers stop reading HTML at 15 MB; keep a wide margin.
 const MAX_HTML_BYTES = 1024 * 1024;
 // Theme cursors belong in the shared stylesheet; inline they cost ~0.5 MB per rendered scope.
 const INLINE_CURSOR_ARTWORK = /style="[^"]*--ui-cursor-[\w-]+:url\(/;
 const packageManager = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
-const build = spawn(packageManager, ["run", "build:growth"], {
-  stdio: ["inherit", "pipe", "pipe"],
-  windowsHide: true,
-});
 
-let warningFound = false;
-let spawnFailed = false;
-
-function forward(source, destination) {
+function forward(source, destination, onWarning) {
   let overlap = "";
   source.setEncoding("utf8");
   source.on("data", (chunk) => {
     destination.write(chunk);
     const output = overlap + chunk;
-    if (output.includes(SSR_LAYOUT_EFFECT_WARNING)) warningFound = true;
+    if (output.includes(SSR_LAYOUT_EFFECT_WARNING)) onWarning();
     overlap = output.slice(-SSR_LAYOUT_EFFECT_WARNING.length);
   });
 }
 
-forward(build.stdout, process.stdout);
-forward(build.stderr, process.stderr);
+function run({ name, script }) {
+  return new Promise((resolve) => {
+    const build = spawn(packageManager, ["run", script], {
+      stdio: ["inherit", "pipe", "pipe"],
+      windowsHide: true,
+    });
+    let warningFound = false;
+    const onWarning = () => {
+      warningFound = true;
+    };
+    forward(build.stdout, process.stdout, onWarning);
+    forward(build.stderr, process.stderr, onWarning);
+    build.on("error", (error) => {
+      console.error(`Unable to start ${name} SSG build: ${error.message}`);
+      resolve(1);
+    });
+    build.on("close", (code) => {
+      if (code !== 0) return resolve(code ?? 1);
+      if (warningFound) {
+        console.error(
+          `${name} SSG emitted React's useLayoutEffect server-render warning; pre-push is blocked.`,
+        );
+        return resolve(1);
+      }
+      resolve(0);
+    });
+  });
+}
 
-build.on("error", (error) => {
-  spawnFailed = true;
-  console.error(`Unable to start Growth SSG build: ${error.message}`);
-});
+function htmlPages(directory) {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) return htmlPages(path);
+    return entry.name.endsWith(".html") ? [path] : [];
+  });
+}
 
-build.on("close", (code) => {
-  if (spawnFailed) {
-    process.exitCode = 1;
-    return;
-  }
+for (const build of BUILDS) {
+  const code = await run(build);
   if (code !== 0) {
-    process.exitCode = code ?? 1;
-    return;
+    process.exitCode = code;
+    break;
   }
-  if (warningFound) {
-    console.error(
-      "Growth SSG emitted React's useLayoutEffect server-render warning; pre-push is blocked.",
-    );
-    process.exitCode = 1;
-  }
-  for (const page of htmlPages(GROWTH_OUTPUT)) {
+  for (const page of htmlPages(build.output)) {
     const html = readFileSync(page);
     if (html.length > MAX_HTML_BYTES) {
       console.error(`${page} is ${html.length} bytes; static pages must stay under 1 MiB.`);
@@ -62,12 +79,4 @@ build.on("close", (code) => {
       process.exitCode = 1;
     }
   }
-});
-
-function htmlPages(directory) {
-  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-    const path = join(directory, entry.name);
-    if (entry.isDirectory()) return htmlPages(path);
-    return entry.name.endsWith(".html") ? [path] : [];
-  });
 }

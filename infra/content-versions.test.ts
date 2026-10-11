@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -10,6 +11,7 @@ import {
   findUnversionedReferences,
   isContentAddressed,
   needsContentVersion,
+  shareDuplicateFonts,
   versionOutputDirectory,
   versionReferences,
 } from "./content-versions.ts";
@@ -116,6 +118,46 @@ describe("content versions", () => {
     assert.deepEqual(
       (await findUnversionedReferences(root)).map(({ file }) => file),
       ["assets/app-BEsLzuJ0.js"],
+    );
+  });
+
+  it("points every copy of a font at one content-addressed URL", async () => {
+    const shared = createHash("sha256").update("font-1").digest("hex");
+    const root = await output({
+      "assets/fusion-12-BJk1nXha.woff2": "font-1",
+      "fusion-pixel/fusion-12.woff2": "font-1",
+      "theme/chikarego2.woff2": "font-2",
+      "assets/fonts-DZnmLZFK.css": "@font-face{src:url(/tools/assets/fusion-12-BJk1nXha.woff2)}",
+      "theme/fonts.css":
+        '@font-face{src:url("../fusion-pixel/fusion-12.woff2")}' +
+        '@font-face{src:url("./chikarego2.woff2?v=0123456789ab")}a{background:url(./paper.png)}',
+      "theme/paper.png": "png",
+      [`ssg-assets/${shared}.woff2`]: "font-1",
+      "help/index.html":
+        '<link rel="preload" href="/tools/fusion-pixel/fusion-12.woff2" as="font">' +
+        '<link rel="stylesheet" href="/tools/theme/fonts.css">',
+    });
+    const rewritten = await shareDuplicateFonts(root, { base: "/tools/", directory: "ssg-assets" });
+    assert.deepEqual(rewritten, [
+      "assets/fonts-DZnmLZFK.css",
+      "help/index.html",
+      "theme/fonts.css",
+    ]);
+    const second = createHash("sha256").update("font-2").digest("hex");
+    assert.equal(await readFile(join(root, `ssg-assets/${second}.woff2`), "utf8"), "font-2");
+    assert.equal(
+      await readFile(join(root, "assets/fonts-DZnmLZFK.css"), "utf8"),
+      `@font-face{src:url(/tools/ssg-assets/${shared}.woff2)}`,
+    );
+    assert.equal(
+      await readFile(join(root, "theme/fonts.css"), "utf8"),
+      `@font-face{src:url("/tools/ssg-assets/${shared}.woff2")}` +
+        `@font-face{src:url("/tools/ssg-assets/${second}.woff2")}a{background:url(./paper.png)}`,
+    );
+    assert.equal(
+      await readFile(join(root, "help/index.html"), "utf8"),
+      `<link rel="preload" href="/tools/ssg-assets/${shared}.woff2" as="font">` +
+        '<link rel="stylesheet" href="/tools/theme/fonts.css">',
     );
   });
 });

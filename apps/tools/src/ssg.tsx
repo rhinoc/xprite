@@ -22,10 +22,16 @@ import { PublicLanguage } from "@xprite/growth-content/language";
 import { DesktopManager, DesktopAppearance } from "@xprite/site-shell";
 import { UiColorScheme, macintoshTheme } from "@xprite/ui";
 import { loadUiThemeSnapshot, type UiThemeSnapshot } from "@xprite/ui/assets";
+import { cursorScopeStyle } from "@xprite/ui/cursor";
 
 const unavailable = () => {
   throw new Error("Browser I/O cannot run during static rendering.");
 };
+
+/** Cursor variables for the page stylesheet; `ToolAppearance` leaves them off its scope. */
+export function toolCursorVariables(artworkUrl: (svg: string) => string) {
+  return cursorScopeStyle({ theme: macintoshTheme, artworkUrl }) as Record<string, string>;
+}
 
 /** Render the real page components with their managers' ordinary empty state. */
 export async function renderToolPage(rootId: string) {

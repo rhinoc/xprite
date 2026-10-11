@@ -36,6 +36,8 @@ export function ToolAppearance({
       translateKey={translate}
       initialTheme={initialTheme}
       preloadArtwork
+      // The SSG stylesheet defines the cursors once; inline they made each page 2.2 MB larger.
+      cursorVariables={false}
     >
       {children}
     </DesktopProvider>

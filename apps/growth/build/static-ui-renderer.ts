@@ -1,6 +1,4 @@
-import { createHash } from "node:crypto";
-
-import { createReactSsgRenderer, type SsgAsset } from "../../../infra/react-ssg-renderer.ts";
+import { createReactSsgRenderer, cursorStylesheet } from "../../../infra/react-ssg-renderer.ts";
 import type {
   articleStyleClasses,
   preparePublicUi,
@@ -26,28 +24,14 @@ export async function createPublicUiRenderer() {
   });
   render = await result.renderer.preparePublicUi();
   articleClasses = result.renderer.articleStyleClasses();
-  const cursors = publicCursorStylesheet(result.renderer.publicCursorVariables, result.assets);
+  const cursors = cursorStylesheet(
+    result.renderer.publicCursorVariables,
+    result.assets,
+    PUBLIC_UI_ASSET_PREFIX,
+  );
   return { ...result, css: `${result.css}\n${cursors}` };
 }
 
-/**
- * Define the theme cursors once in the shared stylesheet, as hashed SVG files. Inline on every
- * server-rendered scope they cost ~0.5 MB each and made article HTML exceed 15 MB.
- */
-export function publicCursorStylesheet(
-  variables: typeof publicCursorVariables,
-  assets: Map<string, SsgAsset>,
-): string {
-  const declarations = Object.entries(
-    variables((svg) => {
-      const bytes = Buffer.from(svg);
-      const name = `${createHash("sha256").update(bytes).digest("hex")}.svg`;
-      assets.set(name, { bytes, type: "image/svg+xml" });
-      return `${PUBLIC_UI_ASSET_PREFIX}${name}`;
-    }),
-  ).map(([name, value]) => `${name}:${value}`);
-  return `:root{${declarations.join(";")}}`;
-}
 export function publicArticleClasses() {
   if (!articleClasses)
     throw new Error("Public UI renderer must be initialized before rendering articles.");
