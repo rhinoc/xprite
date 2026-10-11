@@ -1,4 +1,5 @@
 import { PublicLanguage } from "../site/language.ts";
+import type { ToolHelpContent } from "./help.ts";
 
 export enum ViewerHelpSection {
   Overview = "viewer-help",
@@ -36,7 +37,7 @@ export const VIEWER_EXPORT_HELP = {
           "GIF 按原画布尺寸导出，沿用标签的播放方向和重复次数。所有帧共用最多 256 色，半透明像素会变成不透明；帧时长以 10 毫秒为单位，不足的部分舍去，例如 25 毫秒变为 20 毫秒。动画过大时，选择更短的标签导出。",
       },
     ],
-    editing:
+    closing:
       "PNG 和 GIF 不保留工程的图层与标签。需要修改或放大作品时，点「文件」→「在 Xprite 中编辑」，编辑器会打开原始工程。",
   },
   [PublicLanguage.English]: {
@@ -67,7 +68,7 @@ export const VIEWER_EXPORT_HELP = {
           "The GIF uses the original canvas size and follows the tag’s direction and repeat count. Frames share up to 256 colors; semi-transparent pixels become opaque. Frame durations use 10 ms steps, dropping the remainder: 25 ms becomes 20 ms. If an animation is too large, export a shorter tag.",
       },
     ],
-    editing:
+    closing:
       "PNG and GIF do not keep project layers or tags. To edit or resize your work, choose File → Edit in Xprite to open the original project in the editor.",
   },
-} as const;
+} as const satisfies Record<PublicLanguage, ToolHelpContent>;
