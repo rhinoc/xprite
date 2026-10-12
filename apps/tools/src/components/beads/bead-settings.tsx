@@ -3,7 +3,11 @@ import type {
   BeadToolSnapshot,
   BeadToolSettings,
 } from "$/managers/beads/bead-tool-manager";
-import { MAX_BEAD_GRID_EDGE } from "$/managers/beads/bead-tool-manager";
+import {
+  MAX_BEAD_GRID_EDGE,
+  MIN_BEAD_BOARD_EDGE,
+  MAX_BEAD_BOARD_EDGE,
+} from "$/managers/beads/bead-tool-manager";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import {
   Panel,
@@ -33,18 +37,24 @@ export function BeadSettings({
 }) {
   const t = useToolTranslation();
   const busy = state.loading || state.downloading;
-  const number = (key: "width" | "height", label: string) => (
+  const number = (key: "width" | "height", label: string, board = false) => (
     <Field label={t(label)}>
       <Input
         pixelWidth={NUMBER_WIDTH}
         inputMode="numeric"
         aria-label={t(label)}
-        value={String(state.settings[key])}
-        min={MIN_GRID_EDGE}
-        max={MAX_BEAD_GRID_EDGE}
+        value={String(board ? state.settings.boardSize[key] : state.settings[key])}
+        min={board ? MIN_BEAD_BOARD_EDGE : MIN_GRID_EDGE}
+        max={board ? MAX_BEAD_BOARD_EDGE : MAX_BEAD_GRID_EDGE}
         step={MIN_GRID_EDGE}
         disabled={busy}
-        onCommit={(value) => manager.changeSettings({ [key]: Number(value) })}
+        onCommit={(value) =>
+          manager.changeSettings(
+            board
+              ? { boardSize: { ...state.settings.boardSize, [key]: Number(value) } }
+              : { [key]: Number(value) },
+          )
+        }
       />
     </Field>
   );
@@ -95,21 +105,11 @@ export function BeadSettings({
         disabled={busy}
         onCheckedChange={(lockAspect) => manager.changeSettings({ lockAspect })}
       />
-      <Field label={t("Board size")}>
-        <Combobox
-          pixelWidth={SELECT_WIDTH}
-          aria-label={t("Board size")}
-          value={String(state.settings.boardSize)}
-          disabled={busy}
-          options={manager.boardSizes.map((size) => ({
-            value: String(size),
-            label: `${size} × ${size}`,
-          }))}
-          onValueChange={(value) =>
-            manager.changeSettings({ boardSize: Number(value) as BeadToolSettings["boardSize"] })
-          }
-        />
-      </Field>
+      {number("width", "Board columns", true)}
+      {number("height", "Board rows", true)}
+      <Text variant={TextVariant.Reading} wrap>
+        {t("Enter the peg counts of one board. Larger patterns span multiple boards.")}
+      </Text>
       <Checkbox
         label={t("Color codes in cells")}
         checked={state.settings.showCodes}

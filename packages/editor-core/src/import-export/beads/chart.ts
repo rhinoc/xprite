@@ -1,9 +1,15 @@
 import type { PixelBuffer } from "$/base";
-import { EMPTY_BEAD_CELL, type BeadGrid, type BeadBoard } from "$/import-export/beads/grid";
+import {
+  EMPTY_BEAD_CELL,
+  type BeadGrid,
+  type BeadBoard,
+  type BeadBoardSize,
+} from "$/import-export/beads/grid";
 
 export const BEAD_CHART_CELL_SIZE = 40;
 export const MAX_BEAD_CHART_PIXELS = 32 * 1024 * 1024;
 const MAX_CHART_EDGE = 16384;
+const MAX_BOARD_PREVIEW_EDGE = 2048;
 const CHANNELS = 4;
 const OPAQUE = 255;
 const GLYPH_WIDTH = 3;
@@ -56,7 +62,7 @@ export function beadTextInk(rgb: readonly [number, number, number]) {
 export function renderBeadChart(
   grid: BeadGrid,
   showCodes: boolean,
-  boardSize: number,
+  boardSize: BeadBoardSize,
   board?: BeadBoard,
   cellSize = BEAD_CHART_CELL_SIZE,
 ): PixelBuffer {
@@ -78,7 +84,12 @@ export function renderBeadChart(
         top = y * cellSize + 1;
       for (let py = 0; py < cellSize - 1; py++)
         for (let px = 0; px < cellSize - 1; px++) paint(left + px, top + py, color.rgb);
-      if (!showCodes) continue;
+      if (
+        !showCodes ||
+        cellSize < GLYPH_HEIGHT + 2 ||
+        cellSize < color.code.length * GLYPH_ADVANCE + 2
+      )
+        continue;
       const scale = Math.max(
         1,
         Math.min(3, Math.floor((cellSize - 4) / (color.code.length * GLYPH_ADVANCE))),
@@ -103,12 +114,26 @@ export function renderBeadChart(
       }
     }
   for (let x = 0; x <= area.width; x++) {
-    const boundary = (area.x + x) % boardSize === 0;
+    const boundary = (area.x + x) % boardSize.width === 0;
     for (let y = 0; y < height; y++) paint(x * cellSize, y, boundary ? [0, 0, 0] : [150, 150, 150]);
   }
   for (let y = 0; y <= area.height; y++) {
-    const boundary = (area.y + y) % boardSize === 0;
+    const boundary = (area.y + y) % boardSize.height === 0;
     for (let x = 0; x < width; x++) paint(x, y * cellSize, boundary ? [0, 0, 0] : [150, 150, 150]);
   }
   return { width, height, data };
+}
+
+/** Keep large custom boards inexpensive to preview without changing output resolution. */
+export function renderBeadBoardPreview(
+  grid: BeadGrid,
+  showCodes: boolean,
+  boardSize: BeadBoardSize,
+  board: BeadBoard,
+): PixelBuffer {
+  const cellSize = Math.min(
+    BEAD_CHART_CELL_SIZE,
+    Math.floor((MAX_BOARD_PREVIEW_EDGE - 1) / Math.max(board.width, board.height)),
+  );
+  return renderBeadChart(grid, showCodes, boardSize, board, cellSize);
 }

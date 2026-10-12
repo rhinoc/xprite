@@ -81,7 +81,38 @@ describe("standalone bead tool", () => {
     });
     expect(manager.getSnapshot().grid!.total).toBe(4);
     await manager.downloadPng();
-    expect(io.savePng).toHaveBeenCalledWith(manager.getSnapshot().grid, true, 29, "good-beads.png");
+    expect(io.savePng).toHaveBeenCalledWith(
+      manager.getSnapshot().grid,
+      true,
+      { width: 29, height: 29 },
+      "good-beads.png",
+    );
+    manager.dispose();
+  });
+  it("selects and exports rectangular custom boards without resizing the pattern", async () => {
+    vi.useFakeTimers();
+    const io = port();
+    const manager = new BeadToolManager(io);
+    await manager.open(new File([], "custom.png"));
+    manager.changeSettings({ width: 4 });
+    await vi.runAllTimersAsync();
+    const grid = manager.getSnapshot().grid;
+    manager.changeSettings({ boardSize: { width: 3, height: 1 } });
+    expect(manager.getSnapshot().grid).toBe(grid);
+    expect(manager.getSnapshot().boards).toHaveLength(4);
+    manager.setMode(BeadPreviewMode.Overview);
+    manager.selectAt({ x: 3, y: 1 });
+    expect(manager.getSnapshot().selected).toBe(3);
+    manager.changeSettings({ boardSize: { width: 0, height: 1 } });
+    expect(manager.getSnapshot().settings.boardSize).toEqual({ width: 3, height: 1 });
+    await manager.downloadPdf();
+    expect(io.savePdf).toHaveBeenCalledWith(
+      grid,
+      "MARD 221",
+      true,
+      { width: 3, height: 1 },
+      "custom-beads.pdf",
+    );
     manager.dispose();
   });
   it("blocks settings and file replacement while saving and releases the lock after failure", async () => {

@@ -16,9 +16,12 @@ import {
   beadBoards,
   beadChartSize,
   beadGridPixels,
-  renderBeadChart,
+  renderBeadBoardPreview,
+  DEFAULT_BEAD_BOARD_SIZE,
+  isValidBeadBoardSize,
   type BeadGrid,
   type BeadBoard,
+  type BeadBoardSize,
 } from "@xprite/editor-core/import-export";
 import { TILESET_EMBEDDED_PIXELS_FLAG } from "@xprite/editor-core/tilemap";
 import { layerAncestors } from "@xprite/editor-core/timeline";
@@ -30,10 +33,7 @@ export enum BeadPreviewMode {
   Overview = "overview",
   Source = "source",
 }
-enum BeadBoardSize {
-  Small = 29,
-  Large = 50,
-}
+export { MIN_BEAD_BOARD_EDGE, MAX_BEAD_BOARD_EDGE } from "@xprite/editor-core/import-export";
 export const MAX_BEAD_GRID_EDGE = 512;
 const DEFAULT_GRID_EDGE = 128;
 const PREVIEW_DELAY_MS = 150;
@@ -72,7 +72,6 @@ export interface BeadToolSnapshot {
 export class BeadToolManager {
   readonly navigation: ToolViewport;
   readonly brands = BEAD_PALETTES.map(({ id, name }) => ({ value: id, label: name }));
-  readonly boardSizes = [BeadBoardSize.Small, BeadBoardSize.Large];
   private state: BeadToolSnapshot = {
     source: null,
     grid: null,
@@ -85,7 +84,7 @@ export class BeadToolManager {
       width: DEFAULT_GRID_EDGE,
       height: DEFAULT_GRID_EDGE,
       lockAspect: true,
-      boardSize: BeadBoardSize.Small,
+      boardSize: DEFAULT_BEAD_BOARD_SIZE,
       showCodes: true,
     },
     name: "",
@@ -252,7 +251,7 @@ export class BeadToolManager {
     const settings = { ...this.state.settings, ...patch };
     if (
       !Object.values(BeadBrand).includes(settings.brand) ||
-      !this.boardSizes.includes(settings.boardSize)
+      !isValidBeadBoardSize(settings.boardSize)
     )
       return;
     if (
@@ -325,7 +324,7 @@ export class BeadToolManager {
         ? this.state.source
         : this.state.mode === BeadPreviewMode.Overview
           ? beadGridPixels(grid)
-          : renderBeadChart(grid, showCodes, boardSize, boards[selected]);
+          : renderBeadBoardPreview(grid, showCodes, boardSize, boards[selected]);
     this.publish({ preview, boards, selected });
   }
   setMode = (mode: BeadPreviewMode) => {
@@ -358,11 +357,9 @@ export class BeadToolManager {
       point.y >= grid.height
     )
       return;
-    const columns = Math.ceil(grid.width / this.state.settings.boardSize);
-    this.selectBoard(
-      Math.floor(point.y / this.state.settings.boardSize) * columns +
-        Math.floor(point.x / this.state.settings.boardSize),
-    );
+    const { width, height } = this.state.settings.boardSize;
+    const columns = Math.ceil(grid.width / width);
+    this.selectBoard(Math.floor(point.y / height) * columns + Math.floor(point.x / width));
   };
   setOutputName = (name: string) => {
     if (!this.state.downloading) this.publish({ outputName: name });

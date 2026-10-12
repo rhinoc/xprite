@@ -18,7 +18,10 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Hello pixel art example": "Hello 像素画示例",
   "Bead pattern": "拼豆图案",
   Brand: "品牌",
-  "Board size": "底板尺寸",
+  "Board columns": "底板列数",
+  "Board rows": "底板行数",
+  "Enter the peg counts of one board. Larger patterns span multiple boards.":
+    "填写一块底板的列数和行数，大图案会拆分到多块底板。",
   "Color codes in cells": "格内显示色号",
   "Output name": "输出名称",
   "Each grid cell is one bead. Transparent pixels stay empty.":

@@ -7,7 +7,8 @@ import {
   BEAD_EXPORT_LAYOUT,
   BEAD_EXPORT_SIZE,
   BEAD_PREVIEW_BOUNDS,
-  BeadBoardSize,
+  MIN_BEAD_BOARD_EDGE,
+  MAX_BEAD_BOARD_EDGE,
   BeadOutputFormat,
   type BeadExportSource,
   type BeadExportOptions,
@@ -50,17 +51,17 @@ export function BeadExportDialog(props: ExporterViewProps<BeadExportSource, Bead
       options: model.palettes.map(({ id, name }) => ({ value: id, label: name })),
       onChange: (brand) => model.changeSettings({ brand: brand as BeadExportOptions["brand"] }),
     },
-    {
-      key: "boardSize",
-      label: "Board size",
-      type: "select",
-      value: String(settings.boardSize),
-      options: [BeadBoardSize.Small, BeadBoardSize.Large].map((size) => ({
-        value: String(size),
-        label: `${size} × ${size}`,
-      })),
-      onChange: (size) => model.changeSettings({ boardSize: Number(size) as BeadBoardSize }),
-    },
+    ...(["width", "height"] as const).map((axis): FormField => ({
+      key: axis === "width" ? "boardWidth" : "boardHeight",
+      label: axis === "width" ? "Board columns" : "Board rows",
+      type: "number",
+      value: settings.boardSize[axis],
+      min: MIN_BEAD_BOARD_EDGE,
+      max: MAX_BEAD_BOARD_EDGE,
+      step: MIN_BEAD_BOARD_EDGE,
+      onChange: (value) =>
+        model.changeSettings({ boardSize: { ...settings.boardSize, [axis]: value } }),
+    })),
     {
       key: "showCodes",
       label: "Color codes in cells",

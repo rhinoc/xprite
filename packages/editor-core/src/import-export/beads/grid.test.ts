@@ -30,11 +30,19 @@ describe("bead charts", () => {
     expect(source.data).toEqual(before);
   });
   it("includes both partial edge boards in row-major order", () => {
-    expect(beadBoards({ width: 31, height: 30 }, 29)).toEqual([
+    expect(beadBoards({ width: 31, height: 30 }, { width: 29, height: 29 })).toEqual([
       { column: 0, row: 0, x: 0, y: 0, width: 29, height: 29 },
       { column: 1, row: 0, x: 29, y: 0, width: 2, height: 29 },
       { column: 0, row: 1, x: 0, y: 29, width: 29, height: 1 },
       { column: 1, row: 1, x: 29, y: 29, width: 2, height: 1 },
+    ]);
+  });
+  it("splits rectangular custom boards independently on both axes", () => {
+    expect(beadBoards({ width: 53, height: 58 }, { width: 52, height: 57 })).toEqual([
+      { column: 0, row: 0, x: 0, y: 0, width: 52, height: 57 },
+      { column: 1, row: 0, x: 52, y: 0, width: 1, height: 57 },
+      { column: 0, row: 1, x: 0, y: 57, width: 52, height: 1 },
+      { column: 1, row: 1, x: 52, y: 57, width: 1, height: 1 },
     ]);
   });
   it("rasterizes an empty cell as a blank grid cell instead of assigning a bead color", () => {
@@ -42,7 +50,7 @@ describe("bead charts", () => {
       { width: 2, height: 1, data: new Uint8ClampedArray([200, 0, 0, 255, 200, 0, 0, 0]) },
       colors,
     );
-    const chart = renderBeadChart(grid, false, 29);
+    const chart = renderBeadChart(grid, false, { width: 29, height: 29 });
     const rgbaAt = (x: number, y: number) =>
       Array.from(chart.data.slice((y * chart.width + x) * 4, (y * chart.width + x) * 4 + 4));
     expect(rgbaAt(24, 24)).toEqual([200, 0, 0, 255]);
@@ -52,12 +60,12 @@ describe("bead charts", () => {
     const source = { width: 31, height: 30, data: new Uint8ClampedArray(31 * 30 * 4) };
     source.data.set([200, 0, 0, 255], (29 * 31 + 30) * 4);
     const pdf = new TextDecoder().decode(
-      encodeBeadPdf(mapBeadGrid(source, colors), "Hama", 29, true),
+      encodeBeadPdf(mapBeadGrid(source, colors), "Hama", { width: 29, height: 17 }, true),
     );
     expect(pdf.startsWith("%PDF-1.4\n")).toBe(true);
     expect(pdf).toContain("/Count 6");
     expect(pdf).toContain("board row 2, column 2");
-    expect(pdf).toContain("Columns 30-31, rows 30-30");
+    expect(pdf).toContain("Columns 30-31, rows 18-30 | board 29 x 17");
     expect(pdf).toContain("Total: 1 beads");
     const xref = Number(pdf.match(/startxref\n(\d+)/)![1]);
     expect(pdf.slice(xref, xref + 4)).toBe("xref");

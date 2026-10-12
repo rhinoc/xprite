@@ -9,8 +9,12 @@ import {
   mapBeadGrid,
   beadBoards,
   renderBeadChart,
+  renderBeadBoardPreview,
   beadChartSize,
   encodeBeadPdf,
+  DEFAULT_BEAD_BOARD_SIZE,
+  isValidBeadBoardSize,
+  type BeadBoardSize,
 } from "@xprite/editor-core/import-export";
 import { BEAD_PALETTES, BeadBrand } from "@xprite/palette-assets/beads";
 
@@ -21,15 +25,12 @@ export enum BeadOutputFormat {
   Png = "png",
   Pdf = "pdf",
 }
-export enum BeadBoardSize {
-  Small = 29,
-  Large = 50,
-}
+export { MIN_BEAD_BOARD_EDGE, MAX_BEAD_BOARD_EDGE } from "@xprite/editor-core/import-export";
 const MAX_SOURCE_CELLS = 512 * 512;
 const PREVIEW_WIDTH = 424;
 const PREVIEW_HEIGHT = 288;
 const PANEL_WIDTH = 768;
-const PANEL_HEIGHT = 482;
+const PANEL_HEIGHT = 520;
 const PREVIEW_X = 328;
 const PREVIEW_TOP = 28;
 export const BEAD_PREVIEW_BOUNDS = {
@@ -43,17 +44,18 @@ export const BEAD_EXPORT_LAYOUT: FormLayout = {
   height: PANEL_HEIGHT + 46,
   fields: {
     brand: { x: 0, y: 28, width: 308, labelWidth: 96, height: 30 },
-    boardSize: { x: 0, y: 66, width: 308, labelWidth: 96, height: 30 },
-    showCodes: { x: 0, y: 104, width: 308, height: 30 },
-    format: { x: 0, y: 142, width: 308, labelWidth: 96, height: 30 },
-    name: { x: 0, y: 180, width: 308, labelWidth: 96, height: 30 },
-    board: { x: 0, y: 238, width: 308, labelWidth: 96, height: 30 },
-    zoom: { x: 0, y: 276, width: 308, labelWidth: 96, height: 30 },
+    boardWidth: { x: 0, y: 66, width: 308, labelWidth: 132, height: 30 },
+    boardHeight: { x: 0, y: 104, width: 308, labelWidth: 132, height: 30 },
+    showCodes: { x: 0, y: 142, width: 308, height: 30 },
+    format: { x: 0, y: 180, width: 308, labelWidth: 96, height: 30 },
+    name: { x: 0, y: 218, width: 308, labelWidth: 96, height: 30 },
+    board: { x: 0, y: 276, width: 308, labelWidth: 96, height: 30 },
+    zoom: { x: 0, y: 314, width: 308, labelWidth: 96, height: 30 },
   },
   separators: [
     { x: 0, y: 0, width: 308, height: 22, text: "Bead pattern" },
     { x: PREVIEW_X, y: 0, width: PREVIEW_WIDTH, height: 22, text: "Board preview" },
-    { x: 0, y: 338, width: 308, height: 22, text: "Materials" },
+    { x: 0, y: 376, width: 308, height: 22, text: "Materials" },
   ],
   actions: {
     Export: { x: PANEL_WIDTH - 248, y: PANEL_HEIGHT - 34, width: 120, height: 34 },
@@ -78,7 +80,7 @@ function normalizeOptions(value: unknown): BeadExportOptions | null {
   if (!value || typeof value !== "object") return null;
   const options = value as BeadExportOptions;
   return Object.values(BeadBrand).includes(options.brand) &&
-    [BeadBoardSize.Small, BeadBoardSize.Large].includes(options.boardSize) &&
+    isValidBeadBoardSize(options.boardSize) &&
     typeof options.showCodes === "boolean" &&
     Object.values(BeadOutputFormat).includes(options.format) &&
     typeof options.name === "string" &&
@@ -112,7 +114,7 @@ export const beadExporterDefinition: ExporterDefinition<BeadExportSource, BeadEx
       pixels,
       settings: remembered ?? {
         brand: BeadBrand.Mard,
-        boardSize: BeadBoardSize.Small,
+        boardSize: DEFAULT_BEAD_BOARD_SIZE,
         showCodes: true,
         format: BeadOutputFormat.Png,
         name: `${document.name.replace(/\.[^.]+$/, "")}-beads`,
@@ -149,7 +151,7 @@ export function useBeadExport(source: BeadExportSource) {
   const boards = useMemo(() => beadBoards(grid, settings.boardSize), [grid, settings.boardSize]);
   const boardIndex = Math.min(selected, boards.length - 1);
   const chart = useMemo(
-    () => renderBeadChart(grid, settings.showCodes, settings.boardSize, boards[boardIndex]),
+    () => renderBeadBoardPreview(grid, settings.showCodes, settings.boardSize, boards[boardIndex]),
     [grid, settings.showCodes, settings.boardSize, boards, boardIndex],
   );
   const pngError = useMemo(() => {
@@ -169,7 +171,11 @@ export function useBeadExport(source: BeadExportSource) {
     pngError,
     palettes: BEAD_PALETTES.map(({ id, name }) => ({ id, name })),
     changeSettings: (patch: Partial<BeadExportOptions>) =>
-      setSettings((previous) => ({ ...previous, ...patch })),
+      setSettings((previous) =>
+        patch.boardSize && !isValidBeadBoardSize(patch.boardSize)
+          ? previous
+          : { ...previous, ...patch },
+      ),
     selectBoard: setSelected,
   };
 }

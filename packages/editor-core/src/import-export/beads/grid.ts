@@ -78,6 +78,24 @@ export interface BeadBoard {
   height: number;
 }
 
+export interface BeadBoardSize {
+  readonly width: number;
+  readonly height: number;
+}
+
+export const DEFAULT_BEAD_BOARD_SIZE: BeadBoardSize = { width: 29, height: 29 };
+export const MAX_BEAD_BOARD_EDGE = 512;
+export const MIN_BEAD_BOARD_EDGE = 1;
+
+export function isValidBeadBoardSize(value: unknown): value is BeadBoardSize {
+  if (!value || typeof value !== "object") return false;
+  const size = value as BeadBoardSize;
+  return [size.width, size.height].every(
+    (edge) =>
+      Number.isSafeInteger(edge) && edge >= MIN_BEAD_BOARD_EDGE && edge <= MAX_BEAD_BOARD_EDGE,
+  );
+}
+
 /** One color sample per bead for an inexpensive full-pattern overview. */
 export function beadGridPixels(grid: BeadGrid): PixelBuffer {
   const data = new Uint8ClampedArray(grid.width * grid.height * RGBA_CHANNELS);
@@ -93,20 +111,19 @@ export function beadGridPixels(grid: BeadGrid): PixelBuffer {
 
 export function beadBoards(
   grid: Pick<BeadGrid, "width" | "height">,
-  boardSize: number,
+  boardSize: BeadBoardSize,
 ): BeadBoard[] {
-  if (!Number.isSafeInteger(boardSize) || boardSize < 1)
-    throw new Error("Invalid bead board size.");
+  if (!isValidBeadBoardSize(boardSize)) throw new Error("Invalid bead board size.");
   const boards: BeadBoard[] = [];
-  for (let y = 0, row = 0; y < grid.height; y += boardSize, row++)
-    for (let x = 0, column = 0; x < grid.width; x += boardSize, column++)
+  for (let y = 0, row = 0; y < grid.height; y += boardSize.height, row++)
+    for (let x = 0, column = 0; x < grid.width; x += boardSize.width, column++)
       boards.push({
         column,
         row,
         x,
         y,
-        width: Math.min(boardSize, grid.width - x),
-        height: Math.min(boardSize, grid.height - y),
+        width: Math.min(boardSize.width, grid.width - x),
+        height: Math.min(boardSize.height, grid.height - y),
       });
   return boards;
 }

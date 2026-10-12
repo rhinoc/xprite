@@ -174,3 +174,15 @@ vector PDF functions in editor-core are shared with the editor exporter. The pag
 `FileToolShell`, native shared controls and `ToolCanvasPreview` for file input and navigation.
 The original Hello artwork is reused through `@xprite/site-assets`; it is not copied.
 The entry participates in the tool registry, site discovery, static first paint and hydration.
+
+Pattern columns and rows describe the whole design. Board columns and rows are independent
+integer dimensions of a single rectangular pegboard, used for preview selection, chart
+boundaries and PDF pagination. Both accept 1–512; the default board is 29×29. Preview raster
+resolution is bounded independently of printable output, so large custom boards remain usable.
+Board dimensions are independent of the chosen color palette.
+
+Board sizes vary by product: [Artkal's mini boards](https://www.artkalfusebeads.com/products/artkal-clear-large-square-pegboard-for-mini-2-6mm-beads-bcp01)
+come in 50×50 and 52×52 versions, and [Hama's large mini board](https://hama.dk/en/products/mini-pegboard-large-square)
+has 3,249 pegs (57×57). [Perler's large square boards](https://perler.com/products/large-square-pegboards-2-ct)
+interlock for larger projects. These product examples do not restrict custom dimensions or
+the overall pattern size.

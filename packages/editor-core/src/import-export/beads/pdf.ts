@@ -4,6 +4,7 @@ import {
   EMPTY_BEAD_CELL,
   type BeadGrid,
   type BeadBoard,
+  type BeadBoardSize,
 } from "$/import-export/beads/grid";
 
 const PAGE_WIDTH = 595;
@@ -31,7 +32,7 @@ function chart(
   grid: BeadGrid,
   area: Pick<BeadBoard, "x" | "y" | "width" | "height">,
   showCodes: boolean,
-  boardSize: number,
+  boardSize: BeadBoardSize,
   overview = false,
 ) {
   const size = Math.min(
@@ -63,10 +64,11 @@ function chart(
     }
   output += "0.65 G 0.3 w\n";
   // Overview uses board boundaries; individual boards include every cell boundary.
-  const step = overview ? boardSize : 1;
-  for (let x = 0; x <= area.width; x += step)
+  const columnStep = overview ? boardSize.width : 1;
+  const rowStep = overview ? boardSize.height : 1;
+  for (let x = 0; x <= area.width; x += columnStep)
     output += `${number(left + x * size)} ${CHART_TOP} m ${number(left + x * size)} ${number(CHART_TOP - area.height * size)} l S\n`;
-  for (let y = 0; y <= area.height; y += step)
+  for (let y = 0; y <= area.height; y += rowStep)
     output += `${number(left)} ${number(CHART_TOP - y * size)} m ${number(left + area.width * size)} ${number(CHART_TOP - y * size)} l S\n`;
   output += `0 G 0.5 w ${number(left)} ${number(CHART_TOP - area.height * size)} ${number(area.width * size)} ${number(area.height * size)} re S\n`;
   return output;
@@ -76,7 +78,7 @@ function chart(
 export function encodeBeadPdf(
   grid: BeadGrid,
   brand: string,
-  boardSize: number,
+  boardSize: BeadBoardSize,
   showCodes: boolean,
 ): Uint8Array {
   const boards = beadBoards(grid, boardSize);
@@ -97,7 +99,7 @@ export function encodeBeadPdf(
     pages.push(
       heading(
         `${brand} - board row ${board.row + 1}, column ${board.column + 1}`,
-        `Columns ${board.x + 1}-${board.x + board.width}, rows ${board.y + 1}-${board.y + board.height} | board ${boardSize} x ${boardSize}`,
+        `Columns ${board.x + 1}-${board.x + board.width}, rows ${board.y + 1}-${board.y + board.height} | board ${boardSize.width} x ${boardSize.height}`,
       ) + chart(grid, board, showCodes, boardSize),
     );
   }
