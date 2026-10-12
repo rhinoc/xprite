@@ -1,4 +1,6 @@
 export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
+  "Keep aspect ratio": "保持比例",
+  "Download PNG": "下载 PNG",
   "Click the overview to inspect a board.": "点击总览中的图案，可查看对应底板。",
   "Xprite Fuse Bead Pattern Maker": "Xprite 拼豆图纸生成器",
   "Fuse Bead Pattern Maker": "拼豆图纸生成器",

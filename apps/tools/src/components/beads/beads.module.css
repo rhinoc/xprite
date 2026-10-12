@@ -39,6 +39,7 @@
   justify-content: flex-end;
 }
 .stage {
+  display: flex;
   flex: 1;
   min-height: 240px;
   position: relative;
