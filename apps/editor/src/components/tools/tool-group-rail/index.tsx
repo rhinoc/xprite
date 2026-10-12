@@ -10,6 +10,11 @@ import {
 } from "react";
 
 import {
+  nextToolGroupPopupPlacement,
+  rememberToolChoice,
+  type ToolGroupPopupPlacement,
+} from "$/components/tools/tool-group-rail/tool-group-state";
+import {
   TooltipPlacement,
   createUiPortal,
   Button,
@@ -77,10 +82,10 @@ function useToolGroupSelection(
   value: string,
   onValueChange: (value: string) => void,
 ) {
-  const [remembered, setRemembered] = useState<Record<string, string>>({});
+  const [remembered, setRemembered] = useState<Readonly<Record<string, string>>>({});
   const select = (tool: ToolOption, group: ToolGroup) => {
     if (tool.disabled) return;
-    setRemembered((previous) => ({ ...previous, [group.id]: tool.value }));
+    setRemembered((previous) => rememberToolChoice(previous, group.id, tool.value));
     onValueChange(tool.value);
   };
   const current = (group: ToolGroup) =>
@@ -90,10 +95,7 @@ function useToolGroupSelection(
     group.tools[0];
   useEffect(() => {
     const group = groups.find((group) => group.tools.some((tool) => tool.value === value));
-    if (group)
-      setRemembered((previous) =>
-        previous[group.id] === value ? previous : { ...previous, [group.id]: value },
-      );
+    if (group) setRemembered((previous) => rememberToolChoice(previous, group.id, value));
   }, [groups, value]);
   return { remembered, select, current };
 }
@@ -197,12 +199,7 @@ export function ToolGroupRail({
   const [open, setOpen] = useState<number | null>(null);
   const [hot, setHot] = useState<number | null>(null);
   const [hotItem, setHotItem] = useState<number | null>(null);
-  const [popupPlacement, setPopupPlacement] = useState<{
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-  } | null>(null);
+  const [popupPlacement, setPopupPlacement] = useState<ToolGroupPopupPlacement | null>(null);
   const { remembered, select, current } = useToolGroupSelection(groups, value, onValueChange);
   const gesture = useRef<{
     pointerId: number;
@@ -241,21 +238,27 @@ export function ToolGroupRail({
     }
   };
 
+  const openOptionCount = open === null ? 0 : (groups[open]?.tools.length ?? 0);
+  // Placement depends only on the trigger box and popup size. Selection state (`value`,
+  // `remembered`) and the parent's fresh `groups` array must not re-run this layout effect:
+  // its synchronous setState would re-render, and React can rebuild `remembered` while an
+  // older update is pending, which looped until React error #185.
   useLayoutEffect(() => {
+    const place = (next: ToolGroupPopupPlacement | null) =>
+      setPopupPlacement((previous) => nextToolGroupPopupPlacement(previous, next));
     if (open === null) {
-      setPopupPlacement(null);
+      place(null);
       return;
     }
     const update = () => {
       const trigger = triggerRefs.current[open];
-      const optionCount = groups[open]?.tools.length ?? 0;
-      if (!trigger || !optionCount) {
-        setPopupPlacement(null);
+      if (!trigger || !openOptionCount) {
+        place(null);
         return;
       }
       const rect = clientRect(trigger);
       const viewport = viewportContentSize(window);
-      const width = (optionCount - 1) * popupFacePitch + bounds.width;
+      const width = (openOptionCount - 1) * popupFacePitch + bounds.width;
       const height = bounds.height + UI_SCALE;
       const placed = placeAnchoredPopover(
         { x: rect.left, y: rect.top, width: rect.width, height: rect.height },
@@ -268,12 +271,7 @@ export function ToolGroupRail({
           fallbackGap: TOOL_GROUP_POPUP_GAP,
         },
       );
-      setPopupPlacement({
-        left: placed.x,
-        top: placed.y,
-        width: placed.width,
-        height: placed.height,
-      });
+      place({ left: placed.x, top: placed.y, width: placed.width, height: placed.height });
     };
     update();
     window.addEventListener("resize", update);
@@ -282,7 +280,7 @@ export function ToolGroupRail({
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
     };
-  }, [open, layout, groups, popupFacePitch, bounds.width, bounds.height, value, remembered]);
+  }, [open, layout, openOptionCount, popupFacePitch, bounds.width, bounds.height]);
 
   useEffect(() => {
     const targetAt = (event: PointerEvent) => {
