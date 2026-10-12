@@ -324,4 +324,51 @@ describe("project-storage", () => {
       "Project storage verified: immutable snapshots, typed-array offsets, atomic CAS, concurrent writers, partial/quota failures, missing/corrupt recovery, backend pinning, isolation and worker lifecycle.",
     );
   }, 60_000);
+
+  it("demotes new projects from unusable OPFS to IndexedDB", async () => {
+    const factory = new IDBFactory();
+    const catalog = new IndexedDbProjectStorage({ factory, databaseName: "opfs-demote" });
+    let opfsWrites = 0;
+    const opfs = {
+      kind: "opfs",
+      async write() {
+        opfsWrites += 1;
+        throw new ProjectStorageError(
+          "unavailable",
+          "The operation failed for an unknown transient reason (e.g. out of memory).",
+        );
+      },
+      async read() {
+        throw new ProjectStorageError("unavailable", "OPFS unavailable");
+      },
+    };
+    const repo = new ProjectRepository({
+      makeId: randomId,
+      now: Date.now,
+      checksum: sha256Hex,
+      catalog,
+      stores: { opfs, indexeddb: catalog },
+      preferredBackend: "opfs",
+    });
+    const saved = await repo.save({
+      projectId: "project-private",
+      expectedHead: null,
+      metadata: { name: "Private Mode Project" },
+      bytes: new Uint8Array([1, 2, 3]),
+    });
+    assert.equal(saved.head.backend, "indexeddb");
+    assert.equal(opfsWrites, 1);
+    const loaded = await repo.load("project-private");
+    assert.deepEqual([...loaded.bytes], [1, 2, 3]);
+    assert.equal(loaded.record.head.backend, "indexeddb");
+    const second = await repo.save({
+      projectId: "project-private-2",
+      expectedHead: null,
+      metadata: { name: "Second Project" },
+      bytes: new Uint8Array([4, 5]),
+    });
+    assert.equal(second.head.backend, "indexeddb");
+    assert.equal(opfsWrites, 1, "session keeps IndexedDB after demotion");
+    repo.close();
+  });
 });

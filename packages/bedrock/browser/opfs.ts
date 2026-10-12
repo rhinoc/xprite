@@ -25,6 +25,44 @@ export function supportsOpfs(): boolean {
   );
 }
 
+/**
+ * Safari Private Browsing (and other ephemeral WebKit contexts) expose the
+ * OPFS API surface but reject getDirectory() with UnknownError. API presence
+ * alone is therefore not enough to prefer OPFS over IndexedDB.
+ */
+export function isOpfsUnavailableError(name: string, message: string): boolean {
+  if (
+    name === "UnknownError" ||
+    name === "SecurityError" ||
+    name === "NotAllowedError" ||
+    name === "NotSupportedError"
+  )
+    return true;
+  return /unknown transient reason|out of memory/i.test(message);
+}
+
+/** Probe whether OPFS can actually open a directory in this browsing context. */
+export async function probeOpfs(): Promise<boolean> {
+  if (!supportsOpfs()) return false;
+  try {
+    await navigator.storage.getDirectory();
+    return true;
+  } catch {
+    // Safari Private Browsing and other ephemeral contexts reject getDirectory().
+    return false;
+  }
+}
+
+function toOpfsError(name: string, message: string): Error {
+  if (name === "NotFoundError")
+    return new BrowserStorageError(BrowserStorageErrorCode.Corrupt, message);
+  if (isOpfsUnavailableError(name, message))
+    return new BrowserStorageError(BrowserStorageErrorCode.Unavailable, message);
+  const error = new Error(message);
+  error.name = name;
+  return error;
+}
+
 /** Stores opaque byte values in OPFS through a dedicated module worker. */
 export class OpfsByteStore implements ByteStore {
   private worker?: Worker;
@@ -52,11 +90,12 @@ export class OpfsByteStore implements ByteStore {
       this.pending.delete(response.id);
       if (response.ok) pending.resolve(response.bytes);
       else {
-        const error =
-          response.name === "NotFoundError"
-            ? new BrowserStorageError(BrowserStorageErrorCode.Corrupt, response.message)
-            : new Error(response.message);
-        if (!(error instanceof BrowserStorageError)) error.name = response.name;
+        const error = toOpfsError(response.name, response.message);
+        if (
+          error instanceof BrowserStorageError &&
+          error.code === BrowserStorageErrorCode.Unavailable
+        )
+          this.failed = error;
         pending.reject(error);
       }
     };
