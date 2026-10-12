@@ -1,6 +1,10 @@
-import { FEATURES_PATH } from "$content/features";
+import { FEATURE_DETAIL_PATH, FEATURES_PATH } from "$content/features";
 import { GUIDE_PAGES } from "$content/help/pages";
-import { SHOWCASE_HERO_COPY, SHOWCASE_STORY_COPY } from "$content/showcase/index";
+import {
+  SHOWCASE_HERO_COPY,
+  SHOWCASE_STORY_COPY,
+  SHOWCASE_STORY_FEATURE_SLUGS,
+} from "$content/showcase/index";
 import { showcaseMedia } from "$content/showcase/media";
 import { SHOWCASE_PAGES } from "$content/showcase/pages";
 import { localizedSiteHref } from "$content/site/language";
@@ -68,8 +72,17 @@ export function ShowcaseStoryContent({
               <h2 id="create-title">{copy.createTitle}</h2>
               <p>{copy.createDescription}</p>
               <ul data-story-features>
-                {copy.features.map((feature) => (
-                  <li key={feature}>{feature}</li>
+                {copy.features.map((feature, index) => (
+                  <li key={feature}>
+                    <a
+                      href={localizedSiteHref(
+                        `${FEATURE_DETAIL_PATH}${SHOWCASE_STORY_FEATURE_SLUGS[index]}/`,
+                        language,
+                      )}
+                    >
+                      {feature}
+                    </a>
+                  </li>
                 ))}
               </ul>
             </RichText>

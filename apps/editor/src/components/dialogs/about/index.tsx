@@ -1,10 +1,11 @@
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { FormDialog } from "$/components/dialogs/form-dialog";
-import { tUi } from "$/i18n";
+import { EDITOR_EXTERNAL_LINKS } from "$/config/external-links";
+import { currentUiLanguage, tUi } from "$/i18n";
 import { HELP_LINKS, HelpLink } from "$/managers/shell/help";
 
 const ABOUT_WIDTH = 400;
-const ABOUT_HEIGHT = 350;
+const ABOUT_HEIGHT = 376;
 const ABOUT_CONTENT_INSET = 4;
 const ABOUT_FRAME_INSET = 24;
 const ABOUT_CLOSE_WIDTH = 120;
@@ -70,6 +71,15 @@ export function AboutDialog({
           label: HELP_LINKS[HelpLink.Repository],
           onClick: () => onOpenLink(HelpLink.Repository),
         },
+        {
+          key: "website",
+          type: "link",
+          label: tUi("ui.about.website"),
+          href:
+            currentUiLanguage() === "zh-CN"
+              ? EDITOR_EXTERNAL_LINKS.xpriteAboutChinese
+              : EDITOR_EXTERNAL_LINKS.xpriteAbout,
+        },
       ]}
       layout={{
         height: ABOUT_HEIGHT,
@@ -83,6 +93,7 @@ export function AboutDialog({
           license: field(164),
           donate: field(190),
           repository: field(230),
+          website: field(256),
         },
         separators: [
           { x: 0, y: 38, width: contentWidth, height: 18, text: tUi("ui.about.author") },
@@ -91,7 +102,7 @@ export function AboutDialog({
         actions: {
           [closeLabel]: {
             x: Math.floor((contentWidth - ABOUT_CLOSE_WIDTH) / 2),
-            y: 264,
+            y: 290,
             width: ABOUT_CLOSE_WIDTH,
             height: ABOUT_CLOSE_HEIGHT,
           },

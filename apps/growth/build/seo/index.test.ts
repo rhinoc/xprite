@@ -1,0 +1,62 @@
+import assert from "node:assert/strict";
+
+import { describe, it } from "vitest";
+
+import { showcaseSearchMetadata } from "../../content/showcase/index.ts";
+import { SHOWCASE_PAGES, SHOWCASE_SITE_URL } from "../../content/showcase/pages.ts";
+import { applyEditorSearchMetadata, editorSearchMetadata } from "./index.ts";
+
+const EDITOR_HTML = `<!doctype html><html lang="en"><head><title>Xprite</title></head><body><div id="root"></div><div id="xse-startup"><section class="xse-startup-copy"><p>Intro</p></section></div></body></html>`;
+
+const graphTypes = (graph: readonly { "@type": string }[]) => graph.map((item) => item["@type"]);
+
+describe("editor search metadata", () => {
+  it("describe the site, its publisher and the application on the root", () => {
+    const metadata = editorSearchMetadata("1.0.0");
+    assert.deepEqual(graphTypes(metadata["@graph"]), ["WebSite", "Organization", "WebApplication"]);
+    for (const item of metadata["@graph"]) assert.equal("@context" in item, false);
+    const html = applyEditorSearchMetadata(EDITOR_HTML, "1.0.0", true);
+    const json = html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)?.[1];
+    assert.ok(json);
+    assert.deepEqual(JSON.parse(json), metadata);
+  });
+
+  it("keep crawler links visible to script-less visitors only, with no off-screen navigation", () => {
+    const html = applyEditorSearchMetadata(EDITOR_HTML, "1.0.0", true);
+    assert.doesNotMatch(html, /<nav\b/);
+    assert.doesNotMatch(html, /tabindex="-1"/);
+    const noscript = html.match(/<section class="xse-startup-copy">[\s\S]*?<\/section>/)?.[0];
+    assert.match(
+      noscript ?? "",
+      /<noscript>[\s\S]*<a href="\/about\/">About Xprite<\/a>[\s\S]*<\/noscript>/,
+    );
+    const words = (noscript ?? "")
+      .replace(/<style>.*?<\/style>/g, "")
+      .replace(/<[^>]+>/g, " ")
+      .split(/\s+/)
+      .filter(Boolean).length;
+    assert.ok(words >= 150 && words <= 300, `${words} words`);
+    assert.match(html, /<h1 style="[^"]*">Xprite: free online pixel art editor<\/h1>/);
+  });
+});
+
+describe("about page search metadata", () => {
+  it("mark the about page with an AboutPage and its breadcrumb", () => {
+    const metadata = showcaseSearchMetadata("en", SHOWCASE_PAGES.en, SHOWCASE_SITE_URL);
+    assert.deepEqual(graphTypes(metadata["@graph"]), [
+      "AboutPage",
+      "BreadcrumbList",
+      "WebApplication",
+    ]);
+    const breadcrumb = metadata["@graph"][1] as {
+      itemListElement: readonly { position: number; item: string }[];
+    };
+    assert.deepEqual(
+      breadcrumb.itemListElement.map(({ position, item }) => [position, item]),
+      [
+        [1, "https://xprite.cc/"],
+        [2, "https://xprite.cc/about/"],
+      ],
+    );
+  });
+});

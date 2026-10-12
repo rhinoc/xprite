@@ -38,7 +38,7 @@ export type FormField = FieldBase &
     | { type: "color"; value: string; onChange: (value: string) => void }
     | { type: "filename"; value: string; onChange: (value: string) => void; onBrowse?: () => void }
     | { type: "label" }
-    | { type: "link"; onClick: () => void }
+    | { type: "link"; onClick?: () => void; href?: string }
     | {
         type: "button";
         onClick: () => void;
@@ -534,6 +534,7 @@ export function FormDialog({
                 variant={WorkspaceLinkVariant.Inline}
                 bounds={{ x: columnX, y, width: columnWidth, height: authored?.height ?? 30 }}
                 relativeTo={client}
+                href={field.href}
                 onClick={field.onClick}
               >
                 {field.label}

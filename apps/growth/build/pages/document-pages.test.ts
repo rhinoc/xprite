@@ -53,6 +53,13 @@ describe("document pages", () => {
     }
   });
 
+  it("give every sitemap URL a lastmod date", () => {
+    const entries = sitemap().match(/<url>.*?<\/url>/g) ?? [];
+    assert.ok(entries.length > 0);
+    for (const entry of entries)
+      assert.match(entry, /<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/, entry);
+  });
+
   it("pair each translated document with its other language", () => {
     const privacy = documentHtml("/zh-CN/privacy/", true);
     assert.match(privacy, /<link rel="canonical" href="https:\/\/xprite\.cc\/zh-CN\/privacy\/">/);

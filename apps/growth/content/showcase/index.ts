@@ -100,28 +100,51 @@ export function showcaseSearchMetadata(
   siteUrl: string,
 ) {
   const canonical = new URL(page.path, siteUrl).href;
-  const application = editorApplicationMetadata();
+  const { "@context": context, ...application } = editorApplicationMetadata();
   return {
-    "@context": "https://schema.org",
+    "@context": context,
     "@graph": [
       {
-        "@type": "WebPage",
+        "@type": "AboutPage",
         "@id": `${canonical}#page`,
         url: canonical,
         name: page.title,
         description: page.description,
         inLanguage: language,
+        isPartOf: { "@id": `${siteUrl}#website` },
+        about: { "@id": application["@id"] },
         mainEntity: { "@id": application["@id"] },
+        breadcrumb: { "@id": `${canonical}#breadcrumb` },
         relatedLink: [
           new URL(GUIDE_PAGES[language].path, siteUrl).href,
           ...TOOLS.map((tool) => new URL(tool.path, siteUrl).href),
           ...ARTICLES.map((article) => new URL(article.path, siteUrl).href),
         ],
       },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${canonical}#breadcrumb`,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Xprite", item: siteUrl },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: language === "zh-CN" ? "关于" : "About",
+            item: canonical,
+          },
+        ],
+      },
       application,
     ],
   };
 }
+
+/** Feature pages linked from each item of the story `features` list, in order. */
+export const SHOWCASE_STORY_FEATURE_SLUGS = [
+  "draw-pixel-art",
+  "layers-and-colors",
+  "export-images-and-animation",
+] as const;
 
 export const SHOWCASE_STORY_COPY = {
   en: {

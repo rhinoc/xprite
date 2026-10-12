@@ -1,8 +1,11 @@
 import type { Plugin } from "vite";
 
 import { VISUALLY_HIDDEN_STYLE } from "../../../../infra/site-html.ts";
-import { editorApplicationMetadata } from "../../content/application/index.ts";
-import { ARTICLE_COLLECTIONS, ARTICLES } from "../../content/articles/index.ts";
+import {
+  editorApplicationMetadata,
+  siteIdentityMetadata,
+} from "../../content/application/index.ts";
+import { ARTICLE_COLLECTIONS } from "../../content/articles/index.ts";
 import { FEATURES_PATH } from "../../content/features/index.ts";
 import { GUIDE_PAGES } from "../../content/help/pages.ts";
 import { SHOWCASE_PAGES } from "../../content/showcase/pages.ts";
@@ -23,7 +26,6 @@ const CANONICAL_ELEMENT_PATTERN = /\s*<link\b[^>]*rel=["']canonical["'][^>]*>/gi
 const ROBOTS_ELEMENT_PATTERN = /\s*<meta\b[^>]*name=["']robots["'][^>]*>/gi;
 const HEAD_CLOSE_PATTERN = /<\/head>/i;
 const BODY_OPEN_PATTERN = /<body\b[^>]*>/i;
-const BODY_CLOSE_PATTERN = /<\/body>/i;
 const EDITOR_HEADING = "Xprite: free online pixel art editor";
 const HTML_ENTITIES: Readonly<Record<string, string>> = {
   "&": "&amp;",
@@ -34,34 +36,41 @@ const HTML_ENTITIES: Readonly<Record<string, string>> = {
 const escapeHtml = (value: string) =>
   value.replace(/[&<>"]/g, (character) => HTML_ENTITIES[character]);
 
+const STARTUP_COPY_CLOSE_PATTERN = /(<section class="xse-startup-copy">[\s\S]*?)(<\/section>)/;
+
 /**
- * The editor paints only its canvas UI, so crawlers get a heading and plain links to the
- * public pages. Both are visually hidden; links leave the Tab order so keyboard focus
- * never lands on something invisible, while screen readers can still browse them.
+ * The editor paints only its canvas UI. Browsers without JavaScript (and the raw HTML that
+ * crawlers fetch first) get a visible product summary with plain links inside the startup
+ * screen. Script-enabled visitors never render `<noscript>`, so the loading screen is unchanged.
  */
-function editorDiscoveryLinks(): string {
+function editorNoscriptSummary(): string {
   const links = [
+    { href: SHOWCASE_PAGES[PublicLanguage.English].path, label: "About Xprite" },
+    { href: FEATURES_PATH, label: "Features" },
+    { href: GUIDE_PAGES[PublicLanguage.English].path, label: "User guide" },
     ...TOOLS.map((tool) => ({ href: tool.path, label: tool.label })),
     {
       href: ARTICLE_COLLECTIONS.compare.path,
       label: ARTICLE_COLLECTIONS.compare.headline,
     },
-    ...ARTICLES.map((article) => ({ href: article.path, label: article.shortTitle.en })),
-    { href: FEATURES_PATH, label: "Features" },
-    { href: GUIDE_PAGES[PublicLanguage.English].path, label: "User guide" },
-    { href: SHOWCASE_PAGES[PublicLanguage.English].path, label: "About Xprite" },
-    {
-      href: SHOWCASE_PAGES[PublicLanguage.SimplifiedChinese].path,
-      label: "关于 Xprite（简体中文）",
-      language: PublicLanguage.SimplifiedChinese,
-    },
   ];
-  return `<nav aria-label="Xprite pages" style="${VISUALLY_HIDDEN_STYLE}"><ul>${links
-    .map(
-      (link) =>
-        `<li><a href="${link.href}" tabindex="-1"${"language" in link ? ` lang="${link.language}" hreflang="${link.language}"` : ""}>${escapeHtml(link.label)}</a></li>`,
-    )
-    .join("")}</ul></nav>`;
+  const paragraphs = [
+    "Xprite is a free, open-source pixel art editor and sprite animation tool that runs in your web browser. It needs JavaScript to start, so turn JavaScript on to begin drawing.",
+    "Draw with pencils, fills, gradients, shapes, selections and custom brushes. Organize artwork in layers, pick colors from palettes, and animate frame by frame with tags and onion skin. Build tilemaps for game levels, record your drawing process, and export PNG images, animated GIFs and sprite sheets.",
+    "Xprite opens and saves .ase and .aseprite projects, so you can keep working on Aseprite files on a computer, iPad, Android tablet or phone. Draw with a mouse, touch or a pen such as Apple Pencil, and move, resize and dock panels to arrange your own workspace. After your first online visit you can install Xprite and edit offline.",
+    "Your artwork is edited and saved on your device, with no account, upload or subscription. Xprite is an independent project and is not affiliated with Aseprite or Igara Studio.",
+  ];
+  return `<noscript><style>#xse-startup{overflow:auto}</style>${paragraphs
+    .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+    .join("")}<p>${links
+    .map((link) => `<a href="${link.href}">${escapeHtml(link.label)}</a>`)
+    .join(" · ")}</p></noscript>`;
+}
+
+/** The editor is the site root, so it also carries the site and publisher entities. */
+export function editorSearchMetadata(version?: string) {
+  const { "@context": context, ...application } = editorApplicationMetadata(version);
+  return { "@context": context, "@graph": [...siteIdentityMetadata(), application] };
 }
 
 export function applyPageSearchMetadata(html: string, indexable: boolean): string {
@@ -84,11 +93,14 @@ export function applyEditorSearchMetadata(
       BODY_OPEN_PATTERN,
       (body) => `${body}\n<h1 style="${VISUALLY_HIDDEN_STYLE}">${EDITOR_HEADING}</h1>`,
     )
-    .replace(BODY_CLOSE_PATTERN, `${editorDiscoveryLinks()}\n</body>`);
+    .replace(
+      STARTUP_COPY_CLOSE_PATTERN,
+      (_match, copy, close) => `${copy}${editorNoscriptSummary()}${close}`,
+    );
   if (!indexable) return content;
   return content.replace(
     HEAD_CLOSE_PATTERN,
-    `<script type="application/ld+json">${JSON.stringify(editorApplicationMetadata(version))}</script>\n</head>`,
+    `<script type="application/ld+json">${JSON.stringify(editorSearchMetadata(version)).replaceAll("<", "\\u003c")}</script>\n</head>`,
   );
 }
 

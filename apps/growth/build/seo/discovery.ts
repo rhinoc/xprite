@@ -3,6 +3,7 @@ import { FEATURES_PATH } from "../../content/features/index.ts";
 import { GUIDE_PAGES } from "../../content/help/pages.ts";
 import { SHOWCASE_PAGES } from "../../content/showcase/pages.ts";
 import { PublicLanguage } from "../../content/site/language.ts";
+import { SITE_LAST_MODIFIED } from "../../content/site/last-modified.ts";
 import {
   DOCUMENT_PAGES,
   SITE_PAGES,
@@ -16,11 +17,12 @@ const SITE_URL = "https://xprite.cc/";
 
 /** Article `updated` frontmatter wins over the shared registry date, per language. */
 export function pageLastModified(page: SitePage): string | undefined {
-  if (page.kind !== SitePageKind.Article || !page.language) return page.dateModified;
+  const fallback = page.dateModified ?? SITE_LAST_MODIFIED[page.path];
+  if (page.kind !== SitePageKind.Article || !page.language) return fallback;
   const article = ARTICLES.find(
     (item) => localizedArticle(item, page.language!).path === page.path,
   );
-  if (!article) return page.dateModified;
+  if (!article) return fallback;
   return readArticleDocument(article, page.language).dateModified;
 }
 
