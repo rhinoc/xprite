@@ -11,6 +11,10 @@ const TOUCH_ICON_PATH = "icon-192.png?v=xprite-3";
 const EDITOR_ICON_VERSION = "v=xprite-2";
 const CHARSET_ELEMENT_PATTERN = /<meta\b[^>]*\bcharset\s*=[^>]*>/i;
 
+/** Hides search and screen-reader text without taking layout space or painting pixels. */
+export const VISUALLY_HIDDEN_STYLE =
+  "position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap";
+
 /** Keep the encoding declaration ahead of large first-paint scripts. */
 export function prependSiteHeadContent(html: string, content: string): string {
   if (!CHARSET_ELEMENT_PATTERN.test(html)) throw new Error("Site HTML must declare its charset");

@@ -27,6 +27,8 @@ export interface SitePage {
   path: string;
   language?: PublicLanguage;
   title: string;
+  /** The document `<title>` when it differs from the visible page title. */
+  searchTitle?: string;
   description?: string;
   dateModified?: string;
   /** Markdown source relative to the repository root, for document pages. */
@@ -45,6 +47,8 @@ export const DOCUMENT_PAGES: readonly SitePage[] = SITE_DOCUMENTS.flatMap((docum
     path,
     language,
     title: document.title[language]!,
+    searchTitle: document.searchTitle?.[language],
+    description: document.searchDescription?.[language],
     document: document.sources[language],
     indexable: true,
     translations,

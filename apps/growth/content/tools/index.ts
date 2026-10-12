@@ -40,6 +40,12 @@ export function translateToolText(source: string, language: string): string {
 }
 
 export const TOOL_FILE_PRIVACY = "Processed on your device. No cloud upload.";
+export const TOOL_HEADING_ID = "tool-page-heading";
+
+/** The visually hidden page heading: the document title without the site name. */
+export function toolHeading(tool: { title: string }, language: string): string {
+  return translateToolText(tool.title, language).replace(/ \| Xprite$/, "");
+}
 
 /** Data-only tool registry, shared by public discovery and the standalone tools app. */
 export const VIEWER_TOOL = {
@@ -47,7 +53,7 @@ export const VIEWER_TOOL = {
   name: "Xprite Aseprite Viewer",
   label: "Aseprite Viewer",
   startTitle: "Inspect an Aseprite file",
-  title: "Aseprite Viewer | Xprite",
+  title: "Aseprite Viewer Online: Open .ase and .aseprite Files | Xprite",
   headline: "Aseprite Viewer",
   summary: "Preview Aseprite projects and export PNG frames or GIF animations.",
   privacy: TOOL_FILE_PRIVACY,
@@ -64,12 +70,12 @@ export const GIF_SHEET_TOOL = {
   name: "Xprite GIF to Sprite Sheet",
   label: "GIF to Sprite Sheet",
   startTitle: "Turn a GIF into a sprite sheet",
-  title: "GIF to Sprite Sheet | Xprite",
+  title: "GIF to Sprite Sheet: Free Online Converter | Xprite",
   headline: "GIF to Sprite Sheet",
   summary: "Convert GIF animations into PNG sprite sheets with JSON frame data.",
   privacy: TOOL_FILE_PRIVACY,
   description:
-    "Turn GIF animations into PNG sprite sheets with custom layouts and spacing. Download frame coordinates and timing as JSON. Files stay on your device, with no cloud upload.",
+    "Convert GIF animations into PNG sprite sheets free in your browser. Choose rows, columns and spacing, and download JSON frame data. Files stay on your device.",
   accept: ".gif,image/gif",
   fileLabel: "Choose a GIF file",
   openLabel: "Open GIF",
@@ -81,13 +87,13 @@ export const ANIMAL_CROSSING_TOOL = {
   name: "Xprite Animal Crossing Design Converter",
   label: "Animal Crossing Design Converter",
   startTitle: "Make a design for your island",
-  title: "Animal Crossing Design Converter: PNG & Aseprite | Xprite",
+  title: "Animal Crossing QR Code Converter: PNG & Aseprite | Xprite",
   headline: "Animal Crossing Design Converter",
   summary:
     "Convert PNG images and Aseprite tilemaps into island designs, or open an existing design QR code and export it unchanged.",
   privacy: TOOL_FILE_PRIVACY,
   description:
-    "Create Animal Crossing island design QR codes from PNG images and Aseprite tilemaps, or read normal design QR images and export their original data. Files stay on your device.",
+    "Create Animal Crossing design QR codes from PNG images and Aseprite tilemaps, or read design QR images and export their data. Files stay on your device.",
   accept: ".ase,.aseprite,.acnl,.png,.jpg,.jpeg,image/png,image/jpeg",
   fileLabel: "Choose artwork or an Animal Crossing QR image",
   openLabel: "Open file",
