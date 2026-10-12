@@ -44,6 +44,80 @@ const jsonForHtml = (value: unknown) => JSON.stringify(value).replaceAll("<", "\
 const escapeHtml = (value: string) =>
   value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
+const THEME_STYLE_ATTRIBUTE = "data-tool-theme-style";
+const THEME_STYLE_PATTERN = / style="([^"]{2048,})"/g;
+const ATTRIBUTE_ENTITIES: Readonly<Record<string, string>> = {
+  "&quot;": '"',
+  "&#x27;": "'",
+  "&#39;": "'",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&amp;": "&",
+};
+
+/** Split an inline style into declarations, keeping `;` inside quotes and `url()` intact. */
+function styleDeclarations(style: string): Map<string, string> {
+  const declarations = new Map<string, string>();
+  let depth = 0;
+  let quote = "";
+  let start = 0;
+  const add = (end: number) => {
+    const declaration = style.slice(start, end);
+    const colon = declaration.indexOf(":");
+    if (colon > 0)
+      declarations.set(declaration.slice(0, colon).trim(), declaration.slice(colon + 1).trim());
+    start = end + 1;
+  };
+  for (let index = 0; index < style.length; index++) {
+    const character = style[index];
+    if (quote) {
+      if (character === "\\") index++;
+      else if (character === quote) quote = "";
+    } else if (character === '"' || character === "'") quote = character;
+    else if (character === "(") depth++;
+    else if (character === ")") depth--;
+    else if (character === ";" && depth === 0) add(index);
+  }
+  add(style.length);
+  return declarations;
+}
+
+/**
+ * Each prerendered variant repeats the theme scope's ~50 KB inline custom properties. Move
+ * them into one stylesheet rule plus per-theme differences, marked by an attribute; an
+ * inline script restores the exact inline styles from those rules before hydration.
+ */
+function hoistThemeStyles(variants: readonly string[]) {
+  const styles: string[] = [];
+  const html = variants.map((variant) =>
+    variant.replace(THEME_STYLE_PATTERN, (_match, encoded: string) => {
+      const style = encoded.replace(
+        /&(?:quot|#x27|#39|lt|gt|amp);/g,
+        (entity) => ATTRIBUTE_ENTITIES[entity],
+      );
+      if (!styles.includes(style)) styles.push(style);
+      return ` ${THEME_STYLE_ATTRIBUTE}="${styles.indexOf(style)}"`;
+    }),
+  );
+  if (!styles.length) return { html, css: "", restore: "" };
+  const base = styleDeclarations(styles[0]);
+  const rule = (selector: string, declarations: Iterable<[string, string]>) =>
+    `${selector}{${[...declarations].map(([name, value]) => `${name}:${value} !important`).join(";")}}`;
+  const css = [
+    rule(`[${THEME_STYLE_ATTRIBUTE}]`, base),
+    ...styles.slice(1).map((style, index) => {
+      const declarations = styleDeclarations(style);
+      const changed = [...declarations].filter(([name, value]) => base.get(name) !== value);
+      const removed = [...base.keys()]
+        .filter((name) => !declarations.has(name))
+        .map((name): [string, string] => [name, "initial"]);
+      return rule(`[${THEME_STYLE_ATTRIBUTE}="${index + 1}"]`, [...changed, ...removed]);
+    }),
+  ].join("");
+  const restore = `{const rules={};for(const sheet of document.styleSheets){try{for(const rule of sheet.cssRules)if(rule.selectorText&&rule.selectorText.startsWith('[${THEME_STYLE_ATTRIBUTE}'))rules[rule.selectorText]=rule.style.cssText.replace(/ ?!important/g,'')}catch{}}for(const element of document.querySelectorAll('[${THEME_STYLE_ATTRIBUTE}]')){const id=element.getAttribute('${THEME_STYLE_ATTRIBUTE}');element.setAttribute('style',(rules['[${THEME_STYLE_ATTRIBUTE}]']||'')+(id==='0'?'':rules['[${THEME_STYLE_ATTRIBUTE}="'+id+'"]']||''));element.removeAttribute('${THEME_STYLE_ATTRIBUTE}')}}`;
+  return { html, css, restore };
+}
+
 /** The HTML and the browser hydrate the same page components and UI controls. */
 export function toolsStartupPages(): Plugin {
   let server: ViteDevServer | undefined;
@@ -115,7 +189,14 @@ export function toolsStartupPages(): Plugin {
         const localeSwitch = `{const root=document.getElementById(${JSON.stringify(rootId)});const zh=document.documentElement.lang==='zh-CN';const dark=document.documentElement.dataset.toolAppearance==='dark';const template=zh?document.querySelector('template[data-tool-locale="zh-CN-'+(dark?'dark':'light')+'"]'):dark?document.querySelector('template[data-tool-theme="dark"]'):null;if(template)root.innerHTML=template.innerHTML;document.title=zh?${jsonForHtml(translateToolText(tool.title, PublicLanguage.SimplifiedChinese))}:${jsonForHtml(tool.title)};const meta=document.querySelector('meta[name="description"]');if(meta)meta.content=zh?${jsonForHtml(translateToolText(tool.description, PublicLanguage.SimplifiedChinese))}:${jsonForHtml(tool.description)};const heading=document.getElementById(${JSON.stringify(TOOL_HEADING_ID)});if(heading)heading.textContent=zh?${jsonForHtml(toolHeading(tool, PublicLanguage.SimplifiedChinese))}:${jsonForHtml(toolHeading(tool, PublicLanguage.English))}}`;
         // Outside the hydrated root, so React keeps it; the tool UI has no visible page heading.
         const heading = `<h1 id="${TOOL_HEADING_ID}" style="${VISUALLY_HIDDEN_STYLE}">${escapeHtml(toolHeading(tool, PublicLanguage.English))}</h1>`;
-        const root = `${heading}<div id="${rootId}" data-tool-startup-view>${page.light}</div><template data-tool-theme="dark">${page.dark}</template><template data-tool-locale="zh-CN-light">${page.chineseLight}</template><template data-tool-locale="zh-CN-dark">${page.chineseDark}</template><script id="tool-initial-artwork" type="application/json">${jsonForHtml(page.artwork)}</script><script>${localeSwitch}</script>`;
+        const themed = hoistThemeStyles([
+          page.light,
+          page.dark,
+          page.chineseLight,
+          page.chineseDark,
+        ]);
+        const [light, dark, chineseLight, chineseDark] = themed.html;
+        const root = `${heading}<div id="${rootId}" data-tool-startup-view>${light}</div><template data-tool-theme="dark">${dark}</template><template data-tool-locale="zh-CN-light">${chineseLight}</template><template data-tool-locale="zh-CN-dark">${chineseDark}</template><script id="tool-initial-artwork" type="application/json">${jsonForHtml(page.artwork)}</script><script>${localeSwitch}${themed.restore}</script>`;
         const appearance = publicDesktopStartupScript(APPEARANCE_MODE_STORAGE_KEY);
         const bodyStyle = `html[data-tool-appearance="light"]{color-scheme:light;background:${page.themes[UiColorScheme.Light].definition.colors.workspace}}html[data-tool-appearance="dark"]{color-scheme:dark;background:${page.themes[UiColorScheme.Dark].definition.colors.workspace}}`;
         return {
@@ -126,7 +207,7 @@ export function toolsStartupPages(): Plugin {
             {
               tag: "style",
               attrs: { "data-tool-ssg-style": "" },
-              children: runtime.css + runtime.cursors + bodyStyle,
+              children: runtime.css + runtime.cursors + bodyStyle + themed.css,
               injectTo: "head",
             },
           ],

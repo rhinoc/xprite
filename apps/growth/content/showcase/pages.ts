@@ -3,9 +3,9 @@ export const SHOWCASE_SITE_URL = "https://xprite.cc/";
 export const SHOWCASE_PAGES = {
   en: {
     path: "/about/",
-    title: "Xprite — Free Online Pixel Art & Animation Editor",
+    title: "Xprite — Free Pixel Art & Animation App for iPad, Phone & PC",
     description:
-      "Draw pixel art and animate sprites free on your computer, iPad or phone. Edit Aseprite projects, export GIF or PNG, and keep your artwork on your device.",
+      "Xprite is a free pixel art and animation app for iPad, phone and PC browsers. Open and save Aseprite files, export GIF or PNG, and keep your art on your device.",
   },
   "zh-CN": {
     path: "/zh-CN/about/",

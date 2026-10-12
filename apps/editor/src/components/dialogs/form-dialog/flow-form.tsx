@@ -79,6 +79,7 @@ function FlowField({
           layout="flow"
           variant={WorkspaceLinkVariant.Inline}
           bounds={{ x: 0, y: 0, width, height: CONTROL_HEIGHT }}
+          href={field.href}
           onClick={field.onClick}
           disabled={field.disabled}
         >

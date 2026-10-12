@@ -6,6 +6,7 @@
   "ui.about": "关于",
   "ui.about.xprite": "关于 Xprite",
   "ui.about.description": "在浏览器中绘制像素画、制作动画",
+  "ui.about.website": "xprite.cc/about — 功能与使用指南",
   "ui.about.thanks": "感谢 Aseprite 和 LibreSprite，",
   "ui.about.inspiration": "为 Xprite 带来灵感与开源参考。",
   "ui.about.author": "作者：",

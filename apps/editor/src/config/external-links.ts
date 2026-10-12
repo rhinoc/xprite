@@ -5,4 +5,6 @@ export const EDITOR_EXTERNAL_LINKS = {
   xpriteCredits: "https://github.com/rhinoc/xprite/blob/main/ATTRIBUTION.md",
   xpriteLicense: "https://github.com/rhinoc/xprite/blob/main/LICENSE",
   donate: "https://ko-fi.com/rhinoc",
+  xpriteAbout: "https://xprite.cc/about/",
+  xpriteAboutChinese: "https://xprite.cc/zh-CN/about/",
 } as const;
