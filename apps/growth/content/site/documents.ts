@@ -61,7 +61,7 @@ export const SITE_DOCUMENTS: readonly SiteDocumentDefinition[] = [
     },
     title: { en: "Features", "zh-CN": "功能" },
     searchTitle: {
-      en: "Pixel Art Editor Features: Drawing, Animation, Export | Xprite",
+      en: "Pixel Art Editor Features: Draw, Animate, Export | Xprite",
       "zh-CN": "像素画编辑器功能：绘画、动画与导出 | Xprite",
     },
   },

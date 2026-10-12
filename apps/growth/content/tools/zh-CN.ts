@@ -9,7 +9,7 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Processed on your device. No cloud upload.": "文件在本地处理，不上传云端。",
   "Files stay on your device. No cloud upload.": "文件只在本地处理，不上传云端。",
   "Inspect an Aseprite file": "查看 Aseprite 文件",
-  "Aseprite Viewer Online: Open .ase and .aseprite Files | Xprite":
+  "Aseprite Viewer Online: Open .ase & .aseprite Files | Xprite":
     "在线 Aseprite 查看器：打开 .ase 和 .aseprite 文件 | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "预览 Aseprite 工程，导出 PNG 单帧或 GIF 动画。",

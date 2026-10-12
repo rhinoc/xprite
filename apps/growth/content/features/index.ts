@@ -66,7 +66,7 @@ export const FEATURE_DETAILS = [
     slug: "workspace-layout",
     title: { en: "Arrange your workspace", "zh-CN": "安排工作区" },
     searchTitle: {
-      en: "Customizable Pixel Art Workspace and Offline Editing | Xprite",
+      en: "Customizable Pixel Art Workspace, Offline Editing | Xprite",
       "zh-CN": "自定义像素画工作区与离线编辑 | Xprite",
     },
   },
