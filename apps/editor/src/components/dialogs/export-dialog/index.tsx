@@ -249,7 +249,14 @@ export function ExportDialog(props: ExportDialogProps) {
       />
     );
   };
-  const panelSize = sizes[props.destination];
+  const reportedSize = sizes[props.destination];
+  const panelSize = {
+    ...reportedSize,
+    width:
+      scene.width > 0
+        ? Math.min(reportedSize.width, Math.max(1, scene.width - WINDOW_CHROME.width))
+        : reportedSize.width,
+  };
   const windowWidth = panelSize.width + WINDOW_CHROME.width;
   const windowHeight = panelSize.height + SELECTOR_HEIGHT + WINDOW_CHROME.height;
   const label = tUi("ui.export.format.selector");
