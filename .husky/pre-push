@@ -1,6 +1,8 @@
-pnpm run check
+# check:page-metadata reads the growth and tools builds that check:growth-ssr makes below.
+XPRITE_DEFER_PAGE_METADATA=1 pnpm run check
 pnpm run check:dependencies
 pnpm run check:growth-ssr
+pnpm run check:page-metadata --no-build
 pnpm run visual:continuity --port "${XPRITE_VISUAL_PORT:-5173}"
 pnpm run visual:capture --port "${XPRITE_VISUAL_PORT:-5173}"
 pnpm run visual:compare

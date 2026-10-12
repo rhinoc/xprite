@@ -6,7 +6,7 @@ export const GUIDE_PAGES = {
     path: "/help/",
     title: "Xprite User Guide",
     description:
-      "Save and recover projects, open and export files, arrange the workspace, use touch and a pen, work offline, check browser support, and get answers to common questions.",
+      "Save and recover projects, open and export files, arrange the workspace, use touch and a pen, work offline, check browser support and read common answers.",
   },
   [PublicLanguage.SimplifiedChinese]: {
     path: "/zh-CN/help/",

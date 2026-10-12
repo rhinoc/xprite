@@ -52,8 +52,8 @@ function StartupAnimation() {
   }, []);
 
   return (
-    <h1 className="xse-loading-sprite" aria-label="Xprite">
+    <div className="xse-loading-sprite" role="img" aria-label="Xprite">
       <canvas ref={canvasRef} className="xse-loading-sprite__canvas" width={7} height={7} />
-    </h1>
+    </div>
   );
 }

@@ -1,5 +1,10 @@
 import { PublicLanguage } from "@xprite/growth-content/language";
-import { TOOLS, translateToolText } from "@xprite/growth-content/tools";
+import {
+  TOOL_HEADING_ID,
+  TOOLS,
+  toolHeading,
+  translateToolText,
+} from "@xprite/growth-content/tools";
 import {
   readBrowserLanguagePreference,
   writeBrowserLanguagePreference,
@@ -23,4 +28,6 @@ export function writeToolLanguage(language: PublicLanguage) {
   document.title = translateToolText(tool.title, language);
   const description = document.querySelector('meta[name="description"]');
   description?.setAttribute("content", translateToolText(tool.description, language));
+  const heading = document.getElementById(TOOL_HEADING_ID);
+  if (heading) heading.textContent = toolHeading(tool, language);
 }

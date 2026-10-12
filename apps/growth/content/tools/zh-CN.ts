@@ -9,7 +9,8 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Processed on your device. No cloud upload.": "文件在本地处理，不上传云端。",
   "Files stay on your device. No cloud upload.": "文件只在本地处理，不上传云端。",
   "Inspect an Aseprite file": "查看 Aseprite 文件",
-  "Aseprite Viewer | Xprite": "Aseprite 查看器 | Xprite",
+  "Aseprite Viewer Online: Open .ase & .aseprite Files | Xprite":
+    "在线 Aseprite 查看器：打开 .ase 和 .aseprite 文件 | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "预览 Aseprite 工程，导出 PNG 单帧或 GIF 动画。",
   "Open Aseprite projects, preview layers and animation, and export PNG frames or GIF animations in your browser. Files stay on your device, with no cloud upload.":
@@ -19,22 +20,22 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Open file…": "打开文件…",
   "Drop an .ase or .aseprite file": "拖入 .ase 或 .aseprite 文件",
   "Turn a GIF into a sprite sheet": "将 GIF 转换为精灵表",
-  "GIF to Sprite Sheet | Xprite": "GIF 转精灵表 | Xprite",
+  "GIF to Sprite Sheet: Free Online Converter | Xprite": "GIF 转精灵表：免费在线转换 | Xprite",
   "Convert GIF animations into PNG sprite sheets with JSON frame data.":
     "将 GIF 动画转换为 PNG 精灵表，并导出 JSON 帧数据。",
-  "Turn GIF animations into PNG sprite sheets with custom layouts and spacing. Download frame coordinates and timing as JSON. Files stay on your device, with no cloud upload.":
-    "将 GIF 动画排成 PNG 精灵表，设置排列方式和间距，下载包含帧坐标和时长的 JSON。文件只在本地处理，不上传云端。",
+  "Convert GIF animations into PNG sprite sheets free in your browser. Choose rows, columns and spacing, and download JSON frame data. Files stay on your device.":
+    "在浏览器里免费把 GIF 动画转换成 PNG 精灵表，设置行列和间距，下载包含帧数据的 JSON。文件只在本地处理。",
   "Choose a GIF file": "选择 GIF 文件",
   "Open GIF": "打开 GIF",
   "Open GIF…": "打开 GIF…",
   "Drop a GIF file": "拖入 GIF 文件",
   "Make a design for your island": "制作岛屿设计",
-  "Animal Crossing Design Converter: PNG & Aseprite | Xprite":
-    "动物森友会设计转换器：PNG 与 Aseprite | Xprite",
+  "Animal Crossing QR Code Converter: PNG & Aseprite | Xprite":
+    "动物森友会二维码转换器：PNG 与 Aseprite | Xprite",
   "Convert PNG images and Aseprite tilemaps into island designs, or open an existing design QR code and export it unchanged.":
     "将 PNG 图片和 Aseprite 瓦片地图转换为岛屿设计，或打开已有设计二维码并原样导出。",
-  "Create Animal Crossing island design QR codes from PNG images and Aseprite tilemaps, or read normal design QR images and export their original data. Files stay on your device.":
-    "用 PNG 图片和 Aseprite 瓦片地图生成动物森友会设计二维码，或读取普通设计二维码并导出原始数据。文件只在本地处理。",
+  "Create Animal Crossing design QR codes from PNG images and Aseprite tilemaps, or read design QR images and export their data. Files stay on your device.":
+    "用 PNG 图片和 Aseprite 瓦片地图生成动物森友会设计二维码，或读取设计二维码并导出原始数据。文件只在本地处理。",
   "Choose artwork or an Animal Crossing QR image": "选择作品或动物森友会二维码图片",
   "Drop artwork, a QR image or an .acnl file": "拖入作品、二维码图片或 .acnl 文件",
   "Free online pixel art editor": "免费在线像素画编辑器",

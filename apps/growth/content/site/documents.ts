@@ -11,6 +11,10 @@ export interface SiteDocumentDefinition {
   title: Partial<Readonly<Record<PublicLanguage, string>>>;
   /** A concise label for menus and the footer when the page title needs more context. */
   navigationTitle?: Partial<Readonly<Record<PublicLanguage, string>>>;
+  /** The document `<title>` for search results; the visible heading stays `title`. */
+  searchTitle?: Partial<Readonly<Record<PublicLanguage, string>>>;
+  /** The meta description; defaults to the visible introduction paragraph. */
+  searchDescription?: Partial<Readonly<Record<PublicLanguage, string>>>;
 }
 
 const ABOUT_CONTENT = "apps/growth/content/about";
@@ -23,12 +27,17 @@ export const SITE_DOCUMENTS: readonly SiteDocumentDefinition[] = [
       "zh-CN": `apps/growth/content/features/details/${feature.slug}.zh-CN.md`,
     },
     title: feature.title,
+    searchTitle: feature.searchTitle,
+    searchDescription: "searchDescription" in feature ? feature.searchDescription : undefined,
   })),
   {
     path: "/privacy/",
     sources: { en: "PRIVACY.md", "zh-CN": "PRIVACY.zh.md" },
     title: { en: "Privacy Notice", "zh-CN": "隐私说明" },
     navigationTitle: { en: "Privacy", "zh-CN": "隐私" },
+    searchDescription: {
+      en: "What data the Xprite editor, website and tools use. No account is required. Sites that host Xprite, such as itch.io, may have their own privacy practices.",
+    },
   },
   {
     path: "/about/how-it-works/",
@@ -38,6 +47,11 @@ export const SITE_DOCUMENTS: readonly SiteDocumentDefinition[] = [
     },
     title: { en: "How Xprite Works", "zh-CN": "工作原理" },
     navigationTitle: { en: "How it works" },
+    searchDescription: {
+      en: "How Xprite brings the Aseprite editor into the browser: reading and writing .aseprite, crisp Canvas pixels, local storage, offline startup and touch input.",
+      "zh-CN":
+        "Xprite 怎样把 Aseprite 的编辑器搬进浏览器：读写 .aseprite、用 Canvas 画出不糊的像素、作品存在本地、断网时打开，以及适配触控和手写笔。",
+    },
   },
   {
     path: FEATURES_PATH,
@@ -46,6 +60,10 @@ export const SITE_DOCUMENTS: readonly SiteDocumentDefinition[] = [
       "zh-CN": `${ABOUT_CONTENT}/features.zh-CN.md`,
     },
     title: { en: "Features", "zh-CN": "功能" },
+    searchTitle: {
+      en: "Pixel Art Editor Features: Draw, Animate, Export | Xprite",
+      "zh-CN": "像素画编辑器功能：绘画、动画与导出 | Xprite",
+    },
   },
 ];
 

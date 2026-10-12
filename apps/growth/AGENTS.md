@@ -29,3 +29,26 @@ runtime, development server, build output, and public assets independent from
   until they have published content, while retaining usable navigation routes.
 - Keep article presentation in `src/components/articles/` and page renderers in
   `build/pages/`. Content modules must not import page runtime or build plugins.
+
+## Search metadata
+
+`pnpm run check:page-metadata` builds growth and tools, then reads `<title>` and
+`<meta name="description">` from every indexable page: growth (both languages),
+tools, the editor home and components when indexable. Noindex pages and the 404 are
+skipped. Lengths are display units: Latin characters count 1, CJK characters 2.
+
+| Language | Field | Aim for | Warns | Fails |
+| --- | --- | --- | --- | --- |
+| English | title | ≤ 60 | 61–65 | > 65 |
+| English | description | 70–160 | 50–69, 161–165 | < 50 or > 165 |
+| zh-CN | title | ≤ 60 (30 CJK) | 61–66 | > 66 |
+| zh-CN | description | 70–160 (35–80 CJK) | 40–69, 161–170 | < 40 or > 170 |
+
+- Missing or empty values fail, and so does a title or description that another page
+  in the same language already uses. An `og:` value that differs only warns.
+- Chinese results cut snippets at about 75–80 CJK characters, so 160 units shows almost
+  all of a description. Chinese descriptions may be shorter than English ones.
+- Shorten the search fields, not the page: documents and features take a separate
+  `searchTitle`/`searchDescription`, so visible headings and intros stay unchanged.
+- `pnpm run check` runs it; pre-push runs it with `--no-build` after
+  `check:growth-ssr` builds both apps. Limits and tests live in `infra/page-metadata.ts`.

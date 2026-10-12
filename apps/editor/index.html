@@ -171,14 +171,14 @@
   <body>
     <div id="root"></div>
     <div id="xse-startup" class="xse-startup" role="status" aria-live="polite" aria-label="Loading">
-      <h1 class="xse-loading-sprite" aria-label="Xprite">
+      <div class="xse-loading-sprite" role="img" aria-label="Xprite">
         <canvas
           id="xse-startup-canvas"
           class="xse-loading-sprite__canvas"
           width="7"
           height="7"
         ></canvas>
-      </h1>
+      </div>
       <section class="xse-startup-copy">
         <p class="xse-startup-subtitle">Pixel art and animation in your browser</p>
         <p>
@@ -190,7 +190,8 @@
     </div>
     <!-- This recovery UI must work even when React, UI, or editor modules cannot load. -->
     <section id="xse-startup-error" role="alert" data-nosnippet hidden>
-      <h1 id="xse-startup-error-title">Editor error</h1>
+      <!-- A heading only once shown, so the hidden recovery text is not the page heading. -->
+      <p id="xse-startup-error-title">Editor error</p>
       <p id="xse-startup-error-description">The editor could not start. Reload to try again.</p>
       <pre id="xse-startup-error-details"></pre>
       <div>
@@ -209,6 +210,11 @@
 
         const showFailure = (error) => {
           if (diagnostic) return;
+          const titleText = document.getElementById("xse-startup-error-title");
+          const title = document.createElement("h1");
+          title.id = titleText.id;
+          title.textContent = titleText.textContent;
+          titleText.replaceWith(title);
           diagnostic = {
             format: DIAGNOSTIC_FORMAT,
             timestamp: Date.now(),

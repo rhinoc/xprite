@@ -195,8 +195,9 @@ ${english ? `<link rel="alternate" hreflang="x-default" href="${new URL(english.
     {
       language,
       path: page.path,
-      title: page.title.includes("Xprite") ? page.title : `${page.title} | Xprite`,
-      description: content.description,
+      title:
+        page.searchTitle ?? (page.title.includes("Xprite") ? page.title : `${page.title} | Xprite`),
+      description: page.description ?? content.description,
       navigation: chinese ? "网站导航" : "Website navigation",
     },
     indexable,

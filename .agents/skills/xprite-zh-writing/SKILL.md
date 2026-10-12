@@ -55,6 +55,11 @@ Use Apple's official zh-CN names (verified on apple.com.cn and support.apple.com
 - List items are either all full sentences with 。 or all phrases without it.
 - Use code spans for shortcuts, file names and code: `Ctrl + Z`, `walk.gif`.
 
+## Titles and descriptions
+
+- Search titles stay within 30 CJK characters (60 display units, Latin counts half) and descriptions within about 80 CJK characters. `pnpm run check:page-metadata` enforces the limits in `apps/growth/AGENTS.md`.
+- A description states what the page covers in one or two sentences, with the same typography rules as the body.
+
 ## Comparison tables
 
 - Start each cell with a marker: ✅ supported or good, ⚠️ partial or with a caveat, ❌ not supported. Use 🆓 or 💰 in price rows.
