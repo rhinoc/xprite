@@ -26,6 +26,7 @@ const toolLanguages = new Map([
   ["/tools/gif-to-sprite-sheet/", PublicLanguage.SimplifiedChinese],
   ["/tools/pixelate/", PublicLanguage.English],
   ["/tools/animal-crossing-qr/", PublicLanguage.English],
+  ["/tools/fuse-beads/", PublicLanguage.SimplifiedChinese],
 ]);
 
 function canonicalPath(path) {
