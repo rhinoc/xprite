@@ -9,7 +9,10 @@ import { randomId, sha256Hex } from "@xprite/bedrock/browser/runtime-crypto";
 
 const DEFAULT_PROJECT_OPFS_NAMESPACE = "xse.opfs.projects.v1";
 
-/** Capability fallback is chosen only for NEW projects; existing backend stays pinned. */
+/** Capability fallback is chosen only for NEW projects; existing backend stays pinned.
+ * OPFS API presence is not enough (Safari Private Browsing rejects getDirectory with
+ * UnknownError); ProjectRepository demotes new projects to IndexedDB when OPFS is unavailable.
+ */
 export function createBrowserProjectStorage(
   options: {
     factory?: IDBFactory;

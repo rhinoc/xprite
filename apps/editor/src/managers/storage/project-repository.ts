@@ -1,7 +1,7 @@
 import { tUi } from "$/i18n";
 import {
+  PayloadKind,
   ProjectStorageError,
-  type PayloadKind,
   type PayloadStore,
   type SaveProject,
   type LoadedProject,
@@ -35,7 +35,11 @@ function retainedPayloads(generations: readonly Generation[]): Set<string> {
 /** Binary snapshots are immutable. Only a catalog transaction publishes a head. */
 export class ProjectRepository {
   private closed = false;
-  constructor(private readonly options: ProjectRepositoryOptions) {}
+  /** May demote from OPFS to IndexedDB when OPFS is advertised but unusable. */
+  private preferredBackend: PayloadKind;
+  constructor(private readonly options: ProjectRepositoryOptions) {
+    this.preferredBackend = options.preferredBackend;
+  }
 
   private assertOpen() {
     if (this.closed) throw new ProjectStorageError("closed", "Project repository is closed");
@@ -227,93 +231,114 @@ export class ProjectRepository {
         );
       previous = valid.generation;
     }
-    const backend = old?.head.backend ?? this.options.preferredBackend;
-    const candidates: Generation[] = previous?.backend === backend ? [previous] : [];
-    if (
-      this.options.exclusive &&
-      input.reuseFromProjectId &&
-      input.reuseFromProjectId !== input.projectId
-    ) {
-      const source = await this.load(input.reuseFromProjectId);
-      if (source?.generation.backend === backend) candidates.push(source.generation);
-    }
-    const head: Generation = {
-      id: this.payloadId(),
-      backend,
-      size: bytes.byteLength,
-      checksum: await this.options.checksum(bytes),
-    };
-    const identical = candidates.find(
-      (generation) =>
-        head.size > 0 &&
-        generation.size === head.size &&
-        generation.checksum === head.checksum &&
-        (!this.options.exclusive ||
-          payloads(generation).every((part) => part.id.startsWith(SHARED_PAYLOAD_PREFIX))),
-    );
-    const parts = splitSnapshotParts(bytes);
-    const written: GenerationPart[] = [];
-    const record: ProjectRecord = {
-      projectId: input.projectId,
-      metadata,
-      head,
-      previous,
-      updatedAt: this.options.now(),
-    };
-    try {
-      if (identical) {
-        // Metadata gets a new CAS token, while identical content keeps its bytes.
-        head.parts = payloads(identical).map(({ id, size, checksum }) => ({ id, size, checksum }));
-      } else if (parts.length === 1) {
-        await this.store(backend).write(head.id, bytes);
-        written.push(head);
-      } else {
-        // Cross-project reuse is permitted only while holding the shared catalog
-        // lock. Unlocked writers never publish references to another project's data.
-        const reusable = new Map<string, GenerationPart>(
-          candidates
-            .flatMap((generation) => payloads(generation))
-            .filter((part) => !this.options.exclusive || part.id.startsWith(SHARED_PAYLOAD_PREFIX))
-            .map((part) => [`${part.size}:${part.checksum}`, part] as const),
-        );
-        const references: GenerationPart[] = [];
-        for (const value of parts) {
-          const digest = await this.options.checksum(value);
-          const key = `${value.byteLength}:${digest}`;
-          let part = reusable.get(key);
-          if (!part) {
-            part = {
-              id: this.payloadId(),
-              size: value.byteLength,
-              checksum: digest,
-            };
-            await this.store(backend).write(part.id, value);
-            written.push(part);
-            reusable.set(key, part);
-          }
-          references.push(part);
-        }
-        head.parts = references;
+    // Existing projects stay pinned to their backend. New projects may demote
+    // from OPFS to IndexedDB when OPFS is present but unusable (Safari private).
+    let backend = old?.head.backend ?? this.preferredBackend;
+    for (;;) {
+      const candidates: Generation[] = previous?.backend === backend ? [previous] : [];
+      if (
+        this.options.exclusive &&
+        input.reuseFromProjectId &&
+        input.reuseFromProjectId !== input.projectId
+      ) {
+        const source = await this.load(input.reuseFromProjectId);
+        if (source?.generation.backend === backend) candidates.push(source.generation);
       }
-      // Read-back catches truncated writes before publication.
-      await this.verifyReadBack(head, bytes);
-      await this.options.catalog.publish(record, input.expectedHead);
-    } catch (error) {
-      // This generation was successfully created by this writer and never
-      // published. Never remove on write failure (it could be an ID collision).
-      for (const part of written) await this.discard({ ...part, backend });
-      throw error;
+      const head: Generation = {
+        id: this.payloadId(),
+        backend,
+        size: bytes.byteLength,
+        checksum: await this.options.checksum(bytes),
+      };
+      const identical = candidates.find(
+        (generation) =>
+          head.size > 0 &&
+          generation.size === head.size &&
+          generation.checksum === head.checksum &&
+          (!this.options.exclusive ||
+            payloads(generation).every((part) => part.id.startsWith(SHARED_PAYLOAD_PREFIX))),
+      );
+      const parts = splitSnapshotParts(bytes);
+      const written: GenerationPart[] = [];
+      const record: ProjectRecord = {
+        projectId: input.projectId,
+        metadata,
+        head,
+        previous,
+        updatedAt: this.options.now(),
+      };
+      try {
+        if (identical) {
+          // Metadata gets a new CAS token, while identical content keeps its bytes.
+          head.parts = payloads(identical).map(({ id, size, checksum }) => ({
+            id,
+            size,
+            checksum,
+          }));
+        } else if (parts.length === 1) {
+          await this.store(backend).write(head.id, bytes);
+          written.push(head);
+        } else {
+          // Cross-project reuse is permitted only while holding the shared catalog
+          // lock. Unlocked writers never publish references to another project's data.
+          const reusable = new Map<string, GenerationPart>(
+            candidates
+              .flatMap((generation) => payloads(generation))
+              .filter(
+                (part) => !this.options.exclusive || part.id.startsWith(SHARED_PAYLOAD_PREFIX),
+              )
+              .map((part) => [`${part.size}:${part.checksum}`, part] as const),
+          );
+          const references: GenerationPart[] = [];
+          for (const value of parts) {
+            const digest = await this.options.checksum(value);
+            const key = `${value.byteLength}:${digest}`;
+            let part = reusable.get(key);
+            if (!part) {
+              part = {
+                id: this.payloadId(),
+                size: value.byteLength,
+                checksum: digest,
+              };
+              await this.store(backend).write(part.id, value);
+              written.push(part);
+              reusable.set(key, part);
+            }
+            references.push(part);
+          }
+          head.parts = references;
+        }
+        // Read-back catches truncated writes before publication.
+        await this.verifyReadBack(head, bytes);
+        await this.options.catalog.publish(record, input.expectedHead);
+      } catch (error) {
+        // This generation was successfully created by this writer and never
+        // published. Never remove on write failure (it could be an ID collision).
+        for (const part of written) await this.discard({ ...part, backend });
+        if (
+          !old &&
+          backend === PayloadKind.Opfs &&
+          error instanceof ProjectStorageError &&
+          error.code === "unavailable" &&
+          this.options.stores[PayloadKind.IndexedDb]
+        ) {
+          this.preferredBackend = PayloadKind.IndexedDb;
+          backend = PayloadKind.IndexedDb;
+          continue;
+        }
+        throw error;
+      }
+      try {
+        const retained = await this.protectedPayloads(previous ? [head, previous] : [head]);
+        if (old?.previous && old.previous.id !== previous?.id)
+          await this.discard(old.previous, retained);
+        if (old && old.head.id !== previous?.id) await this.discard(old.head, retained);
+      } catch {
+        // Publication succeeded. A failed garbage-collection scan must not make
+        // the coordinator retry a durable save using an obsolete head token.
+      }
+      return record;
     }
-    try {
-      const retained = await this.protectedPayloads(previous ? [head, previous] : [head]);
-      if (old?.previous && old.previous.id !== previous?.id)
-        await this.discard(old.previous, retained);
-      if (old && old.head.id !== previous?.id) await this.discard(old.head, retained);
-    } catch {
-      // Publication succeeded. A failed garbage-collection scan must not make
-      // the coordinator retry a durable save using an obsolete head token.
-    }
-    return record;
   }
   async remove(projectId: string, expectedHead: string): Promise<void> {
     this.assertOpen();
