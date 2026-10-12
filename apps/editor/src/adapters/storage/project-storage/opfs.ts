@@ -3,10 +3,10 @@ import {
   ProjectStorageError,
   type PayloadStore,
 } from "$/managers/ports/project-storage";
-import { OpfsByteStore, probeOpfs, supportsOpfs } from "@xprite/bedrock/browser/opfs";
+import { OpfsByteStore, supportsOpfs } from "@xprite/bedrock/browser/opfs";
 import { BrowserStorageError } from "@xprite/bedrock/browser/storage-error";
 
-export { probeOpfs, supportsOpfs };
+export { supportsOpfs };
 
 /** Adapts the generic OPFS byte store to project-storage error semantics. */
 export class OpfsPayloadStore implements PayloadStore {
