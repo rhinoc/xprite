@@ -2,6 +2,7 @@
 // Local deploy dry run: the build and validation half of .github/workflows/deploy-editor.yml,
 // without secrets or publishing. Runs EdgeOne config validation, the full site build and
 // deploy:prepare (static-file, entry-asset and asset-version checks) into .tmp/deploy/editor.
+// The build uses the deploy environment (release = HEAD), so the visual audits test what ships.
 import { execFileSync, spawnSync } from "node:child_process";
 
 const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
@@ -16,11 +17,19 @@ const env = {
   POSTHOG_CLI_API_KEY: "",
   POSTHOG_CLI_PROJECT_ID: "",
 };
-for (const args of [
-  ["exec", "edgeone", "validate"],
-  ["run", "build:site"],
-  ["run", "deploy:prepare"],
-]) {
+// --build: validation and the site build (.tmp/site) only; --prepare: deploy:prepare on an
+// existing build. pre-push builds once, audits that build visually, and prepares it in parallel.
+const only = process.argv.includes("--build")
+  ? "build"
+  : process.argv.includes("--prepare")
+    ? "prepare"
+    : null;
+const steps = [
+  ["build", ["exec", "edgeone", "validate"]],
+  ["build", ["run", "build:site"]],
+  ["prepare", ["run", "deploy:prepare"]],
+].filter(([phase]) => !only || phase === only);
+for (const [, args] of steps) {
   const result = spawnSync(pnpm, args, {
     stdio: "inherit",
     env,
@@ -31,4 +40,10 @@ for (const args of [
     process.exit(result.status ?? 1);
   }
 }
-console.log("check:deploy: site build and deployment preparation passed.");
+console.log(
+  only === "build"
+    ? "check:deploy: EdgeOne validation and site build passed."
+    : only === "prepare"
+      ? "check:deploy: deployment preparation passed."
+      : "check:deploy: site build and deployment preparation passed.",
+);

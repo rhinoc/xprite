@@ -267,6 +267,9 @@ export async function captureBrowserPng(page, { clip, expectedDpr } = {}) {
     try {
       screenshot = await page.cdp("Page.captureScreenshot", {
         format: "png",
+        // Fast, still lossless PNG encoding: comparisons use decoded pixels, and committed
+        // baselines are recompressed separately (pnpm run visual:optimize).
+        optimizeForSpeed: true,
         fromSurface: true,
         captureBeyondViewport: false,
         clip: {

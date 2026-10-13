@@ -10,6 +10,7 @@
 //   parallel, buffering each audit's output.
 // XPRITE_SKIP_VISUAL=1 is an explicit opt-out; nothing is skipped by default.
 import { spawn } from "node:child_process";
+import fs from "node:fs";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
@@ -18,6 +19,7 @@ import { chromium } from "playwright";
 
 import configuration from "../../infra/dev-site.json" with { type: "json" };
 import { BROWSER_ARGS, launchBrowserServer } from "./base/browser.mjs";
+import { startStaticSite } from "./base/static-site.mjs";
 
 const root = fileURLToPath(new URL("../../", import.meta.url)).replace(/[\\/]$/, "");
 const started = performance.now();
@@ -132,16 +134,48 @@ function run(name, steps, env) {
 
 const ts = ["--experimental-transform-types", "--no-warnings=ExperimentalWarning"];
 const portArgs = ["--port", String(port)];
-const site = await startSite();
+// Default: audit the production build (.tmp/site), served the way EdgeOne serves it. Pages load
+// as a few hashed bundles instead of hundreds of dev-server module transforms, and what is
+// audited is what deploys. `--prebuilt` reuses a build the caller just made (pre-push builds it
+// once for both these audits and check:deploy); `--dev` audits the Vite dev site instead.
+const useDev = process.argv.includes("--dev");
+const siteRoot = path.join(root, ".tmp/site");
+async function startStaticBuild() {
+  if (!process.argv.includes("--prebuilt")) {
+    const since = performance.now();
+    const status = await new Promise((resolve) => {
+      const child = spawn("pnpm", ["run", "build:site"], { cwd: root, stdio: "ignore" });
+      child.once("close", (code) => resolve(code ?? 1));
+    });
+    if (status !== 0) throw Error("pnpm run build:site failed; run it directly for details.");
+    console.log(`Site built in ${seconds(since)}s.`);
+  }
+  if (!fs.existsSync(path.join(siteRoot, "edgeone.json")))
+    throw Error("No site build in .tmp/site; run `pnpm run build:site` first.");
+  const server = await startStaticSite({ siteRoot, port });
+  console.log(`Serving the production build from .tmp/site on port ${port}.`);
+  return {
+    child: {
+      kill: () => {
+        server.close();
+        server.closeAllConnections();
+      },
+    },
+    exited: new Promise((resolve) => server.on("close", resolve)),
+  };
+}
+const site = useDev ? await startSite() : await startStaticBuild();
 const server = await launchBrowserServer();
 let failed = [];
 try {
   const env = { ...process.env, XPRITE_VISUAL_BROWSER_WS: server.wsEndpoint() };
   const warmStarted = performance.now();
-  await warm(server.wsEndpoint());
-  console.log(
-    `Dev site ready and warmed in ${seconds(warmStarted)}s (Chromium ${BROWSER_ARGS.length} pinned flags).`,
-  );
+  if (useDev) {
+    await warm(server.wsEndpoint());
+    console.log(
+      `Dev site ready and warmed in ${seconds(warmStarted)}s (Chromium ${BROWSER_ARGS.length} pinned flags).`,
+    );
+  }
   const results = await Promise.all([
     run(
       "startup continuity",
@@ -171,7 +205,8 @@ try {
   await server.close().catch(() => {});
   if (site) {
     site.child.kill("SIGTERM");
-    await Promise.race([site.exited, delay(10_000)]);
+    // An unref'd timer: a pending fallback must not keep the process alive after exit.
+    await Promise.race([site.exited, delay(10_000, undefined, { ref: false })]);
   }
 }
 if (failed.length > 0) {

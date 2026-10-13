@@ -35,6 +35,7 @@
     "components:generate": "node scripts/generate-components.mjs",
     "visual": "node scripts/visual-audit/run.mjs",
     "visual:baseline": "node scripts/visual-audit/xprite/capture.mjs --baseline",
+    "visual:optimize": "node scripts/visual-audit/optimize-baselines.mjs",
     "visual:capture": "node scripts/visual-audit/xprite/capture.mjs",
     "visual:compare": "node scripts/visual-audit/xprite/compare.mjs",
     "visual:report": "node scripts/visual-audit/report.mjs",
@@ -81,6 +82,7 @@
   },
   "devDependencies": {
     "@babel/parser": "^7.29.9",
+    "@jsquash/oxipng": "^2.3.0",
     "@posthog/cli": "^0.18.9",
     "@types/node": "^26.6.1",
     "@types/react": "^18.3.12",

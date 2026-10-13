@@ -24,14 +24,20 @@ check:stale-css` and `pnpm run check:site-build`. `node scripts/check/run.mjs
 each project's `node_modules/.cache/xprite-types`).
 
 Visual audits run with Playwright's bundled headless Chromium on macOS, Linux and
-Windows. `pnpm run visual` starts or reuses the dev site once, launches
-one browser and runs every audit in parallel; see `visual-audit/base/browser.mjs`
-for the pinned rendering settings. Run `pnpm exec playwright install chromium`
-once per machine. `XPRITE_SKIP_VISUAL=1` skips the visual audits explicitly.
+Windows. `pnpm run visual` builds the production site (`pnpm run build:site`, skipped with
+`--prebuilt`), serves `.tmp/site` with the EdgeOne routing rules
+(`visual-audit/base/static-site.mjs`), launches one browser and runs every audit in parallel,
+sharding scenes over `XPRITE_VISUAL_SHARDS` pages (default: half the CPUs). `--dev` audits the
+Vite dev server instead. Scrollbars stay visible (Playwright's default `--hide-scrollbars` is
+dropped) so the baselines match the real product; see `visual-audit/base/browser.mjs` for the
+pinned rendering settings. Run `pnpm exec playwright install chromium`
+once per machine. `XPRITE_SKIP_VISUAL=1` skips the visual audits explicitly. After any
+re-baseline, run `pnpm run visual:optimize` (lossless oxipng, pixels verified, manifest hashes
+updated) before committing.
 
-The pre-push hook (`scripts/check/pre-push.mjs`) runs `pnpm run check` first; once it
-passes, `pnpm run test:ci` runs in parallel with `pnpm run visual`, followed by
-`pnpm run check:deploy` (it rebuilds outputs that the visual audits' dev server serves).
+The pre-push hook (`scripts/check/pre-push.mjs`) runs `pnpm run check` in parallel with the site
+build (`check:deploy --build`); once both pass, `pnpm run test:ci`, `pnpm run visual --prebuilt`
+and `check:deploy --prepare` run in parallel against that one build.
 Their output is buffered and printed as one block per step with its time, followed by the
 total. Nothing is cached between pushes: every push runs every step. husky skips all hooks
 when `HUSKY=0` is set, so make sure it is unset (for example, `env -u HUSKY git push`) when

@@ -7,7 +7,7 @@ import { transform } from "esbuild";
 
 import { parseEgoReport, printEgoNonReportLines } from "../../base/ego-report.mjs";
 import { collectVisualSources } from "../base/audit-source-files.mjs";
-import { runBrowserPayload } from "../base/browser.mjs";
+import { runBrowserPayload, visualShardCount } from "../base/browser.mjs";
 import { installStartupMonitor } from "./monitor.mjs";
 import {
   CPU_SLOWDOWN,
@@ -117,10 +117,7 @@ try {
     screenshotModule: new URL("../../base/screenshot.mjs", import.meta.url).href,
   };
   // Scenes are independent (each uses its own origin), so shards run in parallel browser contexts.
-  const shardCount = Math.max(
-    1,
-    Math.min(scenes.length, Number(process.env.XPRITE_VISUAL_SHARDS ?? 3)),
-  );
+  const shardCount = visualShardCount(scenes.length);
   const shards = Array.from({ length: shardCount }, (_, shard) =>
     scenes.filter((_, index) => index % shardCount === shard),
   );

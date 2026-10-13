@@ -1,3 +1,5 @@
+import os from "node:os";
+
 // Cross-platform browser for the visual audits: Playwright's bundled headless Chromium.
 //
 // Capture payloads (`*/capture.payload.mjs`) were written for the macOS-only ego-browser `nodejs`
@@ -16,12 +18,14 @@
 // one browser process; without it each audit launches its own.
 import { chromium } from "playwright";
 
+// Playwright launches headless Chromium with --hide-scrollbars; users see scrollbars (thumb and
+// track), so captures must too, or scrollbar regressions are invisible.
+export const HIDDEN_DEFAULT_ARGS = ["--hide-scrollbars"];
 export const BROWSER_ARGS = [
   "--force-color-profile=srgb",
   "--font-render-hinting=none",
   "--disable-lcd-text",
   "--disable-font-subpixel-positioning",
-  "--hide-scrollbars",
   "--disable-gpu",
   "--disable-skia-runtime-opts",
   "--disable-renderer-backgrounding",
@@ -31,7 +35,11 @@ export const BROWSER_ARGS = [
 export const PINNED_PLATFORM = "Linux x86_64";
 
 export async function launchBrowserServer() {
-  return chromium.launchServer({ headless: true, args: BROWSER_ARGS });
+  return chromium.launchServer({
+    headless: true,
+    args: BROWSER_ARGS,
+    ignoreDefaultArgs: HIDDEN_DEFAULT_ARGS,
+  });
 }
 
 async function openBrowser() {
@@ -40,7 +48,11 @@ async function openBrowser() {
     const browser = await chromium.connect(endpoint);
     return { browser, close: () => browser.close() };
   }
-  const browser = await chromium.launch({ headless: true, args: BROWSER_ARGS });
+  const browser = await chromium.launch({
+    headless: true,
+    args: BROWSER_ARGS,
+    ignoreDefaultArgs: HIDDEN_DEFAULT_ARGS,
+  });
   return { browser, close: () => browser.close() };
 }
 
@@ -177,4 +189,12 @@ export async function runBrowserPayload({ payload, globals, forward = /^$/ }) {
     await close().catch(() => {});
   }
   return { status, ...output };
+}
+
+/** Parallel pages per sharded audit: four audits share the CPUs (XPRITE_VISUAL_SHARDS overrides). */
+export function visualShardCount(scenes) {
+  const requested = Number(
+    process.env.XPRITE_VISUAL_SHARDS ?? Math.max(1, Math.floor(os.availableParallelism() / 2)),
+  );
+  return Math.max(1, Math.min(scenes, requested));
 }

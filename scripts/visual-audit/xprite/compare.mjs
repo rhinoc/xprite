@@ -3,7 +3,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { generateImageReport } from "../report.mjs";
-import { assertCaptureContract, compareCase, COMPARISON_METHOD } from "./compare-case.mjs";
+import { assertCaptureContract, COMPARISON_METHOD } from "./compare-case.mjs";
+import { compareCases } from "./compare-pool.mjs";
 import { selectSceneIds, selectLanguages, languageDirectory } from "./scenes.mjs";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url));
@@ -39,9 +40,7 @@ try {
         `${language}: capture is incomplete or failed; partial comparisons cannot pass the gate.`,
       );
     assertCaptureContract(baseline, candidate, language, ids);
-    const results = ids.map((id) =>
-      compareCase(baseline, candidate, baselineDir, candidateDir, id),
-    );
+    const results = await compareCases(baseline, candidate, baselineDir, candidateDir, ids);
     const report = {
       passed: results.every(({ passed }) => passed),
       comparison: COMPARISON_METHOD,

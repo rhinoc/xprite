@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { transform } from "esbuild";
 
 import { parseEgoReport } from "../../base/ego-report.mjs";
-import { runBrowserPayload } from "../base/browser.mjs";
+import { runBrowserPayload, visualShardCount } from "../base/browser.mjs";
 import { assertCompleteCapture, compareSiteCase, readSiteImage } from "./compare.mjs";
 import { writeSiteReview } from "./report.mjs";
 import { scenes } from "./scenes.mjs";
@@ -91,16 +91,26 @@ if (mode === "capture") {
       screenshotModule: new URL("../../base/screenshot.mjs", import.meta.url).href,
     };
     const payload = fs.readFileSync(new URL("./capture.payload.mjs", import.meta.url), "utf8");
-    const streams = { stdout: "", stderr: "" };
-    const result = await runBrowserPayload({
-      payload: payload,
-      globals: { siteConfig: config },
-      forward: /^SITE_CAPTURE_(SPACE|SCENE):/,
-    });
-    Object.assign(streams, { stdout: result.stdout, stderr: result.stderr });
-    const status = result.status;
-    if (status !== 0) throw Error(`Growth/tools capture failed: ${streams.stderr.slice(-4000)}`);
-    const { report } = parseEgoReport(streams, "SITE_CAPTURE_REPORT");
+    // Scenes are independent, so shards capture them in parallel browser pages.
+    const shardCount = visualShardCount(scenes.length);
+    const runs = await Promise.all(
+      Array.from({ length: shardCount }, (_, shard) =>
+        runBrowserPayload({
+          payload: payload,
+          globals: {
+            siteConfig: {
+              ...config,
+              scenes: scenes.filter((_, index) => index % shardCount === shard),
+            },
+          },
+          forward: /^SITE_CAPTURE_(SPACE|SCENE):/,
+        }),
+      ),
+    );
+    const failedRun = runs.find((run) => run.status !== 0);
+    if (failedRun) throw Error(`Growth/tools capture failed: ${failedRun.stderr.slice(-4000)}`);
+    const reports = runs.map((run) => parseEgoReport(run, "SITE_CAPTURE_REPORT").report);
+    const report = { browser: reports[0].browser, cases: reports.flatMap(({ cases }) => cases) };
     if (JSON.stringify(sourceHashes) !== JSON.stringify(siteSourceHashes(root)))
       throw Error("Sources changed during capture; pushing is blocked.");
     Object.assign(manifest, {

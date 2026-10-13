@@ -137,17 +137,28 @@ try {
     languages,
     catalogs,
   };
-  // Languages are independent (separate origins and output folders): capture them in parallel.
+  // Each language and layout mode uses its own origin, so every (language, mode) pair captures
+  // in its own parallel browser page; the payload skips modes with no selected ids.
+  const shards = languages.flatMap((language) =>
+    config.layouts
+      .map(({ mode }) => selectedIds[language].filter((id) => id.endsWith(`-${mode}`)))
+      .filter((ids) => ids.length > 0)
+      .map((ids) => ({ language, ids })),
+  );
   const runs = await Promise.all(
-    languages
-      .filter((language) => selectedIds[language].length > 0)
-      .map((language) =>
-        runBrowserPayload({
-          payload,
-          globals: { captureConfig: { ...config, languages: [language] } },
-          forward: baseline ? /^CAPTURE_(SPACE|CASE):/ : /^CAPTURE_SPACE:/,
-        }),
-      ),
+    shards.map(({ language, ids }) =>
+      runBrowserPayload({
+        payload,
+        globals: {
+          captureConfig: {
+            ...config,
+            languages: [language],
+            selectedIds: { ...config.selectedIds, [language]: ids },
+          },
+        },
+        forward: baseline ? /^CAPTURE_(SPACE|CASE):/ : /^CAPTURE_SPACE:/,
+      }),
+    ),
   );
   for (const run of runs)
     printEgoNonReportLines(
