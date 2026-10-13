@@ -188,7 +188,7 @@ describe("export-dialog-geometry [feature-7-12]", () => {
       [
         "export-file",
         "export_file",
-        exportFileAsepriteLayout(false, false),
+        exportFileAsepriteLayout(false, false, false, false, false),
         {
           output: "output_field",
           resize: "resize",
@@ -215,7 +215,7 @@ describe("export-dialog-geometry [feature-7-12]", () => {
       const nodes = read(prefix),
         win = nodes.find((n) => n.id === windowId),
         client = { x: win.bounds[0] + 6, y: win.bounds[1] + 17 };
-      assert.equal(spec.height, win.bounds[3] * 2);
+      assert.equal(spec.height, win.bounds[3] * 2, `${prefix} height`);
       for (const [field, id] of Object.entries(mapping)) {
         const aseprite = nodes.find((n) => n.id === id),
           b = spec.fields[field],

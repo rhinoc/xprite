@@ -10,7 +10,7 @@ describe("animation-settings-ui [feature-7-12]", () => {
   it("animation-settings-ui behavior", async () => {
     const result = await build({
       stdin: {
-        contents: `export * from './apps/editor/src/components/timeline/animation-settings';export * from './apps/editor/src/managers/preferences/timeline-panel-preferences';export * from './packages/editor-core/src/timeline/animation-options.ts';export * from './apps/editor/src/components/timeline/animation-preview';export * from './apps/editor/src/components/canvas/scene-bounds';export {UIProvider} from './packages/ui/dist/ui.js';export {createJsonStorage} from './packages/bedrock/browser/json-storage.ts';`,
+        contents: `export * from './apps/editor/src/components/timeline/animation-settings';export * from './apps/editor/src/managers/preferences/timeline-panel-preferences';export * from './packages/editor-core/src/timeline/animation-options.ts';export * from './apps/editor/src/components/timeline/animation-preview';export * from './apps/editor/src/components/canvas/scene-bounds';export {UIProvider,UiColorScheme,asepriteTheme} from './packages/ui/dist/ui.js';export {loadUiThemeSnapshot} from './packages/ui/dist/assets.js';export {EditorPlatformProvider} from './apps/editor/src/managers/platform/editor-platform-context';export {createJsonStorage} from './packages/bedrock/browser/json-storage.ts';`,
         resolveDir: process.cwd(),
       },
       bundle: true,
@@ -86,9 +86,17 @@ describe("animation-settings-ui [feature-7-12]", () => {
     assert.equal(reset.opacityBase, 68);
     assert.equal(reset.opacityStep, 28);
     assert.equal(reset.type, "merge");
-    // The settings panel reads the UI theme, so render it inside a UIProvider.
+    // UIProvider renders nothing until its theme module loads; tests pass the snapshot up front
+    // (same as server HTML before hydration) so the first render already contains the popup.
+    const initialTheme = await api.loadUiThemeSnapshot(api.UiColorScheme.Light, api.asepriteTheme);
     const renderInUI = (element) =>
-      renderToString(React.createElement(api.UIProvider, { translateKey: (key) => key }, element));
+      renderToString(
+        React.createElement(
+          api.UIProvider,
+          { theme: api.asepriteTheme, initialTheme, translateKey: (key) => key },
+          element,
+        ),
+      );
     const html = renderInUI(
       React.createElement(api.OnionSkinSettingsPanel, {
         open: true,
@@ -139,7 +147,8 @@ describe("animation-settings-ui [feature-7-12]", () => {
       /aria-label="Previous Frames"|aria-label="Next Frames"|xse-dialog-backdrop/,
       "frame count belongs to timeline handles, configuration is a source popup",
     );
-    assert.equal(
+    // Closed: only the provider's theme wrapper remains, no popup.
+    assert.doesNotMatch(
       renderInUI(
         React.createElement(api.OnionSkinSettingsPanel, {
           open: false,
@@ -148,7 +157,7 @@ describe("animation-settings-ui [feature-7-12]", () => {
           onChange() {},
         }),
       ),
-      "",
+      /role="dialog"|Timeline Settings/,
     );
     const enabled = renderInUI(
       React.createElement(api.OnionSkinSettingsPanel, {
@@ -221,19 +230,34 @@ describe("animation-settings-ui [feature-7-12]", () => {
       view: { pan: { x: 0, y: 0 }, zoom: 1 },
       pixelRevision: 1,
     };
+    // The preview's wheel handling needs the platform ports the app root injects.
     const preview = renderToString(
       React.createElement(
-        api.UIProvider,
-        { translateKey: (key) => (key === "ui.close.name" ? "Close {name}" : key) },
+        api.EditorPlatformProvider,
+        {
+          // Only the wheel hooks read ports during render; nothing dispatches wheel events here.
+          ports: {
+            preferences: { getItem: () => null, setItem() {} },
+            wheelInput: { read: () => ({ kind: "none" }) },
+          },
+        },
         React.createElement(
-          api.SceneBoundsContext.Provider,
-          { value: { x: 0, y: 0, width: 1920, height: 1050 } },
-          React.createElement(api.AnimationPreview, {
-            snapshot: state,
-            identity: 1,
-            open: true,
-            onOpenChange() {},
-          }),
+          api.UIProvider,
+          {
+            theme: api.asepriteTheme,
+            initialTheme,
+            translateKey: (key) => (key === "ui.close.name" ? "Close {name}" : key),
+          },
+          React.createElement(
+            api.SceneBoundsContext.Provider,
+            { value: { x: 0, y: 0, width: 1920, height: 1050 } },
+            React.createElement(api.AnimationPreview, {
+              snapshot: state,
+              identity: 1,
+              open: true,
+              onOpenChange() {},
+            }),
+          ),
         ),
       ),
     );

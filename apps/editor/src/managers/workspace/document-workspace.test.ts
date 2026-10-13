@@ -72,11 +72,15 @@ describe("bundled-recents", () => {
   hasUnpersistedWorkspaceChanges=()=>false;
   discardSlotChanges=()=>true;
   suspend(){};
-  loadRecoveryEntry=async()=>({document:{name:'recovered.png'}});
-  loadClosedProject=async()=>({snapshot:{document:{name:'closed.png'}},head:'head'});
+  loadRecoveryEntry=async()=>null;
+  // In-memory browser project store, mirroring the real recovery's seed/find/load contract.
+  projects=new Map();
+  entry(id){const {snapshot,updatedAt}=this.projects.get(id);return {id,name:snapshot.document.name,updatedAt,width:snapshot.document.width,height:snapshot.document.height}}
+  listClosedProjects=async()=>[...this.projects.keys()].map(id=>this.entry(id));
+  loadClosedProject=async id=>{const p=this.projects.get(id);if(!p)throw new Error('missing '+id);return {snapshot:p.snapshot,head:'head'}};
   adoptClosedProject(){};
-  findProjectByName=async()=>null;
-  seedProject=async()=>null;
+  findProjectByName=async(...names)=>{for(const id of this.projects.keys()){const e=this.entry(id);if(names.includes(e.name))return e}return null};
+  seedProject=async(id,snapshot)=>{if(!this.projects.has(id))this.projects.set(id,{snapshot:{...snapshot,dirty:false},updatedAt:1});return this.entry(id)};
 }`;
     const result = await build({
       stdin: {
@@ -133,7 +137,7 @@ describe("bundled-recents", () => {
     workspace.startBackgroundInitialization();
     timers.flush();
     for (let i = 0; i < 16; i++) await Promise.resolve();
-    const recent = workspace.active.session.getSnapshot().recentFiles;
+    const recent = workspace.getRecentFiles();
     assert.deepEqual(
       workspace.getSnapshot().tabs.map((tab) => tab.name),
       [],
@@ -146,10 +150,10 @@ describe("bundled-recents", () => {
     );
     assert.deepEqual(
       recent.map((item) => item.id),
-      ["bundled:hello-project"],
+      ["local-project:bundled:hello-project"],
     );
     const count = workspace.getSnapshot().tabs.length;
-    assert.equal(await workspace.openRecent("bundled:hello-project"), true);
+    assert.equal(await workspace.openRecent("local-project:bundled:hello-project"), true);
     assert.notEqual(workspace.active.id, "untitled");
     assert.equal(workspace.active.core.getSnapshot().document?.name, "example.aseprite");
     assert.equal(workspace.getSnapshot().tabs.length, count + 1);
