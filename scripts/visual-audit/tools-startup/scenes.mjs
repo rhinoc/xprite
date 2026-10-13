@@ -26,10 +26,21 @@ const selectedCoverage = [
   { language: "zh-CN", layout: layouts[1], appearance: appearances[0] },
 ];
 
-export const scenes = pages.map((page, index) => {
-  const coverage = selectedCoverage[index];
+/** Japanese and Korean each add one tool startup; the rest stay en/zh-CN. */
+const extraCoverage = [
+  { page: pages[1], language: "ja", layout: layouts[0], appearance: appearances[0] },
+  { page: pages[4], language: "ko", layout: layouts[1], appearance: appearances[1] },
+];
+
+export const scenes = [
+  ...pages.map((page, index) => ({ page, ...selectedCoverage[index] })),
+  ...extraCoverage,
+].map((coverage) => {
+  const page = coverage.page;
   const languagePath =
-    coverage.language === "en" ? page.path : page.publicPage ? `/zh-CN${page.path}` : page.path;
+    coverage.language === "en" || !page.publicPage
+      ? page.path
+      : `/${coverage.language}${page.path}`;
   return {
     id: `${page.name}-${coverage.language}-${coverage.layout.name}-${coverage.appearance.name}`,
     page: { ...page, language: coverage.language, path: languagePath },

@@ -1,3 +1,4 @@
+import { pageScrollLabel } from "$content/site/language";
 import { StrictMode, useSyncExternalStore } from "react";
 import { createRoot, type Root } from "react-dom/client";
 
@@ -53,7 +54,7 @@ function ShowcaseApp({ initialTheme }: { initialTheme: UiThemeSnapshot }) {
         <ScrollArea
           target={ScrollAreaTarget.Page}
           scrollbarRendering={ScrollbarRendering.Browser}
-          aria-label={language === "zh-CN" ? "页面滚动" : "Page scroll"}
+          aria-label={pageScrollLabel(language)}
         >
           <Showcase
             manager={manager}

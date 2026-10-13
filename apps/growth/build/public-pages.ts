@@ -17,8 +17,15 @@ import { applySiteIcons } from "../../../infra/site-html.ts";
 import { ARTICLE_PATHS } from "../content/articles/index.ts";
 import { FEATURES_PATH } from "../content/features/index.ts";
 import { SHOWCASE_PAGES } from "../content/showcase/pages.ts";
-import { localizedSiteHref, PublicLanguage } from "../content/site/language.ts";
-import { showcaseLabel } from "../content/site/navigation.ts";
+import {
+  LOCALIZED_LANGUAGES,
+  localizedSiteHref,
+  pickText,
+  PUBLIC_LANGUAGES,
+  PublicLanguage,
+  type LocalizedText,
+} from "../content/site/language.ts";
+import { languageSwitchLinks, showcaseLabel } from "../content/site/navigation.ts";
 import { DOCUMENT_PAGES, SITE_REDIRECTS } from "../content/site/pages.ts";
 import { ARTICLE_CONTENT_ROOT, articleHtml, articleImageResources } from "./pages/article-pages.ts";
 import {
@@ -143,30 +150,42 @@ function publicPageResources(): Map<string, string> {
   return resources;
 }
 
+const NOT_FOUND_TITLE: LocalizedText = {
+  [PublicLanguage.English]: "Page not found — Xprite",
+  [PublicLanguage.SimplifiedChinese]: "找不到页面 — Xprite",
+  [PublicLanguage.Japanese]: "ページが見つかりません — Xprite",
+  [PublicLanguage.Korean]: "페이지를 찾을 수 없습니다 — Xprite",
+};
+
 function notFoundHtml(language = PublicLanguage.English): string {
-  const text = (en: string, zh: string) =>
-    language === PublicLanguage.SimplifiedChinese ? zh : en;
+  const text = (en: string, zh: string, ja: string, ko: string) =>
+    pickText(language, en, zh, ja, ko);
   const template = applySiteIcons(readFileSync(resolve(PUBLIC_ROOT, "404.html"), "utf8"))
     .replace("</head>", `<script>${publicDesktopStartupScript()}</script></head>`)
     .replace('<html lang="en"', `<html lang="${language}"`)
-    .replace("Page not found — Xprite", text("Page not found — Xprite", "找不到页面 — Xprite"));
+    .replace("Page not found — Xprite", NOT_FOUND_TITLE[language]);
   const html = template.replace(
     "<!-- public-not-found -->",
     publicUiScope(
       `<header data-public-error-header>${publicDesktopNavigation({
-        label: text("Website navigation", "网站导航"),
+        label: text("Website navigation", "网站导航", "サイトナビゲーション", "웹사이트 탐색"),
         language,
         currentHref: "/404.html",
         brandLabel: showcaseLabel(language),
         brandHref: SHOWCASE_PAGES[language].path,
         links: [
-          { label: text("Features", "功能"), href: localizedSiteHref(FEATURES_PATH, language) },
-          { label: text("Open editor", "打开编辑器"), href: "/" },
           {
-            label: language === PublicLanguage.English ? "简体中文" : "English",
-            href: `/404.html?lang=${language === PublicLanguage.English ? PublicLanguage.SimplifiedChinese : PublicLanguage.English}`,
-            icon: "language",
+            label: text("Features", "功能", "機能", "기능"),
+            href: localizedSiteHref(FEATURES_PATH, language),
           },
+          {
+            label: text("Open editor", "打开编辑器", "エディターを開く", "에디터 열기"),
+            href: "/",
+          },
+          ...languageSwitchLinks(
+            language,
+            Object.fromEntries(PUBLIC_LANGUAGES.map((value) => [value, `/404.html?lang=${value}`])),
+          ),
         ],
       })}</header>` +
         publicNotFound(language) +
@@ -174,13 +193,17 @@ function notFoundHtml(language = PublicLanguage.English): string {
       language,
     ),
   );
-  if (language === PublicLanguage.SimplifiedChinese) return html;
-  const chineseBody = notFoundHtml(PublicLanguage.SimplifiedChinese).match(
-    /<body[^>]*>([\s\S]*?)<\/body>/,
-  )![1];
+  if (language !== PublicLanguage.English) return html;
+  const templates = LOCALIZED_LANGUAGES.map(
+    (value) =>
+      `<template id="public-error-${value}">${notFoundHtml(value).match(/<body[^>]*>([\s\S]*?)<\/body>/)![1]}</template>`,
+  ).join("");
+  const titles = JSON.stringify(
+    Object.fromEntries(LOCALIZED_LANGUAGES.map((value) => [value, NOT_FOUND_TITLE[value]])),
+  );
   return html.replace(
     "</body>",
-    `<template id="public-chinese-error">${chineseBody}</template><script>{const lang=new URLSearchParams(location.search).get('lang');if(lang==='zh-CN'||(lang!=='en'&&location.pathname.split('/').includes('zh-CN'))){document.documentElement.lang='zh-CN';document.title='找不到页面 — Xprite';document.body.innerHTML=document.getElementById('public-chinese-error').innerHTML;${publicPageStartupScript()}}}</script></body>`,
+    `${templates}<script>{const titles=${titles};const param=new URLSearchParams(location.search).get('lang');const lang=param&&(param in titles||param==='en')?param:location.pathname.split('/').find((part)=>part in titles);if(lang&&lang in titles){document.documentElement.lang=lang;document.title=titles[lang];document.body.innerHTML=document.getElementById('public-error-'+lang).innerHTML;${publicPageStartupScript()}}}</script></body>`,
   );
 }
 

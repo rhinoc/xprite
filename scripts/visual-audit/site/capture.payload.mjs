@@ -145,7 +145,7 @@ try {
       await page.waitForSelector(scene.page.ready, { timeout: siteConfig.timeout });
       if (scene.page.action === "example") {
         await page.waitForSelector('[data-tool-state="empty"]');
-        const selector = `button[aria-label="${scene.page.language === "zh-CN" ? "打开示例" : "Open example"}"]`;
+        const selector = `button[aria-label="${{ "zh-CN": "打开示例", ja: "サンプルを開く", ko: "예제 열기" }[scene.page.language] ?? "Open example"}"]`;
         await page.click(selector);
         // Opening starts asynchronously; let the tool report busy/ready before judging the click.
         await page
@@ -166,7 +166,8 @@ try {
               ?.closest("[data-ui-desktop-window]")
               ?.getAttribute("data-ui-window-active"),
           }),
-          scene.page.language === "zh-CN" ? "打开示例" : "Open example",
+          { "zh-CN": "打开示例", ja: "サンプルを開く", ko: "예제 열기" }[scene.page.language] ??
+            "Open example",
         );
         if (!activation.ready && !activation.busy && activation.active === "true")
           await page.click(selector);

@@ -11,7 +11,7 @@ import { cursorStylesheet, type SsgAsset } from "../../../infra/react-ssg-render
 import { prependSiteHeadContent, VISUALLY_HIDDEN_STYLE } from "../../../infra/site-html.ts";
 import { APPEARANCE_MODE_STORAGE_KEY } from "../../../packages/editor-ui/src/appearance/index.ts";
 import { UiColorScheme } from "../../../packages/ui/src/base/theme/theme-types.ts";
-import { PublicLanguage } from "../../growth/content/site/language.ts";
+import { PUBLIC_LANGUAGES, PublicLanguage } from "../../growth/content/site/language.ts";
 import {
   VIEWER_TOOL,
   GIF_SHEET_TOOL,
@@ -185,18 +185,33 @@ export function toolsStartupPages(): Plugin {
         const runtime = await load();
         const page = await runtime.render(rootId);
         const tool = TOOL_BY_ROOT[rootId as keyof typeof TOOL_BY_ROOT];
-        const localeHead = `<script>try{const lang=localStorage.getItem(${JSON.stringify(SITE_LANGUAGE_PREFERENCE_KEY)});if(lang==='zh-CN'||lang==='en')document.documentElement.lang=lang}catch{}</script>`;
-        const localeSwitch = `{const root=document.getElementById(${JSON.stringify(rootId)});const zh=document.documentElement.lang==='zh-CN';const dark=document.documentElement.dataset.toolAppearance==='dark';const template=zh?document.querySelector('template[data-tool-locale="zh-CN-'+(dark?'dark':'light')+'"]'):dark?document.querySelector('template[data-tool-theme="dark"]'):null;if(template)root.innerHTML=template.innerHTML;document.title=zh?${jsonForHtml(translateToolText(tool.title, PublicLanguage.SimplifiedChinese))}:${jsonForHtml(tool.title)};const meta=document.querySelector('meta[name="description"]');if(meta)meta.content=zh?${jsonForHtml(translateToolText(tool.description, PublicLanguage.SimplifiedChinese))}:${jsonForHtml(tool.description)};const heading=document.getElementById(${JSON.stringify(TOOL_HEADING_ID)});if(heading)heading.textContent=zh?${jsonForHtml(toolHeading(tool, PublicLanguage.SimplifiedChinese))}:${jsonForHtml(toolHeading(tool, PublicLanguage.English))}}`;
+        const localeHead = `<script>try{const lang=localStorage.getItem(${JSON.stringify(SITE_LANGUAGE_PREFERENCE_KEY)});if(${JSON.stringify(PUBLIC_LANGUAGES)}.includes(lang))document.documentElement.lang=lang}catch{}</script>`;
+        const localizedCopy = Object.fromEntries(
+          PUBLIC_LANGUAGES.map((language) => [
+            language,
+            [
+              translateToolText(tool.title, language),
+              translateToolText(tool.description, language),
+              toolHeading(tool, language),
+            ],
+          ]),
+        );
+        const localeSwitch = `{const root=document.getElementById(${JSON.stringify(rootId)});const lang=document.documentElement.lang;const copy=${jsonForHtml(localizedCopy)}[lang]||${jsonForHtml(localizedCopy[PublicLanguage.English])};const dark=document.documentElement.dataset.toolAppearance==='dark';const template=lang!=='en'&&document.querySelector('template[data-tool-locale="'+lang+'-'+(dark?'dark':'light')+'"]')||(dark?document.querySelector('template[data-tool-theme="dark"]'):null);if(template)root.innerHTML=template.innerHTML;document.title=copy[0];const meta=document.querySelector('meta[name="description"]');if(meta)meta.content=copy[1];const heading=document.getElementById(${JSON.stringify(TOOL_HEADING_ID)});if(heading)heading.textContent=copy[2]}`;
         // Outside the hydrated root, so React keeps it; the tool UI has no visible page heading.
         const heading = `<h1 id="${TOOL_HEADING_ID}" style="${VISUALLY_HIDDEN_STYLE}">${escapeHtml(toolHeading(tool, PublicLanguage.English))}</h1>`;
         const themed = hoistThemeStyles([
           page.light,
           page.dark,
-          page.chineseLight,
-          page.chineseDark,
+          ...page.localized.flatMap(({ light, dark }) => [light, dark]),
         ]);
-        const [light, dark, chineseLight, chineseDark] = themed.html;
-        const root = `${heading}<div id="${rootId}" data-tool-startup-view>${light}</div><template data-tool-theme="dark">${dark}</template><template data-tool-locale="zh-CN-light">${chineseLight}</template><template data-tool-locale="zh-CN-dark">${chineseDark}</template><script id="tool-initial-artwork" type="application/json">${jsonForHtml(page.artwork)}</script><script>${localeSwitch}${themed.restore}</script>`;
+        const [light, dark, ...localizedHtml] = themed.html;
+        const localeTemplates = page.localized
+          .map(
+            ({ language }, index) =>
+              `<template data-tool-locale="${language}-light">${localizedHtml[index * 2]}</template><template data-tool-locale="${language}-dark">${localizedHtml[index * 2 + 1]}</template>`,
+          )
+          .join("");
+        const root = `${heading}<div id="${rootId}" data-tool-startup-view>${light}</div><template data-tool-theme="dark">${dark}</template>${localeTemplates}<script id="tool-initial-artwork" type="application/json">${jsonForHtml(page.artwork)}</script><script>${localeSwitch}${themed.restore}</script>`;
         const appearance = publicDesktopStartupScript(APPEARANCE_MODE_STORAGE_KEY);
         const bodyStyle = `html[data-tool-appearance="light"]{color-scheme:light;background:${page.themes[UiColorScheme.Light].definition.colors.workspace}}html[data-tool-appearance="dark"]{color-scheme:dark;background:${page.themes[UiColorScheme.Dark].definition.colors.workspace}}`;
         return {

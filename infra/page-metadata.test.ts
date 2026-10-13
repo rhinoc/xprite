@@ -35,9 +35,12 @@ describe("displayWidth", () => {
 });
 
 describe("metadataLimits", () => {
-  it("uses the Chinese limits for every zh language tag", () => {
+  it("uses the CJK limits for every zh, ja and ko language tag", () => {
     expect(metadataLimits("zh-CN")).toBe(metadataLimits("zh"));
+    expect(metadataLimits("ja")).toBe(metadataLimits("zh-CN"));
+    expect(metadataLimits("ko-KR")).toBe(metadataLimits("zh-CN"));
     expect(metadataLimits("en")).not.toBe(metadataLimits("zh-CN"));
+    expect(metadataLimits("jam")).toBe(metadataLimits("en"));
   });
 });
 
@@ -74,6 +77,13 @@ describe("checkPageMetadata", () => {
     expect(zh("标题", "描".repeat(85))).toMatchObject([{ severity: "warning" }]);
     expect(zh("标题", "描".repeat(86))).toMatchObject([{ severity: "error" }]);
     expect(zh("标题", "描".repeat(19))).toMatchObject([{ severity: "error" }]);
+  });
+
+  it("measures kana and hangul as wide characters", () => {
+    const ja = issuesFor({ language: "ja", title: "ド".repeat(33), description: "説".repeat(50) });
+    expect(ja).toMatchObject([{ severity: "warning", field: "title" }]);
+    const ko = issuesFor({ language: "ko", title: "도".repeat(34), description: "설".repeat(50) });
+    expect(ko).toMatchObject([{ severity: "error", field: "title" }]);
   });
 
   it("fails missing or empty values", () => {

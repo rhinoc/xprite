@@ -1,5 +1,6 @@
 import { appearances, layouts } from "../tools-startup/scenes.mjs";
 
+const localized = (path, language) => (language === "en" ? path : `/${language}${path}`);
 const pageRegion = { name: "page", selectors: ["#root"] };
 const publicRegions = [
   { name: "navigation", selectors: ['[data-public-island="navigation"]'] },
@@ -19,35 +20,35 @@ const editorPage = (language) => ({
 });
 const showcasePage = (language) => ({
   name: `showcase-${language}`,
-  path: language === "en" ? "/about/" : "/zh-CN/about/",
+  path: localized("/about/", language),
   language,
   ready: "[data-showcase-desktop]",
   regions: [pageRegion, { name: "main", selectors: ["main"] }],
 });
 const guidePage = (language) => ({
   name: `help-${language}`,
-  path: language === "en" ? "/help/" : "/zh-CN/help/",
+  path: localized("/help/", language),
   language,
   ready: publicReady,
   regions: [...articleRegions, { name: "contents", selectors: ['[data-public-island="index"]'] }],
 });
 const featureDirectoryPage = (language) => ({
   name: `features-${language}`,
-  path: language === "en" ? "/about/features/" : "/zh-CN/about/features/",
+  path: localized("/about/features/", language),
   language,
   ready: publicReady,
   regions: publicRegions,
 });
 const articlePage = (language) => ({
   name: `article-${language}`,
-  path: language === "en" ? "/compare/aseprite-online/" : "/zh-CN/compare/aseprite-online/",
+  path: localized("/compare/aseprite-online/", language),
   language,
   ready: publicReady,
   regions: articleRegions,
 });
 const documentPage = (language) => ({
   name: `document-${language}`,
-  path: language === "en" ? "/privacy/" : "/zh-CN/privacy/",
+  path: localized("/privacy/", language),
   language,
   ready: publicReady,
   regions: articleRegions,
@@ -78,6 +79,9 @@ const editorScenes = ["en", "zh-CN"].flatMap((language) => {
   ];
 });
 
+/** Japanese and Korean check the editor once, wide and light. */
+editorScenes.push(...["ja", "ko"].map((language) => scene(editorPage(language), wide, light)));
+
 const aboutPage = showcasePage("zh-CN");
 const aboutScenes = [
   ...layouts.flatMap((layout) =>
@@ -100,6 +104,14 @@ const representativeScenes = [
     wide,
     appearances.find(({ name }) => name === "dark"),
   ),
+  scene(showcasePage("ja"), wide, light),
+  scene(guidePage("ko"), compact, light),
+  scene(
+    articlePage("ja"),
+    compact,
+    appearances.find(({ name }) => name === "dark"),
+  ),
+  scene(documentPage("ko"), wide, light),
   ...["macintosh", "aseprite"].map((theme, index) =>
     scene(
       {

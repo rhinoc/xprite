@@ -224,16 +224,43 @@
             stack: error.stack,
             url: window.location.href,
           };
-          const isChinese =
-            document.documentElement.lang.startsWith("zh") ||
-            navigator.languages.some((language) => language.toLowerCase().startsWith("zh"));
-          if (isChinese) {
-            document.getElementById("xse-startup-error").lang = "zh-CN";
-            document.getElementById("xse-startup-error-title").textContent = "编辑器错误";
+          const startupCopy = {
+            "zh-CN": [
+              "编辑器错误",
+              "编辑器启动失败，请重新加载后重试。",
+              "重新加载编辑器",
+              "导出诊断日志",
+            ],
+            ja: [
+              "エディターエラー",
+              "エディターを起動できませんでした。再読み込みしてもう一度お試しください。",
+              "エディターを再読み込み",
+              "診断ログをエクスポート",
+            ],
+            ko: [
+              "에디터 오류",
+              "에디터를 시작하지 못했습니다. 새로고침한 후 다시 시도하세요.",
+              "에디터 새로고침",
+              "진단 로그 내보내기",
+            ],
+          };
+          const startupLanguage = [document.documentElement.lang, ...navigator.languages]
+            .map(
+              (language) =>
+                String(language || "")
+                  .toLowerCase()
+                  .split("-")[0],
+            )
+            .map((language) => (language === "zh" ? "zh-CN" : language))
+            .find((language) => language === "en" || startupCopy[language]);
+          const localizedStartup = startupCopy[startupLanguage];
+          if (localizedStartup) {
+            document.getElementById("xse-startup-error").lang = startupLanguage;
+            document.getElementById("xse-startup-error-title").textContent = localizedStartup[0];
             document.getElementById("xse-startup-error-description").textContent =
-              "编辑器启动失败，请重新加载后重试。";
-            document.getElementById("xse-startup-error-reload").textContent = "重新加载编辑器";
-            document.getElementById("xse-startup-error-export").textContent = "导出诊断日志";
+              localizedStartup[1];
+            document.getElementById("xse-startup-error-reload").textContent = localizedStartup[2];
+            document.getElementById("xse-startup-error-export").textContent = localizedStartup[3];
           }
           document.getElementById("xse-startup-error-details").textContent = error.message;
           document.getElementById("xse-startup")?.remove();

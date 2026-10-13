@@ -14,4 +14,16 @@ export const GUIDE_PAGES = {
     description:
       "Xprite 保存与恢复、打开与导出文件、工作区布局、触摸与手写笔、离线使用、浏览器兼容性和常见问题。",
   },
+  [PublicLanguage.Japanese]: {
+    path: "/ja/help/",
+    title: "Xprite ユーザーガイド",
+    description:
+      "Xprite の保存と復元、ファイルを開く・エクスポート、ワークスペースの配置、タッチとペン操作、オフライン利用、対応ブラウザ、よくある質問。",
+  },
+  [PublicLanguage.Korean]: {
+    path: "/ko/help/",
+    title: "Xprite 사용 가이드",
+    description:
+      "Xprite 저장과 복구, 파일 열기와 내보내기, 작업 공간 배치, 터치와 펜 사용, 오프라인 사용, 브라우저 지원, 자주 묻는 질문을 안내합니다.",
+  },
 } as const;

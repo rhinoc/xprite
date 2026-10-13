@@ -1,5 +1,7 @@
 import imageCatalog from "./images/catalog.json";
 import englishGuide from "./README.en.md?raw";
+import japaneseGuide from "./README.ja.md?raw";
+import koreanGuide from "./README.ko.md?raw";
 import chineseGuide from "./README.zh-CN.md?raw";
 
 const GUIDE_IMAGE_MODULE_PREFIX = "./";
@@ -13,7 +15,12 @@ const GUIDE_IMAGE_SIZES: Readonly<
 > = imageCatalog;
 
 /** Shared guide content, with no dependency on either application's runtime. */
-export const userGuides = { en: englishGuide, "zh-CN": chineseGuide };
+export const userGuides = {
+  en: englishGuide,
+  "zh-CN": chineseGuide,
+  ja: japaneseGuide,
+  ko: koreanGuide,
+};
 
 export function resolveUserGuideImage(source: string) {
   const src = GUIDE_IMAGES[`${GUIDE_IMAGE_MODULE_PREFIX}${source}`];

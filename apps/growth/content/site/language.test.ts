@@ -42,5 +42,17 @@ describe("localized site links", () => {
   it("read the language from the root prefix", () => {
     assert.equal(articleLanguage("/zh-CN/compare/"), zh);
     assert.equal(articleLanguage("/compare/"), en);
+    assert.equal(articleLanguage("/ja/compare/"), PublicLanguage.Japanese);
+    assert.equal(articleLanguage("/ko/help/"), PublicLanguage.Korean);
+  });
+
+  it("prefix Japanese and Korean pages and switch between localized prefixes", () => {
+    assert.equal(localizedSiteHref("/help/", PublicLanguage.Japanese), "/ja/help/");
+    assert.equal(localizedSiteHref("/zh-CN/about/", PublicLanguage.Korean), "/ko/about/");
+    assert.equal(localizedSiteHref("/ko/learn/x/", en), "/learn/x/");
+    assert.equal(
+      localizedSiteHref("/tools/viewer/?lang=ja", PublicLanguage.Korean),
+      "/tools/viewer/",
+    );
   });
 });

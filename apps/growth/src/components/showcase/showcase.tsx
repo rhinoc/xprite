@@ -1,8 +1,10 @@
 import { FEATURES_PATH } from "$content/features";
 import { GUIDE_PAGES } from "$content/help/pages";
+import { deviceDemosLabel } from "$content/showcase/index";
 import { SHOWCASE_PAGES } from "$content/showcase/pages";
-import { localizedSiteHref } from "$content/site/language";
-import { useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react";
+import { localizedSiteHref, publicLanguage } from "$content/site/language";
+import { languageSwitchLinks } from "$content/site/navigation";
+import { useEffect, useLayoutEffect, useRef, useSyncExternalStore, type MouseEvent } from "react";
 
 import { PublicFooter, PublicNavigation } from "$/components/public/static-ui";
 import { ShowcaseIntro } from "$/components/showcase/showcase-intro";
@@ -67,10 +69,6 @@ export function Showcase({
   const introMotion = useRef<ShowcaseIntroMotion>();
   const state = useSyncExternalStore(manager.subscribe, manager.getSnapshot);
   const copy = SHOWCASE_COPY[state.language];
-  const targetLanguage =
-    state.language === ShowcaseLanguage.Chinese
-      ? ShowcaseLanguage.English
-      : ShowcaseLanguage.Chinese;
   const titleEnd = copy.titleEnd[state.device];
   const { dragging, ...swipe } = useDeviceSwipe(manager);
   const titleDescription = state.started
@@ -122,13 +120,15 @@ export function Showcase({
           links={[
             { label: copy.features, href: localizedSiteHref(FEATURES_PATH, state.language) },
             { label: copy.goToEditor, href: "/editor" },
-            {
-              label: copy.languageSwitch,
-              icon: "language",
-              href: SHOWCASE_PAGES[targetLanguage].path,
-              hrefLang: targetLanguage,
-              end: true,
-              onClick: (event) => {
+            ...languageSwitchLinks(
+              publicLanguage(state.language),
+              Object.fromEntries(
+                Object.values(ShowcaseLanguage).map((value) => [value, SHOWCASE_PAGES[value].path]),
+              ),
+              true,
+            ).map((link) => ({
+              ...link,
+              onClick: (event: MouseEvent<HTMLAnchorElement>) => {
                 if (
                   event.button !== 0 ||
                   event.ctrlKey ||
@@ -138,9 +138,9 @@ export function Showcase({
                 )
                   return;
                 event.preventDefault();
-                manager.setLanguage(targetLanguage);
+                manager.setLanguage(link.hrefLang as string as ShowcaseLanguage);
               },
-            },
+            })),
           ]}
         />
       </header>
@@ -151,7 +151,7 @@ export function Showcase({
               variant={PanelVariant.Document}
               emphasized
               contentPadding={ContentPadding.None}
-              title={state.language === ShowcaseLanguage.Chinese ? "设备演示" : "Device demos"}
+              title={deviceDemosLabel(state.language)}
               className={styles.heroWindow}
               tone={SurfaceTone.Info}
               data-showcase-screen

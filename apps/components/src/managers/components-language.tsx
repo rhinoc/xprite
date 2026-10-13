@@ -64,7 +64,7 @@ const CHINESE: Readonly<Record<string, string>> = {
 function translateComponentsText(source: string, language: PublicLanguage): string {
   if (source === "ui.close.name")
     return language === PublicLanguage.SimplifiedChinese ? "关闭 {name}" : "Close {name}";
-  if (language === PublicLanguage.English) return source;
+  if (language !== PublicLanguage.SimplifiedChinese) return source;
   const text = source.trim();
   if (CHINESE[text]) return CHINESE[text];
   if (text.startsWith("Copied: ")) return text.replace(/^Copied: /, "已复制：");

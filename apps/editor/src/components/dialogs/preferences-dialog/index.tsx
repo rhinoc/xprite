@@ -1354,6 +1354,8 @@ export function PreferencesDialog({
                                     ? [
                                         { value: "en", label: "English" },
                                         { value: "zh-CN", label: "简体中文" },
+                                        { value: "ja", label: "日本語" },
+                                        { value: "ko", label: "한국어" },
                                       ]
                                     : index === 1
                                       ? UI_ELEMENT_SCALE_OPTIONS

@@ -207,4 +207,159 @@ export const SHOWCASE_FAQ_COPY = {
       },
     ],
   },
+  [PublicLanguage.Japanese]: {
+    title: "よくある質問",
+    guide: ["詳しい操作方法は", { label: "ユーザーガイド", href: "/ja/help/" }, "をご覧ください。"],
+    questions: [
+      {
+        id: ShowcaseFaqTopic.Access,
+        question: "Xprite は無料ですか？アカウントは必要ですか？",
+        answer: [
+          "無料で、アカウントも不要です。エディターを開けばすぐに作業を始められます。ソースコードは ",
+          { label: "GitHub", href: "https://github.com/rhinoc/xprite" },
+          " で公開されています。",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Devices,
+        question: "iPad やスマホでも使えますか？",
+        answer: [
+          "はい。Xprite はパソコン、タブレット、スマホのブラウザで動き、タッチや Apple Pencil などのペンにも対応しています。メモリの少ない端末では、大きなプロジェクトの動作が遅くなったり開けなかったりすることがあります。タッチ操作は",
+          { label: "指とペン", href: "/ja/help/#指とペン" },
+          "をご覧ください。",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.AsepriteFiles,
+        question: "Aseprite のファイルを開けますか？",
+        answer: [
+          "はい。",
+          { code: ".ase" },
+          " と ",
+          { code: ".aseprite" },
+          " のプロジェクトをレイヤー、フレーム、タグごと開けます。",
+          { code: ".aseprite" },
+          " で保存すれば、Aseprite で編集を続けられます。ただし、Xprite は Aseprite のすべての機能を実装しておらず、スクリプトや拡張機能も実行できないため、完全には互換性のないプロジェクトもあります。詳しくは",
+          {
+            label: "ファイルを開く・エクスポートする",
+            href: "/ja/help/#ファイルを開くエクスポートする",
+          },
+          "をご覧ください。",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Storage,
+        question: "作品はどこに保存されますか？自動で同期されますか？",
+        answer: [
+          "プロジェクトは現在のブラウザか、端末のファイルとして保存できます。端末やブラウザの間で自動的に同期されることはありません。サイトのデータを消去すると、ブラウザ内のプロジェクトと復元用バックアップが削除されます。バックアップや別の端末への移動には、ファイルとしてコピーを保存してください。詳しくは",
+          { label: "保存と復元", href: "/ja/help/#保存と復元" },
+          "をご覧ください。",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Privacy,
+        question: "作品はサーバーにアップロードされますか？",
+        answer: [
+          "編集や保存で作品がアップロードされることはありません。エディターの共有リンクも端末上で作成され、プロジェクトのデータはリンクの中に含まれます。リンク全体を受け取った人は誰でもプロジェクトを開けます。チャットアプリでリンクを送ると、そのサービスにもプロジェクトのデータが渡ります。サイトは利用状況の統計と送信されたフィードバックを送信します。詳しくは",
+          { label: "プライバシーについて", href: "/ja/privacy/" },
+          "をご覧ください。",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Offline,
+        question: "オフラインで使えますか？",
+        answer: [
+          "はい。オンラインで一度エディターを開き、オフライン用のリソースの準備が終われば、オフラインでも編集でき、デスクトップやホーム画面に追加することもできます。手順は",
+          {
+            label: "デスクトップに追加してオフラインで使う",
+            href: "/ja/help/#デスクトップに追加してオフラインで使う",
+          },
+          "をご覧ください。",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Relationship,
+        question: "Xprite と Aseprite の関係は？",
+        answer: [
+          "Xprite は Aseprite のインターフェースと操作方法に基づいた独立したプロジェクトです。Aseprite や Igara Studio S.A. とは提携しておらず、承認も受けていません。",
+        ],
+      },
+    ],
+  },
+  [PublicLanguage.Korean]: {
+    title: "자주 묻는 질문",
+    guide: ["자세한 사용법은 ", { label: "사용 가이드", href: "/ko/help/" }, "를 참고하세요."],
+    questions: [
+      {
+        id: ShowcaseFaqTopic.Access,
+        question: "Xprite는 무료인가요? 계정이 필요한가요?",
+        answer: [
+          "무료이며 계정도 필요 없습니다. 에디터를 열면 바로 작업을 시작할 수 있습니다. 소스 코드는 ",
+          { label: "GitHub", href: "https://github.com/rhinoc/xprite" },
+          "에 공개되어 있습니다.",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Devices,
+        question: "아이패드나 휴대폰에서도 쓸 수 있나요?",
+        answer: [
+          "네. Xprite는 컴퓨터, 태블릿, 휴대폰 브라우저에서 동작하며 터치와 Apple Pencil 같은 펜을 지원합니다. 메모리가 적은 기기에서는 큰 프로젝트가 느려지거나 열리지 않을 수 있습니다. 터치 조작은 ",
+          { label: "손가락과 펜", href: "/ko/help/#손가락과-펜" },
+          "을 참고하세요.",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.AsepriteFiles,
+        question: "Aseprite 파일을 열 수 있나요?",
+        answer: [
+          "네. ",
+          { code: ".ase" },
+          "와 ",
+          { code: ".aseprite" },
+          " 프로젝트를 레이어, 프레임, 태그와 함께 열 수 있고, ",
+          { code: ".aseprite" },
+          "로 저장하면 Aseprite에서 계속 편집할 수 있습니다. 다만 Xprite는 Aseprite의 모든 기능을 구현하지 않았고 스크립트와 확장 기능을 실행할 수 없어, 일부 프로젝트는 완전히 호환되지 않을 수 있습니다. ",
+          { label: "파일 열기와 내보내기", href: "/ko/help/#파일-열기와-내보내기" },
+          "를 참고하세요.",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Storage,
+        question: "작품은 어디에 저장되나요? 자동으로 동기화되나요?",
+        answer: [
+          "프로젝트는 현재 브라우저나 기기의 파일로 저장할 수 있습니다. 기기나 브라우저 사이에서 자동으로 동기화되지 않습니다. 사이트 데이터를 지우면 브라우저 프로젝트와 복구 백업이 삭제되므로, 백업하거나 다른 기기로 옮기려면 파일 사본을 저장하세요. ",
+          { label: "저장과 복구", href: "/ko/help/#저장과-복구" },
+          "를 참고하세요.",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Privacy,
+        question: "작품이 서버에 업로드되나요?",
+        answer: [
+          "편집하고 저장할 때 작품은 업로드되지 않습니다. 에디터의 공유 링크도 기기에서 만들어지며 프로젝트 데이터는 링크 안에 들어갑니다. 전체 링크를 가진 사람은 누구나 프로젝트를 열 수 있고, 메신저로 링크를 보내면 해당 서비스에도 프로젝트 데이터가 전달됩니다. 웹사이트는 사용 통계와 직접 보낸 피드백을 전송합니다. ",
+          { label: "개인정보 안내", href: "/ko/privacy/" },
+          "를 참고하세요.",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Offline,
+        question: "오프라인으로 쓸 수 있나요?",
+        answer: [
+          "네. 온라인에서 에디터를 한 번 열어 오프라인 리소스 준비가 끝나면 오프라인에서도 편집할 수 있고, 바탕 화면이나 홈 화면에 추가할 수도 있습니다. ",
+          {
+            label: "바탕 화면에 추가하고 오프라인으로 사용하기",
+            href: "/ko/help/#바탕-화면에-추가하고-오프라인으로-사용하기",
+          },
+          "를 참고하세요.",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Relationship,
+        question: "Xprite와 Aseprite는 어떤 관계인가요?",
+        answer: [
+          "Xprite는 Aseprite의 인터페이스와 조작 방식을 바탕으로 한 독립 프로젝트입니다. Aseprite나 Igara Studio S.A.와 제휴하거나 보증을 받지 않았습니다.",
+        ],
+      },
+    ],
+  },
 } as const;

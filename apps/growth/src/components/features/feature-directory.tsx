@@ -1,5 +1,5 @@
 import { FeatureIcon, type FeatureGroup, type FeatureItem } from "$content/features";
-import { localizedSiteHref } from "$content/site/language";
+import { localizedSiteHref, pickText, publicLanguage } from "$content/site/language";
 import { useRef, useState } from "react";
 
 import { PublicImage } from "$/components/public/public-image";
@@ -49,7 +49,8 @@ export function FeatureDirectory({
 }) {
   const [opened, setOpened] = useState<FeatureItem | null>(null);
   const trigger = useRef<HTMLElement | null>(null);
-  const chinese = language.startsWith("zh");
+  const text = (en: string, zh: string, ja: string, ko: string) =>
+    pickText(publicLanguage(language), en, zh, ja, ko);
   const close = () => {
     setOpened(null);
     trigger.current?.focus();
@@ -112,7 +113,12 @@ export function FeatureDirectory({
           centerOnOpen
           constrainToViewport
           title={opened.title}
-          closeLabel={chinese ? `关闭${opened.title}` : `Close ${opened.title}`}
+          closeLabel={text(
+            `Close ${opened.title}`,
+            `关闭${opened.title}`,
+            `${opened.title}を閉じる`,
+            `${opened.title} 닫기`,
+          )}
           defaultBounds={FEATURE_WINDOW_BOUNDS}
           minSize={FEATURE_WINDOW_MIN_SIZE}
           onOpenChange={(open) => {
@@ -183,15 +189,11 @@ export function FeatureDirectory({
                   slots={{}}
                 >
                   {opened.href.startsWith("/tools/")
-                    ? chinese
-                      ? "打开工具"
-                      : "Open tool"
-                    : chinese
-                      ? "打开编辑器"
-                      : "Open editor"}
+                    ? text("Open tool", "打开工具", "ツールを開く", "도구 열기")
+                    : text("Open editor", "打开编辑器", "エディターを開く", "에디터 열기")}
                 </Button>
                 <Button onClick={close} slots={{}}>
-                  {chinese ? "关闭" : "Close"}
+                  {text("Close", "关闭", "閉じる", "닫기")}
                 </Button>
               </div>
             </div>

@@ -71,4 +71,66 @@ export const ANIMAL_CROSSING_HELP = {
     closing:
       "To import a design into Animal Crossing: New Horizons, open NookLink → Designs in the Nintendo Switch App and scan the QR code. A Nintendo Switch Online membership is required. Scan split designs one at a time, downloading each in the game before scanning the next.",
   },
+  [PublicLanguage.Japanese]: {
+    title: "島のマイデザインを作って読み込む",
+    introduction:
+      "「ファイル」→「ファイルを開く…」を選ぶか、PNG、JPEG、.ase、.aseprite、.acnl ファイルをここにドロップします。「サンプルを開く」で試すこともできます。ファイルは端末内で処理され、最大 64 MiB まで扱えます。PNG と JPEG は最大 16,777,216 ピクセル（4096 × 4096 と同じ）までです。",
+    sections: [
+      {
+        id: AnimalCrossingHelpSection.Convert,
+        title: "マイデザインの QR コードを作成",
+        steps: [
+          "「マイデザインの情報」で「タイトル」「作者」「島・村」を入力します。複数フレームの Aseprite プロジェクトでは、変換する「フレーム」を選びます。結合されるのは表示中のレイヤーだけです。",
+          "「変換方法」で「マイデザイン 1 枚」か「タイルに分割」を選びます。タイルの場合は「マスの幅」と「マスの高さ」を設定し、必要に応じて「オフセットと間隔」を開きます。表示中のタイルマップレイヤーは、初期設定でそのタイルサイズで分割されます。",
+          "「QR コードを生成」をクリックし、「変換後」で色を確認してから「ダウンロード」をクリックすると、現在のマイデザインの QR PNG を保存できます。",
+        ],
+        notes:
+          "各マイデザインは 32 × 32 ピクセルで、最大 15 色と透明を使えます。マスはニアレストネイバー法で拡大縮小されます。不透明度が半分未満のピクセルは透明に、それ以外は不透明になります。すべてのタイルは『とびだせ どうぶつの森』のパレットから選ばれた 1 組の色を共有します。1 回の変換で最大 256 枚のマイデザインを作成でき、「マイデザイン N 枚をすべてダウンロード」で ZIP にまとめて保存できます。",
+      },
+      {
+        id: AnimalCrossingHelpSection.Existing,
+        title: "既存のマイデザインをエクスポート",
+        steps: [
+          "通常のマイデザインの QR コードを写した PNG・JPEG 画像か、.acnl ファイルを開きます。",
+          "「マイデザインの情報」でタイトル、作者、島の名前を確認します。",
+          "「ダウンロード」をクリックして QR PNG を保存します。",
+        ],
+        notes:
+          "既存のマイデザインは元のデータからエクスポートされるため、タイトル、作者、パレット、ピクセルは変わらず、変換の設定は使えません。対応しているのは 32 × 32 の通常のマイデザインだけです。",
+      },
+    ],
+    closing:
+      "『あつまれ どうぶつの森』にマイデザインを読み込むには、Nintendo Switch Online アプリで「たぬきポータル」→「マイデザイン」を開き、QR コードを読み取ります。Nintendo Switch Online への加入が必要です。分割したマイデザインは 1 枚ずつ読み取り、次を読み取る前にゲーム内でダウンロードしてください。",
+  },
+  [PublicLanguage.Korean]: {
+    title: "섬 마이 디자인 만들고 가져오기",
+    introduction:
+      "파일 → 파일 열기…를 선택하거나 PNG, JPEG, .ase, .aseprite, .acnl 파일을 여기에 끌어 놓으세요. 예제 열기로 먼저 사용해 볼 수도 있습니다. 파일은 기기에서 처리되며 최대 64MiB까지 지원합니다. PNG와 JPEG 이미지는 최대 16,777,216픽셀(4096 × 4096과 같음)까지입니다.",
+    sections: [
+      {
+        id: AnimalCrossingHelpSection.Convert,
+        title: "마이 디자인 QR 코드 만들기",
+        steps: [
+          "마이 디자인 정보에 제목, 제작자, 섬 / 마을을 입력하세요. 프레임이 여러 개인 Aseprite 프로젝트는 변환할 프레임을 고르세요. 보이는 레이어만 합쳐집니다.",
+          "변환 방식에서 마이 디자인 한 장 또는 타일로 나누기를 고르세요. 타일로 나눌 때는 칸 너비와 칸 높이를 정하고, 필요하면 오프셋과 간격을 여세요. 보이는 타일맵 레이어는 기본적으로 해당 타일 크기로 나뉩니다.",
+          "QR 코드 생성을 클릭하고 변환됨에서 색을 확인한 뒤 다운로드를 클릭해 현재 마이 디자인의 QR PNG를 저장하세요.",
+        ],
+        notes:
+          "마이 디자인 한 장은 32 × 32픽셀이며 최대 15색과 투명을 쓸 수 있습니다. 칸은 최근접 픽셀 방식으로 크기가 조정됩니다. 불투명도가 절반 미만인 픽셀은 투명해지고 나머지는 불투명해집니다. 모든 타일은 『튀어나와요 동물의 숲』 팔레트에서 고른 한 세트의 색을 공유합니다. 한 번에 최대 256장의 마이 디자인을 만들 수 있으며, 마이 디자인 N개 모두 다운로드로 ZIP 파일에 담아 저장할 수 있습니다.",
+      },
+      {
+        id: AnimalCrossingHelpSection.Existing,
+        title: "기존 마이 디자인 내보내기",
+        steps: [
+          "일반 마이 디자인 QR 코드가 담긴 PNG·JPEG 이미지나 .acnl 파일을 여세요.",
+          "마이 디자인 정보에서 제목, 제작자, 섬 이름을 확인하세요.",
+          "다운로드를 클릭해 QR PNG를 저장하세요.",
+        ],
+        notes:
+          "기존 마이 디자인은 원본 데이터에서 내보내므로 제목, 제작자, 팔레트, 픽셀이 그대로 유지되며 변환 설정은 사용할 수 없습니다. 32 × 32 일반 마이 디자인만 지원합니다.",
+      },
+    ],
+    closing:
+      "『모여봐요 동물의 숲』에 마이 디자인을 가져오려면 Nintendo Switch Online 앱에서 너굴 포털 → 마이 디자인을 열고 QR 코드를 스캔하세요. Nintendo Switch Online 가입이 필요합니다. 나눈 마이 디자인은 한 장씩 스캔하고, 다음 장을 스캔하기 전에 게임에서 내려받으세요.",
+  },
 } as const satisfies Record<PublicLanguage, ToolHelpContent>;

@@ -175,7 +175,12 @@ async function prepareDeployment() {
     await rm(join(deploymentDirectory, "sitemap.xml"), { force: true });
   }
   // EdgeOne reads at most 100 redirects and 100 rewrites; later rules are silently ignored.
-  const uploadedConfiguration = compactServingRules(servingConfiguration);
+  const publishedFiles = (
+    await readdir(deploymentDirectory, { recursive: true, withFileTypes: true })
+  )
+    .filter((entry) => entry.isFile())
+    .map((entry) => `/${join(entry.parentPath, entry.name).slice(deploymentDirectory.length + 1)}`);
+  const uploadedConfiguration = compactServingRules(servingConfiguration, publishedFiles);
   assertEdgeOneRuleLimits(uploadedConfiguration);
   await writeFile(
     join(deploymentDirectory, "edgeone.json"),

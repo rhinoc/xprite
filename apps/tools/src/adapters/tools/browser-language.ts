@@ -1,4 +1,4 @@
-import { PublicLanguage } from "@xprite/growth-content/language";
+import { publicLanguage, PublicLanguage } from "@xprite/growth-content/language";
 import {
   TOOL_HEADING_ID,
   TOOLS,
@@ -12,12 +12,7 @@ import {
 
 /** The startup HTML selects the same locale before hydration. */
 export function readToolLanguage(): PublicLanguage {
-  const preference = readBrowserLanguagePreference();
-  if (preference === "zh-CN") return PublicLanguage.SimplifiedChinese;
-  if (preference === "en") return PublicLanguage.English;
-  return document.documentElement.lang === PublicLanguage.SimplifiedChinese
-    ? PublicLanguage.SimplifiedChinese
-    : PublicLanguage.English;
+  return publicLanguage(readBrowserLanguagePreference() ?? document.documentElement.lang);
 }
 
 export function writeToolLanguage(language: PublicLanguage) {

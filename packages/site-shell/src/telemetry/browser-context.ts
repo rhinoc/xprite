@@ -22,8 +22,8 @@ function toolAtPath(path: string): SiteToolName | null {
 /** Page types keep their original values; the about page reports as "showcase". */
 function pageAtPath(requestPath: string): SitePageType {
   if (requestPath === "/" || requestPath === EDITOR_PATH) return SitePageType.Editor;
-  // Chinese pages share their English page type under the root /zh-CN/ prefix.
-  const path = requestPath.replace(/^\/zh-CN(?=\/|$)/u, "");
+  // Localized pages share their English page type under a root /zh-CN/, /ja/ or /ko/ prefix.
+  const path = requestPath.replace(/^\/(?:zh-CN|ja|ko)(?=\/|$)/u, "");
   if (path === "/about" || path.startsWith("/about/")) return SitePageType.Showcase;
   if (path === "/components" || path.startsWith("/components/")) return SitePageType.Components;
   if (
