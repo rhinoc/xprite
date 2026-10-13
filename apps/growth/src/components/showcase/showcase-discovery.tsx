@@ -1,7 +1,7 @@
 import { GUIDE_PAGES } from "$content/help/pages";
 import { showcaseDiscovery } from "$content/showcase/index";
 import { documentLinks } from "$content/site/documents";
-import { localizedSiteHref, publicLanguage } from "$content/site/language";
+import { localizedSiteHref, pickText, publicLanguage } from "$content/site/language";
 
 import {
   WindowWorkspace,
@@ -36,7 +36,7 @@ export function ShowcaseDiscovery({ language }: { language: DiscoveryLanguage })
   const { copy, tools, comparisons } = showcaseDiscovery(language);
   const documents = [
     { href: GUIDE_PAGES[language].path, label: copy.userGuide, icon: IconKind.NotePad },
-    // About articles are written in Chinese only, so English lists none.
+    // About articles exist only in some languages; the rest list none.
     ...documentLinks(publicLanguage(language), "/about/").map((link) => ({
       ...link,
       icon: IconKind.Document,
@@ -47,7 +47,17 @@ export function ShowcaseDiscovery({ language }: { language: DiscoveryLanguage })
       icon: IconKind.Document,
     })),
   ];
-  const itemCount = (count: number) => (language === "zh-CN" ? `${count} 项` : `${count} items`);
+  const itemCount = (count: number) =>
+    pickText(
+      publicLanguage(language),
+      `${count} items`,
+      `${count} 项`,
+      `${count} 件`,
+      `${count}개 항목`,
+      `Элементов: ${count}`,
+      `${count} itens`,
+      `${count} elementos`,
+    );
   return (
     <section className={styles.desktop} aria-label={copy.resources}>
       <WindowWorkspace className={styles.workspace}>

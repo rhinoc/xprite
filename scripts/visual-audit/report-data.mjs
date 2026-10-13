@@ -7,7 +7,7 @@ import { PNG } from "pngjs";
 import { assertSamePngColorSpace, preservePngColorSpace } from "../base/screenshot.mjs";
 import { scenes, MINIMUM_SIMILARITY } from "./tools-startup/scenes.mjs";
 import { assertCaptureContract } from "./xprite/compare-case.mjs";
-import { languageDirectory, languages, sceneIds } from "./xprite/scenes.mjs";
+import { languageDirectory, languageSceneIds, languages } from "./xprite/scenes.mjs";
 
 const digest = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const readJson = (filename) => {
@@ -123,7 +123,7 @@ export function collectImageReport({
     const baseline = readJson(path.join(baselineDir, "manifest.json"));
     const candidate = readJson(path.join(candidateDir, "manifest.json"));
     const warning = sourceWarning(root, candidate);
-    for (const id of sceneIds) {
+    for (const id of languageSceneIds(language)) {
       const before = baseline?.cases?.find((entry) => entry.id === id);
       const after = candidate?.cases?.find((entry) => entry.id === id);
       const entry = {

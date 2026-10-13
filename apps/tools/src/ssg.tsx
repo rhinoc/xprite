@@ -18,7 +18,7 @@ import { ToolHostManager } from "$/managers/tools/tool-host-manager";
 import { ViewerManager } from "$/managers/viewer/viewer-manager";
 import { ToolApplicationRoot } from "$/tool-application-root";
 import { AppearanceMode } from "@xprite/editor-ui/appearance";
-import { PublicLanguage } from "@xprite/growth-content/language";
+import { LOCALIZED_LANGUAGES, PublicLanguage } from "@xprite/growth-content/language";
 import { DesktopManager, DesktopAppearance } from "@xprite/site-shell";
 import { UiColorScheme, macintoshTheme } from "@xprite/ui";
 import { loadUiThemeSnapshot, type UiThemeSnapshot } from "@xprite/ui/assets";
@@ -115,8 +115,11 @@ export async function renderToolPage(rootId: string) {
   return {
     light: render("light", PublicLanguage.English),
     dark: render("dark", PublicLanguage.English),
-    chineseLight: render("light", PublicLanguage.SimplifiedChinese),
-    chineseDark: render("dark", PublicLanguage.SimplifiedChinese),
+    localized: LOCALIZED_LANGUAGES.map((language) => ({
+      language,
+      light: render("light", language),
+      dark: render("dark", language),
+    })),
     themes,
     artwork,
   };

@@ -10,14 +10,14 @@ updated: 2026-10-10
 - You want to edit `.aseprite` in the browser, or draw on an iPad with a pen and fingers: use Xprite.
 - You want to post as you draw and join community events: use Pixilart.
 
-|  | Piskel | Xprite | Pixelorama | Pixilart |
-| --- | --- | --- | --- | --- |
-| Price | 🆓 Free, with ads | 🆓 Free | 🆓 Free, Steam version 💰 | 🆓 Free, PRO 💰 |
-| Open `.piskel` | ✅ Native format | ❌ Convert to GIF or a sprite sheet first | ✅ Yes | — |
-| `.aseprite` projects | ❌ No | ✅ Open and save | ✅ Import; export since v1.2.2 | — |
-| Animation | ✅ Layers, onion skin | ✅ Tags, frame durations, onion skin | ✅ Tags, audio layers | ✅ Per-frame durations, onion skin |
-| Touch | — | ✅ Pen draws, fingers navigate | ⚠️ Android version is experimental | ✅ Mobile app |
-| Offline and desktop | ⚠️ Desktop version has limited upkeep | ⚠️ Open once online first | ✅ Free desktop app | — |
+|                      | Piskel                                | Xprite                                    | Pixelorama                         | Pixilart                           |
+| -------------------- | ------------------------------------- | ----------------------------------------- | ---------------------------------- | ---------------------------------- |
+| Price                | 🆓 Free, with ads                     | 🆓 Free                                   | 🆓 Free, Steam version 💰          | 🆓 Free, PRO 💰                    |
+| Open `.piskel`       | ✅ Native format                      | ❌ Convert to GIF or a sprite sheet first | ✅ Yes                             | —                                  |
+| `.aseprite` projects | ❌ No                                 | ✅ Open and save                          | ✅ Import; export since v1.2.2     | —                                  |
+| Animation            | ✅ Layers, onion skin                 | ✅ Tags, frame durations, onion skin      | ✅ Tags, audio layers              | ✅ Per-frame durations, onion skin |
+| Touch                | —                                     | ✅ Pen draws, fingers navigate            | ⚠️ Android version is experimental | ✅ Mobile app                      |
+| Offline and desktop  | ⚠️ Desktop version has limited upkeep | ⚠️ Open once online first                 | ✅ Free desktop app                | —                                  |
 
 ## When to stay with Piskel
 

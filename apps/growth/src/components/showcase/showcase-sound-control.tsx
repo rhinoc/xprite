@@ -1,3 +1,4 @@
+import { pickText, publicLanguage } from "$content/site/language";
 import { useRef, useState } from "react";
 
 import { DEFAULT_MUSIC_VOLUME, ShowcaseMusicVolume } from "$/managers/showcase/music-volume";
@@ -42,9 +43,18 @@ export function ShowcaseSoundControl({
 }) {
   const trigger = useRef<HTMLButtonElement>(null);
   const [bounds, setBounds] = useState<SurfaceBounds>();
-  const chinese = language.startsWith("zh");
-  const title = chinese ? "声音" : "Sound";
-  const label = chinese ? "背景音乐音量" : "Background music";
+  const current = publicLanguage(language);
+  const title = pickText(current, "Sound", "声音", "サウンド", "사운드", "Звук", "Som", "Sonido");
+  const label = pickText(
+    current,
+    "Background music",
+    "背景音乐音量",
+    "BGM の音量",
+    "배경 음악 음량",
+    "Фоновая музыка",
+    "Música de fundo",
+    "Música de fondo",
+  );
   const value = muted ? ShowcaseMusicVolume.Muted : volume;
   const close = () => {
     setBounds(undefined);
@@ -87,7 +97,16 @@ export function ShowcaseSoundControl({
           portal
           open
           title={title}
-          closeLabel={chinese ? "关闭声音面板" : "Close Sound"}
+          closeLabel={pickText(
+            current,
+            "Close Sound",
+            "关闭声音面板",
+            "サウンドを閉じる",
+            "사운드 닫기",
+            "Закрыть «Звук»",
+            "Fechar Som",
+            "Cerrar Sonido",
+          )}
           bounds={bounds}
           onBoundsChange={setBounds}
           onOpenChange={(open) => {
@@ -118,13 +137,37 @@ export function ShowcaseSoundControl({
               step={VOLUME_STEP}
               value={value}
               aria-label={label}
-              aria-valuetext={muted ? (chinese ? "静音" : "Muted") : String(volume)}
+              aria-valuetext={
+                muted
+                  ? pickText(
+                      current,
+                      "Muted",
+                      "静音",
+                      "ミュート",
+                      "음소거",
+                      "Без звука",
+                      "Sem som",
+                      "Silenciado",
+                    )
+                  : String(volume)
+              }
               disabled={!available}
               onValueChange={(next) => onVolumeChange?.(next as ShowcaseMusicVolume)}
             />
             <Icon kind={IconKind.VolumeMuted} />
             <Text variant={TextVariant.Inline} scale={CONTROL_TEXT_SCALE}>
-              {muted ? (chinese ? "静音" : "Muted") : String(volume)}
+              {muted
+                ? pickText(
+                    current,
+                    "Muted",
+                    "静音",
+                    "ミュート",
+                    "음소거",
+                    "Без звука",
+                    "Sem som",
+                    "Silenciado",
+                  )
+                : String(volume)}
             </Text>
           </div>
         </Dialog>

@@ -3,7 +3,12 @@ import type { CSSProperties, ReactNode } from "react";
 import { useToolLanguage } from "$/managers/locale/tool-language";
 import type { PublicTool } from "$/managers/tools/tool-catalog";
 import { FEATURES_PATH } from "@xprite/growth-content/features";
-import { localizedSiteHref, PublicLanguage } from "@xprite/growth-content/language";
+import {
+  localizedSiteHref,
+  pickText,
+  PUBLIC_LANGUAGE_LABELS,
+  PUBLIC_LANGUAGES,
+} from "@xprite/growth-content/language";
 import { siteApplications, siteFooterGroups } from "@xprite/growth-content/navigation";
 import { SiteFooter, SiteMenubar } from "@xprite/site-shell";
 import {
@@ -92,18 +97,11 @@ export function ToolFrame({
                   : undefined
               }
               language={language}
-              languages={[
-                {
-                  value: PublicLanguage.English,
-                  label: "English",
-                  onSelect: () => setLanguage(PublicLanguage.English),
-                },
-                {
-                  value: PublicLanguage.SimplifiedChinese,
-                  label: "简体中文",
-                  onSelect: () => setLanguage(PublicLanguage.SimplifiedChinese),
-                },
-              ]}
+              languages={PUBLIC_LANGUAGES.map((value) => ({
+                value,
+                label: PUBLIC_LANGUAGE_LABELS[value],
+                onSelect: () => setLanguage(value),
+              }))}
             />
           </header>
           <WindowWorkspace
@@ -119,7 +117,16 @@ export function ToolFrame({
                 <Button
                   variant={ButtonVariant.Tile}
                   slots={{ leading: <Icon kind={IconKind.Folder} size={IconSize.Large} /> }}
-                  text={language === PublicLanguage.SimplifiedChinese ? "功能" : "Features"}
+                  text={pickText(
+                    language,
+                    "Features",
+                    "功能",
+                    "機能",
+                    "기능",
+                    "Возможности",
+                    "Recursos",
+                    "Funciones",
+                  )}
                   href={localizedSiteHref(FEATURES_PATH, language)}
                 />
                 {helpHref && (
@@ -137,7 +144,16 @@ export function ToolFrame({
         </div>
         <SiteFooter
           groups={siteFooterGroups(language, helpHref)}
-          label={language === PublicLanguage.SimplifiedChinese ? "网站导航" : "Website navigation"}
+          label={pickText(
+            language,
+            "Website navigation",
+            "网站导航",
+            "サイトナビゲーション",
+            "사이트 탐색",
+            "Навигация по сайту",
+            "Navegação do site",
+            "Navegación del sitio",
+          )}
         />
       </div>
     </ScrollArea>

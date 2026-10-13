@@ -76,7 +76,7 @@ ${indexing}
 <meta name="twitter:image" content="${SITE_URL}social-preview.png">
 ${siteIcons()}
 <link rel="preload" href="${PUBLIC_FONT_PATH}?v=ec44f36e057a" as="font" type="font/woff2" crossorigin>
-${page.language === PublicLanguage.SimplifiedChinese ? `<link rel="preload" href="${CHINESE_FONT_PATH}" as="font" type="font/woff2" crossorigin>` : ""}
+${page.language !== PublicLanguage.English ? `<link rel="preload" href="${CHINESE_FONT_PATH}" as="font" type="font/woff2" crossorigin>` : ""}
 <link rel="stylesheet" href="${PUBLIC_FONT_STYLE_PATH}">
 <link rel="stylesheet" href="${PUBLIC_THEME_STYLE_PATH}">
 <link rel="stylesheet" href="${GUIDE_STYLE_PATH}">

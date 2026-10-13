@@ -1,4 +1,9 @@
-import { PublicLanguage } from "../site/language.ts";
+import { publicLanguage, PublicLanguage } from "../site/language.ts";
+import { TOOL_SPANISH_TEXT } from "./es.ts";
+import { TOOL_JAPANESE_TEXT } from "./ja.ts";
+import { TOOL_KOREAN_TEXT } from "./ko.ts";
+import { TOOL_PORTUGUESE_TEXT } from "./pt-BR.ts";
+import { TOOL_RUSSIAN_TEXT } from "./ru.ts";
 import { TOOL_CHINESE_TEXT } from "./zh-CN.ts";
 
 export { ANIMAL_CROSSING_HELP, AnimalCrossingHelpSection } from "./animal-crossing-help.ts";
@@ -7,34 +12,166 @@ export { PIXELATE_HELP, PixelateHelpSection } from "./pixelate-help.ts";
 export type { ToolHelpContent } from "./help.ts";
 export { VIEWER_EXPORT_HELP, ViewerHelpSection } from "./viewer-help.ts";
 
+interface ToolTextRules {
+  dictionary: Readonly<Record<string, string>>;
+  closeName: string;
+  patterns: readonly (readonly [RegExp, string])[];
+  colon: string;
+  frames: string;
+  workspace: (name: string) => string;
+}
+
+const TOOL_TEXT_RULES: Readonly<Partial<Record<PublicLanguage, ToolTextRules>>> = {
+  [PublicLanguage.SimplifiedChinese]: {
+    dictionary: TOOL_CHINESE_TEXT,
+    closeName: "关闭 {name}",
+    patterns: [
+      [/^Accepted files: /, "支持文件："],
+      [/^Source: /, "源图："],
+      [/^Frame (\d+) of (\d+)$/, "第 $1 帧，共 $2 帧"],
+      [/^(?:Select )?[Rr]ow (\d+), column (\d+)$/, "第 $1 行，第 $2 列"],
+      [/^Download all (\d+) designs$/, "下载全部 $1 个设计"],
+      [/^(\d+) applications$/, "$1 个应用"],
+      [/tiles · select a tile for Preview and QR$/, "个图块 · 选择图块以预览和生成二维码"],
+      [/^Tag /, "标签 "],
+      [/, frame (\d+)$/, "，第 $1 帧"],
+      [/^Frame (\d+)$/, "第 $1 帧"],
+      [/^Tile (\d+),(\d+)$/, "图块 $1,$2"],
+    ],
+    colon: "：",
+    frames: " 帧",
+    workspace: (name) => `${name}工作区`,
+  },
+  [PublicLanguage.Japanese]: {
+    dictionary: TOOL_JAPANESE_TEXT,
+    closeName: "{name} を閉じる",
+    patterns: [
+      [/^Accepted files: /, "対応ファイル："],
+      [/^Source: /, "元画像："],
+      [/^Frame (\d+) of (\d+)$/, "フレーム $1 / $2"],
+      [/^(?:Select )?[Rr]ow (\d+), column (\d+)$/, "$1 行 $2 列"],
+      [/^Download all (\d+) designs$/, "マイデザイン $1 枚をすべてダウンロード"],
+      [/^(\d+) applications$/, "$1 個のアプリケーション"],
+      [
+        /tiles · select a tile for Preview and QR$/,
+        "枚のタイル · タイルを選ぶとプレビューと QR を表示",
+      ],
+      [/^Tag /, "タグ "],
+      [/, frame (\d+)$/, "、フレーム $1"],
+      [/^Frame (\d+)$/, "フレーム $1"],
+      [/^Tile (\d+),(\d+)$/, "タイル $1,$2"],
+    ],
+    colon: "：",
+    frames: " フレーム",
+    workspace: (name) => `${name}のワークスペース`,
+  },
+  [PublicLanguage.Korean]: {
+    dictionary: TOOL_KOREAN_TEXT,
+    closeName: "{name} 닫기",
+    patterns: [
+      [/^Accepted files: /, "지원 파일: "],
+      [/^Source: /, "원본: "],
+      [/^Frame (\d+) of (\d+)$/, "프레임 $1/$2"],
+      [/^(?:Select )?[Rr]ow (\d+), column (\d+)$/, "$1행 $2열"],
+      [/^Download all (\d+) designs$/, "마이 디자인 $1개 모두 다운로드"],
+      [/^(\d+) applications$/, "응용 프로그램 $1개"],
+      [
+        /tiles · select a tile for Preview and QR$/,
+        "개 타일 · 타일을 선택하면 미리 보기와 QR이 표시됩니다",
+      ],
+      [/^Tag /, "태그 "],
+      [/, frame (\d+)$/, ", 프레임 $1"],
+      [/^Frame (\d+)$/, "프레임 $1"],
+      [/^Tile (\d+),(\d+)$/, "타일 $1,$2"],
+    ],
+    colon: ":",
+    frames: "프레임",
+    workspace: (name) => `${name} 작업 공간`,
+  },
+  [PublicLanguage.Russian]: {
+    dictionary: TOOL_RUSSIAN_TEXT,
+    closeName: "Закрыть {name}",
+    patterns: [
+      [/^Accepted files: /, "Поддерживаемые файлы: "],
+      [/^Source: /, "Источник: "],
+      [/^Frame (\d+) of (\d+)$/, "Кадр $1 из $2"],
+      [/^(?:Select )?[Rr]ow (\d+), column (\d+)$/, "Строка $1, столбец $2"],
+      [/^Download all (\d+) designs$/, "Скачать все дизайны ($1)"],
+      [/^(\d+) applications$/, "Приложений: $1"],
+      [
+        /tiles · select a tile for Preview and QR$/,
+        " — тайлы · выберите тайл для предпросмотра и QR",
+      ],
+      [/^Tag /, "Метка "],
+      [/, frame (\d+)$/, ", кадр $1"],
+      [/^Frame (\d+)$/, "Кадр $1"],
+      [/^Tile (\d+),(\d+)$/, "Тайл $1,$2"],
+    ],
+    colon: ":",
+    frames: " кадр.",
+    workspace: (name) => `Рабочая область: ${name}`,
+  },
+  [PublicLanguage.BrazilianPortuguese]: {
+    dictionary: TOOL_PORTUGUESE_TEXT,
+    closeName: "Fechar {name}",
+    patterns: [
+      [/^Accepted files: /, "Arquivos aceitos: "],
+      [/^Source: /, "Origem: "],
+      [/^Frame (\d+) of (\d+)$/, "Quadro $1 de $2"],
+      [/^(?:Select )?[Rr]ow (\d+), column (\d+)$/, "Linha $1, coluna $2"],
+      [/^Download all (\d+) designs$/, "Baixar todos os $1 designs"],
+      [/^(\d+) applications$/, "$1 aplicativos"],
+      [
+        /tiles · select a tile for Preview and QR$/,
+        "tiles · selecione um tile para ver a pré-visualização e o QR",
+      ],
+      [/^Tag /, "Tag "],
+      [/, frame (\d+)$/, ", quadro $1"],
+      [/^Frame (\d+)$/, "Quadro $1"],
+      [/^Tile (\d+),(\d+)$/, "Tile $1,$2"],
+    ],
+    colon: ":",
+    frames: " quadros",
+    workspace: (name) => `Espaço de trabalho do ${name}`,
+  },
+  [PublicLanguage.Spanish]: {
+    dictionary: TOOL_SPANISH_TEXT,
+    closeName: "Cerrar {name}",
+    patterns: [
+      [/^Accepted files: /, "Archivos admitidos: "],
+      [/^Source: /, "Origen: "],
+      [/^Frame (\d+) of (\d+)$/, "Cuadro $1 de $2"],
+      [/^(?:Select )?[Rr]ow (\d+), column (\d+)$/, "Fila $1, columna $2"],
+      [/^Download all (\d+) designs$/, "Descargar los $1 diseños"],
+      [/^(\d+) applications$/, "$1 aplicaciones"],
+      [
+        /tiles · select a tile for Preview and QR$/,
+        "tiles · selecciona un tile para ver la vista previa y el QR",
+      ],
+      [/^Tag /, "Etiqueta "],
+      [/, frame (\d+)$/, ", cuadro $1"],
+      [/^Frame (\d+)$/, "Cuadro $1"],
+      [/^Tile (\d+),(\d+)$/, "Tile $1,$2"],
+    ],
+    colon: ":",
+    frames: " cuadros",
+    workspace: (name) => `Espacio de trabajo de ${name}`,
+  },
+};
+
 export function translateToolText(source: string, language: string): string {
-  if (source === "ui.close.name")
-    return language === PublicLanguage.SimplifiedChinese ? "关闭 {name}" : "Close {name}";
-  if (language !== PublicLanguage.SimplifiedChinese) return source;
+  const rules = TOOL_TEXT_RULES[publicLanguage(language)];
+  if (source === "ui.close.name") return rules?.closeName ?? "Close {name}";
+  if (!rules) return source;
   const text = source.replace(/\s+/g, " ").trim();
-  if (TOOL_CHINESE_TEXT[text]) return TOOL_CHINESE_TEXT[text];
-  if (text.startsWith("Accepted files: ")) return text.replace(/^Accepted files: /, "支持文件：");
-  if (text.startsWith("Source: ")) return text.replace(/^Source: /, "源图：");
-  if (/^Frame \d+ of \d+$/.test(text))
-    return text.replace(/^Frame (\d+) of (\d+)$/, "第 $1 帧，共 $2 帧");
-  if (/^(?:Select )?[Rr]ow \d+, column \d+$/.test(text))
-    return text.replace(/^(?:Select )?[Rr]ow (\d+), column (\d+)$/, "第 $1 行，第 $2 列");
-  if (/^Download all \d+ designs$/.test(text))
-    return text.replace(/^Download all (\d+) designs$/, "下载全部 $1 个设计");
-  if (/^\d+ applications$/.test(text)) return text.replace(/ applications$/, " 个应用");
-  if (text.endsWith("tiles · select a tile for Preview and QR"))
-    return text.replace(
-      /tiles · select a tile for Preview and QR$/,
-      "个图块 · 选择图块以预览和生成二维码",
-    );
-  if (text.startsWith("Tag ")) return text.replace(/^Tag /, "标签 ");
-  if (/, frame \d+$/.test(text)) return text.replace(/, frame (\d+)$/, "，第 $1 帧");
-  if (/^Frame \d+$/.test(text)) return text.replace(/^Frame (\d+)$/, "第 $1 帧");
-  if (/^Tile \d+,\d+$/.test(text)) return text.replace(/^Tile (\d+),(\d+)$/, "图块 $1,$2");
-  if (text.endsWith(":")) return `${translateToolText(text.slice(0, -1), language)}：`;
-  if (text.endsWith(" frames")) return text.replace(/ frames$/, " 帧");
+  if (rules.dictionary[text]) return rules.dictionary[text];
+  for (const [pattern, replacement] of rules.patterns) {
+    if (pattern.test(text)) return text.replace(pattern, replacement);
+  }
+  if (text.endsWith(":")) return `${translateToolText(text.slice(0, -1), language)}${rules.colon}`;
+  if (text.endsWith(" frames")) return text.replace(/ frames$/, rules.frames);
   if (text.endsWith(" workspace"))
-    return `${translateToolText(text.replace(/ workspace$/, ""), language)}工作区`;
+    return rules.workspace(translateToolText(text.replace(/ workspace$/, ""), language));
   if (text.endsWith("…")) return `${translateToolText(text.slice(0, -1), language)}…`;
   return source;
 }

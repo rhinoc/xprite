@@ -14,7 +14,6 @@ const ALTERNATE_ELEMENT_PATTERN = /\s*<link\b[^>]*rel=["']alternate["'][^>]*>/gi
 const SHOWCASE_STATIC_PATTERN =
   /<!-- showcase-static-start -->[\s\S]*?<!-- showcase-static-end -->/;
 const CHINESE_FONT_PRELOAD_PATTERN = /\s*<link\b[^>]*id=["']showcase-chinese-font["'][^>]*>/gi;
-const CHINESE_SHOWCASE_LANGUAGE = "zh-CN";
 const PRODUCT_PAGE_SCHEMA_PATTERN =
   /\s*<script\b[^>]*data-showcase-search[^>]*>[\s\S]*?<\/script>/gi;
 const HTML_ENTITIES: Readonly<Record<string, string>> = {
@@ -41,7 +40,7 @@ export function applyShowcaseSearchMetadata(
       SHOWCASE_STATIC_PATTERN,
       `<!-- showcase-static-start -->${publicStaticPage(renderPublicUi("showcase-page", { language }))}<!-- showcase-static-end -->`,
     )
-    .replace(CHINESE_FONT_PRELOAD_PATTERN, language === CHINESE_SHOWCASE_LANGUAGE ? "$&" : "")
+    .replace(CHINESE_FONT_PRELOAD_PATTERN, language === "en" ? "" : "$&")
     .replace(CANONICAL_ELEMENT_PATTERN, "")
     .replace(ALTERNATE_ELEMENT_PATTERN, "")
     .replace(/(<html\b[^>]*\blang=)["'][^"']*["']/i, `$1"${language}"`)

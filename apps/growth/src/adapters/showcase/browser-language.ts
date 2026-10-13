@@ -5,9 +5,11 @@ import { SHOWCASE_COPY, ShowcaseLanguage } from "$/managers/showcase/showcase-la
 import { writeBrowserLanguagePreference } from "@xprite/site-shell/browser";
 
 export function readShowcaseLanguage(): ShowcaseLanguage {
-  return window.location.pathname === SHOWCASE_PAGES[ShowcaseLanguage.Chinese].path
-    ? ShowcaseLanguage.Chinese
-    : ShowcaseLanguage.English;
+  return (
+    Object.values(ShowcaseLanguage).find(
+      (language) => SHOWCASE_PAGES[language].path === window.location.pathname,
+    ) ?? ShowcaseLanguage.English
+  );
 }
 
 export function applyShowcaseLanguage(language: ShowcaseLanguage): void {

@@ -31,7 +31,7 @@ function articleMarkdownPath(
   article: Pick<PublicArticle, "collection" | "slug">,
   language: PublicLanguage,
 ): string {
-  const suffix = language === PublicLanguage.SimplifiedChinese ? ".zh-CN" : "";
+  const suffix = language === PublicLanguage.English ? "" : `.${language}`;
   return resolve(
     ARTICLE_CONTENT_ROOT,
     article.collection,

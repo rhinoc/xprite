@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { generateImageReport } from "../report.mjs";
 import { assertCaptureContract, COMPARISON_METHOD } from "./compare-case.mjs";
 import { compareCases } from "./compare-pool.mjs";
-import { selectSceneIds, selectLanguages, languageDirectory } from "./scenes.mjs";
+import { selectSceneIds, selectLanguages, languageDirectory, languageSceneIds } from "./scenes.mjs";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const args = process.argv.slice(2);
@@ -39,8 +39,9 @@ try {
       throw Error(
         `${language}: capture is incomplete or failed; partial comparisons cannot pass the gate.`,
       );
-    assertCaptureContract(baseline, candidate, language, ids);
-    const results = await compareCases(baseline, candidate, baselineDir, candidateDir, ids);
+    const languageIds = languageSceneIds(language, ids);
+    assertCaptureContract(baseline, candidate, language, languageIds);
+    const results = await compareCases(baseline, candidate, baselineDir, candidateDir, languageIds);
     const report = {
       passed: results.every(({ passed }) => passed),
       comparison: COMPARISON_METHOD,

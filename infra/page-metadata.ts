@@ -19,23 +19,24 @@ export interface LanguageLimits {
   readonly description: FieldLimit;
 }
 
+/** Latin and Cyrillic scripts (English, Russian, Portuguese, Spanish) share these limits. */
 const ENGLISH_LIMITS: LanguageLimits = {
   title: { ideal: { min: 1, max: 60 }, hard: { min: 1, max: 65 } },
   description: { ideal: { min: 70, max: 160 }, hard: { min: 50, max: 165 } },
 };
 
 /**
- * Chinese results truncate titles at about 30 CJK characters and snippets at about
- * 75–80, so a 160-unit description shows almost whole. Short, factual Chinese
- * descriptions are normal, so the lower bounds are half the English ones.
+ * Chinese, Japanese and Korean results truncate titles at about 30 wide characters and
+ * snippets at about 75–80, so a 160-unit description shows almost whole. Short, factual
+ * CJK descriptions are normal, so the lower bounds are lower than the English ones.
  */
-const CHINESE_LIMITS: LanguageLimits = {
+const CJK_LIMITS: LanguageLimits = {
   title: { ideal: { min: 1, max: 60 }, hard: { min: 1, max: 66 } },
   description: { ideal: { min: 70, max: 160 }, hard: { min: 40, max: 170 } },
 };
 
 export function metadataLimits(language: string): LanguageLimits {
-  return language.toLowerCase().startsWith("zh") ? CHINESE_LIMITS : ENGLISH_LIMITS;
+  return /^(?:zh|ja|ko)(?:-|$)/i.test(language) ? CJK_LIMITS : ENGLISH_LIMITS;
 }
 
 /** East Asian Wide and Fullwidth code point ranges (Unicode UAX #11). */
@@ -146,7 +147,7 @@ function lengthIssue(
   if (!value) return { severity: "error", page: page.page, field, message: "missing or empty" };
   const { ideal, hard } = metadataLimits(page.language)[field];
   const length = displayWidth(value);
-  const unit = metadataLimits(page.language) === CHINESE_LIMITS ? "units (CJK = 2)" : "chars";
+  const unit = metadataLimits(page.language) === CJK_LIMITS ? "units (CJK = 2)" : "chars";
   const range = (limit: { min: number; max: number }) => `${limit.min}–${limit.max}`;
   if (length < hard.min || length > hard.max)
     return {

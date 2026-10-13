@@ -9,7 +9,7 @@ import { GUIDE_PAGES } from "../help/pages.ts";
 import { SHOWCASE_PAGES } from "../showcase/pages.ts";
 import { EDITOR_TOOL, TOOLS, VIEWER_TOOL, ViewerHelpSection } from "../tools/index.ts";
 import { documentTranslations, SITE_DOCUMENTS } from "./documents.ts";
-import { localizedSiteHref, PublicLanguage } from "./language.ts";
+import { localizedSiteHref, PUBLIC_LANGUAGES, PublicLanguage } from "./language.ts";
 
 export enum SitePageKind {
   Editor = "editor",
@@ -36,8 +36,6 @@ export interface SitePage {
   indexable: boolean;
   translations?: readonly { language: PublicLanguage; path: string }[];
 }
-
-const PUBLIC_LANGUAGES = Object.values(PublicLanguage);
 
 /** Documents publish only the languages they are written in. */
 export const DOCUMENT_PAGES: readonly SitePage[] = SITE_DOCUMENTS.flatMap((document) => {
@@ -145,6 +143,8 @@ const FILE_GUIDE_SECTIONS: readonly (readonly [string, ViewerHelpSection])[] = [
   ["/learn/aseprite-to-png/", ViewerHelpSection.Png],
   ["/learn/aseprite-to-gif/", ViewerHelpSection.Gif],
 ];
+/** Only English and Chinese `/learn/` pages were ever published; later languages never had them. */
+const FILE_GUIDE_LANGUAGES = [PublicLanguage.English, PublicLanguage.SimplifiedChinese] as const;
 
 export const SITE_REDIRECTS: Readonly<Record<string, string>> = Object.fromEntries([
   ...SITE_PAGES.filter((page) => page.path !== "/" && page.path.endsWith("/")).flatMap(
@@ -158,7 +158,7 @@ export const SITE_REDIRECTS: Readonly<Record<string, string>> = Object.fromEntri
     [legacy, path],
     [`${legacy}index.html`, path],
   ]),
-  ...PUBLIC_LANGUAGES.flatMap((language) =>
+  ...FILE_GUIDE_LANGUAGES.flatMap((language) =>
     FILE_GUIDE_SECTIONS.flatMap(([path, section]) => {
       const source = localizedSiteHref(path, language);
       const destination = localizedSiteHref(`${VIEWER_TOOL.path}#${section}`, language);

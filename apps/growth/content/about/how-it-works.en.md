@@ -51,18 +51,18 @@ All of the editor's work happens in the browser. Heavy jobs run in Web Workers, 
 
 `.aseprite` is a little-endian binary format: a 128-byte header followed by frames, each made of several chunks. The header's magic number is `0xA5E0`, and each frame's is `0xF1FA`. Our decoder handles these chunks:
 
-| Chunk type | Contents |
-| --- | --- |
-| `0x2004` | Layer: normal layer, group, tilemap layer |
-| `0x2005` | Cel: raw pixels, linked cel, zlib-compressed pixels, compressed tilemap |
-| `0x2006` | Extra cel data (precise position and size) |
-| `0x2007` | Color profile |
-| `0x2008` | External file references |
-| `0x2018` | Tags (animation ranges) |
-| `0x2019` | Palette |
-| `0x2020` | User data (text, color, properties) |
-| `0x2022` | Slice |
-| `0x2023` | Tileset |
+| Chunk type | Contents                                                                |
+| ---------- | ----------------------------------------------------------------------- |
+| `0x2004`   | Layer: normal layer, group, tilemap layer                               |
+| `0x2005`   | Cel: raw pixels, linked cel, zlib-compressed pixels, compressed tilemap |
+| `0x2006`   | Extra cel data (precise position and size)                              |
+| `0x2007`   | Color profile                                                           |
+| `0x2008`   | External file references                                                |
+| `0x2018`   | Tags (animation ranges)                                                 |
+| `0x2019`   | Palette                                                                 |
+| `0x2020`   | User data (text, color, properties)                                     |
+| `0x2022`   | Slice                                                                   |
+| `0x2023`   | Tileset                                                                 |
 
 The older `0x0004` and `0x000B` palette chunks are also read, and the deprecated mask (`0x2016`) and path (`0x2017`) chunks are recognized.
 
@@ -70,12 +70,12 @@ The older `0x0004` and `0x000B` palette chunks are also read, and the deprecated
 
 A file opened in the browser could come from anywhere, so decoding happens in two passes. The first pass scans the whole file and checks that every chunk's length, offset and count stay inside the file. Only then does real decoding begin. Damaged files, or files over the limits, are caught during the scan instead of failing halfway through. The current limits are:
 
-| Item | Limit |
-| --- | --- |
-| Canvas side | 32,768 pixels |
+| Item         | Limit             |
+| ------------ | ----------------- |
+| Canvas side  | 32,768 pixels     |
 | Single image | 64 million pixels |
-| Frames | 4,096 |
-| Layers | 256 |
+| Frames       | 4,096             |
+| Layers       | 256               |
 
 ### Decoding in a Worker
 
@@ -150,10 +150,10 @@ There are two places to save a project, chosen under **Save destination** in **S
 
 ![The Save As dialog: file name, format, and the Browser and File Manager options under Save destination](images/save-as-location-en.png)
 
-| Location | Browser features used | When unavailable |
-| --- | --- | --- |
-| File Manager | File System Access API | The file is downloaded instead |
-| Browser | IndexedDB + OPFS | Project data is stored in IndexedDB instead |
+| Location     | Browser features used  | When unavailable                            |
+| ------------ | ---------------------- | ------------------------------------------- |
+| File Manager | File System Access API | The file is downloaded instead              |
+| Browser      | IndexedDB + OPFS       | Project data is stored in IndexedDB instead |
 
 Projects in the browser exist only in this browser on this device and don't sync. Clearing site data deletes them too. See the [user guide](/help/#save-and-recover).
 
@@ -239,14 +239,14 @@ In browsers that support it, we also request persistent storage (`navigator.stor
 
 A mouse has one pointer, but a touch screen can have a pen and several fingers on it at once. The input layer handles them with these rules:
 
-| Situation | What happens |
-| --- | --- |
-| A pen and a finger touch at once | The pen wins and interrupts the finger's action |
-| After a pen is detected | One finger pans the canvas by default, to avoid accidental palm marks |
-| A second finger comes down | The current stroke is cancelled and a two-finger gesture begins |
-| Two-finger pinch | Zooms the canvas |
-| Two- or three-finger tap | Undo or redo |
-| After a finger comes down | Xprite first decides whether it's a tap or a drag, then starts editing |
+| Situation                        | What happens                                                           |
+| -------------------------------- | ---------------------------------------------------------------------- |
+| A pen and a finger touch at once | The pen wins and interrupts the finger's action                        |
+| After a pen is detected          | One finger pans the canvas by default, to avoid accidental palm marks  |
+| A second finger comes down       | The current stroke is cancelled and a two-finger gesture begins        |
+| Two-finger pinch                 | Zooms the canvas                                                       |
+| Two- or three-finger tap         | Undo or redo                                                           |
+| After a finger comes down        | Xprite first decides whether it's a tap or a drag, then starts editing |
 
 The drag threshold also depends on the pointer type: a finger has to move more than 8 CSS pixels to count as a drag, while a mouse or pen only needs 1 pixel.
 
@@ -276,12 +276,12 @@ On a wide screen you get the familiar desktop layout: the menu bar at the top, t
 
 That layout doesn't fit a phone held upright. When **Workspace layout** is set to **Auto** (the default), we choose a layout based on the available space. You can also fix it to **Wide layout** or **Compact layout**; see the [user guide](/help/#arrange-your-workspace). The rules are:
 
-| Based on | Condition | Result |
-| --- | --- | --- |
-| Aspect ratio of the available area | ≥ 1.2 | Wide layout: panels around the edges |
-| Aspect ratio of the available area | < 1.2 | Compact layout: tools in a row at the top, palette and timeline as tabs below the canvas |
-| Width of the available area | < 768 CSS pixels | The interface switches to compact density |
-| Touch points or pointer precision | Any touch points, or `(pointer: coarse)` | Touch interaction mode |
+| Based on                           | Condition                                | Result                                                                                   |
+| ---------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Aspect ratio of the available area | ≥ 1.2                                    | Wide layout: panels around the edges                                                     |
+| Aspect ratio of the available area | < 1.2                                    | Compact layout: tools in a row at the top, palette and timeline as tabs below the canvas |
+| Width of the available area        | < 768 CSS pixels                         | The interface switches to compact density                                                |
+| Touch points or pointer precision  | Any touch points, or `(pointer: coarse)` | Touch interaction mode                                                                   |
 
 In the compact layout, the menu bar folds into the ☰ button in the top-left corner, and the interface stays clear of safe areas such as the notch and rounded corners:
 
@@ -293,10 +293,10 @@ Layout and interaction mode are decided separately. An iPad in landscape uses th
 
 Editing, saving and sharing don't use the network. Only two kinds of data are sent:
 
-| Data | When it's sent | Includes | Doesn't include |
-| --- | --- | --- | --- |
-| Usage analytics | When you use the official web version | Page visits, feature use, error categories, browser capabilities, approximate location | Artwork pixels, document names, local file paths |
-| Feedback | When you submit **Problems and suggestions** | Feedback type, message, optional email address, details of the current visit | — |
+| Data            | When it's sent                               | Includes                                                                               | Doesn't include                                  |
+| --------------- | -------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Usage analytics | When you use the official web version        | Page visits, feature use, error categories, browser capabilities, approximate location | Artwork pixels, document names, local file paths |
+| Feedback        | When you submit **Problems and suggestions** | Feedback type, message, optional email address, details of the current visit           | —                                                |
 
 Usage analytics go to PostHog Cloud (US):
 

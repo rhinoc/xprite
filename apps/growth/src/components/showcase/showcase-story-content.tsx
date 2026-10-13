@@ -1,13 +1,15 @@
 import { FEATURE_DETAIL_PATH, FEATURES_PATH } from "$content/features";
 import { GUIDE_PAGES } from "$content/help/pages";
 import {
+  deviceDemosLabel,
   SHOWCASE_HERO_COPY,
   SHOWCASE_STORY_COPY,
   SHOWCASE_STORY_FEATURE_SLUGS,
 } from "$content/showcase/index";
 import { showcaseMedia } from "$content/showcase/media";
 import { SHOWCASE_PAGES } from "$content/showcase/pages";
-import { localizedSiteHref } from "$content/site/language";
+import { localizedSiteHref, pickText, publicLanguage } from "$content/site/language";
+import { languageSwitchLinks } from "$content/site/navigation";
 import type { Ref } from "react";
 
 import { PublicNavigation } from "$/components/public/static-ui";
@@ -63,8 +65,26 @@ export function ShowcaseStoryContent({
             variant={PanelVariant.NoteWindow}
             dismissBehavior={PanelDismissBehavior.Collapse}
             noteColor={PanelNoteColor.Yellow}
-            aria-label={language === "en" ? "Read Me" : "说明"}
-            title={language === "en" ? "Read Me" : "说明"}
+            aria-label={pickText(
+              publicLanguage(language),
+              "Read Me",
+              "说明",
+              "お読みください",
+              "읽어 보세요",
+              "Прочитать",
+              "Leia-me",
+              "Léeme",
+            )}
+            title={pickText(
+              publicLanguage(language),
+              "Read Me",
+              "说明",
+              "お読みください",
+              "읽어 보세요",
+              "Прочитать",
+              "Leia-me",
+              "Léeme",
+            )}
             data-story-copy
             data-showcase-note
           >
@@ -119,7 +139,16 @@ export function ShowcaseStoryContent({
             emphasized
             tone={SurfaceTone.Success}
             contentPadding={12}
-            title={language === "en" ? "Workspace" : "工作区"}
+            title={pickText(
+              publicLanguage(language),
+              "Workspace",
+              "工作区",
+              "ワークスペース",
+              "작업 공간",
+              "Рабочая область",
+              "Área de trabalho",
+              "Espacio de trabajo",
+            )}
             data-story-image-window
           >
             <figure data-story-artwork>
@@ -144,8 +173,26 @@ export function ShowcaseStoryContent({
             variant={PanelVariant.NoteWindow}
             dismissBehavior={PanelDismissBehavior.Collapse}
             noteColor={PanelNoteColor.Lilac}
-            aria-label={language === "en" ? "Read Me" : "说明"}
-            title={language === "en" ? "Read Me" : "说明"}
+            aria-label={pickText(
+              publicLanguage(language),
+              "Read Me",
+              "说明",
+              "お読みください",
+              "읽어 보세요",
+              "Прочитать",
+              "Leia-me",
+              "Léeme",
+            )}
+            title={pickText(
+              publicLanguage(language),
+              "Read Me",
+              "说明",
+              "お読みください",
+              "읽어 보세요",
+              "Прочитать",
+              "Leia-me",
+              "Léeme",
+            )}
             data-story-copy
             data-showcase-note
           >
@@ -174,7 +221,6 @@ export function ShowcaseStoryContent({
 
 export function ShowcaseStaticHeader({ language }: { language: ShowcaseContentLanguage }) {
   const copy = SHOWCASE_HERO_COPY[language];
-  const otherLanguage = language === "en" ? "zh-CN" : "en";
   return (
     <header className={styles.header}>
       <PublicNavigation
@@ -185,13 +231,13 @@ export function ShowcaseStaticHeader({ language }: { language: ShowcaseContentLa
         links={[
           { label: copy.features, href: localizedSiteHref(FEATURES_PATH, language) },
           { label: copy.goToEditor, href: EDITOR_URL },
-          {
-            label: copy.languageSwitch,
-            href: SHOWCASE_PAGES[otherLanguage].path,
-            hrefLang: otherLanguage,
-            end: true,
-            icon: "language",
-          },
+          ...languageSwitchLinks(
+            publicLanguage(language),
+            Object.fromEntries(
+              Object.entries(SHOWCASE_PAGES).map(([value, page]) => [value, page.path]),
+            ),
+            true,
+          ),
         ]}
       />
     </header>
@@ -206,16 +252,14 @@ export function ShowcaseStaticHero({ language }: { language: ShowcaseContentLang
         <Panel
           variant={PanelVariant.Document}
           emphasized
-          title={language === "en" ? "Device demos" : "设备演示"}
+          title={deviceDemosLabel(language)}
           contentPadding={ContentPadding.None}
           tone={SurfaceTone.Info}
           data-showcase-screen
           collapsible
           data-ui-window-priority="primary"
         >
-          <ShowcaseIntro
-            language={language === "zh-CN" ? ShowcaseLanguage.Chinese : ShowcaseLanguage.English}
-          />
+          <ShowcaseIntro language={language as ShowcaseLanguage} />
           <div data-showcase-static-stage>
             <ShowcaseOverviewPreview alt={copy.titleOverview} />
             <div data-showcase-action>

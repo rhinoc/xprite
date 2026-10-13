@@ -1,5 +1,10 @@
 import { ARTICLES } from "$content/articles/index";
-import { publicLanguage } from "$content/site/language";
+import {
+  pickText,
+  PUBLIC_LANGUAGE_LABELS,
+  publicLanguage,
+  unlocalizedPath,
+} from "$content/site/language";
 import { siteApplications, siteFooterGroups, showcaseLabel } from "$content/site/navigation";
 import { DOCUMENT_PAGES } from "$content/site/pages";
 import {
@@ -73,7 +78,16 @@ export function PublicReaderScroll({
       scrollbarRendering={ScrollbarRendering.Browser}
       scrollX={false}
       reserveScrollbarGutter
-      aria-label={language.startsWith("zh") ? "文档滚动" : "Document scroll"}
+      aria-label={pickText(
+        publicLanguage(language),
+        "Document scroll",
+        "文档滚动",
+        "ドキュメントのスクロール",
+        "문서 스크롤",
+        "Прокрутка документа",
+        "Rolagem do documento",
+        "Desplazamiento del documento",
+      )}
       viewportProps={{
         tabIndex: 0,
         "data-public-reader-scroll": "",
@@ -95,7 +109,16 @@ export function PublicFooter({
   return (
     <SiteFooter
       groups={groups}
-      label={language.startsWith("zh") ? "网站导航" : "Website navigation"}
+      label={pickText(
+        publicLanguage(language),
+        "Website navigation",
+        "网站导航",
+        "サイトナビゲーション",
+        "웹사이트 탐색",
+        "Навигация по сайту",
+        "Navegação do site",
+        "Navegación del sitio",
+      )}
     />
   );
 }
@@ -180,35 +203,52 @@ export function PublicNavigation({
   links,
   menus = [],
 }: PublicNavigationProps) {
-  const chinese = language.startsWith("zh");
-  const otherLanguage = links.find((link) => link.icon === "language");
-  const path = currentHref.split("?")[0].replace(/^\/zh-CN(?=\/)/, "");
+  const current = publicLanguage(language);
+  const languageLinks = links.filter((link) => link.icon === "language");
+  const path = unlocalizedPath(currentHref.split("?")[0]);
   const article = ARTICLES.find((article) => article.path === path);
   const documentPage = DOCUMENT_PAGES.find((page) => page.path === currentHref.split("?")[0]);
   const applicationName =
-    article?.shortTitle[publicLanguage(language)] ??
+    article?.shortTitle[current] ??
     documentPage?.title ??
     (path.startsWith("/help")
-      ? chinese
-        ? "使用指南"
-        : "User guide"
+      ? pickText(
+          current,
+          "User guide",
+          "使用指南",
+          "使い方ガイド",
+          "사용 가이드",
+          "Руководство",
+          "Guia do usuário",
+          "Guía de usuario",
+        )
       : path.startsWith("/compare")
-        ? chinese
-          ? "编辑器比较"
-          : "Compare"
+        ? pickText(
+            current,
+            "Compare",
+            "编辑器比较",
+            "エディター比較",
+            "에디터 비교",
+            "Сравнение",
+            "Comparar",
+            "Comparar",
+          )
         : showcaseLabel(language));
-  const languages: readonly SiteLanguage[] | undefined = otherLanguage
+  const languages: readonly SiteLanguage[] | undefined = languageLinks.length
     ? [
-        { value: language, label: chinese ? "简体中文" : "English", href: currentHref },
-        {
-          value: chinese ? "en" : "zh-CN",
-          label: chinese ? "English" : "简体中文",
-          href: otherLanguage.href,
-          onClick: (event) => {
-            writeBrowserLanguagePreference(chinese ? "en" : "zh-CN");
-            otherLanguage.onClick?.(event);
-          },
-        },
+        { value: language, label: PUBLIC_LANGUAGE_LABELS[current], href: currentHref },
+        ...languageLinks.map((link) => {
+          const target = publicLanguage(link.hrefLang);
+          return {
+            value: target,
+            label: PUBLIC_LANGUAGE_LABELS[target],
+            href: link.href,
+            onClick: (event: Parameters<NonNullable<SiteLanguage["onClick"]>>[0]) => {
+              writeBrowserLanguagePreference(target);
+              link.onClick?.(event);
+            },
+          };
+        }),
       ]
     : undefined;
   return (

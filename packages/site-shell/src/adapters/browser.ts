@@ -2,22 +2,23 @@ import { PATTERNS, patternColorImage } from "@xprite/ui";
 
 import { SITE_LANGUAGE_PREFERENCE_KEY } from "../language-preference";
 import { DesktopAppearance, DesktopManager, type DesktopPreferences } from "../managers/desktop";
+import { SITE_LANGUAGES, type SiteLanguageCode } from "../site-language";
 import { DESKTOP_PREFERENCES_KEY } from "../startup";
 
 const DESKTOP_CHANGED_EVENT = "xprite:desktop-preferences";
 const DARK_MEDIA_QUERY = "(prefers-color-scheme: dark)";
 export { SITE_LANGUAGE_PREFERENCE_KEY };
 
-export function readBrowserLanguagePreference(): "en" | "zh-CN" | undefined {
+export function readBrowserLanguagePreference(): SiteLanguageCode | undefined {
   try {
     const language = localStorage.getItem(SITE_LANGUAGE_PREFERENCE_KEY);
-    return language === "en" || language === "zh-CN" ? language : undefined;
+    return SITE_LANGUAGES.find((supported) => supported === language);
   } catch {
     return undefined;
   }
 }
 
-export function writeBrowserLanguagePreference(language: "en" | "zh-CN") {
+export function writeBrowserLanguagePreference(language: SiteLanguageCode) {
   try {
     localStorage.setItem(SITE_LANGUAGE_PREFERENCE_KEY, language);
   } catch {

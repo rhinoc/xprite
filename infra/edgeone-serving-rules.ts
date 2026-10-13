@@ -59,31 +59,49 @@ function compactIndexRedirects(rules: readonly RedirectRule[]) {
 }
 
 /** `/old/x` and `/old/x/` → `/new/x` for many `x` become `/old/:name(/)` → `/new/:name`. */
-function compactPrefixRedirects(rules: readonly RedirectRule[]) {
+function compactPrefixRedirects(
+  rules: readonly RedirectRule[],
+  publishedFiles: readonly string[] = [],
+) {
+  const fileFolders = new Set(
+    publishedFiles
+      .filter((file) => !file.endsWith(INDEX_SUFFIX))
+      .map((file) => file.slice(0, file.lastIndexOf("/") + 1)),
+  );
   const shape = (rule: RedirectRule) => {
     const source = /^(\/(?:[^/:*]+\/)+)([^/:*]+)(\/?)$/.exec(rule.source);
     if (!source || rule.destination.includes("#") || rule.destination.includes("?")) return null;
-    const destination = /^(\/(?:[^/:*]+\/)*)([^/:*]+)$/.exec(rule.destination);
+    const destination = /^(\/(?:[^/:*]+\/)*)([^/:*]+)(\/?)$/.exec(rule.destination);
     if (!destination || destination[2] !== source[2]) return null;
-    return { key: `${source[1]}\n${destination[1]}\n${rule.statusCode}`, name: source[2] };
+    // A trailing-slash destination (`/a/x` → `/a/x/`) only collapses the slashless source.
+    if (destination[3] && source[3]) return null;
+    return {
+      key: `${source[1]}\n${destination[1]}\n${rule.statusCode}\n${destination[3]}`,
+      name: source[2],
+    };
   };
   const names = new Map<string, Set<string>>();
   for (const rule of rules) {
     const match = shape(rule);
     if (match) names.set(match.key, (names.get(match.key) ?? new Set()).add(match.name));
   }
+  // A placeholder over a folder that also holds published files would redirect those files.
   const collapsible = new Set(
-    [...names].filter(([, members]) => members.size >= MIN_GROUP_SIZE).map(([key]) => key),
+    [...names]
+      .filter(
+        ([key, members]) => members.size >= MIN_GROUP_SIZE && !fileFolders.has(key.split("\n")[0]),
+      )
+      .map(([key]) => key),
   );
   const kept = rules.filter((rule) => {
     const match = shape(rule);
     return !match || !collapsible.has(match.key);
   });
   const placeholders = [...collapsible].flatMap((key) => {
-    const [sourcePrefix, destinationPrefix, statusCode] = key.split("\n");
-    return ["", "/"].map((slash) => ({
+    const [sourcePrefix, destinationPrefix, statusCode, trailing] = key.split("\n");
+    return (trailing ? [""] : ["", "/"]).map((slash) => ({
       source: `${sourcePrefix}:name${slash}`,
-      destination: `${destinationPrefix}:name`,
+      destination: `${destinationPrefix}:name${trailing}`,
       statusCode: Number(statusCode),
     }));
   });
@@ -115,12 +133,40 @@ function compactDirectoryRewrites(rules: readonly RewriteRule[]) {
   return [...kept, ...placeholders];
 }
 
+/** `/a/x/` → `/a/x/index.html` for many `x` becomes `/a/:name/` → `/a/:name/index.html`. */
+function compactIndexRewrites(rules: readonly RewriteRule[]) {
+  const shape = (rule: RewriteRule) => {
+    const source = /^(\/(?:[^/:*]+\/)+)[^/:*]+\/$/.exec(rule.source);
+    return source && rule.destination === `${rule.source}index.html` ? source[1] : null;
+  };
+  const counts = new Map<string, number>();
+  for (const rule of rules) {
+    const key = shape(rule);
+    if (key) counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  const collapsible = new Set(
+    [...counts].filter(([, count]) => count >= MIN_GROUP_SIZE).map(([key]) => key),
+  );
+  const kept = rules.filter((rule) => !collapsible.has(shape(rule) ?? ""));
+  const placeholders = [...collapsible].map((prefix) => ({
+    source: `${prefix}:name/`,
+    destination: `${prefix}:name/index.html`,
+  }));
+  return [...kept, ...placeholders];
+}
+
 /** Return the same serving behavior with the fewest rules EdgeOne needs to read. */
-export function compactServingRules<T extends ServingRules>(configuration: T): T {
+export function compactServingRules<T extends ServingRules>(
+  configuration: T,
+  publishedFiles: readonly string[] = [],
+): T {
   const compacted = {
     ...configuration,
-    redirects: compactPrefixRedirects(compactIndexRedirects(configuration.redirects ?? [])),
-    rewrites: compactDirectoryRewrites(configuration.rewrites ?? []),
+    redirects: compactPrefixRedirects(
+      compactIndexRedirects(configuration.redirects ?? []),
+      publishedFiles,
+    ),
+    rewrites: compactIndexRewrites(compactDirectoryRewrites(configuration.rewrites ?? [])),
   };
   for (const list of ["redirects", "rewrites"] as const) {
     for (const rule of configuration[list] ?? []) {
@@ -129,6 +175,17 @@ export function compactServingRules<T extends ServingRules>(configuration: T): T
       if (resolved !== rule.destination)
         throw new Error(
           `Compacted ${list} changed ${rule.source}: ${rule.destination} became ${resolved}.`,
+        );
+    }
+  }
+  for (const list of ["redirects", "rewrites"] as const) {
+    // `index.html` copies are meant to redirect to their folder, so only other files must keep serving.
+    for (const file of publishedFiles.filter((path) => !path.endsWith(INDEX_SUFFIX))) {
+      const before = resolveRule(configuration[list] ?? [], file)?.destination;
+      const after = resolveRule(compacted[list], file)?.destination;
+      if (before !== after)
+        throw new Error(
+          `Compacted ${list} changed published file ${file}: ${before} became ${after}.`,
         );
     }
   }
