@@ -8,7 +8,7 @@ const WORKSPACE_MEDIA_ROOT = "/showcase/workspace-layout";
 export function showcaseMedia(language: string) {
   const selected = publicLanguage(language);
   const copy = SHOWCASE_STORY_COPY[selected];
-  // Captures exist for English and Chinese; Japanese and Korean reuse the English ones.
+  // Captures exist for English and Chinese; other languages reuse the English ones.
   const capture = selected === PublicLanguage.SimplifiedChinese ? selected : PublicLanguage.English;
   return {
     animation: {

@@ -9,4 +9,7 @@ export const EDITOR_EXTERNAL_LINKS = {
   xpriteAboutChinese: "https://xprite.cc/zh-CN/about/",
   xpriteAboutJapanese: "https://xprite.cc/ja/about/",
   xpriteAboutKorean: "https://xprite.cc/ko/about/",
+  xpriteAboutRussian: "https://xprite.cc/ru/about/",
+  xpriteAboutPortuguese: "https://xprite.cc/pt-BR/about/",
+  xpriteAboutSpanish: "https://xprite.cc/es/about/",
 } as const;

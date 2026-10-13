@@ -25,13 +25,25 @@ export const GUIDE_ROOT = resolve(fileURLToPath(new URL("../../content/help/", i
 export const GUIDES = PUBLIC_LANGUAGES.map((language) => ({
   ...GUIDE_PAGES[language],
   language,
-  openEditor: pickText(language, "Open editor", "打开编辑器", "エディターを開く", "에디터 열기"),
+  openEditor: pickText(
+    language,
+    "Open editor",
+    "打开编辑器",
+    "エディターを開く",
+    "에디터 열기",
+    "Открыть редактор",
+    "Abrir editor",
+    "Abrir editor",
+  ),
   navigation: pickText(
     language,
     "User guide navigation",
     "使用指南导航",
     "使い方ガイドのナビゲーション",
     "사용 가이드 탐색",
+    "Навигация по руководству",
+    "Navegação do guia do usuário",
+    "Navegación de la guía de usuario",
   ),
 }));
 type Guide = (typeof GUIDES)[number];
@@ -122,7 +134,16 @@ export function guideHtml(guide: Guide, indexable: boolean): string {
     guide,
     indexable,
     `<div data-public-sidebar>${publicDesktopWindow(
-      pickText(guide.language, "Contents", "目录", "目次", "목차"),
+      pickText(
+        guide.language,
+        "Contents",
+        "目录",
+        "目次",
+        "목차",
+        "Содержание",
+        "Conteúdo",
+        "Contenido",
+      ),
       publicIndex(
         guide.navigation,
         tokens
@@ -130,10 +151,19 @@ export function guideHtml(guide: Guide, indexable: boolean): string {
           .map((heading) => ({ href: `#${headingId(heading.text)}`, label: heading.text })),
       ),
       "data-public-contents",
-    )}</div>${publicDesktopWindow(pickText(guide.language, "Xprite Help", "Xprite 使用指南", "Xprite ヘルプ", "Xprite 도움말"), publicReaderScroll(`<article>${publicRichText(parser.parser(tokens.filter((token) => token !== contentsToken)), { "data-public-document-content": true })}</article>`, guide.language), "data-public-document", `<a href="/editor">${guide.openEditor}</a>`)}<nav data-public-shortcuts aria-label="${guide.navigation}">${publicIconLink(guide.openEditor, "/editor", "application")}${publicIconLink(pickText(guide.language, "Features", "功能", "機能", "기능"), localizedSiteHref("/features/", guide.language))}</nav>`,
+    )}</div>${publicDesktopWindow(pickText(guide.language, "Xprite Help", "Xprite 使用指南", "Xprite ヘルプ", "Xprite 도움말", "Справка Xprite", "Ajuda do Xprite", "Ayuda de Xprite"), publicReaderScroll(`<article>${publicRichText(parser.parser(tokens.filter((token) => token !== contentsToken)), { "data-public-document-content": true })}</article>`, guide.language), "data-public-document", `<a href="/editor">${guide.openEditor}</a>`)}<nav data-public-shortcuts aria-label="${guide.navigation}">${publicIconLink(guide.openEditor, "/editor", "application")}${publicIconLink(pickText(guide.language, "Features", "功能", "機能", "기능", "Возможности", "Recursos", "Funciones"), localizedSiteHref("/features/", guide.language))}</nav>`,
     [
       {
-        label: pickText(guide.language, "Compare", "工具比较", "比較", "비교"),
+        label: pickText(
+          guide.language,
+          "Compare",
+          "工具比较",
+          "比較",
+          "비교",
+          "Сравнение",
+          "Comparar",
+          "Comparar",
+        ),
         href: localizedSiteHref("/compare/", guide.language),
       },
       { label: guide.openEditor, href: "/editor" },

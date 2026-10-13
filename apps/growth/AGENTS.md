@@ -37,12 +37,12 @@ runtime, development server, build output, and public assets independent from
 tools, the editor home and components when indexable. Noindex pages and the 404 are
 skipped. Lengths are display units: Latin characters count 1, CJK characters 2.
 
-| Language | Field | Aim for | Warns | Fails |
-| --- | --- | --- | --- | --- |
-| English | title | ≤ 60 | 61–65 | > 65 |
-| English | description | 70–160 | 50–69, 161–165 | < 50 or > 165 |
-| zh-CN | title | ≤ 60 (30 CJK) | 61–66 | > 66 |
-| zh-CN | description | 70–160 (35–80 CJK) | 40–69, 161–170 | < 40 or > 170 |
+| Language | Field       | Aim for            | Warns          | Fails         |
+| -------- | ----------- | ------------------ | -------------- | ------------- |
+| English  | title       | ≤ 60               | 61–65          | > 65          |
+| English  | description | 70–160             | 50–69, 161–165 | < 50 or > 165 |
+| zh-CN    | title       | ≤ 60 (30 CJK)      | 61–66          | > 66          |
+| zh-CN    | description | 70–160 (35–80 CJK) | 40–69, 161–170 | < 40 or > 170 |
 
 - Missing or empty values fail, and so does a title or description that another page
   in the same language already uses. An `og:` value that differs only warns.

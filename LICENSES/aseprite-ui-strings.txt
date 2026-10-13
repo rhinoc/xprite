@@ -24,19 +24,28 @@ source branding in settings and Home text. Menu hierarchy, command wiring, and
 shortcut bindings are maintained separately as product data. Tooltip shortcut
 suffixes use the editor's own active binding records.
 
-Aseprite Japanese and Korean UI strings
+Aseprite Japanese, Korean, Russian, Brazilian Portuguese and Spanish UI strings
 
-The Japanese and Korean editor catalogs (`apps/editor/src/i18n/locales/ja.json`
-and `ko.json`) were translated for this editor and use the community Aseprite
+The Japanese, Korean, Russian, Brazilian Portuguese and Spanish editor catalogs
+(`apps/editor/src/i18n/locales/ja.json`, `ko.json`, `ru.json`, `pt-BR.json` and
+`es.json`) were translated for this editor and use the community Aseprite
 language packs as their terminology reference, so that tool, command and panel
-names match what Japanese and Korean Aseprite users already know. Individual
+names match what Aseprite users in those languages already know. Individual
 labels that coincide with those packs are adapted from them; the catalogs are
 not copies of the packs.
 
-Source: aseprite/strings `ja.ini` and `ko.ini`, snapshot commit
+The single neutral Spanish catalog draws on both `es.ini` (Spain) and
+`es_419.ini` (Latin America).
+
+Source: aseprite/strings `ja.ini`, `ko.ini`, `ru.ini`, `pt_BR.ini`, `es.ini` and
+`es_419.ini`, snapshot commit
 `3cf091fc23f8d9e48b5f6efa75e9fa9275791212`:
 https://github.com/aseprite/strings/blob/3cf091fc23f8d9e48b5f6efa75e9fa9275791212/ja.ini
 https://github.com/aseprite/strings/blob/3cf091fc23f8d9e48b5f6efa75e9fa9275791212/ko.ini
+https://github.com/aseprite/strings/blob/3cf091fc23f8d9e48b5f6efa75e9fa9275791212/ru.ini
+https://github.com/aseprite/strings/blob/3cf091fc23f8d9e48b5f6efa75e9fa9275791212/pt_BR.ini
+https://github.com/aseprite/strings/blob/3cf091fc23f8d9e48b5f6efa75e9fa9275791212/es.ini
+https://github.com/aseprite/strings/blob/3cf091fc23f8d9e48b5f6efa75e9fa9275791212/es_419.ini
 
 Copyright the Aseprite translation contributors
 (https://github.com/aseprite/strings/graphs/contributors).

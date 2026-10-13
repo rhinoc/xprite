@@ -79,8 +79,10 @@ const editorScenes = ["en", "zh-CN"].flatMap((language) => {
   ];
 });
 
-/** Japanese and Korean check the editor once, wide and light. */
-editorScenes.push(...["ja", "ko"].map((language) => scene(editorPage(language), wide, light)));
+/** Japanese, Korean, Russian, Brazilian Portuguese and Spanish check the editor once, wide and light. */
+editorScenes.push(
+  ...["ja", "ko", "ru", "pt-BR", "es"].map((language) => scene(editorPage(language), wide, light)),
+);
 
 const aboutPage = showcasePage("zh-CN");
 const aboutScenes = [
@@ -112,6 +114,9 @@ const representativeScenes = [
     appearances.find(({ name }) => name === "dark"),
   ),
   scene(documentPage("ko"), wide, light),
+  scene(showcasePage("ru"), compact, light),
+  scene(guidePage("es"), wide, light),
+  scene(articlePage("pt-BR"), compact, light),
   ...["macintosh", "aseprite"].map((theme, index) =>
     scene(
       {

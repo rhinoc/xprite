@@ -44,13 +44,16 @@ export function ShowcaseSoundControl({
   const trigger = useRef<HTMLButtonElement>(null);
   const [bounds, setBounds] = useState<SurfaceBounds>();
   const current = publicLanguage(language);
-  const title = pickText(current, "Sound", "声音", "サウンド", "사운드");
+  const title = pickText(current, "Sound", "声音", "サウンド", "사운드", "Звук", "Som", "Sonido");
   const label = pickText(
     current,
     "Background music",
     "背景音乐音量",
     "BGM の音量",
     "배경 음악 음량",
+    "Фоновая музыка",
+    "Música de fundo",
+    "Música de fondo",
   );
   const value = muted ? ShowcaseMusicVolume.Muted : volume;
   const close = () => {
@@ -100,6 +103,9 @@ export function ShowcaseSoundControl({
             "关闭声音面板",
             "サウンドを閉じる",
             "사운드 닫기",
+            "Закрыть «Звук»",
+            "Fechar Som",
+            "Cerrar Sonido",
           )}
           bounds={bounds}
           onBoundsChange={setBounds}
@@ -132,14 +138,36 @@ export function ShowcaseSoundControl({
               value={value}
               aria-label={label}
               aria-valuetext={
-                muted ? pickText(current, "Muted", "静音", "ミュート", "음소거") : String(volume)
+                muted
+                  ? pickText(
+                      current,
+                      "Muted",
+                      "静音",
+                      "ミュート",
+                      "음소거",
+                      "Без звука",
+                      "Sem som",
+                      "Silenciado",
+                    )
+                  : String(volume)
               }
               disabled={!available}
               onValueChange={(next) => onVolumeChange?.(next as ShowcaseMusicVolume)}
             />
             <Icon kind={IconKind.VolumeMuted} />
             <Text variant={TextVariant.Inline} scale={CONTROL_TEXT_SCALE}>
-              {muted ? pickText(current, "Muted", "静音", "ミュート", "음소거") : String(volume)}
+              {muted
+                ? pickText(
+                    current,
+                    "Muted",
+                    "静音",
+                    "ミュート",
+                    "음소거",
+                    "Без звука",
+                    "Sem som",
+                    "Silenciado",
+                  )
+                : String(volume)}
             </Text>
           </div>
         </Dialog>

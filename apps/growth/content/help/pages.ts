@@ -26,4 +26,22 @@ export const GUIDE_PAGES = {
     description:
       "Xprite 저장과 복구, 파일 열기와 내보내기, 작업 공간 배치, 터치와 펜 사용, 오프라인 사용, 브라우저 지원, 자주 묻는 질문을 안내합니다.",
   },
+  [PublicLanguage.Russian]: {
+    path: "/ru/help/",
+    title: "Руководство пользователя Xprite",
+    description:
+      "Сохранение и восстановление проектов, открытие и экспорт файлов, рабочая область, сенсорный ввод и перо, работа офлайн, поддержка браузеров и ответы на вопросы.",
+  },
+  [PublicLanguage.BrazilianPortuguese]: {
+    path: "/pt-BR/help/",
+    title: "Guia do usuário do Xprite",
+    description:
+      "Salve e recupere projetos, abra e exporte arquivos, organize o espaço de trabalho, use toque e caneta, trabalhe offline e veja navegadores e dúvidas frequentes.",
+  },
+  [PublicLanguage.Spanish]: {
+    path: "/es/help/",
+    title: "Guía de usuario de Xprite",
+    description:
+      "Guarda y recupera proyectos, abre y exporta archivos, organiza el espacio de trabajo, usa el tacto y el lápiz, trabaja sin conexión y resuelve dudas frecuentes.",
+  },
 } as const;

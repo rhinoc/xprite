@@ -2,7 +2,13 @@ import assert from "node:assert/strict";
 
 import { describe, it } from "vitest";
 
-import { articleLanguage, localizedSiteHref, PublicLanguage } from "./language.ts";
+import {
+  articleLanguage,
+  localizedSiteHref,
+  publicLanguage,
+  PublicLanguage,
+  unlocalizedPath,
+} from "./language.ts";
 
 const zh = PublicLanguage.SimplifiedChinese;
 const en = PublicLanguage.English;
@@ -54,5 +60,23 @@ describe("localized site links", () => {
       localizedSiteHref("/tools/viewer/?lang=ja", PublicLanguage.Korean),
       "/tools/viewer/",
     );
+  });
+
+  it("resolve, prefix and read Russian, Brazilian Portuguese and Spanish pages", () => {
+    assert.equal(publicLanguage("ru-RU"), PublicLanguage.Russian);
+    assert.equal(publicLanguage("pt"), PublicLanguage.BrazilianPortuguese);
+    assert.equal(publicLanguage("pt-PT"), PublicLanguage.BrazilianPortuguese);
+    assert.equal(publicLanguage("es-419"), PublicLanguage.Spanish);
+    assert.equal(publicLanguage("es-ES"), PublicLanguage.Spanish);
+    assert.equal(localizedSiteHref("/help/", PublicLanguage.Russian), "/ru/help/");
+    assert.equal(
+      localizedSiteHref("/ru/about/", PublicLanguage.BrazilianPortuguese),
+      "/pt-BR/about/",
+    );
+    assert.equal(localizedSiteHref("/pt-BR/features/", PublicLanguage.Spanish), "/es/features/");
+    assert.equal(articleLanguage("/es/compare/"), PublicLanguage.Spanish);
+    assert.equal(articleLanguage("/pt-BR/help/"), PublicLanguage.BrazilianPortuguese);
+    assert.equal(unlocalizedPath("/ru/privacy/"), "/privacy/");
+    assert.equal(articleLanguage("/esports/"), en);
   });
 });

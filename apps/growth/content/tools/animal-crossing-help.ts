@@ -133,4 +133,97 @@ export const ANIMAL_CROSSING_HELP = {
     closing:
       "『모여봐요 동물의 숲』에 마이 디자인을 가져오려면 Nintendo Switch Online 앱에서 너굴 포털 → 마이 디자인을 열고 QR 코드를 스캔하세요. Nintendo Switch Online 가입이 필요합니다. 나눈 마이 디자인은 한 장씩 스캔하고, 다음 장을 스캔하기 전에 게임에서 내려받으세요.",
   },
+  [PublicLanguage.Russian]: {
+    title: "Создание и импорт дизайнов для острова",
+    introduction:
+      "Выберите «Файл» → «Открыть файл…» или перетащите сюда файл PNG, JPEG, .ase, .aseprite или .acnl. Чтобы сначала попробовать, нажмите «Открыть пример». Файлы обрабатываются на вашем устройстве и могут весить до 64 МиБ; изображения PNG и JPEG — до 16 777 216 пикселей, то есть 4096 × 4096.",
+    sections: [
+      {
+        id: AnimalCrossingHelpSection.Convert,
+        title: "Создание QR-кодов дизайнов",
+        steps: [
+          "В разделе «Сведения о дизайне» введите название, автора и остров / город. Для многокадрового проекта Aseprite выберите кадр для преобразования; объединяются только видимые слои.",
+          "В «Преобразовать как» выберите «Один дизайн» или «Разбить на тайлы». Для тайлов задайте ширину и высоту ячейки и при необходимости откройте «Смещения и интервалы». Видимый слой тайлмапа по умолчанию делится по размеру своих тайлов.",
+          "Нажмите «Создать QR-коды», проверьте цвета на вкладке «Результат», затем нажмите «Скачать», чтобы сохранить QR текущего дизайна в PNG.",
+        ],
+        notes:
+          "Каждый дизайн — 32 × 32 пикселя, до 15 цветов плюс прозрачность. Ячейки масштабируются по ближайшему пикселю. Пиксели с непрозрачностью меньше половины становятся прозрачными, остальные — непрозрачными. Все тайлы используют один набор цветов из палитры Animal Crossing: New Leaf. За одно преобразование создаётся до 256 дизайнов, а «Скачать все дизайны» сохраняет их в ZIP.",
+      },
+      {
+        id: AnimalCrossingHelpSection.Existing,
+        title: "Экспорт готового дизайна",
+        steps: [
+          "Откройте изображение PNG или JPEG с QR-кодом обычного дизайна или файл .acnl.",
+          "Проверьте название, автора и остров в разделе «Сведения о дизайне».",
+          "Нажмите «Скачать», чтобы сохранить QR в PNG.",
+        ],
+        notes:
+          "Готовый дизайн экспортируется из исходных данных, поэтому название, автор, палитра и пиксели не меняются, а настройки преобразования недоступны. Поддерживаются только обычные дизайны 32 × 32.",
+      },
+    ],
+    closing:
+      "Чтобы импортировать дизайн в Animal Crossing: New Horizons, откройте NookLink → Designs в Nintendo Switch App и отсканируйте QR-код. Нужна подписка Nintendo Switch Online. Разделённые дизайны сканируйте по одному и скачивайте каждый в игре перед сканированием следующего.",
+  },
+  [PublicLanguage.BrazilianPortuguese]: {
+    title: "Criar e importar designs para a ilha",
+    introduction:
+      "Escolha Arquivo → Abrir arquivo… ou solte aqui um arquivo PNG, JPEG, .ase, .aseprite ou .acnl. Use Abrir exemplo para testar antes. Os arquivos são processados no seu dispositivo e podem ter até 64 MiB; imagens PNG e JPEG podem ter até 16.777.216 pixels, o mesmo que 4096 × 4096.",
+    sections: [
+      {
+        id: AnimalCrossingHelpSection.Convert,
+        title: "Criar QR codes de designs",
+        steps: [
+          "Em Informações do design, preencha Título, Criador e Ilha / cidade. Em um projeto do Aseprite com vários quadros, escolha o Quadro a converter; só as camadas visíveis são mescladas.",
+          "Em Converter como, escolha Um design ou Dividir em tiles. Para tiles, defina Largura da célula e Altura da célula e abra Deslocamentos e espaçamento se precisar. Uma camada de tilemap visível é dividida pelo tamanho dos tiles por padrão.",
+          "Clique em Gerar QR codes, confira as cores em Convertido e clique em Baixar para salvar o QR PNG do design atual.",
+        ],
+        notes:
+          "Cada design tem 32 × 32 pixels, com até 15 cores mais transparência. As células são redimensionadas pelo pixel mais próximo. Pixels com menos da metade de opacidade ficam transparentes, e o resto fica opaco. Todos os tiles compartilham um conjunto de cores da paleta do Animal Crossing: New Leaf. Uma conversão gera até 256 designs, e Baixar todos os N designs salva tudo em um ZIP.",
+      },
+      {
+        id: AnimalCrossingHelpSection.Existing,
+        title: "Exportar um design existente",
+        steps: [
+          "Abra uma imagem PNG ou JPEG de um QR code de design normal ou um arquivo .acnl.",
+          "Confira o título, o criador e o nome da ilha em Informações do design.",
+          "Clique em Baixar para salvar o QR PNG.",
+        ],
+        notes:
+          "Um design existente é exportado a partir dos dados originais, então título, criador, paleta e pixels não mudam, e as configurações de conversão ficam indisponíveis. Só designs normais de 32 × 32 são compatíveis.",
+      },
+    ],
+    closing:
+      "Para importar um design no Animal Crossing: New Horizons, abra NookLink → Designs no Nintendo Switch App e escaneie o QR code. É preciso ter assinatura do Nintendo Switch Online. Escaneie designs divididos um por vez, baixando cada um no jogo antes de escanear o próximo.",
+  },
+  [PublicLanguage.Spanish]: {
+    title: "Crear e importar diseños para tu isla",
+    introduction:
+      "Elige Archivo → Abrir archivo… o suelta aquí un archivo PNG, JPEG, .ase, .aseprite o .acnl. Usa Abrir ejemplo para probarlo primero. Los archivos se procesan en tu dispositivo y pueden pesar hasta 64 MiB; las imágenes PNG y JPEG pueden tener hasta 16 777 216 píxeles, lo mismo que 4096 × 4096.",
+    sections: [
+      {
+        id: AnimalCrossingHelpSection.Convert,
+        title: "Crear códigos QR de diseños",
+        steps: [
+          "En Información del diseño, escribe el Título, el Creador y la Isla / pueblo. En un proyecto de Aseprite con varios cuadros, elige el Cuadro que quieres convertir; solo se combinan las capas visibles.",
+          "En Convertir como, elige Un diseño o Dividir en tiles. Para tiles, define Ancho de celda y Alto de celda, y abre Desplazamientos y espaciado si hace falta. Una capa de tilemap visible se divide por su tamaño de tile de forma predeterminada.",
+          "Haz clic en Generar códigos QR, revisa los colores en Convertido y haz clic en Descargar para guardar el QR PNG del diseño actual.",
+        ],
+        notes:
+          "Cada diseño mide 32 × 32 píxeles, con hasta 15 colores más transparencia. Las celdas se escalan con el píxel más cercano. Los píxeles con menos de la mitad de opacidad se vuelven transparentes y el resto, opacos. Todos los tiles comparten un conjunto de colores de la paleta de Animal Crossing: New Leaf. Una conversión crea hasta 256 diseños, y Descargar los N diseños los guarda en un ZIP.",
+      },
+      {
+        id: AnimalCrossingHelpSection.Existing,
+        title: "Exportar un diseño existente",
+        steps: [
+          "Abre una imagen PNG o JPEG del código QR de un diseño normal, o un archivo .acnl.",
+          "Revisa el título, el creador y el nombre de la isla en Información del diseño.",
+          "Haz clic en Descargar para guardar el QR PNG.",
+        ],
+        notes:
+          "Un diseño existente se exporta desde sus datos originales, así que el título, el creador, la paleta y los píxeles no cambian, y los ajustes de conversión no están disponibles. Solo se admiten diseños normales de 32 × 32.",
+      },
+    ],
+    closing:
+      "Para importar un diseño en Animal Crossing: New Horizons, abre NookLink → Designs en Nintendo Switch App y escanea el código QR. Se necesita una suscripción a Nintendo Switch Online. Escanea los diseños divididos de uno en uno y descarga cada uno en el juego antes de escanear el siguiente.",
+  },
 } as const satisfies Record<PublicLanguage, ToolHelpContent>;

@@ -117,7 +117,16 @@ export function ToolFrame({
                 <Button
                   variant={ButtonVariant.Tile}
                   slots={{ leading: <Icon kind={IconKind.Folder} size={IconSize.Large} /> }}
-                  text={pickText(language, "Features", "功能", "機能", "기능")}
+                  text={pickText(
+                    language,
+                    "Features",
+                    "功能",
+                    "機能",
+                    "기능",
+                    "Возможности",
+                    "Recursos",
+                    "Funciones",
+                  )}
                   href={localizedSiteHref(FEATURES_PATH, language)}
                 />
                 {helpHref && (
@@ -141,6 +150,9 @@ export function ToolFrame({
             "网站导航",
             "サイトナビゲーション",
             "사이트 탐색",
+            "Навигация по сайту",
+            "Navegação do site",
+            "Navegación del sitio",
           )}
         />
       </div>

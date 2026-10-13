@@ -133,4 +133,97 @@ export const VIEWER_EXPORT_HELP = {
     closing:
       "PNG와 GIF에는 프로젝트의 레이어와 태그가 남지 않습니다. 작품을 고치거나 크기를 바꾸려면 파일 → Xprite에서 편집을 선택해 에디터에서 원본 프로젝트를 여세요.",
   },
+  [PublicLanguage.Russian]: {
+    title: "Экспорт PNG и GIF",
+    introduction:
+      "Выберите «Файл» → «Открыть файл…» или перетащите сюда проект .ase или .aseprite. Чтобы сначала попробовать, нажмите «Открыть пример». Файлы обрабатываются на вашем устройстве. Видимость слоёв влияет только на предпросмотр и экспорт; исходный файл не меняется.",
+    sections: [
+      {
+        id: ViewerHelpSection.Png,
+        title: "Экспорт PNG",
+        steps: [
+          "Щёлкните кадр на таймлайне или выберите его стрелками влево и вправо.",
+          "Щёлкните значок глаза рядом со слоем, чтобы скрыть его. Скройте непрозрачный фоновый слой, чтобы экспортировать с прозрачным фоном.",
+          "Выберите «Файл» → «Экспорт текущего кадра (.png)».",
+        ],
+        notes:
+          "PNG объединяет видимые слои текущего кадра, сохраняет полупрозрачные пиксели и исходный размер холста. Файлы называются проект-frame-N.png, нумерация кадров начинается с 1.",
+      },
+      {
+        id: ViewerHelpSection.Gif,
+        title: "Экспорт GIF",
+        steps: [
+          "Щёлкните метку на таймлайне или выберите её в «Диапазоне анимации». Для всей анимации выберите «Все кадры». Проекты без меток экспортируют все кадры.",
+          "Щёлкните значок глаза рядом со слоем, чтобы исключить его из экспорта.",
+          "Выберите «Файл» → «Экспорт анимации (.gif)». Проект из одного кадра экспортируйте в PNG.",
+        ],
+        notes:
+          "GIF сохраняет исходный размер холста, направление и число повторов метки. Все кадры делят до 256 цветов; полупрозрачные пиксели становятся непрозрачными. Длительность кадров округляется вниз до 10 мс: 25 мс станут 20 мс. Если анимация слишком большая, экспортируйте более короткую метку.",
+      },
+    ],
+    closing:
+      "PNG и GIF не сохраняют слои и метки проекта. Чтобы отредактировать работу или изменить её размер, выберите «Файл» → «Редактировать в Xprite» — исходный проект откроется в редакторе.",
+  },
+  [PublicLanguage.BrazilianPortuguese]: {
+    title: "Exportar PNG e GIF",
+    introduction:
+      "Escolha Arquivo → Abrir arquivo… ou solte aqui um projeto .ase ou .aseprite. Use Abrir exemplo para testar antes. Os arquivos são processados no seu dispositivo. A visibilidade das camadas afeta só a pré-visualização e a exportação; o arquivo original não muda.",
+    sections: [
+      {
+        id: ViewerHelpSection.Png,
+        title: "Exportar PNG",
+        steps: [
+          "Clique em um quadro na linha do tempo ou use as setas para a esquerda e para a direita para selecioná-lo.",
+          "Clique no olho ao lado de uma camada para ocultá-la. Oculte uma camada de fundo opaca para exportar com fundo transparente.",
+          "Escolha Arquivo → Exportar quadro atual (.png).",
+        ],
+        notes:
+          "O PNG mescla as camadas visíveis do quadro atual, mantém os pixels semitransparentes e usa o tamanho original da tela. Os arquivos se chamam projeto-frame-N.png, com a numeração começando em 1.",
+      },
+      {
+        id: ViewerHelpSection.Gif,
+        title: "Exportar GIF",
+        steps: [
+          "Clique em uma tag da linha do tempo ou escolha uma em Intervalo da animação. Escolha Todos os quadros para a animação inteira. Projetos sem tags exportam todos os quadros.",
+          "Clique no olho ao lado de uma camada para tirá-la da exportação.",
+          "Escolha Arquivo → Exportar animação (.gif). Em projetos de um só quadro, exporte PNG.",
+        ],
+        notes:
+          "O GIF usa o tamanho original da tela e segue a direção e o número de repetições da tag. Os quadros compartilham até 256 cores; pixels semitransparentes ficam opacos. As durações usam passos de 10 ms, descartando o resto: 25 ms viram 20 ms. Se a animação for grande demais, exporte uma tag mais curta.",
+      },
+    ],
+    closing:
+      "PNG e GIF não guardam as camadas nem as tags do projeto. Para editar ou redimensionar seu trabalho, escolha Arquivo → Editar no Xprite e abra o projeto original no editor.",
+  },
+  [PublicLanguage.Spanish]: {
+    title: "Exportar PNG y GIF",
+    introduction:
+      "Elige Archivo → Abrir archivo… o suelta aquí un proyecto .ase o .aseprite. Usa Abrir ejemplo para probarlo primero. Los archivos se procesan en tu dispositivo. La visibilidad de las capas solo afecta a la vista previa y la exportación; tu archivo original no cambia.",
+    sections: [
+      {
+        id: ViewerHelpSection.Png,
+        title: "Exportar PNG",
+        steps: [
+          "Haz clic en un cuadro de la línea de tiempo o selecciónalo con las flechas izquierda y derecha.",
+          "Haz clic en el ojo junto a una capa para ocultarla. Oculta una capa de fondo opaca para exportar con fondo transparente.",
+          "Elige Archivo → Exportar cuadro actual (.png).",
+        ],
+        notes:
+          "El PNG combina las capas visibles del cuadro actual, conserva los píxeles semitransparentes y usa el tamaño original del lienzo. Los archivos se llaman proyecto-frame-N.png, con la numeración desde 1.",
+      },
+      {
+        id: ViewerHelpSection.Gif,
+        title: "Exportar GIF",
+        steps: [
+          "Haz clic en una etiqueta de la línea de tiempo o elige una en Rango de animación. Elige Todos los cuadros para la animación completa. Los proyectos sin etiquetas exportan todos los cuadros.",
+          "Haz clic en el ojo junto a una capa para excluirla de la exportación.",
+          "Elige Archivo → Exportar animación (.gif). Si el proyecto tiene un solo cuadro, exporta PNG.",
+        ],
+        notes:
+          "El GIF usa el tamaño original del lienzo y respeta la dirección y las repeticiones de la etiqueta. Los cuadros comparten hasta 256 colores; los píxeles semitransparentes se vuelven opacos. Las duraciones usan pasos de 10 ms y se descarta el resto: 25 ms pasan a 20 ms. Si la animación es demasiado grande, exporta una etiqueta más corta.",
+      },
+    ],
+    closing:
+      "PNG y GIF no conservan las capas ni las etiquetas del proyecto. Para editar o cambiar el tamaño de tu trabajo, elige Archivo → Editar en Xprite y se abrirá el proyecto original en el editor.",
+  },
 } as const satisfies Record<PublicLanguage, ToolHelpContent>;

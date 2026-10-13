@@ -25,5 +25,23 @@ export const SHOWCASE_PAGES = {
     description:
       "컴퓨터, 아이패드, 휴대폰 브라우저에서 무료로 도트 애니메이션을 만드세요. 에이스프라이트(Aseprite) 파일을 편집하고 GIF·PNG로 내보내며 작품은 기기에 남습니다.",
   },
+  ru: {
+    path: "/ru/about/",
+    title: "Xprite — пиксель арт редактор онлайн, бесплатно",
+    description:
+      "Бесплатный пиксель арт редактор и анимация в браузере на ПК, iPad и телефоне. Открывайте файлы Aseprite онлайн, экспортируйте GIF и PNG; работы остаются у вас.",
+  },
+  "pt-BR": {
+    path: "/pt-BR/about/",
+    title: "Xprite — editor de pixel art online grátis",
+    description:
+      "Editor de pixel art online grátis para PC, iPad e celular. Crie animações, abra e salve arquivos do Aseprite, exporte GIF ou PNG e guarde sua arte no aparelho.",
+  },
+  es: {
+    path: "/es/about/",
+    title: "Xprite — editor de pixel art online gratis",
+    description:
+      "Editor de pixel art online gratis para PC, iPad y móvil. Crea animaciones, abre y guarda archivos de Aseprite, exporta GIF o PNG y guarda tu arte en tu equipo.",
+  },
 } as const;
 export const SHOWCASE_DEFAULT_PATH = SHOWCASE_PAGES.en.path;

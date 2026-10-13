@@ -3,6 +3,9 @@ export enum PublicLanguage {
   SimplifiedChinese = "zh-CN",
   Japanese = "ja",
   Korean = "ko",
+  Russian = "ru",
+  BrazilianPortuguese = "pt-BR",
+  Spanish = "es",
 }
 
 /** Every public language in switcher, hreflang and sitemap order. */
@@ -11,6 +14,9 @@ export const PUBLIC_LANGUAGES: readonly PublicLanguage[] = [
   PublicLanguage.SimplifiedChinese,
   PublicLanguage.Japanese,
   PublicLanguage.Korean,
+  PublicLanguage.Russian,
+  PublicLanguage.BrazilianPortuguese,
+  PublicLanguage.Spanish,
 ];
 
 /** Languages served under a root path prefix; English paths stay unprefixed. */
@@ -24,6 +30,9 @@ export const PUBLIC_LANGUAGE_LABELS: Readonly<Record<PublicLanguage, string>> = 
   [PublicLanguage.SimplifiedChinese]: "简体中文",
   [PublicLanguage.Japanese]: "日本語",
   [PublicLanguage.Korean]: "한국어",
+  [PublicLanguage.Russian]: "Русский",
+  [PublicLanguage.BrazilianPortuguese]: "Português (Brasil)",
+  [PublicLanguage.Spanish]: "Español",
 };
 
 /** Copy for one string in every public language. */
@@ -37,15 +46,18 @@ export function localizedText<T>(
   return copy[publicLanguage(language)] ?? copy.en;
 }
 
-/** Positional helper matching PUBLIC_LANGUAGES order: en, zh-CN, ja, ko. */
+/** Positional helper matching PUBLIC_LANGUAGES order: en, zh-CN, ja, ko, ru, pt-BR, es. */
 export function pickText(
   language: PublicLanguage | string,
   en: string,
   zh: string,
   ja: string,
   ko: string,
+  ru: string,
+  pt: string,
+  es: string,
 ): string {
-  return localizedText(language, { en, "zh-CN": zh, ja, ko });
+  return localizedText(language, { en, "zh-CN": zh, ja, ko, ru, "pt-BR": pt, es });
 }
 
 const LOCAL_SITE_ORIGIN = "https://xprite.cc";
@@ -55,10 +67,13 @@ export function publicLanguage(value = "en"): PublicLanguage {
   if (base === "zh") return PublicLanguage.SimplifiedChinese;
   if (base === "ja") return PublicLanguage.Japanese;
   if (base === "ko") return PublicLanguage.Korean;
+  if (base === "ru") return PublicLanguage.Russian;
+  if (base === "pt") return PublicLanguage.BrazilianPortuguese;
+  if (base === "es") return PublicLanguage.Spanish;
   return PublicLanguage.English;
 }
 
-/** Path prefix for one language: "" for English, "/zh-CN", "/ja" or "/ko" otherwise. */
+/** Path prefix for one language: "" for English, "/zh-CN", "/ja", "/ko", "/ru", "/pt-BR" or "/es" otherwise. */
 export function languagePrefix(language: PublicLanguage | string): string {
   const selected = publicLanguage(language);
   return selected === PublicLanguage.English ? "" : `/${selected}`;
@@ -66,7 +81,7 @@ export function languagePrefix(language: PublicLanguage | string): string {
 
 /** Localized pages live under one root `/<lang>/` prefix; English paths stay unprefixed. */
 const LOCALIZED_SECTIONS = /^\/(?:learn|compare|help|about|features|privacy)(?:\/|$)/;
-export const LOCALIZED_PREFIX = /^\/(zh-CN|ja|ko)(?=\/|$)/;
+export const LOCALIZED_PREFIX = /^\/(zh-CN|ja|ko|ru|pt-BR|es)(?=\/|$)/;
 
 export function articleLanguage(path: string): PublicLanguage {
   const match = LOCALIZED_PREFIX.exec(new URL(path, LOCAL_SITE_ORIGIN).pathname);
@@ -99,4 +114,7 @@ export const pageScrollLabel = (language: string) =>
     "页面滚动",
     "ページのスクロール",
     "페이지 스크롤",
+    "Прокрутка страницы",
+    "Rolagem da página",
+    "Desplazamiento de página",
   );

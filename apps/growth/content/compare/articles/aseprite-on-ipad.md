@@ -12,28 +12,28 @@ There's no iPad version of Aseprite. The [official](https://www.aseprite.org/faq
 
 Price isn't the only difference. The table compares the four editors feature by feature.
 
-|  | Xprite | Pixquare | Resprite | Pixaki Pro |
-| --- | --- | --- | --- | --- |
-| Price | 🆓 Free, no in-app purchases | 💰 One-time, $24.99 for all devices | 💰 Subscription or one-time | 💰 Intro is free, Pro is extra |
-| Platforms | ✅ Browser | ✅ iPhone, iPad, Mac | ✅ iPhone, iPad, Android, Windows, Mac | ⚠️ iPad only |
-| Import `.aseprite` | ✅ Opens directly | ✅ Can keep the original format | ⚠️ Converted to `.resprite`, with losses | ✅ Yes |
-| Export `.aseprite` | ✅ Writes the original format | ✅ Yes | ⚠️ Some effects are lost | ✅ Keeps layers and cels |
-| Onion skin | ✅ Yes, plus tags | ✅ Yes | ✅ Yes, plus clips | ✅ Yes, plus held frames |
-| Tilemaps | ✅ Editable | ✅ Can be animated | ⚠️ Yes, but imported ones can't be edited | — |
-| Double-tap on Apple Pencil | ❌ No | ✅ Follows system settings | ✅ Customizable | ✅ Yes |
-| Squeeze | ❌ No | ✅ Opens a menu or the palette | ✅ Customizable | — |
-| Offline | ⚠️ Open once online first | ✅ Projects stored on the device | ✅ Projects stored on the device | ✅ Projects stored on the device |
-| Sync across devices | ⚠️ Save files by hand | ✅ iCloud sync | ⚠️ Export `.resprite` by hand | ✅ iCloud sync |
+|                            | Xprite                        | Pixquare                            | Resprite                                  | Pixaki Pro                       |
+| -------------------------- | ----------------------------- | ----------------------------------- | ----------------------------------------- | -------------------------------- |
+| Price                      | 🆓 Free, no in-app purchases  | 💰 One-time, $24.99 for all devices | 💰 Subscription or one-time               | 💰 Intro is free, Pro is extra   |
+| Platforms                  | ✅ Browser                    | ✅ iPhone, iPad, Mac                | ✅ iPhone, iPad, Android, Windows, Mac    | ⚠️ iPad only                     |
+| Import `.aseprite`         | ✅ Opens directly             | ✅ Can keep the original format     | ⚠️ Converted to `.resprite`, with losses  | ✅ Yes                           |
+| Export `.aseprite`         | ✅ Writes the original format | ✅ Yes                              | ⚠️ Some effects are lost                  | ✅ Keeps layers and cels         |
+| Onion skin                 | ✅ Yes, plus tags             | ✅ Yes                              | ✅ Yes, plus clips                        | ✅ Yes, plus held frames         |
+| Tilemaps                   | ✅ Editable                   | ✅ Can be animated                  | ⚠️ Yes, but imported ones can't be edited | —                                |
+| Double-tap on Apple Pencil | ❌ No                         | ✅ Follows system settings          | ✅ Customizable                           | ✅ Yes                           |
+| Squeeze                    | ❌ No                         | ✅ Opens a menu or the palette      | ✅ Customizable                           | —                                |
+| Offline                    | ⚠️ Open once online first     | ✅ Projects stored on the device    | ✅ Projects stored on the device          | ✅ Projects stored on the device |
+| Sync across devices        | ⚠️ Save files by hand         | ✅ iCloud sync                      | ⚠️ Export `.resprite` by hand             | ✅ iCloud sync                   |
 
 ## What Pixquare, Resprite and Pixaki do better
 
 These three apps are strongest at Apple Pencil and finger input:
 
-|  | Double-tap | Squeeze | One finger |
-| --- | --- | --- | --- |
-| Pixquare | Follows system settings | Opens the tool menu or the palette | Pan, or switch frames and layers |
-| Resprite | 6 actions to choose from | Can be set to similar actions | — |
-| Pixaki | Supported on Apple Pencil (2nd generation) | — | Current tool, eraser, pan or nothing |
+|          | Double-tap                                 | Squeeze                            | One finger                           |
+| -------- | ------------------------------------------ | ---------------------------------- | ------------------------------------ |
+| Pixquare | Follows system settings                    | Opens the tool menu or the palette | Pan, or switch frames and layers     |
+| Resprite | 6 actions to choose from                   | Can be set to similar actions      | —                                    |
+| Pixaki   | Supported on Apple Pencil (2nd generation) | —                                  | Current tool, eraser, pan or nothing |
 
 Here are the details on controls and pricing:
 

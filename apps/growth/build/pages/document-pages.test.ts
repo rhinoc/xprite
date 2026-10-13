@@ -43,7 +43,7 @@ describe("document pages", () => {
   it("publish every document in each language", () => {
     const paths = DOCUMENT_PAGES.map((page) => page.path);
     for (const path of ["/privacy/", "/about/how-it-works/", "/features/"])
-      for (const prefix of ["", "/zh-CN", "/ja", "/ko"])
+      for (const prefix of ["", "/zh-CN", "/ja", "/ko", "/ru", "/pt-BR", "/es"])
         assert.ok(paths.includes(`${prefix}${path}`), `${prefix}${path}`);
   });
 
@@ -53,6 +53,9 @@ describe("document pages", () => {
       ["en", "/privacy/"],
       ["zh-CN", "/zh-CN/privacy/"],
       ["ko", "/ko/privacy/"],
+      ["ru", "/ru/privacy/"],
+      ["pt-BR", "/pt-BR/privacy/"],
+      ["es", "/es/privacy/"],
       ["x-default", "/privacy/"],
     ])
       assert.ok(

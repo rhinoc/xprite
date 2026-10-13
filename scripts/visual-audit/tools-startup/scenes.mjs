@@ -26,10 +26,12 @@ const selectedCoverage = [
   { language: "zh-CN", layout: layouts[1], appearance: appearances[0] },
 ];
 
-/** Japanese and Korean each add one tool startup; the rest stay en/zh-CN. */
+/** Japanese, Korean, Russian and Spanish each add one tool startup; the rest stay en/zh-CN. */
 const extraCoverage = [
   { page: pages[1], language: "ja", layout: layouts[0], appearance: appearances[0] },
   { page: pages[4], language: "ko", layout: layouts[1], appearance: appearances[1] },
+  { page: pages[2], language: "ru", layout: layouts[0], appearance: appearances[0] },
+  { page: pages[4], language: "es", layout: layouts[1], appearance: appearances[0] },
 ];
 
 export const scenes = [

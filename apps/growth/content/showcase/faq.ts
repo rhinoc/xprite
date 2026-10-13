@@ -362,4 +362,319 @@ export const SHOWCASE_FAQ_COPY = {
       },
     ],
   },
+  [PublicLanguage.Russian]: {
+    title: "Частые вопросы",
+    guide: [
+      "Подробные инструкции — в ",
+      { label: "руководстве пользователя", href: "/ru/help/" },
+      ".",
+    ],
+    questions: [
+      {
+        id: ShowcaseFaqTopic.Access,
+        question: "Xprite бесплатный? Нужен аккаунт?",
+        answer: [
+          "Xprite бесплатный, аккаунт не нужен. Откройте редактор и начинайте работать. Исходный код опубликован на ",
+          { label: "GitHub", href: "https://github.com/rhinoc/xprite" },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Devices,
+        question: "Можно ли рисовать в Xprite на iPad или телефоне?",
+        answer: [
+          "Да. Xprite работает в браузерах на компьютерах, планшетах и телефонах и поддерживает ",
+          { label: "сенсорный ввод и перо", href: "/ru/features/touch-drawing/" },
+          ", например Apple Pencil. Крупные проекты могут тормозить или не открываться на устройствах с малым объёмом памяти. Управление касанием описано в разделе ",
+          { label: "«Пальцы и перо»", href: "/ru/help/#пальцы-и-перо" },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.AsepriteFiles,
+        question: "Открывает ли Xprite файлы Aseprite?",
+        answer: [
+          "Да. Открывайте проекты ",
+          { code: ".ase" },
+          " и ",
+          { code: ".aseprite" },
+          " со слоями, кадрами и метками, а затем сохраняйте в ",
+          { code: ".aseprite" },
+          ", чтобы продолжить работу в Aseprite. Xprite реализует не все функции Aseprite и не запускает его скрипты и расширения, поэтому некоторые проекты могут открываться не полностью. Подробнее — в разделе ",
+          { label: "«Открытие и экспорт файлов»", href: "/ru/help/#открытие-и-экспорт-файлов" },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Storage,
+        question: "Где хранятся работы? Синхронизируются ли они?",
+        answer: [
+          "Сохраняйте проекты в текущем браузере или файлами на устройстве. Между устройствами и браузерами они автоматически не синхронизируются. Очистка данных сайта удаляет проекты в браузере и резервные копии; для резервирования или переноса сохраните копию в файл. Подробнее — в разделе ",
+          { label: "«Сохранение и восстановление»", href: "/ru/help/#сохранение-и-восстановление" },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Privacy,
+        question: "Загружаются ли мои работы на сервер?",
+        answer: [
+          "Редактирование и сохранение ничего не загружают. Редактор также создаёт ",
+          { label: "ссылки для отправки", href: "/ru/features/share-artwork/" },
+          " локально — данные проекта находятся внутри ссылки. Любой, у кого есть полная ссылка, может открыть проект, а мессенджер, через который вы её отправляете, тоже получает эти данные. Сайт отправляет статистику использования и отзывы, которые вы оставляете. Подробнее — в ",
+          { label: "уведомлении о конфиденциальности", href: "/ru/privacy/" },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Offline,
+        question: "Можно ли работать в Xprite офлайн?",
+        answer: [
+          "Да. Один раз откройте редактор онлайн и дождитесь, пока он подготовит офлайн-ресурсы. После этого можно работать без интернета и добавить Xprite на рабочий стол или главный экран. Подробнее — в разделе ",
+          {
+            label: "«Установка на рабочий стол и работа офлайн»",
+            href: "/ru/help/#установка-на-рабочий-стол-и-работа-офлайн",
+          },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Features,
+        question: "Что ещё умеет Xprite?",
+        answer: [
+          "Создавайте ",
+          { label: "покадровую анимацию", href: "/ru/features/frame-animation/" },
+          " с метками и калькой, собирайте ",
+          { label: "тайлмапы", href: "/ru/features/tilemaps/" },
+          " для игровых уровней, ",
+          { label: "записывайте процесс рисования", href: "/ru/features/drawing-process/" },
+          " и ",
+          { label: "настраивайте рабочую область", href: "/ru/features/workspace-layout/" },
+          ", перемещая и закрепляя панели. Можно и дальше ",
+          { label: "редактировать проекты Aseprite", href: "/ru/features/aseprite-projects/" },
+          ". Смотрите все ",
+          { label: "возможности", href: "/ru/features/" },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Relationship,
+        question: "Как Xprite связан с Aseprite?",
+        answer: [
+          "Xprite — независимый проект с интерфейсом и управлением по образцу Aseprite. Он не связан с Aseprite или Igara Studio S.A. и не одобрен ими.",
+        ],
+      },
+    ],
+  },
+  [PublicLanguage.BrazilianPortuguese]: {
+    title: "Perguntas frequentes",
+    guide: [
+      "Para instruções de edição, veja o ",
+      { label: "guia do usuário", href: "/pt-BR/help/" },
+      ".",
+    ],
+    questions: [
+      {
+        id: ShowcaseFaqTopic.Access,
+        question: "O Xprite é grátis? Preciso de conta?",
+        answer: [
+          "O Xprite é grátis e não exige conta. Abra o editor e comece a trabalhar. O código-fonte está disponível no ",
+          { label: "GitHub", href: "https://github.com/rhinoc/xprite" },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Devices,
+        question: "Posso usar o Xprite no iPad ou no celular?",
+        answer: [
+          "Sim. O Xprite funciona em navegadores de computadores, tablets e celulares, com suporte a ",
+          { label: "toque e canetas", href: "/pt-BR/features/touch-drawing/" },
+          " como o Apple Pencil. Projetos grandes podem ficar lentos ou não abrir em aparelhos com pouca memória. Veja ",
+          { label: "dedos e caneta", href: "/pt-BR/help/#dedos-e-caneta" },
+          " para os controles de toque.",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.AsepriteFiles,
+        question: "Posso abrir arquivos do Aseprite?",
+        answer: [
+          "Sim. Abra projetos ",
+          { code: ".ase" },
+          " e ",
+          { code: ".aseprite" },
+          " com camadas, quadros e tags e salve como ",
+          { code: ".aseprite" },
+          " para continuar editando no Aseprite. O Xprite não implementa todos os recursos do Aseprite nem executa seus scripts e extensões, então alguns projetos podem não ser totalmente compatíveis. Veja ",
+          { label: "abrir e exportar arquivos", href: "/pt-BR/help/#abrir-e-exportar-arquivos" },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Storage,
+        question: "Onde meu trabalho fica salvo? Ele sincroniza sozinho?",
+        answer: [
+          "Salve projetos no navegador atual ou como arquivos no seu dispositivo. Eles não sincronizam automaticamente entre aparelhos ou navegadores. Limpar os dados do site apaga os projetos do navegador e os backups de recuperação; salve uma cópia em arquivo como backup ou para levar o trabalho a outro aparelho. Veja ",
+          { label: "salvar e recuperar", href: "/pt-BR/help/#salvar-e-recuperar" },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Privacy,
+        question: "Meu trabalho é enviado para algum servidor?",
+        answer: [
+          "Editar e salvar não enviam seu trabalho. O editor também cria ",
+          { label: "links de compartilhamento", href: "/pt-BR/features/share-artwork/" },
+          " localmente, com os dados do projeto dentro do link. Qualquer pessoa com o link completo pode abrir o projeto, e enviá-lo por um app de mensagens também entrega os dados a esse serviço. O site envia estatísticas de uso e o feedback que você mandar. Veja o ",
+          { label: "aviso de privacidade", href: "/pt-BR/privacy/" },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Offline,
+        question: "Posso usar o Xprite offline?",
+        answer: [
+          "Sim. Abra o editor online uma vez e espere ele preparar os recursos offline. Depois você pode editar sem internet e adicionar o Xprite à área de trabalho ou à tela inicial. Veja ",
+          {
+            label: "adicionar à área de trabalho e usar offline",
+            href: "/pt-BR/help/#adicionar-à-área-de-trabalho-e-usar-offline",
+          },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Features,
+        question: "O que mais o Xprite faz?",
+        answer: [
+          "Anime ",
+          { label: "quadro a quadro", href: "/pt-BR/features/frame-animation/" },
+          " com tags e onion skin, monte ",
+          { label: "tilemaps", href: "/pt-BR/features/tilemaps/" },
+          " para fases de jogos, ",
+          { label: "grave seu processo de desenho", href: "/pt-BR/features/drawing-process/" },
+          " e ",
+          { label: "organize o espaço de trabalho", href: "/pt-BR/features/workspace-layout/" },
+          " movendo e encaixando painéis. Você também pode ",
+          {
+            label: "continuar editando projetos do Aseprite",
+            href: "/pt-BR/features/aseprite-projects/",
+          },
+          ". Veja todos os ",
+          { label: "recursos", href: "/pt-BR/features/" },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Relationship,
+        question: "Qual a relação entre o Xprite e o Aseprite?",
+        answer: [
+          "O Xprite é um projeto independente com interface e controles baseados no Aseprite. Ele não tem vínculo nem aprovação do Aseprite ou da Igara Studio S.A.",
+        ],
+      },
+    ],
+  },
+  [PublicLanguage.Spanish]: {
+    title: "Preguntas frecuentes",
+    guide: [
+      "Para instrucciones de edición, consulta la ",
+      { label: "guía de usuario", href: "/es/help/" },
+      ".",
+    ],
+    questions: [
+      {
+        id: ShowcaseFaqTopic.Access,
+        question: "¿Xprite es gratis? ¿Necesito una cuenta?",
+        answer: [
+          "Xprite es gratis y no necesitas cuenta. Abre el editor y empieza a trabajar. Su código fuente está disponible en ",
+          { label: "GitHub", href: "https://github.com/rhinoc/xprite" },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Devices,
+        question: "¿Puedo usar Xprite en un iPad o un teléfono?",
+        answer: [
+          "Sí. Xprite funciona en navegadores de computadoras, tabletas y teléfonos, y admite ",
+          { label: "tacto y lápices ópticos", href: "/es/features/touch-drawing/" },
+          " como el Apple Pencil. Los proyectos grandes pueden ir lentos o no abrirse en dispositivos con poca memoria. Consulta ",
+          { label: "dedos y lápiz", href: "/es/help/#dedos-y-lápiz" },
+          " para los controles táctiles.",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.AsepriteFiles,
+        question: "¿Puedo abrir archivos de Aseprite?",
+        answer: [
+          "Sí. Abre proyectos ",
+          { code: ".ase" },
+          " y ",
+          { code: ".aseprite" },
+          " con sus capas, cuadros y etiquetas, y guarda como ",
+          { code: ".aseprite" },
+          " para seguir editando en Aseprite. Xprite no implementa todas las funciones de Aseprite ni ejecuta sus scripts y extensiones, así que algunos proyectos pueden no ser totalmente compatibles. Consulta ",
+          { label: "abrir y exportar archivos", href: "/es/help/#abrir-y-exportar-archivos" },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Storage,
+        question: "¿Dónde se guarda mi trabajo? ¿Se sincroniza solo?",
+        answer: [
+          "Guarda proyectos en el navegador actual o como archivos en tu dispositivo. No se sincronizan automáticamente entre dispositivos ni navegadores. Borrar los datos del sitio elimina los proyectos del navegador y las copias de recuperación; guarda una copia en archivo como respaldo o para llevar tu trabajo a otro dispositivo. Consulta ",
+          { label: "guardar y recuperar", href: "/es/help/#guardar-y-recuperar" },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Privacy,
+        question: "¿Mi trabajo se sube a algún servidor?",
+        answer: [
+          "Editar y guardar no suben tu trabajo. El editor también crea ",
+          { label: "enlaces para compartir", href: "/es/features/share-artwork/" },
+          " de forma local, con los datos del proyecto dentro del enlace. Cualquiera con el enlace completo puede abrir el proyecto, y si lo envías por una app de mensajería, ese servicio también recibe los datos. El sitio envía estadísticas de uso y los comentarios que mandes. Consulta el ",
+          { label: "aviso de privacidad", href: "/es/privacy/" },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Offline,
+        question: "¿Puedo usar Xprite sin conexión?",
+        answer: [
+          "Sí. Abre el editor online una vez y deja que termine de preparar sus recursos sin conexión. Después podrás editar sin internet y añadir Xprite al escritorio o a la pantalla de inicio. Consulta ",
+          {
+            label: "añadir al escritorio y usar sin conexión",
+            href: "/es/help/#añadir-al-escritorio-y-usar-sin-conexión",
+          },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Features,
+        question: "¿Qué más puede hacer Xprite?",
+        answer: [
+          "Anima ",
+          { label: "cuadro a cuadro", href: "/es/features/frame-animation/" },
+          " con etiquetas y papel cebolla, crea ",
+          { label: "tilemaps", href: "/es/features/tilemaps/" },
+          " para niveles de juegos, ",
+          { label: "graba tu proceso de dibujo", href: "/es/features/drawing-process/" },
+          " y ",
+          { label: "organiza tu espacio de trabajo", href: "/es/features/workspace-layout/" },
+          " moviendo y acoplando paneles. También puedes ",
+          {
+            label: "seguir editando proyectos de Aseprite",
+            href: "/es/features/aseprite-projects/",
+          },
+          ". Consulta todas las ",
+          { label: "funciones", href: "/es/features/" },
+          ".",
+        ],
+      },
+      {
+        id: ShowcaseFaqTopic.Relationship,
+        question: "¿Qué relación tiene Xprite con Aseprite?",
+        answer: [
+          "Xprite es un proyecto independiente con una interfaz y controles basados en Aseprite. No está afiliado ni respaldado por Aseprite ni por Igara Studio S.A.",
+        ],
+      },
+    ],
+  },
 } as const;

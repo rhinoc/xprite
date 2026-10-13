@@ -17,6 +17,7 @@ import {
   selectSceneIds,
   selectLanguages,
   languageDirectory,
+  languageSceneIds,
 } from "./scenes.mjs";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url));
@@ -64,8 +65,11 @@ for (const language of languages) {
       ? JSON.parse(fs.readFileSync(manifestPath, "utf8"))
       : null;
   previous.set(language, retained);
+  const languageIds = languageSceneIds(language, ids);
   selectedIds[language] =
-    extend && retained ? ids.filter((id) => !retained.cases.some((entry) => entry.id === id)) : ids;
+    extend && retained
+      ? languageIds.filter((id) => !retained.cases.some((entry) => entry.id === id))
+      : languageIds;
 }
 if (!Object.values(selectedIds).some((ids) => ids.length)) throw Error("No new scenes to capture.");
 const catalogs = Object.fromEntries(
