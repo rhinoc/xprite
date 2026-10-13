@@ -1,10 +1,12 @@
 import { useSyncExternalStore } from "react";
 
 import en from "$/i18n/locales/en.json";
+import ja from "$/i18n/locales/ja.json";
+import ko from "$/i18n/locales/ko.json";
 import zhCN from "$/i18n/locales/zh-CN.json";
 import { browserLocalStorage as localStorage } from "@xprite/bedrock/browser/localstorage";
 
-const UI_LANGUAGES = ["en", "zh-CN"] as const;
+const UI_LANGUAGES = ["en", "zh-CN", "ja", "ko"] as const;
 export type UiLanguage = (typeof UI_LANGUAGES)[number];
 const DEFAULT_UI_LANGUAGE: UiLanguage = "en";
 const LANGUAGE_STORAGE_KEY = "xse.ui.language.v1";
@@ -12,6 +14,8 @@ export type UiMessageKey = keyof typeof en;
 const locales: Record<UiLanguage, Record<string, string>> = {
   en,
   "zh-CN": zhCN,
+  ja,
+  ko,
 };
 const englishMessageKeys = new Map<string, UiMessageKey>(
   Object.entries(en).map(([key, message]) => [message, key as UiMessageKey] as const),
@@ -21,7 +25,7 @@ const listeners = new Set<() => void>();
 function initialLanguage(): UiLanguage {
   try {
     const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-    if (saved === "en" || saved === "zh-CN") return saved;
+    if (UI_LANGUAGES.includes(saved as UiLanguage)) return saved as UiLanguage;
   } catch {
     // Storage can be disabled; the browser language remains a useful default.
   }
