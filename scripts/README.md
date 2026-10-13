@@ -48,8 +48,7 @@ parallel with the one site build (`check:deploy --build`). Once both pass, `pnpm
 `check:deploy --prepare` and `pnpm run check:site-output` run in parallel against that build.
 `check:site-output` holds the growth/tools output checks (SSR warnings read from the build
 logs, page metadata, asset versions), so nothing builds growth or tools a second time while the
-site build writes them. CI runs `check` and `test:ci` in parallel with
-`node scripts/check/parallel.mjs`.
+site build writes them.
 Their output is buffered and printed as one block per step with its time, followed by the
 total. Nothing is cached between pushes: every push runs every step. husky skips all hooks
 when `HUSKY=0` is set, so make sure it is unset (for example, `env -u HUSKY git push`) when

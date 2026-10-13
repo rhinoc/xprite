@@ -1,5 +1,5 @@
 // Runs pnpm scripts in parallel with buffered output, then prints one block per script with its
-// time, so parallel logs never interleave. Used by the pre-push hook and by CI (parallel.mjs).
+// time, so parallel logs never interleave. Used by the pre-push hook.
 import { spawn } from "node:child_process";
 
 export const seconds = (from) => `${((performance.now() - from) / 1000).toFixed(1)}s`;
