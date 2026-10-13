@@ -1,7 +1,9 @@
 import { localizedSiteHref, publicLanguage, PublicLanguage } from "@xprite/growth-content/language";
 
+/** The internal component gallery is written in English and Simplified Chinese only. */
 export function readComponentsLanguage() {
-  return publicLanguage(new URLSearchParams(window.location.search).get("lang") ?? "en");
+  const language = publicLanguage(new URLSearchParams(window.location.search).get("lang") ?? "en");
+  return language === PublicLanguage.SimplifiedChinese ? language : PublicLanguage.English;
 }
 export function writeComponentsLanguage(language: PublicLanguage) {
   document.documentElement.lang = language;

@@ -6,7 +6,8 @@ import { Marked, Renderer } from "marked";
 import type { Tokens } from "marked";
 
 import { GUIDE_PAGES } from "../../content/help/pages.ts";
-import { localizedSiteHref, PublicLanguage } from "../../content/site/language.ts";
+import { localizedSiteHref, pickText, PUBLIC_LANGUAGES } from "../../content/site/language.ts";
+import { languageSwitchLinks } from "../../content/site/navigation.ts";
 import {
   publicDesktopWindow,
   publicReaderScroll,
@@ -21,11 +22,17 @@ import { publicDocumentHtml } from "./document-page.ts";
 const SITE_URL = "https://xprite.cc/";
 export const GUIDE_ROOT = resolve(fileURLToPath(new URL("../../content/help/", import.meta.url)));
 
-export const GUIDES = Object.values(PublicLanguage).map((language) => ({
+export const GUIDES = PUBLIC_LANGUAGES.map((language) => ({
   ...GUIDE_PAGES[language],
   language,
-  openEditor: language === PublicLanguage.English ? "Open editor" : "打开编辑器",
-  navigation: language === PublicLanguage.English ? "User guide navigation" : "使用指南导航",
+  openEditor: pickText(language, "Open editor", "打开编辑器", "エディターを開く", "에디터 열기"),
+  navigation: pickText(
+    language,
+    "User guide navigation",
+    "使用指南导航",
+    "使い方ガイドのナビゲーション",
+    "사용 가이드 탐색",
+  ),
 }));
 type Guide = (typeof GUIDES)[number];
 const HTML_ENTITIES: Readonly<Record<string, string>> = {
@@ -109,14 +116,13 @@ export function guideHtml(guide: Guide, indexable: boolean): string {
     )
       throw Error(`Broken guide section link: ${token.href}`);
   });
-  const other = GUIDES.find((item) => item.language !== guide.language)!;
   const alternates = `${GUIDES.map((item) => `<link rel="alternate" hreflang="${item.language}" href="${new URL(item.path, SITE_URL).href}">`).join("\n")}
 <link rel="alternate" hreflang="x-default" href="${new URL(GUIDES[0].path, SITE_URL).href}">`;
   return publicDocumentHtml(
     guide,
     indexable,
     `<div data-public-sidebar>${publicDesktopWindow(
-      guide.language === PublicLanguage.English ? "Contents" : "目录",
+      pickText(guide.language, "Contents", "目录", "目次", "목차"),
       publicIndex(
         guide.navigation,
         tokens
@@ -124,20 +130,18 @@ export function guideHtml(guide: Guide, indexable: boolean): string {
           .map((heading) => ({ href: `#${headingId(heading.text)}`, label: heading.text })),
       ),
       "data-public-contents",
-    )}</div>${publicDesktopWindow(guide.language === PublicLanguage.English ? "Xprite Help" : "Xprite 使用指南", publicReaderScroll(`<article>${publicRichText(parser.parser(tokens.filter((token) => token !== contentsToken)), { "data-public-document-content": true })}</article>`, guide.language), "data-public-document", `<a href="/editor">${guide.openEditor}</a>`)}<nav data-public-shortcuts aria-label="${guide.navigation}">${publicIconLink(guide.openEditor, "/editor", "application")}${publicIconLink(guide.language === PublicLanguage.English ? "Features" : "功能", localizedSiteHref("/features/", guide.language))}</nav>`,
+    )}</div>${publicDesktopWindow(pickText(guide.language, "Xprite Help", "Xprite 使用指南", "Xprite ヘルプ", "Xprite 도움말"), publicReaderScroll(`<article>${publicRichText(parser.parser(tokens.filter((token) => token !== contentsToken)), { "data-public-document-content": true })}</article>`, guide.language), "data-public-document", `<a href="/editor">${guide.openEditor}</a>`)}<nav data-public-shortcuts aria-label="${guide.navigation}">${publicIconLink(guide.openEditor, "/editor", "application")}${publicIconLink(pickText(guide.language, "Features", "功能", "機能", "기능"), localizedSiteHref("/features/", guide.language))}</nav>`,
     [
       {
-        label: guide.language === PublicLanguage.SimplifiedChinese ? "工具比较" : "Compare",
-        href: "/compare/",
+        label: pickText(guide.language, "Compare", "工具比较", "比較", "비교"),
+        href: localizedSiteHref("/compare/", guide.language),
       },
       { label: guide.openEditor, href: "/editor" },
-      {
-        label: guide.language === PublicLanguage.SimplifiedChinese ? "切换语言" : "Switch language",
-        href: other.path,
-        hrefLang: other.language,
-        icon: "language",
-        end: true,
-      },
+      ...languageSwitchLinks(
+        guide.language,
+        Object.fromEntries(GUIDES.map((item) => [item.language, item.path])),
+        true,
+      ),
     ],
     alternates,
   );

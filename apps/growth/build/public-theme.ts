@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { ARTICLES } from "../content/articles/index.ts";
+import { unlocalizedPath } from "../content/site/language.ts";
 import { siteFooterGroups } from "../content/site/navigation.ts";
 import { renderPublicUi } from "./static-ui-renderer.ts";
 
@@ -44,7 +45,7 @@ const articlePatterns = new Map(
     .map((path, index) => [path, shuffledPatterns[index % shuffledPatterns.length].id]),
 );
 export function publicPattern(path: string): string {
-  const originalPath = path.replace(/\/zh-CN(?=\/|$)/, "");
+  const originalPath = unlocalizedPath(path);
   return (
     articlePatterns.get(originalPath) ?? colorPatterns[patternHash(path) % colorPatterns.length].id
   );

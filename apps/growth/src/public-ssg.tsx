@@ -2,6 +2,8 @@ import { renderToString } from "react-dom/server";
 
 export { articleStyleClasses } from "$/components/articles/article-styles";
 
+import { pageScrollLabel } from "$content/site/language";
+
 import { PublicArticleDiagram } from "$/components/articles/article-diagram";
 import { FeatureDirectory } from "$/components/features/feature-directory";
 import { PublicNotFound } from "$/components/public/not-found";
@@ -25,6 +27,7 @@ import {
   ShowcaseStaticHeader,
   ShowcaseStoryContent,
 } from "$/components/showcase/showcase-story-content";
+import type { ShowcaseLanguage } from "$/managers/showcase/showcase-language";
 import { DesktopProvider, DesktopManager, DesktopAppearance } from "@xprite/site-shell";
 import {
   macintoshTheme,
@@ -132,7 +135,7 @@ export async function preparePublicUi() {
         <ScrollArea
           target={ScrollAreaTarget.Page}
           scrollbarRendering={ScrollbarRendering.Browser}
-          aria-label={props.language === "zh-CN" ? "页面滚动" : "Page scroll"}
+          aria-label={pageScrollLabel(String(props.language))}
         >
           <div
             className={showcaseStyles.page}
@@ -141,10 +144,10 @@ export async function preparePublicUi() {
             data-ui-desktop-pattern={PatternId.MacOS8BlueCord}
             lang={String(props.language)}
           >
-            <ShowcaseStaticHeader language={props.language as "en" | "zh-CN"} />
+            <ShowcaseStaticHeader language={props.language as ShowcaseLanguage} />
             <main>
-              <ShowcaseStaticHero language={props.language as "en" | "zh-CN"} />
-              <ShowcaseStoryContent language={props.language as "en" | "zh-CN"} />
+              <ShowcaseStaticHero language={props.language as ShowcaseLanguage} />
+              <ShowcaseStoryContent language={props.language as ShowcaseLanguage} />
             </main>
             <PublicFooter language={String(props.language)} />
           </div>
@@ -167,7 +170,7 @@ export async function preparePublicUi() {
         <ScrollArea
           target={ScrollAreaTarget.Page}
           scrollbarRendering={ScrollbarRendering.Browser}
-          aria-label={props.language === "zh-CN" ? "页面滚动" : "Page scroll"}
+          aria-label={pageScrollLabel(String(props.language))}
         >
           <PublicHtml html={String(props.content)} />
         </ScrollArea>

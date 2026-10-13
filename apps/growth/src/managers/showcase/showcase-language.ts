@@ -6,6 +6,8 @@ import { ShowcaseDevice } from "$/managers/showcase/showcase-device";
 export enum ShowcaseLanguage {
   Chinese = "zh-CN",
   English = "en",
+  Japanese = "ja",
+  Korean = "ko",
 }
 
 export const SHOWCASE_BRAND_NAME = "Xprite";
@@ -58,5 +60,53 @@ export const SHOWCASE_COPY = {
     lockDate: "Sunday, October 4",
     statusDate: "Sun Oct 4",
     unlock: "Swipe up to open",
+  },
+  [ShowcaseLanguage.Japanese]: {
+    ...SHOWCASE_HERO_COPY[ShowcaseLanguage.Japanese],
+    credits: "3D モデルのクレジット",
+    title: SHOWCASE_PAGES[ShowcaseLanguage.Japanese].title,
+    chooseDevice: "デバイスを選択",
+    titleEnd: {
+      [ShowcaseDevice.Computer]: { prefix: "", device: "パソコン", suffix: "でも" },
+      [ShowcaseDevice.Ipad]: { prefix: "", device: "iPad", suffix: " でも" },
+      [ShowcaseDevice.Phone]: { prefix: "", device: "スマホ", suffix: "でも" },
+    },
+    navigation:
+      "デバイスをクリックまたはタップしてデモを再生。左右のドラッグやスワイプ、Shift とホイール、キーボードの左右キーでデバイスを切り替え、下へスクロールするとエディターを紹介します",
+    languageNavigation: "言語",
+    stage: "Xprite デバイスの 3D デモ",
+    screen: "Xprite ドット絵アニメーションのデモ",
+    loading: "キャンバスを準備中",
+    error: "3D シーンを読み込めませんでした。",
+    retry: "再読み込み",
+    direct: "Xprite を直接開く",
+    description: SHOWCASE_PAGES[ShowcaseLanguage.Japanese].description,
+    lockDate: "10月4日 日曜日",
+    statusDate: "10月4日(日)",
+    unlock: "上にスワイプして開く",
+  },
+  [ShowcaseLanguage.Korean]: {
+    ...SHOWCASE_HERO_COPY[ShowcaseLanguage.Korean],
+    credits: "3D 모델 출처",
+    title: SHOWCASE_PAGES[ShowcaseLanguage.Korean].title,
+    chooseDevice: "기기 선택",
+    titleEnd: {
+      [ShowcaseDevice.Computer]: { prefix: "", device: "컴퓨터", suffix: "에서도" },
+      [ShowcaseDevice.Ipad]: { prefix: "", device: "iPad", suffix: "에서도" },
+      [ShowcaseDevice.Phone]: { prefix: "", device: "휴대폰", suffix: "에서도" },
+    },
+    navigation:
+      "기기를 클릭하거나 탭하면 데모가 재생됩니다. 좌우로 드래그하거나 스와이프하고, Shift와 휠 또는 키보드 좌우 방향키로 기기를 바꾸며, 아래로 스크롤하면 에디터를 소개합니다",
+    languageNavigation: "언어",
+    stage: "Xprite 기기 3D 데모",
+    screen: "Xprite 픽셀 애니메이션 데모",
+    loading: "캔버스 준비 중",
+    error: "3D 장면을 불러오지 못했습니다.",
+    retry: "다시 불러오기",
+    direct: "Xprite 바로 열기",
+    description: SHOWCASE_PAGES[ShowcaseLanguage.Korean].description,
+    lockDate: "10월 4일 일요일",
+    statusDate: "10월 4일 (일)",
+    unlock: "위로 쓸어올려 열기",
   },
 } as const;

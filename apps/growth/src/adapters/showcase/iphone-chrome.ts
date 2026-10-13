@@ -1,3 +1,5 @@
+import { pickText } from "$content/site/language";
+
 import { ShowcaseLanguage } from "$/managers/showcase/showcase-language";
 
 const WIDTH = 430;
@@ -54,6 +56,17 @@ const LABELS = {
     "Settings",
   ],
   [ShowcaseLanguage.Chinese]: ["Xprite", "日历", "照片", "相机", "备忘录", "时钟", "文件", "设置"],
+  [ShowcaseLanguage.Japanese]: [
+    "Xprite",
+    "カレンダー",
+    "写真",
+    "カメラ",
+    "メモ",
+    "時計",
+    "ファイル",
+    "設定",
+  ],
+  [ShowcaseLanguage.Korean]: ["Xprite", "캘린더", "사진", "카메라", "메모", "시계", "파일", "설정"],
 } as const;
 
 /** Continuous icon corners, rather than rounded rectangles with long straight joins. */
@@ -179,7 +192,7 @@ function appIcon(
       c.textAlign = "center";
       c.fillStyle = "#f34845";
       c.font = `600 10px ${FONT}`;
-      c.fillText(language === ShowcaseLanguage.Chinese ? "星期日" : "SUNDAY", 31, 16);
+      c.fillText(pickText(language, "SUNDAY", "星期日", "日曜日", "일요일"), 31, 16);
       c.fillStyle = "#19191d";
       c.font = `300 39px ${FONT}`;
       c.fillText("4", 31, 51);
@@ -364,13 +377,13 @@ export function createIphoneHome(
   }
   c.fillStyle = "#f34f4f";
   c.font = `600 13px ${FONT}`;
-  c.fillText(language === ShowcaseLanguage.Chinese ? "星期日" : "SUNDAY", 44, 139);
+  c.fillText(pickText(language, "SUNDAY", "星期日", "日曜日", "일요일"), 44, 139);
   c.fillStyle = "#161619";
   c.font = `300 62px ${FONT}`;
   c.fillText("4", 42, 202);
   c.fillStyle = "#78787d";
   c.font = `13px ${FONT}`;
-  c.fillText(language === ShowcaseLanguage.Chinese ? "十月" : "October", 45, 246);
+  c.fillText(pickText(language, "October", "十月", "10月", "10월"), 45, 246);
   c.save();
   c.translate(247, WIDGET.y + 8);
   clockFace(c, 148, false);
@@ -378,8 +391,8 @@ export function createIphoneHome(
   c.fillStyle = "#fff";
   c.textAlign = "center";
   c.font = `12px ${FONT}`;
-  c.fillText(language === ShowcaseLanguage.Chinese ? "日历" : "Calendar", 109, 290);
-  c.fillText(language === ShowcaseLanguage.Chinese ? "时钟" : "Clock", 321, 290);
+  c.fillText(pickText(language, "Calendar", "日历", "カレンダー", "캘린더"), 109, 290);
+  c.fillText(pickText(language, "Clock", "时钟", "時計", "시계"), 321, 290);
   for (const [index, kind] of HOME_ICONS.entries()) {
     const x = ICON_COLUMNS[index % ICON_COLUMNS.length],
       y = ICON_ROWS[Math.floor(index / ICON_COLUMNS.length)];
@@ -406,7 +419,7 @@ export function createIphoneHome(
   c.fillStyle = "#fff";
   c.font = `500 11px ${FONT}`;
   c.textAlign = "left";
-  c.fillText(language === ShowcaseLanguage.Chinese ? "搜索" : "Search", 205, 774);
+  c.fillText(pickText(language, "Search", "搜索", "検索", "검색"), 205, 774);
   const glass = c.createLinearGradient(0, DOCK.y, 0, DOCK.y + DOCK.height);
   glass.addColorStop(0, "rgba(245,248,255,.3)");
   glass.addColorStop(1, "rgba(225,235,255,.16)");

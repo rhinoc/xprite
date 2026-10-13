@@ -24,7 +24,7 @@ tool file or output events. The about page (`/about/`) keeps
 `page_type: showcase`.
 
 Comparison (`/compare/`) landing pages use
-`page_type: article`. Chinese pages under `/zh-CN/` report the page type of
+`page_type: article`. Localized pages under `/zh-CN/`, `/ja/` and `/ko/` report the page type of
 their English counterpart; `/privacy/` reports `other`.
 
 All events include `page_type`, `page_path`, nullable `tool_name`, nullable

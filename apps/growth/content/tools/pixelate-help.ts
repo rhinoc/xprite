@@ -80,4 +80,74 @@ export const PIXELATE_HELP = {
     closing:
       "The preview updates with the current settings, and you can compare each result with the original.",
   },
+  [PublicLanguage.Japanese]: {
+    title: "画像をドット絵化・グリッドを復元",
+    introduction:
+      "PNG、JPEG、WebP 画像を開くか、「サンプルを開く」でツールを試せます。画像は端末内で処理され、元のファイルが上書きされることはありません。",
+    sections: [
+      {
+        id: PixelateHelpSection.Convert,
+        title: "画像をドット絵に変換",
+        steps: [
+          "「操作」で「画像を変換」を選びます。サイズのプリセットを選ぶか、「幅」と「高さ」を入力します。",
+          "「方式」を選び、プレビューを元の画像と見比べます。必要に応じて色数を制限したり、パレットを選んだりします。",
+        ],
+        notes:
+          "「縦横比を固定」は元の比率を保ちます。「元のサイズを保持」はドット絵化した結果を元の画像サイズに拡大し直します。",
+      },
+      {
+        id: PixelateHelpSection.Recover,
+        title: "拡大されたピクセルグリッドを復元",
+        steps: [
+          "「操作」で「ピクセルグリッドを復元」を選び、「自動グリッド」をオンのままにすると検出されたグリッドが使われます。",
+          "信頼できるグリッドが検出されない場合は、「自動グリッド」をオフにして「マスの幅」と「マスの高さ」を入力します。",
+        ],
+        notes: "マスのサイズは元の画像のピクセル単位で指定します。",
+      },
+      {
+        id: PixelateHelpSection.Result,
+        title: "保存または編集を続ける",
+        steps: [
+          "「PNG をダウンロード」で結果を保存するか、「編集を続ける」で Xprite エディターで開きます。",
+        ],
+        notes:
+          "PNG のファイル名は拡張子の前に -pixelated または -restored が付き、元のファイルは変更されません。",
+      },
+    ],
+    closing: "プレビューは現在の設定で更新され、それぞれの結果を元の画像と見比べられます。",
+  },
+  [PublicLanguage.Korean]: {
+    title: "이미지 픽셀화와 격자 복원",
+    introduction:
+      "PNG, JPEG, WebP 이미지를 열거나 예제 열기로 도구를 사용해 보세요. 이미지는 기기에서 처리되며 원본 파일을 덮어쓰지 않습니다.",
+    sections: [
+      {
+        id: PixelateHelpSection.Convert,
+        title: "이미지를 픽셀 아트로 변환",
+        steps: [
+          "작업에서 이미지 변환을 선택하세요. 크기 프리셋을 고르거나 너비와 높이를 입력하세요.",
+          "방식을 고르고 미리 보기를 원본과 비교하세요. 필요하면 색 수를 제한하거나 팔레트를 선택하세요.",
+        ],
+        notes:
+          "비율 고정은 원본 비율을 유지합니다. 원본 크기 유지는 픽셀화한 결과를 원본 이미지 크기로 다시 늘립니다.",
+      },
+      {
+        id: PixelateHelpSection.Recover,
+        title: "확대된 픽셀 격자 복원",
+        steps: [
+          "작업에서 픽셀 격자 복원을 선택하고 자동 격자를 켜 두면 감지된 격자를 사용합니다.",
+          "믿을 만한 격자가 감지되지 않으면 자동 격자를 끄고 칸 너비와 칸 높이를 입력하세요.",
+        ],
+        notes: "칸 크기는 원본 이미지의 픽셀 단위입니다.",
+      },
+      {
+        id: PixelateHelpSection.Result,
+        title: "저장하거나 계속 편집하기",
+        steps: ["PNG 다운로드로 결과를 저장하거나, 계속 편집으로 Xprite 에디터에서 여세요."],
+        notes:
+          "PNG 파일 이름에는 확장자 앞에 -pixelated 또는 -restored가 붙으며 원본은 바뀌지 않습니다.",
+      },
+    ],
+    closing: "미리 보기는 현재 설정에 맞춰 업데이트되며, 각 결과를 원본과 비교할 수 있습니다.",
+  },
 } as const satisfies Record<PublicLanguage, ToolHelpContent>;

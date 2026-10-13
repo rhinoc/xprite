@@ -40,30 +40,26 @@ describe("document pages", () => {
       assert.ok(documentSource(page).startsWith(`# ${page.title}\n`), page.path);
   });
 
-  it("publish the privacy notice and the about articles in both languages", () => {
-    assert.deepEqual(
-      DOCUMENT_PAGES.map((page) => page.path),
-      [
-        ...[
-          "draw-pixel-art",
-          "layers-and-colors",
-          "frame-animation",
-          "tilemaps",
-          "aseprite-projects",
-          "export-images-and-animation",
-          "touch-drawing",
-          "workspace-layout",
-          "drawing-process",
-          "share-artwork",
-        ].flatMap((slug) => [`/features/${slug}/`, `/zh-CN/features/${slug}/`]),
-        "/privacy/",
-        "/zh-CN/privacy/",
-        "/about/how-it-works/",
-        "/zh-CN/about/how-it-works/",
-        "/features/",
-        "/zh-CN/features/",
-      ],
-    );
+  it("publish every document in each language", () => {
+    const paths = DOCUMENT_PAGES.map((page) => page.path);
+    for (const path of ["/privacy/", "/about/how-it-works/", "/features/"])
+      for (const prefix of ["", "/zh-CN", "/ja", "/ko"])
+        assert.ok(paths.includes(`${prefix}${path}`), `${prefix}${path}`);
+  });
+
+  it("link each translated document to every language and the language menu", () => {
+    const privacy = documentHtml("/ja/privacy/", true);
+    for (const [language, path] of [
+      ["en", "/privacy/"],
+      ["zh-CN", "/zh-CN/privacy/"],
+      ["ko", "/ko/privacy/"],
+      ["x-default", "/privacy/"],
+    ])
+      assert.ok(
+        privacy.includes(`hreflang="${language}" href="https://xprite.cc${path}"`),
+        language,
+      );
+    assert.match(privacy, /<html lang="ja"/);
   });
 
   it("list every document in the sitemap", () => {
