@@ -7,7 +7,7 @@ import { pathToFileURL } from "node:url";
 import { build } from "esbuild";
 import { describe, it } from "vitest";
 
-import { testAssetLoaders, viteAssetImports } from "../../../../../infra/test-esbuild";
+import { testAssetLoaders, viteAssetImports } from "$/testing/esbuild";
 
 describe("slider-family", () => {
   it("slider-family behavior", async () => {

@@ -6,7 +6,7 @@ import path from "node:path";
 import { build } from "esbuild";
 import { describe, it } from "vitest";
 
-import { testAssetLoaders, viteAssetImports } from "../../../../../infra/test-esbuild";
+import { testAssetLoaders, viteAssetImports } from "$/testing/esbuild";
 
 describe("intrinsic-controls", () => {
   it("intrinsic-controls behavior", async () => {
