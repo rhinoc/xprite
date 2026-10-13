@@ -53,7 +53,7 @@ export const VIEWER_TOOL = {
   name: "Xprite Aseprite Viewer",
   label: "Aseprite Viewer",
   startTitle: "Inspect an Aseprite file",
-  title: "Aseprite Viewer Online: Open .ase & .aseprite Files | Xprite",
+  title: "Aseprite Viewer: Open .aseprite & .ase Files Online | Xprite",
   headline: "Aseprite Viewer",
   summary: "Preview Aseprite projects and export PNG frames or GIF animations.",
   privacy: TOOL_FILE_PRIVACY,

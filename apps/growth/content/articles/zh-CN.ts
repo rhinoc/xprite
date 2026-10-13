@@ -18,9 +18,9 @@ export const CHINESE_ARTICLES = {
     topic: "浏览器编辑",
   },
   "aseprite-on-ipad": {
-    title: "iPad 上能用 Aseprite 吗？免费方案和 3 款 App 对比 | Xprite",
+    title: "iPad / iOS 上用 Aseprite：免费浏览器方案和 3 款 App 对比 | Xprite",
     description:
-      "Aseprite 没有 iPad 版。Xprite 在 Safari 浏览器里免费打开并存回 .aseprite；Pixquare、Resprite 和 Pixaki Pro 支持 Apple Pencil 手势和 iCloud 同步。",
+      "Aseprite 没有 iPad / iOS 版。用 Xprite 在 Safari 里免费打开并存回 .aseprite，无需安装；也可对比 Pixquare、Resprite 和 Pixaki Pro 三款 App。",
     summary:
       "Xprite 在浏览器里免费打开并保存 .aseprite；需要 Apple Pencil 手势和 iCloud 同步时，可以看 Pixquare、Resprite 和 Pixaki Pro。",
     topic: "iPad 与触控",
