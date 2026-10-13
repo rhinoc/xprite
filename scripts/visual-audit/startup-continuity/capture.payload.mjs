@@ -114,8 +114,9 @@ for (const scene of continuityConfig.scenes) {
               error,
             };
           }, EDITOR_MODULE_FAILURE_MESSAGE);
-          if (runtimeState.ready || runtimeState.retryable || !runtimeState.fontsLoading) break;
-          if (fontWait >= 5) break;
+          // The monitor can also drop "complete" between the wait and this read while a late
+          // subset swaps in; re-observe a few times instead of failing on the race.
+          if (runtimeState.ready || runtimeState.retryable || fontWait >= 5) break;
           await page.evaluate(() => document.fonts.ready);
         }
         if (runtimeState.ready) {
