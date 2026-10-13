@@ -24,10 +24,17 @@ check:stale-css` and `pnpm run check:site-build`. `node scripts/check/run.mjs
 each project's `node_modules/.cache/xprite-types`).
 
 Visual audits run with Playwright's bundled headless Chromium on macOS, Linux and
-Windows. `pnpm run visual` (pre-push) starts or reuses the dev site once, launches
+Windows. `pnpm run visual` starts or reuses the dev site once, launches
 one browser and runs every audit in parallel; see `visual-audit/base/browser.mjs`
 for the pinned rendering settings. Run `pnpm exec playwright install chromium`
 once per machine. `XPRITE_SKIP_VISUAL=1` skips the visual audits explicitly.
+
+The pre-push hook (`scripts/check/pre-push.mjs`) runs `pnpm run check` first; once it
+passes, `pnpm run test:ci` and `pnpm run visual` run in parallel. Their output is
+buffered and printed as one block per step with its time, followed by the total.
+Nothing is cached between pushes: every push runs all three steps. husky skips all
+hooks when `HUSKY=0` is set, so make sure it is unset (for example, `env -u HUSKY git push`)
+when the environment sets it.
 
 `pnpm run check:public-docs` rejects Xiaohongshu / 小红书, RedNote, XHS and
 platform links in root Markdown (except `AGENTS.md`), the user guide and its
