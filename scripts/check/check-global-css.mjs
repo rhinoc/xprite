@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import postcss from "postcss";
 import ts from "typescript-compiler-api";
 
+import { shareSourceFiles } from "../base/ts-shared-sources.mjs";
+
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const cssRoots = [
   "apps/editor/src",
@@ -139,45 +141,6 @@ function collectSource(filename) {
   visit(source);
 }
 
-// The tsconfig programs overlap almost entirely (ui, editor-core and lib files), so parsed and
-// bound source files are shared across programs with the same parse/bind settings, as
-// TypeScript's own DocumentRegistry does. This check only reads types; it never emits.
-const sourceFileCache = new Map();
-const PARSE_SETTINGS = [
-  "target",
-  "module",
-  "moduleResolution",
-  "moduleDetection",
-  "jsx",
-  "jsxFactory",
-  "jsxFragmentFactory",
-  "jsxImportSource",
-  "allowJs",
-  "checkJs",
-  "strict",
-  "alwaysStrict",
-  "isolatedModules",
-  "verbatimModuleSyntax",
-  "experimentalDecorators",
-  "useDefineForClassFields",
-  "preserveConstEnums",
-  "allowUnreachableCode",
-  "allowUnusedLabels",
-];
-function sharedHost(options) {
-  const host = ts.createCompilerHost(options);
-  const settings = JSON.stringify(PARSE_SETTINGS.map((name) => options[name] ?? null));
-  const getSourceFile = host.getSourceFile.bind(host);
-  host.getSourceFile = (fileName, languageVersion, onError, shouldCreate) => {
-    const key = `${settings}|${JSON.stringify(languageVersion)}|${fileName}`;
-    if (!shouldCreate && sourceFileCache.has(key)) return sourceFileCache.get(key);
-    const file = getSourceFile(fileName, languageVersion, onError, shouldCreate);
-    if (file) sourceFileCache.set(key, file);
-    return file;
-  };
-  return host;
-}
-
 function templateValues(filename, expression) {
   const absolute = path.join(repositoryRoot, filename);
   const configPath = ts.findConfigFile(path.dirname(absolute), ts.sys.fileExists);
@@ -186,7 +149,11 @@ function templateValues(filename, expression) {
   if (!context) {
     const config = ts.readConfigFile(configPath, ts.sys.readFile);
     const parsed = ts.parseJsonConfigFileContent(config.config, ts.sys, path.dirname(configPath));
-    const program = ts.createProgram(parsed.fileNames, parsed.options, sharedHost(parsed.options));
+    const program = ts.createProgram(
+      parsed.fileNames,
+      parsed.options,
+      shareSourceFiles(ts.createCompilerHost(parsed.options), parsed.options),
+    );
     context = { program, checker: program.getTypeChecker() };
     programs.set(configPath, context);
   }
