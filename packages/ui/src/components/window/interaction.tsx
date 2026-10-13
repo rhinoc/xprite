@@ -10,7 +10,7 @@ import {
   type MutableRefObject,
 } from "react";
 
-import { isUnclaimedKey } from "$/base/utils/field-key";
+import { isUnclaimedKey, triggersDefaultAction } from "$/base/utils/field-key";
 import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
 
 export enum OverlayDismissReason {
@@ -134,39 +134,12 @@ function dismiss(entry: OverlayEntry, reason: OverlayDismissReason, event: Event
 }
 
 /** Aseprite's magnet button: the window's default action, fired by Enter from any control. */
-export const DEFAULT_ACTION_ATTRIBUTE = "data-ui-default-action";
+const DEFAULT_ACTION_ATTRIBUTE = "data-ui-default-action";
 /** Spread on the OK button of a dialog: `<Button {...defaultActionProps()} />`. */
 export function defaultActionProps(enabled = true): Record<string, string> {
   return enabled ? { [DEFAULT_ACTION_ATTRIBUTE]: "" } : {};
 }
 const DEFAULT_ACTION_SELECTOR = `[${DEFAULT_ACTION_ATTRIBUTE}]:not(:disabled)`;
-/** Controls whose own Enter activation must win over the window default. */
-const ENTER_OWNER_SELECTOR =
-  'button,a[href],textarea,select,[role="button"],[role="menuitem"],[role="option"],[aria-expanded="true"],[contenteditable="true"],[contenteditable="plaintext-only"]';
-
-export interface DefaultActionKey {
-  key: string;
-  altKey: boolean;
-  ctrlKey: boolean;
-  metaKey: boolean;
-  shiftKey: boolean;
-}
-
-/** Plain Enter (main or keypad) not consumed by a button-like control under focus. */
-export function triggersDefaultAction(
-  event: DefaultActionKey,
-  target: { matches(selector: string): boolean } | null,
-) {
-  return (
-    event.key === "Enter" &&
-    !event.altKey &&
-    !event.ctrlKey &&
-    !event.metaKey &&
-    !event.shiftKey &&
-    !target?.matches(ENTER_OWNER_SELECTOR)
-  );
-}
-
 function defaultAction(root: HTMLElement | null, event: KeyboardEvent): HTMLElement | null {
   if (!root) return null;
   const target = event.target instanceof Element ? event.target : null;

@@ -68,6 +68,8 @@
   "ui.animation.playback": "Воспроизведение анимации",
   "ui.animation.preview": "Предпросмотр анимации",
   "ui.animation.preview.canvas": "Холст предпросмотра анимации",
+  "ui.animation.fullscreen": "Полноэкранный предпросмотр",
+  "ui.animation.fullscreen.canvas": "Холст полноэкранного предпросмотра",
   "ui.animation.tags": "Метки анимации",
   "ui.any": "Любой",
   "ui.application.menu": "Меню приложения",

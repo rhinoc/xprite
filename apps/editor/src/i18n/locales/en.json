@@ -68,6 +68,8 @@
   "ui.animation.playback": "Animation Playback",
   "ui.animation.preview": "Animation Preview",
   "ui.animation.preview.canvas": "Animation preview canvas",
+  "ui.animation.fullscreen": "Full Screen Preview",
+  "ui.animation.fullscreen.canvas": "Full screen preview canvas",
   "ui.animation.tags": "Animation tags",
   "ui.any": "Any",
   "ui.application.menu": "Application menu",

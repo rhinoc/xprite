@@ -68,6 +68,8 @@
   "ui.animation.playback": "Reproducción de la animación",
   "ui.animation.preview": "Vista previa de la animación",
   "ui.animation.preview.canvas": "Lienzo de vista previa de la animación",
+  "ui.animation.fullscreen": "Vista previa a pantalla completa",
+  "ui.animation.fullscreen.canvas": "Lienzo de la vista previa a pantalla completa",
   "ui.animation.tags": "Etiquetas de animación",
   "ui.any": "Cualquiera",
   "ui.application.menu": "Menú de la aplicación",

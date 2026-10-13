@@ -19,10 +19,7 @@ async function moduleAt(path: string) {
 
 describe("ux audit fixes", () => {
   it("Enter triggers the window default action only from fields, and field keys stay unclaimed", async () => {
-    const { triggersDefaultAction } = await moduleAt(
-      "packages/ui/src/components/window/interaction.tsx",
-    );
-    const { markFieldKey, isUnclaimedKey } = await moduleAt(
+    const { markFieldKey, isUnclaimedKey, triggersDefaultAction } = await moduleAt(
       "packages/ui/src/base/utils/field-key.ts",
     );
     const plain = { key: "Enter", altKey: false, ctrlKey: false, metaKey: false, shiftKey: false };
@@ -50,10 +47,10 @@ describe("ux audit fixes", () => {
     assert.equal(editor.getSnapshot().document.selection, null);
     assert.equal(editor.imageEditing.flipCels(FlipOrientation.Horizontal), true);
     const flat = editor.canvas.composite().data;
-    assert.deepEqual([...flat.slice(0, 4)], [0, 0, 0, 0]);
-    assert.deepEqual([...flat.slice(4, 8)], [255, 0, 0, 255]);
+    assert.deepEqual(Array.from(flat.slice(0, 4)), [0, 0, 0, 0]);
+    assert.deepEqual(Array.from(flat.slice(4, 8)), [255, 0, 0, 255]);
     editor.history.undo();
-    assert.deepEqual([...editor.canvas.composite().data.slice(0, 4)], [255, 0, 0, 255]);
+    assert.deepEqual(Array.from(editor.canvas.composite().data.slice(0, 4)), [255, 0, 0, 255]);
   });
 
   it("pixel-perfect defaults to off like Aseprite pref.xml", async () => {

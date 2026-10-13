@@ -68,6 +68,8 @@
   "ui.animation.playback": "アニメーション再生",
   "ui.animation.preview": "アニメーションプレビュー",
   "ui.animation.preview.canvas": "アニメーションプレビューのキャンバス",
+  "ui.animation.fullscreen": "フルスクリーンプレビュー",
+  "ui.animation.fullscreen.canvas": "フルスクリーンプレビューのキャンバス",
   "ui.animation.tags": "アニメーションタグ",
   "ui.any": "任意",
   "ui.application.menu": "アプリケーションメニュー",
