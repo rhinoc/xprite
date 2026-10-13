@@ -8,6 +8,7 @@ interface ImportMetaEnv {
   readonly VITE_EMBEDDED_HOST?: string;
   readonly VITE_POSTHOG_PROJECT_TOKEN?: string;
   readonly VITE_POSTHOG_REGION?: "US" | "EU";
+  readonly VITE_POSTHOG_API_HOST?: string;
 }
 
 declare module "*.aseprite?url" {

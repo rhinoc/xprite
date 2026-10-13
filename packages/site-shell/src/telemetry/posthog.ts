@@ -12,6 +12,8 @@ export interface BrowserTelemetryOptions {
   production: boolean;
   token: string;
   region: string;
+  /** First-party ingestion host; defaults to the managed reverse proxy for US projects. */
+  apiHost?: string;
   version: string;
   release: string;
   allowedEvents?: readonly string[];
@@ -25,10 +27,35 @@ interface ReportedException {
   stack?: string;
 }
 
+// The PostHog managed reverse proxy (CNAME to PostHog US) keeps ingestion on our own domain so
+// ad blockers that list *.posthog.com do not drop events. EU projects keep PostHog's EU host.
+export const DEFAULT_POSTHOG_API_HOST = "https://e.xprite.cc";
 const POSTHOG_API_HOSTS = {
-  us: "https://us.i.posthog.com",
+  us: DEFAULT_POSTHOG_API_HOST,
   eu: "https://eu.i.posthog.com",
 };
+
+/** Resolve the ingestion host from an optional https override, falling back per region. */
+export function resolvePostHogApiHost(region: "us" | "eu", override?: string): string {
+  const candidate = override?.trim();
+  if (candidate) {
+    try {
+      const url = new URL(candidate);
+      if (
+        url.protocol === "https:" &&
+        !url.username &&
+        !url.password &&
+        url.pathname === "/" &&
+        !url.search &&
+        !url.hash
+      )
+        return url.origin;
+    } catch {
+      // Fall back to the default host for malformed overrides.
+    }
+  }
+  return POSTHOG_API_HOSTS[region];
+}
 const MAX_PENDING_REPORTS = 64;
 const OLDEST_PENDING_ACTION_INDEX = 1;
 const MAX_EXCEPTION_STEPS_BYTES = 4_096;
@@ -121,6 +148,7 @@ export class BrowserTelemetry {
     `${Date.now()}-${Math.random().toString(36).slice(RANDOM_ID_START)}`;
   private readonly token: string;
   private readonly region: "us" | "eu";
+  private readonly apiHost: string;
   private readonly allowedEvents: ReadonlySet<string>;
   private readonly commonProperties: SiteTelemetryProperties;
   private readonly initialization: Promise<void>;
@@ -129,6 +157,7 @@ export class BrowserTelemetry {
   constructor(options: BrowserTelemetryOptions) {
     this.token = options.token.trim();
     this.region = options.region === "EU" ? "eu" : "us";
+    this.apiHost = resolvePostHogApiHost(this.region, options.apiHost);
     this.allowedEvents = new Set([
       ...Object.values(SiteTelemetryEvent),
       EXCEPTION_EVENT,
@@ -183,7 +212,7 @@ export class BrowserTelemetry {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), FEEDBACK_REQUEST_TIMEOUT_MS);
     try {
-      const response = await fetch(`${POSTHOG_API_HOSTS[this.region]}${POSTHOG_CAPTURE_PATH}`, {
+      const response = await fetch(`${this.apiHost}${POSTHOG_CAPTURE_PATH}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -240,7 +269,7 @@ export class BrowserTelemetry {
       const { PostHog } = await import("posthog-js/full/no-external");
       const sdk = new PostHog();
       sdk.init(this.token, {
-        api_host: POSTHOG_API_HOSTS[this.region],
+        api_host: this.apiHost,
         ui_host: `https://${this.region}.posthog.com`,
         defaults: TELEMETRY_DEFAULTS,
         person_profiles: "never",
