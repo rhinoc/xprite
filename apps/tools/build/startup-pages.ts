@@ -41,7 +41,13 @@ const TOOL_BY_ROOT = {
   "animal-crossing-root": ANIMAL_CROSSING_TOOL,
   "beads-root": BEADS_TOOL,
 };
-const ROOT_IDS = ["viewer-root", "gif-sheet-root", "pixelation-root", "animal-crossing-root", "beads-root"];
+const ROOT_IDS = [
+  "viewer-root",
+  "gif-sheet-root",
+  "pixelation-root",
+  "animal-crossing-root",
+  "beads-root",
+];
 const jsonForHtml = (value: unknown) => JSON.stringify(value).replaceAll("<", "\\u003c");
 const escapeHtml = (value: string) =>
   value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");

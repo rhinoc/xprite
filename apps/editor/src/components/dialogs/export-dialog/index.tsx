@@ -2,7 +2,6 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
-import { preloadableLazy } from "$/components/shared/preloadable-lazy";
 import { tUi, tUiSource, useUiLanguage } from "$/i18n";
 import {
   ExporterGroup,

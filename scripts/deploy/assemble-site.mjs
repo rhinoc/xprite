@@ -25,23 +25,24 @@ const indexable = process.env.EDGEONE_ENV !== "preview";
 const project = JSON.parse(await readFile(resolve(repositoryRoot, "package.json"), "utf8"));
 
 // Require all independently built entry points before replacing the combined artifact.
-const [editorHtml, viewerHtml, gifSheetHtml, animalCrossingHtml, pixelateHtml, beadHtml] = await Promise.all([
-  readFile(resolve(editorOutput, INDEX_FILENAME), "utf8"),
-  readFile(resolve(toolsOutput, "viewer", INDEX_FILENAME), "utf8"),
-  readFile(resolve(toolsOutput, "gif-to-sprite-sheet", INDEX_FILENAME), "utf8"),
-  readFile(resolve(toolsOutput, "animal-crossing-qr", INDEX_FILENAME), "utf8"),
-  readFile(resolve(toolsOutput, "pixelate", INDEX_FILENAME), "utf8"),
-  readFile(resolve(toolsOutput, "fuse-beads", INDEX_FILENAME), "utf8"),
-  readFile(resolve(componentsOutput, INDEX_FILENAME), "utf8"),
-  ...SITE_PAGES.filter((page) =>
-    [
-      SitePageKind.Showcase,
-      SitePageKind.Guide,
-      SitePageKind.Article,
-      SitePageKind.Document,
-    ].includes(page.kind),
-  ).map(({ path }) => readFile(resolve(growthOutput, `.${path}`, INDEX_FILENAME), "utf8")),
-]);
+const [editorHtml, viewerHtml, gifSheetHtml, animalCrossingHtml, pixelateHtml, beadHtml] =
+  await Promise.all([
+    readFile(resolve(editorOutput, INDEX_FILENAME), "utf8"),
+    readFile(resolve(toolsOutput, "viewer", INDEX_FILENAME), "utf8"),
+    readFile(resolve(toolsOutput, "gif-to-sprite-sheet", INDEX_FILENAME), "utf8"),
+    readFile(resolve(toolsOutput, "animal-crossing-qr", INDEX_FILENAME), "utf8"),
+    readFile(resolve(toolsOutput, "pixelate", INDEX_FILENAME), "utf8"),
+    readFile(resolve(toolsOutput, "fuse-beads", INDEX_FILENAME), "utf8"),
+    readFile(resolve(componentsOutput, INDEX_FILENAME), "utf8"),
+    ...SITE_PAGES.filter((page) =>
+      [
+        SitePageKind.Showcase,
+        SitePageKind.Guide,
+        SitePageKind.Article,
+        SitePageKind.Document,
+      ].includes(page.kind),
+    ).map(({ path }) => readFile(resolve(growthOutput, `.${path}`, INDEX_FILENAME), "utf8")),
+  ]);
 
 await rm(siteOutput, { recursive: true, force: true });
 await mkdir(siteOutput, { recursive: true });
