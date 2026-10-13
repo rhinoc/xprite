@@ -28,7 +28,7 @@ describe("one Button family with native action and navigation semantics", () => 
     expect(html).toContain("<a ");
     expect(html).toContain('href="https://xprite.cc/editor"');
     expect(html).toContain('target="_blank"');
-    expect(html).toContain('data-variant="standard"');
+    expect(html).toContain('data-variant="push"');
     expect(html).not.toContain('role="button"');
   });
 
@@ -42,7 +42,7 @@ describe("one Button family with native action and navigation semantics", () => 
     );
     expect(html).toContain("<button ");
     expect(html).toContain('type="button"');
-    expect(html).toContain('data-variant="standard"');
+    expect(html).toContain('data-variant="push"');
     expect(html).not.toContain("<a ");
   });
 

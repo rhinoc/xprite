@@ -68,6 +68,7 @@ describe("tiled-editor-frame [feature-7-12]", () => {
       "surfaceBounds",
       "doc",
       "state",
+      "uiElementScale",
       js,
     );
     let cases = 0;
@@ -95,9 +96,16 @@ describe("tiled-editor-frame [feature-7-12]", () => {
               { x: 0, y: 0 },
               { x: 17, y: -8 },
             ]) {
-              const base = readBase(documentToScreen, tiledCanvasLayout, surfaceBounds, doc, {
-                view: { zoom, pan, tiledMode },
-              });
+              const base = readBase(
+                documentToScreen,
+                tiledCanvasLayout,
+                surfaceBounds,
+                doc,
+                {
+                  view: { zoom, pan, tiledMode },
+                },
+                1,
+              );
               baseline ??= base;
               assert.deepEqual(
                 base,

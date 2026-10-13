@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { build } from "esbuild";
 import { describe, it } from "vitest";
 
+import { testAssetLoaders, viteAssetImports } from "../../../../../../infra/test-esbuild";
+
 describe("pointer-controller", () => {
   it("pointer-controller behavior", async () => {
     const { outputFiles } = await build({
@@ -11,6 +13,8 @@ describe("pointer-controller", () => {
       platform: "node",
       format: "esm",
       write: false,
+      loader: testAssetLoaders,
+      plugins: [viteAssetImports],
     });
     const { CanvasPointerController, CanvasPointerTarget } = await import(
       `data:text/javascript;base64,${Buffer.from(outputFiles[0].contents).toString("base64")}`
@@ -123,6 +127,8 @@ describe("pointer-controller", () => {
       platform: "node",
       format: "esm",
       write: false,
+      loader: testAssetLoaders,
+      plugins: [viteAssetImports],
       alias: { "@xprite/ui/utils": "./packages/ui/src/utils.ts" },
     });
     const { StagedTouchIntent } = await import(
@@ -181,6 +187,8 @@ describe("pointer-controller", () => {
       platform: "node",
       format: "esm",
       write: false,
+      loader: testAssetLoaders,
+      plugins: [viteAssetImports],
     });
     const { createTouchContact, updateTouchContact, touchTapStart, isTouchTap } = await import(
       `data:text/javascript;base64,${Buffer.from(contactBundle.outputFiles[0].contents).toString("base64")}`

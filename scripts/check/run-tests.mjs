@@ -4,10 +4,11 @@
 // the list only ever shrinks.
 //
 //   node scripts/check/run-tests.mjs          (pnpm run test:ci)
-import { spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import readline from "node:readline";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -19,7 +20,10 @@ const vitest = path.join(
   "node_modules/.bin",
   process.platform === "win32" ? "vitest.cmd" : "vitest",
 );
-spawnSync(
+// Stack traces of esbuild-bundled tests carry whole bundles as base64 data: URLs. Printed
+// verbatim they are megabytes per line and stall CI log streaming, so long lines are clipped.
+const MAX_LINE = 400;
+const child = spawn(
   vitest,
   [
     "run",
@@ -29,8 +33,20 @@ spawnSync(
     "--reporter=json",
     `--outputFile.json=${report}`,
   ],
-  { cwd: root, stdio: "inherit", shell: process.platform === "win32" },
+  { cwd: root, stdio: ["ignore", "pipe", "pipe"], shell: process.platform === "win32" },
 );
+const clip = (line) =>
+  line
+    .replace(/data:text\/javascript;base64,[A-Za-z0-9+/=]{40,}/g, "data:text/javascript;base64,…")
+    .slice(0, MAX_LINE) + (line.length > MAX_LINE ? " …" : "");
+for (const [stream, out] of [
+  [child.stdout, process.stdout],
+  [child.stderr, process.stderr],
+])
+  readline
+    .createInterface({ input: stream, crlfDelay: Infinity })
+    .on("line", (line) => out.write(`${clip(line)}\n`));
+await new Promise((resolve) => child.on("close", resolve));
 if (!fs.existsSync(report)) {
   console.error("vitest produced no JSON report.");
   process.exit(1);
@@ -40,11 +56,14 @@ const key = (file, name) => `${path.relative(root, file).replaceAll("\\", "/")} 
 const failed = new Set();
 const passed = new Set();
 for (const file of results.testResults) {
-  if (file.status === "failed" && file.assertionResults.length === 0)
-    failed.add(key(file.name, "(file failed to load)"));
+  const loadId = key(file.name, "(file failed to load)");
+  if (file.status === "failed" && file.assertionResults.length === 0) failed.add(loadId);
+  else if (file.assertionResults.length > 0) passed.add(loadId);
   for (const test of file.assertionResults) {
     const id = key(file.name, test.fullName);
-    if (test.status === "failed") failed.add(id);
+    // "pending" means the test started and never finished: its worker crashed (e.g. out of
+    // memory). Vitest still reports success for it, so the gate counts it as a failure.
+    if (test.status === "failed" || test.status === "pending") failed.add(id);
     else if (test.status === "passed") passed.add(id);
   }
 }

@@ -438,11 +438,16 @@ describe("layer-conversion-guards [feature-1-6]", () => {
         "apps/editor/src/components/shell/editor-menubar.tsx",
         "utf8",
       ).replace(/\s+/g, " "),
+      menuModel = readFileSync(
+        "apps/editor/src/managers/shell/editor-menu-model.ts",
+        "utf8",
+      ).replace(/\s+/g, " "),
       chrome = readFileSync(
         "apps/editor/src/components/timeline/editor-timeline/index.tsx",
         "utf8",
       ).replace(/\s+/g, " ");
-    assert.ok(menu.includes('!canConvertBackground(timeline, node.params?.to === "background")'));
+    assert.ok(menu.includes('!menu.canConvertBackground(node.params?.to === "background")'));
+    assert.ok(menuModel.includes("!!timeline && canConvertBackground(timeline, background)"));
     assert.ok(chrome.includes("disabled: !canConvertBackground(timeline, true)"));
     assert.ok(chrome.includes("!canConvertBackground(timeline, false)"));
     console.log(

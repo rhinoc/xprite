@@ -7,6 +7,8 @@ import { pathToFileURL } from "node:url";
 import { build } from "esbuild";
 import { describe, it } from "vitest";
 
+import { testAssetLoaders, viteAssetImports } from "../../../../../infra/test-esbuild";
+
 describe("slider-family", () => {
   it("slider-family behavior", async () => {
     const directory = path.resolve("node_modules/.cache/slider-family-verifier");
@@ -16,7 +18,7 @@ describe("slider-family", () => {
       await build({
         stdin: {
           contents:
-            'export { Slider } from "./packages/ui/src/components/slider/Slider.tsx"; export { SliderMode, SliderRendering, SliderValueFormat } from "./packages/ui/src/components/slider/types.ts"; export { UIProvider } from "./packages/ui/src/components/theme/provider.tsx";',
+            'export { Slider } from "./packages/ui/src/components/slider/Slider.tsx"; export { SliderMode, SliderRendering, SliderValueFormat } from "./packages/ui/src/components/slider/types.ts"; export { UIProvider, UiColorScheme, loadUiThemeSnapshot } from "./packages/ui/src/components/theme/provider.tsx"; export { asepriteTheme } from "./packages/ui/src/base/theme/themes/aseprite";',
           resolveDir: process.cwd(),
           loader: "tsx",
         },
@@ -26,16 +28,23 @@ describe("slider-family", () => {
         format: "esm",
         platform: "node",
         external: ["react", "react-dom", "react-dom/*"],
-        loader: { ".webp": "dataurl", ".css": "empty", ".woff2": "dataurl" },
+        loader: testAssetLoaders,
+        plugins: [viteAssetImports],
         logLevel: "silent",
       });
       const family = await import(pathToFileURL(outfile).href);
       const bundleRequire = createRequire(outfile);
       const React = bundleRequire("react");
       const { renderToStaticMarkup } = bundleRequire("react-dom/server");
+      const theme = family.asepriteTheme;
+      const initialTheme = await family.loadUiThemeSnapshot(family.UiColorScheme.Light, theme);
       const render = (props) =>
         renderToStaticMarkup(
-          React.createElement(family.UIProvider, null, React.createElement(family.Slider, props)),
+          React.createElement(
+            family.UIProvider,
+            { theme, initialTheme },
+            React.createElement(family.Slider, props),
+          ),
         );
       assert.equal(typeof family.Slider, "function");
       assert.equal("SliderEntry" in family, false);
