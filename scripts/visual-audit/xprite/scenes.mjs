@@ -34,8 +34,8 @@ export function selectSceneIds(selection) {
   );
 }
 
-export const languages = ["zh-CN", "en"];
-const LANGUAGE_DIRECTORIES = { "zh-CN": "zh", en: "en" };
+export const languages = ["zh-CN", "en", "ja", "ko"];
+const LANGUAGE_DIRECTORIES = { "zh-CN": "zh", en: "en", ja: "ja", ko: "ko" };
 
 export function selectLanguages(selection) {
   if (selection === undefined) return languages;

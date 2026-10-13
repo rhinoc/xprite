@@ -10,7 +10,7 @@
 
 ## 사용과 저장
 
-GIF, APNG, WebP 애니메이션은 **파일 → 내보내기 → 다른 이름으로 내보내기...**를 사용하세요. 프레임을 이미지 한 장에 배치하려면 [스프라이트 시트로 내보낼](/features/export-images-and-animation/) 수도 있습니다.
+GIF, APNG, WebP 애니메이션은 **파일 → 내보내기 → 다른 이름으로 내보내기**를 사용하세요. 프레임을 이미지 한 장에 배치하려면 [스프라이트 시트로 내보낼](/features/export-images-and-animation/) 수도 있습니다.
 
 ## 계속 사용하기
 

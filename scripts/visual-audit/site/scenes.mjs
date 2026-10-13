@@ -29,7 +29,7 @@ const toolLanguages = new Map([
 ]);
 
 function canonicalPath(path) {
-  return path.replace(/^\/zh-CN(?=\/)/, "") || "/";
+  return path.replace(/^\/(?:zh-CN|ja|ko)(?=\/)/, "") || "/";
 }
 
 function routeName(path) {
@@ -181,6 +181,22 @@ const featureWindows = [
   representativeFeatureWindow(PublicLanguage.SimplifiedChinese, true),
 ];
 
+/** Japanese and Korean mirror a few zh-CN templates: About, a compare article, the guide and a feature window. */
+const cjkRoutes = [
+  [PublicLanguage.Japanese, "/about/", wide, light],
+  [PublicLanguage.Korean, "/about/", compact, light],
+  [PublicLanguage.Japanese, "/compare/aseprite-on-ipad/", wide, light],
+  [PublicLanguage.Korean, "/help/", compact, dark],
+].map(([language, canonical, layout, appearance]) => {
+  const selected = translatedRoutes.get(canonical)?.find((page) => page.language === language);
+  if (!selected) throw Error(`No ${language} page for ${canonical}.`);
+  return makeScene(publicRoutePage(selected, language, routeName(canonical)), layout, appearance);
+});
+const cjkFeatureWindows = [
+  representativeFeatureWindow(PublicLanguage.Japanese, true),
+  representativeFeatureWindow(PublicLanguage.Korean, false),
+];
+
 const footers = [
   makeScene(
     {
@@ -210,6 +226,14 @@ const footers = [
   ),
 ];
 
-export const scenes = [...routes, ...toolPages, featureDirectory, ...featureWindows, ...footers];
+export const scenes = [
+  ...routes,
+  ...toolPages,
+  featureDirectory,
+  ...featureWindows,
+  ...footers,
+  ...cjkRoutes,
+  ...cjkFeatureWindows,
+];
 if (new Set(scenes.map((scene) => scene.id)).size !== scenes.length)
   throw Error("Site visual scene IDs must be unique.");
