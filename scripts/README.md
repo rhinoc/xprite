@@ -53,7 +53,8 @@ site build writes them. CI runs `check` and `test:ci` in parallel with
 Their output is buffered and printed as one block per step with its time, followed by the
 total. Nothing is cached between pushes: every push runs every step. husky skips all hooks
 when `HUSKY=0` is set, so make sure it is unset (for example, `env -u HUSKY git push`) when
-the environment sets it.
+the environment sets it. `pnpm install` under `HUSKY=0` also skips installing the hooks, so a
+fresh clone or worktree set up that way needs `env -u HUSKY pnpm exec husky` once.
 
 `pnpm run test:ci` fails on any failing test; there is no known-failure allowlist.
 `pnpm run check:deploy` is the build half of the deploy workflow without secrets or
