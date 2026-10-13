@@ -2308,6 +2308,7 @@
   "ui.cell.sizes.are.measured.in.the.original.image": "Cell sizes are measured in the original image.",
   "ui.preserve.edges": "Preserve edges",
   "ui.dominant.colors": "Dominant colors",
+  "ui.most.frequent.color": "Most frequent color",
   "ui.outline.protection": "Outline protection",
   "ui.limit.colors": "Limit colors",
   "ui.no.consistent.pixel.grid.was.detected.turn.off.automatic.grid.and.choose.cell.sizes": "No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.",
@@ -2375,5 +2376,6 @@
   "ui.export.unavailable": "This exporter is unavailable.",
   "ui.export.invalid.settings": "Invalid export settings.",
   "ui.export.beads.board.coordinates": "Row {row}, column {column}",
-  "ui.export.beads.summary": "{width} × {height} · Beads: {count} · Colors: {colors}"
+  "ui.export.beads.summary": "{width} × {height} · Beads: {count} · Colors: {colors}",
+  "ui.export.artwork.unavailable": "The export artwork is unavailable."
 }

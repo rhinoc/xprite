@@ -1,10 +1,12 @@
 import type { PixelBuffer } from "$/base";
+import type { ExportRasterText } from "$/import-export/attribution";
 import {
   EMPTY_BEAD_CELL,
   type BeadGrid,
   type BeadBoard,
   type BeadBoardSize,
 } from "$/import-export/beads/grid";
+import { BEAD_GLYPH_HEIGHT, BEAD_GLYPH_ADVANCE, drawBeadText } from "$/import-export/beads/text";
 
 export const BEAD_CHART_CELL_SIZE = 40;
 export const MAX_BEAD_CHART_PIXELS = 32 * 1024 * 1024;
@@ -12,36 +14,8 @@ const MAX_CHART_EDGE = 16384;
 const MAX_BOARD_PREVIEW_EDGE = 2048;
 const CHANNELS = 4;
 const OPAQUE = 255;
-const GLYPH_WIDTH = 3;
-const GLYPH_HEIGHT = 5;
-const GLYPH_ADVANCE = 4;
-const GLYPHS: Record<string, readonly string[]> = {
-  "0": ["111", "101", "101", "101", "111"],
-  "1": ["010", "110", "010", "010", "111"],
-  "2": ["111", "001", "111", "100", "111"],
-  "3": ["111", "001", "111", "001", "111"],
-  "4": ["101", "101", "111", "001", "001"],
-  "5": ["111", "100", "111", "001", "111"],
-  "6": ["111", "100", "111", "101", "111"],
-  "7": ["111", "001", "010", "010", "010"],
-  "8": ["111", "101", "111", "101", "111"],
-  "9": ["111", "101", "111", "001", "111"],
-  A: ["010", "101", "111", "101", "101"],
-  B: ["110", "101", "110", "101", "110"],
-  C: ["111", "100", "100", "100", "111"],
-  D: ["110", "101", "101", "101", "110"],
-  E: ["111", "100", "110", "100", "111"],
-  F: ["111", "100", "110", "100", "100"],
-  G: ["111", "100", "101", "101", "111"],
-  H: ["101", "101", "111", "101", "101"],
-  M: ["101", "111", "111", "101", "101"],
-  S: ["111", "100", "111", "001", "111"],
-  L: ["100", "100", "100", "100", "111"],
-  N: ["101", "111", "111", "111", "101"],
-  P: ["111", "101", "111", "100", "100"],
-  T: ["111", "010", "010", "010", "010"],
-  "-": ["000", "000", "111", "000", "000"],
-};
+const CODE_FONT_SIZE = 18;
+const CODE_PADDING = 4;
 
 export function beadChartSize(
   grid: Pick<BeadGrid, "width" | "height">,
@@ -49,9 +23,13 @@ export function beadChartSize(
 ) {
   const width = grid.width * cellSize + 1,
     height = grid.height * cellSize + 1;
+  assertBeadChartSize({ width, height });
+  return { width, height };
+}
+
+export function assertBeadChartSize({ width, height }: { width: number; height: number }) {
   if (width > MAX_CHART_EDGE || height > MAX_CHART_EDGE || width * height > MAX_BEAD_CHART_PIXELS)
     throw new Error("The PNG chart is too large. Export a PDF with separate boards instead.");
-  return { width, height };
 }
 
 export function beadTextInk(rgb: readonly [number, number, number]) {
@@ -65,63 +43,114 @@ export function renderBeadChart(
   boardSize: BeadBoardSize,
   board?: BeadBoard,
   cellSize = BEAD_CHART_CELL_SIZE,
+  highlight: string | null = null,
+  showGrid = true,
 ): PixelBuffer {
   const area = board ?? { x: 0, y: 0, width: grid.width, height: grid.height };
   const { width, height } = beadChartSize(area, cellSize);
   const data = new Uint8ClampedArray(width * height * CHANNELS).fill(OPAQUE);
+  const target = { width, height, data };
+  drawBeadChart(
+    target,
+    { x: 0, y: 0 },
+    grid,
+    showCodes,
+    boardSize,
+    board,
+    cellSize,
+    highlight,
+    showGrid,
+  );
+  return target;
+}
+
+/** Draw into a caller-owned output buffer without allocating a second full chart. */
+export function drawBeadChart(
+  target: PixelBuffer,
+  origin: { x: number; y: number },
+  grid: BeadGrid,
+  showCodes: boolean,
+  boardSize: BeadBoardSize,
+  board?: BeadBoard,
+  cellSize = BEAD_CHART_CELL_SIZE,
+  highlight: string | null = null,
+  showGrid = true,
+  text?: ExportRasterText,
+): void {
+  const area = board ?? { x: 0, y: 0, width: grid.width, height: grid.height };
+  const { width, height } = beadChartSize(area, cellSize);
   const paint = (x: number, y: number, rgb: readonly number[]) => {
-    const offset = (y * width + x) * CHANNELS;
-    data[offset] = rgb[0];
-    data[offset + 1] = rgb[1];
-    data[offset + 2] = rgb[2];
+    const offset = ((origin.y + y) * target.width + origin.x + x) * CHANNELS;
+    target.data[offset] = rgb[0];
+    target.data[offset + 1] = rgb[1];
+    target.data[offset + 2] = rgb[2];
   };
   for (let y = 0; y < area.height; y++)
     for (let x = 0; x < area.width; x++) {
       const cell = grid.cells[(area.y + y) * grid.width + area.x + x];
       if (cell === EMPTY_BEAD_CELL) continue;
       const color = grid.colors[cell];
+      if (highlight && color.code !== highlight) continue;
       const left = x * cellSize + 1,
         top = y * cellSize + 1;
       for (let py = 0; py < cellSize - 1; py++)
         for (let px = 0; px < cellSize - 1; px++) paint(left + px, top + py, color.rgb);
+      if (text && showCodes) {
+        let size = Math.min(CODE_FONT_SIZE, cellSize - CODE_PADDING);
+        while (size > 1 && text.measure(color.code, size).width > cellSize - CODE_PADDING) size--;
+        const bounds = text.measure(color.code, size);
+        if (bounds.height <= cellSize - CODE_PADDING) {
+          const ink = beadTextInk(color.rgb);
+          text.draw(
+            target,
+            color.code,
+            origin.x + x * cellSize + Math.floor((cellSize - bounds.width) / 2),
+            origin.y + y * cellSize + Math.floor((cellSize - bounds.height) / 2),
+            size,
+            [ink, ink, ink],
+          );
+        }
+        continue;
+      }
       if (
         !showCodes ||
-        cellSize < GLYPH_HEIGHT + 2 ||
-        cellSize < color.code.length * GLYPH_ADVANCE + 2
+        cellSize < BEAD_GLYPH_HEIGHT + 2 ||
+        cellSize < color.code.length * BEAD_GLYPH_ADVANCE + 2
       )
         continue;
       const scale = Math.max(
         1,
-        Math.min(3, Math.floor((cellSize - 4) / (color.code.length * GLYPH_ADVANCE))),
+        Math.min(3, Math.floor((cellSize - 4) / (color.code.length * BEAD_GLYPH_ADVANCE))),
       );
-      const labelWidth = (color.code.length * GLYPH_ADVANCE - 1) * scale;
+      const labelWidth = (color.code.length * BEAD_GLYPH_ADVANCE - 1) * scale;
       const labelX = x * cellSize + Math.floor((cellSize - labelWidth) / 2);
-      const labelY = y * cellSize + Math.floor((cellSize - GLYPH_HEIGHT * scale) / 2);
+      const labelY = y * cellSize + Math.floor((cellSize - BEAD_GLYPH_HEIGHT * scale) / 2);
       const ink = beadTextInk(color.rgb);
-      for (let letter = 0; letter < color.code.length; letter++) {
-        const glyph = GLYPHS[color.code[letter]];
-        if (!glyph) continue;
-        for (let gy = 0; gy < GLYPH_HEIGHT; gy++)
-          for (let gx = 0; gx < GLYPH_WIDTH; gx++)
-            if (glyph[gy][gx] === "1")
-              for (let sy = 0; sy < scale; sy++)
-                for (let sx = 0; sx < scale; sx++)
-                  paint(
-                    labelX + letter * GLYPH_ADVANCE * scale + gx * scale + sx,
-                    labelY + gy * scale + sy,
-                    [ink, ink, ink],
-                  );
-      }
+      drawBeadText(target, color.code, origin.x + labelX, origin.y + labelY, scale, [
+        ink,
+        ink,
+        ink,
+      ]);
     }
-  for (let x = 0; x <= area.width; x++) {
-    const boundary = (area.x + x) % boardSize.width === 0;
-    for (let y = 0; y < height; y++) paint(x * cellSize, y, boundary ? [0, 0, 0] : [150, 150, 150]);
+  if (showGrid) {
+    for (let x = 0; x <= area.width; x++) {
+      const boundary = (area.x + x) % boardSize.width === 0;
+      for (let y = 0; y < height; y++)
+        paint(x * cellSize, y, boundary ? [0, 0, 0] : [150, 150, 150]);
+    }
+    for (let y = 0; y <= area.height; y++) {
+      const boundary = (area.y + y) % boardSize.height === 0;
+      for (let x = 0; x < width; x++)
+        paint(x, y * cellSize, boundary ? [0, 0, 0] : [150, 150, 150]);
+    }
   }
-  for (let y = 0; y <= area.height; y++) {
-    const boundary = (area.y + y) % boardSize.height === 0;
-    for (let x = 0; x < width; x++) paint(x, y * cellSize, boundary ? [0, 0, 0] : [150, 150, 150]);
-  }
-  return { width, height, data };
+}
+
+export function beadPreviewCellSize(area: Pick<BeadGrid, "width" | "height">): number {
+  return Math.min(
+    BEAD_CHART_CELL_SIZE,
+    Math.floor((MAX_BOARD_PREVIEW_EDGE - 1) / Math.max(area.width, area.height)),
+  );
 }
 
 /** Keep large custom boards inexpensive to preview without changing output resolution. */
@@ -130,10 +159,34 @@ export function renderBeadBoardPreview(
   showCodes: boolean,
   boardSize: BeadBoardSize,
   board: BeadBoard,
+  highlight: string | null = null,
+  showGrid = true,
 ): PixelBuffer {
-  const cellSize = Math.min(
-    BEAD_CHART_CELL_SIZE,
-    Math.floor((MAX_BOARD_PREVIEW_EDGE - 1) / Math.max(board.width, board.height)),
+  return renderBeadChart(
+    grid,
+    showCodes,
+    boardSize,
+    board,
+    beadPreviewCellSize(board),
+    highlight,
+    showGrid,
   );
-  return renderBeadChart(grid, showCodes, boardSize, board, cellSize);
+}
+
+export function renderBeadOverviewPreview(
+  grid: BeadGrid,
+  showCodes: boolean,
+  boardSize: BeadBoardSize,
+  highlight: string | null = null,
+  showGrid = true,
+): PixelBuffer {
+  return renderBeadChart(
+    grid,
+    showCodes,
+    boardSize,
+    undefined,
+    beadPreviewCellSize(grid),
+    highlight,
+    showGrid,
+  );
 }

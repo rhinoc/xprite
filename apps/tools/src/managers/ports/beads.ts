@@ -14,6 +14,7 @@ export interface BeadToolPort {
   readWheel(event: WheelEvent): ToolWheelInput;
   savePng(
     grid: BeadGrid,
+    brand: string,
     showCodes: boolean,
     boardSize: BeadBoardSize,
     name: string,

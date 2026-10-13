@@ -11,20 +11,30 @@ import type { PixelBuffer } from "@xprite/editor-core/base";
 import type { EditorDocument } from "@xprite/editor-core/document";
 import {
   renderExport,
-  resizeNearest,
+  pixelateImage,
+  defaultPixelationSettings,
+  updatePixelationSettings,
+  pixelationSettingsOptions,
+  PixelationMethod,
+  PIXELATION_METHOD_OPTIONS,
   mapBeadGrid,
   beadBoards,
-  beadChartSize,
-  beadGridPixels,
+  beadPatternSheetSize,
+  BEAD_CHART_CELL_SIZE,
+  beadPreviewCellSize,
+  renderBeadOverviewPreview,
   renderBeadBoardPreview,
   DEFAULT_BEAD_BOARD_SIZE,
   isValidBeadBoardSize,
   type BeadGrid,
   type BeadBoard,
   type BeadBoardSize,
+  type BeadColor,
+  type PixelationSettings,
 } from "@xprite/editor-core/import-export";
 import { TILESET_EMBEDDED_PIXELS_FLAG } from "@xprite/editor-core/tilemap";
 import { layerAncestors } from "@xprite/editor-core/timeline";
+import { BEAD_ARTIFACT_ATTRIBUTION } from "@xprite/growth-content/tools";
 import { BEAD_PALETTES, BeadBrand } from "@xprite/palette-assets/beads";
 import type { SiteTelemetryPort } from "@xprite/site-shell/telemetry";
 
@@ -33,19 +43,26 @@ export enum BeadPreviewMode {
   Overview = "overview",
   Source = "source",
 }
-export { MIN_BEAD_BOARD_EDGE, MAX_BEAD_BOARD_EDGE } from "@xprite/editor-core/import-export";
-export const MAX_BEAD_GRID_EDGE = 512;
+export {
+  MAX_PIXELATION_SIZE,
+  MIN_BEAD_BOARD_EDGE,
+  MAX_BEAD_BOARD_EDGE,
+} from "@xprite/editor-core/import-export";
+export enum BeadMaterialSort {
+  Quantity = "quantity",
+  Code = "code",
+}
 const DEFAULT_GRID_EDGE = 128;
 const PREVIEW_DELAY_MS = 150;
 const MAX_PREVIEW_EDGE = 4096;
 const MAX_PREVIEW_PIXELS = 16 * 1024 * 1024;
 const MIN_GRID_EDGE = 1;
 
-export interface BeadToolSettings {
+export interface BeadToolSettings extends Pick<
+  PixelationSettings,
+  "targetWidth" | "targetHeight" | "lockAspectRatio" | "method"
+> {
   brand: BeadBrand;
-  width: number;
-  height: number;
-  lockAspect: boolean;
   boardSize: BeadBoardSize;
   showCodes: boolean;
 }
@@ -67,25 +84,39 @@ export interface BeadToolSnapshot {
   downloading: boolean;
   error: string | null;
   pngError: string | null;
+  excludedColors: readonly BeadColor[];
+  highlight: string | null;
+  previewLayout: BeadPreviewLayout | null;
+}
+
+export interface BeadPreviewLayout {
+  columns: number;
+  rows: number;
+  offsetX: number;
+  offsetY: number;
+  cellSize: number;
+  boardSize: BeadBoardSize;
 }
 
 export class BeadToolManager {
   readonly navigation: ToolViewport;
   readonly brands = BEAD_PALETTES.map(({ id, name }) => ({ value: id, label: name }));
+  readonly samplingModes = PIXELATION_METHOD_OPTIONS;
   private state: BeadToolSnapshot = {
     source: null,
     grid: null,
     preview: null,
     boards: [],
     selected: 0,
-    mode: BeadPreviewMode.Board,
+    mode: BeadPreviewMode.Overview,
     settings: {
       brand: BeadBrand.Mard,
-      width: DEFAULT_GRID_EDGE,
-      height: DEFAULT_GRID_EDGE,
-      lockAspect: true,
+      targetWidth: DEFAULT_GRID_EDGE,
+      targetHeight: DEFAULT_GRID_EDGE,
+      lockAspectRatio: true,
       boardSize: DEFAULT_BEAD_BOARD_SIZE,
       showCodes: true,
+      method: PixelationMethod.Nearest,
     },
     name: "",
     outputName: "",
@@ -97,6 +128,9 @@ export class BeadToolManager {
     downloading: false,
     error: null,
     pngError: null,
+    excludedColors: [],
+    highlight: null,
+    previewLayout: null,
   };
   private input: BeadInput | null = null;
   private timer: ReturnType<typeof setTimeout> | undefined;
@@ -200,6 +234,8 @@ export class BeadToolManager {
         preview: null,
         boards: [],
         selected: 0,
+        mode: BeadPreviewMode.Overview,
+        highlight: null,
         name: file.name,
         outputName: `${file.name.replace(/\.[^.]+$/, "")}-beads`,
         frame: 0,
@@ -207,8 +243,8 @@ export class BeadToolManager {
         identity: this.state.identity + 1,
         settings: {
           ...this.state.settings,
-          width: Math.max(MIN_GRID_EDGE, Math.round(pixels.width * scale)),
-          height: Math.max(MIN_GRID_EDGE, Math.round(pixels.height * scale)),
+          targetWidth: Math.max(MIN_GRID_EDGE, Math.round(pixels.width * scale)),
+          targetHeight: Math.max(MIN_GRID_EDGE, Math.round(pixels.height * scale)),
         },
         loading: false,
         pngError: null,
@@ -248,38 +284,83 @@ export class BeadToolManager {
   };
   changeSettings = (patch: Partial<BeadToolSettings>) => {
     if (!this.state.source || this.closed || this.state.loading || this.state.downloading) return;
-    const settings = { ...this.state.settings, ...patch };
+    const normalized = updatePixelationSettings(
+      { ...defaultPixelationSettings(this.state.source), ...this.state.settings },
+      patch,
+      this.state.source,
+    );
+    const settings = {
+      ...this.state.settings,
+      ...patch,
+      targetWidth: normalized.targetWidth,
+      targetHeight: normalized.targetHeight,
+      lockAspectRatio: normalized.lockAspectRatio,
+      method: normalized.method,
+    };
     if (
       !Object.values(BeadBrand).includes(settings.brand) ||
-      !isValidBeadBoardSize(settings.boardSize)
+      !isValidBeadBoardSize(settings.boardSize) ||
+      !Object.values(PixelationMethod).includes(settings.method)
     )
       return;
-    if (
-      ![settings.width, settings.height].every(
-        (value) =>
-          Number.isSafeInteger(value) && value >= MIN_GRID_EDGE && value <= MAX_BEAD_GRID_EDGE,
-      )
-    )
-      return;
-    if (
-      settings.lockAspect &&
-      (patch.width !== undefined || patch.height !== undefined || patch.lockAspect === true)
-    ) {
-      const ratio = this.state.source.width / this.state.source.height;
-      const fromWidth = patch.height === undefined;
-      const width = fromWidth ? settings.width : settings.height * ratio;
-      const height = fromWidth ? settings.width / ratio : settings.height;
-      const factor = Math.min(1, MAX_BEAD_GRID_EDGE / width, MAX_BEAD_GRID_EDGE / height);
-      settings.width = Math.max(MIN_GRID_EDGE, Math.round(width * factor));
-      settings.height = Math.max(MIN_GRID_EDGE, Math.round(height * factor));
-    }
     const remap =
       settings.brand !== this.state.settings.brand ||
-      settings.width !== this.state.settings.width ||
-      settings.height !== this.state.settings.height;
-    this.publish({ settings });
+      settings.targetWidth !== this.state.settings.targetWidth ||
+      settings.targetHeight !== this.state.settings.targetHeight ||
+      settings.method !== this.state.settings.method;
+    const brandChanged = settings.brand !== this.state.settings.brand;
+    this.publish({ settings, ...(brandChanged ? { excludedColors: [], highlight: null } : {}) });
     if (remap) this.schedulePreview();
     else if (!this.state.pending) this.updatePreview();
+  };
+  setOutputName = (outputName: string) => {
+    if (this.closed || this.state.loading || this.state.downloading) return;
+    this.publish({ outputName });
+  };
+  private canChangeColors() {
+    return (
+      !!this.state.grid &&
+      !this.closed &&
+      !this.state.loading &&
+      !this.state.downloading &&
+      !this.state.pending
+    );
+  }
+  highlightColor = (code: string | null) => {
+    if (
+      !this.canChangeColors() ||
+      (code !== null && !this.state.grid!.usage.some(({ color }) => color.code === code))
+    )
+      return;
+    this.publish({
+      highlight: this.state.highlight === code ? null : code,
+      mode: BeadPreviewMode.Overview,
+      identity: this.state.identity + (this.state.mode === BeadPreviewMode.Overview ? 0 : 1),
+    });
+    this.updatePreview();
+  };
+  excludeColor = (code: string) => {
+    if (!this.canChangeColors() || this.state.grid!.usage.length <= 1) return;
+    const color = this.state.grid!.usage.find((item) => item.color.code === code)?.color;
+    if (!color) return;
+    this.publish({
+      excludedColors: [...this.state.excludedColors, color],
+      highlight: this.state.highlight === code ? null : this.state.highlight,
+    });
+    this.schedulePreview();
+  };
+  restoreColor = (code: string) => {
+    if (!this.canChangeColors() || !this.state.excludedColors.some((color) => color.code === code))
+      return;
+    this.publish({
+      excludedColors: this.state.excludedColors.filter((color) => color.code !== code),
+    });
+    this.schedulePreview();
+  };
+  restoreAllColors = () => {
+    if (!this.canChangeColors() || !this.state.excludedColors.length) return;
+    this.publish({ excludedColors: [] });
+    this.schedulePreview();
   };
   private schedulePreview() {
     this.cancelPreview();
@@ -292,17 +373,57 @@ export class BeadToolManager {
   private generate() {
     if (!this.state.source || this.closed) return;
     try {
-      const { width, height, brand } = this.state.settings;
-      const pixels = resizeNearest(this.state.source, width, height);
+      const { brand } = this.state.settings;
+      const normalized = updatePixelationSettings(
+        { ...defaultPixelationSettings(this.state.source), ...this.state.settings },
+        {},
+        this.state.source,
+      );
+      const pixels = pixelateImage(
+        this.state.source,
+        pixelationSettingsOptions(
+          {
+            ...normalized,
+            reduceColors: false,
+          },
+          this.state.source,
+        ),
+      );
       const palette = BEAD_PALETTES.find((item) => item.id === brand)!;
-      const grid = mapBeadGrid(pixels, palette.colors);
+      const excluded = new Set(this.state.excludedColors.map((color) => color.code));
+      const original = mapBeadGrid(pixels, palette.colors);
+      const remaining = original.usage
+        .map(({ color }) => color)
+        .filter((color) => !excluded.has(color.code));
+      const grid = excluded.size
+        ? mapBeadGrid(
+            pixels,
+            remaining.length
+              ? remaining
+              : palette.colors.filter((color) => !excluded.has(color.code)),
+          )
+        : original;
       let pngError: string | null = null;
       try {
-        beadChartSize(grid);
+        beadPatternSheetSize(grid, BEAD_CHART_CELL_SIZE, BEAD_ARTIFACT_ATTRIBUTION);
       } catch (reason) {
         pngError = reason instanceof Error ? reason.message : String(reason);
       }
-      this.publish({ grid, pngError, pending: false, error: null });
+      const highlight = grid.usage.some(({ color }) => color.code === this.state.highlight)
+        ? this.state.highlight
+        : null;
+      this.publish({
+        grid,
+        pngError,
+        highlight,
+        settings: {
+          ...this.state.settings,
+          targetWidth: normalized.targetWidth,
+          targetHeight: normalized.targetHeight,
+        },
+        pending: false,
+        error: null,
+      });
       this.updatePreview();
     } catch (reason) {
       this.publish({
@@ -319,13 +440,39 @@ export class BeadToolManager {
     const { boardSize, showCodes } = this.state.settings;
     const boards = beadBoards(grid, boardSize);
     const selected = Math.min(this.state.selected, boards.length - 1);
+    const area =
+      this.state.mode === BeadPreviewMode.Board
+        ? boards[selected]
+        : { x: 0, y: 0, width: grid.width, height: grid.height };
     const preview =
       this.state.mode === BeadPreviewMode.Source
         ? this.state.source
         : this.state.mode === BeadPreviewMode.Overview
-          ? beadGridPixels(grid)
-          : renderBeadBoardPreview(grid, showCodes, boardSize, boards[selected]);
-    this.publish({ preview, boards, selected });
+          ? renderBeadOverviewPreview(grid, showCodes, boardSize, this.state.highlight, false)
+          : renderBeadBoardPreview(
+              grid,
+              showCodes,
+              boardSize,
+              boards[selected],
+              this.state.highlight,
+              false,
+            );
+    this.publish({
+      preview,
+      boards,
+      selected,
+      previewLayout:
+        this.state.mode === BeadPreviewMode.Source
+          ? null
+          : {
+              columns: area.width,
+              rows: area.height,
+              offsetX: area.x,
+              offsetY: area.y,
+              cellSize: beadPreviewCellSize(area),
+              boardSize,
+            },
+    });
   }
   setMode = (mode: BeadPreviewMode) => {
     if (
@@ -348,21 +495,21 @@ export class BeadToolManager {
   };
   selectAt = (point: { x: number; y: number }) => {
     const grid = this.state.grid;
+    const cellSize = grid ? beadPreviewCellSize(grid) : 1;
     if (
       this.state.mode !== BeadPreviewMode.Overview ||
       !grid ||
       point.x < 0 ||
       point.y < 0 ||
-      point.x >= grid.width ||
-      point.y >= grid.height
+      point.x >= grid.width * cellSize ||
+      point.y >= grid.height * cellSize
     )
       return;
     const { width, height } = this.state.settings.boardSize;
     const columns = Math.ceil(grid.width / width);
-    this.selectBoard(Math.floor(point.y / height) * columns + Math.floor(point.x / width));
-  };
-  setOutputName = (name: string) => {
-    if (!this.state.downloading) this.publish({ outputName: name });
+    this.selectBoard(
+      Math.floor(point.y / cellSize / height) * columns + Math.floor(point.x / cellSize / width),
+    );
   };
   downloadPng = () => this.download(ToolOutputFormat.Png);
   downloadPdf = () => this.download(ToolOutputFormat.Pdf);
@@ -383,7 +530,13 @@ export class BeadToolManager {
     this.publish({ downloading: true, error: null });
     try {
       if (format === ToolOutputFormat.Png)
-        await this.port.savePng(grid, settings.showCodes, settings.boardSize, name);
+        await this.port.savePng(
+          grid,
+          BEAD_PALETTES.find((item) => item.id === settings.brand)!.name,
+          settings.showCodes,
+          settings.boardSize,
+          name,
+        );
       else
         await this.port.savePdf(
           grid,

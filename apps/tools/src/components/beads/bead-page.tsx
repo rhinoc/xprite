@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 
 import { BeadMaterials } from "$/components/beads/bead-materials";
+import { BeadPreviewGrid } from "$/components/beads/bead-preview-grid";
 import { BeadSettings } from "$/components/beads/bead-settings";
 import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
@@ -65,7 +66,7 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
         <div className={styles.layout}>
           <aside className={styles.sidebar}>
             <BeadSettings manager={manager} state={state} />
-            <BeadMaterials state={state} />
+            <BeadMaterials manager={manager} state={state} />
           </aside>
           <Panel
             variant={PanelVariant.Document}
@@ -114,6 +115,11 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
                     label="Bead chart preview"
                     onPixelSelect={
                       state.mode === BeadPreviewMode.Overview ? manager.selectAt : undefined
+                    }
+                    overlay={
+                      state.previewLayout
+                        ? (view) => <BeadPreviewGrid layout={state.previewLayout!} view={view} />
+                        : undefined
                     }
                   />
                 )}

@@ -271,6 +271,11 @@ export const BEADS_TOOL = {
   dropLabel: "Drop a PNG, JPEG, WebP or Aseprite file",
 } as const;
 
+export const BEAD_ARTIFACT_ATTRIBUTION = {
+  name: "Xprite",
+  url: `https://xprite.cc${BEADS_TOOL.path}`,
+} as const;
+
 export const EDITOR_TOOL = {
   path: "/",
   name: "Xprite Editor",

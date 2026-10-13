@@ -2308,6 +2308,7 @@
   "ui.cell.sizes.are.measured.in.the.original.image": "格子大小以原图像素为单位。",
   "ui.preserve.edges": "保留边缘",
   "ui.dominant.colors": "局部主色",
+  "ui.most.frequent.color": "出现最多的颜色",
   "ui.outline.protection": "轮廓保护",
   "ui.limit.colors": "限制颜色",
   "ui.no.consistent.pixel.grid.was.detected.turn.off.automatic.grid.and.choose.cell.sizes": "未检测到一致的像素网格。请关闭自动检测网格，手动设置格子大小。",
@@ -2375,5 +2376,6 @@
   "ui.export.unavailable": "当前无法使用此导出器。",
   "ui.export.invalid.settings": "导出设置无效。",
   "ui.export.beads.board.coordinates": "第 {row} 行，第 {column} 列",
-  "ui.export.beads.summary": "{width} × {height} · 拼豆数：{count} · 颜色数：{colors}"
+  "ui.export.beads.summary": "{width} × {height} · 拼豆数：{count} · 颜色数：{colors}",
+  "ui.export.artwork.unavailable": "导出素材不可用。"
 }

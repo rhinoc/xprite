@@ -7,6 +7,7 @@ import {
   pixelGridCuts,
   MAX_RECOVERED_GRID_SIZE,
 } from "$/import-export/image/import/grid";
+import { resizeMostFrequent } from "$/import-export/image/import/most-frequent";
 import { reduceToPalette, extractPixelationPalette } from "$/import-export/image/import/palette";
 import { resizeBox, resizeNearest } from "$/import-export/image/import/resize";
 import { samplePixelation } from "$/import-export/image/import/sampling";
@@ -72,6 +73,8 @@ function sampleImage(
     return resizeNearest(prepared, target.width, target.height);
   if (method === PixelationMethod.Box)
     return resizeBox(prepared, target.width, target.height, alphaMode);
+  if (method === PixelationMethod.MostFrequent)
+    return resizeMostFrequent(prepared, target.width, target.height);
   return samplePixelation(prepared, target.width, target.height, method);
 }
 

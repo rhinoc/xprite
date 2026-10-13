@@ -31,6 +31,7 @@ export {
   pixelationSettingsOptions,
   MAX_PIXELATION_SIZE,
   PIXELATION_SIZES,
+  PIXELATION_METHOD_OPTIONS,
 } from "$/import-export/image/import/settings";
 
 export {

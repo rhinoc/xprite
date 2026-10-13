@@ -65,8 +65,11 @@ describe("bead charts", () => {
     expect(pdf.startsWith("%PDF-1.4\n")).toBe(true);
     expect(pdf).toContain("/Count 6");
     expect(pdf).toContain("board row 2, column 2");
+    expect(pdf).toContain("B4/4: board row 2, column 2");
+    expect(pdf).toContain("(B4)");
     expect(pdf).toContain("Columns 30-31, rows 18-30 | board 29 x 17");
     expect(pdf).toContain("Total: 1 beads");
+    expect(pdf).toContain("(31)");
     const xref = Number(pdf.match(/startxref\n(\d+)/)![1]);
     expect(pdf.slice(xref, xref + 4)).toBe("xref");
     for (const [index, match] of [...pdf.slice(xref).matchAll(/(\d{10}) 00000 n/g)].entries())

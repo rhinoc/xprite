@@ -8,15 +8,18 @@ import {
   renderExport,
   mapBeadGrid,
   beadBoards,
-  renderBeadChart,
+  renderBeadPatternSheet,
   renderBeadBoardPreview,
-  beadChartSize,
+  beadPatternSheetSize,
   encodeBeadPdf,
   DEFAULT_BEAD_BOARD_SIZE,
   isValidBeadBoardSize,
   type BeadBoardSize,
+  BEAD_CHART_CELL_SIZE,
 } from "@xprite/editor-core/import-export";
+import { BEAD_ARTIFACT_ATTRIBUTION } from "@xprite/growth-content/tools";
 import { BEAD_PALETTES, BeadBrand } from "@xprite/palette-assets/beads";
+import logoUrl from "@xprite/site-assets/menu-icon.svg?url";
 
 enum BeadExporterId {
   Beads = "beads",
@@ -126,18 +129,39 @@ export const beadExporterDefinition: ExporterDefinition<BeadExportSource, BeadEx
     const palette = BEAD_PALETTES.find((item) => item.id === options.brand)!;
     const grid = mapBeadGrid(source.pixels, palette.colors);
     const output = context.platform.files.exportOutput!;
+    const attribution = await output.readAttribution(
+      BEAD_ARTIFACT_ATTRIBUTION.name,
+      BEAD_ARTIFACT_ATTRIBUTION.url,
+      logoUrl,
+      options.format === BeadOutputFormat.Pdf,
+    );
     const name = `${options.name.trim().replace(/\.(png|pdf)$/i, "")}.${options.format}`;
     const blob =
       options.format === BeadOutputFormat.Pdf
         ? new Blob(
             [
               new Uint8Array(
-                encodeBeadPdf(grid, palette.name, options.boardSize, options.showCodes),
+                encodeBeadPdf(
+                  grid,
+                  palette.name,
+                  options.boardSize,
+                  options.showCodes,
+                  attribution,
+                ),
               ).buffer,
             ],
             { type: "application/pdf" },
           )
-        : await output.encodePng(renderBeadChart(grid, options.showCodes, options.boardSize));
+        : await output.encodePng(
+            renderBeadPatternSheet(
+              grid,
+              palette.name,
+              options.showCodes,
+              options.boardSize,
+              attribution,
+              output.rasterText,
+            ),
+          );
     await (ports.save ?? output.save)({ name, blob });
     return { names: [name] };
   },
@@ -156,7 +180,7 @@ export function useBeadExport(source: BeadExportSource) {
   );
   const pngError = useMemo(() => {
     try {
-      beadChartSize(grid);
+      beadPatternSheetSize(grid, BEAD_CHART_CELL_SIZE, BEAD_ARTIFACT_ATTRIBUTION);
       return null;
     } catch (reason) {
       return reason instanceof Error ? reason.message : String(reason);

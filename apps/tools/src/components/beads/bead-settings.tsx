@@ -4,7 +4,7 @@ import type {
   BeadToolSettings,
 } from "$/managers/beads/bead-tool-manager";
 import {
-  MAX_BEAD_GRID_EDGE,
+  MAX_PIXELATION_SIZE,
   MIN_BEAD_BOARD_EDGE,
   MAX_BEAD_BOARD_EDGE,
 } from "$/managers/beads/bead-tool-manager";
@@ -43,16 +43,20 @@ export function BeadSettings({
         pixelWidth={NUMBER_WIDTH}
         inputMode="numeric"
         aria-label={t(label)}
-        value={String(board ? state.settings.boardSize[key] : state.settings[key])}
+        value={String(
+          board
+            ? state.settings.boardSize[key]
+            : state.settings[key === "width" ? "targetWidth" : "targetHeight"],
+        )}
         min={board ? MIN_BEAD_BOARD_EDGE : MIN_GRID_EDGE}
-        max={board ? MAX_BEAD_BOARD_EDGE : MAX_BEAD_GRID_EDGE}
+        max={board ? MAX_BEAD_BOARD_EDGE : MAX_PIXELATION_SIZE}
         step={MIN_GRID_EDGE}
         disabled={busy}
         onCommit={(value) =>
           manager.changeSettings(
             board
               ? { boardSize: { ...state.settings.boardSize, [key]: Number(value) } }
-              : { [key]: Number(value) },
+              : { [key === "width" ? "targetWidth" : "targetHeight"]: Number(value) },
           )
         }
       />
@@ -101,10 +105,22 @@ export function BeadSettings({
       {number("height", "Rows")}
       <Checkbox
         label={t("Keep aspect ratio")}
-        checked={state.settings.lockAspect}
+        checked={state.settings.lockAspectRatio}
         disabled={busy}
-        onCheckedChange={(lockAspect) => manager.changeSettings({ lockAspect })}
+        onCheckedChange={(lockAspectRatio) => manager.changeSettings({ lockAspectRatio })}
       />
+      <Field label={t("Sampling")}>
+        <Combobox
+          pixelWidth={SELECT_WIDTH}
+          aria-label={t("Sampling")}
+          value={state.settings.method}
+          options={manager.samplingModes.map((mode) => ({ ...mode, label: t(mode.label) }))}
+          disabled={busy}
+          onValueChange={(method) =>
+            manager.changeSettings({ method: method as BeadToolSettings["method"] })
+          }
+        />
+      </Field>
       {number("width", "Board columns", true)}
       {number("height", "Board rows", true)}
       <Text variant={TextVariant.Reading} wrap>
