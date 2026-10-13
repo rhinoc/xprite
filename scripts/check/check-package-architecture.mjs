@@ -1,6 +1,7 @@
-import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { fanOut } from "../base/fan-out.mjs";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const dependencyCruiserCli = path.join(
@@ -50,37 +51,27 @@ const scopes = [
   },
 ];
 
-for (const scope of scopes) {
-  process.stdout.write(`Checking ${scope.name} package architecture...\n`);
-  const result = spawnSync(
-    process.execPath,
-    [
-      dependencyCruiserCli,
-      "--config",
-      "infra/dependency-cruiser.cjs",
-      "--output-type",
-      "err-long",
-      "--exclude",
-      "\\.test\\.(ts|tsx)$",
-      ...scope.sources,
-    ],
-    {
-      cwd: repositoryRoot,
-      env: {
-        ...process.env,
-        XPRITE_DEPENDENCY_CRUISER_TSCONFIG: scope.tsConfig,
-      },
-      stdio: "inherit",
-    },
-  );
-
-  if (result.error) {
-    process.stderr.write(`${result.error.message}\n`);
-    process.exitCode = 1;
-    break;
-  }
-  if (result.status !== 0) {
-    process.exitCode = result.status ?? 1;
-    break;
-  }
+// Each scope is an independent dependency-cruiser run; they run in parallel child processes and
+// print one block per scope, in order.
+const results = await fanOut(
+  dependencyCruiserCli,
+  scopes,
+  (scope) => [
+    "--config",
+    "infra/dependency-cruiser.cjs",
+    "--output-type",
+    "err-long",
+    "--exclude",
+    "\\.test\\.(ts|tsx)$",
+    ...scope.sources,
+  ],
+  {
+    cwd: repositoryRoot,
+    env: (scope) => ({ XPRITE_DEPENDENCY_CRUISER_TSCONFIG: scope.tsConfig }),
+  },
+);
+for (const { item, code, stdout, stderr } of results) {
+  process.stdout.write(`Checking ${item.name} package architecture...\n${stdout}`);
+  process.stderr.write(stderr);
+  if (code !== 0) process.exitCode = code;
 }

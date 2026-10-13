@@ -46,7 +46,7 @@
     "./pattern-data": "./assets/patterns/macintosh/catalog.json"
   },
   "scripts": {
-    "build": "node ../../scripts/generate-ui-theme.mjs && pnpm -w exec oxfmt --config infra/oxfmt.json --write packages/ui/src/base/theme/theme-name-types.ts packages/ui/src/base/theme/generated/themes/aseprite-light.ts packages/ui/src/base/theme/generated/themes/aseprite-dark.ts && vite build && tsc -b tsconfig.json --force && node ../../scripts/rewrite-package-type-imports.mjs dist/types"
+    "build": "node ../../scripts/generate-ui-theme.mjs && vite build && tsc -b tsconfig.json && node ../../scripts/rewrite-package-type-imports.mjs dist/types"
   },
   "dependencies": {
     "clsx": "^2.1.1"

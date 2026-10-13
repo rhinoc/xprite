@@ -30,5 +30,6 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       # Covers public docs, i18n coverage, asset versions, types, lint, format and the site build.
+      # Serial on purpose: in parallel with test:ci on the hosted runner it measured 111 s vs 86 s.
       - run: pnpm run check
       - run: pnpm run test:ci

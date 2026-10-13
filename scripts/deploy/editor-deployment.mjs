@@ -23,6 +23,8 @@ const MAX_CAPTURE_CHARACTERS = 64 * 1024;
 const REQUEST_TIMEOUT_MS = 10_000;
 const VERIFY_ATTEMPTS = 3;
 const VERIFY_RETRY_MS = 3_000;
+// Verification requests in flight at once. Each check is unchanged; only the order is concurrent.
+const VERIFY_CONCURRENCY = Number(process.env.XPRITE_VERIFY_CONCURRENCY) || 8;
 const SUPPORTED_ENVIRONMENTS = new Set(["production", "preview"]);
 const SUPPORTED_AREAS = new Set(["global", "overseas"]);
 const SUPPORTED_REGIONS = new Set(["US", "EU"]);
@@ -228,7 +230,26 @@ async function runCli(args) {
   });
 }
 
-async function verifyPageEntryAssets(html, pageUrl, label, verifiedAssets = new Set()) {
+const forEachConcurrently = (items, check) => Promise.all(items.map((item) => check(item)));
+let verifySlots = VERIFY_CONCURRENCY;
+const verifyWaiters = [];
+/**
+ * fetch() limited to VERIFY_CONCURRENCY requests in flight. The REQUEST_TIMEOUT_MS timeout starts
+ * once a slot is free (not while queued) and also bounds reading the body.
+ */
+async function verifyFetch(url) {
+  if (verifySlots > 0) verifySlots--;
+  else await new Promise((resolve) => verifyWaiters.push(resolve));
+  try {
+    return await fetch(url, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+  } finally {
+    const next = verifyWaiters.shift();
+    if (next) next();
+    else verifySlots++;
+  }
+}
+
+async function verifyPageEntryAssets(html, pageUrl, label, verifiedAssets = new Map()) {
   const scripts = Array.from(html.matchAll(MODULE_ENTRY_PATTERN), (match) => match[1]);
   if (!scripts.length) throw new Error(`${label} HTML has no JavaScript module entry.`);
   const resources = [
@@ -238,23 +259,30 @@ async function verifyPageEntryAssets(html, pageUrl, label, verifiedAssets = new 
       contentType: "text/css",
     })),
   ];
-  for (const resource of resources) {
-    const assetUrl = new URL(resource.path, pageUrl);
-    if (assetUrl.origin !== pageUrl.origin)
-      throw new Error(`${label} entry assets must be hosted with the deployment.`);
-    // Preserve the signed preview URL parameters when fetching another path.
-    for (const [key, value] of pageUrl.searchParams) assetUrl.searchParams.set(key, value);
-    if (verifiedAssets.has(assetUrl.href)) continue;
-    const asset = await fetch(assetUrl, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
-    const available =
-      asset.ok && (asset.headers.get("content-type") ?? "").includes(resource.contentType);
-    await asset.body?.cancel();
-    if (!available)
-      throw new Error(
-        `${label} entry asset is unavailable: ${resource.path} (HTTP ${asset.status}).`,
-      );
-    verifiedAssets.add(assetUrl.href);
-  }
+  await Promise.all(
+    resources.map(async (resource) => {
+      const assetUrl = new URL(resource.path, pageUrl);
+      if (assetUrl.origin !== pageUrl.origin)
+        throw new Error(`${label} entry assets must be hosted with the deployment.`);
+      // Preserve the signed preview URL parameters when fetching another path.
+      for (const [key, value] of pageUrl.searchParams) assetUrl.searchParams.set(key, value);
+      // Pages share entry assets: the first request for an asset is awaited by every page.
+      if (!verifiedAssets.has(assetUrl.href))
+        verifiedAssets.set(
+          assetUrl.href,
+          (async () => {
+            const asset = await verifyFetch(assetUrl);
+            const available =
+              asset.ok && (asset.headers.get("content-type") ?? "").includes(resource.contentType);
+            await asset.body?.cancel();
+            return { available, status: asset.status };
+          })(),
+        );
+      const { available, status } = await verifiedAssets.get(assetUrl.href);
+      if (!available)
+        throw new Error(`${label} entry asset is unavailable: ${resource.path} (HTTP ${status}).`);
+    }),
+  );
 }
 
 function hasPageLanguage(html, language) {
@@ -262,10 +290,10 @@ function hasPageLanguage(html, language) {
 }
 
 async function verifyShowcasePages(url, environment) {
-  for (const language of PUBLIC_PAGE_LANGUAGES) {
+  await forEachConcurrently(PUBLIC_PAGE_LANGUAGES, async (language) => {
     const showcaseUrl = new URL(url);
     showcaseUrl.pathname = SHOWCASE_PAGES[language].path;
-    const page = await fetch(showcaseUrl, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+    const page = await verifyFetch(showcaseUrl);
     const html = await page.text();
     const label = `About page (${language})`;
     if (!page.ok || !hasPageLanguage(html, language) || !html.includes('id="root"'))
@@ -290,11 +318,11 @@ async function verifyShowcasePages(url, environment) {
       throw new Error(`${label} preview must not be indexed or have a canonical URL.`);
     }
     await verifyPageEntryAssets(html, showcaseUrl, label);
-  }
+  });
 }
 
 async function verifyApplicationPages(url, environment) {
-  const verifiedAssets = new Set();
+  const verifiedAssets = new Map();
   const pages = [
     { path: "/editor", root: "root", indexable: false },
     { path: "/editor/", root: "root", indexable: false },
@@ -318,10 +346,10 @@ async function verifyApplicationPages(url, environment) {
       })),
     ),
   ];
-  for (const entry of pages) {
+  await forEachConcurrently(pages, async (entry) => {
     const pageUrl = new URL(url);
     pageUrl.pathname = entry.path;
-    const response = await fetch(pageUrl, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+    const response = await verifyFetch(pageUrl);
     const html = await response.text();
     if (!response.ok || !html.includes(`id="${entry.root}"`))
       throw new Error(`Application page is unavailable: ${entry.path}.`);
@@ -345,16 +373,18 @@ async function verifyApplicationPages(url, environment) {
       !html.includes('content="noindex, follow"')
     )
       throw new Error(`Application page must not be indexed: ${entry.path}.`);
-  }
+  });
 }
 
 async function verifySearchDiscovery(url, environment) {
   const get = (path) => {
     const target = new URL(url);
     target.pathname = path;
-    return fetch(target, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+    return verifyFetch(target);
   };
-  const robots = await get("/robots.txt");
+  const [robots, llms, sitemap] = await Promise.all(
+    ["/robots.txt", "/llms.txt", "/sitemap.xml"].map(get),
+  );
   const robotsText = await robots.text();
   if (
     !robots.ok ||
@@ -362,7 +392,6 @@ async function verifySearchDiscovery(url, environment) {
     !robotsText.includes("User-agent: *")
   )
     throw new Error("robots.txt must be a plain-text crawl policy, not an application fallback.");
-  const llms = await get("/llms.txt");
   const llmsText = await llms.text();
   if (
     !llms.ok ||
@@ -372,7 +401,6 @@ async function verifySearchDiscovery(url, environment) {
     !llmsText.includes(`https://xprite.cc${GIF_SHEET_TOOL.path}`)
   )
     throw new Error("llms.txt must expose the public documentation index as plain text.");
-  const sitemap = await get("/sitemap.xml");
   if (environment === "production") {
     const xml = await sitemap.text();
     if (
@@ -388,14 +416,17 @@ async function verifySearchDiscovery(url, environment) {
     for (const { path } of SITE_PAGES.filter((page) => !page.indexable))
       if (xml.includes(`<loc>https://xprite.cc${path}</loc>`))
         throw new Error(`An unfinished page must not appear in the sitemap: ${path}.`);
-  } else if (sitemap.status !== 404 || robotsText.includes("Sitemap:")) {
-    throw new Error("Preview deployments must not publish or advertise a sitemap.");
+  } else {
+    await sitemap.body?.cancel();
+    if (sitemap.status !== 404 || robotsText.includes("Sitemap:"))
+      throw new Error("Preview deployments must not publish or advertise a sitemap.");
   }
-  for (const path of SOCIAL_IMAGE_PATHS) {
+  await forEachConcurrently(SOCIAL_IMAGE_PATHS, async (path) => {
     const response = await get(path);
+    await response.body?.cancel();
     if (!response.ok || !response.headers.get("content-type")?.startsWith("image/png"))
       throw new Error(`Social image is unavailable: ${path}.`);
-  }
+  });
 }
 
 async function verifyDeployment(result, expected) {
@@ -409,19 +440,18 @@ async function verifyDeployment(result, expected) {
   let lastError;
   for (let attempt = 0; attempt < VERIFY_ATTEMPTS; attempt++) {
     try {
-      const response = await fetch(releaseUrl, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+      const response = await verifyFetch(releaseUrl);
       if (!response.ok) throw new Error(`Release verification returned HTTP ${response.status}.`);
       const actual = await response.json();
       if (actual.release !== expected.release || actual.environment !== expected.environment)
         throw new Error("The deployed release does not match the uploaded artifact.");
-      const page = await fetch(url, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+      const page = await verifyFetch(url);
       if (!page.ok) throw new Error(`Editor returned HTTP ${page.status}.`);
       const html = await page.text();
-      await verifyPageEntryAssets(html, url, "Editor");
-      for (const language of PUBLIC_PAGE_LANGUAGES) {
+      const verifyGuide = async (language) => {
         const guideUrl = new URL(url);
         guideUrl.pathname = GUIDE_PAGES[language].path;
-        const guide = await fetch(guideUrl, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+        const guide = await verifyFetch(guideUrl);
         const guideHtml = await guide.text();
         if (!guide.ok || !hasPageLanguage(guideHtml, language))
           throw new Error(`Public guide is unavailable: ${language}.`);
@@ -433,18 +463,11 @@ async function verifyDeployment(result, expected) {
           throw new Error(`Public guide has an incorrect canonical URL: ${language}.`);
         if (expected.environment === "preview" && !guideHtml.includes('content="noindex, follow"'))
           throw new Error(`Preview guide must not be indexed: ${language}.`);
-      }
-      await verifyShowcasePages(url, expected.environment);
-      await verifyApplicationPages(url, expected.environment);
-      await verifySearchDiscovery(url, expected.environment);
-      for (const { path, language } of SITE_PAGES.filter(
-        (page) => page.kind === SitePageKind.Article,
-      )) {
+      };
+      const verifyArticle = async ({ path, language }) => {
         const comparisonUrl = new URL(url);
         comparisonUrl.pathname = path;
-        const comparison = await fetch(comparisonUrl, {
-          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-        });
+        const comparison = await verifyFetch(comparisonUrl);
         const articleHtml = await comparison.text();
         const metadata =
           expected.environment === "production"
@@ -457,12 +480,10 @@ async function verifyDeployment(result, expected) {
           !articleHtml.includes(metadata)
         )
           throw new Error(`Article page is unavailable or has incorrect metadata: ${path}.`);
-      }
-      for (const { path, language } of SITE_PAGES.filter(
-        (page) => page.kind === SitePageKind.Document,
-      )) {
+      };
+      const verifyDocument = async ({ path, language }) => {
         const pageUrl = new URL(path, url);
-        const page = await fetch(pageUrl, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+        const page = await verifyFetch(pageUrl);
         const html = await page.text();
         const metadata =
           expected.environment === "production"
@@ -475,12 +496,31 @@ async function verifyDeployment(result, expected) {
           !html.includes(metadata)
         )
           throw new Error(`Document page is unavailable or has incorrect metadata: ${path}.`);
-      }
-      const missingUrl = new URL(url);
-      missingUrl.pathname = `/deployment-not-found-${expected.release}`;
-      const missing = await fetch(missingUrl, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
-      if (missing.status !== 404 || !(await missing.text()).includes('id="error-title"'))
-        throw new Error("Unknown paths must return the custom page with HTTP 404.");
+      };
+      const verifyMissingPage = async () => {
+        const missingUrl = new URL(url);
+        missingUrl.pathname = `/deployment-not-found-${expected.release}`;
+        const missing = await verifyFetch(missingUrl);
+        if (missing.status !== 404 || !(await missing.text()).includes('id="error-title"'))
+          throw new Error("Unknown paths must return the custom page with HTTP 404.");
+      };
+      // Everything after the release check is independent: run it concurrently.
+      await Promise.all([
+        verifyPageEntryAssets(html, url, "Editor"),
+        forEachConcurrently(PUBLIC_PAGE_LANGUAGES, verifyGuide),
+        verifyShowcasePages(url, expected.environment),
+        verifyApplicationPages(url, expected.environment),
+        verifySearchDiscovery(url, expected.environment),
+        forEachConcurrently(
+          SITE_PAGES.filter((page) => page.kind === SitePageKind.Article),
+          verifyArticle,
+        ),
+        forEachConcurrently(
+          SITE_PAGES.filter((page) => page.kind === SitePageKind.Document),
+          verifyDocument,
+        ),
+        verifyMissingPage(),
+      ]);
       return;
     } catch (error) {
       lastError = error;

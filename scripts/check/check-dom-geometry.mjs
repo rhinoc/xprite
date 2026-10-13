@@ -3,6 +3,8 @@ import { fileURLToPath } from "node:url";
 
 import ts from "typescript-compiler-api";
 
+import { shareSourceFiles } from "../base/ts-shared-sources.mjs";
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const boundary = path.join(root, "packages/ui/src/base/utils/dom-geometry.ts");
 const aliasScopes = JSON.parse(
@@ -148,7 +150,7 @@ for (const relative of configs) {
   };
   const files = parsed.fileNames.filter((file) => !/\.test\.[cm]?tsx?$/.test(file));
   const options = { ...parsed.options, paths, noEmit: true };
-  const host = ts.createCompilerHost(options);
+  const host = shareSourceFiles(ts.createCompilerHost(options), options);
   host.resolveModuleNames = (names, importer) =>
     names.map((name) => {
       const scope = aliasScopes.find((candidate) => {

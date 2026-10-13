@@ -12,7 +12,7 @@
       "$/*": ["./src/*"],
       "@xprite/bedrock/common/*": ["../../dist/bedrock/common/*"]
     },
-    "tsBuildInfoFile": "../../node_modules/.tmp/editor-core.build.tsbuildinfo"
+    "tsBuildInfoFile": "../../dist/core/types/.tsbuildinfo"
   },
   "references": [{ "path": "../bedrock/tsconfig.common.build.json" }]
 }

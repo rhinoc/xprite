@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "pnpm -w run build:ui",
+    "prebuild": "node ../../scripts/build/ensure-ui.mjs",
     "build": "tsc -p tsconfig.json && vite build",
     "preview": "vite preview"
   },

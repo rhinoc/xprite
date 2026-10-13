@@ -47,9 +47,11 @@ jobs:
           key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
       - if: steps.browsers.outputs.cache-hit != 'true'
         run: pnpm exec playwright install --with-deps chromium
+      # Measured: the mcr.microsoft.com/playwright container costs ~34 s to initialise, more than
+      # the ~12 s install-deps it saves, so the job stays on the runner image.
       - if: steps.browsers.outputs.cache-hit == 'true'
         run: pnpm exec playwright install-deps chromium
-      - run: pnpm run build:ui
+      # visual builds the production site itself (pnpm run build:site), ui included.
       - run: pnpm run visual
       - if: failure()
         uses: actions/upload-artifact@v4

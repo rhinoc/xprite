@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import postcss from "postcss";
 import ts from "typescript-compiler-api";
 
+import { shareSourceFiles } from "../base/ts-shared-sources.mjs";
+
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const cssRoots = [
   "apps/editor/src",
@@ -147,7 +149,11 @@ function templateValues(filename, expression) {
   if (!context) {
     const config = ts.readConfigFile(configPath, ts.sys.readFile);
     const parsed = ts.parseJsonConfigFileContent(config.config, ts.sys, path.dirname(configPath));
-    const program = ts.createProgram(parsed.fileNames, parsed.options);
+    const program = ts.createProgram(
+      parsed.fileNames,
+      parsed.options,
+      shareSourceFiles(ts.createCompilerHost(parsed.options), parsed.options),
+    );
     context = { program, checker: program.getTypeChecker() };
     programs.set(configPath, context);
   }

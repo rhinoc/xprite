@@ -1,8 +1,8 @@
 // Runs repository checks in parallel and reports every failure at the end.
 //
-//   node scripts/check/run.mjs [group] [--only name,name] [--list]
+//   node scripts/check/run.mjs [group] [--only name,name] [--skip name,name] [--list]
 //
-// Groups: check (default), architecture, stale-css, site-build. A task's output is buffered and
+// Groups: check (default), architecture, stale-css, site-build, site-output. A task's output is buffered and
 // printed as one block when it finishes, so parallel logs never interleave. Tasks in a later phase
 // start only after every earlier phase has finished: the site build regenerates packages/ui theme
 // sources, which the static checks read.
@@ -56,6 +56,13 @@ const groups = {
       nodeTs("scripts/check/check-asset-versions.mjs", "apps/tools/dist"),
     ],
   },
+};
+// The same output checks against an existing `pnpm run build:site` (pre-push builds once).
+groups["site-output"] = {
+  "site-output": [
+    node("scripts/check/check-growth-ssr.mjs", "--prebuilt"),
+    ...groups["site-build"]["site-build"].slice(1),
+  ],
 };
 groups.check = {
   "public-docs": node("scripts/check/check-public-docs.mjs"),
@@ -150,6 +157,16 @@ let names = Object.keys(group);
 if (argv.includes("--list")) {
   console.log(names.join("\n"));
   process.exit(0);
+}
+const skipIndex = argv.indexOf("--skip");
+if (skipIndex !== -1) {
+  const skipped = (argv[skipIndex + 1] ?? "").split(",").filter(Boolean);
+  const unknown = skipped.filter((name) => !names.includes(name));
+  if (unknown.length > 0) {
+    console.error(`Unknown task(s) in ${groupName}: ${unknown.join(", ")}`);
+    process.exit(2);
+  }
+  names = names.filter((name) => !skipped.includes(name));
 }
 const onlyIndex = argv.indexOf("--only");
 if (onlyIndex !== -1) {

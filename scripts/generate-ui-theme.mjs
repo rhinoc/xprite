@@ -1,5 +1,7 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { execFileSync } from "node:child_process";
+import { mkdir, mkdtemp, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -64,7 +66,40 @@ const outputs = new Map([
   ],
 ]);
 
-for (const [path, content] of outputs) {
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, content);
+// Format in a temporary directory, then replace a checked-in file only if its content changed,
+// with an atomic rename. Checks that read these sources while a site build runs never see a
+// half-written or unformatted file.
+const staging = await mkdtemp(join(tmpdir(), "xprite-ui-theme-"));
+try {
+  const staged = [...outputs].map(([path, content], index) => [
+    path,
+    join(staging, `${index}-${basename(path)}`),
+    content,
+  ]);
+  for (const [, file, content] of staged) await writeFile(file, content);
+  execFileSync(
+    resolve(
+      repositoryRoot,
+      "node_modules/.bin",
+      process.platform === "win32" ? "oxfmt.cmd" : "oxfmt",
+    ),
+    [
+      "--config",
+      resolve(repositoryRoot, "infra/oxfmt.json"),
+      "--write",
+      ...staged.map(([, file]) => file),
+    ],
+    { stdio: ["ignore", "ignore", "inherit"], shell: process.platform === "win32" },
+  );
+  for (const [path, file] of staged) {
+    const formatted = await readFile(file, "utf8");
+    const current = await readFile(path, "utf8").catch(() => undefined);
+    if (current === formatted) continue;
+    await mkdir(dirname(path), { recursive: true });
+    const next = join(dirname(path), `.${basename(path)}.next`);
+    await writeFile(next, formatted);
+    await rename(next, path);
+  }
+} finally {
+  await rm(staging, { recursive: true, force: true });
 }
