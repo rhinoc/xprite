@@ -24,7 +24,7 @@ export function isCjkGlyph(codepoint: number) {
   );
 }
 /** Cyrillic is missing from the compact Aseprite atlas; draw it from the Fusion Pixel face. */
-export function isCyrillicGlyph(codepoint: number) {
+function isCyrillicGlyph(codepoint: number) {
   return codepoint >= 0x400 && codepoint <= 0x52f;
 }
 /** Glyphs absent from a bitmap atlas that are drawn from the bundled pixel face instead of "?". */
