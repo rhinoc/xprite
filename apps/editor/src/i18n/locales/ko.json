@@ -6,6 +6,7 @@
   "ui.about": "정보",
   "ui.about.xprite": "Xprite 정보",
   "ui.about.description": "브라우저에서 그리는 픽셀 아트와 애니메이션",
+  "ui.about.website": "xprite.cc/about — 기능과 사용 가이드",
   "ui.about.thanks": "Aseprite와 LibreSprite에 감사드립니다.",
   "ui.about.inspiration": "영감과 오픈 소스 참고 자료를 주었습니다.",
   "ui.about.author": "제작자:",

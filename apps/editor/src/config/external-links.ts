@@ -7,4 +7,6 @@ export const EDITOR_EXTERNAL_LINKS = {
   donate: "https://ko-fi.com/rhinoc",
   xpriteAbout: "https://xprite.cc/about/",
   xpriteAboutChinese: "https://xprite.cc/zh-CN/about/",
+  xpriteAboutJapanese: "https://xprite.cc/ja/about/",
+  xpriteAboutKorean: "https://xprite.cc/ko/about/",
 } as const;

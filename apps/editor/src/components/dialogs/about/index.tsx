@@ -75,10 +75,12 @@ export function AboutDialog({
           key: "website",
           type: "link",
           label: tUi("ui.about.website"),
-          href:
-            currentUiLanguage() === "zh-CN"
-              ? EDITOR_EXTERNAL_LINKS.xpriteAboutChinese
-              : EDITOR_EXTERNAL_LINKS.xpriteAbout,
+          href: {
+            "zh-CN": EDITOR_EXTERNAL_LINKS.xpriteAboutChinese,
+            ja: EDITOR_EXTERNAL_LINKS.xpriteAboutJapanese,
+            ko: EDITOR_EXTERNAL_LINKS.xpriteAboutKorean,
+            en: EDITOR_EXTERNAL_LINKS.xpriteAbout,
+          }[currentUiLanguage()],
         },
       ]}
       layout={{
