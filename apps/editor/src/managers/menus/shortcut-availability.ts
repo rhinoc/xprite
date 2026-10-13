@@ -57,6 +57,7 @@ const commandActions: Record<string, string> = {
   PlayAnimation: "commit",
   PlayPreviewAnimation: "play-preview",
   TogglePreview: "toggle-preview",
+  FullscreenPreview: "fullscreen-preview",
   ShowOnionSkin: "toggle-onion",
   FrameProperties: "frame-properties",
   LayerProperties: "layer-properties",

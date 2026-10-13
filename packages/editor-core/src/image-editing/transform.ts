@@ -4,7 +4,9 @@ import type { AsepriteImageSamples } from "$/color/samples";
 import { activateTimelineCel, ensureTimeline } from "$/document/document";
 import type { EditorDocument } from "$/document/types";
 import { refreshTilemapProjections, type TilemapImage } from "$/tilemap/model";
-import { LAYER_REFERENCE } from "$/timeline/timeline";
+import { timelineCelIdentity, timelineCelSites } from "$/timeline/operations/cel-movement";
+import { effectiveLayerVisible, layerAncestors, LAYER_REFERENCE } from "$/timeline/timeline";
+import type { TimelineCel } from "$/timeline/types";
 
 export enum FlipOrientation {
   Horizontal = "horizontal",
@@ -34,6 +36,58 @@ function flipBytes(
 /** Flip(target=canvas) includes locked/hidden layers and every frame. Create
  * each linked image once, so history can retain the old immutable image. */
 export function flipDocumentCanvas(doc: EditorDocument, orientation: FlipOrientation) {
+  flipDocumentCels(doc, orientation, () => true, true);
+}
+
+/**
+ * Flip(target=mask) without a visible selection (cmd_flip.cpp onExecute): mirror the whole image
+ * of each cel in the timeline range, or of the active cel, across the sprite bounds. Layers that
+ * cannot edit pixels are skipped; linked cels move with their image. Returns false if none.
+ */
+export function flipSelectedCels(doc: EditorDocument, orientation: FlipOrientation): boolean {
+  const targets = selectedCelFlipTargets(doc);
+  if (!targets.size) return false;
+  flipDocumentCels(doc, orientation, (cel) => targets.has(timelineCelIdentity(cel)), false);
+  return true;
+}
+
+/** Whether Flip without a selection has a cel whose pixels it may edit. */
+export function canFlipSelectedCels(doc: EditorDocument | null): boolean {
+  if (!doc) return false;
+  // A document without a timeline is a single visible-or-not layer; do not create one here.
+  if (!doc.timeline) return doc.layer.visible && !doc.layer.locked;
+  return selectedCelFlipTargets(doc).size > 0;
+}
+
+function selectedCelFlipTargets(doc: EditorDocument): Set<object> {
+  const timeline = ensureTimeline(doc);
+  const sites = timelineCelSites(timeline, true);
+  const targets = new Set<object>();
+  for (const layer of sites.layers) {
+    const item = timeline.layers[layer];
+    if (
+      !item ||
+      item.kind === "group" ||
+      item.flags & LAYER_REFERENCE ||
+      !effectiveLayerVisible(timeline, layer) ||
+      item.locked ||
+      layerAncestors(timeline, layer).some((parent) => parent.locked)
+    )
+      continue;
+    for (const frame of sites.frames) {
+      const cel = timeline.frames[frame]?.cels[layer];
+      if (cel) targets.add(timelineCelIdentity(cel));
+    }
+  }
+  return targets;
+}
+
+function flipDocumentCels(
+  doc: EditorDocument,
+  orientation: FlipOrientation,
+  include: (cel: TimelineCel) => boolean,
+  flipMasks: boolean,
+) {
   const timeline = ensureTimeline(doc);
   const tilemaps = new Map<TilemapImage, TilemapImage>();
   const images = new Map<PixelBuffer, PixelBuffer>(),
@@ -44,6 +98,7 @@ export function flipDocumentCanvas(doc: EditorDocument, orientation: FlipOrienta
       ...frame,
       cels: frame.cels.map((cel, layerIndex) => {
         if (!cel) return null;
+        if (!include(cel)) return cel;
         if (cel.tilemap) {
           let tilemap = tilemaps.get(cel.tilemap);
           if (!tilemap) {
@@ -151,7 +206,7 @@ export function flipDocumentCanvas(doc: EditorDocument, orientation: FlipOrienta
   };
   if (timeline.tilesets?.length) doc.timeline = refreshTilemapProjections(doc.timeline);
   // FlipMask works on the document bitmap regardless of mask visibility.
-  for (const key of ["selection", "hiddenSelection"] as const) {
+  for (const key of flipMasks ? (["selection", "hiddenSelection"] as const) : []) {
     const mask = doc[key];
     if (mask)
       doc[key] = {

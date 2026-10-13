@@ -1,3 +1,5 @@
+import { startupSpriteSheetUrl } from "$/components/shell/startup-sprite-sheet-url";
+
 const FRAME_COUNT = 18;
 const FRAME_SIZE = 7;
 const FRAME_DURATION_MS = 100;
@@ -5,7 +7,12 @@ const LOOP_DURATION_MS = FRAME_COUNT * FRAME_DURATION_MS;
 const REDUCED_MOTION_FRAME = 9;
 
 const spriteSheet = new Image();
-spriteSheet.src = `${import.meta.env.BASE_URL}startup-loading.webp?v=xprite-2`;
+spriteSheet.src = startupSpriteSheetUrl(
+  [...document.querySelectorAll<HTMLLinkElement>('link[rel="preload"][as="image"]')].map(
+    (link) => link.getAttribute("href") ?? "",
+  ),
+  import.meta.env.BASE_URL,
+);
 const spriteSheetReady = spriteSheet.decode().then(
   () => true,
   () => false,

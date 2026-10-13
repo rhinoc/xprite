@@ -9,7 +9,7 @@ import { EditorColorButton } from "$/components/tools/editor-color-button";
 import { WorkspaceLink, WorkspaceLinkVariant } from "$/components/workspace/workspace-link";
 import { tUiSource, useUiLanguage, tUi } from "$/i18n";
 import type { FormLayout } from "$/managers/dialogs/form-layout";
-import { createUiPortal } from "@xprite/ui";
+import { createUiPortal, defaultActionProps } from "@xprite/ui";
 import {
   Button,
   ButtonVariant,
@@ -363,6 +363,7 @@ export function FormDialog({
           message={displayMessage}
           actions={actions}
           layout={layout}
+          submitOnEnter={submitOnEnter}
           actionSize={embedded ? NATIVE_ACTION_SIZE : undefined}
           onHeightChange={setFlowHeight}
           onColorClick={(field, anchor) => {
@@ -708,6 +709,9 @@ export function FormDialog({
               relativeTo={client}
               text={action.label}
               data-ui-form-action={action.label}
+              {...defaultActionProps(
+                submitOnEnter && action === actions.find((item) => !item.disabled),
+              )}
               focusRing={
                 layout?.initialFocusAction === action.label ? FocusRingBehavior.Always : undefined
               }

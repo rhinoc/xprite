@@ -7,6 +7,7 @@ import { tUi, tUiSource } from "$/i18n";
 import {
   FontRole,
   Button,
+  defaultActionProps,
   ButtonVariant,
   Checkbox,
   Combobox,
@@ -182,12 +183,14 @@ export function FlowForm({
   onHeightChange,
   onColorClick,
   actionSize,
-}: Pick<FormDialogProps, "fields" | "actions" | "layout"> & {
+  submitOnEnter = true,
+}: Pick<FormDialogProps, "fields" | "actions" | "layout" | "submitOnEnter"> & {
   message?: string;
   onHeightChange: (height: number) => void;
   actionSize?: { width: number; height: number };
   onColorClick: (field: FormField, anchor: SurfaceBounds) => void;
 }) {
+  const defaultAction = submitOnEnter ? actions.find((action) => !action.disabled) : undefined;
   const rows = [...new Set(fields.map((field) => field.row ?? field.key))];
   const form = useRef<HTMLDivElement>(null);
   const size = useElementSize(form);
@@ -248,6 +251,7 @@ export function FlowForm({
                 : undefined
             }
             data-ui-form-action={action.label}
+            {...defaultActionProps(action === defaultAction)}
             disabled={action.disabled}
             onClick={action.onClick}
           />

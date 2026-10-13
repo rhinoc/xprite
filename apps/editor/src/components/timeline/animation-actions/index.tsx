@@ -19,6 +19,7 @@ import type {
   TimelinePanelPreferences,
   TimelinePanelPreferencesPatch,
 } from "$/managers/preferences/timeline-panel-preferences";
+import { fullscreenPreviewFrame } from "$/managers/timeline/fullscreen-preview";
 import { useTimelineManager } from "$/managers/timeline/timeline-manager";
 import { defaultOnionSkinSettings } from "$/managers/timeline/timeline-presentation";
 const OnionSkinSettingsPanel = lazy(() =>
@@ -29,9 +30,15 @@ const OnionSkinSettingsPanel = lazy(() =>
 const AnimationPreview = lazy(() =>
   import("$/components/timeline/animation-preview").then((m) => ({ default: m.AnimationPreview })),
 );
+const FullscreenPreview = lazy(() =>
+  import("$/components/timeline/fullscreen-preview").then((m) => ({
+    default: m.FullscreenPreview,
+  })),
+);
 interface Actions {
   openOnionSettings: () => void;
   playPreview: () => void;
+  openFullscreenPreview: () => void;
 }
 interface Registry {
   actions: Actions | null;
@@ -77,6 +84,7 @@ export function AnimationDialogsHost({
   const { commands } = timelineManager;
   const state = timelineManager.snapshot;
   const [onionOpen, setOnionOpen] = useState(false),
+    [fullscreenOpen, setFullscreenOpen] = useState(false),
     [playRequest, setPlayRequest] = useState(0);
   useEffect(
     () =>
@@ -90,10 +98,16 @@ export function AnimationDialogsHost({
             setPlayRequest((n) => n + 1);
           }
         },
+        openFullscreenPreview: () => {
+          if (enabled && timelineManager.getSnapshot()?.document) setFullscreenOpen(true);
+        },
       }),
     [registry?.register, timelineManager.getSnapshot, enabled, onPreviewOpenChange],
   );
-  useEffect(() => setOnionOpen(false), [timelineManager.identity, enabled, state?.document?.id]);
+  useEffect(() => {
+    setOnionOpen(false);
+    setFullscreenOpen(false);
+  }, [timelineManager.identity, enabled, state?.document?.id]);
   if (!timelineManager.active || !enabled || !state?.document) return null;
   return (
     <Suspense fallback={null}>
@@ -129,6 +143,17 @@ export function AnimationDialogsHost({
           })
         }
       />
+      {fullscreenOpen && (
+        <FullscreenPreview
+          snapshot={state}
+          onClose={() => setFullscreenOpen(false)}
+          onStepFrame={(action) => {
+            const frames = state.document?.timeline?.frames.length ?? 0;
+            const current = timelineManager.getSnapshot()?.document?.timeline?.activeFrame ?? 0;
+            commands.selectFrame(fullscreenPreviewFrame(action, current, frames));
+          }}
+        />
+      )}
     </Suspense>
   );
 }

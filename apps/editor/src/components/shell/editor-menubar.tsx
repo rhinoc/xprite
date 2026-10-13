@@ -381,6 +381,10 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
       checkType: MenuCheckType.Checkbox,
       disabled: documentUnavailable,
     },
+    FullscreenPreview: {
+      onSelect: () => animationActions?.openFullscreenPreview(),
+      disabled: !hasDocumentTimeline || !animationActions,
+    },
     PlayPreviewAnimation: {
       onSelect: () => animationActions?.playPreview(),
       disabled: !hasDocumentTimeline || !animationActions,
@@ -510,11 +514,13 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
         if (node.params?.target === "mask")
           return {
             onSelect: () => editorCommands.selection.flipSelection(orientation),
+            // FlipCommand::onEnabled only needs a writable document; with no selection
+            // the active cel or timeline range is flipped.
             disabled:
               documentUnavailable ||
-              !state.document?.selection ||
-              !!state.document?.layer.locked ||
-              (!!timeline && !menu.canEditLayer(timeline.activeLayer)),
+              (!!state.document?.selection &&
+                (!!state.document.layer.locked ||
+                  (!!timeline && !menu.canEditLayer(timeline.activeLayer)))),
           };
         if (node.params?.target !== "canvas") return undefined;
         return {

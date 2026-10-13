@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useRef, type ReactNode } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, type ReactNode } from "react";
 
 import { createCanvasCommandContext } from "$/components/canvas/create-canvas-command-context";
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
@@ -10,6 +10,7 @@ import {
   useEditorWorkflowBoundary,
   useEditorWorkflowHandlers,
 } from "$/components/shared/editor-workflow-boundary";
+import { preloadableLazy, preloadWhenIdle } from "$/components/shared/preloadable-lazy";
 import { EditorActionsContext } from "$/components/shell/editor-actions";
 import { useAnimationActions } from "$/components/timeline/animation-actions";
 import { useTimelineActions } from "$/components/timeline/timeline-actions";
@@ -36,19 +37,22 @@ const NewSpriteDialog = lazy(() =>
     default: module.NewSpriteDialog,
   })),
 );
-const PreferencesDialog = lazy(() =>
-  import("$/components/dialogs/preferences-dialog").then((module) => ({
-    default: module.PreferencesDialog,
-  })),
+const preferencesDialog = preloadableLazy(() =>
+  import("$/components/dialogs/preferences-dialog").then((module) => module.PreferencesDialog),
 );
+const PreferencesDialog = preferencesDialog.Component;
 const SaveAsDialog = lazy(() =>
   import("$/components/dialogs/save-as").then((module) => ({
     default: module.SaveAsDialog,
   })),
 );
-const ExportDialog = lazy(() =>
-  import("$/components/dialogs/export-dialog").then((module) => ({ default: module.ExportDialog })),
+// The output panel loads with the window, so the first open is not an empty frame.
+const exportDialog = preloadableLazy(() =>
+  import("$/components/dialogs/export-dialog").then((module) =>
+    module.preloadExportPanels().then(() => module.ExportDialog),
+  ),
 );
+const ExportDialog = exportDialog.Component;
 const ShareProjectDialog = lazy(() =>
   import("$/components/dialogs/share-project").then((module) => ({
     default: module.ShareProjectDialog,
@@ -71,11 +75,18 @@ const DuplicateSpriteDialog = lazy(() =>
     default: module.DuplicateSpriteDialog,
   })),
 );
-const KeyboardShortcutsDialog = lazy(() =>
-  import("$/components/dialogs/keyboard-shortcuts").then((module) => ({
-    default: module.EditorKeyboardShortcutsDialog,
-  })),
+const keyboardShortcutsDialog = preloadableLazy(() =>
+  import("$/components/dialogs/keyboard-shortcuts").then(
+    (module) => module.EditorKeyboardShortcutsDialog,
+  ),
 );
+const KeyboardShortcutsDialog = keyboardShortcutsDialog.Component;
+/** Dialogs whose first open fetched and parsed a large chunk on demand (UX audit M3). */
+const IDLE_PRELOADED_DIALOGS = [
+  exportDialog.preload,
+  preferencesDialog.preload,
+  keyboardShortcutsDialog.preload,
+];
 const AboutDialog = lazy(() =>
   import("$/components/dialogs/about").then((module) => ({ default: module.AboutDialog })),
 );
@@ -108,6 +119,7 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
   const timelineActions = useTimelineActions();
   const animationActions = useAnimationActions();
   const effectActions = useEffectActions();
+  useEffect(() => preloadWhenIdle(IDLE_PRELOADED_DIALOGS), []);
   const sceneBounds = useSceneBounds();
   const workflowBoundary = useEditorWorkflowBoundary();
   const rootElement = workflowBoundary.root;

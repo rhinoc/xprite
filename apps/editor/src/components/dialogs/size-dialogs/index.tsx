@@ -27,6 +27,7 @@ import {
   type SurfaceBounds,
   Text,
   TextVariant,
+  defaultActionProps,
 } from "@xprite/ui";
 import { centerUiPixel, type UiPartName } from "@xprite/ui/assets";
 import { isImeKeyboardEvent, stylusPointerInputProps } from "@xprite/ui/utils";
@@ -426,6 +427,7 @@ function SizeDialog({
           )}
           <Button
             text="OK"
+            {...defaultActionProps()}
             font={FontRole.Primary}
             mnemonicIndex={0}
             disabled={!allValid}

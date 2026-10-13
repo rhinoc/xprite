@@ -101,6 +101,7 @@ export function resolveShortcut(input: ShortcutInput): EditorCommand | null {
   if (input.shift && !input.alt && (k === "h" || k === "v"))
     return { type: k === "h" ? "flip-selection-horizontal" : "flip-selection-vertical" };
   if (!input.shift && k === "f7") return { type: "toggle-preview" };
+  if (!input.shift && k === "f8") return { type: "fullscreen-preview" };
   if (input.shift && k === "enter") return { type: "play-preview" };
   if (input.shift && k === "s") return { type: "snap-grid" };
   if (!input.shift && k === "tab") return { type: "toggle-timeline" };
