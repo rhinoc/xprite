@@ -31,4 +31,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # check (public docs, i18n coverage, asset versions, types, lint, format and the growth/tools
       # build) and the unit tests are independent, so they run in parallel with buffered logs.
+      # Some tests import packages/ui/dist. Build ui once; XPRITE_UI_BUILT=1 then stops check's
+      # growth/tools prebuild from rebuilding (and emptying) it while the tests read it.
+      - run: pnpm run build:ui
       - run: node scripts/check/parallel.mjs check test:ci
+        env:
+          XPRITE_UI_BUILT: "1"
