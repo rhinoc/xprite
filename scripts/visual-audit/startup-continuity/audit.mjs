@@ -1,7 +1,5 @@
-import { spawn } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -9,6 +7,7 @@ import { transform } from "esbuild";
 
 import { parseEgoReport, printEgoNonReportLines } from "../../base/ego-report.mjs";
 import { collectVisualSources } from "../base/audit-source-files.mjs";
+import { runBrowserPayload, visualShardCount } from "../base/browser.mjs";
 import { installStartupMonitor } from "./monitor.mjs";
 import {
   CPU_SLOWDOWN,
@@ -117,36 +116,32 @@ try {
     monitorSource: installStartupMonitor.toString(),
     screenshotModule: new URL("../../base/screenshot.mjs", import.meta.url).href,
   };
-  const installed = path.join(os.homedir(), ".local/bin/ego-browser");
-  const streams = { stdout: "", stderr: "" };
-  const status = await new Promise((resolve, reject) => {
-    const child = spawn(fs.existsSync(installed) ? installed : "ego-browser", ["nodejs"], {
-      timeout: 1200000,
-    });
-    const pending = { stdout: "", stderr: "" };
-    for (const name of ["stdout", "stderr"]) {
-      child[name].setEncoding("utf8");
-      child[name].on("data", (chunk) => {
-        streams[name] += chunk;
-        pending[name] += chunk;
-        const lines = pending[name].split("\n");
-        pending[name] = lines.pop();
-        for (const line of lines) if (/^CONTINUITY_(SPACE|SCENE):/.test(line)) console.log(line);
-      });
-    }
-    child.on("error", reject);
-    child.on("close", resolve);
-    child.stdin.end(
-      `const continuityConfig = ${JSON.stringify(config)};\n${fs.readFileSync(new URL("./capture.payload.mjs", import.meta.url), "utf8")}`,
-    );
-  });
-  printEgoNonReportLines(
-    [...streams.stdout.split("\n"), ...streams.stderr.split("\n")].filter(
-      (line) => !/^CONTINUITY_(SPACE|SCENE):/.test(line),
+  // Scenes are independent (each uses its own origin), so shards run in parallel browser contexts.
+  const shardCount = visualShardCount(scenes.length);
+  const shards = Array.from({ length: shardCount }, (_, shard) =>
+    scenes.filter((_, index) => index % shardCount === shard),
+  );
+  const payload = fs.readFileSync(new URL("./capture.payload.mjs", import.meta.url), "utf8");
+  const runs = await Promise.all(
+    shards.map((subset) =>
+      runBrowserPayload({
+        payload,
+        globals: { continuityConfig: { ...config, scenes: subset } },
+        forward: /^CONTINUITY_(SPACE|SCENE):/,
+      }),
     ),
   );
-  if (status !== 0) throw Error("Startup continuity capture failed; push is blocked.");
-  const { report } = parseEgoReport(streams, "STARTUP_CONTINUITY_REPORT");
+  for (const run of runs)
+    printEgoNonReportLines(
+      [...run.stdout.split("\n"), ...run.stderr.split("\n")].filter(
+        (line) => !/^CONTINUITY_(SPACE|SCENE):/.test(line),
+      ),
+    );
+  if (runs.some(({ status }) => status !== 0))
+    throw Error("Startup continuity capture failed; push is blocked.");
+  const report = {
+    results: runs.flatMap((run) => parseEgoReport(run, "STARTUP_CONTINUITY_REPORT").report.results),
+  };
   if (JSON.stringify(manifest.sourceHashes) !== JSON.stringify(sourceHashes()))
     throw Error("Sources changed during startup observation; push is blocked.");
   if (

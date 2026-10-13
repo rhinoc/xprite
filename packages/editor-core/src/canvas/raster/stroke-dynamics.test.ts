@@ -141,6 +141,8 @@ describe("ink-dynamics", () => {
       brush: { shape: "square", size: 9, angle: 0 },
       foreground: [255, 0, 0, 255],
       dynamics: { ...settings, angle: "static" },
+      // Regular freehand (Aseprite's default); pixel-perfect would drop the stationary repeat.
+      pixelPerfect: false,
     });
     stationary.pointerDown({ x: 16, y: 16, pointerType: "pen", pressure: 0 });
     stationary.pointerMove({ x: 16, y: 16, pointerType: "pen", pressure: 1 });

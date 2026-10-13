@@ -17,11 +17,21 @@ vi.mock("../static-ui-renderer.ts", () => ({
   publicArticleClasses: () => ({ tableScroll: "table-scroll" }),
   renderPublicUi: (
     kind: string,
-    props: { diagram?: { steps?: { label: string }[] }; label?: string; html?: string },
+    props: {
+      diagram?: { steps?: { label: string }[] };
+      label?: string;
+      html?: string;
+      src?: string;
+      alt?: string;
+      width?: number;
+      height?: number;
+    },
   ) =>
     props.diagram
       ? `<figure data-kind="${kind}" aria-label="${props.label}">${(props.diagram.steps ?? []).map((step) => step.label).join(" → ")}</figure>`
-      : `<div data-kind="${kind}">${props.html ?? ""}</div>`,
+      : kind === "image"
+        ? `<img src="${props.src}" alt="${props.alt}" width="${props.width}" height="${props.height}">`
+        : `<div data-kind="${kind}">${props.html ?? ""}</div>`,
 }));
 
 describe("document pages", () => {
@@ -34,6 +44,18 @@ describe("document pages", () => {
     assert.deepEqual(
       DOCUMENT_PAGES.map((page) => page.path),
       [
+        ...[
+          "draw-pixel-art",
+          "layers-and-colors",
+          "frame-animation",
+          "tilemaps",
+          "aseprite-projects",
+          "export-images-and-animation",
+          "touch-drawing",
+          "workspace-layout",
+          "drawing-process",
+          "share-artwork",
+        ].flatMap((slug) => [`/features/${slug}/`, `/zh-CN/features/${slug}/`]),
         "/privacy/",
         "/zh-CN/privacy/",
         "/about/how-it-works/",

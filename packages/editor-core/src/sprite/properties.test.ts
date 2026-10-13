@@ -106,7 +106,9 @@ describe("sprite-properties", () => {
     assert.equal(document.timeline.layers[0].source?.uuid, undefined);
     const displayP3 = {
       type: "icc",
-      data: new Uint8Array(await readFile("/System/Library/ColorSync/Profiles/Display P3.icc")),
+      data: new Uint8Array(
+        await readFile("packages/editor-core/test-fixtures/icc/DisplayP3-v4.icc"),
+      ),
     };
     const rgbPixel = { width: 1, height: 1, data: new Uint8ClampedArray([200, 80, 45, 255]) };
     const rgbTimeline = {

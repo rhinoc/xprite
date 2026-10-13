@@ -1,0 +1,34 @@
+name: Check
+
+# Safety net only: the pre-push hook already runs check, unit tests, visual audits and the deploy
+# build locally. One job, PRs only (no duplicate push run), superseded runs are cancelled.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  HUSKY: "0"
+
+jobs:
+  check:
+    name: Check and unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Covers public docs, i18n coverage, asset versions, types, lint, format and the site build.
+      - run: pnpm run check
+      - run: pnpm run test:ci

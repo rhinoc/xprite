@@ -358,8 +358,12 @@ export class DrawingGestureController {
       this.port.publish();
       return;
     }
-    const transaction = this.port.beginTransaction(historyToolLabel(tool));
-    if (!transaction) {
+    // Selection gestures only change the document when the mask is applied on release, so their
+    // history transaction opens there. Holding one for the whole drag made a marquee preview look
+    // like a pending document edit (save/close guards, "Finish the current edit").
+    const selectionTool = this.port.isSelectionTool(tool);
+    const transaction = selectionTool ? null : this.port.beginTransaction(historyToolLabel(tool));
+    if (!selectionTool && !transaction) {
       this.port.cancelCelMovement();
       return;
     }
@@ -647,8 +651,7 @@ export class DrawingGestureController {
       this.moveGesture(this.port.preparePointerMove(finalInput));
     }
     const gesture = this.gesture;
-    const transaction = this.transaction;
-    if (!gesture || !transaction) return;
+    if (!gesture) return;
     if (gesture.tool === "text" && input && gesture.button !== (input.button ?? 0)) {
       this.cancelGesture();
       return;
@@ -661,6 +664,16 @@ export class DrawingGestureController {
       this.port.publish();
       return;
     }
+    // The gesture is finishing: selection tools open their transaction now (see beginGesture).
+    if (!this.transaction && this.port.isSelectionTool(gesture.tool)) {
+      this.transaction = this.port.beginTransaction(historyToolLabel(gesture.tool));
+      if (!this.transaction) {
+        this.cancelGesture();
+        return;
+      }
+    }
+    const transaction = this.transaction;
+    if (!transaction) return;
 
     const clearSelectionClick = this.isReplaceSelectionClick(gesture, input);
     if (clearSelectionClick) {

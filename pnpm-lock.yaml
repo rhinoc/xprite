@@ -13,6 +13,9 @@ importers:
       '@babel/parser':
         specifier: ^7.29.9
         version: 7.29.9
+      '@jsquash/oxipng':
+        specifier: ^2.3.0
+        version: 2.3.0
       '@posthog/cli':
         specifier: ^0.18.9
         version: 0.18.9
@@ -79,6 +82,9 @@ importers:
       pixelmatch:
         specifier: ^7.2.0
         version: 7.2.0
+      playwright:
+        specifier: ^1.64.0
+        version: 1.64.0
       pngjs:
         specifier: ^7.0.0
         version: 7.0.0
@@ -1136,6 +1142,9 @@ packages:
 
   '@jspm/core@2.1.0':
     resolution: {integrity: sha512-3sRl+pkyFY/kLmHl0cgHiFp2xEqErA8N3ECjMs7serSUBmoJ70lBa0PG5t0IM6WJgdZNyyI0R8YFfi5wM8+mzg==}
+
+  '@jsquash/oxipng@2.3.0':
+    resolution: {integrity: sha512-aQ8wiEp6ztlTMXc+RMt/CG8crU3mEHDU+h+JYkIi6ctMhlh8+Ltj5XwQFfBuyzKYrp8NxaFW80Dp824bqjr+zA==}
 
   '@napi-rs/wasm-runtime@1.2.4':
     resolution: {integrity: sha512-AJxoUD2/15ESHbvpcyjU274nsAPLuOtPHCk0vKJM5pj//Fg/B1FXNWjPnXTT9PymCYYiHo4zPj0ZomXBKhoy7g==}
@@ -3196,6 +3205,16 @@ packages:
   platform@1.3.6:
     resolution: {integrity: sha512-fnWVljUchTro6RiCFvCXBbNhJc2NijN7oIQxbwsyL0buWJPG85v81ehlHI9fXrJsMNgTofEoWIQeClKpgxFLrg==}
 
+  playwright-core@1.64.0:
+    resolution: {integrity: sha512-T9r+MZkTECl2+oUcZ26YgZzTrYidTsIhYYkJix+6iDOymOb1FB2RLLSOxRGnZGv5DStt+aduIVbt+E8WygXYpg==}
+    engines: {node: '>=20'}
+    hasBin: true
+
+  playwright@1.64.0:
+    resolution: {integrity: sha512-kVzTnYFYEyQ9RGzBjNCd2+yEqWmVbxl3AHPynv3qQ6JTjv4a+kwRcnqQwIpuP3NnrnIrE/Q6wWAIAvMfIE2/Yg==}
+    engines: {node: '>=20'}
+    hasBin: true
+
   pngjs@5.0.0:
     resolution: {integrity: sha512-40QW5YalBNfQo5yRYmiw7Yz6TKKVr3h6970B2YE+3fQpsWcrbj1PzJgxeJ19DRQjhMbKPIuMY8rFaXc8moolVw==}
     engines: {node: '>=10.13.0'}
@@ -3659,6 +3678,9 @@ packages:
   walk-up-path@4.0.0:
     resolution: {integrity: sha512-3hu+tD8YzSLGuFYtPRb48vdhKMi0KQV5sn+uWr8+7dMEq/2G/dtLrdDinkLjqq5TIbIBjYJ4Ax/n3YiaW7QM8A==}
     engines: {node: 20 || >=22}
+
+  wasm-feature-detect@1.9.0:
+    resolution: {integrity: sha512-zonE+xlIIYtxPy++L24ow0hAD8CICb4+FgPyROd3buyXIqsJvUEDkBgfCCoXOd1Hu3DUr0GOfnPIdcGV+YpNaA==}
 
   watchpack@2.5.2:
     resolution: {integrity: sha512-6i/00NBjP4yGPs+caKSyRfpTF/8Torsu0MOW3mMzIbhgISFder8i7xbqgHlLMwJrdiN8ndBV3UA1/AfzPSr+jg==}
@@ -4295,6 +4317,10 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.6.0
 
   '@jspm/core@2.1.0': {}
+
+  '@jsquash/oxipng@2.3.0':
+    dependencies:
+      wasm-feature-detect: 1.9.0
 
   '@napi-rs/wasm-runtime@1.2.4(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)':
     dependencies:
@@ -6085,6 +6111,12 @@ snapshots:
 
   platform@1.3.6: {}
 
+  playwright-core@1.64.0: {}
+
+  playwright@1.64.0:
+    dependencies:
+      playwright-core: 1.64.0
+
   pngjs@5.0.0: {}
 
   pngjs@7.0.0: {}
@@ -6519,6 +6551,8 @@ snapshots:
   vscode-languageserver-types@3.18.4: {}
 
   walk-up-path@4.0.0: {}
+
+  wasm-feature-detect@1.9.0: {}
 
   watchpack@2.5.2:
     dependencies:

@@ -84,7 +84,9 @@ export function exportFileAsepriteLayout(
     },
   };
   if (!includeFormat) {
-    const formatRowHeight = 38;
+    // The format row is 30 tall plus a 10 gap (format at y 38, resize at y 78), so removing it
+    // shifts every later row up by 40. That lands resize at Aseprite's y 38 and the window at 342.
+    const formatRowHeight = 40;
     const fields = Object.fromEntries(
       Object.entries(layout.fields).filter(([key]) => key !== "format"),
     );

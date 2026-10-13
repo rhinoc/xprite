@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { EditorAllocationError } from "$/base/errors";
+import { MAX_DOCUMENT_PIXELS } from "$/base/image-limits";
 import type { EditorDocument } from "$/document/types";
 import { EditorKernel } from "$/editor/kernel";
 
@@ -25,18 +26,24 @@ describe("oversized document edits", () => {
     kernel.replaceDocument(document);
     // Each image is individually legal; their combined pixel budget is not.
     // The guard inspects lengths without encoding or copying these buffers.
-    const frames = Array.from({ length: 2 }, () => ({
-      duration: 100,
-      cels: [
-        {
-          pixels: { width: 4000, height: 8001, data: new Uint8ClampedArray(4000 * 8001 * 4) },
-          x: 0,
-          y: 0,
-          opacity: 255,
-          zIndex: 0,
-        },
-      ],
+    // One legal image on enough layers to pass the document budget. Linked cels within a layer
+    // count once, but each layer stores its own copy, so this costs a single 128 MB buffer here.
+    const big = { width: 4000, height: 8001, data: new Uint8ClampedArray(4000 * 8001 * 4) };
+    const layerCount = Math.floor(MAX_DOCUMENT_PIXELS / (4000 * 8001)) + 1;
+    const layers = Array.from({ length: layerCount }, (_, i) => ({
+      id: `ink-${i}`,
+      name: `Ink ${i}`,
+      visible: true,
+      locked: false,
+      flags: 3,
+      opacity: 255,
     }));
+    const frames = [
+      {
+        duration: 100,
+        cels: layers.map((_, zIndex) => ({ pixels: big, x: 0, y: 0, opacity: 255, zIndex })),
+      },
+    ];
     expect(() =>
       kernel.runHistoryTransaction(
         document,
@@ -44,8 +51,8 @@ describe("oversized document edits", () => {
         () => {
           document.width = 4000;
           document.height = 8001;
-          document.timeline = { ...document.timeline!, frames };
-          document.layer.pixels = frames[0].cels[0].pixels;
+          document.timeline = { ...document.timeline!, layers, frames };
+          document.layer.pixels = big;
         },
         () => {},
       ),
@@ -54,6 +61,7 @@ describe("oversized document edits", () => {
     expect(document.width).toBe(2);
     expect(document.height).toBe(2);
     expect(document.timeline!.frames).toHaveLength(1);
+    expect(document.timeline!.layers).toHaveLength(1);
     expect(document.layer.pixels).toBe(pixels);
     expect(Array.from(pixels.data.subarray(0, 4))).toEqual([19, 37, 53, 255]);
     expect(kernel.getHistorySnapshot().currentIndex).toBe(-1);

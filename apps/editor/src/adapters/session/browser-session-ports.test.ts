@@ -39,6 +39,8 @@ describe("session-browser-ports", () => {
     export function decodeImage(file){calls.push(['file',file]);return Promise.resolve(pixels);}
     export function decodeAsset(url){calls.push(['asset',url]);return Promise.resolve(pixels);}
     export function savePng(image,name,options){calls.push(['write',image,name,options]);return Promise.resolve({method:'download',name});}
+    export function readImageAssetBlob(){throw new Error('readImageAssetBlob is not used by session ports');}
+    export function encodePng(){throw new Error('encodePng is not used by session ports');}
   `
                   : `
     const {calls,pixels}=globalThis.__sessionPortsTest;

@@ -602,7 +602,7 @@ describe("tilemap-integration", () => {
   it("tilemap-integration behavior", async () => {
     const { outputFiles } = await build({
       stdin: {
-        contents: `export * from './packages/editor-core/src/tilemap/model.ts';export * from './packages/editor-core/src/timeline/operations/timeline-range.ts';export * from './packages/editor-core/src/image-editing/effects.ts';export * from './packages/editor-core/src/timeline/layer-operations.ts';export * from './packages/editor-core/src/image-editing/transform.ts';export * from './packages/editor-core/src/image-editing/size.ts';export * from './packages/editor-core/src/color/operations/color-mode.ts';export * from './packages/editor-core/src/color/conversion.ts';export * from './packages/editor-core/src/session/recent-images.ts';`,
+        contents: `export * from './packages/editor-core/src/tilemap/model.ts';export * from './packages/editor-core/src/timeline/operations/timeline-range.ts';export * from './packages/editor-core/src/image-editing/effects.ts';export * from './packages/editor-core/src/timeline/layer-operations.ts';export * from './packages/editor-core/src/image-editing/transform.ts';export * from './packages/editor-core/src/image-editing/size.ts';export * from './packages/editor-core/src/color/operations/color-mode.ts';export * from './packages/editor-core/src/color/conversion.ts';export * from './packages/editor-core/src/session/recent-images.ts';export * from './packages/editor-core/src/document/project.ts';`,
         resolveDir: process.cwd(),
       },
       bundle: true,

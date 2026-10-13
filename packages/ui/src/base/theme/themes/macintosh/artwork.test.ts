@@ -15,8 +15,10 @@ describe("Macintosh control contract", () => {
       expect(Object.keys(definition.parts).sort()).toEqual(
         Object.keys(themeDefinition.parts).sort(),
       );
-      expect(Object.keys(definition.colors).sort()).toEqual(
-        Object.keys(themeDefinition.colors).sort(),
+      // Macintosh may add optional roles (e.g. menuitem_disabled_text, which components read
+      // with a fallback), but must cover every role the Aseprite theme defines.
+      expect(Object.keys(definition.colors)).toEqual(
+        expect.arrayContaining(Object.keys(themeDefinition.colors)),
       );
       for (const part of Object.values(definition.parts)) {
         expect(part.x + part.width).toBeLessThanOrEqual(definition.sheet.width);

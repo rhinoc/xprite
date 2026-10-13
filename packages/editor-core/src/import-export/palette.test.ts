@@ -51,11 +51,12 @@ describe("palette file workflows", () => {
       (_, index) => [index, index + 1, index + 2, index % 2 ? 128 : 255] as Rgba,
     );
     const bytes = serializePaletteFile(palette, PaletteFileFormat.Aseprite, { type: "srgb" });
-    const result = decodeAsepriteSync(bytes);
-    expect(result.sprite?.width).toBe(16);
-    expect(result.sprite?.height).toBe(2);
-    expect(result.sprite?.colorProfile).toEqual({ type: "srgb" });
-    expect(Array.from(result.sprite?.frames[0].cels[0].asepritePixels ?? [])).toEqual(
+    // decodeAsepriteSync returns the decoded sprite itself.
+    const sprite = decodeAsepriteSync(bytes);
+    expect(sprite.width).toBe(16);
+    expect(sprite.height).toBe(2);
+    expect(sprite.colorProfile).toEqual({ type: "srgb" });
+    expect(Array.from(sprite.frames[0].cels[0].asepritePixels ?? [])).toEqual(
       Array.from({ length: 32 }, (_, index) => index),
     );
     expect(readPaletteData(bytes, "ase")).toEqual(palette);
@@ -93,5 +94,23 @@ describe("palette file workflows", () => {
       decodePaletteTga(serializePaletteFile(colors, PaletteFileFormat.Tga))?.pixels.width,
     ).toBe(3);
     expect(paletteSwatchImage(colors).pixels.height).toBe(1);
+  });
+  it("saves a GIF palette that reads back in the same order, without a reserved index", () => {
+    // Regression: palette GIFs used to gain a transparent index 0, shifting every color by one.
+    for (const palette of [
+      [
+        [10, 20, 30, 255],
+        [40, 50, 60, 255],
+        [70, 80, 90, 255],
+      ],
+      Array.from({ length: 20 }, (_, i) => [i * 10, i, 255 - i, 255] as Rgba),
+      colors,
+    ] as Rgba[][]) {
+      const read = readPaletteData(serializePaletteFile(palette, PaletteFileFormat.Gif), "gif")!;
+      // GIF stores RGB only, padded to a power-of-two table.
+      expect(read.slice(0, palette.length)).toEqual(
+        palette.map((color) => [color[0], color[1], color[2], 255]),
+      );
+    }
   });
 });

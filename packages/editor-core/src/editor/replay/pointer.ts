@@ -56,6 +56,8 @@ export function replayPointerAt(
       end = after.point![axis];
     const duration = after.at - before.at;
     const delta = end - start;
+    // A stationary axis stays exactly put (the Hermite basis would add float error).
+    if (delta === 0) return start;
     const limit = (tangent: number) =>
       delta === 0 || tangent * delta < 0
         ? 0

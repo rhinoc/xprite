@@ -14,8 +14,44 @@ block, for example `XPRITE_DEV_PORT_BASE=5273 pnpm dev`. That worktree uses
 inside the same checkout. Choose another unused base for each additional
 worktree; the default checkout continues to use 5173–5176.
 
-Set `XPRITE_VISUAL_SPACE_ID` to reuse one agent-owned Ego browser space across
-all pre-push capture stages after a browser capture interruption.
+`pnpm run check` runs every check in parallel through `scripts/check/run.mjs` and
+lists all failures at the end. Groups can run alone: `pnpm run check:architecture`
+(package imports, package architecture, DOM geometry, UI editor usage, UI control
+placement, global CSS and the editor-core dependency graph), `pnpm run
+check:stale-css` and `pnpm run check:site-build`. `node scripts/check/run.mjs
+<group> --only name,name` runs selected tasks; `--list` prints them.
+`pnpm run check:types` type-checks every project with tsgo, incrementally (cache in
+each project's `node_modules/.cache/xprite-types`).
+
+Visual audits run with Playwright's bundled headless Chromium on macOS, Linux and
+Windows. `pnpm run visual` builds the production site (`pnpm run build:site`, skipped with
+`--prebuilt`), serves `.tmp/site` with the EdgeOne routing rules
+(`visual-audit/base/static-site.mjs`), launches one browser and runs every audit in parallel,
+sharding scenes over `XPRITE_VISUAL_SHARDS` pages (default: half the CPUs). `--dev` audits the
+Vite dev server instead. Scrollbars stay visible (Playwright's default `--hide-scrollbars` is
+dropped) so the baselines match the real product; see `visual-audit/base/browser.mjs` for the
+pinned rendering settings. Run `pnpm exec playwright install chromium`
+once per machine. `XPRITE_SKIP_VISUAL=1` skips the visual audits explicitly. After any
+re-baseline, run `pnpm run visual:optimize` (lossless oxipng, pixels verified, manifest hashes
+updated) before committing.
+
+The pre-push hook (`scripts/check/pre-push.mjs`) runs `pnpm run check` in parallel with the site
+build (`check:deploy --build`); once both pass, `pnpm run test:ci`, `pnpm run visual --prebuilt`
+and `check:deploy --prepare` run in parallel against that one build.
+Their output is buffered and printed as one block per step with its time, followed by the
+total. Nothing is cached between pushes: every push runs every step. husky skips all hooks
+when `HUSKY=0` is set, so make sure it is unset (for example, `env -u HUSKY git push`) when
+the environment sets it.
+
+`pnpm run test:ci` fails on any failing test; there is no known-failure allowlist.
+`pnpm run check:deploy` is the build half of the deploy workflow without secrets or
+publishing: `edgeone validate`, `pnpm run build:site` and `pnpm run deploy:prepare` into
+`.tmp/deploy/editor`.
+
+CI is a safety net because pre-push catches failures first. `check.yml` runs `check` and
+`test:ci` in one job on pull requests (no duplicate push run). `visual.yml` runs the visual
+audits only when rendering-related paths change, with cached Playwright browsers. Both
+cancel superseded runs.
 
 `pnpm run check:public-docs` rejects Xiaohongshu / 小红书, RedNote, XHS and
 platform links in root Markdown (except `AGENTS.md`), the user guide and its
@@ -31,10 +67,11 @@ Editor release configuration and tag/manual deployment instructions are in
 [deploy/README.md](deploy/README.md). Root `deploy:*` scripts prepare and publish
 the static editor to EdgeOne Makers.
 
-The pre-push hook runs `pnpm run check:growth-ssr`, which builds Growth's and
+`pnpm run check` (and so pre-push) runs `check:site-build`, which builds Growth's and
 Tools' static pages and blocks the push if React reports that `useLayoutEffect`
 ran during server rendering, if a page is larger than 1 MiB, or if a page inlines
-theme cursor artwork in a `style` attribute.
+theme cursor artwork in a `style` attribute. The same build then feeds the page
+metadata check and the asset-version check.
 
 For itch.io, run `pnpm run itch:pack` to build an uploadable ZIP, or build with
 `pnpm run build:itch` and upload through `pnpm run deploy:itch username/project`.
@@ -42,16 +79,16 @@ See [the itch.io distribution instructions](deploy/ITCH.md).
 
 Use the ignored `.tmp/` directory for all script-generated local output, including QA reports, screenshots, generated fixtures, visual captures, audit manifests, temporary bundles, and caches. Keep checked-in source fixtures under `scripts/fixtures/`.
 
-Retained task reports and minitool ZIP exports live in `.tmp/artifacts/`.
+Retained task reports live in `.tmp/artifacts/`.
 The deterministic editor artwork fixture lives in `fixtures/editor/`;
 asset extraction tools in `fixtures/assets/` write runtime fonts, themes and
 cursors into the corresponding `packages/ui/assets/` source directories.
 
 Unit tests use Vitest and live beside the implementation: `module.ts` is tested by `module.test.ts`. Run them with `pnpm test`, or run one file with `pnpm exec vitest run path/to/module.test.ts`.
 
-`pnpm run check:ui-editor-usage` uses the TypeScript compiler API to trace rendered components from the Editor entry through local wrappers, lazy imports, and UI component composition. Missing public `@xprite/ui` components, invalid variant values, and variant usages the checker cannot resolve fail the check. Legal variants that the Editor does not use are informational and do not fail it; components app usage does not count toward Editor coverage. Its implementation is in `check/`; the root `check` and pre-commit hook both run it.
+`pnpm run check:architecture -- --only ui-editor-usage` uses the TypeScript compiler API to trace rendered components from the Editor entry through local wrappers, lazy imports, and UI component composition. Missing public `@xprite/ui` components, invalid variant values, and variant usages the checker cannot resolve fail the check. Legal variants that the Editor does not use are informational and do not fail it; components app usage does not count toward Editor coverage. Its implementation is in `check/`; the root `check` runs it.
 
-`pnpm run check:stale-css` runs `check-unused-css` against the Editor, components, and UI source trees. The checker reports unused CSS Module classes and class references missing from their stylesheets. The root `check` runs it.
+`pnpm run check:stale-css` runs `check-unused-css` against the Editor, components, growth, tools and UI source trees in parallel. The checker reports unused CSS Module classes and class references missing from their stylesheets. The root `check` runs it.
 
 UI regression compares current Xprite screenshots with its own checked-in
 baselines. Use `pnpm run visual:capture` and `pnpm run visual:compare` against

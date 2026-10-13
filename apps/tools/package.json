@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prebuild": "pnpm -w run build:ui",
     "dev": "vite",
     "build": "tsc -b tsconfig.json && vite build",
     "preview": "vite preview"

@@ -3,7 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 
 import { CurveEditor, type CurveEditorProps } from "$/components/curve-editor";
 
-vi.mock("react", () => ({ useRef: (value: unknown) => ({ current: value }) }));
+vi.mock("react", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("react")>()),
+  useRef: (value: unknown) => ({ current: value }),
+}));
 
 function editor(overrides: Partial<CurveEditorProps> = {}) {
   const points = [

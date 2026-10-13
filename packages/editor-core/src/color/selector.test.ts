@@ -30,7 +30,9 @@ describe("color selector", () => {
     ]);
     const black = sampleColorSelector(state, MAIN, point(70, 100))!;
     expect(black.color).toEqual([0, 0, 0, 128]);
-    expect(black.hsl).toEqual([252, 1, 0, 128]);
+    // Hue comes from the pointer position, so compare it with a float tolerance.
+    expect(black.hsl[0]).toBeCloseTo(252, 9);
+    expect(black.hsl.slice(1)).toEqual([1, 0, 128]);
   });
 
   it("maps RYB hue through its primary-color positions in both directions", () => {

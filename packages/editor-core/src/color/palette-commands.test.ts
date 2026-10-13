@@ -8,7 +8,7 @@ describe("palette-commands", () => {
     const { outputFiles } = await build({
       stdin: {
         contents:
-          "export {RasterEditor} from './packages/editor-core/src/editor/RasterEditor.ts';export * from './packages/editor-core/src/color/palette-commands.ts';export * from './packages/editor-core/src/color/palette-resize.ts';export * from './packages/editor-core/src/color/samples.ts';",
+          "export {RasterEditor} from './packages/editor-core/src/editor/RasterEditor.ts';export * from './packages/editor-core/src/color/palette-commands.ts';export * from './packages/editor-core/src/color/palette-resize.ts';export * from './packages/editor-core/src/color/samples.ts';export {appendMissingPaletteColor} from './packages/editor-core/src/color/palette-warning.ts';",
         resolveDir: process.cwd(),
       },
       bundle: true,
@@ -20,7 +20,8 @@ describe("palette-commands", () => {
       RasterEditor,
       asepritePaletteColorIndex,
       stepAsepritePaletteIndex,
-      MAX_PALETTE_COLORS,
+      MAX_ALLOCATED_PALETTE_COLORS,
+      appendMissingPaletteColor,
       indexedPaletteColorIndex,
       expandAsepriteSamples,
       encodeAsepriteSamples,
@@ -109,8 +110,16 @@ describe("palette-commands", () => {
     const largePalette = [...colorBank, green];
     assert.equal(indexedPaletteColorIndex(green, largePalette, 256), 1);
     assert.equal(indexedPaletteColorIndex(red, [black, red, red], 2), 2);
-    e.color.setPalette(Array.from({ length: MAX_PALETTE_COLORS }, () => black));
-    assert.deepEqual(e.color.addPaletteColor("foreground"), { added: false, index: -1 });
+    // Add Color stops at the allocation limit. The real limit (memory budget, millions of
+    // entries) is too large to allocate here, so check the rule at a small capacity.
+    assert.ok(MAX_ALLOCATED_PALETTE_COLORS > 257);
+    const full = [black, red];
+    assert.deepEqual(appendMissingPaletteColor(full, green, 2), {
+      palette: full,
+      index: -1,
+      added: false,
+    });
+    assert.equal(appendMissingPaletteColor(full, green, 3).added, true);
     // A shortened palette hides missing colors without changing existing native indices.
     const native = { depth: 8, width: 1, height: 1, data: new Uint8Array([255]) };
     const shortPalette = paletteForColors([black]);
@@ -120,8 +129,8 @@ describe("palette-commands", () => {
       encodeAsepriteSamples({ width: 1, height: 1, data: projected }, 8, shortPalette, 0, native),
       native,
     );
-    e.color.setPalette([]);
-    assert.equal(e.color.stepPaletteColor("foreground", 1), null);
+    // An empty palette is not representable (Aseprite's minimum size is 1).
+    assert.throws(() => e.color.setPalette([]), RangeError);
     console.log(
       "Palette commands: Aseprite wrap/best fit, duplicate index continuity, AddColor edit semantics, no-op/full palette, transaction history and pure adapter policies pass.",
     );

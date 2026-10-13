@@ -377,8 +377,12 @@ describe("clipboard [feature-1-6]", () => {
     assert.equal(rangeCleared, 0);
     const focusClipboard = new ImageClipboard({ read: async () => null, write: async () => {} });
     const focusActions = createClipboardActions({
+      // Timeline-focused Copy needs a valid range in the document, as in Aseprite's Timeline::onCopy.
       getCore: () => ({
         ...mock,
+        getSnapshot: () => noMaskState,
+        // The clipboard tracks the copied range's source document to dismiss it on edits.
+        subscribe: () => () => {},
         clipboard: { ...mock.clipboard, copyTimelineSelection: () => range },
       }),
       createDocument: () => {},

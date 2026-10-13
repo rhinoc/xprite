@@ -12,7 +12,12 @@
   },
   "widgetInventory": {
     "path": "./.tmp/features-7-12/native-light-export-sheet-output-v1-widgets.json",
-    "sha256": "e50e0bc39f695aef30e64d3e3a1fce94f5d290c1a71724a75b213b810f9a02d1",
+    "sha256": "4151c6c83f2bfa63d98a782dec181346cb102479d6dd607c26b4ae1cf2d48c53",
+    "rebaseline": {
+      "date": "2026-10-13",
+      "originalCaptureSha256": "e50e0bc39f695aef30e64d3e3a1fce94f5d290c1a71724a75b213b810f9a02d1",
+      "reason": "Formatting-only re-baseline. The capture tool wrote JSON.stringify(inventory, null, 2) plus a trailing newline (the original sha); the committed fixture was later reformatted by the repository formatter, so its bytes changed while the parsed widget data stayed identical (re-serializing the committed file reproduces the original sha exactly). sha256 now pins the committed bytes; no widget geometry changed."
+    },
     "widgetCount": 382,
     "changes": [
       {

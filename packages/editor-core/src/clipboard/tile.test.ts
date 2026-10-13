@@ -7,7 +7,7 @@ describe("tilemap-clipboard", () => {
   it("tilemap-clipboard behavior", async () => {
     const { outputFiles } = await build({
       stdin: {
-        contents: `export * from './packages/editor-core/src/clipboard/image.ts';export * from './packages/editor-core/src/clipboard/timeline.ts';export * from './packages/editor-core/src/import-export/aseprite/profile-clipboard.ts';export * from './packages/editor-core/src/tilemap/model.ts';`,
+        contents: `export * from './packages/editor-core/src/clipboard/image.ts';export * from './packages/editor-core/src/clipboard/timeline.ts';export * from './packages/editor-core/src/import-export/aseprite/profile-clipboard.ts';export * from './packages/editor-core/src/tilemap/model.ts';export * from './packages/editor-core/src/clipboard/tile.ts';`,
         resolveDir: process.cwd(),
       },
       bundle: true,

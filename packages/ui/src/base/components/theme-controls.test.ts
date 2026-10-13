@@ -6,6 +6,8 @@ import path from "node:path";
 import { build } from "esbuild";
 import { describe, it } from "vitest";
 
+import { testAssetLoaders, viteAssetImports } from "$/testing/esbuild";
+
 describe("intrinsic-controls", () => {
   it("intrinsic-controls behavior", async () => {
     await fs.mkdir(path.resolve(".tmp"), { recursive: true });
@@ -15,7 +17,7 @@ describe("intrinsic-controls", () => {
       await build({
         stdin: {
           contents:
-            'export { Button } from "./packages/ui/src/components/button"; export { FontRole } from "./packages/ui/src/base/theme/theme-types"; export { Input, InputTouchActivation } from "./packages/ui/src/components/input"; export { Text, TextVariant } from "./packages/ui/src/components/text";',
+            'export { Button } from "./packages/ui/src/components/button"; export { FontRole } from "./packages/ui/src/base/theme/theme-types"; export { Input, InputTouchActivation } from "./packages/ui/src/components/input"; export { Text, TextVariant } from "./packages/ui/src/components/text"; export { UIProvider, UiColorScheme, loadUiThemeSnapshot } from "./packages/ui/src/components/theme/provider"; export { asepriteTheme } from "./packages/ui/src/base/theme/themes/aseprite";',
           resolveDir: process.cwd(),
           loader: "tsx",
         },
@@ -25,14 +27,33 @@ describe("intrinsic-controls", () => {
         format: "cjs",
         platform: "node",
         packages: "external",
-        loader: { ".webp": "dataurl", ".css": "empty", ".woff2": "dataurl" },
+        loader: testAssetLoaders,
+        plugins: [viteAssetImports],
       });
       const bundleRequire = createRequire(file);
-      const { Button, FontRole, Text, TextVariant, Input, InputTouchActivation } =
-        bundleRequire(file);
+      const {
+        Button,
+        FontRole,
+        Text,
+        TextVariant,
+        Input,
+        InputTouchActivation,
+        UIProvider,
+        UiColorScheme,
+        loadUiThemeSnapshot,
+        asepriteTheme,
+      } = bundleRequire(file);
       const { createElement } = bundleRequire("react");
       const { renderToStaticMarkup } = bundleRequire("react-dom/server");
-      const html = (Component, props) => renderToStaticMarkup(createElement(Component, props));
+      const initialTheme = await loadUiThemeSnapshot(UiColorScheme.Light, asepriteTheme);
+      const html = (Component, props) =>
+        renderToStaticMarkup(
+          createElement(
+            UIProvider,
+            { theme: asepriteTheme, initialTheme },
+            createElement(Component, props),
+          ),
+        ).replace(/^<div data-ui-theme="[^"]*"[^>]*>([\s\S]*)<\/div>$/, "$1");
       const size = (markup) => {
         const style = markup.match(/style="([^"]+)"/)[1];
         return {

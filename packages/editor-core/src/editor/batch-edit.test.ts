@@ -116,8 +116,15 @@ describe("agent document batches", () => {
 
   it("clips paint to the current selection without changing the selection", () => {
     const editor = fixture();
-    const selection = { x: 1, y: 1, width: 1, height: 1, data: Uint8Array.of(1) };
-    editor.getSnapshot().document!.selection = selection;
+    // Select the single pixel (1,1) with the marquee: snapshots are read-only views, so writing
+    // to one does not change the editor's selection.
+    editor.drawing.settings.setSettings({ tool: "marquee" });
+    editor.pointerDown({ x: 1, y: 1 });
+    editor.pointerMove({ x: 2, y: 2 });
+    editor.pointerMove({ x: 1, y: 1 });
+    editor.pointerUp({ x: 1, y: 1 });
+    const selection = editor.getSnapshot().document!.selection!;
+    expect([selection.x, selection.y, selection.width, selection.height]).toEqual([1, 1, 1, 1]);
     const result = editor.applyBatch([fill(editor)], revision(editor), "Selection fill");
     expect(result.changedRegions[0].rect).toEqual({ x: 1, y: 1, width: 1, height: 1 });
     expect(

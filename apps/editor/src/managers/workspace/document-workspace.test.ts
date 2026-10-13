@@ -72,9 +72,15 @@ describe("bundled-recents", () => {
   hasUnpersistedWorkspaceChanges=()=>false;
   discardSlotChanges=()=>true;
   suspend(){};
-  loadRecoveryEntry=async()=>({document:{name:'recovered.png'}});
-  loadClosedProject=async()=>({snapshot:{document:{name:'closed.png'}},head:'head'});
+  loadRecoveryEntry=async()=>null;
+  // In-memory browser project store, mirroring the real recovery's seed/find/load contract.
+  projects=new Map();
+  entry(id){const {snapshot,updatedAt}=this.projects.get(id);return {id,name:snapshot.document.name,updatedAt,width:snapshot.document.width,height:snapshot.document.height}}
+  listClosedProjects=async()=>[...this.projects.keys()].map(id=>this.entry(id));
+  loadClosedProject=async id=>{const p=this.projects.get(id);if(!p)throw new Error('missing '+id);return {snapshot:p.snapshot,head:'head'}};
   adoptClosedProject(){};
+  findProjectByName=async(...names)=>{for(const id of this.projects.keys()){const e=this.entry(id);if(names.includes(e.name))return e}return null};
+  seedProject=async(id,snapshot)=>{if(!this.projects.has(id))this.projects.set(id,{snapshot:{...snapshot,dirty:false},updatedAt:1});return this.entry(id)};
 }`;
     const result = await build({
       stdin: {
@@ -131,7 +137,7 @@ describe("bundled-recents", () => {
     workspace.startBackgroundInitialization();
     timers.flush();
     for (let i = 0; i < 16; i++) await Promise.resolve();
-    const recent = workspace.active.session.getSnapshot().recentFiles;
+    const recent = workspace.getRecentFiles();
     assert.deepEqual(
       workspace.getSnapshot().tabs.map((tab) => tab.name),
       [],
@@ -144,10 +150,10 @@ describe("bundled-recents", () => {
     );
     assert.deepEqual(
       recent.map((item) => item.id),
-      ["bundled:hello-project"],
+      ["local-project:bundled:hello-project"],
     );
     const count = workspace.getSnapshot().tabs.length;
-    assert.equal(await workspace.openRecent("bundled:hello-project"), true);
+    assert.equal(await workspace.openRecent("local-project:bundled:hello-project"), true);
     assert.notEqual(workspace.active.id, "untitled");
     assert.equal(workspace.active.core.getSnapshot().document?.name, "example.aseprite");
     assert.equal(workspace.getSnapshot().tabs.length, count + 1);
@@ -162,7 +168,9 @@ describe("document-workspace [feature-1-6]", () => {
   recent=[]; result={method:'download',name:'saved.png'};
   registerAsset=(source,name)=>({source,name});
   writes=0;
-  listRecentImages=async()=>this.recent.map(item=>{item.contentVersion??={};return {id:item.id,name:item.name,width:item.image.width,height:item.image.height,bytes:item.image.data.byteLength,contentVersion:item.contentVersion}});
+  // The workspace binds listRecentImages at construction; tests gate hydration through this hook.
+  hydrationGate=null;
+  listRecentImages=async()=>this.hydrationGate?this.hydrationGate():this.recent.map(item=>{item.contentVersion??={};return {id:item.id,name:item.name,width:item.image.width,height:item.image.height,bytes:item.image.data.byteLength,contentVersion:item.contentVersion}});
   readRecentImage=async id=>this.recent.find(item=>item.id===id)??null;
   saveRecentImages=async(images)=>{this.recent=images.map(item=>"image" in item?item:{...this.recent.find(old=>old.id===item.id),name:item.name})};
   write=async()=>{this.writes++;return this.result};
@@ -172,7 +180,7 @@ describe("document-workspace [feature-1-6]", () => {
   releaseDocumentHandle(){};
   dispose(){};
 }`;
-    const recovery = `export class WorkspaceRecovery { pending=new Set(); listeners=new Set(); flushes=0; start(){} updateLayout(){} restore(){return Promise.resolve(this.saved??null)} flush(){this.flushes++;return Promise.resolve()} getSnapshot(){return {error:null,documents:{}}} hasUnpersistedWorkspaceChanges(){return this.pending.size>0} isSlotUnpersisted(id){return this.pending.has(id)} listClosedProjects(){return Promise.resolve([])} discardSlotChanges(id){this.setPending(id,false);return true} subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn)} setPending(id,value){if(value)this.pending.add(id);else this.pending.delete(id);for(const fn of this.listeners)fn()} suspend(){} loadRecoveryEntry(){return Promise.resolve({document:{name:'recovered.png'}})} loadClosedProject(){return Promise.resolve({snapshot:{document:{name:'closed.png'}},head:'head'})} adoptClosedProject(){} dispose(){} }`;
+    const recovery = `export class WorkspaceRecovery { pending=new Set(); listeners=new Set(); flushes=0; start(){} updateLayout(){} restore(){return Promise.resolve(this.saved??null)} flush(){this.flushes++;return Promise.resolve()} getSnapshot(){return {error:null,documents:{}}} hasUnpersistedWorkspaceChanges(){return this.pending.size>0} isSlotUnpersisted(id){return this.pending.has(id)} listClosedProjects(){return Promise.resolve([])} discardSlotChanges(id){this.setPending(id,false);return true} subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn)} setPending(id,value){if(value)this.pending.add(id);else this.pending.delete(id);for(const fn of this.listeners)fn()} suspend(){} loadRecoveryEntry(){return Promise.resolve({document:{name:'recovered.png'}})} loadClosedProject(){return Promise.resolve({snapshot:{document:{name:'closed.png'}},head:'head'})} adoptClosedProject(){} findProjectByName(){return Promise.resolve(null)} seedProject(){return Promise.resolve(null)} dispose(){} }`;
     const result = await build({
       stdin: {
         contents: `export {DocumentWorkspace} from './apps/editor/src/managers/workspace/document-workspace'; export {BrowserSessionPorts} from './apps/editor/src/adapters/session/browser-session-ports'; export {WorkspaceRecovery} from './apps/editor/src/managers/workspace/workspace-recovery'; export {createClipboardActions,ImageClipboard} from './apps/editor/src/managers/clipboard/index';`,
@@ -657,7 +665,8 @@ describe("document-workspace [feature-1-6]", () => {
       await w.saveLocally(w.active.id);
       await w.active.session.confirmReplacement();
       await tick();
-      assert.equal(w.getSnapshot().tabs.length, 1, "successful local Save closes the first tab");
+      // Closing the only tab leaves an empty workspace (no blank replacement tab).
+      assert.equal(w.getSnapshot().tabs.length, 0, "successful local Save closes the tab");
       assert.equal(w.ports.writes, 0, "close dialog Save does not download a file");
       w.closeAll();
       await tick();
@@ -790,11 +799,14 @@ describe("document-workspace [feature-1-6]", () => {
     {
       const w = workspace();
       let resumeHydration;
-      w.ports.listRecentImages = () =>
+      w.ports.hydrationGate = () =>
         new Promise((resolve) => {
           resumeHydration = resolve;
         });
       const pending = w.active.session.restoreRecent();
+      // Hydration reaches the port after its own async setup; clear while it is still pending.
+      for (let i = 0; i < 50 && !resumeHydration; i++) await Promise.resolve();
+      assert.equal(typeof resumeHydration, "function", "recent hydration started");
       w.active.session.clearRecentFiles();
       resumeHydration([
         { id: "stale", name: "Stale.png", width: 2, height: 2, bytes: 16, contentVersion: {} },
@@ -950,6 +962,8 @@ describe("document-workspace [feature-1-6]", () => {
       const second = w.active;
       first.core.canvas.setView({ zoom: 3, pan: { x: 11, y: 9 } });
       second.core.canvas.setView({ zoom: 7, pan: { x: -4, y: 5 } });
+      // Tool settings are edited in the active tab and carried to the tab being switched to.
+      w.select(first.id);
       first.core.drawing.settings.setSettings({
         tool: "pencil",
         foreground: [21, 43, 65, 255],
@@ -1065,15 +1079,15 @@ describe("document-workspace [feature-1-6]", () => {
       w.dispose();
     }
     {
-      const previous = globalThis.localStorage;
-      const values = new Map([["xse.workspace.compose-groups.v1", "true"]]);
+      // Preferences go through the injected storage port (the Map behind createWorkspace).
+      const key = "xse.workspace.compose-groups.v1";
+      const values = preferenceStorage,
+        set = values.set.bind(values);
       let writes = 0;
-      globalThis.localStorage = {
-        getItem: (key) => values.get(key) ?? null,
-        setItem: (key, value) => {
-          values.set(key, value);
-          writes++;
-        },
+      values.set(key, "true");
+      values.set = (k, value) => {
+        if (k === key) writes++;
+        return set(k, value);
       };
       try {
         const w = workspace(),
@@ -1085,8 +1099,10 @@ describe("document-workspace [feature-1-6]", () => {
           true,
           "global preference loaded at workspace creation",
         );
+        // Persistence follows the active tab, where the user changes the option.
+        w.select(first.id);
         first.core.drawing.settings.setSettings({ composeGroups: false });
-        assert.equal(values.get("xse.workspace.compose-groups.v1"), "false");
+        assert.equal(values.get(key), "false");
         assert.equal(writes, 1);
         w.select(second.id);
         assert.equal(w.active.core.getSnapshot().settings.composeGroups, false);
@@ -1096,8 +1112,8 @@ describe("document-workspace [feature-1-6]", () => {
         assert.equal(writes, 1);
         w.dispose();
       } finally {
-        if (previous === undefined) delete globalThis.localStorage;
-        else globalThis.localStorage = previous;
+        values.set = set;
+        values.delete(key);
       }
     }
     console.log(
@@ -1153,6 +1169,8 @@ describe("document-workspace [feature-1-6]", () => {
           a = w.slots[0];
         w.createDocument({ width: 4, height: 4 });
         const b = w.active;
+        // Appearance travels from the active tab to the tab being switched to.
+        w.select(a.id);
         a.core.canvas.setView({ appearance: "dark", zoom: 3, pan: { x: 11, y: 9 }, grid: true });
         b.core.canvas.setView({ appearance: "light", zoom: 7, pan: { x: -5, y: 2 }, grid: false });
         const before = b.core.getSnapshot(),

@@ -114,9 +114,12 @@ export class RecoveryCodecClient {
     }
     // Preserve delta order while yielding between pixel batches. Other kinds
     // of requests can proceed without invalidating this sender/receiver pair.
+    // Same ownership rule as the in-thread path: a timeline-less document is cloned as a plain graph.
     const owned = isCommittedPersistenceSnapshot(snapshot)
       ? snapshot
-      : clonePersistenceSnapshot(snapshot);
+      : snapshot.document.timeline
+        ? clonePersistenceSnapshot(snapshot)
+        : cloneGraph(snapshot);
     const job = this.encodeQueue.then(async () => {
       this.assertOpen();
       const request: RecoveryCodecRequest = isCommittedPersistenceSnapshot(owned)

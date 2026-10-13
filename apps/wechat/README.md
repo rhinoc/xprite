@@ -14,7 +14,7 @@ pnpm run wechat:pack
 在[微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)中导入 `apps/wechat`。`project.config.json` 指向 `dist/`，初始 AppID 为 `touristappid`。扫码预览和提交版本前，配置自己的 AppID；私有项目配置保留在本地。
 
 - `pnpm run wechat:watch`：监听小程序源码。
-- `pnpm run check:wechat`：类型检查。
+- `pnpm run check:types`：类型检查（包含 `tsconfig.check.json`）。
 - `pnpm run wechat:probe`：生成 `.tmp/wechat-runtime-probe` 中的独立运行时调查工程。
 
 基础库至少需要 2.32.3；工程配置使用 3.7.12，客户端兼容性以真机验收为准。`dist/` 是独立生成的输出目录。执行命令与发布须遵循根目录的仓库规则。

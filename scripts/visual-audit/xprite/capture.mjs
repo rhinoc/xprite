@@ -1,4 +1,4 @@
-import { spawn, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 
 import { parseEgoReport, printEgoNonReportLines } from "../../base/ego-report.mjs";
 import { collectVisualSources } from "../base/audit-source-files.mjs";
+import { runBrowserPayload } from "../base/browser.mjs";
 import { generateImageReport } from "../report.mjs";
 import { startCaptureStream } from "./capture-stream.mjs";
 import {
@@ -136,45 +137,48 @@ try {
     languages,
     catalogs,
   };
-  const installed = path.join(os.homedir(), ".local/bin/ego-browser");
-  const streams = { stdout: "", stderr: "" };
-  const status = await new Promise((resolve, reject) => {
-    const child = spawn(fs.existsSync(installed) ? installed : "ego-browser", ["nodejs"], {
-      timeout: 300000,
-    });
-    const pending = { stdout: "", stderr: "" };
-    child.stdout.setEncoding("utf8");
-    child.stderr.setEncoding("utf8");
-    const collect = (stream, chunk) => {
-      streams[stream] += chunk;
-      pending[stream] += chunk;
-      const lines = pending[stream].split("\n");
-      pending[stream] = lines.pop();
-      for (const line of lines)
-        if (line.startsWith("CAPTURE_SPACE:") || (baseline && line.startsWith("CAPTURE_CASE:")))
-          console.log(line);
-    };
-    child.stdout.on("data", (chunk) => collect("stdout", chunk));
-    child.stderr.on("data", (chunk) => collect("stderr", chunk));
-    child.on("error", reject);
-    child.on("close", resolve);
-    child.stdin.end(`const captureConfig = ${JSON.stringify(config)};\n${payload}`);
-  });
-  printEgoNonReportLines(
-    [...streams.stdout.split("\n"), ...streams.stderr.split("\n")].filter(
-      (line) => line && !/^CAPTURE_(SPACE|CASE):/.test(line),
+  // Each language and layout mode uses its own origin, so every (language, mode) pair captures
+  // in its own parallel browser page; the payload skips modes with no selected ids.
+  const shards = languages.flatMap((language) =>
+    config.layouts
+      .map(({ mode }) => selectedIds[language].filter((id) => id.endsWith(`-${mode}`)))
+      .filter((ids) => ids.length > 0)
+      .map((ids) => ({ language, ids })),
+  );
+  const runs = await Promise.all(
+    shards.map(({ language, ids }) =>
+      runBrowserPayload({
+        payload,
+        globals: {
+          captureConfig: {
+            ...config,
+            languages: [language],
+            selectedIds: { ...config.selectedIds, [language]: ids },
+          },
+        },
+        forward: baseline ? /^CAPTURE_(SPACE|CASE):/ : /^CAPTURE_SPACE:/,
+      }),
     ),
   );
-  if (status !== 0) {
+  for (const run of runs)
+    printEgoNonReportLines(
+      [...run.stdout.split("\n"), ...run.stderr.split("\n")].filter(
+        (line) => line && !/^CAPTURE_(SPACE|CASE):/.test(line),
+      ),
+    );
+  if (runs.some(({ status }) => status !== 0)) {
     const failurePath = path.join(temporary, "capture-failure.json");
     if (!baseline && fs.existsSync(failurePath)) {
       fs.mkdirSync(output, { recursive: true });
       for (const filename of ["capture-failure.json", "capture-failure.png"])
         fs.copyFileSync(path.join(temporary, filename), path.join(output, filename));
     }
-    throw Error("Ego capture failed.");
+    throw Error("Browser capture failed.");
   }
-  const { report } = parseEgoReport(streams, "XPRITE_CAPTURE_REPORT");
+  const reports = runs.map((run) => parseEgoReport(run, "XPRITE_CAPTURE_REPORT").report);
+  if (new Set(reports.map(({ browser }) => JSON.stringify(browser))).size !== 1)
+    throw Error("Parallel captures reported different browsers.");
+  const report = { browser: reports[0].browser, cases: reports.flatMap(({ cases }) => cases) };
   stream?.assertCaptured(report.cases);
   const after = sources();
   if (JSON.stringify(before) !== JSON.stringify(after)) {

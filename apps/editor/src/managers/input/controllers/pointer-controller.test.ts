@@ -11,6 +11,20 @@ describe("pointer-controller", () => {
       platform: "node",
       format: "esm",
       write: false,
+      // Pointer logic never reads UI assets: stub fonts, glyph sheets and ?raw cursors.
+      loader: { ".woff2": "empty", ".webp": "empty", ".css": "empty" },
+      plugins: [
+        {
+          name: "stub-raw-assets",
+          setup(stub) {
+            stub.onResolve({ filter: /\?raw$/ }, ({ path }) => ({ path, namespace: "raw" }));
+            stub.onLoad({ filter: /.*/, namespace: "raw" }, () => ({
+              contents: "",
+              loader: "text",
+            }));
+          },
+        },
+      ],
     });
     const { CanvasPointerController, CanvasPointerTarget } = await import(
       `data:text/javascript;base64,${Buffer.from(outputFiles[0].contents).toString("base64")}`
@@ -123,6 +137,20 @@ describe("pointer-controller", () => {
       platform: "node",
       format: "esm",
       write: false,
+      // Pointer logic never reads UI assets: stub fonts, glyph sheets and ?raw cursors.
+      loader: { ".woff2": "empty", ".webp": "empty", ".css": "empty" },
+      plugins: [
+        {
+          name: "stub-raw-assets",
+          setup(stub) {
+            stub.onResolve({ filter: /\?raw$/ }, ({ path }) => ({ path, namespace: "raw" }));
+            stub.onLoad({ filter: /.*/, namespace: "raw" }, () => ({
+              contents: "",
+              loader: "text",
+            }));
+          },
+        },
+      ],
       alias: { "@xprite/ui/utils": "./packages/ui/src/utils.ts" },
     });
     const { StagedTouchIntent } = await import(
@@ -181,6 +209,20 @@ describe("pointer-controller", () => {
       platform: "node",
       format: "esm",
       write: false,
+      // Pointer logic never reads UI assets: stub fonts, glyph sheets and ?raw cursors.
+      loader: { ".woff2": "empty", ".webp": "empty", ".css": "empty" },
+      plugins: [
+        {
+          name: "stub-raw-assets",
+          setup(stub) {
+            stub.onResolve({ filter: /\?raw$/ }, ({ path }) => ({ path, namespace: "raw" }));
+            stub.onLoad({ filter: /.*/, namespace: "raw" }, () => ({
+              contents: "",
+              loader: "text",
+            }));
+          },
+        },
+      ],
     });
     const { createTouchContact, updateTouchContact, touchTapStart, isTouchTap } = await import(
       `data:text/javascript;base64,${Buffer.from(contactBundle.outputFiles[0].contents).toString("base64")}`

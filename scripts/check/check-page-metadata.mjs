@@ -83,11 +83,6 @@ function collectPages() {
   return pages;
 }
 
-if (process.env.XPRITE_DEFER_PAGE_METADATA === "1") {
-  // pre-push runs this check with --no-build after check:growth-ssr has built both apps.
-  console.log("Page metadata: deferred until after check:growth-ssr.");
-  process.exit(0);
-}
 if (!process.argv.includes("--no-build")) build();
 const started = performance.now();
 const pages = collectPages();

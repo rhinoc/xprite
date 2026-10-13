@@ -48,7 +48,11 @@ describe("slice-editor", () => {
     assert.equal(doc.timeline.slices.length, 1);
     const id = doc.timeline.slices[0].id;
     assert.deepEqual(doc.timeline.slices[0].keys[0].bounds, { x: 3, y: 4, width: 13, height: 11 });
+    // Edge handles are 5 screen pixels wide (as in Aseprite), which covers most of a 13x11 slice
+    // at 1x, so grab its middle at 8x to move it.
+    editor.canvas.setView({ zoom: 8 });
     drag({ x: 9, y: 9 }, { x: 11, y: 10 });
+    editor.canvas.setView({ zoom: 1 });
     doc = editor.getSnapshot().document;
     assert.deepEqual(doc.timeline.slices[0].keys[0].bounds, { x: 5, y: 5, width: 13, height: 11 });
     editor.history.undo();
@@ -91,7 +95,10 @@ describe("slice-editor", () => {
       defaultSpriteSheetOptions(editor.getSnapshot().document),
     );
     assert.equal(sheet.data.meta.slices[0].keys[0].center.w, 12);
+    // The center handle sits 1 px inside the outer edge, so grab it at 8x (see above).
+    editor.canvas.setView({ zoom: 8 });
     drag({ x: 6, y: 11 }, { x: 7, y: 11 });
+    editor.canvas.setView({ zoom: 1 });
     assert.deepEqual(editor.getSnapshot().document.timeline.slices[0].keys[0].center, {
       x: 2,
       y: 1,
@@ -99,7 +106,8 @@ describe("slice-editor", () => {
       height: 10,
     });
     editor.history.undo();
-    drag({ x: 19, y: 10 }, { x: 21, y: 10 });
+    // Grab the right edge from the slice's last column (x 5..18); handles start inside the slice.
+    drag({ x: 18, y: 10 }, { x: 20, y: 10 });
     assert.equal(editor.getSnapshot().document.timeline.slices[0].keys[0].bounds.width, 16);
     drag({ x: 22, y: 22 }, { x: 27, y: 27 });
     assert.equal(editor.getSnapshot().document.timeline.slices.length, 2);

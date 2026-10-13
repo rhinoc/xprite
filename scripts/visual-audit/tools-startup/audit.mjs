@@ -1,7 +1,5 @@
-import { spawn } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -9,6 +7,7 @@ import { transform } from "esbuild";
 
 import { parseEgoReport, printEgoNonReportLines } from "../../base/ego-report.mjs";
 import { collectVisualSources } from "../base/audit-source-files.mjs";
+import { runBrowserPayload, visualShardCount } from "../base/browser.mjs";
 import { generateImageReport } from "../report.mjs";
 import { installStartupMonitor } from "../startup-continuity/monitor.mjs";
 import {
@@ -106,7 +105,6 @@ try {
   manifest.sourceHashes = sourceHashes;
   manifest.sourceDigest = digest(JSON.stringify(sourceHashes));
   save();
-  const installed = path.join(os.homedir(), ".local/bin/ego-browser");
   const payload = fs.readFileSync(new URL("./capture.payload.mjs", import.meta.url), "utf8");
   const geometry = await transform(
     fs.readFileSync(path.join(root, "packages/ui/src/base/utils/dom-geometry.ts"), "utf8"),
@@ -125,26 +123,25 @@ try {
     monitorSource: installStartupMonitor.toString(),
     screenshotModule: new URL("../../base/screenshot.mjs", import.meta.url).href,
   };
-  const streams = { stdout: "", stderr: "" };
-  const status = await new Promise((resolve, reject) => {
-    const child = spawn(fs.existsSync(installed) ? installed : "ego-browser", ["nodejs"], {
-      timeout: 600000,
-    });
-    child.stdout.setEncoding("utf8");
-    child.stderr.setEncoding("utf8");
-    const pending = { stdout: "", stderr: "" };
-    for (const name of ["stdout", "stderr"])
-      child[name].on("data", (chunk) => {
-        streams[name] += chunk;
-        pending[name] += chunk;
-        const lines = pending[name].split("\n");
-        pending[name] = lines.pop();
-        for (const line of lines) if (/^CAPTURE_(SPACE|PAIR):/.test(line)) console.log(line);
-      });
-    child.on("error", reject);
-    child.on("close", resolve);
-    child.stdin.end(`const captureConfig = ${JSON.stringify(config)};\n${payload}`);
-  });
+  // Scenes are independent (each uses its own origin), so shards run in parallel browser pages.
+  const shardCount = visualShardCount(scenes.length);
+  const shards = Array.from({ length: shardCount }, (_, shard) =>
+    scenes.filter((_, index) => index % shardCount === shard),
+  );
+  const runs = await Promise.all(
+    shards.map((subset) =>
+      runBrowserPayload({
+        payload,
+        globals: { captureConfig: { ...config, scenes: subset } },
+        forward: /^CAPTURE_(SPACE|PAIR):/,
+      }),
+    ),
+  );
+  const streams = {
+    stdout: runs.map((run) => run.stdout).join("\n"),
+    stderr: runs.map((run) => run.stderr).join("\n"),
+  };
+  const status = runs.some((run) => run.status !== 0) ? 1 : 0;
   printEgoNonReportLines(
     [...streams.stdout.split("\n"), ...streams.stderr.split("\n")].filter(
       (line) => !/^CAPTURE_(SPACE|PAIR):/.test(line),
@@ -156,7 +153,9 @@ try {
     );
     throw Error("SSG/ready screenshot capture failed; push is blocked.");
   }
-  const { report } = parseEgoReport(streams, "TOOLS_STARTUP_REPORT");
+  const report = {
+    pairs: runs.flatMap((run) => parseEgoReport(run, "TOOLS_STARTUP_REPORT").report.pairs ?? []),
+  };
   if (JSON.stringify(sourceHashes) !== JSON.stringify(sources()))
     throw Error("Sources changed during startup capture; push is blocked.");
   if (

@@ -606,15 +606,12 @@ export function serializePaletteFile(
     );
   }
   const { pixels, indices } = paletteSwatchImage(colors);
-  if (format === PaletteFileFormat.Gif)
-    return encodeGif([
-      {
-        pixels,
-        duration: 100,
-        sourceFrame: 0,
-        palette: colors.map((color) => [color[0], color[1], color[2], UINT8_MAX]),
-      },
-    ]);
+  if (format === PaletteFileFormat.Gif) {
+    // A palette file must keep the palette's order: without `options.palette` encodeGif builds
+    // its own table with a reserved transparent index 0 and every color shifts by one.
+    const palette = colors.map((color): Rgba => [color[0], color[1], color[2], UINT8_MAX]);
+    return encodeGif([{ pixels, duration: 100, sourceFrame: 0, palette }], { palette });
+  }
   if (format === PaletteFileFormat.Bmp || format === PaletteFileFormat.Ico)
     return bitmap(colors, format === PaletteFileFormat.Ico);
   if (format === PaletteFileFormat.Svg)

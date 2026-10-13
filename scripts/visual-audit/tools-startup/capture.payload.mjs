@@ -1,4 +1,4 @@
-// Executed by ego-browser nodejs; the wrapper supplies captureConfig.
+// Executed by scripts/visual-audit/base/browser.mjs; the wrapper supplies captureConfig.
 const fs = await import("node:fs/promises");
 const { captureBrowserScreenshot, navigateWithTransientRetry } = await import(
   captureConfig.screenshotModule
