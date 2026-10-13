@@ -84,6 +84,9 @@ export function PublicReaderScroll({
         "文档滚动",
         "ドキュメントのスクロール",
         "문서 스크롤",
+        "Прокрутка документа",
+        "Rolagem do documento",
+        "Desplazamiento del documento",
       )}
       viewportProps={{
         tabIndex: 0,
@@ -112,6 +115,9 @@ export function PublicFooter({
         "网站导航",
         "サイトナビゲーション",
         "웹사이트 탐색",
+        "Навигация по сайту",
+        "Navegação do site",
+        "Navegación del sitio",
       )}
     />
   );
@@ -206,9 +212,27 @@ export function PublicNavigation({
     article?.shortTitle[current] ??
     documentPage?.title ??
     (path.startsWith("/help")
-      ? pickText(current, "User guide", "使用指南", "使い方ガイド", "사용 가이드")
+      ? pickText(
+          current,
+          "User guide",
+          "使用指南",
+          "使い方ガイド",
+          "사용 가이드",
+          "Руководство",
+          "Guia do usuário",
+          "Guía de usuario",
+        )
       : path.startsWith("/compare")
-        ? pickText(current, "Compare", "编辑器比较", "エディター比較", "에디터 비교")
+        ? pickText(
+            current,
+            "Compare",
+            "编辑器比较",
+            "エディター比較",
+            "에디터 비교",
+            "Сравнение",
+            "Comparar",
+            "Comparar",
+          )
         : showcaseLabel(language));
   const languages: readonly SiteLanguage[] | undefined = languageLinks.length
     ? [

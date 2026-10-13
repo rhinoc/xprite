@@ -32,9 +32,12 @@ const APP_BACKGROUND = "#242331";
 const CAPTURE_ROOTS = {
   [ShowcaseLanguage.Chinese]: `${import.meta.env.BASE_URL}showcase/ipad/screenshots/display/`,
   [ShowcaseLanguage.English]: `${import.meta.env.BASE_URL}showcase/ipad/screenshots/en/display/`,
-  // Japanese and Korean reuse the English captures until localized ones are recorded.
+  // Other languages reuse the English captures until localized ones are recorded.
   [ShowcaseLanguage.Japanese]: `${import.meta.env.BASE_URL}showcase/ipad/screenshots/en/display/`,
   [ShowcaseLanguage.Korean]: `${import.meta.env.BASE_URL}showcase/ipad/screenshots/en/display/`,
+  [ShowcaseLanguage.Russian]: `${import.meta.env.BASE_URL}showcase/ipad/screenshots/en/display/`,
+  [ShowcaseLanguage.BrazilianPortuguese]: `${import.meta.env.BASE_URL}showcase/ipad/screenshots/en/display/`,
+  [ShowcaseLanguage.Spanish]: `${import.meta.env.BASE_URL}showcase/ipad/screenshots/en/display/`,
 } as const;
 const CAPTURE_REVISION = "color-managed-2026-10-04";
 enum ScreenAsset {

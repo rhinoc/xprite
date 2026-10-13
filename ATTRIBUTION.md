@@ -143,8 +143,10 @@ CC BY 4.0 by Igara Studio S.A. and David Capello. The distributed string
 data and changes are listed in [the string notice](LICENSES/aseprite-ui-strings.txt);
 see also the upstream
 [source license header](https://github.com/aseprite/aseprite/blob/main/data/strings/en.ini).
-Japanese and Korean interface terms follow the community Aseprite language packs
-[`ja.ini` and `ko.ini`](https://github.com/aseprite/strings), licensed CC BY 4.0 by
+Japanese, Korean, Russian, Brazilian Portuguese and Spanish interface terms follow
+the community Aseprite language packs
+[`ja.ini`, `ko.ini`, `ru.ini`, `pt_BR.ini`, `es.ini` and `es_419.ini`](https://github.com/aseprite/strings),
+licensed CC BY 4.0 by
 the Aseprite translation contributors; the same notice lists the snapshot and changes.
 Use of these materials does not imply endorsement by Aseprite or its authors.
 

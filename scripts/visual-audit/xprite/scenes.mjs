@@ -34,8 +34,24 @@ export function selectSceneIds(selection) {
   );
 }
 
-export const languages = ["zh-CN", "en", "ja", "ko"];
-const LANGUAGE_DIRECTORIES = { "zh-CN": "zh", en: "en", ja: "ja", ko: "ko" };
+export const languages = ["zh-CN", "en", "ja", "ko", "ru", "pt-BR", "es"];
+const LANGUAGE_DIRECTORIES = {
+  "zh-CN": "zh",
+  en: "en",
+  ja: "ja",
+  ko: "ko",
+  ru: "ru",
+  "pt-BR": "pt-BR",
+  es: "es",
+};
+/** Russian, Brazilian Portuguese and Spanish capture only the densest, longest-label surfaces. */
+const REDUCED_LANGUAGES = new Set(["ru", "pt-BR", "es"]);
+const REDUCED_SCENE_IDS = ["editor-wide", "preferences-wide", "edit-menu-compact", "save-as-wide"];
+
+/** The canonical scene ids a language captures, in canonical order. */
+export function languageSceneIds(language, ids = sceneIds) {
+  return REDUCED_LANGUAGES.has(language) ? ids.filter((id) => REDUCED_SCENE_IDS.includes(id)) : ids;
+}
 
 export function selectLanguages(selection) {
   if (selection === undefined) return languages;

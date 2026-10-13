@@ -1,6 +1,9 @@
 import { localizedSiteHref, PUBLIC_LANGUAGES, PublicLanguage } from "../site/language.ts";
+import { SPANISH_ARTICLES, SPANISH_COLLECTIONS } from "./es.ts";
 import { JAPANESE_ARTICLES, JAPANESE_COLLECTIONS } from "./ja.ts";
 import { KOREAN_ARTICLES, KOREAN_COLLECTIONS } from "./ko.ts";
+import { PORTUGUESE_ARTICLES, PORTUGUESE_COLLECTIONS } from "./pt-BR.ts";
+import { RUSSIAN_ARTICLES, RUSSIAN_COLLECTIONS } from "./ru.ts";
 import { CHINESE_ARTICLES, CHINESE_COLLECTIONS } from "./zh-CN.ts";
 
 const ARTICLE_UPDATE_DATE = "2026-10-10";
@@ -41,6 +44,9 @@ export const ARTICLES: readonly PublicArticle[] = [
       "zh-CN": "在线编辑 Aseprite",
       ja: "Aseprite をオンラインで",
       ko: "온라인 Aseprite",
+      ru: "Aseprite онлайн",
+      "pt-BR": "Aseprite online",
+      es: "Aseprite online",
     },
     description:
       "Aseprite has no web version. Compare Xprite, Novaboard, Manabit and Pixelorama for opening .aseprite online: import, saving back, sign-in and offline use.",
@@ -59,6 +65,9 @@ export const ARTICLES: readonly PublicArticle[] = [
       "zh-CN": "iPad 上的 Aseprite",
       ja: "iPad で Aseprite",
       ko: "아이패드 Aseprite",
+      ru: "Aseprite на iPad",
+      "pt-BR": "Aseprite no iPad",
+      es: "Aseprite en iPad",
     },
     description:
       "No Aseprite for iPad or iOS? Xprite opens and saves .aseprite free in Safari. Pixquare, Resprite and Pixaki Pro add Apple Pencil gestures and iCloud sync.",
@@ -77,6 +86,9 @@ export const ARTICLES: readonly PublicArticle[] = [
       "zh-CN": "Piskel 替代工具",
       ja: "Piskel の代替",
       ko: "Piskel 대안",
+      ru: "Альтернативы Piskel",
+      "pt-BR": "Alternativas ao Piskel",
+      es: "Alternativas a Piskel",
     },
     description:
       "Compare Piskel alternatives: Pixelorama opens .piskel, Xprite edits .aseprite in the browser with pen and touch, and Pixilart suits sharing your pixel art.",
@@ -93,6 +105,9 @@ const LOCALIZED_ARTICLES: Partial<
   [PublicLanguage.SimplifiedChinese]: CHINESE_ARTICLES,
   [PublicLanguage.Japanese]: JAPANESE_ARTICLES,
   [PublicLanguage.Korean]: KOREAN_ARTICLES,
+  [PublicLanguage.Russian]: RUSSIAN_ARTICLES,
+  [PublicLanguage.BrazilianPortuguese]: PORTUGUESE_ARTICLES,
+  [PublicLanguage.Spanish]: SPANISH_ARTICLES,
 };
 
 const LOCALIZED_COLLECTIONS: Partial<
@@ -109,6 +124,9 @@ const LOCALIZED_COLLECTIONS: Partial<
   [PublicLanguage.SimplifiedChinese]: CHINESE_COLLECTIONS,
   [PublicLanguage.Japanese]: JAPANESE_COLLECTIONS,
   [PublicLanguage.Korean]: KOREAN_COLLECTIONS,
+  [PublicLanguage.Russian]: RUSSIAN_COLLECTIONS,
+  [PublicLanguage.BrazilianPortuguese]: PORTUGUESE_COLLECTIONS,
+  [PublicLanguage.Spanish]: SPANISH_COLLECTIONS,
 };
 
 export function localizedArticle(article: PublicArticle, language: PublicLanguage) {

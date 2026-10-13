@@ -102,7 +102,7 @@ import {
   useModalFocus,
   Icon,
 } from "@xprite/ui";
-import { centerUiPixel, useUiAssets } from "@xprite/ui/assets";
+import { centerUiPixel, measureUiText, useUiAssets } from "@xprite/ui/assets";
 import { setScrollPosition, scrollPosition, isImeKeyboardEvent } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/preferences-dialog/preferences-dialog.module.css";
@@ -315,6 +315,25 @@ const enabledSections = new Set([
   DIAGNOSTICS_SECTION,
   RESET_SECTION,
 ]);
+/** Latin/Cyrillic locales whose segment labels can outgrow Aseprite's fixed widths; other locales keep the locked geometry. */
+const AUTO_WIDTH_SEGMENT_LANGUAGES: ReadonlySet<UiLanguage> = new Set(["ru", "pt-BR", "es"]);
+/** Keeps the Aseprite segment widths, growing a segment (and shifting the rest) only when its translated label needs more room. */
+function widenToText<T extends { label: string; x: number; width: number }>(
+  buttons: readonly T[],
+): readonly T[] {
+  if (!AUTO_WIDTH_SEGMENT_LANGUAGES.has(currentUiLanguage())) return buttons;
+  let shift = 0;
+  return buttons.map((button) => {
+    const width = Math.max(
+      button.width,
+      Math.ceil(measureUiText(tUiSource(button.label), FontRole.Compact, 1)) + 10,
+    );
+    const widened = { ...button, x: button.x + shift, width };
+    shift += width - button.width;
+    return widened;
+  });
+}
+
 function preferencesSectionTitle(section: string): string {
   switch (section) {
     case "Tablet":
@@ -1159,11 +1178,11 @@ export function PreferencesDialog({
                   { value: AppearanceMode.Dark, label: "Dark", x: 486, width: 40 },
                   { value: AppearanceMode.System, label: "System", x: 529, width: 54 },
                 ]
-              : [
+              : widenToText([
                   { value: AppearanceMode.Light, label: "Light", x: 443, width: 24 },
                   { value: AppearanceMode.Dark, label: "Dark", x: 466, width: 24 },
                   { value: AppearanceMode.System, label: "System", x: 490, width: 36 },
-                ];
+                ]);
 
             return (
               <>
@@ -1356,6 +1375,9 @@ export function PreferencesDialog({
                                         { value: "zh-CN", label: "简体中文" },
                                         { value: "ja", label: "日本語" },
                                         { value: "ko", label: "한국어" },
+                                        { value: "ru", label: "Русский" },
+                                        { value: "pt-BR", label: "Português (Brasil)" },
+                                        { value: "es", label: "Español" },
                                       ]
                                     : index === 1
                                       ? UI_ELEMENT_SCALE_OPTIONS

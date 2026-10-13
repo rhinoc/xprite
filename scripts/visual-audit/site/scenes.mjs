@@ -29,7 +29,7 @@ const toolLanguages = new Map([
 ]);
 
 function canonicalPath(path) {
-  return path.replace(/^\/(?:zh-CN|ja|ko)(?=\/)/, "") || "/";
+  return path.replace(/^\/(?:zh-CN|ja|ko|ru|pt-BR|es)(?=\/)/, "") || "/";
 }
 
 function routeName(path) {
@@ -197,6 +197,18 @@ const cjkFeatureWindows = [
   representativeFeatureWindow(PublicLanguage.Korean, false),
 ];
 
+/** Russian, Brazilian Portuguese and Spanish add a reduced set: About, the guide, a compare article and one feature window. */
+const latinCyrillicRoutes = [
+  [PublicLanguage.Russian, "/about/", wide, light],
+  [PublicLanguage.BrazilianPortuguese, "/help/", compact, light],
+  [PublicLanguage.Spanish, "/compare/aseprite-online/", compact, dark],
+].map(([language, canonical, layout, appearance]) => {
+  const selected = translatedRoutes.get(canonical)?.find((page) => page.language === language);
+  if (!selected) throw Error(`No ${language} page for ${canonical}.`);
+  return makeScene(publicRoutePage(selected, language, routeName(canonical)), layout, appearance);
+});
+const latinCyrillicFeatureWindows = [representativeFeatureWindow(PublicLanguage.Russian, false)];
+
 const footers = [
   makeScene(
     {
@@ -234,6 +246,8 @@ export const scenes = [
   ...footers,
   ...cjkRoutes,
   ...cjkFeatureWindows,
+  ...latinCyrillicRoutes,
+  ...latinCyrillicFeatureWindows,
 ];
 if (new Set(scenes.map((scene) => scene.id)).size !== scenes.length)
   throw Error("Site visual scene IDs must be unique.");

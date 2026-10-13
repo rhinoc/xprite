@@ -71,6 +71,9 @@ export function ShowcaseStoryContent({
               "说明",
               "お読みください",
               "읽어 보세요",
+              "Прочитать",
+              "Leia-me",
+              "Léeme",
             )}
             title={pickText(
               publicLanguage(language),
@@ -78,6 +81,9 @@ export function ShowcaseStoryContent({
               "说明",
               "お読みください",
               "읽어 보세요",
+              "Прочитать",
+              "Leia-me",
+              "Léeme",
             )}
             data-story-copy
             data-showcase-note
@@ -139,6 +145,9 @@ export function ShowcaseStoryContent({
               "工作区",
               "ワークスペース",
               "작업 공간",
+              "Рабочая область",
+              "Área de trabalho",
+              "Espacio de trabajo",
             )}
             data-story-image-window
           >
@@ -170,6 +179,9 @@ export function ShowcaseStoryContent({
               "说明",
               "お読みください",
               "읽어 보세요",
+              "Прочитать",
+              "Leia-me",
+              "Léeme",
             )}
             title={pickText(
               publicLanguage(language),
@@ -177,6 +189,9 @@ export function ShowcaseStoryContent({
               "说明",
               "お読みください",
               "읽어 보세요",
+              "Прочитать",
+              "Leia-me",
+              "Léeme",
             )}
             data-story-copy
             data-showcase-note

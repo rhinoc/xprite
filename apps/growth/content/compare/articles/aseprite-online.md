@@ -11,16 +11,16 @@ Aseprite is desktop software. The [official](https://www.aseprite.org/faq/#what-
 - To edit the file and hand it back to someone who uses Aseprite: use Xprite or Pixelorama. Both can save `.aseprite`.
 - To draw new animations in the browser for GIFs, videos or game assets: Novaboard and Manabit are worth a look too.
 
-|  | Xprite | Novaboard | Manabit | Pixelorama |
-| --- | --- | --- | --- | --- |
-| Price | 🆓 Free | 🆓 Free | 🆓 Free tier with limits | 🆓 Free |
-| Account | ✅ Not needed | ✅ Not needed | ⚠️ Sign in to save | — |
-| Import `.aseprite` | ✅ Opens the original format | ✅ Yes | ⚠️ Converted to layer animation | ⚠️ Without slices and masks |
-| Save `.aseprite` | ✅ Yes | — | — | ✅ Since v1.2.2 |
-| Other exports | ✅ PNG, GIF, APNG, sprite sheet | ✅ GIF, MP4, sprite sheet | ✅ PNG, JPG, GIF, animation strip | ✅ PNG, GIF, APNG, sprite sheet |
-| Animation | ✅ Frames, tags, onion skin | ✅ Frames, tags, onion skin | ✅ Layer animation, synced playback | ✅ Frames, tags, audio layers |
-| Tilemaps | ✅ Editable | ⚠️ Seamless tiling mode | ✅ Map editor | ✅ Tilemap layers |
-| Offline and desktop | ⚠️ Open once online first | ✅ Works offline | 💰 Windows app with a license | ✅ Free desktop app |
+|                     | Xprite                          | Novaboard                   | Manabit                             | Pixelorama                      |
+| ------------------- | ------------------------------- | --------------------------- | ----------------------------------- | ------------------------------- |
+| Price               | 🆓 Free                         | 🆓 Free                     | 🆓 Free tier with limits            | 🆓 Free                         |
+| Account             | ✅ Not needed                   | ✅ Not needed               | ⚠️ Sign in to save                  | —                               |
+| Import `.aseprite`  | ✅ Opens the original format    | ✅ Yes                      | ⚠️ Converted to layer animation     | ⚠️ Without slices and masks     |
+| Save `.aseprite`    | ✅ Yes                          | —                           | —                                   | ✅ Since v1.2.2                 |
+| Other exports       | ✅ PNG, GIF, APNG, sprite sheet | ✅ GIF, MP4, sprite sheet   | ✅ PNG, JPG, GIF, animation strip   | ✅ PNG, GIF, APNG, sprite sheet |
+| Animation           | ✅ Frames, tags, onion skin     | ✅ Frames, tags, onion skin | ✅ Layer animation, synced playback | ✅ Frames, tags, audio layers   |
+| Tilemaps            | ✅ Editable                     | ⚠️ Seamless tiling mode     | ✅ Map editor                       | ✅ Tilemap layers               |
+| Offline and desktop | ⚠️ Open once online first       | ✅ Works offline            | 💰 Windows app with a license       | ✅ Free desktop app             |
 
 ## Check the file in the viewer first
 

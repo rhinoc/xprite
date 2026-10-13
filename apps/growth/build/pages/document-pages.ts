@@ -152,8 +152,15 @@ export function documentHtml(path: string, indexable: boolean): string {
   const page = DOCUMENT_PAGES.find((item) => item.path === path);
   if (!page || !page.language) throw Error(`Unknown document path: ${path}`);
   const language = page.language;
-  const text = (en: string, zh: string, ja: string, ko: string) =>
-    pickText(language, en, zh, ja, ko);
+  const text = (
+    en: string,
+    zh: string,
+    ja: string,
+    ko: string,
+    ru: string,
+    pt: string,
+    es: string,
+  ) => pickText(language, en, zh, ja, ko, ru, pt, es);
   const content = documentContent(documentSource(page), page);
   const isFeatures = page.path.endsWith(FEATURES_PATH);
   const groups = isFeatures
@@ -181,9 +188,17 @@ export function documentHtml(path: string, indexable: boolean): string {
     : `<article>${publicRichText(content.html, { "data-public-document-content": true })}</article>`;
   const contents = content.outline.length
     ? `<div data-public-sidebar>${publicDesktopWindow(
-        text("Contents", "目录", "目次", "목차"),
+        text("Contents", "目录", "目次", "목차", "Содержание", "Conteúdo", "Contenido"),
         publicIndex(
-          text("On this page", "本文内容", "このページの内容", "이 페이지의 내용"),
+          text(
+            "On this page",
+            "本文内容",
+            "このページの内容",
+            "이 페이지의 내용",
+            "На этой странице",
+            "Nesta página",
+            "En esta página",
+          ),
           content.outline,
         ),
         "data-public-contents",
@@ -203,18 +218,37 @@ ${english ? `<link rel="alternate" hreflang="x-default" href="${new URL(english.
       title:
         page.searchTitle ?? (page.title.includes("Xprite") ? page.title : `${page.title} | Xprite`),
       description: page.description ?? content.description,
-      navigation: text("Website navigation", "网站导航", "サイトナビゲーション", "웹사이트 탐색"),
+      navigation: text(
+        "Website navigation",
+        "网站导航",
+        "サイトナビゲーション",
+        "웹사이트 탐색",
+        "Навигация по сайту",
+        "Navegação do site",
+        "Navegación del sitio",
+      ),
     },
     indexable,
     `${contents}${publicDesktopWindow(
       page.title,
       publicReaderScroll(body, language),
       "data-public-document",
-      `${isFeatures ? `<span>${text(`${itemCount} items`, `${itemCount} 项`, `${itemCount} 件`, `${itemCount}개 항목`)}</span>` : ""}<a href="/editor">${text("Open editor", "打开编辑器", "エディターを開く", "에디터 열기")}</a>`,
+      `${isFeatures ? `<span>${text(`${itemCount} items`, `${itemCount} 项`, `${itemCount} 件`, `${itemCount}개 항목`, `Элементов: ${itemCount}`, `${itemCount} itens`, `${itemCount} elementos`)}</span>` : ""}<a href="/editor">${text("Open editor", "打开编辑器", "エディターを開く", "에디터 열기", "Открыть редактор", "Abrir editor", "Abrir editor")}</a>`,
       isFeatures,
     )}<div></div>`,
     [
-      { label: text("Open editor", "打开编辑器", "エディターを開く", "에디터 열기"), href: "/" },
+      {
+        label: text(
+          "Open editor",
+          "打开编辑器",
+          "エディターを開く",
+          "에디터 열기",
+          "Открыть редактор",
+          "Abrir editor",
+          "Abrir editor",
+        ),
+        href: "/",
+      },
       ...languageSwitchLinks(
         language,
         Object.fromEntries(translations.map((item) => [item.language, item.path])),

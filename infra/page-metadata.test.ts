@@ -42,6 +42,11 @@ describe("metadataLimits", () => {
     expect(metadataLimits("en")).not.toBe(metadataLimits("zh-CN"));
     expect(metadataLimits("jam")).toBe(metadataLimits("en"));
   });
+
+  it("uses the English limits for Russian, Brazilian Portuguese and Spanish", () => {
+    for (const language of ["ru", "pt-BR", "es"])
+      expect(metadataLimits(language)).toBe(metadataLimits("en"));
+  });
 });
 
 describe("checkPageMetadata", () => {

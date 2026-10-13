@@ -11,7 +11,15 @@ import {
   PublicLanguage,
 } from "./language.ts";
 
-const ABOUT_LABELS = { en: "About", "zh-CN": "关于", ja: "概要", ko: "소개" } as const;
+const ABOUT_LABELS = {
+  en: "About",
+  "zh-CN": "关于",
+  ja: "概要",
+  ko: "소개",
+  ru: "О программе",
+  "pt-BR": "Sobre",
+  es: "Acerca de",
+} as const;
 
 export function showcasePath(language = "en"): string {
   return SHOWCASE_PAGES[publicLanguage(language)].path;
@@ -50,16 +58,31 @@ export interface SiteFooterGroup {
 
 /** One hierarchy supplies the website menu and footer. */
 function navigationTree(language: PublicLanguage, guideHref?: string): NavigationNode[] {
-  const text = (english: string, chinese: string, japanese: string, korean: string) =>
-    pickText(language, english, chinese, japanese, korean);
+  const text = (
+    english: string,
+    chinese: string,
+    japanese: string,
+    korean: string,
+    russian: string,
+    portuguese: string,
+    spanish: string,
+  ) => pickText(language, english, chinese, japanese, korean, russian, portuguese, spanish);
   return [
     { label: showcaseLabel(language), href: showcasePath(language) },
     {
-      label: text("Tools", "工具", "ツール", "도구"),
+      label: text("Tools", "工具", "ツール", "도구", "Инструменты", "Ferramentas", "Herramientas"),
       footerOrder: FooterGroupOrder.Tools,
       children: [
         {
-          label: text("Pixel Art Editor", "像素编辑器", "ドット絵エディター", "도트 에디터"),
+          label: text(
+            "Pixel Art Editor",
+            "像素编辑器",
+            "ドット絵エディター",
+            "도트 에디터",
+            "Пиксель-арт редактор",
+            "Editor de pixel art",
+            "Editor de pixel art",
+          ),
           href: EDITOR_TOOL.path,
         },
         ...TOOLS.map((tool) => ({
@@ -69,21 +92,37 @@ function navigationTree(language: PublicLanguage, guideHref?: string): Navigatio
       ],
     },
     {
-      label: text("Resources", "资料", "リソース", "자료"),
+      label: text("Resources", "资料", "リソース", "자료", "Материалы", "Recursos", "Recursos"),
       footerOrder: FooterGroupOrder.Resources,
       children: [
         {
           label:
             guideHref?.startsWith("/tools/") || guideHref?.startsWith("#")
-              ? text("Read Me", "使用说明", "使い方", "사용 방법")
-              : text("User guide", "使用指南", "ユーザーガイド", "사용 가이드"),
+              ? text(
+                  "Read Me",
+                  "使用说明",
+                  "使い方",
+                  "사용 방법",
+                  "Как пользоваться",
+                  "Como usar",
+                  "Cómo usar",
+                )
+              : text(
+                  "User guide",
+                  "使用指南",
+                  "ユーザーガイド",
+                  "사용 가이드",
+                  "Руководство",
+                  "Guia do usuário",
+                  "Guía de usuario",
+                ),
           href: localizedSiteHref(guideHref ?? GUIDE_PAGES[language].path, language),
         },
         ...documentLinks(language, "/privacy/"),
       ],
     },
     {
-      label: text("Product", "产品", "製品", "제품"),
+      label: text("Product", "产品", "製品", "제품", "Продукт", "Produto", "Producto"),
       footerOrder: FooterGroupOrder.Product,
       children: [
         { label: showcaseLabel(language), href: showcasePath(language) },
@@ -129,7 +168,16 @@ export function siteApplications(
           ...(node.href
             ? [
                 application(
-                  pickText(selectedLanguage, "Overview", "概览", "概要", "개요"),
+                  pickText(
+                    selectedLanguage,
+                    "Overview",
+                    "概览",
+                    "概要",
+                    "개요",
+                    "Обзор",
+                    "Visão geral",
+                    "Resumen",
+                  ),
                   node.href,
                 ),
               ]

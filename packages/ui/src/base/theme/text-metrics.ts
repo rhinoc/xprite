@@ -23,6 +23,18 @@ export function isCjkGlyph(codepoint: number) {
     (codepoint >= 0x20000 && codepoint <= 0x323af)
   );
 }
+/** Cyrillic is missing from the compact Aseprite atlas; draw it from the Fusion Pixel face. */
+export function isCyrillicGlyph(codepoint: number) {
+  return codepoint >= 0x400 && codepoint <= 0x52f;
+}
+/** Glyphs absent from a bitmap atlas that are drawn from the bundled pixel face instead of "?". */
+export function isPixelFallbackGlyph(codepoint: number) {
+  return isCjkGlyph(codepoint) || isCyrillicGlyph(codepoint);
+}
+/** Cyrillic fallback glyphs are half the full-width CJK cell. */
+export function pixelFallbackAdvance(codepoint: number, cjkAdvance: number) {
+  return isCyrillicGlyph(codepoint) ? Math.ceil(cjkAdvance / 2) : cjkAdvance;
+}
 export function measureThemeText(
   text: string,
   font: FontRole = FontRole.Primary,
@@ -35,7 +47,11 @@ export function measureThemeText(
     const codepoint = char.codePointAt(0)!;
     const advance =
       metrics.advances[String(codepoint)] ??
-      (isCjkGlyph(codepoint) ? (cjkAdvance ?? metrics.cjkAdvance) : metrics.fallbackAdvance);
+      (isCjkGlyph(codepoint)
+        ? (cjkAdvance ?? metrics.cjkAdvance)
+        : isCyrillicGlyph(codepoint)
+          ? pixelFallbackAdvance(codepoint, metrics.cjkAdvance)
+          : metrics.fallbackAdvance);
     return width + (advance * scale) / RASTER_SCALE;
   }, 0);
 }

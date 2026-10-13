@@ -1,12 +1,15 @@
 import { useSyncExternalStore } from "react";
 
 import en from "$/i18n/locales/en.json";
+import es from "$/i18n/locales/es.json";
 import ja from "$/i18n/locales/ja.json";
 import ko from "$/i18n/locales/ko.json";
+import ptBR from "$/i18n/locales/pt-BR.json";
+import ru from "$/i18n/locales/ru.json";
 import zhCN from "$/i18n/locales/zh-CN.json";
 import { browserLocalStorage as localStorage } from "@xprite/bedrock/browser/localstorage";
 
-const UI_LANGUAGES = ["en", "zh-CN", "ja", "ko"] as const;
+const UI_LANGUAGES = ["en", "zh-CN", "ja", "ko", "ru", "pt-BR", "es"] as const;
 export type UiLanguage = (typeof UI_LANGUAGES)[number];
 const DEFAULT_UI_LANGUAGE: UiLanguage = "en";
 const LANGUAGE_STORAGE_KEY = "xse.ui.language.v1";
@@ -16,6 +19,9 @@ const locales: Record<UiLanguage, Record<string, string>> = {
   "zh-CN": zhCN,
   ja,
   ko,
+  ru,
+  "pt-BR": ptBR,
+  es,
 };
 const englishMessageKeys = new Map<string, UiMessageKey>(
   Object.entries(en).map(([key, message]) => [message, key as UiMessageKey] as const),

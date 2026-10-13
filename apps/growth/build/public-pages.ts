@@ -155,11 +155,21 @@ const NOT_FOUND_TITLE: LocalizedText = {
   [PublicLanguage.SimplifiedChinese]: "找不到页面 — Xprite",
   [PublicLanguage.Japanese]: "ページが見つかりません — Xprite",
   [PublicLanguage.Korean]: "페이지를 찾을 수 없습니다 — Xprite",
+  [PublicLanguage.Russian]: "Страница не найдена — Xprite",
+  [PublicLanguage.BrazilianPortuguese]: "Página não encontrada — Xprite",
+  [PublicLanguage.Spanish]: "Página no encontrada — Xprite",
 };
 
 function notFoundHtml(language = PublicLanguage.English): string {
-  const text = (en: string, zh: string, ja: string, ko: string) =>
-    pickText(language, en, zh, ja, ko);
+  const text = (
+    en: string,
+    zh: string,
+    ja: string,
+    ko: string,
+    ru: string,
+    pt: string,
+    es: string,
+  ) => pickText(language, en, zh, ja, ko, ru, pt, es);
   const template = applySiteIcons(readFileSync(resolve(PUBLIC_ROOT, "404.html"), "utf8"))
     .replace("</head>", `<script>${publicDesktopStartupScript()}</script></head>`)
     .replace('<html lang="en"', `<html lang="${language}"`)
@@ -168,18 +178,34 @@ function notFoundHtml(language = PublicLanguage.English): string {
     "<!-- public-not-found -->",
     publicUiScope(
       `<header data-public-error-header>${publicDesktopNavigation({
-        label: text("Website navigation", "网站导航", "サイトナビゲーション", "웹사이트 탐색"),
+        label: text(
+          "Website navigation",
+          "网站导航",
+          "サイトナビゲーション",
+          "웹사이트 탐색",
+          "Навигация по сайту",
+          "Navegação do site",
+          "Navegación del sitio",
+        ),
         language,
         currentHref: "/404.html",
         brandLabel: showcaseLabel(language),
         brandHref: SHOWCASE_PAGES[language].path,
         links: [
           {
-            label: text("Features", "功能", "機能", "기능"),
+            label: text("Features", "功能", "機能", "기능", "Возможности", "Recursos", "Funciones"),
             href: localizedSiteHref(FEATURES_PATH, language),
           },
           {
-            label: text("Open editor", "打开编辑器", "エディターを開く", "에디터 열기"),
+            label: text(
+              "Open editor",
+              "打开编辑器",
+              "エディターを開く",
+              "에디터 열기",
+              "Открыть редактор",
+              "Abrir editor",
+              "Abrir editor",
+            ),
             href: "/",
           },
           ...languageSwitchLinks(

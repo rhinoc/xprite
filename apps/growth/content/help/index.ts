@@ -1,7 +1,10 @@
 import imageCatalog from "./images/catalog.json";
 import englishGuide from "./README.en.md?raw";
+import spanishGuide from "./README.es.md?raw";
 import japaneseGuide from "./README.ja.md?raw";
 import koreanGuide from "./README.ko.md?raw";
+import portugueseGuide from "./README.pt-BR.md?raw";
+import russianGuide from "./README.ru.md?raw";
 import chineseGuide from "./README.zh-CN.md?raw";
 
 const GUIDE_IMAGE_MODULE_PREFIX = "./";
@@ -20,6 +23,9 @@ export const userGuides = {
   "zh-CN": chineseGuide,
   ja: japaneseGuide,
   ko: koreanGuide,
+  ru: russianGuide,
+  "pt-BR": portugueseGuide,
+  es: spanishGuide,
 };
 
 export function resolveUserGuideImage(source: string) {

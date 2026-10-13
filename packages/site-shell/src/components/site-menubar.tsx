@@ -73,12 +73,33 @@ export function SiteMenubar({
     manager?.getSnapshot ?? defaultSnapshot,
     manager?.getServerSnapshot ?? defaultSnapshot,
   );
-  const text = (english: string, zh: string, ja: string, ko: string) =>
-    siteText(language, english, zh, ja, ko);
+  const text = (
+    english: string,
+    zh: string,
+    ja: string,
+    ko: string,
+    ru: string,
+    pt: string,
+    es: string,
+  ) => siteText(language, english, zh, ja, ko, ru, pt, es);
   const appearanceItems = [
-    [DesktopAppearance.Light, text("Light", "浅色", "ライト", "라이트")],
-    [DesktopAppearance.Dark, text("Dark", "深色", "ダーク", "다크")],
-    [DesktopAppearance.System, text("System", "跟随系统", "システムに合わせる", "시스템 설정")],
+    [
+      DesktopAppearance.Light,
+      text("Light", "浅色", "ライト", "라이트", "Светлая", "Claro", "Claro"),
+    ],
+    [DesktopAppearance.Dark, text("Dark", "深色", "ダーク", "다크", "Тёмная", "Escuro", "Oscuro")],
+    [
+      DesktopAppearance.System,
+      text(
+        "System",
+        "跟随系统",
+        "システムに合わせる",
+        "시스템 설정",
+        "Как в системе",
+        "Sistema",
+        "Sistema",
+      ),
+    ],
   ] as const;
   const selectedPattern = PATTERNS.find((pattern) => pattern.id === preferences.pattern);
   const patternItem = (pattern: PatternDefinition): MenuItem => ({
@@ -112,11 +133,27 @@ export function SiteMenubar({
         label={label}
         leadingMenus={[
           {
-            label: text("Desktop settings", "桌面设置", "デスクトップ設定", "데스크톱 설정"),
+            label: text(
+              "Desktop settings",
+              "桌面设置",
+              "デスクトップ設定",
+              "데스크톱 설정",
+              "Настройки рабочего стола",
+              "Configurações da área de trabalho",
+              "Ajustes del escritorio",
+            ),
             content: <img src={brandImage} width={16} height={16} alt="" />,
             items: [
               {
-                label: text("Appearance", "外观", "外観", "모양"),
+                label: text(
+                  "Appearance",
+                  "外观",
+                  "外観",
+                  "모양",
+                  "Оформление",
+                  "Aparência",
+                  "Apariencia",
+                ),
                 disabled: !manager,
                 children: appearanceItems.map(([appearance, label]) => ({
                   label,
@@ -126,7 +163,7 @@ export function SiteMenubar({
                 })),
               },
               {
-                label: text("Language", "语言", "言語", "언어"),
+                label: text("Language", "语言", "言語", "언어", "Язык", "Idioma", "Idioma"),
                 disabled: !languages,
                 children: languageItems.map((option) => ({
                   label: option.label,
@@ -139,11 +176,27 @@ export function SiteMenubar({
                 })),
               },
               {
-                label: text("Desktop pattern", "桌面背景", "デスクトップパターン", "데스크톱 패턴"),
+                label: text(
+                  "Desktop pattern",
+                  "桌面背景",
+                  "デスクトップパターン",
+                  "데스크톱 패턴",
+                  "Узор рабочего стола",
+                  "Padrão da área de trabalho",
+                  "Patrón del escritorio",
+                ),
                 disabled: !manager,
                 children: [
                   {
-                    label: text("Automatic", "自动", "自動", "자동"),
+                    label: text(
+                      "Automatic",
+                      "自动",
+                      "自動",
+                      "자동",
+                      "Автоматически",
+                      "Automático",
+                      "Automático",
+                    ),
                     checked: !preferences.pattern,
                     checkType: MenuCheckType.Radio,
                     onSelect: () => manager?.setPattern(),
@@ -164,6 +217,9 @@ export function SiteMenubar({
                       "图案配色...",
                       "パターンの配色...",
                       "패턴 색상...",
+                      "Цвета узора...",
+                      "Cores do padrão...",
+                      "Colores del patrón...",
                     ),
                     separator: true,
                     disabled: selectedPattern?.kind !== PatternKind.TwoColor,

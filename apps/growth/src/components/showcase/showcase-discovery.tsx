@@ -54,6 +54,9 @@ export function ShowcaseDiscovery({ language }: { language: DiscoveryLanguage })
       `${count} 项`,
       `${count} 件`,
       `${count}개 항목`,
+      `Элементов: ${count}`,
+      `${count} itens`,
+      `${count} elementos`,
     );
   return (
     <section className={styles.desktop} aria-label={copy.resources}>

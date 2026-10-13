@@ -150,4 +150,115 @@ export const PIXELATE_HELP = {
     ],
     closing: "미리 보기는 현재 설정에 맞춰 업데이트되며, 각 결과를 원본과 비교할 수 있습니다.",
   },
+  [PublicLanguage.Russian]: {
+    title: "Пикселизация изображения или восстановление сетки",
+    introduction:
+      "Откройте изображение PNG, JPEG или WebP либо нажмите «Открыть пример», чтобы попробовать. Изображения обрабатываются на вашем устройстве, исходный файл никогда не перезаписывается.",
+    sections: [
+      {
+        id: PixelateHelpSection.Convert,
+        title: "Превращение картинки в пиксель-арт",
+        steps: [
+          "В разделе «Действие» выберите «Преобразовать изображение». Выберите готовый размер или введите ширину и высоту.",
+          "Выберите метод и сравните предпросмотр с оригиналом. При необходимости ограничьте цвета или выберите палитру.",
+        ],
+        notes:
+          "«Сохранять пропорции» сохраняет соотношение сторон источника. «Сохранять исходный размер» масштабирует пиксельный результат обратно до размера исходного изображения.",
+      },
+      {
+        id: PixelateHelpSection.Recover,
+        title: "Восстановление увеличенной пиксельной сетки",
+        steps: [
+          "В разделе «Действие» выберите «Восстановить пиксельную сетку» и оставьте автоопределение сетки включённым, чтобы использовать найденную сетку.",
+          "Если надёжная сетка не найдена, отключите автоопределение и введите ширину и высоту ячейки.",
+        ],
+        notes: "Размер ячеек измеряется в пикселях исходного изображения.",
+      },
+      {
+        id: PixelateHelpSection.Result,
+        title: "Сохранение или дальнейшая правка",
+        steps: [
+          "Нажмите «Скачать PNG», чтобы сохранить результат, или «Продолжить редактирование», чтобы открыть его в редакторе Xprite.",
+        ],
+        notes:
+          "К имени PNG перед расширением добавляется -pixelated или -restored; оригинал не меняется.",
+      },
+    ],
+    closing:
+      "Предпросмотр обновляется по текущим настройкам, и каждый результат можно сравнить с оригиналом.",
+  },
+  [PublicLanguage.BrazilianPortuguese]: {
+    title: "Pixelizar uma imagem ou recuperar sua grade",
+    introduction:
+      "Abra uma imagem PNG, JPEG ou WebP, ou use Abrir exemplo para testar a ferramenta. As imagens são processadas no seu dispositivo, e o arquivo original nunca é sobrescrito.",
+    sections: [
+      {
+        id: PixelateHelpSection.Convert,
+        title: "Converter uma imagem em pixel art",
+        steps: [
+          "Em Ação, escolha Converter imagem. Escolha um tamanho predefinido ou informe Largura e Altura.",
+          "Escolha um Método e compare a pré-visualização com o original. Limite as cores ou selecione uma paleta se precisar.",
+        ],
+        notes:
+          "Travar proporção mantém as proporções da origem. Manter dimensões originais amplia o resultado pixelizado de volta ao tamanho da imagem de origem.",
+      },
+      {
+        id: PixelateHelpSection.Recover,
+        title: "Recuperar uma grade de pixels ampliada",
+        steps: [
+          "Em Ação, escolha Recuperar grade de pixels e deixe Grade automática ativada para usar a grade detectada.",
+          "Se nenhuma grade confiável for detectada, desative Grade automática e informe Largura da célula e Altura da célula.",
+        ],
+        notes: "O tamanho das células é medido em pixels da imagem original.",
+      },
+      {
+        id: PixelateHelpSection.Result,
+        title: "Salvar ou continuar editando",
+        steps: [
+          "Escolha Baixar PNG para salvar o resultado ou Continuar editando para abri-lo no editor Xprite.",
+        ],
+        notes:
+          "O nome do PNG ganha -pixelated ou -restored antes da extensão; o original não muda.",
+      },
+    ],
+    closing:
+      "A pré-visualização acompanha as configurações atuais, e você pode comparar cada resultado com o original.",
+  },
+  [PublicLanguage.Spanish]: {
+    title: "Pixelar una imagen o recuperar su cuadrícula",
+    introduction:
+      "Abre una imagen PNG, JPEG o WebP, o usa Abrir ejemplo para probar la herramienta. Las imágenes se procesan en tu dispositivo y el archivo original nunca se sobrescribe.",
+    sections: [
+      {
+        id: PixelateHelpSection.Convert,
+        title: "Convertir una imagen en pixel art",
+        steps: [
+          "En Acción, elige Convertir imagen. Escoge un tamaño predefinido o escribe Ancho y Alto.",
+          "Elige un Método y compara la vista previa con el original. Limita los colores o selecciona una paleta si hace falta.",
+        ],
+        notes:
+          "Bloquear relación de aspecto mantiene las proporciones de origen. Mantener dimensiones originales escala el resultado pixelado de vuelta al tamaño de la imagen original.",
+      },
+      {
+        id: PixelateHelpSection.Recover,
+        title: "Recuperar una cuadrícula de píxeles ampliada",
+        steps: [
+          "En Acción, elige Recuperar cuadrícula de píxeles y deja activada Cuadrícula automática para usar la cuadrícula detectada.",
+          "Si no se detecta una cuadrícula fiable, desactiva Cuadrícula automática y escribe Ancho de celda y Alto de celda.",
+        ],
+        notes: "El tamaño de las celdas se mide en píxeles de la imagen original.",
+      },
+      {
+        id: PixelateHelpSection.Result,
+        title: "Guardar o seguir editando",
+        steps: [
+          "Elige Descargar PNG para guardar el resultado o Seguir editando para abrirlo en el editor Xprite.",
+        ],
+        notes:
+          "El nombre del PNG añade -pixelated o -restored antes de la extensión; el original no cambia.",
+      },
+    ],
+    closing:
+      "La vista previa se actualiza con la configuración actual y puedes comparar cada resultado con el original.",
+  },
 } as const satisfies Record<PublicLanguage, ToolHelpContent>;

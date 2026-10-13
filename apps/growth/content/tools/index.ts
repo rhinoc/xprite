@@ -1,6 +1,9 @@
 import { publicLanguage, PublicLanguage } from "../site/language.ts";
+import { TOOL_SPANISH_TEXT } from "./es.ts";
 import { TOOL_JAPANESE_TEXT } from "./ja.ts";
 import { TOOL_KOREAN_TEXT } from "./ko.ts";
+import { TOOL_PORTUGUESE_TEXT } from "./pt-BR.ts";
+import { TOOL_RUSSIAN_TEXT } from "./ru.ts";
 import { TOOL_CHINESE_TEXT } from "./zh-CN.ts";
 
 export { ANIMAL_CROSSING_HELP, AnimalCrossingHelpSection } from "./animal-crossing-help.ts";
@@ -84,6 +87,75 @@ const TOOL_TEXT_RULES: Readonly<Partial<Record<PublicLanguage, ToolTextRules>>> 
     colon: ":",
     frames: "프레임",
     workspace: (name) => `${name} 작업 공간`,
+  },
+  [PublicLanguage.Russian]: {
+    dictionary: TOOL_RUSSIAN_TEXT,
+    closeName: "Закрыть {name}",
+    patterns: [
+      [/^Accepted files: /, "Поддерживаемые файлы: "],
+      [/^Source: /, "Источник: "],
+      [/^Frame (\d+) of (\d+)$/, "Кадр $1 из $2"],
+      [/^(?:Select )?[Rr]ow (\d+), column (\d+)$/, "Строка $1, столбец $2"],
+      [/^Download all (\d+) designs$/, "Скачать все дизайны ($1)"],
+      [/^(\d+) applications$/, "Приложений: $1"],
+      [
+        /tiles · select a tile for Preview and QR$/,
+        " — тайлы · выберите тайл для предпросмотра и QR",
+      ],
+      [/^Tag /, "Метка "],
+      [/, frame (\d+)$/, ", кадр $1"],
+      [/^Frame (\d+)$/, "Кадр $1"],
+      [/^Tile (\d+),(\d+)$/, "Тайл $1,$2"],
+    ],
+    colon: ":",
+    frames: " кадр.",
+    workspace: (name) => `Рабочая область: ${name}`,
+  },
+  [PublicLanguage.BrazilianPortuguese]: {
+    dictionary: TOOL_PORTUGUESE_TEXT,
+    closeName: "Fechar {name}",
+    patterns: [
+      [/^Accepted files: /, "Arquivos aceitos: "],
+      [/^Source: /, "Origem: "],
+      [/^Frame (\d+) of (\d+)$/, "Quadro $1 de $2"],
+      [/^(?:Select )?[Rr]ow (\d+), column (\d+)$/, "Linha $1, coluna $2"],
+      [/^Download all (\d+) designs$/, "Baixar todos os $1 designs"],
+      [/^(\d+) applications$/, "$1 aplicativos"],
+      [
+        /tiles · select a tile for Preview and QR$/,
+        "tiles · selecione um tile para ver a pré-visualização e o QR",
+      ],
+      [/^Tag /, "Tag "],
+      [/, frame (\d+)$/, ", quadro $1"],
+      [/^Frame (\d+)$/, "Quadro $1"],
+      [/^Tile (\d+),(\d+)$/, "Tile $1,$2"],
+    ],
+    colon: ":",
+    frames: " quadros",
+    workspace: (name) => `Espaço de trabalho do ${name}`,
+  },
+  [PublicLanguage.Spanish]: {
+    dictionary: TOOL_SPANISH_TEXT,
+    closeName: "Cerrar {name}",
+    patterns: [
+      [/^Accepted files: /, "Archivos admitidos: "],
+      [/^Source: /, "Origen: "],
+      [/^Frame (\d+) of (\d+)$/, "Cuadro $1 de $2"],
+      [/^(?:Select )?[Rr]ow (\d+), column (\d+)$/, "Fila $1, columna $2"],
+      [/^Download all (\d+) designs$/, "Descargar los $1 diseños"],
+      [/^(\d+) applications$/, "$1 aplicaciones"],
+      [
+        /tiles · select a tile for Preview and QR$/,
+        "tiles · selecciona un tile para ver la vista previa y el QR",
+      ],
+      [/^Tag /, "Etiqueta "],
+      [/, frame (\d+)$/, ", cuadro $1"],
+      [/^Frame (\d+)$/, "Cuadro $1"],
+      [/^Tile (\d+),(\d+)$/, "Tile $1,$2"],
+    ],
+    colon: ":",
+    frames: " cuadros",
+    workspace: (name) => `Espacio de trabajo de ${name}`,
   },
 };
 

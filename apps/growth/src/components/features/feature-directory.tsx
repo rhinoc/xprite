@@ -49,8 +49,15 @@ export function FeatureDirectory({
 }) {
   const [opened, setOpened] = useState<FeatureItem | null>(null);
   const trigger = useRef<HTMLElement | null>(null);
-  const text = (en: string, zh: string, ja: string, ko: string) =>
-    pickText(publicLanguage(language), en, zh, ja, ko);
+  const text = (
+    en: string,
+    zh: string,
+    ja: string,
+    ko: string,
+    ru: string,
+    pt: string,
+    es: string,
+  ) => pickText(publicLanguage(language), en, zh, ja, ko, ru, pt, es);
   const close = () => {
     setOpened(null);
     trigger.current?.focus();
@@ -118,6 +125,9 @@ export function FeatureDirectory({
             `关闭${opened.title}`,
             `${opened.title}を閉じる`,
             `${opened.title} 닫기`,
+            `Закрыть ${opened.title}`,
+            `Fechar ${opened.title}`,
+            `Cerrar ${opened.title}`,
           )}
           defaultBounds={FEATURE_WINDOW_BOUNDS}
           minSize={FEATURE_WINDOW_MIN_SIZE}
@@ -189,11 +199,27 @@ export function FeatureDirectory({
                   slots={{}}
                 >
                   {opened.href.startsWith("/tools/")
-                    ? text("Open tool", "打开工具", "ツールを開く", "도구 열기")
-                    : text("Open editor", "打开编辑器", "エディターを開く", "에디터 열기")}
+                    ? text(
+                        "Open tool",
+                        "打开工具",
+                        "ツールを開く",
+                        "도구 열기",
+                        "Открыть инструмент",
+                        "Abrir ferramenta",
+                        "Abrir herramienta",
+                      )
+                    : text(
+                        "Open editor",
+                        "打开编辑器",
+                        "エディターを開く",
+                        "에디터 열기",
+                        "Открыть редактор",
+                        "Abrir editor",
+                        "Abrir editor",
+                      )}
                 </Button>
                 <Button onClick={close} slots={{}}>
-                  {text("Close", "关闭", "閉じる", "닫기")}
+                  {text("Close", "关闭", "閉じる", "닫기", "Закрыть", "Fechar", "Cerrar")}
                 </Button>
               </div>
             </div>

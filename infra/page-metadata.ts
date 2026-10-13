@@ -19,6 +19,7 @@ export interface LanguageLimits {
   readonly description: FieldLimit;
 }
 
+/** Latin and Cyrillic scripts (English, Russian, Portuguese, Spanish) share these limits. */
 const ENGLISH_LIMITS: LanguageLimits = {
   title: { ideal: { min: 1, max: 60 }, hard: { min: 1, max: 65 } },
   description: { ideal: { min: 70, max: 160 }, hard: { min: 50, max: 165 } },

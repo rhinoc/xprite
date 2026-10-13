@@ -50,6 +50,36 @@ const MENU = {
     "윈도우",
     "도움말",
   ],
+  [ShowcaseLanguage.Russian]: [
+    "Файл",
+    "Правка",
+    "Вид",
+    "История",
+    "Закладки",
+    "Разработка",
+    "Окно",
+    "Справка",
+  ],
+  [ShowcaseLanguage.BrazilianPortuguese]: [
+    "Arquivo",
+    "Editar",
+    "Visualizar",
+    "Histórico",
+    "Favoritos",
+    "Desenvolvedor",
+    "Janela",
+    "Ajuda",
+  ],
+  [ShowcaseLanguage.Spanish]: [
+    "Archivo",
+    "Edición",
+    "Visualización",
+    "Historial",
+    "Marcadores",
+    "Desarrollo",
+    "Ventana",
+    "Ayuda",
+  ],
 } as const;
 const MENU_BASELINE = 23;
 const MENU_START = 119;
@@ -180,6 +210,9 @@ function menuBar(c: CanvasRenderingContext2D, width: number, language: ShowcaseL
       "10月4日 周日 9:41",
       "10月4日(日) 9:41",
       "10월 4일 (일) 오전 9:41",
+      "Вс 4 окт. 9:41",
+      "dom. 4 de out. 9:41",
+      "dom 4 oct 9:41",
     ),
     width - 21,
     MENU_BASELINE,
@@ -261,6 +294,9 @@ export function drawMacBrowserChrome(
     "搜索或输入网站名称",
     "検索/Webサイト名を入力",
     "검색 또는 웹 사이트 이름 입력",
+    "Поиск или адрес сайта",
+    "Pesquise ou digite o nome do site",
+    "Busca o escribe el nombre del sitio",
   );
   const text = address || (editing ? "" : placeholder);
   c.font = `15px ${SYSTEM_FONT}`;

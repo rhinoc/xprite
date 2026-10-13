@@ -92,25 +92,51 @@ function articleList(
 }
 
 function libraryFolders(language: PublicLanguage): string {
-  const text = (en: string, zh: string, ja: string, ko: string) =>
-    pickText(language, en, zh, ja, ko);
+  const text = (
+    en: string,
+    zh: string,
+    ja: string,
+    ko: string,
+    ru: string,
+    pt: string,
+    es: string,
+  ) => pickText(language, en, zh, ja, ko, ru, pt, es);
   const href = (path: string) => localizedSiteHref(path, language);
   return publicDesktopWindow(
     "Xprite",
     `<div data-public-folder-items>${
-      publicIconLink(text("Features", "功能", "機能", "기능"), href("/features/")) +
       publicIconLink(
-        text("Comparisons", "编辑器比较", "エディター比較", "에디터 비교"),
+        text("Features", "功能", "機能", "기능", "Возможности", "Recursos", "Funciones"),
+        href("/features/"),
+      ) +
+      publicIconLink(
+        text(
+          "Comparisons",
+          "编辑器比较",
+          "エディター比較",
+          "에디터 비교",
+          "Сравнения",
+          "Comparações",
+          "Comparativas",
+        ),
         href("/compare/"),
       ) +
       publicIconLink(
-        text("User guide", "使用指南", "使い方ガイド", "사용 가이드"),
+        text(
+          "User guide",
+          "使用指南",
+          "使い方ガイド",
+          "사용 가이드",
+          "Руководство",
+          "Guia do usuário",
+          "Guía de usuario",
+        ),
         href("/help/"),
         "document",
       )
     }</div>`,
     "data-public-folders",
-    text("3 items", "3 项", "3 件", "3개 항목"),
+    text("3 items", "3 项", "3 件", "3개 항목", "3 элемента", "3 itens", "3 elementos"),
   );
 }
 
@@ -155,8 +181,15 @@ function articlePageHtml(
 ): string {
   const canonical = new URL(page.path, SITE_URL).href;
   const language = page.language;
-  const text = (en: string, zh: string, ja: string, ko: string) =>
-    pickText(language, en, zh, ja, ko);
+  const text = (
+    en: string,
+    zh: string,
+    ja: string,
+    ko: string,
+    ru: string,
+    pt: string,
+    es: string,
+  ) => pickText(language, en, zh, ja, ko, ru, pt, es);
   const href = (path: string) => localizedSiteHref(path, language);
   const collection = localizedCollection(page.collection, language);
   const articles = ARTICLES.map((item) => localizedArticle(item, language));
@@ -229,21 +262,43 @@ ${language !== PublicLanguage.English ? `<link rel="preload" href="${CHINESE_FON
 <script type="application/ld+json">${jsonForHtml(breadcrumbData(collection, article))}</script>
 </head><body data-growth-desktop data-ui-desktop-pattern="${publicPattern(page.path)}">
 ${publicUiScope(
-  `<a class="${classes.skipLink}" href="#main">${text("Skip to content", "跳到正文", "本文へスキップ", "본문으로 건너뛰기")}</a>
+  `<a class="${classes.skipLink}" href="#main">${text("Skip to content", "跳到正文", "本文へスキップ", "본문으로 건너뛰기", "Перейти к содержимому", "Pular para o conteúdo", "Saltar al contenido")}</a>
 <header class="${classes.header}">${publicDesktopNavigation({
-    label: text("Website navigation", "网站导航", "サイトナビゲーション", "웹사이트 탐색"),
+    label: text(
+      "Website navigation",
+      "网站导航",
+      "サイトナビゲーション",
+      "웹사이트 탐색",
+      "Навигация по сайту",
+      "Navegação do site",
+      "Navegación del sitio",
+    ),
     language,
     currentHref: page.path,
     brandLabel: showcaseLabel(language),
     brandHref: SHOWCASE_PAGES[language].path,
     brandImage: "/menu-icon.svg",
     links: [
-      { label: text("Features", "功能", "機能", "기능"), href: href("/features/") },
       {
-        label: text("Compare", "编辑器比较", "エディター比較", "에디터 비교"),
+        label: text("Features", "功能", "機能", "기능", "Возможности", "Recursos", "Funciones"),
+        href: href("/features/"),
+      },
+      {
+        label: text(
+          "Compare",
+          "编辑器比较",
+          "エディター比較",
+          "에디터 비교",
+          "Сравнение",
+          "Comparar",
+          "Comparar",
+        ),
         href: href("/compare/"),
       },
-      { label: text("Editor", "编辑器", "エディター", "에디터"), href: editorUrl(article) },
+      {
+        label: text("Editor", "编辑器", "エディター", "에디터", "Редактор", "Editor", "Editor"),
+        href: editorUrl(article),
+      },
       ...languageSwitchLinks(
         language,
         Object.fromEntries(
@@ -252,7 +307,7 @@ ${publicUiScope(
       ),
     ],
   })}</header>
-<main id="main" data-public-desktop>${body}<nav data-public-shortcuts aria-label="${text("Desktop shortcuts", "桌面快捷入口", "デスクトップのショートカット", "바탕 화면 바로 가기")}">${publicIconLink(collection.label, collection.path)}</nav></main>${publicSiteFooter(language)}`,
+<main id="main" data-public-desktop>${body}<nav data-public-shortcuts aria-label="${text("Desktop shortcuts", "桌面快捷入口", "デスクトップのショートカット", "바탕 화면 바로 가기", "Ярлыки рабочего стола", "Atalhos da área de trabalho", "Accesos directos del escritorio")}">${publicIconLink(collection.label, collection.path)}</nav></main>${publicSiteFooter(language)}`,
   language,
 )}
 </body></html>\n`;
@@ -280,8 +335,15 @@ function articleContent(
   markdown: string,
 ) {
   const language = article.language;
-  const text = (en: string, zh: string, ja: string, ko: string) =>
-    pickText(language, en, zh, ja, ko);
+  const text = (
+    en: string,
+    zh: string,
+    ja: string,
+    ko: string,
+    ru: string,
+    pt: string,
+    es: string,
+  ) => pickText(language, en, zh, ja, ko, ru, pt, es);
   const renderer = new Renderer();
   const parser = new Marked({ gfm: true, async: false });
   const tokens = parser.lexer(markdown);
@@ -327,14 +389,25 @@ function articleContent(
       "文件与编辑器比较表",
       "ファイルとエディターの比較表",
       "파일 및 에디터 비교표",
+      "Таблица сравнения файлов и редакторов",
+      "Tabela comparativa de arquivos e editores",
+      "Tabla comparativa de archivos y editores",
     )}" tabindex="0">${Renderer.prototype.table.call(this, table)}</div>`;
   };
   parser.setOptions({ renderer });
   const outline = headings.filter((heading) => heading.depth === CONTENTS_HEADING_DEPTH);
   const toc = publicDesktopWindow(
-    text("Contents", "目录", "目次", "목차"),
+    text("Contents", "目录", "目次", "목차", "Содержание", "Conteúdo", "Contenido"),
     publicIndex(
-      text("On this page", "本文内容", "このページの内容", "이 페이지의 내용"),
+      text(
+        "On this page",
+        "本文内容",
+        "このページの内容",
+        "이 페이지의 내용",
+        "На этой странице",
+        "Nesta página",
+        "En esta página",
+      ),
       outline.map((heading) => ({ href: `#${ids.get(heading)!}`, label: heading.text })),
     ),
     "data-public-contents",
@@ -343,6 +416,9 @@ function articleContent(
       `${outline.length} 个章节`,
       `${outline.length} セクション`,
       `${outline.length}개 섹션`,
+      `Разделов: ${outline.length}`,
+      `${outline.length} seções`,
+      `${outline.length} secciones`,
     ),
   );
   return {
@@ -357,8 +433,15 @@ function articleContent(
 export function articleHtml(path: string, indexable: boolean): string {
   const classes = publicArticleClasses();
   const language = articleLanguage(path);
-  const text = (en: string, zh: string, ja: string, ko: string) =>
-    pickText(language, en, zh, ja, ko);
+  const text = (
+    en: string,
+    zh: string,
+    ja: string,
+    ko: string,
+    ru: string,
+    pt: string,
+    es: string,
+  ) => pickText(language, en, zh, ja, ko, ru, pt, es);
   const collections = Object.keys(ARTICLE_COLLECTIONS).map((key) =>
     localizedCollection(key as keyof typeof ARTICLE_COLLECTIONS, language),
   );
@@ -378,7 +461,10 @@ export function articleHtml(path: string, indexable: boolean): string {
           `${documents.length} 篇文档`,
           `${documents.length} 件の記事`,
           `${documents.length}개 문서`,
-        )}</span><a href="/editor">${text("Open Xprite", "打开 Xprite", "Xprite を開く", "Xprite 열기")}</a>`,
+          `Документов: ${documents.length}`,
+          `${documents.length} documentos`,
+          `${documents.length} documentos`,
+        )}</span><a href="/editor">${text("Open Xprite", "打开 Xprite", "Xprite を開く", "Xprite 열기", "Открыть Xprite", "Abrir o Xprite", "Abrir Xprite")}</a>`,
         true,
       )}`,
       classes,
@@ -396,7 +482,15 @@ export function articleHtml(path: string, indexable: boolean): string {
   const content = articleContent(publishedArticle, classes, document.body);
   const callout = {
     url: editorUrl(article),
-    label: text("Open Xprite", "打开 Xprite", "Xprite を開く", "Xprite 열기"),
+    label: text(
+      "Open Xprite",
+      "打开 Xprite",
+      "Xprite を開く",
+      "Xprite 열기",
+      "Открыть Xprite",
+      "Abrir o Xprite",
+      "Abrir Xprite",
+    ),
   };
   const relatedDocuments = articles.filter((item) => item.slug !== article.slug);
   return articlePageHtml(
@@ -404,16 +498,27 @@ export function articleHtml(path: string, indexable: boolean): string {
     indexable,
     `<div data-public-sidebar>${content.toc}</div><div class="${classes.readingStack}" data-public-reading-stack>${publicDesktopWindow(
       article.shortTitle[language],
-      `${publicStatus(parent.label, `${text("Updated", "更新", "更新日", "업데이트")}: ${publishedArticle.dateModified}`, parent.path)}${publicReaderScroll(`<article class="${classes.article}">${publicRichText(content.heading + content.html, { "data-public-document-content": true })}</article>`, language)}`,
+      `${publicStatus(parent.label, `${text("Updated", "更新", "更新日", "업데이트", "Обновлено", "Atualizado", "Actualizado")}: ${publishedArticle.dateModified}`, parent.path)}${publicReaderScroll(`<article class="${classes.article}">${publicRichText(content.heading + content.html, { "data-public-document-content": true })}</article>`, language)}`,
       "data-public-document",
       `<a href="${parent.path}">${text(
         `Back to ${parent.label}`,
         `返回${parent.label}`,
         `${parent.label}に戻る`,
         `${parent.label}(으)로 돌아가기`,
+        `Назад: ${parent.label}`,
+        `Voltar para ${parent.label}`,
+        `Volver a ${parent.label}`,
       )}</a>${publicDesktopButton(callout.url, callout.label)}`,
     )}${publicDesktopWindow(
-      text("Related documents", "相关文档", "関連記事", "관련 문서"),
+      text(
+        "Related documents",
+        "相关文档",
+        "関連記事",
+        "관련 문서",
+        "Связанные материалы",
+        "Documentos relacionados",
+        "Documentos relacionados",
+      ),
       articleList(relatedDocuments, classes),
       `class="${classes.related}" data-public-related-window`,
       text(
@@ -421,6 +526,9 @@ export function articleHtml(path: string, indexable: boolean): string {
         `${relatedDocuments.length} 篇文档`,
         `${relatedDocuments.length} 件の記事`,
         `${relatedDocuments.length}개 문서`,
+        `Документов: ${relatedDocuments.length}`,
+        `${relatedDocuments.length} documentos`,
+        `${relatedDocuments.length} documentos`,
       ),
     )}</div>`,
     classes,

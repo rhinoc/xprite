@@ -243,6 +243,24 @@
               "에디터 새로고침",
               "진단 로그 내보내기",
             ],
+            ru: [
+              "Ошибка редактора",
+              "Не удалось запустить редактор. Перезагрузите страницу и попробуйте снова.",
+              "Перезагрузить редактор",
+              "Экспортировать журнал диагностики",
+            ],
+            "pt-BR": [
+              "Erro no editor",
+              "Não foi possível iniciar o editor. Recarregue a página e tente novamente.",
+              "Recarregar editor",
+              "Exportar log de diagnóstico",
+            ],
+            es: [
+              "Error del editor",
+              "No se pudo iniciar el editor. Recarga la página e inténtalo de nuevo.",
+              "Recargar editor",
+              "Exportar registro de diagnóstico",
+            ],
           };
           const startupLanguage = [document.documentElement.lang, ...navigator.languages]
             .map(
@@ -251,7 +269,9 @@
                   .toLowerCase()
                   .split("-")[0],
             )
-            .map((language) => (language === "zh" ? "zh-CN" : language))
+            .map((language) =>
+              language === "zh" ? "zh-CN" : language === "pt" ? "pt-BR" : language,
+            )
             .find((language) => language === "en" || startupCopy[language]);
           const localizedStartup = startupCopy[startupLanguage];
           if (localizedStartup) {

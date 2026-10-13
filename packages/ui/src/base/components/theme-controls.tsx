@@ -5,6 +5,8 @@ import { themeFontFamily } from "$/base/theme/font-families";
 import { paintPartSurface } from "$/base/theme/paint-part-surface";
 import {
   isCjkGlyph,
+  isPixelFallbackGlyph,
+  pixelFallbackAdvance,
   measureThemeText,
   themeFontHeight,
   useThemeText,
@@ -83,10 +85,11 @@ function cjkPixelGlyph(
   scale: number,
   color: string,
   usePixelFont: boolean,
+  advanceUnits = metrics.cjkAdvance,
 ) {
   const line = Math.max(1, Math.round((metrics.lineHeight * scale) / RASTER_SCALE));
   const fontSize = Math.max(1, Math.round((metrics.cjkFontSize * scale) / RASTER_SCALE));
-  const advance = Math.max(1, Math.round((metrics.cjkAdvance * scale) / RASTER_SCALE));
+  const advance = Math.max(1, Math.round((advanceUnits * scale) / RASTER_SCALE));
   const baseline = Math.round((metrics.cjkBaseline * scale) / RASTER_SCALE);
   const family = usePixelFont ? metrics.cjkFontFamily : metrics.fallbackFontFamily;
   const key = `${family}:${fontSize}:${line}:${baseline}:${advance}:${color}:${char}`;
@@ -338,7 +341,7 @@ export function paintThemeText(
   // Shadows, blend modes and fractional transforms retain per-glyph semantics.
   const hasCjkFallback = [...text].some((char) => {
     const codepoint = char.codePointAt(0)!;
-    return !glyphs[String(codepoint)] && isCjkGlyph(codepoint);
+    return !glyphs[String(codepoint)] && isPixelFallbackGlyph(codepoint);
   });
   if (
     !hasCjkFallback &&
@@ -373,14 +376,16 @@ export function paintThemeText(
   for (const char of text) {
     const codepoint = char.codePointAt(0)!;
     const glyph = glyphs[String(codepoint)];
-    if (!glyph && isCjkGlyph(codepoint)) {
-      const fallbackAdvance = (metrics.cjkAdvance * scale) / RASTER_SCALE;
+    if (!glyph && isPixelFallbackGlyph(codepoint)) {
+      const advanceUnits = pixelFallbackAdvance(codepoint, metrics.cjkAdvance);
+      const fallbackAdvance = (advanceUnits * scale) / RASTER_SCALE;
       const bitmap = cjkPixelGlyph(
         char,
         metrics,
         scale,
         options.color ?? assets.theme.colors.text,
         assets.cjkFontReady,
+        advanceUnits,
       );
       if (bitmap) context.drawImage(bitmap, cursor, Math.floor(y));
       cursor += fallbackAdvance;
