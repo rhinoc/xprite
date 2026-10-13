@@ -60,6 +60,10 @@ export interface DemoPointer {
 }
 
 /** Device-sized native editor captures, with authored browser/system chrome and input motion. */
+/** Computer and phone demos are recorded in Chinese and English; other languages reuse the English capture, like the iPad screen. */
+const captureLanguage = (language: ShowcaseLanguage) =>
+  language === ShowcaseLanguage.Chinese ? ShowcaseLanguage.Chinese : ShowcaseLanguage.English;
+
 export class DeviceDemoScreen {
   readonly canvas = document.createElement("canvas");
   readonly ready: Promise<void>;
@@ -101,7 +105,7 @@ export class DeviceDemoScreen {
     const existing = this.languageLoads.get(language);
     if (existing) return existing;
     const load = (async () => {
-      const root = `${ASSET_ROOT}/${this.device}/${language}`;
+      const root = `${ASSET_ROOT}/${this.device}/${captureLanguage(language)}`;
       const response = await fetch(`${root}/layout.json`, { signal: this.abort.signal });
       if (!response.ok) throw new Error(`Missing ${this.device} capture layout`);
       const layout = (await response.json()) as DeviceCaptureLayout;
