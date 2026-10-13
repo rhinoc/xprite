@@ -23,7 +23,7 @@ export const SHOWCASE_PAGES = {
     path: "/ko/about/",
     title: "Xprite - 무료 온라인 도트·픽셀 아트 애니메이션 에디터",
     description:
-      "컴퓨터, 아이패드, 휴대폰 브라우저에서 무료로 도트 그림과 애니메이션을 만드세요. 에이스프라이트(Aseprite) 파일을 편집하고 GIF·PNG로 내보내며, 작품은 내 기기에 저장됩니다.",
+      "컴퓨터, 아이패드, 휴대폰 브라우저에서 무료로 도트 애니메이션을 만드세요. 에이스프라이트(Aseprite) 파일을 편집하고 GIF·PNG로 내보내며 작품은 기기에 남습니다.",
   },
 } as const;
 export const SHOWCASE_DEFAULT_PATH = SHOWCASE_PAGES.en.path;

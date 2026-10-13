@@ -44,7 +44,7 @@ export const FEATURE_DETAILS = [
     searchTitle: {
       en: "Pixel Art Animation Online: Frames and Onion Skin | Xprite",
       "zh-CN": "在线制作像素动画：逐帧、标签与洋葱皮 | Xprite",
-      ja: "ドット絵アニメをオンラインで：フレームとオニオンスキン | Xprite",
+      ja: "ドット絵アニメ制作：フレームとオニオンスキン | Xprite",
       ko: "온라인 도트 애니메이션: 프레임과 어니언 스킨 | Xprite",
     },
   },
@@ -74,8 +74,8 @@ export const FEATURE_DETAILS = [
     searchTitle: {
       en: "Edit Aseprite Files Online: Open and Save .aseprite | Xprite",
       "zh-CN": "在线编辑 Aseprite 文件：打开并保存 .aseprite | Xprite",
-      ja: "Aseprite ファイルをオンライン編集：.aseprite を開いて保存 | Xprite",
-      ko: "에이스프라이트 파일 온라인 편집: .aseprite 열기·저장 | Xprite",
+      ja: "Aseprite ファイルをオンライン編集：開いて保存 | Xprite",
+      ko: "에이스프라이트 파일 온라인 편집: 열기와 저장 | Xprite",
     },
   },
   {
@@ -122,7 +122,7 @@ export const FEATURE_DETAILS = [
     searchTitle: {
       en: "Customizable Pixel Art Workspace, Offline Editing | Xprite",
       "zh-CN": "自定义像素画工作区与离线编辑 | Xprite",
-      ja: "カスタマイズできるドット絵ワークスペースとオフライン編集 | Xprite",
+      ja: "自由に配置できるワークスペースとオフライン編集 | Xprite",
       ko: "맞춤형 픽셀 아트 작업 공간과 오프라인 편집 | Xprite",
     },
   },

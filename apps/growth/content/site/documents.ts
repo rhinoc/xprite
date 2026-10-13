@@ -49,7 +49,7 @@ export const SITE_DOCUMENTS: readonly SiteDocumentDefinition[] = [
     navigationTitle: { en: "Privacy", "zh-CN": "隐私", ja: "プライバシー", ko: "개인정보" },
     searchDescription: {
       en: "What data the Xprite editor, website and tools use. No account is required. Sites that host Xprite, such as itch.io, may have their own privacy practices.",
-      ja: "Xprite のエディター、サイト、ツールが使うデータについて。アカウントは不要です。itch.io など Xprite を公開するサイトには独自のプライバシー方針がある場合があります。",
+      ja: "Xprite のエディター、サイト、ツールが使うデータについて。アカウントは不要です。itch.io など Xprite を掲載するサイトには独自の方針がある場合があります。",
       ko: "Xprite 에디터, 웹사이트, 도구가 사용하는 데이터를 안내합니다. 계정은 필요 없습니다. itch.io처럼 Xprite를 호스팅하는 사이트에는 자체 방침이 있을 수 있습니다.",
     },
   },
@@ -88,7 +88,7 @@ export const SITE_DOCUMENTS: readonly SiteDocumentDefinition[] = [
     searchTitle: {
       en: "Pixel Art Editor Features: Draw, Animate, Export | Xprite",
       "zh-CN": "像素画编辑器功能：绘画、动画与导出 | Xprite",
-      ja: "ドット絵エディターの機能：描画・アニメーション・エクスポート | Xprite",
+      ja: "ドット絵エディターの機能：描画・アニメ・書き出し | Xprite",
       ko: "도트 에디터 기능: 그리기, 애니메이션, 내보내기 | Xprite",
     },
   },
