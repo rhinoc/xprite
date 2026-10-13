@@ -34,6 +34,7 @@ import {
   TextVariant,
   Combobox,
   Slider,
+  defaultActionProps,
 } from "@xprite/ui";
 
 const LAYER_PROPERTIES_DEFAULT_WIDTH = 390;
@@ -603,6 +604,7 @@ function FramePropertiesWindow({
                 }}
                 relativeTo={client}
                 text="OK"
+                {...defaultActionProps()}
                 font={FontRole.Primary}
                 mnemonicIndex={0}
                 aria-label="OK"

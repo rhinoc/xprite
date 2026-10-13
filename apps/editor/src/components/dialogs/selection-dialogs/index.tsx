@@ -25,6 +25,7 @@ import {
   Divider,
   Slider,
   FocusRingBehavior,
+  defaultActionProps,
 } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 import { measureUiText } from "@xprite/ui/assets";
@@ -323,6 +324,7 @@ export function SelectionDialogs({
               pushedPart="button_selected"
               focusRing={isColor ? FocusRingBehavior.Always : FocusRingBehavior.Keyboard}
               text="OK"
+              {...defaultActionProps()}
               font={FontRole.Primary}
               mnemonicIndex={0}
               aria-label="OK"

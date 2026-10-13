@@ -19,6 +19,7 @@ import {
   TextVariant,
   Combobox,
   Checkbox,
+  defaultActionProps,
 } from "@xprite/ui";
 import { isImeKeyboardEvent } from "@xprite/ui/utils";
 
@@ -406,6 +407,7 @@ export function TilemapDialog({
               }}
               relativeTo={c}
               text="OK"
+              {...defaultActionProps()}
               disabled={!valid}
               onClick={accept}
             />

@@ -68,6 +68,7 @@ import {
   AsepriteInk,
   DEFAULT_DYNAMICS_SETTINGS,
   supportsPixelPerfect,
+  DEFAULT_PIXEL_PERFECT,
   type BrushImage,
   type EditorTool as CoreTool,
   type AsepriteBrushShape,
@@ -295,7 +296,7 @@ function usePreviewEditorState(
   const [pixelPerfectTools, setPixelPerfectTools] = useState<Partial<Record<EditorTool, boolean>>>(
     {},
   );
-  const pixelPerfect = pixelPerfectTools[tool] ?? supportsPixelPerfect({ tool });
+  const pixelPerfect = pixelPerfectTools[tool] ?? DEFAULT_PIXEL_PERFECT;
   const setPixelPerfect = (value: boolean | ((current: boolean) => boolean)) =>
     setPixelPerfectTools((previous) => ({
       ...previous,

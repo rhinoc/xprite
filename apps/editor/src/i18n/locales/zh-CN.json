@@ -68,6 +68,8 @@
   "ui.animation.playback": "动画播放",
   "ui.animation.preview": "动画预览",
   "ui.animation.preview.canvas": "动画预览画布",
+  "ui.animation.fullscreen": "全屏预览",
+  "ui.animation.fullscreen.canvas": "全屏预览画布",
   "ui.animation.tags": "动画标签",
   "ui.any": "任意",
   "ui.application.menu": "应用程序菜单",

@@ -10,6 +10,7 @@ export {
   useOverlayInteraction,
   OverlayInteractionScope,
   OverlayDismissReason,
+  defaultActionProps,
 } from "$/components/window/interaction";
 export type { OverlayInteractionOptions, OverlayOwner } from "$/components/window/interaction";
 export { useWindowGesture } from "$/components/window/gesture";

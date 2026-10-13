@@ -45,6 +45,7 @@ export type EditorCommand =
         | "effect-outline"
         | "toggle-onion"
         | "toggle-preview"
+        | "fullscreen-preview"
         | "toggle-timeline"
         | "toggle-timeline-thumbnails"
         | "play-preview"

@@ -100,7 +100,10 @@ type TimelineWorkflowActions = {
   openLayerPropertiesDialog?: () => void;
   openFramePropertiesDialog?: () => void;
 };
-type AnimationWorkflowActions = { playPreview?: () => void };
+type AnimationWorkflowActions = {
+  playPreview?: () => void;
+  openFullscreenPreview?: () => void;
+};
 type EffectWorkflowActions = { openEffect?: (kind: EffectKind) => void };
 export interface EditorWorkflowOptions {
   appearanceMode: AppearanceMode;
@@ -1156,6 +1159,9 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
         break;
       case "toggle-preview":
         editor.setPreviewVisible((v) => !v);
+        break;
+      case "fullscreen-preview":
+        animationActions?.openFullscreenPreview?.();
         break;
       case "toggle-timeline":
         editor.setTimelineVisible((visible) => !visible);

@@ -1,7 +1,8 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
+import { preloadableLazy } from "$/components/shared/preloadable-lazy";
 import { tUi, tUiSource, useUiLanguage } from "$/i18n";
 import {
   ExportOutputFormat,
@@ -39,21 +40,25 @@ import { clientRect, dropdownArrowOffsetY, isImeKeyboardEvent } from "@xprite/ui
 
 import styles from "$/components/dialogs/export-dialog/export-dialog.module.css";
 
-const ExportFileDialog = lazy(() =>
-  import("$/components/dialogs/export-file-dialog").then((module) => ({
-    default: module.ExportFileDialog,
-  })),
+const exportFilePanel = preloadableLazy(() =>
+  import("$/components/dialogs/export-file-dialog").then((module) => module.ExportFileDialog),
 );
-const SpriteSheetDialog = lazy(() =>
-  import("$/components/dialogs/sprite-sheet-dialog").then((module) => ({
-    default: module.SpriteSheetDialog,
-  })),
+const spriteSheetPanel = preloadableLazy(() =>
+  import("$/components/dialogs/sprite-sheet-dialog").then((module) => module.SpriteSheetDialog),
 );
-const AnimalCrossingDialog = lazy(() =>
-  import("$/components/dialogs/animal-crossing-dialog").then((module) => ({
-    default: module.AnimalCrossingDialog,
-  })),
+const animalCrossingPanel = preloadableLazy(() =>
+  import("$/components/dialogs/animal-crossing-dialog").then(
+    (module) => module.AnimalCrossingDialog,
+  ),
 );
+const ExportFileDialog = exportFilePanel.Component;
+const SpriteSheetDialog = spriteSheetPanel.Component;
+const AnimalCrossingDialog = animalCrossingPanel.Component;
+
+/** The Image and Sprite Sheet panels open from Ctrl+Alt+Shift+S and Ctrl+E. */
+export function preloadExportPanels() {
+  return Promise.all([exportFilePanel.preload(), spriteSheetPanel.preload()]);
+}
 const SELECTOR_HEIGHT = 42;
 const CONTROL_HEIGHT = 30;
 const CONTROL_GAP = 8;

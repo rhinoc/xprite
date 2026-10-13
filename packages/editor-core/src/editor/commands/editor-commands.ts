@@ -142,6 +142,7 @@ export type EditorCommandResult =
         | "effect-replace-color"
         | "effect-outline"
         | "toggle-preview"
+        | "fullscreen-preview"
         | "toggle-timeline"
         | "toggle-timeline-thumbnails"
         | "play-preview"
@@ -201,6 +202,7 @@ export function executeEditorCommand(
     case "effect-replace-color":
     case "effect-outline":
     case "toggle-preview":
+    case "fullscreen-preview":
     case "play-preview":
     case "layer-properties":
     case "new-tilemap-layer":
@@ -267,14 +269,16 @@ export function executeEditorCommand(
       core.selection.invert();
       break;
     case "flip-selection-horizontal":
-    case "flip-selection-vertical":
-      if (!state.document?.selection) return { kind: "unavailable" };
-      core.selection.flipSelection(
+    case "flip-selection-vertical": {
+      const orientation =
         command.type === "flip-selection-horizontal"
           ? FlipOrientation.Horizontal
-          : FlipOrientation.Vertical,
-      );
+          : FlipOrientation.Vertical;
+      if (state.document?.selection) core.selection.flipSelection(orientation);
+      // cmd_flip.cpp: without a visible mask, target=mask flips the selected cels.
+      else if (!core.imageEditing.flipCels(orientation)) return { kind: "unavailable" };
       break;
+    }
     case "flip-canvas-horizontal":
     case "flip-canvas-vertical":
       core.imageEditing.flipCanvas(

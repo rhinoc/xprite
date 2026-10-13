@@ -23,6 +23,7 @@ import {
   TextAlignment,
   TextVariant,
   Icon,
+  defaultActionProps,
 } from "@xprite/ui";
 import { centerUiPixel, useUiAssets } from "@xprite/ui/assets";
 import type { UiPartName } from "@xprite/ui/assets";
@@ -543,6 +544,7 @@ export function NewSpriteDialog({
               />
               <Button
                 text="OK"
+                {...defaultActionProps()}
                 mnemonicIndex={0}
                 font={FontRole.Primary}
                 part="button_normal"

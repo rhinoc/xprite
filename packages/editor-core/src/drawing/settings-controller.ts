@@ -1,6 +1,5 @@
 import { UINT8_MAX } from "$/base/numeric-constants";
 import type { Brush, Rgba } from "$/base/primitives";
-import { supportsPixelPerfect } from "$/canvas/raster/pixel-perfect-stroke";
 import { libreSpriteWorkingBrushIndex } from "$/color/operations/color-mode";
 import type { PaletteController } from "$/color/palette/controller";
 import type { EditorDocument } from "$/document/types";
@@ -32,6 +31,12 @@ import { SelectionPivotPosition, SelectionRotationAlgorithm } from "$/selection/
 import { TilemapDisplayMode, TilesetMode } from "$/tilemap/types";
 
 const DEFAULT_VISIBLE_SHAPE_TOOL: EditorTool = "rectangle";
+/**
+ * Aseprite's freehand_algorithm defaults to DEFAULT, not PIXEL_PERFECT (data/pref.xml). A value the
+ * user saved per tool is restored as-is; only tools without one use this default.
+ */
+export const DEFAULT_PIXEL_PERFECT = false;
+
 const DEFAULT_SETTINGS: ToolSettings = {
   shareInk: false,
   shareDynamics: true,
@@ -81,7 +86,7 @@ const DEFAULT_SETTINGS: ToolSettings = {
   textFill: true,
   textStrokeWidth: 0,
   textScale: 1,
-  pixelPerfect: true,
+  pixelPerfect: DEFAULT_PIXEL_PERFECT,
   autoSelectLayer: false,
   eyedropperChannel: EyedropperChannel.ColorAlpha,
   eyedropperSample: EyedropperSample.AllLayers,
@@ -209,7 +214,7 @@ export class DrawingSettingsController {
       dynamics: this.settings.shareDynamics
         ? this.settings.dynamics
         : (parameters?.dynamics ?? { ...DEFAULT_DYNAMICS_SETTINGS }),
-      pixelPerfect: this.pixelPerfectPreferences.get(tool) ?? supportsPixelPerfect({ tool }),
+      pixelPerfect: this.pixelPerfectPreferences.get(tool) ?? DEFAULT_PIXEL_PERFECT,
       autoSelectLayer:
         (this.pointerTool === EditorToolId.Move && !this.quickTool) ||
         this.settings.autoSelectLayer,
@@ -424,7 +429,7 @@ export class DrawingSettingsController {
     const pixelPerfect =
       patch.pixelPerfect ??
       (nextTool !== this.settings.tool
-        ? (this.pixelPerfectPreferences.get(nextTool) ?? supportsPixelPerfect({ tool: nextTool }))
+        ? (this.pixelPerfectPreferences.get(nextTool) ?? DEFAULT_PIXEL_PERFECT)
         : this.settings.pixelPerfect);
     this.pixelPerfectPreferences.set(this.settings.tool, this.settings.pixelPerfect);
     this.pixelPerfectPreferences.set(nextTool, pixelPerfect);
@@ -562,7 +567,7 @@ export class DrawingSettingsController {
       tool,
       selectionMode: SelectionMode.Replace,
       brush: this.brushPreferences.get(tool) ?? this.settings.brush,
-      pixelPerfect: this.pixelPerfectPreferences.get(tool) ?? supportsPixelPerfect({ tool }),
+      pixelPerfect: this.pixelPerfectPreferences.get(tool) ?? DEFAULT_PIXEL_PERFECT,
     };
     this.port.publish();
   }
@@ -602,7 +607,7 @@ export class DrawingSettingsController {
         ...DEFAULT_SETTINGS.brush,
         size: getXpriteToolCapabilities(current.tool).settings.defaultBrushSize,
       },
-      pixelPerfect: supportsPixelPerfect(current),
+      pixelPerfect: DEFAULT_PIXEL_PERFECT,
     };
     this.brushPreferences.clear();
     this.normalBrushPreferences.clear();

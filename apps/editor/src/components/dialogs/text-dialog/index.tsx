@@ -22,6 +22,7 @@ import {
   Text,
   TextVariant,
   type SurfaceBounds,
+  defaultActionProps,
 } from "@xprite/ui";
 import { centerUiPixel, measureUiText } from "@xprite/ui/assets";
 import { sceneViewport } from "@xprite/ui/canvas";
@@ -390,6 +391,7 @@ export function TextDialog({
               <Divider bounds={separator} relativeTo={client} />
               <Button
                 text="OK"
+                {...defaultActionProps()}
                 mnemonicIndex={0}
                 font={FontRole.Primary}
                 part="button_normal"

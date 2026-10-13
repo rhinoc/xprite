@@ -29,6 +29,7 @@ import {
   Checkbox,
   Combobox,
   Divider,
+  defaultActionProps,
 } from "@xprite/ui";
 
 const SPRITE_PROPERTIES_DIALOG_WIDTH = 578;
@@ -449,6 +450,7 @@ export function SpriteProperties({ onClose }: { onClose: () => void }) {
               }}
               relativeTo={c}
               text="OK"
+              {...defaultActionProps()}
               font={FontRole.Primary}
               mnemonicIndex={0}
               aria-label="OK"

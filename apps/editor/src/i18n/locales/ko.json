@@ -68,6 +68,8 @@
   "ui.animation.playback": "애니메이션 재생",
   "ui.animation.preview": "애니메이션 미리보기",
   "ui.animation.preview.canvas": "애니메이션 미리보기 캔버스",
+  "ui.animation.fullscreen": "전체 화면 미리보기",
+  "ui.animation.fullscreen.canvas": "전체 화면 미리보기 캔버스",
   "ui.animation.tags": "애니메이션 태그",
   "ui.any": "모두",
   "ui.application.menu": "애플리케이션 메뉴",

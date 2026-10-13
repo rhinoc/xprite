@@ -14,6 +14,7 @@ import {
   Button,
   Combobox,
   Dialog,
+  defaultActionProps,
   Input,
   Scrollbar,
   ScrollbarStyle,
@@ -937,6 +938,7 @@ export function KeyboardShortcutsDialog({
                 }}
                 relativeTo={client}
                 text={labels.confirm}
+                {...defaultActionProps()}
                 disabled={busy}
                 part="button_normal"
                 hotPart="button_hot"

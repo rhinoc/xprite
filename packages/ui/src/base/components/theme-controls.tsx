@@ -32,6 +32,7 @@ import { FontRole } from "$/base/theme/theme-types";
 import { UiFontRenderer, type UiFontDefinition } from "$/base/theme/theme-types";
 import { cn } from "$/base/utils/cn";
 import { borderSize, observeElementSize, rangeRect } from "$/base/utils/dom-geometry";
+import { markFieldKey } from "$/base/utils/field-key";
 import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
 import { UINT8_MAX } from "$/base/utils/numeric-constants";
 import { surfaceLayout, DEFAULT_SURFACE_VIEWPORT } from "$/components/canvas-surface";
@@ -854,12 +855,14 @@ export function Input({
           if (activation.onKeyDown(e)) return;
           if (e.key === "Enter") {
             e.preventDefault();
+            markFieldKey(e.nativeEvent);
             commit(e.currentTarget.value);
             skipBlurCommit.current = true;
             e.currentTarget.blur();
           }
           if (e.key === "Escape") {
             e.preventDefault();
+            markFieldKey(e.nativeEvent);
             skipBlurCommit.current = true;
             setDraft(value);
             e.currentTarget.blur();

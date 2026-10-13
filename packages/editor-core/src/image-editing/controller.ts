@@ -20,7 +20,12 @@ import {
   trimDocumentCanvas,
   type SpriteResizeMethod,
 } from "$/image-editing/size";
-import { flipDocumentCanvas, type FlipOrientation } from "$/image-editing/transform";
+import {
+  canFlipSelectedCels,
+  flipDocumentCanvas,
+  flipSelectedCels,
+  type FlipOrientation,
+} from "$/image-editing/transform";
 import type { TilesetMode } from "$/tilemap/types";
 
 export interface ImageEditingSettings {
@@ -119,6 +124,15 @@ export class ImageEditingController {
     this.port.commitDocumentEdit("Flip Canvas", (document) =>
       flipDocumentCanvas(document, orientation),
     );
+  }
+
+  /** Flip(target=mask) with no selection mirrors the selected cels' whole images. */
+  flipCels(orientation: FlipOrientation): boolean {
+    if (!canFlipSelectedCels(this.port.getDocument())) return false;
+    this.port.commitDocumentEdit("Flip", (document) => {
+      flipSelectedCels(document, orientation);
+    });
+    return true;
   }
 
   convertColorMode(depth: SpriteColorDepth, options: ColorModeConversionOptions = {}): void {

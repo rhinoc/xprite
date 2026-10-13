@@ -10,6 +10,7 @@ import {
   type MutableRefObject,
 } from "react";
 
+import { isUnclaimedKey, triggersDefaultAction } from "$/base/utils/field-key";
 import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
 
 export enum OverlayDismissReason {
@@ -132,19 +133,45 @@ function dismiss(entry: OverlayEntry, reason: OverlayDismissReason, event: Event
   entry.options.current.onDismiss(reason, event);
 }
 
-function handleKey(registry: OverlayRegistry, event: KeyboardEvent) {
-  if (event.defaultPrevented || isImeKeyboardEvent(event)) return;
+/** Aseprite's magnet button: the window's default action, fired by Enter from any control. */
+const DEFAULT_ACTION_ATTRIBUTE = "data-ui-default-action";
+/** Spread on the OK button of a dialog: `<Button {...defaultActionProps()} />`. */
+export function defaultActionProps(enabled = true): Record<string, string> {
+  return enabled ? { [DEFAULT_ACTION_ATTRIBUTE]: "" } : {};
+}
+const DEFAULT_ACTION_SELECTOR = `[${DEFAULT_ACTION_ATTRIBUTE}]:not(:disabled)`;
+function defaultAction(root: HTMLElement | null, event: KeyboardEvent): HTMLElement | null {
+  if (!root) return null;
+  const target = event.target instanceof Element ? event.target : null;
+  if (!triggersDefaultAction(event, target)) return null;
+  return root.querySelector<HTMLElement>(DEFAULT_ACTION_SELECTOR);
+}
+
+/** Returns whether the window consumed the key. */
+function handleKey(registry: OverlayRegistry, event: KeyboardEvent): boolean {
+  if (!isUnclaimedKey(event) || isImeKeyboardEvent(event)) return false;
   const entry = topEntry(registry);
-  if (!entry) return;
+  if (!entry) return false;
   const options = entry.options.current;
-  if (options.escapeWithinRoot && !contains(entry, event.target)) return;
+  if (options.escapeWithinRoot && !contains(entry, event.target)) return false;
   const escape =
     event.key === "Escape" && options.closeOnEscape !== false && !options.ignoreEscape?.(event);
   const enter = event.key === "Enter" && options.closeOnEnter;
-  if (!escape && !enter) return;
+  if (!escape && !enter) {
+    const action = defaultAction(entry.owner.rootRef.current, event);
+    if (!action) return false;
+    event.preventDefault();
+    event.stopPropagation();
+    // Let the focused field's commit render first, so the action reads the committed value.
+    queueMicrotask(() => {
+      if (action.isConnected) action.click();
+    });
+    return true;
+  }
   event.preventDefault();
   event.stopPropagation();
   dismiss(entry, escape ? OverlayDismissReason.Escape : OverlayDismissReason.Enter, event);
+  return true;
 }
 
 function createRegistry(document: Document): OverlayRegistry {
@@ -276,8 +303,9 @@ export function useOverlayInteraction(options: OverlayInteractionOptions) {
     onKeyDown(event: ReactKeyboardEvent<HTMLElement>) {
       const document = event.currentTarget.ownerDocument;
       const registry = registries.get(document);
-      if (registry) handleKey(registry, event.nativeEvent);
-      if (event.nativeEvent.defaultPrevented) {
+      const handled = !!registry && handleKey(registry, event.nativeEvent);
+      // A field's own commit/revert key keeps bubbling to the dialog's handlers.
+      if (handled || !isUnclaimedKey(event.nativeEvent)) {
         event.preventDefault();
         event.stopPropagation();
       }

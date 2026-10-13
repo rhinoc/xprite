@@ -8,7 +8,15 @@ import {
   ShortcutBindingKind,
   type ShortcutDefinition,
 } from "$/managers/shortcuts/shortcut-manager";
-import { Button, Checkbox, Input, OverlayContentLayout, Text, TextVariant } from "@xprite/ui";
+import {
+  Button,
+  Checkbox,
+  defaultActionProps,
+  Input,
+  OverlayContentLayout,
+  Text,
+  TextVariant,
+} from "@xprite/ui";
 
 import styles from "$/components/dialogs/keyboard-shortcuts/keyboard-shortcuts.module.css";
 
@@ -148,7 +156,12 @@ export function ShortcutCaptureDialog({
             )}
           </div>
           <div className={styles.captureFooter}>
-            <Button text="OK" disabled={!valid} onClick={() => onAccept(shortcut)} />
+            <Button
+              text="OK"
+              {...defaultActionProps()}
+              disabled={!valid}
+              onClick={() => onAccept(shortcut)}
+            />
             <Button text="Cancel" onClick={onCancel} />
           </div>
         </div>

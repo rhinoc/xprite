@@ -111,6 +111,7 @@ import {
 } from "@xprite/ui/utils";
 
 const bottomOrigin = { x: 0, y: 0 };
+const ONION_SKIN_SHORTCUT = "F3";
 const PLAYBACK_CONTROLS_TOP = 2;
 const PLAYBACK_CONTROLS_HEIGHT = 26;
 const PLAYBACK_CONTROL_PITCH = 32;
@@ -1338,53 +1339,71 @@ function EditorTimelineContent({
             </Tooltip>
           )}
         />
-        {headerControls.map(({ icon, label, action }, index) => (
-          <Button
-            key={label}
-            className="xse-timeline-header-action"
-            part={label === "Onion skin" && onionSkinActive ? "timeline_active" : "timeline_normal"}
-            hotPart={
-              label === "Onion skin" && onionSkinActive ? "timeline_active_hover" : "timeline_hover"
-            }
-            pushedPart="timeline_clicked"
-            insetContent={false}
-            icon={
-              (label === "Onion skin" && onionSkinActive
-                ? "timeline_onionskin_active"
-                : icon) as UiPartName
-            }
-            selectedIcon={`${icon.replace(/_normal$/, "")}_active` as UiPartName}
-            aria-label={tUiSource(label)}
-            data-ui-label-source={label}
-            aria-pressed={label === "Onion skin" ? onionSkinActive : undefined}
-            onContextMenu={
-              label === "Onion skin"
-                ? (event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    animationActions?.openOnionSettings();
-                  }
-                : undefined
-            }
-            disabled={!timelineManager.active}
-            onPointerDown={(event) => {
-              if (event.button === 0) action();
-            }}
-            onClick={(event) => {
-              if (event.detail === 0) action();
-            }}
-            style={{
-              zIndex: 3,
-            }}
-            bounds={{
-              x: 2 + index * TIMELINE_HEADER_CONTROL_SIZE,
-              y: headerTop,
-              width: TIMELINE_HEADER_CONTROL_SIZE,
-              height: frameHeaderHeight,
-            }}
-            relativeTo={bottomOrigin}
-          />
-        ))}
+        {headerControls.map(({ icon, label, action }, index) => {
+          const button = (
+            <Button
+              key={label}
+              className="xse-timeline-header-action"
+              part={
+                label === "Onion skin" && onionSkinActive ? "timeline_active" : "timeline_normal"
+              }
+              hotPart={
+                label === "Onion skin" && onionSkinActive
+                  ? "timeline_active_hover"
+                  : "timeline_hover"
+              }
+              pushedPart="timeline_clicked"
+              insetContent={false}
+              icon={
+                (label === "Onion skin" && onionSkinActive
+                  ? "timeline_onionskin_active"
+                  : icon) as UiPartName
+              }
+              selectedIcon={`${icon.replace(/_normal$/, "")}_active` as UiPartName}
+              aria-label={tUiSource(label)}
+              data-ui-label-source={label}
+              aria-pressed={label === "Onion skin" ? onionSkinActive : undefined}
+              onContextMenu={
+                label === "Onion skin"
+                  ? (event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      animationActions?.openOnionSettings();
+                    }
+                  : undefined
+              }
+              disabled={!timelineManager.active}
+              onPointerDown={(event) => {
+                if (event.button === 0) action();
+              }}
+              onClick={(event) => {
+                if (event.detail === 0) action();
+              }}
+              style={{
+                zIndex: 3,
+              }}
+              bounds={{
+                x: 2 + index * TIMELINE_HEADER_CONTROL_SIZE,
+                y: headerTop,
+                width: TIMELINE_HEADER_CONTROL_SIZE,
+                height: frameHeaderHeight,
+              }}
+              relativeTo={bottomOrigin}
+            />
+          );
+          // F3 toggles onion skin (gui.xml ShowOnionSkin), named like the other buttons' tooltips.
+          return label === "Onion skin" ? (
+            <Tooltip
+              key={label}
+              placement={TooltipPlacement.Bottom}
+              text={`${tUiSource(label)}\n\n${tUi("ui.timeline.playback.shortcut", { shortcut: ONION_SKIN_SHORTCUT })}`}
+            >
+              {(getTooltipProps) => cloneElement(button, getTooltipProps(button.props))}
+            </Tooltip>
+          ) : (
+            button
+          );
+        })}
         <div
           className="xse-timeline-layer-pane"
           style={{

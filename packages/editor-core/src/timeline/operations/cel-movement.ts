@@ -29,7 +29,8 @@ export function canMoveTimelineLayer(timeline: SpriteTimeline, index: number): b
   );
 }
 
-function movementSites(timeline: SpriteTimeline, useTimelineRange: boolean) {
+/** The timeline range when one is active, otherwise the active cel. */
+export function timelineCelSites(timeline: SpriteTimeline, useTimelineRange: boolean) {
   const range =
     useTimelineRange && timeline.range && validTimelineRange(timeline, timeline.range)
       ? timeline.range
@@ -57,11 +58,12 @@ export function isLayerInCelMovementRange(
     useTimelineRange &&
     timeline.range &&
     validTimelineRange(timeline, timeline.range) &&
-    movementSites(timeline, true).layers.has(index)
+    timelineCelSites(timeline, true).layers.has(index)
   );
 }
 
-function identity(cel: TimelineCel): object {
+/** Shared image identity: linked cels alias one image. */
+export function timelineCelIdentity(cel: TimelineCel): object {
   return cel.asepriteSamples ?? cel.tilemap ?? cel.pixels;
 }
 
@@ -81,7 +83,7 @@ export class TimelineCelMovement {
 
   static create(timeline: SpriteTimeline, useTimelineRange = true): TimelineCelMovement | null {
     if (!canMoveTimelineLayer(timeline, timeline.activeLayer)) return null;
-    const sites = movementSites(timeline, useTimelineRange);
+    const sites = timelineCelSites(timeline, useTimelineRange);
     const targets = new Map<number, Set<object>>();
     for (const layer of sites.layers) {
       const item = timeline.layers[layer];
@@ -96,7 +98,7 @@ export class TimelineCelMovement {
         const cel = timeline.frames[frame].cels[layer];
         if (!cel) continue;
         const images = targets.get(layer) ?? new Set<object>();
-        images.add(identity(cel));
+        images.add(timelineCelIdentity(cel));
         targets.set(layer, images);
       }
     }
@@ -118,7 +120,7 @@ export class TimelineCelMovement {
     const frames = this.timeline.frames.map((frame) => {
       let changed = false;
       const cels = frame.cels.map((cel, layer) => {
-        if (!cel || !this.targets.get(layer)?.has(identity(cel))) return cel;
+        if (!cel || !this.targets.get(layer)?.has(timelineCelIdentity(cel))) return cel;
         const precise = !!(this.timeline.layers[layer].flags & LAYER_REFERENCE);
         const x = precise ? dx : roundedOffset(dx),
           y = precise ? dy : roundedOffset(dy);

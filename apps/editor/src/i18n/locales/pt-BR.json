@@ -68,6 +68,8 @@
   "ui.animation.playback": "Reprodução da animação",
   "ui.animation.preview": "Pré-visualização da animação",
   "ui.animation.preview.canvas": "Tela de pré-visualização da animação",
+  "ui.animation.fullscreen": "Pré-visualização em tela cheia",
+  "ui.animation.fullscreen.canvas": "Tela da pré-visualização em tela cheia",
   "ui.animation.tags": "Tags de animação",
   "ui.any": "Qualquer",
   "ui.application.menu": "Menu do aplicativo",
