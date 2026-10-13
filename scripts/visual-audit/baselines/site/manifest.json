@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "runId": "e67893af-521f-42c7-ad00-aa990649afea",
-  "capturedAt": "2026-10-13T02:16:54.103Z",
+  "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
+  "capturedAt": "2026-10-13T02:50:32.834Z",
   "captureComplete": true,
   "sourceHashes": {
-    ".husky/pre-push": "bc980d0a48456158413f5094a7e3ff9937fed8d7fc12553d0246891b7e7def7a",
+    ".husky/pre-push": "3d2e5d34afe096256f348b54eefd0d91b1e6701316ebf8b3057668b4d8241ffe",
     "apps/editor/assets/commands/aseprite-tool-tips.json": "e9e275e9d3b024deaa66850fa53e43713f155b70afd619d6d8c9d3ad86c47c26",
     "apps/editor/assets/commands/libresprite-keyboard-shortcuts.json": "36bfd19176989e659289b5e89927f29d7e4f2fe4e9389a1520552bd8711560d1",
     "apps/editor/assets/commands/libresprite-main-menu.json": "3f8e173da89ddb360e396c68a20c74244f5418cf41ad47735d0b3ddd61b839ad",
@@ -656,7 +656,7 @@
     "apps/growth/build/pages/article-source.test.ts": "222f93c17910e014836ad29365d198d8c77c2873bc2d6cf656de812fc21b5a44",
     "apps/growth/build/pages/article-source.ts": "d3a2dca1817d732ab7642b6c01ea9c2d78eedf401a37232d336203a5d43fcece",
     "apps/growth/build/pages/document-page.ts": "5508d6045afbe2e579e4543ffb9ec6484eb29e68240596ca31fbe4c590ae3998",
-    "apps/growth/build/pages/document-pages.test.ts": "7bdb929c6bb8ffde791c57ebf8bbcf681c3a65f820dc963d7ecfc070a30ab8a6",
+    "apps/growth/build/pages/document-pages.test.ts": "4574f1e57f279c7f2e6da83db2e92c010604ad2ef8d691e29c40c4ed3434b958",
     "apps/growth/build/pages/document-pages.ts": "5181c364202ffd5b51e5a67a266f50e5cddd9c182f5186a6eaed7c1157437848",
     "apps/growth/build/pages/document-resources.ts": "c7872b444beaaabc3eac9e781d662ba91205251c112e84b34ac881599cd91e2f",
     "apps/growth/build/pages/feature-directory.ts": "9140429d752334aecbbf0a4f2030232ec5150e0e1736af29783fd0d8758b6bcd",
@@ -671,8 +671,8 @@
     "apps/growth/build/seo/showcase-seo.ts": "fb7085882bdf678301a697161c186932889fb2a435cd8e796c679e8777b9bdf7",
     "apps/growth/build/site-navigation.ts": "a6039c39c84da8a4c11cb0412e2a53edc1038a9d4e4d4c04e42ce55562f64825",
     "apps/growth/build/static-ui-renderer.ts": "0af674c1b555fdcc9b7023a33655e5f1224dc7cf5b9e67c2fd397133af26c0b8",
-    "apps/growth/content/about/features.en.md": "64791c17dd6716235bd0aeb7bfe3f56bc01c1fc64317fe851ba03c9b34c5f0e7",
-    "apps/growth/content/about/features.zh-CN.md": "7f3a7ce7e5a79c12b2d7299ccdbaca7072738a1b3a03eb097011a03f7001a2ef",
+    "apps/growth/content/about/features.en.md": "a3bd20994514678210428a86ecfe9d6cdee389cfdc18098931110f259bb2aca8",
+    "apps/growth/content/about/features.zh-CN.md": "792ba0e4340fe8c72b5f4b98aa61e4c86fee2f38ca5296891c30b2d1dc0dfd7c",
     "apps/growth/content/about/how-it-works.en.md": "1c9d9a8156ac75a265ad545fa8f96883e131139ac1917fabb24fc5195160670e",
     "apps/growth/content/about/how-it-works.zh-CN.md": "90563ab260820923beaf44b8d370f9d949d3cedfc778661b97e22375312cba50",
     "apps/growth/content/about/images/save-as-location-en.png": "81e544945fbb228a321faa35ee82cfee6bafa97ba4c842673d798110b541496f",
@@ -1199,7 +1199,8 @@
     "infra/dev-site.ts": "ce8144d614c0d2065f7fb9024bdbbbf61c85b6f6904d1b257617933933f6376a",
     "infra/edgeone-serving-rules.test.ts": "23e04a731912cf23222a7687418e0ffdfd8dbc7b35319b1666c3076c74d934f0",
     "infra/edgeone-serving-rules.ts": "5de71687c37bf5b71aadf11083f3b0be5ee80a598052785fd686e99ac159ecc2",
-    "infra/knip.json": "25c3b1efc6223be0d4159da661a6241c92f8bfaed18dfbb617342392b9504e92",
+    "infra/knip.json": "99a8cb1c1af7a7c7affd25d1251b700c91bfbca0a828eb7a76ce4824c33b4c8c",
+    "infra/known-test-failures.json": "4b15d2fff4a6d00ec7972c4b50bd0d1836c16d432e2276c23c2dbe6995179d4f",
     "infra/lint-staged.json": "df8be38210d686d46a8aced1ff6f913f6f2fab12eef0bf4f1d8f43a9b0b56b9e",
     "infra/oxfmt.json": "ae51aa8cda3f2a830a644719c891234c6bb7e5f20c476cc00e975a07752faf6b",
     "infra/oxlint.json": "c4d192f146c73f1e2a16e2037debf14633a5dd5f7b3591606a1f11702a694c21",
@@ -1217,7 +1218,7 @@
     "infra/site-telemetry.ts": "9dae1a3d7afa55c7b13385a49ca00a7199d8cb9e57a84eb668a934a784e83b50",
     "infra/tsconfig.dependency-cruiser.json": "d898f50ef61c69e17306be623d9c48789769396559940adf68bc1d09edfd3509",
     "infra/vitest.config.ts": "c340713e6ab3a06dd0addb847f09d4fef3f981a29d782e58b065903ce17bb536",
-    "package.json": "43e684e611b876d60a5f2b7709783d048db0642fa546a66c957f5487a4b1defc",
+    "package.json": "4167813cac69b97bd76444385845267017b73b9906239f56561d6be7362f506f",
     "packages/bedrock/browser/clipboard.ts": "6e19a831d0de2d901fe0a05d87433d0e4ea8bfc7acdd005c5cc716526747f11a",
     "packages/bedrock/browser/exclusive-lock.ts": "80ef812a097a9aecb1eb44dd05c18a08e96c5be359d0af7343846a186f9e8ff7",
     "packages/bedrock/browser/eyedropper.ts": "90e8aaf7b69334a4482dbda16b0bc66b4b0fdd0726dfc58b8927250031f2a99e",
@@ -1241,7 +1242,7 @@
     "packages/bedrock/browser/worker-request-channel.test.ts": "119018411f17d44fae660e7e61a27873706c287f4074de3db3b1d439bf2cd4c1",
     "packages/bedrock/browser/worker-request-channel.ts": "8771ba037bdd75cd8ebe0f801abc30f068f32a2d93f586b910fe423b4296ad5e",
     "packages/bedrock/package.json": "3ebaaf7f410dfce62460724153ceab6098eeedd1ee5fc7420ea026de59dbbdae",
-    "packages/editor-core/package.json": "577bb979c5c14448b664ce410dd54ddc6f41fb96009388ddb31672420f3e6db5",
+    "packages/editor-core/package.json": "f7f1daf1309d9bc93d4183ce699368ffc62b32a49e6ea8365ec8514b096a301a",
     "packages/editor-core/src/base/clone.ts": "517873c7c4124130b9f20ba9a1b360fa099efe5aec1870cea0bd8324f61b4a8b",
     "packages/editor-core/src/base/errors.ts": "3378fe077cba633e48bd4dffd62ec86860fcd71b58da8bb5700359f16eb4307e",
     "packages/editor-core/src/base/image-limits.ts": "5806c0e1f8a63c3ca269d363b7db8dd1c6b786b300ad0da2a0c8ff7e7f4ae2bd",
@@ -2175,8 +2176,8 @@
     "packages/ui/vite.config.ts": "4461c02d22002cacb254e22f7cc6499851e6a2029683e1495457cac8c7eb8368",
     "pnpm-lock.yaml": "0f793353848436bc593f620ed24d04b39272fea7c7f9fe11bc5a7dfb963edcd6",
     "scripts/base/screenshot.mjs": "7328e19aaf2f408419ec755d603a6e52b1b51b3c387fb590ea16c29701ad013f",
-    "scripts/visual-audit/site/README.md": "4dcc4d6ec4114e0e835c845e067d913f83ac177da4f5ecb185438d96001d9fdd",
-    "scripts/visual-audit/site/audit.mjs": "01d15ddd381d6e170103c730ac716d735e41ec631779b0cd69fda0dee8409913",
+    "scripts/visual-audit/site/README.md": "b952c6ed5f1c2e957e089f51aa239615b0590ef39a88d802695ad435881a3720",
+    "scripts/visual-audit/site/audit.mjs": "72368730943d55ce84b0497a48a356217ba48428007d32f721233b20658d2308",
     "scripts/visual-audit/site/capture.payload.mjs": "7f0982206cf299fd1e623c9bd8ce201bacda4ec73fb3b40fe4ed591593850c06",
     "scripts/visual-audit/site/compare.mjs": "5ebf90159c474d4b10e384b3146bfedd8c7129bb684c370997b453a87d259d42",
     "scripts/visual-audit/site/report.mjs": "ec9f9f5366a9239b1dc739feecf0d048daf20f537a081264ce9a472ff015f764",
@@ -2184,7 +2185,7 @@
     "scripts/visual-audit/site/sources.mjs": "19e78a016dc040ea7ee423018fdab627b358eb07ca0be634355804deae975d59",
     "scripts/visual-audit/tools-startup/scenes.mjs": "8bba4f27b52bd875a1b48b81d85833a68475d222db949d040d3aac79e068eb1b"
   },
-  "sourceDigest": "18c3c718b96d139b9d4fa2299bc4e55e46664b297bf5f1b9817b9183f99d2e6f",
+  "sourceDigest": "332926d1a0ac564ba8ed0f9c496dba40a6d518577ebf531703149a0999916cf8",
   "scenes": [
     "about-zh-CN-wide-light",
     "about-zh-CN-compact-light",
@@ -2215,15 +2216,15 @@
     "tools-animal-crossing-qr-empty-en-compact-dark",
     "tools-animal-crossing-qr-loaded-en-compact-dark",
     "about-features-en-compact-dark",
-    "feature-window-features-draw-pixel-art-en-wide-light",
-    "feature-window-features-layers-and-colors-zh-CN-compact-dark",
+    "feature-window-tools-viewer-en-wide-light",
+    "feature-window-tools-viewer-zh-CN-compact-dark",
     "site-footer-en-wide-light",
     "site-footer-zh-CN-compact-dark"
   ],
   "cases": [
     {
       "id": "about-zh-CN-wide-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "about-zh-CN-wide-light.png",
       "contract": {
         "id": "about-zh-CN-wide-light",
@@ -2259,7 +2260,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:16:54.702Z",
+        "capturedAt": "2026-10-13T02:50:34.229Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2323,7 +2324,7 @@
     },
     {
       "id": "about-zh-CN-compact-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "about-zh-CN-compact-light.png",
       "contract": {
         "id": "about-zh-CN-compact-light",
@@ -2359,7 +2360,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:16:55.021Z",
+        "capturedAt": "2026-10-13T02:50:35.518Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2423,7 +2424,7 @@
     },
     {
       "id": "about-features-zh-CN-compact-dark",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "about-features-zh-CN-compact-dark.png",
       "contract": {
         "id": "about-features-zh-CN-compact-dark",
@@ -2459,7 +2460,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:16:55.717Z",
+        "capturedAt": "2026-10-13T02:50:39.109Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2487,7 +2488,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "19c6f8058c7a4e01f90b719e8de9848a663ff22a3acdc512d5a9945d22382133",
+        "sha256": "3942e409829a7b4406d7d4219ea372cc1a8f6e8cf3eea41c3680117c8b3cf233",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2523,7 +2524,7 @@
     },
     {
       "id": "about-how-it-works-en-wide-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "about-how-it-works-en-wide-light.png",
       "contract": {
         "id": "about-how-it-works-en-wide-light",
@@ -2559,7 +2560,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:16:56.540Z",
+        "capturedAt": "2026-10-13T02:50:41.904Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2623,7 +2624,7 @@
     },
     {
       "id": "compare-zh-CN-compact-dark",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "compare-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-zh-CN-compact-dark",
@@ -2659,7 +2660,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:16:57.133Z",
+        "capturedAt": "2026-10-13T02:50:44.325Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2723,7 +2724,7 @@
     },
     {
       "id": "compare-aseprite-on-ipad-en-wide-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "compare-aseprite-on-ipad-en-wide-light.png",
       "contract": {
         "id": "compare-aseprite-on-ipad-en-wide-light",
@@ -2759,7 +2760,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:16:57.848Z",
+        "capturedAt": "2026-10-13T02:50:48.187Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2823,7 +2824,7 @@
     },
     {
       "id": "compare-aseprite-online-zh-CN-compact-dark",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "compare-aseprite-online-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-aseprite-online-zh-CN-compact-dark",
@@ -2859,7 +2860,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:16:58.503Z",
+        "capturedAt": "2026-10-13T02:50:50.314Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2923,7 +2924,7 @@
     },
     {
       "id": "compare-piskel-alternatives-en-wide-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "compare-piskel-alternatives-en-wide-light.png",
       "contract": {
         "id": "compare-piskel-alternatives-en-wide-light",
@@ -2959,7 +2960,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:16:59.155Z",
+        "capturedAt": "2026-10-13T02:50:51.515Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3023,7 +3024,7 @@
     },
     {
       "id": "features-aseprite-projects-zh-CN-compact-dark",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "features-aseprite-projects-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-aseprite-projects-zh-CN-compact-dark",
@@ -3059,7 +3060,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:16:59.750Z",
+        "capturedAt": "2026-10-13T02:50:54.703Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3123,7 +3124,7 @@
     },
     {
       "id": "features-draw-pixel-art-en-wide-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "features-draw-pixel-art-en-wide-light.png",
       "contract": {
         "id": "features-draw-pixel-art-en-wide-light",
@@ -3159,7 +3160,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:00.397Z",
+        "capturedAt": "2026-10-13T02:50:57.651Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3223,7 +3224,7 @@
     },
     {
       "id": "features-drawing-process-zh-CN-compact-dark",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "features-drawing-process-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-drawing-process-zh-CN-compact-dark",
@@ -3259,7 +3260,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:01.004Z",
+        "capturedAt": "2026-10-13T02:51:00.096Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3323,7 +3324,7 @@
     },
     {
       "id": "features-export-images-and-animation-en-wide-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "features-export-images-and-animation-en-wide-light.png",
       "contract": {
         "id": "features-export-images-and-animation-en-wide-light",
@@ -3359,7 +3360,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:01.586Z",
+        "capturedAt": "2026-10-13T02:51:03.423Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3423,7 +3424,7 @@
     },
     {
       "id": "features-frame-animation-zh-CN-compact-dark",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "features-frame-animation-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-frame-animation-zh-CN-compact-dark",
@@ -3459,7 +3460,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:02.156Z",
+        "capturedAt": "2026-10-13T02:51:06.018Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3523,7 +3524,7 @@
     },
     {
       "id": "features-layers-and-colors-en-wide-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "features-layers-and-colors-en-wide-light.png",
       "contract": {
         "id": "features-layers-and-colors-en-wide-light",
@@ -3559,7 +3560,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:02.805Z",
+        "capturedAt": "2026-10-13T02:51:08.107Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3623,7 +3624,7 @@
     },
     {
       "id": "features-share-artwork-zh-CN-compact-dark",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "features-share-artwork-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-share-artwork-zh-CN-compact-dark",
@@ -3659,7 +3660,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:03.352Z",
+        "capturedAt": "2026-10-13T02:51:10.080Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3723,7 +3724,7 @@
     },
     {
       "id": "features-tilemaps-en-wide-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "features-tilemaps-en-wide-light.png",
       "contract": {
         "id": "features-tilemaps-en-wide-light",
@@ -3759,7 +3760,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:03.960Z",
+        "capturedAt": "2026-10-13T02:51:12.040Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3823,7 +3824,7 @@
     },
     {
       "id": "features-touch-drawing-zh-CN-compact-dark",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "features-touch-drawing-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-touch-drawing-zh-CN-compact-dark",
@@ -3859,7 +3860,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:04.570Z",
+        "capturedAt": "2026-10-13T02:51:14.149Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3923,7 +3924,7 @@
     },
     {
       "id": "features-workspace-layout-en-wide-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "features-workspace-layout-en-wide-light.png",
       "contract": {
         "id": "features-workspace-layout-en-wide-light",
@@ -3959,7 +3960,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:05.238Z",
+        "capturedAt": "2026-10-13T02:51:16.657Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4023,7 +4024,7 @@
     },
     {
       "id": "help-zh-CN-compact-dark",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "help-zh-CN-compact-dark.png",
       "contract": {
         "id": "help-zh-CN-compact-dark",
@@ -4059,7 +4060,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:05.904Z",
+        "capturedAt": "2026-10-13T02:51:19.173Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4123,7 +4124,7 @@
     },
     {
       "id": "privacy-en-wide-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "privacy-en-wide-light.png",
       "contract": {
         "id": "privacy-en-wide-light",
@@ -4159,7 +4160,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:06.510Z",
+        "capturedAt": "2026-10-13T02:51:21.042Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4223,7 +4224,7 @@
     },
     {
       "id": "tools-viewer-empty-en-wide-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "tools-viewer-empty-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-empty-en-wide-light",
@@ -4260,7 +4261,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:07.405Z",
+        "capturedAt": "2026-10-13T02:51:23.249Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4324,7 +4325,7 @@
     },
     {
       "id": "tools-viewer-loaded-en-wide-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "tools-viewer-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-loaded-en-wide-light",
@@ -4366,7 +4367,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:08.666Z",
+        "capturedAt": "2026-10-13T02:51:25.440Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4437,7 +4438,7 @@
     },
     {
       "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
@@ -4474,7 +4475,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:09.489Z",
+        "capturedAt": "2026-10-13T02:51:26.851Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4538,7 +4539,7 @@
     },
     {
       "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
@@ -4580,7 +4581,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:10.405Z",
+        "capturedAt": "2026-10-13T02:51:28.245Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4651,7 +4652,7 @@
     },
     {
       "id": "tools-pixelate-empty-en-wide-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "tools-pixelate-empty-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-empty-en-wide-light",
@@ -4688,7 +4689,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:11.323Z",
+        "capturedAt": "2026-10-13T02:51:29.271Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4752,7 +4753,7 @@
     },
     {
       "id": "tools-pixelate-loaded-en-wide-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "tools-pixelate-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-loaded-en-wide-light",
@@ -4794,7 +4795,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:13.081Z",
+        "capturedAt": "2026-10-13T02:51:31.153Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4865,7 +4866,7 @@
     },
     {
       "id": "tools-animal-crossing-qr-empty-en-compact-dark",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "tools-animal-crossing-qr-empty-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-empty-en-compact-dark",
@@ -4902,7 +4903,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:13.973Z",
+        "capturedAt": "2026-10-13T02:51:32.116Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4966,7 +4967,7 @@
     },
     {
       "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "tools-animal-crossing-qr-loaded-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
@@ -5008,7 +5009,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:15.005Z",
+        "capturedAt": "2026-10-13T02:51:33.299Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5079,7 +5080,7 @@
     },
     {
       "id": "about-features-en-compact-dark",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "about-features-en-compact-dark.png",
       "contract": {
         "id": "about-features-en-compact-dark",
@@ -5115,7 +5116,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:15.664Z",
+        "capturedAt": "2026-10-13T02:51:33.967Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5143,7 +5144,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "9e5c05f5448fd658de0a4c7dd01c0e500dae58736939d529c9bba2ce64cd44bb",
+        "sha256": "3a53d7b6796af9ef758d9a4ad78cf5babd82fef2d90b9f7bccc70174718525e4",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5178,19 +5179,19 @@
       "path": "/features/"
     },
     {
-      "id": "feature-window-features-draw-pixel-art-en-wide-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
-      "file": "feature-window-features-draw-pixel-art-en-wide-light.png",
+      "id": "feature-window-tools-viewer-en-wide-light",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
+      "file": "feature-window-tools-viewer-en-wide-light.png",
       "contract": {
-        "id": "feature-window-features-draw-pixel-art-en-wide-light",
+        "id": "feature-window-tools-viewer-en-wide-light",
         "page": {
-          "name": "feature-window-features-draw-pixel-art",
+          "name": "feature-window-tools-viewer",
           "path": "/features/",
           "language": "en",
           "phase": "ready",
           "ready": "html[data-public-controls-ready]",
           "action": "feature",
-          "href": "/features/draw-pixel-art/",
+          "href": "/tools/viewer/",
           "regions": [
             {
               "name": "navigation",
@@ -5221,7 +5222,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:16.487Z",
+        "capturedAt": "2026-10-13T02:51:34.999Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5249,7 +5250,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "ac424ec33d3d2f51f853083dbfcd87a1e5de86c7666fb587415cb39caa6868ed",
+        "sha256": "c9b0a695a60fcb19c9b71738f9485588a2a7336e3fc0f10f3900fc688298890f",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5291,19 +5292,19 @@
       "path": "/features/"
     },
     {
-      "id": "feature-window-features-layers-and-colors-zh-CN-compact-dark",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
-      "file": "feature-window-features-layers-and-colors-zh-CN-compact-dark.png",
+      "id": "feature-window-tools-viewer-zh-CN-compact-dark",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
+      "file": "feature-window-tools-viewer-zh-CN-compact-dark.png",
       "contract": {
-        "id": "feature-window-features-layers-and-colors-zh-CN-compact-dark",
+        "id": "feature-window-tools-viewer-zh-CN-compact-dark",
         "page": {
-          "name": "feature-window-features-layers-and-colors",
+          "name": "feature-window-tools-viewer",
           "path": "/zh-CN/features/",
           "language": "zh-CN",
           "phase": "ready",
           "ready": "html[data-public-controls-ready]",
           "action": "feature",
-          "href": "/zh-CN/features/layers-and-colors/",
+          "href": "/tools/viewer/",
           "regions": [
             {
               "name": "navigation",
@@ -5335,7 +5336,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:17.317Z",
+        "capturedAt": "2026-10-13T02:51:35.858Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5363,7 +5364,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "6759dff7cde67e9e59f26ffe1a2a8b6c33f077adaf1e3baace27df85aa167248",
+        "sha256": "bfb09de2f9bc14d49c871d47d15da573e72a1db22b581c1549b46ec294cadce7",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5406,7 +5407,7 @@
     },
     {
       "id": "site-footer-en-wide-light",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "site-footer-en-wide-light.png",
       "contract": {
         "id": "site-footer-en-wide-light",
@@ -5439,7 +5440,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:17.989Z",
+        "capturedAt": "2026-10-13T02:51:36.607Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5467,7 +5468,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "336ecd2f9e4d96877f6303b0beb66453a26b397d50630c02e7379b880658ed09",
+        "sha256": "99cc769f1fc0ae6b93f2f579df73d7ac07e3112ed205d7f5a477a9089c74b48a",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5496,7 +5497,7 @@
     },
     {
       "id": "site-footer-zh-CN-compact-dark",
-      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+      "runId": "02906a5c-7fe7-4f13-9990-32ab8e61b4bb",
       "file": "site-footer-zh-CN-compact-dark.png",
       "contract": {
         "id": "site-footer-zh-CN-compact-dark",
@@ -5529,7 +5530,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-13T02:17:18.615Z",
+        "capturedAt": "2026-10-13T02:51:37.305Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5557,7 +5558,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "c95c0a9c3692fcb59e3b7370a6897e63b2516f0d892f6106bddcc78587ab0697",
+        "sha256": "a8f5952e9c263015f47d1f3c292beaaf1f4561e076d03c45513990488cc6c615",
         "requestedClip": {
           "x": 0,
           "y": 0,
