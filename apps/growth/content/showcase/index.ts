@@ -203,6 +203,12 @@ const CHINESE_TOOL_COPY = {
 } as const;
 
 const JAPANESE_TOOL_COPY = {
+  "/tools/fuse-beads/": {
+    label: "ビーズ図案メーカー",
+    summary:
+      "画像や Aseprite ファイルからビーズ図案を作成。MARD、Artkal、Perler、Hama の色を使い、PNG 図案や PDF を保存できます。",
+  },
+
   "/tools/viewer/": {
     label: "Aseprite ビューアー",
     summary: "レイヤーとアニメーションを確認し、PNG 画像や GIF アニメーションをエクスポート。",
@@ -224,6 +230,12 @@ const JAPANESE_TOOL_COPY = {
 } as const;
 
 const KOREAN_TOOL_COPY = {
+  "/tools/fuse-beads/": {
+    label: "퓨즈 비즈 도안 만들기",
+    summary:
+      "이미지나 Aseprite 파일로 비즈 도안을 만들고 MARD, Artkal, Perler, Hama 색상으로 PNG 도안이나 PDF를 저장합니다.",
+  },
+
   "/tools/viewer/": {
     label: "Aseprite 뷰어",
     summary: "레이어와 애니메이션을 살펴보고 PNG 이미지나 GIF 애니메이션으로 내보냅니다.",
@@ -243,6 +255,12 @@ const KOREAN_TOOL_COPY = {
 } as const;
 
 const RUSSIAN_TOOL_COPY = {
+  "/tools/fuse-beads/": {
+    label: "Схемы из термобусин",
+    summary:
+      "Создавайте схемы из изображений или файлов Aseprite с цветами MARD, Artkal, Perler и Hama. Сохраняйте PNG или PDF.",
+  },
+
   "/tools/viewer/": {
     label: "Просмотр Aseprite",
     summary: "Просматривайте слои и анимацию, экспортируйте PNG или анимированный GIF.",
@@ -264,6 +282,12 @@ const RUSSIAN_TOOL_COPY = {
 } as const;
 
 const PORTUGUESE_TOOL_COPY = {
+  "/tools/fuse-beads/": {
+    label: "Padrões de miçangas termocolantes",
+    summary:
+      "Crie padrões a partir de imagens ou arquivos Aseprite com as cores MARD, Artkal, Perler e Hama. Exporte PNG ou PDF.",
+  },
+
   "/tools/viewer/": {
     label: "Visualizador de Aseprite",
     summary: "Veja camadas e animações e exporte imagens PNG ou GIFs animados.",
@@ -285,6 +309,12 @@ const PORTUGUESE_TOOL_COPY = {
 } as const;
 
 const SPANISH_TOOL_COPY = {
+  "/tools/fuse-beads/": {
+    label: "Patrones de cuentas termoadhesivas",
+    summary:
+      "Crea patrones a partir de imágenes o archivos Aseprite con colores MARD, Artkal, Perler y Hama. Exporta PNG o PDF.",
+  },
+
   "/tools/viewer/": {
     label: "Visor de Aseprite",
     summary: "Revisa capas y animaciones y exporta imágenes PNG o GIF animados.",
