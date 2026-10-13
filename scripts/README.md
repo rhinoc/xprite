@@ -35,9 +35,21 @@ once per machine. `XPRITE_SKIP_VISUAL=1` skips the visual audits explicitly. Aft
 re-baseline, run `pnpm run visual:optimize` (lossless oxipng, pixels verified, manifest hashes
 updated) before committing.
 
-The pre-push hook (`scripts/check/pre-push.mjs`) runs `pnpm run check` in parallel with the site
-build (`check:deploy --build`); once both pass, `pnpm run test:ci`, `pnpm run visual --prebuilt`
-and `check:deploy --prepare` run in parallel against that one build.
+`pnpm run build:site` (`scripts/build/site.mjs`) always builds fresh. It builds `@xprite/ui`,
+bedrock, editor-core and editor-ui once, then the editor, growth, tools and components apps in
+parallel, and assembles `.tmp/site`. Each lane's log goes to `.tmp/build-logs/`. The apps'
+`prebuild`/`predev` hooks (`scripts/build/ensure-ui.mjs`) skip the ui build only inside that same
+run (`XPRITE_UI_BUILT=1`). The ui and editor-core declaration builds use `tsc -b` without
+`--force`; their build info lives inside the output folder, so deleting the outputs rebuilds them.
+
+The pre-push hook (`scripts/check/pre-push.mjs`) runs `pnpm run check --skip site-build` in
+parallel with the one site build (`check:deploy --build`). Once both pass, `pnpm run test:ci`
+(`XPRITE_TEST_MAX_WORKERS` optionally caps its workers), `pnpm run visual --prebuilt`,
+`check:deploy --prepare` and `pnpm run check:site-output` run in parallel against that build.
+`check:site-output` holds the growth/tools output checks (SSR warnings read from the build
+logs, page metadata, asset versions), so nothing builds growth or tools a second time while the
+site build writes them. CI runs `check` and `test:ci` in parallel with
+`node scripts/check/parallel.mjs`.
 Their output is buffered and printed as one block per step with its time, followed by the
 total. Nothing is cached between pushes: every push runs every step. husky skips all hooks
 when `HUSKY=0` is set, so make sure it is unset (for example, `env -u HUSKY git push`) when

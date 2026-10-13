@@ -3,6 +3,8 @@ import { fileURLToPath } from "node:url";
 
 import ts from "typescript-compiler-api";
 
+import { fanOut } from "../base/fan-out.mjs";
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const boundary = path.join(root, "packages/ui/src/base/utils/dom-geometry.ts");
 const aliasScopes = JSON.parse(
@@ -14,7 +16,7 @@ const aliasScopes = JSON.parse(
     path.resolve(root, scope.directory, destination),
   ]),
 }));
-const configs = [
+const allConfigs = [
   "apps/growth/tsconfig.json",
   "apps/editor/tsconfig.json",
   "apps/components/tsconfig.json",
@@ -25,6 +27,29 @@ const configs = [
   "packages/bedrock/tsconfig.common.json",
   "packages/editor-core/tsconfig.json",
 ];
+// Each tsconfig is its own TypeScript program; without --config they run in parallel child
+// processes and their failures are merged (a file shared by several programs reports once).
+const configIndex = process.argv.indexOf("--config");
+const configs = configIndex === -1 ? [] : [process.argv[configIndex + 1]];
+if (configIndex === -1) {
+  const results = await fanOut(fileURLToPath(import.meta.url), allConfigs, (config) => [
+    "--config",
+    config,
+  ]);
+  const merged = new Set();
+  for (const { item, code, stderr } of results) {
+    if (code === 0) continue;
+    const lines = stderr.split("\n").filter(Boolean);
+    if (lines.length === 0) merged.add(`${item}: dom-geometry check exited with ${code}.`);
+    for (const line of lines) merged.add(line);
+  }
+  if (merged.size) {
+    console.error([...merged].sort().join("\n"));
+    process.exit(1);
+  }
+  console.log("DOM geometry access is contained in the shared boundary.");
+  process.exit(0);
+}
 const restricted = new Set([
   "getBoundingClientRect",
   "getClientRects",

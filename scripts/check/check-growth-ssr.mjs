@@ -1,13 +1,16 @@
 import { spawn } from "node:child_process";
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const SSR_LAYOUT_EFFECT_WARNING = "Warning: useLayoutEffect does nothing on the server";
 // Both apps prerender pages with the UI package; check each build's warnings and HTML.
 const BUILDS = [
-  { name: "Growth", script: "build:growth", output: "apps/growth/dist" },
-  { name: "Tools", script: "build:tools", output: "apps/tools/dist" },
+  { name: "Growth", script: "build:growth", output: "apps/growth/dist", log: "growth" },
+  { name: "Tools", script: "build:tools", output: "apps/tools/dist", log: "tools" },
 ];
+// --prebuilt: check the output and build log of this run's `pnpm run build:site`
+// (scripts/build/site.mjs writes .tmp/build-logs/<app>.log) instead of building again.
+const prebuilt = process.argv.includes("--prebuilt");
 // Static pages are 0.25-0.6 MB. Crawlers stop reading HTML at 15 MB; keep a wide margin.
 const MAX_HTML_BYTES = 1024 * 1024;
 // Theme cursors belong in the shared stylesheet; inline they cost ~0.5 MB per rendered scope.
@@ -23,6 +26,21 @@ function forward(source, destination, onWarning) {
     if (output.includes(SSR_LAYOUT_EFFECT_WARNING)) onWarning();
     overlap = output.slice(-SSR_LAYOUT_EFFECT_WARNING.length);
   });
+}
+
+function readLog({ name, log }) {
+  const file = `.tmp/build-logs/${log}.log`;
+  if (!existsSync(file)) {
+    console.error(`${file} is missing; run pnpm run build:site first.`);
+    return 1;
+  }
+  if (readFileSync(file, "utf8").includes(SSR_LAYOUT_EFFECT_WARNING)) {
+    console.error(
+      `${name} SSG emitted React's useLayoutEffect server-render warning; pre-push is blocked.`,
+    );
+    return 1;
+  }
+  return 0;
 }
 
 function run({ name, script }) {
@@ -63,7 +81,7 @@ function htmlPages(directory) {
 }
 
 for (const build of BUILDS) {
-  const code = await run(build);
+  const code = prebuilt ? readLog(build) : await run(build);
   if (code !== 0) {
     process.exitCode = code;
     break;

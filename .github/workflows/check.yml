@@ -29,6 +29,6 @@ jobs:
           node-version: "24"
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # Covers public docs, i18n coverage, asset versions, types, lint, format and the site build.
-      - run: pnpm run check
-      - run: pnpm run test:ci
+      # check (public docs, i18n coverage, asset versions, types, lint, format and the growth/tools
+      # build) and the unit tests are independent, so they run in parallel with buffered logs.
+      - run: node scripts/check/parallel.mjs check test:ci

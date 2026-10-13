@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "predev": "pnpm -w run build:ui && pnpm -w run components:generate",
+    "predev": "node ../../scripts/build/ensure-ui.mjs && pnpm -w run components:generate",
     "dev": "vite",
-    "prebuild": "pnpm -w run build:ui && pnpm -w run components:generate",
+    "prebuild": "node ../../scripts/build/ensure-ui.mjs && pnpm -w run components:generate",
     "build": "tsc -b tsconfig.json && vite build",
     "preview": "vite preview"
   },

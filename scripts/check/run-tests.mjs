@@ -28,6 +28,11 @@ const child = spawn(
     "--reporter=default",
     "--reporter=json",
     `--outputFile.json=${report}`,
+    // Optional cap (e.g. XPRITE_TEST_MAX_WORKERS=50%). Measured in pre-push alongside the visual
+    // audits: 50% and 25% were slower overall than vitest's default, so it is unset by default.
+    ...(process.env.XPRITE_TEST_MAX_WORKERS
+      ? [`--maxWorkers=${process.env.XPRITE_TEST_MAX_WORKERS}`]
+      : []),
   ],
   { cwd: root, stdio: ["ignore", "pipe", "pipe"], shell: process.platform === "win32" },
 );

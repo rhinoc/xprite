@@ -27,6 +27,11 @@ jobs:
   visual:
     name: Visual audits (Playwright Chromium)
     runs-on: ubuntu-latest
+    # Microsoft's Playwright image ships Chromium and its system packages, so there is no browser
+    # download or apt install. Its tag must equal the installed playwright version (checked below);
+    # bump both together.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.0-noble
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -36,20 +41,14 @@ jobs:
           node-version: "24"
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Playwright version
-        id: playwright
-        run: echo "version=$(pnpm exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
-      - name: Cache Playwright browsers
-        id: browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
-      - if: steps.browsers.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps chromium
-      - if: steps.browsers.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps chromium
-      - run: pnpm run build:ui
+      - name: Playwright image matches the installed version
+        run: |
+          installed="$(pnpm exec playwright --version | awk '{print $2}')"
+          test "$installed" = "1.64.0" || {
+            echo "playwright is $installed; update the container image tag in visual.yml." >&2
+            exit 1
+          }
+      # visual builds the production site itself (pnpm run build:site), ui included.
       - run: pnpm run visual
       - if: failure()
         uses: actions/upload-artifact@v4

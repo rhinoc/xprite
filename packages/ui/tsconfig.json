@@ -14,7 +14,7 @@
     "declarationMap": true,
     "isolatedModules": true,
     "rootDir": "src",
-    "tsBuildInfoFile": "../../node_modules/.tmp/ui.tsbuildinfo",
+    "tsBuildInfoFile": "dist/types/.tsbuildinfo",
     "paths": {
       "$/*": ["./src/*"],
       "$assets/*": ["./assets/*"]
