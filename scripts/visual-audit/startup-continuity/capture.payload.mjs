@@ -1,4 +1,4 @@
-// Executed by ego-browser nodejs; the wrapper supplies continuityConfig.
+// Executed by scripts/visual-audit/base/browser.mjs; the wrapper supplies continuityConfig.
 const fs = await import("node:fs/promises");
 const { captureBrowserScreenshot, navigateWithTransientRetry } = await import(
   continuityConfig.screenshotModule
@@ -94,21 +94,30 @@ for (const scene of continuityConfig.scenes) {
       let runtimeReady = false;
       for (let attempt = 0; attempt <= RUNTIME_PAGE_RETRIES; attempt++) {
         await navigateWithTransientRetry(page, url);
-        await page.waitForFunction(
-          (failureMessage) =>
-            !!window.__xpriteStartupMonitor?.complete ||
-            (document.querySelector('[role="alert"]')?.innerText ?? "").includes(failureMessage),
-          EDITOR_MODULE_FAILURE_MESSAGE,
-          { timeout: continuityConfig.startupTimeoutMilliseconds },
-        );
-        const runtimeState = await page.evaluate((failureMessage) => {
-          const error = document.querySelector('[role="alert"]')?.innerText ?? "";
-          return {
-            ready: !!window.__xpriteStartupMonitor?.complete,
-            retryable: error.includes(failureMessage),
-            error,
-          };
-        }, EDITOR_MODULE_FAILURE_MESSAGE);
+        let runtimeState;
+        // A late font subset (CJK glyphs load by unicode-range) can flip document.fonts back to
+        // "loading" right after the monitor reported completion; wait for it and observe again.
+        for (let fontWait = 0; ; fontWait++) {
+          await page.waitForFunction(
+            (failureMessage) =>
+              !!window.__xpriteStartupMonitor?.complete ||
+              (document.querySelector('[role="alert"]')?.innerText ?? "").includes(failureMessage),
+            EDITOR_MODULE_FAILURE_MESSAGE,
+            { timeout: continuityConfig.startupTimeoutMilliseconds },
+          );
+          runtimeState = await page.evaluate((failureMessage) => {
+            const error = document.querySelector('[role="alert"]')?.innerText ?? "";
+            return {
+              ready: !!window.__xpriteStartupMonitor?.complete,
+              retryable: error.includes(failureMessage),
+              fontsLoading: document.fonts.status === "loading",
+              error,
+            };
+          }, EDITOR_MODULE_FAILURE_MESSAGE);
+          if (runtimeState.ready || runtimeState.retryable || !runtimeState.fontsLoading) break;
+          if (fontWait >= 5) break;
+          await page.evaluate(() => document.fonts.ready);
+        }
         if (runtimeState.ready) {
           runtimeReady = true;
           break;

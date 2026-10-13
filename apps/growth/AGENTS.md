@@ -50,5 +50,5 @@ skipped. Lengths are display units: Latin characters count 1, CJK characters 2.
   all of a description. Chinese descriptions may be shorter than English ones.
 - Shorten the search fields, not the page: documents and features take a separate
   `searchTitle`/`searchDescription`, so visible headings and intros stay unchanged.
-- `pnpm run check` runs it; pre-push runs it with `--no-build` after
-  `check:growth-ssr` builds both apps. Limits and tests live in `infra/page-metadata.ts`.
+- `pnpm run check` runs it with `--no-build` inside `check:site-build`, after the
+  SSR check builds both apps. Limits and tests live in `infra/page-metadata.ts`.

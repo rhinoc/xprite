@@ -26,8 +26,7 @@
     "./editor/persistence-snapshot": "./src/editor/persistence-snapshot.ts"
   },
   "scripts": {
-    "build": "vite build && tsc -b tsconfig.build.json --force && node ../../scripts/rewrite-package-type-imports.mjs ../../dist/core/types",
-    "typecheck": "tsgo -p tsconfig.json"
+    "build": "vite build && tsc -b tsconfig.build.json --force && node ../../scripts/rewrite-package-type-imports.mjs ../../dist/core/types"
   },
   "dependencies": {
     "@xprite/bedrock": "workspace:*",

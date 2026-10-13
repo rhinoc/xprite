@@ -1,7 +1,5 @@
-import { spawn } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -9,6 +7,7 @@ import { transform } from "esbuild";
 
 import { parseEgoReport, printEgoNonReportLines } from "../../base/ego-report.mjs";
 import { collectVisualSources } from "../base/audit-source-files.mjs";
+import { runBrowserPayload } from "../base/browser.mjs";
 import { generateImageReport } from "../report.mjs";
 import { installStartupMonitor } from "../startup-continuity/monitor.mjs";
 import {
@@ -106,7 +105,6 @@ try {
   manifest.sourceHashes = sourceHashes;
   manifest.sourceDigest = digest(JSON.stringify(sourceHashes));
   save();
-  const installed = path.join(os.homedir(), ".local/bin/ego-browser");
   const payload = fs.readFileSync(new URL("./capture.payload.mjs", import.meta.url), "utf8");
   const geometry = await transform(
     fs.readFileSync(path.join(root, "packages/ui/src/base/utils/dom-geometry.ts"), "utf8"),
@@ -126,25 +124,13 @@ try {
     screenshotModule: new URL("../../base/screenshot.mjs", import.meta.url).href,
   };
   const streams = { stdout: "", stderr: "" };
-  const status = await new Promise((resolve, reject) => {
-    const child = spawn(fs.existsSync(installed) ? installed : "ego-browser", ["nodejs"], {
-      timeout: 600000,
-    });
-    child.stdout.setEncoding("utf8");
-    child.stderr.setEncoding("utf8");
-    const pending = { stdout: "", stderr: "" };
-    for (const name of ["stdout", "stderr"])
-      child[name].on("data", (chunk) => {
-        streams[name] += chunk;
-        pending[name] += chunk;
-        const lines = pending[name].split("\n");
-        pending[name] = lines.pop();
-        for (const line of lines) if (/^CAPTURE_(SPACE|PAIR):/.test(line)) console.log(line);
-      });
-    child.on("error", reject);
-    child.on("close", resolve);
-    child.stdin.end(`const captureConfig = ${JSON.stringify(config)};\n${payload}`);
+  const result = await runBrowserPayload({
+    payload: payload,
+    globals: { captureConfig: config },
+    forward: /^CAPTURE_(SPACE|PAIR):/,
   });
+  Object.assign(streams, { stdout: result.stdout, stderr: result.stderr });
+  const status = result.status;
   printEgoNonReportLines(
     [...streams.stdout.split("\n"), ...streams.stderr.split("\n")].filter(
       (line) => !/^CAPTURE_(SPACE|PAIR):/.test(line),

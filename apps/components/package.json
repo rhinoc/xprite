@@ -3,7 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "generate": "pnpm -w run components:generate",
     "predev": "pnpm -w run build:ui && pnpm -w run components:generate",
     "dev": "vite",
     "prebuild": "pnpm -w run build:ui && pnpm -w run components:generate",

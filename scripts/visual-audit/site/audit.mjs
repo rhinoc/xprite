@@ -1,13 +1,12 @@
-import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { transform } from "esbuild";
 
 import { parseEgoReport } from "../../base/ego-report.mjs";
+import { runBrowserPayload } from "../base/browser.mjs";
 import { assertCompleteCapture, compareSiteCase, readSiteImage } from "./compare.mjs";
 import { writeSiteReview } from "./report.mjs";
 import { scenes } from "./scenes.mjs";
@@ -17,8 +16,29 @@ const root = fileURLToPath(new URL("../../../", import.meta.url));
 const output = path.join(root, ".tmp/site-visual");
 const baseline = path.join(root, "scripts/visual-audit/baselines/site");
 const [mode, ...args] = process.argv.slice(2);
-if (!["capture", "compare"].includes(mode))
+if (!["capture", "compare", "baseline"].includes(mode))
   throw Error("Use capture or compare; baseline changes require explicit review and approval.");
+if (mode === "baseline") {
+  // Promote a reviewed, complete candidate. Never runs as part of capture or compare.
+  if (!args.includes("--approve"))
+    throw Error(
+      "Review .tmp/site-visual first, then run `baseline --approve` to replace the baseline.",
+    );
+  const current = JSON.parse(fs.readFileSync(path.join(output, "manifest.json"), "utf8"));
+  assertCompleteCapture(current, scenes);
+  if (current.sourceDigest !== digest(JSON.stringify(siteSourceHashes(root))))
+    throw Error("Candidate screenshots are stale; recapture the current sources.");
+  fs.rmSync(baseline, { recursive: true, force: true });
+  fs.mkdirSync(baseline, { recursive: true });
+  for (const scene of scenes) {
+    const entry = current.cases.find((candidate) => candidate.id === scene.id);
+    readSiteImage(output, scene, entry);
+    fs.copyFileSync(path.join(output, entry.file), path.join(baseline, entry.file));
+  }
+  fs.writeFileSync(path.join(baseline, "manifest.json"), `${JSON.stringify(current, null, 2)}\n`);
+  console.log(`Site baseline replaced with ${scenes.length} reviewed candidate scenes.`);
+  process.exit(0);
+}
 const options = new Map();
 for (let index = 0; index < args.length; index += 2) {
   if (!["--port", "--space"].includes(args[index]) || !args[index + 1] || options.has(args[index]))
@@ -72,31 +92,13 @@ if (mode === "capture") {
     };
     const payload = fs.readFileSync(new URL("./capture.payload.mjs", import.meta.url), "utf8");
     const streams = { stdout: "", stderr: "" };
-    const installed = path.join(os.homedir(), ".local/bin/ego-browser");
-    const status = await new Promise((resolve, reject) => {
-      const child = spawn(fs.existsSync(installed) ? installed : "ego-browser", ["nodejs"], {
-        timeout: 1800000,
-      });
-      child.stdout.setEncoding("utf8");
-      child.stderr.setEncoding("utf8");
-      for (const name of ["stdout", "stderr"])
-        child[name].on("data", (chunk) => {
-          streams[name] += chunk;
-          for (const line of chunk.split("\n"))
-            if (line.startsWith("SITE_CAPTURE_SPACE:") || line.startsWith("SITE_CAPTURE_SCENE:"))
-              process.stdout.write(line + "\n");
-        });
-      child.on("error", reject);
-      const interrupt = () => child.kill("SIGTERM");
-      process.once("SIGINT", interrupt);
-      process.once("SIGTERM", interrupt);
-      child.on("close", (status) => {
-        process.removeListener("SIGINT", interrupt);
-        process.removeListener("SIGTERM", interrupt);
-        resolve(status);
-      });
-      child.stdin.end(`const siteConfig=${JSON.stringify(config)};\n${payload}`);
+    const result = await runBrowserPayload({
+      payload: payload,
+      globals: { siteConfig: config },
+      forward: /^SITE_CAPTURE_(SPACE|SCENE):/,
     });
+    Object.assign(streams, { stdout: result.stdout, stderr: result.stderr });
+    const status = result.status;
     if (status !== 0) throw Error(`Growth/tools capture failed: ${streams.stderr.slice(-4000)}`);
     const { report } = parseEgoReport(streams, "SITE_CAPTURE_REPORT");
     if (JSON.stringify(sourceHashes) !== JSON.stringify(siteSourceHashes(root)))

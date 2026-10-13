@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
-  "capturedAt": "2026-10-11T17:03:44.037Z",
+  "runId": "e67893af-521f-42c7-ad00-aa990649afea",
+  "capturedAt": "2026-10-13T02:16:54.103Z",
   "captureComplete": true,
   "sourceHashes": {
-    ".husky/pre-push": "33ca7f87e8309f092541367814d7460a706bb4115a142ab5ff7cf848c4fb3611",
+    ".husky/pre-push": "bc980d0a48456158413f5094a7e3ff9937fed8d7fc12553d0246891b7e7def7a",
     "apps/editor/assets/commands/aseprite-tool-tips.json": "e9e275e9d3b024deaa66850fa53e43713f155b70afd619d6d8c9d3ad86c47c26",
     "apps/editor/assets/commands/libresprite-keyboard-shortcuts.json": "36bfd19176989e659289b5e89927f29d7e4f2fe4e9389a1520552bd8711560d1",
     "apps/editor/assets/commands/libresprite-main-menu.json": "3f8e173da89ddb360e396c68a20c74244f5418cf41ad47735d0b3ddd61b839ad",
@@ -42,7 +42,7 @@
     "apps/editor/assets/public/startup-loading.webp": "e2be18ff84b4ff52b7a8dad3eac90c780e834958e03eba8091e3a7a86d82c4e0",
     "apps/editor/assets/public/startup-pixel.woff2": "c93e472833bde08744e863a4839432a5a6be639256fb171ea85aa55e912520c8",
     "apps/editor/assets/public/sw.js": "2f8fe2d0f1b7591e504f5b53b139977a640683e4106665740524af85ca77c3a5",
-    "apps/editor/index.html": "10fc6d88ae57df9a559a8ef9d17e653e39b9af897267a2241b4d9c82a388f0a1",
+    "apps/editor/index.html": "8e92f79b1cbbfecd85eb97e1de10ca36bea8fb050ffb1f7c8644ed722c2b1457",
     "apps/editor/package.json": "450dd9b14c57654da8fb5d12e3af455f6fb588647bd14091e0b9dda0215a2a39",
     "apps/editor/src/App.tsx": "808da4276e73957fcd952505f6040aec9edcdd0d83ca6c6027fcc288e77ce676",
     "apps/editor/src/adapters/agent/browser-agent-tools.ts": "9b43e97caae7e2e817d46cc0e6805984028208ee355d2d0fbd1958d521bbd09e",
@@ -121,8 +121,8 @@
     "apps/editor/src/adapters/storage/indexeddb/recents.ts": "4050ea4b45cd0444aa2bcb1942345bf478d26784225647c9d20fbed138742f3b",
     "apps/editor/src/adapters/storage/indexeddb/user-presets.test.ts": "41ddf9bbf6bcfe3c4f61d57384d77a429c70687269db49c3909f5dcd39a63088",
     "apps/editor/src/adapters/storage/indexeddb/user-presets.ts": "b292cc2e822a9a0a2279694c9ecb15f29109b61a53eb69afb4510c0ff276c459",
-    "apps/editor/src/adapters/storage/project-storage/index.test.ts": "64bf655fdb328cc859b5b1ec3b5d960d1fd70f52f11315cdae276831e245158b",
-    "apps/editor/src/adapters/storage/project-storage/index.ts": "c02391a175f4b232bbe54de35ea6f4e8101bf52aab3ebfa3a07334d520c73190",
+    "apps/editor/src/adapters/storage/project-storage/index.test.ts": "558d7f1762c747da06478c0cbbcd8bf1ee34f9a6c9d0cbb250b52f2e44a67ff6",
+    "apps/editor/src/adapters/storage/project-storage/index.ts": "a759cdb4722a53dec5ef9ac600d7f5fac8b95a2fb05f05bc0cd4e9dc49fd7f6b",
     "apps/editor/src/adapters/storage/project-storage/indexeddb.ts": "e51a1ae2166fcc6a39b717cfb676ec2976bd7f75539a1d2d64b872c89b9b5397",
     "apps/editor/src/adapters/storage/project-storage/opfs.ts": "5c4977af0dc505277595045707eef53d57c85550b90b3af8892d62b042cf19da",
     "apps/editor/src/adapters/storage/project-storage/snapshot-parts.test.ts": "e2036b535f5c1a7c69023b0387b100efb0d735af9955d96b73242c15430d9a32",
@@ -165,7 +165,7 @@
     "apps/editor/src/components/canvas/inline-text-editor/inline-text-editor.module.css": "5c4b197b151f63eaed3cd142ce950eacad0bc2257e6bf69d95ee79cb877e0c3f",
     "apps/editor/src/components/canvas/pan-surface/index.tsx": "bd372e87b69f65522ad4970ab781a9a7c7f4a01f92565b173de8d72629651cc3",
     "apps/editor/src/components/canvas/scene-bounds/index.tsx": "ca8a98366957dee2d07db2403c9ab9644a7554c13fbd0fcfc02e3b4111394841",
-    "apps/editor/src/components/dialogs/about/index.tsx": "175d7750fbe473d78aff58ce546daaf05ead24a37b1352248898cc2cc7f944a4",
+    "apps/editor/src/components/dialogs/about/index.tsx": "be14f4e18f309a336d24c5d47a9ce81741faf6f50a7044d114440df9e90cbb03",
     "apps/editor/src/components/dialogs/alert/index.tsx": "c7a0b8878e194c322bf7a6adac8ab3058f5af1f033544e04b0f8521bd7c17fe9",
     "apps/editor/src/components/dialogs/animal-crossing-dialog/animal-crossing-dialog.module.css": "de3f0bb0d844a6eb75ff6cc1576dbc7f2167343e540bf7ddc6cdcd6850866a21",
     "apps/editor/src/components/dialogs/animal-crossing-dialog/index.tsx": "160740dcb1b69065497dcc77a85889587f35f908f4f55d377085274e6424d9c9",
@@ -189,8 +189,8 @@
     "apps/editor/src/components/dialogs/files-preferences/index.tsx": "f314eb713637e6dc4df096093295c6c77bed39d82ecb11c79f4ee6009b551779",
     "apps/editor/src/components/dialogs/filter-window/index.tsx": "1b6d8299639deec8c1159ff1d8c5b934ab827e008ffae89073465971c9e48a40",
     "apps/editor/src/components/dialogs/form-dialog/flow-form.module.css": "8898455d9d72eaacca24eb5c3c533ad2e12ee8e1dbedf7f99b1e6ee5dabd14ae",
-    "apps/editor/src/components/dialogs/form-dialog/flow-form.tsx": "0dadd10eb1efa8c7ba08b1e3e098f53c7aca1d0ec97c89b443ffb9d9f49ccc31",
-    "apps/editor/src/components/dialogs/form-dialog/index.tsx": "6c7b0d111f8eeca30077027beb815baa20acce740003b7cbb8b2fc25b5037e4c",
+    "apps/editor/src/components/dialogs/form-dialog/flow-form.tsx": "f3c3120d74c507515e84e7f2ddb3174ed5cab0efd9ccf8a6e8f3ff893f6080f3",
+    "apps/editor/src/components/dialogs/form-dialog/index.tsx": "951186b88911bb46953bb3858ff888981533b683f38a1d81402b4fc4b8be0616",
     "apps/editor/src/components/dialogs/grid-settings/index.tsx": "4452eb57746e576da5c7ce2bff07b22f03e40d989b3d124f6857e1fa8a5cc49e",
     "apps/editor/src/components/dialogs/import-sprite-sheet-overlay/index.tsx": "ed665dcc3ceeb83a413bf0dc1cb001d67caceaa6bc9f0102223bba03386db844",
     "apps/editor/src/components/dialogs/keyboard-shortcuts/KeyboardShortcutsDialog.tsx": "46865b86da13fe9a5a2bc85afedf0b3dd31b0a884361a6b455fcf0f3aa0932ea",
@@ -265,7 +265,7 @@
     "apps/editor/src/components/shell/editor-actions.tsx": "aad0192b657ace160d4f9239b203d45c9a258b7595a35d053e9e62dba594105e",
     "apps/editor/src/components/shell/editor-menubar.module.css": "843c5d13a0c1730f638b99c80809317d198aeb77f33536bd2efa372c889175a5",
     "apps/editor/src/components/shell/editor-menubar.tsx": "f54558cff94c4c58ba589bb5610520029212a6635176538f667df6eb7439a0c9",
-    "apps/editor/src/components/shell/editor-startup.tsx": "41bd7e04b689885cf3d83ef0415c028ca0616a1399252341d27dd90f99a71430",
+    "apps/editor/src/components/shell/editor-startup.tsx": "168a95b077ff436307bf475a723164fcf38e2df70b0bc33030253169a7f052e3",
     "apps/editor/src/components/shell/editor-statusbar-host/index.tsx": "526141740498bb88e29695388a7a2af7538f227422bb7df76b392c51299833cc",
     "apps/editor/src/components/shell/editor-view/index.tsx": "838c25ba2e66a14e2e0af64d2c4bc88d84ba185fd5677ad37ddf131d0e3e6e5e",
     "apps/editor/src/components/shell/editor-view/workspace-docking.module.css": "915ba5198554a55d3bb4598f2b08cebaed4e63f7ba84d56c0a354b9db6201edf",
@@ -328,8 +328,10 @@
     "apps/editor/src/components/tools/symmetry-controls/index.tsx": "d4af2c24e57e987b55890c2f42ab819653c4db7d2901d1fbf595ec7bf06f2330",
     "apps/editor/src/components/tools/symmetry-controls/symmetry-controls.module.css": "8537d35abf82266e05b421156585b20ebfb470aa25a875d1c47bbeca6e08f5f5",
     "apps/editor/src/components/tools/tilemap-controls/index.tsx": "06dc5111c7dce2d3d0f6699e1183d6cb793c17b4805b9bd4d9e44120abbf0c7d",
-    "apps/editor/src/components/tools/tool-group-rail/index.tsx": "5e7ab0e0b9d8d73f7176b8e5a90d4279cfce46ce3332fd61f20dfa8f5e27d66b",
+    "apps/editor/src/components/tools/tool-group-rail/index.tsx": "6a17d488c0c10d41e38188a477e0e6ca5d18a889eec3b69858d2fad494a8bc73",
     "apps/editor/src/components/tools/tool-group-rail/tool-group-rail.module.css": "e420e3c1cd5af5b6c7cdee72552bb8611ba850d0544cb4dab813297e4e547276",
+    "apps/editor/src/components/tools/tool-group-rail/tool-group-state.test.ts": "efa026433cef6e018c60de83b5d19adf1093ca7cd1d80f19e715f3e8e8b83ece",
+    "apps/editor/src/components/tools/tool-group-rail/tool-group-state.ts": "f2e74c6b5c34c9926e568c4dca47b2ac9eaf671ec6a8be2f5d0481a5c7d0a51a",
     "apps/editor/src/components/tools/tool-rail/index.tsx": "b9772b75c258dc1989e3556a11414d413ad68392db4bd1fdfe955961f290fa94",
     "apps/editor/src/components/tools/tool-rail/tool-rail.module.css": "038d090cc30a3802ffe867f1bb7b47db76b87e3ef57f0cae92784535835829f7",
     "apps/editor/src/components/tools/touch-editor-controls/TouchShortcutButton.tsx": "9d9a5dc8fc0b57df089ed7abeb99661a17c583ffa1245dc2f6bd78135d4f5bb0",
@@ -356,12 +358,12 @@
     "apps/editor/src/components/workspace/workspace-link/workspace-link.module.css": "60cf1837711bc2b6f053bf10e273a688391f97c97e25feac35c127e1ef6d2546",
     "apps/editor/src/components/workspace/workspace-panel-dock/index.tsx": "10e3e7e15a0604050ddc92a411a8e51a181decc5a8b74442cdbce36d3a886edd",
     "apps/editor/src/components/workspace/workspace-panel-dock/workspace-panel-dock.module.css": "a0107b0dafc32683d27c00eed6a5b4abc45a37e20e1037c1e59325d0a5c07647",
-    "apps/editor/src/config/external-links.ts": "a2af536ef3f07639d50c3f608aa86307d1e08bf07a73bf4311827724d5dfa78d",
+    "apps/editor/src/config/external-links.ts": "6fd0504e76724326b9d84f345ab3a745830cc3f41ee33e81bc57655664f267c4",
     "apps/editor/src/embedded-runtime.ts": "11308453ec703eff62709432e4a4e5856e21156cbdab502cfe89e1a201bfd38a",
     "apps/editor/src/host-contracts.ts": "081f9b1f40a289f9f24570c6eeeda8e0608d48d85ed09339a67e814c112218e1",
     "apps/editor/src/i18n/index.ts": "038be644917e00db2e18fa6375ba883fc8fa667ffddc300dc02a6a10942fc981",
-    "apps/editor/src/i18n/locales/en.json": "8074678109ebfe2d17b77c7c7ccac9633db7e3db724e37e8cc8c0b25b3265596",
-    "apps/editor/src/i18n/locales/zh-CN.json": "8c4d5f8fa5a370ff4e9735002fb2583410bc2b44b574958a001eaf247da8d89e",
+    "apps/editor/src/i18n/locales/en.json": "3ac2e858ac87acdc94d4137555633c5ce8c7ef54d9f3306d84b7c28759c67bf0",
+    "apps/editor/src/i18n/locales/zh-CN.json": "3cabcac4fa546ac563ac66ba33d9351abbe5b6f457c7206d20f77d686e079312",
     "apps/editor/src/main.tsx": "e8e55235237f8f4b8ba720cf60a4a84a626b4cb65289b5a094d3253f54310b07",
     "apps/editor/src/managers/agent/agent-tool-definitions.ts": "5caa6790160bfb9a94f60c73e4012503a1127bd206c86f99d7d0de8cb6f67b52",
     "apps/editor/src/managers/agent/agent-tools-manager.ts": "15eebc94001025c1f0917fe41b0598bedb576e5c7d3c65b10bb0d13b35749b00",
@@ -574,7 +576,7 @@
     "apps/editor/src/managers/shortcuts/use-shortcut-editor.ts": "a1add51b678aac6626e299cd83722f24b50e89b366109338b93450a57b5158e1",
     "apps/editor/src/managers/shortcuts/use-shortcut-manager.ts": "307c3c6e08c426392383dab3d76aeb961dce4088a9bdfee7c255dfc9aac19ada",
     "apps/editor/src/managers/sprites/duplicate-sprite-geometry.ts": "8edc5ac7dc96ee75fe863f57f49a4f209d86c496126a176efa6fdc699a59f795",
-    "apps/editor/src/managers/storage/project-repository.ts": "abcef84f83b215303cab812d4747aa1ee6eff04b6d994e4538d8afff16ba57b6",
+    "apps/editor/src/managers/storage/project-repository.ts": "fd9ace909be15601fc32909767a14059bda6bfea464069f592e51c9511520e81",
     "apps/editor/src/managers/storage/snapshot-parts.ts": "e16f88eaf5990b431715898a9502b30ac668fe9dc9a9470d4014e007b18c08b4",
     "apps/editor/src/managers/telemetry/compare-attribution.ts": "7b77bdb2b564e369ad317681ced6a1fae42952148a23633c54e4753108a119cb",
     "apps/editor/src/managers/telemetry/diagnostic-telemetry.test.ts": "4356e55eca9c3ac7ccd3af6ec3e97560dde114b362936f24bd8e5d082a4bac66",
@@ -649,25 +651,26 @@
     "apps/editor/src/vite-env.d.ts": "f27172866f06fe409d289e3da5d7c45903c8db74a6babb5a776758c4cf50263f",
     "apps/editor/tsconfig.json": "cd0d145f336b0875203b1f574754e4a319e211357d4656ea6c53df505c504fec",
     "apps/editor/tsconfig.node.json": "285cdbd9e55a38d0fc4f9f94a8217931355e031be3514af2700505be78a8fde6",
-    "apps/editor/vite.config.ts": "bd7858e05b707fef49fe65be168bc6e7d55e60797eac7151d12ebe95da06a53d",
+    "apps/editor/vite.config.ts": "1004aace825285bd6ff3a6d7cc4d605440d3034f47af163bddd7bd7c935ae2ac",
     "apps/growth/build/pages/article-pages.ts": "5c3b6cad45931c7b8710b661a00bc5b2112abef2c7901e9b257755bb6ee9cef4",
     "apps/growth/build/pages/article-source.test.ts": "222f93c17910e014836ad29365d198d8c77c2873bc2d6cf656de812fc21b5a44",
     "apps/growth/build/pages/article-source.ts": "d3a2dca1817d732ab7642b6c01ea9c2d78eedf401a37232d336203a5d43fcece",
     "apps/growth/build/pages/document-page.ts": "5508d6045afbe2e579e4543ffb9ec6484eb29e68240596ca31fbe4c590ae3998",
-    "apps/growth/build/pages/document-pages.test.ts": "3d0e0b16cb5f772d36c9cdae903b33048ab83d766e2585229b4da4b199fc47ed",
-    "apps/growth/build/pages/document-pages.ts": "8984706c2af34675b2ecf884a7660b31eec3822f765a4fe19a6cfbd7c91d456e",
+    "apps/growth/build/pages/document-pages.test.ts": "7bdb929c6bb8ffde791c57ebf8bbcf681c3a65f820dc963d7ecfc070a30ab8a6",
+    "apps/growth/build/pages/document-pages.ts": "5181c364202ffd5b51e5a67a266f50e5cddd9c182f5186a6eaed7c1157437848",
     "apps/growth/build/pages/document-resources.ts": "c7872b444beaaabc3eac9e781d662ba91205251c112e84b34ac881599cd91e2f",
     "apps/growth/build/pages/feature-directory.ts": "9140429d752334aecbbf0a4f2030232ec5150e0e1736af29783fd0d8758b6bcd",
     "apps/growth/build/pages/guide-pages.ts": "238ef4c03a45bd109c1c40cd8500d19a22cd09ce9bd99ce52bf7e09f29f2d7b5",
-    "apps/growth/build/public-pages.ts": "5a0bd1faa88c5e56b806c540064a4820804a8aa86402c16ad07d09cdb9b53876",
+    "apps/growth/build/public-pages.ts": "780bddded1fde005d568711ee5dd26b6dddac04df1f2eefaa397c5866af7c5e8",
     "apps/growth/build/public-theme.ts": "14e7a2a8acb350650b3150b6626e72622412dff16c48e4e4fc25925a1af631fc",
     "apps/growth/build/routing/public-routing.ts": "4df1eb43f81792486ee8e1e31dfe096bd7a216f677c81e7aad6677a4ea3342b2",
     "apps/growth/build/routing/site-configuration.ts": "ae58a9abf458be51b2631497a0994be7537fe2c4cba155ce40f1a8b977f9c448",
-    "apps/growth/build/seo/discovery.ts": "a0e8974c067b995834341cebe6d56f33d3bbb48616e5a2759f432550eec7a0dc",
-    "apps/growth/build/seo/index.ts": "3ebe79dd620065cd94040d2adb057ccbc94d0fea94232c274c8e085409386c99",
+    "apps/growth/build/seo/discovery.ts": "e110e75d10641639c046e45a47df049166c2089e0ee186e65c3b755745d99400",
+    "apps/growth/build/seo/index.test.ts": "b9964e491ade9f1c811c248f5e7b9da91da9be512248ac970a2ad23e8cbab77f",
+    "apps/growth/build/seo/index.ts": "2c70dffc77a20090fcc0ffd2a7b66d46f19684992ec94bb9b7d20b52fd6b14bf",
     "apps/growth/build/seo/showcase-seo.ts": "fb7085882bdf678301a697161c186932889fb2a435cd8e796c679e8777b9bdf7",
     "apps/growth/build/site-navigation.ts": "a6039c39c84da8a4c11cb0412e2a53edc1038a9d4e4d4c04e42ce55562f64825",
-    "apps/growth/build/static-ui-renderer.ts": "426b6c5a07e0f6e79440b78d0eb530b69edcbdd1f20330372faf79f9d82299c2",
+    "apps/growth/build/static-ui-renderer.ts": "0af674c1b555fdcc9b7023a33655e5f1224dc7cf5b9e67c2fd397133af26c0b8",
     "apps/growth/content/about/features.en.md": "64791c17dd6716235bd0aeb7bfe3f56bc01c1fc64317fe851ba03c9b34c5f0e7",
     "apps/growth/content/about/features.zh-CN.md": "7f3a7ce7e5a79c12b2d7299ccdbaca7072738a1b3a03eb097011a03f7001a2ef",
     "apps/growth/content/about/how-it-works.en.md": "1c9d9a8156ac75a265ad545fa8f96883e131139ac1917fabb24fc5195160670e",
@@ -680,12 +683,12 @@
     "apps/growth/content/about/images/workspace-compact.png": "2d327f2a05b441ceca0db75502f27e393316d9ed5cbacf09994b33b9af181c97",
     "apps/growth/content/about/images/workspace-wide-en.png": "ebaa95d1fb8c10585d2c793167b81a1af3081988a74b92a81b7538aaadf16181",
     "apps/growth/content/about/images/workspace-wide.png": "6509e24472c7f99d4eb17474ee4558b932b1d94c8a420b7fb92e3578c6ed0380",
-    "apps/growth/content/application/index.ts": "29247b31c93ba17e1934d09e8963a1b027e485464dcd23799ef508b99e725c27",
+    "apps/growth/content/application/index.ts": "577831c47c4fb066284e14ce4a6b44a4ea6963f3410f645ce2e0d7acf9d3a031",
     "apps/growth/content/articles/diagram.ts": "fcb034a0eac3e6724084f331fccce0679d00cda9095bc8a9b46446d9bac1f455",
     "apps/growth/content/articles/frontmatter.test.ts": "72632927f19c9c0c035954e4cf6448f477f820997c31f699935b134580eda282",
     "apps/growth/content/articles/frontmatter.ts": "06388f007e8f014fae74b183db97fcdfaf7233bee10c1d03a670856f5389c71d",
-    "apps/growth/content/articles/index.ts": "3947cfc807cfbd861c175358e2ae90f28a8cd5ce0e0d1c18e0295b3687aea845",
-    "apps/growth/content/articles/zh-CN.ts": "785bb181d643dd680abd18ab151d230766f4ff3ff73d388f962f94e24c2cf19c",
+    "apps/growth/content/articles/index.ts": "da16d205d9144ea244c7827be776f9593a6ffbfd4c0c1f8c7efc27f28515754d",
+    "apps/growth/content/articles/zh-CN.ts": "10591a1a86ebe055e17fc0fe1b49ec016a3dd8f8cedd6246cfcf90a63dc38e2f",
     "apps/growth/content/compare/README.md": "32ee42c96c7e14aeb23aaff5536ce522f9523bddc9d2995f1315ebc5ec046649",
     "apps/growth/content/compare/articles/aseprite-on-ipad.md": "14238e469462288fbe5eb53c6bf6e3daa0824b776a6a46ea61ce2770fe210831",
     "apps/growth/content/compare/articles/aseprite-on-ipad.zh-CN.md": "470f6a5f0e672d71f90ca2eb5af7d2586481ea5853dc906abc17a0146ccf0fe9",
@@ -729,7 +732,7 @@
     "apps/growth/content/features/details/touch-drawing.zh-CN.md": "0898a7862cbc4f2c331d2a0cf70829d9044695e4593cefa65331f903dbf320e0",
     "apps/growth/content/features/details/workspace-layout.en.md": "7b6dc5788c70fc2ba7629747e3f2d9b208b8b55e5966aaa4fc1153e8d63f4a51",
     "apps/growth/content/features/details/workspace-layout.zh-CN.md": "4b55560274cfaddb410115ea8db61c715ca39d3838a5dc4221ec888932bd8b0e",
-    "apps/growth/content/features/index.ts": "cd66c83730ff0d67513083a1ec5f8b61f5075ab0a35c7e412ee96371a1ffc70d",
+    "apps/growth/content/features/index.ts": "779893d9e6f7a1bd78620611dd47a786b081213c37d0451b78467c8f1dc21711",
     "apps/growth/content/features/media.ts": "464c08ea27315e3e119979ab707dae7413af6a047bd191bf3a702d2a55116033",
     "apps/growth/content/help/README.en.md": "1b8d5c12a14d3a80a55f783cae833f36651cd95e3578e1f0bce1b3bde4d44803",
     "apps/growth/content/help/README.zh-CN.md": "9f94c0a3fea32a6ff0ac6ecfd791d3dc4723f4949f3b98980da3e9944a8c4b33",
@@ -754,7 +757,7 @@
     "apps/growth/content/help/images/zh/touch-settings.webp": "0de5dbeaeb8d72d6fdb321f4d7e7b4e491d8096d8b6aa653e3a38862bd04720c",
     "apps/growth/content/help/images/zh/view-show.webp": "2bf796a5ec8d5d5e23c92cbec42f5a53bbf0ddd36804ee675720787c5c2cd3c9",
     "apps/growth/content/help/index.ts": "63afb7421c63591ebb2f4bcf47818397620dae41df82292f22d22a04fa2a0520",
-    "apps/growth/content/help/pages.ts": "ad42c8e437bc68a231415713ca9beea0ae43df150fc80c8c902debc252a585a9",
+    "apps/growth/content/help/pages.ts": "7782f07bae680de4f3782db4ab96cf9f5624355b1537081e3e95be6f1cc9c1a6",
     "apps/growth/content/help/site.css": "36d519f60033d363a927388f6d8afbe7fcb9b4ca8646e702b60e2295fcdaa1bd",
     "apps/growth/content/learn/README.md": "f0e9f45c3d12f1131e4e0d175ac03af9e16ca732467b6bcf14668db6b174d31e",
     "apps/growth/content/learn/articles/images/viewer-animation-range-en.png": "c79ed55d51505f59fca909789fd066bb2970cd75de4146b3d6e8f55a3f3fcafc",
@@ -766,23 +769,24 @@
     "apps/growth/content/learn/social/aseprite-to-gif.html": "f477eea236920b23a9a36aeb629244cee3d4d63ac7b06934487af1835bd08de5",
     "apps/growth/content/learn/social/aseprite-to-png.html": "7d7ba733eca246a8bec5b80e4aff1c95a9ecaf9c818aee4171cd1574d0be207b",
     "apps/growth/content/package.json": "90ab1c6ca4cc70df3f69efc70e65fb2f10ff22e8b3373907a3a4ff6478faac08",
-    "apps/growth/content/showcase/faq.ts": "aa38667f66457bdba33a954a551d2f60e7a648c1eb94d81201f3d45739670ff8",
-    "apps/growth/content/showcase/index.ts": "acfa1fd6415df85dd82303b36564a047a7b9daec0572737aa2e41eb327269f22",
+    "apps/growth/content/showcase/faq.ts": "f11e866ea42a14fc9ad3a2f005d5d0ddecc79486b262adbca0d20e8de18e6811",
+    "apps/growth/content/showcase/index.ts": "dd8b06b0a2e125400319e9ab82303151da031115e67f6fde5935966a0b9e0037",
     "apps/growth/content/showcase/media.ts": "ba183100e8b1c8c08cd9c741b213f52739b767c69a61c5f9ec9b22498d9f90b2",
-    "apps/growth/content/showcase/pages.ts": "b06aae293fcfed29080e7df99f289ee97b827ea2f785f95803778dc02f795c6d",
-    "apps/growth/content/site/documents.ts": "76ae66b38da9fc44d81dee2f1bf5dd308c6c7d6d6e98e280a657e20b79e3f8c7",
+    "apps/growth/content/showcase/pages.ts": "abc4b210fbdefe286a3b680a5b69d0e4acb8c897d372bb5deb00c8f6b1da8c66",
+    "apps/growth/content/site/documents.ts": "a136add19eb75459b21a4407b41fcd90bd4f9746c143d5c871ddcedcfae2da33",
     "apps/growth/content/site/images.ts": "912c6a8688e284583abe194c5abb085b695a4d65f79763642982cb2cda93ac7b",
     "apps/growth/content/site/language.test.ts": "ba36d2159b42e2b799232714181f85aa784e340d6caac7fefb3423cca6f3ad2a",
     "apps/growth/content/site/language.ts": "9d0f5f02fa1dcf088a5fd4d395dfdd7b0e99e336028e83bdbcc9826cdbbc0879",
+    "apps/growth/content/site/last-modified.ts": "5fc8e39a5038b9e588f7096d63c4400bbe1c7ab368c0ba3f51eeb303ec1532c6",
     "apps/growth/content/site/navigation.ts": "bbecce3d37eede5ca6508e47f9919cf9065a1987f0cf436bec8b676400337d75",
-    "apps/growth/content/site/pages.ts": "aba7b69961cb982624dd227685040619f16497333424586bee28d5739aff1f88",
+    "apps/growth/content/site/pages.ts": "93114eeab0f452647e9c08449d922a27d89e5882f0dc4130a025b1d3d4510159",
     "apps/growth/content/tools/animal-crossing-help.ts": "b229b1bcf51a06dbc95722f7d4f3ba60abce4e92a7d9bf1bfab9186a79407da5",
     "apps/growth/content/tools/gif-sheet-help.ts": "01b441e882c3dbcf1b921a85fd1e392537b93d1004c57add2c023c74cb862fde",
     "apps/growth/content/tools/help.ts": "7c7d6fe861699bbf62dd46a510253400d256a4f4897a17017136a848cf4e5b3b",
-    "apps/growth/content/tools/index.ts": "67830cd258f96fbc671aac84a0237d5846aa8d246b0be1d847c5b084a8949703",
+    "apps/growth/content/tools/index.ts": "c6273fed183d10acf2b4f763f132f96d37418ca803402cba2823167144b7aeb8",
     "apps/growth/content/tools/pixelate-help.ts": "b03765f6c30c597c897ab7762c256984b605a8b9b93cf6d8fc2c4c94d9536b39",
     "apps/growth/content/tools/viewer-help.ts": "42b96ada68c3f06bbd2411fb036b0a7d0e185043e491e45c9c97b6eb7cdb74fb",
-    "apps/growth/content/tools/zh-CN.ts": "f230b6062043a073f1138bc419ad7544342e4415e47f26057e3859a66bf13f66",
+    "apps/growth/content/tools/zh-CN.ts": "c6ad77a09065e030d27992b09759c68afab835a402c25ad6861ab271f5ee594f",
     "apps/growth/public/favicon-32.png": "a63bfbf0275dbffcf715eb4295da8179464a829ac39bcebe1d42320b64ee3a52",
     "apps/growth/public/icon.svg": "f31b3da31c46e16a1362cda29d53646c94b640fb9b6294cc80398ef6dc4800af",
     "apps/growth/public/menu-icon.svg": "40099468bf636c55642bc6898c578f81fb517b0e812a07840dd80c47acaff01f",
@@ -1083,13 +1087,13 @@
     "apps/growth/src/components/showcase/showcase-sound-control.tsx": "9e725f398a79fc31a1ca72badf1915367d16367c13a9cb883611d35f9f552162",
     "apps/growth/src/components/showcase/showcase-stories.module.css": "48c7094f885f5172f432f3cd5f53d83d941434701371fc7c971d6b34224dc068",
     "apps/growth/src/components/showcase/showcase-stories.tsx": "65d62c4aea39a10b1697ccb0231fe0c3e23898ecb8c10376684efa230786426d",
-    "apps/growth/src/components/showcase/showcase-story-content.tsx": "07162eb7054fcfc61331f2fc1718d2c6f432b066bf753ce4816ac05c2a07b0b1",
+    "apps/growth/src/components/showcase/showcase-story-content.tsx": "ab94d038799f221ce7f5a48963a690aee79c388840c0c399d3b437588ffe5af4",
     "apps/growth/src/components/showcase/showcase-typography.module.css": "386886e22757b05187973253f5282aeccadf96e9f4dd0df87f69f0acc29073f4",
     "apps/growth/src/components/showcase/showcase.module.css": "cf10bf087c66e68f370600812cb9d133a6ba6463d5fd6e6f30e816dff678c30f",
     "apps/growth/src/components/showcase/showcase.tsx": "0506aaafeac782c1621789968b0ab68ddeef86cc1e39234b94827a35fb74995c",
     "apps/growth/src/components/showcase/use-device-swipe.ts": "f4899b2f4b94c7b3f92df26c778021e9d333e2df59558b33b94fdfb8b13fd6c8",
     "apps/growth/src/env.d.ts": "1e2d430235e00172c1818a54ff2b7424ff689f9d3d2fd9836482073d9e4634b8",
-    "apps/growth/src/main.tsx": "a4b6d0e1325053c3e1ce568dc0e27c2aab95fe4654c557572b53f4e60b5e930b",
+    "apps/growth/src/main.tsx": "256eae365935abaa0d2554ce391d6778101e30641055ee7d542086db4c38d0d6",
     "apps/growth/src/managers/ports/device-demo.ts": "e6de67d5bdce4b4ba917b7154591366243440d50022f88b0b8e4e323dd0f7f90",
     "apps/growth/src/managers/ports/ipad-launch-motion.ts": "2d40de587e50933c8a57a47afbd33379a9c652cb72700710bd3b0952e9ecc08d",
     "apps/growth/src/managers/ports/ipad-screen-layout.ts": "a6d6d0fd47a838bfb65192d11b4dc4ee254f77e77e8cc75444c5761425b3b3f9",
@@ -1104,11 +1108,11 @@
     "apps/growth/src/managers/showcase/showcase-language.ts": "55a12c8e1603e4d6825347578b40961200a4ab322e8ca3ff3d4dafebc24e9ce9",
     "apps/growth/src/managers/showcase/showcase-manager.ts": "b7b18e9b8aa1fa9fa52900bd21ec0a57c5bdba2358ca4545f3cf909409b00206",
     "apps/growth/src/public-controls.module.css": "b3b220999715decdfd1a4530a7ca9e56aac90e6935be3ca3e92bf540d61b8264",
-    "apps/growth/src/public-main.tsx": "5931d38cbf871af6885a859b9dd735b9189f0e29a4451fec3392ef9589fc8104",
-    "apps/growth/src/public-ssg.tsx": "f6f861be170ef8057a287e66a1306b7147feaeec244b909adb508ef70dacbb98",
-    "apps/growth/vite.config.ts": "e3f4f5f3bbc159cdaeb5908717fa6a29a7596e8e41a35a8429211e63a1a55bb8",
-    "apps/tools/build/ssg-renderer.ts": "3eac55db2b6a5c90a38aa9ae0fe13b4e14434e8780ba2a76c0c13b4cb45d1fcb",
-    "apps/tools/build/startup-pages.ts": "70ffbac8dcbb9eb4abb3affbf057186e8f7c6252800b5a9e0a4f0ce561ae389c",
+    "apps/growth/src/public-main.tsx": "44a4fd021d60cdffa89b9354df05aa829ac623c6d1630d54cd42d41419e1fd57",
+    "apps/growth/src/public-ssg.tsx": "f210364b1da73c950c2ca3bf686adf1fe5db8bb0034ff536e6920c4b460338f5",
+    "apps/growth/vite.config.ts": "94185d02ce1fd24c91d3e2cff4370304834288f86a9d467db03711a541677bfc",
+    "apps/tools/build/ssg-renderer.ts": "4edb2736c0fb3a73c0f3be251449ec14ebacdf5e1abf900405e449a5d3e1104e",
+    "apps/tools/build/startup-pages.ts": "82643479304bdfce6c6c97736493e200b31451216124330f6fc79a26b15316d2",
     "apps/tools/src/AnimalCrossingApp.tsx": "09b966230eb4cdbfdca1be888f023a9364543f5fbf9bc320326b817f64503449",
     "apps/tools/src/App.tsx": "6455104a5b3fbdf9a2cf40845f6d1f994b9338b39034f9293b6865453dce819e",
     "apps/tools/src/GifApp.tsx": "5ea041b03b23e0c42ff884cff93d22d071aabde2f79fa98967bcadb44d2a1650",
@@ -1123,13 +1127,13 @@
     "apps/tools/src/adapters/preview/browser-appearance.ts": "7c1d55183cff987855d558286b9c05ca9947f8720525987f5aff26e878e062c8",
     "apps/tools/src/adapters/preview/browser-download.ts": "04b51f65682594a0f87732cf5cf61aef1acf8ca08cafb0adabe02db55ede8e94",
     "apps/tools/src/adapters/preview/browser-preview.ts": "3bbfd4cc9b67fbb9927fa3353a1605fb69437416acde4e313a26039edaa81c01",
-    "apps/tools/src/adapters/tools/browser-language.ts": "987e514f014ca84a06891edb425964b9c228610a5fe70e25539a4f486861f116",
+    "apps/tools/src/adapters/tools/browser-language.ts": "a859475587c38272c42c0b9575f3eee3c469aae3f5caf4f675493601e7a08af3",
     "apps/tools/src/adapters/tools/browser-tool-host.ts": "b8ae5a25cc2b34ae38aa4ed1497ac648f8c6c5785ab7c72da503c97ffb0eecfc",
     "apps/tools/src/adapters/viewer/aseprite-file.ts": "1f57c55d711b4049cd1978811a40b0d41b0029f10fb3fd951486e6ee5d735605",
     "apps/tools/src/adapters/viewer/browser-viewer.ts": "f4351feae9fbc52a88732af466e0c8040540196da0f5213e8af6432c5a2a8c37",
     "apps/tools/src/adapters/viewer/editor-transfer.ts": "0c706d15c7e28abfc4fdff7e99df5a2a8d11c0eebc2e285273856f0d006f4daa",
     "apps/tools/src/animal-crossing-main.tsx": "f4f4571d5c0ff4fdfc5f15bc698168282467e4235a0ce59a74909e0aacb50d73",
-    "apps/tools/src/bootstrap.tsx": "a574ad4085be09e11e9dac9b9b6801df3834afccc83bb19489914c05a9ed3e0f",
+    "apps/tools/src/bootstrap.tsx": "6687cc090a5d536768f4d8e23e3ec1a7a7b1d374974d59222fdf47fc748aa767",
     "apps/tools/src/components/animal-crossing/animal-crossing-ground.tsx": "adb2b8151c044a0615ac21dee6619668acbbb42ef3b7f4ad60d9be4a4c9c8291",
     "apps/tools/src/components/animal-crossing/animal-crossing-output.tsx": "93c385c250d97401545c1e2de635fc3f7e7ede86d2057c902cfc804456ab6dc7",
     "apps/tools/src/components/animal-crossing/animal-crossing-page.tsx": "54e4447af3e25672c1678c5d6ae1d298e52c8a8935f214b135a8850085a227e0",
@@ -1143,7 +1147,7 @@
     "apps/tools/src/components/shared/canvas-preview.tsx": "d0627f2f054e7a3d9ca5e235ea96062eb140921a91335b0816e5ef7cde11ba13",
     "apps/tools/src/components/shared/file-tool-empty-state.tsx": "7656df018b892c79666076151ff596bde522601c34b26e7a3a52881136186c38",
     "apps/tools/src/components/shared/file-tool-shell.tsx": "5e98a47bd0b60e4e884ccb385309f8c08bd5730dec90303795392bfc2504d0c7",
-    "apps/tools/src/components/shared/tool-appearance.tsx": "90e8d5b6495217d0db6f19f736a72fbc8bcb05cdb0b004a2d8c4441259abe6a9",
+    "apps/tools/src/components/shared/tool-appearance.tsx": "056ae9ab57ce97d572e0da0500b8ac066c12f4ce97940d8f4eaa51767e4a9a3c",
     "apps/tools/src/components/shared/tool-artwork.tsx": "12267557e43acf0ca08739c0e08f0c57002cf6a57d0f4b020aa355e5727e829e",
     "apps/tools/src/components/shared/tool-frame.module.css": "fbe374a2349ff1d51218d194d1eca4c1edc2c9b741439772c81e299934f3a50d",
     "apps/tools/src/components/shared/tool-frame.tsx": "8eba5de7434bc16d115c48bd3fba8ffbd5e18338544433b5431d3099f1c92243",
@@ -1182,30 +1186,38 @@
     "apps/tools/src/managers/viewer/viewer-manager.test.ts": "b8d88b526d6b7302819c75bd2834a8a6066a54bd15cbe33477f3df1bcebbeba2",
     "apps/tools/src/managers/viewer/viewer-manager.ts": "4bc7a2eaf34683b28a366c84a4f139cf3402de3e8366ef444d9a4daabc1bd725",
     "apps/tools/src/pixelation-main.tsx": "6d95ef17c9b641cf16abdf54c2e6100c07475b00e3b4d70d5da5cfbaefd11eee",
-    "apps/tools/src/ssg.tsx": "279880271248a927cf6b0766b4e6a056ee0c767305395c9cd19de9327fc00f31",
+    "apps/tools/src/ssg.tsx": "7e13a9385a4a26ab0f37eadba232bf9dc18bf83f2603a296dc4966026c380fa3",
     "apps/tools/src/tool-application-root.tsx": "150890d9c591d3f001141f416a5359eb4e6063350ef1f09e07955da1cd395997",
-    "apps/tools/vite.config.ts": "148324dfb57bbfb21374f94c183c077cbe9c25c14c43a012a0334997e48794d0",
+    "apps/tools/vite.config.ts": "a2ec47f854869a885edd3a273863a8aee982f0652c9f72849d6d3f6fc87a98af",
+    "infra/content-versions.test.ts": "6f9c524a7a517dd22bedeb126e868ad20082987a4f5a8c6f172e18bd6d65471c",
+    "infra/content-versions.ts": "54e4d5c6775e12bedb6540922f3ff5d67075f0d5908ae85496beb4423149c57a",
     "infra/dependency-cruiser-known-violations.json": "9030078df566932a81c9dfe714bc502cd6237b3f8956cdfc294c5325f197e37f",
     "infra/dependency-cruiser.cjs": "c537f84571398314b7c381ec624191d4c7314f8f87d48c28bf137f4648a90fed",
     "infra/dependency-cruiser.webpack.cjs": "ea1ea97a1ebd5cfd19c03293c47f283bc2abf2221db1e5c6adcaa4a15898e25a",
     "infra/dev-dependencies.ts": "f4804365042776fc58c6eaa61de4a52b207c64c5175320b858c15837b5eb1091",
     "infra/dev-site.json": "6d87f8102f70aa7e91c8bf73bec65360ceb78e44af0a9be06e00f715c9265b46",
     "infra/dev-site.ts": "ce8144d614c0d2065f7fb9024bdbbbf61c85b6f6904d1b257617933933f6376a",
+    "infra/edgeone-serving-rules.test.ts": "23e04a731912cf23222a7687418e0ffdfd8dbc7b35319b1666c3076c74d934f0",
+    "infra/edgeone-serving-rules.ts": "5de71687c37bf5b71aadf11083f3b0be5ee80a598052785fd686e99ac159ecc2",
     "infra/knip.json": "25c3b1efc6223be0d4159da661a6241c92f8bfaed18dfbb617342392b9504e92",
     "infra/lint-staged.json": "df8be38210d686d46a8aced1ff6f913f6f2fab12eef0bf4f1d8f43a9b0b56b9e",
     "infra/oxfmt.json": "ae51aa8cda3f2a830a644719c891234c6bb7e5f20c476cc00e975a07752faf6b",
     "infra/oxlint.json": "c4d192f146c73f1e2a16e2037debf14633a5dd5f7b3591606a1f11702a694c21",
     "infra/package-import-scopes.json": "9dd18fe2124d12595dc1342991ff2c0d69de615d9d684fc95cad2de2167f8e07",
     "infra/package-local-aliases.ts": "758fc2cc451da367085c5e87f8d0849c862fd0cbce5212268ff005da0b7baf52",
+    "infra/page-metadata.test.ts": "796917591125badb772171e1dc6fa48d7c6a9290886dab8af232662b966c463e",
+    "infra/page-metadata.ts": "81cf18138dec7e52945237f5032a5eb7fb97ea2bad8c854ae32c4537bdd0363c",
     "infra/public-desktop-startup.ts": "ebd78591183218d214d05c08cac80d2c022983b203887d256680a3dbcd2ae9c0",
     "infra/public-package-assets.ts": "dbe64b8d41866dedc68379fcd03103cb366bcd5563c85c608db25a23bca57dab",
-    "infra/react-ssg-renderer.ts": "c5ab32a5df99759655b98c0539b559e3e29a26d52b3e4b64caf39c6e727afc57",
+    "infra/react-ssg-renderer.test.ts": "bc89bbcee56b92bea80c7dca0ada6b5cea12158332b2541263968b1265607f72",
+    "infra/react-ssg-renderer.ts": "4ed4090843d8254e380d418cbe2acb69d132f344e1d9c004fcbd4617560b020c",
     "infra/react-ssg-style-names.ts": "9640d585dc7a8a0206d840a368e0ff2937309b9219166071e3955b4ff07e1ecb",
-    "infra/site-html.ts": "c1cff4296bd0e017044d4bde6f333e7fa5ec85bcda413eaf3a058425c5143175",
+    "infra/site-html.test.ts": "737a4f9db1653f878171eae7755067b5a7521d0f4cc1e22b18dabb7905f485c0",
+    "infra/site-html.ts": "f604e1c467103e82ac18b75a23ae57ea3b1ea28116f2fcd30e49458befa717e0",
     "infra/site-telemetry.ts": "9dae1a3d7afa55c7b13385a49ca00a7199d8cb9e57a84eb668a934a784e83b50",
     "infra/tsconfig.dependency-cruiser.json": "d898f50ef61c69e17306be623d9c48789769396559940adf68bc1d09edfd3509",
-    "infra/vitest.config.ts": "c0288a13b776dbba4442b4dc797a1c899474d0a212435f7b6057d2d5389fd41c",
-    "package.json": "e464e580b13dd6e78acce49891173a5e4d0245c63a25732012d84a5b543a04d9",
+    "infra/vitest.config.ts": "c340713e6ab3a06dd0addb847f09d4fef3f981a29d782e58b065903ce17bb536",
+    "package.json": "43e684e611b876d60a5f2b7709783d048db0642fa546a66c957f5487a4b1defc",
     "packages/bedrock/browser/clipboard.ts": "6e19a831d0de2d901fe0a05d87433d0e4ea8bfc7acdd005c5cc716526747f11a",
     "packages/bedrock/browser/exclusive-lock.ts": "80ef812a097a9aecb1eb44dd05c18a08e96c5be359d0af7343846a186f9e8ff7",
     "packages/bedrock/browser/eyedropper.ts": "90e8aaf7b69334a4482dbda16b0bc66b4b0fdd0726dfc58b8927250031f2a99e",
@@ -1219,7 +1231,8 @@
     "packages/bedrock/browser/localstorage.ts": "e32798a67fb031ff732daddd8b5817180c640b63a593bc9017bb02d82ba9233c",
     "packages/bedrock/browser/opfs-worker.test.ts": "95b7556983ab576306b5f68a43053875cf0ecca9de053a9295494e53db724cec",
     "packages/bedrock/browser/opfs-worker.ts": "c399a35433da21f65a9af72b152bce90ce40838e28173753465ddac4ab927929",
-    "packages/bedrock/browser/opfs.ts": "a6b14dbcc212038176c346f65b5cfa76c3ac50f5cf92e18ab0700833a7759188",
+    "packages/bedrock/browser/opfs.test.ts": "13cc5400cab8434e30b4585c5bfb72cffc8993325afa3375c89a3754d6ec0cd8",
+    "packages/bedrock/browser/opfs.ts": "a473e7fbf2656584c0e0da76179d4a050a4f57293667a1689e0c449fb88b1db4",
     "packages/bedrock/browser/runtime-crypto.ts": "13cb82b338de2c3d3a08d58cf0b93936071effcbe9fc9f7f04a8c7f8d7b3c1af",
     "packages/bedrock/browser/storage-error.ts": "e165a77f27c79f3f601565941087289bbbd37006f142293c01a1ddb5e7ad5afc",
     "packages/bedrock/browser/wheel-device.ts": "33e97099974302efe9bfab6a20bb90728d468aafd4f58027dad70def86ed62ab",
@@ -1617,7 +1630,7 @@
     "packages/editor-ui/src/timeline/tag-bands.ts": "ee800b809515bbf51538b2ba12f67b29e37903d975e7a68f489f67256117d8f4",
     "packages/editor-ui/src/timeline/timeline.module.css": "da779f1252a49e06bce09d449e12ec65906513f03719e4db49745dc46a12b328",
     "packages/site-shell/src/adapters/browser.ts": "2c713af1f594d7ba43fdeb84d878962c70fd077ef8241cfe1c207baff681ac7c",
-    "packages/site-shell/src/components/desktop-provider.tsx": "f45b7af2568a511b3f21106f73bfbe994bad73d93f55422605697876636766cc",
+    "packages/site-shell/src/components/desktop-provider.tsx": "f23f6b51127d567e2ce8ba26ade65687d30c61d0cb4bd6b14655c443d257132d",
     "packages/site-shell/src/components/pattern-colors.module.css": "a9e7736bb4a4ad581dc19ad47990072ee0233414635dc4d794817dfa9a6ebb0d",
     "packages/site-shell/src/components/pattern-colors.tsx": "5ec85f8a0ab64cf22814680f33e9a3722febf14f46341db680da7114212ce7e6",
     "packages/site-shell/src/components/site-footer.module.css": "7b257e712e82c083a6b92996170c26dd02307d65b9051f1f4152d040bf1000a7",
@@ -1677,11 +1690,12 @@
     "packages/ui/assets/fonts/fusion-pixel/fonts.css": "0e355b7f43cd86467f0f40f1fb6387d6953f05c59132b4f56d1197cd8c7b2d41",
     "packages/ui/assets/fonts/fusion-pixel/fusion-10-aseprite.woff2": "c7e190d8e1bae59409e9a551d472ab361a28bdaf3edfe50b3146cdf430edde8f",
     "packages/ui/assets/fonts/fusion-pixel/fusion-10.woff2": "30cff04a27ec139dc1eb948f6f3d3b48d6c25cc59ba5ed011d229ed6ffc3c2c9",
+    "packages/ui/assets/fonts/fusion-pixel/fusion-12-base.woff2": "9ac0d1d030a89c82a5390021137d68c7e0a2d18e297cac104acb6597d1b14946",
     "packages/ui/assets/fonts/fusion-pixel/fusion-12.woff2": "0ebd99e6f1e9b650a793a3f759c1c3dfa99f0c5b6502e78569b48ddb43767e40",
     "packages/ui/assets/fonts/fusion-pixel/fusion-8.woff2": "c68edc7ba14e595bd34d7bb9295c8364315dd275d561a61efe520c51b599da8a",
     "packages/ui/assets/fonts/macintosh/chikarego2.woff2": "ec44f36e057ab23cc292cb214d659ff54b6dce83ff32b382945fb3903af9384d",
     "packages/ui/assets/fonts/macintosh/finderskeepers.woff2": "9d39b3a3d9465913ee80a7a2c92f966d3989a9fd69b9fa5d34670b8a9f35775e",
-    "packages/ui/assets/fonts/macintosh/fonts.css": "c21408f485107993ff5bf58d0b0c4f525e4490050cef4f65aaa424b4dfa486cb",
+    "packages/ui/assets/fonts/macintosh/fonts.css": "2908db41b43d0ebfb3575321c4c512d5843ba019f9fdc0953744e08618f381fb",
     "packages/ui/assets/fonts/pixel-code/fonts.css": "0cb88b779a8d5ab4324b3ea3c5e5a234d0fe3554455391ff7bffc4d127203062",
     "packages/ui/assets/fonts/pixel-code/pixel-code.woff2": "3dfe8f82b1a306171522e2aad26c3ac1f1208264c6eb596a8394a5ffd28f4bc8",
     "packages/ui/assets/icons/desktop/macos8/application-small.png": "35ec2dec7f884449744e7cbb538a9977adca4a3c7eec8a7872be90ad2edd84a8",
@@ -1864,8 +1878,9 @@
     "packages/ui/src/base/components/canvas/canvas-presentation.ts": "bb9a48e57ae091464f518f392caeb0e794a5a0cfd068bf4433cfec7c2b862f1e",
     "packages/ui/src/base/components/canvas/canvas-renderer.test.ts": "a8cf2bed2681b2e2c6bd1d0a2bb307272c4114575da40066f35b104de18e6f1b",
     "packages/ui/src/base/components/canvas/canvas-renderer.ts": "a38e4a670fc29478012946904a397f3a2376b462a46f0b6245e800f0783c2ab3",
+    "packages/ui/src/base/components/cursor/cursor-style.test.ts": "2d72ca60f0b3283e7748883753355b01c9278f5bb0ddfd8299580a29ff7d199a",
     "packages/ui/src/base/components/cursor/cursor.module.css": "4eebebb3a25ca1e26d0233b8755b28b4b0e5fd3c9a3a567e092e7f6169001ce3",
-    "packages/ui/src/base/components/cursor/index.tsx": "f61de4d0bbcf1a17a93eb4dd1823a7600ca54d7f084f9510ad47514b524762ce",
+    "packages/ui/src/base/components/cursor/index.tsx": "bddde1b7ab0a7d3f681b4e69d93d398d0cffb38c6c6d64ed38cf07c116bb3aa0",
     "packages/ui/src/base/components/scrollbar/geometry.ts": "a4ab92ae3f0c4072e35945880ca97d2c9c622c1b1469716ddf72e40b22f2612b",
     "packages/ui/src/base/components/scrollbar/primitive.tsx": "e7cf5cb8a9e8e35262e790d656f923ea791e1b01e4e4a8a8e4d48a480360a308",
     "packages/ui/src/base/components/theme-controls.module.css": "ac266689217a6bc9718b5e0daa6763c78c7113a5851d90047377b59a62124daf",
@@ -2158,18 +2173,18 @@
     "packages/ui/src/vite-env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
     "packages/ui/tsconfig.json": "1d848cee570d64ce32162da15c04b7fa8e0c844ce064d91b38682467bdd471c5",
     "packages/ui/vite.config.ts": "4461c02d22002cacb254e22f7cc6499851e6a2029683e1495457cac8c7eb8368",
-    "pnpm-lock.yaml": "43f73060291a7bdcb85938089e73d13bfa3d9fce75676db09938191da41ad647",
+    "pnpm-lock.yaml": "0f793353848436bc593f620ed24d04b39272fea7c7f9fe11bc5a7dfb963edcd6",
     "scripts/base/screenshot.mjs": "7328e19aaf2f408419ec755d603a6e52b1b51b3c387fb590ea16c29701ad013f",
     "scripts/visual-audit/site/README.md": "4dcc4d6ec4114e0e835c845e067d913f83ac177da4f5ecb185438d96001d9fdd",
-    "scripts/visual-audit/site/audit.mjs": "66bf931f99dd429d5e12d0dfdc6a319144d6943ed2a475f56eb38ab816688b51",
-    "scripts/visual-audit/site/capture.payload.mjs": "0deacc47e428eaf14a5c90ee3fcad14b6e0191924a9d4d022b95a8a6fc7b9216",
+    "scripts/visual-audit/site/audit.mjs": "01d15ddd381d6e170103c730ac716d735e41ec631779b0cd69fda0dee8409913",
+    "scripts/visual-audit/site/capture.payload.mjs": "7f0982206cf299fd1e623c9bd8ce201bacda4ec73fb3b40fe4ed591593850c06",
     "scripts/visual-audit/site/compare.mjs": "5ebf90159c474d4b10e384b3146bfedd8c7129bb684c370997b453a87d259d42",
     "scripts/visual-audit/site/report.mjs": "ec9f9f5366a9239b1dc739feecf0d048daf20f537a081264ce9a472ff015f764",
     "scripts/visual-audit/site/scenes.mjs": "4131755b3752b745e3243097dac7df879b3926b29a479e491889b1a0761d63f7",
     "scripts/visual-audit/site/sources.mjs": "19e78a016dc040ea7ee423018fdab627b358eb07ca0be634355804deae975d59",
     "scripts/visual-audit/tools-startup/scenes.mjs": "8bba4f27b52bd875a1b48b81d85833a68475d222db949d040d3aac79e068eb1b"
   },
-  "sourceDigest": "d1c011c85dd9d67ff30d12dfab5591f6e3eea87505d0799d7d2d091f260906e2",
+  "sourceDigest": "18c3c718b96d139b9d4fa2299bc4e55e46664b297bf5f1b9817b9183f99d2e6f",
   "scenes": [
     "about-zh-CN-wide-light",
     "about-zh-CN-compact-light",
@@ -2208,7 +2223,7 @@
   "cases": [
     {
       "id": "about-zh-CN-wide-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "about-zh-CN-wide-light.png",
       "contract": {
         "id": "about-zh-CN-wide-light",
@@ -2244,7 +2259,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:03:44.961Z",
+        "capturedAt": "2026-10-13T02:16:54.702Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2266,13 +2281,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "4530216c51ee647b2b7a8dd26ed9b61bf732adf290e2f276d94bc67e24778a71",
+        "sha256": "d2d48e4fcbba8309e1cc9a176da2d77fac18884731b2f3c3e7c773b2c4786c24",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2300,15 +2315,15 @@
           "x": 0,
           "y": 44,
           "width": 1424,
-          "height": 3020.4921875
+          "height": 3060.484375
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/zh-CN/about/"
     },
     {
       "id": "about-zh-CN-compact-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "about-zh-CN-compact-light.png",
       "contract": {
         "id": "about-zh-CN-compact-light",
@@ -2344,7 +2359,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:03:45.620Z",
+        "capturedAt": "2026-10-13T02:16:55.021Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2366,13 +2381,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "fce319a02448539090444bbc1ef3d9b7f356c84d99fd5921e49feff212f42569",
+        "sha256": "42aa40f2d1a3062960c19cfbf1d91b7090da8f7507064b1ab7ced6b8a32fd650",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2400,15 +2415,15 @@
           "x": 0,
           "y": 36,
           "width": 374,
-          "height": 3012.2734375
+          "height": 3052.265625
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/zh-CN/about/"
     },
     {
       "id": "about-features-zh-CN-compact-dark",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "about-features-zh-CN-compact-dark.png",
       "contract": {
         "id": "about-features-zh-CN-compact-dark",
@@ -2444,7 +2459,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:03:47.399Z",
+        "capturedAt": "2026-10-13T02:16:55.717Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2466,13 +2481,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "3f8396b08b3fa523f6c11c0de8141c3798d62f1baa933732b156616c4e9ae8cb",
+        "sha256": "19c6f8058c7a4e01f90b719e8de9848a663ff22a3acdc512d5a9945d22382133",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2503,12 +2518,12 @@
           "height": 760
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/zh-CN/features/"
     },
     {
       "id": "about-how-it-works-en-wide-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "about-how-it-works-en-wide-light.png",
       "contract": {
         "id": "about-how-it-works-en-wide-light",
@@ -2544,7 +2559,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:03:49.929Z",
+        "capturedAt": "2026-10-13T02:16:56.540Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2566,13 +2581,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "7426c9af3cc5450dc8cb0e25c0abbc4fa29b4174b8567e53efc24662d552f188",
+        "sha256": "3be891300b0f0dcf08e4883a4b132ecba0478c7b68ee4d115bf5257b7d9bc31e",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2603,12 +2618,12 @@
           "height": 804
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/about/how-it-works/"
     },
     {
       "id": "compare-zh-CN-compact-dark",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "compare-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-zh-CN-compact-dark",
@@ -2644,7 +2659,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:03:52.136Z",
+        "capturedAt": "2026-10-13T02:16:57.133Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2666,13 +2681,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "9b6ce7afbb2303308eb5913a7b59416481824e6be26e72b8ac7903f380c2873c",
+        "sha256": "6a6c4fe1c6d8f34ca86d7c2969e3a441fd336286fcf8f282b262300550fd2ed9",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2703,12 +2718,12 @@
           "height": 760
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/zh-CN/compare/"
     },
     {
       "id": "compare-aseprite-on-ipad-en-wide-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "compare-aseprite-on-ipad-en-wide-light.png",
       "contract": {
         "id": "compare-aseprite-on-ipad-en-wide-light",
@@ -2744,7 +2759,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:03:55.296Z",
+        "capturedAt": "2026-10-13T02:16:57.848Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2766,13 +2781,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "26f9f93c74a25dabd1f18f1523fe3580741eb24a58551f374bbb83ce4e70367d",
+        "sha256": "9d9abfcd5d128e18850c6c011fef29d865ab39ae2afe4840c5ef07fb2e2f0e13",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2803,12 +2818,12 @@
           "height": 804
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/compare/aseprite-on-ipad/"
     },
     {
       "id": "compare-aseprite-online-zh-CN-compact-dark",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "compare-aseprite-online-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-aseprite-online-zh-CN-compact-dark",
@@ -2844,7 +2859,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:03:58.172Z",
+        "capturedAt": "2026-10-13T02:16:58.503Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2866,13 +2881,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "4c39a0c8d0165977e091688e5a7e8bdb8769a80ba30cf35f6a618e032676f162",
+        "sha256": "353b407add6642f426df7c06e4ab8958c36cc0d800f77b0f4e5cf1624b0dd36f",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2903,12 +2918,12 @@
           "height": 760
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/zh-CN/compare/aseprite-online/"
     },
     {
       "id": "compare-piskel-alternatives-en-wide-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "compare-piskel-alternatives-en-wide-light.png",
       "contract": {
         "id": "compare-piskel-alternatives-en-wide-light",
@@ -2944,7 +2959,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:00.925Z",
+        "capturedAt": "2026-10-13T02:16:59.155Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2966,13 +2981,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "b8e5b922fd2e75818d9f6d6534ec47fb6cacaa366d1e5c095568e65f57442c81",
+        "sha256": "579476d69a8dd4f980928e7bde134a774ba85c88b62b5c2b082c6e913366614f",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3003,12 +3018,12 @@
           "height": 804
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/compare/piskel-alternatives/"
     },
     {
       "id": "features-aseprite-projects-zh-CN-compact-dark",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "features-aseprite-projects-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-aseprite-projects-zh-CN-compact-dark",
@@ -3044,7 +3059,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:02.792Z",
+        "capturedAt": "2026-10-13T02:16:59.750Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3066,13 +3081,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "2aea72ec56940025add3533326c661a61ceabb768aad86bb7d2ca20912983c00",
+        "sha256": "2dac19535d82b5ffea34637156583c634eb01a25681690db5819a5cc0514f4ea",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3103,12 +3118,12 @@
           "height": 760
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/zh-CN/features/aseprite-projects/"
     },
     {
       "id": "features-draw-pixel-art-en-wide-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "features-draw-pixel-art-en-wide-light.png",
       "contract": {
         "id": "features-draw-pixel-art-en-wide-light",
@@ -3144,7 +3159,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:04.675Z",
+        "capturedAt": "2026-10-13T02:17:00.397Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3166,13 +3181,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "8ab22fee236d5790a52b084ba0b029e5e5c5bf8f083fa1f64b6d155b15f3a23a",
+        "sha256": "8c827689984b4b2aaad9e36341cf42f1e9fe1df6a1155d8c15ed5044ae33a379",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3203,12 +3218,12 @@
           "height": 804
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/features/draw-pixel-art/"
     },
     {
       "id": "features-drawing-process-zh-CN-compact-dark",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "features-drawing-process-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-drawing-process-zh-CN-compact-dark",
@@ -3244,7 +3259,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:06.362Z",
+        "capturedAt": "2026-10-13T02:17:01.004Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3266,13 +3281,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "66fc91adab0944bcb9c1e60dd6f09b68f883c722391dc16ff82bd1ebabf70ca0",
+        "sha256": "a594bf53b9e27bd758b4b0b15241b9b3bdcfd45e2d3246c3819e0868a13b1226",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3303,12 +3318,12 @@
           "height": 760
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/zh-CN/features/drawing-process/"
     },
     {
       "id": "features-export-images-and-animation-en-wide-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "features-export-images-and-animation-en-wide-light.png",
       "contract": {
         "id": "features-export-images-and-animation-en-wide-light",
@@ -3344,7 +3359,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:08.001Z",
+        "capturedAt": "2026-10-13T02:17:01.586Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3366,13 +3381,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "416f6ac1dbb1823ca395d90033f25709531b532be1df116846ab0c2cc399d9b4",
+        "sha256": "1ecaea62feef2ac481271b72de40e76d9e06b783a473b20fc0eafbde8bacc126",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3403,12 +3418,12 @@
           "height": 804
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/features/export-images-and-animation/"
     },
     {
       "id": "features-frame-animation-zh-CN-compact-dark",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "features-frame-animation-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-frame-animation-zh-CN-compact-dark",
@@ -3444,7 +3459,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:09.677Z",
+        "capturedAt": "2026-10-13T02:17:02.156Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3466,13 +3481,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "e4660961c2ca06703b796f9c4fe5ac838154a2f83e591f7930287a6b37c963eb",
+        "sha256": "abe87ed38a255c8eb22e42634fa4134ce56c02f9a09ab61af26b09e619898d02",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3503,12 +3518,12 @@
           "height": 760
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/zh-CN/features/frame-animation/"
     },
     {
       "id": "features-layers-and-colors-en-wide-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "features-layers-and-colors-en-wide-light.png",
       "contract": {
         "id": "features-layers-and-colors-en-wide-light",
@@ -3544,7 +3559,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:11.222Z",
+        "capturedAt": "2026-10-13T02:17:02.805Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3566,13 +3581,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "e3ab5a9a60d3fc2cd5dfe7fc9c26efafef4b39e077eb80d8f82b42ffc7d545ac",
+        "sha256": "62561753b9b5cd94485dc57fe4c8e43502064a64fc618ed3dfd2099c5c828306",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3603,12 +3618,12 @@
           "height": 804
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/features/layers-and-colors/"
     },
     {
       "id": "features-share-artwork-zh-CN-compact-dark",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "features-share-artwork-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-share-artwork-zh-CN-compact-dark",
@@ -3644,7 +3659,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:12.991Z",
+        "capturedAt": "2026-10-13T02:17:03.352Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3666,13 +3681,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "b27c5df3ba5b754025c0d974ded67f18424313763e8b7bb533550e240c18e048",
+        "sha256": "5629b85861a1236153d1f57e6497e3b4ff480106ba277865be5923f9c28987a2",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3703,12 +3718,12 @@
           "height": 760
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/zh-CN/features/share-artwork/"
     },
     {
       "id": "features-tilemaps-en-wide-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "features-tilemaps-en-wide-light.png",
       "contract": {
         "id": "features-tilemaps-en-wide-light",
@@ -3744,7 +3759,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:14.934Z",
+        "capturedAt": "2026-10-13T02:17:03.960Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3766,13 +3781,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "d599bc4ab67f4b75a803e8712014f6570060ca303b0de4049f36db58c34a6b18",
+        "sha256": "89936d42552ca9cd148f0096726a3c875283583d508f6c3b36f71ca2c28c469d",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3803,12 +3818,12 @@
           "height": 804
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/features/tilemaps/"
     },
     {
       "id": "features-touch-drawing-zh-CN-compact-dark",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "features-touch-drawing-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-touch-drawing-zh-CN-compact-dark",
@@ -3844,7 +3859,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:17.043Z",
+        "capturedAt": "2026-10-13T02:17:04.570Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3866,13 +3881,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "aec54b95705c4574600de423a060ace4e83b2e3d0072f1f989d3175c7d3d78ee",
+        "sha256": "141168b4550bfaed17b3f0ba5066727fad944eb3da0104ed011aa0e734145558",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3903,12 +3918,12 @@
           "height": 760
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/zh-CN/features/touch-drawing/"
     },
     {
       "id": "features-workspace-layout-en-wide-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "features-workspace-layout-en-wide-light.png",
       "contract": {
         "id": "features-workspace-layout-en-wide-light",
@@ -3944,7 +3959,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:18.983Z",
+        "capturedAt": "2026-10-13T02:17:05.238Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3966,13 +3981,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "6e790afb76a5b7d4f79a379503719988aba5c1dbc1d45ed25623f036e8ab94dd",
+        "sha256": "08c95bf58bd80a25f6e2121c67e200c5dff3ada3eff922d10844317682a0719b",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4003,12 +4018,12 @@
           "height": 804
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/features/workspace-layout/"
     },
     {
       "id": "help-zh-CN-compact-dark",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "help-zh-CN-compact-dark.png",
       "contract": {
         "id": "help-zh-CN-compact-dark",
@@ -4044,7 +4059,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:22.118Z",
+        "capturedAt": "2026-10-13T02:17:05.904Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4066,13 +4081,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "9d8e524f81be34510a24c36bf4d67e6059a240c260fda841e85f7c71e52518fd",
+        "sha256": "be69328abac68cd913d77470cd7cf3b12a83857488b500a19904f9e6f1a20599",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4103,12 +4118,12 @@
           "height": 760
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/zh-CN/help/"
     },
     {
       "id": "privacy-en-wide-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "privacy-en-wide-light.png",
       "contract": {
         "id": "privacy-en-wide-light",
@@ -4144,7 +4159,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:23.934Z",
+        "capturedAt": "2026-10-13T02:17:06.510Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4166,13 +4181,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "299c2a486c25e1fe1ec2e827cad79fb848ef644273c4b6f915cd75b64c9c2c18",
+        "sha256": "7ec7e30990fcd406d124423842226779f12b84fc79ed8f0de033dc5e8caa7c03",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4203,12 +4218,12 @@
           "height": 804
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/privacy/"
     },
     {
       "id": "tools-viewer-empty-en-wide-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "tools-viewer-empty-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-empty-en-wide-light",
@@ -4245,7 +4260,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:25.237Z",
+        "capturedAt": "2026-10-13T02:17:07.405Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4267,13 +4282,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "2b84c2f4d77a4a0e4b9fe440296d01bd600daec177b0bb28cecd9f79eb08ae4d",
+        "sha256": "e25960fc838128b2bd93242c0939be2900b0753b38c72f4b4ef749b18a6f4759",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4304,12 +4319,12 @@
           "height": 812
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/tools/viewer/"
     },
     {
       "id": "tools-viewer-loaded-en-wide-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "tools-viewer-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-loaded-en-wide-light",
@@ -4351,7 +4366,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:26.647Z",
+        "capturedAt": "2026-10-13T02:17:08.666Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4373,13 +4388,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "09c765a23296b566f70c387a6623cf96d99ba4bbc0d6e6568a76433eeb23422b",
+        "sha256": "7b5899e5d3ffe5a0f48b5fa7b9d054607432119ae2b00d8e40b7155bc5ce8610",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4417,12 +4432,12 @@
           "height": 812
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/tools/viewer/"
     },
     {
       "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
@@ -4459,7 +4474,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:27.829Z",
+        "capturedAt": "2026-10-13T02:17:09.489Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4481,13 +4496,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "9a82000f3688c9d51665b813b0c0e4362481933e73e494b027287e6a1253c9b4",
+        "sha256": "f86de12a6ff507c603b5df8b5f2bb9a150f8e9764768ae93700b6b5e71fc22c9",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4518,12 +4533,12 @@
           "height": 512
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/tools/gif-to-sprite-sheet/"
     },
     {
       "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
@@ -4565,7 +4580,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:29.135Z",
+        "capturedAt": "2026-10-13T02:17:10.405Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4587,13 +4602,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "be8a3b9c68c164a289e8eaaf703871de04411c90fc4dd2b9c29cdb63d39c9d50",
+        "sha256": "2db9e2db005f65620b2aaa4ce819336529d5c0ce49ae529538d64d8e240e06ee",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4631,12 +4646,12 @@
           "height": 512
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/tools/gif-to-sprite-sheet/"
     },
     {
       "id": "tools-pixelate-empty-en-wide-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "tools-pixelate-empty-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-empty-en-wide-light",
@@ -4673,7 +4688,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:30.392Z",
+        "capturedAt": "2026-10-13T02:17:11.323Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4695,13 +4710,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "2e613912a26fc1342a997d258912d7d6da50da350ec52eaaccf6e3705d8b9a20",
+        "sha256": "b6d7673eade79ae3ff40a56adfc997841eb6eedddaf23bb5d37980487d2b689a",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4732,12 +4747,12 @@
           "height": 812
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/tools/pixelate/"
     },
     {
       "id": "tools-pixelate-loaded-en-wide-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "tools-pixelate-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-loaded-en-wide-light",
@@ -4779,7 +4794,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:32.001Z",
+        "capturedAt": "2026-10-13T02:17:13.081Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4801,13 +4816,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "0387e3f4f5a78c566a954426bc47cf46e80a589b03733e5752f924a4937dcca7",
+        "sha256": "ce3f1a1f3a11e93018bbfc14a44964ac6a4ed8c00a1c8217aa1191d42f4c19e0",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4845,12 +4860,12 @@
           "height": 812
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/tools/pixelate/"
     },
     {
       "id": "tools-animal-crossing-qr-empty-en-compact-dark",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "tools-animal-crossing-qr-empty-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-empty-en-compact-dark",
@@ -4887,7 +4902,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:33.227Z",
+        "capturedAt": "2026-10-13T02:17:13.973Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4909,13 +4924,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "d87a67b29e9771e719502255e04dcfb5f380538e69151770f5a3547b44df7e66",
+        "sha256": "0292ec6af8ba2e34f018824cdf95bc4fd941c0f44d09ac61b33e5ea9b6f21fcc",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4946,12 +4961,12 @@
           "height": 512
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/tools/animal-crossing-qr/"
     },
     {
       "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "tools-animal-crossing-qr-loaded-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
@@ -4993,7 +5008,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:34.504Z",
+        "capturedAt": "2026-10-13T02:17:15.005Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5015,13 +5030,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "8f9dd76f0b9d1709f3986c53f5ffc157556bf0f167e20c3c33c544b106537e90",
+        "sha256": "6351c7e62a2aa84453f0f271efef418d9518080ce5814f7eedd1b6201b4d8980",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5059,12 +5074,12 @@
           "height": 512
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/tools/animal-crossing-qr/"
     },
     {
       "id": "about-features-en-compact-dark",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "about-features-en-compact-dark.png",
       "contract": {
         "id": "about-features-en-compact-dark",
@@ -5100,7 +5115,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:36.126Z",
+        "capturedAt": "2026-10-13T02:17:15.664Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5122,13 +5137,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "26f8bbbe493f422ab030a60c9d4ea1a90f904084cc1485cdebba873fde34b423",
+        "sha256": "9e5c05f5448fd658de0a4c7dd01c0e500dae58736939d529c9bba2ce64cd44bb",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5159,12 +5174,12 @@
           "height": 760
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/features/"
     },
     {
       "id": "feature-window-features-draw-pixel-art-en-wide-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "feature-window-features-draw-pixel-art-en-wide-light.png",
       "contract": {
         "id": "feature-window-features-draw-pixel-art-en-wide-light",
@@ -5206,7 +5221,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:38.048Z",
+        "capturedAt": "2026-10-13T02:17:16.487Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5228,13 +5243,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "dc29c348ff357b793c0d9a56b384d803a2b485368f3c580a4c75b3fc5430e0ed",
+        "sha256": "ac424ec33d3d2f51f853083dbfcd87a1e5de86c7666fb587415cb39caa6868ed",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5272,12 +5287,12 @@
           "height": 520
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/features/"
     },
     {
       "id": "feature-window-features-layers-and-colors-zh-CN-compact-dark",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "feature-window-features-layers-and-colors-zh-CN-compact-dark.png",
       "contract": {
         "id": "feature-window-features-layers-and-colors-zh-CN-compact-dark",
@@ -5320,7 +5335,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:40.195Z",
+        "capturedAt": "2026-10-13T02:17:17.317Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5342,13 +5357,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "dbaf911c6bfdce149b271f241a169b6f7d5e21e33c159658f09d8aec752ab830",
+        "sha256": "6759dff7cde67e9e59f26ffe1a2a8b6c33f077adaf1e3baace27df85aa167248",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5386,12 +5401,12 @@
           "height": 520
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/zh-CN/features/"
     },
     {
       "id": "site-footer-en-wide-light",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "site-footer-en-wide-light.png",
       "contract": {
         "id": "site-footer-en-wide-light",
@@ -5424,7 +5439,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:41.733Z",
+        "capturedAt": "2026-10-13T02:17:17.989Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5446,13 +5461,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "3fe8bdf1e7eb68fdbfccb5408f28bca4e982ce99715377262145467b3a71845a",
+        "sha256": "336ecd2f9e4d96877f6303b0beb66453a26b397d50630c02e7379b880658ed09",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5476,12 +5491,12 @@
           "height": 265
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/features/"
     },
     {
       "id": "site-footer-zh-CN-compact-dark",
-      "runId": "dbf85b81-b036-4672-a1cb-89e79efd175c",
+      "runId": "e67893af-521f-42c7-ad00-aa990649afea",
       "file": "site-footer-zh-CN-compact-dark.png",
       "contract": {
         "id": "site-footer-zh-CN-compact-dark",
@@ -5514,7 +5529,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-11T17:04:43.412Z",
+        "capturedAt": "2026-10-13T02:17:18.615Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5536,13 +5551,13 @@
           "y": 1
         },
         "colorSpace": {
-          "iccSha256": "ecbbbb7400d6582cbc0b24149acdcfc16799b3360f7912933859975c6e778549",
+          "iccSha256": null,
           "srgbIntent": null,
           "gamma": null,
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "f48ff35165b87977213e6d001732402ac84daf74466e1ee763b4c6fa019e0a7a",
+        "sha256": "c95c0a9c3692fcb59e3b7370a6897e63b2516f0d892f6106bddcc78587ab0697",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5566,12 +5581,12 @@
           "height": 109
         }
       ],
-      "platform": "MacIntel",
+      "platform": "Linux x86_64",
       "path": "/zh-CN/features/"
     }
   ],
   "browser": {
-    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
-    "platform": "MacIntel"
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+    "platform": "Linux x86_64"
   }
 }

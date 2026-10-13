@@ -11,9 +11,7 @@ Dark; GIF conversion uses Simplified Chinese at wide Dark; and Animal Crossing
 uses English at compact Light; Pixelate uses Simplified Chinese at compact Light.
 This gives five required pairs and ten screenshots at DPR 1. The scene registry is
 the complete approved matrix; per-run selection and threshold overrides are unsupported.
-`--space ID` reuses an existing agent-owned Ego space when recovering a failed
-capture; a supplied space remains available to its caller. An audit that creates
-its own space closes it on success. Every recovery still captures all five pairs.
+The capture runs in Playwright's headless Chromium. Every run captures all five pairs.
 
 For each pair, external runtime JavaScript modules are blocked before navigation.
 The generated HTML, critical CSS, fonts, images and real inline appearance script

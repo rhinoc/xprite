@@ -196,7 +196,7 @@ requests. Missing IP information fails quota/reservation calls instead of groupi
 everyone under a fake IP. Never place an untrusted proxy in front of the production
 Worker without implementing authenticated original-IP forwarding.
 
-`pnpm run check:share` checks production and test TypeScript without building.
+`pnpm run check:types` checks the service's production and test TypeScript (with every other project) without building.
 The root format, lint, import, architecture, and unused-code workflows cover the
 service. `pnpm run test:share` runs regression coverage with the production SQL
 executed against Node SQLite, including concurrency, expiry, lost responses,

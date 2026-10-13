@@ -40,6 +40,5 @@ also saves the page's current screenshot; it may show recovered content, so use
 the trace to locate an earlier disappearance. Every run invalidates its report
 before capture. Missing or partial evidence cannot reuse a previous pass.
 
-Use `--space ID` to reuse an agent-owned browser space for related checks.
-The caller finishes a supplied space after all work; standalone successful audits
-close only the space they created. Recovery still observes every scene.
+Scenes run in three parallel Playwright Chromium contexts (`XPRITE_VISUAL_SHARDS`
+overrides the count). A failed run still observes every scene.

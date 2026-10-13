@@ -1,4 +1,4 @@
-// Executed by ego-browser; the wrapper supplies siteConfig.
+// Executed by scripts/visual-audit/base/browser.mjs; the wrapper supplies siteConfig.
 const fs = await import("node:fs/promises");
 const { captureBrowserScreenshot, navigateWithTransientRetry } = await import(
   siteConfig.screenshotModule
@@ -147,6 +147,16 @@ try {
         await page.waitForSelector('[data-tool-state="empty"]');
         const selector = `button[aria-label="${scene.page.language === "zh-CN" ? "打开示例" : "Open example"}"]`;
         await page.click(selector);
+        // Opening starts asynchronously; let the tool report busy/ready before judging the click.
+        await page
+          .waitForFunction(
+            () =>
+              !!document.querySelector('[data-tool-state="ready"]') ||
+              !!document.querySelector('main [aria-busy="true"]'),
+            undefined,
+            { timeout: 2000 },
+          )
+          .catch(() => {});
         const activation = await page.evaluate(
           (label) => ({
             ready: !!document.querySelector('[data-tool-state="ready"]'),

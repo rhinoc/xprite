@@ -134,7 +134,7 @@ pnpm run check
 pnpm run build
 ```
 
-`pnpm run check:ui-editor-usage` requires public UI components to be reachable
+`pnpm run check:architecture -- --only ui-editor-usage` (part of `pnpm run check`) requires public UI components to be reachable
 from production page render graphs: editor, browser tools, showcase, help and
 article pages, including their SSG renderers and shared presentation packages.
 Web Components' normal page UI, including its menubar and navigation, counts as usage.
