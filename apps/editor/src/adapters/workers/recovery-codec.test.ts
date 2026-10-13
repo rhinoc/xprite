@@ -9,13 +9,15 @@ describe("recovery-codec", () => {
   it("recovery-codec behavior", async () => {
     const { outputFiles } = await build({
       stdin: {
-        contents: `export * from './apps/editor/src/adapters/workers/recovery-codec.ts'; export * from './apps/editor/src/adapters/workers/recovery-codec-client.ts'; export * from './apps/editor/src/adapters/files/aseprite-files.ts'; export * from './packages/editor-core/src/import-export/aseprite/project.ts'; export { activateTimelineCel } from './packages/editor-core/src/document/document.ts';`,
+        contents: `export * from './apps/editor/src/adapters/workers/recovery-codec.ts'; export * from './apps/editor/src/adapters/workers/recovery-codec-client.ts'; export * from './apps/editor/src/adapters/files/aseprite-files.ts'; export * from './packages/editor-core/src/import-export/aseprite/project.ts'; export { activateTimelineCel } from './packages/editor-core/src/document/document.ts';export { hydratePixelStorage } from './packages/editor-core/src/document/pixel-storage.ts';`,
         resolveDir: process.cwd(),
       },
       bundle: true,
       platform: "node",
       format: "esm",
       write: false,
+      // Vite provides import.meta.env (read by failure telemetry); esbuild does not.
+      define: { "import.meta.env": JSON.stringify({ DEV: false, PROD: false, MODE: "test" }) },
     });
     const api = await import(
       `data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString("base64")}`
@@ -72,8 +74,10 @@ describe("recovery-codec", () => {
         "recovery retains finite animation play counts",
       );
       assert.equal(restored.document.timeline.activeFrame, source.document.timeline.activeFrame);
+      // Pixel data is a lazy accessor that structured clone drops by design; every real
+      // clone/worker/storage boundary reattaches it with hydratePixelStorage.
       const expected = api.asepriteFromProject(
-        api.projectFromDocument(structuredClone(source.document)),
+        api.projectFromDocument(api.hydratePixelStorage(structuredClone(source.document))),
       );
       const actual = api.asepriteFromProject(api.projectFromDocument(restored.document));
       assert.deepEqual(actual.layers, expected.layers);

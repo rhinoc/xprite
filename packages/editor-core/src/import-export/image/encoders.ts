@@ -176,6 +176,12 @@ function gifColors(frames: readonly ExportAnimationFrame[], palette?: readonly R
 export interface GifEncodeOptions {
   loopCount?: number;
   interlaced?: boolean;
+  /**
+   * Preserve palette order (Aseprite's GIF option). When set, the GIF color table is the first
+   * frame's `palette` (or this one), and each frame's own `palette` becomes its local table.
+   * When unset, frame palettes are ignored on purpose and the table is built from the pixels,
+   * with index 0 reserved for transparency. Callers that need exact indices must set it.
+   */
   palette?: readonly Rgba[];
   forTwitter?: boolean;
 }

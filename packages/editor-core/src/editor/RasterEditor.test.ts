@@ -988,13 +988,31 @@ describe("editor-selection-shapes [feature-1-6]", () => {
       e.pointerDown({ ...a, ...input });
       e.pointerUp({ ...b, ...input });
     };
+    const bounds = (m) => m && [m.x, m.y, m.width, m.height];
+    // Aseprite default (selection.move_on_add_mode = true): a Shift press inside the selection
+    // moves it (axis-constrained), and a Shift drag that starts outside adds to it.
+    const moving = make();
+    rect(moving, { x: 1, y: 1 }, { x: 3, y: 3 });
+    rect(moving, { x: 3, y: 1 }, { x: 5, y: 3 }, { shift: true });
+    assert.equal(
+      count(moving.getSnapshot().document.selection),
+      9,
+      "Shift inside moves by default",
+    );
+    assert.deepEqual(bounds(moving.getSnapshot().document.selection), [3, 1, 3, 3]);
+    const adding = make();
+    rect(adding, { x: 1, y: 1 }, { x: 3, y: 3 });
+    rect(adding, { x: 4, y: 1 }, { x: 6, y: 3 }, { shift: true });
+    assert.equal(count(adding.getSnapshot().document.selection), 18, "Shift outside adds");
+    // With "move on add mode" off, Shift always adds, even when it starts inside the selection.
     const e = make();
+    e.drawing.settings.setSettings({ selectionMoveOnAddMode: false });
     rect(e, { x: 1, y: 1 }, { x: 3, y: 3 });
     rect(e, { x: 3, y: 1 }, { x: 5, y: 3 }, { shift: true });
     assert.equal(
       count(e.getSnapshot().document.selection),
       15,
-      "Shift adds instead of moving existing selection",
+      "Shift adds instead of moving existing selection when move-on-add is off",
     );
     assert.equal(e.getSnapshot().floatingPaste, null);
     assert.equal(e.getSnapshot().dirty, false);
@@ -1145,10 +1163,16 @@ describe("editor-model", () => {
       format: "esm",
       write: false,
     });
-    const { RasterEditor, screenToDocument, documentToScreen, resolveShortcut, stepZoom } =
-      await import(
-        `data:text/javascript;base64,${Buffer.from(outputFiles[0].contents).toString("base64")}`
-      );
+    const {
+      AsepriteInk,
+      RasterEditor,
+      screenToDocument,
+      documentToScreen,
+      resolveShortcut,
+      stepZoom,
+    } = await import(
+      `data:text/javascript;base64,${Buffer.from(outputFiles[0].contents).toString("base64")}`
+    );
     const blank = (w = 8, h = 8) => ({
       width: w,
       height: h,
@@ -1295,16 +1319,32 @@ describe("editor-model", () => {
     console.log(
       "Editor model checks passed: transactional undo/redo/cancel, move retention, expansion history, selection, locking, visibility, sampling, text, palette ordering, pure transforms and shortcut isolation.",
     );
-    e.document.loadImage(blank());
-    e.drawing.settings.setSettings({ tool: "pencil", foreground: red, opacity: 128 });
-    e.pointerDown({ x: 1, y: 1 });
-    e.pointerMove({ x: 2, y: 1 });
-    e.pointerMove({ x: 1, y: 1 });
-    e.pointerUp();
+    // One stroke paints each pixel once: going back over a pixel within the same stroke never
+    // builds up alpha. Like Aseprite, Simple ink takes its translucency from the color's alpha
+    // and forces the opacity setting to 255 (the opacity field is hidden for Simple ink).
+    const backAndForth = (settings) => {
+      e.document.loadImage(blank());
+      e.drawing.settings.setSettings({ tool: "pencil", ...settings });
+      e.pointerDown({ x: 1, y: 1 });
+      e.pointerMove({ x: 2, y: 1 });
+      e.pointerMove({ x: 1, y: 1 });
+      e.pointerUp();
+      return pixel(e, 1, 1)[3];
+    };
     assert.equal(
-      pixel(e, 1, 1)[3],
+      backAndForth({ ink: AsepriteInk.Simple, foreground: [255, 0, 0, 128] }),
       128,
-      "Repeated pointer segments do not accumulate simple-ink opacity",
+      "Repeated pointer segments do not accumulate a translucent Simple-ink color",
+    );
+    assert.equal(
+      backAndForth({ ink: AsepriteInk.AlphaCompositing, foreground: red, opacity: 128 }),
+      128,
+      "Repeated pointer segments do not accumulate Alpha Compositing opacity",
+    );
+    assert.equal(
+      backAndForth({ ink: AsepriteInk.Simple, foreground: red, opacity: 128 }),
+      255,
+      "Simple ink ignores the opacity setting, as in Aseprite",
     );
     // Shared bounded import palette preserves exact RGBA and deterministic numeric
     // tie ordering, frequency ranking and the 256-color cap.

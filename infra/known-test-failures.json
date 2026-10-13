@@ -18,7 +18,6 @@
     "packages/editor-core/src/editor/RasterEditor.test.ts > editor-model editor-model behavior",
     "packages/editor-core/src/editor/RasterEditor.test.ts > editor-pixel-perfect editor-pixel-perfect behavior",
     "packages/editor-core/src/editor/RasterEditor.test.ts > editor-selection-edges [feature-1-6] editor-selection-edges behavior",
-    "packages/editor-core/src/editor/RasterEditor.test.ts > editor-selection-shapes [feature-1-6] editor-selection-shapes behavior",
     "packages/editor-core/src/editor/RasterEditor.test.ts > eyedropper-preferences eyedropper-preferences behavior",
     "packages/editor-core/src/editor/RasterEditor.test.ts > feature-9-editor [feature-7-12] feature-9-editor behavior",
     "packages/editor-core/src/editor/RasterEditor.test.ts > selection-dismiss selection-dismiss behavior",
@@ -27,8 +26,6 @@
     "packages/editor-core/src/editor/replay/pointer.test.ts > continuous recorded brush motion does not overshoot sharp turns or stationary axes",
     "packages/editor-core/src/editor/selection-eyedropper-input.test.ts > held eyedropper input samples with a rebound temporary tool and respects removed physical Option bindings",
     "packages/editor-core/src/import-export/aseprite/decode-scan.test.ts > Aseprite scan reuse and input ownership inspects once before inflating and retains linked cels and authored metadata",
-    "packages/editor-core/src/import-export/palette.test.ts > palette file workflows produces palette images readable by the supported binary palette readers",
-    "packages/editor-core/src/import-export/palette.test.ts > palette file workflows writes a swatch grid, original palette alpha, and the document's ASE profile",
     "packages/editor-core/src/session/editor-session.test.ts > editor-session editor-session behavior",
     "packages/editor-core/src/sprite/slice-metadata.test.ts > slice-editor slice-editor behavior"
   ]
