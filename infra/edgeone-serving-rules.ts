@@ -179,7 +179,8 @@ export function compactServingRules<T extends ServingRules>(
     }
   }
   for (const list of ["redirects", "rewrites"] as const) {
-    for (const file of publishedFiles) {
+    // `index.html` copies are meant to redirect to their folder, so only other files must keep serving.
+    for (const file of publishedFiles.filter((path) => !path.endsWith(INDEX_SUFFIX))) {
       const before = resolveRule(configuration[list] ?? [], file)?.destination;
       const after = resolveRule(compacted[list], file)?.destination;
       if (before !== after)
