@@ -1020,6 +1020,26 @@ describe("editor-session", () => {
       assert.equal(h.core.getSnapshot().canUndo, false);
       assert.equal(h.session.getSnapshot().documentActivationKind, "close");
     });
+    await test("a marquee drag never holds a document-edit transaction", () => {
+      // Regression: selection gestures used to open the kernel history transaction on pointer
+      // down, so a drag looked like a pending edit (close prompted, local save threw).
+      const h = harness();
+      h.core.drawing.settings.setSettings({ tool: "marquee" });
+      h.core.pointerDown({ x: 0, y: 0 });
+      h.core.pointerMove({ x: 2, y: 2 });
+      assert.equal(h.core.hasPendingDocumentEdit(), false, "mid-drag is not a document edit");
+      h.core.pointerUp({ x: 2, y: 2 });
+      assert.equal(h.core.hasPendingDocumentEdit(), false, "released selection is committed");
+      assert.ok(h.core.getSnapshot().document.selection, "the drag still selects");
+      assert.equal(h.core.getSnapshot().canUndo, true, "the selection is one undoable step");
+      h.core.history.undo();
+      assert.equal(
+        h.core.getSnapshot().document.selection ?? null,
+        null,
+        "undo restores no selection",
+      );
+      assert.equal(h.session.requestClose(), "closed", "closing after a selection never prompts");
+    });
     await test("selection previews do not request a file-save confirmation", () => {
       const selection = harness();
       selection.core.drawing.settings.setSettings({ tool: "marquee" });
