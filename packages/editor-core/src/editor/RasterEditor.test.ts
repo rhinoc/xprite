@@ -258,7 +258,10 @@ describe("eyedropper-preferences", () => {
     e.drawing.settings.setSettings({ eyedropperSample: "all-layers" });
     e.pointerDown({ x: 1, y: 1 });
     assert.deepEqual(e.getSnapshot().settings.foreground, [0, 0, 0, 0]);
-    // Per-tool freehand settings survive switches without leaking to another tool.
+    // Per-tool freehand settings survive switches without leaking to another tool. Each tool's
+    // starting value is set explicitly so the check does not depend on the shipped defaults.
+    e.drawing.settings.setSettings({ tool: "lasso", pixelPerfect: false });
+    e.drawing.settings.setSettings({ tool: "eraser", pixelPerfect: false });
     e.drawing.settings.setSettings({ tool: "pencil", pixelPerfect: true });
     e.drawing.settings.setSettings({ tool: "lasso" });
     assert.equal(e.getSnapshot().settings.pixelPerfect, false);
@@ -756,7 +759,12 @@ describe("editor-selection-edges [feature-1-6]", () => {
     move(32760, 0);
     e.selection.selectColorRange([255, 0, 0, 255]);
     const base = e.getSnapshot().document.selection;
+    // Moving a cel carries a visible selection with it (Aseprite MovingCelState), so hide the
+    // mask during the move and restore it: the new color range is then ~64K px away from it.
+    e.selection.deselect();
     move(-65528, 0);
+    e.selection.reselect();
+    assert.equal(e.getSnapshot().document.selection.x, base.x);
     const before = e.getSnapshot();
     e.selection.previewColorRange({ color: [255, 0, 0, 255], tolerance: 0, mode: "add" });
     assert.equal(e.getSnapshot().document.selection, base);
@@ -765,7 +773,8 @@ describe("editor-selection-edges [feature-1-6]", () => {
     assert.equal(e.getSnapshot().document.selection, base);
     assert.equal(e.getSnapshot().canUndo, before.canUndo);
     assert.equal(e.getSnapshot().persistenceRevision, before.persistenceRevision);
-    e.history.undo();
+    e.history.undo(); // Reselect
+    e.history.undo(); // the cel move
     assert.equal(
       e.getSnapshot().document.layer.x,
       32760,
@@ -826,7 +835,8 @@ describe("editor-pixel-perfect", () => {
     const colored = blank();
     colored.data.set([23, 44, 211, 129], (1 * 8 + 2) * 4);
     e = make(colored);
-    e.drawing.settings.setSettings({ opacity: 128 });
+    // Simple ink ignores opacity (as in Aseprite), so paint a translucent stroke with Alpha Compositing.
+    e.drawing.settings.setSettings({ ink: "alpha-compositing", opacity: 128 });
     corner(e);
     assert.deepEqual(
       pixel(e, 2, 1),
@@ -890,7 +900,7 @@ describe("editor-pixel-perfect", () => {
     // When a corrected endpoint was painted earlier in the same gesture, restoring
     // its coverage must keep that earlier stamp protected from alpha accumulation.
     e = make();
-    e.drawing.settings.setSettings({ opacity: 128 });
+    e.drawing.settings.setSettings({ ink: "alpha-compositing", opacity: 128 });
     const crossing = [
       { x: 1, y: 1 },
       { x: 2, y: 1 },
@@ -1347,16 +1357,18 @@ describe("editor-model", () => {
       "Simple ink ignores the opacity setting, as in Aseprite",
     );
     // Shared bounded import palette preserves exact RGBA and deterministic numeric
-    // tie ordering, frequency ranking and the 256-color cap.
+    // tie ordering and frequency ranking while every color fits (15x17 = 255 pixels). Fully
+    // transparent pixels share one entry.
     let seed = 4723;
     for (let trial = 0; trial < 12; trial++) {
-      const p = blank(19, 17),
+      const p = blank(15, 17),
         counts = new Map();
       for (let i = 0; i < p.data.length; i += 4) {
         seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
         const c = [seed & 255, (seed >>> 8) & 255, (seed >>> 16) & 255, (seed >>> 24) & 255];
         if (i % 28 === 0) c.splice(0, 4, 255, 12, 90, 128);
         p.data.set(c, i);
+        if (c[3] === 0) c.splice(0, 4, 0, 0, 0, 0);
         {
           const key = c.join(",");
           const found = counts.get(key);
@@ -1378,6 +1390,16 @@ describe("editor-model", () => {
         .map((v) => v.color);
       e.document.loadImage(p);
       assert.deepEqual(e.getSnapshot().palette, expected);
+    }
+    // Over 256 colors the import quantizes (median cut) down to the 256-color cap.
+    {
+      const p = blank(19, 17);
+      for (let i = 0; i < p.data.length; i += 4) {
+        seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+        p.data.set([seed & 255, (seed >>> 8) & 255, (seed >>> 16) & 255, 255], i);
+      }
+      e.document.loadImage(p);
+      assert.equal(e.getSnapshot().palette.length, 256);
     }
 
     // Aseprite sequence contains intermediate 5x and 1/48 levels.
@@ -1457,6 +1479,8 @@ describe("feature-9-editor [feature-7-12]", () => {
       background: [0, 0, 255, 255],
       opacity: 128,
       dynamics: settings,
+      // Regular freehand (Aseprite's default); pixel-perfect would drop the stationary repeat.
+      pixelPerfect: false,
     });
     gradient.pointerDown({ x: 4, y: 4, pointerType: "pen", pressure: 0 });
     assert.deepEqual(pixel(gradient.canvas.composite(), 4, 4), [0, 0, 255, 128]);
@@ -1883,41 +1907,7 @@ describe("selection-dismiss", () => {
         `pointer click slop ${delta}px/${time}ms`,
       );
     }
-    for (const pointerType of ["touch", "pen", "eraser"])
-      for (const [distance, wantSelection] of [
-        [8, false],
-        [12, false],
-        [13, true],
-      ]) {
-        const contact = new RasterEditor(image());
-        seed(contact);
-        contact.pointerDown({
-          x: 20,
-          y: 20,
-          screen: { x: 100, y: 100 },
-          timeStamp: 0,
-          pointerType,
-        });
-        contact.pointerMove({
-          x: 20,
-          y: 19,
-          screen: { x: 100, y: 100 + distance },
-          timeStamp: 40,
-          pointerType,
-        });
-        contact.pointerUp({
-          x: 20,
-          y: 20,
-          screen: { x: 100, y: 100 },
-          timeStamp: 66,
-          pointerType,
-        });
-        assert.equal(
-          !!contact.getSnapshot().document.selection,
-          wantSelection,
-          `${pointerType} tracks maximum contact drift, including movement before release`,
-        );
-      }
+    // Touch/pen tap slop moved to the canvas adapter: see managers/input/controllers/touch-contact.test.ts.
     const e = new RasterEditor(image());
     seed(e);
     const before = e.getSnapshot().document.selection;

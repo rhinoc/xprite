@@ -292,27 +292,31 @@ describe("editor-session", () => {
       });
       await h.session.requestImport(source());
       let state = h.session.getSnapshot();
-      assert.deepEqual(state.pendingImport, {
+      // The pending import also carries the decoded pixels, any detected grid and source palette.
+      const { pixels, grid, sourcePalette, ...metadata } = state.pendingImport;
+      assert.deepEqual(metadata, {
         name: "Imported",
         width: 80,
         height: 40,
         classification: "uncertain",
       });
-      assert.equal("pixels" in state.pendingImport, false);
-      assert.deepEqual(state.pixelationOptions, {
-        targetWidth: 10,
-        targetHeight: 5,
-        maxColors: 32,
-        method: "nearest",
-        preserveDimensions: false,
-      });
+      assert.deepEqual([pixels.width, pixels.height], [80, 40]);
+      assert.equal(grid, null);
+      assert.ok(Array.isArray(sourcePalette));
+      // Defaults: convert (no reliable grid), keep the aspect ratio and never upscale.
+      const defaults = state.pixelationOptions;
+      assert.equal(defaults.mode, "convert");
+      assert.equal(defaults.preserveDimensions, false);
+      assert.equal(defaults.targetWidth / defaults.targetHeight, 2);
+      assert.ok(defaults.targetWidth <= 80);
       h.session.setPixelationOptions({
         method: "box",
         maxColors: 8,
         preserveDimensions: true,
       });
       await h.session.pixelate();
-      assert.equal(h.calls.find((c) => c[0] === "pixelate")[1].method, "box");
+      // The first pixelate call is the automatic preview with the defaults; the accepted one is last.
+      assert.equal(h.calls.filter((c) => c[0] === "pixelate").at(-1)[1].method, "box");
       assert.equal(h.core.getSnapshot().document.name, "Imported");
     });
     await test("Keep original invalidates an already running pixelation", async () => {

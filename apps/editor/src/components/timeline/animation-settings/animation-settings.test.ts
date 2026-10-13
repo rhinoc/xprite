@@ -10,7 +10,7 @@ describe("animation-settings-ui [feature-7-12]", () => {
   it("animation-settings-ui behavior", async () => {
     const result = await build({
       stdin: {
-        contents: `export * from './apps/editor/src/components/timeline/animation-settings';export * from './apps/editor/src/managers/preferences/timeline-panel-preferences';export * from './packages/editor-core/src/timeline/animation-options.ts';export * from './apps/editor/src/components/timeline/animation-preview';export * from './apps/editor/src/components/canvas/scene-bounds';export {UIProvider} from './packages/ui/dist/ui.js';`,
+        contents: `export * from './apps/editor/src/components/timeline/animation-settings';export * from './apps/editor/src/managers/preferences/timeline-panel-preferences';export * from './packages/editor-core/src/timeline/animation-options.ts';export * from './apps/editor/src/components/timeline/animation-preview';export * from './apps/editor/src/components/canvas/scene-bounds';export {UIProvider} from './packages/ui/dist/ui.js';export {createJsonStorage} from './packages/bedrock/browser/json-storage.ts';`,
         resolveDir: process.cwd(),
       },
       bundle: true,
@@ -57,20 +57,28 @@ describe("animation-settings-ui [feature-7-12]", () => {
       2,
     );
     const storedPreferences = new Map();
-    globalThis.localStorage = {
+    // Preferences take an explicit storage port (no implicit localStorage).
+    const storage = api.createJsonStorage({
       getItem: (key) => storedPreferences.get(key) ?? null,
       setItem: (key, value) => storedPreferences.set(key, String(value)),
-    };
-    api.writeTimelinePanelPreferences("Timeline fixture", {
-      ...api.defaultTimelinePanelPreferences,
-      firstFrame: -3,
-      thumbnailsEnabled: true,
-      thumbnailZoom: 3,
     });
-    assert.equal(api.readTimelinePanelPreferences("Timeline fixture").firstFrame, -3);
-    assert.equal(api.readTimelinePanelPreferences("Timeline fixture").thumbnailZoom, 3);
-    api.writeTimelinePanelDefaults({ ...api.defaultTimelinePanelPreferences, firstFrame: 5 });
-    assert.equal(api.readTimelinePanelPreferences("New timeline fixture").firstFrame, 5);
+    api.writeTimelinePanelPreferences(
+      "Timeline fixture",
+      {
+        ...api.defaultTimelinePanelPreferences,
+        firstFrame: -3,
+        thumbnailsEnabled: true,
+        thumbnailZoom: 3,
+      },
+      storage,
+    );
+    assert.equal(api.readTimelinePanelPreferences("Timeline fixture", storage).firstFrame, -3);
+    assert.equal(api.readTimelinePanelPreferences("Timeline fixture", storage).thumbnailZoom, 3);
+    api.writeTimelinePanelDefaults(
+      { ...api.defaultTimelinePanelPreferences, firstFrame: 5 },
+      storage,
+    );
+    assert.equal(api.readTimelinePanelPreferences("New timeline fixture", storage).firstFrame, 5);
     const reset = api.resetOnionSkinOptions(value);
     assert.equal(reset.active, true);
     assert.equal(reset.previousFrames, 4);
@@ -78,7 +86,10 @@ describe("animation-settings-ui [feature-7-12]", () => {
     assert.equal(reset.opacityBase, 68);
     assert.equal(reset.opacityStep, 28);
     assert.equal(reset.type, "merge");
-    const html = renderToString(
+    // The settings panel reads the UI theme, so render it inside a UIProvider.
+    const renderInUI = (element) =>
+      renderToString(React.createElement(api.UIProvider, { translateKey: (key) => key }, element));
+    const html = renderInUI(
       React.createElement(api.OnionSkinSettingsPanel, {
         open: true,
         onOpenChange() {},
@@ -129,7 +140,7 @@ describe("animation-settings-ui [feature-7-12]", () => {
       "frame count belongs to timeline handles, configuration is a source popup",
     );
     assert.equal(
-      renderToString(
+      renderInUI(
         React.createElement(api.OnionSkinSettingsPanel, {
           open: false,
           onOpenChange() {},
@@ -139,7 +150,7 @@ describe("animation-settings-ui [feature-7-12]", () => {
       ),
       "",
     );
-    const enabled = renderToString(
+    const enabled = renderInUI(
       React.createElement(api.OnionSkinSettingsPanel, {
         open: true,
         onOpenChange() {},
@@ -162,7 +173,7 @@ describe("animation-settings-ui [feature-7-12]", () => {
       "Set as Defaults",
     ])
       assert.ok(enabled.includes(label), label);
-    const left = renderToString(
+    const left = renderInUI(
       React.createElement(api.OnionSkinSettingsPanel, {
         open: true,
         onOpenChange() {},
@@ -173,7 +184,7 @@ describe("animation-settings-ui [feature-7-12]", () => {
       }),
     );
     assert.match(left, /aria-label="Dock timeline at left"[^>]*aria-pressed="true"/);
-    const firstFrame = renderToString(
+    const firstFrame = renderInUI(
       React.createElement(api.OnionSkinSettingsPanel, {
         open: true,
         onOpenChange() {},

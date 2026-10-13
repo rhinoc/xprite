@@ -192,8 +192,10 @@ describe("recovery-codec", () => {
     await assert.rejects(client.encode(png), /closed/);
     class FakeWorker extends EventTarget {
       terminated = false;
+      onPost = null;
       postMessage(request) {
         const cloned = structuredClone(request);
+        this.onPost?.();
         queueMicrotask(async () => {
           try {
             const result =
@@ -233,11 +235,14 @@ describe("recovery-codec", () => {
     const restarting = new api.RecoveryCodecClient({
       workerFactory: () => {
         const next = new FakeWorker();
+        next.posted = new Promise((resolve) => (next.onPost = resolve));
         workers.push(next);
         return next;
       },
     });
     const failed = restarting.encode(png);
+    // Fail the worker while the request is in flight (encode posts after its queue turn).
+    await workers[0].posted;
     workers[0].dispatchEvent(new Event("error"));
     await assert.rejects(failed, /worker failed/);
     const retried = await restarting.encode(png);

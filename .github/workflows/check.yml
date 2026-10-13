@@ -1,16 +1,16 @@
 name: Check
 
+# Safety net only: the pre-push hook already runs check, unit tests, visual audits and the deploy
+# build locally. One job, PRs only (no duplicate push run), superseded runs are cancelled.
 on:
   pull_request:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: check-${{ github.ref }}
+  group: check-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -18,7 +18,7 @@ env:
 
 jobs:
   check:
-    name: pnpm run check (static, types, architecture, site build)
+    name: Check and unit tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -29,46 +29,6 @@ jobs:
           node-version: "24"
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Covers public docs, i18n coverage, asset versions, types, lint, format and the site build.
       - run: pnpm run check
-
-  test:
-    name: Unit tests (no new failures)
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
       - run: pnpm run test:ci
-
-  visual:
-    name: Visual audits (Playwright Chromium)
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm run build:ui
-      - run: pnpm run visual
-      - if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: visual-report-${{ github.run_id }}
-          path: |
-            .tmp/visual-report
-            .tmp/xprite-visual
-            .tmp/site-visual
-            .tmp/startup-continuity
-            .tmp/tools-startup-visual
-          include-hidden-files: true
-          retention-days: 7

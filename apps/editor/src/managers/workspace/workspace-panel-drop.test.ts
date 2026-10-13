@@ -25,6 +25,7 @@ it("moves a lower pane to its neighbour's right, merges centrally and tears out 
     workspaceTabPanels,
     resizeWorkspacePaneTabSplit,
     validWorkspacePanelLayout,
+    workspacePanelIds,
   } = await import(
     `data:text/javascript;base64,${Buffer.from(bundle.outputFiles[0].text).toString("base64")}`
   );
@@ -49,6 +50,22 @@ it("moves a lower pane to its neighbour's right, merges centrally and tears out 
       }),
     ],
   };
+  // A valid layout holds every panel exactly once; the fixture uses four, so validity checks add
+  // the panels this test does not move as one extra floating pane.
+  const complete = (value) => ({
+    ...value,
+    floats: [
+      ...value.floats,
+      floating({
+        kind: "pane",
+        id: "rest",
+        tabs: workspacePanelIds.filter(
+          (id) => !["palette", "picker", "timeline", "tileset"].includes(id),
+        ),
+        active: "tools",
+      }),
+    ],
+  });
   const original = JSON.stringify(layout);
   const split = transferWorkspacePanels(
     layout,
@@ -126,7 +143,7 @@ it("moves a lower pane to its neighbour's right, merges centrally and tears out 
     { kind: "panel", panel: "tileset" },
     "The sibling tab keeps its own contents.",
   );
-  assert.equal(validWorkspacePanelLayout(paired), true);
+  assert.equal(validWorkspacePanelLayout(complete(paired)), true);
   assert.equal(
     JSON.stringify(inactiveTabLayout),
     beforePairing,
@@ -152,7 +169,7 @@ it("moves a lower pane to its neighbour's right, merges centrally and tears out 
     "timeline",
     "picker",
   ]);
-  assert.equal(validWorkspacePanelLayout(JSON.parse(JSON.stringify(detachedPair))), true);
+  assert.equal(validWorkspacePanelLayout(complete(JSON.parse(JSON.stringify(detachedPair)))), true);
   const detachedPicker = transferWorkspacePanels(
     paired,
     { kind: "pane", id: "picker-alone", tabs: ["picker"], active: "picker" },
@@ -164,11 +181,11 @@ it("moves a lower pane to its neighbour's right, merges centrally and tears out 
     kind: "panel",
     panel: "timeline",
   });
-  assert.equal(validWorkspacePanelLayout(detachedPicker), true);
+  assert.equal(validWorkspacePanelLayout(complete(detachedPicker)), true);
   const invalidPair = JSON.parse(JSON.stringify(paired));
   invalidPair.floats[0].tabLayouts.timeline.second.panel = "palette";
   assert.equal(
-    validWorkspacePanelLayout(invalidPair),
+    validWorkspacePanelLayout(complete(invalidPair)),
     false,
     "A tab layout cannot contain a panel owned by another pane.",
   );

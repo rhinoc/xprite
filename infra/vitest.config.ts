@@ -13,6 +13,9 @@ export default defineConfig({
     ],
     exclude: ["**/node_modules/**", "**/dist/**", "**/.tmp/**"],
     environment: "node",
+    // Per-file isolation stays on: several modules cache browser feature detection at import, so
+    // sharing a module graph across files makes results depend on file order.
+    pool: "forks",
     testTimeout: 60_000,
   },
 });

@@ -188,11 +188,8 @@ describe("held eyedropper input", () => {
     core.pointerUp();
     assert.deepEqual(core.getSnapshot().settings.foreground, FIRST);
     assert.deepEqual(
-      Array.from(
-        core
-          .getSnapshot()
-          .document!.layer.pixels.data.slice((7 * SIZE + 7) * 4, (7 * SIZE + 7) * 4 + 4),
-      ),
+      // Read the composited canvas: the layer's cel is stored cropped to its content.
+      Array.from(core.canvas.composite().data.slice((7 * SIZE + 7) * 4, (7 * SIZE + 7) * 4 + 4)),
       FIRST,
     );
     assert.equal(core.getSnapshot().canUndo, true);

@@ -1,7 +1,5 @@
-// CI test gate: runs the whole vitest suite and fails on any failure that is not listed in
-// infra/known-test-failures.json. Listed failures already fail on main; each entry names its file
-// and test so it can be fixed and removed. A listed test that now passes also fails the gate, so
-// the list only ever shrinks.
+// Test gate: runs the whole vitest suite and fails on any failing test (no allowlist). It also
+// counts crashed tests and clips the multi-megabyte lines that esbuild-bundled tests print.
 //
 //   node scripts/check/run-tests.mjs          (pnpm run test:ci)
 import { spawn } from "node:child_process";
@@ -12,8 +10,6 @@ import readline from "node:readline";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const knownFile = path.join(root, "infra/known-test-failures.json");
-const known = JSON.parse(fs.readFileSync(knownFile, "utf8"));
 const report = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "xprite-tests-")), "vitest.json");
 const vitest = path.join(
   root,
@@ -53,36 +49,18 @@ if (!fs.existsSync(report)) {
 }
 const results = JSON.parse(fs.readFileSync(report, "utf8"));
 const key = (file, name) => `${path.relative(root, file).replaceAll("\\", "/")} > ${name}`;
-const failed = new Set();
-const passed = new Set();
+const failed = [];
 for (const file of results.testResults) {
-  const loadId = key(file.name, "(file failed to load)");
-  if (file.status === "failed" && file.assertionResults.length === 0) failed.add(loadId);
-  else if (file.assertionResults.length > 0) passed.add(loadId);
-  for (const test of file.assertionResults) {
-    const id = key(file.name, test.fullName);
+  if (file.status === "failed" && file.assertionResults.length === 0)
+    failed.push(key(file.name, "(file failed to load)"));
+  for (const test of file.assertionResults)
     // "pending" means the test started and never finished: its worker crashed (e.g. out of
     // memory). Vitest still reports success for it, so the gate counts it as a failure.
-    if (test.status === "failed" || test.status === "pending") failed.add(id);
-    else if (test.status === "passed") passed.add(id);
-  }
+    if (test.status === "failed" || test.status === "pending")
+      failed.push(key(file.name, test.fullName));
 }
-const knownSet = new Set(known.failures);
-const unexpected = [...failed].filter((id) => !knownSet.has(id));
-const fixed = known.failures.filter((id) => passed.has(id));
-if (unexpected.length > 0) {
-  console.error(`\n${unexpected.length} unexpected test failure(s):`);
-  for (const id of unexpected) console.error(`  - ${id}`);
-}
-if (fixed.length > 0) {
-  console.error(
-    `\n${fixed.length} known failure(s) now pass; remove them from infra/known-test-failures.json:`,
-  );
-  for (const id of fixed) console.error(`  - ${id}`);
-}
-const stillKnown = known.failures.filter((id) => failed.has(id)).length;
-if (unexpected.length > 0 || fixed.length > 0) process.exitCode = 1;
-else
-  console.log(
-    `\nTest gate passed: no new failures (${stillKnown} known pre-existing failure(s) listed in infra/known-test-failures.json).`,
-  );
+if (failed.length > 0) {
+  console.error(`\n${failed.length} failing test(s):`);
+  for (const id of failed) console.error(`  - ${id}`);
+  process.exitCode = 1;
+} else console.log(`\nTest gate passed: ${results.numPassedTests} tests, no failures.`);

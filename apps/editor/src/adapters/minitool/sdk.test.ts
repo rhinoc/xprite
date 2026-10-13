@@ -38,7 +38,11 @@ async function container() {
       joined.set(next, previous.length);
       files.set(filePath, joined);
     },
+    // The SDK binds these functions at initialization, so tests inject read failures here.
+    readFailure: null as ((filePath: string) => unknown) | null,
     readFile: async (options: { filePath: string; position: number; length: number }) => {
+      const failure = api.readFailure?.(options.filePath);
+      if (failure) throw failure;
       const bytes = files.get(options.filePath)!;
       const part = bytes.subarray(options.position, options.position + options.length);
       return {
@@ -143,18 +147,20 @@ it("recovers a previous snapshot for explicit missing files and preserves permis
   });
   const payloadId = second.head.parts?.[0].id ?? second.head.id;
   const pointer = JSON.parse(storage.get(`xprite:v1:file:snapshot:${payloadId}`)!);
-  const readFile = api.readFile;
   let code = "ENOENT";
-  api.readFile = async (options) => {
-    if (options.filePath === pointer.filePath) throw { code, errMsg: "readFile failed" };
-    return readFile(options);
-  };
+  api.readFailure = (filePath) =>
+    filePath === pointer.filePath ? { code, errMsg: "readFile failed" } : null;
 
-  const recovered = await repository.load("project");
+  // A fresh repository (as after a restart): the saving one serves its own write from memory.
+  repository.close();
+  const reopened = new ProjectRepository(createMiniToolProjectStorage());
+  const recovered = await reopened.load("project");
   expect(recovered?.recovered).toBe(true);
   expect(recovered?.bytes).toEqual(input.bytes);
+  reopened.close();
 
   code = "EACCES";
-  await expect(repository.load("project")).rejects.toThrow("readFile failed");
-  repository.close();
+  const denied = new ProjectRepository(createMiniToolProjectStorage());
+  await expect(denied.load("project")).rejects.toThrow("readFile failed");
+  denied.close();
 });

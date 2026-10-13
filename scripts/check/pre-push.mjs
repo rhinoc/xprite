@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Pre-push gate: `pnpm run check`, then `pnpm run test:ci` and `pnpm run visual` in parallel.
+// Pre-push gate: `pnpm run check`, then `pnpm run test:ci`, `pnpm run visual` and
+// `pnpm run check:deploy` (the deploy workflow's build and validation); tests run alongside.
 // The parallel steps' output is buffered and printed as one block per step, so logs never interleave.
 // Nothing here is cached: every push runs all three. (Inside check, knip's --cache is keyed on file
 // contents and only speeds up the analysis.) XPRITE_SKIP_VISUAL=1 still skips only the visual audits.
@@ -44,12 +45,20 @@ if (check.code !== 0) {
 }
 console.log(`pre-push: check passed in ${check.time}`);
 console.log(
-  "pre-push: [2/2] pnpm run test:ci and pnpm run visual in parallel (output grouped per step)",
+  "pre-push: [2/2] test:ci in parallel with visual, then check:deploy (output grouped per step)",
 );
 
-const pending = [run("test:ci", { buffered: true }), run("visual", { buffered: true })];
+// check:deploy rebuilds outputs that the visual audits' dev server serves, so it starts once
+// visual is done; unit tests run alongside both.
+const pending = [
+  run("test:ci", { buffered: true }),
+  run("visual", { buffered: true }).then(async (visual) => [
+    visual,
+    await run("check:deploy", { buffered: true }),
+  ]),
+];
 let failed = 0;
-for (const result of await Promise.all(pending)) {
+for (const result of (await Promise.all(pending)).flat()) {
   const status = result.code === 0 ? "passed" : `FAILED (exit ${result.code})`;
   console.log(`\n===== ${result.script}: ${status} in ${result.time} =====`);
   process.stdout.write(

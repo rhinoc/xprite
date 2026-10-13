@@ -241,7 +241,8 @@ describe("persistent tool preferences", () => {
     assert.deepEqual(settings.foreground, [255, 0, 20, 255]);
     assert.equal(settings.tolerance, 255);
     assert.equal(settings.opacity, 255);
-    assert.equal(settings.pixelPerfect, false);
+    // A non-boolean pixel-perfect value is ignored, so the pencil keeps its default.
+    assert.equal(settings.pixelPerfect, new RasterEditor().getSnapshot().settings.pixelPerfect);
     assert.deepEqual(settings.brush, { shape: "circle", size: 64, angle: -180 });
   });
 });

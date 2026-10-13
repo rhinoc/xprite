@@ -30,11 +30,22 @@ for the pinned rendering settings. Run `pnpm exec playwright install chromium`
 once per machine. `XPRITE_SKIP_VISUAL=1` skips the visual audits explicitly.
 
 The pre-push hook (`scripts/check/pre-push.mjs`) runs `pnpm run check` first; once it
-passes, `pnpm run test:ci` and `pnpm run visual` run in parallel. Their output is
-buffered and printed as one block per step with its time, followed by the total.
-Nothing is cached between pushes: every push runs all three steps. husky skips all
-hooks when `HUSKY=0` is set, so make sure it is unset (for example, `env -u HUSKY git push`)
-when the environment sets it.
+passes, `pnpm run test:ci` runs in parallel with `pnpm run visual`, followed by
+`pnpm run check:deploy` (it rebuilds outputs that the visual audits' dev server serves).
+Their output is buffered and printed as one block per step with its time, followed by the
+total. Nothing is cached between pushes: every push runs every step. husky skips all hooks
+when `HUSKY=0` is set, so make sure it is unset (for example, `env -u HUSKY git push`) when
+the environment sets it.
+
+`pnpm run test:ci` fails on any failing test; there is no known-failure allowlist.
+`pnpm run check:deploy` is the build half of the deploy workflow without secrets or
+publishing: `edgeone validate`, `pnpm run build:site` and `pnpm run deploy:prepare` into
+`.tmp/deploy/editor`.
+
+CI is a safety net because pre-push catches failures first. `check.yml` runs `check` and
+`test:ci` in one job on pull requests (no duplicate push run). `visual.yml` runs the visual
+audits only when rendering-related paths change, with cached Playwright browsers. Both
+cancel superseded runs.
 
 `pnpm run check:public-docs` rejects Xiaohongshu / 小红书, RedNote, XHS and
 platform links in root Markdown (except `AGENTS.md`), the user guide and its

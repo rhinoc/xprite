@@ -34,7 +34,9 @@ describe("Aseprite scan reuse and input ownership", () => {
   it("inspects once before inflating and retains linked cels and authored metadata", async () => {
     const input = await encodeAseprite(fixture(), {
       compress: true,
-      deflate: (bytes) => bytes.slice(),
+      // Cels are stored compressed only when that is smaller, so the fake deflate drops a byte
+      // and the fake inflate below restores the known pixel.
+      deflate: (bytes) => bytes.slice(0, -1),
     });
     const sequence: string[] = [];
     const sprite = await decodeAseprite(input, {
@@ -47,8 +49,9 @@ describe("Aseprite scan reuse and input ownership", () => {
       inflate(bytes, expected) {
         sequence.push("inflate");
         expect(sequence[0]).toBe("inspect");
-        expect(bytes.byteLength).toBe(expected);
-        return bytes;
+        expect(expected).toBe(4);
+        expect(bytes.byteLength).toBe(3);
+        return new Uint8Array([17, 23, 41, 255]);
       },
     });
     expect(sequence).toEqual(["inspect", "inflate"]);

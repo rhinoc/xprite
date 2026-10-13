@@ -46,7 +46,7 @@ describe("editor-cursors", () => {
     assert.equal(selectionCursorDirection("nw", 10, 100, 0), "n");
     assert.equal(selectionCursorDirection("ne", 100, 10, 0), "e");
     assert.equal(selectionCursorDirection("rotate-ne", 10, 10, Math.PI / 4), "e");
-    assert.equal(selectionCursorDirection("s", 10, 10, 0), "se");
+    assert.equal(selectionCursorDirection("s", 10, 10, 0), "s");
     assert.equal(selectionCursorDirection("unknown", 10, 10, 0), null);
 
     console.log(

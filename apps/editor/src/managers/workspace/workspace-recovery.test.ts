@@ -11,7 +11,7 @@ describe("workspace-recovery", () => {
   it("workspace-recovery behavior", async () => {
     const { outputFiles } = await build({
       stdin: {
-        contents: `export { WorkspaceRecovery } from './apps/editor/src/managers/workspace/workspace-recovery'; export { RecoverySettingsStore } from './apps/editor/src/adapters/storage/recovery-settings-store'; export { RasterEditor } from './packages/editor-core/src/editor/RasterEditor.ts'; export { createBrowserProjectStorage } from './apps/editor/src/adapters/storage/project-storage'; export { ProjectRepository } from './apps/editor/src/managers/storage/project-repository';`,
+        contents: `export { WorkspaceRecovery } from './apps/editor/src/managers/workspace/workspace-recovery'; export { RecoverySettingsStore } from './apps/editor/src/adapters/storage/recovery-settings-store'; export { RasterEditor } from './packages/editor-core/src/editor/RasterEditor.ts'; export { createBrowserProjectStorage } from './apps/editor/src/adapters/storage/project-storage'; export { ProjectRepository } from './apps/editor/src/managers/storage/project-repository'; export { normalizeRecoverySettings } from './apps/editor/src/managers/workspace/recovery-settings';`,
         resolveDir: process.cwd(),
       },
       bundle: true,
@@ -25,6 +25,7 @@ describe("workspace-recovery", () => {
       createBrowserProjectStorage,
       ProjectRepository,
       RecoverySettingsStore,
+      normalizeRecoverySettings,
     } = await import(
       `data:text/javascript;base64,${Buffer.from(outputFiles[0].contents).toString("base64")}`
     );
@@ -34,18 +35,20 @@ describe("workspace-recovery", () => {
         getItem: (key) => memory.get(key) ?? null,
         setItem: (key, value) => memory.set(key, value),
       });
+      // The store keeps raw JSON; normalizeRecoverySettings applies defaults and repairs it.
+      const load = (store) => normalizeRecoverySettings(store.load());
       const first = new RecoverySettingsStore("one", storage),
         second = new RecoverySettingsStore("two", storage);
-      assert.deepEqual(first.load(), { enabled: true, intervalMinutes: 2, retentionDays: 7 });
+      assert.deepEqual(load(first), { enabled: true, intervalMinutes: 2, retentionDays: 7 });
       first.save({ enabled: false, intervalMinutes: 1 / 6, retentionDays: 0 });
-      assert.deepEqual(new RecoverySettingsStore("one", storage).load(), {
+      assert.deepEqual(load(new RecoverySettingsStore("one", storage)), {
         enabled: false,
         intervalMinutes: 1 / 6,
         retentionDays: 0,
       });
-      assert.equal(second.load().enabled, true, "preferences are isolated by storage namespace");
-      storage.setItem("one:recovery-settings-v1", "{broken");
-      assert.equal(first.load().intervalMinutes, 2, "malformed settings recover default");
+      assert.equal(load(second).enabled, true, "preferences are isolated by storage namespace");
+      storage.setItem("xse.recovery.settings.v1.one", "{broken");
+      assert.equal(load(first).intervalMinutes, 2, "malformed settings recover default");
     }
     const factory = new IDBFactory();
     const codec = () => ({

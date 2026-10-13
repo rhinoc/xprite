@@ -75,6 +75,8 @@ describe("bundled-recents", () => {
   loadRecoveryEntry=async()=>({document:{name:'recovered.png'}});
   loadClosedProject=async()=>({snapshot:{document:{name:'closed.png'}},head:'head'});
   adoptClosedProject(){};
+  findProjectByName=async()=>null;
+  seedProject=async()=>null;
 }`;
     const result = await build({
       stdin: {
@@ -172,7 +174,7 @@ describe("document-workspace [feature-1-6]", () => {
   releaseDocumentHandle(){};
   dispose(){};
 }`;
-    const recovery = `export class WorkspaceRecovery { pending=new Set(); listeners=new Set(); flushes=0; start(){} updateLayout(){} restore(){return Promise.resolve(this.saved??null)} flush(){this.flushes++;return Promise.resolve()} getSnapshot(){return {error:null,documents:{}}} hasUnpersistedWorkspaceChanges(){return this.pending.size>0} isSlotUnpersisted(id){return this.pending.has(id)} listClosedProjects(){return Promise.resolve([])} discardSlotChanges(id){this.setPending(id,false);return true} subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn)} setPending(id,value){if(value)this.pending.add(id);else this.pending.delete(id);for(const fn of this.listeners)fn()} suspend(){} loadRecoveryEntry(){return Promise.resolve({document:{name:'recovered.png'}})} loadClosedProject(){return Promise.resolve({snapshot:{document:{name:'closed.png'}},head:'head'})} adoptClosedProject(){} dispose(){} }`;
+    const recovery = `export class WorkspaceRecovery { pending=new Set(); listeners=new Set(); flushes=0; start(){} updateLayout(){} restore(){return Promise.resolve(this.saved??null)} flush(){this.flushes++;return Promise.resolve()} getSnapshot(){return {error:null,documents:{}}} hasUnpersistedWorkspaceChanges(){return this.pending.size>0} isSlotUnpersisted(id){return this.pending.has(id)} listClosedProjects(){return Promise.resolve([])} discardSlotChanges(id){this.setPending(id,false);return true} subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn)} setPending(id,value){if(value)this.pending.add(id);else this.pending.delete(id);for(const fn of this.listeners)fn()} suspend(){} loadRecoveryEntry(){return Promise.resolve({document:{name:'recovered.png'}})} loadClosedProject(){return Promise.resolve({snapshot:{document:{name:'closed.png'}},head:'head'})} adoptClosedProject(){} findProjectByName(){return Promise.resolve(null)} seedProject(){return Promise.resolve(null)} dispose(){} }`;
     const result = await build({
       stdin: {
         contents: `export {DocumentWorkspace} from './apps/editor/src/managers/workspace/document-workspace'; export {BrowserSessionPorts} from './apps/editor/src/adapters/session/browser-session-ports'; export {WorkspaceRecovery} from './apps/editor/src/managers/workspace/workspace-recovery'; export {createClipboardActions,ImageClipboard} from './apps/editor/src/managers/clipboard/index';`,
