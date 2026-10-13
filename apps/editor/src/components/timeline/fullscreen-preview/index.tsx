@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
+import { tUi } from "$/i18n";
 import { renderTimelinePreview } from "$/managers/timeline/animation-preview-manager";
 import {
   fullscreenPreviewKeyAction,
@@ -56,7 +57,7 @@ export function FullscreenPreview({ snapshot, onClose, onStepFrame }: Fullscreen
       className={styles.root}
       role="dialog"
       aria-modal="true"
-      aria-label="Full Screen Preview"
+      aria-label={tUi("ui.animation.fullscreen")}
       onPointerMove={(event) => {
         const point = clientPoint(event);
         const previous = last.current;
@@ -77,7 +78,7 @@ export function FullscreenPreview({ snapshot, onClose, onStepFrame }: Fullscreen
         bounds={bounds}
         style={{ position: "absolute", ...surfaceLayout(bounds) }}
         dependencies={[assets, timeline, snapshot.pixelRevision, zoom, pan.x, pan.y]}
-        aria-label="Full screen preview canvas"
+        aria-label={tUi("ui.animation.fullscreen.canvas")}
         paint={(ctx) => {
           if (!assets) return;
           const width = Math.max(1, Math.round(bounds.width)),
