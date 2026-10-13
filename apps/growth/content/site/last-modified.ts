@@ -9,6 +9,7 @@ export const SITE_LAST_MODIFIED: Readonly<Record<string, string>> = {
   "/tools/gif-to-sprite-sheet/": "2026-10-12",
   "/tools/pixelate/": "2026-10-12",
   "/tools/animal-crossing-qr/": "2026-10-12",
+  "/tools/fuse-beads/": "2026-10-14",
   "/about/": "2026-10-12",
   "/zh-CN/about/": "2026-10-12",
   "/help/": "2026-10-11",
