@@ -65,4 +65,31 @@ describe("EdgeOne serving rules", () => {
     );
     expect(compacted.redirects[0]).toEqual(expanded.redirects[0]);
   });
+
+  it("collapses slash redirects and index rewrites without shadowing published files", () => {
+    const features = ["a", "b", "c"].map((name) => `/features/${name}/`);
+    const tools = ["x", "y", "z"].map((name) => `/tools/${name}/`);
+    const configuration = {
+      redirects: [...features, ...tools].map((path) => ({
+        source: path.slice(0, -1),
+        destination: path,
+        statusCode: 301,
+      })),
+      rewrites: [...features, ...tools].map((path) => ({
+        source: path,
+        destination: `${path}index.html`,
+      })),
+    };
+    const compacted = compactServingRules(configuration, ["/tools/menu-icon.svg"]);
+    expect(compacted.redirects).toContainEqual({
+      source: "/features/:name",
+      destination: "/features/:name/",
+      statusCode: 301,
+    });
+    expect(resolveRule(compacted.redirects, "/tools/menu-icon.svg")).toBeNull();
+    expect(resolveRule(compacted.rewrites, "/features/d/")?.destination).toBe(
+      "/features/d/index.html",
+    );
+    expect(compacted.rewrites).toHaveLength(2);
+  });
 });
