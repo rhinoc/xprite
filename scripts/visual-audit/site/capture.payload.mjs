@@ -61,29 +61,38 @@ const geometry = async (scene) => {
     )
   )
     throw Error(`${scene.id}: invalid geometry.`);
-  // Mobile regression guard: tool windows and desktop icons must sit below the
-  // menu bar, fit the viewport width, and never be clipped by the desktop.
+  // Mobile regression guard: a phone tool screen is exactly one viewport tall (no page scroll);
+  // windows and desktop icons stay below the menu bar and inside the viewport, and a window body
+  // whose content overflows scrolls on its own.
   const isTool = isToolPath(scene.page.path);
   const windowFaults = !isTool
     ? []
     : await page.evaluate(() => {
         const bar = document.querySelector("[role=menubar]");
-        const desktop = document.querySelector("[data-ui-desktop-pattern]");
-        if (!bar || !desktop || window.innerWidth > 700) return [];
+        const width = window.innerWidth,
+          height = window.innerHeight;
+        if (!bar || width > 700) return [];
         const top = bar.getBoundingClientRect().bottom;
-        const area = desktop.getBoundingClientRect();
+        const root = document.documentElement;
         const faults = [];
+        if (root.scrollHeight > height + 1 || root.scrollWidth > width + 1)
+          faults.push(`page scrolls (${root.scrollWidth}x${root.scrollHeight})`);
         for (const node of document.querySelectorAll(
-          "[data-ui-panel-variant], [class*=entryCursor]",
+          "[data-ui-panel-variant], [class*=entryCursor], [data-slot=desktop-icon-label]",
         )) {
           const rect = node.getBoundingClientRect();
           if (!rect.width || !rect.height) continue;
           const name = node.getAttribute("aria-label") ?? node.className;
           if (rect.top < top - 0.5) faults.push(`${name}: under menu bar`);
-          if (rect.left < -0.5 || rect.right > window.innerWidth + 0.5)
-            faults.push(`${name}: wider than viewport`);
-          if (node.matches("[data-ui-panel-variant]") && rect.bottom > area.bottom + 0.5)
-            faults.push(`${name}: clipped by desktop`);
+          if (rect.left < -0.5 || rect.right > width + 0.5 || rect.bottom > height + 0.5)
+            faults.push(`${name}: outside viewport`);
+        }
+        for (const body of document.querySelectorAll(
+          "[data-ui-panel-variant] > [data-slot=panel-body]",
+        )) {
+          const overflowY = getComputedStyle(body).overflowY;
+          if (body.scrollHeight > body.clientHeight + 1 && !["auto", "scroll"].includes(overflowY))
+            faults.push(`${body.parentElement.getAttribute("aria-label")}: body cannot scroll`);
         }
         return faults;
       });

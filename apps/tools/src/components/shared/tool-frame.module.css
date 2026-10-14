@@ -423,39 +423,92 @@
 }
 
 /*
- * Phones: the desktop used to be exactly one screen tall (100dvh) with clipped overflow, so
- * windows that did not fit were cut off at the bottom, and vertically centred content spilled
- * up under the menu bar. On narrow screens the desktop grows with its windows and the page
- * scrolls; the work area still fills the first screen.
+ * Phones: the desktop is one OS screen, exactly 100dvh, with no page scroll. Before, the 2fr/1fr
+ * rows and centred empty state pushed windows past the screen (help window cut off) and up
+ * under the menu bar. Now windows are sized to the space left below the menu bar and inside
+ * the safe areas, and each window body scrolls on its own, like a classic Mac window.
  */
 @media (max-width: 700px) {
-  .screen {
-    height: auto;
-    min-height: 100dvh;
-  }
-  .desktop {
-    overflow: visible;
-    grid-template-rows: auto auto;
-    padding-top: 48px;
-    align-content: start;
-  }
-  .desktop:has(.utilities > :not(.shortcuts)) {
-    grid-template-rows: auto auto;
-  }
-  .content {
-    min-height: calc(100dvh - 120px);
-  }
-  .content:has(.emptyContent) {
+  .shell {
+    height: 100vh;
+    height: 100dvh;
     min-height: 0;
+    overflow: hidden;
   }
-  .emptyContent {
-    grid-template-rows: auto auto;
-    align-content: start;
+  .screen {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .shell > :not(.screen) {
+    display: none;
+  }
+  .desktop,
+  .desktop:has(.utilities > :not(.shortcuts)) {
+    grid-template-rows: minmax(0, 1fr) auto;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
   }
   .utilities {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     max-height: none;
   }
+  .shortcuts {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 8px;
+  }
   .helpFrame {
-    --tool-window-max-height: none;
+    --tool-window-max-height: clamp(88px, round(down, 24dvh, 2px), 220px);
+    flex: 0 1 auto;
+  }
+  .desktop :global([data-ui-panel-variant] > [data-slot="panel-body"]) {
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  .emptyContent {
+    height: 100%;
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+    align-content: stretch;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .entryWindow {
+    height: 100%;
+  }
+  .emptyContent .examples {
+    margin: 0;
+  }
+  .exampleArtwork {
+    flex: 0 1 160px;
+    min-height: 48px;
+  }
+  .entryCursor[data-position] {
+    --tool-cue-inset: 28px;
+  }
+  .entryCursor[data-position="from-left"] {
+    left: 6px;
+    top: var(--tool-cue-inset);
+  }
+  .entryCursor[data-position="from-above"] {
+    left: auto;
+    right: 6px;
+    top: var(--tool-cue-inset);
+  }
+  .entryCursor[data-position="from-below"] {
+    left: auto;
+    top: auto;
+    right: 6px;
+    bottom: 6px;
+  }
+}
+/* Short phones: the desktop icons duplicate menu bar links, so give their room to the windows. */
+@media (max-width: 700px) and (max-height: 780px) {
+  .shortcuts {
+    display: none;
   }
 }
