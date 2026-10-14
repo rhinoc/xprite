@@ -155,7 +155,7 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
           ? 738
           : 682
         : pixelX !== null
-          ? pixelX - 4 + checkboxSize(tUi("ui.pixel.perfect.74f0e5db"), false).width + 8
+          ? pixelX - 4 + checkboxSize(tUi("ui.pixel.perfect.hyphenated"), false).width + 8
           : cursor;
   const controlHeight = metrics.toolHeight * UI_SCALE;
   return (
@@ -622,7 +622,7 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
               bounds={{
                 x: pixelX - 4,
                 y: 0,
-                width: checkboxSize(tUi("ui.pixel.perfect.74f0e5db"), false).width,
+                width: checkboxSize(tUi("ui.pixel.perfect.hyphenated"), false).width,
                 height: 32,
               }}
               label="Pixel-perfect"
