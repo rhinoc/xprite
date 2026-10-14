@@ -148,6 +148,9 @@ importers:
       '@xprite/growth-content':
         specifier: workspace:*
         version: link:../growth/content
+      '@xprite/palette-assets':
+        specifier: workspace:*
+        version: link:../../packages/palette-assets
       '@xprite/site-assets':
         specifier: workspace:*
         version: link:../growth/public
@@ -213,6 +216,9 @@ importers:
       '@xprite/growth-content':
         specifier: workspace:*
         version: link:../growth/content
+      '@xprite/palette-assets':
+        specifier: workspace:*
+        version: link:../../packages/palette-assets
       '@xprite/site-assets':
         specifier: workspace:*
         version: link:../growth/public

@@ -254,6 +254,28 @@ export const PIXELATE_TOOL = {
   dropLabel: "Drop a PNG, JPEG or WebP image",
 } as const;
 
+export const BEADS_TOOL = {
+  path: "/tools/fuse-beads/",
+  name: "Xprite Fuse Bead Pattern Maker",
+  label: "Fuse Bead Pattern Maker",
+  startTitle: "Make a fuse bead pattern",
+  title: "Fuse Bead Pattern Maker: PNG & PDF | Xprite",
+  headline: "Fuse bead pattern maker",
+  summary: "Create bead charts with MARD, Artkal, Perler or Hama colors and a material list.",
+  privacy: TOOL_FILE_PRIVACY,
+  description:
+    "Open artwork, choose MARD, Artkal, Perler or Hama colors, preview bead boards and download PNG charts or paginated PDFs. Files stay on your device.",
+  accept: ".png,.jpg,.jpeg,.webp,.ase,.aseprite,image/png,image/jpeg,image/webp",
+  fileLabel: "Choose an image or Aseprite file for a bead pattern",
+  openLabel: "Open artwork",
+  dropLabel: "Drop a PNG, JPEG, WebP or Aseprite file",
+} as const;
+
+export const BEAD_ARTIFACT_ATTRIBUTION = {
+  name: "Xprite",
+  url: `https://xprite.cc${BEADS_TOOL.path}`,
+} as const;
+
 export const EDITOR_TOOL = {
   path: "/",
   name: "Xprite Editor",
@@ -264,6 +286,6 @@ export const EDITOR_TOOL = {
     "Create pixel art and animations in Xprite. Open and save Aseprite projects in your browser.",
 } as const;
 
-export const TOOLS = [VIEWER_TOOL, GIF_SHEET_TOOL, PIXELATE_TOOL, ANIMAL_CROSSING_TOOL];
+export const TOOLS = [VIEWER_TOOL, GIF_SHEET_TOOL, PIXELATE_TOOL, ANIMAL_CROSSING_TOOL, BEADS_TOOL];
 export const TOOL_PATHS = TOOLS.map((tool) => tool.path);
 export type PublicTool = (typeof TOOLS)[number];

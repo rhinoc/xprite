@@ -66,6 +66,7 @@ const sourceHashes = () => {
     "apps/tools/viewer/index.html",
     "apps/tools/gif-to-sprite-sheet/index.html",
     "apps/tools/animal-crossing-qr/index.html",
+    "apps/tools/fuse-beads/index.html",
     "apps/tools/vite.config.ts",
     "scripts/visual-audit/tools-startup/scenes.mjs",
     "scripts/base/ego-report.mjs",

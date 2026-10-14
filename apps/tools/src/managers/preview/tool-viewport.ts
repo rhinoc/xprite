@@ -42,7 +42,10 @@ export class ToolViewport {
     anchor: ToolPoint;
     center: ToolPoint;
   } | null = null;
-  constructor(private readonly readWheel: (event: WheelEvent) => ToolWheelInput) {}
+  constructor(
+    private readonly readWheel: (event: WheelEvent) => ToolWheelInput,
+    private readonly limits: { maxDisplayDimension?: number; maxDisplayPixels?: number } = {},
+  ) {}
   getSnapshot = () => this.view;
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
@@ -55,9 +58,12 @@ export class ToolViewport {
       MIN_ZOOM,
       Math.min(
         MAX_ZOOM,
-        MAX_DISPLAY_DIMENSION / this.document.width,
-        MAX_DISPLAY_DIMENSION / this.document.height,
-        Math.sqrt(MAX_DISPLAY_PIXELS / (this.document.width * this.document.height)),
+        (this.limits.maxDisplayDimension ?? MAX_DISPLAY_DIMENSION) / this.document.width,
+        (this.limits.maxDisplayDimension ?? MAX_DISPLAY_DIMENSION) / this.document.height,
+        Math.sqrt(
+          (this.limits.maxDisplayPixels ?? MAX_DISPLAY_PIXELS) /
+            (this.document.width * this.document.height),
+        ),
       ),
     );
   }

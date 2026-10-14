@@ -1,23 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import {
-  createAnimalCrossingExportSource,
-  type AnimalCrossingExportSource,
-} from "$/managers/files/animal-crossing-export";
-import type { AnimalCrossingExportOptions } from "$/managers/files/animal-crossing-export-options";
-import {
-  exportDocumentAnimation,
-  exportDocumentSpriteSheet,
-  repeatLastExport,
-  type AnimationExportPorts,
-} from "$/managers/files/export-animation";
-import { ExportDestination } from "$/managers/files/export-destination";
-import { ExportKind } from "$/managers/files/export-preferences";
+import type { ExportExecutionPorts } from "$/managers/files/export-animation";
+import type {
+  ExporterContext,
+  ExporterResult,
+  RegisteredExporter,
+} from "$/managers/files/exporter-registry";
+import { useExporterRegistry } from "$/managers/files/exporter-registry-context";
+import { SheetExporterId } from "$/managers/files/exporters/sheet";
 import {
   createShareProjectSource,
   type ShareProjectSource,
 } from "$/managers/files/project-sharing";
-import { tilesetExportSource } from "$/managers/files/tileset-export-source";
 import type { EditorPlatformPorts } from "$/managers/ports/platform";
 import { TelemetryFeature, TelemetryFeatureAction } from "$/managers/ports/telemetry";
 import { reportingExport } from "$/managers/telemetry/reporting-export";
@@ -26,19 +20,12 @@ import type { DocumentWorkspace } from "$/managers/workspace/document-workspace"
 import { DocumentOutputExportOperation } from "$/managers/workspace/workflows/document-output-export-operation";
 import {
   canExecuteEditorAction,
-  colorProfileToSrgb,
   type EditorDocument,
   type EditorScene,
-  type ExportFileOptions,
   type RasterEditor,
 } from "@xprite/editor-core";
 import { cloneGraph } from "@xprite/editor-core/base";
-import { workingColorProfile } from "@xprite/editor-core/color";
-import type {
-  ImportSpriteSheetOptions,
-  SpriteSheetOptions,
-  SpriteSheetResult,
-} from "@xprite/editor-core/import-export";
+import type { ImportSpriteSheetOptions } from "@xprite/editor-core/import-export";
 import type { EditorSession } from "@xprite/editor-core/session";
 
 interface DocumentOutputWorkflowOptions {
@@ -56,13 +43,15 @@ interface DocumentOutputWorkflowOptions {
 /** Owns committed output snapshots, export preferences, and output dialog lifetimes. */
 export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOptions) {
   const { core, session, workspace, platform, telemetry } = options;
-  const [animalCrossingSource, setAnimalCrossingSource] =
-    useState<AnimalCrossingExportSource | null>(null);
+  const registry = useExporterRegistry();
   const [shareSource, setShareSource] = useState<ShareProjectSource | null>(null);
-  const [exportDocument, setExportDocument] = useState<EditorDocument | null>(null);
-  const [exportDestination, setExportDestination] = useState(ExportDestination.Image);
-  const lastExportDestination = useRef<ExportDestination | null>(null);
-  const [animalCrossingBusy, setAnimalCrossingBusy] = useState(false);
+  const [exportContext, setExportContext] = useState<ExporterContext | null>(null);
+  const [exportDestination, setExportDestination] = useState("");
+  const [exportPanels, setExportPanels] = useState<
+    ReadonlyMap<string, ReturnType<RegisteredExporter["createPanel"]>>
+  >(() => new Map());
+  const lastExportDestination = useRef<string | null>(null);
+  const [moduleBusy, setModuleBusy] = useState(false);
   const [sheetImport, setSheetImport] = useState<{
     core: RasterEditor;
     id: number | undefined;
@@ -71,12 +60,6 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
   const [exportBusy, setExportBusy] = useState(false);
   const exportKey = useRef(workspace.active.id);
   const ownerKey = workspace.active.id;
-  const showSheetPreview = useCallback(
-    (result: SpriteSheetResult | null) => {
-      core.importExport.previewSpriteSheet(result?.pixels ?? null);
-    },
-    [core],
-  );
   useEffect(() => () => core.importExport.previewSpriteSheet(null), [core, ownerKey]);
   const exportOperation = useMemo(
     () =>
@@ -96,17 +79,18 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
 
   useEffect(() => {
     const disconnect = exportOperation.connect();
-    setAnimalCrossingSource(null);
     setShareSource(null);
-    setExportDocument(null);
-    setAnimalCrossingBusy(false);
+    setExportContext(null);
+    setExportPanels(new Map());
+    setModuleBusy(false);
     setSheetImport(null);
     return disconnect;
-  }, [exportOperation, core, ownerKey]);
+  }, [exportOperation, core, ownerKey, registry]);
 
   const prepareExport = (detached = true) => {
     if (
       exportOperation.busy ||
+      moduleBusy ||
       !options.canStartInteraction() ||
       !canExecuteEditorAction("export", core.getSnapshot(), options.scene)
     )
@@ -120,29 +104,36 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
     const document = core.getSnapshot().document;
     return document ? (detached ? cloneGraph(document) : document) : null;
   };
-  const exportPorts = (slotId: string, isCurrent: () => boolean): AnimationExportPorts => {
+  const exportPorts = (slotId: string, isCurrent: () => boolean): ExportExecutionPorts => {
     const preferenceId = workspace.getExportPreferenceId(slotId);
-    const last = workspace.getLastExport(slotId);
     return {
       storage: platform.preferences,
+      webp: platform.files.webp,
+      encodePng: platform.files.exportOutput?.encodePng,
+      save: platform.files.exportOutput?.save,
       rememberExport: (record) => {
         if (isCurrent()) workspace.rememberExport(preferenceId, record);
       },
-      getLastExport: () => last,
     };
   };
   const runExport = <T>(
     document: EditorDocument,
-    exporting: (ports: AnimationExportPorts) => Promise<T>,
+    exporting: (ports: ExportExecutionPorts) => Promise<T>,
     completed?: (result: T) => void,
+    exporter?: string,
   ) => {
     const key = exportKey.current;
     return exportOperation.run(
       { core, key },
       (isCurrent) => {
         const ports = exportPorts(key, isCurrent);
-        return reportingExport(telemetry, document, key, (reportingPorts) =>
-          exporting({ ...ports, ...reportingPorts }),
+        return reportingExport(
+          telemetry,
+          document,
+          key,
+          (reportingPorts) => exporting({ ...ports, ...reportingPorts }),
+          ports.save,
+          exporter,
         );
       },
       completed,
@@ -151,44 +142,24 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
       },
     );
   };
-  const performExport = (exportOptions: ExportFileOptions) => {
-    if (!exportDocument || sheetImport) return;
-    return runExport(
-      exportDocument,
-      (ports) =>
-        exportDocumentAnimation(exportDocument, exportOptions, {
-          ...ports,
-          webp: platform.files.webp,
-        }),
-      clearExport,
-    );
-  };
-  const openGeneratedSheet = (
-    document: EditorDocument,
-    exportOptions: SpriteSheetOptions,
-    result: SpriteSheetResult,
-  ) => {
-    if (!exportOptions.openGenerated) return;
-    workspace.createDocumentFromImage(
-      result.pixels,
-      document.palette?.map((color) =>
-        colorProfileToSrgb(color, workingColorProfile(document.timeline)),
-      ),
-      exportOptions.name,
-    );
+  const acceptGenerated = (result: ExporterResult) => {
+    if (!result.generated) return;
+    const { pixels, palette, name } = result.generated;
+    workspace.createDocumentFromImage(pixels, palette, name);
     options.openGeneratedDocument();
   };
-  const performSheetExport = (exportOptions: SpriteSheetOptions) => {
-    if (!exportDocument) return;
-    const source =
-      exportOptions.source === "tilesets" ? tilesetExportSource(exportDocument) : exportDocument;
+  const performExporter = (id: string, value: unknown) => {
+    if (!exportContext || sheetImport || moduleBusy) return;
+    const exporter = registry.get(id);
+    if (!exporter?.available(exportContext)) return;
     return runExport(
-      source,
-      (ports) => exportDocumentSpriteSheet(source, exportOptions, ports),
+      exportContext.document,
+      (ports) => registry.execute(id, exportContext, value, ports),
       (result) => {
         clearExport();
-        openGeneratedSheet(source, exportOptions, result);
+        acceptGenerated(result);
       },
+      id,
     );
   };
   const performSheetImport = (importOptions: ImportSpriteSheetOptions) => {
@@ -207,91 +178,79 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
   };
   const openSheetImport = () => {
     const document = core.getSnapshot().document;
-    if (document) setSheetImport({ core, id: document.id, image: core.canvas.exportComposite() });
+    if (document)
+      setSheetImport({
+        core,
+        id: document.id,
+        image: core.canvas.exportComposite(),
+      });
   };
-  const canExportTileset =
-    !!exportDocument &&
-    exportDocument.timeline?.layers[exportDocument.timeline.activeLayer]?.kind === "tilemap";
-  const destinationAvailable = (destination: ExportDestination, document: EditorDocument) =>
-    destination === ExportDestination.Tileset
-      ? document.timeline?.layers[document.timeline.activeLayer]?.kind === "tilemap"
-      : destination !== ExportDestination.AnimalCrossing || !!platform.files.animalCrossingExport;
-  const animalCrossingSourceFor = (document: EditorDocument) => {
-    const source = createAnimalCrossingExportSource(document);
-    const remembered = workspace.getExportPreferences(exportKey.current).animalCrossing;
-    return remembered ? { ...source, settings: { ...remembered.settings } } : source;
-  };
-  const rememberAnimalCrossingExport = useCallback(
-    (exportOptions: AnimalCrossingExportOptions) => {
-      if (workspace.active.id !== exportKey.current || !exportDocument) return;
-      workspace.rememberExport(workspace.getExportPreferenceId(exportKey.current), {
-        type: ExportKind.AnimalCrossing,
-        options: exportOptions,
+  const rememberExporterOptions = useCallback(
+    (id: string, value: unknown) => {
+      if (!exportContext || workspace.active.id !== exportContext.documentKey) return;
+      const normalized = registry.get(id)?.normalizeOptions(value);
+      if (normalized == null) return;
+      workspace.rememberExport(workspace.getExportPreferenceId(exportContext.documentKey), {
+        exporter: id,
+        options: normalized,
       });
     },
-    [workspace, exportDocument],
+    [workspace, registry, exportContext],
   );
-  const selectExportDestination = (destination: ExportDestination) => {
-    if (
-      !exportDocument ||
-      exportBusy ||
-      animalCrossingBusy ||
-      !destinationAvailable(destination, exportDocument)
-    )
+  const selectExportDestination = (id: string) => {
+    if (!exportContext || exportBusy || moduleBusy || !registry.available(id, exportContext))
       return;
-    if (destination === ExportDestination.AnimalCrossing && !animalCrossingSource) {
-      try {
-        setAnimalCrossingSource(animalCrossingSourceFor(exportDocument));
-      } catch (reason) {
-        session.reportError(reason);
-        return;
+    try {
+      if (!exportPanels.has(id)) {
+        const panel = registry.get(id)!.createPanel(exportContext);
+        setExportPanels((previous) => new Map([...previous, [id, panel]]));
       }
+      core.importExport.previewSpriteSheet(null);
+      lastExportDestination.current = id;
+      setExportDestination(id);
+    } catch (reason) {
+      session.reportError(reason);
     }
-    core.importExport.previewSpriteSheet(null);
-    lastExportDestination.current = destination;
-    setExportDestination(destination);
   };
   function clearExport() {
     core.importExport.previewSpriteSheet(null);
-    setExportDocument(null);
-    setAnimalCrossingSource(null);
+    setExportContext(null);
+    setExportPanels(new Map());
   }
   const closeExport = () => {
-    if (!exportOperation.busy && !animalCrossingBusy) clearExport();
+    if (!exportOperation.busy && !moduleBusy) clearExport();
   };
-  const openExport = (requested?: ExportDestination) => {
+  const contextFor = (document: EditorDocument): ExporterContext => ({
+    document,
+    documentKey: workspace.active.id,
+    platform,
+    preview: (pixels) => core.importExport.previewSpriteSheet(pixels),
+    preferences: workspace.getExportPreferences(workspace.active.id),
+  });
+  const openExport = (requested?: string) => {
     const document = prepareExport();
     if (!document) return;
-    const last = workspace.getLastExport(workspace.active.id);
+    const context = contextFor(document);
     const remembered =
-      lastExportDestination.current ??
-      (last?.type === ExportKind.AnimalCrossing
-        ? ExportDestination.AnimalCrossing
-        : last?.type === ExportKind.Sheet
-          ? last.options.source === "tilesets"
-            ? ExportDestination.Tileset
-            : ExportDestination.SpriteSheet
-          : ExportDestination.Image);
-    const destination =
+      lastExportDestination.current ?? workspace.getLastExport(workspace.active.id)?.exporter;
+    const id =
       requested ??
-      (destinationAvailable(remembered, document) ? remembered : ExportDestination.Image);
-    if (!destinationAvailable(destination, document)) return;
+      (registry.available(remembered, context) ? remembered : registry.firstAvailable(context)?.id);
+    if (!id || !registry.available(id, context)) return;
     try {
-      setAnimalCrossingSource(
-        destination === ExportDestination.AnimalCrossing ? animalCrossingSourceFor(document) : null,
-      );
+      const panel = registry.get(id)!.createPanel(context);
       telemetry.featureUsed(TelemetryFeature.Export, TelemetryFeatureAction.Open);
-      lastExportDestination.current = destination;
-      setExportDestination(destination);
-      setExportDocument(document);
+      lastExportDestination.current = id;
+      setExportDestination(id);
+      setExportPanels(new Map([[id, panel]]));
+      setExportContext(context);
     } catch (reason) {
       session.reportError(reason);
     }
   };
   const lastExport = workspace.getLastExport(workspace.active.id);
   const currentDocument = core.getSnapshot().document;
-  const currentTimeline = currentDocument?.timeline;
-  const activeTilemap = currentTimeline?.layers[currentTimeline.activeLayer]?.kind === "tilemap";
+  const currentExporter = registry.get(lastExport?.exporter);
   const actions = {
     exportFile: () => openExport(),
     exportCopy: () => openExport(),
@@ -307,61 +266,48 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
           }
         }
       : undefined,
-    exportAnimalCrossing: platform.files.animalCrossingExport
-      ? () => openExport(ExportDestination.AnimalCrossing)
-      : undefined,
-    exportSpriteSheet: () => openExport(ExportDestination.SpriteSheet),
-    exportTileset: () => openExport(ExportDestination.Tileset),
+    exportSpriteSheet: () => openExport(SheetExporterId.SpriteSheet),
+    exportTileset: () => openExport(SheetExporterId.Tileset),
     importSpriteSheet: () => {
       if (prepareExport(false)) openSheetImport();
     },
     canRepeatExport:
       !!currentDocument &&
       !!lastExport &&
-      (lastExport.type !== ExportKind.AnimalCrossing || !!platform.files.animalCrossingExport) &&
-      (lastExport.type !== ExportKind.Sheet ||
-        lastExport.options.source !== "tilesets" ||
-        activeTilemap),
+      !!currentExporter &&
+      currentExporter.canRepeat(contextFor(currentDocument), lastExport.options),
     repeatLastExport: () => {
-      if (exportOperation.busy) return;
+      if (!lastExport || !currentExporter || exportOperation.busy || moduleBusy) return;
       const document = prepareExport();
       if (!document) return;
+      const context = contextFor(document);
+      if (!currentExporter.available(context)) return;
       void runExport(
         document,
-        (ports) =>
-          repeatLastExport(document, {
-            ...ports,
-            webp: platform.files.webp,
-            animalCrossing: platform.files.animalCrossingExport,
-          }),
-        (result) => {
-          if (lastExport?.type === ExportKind.Sheet && "pixels" in result)
-            openGeneratedSheet(document, lastExport.options, result);
-        },
+        (ports) => registry.execute(currentExporter.id, context, lastExport.options, ports),
+        acceptGenerated,
+        currentExporter.id,
       );
     },
   };
   return {
     actions,
-    animalCrossingSource,
-    setAnimalCrossingBusy,
-    rememberAnimalCrossingExport,
+    registry,
+    exportContext,
+    exportPanels,
+    setModuleBusy,
+    rememberExporterOptions,
     shareSource,
     setShareSource,
-    exportDocument,
     closeExport,
     exportDestination,
     selectExportDestination,
-    canExportTileset,
-    exportBusy: exportBusy || animalCrossingBusy,
-    exportKey,
-    showSheetPreview,
+    exportBusy: exportBusy || moduleBusy,
     sheetImport: sheetImport ? { image: sheetImport.image } : null,
     setSheetImport,
     openSheetImport,
-    performExport,
-    performSheetExport,
+    performExporter,
     performSheetImport,
-    hasOpenDialog: !!(animalCrossingSource || shareSource || exportDocument || sheetImport),
+    hasOpenDialog: !!(shareSource || exportContext || sheetImport),
   };
 }

@@ -4,13 +4,13 @@ import { FormDialog, type FormField } from "$/components/dialogs/form-dialog";
 import { tUi } from "$/i18n";
 import {
   ExportTagDirection,
-  ExportOutputFormat,
   MAX_EXPORT_LOOP_COUNT,
   MAX_WEBP_EXPORT_LOOP_COUNT,
   useExportFileDialogModel,
   type ExportFileDialogOptions,
   type ImageExportCapabilities,
 } from "$/managers/dialogs/export-file-dialog-model";
+import { ExportOutputFormat } from "$/managers/files/export-file-options";
 import {
   readGifExportPreferences,
   writeGifExportPreferences,

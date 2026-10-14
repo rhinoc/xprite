@@ -1,10 +1,7 @@
 import type { Rgba } from "@xprite/editor-core/base";
 import { parsePaletteText, comparePaletteResourceNames } from "@xprite/editor-core/import-export";
 import palette3 from "@xprite/palette-assets/adigunpolack-palettes/aap-radiantxv.gpl?raw";
-import palette54 from "@xprite/palette-assets/beads/artkal-s-rgb-reference.gpl?raw";
-import palette56 from "@xprite/palette-assets/beads/hama-midi.gpl?raw";
-import palette53 from "@xprite/palette-assets/beads/mard-221.gpl?raw";
-import palette55 from "@xprite/palette-assets/beads/perler.gpl?raw";
+import { BEAD_PALETTES } from "@xprite/palette-assets/beads";
 import catalogSource from "@xprite/palette-assets/catalog.json?raw";
 import palette0 from "@xprite/palette-assets/libresprite/a64.gpl?raw";
 import palette1 from "@xprite/palette-assets/libresprite/aap-16.gpl?raw";
@@ -124,16 +121,17 @@ const resources: Record<string, string> = {
   "libresprite/win16.gpl": palette50,
   "libresprite/x11.gpl": palette51,
   "libresprite/zx-spectrum.gpl": palette52,
-  "beads/mard-221.gpl": palette53,
-  "beads/artkal-s-rgb-reference.gpl": palette54,
-  "beads/perler.gpl": palette55,
-  "beads/hama-midi.gpl": palette56,
 };
 const catalog = JSON.parse(catalogSource) as Omit<BundledPalettePreset, "colors">[];
 let cache: BundledPalettePreset[] | undefined;
 export function readBundledPalettePresets(): BundledPalettePreset[] {
   cache ??= catalog
     .flatMap((item) => {
+      const beads = BEAD_PALETTES.find((palette) => palette.file === item.file);
+      if (beads)
+        return [
+          { ...item, colors: beads.colors.map(({ rgb }) => [rgb[0], rgb[1], rgb[2], 255] as Rgba) },
+        ];
       const source = resources[item.file];
       if (!source) return [];
       try {

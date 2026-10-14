@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 
 import { useDialogEditorSource } from "$/managers/dialogs/internal-editor-source";
 import { defaultExportFileOptions } from "$/managers/files/export-file-options";
+import { ImageExporterId, normalizeImageExportOptions } from "$/managers/files/exporters/image";
+import { inspectImageEncodingCapabilities } from "$/managers/files/image-encoding-capabilities";
 import { useEditorPlatformPorts } from "$/managers/platform/editor-platform-context";
 import { DEFAULT_FILE_PREFERENCES } from "$/managers/preferences/file-preferences";
 import type { ExportExtensionDefaults } from "$/managers/preferences/file-preferences";
-import { ImageEncodingFormat, isImageEncodingSupported } from "@xprite/bedrock/browser/images";
 import { exportFrameOrder, exportGeometry, timelineTags } from "@xprite/editor-core";
 import type { ExportFileOptions } from "@xprite/editor-core";
 import { AsepriteTagDirection } from "@xprite/editor-core/import-export";
@@ -15,13 +16,6 @@ export const MAX_EXPORT_LOOP_COUNT = MAX_ANIMATION_LOOP_COUNT;
 export const MAX_WEBP_EXPORT_LOOP_COUNT = MAX_WEBP_LOOP_COUNT;
 
 export type ExportFileDialogOptions = ExportFileOptions;
-export enum ExportOutputFormat {
-  Png = "png",
-  Gif = "gif",
-  Apng = "apng",
-  Jpeg = "jpg",
-  Webp = "webp",
-}
 export const ExportTagDirection = Object.freeze({
   Forward: AsepriteTagDirection.Forward,
   Reverse: AsepriteTagDirection.Reverse,
@@ -66,20 +60,8 @@ export function useImageExportCapabilities(
   useEffect(() => {
     if (provided) return;
     let active = true;
-    void Promise.all([
-      isImageEncodingSupported(ImageEncodingFormat.Jpeg),
-      isImageEncodingSupported(ImageEncodingFormat.Webp),
-    ]).then(([jpeg, nativeWebp]) => {
-      const webpLossless = webp?.supportsLossless() ?? false;
-      const webpLossy = !!webp && nativeWebp;
-      if (active)
-        setImageEncoding({
-          jpeg,
-          webp: webpLossless || webpLossy,
-          webpLossless,
-          webpLossy,
-          checked: true,
-        });
+    void inspectImageEncodingCapabilities(webp).then((capabilities) => {
+      if (active) setImageEncoding(capabilities);
     });
     return () => {
       active = false;
@@ -140,7 +122,9 @@ export function useExportFileDialogModel(
           frame: 0,
           frames: "all",
         };
-      const remembered = source.exportPreferences.animation;
+      const remembered = normalizeImageExportOptions(
+        source.exportPreferences.options?.[ImageExporterId.Image],
+      );
       const options: ExportFileDialogOptions = remembered
         ? {
             ...structuredClone(remembered),

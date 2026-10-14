@@ -1,11 +1,19 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { exportDocumentAnimation, repeatLastExport } from "$/managers/files/export-animation";
+import { exportDocumentAnimation } from "$/managers/files/export-animation";
 import {
   ImageExportFormat,
   readImageExportPreferences,
 } from "$/managers/files/export-format-preferences";
 import { lastDocumentExport } from "$/managers/files/export-preferences";
+import {
+  ExporterRegistry,
+  registerExporter,
+  type ExporterContext,
+} from "$/managers/files/exporter-registry";
+import { imageExporterDefinition, ImageExporterId } from "$/managers/files/exporters/image";
+import type { ExportArtifact } from "$/managers/ports/export-output";
+import type { EditorPlatformPorts } from "$/managers/ports/platform";
 import type { WebpExportPort } from "$/managers/ports/webp-export";
 import { DocumentPreferencesManager } from "$/managers/preferences/document-preferences";
 import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
@@ -83,8 +91,16 @@ describe("WebP export workflow", () => {
         ),
     );
     const webp = { supportsLossless: () => true, encode },
-      save = vi.fn(async () => {});
-    const result = await exportDocumentAnimation(source, options, {
+      save = vi.fn(async (_artifact: ExportArtifact) => {});
+    const registry = new ExporterRegistry([registerExporter(imageExporterDefinition, () => null)]);
+    const context: ExporterContext = {
+      document: source,
+      documentKey: "slot",
+      platform: { files: { webp } } as EditorPlatformPorts,
+      preferences: {},
+      preview: () => {},
+    };
+    await registry.execute(ImageExporterId.Image, context, options, {
       webp,
       save,
       storage: store,
@@ -97,9 +113,9 @@ describe("WebP export workflow", () => {
       compression: WebpCompression.Lossless,
     });
     expect(
-      parseWebpAnimation(new Uint8Array(await result.artifacts[0].blob.arrayBuffer()))?.frames.map(
-        (frame) => frame.durationMs,
-      ),
+      parseWebpAnimation(
+        new Uint8Array(await save.mock.calls[0][0].blob.arrayBuffer()),
+      )?.frames.map((frame) => frame.durationMs),
     ).toEqual([37, 81]);
     expect(readImageExportPreferences(ImageExportFormat.Webp, store).webpCompression).toBe(
       WebpCompression.Lossless,
@@ -107,7 +123,12 @@ describe("WebP export workflow", () => {
     expect(getLastExport()?.options).toMatchObject(options);
     expect(lastDocumentExport(preferences.get("other-slot").exports ?? {})).toBeNull();
     expect(source).toEqual(before);
-    await repeatLastExport(source, { webp, save, storage: store, rememberExport, getLastExport });
+    await registry.execute(getLastExport()!.exporter, context, getLastExport()!.options, {
+      webp,
+      save,
+      storage: store,
+      rememberExport,
+    });
     expect(encode).toHaveBeenCalledTimes(2);
     const failure = {
       supportsLossless: () => true,
@@ -116,8 +137,9 @@ describe("WebP export workflow", () => {
       }),
     };
     await expect(
-      exportDocumentAnimation(
-        source,
+      registry.execute(
+        ImageExporterId.Image,
+        context,
         { ...options, webpCompression: WebpCompression.Lossy },
         { webp: failure, save, storage: store, rememberExport },
       ),

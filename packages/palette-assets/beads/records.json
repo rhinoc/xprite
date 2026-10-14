@@ -1,0 +1,3728 @@
+[
+  {
+    "id": "mard",
+    "name": "MARD 221",
+    "file": "beads/mard-221.gpl",
+    "colors": [
+      {
+        "code": "A1",
+        "name": "A1",
+        "rgb": [249, 240, 205],
+        "credit": "Asher"
+      },
+      {
+        "code": "A2",
+        "name": "A2",
+        "rgb": [251, 251, 212],
+        "credit": "Asher"
+      },
+      {
+        "code": "A3",
+        "name": "A3",
+        "rgb": [250, 252, 159],
+        "credit": "Asher"
+      },
+      {
+        "code": "A4",
+        "name": "A4",
+        "rgb": [255, 233, 83],
+        "credit": "Asher"
+      },
+      {
+        "code": "A5",
+        "name": "A5",
+        "rgb": [244, 215, 56],
+        "credit": "Asher"
+      },
+      {
+        "code": "A6",
+        "name": "A6",
+        "rgb": [253, 173, 73],
+        "credit": "Asher"
+      },
+      {
+        "code": "A7",
+        "name": "A7",
+        "rgb": [255, 124, 47],
+        "credit": "Asher"
+      },
+      {
+        "code": "A8",
+        "name": "A8",
+        "rgb": [234, 202, 73],
+        "credit": "Asher"
+      },
+      {
+        "code": "A9",
+        "name": "A9",
+        "rgb": [255, 153, 90],
+        "credit": "Asher"
+      },
+      {
+        "code": "A10",
+        "name": "A10",
+        "rgb": [255, 157, 85],
+        "credit": "Asher"
+      },
+      {
+        "code": "A11",
+        "name": "A11",
+        "rgb": [255, 221, 153],
+        "credit": "Asher"
+      },
+      {
+        "code": "A12",
+        "name": "A12",
+        "rgb": [252, 181, 143],
+        "credit": "Asher"
+      },
+      {
+        "code": "A13",
+        "name": "A13",
+        "rgb": [255, 187, 89],
+        "credit": "Asher"
+      },
+      {
+        "code": "A14",
+        "name": "A14",
+        "rgb": [255, 109, 64],
+        "credit": "Asher"
+      },
+      {
+        "code": "A15",
+        "name": "A15",
+        "rgb": [253, 255, 68],
+        "credit": "Asher"
+      },
+      {
+        "code": "A16",
+        "name": "A16",
+        "rgb": [254, 249, 174],
+        "credit": "Asher"
+      },
+      {
+        "code": "A17",
+        "name": "A17",
+        "rgb": [255, 227, 110],
+        "credit": "Asher"
+      },
+      {
+        "code": "A18",
+        "name": "A18",
+        "rgb": [254, 207, 152],
+        "credit": "Asher"
+      },
+      {
+        "code": "A19",
+        "name": "A19",
+        "rgb": [253, 123, 114],
+        "credit": "Asher"
+      },
+      {
+        "code": "A20",
+        "name": "A20",
+        "rgb": [239, 205, 103],
+        "credit": "Asher"
+      },
+      {
+        "code": "A21",
+        "name": "A21",
+        "rgb": [255, 227, 149],
+        "credit": "Asher"
+      },
+      {
+        "code": "A22",
+        "name": "A22",
+        "rgb": [255, 243, 164],
+        "credit": "Asher"
+      },
+      {
+        "code": "A23",
+        "name": "A23",
+        "rgb": [243, 213, 191],
+        "credit": "Asher"
+      },
+      {
+        "code": "A24",
+        "name": "A24",
+        "rgb": [251, 248, 201],
+        "credit": "Asher"
+      },
+      {
+        "code": "A25",
+        "name": "A25",
+        "rgb": [255, 214, 125],
+        "credit": "Asher"
+      },
+      {
+        "code": "A26",
+        "name": "A26",
+        "rgb": [255, 187, 39],
+        "credit": "Asher"
+      },
+      {
+        "code": "B1",
+        "name": "B1",
+        "rgb": [230, 238, 50],
+        "credit": "Asher"
+      },
+      {
+        "code": "B2",
+        "name": "B2",
+        "rgb": [91, 228, 25],
+        "credit": "Asher"
+      },
+      {
+        "code": "B3",
+        "name": "B3",
+        "rgb": [124, 238, 157],
+        "credit": "Asher"
+      },
+      {
+        "code": "B4",
+        "name": "B4",
+        "rgb": [30, 249, 66],
+        "credit": "Asher"
+      },
+      {
+        "code": "B5",
+        "name": "B5",
+        "rgb": [0, 189, 53],
+        "credit": "Asher"
+      },
+      {
+        "code": "B6",
+        "name": "B6",
+        "rgb": [90, 232, 186],
+        "credit": "Asher"
+      },
+      {
+        "code": "B7",
+        "name": "B7",
+        "rgb": [3, 172, 136],
+        "credit": "Asher"
+      },
+      {
+        "code": "B8",
+        "name": "B8",
+        "rgb": [2, 157, 38],
+        "credit": "Asher"
+      },
+      {
+        "code": "B9",
+        "name": "B9",
+        "rgb": [38, 82, 58],
+        "credit": "Asher"
+      },
+      {
+        "code": "B10",
+        "name": "B10",
+        "rgb": [149, 211, 194],
+        "credit": "Asher"
+      },
+      {
+        "code": "B11",
+        "name": "B11",
+        "rgb": [93, 114, 42],
+        "credit": "Asher"
+      },
+      {
+        "code": "B12",
+        "name": "B12",
+        "rgb": [21, 111, 64],
+        "credit": "Asher"
+      },
+      {
+        "code": "B13",
+        "name": "B13",
+        "rgb": [217, 247, 148],
+        "credit": "Asher"
+      },
+      {
+        "code": "B14",
+        "name": "B14",
+        "rgb": [173, 233, 69],
+        "credit": "Asher"
+      },
+      {
+        "code": "B15",
+        "name": "B15",
+        "rgb": [46, 81, 50],
+        "credit": "Asher"
+      },
+      {
+        "code": "B16",
+        "name": "B16",
+        "rgb": [198, 237, 156],
+        "credit": "Asher"
+      },
+      {
+        "code": "B17",
+        "name": "B17",
+        "rgb": [155, 177, 58],
+        "credit": "Asher"
+      },
+      {
+        "code": "B18",
+        "name": "B18",
+        "rgb": [230, 238, 73],
+        "credit": "Asher"
+      },
+      {
+        "code": "B19",
+        "name": "B19",
+        "rgb": [37, 184, 140],
+        "credit": "Asher"
+      },
+      {
+        "code": "B20",
+        "name": "B20",
+        "rgb": [194, 240, 204],
+        "credit": "Asher"
+      },
+      {
+        "code": "B21",
+        "name": "B21",
+        "rgb": [20, 106, 107],
+        "credit": "Asher"
+      },
+      {
+        "code": "B22",
+        "name": "B22",
+        "rgb": [11, 60, 67],
+        "credit": "Asher"
+      },
+      {
+        "code": "B23",
+        "name": "B23",
+        "rgb": [48, 57, 33],
+        "credit": "Asher"
+      },
+      {
+        "code": "B24",
+        "name": "B24",
+        "rgb": [238, 252, 165],
+        "credit": "Asher"
+      },
+      {
+        "code": "B25",
+        "name": "B25",
+        "rgb": [78, 132, 109],
+        "credit": "Asher"
+      },
+      {
+        "code": "B26",
+        "name": "B26",
+        "rgb": [140, 122, 54],
+        "credit": "Asher"
+      },
+      {
+        "code": "B27",
+        "name": "B27",
+        "rgb": [209, 220, 193],
+        "credit": "Asher"
+      },
+      {
+        "code": "B28",
+        "name": "B28",
+        "rgb": [158, 229, 185],
+        "credit": "Asher"
+      },
+      {
+        "code": "B29",
+        "name": "B29",
+        "rgb": [197, 226, 84],
+        "credit": "Asher"
+      },
+      {
+        "code": "B30",
+        "name": "B30",
+        "rgb": [236, 251, 208],
+        "credit": "Asher"
+      },
+      {
+        "code": "B31",
+        "name": "B31",
+        "rgb": [196, 230, 181],
+        "credit": "Asher"
+      },
+      {
+        "code": "B32",
+        "name": "B32",
+        "rgb": [155, 171, 90],
+        "credit": "Asher"
+      },
+      {
+        "code": "C1",
+        "name": "C1",
+        "rgb": [232, 255, 231],
+        "credit": "Asher"
+      },
+      {
+        "code": "C2",
+        "name": "C2",
+        "rgb": [188, 249, 246],
+        "credit": "Asher"
+      },
+      {
+        "code": "C3",
+        "name": "C3",
+        "rgb": [160, 226, 251],
+        "credit": "Asher"
+      },
+      {
+        "code": "C4",
+        "name": "C4",
+        "rgb": [66, 204, 255],
+        "credit": "Asher"
+      },
+      {
+        "code": "C5",
+        "name": "C5",
+        "rgb": [1, 172, 235],
+        "credit": "Asher"
+      },
+      {
+        "code": "C6",
+        "name": "C6",
+        "rgb": [80, 169, 240],
+        "credit": "Asher"
+      },
+      {
+        "code": "C7",
+        "name": "C7",
+        "rgb": [1, 136, 211],
+        "credit": "Asher"
+      },
+      {
+        "code": "C8",
+        "name": "C8",
+        "rgb": [16, 84, 192],
+        "credit": "Asher"
+      },
+      {
+        "code": "C9",
+        "name": "C9",
+        "rgb": [49, 75, 202],
+        "credit": "Asher"
+      },
+      {
+        "code": "C10",
+        "name": "C10",
+        "rgb": [62, 188, 226],
+        "credit": "Asher"
+      },
+      {
+        "code": "C11",
+        "name": "C11",
+        "rgb": [3, 185, 185],
+        "credit": "Asher"
+      },
+      {
+        "code": "C12",
+        "name": "C12",
+        "rgb": [28, 51, 77],
+        "credit": "Asher"
+      },
+      {
+        "code": "C13",
+        "name": "C13",
+        "rgb": [205, 232, 255],
+        "credit": "Asher"
+      },
+      {
+        "code": "C14",
+        "name": "C14",
+        "rgb": [213, 253, 255],
+        "credit": "Asher"
+      },
+      {
+        "code": "C15",
+        "name": "C15",
+        "rgb": [35, 196, 198],
+        "credit": "Asher"
+      },
+      {
+        "code": "C16",
+        "name": "C16",
+        "rgb": [23, 87, 168],
+        "credit": "Asher"
+      },
+      {
+        "code": "C17",
+        "name": "C17",
+        "rgb": [80, 211, 236],
+        "credit": "Asher"
+      },
+      {
+        "code": "C18",
+        "name": "C18",
+        "rgb": [28, 51, 68],
+        "credit": "Asher"
+      },
+      {
+        "code": "C19",
+        "name": "C19",
+        "rgb": [23, 135, 162],
+        "credit": "Asher"
+      },
+      {
+        "code": "C20",
+        "name": "C20",
+        "rgb": [0, 130, 190],
+        "credit": "Asher"
+      },
+      {
+        "code": "C21",
+        "name": "C21",
+        "rgb": [190, 221, 255],
+        "credit": "Asher"
+      },
+      {
+        "code": "C22",
+        "name": "C22",
+        "rgb": [103, 180, 190],
+        "credit": "Asher"
+      },
+      {
+        "code": "C23",
+        "name": "C23",
+        "rgb": [194, 220, 235],
+        "credit": "Asher"
+      },
+      {
+        "code": "C24",
+        "name": "C24",
+        "rgb": [125, 196, 255],
+        "credit": "Asher"
+      },
+      {
+        "code": "C25",
+        "name": "C25",
+        "rgb": [169, 229, 229],
+        "credit": "Asher"
+      },
+      {
+        "code": "C26",
+        "name": "C26",
+        "rgb": [47, 153, 179],
+        "credit": "Asher"
+      },
+      {
+        "code": "C27",
+        "name": "C27",
+        "rgb": [235, 245, 252],
+        "credit": "Asher"
+      },
+      {
+        "code": "C28",
+        "name": "C28",
+        "rgb": [187, 207, 237],
+        "credit": "Asher"
+      },
+      {
+        "code": "C29",
+        "name": "C29",
+        "rgb": [75, 91, 163],
+        "credit": "Asher"
+      },
+      {
+        "code": "D1",
+        "name": "D1",
+        "rgb": [174, 180, 242],
+        "credit": "Asher"
+      },
+      {
+        "code": "D2",
+        "name": "D2",
+        "rgb": [133, 142, 221],
+        "credit": "Asher"
+      },
+      {
+        "code": "D3",
+        "name": "D3",
+        "rgb": [48, 84, 175],
+        "credit": "Asher"
+      },
+      {
+        "code": "D4",
+        "name": "D4",
+        "rgb": [24, 42, 132],
+        "credit": "Asher"
+      },
+      {
+        "code": "D5",
+        "name": "D5",
+        "rgb": [184, 67, 197],
+        "credit": "Asher"
+      },
+      {
+        "code": "D6",
+        "name": "D6",
+        "rgb": [172, 123, 222],
+        "credit": "Asher"
+      },
+      {
+        "code": "D7",
+        "name": "D7",
+        "rgb": [110, 57, 154],
+        "credit": "Asher"
+      },
+      {
+        "code": "D8",
+        "name": "D8",
+        "rgb": [226, 211, 255],
+        "credit": "Asher"
+      },
+      {
+        "code": "D9",
+        "name": "D9",
+        "rgb": [213, 185, 248],
+        "credit": "Asher"
+      },
+      {
+        "code": "D10",
+        "name": "D10",
+        "rgb": [54, 27, 80],
+        "credit": "Asher"
+      },
+      {
+        "code": "D11",
+        "name": "D11",
+        "rgb": [185, 186, 225],
+        "credit": "Asher"
+      },
+      {
+        "code": "D12",
+        "name": "D12",
+        "rgb": [222, 154, 212],
+        "credit": "Asher"
+      },
+      {
+        "code": "D13",
+        "name": "D13",
+        "rgb": [185, 2, 149],
+        "credit": "Asher"
+      },
+      {
+        "code": "D14",
+        "name": "D14",
+        "rgb": [139, 39, 155],
+        "credit": "Asher"
+      },
+      {
+        "code": "D15",
+        "name": "D15",
+        "rgb": [47, 31, 144],
+        "credit": "Asher"
+      },
+      {
+        "code": "D16",
+        "name": "D16",
+        "rgb": [226, 225, 238],
+        "credit": "Asher"
+      },
+      {
+        "code": "D17",
+        "name": "D17",
+        "rgb": [196, 212, 246],
+        "credit": "Asher"
+      },
+      {
+        "code": "D18",
+        "name": "D18",
+        "rgb": [164, 94, 199],
+        "credit": "Asher"
+      },
+      {
+        "code": "D19",
+        "name": "D19",
+        "rgb": [216, 195, 215],
+        "credit": "Asher"
+      },
+      {
+        "code": "D20",
+        "name": "D20",
+        "rgb": [156, 50, 178],
+        "credit": "Asher"
+      },
+      {
+        "code": "D21",
+        "name": "D21",
+        "rgb": [154, 0, 155],
+        "credit": "Asher"
+      },
+      {
+        "code": "D22",
+        "name": "D22",
+        "rgb": [51, 57, 149],
+        "credit": "Asher"
+      },
+      {
+        "code": "D23",
+        "name": "D23",
+        "rgb": [234, 218, 252],
+        "credit": "Asher"
+      },
+      {
+        "code": "D24",
+        "name": "D24",
+        "rgb": [119, 134, 229],
+        "credit": "Asher"
+      },
+      {
+        "code": "D25",
+        "name": "D25",
+        "rgb": [72, 79, 199],
+        "credit": "Asher"
+      },
+      {
+        "code": "D26",
+        "name": "D26",
+        "rgb": [233, 195, 246],
+        "credit": "Asher"
+      },
+      {
+        "code": "E1",
+        "name": "E1",
+        "rgb": [253, 211, 204],
+        "credit": "Asher"
+      },
+      {
+        "code": "E2",
+        "name": "E2",
+        "rgb": [254, 205, 223],
+        "credit": "Asher"
+      },
+      {
+        "code": "E3",
+        "name": "E3",
+        "rgb": [255, 151, 195],
+        "credit": "Asher"
+      },
+      {
+        "code": "E4",
+        "name": "E4",
+        "rgb": [232, 100, 158],
+        "credit": "Asher"
+      },
+      {
+        "code": "E5",
+        "name": "E5",
+        "rgb": [245, 81, 162],
+        "credit": "Asher"
+      },
+      {
+        "code": "E6",
+        "name": "E6",
+        "rgb": [255, 52, 107],
+        "credit": "Asher"
+      },
+      {
+        "code": "E7",
+        "name": "E7",
+        "rgb": [198, 53, 120],
+        "credit": "Asher"
+      },
+      {
+        "code": "E8",
+        "name": "E8",
+        "rgb": [255, 219, 233],
+        "credit": "Asher"
+      },
+      {
+        "code": "E9",
+        "name": "E9",
+        "rgb": [233, 112, 204],
+        "credit": "Asher"
+      },
+      {
+        "code": "E10",
+        "name": "E10",
+        "rgb": [211, 56, 147],
+        "credit": "Asher"
+      },
+      {
+        "code": "E11",
+        "name": "E11",
+        "rgb": [252, 221, 210],
+        "credit": "Asher"
+      },
+      {
+        "code": "E12",
+        "name": "E12",
+        "rgb": [255, 161, 197],
+        "credit": "Asher"
+      },
+      {
+        "code": "E13",
+        "name": "E13",
+        "rgb": [182, 0, 109],
+        "credit": "Asher"
+      },
+      {
+        "code": "E14",
+        "name": "E14",
+        "rgb": [255, 209, 186],
+        "credit": "Asher"
+      },
+      {
+        "code": "E15",
+        "name": "E15",
+        "rgb": [242, 207, 208],
+        "credit": "Asher"
+      },
+      {
+        "code": "E16",
+        "name": "E16",
+        "rgb": [255, 236, 222],
+        "credit": "Asher"
+      },
+      {
+        "code": "E17",
+        "name": "E17",
+        "rgb": [255, 226, 234],
+        "credit": "Asher"
+      },
+      {
+        "code": "E18",
+        "name": "E18",
+        "rgb": [255, 201, 214],
+        "credit": "Asher"
+      },
+      {
+        "code": "E19",
+        "name": "E19",
+        "rgb": [255, 210, 231],
+        "credit": "Asher"
+      },
+      {
+        "code": "E20",
+        "name": "E20",
+        "rgb": [216, 199, 209],
+        "credit": "Asher"
+      },
+      {
+        "code": "E21",
+        "name": "E21",
+        "rgb": [189, 157, 161],
+        "credit": "Asher"
+      },
+      {
+        "code": "E22",
+        "name": "E22",
+        "rgb": [204, 120, 167],
+        "credit": "Asher"
+      },
+      {
+        "code": "E23",
+        "name": "E23",
+        "rgb": [147, 122, 141],
+        "credit": "Asher"
+      },
+      {
+        "code": "E24",
+        "name": "E24",
+        "rgb": [246, 228, 249],
+        "credit": "Asher"
+      },
+      {
+        "code": "F1",
+        "name": "F1",
+        "rgb": [253, 149, 123],
+        "credit": "Asher"
+      },
+      {
+        "code": "F2",
+        "name": "F2",
+        "rgb": [252, 61, 69],
+        "credit": "Asher"
+      },
+      {
+        "code": "F3",
+        "name": "F3",
+        "rgb": [247, 73, 65],
+        "credit": "Asher"
+      },
+      {
+        "code": "F4",
+        "name": "F4",
+        "rgb": [252, 40, 60],
+        "credit": "Asher"
+      },
+      {
+        "code": "F5",
+        "name": "F5",
+        "rgb": [216, 1, 39],
+        "credit": "Asher"
+      },
+      {
+        "code": "F6",
+        "name": "F6",
+        "rgb": [176, 68, 61],
+        "credit": "Asher"
+      },
+      {
+        "code": "F7",
+        "name": "F7",
+        "rgb": [151, 25, 55],
+        "credit": "Asher"
+      },
+      {
+        "code": "F8",
+        "name": "F8",
+        "rgb": [188, 1, 39],
+        "credit": "Asher"
+      },
+      {
+        "code": "F9",
+        "name": "F9",
+        "rgb": [226, 103, 122],
+        "credit": "Asher"
+      },
+      {
+        "code": "F10",
+        "name": "F10",
+        "rgb": [167, 77, 34],
+        "credit": "Asher"
+      },
+      {
+        "code": "F11",
+        "name": "F11",
+        "rgb": [111, 32, 31],
+        "credit": "Asher"
+      },
+      {
+        "code": "F12",
+        "name": "F12",
+        "rgb": [253, 77, 106],
+        "credit": "Asher"
+      },
+      {
+        "code": "F13",
+        "name": "F13",
+        "rgb": [221, 66, 47],
+        "credit": "Asher"
+      },
+      {
+        "code": "F14",
+        "name": "F14",
+        "rgb": [255, 169, 173],
+        "credit": "Asher"
+      },
+      {
+        "code": "F15",
+        "name": "F15",
+        "rgb": [200, 0, 32],
+        "credit": "Asher"
+      },
+      {
+        "code": "F16",
+        "name": "F16",
+        "rgb": [255, 217, 200],
+        "credit": "Asher"
+      },
+      {
+        "code": "F17",
+        "name": "F17",
+        "rgb": [247, 155, 113],
+        "credit": "Asher"
+      },
+      {
+        "code": "F18",
+        "name": "F18",
+        "rgb": [211, 124, 70],
+        "credit": "Asher"
+      },
+      {
+        "code": "F19",
+        "name": "F19",
+        "rgb": [193, 68, 74],
+        "credit": "Asher"
+      },
+      {
+        "code": "F20",
+        "name": "F20",
+        "rgb": [205, 147, 145],
+        "credit": "Asher"
+      },
+      {
+        "code": "F21",
+        "name": "F21",
+        "rgb": [244, 177, 180],
+        "credit": "Asher"
+      },
+      {
+        "code": "F22",
+        "name": "F22",
+        "rgb": [255, 208, 203],
+        "credit": "Asher"
+      },
+      {
+        "code": "F23",
+        "name": "F23",
+        "rgb": [245, 126, 102],
+        "credit": "Asher"
+      },
+      {
+        "code": "F24",
+        "name": "F24",
+        "rgb": [252, 193, 196],
+        "credit": "Asher"
+      },
+      {
+        "code": "F25",
+        "name": "F25",
+        "rgb": [229, 75, 79],
+        "credit": "Asher"
+      },
+      {
+        "code": "G1",
+        "name": "G1",
+        "rgb": [255, 226, 206],
+        "credit": "Asher"
+      },
+      {
+        "code": "G2",
+        "name": "G2",
+        "rgb": [255, 202, 170],
+        "credit": "Asher"
+      },
+      {
+        "code": "G3",
+        "name": "G3",
+        "rgb": [244, 195, 165],
+        "credit": "Asher"
+      },
+      {
+        "code": "G4",
+        "name": "G4",
+        "rgb": [225, 179, 131],
+        "credit": "Asher"
+      },
+      {
+        "code": "G5",
+        "name": "G5",
+        "rgb": [237, 148, 53],
+        "credit": "Asher"
+      },
+      {
+        "code": "G6",
+        "name": "G6",
+        "rgb": [245, 151, 52],
+        "credit": "Asher"
+      },
+      {
+        "code": "G7",
+        "name": "G7",
+        "rgb": [157, 91, 62],
+        "credit": "Asher"
+      },
+      {
+        "code": "G8",
+        "name": "G8",
+        "rgb": [89, 42, 33],
+        "credit": "Asher"
+      },
+      {
+        "code": "G9",
+        "name": "G9",
+        "rgb": [230, 180, 131],
+        "credit": "Asher"
+      },
+      {
+        "code": "G10",
+        "name": "G10",
+        "rgb": [200, 129, 53],
+        "credit": "Asher"
+      },
+      {
+        "code": "G11",
+        "name": "G11",
+        "rgb": [224, 197, 147],
+        "credit": "Asher"
+      },
+      {
+        "code": "G12",
+        "name": "G12",
+        "rgb": [235, 187, 131],
+        "credit": "Asher"
+      },
+      {
+        "code": "G13",
+        "name": "G13",
+        "rgb": [183, 113, 74],
+        "credit": "Asher"
+      },
+      {
+        "code": "G14",
+        "name": "G14",
+        "rgb": [141, 97, 76],
+        "credit": "Asher"
+      },
+      {
+        "code": "G15",
+        "name": "G15",
+        "rgb": [252, 249, 224],
+        "credit": "Asher"
+      },
+      {
+        "code": "G16",
+        "name": "G16",
+        "rgb": [242, 217, 186],
+        "credit": "Asher"
+      },
+      {
+        "code": "G17",
+        "name": "G17",
+        "rgb": [86, 64, 60],
+        "credit": "Asher"
+      },
+      {
+        "code": "G18",
+        "name": "G18",
+        "rgb": [255, 228, 204],
+        "credit": "Asher"
+      },
+      {
+        "code": "G19",
+        "name": "G19",
+        "rgb": [225, 148, 58],
+        "credit": "Asher"
+      },
+      {
+        "code": "G20",
+        "name": "G20",
+        "rgb": [169, 64, 35],
+        "credit": "Asher"
+      },
+      {
+        "code": "G21",
+        "name": "G21",
+        "rgb": [203, 142, 119],
+        "credit": "Asher"
+      },
+      {
+        "code": "H1",
+        "name": "H1",
+        "rgb": [226, 226, 226],
+        "credit": "Asher"
+      },
+      {
+        "code": "H2",
+        "name": "H2",
+        "rgb": [255, 255, 255],
+        "credit": "Asher"
+      },
+      {
+        "code": "H3",
+        "name": "H3",
+        "rgb": [179, 179, 179],
+        "credit": "Asher"
+      },
+      {
+        "code": "H4",
+        "name": "H4",
+        "rgb": [134, 134, 134],
+        "credit": "Asher"
+      },
+      {
+        "code": "H5",
+        "name": "H5",
+        "rgb": [71, 71, 71],
+        "credit": "Asher"
+      },
+      {
+        "code": "H6",
+        "name": "H6",
+        "rgb": [44, 44, 44],
+        "credit": "Asher"
+      },
+      {
+        "code": "H7",
+        "name": "H7",
+        "rgb": [0, 0, 0],
+        "credit": "Asher"
+      },
+      {
+        "code": "H8",
+        "name": "H8",
+        "rgb": [231, 214, 219],
+        "credit": "Asher"
+      },
+      {
+        "code": "H9",
+        "name": "H9",
+        "rgb": [228, 231, 227],
+        "credit": "Asher"
+      },
+      {
+        "code": "H10",
+        "name": "H10",
+        "rgb": [238, 233, 234],
+        "credit": "Asher"
+      },
+      {
+        "code": "H11",
+        "name": "H11",
+        "rgb": [206, 205, 213],
+        "credit": "Asher"
+      },
+      {
+        "code": "H12",
+        "name": "H12",
+        "rgb": [255, 245, 237],
+        "credit": "Asher"
+      },
+      {
+        "code": "H13",
+        "name": "H13",
+        "rgb": [243, 225, 201],
+        "credit": "Asher"
+      },
+      {
+        "code": "H14",
+        "name": "H14",
+        "rgb": [207, 215, 211],
+        "credit": "Asher"
+      },
+      {
+        "code": "H15",
+        "name": "H15",
+        "rgb": [152, 166, 168],
+        "credit": "Asher"
+      },
+      {
+        "code": "H16",
+        "name": "H16",
+        "rgb": [59, 47, 35],
+        "credit": "Asher"
+      },
+      {
+        "code": "H17",
+        "name": "H17",
+        "rgb": [241, 237, 237],
+        "credit": "Asher"
+      },
+      {
+        "code": "H18",
+        "name": "H18",
+        "rgb": [255, 253, 240],
+        "credit": "Asher"
+      },
+      {
+        "code": "H19",
+        "name": "H19",
+        "rgb": [246, 239, 226],
+        "credit": "Asher"
+      },
+      {
+        "code": "H20",
+        "name": "H20",
+        "rgb": [148, 159, 163],
+        "credit": "Asher"
+      },
+      {
+        "code": "H21",
+        "name": "H21",
+        "rgb": [247, 243, 228],
+        "credit": "Asher"
+      },
+      {
+        "code": "H22",
+        "name": "H22",
+        "rgb": [202, 202, 213],
+        "credit": "Asher"
+      },
+      {
+        "code": "H23",
+        "name": "H23",
+        "rgb": [154, 157, 148],
+        "credit": "Asher"
+      },
+      {
+        "code": "M1",
+        "name": "M1",
+        "rgb": [188, 198, 184],
+        "credit": "Asher"
+      },
+      {
+        "code": "M2",
+        "name": "M2",
+        "rgb": [138, 163, 133],
+        "credit": "Asher"
+      },
+      {
+        "code": "M3",
+        "name": "M3",
+        "rgb": [105, 125, 128],
+        "credit": "Asher"
+      },
+      {
+        "code": "M4",
+        "name": "M4",
+        "rgb": [218, 206, 190],
+        "credit": "Asher"
+      },
+      {
+        "code": "M5",
+        "name": "M5",
+        "rgb": [208, 204, 170],
+        "credit": "Asher"
+      },
+      {
+        "code": "M6",
+        "name": "M6",
+        "rgb": [176, 167, 130],
+        "credit": "Asher"
+      },
+      {
+        "code": "M7",
+        "name": "M7",
+        "rgb": [180, 164, 151],
+        "credit": "Asher"
+      },
+      {
+        "code": "M8",
+        "name": "M8",
+        "rgb": [179, 130, 129],
+        "credit": "Asher"
+      },
+      {
+        "code": "M9",
+        "name": "M9",
+        "rgb": [165, 135, 103],
+        "credit": "Asher"
+      },
+      {
+        "code": "M10",
+        "name": "M10",
+        "rgb": [197, 177, 188],
+        "credit": "Asher"
+      },
+      {
+        "code": "M11",
+        "name": "M11",
+        "rgb": [159, 116, 148],
+        "credit": "Asher"
+      },
+      {
+        "code": "M12",
+        "name": "M12",
+        "rgb": [100, 71, 73],
+        "credit": "Asher"
+      },
+      {
+        "code": "M13",
+        "name": "M13",
+        "rgb": [209, 144, 102],
+        "credit": "Asher"
+      },
+      {
+        "code": "M14",
+        "name": "M14",
+        "rgb": [199, 115, 97],
+        "credit": "Asher"
+      },
+      {
+        "code": "M15",
+        "name": "M15",
+        "rgb": [117, 125, 123],
+        "credit": "Asher"
+      }
+    ],
+    "source": "maxcleme/beadcolors raw/mard.csv",
+    "revision": "f97ff4283d03cef5cd7e1071a86f5892e0c0c61b"
+  },
+  {
+    "id": "artkal",
+    "name": "Artkal S RGB Reference",
+    "file": "beads/artkal-s-rgb-reference.gpl",
+    "colors": [
+      {
+        "code": "S01",
+        "name": "White",
+        "rgb": [234, 238, 243],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S02",
+        "name": "Burning Sand",
+        "rgb": [238, 146, 124],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S03",
+        "name": "Tangerine",
+        "rgb": [255, 166, 48],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S04",
+        "name": "Orange",
+        "rgb": [235, 96, 39],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S05",
+        "name": "Tall Poppy",
+        "rgb": [203, 53, 49],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S06",
+        "name": "Raspberry Pink",
+        "rgb": [239, 103, 178],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S07",
+        "name": "Gray",
+        "rgb": [149, 150, 152],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S08",
+        "name": "Emerald",
+        "rgb": [31, 196, 103],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S09",
+        "name": "Dark Green",
+        "rgb": [0, 104, 94],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S10",
+        "name": "Baby Blue",
+        "rgb": [46, 171, 216],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S11",
+        "name": "Dark Blue",
+        "rgb": [0, 79, 164],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S12",
+        "name": "Pastel Lavender",
+        "rgb": [145, 101, 178],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S13",
+        "name": "Black",
+        "rgb": [41, 42, 43],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S14",
+        "name": "Sandstorm",
+        "rgb": [225, 200, 53],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S15",
+        "name": "Redwood",
+        "rgb": [154, 69, 65],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S16",
+        "name": "Brown",
+        "rgb": [101, 70, 61],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S17",
+        "name": "Light Brown",
+        "rgb": [137, 93, 73],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S18",
+        "name": "Sand",
+        "rgb": [220, 163, 132],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S19",
+        "name": "Bubble Gun",
+        "rgb": [242, 191, 184],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S20",
+        "name": "Green",
+        "rgb": [0, 144, 83],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S21",
+        "name": "Pastel Green",
+        "rgb": [139, 178, 58],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S22",
+        "name": "Purple",
+        "rgb": [72, 51, 126],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S23",
+        "name": "Royal Purple",
+        "rgb": [100, 79, 164],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S24",
+        "name": "True Blue",
+        "rgb": [0, 120, 191],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S25",
+        "name": "Hot Pink",
+        "rgb": [220, 81, 154],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S26",
+        "name": "Magenta",
+        "rgb": [218, 67, 131],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S27",
+        "name": "Yellow",
+        "rgb": [234, 193, 37],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S28",
+        "name": "Lily Pink",
+        "rgb": [221, 161, 204],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S29",
+        "name": "Pastel Yellow",
+        "rgb": [225, 211, 103],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S30",
+        "name": "Shadow Green",
+        "rgb": [158, 201, 205],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S31",
+        "name": "Sea Mist",
+        "rgb": [178, 215, 206],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S32",
+        "name": "Beeswax",
+        "rgb": [238, 211, 158],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S33",
+        "name": "Maverick",
+        "rgb": [192, 183, 215],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S34",
+        "name": "Red",
+        "rgb": [182, 25, 39],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S35",
+        "name": "Mona Lisa",
+        "rgb": [225, 204, 210],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S36",
+        "name": "Old Pink",
+        "rgb": [206, 109, 131],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S37",
+        "name": "Blue-Green",
+        "rgb": [96, 191, 203],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S38",
+        "name": "Burgundy",
+        "rgb": [163, 19, 74],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S39",
+        "name": "Yellow Orange",
+        "rgb": [230, 135, 57],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S40",
+        "name": "Carnation Pink",
+        "rgb": [225, 130, 176],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S41",
+        "name": "Copper",
+        "rgb": [157, 91, 46],
+        "credit": "LThanda"
+      },
+      {
+        "code": "S42",
+        "name": "Silver",
+        "rgb": [103, 107, 115],
+        "credit": "LThanda"
+      },
+      {
+        "code": "S43",
+        "name": "Dark Gray",
+        "rgb": [112, 117, 123],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S44",
+        "name": "Sky Blue",
+        "rgb": [167, 205, 222],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S45",
+        "name": "Medium Turquoise",
+        "rgb": [0, 165, 161],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S46",
+        "name": "Bright Green",
+        "rgb": [142, 195, 36],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S47",
+        "name": "Marigold",
+        "rgb": [178, 121, 56],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S48",
+        "name": "Corn",
+        "rgb": [236, 192, 61],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S49",
+        "name": "Mulberry Wood",
+        "rgb": [146, 30, 93],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S50",
+        "name": "Mandys Pink",
+        "rgb": [226, 164, 136],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S51",
+        "name": "Spring Sun",
+        "rgb": [223, 218, 189],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S52",
+        "name": "Picasso",
+        "rgb": [234, 222, 127],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S53",
+        "name": "Turquoise",
+        "rgb": [85, 164, 217],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S54",
+        "name": "Light Blue",
+        "rgb": [0, 132, 206],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S55",
+        "name": "Pistachio",
+        "rgb": [151, 207, 135],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S56",
+        "name": "Bright Carrot",
+        "rgb": [249, 111, 64],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S57",
+        "name": "Buccaneer",
+        "rgb": [179, 85, 64],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S58",
+        "name": "Paprika",
+        "rgb": [177, 24, 54],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S59",
+        "name": "Butterfly Bush",
+        "rgb": [79, 57, 137],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S60",
+        "name": "Lavender",
+        "rgb": [138, 126, 194],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S61",
+        "name": "Key Lomen Pie",
+        "rgb": [205, 192, 63],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S62",
+        "name": "Green Tea",
+        "rgb": [0, 118, 95],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S63",
+        "name": "Metallic Gold",
+        "rgb": [105, 96, 70],
+        "credit": "LThanda"
+      },
+      {
+        "code": "S64",
+        "name": "Black Rock",
+        "rgb": [54, 56, 77],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S65",
+        "name": "Canary",
+        "rgb": [226, 230, 93],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S66",
+        "name": "Blaze Orange",
+        "rgb": [229, 83, 60],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S67",
+        "name": "Vanilla",
+        "rgb": [233, 193, 166],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S68",
+        "name": "Tan",
+        "rgb": [204, 155, 116],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S69",
+        "name": "Mine Shaft",
+        "rgb": [56, 62, 68],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S70",
+        "name": "Drark Algae",
+        "rgb": [173, 173, 41],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S71",
+        "name": "Jade Green",
+        "rgb": [0, 125, 43],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S72",
+        "name": "Light Sea Blue",
+        "rgb": [104, 196, 210],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S73",
+        "name": "Steel Blue",
+        "rgb": [90, 176, 191],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S74",
+        "name": "Azure",
+        "rgb": [0, 158, 194],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S75",
+        "name": "Dark Steel Blue",
+        "rgb": [0, 132, 178],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S76",
+        "name": "Sea Blue",
+        "rgb": [0, 147, 169],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S77",
+        "name": "Ghost While",
+        "rgb": [212, 216, 211],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S78",
+        "name": "Ash Grey",
+        "rgb": [194, 196, 194],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S79",
+        "name": "Light Gray",
+        "rgb": [167, 172, 173],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S80",
+        "name": "Dark Olive",
+        "rgb": [143, 142, 60],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S81",
+        "name": "Deer",
+        "rgb": [191, 145, 104],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S82",
+        "name": "Clay",
+        "rgb": [170, 116, 78],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S83",
+        "name": "Sienna",
+        "rgb": [187, 104, 51],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S84",
+        "name": "Deep Chestnut",
+        "rgb": [190, 93, 101],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S85",
+        "name": "Red Wine",
+        "rgb": [153, 50, 58],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S86",
+        "name": "Goldenrod",
+        "rgb": [232, 174, 0],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S87",
+        "name": "Coral Red",
+        "rgb": [236, 98, 94],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S88",
+        "name": "Dark Pink",
+        "rgb": [214, 39, 121],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S89",
+        "name": "Charcoal Gray",
+        "rgb": [86, 90, 94],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S90",
+        "name": "Pastel Orange",
+        "rgb": [217, 179, 94],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S91",
+        "name": "Brunswick Green",
+        "rgb": [21, 56, 56],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S92",
+        "name": "Dandelion",
+        "rgb": [206, 164, 51],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S93",
+        "name": "Pale Skin",
+        "rgb": [220, 183, 148],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S94",
+        "name": "Warm Blush",
+        "rgb": [221, 146, 133],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S95",
+        "name": "Salmon",
+        "rgb": [224, 123, 105],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S96",
+        "name": "Apricot",
+        "rgb": [239, 127, 97],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S97",
+        "name": "Papaya",
+        "rgb": [220, 119, 43],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S98",
+        "name": "Himalaya Blue",
+        "rgb": [106, 174, 219],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S99",
+        "name": "Waterfall",
+        "rgb": [97, 187, 211],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S100",
+        "name": "Lagoon",
+        "rgb": [39, 155, 190],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S101",
+        "name": "Electric Blue",
+        "rgb": [0, 167, 227],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S102",
+        "name": "Pool Blue",
+        "rgb": [0, 119, 202],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S103",
+        "name": "Caribbian Blue",
+        "rgb": [0, 90, 169],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S104",
+        "name": "Deep Water",
+        "rgb": [0, 127, 158],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S105",
+        "name": "Petrol Blue",
+        "rgb": [0, 125, 145],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S106",
+        "name": "Wegdewood Blue",
+        "rgb": [0, 100, 154],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S107",
+        "name": "Pond Blue",
+        "rgb": [0, 108, 159],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S108",
+        "name": "Seashell Beige",
+        "rgb": [207, 193, 121],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S109",
+        "name": "Beige",
+        "rgb": [196, 174, 100],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S110",
+        "name": "Beach Beige",
+        "rgb": [171, 151, 69],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S111",
+        "name": "Caffe Latté",
+        "rgb": [151, 129, 56],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S112",
+        "name": "Oaktree Brown",
+        "rgb": [144, 124, 65],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S113",
+        "name": "Khaki",
+        "rgb": [182, 174, 132],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S114",
+        "name": "Light Greengray",
+        "rgb": [165, 159, 101],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S115",
+        "name": "Mossy Green",
+        "rgb": [147, 141, 84],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S116",
+        "name": "Earth Green",
+        "rgb": [141, 139, 81],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S117",
+        "name": "Sage Green",
+        "rgb": [127, 126, 73],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S118",
+        "name": "Pinetree Green",
+        "rgb": [91, 110, 53],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S119",
+        "name": "Frosty Blue",
+        "rgb": [138, 213, 201],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S120",
+        "name": "Polar Mint",
+        "rgb": [124, 210, 165],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S121",
+        "name": "Celadon Green",
+        "rgb": [114, 172, 154],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S122",
+        "name": "Eucalyptus",
+        "rgb": [0, 178, 111],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S123",
+        "name": "Clover Field",
+        "rgb": [62, 183, 36],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S124",
+        "name": "Pooltable Felt",
+        "rgb": [13, 117, 53],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S125",
+        "name": "Snake Green",
+        "rgb": [0, 125, 110],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S126",
+        "name": "Dark Eucalyptus",
+        "rgb": [0, 110, 105],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S127",
+        "name": "Marsmallow Rose",
+        "rgb": [223, 195, 225],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S128",
+        "name": "Light Grape",
+        "rgb": [211, 142, 212],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S129",
+        "name": "Rosebud Pink",
+        "rgb": [213, 166, 186],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S130",
+        "name": "Fuschia",
+        "rgb": [214, 102, 142],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S131",
+        "name": "Candy Violet",
+        "rgb": [184, 170, 217],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S132",
+        "name": "Flamingo",
+        "rgb": [223, 72, 109],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S133",
+        "name": "Pink Plum",
+        "rgb": [188, 60, 166],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S134",
+        "name": "Amethyst",
+        "rgb": [128, 56, 151],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S135",
+        "name": "Moonlight Blue",
+        "rgb": [167, 186, 225],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S136",
+        "name": "Summer Rain",
+        "rgb": [175, 184, 223],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S137",
+        "name": "Azur Blue",
+        "rgb": [107, 154, 212],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S138",
+        "name": "Cornflower Blue",
+        "rgb": [90, 137, 206],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S139",
+        "name": "Forget Me Not",
+        "rgb": [101, 138, 208],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S140",
+        "name": "Indigo",
+        "rgb": [86, 108, 189],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S141",
+        "name": "Horizon Blue",
+        "rgb": [77, 116, 198],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S142",
+        "name": "Cobolt",
+        "rgb": [65, 109, 190],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S143",
+        "name": "Royal Blue",
+        "rgb": [48, 66, 158],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S144",
+        "name": "Marine",
+        "rgb": [2, 66, 136],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S145",
+        "name": "Pale Yellow Moss",
+        "rgb": [214, 202, 106],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S146",
+        "name": "Bloodrose Red",
+        "rgb": [157, 26, 56],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S147",
+        "name": "Spearmint",
+        "rgb": [128, 183, 161],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S148",
+        "name": "Mocha",
+        "rgb": [122, 89, 79],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S149",
+        "name": "Creme",
+        "rgb": [239, 219, 161],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S150",
+        "name": "Iris Violet",
+        "rgb": [136, 132, 208],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S151",
+        "name": "Forrest Green",
+        "rgb": [52, 86, 33],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S152",
+        "name": "Lilac",
+        "rgb": [174, 173, 220],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S153",
+        "name": "Pale Lilac",
+        "rgb": [188, 195, 225],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S154",
+        "name": "Sahara Sand",
+        "rgb": [227, 192, 154],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S155",
+        "name": "Sunkissed Teint",
+        "rgb": [197, 139, 96],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S156",
+        "name": "Steel Grey",
+        "rgb": [90, 95, 101],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S157",
+        "name": "Iron Grey",
+        "rgb": [76, 81, 86],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S158",
+        "name": "Pepper",
+        "rgb": [58, 62, 66],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "S159",
+        "name": "Oslo Gray",
+        "rgb": [130, 135, 139],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "SE1",
+        "name": "Moon",
+        "rgb": [241, 244, 250],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "SE2",
+        "name": "Raincloud",
+        "rgb": [162, 178, 211],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "SE3",
+        "name": "Winter",
+        "rgb": [131, 166, 220],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "SE4",
+        "name": "Tide",
+        "rgb": [112, 216, 237],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "SE5",
+        "name": "Aquamarine",
+        "rgb": [105, 227, 213],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "SE6",
+        "name": "Neptune",
+        "rgb": [42, 99, 200],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "SE7",
+        "name": "Rose Quartz",
+        "rgb": [213, 174, 201],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "SE8",
+        "name": "Mauve",
+        "rgb": [175, 115, 154],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "SE9",
+        "name": "Dark Mauve",
+        "rgb": [112, 75, 109],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "SE10",
+        "name": "Wild Berry",
+        "rgb": [217, 119, 205],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "SE11",
+        "name": "Sugar Plum",
+        "rgb": [182, 67, 172],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "SE12",
+        "name": "Desert",
+        "rgb": [222, 177, 129],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "SE13",
+        "name": "Peanut",
+        "rgb": [188, 157, 119],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "SE14",
+        "name": "Toffee",
+        "rgb": [172, 127, 93],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "SE15",
+        "name": "Bark",
+        "rgb": [163, 126, 102],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "SG1",
+        "name": "Glow Yellow",
+        "rgb": [198, 192, 180],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SG2",
+        "name": "Glow Pink",
+        "rgb": [223, 171, 188],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SG3",
+        "name": "Glow Blue",
+        "rgb": [111, 173, 193],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SL1",
+        "name": "Glitter Blue",
+        "rgb": [54, 135, 178],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SL2",
+        "name": "Glitter Green",
+        "rgb": [17, 124, 82],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SL3",
+        "name": "Glitter Red",
+        "rgb": [194, 41, 51],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SL4",
+        "name": "Glitter Yellow",
+        "rgb": [205, 189, 0],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SN1",
+        "name": "Neon Orange",
+        "rgb": [255, 116, 5],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SN2",
+        "name": "Neon Green",
+        "rgb": [1, 198, 62],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SN3",
+        "name": "Neon Yellow",
+        "rgb": [242, 243, 60],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SN4",
+        "name": "Neon Rose",
+        "rgb": [255, 71, 122],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SP1",
+        "name": "Pearlescent Green",
+        "rgb": [147, 202, 135],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SP2",
+        "name": "Pearlescent Tangerine",
+        "rgb": [254, 127, 84],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SP3",
+        "name": "Pearlescent Orange",
+        "rgb": [240, 161, 73],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SP4",
+        "name": "Pearlescent Pink",
+        "rgb": [220, 158, 169],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SP5",
+        "name": "Pearlescent Red",
+        "rgb": [214, 60, 83],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SP6",
+        "name": "Pearlescent Blue",
+        "rgb": [44, 78, 151],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SP7",
+        "name": "Pearlescent Purple",
+        "rgb": [100, 66, 126],
+        "credit": "LThanda"
+      },
+      {
+        "code": "SP8",
+        "name": "Pearlescent White",
+        "rgb": [224, 219, 202],
+        "credit": "LThanda"
+      },
+      {
+        "code": "ST1",
+        "name": "Transparent",
+        "rgb": [199, 188, 184],
+        "credit": "LThanda"
+      },
+      {
+        "code": "ST2",
+        "name": "Transparent Pink",
+        "rgb": [249, 84, 152],
+        "credit": "LThanda"
+      },
+      {
+        "code": "ST3",
+        "name": "Transparent Tangering",
+        "rgb": [255, 124, 69],
+        "credit": "LThanda"
+      },
+      {
+        "code": "ST4",
+        "name": "Transparent Yellow",
+        "rgb": [218, 223, 61],
+        "credit": "LThanda"
+      },
+      {
+        "code": "ST5",
+        "name": "Transparent Green",
+        "rgb": [15, 174, 88],
+        "credit": "LThanda"
+      },
+      {
+        "code": "ST6",
+        "name": "Transparent Purple",
+        "rgb": [132, 119, 179],
+        "credit": "LThanda"
+      }
+    ],
+    "source": "maxcleme/beadcolors raw/artkal_s.csv",
+    "revision": "f97ff4283d03cef5cd7e1071a86f5892e0c0c61b"
+  },
+  {
+    "id": "perler",
+    "name": "Perler",
+    "file": "beads/perler.gpl",
+    "colors": [
+      {
+        "code": "80-15089",
+        "name": "Neon Blue",
+        "rgb": [64, 106, 225],
+        "credit": "LizzyJanee"
+      },
+      {
+        "code": "80-15179",
+        "name": "Evergreen",
+        "rgb": [48, 85, 69],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15181",
+        "name": "Light Grey",
+        "rgb": [179, 186, 184],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15182",
+        "name": "Lavender",
+        "rgb": [175, 159, 206],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15199",
+        "name": "Shamrock",
+        "rgb": [0, 143, 83],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15200",
+        "name": "Cobalt",
+        "rgb": [0, 101, 177],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15201",
+        "name": "Midnight",
+        "rgb": [47, 60, 85],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15202",
+        "name": "Robin's Egg",
+        "rgb": [169, 205, 213],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15203",
+        "name": "Flamingo",
+        "rgb": [242, 175, 183],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15204",
+        "name": "Salmon",
+        "rgb": [225, 116, 122],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15205",
+        "name": "Fawn",
+        "rgb": [201, 163, 133],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15206",
+        "name": "Pewter",
+        "rgb": [148, 161, 157],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15207",
+        "name": "Charcoal",
+        "rgb": [79, 89, 90],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15208",
+        "name": "Toasted Marshmallow",
+        "rgb": [222, 218, 206],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15210",
+        "name": "Orchid",
+        "rgb": [177, 98, 142],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15211",
+        "name": "Tomato",
+        "rgb": [209, 67, 55],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15212",
+        "name": "Spice",
+        "rgb": [217, 89, 58],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15213",
+        "name": "Apricot",
+        "rgb": [245, 161, 104],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15214",
+        "name": "Sherbet",
+        "rgb": [216, 228, 124],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15215",
+        "name": "Mist",
+        "rgb": [147, 176, 189],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15216",
+        "name": "Sky",
+        "rgb": [74, 192, 216],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15217",
+        "name": "Lagoon",
+        "rgb": [0, 164, 172],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15218",
+        "name": "Teal",
+        "rgb": [4, 127, 138],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15219",
+        "name": "Fern",
+        "rgb": [127, 151, 26],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15220",
+        "name": "Olive",
+        "rgb": [105, 110, 49],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-15239",
+        "name": "Mocha",
+        "rgb": [200, 182, 147],
+        "credit": "LizzyJanee"
+      },
+      {
+        "code": "80-15240",
+        "name": "Mint",
+        "rgb": [179, 238, 213],
+        "credit": "BIORIO"
+      },
+      {
+        "code": "80-15241",
+        "name": "Sour Apple",
+        "rgb": [163, 222, 111],
+        "credit": "BIORIO"
+      },
+      {
+        "code": "80-15242",
+        "name": "Cotton Candy",
+        "rgb": [244, 121, 176],
+        "credit": "BIORIO"
+      },
+      {
+        "code": "80-15243",
+        "name": "Grape",
+        "rgb": [80, 59, 156],
+        "credit": "BIORIO"
+      },
+      {
+        "code": "80-15244",
+        "name": "Rose",
+        "rgb": [210, 93, 114],
+        "credit": "BIORIO"
+      },
+      {
+        "code": "80-15245",
+        "name": "Iris",
+        "rgb": [78, 86, 163],
+        "credit": "BIORIO"
+      },
+      {
+        "code": "80-15246",
+        "name": "Tangerine",
+        "rgb": [253, 89, 24],
+        "credit": "BIORIO"
+      },
+      {
+        "code": "80-15247",
+        "name": "Forest",
+        "rgb": [0, 93, 87],
+        "credit": "BIORIO"
+      },
+      {
+        "code": "80-15248",
+        "name": "Eggplant",
+        "rgb": [111, 50, 85],
+        "credit": "BIORIO"
+      },
+      {
+        "code": "80-15249",
+        "name": "Honey",
+        "rgb": [218, 140, 44],
+        "credit": "BIORIO"
+      },
+      {
+        "code": "80-15250",
+        "name": "Gingerbread",
+        "rgb": [126, 84, 70],
+        "credit": "BIORIO"
+      },
+      {
+        "code": "80-15251",
+        "name": "Thistle",
+        "rgb": [140, 140, 167],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "80-15252",
+        "name": "Slate Blue",
+        "rgb": [94, 109, 123],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "80-15253",
+        "name": "Denim",
+        "rgb": [76, 99, 136],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "80-15254",
+        "name": "Sage",
+        "rgb": [154, 169, 142],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "80-15255",
+        "name": "Orange Cream",
+        "rgb": [239, 183, 155],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "80-15256",
+        "name": "Fruit Punch",
+        "rgb": [202, 59, 101],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "80-15257",
+        "name": "Fuchsia",
+        "rgb": [203, 89, 185],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "80-15258",
+        "name": "Mulberry",
+        "rgb": [113, 72, 117],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "80-15259",
+        "name": "Slime",
+        "rgb": [200, 200, 92],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "80-15260",
+        "name": "Stone",
+        "rgb": [152, 140, 140],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "80-15261",
+        "name": "Dark Spruce",
+        "rgb": [20, 49, 59],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "80-15262",
+        "name": "Cocoa",
+        "rgb": [57, 41, 40],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "80-15263",
+        "name": "Celery",
+        "rgb": [190, 212, 166],
+        "credit": "LizzyJanee"
+      },
+      {
+        "code": "80-15265",
+        "name": "Twilight Plum",
+        "rgb": [198, 133, 177],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "80-15266",
+        "name": "Caribbean Sea",
+        "rgb": [108, 200, 173],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "80-15267",
+        "name": "Frosted Lilac",
+        "rgb": [205, 183, 195],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "80-15268",
+        "name": "Sunflower",
+        "rgb": [222, 186, 11],
+        "credit": "LizzyJanee"
+      },
+      {
+        "code": "80-15269",
+        "name": "Lemon",
+        "rgb": [246, 217, 1],
+        "credit": "LizzyJanee"
+      },
+      {
+        "code": "80-15272",
+        "name": "Coral",
+        "rgb": [255, 154, 139],
+        "credit": "SteelSkyStudios"
+      },
+      {
+        "code": "80-15273",
+        "name": "Brick",
+        "rgb": [252, 149, 116],
+        "credit": "toptierbeads.com"
+      },
+      {
+        "code": "80-15274",
+        "name": "Rich Butter",
+        "rgb": [246, 202, 105],
+        "credit": "toptierbeads.com"
+      },
+      {
+        "code": "80-15275",
+        "name": "Peacock",
+        "rgb": [0, 144, 172],
+        "credit": "toptierbeads.com"
+      },
+      {
+        "code": "80-15276",
+        "name": "Carnation Pink",
+        "rgb": [248, 199, 201],
+        "credit": "rYonder"
+      },
+      {
+        "code": "80-15961",
+        "name": "Cherry",
+        "rgb": [157, 43, 58],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19001",
+        "name": "White",
+        "rgb": [234, 239, 238],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19002",
+        "name": "Creme",
+        "rgb": [225, 226, 187],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19003",
+        "name": "Yellow",
+        "rgb": [231, 206, 62],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19004",
+        "name": "Orange",
+        "rgb": [235, 123, 49],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19005",
+        "name": "Red",
+        "rgb": [176, 53, 60],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19006",
+        "name": "Bubblegum",
+        "rgb": [216, 114, 154],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19007",
+        "name": "Purple",
+        "rgb": [104, 75, 134],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19008",
+        "name": "Dark Blue",
+        "rgb": [14, 80, 146],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19009",
+        "name": "Light Blue",
+        "rgb": [39, 140, 201],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19010",
+        "name": "Dark Green",
+        "rgb": [0, 123, 78],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19011",
+        "name": "Light Green",
+        "rgb": [24, 199, 177],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19012",
+        "name": "Brown",
+        "rgb": [103, 76, 68],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19017",
+        "name": "Grey",
+        "rgb": [144, 148, 151],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19018",
+        "name": "Black",
+        "rgb": [50, 50, 52],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19020",
+        "name": "Rust",
+        "rgb": [153, 80, 67],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19021",
+        "name": "Light Brown",
+        "rgb": [147, 104, 72],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19033",
+        "name": "Peach",
+        "rgb": [233, 191, 185],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19035",
+        "name": "Tan",
+        "rgb": [197, 172, 144],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19038",
+        "name": "Magenta",
+        "rgb": [224, 66, 132],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19052",
+        "name": "Pastel Blue",
+        "rgb": [74, 156, 207],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19053",
+        "name": "Pastel Green",
+        "rgb": [109, 204, 148],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19054",
+        "name": "Pastel Lavender",
+        "rgb": [147, 127, 191],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19056",
+        "name": "Pastel Yellow",
+        "rgb": [233, 226, 144],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19057",
+        "name": "Cheddar",
+        "rgb": [251, 177, 70],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19058",
+        "name": "Toothpaste",
+        "rgb": [150, 209, 212],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19059",
+        "name": "Hot Coral",
+        "rgb": [221, 89, 91],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19060",
+        "name": "Plum",
+        "rgb": [167, 93, 157],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19061",
+        "name": "Kiwi Lime",
+        "rgb": [105, 184, 69],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19062",
+        "name": "Turquoise",
+        "rgb": [0, 152, 197],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19063",
+        "name": "Blush",
+        "rgb": [249, 146, 151],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19070",
+        "name": "Periwinkle Blue",
+        "rgb": [102, 131, 183],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19079",
+        "name": "Light Pink",
+        "rgb": [225, 188, 206],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19080",
+        "name": "Green",
+        "rgb": [77, 171, 100],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19083",
+        "name": "Pink",
+        "rgb": [212, 84, 150],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19088",
+        "name": "Raspberry",
+        "rgb": [152, 56, 100],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19090",
+        "name": "Butterscotch",
+        "rgb": [218, 153, 100],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19091",
+        "name": "Parrot Green",
+        "rgb": [0, 145, 136],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19092",
+        "name": "Dark Grey",
+        "rgb": [88, 92, 97],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19093",
+        "name": "Blueberry Creme",
+        "rgb": [133, 168, 227],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19096",
+        "name": "Cranapple",
+        "rgb": [132, 57, 71],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19097",
+        "name": "Prickly Pear",
+        "rgb": [187, 201, 56],
+        "credit": "Perlervault"
+      },
+      {
+        "code": "80-19098",
+        "name": "Sand",
+        "rgb": [229, 190, 158],
+        "credit": "Perlervault"
+      }
+    ],
+    "source": "maxcleme/beadcolors raw/perler.csv",
+    "revision": "f97ff4283d03cef5cd7e1071a86f5892e0c0c61b"
+  },
+  {
+    "id": "hama",
+    "name": "Hama Midi",
+    "file": "beads/hama-midi.gpl",
+    "colors": [
+      {
+        "code": "H01",
+        "name": "White",
+        "rgb": [229, 236, 241],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H02",
+        "name": "Cream",
+        "rgb": [228, 228, 197],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H03",
+        "name": "Yellow",
+        "rgb": [233, 199, 4],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H04",
+        "name": "Orange",
+        "rgb": [209, 72, 3],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H05",
+        "name": "Red",
+        "rgb": [180, 6, 14],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H06",
+        "name": "Pink",
+        "rgb": [234, 138, 165],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H07",
+        "name": "Purple",
+        "rgb": [113, 34, 151],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H08",
+        "name": "Blue",
+        "rgb": [2, 57, 163],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H09",
+        "name": "Light Blue",
+        "rgb": [2, 91, 195],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H10",
+        "name": "Green",
+        "rgb": [2, 118, 67],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H11",
+        "name": "Light Green",
+        "rgb": [25, 205, 167],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H12",
+        "name": "Brown",
+        "rgb": [62, 39, 26],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H13",
+        "name": "Transparent Red",
+        "rgb": [192, 36, 53],
+        "credit": "LThanda"
+      },
+      {
+        "code": "H14",
+        "name": "Transparent Yellow",
+        "rgb": [228, 170, 50],
+        "credit": "galaxy"
+      },
+      {
+        "code": "H15",
+        "name": "Transparent Blue",
+        "rgb": [72, 126, 213],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "H16",
+        "name": "Transparent Green",
+        "rgb": [55, 184, 118],
+        "credit": "LThanda"
+      },
+      {
+        "code": "H17",
+        "name": "Grey",
+        "rgb": [131, 143, 152],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H18",
+        "name": "Black",
+        "rgb": [20, 19, 21],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H19",
+        "name": "Clear",
+        "rgb": [216, 210, 206],
+        "credit": "LThanda"
+      },
+      {
+        "code": "H20",
+        "name": "Reddish Brown",
+        "rgb": [141, 42, 15],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H21",
+        "name": "Light Brown",
+        "rgb": [190, 108, 33],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H22",
+        "name": "Dark Red",
+        "rgb": [145, 2, 10],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H24",
+        "name": "Translucent Purple",
+        "rgb": [104, 62, 154],
+        "credit": "LThanda"
+      },
+      {
+        "code": "H25",
+        "name": "Translucent Brown",
+        "rgb": [135, 89, 61],
+        "credit": "LThanda"
+      },
+      {
+        "code": "H26",
+        "name": "Matt Rose",
+        "rgb": [232, 164, 152],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H27",
+        "name": "Beige",
+        "rgb": [220, 177, 142],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H28",
+        "name": "Dark Green",
+        "rgb": [30, 44, 28],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H29",
+        "name": "Claret",
+        "rgb": [191, 1, 66],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H30",
+        "name": "Burgundy",
+        "rgb": [78, 12, 27],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H31",
+        "name": "Turquoise",
+        "rgb": [72, 154, 185],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H32",
+        "name": "Neon Fuchsia",
+        "rgb": [255, 32, 141],
+        "credit": "LThanda"
+      },
+      {
+        "code": "H33",
+        "name": "Cerise",
+        "rgb": [255, 57, 86],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H34",
+        "name": "Neon Yellow",
+        "rgb": [229, 239, 19],
+        "credit": "LThanda"
+      },
+      {
+        "code": "H35",
+        "name": "Neon Red",
+        "rgb": [255, 40, 51],
+        "credit": "LThanda"
+      },
+      {
+        "code": "H36",
+        "name": "Neon Blue",
+        "rgb": [35, 83, 176],
+        "credit": "LThanda"
+      },
+      {
+        "code": "H37",
+        "name": "Neon Green",
+        "rgb": [6, 183, 60],
+        "credit": "LThanda"
+      },
+      {
+        "code": "H38",
+        "name": "Neon Orange",
+        "rgb": [253, 134, 0],
+        "credit": "LThanda"
+      },
+      {
+        "code": "H39",
+        "name": "Fluorescent Yellow",
+        "rgb": [241, 242, 28],
+        "credit": "LThanda"
+      },
+      {
+        "code": "H40",
+        "name": "Fluorescent Orange",
+        "rgb": [254, 99, 11],
+        "credit": "LThanda"
+      },
+      {
+        "code": "H41",
+        "name": "Fluorescent Blue",
+        "rgb": [38, 89, 178],
+        "credit": "LThanda"
+      },
+      {
+        "code": "H42",
+        "name": "Fluorescent Green",
+        "rgb": [12, 189, 81],
+        "credit": "LThanda"
+      },
+      {
+        "code": "H43",
+        "name": "Pastel Yellow",
+        "rgb": [231, 228, 90],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H44",
+        "name": "Pastel Red",
+        "rgb": [249, 97, 96],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H45",
+        "name": "Pastel Purple",
+        "rgb": [142, 105, 205],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H46",
+        "name": "Pastel Blue",
+        "rgb": [81, 174, 228],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H47",
+        "name": "Pastel Green",
+        "rgb": [128, 223, 150],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H48",
+        "name": "Pastel Pink",
+        "rgb": [214, 122, 209],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H49",
+        "name": "Azure",
+        "rgb": [15, 172, 209],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H55",
+        "name": "Green (Glow in the Dark)",
+        "rgb": [250, 248, 237],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "H56",
+        "name": "Red (Glow in the Dark)",
+        "rgb": [237, 191, 159],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "H57",
+        "name": "Blue (Glow in the Dark)",
+        "rgb": [196, 208, 227],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "H60",
+        "name": "Teddybear Brown",
+        "rgb": [240, 152, 30],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H61",
+        "name": "Gold",
+        "rgb": [217, 147, 80],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "H62",
+        "name": "Silver",
+        "rgb": [72, 71, 74],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "H63",
+        "name": "Bronze",
+        "rgb": [66, 49, 47],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "H64",
+        "name": "Pearl",
+        "rgb": [239, 235, 228],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "H70",
+        "name": "Light Grey",
+        "rgb": [165, 179, 192],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H71",
+        "name": "Dark Grey",
+        "rgb": [68, 80, 89],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H72",
+        "name": "Translucent Pink",
+        "rgb": [240, 151, 176],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "H73",
+        "name": "Translucent Aqua",
+        "rgb": [89, 174, 245],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "H74",
+        "name": "Translucent Lilac",
+        "rgb": [91, 85, 189],
+        "credit": "Exodeca1"
+      },
+      {
+        "code": "H75",
+        "name": "Tan",
+        "rgb": [183, 140, 109],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H76",
+        "name": "Nougat",
+        "rgb": [138, 89, 55],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H77",
+        "name": "Cloudy White",
+        "rgb": [206, 209, 200],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H78",
+        "name": "Light Peach",
+        "rgb": [247, 193, 170],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H79",
+        "name": "Apricot",
+        "rgb": [248, 118, 51],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H82",
+        "name": "Plum",
+        "rgb": [145, 23, 90],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H83",
+        "name": "Petrol Blue",
+        "rgb": [3, 122, 159],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H84",
+        "name": "Olive Green",
+        "rgb": [104, 120, 54],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H95",
+        "name": "Pastel Rose",
+        "rgb": [221, 155, 163],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H96",
+        "name": "Pastel Lilac",
+        "rgb": [180, 145, 173],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H97",
+        "name": "Pastel Ice Blue",
+        "rgb": [138, 175, 194],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H98",
+        "name": "Pastel Mint",
+        "rgb": [148, 204, 164],
+        "credit": "Jeppewl"
+      },
+      {
+        "code": "H101",
+        "name": "Eucalyptus",
+        "rgb": [169, 195, 155],
+        "credit": "Tryk47"
+      },
+      {
+        "code": "H102",
+        "name": "Forest Green",
+        "rgb": [53, 107, 45],
+        "credit": "Tryk47"
+      },
+      {
+        "code": "H103",
+        "name": "Light Yellow",
+        "rgb": [255, 230, 96],
+        "credit": "Tryk47"
+      },
+      {
+        "code": "H104",
+        "name": "Lime",
+        "rgb": [188, 209, 34],
+        "credit": "Tryk47"
+      },
+      {
+        "code": "H105",
+        "name": "Light Apricot",
+        "rgb": [255, 172, 120],
+        "credit": "Tryk47"
+      },
+      {
+        "code": "H106",
+        "name": "Light Lavender",
+        "rgb": [204, 197, 237],
+        "credit": "Tryk47"
+      },
+      {
+        "code": "H107",
+        "name": "Lavender",
+        "rgb": [106, 135, 193],
+        "credit": "Tryk47"
+      },
+      {
+        "code": "H108",
+        "name": "Aubergine",
+        "rgb": [42, 37, 54],
+        "credit": "rYonder"
+      },
+      {
+        "code": "H109",
+        "name": "Cloudy Grey",
+        "rgb": [138, 132, 127],
+        "credit": "rYonder"
+      },
+      {
+        "code": "H110",
+        "name": "Matcha",
+        "rgb": [131, 137, 86],
+        "credit": "rYonder"
+      },
+      {
+        "code": "H111",
+        "name": "Dark Blush",
+        "rgb": [131, 88, 84],
+        "credit": "rYonder"
+      },
+      {
+        "code": "H112",
+        "name": "Blush",
+        "rgb": [173, 138, 130],
+        "credit": "rYonder"
+      },
+      {
+        "code": "H113",
+        "name": "Aqua",
+        "rgb": [95, 136, 123],
+        "credit": "rYonder"
+      },
+      {
+        "code": "H114",
+        "name": "Cherry Red",
+        "rgb": [154, 44, 49],
+        "credit": "rYonder"
+      },
+      {
+        "code": "H115",
+        "name": "Bright Green",
+        "rgb": [110, 151, 95],
+        "credit": "rYonder"
+      },
+      {
+        "code": "H116",
+        "name": "Midnight Blue",
+        "rgb": [34, 40, 56],
+        "credit": "rYonder"
+      },
+      {
+        "code": "H117",
+        "name": "Taupe Grey",
+        "rgb": [119, 113, 105],
+        "credit": "rYonder"
+      },
+      {
+        "code": "H118",
+        "name": "Maroon Red",
+        "rgb": [97, 41, 50],
+        "credit": "rYonder"
+      },
+      {
+        "code": "H119",
+        "name": "Sky Blue",
+        "rgb": [65, 103, 180],
+        "credit": "rYonder"
+      }
+    ],
+    "source": "maxcleme/beadcolors raw/hama.csv",
+    "revision": "f97ff4283d03cef5cd7e1071a86f5892e0c0c61b"
+  }
+]

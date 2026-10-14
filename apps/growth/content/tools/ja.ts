@@ -235,4 +235,18 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
     "PNG、JPEG、.acnl、Aseprite のいずれかを選択してください。通常のマイデザインの QR 画像 1 枚に対応しています。",
   "Choose a PNG with at most 16 million pixels.": "1,600 万ピクセル以下の PNG を選択してください。",
   "The output could not be generated.": "出力を生成できませんでした。",
+  "Xprite Fuse Bead Pattern Maker": "Xprite アイロンビーズ図案メーカー",
+  "Fuse Bead Pattern Maker": "アイロンビーズ図案メーカー",
+  "Make a fuse bead pattern": "アイロンビーズ図案を作る",
+  "Fuse Bead Pattern Maker: PNG & PDF | Xprite": "アイロンビーズ図案メーカー：PNG と PDF | Xprite",
+  "Fuse bead pattern maker": "アイロンビーズ図案メーカー",
+  "Create bead charts with MARD, Artkal, Perler or Hama colors and a material list.":
+    "MARD、Artkal、Perler、Hama の色でビーズ図案と材料リストを作成します。",
+  "Open artwork, choose MARD, Artkal, Perler or Hama colors, preview bead boards and download PNG charts or paginated PDFs. Files stay on your device.":
+    "作品を開き、MARD、Artkal、Perler、Hama の色を選んでボードをプレビューし、PNG 図案またはページ分けした PDF をダウンロードできます。ファイルは端末内で処理されます。",
+  "Choose an image or Aseprite file for a bead pattern":
+    "ビーズ図案にする画像または Aseprite ファイルを選択",
+  "Open artwork": "作品を開く",
+  "Drop a PNG, JPEG, WebP or Aseprite file": "PNG、JPEG、WebP、Aseprite ファイルをドロップ",
+  "Hello pixel art example": "Hello ピクセルアートのサンプル",
 };

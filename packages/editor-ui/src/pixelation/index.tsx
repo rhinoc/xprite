@@ -11,6 +11,7 @@ import {
   MAX_GRID_CELL_SIZE,
   type PixelGridAnalysis,
   PIXELATION_SIZES,
+  PIXELATION_METHOD_OPTIONS,
   MAX_PIXELATION_SIZE,
   type PixelationSettings,
 } from "@xprite/editor-core/import-export";
@@ -172,12 +173,10 @@ export function PixelationControls({
               value={settings.method}
               aria-label={translate("Method")}
               disabled={disabled}
-              options={[
-                { value: PixelationMethod.Structure, label: translate("Preserve edges") },
-                { value: PixelationMethod.Dominant, label: translate("Dominant colors") },
-                { value: PixelationMethod.Box, label: translate("Box average") },
-                { value: PixelationMethod.Nearest, label: translate("Nearest-neighbor") },
-              ]}
+              options={PIXELATION_METHOD_OPTIONS.map((option) => ({
+                ...option,
+                label: translate(option.label),
+              }))}
               onValueChange={(method) => onChange({ method: method as PixelationMethod })}
             />
           </Field>

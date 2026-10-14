@@ -1,6 +1,7 @@
 GIMP Palette
 Name: Artkal S RGB Reference
 #
+# Generated from beads/records.json.
 # Source: maxcleme/beadcolors raw/artkal_s.csv
 # Revision: f97ff4283d03cef5cd7e1071a86f5892e0c0c61b
 # Color values are community screen references; physical beads may differ.
@@ -168,15 +169,15 @@ Name: Artkal S RGB Reference
 131 166 220 SE3 Winter (Exodeca1)
 112 216 237 SE4 Tide (Exodeca1)
 105 227 213 SE5 Aquamarine (Exodeca1)
-042 099 200 SE6 Neptune (Exodeca1)
+42 99 200 SE6 Neptune (Exodeca1)
 213 174 201 SE7 Rose Quartz (Exodeca1)
 175 115 154 SE8 Mauve (Exodeca1)
-112 075 109 SE9 Dark Mauve (Exodeca1)
+112 75 109 SE9 Dark Mauve (Exodeca1)
 217 119 205 SE10 Wild Berry (Exodeca1)
-182 067 172 SE11 Sugar Plum (Exodeca1)
+182 67 172 SE11 Sugar Plum (Exodeca1)
 222 177 129 SE12 Desert (Exodeca1)
 188 157 119 SE13 Peanut (Exodeca1)
-172 127 093 SE14 Toffee (Exodeca1)
+172 127 93 SE14 Toffee (Exodeca1)
 163 126 102 SE15 Bark (Exodeca1)
 198 192 180 SG1 Glow Yellow (LThanda)
 223 171 188 SG2 Glow Pink (LThanda)

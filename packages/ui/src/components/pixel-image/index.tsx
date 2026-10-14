@@ -84,7 +84,7 @@ export function PixelImage({
       data-checker={checker}
     >
       <div className={styles.surface}>
-        <img src={src} alt={alt} width={width} height={height} />
+        <img src={src} alt={alt} width={width} height={height} decoding="sync" />
       </div>
     </div>
   );

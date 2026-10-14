@@ -10,7 +10,6 @@ import {
   measureThemeText,
   themeFontHeight,
   useThemeText,
-  centerThemePixel,
   themeFontKey,
 } from "$/base/theme/text-metrics";
 import {
@@ -471,6 +470,7 @@ interface InputContentProps extends Omit<
 export type InputProps = InputContentProps & ControlPlacement;
 
 const INPUT_TEXT_INSET = 8;
+const ENTRY_DESCENDER = 2;
 const INPUT_LEADING_GAP = 4;
 interface EntryTextPositions {
   selectionStart: number;
@@ -629,9 +629,10 @@ export function Input({
       : focused
         ? "sunken_focused"
         : "sunken_normal")) as AtlasPartName;
+  // Centre the glyph ink, not the 14px line box: bitmap caps and digits fill
+  // the line minus its 2px descender row, so line-box centring sat 1px high.
   const textY =
-    centerThemePixel(bounds.y, bounds.height, 14) -
-    bounds.y +
+    Math.floor((bounds.height - (themeFontHeight() - ENTRY_DESCENDER)) / 2) +
     (theme.dimensions.input_text_offset_y ?? 0);
   const range = entrySelection(draft, selection.start, selection.end);
   const [textPositions, setTextPositions] = React.useState<EntryTextPositions | null>(null);

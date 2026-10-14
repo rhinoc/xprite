@@ -10,6 +10,7 @@ export const pages = [
   { name: "gif-sheet", path: "/tools/gif-to-sprite-sheet/", rootId: "gif-sheet-root" },
   { name: "animal-crossing", path: "/tools/animal-crossing-qr/", rootId: "animal-crossing-root" },
   { name: "pixelate", path: "/tools/pixelate/", rootId: "pixelation-root" },
+  { name: "beads", path: "/tools/fuse-beads/", rootId: "beads-root" },
 ];
 export const appearances = [
   { name: "light", saved: "light", system: "dark", resolved: "light" },
@@ -24,6 +25,7 @@ const selectedCoverage = [
   { language: "zh-CN", layout: layouts[0], appearance: appearances[1] },
   { language: "en", layout: layouts[1], appearance: appearances[0] },
   { language: "zh-CN", layout: layouts[1], appearance: appearances[0] },
+  { language: "en", layout: layouts[1], appearance: appearances[1] },
 ];
 
 /** Japanese, Korean, Russian and Spanish each add one tool startup; the rest stay en/zh-CN. */

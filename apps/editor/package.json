@@ -20,6 +20,7 @@
     "@xprite/editor-core": "workspace:*",
     "@xprite/editor-ui": "workspace:*",
     "@xprite/growth-content": "workspace:*",
+    "@xprite/palette-assets": "workspace:*",
     "@xprite/site-assets": "workspace:*",
     "@xprite/site-shell": "workspace:*",
     "@xprite/ui": "workspace:*",

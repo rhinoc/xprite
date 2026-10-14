@@ -57,7 +57,9 @@ openings and cancellations, plus export dialog openings, use `feature_used`.
 
 Save/export request and result share a memory-only `operation_id` and the result
 contains `operation_duration_ms`. Export results include file count, size, format
-and completion, even when zero files were generated. Document-open intent is
+(`png`, `apng`, `gif`, `jpg`, `webp`, `json`, `pdf`) and completion, even when zero
+files were generated. Registry exports also carry `exporter_id` (`image`, `sprite-sheet`,
+`tileset`, `animal-crossing`, `beads`) on the request, result and download events. Document-open intent is
 recorded before showing the New dialog or file picker; explicit cancellation uses
 `phase: finished`, `outcome: cancelled`. The existing `document_opened` event marks
 a usable document. A browser without a file-input cancel event cannot report that

@@ -10,6 +10,13 @@ import {
 
 export const MAX_PIXELATION_SIZE = 512;
 export const PIXELATION_SIZES = [16, 32, 64, 128, 256, MAX_PIXELATION_SIZE] as const;
+export const PIXELATION_METHOD_OPTIONS = [
+  { value: PixelationMethod.Structure, label: "Preserve edges" },
+  { value: PixelationMethod.Dominant, label: "Dominant colors" },
+  { value: PixelationMethod.MostFrequent, label: "Most frequent color" },
+  { value: PixelationMethod.Box, label: "Box average" },
+  { value: PixelationMethod.Nearest, label: "Nearest-neighbor" },
+] as const;
 const DEFAULT_PIXELATION_SIZE = 64;
 const DEFAULT_COLORS = 16;
 const MAX_COLORS = 256;

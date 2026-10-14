@@ -28,6 +28,7 @@ const TOOLS_BASE_PATH = "/tools/";
 const VIEWER_PATH = "/tools/viewer/";
 const PIXELATE_PATH = "/tools/pixelate/";
 const ANIMAL_CROSSING_PATH = "/tools/animal-crossing-qr/";
+const BEADS_PATH = "/tools/fuse-beads/";
 const GIF_PATH = "/tools/gif-to-sprite-sheet/";
 
 export default defineConfig(({ command }) => ({
@@ -66,7 +67,13 @@ export default defineConfig(({ command }) => ({
             response.end();
             return;
           }
-          for (const path of [VIEWER_PATH, GIF_PATH, PIXELATE_PATH, ANIMAL_CROSSING_PATH]) {
+          for (const path of [
+            VIEWER_PATH,
+            GIF_PATH,
+            PIXELATE_PATH,
+            ANIMAL_CROSSING_PATH,
+            BEADS_PATH,
+          ]) {
             if (url.pathname === path.slice(0, -1) || url.pathname === `${path}index.html`) {
               response.writeHead(301, { Location: `${path}${url.search}` });
               response.end();
@@ -136,6 +143,7 @@ export default defineConfig(({ command }) => ({
     emptyOutDir: true,
     rolldownOptions: {
       input: {
+        beads: resolve(root, "fuse-beads/index.html"),
         pixelate: resolve(root, "pixelate/index.html"),
         animalCrossing: resolve(root, "animal-crossing-qr/index.html"),
         viewer: resolve(root, "viewer/index.html"),

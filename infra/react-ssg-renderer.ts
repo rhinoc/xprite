@@ -27,6 +27,8 @@ const aliases: Record<string, string> = {
   "@xprite/editor-ui": "packages/editor-ui/src/index.ts",
   "@xprite/editor-core/": "packages/editor-core/src/",
   "@xprite/editor-core": "packages/editor-core/src/index.ts",
+  "@xprite/palette-assets/beads": "packages/palette-assets/beads/index.ts",
+  "@xprite/palette-assets/": "packages/palette-assets/",
   "@xprite/bedrock/": "packages/bedrock/",
 };
 const scopes = JSON.parse(

@@ -47,7 +47,8 @@ export const macintoshGeometry = {
     combobox_height: 18,
     combobox_width: 156,
     input_text_inset: 5,
-    input_text_offset_y: 1,
+    // Relative to ink centring; keeps System 7 entry text on its original row.
+    input_text_offset_y: -1,
     combobox_text_offset_y: 1,
     combobox_text_inset: 16,
     combobox_arrow_inset: 17,

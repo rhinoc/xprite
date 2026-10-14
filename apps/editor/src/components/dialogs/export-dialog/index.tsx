@@ -1,25 +1,16 @@
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
-import { preloadableLazy } from "$/components/shared/preloadable-lazy";
-import { tUi, tUiSource, useUiLanguage } from "$/i18n";
+import { tUi, useUiLanguage } from "$/i18n";
 import {
-  ExportOutputFormat,
-  useImageExportCapabilities,
-  type ExportFileDialogOptions,
-} from "$/managers/dialogs/export-file-dialog-model";
-import type {
-  SpriteSheetDialogOptions,
-  SpriteSheetPreviewResult,
-} from "$/managers/dialogs/sprite-sheet-dialog-model";
-import type {
-  AnimalCrossingExportSource,
-  AnimalCrossingExportPort,
-} from "$/managers/files/animal-crossing-export";
-import type { AnimalCrossingExportOptions } from "$/managers/files/animal-crossing-export-options";
-import { ExportDestination } from "$/managers/files/export-destination";
-import { animalCrossingExportEmbeddedSize } from "$/managers/files/policies/animal-crossing-export-geometry";
+  ExporterGroup,
+  type ExporterRegistry,
+  type ExporterContext,
+  type ExporterChoice,
+  type RegisteredExporter,
+  type ExporterPanelProps,
+} from "$/managers/files/exporter-registry";
 import type { FilePreferences } from "$/managers/preferences/file-preferences";
 import {
   Button,
@@ -40,57 +31,59 @@ import { clientRect, dropdownArrowOffsetY, isImeKeyboardEvent } from "@xprite/ui
 
 import styles from "$/components/dialogs/export-dialog/export-dialog.module.css";
 
-const exportFilePanel = preloadableLazy(() =>
-  import("$/components/dialogs/export-file-dialog").then((module) => module.ExportFileDialog),
-);
-const spriteSheetPanel = preloadableLazy(() =>
-  import("$/components/dialogs/sprite-sheet-dialog").then((module) => module.SpriteSheetDialog),
-);
-const animalCrossingPanel = preloadableLazy(() =>
-  import("$/components/dialogs/animal-crossing-dialog").then(
-    (module) => module.AnimalCrossingDialog,
-  ),
-);
-const ExportFileDialog = exportFilePanel.Component;
-const SpriteSheetDialog = spriteSheetPanel.Component;
-const AnimalCrossingDialog = animalCrossingPanel.Component;
-
-/** The Image and Sprite Sheet panels open from Ctrl+Alt+Shift+S and Ctrl+E. */
 export function preloadExportPanels() {
-  return Promise.all([exportFilePanel.preload(), spriteSheetPanel.preload()]);
+  return Promise.resolve();
 }
+
 const SELECTOR_HEIGHT = 42;
 const CONTROL_HEIGHT = 30;
 const CONTROL_GAP = 8;
 const WINDOW_CHROME = { width: 24, height: 46 };
-const INITIAL_PANEL_SIZES = {
-  [ExportDestination.Image]: { width: 456, height: 336 },
-  [ExportDestination.SpriteSheet]: { width: 562, height: 282 },
-  [ExportDestination.Tileset]: { width: 562, height: 282 },
-  [ExportDestination.AnimalCrossing]: animalCrossingExportEmbeddedSize(),
-};
-const EXPORT_HELP_URLS: Partial<Record<ExportDestination, string>> = {
-  [ExportDestination.Image]: "https://www.aseprite.org/docs/exporting/",
-  [ExportDestination.SpriteSheet]: "https://www.aseprite.org/docs/sprite-sheet/#export",
-  [ExportDestination.Tileset]: "https://www.aseprite.org/docs/sprite-sheet/#export",
-};
 const FOCUSABLE = 'button:not(:disabled), input:not(:disabled), [tabindex="0"]';
 
 export interface ExportDialogProps {
-  destination: ExportDestination;
-  onDestinationChange(destination: ExportDestination): void;
-  canExportTileset: boolean;
-  animalCrossingSource: AnimalCrossingExportSource | null;
-  animalCrossingPort?: AnimalCrossingExportPort;
-  onAnimalCrossingBusyChange(busy: boolean): void;
-  onAnimalCrossingExported(options: AnimalCrossingExportOptions): void;
-  documentKey: string;
+  registry: ExporterRegistry;
+  context: ExporterContext;
+  panels: ReadonlyMap<string, ReturnType<RegisteredExporter["createPanel"]>>;
+  destination: string;
+  onDestinationChange(destination: string): void;
+  onModuleBusyChange(busy: boolean): void;
+  onExported(id: string, options: unknown): void;
+  execute(id: string, options: unknown): void;
   filePreferences: FilePreferences;
   busy: boolean;
   onClose(): void;
-  onExport(options: ExportFileDialogOptions): void;
-  onSheetExport(options: SpriteSheetDialogOptions): void;
-  onSheetPreview(result: SpriteSheetPreviewResult | null): void;
+}
+
+function MountedPanel({
+  render,
+  id,
+  host,
+  ...props
+}: Omit<ExporterPanelProps, "context" | "onBusyChange" | "onExported" | "execute"> & {
+  render: ReturnType<RegisteredExporter["createPanel"]>;
+  id: string;
+  host: ExportDialogProps;
+}) {
+  const current = useRef(host);
+  current.current = host;
+  const viewProps = useRef(props);
+  viewProps.current = props;
+  const callbacks = useMemo(
+    () => ({
+      onBusyChange: (busy: boolean) => current.current.onModuleBusyChange(busy),
+      onExported: (options: unknown) => current.current.onExported(id, options),
+      execute: (options: unknown) => current.current.execute(id, options),
+      onChoiceChange: (choice: string) => viewProps.current.onChoiceChange(choice),
+      onChoicesChange: (choices: readonly ExporterChoice[]) =>
+        viewProps.current.onChoicesChange(choices),
+      onLayoutSizeChange: (size: { width: number; height: number }) =>
+        viewProps.current.onLayoutSizeChange(size),
+      onClose: () => current.current.onClose(),
+    }),
+    [id],
+  );
+  return render({ ...props, ...callbacks });
 }
 
 /** One modal owner; visited output panels keep their drafts until the window closes. */
@@ -98,20 +91,37 @@ export function ExportDialog(props: ExportDialogProps) {
   useUiLanguage();
   const scene = useSceneBounds();
   const uiAssets = useUiAssets();
-  const imageCapabilities = useImageExportCapabilities();
-  const [selectedFormat, setSelectedFormat] = useState(ExportOutputFormat.Png);
-  const [formatRequest, setFormatRequest] = useState<{ format: ExportOutputFormat }>();
-  const [sizes, setSizes] = useState(INITIAL_PANEL_SIZES);
+  const [choiceIds, setChoiceIds] = useState<Record<string, string>>({});
+  const [requests, setRequests] = useState<Record<string, { id: string }>>({});
+  const [choices, setChoices] = useState<Record<string, readonly ExporterChoice[]>>(() =>
+    Object.fromEntries(
+      props.registry.entries.map((entry) => [entry.id, entry.initialChoices ?? []]),
+    ),
+  );
+  const [sizes, setSizes] = useState<Record<string, { width: number; height: number }>>(() =>
+    Object.fromEntries(props.registry.entries.map((entry) => [entry.id, entry.initialSize])),
+  );
+  useEffect(() => {
+    let active = true;
+    for (const entry of props.registry.entries) {
+      if (!entry.resolveChoices) continue;
+      void entry
+        .resolveChoices(props.context)
+        .then((items) => {
+          if (active) setChoices((previous) => ({ ...previous, [entry.id]: items }));
+        })
+        .catch(() => {
+          /* Keep unsupported formats disabled. */
+        });
+    }
+    return () => {
+      active = false;
+    };
+  }, [props.registry, props.context]);
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
   const root = useRef<HTMLDivElement | null>(null);
-  const [visited, setVisited] = useState(() => new Set([props.destination]));
   const current = useRef(props);
   current.current = props;
-  useEffect(() => {
-    setVisited((previous) =>
-      previous.has(props.destination) ? previous : new Set([...previous, props.destination]),
-    );
-  }, [props.destination]);
   useEffect(() => {
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     focusDialogContainer(root.current);
@@ -154,138 +164,100 @@ export function ExportDialog(props: ExportDialogProps) {
       if (previous?.isConnected) previous.focus({ preventScroll: true });
     };
   }, []);
-  const imageFormats = [
-    { format: ExportOutputFormat.Png, label: "PNG image (.png)" },
-    { format: ExportOutputFormat.Gif, label: "GIF animation (.gif)" },
-    { format: ExportOutputFormat.Apng, label: "Animated PNG (.apng)" },
-    {
-      format: ExportOutputFormat.Jpeg,
-      label: "JPEG current frame (.jpg)",
-      disabled: !imageCapabilities.jpeg,
-    },
-    {
-      format: ExportOutputFormat.Webp,
-      label: "WebP image/animation (.webp)",
-      disabled: !imageCapabilities.webp,
-    },
-  ];
-  const chooseImageFormat = (format: ExportOutputFormat) => {
-    setSelectedFormat(format);
-    setFormatRequest({ format });
-    props.onDestinationChange(ExportDestination.Image);
-  };
-  const destinationItem = (
-    destination: ExportDestination,
-    label: string,
-    disabled = false,
-  ): MenuItem => ({
-    label,
-    disabled,
+  const selected = props.registry.get(props.destination);
+  if (!selected) return null;
+  const itemFor = (entry: RegisteredExporter, choice?: ExporterChoice): MenuItem => ({
+    label: choice ? tUi(choice.label) : entry.label(),
+    disabled: !entry.available(props.context) || choice?.disabled,
     checkType: MenuCheckType.Radio,
-    checked: props.destination === destination,
-    onSelect: () => props.onDestinationChange(destination),
+    checked:
+      props.destination === entry.id &&
+      (!choice || (choiceIds[entry.id] ?? choices[entry.id]?.[0]?.id) === choice.id),
+    onSelect: () => {
+      if (props.busy) return;
+      if (choice) {
+        setChoiceIds((previous) => ({ ...previous, [entry.id]: choice.id }));
+        setRequests((previous) => ({ ...previous, [entry.id]: { id: choice.id } }));
+      }
+      props.onDestinationChange(entry.id);
+    },
   });
+  const entryItems = (entry: RegisteredExporter) =>
+    choices[entry.id]?.length
+      ? choices[entry.id].map((choice) => itemFor(entry, choice))
+      : [itemFor(entry)];
+  const groupLabels = {
+    [ExporterGroup.Sheets]: tUi("ui.export.sheet.group"),
+    [ExporterGroup.Crafts]: tUi("ui.export.games.crafts"),
+  };
   const formatMenu: MenuItem[] = [
-    ...imageFormats.map((item): MenuItem => ({
-      label: item.label,
-      disabled: item.disabled,
-      checked: props.destination === ExportDestination.Image && selectedFormat === item.format,
-      checkType: MenuCheckType.Radio,
-      onSelect: () => chooseImageFormat(item.format),
-    })),
-    {
-      label: tUi("ui.export.sheet.group"),
-      separator: true,
-      children: [
-        destinationItem(ExportDestination.SpriteSheet, "Sprite Sheet"),
-        destinationItem(ExportDestination.Tileset, "Tileset", !props.canExportTileset),
-      ],
-    },
-    {
-      label: tUi("ui.export.games.crafts"),
-      children: [
-        destinationItem(
-          ExportDestination.AnimalCrossing,
-          tUi("ui.export.animal.crossing"),
-          !props.animalCrossingPort,
-        ),
-      ],
-    },
+    ...props.registry.entries.filter((entry) => !entry.group).flatMap(entryItems),
+    ...Object.values(ExporterGroup).flatMap((group) => {
+      const children = props.registry.entries
+        .filter((entry) => entry.group === group)
+        .flatMap(entryItems);
+      return children.length
+        ? [{ label: groupLabels[group], separator: group === ExporterGroup.Sheets, children }]
+        : [];
+    }),
   ];
-  const selectedLabel =
-    props.destination === ExportDestination.Image
-      ? imageFormats.find((item) => item.format === selectedFormat)!.label
-      : props.destination === ExportDestination.SpriteSheet
-        ? "Sprite Sheet"
-        : props.destination === ExportDestination.Tileset
-          ? "Tileset"
-          : tUi("ui.export.animal.crossing");
-  const panel = (destination: ExportDestination) => {
+  const selectedLabel = choices[selected.id]?.find(
+    (choice) => choice.id === (choiceIds[selected.id] ?? choices[selected.id]?.[0]?.id),
+  )?.label;
+  const selectedText = selectedLabel ? tUi(selectedLabel) : selected.label();
+  const panel = (destination: string, render: ReturnType<RegisteredExporter["createPanel"]>) => {
     const active = props.destination === destination;
     const onLayoutSizeChange = (size: { width: number; height: number }) => {
       if (!active) return;
-      setPosition(
-        (previous) =>
-          previous ?? {
-            x: centerUiPixel(scene.x, scene.width, size.width + WINDOW_CHROME.width),
-            y: centerUiPixel(
-              scene.y,
-              scene.height,
-              size.height + SELECTOR_HEIGHT + WINDOW_CHROME.height,
-            ),
-          },
+      const width = size.width + WINDOW_CHROME.width;
+      const height = size.height + SELECTOR_HEIGHT + WINDOW_CHROME.height;
+      // Keep a moved window where it is unless a larger panel would push it off screen.
+      setPosition((previous) =>
+        previous &&
+        previous.x + width <= scene.x + scene.width &&
+        previous.y + height <= scene.y + scene.height
+          ? previous
+          : {
+              x: centerUiPixel(scene.x, scene.width, width),
+              y: centerUiPixel(scene.y, scene.height, height),
+            },
       );
       setSizes((previous) =>
         previous[destination].width === size.width && previous[destination].height === size.height
           ? previous
-          : {
-              ...previous,
-              [destination]: size,
-            },
+          : { ...previous, [destination]: size },
       );
     };
-    if (destination === ExportDestination.Image)
-      return (
-        <ExportFileDialog
-          embedded
-          formatRequest={formatRequest}
-          imageCapabilities={imageCapabilities}
-          onFormatChange={setSelectedFormat}
-          onLayoutSizeChange={onLayoutSizeChange}
-          documentKey={props.documentKey}
-          filePreferences={props.filePreferences}
-          busy={props.busy}
-          onClose={props.onClose}
-          onExport={props.onExport}
-        />
-      );
-    if (destination === ExportDestination.AnimalCrossing)
-      return props.animalCrossingSource && props.animalCrossingPort ? (
-        <AnimalCrossingDialog
-          active={active}
-          source={props.animalCrossingSource}
-          port={props.animalCrossingPort}
-          onClose={props.onClose}
-          onBusyChange={props.onAnimalCrossingBusyChange}
-          onExported={props.onAnimalCrossingExported}
-          onLayoutSizeChange={onLayoutSizeChange}
-        />
-      ) : null;
     return (
-      <SpriteSheetDialog
-        embedded
+      <MountedPanel
+        render={render}
+        id={destination}
+        host={props}
         active={active}
-        onLayoutSizeChange={onLayoutSizeChange}
-        onPreview={props.onSheetPreview}
-        initialSource={destination === ExportDestination.Tileset ? "tilesets" : "sprite"}
-        documentKey={props.documentKey}
         busy={props.busy}
+        filePreferences={props.filePreferences}
+        choiceRequest={requests[destination]}
+        onChoiceChange={(id) =>
+          setChoiceIds((previous) =>
+            previous[destination] === id ? previous : { ...previous, [destination]: id },
+          )
+        }
+        onChoicesChange={(items) =>
+          setChoices((previous) => ({ ...previous, [destination]: items }))
+        }
+        onLayoutSizeChange={onLayoutSizeChange}
         onClose={props.onClose}
-        onExport={props.onSheetExport}
       />
     );
   };
-  const panelSize = sizes[props.destination];
+  const reportedSize = sizes[props.destination];
+  const panelSize = {
+    ...reportedSize,
+    width:
+      scene.width > 0
+        ? Math.min(reportedSize.width, Math.max(1, scene.width - WINDOW_CHROME.width))
+        : reportedSize.width,
+  };
   const windowWidth = panelSize.width + WINDOW_CHROME.width;
   const windowHeight = panelSize.height + SELECTOR_HEIGHT + WINDOW_CHROME.height;
   const label = tUi("ui.export.format.selector");
@@ -323,7 +295,7 @@ export function ExportDialog(props: ExportDialogProps) {
         onBoundsChange={({ x, y }) => setPosition({ x, y })}
         contentLayout={OverlayContentLayout.Flow}
         titlebarActions={
-          EXPORT_HELP_URLS[props.destination]
+          selected.helpUrl
             ? ({ bounds: frame }) => (
                 <Button
                   bounds={{ x: frame.x + frame.width - 44, y: frame.y + 6, width: 18, height: 22 }}
@@ -334,9 +306,7 @@ export function ExportDialog(props: ExportDialogProps) {
                   pushedPart="window_button_selected"
                   insetContent={false}
                   aria-label={tUi("ui.help.for", { value1: tUi("ui.export") })}
-                  onClick={() =>
-                    window.open(EXPORT_HELP_URLS[props.destination], "_blank", "noopener")
-                  }
+                  onClick={() => window.open(selected.helpUrl, "_blank", "noopener")}
                 />
               )
             : undefined
@@ -375,7 +345,7 @@ export function ExportDialog(props: ExportDialogProps) {
                 >
                   <Text
                     variant={TextVariant.Control}
-                    text={tUiSource(selectedLabel)}
+                    text={selectedText}
                     bounds={{
                       x: CONTROL_GAP,
                       y: 0,
@@ -390,13 +360,13 @@ export function ExportDialog(props: ExportDialogProps) {
               )}
             />
           </div>
-          {[...visited].map((destination) => (
+          {[...props.panels].map(([destination, render]) => (
             <section
               className={styles.panel}
               key={destination}
               hidden={destination !== props.destination}
             >
-              <Suspense fallback={null}>{panel(destination)}</Suspense>
+              <Suspense fallback={null}>{panel(destination, render)}</Suspense>
             </section>
           ))}
         </div>

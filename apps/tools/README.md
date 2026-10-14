@@ -163,3 +163,52 @@ Tool-host and initial-artwork contexts keep their identities across hot updates,
 so independently refreshed providers and consumers remain connected. Static asset
 resolution reads the current asset package's exports and watches its manifest,
 avoiding stale Node package-export caches after adding an example asset.
+
+## Fuse Bead Pattern Maker
+
+`/tools/fuse-beads/` opens PNG, JPEG, WebP and Aseprite artwork locally. Its manager owns
+source frames, grid dimensions, aspect locking, brand selection, board selection and output
+state. It does not read or write editor preferences, projects, history or palette state.
+The color records in `@xprite/palette-assets/beads` and the quantization, raster chart and
+vector PDF functions in editor-core are shared with the editor exporter. The page uses
+`FileToolShell`, native shared controls and `ToolCanvasPreview` for file input and navigation.
+The original Hello artwork is reused through `@xprite/site-assets`; it is not copied.
+The entry participates in the tool registry, site discovery, static first paint and hydration.
+
+The bead tool and Pixelate use the same `pixelateImage`, `updatePixelationSettings`,
+`pixelationSettingsOptions` and method descriptors. Both expose nearest-neighbor, area
+average, most-frequent RGB, local dominant color and edge-preserving sampling. Bead-specific
+processing follows that shared pixel grid: brand/code matching, color exclusion, material
+counts, board partitioning and chart output.
+
+The tool opens with the full pattern and board guides. The material list supports code/name
+search, quantity or code ordering, preview highlights, and color exclusion/restoration.
+Excluding a used color rematches it to the remaining used colors; selecting a highlight only
+changes the preview. PNG and PDF retain the complete processed pattern.
+
+PNG output uses the shared `renderBeadPatternSheet`: brand, pattern dimensions, bead/color/board
+counts, global row and column coordinates, board row/column guides and a swatch/code/quantity
+legend accompany the annotated grid. PDF output adds numbered boards to its assembly overview,
+global coordinates around each board, and repeated headings on material-list continuation
+pages. Both artifacts include the original Xprite brand mark, the tool URL and a QR code;
+each PDF page also includes a clickable URL. The PNG memory check includes the annotation,
+legend and attribution footer space. Adapters load the original logo from `@xprite/site-assets`
+and pass portable pixels to the shared exporters.
+
+Workflow research used [Zippland/perler-beads](https://github.com/Zippland/perler-beads/tree/2efee730f73dd4eb472ebde443a022d11f98bc21),
+including its pixelation and color-management behavior. The inspected revision is
+`2efee730f73dd4eb472ebde443a022d11f98bc21` (2026-05-14), licensed under AGPL-3.0.
+The shared most-frequent sampler is implemented here with bounded RGB counts and explicit
+transparent samples. Partial alpha is retained independently of the selected RGB.
+
+Pattern columns and rows describe the whole design. Board columns and rows are independent
+integer dimensions of a single rectangular pegboard, used for preview selection, chart
+boundaries and PDF pagination. Both accept 1–512; the default board is 29×29. Preview raster
+resolution is bounded independently of printable output, so large custom boards remain usable.
+Board dimensions are independent of the chosen color palette.
+
+Board sizes vary by product: [Artkal's mini boards](https://www.artkalfusebeads.com/products/artkal-clear-large-square-pegboard-for-mini-2-6mm-beads-bcp01)
+come in 50×50 and 52×52 versions, and [Hama's large mini board](https://hama.dk/en/products/mini-pegboard-large-square)
+has 3,249 pegs (57×57). [Perler's large square boards](https://perler.com/products/large-square-pegboards-2-ct)
+interlock for larger projects. These product examples do not restrict custom dimensions or
+the overall pattern size.

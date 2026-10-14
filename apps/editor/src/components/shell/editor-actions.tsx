@@ -96,7 +96,6 @@ export interface EditorActions {
   exportFile: () => void;
   exportCopy: () => void;
   share?: () => void;
-  exportAnimalCrossing?: () => void;
   exportSpriteSheet?: () => void;
   exportTileset?: () => void;
   importSpriteSheet?: () => void;

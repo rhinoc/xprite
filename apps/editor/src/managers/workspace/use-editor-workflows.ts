@@ -1631,7 +1631,6 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     setTextSize,
     ...output,
     sheetFileIntent,
-    animalCrossingExportPort: platform.files.animalCrossingExport,
     recoveryOpen,
     setRecoveryOpen,
     recoveryItems,

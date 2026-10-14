@@ -8,6 +8,7 @@ Draw pixel art and animate sprites, inspect Aseprite files, or convert artwork w
 - [GIF to Sprite Sheet](/tools/gif-to-sprite-sheet/ "image"): Arrange GIF frames into a PNG sprite sheet with layout, spacing and padding controls. Export frame coordinates and timing for use in other software.
 - [Image to Pixel Art](/tools/pixelate/ "image"): Convert photos and illustrations to pixel art or recover enlarged pixel grids, with a live preview and custom palettes. Download a PNG or continue editing in Xprite.
 - [Animal Crossing Design Converter](/tools/animal-crossing-qr/ "map"): Turn PNG images or Aseprite tiles into design QR codes and preview them on an island. Open existing design QR images or `.acnl` files to inspect and export designs.
+- [Fuse Bead Pattern Maker](/tools/fuse-beads/ "image"): Choose MARD, Artkal, Perler or Hama colors, set the grid size and inspect each board and material count. Download a PNG chart or a PDF with separate board pages.
 
 ## Feature guides
 

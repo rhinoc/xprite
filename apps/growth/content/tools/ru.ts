@@ -233,4 +233,18 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
     "Выберите PNG, JPEG, .acnl или Aseprite. Поддерживаются QR-изображения одного обычного дизайна.",
   "Choose a PNG with at most 16 million pixels.": "Выберите PNG не больше 16 миллионов пикселей.",
   "The output could not be generated.": "Не удалось создать результат.",
+  "Xprite Fuse Bead Pattern Maker": "Xprite: генератор схем из термобусин",
+  "Fuse Bead Pattern Maker": "Генератор схем из термобусин",
+  "Make a fuse bead pattern": "Создайте схему из термобусин",
+  "Fuse Bead Pattern Maker: PNG & PDF | Xprite": "Генератор схем из термобусин: PNG и PDF | Xprite",
+  "Fuse bead pattern maker": "Генератор схем из термобусин",
+  "Create bead charts with MARD, Artkal, Perler or Hama colors and a material list.":
+    "Создавайте схемы с цветами MARD, Artkal, Perler или Hama и списком материалов.",
+  "Open artwork, choose MARD, Artkal, Perler or Hama colors, preview bead boards and download PNG charts or paginated PDFs. Files stay on your device.":
+    "Откройте рисунок, выберите цвета MARD, Artkal, Perler или Hama, просмотрите планшеты и скачайте схему PNG или постраничный PDF. Файлы остаются на устройстве.",
+  "Choose an image or Aseprite file for a bead pattern":
+    "Выберите изображение или файл Aseprite для схемы из бусин",
+  "Open artwork": "Открыть рисунок",
+  "Drop a PNG, JPEG, WebP or Aseprite file": "Перетащите файл PNG, JPEG, WebP или Aseprite",
+  "Hello pixel art example": "Пример пиксель-арта Hello",
 };

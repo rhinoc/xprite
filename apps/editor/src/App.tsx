@@ -8,6 +8,13 @@ import { BrowserReplayStorage } from "$/adapters/replay/browser-replay-storage";
 import { DEFAULT_PROJECT_DATABASE_NAME } from "$/adapters/storage/project-storage/indexeddb";
 import { RecoverySettingsStore } from "$/adapters/storage/recovery-settings-store";
 import { EditorSurface } from "$/components/canvas/editor-surface";
+import { animalCrossingExporter } from "$/components/dialogs/export-dialog/exporters/animal-crossing";
+import { beadExporter } from "$/components/dialogs/export-dialog/exporters/beads";
+import { imageExporter } from "$/components/dialogs/export-dialog/exporters/image";
+import {
+  spriteSheetExporter,
+  tilesetExporter,
+} from "$/components/dialogs/export-dialog/exporters/sheet";
 import { ReplayHost } from "$/components/replay/replay-host";
 import { EditorStartup } from "$/components/shell/editor-startup";
 import { EditorView } from "$/components/shell/editor-view";
@@ -24,6 +31,8 @@ import {
   automaticViewTransition,
   EditorViewChangeReason,
 } from "$/managers/editor/editor-view-transition";
+import { ExporterRegistry } from "$/managers/files/exporter-registry";
+import { ExporterRegistryProvider } from "$/managers/files/exporter-registry-context";
 import { PROJECT_SHARE_LIMITS } from "$/managers/files/sharing-policy";
 import { CanvasInputProvider } from "$/managers/input/canvas-input-context";
 import { useWheelDevicePreferences } from "$/managers/input/use-wheel-device-preferences";
@@ -304,6 +313,17 @@ export default function App({
       }),
   );
   useEffect(() => pwa.start(), [pwa]);
+  const exporters = useMemo(
+    () =>
+      new ExporterRegistry([
+        imageExporter,
+        spriteSheetExporter,
+        tilesetExporter,
+        animalCrossingExporter,
+        beadExporter,
+      ]),
+    [imageExporter, spriteSheetExporter, tilesetExporter, animalCrossingExporter, beadExporter],
+  );
   const [fontCatalog] = useState(() => new FontCatalogManager(platform.font.localFonts));
   useEffect(() => fontCatalog.start(), [fontCatalog]);
   const [uiStore] = useState(() =>
@@ -311,21 +331,23 @@ export default function App({
   );
 
   return (
-    <EditorPlatformProvider ports={platform}>
-      <FontCatalogProvider manager={fontCatalog}>
-        <EditorChromePreferencesProvider manager={chromePreferences}>
-          <PwaProvider manager={pwa}>
-            <EditorApplication
-              workspace={workspace}
-              workspaceLifetime={workspaceLifetime}
-              uiStore={uiStore}
-              home={home}
-              initialTab={initialTab}
-              initialProject={initialProject}
-            />
-          </PwaProvider>
-        </EditorChromePreferencesProvider>
-      </FontCatalogProvider>
-    </EditorPlatformProvider>
+    <ExporterRegistryProvider registry={exporters}>
+      <EditorPlatformProvider ports={platform}>
+        <FontCatalogProvider manager={fontCatalog}>
+          <EditorChromePreferencesProvider manager={chromePreferences}>
+            <PwaProvider manager={pwa}>
+              <EditorApplication
+                workspace={workspace}
+                workspaceLifetime={workspaceLifetime}
+                uiStore={uiStore}
+                home={home}
+                initialTab={initialTab}
+                initialProject={initialProject}
+              />
+            </PwaProvider>
+          </EditorChromePreferencesProvider>
+        </FontCatalogProvider>
+      </EditorPlatformProvider>
+    </ExporterRegistryProvider>
   );
 }

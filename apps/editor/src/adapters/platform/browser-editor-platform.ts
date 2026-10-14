@@ -1,6 +1,7 @@
 import { browserColorSampling } from "$/adapters/colors/browser-color-sampling";
 import { decodeAsepriteBlob } from "$/adapters/files/aseprite-files";
 import { createBrowserAnimalCrossingExportPort } from "$/adapters/files/browser-animal-crossing-export";
+import { createBrowserExportOutputPort } from "$/adapters/files/browser-export-output";
 import { decodeImage } from "$/adapters/files/images";
 import { saveBrowserPaletteFile, decodeBrowserPaletteImage } from "$/adapters/files/palette-files";
 import { createReferenceImageSelector } from "$/adapters/files/reference-image";
@@ -43,6 +44,7 @@ export function createBrowserEditorPlatformPorts(): EditorPlatformPorts {
   const primaryModifier = /Mac|iPhone|iPad|iPod/i.test(navigator.platform)
     ? EditorPrimaryModifier.Command
     : EditorPrimaryModifier.Control;
+  const exportOutput = createBrowserExportOutputPort();
   return {
     startupScreen: createBrowserStartupScreen(),
     navigation: {
@@ -56,9 +58,10 @@ export function createBrowserEditorPlatformPorts(): EditorPlatformPorts {
     userPresets: new IndexedDbUserPresets(),
     shortcutFiles: createBrowserShortcutFilePort(primaryModifier),
     files: {
+      exportOutput,
       savePaletteFile: saveBrowserPaletteFile,
       decodePaletteImageBytes: decodeBrowserPaletteImage,
-      animalCrossingExport: createBrowserAnimalCrossingExportPort(),
+      animalCrossingExport: createBrowserAnimalCrossingExportPort(exportOutput),
       sharing:
         !__XPRITE_ITCH__ && typeof Worker === "function"
           ? createBrowserProjectSharing()

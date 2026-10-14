@@ -68,6 +68,7 @@ const sources = () => {
     "apps/tools/viewer/index.html",
     "apps/tools/gif-to-sprite-sheet/index.html",
     "apps/tools/animal-crossing-qr/index.html",
+    "apps/tools/fuse-beads/index.html",
     "apps/tools/vite.config.ts",
     "apps/tools/package.json",
     "apps/growth/public/favicon-32.png",

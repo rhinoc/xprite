@@ -51,6 +51,7 @@ export interface PixelArtAnalysis {
 export enum PixelationMethod {
   Nearest = "nearest",
   Box = "box",
+  MostFrequent = "most-frequent",
   Dominant = "dominant",
   Structure = "structure",
 }

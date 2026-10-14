@@ -5,6 +5,9 @@ import { DesktopAppearance, DesktopManager, type DesktopPreferences } from "../m
 import { SITE_LANGUAGES, type SiteLanguageCode } from "../site-language";
 import { DESKTOP_PREFERENCES_KEY } from "../startup";
 
+export { renderArtifactSignature } from "../export/signature";
+export { createArtifactRasterText } from "../export/raster-text";
+
 const DESKTOP_CHANGED_EVENT = "xprite:desktop-preferences";
 const DARK_MEDIA_QUERY = "(prefers-color-scheme: dark)";
 export { SITE_LANGUAGE_PREFERENCE_KEY };

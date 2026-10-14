@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 
+import { beadText, type BeadText } from "$/managers/locale/bead-text";
 import { PublicLanguage } from "@xprite/growth-content/language";
 import { translateToolText } from "@xprite/growth-content/tools";
 
@@ -50,4 +51,10 @@ export function useToolLanguage() {
 
 export function useToolTranslation() {
   return useToolLanguage().translate;
+}
+
+/** Keyed copy for the fuse bead tool in the page language. */
+export function useBeadText(): BeadText {
+  const { language } = useToolLanguage();
+  return useMemo(() => beadText(language), [language]);
 }

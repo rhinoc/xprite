@@ -179,20 +179,17 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
     colorTarget,
     text,
     textSize,
-    animalCrossingSource,
-    animalCrossingExportPort,
-    setAnimalCrossingBusy,
-    rememberAnimalCrossingExport,
+    registry,
+    exportContext,
+    exportPanels,
+    setModuleBusy,
+    rememberExporterOptions,
     shareSource,
     setShareSource,
-    exportDocument,
     closeExport,
     exportDestination,
     selectExportDestination,
-    canExportTileset,
     exportBusy,
-    exportKey,
-    showSheetPreview,
     sheetFileIntent,
     sheetImport,
     setSheetImport,
@@ -208,8 +205,7 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
     saveAsTarget,
     closeSaveAs,
     saveProjectAs,
-    performExport,
-    performSheetExport,
+    performExporter,
     performSheetImport,
     deleteRecovery,
     deleteBrowserCopy,
@@ -445,27 +441,20 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
             <ShareProjectDialog source={shareSource} onClose={() => setShareSource(null)} />
           </Suspense>
         )}
-        {exportDocument && (
+        {exportContext && (
           <Suspense fallback={null}>
             <ExportDialog
+              registry={registry}
+              context={exportContext}
+              panels={exportPanels}
               destination={exportDestination}
-              onSheetPreview={showSheetPreview}
               onDestinationChange={selectExportDestination}
-              canExportTileset={canExportTileset}
-              animalCrossingSource={animalCrossingSource}
-              animalCrossingPort={animalCrossingExportPort}
-              onAnimalCrossingBusyChange={setAnimalCrossingBusy}
-              onAnimalCrossingExported={rememberAnimalCrossingExport}
-              onSheetExport={(options) => {
-                void performSheetExport(options);
-              }}
-              documentKey={exportKey.current}
+              onModuleBusyChange={setModuleBusy}
+              onExported={rememberExporterOptions}
+              execute={performExporter}
               filePreferences={getFilePreferences()}
               busy={exportBusy}
               onClose={closeExport}
-              onExport={(options) => {
-                void performExport(options);
-              }}
             />
           </Suspense>
         )}
