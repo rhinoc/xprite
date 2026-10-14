@@ -68,3 +68,10 @@
   height: 14px;
   border: 1px solid var(--ui-color-ink, currentColor);
 }
+.menuArrow {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  right: var(--ui-space-4, 8px);
+  pointer-events: none;
+}

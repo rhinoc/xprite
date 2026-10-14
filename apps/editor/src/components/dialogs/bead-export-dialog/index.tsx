@@ -23,20 +23,21 @@ import {
   Button,
   CanvasSurface,
   Checkbox,
-  Combobox,
   FontRole,
   Icon,
   Input,
   Menu,
+  MenuCheckType,
   Text,
   TextVariant,
   TextAlignment,
   type SurfaceBounds,
 } from "@xprite/ui";
-import { measureUiText } from "@xprite/ui/assets";
+import { measureUiText, useUiAssets } from "@xprite/ui/assets";
 import { RASTER_SCALE } from "@xprite/ui/canvas";
 import {
   clientPoint,
+  dropdownArrowOffsetY,
   clientToLocal,
   layoutSize,
   scrollPosition,
@@ -50,6 +51,7 @@ const STEP = 38;
 const GAP = 12;
 const SMALL_GAP = 4;
 const ICON_BUTTON = 30;
+const GLYPH_CENTER = { x: 2, y: 0 };
 const ACTION_HEIGHT = 34;
 const MIN_ACTION_WIDTH = 120;
 const ACTION_PADDING = 32;
@@ -147,6 +149,7 @@ export function BeadExportDialog(props: ExporterViewProps<BeadExportSource, Bead
   useUiLanguage();
   const scene = useSceneBounds();
   const model = useBeadExport(props.source);
+  const uiAssets = useUiAssets();
   const progress = useBeadExportProgress();
   const { settings, grid } = model;
   const [viewport, setViewport] = useState<HTMLDivElement | null>(null);
@@ -259,6 +262,14 @@ export function BeadExportDialog(props: ExporterViewProps<BeadExportSource, Bead
     disabled,
     onSelect: () => model.choosePreset(size),
   }));
+  const brandName = model.palettes.find(({ id }) => id === settings.brand)?.name ?? "";
+  const arrowY = uiAssets
+    ? dropdownArrowOffsetY(
+        { y: 0, height: ROW },
+        uiAssets.style.parts.combobox_arrow_down.height * RASTER_SCALE,
+        !!uiAssets.style.dimensions.combobox_arrow_centered,
+      )
+    : undefined;
   const separator = tUi("ui.export.beads.size.by");
   const separatorWidth = measureUiText(separator) + SMALL_GAP * 2;
   const sizeInput = (layout.controls.width - ICON_BUTTON - separatorWidth - SMALL_GAP) / 2;
@@ -321,16 +332,40 @@ export function BeadExportDialog(props: ExporterViewProps<BeadExportSource, Bead
         return (
           <>
             {brand.label}
-            <Combobox
-              bounds={{ x: cx, y: brand.y, width: layout.controls.width, height: ROW }}
-              relativeTo={client}
-              aria-label={labels.brand}
-              options={model.palettes.map(({ id, name }) => ({ value: id, label: name }))}
-              value={settings.brand}
-              disabled={disabled}
-              onValueChange={(brand) =>
-                model.changeSettings({ brand: brand as BeadExportOptions["brand"] })
-              }
+            <Menu
+              label={labels.brand}
+              items={model.palettes.map(({ id, name }) => ({
+                label: name,
+                disabled,
+                checkType: MenuCheckType.Radio,
+                checked: settings.brand === id,
+                onSelect: () => model.changeSettings({ brand: id as BeadExportOptions["brand"] }),
+              }))}
+              renderTrigger={(trigger) => (
+                // Same trigger as the Export dialog's Format picker, so both rows share padding and font.
+                <Button
+                  {...trigger}
+                  disabled={disabled}
+                  bounds={{ x: cx, y: brand.y, width: layout.controls.width, height: ROW }}
+                  relativeTo={client}
+                  font={FontRole.Primary}
+                  aria-label={labels.brand}
+                >
+                  <Text
+                    variant={TextVariant.Control}
+                    text={brandName}
+                    bounds={{
+                      x: SMALL_GAP * 2,
+                      y: 0,
+                      width: layout.controls.width - ROW - SMALL_GAP * 2,
+                      height: ROW,
+                    }}
+                  />
+                  <span className={styles.menuArrow} style={{ top: arrowY }}>
+                    <Icon kind="combobox_arrow_down" scale={RASTER_SCALE} />
+                  </span>
+                </Button>
+              )}
             />
             {board.label}
             {boardInput(BeadBoardAxis.Width, cx)}
@@ -424,6 +459,8 @@ export function BeadExportDialog(props: ExporterViewProps<BeadExportSource, Bead
                 relativeTo={client}
                 text={item.text}
                 font={FontRole.Primary}
+                // The glyph advance carries 2px of trailing space; shift it like the status bar's +.
+                textOffset={GLYPH_CENTER}
                 aria-label={item.label}
                 title={item.label}
                 onClick={item.run}
