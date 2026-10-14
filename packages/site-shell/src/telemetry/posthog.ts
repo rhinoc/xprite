@@ -64,6 +64,10 @@ const EVENTS_PER_SECOND = 5;
 const EVENT_BURST_LIMIT = 25;
 const RANDOM_ID_START = 2;
 const EXCEPTION_EVENT = "$exception";
+/** Session replay chunks; their URLs are reduced to origin and path before sending. */
+export const SNAPSHOT_EVENT = "$snapshot";
+const RRWEB_META_EVENT = 4;
+const RRWEB_CUSTOM_EVENT = 5;
 const CHECKPOINT_EVENT = "visit_checkpoint";
 const TELEMETRY_DEFAULTS = "2026-05-30";
 const TELEMETRY_SCHEMA_VERSION = 3;
@@ -118,7 +122,34 @@ function sanitizedUrl(value: unknown): string | undefined {
   }
 }
 
-function sanitizeSdkEvent(
+/** Reduce recorded page and network URLs to origin and path, matching the privacy policy. */
+export function sanitizeSnapshotData(value: unknown): unknown {
+  if (!Array.isArray(value)) return value;
+  return value.map((entry: unknown) => {
+    if (!entry || typeof entry !== "object") return entry;
+    const event = entry as { type?: unknown; data?: unknown };
+    if (!event.data || typeof event.data !== "object") return entry;
+    const data = event.data as Record<string, unknown>;
+    if (event.type === RRWEB_META_EVENT && "href" in data)
+      return { ...event, data: { ...data, href: sanitizedUrl(data.href) ?? "" } };
+    if (event.type === RRWEB_CUSTOM_EVENT && data.payload && typeof data.payload === "object") {
+      const payload = data.payload as Record<string, unknown>;
+      if ("href" in payload)
+        return {
+          ...event,
+          data: { ...data, payload: { ...payload, href: sanitizedUrl(payload.href) ?? "" } },
+        };
+    }
+    return entry;
+  });
+}
+
+/** Strip query strings and fragments from network requests captured inside a replay. */
+export function sanitizeRecordedRequest<T extends { name?: string }>(request: T): T {
+  return { ...request, name: sanitizedUrl(request.name) ?? "" };
+}
+
+export function sanitizeSdkEvent(
   event: CaptureResult | null,
   allowedEvents: ReadonlySet<string>,
 ): CaptureResult | null {
@@ -134,6 +165,8 @@ function sanitizeSdkEvent(
     if (campaignKey.startsWith("utm_") || SDK_CAMPAIGN_PROPERTIES.has(campaignKey))
       delete properties[key];
   }
+  if (event.event === SNAPSHOT_EVENT && "$snapshot_data" in properties)
+    properties.$snapshot_data = sanitizeSnapshotData(properties.$snapshot_data);
   return { ...event, properties };
 }
 
@@ -161,6 +194,7 @@ export class BrowserTelemetry {
     this.allowedEvents = new Set([
       ...Object.values(SiteTelemetryEvent),
       EXCEPTION_EVENT,
+      SNAPSHOT_EVENT,
       ...(options.allowedEvents ?? []),
     ]);
     this.enabled =
@@ -287,7 +321,17 @@ export class BrowserTelemetry {
         capture_dead_clicks: false,
         rageclick: false,
         enable_heatmaps: false,
-        disable_session_recording: true,
+        // Remote project settings decide whether and which sample of sessions is recorded.
+        // The recorder ships in the full bundle, so nothing is loaded from an external host.
+        disable_session_recording: false,
+        enable_recording_console_log: false,
+        session_recording: {
+          maskAllInputs: true,
+          captureCanvas: { recordCanvas: false },
+          recordHeaders: false,
+          recordBody: false,
+          maskCapturedNetworkRequestFn: (request) => sanitizeRecordedRequest(request),
+        },
         disable_surveys: true,
         disable_product_tours: true,
         disable_conversations: true,

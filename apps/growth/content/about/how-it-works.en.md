@@ -302,7 +302,7 @@ Usage analytics go to PostHog Cloud (US):
 
 - The visitor ID is stored in the browser's `localStorage`.
 - The raw IP address is discarded after the approximate location is added.
-- Session recording and automatic click capture are both turned off.
+- Automatic click capture is turned off. A sample of sessions is recorded as session replays, with text inputs masked, canvas content such as artwork excluded, and page addresses reduced to their path.
 - If you turn on Do Not Track in your browser and reopen Xprite, no more usage data is sent.
 
 See the [privacy notice](/privacy/) for the full details.
