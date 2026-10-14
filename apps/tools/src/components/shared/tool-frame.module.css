@@ -509,10 +509,48 @@
     top: round(down, 100% - 54px, 1px);
   }
 }
-/* Short phones: the desktop icons duplicate menu bar links, so give their room to the windows. */
-@media (max-width: 700px) and (max-height: 780px) {
+/*
+ * Phones: one column under the menu bar, top to bottom: the desktop icons (Files, Applications,
+ * Read Me, Trash) sitting directly on the desktop pattern, then the help note, then the tool
+ * windows, which take the rest of the 100dvh screen. The note keeps its WindowShade (it starts
+ * rolled up on short screens) and its height cap, so the tool windows always get the space.
+ */
+@media (max-width: 700px) {
+  .desktop,
+  .desktop:has(.utilities > :not(.shortcuts)) {
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+  .utilities {
+    display: contents;
+  }
   .shortcuts {
-    display: none;
+    grid-row: 1;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    gap: 4px;
+    min-width: 0;
+  }
+  .shortcuts > :global([data-ui-desktop-icon]) {
+    /* Half the 64px artwork keeps the pixels crisp and fits four icons on a 360px screen. */
+    --desktop-icon-artwork-size: 32px;
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    max-width: 96px;
+    gap: 2px;
+  }
+  .shortcuts :global([data-slot="desktop-icon-label"]) {
+    /* Label hugs its text, like a Finder desktop icon. */
+    width: auto;
+    max-width: 100%;
+  }
+  .helpFrame {
+    grid-row: 2;
+  }
+  .content {
+    grid-row: 3;
+    min-height: 0;
   }
 }
 /*
@@ -562,11 +600,4 @@
 
 .filesShortcut[data-drop-target] {
   filter: brightness(0.6);
-}
-
-/* Phones reach Files from the File menu; the final desktop placement is still open. */
-@media (max-width: 700px) {
-  .filesShortcut {
-    display: none;
-  }
 }
