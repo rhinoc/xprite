@@ -7,6 +7,8 @@ import {
   type SyntheticEvent,
 } from "react";
 
+import { clientPoint } from "$/base/utils/dom-geometry";
+
 export interface WindowDisclosureProps {
   collapsible?: boolean;
   defaultCollapsed?: boolean;
@@ -15,7 +17,7 @@ export interface WindowDisclosureProps {
 }
 const INTERACTIVE_CAPTION_CONTENT = "button, a, input, select, textarea, [contenteditable]";
 /** Two touch taps on a title bar within this window (ms) roll the window up or down. */
-export const DOUBLE_TAP_INTERVAL = 350;
+const DOUBLE_TAP_INTERVAL = 350;
 const DOUBLE_TAP_DISTANCE = 24;
 
 /** System 7.5 WindowShade: click activates, drag moves, double-click rolls up the titlebar. */
@@ -71,7 +73,7 @@ export function useWindowDisclosure({
     )
       return;
     const previous = lastTap.current;
-    const tap = { at: event.timeStamp, x: event.clientX, y: event.clientY };
+    const tap = { at: event.timeStamp, ...clientPoint(event) };
     if (
       previous &&
       tap.at - previous.at <= DOUBLE_TAP_INTERVAL &&
