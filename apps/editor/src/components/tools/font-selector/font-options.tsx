@@ -1,6 +1,6 @@
 import { useId, useState } from "react";
 
-import { tUiSource } from "$/i18n";
+import { tUi } from "$/i18n";
 import { FontRole, Button, Checkbox, Divider, Popover, type SurfaceBounds } from "@xprite/ui";
 
 export interface FontOptionsProps {
@@ -62,7 +62,7 @@ export function FontOptions({
                   checked={false}
                   onCheckedChange={() => {}}
                   disabled
-                  title={tUiSource("The browser does not expose font hinting control")}
+                  title={tUi("ui.font.hinting.unavailable")}
                   bounds={{
                     x: clientBounds.x,
                     y: clientBounds.y + 30,
@@ -85,7 +85,7 @@ export function FontOptions({
                   checked={false}
                   onCheckedChange={() => {}}
                   disabled
-                  title={tUiSource("Ligature shaping is not supported by this text renderer")}
+                  title={tUi("ui.font.ligatures.unavailable")}
                   bounds={{
                     x: clientBounds.x,
                     y: clientBounds.y + 72,

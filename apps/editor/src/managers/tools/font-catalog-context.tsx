@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { tUiSource, useUiLanguage } from "$/i18n";
+import { tUi, useUiLanguage } from "$/i18n";
 import { FontCatalogManager, LocalFontCatalogStatus } from "$/managers/tools/font-catalog-manager";
 
 const FontCatalogContext = createContext<FontCatalogManager | null>(null);
@@ -53,13 +53,13 @@ export function useFontCatalog(family?: string) {
 function localFontStatusLabel(status: LocalFontCatalogStatus): string | null {
   switch (status) {
     case LocalFontCatalogStatus.Unavailable:
-      return tUiSource("Local font listing is unavailable in this browser");
+      return tUi("ui.local.font.listing.unavailable");
     case LocalFontCatalogStatus.PermissionRequired:
-      return tUiSource("Allow local font access in the browser prompt");
+      return tUi("ui.allow.local.font.access");
     case LocalFontCatalogStatus.Loading:
-      return tUiSource("Loading local fonts…");
+      return tUi("ui.loading.local.fonts");
     case LocalFontCatalogStatus.Failed:
-      return tUiSource("Could not load local fonts. Check browser permissions");
+      return tUi("ui.could.not.load.local.fonts");
     case LocalFontCatalogStatus.Ready:
       return null;
   }

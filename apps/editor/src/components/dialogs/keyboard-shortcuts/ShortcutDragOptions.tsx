@@ -1,4 +1,4 @@
-import { tUiSource } from "$/i18n";
+import { tUiSource, tUi } from "$/i18n";
 import type { ShortcutDragVector } from "$/managers/shortcuts/shortcut-manager";
 import { Button, Slider, Text, TextVariant } from "@xprite/ui";
 
@@ -41,8 +41,12 @@ export function ShortcutDragOptions({
   };
   return (
     <div className={styles.dragOptions}>
-      <Text variant={TextVariant.Inline}>{tUiSource("Direction:")}</Text>
-      <div className={styles.dragDirections} role="group" aria-label={tUiSource("Drag direction")}>
+      <Text variant={TextVariant.Inline}>{tUi("ui.shortcuts.direction.label")}</Text>
+      <div
+        className={styles.dragDirections}
+        role="group"
+        aria-label={tUi("ui.shortcuts.drag.direction")}
+      >
         {DIRECTIONS.map((direction, index) =>
           direction ? (
             <Button
@@ -70,13 +74,13 @@ export function ShortcutDragOptions({
           ),
         )}
       </div>
-      <Text variant={TextVariant.Inline}>{tUiSource("Distance:")}</Text>
+      <Text variant={TextVariant.Inline}>{tUi("ui.shortcuts.distance.label")}</Text>
       <Slider
         pixelSize={{ width: 128, height: 16 }}
         min={MIN_DISTANCE}
         max={MAX_DISTANCE}
         value={Math.max(MIN_DISTANCE, Math.min(MAX_DISTANCE, Math.round(distance)))}
-        aria-label={tUiSource("Drag distance")}
+        aria-label={tUi("ui.shortcuts.drag.distance")}
         onValueChange={(value) => update(angle, value)}
       />
     </div>

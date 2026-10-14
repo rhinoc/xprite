@@ -61,7 +61,7 @@ export function TouchInputPreferencesSection({
   return (
     <>
       <PreferencesLabel
-        text={tUiSource("Single-finger action")}
+        text={tUi("ui.touch.single.finger.action")}
         bounds={box(358, modeY, narrow ? 333 : 112, 16)}
         relativeTo={client}
       />
@@ -71,7 +71,7 @@ export function TouchInputPreferencesSection({
           ...option,
           label: tUiSource(option.label),
         }))}
-        aria-label={tUiSource("Single-finger action")}
+        aria-label={tUi("ui.touch.single.finger.action")}
         disabled={!onChange}
         bounds={box(narrow ? 358 : 474, narrow ? modeY + 21 : modeY, narrow ? 333 : 217, 18)}
         relativeTo={client}

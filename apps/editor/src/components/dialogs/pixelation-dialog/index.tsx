@@ -4,7 +4,7 @@ import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
 import { algorithmNoteKey } from "$/components/dialogs/pixelation-dialog/algorithm-notes";
 import { ImportCompare } from "$/components/dialogs/pixelation-dialog/import-compare";
-import { tUiSource, useUiLanguage } from "$/i18n";
+import { tUi, tUiSource, useUiLanguage } from "$/i18n";
 import {
   type FilePreferences,
   type ImportAction,
@@ -157,7 +157,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   const pixelateMessage = workflow.pixelationError
     ? tUiSource(workflow.pixelationError)
     : pixelate && noteKey
-      ? `${tUiSource(noteKey)} ${tUiSource("import.note.picker.needs-grid")}`
+      ? `${tUiSource(noteKey)} ${tUi("import.note.picker.needs-grid")}`
       : null;
   const message = pixelate ? pixelateMessage : null;
 
@@ -170,7 +170,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       modal
       constrainToViewport
       resizable={false}
-      title={tUiSource("import.dialog.title")}
+      title={tUi("import.dialog.title")}
       bounds={bounds}
       onOpenChange={(open) => {
         if (!open) workflow.discardEmptyImport();
@@ -264,20 +264,20 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 comparing={pixelate}
                 updating={workflow.pixelationPreviewing}
                 labels={{
-                  original: tUiSource("import.dialog.original"),
-                  result: tUiSource("import.dialog.result.label"),
-                  preparing: tUiSource("import.dialog.preparing"),
-                  slider: tUiSource("import.dialog.slider"),
+                  original: tUi("import.dialog.original"),
+                  result: tUi("import.dialog.result.label"),
+                  preparing: tUi("import.dialog.preparing"),
+                  slider: tUi("import.dialog.slider"),
                 }}
               />
             </div>
             <Divider
-              text={tUiSource("import.dialog.result")}
+              text={tUi("import.dialog.result")}
               bounds={sectionBounds}
               relativeTo={client}
             />
-            {option("pixelate", tUiSource("import.dialog.pixelate"), 0, half + 1)}
-            {option("import-as-is", tUiSource("import.dialog.import.as.is"), half, width - half)}
+            {option("pixelate", tUi("import.dialog.pixelate"), 0, half + 1)}
+            {option("import-as-is", tUi("import.dialog.import.as.is"), half, width - half)}
             {message && hintBounds && (
               <Text
                 variant={TextVariant.Control}
@@ -289,7 +289,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
             )}
             {pixelate && (
               <Disclosure
-                title={tUiSource("import.dialog.advanced")}
+                title={tUi("import.dialog.advanced")}
                 open={showAdvanced}
                 onToggle={(event) => setAdvanced(event.currentTarget.open)}
                 className={styles.advanced}
@@ -434,14 +434,14 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
               </>
             )}
             <Checkbox
-              label={tUiSource("import.dialog.remember")}
+              label={tUi("import.dialog.remember")}
               checked={rememberChoice}
               onCheckedChange={setRememberChoice}
               bounds={rememberRow}
               relativeTo={client}
             />
             <Button
-              text={tUiSource("import.dialog.import")}
+              text={tUi("import.dialog.import")}
               {...defaultActionProps()}
               font={FontRole.Primary}
               part="button_normal"
@@ -459,7 +459,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
               onClick={confirm}
             />
             <Button
-              text={tUiSource("Cancel")}
+              text={tUi("ui.cancel")}
               font={FontRole.Primary}
               part="button_normal"
               hotPart="button_hot"

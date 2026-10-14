@@ -66,6 +66,7 @@
     "check:page-metadata": "node --experimental-transform-types --no-warnings=ExperimentalWarning scripts/check/check-page-metadata.mjs",
     "check:asset-versions": "node --experimental-transform-types scripts/check/check-asset-versions.mjs",
     "check:i18n": "node scripts/check/check-i18n-coverage.mjs",
+    "check:i18n-source-lookups": "node scripts/check/check-i18n-source-lookups.mjs",
     "check:deploy": "node scripts/check/check-deploy.mjs",
     "check:duplicates": "jscpd apps packages services scripts infra --format typescript,tsx,javascript,jsx,css --ignore \"**/generated-ui-components.ts,**/base/theme/generated/themes/*.ts\" --min-tokens 50 --threshold 3 --reporters threshold --no-colors --no-tips",
     "check:knip": "knip --config infra/knip.json --reporter compact --no-progress --cache",

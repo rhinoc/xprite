@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 import { AnimalCrossingSourceGrid } from "$/components/dialogs/animal-crossing-dialog/source-grid";
 import { FormDialog, type FormField } from "$/components/dialogs/form-dialog";
-import { tUiSource, useUiLanguage } from "$/i18n";
+import { tUiSource, useUiLanguage, tUi } from "$/i18n";
 import {
   useAnimalCrossingExport,
   type AnimalCrossingExportSource,
@@ -138,7 +138,7 @@ export function AnimalCrossingDialog({
                     viewport={PATTERN_VIEWPORT}
                     pixels={pattern.pixels}
                     checker={PATTERN_CHECKER}
-                    aria-label={tUiSource("Design preview")}
+                    aria-label={tUi("ui.animal.crossing.preview")}
                   />
                 </div>
                 <div className={styles.selectedQr}>
@@ -146,7 +146,7 @@ export function AnimalCrossingDialog({
                     bounds={{ x: 0, y: 0, width: manager.qr.width, height: manager.qr.height }}
                     viewport={QR_VIEWPORT}
                     pixels={manager.qr}
-                    aria-label={tUiSource("Design QR code")}
+                    aria-label={tUi("ui.animal.crossing.qr")}
                   />
                 </div>
               </div>
@@ -163,7 +163,7 @@ export function AnimalCrossingDialog({
                 height: 84,
               }}
               relativeTo={client}
-              text={tUiSource("Updating preview…")}
+              text={tUi("ui.animal.crossing.preview.updating")}
             />
           )}
           <div
@@ -173,9 +173,9 @@ export function AnimalCrossingDialog({
             <Text variant={TextVariant.Inline} wrap scale={2} lineHeight={22}>
               {manager.error
                 ? tUiSource(manager.error)
-                : `${tUiSource("Click a cell to select it. Hover or tap its edges to show resize handles. Move the grid at its origin; adjust spacing above or to the left.")}
+                : `${tUi("ui.animal.crossing.grid.hint")}
 
-${tUiSource("Scan in Nintendo Switch App → NookLink → Designs.")}`}
+${tUi("ui.animal.crossing.scan.short")}`}
             </Text>
           </div>
         </>

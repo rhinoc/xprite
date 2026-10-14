@@ -656,7 +656,7 @@ export function TouchShortcutRail({
                   ref={moreButton}
                   className="xse-touch-shortcut"
                   data-touch-action={TouchShortcutId.More}
-                  aria-label={tUiSource("More")}
+                  aria-label={tUi("ui.more")}
                   aria-expanded={overflowOpen}
                   leading={<PixelArtIcon name="more-vertical" />}
                   selected={overflowOpen}
@@ -673,7 +673,7 @@ export function TouchShortcutRail({
         anchorRef={moreButton}
         placement={horizontal ? ButtonStripAnchor.Bottom : ButtonStripAnchor.Side}
         count={overflowedShortcutIds.length}
-        label={tUiSource("More")}
+        label={tUi("ui.more")}
       >
         {shortcuts
           .filter((shortcut) => overflowedShortcutIds.includes(shortcut.id))
