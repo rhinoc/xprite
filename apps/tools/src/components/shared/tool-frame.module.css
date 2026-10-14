@@ -421,3 +421,41 @@
     --tool-cue-distance: 48px;
   }
 }
+
+/*
+ * Phones: the desktop used to be exactly one screen tall (100dvh) with clipped overflow, so
+ * windows that did not fit were cut off at the bottom, and vertically centred content spilled
+ * up under the menu bar. On narrow screens the desktop grows with its windows and the page
+ * scrolls; the work area still fills the first screen.
+ */
+@media (max-width: 700px) {
+  .screen {
+    height: auto;
+    min-height: 100dvh;
+  }
+  .desktop {
+    overflow: visible;
+    grid-template-rows: auto auto;
+    padding-top: 48px;
+    align-content: start;
+  }
+  .desktop:has(.utilities > :not(.shortcuts)) {
+    grid-template-rows: auto auto;
+  }
+  .content {
+    min-height: calc(100dvh - 120px);
+  }
+  .content:has(.emptyContent) {
+    min-height: 0;
+  }
+  .emptyContent {
+    grid-template-rows: auto auto;
+    align-content: start;
+  }
+  .utilities {
+    max-height: none;
+  }
+  .helpFrame {
+    --tool-window-max-height: none;
+  }
+}

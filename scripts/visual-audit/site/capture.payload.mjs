@@ -31,6 +31,7 @@ await page.cdp("Network.enable");
 await page.cdp("Network.setCacheDisabled", { cacheDisabled: true });
 await page.cdp("DOM.enable");
 
+const isToolPath = (path) => /^(?:\/[a-z]{2}(?:-[A-Z]{2})?)?\/tools\/[^/]+\/$/.test(path);
 const geometry = async (scene) => {
   const document = await page.cdp("DOM.getDocument");
   const regions = [
@@ -60,6 +61,33 @@ const geometry = async (scene) => {
     )
   )
     throw Error(`${scene.id}: invalid geometry.`);
+  // Mobile regression guard: tool windows and desktop icons must sit below the
+  // menu bar, fit the viewport width, and never be clipped by the desktop.
+  const isTool = isToolPath(scene.page.path);
+  const windowFaults = !isTool
+    ? []
+    : await page.evaluate(() => {
+        const bar = document.querySelector("[role=menubar]");
+        const desktop = document.querySelector("[data-ui-desktop-pattern]");
+        if (!bar || !desktop || window.innerWidth > 700) return [];
+        const top = bar.getBoundingClientRect().bottom;
+        const area = desktop.getBoundingClientRect();
+        const faults = [];
+        for (const node of document.querySelectorAll(
+          "[data-ui-panel-variant], [class*=entryCursor]",
+        )) {
+          const rect = node.getBoundingClientRect();
+          if (!rect.width || !rect.height) continue;
+          const name = node.getAttribute("aria-label") ?? node.className;
+          if (rect.top < top - 0.5) faults.push(`${name}: under menu bar`);
+          if (rect.left < -0.5 || rect.right > window.innerWidth + 0.5)
+            faults.push(`${name}: wider than viewport`);
+          if (node.matches("[data-ui-panel-variant]") && rect.bottom > area.bottom + 0.5)
+            faults.push(`${name}: clipped by desktop`);
+        }
+        return faults;
+      });
+  if (windowFaults.length) throw Error(`${scene.id}: window geometry: ${windowFaults.join("; ")}`);
   return regions;
 };
 const decodeVisibleImages = async () =>

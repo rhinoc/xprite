@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
-  "capturedAt": "2026-10-14T06:02:49.400Z",
+  "runId": "b9d42810-0db1-424f-a294-e916014238cd",
+  "capturedAt": "2026-10-14T13:26:49.266Z",
   "captureComplete": true,
   "sourceHashes": {
     ".husky/pre-push": "bc8a9c88fb4109ae2584c838dface54fe296297dbd6abab793d78b3c0fa0d361",
@@ -1282,7 +1282,7 @@
     "apps/tools/src/components/shared/file-tool-shell.tsx": "5e98a47bd0b60e4e884ccb385309f8c08bd5730dec90303795392bfc2504d0c7",
     "apps/tools/src/components/shared/tool-appearance.tsx": "056ae9ab57ce97d572e0da0500b8ac066c12f4ce97940d8f4eaa51767e4a9a3c",
     "apps/tools/src/components/shared/tool-artwork.tsx": "12267557e43acf0ca08739c0e08f0c57002cf6a57d0f4b020aa355e5727e829e",
-    "apps/tools/src/components/shared/tool-frame.module.css": "fbe374a2349ff1d51218d194d1eca4c1edc2c9b741439772c81e299934f3a50d",
+    "apps/tools/src/components/shared/tool-frame.module.css": "40687abad690c7a3aebbc35e407f8e9f112cc7ffc00d3be9f171d71c1530d738",
     "apps/tools/src/components/shared/tool-frame.tsx": "85ea59c1801286062fa04048baafd81999863abd65939d5fc2ccadd3846beb56",
     "apps/tools/src/components/shared/tool-help.module.css": "f0398670b518ee48d1cd2f8e16f44ea438bc4d1771531622fbc6895bdc2f2b3f",
     "apps/tools/src/components/shared/tool-help.tsx": "55cdb6b394f43ed508cb6c0b2cb79dc85101e43284c71e2dc0fc587fd0322611",
@@ -2339,14 +2339,14 @@
     "scripts/base/screenshot.mjs": "2c0602e865621023a5a3203e7cedce7c95c43ccd986b3a7f58082868c9c981df",
     "scripts/visual-audit/site/README.md": "b952c6ed5f1c2e957e089f51aa239615b0590ef39a88d802695ad435881a3720",
     "scripts/visual-audit/site/audit.mjs": "f9ba7c65d14df16bfb01d6bcae061aad5a83cbba63deac0f3b2027e6bf492545",
-    "scripts/visual-audit/site/capture.payload.mjs": "db69db0094ad1f085ab87080224373b5d2755c4b84272f54f7103dc1f808592b",
+    "scripts/visual-audit/site/capture.payload.mjs": "e0626aae6872b55612238ca1496dff4dfa3094f2acf8a3dba8edcc05da5c131c",
     "scripts/visual-audit/site/compare.mjs": "5ebf90159c474d4b10e384b3146bfedd8c7129bb684c370997b453a87d259d42",
     "scripts/visual-audit/site/report.mjs": "ec9f9f5366a9239b1dc739feecf0d048daf20f537a081264ce9a472ff015f764",
     "scripts/visual-audit/site/scenes.mjs": "9f08b99ce45c56f04c58c8554837db45da2d811e96eb2886246664ba71c088c5",
     "scripts/visual-audit/site/sources.mjs": "19e78a016dc040ea7ee423018fdab627b358eb07ca0be634355804deae975d59",
     "scripts/visual-audit/tools-startup/scenes.mjs": "bbbfab975f0bbab717c01ab0b4b6523eff6331dcd49832b810eda284614e96b7"
   },
-  "sourceDigest": "8c0d6532cc027b70dc92aadaa7ba2232aeb8292c51b376ed23872313465e132e",
+  "sourceDigest": "a6c309166bfea1c2f079e6adb6a33b913a7251af1c1e551e9a25ae3e126bf356",
   "scenes": [
     "about-zh-CN-wide-light",
     "about-zh-CN-compact-light",
@@ -2397,7 +2397,7 @@
   "cases": [
     {
       "id": "about-zh-CN-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "about-zh-CN-wide-light.png",
       "contract": {
         "id": "about-zh-CN-wide-light",
@@ -2433,7 +2433,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:02:55.242Z",
+        "capturedAt": "2026-10-14T13:26:55.785Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2497,7 +2497,7 @@
     },
     {
       "id": "compare-zh-CN-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "compare-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-zh-CN-compact-dark",
@@ -2533,7 +2533,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:02:59.906Z",
+        "capturedAt": "2026-10-14T13:27:00.186Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2597,7 +2597,7 @@
     },
     {
       "id": "features-aseprite-projects-zh-CN-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "features-aseprite-projects-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-aseprite-projects-zh-CN-compact-dark",
@@ -2633,7 +2633,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:04.849Z",
+        "capturedAt": "2026-10-14T13:27:04.865Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2697,7 +2697,7 @@
     },
     {
       "id": "features-frame-animation-zh-CN-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "features-frame-animation-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-frame-animation-zh-CN-compact-dark",
@@ -2733,7 +2733,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:07.891Z",
+        "capturedAt": "2026-10-14T13:27:08.294Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2797,7 +2797,7 @@
     },
     {
       "id": "features-touch-drawing-zh-CN-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "features-touch-drawing-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-touch-drawing-zh-CN-compact-dark",
@@ -2833,7 +2833,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:10.097Z",
+        "capturedAt": "2026-10-14T13:27:10.773Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2897,7 +2897,7 @@
     },
     {
       "id": "tools-viewer-empty-en-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "tools-viewer-empty-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-empty-en-wide-light",
@@ -2934,7 +2934,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:12.363Z",
+        "capturedAt": "2026-10-14T13:27:13.775Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2998,7 +2998,7 @@
     },
     {
       "id": "tools-pixelate-empty-en-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "tools-pixelate-empty-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-empty-en-wide-light",
@@ -3035,7 +3035,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:15.174Z",
+        "capturedAt": "2026-10-14T13:27:16.519Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3099,7 +3099,7 @@
     },
     {
       "id": "tools-fuse-beads-empty-zh-CN-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "tools-fuse-beads-empty-zh-CN-wide-light.png",
       "contract": {
         "id": "tools-fuse-beads-empty-zh-CN-wide-light",
@@ -3136,7 +3136,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:17.460Z",
+        "capturedAt": "2026-10-14T13:27:19.358Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3200,7 +3200,7 @@
     },
     {
       "id": "feature-window-tools-viewer-zh-CN-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "feature-window-tools-viewer-zh-CN-compact-dark.png",
       "contract": {
         "id": "feature-window-tools-viewer-zh-CN-compact-dark",
@@ -3243,7 +3243,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:20.192Z",
+        "capturedAt": "2026-10-14T13:27:21.949Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3314,7 +3314,7 @@
     },
     {
       "id": "about-ko-compact-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "about-ko-compact-light.png",
       "contract": {
         "id": "about-ko-compact-light",
@@ -3350,7 +3350,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:22.408Z",
+        "capturedAt": "2026-10-14T13:27:23.710Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3414,7 +3414,7 @@
     },
     {
       "id": "feature-window-features-draw-pixel-art-ko-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "feature-window-features-draw-pixel-art-ko-compact-dark.png",
       "contract": {
         "id": "feature-window-features-draw-pixel-art-ko-compact-dark",
@@ -3456,7 +3456,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:25.128Z",
+        "capturedAt": "2026-10-14T13:27:27.061Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3527,7 +3527,7 @@
     },
     {
       "id": "feature-window-tools-viewer-ru-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "feature-window-tools-viewer-ru-compact-dark.png",
       "contract": {
         "id": "feature-window-tools-viewer-ru-compact-dark",
@@ -3569,7 +3569,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:27.184Z",
+        "capturedAt": "2026-10-14T13:27:28.608Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3640,7 +3640,7 @@
     },
     {
       "id": "about-zh-CN-compact-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "about-zh-CN-compact-light.png",
       "contract": {
         "id": "about-zh-CN-compact-light",
@@ -3676,7 +3676,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:02:55.122Z",
+        "capturedAt": "2026-10-14T13:26:55.176Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3740,7 +3740,7 @@
     },
     {
       "id": "compare-aseprite-on-ipad-en-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "compare-aseprite-on-ipad-en-wide-light.png",
       "contract": {
         "id": "compare-aseprite-on-ipad-en-wide-light",
@@ -3776,7 +3776,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:02:59.636Z",
+        "capturedAt": "2026-10-14T13:26:59.839Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3840,7 +3840,7 @@
     },
     {
       "id": "features-draw-pixel-art-en-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "features-draw-pixel-art-en-wide-light.png",
       "contract": {
         "id": "features-draw-pixel-art-en-wide-light",
@@ -3876,7 +3876,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:04.710Z",
+        "capturedAt": "2026-10-14T13:27:04.446Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3940,7 +3940,7 @@
     },
     {
       "id": "features-layers-and-colors-en-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "features-layers-and-colors-en-wide-light.png",
       "contract": {
         "id": "features-layers-and-colors-en-wide-light",
@@ -3976,7 +3976,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:07.705Z",
+        "capturedAt": "2026-10-14T13:27:07.791Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4040,7 +4040,7 @@
     },
     {
       "id": "features-workspace-layout-en-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "features-workspace-layout-en-wide-light.png",
       "contract": {
         "id": "features-workspace-layout-en-wide-light",
@@ -4076,7 +4076,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:09.684Z",
+        "capturedAt": "2026-10-14T13:27:09.797Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4140,7 +4140,7 @@
     },
     {
       "id": "tools-viewer-loaded-en-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "tools-viewer-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-loaded-en-wide-light",
@@ -4182,7 +4182,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:13.232Z",
+        "capturedAt": "2026-10-14T13:27:13.406Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4253,7 +4253,7 @@
     },
     {
       "id": "tools-pixelate-loaded-en-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "tools-pixelate-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-loaded-en-wide-light",
@@ -4295,7 +4295,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:17.185Z",
+        "capturedAt": "2026-10-14T13:27:17.298Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4366,7 +4366,7 @@
     },
     {
       "id": "tools-fuse-beads-loaded-zh-CN-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "tools-fuse-beads-loaded-zh-CN-wide-light.png",
       "contract": {
         "id": "tools-fuse-beads-loaded-zh-CN-wide-light",
@@ -4408,7 +4408,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:20.121Z",
+        "capturedAt": "2026-10-14T13:27:20.638Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4479,7 +4479,7 @@
     },
     {
       "id": "site-footer-en-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "site-footer-en-wide-light.png",
       "contract": {
         "id": "site-footer-en-wide-light",
@@ -4512,7 +4512,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:21.944Z",
+        "capturedAt": "2026-10-14T13:27:22.200Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4569,7 +4569,7 @@
     },
     {
       "id": "compare-aseprite-on-ipad-ja-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "compare-aseprite-on-ipad-ja-wide-light.png",
       "contract": {
         "id": "compare-aseprite-on-ipad-ja-wide-light",
@@ -4605,7 +4605,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:23.738Z",
+        "capturedAt": "2026-10-14T13:27:24.137Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4669,7 +4669,7 @@
     },
     {
       "id": "about-ru-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "about-ru-wide-light.png",
       "contract": {
         "id": "about-ru-wide-light",
@@ -4705,7 +4705,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:25.471Z",
+        "capturedAt": "2026-10-14T13:27:26.831Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4769,7 +4769,7 @@
     },
     {
       "id": "about-features-zh-CN-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "about-features-zh-CN-compact-dark.png",
       "contract": {
         "id": "about-features-zh-CN-compact-dark",
@@ -4805,7 +4805,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:02:55.881Z",
+        "capturedAt": "2026-10-14T13:26:55.468Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4869,7 +4869,7 @@
     },
     {
       "id": "compare-aseprite-online-zh-CN-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "compare-aseprite-online-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-aseprite-online-zh-CN-compact-dark",
@@ -4905,7 +4905,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:00.856Z",
+        "capturedAt": "2026-10-14T13:27:00.154Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4969,7 +4969,7 @@
     },
     {
       "id": "features-drawing-process-zh-CN-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "features-drawing-process-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-drawing-process-zh-CN-compact-dark",
@@ -5005,7 +5005,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:05.651Z",
+        "capturedAt": "2026-10-14T13:27:04.700Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5069,7 +5069,7 @@
     },
     {
       "id": "features-share-artwork-zh-CN-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "features-share-artwork-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-share-artwork-zh-CN-compact-dark",
@@ -5105,7 +5105,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:09.036Z",
+        "capturedAt": "2026-10-14T13:27:08.261Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5169,7 +5169,7 @@
     },
     {
       "id": "help-zh-CN-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "help-zh-CN-compact-dark.png",
       "contract": {
         "id": "help-zh-CN-compact-dark",
@@ -5205,7 +5205,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:11.188Z",
+        "capturedAt": "2026-10-14T13:27:10.303Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5269,7 +5269,7 @@
     },
     {
       "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
@@ -5306,7 +5306,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:13.923Z",
+        "capturedAt": "2026-10-14T13:27:13.516Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5334,7 +5334,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "8b06a2203c13a4b64da8b20b9d733e2adee388cd811af81604aecd5b584f8d11",
+        "sha256": "ccf4fd4d23154262b65ff78775bf322cf55756f7b46b3c97f4d9ad5880841b15",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5360,7 +5360,7 @@
         {
           "name": "main",
           "x": 12,
-          "y": 36,
+          "y": 68,
           "width": 350,
           "height": 512
         }
@@ -5370,7 +5370,7 @@
     },
     {
       "id": "tools-animal-crossing-qr-empty-en-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "tools-animal-crossing-qr-empty-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-empty-en-compact-dark",
@@ -5407,7 +5407,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:16.454Z",
+        "capturedAt": "2026-10-14T13:27:15.872Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5435,7 +5435,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "50673dead34fac9e64230b3769da1aa5c589a160619fd0a1c394be6366b43af5",
+        "sha256": "f983cf435471933b92c3d41d3849c5a83a485280109b6b9a3f57c3bc0b0a5279",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5461,7 +5461,7 @@
         {
           "name": "main",
           "x": 12,
-          "y": 36,
+          "y": 68,
           "width": 350,
           "height": 512
         }
@@ -5471,7 +5471,7 @@
     },
     {
       "id": "about-features-en-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "about-features-en-compact-dark.png",
       "contract": {
         "id": "about-features-en-compact-dark",
@@ -5507,7 +5507,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:18.277Z",
+        "capturedAt": "2026-10-14T13:27:18.330Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5571,7 +5571,7 @@
     },
     {
       "id": "site-footer-zh-CN-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "site-footer-zh-CN-compact-dark.png",
       "contract": {
         "id": "site-footer-zh-CN-compact-dark",
@@ -5604,7 +5604,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:19.826Z",
+        "capturedAt": "2026-10-14T13:27:20.349Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5661,7 +5661,7 @@
     },
     {
       "id": "help-ko-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "help-ko-compact-dark.png",
       "contract": {
         "id": "help-ko-compact-dark",
@@ -5697,7 +5697,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:21.823Z",
+        "capturedAt": "2026-10-14T13:27:22.088Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5761,7 +5761,7 @@
     },
     {
       "id": "help-pt-BR-compact-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "help-pt-BR-compact-light.png",
       "contract": {
         "id": "help-pt-BR-compact-light",
@@ -5797,7 +5797,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:23.371Z",
+        "capturedAt": "2026-10-14T13:27:24.186Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5861,7 +5861,7 @@
     },
     {
       "id": "about-how-it-works-en-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "about-how-it-works-en-wide-light.png",
       "contract": {
         "id": "about-how-it-works-en-wide-light",
@@ -5897,7 +5897,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:02:55.296Z",
+        "capturedAt": "2026-10-14T13:26:55.294Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5961,7 +5961,7 @@
     },
     {
       "id": "compare-piskel-alternatives-en-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "compare-piskel-alternatives-en-wide-light.png",
       "contract": {
         "id": "compare-piskel-alternatives-en-wide-light",
@@ -5997,7 +5997,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:02:59.688Z",
+        "capturedAt": "2026-10-14T13:27:00.337Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6061,7 +6061,7 @@
     },
     {
       "id": "features-export-images-and-animation-en-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "features-export-images-and-animation-en-wide-light.png",
       "contract": {
         "id": "features-export-images-and-animation-en-wide-light",
@@ -6097,7 +6097,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:04.806Z",
+        "capturedAt": "2026-10-14T13:27:05.099Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6161,7 +6161,7 @@
     },
     {
       "id": "features-tilemaps-en-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "features-tilemaps-en-wide-light.png",
       "contract": {
         "id": "features-tilemaps-en-wide-light",
@@ -6197,7 +6197,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:08.050Z",
+        "capturedAt": "2026-10-14T13:27:08.291Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6261,7 +6261,7 @@
     },
     {
       "id": "privacy-en-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "privacy-en-wide-light.png",
       "contract": {
         "id": "privacy-en-wide-light",
@@ -6297,7 +6297,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:10.063Z",
+        "capturedAt": "2026-10-14T13:27:10.564Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6361,7 +6361,7 @@
     },
     {
       "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
@@ -6403,7 +6403,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:13.516Z",
+        "capturedAt": "2026-10-14T13:27:14.485Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -6431,7 +6431,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "9aa7b48238c057913e32048602dc1ee61e473f4051ad9ea84c7ed7a571b4dadf",
+        "sha256": "708b2df7ea00a0486537597f78cb99e858defbd4b77e97414a61561657a30751",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6457,16 +6457,16 @@
         {
           "name": "main",
           "x": 12,
-          "y": 36,
+          "y": 68,
           "width": 350,
-          "height": 512
+          "height": 724
         },
         {
           "name": "workspace",
           "x": 12,
-          "y": 36,
+          "y": 68,
           "width": 350,
-          "height": 512
+          "height": 724
         }
       ],
       "platform": "Linux x86_64",
@@ -6474,7 +6474,7 @@
     },
     {
       "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "tools-animal-crossing-qr-loaded-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
@@ -6516,7 +6516,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:17.168Z",
+        "capturedAt": "2026-10-14T13:27:17.876Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -6544,7 +6544,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "f31961abb65eb074aca64bbbb6dab703eb82279a668f9cccc2d6f549d9e6c341",
+        "sha256": "d3c4962af133a68d19d502a05c71e1211f3049ef42a17f57a5815069247d5b5e",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6570,16 +6570,16 @@
         {
           "name": "main",
           "x": 12,
-          "y": 36,
+          "y": 68,
           "width": 350,
-          "height": 512
+          "height": 724
         },
         {
           "name": "workspace",
           "x": 12,
-          "y": 36,
+          "y": 68,
           "width": 350,
-          "height": 512
+          "height": 724
         }
       ],
       "platform": "Linux x86_64",
@@ -6587,7 +6587,7 @@
     },
     {
       "id": "feature-window-tools-viewer-en-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "feature-window-tools-viewer-en-wide-light.png",
       "contract": {
         "id": "feature-window-tools-viewer-en-wide-light",
@@ -6629,7 +6629,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:20.012Z",
+        "capturedAt": "2026-10-14T13:27:20.742Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6700,7 +6700,7 @@
     },
     {
       "id": "about-ja-wide-light",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "about-ja-wide-light.png",
       "contract": {
         "id": "about-ja-wide-light",
@@ -6736,7 +6736,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:22.009Z",
+        "capturedAt": "2026-10-14T13:27:22.809Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6800,7 +6800,7 @@
     },
     {
       "id": "feature-window-features-layers-and-colors-ja-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "feature-window-features-layers-and-colors-ja-compact-dark.png",
       "contract": {
         "id": "feature-window-features-layers-and-colors-ja-compact-dark",
@@ -6843,7 +6843,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:24.431Z",
+        "capturedAt": "2026-10-14T13:27:26.862Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -6914,7 +6914,7 @@
     },
     {
       "id": "compare-aseprite-online-es-compact-dark",
-      "runId": "42fd79b3-ef7f-43dd-9117-33f2990a71c5",
+      "runId": "b9d42810-0db1-424f-a294-e916014238cd",
       "file": "compare-aseprite-online-es-compact-dark.png",
       "contract": {
         "id": "compare-aseprite-online-es-compact-dark",
@@ -6950,7 +6950,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T06:03:26.741Z",
+        "capturedAt": "2026-10-14T13:27:28.241Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
