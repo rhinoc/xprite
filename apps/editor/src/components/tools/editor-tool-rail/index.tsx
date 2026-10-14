@@ -96,7 +96,7 @@ function ToolOptionsPopup({
         onOpenChange={(visible) => {
           if (!visible) onClose();
         }}
-        label={selectedTool ? tUiSource(selectedTool.label) : tUiSource("Tool Options")}
+        label={selectedTool ? tUiSource(selectedTool.label) : tUi("ui.tool.options")}
         bounds={bounds}
         viewport={popover.viewport}
         sceneBounds={{ width: popover.availableWidth, height: popover.availableHeight }}

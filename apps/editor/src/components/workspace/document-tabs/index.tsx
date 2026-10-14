@@ -79,7 +79,7 @@ export function DocumentTabs({
 }) {
   const { sceneWidth } = useEditorLayout();
   const actions = useEditorActions();
-  const { style, translateSource } = useUi();
+  const { style } = useUi();
   const [contextTab, setContextTab] = useState("home");
   const visible = visibleDocumentIds ? new Set(visibleDocumentIds) : undefined;
   const sourceTabs = useMemo(
@@ -179,8 +179,8 @@ export function DocumentTabs({
           className="xse-layout-button"
           data-workspace-layout-trigger=""
           data-open={workspaceLayoutOpen ? "true" : undefined}
-          aria-label={translateSource("Workspace layout")}
-          title={translateSource("Workspace layout")}
+          aria-label={tUi("ui.workspace.layout")}
+          title={tUi("ui.workspace.layout")}
           aria-pressed={workspaceLayoutOpen}
           disabled={workspaceLayoutDisabled || !onWorkspaceLayoutToggle}
           onClick={onWorkspaceLayoutToggle}

@@ -269,7 +269,7 @@ export function SelectionDialogs({
                   inputMode="numeric"
                   aria-label={
                     kind === ToolSelectionModifier.Border
-                      ? tUiSource("Width")
+                      ? tUi("ui.width")
                       : tUi("ui.by", { value1: tUiSource(kind) })
                   }
                   onValueChange={setQuantity}

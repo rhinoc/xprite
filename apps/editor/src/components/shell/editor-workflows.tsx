@@ -15,7 +15,7 @@ import { EditorActionsContext } from "$/components/shell/editor-actions";
 import { useAnimationActions } from "$/components/timeline/animation-actions";
 import { useTimelineActions } from "$/components/timeline/timeline-actions";
 import { TilemapDialog } from "$/components/tools/tilemap-controls";
-import { tUi, tUiSource } from "$/i18n";
+import { tUi } from "$/i18n";
 import { ClipboardRegion } from "$/managers/clipboard";
 import { useEditorPreferences } from "$/managers/preferences/use-editor-preferences";
 import { formatEditorColor } from "$/managers/tools/color-control";
@@ -526,7 +526,7 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
             "Saving changes to the sprite",
             tUi("ui.before", {
               value1: state.document?.name ?? "Untitled",
-              value2: tUiSource(replacement?.kind === "exit" ? "quitting" : "closing"),
+              value2: replacement?.kind === "exit" ? tUi("ui.quitting") : tUi("ui.closing"),
             }),
           ]}
           actions={[
