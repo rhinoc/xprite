@@ -1,6 +1,10 @@
 import type { ToolWheelInput } from "$/managers/ports/preview";
 import type { PixelBuffer } from "@xprite/editor-core/base";
-import type { BeadGrid, BeadBoardSize } from "@xprite/editor-core/import-export";
+import type {
+  BeadDocumentLabels,
+  BeadGrid,
+  BeadBoardSize,
+} from "@xprite/editor-core/import-export";
 import type { SessionProject } from "@xprite/editor-core/session";
 
 export interface BeadInput {
@@ -18,6 +22,7 @@ export interface BeadToolPort {
     showCodes: boolean,
     boardSize: BeadBoardSize,
     name: string,
+    labels: BeadDocumentLabels,
   ): Promise<void>;
   savePdf(
     grid: BeadGrid,
@@ -25,5 +30,7 @@ export interface BeadToolPort {
     showCodes: boolean,
     boardSize: BeadBoardSize,
     name: string,
+    labels: BeadDocumentLabels,
+    onProgress: (progress: number) => void,
   ): Promise<void>;
 }

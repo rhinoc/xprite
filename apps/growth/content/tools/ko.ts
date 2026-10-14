@@ -230,4 +230,18 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
     "PNG, JPEG, .acnl 또는 Aseprite 파일을 선택하세요. 일반 마이 디자인 QR 이미지 한 장을 지원합니다.",
   "Choose a PNG with at most 16 million pixels.": "최대 1,600만 픽셀의 PNG를 선택하세요.",
   "The output could not be generated.": "결과물을 생성할 수 없습니다.",
+  "Xprite Fuse Bead Pattern Maker": "Xprite 퓨즈 비즈 도안 메이커",
+  "Fuse Bead Pattern Maker": "퓨즈 비즈 도안 메이커",
+  "Make a fuse bead pattern": "퓨즈 비즈 도안 만들기",
+  "Fuse Bead Pattern Maker: PNG & PDF | Xprite": "퓨즈 비즈 도안 메이커: PNG 및 PDF | Xprite",
+  "Fuse bead pattern maker": "퓨즈 비즈 도안 메이커",
+  "Create bead charts with MARD, Artkal, Perler or Hama colors and a material list.":
+    "MARD, Artkal, Perler, Hama 색상으로 비즈 도안과 재료 목록을 만드세요.",
+  "Open artwork, choose MARD, Artkal, Perler or Hama colors, preview bead boards and download PNG charts or paginated PDFs. Files stay on your device.":
+    "작품을 열고 MARD, Artkal, Perler, Hama 색상을 선택해 보드를 미리 보고 PNG 도안이나 페이지별 PDF를 다운로드하세요. 파일은 기기에만 남습니다.",
+  "Choose an image or Aseprite file for a bead pattern":
+    "비즈 도안에 사용할 이미지 또는 Aseprite 파일 선택",
+  "Open artwork": "작품 열기",
+  "Drop a PNG, JPEG, WebP or Aseprite file": "PNG, JPEG, WebP 또는 Aseprite 파일을 끌어다 놓기",
+  "Hello pixel art example": "Hello 픽셀 아트 예제",
 };

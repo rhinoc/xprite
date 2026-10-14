@@ -40,6 +40,7 @@ const KNOWN_FILE_FORMATS = new Set([
   "jpeg",
   "webp",
   "json",
+  "pdf",
 ]);
 
 export function telemetryFileFormat(name: string): string {

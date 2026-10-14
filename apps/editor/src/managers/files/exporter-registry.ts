@@ -1,6 +1,6 @@
 import { createElement, type ComponentType, type ReactNode } from "react";
 
-import { tUiSource } from "$/i18n";
+import { tUi, type UiMessageKey } from "$/i18n";
 import type { ExportExecutionPorts } from "$/managers/files/export-animation";
 import type { DocumentExportPreferences } from "$/managers/files/export-preferences";
 import type { EditorPlatformPorts } from "$/managers/ports/platform";
@@ -28,7 +28,8 @@ export interface ExporterResult {
 
 export interface ExporterChoice {
   id: string;
-  label: string;
+  /** Readable translation key, resolved with tUi when rendered. */
+  label: UiMessageKey;
   disabled?: boolean;
 }
 
@@ -102,7 +103,7 @@ export function registerExporter<Source, Options>(
     },
     async execute(context, value, ports) {
       const options = definition.normalizeOptions(value);
-      if (!options) throw new Error(tUiSource("Invalid export settings."));
+      if (!options) throw new Error(tUi("ui.export.invalid.settings"));
       return definition.execute(context, options, ports);
     },
   };
@@ -112,7 +113,7 @@ export class ExporterRegistry {
   readonly entries: readonly RegisteredExporter[];
   constructor(entries: readonly RegisteredExporter[]) {
     if (new Set(entries.map((entry) => entry.id)).size !== entries.length)
-      throw new Error("Duplicate exporter registration.");
+      throw new Error(tUi("ui.export.registry.duplicate"));
     this.entries = Object.freeze([...entries]);
   }
   get(id: string | undefined) {
@@ -123,9 +124,9 @@ export class ExporterRegistry {
   }
   async execute(id: string, context: ExporterContext, value: unknown, ports: ExportExecutionPorts) {
     const entry = this.get(id);
-    if (!entry?.available(context)) throw new Error(tUiSource("This exporter is unavailable."));
+    if (!entry?.available(context)) throw new Error(tUi("ui.export.unavailable"));
     const options = entry.normalizeOptions(value);
-    if (options === null) throw new Error(tUiSource("Invalid export settings."));
+    if (options === null) throw new Error(tUi("ui.export.invalid.settings"));
     const captured = structuredClone(options);
     const result = await entry.execute(context, captured, ports);
     ports.rememberExport?.({ exporter: id, options: captured });

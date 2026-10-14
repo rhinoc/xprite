@@ -1,5 +1,11 @@
+import {
+  BeadToolError,
+  beadToolFailure,
+  boardCountFailure,
+  type BeadToolFailure,
+} from "$/managers/beads/bead-failure";
 import type { BeadInput, BeadToolPort } from "$/managers/ports/beads";
-import { ToolFailureCategory, ToolOperationError } from "$/managers/ports/telemetry";
+import { ToolFailureCategory } from "$/managers/ports/telemetry";
 import { ToolViewport } from "$/managers/preview/tool-viewport";
 import {
   ToolTelemetry,
@@ -19,6 +25,10 @@ import {
   PIXELATION_METHOD_OPTIONS,
   mapBeadGrid,
   beadBoards,
+  beadBoardCount,
+  beadFileName,
+  defaultBeadFileStem,
+  MAX_BEAD_BOARDS,
   beadPatternSheetSize,
   BEAD_CHART_CELL_SIZE,
   beadPreviewCellSize,
@@ -30,6 +40,7 @@ import {
   type BeadBoard,
   type BeadBoardSize,
   type BeadColor,
+  type BeadDocumentLabels,
   type PixelationSettings,
 } from "@xprite/editor-core/import-export";
 import { TILESET_EMBEDDED_PIXELS_FLAG } from "@xprite/editor-core/tilemap";
@@ -57,6 +68,7 @@ const PREVIEW_DELAY_MS = 150;
 const MAX_PREVIEW_EDGE = 4096;
 const MAX_PREVIEW_PIXELS = 16 * 1024 * 1024;
 const MIN_GRID_EDGE = 1;
+const DEFAULT_FILE_STEM = "pattern";
 
 export interface BeadToolSettings extends Pick<
   PixelationSettings,
@@ -82,8 +94,15 @@ export interface BeadToolSnapshot {
   loading: boolean;
   pending: boolean;
   downloading: boolean;
-  error: string | null;
-  pngError: string | null;
+  error: BeadToolFailure | null;
+  /** Why PNG output is unavailable for the current grid, if it is. */
+  pngError: BeadToolFailure | null;
+  /** Why PDF output is unavailable (too many boards), if it is. */
+  pdfError: BeadToolFailure | null;
+  /** Boards needed for the whole pattern, even when only the first is listed. */
+  boardCount: number;
+  /** PDF encoding progress 0..1 while downloading, otherwise null. */
+  progress: number | null;
   excludedColors: readonly BeadColor[];
   highlight: string | null;
   previewLayout: BeadPreviewLayout | null;
@@ -100,7 +119,10 @@ export interface BeadPreviewLayout {
 
 export class BeadToolManager {
   readonly navigation: ToolViewport;
-  readonly brands = BEAD_PALETTES.map(({ id, name }) => ({ value: id, label: name }));
+  readonly brands = BEAD_PALETTES.map(({ id, name }) => ({
+    value: id,
+    label: name,
+  }));
   readonly samplingModes = PIXELATION_METHOD_OPTIONS;
   private state: BeadToolSnapshot = {
     source: null,
@@ -128,6 +150,9 @@ export class BeadToolManager {
     downloading: false,
     error: null,
     pngError: null,
+    pdfError: null,
+    boardCount: 0,
+    progress: null,
     excludedColors: [],
     highlight: null,
     previewLayout: null,
@@ -175,10 +200,7 @@ export class BeadToolManager {
         continue;
       const tileset = timeline.tilesets?.find((item) => item.id === layer.tilesetId);
       if (tileset?.external && !(tileset.flags & TILESET_EMBEDDED_PIXELS_FLAG))
-        throw new ToolOperationError(
-          ToolFailureCategory.UnsupportedFormat,
-          "Embed external tilesets before opening this project.",
-        );
+        throw new BeadToolError(ToolFailureCategory.UnsupportedFormat, "beads.error.tilesets");
     }
     const document: EditorDocument = {
       name,
@@ -187,7 +209,14 @@ export class BeadToolManager {
       timeline,
       palette: project.palette,
       selection: null,
-      layer: { name: "", pixels: project.image, x: 0, y: 0, visible: true, locked: false },
+      layer: {
+        name: "",
+        pixels: project.image,
+        x: 0,
+        y: 0,
+        visible: true,
+        locked: false,
+      },
     };
     return renderExport(document, {
       name: "beads.png",
@@ -237,7 +266,7 @@ export class BeadToolManager {
         mode: BeadPreviewMode.Overview,
         highlight: null,
         name: file.name,
-        outputName: `${file.name.replace(/\.[^.]+$/, "")}-beads`,
+        outputName: defaultBeadFileStem(file.name, DEFAULT_FILE_STEM),
         frame: 0,
         frameCount: input.project?.timeline.frames.length ?? 1,
         identity: this.state.identity + 1,
@@ -257,7 +286,7 @@ export class BeadToolManager {
       this.telemetry.failed(ToolOperation.Open, failureCategory, reason);
       this.publish({ loading: false });
       if (this.state.source) this.generate();
-      this.publish({ error: reason instanceof Error ? reason.message : String(reason) });
+      this.publish({ error: beadToolFailure(reason, "beads.error.open") });
     }
   }
   open = (file: File) => this.load(async () => file, ToolOpenSource.File);
@@ -276,16 +305,23 @@ export class BeadToolManager {
       return;
     try {
       const pixels = this.framePixels(this.input, frame, this.state.name);
-      this.publish({ frame, source: pixels, identity: this.state.identity + 1 });
+      this.publish({
+        frame,
+        source: pixels,
+        identity: this.state.identity + 1,
+      });
       this.schedulePreview();
     } catch (reason) {
-      this.publish({ error: reason instanceof Error ? reason.message : String(reason) });
+      this.publish({ error: beadToolFailure(reason, "beads.error.open") });
     }
   };
   changeSettings = (patch: Partial<BeadToolSettings>) => {
     if (!this.state.source || this.closed || this.state.loading || this.state.downloading) return;
     const normalized = updatePixelationSettings(
-      { ...defaultPixelationSettings(this.state.source), ...this.state.settings },
+      {
+        ...defaultPixelationSettings(this.state.source),
+        ...this.state.settings,
+      },
       patch,
       this.state.source,
     );
@@ -309,7 +345,15 @@ export class BeadToolManager {
       settings.targetHeight !== this.state.settings.targetHeight ||
       settings.method !== this.state.settings.method;
     const brandChanged = settings.brand !== this.state.settings.brand;
-    this.publish({ settings, ...(brandChanged ? { excludedColors: [], highlight: null } : {}) });
+    const boardChanged =
+      settings.boardSize.width !== this.state.settings.boardSize.width ||
+      settings.boardSize.height !== this.state.settings.boardSize.height;
+    this.publish({
+      settings,
+      ...(brandChanged ? { excludedColors: [], highlight: null } : {}),
+      // Board indices are meaningless after a resize; start again from the first board.
+      ...(boardChanged ? { selected: 0 } : {}),
+    });
     if (remap) this.schedulePreview();
     else if (!this.state.pending) this.updatePreview();
   };
@@ -375,7 +419,10 @@ export class BeadToolManager {
     try {
       const { brand } = this.state.settings;
       const normalized = updatePixelationSettings(
-        { ...defaultPixelationSettings(this.state.source), ...this.state.settings },
+        {
+          ...defaultPixelationSettings(this.state.source),
+          ...this.state.settings,
+        },
         {},
         this.state.source,
       );
@@ -403,11 +450,11 @@ export class BeadToolManager {
               : palette.colors.filter((color) => !excluded.has(color.code)),
           )
         : original;
-      let pngError: string | null = null;
+      let pngError: BeadToolFailure | null = null;
       try {
         beadPatternSheetSize(grid, BEAD_CHART_CELL_SIZE, BEAD_ARTIFACT_ATTRIBUTION);
       } catch (reason) {
-        pngError = reason instanceof Error ? reason.message : String(reason);
+        pngError = beadToolFailure(reason, "beads.error.png.limit");
       }
       const highlight = grid.usage.some(({ color }) => color.code === this.state.highlight)
         ? this.state.highlight
@@ -430,7 +477,7 @@ export class BeadToolManager {
         grid: null,
         preview: null,
         pending: false,
-        error: reason instanceof Error ? reason.message : String(reason),
+        error: beadToolFailure(reason, "beads.error.preview"),
       });
     }
   }
@@ -438,7 +485,22 @@ export class BeadToolManager {
     const grid = this.state.grid;
     if (!grid || !this.state.source) return;
     const { boardSize, showCodes } = this.state.settings;
-    const boards = beadBoards(grid, boardSize);
+    const count = beadBoardCount(grid, boardSize);
+    // Over the limit, only the first board is listed so tiny boards cannot build huge menus.
+    const boards =
+      count > MAX_BEAD_BOARDS
+        ? [
+            {
+              column: 0,
+              row: 0,
+              x: 0,
+              y: 0,
+              width: Math.min(boardSize.width, grid.width),
+              height: Math.min(boardSize.height, grid.height),
+            },
+          ]
+        : beadBoards(grid, boardSize);
+    const pdfError = count > MAX_BEAD_BOARDS ? boardCountFailure(count) : null;
     const selected = Math.min(this.state.selected, boards.length - 1);
     const area =
       this.state.mode === BeadPreviewMode.Board
@@ -461,6 +523,8 @@ export class BeadToolManager {
       preview,
       boards,
       selected,
+      pdfError,
+      boardCount: count,
       previewLayout:
         this.state.mode === BeadPreviewMode.Source
           ? null
@@ -511,9 +575,12 @@ export class BeadToolManager {
       Math.floor(point.y / cellSize / height) * columns + Math.floor(point.x / cellSize / width),
     );
   };
-  downloadPng = () => this.download(ToolOutputFormat.Png);
-  downloadPdf = () => this.download(ToolOutputFormat.Pdf);
-  private async download(format: ToolOutputFormat.Png | ToolOutputFormat.Pdf) {
+  downloadPng = (labels: BeadDocumentLabels) => this.download(ToolOutputFormat.Png, labels);
+  downloadPdf = (labels: BeadDocumentLabels) => this.download(ToolOutputFormat.Pdf, labels);
+  private async download(
+    format: ToolOutputFormat.Png | ToolOutputFormat.Pdf,
+    labels: BeadDocumentLabels,
+  ) {
     const { grid, settings, outputName } = this.state;
     if (
       !grid ||
@@ -522,11 +589,12 @@ export class BeadToolManager {
       this.state.pending ||
       this.state.downloading ||
       !outputName.trim() ||
-      (format === ToolOutputFormat.Png && this.state.pngError)
+      (format === ToolOutputFormat.Png && this.state.pngError) ||
+      (format === ToolOutputFormat.Pdf && this.state.pdfError)
     )
       return;
     const request = this.request;
-    const name = `${outputName.trim().replace(/\.(png|pdf)$/i, "")}.${format}`;
+    const name = beadFileName(outputName, format, DEFAULT_FILE_STEM);
     this.publish({ downloading: true, error: null });
     try {
       if (format === ToolOutputFormat.Png)
@@ -536,15 +604,22 @@ export class BeadToolManager {
           settings.showCodes,
           settings.boardSize,
           name,
+          labels,
         );
-      else
+      else {
+        this.publish({ progress: 0 });
         await this.port.savePdf(
           grid,
           BEAD_PALETTES.find((item) => item.id === settings.brand)!.name,
           settings.showCodes,
           settings.boardSize,
           name,
+          labels,
+          (progress) => {
+            if (request === this.request) this.publish({ progress });
+          },
         );
+      }
       if (!this.closed && request === this.request)
         this.telemetry.handedOff(
           request,
@@ -553,10 +628,12 @@ export class BeadToolManager {
     } catch (reason) {
       if (request === this.request) {
         this.telemetry.failed(ToolOperation.Export, ToolFailureCategory.Handoff, reason);
-        this.publish({ error: reason instanceof Error ? reason.message : String(reason) });
+        this.publish({
+          error: beadToolFailure(reason, "beads.error.download"),
+        });
       }
     } finally {
-      if (request === this.request) this.publish({ downloading: false });
+      if (request === this.request) this.publish({ downloading: false, progress: null });
     }
   }
   dispose() {

@@ -1,13 +1,19 @@
 import type { PixelBuffer } from "$/base";
-import { exportImageRuns, type ExportAttribution } from "$/import-export/attribution";
+import {
+  exportImageRuns,
+  type ExportAttribution,
+  type ExportRasterText,
+} from "$/import-export/attribution";
 import { beadTextInk } from "$/import-export/beads/chart";
 import {
+  assertBeadBoardCount,
   beadBoards,
   EMPTY_BEAD_CELL,
   type BeadGrid,
   type BeadBoard,
   type BeadBoardSize,
 } from "$/import-export/beads/grid";
+import { ENGLISH_BEAD_LABELS, type BeadDocumentLabels } from "$/import-export/beads/labels";
 import { qrCodePixels } from "$/import-export/qr-code";
 
 const PAGE_WIDTH = 595;
@@ -16,7 +22,6 @@ const MARGIN = 42;
 const CHART_TOP = 744;
 const CHART_BOTTOM = 70;
 const LINE_HEIGHT = 20;
-const MAX_BOARD_PAGES = 1024;
 const AXIS_GUTTER = 20;
 const AXIS_FONT_SIZE = 8;
 const AXIS_GAP = 4;
@@ -71,6 +76,37 @@ function literal(value: string) {
 function text(value: string, x: number, y: number, size = 11) {
   return `BT /F1 ${number(size)} Tf ${number(x)} ${number(y)} Td (${literal(value)}) Tj ET\n`;
 }
+const RASTER_TEXT_SCALE = 4;
+const CHANNELS = 4;
+const OPAQUE = 255;
+const PDF_SAFE_TEXT = /^[\x20-\x7e]*$/;
+
+/**
+ * Helvetica covers printable ASCII only. Localized labels in other scripts are drawn as
+ * vector runs of rasterized text, so every language prints without embedding a font.
+ */
+function localizedText(rasterText: ExportRasterText | undefined) {
+  return (value: string, x: number, y: number, size = 11) => {
+    if (!rasterText || PDF_SAFE_TEXT.test(value)) return text(value, x, y, size);
+    const fontSize = size * RASTER_TEXT_SCALE;
+    const bounds = rasterText.measure(value, fontSize);
+    const pixels = {
+      width: bounds.width,
+      height: bounds.height,
+      data: new Uint8ClampedArray(bounds.width * bounds.height * CHANNELS).fill(OPAQUE),
+    };
+    rasterText.draw(pixels, value, 0, 0, fontSize, [0, 0, 0]);
+    const unit = 1 / RASTER_TEXT_SCALE;
+    // Align the raster box with the Helvetica baseline used for ASCII labels.
+    const bottom = y - size * 0.25;
+    let output = "";
+    exportImageRuns(pixels, (column, row, width, rgb) => {
+      output += `${color(rgb)} rg ${number(x + column * unit)} ${number(bottom + (pixels.height - row - 1) * unit)} ${number(width * unit)} ${number(unit)} re f\n`;
+    });
+    return output + "0 g\n";
+  };
+}
+
 function color(rgb: readonly [number, number, number]) {
   return rgb.map((value) => number(value / 255)).join(" ");
 }
@@ -166,44 +202,70 @@ function chart(
   return output;
 }
 
-/** Portable A4 vector PDF: overview, row-major boards, then a paginated material list. */
-export function encodeBeadPdf(
+export interface BeadPdfOptions {
+  attribution?: ExportAttribution;
+  labels?: BeadDocumentLabels;
+  rasterText?: ExportRasterText;
+}
+
+/** Pages are produced lazily so the async encoder can yield between boards. */
+function* beadPdfPages(
   grid: BeadGrid,
   brand: string,
   boardSize: BeadBoardSize,
   showCodes: boolean,
-  attribution?: ExportAttribution,
-): Uint8Array {
+  { labels = ENGLISH_BEAD_LABELS, rasterText }: BeadPdfOptions,
+): Generator<string, void, undefined> {
   const boards = beadBoards(grid, boardSize);
-  if (boards.length > MAX_BOARD_PAGES)
-    throw new Error("Too many bead boards. Choose a larger board size.");
-  const pages: string[] = [];
+  const label = localizedText(rasterText);
+  const pending: string[] = [];
   const heading = (title: string, detail: string) =>
     "0 g\n" +
-    text(title, MARGIN, PAGE_HEIGHT - MARGIN, 16) +
-    text(detail, MARGIN, PAGE_HEIGHT - MARGIN - 24);
-  pages.push(
+    label(title, MARGIN, PAGE_HEIGHT - MARGIN, 16) +
+    label(detail, MARGIN, PAGE_HEIGHT - MARGIN - 24);
+  pending.push(
     heading(
-      `${brand} - overview`,
-      `${grid.width} x ${grid.height} beads | ${boards.length} boards | ${grid.total} beads | ${grid.usage.length} colors`,
+      labels.overview({ brand }),
+      labels.summary({
+        width: grid.width,
+        height: grid.height,
+        beads: grid.total,
+        colors: grid.usage.length,
+        boards: boards.length,
+      }),
     ) + chart(grid, { x: 0, y: 0, width: grid.width, height: grid.height }, false, boardSize, true),
   );
+  yield* pending.splice(0);
   for (const [index, board] of boards.entries()) {
-    pages.push(
+    pending.push(
       heading(
-        `${brand} - B${index + 1}/${boards.length}: board row ${board.row + 1}, column ${board.column + 1}`,
-        `Columns ${board.x + 1}-${board.x + board.width}, rows ${board.y + 1}-${board.y + board.height} | board ${boardSize.width} x ${boardSize.height}`,
+        labels.boardPage({
+          brand,
+          index: index + 1,
+          count: boards.length,
+          row: board.row + 1,
+          column: board.column + 1,
+        }),
+        labels.boardRange({
+          firstColumn: board.x + 1,
+          lastColumn: board.x + board.width,
+          firstRow: board.y + 1,
+          lastRow: board.y + board.height,
+          boardWidth: boardSize.width,
+          boardHeight: boardSize.height,
+        }),
       ) + chart(grid, board, showCodes, boardSize),
     );
+    yield* pending.splice(0);
   }
   const materialHeading = (continued = false) =>
     heading(
-      `${brand} - materials${continued ? " (continued)" : ""}`,
-      `Total: ${grid.total} beads | ${grid.usage.length} colors`,
+      (continued ? labels.materialsContinued : labels.materials)({ brand }),
+      labels.total({ beads: grid.total, colors: grid.usage.length }),
     ) +
-    text("Code", MARGIN + 26, CHART_TOP) +
-    text("Color", MARGIN + 142, CHART_TOP) +
-    text("Quantity", PAGE_WIDTH - MARGIN - 62, CHART_TOP);
+    label(labels.code, MARGIN + 26, CHART_TOP) +
+    label(labels.color, MARGIN + 142, CHART_TOP) +
+    label(labels.quantity, PAGE_WIDTH - MARGIN - 62, CHART_TOP);
   let list = materialHeading();
   let lineY = CHART_TOP - LINE_HEIGHT;
   for (const { color: item, quantity } of [...grid.usage].sort(
@@ -211,18 +273,27 @@ export function encodeBeadPdf(
       b.quantity - a.quantity || a.color.code.localeCompare(b.color.code, "en", { numeric: true }),
   )) {
     if (lineY < CHART_BOTTOM) {
-      pages.push(list);
+      pending.push(list);
       list = materialHeading(true);
       lineY = CHART_TOP - LINE_HEIGHT;
     }
     list +=
       `${color(item.rgb)} rg ${MARGIN} ${lineY - 2} 14 14 re f\n0 g\n` +
       text(item.code, MARGIN + 26, lineY) +
-      text(item.name.slice(0, 40), MARGIN + 142, lineY, 9) +
+      label(item.name.slice(0, 40), MARGIN + 142, lineY, 9) +
       text(String(quantity), PAGE_WIDTH - MARGIN - 62, lineY);
     lineY -= LINE_HEIGHT;
   }
-  pages.push(list);
+  pending.push(list);
+  yield* pending.splice(0);
+}
+
+/** Number of pages before the material list: one overview plus one page per board. */
+export function beadPdfChartPageCount(grid: BeadGrid, boardSize: BeadBoardSize): number {
+  return beadBoards(grid, boardSize).length + 1;
+}
+
+function assembleBeadPdf(pages: readonly string[], attribution?: ExportAttribution): Uint8Array {
   const objects = [
     "",
     "<< /Type /Catalog /Pages 2 0 R >>",
@@ -268,4 +339,49 @@ export function encodeBeadPdf(
   for (const offset of offsets.slice(1)) output += `${String(offset).padStart(10, "0")} 00000 n \n`;
   output += `trailer\n<< /Size ${objects.length} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
   return Uint8Array.from(output, (character) => character.charCodeAt(0));
+}
+
+/** Portable A4 vector PDF: overview, row-major boards, then a paginated material list. */
+export function encodeBeadPdf(
+  grid: BeadGrid,
+  brand: string,
+  boardSize: BeadBoardSize,
+  showCodes: boolean,
+  options: BeadPdfOptions = {},
+): Uint8Array {
+  assertBeadBoardCount(grid, boardSize);
+  return assembleBeadPdf(
+    [...beadPdfPages(grid, brand, boardSize, showCodes, options)],
+    options.attribution,
+  );
+}
+
+const PDF_YIELD_PAGES = 8;
+
+/** Same bytes as encodeBeadPdf, yielding to the UI between pages and reporting progress 0..1. */
+export async function encodeBeadPdfAsync(
+  grid: BeadGrid,
+  brand: string,
+  boardSize: BeadBoardSize,
+  showCodes: boolean,
+  options: BeadPdfOptions & {
+    onProgress?: (progress: number) => void;
+    /** Host scheduler hook, e.g. a macrotask in browsers; resolves immediately by default. */
+    yieldToHost?: () => Promise<void>;
+  } = {},
+): Promise<Uint8Array> {
+  assertBeadBoardCount(grid, boardSize);
+  const expected = beadPdfChartPageCount(grid, boardSize);
+  const pause = options.yieldToHost ?? (() => Promise.resolve());
+  const pages: string[] = [];
+  for (const page of beadPdfPages(grid, brand, boardSize, showCodes, options)) {
+    pages.push(page);
+    if (pages.length % PDF_YIELD_PAGES === 0) {
+      options.onProgress?.(Math.min(1, pages.length / expected));
+      await pause();
+    }
+  }
+  const bytes = assembleBeadPdf(pages, options.attribution);
+  options.onProgress?.(1);
+  return bytes;
 }

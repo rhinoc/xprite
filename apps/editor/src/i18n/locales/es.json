@@ -2377,5 +2377,22 @@
   "ui.export.registry.duplicate": "El exportador está registrado más de una vez.",
   "ui.export.registry.missing": "No se encontró el registro de exportadores.",
   "ui.export.unavailable": "Este exportador no está disponible.",
-  "ui.most.frequent.color": "Color más frecuente"
+  "ui.most.frequent.color": "Color más frecuente",
+  "ui.export.beads.png": "PNG",
+  "ui.export.beads.boards.limit": "{count} placas superan el límite de {max}. Elige un tamaño de placa mayor.",
+  "ui.export.beads.board.size.invalid": "El tamaño de placa debe ser un número entero de {min} a {max}.",
+  "ui.export.beads.progress": "Exportando… {percent}%",
+  "ui.export.beads.error.palette": "Selecciona una paleta de cuentas.",
+  "ui.export.beads.error.source": "La imagen de origen de las cuentas no es válida.",
+  "ui.export.beads.doc.title": "Patrón de cuentas",
+  "ui.export.beads.doc.legend": "Materiales - código / color / cantidad",
+  "ui.export.beads.doc.summary": "{width} x {height} | Cuentas {beads} | Colores {colors} | Placas {boards}",
+  "ui.export.beads.doc.layout": "Placa {boardWidth} x {boardHeight} | {rows} filas x {columns} columnas",
+  "ui.export.beads.doc.overview": "{brand} - vista general",
+  "ui.export.beads.doc.board": "{brand} - B{index}/{count}: placa de fila {row}, columna {column}",
+  "ui.export.beads.doc.range": "Columnas {firstColumn}-{lastColumn}, filas {firstRow}-{lastRow} | placa {boardWidth} x {boardHeight}",
+  "ui.export.beads.doc.materials": "{brand} - materiales",
+  "ui.export.beads.doc.materials.continued": "{brand} - materiales (continuación)",
+  "ui.export.beads.doc.total": "Total: {beads} cuentas | {colors} colores",
+  "ui.export.beads.doc.color": "Color"
 }

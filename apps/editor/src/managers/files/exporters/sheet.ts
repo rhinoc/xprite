@@ -1,3 +1,4 @@
+import { tUi } from "$/i18n";
 import { exportDocumentSpriteSheet } from "$/managers/files/export-animation";
 import { ExporterGroup, type ExporterDefinition } from "$/managers/files/exporter-registry";
 import { tilesetExportSource } from "$/managers/files/tileset-export-source";
@@ -26,7 +27,7 @@ export function sheetExporterDefinition(
   const tiles = id === SheetExporterId.Tileset;
   return {
     id,
-    label: () => (tiles ? "Tileset" : "Sprite Sheet"),
+    label: () => tUi(tiles ? "ui.tileset" : "ui.sprite.sheet"),
     group: ExporterGroup.Sheets,
     initialSize: { width: 562, height: 282 },
     helpUrl: "https://www.aseprite.org/docs/sprite-sheet/#export",

@@ -2377,5 +2377,22 @@
   "ui.export.registry.duplicate": "エクスポーターが重複しています。",
   "ui.export.registry.missing": "エクスポーター一覧がありません。",
   "ui.export.unavailable": "このエクスポーターは使用できません。",
-  "ui.most.frequent.color": "最頻色"
+  "ui.most.frequent.color": "最頻色",
+  "ui.export.beads.png": "PNG",
+  "ui.export.beads.boards.limit": "ボードが {count} 個あり、上限の {max} 個を超えています。より大きなボードサイズを選んでください。",
+  "ui.export.beads.board.size.invalid": "ボードサイズは {min}〜{max} の整数で指定してください。",
+  "ui.export.beads.progress": "書き出し中… {percent}%",
+  "ui.export.beads.error.palette": "ビーズのパレットを選んでください。",
+  "ui.export.beads.error.source": "ビーズの元画像が無効です。",
+  "ui.export.beads.doc.title": "アイロンビーズ図案",
+  "ui.export.beads.doc.legend": "材料 - 色番号 / 色 / 個数",
+  "ui.export.beads.doc.summary": "{width} x {height} | ビーズ {beads} | 色 {colors} | ボード {boards}",
+  "ui.export.beads.doc.layout": "ボード {boardWidth} x {boardHeight} | {rows} 行 x {columns} 列",
+  "ui.export.beads.doc.overview": "{brand} - 全体図",
+  "ui.export.beads.doc.board": "{brand} - B{index}/{count}：{row} 行目、{column} 列目のボード",
+  "ui.export.beads.doc.range": "{firstColumn}-{lastColumn} 列、{firstRow}-{lastRow} 行 | ボード {boardWidth} x {boardHeight}",
+  "ui.export.beads.doc.materials": "{brand} - 材料",
+  "ui.export.beads.doc.materials.continued": "{brand} - 材料（続き）",
+  "ui.export.beads.doc.total": "合計：ビーズ {beads} 個 | {colors} 色",
+  "ui.export.beads.doc.color": "色"
 }

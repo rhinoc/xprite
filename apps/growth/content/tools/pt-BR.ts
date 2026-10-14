@@ -236,4 +236,19 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "Choose a PNG with at most 16 million pixels.":
     "Escolha um PNG com no máximo 16 milhões de pixels.",
   "The output could not be generated.": "Não foi possível gerar o resultado.",
+  "Xprite Fuse Bead Pattern Maker": "Xprite: criador de padrões de miçangas",
+  "Fuse Bead Pattern Maker": "Criador de padrões de miçangas",
+  "Make a fuse bead pattern": "Crie um padrão de miçangas",
+  "Fuse Bead Pattern Maker: PNG & PDF | Xprite":
+    "Criador de padrões de miçangas: PNG e PDF | Xprite",
+  "Fuse bead pattern maker": "Criador de padrões de miçangas",
+  "Create bead charts with MARD, Artkal, Perler or Hama colors and a material list.":
+    "Crie padrões com cores MARD, Artkal, Perler ou Hama e uma lista de materiais.",
+  "Open artwork, choose MARD, Artkal, Perler or Hama colors, preview bead boards and download PNG charts or paginated PDFs. Files stay on your device.":
+    "Abra sua arte, escolha cores MARD, Artkal, Perler ou Hama, visualize as placas e baixe gráficos PNG ou PDFs paginados. Os arquivos ficam no seu dispositivo.",
+  "Choose an image or Aseprite file for a bead pattern":
+    "Escolha uma imagem ou um arquivo do Aseprite para o padrão de miçangas",
+  "Open artwork": "Abrir arte",
+  "Drop a PNG, JPEG, WebP or Aseprite file": "Solte um arquivo PNG, JPEG, WebP ou Aseprite",
+  "Hello pixel art example": "Exemplo de pixel art Hello",
 };

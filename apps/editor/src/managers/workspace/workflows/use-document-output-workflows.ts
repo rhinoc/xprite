@@ -120,6 +120,7 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
     document: EditorDocument,
     exporting: (ports: ExportExecutionPorts) => Promise<T>,
     completed?: (result: T) => void,
+    exporter?: string,
   ) => {
     const key = exportKey.current;
     return exportOperation.run(
@@ -132,6 +133,7 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
           key,
           (reportingPorts) => exporting({ ...ports, ...reportingPorts }),
           ports.save,
+          exporter,
         );
       },
       completed,
@@ -157,6 +159,7 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
         clearExport();
         acceptGenerated(result);
       },
+      id,
     );
   };
   const performSheetImport = (importOptions: ImportSpriteSheetOptions) => {
@@ -175,7 +178,12 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
   };
   const openSheetImport = () => {
     const document = core.getSnapshot().document;
-    if (document) setSheetImport({ core, id: document.id, image: core.canvas.exportComposite() });
+    if (document)
+      setSheetImport({
+        core,
+        id: document.id,
+        image: core.canvas.exportComposite(),
+      });
   };
   const rememberExporterOptions = useCallback(
     (id: string, value: unknown) => {
@@ -278,6 +286,7 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
         document,
         (ports) => registry.execute(currentExporter.id, context, lastExport.options, ports),
         acceptGenerated,
+        currentExporter.id,
       );
     },
   };

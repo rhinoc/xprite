@@ -1,3 +1,4 @@
+import { tUi } from "$/i18n";
 import { exportDocumentAnimation } from "$/managers/files/export-animation";
 import { ExportOutputFormat } from "$/managers/files/export-file-options";
 import type { ExporterDefinition } from "$/managers/files/exporter-registry";
@@ -23,15 +24,23 @@ export function normalizeImageExportOptions(value: unknown): ExportFileOptions |
 
 export const imageExporterDefinition: ExporterDefinition<ImageExporterSource, ExportFileOptions> = {
   id: ImageExporterId.Image,
-  label: () => "PNG image (.png)",
+  label: () => tUi("ui.save.format.png"),
   initialSize: { width: 456, height: 336 },
   helpUrl: "https://www.aseprite.org/docs/exporting/",
   initialChoices: [
-    { id: ExportOutputFormat.Png, label: "PNG image (.png)" },
-    { id: ExportOutputFormat.Gif, label: "GIF animation (.gif)" },
-    { id: ExportOutputFormat.Apng, label: "Animated PNG (.apng)" },
-    { id: ExportOutputFormat.Jpeg, label: "JPEG current frame (.jpg)", disabled: true },
-    { id: ExportOutputFormat.Webp, label: "WebP image/animation (.webp)", disabled: true },
+    { id: ExportOutputFormat.Png, label: "ui.save.format.png" },
+    { id: ExportOutputFormat.Gif, label: "ui.export.format.gif" },
+    { id: ExportOutputFormat.Apng, label: "ui.export.format.apng" },
+    {
+      id: ExportOutputFormat.Jpeg,
+      label: "ui.image.export.jpeg.current.frame",
+      disabled: true,
+    },
+    {
+      id: ExportOutputFormat.Webp,
+      label: "ui.image.export.webp.format",
+      disabled: true,
+    },
   ],
   async resolveChoices({ platform }) {
     const capabilities = await inspectImageEncodingCapabilities(platform.files.webp);

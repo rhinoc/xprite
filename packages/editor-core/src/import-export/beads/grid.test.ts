@@ -1,7 +1,17 @@
 import { describe, expect, it } from "vitest";
 
 import { renderBeadChart } from "$/import-export/beads/chart";
-import { beadBoards, beadGridPixels, mapBeadGrid } from "$/import-export/beads/grid";
+import { BeadError, BeadErrorCode, beadErrorCode } from "$/import-export/beads/errors";
+import {
+  assertBeadBoardCount,
+  beadBoardCount,
+  beadBoards,
+  beadGridPixels,
+  mapBeadGrid,
+  MAX_BEAD_BOARDS,
+  nearestBeadColor,
+  rgbToLab,
+} from "$/import-export/beads/grid";
 import { encodeBeadPdf } from "$/import-export/beads/pdf";
 
 const colors = [
@@ -10,24 +20,73 @@ const colors = [
 ];
 
 describe("bead charts", () => {
-  it("keeps hidden transparent RGB empty and resolves RGB ties in palette order without changing input", () => {
+  it("treats alpha below 128 as empty, keeps hidden RGB out of usage and never writes input", () => {
     const source = {
-      width: 3,
+      width: 4,
       height: 1,
-      data: new Uint8ClampedArray([190, 0, 0, 255, 200, 0, 0, 0, 100, 0, 0, 1]),
+      data: new Uint8ClampedArray([190, 0, 0, 255, 200, 0, 0, 0, 10, 10, 10, 127, 10, 10, 10, 128]),
     };
     const before = source.data.slice();
     const grid = mapBeadGrid(source, colors);
-    expect([...grid.cells]).toEqual([1, -1, 0]);
+    expect([...grid.cells]).toEqual([1, -1, -1, 0]);
     expect(grid.usage.map(({ color, quantity }) => [color.code, quantity])).toEqual([
       ["H01", 1],
       ["H02", 1],
     ]);
     expect(grid.total).toBe(2);
     expect(Array.from(beadGridPixels(grid).data)).toEqual([
-      200, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 255,
+      200, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255,
     ]);
     expect(source.data).toEqual(before);
+  });
+  it("matches perceptually in CIELAB where plain RGB distance picks the wrong bead", () => {
+    // Dark red is equidistant from black and red in RGB, but perceptually much closer to red.
+    const grid = mapBeadGrid(
+      { width: 1, height: 1, data: new Uint8ClampedArray([100, 0, 0, 255]) },
+      colors,
+    );
+    expect(grid.usage[0].color.code).toBe("H02");
+    // A saturated blue is nearer to a muted blue than to a grey of similar RGB distance.
+    const blues = [
+      { code: "G", name: "Grey", rgb: [90, 90, 120] as const },
+      { code: "B", name: "Blue", rgb: [40, 40, 200] as const },
+    ];
+    expect(nearestBeadColor(blues, [0, 0, 255])).toBe(1);
+    expect(rgbToLab(255, 255, 255)[0]).toBeCloseTo(100, 3);
+    expect(rgbToLab(0, 0, 0)).toEqual([0, 0, 0]);
+  });
+  it("reports typed error codes instead of display text", () => {
+    const pixels = { width: 1, height: 1, data: new Uint8ClampedArray(4) };
+    const failure = (run: () => unknown) => {
+      try {
+        run();
+      } catch (reason) {
+        return beadErrorCode(reason);
+      }
+      return null;
+    };
+    expect(failure(() => mapBeadGrid(pixels, []))).toBe(BeadErrorCode.MissingPalette);
+    expect(failure(() => mapBeadGrid({ ...pixels, width: 2 }, colors))).toBe(
+      BeadErrorCode.InvalidSource,
+    );
+    expect(failure(() => beadBoards(pixels, { width: 0, height: 29 }))).toBe(
+      BeadErrorCode.InvalidBoardSize,
+    );
+    expect(failure(() => beadBoardCount(pixels, { width: 1.5, height: 29 }))).toBe(
+      BeadErrorCode.InvalidBoardSize,
+    );
+    expect(beadErrorCode(new Error("x"))).toBeNull();
+  });
+  it("counts boards without building them and rejects counts above the PDF limit up front", () => {
+    expect(beadBoardCount({ width: 31, height: 30 }, { width: 29, height: 29 })).toBe(4);
+    expect(beadBoardCount({ width: 512, height: 512 }, { width: 1, height: 1 })).toBe(262144);
+    expect(() =>
+      assertBeadBoardCount({ width: 32, height: 32 }, { width: 1, height: 1 }),
+    ).not.toThrow();
+    expect(() => assertBeadBoardCount({ width: 33, height: 32 }, { width: 1, height: 1 })).toThrow(
+      BeadError,
+    );
+    expect(MAX_BEAD_BOARDS).toBe(1024);
   });
   it("includes both partial edge boards in row-major order", () => {
     expect(beadBoards({ width: 31, height: 30 }, { width: 29, height: 29 })).toEqual([

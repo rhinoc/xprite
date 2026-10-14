@@ -1,5 +1,6 @@
 import type { PixelBuffer } from "$/base";
 import type { ExportRasterText } from "$/import-export/attribution";
+import { BeadError, BeadErrorCode } from "$/import-export/beads/errors";
 import {
   EMPTY_BEAD_CELL,
   type BeadGrid,
@@ -29,7 +30,7 @@ export function beadChartSize(
 
 export function assertBeadChartSize({ width, height }: { width: number; height: number }) {
   if (width > MAX_CHART_EDGE || height > MAX_CHART_EDGE || width * height > MAX_BEAD_CHART_PIXELS)
-    throw new Error("The PNG chart is too large. Export a PDF with separate boards instead.");
+    throw new BeadError(BeadErrorCode.ChartTooLarge);
 }
 
 export function beadTextInk(rgb: readonly [number, number, number]) {

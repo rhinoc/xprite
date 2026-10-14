@@ -16,9 +16,14 @@ export async function reportingExport<T>(
   documentKey: string | undefined,
   exporting: (ports: ExportExecutionPorts) => Promise<T>,
   save = downloadExportArtifact,
+  exporter?: string,
 ): Promise<T> {
   if (!telemetry.enabled) return exporting({});
-  const context = telemetry.documentContext(document, documentKey);
+  // The registered exporter id (e.g. "beads") separates crafts from image or sheet exports.
+  const context = {
+    ...telemetry.documentContext(document, documentKey),
+    ...(exporter ? { exporter_id: exporter } : {}),
+  };
   const finish = telemetry.beginExport(context);
   const startedAt = performance.now();
   let bytes = 0;

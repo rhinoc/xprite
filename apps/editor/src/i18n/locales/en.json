@@ -2377,5 +2377,22 @@
   "ui.export.invalid.settings": "Invalid export settings.",
   "ui.export.beads.board.coordinates": "Row {row}, column {column}",
   "ui.export.beads.summary": "{width} × {height} · Beads: {count} · Colors: {colors}",
-  "ui.export.artwork.unavailable": "The export artwork is unavailable."
+  "ui.export.artwork.unavailable": "The export artwork is unavailable.",
+  "ui.export.beads.png": "PNG",
+  "ui.export.beads.boards.limit": "{count} boards exceed the limit of {max}. Choose a larger board size.",
+  "ui.export.beads.board.size.invalid": "Board size must be a whole number from {min} to {max}.",
+  "ui.export.beads.progress": "Exporting… {percent}%",
+  "ui.export.beads.error.palette": "Select a bead palette.",
+  "ui.export.beads.error.source": "The bead source image is invalid.",
+  "ui.export.beads.doc.title": "Fuse bead pattern",
+  "ui.export.beads.doc.legend": "Materials - code / color / quantity",
+  "ui.export.beads.doc.summary": "{width} x {height} | Beads {beads} | Colors {colors} | Boards {boards}",
+  "ui.export.beads.doc.layout": "Board {boardWidth} x {boardHeight} | {rows} rows x {columns} columns",
+  "ui.export.beads.doc.overview": "{brand} - overview",
+  "ui.export.beads.doc.board": "{brand} - B{index}/{count}: board row {row}, column {column}",
+  "ui.export.beads.doc.range": "Columns {firstColumn}-{lastColumn}, rows {firstRow}-{lastRow} | board {boardWidth} x {boardHeight}",
+  "ui.export.beads.doc.materials": "{brand} - materials",
+  "ui.export.beads.doc.materials.continued": "{brand} - materials (continued)",
+  "ui.export.beads.doc.total": "Total: {beads} beads | {colors} colors",
+  "ui.export.beads.doc.color": "Color"
 }

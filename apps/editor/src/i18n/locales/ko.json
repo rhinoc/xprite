@@ -2377,5 +2377,22 @@
   "ui.export.registry.duplicate": "내보내기 도구가 중복 등록되었습니다.",
   "ui.export.registry.missing": "내보내기 도구 목록을 찾을 수 없습니다.",
   "ui.export.unavailable": "이 내보내기 도구를 사용할 수 없습니다.",
-  "ui.most.frequent.color": "가장 많이 나타나는 색"
+  "ui.most.frequent.color": "가장 많이 나타나는 색",
+  "ui.export.beads.png": "PNG",
+  "ui.export.beads.boards.limit": "보드가 {count}개로 최대 {max}개를 넘습니다. 더 큰 보드 크기를 선택하세요.",
+  "ui.export.beads.board.size.invalid": "보드 크기는 {min}~{max} 사이의 정수여야 합니다.",
+  "ui.export.beads.progress": "내보내는 중… {percent}%",
+  "ui.export.beads.error.palette": "비즈 팔레트를 선택하세요.",
+  "ui.export.beads.error.source": "비즈 원본 이미지가 올바르지 않습니다.",
+  "ui.export.beads.doc.title": "퓨즈 비즈 도안",
+  "ui.export.beads.doc.legend": "재료 - 색상 코드 / 색상 / 수량",
+  "ui.export.beads.doc.summary": "{width} x {height} | 비즈 {beads} | 색상 {colors} | 보드 {boards}",
+  "ui.export.beads.doc.layout": "보드 {boardWidth} x {boardHeight} | {rows}행 x {columns}열",
+  "ui.export.beads.doc.overview": "{brand} - 전체 보기",
+  "ui.export.beads.doc.board": "{brand} - B{index}/{count}: {row}행 {column}열 보드",
+  "ui.export.beads.doc.range": "{firstColumn}-{lastColumn}열, {firstRow}-{lastRow}행 | 보드 {boardWidth} x {boardHeight}",
+  "ui.export.beads.doc.materials": "{brand} - 재료",
+  "ui.export.beads.doc.materials.continued": "{brand} - 재료(계속)",
+  "ui.export.beads.doc.total": "합계: 비즈 {beads}개 | 색상 {colors}개",
+  "ui.export.beads.doc.color": "색상"
 }

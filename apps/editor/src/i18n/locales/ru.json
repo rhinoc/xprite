@@ -2377,5 +2377,22 @@
   "ui.export.registry.duplicate": "Обнаружена повторная регистрация экспортера.",
   "ui.export.registry.missing": "Реестр экспортеров не найден.",
   "ui.export.unavailable": "Этот экспортер недоступен.",
-  "ui.most.frequent.color": "Наиболее частый цвет"
+  "ui.most.frequent.color": "Наиболее частый цвет",
+  "ui.export.beads.png": "PNG",
+  "ui.export.beads.boards.limit": "Планшетов: {count}, это больше предела {max}. Выберите больший размер планшета.",
+  "ui.export.beads.board.size.invalid": "Размер планшета должен быть целым числом от {min} до {max}.",
+  "ui.export.beads.progress": "Экспорт… {percent}%",
+  "ui.export.beads.error.palette": "Выберите палитру бусин.",
+  "ui.export.beads.error.source": "Исходное изображение для бусин недопустимо.",
+  "ui.export.beads.doc.title": "Схема из термобусин",
+  "ui.export.beads.doc.legend": "Материалы - код / цвет / количество",
+  "ui.export.beads.doc.summary": "{width} x {height} | Бусин {beads} | Цветов {colors} | Планшетов {boards}",
+  "ui.export.beads.doc.layout": "Планшет {boardWidth} x {boardHeight} | {rows} строк x {columns} столбцов",
+  "ui.export.beads.doc.overview": "{brand} - обзор",
+  "ui.export.beads.doc.board": "{brand} - B{index}/{count}: планшет, ряд {row}, столбец {column}",
+  "ui.export.beads.doc.range": "Столбцы {firstColumn}-{lastColumn}, строки {firstRow}-{lastRow} | планшет {boardWidth} x {boardHeight}",
+  "ui.export.beads.doc.materials": "{brand} - материалы",
+  "ui.export.beads.doc.materials.continued": "{brand} - материалы (продолжение)",
+  "ui.export.beads.doc.total": "Итого: бусин {beads} | цветов {colors}",
+  "ui.export.beads.doc.color": "Цвет"
 }

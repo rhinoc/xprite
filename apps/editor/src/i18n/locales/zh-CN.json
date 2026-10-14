@@ -2377,5 +2377,22 @@
   "ui.export.invalid.settings": "导出设置无效。",
   "ui.export.beads.board.coordinates": "第 {row} 行，第 {column} 列",
   "ui.export.beads.summary": "{width} × {height} · 拼豆数：{count} · 颜色数：{colors}",
-  "ui.export.artwork.unavailable": "导出素材不可用。"
+  "ui.export.artwork.unavailable": "导出素材不可用。",
+  "ui.export.beads.png": "PNG",
+  "ui.export.beads.boards.limit": "共 {count} 块底板，超过上限 {max}。请选择更大的底板尺寸。",
+  "ui.export.beads.board.size.invalid": "底板尺寸必须是 {min} 到 {max} 之间的整数。",
+  "ui.export.beads.progress": "正在导出… {percent}%",
+  "ui.export.beads.error.palette": "请选择拼豆色卡。",
+  "ui.export.beads.error.source": "拼豆源图像无效。",
+  "ui.export.beads.doc.title": "拼豆图纸",
+  "ui.export.beads.doc.legend": "用料 - 色号 / 颜色 / 数量",
+  "ui.export.beads.doc.summary": "{width} x {height} | 拼豆 {beads} | 颜色 {colors} | 底板 {boards}",
+  "ui.export.beads.doc.layout": "底板 {boardWidth} x {boardHeight} | {rows} 行 x {columns} 列",
+  "ui.export.beads.doc.overview": "{brand} - 总览",
+  "ui.export.beads.doc.board": "{brand} - B{index}/{count}：第 {row} 行，第 {column} 列底板",
+  "ui.export.beads.doc.range": "第 {firstColumn}-{lastColumn} 列，第 {firstRow}-{lastRow} 行 | 底板 {boardWidth} x {boardHeight}",
+  "ui.export.beads.doc.materials": "{brand} - 用料",
+  "ui.export.beads.doc.materials.continued": "{brand} - 用料（续）",
+  "ui.export.beads.doc.total": "合计：{beads} 颗 | {colors} 种颜色",
+  "ui.export.beads.doc.color": "颜色"
 }

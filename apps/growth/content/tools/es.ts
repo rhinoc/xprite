@@ -238,4 +238,19 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   "Choose a PNG with at most 16 million pixels.":
     "Elige un PNG de 16 millones de píxeles como máximo.",
   "The output could not be generated.": "No se pudo generar el resultado.",
+  "Xprite Fuse Bead Pattern Maker": "Xprite: creador de patrones de cuentas Hama",
+  "Fuse Bead Pattern Maker": "Creador de patrones de cuentas Hama",
+  "Make a fuse bead pattern": "Crea un patrón de cuentas Hama",
+  "Fuse Bead Pattern Maker: PNG & PDF | Xprite":
+    "Creador de patrones de cuentas Hama: PNG y PDF | Xprite",
+  "Fuse bead pattern maker": "Creador de patrones de cuentas Hama",
+  "Create bead charts with MARD, Artkal, Perler or Hama colors and a material list.":
+    "Crea patrones con colores MARD, Artkal, Perler o Hama y una lista de materiales.",
+  "Open artwork, choose MARD, Artkal, Perler or Hama colors, preview bead boards and download PNG charts or paginated PDFs. Files stay on your device.":
+    "Abre tu dibujo, elige colores MARD, Artkal, Perler o Hama, revisa las placas y descarga patrones PNG o PDF paginados. Los archivos no salen de tu dispositivo.",
+  "Choose an image or Aseprite file for a bead pattern":
+    "Elige una imagen o un archivo de Aseprite para el patrón de cuentas",
+  "Open artwork": "Abrir dibujo",
+  "Drop a PNG, JPEG, WebP or Aseprite file": "Suelta un archivo PNG, JPEG, WebP o Aseprite",
+  "Hello pixel art example": "Ejemplo de pixel art Hello",
 };

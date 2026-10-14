@@ -1,3 +1,4 @@
+import { tUi } from "$/i18n";
 import type { ExportOutputPort } from "$/managers/ports/export-output";
 import { downloadBlob } from "@xprite/bedrock/browser/file-system";
 import { decodeImageBlob, encodePngBlob } from "@xprite/bedrock/browser/images";
@@ -8,10 +9,15 @@ export function createBrowserExportOutputPort(): ExportOutputPort {
     encodePng: encodePngBlob,
     rasterText: createArtifactRasterText(),
     async readAttribution(name, url, logoUrl, pixelFont) {
-      const response = await fetch(logoUrl);
-      if (!response.ok) throw new Error("The export artwork is unavailable.");
-      const logo = await decodeImageBlob(await response.blob());
-      return { name, url, signature: await renderArtifactSignature(name, url, logo, pixelFont) };
+      try {
+        const response = await fetch(logoUrl);
+        if (!response.ok) throw new Error(tUi("ui.export.artwork.unavailable"));
+        const logo = await decodeImageBlob(await response.blob());
+        return { name, url, signature: await renderArtifactSignature(name, url, logo, pixelFont) };
+      } catch {
+        // Network, decode and canvas failures all mean the signature artwork is unavailable.
+        throw new Error(tUi("ui.export.artwork.unavailable"));
+      }
     },
     async save({ blob, name }) {
       downloadBlob(blob, name);

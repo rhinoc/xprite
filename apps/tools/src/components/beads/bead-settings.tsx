@@ -1,3 +1,6 @@
+import { useState } from "react";
+
+import { boardSizeFailure } from "$/managers/beads/bead-failure";
 import type {
   BeadToolManager,
   BeadToolSnapshot,
@@ -8,7 +11,9 @@ import {
   MIN_BEAD_BOARD_EDGE,
   MAX_BEAD_BOARD_EDGE,
 } from "$/managers/beads/bead-tool-manager";
-import { useToolTranslation } from "$/managers/locale/tool-language";
+import type { BeadTextKey } from "$/managers/locale/bead-text";
+import { useBeadText } from "$/managers/locale/tool-language";
+import { PixelationMethod } from "@xprite/editor-core/import-export";
 import {
   Panel,
   PanelVariant,
@@ -27,6 +32,24 @@ const SETTINGS_GAP = 8;
 const NUMBER_WIDTH = 64;
 const SELECT_WIDTH = 144;
 const MIN_GRID_EDGE = 1;
+const SAMPLING_KEYS: Readonly<Record<PixelationMethod, BeadTextKey>> = {
+  [PixelationMethod.Structure]: "beads.sampling.structure",
+  [PixelationMethod.Dominant]: "beads.sampling.dominant",
+  [PixelationMethod.MostFrequent]: "beads.sampling.frequent",
+  [PixelationMethod.Box]: "beads.sampling.box",
+  [PixelationMethod.Nearest]: "beads.sampling.nearest",
+};
+type Axis = "width" | "height";
+
+function parseBoardEdge(raw: string): number | null {
+  const value = Number(raw.trim());
+  return raw.trim() &&
+    Number.isSafeInteger(value) &&
+    value >= MIN_BEAD_BOARD_EDGE &&
+    value <= MAX_BEAD_BOARD_EDGE
+    ? value
+    : null;
+}
 
 export function BeadSettings({
   manager,
@@ -35,33 +58,62 @@ export function BeadSettings({
   manager: BeadToolManager;
   state: BeadToolSnapshot;
 }) {
-  const t = useToolTranslation();
+  const text = useBeadText();
   const busy = state.loading || state.downloading;
-  const number = (key: "width" | "height", label: string, board = false) => (
-    <Field label={t(label)}>
+  // Raw board text stays local so partial or invalid input is shown and explained, not dropped.
+  const [boardDraft, setBoardDraft] = useState<Partial<Record<Axis, string>>>({});
+  const boardInvalid = (["width", "height"] as const).some(
+    (axis) => boardDraft[axis] !== undefined && parseBoardEdge(boardDraft[axis]!) === null,
+  );
+  const changeBoard = (axis: Axis, raw: string) => {
+    const value = parseBoardEdge(raw);
+    setBoardDraft((previous) => ({ ...previous, [axis]: raw }));
+    if (value !== null)
+      manager.changeSettings({
+        boardSize: { ...state.settings.boardSize, [axis]: value },
+      });
+  };
+  const gridEdge = (axis: Axis, label: BeadTextKey) => (
+    <Field label={text(label)}>
       <Input
         pixelWidth={NUMBER_WIDTH}
         inputMode="numeric"
-        aria-label={t(label)}
-        value={String(
-          board
-            ? state.settings.boardSize[key]
-            : state.settings[key === "width" ? "targetWidth" : "targetHeight"],
-        )}
-        min={board ? MIN_BEAD_BOARD_EDGE : MIN_GRID_EDGE}
-        max={board ? MAX_BEAD_BOARD_EDGE : MAX_PIXELATION_SIZE}
+        aria-label={text(label)}
+        value={String(state.settings[axis === "width" ? "targetWidth" : "targetHeight"])}
+        min={MIN_GRID_EDGE}
+        max={MAX_PIXELATION_SIZE}
         step={MIN_GRID_EDGE}
         disabled={busy}
         onCommit={(value) =>
-          manager.changeSettings(
-            board
-              ? { boardSize: { ...state.settings.boardSize, [key]: Number(value) } }
-              : { [key === "width" ? "targetWidth" : "targetHeight"]: Number(value) },
-          )
+          manager.changeSettings({
+            [axis === "width" ? "targetWidth" : "targetHeight"]: Number(value),
+          })
         }
       />
     </Field>
   );
+  const boardEdge = (axis: Axis, label: BeadTextKey) => (
+    <Field label={text(label)}>
+      <Input
+        pixelWidth={NUMBER_WIDTH}
+        inputMode="numeric"
+        aria-label={text(label)}
+        aria-invalid={boardDraft[axis] !== undefined && parseBoardEdge(boardDraft[axis]!) === null}
+        value={boardDraft[axis] ?? String(state.settings.boardSize[axis])}
+        min={MIN_BEAD_BOARD_EDGE}
+        max={MAX_BEAD_BOARD_EDGE}
+        step={MIN_GRID_EDGE}
+        disabled={busy}
+        onValueChange={(value) => changeBoard(axis, value)}
+        onCommit={(value) => {
+          changeBoard(axis, value);
+          if (parseBoardEdge(value) !== null)
+            setBoardDraft((previous) => ({ ...previous, [axis]: undefined }));
+        }}
+      />
+    </Field>
+  );
+  const boardError = boardSizeFailure();
   return (
     <Panel
       variant={PanelVariant.Utility}
@@ -72,25 +124,27 @@ export function BeadSettings({
       contentLayout={ContentLayout.Column}
       contentPadding={ContentPadding.Compact}
       contentGap={SETTINGS_GAP}
-      title={t("Bead pattern")}
+      title={text("beads.pattern")}
     >
-      <Field label={t("Brand")}>
+      <Field label={text("beads.brand")}>
         <Combobox
           pixelWidth={SELECT_WIDTH}
-          aria-label={t("Brand")}
+          aria-label={text("beads.brand")}
           value={state.settings.brand}
           options={manager.brands}
           disabled={busy}
           onValueChange={(brand) =>
-            manager.changeSettings({ brand: brand as BeadToolSettings["brand"] })
+            manager.changeSettings({
+              brand: brand as BeadToolSettings["brand"],
+            })
           }
         />
       </Field>
       {state.frameCount > MIN_GRID_EDGE && (
-        <Field label={t("Frame")}>
+        <Field label={text("beads.frame")}>
           <Combobox
             pixelWidth={NUMBER_WIDTH}
-            aria-label={t("Source frame")}
+            aria-label={text("beads.frame.source")}
             value={String(state.frame)}
             disabled={busy}
             options={Array.from({ length: state.frameCount }, (_, index) => ({
@@ -101,51 +155,56 @@ export function BeadSettings({
           />
         </Field>
       )}
-      {number("width", "Columns")}
-      {number("height", "Rows")}
+      {gridEdge("width", "beads.columns")}
+      {gridEdge("height", "beads.rows")}
       <Checkbox
-        label={t("Keep aspect ratio")}
+        label={text("beads.aspect.keep")}
         checked={state.settings.lockAspectRatio}
         disabled={busy}
         onCheckedChange={(lockAspectRatio) => manager.changeSettings({ lockAspectRatio })}
       />
-      <Field label={t("Sampling")}>
+      <Field label={text("beads.sampling")}>
         <Combobox
           pixelWidth={SELECT_WIDTH}
-          aria-label={t("Sampling")}
+          aria-label={text("beads.sampling")}
           value={state.settings.method}
-          options={manager.samplingModes.map((mode) => ({ ...mode, label: t(mode.label) }))}
+          options={manager.samplingModes.map((mode) => ({
+            value: mode.value,
+            label: text(SAMPLING_KEYS[mode.value]),
+          }))}
           disabled={busy}
           onValueChange={(method) =>
-            manager.changeSettings({ method: method as BeadToolSettings["method"] })
+            manager.changeSettings({
+              method: method as BeadToolSettings["method"],
+            })
           }
         />
       </Field>
-      {number("width", "Board columns", true)}
-      {number("height", "Board rows", true)}
-      <Text variant={TextVariant.Reading} wrap>
-        {t("Enter the peg counts of one board. Larger patterns span multiple boards.")}
+      {boardEdge("width", "beads.board.columns")}
+      {boardEdge("height", "beads.board.rows")}
+      <Text variant={TextVariant.Reading} wrap role={boardInvalid ? "alert" : undefined}>
+        {boardInvalid ? text(boardError.key, boardError.values) : text("beads.board.hint")}
       </Text>
       <Checkbox
-        label={t("Color codes in cells")}
+        label={text("beads.codes")}
         checked={state.settings.showCodes}
         disabled={busy}
         onCheckedChange={(showCodes) => manager.changeSettings({ showCodes })}
       />
-      <Field label={t("Output name")}>
+      <Field label={text("beads.output.name")}>
         <Input
           pixelWidth={SELECT_WIDTH}
-          aria-label={t("Output name")}
+          aria-label={text("beads.output.name")}
           value={state.outputName}
           disabled={busy}
           onValueChange={manager.setOutputName}
         />
       </Field>
       <Text variant={TextVariant.Reading} wrap>
-        {t("Each grid cell is one bead. Transparent pixels stay empty.")}
+        {text("beads.help.cells")}
       </Text>
       <Text variant={TextVariant.Reading} wrap>
-        {t("Colors are screen references; physical beads may differ.")}
+        {text("beads.help.colors")}
       </Text>
     </Panel>
   );

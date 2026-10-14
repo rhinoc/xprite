@@ -5,7 +5,7 @@ import {
   type BeadToolManager,
   type BeadToolSnapshot,
 } from "$/managers/beads/bead-tool-manager";
-import { useToolTranslation } from "$/managers/locale/tool-language";
+import { useBeadText } from "$/managers/locale/tool-language";
 import {
   Panel,
   PanelVariant,
@@ -32,7 +32,7 @@ export function BeadMaterials({
   manager: BeadToolManager;
   state: BeadToolSnapshot;
 }) {
-  const t = useToolTranslation();
+  const text = useBeadText();
   const grid = state.grid;
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState(BeadMaterialSort.Quantity);
@@ -53,7 +53,7 @@ export function BeadMaterials({
       emphasized
       collapsible
       scrollable
-      title={t("Materials")}
+      title={text("beads.materials")}
       contentLayout={ContentLayout.Column}
       contentPadding={ContentPadding.Compact}
       className={styles.materials}
@@ -61,35 +61,47 @@ export function BeadMaterials({
       {grid && (
         <>
           <Text variant={TextVariant.Reading} wrap>
-            {`${grid.width} × ${grid.height} · ${t("Beads")}: ${grid.total} · ${t("Colors")}: ${grid.usage.length} · ${t("Boards")}: ${state.boards.length}`}
+            {text("beads.materials.summary", {
+              width: grid.width,
+              height: grid.height,
+              beads: grid.total,
+              colors: grid.usage.length,
+              boards: state.boardCount,
+            })}
           </Text>
           <ControlFlow className={styles.materialControls}>
             <Input
               pixelWidth={SEARCH_WIDTH}
-              aria-label={t("Search color codes")}
-              placeholder={t("Search colors")}
+              aria-label={text("beads.materials.search.label")}
+              placeholder={text("beads.materials.search")}
               value={query}
               onValueChange={setQuery}
             />
             <Combobox
               pixelWidth={SORT_WIDTH}
-              aria-label={t("Sort colors")}
+              aria-label={text("beads.materials.sort")}
               value={sort}
               options={[
-                { value: BeadMaterialSort.Quantity, label: t("Quantity") },
-                { value: BeadMaterialSort.Code, label: t("Color code") },
+                {
+                  value: BeadMaterialSort.Quantity,
+                  label: text("beads.materials.quantity"),
+                },
+                {
+                  value: BeadMaterialSort.Code,
+                  label: text("beads.materials.code"),
+                },
               ]}
               onValueChange={(value) => setSort(value as BeadMaterialSort)}
             />
           </ControlFlow>
           <ControlFlow className={styles.materialControls}>
             <Button
-              text={t("Show all colors")}
+              text={text("beads.materials.show.all")}
               disabled={busy || !state.highlight}
               onClick={() => manager.highlightColor(null)}
             />
             <Button
-              text={t("Restore all colors")}
+              text={text("beads.materials.restore.all")}
               disabled={busy || !state.excludedColors.length}
               onClick={manager.restoreAllColors}
             />
@@ -98,10 +110,10 @@ export function BeadMaterials({
             <thead>
               <tr>
                 <th>
-                  <Text variant={TextVariant.Reading}>{t("Color code")}</Text>
+                  <Text variant={TextVariant.Reading}>{text("beads.materials.code")}</Text>
                 </th>
                 <th>
-                  <Text variant={TextVariant.Reading}>{t("Quantity")}</Text>
+                  <Text variant={TextVariant.Reading}>{text("beads.materials.quantity")}</Text>
                 </th>
                 <th />
               </tr>
@@ -113,7 +125,9 @@ export function BeadMaterials({
                     <Button
                       appearance={ButtonAppearance.Quiet}
                       text={color.code}
-                      aria-label={`${t("Highlight")}: ${color.code}`}
+                      aria-label={text("beads.materials.highlight", {
+                        code: color.code,
+                      })}
                       aria-pressed={state.highlight === color.code}
                       selected={state.highlight === color.code}
                       disabled={busy}
@@ -122,7 +136,9 @@ export function BeadMaterials({
                         leading: (
                           <span
                             className={styles.swatch}
-                            style={{ backgroundColor: `rgb(${color.rgb.join(",")})` }}
+                            style={{
+                              backgroundColor: `rgb(${color.rgb.join(",")})`,
+                            }}
                           />
                         ),
                       }}
@@ -134,8 +150,10 @@ export function BeadMaterials({
                   <td>
                     <Button
                       appearance={ButtonAppearance.Quiet}
-                      text={t("Exclude")}
-                      aria-label={`${t("Exclude")}: ${color.code}`}
+                      text={text("beads.materials.exclude")}
+                      aria-label={text("beads.materials.exclude.color", {
+                        code: color.code,
+                      })}
                       disabled={busy || grid.usage.length <= 1}
                       onClick={() => manager.excludeColor(color.code)}
                     />
@@ -144,16 +162,20 @@ export function BeadMaterials({
               ))}
             </tbody>
           </table>
-          {!colors.length && <Text variant={TextVariant.Reading}>{t("No matching colors.")}</Text>}
+          {!colors.length && (
+            <Text variant={TextVariant.Reading}>{text("beads.materials.none")}</Text>
+          )}
           {!!state.excludedColors.length && (
             <>
-              <Text variant={TextVariant.Reading}>{t("Excluded colors")}</Text>
+              <Text variant={TextVariant.Reading}>{text("beads.materials.excluded")}</Text>
               <ControlFlow className={styles.materialControls}>
                 {state.excludedColors.map((color) => (
                   <Button
                     key={color.code}
                     text={color.code}
-                    aria-label={`${t("Restore")}: ${color.code}`}
+                    aria-label={text("beads.materials.restore.color", {
+                      code: color.code,
+                    })}
                     disabled={busy}
                     onClick={() => manager.restoreColor(color.code)}
                   />
@@ -162,7 +184,7 @@ export function BeadMaterials({
             </>
           )}
           <Text variant={TextVariant.Reading} wrap>
-            {t("Click a color code to highlight its cells. Excluded colors are rematched.")}
+            {text("beads.materials.hint")}
           </Text>
         </>
       )}

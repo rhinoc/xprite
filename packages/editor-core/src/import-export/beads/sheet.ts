@@ -11,6 +11,7 @@ import {
   drawBeadChart,
 } from "$/import-export/beads/chart";
 import { beadBoards, type BeadGrid, type BeadBoardSize } from "$/import-export/beads/grid";
+import { ENGLISH_BEAD_LABELS, type BeadDocumentLabels } from "$/import-export/beads/labels";
 import { beadTextWidth, drawBeadText } from "$/import-export/beads/text";
 import { qrCodePixels } from "$/import-export/qr-code";
 
@@ -50,8 +51,6 @@ const ANNOTATIONS = {
   colorNameOffset: 24,
   swatchBorder: 1,
   headingScale: 4,
-  title: "FUSE BEAD PATTERN",
-  materials: "MATERIALS - CODE / COLOR / QUANTITY",
 } as const;
 
 export function beadPatternSheetSize(
@@ -92,6 +91,7 @@ export function renderBeadPatternSheet(
   boardSize: BeadBoardSize,
   attribution?: ExportAttribution,
   text?: ExportRasterText,
+  labels: BeadDocumentLabels = ENGLISH_BEAD_LABELS,
 ): PixelBuffer {
   const layout = beadPatternSheetSize(grid, BEAD_CHART_CELL_SIZE, attribution);
   const { width, height, chartLeft, chartTop, legendTop, legendColumns } = layout;
@@ -133,15 +133,26 @@ export function renderBeadPatternSheet(
   const columns = Math.ceil(grid.width / boardSize.width);
   const rows = Math.ceil(grid.height / boardSize.height);
   const boards = beadBoards(grid, boardSize);
-  label(ANNOTATIONS.title, MARGIN, MARGIN, TITLE_SCALE);
+  label(labels.sheetTitle, MARGIN, MARGIN, TITLE_SCALE);
   label(brand, MARGIN, ANNOTATIONS.brandTop, ANNOTATIONS.headingScale);
   label(
-    `${grid.width} X ${grid.height} | BEADS ${grid.total} | COLORS ${grid.usage.length} | BOARDS ${boards.length}`,
+    labels.summary({
+      width: grid.width,
+      height: grid.height,
+      beads: grid.total,
+      colors: grid.usage.length,
+      boards: boards.length,
+    }),
     MARGIN,
     ANNOTATIONS.countsTop,
   );
   label(
-    `BOARD ${boardSize.width} X ${boardSize.height} | ${rows} ROWS X ${columns} COLUMNS`,
+    labels.boardLayout({
+      boardWidth: boardSize.width,
+      boardHeight: boardSize.height,
+      rows,
+      columns,
+    }),
     MARGIN,
     ANNOTATIONS.boardsTop,
   );
@@ -189,7 +200,7 @@ export function renderBeadPatternSheet(
     ANNOTATIONS.swatchBorder,
     LINE,
   );
-  label(ANNOTATIONS.materials, MARGIN, legendTop, ANNOTATIONS.headingScale);
+  label(labels.sheetMaterials, MARGIN, legendTop, ANNOTATIONS.headingScale);
   const columnWidth = Math.floor((width - MARGIN * 2) / legendColumns);
   const usage = [...grid.usage].sort(
     (a, b) =>

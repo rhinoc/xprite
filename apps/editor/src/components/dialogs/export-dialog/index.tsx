@@ -2,7 +2,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
-import { tUi, tUiSource, useUiLanguage } from "$/i18n";
+import { tUi, useUiLanguage } from "$/i18n";
 import {
   ExporterGroup,
   type ExporterRegistry,
@@ -167,7 +167,7 @@ export function ExportDialog(props: ExportDialogProps) {
   const selected = props.registry.get(props.destination);
   if (!selected) return null;
   const itemFor = (entry: RegisteredExporter, choice?: ExporterChoice): MenuItem => ({
-    label: choice?.label ?? entry.label(),
+    label: choice ? tUi(choice.label) : entry.label(),
     disabled: !entry.available(props.context) || choice?.disabled,
     checkType: MenuCheckType.Radio,
     checked:
@@ -201,10 +201,10 @@ export function ExportDialog(props: ExportDialogProps) {
         : [];
     }),
   ];
-  const selectedLabel =
-    choices[selected.id]?.find(
-      (choice) => choice.id === (choiceIds[selected.id] ?? choices[selected.id]?.[0]?.id),
-    )?.label ?? selected.label();
+  const selectedLabel = choices[selected.id]?.find(
+    (choice) => choice.id === (choiceIds[selected.id] ?? choices[selected.id]?.[0]?.id),
+  )?.label;
+  const selectedText = selectedLabel ? tUi(selectedLabel) : selected.label();
   const panel = (destination: string, render: ReturnType<RegisteredExporter["createPanel"]>) => {
     const active = props.destination === destination;
     const onLayoutSizeChange = (size: { width: number; height: number }) => {
@@ -343,7 +343,7 @@ export function ExportDialog(props: ExportDialogProps) {
                 >
                   <Text
                     variant={TextVariant.Control}
-                    text={tUiSource(selectedLabel)}
+                    text={selectedText}
                     bounds={{
                       x: CONTROL_GAP,
                       y: 0,

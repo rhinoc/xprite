@@ -5,16 +5,9 @@
 }
 .description {
   position: absolute;
-  left: 328px;
-  top: 328px;
-  width: 424px;
 }
 .materials {
   position: absolute;
-  left: 0;
-  top: 404px;
-  width: 308px;
-  height: 72px;
   overflow: auto;
 }
 .table {

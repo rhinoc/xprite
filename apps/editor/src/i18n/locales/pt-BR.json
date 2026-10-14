@@ -2377,5 +2377,22 @@
   "ui.export.registry.duplicate": "Há exportadores duplicados.",
   "ui.export.registry.missing": "O registro de exportadores não foi encontrado.",
   "ui.export.unavailable": "Este exportador não está disponível.",
-  "ui.most.frequent.color": "Cor mais frequente"
+  "ui.most.frequent.color": "Cor mais frequente",
+  "ui.export.beads.png": "PNG",
+  "ui.export.beads.boards.limit": "{count} placas excedem o limite de {max}. Escolha um tamanho de placa maior.",
+  "ui.export.beads.board.size.invalid": "O tamanho da placa deve ser um número inteiro de {min} a {max}.",
+  "ui.export.beads.progress": "Exportando… {percent}%",
+  "ui.export.beads.error.palette": "Selecione uma paleta de miçangas.",
+  "ui.export.beads.error.source": "A imagem de origem das miçangas é inválida.",
+  "ui.export.beads.doc.title": "Padrão de miçangas",
+  "ui.export.beads.doc.legend": "Materiais - código / cor / quantidade",
+  "ui.export.beads.doc.summary": "{width} x {height} | Miçangas {beads} | Cores {colors} | Placas {boards}",
+  "ui.export.beads.doc.layout": "Placa {boardWidth} x {boardHeight} | {rows} linhas x {columns} colunas",
+  "ui.export.beads.doc.overview": "{brand} - visão geral",
+  "ui.export.beads.doc.board": "{brand} - B{index}/{count}: placa da linha {row}, coluna {column}",
+  "ui.export.beads.doc.range": "Colunas {firstColumn}-{lastColumn}, linhas {firstRow}-{lastRow} | placa {boardWidth} x {boardHeight}",
+  "ui.export.beads.doc.materials": "{brand} - materiais",
+  "ui.export.beads.doc.materials.continued": "{brand} - materiais (continuação)",
+  "ui.export.beads.doc.total": "Total: {beads} miçangas | {colors} cores",
+  "ui.export.beads.doc.color": "Cor"
 }
