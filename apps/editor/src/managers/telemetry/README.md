@@ -177,8 +177,9 @@ policy are documented in the [website telemetry contract](../../../../../package
    not in a cookie.
 3. Configure the public build variables shown in `apps/editor/.env.example`:
    `VITE_POSTHOG_PROJECT_TOKEN` and `VITE_POSTHOG_REGION` (`US` or `EU`).
-   The SDK uses `https://us.i.posthog.com` or `https://eu.i.posthog.com` for
-   ingestion. Local development never reports.
+   US projects ingest through the PostHog managed reverse proxy at
+   `https://e.xprite.cc`; EU projects use `https://eu.i.posthog.com`. Set the
+   optional `VITE_POSTHOG_API_HOST` (an https origin) to override either. Local development never reports.
 4. Deploy the static editor output to EdgeOne Makers. From repository root, use
    build command `pnpm run build:site` and output directory `.tmp/site`.
    Analytics requires no edge functions or hosting runtime variables. Inject

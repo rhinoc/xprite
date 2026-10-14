@@ -38,6 +38,7 @@ jobs:
       EDGEONE_PROJECT_NAME: ${{ vars.EDGEONE_PROJECT_NAME || 'xprite' }}
       EDGEONE_AREA: ${{ vars.EDGEONE_AREA }}
       VITE_POSTHOG_REGION: ${{ vars.VITE_POSTHOG_REGION || 'US' }}
+      VITE_POSTHOG_API_HOST: ${{ vars.VITE_POSTHOG_API_HOST }}
       VITE_POSTHOG_PROJECT_TOKEN: ${{ (inputs.environment || 'production') == 'production' && vars.VITE_POSTHOG_PROJECT_TOKEN || '' }}
 
     steps:

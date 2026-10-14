@@ -17,6 +17,7 @@ createBrowserSiteTelemetry({
   production: import.meta.env.PROD,
   token: import.meta.env.VITE_POSTHOG_PROJECT_TOKEN ?? "",
   region: import.meta.env.VITE_POSTHOG_REGION ?? "US",
+  apiHost: import.meta.env.VITE_POSTHOG_API_HOST,
   version: __XPRITE_VERSION__,
   release: __XPRITE_RELEASE__,
   captureLinks: true,
