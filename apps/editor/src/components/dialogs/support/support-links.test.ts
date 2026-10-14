@@ -6,7 +6,11 @@ import {
   HoverDisclosure,
   type DisclosureTimers,
 } from "$/components/dialogs/support/hover-disclosure";
-import { SUPPORT_ICON_PIXELS, supportGlyphPath } from "$/components/dialogs/support/support-icons";
+import {
+  SUPPORT_ICON_PIXELS,
+  supportGlyphPaths,
+  supportGlyphRows,
+} from "$/components/dialogs/support/support-icons";
 import {
   SUPPORT_EXTERNAL_LINK_PROPS,
   SUPPORT_KOFI_HREF,
@@ -53,10 +57,12 @@ describe("support links", () => {
       SupportChannel.Xiaohongshu,
       SupportChannel.Xiaoheihe,
       SupportChannel.X,
+      SupportChannel.ItchIo,
     ]);
     for (const language of LANGUAGES.filter((language) => language !== "zh-CN"))
       expect(supportSocialLinks(language).map((link) => link.channel)).toEqual([
         SupportChannel.X,
+        SupportChannel.ItchIo,
         SupportChannel.Bilibili,
         SupportChannel.Xiaohongshu,
         SupportChannel.Xiaoheihe,
@@ -77,8 +83,24 @@ describe("support links", () => {
       expect(url.search).toBe("");
     }
     expect(SUPPORT_KOFI_HREF).toBe("https://ko-fi.com/rhinoc");
+    expect(
+      supportSocialLinks("en").find((link) => link.channel === SupportChannel.ItchIo)?.href,
+    ).toBe("https://rhinoc.itch.io/xprite");
     expect(SUPPORT_EXTERNAL_LINK_PROPS.target).toBe("_blank");
     expect(SUPPORT_EXTERNAL_LINK_PROPS.rel).toContain("noopener");
+  });
+
+  it("reports stable telemetry option names", () => {
+    expect(Object.values(SupportChannel)).toEqual([
+      "github",
+      "kofi",
+      "wechat",
+      "bilibili",
+      "xiaohongshu",
+      "xiaoheihe",
+      "x",
+      "itchio",
+    ]);
   });
 
   it("labels every platform with an existing UI message", () => {
@@ -87,15 +109,29 @@ describe("support links", () => {
 });
 
 describe("support icons", () => {
-  it("draws every glyph inside the 12x12 pixel grid", () => {
+  it("draws every platform as a complete 16x16 pixel glyph", () => {
     for (const channel of Object.values(SupportChannel)) {
-      const path = supportGlyphPath(channel);
-      expect(path.length).toBeGreaterThan(0);
-      for (const [, x, y, run] of path.matchAll(/M(\d+) (\d+)h(\d+)/g)) {
-        expect(Number(x) + Number(run)).toBeLessThanOrEqual(SUPPORT_ICON_PIXELS);
-        expect(Number(y)).toBeLessThan(SUPPORT_ICON_PIXELS);
-      }
+      const rows = supportGlyphRows(channel);
+      expect(rows).toHaveLength(SUPPORT_ICON_PIXELS);
+      for (const row of rows) expect(row).toHaveLength(SUPPORT_ICON_PIXELS);
+      const paths = supportGlyphPaths(channel);
+      expect(paths.length).toBeGreaterThan(0);
+      for (const { d } of paths)
+        for (const [, x, y, run] of d.matchAll(/M(\d+) (\d+)h(\d+)/g)) {
+          expect(Number(x) + Number(run)).toBeLessThanOrEqual(SUPPORT_ICON_PIXELS);
+          expect(Number(y)).toBeLessThan(SUPPORT_ICON_PIXELS);
+        }
     }
+  });
+
+  it("uses brand colours where the mark has one and theme ink for monochrome marks", () => {
+    const fills = (channel: SupportChannel) => supportGlyphPaths(channel).map((path) => path.fill);
+    expect(fills(SupportChannel.WeChat)).toContain("#07c160");
+    expect(fills(SupportChannel.Bilibili)).toContain("#00a1d6");
+    expect(fills(SupportChannel.Xiaohongshu)).toContain("#ff2442");
+    expect(fills(SupportChannel.ItchIo)).toContain("#fa5c5c");
+    for (const channel of [SupportChannel.GitHub, SupportChannel.X, SupportChannel.Xiaoheihe])
+      expect(fills(channel)).toEqual(["currentColor"]);
   });
 });
 

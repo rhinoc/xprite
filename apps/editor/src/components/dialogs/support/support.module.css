@@ -1,10 +1,19 @@
 .body {
-  position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
   gap: var(--ui-space-4, 8px);
   padding: var(--ui-space-4, 8px);
+}
+
+.trigger {
+  display: flex;
+  min-width: 0;
+}
+
+.trigger > * {
+  flex: 1 1 auto;
+  width: 100%;
 }
 
 .section {
@@ -14,98 +23,23 @@
   gap: var(--ui-space-4, 8px);
 }
 
-.donations {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ui-space-4, 8px);
-}
-
-.wechat {
-  display: flex;
-  min-width: 0;
-}
-
-.wechat > * {
-  flex: 1 1 auto;
-  width: 100%;
-}
-
-.primary {
-  min-width: 0;
-  min-height: 44px;
-}
-
-.secondary {
-  min-width: 0;
-  min-height: 32px;
-}
-
-.star {
-  min-height: 32px;
-}
-
 .socials {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--ui-space-4, 8px);
 }
 
-.social {
-  min-width: 0;
-  min-height: 32px;
-}
-
-.actions {
-  justify-content: flex-end;
-}
-
 .qr {
-  position: absolute;
-  z-index: 1;
-  box-sizing: border-box;
   display: flex;
-  width: 196px;
+  text-align: center;
   flex-direction: column;
   align-items: center;
   gap: var(--ui-space-2, 4px);
-  padding: 14px 14px 16px;
-  text-align: center;
 }
 
-.qrFrame {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
+/* Keep the platform long-press menu (save / scan) on touch devices. */
 .qrImage {
-  position: relative;
   display: block;
-  width: 168px;
-  height: 168px;
-  background: #fff;
-  /* Leave the platform long-press menu (save / scan) available on touch devices. */
   -webkit-touch-callout: default;
   user-select: auto;
-}
-
-.qr > [data-slot="inline-text"] {
-  position: relative;
-}
-
-@media (any-pointer: coarse) {
-  .primary {
-    min-height: 48px;
-  }
-
-  .secondary {
-    min-height: 44px;
-  }
-
-  .star,
-  .social {
-    min-height: 44px;
-  }
 }

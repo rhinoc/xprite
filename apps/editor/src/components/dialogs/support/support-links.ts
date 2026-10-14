@@ -9,13 +9,15 @@ export enum SupportChannel {
   Xiaohongshu = "xiaohongshu",
   Xiaoheihe = "xiaoheihe",
   X = "x",
+  ItchIo = "itchio",
 }
 
 export type SocialChannel =
   | SupportChannel.Bilibili
   | SupportChannel.Xiaohongshu
   | SupportChannel.Xiaoheihe
-  | SupportChannel.X;
+  | SupportChannel.X
+  | SupportChannel.ItchIo;
 export type DonationChannel = SupportChannel.KoFi | SupportChannel.WeChat;
 
 export interface SupportLink<Channel extends SupportChannel = SupportChannel> {
@@ -40,6 +42,11 @@ const SOCIAL_LINKS: Readonly<Record<SocialChannel, SupportLink<SocialChannel>>> 
     label: "ui.support.xiaoheihe",
     href: EDITOR_EXTERNAL_LINKS.xiaoheihe,
   },
+  [SupportChannel.ItchIo]: {
+    channel: SupportChannel.ItchIo,
+    label: "ui.support.itchio",
+    href: EDITOR_EXTERNAL_LINKS.itchio,
+  },
   [SupportChannel.X]: {
     channel: SupportChannel.X,
     label: "ui.support.x",
@@ -52,9 +59,11 @@ const CHINESE_SOCIAL_ORDER: readonly SocialChannel[] = [
   SupportChannel.Xiaohongshu,
   SupportChannel.Xiaoheihe,
   SupportChannel.X,
+  SupportChannel.ItchIo,
 ];
 const GLOBAL_SOCIAL_ORDER: readonly SocialChannel[] = [
   SupportChannel.X,
+  SupportChannel.ItchIo,
   SupportChannel.Bilibili,
   SupportChannel.Xiaohongshu,
   SupportChannel.Xiaoheihe,

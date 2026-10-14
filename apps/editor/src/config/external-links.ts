@@ -10,6 +10,7 @@ export const EDITOR_EXTERNAL_LINKS = {
   xiaohongshu: "https://www.xiaohongshu.com/user/profile/6199f8f10000000010009efe",
   xiaoheihe: "https://www.xiaoheihe.cn/app/user/profile/41de69a8aac3",
   x: "https://x.com/rya_nooo",
+  itchio: "https://rhinoc.itch.io/xprite",
   xpriteAbout: "https://xprite.cc/about/",
   xpriteAboutChinese: "https://xprite.cc/zh-CN/about/",
   xpriteAboutJapanese: "https://xprite.cc/ja/about/",
