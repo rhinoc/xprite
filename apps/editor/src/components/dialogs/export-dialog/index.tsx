@@ -209,16 +209,18 @@ export function ExportDialog(props: ExportDialogProps) {
     const active = props.destination === destination;
     const onLayoutSizeChange = (size: { width: number; height: number }) => {
       if (!active) return;
-      setPosition(
-        (previous) =>
-          previous ?? {
-            x: centerUiPixel(scene.x, scene.width, size.width + WINDOW_CHROME.width),
-            y: centerUiPixel(
-              scene.y,
-              scene.height,
-              size.height + SELECTOR_HEIGHT + WINDOW_CHROME.height,
-            ),
-          },
+      const width = size.width + WINDOW_CHROME.width;
+      const height = size.height + SELECTOR_HEIGHT + WINDOW_CHROME.height;
+      // Keep a moved window where it is unless a larger panel would push it off screen.
+      setPosition((previous) =>
+        previous &&
+        previous.x + width <= scene.x + scene.width &&
+        previous.y + height <= scene.y + scene.height
+          ? previous
+          : {
+              x: centerUiPixel(scene.x, scene.width, width),
+              y: centerUiPixel(scene.y, scene.height, height),
+            },
       );
       setSizes((previous) =>
         previous[destination].width === size.width && previous[destination].height === size.height

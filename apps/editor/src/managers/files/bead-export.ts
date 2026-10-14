@@ -7,10 +7,9 @@ import type { EditorDocument } from "@xprite/editor-core/document";
 import {
   renderExport,
   mapBeadGrid,
-  beadBoards,
   beadBoardCount,
   renderBeadPatternSheet,
-  renderBeadBoardPreview,
+  renderBeadChart,
   beadPatternSheetSize,
   encodeBeadPdfAsync,
   beadErrorCode,
@@ -23,7 +22,6 @@ import {
   MIN_BEAD_BOARD_EDGE,
   MAX_BEAD_BOARD_EDGE,
   isValidBeadBoardSize,
-  type BeadBoard,
   type BeadBoardSize,
   type BeadDocumentLabels,
   type BeadGrid,
@@ -40,15 +38,16 @@ export enum BeadOutputFormat {
   Png = "png",
   Pdf = "pdf",
 }
-export {
-  MIN_BEAD_BOARD_EDGE,
-  MAX_BEAD_BOARD_EDGE,
-  sanitizeBeadFileStem,
-} from "@xprite/editor-core/import-export";
 const MAX_SOURCE_CELLS = 512 * 512;
 const DEFAULT_FILE_STEM = "sprite";
 const PERCENT = 100;
-export const BEAD_EXPORT_SIZE = { width: 776, height: 560 };
+export const BEAD_EXPORT_SIZE = { width: 960, height: 640 };
+/** Common pegboard sizes offered next to the width and height inputs. */
+export const BEAD_BOARD_PRESETS: readonly BeadBoardSize[] = [
+  { width: 29, height: 29 },
+  { width: 14, height: 14 },
+  { width: 52, height: 52 },
+];
 
 export interface BeadExportOptions {
   brand: BeadBrand;
@@ -191,11 +190,14 @@ export const beadExporterDefinition: ExporterDefinition<BeadExportSource, BeadEx
       throw new Error(tUi("ui.export.beads.source.limit"));
     return {
       pixels: sourcePixels(document),
-      settings: remembered ?? {
-        brand: BeadBrand.Mard,
-        boardSize: DEFAULT_BEAD_BOARD_SIZE,
-        showCodes: true,
-        format: BeadOutputFormat.Png,
+      // The file name always follows the current sprite; other choices are remembered.
+      settings: {
+        ...(remembered ?? {
+          brand: BeadBrand.Mard,
+          boardSize: DEFAULT_BEAD_BOARD_SIZE,
+          showCodes: true,
+          format: BeadOutputFormat.Png,
+        }),
         name: defaultBeadFileStem(document.name, DEFAULT_FILE_STEM),
       },
     };
@@ -279,21 +281,62 @@ function parseBoardEdge(raw: string): number | null {
     : null;
 }
 
-/** The first board only; used to keep previews cheap when the board count is over the limit. */
-function firstBoard(grid: BeadGrid, size: BeadBoardSize): BeadBoard {
+export interface BeadBoardRect {
+  column: number;
+  row: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/** The board under a pattern cell, clipped to the pattern edge. */
+export function beadBoardAt(
+  grid: Pick<BeadGrid, "width" | "height">,
+  size: BeadBoardSize,
+  cellX: number,
+  cellY: number,
+): BeadBoardRect | null {
+  if (cellX < 0 || cellY < 0 || cellX >= grid.width || cellY >= grid.height) return null;
+  const column = Math.floor(cellX / size.width),
+    row = Math.floor(cellY / size.height);
+  const x = column * size.width,
+    y = row * size.height;
   return {
-    column: 0,
-    row: 0,
-    x: 0,
-    y: 0,
-    width: Math.min(size.width, grid.width),
-    height: Math.min(size.height, grid.height),
+    column,
+    row,
+    x,
+    y,
+    width: Math.min(size.width, grid.width - x),
+    height: Math.min(size.height, grid.height - y),
   };
+}
+
+const MAX_PREVIEW_PIXELS = 16 * 1024 * 1024;
+const MAX_PREVIEW_EDGE = 8192;
+
+/** Largest whole chart cell, up to the export cell, that keeps the preview canvas affordable. */
+export function beadPreviewCell(grid: Pick<BeadGrid, "width" | "height">, wanted: number): number {
+  let cell = Math.max(1, Math.min(BEAD_CHART_CELL_SIZE, Math.round(wanted)));
+  while (
+    cell > 1 &&
+    ((grid.width * cell + 1) * (grid.height * cell + 1) > MAX_PREVIEW_PIXELS ||
+      Math.max(grid.width, grid.height) * cell + 1 > MAX_PREVIEW_EDGE)
+  )
+    cell--;
+  return cell;
+}
+
+/** Whole-pattern chart with board edges, rendered at the cell size it is displayed at. */
+export function useBeadChart(grid: BeadGrid, settings: BeadExportOptions, cell: number) {
+  return useMemo(
+    () => renderBeadChart(grid, settings.showCodes, settings.boardSize, undefined, cell),
+    [grid, settings.showCodes, settings.boardSize, cell],
+  );
 }
 
 export function useBeadExport(source: BeadExportSource) {
   const [settings, setSettings] = useState(source.settings);
-  const [selected, setSelected] = useState(0);
   const [draft, setDraft] = useState<BoardDraft>(() => ({
     width: String(source.settings.boardSize.width),
     height: String(source.settings.boardSize.height),
@@ -307,17 +350,6 @@ export function useBeadExport(source: BeadExportSource) {
     () => beadBoardCount(grid, settings.boardSize),
     [grid, settings.boardSize],
   );
-  const tooManyBoards = boardCount > MAX_BEAD_BOARDS;
-  const boards = useMemo(
-    () =>
-      tooManyBoards ? [firstBoard(grid, settings.boardSize)] : beadBoards(grid, settings.boardSize),
-    [grid, settings.boardSize, tooManyBoards],
-  );
-  const boardIndex = Math.min(selected, boards.length - 1);
-  const chart = useMemo(
-    () => renderBeadBoardPreview(grid, settings.showCodes, settings.boardSize, boards[boardIndex]),
-    [grid, settings.showCodes, settings.boardSize, boards, boardIndex],
-  );
   const draftInvalid = Object.values(draft).some((raw) => parseBoardEdge(raw) === null);
   const blocker = useMemo(
     () =>
@@ -326,29 +358,31 @@ export function useBeadExport(source: BeadExportSource) {
         : beadExportBlocker(grid, settings),
     [draftInvalid, grid, settings],
   );
+  const applyBoard = (boardSize: BeadBoardSize) =>
+    setSettings((previous) =>
+      previous.boardSize.width === boardSize.width && previous.boardSize.height === boardSize.height
+        ? previous
+        : { ...previous, boardSize },
+    );
   const changeBoard = (axis: BeadBoardAxis, raw: string) => {
     setDraft((previous) => ({ ...previous, [axis]: raw }));
     const value = parseBoardEdge(raw);
-    if (value === null || value === settings.boardSize[axis]) return;
-    setSettings((previous) => ({
-      ...previous,
-      boardSize: { ...previous.boardSize, [axis]: value },
-    }));
-    setSelected(0);
+    if (value !== null) applyBoard({ ...settings.boardSize, [axis]: value });
+  };
+  const choosePreset = (boardSize: BeadBoardSize) => {
+    setDraft({ width: String(boardSize.width), height: String(boardSize.height) });
+    applyBoard(boardSize);
   };
   return {
     settings,
     grid,
-    chart,
-    boards,
-    boardIndex,
     boardCount,
     draft,
     blocker,
     palettes: BEAD_PALETTES.map(({ id, name }) => ({ id, name })),
-    changeSettings: (patch: Partial<Omit<BeadExportOptions, "boardSize">>) =>
+    changeSettings: (patch: Partial<Omit<BeadExportOptions, "boardSize" | "name">>) =>
       setSettings((previous) => ({ ...previous, ...patch })),
     changeBoard,
-    selectBoard: setSelected,
+    choosePreset,
   };
 }

@@ -2,7 +2,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { changeUiLanguage, tUi } from "$/i18n";
 import {
+  beadBoardAt,
   beadDocumentLabels,
+  beadPreviewCell,
+  BEAD_BOARD_PRESETS,
   beadErrorMessage,
   beadExportBlocker,
   beadExporterDefinition,
@@ -81,6 +84,51 @@ describe("bead exporter", () => {
     const { context } = contextFor(documentOf(2, 2, "my:hero?.aseprite"));
     expect(beadExporterDefinition.createSource(context, null).settings.name).toBe("my-hero-beads");
   });
+  it("names the file after the current sprite even with remembered settings", () => {
+    const { context } = contextFor(documentOf(2, 2, "cat.aseprite"));
+    const source = beadExporterDefinition.createSource(
+      context,
+      options({ name: "old-sprite-beads", format: BeadOutputFormat.Pdf }),
+    );
+    expect(source.settings.name).toBe("cat-beads");
+    expect(source.settings.format).toBe(BeadOutputFormat.Pdf);
+  });
+  it("finds the board under a clicked cell, clipped at the pattern edge", () => {
+    const grid = { width: 40, height: 30 };
+    const size = { width: 29, height: 29 };
+    expect(beadBoardAt(grid, size, 0, 0)).toEqual({
+      column: 0,
+      row: 0,
+      x: 0,
+      y: 0,
+      width: 29,
+      height: 29,
+    });
+    expect(beadBoardAt(grid, size, 35, 29)).toEqual({
+      column: 1,
+      row: 1,
+      x: 29,
+      y: 29,
+      width: 11,
+      height: 1,
+    });
+    expect(beadBoardAt(grid, size, 40, 0)).toBeNull();
+    expect(beadBoardAt(grid, size, -1, 0)).toBeNull();
+  });
+  it("renders previews at the displayed cell size within a canvas budget", () => {
+    expect(beadPreviewCell({ width: 10, height: 10 }, 7.4)).toBe(7);
+    expect(beadPreviewCell({ width: 10, height: 10 }, 400)).toBe(40);
+    expect(beadPreviewCell({ width: 10, height: 10 }, 0.2)).toBe(1);
+    const large = beadPreviewCell({ width: 512, height: 512 }, 40);
+    expect(512 * large + 1).toBeLessThanOrEqual(8192);
+    expect((512 * large + 1) ** 2).toBeLessThanOrEqual(16 * 1024 * 1024);
+  });
+  it("offers the common square pegboards as presets", () => {
+    expect(BEAD_BOARD_PRESETS[0]).toEqual({ width: 29, height: 29 });
+    expect(new Set(BEAD_BOARD_PRESETS.map(({ width }) => width)).size).toBe(
+      BEAD_BOARD_PRESETS.length,
+    );
+  });
   it("blocks too many boards and oversize PNG sheets before rendering, with translated text", () => {
     const pixels = { width: 64, height: 64, data: new Uint8ClampedArray(64 * 64 * 4).fill(255) };
     const grid = mapBeadGrid(pixels, [{ code: "A", name: "White", rgb: [255, 255, 255] }]);
@@ -99,9 +147,7 @@ describe("bead exporter", () => {
   });
   it("maps every core error code to a translation key with its values", () => {
     for (const code of Object.values(BeadErrorCode)) expect(beadErrorMessage(code)).not.toBe("");
-    expect(beadErrorMessage(BeadErrorCode.InvalidBoardSize)).toBe(
-      "Board size must be a whole number from 1 to 512.",
-    );
+    expect(beadErrorMessage(BeadErrorCode.InvalidBoardSize)).toBe("Board size: 1–512.");
   });
   it("prints document labels in the current UI language", async () => {
     await changeUiLanguage("ru");

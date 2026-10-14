@@ -1,416 +1,534 @@
-import { useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
-import { FormDialog, type FormField } from "$/components/dialogs/form-dialog";
+import { useSceneBounds } from "$/components/canvas/scene-bounds";
+import { FormDialog } from "$/components/dialogs/form-dialog";
 import { tUi, useUiLanguage } from "$/i18n";
-import type { FormLayout } from "$/managers/dialogs/form-layout";
 import {
   useBeadExport,
   useBeadExportProgress,
   beadProgressLabel,
+  beadBoardAt,
+  beadPreviewCell,
+  useBeadChart,
+  BEAD_BOARD_PRESETS,
   BEAD_EXPORT_SIZE,
-  MIN_BEAD_BOARD_EDGE,
-  MAX_BEAD_BOARD_EDGE,
   BeadBoardAxis,
   BeadOutputFormat,
-  sanitizeBeadFileStem,
+  type BeadBoardRect,
   type BeadExportSource,
   type BeadExportOptions,
 } from "$/managers/files/bead-export";
 import type { ExporterViewProps } from "$/managers/files/exporter-registry";
-import { CanvasSurface, Text, TextVariant } from "@xprite/ui";
+import {
+  Button,
+  CanvasSurface,
+  Checkbox,
+  Combobox,
+  FontRole,
+  Icon,
+  Input,
+  Menu,
+  Text,
+  TextVariant,
+  TextAlignment,
+  type SurfaceBounds,
+} from "@xprite/ui";
 import { measureUiText } from "@xprite/ui/assets";
+import { RASTER_SCALE } from "@xprite/ui/canvas";
+import {
+  clientPoint,
+  clientToLocal,
+  layoutSize,
+  scrollPosition,
+  setScrollPosition,
+} from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/bead-export-dialog/bead-export-dialog.module.css";
 
-enum PreviewZoom {
-  Fit = "fit",
-  Half = "half",
-  Full = "full",
-  Double = "double",
-}
-const ZOOM_SCALE: Readonly<Record<Exclude<PreviewZoom, PreviewZoom.Fit>, number>> = {
-  [PreviewZoom.Half]: 0.5,
-  [PreviewZoom.Full]: 1,
-  [PreviewZoom.Double]: 2,
-};
-
-const ROW_HEIGHT = 30;
-const ROW_STEP = 38;
-const SECTION_HEIGHT = 22;
-const SECTION_GAP = 6;
-const COLUMN_GAP = 20;
-const LABEL_PADDING = 16;
-const MIN_CONTROL_WIDTH = 168;
-const MIN_SETTINGS_WIDTH = 308;
-const MAX_SETTINGS_WIDTH = 440;
-const PREVIEW_WIDTH = 424;
-const PREVIEW_HEIGHT = 288;
+const ROW = 30;
+const STEP = 38;
+const GAP = 12;
+const SMALL_GAP = 4;
+const ICON_BUTTON = 30;
 const ACTION_HEIGHT = 34;
 const MIN_ACTION_WIDTH = 120;
 const ACTION_PADDING = 32;
-const DESCRIPTION_GAP = 12;
-const CHROME_HEIGHT = 46;
-const CHROME_WIDTH = 24;
-const FIELD_KEYS = [
-  "brand",
-  "boardWidth",
-  "boardHeight",
-  "showCodes",
-  "format",
-  "name",
-  "board",
-  "zoom",
-] as const;
-/** The board selector starts a second group after a small gap. */
-const GROUP_BREAK = "board";
+const FORMAT_BUTTON_PADDING = 24;
+const LABEL_PADDING = 12;
+const SIDE_MIN = 232;
+const SIDE_MAX = 300;
+const MIN_CONTROL_WIDTH = 132;
+/** Below this panel width the settings stack above the preview. */
+const STACK_BELOW = 600;
+const STACKED_MATERIALS_HEIGHT = 84;
+const DIALOG_CHROME = { width: 24, height: 46 };
+/** Export window chrome around the panel: frame plus the format selector row. */
+const HOST_CHROME = { width: 24, height: 46 + 42 };
+/** Space left around the window; narrow screens also keep room for the tab and tool bars. */
+const SCREEN_MARGIN = { width: 8, height: 32 };
+const NARROW_MARGIN = { width: 8, height: 96 };
+const MAX_PANEL = { width: 1280, height: 860 };
+const MIN_PANEL = { width: 240, height: 420 };
+const ZOOM_STEP = Math.SQRT2;
+/** Display pixels per bead at the closest zoom. */
+const MAX_ZOOM = 64;
+const MIN_ZOOM_OF_FIT = 0.5;
 
-interface BeadDialogLayout {
-  layout: FormLayout;
-  width: number;
-  preview: { x: number; y: number; width: number; height: number };
-  description: { x: number; y: number; width: number };
-  materials: { x: number; y: number; width: number; height: number };
+function useWheel(node: HTMLDivElement | null, handler: (event: WheelEvent) => void) {
+  const current = useRef(handler);
+  current.current = handler;
+  useEffect(() => {
+    if (!node) return;
+    const listener = (event: WheelEvent) => current.current(event);
+    node.addEventListener("wheel", listener, { passive: false });
+    return () => node.removeEventListener("wheel", listener);
+  }, [node]);
 }
 
-/**
- * Columns grow with the longest translated label, so ru, pt-BR and es labels keep their full
- * text instead of being clipped by fixed English widths.
- */
-function beadDialogLayout(
-  labels: Readonly<
-    Record<(typeof FIELD_KEYS)[number] | "pattern" | "preview" | "materials", string>
-  >,
-  actions: readonly string[],
-): BeadDialogLayout {
-  const labelWidth =
-    Math.max(
-      ...FIELD_KEYS.filter((key) => key !== "showCodes").map((key) => measureUiText(labels[key])),
-    ) + LABEL_PADDING;
-  const settingsWidth = Math.min(
-    MAX_SETTINGS_WIDTH,
-    Math.max(
-      MIN_SETTINGS_WIDTH,
-      labelWidth + MIN_CONTROL_WIDTH,
-      measureUiText(labels.showCodes) + LABEL_PADDING * 3,
-    ),
-  );
-  const fields: Record<string, FormLayout["fields"][string]> = {};
-  let y = SECTION_HEIGHT + SECTION_GAP;
-  for (const key of FIELD_KEYS) {
-    if (key === GROUP_BREAK) y += SECTION_GAP * 3;
-    fields[key] = {
-      x: 0,
-      y,
-      width: settingsWidth,
-      height: ROW_HEIGHT,
-      ...(key === "showCodes"
-        ? {}
-        : {
-            labelWidth: Math.min(labelWidth, settingsWidth - MIN_CONTROL_WIDTH),
-          }),
+interface Rect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/** Preview fills whatever the sidebar and actions leave; settings stack on narrow screens. */
+function beadLayout(
+  panel: { width: number; height: number },
+  labels: readonly string[],
+  aspect: number,
+) {
+  const labelWidth = Math.max(...labels.map((label) => measureUiText(label))) + LABEL_PADDING;
+  const stacked = panel.width < STACK_BELOW;
+  const side = stacked
+    ? panel.width
+    : Math.min(SIDE_MAX, Math.max(SIDE_MIN, labelWidth + MIN_CONTROL_WIDTH));
+  const controls = { x: labelWidth, width: side - labelWidth };
+  const settingsHeight = STEP * 3;
+  const footer = panel.height - ACTION_HEIGHT;
+  if (stacked) {
+    const toolbarY = settingsHeight;
+    const previewY = toolbarY + STEP;
+    const room = footer - GAP - STACKED_MATERIALS_HEIGHT - GAP - previewY;
+    // The preview takes the pattern's own shape; leftover height goes to the materials list.
+    const previewHeight = Math.max(ROW * 3, Math.min(room, Math.ceil(panel.width * aspect) + 1));
+    const materialsY = previewY + previewHeight + GAP;
+    return {
+      stacked,
+      labelWidth,
+      controls,
+      toolbar: { x: 0, y: toolbarY, width: panel.width, height: ROW },
+      preview: { x: 0, y: previewY, width: panel.width, height: previewHeight },
+      materials: { x: 0, y: materialsY, width: panel.width, height: footer - GAP - materialsY },
     };
-    y += ROW_STEP;
   }
-  const previewX = settingsWidth + COLUMN_GAP;
-  const width = Math.max(BEAD_EXPORT_SIZE.width, previewX + PREVIEW_WIDTH);
-  const materialsTop = y + SECTION_GAP;
-  const height = BEAD_EXPORT_SIZE.height;
-  // Right-aligned like native Aseprite buttons: the last action sits at the right edge.
-  const actionBounds: Record<string, { x: number; y: number; width: number; height: number }> = {};
-  let actionX = width;
-  for (const label of [...actions].reverse()) {
-    const actionWidth = Math.max(MIN_ACTION_WIDTH, measureUiText(label) + ACTION_PADDING);
-    actionX -= actionWidth;
-    actionBounds[label] = {
-      x: actionX,
-      y: height - ACTION_HEIGHT,
-      width: actionWidth,
-      height: ACTION_HEIGHT,
-    };
-    actionX -= SECTION_GAP;
-  }
+  const previewX = side + GAP;
   return {
-    width: width + CHROME_WIDTH,
-    layout: {
-      height: height + CHROME_HEIGHT,
-      fields,
-      separators: [
-        {
-          x: 0,
-          y: 0,
-          width: settingsWidth,
-          height: SECTION_HEIGHT,
-          text: labels.pattern,
-        },
-        {
-          x: previewX,
-          y: 0,
-          width: PREVIEW_WIDTH,
-          height: SECTION_HEIGHT,
-          text: labels.preview,
-        },
-        {
-          x: 0,
-          y: materialsTop,
-          width: settingsWidth,
-          height: SECTION_HEIGHT,
-          text: labels.materials,
-        },
-      ],
-      actions: actionBounds,
-    },
+    stacked,
+    labelWidth,
+    controls,
+    toolbar: { x: previewX, y: 0, width: panel.width - previewX, height: ROW },
     preview: {
       x: previewX,
-      y: SECTION_HEIGHT + SECTION_GAP,
-      width: PREVIEW_WIDTH,
-      height: PREVIEW_HEIGHT,
-    },
-    description: {
-      x: previewX,
-      y: SECTION_HEIGHT + SECTION_GAP + PREVIEW_HEIGHT + DESCRIPTION_GAP,
-      width: PREVIEW_WIDTH,
+      y: STEP,
+      width: panel.width - previewX,
+      height: footer - GAP - STEP,
     },
     materials: {
       x: 0,
-      y: materialsTop + SECTION_HEIGHT + SECTION_GAP,
-      width: settingsWidth,
-      height: height - ACTION_HEIGHT - SECTION_GAP - (materialsTop + SECTION_HEIGHT + SECTION_GAP),
+      y: settingsHeight,
+      width: side,
+      height: footer - GAP - settingsHeight,
     },
   };
 }
 
 export function BeadExportDialog(props: ExporterViewProps<BeadExportSource, BeadExportOptions>) {
   useUiLanguage();
+  const scene = useSceneBounds();
   const model = useBeadExport(props.source);
   const progress = useBeadExportProgress();
-  const [zoom, setZoom] = useState(PreviewZoom.Fit);
   const { settings, grid } = model;
-  const scale =
-    zoom === PreviewZoom.Fit
-      ? Math.min(PREVIEW_WIDTH / model.chart.width, PREVIEW_HEIGHT / model.chart.height)
-      : ZOOM_SCALE[zoom];
+  const [viewport, setViewport] = useState<HTMLDivElement | null>(null);
+  /** Display pixels per bead; null fits the whole pattern or the picked board. */
+  const [zoom, setZoom] = useState<number | null>(null);
+  const [focus, setFocus] = useState<{ board: BeadBoardRect; size: string } | null>(null);
+  const sizeKey = `${settings.boardSize.width}x${settings.boardSize.height}`;
+  const focused = focus?.size === sizeKey ? focus.board : null;
+
+  const margin = scene.width > 0 && scene.width < STACK_BELOW ? NARROW_MARGIN : SCREEN_MARGIN;
+  const panel = {
+    width:
+      scene.width > 0
+        ? Math.max(
+            MIN_PANEL.width,
+            Math.min(MAX_PANEL.width, scene.width - HOST_CHROME.width - margin.width),
+          )
+        : BEAD_EXPORT_SIZE.width,
+    height:
+      scene.height > 0
+        ? Math.max(
+            MIN_PANEL.height,
+            Math.min(MAX_PANEL.height, scene.height - HOST_CHROME.height - margin.height),
+          )
+        : BEAD_EXPORT_SIZE.height,
+  };
   const labels = {
     brand: tUi("ui.export.beads.brand"),
-    boardWidth: tUi("ui.export.beads.board.columns"),
-    boardHeight: tUi("ui.export.beads.board.rows"),
-    showCodes: tUi("ui.export.beads.codes"),
+    board: tUi("ui.export.beads.board"),
     format: tUi("ui.export.beads.file.type"),
-    name: tUi("ui.filename"),
-    board: tUi("ui.export.beads.board.select"),
-    zoom: tUi("ui.zoom"),
-    pattern: tUi("ui.export.beads.pattern"),
-    preview: tUi("ui.export.beads.board.preview"),
-    materials: tUi("ui.export.beads.materials"),
   };
+  const layout = beadLayout(panel, Object.values(labels), grid.height / grid.width);
+  const fitTo = (width: number, height: number) =>
+    Math.min((layout.preview.width - 1) / width, (layout.preview.height - 1) / height);
+  const fit = fitTo(grid.width, grid.height);
+  const scale = zoom ?? (focused ? fitTo(focused.width, focused.height) : fit);
+  const chart = useBeadChart(grid, settings, beadPreviewCell(grid, scale));
+  const chartScale = (scale * grid.width) / (chart.width - 1);
+  const display = { width: chart.width * chartScale, height: chart.height * chartScale };
+
+  const pendingScroll = useRef<{ x: number; y: number } | null>(null);
+  const scrollTo = (x: number, y: number) => {
+    pendingScroll.current = { x, y };
+  };
+  // Scroll after the resized chart is in the DOM, otherwise the browser clamps the offset.
+  useLayoutEffect(() => {
+    const target = pendingScroll.current;
+    if (!target || !viewport) return;
+    pendingScroll.current = null;
+    setScrollPosition(viewport, target);
+  });
+  const zoomTo = (next: number, anchor?: { x: number; y: number }) => {
+    const clamped = Math.max(fit * MIN_ZOOM_OF_FIT, Math.min(MAX_ZOOM, next));
+    if (!viewport) return setZoom(clamped);
+    const size = layoutSize(viewport);
+    const point = anchor ?? { x: size.width / 2, y: size.height / 2 };
+    const scroll = scrollPosition(viewport);
+    const chartX = (scroll.x + point.x) / scale,
+      chartY = (scroll.y + point.y) / scale;
+    setZoom(clamped);
+    scrollTo(chartX * clamped - point.x, chartY * clamped - point.y);
+  };
+  useWheel(viewport, (event) => {
+    event.preventDefault();
+    zoomTo(
+      scale * (event.deltaY < 0 ? ZOOM_STEP : 1 / ZOOM_STEP),
+      clientToLocal(viewport!, clientPoint(event)),
+    );
+  });
+  const fitAll = () => {
+    setFocus(null);
+    setZoom(null);
+    scrollTo(0, 0);
+  };
+  const pickBoard = (offsetX: number, offsetY: number) => {
+    const board = beadBoardAt(
+      grid,
+      settings.boardSize,
+      Math.floor(offsetX / scale),
+      Math.floor(offsetY / scale),
+    );
+    if (!board) return;
+    const next = fitTo(board.width, board.height);
+    setFocus({ board, size: sizeKey });
+    setZoom(null);
+    scrollTo(board.x * next, board.y * next);
+  };
+
   const exportLabel = props.busy
     ? progress === null
       ? tUi("ui.animal.crossing.exporting")
       : beadProgressLabel(progress)
     : tUi("ui.export");
   const cancelLabel = tUi("ui.cancel");
-  const dialog = beadDialogLayout(labels, [exportLabel, cancelLabel]);
-  const board = (axis: BeadBoardAxis): FormField => ({
-    key: axis === BeadBoardAxis.Width ? "boardWidth" : "boardHeight",
-    label: axis === BeadBoardAxis.Width ? labels.boardWidth : labels.boardHeight,
-    type: "number",
-    value: settings.boardSize[axis],
-    min: MIN_BEAD_BOARD_EDGE,
-    max: MAX_BEAD_BOARD_EDGE,
-    step: MIN_BEAD_BOARD_EDGE,
-    onDraftChange: (raw) => model.changeBoard(axis, raw),
-    onChange: (value) => model.changeBoard(axis, String(Math.round(value))),
-  });
-  const fields: FormField[] = [
-    {
-      key: "brand",
-      label: labels.brand,
-      type: "select",
-      value: settings.brand,
-      options: model.palettes.map(({ id, name }) => ({
-        value: id,
-        label: name,
-      })),
-      onChange: (brand) => model.changeSettings({ brand: brand as BeadExportOptions["brand"] }),
-    },
-    board(BeadBoardAxis.Width),
-    board(BeadBoardAxis.Height),
-    {
-      key: "showCodes",
-      label: labels.showCodes,
-      type: "checkbox",
-      value: settings.showCodes,
-      onChange: (showCodes) => model.changeSettings({ showCodes }),
-    },
-    {
-      key: "format",
-      label: labels.format,
-      type: "select",
-      value: settings.format,
-      options: [
-        { value: BeadOutputFormat.Png, label: tUi("ui.export.beads.png") },
-        { value: BeadOutputFormat.Pdf, label: tUi("ui.export.beads.pdf") },
-      ],
-      onChange: (format) => model.changeSettings({ format: format as BeadOutputFormat }),
-    },
-    {
-      key: "name",
-      label: labels.name,
-      type: "text",
-      value: settings.name,
-      onChange: (name) => model.changeSettings({ name }),
-    },
-    {
-      key: "board",
-      label: labels.board,
-      type: "select",
-      value: String(model.boardIndex),
-      options: model.boards.map((item, index) => ({
-        value: String(index),
-        label: tUi("ui.export.beads.board.coordinates", {
-          row: item.row + 1,
-          column: item.column + 1,
-        }),
-      })),
-      onChange: (value) => model.selectBoard(Number(value)),
-    },
-    {
-      key: "zoom",
-      label: labels.zoom,
-      type: "select",
-      value: zoom,
-      options: [
-        { value: PreviewZoom.Fit, label: tUi("ui.export.beads.fit") },
-        { value: PreviewZoom.Half, label: "50%" },
-        { value: PreviewZoom.Full, label: "100%" },
-        { value: PreviewZoom.Double, label: "200%" },
-      ],
-      onChange: (value) => setZoom(value as PreviewZoom),
-    },
+  const actions: Record<string, Rect> = {};
+  let actionX = panel.width;
+  for (const label of [cancelLabel, exportLabel]) {
+    const width = Math.max(MIN_ACTION_WIDTH, measureUiText(label) + ACTION_PADDING);
+    actionX -= width;
+    actions[label] = { x: actionX, y: panel.height - ACTION_HEIGHT, width, height: ACTION_HEIGHT };
+    actionX -= SMALL_GAP * 2;
+  }
+  const disabled = props.busy;
+  const formats = [
+    { value: BeadOutputFormat.Png, label: tUi("ui.export.beads.png") },
+    { value: BeadOutputFormat.Pdf, label: tUi("ui.export.beads.pdf") },
   ];
+  const presets = BEAD_BOARD_PRESETS.map((size) => ({
+    label: tUi("ui.export.beads.size", { width: size.width, height: size.height }),
+    disabled,
+    onSelect: () => model.choosePreset(size),
+  }));
+  const separator = tUi("ui.export.beads.size.by");
+  const separatorWidth = measureUiText(separator) + SMALL_GAP * 2;
+  const sizeInput = (layout.controls.width - ICON_BUTTON - separatorWidth - SMALL_GAP) / 2;
+  const summary = tUi("ui.export.beads.summary", {
+    count: grid.total,
+    colors: grid.usage.length,
+    boards: model.boardCount,
+  });
+
+  const row = (client: SurfaceBounds, index: number, label: string) => {
+    const y = client.y + index * STEP;
+    return {
+      y,
+      label: (
+        <Text
+          variant={TextVariant.Control}
+          bounds={{ x: client.x, y, width: layout.labelWidth, height: ROW }}
+          relativeTo={client}
+          text={label}
+        />
+      ),
+    };
+  };
+
   return (
     <FormDialog
       open
       embedded
       title={tUi("ui.export.beads")}
-      width={dialog.width}
-      layout={dialog.layout}
-      fields={fields.map((field) => ({ ...field, disabled: props.busy }))}
+      width={panel.width + DIALOG_CHROME.width}
+      layout={{ height: panel.height + DIALOG_CHROME.height, fields: {}, actions }}
+      fields={[]}
       onLayoutSizeChange={props.onLayoutSizeChange}
       submitOnEnter={false}
       onOpenChange={(open) => {
         if (!open) props.onClose();
       }}
-      content={() => (
-        <>
-          <div
-            className={styles.preview}
-            tabIndex={0}
-            aria-label={labels.preview}
-            style={{
-              left: dialog.preview.x,
-              top: dialog.preview.y,
-              width: dialog.preview.width,
-              height: dialog.preview.height,
-            }}
-          >
-            <CanvasSurface
-              bounds={{
-                x: 0,
-                y: 0,
-                width: model.chart.width,
-                height: model.chart.height,
-              }}
-              viewport={{
-                sceneWidth: 1,
-                sceneHeight: 1,
-                width: scale,
-                height: scale,
-              }}
-              pixels={model.chart}
-              aria-label={tUi("ui.export.beads.pattern")}
+      content={(client) => {
+        const brand = row(client, 0, labels.brand);
+        const board = row(client, 1, labels.board);
+        const format = row(client, 2, labels.format);
+        const cx = client.x + layout.controls.x;
+        const boardInput = (axis: BeadBoardAxis, x: number) => (
+          <Input
+            bounds={{ x, y: board.y, width: sizeInput, height: ROW }}
+            relativeTo={client}
+            aria-label={tUi(axis === BeadBoardAxis.Width ? "ui.width" : "ui.height")}
+            disabled={disabled}
+            value={model.draft[axis]}
+            inputMode="numeric"
+            onValueChange={(raw) => model.changeBoard(axis, raw)}
+            onCommit={(raw) => model.changeBoard(axis, raw)}
+          />
+        );
+        const toolbar = {
+          x: client.x + layout.toolbar.x,
+          y: client.y + layout.toolbar.y,
+        };
+        const toolRight = toolbar.x + layout.toolbar.width;
+        return (
+          <>
+            {brand.label}
+            <Combobox
+              bounds={{ x: cx, y: brand.y, width: layout.controls.width, height: ROW }}
+              relativeTo={client}
+              aria-label={labels.brand}
+              options={model.palettes.map(({ id, name }) => ({ value: id, label: name }))}
+              value={settings.brand}
+              disabled={disabled}
+              onValueChange={(brand) =>
+                model.changeSettings({ brand: brand as BeadExportOptions["brand"] })
+              }
             />
-          </div>
-          <div
-            className={styles.description}
-            role={model.blocker ? "alert" : undefined}
-            style={{
-              left: dialog.description.x,
-              top: dialog.description.y,
-              width: dialog.description.width,
-            }}
-          >
-            <Text variant={TextVariant.Inline} scale={2} wrap>
-              {model.blocker ?? tUi("ui.export.beads.help")}
-            </Text>
-          </div>
-          <div
-            className={styles.materials}
-            tabIndex={0}
-            aria-label={labels.materials}
-            style={{
-              left: dialog.materials.x,
-              top: dialog.materials.y,
-              width: dialog.materials.width,
-              height: dialog.materials.height,
-            }}
-          >
-            <Text variant={TextVariant.Inline} scale={2}>
-              {tUi("ui.export.beads.summary", {
-                width: grid.width,
-                height: grid.height,
-                count: grid.total,
-                colors: grid.usage.length,
-              })}
-            </Text>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>
+            {board.label}
+            {boardInput(BeadBoardAxis.Width, cx)}
+            <Text
+              variant={TextVariant.Control}
+              bounds={{ x: cx + sizeInput, y: board.y, width: separatorWidth, height: ROW }}
+              relativeTo={client}
+              text={separator}
+              align={TextAlignment.Center}
+            />
+            {boardInput(BeadBoardAxis.Height, cx + sizeInput + separatorWidth)}
+            <Menu
+              label={tUi("ui.export.beads.presets")}
+              items={presets}
+              renderTrigger={(trigger) => (
+                <Button
+                  {...trigger}
+                  disabled={disabled}
+                  bounds={{
+                    x: cx + layout.controls.width - ICON_BUTTON,
+                    y: board.y,
+                    width: ICON_BUTTON,
+                    height: ROW,
+                  }}
+                  relativeTo={client}
+                  aria-label={tUi("ui.export.beads.presets")}
+                >
+                  <span className={styles.arrow}>
+                    <Icon kind="combobox_arrow_down" scale={RASTER_SCALE} />
+                  </span>
+                </Button>
+              )}
+            />
+            {format.label}
+            {formats.map((item, index) => {
+              const width = layout.controls.width / formats.length;
+              return (
+                <Button
+                  key={item.value}
+                  bounds={{
+                    x: cx + index * width,
+                    y: format.y,
+                    // Joined buttonset items overlap by their shared edge, except the last.
+                    width: index < formats.length - 1 ? width + 2 : width,
+                    height: ROW,
+                  }}
+                  relativeTo={client}
+                  text={item.label}
+                  font={FontRole.Primary}
+                  selected={settings.format === item.value}
+                  part="buttonset_item_normal"
+                  hotPart="buttonset_item_hot"
+                  pushedPart="buttonset_item_pushed"
+                  selectedPart="buttonset_item_pushed"
+                  role="radio"
+                  aria-checked={settings.format === item.value}
+                  aria-label={item.label}
+                  disabled={disabled}
+                  onClick={() => model.changeSettings({ format: item.value })}
+                />
+              );
+            })}
+            <Checkbox
+              bounds={{
+                x: toolbar.x,
+                y: toolbar.y,
+                width: Math.max(
+                  ROW,
+                  measureUiText(tUi("ui.export.beads.codes")) + ROW + FORMAT_BUTTON_PADDING,
+                ),
+                height: ROW,
+              }}
+              relativeTo={client}
+              label={tUi("ui.export.beads.codes")}
+              checked={settings.showCodes}
+              disabled={disabled}
+              onCheckedChange={(showCodes) => model.changeSettings({ showCodes })}
+            />
+            {[
+              { text: "-", label: tUi("ui.zoom.out"), run: () => zoomTo(scale / ZOOM_STEP) },
+              { text: "+", label: tUi("ui.zoom.in"), run: () => zoomTo(scale * ZOOM_STEP) },
+            ].map((item, index) => (
+              <Button
+                key={item.label}
+                bounds={{
+                  x: toolRight - (2 - index) * (ICON_BUTTON + SMALL_GAP) - fitWidth(),
+                  y: toolbar.y,
+                  width: ICON_BUTTON,
+                  height: ROW,
+                }}
+                relativeTo={client}
+                text={item.text}
+                font={FontRole.Primary}
+                aria-label={item.label}
+                title={item.label}
+                onClick={item.run}
+              />
+            ))}
+            <Button
+              bounds={{ x: toolRight - fitWidth(), y: toolbar.y, width: fitWidth(), height: ROW }}
+              relativeTo={client}
+              text={tUi("ui.export.beads.fit")}
+              font={FontRole.Primary}
+              aria-label={tUi("ui.fit.to.view")}
+              title={tUi("ui.fit.to.view")}
+              onClick={fitAll}
+            />
+            <div
+              ref={setViewport}
+              className={styles.preview}
+              tabIndex={0}
+              aria-label={tUi("ui.export.beads")}
+              style={{
+                left: layout.preview.x,
+                top: layout.preview.y,
+                width: layout.preview.width,
+                height: layout.preview.height,
+              }}
+            >
+              <div
+                className={styles.chart}
+                style={{ width: display.width, height: display.height }}
+                onClick={(event) => {
+                  const point = clientToLocal(event.currentTarget, clientPoint(event));
+                  pickBoard(point.x, point.y);
+                }}
+              >
+                <CanvasSurface
+                  bounds={{ x: 0, y: 0, width: chart.width, height: chart.height }}
+                  viewport={{
+                    sceneWidth: 1,
+                    sceneHeight: 1,
+                    width: chartScale,
+                    height: chartScale,
+                  }}
+                  pixels={chart}
+                />
+                {focused && (
+                  <span
+                    className={styles.focus}
+                    style={{
+                      left: focused.x * scale,
+                      top: focused.y * scale,
+                      width: focused.width * scale + 1,
+                      height: focused.height * scale + 1,
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+            <div
+              className={layout.stacked ? styles.chips : styles.materials}
+              tabIndex={0}
+              aria-label={tUi("ui.export.beads.materials")}
+              style={{
+                left: layout.materials.x,
+                top: layout.materials.y,
+                width: layout.materials.width,
+                height: layout.materials.height,
+              }}
+            >
+              <div className={styles.summary} role={model.blocker ? "alert" : undefined}>
+                <Text variant={TextVariant.Inline} scale={2} wrap>
+                  {model.blocker ?? summary}
+                </Text>
+              </div>
+              {grid.usage.map(({ color, quantity }) => (
+                <div className={styles.material} key={color.code}>
+                  <span
+                    className={styles.swatch}
+                    style={{ backgroundColor: `rgb(${color.rgb.join(",")})` }}
+                  />
+                  <Text variant={TextVariant.Inline} scale={2}>
+                    {color.code}
+                  </Text>
+                  <span className={styles.count}>
                     <Text variant={TextVariant.Inline} scale={2}>
-                      {tUi("ui.export.beads.code")}
+                      {String(quantity)}
                     </Text>
-                  </th>
-                  <th>
-                    <Text variant={TextVariant.Inline} scale={2}>
-                      {tUi("ui.export.beads.quantity")}
-                    </Text>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {grid.usage.map(({ color, quantity }) => (
-                  <tr key={color.code}>
-                    <td>
-                      <span
-                        className={styles.swatch}
-                        style={{
-                          backgroundColor: `rgb(${color.rgb.join(",")})`,
-                        }}
-                      />
-                      <Text variant={TextVariant.Inline} scale={2}>
-                        {color.code}
-                      </Text>
-                    </td>
-                    <td>
-                      <Text variant={TextVariant.Inline} scale={2}>
-                        {String(quantity)}
-                      </Text>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </>
+        );
+      }}
       actions={[
         {
           label: exportLabel,
-          disabled: props.busy || !!model.blocker || !sanitizeBeadFileStem(settings.name),
+          disabled: props.busy || !!model.blocker,
           onClick: () => props.execute(settings),
         },
         { label: cancelLabel, disabled: props.busy, onClick: props.onClose },
       ]}
     />
   );
+
+  function fitWidth() {
+    return Math.max(ICON_BUTTON * 2, measureUiText(tUi("ui.export.beads.fit")) + LABEL_PADDING * 2);
+  }
 }
