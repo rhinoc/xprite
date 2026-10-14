@@ -123,8 +123,9 @@ const UNITS = ["byte", "kilobyte", "megabyte", "gigabyte"] as const;
 
 /** Finder-style sizes ("12 KB", "1.2 MB") in the page language. */
 export function formatBytes(bytes: number, language: string): string {
-  let value = bytes;
-  let unit = 0;
+  // Like the Finder, sizes start at kilobytes and never round a non-empty file down to zero.
+  let value = bytes > 0 ? Math.max(1, bytes / 1024) : 0;
+  let unit = 1;
   while (value >= 1024 && unit < UNITS.length - 1) {
     value /= 1024;
     unit++;

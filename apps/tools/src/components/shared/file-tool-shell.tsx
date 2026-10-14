@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type DragEvent, type ReactNode } from "react";
 
-import { useFilesManager } from "$/components/files/files-context";
+import { useFilesManager, useFilesText } from "$/components/files/files-context";
 import { FileToolEmptyState } from "$/components/shared/file-tool-empty-state";
 import { ToolFrame } from "$/components/shared/tool-frame";
 import { decodeFilesDrag, FILES_DRAG_TYPE } from "$/managers/files/files-model";
@@ -39,6 +39,8 @@ export function FileToolShell({
   const t = useToolTranslation();
 
   const files = useFilesManager();
+  const filesText = useFilesText();
+  const [fromFiles, setFromFiles] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   // A file the user imported, kept in Files once the tool has parsed it successfully.
@@ -127,6 +129,7 @@ export function FileToolShell({
           aria-busy={busy}
           onDragEnter={(event) => {
             if (carriesFiles(event)) {
+              setFromFiles(event.dataTransfer.types.includes(FILES_DRAG_TYPE));
               event.preventDefault();
               setDragging(true);
             }
@@ -166,7 +169,9 @@ export function FileToolShell({
           </div>
           {dragging && (
             <div className={styles.dropOverlay}>
-              <Text variant={TextVariant.Reading}>{t("Drop to open")}</Text>
+              <Text variant={TextVariant.Reading}>
+                {fromFiles ? filesText("files.drop.load") : t("Drop to open")}
+              </Text>
             </div>
           )}
         </section>

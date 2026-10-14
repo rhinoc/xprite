@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { useFilesManager, useFilesSnapshot, useFilesText } from "$/components/files/files-context";
 import { entryKind, folderName } from "$/components/files/files-window";
-import { formatBytes, formatDate } from "$/managers/files/files-model";
+import { formatBytes, formatDate, LOOSE_FOLDER } from "$/managers/files/files-model";
 import { useToolLanguage } from "$/managers/locale/tool-language";
 import { FileEntryKind } from "$/managers/ports/files";
 import {
@@ -53,7 +53,11 @@ export function FilesInfoWindow() {
     ],
     [
       text("files.info.where"),
-      `${text("files.title")}: ${folderName(entry.folder, text, t)} (${text("files.info.local")})`,
+      `${
+        entry.folder === LOOSE_FOLDER
+          ? text("files.title")
+          : `${text("files.title")}: ${folderName(entry.folder, text, t)}`
+      } (${text("files.info.local")})`,
     ],
     [text("files.info.created"), entry.createdAt ? formatDate(entry.createdAt, language) : unknown],
     [

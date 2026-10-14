@@ -4,6 +4,7 @@ import { useFilesManager, useFilesSnapshot, useFilesText } from "$/components/fi
 import { FilesInfoWindow } from "$/components/files/files-info";
 import type { FilesManager } from "$/managers/files/files-manager";
 import {
+  decodeFilesDrag,
   encodeFilesDrag,
   EDITOR_FOLDER,
   FILES_DRAG_TYPE,
@@ -166,6 +167,11 @@ export function FilesWindow() {
           name: t(tool.label),
           icon: IconKind.Folder,
         })),
+        {
+          id: FilesFolder.Trash,
+          name: text("files.trash"),
+          icon: manager.folderCount(FilesFolder.Trash) ? IconKind.TrashFull : IconKind.Trash,
+        },
       ]
     : [];
   const count = folders.length + entries.length;
@@ -181,7 +187,6 @@ export function FilesWindow() {
       : text("files.info.bar.count", { count });
   const selected = new Set(state.selection);
   const title = folderName(folder, text, t);
-  const target = manager.pageTarget();
   const order = [...folders.map((item) => item.id), ...entries.map((entry) => entry.id)];
   const focusId = state.selection[state.selection.length - 1] ?? order[0];
 
@@ -385,10 +390,25 @@ export function FilesWindow() {
     onDragOver: entry
       ? undefined
       : (event: DragEvent) => {
+          if (id === FilesFolder.Trash && event.dataTransfer.types.includes(FILES_DRAG_TYPE)) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = "move";
+            return;
+          }
           if (!isOsFileDrag(event)) return;
           event.preventDefault();
           springOpen(id);
         },
+    onDrop:
+      id === FilesFolder.Trash
+        ? (event: DragEvent) => {
+            const ids = decodeFilesDrag(event.dataTransfer.getData(FILES_DRAG_TYPE));
+            if (!ids.length) return;
+            event.preventDefault();
+            event.stopPropagation();
+            void manager.trash(ids);
+          }
+        : undefined,
     onDragLeave: entry ? undefined : stopSpring,
   });
 
@@ -553,19 +573,15 @@ export function FilesWindow() {
                 </Text>
                 <div className={styles.views} role="group" aria-label={text("files.view")}>
                   <Button
-                    variant={ButtonVariant.Icon}
-                    aria-label={text("files.view.icons")}
+                    text={text("files.view.icons")}
                     aria-pressed={state.view === FilesView.Icons}
                     selected={state.view === FilesView.Icons}
-                    slots={{ leading: <Icon kind={IconKind.Folder} size={IconSize.Small} /> }}
                     onClick={() => manager.setView(FilesView.Icons)}
                   />
                   <Button
-                    variant={ButtonVariant.Icon}
-                    aria-label={text("files.view.list")}
+                    text={text("files.view.list")}
                     aria-pressed={state.view === FilesView.List}
                     selected={state.view === FilesView.List}
-                    slots={{ leading: <Icon kind={IconKind.Document} size={IconSize.Small} /> }}
                     onClick={() => manager.setView(FilesView.List)}
                   />
                 </div>
@@ -633,11 +649,6 @@ export function FilesWindow() {
                 <div className={styles.footer}>
                   <Button text={text("files.empty.trash")} onClick={manager.requestEmptyTrash} />
                 </div>
-              )}
-              {target && !inTrash && entries.length > 0 && (
-                <Text variant={TextVariant.Reading} className={styles.hint}>
-                  {text("files.drop.load")}
-                </Text>
               )}
               <input
                 ref={picker}

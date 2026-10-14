@@ -66,7 +66,7 @@ export function ToolFrame({
   useEffect(() => setMounted(true), []);
   const trashFull = (filesState?.entries ?? []).some((entry) => entry.trashedAt);
   const filesItem = {
-    label: `${filesText("files.open.window")}…`,
+    label: filesText("files.open.window"),
     separator: true,
     disabled: !files,
     onSelect: () => void files?.openWindow(FilesEntryPoint.Menubar),
