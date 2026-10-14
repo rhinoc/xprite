@@ -2,6 +2,7 @@ import { handOffToolOutput } from "$/adapters/preview/browser-download";
 import { readToolWheel } from "$/adapters/preview/browser-preview";
 import { decodeViewerFile } from "$/adapters/viewer/aseprite-file";
 import { BeadToolError } from "$/managers/beads/bead-failure";
+import { TOOL_IMPORT_MAX_BYTES } from "$/managers/files/files-model";
 import type { BeadToolPort } from "$/managers/ports/beads";
 import { ToolFailureCategory } from "$/managers/ports/telemetry";
 import { decodeImageBlob, encodePngBlob } from "@xprite/bedrock/browser/images";
@@ -11,7 +12,7 @@ import logoUrl from "@xprite/site-assets/menu-icon.svg?url";
 import exampleUrl from "@xprite/site-assets/showcase/ipad/hello/hello-frame-01.png?url";
 import { renderArtifactSignature, createArtifactRasterText } from "@xprite/site-shell/browser";
 
-const MAX_FILE_BYTES = 64 * 1024 * 1024;
+const MAX_FILE_BYTES = TOOL_IMPORT_MAX_BYTES;
 const MAX_IMAGE_PIXELS = 16 * 1024 * 1024;
 const yieldToBrowser = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 

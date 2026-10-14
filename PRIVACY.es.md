@@ -10,6 +10,8 @@ Este aviso describe los datos que usan el editor web, la página de presentació
 
 Xprite procesa tu arte en el navegador. Los proyectos, los archivos recientes, los datos de recuperación, los ajustes predefinidos y las preferencias de la interfaz pueden guardarse en el almacenamiento del navegador o en archivos que elijas. Xprite no sube tu arte para editarlo ni lo sincroniza con una cuenta. Borrar los datos del sitio en el navegador también puede eliminar los proyectos guardados localmente y los datos de recuperación; guarda antes una copia de tus trabajos importantes.
 
+Archivos guarda una copia de las imágenes y proyectos que importas en las herramientas y el editor, con sus nombres, fechas, etiquetas y comentarios, en el almacenamiento de este navegador (el sistema de archivos privado del origen e IndexedDB) para que puedas volver a abrirlos. Estas copias nunca salen de tu dispositivo. Los elementos de la Papelera se eliminan a los 30 días, y Vaciar Papelera los elimina en el acto. Archivos puede pedir al navegador que conserve este almacenamiento de forma persistente; el navegador decide. Los eventos de uso de Archivos registran acciones, rangos aproximados de tamaño y categorías de error, nunca nombres, comentarios ni contenido de los archivos.
+
 El comando Compartir crea una URL que contiene en su fragmento el proyecto editable comprimido. Xprite genera y lee estos datos de forma local, sin subir ningún archivo. Enviar el enlace o el código QR por otra app comparte esos datos del proyecto con la app y con quienes lo reciben. Cualquiera con el enlace completo puede abrir el proyecto; esas copias no caducan ni se pueden revocar.
 
 ## Datos de uso

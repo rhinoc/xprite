@@ -54,7 +54,12 @@ async function consumeProject(token: string): Promise<EditorInitialProject | nul
         }),
     );
     if (!record) return null;
-    if (/\.png$/i.test(record.name)) {
+    if (/\.(?:gif|webp)$/i.test(record.name)) {
+      const { decodeAnimatedImageSource } = await import("$/adapters/files/animated-images");
+      const project = await decodeAnimatedImageSource(record.file, record.name);
+      if (project) return { name: record.name, project };
+    }
+    if (/\.(?:png|gif|webp|jpe?g)$/i.test(record.name)) {
       const { decodeImageBlob } = await import("@xprite/bedrock/browser/images");
       const { projectFromClipboardImage } = await import("@xprite/editor-core/import-export");
       const pixels = await decodeImageBlob(record.file);

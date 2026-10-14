@@ -10,6 +10,8 @@ Este aviso descreve os dados usados pelo editor web, pela vitrine, pelos compone
 
 O Xprite processa a arte no seu navegador. Projetos, arquivos recentes, dados de recuperação, predefinições e preferências da interface podem ser salvos no armazenamento do navegador ou em arquivos que você escolher. O Xprite não envia a arte para edição nem a sincroniza com uma conta. Limpar os dados do site no navegador também pode apagar projetos salvos localmente e dados de recuperação; salve antes uma cópia dos trabalhos importantes.
 
+O Arquivos guarda uma cópia das imagens e projetos que você importa nas ferramentas e no editor, com nomes, datas, etiquetas e comentários, no armazenamento deste navegador (o sistema de arquivos privado da origem e o IndexedDB), para você abri-los de novo depois. Essas cópias nunca saem do seu dispositivo. Os itens no Lixo são apagados após 30 dias, e Esvaziar Lixo os apaga na hora. O Arquivos pode pedir ao navegador que mantenha esse armazenamento de forma persistente; quem decide é o navegador. Os eventos de uso do Arquivos registram ações, faixas aproximadas de tamanho e categorias de erro, nunca nomes, comentários ou conteúdo dos arquivos.
+
 O comando Compartilhar cria uma URL que contém, no fragmento, o projeto editável compactado. O Xprite gera e lê esses dados localmente, sem enviar um arquivo. Enviar o link ou o QR code por outro app compartilha esses dados do projeto com o app e com quem recebe. Qualquer pessoa com o link completo pode abrir o projeto; essas cópias não expiram e não podem ser revogadas.
 
 ## Dados de uso

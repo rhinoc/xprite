@@ -1,13 +1,14 @@
 import { browserToolAppearance } from "$/adapters/preview/browser-appearance";
 import { handOffToolOutput } from "$/adapters/preview/browser-download";
 import { readToolWheel } from "$/adapters/preview/browser-preview";
+import { TOOL_IMPORT_MAX_BYTES } from "$/managers/files/files-model";
 import type { GifSheetPort } from "$/managers/ports/gif-sheet";
 import { ToolFailureCategory, ToolOperationError } from "$/managers/ports/telemetry";
 import { encodePngBlob } from "@xprite/bedrock/browser/images";
 import { decodeGifAnimation } from "@xprite/editor-core/import-export";
 import exampleUrl from "@xprite/site-assets/showcase/ipad/hello/hello.gif?url";
 
-const MAX_GIF_BYTES = 64 * 1024 * 1024;
+const MAX_GIF_BYTES = TOOL_IMPORT_MAX_BYTES;
 const EXAMPLE_FILENAME = "hello.gif";
 const JSON_TYPE = "application/json";
 

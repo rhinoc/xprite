@@ -4,6 +4,16 @@ export enum SiteTelemetryEvent {
   FileOpened = "tool_file_opened",
   OutputHandedOff = "tool_output_handed_off",
   OperationFailed = "tool_operation_failed",
+  FilesOpened = "files_opened",
+  FilesImported = "files_item_imported",
+  FilesItemOpened = "files_item_opened",
+  FilesDownloaded = "files_download",
+  FilesTrashed = "files_trash",
+  FilesTrashEmptied = "files_trash_emptied",
+  FilesViewChanged = "files_view_changed",
+  FilesQuotaWarning = "files_quota_warning",
+  FilesStorageError = "files_storage_error",
+  FilesPersistResult = "files_persist_result",
 }
 
 export enum SitePageType {

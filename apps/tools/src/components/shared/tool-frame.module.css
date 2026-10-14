@@ -559,3 +559,14 @@
     animation-timing-function: ease-out;
   }
 }
+
+.filesShortcut[data-drop-target] {
+  filter: brightness(0.6);
+}
+
+/* Phones reach Files from the File menu; the final desktop placement is still open. */
+@media (max-width: 700px) {
+  .filesShortcut {
+    display: none;
+  }
+}

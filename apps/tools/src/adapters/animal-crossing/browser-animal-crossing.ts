@@ -1,6 +1,7 @@
 import { handOffToolOutput } from "$/adapters/preview/browser-download";
 import { readToolWheel } from "$/adapters/preview/browser-preview";
 import { decodeViewerFile } from "$/adapters/viewer/aseprite-file";
+import { TOOL_IMPORT_MAX_BYTES } from "$/managers/files/files-model";
 import type { AnimalCrossingPort } from "$/managers/ports/animal-crossing";
 import { ToolFailureCategory, ToolOperationError } from "$/managers/ports/telemetry";
 import { decodeImageBlob, encodePngBlob } from "@xprite/bedrock/browser/images";
@@ -12,7 +13,7 @@ import {
 import { createAnimalCrossingPreviewRenderer } from "@xprite/editor-ui/animal-crossing/preview";
 import exampleUrl from "@xprite/site-assets/tools/animal-crossing/acnh/winding-cobblestone.png?url";
 
-const MAX_FILE_BYTES = 64 * 1024 * 1024;
+const MAX_FILE_BYTES = TOOL_IMPORT_MAX_BYTES;
 const MAX_IMAGE_PIXELS = 16 * 1024 * 1024;
 export function createBrowserAnimalCrossingPort(): AnimalCrossingPort {
   return {

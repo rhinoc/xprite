@@ -3,6 +3,8 @@ import type { CSSProperties, HTMLAttributes } from "react";
 import { ThemeIcon, type UiPartName } from "$/base/theme/theme-part";
 import applicationSmallUrl from "$assets/icons/desktop/macos8/application-small.webp?url";
 import applicationUrl from "$assets/icons/desktop/macos8/application.webp?url";
+import applicationsFolderSmallUrl from "$assets/icons/desktop/macos8/applications-folder-small.webp?url";
+import applicationsFolderUrl from "$assets/icons/desktop/macos8/applications-folder.webp?url";
 import documentSmallUrl from "$assets/icons/desktop/macos8/document-small.webp?url";
 import documentUrl from "$assets/icons/desktop/macos8/document.webp?url";
 import searchSmallUrl from "$assets/icons/desktop/macos8/find-file-small.webp?url";
@@ -17,6 +19,10 @@ import imageSmallUrl from "$assets/icons/desktop/macos8/scrapbook-small.webp?url
 import imageUrl from "$assets/icons/desktop/macos8/scrapbook.webp?url";
 import stickiesSmallUrl from "$assets/icons/desktop/macos8/stickies-small.webp?url";
 import stickiesUrl from "$assets/icons/desktop/macos8/stickies.webp?url";
+import trashFullSmallUrl from "$assets/icons/desktop/macos8/trash-full-small.webp?url";
+import trashFullUrl from "$assets/icons/desktop/macos8/trash-full.webp?url";
+import trashSmallUrl from "$assets/icons/desktop/macos8/trash-small.webp?url";
+import trashUrl from "$assets/icons/desktop/macos8/trash.webp?url";
 import helpUrl from "$assets/icons/system/help.svg?url";
 import languageUrl from "$assets/icons/system/language.svg?url";
 import volumeMutedUrl from "$assets/icons/system/volume-muted.svg?url";
@@ -33,6 +39,9 @@ export enum IconKind {
   Map = "map",
   Stickies = "stickies",
   NotePad = "note-pad",
+  ApplicationsFolder = "applications-folder",
+  Trash = "trash",
+  TrashFull = "trash-full",
   Help = "help",
   Language = "language",
   Volume = "volume",
@@ -47,6 +56,12 @@ const ARTWORK_URLS = {
   [IconKind.Map]: { regular: mapUrl, small: mapSmallUrl },
   [IconKind.Stickies]: { regular: stickiesUrl, small: stickiesSmallUrl },
   [IconKind.NotePad]: { regular: notePadUrl, small: notePadSmallUrl },
+  [IconKind.ApplicationsFolder]: {
+    regular: applicationsFolderUrl,
+    small: applicationsFolderSmallUrl,
+  },
+  [IconKind.Trash]: { regular: trashUrl, small: trashSmallUrl },
+  [IconKind.TrashFull]: { regular: trashFullUrl, small: trashFullSmallUrl },
 };
 
 const GLYPH_URLS: Partial<Record<IconKind, string>> = {

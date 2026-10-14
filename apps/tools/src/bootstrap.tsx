@@ -1,8 +1,10 @@
 import { StrictMode, type ReactNode } from "react";
 import { hydrateRoot, type Root } from "react-dom/client";
 
+import { createBrowserFilesPort } from "$/adapters/files/browser-files";
 import { browserToolAppearance } from "$/adapters/preview/browser-appearance";
 import { readToolLanguage, writeToolLanguage } from "$/adapters/tools/browser-language";
+import { FilesManager } from "$/managers/files/files-manager";
 import { ToolApplicationRoot } from "$/tool-application-root";
 import { AppearanceMode, resolveAppearanceMode } from "@xprite/editor-ui/appearance";
 import { normalizeDesktopPreferences, DesktopAppearance } from "@xprite/site-shell";
@@ -82,12 +84,18 @@ export async function mountToolApplication(
   await Promise.all([...document.images].map((image) => image.decode()));
   if (!active) return;
   application = createApplication(initialTheme, telemetry);
+  const files: FilesManager =
+    hot?.data.files ?? new FilesManager(createBrowserFilesPort(telemetry));
+  hot?.dispose((data) => {
+    data.files = files;
+  });
   const view = (
     <StrictMode>
       <ToolApplicationRoot
         rootId={rootId}
         language={language}
         onLanguageChange={writeToolLanguage}
+        files={files}
         artwork={
           root ? {} : JSON.parse(document.getElementById("tool-initial-artwork")!.textContent!)
         }
