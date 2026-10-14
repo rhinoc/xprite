@@ -1,6 +1,7 @@
 import { useId, type CSSProperties } from "react";
 
 import { ToolArtworkKind, useToolArtwork } from "$/components/shared/tool-artwork";
+import { useToolWindowShade } from "$/components/shared/window-shade";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import { TOOL_EXAMPLES, type PublicTool } from "$/managers/tools/tool-catalog";
 import {
@@ -112,6 +113,7 @@ export function FileToolEmptyState({
   onChooseFile(): void;
   onExample(): Promise<void>;
 }) {
+  const shadeExample = useToolWindowShade("example");
   const t = useToolTranslation();
 
   const artwork = useToolArtwork();
@@ -155,6 +157,7 @@ export function FileToolEmptyState({
           <FileEntryCues busy={busy} />
         </div>
         <Panel
+          {...shadeExample}
           emphasized
           tone={SurfaceTone.Success}
           contentLayout={ContentLayout.Column}
@@ -165,7 +168,6 @@ export function FileToolEmptyState({
           className={styles.examples}
           data-ui-window-active="false"
           aria-label={t("Try example")}
-          collapsible
         >
           <div className={styles.exampleArtwork}>
             <PixelImage

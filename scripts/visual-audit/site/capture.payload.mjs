@@ -67,7 +67,7 @@ const geometry = async (scene) => {
   const isTool = isToolPath(scene.page.path);
   const windowFaults = !isTool
     ? []
-    : await page.evaluate(() => {
+    : await page.evaluate(async () => {
         const bar = document.querySelector("[role=menubar]");
         const width = window.innerWidth,
           height = window.innerHeight;
@@ -93,6 +93,43 @@ const geometry = async (scene) => {
           const overflowY = getComputedStyle(body).overflowY;
           if (body.scrollHeight > body.clientHeight + 1 && !["auto", "scroll"].includes(overflowY))
             faults.push(`${body.parentElement.getAttribute("aria-label")}: body cannot scroll`);
+        }
+        // WindowShade: rolling a window up leaves only its title bar, the other windows grow
+        // into the freed height, and rolling it down again restores it.
+        const windows = [...document.querySelectorAll("[data-ui-desktop-window]")].filter(
+          (node) => node.getBoundingClientRect().height > 0,
+        );
+        const shade = windows.find(
+          (node) =>
+            node instanceof HTMLDetailsElement &&
+            node.open &&
+            node.querySelector(":scope > summary"),
+        );
+        if (shade && windows.length > 1) {
+          const bar = shade.querySelector(":scope > summary");
+          const others = windows.filter((node) => node !== shade);
+          const total = () =>
+            others.reduce((sum, node) => sum + node.getBoundingClientRect().height, 0);
+          const frame = () =>
+            new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+          const toggle = () =>
+            bar.dispatchEvent(new MouseEvent("dblclick", { bubbles: true, cancelable: true }));
+          const name = bar.textContent.trim() || "window";
+          const expandedOthers = total();
+          if (bar.getAttribute("aria-expanded") !== "true")
+            faults.push(`${name}: open title bar lacks aria-expanded=true`);
+          toggle();
+          await frame();
+          if (shade.open || bar.getAttribute("aria-expanded") !== "false")
+            faults.push(`${name}: double-click did not roll the window up`);
+          if (shade.getBoundingClientRect().height > bar.getBoundingClientRect().height + 6)
+            faults.push(`${name}: rolled-up window is taller than its title bar`);
+          if (total() <= expandedOthers + 1)
+            faults.push(`${name}: other windows did not grow into the freed space`);
+          toggle();
+          await frame();
+          if (!shade.open || bar.getAttribute("aria-expanded") !== "true")
+            faults.push(`${name}: double-click did not restore the window`);
         }
         return faults;
       });

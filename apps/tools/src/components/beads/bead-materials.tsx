@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 
+import { useToolWindowShade } from "$/components/shared/window-shade";
 import type { BeadToolManager, BeadToolSnapshot } from "$/managers/beads/bead-tool-manager";
 import { useBeadText } from "$/managers/locale/tool-language";
 import {
@@ -23,6 +24,7 @@ export function BeadMaterials({
   manager: BeadToolManager;
   state: BeadToolSnapshot;
 }) {
+  const shadeMaterials = useToolWindowShade("materials");
   const text = useBeadText();
   const grid = state.grid;
   const busy = state.loading || state.pending || state.downloading;
@@ -37,9 +39,9 @@ export function BeadMaterials({
   );
   return (
     <Panel
+      {...shadeMaterials}
       variant={PanelVariant.Utility}
       emphasized
-      collapsible
       scrollable
       title={text("beads.materials")}
       contentLayout={ContentLayout.Column}

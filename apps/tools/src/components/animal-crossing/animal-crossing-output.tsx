@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { useToolWindowShade } from "$/components/shared/window-shade";
 import type {
   AnimalCrossingManager,
   AnimalCrossingSnapshot,
@@ -41,6 +42,7 @@ export function AnimalCrossingOutput({
   manager: AnimalCrossingManager;
   snapshot: AnimalCrossingSnapshot;
 }) {
+  const shadeQr = useToolWindowShade("qr");
   const t = useToolTranslation();
 
   const [helpOpen, setHelpOpen] = useState(false);
@@ -67,11 +69,11 @@ export function AnimalCrossingOutput({
   return (
     <>
       <Panel
+        {...shadeQr}
         emphasized
         tone={SurfaceTone.Warning}
         contentLayout={ContentLayout.Fill}
         variant={PanelVariant.Utility}
-        collapsible
         className={styles.outputPanel}
         title={t("Design QR code")}
         aria-label={t("Design QR code")}

@@ -24,23 +24,3 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
-/* Phones: both windows share the fixed-height tool screen and scroll inside their bodies. */
-@media (max-width: 700px) {
-  .layout {
-    flex: 1 1 auto;
-    height: 100%;
-    min-height: 0;
-    box-sizing: border-box;
-    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: stretch;
-    gap: 12px;
-    padding: 0;
-  }
-  .settings,
-  .preview {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    max-height: 100%;
-  }
-}

@@ -2,6 +2,7 @@ import { useToolTranslation } from "$/managers/locale/tool-language";
 const PANEL_CONTENT_GAP = 8;
 import { useState } from "react";
 
+import { useToolWindowShade } from "$/components/shared/window-shade";
 import {
   AnimalCrossingLayout,
   type AnimalCrossingManager,
@@ -38,6 +39,8 @@ export function AnimalCrossingSettingsPanel({
   manager: AnimalCrossingManager;
   snapshot: AnimalCrossingSnapshot;
 }) {
+  const shadeInformation = useToolWindowShade("information");
+  const shadeLayout = useToolWindowShade("layout");
   const t = useToolTranslation();
 
   const [spacingOpen, setSpacingOpen] = useState(
@@ -84,6 +87,7 @@ export function AnimalCrossingSettingsPanel({
   if (snapshot.importedQr)
     return (
       <Panel
+        {...shadeInformation}
         emphasized
         tone={SurfaceTone.Accent}
         contentLayout={ContentLayout.Column}
@@ -91,7 +95,6 @@ export function AnimalCrossingSettingsPanel({
         contentGap={PANEL_CONTENT_GAP}
         scrollable
         variant={PanelVariant.Utility}
-        collapsible
         className={styles.settingsPanel}
         title={<Text variant={TextVariant.Reading}>{t("Design information")}</Text>}
         aria-label={t("Design information")}
@@ -122,6 +125,7 @@ export function AnimalCrossingSettingsPanel({
   return (
     <aside className={styles.settingsColumn} data-ui-desktop-layer>
       <Panel
+        {...shadeInformation}
         emphasized
         tone={SurfaceTone.Accent}
         contentLayout={ContentLayout.Column}
@@ -129,7 +133,6 @@ export function AnimalCrossingSettingsPanel({
         contentGap={PANEL_CONTENT_GAP}
         scrollable
         variant={PanelVariant.Utility}
-        collapsible
         className={styles.settingsPanel}
         title={<Text variant={TextVariant.Reading}>{t("Design information")}</Text>}
         aria-label={t("Design information")}
@@ -154,6 +157,7 @@ export function AnimalCrossingSettingsPanel({
         )}
       </Panel>
       <Panel
+        {...shadeLayout}
         emphasized
         tone={SurfaceTone.Accent}
         contentLayout={ContentLayout.Column}
@@ -161,7 +165,6 @@ export function AnimalCrossingSettingsPanel({
         contentGap={PANEL_CONTENT_GAP}
         scrollable
         variant={PanelVariant.Utility}
-        collapsible
         className={styles.settingsPanel}
         title={<Text variant={TextVariant.Reading}>{t("Image layout")}</Text>}
         aria-label={t("Image layout")}

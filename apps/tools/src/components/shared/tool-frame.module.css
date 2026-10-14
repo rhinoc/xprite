@@ -471,16 +471,20 @@
     overscroll-behavior: contain;
   }
   .emptyContent {
-    height: 100%;
-    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
-    align-content: stretch;
+    display: flex;
+    flex-direction: column;
     align-items: stretch;
+    height: 100%;
     gap: 12px;
   }
   .entryWindow {
-    height: 100%;
+    flex: 1 1 0;
+    height: auto;
+    min-height: 0;
   }
   .emptyContent .examples {
+    flex: 1 1 0;
+    min-height: 0;
     margin: 0;
   }
   .exampleArtwork {
@@ -495,20 +499,63 @@
     top: var(--tool-cue-inset);
   }
   .entryCursor[data-position="from-above"] {
-    left: auto;
-    right: 6px;
+    /* Whole-pixel x so the pixel-art cursor snaps the same before and after hydration. */
+    left: round(down, 100% - 54px, 1px);
     top: var(--tool-cue-inset);
   }
   .entryCursor[data-position="from-below"] {
-    left: auto;
-    top: auto;
-    right: 6px;
-    bottom: 6px;
+    /* Whole-pixel position so the pixel-art cursor snaps the same before and after hydration. */
+    left: round(down, 100% - 54px, 1px);
+    top: round(down, 100% - 54px, 1px);
   }
 }
 /* Short phones: the desktop icons duplicate menu bar links, so give their room to the windows. */
 @media (max-width: 700px) and (max-height: 780px) {
   .shortcuts {
     display: none;
+  }
+}
+/*
+ * Phones: a tool's loaded windows stack in one column that fills the screen. Windows share the
+ * height (the primary document window gets twice the share); a window rolled up to its title
+ * bar (WindowShade) keeps only that bar and the others grow into the freed space.
+ */
+@media (max-width: 700px) {
+  .workspace .previewPanel > :not(.emptyStage) {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+    height: auto;
+    padding: 0;
+  }
+  .workspace .previewPanel > :not(.emptyStage) > :not([data-ui-desktop-window]) {
+    display: contents;
+  }
+  .workspace .previewPanel :global([data-ui-desktop-window]) {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: none;
+  }
+  .workspace .previewPanel :global([data-ui-desktop-window][data-ui-window-priority="primary"]) {
+    flex-grow: 2;
+  }
+  .desktop :global(details[data-ui-desktop-window]:not([open])),
+  .desktop :global([data-ui-desktop-window][data-ui-panel-collapsed]) {
+    flex: 0 0 auto !important;
+  }
+  .desktop :global([data-ui-desktop-window]) {
+    /* Through a custom property so CSS Modules leaves the keyword unhashed. */
+    --tool-window-transition-name: match-element;
+    view-transition-name: var(--tool-window-transition-name);
+    /* On the wide desktop a rolled-up window keeps its footprint; here the others reclaim it. */
+    margin-block-end: 0 !important;
+  }
+}
+@media (max-width: 700px) and (prefers-reduced-motion: no-preference) {
+  :global(::view-transition-group(*)) {
+    animation-duration: 160ms;
+    animation-timing-function: ease-out;
   }
 }

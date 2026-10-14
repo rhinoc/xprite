@@ -1,5 +1,6 @@
 import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
 import { ToolZoomControl } from "$/components/shared/tool-zoom-control";
+import { useToolWindowShade } from "$/components/shared/window-shade";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import {
   ALL_FRAMES_TAG,
@@ -33,6 +34,8 @@ export function ViewerPreview({
   manager: ViewerManager;
   snapshot: ViewerSnapshot;
 }) {
+  const shadePreview = useToolWindowShade("preview");
+  const shadeAnimation = useToolWindowShade("animation");
   const t = useToolTranslation();
 
   const navigation = manager.viewport;
@@ -41,6 +44,7 @@ export function ViewerPreview({
   return (
     <div className={styles.layout}>
       <Panel
+        {...shadePreview}
         emphasized
         contentLayout={ContentLayout.Fill}
         variant={PanelVariant.Document}
@@ -73,13 +77,13 @@ export function ViewerPreview({
         />
       </Panel>
       <Panel
+        {...shadeAnimation}
         emphasized
         tone={SurfaceTone.Accent}
         contentLayout={ContentLayout.Column}
         scrollable
         variant={PanelVariant.Utility}
         title={t("Animation")}
-        collapsible
         className={styles.animationWindow}
       >
         <ControlFlow toolbar className={styles.playbackToolbar}>

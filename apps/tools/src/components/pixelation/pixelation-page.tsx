@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 
 import { FileToolShell } from "$/components/shared/file-tool-shell";
 import { ToolHelp } from "$/components/shared/tool-help";
+import { useToolWindowShade } from "$/components/shared/window-shade";
 import type { PixelationManager } from "$/managers/pixelation/pixelation-manager";
 import { PIXELATE_TOOL } from "$/managers/tools/tool-catalog";
 import { PixelationComparison, PixelationControls } from "@xprite/editor-ui";
@@ -20,6 +21,8 @@ import {
 
 import styles from "$/components/pixelation/pixelation.module.css";
 export function PixelationPage({ manager }: { manager: PixelationManager }) {
+  const shadeSettings = useToolWindowShade("settings");
+  const shadePreview = useToolWindowShade("preview");
   const state = useSyncExternalStore(manager.subscribe, manager.getSnapshot, manager.getSnapshot);
   const busy = state.loading || state.downloading;
   return (
@@ -49,6 +52,7 @@ export function PixelationPage({ manager }: { manager: PixelationManager }) {
       {state.source && (
         <div className={styles.layout}>
           <Panel
+            {...shadeSettings}
             variant={PanelVariant.Utility}
             emphasized
             tone={SurfaceTone.Accent}
@@ -74,6 +78,7 @@ export function PixelationPage({ manager }: { manager: PixelationManager }) {
             />
           </Panel>
           <Panel
+            {...shadePreview}
             variant={PanelVariant.Document}
             emphasized
             title={state.name}
