@@ -428,6 +428,7 @@ function DocumentScene() {
       onNew={actions.new}
       onOpen={actions.open}
       onAbout={actions.about}
+      onSupport={actions.canOpenModal ? actions.support : undefined}
       onSettings={actions.canOpenModal ? actions.preferences : undefined}
       onFeedback={actions.canOpenModal ? actions.feedback : undefined}
       onOpenRecent={actions.openRecent}

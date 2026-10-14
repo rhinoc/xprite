@@ -107,15 +107,6 @@
   background: color-mix(in srgb, currentColor 8%, transparent);
 }
 
-.starIcon {
-  display: block;
-  flex: 0 0 auto;
-  background: currentColor;
-  mask-image: var(--xse-home-star-mask);
-  mask-repeat: no-repeat;
-  mask-size: contain;
-}
-
 @container (max-width: 600px) {
   .header {
     grid-template-columns: minmax(0, var(--xse-home-mascot-width, 64px)) minmax(0, 1fr) max-content;

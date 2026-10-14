@@ -14,6 +14,7 @@ export interface EditorHomeViewProps {
   onOpen: () => void;
   onOpenRecent: (id: string) => void;
   onAbout: () => void;
+  onSupport?: () => void;
   onSettings?: () => void;
   onFeedback?: () => void;
   onRecover?: () => void;
@@ -30,7 +31,6 @@ export function EditorHomeView(props: EditorHomeViewProps) {
   return (
     <PrimitiveHomeView
       {...props}
-      repositoryHref={about.repositoryHref}
       labels={
         {
           home: tUi("ui.home"),
@@ -40,7 +40,7 @@ export function EditorHomeView(props: EditorHomeViewProps) {
           openFile: "Open File...",
           recoverFiles: tUi("ui.recover.files.6d880af2"),
           footerSegments: about.footerSegments,
-          star: tUi("ui.home.star.on.github"),
+          support: tUi("ui.home.support"),
           settings: tUi("ui.settings"),
           feedback: tUi("feedback.open"),
           about: tUi("ui.about"),

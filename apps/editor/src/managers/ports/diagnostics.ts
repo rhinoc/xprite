@@ -53,6 +53,7 @@ export enum WorkspaceDiagnosticAction {
 
 export enum InteractionBlocker {
   AboutDialog = "about-dialog",
+  SupportDialog = "support-dialog",
   FeedbackDialog = "feedback-dialog",
   InputDialog = "input-dialog",
   NewTilemapDialog = "new-tilemap-dialog",

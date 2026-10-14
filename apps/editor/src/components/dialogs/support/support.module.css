@@ -1,0 +1,45 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: var(--ui-space-4, 8px);
+  padding: var(--ui-space-4, 8px);
+}
+
+.trigger {
+  display: flex;
+  min-width: 0;
+}
+
+.trigger > * {
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: var(--ui-space-4, 8px);
+}
+
+.socials {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ui-space-4, 8px);
+}
+
+.qr {
+  display: flex;
+  text-align: center;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ui-space-2, 4px);
+}
+
+/* Keep the platform long-press menu (save / scan) on touch devices. */
+.qrImage {
+  display: block;
+  -webkit-touch-callout: default;
+  user-select: auto;
+}

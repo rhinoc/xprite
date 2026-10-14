@@ -46,6 +46,7 @@ export interface EditorActions {
   keyboardShortcuts: () => void;
   userGuide: () => void;
   about: () => void;
+  support: () => void;
   feedback: () => void;
   donate: () => void;
   exit: () => void;

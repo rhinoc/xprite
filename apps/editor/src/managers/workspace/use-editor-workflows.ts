@@ -180,6 +180,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
   const [duplicateSpriteOpen, setDuplicateSpriteOpen] = useState(false);
   const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
   const [newTilemapDialog, setNewTilemapDialog] = useState(false);
   const heldSpace = useRef(false);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
@@ -403,6 +404,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
   });
   const modalBlockers = [
     ...(aboutOpen ? [InteractionBlocker.AboutDialog] : []),
+    ...(supportOpen ? [InteractionBlocker.SupportDialog] : []),
     ...(feedback.open ? [InteractionBlocker.FeedbackDialog] : []),
     ...(dialog ? [InteractionBlocker.InputDialog] : []),
     ...(newTilemapDialog ? [InteractionBlocker.NewTilemapDialog] : []),
@@ -913,6 +915,11 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     },
     feedback: () => {
       if (!modalOpen) feedback.show();
+    },
+    support: () => {
+      if (modalOpen) return;
+      telemetry.featureUsed(TelemetryFeature.Support, TelemetryFeatureAction.Open);
+      setSupportOpen(true);
     },
     donate: () => {
       telemetry.featureUsed(TelemetryFeature.Donate, TelemetryFeatureAction.Click);
@@ -1600,6 +1607,10 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     setKeyboardShortcutsOpen,
     aboutOpen,
     setAboutOpen,
+    supportOpen,
+    setSupportOpen,
+    supportOption: (option: string) =>
+      telemetry.featureUsed(TelemetryFeature.Support, TelemetryFeatureAction.Click, { option }),
     feedback,
     openHelpLink: (link: HelpLink) => platform.navigation.openExternal(HELP_LINKS[link]),
     newTilemapDialog,

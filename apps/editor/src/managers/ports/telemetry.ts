@@ -75,6 +75,7 @@ export enum TelemetryFeature {
   Settings = "settings",
   About = "about",
   Donate = "donate",
+  Support = "support",
   SaveAs = "save_as",
   Export = "export",
 }

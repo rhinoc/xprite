@@ -90,6 +90,9 @@ const IDLE_PRELOADED_DIALOGS = [
 const AboutDialog = lazy(() =>
   import("$/components/dialogs/about").then((module) => ({ default: module.AboutDialog })),
 );
+const SupportDialog = lazy(() =>
+  import("$/components/dialogs/support").then((module) => ({ default: module.SupportDialog })),
+);
 const FeedbackDialog = lazy(() =>
   import("$/components/dialogs/feedback").then((module) => ({ default: module.FeedbackDialog })),
 );
@@ -159,6 +162,9 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
     setKeyboardShortcutsOpen,
     aboutOpen,
     setAboutOpen,
+    supportOpen,
+    setSupportOpen,
+    supportOption,
     feedback,
     openHelpLink,
     newTilemapDialog,
@@ -302,6 +308,7 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
       e.preventDefault();
       if (
         aboutOpen ||
+        supportOpen ||
         dialog ||
         preferencesOpen ||
         saveAsOpen ||
@@ -499,6 +506,15 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
         {aboutOpen && (
           <Suspense fallback={null}>
             <AboutDialog open={aboutOpen} onOpenChange={setAboutOpen} onOpenLink={openHelpLink} />
+          </Suspense>
+        )}
+        {supportOpen && (
+          <Suspense fallback={null}>
+            <SupportDialog
+              open={supportOpen}
+              onOpenChange={setSupportOpen}
+              onOption={supportOption}
+            />
           </Suspense>
         )}
         {feedback.open && (

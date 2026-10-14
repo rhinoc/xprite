@@ -71,10 +71,10 @@ export interface HomeViewProps {
   files: readonly RecentFile[];
   labels: HomeViewLabels;
   mascot?: (hovered: boolean) => ReactNode;
-  repositoryHref: string;
   onSettings?: () => void;
   onFeedback?: () => void;
   onAbout: () => void;
+  onSupport?: () => void;
   onNew: () => void;
   onOpen: () => void;
   onOpenRecent: (id: string) => void;
@@ -91,10 +91,10 @@ export function HomeView({
   files,
   labels,
   mascot,
-  repositoryHref,
   onSettings,
   onFeedback,
   onAbout,
+  onSupport,
   onNew,
   onOpen,
   onOpenRecent,
@@ -218,7 +218,7 @@ export function HomeView({
             labels={labels}
             onSettings={onSettings}
             onFeedback={onFeedback}
-            repositoryHref={repositoryHref}
+            onSupport={onSupport}
           />
         </header>
       )}

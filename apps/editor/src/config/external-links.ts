@@ -5,6 +5,12 @@ export const EDITOR_EXTERNAL_LINKS = {
   xpriteCredits: "https://github.com/rhinoc/xprite/blob/main/ATTRIBUTION.md",
   xpriteLicense: "https://github.com/rhinoc/xprite/blob/main/LICENSE",
   donate: "https://ko-fi.com/rhinoc",
+  // Social profiles: canonical profile URLs resolved from the share links, tracking removed.
+  bilibili: "https://space.bilibili.com/32089863",
+  xiaohongshu: "https://www.xiaohongshu.com/user/profile/6199f8f10000000010009efe",
+  xiaoheihe: "https://www.xiaoheihe.cn/app/user/profile/41de69a8aac3",
+  x: "https://x.com/rya_nooo",
+  itchio: "https://rhinoc.itch.io/xprite",
   xpriteAbout: "https://xprite.cc/about/",
   xpriteAboutChinese: "https://xprite.cc/zh-CN/about/",
   xpriteAboutJapanese: "https://xprite.cc/ja/about/",
