@@ -148,10 +148,6 @@
   justify-content: flex-end;
 }
 
-.hint {
-  padding: 2px 8px;
-}
-
 .info {
   font: var(--ui-reading-body-size) / var(--ui-reading-line-height) var(--ui-font-family);
   color: #000;
