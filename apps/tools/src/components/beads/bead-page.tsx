@@ -5,6 +5,7 @@ import { BeadPreviewGrid } from "$/components/beads/bead-preview-grid";
 import { BeadSettings, BeadSourceSettings } from "$/components/beads/bead-settings";
 import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
+import { useToolWindowShade } from "$/components/shared/window-shade";
 import { formatBeadFailure } from "$/managers/beads/bead-failure";
 import { BeadPreviewMode, type BeadToolManager } from "$/managers/beads/bead-tool-manager";
 import { beadDocumentLabels } from "$/managers/locale/bead-text";
@@ -27,6 +28,7 @@ const PERCENT = 100;
 const ZOOM_STEP = 2;
 
 export function BeadPage({ manager }: { manager: BeadToolManager }) {
+  const shadePreview = useToolWindowShade("preview");
   const text = useBeadText();
   const labels = useMemo(() => beadDocumentLabels(text), [text]);
   const state = useSyncExternalStore(manager.subscribe, manager.getSnapshot, manager.getSnapshot);
@@ -78,6 +80,7 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
       {state.source && (
         <div className={styles.layout}>
           <Panel
+            {...shadePreview}
             variant={PanelVariant.Document}
             emphasized
             title={text("beads.pattern")}

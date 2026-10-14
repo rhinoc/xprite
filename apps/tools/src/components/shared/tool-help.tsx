@@ -1,3 +1,4 @@
+import { useToolWindowShade } from "$/components/shared/window-shade";
 import { useToolLanguage } from "$/managers/locale/tool-language";
 import type { PublicLanguage } from "@xprite/growth-content/language";
 import type { ToolHelpContent } from "@xprite/growth-content/tools";
@@ -23,6 +24,7 @@ export function ToolHelp({
 }) {
   const { language } = useToolLanguage();
   const help = content[language];
+  const shade = useToolWindowShade("help", { collapseWhenCramped: true });
   return (
     <Panel
       id={id}
@@ -32,6 +34,7 @@ export function ToolHelp({
       variant={PanelVariant.NoteWindow}
       noteColor={PanelNoteColor.Yellow}
       dismissBehavior={PanelDismissBehavior.Collapse}
+      {...shade}
     >
       <ScrollArea
         className={styles.body}

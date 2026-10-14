@@ -31,6 +31,7 @@ await page.cdp("Network.enable");
 await page.cdp("Network.setCacheDisabled", { cacheDisabled: true });
 await page.cdp("DOM.enable");
 
+const isToolPath = (path) => /^(?:\/[a-z]{2}(?:-[A-Z]{2})?)?\/tools\/[^/]+\/$/.test(path);
 const geometry = async (scene) => {
   const document = await page.cdp("DOM.getDocument");
   const regions = [
@@ -60,6 +61,79 @@ const geometry = async (scene) => {
     )
   )
     throw Error(`${scene.id}: invalid geometry.`);
+  // Mobile regression guard: a phone tool screen is exactly one viewport tall (no page scroll);
+  // windows and desktop icons stay below the menu bar and inside the viewport, and a window body
+  // whose content overflows scrolls on its own.
+  const isTool = isToolPath(scene.page.path);
+  const windowFaults = !isTool
+    ? []
+    : await page.evaluate(async () => {
+        const bar = document.querySelector("[role=menubar]");
+        const width = window.innerWidth,
+          height = window.innerHeight;
+        if (!bar || width > 700) return [];
+        const top = bar.getBoundingClientRect().bottom;
+        const root = document.documentElement;
+        const faults = [];
+        if (root.scrollHeight > height + 1 || root.scrollWidth > width + 1)
+          faults.push(`page scrolls (${root.scrollWidth}x${root.scrollHeight})`);
+        for (const node of document.querySelectorAll(
+          "[data-ui-panel-variant], [class*=entryCursor], [data-slot=desktop-icon-label]",
+        )) {
+          const rect = node.getBoundingClientRect();
+          if (!rect.width || !rect.height) continue;
+          const name = node.getAttribute("aria-label") ?? node.className;
+          if (rect.top < top - 0.5) faults.push(`${name}: under menu bar`);
+          if (rect.left < -0.5 || rect.right > width + 0.5 || rect.bottom > height + 0.5)
+            faults.push(`${name}: outside viewport`);
+        }
+        for (const body of document.querySelectorAll(
+          "[data-ui-panel-variant] > [data-slot=panel-body]",
+        )) {
+          const overflowY = getComputedStyle(body).overflowY;
+          if (body.scrollHeight > body.clientHeight + 1 && !["auto", "scroll"].includes(overflowY))
+            faults.push(`${body.parentElement.getAttribute("aria-label")}: body cannot scroll`);
+        }
+        // WindowShade: rolling a window up leaves only its title bar, the other windows grow
+        // into the freed height, and rolling it down again restores it.
+        const windows = [...document.querySelectorAll("[data-ui-desktop-window]")].filter(
+          (node) => node.getBoundingClientRect().height > 0,
+        );
+        const shade = windows.find(
+          (node) =>
+            node instanceof HTMLDetailsElement &&
+            node.open &&
+            node.querySelector(":scope > summary"),
+        );
+        if (shade && windows.length > 1) {
+          const bar = shade.querySelector(":scope > summary");
+          const others = windows.filter((node) => node !== shade);
+          const total = () =>
+            others.reduce((sum, node) => sum + node.getBoundingClientRect().height, 0);
+          const frame = () =>
+            new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+          const toggle = () =>
+            bar.dispatchEvent(new MouseEvent("dblclick", { bubbles: true, cancelable: true }));
+          const name = bar.textContent.trim() || "window";
+          const expandedOthers = total();
+          if (bar.getAttribute("aria-expanded") !== "true")
+            faults.push(`${name}: open title bar lacks aria-expanded=true`);
+          toggle();
+          await frame();
+          if (shade.open || bar.getAttribute("aria-expanded") !== "false")
+            faults.push(`${name}: double-click did not roll the window up`);
+          if (shade.getBoundingClientRect().height > bar.getBoundingClientRect().height + 6)
+            faults.push(`${name}: rolled-up window is taller than its title bar`);
+          if (total() <= expandedOthers + 1)
+            faults.push(`${name}: other windows did not grow into the freed space`);
+          toggle();
+          await frame();
+          if (!shade.open || bar.getAttribute("aria-expanded") !== "true")
+            faults.push(`${name}: double-click did not restore the window`);
+        }
+        return faults;
+      });
+  if (windowFaults.length) throw Error(`${scene.id}: window geometry: ${windowFaults.join("; ")}`);
   return regions;
 };
 const decodeVisibleImages = async () =>

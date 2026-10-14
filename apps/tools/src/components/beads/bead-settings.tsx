@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { useToolWindowShade } from "$/components/shared/window-shade";
 import { boardSizeFailure } from "$/managers/beads/bead-failure";
 import type {
   BeadToolManager,
@@ -66,6 +67,7 @@ export function BeadSettings({
   manager: BeadToolManager;
   state: BeadToolSnapshot;
 }) {
+  const shadePattern = useToolWindowShade("pattern");
   const text = useBeadText();
   const busy = state.loading || state.downloading;
   const outputDisabled = busy || state.pending || !state.grid || !state.outputName.trim();
@@ -105,9 +107,9 @@ export function BeadSettings({
   const labels = beadDocumentLabels(text);
   return (
     <Panel
+      {...shadePattern}
       variant={PanelVariant.Utility}
       emphasized
-      collapsible
       scrollable
       tone={SurfaceTone.Accent}
       contentLayout={ContentLayout.Column}
@@ -196,6 +198,7 @@ export function BeadSourceSettings({
   manager: BeadToolManager;
   state: BeadToolSnapshot;
 }) {
+  const shadeSource = useToolWindowShade("source", { defaultCollapsed: true });
   const text = useBeadText();
   const busy = state.loading || state.downloading;
   const gridEdge = (axis: Axis, label: BeadTextKey) => (
@@ -219,11 +222,10 @@ export function BeadSourceSettings({
   );
   return (
     <Panel
+      {...shadeSource}
       variant={PanelVariant.Utility}
       emphasized
-      collapsible
       scrollable
-      defaultCollapsed
       contentLayout={ContentLayout.Column}
       contentPadding={ContentPadding.Compact}
       contentGap={SETTINGS_GAP}

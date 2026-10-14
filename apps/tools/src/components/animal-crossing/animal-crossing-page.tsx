@@ -6,6 +6,7 @@ import { AnimalCrossingSettingsPanel } from "$/components/animal-crossing/animal
 import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
 import { ToolHelp } from "$/components/shared/tool-help";
+import { useToolWindowShade } from "$/components/shared/window-shade";
 import {
   AnimalCrossingLayout,
   type AnimalCrossingManager,
@@ -40,6 +41,7 @@ enum AnimalCrossingPreview {
   Converted = "converted",
 }
 export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager }) {
+  const shadePreview = useToolWindowShade("preview");
   const t = useToolTranslation();
 
   const snapshot = useSyncExternalStore(
@@ -105,6 +107,7 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
             snapshot={snapshot}
           />
           <Panel
+            {...shadePreview}
             emphasized
             contentLayout={ContentLayout.Fill}
             variant={PanelVariant.Document}

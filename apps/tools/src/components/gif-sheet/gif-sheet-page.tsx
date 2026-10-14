@@ -3,6 +3,7 @@ import { useSyncExternalStore } from "react";
 import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
 import { ToolHelp } from "$/components/shared/tool-help";
+import { useToolWindowShade } from "$/components/shared/window-shade";
 import {
   GifSheetDownload,
   GifSheetLayout,
@@ -41,6 +42,8 @@ const MAX_PADDING = 4096;
 const MIN_COUNT = 1;
 
 export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
+  const shadePreview = useToolWindowShade("preview");
+  const shadeLayout = useToolWindowShade("layout");
   const t = useToolTranslation();
 
   const snapshot = useSyncExternalStore(
@@ -105,6 +108,7 @@ export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
         <div className={styles.layout}>
           {ready && (
             <Panel
+              {...shadePreview}
               emphasized
               contentLayout={ContentLayout.Fill}
               variant={PanelVariant.Document}
@@ -152,12 +156,12 @@ export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
           {(loaded || (busy && snapshot.name)) && (
             <aside className={styles.inspector} data-ui-desktop-layer>
               <Panel
+                {...shadeLayout}
                 emphasized
                 tone={SurfaceTone.Accent}
                 scrollable
                 variant={PanelVariant.Utility}
                 title={t("Sheet layout")}
-                collapsible
               >
                 <ControlFlow className={styles.settings} aria-label={t("Sheet settings")}>
                   <Field layout={FieldLayout.SpaceBetween} label={t("Layout:")}>
