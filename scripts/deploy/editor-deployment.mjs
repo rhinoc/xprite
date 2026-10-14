@@ -8,7 +8,12 @@ import { siteServingConfiguration } from "../../apps/growth/build/routing/site-c
 import { GUIDE_PAGES } from "../../apps/growth/content/help/pages.ts";
 import { SHOWCASE_PAGES } from "../../apps/growth/content/showcase/pages.ts";
 import { SITE_PAGES, SitePageKind } from "../../apps/growth/content/site/pages.ts";
-import { GIF_SHEET_TOOL, PIXELATE_TOOL, TOOLS } from "../../apps/growth/content/tools/index.ts";
+import {
+  BEADS_TOOL,
+  GIF_SHEET_TOOL,
+  PIXELATE_TOOL,
+  TOOLS,
+} from "../../apps/growth/content/tools/index.ts";
 import { assertEdgeOneRuleLimits, compactServingRules } from "../../infra/edgeone-serving-rules.ts";
 import { checkAssetVersions } from "../check/check-asset-versions.mjs";
 
@@ -340,7 +345,9 @@ async function verifyApplicationPages(url, environment) {
             ? "gif-sheet-root"
             : tool.path === PIXELATE_TOOL.path
               ? "pixelation-root"
-              : "animal-crossing-root",
+              : tool.path === BEADS_TOOL.path
+                ? "beads-root"
+                : "animal-crossing-root",
       indexable: true,
     })),
     ...componentRoutes.flatMap((path) =>
