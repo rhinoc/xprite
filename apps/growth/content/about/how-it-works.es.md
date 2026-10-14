@@ -302,7 +302,7 @@ La analítica de uso se envía a PostHog Cloud (EE. UU.):
 
 - El identificador de visitante se guarda en el `localStorage` del navegador.
 - La dirección IP original se descarta después de añadir la ubicación aproximada.
-- La grabación de sesiones y la captura automática de clics están desactivadas.
+- La captura automática de clics está desactivada. Se graba una muestra de las sesiones como repeticiones, con los campos de texto enmascarados, sin el contenido de los lienzos, como las ilustraciones, y con las direcciones de página reducidas a su ruta.
 - Si activas Do Not Track en tu navegador y vuelves a abrir Xprite, no se envían más datos de uso.
 
 Consulta todos los detalles en el [aviso de privacidad](/privacy/).
