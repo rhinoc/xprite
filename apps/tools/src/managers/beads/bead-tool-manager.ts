@@ -59,10 +59,6 @@ export {
   MIN_BEAD_BOARD_EDGE,
   MAX_BEAD_BOARD_EDGE,
 } from "@xprite/editor-core/import-export";
-export enum BeadMaterialSort {
-  Quantity = "quantity",
-  Code = "code",
-}
 const DEFAULT_GRID_EDGE = 128;
 const PREVIEW_DELAY_MS = 150;
 const MAX_PREVIEW_EDGE = 4096;

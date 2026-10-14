@@ -38,16 +38,11 @@ export enum BeadOutputFormat {
   Png = "png",
   Pdf = "pdf",
 }
+export { BEAD_BOARD_PRESETS } from "@xprite/editor-core/import-export";
 const MAX_SOURCE_CELLS = 512 * 512;
 const DEFAULT_FILE_STEM = "sprite";
 const PERCENT = 100;
 export const BEAD_EXPORT_SIZE = { width: 960, height: 640 };
-/** Common pegboard sizes offered next to the width and height inputs. */
-export const BEAD_BOARD_PRESETS: readonly BeadBoardSize[] = [
-  { width: 29, height: 29 },
-  { width: 14, height: 14 },
-  { width: 52, height: 52 },
-];
 
 export interface BeadExportOptions {
   brand: BeadBrand;

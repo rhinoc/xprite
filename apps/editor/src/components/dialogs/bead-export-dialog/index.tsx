@@ -10,13 +10,13 @@ import {
   beadBoardAt,
   beadPreviewCell,
   useBeadChart,
-  BEAD_BOARD_PRESETS,
   BEAD_EXPORT_SIZE,
   BeadBoardAxis,
   BeadOutputFormat,
   type BeadBoardRect,
   type BeadExportSource,
   type BeadExportOptions,
+  BEAD_BOARD_PRESETS,
 } from "$/managers/files/bead-export";
 import type { ExporterViewProps } from "$/managers/files/exporter-registry";
 import {

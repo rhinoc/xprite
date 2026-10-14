@@ -2,13 +2,12 @@ import { useMemo, useSyncExternalStore } from "react";
 
 import { BeadMaterials } from "$/components/beads/bead-materials";
 import { BeadPreviewGrid } from "$/components/beads/bead-preview-grid";
-import { BeadSettings } from "$/components/beads/bead-settings";
+import { BeadSettings, BeadSourceSettings } from "$/components/beads/bead-settings";
 import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
-import { ToolZoomControl } from "$/components/shared/tool-zoom-control";
 import { formatBeadFailure } from "$/managers/beads/bead-failure";
 import { BeadPreviewMode, type BeadToolManager } from "$/managers/beads/bead-tool-manager";
-import { beadDocumentLabels, type BeadTextKey } from "$/managers/locale/bead-text";
+import { beadDocumentLabels } from "$/managers/locale/bead-text";
 import { useBeadText } from "$/managers/locale/tool-language";
 import { BEADS_TOOL } from "$/managers/tools/tool-catalog";
 import {
@@ -17,9 +16,6 @@ import {
   ContentLayout,
   ContentPadding,
   ControlFlow,
-  Field,
-  FieldLayout,
-  Combobox,
   Button,
   Text,
   TextVariant,
@@ -27,38 +23,35 @@ import {
 
 import styles from "$/components/beads/beads.module.css";
 
-const PREVIEW_MODE_WIDTH = 124;
-const BOARD_SELECT_WIDTH = 160;
 const PERCENT = 100;
-const PREVIEW_MODES: readonly { value: BeadPreviewMode; label: BeadTextKey }[] = [
-  { value: BeadPreviewMode.Board, label: "beads.preview.board" },
-  { value: BeadPreviewMode.Overview, label: "beads.preview.overview" },
-  { value: BeadPreviewMode.Source, label: "beads.preview.source" },
-];
+const ZOOM_STEP = 2;
 
 export function BeadPage({ manager }: { manager: BeadToolManager }) {
   const text = useBeadText();
   const labels = useMemo(() => beadDocumentLabels(text), [text]);
   const state = useSyncExternalStore(manager.subscribe, manager.getSnapshot, manager.getSnapshot);
+  const view = useSyncExternalStore(
+    manager.navigation.subscribe,
+    manager.navigation.getSnapshot,
+    manager.navigation.getSnapshot,
+  );
   const busy = state.loading || state.downloading;
   const outputDisabled = busy || state.pending || !state.grid || !state.outputName.trim();
-  const pngDisabled = outputDisabled || !!state.pngError;
-  const pdfDisabled = outputDisabled || !!state.pdfError;
-  const downloadPng = () => void manager.downloadPng(labels);
-  const downloadPdf = () => void manager.downloadPdf(labels);
+  const board = state.mode === BeadPreviewMode.Board ? state.boards[state.selected] : undefined;
   const status =
     state.progress !== null
-      ? text("beads.download.progress", {
-          percent: Math.round(state.progress * PERCENT),
-        })
+      ? text("beads.download.progress", { percent: Math.round(state.progress * PERCENT) })
       : state.pending
         ? text("beads.preview.preparing")
         : (formatBeadFailure(text, state.pdfError ?? state.pngError) ??
-          text(
-            state.mode === BeadPreviewMode.Overview
-              ? "beads.preview.overview.hint"
-              : "beads.pdf.hint",
-          ));
+          (board
+            ? text("beads.board.coordinates", { row: board.row + 1, column: board.column + 1 })
+            : ""));
+  const fit = () => {
+    // Fit returns from a zoomed board to the whole pattern, as in the editor dialog.
+    if (state.mode !== BeadPreviewMode.Overview) manager.setMode(BeadPreviewMode.Overview);
+    manager.navigation.fit();
+  };
   return (
     <FileToolShell
       tool={BEADS_TOOL}
@@ -72,26 +65,22 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
       fileItems={[
         {
           label: text("beads.download.png"),
-          disabled: pngDisabled,
-          onSelect: downloadPng,
+          disabled: outputDisabled || !!state.pngError,
+          onSelect: () => void manager.downloadPng(labels),
         },
         {
           label: text("beads.download.pdf"),
-          disabled: pdfDisabled,
-          onSelect: downloadPdf,
+          disabled: outputDisabled || !!state.pdfError,
+          onSelect: () => void manager.downloadPdf(labels),
         },
       ]}
     >
       {state.source && (
         <div className={styles.layout}>
-          <aside className={styles.sidebar}>
-            <BeadSettings manager={manager} state={state} />
-            <BeadMaterials manager={manager} state={state} />
-          </aside>
           <Panel
             variant={PanelVariant.Document}
             emphasized
-            title={text("beads.chart")}
+            title={text("beads.pattern")}
             contentLayout={ContentLayout.Fill}
             contentPadding={ContentPadding.Compact}
             className={styles.previewPanel}
@@ -99,38 +88,24 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
           >
             <div className={styles.previewContent}>
               <ControlFlow className={styles.toolbar}>
-                <Field label={text("beads.preview")} layout={FieldLayout.Inline}>
-                  <Combobox
-                    pixelWidth={PREVIEW_MODE_WIDTH}
-                    aria-label={text("beads.preview")}
-                    value={state.mode}
-                    options={PREVIEW_MODES.map((item) => ({
-                      value: item.value,
-                      label: text(item.label),
-                    }))}
-                    disabled={busy || state.pending}
-                    onValueChange={(value) => manager.setMode(value as BeadPreviewMode)}
-                  />
-                </Field>
-                {state.mode === BeadPreviewMode.Board && (
-                  <Field label={text("beads.board")} layout={FieldLayout.Inline}>
-                    <Combobox
-                      pixelWidth={BOARD_SELECT_WIDTH}
-                      aria-label={text("beads.board.select")}
-                      value={String(state.selected)}
-                      disabled={busy || state.pending}
-                      options={state.boards.map((board, index) => ({
-                        value: String(index),
-                        label: text("beads.board.coordinates", {
-                          row: board.row + 1,
-                          column: board.column + 1,
-                        }),
-                      }))}
-                      onValueChange={(value) => manager.selectBoard(Number(value))}
-                    />
-                  </Field>
-                )}
-                <ToolZoomControl navigation={manager.navigation} />
+                <Text variant={TextVariant.Reading} wrap className={styles.status}>
+                  {status}
+                </Text>
+                <Button
+                  slots={{}}
+                  text="-"
+                  aria-label={text("beads.zoom.out")}
+                  title={text("beads.zoom.out")}
+                  onClick={() => manager.navigation.setZoom(view.zoom / ZOOM_STEP)}
+                />
+                <Button
+                  slots={{}}
+                  text="+"
+                  aria-label={text("beads.zoom.in")}
+                  title={text("beads.zoom.in")}
+                  onClick={() => manager.navigation.setZoom(view.zoom * ZOOM_STEP)}
+                />
+                <Button slots={{}} text={text("beads.fit")} onClick={fit} />
               </ControlFlow>
               <div className={styles.stage}>
                 {state.preview && (
@@ -144,31 +119,21 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
                     }
                     overlay={
                       state.previewLayout
-                        ? (view) => <BeadPreviewGrid layout={state.previewLayout!} view={view} />
+                        ? (overlay) => (
+                            <BeadPreviewGrid layout={state.previewLayout!} view={overlay} />
+                          )
                         : undefined
                     }
                   />
                 )}
               </div>
-              <ControlFlow className={styles.actions}>
-                <Text variant={TextVariant.Reading} wrap>
-                  {status}
-                </Text>
-                <Button
-                  slots={{}}
-                  text={text("beads.download.png")}
-                  disabled={pngDisabled}
-                  onClick={downloadPng}
-                />
-                <Button
-                  slots={{}}
-                  text={text("beads.download.pdf")}
-                  disabled={pdfDisabled}
-                  onClick={downloadPdf}
-                />
-              </ControlFlow>
             </div>
           </Panel>
+          <aside className={styles.sidebar}>
+            <BeadSettings manager={manager} state={state} />
+            <BeadMaterials manager={manager} state={state} />
+            <BeadSourceSettings manager={manager} state={state} />
+          </aside>
         </div>
       )}
     </FileToolShell>

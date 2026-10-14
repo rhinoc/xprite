@@ -1,6 +1,6 @@
 .layout {
   display: grid;
-  grid-template-columns: 292px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 300px;
   gap: var(--ui-space-4);
   padding: var(--ui-space-4);
   min-height: 0;
@@ -14,14 +14,29 @@
   min-height: 0;
   overflow: auto;
 }
+.boardRow {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--ui-space-2);
+}
 .materials {
   min-height: 120px;
   max-height: 320px;
   flex: 1;
 }
-.materialControls {
-  flex-wrap: wrap;
-  gap: var(--ui-space-3);
+.colors {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 0 var(--ui-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.color {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ui-space-2);
 }
 .previewGrid {
   position: absolute;
@@ -50,24 +65,20 @@
   min-height: 0;
   gap: var(--ui-space-4);
 }
-.toolbar,
-.actions {
-  flex-wrap: wrap;
+.toolbar {
+  flex-wrap: nowrap;
+  align-items: center;
   gap: var(--ui-space-3);
 }
-.actions {
-  justify-content: flex-end;
+.status {
+  flex: 1;
+  min-width: 0;
 }
 .stage {
   display: flex;
   flex: 1;
   min-height: 240px;
   position: relative;
-}
-.table {
-  width: 100%;
-  text-align: left;
-  border-spacing: 0;
 }
 .swatch {
   display: inline-block;
@@ -85,8 +96,7 @@
     display: contents;
   }
   .previewPanel {
-    grid-row: 2;
-    min-height: 460px;
+    min-height: 420px;
   }
   .stage {
     min-height: 320px;

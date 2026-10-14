@@ -11,8 +11,9 @@ import {
   MIN_BEAD_BOARD_EDGE,
   MAX_BEAD_BOARD_EDGE,
 } from "$/managers/beads/bead-tool-manager";
-import type { BeadTextKey } from "$/managers/locale/bead-text";
+import { beadDocumentLabels, type BeadTextKey } from "$/managers/locale/bead-text";
 import { useBeadText } from "$/managers/locale/tool-language";
+import { BEAD_BOARD_PRESETS } from "@xprite/editor-core/import-export";
 import { PixelationMethod } from "@xprite/editor-core/import-export";
 import {
   Panel,
@@ -20,17 +21,23 @@ import {
   ContentLayout,
   ContentPadding,
   SurfaceTone,
+  ControlFlow,
   Field,
   Input,
   Combobox,
   Checkbox,
+  Button,
+  Menu,
   Text,
   TextVariant,
 } from "@xprite/ui";
 
+import styles from "$/components/beads/beads.module.css";
+
 const SETTINGS_GAP = 8;
-const NUMBER_WIDTH = 64;
-const SELECT_WIDTH = 144;
+const NUMBER_WIDTH = 40;
+const GRID_WIDTH = 64;
+const SELECT_WIDTH = 136;
 const MIN_GRID_EDGE = 1;
 const SAMPLING_KEYS: Readonly<Record<PixelationMethod, BeadTextKey>> = {
   [PixelationMethod.Structure]: "beads.sampling.structure",
@@ -51,6 +58,7 @@ function parseBoardEdge(raw: string): number | null {
     : null;
 }
 
+/** Brand, board, codes and download: the same short form as the editor's bead export. */
 export function BeadSettings({
   manager,
   state,
@@ -60,6 +68,7 @@ export function BeadSettings({
 }) {
   const text = useBeadText();
   const busy = state.loading || state.downloading;
+  const outputDisabled = busy || state.pending || !state.grid || !state.outputName.trim();
   // Raw board text stays local so partial or invalid input is shown and explained, not dropped.
   const [boardDraft, setBoardDraft] = useState<Partial<Record<Axis, string>>>({});
   const boardInvalid = (["width", "height"] as const).some(
@@ -73,47 +82,27 @@ export function BeadSettings({
         boardSize: { ...state.settings.boardSize, [axis]: value },
       });
   };
-  const gridEdge = (axis: Axis, label: BeadTextKey) => (
-    <Field label={text(label)}>
-      <Input
-        pixelWidth={NUMBER_WIDTH}
-        inputMode="numeric"
-        aria-label={text(label)}
-        value={String(state.settings[axis === "width" ? "targetWidth" : "targetHeight"])}
-        min={MIN_GRID_EDGE}
-        max={MAX_PIXELATION_SIZE}
-        step={MIN_GRID_EDGE}
-        disabled={busy}
-        onCommit={(value) =>
-          manager.changeSettings({
-            [axis === "width" ? "targetWidth" : "targetHeight"]: Number(value),
-          })
-        }
-      />
-    </Field>
-  );
-  const boardEdge = (axis: Axis, label: BeadTextKey) => (
-    <Field label={text(label)}>
-      <Input
-        pixelWidth={NUMBER_WIDTH}
-        inputMode="numeric"
-        aria-label={text(label)}
-        aria-invalid={boardDraft[axis] !== undefined && parseBoardEdge(boardDraft[axis]!) === null}
-        value={boardDraft[axis] ?? String(state.settings.boardSize[axis])}
-        min={MIN_BEAD_BOARD_EDGE}
-        max={MAX_BEAD_BOARD_EDGE}
-        step={MIN_GRID_EDGE}
-        disabled={busy}
-        onValueChange={(value) => changeBoard(axis, value)}
-        onCommit={(value) => {
-          changeBoard(axis, value);
-          if (parseBoardEdge(value) !== null)
-            setBoardDraft((previous) => ({ ...previous, [axis]: undefined }));
-        }}
-      />
-    </Field>
+  const boardEdge = (axis: Axis) => (
+    <Input
+      pixelWidth={NUMBER_WIDTH}
+      inputMode="numeric"
+      aria-label={text(axis === "width" ? "beads.board.columns" : "beads.board.rows")}
+      aria-invalid={boardDraft[axis] !== undefined && parseBoardEdge(boardDraft[axis]!) === null}
+      value={boardDraft[axis] ?? String(state.settings.boardSize[axis])}
+      min={MIN_BEAD_BOARD_EDGE}
+      max={MAX_BEAD_BOARD_EDGE}
+      step={MIN_GRID_EDGE}
+      disabled={busy}
+      onValueChange={(value) => changeBoard(axis, value)}
+      onCommit={(value) => {
+        changeBoard(axis, value);
+        if (parseBoardEdge(value) !== null)
+          setBoardDraft((previous) => ({ ...previous, [axis]: undefined }));
+      }}
+    />
   );
   const boardError = boardSizeFailure();
+  const labels = beadDocumentLabels(text);
   return (
     <Panel
       variant={PanelVariant.Utility}
@@ -140,10 +129,110 @@ export function BeadSettings({
           }
         />
       </Field>
+      <Field label={text("beads.board")}>
+        <ControlFlow className={styles.boardRow}>
+          {boardEdge("width")}
+          <Text variant={TextVariant.Reading}>×</Text>
+          {boardEdge("height")}
+          <Menu
+            label={text("beads.presets")}
+            items={BEAD_BOARD_PRESETS.map((size) => ({
+              label: text("beads.size", { width: size.width, height: size.height }),
+              disabled: busy,
+              onSelect: () => {
+                setBoardDraft({});
+                manager.changeSettings({ boardSize: size });
+              },
+            }))}
+            renderTrigger={(trigger) => (
+              <Button
+                {...trigger}
+                icon="combobox_arrow_down"
+                aria-label={text("beads.presets")}
+                disabled={busy}
+              />
+            )}
+          />
+        </ControlFlow>
+      </Field>
+      {boardInvalid && (
+        <Text variant={TextVariant.Reading} wrap role="alert">
+          {text(boardError.key, boardError.values)}
+        </Text>
+      )}
+      <Checkbox
+        label={text("beads.codes")}
+        checked={state.settings.showCodes}
+        disabled={busy}
+        onCheckedChange={(showCodes) => manager.changeSettings({ showCodes })}
+      />
+      <Field label={text("beads.format")}>
+        <ControlFlow className={styles.boardRow}>
+          <Button
+            slots={{}}
+            text={text("beads.png")}
+            aria-label={text("beads.download.png")}
+            disabled={outputDisabled || !!state.pngError}
+            onClick={() => void manager.downloadPng(labels)}
+          />
+          <Button
+            slots={{}}
+            text={text("beads.pdf")}
+            aria-label={text("beads.download.pdf")}
+            disabled={outputDisabled || !!state.pdfError}
+            onClick={() => void manager.downloadPdf(labels)}
+          />
+        </ControlFlow>
+      </Field>
+    </Panel>
+  );
+}
+
+/** Image-to-grid conversion: only the standalone tool needs it, since editor sprites are already pixels. */
+export function BeadSourceSettings({
+  manager,
+  state,
+}: {
+  manager: BeadToolManager;
+  state: BeadToolSnapshot;
+}) {
+  const text = useBeadText();
+  const busy = state.loading || state.downloading;
+  const gridEdge = (axis: Axis, label: BeadTextKey) => (
+    <Field label={text(label)}>
+      <Input
+        pixelWidth={GRID_WIDTH}
+        inputMode="numeric"
+        aria-label={text(label)}
+        value={String(state.settings[axis === "width" ? "targetWidth" : "targetHeight"])}
+        min={MIN_GRID_EDGE}
+        max={MAX_PIXELATION_SIZE}
+        step={MIN_GRID_EDGE}
+        disabled={busy}
+        onCommit={(value) =>
+          manager.changeSettings({
+            [axis === "width" ? "targetWidth" : "targetHeight"]: Number(value),
+          })
+        }
+      />
+    </Field>
+  );
+  return (
+    <Panel
+      variant={PanelVariant.Utility}
+      emphasized
+      collapsible
+      scrollable
+      defaultCollapsed
+      contentLayout={ContentLayout.Column}
+      contentPadding={ContentPadding.Compact}
+      contentGap={SETTINGS_GAP}
+      title={text("beads.preview.source")}
+    >
       {state.frameCount > MIN_GRID_EDGE && (
         <Field label={text("beads.frame")}>
           <Combobox
-            pixelWidth={NUMBER_WIDTH}
+            pixelWidth={GRID_WIDTH}
             aria-label={text("beads.frame.source")}
             value={String(state.frame)}
             disabled={busy}
@@ -180,32 +269,6 @@ export function BeadSettings({
           }
         />
       </Field>
-      {boardEdge("width", "beads.board.columns")}
-      {boardEdge("height", "beads.board.rows")}
-      <Text variant={TextVariant.Reading} wrap role={boardInvalid ? "alert" : undefined}>
-        {boardInvalid ? text(boardError.key, boardError.values) : text("beads.board.hint")}
-      </Text>
-      <Checkbox
-        label={text("beads.codes")}
-        checked={state.settings.showCodes}
-        disabled={busy}
-        onCheckedChange={(showCodes) => manager.changeSettings({ showCodes })}
-      />
-      <Field label={text("beads.output.name")}>
-        <Input
-          pixelWidth={SELECT_WIDTH}
-          aria-label={text("beads.output.name")}
-          value={state.outputName}
-          disabled={busy}
-          onValueChange={manager.setOutputName}
-        />
-      </Field>
-      <Text variant={TextVariant.Reading} wrap>
-        {text("beads.help.cells")}
-      </Text>
-      <Text variant={TextVariant.Reading} wrap>
-        {text("beads.help.colors")}
-      </Text>
     </Panel>
   );
 }

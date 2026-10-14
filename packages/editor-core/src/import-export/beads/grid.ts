@@ -130,6 +130,12 @@ export interface BeadBoardSize {
 }
 
 export const DEFAULT_BEAD_BOARD_SIZE: BeadBoardSize = { width: 29, height: 29 };
+/** Common pegboard sizes offered next to the width and height inputs. */
+export const BEAD_BOARD_PRESETS: readonly BeadBoardSize[] = [
+  { width: 29, height: 29 },
+  { width: 14, height: 14 },
+  { width: 52, height: 52 },
+];
 export const MAX_BEAD_BOARD_EDGE = 512;
 export const MIN_BEAD_BOARD_EDGE = 1;
 
