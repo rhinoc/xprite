@@ -67,6 +67,16 @@ if (invalidSourceValues.length) {
   process.exitCode = 1;
 }
 
+// Keys are readable names: use a meaningful suffix (.ellipsis, .label, .title, ...) for variants
+// instead of an opaque hash of the English text.
+const hashSuffixedKeys = sourceKeys.filter((key) => /\.[0-9a-f]{8}$/u.test(key));
+if (hashSuffixedKeys.length) {
+  process.stderr.write(
+    `${sourceLocaleName}: hash-suffixed message keys; give them readable names: ${hashSuffixedKeys.join(", ")}\n`,
+  );
+  process.exitCode = 1;
+}
+
 let localeCount = 0;
 let totalKeys = 0;
 let coveredKeys = 0;

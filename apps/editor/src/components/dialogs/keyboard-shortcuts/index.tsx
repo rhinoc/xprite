@@ -157,7 +157,7 @@ export function EditorKeyboardShortcutsDialog({
           { id: "reset", label: "Reset", disabled: editor.busy, onSelect: () => editor.reset() },
         ]}
         labels={{
-          title: tUi("ui.keyboard.shortcuts.ba51bd57"),
+          title: tUi("ui.keyboard.shortcuts.title"),
           search: tUi("ui.search.keyboard.shortcuts"),
           action: tUi("ui.action"),
           key: tUi("ui.key"),
