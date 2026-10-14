@@ -24,7 +24,7 @@ export function EditorRecoveryView(props: EditorRecoveryViewProps) {
           count > 1 ? tUi("ui.recover.count.sprites", { count }) : tUi("ui.recover.sprite"),
         refresh: tUi("ui.refresh"),
         delete: tUi("ui.delete"),
-        loading: tUi("ui.loading.17b11033"),
+        loading: tUi("ui.loading.ellipsis"),
         previousSessions: tUi("ui.recovery.previous.sessions"),
         rawFrames: tUi("ui.recovery.raw.frames"),
         rawLayers: tUi("ui.recovery.raw.layers"),
