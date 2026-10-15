@@ -1,6 +1,5 @@
 import {
   createContext,
-  lazy,
   Suspense,
   useCallback,
   useContext,
@@ -10,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 
+import { lazyChunk } from "$/components/shared/lazy-chunk";
 import type { TimelineDockPosition } from "$/managers/preferences/timeline-dock-position";
 import {
   defaultTimelineInteractionPreferences,
@@ -22,15 +22,15 @@ import type {
 import { fullscreenPreviewFrame } from "$/managers/timeline/fullscreen-preview";
 import { useTimelineManager } from "$/managers/timeline/timeline-manager";
 import { defaultOnionSkinSettings } from "$/managers/timeline/timeline-presentation";
-const OnionSkinSettingsPanel = lazy(() =>
+const OnionSkinSettingsPanel = lazyChunk(() =>
   import("$/components/timeline/animation-settings").then((m) => ({
     default: m.OnionSkinSettingsPanel,
   })),
 );
-const AnimationPreview = lazy(() =>
+const AnimationPreview = lazyChunk(() =>
   import("$/components/timeline/animation-preview").then((m) => ({ default: m.AnimationPreview })),
 );
-const FullscreenPreview = lazy(() =>
+const FullscreenPreview = lazyChunk(() =>
   import("$/components/timeline/fullscreen-preview").then((m) => ({
     default: m.FullscreenPreview,
   })),

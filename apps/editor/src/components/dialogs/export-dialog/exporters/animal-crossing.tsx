@@ -1,5 +1,4 @@
-import { lazy } from "react";
-
+import { lazyChunk } from "$/components/shared/lazy-chunk";
 import type { AnimalCrossingExportOptions } from "$/managers/files/animal-crossing-export-options";
 import { registerExporter, type ExporterViewProps } from "$/managers/files/exporter-registry";
 import {
@@ -7,7 +6,7 @@ import {
   type AnimalCrossingExporterSource,
 } from "$/managers/files/exporters/animal-crossing";
 
-const Dialog = lazy(() =>
+const Dialog = lazyChunk(() =>
   import("$/components/dialogs/animal-crossing-dialog").then((module) => ({
     default: module.AnimalCrossingDialog,
   })),

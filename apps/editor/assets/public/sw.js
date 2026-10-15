@@ -9,6 +9,12 @@ const EDITOR_PATHS = new Set(["/", "/home", "/home/", "/editor", "/editor/"]);
 const IMMUTABLE_ASSET_PATH = /^\/assets\/(?:[^/]+\/)*[^/]+-[A-Za-z0-9_-]{8,}\.[A-Za-z0-9]+$/;
 const MESSAGE_STATUS = "XPRITE_OFFLINE_STATUS";
 const MESSAGE_PREPARE = "XPRITE_OFFLINE_PREPARE";
+const MESSAGE_HAS_RESOURCE = "XPRITE_OFFLINE_HAS_RESOURCE";
+const MESSAGE_FETCH_FAILED = "XPRITE_OFFLINE_FETCH_FAILED";
+const INSTALLED_URL = new URL("__xprite_offline_installed__", BASE_URL).href;
+// Open tabs and restored mobile tabs keep running the release they loaded. Their lazy chunks
+// stay available from this many previous releases; older caches are pruned on activation.
+const RETAINED_PREVIOUS_RELEASES = 2;
 const entries = (OFFLINE_BUILD?.entries ?? []).map((entry) => ({
   ...entry,
   url: new URL(entry.url, BASE_URL).href,
@@ -40,7 +46,34 @@ async function prepareOfflineCache() {
   const missing = entries.filter((_, index) => !cached[index]);
   // addAll commits the resource set atomically; SRI rejects mixed releases.
   if (missing.length) await cache.addAll(missing.map(resourceRequest));
+  // Install time orders releases when old caches are retained or pruned.
+  if (!(await cache.match(INSTALLED_URL)))
+    await cache.put(INSTALLED_URL, new Response(String(Date.now())));
   await cache.put(READY_URL, new Response(VERSION));
+}
+
+async function installedAt(name) {
+  try {
+    const cache = await caches.open(name);
+    const marker = await cache.match(INSTALLED_URL);
+    const time = marker ? Number(await marker.text()) : 0;
+    return Number.isFinite(time) ? time : 0;
+  } catch {
+    return 0;
+  }
+}
+
+async function pruneOldReleases() {
+  const names = (await caches.keys()).filter(
+    (name) => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME,
+  );
+  const dated = await Promise.all(
+    names.map(async (name) => ({ name, time: await installedAt(name) })),
+  );
+  dated.sort((left, right) => right.time - left.time);
+  await Promise.all(
+    dated.slice(RETAINED_PREVIOUS_RELEASES).map((entry) => caches.delete(entry.name)),
+  );
 }
 
 self.addEventListener("install", (event) => {
@@ -63,26 +96,18 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
-      const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-      // An open page may still need its old lazy chunks or workers. Reclaim old caches
-      // only during an activation with no editor windows, rather than guessing versions.
-      if (!clients.some(isEditorWindow)) {
-        const names = await caches.keys();
-        await Promise.all(
-          names
-            .filter((name) => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME)
-            .map((name) => caches.delete(name)),
-        );
+      // Pages that loaded an earlier release may still request its lazy chunks or workers, and
+      // a discarded mobile tab is not listed as a client. Retain the newest previous releases
+      // whether or not an editor window is open, and prune only the older ones.
+      try {
+        await pruneOldReleases();
+      } catch {
+        // Cache housekeeping must not block taking control.
       }
       await self.clients.claim();
     })(),
   );
 });
-
-function isEditorWindow(client) {
-  const url = new URL(client.url);
-  return url.origin === self.location.origin && EDITOR_PATHS.has(url.pathname);
-}
 
 function reply(event, message) {
   if (event.ports[0]) event.ports[0].postMessage(message);
@@ -103,6 +128,16 @@ self.addEventListener("message", (event) => {
     );
     return;
   }
+  if (event.data?.type === MESSAGE_HAS_RESOURCE) {
+    let present = false;
+    try {
+      present = entriesByPath.has(new URL(String(event.data.url), self.location.href).pathname);
+    } catch {
+      // An unreadable URL is simply not part of this release.
+    }
+    reply(event, { type: MESSAGE_HAS_RESOURCE, present, version: VERSION });
+    return;
+  }
   if (event.data?.type === MESSAGE_STATUS) {
     event.waitUntil(
       isOfflineReady()
@@ -113,13 +148,43 @@ self.addEventListener("message", (event) => {
   }
 });
 
+function failureKind(error) {
+  return /integrity|digest/i.test(String(error?.message ?? error)) ? "integrity" : "network";
+}
+
+/** Tells the requesting page why a build resource failed; the worker cannot report on its own. */
+async function reportResourceFailure(event, entry, failure, status) {
+  try {
+    const clientId = event.clientId || event.resultingClientId;
+    const client = clientId ? await self.clients.get(clientId) : null;
+    client?.postMessage({
+      type: MESSAGE_FETCH_FAILED,
+      path: new URL(entry.url).pathname,
+      failure,
+      status: status ?? null,
+      version: VERSION,
+    });
+  } catch {
+    // Diagnostics must not change the response.
+  }
+}
+
 function cachedResource(event, entry) {
   const cachePromise = caches.open(CACHE_NAME);
   const resourcePromise = cachePromise.then(async (cache) => {
     const cached = await cache.match(entry.url);
     if (cached) return { response: cached, cacheCopy: null };
-    const response = await fetch(resourceRequest(entry));
-    if (!response.ok) throw new Error("Editor offline resource unavailable");
+    let response;
+    try {
+      response = await fetch(resourceRequest(entry));
+    } catch (error) {
+      event.waitUntil(reportResourceFailure(event, entry, failureKind(error), null));
+      throw error;
+    }
+    if (!response.ok) {
+      event.waitUntil(reportResourceFailure(event, entry, "status", response.status));
+      throw new Error("Editor offline resource unavailable");
+    }
     return { response, cacheCopy: response.clone() };
   });
   event.waitUntil(

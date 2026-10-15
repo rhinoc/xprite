@@ -78,4 +78,48 @@ describe("diagnostic telemetry privacy", () => {
       { pwa_stage: "status" },
     );
   });
+
+  it("forwards only bounded same-site chunk and worker context", () => {
+    assert.deepEqual(
+      telemetryDiagnosticDetails(
+        record({
+          pwa: {
+            stage: "chunk",
+            failure: "chunk-load",
+            controlled: true,
+            chunk_in_worker_build: false,
+            controller_state: "activated",
+            script_path: "/sw.js",
+            chunk: "/assets/animation-preview-C439ED4q.js",
+            worker_version: "abc123",
+            status: 404,
+          },
+        }),
+      ),
+      {
+        pwa_stage: "chunk",
+        pwa_failure: "chunk-load",
+        pwa_controller_state: "activated",
+        pwa_controlled: true,
+        pwa_chunk_in_worker_build: false,
+        pwa_status: 404,
+        pwa_worker_version: "abc123",
+        pwa_script_path: "/sw.js",
+        pwa_chunk: "/assets/animation-preview-C439ED4q.js",
+      },
+    );
+    assert.deepEqual(
+      telemetryDiagnosticDetails(
+        record({
+          pwa: {
+            stage: "chunk",
+            script_path: "https://example.test/sw.js?token=1",
+            chunk: "/assets/../../Users/private.aseprite?x=1",
+            resource: "https://example.test/assets/a.js",
+          },
+        }),
+      ),
+      { pwa_stage: "chunk" },
+    );
+  });
 });
