@@ -75,8 +75,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 16px;
-  /* Ring is 4px outside the default button: keep 12px from the dialog edge to the button. */
-  margin: 0 3px 3px 0;
+  /* The sheet's 12px padding is the margin from the dialog edge to the default button. */
 }
 
 /* Adjust fields flow side by side and wrap, keeping the panel short so the pattern stays large. */
