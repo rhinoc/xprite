@@ -30,7 +30,8 @@ export function useCjkRunStyle(scale = 2): CSSProperties | undefined {
 /** Plain-string children with each CJK run shifted by the theme's CJK offset. */
 export function ScriptText({ children, scale = 2 }: { children: ReactNode; scale?: number }) {
   const style = useCjkRunStyle(scale);
-  if (typeof children !== "string") return <>{children}</>;
+  // No correction: keep the single text node, so themes at 0 render exactly as plain text.
+  if (typeof children !== "string" || !style) return <>{children}</>;
   return (
     <>
       {textRuns(children).map((run, index) =>

@@ -65,7 +65,7 @@ export function PositionedPixelText({
   style,
 }: Omit<PositionedPixelTextProps, "variant">) {
   const { definition } = useTheme();
-  const cjkOffset = useCjkRunStyle(scale);
+  const scriptRunStyle = useCjkRunStyle(scale);
   const metrics = definition.typography[font];
   const bitmapInDom = metrics.renderer === UiFontRenderer.Bitmap && metrics.atlasInDom;
   const runs = metrics.renderer === UiFontRenderer.Bitmap ? textRuns(text) : [];
@@ -104,7 +104,7 @@ export function PositionedPixelText({
             <span
               key={index}
               className={styles.fallbackCjk}
-              style={cjkRunStyle(metrics, scale, titleCjk, cjkOffset)}
+              style={cjkRunStyle(metrics, scale, titleCjk, scriptRunStyle)}
             >
               {run.text}
             </span>
@@ -136,7 +136,7 @@ export function PositionedPixelText({
       ) : metrics.renderer === UiFontRenderer.Bitmap ? (
         runs.map((run, index) =>
           run.cjk ? (
-            <span key={index} style={cjkRunStyle(metrics, scale, titleCjk, cjkOffset)}>
+            <span key={index} style={cjkRunStyle(metrics, scale, titleCjk, scriptRunStyle)}>
               {run.text}
             </span>
           ) : (

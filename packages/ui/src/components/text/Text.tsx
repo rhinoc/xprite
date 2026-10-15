@@ -25,7 +25,7 @@ function InlineText({
   ink,
 }: InlineTextProps) {
   const runs = textRuns(children);
-  const cjkOffset = useCjkRunStyle();
+  const scriptRunStyle = useCjkRunStyle();
   const { definition } = useTheme();
   const height = Math.round((definition.typography.primary.fontSize / 2) * scale);
   const cjkHeight = Math.round((definition.typography.primary.cjkFontSize / 2) * scale);
@@ -54,7 +54,7 @@ function InlineText({
             key={`${index}:${run.text}`}
             className={`${styles.inlineRun} ${run.cjk ? styles.cjkRun : styles.latinRun}`}
             style={{
-              ...(run.cjk ? cjkOffset : undefined),
+              ...(run.cjk ? scriptRunStyle : undefined),
               fontSize: `${run.cjk ? cjkHeight : height}px`,
               lineHeight: `${leading}px`,
             }}
