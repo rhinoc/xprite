@@ -3,7 +3,7 @@ import { useTheme } from "$/base/theme/theme-context";
 import { FontRole } from "$/base/theme/theme-types";
 import { UiFontRenderer, type UiFontDefinition } from "$/base/theme/theme-types";
 import { cn } from "$/base/utils/cn";
-import { cjkRunOffsetStyle, ScriptText } from "$/components/text/script-offset";
+import { ScriptText, useCjkRunStyle } from "$/components/text/script-offset";
 import { textRuns } from "$/components/text/text-runs";
 import { type PositionedPixelTextProps } from "$/components/text/types";
 
@@ -14,13 +14,14 @@ function cjkRunStyle(
   font: UiFontDefinition,
   scale: number,
   titleCjk: boolean,
+  offset: React.CSSProperties | undefined,
 ): React.CSSProperties {
   const titleFamily = titleCjk ? font.titleCjkFontFamily : undefined;
   const titleSize = titleCjk ? font.titleCjkFontSize : undefined;
   const family = titleFamily ?? font.cjkFontFamily;
   const size = titleSize ?? font.cjkFontSize;
   return {
-    ...cjkRunOffsetStyle(scale),
+    ...offset,
     fontFamily: `${family}, monospace`,
     fontSize: `${(size * scale) / 2}px`,
     lineHeight: `${(font.lineHeight * scale) / 2}px`,
@@ -64,6 +65,7 @@ export function PositionedPixelText({
   style,
 }: Omit<PositionedPixelTextProps, "variant">) {
   const { definition } = useTheme();
+  const cjkOffset = useCjkRunStyle(scale);
   const metrics = definition.typography[font];
   const bitmapInDom = metrics.renderer === UiFontRenderer.Bitmap && metrics.atlasInDom;
   const runs = metrics.renderer === UiFontRenderer.Bitmap ? textRuns(text) : [];
@@ -102,7 +104,7 @@ export function PositionedPixelText({
             <span
               key={index}
               className={styles.fallbackCjk}
-              style={cjkRunStyle(metrics, scale, titleCjk)}
+              style={cjkRunStyle(metrics, scale, titleCjk, cjkOffset)}
             >
               {run.text}
             </span>
@@ -134,7 +136,7 @@ export function PositionedPixelText({
       ) : metrics.renderer === UiFontRenderer.Bitmap ? (
         runs.map((run, index) =>
           run.cjk ? (
-            <span key={index} style={cjkRunStyle(metrics, scale, titleCjk)}>
+            <span key={index} style={cjkRunStyle(metrics, scale, titleCjk, cjkOffset)}>
               {run.text}
             </span>
           ) : (

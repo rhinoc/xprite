@@ -1,5 +1,6 @@
 import { Fragment, type CSSProperties, type ReactNode } from "react";
 
+import { useTheme } from "$/base/theme/theme-context";
 import { textRuns } from "$/components/text/text-runs";
 
 /**
@@ -17,14 +18,24 @@ export function cjkRunOffsetStyle(scale = 2): CSSProperties {
   };
 }
 
+/**
+ * The offset style for the active theme, or undefined when its offset is 0 so themes that need no
+ * correction render exactly as before (no extra positioning on the run).
+ */
+export function useCjkRunStyle(scale = 2): CSSProperties | undefined {
+  const { definition } = useTheme();
+  return definition.typography.cjkTextOffsetY ? cjkRunOffsetStyle(scale) : undefined;
+}
+
 /** Plain-string children with each CJK run shifted by the theme's CJK offset. */
 export function ScriptText({ children, scale = 2 }: { children: ReactNode; scale?: number }) {
+  const style = useCjkRunStyle(scale);
   if (typeof children !== "string") return <>{children}</>;
   return (
     <>
       {textRuns(children).map((run, index) =>
         run.cjk ? (
-          <span key={index} style={cjkRunOffsetStyle(scale)}>
+          <span key={index} data-script-run="" style={style}>
             {run.text}
           </span>
         ) : (

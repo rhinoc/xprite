@@ -5,7 +5,7 @@
 // measured (frames, boxes and arrows cancel). For each of checkbox, radio, input, button, select,
 // tabs, control label and inline text it requires the CJK ink to be centred on the Latin ink within one device pixel (1/3 CSS px)
 // and prints the top, bottom and centre rows in CSS px.
-// Usage: node scripts/visual-audit/text-alignment.mjs [--theme id] [--keep dir] [--tolerance px] [--cjk-offset px] [--port n]
+// Usage: node scripts/visual-audit/text-alignment.mjs [--theme id] [--keep dir] [--tolerance px] [--port n]
 // Port: --port, else XPRITE_VISUAL_PORT (default 5173).
 import { mkdirSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -20,8 +20,6 @@ const port = argument("--port") ?? process.env.XPRITE_VISUAL_PORT ?? "5173";
 const keep = argument("--keep");
 const theme = argument("--theme");
 const SCALE = 3;
-// Tuning aid: force a CJK offset (CSS px at scale 2) on every element instead of the theme value.
-const forcedOffset = argument("--cjk-offset");
 const TOLERANCE = Number(argument("--tolerance") ?? 1 / SCALE) + 1e-6;
 const LANGUAGES = ["en", "zh-CN", "ja"];
 const NAMES = ["checkbox", "radio", "input", "button", "select", "tabs", "label", "inline"];
@@ -60,10 +58,6 @@ async function capture(lang, hideText) {
     });
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(1500);
-    if (forcedOffset !== undefined)
-      await page.addStyleTag({
-        content: `*{--ui-cjk-text-offset-y:${forcedOffset}px!important}`,
-      });
     if (hideText) await page.addStyleTag({ content: HIDE_TEXT });
     await page.mouse.move(300, 550);
     const rows = {};

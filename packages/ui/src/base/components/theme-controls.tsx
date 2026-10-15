@@ -484,7 +484,14 @@ function measureRenderedEntryOffset(container: HTMLSpanElement, offset: number, 
   const host = container.querySelector<HTMLElement>('[data-font="primary"]');
   if (!host) return fallback;
   // CJK runs sit in their own offset spans, so the entry text can span several text nodes.
-  const walker = document.createTreeWalker(host, NodeFilter.SHOW_TEXT);
+  // Only the entry's own text: direct children and `data-script-run` CJK spans. Bitmap fonts
+  // wrap runs in unmarked spans and keep using the metric fallback, as before.
+  const walker = document.createTreeWalker(host, NodeFilter.SHOW_TEXT, {
+    acceptNode: (node) =>
+      node.parentElement === host || node.parentElement?.hasAttribute("data-script-run")
+        ? NodeFilter.FILTER_ACCEPT
+        : NodeFilter.FILTER_REJECT,
+  });
   const nodes: Text[] = [];
   for (let node = walker.nextNode(); node; node = walker.nextNode()) nodes.push(node as Text);
   const length = nodes.reduce((sum, node) => sum + node.data.length, 0);

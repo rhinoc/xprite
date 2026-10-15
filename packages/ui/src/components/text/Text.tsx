@@ -1,5 +1,5 @@
 import { useTheme } from "$/base/theme/theme-context";
-import { cjkRunOffsetStyle } from "$/components/text/script-offset";
+import { useCjkRunStyle } from "$/components/text/script-offset";
 import { textRuns } from "$/components/text/text-runs";
 import {
   TextInk,
@@ -25,6 +25,7 @@ function InlineText({
   ink,
 }: InlineTextProps) {
   const runs = textRuns(children);
+  const cjkOffset = useCjkRunStyle();
   const { definition } = useTheme();
   const height = Math.round((definition.typography.primary.fontSize / 2) * scale);
   const cjkHeight = Math.round((definition.typography.primary.cjkFontSize / 2) * scale);
@@ -53,7 +54,7 @@ function InlineText({
             key={`${index}:${run.text}`}
             className={`${styles.inlineRun} ${run.cjk ? styles.cjkRun : styles.latinRun}`}
             style={{
-              ...(run.cjk ? cjkRunOffsetStyle() : undefined),
+              ...(run.cjk ? cjkOffset : undefined),
               fontSize: `${run.cjk ? cjkHeight : height}px`,
               lineHeight: `${leading}px`,
             }}
