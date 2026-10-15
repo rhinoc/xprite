@@ -84,7 +84,9 @@ async function startSite() {
 
 async function warm(endpoint) {
   const browser = await chromium.connect(endpoint);
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 900 },
+  });
   const origin = `http://xprite-visual-warmup.localhost:${port}`;
   await Promise.all(
     [
@@ -144,7 +146,10 @@ async function startStaticBuild() {
   if (!process.argv.includes("--prebuilt")) {
     const since = performance.now();
     const status = await new Promise((resolve) => {
-      const child = spawn("pnpm", ["run", "build:site"], { cwd: root, stdio: "ignore" });
+      const child = spawn("pnpm", ["run", "build:site"], {
+        cwd: root,
+        stdio: "ignore",
+      });
       child.once("close", (code) => resolve(code ?? 1));
     });
     if (status !== 0) throw Error("pnpm run build:site failed; run it directly for details.");
@@ -188,6 +193,11 @@ try {
         ["scripts/visual-audit/xprite/capture.mjs", ...portArgs],
         ["scripts/visual-audit/xprite/compare.mjs"],
       ],
+      env,
+    ),
+    run(
+      "text alignment (zh/ja/en)",
+      [["scripts/visual-audit/text-alignment.mjs", ...portArgs]],
       env,
     ),
     run("tools SSG startup", [["scripts/visual-audit/tools-startup/audit.mjs", ...portArgs]], env),

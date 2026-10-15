@@ -19,6 +19,7 @@ export function themeTokens(
       primaryFont: fonts.primary,
       compactFont: fonts.compact,
       cjkFont: fonts.cjk,
+      cjkTextOffsetY: typography.cjkTextOffsetY,
       ink: colors.text,
       mutedInk: colors.disabled,
       paper: colors.window_face,

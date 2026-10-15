@@ -25,31 +25,11 @@ import { CheckboxShape, CheckboxMode } from "$/components/checkbox/types";
 import { checkboxVariants } from "$/components/checkbox/variants";
 import type { ControlPlacement } from "$/components/control-flow/placement";
 import { Text, TextVariant } from "$/components/text";
-import { isCjk } from "$/components/text/text-runs";
 
 import styles from "$/components/checkbox/checkbox.module.css";
 
 const DEFAULT_CHECKBOX_LABEL_OFFSET = 28;
 const DEFAULT_CHECKBOX_ICON_OFFSET = 4;
-/** Default CJK correction for themes without `checkbox_cjk_text_offset_y`. */
-const CJK_CHECKBOX_TEXT_NUDGE_Y = -2;
-
-/**
- * Net vertical offset a label gets from the theme before centring. CJK labels use
- * `checkbox_cjk_text_offset_y` (Macintosh: 0, so CJK and Latin labels share a row with plain
- * Text such as the zoom label and centre on the 12px box; the old +1 theme offset with a -2 CJK nudge sat 1px high). See checkbox-alignment.test.ts.
- */
-export function checkboxLabelNudgeY(
-  dimensions: { checkbox_text_offset_y?: number; checkbox_cjk_text_offset_y?: number },
-  label: string,
-) {
-  const cjk = [...label].some((char) => isCjk(char.codePointAt(0)!));
-  return cjk
-    ? (dimensions.checkbox_text_offset_y ?? 0) +
-        (dimensions.checkbox_cjk_text_offset_y ?? CJK_CHECKBOX_TEXT_NUDGE_Y)
-    : (dimensions.checkbox_text_offset_y ?? 0);
-}
-
 interface CheckboxContentProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   viewport?: SurfaceViewport;
   label: string;
@@ -163,7 +143,7 @@ export function Checkbox({
     centerThemePixel(bounds.y + 4, bounds.height - 8, themeFontHeight(font)) -
     bounds.y +
     textOffsetY +
-    checkboxLabelNudgeY(theme.dimensions, displayLabel);
+    (theme.dimensions.checkbox_text_offset_y ?? 0);
   const background = skin
     ? disabled
       ? undefined

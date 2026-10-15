@@ -1,4 +1,4 @@
-export function isCjk(codepoint: number) {
+function isCjk(codepoint: number) {
   return (
     (codepoint >= 0x2e80 && codepoint <= 0x30ff) ||
     (codepoint >= 0x3100 && codepoint <= 0x31ff) ||

@@ -4,6 +4,11 @@ import { createRoot, type Root } from "react-dom/client";
 import { readComponentsAppearance, saveComponentsAppearance } from "$/adapters/appearance";
 import { readComponentsLanguage, writeComponentsLanguage } from "$/adapters/components-language";
 import { browserIconClipboard } from "$/adapters/icon-clipboard";
+import {
+  AlignmentProbe,
+  ALIGNMENT_PROBE_LABELS,
+  type AlignmentProbeLanguage,
+} from "$/alignment-probe";
 import Components from "$/Components";
 import type { ComponentsAppearance } from "$/managers/appearance";
 import { ComponentsLanguageProvider, useComponentsLanguage } from "$/managers/components-language";
@@ -24,6 +29,13 @@ createBrowserSiteTelemetry({
 });
 
 const desktop = createBrowserDesktop();
+
+/** `?alignment-probe=<en|zh-CN|ja>` swaps the gallery for the text alignment measurement page. */
+const probeParameter = new URLSearchParams(window.location.search).get("alignment-probe");
+const probeLanguage =
+  probeParameter && probeParameter in ALIGNMENT_PROBE_LABELS
+    ? (probeParameter as AlignmentProbeLanguage)
+    : undefined;
 
 function ComponentsReady() {
   useLayoutEffect(() => {
@@ -54,13 +66,17 @@ function ComponentsApp({
       translateKey={translate}
     >
       <ComponentsReady />
-      <Components
-        iconClipboard={browserIconClipboard}
-        theme={theme}
-        onThemeChange={(nextTheme) =>
-          setPreferences((current) => ({ ...current, theme: nextTheme }))
-        }
-      />
+      {probeLanguage ? (
+        <AlignmentProbe language={probeLanguage} />
+      ) : (
+        <Components
+          iconClipboard={browserIconClipboard}
+          theme={theme}
+          onThemeChange={(nextTheme) =>
+            setPreferences((current) => ({ ...current, theme: nextTheme }))
+          }
+        />
+      )}
     </DesktopProvider>
   );
 }

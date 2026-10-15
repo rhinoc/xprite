@@ -37,4 +37,6 @@ export const asepriteTypography = {
   [FontRole.Primary]: bitmapFont(defaultGlyphMetrics, defaultGlyphAtlasUrl, 177, 793, false),
   [FontRole.Compact]: bitmapFont(miniGlyphMetrics, miniGlyphAtlasUrl, 177, 154, true),
   alignmentScale: 2,
+  // Aseprite already seats CJK on the Latin baseline per font (`cjkBaseline`, FusionPixel10Aseprite).
+  cjkTextOffsetY: 0,
 } satisfies UiTypography;
