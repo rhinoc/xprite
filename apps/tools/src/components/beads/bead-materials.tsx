@@ -24,7 +24,7 @@ export function BeadMaterials({
   manager: BeadToolManager;
   state: BeadToolSnapshot;
 }) {
-  const shadeMaterials = useToolWindowShade("materials");
+  const shadeMaterials = useToolWindowShade("materials", { collapseWhenCramped: true });
   const text = useBeadText();
   const grid = state.grid;
   const busy = state.loading || state.pending || state.downloading;

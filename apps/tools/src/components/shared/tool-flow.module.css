@@ -1,0 +1,123 @@
+/* Shared flow chrome: status bar, adjust palette/drawer and the empty drop stage. */
+.actionBar {
+  flex: 0 0 auto;
+  min-height: 36px;
+  box-sizing: border-box;
+  border-top: 2px solid var(--ui-color-ink);
+}
+.cue {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-space-3);
+  min-width: 0;
+}
+.cueDetail {
+  padding-left: var(--ui-space-3);
+  border-left: 1px solid var(--ui-color-line);
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 28ch;
+}
+.actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ui-space-3);
+}
+.exportButton {
+  min-width: 96px;
+}
+.adjustToggle {
+  display: none;
+}
+
+/* Adjust: floating palette on desktop, bottom drawer on phones. */
+.adjust {
+  position: absolute;
+  z-index: 4;
+  top: var(--ui-space-4);
+  right: var(--ui-space-4);
+  width: min(300px, calc(100% - 2 * var(--ui-space-4)));
+  max-height: calc(100% - 2 * var(--ui-space-4));
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+/* With the desktop's right-hand column the palette sits there, below the shortcut icons. */
+@media (min-width: 1001px) {
+  .adjust {
+    top: 262px;
+    right: auto;
+    left: calc(100% + 4px);
+    width: 272px;
+    max-height: calc(100% - 262px);
+  }
+}
+.adjustPlaceholder {
+  margin: 0;
+}
+
+/* The drop stage is the whole window while no file is open. */
+.stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.stagePanel {
+  flex: 1;
+  min-height: 0;
+}
+.dropZone {
+  flex: 1;
+  min-height: 0;
+  margin: var(--ui-space-5, 12px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-space-5, 12px);
+  padding: var(--ui-space-5, 12px);
+  text-align: center;
+  background: var(--ui-color-paper);
+  outline: 2px dashed var(--ui-color-ink);
+  outline-offset: -2px;
+}
+.dropHint {
+  margin: 0;
+}
+.dropActions {
+  justify-content: center;
+}
+
+@media (max-width: 700px) {
+  .adjustToggle {
+    display: inline-flex;
+  }
+  .cueDetail {
+    display: none;
+  }
+  .adjust {
+    position: static;
+    width: auto;
+    max-height: none;
+    min-height: 0;
+  }
+  .adjust[data-drawer="closed"] {
+    display: none;
+  }
+}
+
+.exportSheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-5, 12px);
+  padding: var(--ui-space-5, 12px);
+}
+.exportChoices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-space-3);
+}

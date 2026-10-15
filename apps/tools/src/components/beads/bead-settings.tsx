@@ -12,7 +12,7 @@ import {
   MIN_BEAD_BOARD_EDGE,
   MAX_BEAD_BOARD_EDGE,
 } from "$/managers/beads/bead-tool-manager";
-import { beadDocumentLabels, type BeadTextKey } from "$/managers/locale/bead-text";
+import type { BeadTextKey } from "$/managers/locale/bead-text";
 import { useBeadText } from "$/managers/locale/tool-language";
 import { BEAD_BOARD_PRESETS } from "@xprite/editor-core/import-export";
 import { PixelationMethod } from "@xprite/editor-core/import-export";
@@ -21,7 +21,6 @@ import {
   PanelVariant,
   ContentLayout,
   ContentPadding,
-  SurfaceTone,
   ControlFlow,
   Field,
   Input,
@@ -38,7 +37,7 @@ import styles from "$/components/beads/beads.module.css";
 const SETTINGS_GAP = 8;
 const NUMBER_WIDTH = 40;
 const GRID_WIDTH = 64;
-const SELECT_WIDTH = 136;
+const SELECT_WIDTH = 108;
 const MIN_GRID_EDGE = 1;
 const SAMPLING_KEYS: Readonly<Record<PixelationMethod, BeadTextKey>> = {
   [PixelationMethod.Structure]: "beads.sampling.structure",
@@ -59,7 +58,7 @@ function parseBoardEdge(raw: string): number | null {
     : null;
 }
 
-/** Brand, board, codes and download: the same short form as the editor's bead export. */
+/** Brand, board and codes: the fields of the shared adjust slot. Export lives in the export sheet. */
 export function BeadSettings({
   manager,
   state,
@@ -67,10 +66,8 @@ export function BeadSettings({
   manager: BeadToolManager;
   state: BeadToolSnapshot;
 }) {
-  const shadePattern = useToolWindowShade("pattern");
   const text = useBeadText();
   const busy = state.loading || state.downloading;
-  const outputDisabled = busy || state.pending || !state.grid || !state.outputName.trim();
   // Raw board text stays local so partial or invalid input is shown and explained, not dropped.
   const [boardDraft, setBoardDraft] = useState<Partial<Record<Axis, string>>>({});
   const boardInvalid = (["width", "height"] as const).some(
@@ -104,19 +101,8 @@ export function BeadSettings({
     />
   );
   const boardError = boardSizeFailure();
-  const labels = beadDocumentLabels(text);
   return (
-    <Panel
-      {...shadePattern}
-      variant={PanelVariant.Utility}
-      emphasized
-      scrollable
-      tone={SurfaceTone.Accent}
-      contentLayout={ContentLayout.Column}
-      contentPadding={ContentPadding.Compact}
-      contentGap={SETTINGS_GAP}
-      title={text("beads.pattern")}
-    >
+    <>
       <Field label={text("beads.brand")}>
         <Combobox
           pixelWidth={SELECT_WIDTH}
@@ -168,25 +154,7 @@ export function BeadSettings({
         disabled={busy}
         onCheckedChange={(showCodes) => manager.changeSettings({ showCodes })}
       />
-      <Field label={text("beads.format")}>
-        <ControlFlow className={styles.boardRow}>
-          <Button
-            slots={{}}
-            text={text("beads.png")}
-            aria-label={text("beads.download.png")}
-            disabled={outputDisabled || !!state.pngError}
-            onClick={() => void manager.downloadPng(labels)}
-          />
-          <Button
-            slots={{}}
-            text={text("beads.pdf")}
-            aria-label={text("beads.download.pdf")}
-            disabled={outputDisabled || !!state.pdfError}
-            onClick={() => void manager.downloadPdf(labels)}
-          />
-        </ControlFlow>
-      </Field>
-    </Panel>
+    </>
   );
 }
 

@@ -10,7 +10,7 @@ export const pages = [
   { name: "gif-sheet", path: "/tools/gif-to-sprite-sheet/", rootId: "gif-sheet-root" },
   { name: "animal-crossing", path: "/tools/animal-crossing-qr/", rootId: "animal-crossing-root" },
   { name: "pixelate", path: "/tools/pixelate/", rootId: "pixelation-root" },
-  { name: "beads", path: "/tools/fuse-beads/", rootId: "beads-root" },
+  { name: "beads", path: "/tools/fuse-beads/", rootId: "beads-root", dropStage: true },
 ];
 export const appearances = [
   { name: "light", saved: "light", system: "dark", resolved: "light" },

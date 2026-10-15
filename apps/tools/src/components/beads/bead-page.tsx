@@ -20,9 +20,11 @@ import {
   Button,
   Text,
   TextVariant,
+  FontRole,
 } from "@xprite/ui";
 
 import styles from "$/components/beads/beads.module.css";
+import flowStyles from "$/components/shared/tool-flow.module.css";
 
 const PERCENT = 100;
 const ZOOM_STEP = 2;
@@ -64,18 +66,40 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
       error={formatBeadFailure(text, state.error)}
       onOpen={manager.open}
       onExample={manager.openExample}
-      fileItems={[
-        {
-          label: text("beads.download.png"),
-          disabled: outputDisabled || !!state.pngError,
-          onSelect: () => void manager.downloadPng(labels),
-        },
-        {
-          label: text("beads.download.pdf"),
-          disabled: outputDisabled || !!state.pdfError,
-          onSelect: () => void manager.downloadPdf(labels),
-        },
-      ]}
+      flow={{
+        exportDisabled: outputDisabled,
+        adjust: (
+          <>
+            <BeadSettings manager={manager} state={state} />
+            <BeadMaterials manager={manager} state={state} />
+            <BeadSourceSettings manager={manager} state={state} />
+          </>
+        ),
+        exportSheet: (close) => (
+          <ControlFlow className={flowStyles.exportChoices}>
+            <Button
+              text={text("beads.png")}
+              aria-label={text("beads.download.png")}
+              font={FontRole.Primary}
+              disabled={outputDisabled || !!state.pngError}
+              onClick={() => {
+                close();
+                void manager.downloadPng(labels);
+              }}
+            />
+            <Button
+              text={text("beads.pdf")}
+              aria-label={text("beads.download.pdf")}
+              font={FontRole.Primary}
+              disabled={outputDisabled || !!state.pdfError}
+              onClick={() => {
+                close();
+                void manager.downloadPdf(labels);
+              }}
+            />
+          </ControlFlow>
+        ),
+      }}
     >
       {state.source && (
         <div className={styles.layout}>
@@ -135,11 +159,6 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
               </div>
             </div>
           </Panel>
-          <aside className={styles.sidebar}>
-            <BeadSettings manager={manager} state={state} />
-            <BeadMaterials manager={manager} state={state} />
-            <BeadSourceSettings manager={manager} state={state} />
-          </aside>
         </div>
       )}
     </FileToolShell>

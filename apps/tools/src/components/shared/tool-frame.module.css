@@ -606,3 +606,13 @@
 .filesShortcut[data-drop-target] {
   filter: brightness(0.6);
 }
+
+/* Flow tools: on phones the adjust drawer docks under the stage, above the status bar. */
+@media (max-width: 700px) {
+  .workspace[data-flow="ready"] {
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  .workspace[data-flow="ready"][data-drawer="open"] {
+    grid-template-rows: minmax(0, 1fr) minmax(0, 44%);
+  }
+}

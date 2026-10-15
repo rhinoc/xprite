@@ -23,5 +23,11 @@ is served at `/tools/viewer/`; the GIF converter is served at `/tools/gif-to-spr
   screen, followed by the footer. Keep this geometry in empty and loaded states
   on desktop and mobile. Fit example artwork to the available space; scroll
   overflowing help and settings inside their own themed regions.
+- Flow tools (fuse beads first; pixelate, GIF, Animal Crossing QR and the viewer migrate later)
+  pass `flow` to `FileToolShell`: upload, default result, optional adjust, export. The shell
+  provides the drop-zone stage, the shared adjust slot (floating palette on desktop, bottom
+  drawer on phones, both a WindowShade window), the export sheet, File ▸ Export… and Ctrl/Cmd+E.
+  `ToolFrame` owns the bottom `ToolActionBar`: step cue plus the pinned Export button, which
+  uses the real default-action `Button` (`part="button_focused"`), in the same spot on every tool.
 - The shared, data-only registry lives in `@xprite/growth-content/tools`. Add tools
   there for directory, navigation and discovery; keep tool runtime code here.

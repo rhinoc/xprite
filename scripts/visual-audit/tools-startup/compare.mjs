@@ -18,7 +18,9 @@ export function compareStartupPair(directory, scene, pair) {
     "header",
     "main",
     "headline",
-    ...(scene.page.publicPage ? ["viewer", "gifSheet", "editor", "animalCrossing"] : ["examples"]),
+    ...(scene.page.publicPage
+      ? ["viewer", "gifSheet", "editor", "animalCrossing"]
+      : [scene.page.dropStage ? "dropStage" : "examples"]),
   ];
   const read = (entry, phase) => {
     if (entry.phase !== phase || entry.file !== `${scene.id}-${phase}.png`)
