@@ -9,7 +9,8 @@ import {
 
 interface TransferRecord {
   token: string;
-  file: File;
+  bytes: ArrayBuffer;
+  type: string;
   name: string;
   palette?: unknown;
   expires: number;
@@ -52,7 +53,8 @@ describe("editor hand-off", () => {
     expect(record.palette).toEqual(palette);
     expect(record.expires).toBeGreaterThan(before);
     expect(record.expires - before).toBeLessThanOrEqual(10 * 60 * 1000 + 1000);
-    expect(record.file.size).toBe(3);
+    expect(record.bytes.byteLength).toBe(3);
+    expect(record.type).toBe("image/png");
   });
   it("does not navigate when the transfer cannot be staged", async () => {
     const assign = vi.fn();

@@ -13,6 +13,11 @@ export async function transferViewerFile(file: File, palette?: readonly Rgba[]):
     stores: [{ name: STORE_NAME, options: { keyPath: "token" } }],
   });
   const token = randomId();
+  // Store raw bytes, not the File: Blobs in IndexedDB are file-backed and the editor's read
+  // could fail ("Unable to decode image blob") if that backing file is gone or unreadable.
+  const bytes = await file.arrayBuffer();
+  if (bytes.byteLength === 0)
+    throw new Error("The result is empty, so it can't be sent to the editor.");
   try {
     await database.withConnection(
       (connection) =>
@@ -27,7 +32,14 @@ export async function transferViewerFile(file: File, palette?: readonly Rgba[]):
             if (entry.value.expires <= now) entry.delete();
             entry.continue();
           };
-          store.put({ token, file, name: file.name, palette, expires: now + TRANSFER_LIFETIME_MS });
+          store.put({
+            token,
+            bytes,
+            type: file.type,
+            name: file.name,
+            palette,
+            expires: now + TRANSFER_LIFETIME_MS,
+          });
           transaction.oncomplete = () => resolve();
           transaction.onerror = transaction.onabort = () =>
             reject(transaction.error ?? new Error("Unable to transfer the file."));
