@@ -12,10 +12,18 @@
   align-items: center;
   gap: var(--ui-space-2);
 }
+.resultTabs {
+  flex: 0 0 auto;
+  min-height: 28px;
+}
+/* Materials is a list, not the pattern: it fills the window and may scroll on its own. */
 .materials {
-  min-height: 120px;
-  max-height: 320px;
   flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-3);
 }
 .colors {
   display: grid;
@@ -113,4 +121,8 @@
   .stage {
     min-height: 0;
   }
+}
+
+.stage[hidden] {
+  display: none;
 }

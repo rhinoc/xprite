@@ -1,4 +1,4 @@
-import { useMemo, useSyncExternalStore } from "react";
+import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 
 import { BeadMaterials } from "$/components/beads/bead-materials";
 import { BeadPreviewGrid } from "$/components/beads/bead-preview-grid";
@@ -25,10 +25,17 @@ import {
   Text,
   TextVariant,
   FontRole,
+  Tabs,
 } from "@xprite/ui";
+import { useElementSize } from "@xprite/ui/utils";
 
 import styles from "$/components/beads/beads.module.css";
 import flowStyles from "$/components/shared/tool-flow.module.css";
+
+enum ResultTab {
+  Pattern = "pattern",
+  Materials = "materials",
+}
 
 const PERCENT = 100;
 const ZOOM_STEP = 2;
@@ -64,7 +71,6 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
         adjust: (
           <>
             <BeadSettings manager={manager} state={state} />
-            <BeadMaterials manager={manager} state={state} />
             <BeadSourceSettings manager={manager} state={state} />
           </>
         ),
@@ -109,6 +115,9 @@ function BeadStage({
   status: string;
 }) {
   const shadePreview = useToolWindowShade("preview");
+  const [tab, setTab] = useState<ResultTab>(ResultTab.Pattern);
+  const tabsBox = useRef<HTMLDivElement>(null);
+  const tabsSize = useElementSize(tabsBox);
   const text = useBeadText();
   const view = useSyncExternalStore(
     manager.navigation.subscribe,
@@ -134,7 +143,23 @@ function BeadStage({
         data-tool-canvas-preview=""
       >
         <div className={styles.previewContent}>
-          <div className={styles.stage}>
+          <div ref={tabsBox} className={styles.resultTabs}>
+            {tabsSize.ready && (
+              <Tabs
+                tabs={[
+                  { id: ResultTab.Pattern, label: text("beads.pattern"), closable: false },
+                  { id: ResultTab.Materials, label: text("beads.materials"), closable: false },
+                ]}
+                value={tab}
+                width={tabsSize.width}
+                dragEnabled={false}
+                tabListAriaLabel={text("beads.pattern")}
+                onValueChange={(id) => setTab(id as ResultTab)}
+              />
+            )}
+          </div>
+          {tab === ResultTab.Materials && <BeadMaterials manager={manager} state={state} />}
+          <div className={styles.stage} hidden={tab !== ResultTab.Pattern}>
             <ControlFlow className={styles.zoomControls}>
               <Button
                 slots={{}}
