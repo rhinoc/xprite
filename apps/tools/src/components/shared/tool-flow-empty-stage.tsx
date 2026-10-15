@@ -1,3 +1,4 @@
+import { useToolWindowFooter } from "$/components/shared/tool-action-bar";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import type { PublicTool } from "$/managers/tools/tool-catalog";
 import {
@@ -28,6 +29,7 @@ export function ToolFlowEmptyStage({
   onExample(): Promise<void>;
 }) {
   const t = useToolTranslation();
+  const footer = useToolWindowFooter();
   return (
     <div className={`${frameStyles.emptyStage} ${styles.stage}`} data-tool-drop-stage="">
       <Panel
@@ -36,6 +38,7 @@ export function ToolFlowEmptyStage({
         emphasized
         className={styles.stagePanel}
         title={t(tool.label)}
+        footer={footer}
         contentLayout={ContentLayout.Fill}
         contentPadding={ContentPadding.Compact}
         data-ui-window-priority="primary"

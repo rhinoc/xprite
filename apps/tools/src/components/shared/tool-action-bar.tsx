@@ -1,3 +1,5 @@
+import { createContext, useContext, type ReactNode } from "react";
+
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import { Button, FontRole, StatusBar } from "@xprite/ui";
 
@@ -11,9 +13,18 @@ export interface ToolActionBarProps {
   /** Export stays disabled until the tool has a result. */
   exportDisabled: boolean;
   onExport(): void;
-  /** Phone drawer toggle. Hidden on desktop, where the palette floats. */
-  adjust?: { open: boolean; disabled: boolean; onToggle(): void };
+  /** Phone drawer toggle. Only present once there is a result; hidden on desktop. */
+  adjust?: { open: boolean; onToggle(): void };
+  /**
+   * `window` (default for flow tools) hands the bar to the stage window as its bottom edge via
+   * `useToolWindowFooter`; `frame` renders it as a strip under the tool.
+   */
+  placement?: "frame" | "window";
 }
+
+/** The bar as the stage window's footer, so it reads as one unit with the window. */
+export const ToolWindowFooterContext = createContext<ReactNode>(null);
+export const useToolWindowFooter = () => useContext(ToolWindowFooterContext);
 
 /**
  * The shared bottom status bar of every tool: step cue on the left, Export pinned at the
@@ -25,11 +36,14 @@ export function ToolActionBar({
   exportDisabled,
   onExport,
   adjust,
+  placement = "frame",
 }: ToolActionBarProps) {
   const t = useToolTranslation();
   return (
     <StatusBar
       className={styles.actionBar}
+      data-placement={placement}
+      border={placement === "frame"}
       data-tool-action-bar=""
       aria-label={t("Export")}
       leading={
@@ -46,7 +60,6 @@ export function ToolActionBar({
               text={t("Adjust")}
               font={FontRole.Primary}
               selected={adjust.open}
-              disabled={adjust.disabled}
               aria-pressed={adjust.open}
               data-flow-adjust-toggle=""
               onClick={adjust.onToggle}

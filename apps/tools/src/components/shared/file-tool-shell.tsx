@@ -145,12 +145,11 @@ export function FileToolShell({
               cue: flowCue(t, { ready, processing: processing || busy }),
               detail: ready ? filename : undefined,
               exportDisabled,
+              placement: "window",
               onExport: () => setExportOpen(true),
-              adjust: {
-                open: drawerOpen && ready,
-                disabled: !ready,
-                onToggle: () => setDrawerOpen((open) => !open),
-              },
+              adjust: ready
+                ? { open: drawerOpen, onToggle: () => setDrawerOpen((open) => !open) }
+                : undefined,
             }
           : undefined
       }
@@ -259,11 +258,7 @@ export function FileToolShell({
             )}
             {children}
           </div>
-          {flow && (
-            <ToolAdjustSlot ready={ready} drawerOpen={drawerOpen}>
-              {flow.adjust}
-            </ToolAdjustSlot>
-          )}
+          {flow && ready && <ToolAdjustSlot drawerOpen={drawerOpen}>{flow.adjust}</ToolAdjustSlot>}
           {dragging && (
             <div className={styles.dropOverlay}>
               <Text variant={TextVariant.Reading}>

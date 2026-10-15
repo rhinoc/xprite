@@ -616,3 +616,13 @@
     grid-template-rows: minmax(0, 1fr) minmax(0, 44%);
   }
 }
+
+/* A flow tool's adjust palette takes the top of the right column; the shortcuts drop to its bottom. */
+@media (min-width: 1001px) {
+  .desktop:has([data-tool-adjust]) .utilities {
+    align-self: stretch;
+    margin-top: 0;
+    max-height: 100%;
+    justify-content: flex-end;
+  }
+}

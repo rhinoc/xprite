@@ -3,7 +3,17 @@
   flex: 0 0 auto;
   min-height: 36px;
   box-sizing: border-box;
+}
+.actionBar[data-placement="frame"] {
   border-top: 2px solid var(--ui-color-ink);
+}
+/* Inside the stage window the bar is the window's own bottom edge. */
+.actionBar[data-placement="window"] {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 .cue {
   display: inline-flex;
@@ -48,15 +58,13 @@
 /* With the desktop's right-hand column the palette sits there, below the shortcut icons. */
 @media (min-width: 1001px) {
   .adjust {
-    top: 262px;
+    top: 0;
     right: auto;
     left: calc(100% + 4px);
     width: 272px;
-    max-height: calc(100% - 262px);
+    /* The shortcut icons sit at the bottom of the column while the palette is open. */
+    max-height: calc(100% - 250px);
   }
-}
-.adjustPlaceholder {
-  margin: 0;
 }
 
 /* The drop stage is the whole window while no file is open. */
