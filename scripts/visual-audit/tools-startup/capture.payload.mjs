@@ -48,9 +48,11 @@ const regions = async (scene) => {
           editor: `${root} main a[href="/editor"]`,
           animalCrossing: `${root} main a[href="/tools/animal-crossing-qr/"]`,
         }
-      : {
-          examples: `${root} [data-slot="panel"][aria-label="${{ "zh-CN": "试用示例", ja: "サンプルを試す", ko: "예제 사용해 보기", ru: "Попробовать пример", "pt-BR": "Testar exemplo", es: "Probar ejemplo" }[scene.page.language] ?? "Try example"}"]`,
-        }),
+      : scene.page.dropStage
+        ? { dropStage: `${root} [data-tool-drop-stage]` }
+        : {
+            examples: `${root} [data-slot="panel"][aria-label="${{ "zh-CN": "试用示例", ja: "サンプルを試す", ko: "예제 사용해 보기", ru: "Попробовать пример", "pt-BR": "Testar exemplo", es: "Probar ejemplo" }[scene.page.language] ?? "Try example"}"]`,
+          }),
   };
   const document = await page.cdp("DOM.getDocument");
   const result = [];

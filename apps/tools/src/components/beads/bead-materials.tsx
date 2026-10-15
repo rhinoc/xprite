@@ -1,22 +1,12 @@
 import { useMemo } from "react";
 
-import { useToolWindowShade } from "$/components/shared/window-shade";
 import type { BeadToolManager, BeadToolSnapshot } from "$/managers/beads/bead-tool-manager";
 import { useBeadText } from "$/managers/locale/tool-language";
-import {
-  Panel,
-  PanelVariant,
-  ContentLayout,
-  ContentPadding,
-  Text,
-  TextVariant,
-  Button,
-  ButtonAppearance,
-} from "@xprite/ui";
+import { Text, TextVariant, Button, ButtonAppearance } from "@xprite/ui";
 
 import styles from "$/components/beads/beads.module.css";
 
-/** Compact colour list: swatch, code and count; clicking a colour highlights its cells. */
+/** Result tab of the preview window: compact colour list: swatch, code and count; clicking a colour highlights its cells. */
 export function BeadMaterials({
   manager,
   state,
@@ -24,7 +14,6 @@ export function BeadMaterials({
   manager: BeadToolManager;
   state: BeadToolSnapshot;
 }) {
-  const shadeMaterials = useToolWindowShade("materials");
   const text = useBeadText();
   const grid = state.grid;
   const busy = state.loading || state.pending || state.downloading;
@@ -38,16 +27,7 @@ export function BeadMaterials({
     [grid],
   );
   return (
-    <Panel
-      {...shadeMaterials}
-      variant={PanelVariant.Utility}
-      emphasized
-      scrollable
-      title={text("beads.materials")}
-      contentLayout={ContentLayout.Column}
-      contentPadding={ContentPadding.Compact}
-      className={styles.materials}
-    >
+    <div className={styles.materials}>
       {grid && (
         <>
           <Text variant={TextVariant.Reading} wrap>
@@ -83,6 +63,6 @@ export function BeadMaterials({
           </ul>
         </>
       )}
-    </Panel>
+    </div>
   );
 }

@@ -2,6 +2,10 @@ import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 
 import { useFilesManager, useFilesSnapshot, useFilesText } from "$/components/files/files-context";
 import { FilesWindow } from "$/components/files/files-window";
+import {
+  ToolActionBarProvider,
+  type ToolActionBarProps,
+} from "$/components/shared/tool-action-bar";
 import { FilesEntryPoint } from "$/managers/files/files-manager";
 import { decodeFilesDrag, FILES_DRAG_TYPE, FilesFolder } from "$/managers/files/files-model";
 import { useToolLanguage } from "$/managers/locale/tool-language";
@@ -39,6 +43,7 @@ export function ToolFrame({
   menus = [],
   children,
   help,
+  actionBar,
 }: {
   tool: PublicTool;
   filename?: string;
@@ -46,6 +51,8 @@ export function ToolFrame({
   menus?: readonly MenubarMenu[];
   children: ReactNode;
   help?: ReactNode;
+  /** Export button shown in the stage window footer (see `ToolStageFooter`); same slot on every tool. */
+  actionBar?: ToolActionBarProps;
 }) {
   const { language, setLanguage, translate: t } = useToolLanguage();
   const guidePath = "guidePath" in tool ? tool.guidePath : undefined;
@@ -131,7 +138,7 @@ export function ToolFrame({
             className={styles.desktop}
           >
             <div className={styles.content} data-ui-desktop-layer>
-              {children}
+              <ToolActionBarProvider value={actionBar}>{children}</ToolActionBarProvider>
             </div>
 
             <aside className={styles.utilities} data-ui-desktop-layer>

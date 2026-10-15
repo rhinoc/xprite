@@ -1,0 +1,97 @@
+/* Shared flow chrome: the Export button in the stage window's bottom right, then the adjust panel. */
+.exportFooter {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  /* 12px above the button (Mac OS 8 HIG), on the window's own background: no bar. */
+  padding-top: 12px;
+  /* The window body leaves 9px to the edge: add 3px for the 12px HIG margin. */
+  margin: 0 3px 3px 0;
+}
+.exportButton {
+  flex: 0 0 auto;
+}
+
+/* Adjust sits below the stage window. Same docked panel on desktop and phone. */
+.adjust {
+  flex: 0 0 auto;
+  z-index: 1;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 44%;
+}
+.adjust :global([data-ui-desktop-window]) {
+  max-height: 100%;
+}
+
+/* The drop stage is the whole window while no file is open. */
+.stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.stagePanel {
+  flex: 1;
+  min-height: 0;
+}
+.stageBody {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.dropZone {
+  flex: 1;
+  min-height: 0;
+  margin: var(--ui-space-5, 12px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-space-5, 12px);
+  padding: var(--ui-space-5, 12px);
+  text-align: center;
+  background: var(--ui-color-paper);
+  outline: 2px dashed var(--ui-color-ink);
+  outline-offset: -2px;
+}
+.dropHint {
+  margin: 0;
+}
+.dropActions {
+  justify-content: center;
+}
+
+.exportSheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-5, 12px);
+  padding: var(--ui-space-5, 12px);
+}
+.exportSheetButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  /* The sheet's 12px padding is the margin from the dialog edge to the default button. */
+}
+
+/* Adjust fields flow side by side and wrap, keeping the panel short so the pattern stays large. */
+.adjustFields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+}
+.adjustFields > * {
+  flex: 0 0 auto;
+}
+
+/* Phone: the stage window and the adjust panel are stacked windows; keep a gap between them. */
+@media (max-width: 700px) {
+  .adjust {
+    margin-top: 8px;
+  }
+}

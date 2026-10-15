@@ -2,13 +2,40 @@ import { useEffect, useRef, useState, type DragEvent, type ReactNode } from "rea
 
 import { useFilesManager, useFilesText } from "$/components/files/files-context";
 import { FileToolEmptyState } from "$/components/shared/file-tool-empty-state";
+import { ToolAdjustSlot } from "$/components/shared/tool-adjust-slot";
+import { ToolExportSheet, type ToolExportFormat } from "$/components/shared/tool-export-sheet";
+import { ToolFlowEmptyStage } from "$/components/shared/tool-flow-empty-stage";
 import { ToolFrame } from "$/components/shared/tool-frame";
 import { decodeFilesDrag, FILES_DRAG_TYPE } from "$/managers/files/files-model";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import type { PublicTool } from "$/managers/tools/tool-catalog";
-import { ContentPadding, SurfaceTone, Text, TextVariant, Panel, type MenuItem } from "@xprite/ui";
+import {
+  ContentPadding,
+  Dialog,
+  OverlayContentLayout,
+  SurfaceTone,
+  Text,
+  TextVariant,
+  Panel,
+  type MenuItem,
+} from "@xprite/ui";
 
 import styles from "$/components/shared/tool-frame.module.css";
+
+const EXPORT_SHEET_BOUNDS = { x: 0, y: 0, width: 320, height: 150 };
+
+/**
+ * Upload → default result → optional adjust → export. A tool that provides `flow` gets the
+ * shared adjust slot, the pinned Export button and the export sheet; others keep their layout.
+ */
+export interface FileToolFlow {
+  /** Parameters shown in the adjust panel above the Export bar (same on desktop and phone; rolled up on phones). */
+  adjust: ReactNode;
+  /** Formats offered in the export sheet; the sheet closes, then the chosen one runs. */
+  exportFormats: readonly ToolExportFormat[];
+  /** True until the tool has a result to export. */
+  exportDisabled: boolean;
+}
 
 /** Shared file input, drop surface and loaded-file actions for independent tools. */
 export function FileToolShell({
@@ -23,6 +50,7 @@ export function FileToolShell({
   onOpen,
   onExample,
   help,
+  flow,
 }: {
   tool: PublicTool;
   filename: string;
@@ -32,6 +60,7 @@ export function FileToolShell({
   error: string | null;
   fileItems?: readonly MenuItem[];
   help?: ReactNode;
+  flow?: FileToolFlow;
   children?: ReactNode;
   onOpen(file: File): Promise<void>;
   onExample(): Promise<void>;
@@ -78,11 +107,39 @@ export function FileToolShell({
     event.dataTransfer.types.includes("Files") ||
     (!!files && event.dataTransfer.types.includes(FILES_DRAG_TYPE));
   const chooseFile = () => input.current?.click();
+  const [exportOpen, setExportOpen] = useState(false);
+  const [mac, setMac] = useState(false);
+  useEffect(() => setMac(/Mac|iPhone|iPad/.test(navigator.platform)), []);
+  const exportDisabled = !flow || !ready || busy || processing || flow.exportDisabled;
+  const exportRef = useRef(exportDisabled);
+  exportRef.current = exportDisabled;
+  useEffect(() => {
+    if (!flow) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (
+        !(event.metaKey || event.ctrlKey) ||
+        event.altKey ||
+        event.shiftKey ||
+        event.key.toLowerCase() !== "e"
+      )
+        return;
+      event.preventDefault();
+      if (!exportRef.current) setExportOpen(true);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [!!flow]);
+  useEffect(() => {
+    if (exportDisabled) setExportOpen(false);
+  }, [exportDisabled]);
   return (
     <ToolFrame
       tool={tool}
       processing={processing}
       help={help}
+      actionBar={
+        flow && ready ? { exportDisabled, onExport: () => setExportOpen(true) } : undefined
+      }
       filename={ready ? filename : undefined}
       menus={[
         {
@@ -90,6 +147,17 @@ export function FileToolShell({
           items: [
             { label: `${tool.openLabel}…`, disabled: busy, onSelect: chooseFile },
             { label: t("Open example"), disabled: busy, onSelect: () => void onExample() },
+            ...(flow
+              ? [
+                  {
+                    label: t("Export…"),
+                    shortcut: mac ? "Cmd+E" : "Ctrl+E",
+                    separator: true,
+                    disabled: exportDisabled,
+                    onSelect: () => setExportOpen(true),
+                  },
+                ]
+              : []),
             ...fileItems.map((item, index) => ({
               ...item,
               separator: index === 0 || item.separator,
@@ -127,6 +195,7 @@ export function FileToolShell({
           className={styles.workspace}
           aria-label={t(tool.label)}
           aria-busy={busy}
+          data-flow={flow ? (ready ? "ready" : "empty") : undefined}
           onDragEnter={(event) => {
             if (carriesFiles(event)) {
               setFromFiles(event.dataTransfer.types.includes(FILES_DRAG_TYPE));
@@ -157,7 +226,15 @@ export function FileToolShell({
           }}
         >
           <div className={styles.previewPanel}>
-            {!ready && (
+            {!ready && flow && (
+              <ToolFlowEmptyStage
+                tool={tool}
+                busy={busy}
+                onChooseFile={chooseFile}
+                onExample={onExample}
+              />
+            )}
+            {!ready && !flow && (
               <FileToolEmptyState
                 tool={tool}
                 busy={busy}
@@ -175,6 +252,21 @@ export function FileToolShell({
             </div>
           )}
         </section>
+        {flow && ready && <ToolAdjustSlot>{flow.adjust}</ToolAdjustSlot>}
+        {flow && exportOpen && (
+          <Dialog
+            open={exportOpen}
+            onOpenChange={setExportOpen}
+            title={t("Export")}
+            portal
+            centerOnOpen
+            defaultBounds={EXPORT_SHEET_BOUNDS}
+            resizable={false}
+            contentLayout={OverlayContentLayout.Flow}
+          >
+            <ToolExportSheet formats={flow.exportFormats} onClose={() => setExportOpen(false)} />
+          </Dialog>
+        )}
       </main>
     </ToolFrame>
   );

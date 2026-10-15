@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-import { useToolWindowShade } from "$/components/shared/window-shade";
 import { boardSizeFailure } from "$/managers/beads/bead-failure";
 import type {
   BeadToolManager,
@@ -12,18 +11,17 @@ import {
   MIN_BEAD_BOARD_EDGE,
   MAX_BEAD_BOARD_EDGE,
 } from "$/managers/beads/bead-tool-manager";
-import { beadDocumentLabels, type BeadTextKey } from "$/managers/locale/bead-text";
+import type { BeadTextKey } from "$/managers/locale/bead-text";
 import { useBeadText } from "$/managers/locale/tool-language";
 import { BEAD_BOARD_PRESETS } from "@xprite/editor-core/import-export";
 import { PixelationMethod } from "@xprite/editor-core/import-export";
 import {
   Panel,
-  PanelVariant,
   ContentLayout,
   ContentPadding,
-  SurfaceTone,
   ControlFlow,
   Field,
+  FieldLayout,
   Input,
   Combobox,
   Checkbox,
@@ -35,10 +33,10 @@ import {
 
 import styles from "$/components/beads/beads.module.css";
 
-const SETTINGS_GAP = 8;
+const SETTINGS_GAP = 4;
 const NUMBER_WIDTH = 40;
 const GRID_WIDTH = 64;
-const SELECT_WIDTH = 136;
+const SELECT_WIDTH = 108;
 const MIN_GRID_EDGE = 1;
 const SAMPLING_KEYS: Readonly<Record<PixelationMethod, BeadTextKey>> = {
   [PixelationMethod.Structure]: "beads.sampling.structure",
@@ -59,7 +57,7 @@ function parseBoardEdge(raw: string): number | null {
     : null;
 }
 
-/** Brand, board, codes and download: the same short form as the editor's bead export. */
+/** Board group (brand, board, codes): the fields of the shared adjust slot. Export lives in the export sheet. */
 export function BeadSettings({
   manager,
   state,
@@ -67,10 +65,8 @@ export function BeadSettings({
   manager: BeadToolManager;
   state: BeadToolSnapshot;
 }) {
-  const shadePattern = useToolWindowShade("pattern");
   const text = useBeadText();
   const busy = state.loading || state.downloading;
-  const outputDisabled = busy || state.pending || !state.grid || !state.outputName.trim();
   // Raw board text stays local so partial or invalid input is shown and explained, not dropped.
   const [boardDraft, setBoardDraft] = useState<Partial<Record<Axis, string>>>({});
   const boardInvalid = (["width", "height"] as const).some(
@@ -104,88 +100,75 @@ export function BeadSettings({
     />
   );
   const boardError = boardSizeFailure();
-  const labels = beadDocumentLabels(text);
   return (
     <Panel
-      {...shadePattern}
-      variant={PanelVariant.Utility}
-      emphasized
-      scrollable
-      tone={SurfaceTone.Accent}
       contentLayout={ContentLayout.Column}
       contentPadding={ContentPadding.Compact}
       contentGap={SETTINGS_GAP}
-      title={text("beads.pattern")}
+      title={text("beads.board")}
+      className={styles.group}
     >
-      <Field label={text("beads.brand")}>
-        <Combobox
-          pixelWidth={SELECT_WIDTH}
-          aria-label={text("beads.brand")}
-          value={state.settings.brand}
-          options={manager.brands}
+      <div className={styles.fieldRow}>
+        <Field
+          layout={FieldLayout.Inline}
+          className={styles.inlineField}
+          label={text("beads.brand")}
+        >
+          <Combobox
+            pixelWidth={SELECT_WIDTH}
+            aria-label={text("beads.brand")}
+            value={state.settings.brand}
+            options={manager.brands}
+            disabled={busy}
+            onValueChange={(brand) =>
+              manager.changeSettings({
+                brand: brand as BeadToolSettings["brand"],
+              })
+            }
+          />
+        </Field>
+        <Field
+          layout={FieldLayout.Inline}
+          className={styles.inlineField}
+          label={text("beads.board")}
+        >
+          <ControlFlow className={styles.boardRow}>
+            {boardEdge("width")}
+            <Text variant={TextVariant.Reading}>×</Text>
+            {boardEdge("height")}
+            <Menu
+              label={text("beads.presets")}
+              items={BEAD_BOARD_PRESETS.map((size) => ({
+                label: text("beads.size", { width: size.width, height: size.height }),
+                disabled: busy,
+                onSelect: () => {
+                  setBoardDraft({});
+                  manager.changeSettings({ boardSize: size });
+                },
+              }))}
+              renderTrigger={(trigger) => (
+                <Button
+                  {...trigger}
+                  icon="combobox_arrow_down"
+                  aria-label={text("beads.presets")}
+                  disabled={busy}
+                />
+              )}
+            />
+          </ControlFlow>
+        </Field>
+        {boardInvalid && (
+          <Text variant={TextVariant.Reading} wrap role="alert">
+            {text(boardError.key, boardError.values)}
+          </Text>
+        )}
+        <Checkbox
+          label={text("beads.codes")}
+          checked={state.settings.showCodes}
           disabled={busy}
-          onValueChange={(brand) =>
-            manager.changeSettings({
-              brand: brand as BeadToolSettings["brand"],
-            })
-          }
+          onCheckedChange={(showCodes) => manager.changeSettings({ showCodes })}
         />
-      </Field>
-      <Field label={text("beads.board")}>
-        <ControlFlow className={styles.boardRow}>
-          {boardEdge("width")}
-          <Text variant={TextVariant.Reading}>×</Text>
-          {boardEdge("height")}
-          <Menu
-            label={text("beads.presets")}
-            items={BEAD_BOARD_PRESETS.map((size) => ({
-              label: text("beads.size", { width: size.width, height: size.height }),
-              disabled: busy,
-              onSelect: () => {
-                setBoardDraft({});
-                manager.changeSettings({ boardSize: size });
-              },
-            }))}
-            renderTrigger={(trigger) => (
-              <Button
-                {...trigger}
-                icon="combobox_arrow_down"
-                aria-label={text("beads.presets")}
-                disabled={busy}
-              />
-            )}
-          />
-        </ControlFlow>
-      </Field>
-      {boardInvalid && (
-        <Text variant={TextVariant.Reading} wrap role="alert">
-          {text(boardError.key, boardError.values)}
-        </Text>
-      )}
-      <Checkbox
-        label={text("beads.codes")}
-        checked={state.settings.showCodes}
-        disabled={busy}
-        onCheckedChange={(showCodes) => manager.changeSettings({ showCodes })}
-      />
-      <Field label={text("beads.format")}>
-        <ControlFlow className={styles.boardRow}>
-          <Button
-            slots={{}}
-            text={text("beads.png")}
-            aria-label={text("beads.download.png")}
-            disabled={outputDisabled || !!state.pngError}
-            onClick={() => void manager.downloadPng(labels)}
-          />
-          <Button
-            slots={{}}
-            text={text("beads.pdf")}
-            aria-label={text("beads.download.pdf")}
-            disabled={outputDisabled || !!state.pdfError}
-            onClick={() => void manager.downloadPdf(labels)}
-          />
-        </ControlFlow>
-      </Field>
+      </div>
     </Panel>
   );
 }
@@ -198,11 +181,10 @@ export function BeadSourceSettings({
   manager: BeadToolManager;
   state: BeadToolSnapshot;
 }) {
-  const shadeSource = useToolWindowShade("source", { defaultCollapsed: true });
   const text = useBeadText();
   const busy = state.loading || state.downloading;
   const gridEdge = (axis: Axis, label: BeadTextKey) => (
-    <Field label={text(label)}>
+    <Field layout={FieldLayout.Inline} className={styles.inlineField} label={text(label)}>
       <Input
         pixelWidth={GRID_WIDTH}
         inputMode="numeric"
@@ -222,39 +204,40 @@ export function BeadSourceSettings({
   );
   return (
     <Panel
-      {...shadeSource}
-      variant={PanelVariant.Utility}
-      emphasized
-      scrollable
       contentLayout={ContentLayout.Column}
       contentPadding={ContentPadding.Compact}
       contentGap={SETTINGS_GAP}
-      title={text("beads.preview.source")}
+      title={text("beads.sampling")}
+      className={styles.group}
     >
-      {state.frameCount > MIN_GRID_EDGE && (
-        <Field label={text("beads.frame")}>
-          <Combobox
-            pixelWidth={GRID_WIDTH}
-            aria-label={text("beads.frame.source")}
-            value={String(state.frame)}
-            disabled={busy}
-            options={Array.from({ length: state.frameCount }, (_, index) => ({
-              value: String(index),
-              label: String(index + MIN_GRID_EDGE),
-            }))}
-            onValueChange={(value) => manager.setFrame(Number(value))}
-          />
-        </Field>
-      )}
-      {gridEdge("width", "beads.columns")}
-      {gridEdge("height", "beads.rows")}
-      <Checkbox
-        label={text("beads.aspect.keep")}
-        checked={state.settings.lockAspectRatio}
-        disabled={busy}
-        onCheckedChange={(lockAspectRatio) => manager.changeSettings({ lockAspectRatio })}
-      />
-      <Field label={text("beads.sampling")}>
+      <div className={styles.fieldRow}>
+        {state.frameCount > MIN_GRID_EDGE && (
+          <Field
+            layout={FieldLayout.Inline}
+            className={styles.inlineField}
+            label={text("beads.frame")}
+          >
+            <Combobox
+              pixelWidth={GRID_WIDTH}
+              aria-label={text("beads.frame.source")}
+              value={String(state.frame)}
+              disabled={busy}
+              options={Array.from({ length: state.frameCount }, (_, index) => ({
+                value: String(index),
+                label: String(index + MIN_GRID_EDGE),
+              }))}
+              onValueChange={(value) => manager.setFrame(Number(value))}
+            />
+          </Field>
+        )}
+        {gridEdge("width", "beads.columns")}
+        {gridEdge("height", "beads.rows")}
+        <Checkbox
+          label={text("beads.aspect.keep")}
+          checked={state.settings.lockAspectRatio}
+          disabled={busy}
+          onCheckedChange={(lockAspectRatio) => manager.changeSettings({ lockAspectRatio })}
+        />
         <Combobox
           pixelWidth={SELECT_WIDTH}
           aria-label={text("beads.sampling")}
@@ -270,7 +253,7 @@ export function BeadSourceSettings({
             })
           }
         />
-      </Field>
+      </div>
     </Panel>
   );
 }
