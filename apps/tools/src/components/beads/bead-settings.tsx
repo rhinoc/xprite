@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-import { useToolWindowShade } from "$/components/shared/window-shade";
 import { boardSizeFailure } from "$/managers/beads/bead-failure";
 import type {
   BeadToolManager,
@@ -18,7 +17,6 @@ import { BEAD_BOARD_PRESETS } from "@xprite/editor-core/import-export";
 import { PixelationMethod } from "@xprite/editor-core/import-export";
 import {
   Panel,
-  PanelVariant,
   ContentLayout,
   ContentPadding,
   ControlFlow,
@@ -166,7 +164,6 @@ export function BeadSourceSettings({
   manager: BeadToolManager;
   state: BeadToolSnapshot;
 }) {
-  const shadeSource = useToolWindowShade("source", { defaultCollapsed: true });
   const text = useBeadText();
   const busy = state.loading || state.downloading;
   const gridEdge = (axis: Axis, label: BeadTextKey) => (
@@ -190,14 +187,10 @@ export function BeadSourceSettings({
   );
   return (
     <Panel
-      {...shadeSource}
-      variant={PanelVariant.Utility}
-      emphasized
-      scrollable
       contentLayout={ContentLayout.Column}
       contentPadding={ContentPadding.Compact}
       contentGap={SETTINGS_GAP}
-      title={text("beads.preview.source")}
+      title={text("beads.sampling")}
     >
       {state.frameCount > MIN_GRID_EDGE && (
         <Field label={text("beads.frame")}>
@@ -222,23 +215,21 @@ export function BeadSourceSettings({
         disabled={busy}
         onCheckedChange={(lockAspectRatio) => manager.changeSettings({ lockAspectRatio })}
       />
-      <Field label={text("beads.sampling")}>
-        <Combobox
-          pixelWidth={SELECT_WIDTH}
-          aria-label={text("beads.sampling")}
-          value={state.settings.method}
-          options={manager.samplingModes.map((mode) => ({
-            value: mode.value,
-            label: text(SAMPLING_KEYS[mode.value]),
-          }))}
-          disabled={busy}
-          onValueChange={(method) =>
-            manager.changeSettings({
-              method: method as BeadToolSettings["method"],
-            })
-          }
-        />
-      </Field>
+      <Combobox
+        pixelWidth={SELECT_WIDTH}
+        aria-label={text("beads.sampling")}
+        value={state.settings.method}
+        options={manager.samplingModes.map((mode) => ({
+          value: mode.value,
+          label: text(SAMPLING_KEYS[mode.value]),
+        }))}
+        disabled={busy}
+        onValueChange={(method) =>
+          manager.changeSettings({
+            method: method as BeadToolSettings["method"],
+          })
+        }
+      />
     </Panel>
   );
 }
