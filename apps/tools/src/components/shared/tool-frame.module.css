@@ -623,3 +623,9 @@
   flex: 1 1 auto;
   min-height: 0;
 }
+
+/* Flow tools: the Export button sits 8px above the screen's bottom edge. */
+.desktop:has([data-tool-action-bar]),
+.desktop:has(.utilities > :not(.shortcuts)):has([data-tool-action-bar]) {
+  padding-bottom: 8px;
+}

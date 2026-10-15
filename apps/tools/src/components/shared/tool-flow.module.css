@@ -2,8 +2,11 @@
 .actionBar {
   flex: 0 0 auto;
   box-sizing: border-box;
-  padding: var(--ui-space-5, 12px) var(--ui-space-5, 12px);
-  border-top: 2px solid var(--ui-color-ink);
+  /* No bar chrome: the button floats on the desktop, 8px under the adjust panel. */
+  padding: 8px 0 0;
+  border: 0;
+  background: transparent !important;
+  box-shadow: none;
   z-index: 2;
 }
 .actionBar > :global(*) {
