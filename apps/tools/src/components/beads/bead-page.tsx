@@ -88,6 +88,7 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
             contentPadding={ContentPadding.Compact}
             className={styles.previewPanel}
             data-ui-window-priority="primary"
+            data-tool-canvas-preview=""
           >
             <div className={styles.previewContent}>
               <div className={styles.stage}>
