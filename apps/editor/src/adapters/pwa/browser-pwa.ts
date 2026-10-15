@@ -1,3 +1,8 @@
+import {
+  CHUNK_LOAD_FAILED_EVENT,
+  failedChunkUrl,
+  type ChunkLoadFailureDetail,
+} from "$/managers/ports/chunk-load";
 import { PwaDiagnosticStage, PwaFailure } from "$/managers/ports/diagnostics";
 import {
   PwaInstallMethod,
@@ -31,6 +36,64 @@ function withPwaDetails(reason: unknown, details: PwaDetails): Error {
 enum PwaWorkerMessage {
   OfflineStatus = "XPRITE_OFFLINE_STATUS",
   PrepareOffline = "XPRITE_OFFLINE_PREPARE",
+  HasResource = "XPRITE_OFFLINE_HAS_RESOURCE",
+  FetchFailed = "XPRITE_OFFLINE_FETCH_FAILED",
+}
+
+const CHUNK_QUERY_TIMEOUT_MS = 1_500;
+const SAME_SITE_ASSET_PATH = /^\/assets\/[A-Za-z0-9._/-]{1,128}$/;
+const WORKER_FETCH_FAILURES: readonly string[] = [
+  PwaFailure.Integrity,
+  PwaFailure.Network,
+  PwaFailure.HttpStatus,
+];
+
+interface ChunkQueryResponse {
+  present?: boolean;
+  version?: string;
+}
+
+/** Asks the controlling worker whether a URL belongs to its release; null when it cannot say. */
+function queryWorkerResource(
+  worker: ServiceWorker,
+  url: string,
+): Promise<ChunkQueryResponse | null> {
+  return new Promise((resolve) => {
+    let channel: MessageChannel;
+    try {
+      channel = new MessageChannel();
+    } catch {
+      resolve(null);
+      return;
+    }
+    const finish = (value: ChunkQueryResponse | null) => {
+      clearTimeout(timeout);
+      channel.port1.close();
+      resolve(value);
+    };
+    const timeout = setTimeout(() => finish(null), CHUNK_QUERY_TIMEOUT_MS);
+    channel.port1.onmessage = (event: MessageEvent<ChunkQueryResponse & { type?: string }>) =>
+      finish(event.data?.type === PwaWorkerMessage.HasResource ? event.data : null);
+    try {
+      worker.postMessage({ type: PwaWorkerMessage.HasResource, url }, [channel.port2]);
+    } catch {
+      finish(null);
+    }
+  });
+}
+
+function assetPath(path: string): string | null {
+  return SAME_SITE_ASSET_PATH.test(path) ? path : null;
+}
+
+function sameSiteAssetPath(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    return parsed.origin === window.location.origin ? assetPath(parsed.pathname) : null;
+  } catch {
+    return null;
+  }
 }
 
 interface InstallPromptEvent extends Event {
@@ -146,9 +209,11 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
       supported && options.offlineEnabled !== false
         ? PwaOfflineStatus.Preparing
         : PwaOfflineStatus.Unsupported,
+    chunkFailures: 0,
   };
   let session = 0;
   let references = 0;
+  let chunkReferences = 0;
   let disposed = false;
   let repairAttempts = new WeakSet<ServiceWorker>();
   let pendingPreparations = new WeakMap<ServiceWorker, Promise<void>>();
@@ -192,6 +257,63 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
       // A restricted browser API must not hide the original failure.
     }
     options.onError?.(withPwaDetails(error, { ...context, ...details }));
+  }
+
+  /** A lazy chunk failed twice: tell the user at once, then report with worker context. */
+  async function chunkLoadFailed(error: unknown): Promise<void> {
+    patch({ chunkFailures: state.chunkFailures + 1 });
+    const url = failedChunkUrl(error);
+    const path = sameSiteAssetPath(url);
+    const details: Record<string, string | number | boolean | null> = {
+      stage: PwaDiagnosticStage.Chunk,
+      failure: PwaFailure.ChunkLoad,
+      online: navigator.onLine,
+      visible: document.visibilityState === "visible",
+      secure_context: window.isSecureContext,
+      controlled: false,
+      controller_state: null,
+      script_path: null,
+      chunk_in_worker_build: null,
+      chunk: path,
+    };
+    try {
+      const controller = "serviceWorker" in navigator ? navigator.serviceWorker.controller : null;
+      details.controlled = Boolean(controller);
+      details.controller_state = controller?.state ?? null;
+      details.script_path = controller ? new URL(controller.scriptURL).pathname : null;
+      details.worker_version = workerVersion;
+      if (controller && path) {
+        const answer = await queryWorkerResource(controller, path);
+        if (answer) {
+          // A chunk the worker's release lacks means this page runs an older build.
+          details.chunk_in_worker_build = Boolean(answer.present);
+          if (typeof answer.version === "string") details.worker_version = answer.version;
+        }
+      }
+    } catch {
+      // Restricted worker APIs must not hide the chunk failure.
+    }
+    options.onError?.(withPwaDetails(error, details));
+  }
+
+  function workerMessage(event: MessageEvent): void {
+    const data = event.data as Record<string, unknown> | null;
+    if (data?.type !== PwaWorkerMessage.FetchFailed) return;
+    const failure =
+      typeof data.failure === "string" && WORKER_FETCH_FAILURES.includes(data.failure)
+        ? data.failure
+        : PwaFailure.Network;
+    report(new Error("The offline application could not load a build resource."), {
+      stage: PwaDiagnosticStage.Fetch,
+      failure,
+      status: typeof data.status === "number" ? data.status : null,
+      resource: typeof data.path === "string" ? assetPath(data.path) : null,
+      worker_version: typeof data.version === "string" ? data.version : workerVersion,
+    });
+  }
+
+  function chunkEvent(event: Event): void {
+    void chunkLoadFailed((event as CustomEvent<ChunkLoadFailureDetail>).detail?.error);
   }
 
   function clearPreparationTimeout(): void {
@@ -382,8 +504,17 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
       return () => listeners.delete(listener);
     },
     start() {
-      if (!supported || disposed) return () => {};
-      if (options.offlineEnabled === false) return () => {};
+      if (disposed) return () => {};
+      // A stale build can hit a missing chunk wherever the worker is unavailable.
+      if (chunkReferences++ === 0) window.addEventListener(CHUNK_LOAD_FAILED_EVENT, chunkEvent);
+      let chunksStopped = false;
+      const stopChunks = () => {
+        if (chunksStopped) return;
+        chunksStopped = true;
+        if (--chunkReferences === 0)
+          window.removeEventListener(CHUNK_LOAD_FAILED_EVENT, chunkEvent);
+      };
+      if (!supported || options.offlineEnabled === false) return stopChunks;
       references++;
       if (references === 1) {
         const currentSession = ++session;
@@ -411,10 +542,12 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
           if (worker?.state === "activated") void prepareOffline(worker, currentSession);
         };
         navigator.serviceWorker.addEventListener("controllerchange", controllerChanged);
+        navigator.serviceWorker.addEventListener("message", workerMessage);
         window.addEventListener("online", reconnected);
         document.addEventListener("visibilitychange", visible);
         removers.push(() => {
           navigator.serviceWorker.removeEventListener("controllerchange", controllerChanged);
+          navigator.serviceWorker.removeEventListener("message", workerMessage);
           window.removeEventListener("online", reconnected);
           document.removeEventListener("visibilitychange", visible);
         });
@@ -424,6 +557,7 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
       return () => {
         if (stopped) return;
         stopped = true;
+        stopChunks();
         references--;
         if (references === 0) stopSession();
       };
@@ -458,6 +592,7 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
     dispose() {
       disposed = true;
       stopSession();
+      window.removeEventListener(CHUNK_LOAD_FAILED_EVENT, chunkEvent);
       window.removeEventListener("beforeinstallprompt", capturePrompt);
       window.removeEventListener("appinstalled", installed);
       standalone.removeEventListener("change", synchronizeInstallation);

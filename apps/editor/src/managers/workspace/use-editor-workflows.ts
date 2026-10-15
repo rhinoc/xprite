@@ -921,10 +921,6 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       telemetry.featureUsed(TelemetryFeature.Support, TelemetryFeatureAction.Open);
       setSupportOpen(true);
     },
-    donate: () => {
-      telemetry.featureUsed(TelemetryFeature.Donate, TelemetryFeatureAction.Click);
-      platform.navigation.openExternal(HELP_LINKS[HelpLink.Donate]);
-    },
     closeAllDocuments: () => {
       if (!canStartInteraction()) return;
       timelineActions?.flushPendingLayerProperties?.();
@@ -1611,6 +1607,11 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     setSupportOpen,
     supportOption: (option: string) =>
       telemetry.featureUsed(TelemetryFeature.Support, TelemetryFeatureAction.Click, { option }),
+    openSupportFromAbout: () => {
+      setAboutOpen(false);
+      telemetry.featureUsed(TelemetryFeature.Support, TelemetryFeatureAction.Open);
+      setSupportOpen(true);
+    },
     feedback,
     openHelpLink: (link: HelpLink) => platform.navigation.openExternal(HELP_LINKS[link]),
     newTilemapDialog,

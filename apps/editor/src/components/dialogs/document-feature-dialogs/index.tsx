@@ -1,5 +1,4 @@
 import {
-  lazy,
   Suspense,
   createContext,
   useCallback,
@@ -12,9 +11,10 @@ import {
 } from "react";
 
 import { Alert } from "$/components/dialogs/alert";
+import { lazyChunk } from "$/components/shared/lazy-chunk";
 import { useDocumentFeatureManager } from "$/managers/dialogs/document-feature-manager";
 import type { DialogEditorTarget } from "$/managers/dialogs/internal-editor-source";
-const DocumentSizeDialogs = lazy(() =>
+const DocumentSizeDialogs = lazyChunk(() =>
   import("$/components/dialogs/size-dialogs").then((module) => ({
     default: module.DocumentSizeDialogs,
   })),

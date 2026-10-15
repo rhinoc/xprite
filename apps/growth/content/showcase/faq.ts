@@ -20,9 +20,9 @@ export const SHOWCASE_FAQ_COPY = {
         id: ShowcaseFaqTopic.Access,
         question: "Xprite 免费吗？需要注册吗？",
         answer: [
-          "免费，也不需要注册账号。打开网页就能开始编辑，源代码在 ",
+          "免费，也不需要注册。打开网页就能用，源码在 ",
           { label: "GitHub", href: "https://github.com/rhinoc/xprite" },
-          " 上公开。",
+          "。想支持的话，给仓库点个 Star、在社交媒体关注我就很有帮助；如果愿意，也可以通过 Ko-fi 或微信赞赏。",
         ],
       },
       {
@@ -116,9 +116,9 @@ export const SHOWCASE_FAQ_COPY = {
         id: ShowcaseFaqTopic.Access,
         question: "Is Xprite free? Do I need an account?",
         answer: [
-          "Xprite is free and requires no account. Open the editor to start working. Its source code is available on ",
+          "Xprite is free and needs no account. Open the editor to start. Source is on ",
           { label: "GitHub", href: "https://github.com/rhinoc/xprite" },
-          ".",
+          ". If you'd like to support the project, starring the repo or following on social media already helps a lot; optional donations via Ko-fi or WeChat are welcome too.",
         ],
       },
       {
@@ -215,9 +215,9 @@ export const SHOWCASE_FAQ_COPY = {
         id: ShowcaseFaqTopic.Access,
         question: "Xprite は無料ですか？アカウントは必要ですか？",
         answer: [
-          "無料で、アカウントも不要です。エディターを開けばすぐに作業を始められます。ソースコードは ",
+          "無料で、アカウントも不要です。エディターを開けばすぐに使えます。ソースコードは ",
           { label: "GitHub", href: "https://github.com/rhinoc/xprite" },
-          " で公開されています。",
+          " にあります。応援したい場合は、リポジトリに Star を付けたり SNS でフォローするだけでも大きな助けになります。余裕があれば Ko-fi や WeChat での寄付も歓迎です。",
         ],
       },
       {
@@ -294,9 +294,9 @@ export const SHOWCASE_FAQ_COPY = {
         id: ShowcaseFaqTopic.Access,
         question: "Xprite는 무료인가요? 계정이 필요한가요?",
         answer: [
-          "무료이며 계정도 필요 없습니다. 에디터를 열면 바로 작업을 시작할 수 있습니다. 소스 코드는 ",
+          "무료이며 계정도 필요 없습니다. 에디터를 열면 바로 사용할 수 있습니다. 소스 코드는 ",
           { label: "GitHub", href: "https://github.com/rhinoc/xprite" },
-          "에 공개되어 있습니다.",
+          "에 있습니다. 응원하고 싶다면 저장소에 Star를 주거나 SNS에서 팔로우하는 것만으로도 큰 도움이 됩니다. 여력이 있다면 Ko-fi나 WeChat 후원도 환영합니다.",
         ],
       },
       {
@@ -374,9 +374,9 @@ export const SHOWCASE_FAQ_COPY = {
         id: ShowcaseFaqTopic.Access,
         question: "Xprite бесплатный? Нужен аккаунт?",
         answer: [
-          "Xprite бесплатный, аккаунт не нужен. Откройте редактор и начинайте работать. Исходный код опубликован на ",
+          "Xprite бесплатный, аккаунт не нужен. Откройте редактор и начинайте. Исходный код на ",
           { label: "GitHub", href: "https://github.com/rhinoc/xprite" },
-          ".",
+          ". Если хотите поддержать проект, звезда репозиторию или подписка в соцсетях уже очень помогают; добровольные пожертвования через Ko-fi или WeChat тоже приветствуются.",
         ],
       },
       {
@@ -477,9 +477,9 @@ export const SHOWCASE_FAQ_COPY = {
         id: ShowcaseFaqTopic.Access,
         question: "O Xprite é grátis? Preciso de conta?",
         answer: [
-          "O Xprite é grátis e não exige conta. Abra o editor e comece a trabalhar. O código-fonte está disponível no ",
+          "O Xprite é grátis e não precisa de conta. Abra o editor e comece. O código-fonte está no ",
           { label: "GitHub", href: "https://github.com/rhinoc/xprite" },
-          ".",
+          ". Se quiser apoiar o projeto, dar uma estrela no repositório ou seguir nas redes já ajuda bastante; doações opcionais via Ko-fi ou WeChat também são bem-vindas.",
         ],
       },
       {
@@ -583,9 +583,9 @@ export const SHOWCASE_FAQ_COPY = {
         id: ShowcaseFaqTopic.Access,
         question: "¿Xprite es gratis? ¿Necesito una cuenta?",
         answer: [
-          "Xprite es gratis y no necesitas cuenta. Abre el editor y empieza a trabajar. Su código fuente está disponible en ",
+          "Xprite es gratis y no necesita cuenta. Abre el editor y empieza. El código fuente está en ",
           { label: "GitHub", href: "https://github.com/rhinoc/xprite" },
-          ".",
+          ". Si quieres apoyar el proyecto, dar una estrella al repositorio o seguirme en redes ya ayuda mucho; las donaciones opcionales por Ko-fi o WeChat también son bienvenidas.",
         ],
       },
       {
