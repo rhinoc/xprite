@@ -2,11 +2,7 @@ import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 
 import { useFilesManager, useFilesSnapshot, useFilesText } from "$/components/files/files-context";
 import { FilesWindow } from "$/components/files/files-window";
-import {
-  ToolActionBar,
-  ToolWindowFooterContext,
-  type ToolActionBarProps,
-} from "$/components/shared/tool-action-bar";
+import { ToolActionBar, type ToolActionBarProps } from "$/components/shared/tool-action-bar";
 import { FilesEntryPoint } from "$/managers/files/files-manager";
 import { decodeFilesDrag, FILES_DRAG_TYPE, FilesFolder } from "$/managers/files/files-model";
 import { useToolLanguage } from "$/managers/locale/tool-language";
@@ -139,12 +135,8 @@ export function ToolFrame({
             className={styles.desktop}
           >
             <div className={styles.content} data-ui-desktop-layer>
-              <ToolWindowFooterContext.Provider
-                value={actionBar?.placement === "window" ? <ToolActionBar {...actionBar} /> : null}
-              >
-                {children}
-              </ToolWindowFooterContext.Provider>
-              {actionBar && actionBar.placement !== "window" && <ToolActionBar {...actionBar} />}
+              {children}
+              {actionBar && <ToolActionBar {...actionBar} />}
             </div>
 
             <aside className={styles.utilities} data-ui-desktop-layer>

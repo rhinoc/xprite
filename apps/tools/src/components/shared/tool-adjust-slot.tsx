@@ -9,8 +9,8 @@ import styles from "$/components/shared/tool-flow.module.css";
 const ADJUST_GAP = 8;
 
 /**
- * The shared adjust slot: a floating palette on desktop and a bottom drawer on phones. It is a
- * normal tool window, so the existing WindowShade rolls it up. Rendered only once the tool has a result.
+ * Shared adjust panel stacked above the Export bar (same layout on desktop and phone). It is a
+ * normal tool window, so WindowShade still rolls it up. Rendered only once the tool has a result.
  */
 export function ToolAdjustSlot({
   drawerOpen,

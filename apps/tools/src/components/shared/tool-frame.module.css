@@ -607,22 +607,19 @@
   filter: brightness(0.6);
 }
 
-/* Flow tools: on phones the adjust drawer docks under the stage, above the status bar. */
-@media (max-width: 700px) {
-  .workspace[data-flow="ready"] {
-    grid-template-rows: minmax(0, 1fr) auto;
-  }
-  .workspace[data-flow="ready"][data-drawer="open"] {
-    grid-template-rows: minmax(0, 1fr) minmax(0, 44%);
-  }
+/* Flow tools: stage fills the space; adjust + Export sit under it (Export is the bottom edge). */
+.content:has(> [data-tool-action-bar]) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
-
-/* A flow tool's adjust palette takes the top of the right column; the shortcuts drop to its bottom. */
-@media (min-width: 1001px) {
-  .desktop:has([data-tool-adjust]) .utilities {
-    align-self: stretch;
-    margin-top: 0;
-    max-height: 100%;
-    justify-content: flex-end;
-  }
+.content:has(> [data-tool-action-bar]) > .main {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.content:has(> [data-tool-action-bar]) .workspace {
+  flex: 1 1 auto;
+  min-height: 0;
 }

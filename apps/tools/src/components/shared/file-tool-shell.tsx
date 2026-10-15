@@ -30,7 +30,7 @@ const EXPORT_SHEET_BOUNDS = { x: 0, y: 0, width: 320, height: 120 };
  * shared adjust slot, the pinned Export button and the export sheet; others keep their layout.
  */
 export interface FileToolFlow {
-  /** Parameters shown in the floating palette (desktop) or bottom drawer (phone). */
+  /** Parameters shown in the adjust panel above the Export bar (same on desktop and phone). */
   adjust: ReactNode;
   /** Format choices inside the export sheet. Call `close` once a download starts. */
   exportSheet(close: () => void): ReactNode;
@@ -145,7 +145,6 @@ export function FileToolShell({
               cue: flowCue(t, { ready, processing: processing || busy }),
               detail: ready ? filename : undefined,
               exportDisabled,
-              placement: "window",
               onExport: () => setExportOpen(true),
               adjust: ready
                 ? { open: drawerOpen, onToggle: () => setDrawerOpen((open) => !open) }
@@ -258,7 +257,6 @@ export function FileToolShell({
             )}
             {children}
           </div>
-          {flow && ready && <ToolAdjustSlot drawerOpen={drawerOpen}>{flow.adjust}</ToolAdjustSlot>}
           {dragging && (
             <div className={styles.dropOverlay}>
               <Text variant={TextVariant.Reading}>
@@ -267,6 +265,7 @@ export function FileToolShell({
             </div>
           )}
         </section>
+        {flow && ready && <ToolAdjustSlot drawerOpen={drawerOpen}>{flow.adjust}</ToolAdjustSlot>}
         {flow && exportOpen && (
           <Dialog
             open={exportOpen}

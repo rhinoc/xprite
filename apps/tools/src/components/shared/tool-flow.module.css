@@ -1,19 +1,10 @@
-/* Shared flow chrome: status bar, adjust palette/drawer and the empty drop stage. */
+/* Shared flow chrome: full-width Export bar behind (below) the adjust panel, same on both. */
 .actionBar {
   flex: 0 0 auto;
   min-height: 36px;
   box-sizing: border-box;
-}
-.actionBar[data-placement="frame"] {
   border-top: 2px solid var(--ui-color-ink);
-}
-/* Inside the stage window the bar is the window's own bottom edge. */
-.actionBar[data-placement="window"] {
-  flex: 1 1 auto;
-  min-height: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
+  z-index: 2;
 }
 .cue {
   display: inline-flex;
@@ -35,36 +26,41 @@
   display: inline-flex;
   align-items: center;
   gap: var(--ui-space-3);
+  flex: 1 1 auto;
+  justify-content: flex-end;
+  min-width: 0;
+  width: 100%;
 }
-.exportButton {
-  min-width: 96px;
+/* Let the Export side of the bar grow so the button can be full-width. */
+.actionBar > :last-child {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .adjustToggle {
-  display: none;
+  flex: 0 0 auto;
+}
+/* Export fills the trailing side so the bar reads as a full-width primary action. */
+.exportButton {
+  flex: 1 1 auto;
+  min-width: 96px;
+  max-width: none;
 }
 
-/* Adjust: floating palette on desktop, bottom drawer on phones. */
+/* Adjust sits above the Export bar. Same docked panel on desktop and phone. */
 .adjust {
-  position: absolute;
-  z-index: 4;
-  top: var(--ui-space-4);
-  right: var(--ui-space-4);
-  width: min(300px, calc(100% - 2 * var(--ui-space-4)));
-  max-height: calc(100% - 2 * var(--ui-space-4));
+  flex: 0 0 auto;
+  z-index: 1;
+  width: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  max-height: 44%;
 }
-/* With the desktop's right-hand column the palette sits there, below the shortcut icons. */
-@media (min-width: 1001px) {
-  .adjust {
-    top: 0;
-    right: auto;
-    left: calc(100% + 4px);
-    width: 272px;
-    /* The shortcut icons sit at the bottom of the column while the palette is open. */
-    max-height: calc(100% - 250px);
-  }
+.adjust[data-drawer="closed"] {
+  display: none;
+}
+.adjust :global([data-ui-desktop-window]) {
+  max-height: 100%;
 }
 
 /* The drop stage is the whole window while no file is open. */
@@ -100,24 +96,6 @@
   justify-content: center;
 }
 
-@media (max-width: 700px) {
-  .adjustToggle {
-    display: inline-flex;
-  }
-  .cueDetail {
-    display: none;
-  }
-  .adjust {
-    position: static;
-    width: auto;
-    max-height: none;
-    min-height: 0;
-  }
-  .adjust[data-drawer="closed"] {
-    display: none;
-  }
-}
-
 .exportSheet {
   display: flex;
   flex-direction: column;
@@ -128,4 +106,13 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--ui-space-3);
+}
+
+@media (max-width: 700px) {
+  .cueDetail {
+    display: none;
+  }
+  .exportButton {
+    max-width: none;
+  }
 }

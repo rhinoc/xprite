@@ -5,7 +5,6 @@ import { BeadPreviewGrid } from "$/components/beads/bead-preview-grid";
 import { BeadSettings, BeadSourceSettings } from "$/components/beads/bead-settings";
 import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
-import { useToolWindowFooter } from "$/components/shared/tool-action-bar";
 import { useToolWindowShade } from "$/components/shared/window-shade";
 import { formatBeadFailure } from "$/managers/beads/bead-failure";
 import {
@@ -110,7 +109,6 @@ function BeadStage({
   status: string;
 }) {
   const shadePreview = useToolWindowShade("preview");
-  const footer = useToolWindowFooter();
   const text = useBeadText();
   const view = useSyncExternalStore(
     manager.navigation.subscribe,
@@ -129,7 +127,6 @@ function BeadStage({
         variant={PanelVariant.Document}
         emphasized
         title={text("beads.pattern")}
-        footer={footer}
         contentLayout={ContentLayout.Fill}
         contentPadding={ContentPadding.Compact}
         className={styles.previewPanel}
