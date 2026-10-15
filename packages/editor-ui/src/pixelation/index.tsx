@@ -132,8 +132,14 @@ export function PixelationControls({
             aria-label={translate("Action")}
             disabled={disabled}
             options={[
-              { value: PixelationMode.Convert, label: translate("Convert image") },
-              { value: PixelationMode.RecoverGrid, label: translate("Recover pixel grid") },
+              {
+                value: PixelationMode.Convert,
+                label: translate("Convert image"),
+              },
+              {
+                value: PixelationMode.RecoverGrid,
+                label: translate("Recover pixel grid"),
+              },
             ]}
             onValueChange={(mode) => onChange({ mode: mode as PixelationMode })}
           />
@@ -299,10 +305,20 @@ function ImagePreview({ pixels, label }: { pixels: CanvasPixelSource; label: str
         bounds={{ x: 0, y: 0, width: pixels.width, height: pixels.height }}
         aria-label={label}
         className={styles.canvas}
-        style={{ width, height, left: (size.width - width) / 2, top: (size.height - height) / 2 }}
+        style={{
+          width,
+          height,
+          left: (size.width - width) / 2,
+          top: (size.height - height) / 2,
+        }}
       />
     </div>
   );
+}
+export enum PixelationComparisonView {
+  Both = "both",
+  Original = "original",
+  Result = "result",
 }
 export function PixelationComparison({
   source,
@@ -311,6 +327,7 @@ export function PixelationComparison({
   translate = identity,
   stacked = false,
   fill = false,
+  show = PixelationComparisonView.Both,
   mode = PixelationMode.Convert,
 }: {
   source: CanvasPixelSource;
@@ -319,42 +336,49 @@ export function PixelationComparison({
   stacked?: boolean;
   /** Stretch to the parent instead of fixed-height stages (tool pages). */
   fill?: boolean;
+  /** Show one image alone, as large as the area allows (phone tool pages), instead of side by side. */
+  show?: PixelationComparisonView;
   mode?: PixelationMode;
   translate?: PaletteTranslate;
 }) {
+  const single = show !== PixelationComparisonView.Both;
   return (
     <div
-      className={`${styles.comparison} ${stacked ? styles.stacked : ""} ${fill ? styles.fill : ""}`}
+      className={`${styles.comparison} ${stacked || single ? styles.stacked : ""} ${fill ? styles.fill : ""} ${single ? styles.single : ""}`}
     >
-      <div className={styles.image}>
-        <Text variant={TextVariant.Reading}>{translate("Original")}</Text>
-        <ImagePreview pixels={source} label={translate("Original image")} />
-        <Text variant={TextVariant.Reading}>{`${source.width} × ${source.height} px`}</Text>
-      </div>
-      <div className={styles.image}>
-        <Text variant={TextVariant.Reading}>
-          {translate(mode === PixelationMode.RecoverGrid ? "Restored" : "Pixelated")}
-        </Text>
-        {result ? (
-          <ImagePreview
-            pixels={result}
-            label={translate(
-              mode === PixelationMode.RecoverGrid ? "Restored image" : "Pixelated image",
-            )}
-          />
-        ) : (
-          <div className={styles.stage}>
-            <Text variant={TextVariant.Reading}>
-              {translate(
-                preparing ? "Preparing preview…" : "Adjust settings to preview the result.",
+      {show !== PixelationComparisonView.Result && (
+        <div className={styles.image}>
+          <Text variant={TextVariant.Reading}>{translate("Original")}</Text>
+          <ImagePreview pixels={source} label={translate("Original image")} />
+          <Text variant={TextVariant.Reading}>{`${source.width} × ${source.height} px`}</Text>
+        </div>
+      )}
+      {show !== PixelationComparisonView.Original && (
+        <div className={styles.image}>
+          <Text variant={TextVariant.Reading}>
+            {translate(mode === PixelationMode.RecoverGrid ? "Restored" : "Pixelated")}
+          </Text>
+          {result ? (
+            <ImagePreview
+              pixels={result}
+              label={translate(
+                mode === PixelationMode.RecoverGrid ? "Restored image" : "Pixelated image",
               )}
-            </Text>
-          </div>
-        )}
-        <Text variant={TextVariant.Reading}>
-          {result ? `${result.width} × ${result.height} px` : ""}
-        </Text>
-      </div>
+            />
+          ) : (
+            <div className={styles.stage}>
+              <Text variant={TextVariant.Reading}>
+                {translate(
+                  preparing ? "Preparing preview…" : "Adjust settings to preview the result.",
+                )}
+              </Text>
+            </div>
+          )}
+          <Text variant={TextVariant.Reading}>
+            {result ? `${result.width} × ${result.height} px` : ""}
+          </Text>
+        </div>
+      )}
     </div>
   );
 }

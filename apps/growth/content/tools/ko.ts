@@ -206,8 +206,8 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "How to import": "가져오는 방법",
   "In Nintendo Switch App, open NookLink → Designs and scan this QR code. Download it in the game before scanning the next tile. Nintendo Switch Online membership is required.":
     "Nintendo Switch Online 앱에서 너굴 포털 → 마이 디자인을 열고 이 QR 코드를 스캔하세요. 다음 타일을 스캔하기 전에 게임에서 내려받으세요. Nintendo Switch Online 가입이 필요합니다.",
-  "Generate designs to preview and download their QR codes.":
-    "마이 디자인을 생성하면 QR 코드를 미리 보고 내려받을 수 있습니다.",
+  "The QR code of the selected design appears here.":
+    "선택한 마이 디자인의 QR 코드가 여기에 표시됩니다.",
   "3D preview": "3D 미리 보기",
   "Preview status": "미리 보기 상태",
   Settings: "설정",
@@ -284,4 +284,20 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "Open artwork": "작품 열기",
   "Drop a PNG, JPEG, WebP or Aseprite file": "PNG, JPEG, WebP 또는 Aseprite 파일을 끌어다 놓기",
   "Hello pixel art example": "Hello 픽셀 아트 예제",
+  "Use default palette": "기본 팔레트 사용",
+  "Default palette": "기본 팔레트",
+  "Preparing preview…": "미리보기 준비 중…",
+  "Adjust settings to preview the result.": "설정을 조정하면 결과를 미리 볼 수 있습니다.",
+  "Pixelated image": "픽셀화된 이미지",
+  "Restored image": "복원된 이미지",
+  "{value1} ({value2} colors)": "{value1} ({value2}색)",
+  Load: "불러오기",
+  "Open Folder": "폴더 열기",
+  "Palette colors": "팔레트 색상",
+  "Palette presets": "팔레트 프리셋",
+  Palettes: "팔레트",
+  Refresh: "새로 고침",
+  Search: "검색",
+  "Search palettes": "팔레트 검색",
+  "Automatic palette": "자동 팔레트",
 };

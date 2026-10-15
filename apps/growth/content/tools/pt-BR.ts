@@ -210,8 +210,8 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "How to import": "Como importar",
   "In Nintendo Switch App, open NookLink → Designs and scan this QR code. Download it in the game before scanning the next tile. Nintendo Switch Online membership is required.":
     "No Nintendo Switch App, abra NookLink → Designs e escaneie este QR code. Baixe-o no jogo antes de escanear o próximo tile. É preciso ter assinatura do Nintendo Switch Online.",
-  "Generate designs to preview and download their QR codes.":
-    "Gere os designs para pré-visualizar e baixar seus QR codes.",
+  "The QR code of the selected design appears here.":
+    "O QR code do design selecionado aparece aqui.",
   "3D preview": "Pré-visualização 3D",
   "Preview status": "Status da pré-visualização",
   Settings: "Configurações",
@@ -291,4 +291,21 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "Open artwork": "Abrir arte",
   "Drop a PNG, JPEG, WebP or Aseprite file": "Solte um arquivo PNG, JPEG, WebP ou Aseprite",
   "Hello pixel art example": "Exemplo de pixel art Hello",
+  "Use default palette": "Usar paleta padrão",
+  "Default palette": "Paleta padrão",
+  "Preparing preview…": "Preparando a prévia…",
+  "Adjust settings to preview the result.":
+    "Ajuste as configurações para ver a prévia do resultado.",
+  "Pixelated image": "Imagem pixelada",
+  "Restored image": "Imagem restaurada",
+  "{value1} ({value2} colors)": "{value1} ({value2} cores)",
+  Load: "Carregar",
+  "Open Folder": "Abrir pasta",
+  "Palette colors": "Cores da paleta",
+  "Palette presets": "Predefinições de paleta",
+  Palettes: "Paletas",
+  Refresh: "Atualizar",
+  Search: "Pesquisar",
+  "Search palettes": "Pesquisar paletas",
+  "Automatic palette": "Paleta automática",
 };

@@ -1,9 +1,5 @@
 import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
-import {
-  ToolCanvasPane,
-  ToolListPane,
-  ToolResultWindow,
-} from "$/components/shared/tool-result-window";
+import { ToolCanvasPane, ToolResultWindow } from "$/components/shared/tool-result-window";
 import { ToolZoomControl } from "$/components/shared/tool-zoom-control";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import {
@@ -29,6 +25,7 @@ export function ViewerPreview({
   const t = useToolTranslation();
 
   const navigation = manager.viewport;
+  const timeline = manager.getPresentationTimeline();
   const pixels = snapshot.pixels!;
   const frameLabel = `Frame ${snapshot.frame + FRAME_OFFSET} of ${snapshot.frames}`;
   const info = `${pixels.width} × ${pixels.height} px · ${snapshot.frame + FRAME_OFFSET} / ${snapshot.frames} · ${snapshot.duration} ms`;
@@ -104,7 +101,10 @@ export function ViewerPreview({
                     onValueChange={(value) => manager.selectTag(value)}
                     options={[
                       { value: ALL_FRAMES_TAG, label: t("All frames") },
-                      ...snapshot.tags.map((tag) => ({ value: tag.id, label: tag.name })),
+                      ...snapshot.tags.map((tag) => ({
+                        value: tag.id,
+                        label: tag.name,
+                      })),
                     ]}
                   />
                 )}
@@ -138,30 +138,26 @@ export function ViewerPreview({
                   }}
                 />
               </ToolCanvasPane>
+              {timeline && (
+                <div className={styles.timelineDock} data-viewer-timeline="">
+                  <ReadOnlyTimeline
+                    timeline={timeline}
+                    identity={snapshot.identity}
+                    frame={snapshot.frame}
+                    selectedTag={snapshot.tags.findIndex((tag) => tag.id === snapshot.selectedTag)}
+                    onTag={(index) => manager.selectTag(snapshot.tags[index].id)}
+                    selectedLayer={snapshot.selectedLayer}
+                    onLayer={(index) => manager.selectLayer(index)}
+                    onVisible={(index) => manager.toggleLayer(snapshot.layers[index].id)}
+                    visibilityDisabled={(index) => snapshot.layers[index].reference}
+                    onCollapsed={(index) => manager.toggleGroup(index)}
+                    onFrame={(frame) => manager.inspectFrame(frame)}
+                    onStepFrame={(direction) => manager.stepFrame(direction)}
+                    onPlayback={() => manager.togglePlayback()}
+                  />
+                </div>
+              )}
             </>
-          ),
-        },
-        {
-          id: "timeline",
-          label: t("Timeline"),
-          content: (
-            <ToolListPane>
-              <ReadOnlyTimeline
-                timeline={manager.getPresentationTimeline()!}
-                identity={snapshot.identity}
-                frame={snapshot.frame}
-                selectedTag={snapshot.tags.findIndex((tag) => tag.id === snapshot.selectedTag)}
-                onTag={(index) => manager.selectTag(snapshot.tags[index].id)}
-                selectedLayer={snapshot.selectedLayer}
-                onLayer={(index) => manager.selectLayer(index)}
-                onVisible={(index) => manager.toggleLayer(snapshot.layers[index].id)}
-                visibilityDisabled={(index) => snapshot.layers[index].reference}
-                onCollapsed={(index) => manager.toggleGroup(index)}
-                onFrame={(frame) => manager.inspectFrame(frame)}
-                onStepFrame={(direction) => manager.stepFrame(direction)}
-                onPlayback={() => manager.togglePlayback()}
-              />
-            </ToolListPane>
           ),
         },
       ]}

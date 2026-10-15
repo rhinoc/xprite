@@ -5,3 +5,9 @@
   flex-wrap: nowrap;
   gap: 0;
 }
+/* The timeline always sits under the preview, full width; the timeline sizes and scrolls itself. */
+.timelineDock {
+  flex: 0 0 auto;
+  min-width: 0;
+  overflow: hidden;
+}

@@ -20,10 +20,10 @@ export const ANIMAL_CROSSING_HELP = {
         steps: [
           "在「设计信息」中填写「标题」「作者」和「岛屿／城镇」。多帧的 Aseprite 工程可在「帧」中选择要转换的帧，只合成可见图层。",
           "在「转换方式」中选择「单个设计」或「拆分为图块」。拆分时设置「图块宽度」和「图块高度」，需要时展开「偏移与间距」；可见的瓦片地图（Tilemap）图层默认按瓦片尺寸拆分。",
-          "在「转换结果」中检查颜色，再点「导出…」，选择「二维码（.png）」保存当前设计的二维码 PNG。",
+          "在「图案」标签中检查转换后的颜色（「原图」标签可对照原图），再点「导出…」，选择「二维码（.png）」保存当前设计的二维码 PNG；在「二维码」标签中可以先扫描。",
         ],
         notes:
-          "每个设计为 32 × 32 像素，最多 15 种颜色加透明。图块按最近的像素缩放；不透明度低于一半的像素变为透明，其余像素变为不透明。所有图块共用一组取自《来吧！动物森友会》调色板的颜色。一次最多生成 256 个设计，「下载全部 N 个设计」会把它们打包成 ZIP。",
+          "每个设计为 32 × 32 像素，最多 15 种颜色加透明。图块按最近的像素缩放；不透明度低于一半的像素变为透明，其余像素变为不透明。所有图块共用一组取自《来吧！动物森友会》调色板的颜色。一次最多生成 256 个设计，导出时选择「全部图案（.zip）」会把它们打包成 ZIP。",
       },
       {
         id: AnimalCrossingHelpSection.Existing,
@@ -51,10 +51,10 @@ export const ANIMAL_CROSSING_HELP = {
         steps: [
           "Under Design information, enter the Title, Creator and Island / town. For a multi-frame Aseprite project, choose the Frame to convert; only visible layers are merged.",
           "Under Convert as, choose One design or Split into tiles. For tiles, set Cell width and Cell height, and open Offsets and spacing if needed. A visible tilemap layer is split by its tile size by default.",
-          "Check the colors in Converted, then click Export… and choose QR code (.png) to save the current design’s QR PNG.",
+          "Check the converted colors in the Pattern tab (the Original tab shows the source), then click Export… and choose QR code (.png) to save the current design’s QR PNG. The QR code tab shows the code to scan.",
         ],
         notes:
-          "Each design is 32 × 32 pixels with up to 15 colors plus transparency. Cells are scaled using the nearest pixel. Pixels less than half opaque become transparent, and the rest become opaque. All tiles share one set of colors from the Animal Crossing: New Leaf palette. One conversion makes up to 256 designs, and Download all N designs saves them as a ZIP.",
+          "Each design is 32 × 32 pixels with up to 15 colors plus transparency. Cells are scaled using the nearest pixel. Pixels less than half opaque become transparent, and the rest become opaque. All tiles share one set of colors from the Animal Crossing: New Leaf palette. One conversion makes up to 256 designs, and exporting All designs (.zip) saves them together.",
       },
       {
         id: AnimalCrossingHelpSection.Existing,
@@ -82,10 +82,10 @@ export const ANIMAL_CROSSING_HELP = {
         steps: [
           "「マイデザインの情報」で「タイトル」「作者」「島・村」を入力します。複数フレームの Aseprite プロジェクトでは、変換する「フレーム」を選びます。結合されるのは表示中のレイヤーだけです。",
           "「変換方法」で「マイデザイン 1 枚」か「タイルに分割」を選びます。タイルの場合は「マスの幅」と「マスの高さ」を設定し、必要に応じて「オフセットと間隔」を開きます。表示中のタイルマップレイヤーは、初期設定でそのタイルサイズで分割されます。",
-          "「変換後」で色を確認してから「エクスポート…」をクリックし、「QRコード（.png）」を選ぶと、現在のマイデザインの QR PNG を保存できます。",
+          "「パターン」タブで変換後の色を確認し（「オリジナル」タブで元画像と比べられます）、「エクスポート…」をクリックして「QRコード（.png）」を選ぶと、現在のマイデザインの QR PNG を保存できます。「QRコード」タブでスキャン用のコードも確認できます。",
         ],
         notes:
-          "各マイデザインは 32 × 32 ピクセルで、最大 15 色と透明を使えます。マスはニアレストネイバー法で拡大縮小されます。不透明度が半分未満のピクセルは透明に、それ以外は不透明になります。すべてのタイルは『とびだせ どうぶつの森』のパレットから選ばれた 1 組の色を共有します。1 回の変換で最大 256 枚のマイデザインを作成でき、「マイデザイン N 枚をすべてダウンロード」で ZIP にまとめて保存できます。",
+          "各マイデザインは 32 × 32 ピクセルで、最大 15 色と透明を使えます。マスはニアレストネイバー法で拡大縮小されます。不透明度が半分未満のピクセルは透明に、それ以外は不透明になります。すべてのタイルは『とびだせ どうぶつの森』のパレットから選ばれた 1 組の色を共有します。1 回の変換で最大 256 枚のマイデザインを作成でき、エクスポートで「すべてのデザイン（.zip）」を選ぶと ZIP にまとめて保存できます。",
       },
       {
         id: AnimalCrossingHelpSection.Existing,
@@ -113,10 +113,10 @@ export const ANIMAL_CROSSING_HELP = {
         steps: [
           "마이 디자인 정보에 제목, 제작자, 섬 / 마을을 입력하세요. 프레임이 여러 개인 Aseprite 프로젝트는 변환할 프레임을 고르세요. 보이는 레이어만 합쳐집니다.",
           "변환 방식에서 마이 디자인 한 장 또는 타일로 나누기를 고르세요. 타일로 나눌 때는 칸 너비와 칸 높이를 정하고, 필요하면 오프셋과 간격을 여세요. 보이는 타일맵 레이어는 기본적으로 해당 타일 크기로 나뉩니다.",
-          "QR 코드 생성을 클릭하고 변환됨에서 색을 확인한 뒤 다운로드를 클릭해 현재 마이 디자인의 QR PNG를 저장하세요.",
+          "패턴 탭에서 변환된 색을 확인하고(원본 탭에서 원본과 비교할 수 있습니다) 내보내기…를 클릭한 뒤 QR 코드(.png)를 골라 현재 마이 디자인의 QR PNG를 저장하세요. QR 코드 탭에서 스캔할 코드를 볼 수 있습니다.",
         ],
         notes:
-          "마이 디자인 한 장은 32 × 32픽셀이며 최대 15색과 투명을 쓸 수 있습니다. 칸은 최근접 픽셀 방식으로 크기가 조정됩니다. 불투명도가 절반 미만인 픽셀은 투명해지고 나머지는 불투명해집니다. 모든 타일은 『튀어나와요 동물의 숲』 팔레트에서 고른 한 세트의 색을 공유합니다. 한 번에 최대 256장의 마이 디자인을 만들 수 있으며, 마이 디자인 N개 모두 다운로드로 ZIP 파일에 담아 저장할 수 있습니다.",
+          "마이 디자인 한 장은 32 × 32픽셀이며 최대 15색과 투명을 쓸 수 있습니다. 칸은 최근접 픽셀 방식으로 크기가 조정됩니다. 불투명도가 절반 미만인 픽셀은 투명해지고 나머지는 불투명해집니다. 모든 타일은 『튀어나와요 동물의 숲』 팔레트에서 고른 한 세트의 색을 공유합니다. 한 번에 최대 256장의 마이 디자인을 만들 수 있으며, 내보내기에서 모든 디자인(.zip)을 고르면 ZIP 파일로 저장할 수 있습니다.",
       },
       {
         id: AnimalCrossingHelpSection.Existing,
@@ -144,10 +144,10 @@ export const ANIMAL_CROSSING_HELP = {
         steps: [
           "В разделе «Сведения о дизайне» введите название, автора и остров / город. Для многокадрового проекта Aseprite выберите кадр для преобразования; объединяются только видимые слои.",
           "В «Преобразовать как» выберите «Один дизайн» или «Разбить на тайлы». Для тайлов задайте ширину и высоту ячейки и при необходимости откройте «Смещения и интервалы». Видимый слой тайлмапа по умолчанию делится по размеру своих тайлов.",
-          "Нажмите «Создать QR-коды», проверьте цвета на вкладке «Результат», затем нажмите «Скачать», чтобы сохранить QR текущего дизайна в PNG.",
+          "Проверьте цвета на вкладке «Узор» (вкладка «Оригинал» показывает исходник), затем нажмите «Экспорт…» и выберите «QR-код (.png)», чтобы сохранить QR текущего дизайна в PNG. Код для сканирования показан на вкладке «QR-код».",
         ],
         notes:
-          "Каждый дизайн — 32 × 32 пикселя, до 15 цветов плюс прозрачность. Ячейки масштабируются по ближайшему пикселю. Пиксели с непрозрачностью меньше половины становятся прозрачными, остальные — непрозрачными. Все тайлы используют один набор цветов из палитры Animal Crossing: New Leaf. За одно преобразование создаётся до 256 дизайнов, а «Скачать все дизайны» сохраняет их в ZIP.",
+          "Каждый дизайн — 32 × 32 пикселя, до 15 цветов плюс прозрачность. Ячейки масштабируются по ближайшему пикселю. Пиксели с непрозрачностью меньше половины становятся прозрачными, остальные — непрозрачными. Все тайлы используют один набор цветов из палитры Animal Crossing: New Leaf. За одно преобразование создаётся до 256 дизайнов, а экспорт «Все дизайны (.zip)» сохраняет их в ZIP.",
       },
       {
         id: AnimalCrossingHelpSection.Existing,
@@ -175,10 +175,10 @@ export const ANIMAL_CROSSING_HELP = {
         steps: [
           "Em Informações do design, preencha Título, Criador e Ilha / cidade. Em um projeto do Aseprite com vários quadros, escolha o Quadro a converter; só as camadas visíveis são mescladas.",
           "Em Converter como, escolha Um design ou Dividir em tiles. Para tiles, defina Largura da célula e Altura da célula e abra Deslocamentos e espaçamento se precisar. Uma camada de tilemap visível é dividida pelo tamanho dos tiles por padrão.",
-          "Clique em Gerar QR codes, confira as cores em Convertido e clique em Baixar para salvar o QR PNG do design atual.",
+          "Confira as cores convertidas na aba Padrão (a aba Original mostra a imagem de origem), depois clique em Exportar… e escolha Código QR (.png) para salvar o QR PNG do design atual. A aba Código QR mostra o código para escanear.",
         ],
         notes:
-          "Cada design tem 32 × 32 pixels, com até 15 cores mais transparência. As células são redimensionadas pelo pixel mais próximo. Pixels com menos da metade de opacidade ficam transparentes, e o resto fica opaco. Todos os tiles compartilham um conjunto de cores da paleta do Animal Crossing: New Leaf. Uma conversão gera até 256 designs, e Baixar todos os N designs salva tudo em um ZIP.",
+          "Cada design tem 32 × 32 pixels, com até 15 cores mais transparência. As células são redimensionadas pelo pixel mais próximo. Pixels com menos da metade de opacidade ficam transparentes, e o resto fica opaco. Todos os tiles compartilham um conjunto de cores da paleta do Animal Crossing: New Leaf. Uma conversão gera até 256 designs, e exportar Todos os designs (.zip) salva tudo em um ZIP.",
       },
       {
         id: AnimalCrossingHelpSection.Existing,
@@ -206,10 +206,10 @@ export const ANIMAL_CROSSING_HELP = {
         steps: [
           "En Información del diseño, escribe el Título, el Creador y la Isla / pueblo. En un proyecto de Aseprite con varios cuadros, elige el Cuadro que quieres convertir; solo se combinan las capas visibles.",
           "En Convertir como, elige Un diseño o Dividir en tiles. Para tiles, define Ancho de celda y Alto de celda, y abre Desplazamientos y espaciado si hace falta. Una capa de tilemap visible se divide por su tamaño de tile de forma predeterminada.",
-          "Haz clic en Generar códigos QR, revisa los colores en Convertido y haz clic en Descargar para guardar el QR PNG del diseño actual.",
+          "Revisa los colores convertidos en la pestaña Patrón (la pestaña Original muestra la imagen de origen), luego haz clic en Exportar… y elige Código QR (.png) para guardar el QR PNG del diseño actual. La pestaña Código QR muestra el código que debes escanear.",
         ],
         notes:
-          "Cada diseño mide 32 × 32 píxeles, con hasta 15 colores más transparencia. Las celdas se escalan con el píxel más cercano. Los píxeles con menos de la mitad de opacidad se vuelven transparentes y el resto, opacos. Todos los tiles comparten un conjunto de colores de la paleta de Animal Crossing: New Leaf. Una conversión crea hasta 256 diseños, y Descargar los N diseños los guarda en un ZIP.",
+          "Cada diseño mide 32 × 32 píxeles, con hasta 15 colores más transparencia. Las celdas se escalan con el píxel más cercano. Los píxeles con menos de la mitad de opacidad se vuelven transparentes y el resto, opacos. Todos los tiles comparten un conjunto de colores de la paleta de Animal Crossing: New Leaf. Una conversión crea hasta 256 diseños, y exportar Todos los diseños (.zip) los guarda en un ZIP.",
       },
       {
         id: AnimalCrossingHelpSection.Existing,

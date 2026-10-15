@@ -30,7 +30,7 @@ export function AnimalCrossingQrTab({
           {t(
             snapshot.pending
               ? "Updating the selected design and QR code…"
-              : "Generate designs to preview and download their QR codes.",
+              : "The QR code of the selected design appears here.",
           )}
         </Text>
       </div>

@@ -120,3 +120,16 @@
     grid-template-rows: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* One image alone: it takes the whole area, so the phone preview dominates. */
+.single.fill {
+  grid-template-rows: minmax(0, 1fr);
+}
+.single .stage {
+  height: auto;
+}
+@media (max-width: 600px) {
+  .single.fill {
+    grid-template-rows: minmax(0, 1fr);
+  }
+}

@@ -21,16 +21,11 @@ import { useToolTranslation } from "$/managers/locale/tool-language";
 import { ANIMAL_CROSSING_TOOL } from "$/managers/tools/tool-catalog";
 import { AnimalCrossingGridOverlay } from "@xprite/editor-ui/animal-crossing";
 import { ANIMAL_CROSSING_HELP, AnimalCrossingHelpSection } from "@xprite/growth-content/tools";
-import { Button, Checkbox, ControlFlow } from "@xprite/ui";
-
-import styles from "$/components/animal-crossing/animal-crossing.module.css";
+import { Checkbox } from "@xprite/ui";
 
 const GRID_HANDLE_PADDING = 32;
-enum AnimalCrossingPreview {
-  Original = "original",
-  Converted = "converted",
-}
 enum ResultTab {
+  Original = "original",
   Pattern = "pattern",
   Qr = "qr",
   Ground = "ground",
@@ -43,25 +38,88 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
     manager.getSnapshot,
     manager.getSnapshot,
   );
-  const [preview, setPreview] = useState(AnimalCrossingPreview.Original);
   const [showGrid, setShowGrid] = useState(true);
   const [editingGrid, setEditingGrid] = useState(false);
   const [tab, setTab] = useState<string>(ResultTab.Pattern);
   const { source, result } = snapshot;
   useEffect(() => {
-    if (result) setPreview(AnimalCrossingPreview.Converted);
-  }, [result]);
-  useEffect(() => {
     manager.setPreviewOpen(tab === ResultTab.Ground);
   }, [manager, tab]);
   const groundOpen = !!result && tab === ResultTab.Ground;
   const busy = snapshot.loading || snapshot.downloading;
-  const converted = !!result && preview === AnimalCrossingPreview.Converted;
-  const pixels = converted ? result!.pixels : source;
-  const grid = manager.getGrid(converted);
-  const tiled = snapshot.layout === AnimalCrossingLayout.Tiles && !!grid;
+  const pixels = result ? result.pixels : source;
   const outputDisabled = !result || busy || snapshot.pending;
   const designs = result?.patterns.length ?? 0;
+  const canvasTab = (convertedTab: boolean) => {
+    if (tab !== (convertedTab ? ResultTab.Pattern : ResultTab.Original)) return null;
+    const converted = !!result && convertedTab;
+    const pixels = converted ? result!.pixels : source!;
+    const grid = manager.getGrid(converted);
+    const tiled = snapshot.layout === AnimalCrossingLayout.Tiles && !!grid;
+    return (
+      <ToolCanvasPane
+        controls={
+          <>
+            {tiled && (
+              <Checkbox label={t("Tile grid")} checked={showGrid} onCheckedChange={setShowGrid} />
+            )}
+            <ToolZoomControl navigation={manager.viewport} />
+          </>
+        }
+        status={`${pixels.width} × ${pixels.height} px`}
+      >
+        <ToolCanvasPreview
+          navigation={manager.viewport}
+          navigationEnabled={!editingGrid}
+          viewportPadding={tiled && !converted ? GRID_HANDLE_PADDING : 0}
+          identity={snapshot.identity}
+          pixels={pixels}
+          label={t("Pattern preview. Drag to pan, scroll to zoom, double-click to fit.")}
+          onPixelSelect={
+            tiled && result && !busy
+              ? (point) => {
+                  const index = grid!.cells.findIndex(
+                    (cell) =>
+                      point.x >= cell.x &&
+                      point.x < cell.x + cell.width &&
+                      point.y >= cell.y &&
+                      point.y < cell.y + cell.height,
+                  );
+                  if (index >= 0) manager.select(index);
+                }
+              : undefined
+          }
+          overlay={
+            tiled && showGrid
+              ? (current) => (
+                  <AnimalCrossingGridOverlay
+                    source={pixels}
+                    settings={snapshot.settings}
+                    grid={grid}
+                    selected={snapshot.selected}
+                    view={current}
+                    size={current.size}
+                    disabled={busy || (converted && snapshot.pending)}
+                    editable={!converted && !snapshot.importedQr}
+                    navigating={current.pinching}
+                    onSettingsChange={manager.changeSettings}
+                    onSelect={manager.select}
+                    onBeginEdit={() => {
+                      setEditingGrid(true);
+                      manager.beginGridEdit();
+                    }}
+                    onEndEdit={(cancel) => {
+                      setEditingGrid(false);
+                      manager.endGridEdit(cancel);
+                    }}
+                  />
+                )
+              : undefined
+          }
+        />
+      </ToolCanvasPane>
+    );
+  };
   return (
     <FileToolShell
       tool={ANIMAL_CROSSING_TOOL}
@@ -105,94 +163,19 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
           tab={tab}
           onTabChange={setTab}
           tabs={[
+            ...(result
+              ? [
+                  {
+                    id: ResultTab.Original,
+                    label: t("Original"),
+                    content: canvasTab(false),
+                  },
+                ]
+              : []),
             {
               id: ResultTab.Pattern,
               label: t("Pattern"),
-              content: (
-                <>
-                  <ControlFlow className={styles.toolbar}>
-                    {result && (
-                      <>
-                        <Button
-                          slots={{}}
-                          text={t("Original")}
-                          selected={preview === AnimalCrossingPreview.Original}
-                          onClick={() => setPreview(AnimalCrossingPreview.Original)}
-                        />
-                        <Button
-                          slots={{}}
-                          text={t("Converted")}
-                          selected={preview === AnimalCrossingPreview.Converted}
-                          onClick={() => setPreview(AnimalCrossingPreview.Converted)}
-                        />
-                      </>
-                    )}
-                    {tiled && (
-                      <Checkbox
-                        label={t("Tile grid")}
-                        checked={showGrid}
-                        onCheckedChange={setShowGrid}
-                      />
-                    )}
-                  </ControlFlow>
-                  <ToolCanvasPane
-                    controls={<ToolZoomControl navigation={manager.viewport} />}
-                    status={`${pixels.width} × ${pixels.height} px`}
-                  >
-                    <ToolCanvasPreview
-                      navigation={manager.viewport}
-                      navigationEnabled={!editingGrid}
-                      viewportPadding={tiled && !converted ? GRID_HANDLE_PADDING : 0}
-                      identity={snapshot.identity}
-                      pixels={pixels}
-                      label={t(
-                        "Pattern preview. Drag to pan, scroll to zoom, double-click to fit.",
-                      )}
-                      onPixelSelect={
-                        tiled && result && !busy
-                          ? (point) => {
-                              const index = grid!.cells.findIndex(
-                                (cell) =>
-                                  point.x >= cell.x &&
-                                  point.x < cell.x + cell.width &&
-                                  point.y >= cell.y &&
-                                  point.y < cell.y + cell.height,
-                              );
-                              if (index >= 0) manager.select(index);
-                            }
-                          : undefined
-                      }
-                      overlay={
-                        tiled && showGrid
-                          ? (current) => (
-                              <AnimalCrossingGridOverlay
-                                source={pixels}
-                                settings={snapshot.settings}
-                                grid={grid}
-                                selected={snapshot.selected}
-                                view={current}
-                                size={current.size}
-                                disabled={busy || (converted && snapshot.pending)}
-                                editable={!converted && !snapshot.importedQr}
-                                navigating={current.pinching}
-                                onSettingsChange={manager.changeSettings}
-                                onSelect={manager.select}
-                                onBeginEdit={() => {
-                                  setEditingGrid(true);
-                                  manager.beginGridEdit();
-                                }}
-                                onEndEdit={(cancel) => {
-                                  setEditingGrid(false);
-                                  manager.endGridEdit(cancel);
-                                }}
-                              />
-                            )
-                          : undefined
-                      }
-                    />
-                  </ToolCanvasPane>
-                </>
-              ),
+              content: canvasTab(true),
             },
             {
               id: ResultTab.Qr,

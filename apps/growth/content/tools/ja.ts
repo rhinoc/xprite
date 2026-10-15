@@ -209,8 +209,8 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "How to import": "読み込み方法",
   "In Nintendo Switch App, open NookLink → Designs and scan this QR code. Download it in the game before scanning the next tile. Nintendo Switch Online membership is required.":
     "Nintendo Switch Online アプリで「たぬきポータル」→「マイデザイン」を開き、この QR コードを読み取ります。次のタイルを読み取る前に、ゲーム内でダウンロードしてください。Nintendo Switch Online への加入が必要です。",
-  "Generate designs to preview and download their QR codes.":
-    "マイデザインを生成すると、QR コードをプレビュー・ダウンロードできます。",
+  "The QR code of the selected design appears here.":
+    "選択したマイデザインの QR コードがここに表示されます。",
   "3D preview": "3D プレビュー",
   "Preview status": "プレビューの状態",
   Settings: "設定",
@@ -289,4 +289,20 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Open artwork": "作品を開く",
   "Drop a PNG, JPEG, WebP or Aseprite file": "PNG、JPEG、WebP、Aseprite ファイルをドロップ",
   "Hello pixel art example": "Hello ピクセルアートのサンプル",
+  "Use default palette": "既定のパレットを使う",
+  "Default palette": "既定のパレット",
+  "Preparing preview…": "プレビューを準備中…",
+  "Adjust settings to preview the result.": "設定を調整すると結果をプレビューできます。",
+  "Pixelated image": "ピクセル化した画像",
+  "Restored image": "復元した画像",
+  "{value1} ({value2} colors)": "{value1}（{value2} 色）",
+  Load: "読み込む",
+  "Open Folder": "フォルダを開く",
+  "Palette colors": "パレットの色",
+  "Palette presets": "パレットのプリセット",
+  Palettes: "パレット",
+  Refresh: "更新",
+  Search: "検索",
+  "Search palettes": "パレットを検索",
+  "Automatic palette": "パレットを自動抽出",
 };
