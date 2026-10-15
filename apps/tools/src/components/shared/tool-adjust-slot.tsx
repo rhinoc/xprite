@@ -12,17 +12,11 @@ const ADJUST_GAP = 8;
  * Shared adjust panel stacked above the Export bar (same layout on desktop and phone). It is a
  * normal tool window, so WindowShade still rolls it up. Rendered only once the tool has a result.
  */
-export function ToolAdjustSlot({
-  drawerOpen,
-  children,
-}: {
-  drawerOpen: boolean;
-  children?: ReactNode;
-}) {
-  const shade = useToolWindowShade("adjust");
+export function ToolAdjustSlot({ children }: { children?: ReactNode }) {
+  const shade = useToolWindowShade("adjust", { collapseOnPhone: true });
   const t = useToolTranslation();
   return (
-    <div className={styles.adjust} data-tool-adjust="" data-drawer={drawerOpen ? "open" : "closed"}>
+    <div className={styles.adjust} data-tool-adjust="">
       <Panel
         {...shade}
         variant={PanelVariant.Utility}

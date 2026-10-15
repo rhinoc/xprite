@@ -33,7 +33,13 @@ export function useToolWindowShade(
   {
     defaultCollapsed = false,
     collapseWhenCramped = false,
-  }: { defaultCollapsed?: boolean; collapseWhenCramped?: boolean } = {},
+    collapseOnPhone = false,
+  }: {
+    defaultCollapsed?: boolean;
+    collapseWhenCramped?: boolean;
+    /** Start rolled up on phones (<= 700px wide) and open on larger screens. */
+    collapseOnPhone?: boolean;
+  } = {},
 ) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   useEffect(() => {
@@ -43,11 +49,13 @@ export function useToolWindowShade(
       initialWindowShade({
         stored: readWindowShade(sessionStore(), tool)[name],
         defaultCollapsed,
-        collapseWhenCramped,
-        cramped: globalThis.matchMedia?.(CRAMPED_SCREEN_QUERY).matches ?? false,
+        collapseWhenCramped: collapseWhenCramped || collapseOnPhone,
+        cramped:
+          globalThis.matchMedia?.(collapseOnPhone ? PHONE_QUERY : CRAMPED_SCREEN_QUERY).matches ??
+          false,
       }),
     );
-  }, [name, defaultCollapsed, collapseWhenCramped]);
+  }, [name, defaultCollapsed, collapseWhenCramped, collapseOnPhone]);
   const onCollapsedChange = (next: boolean) => {
     const tool = currentTool();
     if (tool) writeWindowShade(sessionStore(), tool, name, next);

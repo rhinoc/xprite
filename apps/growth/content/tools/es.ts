@@ -73,8 +73,6 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   "Open example": "Abrir ejemplo",
   Generated: "Generado",
   Adjust: "Ajustar",
-  "Open a file to start": "Abre un archivo para empezar",
-  "Open a file to adjust": "Abre un archivo para ajustar",
   "Choose an export format": "Elige un formato",
   "Try example": "Probar ejemplo",
   "Drop to open": "Suelta para abrir",

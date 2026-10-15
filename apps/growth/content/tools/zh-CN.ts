@@ -133,8 +133,6 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Open example": "打开示例",
   Generated: "已生成",
   Adjust: "调整",
-  "Open a file to start": "打开作品后开始",
-  "Open a file to adjust": "打开作品后可调整",
   "Choose an export format": "选择导出格式",
   "Try example": "试用示例",
   "Drop to open": "松开即可打开",

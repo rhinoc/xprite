@@ -71,8 +71,6 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   "Open example": "Открыть пример",
   Generated: "Готово",
   Adjust: "Настройка",
-  "Open a file to start": "Откройте файл, чтобы начать",
-  "Open a file to adjust": "Настройка доступна после открытия файла",
   "Choose an export format": "Выберите формат экспорта",
   "Try example": "Попробовать пример",
   "Drop to open": "Отпустите, чтобы открыть",

@@ -1,49 +1,35 @@
 /* Shared flow chrome: full-width Export bar behind (below) the adjust panel, same on both. */
 .actionBar {
   flex: 0 0 auto;
-  min-height: 36px;
   box-sizing: border-box;
+  padding: var(--ui-space-5, 12px) var(--ui-space-5, 12px);
   border-top: 2px solid var(--ui-color-ink);
   z-index: 2;
 }
-.cue {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--ui-space-3);
-  min-width: 0;
-}
-.cueDetail {
-  padding-left: var(--ui-space-3);
-  border-left: 1px solid var(--ui-color-line);
-  opacity: 0.7;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 28ch;
-}
-.actions {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ui-space-3);
-  flex: 1 1 auto;
-  justify-content: flex-end;
-  min-width: 0;
+.actionBar > :global(*) {
   width: 100%;
 }
-/* Let the Export side of the bar grow so the button can be full-width. */
-.actionBar > :last-child {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.adjustToggle {
-  flex: 0 0 auto;
-}
-/* Export fills the trailing side so the bar reads as a full-width primary action. */
 .exportButton {
-  flex: 1 1 auto;
-  min-width: 96px;
+  width: 100% !important;
   max-width: none;
+}
+/*
+ * The theme draws the button face at its measured size with inline pixel dimensions. Stretch
+ * that face (frame and default ring) to the button and centre the label, in pure CSS so the
+ * static first paint and the hydrated page are identical.
+ */
+.exportButton > :first-child {
+  width: 100% !important;
+}
+.exportButton > :first-child :global([style*="white-space"]) {
+  left: 50% !important;
+  transform: translateX(-50%);
+}
+.exportBox {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
 }
 
 /* Adjust sits above the Export bar. Same docked panel on desktop and phone. */
@@ -55,9 +41,6 @@
   display: flex;
   flex-direction: column;
   max-height: 44%;
-}
-.adjust[data-drawer="closed"] {
-  display: none;
 }
 .adjust :global([data-ui-desktop-window]) {
   max-height: 100%;
@@ -106,13 +89,4 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--ui-space-3);
-}
-
-@media (max-width: 700px) {
-  .cueDetail {
-    display: none;
-  }
-  .exportButton {
-    max-width: none;
-  }
 }

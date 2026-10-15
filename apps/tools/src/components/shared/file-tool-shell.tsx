@@ -8,7 +8,6 @@ import { ToolFrame } from "$/components/shared/tool-frame";
 import { decodeFilesDrag, FILES_DRAG_TYPE } from "$/managers/files/files-model";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import type { PublicTool } from "$/managers/tools/tool-catalog";
-import { flowCue } from "$/managers/tools/tool-flow";
 import {
   ContentPadding,
   Dialog,
@@ -30,7 +29,7 @@ const EXPORT_SHEET_BOUNDS = { x: 0, y: 0, width: 320, height: 120 };
  * shared adjust slot, the pinned Export button and the export sheet; others keep their layout.
  */
 export interface FileToolFlow {
-  /** Parameters shown in the adjust panel above the Export bar (same on desktop and phone). */
+  /** Parameters shown in the adjust panel above the Export bar (same on desktop and phone; rolled up on phones). */
   adjust: ReactNode;
   /** Format choices inside the export sheet. Call `close` once a download starts. */
   exportSheet(close: () => void): ReactNode;
@@ -109,7 +108,6 @@ export function FileToolShell({
     (!!files && event.dataTransfer.types.includes(FILES_DRAG_TYPE));
   const chooseFile = () => input.current?.click();
   const [exportOpen, setExportOpen] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [mac, setMac] = useState(false);
   useEffect(() => setMac(/Mac|iPhone|iPad/.test(navigator.platform)), []);
   const exportDisabled = !flow || !ready || busy || processing || flow.exportDisabled;
@@ -139,19 +137,7 @@ export function FileToolShell({
       tool={tool}
       processing={processing}
       help={help}
-      actionBar={
-        flow
-          ? {
-              cue: flowCue(t, { ready, processing: processing || busy }),
-              detail: ready ? filename : undefined,
-              exportDisabled,
-              onExport: () => setExportOpen(true),
-              adjust: ready
-                ? { open: drawerOpen, onToggle: () => setDrawerOpen((open) => !open) }
-                : undefined,
-            }
-          : undefined
-      }
+      actionBar={flow ? { exportDisabled, onExport: () => setExportOpen(true) } : undefined}
       filename={ready ? filename : undefined}
       menus={[
         {
@@ -208,7 +194,6 @@ export function FileToolShell({
           aria-label={t(tool.label)}
           aria-busy={busy}
           data-flow={flow ? (ready ? "ready" : "empty") : undefined}
-          data-drawer={flow && drawerOpen && ready ? "open" : undefined}
           onDragEnter={(event) => {
             if (carriesFiles(event)) {
               setFromFiles(event.dataTransfer.types.includes(FILES_DRAG_TYPE));
@@ -265,7 +250,7 @@ export function FileToolShell({
             </div>
           )}
         </section>
-        {flow && ready && <ToolAdjustSlot drawerOpen={drawerOpen}>{flow.adjust}</ToolAdjustSlot>}
+        {flow && ready && <ToolAdjustSlot>{flow.adjust}</ToolAdjustSlot>}
         {flow && exportOpen && (
           <Dialog
             open={exportOpen}

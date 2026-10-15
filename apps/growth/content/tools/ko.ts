@@ -69,8 +69,6 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "Open example": "예제 열기",
   Generated: "생성됨",
   Adjust: "조정",
-  "Open a file to start": "작품을 열어 시작",
-  "Open a file to adjust": "작품을 열면 조정할 수 있습니다",
   "Choose an export format": "내보낼 형식 선택",
   "Try example": "예제 사용해 보기",
   "Drop to open": "끌어 놓아 열기",
