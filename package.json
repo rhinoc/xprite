@@ -40,6 +40,7 @@
     "visual:capture": "node scripts/visual-audit/xprite/capture.mjs",
     "visual:compare": "node scripts/visual-audit/xprite/compare.mjs",
     "visual:report": "node scripts/visual-audit/report.mjs",
+    "visual:checkbox-labels": "node scripts/visual-audit/checkbox-label-alignment.mjs",
     "visual:startup": "node scripts/visual-audit/tools-startup/audit.mjs",
     "visual:continuity": "node scripts/visual-audit/startup-continuity/audit.mjs",
     "visual:site:capture": "node --experimental-transform-types scripts/visual-audit/site/audit.mjs capture",

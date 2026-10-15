@@ -41,7 +41,9 @@ export const macintoshGeometry = {
     tooltip_text_inset: 14,
     checkbox_icon_offset: 0,
     checkbox_label_offset: 16,
-    checkbox_text_offset_y: 1,
+    // Measured against plain Text (zoom label): Latin and CJK checkbox labels both sit on its row at net 0.
+    checkbox_text_offset_y: 0,
+    checkbox_cjk_text_offset_y: 0,
     checkbox_height: 12,
     input_height: 22,
     combobox_height: 18,
