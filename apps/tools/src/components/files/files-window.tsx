@@ -631,19 +631,7 @@ export function FilesWindow() {
                   }}
                 >
                   <ScrollArea className={styles.scroll} aria-label={title}>
-                    {count === 0 ? (
-                      <Text variant={TextVariant.Reading} wrap className={styles.empty}>
-                        {inTrash
-                          ? text("files.trash.empty")
-                          : atRoot
-                            ? text("files.empty.all")
-                            : text("files.empty")}
-                      </Text>
-                    ) : state.view === FilesView.Icons ? (
-                      iconView
-                    ) : (
-                      listView
-                    )}
+                    {count === 0 ? null : state.view === FilesView.Icons ? iconView : listView}
                   </ScrollArea>
                   {dropping && (
                     <div className={styles.dropOverlay}>

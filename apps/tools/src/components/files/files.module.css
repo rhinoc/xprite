@@ -117,11 +117,6 @@
   border: 1px solid #000;
 }
 
-.empty {
-  padding: 24px;
-  text-align: center;
-}
-
 .dropOverlay {
   position: absolute;
   inset: 0;
