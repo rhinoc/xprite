@@ -25,7 +25,9 @@
   position: absolute;
   inset: 0 auto auto 0;
   display: block;
-  overflow: hidden;
+  /* Clip long labels horizontally only: the CJK nudge and centering can push glyph tops above a 12px control box. */
+  overflow-x: clip;
+  overflow-y: visible;
   pointer-events: none;
   transform-origin: top left;
 }
