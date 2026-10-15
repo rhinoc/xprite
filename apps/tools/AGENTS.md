@@ -28,6 +28,6 @@ is served at `/tools/viewer/`; the GIF converter is served at `/tools/gif-to-spr
   provides the drop-zone stage, the shared adjust panel (WindowShade, same docked layout on
   desktop and phone, only once there is a result), the export sheet, File ▸ Export… and
   Ctrl/Cmd+E. `ToolFrame` owns the full-width bottom `ToolActionBar` behind (below) the adjust
-  panel: step cue plus the pinned Export button (`part="button_focused"`), same spot every tool.
+  panel: only the pinned Export button (`part="button_focused"`), same spot every tool.
 - The shared, data-only registry lives in `@xprite/growth-content/tools`. Add tools
   there for directory, navigation and discovery; keep tool runtime code here.
