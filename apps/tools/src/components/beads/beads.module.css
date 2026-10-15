@@ -126,3 +126,16 @@
 .stage[hidden] {
   display: none;
 }
+
+.inlineField {
+  --ui-field-gap: 6px;
+}
+.group {
+  flex: 1 1 auto !important;
+}
+.fieldRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+}

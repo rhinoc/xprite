@@ -6,7 +6,7 @@ import { ContentLayout, ContentPadding, Panel, PanelVariant, SurfaceTone } from 
 
 import styles from "$/components/shared/tool-flow.module.css";
 
-const ADJUST_GAP = 8;
+const ADJUST_GAP = 4;
 
 /**
  * Shared adjust panel stacked above the Export bar (same layout on desktop and phone). It is a
@@ -28,7 +28,7 @@ export function ToolAdjustSlot({ children }: { children?: ReactNode }) {
         contentGap={ADJUST_GAP}
         title={t("Adjust")}
       >
-        {children}
+        <div className={styles.adjustFields}>{children}</div>
       </Panel>
     </div>
   );

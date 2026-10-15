@@ -90,3 +90,14 @@
   flex-wrap: wrap;
   gap: var(--ui-space-3);
 }
+
+/* Adjust fields flow side by side and wrap, keeping the panel short so the pattern stays large. */
+.adjustFields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+}
+.adjustFields > * {
+  flex: 0 0 auto;
+}
