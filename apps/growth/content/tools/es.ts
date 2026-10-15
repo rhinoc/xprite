@@ -74,6 +74,8 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   Generated: "Generado",
   Adjust: "Ajustar",
   "Choose an export format": "Elige un formato",
+  Cancel: "Cancelar",
+  Format: "Formato",
   "Try example": "Probar ejemplo",
   "Drop to open": "Suelta para abrir",
   "Hello sprite animation preview": "Vista previa de la animación del sprite Hello",

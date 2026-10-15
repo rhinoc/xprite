@@ -25,13 +25,11 @@ import {
   Button,
   Text,
   TextVariant,
-  FontRole,
   Tabs,
 } from "@xprite/ui";
 import { useElementSize } from "@xprite/ui/utils";
 
 import styles from "$/components/beads/beads.module.css";
-import flowStyles from "$/components/shared/tool-flow.module.css";
 
 enum ResultTab {
   Pattern = "pattern",
@@ -75,30 +73,20 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
             <BeadSourceSettings manager={manager} state={state} />
           </>
         ),
-        exportSheet: (close) => (
-          <ControlFlow className={flowStyles.exportChoices}>
-            <Button
-              text={text("beads.png")}
-              aria-label={text("beads.download.png")}
-              font={FontRole.Primary}
-              disabled={outputDisabled || !!state.pngError}
-              onClick={() => {
-                close();
-                void manager.downloadPng(labels);
-              }}
-            />
-            <Button
-              text={text("beads.pdf")}
-              aria-label={text("beads.download.pdf")}
-              font={FontRole.Primary}
-              disabled={outputDisabled || !!state.pdfError}
-              onClick={() => {
-                close();
-                void manager.downloadPdf(labels);
-              }}
-            />
-          </ControlFlow>
-        ),
+        exportFormats: [
+          {
+            id: "png",
+            label: text("beads.png"),
+            disabled: outputDisabled || !!state.pngError,
+            run: () => void manager.downloadPng(labels),
+          },
+          {
+            id: "pdf",
+            label: text("beads.pdf"),
+            disabled: outputDisabled || !!state.pdfError,
+            run: () => void manager.downloadPdf(labels),
+          },
+        ],
       }}
     >
       {state.source && <BeadStage manager={manager} state={state} status={status} />}

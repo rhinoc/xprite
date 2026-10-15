@@ -9,7 +9,7 @@ import styles from "$/components/shared/tool-flow.module.css";
 const MINIMUM_EXPORT_WIDTH = 59;
 
 export interface ToolActionBarProps {
-  /** Export stays disabled until the tool has a result. */
+  /** Export is disabled while the tool is busy; the shell renders the button only once there is a result. */
   exportDisabled: boolean;
   onExport(): void;
 }
@@ -26,21 +26,44 @@ function ToolActionBar({ exportDisabled, onExport }: ToolActionBarProps) {
   const t = useToolTranslation();
   return (
     <div className={styles.exportFooter} data-tool-action-bar="">
-      <Button
-        className={styles.exportButton}
+      <ToolDefaultButton
         text={t("Export…")}
-        font={FontRole.Primary}
-        minimumWidth={MINIMUM_EXPORT_WIDTH}
-        part="button_focused"
-        hotPart="button_hot"
-        focusedPart="button_focused"
-        pushedPart="button_selected"
         disabled={exportDisabled}
         aria-haspopup="dialog"
         data-flow-export=""
         onClick={onExport}
       />
     </div>
+  );
+}
+
+/** The real default-ring `Button` at Mac OS 8 standard size: text + 16px, at least 59px, 20px tall. */
+export function ToolDefaultButton({
+  text,
+  disabled,
+  onClick,
+  ...props
+}: {
+  text: string;
+  disabled?: boolean;
+  onClick(): void;
+  "aria-haspopup"?: "dialog";
+  "data-flow-export"?: string;
+}) {
+  return (
+    <Button
+      {...props}
+      className={styles.exportButton}
+      text={text}
+      font={FontRole.Primary}
+      minimumWidth={MINIMUM_EXPORT_WIDTH}
+      part="button_focused"
+      hotPart="button_hot"
+      focusedPart="button_focused"
+      pushedPart="button_selected"
+      disabled={disabled}
+      onClick={onClick}
+    />
   );
 }
 

@@ -71,10 +71,12 @@
   gap: var(--ui-space-5, 12px);
   padding: var(--ui-space-5, 12px);
 }
-.exportChoices {
+.exportSheetButtons {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--ui-space-3);
+  justify-content: flex-end;
+  gap: 16px;
+  /* Ring is 4px outside the default button: keep 12px from the dialog edge to the button. */
+  margin: 0 3px 3px 0;
 }
 
 /* Adjust fields flow side by side and wrap, keeping the panel short so the pattern stays large. */

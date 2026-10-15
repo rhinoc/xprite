@@ -134,6 +134,8 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   Generated: "已生成",
   Adjust: "调整",
   "Choose an export format": "选择导出格式",
+  Cancel: "取消",
+  Format: "格式",
   "Try example": "试用示例",
   "Drop to open": "松开即可打开",
   "Hello sprite animation preview": "Hello 精灵动画预览",

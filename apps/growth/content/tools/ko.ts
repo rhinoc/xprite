@@ -70,6 +70,8 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   Generated: "생성됨",
   Adjust: "조정",
   "Choose an export format": "내보낼 형식 선택",
+  Cancel: "취소",
+  Format: "형식",
   "Try example": "예제 사용해 보기",
   "Drop to open": "끌어 놓아 열기",
   "Hello sprite animation preview": "Hello 스프라이트 애니메이션 미리 보기",

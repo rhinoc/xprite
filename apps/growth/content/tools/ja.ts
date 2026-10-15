@@ -72,6 +72,8 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   Generated: "生成済み",
   Adjust: "調整",
   "Choose an export format": "書き出す形式を選択",
+  Cancel: "キャンセル",
+  Format: "形式",
   "Try example": "サンプルを試す",
   "Drop to open": "ドロップして開く",
   "Hello sprite animation preview": "Hello スプライトのアニメーションプレビュー",

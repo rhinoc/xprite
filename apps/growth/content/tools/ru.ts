@@ -72,6 +72,8 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   Generated: "Готово",
   Adjust: "Настройка",
   "Choose an export format": "Выберите формат экспорта",
+  Cancel: "Отмена",
+  Format: "Формат",
   "Try example": "Попробовать пример",
   "Drop to open": "Отпустите, чтобы открыть",
   "Hello sprite animation preview": "Предпросмотр анимации спрайта Hello",

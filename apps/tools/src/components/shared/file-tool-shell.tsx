@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type DragEvent, type ReactNode } from "rea
 import { useFilesManager, useFilesText } from "$/components/files/files-context";
 import { FileToolEmptyState } from "$/components/shared/file-tool-empty-state";
 import { ToolAdjustSlot } from "$/components/shared/tool-adjust-slot";
+import { ToolExportSheet, type ToolExportFormat } from "$/components/shared/tool-export-sheet";
 import { ToolFlowEmptyStage } from "$/components/shared/tool-flow-empty-stage";
 import { ToolFrame } from "$/components/shared/tool-frame";
 import { decodeFilesDrag, FILES_DRAG_TYPE } from "$/managers/files/files-model";
@@ -19,10 +20,9 @@ import {
   type MenuItem,
 } from "@xprite/ui";
 
-import flowStyles from "$/components/shared/tool-flow.module.css";
 import styles from "$/components/shared/tool-frame.module.css";
 
-const EXPORT_SHEET_BOUNDS = { x: 0, y: 0, width: 320, height: 120 };
+const EXPORT_SHEET_BOUNDS = { x: 0, y: 0, width: 320, height: 150 };
 
 /**
  * Upload → default result → optional adjust → export. A tool that provides `flow` gets the
@@ -31,8 +31,8 @@ const EXPORT_SHEET_BOUNDS = { x: 0, y: 0, width: 320, height: 120 };
 export interface FileToolFlow {
   /** Parameters shown in the adjust panel above the Export bar (same on desktop and phone; rolled up on phones). */
   adjust: ReactNode;
-  /** Format choices inside the export sheet. Call `close` once a download starts. */
-  exportSheet(close: () => void): ReactNode;
+  /** Formats offered in the export sheet; the sheet closes, then the chosen one runs. */
+  exportFormats: readonly ToolExportFormat[];
   /** True until the tool has a result to export. */
   exportDisabled: boolean;
 }
@@ -137,7 +137,9 @@ export function FileToolShell({
       tool={tool}
       processing={processing}
       help={help}
-      actionBar={flow ? { exportDisabled, onExport: () => setExportOpen(true) } : undefined}
+      actionBar={
+        flow && ready ? { exportDisabled, onExport: () => setExportOpen(true) } : undefined
+      }
       filename={ready ? filename : undefined}
       menus={[
         {
@@ -262,12 +264,7 @@ export function FileToolShell({
             resizable={false}
             contentLayout={OverlayContentLayout.Flow}
           >
-            <div className={flowStyles.exportSheet} data-tool-export-sheet="">
-              <Text variant={TextVariant.Reading} wrap>
-                {t("Choose an export format")}
-              </Text>
-              {flow.exportSheet(() => setExportOpen(false))}
-            </div>
+            <ToolExportSheet formats={flow.exportFormats} onClose={() => setExportOpen(false)} />
           </Dialog>
         )}
       </main>
