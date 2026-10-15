@@ -2,8 +2,12 @@
 .actionBar {
   flex: 0 0 auto;
   box-sizing: border-box;
-  /* No bar chrome: the button floats on the desktop, 8px under the adjust panel. */
-  padding: 8px 0 0;
+  /*
+   * No bar chrome: the button floats on the desktop. The default ring is drawn 4px outside the
+   * button, so 16px of padding leaves 12px of clear space from the ring's outer edge; the 8px
+   * side inset keeps the ring (4px out) off the adjust panel's edges.
+   */
+  padding: 16px 8px;
   border: 0;
   background: transparent !important;
   box-shadow: none;
