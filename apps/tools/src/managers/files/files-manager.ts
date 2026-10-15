@@ -46,6 +46,8 @@ export interface FilesSnapshot {
   open: boolean;
   folder: string;
   view: FilesView;
+  /** List folders that hold nothing (the open page's tool folder is always listed). */
+  showEmpty: boolean;
   sort: FilesSort;
   entries: readonly FileEntry[];
   selection: readonly string[];
@@ -63,6 +65,7 @@ const INITIAL: FilesSnapshot = {
   open: false,
   folder: FilesFolder.Root,
   view: FilesView.Icons,
+  showEmpty: false,
   sort: { key: FilesSortKey.Name, ascending: true },
   entries: [],
   selection: [],
@@ -189,6 +192,8 @@ export class FilesManager {
     this.publish({ view });
     this.port.capture(SiteTelemetryEvent.FilesViewChanged, { view });
   };
+
+  toggleEmptyFolders = () => this.publish({ showEmpty: !this.state.showEmpty });
 
   setSort = (key: FilesSortKey) => {
     const ascending = this.state.sort.key === key ? !this.state.sort.ascending : key === "name";

@@ -153,27 +153,32 @@ export function FilesWindow() {
   const entries = manager.visibleEntries();
   const atRoot = folder === FilesFolder.Root;
   const inTrash = folder === FilesFolder.Trash;
-  const folders: FolderItem[] = atRoot
-    ? [
-        { id: FilesFolder.Recent, name: text("files.folder.recent"), icon: IconKind.Folder },
-        {
-          id: FilesFolder.EditorProjects,
-          name: text("files.folder.projects"),
-          icon: IconKind.Folder,
-        },
-        { id: EDITOR_FOLDER, name: text("files.folder.editor"), icon: IconKind.Folder },
-        ...FILE_TOOLS.map((tool) => ({
-          id: tool.path,
-          name: t(tool.label),
-          icon: IconKind.Folder,
-        })),
-        {
-          id: FilesFolder.Trash,
-          name: text("files.trash"),
-          icon: manager.folderCount(FilesFolder.Trash) ? IconKind.TrashFull : IconKind.Trash,
-        },
-      ]
-    : [];
+  const pagePath = manager.pageTarget()?.path;
+  // Only folders with something in them, plus the current tool's own folder, which is where
+  // dropped files go. "Show Empty Folders" restores the full structure.
+  const listed = (id: string) => state.showEmpty || id === pagePath || manager.folderCount(id) > 0;
+  const allFolders: FolderItem[] = [
+    { id: FilesFolder.Recent, name: text("files.folder.recent"), icon: IconKind.Folder },
+    {
+      id: FilesFolder.EditorProjects,
+      name: text("files.folder.projects"),
+      icon: IconKind.Folder,
+    },
+    { id: EDITOR_FOLDER, name: text("files.folder.editor"), icon: IconKind.Folder },
+    ...FILE_TOOLS.map((tool) => ({ id: tool.path, name: t(tool.label), icon: IconKind.Folder })),
+    {
+      id: FilesFolder.Trash,
+      name: text("files.trash"),
+      icon: manager.folderCount(FilesFolder.Trash) ? IconKind.TrashFull : IconKind.Trash,
+    },
+  ];
+  const nothingSaved =
+    atRoot &&
+    !state.showEmpty &&
+    !entries.length &&
+    allFolders.every((item) => !manager.folderCount(item.id));
+  const folders: FolderItem[] =
+    atRoot && !nothingSaved ? allFolders.filter((item) => listed(item.id)) : [];
   const count = folders.length + entries.length;
   const free = state.estimate?.quota
     ? formatBytes(Math.max(0, state.estimate.quota - state.estimate.usage), language)
@@ -274,6 +279,12 @@ export function FilesWindow() {
       label: text("files.view.list"),
       checked: state.view === FilesView.List,
       onSelect: () => manager.setView(FilesView.List),
+    },
+    {
+      label: text("files.view.empty"),
+      separator: true,
+      checked: state.showEmpty,
+      onSelect: manager.toggleEmptyFolders,
     },
     {
       label: text("files.empty.trash"),
@@ -622,7 +633,11 @@ export function FilesWindow() {
                   <ScrollArea className={styles.scroll} aria-label={title}>
                     {count === 0 ? (
                       <Text variant={TextVariant.Reading} wrap className={styles.empty}>
-                        {inTrash ? text("files.trash.empty") : text("files.empty")}
+                        {inTrash
+                          ? text("files.trash.empty")
+                          : atRoot
+                            ? text("files.empty.all")
+                            : text("files.empty")}
                       </Text>
                     ) : state.view === FilesView.Icons ? (
                       iconView

@@ -128,3 +128,15 @@ describe("FilesManager", () => {
     expect(manager.entry("/a.png")?.name).toBe("new-name.png");
   });
 });
+
+describe("FilesManager empty folders", () => {
+  it("hides empty folders by default and toggles them", async () => {
+    const { port } = fakePort();
+    const manager = new FilesManager(port);
+    expect(manager.getSnapshot().showEmpty).toBe(false);
+    manager.toggleEmptyFolders();
+    expect(manager.getSnapshot().showEmpty).toBe(true);
+    manager.toggleEmptyFolders();
+    expect(manager.getSnapshot().showEmpty).toBe(false);
+  });
+});

@@ -65,14 +65,25 @@
   min-height: 0;
   gap: var(--ui-space-4);
 }
-.toolbar {
+/* Zoom controls float in the preview's corner, like the editor dialog's, instead of a toolbar row. */
+.zoomControls {
+  position: absolute;
+  right: var(--ui-space-3);
+  top: var(--ui-space-3);
+  z-index: 1;
   flex-wrap: nowrap;
   align-items: center;
-  gap: var(--ui-space-3);
+  gap: var(--ui-space-2, 4px);
 }
 .status {
-  flex: 1;
-  min-width: 0;
+  position: absolute;
+  left: var(--ui-space-3);
+  top: var(--ui-space-3);
+  z-index: 1;
+  max-width: calc(100% - 160px);
+  padding: 1px 4px;
+  background: var(--ui-color-paper);
+  pointer-events: none;
 }
 .stage {
   display: flex;
