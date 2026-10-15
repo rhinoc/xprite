@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-  "capturedAt": "2026-10-14T14:44:24.440Z",
+  "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+  "capturedAt": "2026-10-15T02:42:32.311Z",
   "captureComplete": true,
   "sourceHashes": {
     ".husky/pre-push": "bc8a9c88fb4109ae2584c838dface54fe296297dbd6abab793d78b3c0fa0d361",
@@ -45,18 +45,19 @@
     "apps/editor/assets/support/wechat-qr.webp": "ce1ac0a85e621e476efe9374bfbc49909573444c7d0c0db51819bdd6bc59ea78",
     "apps/editor/index.html": "22bf2b15decedb344a96fcf4ea8aa6debce321b5fda8ffe74eb50784c2c0df9b",
     "apps/editor/package.json": "263bb3f62e655e74dd23c9a2322b19f3837a5e1e5343a8467ef2171b4f396c70",
-    "apps/editor/src/App.tsx": "d5cc05653b125f5ca2f7e82c745dfcbb5291587790ad067f77ac622db0efe691",
+    "apps/editor/src/App.tsx": "500b800199c939d4f73c0d9473c2a629494f8b2c1456f97232caf70ca4ee644f",
     "apps/editor/src/adapters/agent/browser-agent-tools.ts": "9b43e97caae7e2e817d46cc0e6805984028208ee355d2d0fbd1958d521bbd09e",
     "apps/editor/src/adapters/colors/browser-color-sampling.ts": "f64a6412afa97bd505acd5de9723fabb0f4ec945b3740e107196dcebf65279a6",
     "apps/editor/src/adapters/colors/color-sampling.module.css": "334311c04b67b1dde34141d40eba470ec624fec331709d8930661a374df828fb",
     "apps/editor/src/adapters/diagnostics/browser-diagnostics.ts": "987f310d1296ed1f0e6e7fc7888a3c99ac114279693c2c8cc989ad86ab98e7e4",
     "apps/editor/src/adapters/diagnostics/diagnostic-environment.ts": "ee41ed5d7a548d49cc7ab3fc97c02c84c439cd977b3cd2ba5cab5a5e84bbbade",
     "apps/editor/src/adapters/files/animated-images.test.ts": "dfe015991a0a987be7c4abac773c94728d34e64b656ee36c32cb4b8eee095f00",
-    "apps/editor/src/adapters/files/animated-images.ts": "4e9e02ef919dc4a7f5e8d52f2506fb789dfe24a7fd1e6a97c4cb39a02e6db7f8",
+    "apps/editor/src/adapters/files/animated-images.ts": "2e32f3968117f3093aa62f9cbb3cd32ef6a03ec4e6d6798045a1862273aae2c7",
     "apps/editor/src/adapters/files/aseprite-files.test.ts": "555491f564672c3ae547410f7d347fbd9ff2ef6d68c6469811500eb67ae3feca",
     "apps/editor/src/adapters/files/aseprite-files.ts": "5a8b5382dc1ccf88949d3cbd3e31836bf4788d9df875fe96080e0d0b6c25efd0",
     "apps/editor/src/adapters/files/browser-animal-crossing-export.ts": "86c0d1df06b27fab487dff72dc1962e8900d07500b111c4950127c14eec95494",
     "apps/editor/src/adapters/files/browser-export-output.ts": "0b81039a966b6e7a0c5610571fc7607bb52e8519cd766778c3b2a27d3cc20ffc",
+    "apps/editor/src/adapters/files/files-library.ts": "961986a3cb56133b1b45d24c58923dadef396899698eaa67e53dd3bb6ce4b238",
     "apps/editor/src/adapters/files/images.test.ts": "e97533f67ced9887cbecba4c9a3c70e9cf4e170fdf0766e7df218b8a5d3e9403",
     "apps/editor/src/adapters/files/images.ts": "e6225213c62fde9578cf86d5d3de6dc44b003ac16f303fccd88cb688e127ba19",
     "apps/editor/src/adapters/files/palette-files.ts": "5c18dcfbbe01a3c5dfd3342c9e73ba5b6896b468a1c45ef000d2868c5666ca39",
@@ -92,7 +93,7 @@
     "apps/editor/src/adapters/minitool/session.ts": "700f01558b0663f0fb5a0f805d260dd64b32feb5a77b3a3c8d8da7a8a4da0778",
     "apps/editor/src/adapters/minitool/storage.ts": "5141c9a717037dbbcb3bfab6a154d05e22b53810f141660266d388246c263b84",
     "apps/editor/src/adapters/minitool/welcome.ts": "dc9a3f9be64719f67d715d78925da1f5d7b818c9607b6a030c80ac3dcd654019",
-    "apps/editor/src/adapters/platform/browser-editor-host.ts": "b392cefcba9224972091fbf3b167464ffceb9f83e9836bb7a7e56c5d88cfa4f8",
+    "apps/editor/src/adapters/platform/browser-editor-host.ts": "3902c06f47532e3aea51ddc6dd617c19bb7e2692581f58de9ab578b20653325b",
     "apps/editor/src/adapters/platform/browser-editor-location.ts": "518b185b8dfe0772a75878ea075a9f195ab02070328e9dca61dba6d4970a0062",
     "apps/editor/src/adapters/platform/browser-editor-platform.ts": "6faaa9bbd0378ab0ef2da848b012d55d51a0570074bfd2f9466d5d43a3e4d8cf",
     "apps/editor/src/adapters/platform/browser-startup-screen.ts": "0ba7593441ab6bf4564e9b694088ea3ef58869959fe66ee311aa2dba9afc866e",
@@ -108,7 +109,7 @@
     "apps/editor/src/adapters/replay/browser-replay.ts": "30289b76dbe05b38b345a42dfd022cec49c064d78124b5de9de5019791f29c3b",
     "apps/editor/src/adapters/session/browser-file-import.test.ts": "21bd9663e8ebcb98096a0cf502ac79b6801f145cc3e675791e992c9fe0e903ef",
     "apps/editor/src/adapters/session/browser-session-ports.test.ts": "90dff0fe903c752118d75cb9af5dd8afeb018ac0a60f4fd17e2f3537b0a16239",
-    "apps/editor/src/adapters/session/browser-session-ports.ts": "106556e2f0e9d9ade06c4168f80d7385fd9246635b14544109d47bcbb066b0ad",
+    "apps/editor/src/adapters/session/browser-session-ports.ts": "86fd711b49bcd5f38bd71296f5a18cf5edbc17b2ad4f7fec0f8115b074acdd49",
     "apps/editor/src/adapters/session/browser-source-identity.test.ts": "e7ddfad46c25a08053de0525e66c8481ccc008123c8da86371939ad4f8b185bf",
     "apps/editor/src/adapters/sharing/browser-project-sharing.ts": "283225484b9a7e141b0283676673028247e34727e03db728607c0fe8e2f54ae2",
     "apps/editor/src/adapters/sharing/share-compression.ts": "4ca6a2530af40b3f3938a4b5297b333b2c9e39d44eb1a605f23b8dcf0ae417dc",
@@ -132,7 +133,7 @@
     "apps/editor/src/adapters/telemetry/browser-attribution.ts": "569df94337537b15e5171f2809db5207e3bf8d06eb0d46c64fbcc887f883011f",
     "apps/editor/src/adapters/telemetry/browser-telemetry-lifecycle.ts": "12e768cb92a86d3ae378dfe9600248ec9cf7ee3f7db4a441f7a0ab632452a2e9",
     "apps/editor/src/adapters/telemetry/posthog-telemetry.ts": "04ac9c0f53b7147a077586c5a2610579ed65c01227f7bf4a7d4cde278096719e",
-    "apps/editor/src/adapters/viewer/editor-transfer.ts": "08728d18212896e8b0ad15e2bcc66ff04813e699b3245d07c62923112130e570",
+    "apps/editor/src/adapters/viewer/editor-transfer.ts": "6c73c7f5b39c29d0eceaed7e23649042d3a44ed17ef7f0cef6078a6515807e7e",
     "apps/editor/src/adapters/workers/aseprite-import-client.ts": "07f6d73bfc243b2dcca9dc8a99af28e9ecc6ca9fbc11c681333a7f70d1d21ea2",
     "apps/editor/src/adapters/workers/aseprite-import-protocol.ts": "c425df10771b9a1b5590d5101e56ba0601d7b66a0ee70ef790b4e54d0ff50bc5",
     "apps/editor/src/adapters/workers/aseprite-import-worker.ts": "9345b8136beebf179b7806b3b855f5bdb4ed34c7ae1091afcadbc1d2f2361503",
@@ -523,7 +524,7 @@
     "apps/editor/src/managers/ports/animal-crossing-export.ts": "8f89a41f6aa18eb1b494f27cc94e4ae4c3f498ef1390064b2036fff8147c41d8",
     "apps/editor/src/managers/ports/color-sampling.ts": "94235c9f4c49fec12e6c8847d8538c76ff03ccb8353e6e339306e748b2a2a8ea",
     "apps/editor/src/managers/ports/diagnostics.ts": "5933ba3537755bb1696023284a0c67517a4cb0f4d29b982a6dd0d9fc319e214e",
-    "apps/editor/src/managers/ports/editor-host.ts": "1089129e9c29d2ec9af2dbe387a42b26d281b3306eb5f7391052667c195db263",
+    "apps/editor/src/managers/ports/editor-host.ts": "9952c5b6697646e84cd472d81cc7a5412b498f640d5c45880f5d267dbd6c82f7",
     "apps/editor/src/managers/ports/export-output.ts": "20af552b8bc99cf39dc2884ac10304b861f5709f92181c3861fd857bd73a6038",
     "apps/editor/src/managers/ports/local-fonts.ts": "5b337c6fc2387695a96f36e4307b6fb4358fb8b2ec49695e326a49d819062f39",
     "apps/editor/src/managers/ports/minitool/welcome.ts": "aca0fb049b12166b66920f5ba626c99005b1a07790ff75dd2edbf9888a61e66e",
@@ -1243,12 +1244,14 @@
     "apps/tools/src/BeadApp.tsx": "9ed9e4a4c9511b0bbfe6d9423f00df830698599d75f38a83b1c227fb3aa777d7",
     "apps/tools/src/GifApp.tsx": "5ea041b03b23e0c42ff884cff93d22d071aabde2f79fa98967bcadb44d2a1650",
     "apps/tools/src/PixelationApp.tsx": "b6d5fa465601e99b4d57cf66cc93c53abb34dc9875364ca767315d13e78a152a",
-    "apps/tools/src/adapters/animal-crossing/browser-animal-crossing.ts": "47bc3936ccc103c0e80267daf60a66c2f4194892f812f04c3aa78d8924481296",
+    "apps/tools/src/adapters/animal-crossing/browser-animal-crossing.ts": "eb91f907af75b94addd3b44fe7708f7da02a41ecebba6f33d27dd20ab7e34014",
     "apps/tools/src/adapters/animal-crossing/ground/browser-ground-preview.ts": "6f0cbf8c5c8603d5a61852f53c84e4d96bbd3c801e8e7fc66ed55281c258527b",
     "apps/tools/src/adapters/animal-crossing/ground/three-island-scene.ts": "9a16c9f3719ae23f866676e4287386c115e69d8016db7c19a3d12919dbd6b4d7",
-    "apps/tools/src/adapters/beads/browser-beads.ts": "ba92d6af1d2b933161a014de8e4c1166d6c44328700a49754e0e3633c35c995b",
-    "apps/tools/src/adapters/gif-sheet/browser-gif-sheet.ts": "e930b745db357efb665143ea9c737ef4040ed1fdd3ccba9a9cbb940c89d82325",
-    "apps/tools/src/adapters/pixelation/browser-pixelation.ts": "5bbf4e50bf1fc608bf7dc197b2a0a59235c8811d17be7f5e0e27040e255853a5",
+    "apps/tools/src/adapters/beads/browser-beads.ts": "624d1df0a78fce84469939ebc0eae075963c2962cbbc2d812e0d43ffca7693e7",
+    "apps/tools/src/adapters/files/browser-files.ts": "e0db4975f959de869c1dc0407e7488c7cf4c7edac055162d4688ce0bd434f126",
+    "apps/tools/src/adapters/files/editor-projects.ts": "9d3a1e0fa826b82ccb4b7ab58e0da622821de99b75399b2c6d0cc83440b5f01b",
+    "apps/tools/src/adapters/gif-sheet/browser-gif-sheet.ts": "c396a9bcd1d980a0a2bf1678534c2a7446102c1aecfcbbc1d3a4af6acf83648b",
+    "apps/tools/src/adapters/pixelation/browser-pixelation.ts": "db8c3ac6fba753f8bf7665b5c50e74c51fcb94e4c18bbbe6833df8b7e619b73a",
     "apps/tools/src/adapters/pixelation/pixelation-worker.ts": "91e0377467f9cf872b695072bfeca1806d75773d283c4344c2b0e4584a2ada84",
     "apps/tools/src/adapters/pixelation/worker-protocol.ts": "65d93175edb3cd5812c896a87c35ad4e4ad276ef130d0ff2043da6f9c1382b33",
     "apps/tools/src/adapters/preview/browser-appearance.ts": "7c1d55183cff987855d558286b9c05ca9947f8720525987f5aff26e878e062c8",
@@ -1261,17 +1264,21 @@
     "apps/tools/src/adapters/viewer/editor-transfer.ts": "0c706d15c7e28abfc4fdff7e99df5a2a8d11c0eebc2e285273856f0d006f4daa",
     "apps/tools/src/animal-crossing-main.tsx": "f4f4571d5c0ff4fdfc5f15bc698168282467e4235a0ce59a74909e0aacb50d73",
     "apps/tools/src/bead-main.tsx": "e853e655200661bc566752c9f58cb909105143b04d5d24c0cce1983b854726c8",
-    "apps/tools/src/bootstrap.tsx": "0ea2ac82d8051568f6d6e639dc083216144c937bf7a22133692464cd8b1beda2",
+    "apps/tools/src/bootstrap.tsx": "02245d1d3c0aa51d3b64ca1007485bfbb141423c681bf3a36fdf55246ab36990",
     "apps/tools/src/components/animal-crossing/animal-crossing-ground.tsx": "adb2b8151c044a0615ac21dee6619668acbbb42ef3b7f4ad60d9be4a4c9c8291",
     "apps/tools/src/components/animal-crossing/animal-crossing-output.tsx": "97088b0b9e8fc072c3a423e14dbd904222b21490ed0279efc88ad5e2e1d61fb6",
     "apps/tools/src/components/animal-crossing/animal-crossing-page.tsx": "15b4c7b86187ba90a63fc86de65c507ed43ec1fe5fb05b630e823e962b0c8b83",
     "apps/tools/src/components/animal-crossing/animal-crossing-settings.tsx": "2609acc07c64301c79b08a3842db4ce4a91f24b496e467bbffc099cb048b3579",
     "apps/tools/src/components/animal-crossing/animal-crossing.module.css": "2133ea60b1111afd9ebe843725e67a1aa7e21f70a9a7f09745038524a883de78",
     "apps/tools/src/components/beads/bead-materials.tsx": "93758b3c0f16e5890f72ba16100f3d940afb602b272ab15184d951471bc14994",
-    "apps/tools/src/components/beads/bead-page.tsx": "5a99ce86058fa343b4e31a1dc5454b930254e34a165462810f899685aaecb4af",
+    "apps/tools/src/components/beads/bead-page.tsx": "dba35f3dac9b558917e12b9e0f6d11ca026d78ac9ed8ce852b9558c01df8d283",
     "apps/tools/src/components/beads/bead-preview-grid.tsx": "de1bbd5260e17ac00a85eb05c86a2a4f5170c4d3518b354f1981be63c066b95e",
     "apps/tools/src/components/beads/bead-settings.tsx": "81cef0e24576618fdf29b1f83aaf9c7e4f4422269a44523ebd0f2f9daf6fed80",
-    "apps/tools/src/components/beads/beads.module.css": "5cf8092ae504898499f7b6a9302ad3b7420b60be0036dc02875242bc956b0fff",
+    "apps/tools/src/components/beads/beads.module.css": "e0e8af02246fc9492c9f5b6cfca83332c1ca189cef0079ac357f62103fc8a340",
+    "apps/tools/src/components/files/files-context.tsx": "f66e7c2098f86e548f8efca0966d86c17abc32a49a0dada85fe37065831075df",
+    "apps/tools/src/components/files/files-info.tsx": "70497f71d0dc3f78a7278bd9695f564c4a5507fabcc041980bb1aee4ce2a849c",
+    "apps/tools/src/components/files/files-window.tsx": "35f94d7f594e2eb748e1ee42a956eb12fe5f92422123344a5fdd61afcb999313",
+    "apps/tools/src/components/files/files.module.css": "686aa00537f9bef67215cb04ae04c529fb0bfab057ea7a22e7114031fd44485a",
     "apps/tools/src/components/gif-sheet/gif-sheet-page.tsx": "c1da3d60b0d3b92c65a6565efa2ccb689e5babea6b917006414383ad24e6ee30",
     "apps/tools/src/components/gif-sheet/gif-sheet.module.css": "f23f0d194fa7bbf8d1a60135b0f773135bf4e2001d23e7b6536406b8a7c70581",
     "apps/tools/src/components/pixelation/pixelation-page.tsx": "7195a9caa73fc808733142364f15dd45128dda8270552d54c83aa4929601f53c",
@@ -1279,11 +1286,11 @@
     "apps/tools/src/components/shared/canvas-preview.module.css": "1faa04d69e8a71ad1d5eb69fa6aeaed1108614abb9e8f7acfa24b7f56f4e5ff2",
     "apps/tools/src/components/shared/canvas-preview.tsx": "d0627f2f054e7a3d9ca5e235ea96062eb140921a91335b0816e5ef7cde11ba13",
     "apps/tools/src/components/shared/file-tool-empty-state.tsx": "929a349816cae2a107bbed53a38b370f6b907000984cec0e839da64aa98c1c7c",
-    "apps/tools/src/components/shared/file-tool-shell.tsx": "5e98a47bd0b60e4e884ccb385309f8c08bd5730dec90303795392bfc2504d0c7",
+    "apps/tools/src/components/shared/file-tool-shell.tsx": "583cb90b623497eb5308652d5d1f43a42febba2da5da0e28bd7a4c3ce3d99e86",
     "apps/tools/src/components/shared/tool-appearance.tsx": "056ae9ab57ce97d572e0da0500b8ac066c12f4ce97940d8f4eaa51767e4a9a3c",
     "apps/tools/src/components/shared/tool-artwork.tsx": "12267557e43acf0ca08739c0e08f0c57002cf6a57d0f4b020aa355e5727e829e",
-    "apps/tools/src/components/shared/tool-frame.module.css": "e67fac52ab4870d7cff92402f4d80c69a13bc321e4892b196f3fbddfaf5c54db",
-    "apps/tools/src/components/shared/tool-frame.tsx": "85ea59c1801286062fa04048baafd81999863abd65939d5fc2ccadd3846beb56",
+    "apps/tools/src/components/shared/tool-frame.module.css": "7617d07126a75c82d7dd3f98320c823857be36c7535a728ed1c708b0aff72a32",
+    "apps/tools/src/components/shared/tool-frame.tsx": "ae810af25b127d6843f43750c8bbe5a4baf5301a49530b6e63c3aca0aeadf419",
     "apps/tools/src/components/shared/tool-help.module.css": "f0398670b518ee48d1cd2f8e16f44ea438bc4d1771531622fbc6895bdc2f2b3f",
     "apps/tools/src/components/shared/tool-help.tsx": "2052a61671b6493c47692f54d89b744b23606d22ca331b2d53c7d7a3afcf40fe",
     "apps/tools/src/components/shared/tool-zoom-control.tsx": "3f1251894e29ab6c8a36e4a6f5ba5b60f0464d6e3ae194a309f5f268bddca642",
@@ -1302,14 +1309,21 @@
     "apps/tools/src/managers/beads/bead-failure.ts": "d07065e272b6e49cfd3f5766f692d0e27baeb9f6249a92a2b8218089d2cbc0ef",
     "apps/tools/src/managers/beads/bead-tool-manager.test.ts": "433f6d71ca6d2919218619fa0cc8cba98af353b90502857e2ab2d94235f3bf71",
     "apps/tools/src/managers/beads/bead-tool-manager.ts": "7b38393c4de295fbf8bcc6d74eab9ef8fc8ceb8a56c8361b726e11f38f866787",
+    "apps/tools/src/managers/files/files-manager.test.ts": "ecd3b19e8166790f6327f661d5b9c727ff4ee1c6e6935a51efe0f97f27c80019",
+    "apps/tools/src/managers/files/files-manager.ts": "75598f65c1ef95a4fd6252d0d6c9644a52c52ac545160a30abf4ef6140180a96",
+    "apps/tools/src/managers/files/files-model.test.ts": "e49a821bd73813c1cfb6d2bbf7d307ade3ef92ab582eb4e4f6acae7828fad6db",
+    "apps/tools/src/managers/files/files-model.ts": "f73d534bb9d4b45607bd1510efc62f4cac891d6ae44843bf8d3a50c74470a771",
     "apps/tools/src/managers/gif-sheet/gif-sheet-manager.ts": "1ec6442ada269d67e51dbfbb8c8776967d183aab1ac7e23f657eec59ef5f803f",
     "apps/tools/src/managers/locale/bead-text.test.ts": "127640410c4557d5f7f50343f6cccb0e1993fc828c8b1dcaaadb3ae141e15c00",
     "apps/tools/src/managers/locale/bead-text.ts": "32cbf4fdda4f0519acaa2690cdfdf7cd717d5be4aeb0414f4e6505b204e7e5cd",
+    "apps/tools/src/managers/locale/files-text.test.ts": "b520b849816cf886b971e8e6d25bded917a560d228cd5aa1506b240ee5f22e25",
+    "apps/tools/src/managers/locale/files-text.ts": "1c6384ca9a36704c06ff17785c507b1a180ad533274bad24524a75735a5fc2f9",
     "apps/tools/src/managers/locale/tool-language.tsx": "3a34a838a91912fbd357a88b0f0d7e0ce43ab479808c4cde7c874eafddbd1f36",
     "apps/tools/src/managers/pixelation/pixelation-manager.ts": "7918626a5e22441c7d93082a5962cc341fffd511e2bc5d86e00be09bcb99d3b7",
     "apps/tools/src/managers/ports/animal-crossing-ground.ts": "420ec1668836086eac873cce557aa43abc10d426f35dba57cbd6364be79467bc",
     "apps/tools/src/managers/ports/animal-crossing.ts": "08a4f421a39a2d33a2f579e1911326adb7a99badb01cd3d948554ed07c584117",
     "apps/tools/src/managers/ports/beads.ts": "c5d431be377dd51bd2e8e0e136add25f33600c71b51712bd08cdd15ebcb6f7ad",
+    "apps/tools/src/managers/ports/files.ts": "e576f30f6cac072a120ca8e568eb0bc4ba3fb07fa75dcd0f0c0ccd143d09dd05",
     "apps/tools/src/managers/ports/gif-sheet.ts": "8b1c955df0e7c8c54c75cd91c2f35615ec9790bda6977ae69a6b82faa03f821f",
     "apps/tools/src/managers/ports/pixelation.ts": "31d338dc48b54d7d90dd7f0c4cff84ff26de24c659467ee9ec32dd45eebf9dd3",
     "apps/tools/src/managers/ports/preview.ts": "05cecfe9f6efb251602b0b494ec656055100577d472aaf21333805c88ef56cd4",
@@ -1329,7 +1343,7 @@
     "apps/tools/src/managers/window-shade/window-shade.ts": "eddc14379bdcb2c07a9a96522eb9577882a84736a58bb1d5be6d278f3dc7ab07",
     "apps/tools/src/pixelation-main.tsx": "6d95ef17c9b641cf16abdf54c2e6100c07475b00e3b4d70d5da5cfbaefd11eee",
     "apps/tools/src/ssg.tsx": "65a98d4328c9ac147a7247fdb54ee1a5a2a02be5d67b91d57783ede08f8b4722",
-    "apps/tools/src/tool-application-root.tsx": "150890d9c591d3f001141f416a5359eb4e6063350ef1f09e07955da1cd395997",
+    "apps/tools/src/tool-application-root.tsx": "a169e023310c59840f4cbff647602aac972a6fe0d9f2b5d3bd22cb89b06d3a79",
     "apps/tools/vite.config.ts": "8195e0120df70cac24816af233d0c1178704eece75f940647ed3c1212de365ee",
     "infra/content-versions.test.ts": "6f9c524a7a517dd22bedeb126e868ad20082987a4f5a8c6f172e18bd6d65471c",
     "infra/content-versions.ts": "54e4d5c6775e12bedb6540922f3ff5d67075f0d5908ae85496beb4423149c57a",
@@ -1369,6 +1383,8 @@
     "packages/bedrock/browser/json-storage.test.ts": "8004817d1be368911ccd3d2b244af6e36f6332732ba7faabf2f8cceea4b9d2d3",
     "packages/bedrock/browser/json-storage.ts": "14f3486cc65187a8f04ff9c568697fca1bf42f3eead06fa86d9f5dac363c7976",
     "packages/bedrock/browser/keyboard.ts": "ca49925950b3bf33186e53e7c2311ca9e6af7425e8f6efe769b4f01ab2b12d97",
+    "packages/bedrock/browser/local-file-library.test.ts": "82f38e62c36601275f1ccb46a2133ee2fef58a98bd148445b912ea8e73faa8a5",
+    "packages/bedrock/browser/local-file-library.ts": "a9232666d7130d0867ce4d642eca0a537dc12a10dfc89b0cb8fc350bd2f26976",
     "packages/bedrock/browser/local-fonts.ts": "f01387fe806e3ca13cc7a841a0149440147eaaf64ea09438f99c80dacdf0345c",
     "packages/bedrock/browser/localstorage.ts": "e32798a67fb031ff732daddd8b5817180c640b63a593bc9017bb02d82ba9233c",
     "packages/bedrock/browser/opfs-worker.test.ts": "95b7556983ab576306b5f68a43053875cf0ecca9de053a9295494e53db724cec",
@@ -1800,7 +1816,7 @@
     "packages/site-shell/src/index.ts": "11e6b7bdca44c359b31680990366b78f72f4c18390a71f2312f0263d50f15db0",
     "packages/site-shell/src/language-preference.ts": "ab6a85569d5a2cc99dcc5bee5b65f9d3831f00dbf0b7d609955c39c13964e889",
     "packages/site-shell/src/managers/desktop.ts": "e6158b42c68e7bce24ea0db5b2b435556403ddc16d8a03728e16795dee88193a",
-    "packages/site-shell/src/managers/ports/telemetry.ts": "f18e7c1545398cb62e0fcd7ef4c5ccb81c4dc41f0731eea9d2f5c1ba8ba99fb0",
+    "packages/site-shell/src/managers/ports/telemetry.ts": "355af99e4b2f2f8e28f770150e52761ee419a64f1f2cf86dd5fcfb5b5115b622",
     "packages/site-shell/src/site-language.ts": "681b376c3a9f72dd5e8058c8aa0dc868777062eebcecae29c1a599e4a30ccfe3",
     "packages/site-shell/src/startup.ts": "74b5989bf6a09ec3a31e1b423660a6120e9f2af05cd35cbf3755254dd3697309",
     "packages/site-shell/src/telemetry/README.md": "e61e51e314b9bded64b0925bc51abece06e32c7d9d0345529108ea1745341850",
@@ -1865,6 +1881,10 @@
     "packages/ui/assets/icons/desktop/macos8/application-small.webp": "a7aeddda6920d04aa2a6f4da84b5a75c25bf2c5449ca278bc85f7a34122cd815",
     "packages/ui/assets/icons/desktop/macos8/application.png": "94c6b9b8c801fd4096bc580c3604f7602a09b273ece32aeeb52d9456c78c4e1c",
     "packages/ui/assets/icons/desktop/macos8/application.webp": "8d0d9b0fc194ca6914cec47946c9b21ac65e31e92a3c68c2742c521c975dbead",
+    "packages/ui/assets/icons/desktop/macos8/applications-folder-small.png": "1a8ff6d20529aa7c3bfe35b0bec80fbed8d31c872c8b4947f2877558c605da5b",
+    "packages/ui/assets/icons/desktop/macos8/applications-folder-small.webp": "bfbf98401748ac418c9055079930526cd0dc595a260eb59746d4383034294ee0",
+    "packages/ui/assets/icons/desktop/macos8/applications-folder.png": "6b9275f43d68889bb8b6ca71ddec15fe01eef8e2ee1a58f6d287a71ed344e4a9",
+    "packages/ui/assets/icons/desktop/macos8/applications-folder.webp": "d4d193b03e0ea19dc910966a4db41f74f158886d0acb1d0d3c4b4250f28671ac",
     "packages/ui/assets/icons/desktop/macos8/document-small.png": "deef175473b9f266488afc9fc2cc091afd3831696388b3872763143ea54d7f2b",
     "packages/ui/assets/icons/desktop/macos8/document-small.webp": "0e52927459f76c7c1cd5b1d10fc11614bc0664661a88678d050a577044f4ec74",
     "packages/ui/assets/icons/desktop/macos8/document.png": "da00cc155551cc1fb58c9a695e5982189ac0e0e2a46f0e18d7e54b736465dcbc",
@@ -1885,7 +1905,7 @@
     "packages/ui/assets/icons/desktop/macos8/note-pad-small.webp": "e8eea45f78103992f923d0f7b8d03fbeb7a1b5e1c4c6271d6922eef94f261509",
     "packages/ui/assets/icons/desktop/macos8/note-pad.png": "8717baf879693ba6ecb4457ebaeb513671d33167ae34fc591866f8735cd2feda",
     "packages/ui/assets/icons/desktop/macos8/note-pad.webp": "230b95f0c1c52f589901ff7f324283351f19bc5835851bc6215e592e48d3e86a",
-    "packages/ui/assets/icons/desktop/macos8/provenance.json": "04b04ef27ac6e713543a121e24d5bef61fbfbc9a28514b8aac948e3bd555042c",
+    "packages/ui/assets/icons/desktop/macos8/provenance.json": "be2ffb645bd5068fc1a27793d65d5eba8fd16e59f8141c3944e2a87eed37fdec",
     "packages/ui/assets/icons/desktop/macos8/scrapbook-small.png": "f09e9e1270d6317443ec7c540611913de58d69c033285adcbee8b314a9d7739e",
     "packages/ui/assets/icons/desktop/macos8/scrapbook-small.webp": "8dcd75a862044561653e3adab75c7a53b9999677bcd34824b471084d30e02179",
     "packages/ui/assets/icons/desktop/macos8/scrapbook.png": "b5bc3e73403ebd9e7b438d247c99c7971e7148ca702aaa2ee4983fc5c63c33ef",
@@ -1894,6 +1914,14 @@
     "packages/ui/assets/icons/desktop/macos8/stickies-small.webp": "62c855e15768962deb76586acb8c0975709d41627c56a3f2188f396c19fb4d2d",
     "packages/ui/assets/icons/desktop/macos8/stickies.png": "ede26724e99b2bd80f2a584c5e08f8b7cdd7e5ef4c3e277bb5dcff531970a369",
     "packages/ui/assets/icons/desktop/macos8/stickies.webp": "3508ac6063295e1ff23a8c91241ff3fe0dcf419c83c22427d6ee6791f3583130",
+    "packages/ui/assets/icons/desktop/macos8/trash-full-small.png": "2aa82199a139a59e5414d4d1819f73b4d4f8f11c0c895bed1514c58a5bb382f8",
+    "packages/ui/assets/icons/desktop/macos8/trash-full-small.webp": "f87cde5eeb443e312d6290d1120b64daf08c7c29aa2312c9e5bab6972731e79e",
+    "packages/ui/assets/icons/desktop/macos8/trash-full.png": "a61548fab7b879f13b24d804924620410b6e4a57de5d3be625a40e560d64cbb4",
+    "packages/ui/assets/icons/desktop/macos8/trash-full.webp": "3198d3797623714e0702fd1daa24c85ae8c53d5b0ed5e904d175493b1e8b6388",
+    "packages/ui/assets/icons/desktop/macos8/trash-small.png": "8f5c338d6b55914f8e61595baee7f6a837bfa387601fd45967ff57505191342f",
+    "packages/ui/assets/icons/desktop/macos8/trash-small.webp": "43d6aeba9cf0dbf5543c298a54361b322c5656a0afcaae0d23602d4e29987d9e",
+    "packages/ui/assets/icons/desktop/macos8/trash.png": "257fe2a035ee2aa3ea0aeef29463d24ea78cabd86b0e8248249bd046f4bc149b",
+    "packages/ui/assets/icons/desktop/macos8/trash.webp": "14e52047e208363e2f91844f51ba4b91f8e3b4827584512040c8c6c88953c954",
     "packages/ui/assets/icons/system/help.svg": "10d0061734e08e22db982f9cb28cbaf189a994de933401f6091e95b7e77c400b",
     "packages/ui/assets/icons/system/language.svg": "1ebea07a71802f3f71dc2832e7f446f688a2f28450355543c880ce75b4824473",
     "packages/ui/assets/icons/system/pixelarticons-sources.json": "6af1a43b603b8e92c97f01775ab2e2a95582591524aa5a8c70bd8128b82c09e3",
@@ -2189,7 +2217,7 @@
     "packages/ui/src/components/field/index.ts": "9257c1f0dc1cbd340a7bdea5093fa1d0da69d464af29f26fe6accea75c21be14",
     "packages/ui/src/components/focus-ring.ts": "4d52eb8645538b29201af36d96060350e62ecab258f3b8feb060ed2b533cd39e",
     "packages/ui/src/components/icon/icon.module.css": "860849e8ad46ae422c51d5970fcc0222d985ad89a0896a28908bbe2ce5b0f7f0",
-    "packages/ui/src/components/icon/index.tsx": "62ffa0e1dcc178937a11cd22e59fd009b28343595b212970d28cff9176c82418",
+    "packages/ui/src/components/icon/index.tsx": "3cf5e1285e953516135879761ce7edfe81ff541f99d0f9a6ac58a9cb270beda2",
     "packages/ui/src/components/index.ts": "e393c0e9162ab85834d0bbe8ae4126e4976fa22c1ac2139ec43458968a1cdda6",
     "packages/ui/src/components/input/TextArea.tsx": "c7bd2bfdcce022cda9670fece9327a6b552e4affb70983982152934c997f426d",
     "packages/ui/src/components/input/index.ts": "87f9cc06e9fc6d4330d00bf0b1c2ace0aadd3f64bbd895daa759410fdd35487c",
@@ -2310,7 +2338,7 @@
     "packages/ui/src/components/tooltip/tooltip.tsx": "3651926d32ac59540614277fdb683036caca9f0678f4242fd0eb6a32e79b4907",
     "packages/ui/src/components/tooltip/types.ts": "8a9a75a881d25c52a01847bcc2d7a3d496ea94a70fee727fc1d375b1eabc7560",
     "packages/ui/src/components/tooltip/use-tooltip-trigger.ts": "82e696768f50c915b8d1a570a4fde4b62a796b0d0969ad571911f40730d31766",
-    "packages/ui/src/components/window-workspace/disclosure.ts": "383c79852d73432ddc14552d8c83c57b1fdcae86e9ec2e58e8c29c9d159c065b",
+    "packages/ui/src/components/window-workspace/disclosure.ts": "516d1d5c4a2d1e2d0753efad16d14643d54710e2e3f2d1ca7898fb07d844a582",
     "packages/ui/src/components/window-workspace/index.tsx": "81c8660645c0c41401479132293bab1cfae78bbf93e21bbf296813e8ef91abef",
     "packages/ui/src/components/window-workspace/workspace.module.css": "ea743d70148e0ba46cebacbe8d641770e2b8ef79e5869281a98eb31b2716fc7d",
     "packages/ui/src/components/window/alert-dialog.tsx": "5d28cc6d2345dd8d64e07242dc820f2cf882a1e04313631f970d88a7820b48be",
@@ -2338,18 +2366,18 @@
     "packages/ui/src/vite-env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
     "packages/ui/tsconfig.json": "39f1ea9304624e1f2f25ce3ed5e661f6afbfbc2fac1895408555e921338fcb38",
     "packages/ui/vite.config.ts": "4461c02d22002cacb254e22f7cc6499851e6a2029683e1495457cac8c7eb8368",
-    "pnpm-lock.yaml": "9df0edc757c3421db5c92ca70b66bd601754b2f97a72cfad3072dc58c709b562",
+    "pnpm-lock.yaml": "db2d0b7a832633ddc42d1c5b63119d7d8c9b47663a4fa6dc671d97571f92bed7",
     "scripts/base/screenshot.mjs": "2c0602e865621023a5a3203e7cedce7c95c43ccd986b3a7f58082868c9c981df",
     "scripts/visual-audit/site/README.md": "b952c6ed5f1c2e957e089f51aa239615b0590ef39a88d802695ad435881a3720",
     "scripts/visual-audit/site/audit.mjs": "f9ba7c65d14df16bfb01d6bcae061aad5a83cbba63deac0f3b2027e6bf492545",
-    "scripts/visual-audit/site/capture.payload.mjs": "28a4601e577924597f56d516650f2b16e7a04d9cdf2352dbd42c3f8f3b774eaf",
+    "scripts/visual-audit/site/capture.payload.mjs": "a8efc87aaf366c36751e7d7a39d62a5115b9a2f74e566a581eca630228bcf1af",
     "scripts/visual-audit/site/compare.mjs": "5ebf90159c474d4b10e384b3146bfedd8c7129bb684c370997b453a87d259d42",
     "scripts/visual-audit/site/report.mjs": "ec9f9f5366a9239b1dc739feecf0d048daf20f537a081264ce9a472ff015f764",
-    "scripts/visual-audit/site/scenes.mjs": "9f08b99ce45c56f04c58c8554837db45da2d811e96eb2886246664ba71c088c5",
+    "scripts/visual-audit/site/scenes.mjs": "86616b8209f167de6a3f0551a887c82f1528b5861ff59ce6b57cea5ff9fac2b2",
     "scripts/visual-audit/site/sources.mjs": "19e78a016dc040ea7ee423018fdab627b358eb07ca0be634355804deae975d59",
     "scripts/visual-audit/tools-startup/scenes.mjs": "bbbfab975f0bbab717c01ab0b4b6523eff6331dcd49832b810eda284614e96b7"
   },
-  "sourceDigest": "a3dc3693a564a1e77d1556e306b32dc099f2de04e4d51f1aec50855d45cfc44d",
+  "sourceDigest": "48a5202eb35abb907d57582698cf3c8bee1b5b7d019dfd7a681c7249a18f9d6e",
   "scenes": [
     "about-zh-CN-wide-light",
     "about-zh-CN-compact-light",
@@ -2381,6 +2409,8 @@
     "tools-animal-crossing-qr-loaded-en-compact-dark",
     "tools-fuse-beads-empty-zh-CN-wide-light",
     "tools-fuse-beads-loaded-zh-CN-wide-light",
+    "files-window-tools-pixelate-en-wide-light",
+    "files-window-tools-viewer-zh-CN-wide-dark",
     "about-features-en-compact-dark",
     "feature-window-tools-viewer-en-wide-light",
     "feature-window-tools-viewer-zh-CN-compact-dark",
@@ -2400,7 +2430,7 @@
   "cases": [
     {
       "id": "about-zh-CN-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
       "file": "about-zh-CN-wide-light.png",
       "contract": {
         "id": "about-zh-CN-wide-light",
@@ -2436,7 +2466,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:31.583Z",
+        "capturedAt": "2026-10-15T02:42:37.943Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2500,7 +2530,7 @@
     },
     {
       "id": "compare-zh-CN-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
       "file": "compare-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-zh-CN-compact-dark",
@@ -2536,7 +2566,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:37.733Z",
+        "capturedAt": "2026-10-15T02:42:43.050Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2600,7 +2630,7 @@
     },
     {
       "id": "features-aseprite-projects-zh-CN-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
       "file": "features-aseprite-projects-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-aseprite-projects-zh-CN-compact-dark",
@@ -2636,7 +2666,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:41.824Z",
+        "capturedAt": "2026-10-15T02:42:45.830Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2700,7 +2730,7 @@
     },
     {
       "id": "features-frame-animation-zh-CN-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
       "file": "features-frame-animation-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-frame-animation-zh-CN-compact-dark",
@@ -2736,7 +2766,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:44.824Z",
+        "capturedAt": "2026-10-15T02:42:48.570Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2800,7 +2830,7 @@
     },
     {
       "id": "features-touch-drawing-zh-CN-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
       "file": "features-touch-drawing-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-touch-drawing-zh-CN-compact-dark",
@@ -2836,7 +2866,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:47.358Z",
+        "capturedAt": "2026-10-15T02:42:50.661Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2900,7 +2930,7 @@
     },
     {
       "id": "tools-viewer-empty-en-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
       "file": "tools-viewer-empty-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-empty-en-wide-light",
@@ -2937,7 +2967,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:50.030Z",
+        "capturedAt": "2026-10-15T02:42:53.383Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2965,7 +2995,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "d2bf287e4ffb6fe64f643451a2f2b456b5f6e172df7ff8fa7a4e6167a25e0eda",
+        "sha256": "1e8c3fce0ff7c4f4c9f02897929e2b99cd00dd44429c015db5fcc79b9a171c4b",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3001,7 +3031,7 @@
     },
     {
       "id": "tools-pixelate-empty-en-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
       "file": "tools-pixelate-empty-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-empty-en-wide-light",
@@ -3038,7 +3068,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:52.889Z",
+        "capturedAt": "2026-10-15T02:42:55.613Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3066,7 +3096,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "8ff5bb6d27136e97a7dc3f9ba79ccf1952f34dc7316a7de712c057bcde4c334a",
+        "sha256": "1ac512e0e6946b5ab603eaa2b8459a50dbeec3e4daef6959e597becaa7e6241a",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3102,7 +3132,7 @@
     },
     {
       "id": "tools-fuse-beads-empty-zh-CN-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
       "file": "tools-fuse-beads-empty-zh-CN-wide-light.png",
       "contract": {
         "id": "tools-fuse-beads-empty-zh-CN-wide-light",
@@ -3139,7 +3169,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:55.187Z",
+        "capturedAt": "2026-10-15T02:42:57.971Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3167,7 +3197,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "9308046fb3b1738a82ca99d719645ec7e58d9fbb8f67f439a08f38589c2f68d1",
+        "sha256": "38759f1aefe7ab6a56016140e261389839872947cc2ea161e57ecfb4033ed298",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3200,2281 +3230,10 @@
       ],
       "platform": "Linux x86_64",
       "path": "/tools/fuse-beads/"
-    },
-    {
-      "id": "feature-window-tools-viewer-zh-CN-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "feature-window-tools-viewer-zh-CN-compact-dark.png",
-      "contract": {
-        "id": "feature-window-tools-viewer-zh-CN-compact-dark",
-        "page": {
-          "name": "feature-window-tools-viewer",
-          "path": "/zh-CN/features/",
-          "language": "zh-CN",
-          "phase": "ready",
-          "ready": "html[data-public-controls-ready]",
-          "action": "feature",
-          "href": "/tools/viewer/",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            },
-            {
-              "name": "window",
-              "selector": "[role=\"dialog\"]"
-            }
-          ],
-          "scrollWindow": true
-        },
-        "layout": {
-          "name": "compact",
-          "width": 390,
-          "height": 844
-        },
-        "appearance": {
-          "name": "dark",
-          "saved": "dark",
-          "system": "light",
-          "resolved": "dark"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:58.178Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 390,
-          "height": 844,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        "pixels": {
-          "width": 390,
-          "height": 844
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "d65aa60c81b28808e0f1891faacc0043c76061a4f51bb16e30e6145fe04fd5c0",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 374,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 12,
-          "y": 36,
-          "width": 350,
-          "height": 760
-        },
-        {
-          "name": "window",
-          "x": 0,
-          "y": 162,
-          "width": 374,
-          "height": 520
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/zh-CN/features/"
-    },
-    {
-      "id": "about-ko-compact-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "about-ko-compact-light.png",
-      "contract": {
-        "id": "about-ko-compact-light",
-        "page": {
-          "name": "about",
-          "path": "/ko/about/",
-          "language": "ko",
-          "phase": "ssg",
-          "ready": "[data-showcase-static-page]",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            }
-          ]
-        },
-        "layout": {
-          "name": "compact",
-          "width": 390,
-          "height": 844
-        },
-        "appearance": {
-          "name": "light",
-          "saved": "light",
-          "system": "dark",
-          "resolved": "light"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:59.638Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 390,
-          "height": 844,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        "pixels": {
-          "width": 390,
-          "height": 844
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "ed392319c05a32a8310cf4cc8bb6c0d43bc53c8e774824a08a48a58fbf786f3b",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 374,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 0,
-          "y": 36,
-          "width": 374,
-          "height": 3076.265625
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/ko/about/"
-    },
-    {
-      "id": "feature-window-features-draw-pixel-art-ko-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "feature-window-features-draw-pixel-art-ko-compact-dark.png",
-      "contract": {
-        "id": "feature-window-features-draw-pixel-art-ko-compact-dark",
-        "page": {
-          "name": "feature-window-features-draw-pixel-art",
-          "path": "/ko/features/",
-          "language": "ko",
-          "phase": "ready",
-          "ready": "html[data-public-controls-ready]",
-          "action": "feature",
-          "href": "/ko/features/draw-pixel-art/",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            },
-            {
-              "name": "window",
-              "selector": "[role=\"dialog\"]"
-            }
-          ]
-        },
-        "layout": {
-          "name": "compact",
-          "width": 390,
-          "height": 844
-        },
-        "appearance": {
-          "name": "dark",
-          "saved": "dark",
-          "system": "light",
-          "resolved": "dark"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:45:02.011Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 390,
-          "height": 844,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        "pixels": {
-          "width": 390,
-          "height": 844
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "5a763749e742fc4c0253a0750e4bfc7b0ee66192bc2c2ed49c23babd97b8df27",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 374,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 12,
-          "y": 36,
-          "width": 350,
-          "height": 760
-        },
-        {
-          "name": "window",
-          "x": 0,
-          "y": 162,
-          "width": 374,
-          "height": 520
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/ko/features/"
-    },
-    {
-      "id": "feature-window-tools-viewer-ru-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "feature-window-tools-viewer-ru-compact-dark.png",
-      "contract": {
-        "id": "feature-window-tools-viewer-ru-compact-dark",
-        "page": {
-          "name": "feature-window-tools-viewer",
-          "path": "/ru/features/",
-          "language": "ru",
-          "phase": "ready",
-          "ready": "html[data-public-controls-ready]",
-          "action": "feature",
-          "href": "/tools/viewer/",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            },
-            {
-              "name": "window",
-              "selector": "[role=\"dialog\"]"
-            }
-          ]
-        },
-        "layout": {
-          "name": "compact",
-          "width": 390,
-          "height": 844
-        },
-        "appearance": {
-          "name": "dark",
-          "saved": "dark",
-          "system": "light",
-          "resolved": "dark"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:45:07.436Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 390,
-          "height": 844,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        "pixels": {
-          "width": 390,
-          "height": 844
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "53d470452ea8cbdb4f5c651688c4e832a5ad6d5e4df321b18765946de7698b30",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 374,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 12,
-          "y": 36,
-          "width": 350,
-          "height": 760
-        },
-        {
-          "name": "window",
-          "x": 0,
-          "y": 162,
-          "width": 374,
-          "height": 520
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/ru/features/"
-    },
-    {
-      "id": "about-zh-CN-compact-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "about-zh-CN-compact-light.png",
-      "contract": {
-        "id": "about-zh-CN-compact-light",
-        "page": {
-          "name": "about",
-          "path": "/zh-CN/about/",
-          "language": "zh-CN",
-          "phase": "ssg",
-          "ready": "[data-showcase-static-page]",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            }
-          ]
-        },
-        "layout": {
-          "name": "compact",
-          "width": 390,
-          "height": 844
-        },
-        "appearance": {
-          "name": "light",
-          "saved": "light",
-          "system": "dark",
-          "resolved": "light"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:31.363Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 390,
-          "height": 844,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        "pixels": {
-          "width": 390,
-          "height": 844
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "adbb8d47aac68691c08d1d663556228f9080d4ff161ba3732a39ea3247962888",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 374,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 0,
-          "y": 36,
-          "width": 374,
-          "height": 3052.265625
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/zh-CN/about/"
-    },
-    {
-      "id": "compare-aseprite-on-ipad-en-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "compare-aseprite-on-ipad-en-wide-light.png",
-      "contract": {
-        "id": "compare-aseprite-on-ipad-en-wide-light",
-        "page": {
-          "name": "compare-aseprite-on-ipad",
-          "path": "/compare/aseprite-on-ipad/",
-          "language": "en",
-          "phase": "ready",
-          "ready": "html[data-public-controls-ready]",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            }
-          ]
-        },
-        "layout": {
-          "name": "wide",
-          "width": 1440,
-          "height": 900
-        },
-        "appearance": {
-          "name": "light",
-          "saved": "light",
-          "system": "dark",
-          "resolved": "light"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:35.733Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 1440,
-          "height": 900,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        "pixels": {
-          "width": 1440,
-          "height": 900
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "6c4db90dbcc1d1a1d22f83e6a7eeca1e7c6a92d3db06a93eb03eae86741ee783",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 122,
-          "y": 48,
-          "width": 1180,
-          "height": 804
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/compare/aseprite-on-ipad/"
-    },
-    {
-      "id": "features-draw-pixel-art-en-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "features-draw-pixel-art-en-wide-light.png",
-      "contract": {
-        "id": "features-draw-pixel-art-en-wide-light",
-        "page": {
-          "name": "features-draw-pixel-art",
-          "path": "/features/draw-pixel-art/",
-          "language": "en",
-          "phase": "ready",
-          "ready": "html[data-public-controls-ready]",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            }
-          ]
-        },
-        "layout": {
-          "name": "wide",
-          "width": 1440,
-          "height": 900
-        },
-        "appearance": {
-          "name": "light",
-          "saved": "light",
-          "system": "dark",
-          "resolved": "light"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:40.683Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 1440,
-          "height": 900,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        "pixels": {
-          "width": 1440,
-          "height": 900
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "8aa26ea05351fcc6408562f61781290067a47c256a6c6a20719b027a913437fc",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 1424,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 122,
-          "y": 48,
-          "width": 1180,
-          "height": 804
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/features/draw-pixel-art/"
-    },
-    {
-      "id": "features-layers-and-colors-en-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "features-layers-and-colors-en-wide-light.png",
-      "contract": {
-        "id": "features-layers-and-colors-en-wide-light",
-        "page": {
-          "name": "features-layers-and-colors",
-          "path": "/features/layers-and-colors/",
-          "language": "en",
-          "phase": "ready",
-          "ready": "html[data-public-controls-ready]",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            }
-          ]
-        },
-        "layout": {
-          "name": "wide",
-          "width": 1440,
-          "height": 900
-        },
-        "appearance": {
-          "name": "light",
-          "saved": "light",
-          "system": "dark",
-          "resolved": "light"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:43.772Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 1440,
-          "height": 900,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        "pixels": {
-          "width": 1440,
-          "height": 900
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "c074d7e23a5f63502cff5cfb935694d9065d390a67cbf5558acc2989fbd52d4e",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 1424,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 122,
-          "y": 48,
-          "width": 1180,
-          "height": 804
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/features/layers-and-colors/"
-    },
-    {
-      "id": "features-workspace-layout-en-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "features-workspace-layout-en-wide-light.png",
-      "contract": {
-        "id": "features-workspace-layout-en-wide-light",
-        "page": {
-          "name": "features-workspace-layout",
-          "path": "/features/workspace-layout/",
-          "language": "en",
-          "phase": "ready",
-          "ready": "html[data-public-controls-ready]",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            }
-          ]
-        },
-        "layout": {
-          "name": "wide",
-          "width": 1440,
-          "height": 900
-        },
-        "appearance": {
-          "name": "light",
-          "saved": "light",
-          "system": "dark",
-          "resolved": "light"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:46.507Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 1440,
-          "height": 900,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        "pixels": {
-          "width": 1440,
-          "height": 900
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "3d8a28cf4336a549d463302f38442c93c043670c1ae8b1dac493635492cc84cb",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 1424,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 122,
-          "y": 48,
-          "width": 1180,
-          "height": 804
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/features/workspace-layout/"
-    },
-    {
-      "id": "tools-viewer-loaded-en-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "tools-viewer-loaded-en-wide-light.png",
-      "contract": {
-        "id": "tools-viewer-loaded-en-wide-light",
-        "page": {
-          "name": "tools-viewer-loaded",
-          "path": "/tools/viewer/",
-          "language": "en",
-          "phase": "ready",
-          "ready": "#viewer-root[data-tool-ready]",
-          "rootId": "viewer-root",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            },
-            {
-              "name": "workspace",
-              "selector": "[data-tool-state=\"ready\"] main"
-            }
-          ],
-          "action": "example"
-        },
-        "layout": {
-          "name": "wide",
-          "width": 1440,
-          "height": 900
-        },
-        "appearance": {
-          "name": "light",
-          "saved": "light",
-          "system": "dark",
-          "resolved": "light"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:51.120Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 1440,
-          "height": 900,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        "pixels": {
-          "width": 1440,
-          "height": 900
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "d31902bee6cdd83cd079f7db77e3ea4d7b63c54585a8028b98fd0aad1f53dfc2",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 1424,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 32,
-          "y": 48,
-          "width": 1076,
-          "height": 812
-        },
-        {
-          "name": "workspace",
-          "x": 32,
-          "y": 48,
-          "width": 1076,
-          "height": 812
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/tools/viewer/"
-    },
-    {
-      "id": "tools-pixelate-loaded-en-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "tools-pixelate-loaded-en-wide-light.png",
-      "contract": {
-        "id": "tools-pixelate-loaded-en-wide-light",
-        "page": {
-          "name": "tools-pixelate-loaded",
-          "path": "/tools/pixelate/",
-          "language": "en",
-          "phase": "ready",
-          "ready": "#pixelation-root[data-tool-ready]",
-          "rootId": "pixelation-root",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            },
-            {
-              "name": "workspace",
-              "selector": "[data-tool-state=\"ready\"] main"
-            }
-          ],
-          "action": "example"
-        },
-        "layout": {
-          "name": "wide",
-          "width": 1440,
-          "height": 900
-        },
-        "appearance": {
-          "name": "light",
-          "saved": "light",
-          "system": "dark",
-          "resolved": "light"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:55.017Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 1440,
-          "height": 900,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        "pixels": {
-          "width": 1440,
-          "height": 900
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "3ed8fe3c515d5cb20d900bd1eff08d51c795974112353601397f9b9cb6657387",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 1424,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 32,
-          "y": 48,
-          "width": 1076,
-          "height": 812
-        },
-        {
-          "name": "workspace",
-          "x": 32,
-          "y": 48,
-          "width": 1076,
-          "height": 812
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/tools/pixelate/"
-    },
-    {
-      "id": "tools-fuse-beads-loaded-zh-CN-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "tools-fuse-beads-loaded-zh-CN-wide-light.png",
-      "contract": {
-        "id": "tools-fuse-beads-loaded-zh-CN-wide-light",
-        "page": {
-          "name": "tools-fuse-beads-loaded",
-          "path": "/tools/fuse-beads/",
-          "language": "zh-CN",
-          "phase": "ready",
-          "ready": "#beads-root[data-tool-ready]",
-          "rootId": "beads-root",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            },
-            {
-              "name": "workspace",
-              "selector": "[data-tool-state=\"ready\"] main"
-            }
-          ],
-          "action": "example"
-        },
-        "layout": {
-          "name": "wide",
-          "width": 1440,
-          "height": 900
-        },
-        "appearance": {
-          "name": "light",
-          "saved": "light",
-          "system": "dark",
-          "resolved": "light"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:58.181Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 1440,
-          "height": 900,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        "pixels": {
-          "width": 1440,
-          "height": 900
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "de7d83e3fb72934fbdbc9cf1ba09678e9247533158d774debb323084e92db5aa",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 1424,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 32,
-          "y": 48,
-          "width": 1076,
-          "height": 812
-        },
-        {
-          "name": "workspace",
-          "x": 32,
-          "y": 48,
-          "width": 1076,
-          "height": 812
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/tools/fuse-beads/"
-    },
-    {
-      "id": "site-footer-en-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "site-footer-en-wide-light.png",
-      "contract": {
-        "id": "site-footer-en-wide-light",
-        "page": {
-          "name": "site-footer",
-          "path": "/features/",
-          "language": "en",
-          "phase": "ready",
-          "ready": "html[data-public-controls-ready]",
-          "action": "footer",
-          "regions": [
-            {
-              "name": "footer",
-              "selector": "[data-site-footer]"
-            }
-          ]
-        },
-        "layout": {
-          "name": "wide",
-          "width": 1440,
-          "height": 900
-        },
-        "appearance": {
-          "name": "light",
-          "saved": "light",
-          "system": "dark",
-          "resolved": "light"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:59.456Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 1440,
-          "height": 900,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        "pixels": {
-          "width": 1440,
-          "height": 900
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "7832c2e76cb61e5c834f808bb683d9b6de79a87d4b0e2e33e159855f040dfcb0",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        {
-          "name": "footer",
-          "x": 0,
-          "y": 603,
-          "width": 1424,
-          "height": 297
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/features/"
-    },
-    {
-      "id": "compare-aseprite-on-ipad-ja-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "compare-aseprite-on-ipad-ja-wide-light.png",
-      "contract": {
-        "id": "compare-aseprite-on-ipad-ja-wide-light",
-        "page": {
-          "name": "compare-aseprite-on-ipad",
-          "path": "/ja/compare/aseprite-on-ipad/",
-          "language": "ja",
-          "phase": "ready",
-          "ready": "html[data-public-controls-ready]",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            }
-          ]
-        },
-        "layout": {
-          "name": "wide",
-          "width": 1440,
-          "height": 900
-        },
-        "appearance": {
-          "name": "light",
-          "saved": "light",
-          "system": "dark",
-          "resolved": "light"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:45:01.277Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 1440,
-          "height": 900,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        "pixels": {
-          "width": 1440,
-          "height": 900
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "046573183fe356beca1695149add9c311fad41eb831ecb16d9323e06738704f0",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 122,
-          "y": 48,
-          "width": 1180,
-          "height": 804
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/ja/compare/aseprite-on-ipad/"
-    },
-    {
-      "id": "about-ru-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "about-ru-wide-light.png",
-      "contract": {
-        "id": "about-ru-wide-light",
-        "page": {
-          "name": "about",
-          "path": "/ru/about/",
-          "language": "ru",
-          "phase": "ssg",
-          "ready": "[data-showcase-static-page]",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            }
-          ]
-        },
-        "layout": {
-          "name": "wide",
-          "width": 1440,
-          "height": 900
-        },
-        "appearance": {
-          "name": "light",
-          "saved": "light",
-          "system": "dark",
-          "resolved": "light"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:45:02.912Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 1440,
-          "height": 900,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        "pixels": {
-          "width": 1440,
-          "height": 900
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "401e5a2a8ffa4a332de0ec506bf33d7b24d057ec1d8c4d29b17a883bb20f0a2a",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 1424,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 0,
-          "y": 44,
-          "width": 1424,
-          "height": 3084.484375
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/ru/about/"
-    },
-    {
-      "id": "about-features-zh-CN-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "about-features-zh-CN-compact-dark.png",
-      "contract": {
-        "id": "about-features-zh-CN-compact-dark",
-        "page": {
-          "name": "about-features",
-          "path": "/zh-CN/features/",
-          "language": "zh-CN",
-          "phase": "ready",
-          "ready": "html[data-public-controls-ready]",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            }
-          ]
-        },
-        "layout": {
-          "name": "compact",
-          "width": 390,
-          "height": 844
-        },
-        "appearance": {
-          "name": "dark",
-          "saved": "dark",
-          "system": "light",
-          "resolved": "dark"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:31.351Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 390,
-          "height": 844,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        "pixels": {
-          "width": 390,
-          "height": 844
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "5bcc5de0bdd762641bc17527ccffe3f77421d7eaeb042ebbe493ff63e0521b57",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 374,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 12,
-          "y": 36,
-          "width": 350,
-          "height": 760
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/zh-CN/features/"
-    },
-    {
-      "id": "compare-aseprite-online-zh-CN-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "compare-aseprite-online-zh-CN-compact-dark.png",
-      "contract": {
-        "id": "compare-aseprite-online-zh-CN-compact-dark",
-        "page": {
-          "name": "compare-aseprite-online",
-          "path": "/zh-CN/compare/aseprite-online/",
-          "language": "zh-CN",
-          "phase": "ready",
-          "ready": "html[data-public-controls-ready]",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            }
-          ]
-        },
-        "layout": {
-          "name": "compact",
-          "width": 390,
-          "height": 844
-        },
-        "appearance": {
-          "name": "dark",
-          "saved": "dark",
-          "system": "light",
-          "resolved": "dark"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:36.563Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 390,
-          "height": 844,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        "pixels": {
-          "width": 390,
-          "height": 844
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "aa7109f1993acca7066c96c4766d8153f10484c905c17771672877f1359ded36",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 12,
-          "y": 36,
-          "width": 350,
-          "height": 760
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/zh-CN/compare/aseprite-online/"
-    },
-    {
-      "id": "features-drawing-process-zh-CN-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "features-drawing-process-zh-CN-compact-dark.png",
-      "contract": {
-        "id": "features-drawing-process-zh-CN-compact-dark",
-        "page": {
-          "name": "features-drawing-process",
-          "path": "/zh-CN/features/drawing-process/",
-          "language": "zh-CN",
-          "phase": "ready",
-          "ready": "html[data-public-controls-ready]",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            }
-          ]
-        },
-        "layout": {
-          "name": "compact",
-          "width": 390,
-          "height": 844
-        },
-        "appearance": {
-          "name": "dark",
-          "saved": "dark",
-          "system": "light",
-          "resolved": "dark"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:40.854Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 390,
-          "height": 844,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        "pixels": {
-          "width": 390,
-          "height": 844
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "1ba75854f5f95839fc15e75ba3b17bab345389bcb363fe745fe712261ac8797e",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 374,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 12,
-          "y": 36,
-          "width": 350,
-          "height": 760
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/zh-CN/features/drawing-process/"
-    },
-    {
-      "id": "features-share-artwork-zh-CN-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "features-share-artwork-zh-CN-compact-dark.png",
-      "contract": {
-        "id": "features-share-artwork-zh-CN-compact-dark",
-        "page": {
-          "name": "features-share-artwork",
-          "path": "/zh-CN/features/share-artwork/",
-          "language": "zh-CN",
-          "phase": "ready",
-          "ready": "html[data-public-controls-ready]",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            }
-          ]
-        },
-        "layout": {
-          "name": "compact",
-          "width": 390,
-          "height": 844
-        },
-        "appearance": {
-          "name": "dark",
-          "saved": "dark",
-          "system": "light",
-          "resolved": "dark"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:44.082Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 390,
-          "height": 844,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        "pixels": {
-          "width": 390,
-          "height": 844
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "f69c3d2167aa2937bfaaf696d6d95657c2f6b54e47b6f111463c994d734508d6",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 374,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 12,
-          "y": 36,
-          "width": 350,
-          "height": 760
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/zh-CN/features/share-artwork/"
-    },
-    {
-      "id": "help-zh-CN-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "help-zh-CN-compact-dark.png",
-      "contract": {
-        "id": "help-zh-CN-compact-dark",
-        "page": {
-          "name": "help",
-          "path": "/zh-CN/help/",
-          "language": "zh-CN",
-          "phase": "ready",
-          "ready": "html[data-public-controls-ready]",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            }
-          ]
-        },
-        "layout": {
-          "name": "compact",
-          "width": 390,
-          "height": 844
-        },
-        "appearance": {
-          "name": "dark",
-          "saved": "dark",
-          "system": "light",
-          "resolved": "dark"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:46.827Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 390,
-          "height": 844,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        "pixels": {
-          "width": 390,
-          "height": 844
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "5ad33ce029c36d285f087f5f5347bdd906b45af66d9897a028b85483286ec06a",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 374,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 12,
-          "y": 36,
-          "width": 350,
-          "height": 760
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/zh-CN/help/"
-    },
-    {
-      "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark.png",
-      "contract": {
-        "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
-        "page": {
-          "name": "tools-gif-to-sprite-sheet-empty",
-          "path": "/tools/gif-to-sprite-sheet/",
-          "language": "zh-CN",
-          "phase": "ready",
-          "ready": "#gif-sheet-root[data-tool-ready]",
-          "rootId": "gif-sheet-root",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            }
-          ]
-        },
-        "layout": {
-          "name": "compact",
-          "width": 390,
-          "height": 844
-        },
-        "appearance": {
-          "name": "dark",
-          "saved": "dark",
-          "system": "light",
-          "resolved": "dark"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:49.880Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 390,
-          "height": 844,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        "pixels": {
-          "width": 390,
-          "height": 844
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "400509b70b991244362a62082ccbd1035942dfe1fdc38370649f7430e50ec737",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 374,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 12,
-          "y": 32,
-          "width": 350,
-          "height": 524
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/tools/gif-to-sprite-sheet/"
-    },
-    {
-      "id": "tools-animal-crossing-qr-empty-en-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "tools-animal-crossing-qr-empty-en-compact-dark.png",
-      "contract": {
-        "id": "tools-animal-crossing-qr-empty-en-compact-dark",
-        "page": {
-          "name": "tools-animal-crossing-qr-empty",
-          "path": "/tools/animal-crossing-qr/",
-          "language": "en",
-          "phase": "ready",
-          "ready": "#animal-crossing-root[data-tool-ready]",
-          "rootId": "animal-crossing-root",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            }
-          ]
-        },
-        "layout": {
-          "name": "compact",
-          "width": 390,
-          "height": 844
-        },
-        "appearance": {
-          "name": "dark",
-          "saved": "dark",
-          "system": "light",
-          "resolved": "dark"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:53.364Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 390,
-          "height": 844,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        "pixels": {
-          "width": 390,
-          "height": 844
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "37635d0cfcf006d6d7fb44e49d3ef7ea1e5a538e5c04186ff32ebba97c640414",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 374,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 12,
-          "y": 32,
-          "width": 350,
-          "height": 486
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/tools/animal-crossing-qr/"
     },
     {
       "id": "about-features-en-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
       "file": "about-features-en-compact-dark.png",
       "contract": {
         "id": "about-features-en-compact-dark",
@@ -5510,7 +3269,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:55.006Z",
+        "capturedAt": "2026-10-15T02:42:59.414Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5574,7 +3333,7 @@
     },
     {
       "id": "site-footer-zh-CN-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
       "file": "site-footer-zh-CN-compact-dark.png",
       "contract": {
         "id": "site-footer-zh-CN-compact-dark",
@@ -5607,7 +3366,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:57.054Z",
+        "capturedAt": "2026-10-15T02:43:00.830Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5664,7 +3423,7 @@
     },
     {
       "id": "help-ko-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
       "file": "help-ko-compact-dark.png",
       "contract": {
         "id": "help-ko-compact-dark",
@@ -5700,7 +3459,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:59.068Z",
+        "capturedAt": "2026-10-15T02:43:02.306Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5764,7 +3523,7 @@
     },
     {
       "id": "help-pt-BR-compact-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
       "file": "help-pt-BR-compact-light.png",
       "contract": {
         "id": "help-pt-BR-compact-light",
@@ -5800,7 +3559,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:45:01.029Z",
+        "capturedAt": "2026-10-15T02:43:04.024Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5863,14 +3622,114 @@
       "path": "/pt-BR/help/"
     },
     {
-      "id": "about-how-it-works-en-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "about-how-it-works-en-wide-light.png",
+      "id": "about-zh-CN-compact-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "about-zh-CN-compact-light.png",
       "contract": {
-        "id": "about-how-it-works-en-wide-light",
+        "id": "about-zh-CN-compact-light",
         "page": {
-          "name": "about-how-it-works",
-          "path": "/about/how-it-works/",
+          "name": "about",
+          "path": "/zh-CN/about/",
+          "language": "zh-CN",
+          "phase": "ssg",
+          "ready": "[data-showcase-static-page]",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "compact",
+          "width": 390,
+          "height": 844
+        },
+        "appearance": {
+          "name": "light",
+          "saved": "light",
+          "system": "dark",
+          "resolved": "light"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:38.314Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "pixels": {
+          "width": 390,
+          "height": 844
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "adbb8d47aac68691c08d1d663556228f9080d4ff161ba3732a39ea3247962888",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 374,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 0,
+          "y": 36,
+          "width": 374,
+          "height": 3052.265625
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/zh-CN/about/"
+    },
+    {
+      "id": "compare-aseprite-on-ipad-en-wide-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "compare-aseprite-on-ipad-en-wide-light.png",
+      "contract": {
+        "id": "compare-aseprite-on-ipad-en-wide-light",
+        "page": {
+          "name": "compare-aseprite-on-ipad",
+          "path": "/compare/aseprite-on-ipad/",
           "language": "en",
           "phase": "ready",
           "ready": "html[data-public-controls-ready]",
@@ -5900,7 +3759,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:31.427Z",
+        "capturedAt": "2026-10-15T02:42:43.622Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5928,7 +3787,107 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "aa63a9cd84235c071bd0d8a0e6b48fe1285cf032b1cdaa7891753b02e316c591",
+        "sha256": "6c4db90dbcc1d1a1d22f83e6a7eeca1e7c6a92d3db06a93eb03eae86741ee783",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 122,
+          "y": 48,
+          "width": 1180,
+          "height": 804
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/compare/aseprite-on-ipad/"
+    },
+    {
+      "id": "features-draw-pixel-art-en-wide-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "features-draw-pixel-art-en-wide-light.png",
+      "contract": {
+        "id": "features-draw-pixel-art-en-wide-light",
+        "page": {
+          "name": "features-draw-pixel-art",
+          "path": "/features/draw-pixel-art/",
+          "language": "en",
+          "phase": "ready",
+          "ready": "html[data-public-controls-ready]",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "wide",
+          "width": 1440,
+          "height": 900
+        },
+        "appearance": {
+          "name": "light",
+          "saved": "light",
+          "system": "dark",
+          "resolved": "light"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:46.951Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "pixels": {
+          "width": 1440,
+          "height": 900
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "8aa26ea05351fcc6408562f61781290067a47c256a6c6a20719b027a913437fc",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5960,17 +3919,17 @@
         }
       ],
       "platform": "Linux x86_64",
-      "path": "/about/how-it-works/"
+      "path": "/features/draw-pixel-art/"
     },
     {
-      "id": "compare-piskel-alternatives-en-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "compare-piskel-alternatives-en-wide-light.png",
+      "id": "features-layers-and-colors-en-wide-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "features-layers-and-colors-en-wide-light.png",
       "contract": {
-        "id": "compare-piskel-alternatives-en-wide-light",
+        "id": "features-layers-and-colors-en-wide-light",
         "page": {
-          "name": "compare-piskel-alternatives",
-          "path": "/compare/piskel-alternatives/",
+          "name": "features-layers-and-colors",
+          "path": "/features/layers-and-colors/",
           "language": "en",
           "phase": "ready",
           "ready": "html[data-public-controls-ready]",
@@ -6000,7 +3959,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:35.677Z",
+        "capturedAt": "2026-10-15T02:42:49.163Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6028,107 +3987,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "3dbdd7ea46f72151009c44861226ce8a44518aaa12edbb5616a24fe18a1f41b6",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 122,
-          "y": 48,
-          "width": 1180,
-          "height": 804
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/compare/piskel-alternatives/"
-    },
-    {
-      "id": "features-export-images-and-animation-en-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "features-export-images-and-animation-en-wide-light.png",
-      "contract": {
-        "id": "features-export-images-and-animation-en-wide-light",
-        "page": {
-          "name": "features-export-images-and-animation",
-          "path": "/features/export-images-and-animation/",
-          "language": "en",
-          "phase": "ready",
-          "ready": "html[data-public-controls-ready]",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            }
-          ]
-        },
-        "layout": {
-          "name": "wide",
-          "width": 1440,
-          "height": 900
-        },
-        "appearance": {
-          "name": "light",
-          "saved": "light",
-          "system": "dark",
-          "resolved": "light"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:40.515Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 1440,
-          "height": 900,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        "pixels": {
-          "width": 1440,
-          "height": 900
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "5a8142c7c635f7926f8f76b4e94996c57e31ec3f32423b2ebaf7d0a35d9a83f1",
+        "sha256": "c074d7e23a5f63502cff5cfb935694d9065d390a67cbf5558acc2989fbd52d4e",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6160,17 +4019,17 @@
         }
       ],
       "platform": "Linux x86_64",
-      "path": "/features/export-images-and-animation/"
+      "path": "/features/layers-and-colors/"
     },
     {
-      "id": "features-tilemaps-en-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "features-tilemaps-en-wide-light.png",
+      "id": "features-workspace-layout-en-wide-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "features-workspace-layout-en-wide-light.png",
       "contract": {
-        "id": "features-tilemaps-en-wide-light",
+        "id": "features-workspace-layout-en-wide-light",
         "page": {
-          "name": "features-tilemaps",
-          "path": "/features/tilemaps/",
+          "name": "features-workspace-layout",
+          "path": "/features/workspace-layout/",
           "language": "en",
           "phase": "ready",
           "ready": "html[data-public-controls-ready]",
@@ -6200,7 +4059,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:43.645Z",
+        "capturedAt": "2026-10-15T02:42:50.939Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6228,7 +4087,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "543ff21bd17b7c378029a6b1b27260d26e74c11b5808aa2a7bad9c75eab7dd54",
+        "sha256": "3d8a28cf4336a549d463302f38442c93c043670c1ae8b1dac493635492cc84cb",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6260,20 +4119,21 @@
         }
       ],
       "platform": "Linux x86_64",
-      "path": "/features/tilemaps/"
+      "path": "/features/workspace-layout/"
     },
     {
-      "id": "privacy-en-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "privacy-en-wide-light.png",
+      "id": "tools-viewer-loaded-en-wide-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "tools-viewer-loaded-en-wide-light.png",
       "contract": {
-        "id": "privacy-en-wide-light",
+        "id": "tools-viewer-loaded-en-wide-light",
         "page": {
-          "name": "privacy",
-          "path": "/privacy/",
+          "name": "tools-viewer-loaded",
+          "path": "/tools/viewer/",
           "language": "en",
           "phase": "ready",
-          "ready": "html[data-public-controls-ready]",
+          "ready": "#viewer-root[data-tool-ready]",
+          "rootId": "viewer-root",
           "regions": [
             {
               "name": "navigation",
@@ -6282,8 +4142,13 @@
             {
               "name": "main",
               "selector": "main"
+            },
+            {
+              "name": "workspace",
+              "selector": "[data-tool-state=\"ready\"] main"
             }
-          ]
+          ],
+          "action": "example"
         },
         "layout": {
           "name": "wide",
@@ -6300,7 +4165,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:46.504Z",
+        "capturedAt": "2026-10-15T02:42:54.492Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6328,7 +4193,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "c118e6f389638f7393503dc03e9e58b9c94252464f30c3dbedb0505e18b41b8b",
+        "sha256": "70e64659c45fd5c0f09c6b1885d8a360bba87f9d62b22a840db6e44dfa5409e8",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6353,28 +4218,148 @@
         },
         {
           "name": "main",
-          "x": 122,
+          "x": 32,
           "y": 48,
-          "width": 1180,
-          "height": 804
+          "width": 1076,
+          "height": 812
+        },
+        {
+          "name": "workspace",
+          "x": 32,
+          "y": 48,
+          "width": 1076,
+          "height": 812
         }
       ],
       "platform": "Linux x86_64",
-      "path": "/privacy/"
+      "path": "/tools/viewer/"
     },
     {
-      "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark.png",
+      "id": "tools-pixelate-loaded-en-wide-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "tools-pixelate-loaded-en-wide-light.png",
       "contract": {
-        "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
+        "id": "tools-pixelate-loaded-en-wide-light",
         "page": {
-          "name": "tools-gif-to-sprite-sheet-loaded",
-          "path": "/tools/gif-to-sprite-sheet/",
+          "name": "tools-pixelate-loaded",
+          "path": "/tools/pixelate/",
+          "language": "en",
+          "phase": "ready",
+          "ready": "#pixelation-root[data-tool-ready]",
+          "rootId": "pixelation-root",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            },
+            {
+              "name": "workspace",
+              "selector": "[data-tool-state=\"ready\"] main"
+            }
+          ],
+          "action": "example"
+        },
+        "layout": {
+          "name": "wide",
+          "width": 1440,
+          "height": 900
+        },
+        "appearance": {
+          "name": "light",
+          "saved": "light",
+          "system": "dark",
+          "resolved": "light"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:58.585Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "pixels": {
+          "width": 1440,
+          "height": 900
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "b8115e270c6a43e50ffc0fbaa8c9ad9718a8cc5fb4e9041a63758eda92f2bcb5",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 32,
+          "y": 48,
+          "width": 1076,
+          "height": 812
+        },
+        {
+          "name": "workspace",
+          "x": 32,
+          "y": 48,
+          "width": 1076,
+          "height": 812
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/tools/pixelate/"
+    },
+    {
+      "id": "tools-fuse-beads-loaded-zh-CN-wide-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "tools-fuse-beads-loaded-zh-CN-wide-light.png",
+      "contract": {
+        "id": "tools-fuse-beads-loaded-zh-CN-wide-light",
+        "page": {
+          "name": "tools-fuse-beads-loaded",
+          "path": "/tools/fuse-beads/",
           "language": "zh-CN",
           "phase": "ready",
-          "ready": "#gif-sheet-root[data-tool-ready]",
-          "rootId": "gif-sheet-root",
+          "ready": "#beads-root[data-tool-ready]",
+          "rootId": "beads-root",
           "regions": [
             {
               "name": "navigation",
@@ -6392,36 +4377,36 @@
           "action": "example"
         },
         "layout": {
-          "name": "compact",
-          "width": 390,
-          "height": 844
+          "name": "wide",
+          "width": 1440,
+          "height": 900
         },
         "appearance": {
-          "name": "dark",
-          "saved": "dark",
-          "system": "light",
-          "resolved": "dark"
+          "name": "light",
+          "saved": "light",
+          "system": "dark",
+          "resolved": "light"
         },
         "motion": "reduce"
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:50.727Z",
+        "capturedAt": "2026-10-15T02:43:01.200Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
-          "width": 390,
-          "height": 844,
+          "width": 1440,
+          "height": 900,
           "dpr": 1
         },
         "captureClip": {
           "x": 0,
           "y": 0,
-          "width": 390,
-          "height": 844
+          "width": 1440,
+          "height": 900
         },
         "pixels": {
-          "width": 390,
-          "height": 844
+          "width": 1440,
+          "height": 900
         },
         "pixelScale": {
           "x": 1,
@@ -6434,12 +4419,12 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "b821b5fb56c9ac4497076d7ab2d5150a63b579ad265e99391dd360661cec525e",
+        "sha256": "fd962f0e3c8c4be28b9319039b5fda94f4b44e932b89f97418578cd0518e7eb8",
         "requestedClip": {
           "x": 0,
           "y": 0,
-          "width": 390,
-          "height": 844
+          "width": 1440,
+          "height": 900
         }
       },
       "regions": [
@@ -6447,150 +4432,37 @@
           "name": "page",
           "x": 0,
           "y": 0,
-          "width": 390,
-          "height": 844
+          "width": 1440,
+          "height": 900
         },
         {
           "name": "navigation",
           "x": 0,
           "y": 0,
-          "width": 374,
+          "width": 1424,
           "height": 20
         },
         {
           "name": "main",
-          "x": 12,
-          "y": 32,
-          "width": 350,
-          "height": 524
+          "x": 32,
+          "y": 48,
+          "width": 1076,
+          "height": 812
         },
         {
           "name": "workspace",
-          "x": 12,
-          "y": 32,
-          "width": 350,
-          "height": 524
+          "x": 32,
+          "y": 48,
+          "width": 1076,
+          "height": 812
         }
       ],
       "platform": "Linux x86_64",
-      "path": "/tools/gif-to-sprite-sheet/"
-    },
-    {
-      "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
-      "file": "tools-animal-crossing-qr-loaded-en-compact-dark.png",
-      "contract": {
-        "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
-        "page": {
-          "name": "tools-animal-crossing-qr-loaded",
-          "path": "/tools/animal-crossing-qr/",
-          "language": "en",
-          "phase": "ready",
-          "ready": "#animal-crossing-root[data-tool-ready]",
-          "rootId": "animal-crossing-root",
-          "regions": [
-            {
-              "name": "navigation",
-              "selector": "header"
-            },
-            {
-              "name": "main",
-              "selector": "main"
-            },
-            {
-              "name": "workspace",
-              "selector": "[data-tool-state=\"ready\"] main"
-            }
-          ],
-          "action": "example"
-        },
-        "layout": {
-          "name": "compact",
-          "width": 390,
-          "height": 844
-        },
-        "appearance": {
-          "name": "dark",
-          "saved": "dark",
-          "system": "light",
-          "resolved": "dark"
-        },
-        "motion": "reduce"
-      },
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:54.713Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 390,
-          "height": 844,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        "pixels": {
-          "width": 390,
-          "height": 844
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "38cdbae4f3a5201ab5dffe6c4842ed25b1f45e0af986ac81dab63ac12b1437c7",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        }
-      },
-      "regions": [
-        {
-          "name": "page",
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        {
-          "name": "navigation",
-          "x": 0,
-          "y": 0,
-          "width": 374,
-          "height": 20
-        },
-        {
-          "name": "main",
-          "x": 12,
-          "y": 32,
-          "width": 350,
-          "height": 486
-        },
-        {
-          "name": "workspace",
-          "x": 12,
-          "y": 32,
-          "width": 350,
-          "height": 486
-        }
-      ],
-      "platform": "Linux x86_64",
-      "path": "/tools/animal-crossing-qr/"
+      "path": "/tools/fuse-beads/"
     },
     {
       "id": "feature-window-tools-viewer-en-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
       "file": "feature-window-tools-viewer-en-wide-light.png",
       "contract": {
         "id": "feature-window-tools-viewer-en-wide-light",
@@ -6632,7 +4504,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:58.095Z",
+        "capturedAt": "2026-10-15T02:43:03.422Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6703,7 +4575,7 @@
     },
     {
       "id": "about-ja-wide-light",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
       "file": "about-ja-wide-light.png",
       "contract": {
         "id": "about-ja-wide-light",
@@ -6739,7 +4611,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:44:59.516Z",
+        "capturedAt": "2026-10-15T02:43:05.664Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6803,7 +4675,7 @@
     },
     {
       "id": "feature-window-features-layers-and-colors-ja-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
       "file": "feature-window-features-layers-and-colors-ja-compact-dark.png",
       "contract": {
         "id": "feature-window-features-layers-and-colors-ja-compact-dark",
@@ -6846,7 +4718,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:45:02.035Z",
+        "capturedAt": "2026-10-15T02:43:08.767Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -6917,7 +4789,7 @@
     },
     {
       "id": "compare-aseprite-online-es-compact-dark",
-      "runId": "12042725-1467-4640-b66c-bc0c3c9ddba9",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
       "file": "compare-aseprite-online-es-compact-dark.png",
       "contract": {
         "id": "compare-aseprite-online-es-compact-dark",
@@ -6953,7 +4825,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-14T14:45:07.061Z",
+        "capturedAt": "2026-10-15T02:43:09.752Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -7014,6 +4886,2392 @@
       ],
       "platform": "Linux x86_64",
       "path": "/es/compare/aseprite-online/"
+    },
+    {
+      "id": "about-features-zh-CN-compact-dark",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "about-features-zh-CN-compact-dark.png",
+      "contract": {
+        "id": "about-features-zh-CN-compact-dark",
+        "page": {
+          "name": "about-features",
+          "path": "/zh-CN/features/",
+          "language": "zh-CN",
+          "phase": "ready",
+          "ready": "html[data-public-controls-ready]",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "compact",
+          "width": 390,
+          "height": 844
+        },
+        "appearance": {
+          "name": "dark",
+          "saved": "dark",
+          "system": "light",
+          "resolved": "dark"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:38.157Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "pixels": {
+          "width": 390,
+          "height": 844
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "5bcc5de0bdd762641bc17527ccffe3f77421d7eaeb042ebbe493ff63e0521b57",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 374,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 12,
+          "y": 36,
+          "width": 350,
+          "height": 760
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/zh-CN/features/"
+    },
+    {
+      "id": "compare-aseprite-online-zh-CN-compact-dark",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "compare-aseprite-online-zh-CN-compact-dark.png",
+      "contract": {
+        "id": "compare-aseprite-online-zh-CN-compact-dark",
+        "page": {
+          "name": "compare-aseprite-online",
+          "path": "/zh-CN/compare/aseprite-online/",
+          "language": "zh-CN",
+          "phase": "ready",
+          "ready": "html[data-public-controls-ready]",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "compact",
+          "width": 390,
+          "height": 844
+        },
+        "appearance": {
+          "name": "dark",
+          "saved": "dark",
+          "system": "light",
+          "resolved": "dark"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:43.843Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "pixels": {
+          "width": 390,
+          "height": 844
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "aa7109f1993acca7066c96c4766d8153f10484c905c17771672877f1359ded36",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 12,
+          "y": 36,
+          "width": 350,
+          "height": 760
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/zh-CN/compare/aseprite-online/"
+    },
+    {
+      "id": "features-drawing-process-zh-CN-compact-dark",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "features-drawing-process-zh-CN-compact-dark.png",
+      "contract": {
+        "id": "features-drawing-process-zh-CN-compact-dark",
+        "page": {
+          "name": "features-drawing-process",
+          "path": "/zh-CN/features/drawing-process/",
+          "language": "zh-CN",
+          "phase": "ready",
+          "ready": "html[data-public-controls-ready]",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "compact",
+          "width": 390,
+          "height": 844
+        },
+        "appearance": {
+          "name": "dark",
+          "saved": "dark",
+          "system": "light",
+          "resolved": "dark"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:46.895Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "pixels": {
+          "width": 390,
+          "height": 844
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "1ba75854f5f95839fc15e75ba3b17bab345389bcb363fe745fe712261ac8797e",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 374,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 12,
+          "y": 36,
+          "width": 350,
+          "height": 760
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/zh-CN/features/drawing-process/"
+    },
+    {
+      "id": "features-share-artwork-zh-CN-compact-dark",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "features-share-artwork-zh-CN-compact-dark.png",
+      "contract": {
+        "id": "features-share-artwork-zh-CN-compact-dark",
+        "page": {
+          "name": "features-share-artwork",
+          "path": "/zh-CN/features/share-artwork/",
+          "language": "zh-CN",
+          "phase": "ready",
+          "ready": "html[data-public-controls-ready]",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "compact",
+          "width": 390,
+          "height": 844
+        },
+        "appearance": {
+          "name": "dark",
+          "saved": "dark",
+          "system": "light",
+          "resolved": "dark"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:49.112Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "pixels": {
+          "width": 390,
+          "height": 844
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "f69c3d2167aa2937bfaaf696d6d95657c2f6b54e47b6f111463c994d734508d6",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 374,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 12,
+          "y": 36,
+          "width": 350,
+          "height": 760
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/zh-CN/features/share-artwork/"
+    },
+    {
+      "id": "help-zh-CN-compact-dark",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "help-zh-CN-compact-dark.png",
+      "contract": {
+        "id": "help-zh-CN-compact-dark",
+        "page": {
+          "name": "help",
+          "path": "/zh-CN/help/",
+          "language": "zh-CN",
+          "phase": "ready",
+          "ready": "html[data-public-controls-ready]",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "compact",
+          "width": 390,
+          "height": 844
+        },
+        "appearance": {
+          "name": "dark",
+          "saved": "dark",
+          "system": "light",
+          "resolved": "dark"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:50.956Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "pixels": {
+          "width": 390,
+          "height": 844
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "5ad33ce029c36d285f087f5f5347bdd906b45af66d9897a028b85483286ec06a",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 374,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 12,
+          "y": 36,
+          "width": 350,
+          "height": 760
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/zh-CN/help/"
+    },
+    {
+      "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark.png",
+      "contract": {
+        "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
+        "page": {
+          "name": "tools-gif-to-sprite-sheet-empty",
+          "path": "/tools/gif-to-sprite-sheet/",
+          "language": "zh-CN",
+          "phase": "ready",
+          "ready": "#gif-sheet-root[data-tool-ready]",
+          "rootId": "gif-sheet-root",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "compact",
+          "width": 390,
+          "height": 844
+        },
+        "appearance": {
+          "name": "dark",
+          "saved": "dark",
+          "system": "light",
+          "resolved": "dark"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:54.171Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "pixels": {
+          "width": 390,
+          "height": 844
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "c8f2a44ba212d91329a6353b95f251a420baefd6298d22971164900b1997f0c4",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 374,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 12,
+          "y": 274,
+          "width": 350,
+          "height": 558
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/tools/gif-to-sprite-sheet/"
+    },
+    {
+      "id": "tools-animal-crossing-qr-empty-en-compact-dark",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "tools-animal-crossing-qr-empty-en-compact-dark.png",
+      "contract": {
+        "id": "tools-animal-crossing-qr-empty-en-compact-dark",
+        "page": {
+          "name": "tools-animal-crossing-qr-empty",
+          "path": "/tools/animal-crossing-qr/",
+          "language": "en",
+          "phase": "ready",
+          "ready": "#animal-crossing-root[data-tool-ready]",
+          "rootId": "animal-crossing-root",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "compact",
+          "width": 390,
+          "height": 844
+        },
+        "appearance": {
+          "name": "dark",
+          "saved": "dark",
+          "system": "light",
+          "resolved": "dark"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:56.782Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "pixels": {
+          "width": 390,
+          "height": 844
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "98a4784d66aeab4ce1994f10a8be4ee35f8b6de467e8f9ed8f0973d6287afdd1",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 374,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 12,
+          "y": 312,
+          "width": 350,
+          "height": 520
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/tools/animal-crossing-qr/"
+    },
+    {
+      "id": "files-window-tools-pixelate-en-wide-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "files-window-tools-pixelate-en-wide-light.png",
+      "contract": {
+        "id": "files-window-tools-pixelate-en-wide-light",
+        "page": {
+          "name": "files-window-tools-pixelate",
+          "path": "/tools/pixelate/",
+          "language": "en",
+          "phase": "ready",
+          "ready": "#pixelation-root[data-tool-ready]",
+          "rootId": "pixelation-root",
+          "action": "files",
+          "files": 2,
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            },
+            {
+              "name": "window",
+              "selector": "[data-files-window]"
+            }
+          ]
+        },
+        "layout": {
+          "name": "wide",
+          "width": 1440,
+          "height": 900
+        },
+        "appearance": {
+          "name": "light",
+          "saved": "light",
+          "system": "dark",
+          "resolved": "light"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:59.811Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "pixels": {
+          "width": 1440,
+          "height": 900
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "b2c7c3d5170f70730d05a31ea709c0a0175ae310cb0f4189d79a61f4b4f33f31",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 32,
+          "y": 48,
+          "width": 1076,
+          "height": 812
+        },
+        {
+          "name": "window",
+          "x": 393,
+          "y": 259,
+          "width": 638,
+          "height": 400
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/tools/pixelate/"
+    },
+    {
+      "id": "feature-window-tools-viewer-zh-CN-compact-dark",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "feature-window-tools-viewer-zh-CN-compact-dark.png",
+      "contract": {
+        "id": "feature-window-tools-viewer-zh-CN-compact-dark",
+        "page": {
+          "name": "feature-window-tools-viewer",
+          "path": "/zh-CN/features/",
+          "language": "zh-CN",
+          "phase": "ready",
+          "ready": "html[data-public-controls-ready]",
+          "action": "feature",
+          "href": "/tools/viewer/",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            },
+            {
+              "name": "window",
+              "selector": "[role=\"dialog\"]"
+            }
+          ],
+          "scrollWindow": true
+        },
+        "layout": {
+          "name": "compact",
+          "width": 390,
+          "height": 844
+        },
+        "appearance": {
+          "name": "dark",
+          "saved": "dark",
+          "system": "light",
+          "resolved": "dark"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:43:02.286Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "pixels": {
+          "width": 390,
+          "height": 844
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "d65aa60c81b28808e0f1891faacc0043c76061a4f51bb16e30e6145fe04fd5c0",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 374,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 12,
+          "y": 36,
+          "width": 350,
+          "height": 760
+        },
+        {
+          "name": "window",
+          "x": 0,
+          "y": 162,
+          "width": 374,
+          "height": 520
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/zh-CN/features/"
+    },
+    {
+      "id": "about-ko-compact-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "about-ko-compact-light.png",
+      "contract": {
+        "id": "about-ko-compact-light",
+        "page": {
+          "name": "about",
+          "path": "/ko/about/",
+          "language": "ko",
+          "phase": "ssg",
+          "ready": "[data-showcase-static-page]",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "compact",
+          "width": 390,
+          "height": 844
+        },
+        "appearance": {
+          "name": "light",
+          "saved": "light",
+          "system": "dark",
+          "resolved": "light"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:43:04.111Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "pixels": {
+          "width": 390,
+          "height": 844
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "ed392319c05a32a8310cf4cc8bb6c0d43bc53c8e774824a08a48a58fbf786f3b",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 374,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 0,
+          "y": 36,
+          "width": 374,
+          "height": 3076.265625
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/ko/about/"
+    },
+    {
+      "id": "feature-window-features-draw-pixel-art-ko-compact-dark",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "feature-window-features-draw-pixel-art-ko-compact-dark.png",
+      "contract": {
+        "id": "feature-window-features-draw-pixel-art-ko-compact-dark",
+        "page": {
+          "name": "feature-window-features-draw-pixel-art",
+          "path": "/ko/features/",
+          "language": "ko",
+          "phase": "ready",
+          "ready": "html[data-public-controls-ready]",
+          "action": "feature",
+          "href": "/ko/features/draw-pixel-art/",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            },
+            {
+              "name": "window",
+              "selector": "[role=\"dialog\"]"
+            }
+          ]
+        },
+        "layout": {
+          "name": "compact",
+          "width": 390,
+          "height": 844
+        },
+        "appearance": {
+          "name": "dark",
+          "saved": "dark",
+          "system": "light",
+          "resolved": "dark"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:43:08.294Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "pixels": {
+          "width": 390,
+          "height": 844
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "5a763749e742fc4c0253a0750e4bfc7b0ee66192bc2c2ed49c23babd97b8df27",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 374,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 12,
+          "y": 36,
+          "width": 350,
+          "height": 760
+        },
+        {
+          "name": "window",
+          "x": 0,
+          "y": 162,
+          "width": 374,
+          "height": 520
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/ko/features/"
+    },
+    {
+      "id": "feature-window-tools-viewer-ru-compact-dark",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "feature-window-tools-viewer-ru-compact-dark.png",
+      "contract": {
+        "id": "feature-window-tools-viewer-ru-compact-dark",
+        "page": {
+          "name": "feature-window-tools-viewer",
+          "path": "/ru/features/",
+          "language": "ru",
+          "phase": "ready",
+          "ready": "html[data-public-controls-ready]",
+          "action": "feature",
+          "href": "/tools/viewer/",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            },
+            {
+              "name": "window",
+              "selector": "[role=\"dialog\"]"
+            }
+          ]
+        },
+        "layout": {
+          "name": "compact",
+          "width": 390,
+          "height": 844
+        },
+        "appearance": {
+          "name": "dark",
+          "saved": "dark",
+          "system": "light",
+          "resolved": "dark"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:43:09.807Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "pixels": {
+          "width": 390,
+          "height": 844
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "53d470452ea8cbdb4f5c651688c4e832a5ad6d5e4df321b18765946de7698b30",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 374,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 12,
+          "y": 36,
+          "width": 350,
+          "height": 760
+        },
+        {
+          "name": "window",
+          "x": 0,
+          "y": 162,
+          "width": 374,
+          "height": 520
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/ru/features/"
+    },
+    {
+      "id": "about-how-it-works-en-wide-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "about-how-it-works-en-wide-light.png",
+      "contract": {
+        "id": "about-how-it-works-en-wide-light",
+        "page": {
+          "name": "about-how-it-works",
+          "path": "/about/how-it-works/",
+          "language": "en",
+          "phase": "ready",
+          "ready": "html[data-public-controls-ready]",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "wide",
+          "width": 1440,
+          "height": 900
+        },
+        "appearance": {
+          "name": "light",
+          "saved": "light",
+          "system": "dark",
+          "resolved": "light"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:38.301Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "pixels": {
+          "width": 1440,
+          "height": 900
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "aa63a9cd84235c071bd0d8a0e6b48fe1285cf032b1cdaa7891753b02e316c591",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 122,
+          "y": 48,
+          "width": 1180,
+          "height": 804
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/about/how-it-works/"
+    },
+    {
+      "id": "compare-piskel-alternatives-en-wide-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "compare-piskel-alternatives-en-wide-light.png",
+      "contract": {
+        "id": "compare-piskel-alternatives-en-wide-light",
+        "page": {
+          "name": "compare-piskel-alternatives",
+          "path": "/compare/piskel-alternatives/",
+          "language": "en",
+          "phase": "ready",
+          "ready": "html[data-public-controls-ready]",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "wide",
+          "width": 1440,
+          "height": 900
+        },
+        "appearance": {
+          "name": "light",
+          "saved": "light",
+          "system": "dark",
+          "resolved": "light"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:43.693Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "pixels": {
+          "width": 1440,
+          "height": 900
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "3dbdd7ea46f72151009c44861226ce8a44518aaa12edbb5616a24fe18a1f41b6",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 122,
+          "y": 48,
+          "width": 1180,
+          "height": 804
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/compare/piskel-alternatives/"
+    },
+    {
+      "id": "features-export-images-and-animation-en-wide-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "features-export-images-and-animation-en-wide-light.png",
+      "contract": {
+        "id": "features-export-images-and-animation-en-wide-light",
+        "page": {
+          "name": "features-export-images-and-animation",
+          "path": "/features/export-images-and-animation/",
+          "language": "en",
+          "phase": "ready",
+          "ready": "html[data-public-controls-ready]",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "wide",
+          "width": 1440,
+          "height": 900
+        },
+        "appearance": {
+          "name": "light",
+          "saved": "light",
+          "system": "dark",
+          "resolved": "light"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:46.802Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "pixels": {
+          "width": 1440,
+          "height": 900
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "5a8142c7c635f7926f8f76b4e94996c57e31ec3f32423b2ebaf7d0a35d9a83f1",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 122,
+          "y": 48,
+          "width": 1180,
+          "height": 804
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/features/export-images-and-animation/"
+    },
+    {
+      "id": "features-tilemaps-en-wide-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "features-tilemaps-en-wide-light.png",
+      "contract": {
+        "id": "features-tilemaps-en-wide-light",
+        "page": {
+          "name": "features-tilemaps",
+          "path": "/features/tilemaps/",
+          "language": "en",
+          "phase": "ready",
+          "ready": "html[data-public-controls-ready]",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "wide",
+          "width": 1440,
+          "height": 900
+        },
+        "appearance": {
+          "name": "light",
+          "saved": "light",
+          "system": "dark",
+          "resolved": "light"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:49.141Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "pixels": {
+          "width": 1440,
+          "height": 900
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "543ff21bd17b7c378029a6b1b27260d26e74c11b5808aa2a7bad9c75eab7dd54",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 122,
+          "y": 48,
+          "width": 1180,
+          "height": 804
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/features/tilemaps/"
+    },
+    {
+      "id": "privacy-en-wide-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "privacy-en-wide-light.png",
+      "contract": {
+        "id": "privacy-en-wide-light",
+        "page": {
+          "name": "privacy",
+          "path": "/privacy/",
+          "language": "en",
+          "phase": "ready",
+          "ready": "html[data-public-controls-ready]",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "wide",
+          "width": 1440,
+          "height": 900
+        },
+        "appearance": {
+          "name": "light",
+          "saved": "light",
+          "system": "dark",
+          "resolved": "light"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:51.079Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "pixels": {
+          "width": 1440,
+          "height": 900
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "79957556c2f73fe76ceab68b3bf585e5be99404dd4e332f518c0fa4e8ce65750",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 122,
+          "y": 48,
+          "width": 1180,
+          "height": 804
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/privacy/"
+    },
+    {
+      "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark.png",
+      "contract": {
+        "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
+        "page": {
+          "name": "tools-gif-to-sprite-sheet-loaded",
+          "path": "/tools/gif-to-sprite-sheet/",
+          "language": "zh-CN",
+          "phase": "ready",
+          "ready": "#gif-sheet-root[data-tool-ready]",
+          "rootId": "gif-sheet-root",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            },
+            {
+              "name": "workspace",
+              "selector": "[data-tool-state=\"ready\"] main"
+            }
+          ],
+          "action": "example"
+        },
+        "layout": {
+          "name": "compact",
+          "width": 390,
+          "height": 844
+        },
+        "appearance": {
+          "name": "dark",
+          "saved": "dark",
+          "system": "light",
+          "resolved": "dark"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:55.228Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "pixels": {
+          "width": 390,
+          "height": 844
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "8e7d5d0f7e9ac880b7495af5ec853e73230060f533e6d3b29235272a612e52a0",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 374,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 12,
+          "y": 274,
+          "width": 350,
+          "height": 558
+        },
+        {
+          "name": "workspace",
+          "x": 12,
+          "y": 274,
+          "width": 350,
+          "height": 558
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/tools/gif-to-sprite-sheet/"
+    },
+    {
+      "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "tools-animal-crossing-qr-loaded-en-compact-dark.png",
+      "contract": {
+        "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
+        "page": {
+          "name": "tools-animal-crossing-qr-loaded",
+          "path": "/tools/animal-crossing-qr/",
+          "language": "en",
+          "phase": "ready",
+          "ready": "#animal-crossing-root[data-tool-ready]",
+          "rootId": "animal-crossing-root",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            },
+            {
+              "name": "workspace",
+              "selector": "[data-tool-state=\"ready\"] main"
+            }
+          ],
+          "action": "example"
+        },
+        "layout": {
+          "name": "compact",
+          "width": 390,
+          "height": 844
+        },
+        "appearance": {
+          "name": "dark",
+          "saved": "dark",
+          "system": "light",
+          "resolved": "dark"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:42:59.441Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "pixels": {
+          "width": 390,
+          "height": 844
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "102107caa3f7f5b1aebf86c7e506a8d2e37fa70e80050de1f520ba1b9a533032",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 374,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 12,
+          "y": 312,
+          "width": 350,
+          "height": 520
+        },
+        {
+          "name": "workspace",
+          "x": 12,
+          "y": 312,
+          "width": 350,
+          "height": 520
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/tools/animal-crossing-qr/"
+    },
+    {
+      "id": "files-window-tools-viewer-zh-CN-wide-dark",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "files-window-tools-viewer-zh-CN-wide-dark.png",
+      "contract": {
+        "id": "files-window-tools-viewer-zh-CN-wide-dark",
+        "page": {
+          "name": "files-window-tools-viewer",
+          "path": "/tools/viewer/",
+          "language": "zh-CN",
+          "phase": "ready",
+          "ready": "#viewer-root[data-tool-ready]",
+          "rootId": "viewer-root",
+          "action": "files",
+          "files": 0,
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            },
+            {
+              "name": "window",
+              "selector": "[data-files-window]"
+            }
+          ]
+        },
+        "layout": {
+          "name": "wide",
+          "width": 1440,
+          "height": 900
+        },
+        "appearance": {
+          "name": "dark",
+          "saved": "dark",
+          "system": "light",
+          "resolved": "dark"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:43:02.738Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "pixels": {
+          "width": 1440,
+          "height": 900
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "61b86873bc7ee28a6f85c63a70ab5249eada99678cf3061339ad1dcabacede2d",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 32,
+          "y": 48,
+          "width": 1076,
+          "height": 812
+        },
+        {
+          "name": "window",
+          "x": 393,
+          "y": 259,
+          "width": 638,
+          "height": 400
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/tools/viewer/"
+    },
+    {
+      "id": "site-footer-en-wide-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "site-footer-en-wide-light.png",
+      "contract": {
+        "id": "site-footer-en-wide-light",
+        "page": {
+          "name": "site-footer",
+          "path": "/features/",
+          "language": "en",
+          "phase": "ready",
+          "ready": "html[data-public-controls-ready]",
+          "action": "footer",
+          "regions": [
+            {
+              "name": "footer",
+              "selector": "[data-site-footer]"
+            }
+          ]
+        },
+        "layout": {
+          "name": "wide",
+          "width": 1440,
+          "height": 900
+        },
+        "appearance": {
+          "name": "light",
+          "saved": "light",
+          "system": "dark",
+          "resolved": "light"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:43:05.157Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "pixels": {
+          "width": 1440,
+          "height": 900
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "7832c2e76cb61e5c834f808bb683d9b6de79a87d4b0e2e33e159855f040dfcb0",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "name": "footer",
+          "x": 0,
+          "y": 603,
+          "width": 1424,
+          "height": 297
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/features/"
+    },
+    {
+      "id": "compare-aseprite-on-ipad-ja-wide-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "compare-aseprite-on-ipad-ja-wide-light.png",
+      "contract": {
+        "id": "compare-aseprite-on-ipad-ja-wide-light",
+        "page": {
+          "name": "compare-aseprite-on-ipad",
+          "path": "/ja/compare/aseprite-on-ipad/",
+          "language": "ja",
+          "phase": "ready",
+          "ready": "html[data-public-controls-ready]",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "wide",
+          "width": 1440,
+          "height": 900
+        },
+        "appearance": {
+          "name": "light",
+          "saved": "light",
+          "system": "dark",
+          "resolved": "light"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:43:08.487Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "pixels": {
+          "width": 1440,
+          "height": 900
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "046573183fe356beca1695149add9c311fad41eb831ecb16d9323e06738704f0",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 122,
+          "y": 48,
+          "width": 1180,
+          "height": 804
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/ja/compare/aseprite-on-ipad/"
+    },
+    {
+      "id": "about-ru-wide-light",
+      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "file": "about-ru-wide-light.png",
+      "contract": {
+        "id": "about-ru-wide-light",
+        "page": {
+          "name": "about",
+          "path": "/ru/about/",
+          "language": "ru",
+          "phase": "ssg",
+          "ready": "[data-showcase-static-page]",
+          "regions": [
+            {
+              "name": "navigation",
+              "selector": "header"
+            },
+            {
+              "name": "main",
+              "selector": "main"
+            }
+          ]
+        },
+        "layout": {
+          "name": "wide",
+          "width": 1440,
+          "height": 900
+        },
+        "appearance": {
+          "name": "light",
+          "saved": "light",
+          "system": "dark",
+          "resolved": "light"
+        },
+        "motion": "reduce"
+      },
+      "screenshot": {
+        "schemaVersion": 1,
+        "capturedAt": "2026-10-15T02:43:09.493Z",
+        "method": "Chromium CDP native PNG",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "dpr": 1
+        },
+        "captureClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "pixels": {
+          "width": 1440,
+          "height": 900
+        },
+        "pixelScale": {
+          "x": 1,
+          "y": 1
+        },
+        "colorSpace": {
+          "iccSha256": null,
+          "srgbIntent": null,
+          "gamma": null,
+          "chromaticities": null,
+          "cicp": null
+        },
+        "sha256": "401e5a2a8ffa4a332de0ec506bf33d7b24d057ec1d8c4d29b17a883bb20f0a2a",
+        "requestedClip": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "regions": [
+        {
+          "name": "page",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "name": "navigation",
+          "x": 0,
+          "y": 0,
+          "width": 1424,
+          "height": 20
+        },
+        {
+          "name": "main",
+          "x": 0,
+          "y": 44,
+          "width": 1424,
+          "height": 3084.484375
+        }
+      ],
+      "platform": "Linux x86_64",
+      "path": "/ru/about/"
     }
   ],
   "browser": {

@@ -1,3 +1,4 @@
+import { rememberEditorImport, takeFilesRecent } from "$/adapters/files/files-library";
 import { createBrowserEditorPlatformPorts } from "$/adapters/platform/browser-editor-platform";
 import { BrowserSessionPorts } from "$/adapters/session/browser-session-ports";
 import { takeSharedProject } from "$/adapters/sharing/browser-project-sharing";
@@ -12,12 +13,14 @@ import type { EditorHostFactory } from "$/managers/ports/editor-host";
 
 export const createBrowserEditorHostPorts: EditorHostFactory = (diagnostics) => ({
   takeInitialProject: (limits) => takeSharedProject(limits) ?? takeViewerProject(),
+  takeInitialRecent: takeFilesRecent,
   platform: createBrowserEditorPlatformPorts(),
   createSessions: () =>
     new BrowserSessionPorts({
       databaseName: DEFAULT_RECENT_DATABASE_NAME,
       fileHandleDatabaseName: DEFAULT_FILE_HANDLES_DATABASE_NAME,
       diagnostics,
+      onImportFile: (file) => void rememberEditorImport(file),
     }),
   createProjectStorage: () =>
     createBrowserProjectStorage({ databaseName: DEFAULT_PROJECT_DATABASE_NAME }),

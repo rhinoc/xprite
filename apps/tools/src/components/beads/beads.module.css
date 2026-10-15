@@ -58,27 +58,51 @@
   min-width: 0;
   min-height: 0;
 }
+/* Pattern preview is a canvas: pan/zoom live on the surface. Never scroll the panel body
+   (phone shell sets overflow:auto on every window body, which fights gesture zoom). */
+.previewPanel:global([data-ui-panel-variant]) > :global([data-slot="panel-body"]) {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
 .previewContent {
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0;
+  min-width: 0;
+  overflow: hidden;
   gap: var(--ui-space-4);
 }
-.toolbar {
+/* Zoom controls float in the preview's corner, like the editor dialog's, instead of a toolbar row. */
+.zoomControls {
+  position: absolute;
+  right: var(--ui-space-3);
+  top: var(--ui-space-3);
+  z-index: 1;
   flex-wrap: nowrap;
   align-items: center;
-  gap: var(--ui-space-3);
+  gap: var(--ui-space-2, 4px);
 }
 .status {
-  flex: 1;
-  min-width: 0;
+  position: absolute;
+  left: var(--ui-space-3);
+  top: var(--ui-space-3);
+  z-index: 1;
+  max-width: calc(100% - 160px);
+  padding: 1px 4px;
+  background: var(--ui-color-paper);
+  pointer-events: none;
 }
 .stage {
   display: flex;
   flex: 1;
   min-height: 240px;
+  min-width: 0;
   position: relative;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
 }
 .swatch {
   display: inline-block;
@@ -103,5 +127,14 @@
   }
   .materials {
     max-height: 240px;
+  }
+}
+/* Phone shell assigns window height via flex; fixed mins make the body overflow and clip. */
+@media (max-width: 700px) {
+  .previewPanel {
+    min-height: 0;
+  }
+  .stage {
+    min-height: 0;
   }
 }

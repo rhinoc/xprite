@@ -29,6 +29,9 @@ SELECTIONS = (
     ("map", "System Folder/Control Panels/Map", -4064),
     ("stickies", "System Folder/Apple Menu Items/Stickies", 128),
     ("note-pad", "System Folder/Apple Menu Items/Note Pad", 128),
+    ("trash", "System Folder/Extensions/Appearance Extension", -3993),
+    ("trash-full", "System Folder/Extensions/Appearance Extension", -3984),
+    ("applications-folder", "System Folder/Extensions/Appearance Extension", -3953),
 )
 
 

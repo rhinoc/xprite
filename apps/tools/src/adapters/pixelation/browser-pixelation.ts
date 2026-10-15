@@ -4,6 +4,7 @@ import {
   type PixelationWorkerResponse,
 } from "$/adapters/pixelation/worker-protocol";
 import { transferViewerFile } from "$/adapters/viewer/editor-transfer";
+import { TOOL_IMPORT_MAX_BYTES } from "$/managers/files/files-model";
 import type { PixelationPort } from "$/managers/ports/pixelation";
 import { downloadBlob } from "@xprite/bedrock/browser/file-system";
 import { decodeImageBlob, encodePngBlob } from "@xprite/bedrock/browser/images";
@@ -20,7 +21,7 @@ import type { PixelateOptions } from "@xprite/editor-core/import-export";
 import { readBundledPalettePresets } from "@xprite/editor-ui/palette-presets";
 import { PalettePresetKind } from "@xprite/editor-ui/palette/model";
 import exampleUrl from "@xprite/site-assets/tools/pixelate/young-hare.jpg?url";
-const MAX_FILE_BYTES = 64 * 1024 * 1024;
+const MAX_FILE_BYTES = TOOL_IMPORT_MAX_BYTES;
 const MAX_IMAGE_PIXELS = 16 * 1024 * 1024;
 const TIMEOUT_MS = 30_000;
 export function createBrowserPixelationPort(): PixelationPort {

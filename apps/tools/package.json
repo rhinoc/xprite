@@ -17,6 +17,7 @@
     "@xprite/site-assets": "workspace:*",
     "@xprite/site-shell": "workspace:*",
     "@xprite/ui": "workspace:*",
+    "fflate": "^0.8.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "three": "0.186.1"

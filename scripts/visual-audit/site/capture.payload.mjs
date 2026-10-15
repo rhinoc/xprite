@@ -262,6 +262,37 @@ try {
         ) {
           await page.click('button[aria-label="Pause animation"],button[aria-label="暂停动画"]');
         }
+      } else if (scene.page.action === "files") {
+        // Storage size depends on the machine; pin it so the info bar is stable.
+        await page.evaluate(() => {
+          navigator.storage.estimate = async () => ({ usage: 3 << 20, quota: 1 << 30 });
+        });
+        await page.click('nav button[aria-haspopup="dialog"]');
+        await page.waitForSelector("[data-files-window]", { timeout: siteConfig.timeout });
+        await page.evaluate(async (count) => {
+          const input = document.querySelector('[data-files-window] input[type="file"]');
+          const transfer = new DataTransfer();
+          for (let index = 0; index < count; index++) {
+            const canvas = document.createElement("canvas");
+            canvas.width = canvas.height = 8;
+            const context = canvas.getContext("2d");
+            context.fillStyle = ["#e04040", "#4060e0"][index % 2];
+            context.fillRect(0, 0, 8, 8);
+            context.fillStyle = "#ffffff";
+            context.fillRect(2, 2, 4, 4);
+            const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+            transfer.items.add(new File([blob], `sprite-${index + 1}.png`, { type: "image/png" }));
+          }
+          if (!count) return;
+          input.files = transfer.files;
+          input.dispatchEvent(new Event("change", { bubbles: true }));
+        }, scene.page.files);
+        if (scene.page.files)
+          await page.waitForFunction(
+            (count) => document.querySelectorAll("[data-files-window] img").length >= count,
+            scene.page.files,
+            { timeout: siteConfig.timeout },
+          );
       } else if (scene.page.action === "feature") {
         await page.evaluate((href) => {
           const item = [...document.querySelectorAll("main [data-ui-desktop-icon]")].find(

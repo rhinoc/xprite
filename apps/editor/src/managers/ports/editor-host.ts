@@ -17,6 +17,8 @@ export interface EditorHostPorts {
   createProjectStorage(): ProjectRepositoryOptions;
   createCodec(): WorkspaceRecoveryCodec;
   takeInitialProject?(shareLimits: ShareLimits): Promise<EditorInitialProject | null> | null;
+  /** A recent project id the page was asked to open, e.g. from the Files window. */
+  takeInitialRecent?(): string | null;
 }
 
 export type EditorHostFactory = (diagnostics: DiagnosticsPort) => EditorHostPorts;

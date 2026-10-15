@@ -53,12 +53,16 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
   private readonly fileIdentities: IndexedDbFileIdentities;
   private readonly fileHandles: IndexedDbDocumentFileHandles;
   private readonly diagnostics?: DiagnosticsPort;
+  private readonly onImportFile?: (file: File) => void;
   constructor(
     options: IndexedDbRecentImagesOptions & {
       fileHandleDatabaseName?: string;
       diagnostics?: DiagnosticsPort;
+      /** Called for each user-imported file, e.g. to keep a copy in Files. */
+      onImportFile?: (file: File) => void;
     } = {},
   ) {
+    this.onImportFile = options.onImportFile;
     this.recents = new IndexedDbRecentImages(options);
     this.fileIdentities = new IndexedDbFileIdentities({
       databaseName: options.databaseName ? `${options.databaseName}-identities` : undefined,
@@ -86,6 +90,7 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
 
   registerFile(file: File, handle?: SaveFileHandle) {
     const source = this.register(file);
+    this.onImportFile?.(file);
     if (handle) this.sourceFileHandles.set(source, handle);
     return { source, name: file.name };
   }

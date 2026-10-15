@@ -136,6 +136,30 @@ const toolPages = SITE_PAGES.filter((page) => page.kind === SitePageKind.Tool).f
   },
 );
 
+/** The Files window over a tool page: one root view with two imported items, one in zh-CN Dark. */
+const filesWindows = [
+  ["/tools/pixelate/", PublicLanguage.English, light, 2],
+  ["/tools/viewer/", PublicLanguage.SimplifiedChinese, dark, 0],
+].map(([canonical, language, appearance, files]) => {
+  const rootId = toolRoots.get(canonical);
+  if (!rootId) throw Error(`No startup root registered for tool ${canonical}.`);
+  return makeScene(
+    {
+      name: `files-window-${routeName(canonical)}`,
+      path: localizedSiteHref(canonical, language),
+      language,
+      phase: "ready",
+      ready: `#${rootId}[data-tool-ready]`,
+      rootId,
+      action: "files",
+      files,
+      regions: [...publicRegions, { name: "window", selector: "[data-files-window]" }],
+    },
+    wide,
+    appearance,
+  );
+});
+
 const featureDirectory = makeScene(
   {
     name: "about-features",
@@ -242,6 +266,7 @@ const footers = [
 export const scenes = [
   ...routes,
   ...toolPages,
+  ...filesWindows,
   featureDirectory,
   ...featureWindows,
   ...footers,

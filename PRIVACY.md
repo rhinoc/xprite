@@ -10,6 +10,8 @@ This notice describes data used by the Xprite web editor, showcase, web componen
 
 Xprite processes artwork in your browser. Projects, recent files, recovery data, presets and interface preferences may be saved in browser storage or in files you choose. Xprite does not upload artwork for editing or sync it to an account. Clearing the site's browser data may also delete locally saved projects and recovery data; save a copy of important work first.
 
+Files keeps a copy of images and projects you import into the tools and the editor, with their names, dates, labels and comments, in this browser's storage (the origin private file system and IndexedDB) so you can open them again later. These copies never leave your device. Items in the Trash are deleted after 30 days, and Empty Trash deletes them right away. Files may ask the browser to keep this storage persistently; the browser decides. Files usage events record actions, sizes in rough ranges and error categories, never file names, comments or contents.
+
 The Share command creates a URL containing the compressed editable project in its fragment. Xprite generates and reads this data locally without uploading a share file. Sending the link or QR code through another app shares that project data with the app and its recipients. Anyone with the complete link can open the project; there is no expiration or revocation of those copies.
 
 ## Usage data

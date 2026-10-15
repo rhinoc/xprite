@@ -113,6 +113,7 @@ function EditorApplication({
   home,
   initialTab,
   initialProject,
+  initialRecent,
 }: {
   workspace: DocumentWorkspace;
   workspaceLifetime: WorkspaceLifetime;
@@ -120,6 +121,7 @@ function EditorApplication({
   home: boolean;
   initialTab: EditorTab;
   initialProject?: Promise<EditorInitialProject | Error | null> | null;
+  initialRecent?: string | null;
 }) {
   const systemColorScheme = useSystemColorScheme();
   const systemAppearance =
@@ -171,6 +173,18 @@ function EditorApplication({
       cancelled = true;
     };
   }, [runtime.startup, initialProject, workspace, uiStore]);
+
+  const initialRecentOpened = useRef(false);
+  useEffect(() => {
+    if (runtime.startup !== "ready" || !initialRecent || initialRecentOpened.current) return;
+    initialRecentOpened.current = true;
+    void workspace.openRecent(initialRecent).then((opened) => {
+      if (opened)
+        uiStore
+          .getState()
+          .setTab("document", automaticViewTransition(EditorViewChangeReason.DocumentOpened));
+    });
+  }, [runtime.startup, initialRecent, workspace, uiStore]);
 
   useEffect(() => {
     if (runtime.startup === "ready") telemetry.markReady();
@@ -281,10 +295,12 @@ export default function App({
   const [initialProject, setInitialProject] = useState<Promise<
     EditorInitialProject | Error | null
   > | null>(null);
+  const [initialRecent, setInitialRecent] = useState<string | null>(null);
   const initialProjectRequested = useRef(false);
   useEffect(() => {
     if (initialProjectRequested.current) return;
     initialProjectRequested.current = true;
+    setInitialRecent(host.takeInitialRecent?.() ?? null);
     const incoming = host.takeInitialProject?.(PROJECT_SHARE_LIMITS);
     if (incoming)
       setInitialProject(
@@ -343,6 +359,7 @@ export default function App({
                 home={home}
                 initialTab={initialTab}
                 initialProject={initialProject}
+                initialRecent={initialRecent}
               />
             </PwaProvider>
           </EditorChromePreferencesProvider>

@@ -1,7 +1,9 @@
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type DragEvent, type ReactNode } from "react";
 
+import { useFilesManager, useFilesText } from "$/components/files/files-context";
 import { FileToolEmptyState } from "$/components/shared/file-tool-empty-state";
 import { ToolFrame } from "$/components/shared/tool-frame";
+import { decodeFilesDrag, FILES_DRAG_TYPE } from "$/managers/files/files-model";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import type { PublicTool } from "$/managers/tools/tool-catalog";
 import { ContentPadding, SurfaceTone, Text, TextVariant, Panel, type MenuItem } from "@xprite/ui";
@@ -36,8 +38,45 @@ export function FileToolShell({
 }) {
   const t = useToolTranslation();
 
+  const files = useFilesManager();
+  const filesText = useFilesText();
+  const [fromFiles, setFromFiles] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
+  // A file the user imported, kept in Files once the tool has parsed it successfully.
+  const pending = useRef<File | null>(null);
+  const openRef = useRef(onOpen);
+  openRef.current = onOpen;
+  const importFile = (file: File) => {
+    pending.current = file;
+    return onOpen(file);
+  };
+  useEffect(() => {
+    const file = pending.current;
+    if (!file || busy || processing) return;
+    if (error) pending.current = null;
+    else if (ready) {
+      pending.current = null;
+      void files?.remember(file, tool.path, "tool").catch(() => undefined);
+    }
+  }, [files, tool.path, ready, busy, processing, error]);
+  useEffect(() => {
+    if (!files) return;
+    const target = {
+      path: tool.path,
+      accept: tool.accept,
+      open: (file: File) => {
+        pending.current = null;
+        return openRef.current(file);
+      },
+    };
+    const unregister = files.registerTarget(target);
+    void files.takeHandoff(target).catch(() => undefined);
+    return unregister;
+  }, [files, tool.path, tool.accept]);
+  const carriesFiles = (event: DragEvent) =>
+    event.dataTransfer.types.includes("Files") ||
+    (!!files && event.dataTransfer.types.includes(FILES_DRAG_TYPE));
   const chooseFile = () => input.current?.click();
   return (
     <ToolFrame
@@ -69,7 +108,7 @@ export function FileToolShell({
           onChange={(event) => {
             const file = event.currentTarget.files?.[0];
             event.currentTarget.value = "";
-            if (file) void onOpen(file);
+            if (file) void importFile(file);
           }}
         />
         {error && (
@@ -89,7 +128,8 @@ export function FileToolShell({
           aria-label={t(tool.label)}
           aria-busy={busy}
           onDragEnter={(event) => {
-            if (event.dataTransfer.types.includes("Files")) {
+            if (carriesFiles(event)) {
+              setFromFiles(event.dataTransfer.types.includes(FILES_DRAG_TYPE));
               event.preventDefault();
               setDragging(true);
             }
@@ -105,8 +145,15 @@ export function FileToolShell({
           onDrop={(event) => {
             event.preventDefault();
             setDragging(false);
+            const ids = decodeFilesDrag(event.dataTransfer.getData(FILES_DRAG_TYPE));
+            const entry = files?.entry(ids[0] ?? null);
+            if (files && entry) {
+              const target = files.pageTarget();
+              if (target && files.accepts(target, entry)) void files.loadInto(target, entry);
+              return;
+            }
             const file = event.dataTransfer.files[0];
-            if (file) void onOpen(file);
+            if (file) void importFile(file);
           }}
         >
           <div className={styles.previewPanel}>
@@ -122,7 +169,9 @@ export function FileToolShell({
           </div>
           {dragging && (
             <div className={styles.dropOverlay}>
-              <Text variant={TextVariant.Reading}>{t("Drop to open")}</Text>
+              <Text variant={TextVariant.Reading}>
+                {fromFiles ? filesText("files.drop.load") : t("Drop to open")}
+              </Text>
             </div>
           )}
         </section>

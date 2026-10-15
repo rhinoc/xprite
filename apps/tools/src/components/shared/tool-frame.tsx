@@ -1,5 +1,9 @@
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 
+import { useFilesManager, useFilesSnapshot, useFilesText } from "$/components/files/files-context";
+import { FilesWindow } from "$/components/files/files-window";
+import { FilesEntryPoint } from "$/managers/files/files-manager";
+import { decodeFilesDrag, FILES_DRAG_TYPE, FilesFolder } from "$/managers/files/files-model";
 import { useToolLanguage } from "$/managers/locale/tool-language";
 import type { PublicTool } from "$/managers/tools/tool-catalog";
 import { FEATURES_PATH } from "@xprite/growth-content/features";
@@ -54,6 +58,24 @@ export function ToolFrame({
       ? localizedSiteHref(guidePath, language)
       : undefined;
 
+  const files = useFilesManager();
+  const filesState = useFilesSnapshot(files);
+  const filesText = useFilesText();
+  const [mounted, setMounted] = useState(false);
+  const [trashTarget, setTrashTarget] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const trashFull = (filesState?.entries ?? []).some((entry) => entry.trashedAt);
+  const filesItem = {
+    label: filesText("files.open.window"),
+    separator: true,
+    disabled: !files,
+    onSelect: () => void files?.openWindow(FilesEntryPoint.Menubar),
+  };
+  const [firstMenu, ...otherMenus] = menus;
+  const frameMenus: MenubarMenu[] = firstMenu
+    ? [{ ...firstMenu, items: [...firstMenu.items, filesItem] }, ...otherMenus]
+    : [{ label: t("File"), items: [{ ...filesItem, separator: false }] }];
+
   const { colorScheme } = useUi();
   const variables = {
     colorScheme,
@@ -86,7 +108,7 @@ export function ToolFrame({
               label={t("Tool navigation")}
               applicationName={t(tool.label)}
               applications={siteApplications(tool.path, language, helpHref)}
-              menus={menus}
+              menus={frameMenus}
               help={
                 helpHref
                   ? {
@@ -116,17 +138,18 @@ export function ToolFrame({
               <nav className={styles.shortcuts} aria-label={t("Desktop shortcuts")}>
                 <Button
                   variant={ButtonVariant.Tile}
+                  className={styles.filesShortcut}
                   slots={{ leading: <Icon kind={IconKind.Folder} size={IconSize.Large} /> }}
-                  text={pickText(
-                    language,
-                    "Features",
-                    "功能",
-                    "機能",
-                    "기능",
-                    "Возможности",
-                    "Recursos",
-                    "Funciones",
-                  )}
+                  text={filesText("files.title")}
+                  aria-haspopup="dialog"
+                  onClick={() => void files?.openWindow(FilesEntryPoint.DesktopIcon)}
+                />
+                <Button
+                  variant={ButtonVariant.Tile}
+                  slots={{
+                    leading: <Icon kind={IconKind.ApplicationsFolder} size={IconSize.Large} />,
+                  }}
+                  text={filesText("files.applications")}
                   href={localizedSiteHref(FEATURES_PATH, language)}
                 />
                 {helpHref && (
@@ -137,9 +160,40 @@ export function ToolFrame({
                     href={helpHref}
                   />
                 )}
+                <Button
+                  variant={ButtonVariant.Tile}
+                  className={styles.filesShortcut}
+                  data-drop-target={trashTarget || undefined}
+                  slots={{
+                    leading: (
+                      <Icon
+                        kind={trashFull ? IconKind.TrashFull : IconKind.Trash}
+                        size={IconSize.Large}
+                      />
+                    ),
+                  }}
+                  text={filesText("files.trash")}
+                  aria-haspopup="dialog"
+                  onClick={() => void files?.openWindow(FilesEntryPoint.Trash, FilesFolder.Trash)}
+                  onDragOver={(event) => {
+                    if (!files || !event.dataTransfer.types.includes(FILES_DRAG_TYPE)) return;
+                    event.preventDefault();
+                    event.dataTransfer.dropEffect = "move";
+                    setTrashTarget(true);
+                  }}
+                  onDragLeave={() => setTrashTarget(false)}
+                  onDrop={(event) => {
+                    setTrashTarget(false);
+                    const ids = decodeFilesDrag(event.dataTransfer.getData(FILES_DRAG_TYPE));
+                    if (!files || !ids.length) return;
+                    event.preventDefault();
+                    void files.trash(ids);
+                  }}
+                />
               </nav>
               {help && <div className={styles.helpFrame}>{help}</div>}
             </aside>
+            {mounted && <FilesWindow />}
           </WindowWorkspace>
         </div>
         <SiteFooter

@@ -88,29 +88,32 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
             contentPadding={ContentPadding.Compact}
             className={styles.previewPanel}
             data-ui-window-priority="primary"
+            data-tool-canvas-preview=""
           >
             <div className={styles.previewContent}>
-              <ControlFlow className={styles.toolbar}>
-                <Text variant={TextVariant.Reading} wrap className={styles.status}>
-                  {status}
-                </Text>
-                <Button
-                  slots={{}}
-                  text="-"
-                  aria-label={text("beads.zoom.out")}
-                  title={text("beads.zoom.out")}
-                  onClick={() => manager.navigation.setZoom(view.zoom / ZOOM_STEP)}
-                />
-                <Button
-                  slots={{}}
-                  text="+"
-                  aria-label={text("beads.zoom.in")}
-                  title={text("beads.zoom.in")}
-                  onClick={() => manager.navigation.setZoom(view.zoom * ZOOM_STEP)}
-                />
-                <Button slots={{}} text={text("beads.fit")} onClick={fit} />
-              </ControlFlow>
               <div className={styles.stage}>
+                <ControlFlow className={styles.zoomControls}>
+                  <Button
+                    slots={{}}
+                    text="-"
+                    aria-label={text("beads.zoom.out")}
+                    title={text("beads.zoom.out")}
+                    onClick={() => manager.navigation.setZoom(view.zoom / ZOOM_STEP)}
+                  />
+                  <Button
+                    slots={{}}
+                    text="+"
+                    aria-label={text("beads.zoom.in")}
+                    title={text("beads.zoom.in")}
+                    onClick={() => manager.navigation.setZoom(view.zoom * ZOOM_STEP)}
+                  />
+                  <Button slots={{}} text={text("beads.fit")} onClick={fit} />
+                </ControlFlow>
+                {status && (
+                  <Text variant={TextVariant.Reading} wrap className={styles.status}>
+                    {status}
+                  </Text>
+                )}
                 {state.preview && (
                   <ToolCanvasPreview
                     navigation={manager.navigation}

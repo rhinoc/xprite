@@ -14,7 +14,7 @@ import {
 } from "@xprite/editor-core/import-export";
 import type { SessionProject } from "@xprite/editor-core/session";
 
-const MAX_ANIMATION_SOURCE_BYTES = 128 * 1024 * 1024;
+export const MAX_ANIMATION_SOURCE_BYTES = 128 * 1024 * 1024;
 const ANIMATION_PROBE_BYTES = 12;
 const WEBP_MIME_TYPE = "image/webp";
 const RGBA_CHANNELS = 4;
