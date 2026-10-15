@@ -1,5 +1,4 @@
-import { lazy } from "react";
-
+import { lazyChunk } from "$/components/shared/lazy-chunk";
 import type { SpriteSheetDialogOptions } from "$/managers/dialogs/sprite-sheet-dialog-model";
 import { registerExporter, type ExporterViewProps } from "$/managers/files/exporter-registry";
 import {
@@ -8,7 +7,7 @@ import {
   type SheetExporterSource,
 } from "$/managers/files/exporters/sheet";
 
-const Dialog = lazy(() =>
+const Dialog = lazyChunk(() =>
   import("$/components/dialogs/sprite-sheet-dialog").then((module) => ({
     default: module.SpriteSheetDialog,
   })),

@@ -9,6 +9,10 @@ export enum PwaDiagnosticStage {
   Update = "update",
   Install = "install",
   Persistence = "persistence",
+  /** A build resource the worker could not fetch or verify. */
+  Fetch = "fetch",
+  /** A lazily loaded build chunk that failed to load in this page. */
+  Chunk = "chunk",
 }
 
 export enum PwaFailure {
@@ -18,6 +22,10 @@ export enum PwaFailure {
   PostMessage = "post-message",
   CacheNotReady = "cache-not-ready",
   NoWorker = "no-worker",
+  Integrity = "integrity",
+  Network = "network",
+  HttpStatus = "http-status",
+  ChunkLoad = "chunk-load",
 }
 
 export enum FileWriteStage {

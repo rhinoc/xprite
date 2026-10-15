@@ -46,6 +46,7 @@
   "ui.pwa.desktop.safari": "在 Safari 中选择「文件 → 添加到程序坞…」。",
   "ui.pwa.desktop.browser": "使用浏览器菜单中的「安装应用」或「添加到主屏幕」。",
   "ui.pwa.desktop.hint": "从帮助菜单选择“添加到桌面”，以后可快速打开 Xprite。",
+  "ui.pwa.update.available": "有新版本可用。准备好后请刷新页面。",
   "ui.home.introduction.description": "绘制精灵，编辑图层和动画帧，打开或保存 .ase/.aseprite 项目。支持鼠标、触摸和手写笔，也可以自定义工作区。免费、开源，作品保存在你的设备上。",
   "ui.home.license": "许可证",
   "ui.home.credits": "鸣谢",

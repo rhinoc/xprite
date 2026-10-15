@@ -46,6 +46,7 @@
   "ui.pwa.desktop.safari": "In Safari, choose File → Add to Dock….",
   "ui.pwa.desktop.browser": "Use the browser’s Install app or Add to Home Screen menu.",
   "ui.pwa.desktop.hint": "Choose Add to desktop in the Help menu for quick access next time.",
+  "ui.pwa.update.available": "A new version is available. Reload when you’re ready.",
   "ui.home.introduction.description": "Create sprites, edit layers and animation frames, and open or save .ase/.aseprite projects. Use a mouse, touch, or stylus and arrange your own workspace. Free and open source, with artwork stored on your device.",
   "ui.home.license": "License",
   "ui.home.credits": "Credits",

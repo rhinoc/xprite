@@ -24,6 +24,8 @@ export interface PwaPlatformState {
   readonly installed: boolean;
   readonly installMethod: PwaInstallMethod;
   readonly offlineStatus: PwaOfflineStatus;
+  /** Increases whenever a lazy chunk of this page's build could not be loaded. */
+  readonly chunkFailures: number;
 }
 
 /** Installation and offline application I/O, without document or UI state. */
