@@ -52,7 +52,8 @@ export function semanticPresentationTokens({
     "--ui-font-family": primaryFont,
     "--ui-font-family-compact": compactFont,
     "--ui-font-family-cjk": `${cjkFont}, monospace`,
-    "--ui-cjk-text-offset-y": `${cjkTextOffsetY}px`,
+    // Omitted at 0: consumers fall back to 0px, and every static page inlines these tokens.
+    ...(cjkTextOffsetY ? { "--ui-cjk-text-offset-y": `${cjkTextOffsetY}px` } : {}),
     "--ui-color-ink": ink,
     "--ui-color-muted-ink": mutedInk,
     "--ui-color-paper": paper,

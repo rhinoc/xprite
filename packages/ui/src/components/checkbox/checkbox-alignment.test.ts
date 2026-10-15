@@ -40,7 +40,7 @@ describe("single CJK text offset", () => {
     expect(
       semanticPresentationTokens({ ...palette, cjkTextOffsetY: -1 })["--ui-cjk-text-offset-y"],
     ).toBe("-1px");
-    expect(semanticPresentationTokens(palette)["--ui-cjk-text-offset-y"]).toBe("0px");
+    expect(semanticPresentationTokens(palette)["--ui-cjk-text-offset-y"]).toBeUndefined();
   });
 
   it("scales the shared offset with the text scale", () => {
