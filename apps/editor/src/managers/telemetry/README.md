@@ -31,7 +31,7 @@ Dialog and layout managers notify the telemetry manager at their existing lifecy
 | `file_download_requested` | Generated files were handed to the browser's download mechanism. This does not assert that a file reached disk.                                                      |
 | `file_save_as_completed`  | A user-requested Save As completed through the native file picker/file handle.                                                                                       |
 | `editor_operation`        | Document-open intent/cancellation and manual save/export requests/results, distinguished by action, phase, outcome and target.                                       |
-| `feature_used`            | Settings/about/save-as/export dialog entries, Save As dialog cancellation, donate clicks and layout changes.                                                         |
+| `feature_used`            | Settings/about/save-as/export dialog entries, Save As dialog cancellation, Support dialog opens/clicks and layout changes.                                                         |
 | `feedback_submitted`      | A user explicitly submits the feedback dialog: `category`, `message` and optional `email`, plus the existing visit context.                                          |
 | `$exception`              | A sanitized exception from the existing diagnostic pipeline. Repeated exceptions are suppressed for five seconds, with at most twenty reports per minute.            |
 
