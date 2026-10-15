@@ -1,12 +1,18 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { AnimalCrossingGroundView } from "$/components/animal-crossing/animal-crossing-ground";
-import { AnimalCrossingOutput } from "$/components/animal-crossing/animal-crossing-output";
-import { AnimalCrossingSettingsPanel } from "$/components/animal-crossing/animal-crossing-settings";
+import { AnimalCrossingQrTab } from "$/components/animal-crossing/animal-crossing-output";
+import { AnimalCrossingAdjust } from "$/components/animal-crossing/animal-crossing-settings";
 import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
+import { ToolDetails } from "$/components/shared/tool-details";
 import { ToolHelp } from "$/components/shared/tool-help";
-import { useToolWindowShade } from "$/components/shared/window-shade";
+import {
+  ToolCanvasPane,
+  ToolListPane,
+  ToolResultWindow,
+} from "$/components/shared/tool-result-window";
+import { ToolZoomControl } from "$/components/shared/tool-zoom-control";
 import {
   AnimalCrossingLayout,
   type AnimalCrossingManager,
@@ -15,60 +21,47 @@ import { useToolTranslation } from "$/managers/locale/tool-language";
 import { ANIMAL_CROSSING_TOOL } from "$/managers/tools/tool-catalog";
 import { AnimalCrossingGridOverlay } from "@xprite/editor-ui/animal-crossing";
 import { ANIMAL_CROSSING_HELP, AnimalCrossingHelpSection } from "@xprite/growth-content/tools";
-import {
-  ContentLayout,
-  Disclosure,
-  StatusBar,
-  Text,
-  TextVariant,
-  TextTone,
-  Panel,
-  PanelVariant,
-  Button,
-  Checkbox,
-  Combobox,
-  ControlFlow,
-} from "@xprite/ui";
+import { Button, Checkbox, ControlFlow } from "@xprite/ui";
 
 import styles from "$/components/animal-crossing/animal-crossing.module.css";
-const ZOOM_WIDTH = 70;
-const ZOOM_VALUES = [0, 1, 2, 4, 8, 12, 16];
-const FIT = 0;
-const PERCENT = 100;
+
 const GRID_HANDLE_PADDING = 32;
 enum AnimalCrossingPreview {
   Original = "original",
   Converted = "converted",
 }
+enum ResultTab {
+  Pattern = "pattern",
+  Qr = "qr",
+  Ground = "ground",
+  Details = "details",
+}
 export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager }) {
-  const shadePreview = useToolWindowShade("preview");
   const t = useToolTranslation();
-
   const snapshot = useSyncExternalStore(
     manager.subscribe,
     manager.getSnapshot,
     manager.getSnapshot,
   );
-  const view = useSyncExternalStore(
-    manager.viewport.subscribe,
-    manager.viewport.getSnapshot,
-    manager.viewport.getSnapshot,
-  );
   const [preview, setPreview] = useState(AnimalCrossingPreview.Original);
   const [showGrid, setShowGrid] = useState(true);
   const [editingGrid, setEditingGrid] = useState(false);
+  const [tab, setTab] = useState<string>(ResultTab.Pattern);
   const { source, result } = snapshot;
   useEffect(() => {
     if (result) setPreview(AnimalCrossingPreview.Converted);
   }, [result]);
-  const groundOpen = !!result && snapshot.previewOpen;
+  useEffect(() => {
+    manager.setPreviewOpen(tab === ResultTab.Ground);
+  }, [manager, tab]);
+  const groundOpen = !!result && tab === ResultTab.Ground;
   const busy = snapshot.loading || snapshot.downloading;
   const converted = !!result && preview === AnimalCrossingPreview.Converted;
   const pixels = converted ? result!.pixels : source;
   const grid = manager.getGrid(converted);
   const tiled = snapshot.layout === AnimalCrossingLayout.Tiles && !!grid;
-  const zoom = view.fit ? FIT : view.zoom;
-  const zooms = ZOOM_VALUES.includes(zoom) ? ZOOM_VALUES : [...ZOOM_VALUES, zoom];
+  const outputDisabled = !result || busy || snapshot.pending;
+  const designs = result?.patterns.length ?? 0;
   return (
     <FileToolShell
       tool={ANIMAL_CROSSING_TOOL}
@@ -76,63 +69,48 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
       filename={snapshot.name}
       ready={!!source}
       busy={busy}
+      processing={snapshot.pending}
       error={snapshot.error}
       onOpen={(file) => manager.open(file)}
       onExample={() => manager.openExample()}
-      fileItems={[
-        {
-          label: t("Download QR PNG"),
-          disabled: !result || busy,
-          onSelect: () => void manager.downloadQr(),
-        },
-        ...(result && result.patterns.length > 1
-          ? [
-              {
-                label: t(`Download all ${result.patterns.length} designs`),
-                disabled: busy,
-                onSelect: () => void manager.download(),
-              },
-            ]
-          : []),
-      ]}
+      flow={{
+        exportDisabled: outputDisabled,
+        editMore: { run: () => void manager.edit() },
+        adjust: snapshot.importedQr ? undefined : (
+          <AnimalCrossingAdjust manager={manager} snapshot={snapshot} />
+        ),
+        exportFormats: [
+          {
+            id: "qr",
+            label: t("QR code (.png)"),
+            disabled: outputDisabled,
+            run: () => void manager.downloadQr(),
+          },
+          ...(designs > 1
+            ? [
+                {
+                  id: "all",
+                  label: t("All designs (.zip)"),
+                  disabled: outputDisabled,
+                  run: () => void manager.download(),
+                },
+              ]
+            : []),
+        ],
+      }}
     >
       {source && pixels && (
-        <div
-          className={`${styles.layout} ${snapshot.layout === AnimalCrossingLayout.Single ? styles.singleLayout : ""}`}
-          data-ground-preview-open={groundOpen || undefined}
-        >
-          <AnimalCrossingSettingsPanel
-            key={snapshot.identity}
-            manager={manager}
-            snapshot={snapshot}
-          />
-          <Panel
-            {...shadePreview}
-            emphasized
-            contentLayout={ContentLayout.Fill}
-            variant={PanelVariant.Document}
-            title={snapshot.name}
-            className={styles.previewPanel}
-            data-ui-window-priority="primary"
-            aria-label={t(snapshot.importedQr ? "Imported design" : "Sprite sheet")}
-          >
-            <div className={styles.previewContent}>
-              {result && (
-                <Disclosure
-                  className={styles.groundDisclosure}
-                  title={t("3D preview")}
-                  open={groundOpen}
-                  onToggle={(event) => {
-                    if (event.currentTarget.open !== groundOpen)
-                      manager.setPreviewOpen(event.currentTarget.open);
-                  }}
-                >
-                  {groundOpen && <AnimalCrossingGroundView manager={manager.ground} />}
-                </Disclosure>
-              )}
-              {!groundOpen && (
+        <ToolResultWindow
+          title={snapshot.name}
+          tab={tab}
+          onTabChange={setTab}
+          tabs={[
+            {
+              id: ResultTab.Pattern,
+              label: t("Pattern"),
+              content: (
                 <>
-                  <ControlFlow toolbar className={styles.previewToolbar}>
+                  <ControlFlow className={styles.toolbar}>
                     {result && (
                       <>
                         <Button
@@ -149,21 +127,6 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
                         />
                       </>
                     )}
-                    <Combobox
-                      aria-label={t("Preview zoom")}
-                      pixelWidth={ZOOM_WIDTH}
-                      value={String(zoom)}
-                      options={zooms.map((value) => ({
-                        value: String(value),
-                        label: value === FIT ? "Fit" : `${Math.round(value * PERCENT)}%`,
-                        disabled: value !== FIT && !manager.viewport.canZoom(value),
-                      }))}
-                      onValueChange={(value) =>
-                        Number(value) === FIT
-                          ? manager.viewport.fit()
-                          : manager.viewport.setZoom(Number(value))
-                      }
-                    />
                     {tiled && (
                       <Checkbox
                         label={t("Tile grid")}
@@ -172,7 +135,10 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
                       />
                     )}
                   </ControlFlow>
-                  <div className={styles.previewStage}>
+                  <ToolCanvasPane
+                    controls={<ToolZoomControl navigation={manager.viewport} />}
+                    status={`${pixels.width} × ${pixels.height} px`}
+                  >
                     <ToolCanvasPreview
                       navigation={manager.viewport}
                       navigationEnabled={!editingGrid}
@@ -224,23 +190,49 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
                           : undefined
                       }
                     />
-                  </div>
+                  </ToolCanvasPane>
                 </>
-              )}
-            </div>
-            <StatusBar
-              aria-label={t("Preview status")}
-              trailing={
-                <Text variant={TextVariant.Reading} tone={TextTone.Muted}>
-                  {t(`${pixels.width} × ${pixels.height} px`)}
-                </Text>
-              }
-            />
-          </Panel>
-          <div className={styles.sideColumn} data-ui-desktop-layer>
-            <AnimalCrossingOutput manager={manager} snapshot={snapshot} />
-          </div>
-        </div>
+              ),
+            },
+            {
+              id: ResultTab.Qr,
+              label: t("QR code"),
+              content: <AnimalCrossingQrTab manager={manager} snapshot={snapshot} />,
+            },
+            ...(result
+              ? [
+                  {
+                    id: ResultTab.Ground,
+                    label: t("3D preview"),
+                    content: groundOpen ? (
+                      <AnimalCrossingGroundView manager={manager.ground} />
+                    ) : null,
+                  },
+                ]
+              : []),
+            {
+              id: ResultTab.Details,
+              label: t("Details"),
+              content: (
+                <ToolListPane>
+                  <ToolDetails
+                    rows={[
+                      ...(snapshot.importedQr
+                        ? ([
+                            [t("Title"), snapshot.settings.title],
+                            [t("Creator"), snapshot.settings.creator],
+                            [t("Island / town"), snapshot.settings.town],
+                          ] as const)
+                        : []),
+                      [t("Size"), `${pixels.width} × ${pixels.height} px`],
+                      ...(designs > 0 ? ([[t("Designs"), String(designs)]] as const) : []),
+                    ]}
+                  />
+                </ToolListPane>
+              ),
+            },
+          ]}
+        />
       )}
     </FileToolShell>
   );

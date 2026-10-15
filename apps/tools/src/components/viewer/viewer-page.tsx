@@ -44,23 +44,23 @@ export function ViewerPage({ manager }: { manager: ViewerManager }) {
       error={snapshot.error}
       onOpen={(file) => manager.open(file)}
       onExample={() => manager.openExample()}
-      fileItems={[
-        {
-          label: t("Edit in Xprite"),
-          disabled: !ready || busy || snapshot.openingEditor,
-          onSelect: () => void manager.openEditor(),
-        },
-        {
-          label: t("Export animation (.gif)"),
-          disabled: !ready || busy || snapshot.exporting || !snapshot.animated,
-          onSelect: () => void manager.exportFile(ViewerExportFormat.Gif),
-        },
-        {
-          label: t("Export current frame (.png)"),
-          disabled: !ready || busy || snapshot.exporting,
-          onSelect: () => void manager.exportFile(ViewerExportFormat.Png),
-        },
-      ]}
+      flow={{
+        exportDisabled: !ready || snapshot.exporting || snapshot.openingEditor,
+        editMore: { run: () => void manager.openEditor(), disabled: snapshot.openingEditor },
+        exportFormats: [
+          {
+            id: "gif",
+            label: t("Export animation (.gif)"),
+            disabled: !snapshot.animated,
+            run: () => void manager.exportFile(ViewerExportFormat.Gif),
+          },
+          {
+            id: "png",
+            label: t("Export current frame (.png)"),
+            run: () => void manager.exportFile(ViewerExportFormat.Png),
+          },
+        ],
+      }}
     >
       {ready && <ViewerPreview key={snapshot.name} manager={manager} snapshot={snapshot} />}
     </FileToolShell>

@@ -1,30 +1,20 @@
 import { useSyncExternalStore } from "react";
 
+import { PixelationPalette } from "$/components/pixelation/pixelation-palette";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
 import { ToolHelp } from "$/components/shared/tool-help";
-import { useToolWindowShade } from "$/components/shared/window-shade";
+import { ToolListPane, ToolResultWindow } from "$/components/shared/tool-result-window";
+import { useToolTranslation } from "$/managers/locale/tool-language";
 import type { PixelationManager } from "$/managers/pixelation/pixelation-manager";
 import { PIXELATE_TOOL } from "$/managers/tools/tool-catalog";
 import { PixelationComparison, PixelationControls } from "@xprite/editor-ui";
 import { PIXELATE_HELP, PixelateHelpSection } from "@xprite/growth-content/tools";
-import {
-  Button,
-  ContentLayout,
-  ContentPadding,
-  ControlFlow,
-  Panel,
-  PanelVariant,
-  SurfaceTone,
-  Text,
-  TextVariant,
-} from "@xprite/ui";
 
-import styles from "$/components/pixelation/pixelation.module.css";
 export function PixelationPage({ manager }: { manager: PixelationManager }) {
-  const shadeSettings = useToolWindowShade("settings");
-  const shadePreview = useToolWindowShade("preview");
+  const t = useToolTranslation();
   const state = useSyncExternalStore(manager.subscribe, manager.getSnapshot, manager.getSnapshot);
   const busy = state.loading || state.downloading;
+  const ready = !!state.result && !state.converting;
   return (
     <FileToolShell
       tool={PIXELATE_TOOL}
@@ -36,83 +26,71 @@ export function PixelationPage({ manager }: { manager: PixelationManager }) {
       help={<ToolHelp id={PixelateHelpSection.Overview} content={PIXELATE_HELP} />}
       onOpen={(file) => manager.open(file)}
       onExample={() => manager.openExample()}
-      fileItems={[
-        {
-          label: "Download PNG",
-          disabled: !state.result || busy || state.converting,
-          onSelect: () => void manager.download(),
-        },
-        {
-          label: "Continue editing",
-          disabled: !state.result || busy || state.converting,
-          onSelect: () => void manager.edit(),
-        },
-      ]}
+      flow={{
+        exportDisabled: !ready,
+        editMore: { run: () => void manager.edit() },
+        adjust: state.source && (
+          <PixelationControls
+            grouped
+            paletteResources={{
+              choices: state.paletteChoices,
+              currentPalette: state.defaultPalette,
+              previewPalette: state.palettePreview,
+              currentLabel: "Use default palette",
+              currentName: "Default palette",
+              refresh: manager.refreshPalettes,
+            }}
+            grid={state.grid ?? undefined}
+            settings={state.settings}
+            sourceSize={state.source}
+            disabled={busy}
+            translate={(text, values) =>
+              t(text).replace(/\{([^}]+)\}/g, (match, key: string) =>
+                String(values?.[key] ?? match),
+              )
+            }
+            onChange={manager.changeSettings}
+          />
+        ),
+        exportFormats: [
+          {
+            id: "png",
+            label: t("PNG image (.png)"),
+            disabled: !ready,
+            run: () => void manager.download(),
+          },
+        ],
+      }}
     >
       {state.source && (
-        <div className={styles.layout}>
-          <Panel
-            {...shadeSettings}
-            variant={PanelVariant.Utility}
-            emphasized
-            tone={SurfaceTone.Accent}
-            title="Pixelation"
-            contentLayout={ContentLayout.Column}
-            contentPadding={ContentPadding.Compact}
-            className={styles.settings}
-          >
-            <PixelationControls
-              paletteResources={{
-                choices: state.paletteChoices,
-                currentPalette: state.defaultPalette,
-                previewPalette: state.palettePreview,
-                currentLabel: "Use default palette",
-                currentName: "Default palette",
-                refresh: manager.refreshPalettes,
-              }}
-              grid={state.grid ?? undefined}
-              settings={state.settings}
-              sourceSize={state.source}
-              disabled={busy}
-              onChange={manager.changeSettings}
-            />
-          </Panel>
-          <Panel
-            {...shadePreview}
-            variant={PanelVariant.Document}
-            emphasized
-            title={state.name}
-            contentPadding={ContentPadding.Compact}
-            className={styles.preview}
-            data-ui-window-priority="primary"
-          >
-            <div className={styles.content}>
-              <PixelationComparison
-                source={state.source}
-                result={state.result}
-                preparing={state.loading || state.converting}
-                mode={state.settings.mode}
-              />
-              <ControlFlow className={styles.actions}>
-                <Text variant={TextVariant.Reading}>
-                  {state.converting ? "Preparing preview…" : ""}
-                </Text>
-                <Button
-                  slots={{}}
-                  text="Download PNG"
-                  disabled={!state.result || busy || state.converting}
-                  onClick={() => void manager.download()}
+        <ToolResultWindow
+          title={state.name}
+          tabs={[
+            {
+              id: "comparison",
+              label: t("Comparison"),
+              content: (
+                <PixelationComparison
+                  fill
+                  source={state.source}
+                  result={state.result}
+                  preparing={state.loading || state.converting}
+                  mode={state.settings.mode}
+                  translate={(text) => t(text)}
                 />
-                <Button
-                  slots={{}}
-                  text="Continue editing"
-                  disabled={!state.result || busy || state.converting}
-                  onClick={() => void manager.edit()}
-                />
-              </ControlFlow>
-            </div>
-          </Panel>
-        </div>
+              ),
+            },
+            {
+              id: "palette",
+              label: t("Palette"),
+              content: (
+                <ToolListPane>
+                  {state.result ? <PixelationPalette pixels={state.result} /> : null}
+                </ToolListPane>
+              ),
+            },
+          ]}
+        />
       )}
     </FileToolShell>
   );

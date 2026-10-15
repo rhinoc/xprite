@@ -10,5 +10,6 @@ export interface GifSheetPort {
   read(file: File): Promise<RasterAnimation>;
   example(): Promise<File>;
   savePng(pixels: PixelBuffer, name: string): Promise<void>;
+  edit(file: File): Promise<void>;
   saveJson(content: string, name: string): Promise<void>;
 }

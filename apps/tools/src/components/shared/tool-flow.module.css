@@ -3,6 +3,8 @@
   flex: 0 0 auto;
   display: flex;
   justify-content: flex-end;
+  /* Edit more to Export: 16px between the boxes = 12px from the default button's 4px ring. */
+  gap: 16px;
   /* 12px above the button (Mac OS 8 HIG), on the window's own background: no bar. */
   padding-top: 12px;
   /* The window body leaves 9px to the edge: add 3px for the 12px HIG margin. */
@@ -94,4 +96,126 @@
   .adjust {
     margin-top: 8px;
   }
+}
+
+/* Group boxes in the adjust panel: related controls side by side, wrapping. */
+.inlineField {
+  --ui-field-gap: 6px;
+}
+.group {
+  flex: 1 1 auto !important;
+}
+.fieldRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+}
+
+/* The stage window: optional result tabs, one active pane, then the Export footer. */
+.resultLayout {
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: var(--ui-space-4);
+  box-sizing: border-box;
+}
+.resultWindow {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+/* Canvas panes pan/zoom on the surface: never scroll the window body (phone shell sets
+   overflow:auto on every window body, which fights gesture zoom). */
+.resultWindow:global([data-ui-panel-variant]) > :global([data-slot="panel-body"]) {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+.resultContent {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  gap: var(--ui-space-4);
+}
+.resultTabs {
+  flex: 0 0 auto;
+  min-height: 28px;
+}
+.pane {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+.pane[hidden] {
+  display: none;
+}
+/* A canvas pane fills the window; its controls float in the corners. */
+.canvasPane {
+  display: flex;
+  flex: 1;
+  min-height: 240px;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+/* A list pane (details, palette, timeline) fills the window and may scroll on its own. */
+.listPane {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-3);
+}
+.canvasControls {
+  display: flex;
+  position: absolute;
+  right: var(--ui-space-3);
+  bottom: var(--ui-space-3);
+  z-index: 1;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--ui-space-2, 4px);
+}
+.canvasStatus {
+  position: absolute;
+  left: var(--ui-space-3);
+  top: var(--ui-space-3);
+  z-index: 1;
+  max-width: calc(100% - 160px);
+  padding: 1px 4px;
+  background: var(--ui-color-paper);
+  pointer-events: none;
+}
+@media (max-width: 700px) {
+  .canvasPane {
+    min-height: 0;
+  }
+}
+
+.details {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.detailRow {
+  display: flex;
+  gap: 12px;
+}
+.detailRow > dt {
+  flex: 0 0 120px;
+}
+.detailRow > dd {
+  margin: 0;
+  min-width: 0;
 }

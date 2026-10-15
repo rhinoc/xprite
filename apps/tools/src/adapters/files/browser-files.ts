@@ -1,7 +1,7 @@
 import { zipSync } from "fflate";
 
+import { openInEditor } from "$/adapters/editor/open-in-editor";
 import { EditorProjectReader, editorRecentId } from "$/adapters/files/editor-projects";
-import { transferViewerFile } from "$/adapters/viewer/editor-transfer";
 import { FileEntryKind, type FileEntry, type FilesPort } from "$/managers/ports/files";
 import { downloadBlob } from "@xprite/bedrock/browser/file-system";
 import {
@@ -148,8 +148,7 @@ export function createBrowserFilesPort(telemetry?: SiteTelemetryPort): FilesPort
         );
         return;
       }
-      const token = await transferViewerFile(await read(entry));
-      window.location.assign(`/editor#viewer-import=${token}`);
+      await openInEditor(await read(entry));
     },
     openInTool(href, entry) {
       window.location.assign(`${href}${HANDOFF_PREFIX}${encodeURIComponent(entry.id)}`);

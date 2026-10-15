@@ -12,6 +12,9 @@ export interface ToolActionBarProps {
   /** Export is disabled while the tool is busy; the shell renders the button only once there is a result. */
   exportDisabled: boolean;
   onExport(): void;
+  /** Present when the tool can hand its result to the editor as a new project. */
+  onEditMore?(): void;
+  editMoreDisabled?: boolean;
 }
 
 const ToolActionBarContext = createContext<ToolActionBarProps | undefined>(undefined);
@@ -20,12 +23,29 @@ export const ToolActionBarProvider = ToolActionBarContext.Provider;
 /**
  * The Export button of a flow tool, Mac OS 8 style: a standard-size default button at the
  * bottom right of the stage window, on the window's own background (no bar). It is the app's real
- * default-action `Button` (theme ring included).
+ * default-action `Button` (theme ring included). "Edit more" sits to its left as a plain standard
+ * button (no ring), only when the tool can open its result in the editor.
  */
-function ToolActionBar({ exportDisabled, onExport }: ToolActionBarProps) {
+function ToolActionBar({
+  exportDisabled,
+  onExport,
+  onEditMore,
+  editMoreDisabled = false,
+}: ToolActionBarProps) {
   const t = useToolTranslation();
   return (
     <div className={styles.exportFooter} data-tool-action-bar="">
+      {onEditMore && (
+        <Button
+          className={styles.exportButton}
+          text={t("Edit more")}
+          font={FontRole.Primary}
+          minimumWidth={MINIMUM_EXPORT_WIDTH}
+          disabled={editMoreDisabled}
+          data-flow-edit-more=""
+          onClick={onEditMore}
+        />
+      )}
       <ToolDefaultButton
         text={t("Export…")}
         disabled={exportDisabled}

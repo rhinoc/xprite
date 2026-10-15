@@ -24,6 +24,7 @@ import {
   PixelationMethod,
   PIXELATION_METHOD_OPTIONS,
   mapBeadGrid,
+  beadGridPixels,
   beadBoards,
   beadBoardCount,
   beadFileName,
@@ -632,6 +633,34 @@ export class BeadToolManager {
       if (request === this.request) this.publish({ downloading: false, progress: null });
     }
   }
+  /** Opens the bead pattern (one pixel per bead) in the editor as a new project. */
+  edit = async () => {
+    const { grid, outputName } = this.state;
+    if (
+      !grid ||
+      this.closed ||
+      this.state.loading ||
+      this.state.pending ||
+      this.state.downloading ||
+      !outputName.trim()
+    )
+      return;
+    const request = this.request;
+    this.publish({ downloading: true, error: null });
+    try {
+      await this.port.edit(
+        beadGridPixels(grid),
+        beadFileName(outputName, ToolOutputFormat.Png, DEFAULT_FILE_STEM),
+      );
+    } catch (reason) {
+      if (request === this.request) {
+        this.publish({ error: beadToolFailure(reason, "beads.error.editor") });
+      }
+    } finally {
+      // The page is navigating away; if it is restored from history the tool must be usable.
+      if (request === this.request) this.publish({ downloading: false });
+    }
+  };
   dispose() {
     this.closed = true;
     ++this.request;

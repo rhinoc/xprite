@@ -22,6 +22,7 @@ export interface AnimalCrossingPort {
     pattern?: ImportedAnimalCrossingPattern;
   }>;
   example(): Promise<File>;
+  edit(pixels: PixelBuffer, name: string): Promise<void>;
   saveQr(pixels: PixelBuffer, name: string): Promise<void>;
   save(result: AnimalCrossingResult, name: string): Promise<void>;
 }

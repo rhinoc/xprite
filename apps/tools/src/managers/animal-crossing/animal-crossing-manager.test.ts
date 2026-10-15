@@ -27,6 +27,7 @@ function port(patch: Partial<AnimalCrossingPort> = {}): AnimalCrossingPort {
     example: async () => new File([], "example.png"),
     save: async () => {},
     saveQr: async () => {},
+    edit: async () => {},
     ...patch,
   };
 }
@@ -124,5 +125,40 @@ describe("Animal Crossing tool lifecycle", () => {
     rejectSave(new Error("Old download failed"));
     await saving;
     assert.equal(manager.getSnapshot(), downloading);
+  });
+
+  it("opens the converted design in the editor as a PNG-named result", async () => {
+    const edited: { pixels: unknown; name: string }[] = [];
+    const manager = new AnimalCrossingManager(
+      port({ edit: async (pixels, name) => void edited.push({ pixels, name }) }),
+    );
+    await manager.open(new File([], "garden.png"));
+    await manager.edit();
+    assert.equal(edited.length, 1);
+    assert.equal(edited[0].name, "garden-animal-crossing.png");
+    assert.equal(edited[0].pixels, manager.getSnapshot().result!.pixels);
+    manager.dispose();
+  });
+  it("reports an editor hand-off failure and stays usable", async () => {
+    const manager = new AnimalCrossingManager(
+      port({
+        edit: async () => {
+          throw new Error("storage unavailable");
+        },
+      }),
+    );
+    await manager.open(new File([], "garden.png"));
+    await manager.edit();
+    const snapshot = manager.getSnapshot();
+    assert.equal(snapshot.error, "The editor could not be opened. Please try again.");
+    assert.equal(snapshot.downloading, false);
+    manager.dispose();
+  });
+  it("does not open the editor before there is a result", async () => {
+    let calls = 0;
+    const manager = new AnimalCrossingManager(port({ edit: async () => void calls++ }));
+    await manager.edit();
+    assert.equal(calls, 0);
+    manager.dispose();
   });
 });

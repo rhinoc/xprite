@@ -19,6 +19,7 @@ function port(overrides: Partial<BeadToolPort> = {}): BeadToolPort {
     example: async () => new File([], "example.png"),
     readWheel: () => ({ precise: false, magnify: false, zoom: false, shift: false, unit: 1 }),
     savePng: vi.fn(async () => {}),
+    edit: vi.fn(async () => {}),
     savePdf: vi.fn(async () => {}),
     ...overrides,
   };
@@ -258,6 +259,40 @@ describe("standalone bead tool", () => {
     manager.setOutputName("../chart.PDF");
     await manager.downloadPdf(labels);
     expect(vi.mocked(io.savePdf).mock.calls[0][4]).toBe("chart.pdf");
+    manager.dispose();
+  });
+  it("opens the pattern in the editor as one pixel per bead", async () => {
+    const io = port({
+      read: async () => ({
+        pixels: {
+          width: 2,
+          height: 1,
+          data: new Uint8ClampedArray([255, 0, 0, 255, 255, 0, 0, 0]),
+        },
+      }),
+    });
+    const manager = new BeadToolManager(io);
+    await manager.open(new File([], "art.png"));
+    await manager.edit();
+    expect(io.edit).toHaveBeenCalledTimes(1);
+    const [pixels, name] = vi.mocked(io.edit).mock.calls[0];
+    expect(name).toBe("art-beads.png");
+    expect([pixels.width, pixels.height]).toEqual([2, 1]);
+    expect(pixels.data[3]).toBe(255);
+    expect(pixels.data[7]).toBe(0);
+    manager.dispose();
+  });
+  it("reports an editor hand-off failure and unlocks the tool", async () => {
+    const io = port({
+      edit: vi.fn(async () => {
+        throw new Error("storage unavailable");
+      }),
+    });
+    const manager = new BeadToolManager(io);
+    await manager.open(new File([], "art.png"));
+    await manager.edit();
+    expect(manager.getSnapshot().error).toEqual({ key: "beads.error.editor" });
+    expect(manager.getSnapshot().downloading).toBe(false);
     manager.dispose();
   });
 });

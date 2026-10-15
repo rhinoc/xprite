@@ -1,6 +1,10 @@
 import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
+import {
+  ToolCanvasPane,
+  ToolListPane,
+  ToolResultWindow,
+} from "$/components/shared/tool-result-window";
 import { ToolZoomControl } from "$/components/shared/tool-zoom-control";
-import { useToolWindowShade } from "$/components/shared/window-shade";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import {
   ALL_FRAMES_TAG,
@@ -8,19 +12,7 @@ import {
   type ViewerSnapshot,
 } from "$/managers/viewer/viewer-manager";
 import { ReadOnlyTimeline } from "@xprite/editor-ui/timeline";
-import {
-  ContentLayout,
-  SurfaceTone,
-  Text,
-  TextVariant,
-  TextTone,
-  Button,
-  Combobox,
-  ControlFlow,
-  StatusBar,
-  Panel,
-  PanelVariant,
-} from "@xprite/ui";
+import { Button, Combobox, ControlFlow } from "@xprite/ui";
 
 import styles from "$/components/viewer/viewer.module.css";
 
@@ -34,161 +26,145 @@ export function ViewerPreview({
   manager: ViewerManager;
   snapshot: ViewerSnapshot;
 }) {
-  const shadePreview = useToolWindowShade("preview");
-  const shadeAnimation = useToolWindowShade("animation");
   const t = useToolTranslation();
 
   const navigation = manager.viewport;
   const pixels = snapshot.pixels!;
   const frameLabel = `Frame ${snapshot.frame + FRAME_OFFSET} of ${snapshot.frames}`;
+  const info = `${pixels.width} × ${pixels.height} px · ${snapshot.frame + FRAME_OFFSET} / ${snapshot.frames} · ${snapshot.duration} ms`;
   return (
-    <div className={styles.layout}>
-      <Panel
-        {...shadePreview}
-        emphasized
-        contentLayout={ContentLayout.Fill}
-        variant={PanelVariant.Document}
-        title={snapshot.name}
-        className={styles.previewWindow}
-        data-ui-window-priority="primary"
-      >
-        <ToolCanvasPreview
-          navigation={navigation}
-          identity={snapshot.identity}
-          pixels={pixels}
-          label={t(frameLabel)}
-          navigationLabel={t("Sprite preview. Space to play or pause, arrow keys to change frame.")}
-          onKeyDown={(event) => {
-            if (event.altKey || event.ctrlKey || event.metaKey) return;
-            if (event.key === " ") {
-              event.preventDefault();
-              if (!event.repeat) manager.togglePlayback();
-            } else if (event.key === "ArrowLeft") {
-              event.preventDefault();
-              manager.stepFrame(-FRAME_OFFSET);
-            } else if (event.key === "ArrowRight") {
-              event.preventDefault();
-              manager.stepFrame(FRAME_OFFSET);
-            } else if (event.key === "Home" || event.key === "End") {
-              event.preventDefault();
-              manager.inspectFrame(event.key === "Home" ? 0 : snapshot.frames - FRAME_OFFSET);
-            }
-          }}
-        />
-      </Panel>
-      <Panel
-        {...shadeAnimation}
-        emphasized
-        tone={SurfaceTone.Accent}
-        contentLayout={ContentLayout.Column}
-        scrollable
-        variant={PanelVariant.Utility}
-        title={t("Animation")}
-        className={styles.animationWindow}
-      >
-        <ControlFlow toolbar className={styles.playbackToolbar}>
-          <ControlFlow
-            className={styles.playbackActions}
-            role="group"
-            aria-label={t("Playback controls")}
-          >
-            <Button
-              icon="ani_first"
-              pixelSize={PLAYBACK_BUTTON_SIZE}
-              pushedPart="buttonset_item_pushed"
-              aria-label={t("First frame")}
-              title={t("First frame (Home)")}
-              disabled={snapshot.frames <= FRAME_OFFSET}
-              onClick={() => manager.inspectFrame(0)}
-            />
-            <Button
-              icon="ani_previous"
-              pixelSize={PLAYBACK_BUTTON_SIZE}
-              pushedPart="buttonset_item_pushed"
-              aria-label={t("Previous frame")}
-              title={t("Previous frame (Left)")}
-              disabled={!snapshot.animated}
-              onClick={() => manager.stepFrame(-FRAME_OFFSET)}
-            />
-            <Button
-              icon={snapshot.playing ? "ani_stop" : "ani_play"}
-              pixelSize={PLAYBACK_BUTTON_SIZE}
-              pushedPart="buttonset_item_pushed"
-              aria-label={t(snapshot.playing ? "Pause animation" : "Play animation")}
-              title={t(snapshot.playing ? "Pause animation (Space)" : "Play animation (Space)")}
-              selected={snapshot.playing}
-              disabled={!snapshot.animated}
-              onClick={() => manager.togglePlayback()}
-            />
-            <Button
-              icon="ani_next"
-              pixelSize={PLAYBACK_BUTTON_SIZE}
-              pushedPart="buttonset_item_pushed"
-              aria-label={t("Next frame")}
-              title={t("Next frame (Right)")}
-              disabled={!snapshot.animated}
-              onClick={() => manager.stepFrame(FRAME_OFFSET)}
-            />
-            <Button
-              icon="ani_last"
-              pixelSize={PLAYBACK_BUTTON_SIZE}
-              pushedPart="buttonset_item_pushed"
-              aria-label={t("Last frame")}
-              title={t("Last frame (End)")}
-              disabled={snapshot.frames <= FRAME_OFFSET}
-              onClick={() => manager.inspectFrame(snapshot.frames - FRAME_OFFSET)}
-            />
-          </ControlFlow>
-          {snapshot.tags.length > 0 && (
-            <Combobox
-              pixelWidth={RANGE_WIDTH}
-              aria-label={t("Animation range")}
-              value={snapshot.selectedTag}
-              onValueChange={(value) => manager.selectTag(value)}
-              options={[
-                { value: ALL_FRAMES_TAG, label: t("All frames") },
-                ...snapshot.tags.map((tag) => ({ value: tag.id, label: tag.name })),
-              ]}
-            />
-          )}
-        </ControlFlow>
-        <ReadOnlyTimeline
-          timeline={manager.getPresentationTimeline()!}
-          identity={snapshot.identity}
-          frame={snapshot.frame}
-          selectedTag={snapshot.tags.findIndex((tag) => tag.id === snapshot.selectedTag)}
-          onTag={(index) => manager.selectTag(snapshot.tags[index].id)}
-          selectedLayer={snapshot.selectedLayer}
-          onLayer={(index) => manager.selectLayer(index)}
-          onVisible={(index) => manager.toggleLayer(snapshot.layers[index].id)}
-          visibilityDisabled={(index) => snapshot.layers[index].reference}
-          onCollapsed={(index) => manager.toggleGroup(index)}
-          onFrame={(frame) => manager.inspectFrame(frame)}
-          onStepFrame={(direction) => manager.stepFrame(direction)}
-          onPlayback={() => manager.togglePlayback()}
-        />
-        <StatusBar
-          border={false}
-          aria-label={t("Preview status")}
-          role="group"
-          leading={
+    <ToolResultWindow
+      title={snapshot.name}
+      tabs={[
+        {
+          id: "preview",
+          label: t("Preview"),
+          content: (
             <>
-              <Text variant={TextVariant.Reading} tone={TextTone.Muted}>
-                {t(`${pixels.width} × ${pixels.height} px`)}
-              </Text>
-              <div className={styles.frameInfo} title={t("Current frame and its duration")}>
-                <Text variant={TextVariant.Reading}>
-                  {t(`${snapshot.frame + FRAME_OFFSET} / ${snapshot.frames}`)}
-                </Text>
-                <Text variant={TextVariant.Reading} tone={TextTone.Muted}>
-                  {t(`${snapshot.duration} ms`)}
-                </Text>
-              </div>
+              <ControlFlow className={styles.playbackToolbar}>
+                <ControlFlow
+                  className={styles.playbackActions}
+                  role="group"
+                  aria-label={t("Playback controls")}
+                >
+                  <Button
+                    icon="ani_first"
+                    pixelSize={PLAYBACK_BUTTON_SIZE}
+                    pushedPart="buttonset_item_pushed"
+                    aria-label={t("First frame")}
+                    title={t("First frame (Home)")}
+                    disabled={snapshot.frames <= FRAME_OFFSET}
+                    onClick={() => manager.inspectFrame(0)}
+                  />
+                  <Button
+                    icon="ani_previous"
+                    pixelSize={PLAYBACK_BUTTON_SIZE}
+                    pushedPart="buttonset_item_pushed"
+                    aria-label={t("Previous frame")}
+                    title={t("Previous frame (Left)")}
+                    disabled={!snapshot.animated}
+                    onClick={() => manager.stepFrame(-FRAME_OFFSET)}
+                  />
+                  <Button
+                    icon={snapshot.playing ? "ani_stop" : "ani_play"}
+                    pixelSize={PLAYBACK_BUTTON_SIZE}
+                    pushedPart="buttonset_item_pushed"
+                    aria-label={t(snapshot.playing ? "Pause animation" : "Play animation")}
+                    title={t(
+                      snapshot.playing ? "Pause animation (Space)" : "Play animation (Space)",
+                    )}
+                    selected={snapshot.playing}
+                    disabled={!snapshot.animated}
+                    onClick={() => manager.togglePlayback()}
+                  />
+                  <Button
+                    icon="ani_next"
+                    pixelSize={PLAYBACK_BUTTON_SIZE}
+                    pushedPart="buttonset_item_pushed"
+                    aria-label={t("Next frame")}
+                    title={t("Next frame (Right)")}
+                    disabled={!snapshot.animated}
+                    onClick={() => manager.stepFrame(FRAME_OFFSET)}
+                  />
+                  <Button
+                    icon="ani_last"
+                    pixelSize={PLAYBACK_BUTTON_SIZE}
+                    pushedPart="buttonset_item_pushed"
+                    aria-label={t("Last frame")}
+                    title={t("Last frame (End)")}
+                    disabled={snapshot.frames <= FRAME_OFFSET}
+                    onClick={() => manager.inspectFrame(snapshot.frames - FRAME_OFFSET)}
+                  />
+                </ControlFlow>
+                {snapshot.tags.length > 0 && (
+                  <Combobox
+                    pixelWidth={RANGE_WIDTH}
+                    aria-label={t("Animation range")}
+                    value={snapshot.selectedTag}
+                    onValueChange={(value) => manager.selectTag(value)}
+                    options={[
+                      { value: ALL_FRAMES_TAG, label: t("All frames") },
+                      ...snapshot.tags.map((tag) => ({ value: tag.id, label: tag.name })),
+                    ]}
+                  />
+                )}
+              </ControlFlow>
+              <ToolCanvasPane status={info} controls={<ToolZoomControl navigation={navigation} />}>
+                <ToolCanvasPreview
+                  navigation={navigation}
+                  identity={snapshot.identity}
+                  pixels={pixels}
+                  label={t(frameLabel)}
+                  navigationLabel={t(
+                    "Sprite preview. Space to play or pause, arrow keys to change frame.",
+                  )}
+                  onKeyDown={(event) => {
+                    if (event.altKey || event.ctrlKey || event.metaKey) return;
+                    if (event.key === " ") {
+                      event.preventDefault();
+                      if (!event.repeat) manager.togglePlayback();
+                    } else if (event.key === "ArrowLeft") {
+                      event.preventDefault();
+                      manager.stepFrame(-FRAME_OFFSET);
+                    } else if (event.key === "ArrowRight") {
+                      event.preventDefault();
+                      manager.stepFrame(FRAME_OFFSET);
+                    } else if (event.key === "Home" || event.key === "End") {
+                      event.preventDefault();
+                      manager.inspectFrame(
+                        event.key === "Home" ? 0 : snapshot.frames - FRAME_OFFSET,
+                      );
+                    }
+                  }}
+                />
+              </ToolCanvasPane>
             </>
-          }
-          trailing={<ToolZoomControl navigation={navigation} />}
-        />
-      </Panel>
-    </div>
+          ),
+        },
+        {
+          id: "timeline",
+          label: t("Timeline"),
+          content: (
+            <ToolListPane>
+              <ReadOnlyTimeline
+                timeline={manager.getPresentationTimeline()!}
+                identity={snapshot.identity}
+                frame={snapshot.frame}
+                selectedTag={snapshot.tags.findIndex((tag) => tag.id === snapshot.selectedTag)}
+                onTag={(index) => manager.selectTag(snapshot.tags[index].id)}
+                selectedLayer={snapshot.selectedLayer}
+                onLayer={(index) => manager.selectLayer(index)}
+                onVisible={(index) => manager.toggleLayer(snapshot.layers[index].id)}
+                visibilityDisabled={(index) => snapshot.layers[index].reference}
+                onCollapsed={(index) => manager.toggleGroup(index)}
+                onFrame={(frame) => manager.inspectFrame(frame)}
+                onStepFrame={(direction) => manager.stepFrame(direction)}
+                onPlayback={() => manager.togglePlayback()}
+              />
+            </ToolListPane>
+          ),
+        },
+      ]}
+    />
   );
 }

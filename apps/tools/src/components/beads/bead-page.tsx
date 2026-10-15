@@ -1,12 +1,11 @@
-import { useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 
 import { BeadMaterials } from "$/components/beads/bead-materials";
 import { BeadPreviewGrid } from "$/components/beads/bead-preview-grid";
 import { BeadSettings, BeadSourceSettings } from "$/components/beads/bead-settings";
 import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
-import { ToolStageFooter } from "$/components/shared/tool-action-bar";
-import { useToolWindowShade } from "$/components/shared/window-shade";
+import { ToolCanvasPane, ToolResultWindow } from "$/components/shared/tool-result-window";
 import { formatBeadFailure } from "$/managers/beads/bead-failure";
 import {
   BeadPreviewMode,
@@ -16,18 +15,7 @@ import {
 import { beadDocumentLabels } from "$/managers/locale/bead-text";
 import { useBeadText } from "$/managers/locale/tool-language";
 import { BEADS_TOOL } from "$/managers/tools/tool-catalog";
-import {
-  Panel,
-  PanelVariant,
-  ContentLayout,
-  ContentPadding,
-  ControlFlow,
-  Button,
-  Text,
-  TextVariant,
-  Tabs,
-} from "@xprite/ui";
-import { useElementSize } from "@xprite/ui/utils";
+import { ControlFlow, Button } from "@xprite/ui";
 
 import styles from "$/components/beads/beads.module.css";
 
@@ -67,6 +55,7 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
       onExample={manager.openExample}
       flow={{
         exportDisabled: outputDisabled,
+        editMore: { run: () => void manager.edit(), disabled: outputDisabled },
         adjust: (
           <>
             <BeadSettings manager={manager} state={state} />
@@ -103,10 +92,6 @@ function BeadStage({
   state: BeadToolSnapshot;
   status: string;
 }) {
-  const shadePreview = useToolWindowShade("preview");
-  const [tab, setTab] = useState<ResultTab>(ResultTab.Pattern);
-  const tabsBox = useRef<HTMLDivElement>(null);
-  const tabsSize = useElementSize(tabsBox);
   const text = useBeadText();
   const view = useSyncExternalStore(
     manager.navigation.subscribe,
@@ -119,78 +104,62 @@ function BeadStage({
     manager.navigation.fit();
   };
   return (
-    <div className={styles.layout}>
-      <Panel
-        {...shadePreview}
-        variant={PanelVariant.Document}
-        emphasized
-        title={text("beads.pattern")}
-        contentLayout={ContentLayout.Fill}
-        contentPadding={ContentPadding.Compact}
-        className={styles.previewPanel}
-        data-ui-window-priority="primary"
-        data-tool-canvas-preview=""
-      >
-        <div className={styles.previewContent}>
-          <div ref={tabsBox} className={styles.resultTabs}>
-            {tabsSize.ready && (
-              <Tabs
-                tabs={[
-                  { id: ResultTab.Pattern, label: text("beads.pattern"), closable: false },
-                  { id: ResultTab.Materials, label: text("beads.materials"), closable: false },
-                ]}
-                value={tab}
-                width={tabsSize.width}
-                dragEnabled={false}
-                tabListAriaLabel={text("beads.pattern")}
-                onValueChange={(id) => setTab(id as ResultTab)}
-              />
-            )}
-          </div>
-          {tab === ResultTab.Materials && <BeadMaterials manager={manager} state={state} />}
-          <div className={styles.stage} hidden={tab !== ResultTab.Pattern}>
-            <ControlFlow className={styles.zoomControls}>
-              <Button
-                slots={{}}
-                text="-"
-                aria-label={text("beads.zoom.out")}
-                title={text("beads.zoom.out")}
-                onClick={() => manager.navigation.setZoom(view.zoom / ZOOM_STEP)}
-              />
-              <Button
-                slots={{}}
-                text="+"
-                aria-label={text("beads.zoom.in")}
-                title={text("beads.zoom.in")}
-                onClick={() => manager.navigation.setZoom(view.zoom * ZOOM_STEP)}
-              />
-              <Button slots={{}} text={text("beads.fit")} onClick={fit} />
-            </ControlFlow>
-            {status && (
-              <Text variant={TextVariant.Reading} wrap className={styles.status}>
-                {status}
-              </Text>
-            )}
-            {state.preview && (
-              <ToolCanvasPreview
-                navigation={manager.navigation}
-                identity={state.identity}
-                pixels={state.preview}
-                label={text("beads.preview.label")}
-                onPixelSelect={
-                  state.mode === BeadPreviewMode.Overview ? manager.selectAt : undefined
-                }
-                overlay={
-                  state.previewLayout
-                    ? (overlay) => <BeadPreviewGrid layout={state.previewLayout!} view={overlay} />
-                    : undefined
-                }
-              />
-            )}
-          </div>
-          <ToolStageFooter />
-        </div>
-      </Panel>
-    </div>
+    <ToolResultWindow
+      title={text("beads.pattern")}
+      tabs={[
+        {
+          id: ResultTab.Pattern,
+          label: text("beads.pattern"),
+          content: (
+            <ToolCanvasPane
+              status={status}
+              controls={
+                <ControlFlow className={styles.boardRow}>
+                  <Button
+                    slots={{}}
+                    text="-"
+                    aria-label={text("beads.zoom.out")}
+                    title={text("beads.zoom.out")}
+                    onClick={() => manager.navigation.setZoom(view.zoom / ZOOM_STEP)}
+                  />
+                  <Button
+                    slots={{}}
+                    text="+"
+                    aria-label={text("beads.zoom.in")}
+                    title={text("beads.zoom.in")}
+                    onClick={() => manager.navigation.setZoom(view.zoom * ZOOM_STEP)}
+                  />
+                  <Button slots={{}} text={text("beads.fit")} onClick={fit} />
+                </ControlFlow>
+              }
+            >
+              {state.preview && (
+                <ToolCanvasPreview
+                  navigation={manager.navigation}
+                  identity={state.identity}
+                  pixels={state.preview}
+                  label={text("beads.preview.label")}
+                  onPixelSelect={
+                    state.mode === BeadPreviewMode.Overview ? manager.selectAt : undefined
+                  }
+                  overlay={
+                    state.previewLayout
+                      ? (overlay) => (
+                          <BeadPreviewGrid layout={state.previewLayout!} view={overlay} />
+                        )
+                      : undefined
+                  }
+                />
+              )}
+            </ToolCanvasPane>
+          ),
+        },
+        {
+          id: ResultTab.Materials,
+          label: text("beads.materials"),
+          content: <BeadMaterials manager={manager} state={state} />,
+        },
+      ]}
+    />
   );
 }
