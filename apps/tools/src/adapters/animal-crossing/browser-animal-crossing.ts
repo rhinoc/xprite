@@ -1,3 +1,4 @@
+import { openPixelsInEditor } from "$/adapters/editor/open-in-editor";
 import { handOffToolOutput } from "$/adapters/preview/browser-download";
 import { readToolWheel } from "$/adapters/preview/browser-preview";
 import { decodeViewerFile } from "$/adapters/viewer/aseprite-file";
@@ -52,6 +53,7 @@ export function createBrowserAnimalCrossingPort(): AnimalCrossingPort {
       if (!response.ok) throw new Error("The example is unavailable.");
       return new File([await response.blob()], "acnh-winding-cobblestone.png");
     },
+    edit: openPixelsInEditor,
     async saveQr(pixels, name) {
       await handOffToolOutput(() => encodePngBlob(pixels), name);
     },

@@ -1,9 +1,9 @@
+import { openInEditor } from "$/adapters/editor/open-in-editor";
 import {
   PixelationWorkerOperation,
   type PixelationWorkerRequest,
   type PixelationWorkerResponse,
 } from "$/adapters/pixelation/worker-protocol";
-import { transferViewerFile } from "$/adapters/viewer/editor-transfer";
 import { TOOL_IMPORT_MAX_BYTES } from "$/managers/files/files-model";
 import type { PixelationPort } from "$/managers/ports/pixelation";
 import { downloadBlob } from "@xprite/bedrock/browser/file-system";
@@ -109,11 +109,9 @@ export function createBrowserPixelationPort(): PixelationPort {
       downloadBlob(await encodePngBlob(pixels), name);
     },
     async edit(pixels, name, palette) {
-      const token = await transferViewerFile(
-        new File([await encodePngBlob(pixels)], name, { type: "image/png" }),
+      await openInEditor(new File([await encodePngBlob(pixels)], name, { type: "image/png" }), {
         palette,
-      );
-      window.location.assign(`/editor#viewer-import=${token}`);
+      });
     },
     dispose() {
       operation?.abort();

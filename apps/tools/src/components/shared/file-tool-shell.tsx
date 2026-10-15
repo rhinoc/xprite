@@ -30,7 +30,9 @@ const EXPORT_SHEET_BOUNDS = { x: 0, y: 0, width: 320, height: 150 };
  */
 export interface FileToolFlow {
   /** Parameters shown in the adjust panel above the Export bar (same on desktop and phone; rolled up on phones). */
-  adjust: ReactNode;
+  adjust?: ReactNode;
+  /** Opens the result in the editor as a new project; the button shows only with a result. */
+  editMore?: { run(): void; disabled?: boolean };
   /** Formats offered in the export sheet; the sheet closes, then the chosen one runs. */
   exportFormats: readonly ToolExportFormat[];
   /** True until the tool has a result to export. */
@@ -111,6 +113,8 @@ export function FileToolShell({
   const [mac, setMac] = useState(false);
   useEffect(() => setMac(/Mac|iPhone|iPad/.test(navigator.platform)), []);
   const exportDisabled = !flow || !ready || busy || processing || flow.exportDisabled;
+  const editMoreDisabled = !!flow?.editMore && (exportDisabled || !!flow.editMore.disabled);
+  const editMoreRun = () => flow?.editMore?.run();
   const exportRef = useRef(exportDisabled);
   exportRef.current = exportDisabled;
   useEffect(() => {
@@ -138,7 +142,14 @@ export function FileToolShell({
       processing={processing}
       help={help}
       actionBar={
-        flow && ready ? { exportDisabled, onExport: () => setExportOpen(true) } : undefined
+        flow && ready
+          ? {
+              exportDisabled,
+              onExport: () => setExportOpen(true),
+              onEditMore: flow.editMore && editMoreRun,
+              editMoreDisabled,
+            }
+          : undefined
       }
       filename={ready ? filename : undefined}
       menus={[
@@ -157,6 +168,9 @@ export function FileToolShell({
                     onSelect: () => setExportOpen(true),
                   },
                 ]
+              : []),
+            ...(flow?.editMore
+              ? [{ label: t("Edit more"), disabled: editMoreDisabled, onSelect: editMoreRun }]
               : []),
             ...fileItems.map((item, index) => ({
               ...item,
@@ -252,7 +266,7 @@ export function FileToolShell({
             </div>
           )}
         </section>
-        {flow && ready && <ToolAdjustSlot>{flow.adjust}</ToolAdjustSlot>}
+        {flow?.adjust && ready && <ToolAdjustSlot>{flow.adjust}</ToolAdjustSlot>}
         {flow && exportOpen && (
           <Dialog
             open={exportOpen}

@@ -3,6 +3,7 @@ import { useTheme } from "$/base/theme/theme-context";
 import { FontRole } from "$/base/theme/theme-types";
 import { UiFontRenderer, type UiFontDefinition } from "$/base/theme/theme-types";
 import { cn } from "$/base/utils/cn";
+import { ScriptText, useCjkRunStyle } from "$/components/text/script-offset";
 import { textRuns } from "$/components/text/text-runs";
 import { type PositionedPixelTextProps } from "$/components/text/types";
 
@@ -13,12 +14,14 @@ function cjkRunStyle(
   font: UiFontDefinition,
   scale: number,
   titleCjk: boolean,
+  offset: React.CSSProperties | undefined,
 ): React.CSSProperties {
   const titleFamily = titleCjk ? font.titleCjkFontFamily : undefined;
   const titleSize = titleCjk ? font.titleCjkFontSize : undefined;
   const family = titleFamily ?? font.cjkFontFamily;
   const size = titleSize ?? font.cjkFontSize;
   return {
+    ...offset,
     fontFamily: `${family}, monospace`,
     fontSize: `${(size * scale) / 2}px`,
     lineHeight: `${(font.lineHeight * scale) / 2}px`,
@@ -62,6 +65,7 @@ export function PositionedPixelText({
   style,
 }: Omit<PositionedPixelTextProps, "variant">) {
   const { definition } = useTheme();
+  const scriptRunStyle = useCjkRunStyle(scale);
   const metrics = definition.typography[font];
   const bitmapInDom = metrics.renderer === UiFontRenderer.Bitmap && metrics.atlasInDom;
   const runs = metrics.renderer === UiFontRenderer.Bitmap ? textRuns(text) : [];
@@ -94,52 +98,54 @@ export function PositionedPixelText({
       }}
       data-font={font}
     >
-      {bitmapInDom
-        ? runs.map((run, index) =>
-            run.cjk ? (
-              <span
-                key={index}
-                className={styles.fallbackCjk}
-                style={cjkRunStyle(metrics, scale, titleCjk)}
-              >
-                {run.text}
-              </span>
-            ) : (
-              [...run.text].map((char, charIndex) => {
-                const glyphStyle = atlasGlyphStyle(char, scale, color, metrics);
-                return glyphStyle ? (
-                  <span
-                    key={`${index}:${charIndex}`}
-                    aria-hidden="true"
-                    className={styles.atlasGlyph}
-                    style={glyphStyle}
-                  />
-                ) : (
-                  <span
-                    key={`${index}:${charIndex}`}
-                    className={styles.fallbackLatin}
-                    style={{
-                      fontFamily: metrics.fallbackFontFamily,
-                      fontSize: `${(metrics.cjkFontSize * scale) / 2}px`,
-                    }}
-                  >
-                    {char}
-                  </span>
-                );
-              })
-            ),
-          )
-        : metrics.renderer === UiFontRenderer.Bitmap
-          ? runs.map((run, index) =>
-              run.cjk ? (
-                <span key={index} style={cjkRunStyle(metrics, scale, titleCjk)}>
-                  {run.text}
-                </span>
+      {bitmapInDom ? (
+        runs.map((run, index) =>
+          run.cjk ? (
+            <span
+              key={index}
+              className={styles.fallbackCjk}
+              style={cjkRunStyle(metrics, scale, titleCjk, scriptRunStyle)}
+            >
+              {run.text}
+            </span>
+          ) : (
+            [...run.text].map((char, charIndex) => {
+              const glyphStyle = atlasGlyphStyle(char, scale, color, metrics);
+              return glyphStyle ? (
+                <span
+                  key={`${index}:${charIndex}`}
+                  aria-hidden="true"
+                  className={styles.atlasGlyph}
+                  style={glyphStyle}
+                />
               ) : (
-                <span key={index}>{run.text}</span>
-              ),
-            )
-          : text}
+                <span
+                  key={`${index}:${charIndex}`}
+                  className={styles.fallbackLatin}
+                  style={{
+                    fontFamily: metrics.fallbackFontFamily,
+                    fontSize: `${(metrics.cjkFontSize * scale) / 2}px`,
+                  }}
+                >
+                  {char}
+                </span>
+              );
+            })
+          ),
+        )
+      ) : metrics.renderer === UiFontRenderer.Bitmap ? (
+        runs.map((run, index) =>
+          run.cjk ? (
+            <span key={index} style={cjkRunStyle(metrics, scale, titleCjk, scriptRunStyle)}>
+              {run.text}
+            </span>
+          ) : (
+            <span key={index}>{run.text}</span>
+          ),
+        )
+      ) : (
+        <ScriptText scale={scale}>{text}</ScriptText>
+      )}
     </span>
   );
 }

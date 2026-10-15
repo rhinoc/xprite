@@ -49,6 +49,7 @@ export interface GifSheetSnapshot {
   pixels: PixelBuffer | null;
   error: string | null;
   downloading: boolean;
+  openingEditor: boolean;
 }
 const MIN_COUNT = 1;
 const MAX_PADDING = 4096;
@@ -73,6 +74,7 @@ const initialSnapshot = (): GifSheetSnapshot => ({
   pixels: null,
   error: null,
   downloading: false,
+  openingEditor: false,
 });
 
 /** Conversion owns an isolated document and never touches editor workspace persistence. */
@@ -80,6 +82,7 @@ export class GifSheetManager {
   readonly viewport: ToolViewport;
   private snapshot = initialSnapshot();
   private document: EditorDocument | null = null;
+  private file: File | null = null;
   private result: SpriteSheetResult | null = null;
   private request = 0;
   private closed = false;
@@ -119,6 +122,7 @@ export class GifSheetManager {
       if (this.closed || request !== this.request) return;
       failureCategory = ToolFailureCategory.Preview;
       const project = rasterAnimationProject(animation);
+      this.file = file;
       this.document = {
         name: file.name,
         width: project.image.width,
@@ -274,10 +278,24 @@ export class GifSheetManager {
       if (!this.closed && request === this.request) this.update({ downloading: false });
     }
   }
+  /** Opens the original GIF in the editor as a new project (its frames become the timeline). */
+  async openEditor() {
+    if (this.closed || !this.file || this.snapshot.openingEditor) return;
+    this.update({ openingEditor: true, error: null });
+    try {
+      await this.port.edit(this.file);
+    } catch {
+      this.update({ error: "The editor could not be opened. Please try again." });
+    } finally {
+      // The page is navigating away; if it is restored from history the tool must be usable.
+      this.update({ openingEditor: false });
+    }
+  }
   dispose() {
     this.closed = true;
     this.request++;
     this.document = null;
+    this.file = null;
     this.result = null;
     this.listeners.clear();
     this.stopAppearance();

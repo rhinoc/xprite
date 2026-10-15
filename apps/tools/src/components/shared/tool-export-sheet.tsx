@@ -10,8 +10,21 @@ import styles from "$/components/shared/tool-flow.module.css";
 export interface ToolExportFormat {
   id: string;
   label: string;
-  disabled: boolean;
+  disabled?: boolean;
   run(): void;
+}
+
+const MIN_FORMAT_WIDTH = 96;
+const MAX_FORMAT_WIDTH = 220;
+const CHARACTER_WIDTH = 7;
+const POPUP_CHROME = 28;
+/** Wide enough for the longest format name, within the sheet. */
+function formatWidth(formats: readonly ToolExportFormat[]) {
+  const longest = Math.max(...formats.map((format) => format.label.length));
+  return Math.min(
+    MAX_FORMAT_WIDTH,
+    Math.max(MIN_FORMAT_WIDTH, longest * CHARACTER_WIDTH + POPUP_CHROME),
+  );
 }
 
 /**
@@ -37,7 +50,7 @@ export function ToolExportSheet({
       </Text>
       <Field layout={FieldLayout.Inline} label={t("Format")}>
         <Combobox
-          pixelWidth={96}
+          pixelWidth={formatWidth(formats)}
           aria-label={t("Format")}
           value={choice ?? ""}
           options={formats.map((f) => ({ value: f.id, label: f.label, disabled: f.disabled }))}

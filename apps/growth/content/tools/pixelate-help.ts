@@ -37,7 +37,7 @@ export const PIXELATE_HELP = {
       {
         id: PixelateHelpSection.Result,
         title: "保存或继续编辑",
-        steps: ["点「Download PNG」保存结果，或点「Continue editing」在 Xprite 编辑器中继续绘制。"],
+        steps: ["点「导出…」保存 PNG 结果，或点「继续编辑」在 Xprite 编辑器中作为新项目继续绘制。"],
         notes: "导出 PNG 会在主文件名后添加 -pixelated 或 -restored；原图保持不变。",
       },
     ],
@@ -71,7 +71,7 @@ export const PIXELATE_HELP = {
         id: PixelateHelpSection.Result,
         title: "Save or continue editing",
         steps: [
-          "Choose Download PNG to save the result, or Continue editing to open it in the Xprite editor.",
+          "Click Export… to save the PNG, or Edit more to open the result in the Xprite editor as a new project.",
         ],
         notes:
           "The PNG filename adds -pixelated or -restored before the extension; the original stays unchanged.",
@@ -108,7 +108,7 @@ export const PIXELATE_HELP = {
         id: PixelateHelpSection.Result,
         title: "保存または編集を続ける",
         steps: [
-          "「PNG をダウンロード」で結果を保存するか、「編集を続ける」で Xprite エディターで開きます。",
+          "「エクスポート…」で PNG を保存するか、「さらに編集」で Xprite エディターに新しいプロジェクトとして開きます。",
         ],
         notes:
           "PNG のファイル名は拡張子の前に -pixelated または -restored が付き、元のファイルは変更されません。",

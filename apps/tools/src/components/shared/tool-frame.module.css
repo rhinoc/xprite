@@ -83,12 +83,6 @@
   display: flex;
   flex-direction: column;
 }
-.previewToolbar {
-  flex: 0 0 auto;
-}
-.previewDimensions {
-  margin-left: auto;
-}
 .emptyStage {
   flex: 1;
   min-height: 0;

@@ -53,6 +53,7 @@ export function macintoshPublicSurfaceTokens(
       primaryFont: fonts.primary,
       compactFont: fonts.compact,
       cjkFont: fonts.cjk,
+      cjkTextOffsetY: macintoshTypography.cjkTextOffsetY,
       ink: palette.ink,
       mutedInk: palette.muted,
       paper: palette.paper,

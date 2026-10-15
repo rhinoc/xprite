@@ -68,3 +68,68 @@
   flex-wrap: wrap;
   gap: var(--ui-space-2);
 }
+
+/* Tool pages: each group is its own box, side by side in the adjust panel. */
+.grouped {
+  display: contents;
+}
+.group {
+  flex: 1 1 auto !important;
+  min-width: 0;
+}
+/* Mode and Sampling share a row; Size and Output follow (DOM order stays the editor dialog's). */
+.groupSize {
+  order: 3;
+}
+.groupSampling {
+  order: 2;
+}
+.groupMode {
+  order: 1;
+}
+.groupOutput {
+  order: 4;
+}
+.groupRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  min-width: 0;
+}
+.inlineField {
+  --ui-field-gap: 6px;
+}
+
+.fill {
+  flex: 1;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
+}
+.fill .image {
+  min-height: 0;
+}
+.fill .stage {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+@media (max-width: 600px) {
+  .fill {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* One image alone: it takes the whole area, so the phone preview dominates. */
+.single.fill {
+  grid-template-rows: minmax(0, 1fr);
+}
+.single .stage {
+  height: auto;
+}
+@media (max-width: 600px) {
+  .single.fill {
+    grid-template-rows: minmax(0, 1fr);
+  }
+}

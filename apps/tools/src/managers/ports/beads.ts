@@ -16,6 +16,7 @@ export interface BeadToolPort {
   read(file: File): Promise<BeadInput>;
   example(): Promise<File>;
   readWheel(event: WheelEvent): ToolWheelInput;
+  edit(pixels: PixelBuffer, name: string): Promise<void>;
   savePng(
     grid: BeadGrid,
     brand: string,

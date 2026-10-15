@@ -1,3 +1,4 @@
+import { openInEditor } from "$/adapters/editor/open-in-editor";
 import { browserToolAppearance } from "$/adapters/preview/browser-appearance";
 import { handOffToolOutput } from "$/adapters/preview/browser-download";
 import { readToolWheel } from "$/adapters/preview/browser-preview";
@@ -34,6 +35,7 @@ export function createBrowserGifSheetPort(): GifSheetPort {
         throw new Error("The example could not be loaded. Choose a GIF to continue.");
       return new File([await response.blob()], EXAMPLE_FILENAME, { type: "image/gif" });
     },
+    edit: (file) => openInEditor(file),
     async savePng(pixels, name) {
       await handOffToolOutput(() => encodePngBlob(pixels), name);
     },

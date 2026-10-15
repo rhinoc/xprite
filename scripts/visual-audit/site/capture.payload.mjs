@@ -124,7 +124,9 @@ const geometry = async (scene) => {
             faults.push(`${name}: double-click did not roll the window up`);
           if (shade.getBoundingClientRect().height > bar.getBoundingClientRect().height + 6)
             faults.push(`${name}: rolled-up window is taller than its title bar`);
-          if (total() <= expandedOthers + 1)
+          // A docked adjust panel that is itself rolled up (phones) has nothing to grow into.
+          const canGrow = others.some((node) => node instanceof HTMLDetailsElement && node.open);
+          if (canGrow && total() <= expandedOthers + 1)
             faults.push(`${name}: other windows did not grow into the freed space`);
           toggle();
           await frame();

@@ -77,6 +77,13 @@ export interface UiTypography {
   [FontRole.Primary]: UiFontDefinition;
   [FontRole.Compact]: UiFontDefinition;
   alignmentScale: number;
+  /**
+   * The single vertical correction for CJK runs, in CSS pixels at the standard artwork scale (2),
+   * relative to Latin text, which is the base and has none. Every text-rendering component applies
+   * it through `--ui-cjk-text-offset-y` (see components/text/script-offset.tsx); components never
+   * carry their own CJK offsets. Positive moves CJK glyphs down.
+   */
+  cjkTextOffsetY: number;
 }
 
 export interface UiPartDefinition {

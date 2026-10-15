@@ -8,7 +8,7 @@ describe("flow tool text", () => {
     for (const language of Object.values(PublicLanguage).filter(
       (value) => value !== PublicLanguage.English,
     ))
-      for (const key of ["Adjust", "Export", "Export…", "Choose an export format"])
+      for (const key of ["Adjust", "Export", "Export…", "Choose an export format", "Edit more"])
         expect(translateToolText(key, language)).not.toBe(key);
     expect(translateToolText("Adjust", PublicLanguage.SimplifiedChinese)).toBe("调整");
   });

@@ -41,7 +41,8 @@ export const macintoshGeometry = {
     tooltip_text_inset: 14,
     checkbox_icon_offset: 0,
     checkbox_label_offset: 16,
-    checkbox_text_offset_y: 1,
+    // Latin base; CJK follows through the theme-wide typography.cjkTextOffsetY.
+    checkbox_text_offset_y: 0,
     checkbox_height: 12,
     input_height: 22,
     combobox_height: 18,

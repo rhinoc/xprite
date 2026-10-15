@@ -462,6 +462,27 @@ export class AnimalCrossingManager {
       this.update({ downloading: false });
     }
   }
+  /** Opens the converted design (all tiles) in the editor as a new project. */
+  async edit() {
+    const { result, name } = this.snapshot;
+    if (
+      this.closed ||
+      !result ||
+      this.snapshot.pending ||
+      this.snapshot.loading ||
+      this.snapshot.downloading
+    )
+      return;
+    this.update({ downloading: true, error: null });
+    try {
+      await this.port.edit(result.pixels, `${name.replace(/\.[^.]+$/, "")}-animal-crossing.png`);
+    } catch {
+      this.update({ error: "The editor could not be opened. Please try again." });
+    } finally {
+      // The page is navigating away; if it is restored from history the tool must be usable.
+      this.update({ downloading: false });
+    }
+  }
   async openExample() {
     if (this.closed || this.snapshot.downloading) return;
     const request = this.request;
