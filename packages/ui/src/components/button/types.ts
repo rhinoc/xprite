@@ -86,6 +86,8 @@ interface ButtonContentProps extends Omit<
   mask?: boolean;
   textOffset?: { x: number; y: number };
   mnemonicIndex?: number;
+  /** Overrides the theme's minimum width for a text button (CSS px); the width is still text + padding. */
+  minimumWidth?: number;
   iconOffset?: { x: number; y: number };
 }
 

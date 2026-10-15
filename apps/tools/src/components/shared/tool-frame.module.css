@@ -606,26 +606,3 @@
 .filesShortcut[data-drop-target] {
   filter: brightness(0.6);
 }
-
-/* Flow tools: stage fills the space; adjust + Export sit under it (Export is the bottom edge). */
-.content:has(> [data-tool-action-bar]) {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-.content:has(> [data-tool-action-bar]) > .main {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-}
-.content:has(> [data-tool-action-bar]) .workspace {
-  flex: 1 1 auto;
-  min-height: 0;
-}
-
-/* Flow tools: the Export bar's own padding is the gap above and below the button and its ring. */
-.desktop:has([data-tool-action-bar]),
-.desktop:has(.utilities > :not(.shortcuts)):has([data-tool-action-bar]) {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}

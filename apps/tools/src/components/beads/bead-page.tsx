@@ -5,6 +5,7 @@ import { BeadPreviewGrid } from "$/components/beads/bead-preview-grid";
 import { BeadSettings, BeadSourceSettings } from "$/components/beads/bead-settings";
 import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
+import { ToolStageFooter } from "$/components/shared/tool-action-bar";
 import { useToolWindowShade } from "$/components/shared/window-shade";
 import { formatBeadFailure } from "$/managers/beads/bead-failure";
 import {
@@ -199,6 +200,7 @@ function BeadStage({
               />
             )}
           </div>
+          <ToolStageFooter />
         </div>
       </Panel>
     </div>

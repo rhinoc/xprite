@@ -27,7 +27,11 @@ is served at `/tools/viewer/`; the GIF converter is served at `/tools/gif-to-spr
   pass `flow` to `FileToolShell`: upload, default result, optional adjust, export. The shell
   provides the drop-zone stage, the shared adjust panel (WindowShade, same docked layout on
   desktop and phone, only once there is a result), the export sheet, File ▸ Export… and
-  Ctrl/Cmd+E. `ToolFrame` owns the full-width bottom `ToolActionBar` behind (below) the adjust
-  panel: only the pinned Export button (`part="button_focused"`), same spot every tool.
+  Ctrl/Cmd+E. `ToolFrame` provides the Export button through `ToolActionBarProvider`; the stage
+  window renders it with `<ToolStageFooter />` as its last child (empty drop stage and result
+  window alike). Mac OS 8 style, no bar: a standard default `Button` (`part="button_focused"`,
+  text + 16px, `minimumWidth={59}`, 20px tall, ring drawn outside the box) at the window's
+  bottom right, 12px from the right and bottom edges and at least 12px under the content. The
+  adjust panel is a separate window below the stage window.
 - The shared, data-only registry lives in `@xprite/growth-content/tools`. Add tools
   there for directory, navigation and discovery; keep tool runtime code here.
