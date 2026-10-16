@@ -21,12 +21,16 @@ function desktopInstructions(method: PwaInstallMethod): string {
 export function PwaNotifications() {
   const state = usePwaState();
   useUiLanguage();
-  const text = !state?.supported
-    ? null
-    : state.notice === PwaNotice.AddToDesktopHint
-      ? tUi("ui.pwa.desktop.hint")
-      : state.notice === PwaNotice.DesktopInstructions
-        ? desktopInstructions(state.installMethod)
-        : null;
+  // A stale build matters even where installation is unsupported.
+  const text =
+    state?.notice === PwaNotice.UpdateAvailable
+      ? tUi("ui.pwa.update.available")
+      : !state?.supported
+        ? null
+        : state.notice === PwaNotice.AddToDesktopHint
+          ? tUi("ui.pwa.desktop.hint")
+          : state.notice === PwaNotice.DesktopInstructions
+            ? desktopInstructions(state.installMethod)
+            : null;
   return <Toast text={text} />;
 }

@@ -11,12 +11,15 @@ export { PwaInstallMethod };
 export enum PwaNotice {
   AddToDesktopHint = "add-to-desktop-hint",
   DesktopInstructions = "desktop-instructions",
+  /** This page's build is out of date and a lazy chunk could not be loaded. */
+  UpdateAvailable = "update-available",
 }
 
 const INSTALL_HINT_DISMISSED_KEY = "xprite.pwa.install-hint-dismissed";
 const DISMISSED_VALUE = "1";
 const INSTALL_HINT_DURATION_MS = 5_000;
 const INSTALL_INSTRUCTIONS_DURATION_MS = 8_000;
+const UPDATE_AVAILABLE_DURATION_MS = 12_000;
 
 export interface PwaState extends PwaPlatformState {
   readonly installBusy: boolean;
@@ -68,8 +71,11 @@ export class PwaManager {
 
   private synchronizePlatform(): void {
     const platform = this.options.port.getState();
+    const chunkFailed = platform.chunkFailures > this.state.chunkFailures;
     this.patch({ ...platform, ...(platform.installed ? { notice: null } : {}) });
     if (platform.installed) this.clearNoticeTimeout();
+    // Never reload on the user's behalf: unsaved edits and undo history live in this page.
+    if (chunkFailed) this.showNotice(PwaNotice.UpdateAvailable);
   }
 
   private patch(patch: Partial<PwaState>): void {
@@ -99,7 +105,9 @@ export class PwaManager {
       },
       notice === PwaNotice.AddToDesktopHint
         ? INSTALL_HINT_DURATION_MS
-        : INSTALL_INSTRUCTIONS_DURATION_MS,
+        : notice === PwaNotice.UpdateAvailable
+          ? UPDATE_AVAILABLE_DURATION_MS
+          : INSTALL_INSTRUCTIONS_DURATION_MS,
     );
   }
 

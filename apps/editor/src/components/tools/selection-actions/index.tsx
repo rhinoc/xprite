@@ -1,5 +1,4 @@
 import {
-  lazy,
   Suspense,
   createContext,
   useCallback,
@@ -11,11 +10,12 @@ import {
 } from "react";
 
 import type { SelectionDialogKind } from "$/components/dialogs/selection-dialogs";
+import { lazyChunk } from "$/components/shared/lazy-chunk";
 import {
   useSelectionDialogModel,
   type SelectionDialogCommand,
 } from "$/managers/tools/selection-dialog-model";
-const SelectionDialogs = lazy(() =>
+const SelectionDialogs = lazyChunk(() =>
   import("$/components/dialogs/selection-dialogs").then((module) => ({
     default: module.SelectionDialogs,
   })),

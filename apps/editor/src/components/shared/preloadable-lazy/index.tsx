@@ -1,5 +1,7 @@
 import { lazy, type ComponentType } from "react";
 
+import { loadChunk } from "$/managers/pwa/chunk-load";
+
 /** Time the browser may defer an idle prefetch before running it anyway. */
 const IDLE_PRELOAD_TIMEOUT_MS = 2_000;
 /** Fallback delay where requestIdleCallback is unavailable (Safari). */
@@ -27,8 +29,12 @@ export function preloadableLazy<P extends object>(
         throw error;
       },
     ));
+  // A failed first use retries once, then renders nothing so the editor stays usable.
   const Lazy = lazy(() =>
-    preload().then((component) => ({ default: component })),
+    loadChunk(preload).then(
+      (component) => ({ default: component }),
+      () => ({ default: () => null }),
+    ),
   ) as unknown as ComponentType<P>;
   function Component(props: P) {
     const Ready = loaded;

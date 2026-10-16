@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, type ReactNode } from "react";
+import { Suspense, useCallback, useEffect, useRef, type ReactNode } from "react";
 
 import { createCanvasCommandContext } from "$/components/canvas/create-canvas-command-context";
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
@@ -10,6 +10,7 @@ import {
   useEditorWorkflowBoundary,
   useEditorWorkflowHandlers,
 } from "$/components/shared/editor-workflow-boundary";
+import { lazyChunk } from "$/components/shared/lazy-chunk";
 import { preloadableLazy, preloadWhenIdle } from "$/components/shared/preloadable-lazy";
 import { EditorActionsContext } from "$/components/shell/editor-actions";
 import { useAnimationActions } from "$/components/timeline/animation-actions";
@@ -32,7 +33,7 @@ import { clientPoint, clientRect } from "@xprite/ui/utils";
 
 import styles from "$/components/shell/editor-workflows.module.css";
 
-const NewSpriteDialog = lazy(() =>
+const NewSpriteDialog = lazyChunk(() =>
   import("$/components/dialogs/new-sprite-dialog").then((module) => ({
     default: module.NewSpriteDialog,
   })),
@@ -41,7 +42,7 @@ const preferencesDialog = preloadableLazy(() =>
   import("$/components/dialogs/preferences-dialog").then((module) => module.PreferencesDialog),
 );
 const PreferencesDialog = preferencesDialog.Component;
-const SaveAsDialog = lazy(() =>
+const SaveAsDialog = lazyChunk(() =>
   import("$/components/dialogs/save-as").then((module) => ({
     default: module.SaveAsDialog,
   })),
@@ -53,24 +54,24 @@ const exportDialog = preloadableLazy(() =>
   ),
 );
 const ExportDialog = exportDialog.Component;
-const ShareProjectDialog = lazy(() =>
+const ShareProjectDialog = lazyChunk(() =>
   import("$/components/dialogs/share-project").then((module) => ({
     default: module.ShareProjectDialog,
   })),
 );
 
-const ImportSpriteSheetDialog = lazy(() =>
+const ImportSpriteSheetDialog = lazyChunk(() =>
   import("$/components/dialogs/sprite-sheet-dialog").then((module) => ({
     default: module.ImportSpriteSheetDialog,
   })),
 );
-const ColorPicker = lazy(() =>
+const ColorPicker = lazyChunk(() =>
   import("$/components/tools/color-picker").then((module) => ({ default: module.ColorPicker })),
 );
-const TextDialog = lazy(() =>
+const TextDialog = lazyChunk(() =>
   import("$/components/dialogs/text-dialog").then((module) => ({ default: module.TextDialog })),
 );
-const DuplicateSpriteDialog = lazy(() =>
+const DuplicateSpriteDialog = lazyChunk(() =>
   import("$/components/dialogs/duplicate-sprite-dialog").then((module) => ({
     default: module.DuplicateSpriteDialog,
   })),
@@ -87,13 +88,13 @@ const IDLE_PRELOADED_DIALOGS = [
   preferencesDialog.preload,
   keyboardShortcutsDialog.preload,
 ];
-const AboutDialog = lazy(() =>
+const AboutDialog = lazyChunk(() =>
   import("$/components/dialogs/about").then((module) => ({ default: module.AboutDialog })),
 );
-const SupportDialog = lazy(() =>
+const SupportDialog = lazyChunk(() =>
   import("$/components/dialogs/support").then((module) => ({ default: module.SupportDialog })),
 );
-const FeedbackDialog = lazy(() =>
+const FeedbackDialog = lazyChunk(() =>
   import("$/components/dialogs/feedback").then((module) => ({ default: module.FeedbackDialog })),
 );
 

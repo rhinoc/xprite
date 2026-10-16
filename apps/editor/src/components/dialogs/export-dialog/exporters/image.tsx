@@ -1,5 +1,6 @@
-import { lazy, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
+import { lazyChunk } from "$/components/shared/lazy-chunk";
 import {
   useImageExportCapabilities,
   type ExportFileDialogOptions,
@@ -11,7 +12,7 @@ import {
   type ImageExporterSource,
 } from "$/managers/files/exporters/image";
 
-const Dialog = lazy(() =>
+const Dialog = lazyChunk(() =>
   import("$/components/dialogs/export-file-dialog").then((module) => ({
     default: module.ExportFileDialog,
   })),

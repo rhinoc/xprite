@@ -59,6 +59,7 @@ function harness() {
     "window",
     Object.assign(new EventTarget(), {
       isSecureContext: true,
+      location: { origin: "https://xprite.test" },
       matchMedia: () => Object.assign(new EventTarget(), { matches: false }),
     }),
   );
@@ -148,5 +149,83 @@ describe("PWA timeout recovery", () => {
     assert.equal(errors[0].diagnosticDetails?.pwa?.register_native, false);
     await vi.advanceTimersByTimeAsync(STATUS_TIMEOUT_MS * 2);
     assert.equal(serviceWorker.register.mock.calls.length, 1);
+  });
+});
+
+describe("stale chunk reporting", () => {
+  const CHUNK_URL = "https://xprite.test/assets/animation-preview-C439ED4q.js";
+
+  function chunkFailure(window: EventTarget) {
+    window.dispatchEvent(
+      new CustomEvent("xprite:chunk-load-failed", {
+        detail: {
+          error: new TypeError(`Failed to fetch dynamically imported module: ${CHUNK_URL}`),
+        },
+      }),
+    );
+  }
+
+  it("raises the update signal and reports worker context for a missing chunk", async () => {
+    const { port, worker, errors } = harness();
+    Object.assign(worker, { scriptURL: "https://xprite.test/sw.js?x=1" });
+    worker.postMessage.mockImplementation((message: { type: string }, transfer) =>
+      message.type === "XPRITE_OFFLINE_HAS_RESOURCE"
+        ? transfer[0].postMessage({ type: message.type, present: false, version: "release-9" })
+        : transfer[0].postMessage({ type: STATUS_MESSAGE, ready: true, version: "release-9" }),
+    );
+    port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    chunkFailure(window);
+    assert.equal(port.getState().chunkFailures, 1);
+    await vi.advanceTimersByTimeAsync(0);
+    const details = errors.at(-1)?.diagnosticDetails?.pwa;
+    assert.equal(details?.stage, "chunk");
+    assert.equal(details?.failure, "chunk-load");
+    assert.equal(details?.controlled, true);
+    assert.equal(details?.controller_state, "activated");
+    assert.equal(details?.script_path, "/sw.js");
+    assert.equal(details?.chunk, "/assets/animation-preview-C439ED4q.js");
+    assert.equal(details?.chunk_in_worker_build, false);
+    assert.equal(details?.worker_version, "release-9");
+  });
+
+  it("reports an uncontrolled page and listens even when the worker is unsupported", async () => {
+    const { port, serviceWorker, errors } = harness();
+    Object.assign(serviceWorker, { controller: null });
+    const unsupported = createBrowserPwaPort({
+      enabled: false,
+      baseUrl: "/",
+      onError: (error) => errors.push(error as Error),
+    });
+    ports.push(unsupported);
+    unsupported.start();
+    chunkFailure(window);
+    await vi.advanceTimersByTimeAsync(0);
+    assert.equal(unsupported.getState().chunkFailures, 1);
+    assert.equal(port.getState().chunkFailures, 0);
+    const details = errors.at(-1)?.diagnosticDetails?.pwa;
+    assert.equal(details?.controlled, false);
+    assert.equal(details?.chunk_in_worker_build, null);
+  });
+
+  it("reports a worker fetch or integrity failure explicitly", async () => {
+    const { port, serviceWorker, errors } = harness();
+    port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    serviceWorker.dispatchEvent(
+      Object.assign(new Event("message"), {
+        data: {
+          type: "XPRITE_OFFLINE_FETCH_FAILED",
+          path: "/assets/chunk-NEW22222.js",
+          failure: "integrity",
+          status: null,
+          version: "release-9",
+        },
+      }),
+    );
+    const details = errors.at(-1)?.diagnosticDetails?.pwa;
+    assert.equal(details?.stage, "fetch");
+    assert.equal(details?.failure, "integrity");
+    assert.equal(details?.worker_version, "release-9");
   });
 });
