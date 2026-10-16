@@ -35,7 +35,7 @@
   position: relative;
   flex: 1;
   min-height: 0;
-  background: #fff;
+  background: var(--ui-color-paper);
   outline: none;
 }
 

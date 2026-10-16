@@ -786,7 +786,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     window_zoom_icon: {
-      x: 640,
+      x: 280,
       y: 120,
       w: 6,
       h: 6,
