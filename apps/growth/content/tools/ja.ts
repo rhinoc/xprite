@@ -69,6 +69,8 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Create island design QR codes.": "島のマイデザイン QR コードを作成。",
   File: "ファイル",
   "Open example": "サンプルを開く",
+  New: "新規",
+  "Open another file": "別のファイルを開く",
   Generated: "生成済み",
   Adjust: "調整",
   "All designs (.zip)": "すべてのデザイン（.zip）",

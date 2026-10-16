@@ -71,6 +71,8 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   "Create island design QR codes.": "Crea códigos QR de diseños para tu isla.",
   File: "Archivo",
   "Open example": "Abrir ejemplo",
+  New: "Nuevo",
+  "Open another file": "Abrir otro archivo",
   Generated: "Generado",
   Adjust: "Ajustar",
   "All designs (.zip)": "Todos los diseños (.zip)",

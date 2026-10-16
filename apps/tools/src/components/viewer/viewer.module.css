@@ -1,9 +1,14 @@
 .playbackToolbar {
   flex: 0 0 auto;
+  flex-wrap: nowrap;
+  align-items: center;
+  min-width: 0;
+  width: 100%;
 }
 .playbackActions {
   flex-wrap: nowrap;
   gap: 0;
+  flex: 0 0 auto;
 }
 /* The timeline always sits under the preview, full width; the timeline sizes and scrolls itself. */
 .timelineDock {

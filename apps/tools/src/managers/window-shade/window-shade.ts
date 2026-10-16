@@ -2,6 +2,8 @@
 export const WINDOW_SHADE_STORAGE_PREFIX = "xprite.tools.window-shade.v1:";
 /** Phones short enough that the help note starts rolled up so the work windows get the room. */
 export const CRAMPED_SCREEN_QUERY = "(max-width: 700px) and (max-height: 700px)";
+/** Phones: collapse secondary notes once a tool has a preview/result. */
+export const PHONE_SCREEN_QUERY = "(max-width: 700px)";
 
 type WindowShadeStorage = Pick<Storage, "getItem" | "setItem">;
 export type WindowShadeState = Readonly<Record<string, boolean>>;
@@ -45,13 +47,17 @@ export function initialWindowShade({
   stored,
   defaultCollapsed,
   collapseWhenCramped,
+  collapseWhenReady,
   cramped,
+  ready,
 }: {
   stored: boolean | undefined;
   defaultCollapsed: boolean;
   collapseWhenCramped: boolean;
+  collapseWhenReady?: boolean;
   cramped: boolean;
+  ready?: boolean;
 }): boolean {
   if (stored !== undefined) return stored;
-  return defaultCollapsed || (collapseWhenCramped && cramped);
+  return defaultCollapsed || (collapseWhenCramped && cramped) || !!(collapseWhenReady && ready);
 }

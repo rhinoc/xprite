@@ -69,6 +69,8 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   "Create island design QR codes.": "Создавайте QR-коды дизайнов для острова.",
   File: "Файл",
   "Open example": "Открыть пример",
+  New: "Создать",
+  "Open another file": "Открыть другой файл",
   Generated: "Готово",
   Adjust: "Настройка",
   "All designs (.zip)": "Все дизайны (.zip)",

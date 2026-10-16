@@ -7,3 +7,4 @@ export * from "$/timeline/layer-row";
 export * from "$/timeline/read-only-timeline";
 export * from "$/timeline/cel-artwork";
 export * from "$/timeline/cel-thumbnail";
+export * from "$/timeline/playback-transport";

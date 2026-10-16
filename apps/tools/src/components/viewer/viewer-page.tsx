@@ -44,6 +44,7 @@ export function ViewerPage({ manager }: { manager: ViewerManager }) {
       error={snapshot.error}
       onOpen={(file) => manager.open(file)}
       onExample={() => manager.openExample()}
+      onReset={() => manager.clear()}
       flow={{
         exportDisabled: !ready || snapshot.exporting || snapshot.openingEditor,
         editMore: { run: () => void manager.openEditor(), disabled: snapshot.openingEditor },

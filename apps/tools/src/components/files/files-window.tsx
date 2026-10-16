@@ -40,12 +40,14 @@ import {
   Text,
   TextVariant,
   type MenuItem,
+  windowMetrics,
 } from "@xprite/ui";
 
 import styles from "$/components/files/files.module.css";
 
 const FILE_TOOLS = [VIEWER_TOOL, PIXELATE_TOOL, BEADS_TOOL, GIF_SHEET_TOOL, ANIMAL_CROSSING_TOOL];
 
+/** Preferred size; shared Dialog chrome keeps a viewport edge inset so it never goes flush. */
 const WINDOW_BOUNDS = { x: 0, y: 0, width: 640, height: 420 };
 const WINDOW_MIN = { width: 320, height: 240 };
 const TILE_WIDTH = 104;
@@ -205,7 +207,9 @@ export function FilesWindow() {
     void manager.rename(id, value);
   };
   const openItem = (id: string) => {
-    if (folders.some((item) => item.id === id)) return manager.setFolder(id);
+    if (allFolders.some((item) => item.id === id) || id === FilesFolder.Root) {
+      return manager.setFolder(id);
+    }
     const entry = manager.entry(id);
     if (entry && !inTrash) void manager.openEntry(entry);
   };
@@ -286,12 +290,31 @@ export function FilesWindow() {
       checked: state.showEmpty,
       onSelect: manager.toggleEmptyFolders,
     },
-    {
-      label: text("files.empty.trash"),
-      separator: true,
-      disabled: !manager.folderCount(FilesFolder.Trash),
-      onSelect: manager.requestEmptyTrash,
-    },
+    // Empty Trash belongs only in Trash (Finder Special menu / trash context), not on normal folders.
+    ...(inTrash
+      ? [
+          {
+            label: text("files.empty.trash"),
+            separator: true as const,
+            disabled: !manager.folderCount(FilesFolder.Trash),
+            onSelect: manager.requestEmptyTrash,
+          },
+        ]
+      : []),
+  ];
+
+  const folderMenu = (id: string): MenuItem[] => [
+    { label: text("files.open"), onSelect: () => openItem(id) },
+    ...(id === FilesFolder.Trash
+      ? [
+          {
+            label: text("files.empty.trash"),
+            separator: true as const,
+            disabled: !manager.folderCount(FilesFolder.Trash),
+            onSelect: manager.requestEmptyTrash,
+          },
+        ]
+      : []),
   ];
 
   const move = (delta: number, extend: boolean) => {
@@ -445,14 +468,15 @@ export function FilesWindow() {
   const iconView = (
     <div className={styles.icons}>
       {folders.map((item) => (
-        <Button
-          key={item.id}
-          variant={ButtonVariant.Tile}
-          tileSize={IconSize.Medium}
-          {...itemProps(item.id)}
-          slots={{ leading: <Icon kind={item.icon} size={IconSize.Medium} /> }}
-          text={item.name}
-        />
+        <ContextMenu key={item.id} label={item.name} items={folderMenu(item.id)}>
+          <Button
+            variant={ButtonVariant.Tile}
+            tileSize={IconSize.Medium}
+            {...itemProps(item.id)}
+            slots={{ leading: <Icon kind={item.icon} size={IconSize.Medium} /> }}
+            text={item.name}
+          />
+        </ContextMenu>
       ))}
       {entries.map((entry) => (
         <ContextMenu key={entry.id} label={entry.name} items={entryMenu(entry)}>
@@ -498,18 +522,20 @@ export function FilesWindow() {
       </thead>
       <tbody>
         {folders.map((item) => (
-          <tr key={item.id} {...itemProps(item.id)}>
-            <td>
-              <span className={styles.nameCell}>
-                <Icon kind={item.icon} size={IconSize.Small} />
-                {item.name}
-              </span>
-            </td>
-            <td>{text("files.unknown")}</td>
-            <td>{text("files.unknown")}</td>
-            <td>{text("files.kind.folder")}</td>
-            <td />
-          </tr>
+          <ContextMenu key={item.id} label={item.name} items={folderMenu(item.id)}>
+            <tr {...itemProps(item.id)}>
+              <td>
+                <span className={styles.nameCell}>
+                  <Icon kind={item.icon} size={IconSize.Small} />
+                  {item.name}
+                </span>
+              </td>
+              <td>{text("files.unknown")}</td>
+              <td>{text("files.unknown")}</td>
+              <td>{text("files.kind.folder")}</td>
+              <td />
+            </tr>
+          </ContextMenu>
         ))}
         {entries.map((entry) => (
           <ContextMenu key={entry.id} label={entry.name} items={entryMenu(entry)}>
@@ -552,6 +578,7 @@ export function FilesWindow() {
         open={state.open}
         centerOnOpen
         constrainToViewport
+        viewportEdgeInset={windowMetrics.viewportEdgeInset}
         title={title}
         closeLabel={text("files.close")}
         defaultBounds={WINDOW_BOUNDS}

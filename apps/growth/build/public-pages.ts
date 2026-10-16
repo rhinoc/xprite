@@ -220,16 +220,27 @@ function notFoundHtml(language = PublicLanguage.English): string {
     ),
   );
   if (language !== PublicLanguage.English) return html;
-  const templates = LOCALIZED_LANGUAGES.map(
-    (value) =>
-      `<template id="public-error-${value}">${notFoundHtml(value).match(/<body[^>]*>([\s\S]*?)<\/body>/)![1]}</template>`,
-  ).join("");
+  // Locale bodies reuse the same ThemeScope CSS variables (~50 KiB each). Keep one
+  // copy for language swap and strip the duplicates from <template> payloads so
+  // 404.html stays under the 1 MiB static-page budget.
+  const scopeStyleAttr = html.match(/style="(display:contents;[^"]*)"/)?.[1] ?? "";
+  const scopeStyle = scopeStyleAttr
+    .replaceAll("&quot;", '"')
+    .replaceAll("&amp;", "&")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">");
+  const templates = LOCALIZED_LANGUAGES.map((value) => {
+    const body = notFoundHtml(value)
+      .match(/<body[^>]*>([\s\S]*?)<\/body>/)![1]
+      .replace(/\sstyle="display:contents;[^"]*"/g, "");
+    return `<template id="public-error-${value}">${body}</template>`;
+  }).join("");
   const titles = JSON.stringify(
     Object.fromEntries(LOCALIZED_LANGUAGES.map((value) => [value, NOT_FOUND_TITLE[value]])),
   );
   return html.replace(
     "</body>",
-    `${templates}<script>{const titles=${titles};const param=new URLSearchParams(location.search).get('lang');const lang=param&&(param in titles||param==='en')?param:location.pathname.split('/').find((part)=>part in titles);if(lang&&lang in titles){document.documentElement.lang=lang;document.title=titles[lang];document.body.innerHTML=document.getElementById('public-error-'+lang).innerHTML;${publicPageStartupScript()}}}</script></body>`,
+    `${templates}<script>{const titles=${titles};const scopeStyle=${JSON.stringify(scopeStyle)};const param=new URLSearchParams(location.search).get('lang');const lang=param&&(param in titles||param==='en')?param:location.pathname.split('/').find((part)=>part in titles);if(lang&&lang in titles){document.documentElement.lang=lang;document.title=titles[lang];document.body.innerHTML=document.getElementById('public-error-'+lang).innerHTML;if(scopeStyle){for(const el of document.querySelectorAll("[data-ui-theme]"))el.setAttribute("style",scopeStyle);}${publicPageStartupScript()}}</script></body>`,
   );
 }
 

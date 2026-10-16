@@ -45929,6 +45929,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
         hostProp: false,
       },
       {
+        name: "viewportEdgeInset",
+        kind: "number",
+        required: false,
+        type: "number | undefined",
+        hostProp: false,
+      },
+      {
         name: "contentLayout",
         kind: "enum",
         required: false,

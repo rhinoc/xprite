@@ -34,7 +34,7 @@ const guidePage = (language) => ({
 });
 const featureDirectoryPage = (language) => ({
   name: `features-${language}`,
-  path: localized("/about/features/", language),
+  path: localized("/features/", language),
   language,
   ready: publicReady,
   regions: publicRegions,

@@ -67,6 +67,7 @@ export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
       error={snapshot.error}
       onOpen={(file) => manager.open(file)}
       onExample={() => manager.openExample()}
+      onReset={() => manager.clear()}
       flow={{
         exportDisabled: outputDisabled,
         editMore: { run: () => void manager.openEditor() },

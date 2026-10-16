@@ -169,6 +169,7 @@ export function Icon({
       width={size}
       height={size}
       alt=""
+      draggable={false}
     />
   );
 }

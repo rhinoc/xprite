@@ -17,6 +17,23 @@ const WORKSPACE_ATTRIBUTE = "data-ui-desktop-workspace";
 const FIRST_ACTIVE_RANK = 10;
 const VISIBLE_TITLE_WIDTH = 48;
 const DEFAULT_MENU_HEIGHT = 20;
+const WORKSPACE_SUSPEND_EVENT = "ui:desktop-windows-suspend";
+const WORKSPACE_RESUME_EVENT = "ui:desktop-windows-resume";
+const suspendCounts = new WeakMap<Document, number>();
+
+/** Portaled dialogs call this so Mac OS 8 windows behind them show inactive title bars. */
+export function suspendDesktopWindowChrome(doc: Document = document): void {
+  const next = (suspendCounts.get(doc) ?? 0) + 1;
+  suspendCounts.set(doc, next);
+  if (next === 1) doc.dispatchEvent(new Event(WORKSPACE_SUSPEND_EVENT));
+}
+
+/** Pair with suspendDesktopWindowChrome when the portaled dialog closes. */
+export function resumeDesktopWindowChrome(doc: Document = document): void {
+  const next = Math.max(0, (suspendCounts.get(doc) ?? 0) - 1);
+  suspendCounts.set(doc, next);
+  if (next === 0) doc.dispatchEvent(new Event(WORKSPACE_RESUME_EVENT));
+}
 
 /** Window presentation geometry, independent of the open file and editor history. */
 export function connectWindowWorkspace(
@@ -199,6 +216,24 @@ export function connectWindowWorkspace(
   root.addEventListener("lostpointercapture", lostPointerCapture, true);
   const windowHost = root.ownerDocument.defaultView;
   windowHost?.addEventListener("blur", blur);
+  const suspendChrome = () => {
+    for (const window of root.querySelectorAll<HTMLElement>(SURFACE_SELECTOR)) {
+      if (window.closest(`[${WORKSPACE_ATTRIBUTE}]`) !== root) continue;
+      if (!priorActive.has(window))
+        priorActive.set(window, window.getAttribute("data-ui-window-active"));
+      window.setAttribute("data-ui-window-active", "false");
+    }
+  };
+  const resumeChrome = () => {
+    const next =
+      activeSurface ??
+      root.querySelector<HTMLElement>(`${SURFACE_SELECTOR}[data-ui-window-priority="primary"]`) ??
+      root.querySelector<HTMLElement>(SURFACE_SELECTOR);
+    if (next) setActive(next);
+  };
+  const doc = root.ownerDocument;
+  doc.addEventListener(WORKSPACE_SUSPEND_EVENT, suspendChrome);
+  doc.addEventListener(WORKSPACE_RESUME_EVENT, resumeChrome);
   root.addEventListener("focusin", activate, true);
   root.addEventListener("click", click, true);
   root.addEventListener("dblclick", doubleClick, true);
@@ -207,7 +242,10 @@ export function connectWindowWorkspace(
     root.querySelector<HTMLElement>(`${SURFACE_SELECTOR}[data-ui-window-priority="primary"]`) ??
     root.querySelector<HTMLElement>(SURFACE_SELECTOR);
   if (initial) setActive(initial);
+  if ((suspendCounts.get(doc) ?? 0) > 0) suspendChrome();
   return () => {
+    doc.removeEventListener(WORKSPACE_SUSPEND_EVENT, suspendChrome);
+    doc.removeEventListener(WORKSPACE_RESUME_EVENT, resumeChrome);
     finish(undefined, true);
     releaseFootprints();
     root.removeEventListener("pointerdown", pointerDown, true);

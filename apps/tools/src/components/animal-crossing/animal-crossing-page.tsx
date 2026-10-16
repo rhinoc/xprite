@@ -131,6 +131,7 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
       error={snapshot.error}
       onOpen={(file) => manager.open(file)}
       onExample={() => manager.openExample()}
+      onReset={() => manager.clear()}
       flow={{
         exportDisabled: outputDisabled,
         editMore: { run: () => void manager.edit() },
