@@ -3,12 +3,12 @@ import { flushSync } from "react-dom";
 
 import {
   CRAMPED_SCREEN_QUERY,
+  PHONE_SCREEN_QUERY,
   initialWindowShade,
   readWindowShade,
   writeWindowShade,
 } from "$/managers/window-shade/window-shade";
 
-const PHONE_QUERY = "(max-width: 700px)";
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 function sessionStore(): Storage | undefined {
@@ -51,7 +51,7 @@ export function useToolWindowShade(
   useEffect(() => {
     const tool = currentTool();
     if (!tool) return;
-    const phone = globalThis.matchMedia?.(PHONE_QUERY).matches ?? false;
+    const phone = globalThis.matchMedia?.(PHONE_SCREEN_QUERY).matches ?? false;
     setCollapsed(
       initialWindowShade({
         stored: readWindowShade(sessionStore(), tool)[name],
@@ -60,8 +60,8 @@ export function useToolWindowShade(
         collapseWhenReady: collapseWhenReady && phone,
         ready,
         cramped:
-          globalThis.matchMedia?.(collapseOnPhone ? PHONE_QUERY : CRAMPED_SCREEN_QUERY).matches ??
-          false,
+          globalThis.matchMedia?.(collapseOnPhone ? PHONE_SCREEN_QUERY : CRAMPED_SCREEN_QUERY)
+            .matches ?? false,
       }),
     );
   }, [name, defaultCollapsed, collapseWhenCramped, collapseOnPhone, collapseWhenReady, ready]);
@@ -72,7 +72,7 @@ export function useToolWindowShade(
       return;
     }
     wasReady.current = true;
-    if (!(globalThis.matchMedia?.(PHONE_QUERY).matches ?? false)) return;
+    if (!(globalThis.matchMedia?.(PHONE_SCREEN_QUERY).matches ?? false)) return;
     const tool = currentTool();
     if (tool) writeWindowShade(sessionStore(), tool, name, true);
     setCollapsed(true);
@@ -82,7 +82,7 @@ export function useToolWindowShade(
     if (tool) writeWindowShade(sessionStore(), tool, name, next);
     const animate =
       typeof document.startViewTransition === "function" &&
-      globalThis.matchMedia(PHONE_QUERY).matches &&
+      globalThis.matchMedia(PHONE_SCREEN_QUERY).matches &&
       !globalThis.matchMedia(REDUCED_MOTION_QUERY).matches;
     if (animate) document.startViewTransition(() => flushSync(() => setCollapsed(next)));
     else setCollapsed(next);

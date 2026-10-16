@@ -19,7 +19,6 @@ import { decodeFilesDrag, FILES_DRAG_TYPE } from "$/managers/files/files-model";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import type { PublicTool } from "$/managers/tools/tool-catalog";
 import {
-  ContentPadding,
   Dialog,
   OverlayContentLayout,
   Text,
