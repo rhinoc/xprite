@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 
 import { useFilesManager, useFilesSnapshot, useFilesText } from "$/components/files/files-context";
+import { useFilesMenus } from "$/components/files/files-menus";
 import { FilesWindow } from "$/components/files/files-window";
 import {
   ToolActionBarProvider,
@@ -83,10 +84,17 @@ export function ToolFrame({
     disabled: !files,
     onSelect: () => void files?.openWindow(FilesEntryPoint.Menubar),
   };
+  // While the Files window is in front its Finder commands join File, and View and Special
+  // menus follow the page's own menus, as the menu bar changes with the front window.
+  const filesMenus = useFilesMenus();
   const [firstMenu, ...otherMenus] = menus;
-  const frameMenus: MenubarMenu[] = firstMenu
-    ? [{ ...firstMenu, items: [...firstMenu.items, filesItem] }, ...otherMenus]
-    : [{ label: t("File"), items: [{ ...filesItem, separator: false }] }];
+  const frameMenus: MenubarMenu[] = [
+    firstMenu
+      ? { ...firstMenu, items: [...firstMenu.items, filesItem, ...filesMenus.file] }
+      : { label: t("File"), items: [{ ...filesItem, separator: false }, ...filesMenus.file] },
+    ...otherMenus,
+    ...filesMenus.menus,
+  ];
 
   const { colorScheme } = useUi();
   const variables = {

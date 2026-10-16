@@ -731,6 +731,15 @@
       "height": 6,
       "slices": null
     },
+    "window_zoom_icon": {
+      "x": 36,
+      "y": 11,
+      "w": 5,
+      "h": 6,
+      "width": 5,
+      "height": 6,
+      "slices": null
+    },
     "slider_full": {
       "x": 0,
       "y": 144,

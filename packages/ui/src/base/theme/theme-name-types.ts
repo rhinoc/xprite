@@ -345,7 +345,8 @@ export type AtlasPartName =
   | "window_close_icon"
   | "window_help_icon"
   | "window_play_icon"
-  | "window_stop_icon";
+  | "window_stop_icon"
+  | "window_zoom_icon";
 
 export type UiColorRole =
   | "background"

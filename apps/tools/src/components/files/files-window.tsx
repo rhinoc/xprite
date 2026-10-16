@@ -23,6 +23,7 @@ import {
   FilesView,
   formatBytes,
   formatDate,
+  formatShortDate,
 } from "$/managers/files/files-model";
 import type { FilesText } from "$/managers/locale/files-text";
 import { useToolLanguage } from "$/managers/locale/tool-language";
@@ -60,6 +61,9 @@ const FILE_TOOLS = [VIEWER_TOOL, PIXELATE_TOOL, BEADS_TOOL, GIF_SHEET_TOOL, ANIM
 /** Preferred size; shared Dialog chrome keeps a viewport edge inset so it never goes flush. */
 const WINDOW_BOUNDS = { x: 0, y: 0, width: 640, height: 420 };
 const WINDOW_MIN = { width: 320, height: 240 };
+const ZOOM_MAX = { width: 960, height: 640 };
+const NARROW_QUERY = "(max-width: 700px)";
+const MENU_BAR_SELECTOR = '[role="menubar"], [role="menu"], [role="menuitem"]';
 const TILE_WIDTH = 104;
 const SPRING_DELAY_MS = 1000;
 const LABEL_COLORS = [
@@ -161,7 +165,42 @@ export function FilesWindow() {
   /** Blocks ghost clicks that land on the item under the finger after a folder change. */
   const folderNavGate = useMemo(() => createFolderNavGate(), []);
   const lastPointerType = useRef("mouse");
+  const frame = useRef<HTMLDivElement | null>(null);
+  const [zoomed, setZoomed] = useState(false);
+  const [narrow, setNarrow] = useState(false);
   useEffect(() => manager?.start(), [manager]);
+  useEffect(() => {
+    const query = window.matchMedia(NARROW_QUERY);
+    const update = () => setNarrow(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  // The window is "active" while it is the front window: clicks on the page behind it make it
+  // inactive, but the menu bar (and its menus) belongs to the front window and keeps it active.
+  const open = state?.open;
+  useEffect(() => {
+    if (!manager || !open) return;
+    const onPointerDown = (event: globalThis.PointerEvent) => {
+      const target = event.target as Element | null;
+      if (frame.current?.contains(target)) manager.setActive(true);
+      else if (!target?.closest?.(MENU_BAR_SELECTOR)) manager.setActive(false);
+    };
+    // Command-Up is Open Enclosing Folder whenever the Files window is in front.
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (!manager.getSnapshot().active || event.key !== "ArrowUp") return;
+      if (!(event.metaKey || event.ctrlKey) || (event.target as Element)?.closest?.("input"))
+        return;
+      event.preventDefault();
+      manager.openEnclosing();
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown, true);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [manager, open]);
   if (!manager || !state) return null;
 
   const folder = state.folder;
@@ -198,13 +237,9 @@ export function FilesWindow() {
   const free = state.estimate?.quota
     ? formatBytes(Math.max(0, state.estimate.quota - state.estimate.usage), language)
     : null;
-  const info = free
-    ? count === 1
-      ? text("files.info.bar.one", { free })
-      : text("files.info.bar", { count, free })
-    : count === 1
-      ? text("files.info.bar.count.one")
-      : text("files.info.bar.count", { count });
+  const countText =
+    count === 1 ? text("files.info.bar.count.one") : text("files.info.bar.count", { count });
+  const freeText = free ? text("files.info.available", { free }) : null;
   const selected = new Set(state.selection);
   const title = folderName(folder, text, t);
   const order = [...folders.map((item) => item.id), ...entries.map((entry) => entry.id)];
@@ -309,7 +344,7 @@ export function FilesWindow() {
       checked: state.showEmpty,
       onSelect: manager.toggleEmptyFolders,
     },
-    // Empty Trash belongs only in Trash (Finder Special menu / trash context), not on normal folders.
+    // Empty Trash is in Special, and only in Trash here (and on the Trash folder's own menu).
     ...(inTrash
       ? [
           {
@@ -335,6 +370,44 @@ export function FilesWindow() {
         ]
       : []),
   ];
+
+  const titleIconKind = inTrash
+    ? manager.folderCount(FilesFolder.Trash)
+      ? IconKind.TrashFull
+      : IconKind.Trash
+    : IconKind.Folder;
+  // Command-click (or press-and-hold, or tap on touch) on the title: the folder and the
+  // folders enclosing it, nearest first, like the classic Finder's title-bar path menu.
+  const pathMenu: MenuItem[] = [
+    {
+      label: title,
+      icon: <Icon kind={titleIconKind} size={IconSize.Small} />,
+      onSelect: () => undefined,
+    },
+    ...(atRoot
+      ? []
+      : [
+          {
+            label: folderName(FilesFolder.Root, text, t),
+            icon: <Icon kind={IconKind.Folder} size={IconSize.Small} />,
+            onSelect: () => goToFolder(FilesFolder.Root),
+          },
+        ]),
+  ];
+  const zoomBounds = () => ({
+    x: 12,
+    y: 12,
+    width: Math.min(window.innerWidth - 24, ZOOM_MAX.width),
+    height: Math.min(window.innerHeight - 80, ZOOM_MAX.height),
+  });
+  const zoom = () => setZoomed((value) => !value);
+  manager.commands = {
+    addFiles: () => picker.current?.click(),
+    openSelected: () => {
+      if (focusId) openItem(focusId);
+    },
+    zoom,
+  };
 
   const move = (delta: number, extend: boolean) => {
     const index = Math.max(0, order.indexOf(focusId));
@@ -364,7 +437,7 @@ export function FilesWindow() {
           else move(step, event.shiftKey);
           return true;
         case "ArrowUp":
-          if (command && !atRoot) goToFolder(FilesFolder.Root);
+          if (command) manager.openEnclosing();
           else move(-step, event.shiftKey);
           return true;
         case "Enter":
@@ -537,62 +610,81 @@ export function FilesWindow() {
     </div>
   );
 
-  const header = (key: FilesSortKey, label: string) => (
+  const header = (key: FilesSortKey, label: string, className: string) => (
     <th
       scope="col"
+      className={className}
       aria-sort={
         state.sort.key === key ? (state.sort.ascending ? "ascending" : "descending") : undefined
       }
       data-sorted={state.sort.key === key || undefined}
     >
       <button type="button" className={styles.sortButton} onClick={() => manager.setSort(key)}>
-        {label}
+        <span className={styles.sortLabel}>{label}</span>
+        {state.sort.key === key && (
+          <span
+            className={styles.sortArrow}
+            aria-hidden="true"
+            data-ascending={state.sort.ascending}
+          >
+            {"\u25B4"}
+          </span>
+        )}
       </button>
     </th>
   );
+  const dateCell = (time: number | undefined) =>
+    time ? (
+      <>
+        <span className={styles.dateLong}>{formatDate(time, language)}</span>
+        <span className={styles.dateShort}>{formatShortDate(time, language)}</span>
+      </>
+    ) : (
+      text("files.unknown")
+    );
   const listView = (
     <table className={styles.list}>
       <thead>
         <tr>
-          {header(FilesSortKey.Name, text("files.column.name"))}
-          {header(FilesSortKey.Modified, text("files.column.modified"))}
-          {header(FilesSortKey.Size, text("files.column.size"))}
-          {header(FilesSortKey.Kind, text("files.column.kind"))}
-          {header(FilesSortKey.Label, text("files.column.label"))}
+          {header(FilesSortKey.Name, text("files.column.name"), styles.colName)}
+          {header(FilesSortKey.Modified, text("files.column.modified"), styles.colModified)}
+          {header(FilesSortKey.Size, text("files.column.size"), styles.colSize)}
+          {header(FilesSortKey.Kind, text("files.column.kind"), styles.colKind)}
+          {header(FilesSortKey.Label, text("files.column.label"), styles.colLabel)}
         </tr>
       </thead>
       <tbody>
         {folders.map((item) => (
           <ContextMenu key={item.id} label={item.name} items={folderMenu(item.id)}>
             <tr {...itemProps(item.id)}>
-              <td>
+              <td className={styles.colName}>
                 <span className={styles.nameCell}>
                   <Icon kind={item.icon} size={IconSize.Small} />
-                  {item.name}
+                  <span className={styles.nameText}>{item.name}</span>
                 </span>
               </td>
-              <td>{text("files.unknown")}</td>
-              <td>{text("files.unknown")}</td>
-              <td>{text("files.kind.folder")}</td>
-              <td />
+              <td className={styles.colModified}>{text("files.unknown")}</td>
+              <td className={styles.colSize}>{text("files.unknown")}</td>
+              <td className={styles.colKind}>{text("files.kind.folder")}</td>
+              <td className={styles.colLabel} />
             </tr>
           </ContextMenu>
         ))}
         {entries.map((entry) => (
           <ContextMenu key={entry.id} label={entry.name} items={entryMenu(entry)}>
             <tr {...itemProps(entry.id, entry)}>
-              <td>
+              <td className={styles.colName}>
                 <span className={styles.nameCell}>
                   <Thumbnail manager={manager} entry={entry} size={IconSize.Small} />
-                  {renderName(entry)}
+                  <span className={styles.nameText}>{renderName(entry)}</span>
                 </span>
               </td>
-              <td>
-                {entry.modifiedAt ? formatDate(entry.modifiedAt, language) : text("files.unknown")}
+              <td className={styles.colModified}>{dateCell(entry.modifiedAt)}</td>
+              <td className={styles.colSize}>
+                {entry.size ? formatBytes(entry.size, language) : text("files.unknown")}
               </td>
-              <td>{entry.size ? formatBytes(entry.size, language) : text("files.unknown")}</td>
-              <td>{entryKind(entry, text)}</td>
-              <td>
+              <td className={styles.colKind}>{entryKind(entry, text)}</td>
+              <td className={styles.colLabel}>
                 {entry.label ? (
                   <span className={styles.labelCell}>
                     <span
@@ -621,8 +713,17 @@ export function FilesWindow() {
         constrainToViewport
         viewportEdgeInset={windowMetrics.viewportEdgeInset}
         title={title}
+        titleIcon={<Icon kind={titleIconKind} size={IconSize.Small} />}
+        titleMenu={{ label: text("files.path.menu"), items: pathMenu }}
+        inactive={!state.active}
+        onZoom={narrow ? undefined : zoom}
+        zoomLabel={text("files.zoom")}
+        onRootRef={(node) => {
+          frame.current = node;
+        }}
         closeLabel={text("files.close")}
         defaultBounds={WINDOW_BOUNDS}
+        bounds={zoomed ? zoomBounds() : undefined}
         minSize={WINDOW_MIN}
         onOpenChange={(open) => {
           if (!open) manager.closeWindow();
@@ -640,39 +741,9 @@ export function FilesWindow() {
               style={{ height: clientBounds.height }}
               data-files-window=""
             >
-              <div className={styles.header}>
-                {/*
-                  Classic Mac OS 8 Finder had no Enclosing Folder control in window chrome.
-                  Going up was ⌘↑, Command-click the title-bar proxy for a path menu, and
-                  (later) Go ▸ Enclosing Folder. We keep a visible control as a web/touch
-                  compromise so phone users can leave a folder without a keyboard; the
-                  label matches the Classic Go-menu name. Keyboard ⌘↑ remains primary on
-                  desktop (see onKeyDown ArrowUp).
-                */}
-                {!atRoot && (
-                  <Button
-                    text={text("files.enclosing")}
-                    title={text("files.enclosing") + " (⌘↑)"}
-                    onClick={() => goToFolder(FilesFolder.Root)}
-                  />
-                )}
-                <Text variant={TextVariant.Reading} className={styles.infoBar} role="status">
-                  {info}
-                </Text>
-                <div className={styles.views} role="group" aria-label={text("files.view")}>
-                  <Button
-                    text={text("files.view.icons")}
-                    aria-pressed={state.view === FilesView.Icons}
-                    selected={state.view === FilesView.Icons}
-                    onClick={() => manager.setView(FilesView.Icons)}
-                  />
-                  <Button
-                    text={text("files.view.list")}
-                    aria-pressed={state.view === FilesView.List}
-                    selected={state.view === FilesView.List}
-                    onClick={() => manager.setView(FilesView.List)}
-                  />
-                </div>
+              <div className={styles.infoStrip} role="status" data-files-info="">
+                <span className={styles.infoCount}>{countText}</span>
+                {freeText && <span className={styles.infoFree}>{freeText}</span>}
               </div>
               <ContextMenu label={title} items={backgroundMenu}>
                 <div
@@ -723,11 +794,6 @@ export function FilesWindow() {
                     {text(notice)}
                   </Text>
                   <Button text={text("files.dismiss")} onClick={manager.dismissNotice} />
-                </div>
-              )}
-              {inTrash && manager.folderCount(FilesFolder.Trash) > 0 && (
-                <div className={styles.footer}>
-                  <Button text={text("files.empty.trash")} onClick={manager.requestEmptyTrash} />
                 </div>
               )}
               <input

@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type HTMLAttributes,
+  type ReactNode,
+} from "react";
 
 import { useTheme } from "$/base/theme/theme-context";
 import { stylusPointerInputProps } from "$/base/utils/stylus-input";
@@ -8,6 +15,7 @@ import {
   type SurfaceBounds,
   type SurfaceViewport,
 } from "$/components/canvas-surface";
+import { ContextMenu, type MenuItem } from "$/components/menu";
 import { PanelFrame, PanelFrameLayout } from "$/components/panel/frame";
 import {
   ScenePanelSkin,
@@ -62,8 +70,21 @@ export interface WindowVariantProps {
   className?: string;
   /** Replace presentation while retaining window placement and interaction. */
   renderFrame?: (props: ScenePanelFrameProps) => ReactNode;
+  /** Proxy icon shown before the title, as on a Mac OS 8 Finder window. */
+  titleIcon?: ReactNode;
+  /** Background window: classic Mac OS hides the title stripes and close box. */
+  inactive?: boolean;
+  /**
+   * Path popup for the title bar, like Command-clicking a Mac OS 8 window title. It opens on
+   * Command/Control-click, right-click or press-and-hold, and on a plain touch tap.
+   */
+  titleMenu?: { label: string; items: readonly MenuItem[] };
+  /** Zoom box at the trailing edge of the title bar, mirroring the close box. */
+  onZoom?: () => void;
+  zoomLabel?: string;
 }
 
+const TITLE_TAP_MS = 350;
 const DEFAULT_BOUNDS: SurfaceBounds = { x: 1350, y: 110, width: 500, height: 400 };
 const DEFAULT_WINDOW_BORDER = windowMetrics.border;
 const DEFAULT_WINDOW_TITLEBAR = windowMetrics.titlebar;
@@ -99,6 +120,11 @@ export function WindowVariant({
   titlebarActions,
   className,
   renderFrame,
+  titleIcon,
+  inactive = false,
+  titleMenu,
+  onZoom,
+  zoomLabel,
 }: WindowVariantProps) {
   const { definition: theme, translateKey, translateSource } = useTheme();
   const WINDOW_BORDER = theme.parts.window.surface?.borderWidth ?? DEFAULT_WINDOW_BORDER;
@@ -132,6 +158,7 @@ export function WindowVariant({
   const availableRight = available.x + availableWidth;
   const availableBottom = available.y + availableHeight;
   const [moved, setMoved] = useState(false);
+  const titlePointer = useRef({ type: "mouse", x: 0, y: 0, time: 0 });
 
   useEffect(() => {
     if (!open) setMoved(false);
@@ -223,6 +250,7 @@ export function WindowVariant({
     w: number,
     h: number,
     cursor: CSSProperties["cursor"],
+    extend?: (base: HTMLAttributes<HTMLElement>) => HTMLAttributes<HTMLElement>,
   ) => (
     <div
       key={edge}
@@ -230,6 +258,7 @@ export function WindowVariant({
       {...stylusPointerInputProps()}
       data-window-handle={edge}
       className={styles.handle}
+      {...extend?.({})}
       onPointerDown={(event) => gesture.start(event, edge)}
       style={{
         left: x * sx,
@@ -243,7 +272,54 @@ export function WindowVariant({
 
   const chrome = (
     <>
-      {movable &&
+      {movable && titleMenu ? (
+        <ContextMenu label={titleMenu.label} items={titleMenu.items} touchDoubleClickTarget={false}>
+          {(getTargetProps) =>
+            zone(
+              WindowGestureEdge.Move,
+              WINDOW_BORDER,
+              WINDOW_BORDER,
+              width - WINDOW_BORDER * 2,
+              WINDOW_TITLEBAR - WINDOW_BORDER,
+              "default",
+              (base) =>
+                getTargetProps({
+                  ...base,
+                  // Pointer capture by the move gesture suppresses click, so detect the tap here.
+                  onPointerUp: (event) => {
+                    const { type, x, y, time } = titlePointer.current;
+                    const touch = type !== "mouse";
+                    if (!event.metaKey && !touch) return;
+                    if (Math.hypot(event.clientX - x, event.clientY - y) > 6) return;
+                    if (performance.now() - time > TITLE_TAP_MS) return;
+                    // Open just below the title bar, as the classic path menu does, so the click
+                    // that follows this tap cannot land on its first item.
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    const menu = new MouseEvent("contextmenu", {
+                      bubbles: true,
+                      cancelable: true,
+                      button: 2,
+                      clientX: event.clientX,
+                      clientY: rect.bottom,
+                    });
+                    // Mark it as a deliberate gesture so the touch-menu guard accepts it.
+                    Object.defineProperty(menu, "uiTouchLongPress", { value: true });
+                    event.currentTarget.dispatchEvent(menu);
+                  },
+                  onPointerDownCapture: (event) => {
+                    titlePointer.current = {
+                      type: event.pointerType || "mouse",
+                      x: event.clientX,
+                      y: event.clientY,
+                      time: performance.now(),
+                    };
+                  },
+                }),
+            )
+          }
+        </ContextMenu>
+      ) : (
+        movable &&
         zone(
           WindowGestureEdge.Move,
           WINDOW_BORDER,
@@ -251,7 +327,8 @@ export function WindowVariant({
           width - WINDOW_BORDER * 2,
           WINDOW_TITLEBAR - WINDOW_BORDER,
           "default",
-        )}
+        )
+      )}
       {resizable && (
         <>
           {zone(
@@ -314,7 +391,27 @@ export function WindowVariant({
         </>
       )}
       {typeof titlebarActions === "function" ? titlebarActions(context) : titlebarActions}
-      {showCloseButton && (
+      {onZoom && !inactive && (
+        <Button
+          bounds={{
+            x: bounds.x + width - closeButton.width - (closeButtonX ?? closeButton.right),
+            y: bounds.y + closeButton.top,
+            width: closeButton.width,
+            height: closeButton.height,
+          }}
+          relativeTo={bounds}
+          viewport={viewport}
+          part="window_button_normal"
+          hotPart="window_button_hot"
+          pushedPart="window_button_selected"
+          icon="window_zoom_icon"
+          style={{ minWidth: 0, minHeight: 0, padding: 0 }}
+          insetContent={false}
+          aria-label={zoomLabel ?? "Zoom"}
+          onClick={onZoom}
+        />
+      )}
+      {showCloseButton && !inactive && (
         <Button
           bounds={{
             x: bounds.x + (closeButtonX ?? width - closeButton.width - closeButton.right),
@@ -349,6 +446,8 @@ export function WindowVariant({
     label: displayTitle,
     clientOverflow: constrainToViewport ? "auto" : "hidden",
     contentLayout,
+    titleIcon,
+    inactive,
     viewportRef: focusReveal.viewportRef,
     children: typeof children === "function" ? children(context) : children,
   };
