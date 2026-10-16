@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { useToolWindowShade } from "$/components/shared/window-shade";
+import { ToolField, ToolGroup } from "$/components/shared/tool-group";
 import { boardSizeFailure } from "$/managers/beads/bead-failure";
 import type {
   BeadToolManager,
@@ -12,18 +12,12 @@ import {
   MIN_BEAD_BOARD_EDGE,
   MAX_BEAD_BOARD_EDGE,
 } from "$/managers/beads/bead-tool-manager";
-import { beadDocumentLabels, type BeadTextKey } from "$/managers/locale/bead-text";
+import type { BeadTextKey } from "$/managers/locale/bead-text";
 import { useBeadText } from "$/managers/locale/tool-language";
 import { BEAD_BOARD_PRESETS } from "@xprite/editor-core/import-export";
 import { PixelationMethod } from "@xprite/editor-core/import-export";
 import {
-  Panel,
-  PanelVariant,
-  ContentLayout,
-  ContentPadding,
-  SurfaceTone,
   ControlFlow,
-  Field,
   Input,
   Combobox,
   Checkbox,
@@ -35,10 +29,9 @@ import {
 
 import styles from "$/components/beads/beads.module.css";
 
-const SETTINGS_GAP = 8;
 const NUMBER_WIDTH = 40;
 const GRID_WIDTH = 64;
-const SELECT_WIDTH = 136;
+const SELECT_WIDTH = 108;
 const MIN_GRID_EDGE = 1;
 const SAMPLING_KEYS: Readonly<Record<PixelationMethod, BeadTextKey>> = {
   [PixelationMethod.Structure]: "beads.sampling.structure",
@@ -59,7 +52,7 @@ function parseBoardEdge(raw: string): number | null {
     : null;
 }
 
-/** Brand, board, codes and download: the same short form as the editor's bead export. */
+/** Board group (brand, board, codes): the fields of the shared adjust slot. Export lives in the export sheet. */
 export function BeadSettings({
   manager,
   state,
@@ -67,10 +60,8 @@ export function BeadSettings({
   manager: BeadToolManager;
   state: BeadToolSnapshot;
 }) {
-  const shadePattern = useToolWindowShade("pattern");
   const text = useBeadText();
   const busy = state.loading || state.downloading;
-  const outputDisabled = busy || state.pending || !state.grid || !state.outputName.trim();
   // Raw board text stays local so partial or invalid input is shown and explained, not dropped.
   const [boardDraft, setBoardDraft] = useState<Partial<Record<Axis, string>>>({});
   const boardInvalid = (["width", "height"] as const).some(
@@ -104,20 +95,9 @@ export function BeadSettings({
     />
   );
   const boardError = boardSizeFailure();
-  const labels = beadDocumentLabels(text);
   return (
-    <Panel
-      {...shadePattern}
-      variant={PanelVariant.Utility}
-      emphasized
-      scrollable
-      tone={SurfaceTone.Accent}
-      contentLayout={ContentLayout.Column}
-      contentPadding={ContentPadding.Compact}
-      contentGap={SETTINGS_GAP}
-      title={text("beads.pattern")}
-    >
-      <Field label={text("beads.brand")}>
+    <ToolGroup title={text("beads.board")}>
+      <ToolField label={text("beads.brand")}>
         <Combobox
           pixelWidth={SELECT_WIDTH}
           aria-label={text("beads.brand")}
@@ -130,8 +110,8 @@ export function BeadSettings({
             })
           }
         />
-      </Field>
-      <Field label={text("beads.board")}>
+      </ToolField>
+      <ToolField label={text("beads.board")}>
         <ControlFlow className={styles.boardRow}>
           {boardEdge("width")}
           <Text variant={TextVariant.Reading}>×</Text>
@@ -156,7 +136,7 @@ export function BeadSettings({
             )}
           />
         </ControlFlow>
-      </Field>
+      </ToolField>
       {boardInvalid && (
         <Text variant={TextVariant.Reading} wrap role="alert">
           {text(boardError.key, boardError.values)}
@@ -168,25 +148,7 @@ export function BeadSettings({
         disabled={busy}
         onCheckedChange={(showCodes) => manager.changeSettings({ showCodes })}
       />
-      <Field label={text("beads.format")}>
-        <ControlFlow className={styles.boardRow}>
-          <Button
-            slots={{}}
-            text={text("beads.png")}
-            aria-label={text("beads.download.png")}
-            disabled={outputDisabled || !!state.pngError}
-            onClick={() => void manager.downloadPng(labels)}
-          />
-          <Button
-            slots={{}}
-            text={text("beads.pdf")}
-            aria-label={text("beads.download.pdf")}
-            disabled={outputDisabled || !!state.pdfError}
-            onClick={() => void manager.downloadPdf(labels)}
-          />
-        </ControlFlow>
-      </Field>
-    </Panel>
+    </ToolGroup>
   );
 }
 
@@ -198,11 +160,10 @@ export function BeadSourceSettings({
   manager: BeadToolManager;
   state: BeadToolSnapshot;
 }) {
-  const shadeSource = useToolWindowShade("source", { defaultCollapsed: true });
   const text = useBeadText();
   const busy = state.loading || state.downloading;
   const gridEdge = (axis: Axis, label: BeadTextKey) => (
-    <Field label={text(label)}>
+    <ToolField label={text(label)}>
       <Input
         pixelWidth={GRID_WIDTH}
         inputMode="numeric"
@@ -218,21 +179,12 @@ export function BeadSourceSettings({
           })
         }
       />
-    </Field>
+    </ToolField>
   );
   return (
-    <Panel
-      {...shadeSource}
-      variant={PanelVariant.Utility}
-      emphasized
-      scrollable
-      contentLayout={ContentLayout.Column}
-      contentPadding={ContentPadding.Compact}
-      contentGap={SETTINGS_GAP}
-      title={text("beads.preview.source")}
-    >
+    <ToolGroup title={text("beads.sampling")}>
       {state.frameCount > MIN_GRID_EDGE && (
-        <Field label={text("beads.frame")}>
+        <ToolField label={text("beads.frame")}>
           <Combobox
             pixelWidth={GRID_WIDTH}
             aria-label={text("beads.frame.source")}
@@ -244,7 +196,7 @@ export function BeadSourceSettings({
             }))}
             onValueChange={(value) => manager.setFrame(Number(value))}
           />
-        </Field>
+        </ToolField>
       )}
       {gridEdge("width", "beads.columns")}
       {gridEdge("height", "beads.rows")}
@@ -254,23 +206,21 @@ export function BeadSourceSettings({
         disabled={busy}
         onCheckedChange={(lockAspectRatio) => manager.changeSettings({ lockAspectRatio })}
       />
-      <Field label={text("beads.sampling")}>
-        <Combobox
-          pixelWidth={SELECT_WIDTH}
-          aria-label={text("beads.sampling")}
-          value={state.settings.method}
-          options={manager.samplingModes.map((mode) => ({
-            value: mode.value,
-            label: text(SAMPLING_KEYS[mode.value]),
-          }))}
-          disabled={busy}
-          onValueChange={(method) =>
-            manager.changeSettings({
-              method: method as BeadToolSettings["method"],
-            })
-          }
-        />
-      </Field>
-    </Panel>
+      <Combobox
+        pixelWidth={SELECT_WIDTH}
+        aria-label={text("beads.sampling")}
+        value={state.settings.method}
+        options={manager.samplingModes.map((mode) => ({
+          value: mode.value,
+          label: text(SAMPLING_KEYS[mode.value]),
+        }))}
+        disabled={busy}
+        onValueChange={(method) =>
+          manager.changeSettings({
+            method: method as BeadToolSettings["method"],
+          })
+        }
+      />
+    </ToolGroup>
   );
 }

@@ -166,6 +166,7 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
     supportOpen,
     setSupportOpen,
     supportOption,
+    openSupportFromAbout,
     feedback,
     openHelpLink,
     newTilemapDialog,
@@ -495,7 +496,12 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
         )}
         {aboutOpen && (
           <Suspense fallback={null}>
-            <AboutDialog open={aboutOpen} onOpenChange={setAboutOpen} onOpenLink={openHelpLink} />
+            <AboutDialog
+              open={aboutOpen}
+              onOpenChange={setAboutOpen}
+              onOpenLink={openHelpLink}
+              onSupport={openSupportFromAbout}
+            />
           </Suspense>
         )}
         {supportOpen && (

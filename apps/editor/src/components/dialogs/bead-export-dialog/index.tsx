@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { FormDialog } from "$/components/dialogs/form-dialog";
@@ -35,14 +35,7 @@ import {
 } from "@xprite/ui";
 import { measureUiText, useUiAssets } from "@xprite/ui/assets";
 import { RASTER_SCALE } from "@xprite/ui/canvas";
-import {
-  clientPoint,
-  dropdownArrowOffsetY,
-  clientToLocal,
-  layoutSize,
-  scrollPosition,
-  setScrollPosition,
-} from "@xprite/ui/utils";
+import { clientPoint, dropdownArrowOffsetY, clientToLocal } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/bead-export-dialog/bead-export-dialog.module.css";
 
@@ -190,27 +183,35 @@ export function BeadExportDialog(props: ExporterViewProps<BeadExportSource, Bead
   const chartScale = (scale * grid.width) / (chart.width - 1);
   const display = { width: chart.width * chartScale, height: chart.height * chartScale };
 
-  const pendingScroll = useRef<{ x: number; y: number } | null>(null);
-  const scrollTo = (x: number, y: number) => {
-    pendingScroll.current = { x, y };
+  // Pan/zoom are transform-based (overflow:hidden). Native scroll fought touch zoom on phones.
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const drag = useRef<{
+    pointer: number;
+    origin: { x: number; y: number };
+    start: { x: number; y: number };
+    moved: boolean;
+  } | null>(null);
+  const originFor = (width: number, height: number) => {
+    const box = layout.preview;
+    return {
+      x: width < box.width ? (box.width - width) / 2 : 0,
+      y: height < box.height ? (box.height - height) / 2 : 0,
+    };
   };
-  // Scroll after the resized chart is in the DOM, otherwise the browser clamps the offset.
-  useLayoutEffect(() => {
-    const target = pendingScroll.current;
-    if (!target || !viewport) return;
-    pendingScroll.current = null;
-    setScrollPosition(viewport, target);
-  });
+  const origin = originFor(display.width, display.height);
   const zoomTo = (next: number, anchor?: { x: number; y: number }) => {
     const clamped = Math.max(fit * MIN_ZOOM_OF_FIT, Math.min(MAX_ZOOM, next));
-    if (!viewport) return setZoom(clamped);
-    const size = layoutSize(viewport);
-    const point = anchor ?? { x: size.width / 2, y: size.height / 2 };
-    const scroll = scrollPosition(viewport);
-    const chartX = (scroll.x + point.x) / scale,
-      chartY = (scroll.y + point.y) / scale;
+    const box = layout.preview;
+    const point = anchor ?? { x: box.width / 2, y: box.height / 2 };
+    const contentX = pan.x + point.x - origin.x;
+    const contentY = pan.y + point.y - origin.y;
+    const ratio = clamped / scale;
+    const nextOrigin = originFor(display.width * ratio, display.height * ratio);
     setZoom(clamped);
-    scrollTo(chartX * clamped - point.x, chartY * clamped - point.y);
+    setPan({
+      x: contentX * ratio - point.x + nextOrigin.x,
+      y: contentY * ratio - point.y + nextOrigin.y,
+    });
   };
   useWheel(viewport, (event) => {
     event.preventDefault();
@@ -222,7 +223,7 @@ export function BeadExportDialog(props: ExporterViewProps<BeadExportSource, Bead
   const fitAll = () => {
     setFocus(null);
     setZoom(null);
-    scrollTo(0, 0);
+    setPan({ x: 0, y: 0 });
   };
   const pickBoard = (offsetX: number, offsetY: number) => {
     const board = beadBoardAt(
@@ -235,7 +236,7 @@ export function BeadExportDialog(props: ExporterViewProps<BeadExportSource, Bead
     const next = fitTo(board.width, board.height);
     setFocus({ board, size: sizeKey });
     setZoom(null);
-    scrollTo(board.x * next, board.y * next);
+    setPan({ x: board.x * next, y: board.y * next });
   };
 
   const exportLabel = props.busy
@@ -486,13 +487,43 @@ export function BeadExportDialog(props: ExporterViewProps<BeadExportSource, Bead
                 width: layout.preview.width,
                 height: layout.preview.height,
               }}
+              onPointerDown={(event) => {
+                if (!event.isPrimary || event.button !== 0) return;
+                event.currentTarget.setPointerCapture(event.pointerId);
+                drag.current = {
+                  pointer: event.pointerId,
+                  origin: { ...pan },
+                  start: clientPoint(event),
+                  moved: false,
+                };
+              }}
+              onPointerMove={(event) => {
+                const active = drag.current;
+                if (!active || active.pointer !== event.pointerId) return;
+                const point = clientPoint(event);
+                const dx = point.x - active.start.x;
+                const dy = point.y - active.start.y;
+                if (!active.moved && dx * dx + dy * dy < 16) return;
+                active.moved = true;
+                setPan({ x: active.origin.x - dx, y: active.origin.y - dy });
+              }}
+              onPointerUp={(event) => {
+                const active = drag.current;
+                drag.current = null;
+                if (!active || active.pointer !== event.pointerId || active.moved) return;
+                const point = clientToLocal(event.currentTarget, clientPoint(event));
+                pickBoard(point.x - origin.x + pan.x, point.y - origin.y + pan.y);
+              }}
+              onPointerCancel={() => {
+                drag.current = null;
+              }}
             >
               <div
                 className={styles.chart}
-                style={{ width: display.width, height: display.height }}
-                onClick={(event) => {
-                  const point = clientToLocal(event.currentTarget, clientPoint(event));
-                  pickBoard(point.x, point.y);
+                style={{
+                  width: display.width,
+                  height: display.height,
+                  transform: `translate(${origin.x - pan.x}px, ${origin.y - pan.y}px)`,
                 }}
               >
                 <CanvasSurface

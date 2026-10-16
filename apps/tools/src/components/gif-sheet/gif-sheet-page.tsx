@@ -2,8 +2,15 @@ import { useSyncExternalStore } from "react";
 
 import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
+import { ToolDetails } from "$/components/shared/tool-details";
+import { ToolField, ToolGroup } from "$/components/shared/tool-group";
 import { ToolHelp } from "$/components/shared/tool-help";
-import { useToolWindowShade } from "$/components/shared/window-shade";
+import {
+  ToolCanvasPane,
+  ToolListPane,
+  ToolResultWindow,
+} from "$/components/shared/tool-result-window";
+import { ToolZoomControl } from "$/components/shared/tool-zoom-control";
 import {
   GifSheetDownload,
   GifSheetLayout,
@@ -13,60 +20,28 @@ import {
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import { GIF_SHEET_TOOL } from "$/managers/tools/tool-catalog";
 import { GIF_SHEET_HELP, GifSheetHelpSection } from "@xprite/growth-content/tools";
-import {
-  ContentLayout,
-  SurfaceTone,
-  Field,
-  FieldLayout,
-  Text,
-  TextVariant,
-  TextTone,
-  Checkbox,
-  Combobox,
-  ControlFlow,
-  Panel,
-  PanelVariant,
-  Input,
-} from "@xprite/ui";
-
-import styles from "$/components/gif-sheet/gif-sheet.module.css";
-import shell from "$/components/shared/tool-frame.module.css";
+import { Checkbox, Combobox, Input } from "@xprite/ui";
 
 const ENTRY_WIDTH = 40;
 const LAYOUT_WIDTH = 94;
-const ZOOM_WIDTH = 72;
-const FIT_ZOOM = 0;
-const ZOOM_VALUES = [FIT_ZOOM, 1, 2, 4];
-const PERCENT = 100;
 const MAX_PADDING = 4096;
 const MIN_COUNT = 1;
 
 export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
-  const shadePreview = useToolWindowShade("preview");
-  const shadeLayout = useToolWindowShade("layout");
   const t = useToolTranslation();
-
   const snapshot = useSyncExternalStore(
     manager.subscribe,
     manager.getSnapshot,
     manager.getSnapshot,
   );
-  const navigation = manager.viewport;
-  const view = useSyncExternalStore(
-    navigation.subscribe,
-    navigation.getSnapshot,
-    navigation.getSnapshot,
-  );
-  const busy = snapshot.status === GifSheetStatus.Loading;
+  const busy = snapshot.status === GifSheetStatus.Loading || snapshot.openingEditor;
   const loaded = snapshot.status === GifSheetStatus.Ready;
-  const ready = !!snapshot.pixels;
+  const pixels = snapshot.pixels;
   const settings = snapshot.settings;
-  const zoom = view.fit ? FIT_ZOOM : view.zoom;
-  const zooms = ZOOM_VALUES.includes(zoom) ? ZOOM_VALUES : [...ZOOM_VALUES, zoom];
   const grid =
     settings.layout === GifSheetLayout.Rows || settings.layout === GifSheetLayout.Columns;
   const numeric = (key: "count" | "borderPadding" | "shapePadding", label: string, max: number) => (
-    <Field layout={FieldLayout.SpaceBetween} label={t(`${label}:`)}>
+    <ToolField label={t(`${label}:`)}>
       <Input
         pixelWidth={ENTRY_WIDTH}
         aria-label={t(label)}
@@ -79,129 +54,123 @@ export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
         disabled={!loaded}
         onCommit={(value) => manager.changeSettings({ [key]: Number(value) })}
       />
-    </Field>
+    </ToolField>
   );
+  const outputDisabled = !loaded || !pixels || snapshot.downloading || busy;
   return (
     <FileToolShell
       tool={GIF_SHEET_TOOL}
       help={<ToolHelp id={GifSheetHelpSection.Overview} content={GIF_SHEET_HELP} />}
       filename={snapshot.name}
       busy={busy}
-      ready={ready}
+      ready={loaded}
       error={snapshot.error}
       onOpen={(file) => manager.open(file)}
       onExample={() => manager.openExample()}
       onReset={() => manager.clear()}
-      fileItems={[
-        {
-          label: t("Export sprite sheet (.png)"),
-          disabled: !loaded || !ready || busy || snapshot.downloading,
-          onSelect: () => void manager.download(GifSheetDownload.Png),
-        },
-        {
-          label: t("Export frame data (.json)"),
-          disabled: !loaded || !ready || busy || snapshot.downloading,
-          onSelect: () => void manager.download(GifSheetDownload.Json),
-        },
-      ]}
-    >
-      {(ready || loaded || (busy && snapshot.name)) && (
-        <div className={styles.layout}>
-          {ready && (
-            <Panel
-              {...shadePreview}
-              emphasized
-              contentLayout={ContentLayout.Fill}
-              variant={PanelVariant.Document}
-              title={snapshot.name}
-              className={styles.preview}
-              data-ui-window-priority="primary"
-            >
-              <ControlFlow toolbar className={shell.previewToolbar}>
-                <Field layout={FieldLayout.Inline} label={t("Zoom:")}>
-                  <Combobox
-                    pixelWidth={ZOOM_WIDTH}
-                    aria-label={t("Preview zoom")}
-                    value={String(zoom)}
-                    options={zooms.map((value) => ({
-                      value: String(value),
-                      label: value === FIT_ZOOM ? "Fit" : `${Math.round(value * PERCENT)}%`,
-                      disabled: value !== FIT_ZOOM && !navigation.canZoom(value),
-                    }))}
-                    onValueChange={(value) =>
-                      Number(value) === FIT_ZOOM
-                        ? navigation.fit()
-                        : navigation.setZoom(Number(value))
-                    }
-                  />
-                </Field>
-                <span
-                  className={shell.previewDimensions}
-                  title={t(`Source: ${snapshot.frameWidth} × ${snapshot.frameHeight} px`)}
-                >
-                  <Text variant={TextVariant.Reading} tone={TextTone.Muted}>
-                    {t(
-                      `${snapshot.pixels!.width} × ${snapshot.pixels!.height} px · ${snapshot.frames} frames`,
-                    )}
-                  </Text>
-                </span>
-              </ControlFlow>
-              <ToolCanvasPreview
-                navigation={navigation}
-                identity={snapshot.identity}
-                pixels={snapshot.pixels!}
-                label={t("Sprite sheet preview. Drag to pan, scroll to zoom, double-click to fit.")}
+      flow={{
+        exportDisabled: outputDisabled,
+        editMore: { run: () => void manager.openEditor() },
+        adjust: (
+          <>
+            <ToolGroup title={t("Sheet layout")}>
+              <ToolField label={t("Layout:")}>
+                <Combobox
+                  pixelWidth={LAYOUT_WIDTH}
+                  aria-label={t("Sheet type")}
+                  value={settings.layout}
+                  disabled={!loaded}
+                  options={[
+                    { value: GifSheetLayout.Rows, label: t("By rows") },
+                    { value: GifSheetLayout.Columns, label: t("By columns") },
+                    { value: GifSheetLayout.Horizontal, label: t("Horizontal") },
+                    { value: GifSheetLayout.Vertical, label: t("Vertical") },
+                  ]}
+                  onValueChange={(layout) =>
+                    manager.changeSettings({ layout: layout as GifSheetLayout })
+                  }
+                />
+              </ToolField>
+              {grid &&
+                numeric(
+                  "count",
+                  settings.layout === GifSheetLayout.Columns ? "Rows" : "Columns",
+                  Math.max(MIN_COUNT, snapshot.frames),
+                )}
+            </ToolGroup>
+            <ToolGroup title={t("Spacing")}>
+              {numeric("borderPadding", "Border padding", MAX_PADDING)}
+              {numeric("shapePadding", "Frame spacing", MAX_PADDING)}
+              <Checkbox
+                label={t("Power of two")}
+                title={t("Round sheet dimensions up without scaling frames")}
+                checked={settings.powerOfTwo}
+                disabled={!loaded}
+                onCheckedChange={(powerOfTwo) => manager.changeSettings({ powerOfTwo })}
               />
-            </Panel>
-          )}
-          {(loaded || (busy && snapshot.name)) && (
-            <aside className={styles.inspector} data-ui-desktop-layer>
-              <Panel
-                {...shadeLayout}
-                emphasized
-                tone={SurfaceTone.Accent}
-                scrollable
-                variant={PanelVariant.Utility}
-                title={t("Sheet layout")}
-              >
-                <ControlFlow className={styles.settings} aria-label={t("Sheet settings")}>
-                  <Field layout={FieldLayout.SpaceBetween} label={t("Layout:")}>
-                    <Combobox
-                      pixelWidth={LAYOUT_WIDTH}
-                      aria-label={t("Sheet type")}
-                      value={settings.layout}
-                      disabled={!loaded}
-                      options={[
-                        { value: GifSheetLayout.Rows, label: t("By rows") },
-                        { value: GifSheetLayout.Columns, label: t("By columns") },
-                        { value: GifSheetLayout.Horizontal, label: t("Horizontal") },
-                        { value: GifSheetLayout.Vertical, label: t("Vertical") },
-                      ]}
-                      onValueChange={(layout) =>
-                        manager.changeSettings({ layout: layout as GifSheetLayout })
-                      }
+            </ToolGroup>
+          </>
+        ),
+        exportFormats: [
+          {
+            id: "png",
+            label: t("Export sprite sheet (.png)"),
+            disabled: outputDisabled,
+            run: () => void manager.download(GifSheetDownload.Png),
+          },
+          {
+            id: "json",
+            label: t("Export frame data (.json)"),
+            disabled: outputDisabled,
+            run: () => void manager.download(GifSheetDownload.Json),
+          },
+        ],
+      }}
+    >
+      {loaded && (
+        <ToolResultWindow
+          title={snapshot.name}
+          tabs={[
+            {
+              id: "sheet",
+              label: t("Sprite sheet"),
+              content: (
+                <ToolCanvasPane
+                  controls={<ToolZoomControl navigation={manager.viewport} />}
+                  status={pixels ? `${pixels.width} × ${pixels.height} px` : undefined}
+                >
+                  {pixels && (
+                    <ToolCanvasPreview
+                      navigation={manager.viewport}
+                      identity={snapshot.identity}
+                      pixels={pixels}
+                      label={t(
+                        "Sprite sheet preview. Drag to pan, scroll to zoom, double-click to fit.",
+                      )}
                     />
-                  </Field>
-                  {grid &&
-                    numeric(
-                      "count",
-                      settings.layout === GifSheetLayout.Columns ? "Rows" : "Columns",
-                      Math.max(MIN_COUNT, snapshot.frames),
-                    )}
-                  {numeric("borderPadding", "Border padding", MAX_PADDING)}
-                  {numeric("shapePadding", "Frame spacing", MAX_PADDING)}
-                  <Checkbox
-                    label={t("Power of two")}
-                    title={t("Round sheet dimensions up without scaling frames")}
-                    checked={settings.powerOfTwo}
-                    disabled={!loaded}
-                    onCheckedChange={(powerOfTwo) => manager.changeSettings({ powerOfTwo })}
+                  )}
+                </ToolCanvasPane>
+              ),
+            },
+            {
+              id: "details",
+              label: t("Details"),
+              content: (
+                <ToolListPane>
+                  <ToolDetails
+                    rows={[
+                      [t("Frames"), String(snapshot.frames)],
+                      [t("Frame size"), `${snapshot.frameWidth} × ${snapshot.frameHeight} px`],
+                      ...(pixels
+                        ? ([[t("Sheet size"), `${pixels.width} × ${pixels.height} px`]] as const)
+                        : []),
+                    ]}
                   />
-                </ControlFlow>
-              </Panel>
-            </aside>
-          )}
-        </div>
+                </ToolListPane>
+              ),
+            },
+          ]}
+        />
       )}
     </FileToolShell>
   );

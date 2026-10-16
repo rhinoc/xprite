@@ -3,7 +3,6 @@ import { flushSync } from "react-dom";
 
 import {
   CRAMPED_SCREEN_QUERY,
-  PHONE_SCREEN_QUERY,
   initialWindowShade,
   readWindowShade,
   writeWindowShade,
@@ -34,11 +33,14 @@ export function useToolWindowShade(
   {
     defaultCollapsed = false,
     collapseWhenCramped = false,
+    collapseOnPhone = false,
     collapseWhenReady = false,
     ready = false,
   }: {
     defaultCollapsed?: boolean;
     collapseWhenCramped?: boolean;
+    /** Start rolled up on phones (<= 700px wide) and open on larger screens. */
+    collapseOnPhone?: boolean;
     /** On phones, roll up once the tool has a preview/result so work stays visible. */
     collapseWhenReady?: boolean;
     ready?: boolean;
@@ -49,18 +51,20 @@ export function useToolWindowShade(
   useEffect(() => {
     const tool = currentTool();
     if (!tool) return;
-    const phone = globalThis.matchMedia?.(PHONE_SCREEN_QUERY).matches ?? false;
+    const phone = globalThis.matchMedia?.(PHONE_QUERY).matches ?? false;
     setCollapsed(
       initialWindowShade({
         stored: readWindowShade(sessionStore(), tool)[name],
         defaultCollapsed,
-        collapseWhenCramped,
+        collapseWhenCramped: collapseWhenCramped || collapseOnPhone,
         collapseWhenReady: collapseWhenReady && phone,
-        cramped: globalThis.matchMedia?.(CRAMPED_SCREEN_QUERY).matches ?? false,
         ready,
+        cramped:
+          globalThis.matchMedia?.(collapseOnPhone ? PHONE_QUERY : CRAMPED_SCREEN_QUERY).matches ??
+          false,
       }),
     );
-  }, [name, defaultCollapsed, collapseWhenCramped, collapseWhenReady, ready]);
+  }, [name, defaultCollapsed, collapseWhenCramped, collapseOnPhone, collapseWhenReady, ready]);
   // Empty → ready on a phone: collapse the note even if it was expanded for the empty state.
   useEffect(() => {
     if (!collapseWhenReady || !ready || wasReady.current) {
@@ -68,7 +72,7 @@ export function useToolWindowShade(
       return;
     }
     wasReady.current = true;
-    if (!(globalThis.matchMedia?.(PHONE_SCREEN_QUERY).matches ?? false)) return;
+    if (!(globalThis.matchMedia?.(PHONE_QUERY).matches ?? false)) return;
     const tool = currentTool();
     if (tool) writeWindowShade(sessionStore(), tool, name, true);
     setCollapsed(true);

@@ -78,6 +78,7 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
       mask = false,
       textOffset,
       mnemonicIndex,
+      minimumWidth,
       iconOffset,
       disabled = false,
       pressed: suppliedPressed,
@@ -123,7 +124,7 @@ export const ButtonControl = React.forwardRef<HTMLButtonElement, ButtonControlPr
     if (outline) {
       measuredSize.width = displayText
         ? Math.max(
-            outline.minimumWidth,
+            minimumWidth ?? outline.minimumWidth,
             measureThemeText(displayText ?? "", font) + OUTLINE_BUTTON_TEXT_PADDING,
           )
         : outline.minimumHeight;

@@ -15,10 +15,12 @@ export function AboutDialog({
   open,
   onOpenChange,
   onOpenLink,
+  onSupport,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onOpenLink: (link: HelpLink) => void;
+  onSupport: () => void;
 }) {
   const scene = useSceneBounds();
   const width = Math.min(ABOUT_WIDTH, scene.width);
@@ -60,10 +62,10 @@ export function AboutDialog({
           onClick: () => onOpenLink(HelpLink.License),
         },
         {
-          key: "donate",
+          key: "support",
           type: "link",
-          label: tUi("ui.support.ko.fi"),
-          onClick: () => onOpenLink(HelpLink.Donate),
+          label: tUi("ui.home.support"),
+          onClick: onSupport,
         },
         {
           key: "repository",
@@ -96,7 +98,7 @@ export function AboutDialog({
           inspiration: field(108),
           credits: field(138),
           license: field(164),
-          donate: field(190),
+          support: field(190),
           repository: field(230),
           website: field(256),
         },

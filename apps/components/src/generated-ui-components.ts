@@ -2227,6 +2227,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
         hostProp: false,
       },
       {
+        name: "minimumWidth",
+        kind: "number",
+        required: false,
+        type: "number | undefined",
+        hostProp: false,
+      },
+      {
         name: "iconOffset",
         kind: "json",
         required: false,
@@ -2611,6 +2618,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             hostProp: false,
           },
           {
+            name: "minimumWidth",
+            kind: "number",
+            required: false,
+            type: "number | undefined",
+            hostProp: false,
+          },
+          {
             name: "iconOffset",
             kind: "json",
             required: false,
@@ -2887,6 +2901,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
           },
           {
             name: "mnemonicIndex",
+            kind: "number",
+            required: false,
+            type: "number | undefined",
+            hostProp: false,
+          },
+          {
+            name: "minimumWidth",
             kind: "number",
             required: false,
             type: "number | undefined",
@@ -3175,6 +3196,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             hostProp: false,
           },
           {
+            name: "minimumWidth",
+            kind: "number",
+            required: false,
+            type: "number | undefined",
+            hostProp: false,
+          },
+          {
             name: "iconOffset",
             kind: "json",
             required: false,
@@ -3451,6 +3479,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
           },
           {
             name: "mnemonicIndex",
+            kind: "number",
+            required: false,
+            type: "number | undefined",
+            hostProp: false,
+          },
+          {
+            name: "minimumWidth",
             kind: "number",
             required: false,
             type: "number | undefined",
@@ -3752,6 +3787,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             hostProp: false,
           },
           {
+            name: "minimumWidth",
+            kind: "number",
+            required: false,
+            type: "number | undefined",
+            hostProp: false,
+          },
+          {
             name: "iconOffset",
             kind: "json",
             required: false,
@@ -4028,6 +4070,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
           },
           {
             name: "mnemonicIndex",
+            kind: "number",
+            required: false,
+            type: "number | undefined",
+            hostProp: false,
+          },
+          {
+            name: "minimumWidth",
             kind: "number",
             required: false,
             type: "number | undefined",

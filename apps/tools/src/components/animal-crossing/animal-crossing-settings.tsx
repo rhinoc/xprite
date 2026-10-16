@@ -1,30 +1,15 @@
-import { useToolTranslation } from "$/managers/locale/tool-language";
-const PANEL_CONTENT_GAP = 8;
-import { useState } from "react";
+import type { ReactNode } from "react";
 
-import { useToolWindowShade } from "$/components/shared/window-shade";
+import { ToolField, ToolGroup } from "$/components/shared/tool-group";
 import {
   AnimalCrossingLayout,
   type AnimalCrossingManager,
   type AnimalCrossingSnapshot,
   type AnimalCrossingSettings,
 } from "$/managers/animal-crossing/animal-crossing-manager";
-import {
-  ContentLayout,
-  ContentPadding,
-  SurfaceTone,
-  Text,
-  TextVariant,
-  Field,
-  TextTone,
-  Button,
-  Combobox,
-  Input,
-  Panel,
-  PanelVariant,
-} from "@xprite/ui";
+import { useToolTranslation } from "$/managers/locale/tool-language";
+import { Combobox, Input } from "@xprite/ui";
 
-import styles from "$/components/animal-crossing/animal-crossing.module.css";
 const NUMBER_WIDTH = 44;
 const TEXT_WIDTH = 104;
 const LAYOUT_WIDTH = 104;
@@ -32,32 +17,22 @@ const MAX_PARAMETER = 65535;
 const MIN_SIZE = 1;
 const ZERO = 0;
 
-export function AnimalCrossingSettingsPanel({
+/** Adjust groups: design information, image layout and (for tiles) offsets and spacing. */
+export function AnimalCrossingAdjust({
   manager,
   snapshot,
 }: {
   manager: AnimalCrossingManager;
   snapshot: AnimalCrossingSnapshot;
-}) {
-  const shadeInformation = useToolWindowShade("information");
-  const shadeLayout = useToolWindowShade("layout");
+}): ReactNode {
   const t = useToolTranslation();
-
-  const [spacingOpen, setSpacingOpen] = useState(
-    !!(
-      snapshot.settings.offsetX ||
-      snapshot.settings.offsetY ||
-      snapshot.settings.spacingX ||
-      snapshot.settings.spacingY
-    ),
-  );
   const busy = snapshot.loading || snapshot.downloading;
   const settings = snapshot.settings;
   const numeric = (
     key: "cellWidth" | "cellHeight" | "offsetX" | "offsetY" | "spacingX" | "spacingY",
     label: string,
   ) => (
-    <Field label={t(label)}>
+    <ToolField label={t(label)}>
       <Input
         aria-label={t(label)}
         pixelWidth={NUMBER_WIDTH}
@@ -69,10 +44,10 @@ export function AnimalCrossingSettingsPanel({
         disabled={busy}
         onCommit={(value) => manager.changeSettings({ [key]: Number(value) })}
       />
-    </Field>
+    </ToolField>
   );
   const text = (key: "title" | "creator" | "town", label: string) => (
-    <Field label={t(label)}>
+    <ToolField label={t(label)}>
       <Input
         aria-label={t(label)}
         pixelWidth={TEXT_WIDTH}
@@ -82,66 +57,17 @@ export function AnimalCrossingSettingsPanel({
           manager.changeSettings({ [key]: value } as Partial<AnimalCrossingSettings>)
         }
       />
-    </Field>
+    </ToolField>
   );
-  if (snapshot.importedQr)
-    return (
-      <Panel
-        {...shadeInformation}
-        emphasized
-        tone={SurfaceTone.Accent}
-        contentLayout={ContentLayout.Column}
-        contentPadding={ContentPadding.Compact}
-        contentGap={PANEL_CONTENT_GAP}
-        scrollable
-        variant={PanelVariant.Utility}
-        className={styles.settingsPanel}
-        title={<Text variant={TextVariant.Reading}>{t("Design information")}</Text>}
-        aria-label={t("Design information")}
-      >
-        <div className={styles.detail}>
-          <Text variant={TextVariant.Control} text={t("Title")} />
-          <Text variant={TextVariant.Reading} wrap>
-            {settings.title}
-          </Text>
-        </div>
-        <div className={styles.detail}>
-          <Text variant={TextVariant.Control} text={t("Creator")} />
-          <Text variant={TextVariant.Reading} wrap>
-            {settings.creator}
-          </Text>
-        </div>
-        <div className={styles.detail}>
-          <Text variant={TextVariant.Control} text={t("Island / town")} />
-          <Text variant={TextVariant.Reading} wrap>
-            {settings.town}
-          </Text>
-        </div>
-        <Text variant={TextVariant.Reading} tone={TextTone.Muted} wrap>
-          {t("Ready to export. The original design is preserved.")}
-        </Text>
-      </Panel>
-    );
+  const tiles = snapshot.layout === AnimalCrossingLayout.Tiles;
   return (
-    <aside className={styles.settingsColumn} data-ui-desktop-layer>
-      <Panel
-        {...shadeInformation}
-        emphasized
-        tone={SurfaceTone.Accent}
-        contentLayout={ContentLayout.Column}
-        contentPadding={ContentPadding.Compact}
-        contentGap={PANEL_CONTENT_GAP}
-        scrollable
-        variant={PanelVariant.Utility}
-        className={styles.settingsPanel}
-        title={<Text variant={TextVariant.Reading}>{t("Design information")}</Text>}
-        aria-label={t("Design information")}
-      >
+    <>
+      <ToolGroup title={t("Design information")}>
         {text("title", "Title")}
         {text("creator", "Creator")}
         {text("town", "Island / town")}
         {snapshot.frameCount > MIN_SIZE && (
-          <Field label={t("Frame")}>
+          <ToolField label={t("Frame")}>
             <Combobox
               aria-label={t("Source frame")}
               pixelWidth={TEXT_WIDTH}
@@ -153,23 +79,11 @@ export function AnimalCrossingSettingsPanel({
               }))}
               onValueChange={(value) => manager.setFrame(Number(value))}
             />
-          </Field>
+          </ToolField>
         )}
-      </Panel>
-      <Panel
-        {...shadeLayout}
-        emphasized
-        tone={SurfaceTone.Accent}
-        contentLayout={ContentLayout.Column}
-        contentPadding={ContentPadding.Compact}
-        contentGap={PANEL_CONTENT_GAP}
-        scrollable
-        variant={PanelVariant.Utility}
-        className={styles.settingsPanel}
-        title={<Text variant={TextVariant.Reading}>{t("Image layout")}</Text>}
-        aria-label={t("Image layout")}
-      >
-        <Field label={t("Convert as")}>
+      </ToolGroup>
+      <ToolGroup title={t("Image layout")}>
+        <ToolField label={t("Convert as")}>
           <Combobox
             aria-label={t("Image layout")}
             pixelWidth={LAYOUT_WIDTH}
@@ -181,49 +95,22 @@ export function AnimalCrossingSettingsPanel({
             ]}
             onValueChange={(layout) => manager.setLayout(layout as AnimalCrossingLayout)}
           />
-        </Field>
-        {snapshot.layout === AnimalCrossingLayout.Tiles && (
+        </ToolField>
+        {tiles && (
           <>
-            <div className={styles.pair}>
-              {numeric("cellWidth", "Cell width")}
-              {numeric("cellHeight", "Cell height")}
-            </div>
-            <Button
-              slots={{}}
-              text={t("Offsets and spacing")}
-              aria-expanded={spacingOpen}
-              disabled={busy}
-              onClick={() => setSpacingOpen(!spacingOpen)}
-            />
-            {spacingOpen && (
-              <>
-                <div className={styles.pair}>
-                  {numeric("offsetX", "Start X")}
-                  {numeric("offsetY", "Start Y")}
-                </div>
-                <div className={styles.pair}>
-                  {numeric("spacingX", "Spacing X")}
-                  {numeric("spacingY", "Spacing Y")}
-                </div>
-              </>
-            )}
+            {numeric("cellWidth", "Cell width")}
+            {numeric("cellHeight", "Cell height")}
           </>
         )}
-        <Text variant={TextVariant.Reading} tone={TextTone.Muted} wrap>
-          {t(
-            snapshot.layout === AnimalCrossingLayout.Single
-              ? "Resize the whole image to one 32 × 32 design, with up to 15 colors and transparency."
-              : "Each design is 32 × 32 pixels with up to 15 colors and transparency.",
-          )}
-        </Text>
-        <Button
-          slots={{}}
-          className={styles.wideButton}
-          text={t("Generate QR codes")}
-          disabled={busy}
-          onClick={() => manager.generate()}
-        />
-      </Panel>
-    </aside>
+      </ToolGroup>
+      {tiles && (
+        <ToolGroup title={t("Offsets and spacing")}>
+          {numeric("offsetX", "Start X")}
+          {numeric("offsetY", "Start Y")}
+          {numeric("spacingX", "Spacing X")}
+          {numeric("spacingY", "Spacing Y")}
+        </ToolGroup>
+      )}
+    </>
   );
 }

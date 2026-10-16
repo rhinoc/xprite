@@ -25,14 +25,11 @@ import { CheckboxShape, CheckboxMode } from "$/components/checkbox/types";
 import { checkboxVariants } from "$/components/checkbox/variants";
 import type { ControlPlacement } from "$/components/control-flow/placement";
 import { Text, TextVariant } from "$/components/text";
-import { isCjk } from "$/components/text/text-runs";
 
 import styles from "$/components/checkbox/checkbox.module.css";
 
 const DEFAULT_CHECKBOX_LABEL_OFFSET = 28;
 const DEFAULT_CHECKBOX_ICON_OFFSET = 4;
-const CJK_CHECKBOX_TEXT_NUDGE_Y = -2;
-
 interface CheckboxContentProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   viewport?: SurfaceViewport;
   label: string;
@@ -113,9 +110,6 @@ export function Checkbox({
       ? pixelSize.height * RASTER_SCALE
       : (theme.dimensions.checkbox_height ?? themeFontHeight(font) + 8),
   };
-  const cjkTextNudgeY = [...displayLabel].some((char) => isCjk(char.codePointAt(0)!))
-    ? CJK_CHECKBOX_TEXT_NUDGE_Y
-    : 0;
   const displayAriaLabel = ariaLabel ? translateSource(ariaLabel) : displayLabel;
   const displayMnemonic = language === "en" ? mnemonicIndex : undefined;
   const button = useRef<HTMLButtonElement>(null);
@@ -149,8 +143,7 @@ export function Checkbox({
     centerThemePixel(bounds.y + 4, bounds.height - 8, themeFontHeight(font)) -
     bounds.y +
     textOffsetY +
-    (theme.dimensions.checkbox_text_offset_y ?? 0) +
-    cjkTextNudgeY;
+    (theme.dimensions.checkbox_text_offset_y ?? 0);
   const background = skin
     ? disabled
       ? undefined

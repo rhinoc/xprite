@@ -24,11 +24,16 @@ type PwaDetails = Readonly<Record<string, string | number | boolean | null>>;
 
 function withPwaDetails(reason: unknown, details: PwaDetails): Error {
   const error = reason instanceof Error ? reason : new Error(String(reason));
-  const annotated = error as Error & { diagnosticDetails?: Record<string, unknown> };
+  const annotated = error as Error & {
+    diagnosticDetails?: Record<string, unknown>;
+  };
   const previous = annotated.diagnosticDetails?.pwa;
   annotated.diagnosticDetails = {
     ...annotated.diagnosticDetails,
-    pwa: { ...(previous && typeof previous === "object" ? previous : {}), ...details },
+    pwa: {
+      ...(previous && typeof previous === "object" ? previous : {}),
+      ...details,
+    },
   };
   return error;
 }
@@ -259,6 +264,23 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
     options.onError?.(withPwaDetails(error, { ...context, ...details }));
   }
 
+  /**
+   * A status ping that stays unanswered (typically a suspended or busy worker) is expected
+   * environmental noise: keep the offline indicator Failed and log the details locally,
+   * but do not raise it as an exception.
+   */
+  function warnStatusTimeout(error: unknown, details: PwaDetails): void {
+    let context: PwaDetails = {};
+    try {
+      context = diagnosticContext();
+    } catch {
+      // A restricted browser API must not hide the original failure.
+    }
+    const pwa = (error as Error & { diagnosticDetails?: { pwa?: PwaDetails } }).diagnosticDetails
+      ?.pwa;
+    console.warn("pwa_status_timeout", { ...context, ...pwa, ...details });
+  }
+
   /** A lazy chunk failed twice: tell the user at once, then report with worker context. */
   async function chunkLoadFailed(error: unknown): Promise<void> {
     patch({ chunkFailures: state.chunkFailures + 1 });
@@ -408,7 +430,11 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
       if (!isCurrentWorker()) return;
       clearPreparationTimeout();
       patch({ offlineStatus: PwaOfflineStatus.Failed });
-      report(error, { attempt });
+      const pwa = (error as Error & { diagnosticDetails?: { pwa?: PwaDetails } }).diagnosticDetails
+        ?.pwa;
+      if (pwa?.stage === PwaDiagnosticStage.Status && pwa.failure === PwaFailure.Timeout)
+        warnStatusTimeout(error, { attempt });
+      else report(error, { attempt });
     }
   }
 

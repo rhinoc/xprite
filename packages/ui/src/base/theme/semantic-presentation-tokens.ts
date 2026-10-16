@@ -17,6 +17,8 @@ interface SemanticPresentationPalette {
   primaryFont: string;
   compactFont: string;
   cjkFont: string;
+  /** Theme-wide CJK vertical offset in CSS px at scale 2; see UiTypography.cjkTextOffsetY. */
+  cjkTextOffsetY?: number;
   ink: string;
   mutedInk: string;
   paper: string;
@@ -33,6 +35,7 @@ export function semanticPresentationTokens({
   primaryFont,
   compactFont,
   cjkFont,
+  cjkTextOffsetY = 0,
   ink,
   mutedInk,
   paper,
@@ -49,6 +52,8 @@ export function semanticPresentationTokens({
     "--ui-font-family": primaryFont,
     "--ui-font-family-compact": compactFont,
     "--ui-font-family-cjk": `${cjkFont}, monospace`,
+    // Omitted at 0: consumers fall back to 0px, and every static page inlines these tokens.
+    ...(cjkTextOffsetY ? { "--ui-cjk-text-offset-y": `${cjkTextOffsetY}px` } : {}),
     "--ui-color-ink": ink,
     "--ui-color-muted-ink": mutedInk,
     "--ui-color-paper": paper,

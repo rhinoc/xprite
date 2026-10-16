@@ -946,11 +946,12 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
         disabled: !actions.canOpenModal,
       },
       {
-        label: "Donate",
+        label: "Support",
         separator: true,
-        mnemonic: "D",
+        mnemonic: "S",
         mnemonicIndex: 0,
-        onSelect: actions.donate,
+        onSelect: actions.support,
+        disabled: !actions.canOpenModal,
       },
       {
         label: "About",

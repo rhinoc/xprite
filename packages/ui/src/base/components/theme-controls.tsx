@@ -481,28 +481,49 @@ interface EntryTextPositions {
 
 /** Align painted caret and selection geometry with the browser-rendered entry text. */
 function measureRenderedEntryOffset(container: HTMLSpanElement, offset: number, fallback: number) {
-  const textNode = container.querySelector<HTMLElement>('[data-font="primary"]')?.firstChild;
-  if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return fallback;
-  const length = textNode.textContent?.length ?? 0;
+  const host = container.querySelector<HTMLElement>('[data-font="primary"]');
+  if (!host) return fallback;
+  // CJK runs sit in their own offset spans, so the entry text can span several text nodes.
+  // Only the entry's own text: direct children and `data-script-run` CJK spans. Bitmap fonts
+  // wrap runs in unmarked spans and keep using the metric fallback, as before.
+  const walker = document.createTreeWalker(host, NodeFilter.SHOW_TEXT, {
+    acceptNode: (node) =>
+      node.parentElement === host || node.parentElement?.hasAttribute("data-script-run")
+        ? NodeFilter.FILTER_ACCEPT
+        : NodeFilter.FILTER_REJECT,
+  });
+  const nodes: Text[] = [];
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) nodes.push(node as Text);
+  const length = nodes.reduce((sum, node) => sum + node.data.length, 0);
+  if (!length) return fallback;
+  const locate = (index: number, preferEnd: boolean): [Text, number] => {
+    let remaining = index;
+    for (const node of nodes) {
+      const size = node.data.length;
+      if (remaining < size || (preferEnd && remaining === size)) return [node, remaining];
+      remaining -= size;
+    }
+    const last = nodes[nodes.length - 1];
+    return [last, last.data.length];
+  };
   const position = Math.max(0, Math.min(length, offset));
   const range = document.createRange();
-  range.setStart(textNode, position);
+  const [startNode, startOffset] = locate(position, false);
+  range.setStart(startNode, startOffset);
   range.collapse(true);
   let rect = rangeRect(container, range);
   if (!Number.isFinite(rect.left) || rect.height === 0) {
-    if (position === length && length > 0) {
-      range.setStart(textNode, length - 1);
-      range.setEnd(textNode, length);
+    if (position === length) {
+      const [endNode, endOffset] = locate(length, true);
+      range.setStart(endNode, Math.max(0, endOffset - 1));
+      range.setEnd(endNode, endOffset);
       rect = rangeRect(container, range);
       return Number.isFinite(rect.right) ? rect.right : fallback;
     }
-    if (length > 0) {
-      range.setStart(textNode, position);
-      range.setEnd(textNode, Math.min(length, position + 1));
-      rect = rangeRect(container, range);
-      return Number.isFinite(rect.left) ? rect.left : fallback;
-    }
-    return fallback;
+    range.setStart(startNode, startOffset);
+    range.setEnd(startNode, Math.min(startNode.data.length, startOffset + 1));
+    rect = rangeRect(container, range);
+    return Number.isFinite(rect.left) ? rect.left : fallback;
   }
   return rect.left;
 }
@@ -593,7 +614,11 @@ export function Input({
     draft || (showingPlaceholder && props.placeholder ? translateSource(props.placeholder) : "");
   const skipBlurCommit = React.useRef(false);
   const composing = React.useRef(false);
-  const [selection, setSelection] = React.useState({ start: 0, end: 0, caret: 0 });
+  const [selection, setSelection] = React.useState({
+    start: 0,
+    end: 0,
+    caret: 0,
+  });
   const [caretVisible, setCaretVisible] = React.useState(true);
   const textLayer = React.useRef<HTMLSpanElement>(null);
   React.useEffect(() => {
@@ -704,7 +729,12 @@ export function Input({
       >
         <span
           ref={textLayer}
-          style={{ position: "absolute", inset: 4, overflow: "hidden", pointerEvents: "none" }}
+          style={{
+            position: "absolute",
+            inset: 4,
+            overflow: "hidden",
+            pointerEvents: "none",
+          }}
         >
           <Text
             variant={TextVariant.PositionedPixel}

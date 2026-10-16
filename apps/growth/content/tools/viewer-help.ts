@@ -20,7 +20,7 @@ export const VIEWER_EXPORT_HELP = {
         steps: [
           "点时间轴上的帧，或用左右方向键切换到需要的帧。",
           "点图层旁的眼睛图标隐藏不需要的图层；隐藏不透明的背景层后，可导出透明背景。",
-          "点「文件」→「导出当前帧（.png）」。",
+          "点「导出…」，选择「导出当前帧（.png）」。",
         ],
         notes:
           "PNG 只包含当前帧的可见图层，保留半透明像素，尺寸和原画布一致。文件名为 工程名-frame-帧号.png，帧号从 1 开始。",
@@ -31,14 +31,14 @@ export const VIEWER_EXPORT_HELP = {
         steps: [
           "点时间轴上的标签，或在「动画范围」中选择标签；选「所有帧」导出整段动画。没有标签时，默认导出全部帧。",
           "点图层旁的眼睛图标隐藏不需要的图层。",
-          "点「文件」→「导出动画（.gif）」。只有一帧的工程请导出 PNG。",
+          "点「导出…」，选择「导出动画（.gif）」。只有一帧的工程请导出 PNG。",
         ],
         notes:
           "GIF 按原画布尺寸导出，沿用标签的播放方向和重复次数。所有帧共用最多 256 色，半透明像素会变成不透明；帧时长以 10 毫秒为单位，不足的部分舍去，例如 25 毫秒变为 20 毫秒。动画过大时，选择更短的标签导出。",
       },
     ],
     closing:
-      "PNG 和 GIF 不保留工程的图层与标签。需要修改或放大作品时，点「文件」→「在 Xprite 中编辑」，编辑器会打开原始工程。",
+      "PNG 和 GIF 不保留工程的图层与标签。需要修改或放大作品时，点「继续编辑」，编辑器会把原始工程作为新项目打开。",
   },
   [PublicLanguage.English]: {
     title: "Export PNG and GIF",
@@ -51,7 +51,7 @@ export const VIEWER_EXPORT_HELP = {
         steps: [
           "Click a frame in the timeline, or use the Left and Right arrow keys to select it.",
           "Click the eye beside a layer to hide it. Hide an opaque background layer to export a transparent background.",
-          "Choose File → Export current frame (.png).",
+          "Click Export… and choose Export current frame (.png).",
         ],
         notes:
           "The PNG merges the current frame’s visible layers, keeps semi-transparent pixels, and uses the original canvas size. Files are named project-frame-N.png, with frame numbers starting at 1.",
@@ -62,14 +62,14 @@ export const VIEWER_EXPORT_HELP = {
         steps: [
           "Click a timeline tag or select one under Animation range. Choose All frames for the whole animation. Projects without tags export every frame.",
           "Click the eye beside a layer to hide it from the export.",
-          "Choose File → Export animation (.gif). For a single-frame project, export PNG instead.",
+          "Click Export… and choose Export animation (.gif). For a single-frame project, export PNG instead.",
         ],
         notes:
           "The GIF uses the original canvas size and follows the tag’s direction and repeat count. Frames share up to 256 colors; semi-transparent pixels become opaque. Frame durations use 10 ms steps, dropping the remainder: 25 ms becomes 20 ms. If an animation is too large, export a shorter tag.",
       },
     ],
     closing:
-      "PNG and GIF do not keep project layers or tags. To edit or resize your work, choose File → Edit in Xprite to open the original project in the editor.",
+      "PNG and GIF do not keep project layers or tags. To edit or resize your work, click Edit more to open the original project in the editor as a new project.",
   },
   [PublicLanguage.Japanese]: {
     title: "PNG と GIF をエクスポート",
@@ -82,7 +82,7 @@ export const VIEWER_EXPORT_HELP = {
         steps: [
           "タイムラインのフレームをクリックするか、左右の矢印キーで目的のフレームを選びます。",
           "レイヤー横の目のアイコンをクリックすると、そのレイヤーを非表示にできます。不透明な背景レイヤーを非表示にすると、背景を透明にしてエクスポートできます。",
-          "「ファイル」→「現在のフレームをエクスポート（.png）」を選びます。",
+          "「エクスポート…」をクリックし、「現在のフレームをエクスポート（.png）」を選びます。",
         ],
         notes:
           "PNG は現在のフレームの表示中レイヤーを結合したもので、半透明のピクセルを保持し、元のキャンバスサイズで出力されます。ファイル名は「プロジェクト名-frame-番号.png」で、フレーム番号は 1 から始まります。",
@@ -93,14 +93,14 @@ export const VIEWER_EXPORT_HELP = {
         steps: [
           "タイムラインのタグをクリックするか、「アニメーションの範囲」でタグを選びます。アニメーション全体は「すべてのフレーム」を選びます。タグのないプロジェクトはすべてのフレームをエクスポートします。",
           "レイヤー横の目のアイコンをクリックすると、そのレイヤーをエクスポートから外せます。",
-          "「ファイル」→「アニメーションをエクスポート（.gif）」を選びます。1 フレームだけのプロジェクトは PNG でエクスポートしてください。",
+          "「エクスポート…」をクリックし、「アニメーションをエクスポート（.gif）」を選びます。1 フレームだけのプロジェクトは PNG でエクスポートしてください。",
         ],
         notes:
           "GIF は元のキャンバスサイズで出力され、タグの再生方向と繰り返し回数に従います。全フレームで最大 256 色を共有し、半透明のピクセルは不透明になります。フレームの表示時間は 10 ミリ秒単位で、端数は切り捨てられます（25 ミリ秒は 20 ミリ秒）。アニメーションが大きすぎる場合は、短いタグを選んでエクスポートしてください。",
       },
     ],
     closing:
-      "PNG と GIF にはプロジェクトのレイヤーやタグは残りません。作品を修正したり拡大したりするには、「ファイル」→「Xprite で編集」を選ぶと、エディターで元のプロジェクトが開きます。",
+      "PNG と GIF にはプロジェクトのレイヤーやタグは残りません。作品を修正したり拡大したりするには、「さらに編集」をクリックすると、エディターで元のプロジェクトが開きます。",
   },
   [PublicLanguage.Korean]: {
     title: "PNG와 GIF 내보내기",

@@ -48,7 +48,6 @@ export interface EditorActions {
   about: () => void;
   support: () => void;
   feedback: () => void;
-  donate: () => void;
   exit: () => void;
   loadRecentFiles?: () => void;
   canClearRecentFiles: boolean;

@@ -1,14 +1,16 @@
 .preview {
   position: absolute;
-  overflow: auto;
-  display: flex;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
   background: var(--ui-color-workspace, #60535e);
 }
 .chart {
-  position: relative;
-  flex: none;
-  margin: auto;
+  position: absolute;
+  left: 0;
+  top: 0;
   cursor: var(--ui-cursor-hand, pointer);
+  will-change: transform;
 }
 .chart canvas {
   display: block;

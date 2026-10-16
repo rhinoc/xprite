@@ -32,7 +32,7 @@ const TOOL_TEXT_RULES: Readonly<Partial<Record<PublicLanguage, ToolTextRules>>> 
       [/^(?:Select )?[Rr]ow (\d+), column (\d+)$/, "第 $1 行，第 $2 列"],
       [/^Download all (\d+) designs$/, "下载全部 $1 个设计"],
       [/^(\d+) applications$/, "$1 个应用"],
-      [/tiles · select a tile for Preview and QR$/, "个图块 · 选择图块以预览和生成二维码"],
+      [/tiles · select a tile for Preview and QR$/, "个图块 · 选择图块以预览二维码"],
       [/^Tag /, "标签 "],
       [/, frame (\d+)$/, "，第 $1 帧"],
       [/^Frame (\d+)$/, "第 $1 帧"],

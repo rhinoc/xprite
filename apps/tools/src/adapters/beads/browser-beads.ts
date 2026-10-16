@@ -1,3 +1,4 @@
+import { openPixelsInEditor } from "$/adapters/editor/open-in-editor";
 import { handOffToolOutput } from "$/adapters/preview/browser-download";
 import { readToolWheel } from "$/adapters/preview/browser-preview";
 import { decodeViewerFile } from "$/adapters/viewer/aseprite-file";
@@ -39,6 +40,7 @@ export function createBrowserBeadToolPort(): BeadToolPort {
         throw new BeadToolError(ToolFailureCategory.ExampleFetch, "beads.error.example");
       return new File([await response.blob()], "hello-frame-01.png");
     },
+    edit: openPixelsInEditor,
     async savePng(grid, brand, showCodes, boardSize, name, labels) {
       await handOffToolOutput(
         async () =>

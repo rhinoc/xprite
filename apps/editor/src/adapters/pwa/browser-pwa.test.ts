@@ -47,7 +47,9 @@ function harness() {
     controller: worker,
     register: vi.fn(async () => registration),
   });
-  const browserDocument = Object.assign(new EventTarget(), { visibilityState: "visible" });
+  const browserDocument = Object.assign(new EventTarget(), {
+    visibilityState: "visible",
+  });
   vi.stubGlobal("document", browserDocument);
   vi.stubGlobal("navigator", {
     serviceWorker,
@@ -63,7 +65,9 @@ function harness() {
       matchMedia: () => Object.assign(new EventTarget(), { matches: false }),
     }),
   );
-  const errors: (Error & { diagnosticDetails?: { pwa?: Record<string, unknown> } })[] = [];
+  const errors: (Error & {
+    diagnosticDetails?: { pwa?: Record<string, unknown> };
+  })[] = [];
   const port = createBrowserPwaPort({
     enabled: true,
     baseUrl: "/",
@@ -85,7 +89,11 @@ describe("PWA timeout recovery", () => {
     const { port, worker, errors } = harness();
     worker.postMessage.mockImplementationOnce(() => {});
     worker.postMessage.mockImplementation((_message, transfer) =>
-      transfer[0].postMessage({ type: STATUS_MESSAGE, ready: true, version: "release-123" }),
+      transfer[0].postMessage({
+        type: STATUS_MESSAGE,
+        ready: true,
+        version: "release-123",
+      }),
     );
     port.start();
     await vi.advanceTimersByTimeAsync(STATUS_TIMEOUT_MS);
@@ -94,24 +102,30 @@ describe("PWA timeout recovery", () => {
     assert.equal(errors.length, 0);
   });
 
-  it("bounds retries, reports the final phase and retries when the user returns", async () => {
+  it("bounds retries, logs the final status timeout without an exception and retries when the user returns", async () => {
     const { port, worker, errors, browserDocument } = harness();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     port.start();
     await vi.advanceTimersByTimeAsync(STATUS_TIMEOUT_MS * 2);
     assert.equal(worker.postMessage.mock.calls.length, 2);
     assert.equal(port.getState().offlineStatus, PwaOfflineStatus.Failed);
-    assert.equal(errors.length, 1);
-    assert.equal(errors[0].diagnosticDetails?.pwa?.stage, "status");
-    assert.equal(errors[0].diagnosticDetails?.pwa?.failure, "timeout");
-    assert.equal(errors[0].diagnosticDetails?.pwa?.attempt, 2);
-    assert.equal(errors[0].diagnosticDetails?.pwa?.worker_state, "activated");
+    assert.equal(errors.length, 0, "a status-ping timeout is not an exception");
+    assert.equal(warn.mock.calls.length, 1);
+    assert.equal(warn.mock.calls[0][0], "pwa_status_timeout");
+    const logged = warn.mock.calls[0][1] as Record<string, unknown>;
+    assert.equal(logged.stage, "status");
+    assert.equal(logged.failure, "timeout");
+    assert.equal(logged.attempt, 2);
+    assert.equal(logged.worker_state, "activated");
+    assert.equal(logged.timeout_ms, STATUS_TIMEOUT_MS);
+    assert.equal(typeof logged.elapsed_ms, "number");
     worker.postMessage.mockImplementation((_message, transfer) =>
       transfer[0].postMessage({ type: STATUS_MESSAGE, ready: true }),
     );
     browserDocument.dispatchEvent(new Event("visibilitychange"));
     await vi.advanceTimersByTimeAsync(0);
     assert.equal(port.getState().offlineStatus, PwaOfflineStatus.Ready);
-    assert.equal(errors.length, 1);
+    assert.equal(errors.length, 0);
   });
 
   it("does not retry or report a timeout from a stopped session", async () => {
@@ -127,7 +141,11 @@ describe("PWA timeout recovery", () => {
   it("reports cache preparation timeout without a second activation timeout", async () => {
     const { port, worker, errors } = harness();
     worker.postMessage.mockImplementationOnce((_message, transfer) =>
-      transfer[0].postMessage({ type: STATUS_MESSAGE, ready: false, version: "release-123" }),
+      transfer[0].postMessage({
+        type: STATUS_MESSAGE,
+        ready: false,
+        version: "release-123",
+      }),
     );
     port.start();
     await vi.advanceTimersByTimeAsync(120_000);
@@ -170,8 +188,16 @@ describe("stale chunk reporting", () => {
     Object.assign(worker, { scriptURL: "https://xprite.test/sw.js?x=1" });
     worker.postMessage.mockImplementation((message: { type: string }, transfer) =>
       message.type === "XPRITE_OFFLINE_HAS_RESOURCE"
-        ? transfer[0].postMessage({ type: message.type, present: false, version: "release-9" })
-        : transfer[0].postMessage({ type: STATUS_MESSAGE, ready: true, version: "release-9" }),
+        ? transfer[0].postMessage({
+            type: message.type,
+            present: false,
+            version: "release-9",
+          })
+        : transfer[0].postMessage({
+            type: STATUS_MESSAGE,
+            ready: true,
+            version: "release-9",
+          }),
     );
     port.start();
     await vi.advanceTimersByTimeAsync(0);

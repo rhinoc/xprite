@@ -191,13 +191,30 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
     if (!source) return Promise.reject(new Error("Image source is no longer available"));
     if ("loadProject" in source) return source.loadProject().then((project) => project.image);
     if (!(source instanceof File)) return decodeAsset(source.url);
-    return decodeImage(source).catch((reason: unknown) => {
+    return this.decodeFile(source);
+  };
+  private async decodeFile(source: File): Promise<PixelBuffer> {
+    try {
+      // Materialise the bytes first: a stale or unreadable Blob fails here with a clear cause.
+      const bytes = await source.arrayBuffer();
+      if (!bytes.byteLength) throw new Error("empty file");
+      return await decodeImage(new Blob([bytes], { type: source.type }));
+    } catch (reason) {
       if (reason instanceof ImageDimensionError) throw reason;
       throw Object.assign(new Error(tUi("ui.file.import.invalid", { name: source.name })), {
         cause: reason,
+        diagnosticDetails: {
+          source: {
+            kind: "browser-file",
+            name: source.name,
+            size: source.size,
+            mimeType: source.type,
+          },
+          causeMessage: reason instanceof Error ? reason.message : String(reason),
+        },
       });
-    });
-  };
+    }
+  }
   decodeProject = async (token: string): Promise<SessionProject | null> => {
     const source = this.sources.get(token);
     if (!source) throw new Error("Image source is no longer available");
@@ -231,7 +248,9 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
     } catch (reason) {
       this.sourceChecksums.delete(token);
       if (reason instanceof Error) {
-        const annotated = reason as Error & { diagnosticDetails?: Record<string, unknown> };
+        const annotated = reason as Error & {
+          diagnosticDetails?: Record<string, unknown>;
+        };
         annotated.diagnosticDetails = {
           ...annotated.diagnosticDetails,
           source:
@@ -243,7 +262,11 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
                   mimeType: source.type,
                   lastModified: source.lastModified,
                 }
-              : { kind: "browser-asset-url", name: source.name, url: source.url },
+              : {
+                  kind: "browser-asset-url",
+                  name: source.name,
+                  url: source.url,
+                },
         };
       }
       throw reason;
@@ -298,7 +321,9 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
       mode: intent === SessionSaveIntent.Export ? SavePngMode.Download : SavePngMode.Auto,
       ...(existing ? { fileHandle: existing } : {}),
       ...(documentKey && intent !== SessionSaveIntent.Export
-        ? { onFileHandleSaved: (handle) => this.rememberDocumentHandle(documentKey, handle) }
+        ? {
+            onFileHandleSaved: (handle) => this.rememberDocumentHandle(documentKey, handle),
+          }
         : {}),
     });
     return writing.then(async (result) => {
@@ -365,7 +390,10 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
               description: tUi("ui.aseprite.sprite"),
               accept: { "application/x-aseprite": [".ase", ".aseprite"] },
             },
-            { description: tUi("ui.png.image"), accept: { "image/png": [".png"] } },
+            {
+              description: tUi("ui.png.image"),
+              accept: { "image/png": [".png"] },
+            },
           ],
         };
         const selection = pickSaveFile(pickerOptions);
@@ -398,7 +426,9 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
           ...(existing ? { fileHandlePermissionActivation } : {}),
           ...(saveFilePicker ? { saveFilePicker } : {}),
           ...(documentKey && intent !== SessionSaveIntent.Export
-            ? { onFileHandleSaved: (handle) => this.rememberDocumentHandle(documentKey, handle) }
+            ? {
+                onFileHandleSaved: (handle) => this.rememberDocumentHandle(documentKey, handle),
+              }
             : {}),
         }),
       )

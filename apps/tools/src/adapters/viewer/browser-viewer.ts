@@ -1,8 +1,8 @@
+import { openInEditor } from "$/adapters/editor/open-in-editor";
 import { browserToolAppearance } from "$/adapters/preview/browser-appearance";
 import { handOffToolOutput } from "$/adapters/preview/browser-download";
 import { readToolWheel } from "$/adapters/preview/browser-preview";
 import { decodeViewerFile } from "$/adapters/viewer/aseprite-file";
-import { transferViewerFile } from "$/adapters/viewer/editor-transfer";
 import type { ViewerPort } from "$/managers/ports/viewer";
 import { encodePngBlob } from "@xprite/bedrock/browser/images";
 import exampleUrl from "@xprite/site-assets/showcase/ipad/hello/hello.aseprite?url";
@@ -29,8 +29,7 @@ export function createBrowserViewerPort(editorSearch: string): ViewerPort {
       );
     },
     async edit(file) {
-      const token = await transferViewerFile(file);
-      window.location.assign(`/editor${editorSearch}#viewer-import=${token}`);
+      await openInEditor(file, { search: editorSearch });
     },
   };
 }

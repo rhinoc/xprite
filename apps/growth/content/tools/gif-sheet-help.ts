@@ -20,7 +20,7 @@ export const GIF_SHEET_HELP = {
         steps: [
           "在「精灵表布局」的「排列方式」中选择「按行排列」「按列排列」「水平」或「垂直」。",
           "按行排列时用「列数」设置每行的帧数，按列排列时用「行数」设置每列的帧数。默认值为帧数的平方根，向上取整。",
-          "按需设置「边缘留白」「帧间距」和「尺寸为 2 的幂」，然后点「文件」→「导出精灵表（.png）」。",
+          "按需设置「边缘留白」「帧间距」和「尺寸为 2 的幂」，然后点「导出…」，选择「导出精灵表（.png）」。",
         ],
         notes:
           "帧保持 GIF 的画布尺寸，不缩放、不裁剪。「边缘留白」和「帧间距」可设为 0 到 4096 像素；「尺寸为 2 的幂」只向上补齐精灵表的宽和高。精灵表每边不超过 32768 像素，总计不超过 6400 万像素。文件名与 GIF 相同，扩展名为 .png。",
@@ -30,8 +30,8 @@ export const GIF_SHEET_HELP = {
         title: "导出 JSON 帧数据",
         steps: [
           "按「导出 PNG 精灵表」中的步骤设置布局。",
-          "点「文件」→「导出帧数据（.json）」。",
-          "点「文件」→「导出精灵表（.png）」，导出同一布局的精灵表。",
+          "点「导出…」，选择「导出帧数据（.json）」。",
+          "点「导出…」，选择「导出精灵表（.png）」，导出同一布局的精灵表。",
         ],
         notes:
           "JSON 对应当前布局，修改布局后 PNG 和 JSON 需要一起重新导出。frames 数组按播放顺序列出各帧：frame 是帧在精灵表中的 x、y、w、h，duration 是 GIF 的帧时长，单位为毫秒。帧名为 GIF 名-帧号.png，帧号从 0 开始。meta 记录精灵表的文件名和尺寸，不包含 GIF 的循环次数。文件名与 GIF 相同，扩展名为 .json。",
@@ -51,7 +51,7 @@ export const GIF_SHEET_HELP = {
         steps: [
           "Under Sheet layout, choose a Layout: By rows, By columns, Horizontal or Vertical.",
           "For By rows, set Columns to the number of frames in each row; for By columns, set Rows to the number of frames in each column. The default is the square root of the frame count, rounded up.",
-          "Set Border padding, Frame spacing and Power of two as needed, then choose File → Export sprite sheet (.png).",
+          "Set Border padding, Frame spacing and Power of two as needed, then click Export… and choose Export sprite sheet (.png).",
         ],
         notes:
           "Frames keep the GIF’s canvas size and are not scaled or trimmed. Border padding and Frame spacing accept 0 to 4096 px; Power of two only rounds the sheet’s width and height up. Each side of the sheet can be up to 32,768 px, with at most 64 million pixels in total. The file uses the GIF’s name with a .png extension.",
@@ -61,8 +61,8 @@ export const GIF_SHEET_HELP = {
         title: "Export JSON frame data",
         steps: [
           "Set the layout as described in Export a PNG sprite sheet.",
-          "Choose File → Export frame data (.json).",
-          "Choose File → Export sprite sheet (.png) to export the sheet with the same layout.",
+          "Click Export… and choose Export frame data (.json).",
+          "Click Export… and choose Export sprite sheet (.png) to export the sheet with the same layout.",
         ],
         notes:
           "The JSON matches the current layout; after changing the layout, export the PNG and JSON again together. The frames array lists frames in playback order: frame gives each frame’s x, y, w and h on the sheet, and duration is the GIF frame duration in milliseconds. Frames are named name-N.png, with N starting at 0. meta records the sheet’s file name and size but not the GIF’s loop count. The file uses the GIF’s name with a .json extension.",
@@ -82,7 +82,7 @@ export const GIF_SHEET_HELP = {
         steps: [
           "「シートのレイアウト」で「レイアウト」を「行ごと」「列ごと」「横一列」「縦一列」から選びます。",
           "「行ごと」では「列数」に 1 行あたりのフレーム数を、「列ごと」では「行数」に 1 列あたりのフレーム数を設定します。初期値はフレーム数の平方根を切り上げた値です。",
-          "必要に応じて「外周の余白」「フレームの間隔」「2 の累乗」を設定し、「ファイル」→「スプライトシートをエクスポート（.png）」を選びます。",
+          "必要に応じて「外周の余白」「フレームの間隔」「2 の累乗」を設定し、「エクスポート…」をクリックし、「スプライトシートをエクスポート（.png）」を選びます。",
         ],
         notes:
           "フレームは GIF のキャンバスサイズのままで、拡大縮小やトリミングはされません。「外周の余白」と「フレームの間隔」は 0〜4096 px で、「2 の累乗」はシートの幅と高さを切り上げるだけです。シートの各辺は最大 32,768 px、合計 6,400 万ピクセルまでです。ファイル名は GIF の名前に拡張子 .png を付けたものです。",
@@ -92,8 +92,8 @@ export const GIF_SHEET_HELP = {
         title: "JSON フレームデータをエクスポート",
         steps: [
           "「PNG スプライトシートをエクスポート」と同じ手順でレイアウトを設定します。",
-          "「ファイル」→「フレームデータをエクスポート（.json）」を選びます。",
-          "「ファイル」→「スプライトシートをエクスポート（.png）」を選ぶと、同じレイアウトのシートをエクスポートできます。",
+          "「エクスポート…」をクリックし、「フレームデータをエクスポート（.json）」を選びます。",
+          "「エクスポート…」をクリックし、「スプライトシートをエクスポート（.png）」を選ぶと、同じレイアウトのシートをエクスポートできます。",
         ],
         notes:
           "JSON は現在のレイアウトに対応しています。レイアウトを変えたら、PNG と JSON を一緒にエクスポートし直してください。frames 配列には再生順にフレームが並び、frame は各フレームのシート上の x・y・w・h、duration は GIF のフレーム表示時間（ミリ秒）です。フレーム名は name-N.png で、N は 0 から始まります。meta にはシートのファイル名とサイズが記録されますが、GIF のループ回数は含まれません。ファイル名は GIF の名前に拡張子 .json を付けたものです。",

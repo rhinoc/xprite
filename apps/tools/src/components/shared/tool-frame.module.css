@@ -80,12 +80,6 @@
   display: flex;
   flex-direction: column;
 }
-.previewToolbar {
-  flex: 0 0 auto;
-}
-.previewDimensions {
-  margin-left: auto;
-}
 .emptyStage {
   flex: 1;
   min-height: 0;
@@ -466,6 +460,11 @@
   .desktop :global([data-ui-panel-variant] > [data-slot="panel-body"]) {
     overflow: auto;
     overscroll-behavior: contain;
+  }
+  /* Canvas preview windows pan/zoom in-place; body scroll steals those gestures. */
+  .desktop :global([data-ui-panel-variant][data-tool-canvas-preview] > [data-slot="panel-body"]) {
+    overflow: hidden !important;
+    overscroll-behavior: none;
   }
   .emptyContent {
     display: flex;
