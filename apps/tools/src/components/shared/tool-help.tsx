@@ -1,3 +1,4 @@
+import { useFilesManager, useFilesSnapshot } from "$/components/files/files-context";
 import { useToolWindowShade } from "$/components/shared/window-shade";
 import { useToolLanguage } from "$/managers/locale/tool-language";
 import type { PublicLanguage } from "@xprite/growth-content/language";
@@ -27,10 +28,14 @@ export function ToolHelp({
 }) {
   const { language } = useToolLanguage();
   const help = content[language];
+  const files = useFilesManager();
+  const filesState = useFilesSnapshot(files);
   const shade = useToolWindowShade("help", {
     collapseWhenCramped: true,
     collapseWhenReady: true,
+    collapseWhenFilesOpen: true,
     ready,
+    filesOpen: filesState?.open ?? false,
   });
   return (
     <Panel

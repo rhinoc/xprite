@@ -35,7 +35,9 @@ export function useToolWindowShade(
     collapseWhenCramped = false,
     collapseOnPhone = false,
     collapseWhenReady = false,
+    collapseWhenFilesOpen = false,
     ready = false,
+    filesOpen = false,
   }: {
     defaultCollapsed?: boolean;
     collapseWhenCramped?: boolean;
@@ -43,11 +45,15 @@ export function useToolWindowShade(
     collapseOnPhone?: boolean;
     /** On phones, roll up once the tool has a preview/result so work stays visible. */
     collapseWhenReady?: boolean;
+    /** On phones, roll up while the Files Finder is open so its title bar stays usable. */
+    collapseWhenFilesOpen?: boolean;
     ready?: boolean;
+    filesOpen?: boolean;
   } = {},
 ) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const wasReady = useRef(false);
+  const wasFilesOpen = useRef(false);
   useEffect(() => {
     const tool = currentTool();
     if (!tool) return;
@@ -85,6 +91,25 @@ export function useToolWindowShade(
     if (tool) writeWindowShade(sessionStore(), tool, name, true);
     setCollapsed(true);
   }, [collapseWhenReady, ready, name]);
+  useEffect(() => {
+    if (!collapseWhenFilesOpen) return;
+    const phone = globalThis.matchMedia?.(PHONE_SCREEN_QUERY).matches ?? false;
+    if (!phone) return;
+    if (!filesOpen) {
+      const hadFiles = wasFilesOpen.current;
+      wasFilesOpen.current = false;
+      if (!hadFiles || ready) return;
+      const tool = currentTool();
+      if (tool) writeWindowShade(sessionStore(), tool, name, false);
+      setCollapsed(false);
+      return;
+    }
+    if (wasFilesOpen.current) return;
+    wasFilesOpen.current = true;
+    const tool = currentTool();
+    if (tool) writeWindowShade(sessionStore(), tool, name, true);
+    setCollapsed(true);
+  }, [collapseWhenFilesOpen, filesOpen, ready, name]);
   const onCollapsedChange = (next: boolean) => {
     const tool = currentTool();
     if (tool) writeWindowShade(sessionStore(), tool, name, next);
