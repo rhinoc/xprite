@@ -25,12 +25,18 @@ export function telemetryException(
   record: DiagnosticRecord,
   documentNames: readonly string[],
 ): TelemetryException {
-  const message = scrub(record.message, documentNames).slice(0, MAX_EXCEPTION_MESSAGE_LENGTH);
+  const cause = record.details?.causeMessage;
+  const message = scrub(
+    typeof cause === "string" && cause ? `${record.message} (cause: ${cause})` : record.message,
+    documentNames,
+  ).slice(0, MAX_EXCEPTION_MESSAGE_LENGTH);
   return {
     name: /^[A-Za-z][A-Za-z0-9]*Error$|^Error$/.test(record.name) ? record.name : "Error",
     message,
     ...(record.stack
-      ? { stack: scrub(record.stack, documentNames).slice(0, MAX_EXCEPTION_STACK_LENGTH) }
+      ? {
+          stack: scrub(record.stack, documentNames).slice(0, MAX_EXCEPTION_STACK_LENGTH),
+        }
       : {}),
   };
 }
