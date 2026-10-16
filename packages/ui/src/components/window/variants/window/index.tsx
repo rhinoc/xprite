@@ -54,6 +54,8 @@ export interface WindowVariantProps {
   closeLabel?: string;
   onRootRef?: (node: HTMLDivElement | null) => void;
   constrainToViewport?: boolean;
+  /** Side margin when constrained; omit to flush (export dialogs). Files passes metrics.viewportEdgeInset. */
+  viewportEdgeInset?: number;
   contentLayout?: OverlayContentLayout;
   children?: ReactNode | ((context: WindowVariantContext) => ReactNode);
   titlebarActions?: ReactNode | ((context: WindowVariantContext) => ReactNode);
@@ -91,6 +93,7 @@ export function WindowVariant({
   closeLabel,
   onRootRef,
   constrainToViewport = false,
+  viewportEdgeInset = 0,
   contentLayout = OverlayContentLayout.Positioned,
   children,
   titlebarActions,
@@ -123,6 +126,9 @@ export function WindowVariant({
   );
   const availableWidth = available.width;
   const availableHeight = available.height;
+  const edgeInset = constrainToViewport ? viewportEdgeInset : 0;
+  const usableWidth = Math.max(0, availableWidth - edgeInset * 2);
+  const usableHeight = Math.max(0, availableHeight - edgeInset * 2);
   const availableRight = available.x + availableWidth;
   const availableBottom = available.y + availableHeight;
   const [moved, setMoved] = useState(false);
@@ -134,29 +140,33 @@ export function WindowVariant({
   const requested = controlledBounds ?? localBounds;
   const contentWidth = Math.max(MINIMUM_WIDTH, minSize.width, requested.width);
   const contentHeight = Math.max(MINIMUM_HEIGHT, minSize.height, requested.height);
-  const width = Math.min(constrainToViewport ? availableWidth : Infinity, contentWidth);
-  const height = Math.min(constrainToViewport ? availableHeight : Infinity, contentHeight);
+  const width = Math.min(constrainToViewport ? usableWidth : Infinity, contentWidth);
+  const height = Math.min(constrainToViewport ? usableHeight : Infinity, contentHeight);
   const bounds = { ...requested, width, height };
   if (centerOnOpen && !controlledBounds && !moved) {
-    bounds.x = available.x + (Math.floor(availableWidth / 4) - Math.floor(contentWidth / 4)) * 2;
-    bounds.y = available.y + (Math.floor(availableHeight / 4) - Math.floor(contentHeight / 4)) * 2;
+    bounds.x =
+      available.x + edgeInset + (Math.floor(usableWidth / 4) - Math.floor(contentWidth / 4)) * 2;
+    bounds.y =
+      available.y + edgeInset + (Math.floor(usableHeight / 4) - Math.floor(contentHeight / 4)) * 2;
   }
   bounds.x = Math.round(
     constrainToViewport
-      ? Math.max(available.x, Math.min(availableRight - width, bounds.x))
+      ? Math.max(available.x + edgeInset, Math.min(availableRight - edgeInset - width, bounds.x))
       : bounds.x,
   );
   bounds.y = Math.round(
     constrainToViewport
-      ? Math.max(available.y, Math.min(availableBottom - height, bounds.y))
+      ? Math.max(available.y + edgeInset, Math.min(availableBottom - edgeInset - height, bounds.y))
       : bounds.y,
   );
 
+  // Use the clamped window size so viewport insets / constraints do not leave
+  // the client wider than the painted chrome (which forces horizontal scroll).
   const clientBounds = {
     x: bounds.x + WINDOW_BORDER,
     y: bounds.y + WINDOW_TITLEBAR,
-    width: Math.max(0, contentWidth - WINDOW_BORDER * 2),
-    height: Math.max(0, contentHeight - WINDOW_TITLEBAR - WINDOW_BORDER),
+    width: Math.max(0, width - WINDOW_BORDER * 2),
+    height: Math.max(0, height - WINDOW_TITLEBAR - WINDOW_BORDER),
   };
   const context = { bounds, clientBounds, viewport };
   const sx = viewport.width / viewport.sceneWidth;
@@ -178,6 +188,7 @@ export function WindowVariant({
     minimumHeight: MINIMUM_HEIGHT,
     minSize,
     border: WINDOW_BORDER,
+    viewportEdgeInset,
     titlebar: WINDOW_TITLEBAR,
     constrainToViewport,
     autoFocus,

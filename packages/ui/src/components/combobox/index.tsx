@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useId, useRef, useState, type InputHTMLAttributes } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type InputHTMLAttributes,
+} from "react";
 
 import { Input } from "$/base/components/theme-controls";
 import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
@@ -6,7 +14,7 @@ import { useTheme } from "$/base/theme/theme-context";
 import { ThemePart, ThemeIcon } from "$/base/theme/theme-part";
 import { ThemeRepeat } from "$/base/theme/theme-repeat";
 import { ScrollbarStyle } from "$/base/theme/theme-types";
-import { hitElement, clientPoint, clientRect } from "$/base/utils/dom-geometry";
+import { hitElement, clientPoint, clientRect, observeResize } from "$/base/utils/dom-geometry";
 import {
   surfaceLayout,
   DEFAULT_SURFACE_VIEWPORT,
@@ -102,7 +110,8 @@ export function Combobox({
   const bottomInset = popupMenu ? 1 : 6;
   const barSize = popupMenu ? (theme.controlParts?.scrollbar?.arrowExtent ?? 16) : 12;
   const labelInset = popupMenu ? (theme.dimensions.menu_text_inset ?? 17) - insetX : 2;
-  const bounds = suppliedBounds ?? {
+  const [fitWidth, setFitWidth] = useState<number>();
+  const naturalBounds = suppliedBounds ?? {
     x: 0,
     y: 0,
     width: pixelSize
@@ -114,11 +123,48 @@ export function Combobox({
       ? pixelSize.height * RASTER_SCALE
       : (theme.dimensions.combobox_height ?? DEFAULT_COMBOBOX_SIZE.height * RASTER_SCALE),
   };
+  const naturalLayout = surfaceLayout(naturalBounds);
+  /** A self-sized combobox never outgrows the space its parent can give it. */
+  const bounds =
+    !suppliedBounds && fitWidth !== undefined && fitWidth < naturalLayout.width
+      ? {
+          ...naturalBounds,
+          width:
+            (Math.max(fitWidth, 2 * POPUP_LABEL_RESERVE) * DEFAULT_SURFACE_VIEWPORT.sceneWidth) /
+            DEFAULT_SURFACE_VIEWPORT.width,
+        }
+      : naturalBounds;
   const layout = surfaceLayout(bounds),
     id = useId();
   const trigger = useRef<HTMLButtonElement>(null),
     anchor = useRef<HTMLSpanElement>(null),
     list = useRef<HTMLDivElement>(null);
+  const naturalWidth = naturalLayout.width;
+  useLayoutEffect(() => {
+    const element = anchor.current;
+    const parent = element?.parentElement;
+    if (!element || !parent || suppliedBounds) return;
+    const fit = () => {
+      // Lay the anchor out at its natural width, then see how much of it the parent could keep.
+      const previous = element.style.width;
+      element.style.width = `${naturalWidth}px`;
+      const available = clientRect(parent).width;
+      element.style.width = previous;
+      setFitWidth(
+        available > 0 && available < naturalWidth - 0.5 ? Math.floor(available) : undefined,
+      );
+    };
+    fit();
+    const chain: Element[] = [];
+    for (let node: Element | null = parent; node && chain.length < 4; node = node.parentElement)
+      chain.push(node);
+    const stopObserving = observeResize(chain, fit);
+    window.addEventListener("resize", fit);
+    return () => {
+      stopObserving();
+      window.removeEventListener("resize", fit);
+    };
+  }, [naturalWidth, suppliedBounds]);
   const editableInputWasFocused = useRef(false);
   const triggerClickHandled = useRef(false);
   const gesture = useRef<{

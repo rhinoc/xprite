@@ -1,7 +1,11 @@
 export { cn } from "$/base/utils/cn";
 export { useElementSize } from "$/base/utils/use-element-size";
 export { usePointerGesture, type PointerGestureCallbacks } from "$/base/utils/use-pointer-gesture";
-export { connectWindowWorkspace } from "$/base/utils/window-workspace";
+export {
+  connectWindowWorkspace,
+  suspendDesktopWindowChrome,
+  resumeDesktopWindowChrome,
+} from "$/base/utils/window-workspace";
 export * from "$/base/utils/dom-geometry";
 export { installPageFragmentContainment, scrollFragmentTarget } from "$/base/utils/page-fragment";
 export { formatShortcutForPlatform } from "$/base/utils/format-shortcut";

@@ -67,6 +67,8 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "Create island design QR codes.": "섬 마이 디자인 QR 코드를 만듭니다.",
   File: "파일",
   "Open example": "예제 열기",
+  New: "새로 만들기",
+  "Open another file": "다른 파일 열기",
   Generated: "생성됨",
   Adjust: "조정",
   "All designs (.zip)": "모든 디자인(.zip)",

@@ -1,8 +1,8 @@
 .host {
-  position: absolute;
+  position: fixed;
   inset-inline: 12px;
   top: 12px;
-  z-index: 30;
+  z-index: var(--ui-layer-toast, 9100);
   display: flex;
   justify-content: center;
   pointer-events: none;
@@ -11,7 +11,7 @@
 .notice {
   --ui-toast-face: var(--ui-toast-neutral-face);
   --ui-toast-ink: var(--ui-toast-neutral-ink);
-  max-width: 100%;
+  max-width: min(100%, 420px);
   padding: var(--ui-space-4, 8px) 12px;
   border: var(--ui-border-width, 1px) solid;
   animation: enter 180ms ease-out;

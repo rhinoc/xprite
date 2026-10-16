@@ -8,4 +8,6 @@ export const windowMetrics = {
   popupInsetX: 6,
   popupInsetTop: 6,
   popupInsetBottom: 8,
+  /** Opt-in side margin for windows that would otherwise flush to the viewport (e.g. Files). */
+  viewportEdgeInset: 12,
 };

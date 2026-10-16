@@ -2,6 +2,9 @@
   position: relative;
   display: inline-block;
   flex: 0 0 auto;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   vertical-align: top;
   z-index: var(--ui-control-z-index, 4);
   box-shadow: var(--ui-combobox-control-shadow, none);
@@ -31,6 +34,8 @@
   outline: none;
   box-shadow: var(--ui-combobox-popup-shadow, none);
   clip-path: var(--ui-menu-popup-clip, none);
+  max-width: 100vw;
+  box-sizing: border-box;
 }
 
 .viewport {

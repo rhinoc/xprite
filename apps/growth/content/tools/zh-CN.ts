@@ -131,6 +131,8 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Create island design QR codes.": "制作岛屿设计二维码。",
   File: "文件",
   "Open example": "打开示例",
+  New: "新建",
+  "Open another file": "打开另一个文件",
   Generated: "已生成",
   Adjust: "调整",
   "All designs (.zip)": "全部图案（.zip）",

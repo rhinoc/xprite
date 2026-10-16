@@ -52,4 +52,17 @@ describe("tool window shade", () => {
       initialWindowShade({ ...base, defaultCollapsed: true, cramped: false, stored: undefined }),
     ).toBe(true);
   });
+
+  it("rolls up optional windows on phones once the tool has a result", () => {
+    const base = {
+      stored: undefined,
+      defaultCollapsed: false,
+      collapseWhenCramped: false,
+      collapseWhenReady: true,
+      cramped: false,
+    };
+    expect(initialWindowShade({ ...base, ready: false })).toBe(false);
+    expect(initialWindowShade({ ...base, ready: true })).toBe(true);
+    expect(initialWindowShade({ ...base, ready: true, stored: false })).toBe(false);
+  });
 });

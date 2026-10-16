@@ -18,13 +18,20 @@ import styles from "$/components/shared/tool-help.module.css";
 export function ToolHelp({
   id,
   content,
+  ready = false,
 }: {
   id: string;
   content: Readonly<Record<PublicLanguage, ToolHelpContent>>;
+  /** When true on phones, the note starts/stays rolled up so the preview keeps the screen. */
+  ready?: boolean;
 }) {
   const { language } = useToolLanguage();
   const help = content[language];
-  const shade = useToolWindowShade("help", { collapseWhenCramped: true });
+  const shade = useToolWindowShade("help", {
+    collapseWhenCramped: true,
+    collapseWhenReady: true,
+    ready,
+  });
   return (
     <Panel
       id={id}
