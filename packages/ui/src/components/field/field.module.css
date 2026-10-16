@@ -20,6 +20,8 @@
   display: inline-grid;
   grid-template-columns: max-content minmax(0, max-content);
   align-items: center;
+  /* Never wider than the container, so the control column shrinks instead of overflowing. */
+  max-width: 100%;
 }
 .root[data-layout="space-between"] {
   grid-template-columns: minmax(0, 1fr) max-content;

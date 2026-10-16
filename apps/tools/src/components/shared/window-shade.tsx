@@ -67,10 +67,18 @@ export function useToolWindowShade(
   }, [name, defaultCollapsed, collapseWhenCramped, collapseOnPhone, collapseWhenReady, ready]);
   // Empty → ready on a phone: collapse the note even if it was expanded for the empty state.
   useEffect(() => {
-    if (!collapseWhenReady || !ready || wasReady.current) {
-      wasReady.current = ready;
+    if (!collapseWhenReady) return;
+    if (!ready) {
+      // Ready → empty again (top-bar "New"): reopen the note like a fresh import step.
+      const reset = wasReady.current;
+      wasReady.current = false;
+      if (!reset || !(globalThis.matchMedia?.(PHONE_SCREEN_QUERY).matches ?? false)) return;
+      const tool = currentTool();
+      if (tool) writeWindowShade(sessionStore(), tool, name, false);
+      setCollapsed(false);
       return;
     }
+    if (wasReady.current) return;
     wasReady.current = true;
     if (!(globalThis.matchMedia?.(PHONE_SCREEN_QUERY).matches ?? false)) return;
     const tool = currentTool();
