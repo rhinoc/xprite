@@ -29,7 +29,9 @@ is served at `/tools/viewer/`; the GIF converter is served at `/tools/gif-to-spr
   desktop and phone, only once there is a result), the export sheet, File ▸ Export… and
   Ctrl/Cmd+E. `ToolFrame` provides the Export button through `ToolActionBarProvider`; the stage
   window renders it with `<ToolStageFooter />` as its last child (empty drop stage and result
-  window alike). Mac OS 8 style, no bar: a standard default `Button` (`part="button_focused"`,
+  window alike). The same provider supplies `<ToolStageTitleExtra />` in the stage window title
+  bar when a file is loaded: a quiet document icon for “New” (same as the desktop icon and File ▸
+  New), so users can return to the import step without leaving the tool page. Mac OS 8 style, no bar: a standard default `Button` (`part="button_focused"`,
   text + 16px, `minimumWidth={59}`, 20px tall, ring drawn outside the box) at the window's
   bottom right, 12px from the right and bottom edges and at least 12px under the content. The shell
   renders it only once there is a result: the empty drop stage has no Export button, and File ▸
