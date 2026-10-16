@@ -9,19 +9,24 @@
 .header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  min-width: 0;
   padding: 4px 8px;
   border-bottom: 1px solid #000;
 }
 
 .infoBar {
-  flex: 1;
+  flex: 1 1 8em;
+  min-width: 0;
   text-align: center;
 }
 
 .views {
   display: flex;
+  flex: 0 0 auto;
   gap: 2px;
+  margin-inline-start: auto;
 }
 
 .body {
