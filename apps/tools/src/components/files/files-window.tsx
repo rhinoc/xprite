@@ -1,7 +1,17 @@
-import { useEffect, useRef, useState, type DragEvent, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type DragEvent,
+  type KeyboardEvent,
+  type MouseEvent,
+  type PointerEvent,
+} from "react";
 
 import { useFilesManager, useFilesSnapshot, useFilesText } from "$/components/files/files-context";
 import { FilesInfoWindow } from "$/components/files/files-info";
+import { createFolderNavGate, opensOnPrimaryClick } from "$/components/files/files-item-gestures";
 import type { FilesManager } from "$/managers/files/files-manager";
 import {
   decodeFilesDrag,
@@ -148,6 +158,9 @@ export function FilesWindow() {
   const picker = useRef<HTMLInputElement>(null);
   const spring = useRef<{ folder: string; timer: number } | null>(null);
   const grid = useRef<HTMLDivElement>(null);
+  /** Blocks ghost clicks that land on the item under the finger after a folder change. */
+  const folderNavGate = useMemo(() => createFolderNavGate(), []);
+  const lastPointerType = useRef("mouse");
   useEffect(() => manager?.start(), [manager]);
   if (!manager || !state) return null;
 
@@ -206,10 +219,16 @@ export function FilesWindow() {
     setRenaming(null);
     void manager.rename(id, value);
   };
+  const goToFolder = (id: string) => {
+    folderNavGate.arm();
+    manager.setFolder(id);
+  };
   const openItem = (id: string) => {
     if (allFolders.some((item) => item.id === id) || id === FilesFolder.Root) {
-      return manager.setFolder(id);
+      return goToFolder(id);
     }
+    // Ghost click after folder open: ignore file open into the editor.
+    if (folderNavGate.suppressed()) return;
     const entry = manager.entry(id);
     if (entry && !inTrash) void manager.openEntry(entry);
   };
@@ -345,7 +364,7 @@ export function FilesWindow() {
           else move(step, event.shiftKey);
           return true;
         case "ArrowUp":
-          if (command && !atRoot) manager.setFolder(FilesFolder.Root);
+          if (command && !atRoot) goToFolder(FilesFolder.Root);
           else move(-step, event.shiftKey);
           return true;
         case "Enter":
@@ -392,7 +411,7 @@ export function FilesWindow() {
       folder: id,
       timer: window.setTimeout(() => {
         spring.current = null;
-        manager.setFolder(id);
+        goToFolder(id);
       }, SPRING_DELAY_MS),
     };
   };
@@ -404,12 +423,34 @@ export function FilesWindow() {
     "data-selected": selected.has(id) || undefined,
     tabIndex: id === focusId ? 0 : -1,
     draggable: !!entry && !inTrash,
-    onClick: (event: React.MouseEvent) =>
+    onPointerDown: (event: PointerEvent<Element>) => {
+      lastPointerType.current = event.pointerType || "mouse";
+    },
+    onClick: (event: MouseEvent<Element>) => {
+      // After navigating into a folder, a delayed/ghost click can hit the file
+      // now under the finger and would select+open it into the editor.
+      if (folderNavGate.suppressed()) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
       manager.select(
         id,
         event.metaKey || event.ctrlKey ? "toggle" : event.shiftKey ? "extend" : "replace",
-      ),
-    onDoubleClick: () => openItem(id),
+      );
+      // Touch/pen: single tap opens. Mouse/trackpad: click only selects.
+      if (opensOnPrimaryClick(lastPointerType.current)) openItem(id);
+    },
+    onDoubleClick: (event: MouseEvent<Element>) => {
+      if (folderNavGate.suppressed()) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+      // Touch already opened on the first tap; ignore the synthesized dblclick.
+      if (opensOnPrimaryClick(lastPointerType.current)) return;
+      openItem(id);
+    },
     onDragStart: (event: DragEvent) => {
       if (!entry) return event.preventDefault();
       const ids = selected.has(id) ? state.selection : [id];
@@ -600,10 +641,19 @@ export function FilesWindow() {
               data-files-window=""
             >
               <div className={styles.header}>
+                {/*
+                  Classic Mac OS 8 Finder had no Enclosing Folder control in window chrome.
+                  Going up was ⌘↑, Command-click the title-bar proxy for a path menu, and
+                  (later) Go ▸ Enclosing Folder. We keep a visible control as a web/touch
+                  compromise so phone users can leave a folder without a keyboard; the
+                  label matches the Classic Go-menu name. Keyboard ⌘↑ remains primary on
+                  desktop (see onKeyDown ArrowUp).
+                */}
                 {!atRoot && (
                   <Button
                     text={text("files.enclosing")}
-                    onClick={() => manager.setFolder(FilesFolder.Root)}
+                    title={text("files.enclosing") + " (⌘↑)"}
+                    onClick={() => goToFolder(FilesFolder.Root)}
                   />
                 )}
                 <Text variant={TextVariant.Reading} className={styles.infoBar} role="status">
