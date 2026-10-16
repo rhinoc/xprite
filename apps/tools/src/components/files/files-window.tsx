@@ -53,6 +53,7 @@ import {
   type MenuItem,
   windowMetrics,
 } from "@xprite/ui";
+import { layoutSize } from "@xprite/ui/utils";
 
 import styles from "$/components/files/files.module.css";
 
@@ -394,12 +395,15 @@ export function FilesWindow() {
           },
         ]),
   ];
-  const zoomBounds = () => ({
-    x: 12,
-    y: 12,
-    width: Math.min(window.innerWidth - 24, ZOOM_MAX.width),
-    height: Math.min(window.innerHeight - 80, ZOOM_MAX.height),
-  });
+  const zoomBounds = () => {
+    const screen = layoutSize(document.documentElement);
+    return {
+      x: 12,
+      y: 12,
+      width: Math.min(screen.width - 24, ZOOM_MAX.width),
+      height: Math.min(screen.height - 80, ZOOM_MAX.height),
+    };
+  };
   const zoom = () => setZoomed((value) => !value);
   manager.commands = {
     addFiles: () => picker.current?.click(),

@@ -8,6 +8,7 @@ import {
 } from "react";
 
 import { useTheme } from "$/base/theme/theme-context";
+import { clientPoint, clientRect } from "$/base/utils/dom-geometry";
 import { stylusPointerInputProps } from "$/base/utils/stylus-input";
 import { Button } from "$/components/button";
 import {
@@ -290,16 +291,17 @@ export function WindowVariant({
                     const { type, x, y, time } = titlePointer.current;
                     const touch = type !== "mouse";
                     if (!event.metaKey && !touch) return;
-                    if (Math.hypot(event.clientX - x, event.clientY - y) > 6) return;
+                    const point = clientPoint(event);
+                    if (Math.hypot(point.x - x, point.y - y) > 6) return;
                     if (performance.now() - time > TITLE_TAP_MS) return;
                     // Open just below the title bar, as the classic path menu does, so the click
                     // that follows this tap cannot land on its first item.
-                    const rect = event.currentTarget.getBoundingClientRect();
+                    const rect = clientRect(event.currentTarget);
                     const menu = new MouseEvent("contextmenu", {
                       bubbles: true,
                       cancelable: true,
                       button: 2,
-                      clientX: event.clientX,
+                      clientX: point.x,
                       clientY: rect.bottom,
                     });
                     // Mark it as a deliberate gesture so the touch-menu guard accepts it.
@@ -307,10 +309,11 @@ export function WindowVariant({
                     event.currentTarget.dispatchEvent(menu);
                   },
                   onPointerDownCapture: (event) => {
+                    const point = clientPoint(event);
                     titlePointer.current = {
                       type: event.pointerType || "mouse",
-                      x: event.clientX,
-                      y: event.clientY,
+                      x: point.x,
+                      y: point.y,
                       time: performance.now(),
                     };
                   },
