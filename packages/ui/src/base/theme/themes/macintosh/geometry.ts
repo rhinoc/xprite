@@ -5,7 +5,7 @@ export const macintoshGeometry = {
   provenance: {
     source: "Xprite Macintosh frames; Aseprite CC-BY-4.0 icon silhouettes and control metrics",
     sha256: "678284ce5c6fc0e78c20b2f2d1c0bc1e76e458f1ac7e2da4f7c77ee104654784",
-    sheetSha256: "d5140e80aa74d47fb0288a4c06fb5a37abbb728b9693f013dfbee16b9fea7882",
+    sheetSha256: "b65cc2287d09627c2b16ac3e9b276642f5962f739196023c49ecd965e3f28a5c",
   },
   sheet: {
     width: 640,
@@ -774,6 +774,30 @@ export const macintoshGeometry = {
           "M1 1H12V12H1Z M2 2V11H11V2Z M3 3h1v1h-1Z M9 3h1v1h-1Z M4 4h1v1h-1Z M8 4h1v1h-1Z M5 5h1v1h-1Z M7 5h1v1h-1Z M6 6h1v1h-1Z M6 6h1v1h-1Z M7 7h1v1h-1Z M5 7h1v1h-1Z M8 8h1v1h-1Z M4 8h1v1h-1Z M9 9h1v1h-1Z M3 9h1v1h-1Z",
         pressedPath:
           "M3 3h1v1h-1Z M9 3h1v1h-1Z M4 4h1v1h-1Z M8 4h1v1h-1Z M5 5h1v1h-1Z M7 5h1v1h-1Z M6 6h1v1h-1Z M6 6h1v1h-1Z M7 7h1v1h-1Z M5 7h1v1h-1Z M8 8h1v1h-1Z M4 8h1v1h-1Z M9 9h1v1h-1Z M3 9h1v1h-1Z",
+        pressedFace: {
+          path: "M1 1H12V12H1Z",
+          colorRole: "selected",
+        },
+      },
+      surface: {
+        borderRole: "text",
+        borderWidth: 1,
+      },
+      foregroundRole: "text",
+    },
+    window_zoom_icon: {
+      x: 320,
+      y: 120,
+      w: 6,
+      h: 6,
+      width: 6,
+      height: 6,
+      slices: null,
+      vector: {
+        width: 12,
+        height: 12,
+        path: "M1 1H12V12H1Z M2 2V11H11V2Z M2 2H8V8H2Z M3 3V7H7V3Z",
+        pressedPath: "M2 2H8V8H2Z M3 3V7H7V3Z",
         pressedFace: {
           path: "M1 1H12V12H1Z",
           colorRole: "selected",
@@ -4093,8 +4117,8 @@ export const macintoshGeometry = {
 } satisfies Omit<UiStyleDefinition, "colors" | "typography">;
 
 export const macintoshSheetHashes = {
-  light: "d5140e80aa74d47fb0288a4c06fb5a37abbb728b9693f013dfbee16b9fea7882",
-  dark: "049ec910079a45c9fab405485c173c1d7d60c8495d2f386b7303dcecebbfc7c0",
+  light: "b65cc2287d09627c2b16ac3e9b276642f5962f739196023c49ecd965e3f28a5c",
+  dark: "24cbb9390a0c249554fb2a83ade15a8c8063678e050ac6c23bdf89b793d173ad",
 } as const;
 
 export const macintoshPalettes = {

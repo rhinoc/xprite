@@ -165,6 +165,8 @@ def generate():
             parts[name]["h"] = TAB_FACE_HEIGHT
         if name == "window_close_icon":
             parts[name].update(width=5, height=5, w=5, h=5)
+        if name == "window_zoom_icon":
+            parts[name].update(width=5, height=5, w=5, h=5)
         if name.startswith("window_button_"):
             parts[name].update(width=WINDOW_CLOSE_SIZE, height=WINDOW_CLOSE_SIZE, w=WINDOW_CLOSE_SIZE, h=WINDOW_CLOSE_SIZE)
 
@@ -207,6 +209,15 @@ def generate():
             part.update(width=6, height=6, w=6, h=6, vector={"width": 12, "height": 12,
                         "path": outline, "hoverPath": outline + " " + cross,
                         "pressedPath": cross,
+                        "pressedFace": {"path": "M1 1H12V12H1Z", "colorRole": "selected"}})
+            surface = {"borderRole": "text", "borderWidth": 1}
+        elif name == "window_zoom_icon":
+            # Mac OS 8 Platinum full zoom box: square-in-square (outer frame + nested
+            # upper-left square). Do not reuse the help "?" atlas silhouette.
+            zoom = "M1 1H12V12H1Z M2 2V11H11V2Z M2 2H8V8H2Z M3 3V7H7V3Z"
+            part.update(width=6, height=6, w=6, h=6, vector={"width": 12, "height": 12,
+                        "path": zoom,
+                        "pressedPath": "M2 2H8V8H2Z M3 3V7H7V3Z",
                         "pressedFace": {"path": "M1 1H12V12H1Z", "colorRole": "selected"}})
             surface = {"borderRole": "text", "borderWidth": 1}
         if name in ("separator_horz", "separator_vert"):
@@ -256,6 +267,14 @@ def generate():
                 # follows the button's foreground, including its pressed inversion.
                 sprite = Image.new("RGBA", (width, height))
                 ImageDraw.Draw(sprite).rectangle((0, 0, width - 1, height - 1), outline=ink)
+            elif name == "window_zoom_icon":
+                # Atlas fallback matching the Platinum zoom vector: outer frame +
+                # nested upper-left square (never the help "?" silhouette).
+                sprite = Image.new("RGBA", (width, height))
+                draw = ImageDraw.Draw(sprite)
+                draw.rectangle((0, 0, width - 1, height - 1), outline=ink)
+                inner = max(2, width // 2)
+                draw.rectangle((0, 0, inner, inner), outline=ink)
             elif old["slices"] is None and (name.startswith(CONTROL_ICON_PREFIXES) or
                 name.startswith("mini_slider_thumb")):
                 sprite = control_icon(name, width, height, palette)

@@ -140,3 +140,18 @@ describe("FilesManager empty folders", () => {
     expect(manager.getSnapshot().showEmpty).toBe(false);
   });
 });
+
+describe("FilesManager Finder window state", () => {
+  it("opens enclosing folders up to Files and tracks the front window", async () => {
+    const { port } = fakePort();
+    const manager = new FilesManager(port);
+    await manager.openWindow("menubar" as never, "/tools/pixelate/");
+    expect(manager.getSnapshot()).toMatchObject({ open: true, active: true });
+    manager.openEnclosing();
+    expect(manager.getSnapshot().folder).toBe(FilesFolder.Root);
+    manager.setActive(false);
+    expect(manager.getSnapshot().active).toBe(false);
+    manager.closeWindow();
+    expect(manager.getSnapshot()).toMatchObject({ open: false, active: false });
+  });
+});

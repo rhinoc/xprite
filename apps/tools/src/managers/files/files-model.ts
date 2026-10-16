@@ -144,6 +144,11 @@ export function formatDate(time: number, language: string): string {
   );
 }
 
+/** Date without the time of day, for list columns too narrow for the full stamp. */
+export function formatShortDate(time: number, language: string): string {
+  return new Intl.DateTimeFormat(language, { dateStyle: "medium" }).format(time);
+}
+
 /** Coarse buckets keep telemetry free of exact sizes. */
 export function sizeBucket(bytes: number): string {
   const megabytes = bytes / (1024 * 1024);

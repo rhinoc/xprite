@@ -42,8 +42,17 @@ export interface FilesTarget {
   open(file: File): Promise<void>;
 }
 
+/** Window-level commands the Files window registers for the menu bar. */
+export interface FilesCommands {
+  addFiles?: () => void;
+  openSelected?: () => void;
+  zoom?: () => void;
+}
+
 export interface FilesSnapshot {
   open: boolean;
+  /** The Files window is the front window, so its menus replace the page's extras. */
+  active: boolean;
   folder: string;
   view: FilesView;
   /** List folders that hold nothing (the open page's tool folder is always listed). */
@@ -63,6 +72,7 @@ export interface FilesSnapshot {
 
 const INITIAL: FilesSnapshot = {
   open: false,
+  active: false,
   folder: FilesFolder.Root,
   view: FilesView.Icons,
   showEmpty: false,
@@ -103,6 +113,9 @@ export class FilesManager {
   private disposed = false;
 
   constructor(private readonly port: FilesPort) {}
+
+  /** Registered by the open Files window; menu bar items call these. */
+  commands: FilesCommands = {};
 
   getSnapshot = () => this.state;
   subscribe = (listener: () => void) => {
@@ -176,13 +189,30 @@ export class FilesManager {
   }
 
   async openWindow(entry: FilesEntryPoint, folder: string = FilesFolder.Root) {
-    this.publish({ open: true, folder, selection: [], loading: true, confirmEmpty: false });
+    this.publish({
+      open: true,
+      active: true,
+      folder,
+      selection: [],
+      loading: true,
+      confirmEmpty: false,
+    });
     this.port.capture(SiteTelemetryEvent.FilesOpened, { entry });
     await this.refresh();
     this.publish({ loading: false });
   }
 
-  closeWindow = () => this.publish({ open: false, infoId: null, confirmEmpty: false });
+  closeWindow = () =>
+    this.publish({ open: false, active: false, infoId: null, confirmEmpty: false });
+
+  setActive = (active: boolean) => {
+    if (active !== this.state.active) this.publish({ active });
+  };
+
+  /** Mac OS 8 "Open Enclosing Folder" (Command-Up): every folder lives directly in Files. */
+  openEnclosing = () => {
+    if (this.state.folder !== FilesFolder.Root) this.setFolder(FilesFolder.Root);
+  };
 
   setFolder = (folder: string) =>
     this.publish({ folder, selection: [], confirmEmpty: false, error: null });

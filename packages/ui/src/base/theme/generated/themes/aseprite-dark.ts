@@ -734,6 +734,30 @@ export const themeDefinition = {
       height: 6,
       slices: null,
     },
+    window_zoom_icon: {
+      x: 16,
+      y: 11,
+      w: 6,
+      h: 6,
+      width: 6,
+      height: 6,
+      slices: null,
+      vector: {
+        width: 12,
+        height: 12,
+        path: "M1 1H12V12H1Z M2 2V11H11V2Z M2 2H8V8H2Z M3 3V7H7V3Z",
+        pressedPath: "M2 2H8V8H2Z M3 3V7H7V3Z",
+        pressedFace: {
+          path: "M1 1H12V12H1Z",
+          colorRole: "selected",
+        },
+      },
+      surface: {
+        borderRole: "text",
+        borderWidth: 1,
+      },
+      foregroundRole: "text",
+    },
     slider_full: {
       x: 0,
       y: 144,
