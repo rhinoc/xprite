@@ -7,14 +7,13 @@ import {
   type ViewerManager,
   type ViewerSnapshot,
 } from "$/managers/viewer/viewer-manager";
-import { ReadOnlyTimeline } from "@xprite/editor-ui/timeline";
+import { PlaybackTransport, ReadOnlyTimeline } from "@xprite/editor-ui/timeline";
 import {
   ContentLayout,
   SurfaceTone,
   Text,
   TextVariant,
   TextTone,
-  Button,
   Combobox,
   ControlFlow,
   StatusBar,
@@ -25,7 +24,6 @@ import {
 import styles from "$/components/viewer/viewer.module.css";
 
 const FRAME_OFFSET = 1;
-const PLAYBACK_BUTTON_SIZE = { width: 17, height: 13 };
 const RANGE_WIDTH = 100;
 export function ViewerPreview({
   manager,
@@ -41,6 +39,50 @@ export function ViewerPreview({
   const navigation = manager.viewport;
   const pixels = snapshot.pixels!;
   const frameLabel = `Frame ${snapshot.frame + FRAME_OFFSET} of ${snapshot.frames}`;
+  const transport = (
+    <ControlFlow toolbar className={styles.playbackToolbar}>
+      <PlaybackTransport
+        className={styles.playbackActions}
+        playing={snapshot.playing}
+        frames={snapshot.frames}
+        animated={snapshot.animated}
+        labels={{
+          first: t("First frame"),
+          previous: t("Previous frame"),
+          play: t("Play animation"),
+          pause: t("Pause animation"),
+          next: t("Next frame"),
+          last: t("Last frame"),
+          group: t("Playback controls"),
+        }}
+        titles={{
+          first: t("First frame (Home)"),
+          previous: t("Previous frame (Left)"),
+          play: t("Play animation (Space)"),
+          pause: t("Pause animation (Space)"),
+          next: t("Next frame (Right)"),
+          last: t("Last frame (End)"),
+        }}
+        onFirst={() => manager.inspectFrame(0)}
+        onPrevious={() => manager.stepFrame(-FRAME_OFFSET)}
+        onTogglePlayback={() => manager.togglePlayback()}
+        onNext={() => manager.stepFrame(FRAME_OFFSET)}
+        onLast={() => manager.inspectFrame(snapshot.frames - FRAME_OFFSET)}
+      />
+      {snapshot.tags.length > 0 && (
+        <Combobox
+          pixelWidth={RANGE_WIDTH}
+          aria-label={t("Animation range")}
+          value={snapshot.selectedTag}
+          onValueChange={(value) => manager.selectTag(value)}
+          options={[
+            { value: ALL_FRAMES_TAG, label: t("All frames") },
+            ...snapshot.tags.map((tag) => ({ value: tag.id, label: tag.name })),
+          ]}
+        />
+      )}
+    </ControlFlow>
+  );
   return (
     <div className={styles.layout}>
       <Panel
@@ -86,73 +128,8 @@ export function ViewerPreview({
         title={t("Animation")}
         className={styles.animationWindow}
       >
-        <ControlFlow toolbar className={styles.playbackToolbar}>
-          <ControlFlow
-            className={styles.playbackActions}
-            role="group"
-            aria-label={t("Playback controls")}
-          >
-            <Button
-              icon="ani_first"
-              pixelSize={PLAYBACK_BUTTON_SIZE}
-              pushedPart="buttonset_item_pushed"
-              aria-label={t("First frame")}
-              title={t("First frame (Home)")}
-              disabled={snapshot.frames <= FRAME_OFFSET}
-              onClick={() => manager.inspectFrame(0)}
-            />
-            <Button
-              icon="ani_previous"
-              pixelSize={PLAYBACK_BUTTON_SIZE}
-              pushedPart="buttonset_item_pushed"
-              aria-label={t("Previous frame")}
-              title={t("Previous frame (Left)")}
-              disabled={!snapshot.animated}
-              onClick={() => manager.stepFrame(-FRAME_OFFSET)}
-            />
-            <Button
-              icon={snapshot.playing ? "ani_stop" : "ani_play"}
-              pixelSize={PLAYBACK_BUTTON_SIZE}
-              pushedPart="buttonset_item_pushed"
-              aria-label={t(snapshot.playing ? "Pause animation" : "Play animation")}
-              title={t(snapshot.playing ? "Pause animation (Space)" : "Play animation (Space)")}
-              selected={snapshot.playing}
-              disabled={!snapshot.animated}
-              onClick={() => manager.togglePlayback()}
-            />
-            <Button
-              icon="ani_next"
-              pixelSize={PLAYBACK_BUTTON_SIZE}
-              pushedPart="buttonset_item_pushed"
-              aria-label={t("Next frame")}
-              title={t("Next frame (Right)")}
-              disabled={!snapshot.animated}
-              onClick={() => manager.stepFrame(FRAME_OFFSET)}
-            />
-            <Button
-              icon="ani_last"
-              pixelSize={PLAYBACK_BUTTON_SIZE}
-              pushedPart="buttonset_item_pushed"
-              aria-label={t("Last frame")}
-              title={t("Last frame (End)")}
-              disabled={snapshot.frames <= FRAME_OFFSET}
-              onClick={() => manager.inspectFrame(snapshot.frames - FRAME_OFFSET)}
-            />
-          </ControlFlow>
-          {snapshot.tags.length > 0 && (
-            <Combobox
-              pixelWidth={RANGE_WIDTH}
-              aria-label={t("Animation range")}
-              value={snapshot.selectedTag}
-              onValueChange={(value) => manager.selectTag(value)}
-              options={[
-                { value: ALL_FRAMES_TAG, label: t("All frames") },
-                ...snapshot.tags.map((tag) => ({ value: tag.id, label: tag.name })),
-              ]}
-            />
-          )}
-        </ControlFlow>
         <ReadOnlyTimeline
+          toolbar={transport}
           timeline={manager.getPresentationTimeline()!}
           identity={snapshot.identity}
           frame={snapshot.frame}

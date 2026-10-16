@@ -632,6 +632,46 @@ export class BeadToolManager {
       if (request === this.request) this.publish({ downloading: false, progress: null });
     }
   }
+  /** Return to the empty import step without disposing the page manager. */
+  clear() {
+    if (this.closed) return;
+    ++this.request;
+    this.cancelPreview();
+    this.input = null;
+    this.publish({
+      source: null,
+      grid: null,
+      preview: null,
+      boards: [],
+      selected: 0,
+      mode: BeadPreviewMode.Overview,
+      settings: {
+        brand: BeadBrand.Mard,
+        targetWidth: DEFAULT_GRID_EDGE,
+        targetHeight: DEFAULT_GRID_EDGE,
+        lockAspectRatio: true,
+        boardSize: DEFAULT_BEAD_BOARD_SIZE,
+        showCodes: true,
+        method: PixelationMethod.Nearest,
+      },
+      name: "",
+      outputName: "",
+      frame: 0,
+      frameCount: 1,
+      identity: this.state.identity + 1,
+      loading: false,
+      pending: false,
+      downloading: false,
+      error: null,
+      pngError: null,
+      pdfError: null,
+      boardCount: 0,
+      progress: null,
+      excludedColors: [],
+      highlight: null,
+      previewLayout: null,
+    });
+  }
   dispose() {
     this.closed = true;
     ++this.request;

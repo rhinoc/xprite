@@ -44,6 +44,7 @@ export function ViewerPage({ manager }: { manager: ViewerManager }) {
       error={snapshot.error}
       onOpen={(file) => manager.open(file)}
       onExample={() => manager.openExample()}
+      onReset={() => manager.clear()}
       fileItems={[
         {
           label: t("Edit in Xprite"),

@@ -174,6 +174,24 @@ export class PixelationManager {
       this.publish({ downloading: false });
     }
   }
+  /** Return to the empty import step without disposing the page manager. */
+  clear() {
+    if (this.closed) return;
+    ++this.request;
+    ++this.conversion;
+    this.publish({
+      grid: null,
+      source: null,
+      result: null,
+      settings: defaultPixelationSettings({ width: 64, height: 64 }),
+      name: "",
+      loading: false,
+      converting: false,
+      downloading: false,
+      error: null,
+      palettePreview: [],
+    });
+  }
   dispose() {
     this.closed = true;
     ++this.request;

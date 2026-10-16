@@ -28,6 +28,8 @@ import {
   ScrollbarRendering,
   useUi,
   IconSize,
+  Toast,
+  ToastTone,
 } from "@xprite/ui";
 
 import styles from "$/components/shared/tool-frame.module.css";
@@ -39,6 +41,7 @@ export function ToolFrame({
   menus = [],
   children,
   help,
+  onReset,
 }: {
   tool: PublicTool;
   filename?: string;
@@ -46,6 +49,8 @@ export function ToolFrame({
   menus?: readonly MenubarMenu[];
   children: ReactNode;
   help?: ReactNode;
+  /** Return the tool to its empty import step on this page (Mac OS 8 “New”). */
+  onReset?: () => void;
 }) {
   const { language, setLanguage, translate: t } = useToolLanguage();
   const guidePath = "guidePath" in tool ? tool.guidePath : undefined;
@@ -102,6 +107,14 @@ export function ToolFrame({
         className={styles.shell}
         data-tool-state={filename ? (processing ? "processing" : "ready") : "empty"}
       >
+        <Toast
+          text={
+            filesState && !filesState.open && (filesState.notice || filesState.error)
+              ? filesText((filesState.error ?? filesState.notice)!)
+              : null
+          }
+          tone={filesState?.error ? ToastTone.Error : ToastTone.Info}
+        />
         <div className={styles.screen}>
           <header className={styles.header}>
             <SiteMenubar
@@ -144,6 +157,15 @@ export function ToolFrame({
                   aria-haspopup="dialog"
                   onClick={() => void files?.openWindow(FilesEntryPoint.DesktopIcon)}
                 />
+                {onReset && filename ? (
+                  <Button
+                    variant={ButtonVariant.Tile}
+                    slots={{ leading: <Icon kind={IconKind.Document} size={IconSize.Large} /> }}
+                    text={t("New")}
+                    title={t("Open another file")}
+                    onClick={onReset}
+                  />
+                ) : null}
                 <Button
                   variant={ButtonVariant.Tile}
                   slots={{

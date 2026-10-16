@@ -91,6 +91,7 @@ export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
       error={snapshot.error}
       onOpen={(file) => manager.open(file)}
       onExample={() => manager.openExample()}
+      onReset={() => manager.clear()}
       fileItems={[
         {
           label: t("Export sprite sheet (.png)"),

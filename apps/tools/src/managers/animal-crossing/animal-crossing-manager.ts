@@ -481,6 +481,38 @@ export class AnimalCrossingManager {
       }
     }
   }
+  /** Return to the empty import step without disposing the page manager. */
+  clear() {
+    if (this.closed) return;
+    this.cancelPreview();
+    if (this.conversion.source) this.port.releasePreview(this.conversion.source);
+    this.request++;
+    this.project = undefined;
+    this.gridDraft = null;
+    this.tileDraft = defaultAnimalCrossingSettings(INITIAL_SIZE);
+    this.conversion = {
+      source: null,
+      settings: defaultAnimalCrossingSettings(INITIAL_SIZE),
+      importedQr: false,
+      result: null,
+      selected: 0,
+      qr: null,
+      error: null,
+    };
+    this.update({
+      name: "",
+      example: false,
+      previewOpen: false,
+      layout: AnimalCrossingLayout.Single,
+      loading: false,
+      downloading: false,
+      error: null,
+      identity: this.state.identity + 1,
+      frame: 0,
+      frameCount: 1,
+      pending: false,
+    });
+  }
   dispose() {
     this.closed = true;
     this.cancelPreview();

@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 
 import {
   CRAMPED_SCREEN_QUERY,
+  PHONE_SCREEN_QUERY,
   initialWindowShade,
   readWindowShade,
   writeWindowShade,
@@ -33,21 +34,45 @@ export function useToolWindowShade(
   {
     defaultCollapsed = false,
     collapseWhenCramped = false,
-  }: { defaultCollapsed?: boolean; collapseWhenCramped?: boolean } = {},
+    collapseWhenReady = false,
+    ready = false,
+  }: {
+    defaultCollapsed?: boolean;
+    collapseWhenCramped?: boolean;
+    /** On phones, roll up once the tool has a preview/result so work stays visible. */
+    collapseWhenReady?: boolean;
+    ready?: boolean;
+  } = {},
 ) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  const wasReady = useRef(false);
   useEffect(() => {
     const tool = currentTool();
     if (!tool) return;
+    const phone = globalThis.matchMedia?.(PHONE_SCREEN_QUERY).matches ?? false;
     setCollapsed(
       initialWindowShade({
         stored: readWindowShade(sessionStore(), tool)[name],
         defaultCollapsed,
         collapseWhenCramped,
+        collapseWhenReady: collapseWhenReady && phone,
         cramped: globalThis.matchMedia?.(CRAMPED_SCREEN_QUERY).matches ?? false,
+        ready,
       }),
     );
-  }, [name, defaultCollapsed, collapseWhenCramped]);
+  }, [name, defaultCollapsed, collapseWhenCramped, collapseWhenReady, ready]);
+  // Empty → ready on a phone: collapse the note even if it was expanded for the empty state.
+  useEffect(() => {
+    if (!collapseWhenReady || !ready || wasReady.current) {
+      wasReady.current = ready;
+      return;
+    }
+    wasReady.current = true;
+    if (!(globalThis.matchMedia?.(PHONE_SCREEN_QUERY).matches ?? false)) return;
+    const tool = currentTool();
+    if (tool) writeWindowShade(sessionStore(), tool, name, true);
+    setCollapsed(true);
+  }, [collapseWhenReady, ready, name]);
   const onCollapsedChange = (next: boolean) => {
     const tool = currentTool();
     if (tool) writeWindowShade(sessionStore(), tool, name, next);

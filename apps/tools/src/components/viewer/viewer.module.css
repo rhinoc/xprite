@@ -1,9 +1,14 @@
 .playbackToolbar {
   flex: 0 0 auto;
+  flex-wrap: nowrap;
+  align-items: center;
+  min-width: 0;
+  width: 100%;
 }
 .playbackActions {
   flex-wrap: nowrap;
   gap: 0;
+  flex: 0 0 auto;
 }
 .frameInfo {
   display: flex;
@@ -30,9 +35,6 @@
   --tool-window-max-height: 45%;
   flex: 0 1 auto;
   margin-left: 32px;
-}
-.playbackToolbar {
-  flex: 0 0 auto;
 }
 @media (max-width: 700px) {
   .animationWindow {

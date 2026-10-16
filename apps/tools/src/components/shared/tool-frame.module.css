@@ -67,9 +67,6 @@
 .fileInput {
   display: none;
 }
-.error {
-  margin: 12px;
-}
 .workspace {
   flex: 1;
   min-height: 0;
@@ -532,7 +529,7 @@
     min-width: 0;
   }
   .shortcuts > :global([data-ui-desktop-icon]) {
-    /* Half the 64px artwork keeps the pixels crisp and fits four icons on a 360px screen. */
+    /* Half the 64px artwork keeps the pixels crisp and fits the desktop icons on a 360px screen. */
     --desktop-icon-artwork-size: 32px;
     flex: 1 1 0;
     width: auto;

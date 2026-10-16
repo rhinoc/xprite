@@ -47,6 +47,7 @@ export interface WindowGestureOptions {
   border: number;
   titlebar: number;
   constrainToViewport: boolean;
+  viewportEdgeInset?: number;
   autoFocus: boolean;
   onBoundsChange(bounds: SurfaceBounds): void;
 }
@@ -65,12 +66,16 @@ export function useWindowGesture({
   border: WINDOW_BORDER,
   titlebar: WINDOW_TITLEBAR,
   constrainToViewport,
+  viewportEdgeInset = 0,
   autoFocus,
   onBoundsChange: publish,
 }: WindowGestureOptions) {
   const gesture = useRef<Gesture | null>(null);
+  const edgeInset = constrainToViewport ? viewportEdgeInset : 0;
   const availableWidth = available.width;
   const availableHeight = available.height;
+  const usableWidth = Math.max(0, availableWidth - edgeInset * 2);
+  const usableHeight = Math.max(0, availableHeight - edgeInset * 2);
   const availableRight = available.x + availableWidth;
   const availableBottom = available.y + availableHeight;
   const stop = useCallback(() => {
@@ -142,22 +147,28 @@ export function useWindowGesture({
         width: contentWidth,
         height: contentHeight,
         x: Math.max(
-          available.x + (constrainToViewport ? 0 : WINDOW_BORDER - b.width),
-          Math.min(availableRight - (constrainToViewport ? b.width : WINDOW_BORDER), b.x + dx),
+          available.x + (constrainToViewport ? edgeInset : WINDOW_BORDER - b.width),
+          Math.min(
+            availableRight - (constrainToViewport ? b.width + edgeInset : WINDOW_BORDER),
+            b.x + dx,
+          ),
         ),
         y: Math.max(
-          available.y,
-          Math.min(availableBottom - (constrainToViewport ? b.height : WINDOW_TITLEBAR), b.y + dy),
+          available.y + edgeInset,
+          Math.min(
+            availableBottom - (constrainToViewport ? b.height + edgeInset : WINDOW_TITLEBAR),
+            b.y + dy,
+          ),
         ),
       });
       return;
     }
     const minimumWidth = Math.min(
-      constrainToViewport ? availableWidth : Infinity,
+      constrainToViewport ? usableWidth : Infinity,
       Math.max(MINIMUM_WIDTH, minSize.width),
     );
     const minimumHeight = Math.min(
-      constrainToViewport ? availableHeight : Infinity,
+      constrainToViewport ? usableHeight : Infinity,
       Math.max(MINIMUM_HEIGHT, minSize.height),
     );
     let left = b.x;
@@ -170,7 +181,7 @@ export function useWindowGesture({
       active.edge === WindowGestureEdge.SouthWest
     )
       left = Math.max(
-        constrainToViewport ? available.x : -Infinity,
+        constrainToViewport ? available.x + edgeInset : -Infinity,
         Math.min(right - minimumWidth, left + dx),
       );
     if (
@@ -179,7 +190,7 @@ export function useWindowGesture({
       active.edge === WindowGestureEdge.SouthEast
     )
       right = Math.min(
-        constrainToViewport ? availableRight : Infinity,
+        constrainToViewport ? availableRight - edgeInset : Infinity,
         Math.max(left + minimumWidth, right + dx),
       );
     if (
@@ -188,7 +199,7 @@ export function useWindowGesture({
       active.edge === WindowGestureEdge.NorthEast
     )
       top = Math.max(
-        constrainToViewport ? available.y : -Infinity,
+        constrainToViewport ? available.y + edgeInset : -Infinity,
         Math.min(bottom - minimumHeight, top + dy),
       );
     if (
@@ -197,7 +208,7 @@ export function useWindowGesture({
       active.edge === WindowGestureEdge.SouthEast
     )
       bottom = Math.min(
-        constrainToViewport ? availableBottom : Infinity,
+        constrainToViewport ? availableBottom - edgeInset : Infinity,
         Math.max(top + minimumHeight, bottom + dy),
       );
     publish({ x: left, y: top, width: right - left, height: bottom - top });

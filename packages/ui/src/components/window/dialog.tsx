@@ -1,6 +1,10 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { borderSize, observeResize, type GeometrySize } from "$/base/utils/dom-geometry";
+import {
+  resumeDesktopWindowChrome,
+  suspendDesktopWindowChrome,
+} from "$/base/utils/window-workspace";
 import { createUiPortal } from "$/components/theme/portal";
 import { WindowVariant } from "$/components/window/variants/window";
 import type { WindowVariantContext, WindowVariantProps } from "$/components/window/variants/window";
@@ -29,6 +33,12 @@ function PortalWindow(props: WindowVariantProps) {
     update();
     return observeResize([node], update);
   }, []);
+  // Portaled windows sit above the desktop workspace; dim its title bars like Mac OS 8.
+  useEffect(() => {
+    if (!props.open) return;
+    suspendDesktopWindowChrome();
+    return () => resumeDesktopWindowChrome();
+  }, [props.open]);
   return (
     <div className={styles.root} ref={root}>
       {size && <WindowVariant {...props} sceneBounds={props.sceneBounds ?? size} />}

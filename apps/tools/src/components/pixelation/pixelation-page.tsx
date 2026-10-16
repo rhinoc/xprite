@@ -36,6 +36,7 @@ export function PixelationPage({ manager }: { manager: PixelationManager }) {
       help={<ToolHelp id={PixelateHelpSection.Overview} content={PIXELATE_HELP} />}
       onOpen={(file) => manager.open(file)}
       onExample={() => manager.openExample()}
+      onReset={() => manager.clear()}
       fileItems={[
         {
           label: "Download PNG",

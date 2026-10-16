@@ -23,6 +23,8 @@
   place-items: center;
   width: var(--desktop-icon-artwork-size);
   height: var(--desktop-icon-artwork-size);
+  /* Clicks and double-clicks hit the tile button, not native image drag. */
+  pointer-events: none;
 }
 :global([data-slot="desktop-icon-artwork"] img),
 :global([data-slot="desktop-icon-artwork"] svg) {

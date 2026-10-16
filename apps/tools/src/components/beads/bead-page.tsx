@@ -64,6 +64,7 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
       error={formatBeadFailure(text, state.error)}
       onOpen={manager.open}
       onExample={manager.openExample}
+      onReset={() => manager.clear()}
       fileItems={[
         {
           label: text("beads.download.png"),

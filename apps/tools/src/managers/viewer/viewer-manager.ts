@@ -470,6 +470,19 @@ export class ViewerManager {
       });
     }
   }
+  /** Return to the empty import step without disposing the page manager. */
+  clear() {
+    if (this.closed) return;
+    this.request++;
+    this.player.stop(this.playbackSettings());
+    this.project = null;
+    this.frameCache.clear();
+    this.file = null;
+    this.update({
+      ...emptySnapshot(),
+      appearanceMode: this.snapshot.appearanceMode,
+    });
+  }
   dispose() {
     this.closed = true;
     this.request++;

@@ -274,6 +274,17 @@ export class GifSheetManager {
       if (!this.closed && request === this.request) this.update({ downloading: false });
     }
   }
+  /** Return to the empty import step without disposing the page manager. */
+  clear() {
+    if (this.closed) return;
+    this.request++;
+    this.document = null;
+    this.result = null;
+    this.update({
+      ...initialSnapshot(),
+      appearanceMode: this.snapshot.appearanceMode,
+    });
+  }
   dispose() {
     this.closed = true;
     this.request++;

@@ -79,6 +79,7 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
       error={snapshot.error}
       onOpen={(file) => manager.open(file)}
       onExample={() => manager.openExample()}
+      onReset={() => manager.clear()}
       fileItems={[
         {
           label: t("Download QR PNG"),

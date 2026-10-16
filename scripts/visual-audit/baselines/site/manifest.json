@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
-  "capturedAt": "2026-10-15T02:42:32.311Z",
+  "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
+  "capturedAt": "2026-10-16T03:14:31.435Z",
   "captureComplete": true,
   "sourceHashes": {
     ".husky/pre-push": "bc8a9c88fb4109ae2584c838dface54fe296297dbd6abab793d78b3c0fa0d361",
@@ -697,7 +697,7 @@
     "apps/growth/build/pages/document-resources.ts": "c7872b444beaaabc3eac9e781d662ba91205251c112e84b34ac881599cd91e2f",
     "apps/growth/build/pages/feature-directory.ts": "9140429d752334aecbbf0a4f2030232ec5150e0e1736af29783fd0d8758b6bcd",
     "apps/growth/build/pages/guide-pages.ts": "6afaee47a6bf6954447883dd2942a4f8db68867026508b6d87845f9d1f83bfbe",
-    "apps/growth/build/public-pages.ts": "8c765dbb47940b8c4bc0b4edd3cce403a9556cb4cafdecdbb8d7f70d406d0aa0",
+    "apps/growth/build/public-pages.ts": "fc35d5f589908c0cc425c30d38a11ac357b72361325e921fc1b44322774b1448",
     "apps/growth/build/public-theme.ts": "92abd73c0aeef9fc06fc9b5454caa5c6a59fb79cddfb730d8b7c88ecee32935f",
     "apps/growth/build/routing/public-routing.ts": "4df1eb43f81792486ee8e1e31dfe096bd7a216f677c81e7aad6677a4ea3342b2",
     "apps/growth/build/routing/site-configuration.ts": "ae58a9abf458be51b2631497a0994be7537fe2c4cba155ce40f1a8b977f9c448",
@@ -902,17 +902,17 @@
     "apps/growth/content/site/navigation.ts": "e3407d2a747073d2e0549b9a96214808a7d7bdcfb9a5b97a5bf8352be477f8f3",
     "apps/growth/content/site/pages.ts": "58aa107f6f64829d25165dbaad2b31598fa78f9ac66c7cbf97f170bf447115e0",
     "apps/growth/content/tools/animal-crossing-help.ts": "b139d93a9d60bb2b725fab6a8de42daa982c0031b5f2a67e284ff07d8fb16e41",
-    "apps/growth/content/tools/es.ts": "4e4cd74d237ded130b286319f3f574ca60e1b4bdce488af9cdd12c5aec9e2ed2",
+    "apps/growth/content/tools/es.ts": "5284e7d60228de3723d9cd1b720c6193a2b060e6ff88b1a827bc76f3021d5450",
     "apps/growth/content/tools/gif-sheet-help.ts": "6124e2f0cd5c7e694024a37e815904dc009c6e4cbe477537ef68d97437b096c5",
     "apps/growth/content/tools/help.ts": "7c7d6fe861699bbf62dd46a510253400d256a4f4897a17017136a848cf4e5b3b",
     "apps/growth/content/tools/index.ts": "a656857a45ade71935494a364f6d04373d643eb6d29d5c2709af41611e1ec857",
-    "apps/growth/content/tools/ja.ts": "3b867cda5f529b01b866fd6d38d48f1a20c07b8e5664bc5a3aedbe400114ea9e",
-    "apps/growth/content/tools/ko.ts": "579cea1b606ac5ef6b7df6d7ed6bced678b9b377f639680973fd90afd5c0c854",
+    "apps/growth/content/tools/ja.ts": "520185d02746ca71ad5437b94a091091160551a73fa723dd6a6230433687d709",
+    "apps/growth/content/tools/ko.ts": "0e52cf6117ee76dca38f64cb02e5c010c0a064aec89cca1741721299db7dff06",
     "apps/growth/content/tools/pixelate-help.ts": "c6c8ce4791dc9df73ac339d423d2010dd1468bef30f1dcc4f0056efd300a9224",
-    "apps/growth/content/tools/pt-BR.ts": "48db004b489f5e97137ed8114428a6a9c33a054a76d3a0bd483ae242fea15f33",
-    "apps/growth/content/tools/ru.ts": "19ffb866e078e41b3df525596fe9b870c27aebcf8fa7e71f557106f2b46d8cc4",
+    "apps/growth/content/tools/pt-BR.ts": "69fabca4acd9f2287ce2ee5f64a613fbb77d8f6840587b0a678859a807e52b1a",
+    "apps/growth/content/tools/ru.ts": "01f26db145475d9540d0266e9f0457872edfcb7ee3b0ae0e05da05491b813d59",
     "apps/growth/content/tools/viewer-help.ts": "2ed3d89507108c83031028eac36142a881ca61b8df697f0b3bafd5ac3d977d96",
-    "apps/growth/content/tools/zh-CN.ts": "16f3f44fdaa54738b7f5366a9d2f445f4910c3b9d8e53a004b615d5b11da58af",
+    "apps/growth/content/tools/zh-CN.ts": "44058a262b8c4852dd3835f2a8f014e8852eead799cb501611ff768eade15b33",
     "apps/growth/public/favicon-32.png": "a63bfbf0275dbffcf715eb4295da8179464a829ac39bcebe1d42320b64ee3a52",
     "apps/growth/public/icon.svg": "f31b3da31c46e16a1362cda29d53646c94b640fb9b6294cc80398ef6dc4800af",
     "apps/growth/public/menu-icon.svg": "40099468bf636c55642bc6898c578f81fb517b0e812a07840dd80c47acaff01f",
@@ -1267,59 +1267,59 @@
     "apps/tools/src/bootstrap.tsx": "02245d1d3c0aa51d3b64ca1007485bfbb141423c681bf3a36fdf55246ab36990",
     "apps/tools/src/components/animal-crossing/animal-crossing-ground.tsx": "adb2b8151c044a0615ac21dee6619668acbbb42ef3b7f4ad60d9be4a4c9c8291",
     "apps/tools/src/components/animal-crossing/animal-crossing-output.tsx": "97088b0b9e8fc072c3a423e14dbd904222b21490ed0279efc88ad5e2e1d61fb6",
-    "apps/tools/src/components/animal-crossing/animal-crossing-page.tsx": "15b4c7b86187ba90a63fc86de65c507ed43ec1fe5fb05b630e823e962b0c8b83",
+    "apps/tools/src/components/animal-crossing/animal-crossing-page.tsx": "25c28fcc3918cde783754d89c4f261e94ffeb27b7067030cb0996a6d0a47cbb9",
     "apps/tools/src/components/animal-crossing/animal-crossing-settings.tsx": "2609acc07c64301c79b08a3842db4ce4a91f24b496e467bbffc099cb048b3579",
     "apps/tools/src/components/animal-crossing/animal-crossing.module.css": "2133ea60b1111afd9ebe843725e67a1aa7e21f70a9a7f09745038524a883de78",
     "apps/tools/src/components/beads/bead-materials.tsx": "93758b3c0f16e5890f72ba16100f3d940afb602b272ab15184d951471bc14994",
-    "apps/tools/src/components/beads/bead-page.tsx": "dba35f3dac9b558917e12b9e0f6d11ca026d78ac9ed8ce852b9558c01df8d283",
+    "apps/tools/src/components/beads/bead-page.tsx": "c5b98bc884ab6a8921081bcf531a465c68458e49ce9a6760cbfc6810b6484ec5",
     "apps/tools/src/components/beads/bead-preview-grid.tsx": "de1bbd5260e17ac00a85eb05c86a2a4f5170c4d3518b354f1981be63c066b95e",
     "apps/tools/src/components/beads/bead-settings.tsx": "81cef0e24576618fdf29b1f83aaf9c7e4f4422269a44523ebd0f2f9daf6fed80",
     "apps/tools/src/components/beads/beads.module.css": "e0e8af02246fc9492c9f5b6cfca83332c1ca189cef0079ac357f62103fc8a340",
     "apps/tools/src/components/files/files-context.tsx": "f66e7c2098f86e548f8efca0966d86c17abc32a49a0dada85fe37065831075df",
     "apps/tools/src/components/files/files-info.tsx": "70497f71d0dc3f78a7278bd9695f564c4a5507fabcc041980bb1aee4ce2a849c",
-    "apps/tools/src/components/files/files-window.tsx": "35f94d7f594e2eb748e1ee42a956eb12fe5f92422123344a5fdd61afcb999313",
+    "apps/tools/src/components/files/files-window.tsx": "ecdb66c45db054a2abe11461f56d134a9ebd06ed34a7ddcc7a25328819efdfd9",
     "apps/tools/src/components/files/files.module.css": "686aa00537f9bef67215cb04ae04c529fb0bfab057ea7a22e7114031fd44485a",
-    "apps/tools/src/components/gif-sheet/gif-sheet-page.tsx": "c1da3d60b0d3b92c65a6565efa2ccb689e5babea6b917006414383ad24e6ee30",
+    "apps/tools/src/components/gif-sheet/gif-sheet-page.tsx": "581c1f1c5b3d03b14f98d4123a8b6148e1c33fe0575a33ef75958283a93bfab8",
     "apps/tools/src/components/gif-sheet/gif-sheet.module.css": "f23f0d194fa7bbf8d1a60135b0f773135bf4e2001d23e7b6536406b8a7c70581",
-    "apps/tools/src/components/pixelation/pixelation-page.tsx": "7195a9caa73fc808733142364f15dd45128dda8270552d54c83aa4929601f53c",
+    "apps/tools/src/components/pixelation/pixelation-page.tsx": "46b931a329cff00484574ef218f589ae0bb29a112de878557b367a8ca123715c",
     "apps/tools/src/components/pixelation/pixelation.module.css": "db6b97c620c6fe26f364cc7448fe039246ce1cc2de2d184fbac5e14e76c08f5b",
     "apps/tools/src/components/shared/canvas-preview.module.css": "1faa04d69e8a71ad1d5eb69fa6aeaed1108614abb9e8f7acfa24b7f56f4e5ff2",
     "apps/tools/src/components/shared/canvas-preview.tsx": "d0627f2f054e7a3d9ca5e235ea96062eb140921a91335b0816e5ef7cde11ba13",
     "apps/tools/src/components/shared/file-tool-empty-state.tsx": "929a349816cae2a107bbed53a38b370f6b907000984cec0e839da64aa98c1c7c",
-    "apps/tools/src/components/shared/file-tool-shell.tsx": "583cb90b623497eb5308652d5d1f43a42febba2da5da0e28bd7a4c3ce3d99e86",
+    "apps/tools/src/components/shared/file-tool-shell.tsx": "b6937efcdab8f97ecd52599cfc1cf049b77afe3d223f5a08851731863bf26990",
     "apps/tools/src/components/shared/tool-appearance.tsx": "056ae9ab57ce97d572e0da0500b8ac066c12f4ce97940d8f4eaa51767e4a9a3c",
     "apps/tools/src/components/shared/tool-artwork.tsx": "12267557e43acf0ca08739c0e08f0c57002cf6a57d0f4b020aa355e5727e829e",
-    "apps/tools/src/components/shared/tool-frame.module.css": "7617d07126a75c82d7dd3f98320c823857be36c7535a728ed1c708b0aff72a32",
-    "apps/tools/src/components/shared/tool-frame.tsx": "ae810af25b127d6843f43750c8bbe5a4baf5301a49530b6e63c3aca0aeadf419",
+    "apps/tools/src/components/shared/tool-frame.module.css": "6e55f139e888e84ca15ae79a7ea54e41dacce2df7dc1ba10cf88837c9547c4d3",
+    "apps/tools/src/components/shared/tool-frame.tsx": "089504dec43d74095fc29b8ab7947c1a613ce25b222c655e3c2f6700cac40c85",
     "apps/tools/src/components/shared/tool-help.module.css": "f0398670b518ee48d1cd2f8e16f44ea438bc4d1771531622fbc6895bdc2f2b3f",
-    "apps/tools/src/components/shared/tool-help.tsx": "2052a61671b6493c47692f54d89b744b23606d22ca331b2d53c7d7a3afcf40fe",
+    "apps/tools/src/components/shared/tool-help.tsx": "2c4eba9748e365b63c7d9210295c41bbc8dcd1e8f8adf8b3534fcbe7d39a9150",
     "apps/tools/src/components/shared/tool-zoom-control.tsx": "3f1251894e29ab6c8a36e4a6f5ba5b60f0464d6e3ae194a309f5f268bddca642",
-    "apps/tools/src/components/shared/window-shade.tsx": "7ccafee7bd60e03838cd47575a11d5f0340ab45b5cd8eaeac7249f72c7202b52",
-    "apps/tools/src/components/viewer/viewer-page.tsx": "eb4ae2c2092094329c06c69750c92773c950890127ac592a3a8607633ee9cae4",
-    "apps/tools/src/components/viewer/viewer-preview.tsx": "16f8689e0849363e702bc6d4fbf975d8a931eff3e229e96d20636dc118563941",
-    "apps/tools/src/components/viewer/viewer.module.css": "299cd19fce0413a8da381855993a147fb34d974e786f3c80a057bf0fa3afd2d3",
+    "apps/tools/src/components/shared/window-shade.tsx": "e4659f059c1ea9a774237c8ad79b9def66b97b24f3ca04cba9391c851f22e6d0",
+    "apps/tools/src/components/viewer/viewer-page.tsx": "ce2a413522c036767f417e21e759d238a0d2b4b42b518371cd816d6103763f24",
+    "apps/tools/src/components/viewer/viewer-preview.tsx": "03ab4e65c4ecdd1a97787ec0e6d6fd155af6230bf2883ed74efa3572af774610",
+    "apps/tools/src/components/viewer/viewer.module.css": "c0e26667ac0f81b8cea47cf114eeaad3ea1a7d390e8247137db5b2f1c6c76b5d",
     "apps/tools/src/env.d.ts": "1e2d430235e00172c1818a54ff2b7424ff689f9d3d2fd9836482073d9e4634b8",
     "apps/tools/src/gif-main.tsx": "12a729cb0b2f6387c340d4849065c6bbf2579d721a364cbb207bd0e1300006f5",
     "apps/tools/src/main.tsx": "7caa00cbf61153a447f1bbf4375fb7c230f1046d5ff0320f305fd2eb39ca9dcb",
     "apps/tools/src/managers/animal-crossing/animal-crossing-manager.test.ts": "65d7edfdeac027204e6c5eefbf28ccca08d2c18a4acb70b1149ae966a8bf8a3f",
-    "apps/tools/src/managers/animal-crossing/animal-crossing-manager.ts": "606324045a82beef2b4d4d3971eb15ca182c56c69bb258de9f2d5aa4f9f5df22",
+    "apps/tools/src/managers/animal-crossing/animal-crossing-manager.ts": "6bd6b4ea714c1112daaa8c02145f9cedcf6f0ac7b1da819302203f38bd621979",
     "apps/tools/src/managers/animal-crossing/ground/ground-manager.ts": "cd264e0439e77275ff82569369b0093a5b5b2a4b186e7fa8e3b775ed4da89e2e",
     "apps/tools/src/managers/animal-crossing/ground/nearby-surface.ts": "e90fa63725bf324c7ada1953e14f617779d95af2046322c20cd405f4a1c3a104",
     "apps/tools/src/managers/animal-crossing/ground/source-surface.ts": "6da7e3efe9f2b0f102fbbe64b864580e51fae018fefb1116245c71c7138f21c8",
     "apps/tools/src/managers/beads/bead-failure.ts": "d07065e272b6e49cfd3f5766f692d0e27baeb9f6249a92a2b8218089d2cbc0ef",
     "apps/tools/src/managers/beads/bead-tool-manager.test.ts": "433f6d71ca6d2919218619fa0cc8cba98af353b90502857e2ab2d94235f3bf71",
-    "apps/tools/src/managers/beads/bead-tool-manager.ts": "7b38393c4de295fbf8bcc6d74eab9ef8fc8ceb8a56c8361b726e11f38f866787",
+    "apps/tools/src/managers/beads/bead-tool-manager.ts": "8516b9720162cc69f8e3d7b4daf8fcb45f2bd98e0f9d917232c393fa0293c69d",
     "apps/tools/src/managers/files/files-manager.test.ts": "ecd3b19e8166790f6327f661d5b9c727ff4ee1c6e6935a51efe0f97f27c80019",
     "apps/tools/src/managers/files/files-manager.ts": "75598f65c1ef95a4fd6252d0d6c9644a52c52ac545160a30abf4ef6140180a96",
     "apps/tools/src/managers/files/files-model.test.ts": "e49a821bd73813c1cfb6d2bbf7d307ade3ef92ab582eb4e4f6acae7828fad6db",
     "apps/tools/src/managers/files/files-model.ts": "f73d534bb9d4b45607bd1510efc62f4cac891d6ae44843bf8d3a50c74470a771",
-    "apps/tools/src/managers/gif-sheet/gif-sheet-manager.ts": "1ec6442ada269d67e51dbfbb8c8776967d183aab1ac7e23f657eec59ef5f803f",
+    "apps/tools/src/managers/gif-sheet/gif-sheet-manager.ts": "a6f1b667ac93079173fa275fa5ebc2d2ff7c8c03595d3c03f435f17f02ffc6f1",
     "apps/tools/src/managers/locale/bead-text.test.ts": "127640410c4557d5f7f50343f6cccb0e1993fc828c8b1dcaaadb3ae141e15c00",
     "apps/tools/src/managers/locale/bead-text.ts": "32cbf4fdda4f0519acaa2690cdfdf7cd717d5be4aeb0414f4e6505b204e7e5cd",
     "apps/tools/src/managers/locale/files-text.test.ts": "b520b849816cf886b971e8e6d25bded917a560d228cd5aa1506b240ee5f22e25",
     "apps/tools/src/managers/locale/files-text.ts": "1c6384ca9a36704c06ff17785c507b1a180ad533274bad24524a75735a5fc2f9",
     "apps/tools/src/managers/locale/tool-language.tsx": "3a34a838a91912fbd357a88b0f0d7e0ce43ab479808c4cde7c874eafddbd1f36",
-    "apps/tools/src/managers/pixelation/pixelation-manager.ts": "7918626a5e22441c7d93082a5962cc341fffd511e2bc5d86e00be09bcb99d3b7",
+    "apps/tools/src/managers/pixelation/pixelation-manager.ts": "946f90e08ecd6ee5c0ac9b880a024ea10766d7c8552d78a716a1927412dfbe6c",
     "apps/tools/src/managers/ports/animal-crossing-ground.ts": "420ec1668836086eac873cce557aa43abc10d426f35dba57cbd6364be79467bc",
     "apps/tools/src/managers/ports/animal-crossing.ts": "08a4f421a39a2d33a2f579e1911326adb7a99badb01cd3d948554ed07c584117",
     "apps/tools/src/managers/ports/beads.ts": "c5d431be377dd51bd2e8e0e136add25f33600c71b51712bd08cdd15ebcb6f7ad",
@@ -1338,9 +1338,9 @@
     "apps/tools/src/managers/viewer/frame-cache.test.ts": "c68c19d22ff1312e398747f7c945f183a87df2b9388a6bdf2d83db387299d66f",
     "apps/tools/src/managers/viewer/frame-cache.ts": "05d2e3f845cbea23afa373272ab8d3fa076f177355d7daf13bda0f181920dbdc",
     "apps/tools/src/managers/viewer/viewer-manager.test.ts": "b8d88b526d6b7302819c75bd2834a8a6066a54bd15cbe33477f3df1bcebbeba2",
-    "apps/tools/src/managers/viewer/viewer-manager.ts": "4bc7a2eaf34683b28a366c84a4f139cf3402de3e8366ef444d9a4daabc1bd725",
-    "apps/tools/src/managers/window-shade/window-shade.test.ts": "f2a824124df723c4126e7cd65eb2e89e593e24e8a608da9503a8b3298c01a84b",
-    "apps/tools/src/managers/window-shade/window-shade.ts": "eddc14379bdcb2c07a9a96522eb9577882a84736a58bb1d5be6d278f3dc7ab07",
+    "apps/tools/src/managers/viewer/viewer-manager.ts": "29d82812fb33c69818cca62ea59b883731496e7222dd8ebc82ca34a75ae1cd6b",
+    "apps/tools/src/managers/window-shade/window-shade.test.ts": "2f0010b7a36fd8e6015da8924f1808caaa7f770a151d22d4f08b0a19bf9f3f2f",
+    "apps/tools/src/managers/window-shade/window-shade.ts": "1ff4a177018623444739076da1e5fd49c7a47be81518971752e65b5d6327ddc1",
     "apps/tools/src/pixelation-main.tsx": "6d95ef17c9b641cf16abdf54c2e6100c07475b00e3b4d70d5da5cfbaefd11eee",
     "apps/tools/src/ssg.tsx": "65a98d4328c9ac147a7247fdb54ee1a5a2a02be5d67b91d57783ede08f8b4722",
     "apps/tools/src/tool-application-root.tsx": "a169e023310c59840f4cbff647602aac972a6fe0d9f2b5d3bd22cb89b06d3a79",
@@ -1795,15 +1795,16 @@
     "packages/editor-ui/src/timeline/cel-artwork.ts": "8f3e43c17d957f235fe500d7c135130bbf8c973fa02a9d1bcecfbda8ec148101",
     "packages/editor-ui/src/timeline/cel-thumbnail.ts": "f855ba0e78d1523c344a134738af2ae925e1a5ebc55c403bc691646cd88c032c",
     "packages/editor-ui/src/timeline/frame-artwork.ts": "41355b9e1121fc1ac032c90518d3d2f797333c6a634d889e1920e228a721b9bb",
-    "packages/editor-ui/src/timeline/index.ts": "44c2ea7416c492b924b24466a2aca79cccf4719c6243bd03d7fd568902652bfe",
+    "packages/editor-ui/src/timeline/index.ts": "7482f24edd34870f6047ba633053f5ce1e1d7754cdfbd18c21cf065711531e97",
     "packages/editor-ui/src/timeline/layer-artwork.ts": "2f044105e650e535dbc95829c50477d0743bc9a9cbad5615da5348fbc7dfb24d",
     "packages/editor-ui/src/timeline/layer-flag-controls.module.css": "3931ad43fb56e65e480a738c76915ff7a944c6cebf88c12b2a2b1d2ce0d4ca12",
     "packages/editor-ui/src/timeline/layer-flag-controls.tsx": "095a3f24fb992ad50867ce49c47a8e24a26704889f683fc687db54819ef8f278",
     "packages/editor-ui/src/timeline/layer-row.tsx": "0330a4177bc8dcbce210cfe1e3a06975d0342f10a5dbb7ed2392bfd74865f03e",
-    "packages/editor-ui/src/timeline/read-only-timeline.tsx": "bceec775f79e4ff9c0cd48154606dbe4ed544a3ebb1207c8a846ef873b2ac171",
+    "packages/editor-ui/src/timeline/playback-transport.tsx": "a1986a3e331e8e8154bcf8b837c3dc7c10065ec23d3f7539c008f93767015622",
+    "packages/editor-ui/src/timeline/read-only-timeline.tsx": "7049ad7b08768cce80c8ba6b9b217e4bed283efed28f2f066a05e5b952f92f76",
     "packages/editor-ui/src/timeline/tag-artwork.ts": "e54b25b8a131fbe235078c6b97d7dcf641b5821e16b289f831eed3605945e710",
     "packages/editor-ui/src/timeline/tag-bands.ts": "ee800b809515bbf51538b2ba12f67b29e37903d975e7a68f489f67256117d8f4",
-    "packages/editor-ui/src/timeline/timeline.module.css": "da779f1252a49e06bce09d449e12ec65906513f03719e4db49745dc46a12b328",
+    "packages/editor-ui/src/timeline/timeline.module.css": "8d8582c92ad7fba89ab3df469717585db06d329a43dcb8adedb1fbfbbda0e769",
     "packages/site-shell/src/adapters/browser.ts": "7d923188fb332112f7e005ac8e4773362cf7cb8d09b830c86c35da5c570e0338",
     "packages/site-shell/src/components/desktop-provider.tsx": "f23f6b51127d567e2ce8ba26ade65687d30c61d0cb4bd6b14655c443d257132d",
     "packages/site-shell/src/components/pattern-colors.module.css": "a9e7736bb4a4ad581dc19ad47990072ee0233414635dc4d794817dfa9a6ebb0d",
@@ -2149,7 +2150,7 @@
     "packages/ui/src/base/utils/use-element-size.ts": "6c5e9c329e068494690e49b2fae939d6d520f81cfead7e685c01b3b4a26f9697",
     "packages/ui/src/base/utils/use-pointer-gesture.ts": "6fcf90b7ac2c85c39b103dcbe65381437b8cd663c992c477dc0dc2cd06ed7aef",
     "packages/ui/src/base/utils/window-workspace-layout.ts": "14b23874b97b8220dd473f48110e9f72917d66ec6cd8d503468cc1fe949b7bae",
-    "packages/ui/src/base/utils/window-workspace.ts": "dda513fea6d616dc2096c177a65a3dcfeaf555a7fca81f4c33a2dcf06e7c68da",
+    "packages/ui/src/base/utils/window-workspace.ts": "dcb60ee43858aed61a8cb5238d7ba7e548a9a61e1a9135347cd6adb75a662835",
     "packages/ui/src/canvas.ts": "fc0013b1616f6228b20283dcfba6c2e542c1acbfd7e60253445ca307cfdc8392",
     "packages/ui/src/components/border.ts": "6415b6a2652c766daf13ef3a5bac97fd9659301268fb4e7fba3b7177c1936c79",
     "packages/ui/src/components/button/Button.tsx": "5ec65ef5a84670814d3324b990187c30e3a8305c546aaee0a64c805466f8d7c2",
@@ -2177,7 +2178,7 @@
     "packages/ui/src/components/button/variants/standard/ThemeButtonArtwork.tsx": "900bf0a301b98e384fa0265336910a5083847d7721e42077e77489ffabda78bd",
     "packages/ui/src/components/button/variants/standard/index.ts": "6ea4359971e0ccd984b1d110734ea40d0ee13ce8109a23683c10543b00fdaade",
     "packages/ui/src/components/button/variants/tile/TileButton.tsx": "bb6abf5fd1171165eb69a15330c61d2fed0104f62308b19877ace970af6439ce",
-    "packages/ui/src/components/button/variants/tile/tile.module.css": "edba8db28f3003f0dbf009ad6998e4fd3e6bce1caabf33b87e98f8def08a4f9f",
+    "packages/ui/src/components/button/variants/tile/tile.module.css": "9e2b550c9c2e171ad4eb9f39a5ea8ee996186b68cc558775a112ee188191f0d0",
     "packages/ui/src/components/button/variants/tool/ToolButtonContent.tsx": "6d22f593af3c1c82d7eecd814c72984bc5b3f9d7e5e5b4c39df7187b37992b37",
     "packages/ui/src/components/button/variants/tool/index.ts": "b8effe1d5f36c26441620b0f12a5b5a5b47bc3c4c052bbcee528b2c48da6d9a8",
     "packages/ui/src/components/button/variants/tool/tool.module.css": "754688ec8db662f1eac82f78c9e68871b753d168f00cd7ae881172949f144978",
@@ -2200,7 +2201,7 @@
     "packages/ui/src/components/color-selector/color-selector.module.css": "c5265433c031609466ba7c2bba8d29d67a481702f58b83fdc16026fe1e87dd7c",
     "packages/ui/src/components/color-selector/index.tsx": "991a1d68c5b45218b9e4c3c6cfd4b78e71437454d0033866cfdfc90278b63950",
     "packages/ui/src/components/combobox/arrow-position.ts": "c84920ab061dd993549754117baec1e75404ef820cb74ed4a0f970b3b9284a78",
-    "packages/ui/src/components/combobox/combobox.module.css": "2be4ebe68df6b8ab2c7abb3c447f06450d62a7083ebb4e64abed59f1b861e6de",
+    "packages/ui/src/components/combobox/combobox.module.css": "c12da2038a7e0b1ce427ed246119e3f475cdbd665b9180839a62c9490912662e",
     "packages/ui/src/components/combobox/index.tsx": "5f5950dafd4a670354640fc2b84936ddd5a6465a3e75c1249dae6539cc0f29a1",
     "packages/ui/src/components/control-flow/control-flow.module.css": "36b29373a81d8d29161cd55f05a7735156557af46229d3d44d81b7f6c22338f9",
     "packages/ui/src/components/control-flow/index.tsx": "3233eeabe8dab0eaba8f66a3eb01760b7d796ebf7d44cd5e5dc4ed9d5936f860",
@@ -2217,7 +2218,7 @@
     "packages/ui/src/components/field/index.ts": "9257c1f0dc1cbd340a7bdea5093fa1d0da69d464af29f26fe6accea75c21be14",
     "packages/ui/src/components/focus-ring.ts": "4d52eb8645538b29201af36d96060350e62ecab258f3b8feb060ed2b533cd39e",
     "packages/ui/src/components/icon/icon.module.css": "860849e8ad46ae422c51d5970fcc0222d985ad89a0896a28908bbe2ce5b0f7f0",
-    "packages/ui/src/components/icon/index.tsx": "3cf5e1285e953516135879761ce7edfe81ff541f99d0f9a6ac58a9cb270beda2",
+    "packages/ui/src/components/icon/index.tsx": "d1293fc63b4ef7876cfe63797732b710249601670dad1c5a50df7ac1878f662e",
     "packages/ui/src/components/index.ts": "e393c0e9162ab85834d0bbe8ae4126e4976fa22c1ac2139ec43458968a1cdda6",
     "packages/ui/src/components/input/TextArea.tsx": "c7bd2bfdcce022cda9670fece9327a6b552e4affb70983982152934c997f426d",
     "packages/ui/src/components/input/index.ts": "87f9cc06e9fc6d4330d00bf0b1c2ace0aadd3f64bbd895daa759410fdd35487c",
@@ -2325,7 +2326,7 @@
     "packages/ui/src/components/theme/portal.tsx": "2acf2455151086cb038dd9f7427fae2c7f57477906bd3f4b330e555119101c85",
     "packages/ui/src/components/theme/provider.tsx": "51346937766ab053264a08ab51745d8c7d94ccb2d834b04acf21d64ab66fcf58",
     "packages/ui/src/components/toast/index.tsx": "003b6084ec28757a194a7872c199a8cf8968003be6a47cc1721a828205a34457",
-    "packages/ui/src/components/toast/toast.module.css": "646e794de7cca35d30553c207d78abd493f663b975d7a29c64950baeee4e1e9c",
+    "packages/ui/src/components/toast/toast.module.css": "e2096aed94089fe0ad88fb1266e5fe4ed08f86bf6f451fb53f8baf468537b513",
     "packages/ui/src/components/tooltip/balloon-frame.tsx": "f3c2347bd589ac6aa58896037a88873141369e3977cf01e27f1bc4b0e76e633e",
     "packages/ui/src/components/tooltip/geometry.ts": "880684aa440c1d1d2152619e5aed69cbf1a5901d3d1ec7c1b7e62b6737470d16",
     "packages/ui/src/components/tooltip/index.ts": "8ddc1b58b29c6980f9250e3187f9945fcc5bb8a672a6c0c8eb0702abb29b3da8",
@@ -2345,24 +2346,24 @@
     "packages/ui/src/components/window/alert.module.css": "a55840f70c0a822b80048aa01e9ab3ff719c321c46477c1468873341b6dd57d3",
     "packages/ui/src/components/window/dialog-backdrop.module.css": "acaa189db44fa58662636ec6b4a0df7750c7e4c75bcf1ec61224692910a99dc4",
     "packages/ui/src/components/window/dialog-portal.module.css": "84f22ae3d191bfdd08d6d77206456aadd24b4ffeeab4907498d51acf430c28f7",
-    "packages/ui/src/components/window/dialog.tsx": "0d86382a5d8c33e330c2665e260c326e9056b02eb4cc606b10372ac7e2c6b1ff",
+    "packages/ui/src/components/window/dialog.tsx": "83197976d8bea2c2613569924fe9893ad1852b8af2c94c002b2afcb383e8f3e4",
     "packages/ui/src/components/window/floating-layer.module.css": "1b5836af95cb09cc45b91ffa1bd5fad7249be20e0390576bb2116d39209cbff5",
     "packages/ui/src/components/window/floating-layer.tsx": "7004281ff4f0f6f2e470bcb1fd7000fab4e4b21dc4bfe98693848d0e191e4c74",
     "packages/ui/src/components/window/focus.ts": "a73d27d6d6371150ed9806b1d266091ea271aa2e3b212ed5cbe599bcff4a7d71",
     "packages/ui/src/components/window/gesture.module.css": "7530c42b719ce87c40bd83154a33ec17aee430a25c85f8ac48bd200dda0e1567",
-    "packages/ui/src/components/window/gesture.ts": "88783e2814a14b06c2960f1600a9368a71c68935466dc1897c728c5603fc16b1",
-    "packages/ui/src/components/window/index.ts": "f63beb72074cef69c37c544af1247c0d5be62521b4cc466b057c7273583b991d",
+    "packages/ui/src/components/window/gesture.ts": "dc0f45b2834fb51cafdfe92240684bdff78c1ec119cdfb6ba889642ecc3c7bee",
+    "packages/ui/src/components/window/index.ts": "e1932ba4ef7ca6fb79b89efb6940d5c96c041d30d8607b52ac55d8ebc99cb33f",
     "packages/ui/src/components/window/interaction.tsx": "c00570e044173c17534387f5ffb74cced231276b7744a6c6c1628e0fd641e6c8",
-    "packages/ui/src/components/window/metrics.ts": "6289782745abe398032da4591cc334a29dc5807b9028283d6e444fdfc696cced",
+    "packages/ui/src/components/window/metrics.ts": "7614f3eb15e41f353b5e395bc4dda33af3e073bab9cdc9adac5bf42245fe1e23",
     "packages/ui/src/components/window/scene-focus.ts": "a3ed2bc9e4bf7075d8d77818d30f161a6cf4614af27f76bae4b60802b833a609",
     "packages/ui/src/components/window/variants/popup/index.tsx": "acea0742c60258e0f24e81a8646ef007153820fefe324f2f284a6d4536a9e1f0",
-    "packages/ui/src/components/window/variants/window/index.tsx": "cae8ba77e724605a308190ae7106535b2a0e093fbc0bf52a4727d481329730f5",
+    "packages/ui/src/components/window/variants/window/index.tsx": "4c0b59725b0c56499abc19bd0999a2c7e08ef9d65c24af0c16d4f6d95aa46816",
     "packages/ui/src/components/window/visible-scene-bounds.ts": "ba71c4e263a10b3e923e3d1c323781a98d8b3d6c79eed80f8a33ddf5d1c8ac27",
     "packages/ui/src/cursor.ts": "3aee0fb2a841cf199acf58cf4b889a650395c4d015374d5d61672a8300145899",
     "packages/ui/src/index.ts": "241091be7c449d0d0c89e3a2deee5a5dd7e36db985761f991cd7076cca4e5a61",
     "packages/ui/src/popover.ts": "4c72ba441746f3f637366a333b9f29025e0924fd250be94835964babe3a19963",
     "packages/ui/src/testing/esbuild.ts": "f42cddcfad83c942065bc409fa5b374cb31d07b04c918684257040a5c086b6da",
-    "packages/ui/src/utils.ts": "e94a8f06a7e2473088a9884194f2cae9261611ef2eea27924d12f5b830600152",
+    "packages/ui/src/utils.ts": "f3c84dac551136db54dfc9b37ec26982600525065a071d8972c31947ffcdda31",
     "packages/ui/src/vite-env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
     "packages/ui/tsconfig.json": "39f1ea9304624e1f2f25ce3ed5e661f6afbfbc2fac1895408555e921338fcb38",
     "packages/ui/vite.config.ts": "4461c02d22002cacb254e22f7cc6499851e6a2029683e1495457cac8c7eb8368",
@@ -2377,7 +2378,7 @@
     "scripts/visual-audit/site/sources.mjs": "19e78a016dc040ea7ee423018fdab627b358eb07ca0be634355804deae975d59",
     "scripts/visual-audit/tools-startup/scenes.mjs": "bbbfab975f0bbab717c01ab0b4b6523eff6331dcd49832b810eda284614e96b7"
   },
-  "sourceDigest": "48a5202eb35abb907d57582698cf3c8bee1b5b7d019dfd7a681c7249a18f9d6e",
+  "sourceDigest": "590dd782eb0d6e3b372fb23208acbb3bed7bc1ff0cc1200c6134ec69bcd2192f",
   "scenes": [
     "about-zh-CN-wide-light",
     "about-zh-CN-compact-light",
@@ -2430,7 +2431,7 @@
   "cases": [
     {
       "id": "about-zh-CN-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "about-zh-CN-wide-light.png",
       "contract": {
         "id": "about-zh-CN-wide-light",
@@ -2466,7 +2467,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:37.943Z",
+        "capturedAt": "2026-10-16T03:14:37.830Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2494,7 +2495,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "b8528b167b33492e52315cb6722794e1dc649cbe0582737e8f4c0673b48d1c09",
+        "sha256": "dbdf03e4e94788ab21a1fd002df4db457ac4eb8918a8b7fc36151f937c0a2012",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2530,7 +2531,7 @@
     },
     {
       "id": "compare-zh-CN-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "compare-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-zh-CN-compact-dark",
@@ -2566,7 +2567,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:43.050Z",
+        "capturedAt": "2026-10-16T03:14:42.639Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2594,7 +2595,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "2e62eed2547f6bd820689d1434def369227eab6d819c0863e87f392a3b113af7",
+        "sha256": "c81b2140d8e8b2f63bd43481368aea168e7bddbabb423dfcc9260b2d40616e22",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2630,7 +2631,7 @@
     },
     {
       "id": "features-aseprite-projects-zh-CN-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "features-aseprite-projects-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-aseprite-projects-zh-CN-compact-dark",
@@ -2666,7 +2667,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:45.830Z",
+        "capturedAt": "2026-10-16T03:14:47.090Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2694,7 +2695,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "1e4bcc5172c91b952ed983affd5bbf9975a7be7e0a71d9513334968a08486f05",
+        "sha256": "906fbd6a1b208c3fdb59538fcbbe903a10d91784b002af111b727b72178642fb",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2730,7 +2731,7 @@
     },
     {
       "id": "features-frame-animation-zh-CN-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "features-frame-animation-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-frame-animation-zh-CN-compact-dark",
@@ -2766,7 +2767,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:48.570Z",
+        "capturedAt": "2026-10-16T03:14:49.544Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2794,7 +2795,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "c138c18e27b43e3a04fd0a4390428ea23b7bf9792c1edb34e4d6ff2d0a0b1003",
+        "sha256": "b14031a458b6c1baddaa09ea0f8a3234432e660a27b2633443d74dfeb617d90d",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2830,7 +2831,7 @@
     },
     {
       "id": "features-touch-drawing-zh-CN-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "features-touch-drawing-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-touch-drawing-zh-CN-compact-dark",
@@ -2866,7 +2867,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:50.661Z",
+        "capturedAt": "2026-10-16T03:14:51.988Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2894,7 +2895,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "35f863dfde00ef9398d4923089238727d71630cd2e3263af41674d488aa94e80",
+        "sha256": "53080bda354f77c449b34e0d6f870ebede883270deaee803bbb02c41047d9f83",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2930,7 +2931,7 @@
     },
     {
       "id": "tools-viewer-empty-en-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "tools-viewer-empty-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-empty-en-wide-light",
@@ -2967,7 +2968,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:53.383Z",
+        "capturedAt": "2026-10-16T03:14:54.577Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2995,7 +2996,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "1e8c3fce0ff7c4f4c9f02897929e2b99cd00dd44429c015db5fcc79b9a171c4b",
+        "sha256": "db3f413bd5767cfa01a9f21660d51642aea8189554f39ac09ba4e1dceea28586",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3031,7 +3032,7 @@
     },
     {
       "id": "tools-pixelate-empty-en-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "tools-pixelate-empty-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-empty-en-wide-light",
@@ -3068,7 +3069,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:55.613Z",
+        "capturedAt": "2026-10-16T03:14:56.668Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3096,7 +3097,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "1ac512e0e6946b5ab603eaa2b8459a50dbeec3e4daef6959e597becaa7e6241a",
+        "sha256": "d6264962457fc88d0982c4c5a561c52fd9bb5d858c7874daa9b59beaf3f579a2",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3132,7 +3133,7 @@
     },
     {
       "id": "tools-fuse-beads-empty-zh-CN-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "tools-fuse-beads-empty-zh-CN-wide-light.png",
       "contract": {
         "id": "tools-fuse-beads-empty-zh-CN-wide-light",
@@ -3169,7 +3170,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:57.971Z",
+        "capturedAt": "2026-10-16T03:14:59.156Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3197,7 +3198,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "38759f1aefe7ab6a56016140e261389839872947cc2ea161e57ecfb4033ed298",
+        "sha256": "fe237e6207be55042bbd76f846fe4457f4e929bc5aecf98c1c4926078b144e21",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3233,7 +3234,7 @@
     },
     {
       "id": "about-features-en-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "about-features-en-compact-dark.png",
       "contract": {
         "id": "about-features-en-compact-dark",
@@ -3269,7 +3270,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:59.414Z",
+        "capturedAt": "2026-10-16T03:15:00.390Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3297,7 +3298,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "c2a628370a3216782f469b07a502d54e2baf683ac723779391484a474f17558a",
+        "sha256": "81e4088e104bd1f5b0af0ebe82062919f7b263a97fd0b41bbdab571213686c3b",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3333,7 +3334,7 @@
     },
     {
       "id": "site-footer-zh-CN-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "site-footer-zh-CN-compact-dark.png",
       "contract": {
         "id": "site-footer-zh-CN-compact-dark",
@@ -3366,7 +3367,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:43:00.830Z",
+        "capturedAt": "2026-10-16T03:15:01.998Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3394,7 +3395,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "066bf2fd4e477f7d4e98f20bc3f6ba4ac5ef9d85d8e8a583948b534ddcd2c3e9",
+        "sha256": "6feeedf4b9f38766a8718de7351414c5bca649e6813cf380fa2c58d736f09518",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3423,7 +3424,7 @@
     },
     {
       "id": "help-ko-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "help-ko-compact-dark.png",
       "contract": {
         "id": "help-ko-compact-dark",
@@ -3459,7 +3460,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:43:02.306Z",
+        "capturedAt": "2026-10-16T03:15:03.418Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3487,7 +3488,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "67e27c5ea6b6c2eb5b4226a83bffa07b5d987fdeea5a9d40da6b23c929774cb6",
+        "sha256": "71d157f5b6903d853805aa6195ef488e4d21a508f966b95d35c810cb271a9581",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3523,7 +3524,7 @@
     },
     {
       "id": "help-pt-BR-compact-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "help-pt-BR-compact-light.png",
       "contract": {
         "id": "help-pt-BR-compact-light",
@@ -3559,7 +3560,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:43:04.024Z",
+        "capturedAt": "2026-10-16T03:15:06.942Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3587,7 +3588,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "59b60351834a2f0cc59d0531d72963e2b506b7224cd6d84ab9bf8b8ca6092057",
+        "sha256": "550474987febf6a92583eae45266724d85a5f6e437033842d3f22ea1363af1bf",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3623,7 +3624,7 @@
     },
     {
       "id": "about-zh-CN-compact-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "about-zh-CN-compact-light.png",
       "contract": {
         "id": "about-zh-CN-compact-light",
@@ -3659,7 +3660,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:38.314Z",
+        "capturedAt": "2026-10-16T03:14:37.926Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3687,7 +3688,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "adbb8d47aac68691c08d1d663556228f9080d4ff161ba3732a39ea3247962888",
+        "sha256": "6066518fa969b1e75c1fe55ffe2e65fdfbf892b39aeb9c14476c27d55908380d",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3723,7 +3724,7 @@
     },
     {
       "id": "compare-aseprite-on-ipad-en-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "compare-aseprite-on-ipad-en-wide-light.png",
       "contract": {
         "id": "compare-aseprite-on-ipad-en-wide-light",
@@ -3759,7 +3760,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:43.622Z",
+        "capturedAt": "2026-10-16T03:14:42.549Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3787,7 +3788,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "6c4db90dbcc1d1a1d22f83e6a7eeca1e7c6a92d3db06a93eb03eae86741ee783",
+        "sha256": "af45358e405d993efeb84a978e9a0bb2da3ff824ad824c6e43afea37e2b788e6",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3823,7 +3824,7 @@
     },
     {
       "id": "features-draw-pixel-art-en-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "features-draw-pixel-art-en-wide-light.png",
       "contract": {
         "id": "features-draw-pixel-art-en-wide-light",
@@ -3859,7 +3860,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:46.951Z",
+        "capturedAt": "2026-10-16T03:14:47.013Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3887,7 +3888,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "8aa26ea05351fcc6408562f61781290067a47c256a6c6a20719b027a913437fc",
+        "sha256": "78eddda7f930ec300fb49d7fc936489409be79f6d6d51fb8c7aacc7abcdd306f",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3923,7 +3924,7 @@
     },
     {
       "id": "features-layers-and-colors-en-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "features-layers-and-colors-en-wide-light.png",
       "contract": {
         "id": "features-layers-and-colors-en-wide-light",
@@ -3959,7 +3960,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:49.163Z",
+        "capturedAt": "2026-10-16T03:14:49.511Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3987,7 +3988,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "c074d7e23a5f63502cff5cfb935694d9065d390a67cbf5558acc2989fbd52d4e",
+        "sha256": "5a2a38be110c63fe960ccb5be77c6dcfdc72e81898f91c04a80f84be8cf38180",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4023,7 +4024,7 @@
     },
     {
       "id": "features-workspace-layout-en-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "features-workspace-layout-en-wide-light.png",
       "contract": {
         "id": "features-workspace-layout-en-wide-light",
@@ -4059,7 +4060,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:50.939Z",
+        "capturedAt": "2026-10-16T03:14:51.830Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4087,7 +4088,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "3d8a28cf4336a549d463302f38442c93c043670c1ae8b1dac493635492cc84cb",
+        "sha256": "01ce9f9003dd83a7ca6008b6f1577aca3d04bd66811dbb6cb305bcb861db0664",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4123,7 +4124,7 @@
     },
     {
       "id": "tools-viewer-loaded-en-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "tools-viewer-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-loaded-en-wide-light",
@@ -4165,7 +4166,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:54.492Z",
+        "capturedAt": "2026-10-16T03:14:55.242Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4193,7 +4194,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "70e64659c45fd5c0f09c6b1885d8a360bba87f9d62b22a840db6e44dfa5409e8",
+        "sha256": "f28b64d8b0c7d108962868d8af119d63468c97939cd2efb1f07a880609df114e",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4236,7 +4237,7 @@
     },
     {
       "id": "tools-pixelate-loaded-en-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "tools-pixelate-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-loaded-en-wide-light",
@@ -4278,7 +4279,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:58.585Z",
+        "capturedAt": "2026-10-16T03:14:59.032Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4306,7 +4307,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "b8115e270c6a43e50ffc0fbaa8c9ad9718a8cc5fb4e9041a63758eda92f2bcb5",
+        "sha256": "1281f6b317069d715c1d806429cb506958efb5e74affd9bfb6fb8ae22891acff",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4349,7 +4350,7 @@
     },
     {
       "id": "tools-fuse-beads-loaded-zh-CN-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "tools-fuse-beads-loaded-zh-CN-wide-light.png",
       "contract": {
         "id": "tools-fuse-beads-loaded-zh-CN-wide-light",
@@ -4391,7 +4392,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:43:01.200Z",
+        "capturedAt": "2026-10-16T03:15:01.743Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4419,7 +4420,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "fd962f0e3c8c4be28b9319039b5fda94f4b44e932b89f97418578cd0518e7eb8",
+        "sha256": "4e61edf6738e5b1ffe51c8b7b4c85e73db643183a6a3533c2f32321db7320a7a",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4462,7 +4463,7 @@
     },
     {
       "id": "feature-window-tools-viewer-en-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "feature-window-tools-viewer-en-wide-light.png",
       "contract": {
         "id": "feature-window-tools-viewer-en-wide-light",
@@ -4504,7 +4505,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:43:03.422Z",
+        "capturedAt": "2026-10-16T03:15:03.922Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4532,7 +4533,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "a05c35294f1c88a29bb270d5f7d441931ca767de8d25b171c59c1954abd06cec",
+        "sha256": "ad88288eb7942a69b56f4c1411e642b32915b60f2b3df2a52098d41d3c400b37",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4575,7 +4576,7 @@
     },
     {
       "id": "about-ja-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "about-ja-wide-light.png",
       "contract": {
         "id": "about-ja-wide-light",
@@ -4611,7 +4612,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:43:05.664Z",
+        "capturedAt": "2026-10-16T03:15:08.306Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4639,7 +4640,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "4f223a051ef9e13b1b4f34fc3d8d64fd7ff43201660a2b04bf94fefabd240ca8",
+        "sha256": "dc92b9a729ee40d46106265ac6e641c683492ddd5c382faf7ecfb3f97852c6cc",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4675,7 +4676,7 @@
     },
     {
       "id": "feature-window-features-layers-and-colors-ja-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "feature-window-features-layers-and-colors-ja-compact-dark.png",
       "contract": {
         "id": "feature-window-features-layers-and-colors-ja-compact-dark",
@@ -4718,7 +4719,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:43:08.767Z",
+        "capturedAt": "2026-10-16T03:15:09.560Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4746,7 +4747,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "bd791ec155ea0774b9abdb782a302f9b336004bddcf1665a6032240d015ad720",
+        "sha256": "eddbd7c4392dee0f9dc3bcda9bc6f914e6c81ae5c136a351bde3bee896a7e074",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4789,7 +4790,7 @@
     },
     {
       "id": "compare-aseprite-online-es-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "compare-aseprite-online-es-compact-dark.png",
       "contract": {
         "id": "compare-aseprite-online-es-compact-dark",
@@ -4825,7 +4826,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:43:09.752Z",
+        "capturedAt": "2026-10-16T03:15:11.402Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4853,7 +4854,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "ea111ff63e5d3bc9cf9cced22183ff7eeeb3f8160be9f26ad18eaad30536544a",
+        "sha256": "44f16d6641ff8a47c4ae5c29f95c0b00d803efb0cb8c7ccf175cff3942f2eb72",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4889,7 +4890,7 @@
     },
     {
       "id": "about-features-zh-CN-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "about-features-zh-CN-compact-dark.png",
       "contract": {
         "id": "about-features-zh-CN-compact-dark",
@@ -4925,7 +4926,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:38.157Z",
+        "capturedAt": "2026-10-16T03:14:38.066Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4953,7 +4954,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "5bcc5de0bdd762641bc17527ccffe3f77421d7eaeb042ebbe493ff63e0521b57",
+        "sha256": "e7c0b1c7e6cf0b9e60aebca9eb3366e3f2ab68d94e1567304ae03f3558a2d71b",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4989,7 +4990,7 @@
     },
     {
       "id": "compare-aseprite-online-zh-CN-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "compare-aseprite-online-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-aseprite-online-zh-CN-compact-dark",
@@ -5025,7 +5026,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:43.843Z",
+        "capturedAt": "2026-10-16T03:14:42.898Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5053,7 +5054,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "aa7109f1993acca7066c96c4766d8153f10484c905c17771672877f1359ded36",
+        "sha256": "8542befd368e9aa250a102078e4d30da4e699016a2a33441ae508d92e3206a58",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5089,7 +5090,7 @@
     },
     {
       "id": "features-drawing-process-zh-CN-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "features-drawing-process-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-drawing-process-zh-CN-compact-dark",
@@ -5125,7 +5126,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:46.895Z",
+        "capturedAt": "2026-10-16T03:14:47.466Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5153,7 +5154,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "1ba75854f5f95839fc15e75ba3b17bab345389bcb363fe745fe712261ac8797e",
+        "sha256": "6736313c9ea31e3873f96d51615c4ed03cf3e40073c2c7a20dc4cb57245628f0",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5189,7 +5190,7 @@
     },
     {
       "id": "features-share-artwork-zh-CN-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "features-share-artwork-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-share-artwork-zh-CN-compact-dark",
@@ -5225,7 +5226,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:49.112Z",
+        "capturedAt": "2026-10-16T03:14:49.920Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5253,7 +5254,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "f69c3d2167aa2937bfaaf696d6d95657c2f6b54e47b6f111463c994d734508d6",
+        "sha256": "b8d1e07637278e8439a27d2f6981063119e95f15bc620a5a52e325016d4cb51e",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5289,7 +5290,7 @@
     },
     {
       "id": "help-zh-CN-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "help-zh-CN-compact-dark.png",
       "contract": {
         "id": "help-zh-CN-compact-dark",
@@ -5325,7 +5326,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:50.956Z",
+        "capturedAt": "2026-10-16T03:14:52.032Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5353,7 +5354,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "5ad33ce029c36d285f087f5f5347bdd906b45af66d9897a028b85483286ec06a",
+        "sha256": "75d6ef5b454c967460f0b0f938b2f75840282f72d40dc34e45899300fa747a0b",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5389,7 +5390,7 @@
     },
     {
       "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
@@ -5426,7 +5427,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:54.171Z",
+        "capturedAt": "2026-10-16T03:14:55.177Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5454,7 +5455,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "c8f2a44ba212d91329a6353b95f251a420baefd6298d22971164900b1997f0c4",
+        "sha256": "507b2c81435a6291e4442fc6c9da1d3a0e1b4a46f2c84200f70047d1c081ad07",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5490,7 +5491,7 @@
     },
     {
       "id": "tools-animal-crossing-qr-empty-en-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "tools-animal-crossing-qr-empty-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-empty-en-compact-dark",
@@ -5527,7 +5528,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:56.782Z",
+        "capturedAt": "2026-10-16T03:14:58.253Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5555,7 +5556,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "98a4784d66aeab4ce1994f10a8be4ee35f8b6de467e8f9ed8f0973d6287afdd1",
+        "sha256": "9f754e69d95ed7904ed058c0987d6af524c9503ce6721b914649245234285ef0",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5591,7 +5592,7 @@
     },
     {
       "id": "files-window-tools-pixelate-en-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "files-window-tools-pixelate-en-wide-light.png",
       "contract": {
         "id": "files-window-tools-pixelate-en-wide-light",
@@ -5634,7 +5635,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:59.811Z",
+        "capturedAt": "2026-10-16T03:15:01.168Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5662,7 +5663,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "b2c7c3d5170f70730d05a31ea709c0a0175ae310cb0f4189d79a61f4b4f33f31",
+        "sha256": "d6a1b31ad0ec7394afbeb3b417f772d227bee726ab4ba9208cab221c7d129553",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5705,7 +5706,7 @@
     },
     {
       "id": "feature-window-tools-viewer-zh-CN-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "feature-window-tools-viewer-zh-CN-compact-dark.png",
       "contract": {
         "id": "feature-window-tools-viewer-zh-CN-compact-dark",
@@ -5748,7 +5749,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:43:02.286Z",
+        "capturedAt": "2026-10-16T03:15:03.873Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5776,7 +5777,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "d65aa60c81b28808e0f1891faacc0043c76061a4f51bb16e30e6145fe04fd5c0",
+        "sha256": "641a2e14a536255e2f935be2698df407749f4ea394e7389d65f3adaad3228a5e",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5819,7 +5820,7 @@
     },
     {
       "id": "about-ko-compact-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "about-ko-compact-light.png",
       "contract": {
         "id": "about-ko-compact-light",
@@ -5855,7 +5856,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:43:04.111Z",
+        "capturedAt": "2026-10-16T03:15:07.004Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5883,7 +5884,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "ed392319c05a32a8310cf4cc8bb6c0d43bc53c8e774824a08a48a58fbf786f3b",
+        "sha256": "0ff70b626ce655c11d24d9532a474da44d96c789d71678fd17f19fe1f50d24df",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5919,7 +5920,7 @@
     },
     {
       "id": "feature-window-features-draw-pixel-art-ko-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "feature-window-features-draw-pixel-art-ko-compact-dark.png",
       "contract": {
         "id": "feature-window-features-draw-pixel-art-ko-compact-dark",
@@ -5961,7 +5962,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:43:08.294Z",
+        "capturedAt": "2026-10-16T03:15:08.979Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5989,7 +5990,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "5a763749e742fc4c0253a0750e4bfc7b0ee66192bc2c2ed49c23babd97b8df27",
+        "sha256": "34e50376d0160f41326b42e975ac6fef951ffebd5066f0b82523fb7dc41a29a8",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6032,7 +6033,7 @@
     },
     {
       "id": "feature-window-tools-viewer-ru-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "feature-window-tools-viewer-ru-compact-dark.png",
       "contract": {
         "id": "feature-window-tools-viewer-ru-compact-dark",
@@ -6074,7 +6075,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:43:09.807Z",
+        "capturedAt": "2026-10-16T03:15:10.114Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -6102,7 +6103,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "53d470452ea8cbdb4f5c651688c4e832a5ad6d5e4df321b18765946de7698b30",
+        "sha256": "9027e1e145dc1b9a8014a8c82b9296e1e7d421890d44ca5ea74ade72c294d8a8",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6145,7 +6146,7 @@
     },
     {
       "id": "about-how-it-works-en-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "about-how-it-works-en-wide-light.png",
       "contract": {
         "id": "about-how-it-works-en-wide-light",
@@ -6181,7 +6182,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:38.301Z",
+        "capturedAt": "2026-10-16T03:14:38.037Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6209,7 +6210,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "aa63a9cd84235c071bd0d8a0e6b48fe1285cf032b1cdaa7891753b02e316c591",
+        "sha256": "9defc67ece53aafb9fda32f0410a956cd2a988729aecced99ba94146fc6c855b",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6245,7 +6246,7 @@
     },
     {
       "id": "compare-piskel-alternatives-en-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "compare-piskel-alternatives-en-wide-light.png",
       "contract": {
         "id": "compare-piskel-alternatives-en-wide-light",
@@ -6281,7 +6282,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:43.693Z",
+        "capturedAt": "2026-10-16T03:14:42.731Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6309,7 +6310,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "3dbdd7ea46f72151009c44861226ce8a44518aaa12edbb5616a24fe18a1f41b6",
+        "sha256": "9f306dc8be84f716d406ca951a10a7fe92246ed3f03fe9caf2f83ea29dbd1a09",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6345,7 +6346,7 @@
     },
     {
       "id": "features-export-images-and-animation-en-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "features-export-images-and-animation-en-wide-light.png",
       "contract": {
         "id": "features-export-images-and-animation-en-wide-light",
@@ -6381,7 +6382,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:46.802Z",
+        "capturedAt": "2026-10-16T03:14:47.198Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6409,7 +6410,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "5a8142c7c635f7926f8f76b4e94996c57e31ec3f32423b2ebaf7d0a35d9a83f1",
+        "sha256": "e42407c8068a49b0cbbff946fb9eb137bdb4d49a54050aacf9c1d0746e488458",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6445,7 +6446,7 @@
     },
     {
       "id": "features-tilemaps-en-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "features-tilemaps-en-wide-light.png",
       "contract": {
         "id": "features-tilemaps-en-wide-light",
@@ -6481,7 +6482,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:49.141Z",
+        "capturedAt": "2026-10-16T03:14:49.648Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6509,7 +6510,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "543ff21bd17b7c378029a6b1b27260d26e74c11b5808aa2a7bad9c75eab7dd54",
+        "sha256": "614d3d47e47e0b7604714d9604f0513c58f2f1a99d7f944d18be85850476dbc6",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6545,7 +6546,7 @@
     },
     {
       "id": "privacy-en-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "privacy-en-wide-light.png",
       "contract": {
         "id": "privacy-en-wide-light",
@@ -6581,7 +6582,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:51.079Z",
+        "capturedAt": "2026-10-16T03:14:51.974Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6609,7 +6610,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "79957556c2f73fe76ceab68b3bf585e5be99404dd4e332f518c0fa4e8ce65750",
+        "sha256": "53727ea8696f70e10cb8f162143bdc9fd3564bc99f032fc68c585cef46aeb8b9",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6645,7 +6646,7 @@
     },
     {
       "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
@@ -6687,7 +6688,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:55.228Z",
+        "capturedAt": "2026-10-16T03:14:56.201Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -6715,7 +6716,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "8e7d5d0f7e9ac880b7495af5ec853e73230060f533e6d3b29235272a612e52a0",
+        "sha256": "aa2e2ac5fc9b84a58ae0a8c1d74b3c10f08e8afc2bbfa2fc444ae7ac745de9bc",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6741,16 +6742,16 @@
         {
           "name": "main",
           "x": 12,
-          "y": 274,
+          "y": 121,
           "width": 350,
-          "height": 558
+          "height": 711
         },
         {
           "name": "workspace",
           "x": 12,
-          "y": 274,
+          "y": 121,
           "width": 350,
-          "height": 558
+          "height": 711
         }
       ],
       "platform": "Linux x86_64",
@@ -6758,7 +6759,7 @@
     },
     {
       "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "tools-animal-crossing-qr-loaded-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
@@ -6800,7 +6801,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:42:59.441Z",
+        "capturedAt": "2026-10-16T03:15:00.293Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -6828,7 +6829,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "102107caa3f7f5b1aebf86c7e506a8d2e37fa70e80050de1f520ba1b9a533032",
+        "sha256": "0a667800d10e6ea84c467eb08c980f4e8fd576d36c285bd70585d6b80b2ce1d7",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6854,16 +6855,16 @@
         {
           "name": "main",
           "x": 12,
-          "y": 312,
+          "y": 121,
           "width": 350,
-          "height": 520
+          "height": 711
         },
         {
           "name": "workspace",
           "x": 12,
-          "y": 312,
+          "y": 121,
           "width": 350,
-          "height": 520
+          "height": 711
         }
       ],
       "platform": "Linux x86_64",
@@ -6871,7 +6872,7 @@
     },
     {
       "id": "files-window-tools-viewer-zh-CN-wide-dark",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "files-window-tools-viewer-zh-CN-wide-dark.png",
       "contract": {
         "id": "files-window-tools-viewer-zh-CN-wide-dark",
@@ -6914,7 +6915,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:43:02.738Z",
+        "capturedAt": "2026-10-16T03:15:03.160Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6942,7 +6943,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "61b86873bc7ee28a6f85c63a70ab5249eada99678cf3061339ad1dcabacede2d",
+        "sha256": "39491326b6fde32249c86ca41c2b05d56fc87069fd4c4b205daa05c5093393fb",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6985,7 +6986,7 @@
     },
     {
       "id": "site-footer-en-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "site-footer-en-wide-light.png",
       "contract": {
         "id": "site-footer-en-wide-light",
@@ -7018,7 +7019,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:43:05.157Z",
+        "capturedAt": "2026-10-16T03:15:06.598Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -7046,7 +7047,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "7832c2e76cb61e5c834f808bb683d9b6de79a87d4b0e2e33e159855f040dfcb0",
+        "sha256": "665d7b1579a8f26621fddb45301ad98730d9ce4dcb0ccd3f06b8b6657c3fd9c8",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -7075,7 +7076,7 @@
     },
     {
       "id": "compare-aseprite-on-ipad-ja-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "compare-aseprite-on-ipad-ja-wide-light.png",
       "contract": {
         "id": "compare-aseprite-on-ipad-ja-wide-light",
@@ -7111,7 +7112,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:43:08.487Z",
+        "capturedAt": "2026-10-16T03:15:08.815Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -7139,7 +7140,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "046573183fe356beca1695149add9c311fad41eb831ecb16d9323e06738704f0",
+        "sha256": "f370ea054597c026546e8aa33e1982a3c9429cd72e62d403f9b94b6096cdf536",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -7175,7 +7176,7 @@
     },
     {
       "id": "about-ru-wide-light",
-      "runId": "6c333691-6986-4b77-b59d-28aa5cf014b5",
+      "runId": "f87700d7-c2f8-40e3-aad0-0a62a030a6f7",
       "file": "about-ru-wide-light.png",
       "contract": {
         "id": "about-ru-wide-light",
@@ -7211,7 +7212,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-15T02:43:09.493Z",
+        "capturedAt": "2026-10-16T03:15:09.544Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -7239,7 +7240,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "401e5a2a8ffa4a332de0ec506bf33d7b24d057ec1d8c4d29b17a883bb20f0a2a",
+        "sha256": "afb096d640cc11a38dee56c358ed853ef8e512b12125f4730a6d82df6a418965",
         "requestedClip": {
           "x": 0,
           "y": 0,

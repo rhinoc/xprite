@@ -1,4 +1,13 @@
-import { useEffect, useRef, useState, type DragEvent, type ReactNode } from "react";
+import {
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useRef,
+  useState,
+  type DragEvent,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 
 import { useFilesManager, useFilesText } from "$/components/files/files-context";
 import { FileToolEmptyState } from "$/components/shared/file-tool-empty-state";
@@ -6,7 +15,7 @@ import { ToolFrame } from "$/components/shared/tool-frame";
 import { decodeFilesDrag, FILES_DRAG_TYPE } from "$/managers/files/files-model";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import type { PublicTool } from "$/managers/tools/tool-catalog";
-import { ContentPadding, SurfaceTone, Text, TextVariant, Panel, type MenuItem } from "@xprite/ui";
+import { Text, TextVariant, Toast, ToastTone, type MenuItem } from "@xprite/ui";
 
 import styles from "$/components/shared/tool-frame.module.css";
 
@@ -22,6 +31,7 @@ export function FileToolShell({
   children,
   onOpen,
   onExample,
+  onReset,
   help,
 }: {
   tool: PublicTool;
@@ -35,6 +45,8 @@ export function FileToolShell({
   children?: ReactNode;
   onOpen(file: File): Promise<void>;
   onExample(): Promise<void>;
+  /** Reset this tool to its empty import step on the same page. */
+  onReset?: () => void;
 }) {
   const t = useToolTranslation();
 
@@ -82,14 +94,29 @@ export function FileToolShell({
     <ToolFrame
       tool={tool}
       processing={processing}
-      help={help}
+      help={
+        help && isValidElement(help)
+          ? cloneElement(help as ReactElement<{ ready?: boolean }>, { ready })
+          : help
+      }
       filename={ready ? filename : undefined}
+      onReset={onReset && ready ? onReset : undefined}
       menus={[
         {
           label: t("File"),
           items: [
             { label: `${tool.openLabel}…`, disabled: busy, onSelect: chooseFile },
             { label: t("Open example"), disabled: busy, onSelect: () => void onExample() },
+            ...(onReset
+              ? [
+                  {
+                    label: t("New"),
+                    separator: true as const,
+                    disabled: busy || !ready,
+                    onSelect: onReset,
+                  },
+                ]
+              : []),
             ...fileItems.map((item, index) => ({
               ...item,
               separator: index === 0 || item.separator,
@@ -111,18 +138,7 @@ export function FileToolShell({
             if (file) void importFile(file);
           }}
         />
-        {error && (
-          <Panel
-            contentPadding={ContentPadding.Compact}
-            tone={SurfaceTone.Warning}
-            role="alert"
-            className={styles.error}
-          >
-            <Text variant={TextVariant.Reading} wrap>
-              {t(error)}
-            </Text>
-          </Panel>
-        )}
+        <Toast text={error ? t(error) : null} tone={ToastTone.Warning} />
         <section
           className={styles.workspace}
           aria-label={t(tool.label)}
