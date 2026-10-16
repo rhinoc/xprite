@@ -2577,7 +2577,7 @@
     {
       "id": "new-sprite-wide",
       "file": "new-sprite-wide.png",
-      "sha256": "2ca8a3497f8d9c765b5527cd49b6203ef3f414fe90e57efce7a7ef0282a62a5d",
+      "sha256": "c6247f78aa0adbac1dd8eb2f17f7e8def8f4a9aba64c288669889fa7266b214e",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-16T06:17:46.389Z",
@@ -2608,7 +2608,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "2ca8a3497f8d9c765b5527cd49b6203ef3f414fe90e57efce7a7ef0282a62a5d",
+        "sha256": "c6247f78aa0adbac1dd8eb2f17f7e8def8f4a9aba64c288669889fa7266b214e",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3952,7 +3952,7 @@
     {
       "id": "new-sprite-compact",
       "file": "new-sprite-compact.png",
-      "sha256": "56657e5f860859e7a4e87c77ee82ef3e65714e6242641e94471451b8e65b71ad",
+      "sha256": "967b838c2a2de044a4a95a786612204ecd2bbbe1227b5ab3ca4b4cda5327d14e",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-16T06:17:46.183Z",
@@ -3983,7 +3983,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "56657e5f860859e7a4e87c77ee82ef3e65714e6242641e94471451b8e65b71ad",
+        "sha256": "967b838c2a2de044a4a95a786612204ecd2bbbe1227b5ab3ca4b4cda5327d14e",
         "requestedClip": {
           "x": 0,
           "y": 0,

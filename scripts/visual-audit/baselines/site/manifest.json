@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
-  "capturedAt": "2026-10-16T06:02:43.225Z",
+  "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
+  "capturedAt": "2026-10-16T16:37:28.898Z",
   "captureComplete": true,
   "sourceHashes": {
     ".husky/pre-push": "bc8a9c88fb4109ae2584c838dface54fe296297dbd6abab793d78b3c0fa0d361",
@@ -1287,8 +1287,11 @@
     "apps/tools/src/components/beads/beads.module.css": "5a13b1abf6b8b64a561cdd87de87b0a78daa9e0cdfcf1a1f5c5d78390b640111",
     "apps/tools/src/components/files/files-context.tsx": "f66e7c2098f86e548f8efca0966d86c17abc32a49a0dada85fe37065831075df",
     "apps/tools/src/components/files/files-info.tsx": "70497f71d0dc3f78a7278bd9695f564c4a5507fabcc041980bb1aee4ce2a849c",
-    "apps/tools/src/components/files/files-window.tsx": "3d6ebb6550822938c1c3ce23d66d962a2bcd7bae7d578c73bb4ae89639491331",
-    "apps/tools/src/components/files/files.module.css": "68dfbab1e9bd5fa0ccf3ac8123f3d5e48dff415916db3ce4eab51bcd9f6d9a95",
+    "apps/tools/src/components/files/files-item-gestures.test.ts": "cffdd94feaee84fe9fcbb7607cb959335074964fbd19aba227e0aaa6a3015f80",
+    "apps/tools/src/components/files/files-item-gestures.ts": "9e8cf36c99e2a748a9004ed6b2b48be76a1453ffa4495fbc37a2155bc800d2b6",
+    "apps/tools/src/components/files/files-menus.ts": "1c7aebb05f4fd84b3ec9ec7da2f239f935c21490abe14a5bf08bfdba35bc5b99",
+    "apps/tools/src/components/files/files-window.tsx": "95bdd7fc6f12be60d693486356bfc8bc5684a069c52cb0e1b971936f4a18e282",
+    "apps/tools/src/components/files/files.module.css": "9bd8d17d0bdd5f20740ea375e778a5c6ea4987b49e47ada0d348904cd84ad263",
     "apps/tools/src/components/gif-sheet/gif-sheet-page.tsx": "8f383d7990646b4160f588dfe694ff9822c1395755bce68b9573f86d7357629b",
     "apps/tools/src/components/pixelation/pixelation-page.tsx": "848a331dcc1dd670ed5dc04dd72bfecb8d3860da46e4567a5b7bcff5011b03b4",
     "apps/tools/src/components/pixelation/pixelation-palette.tsx": "2c61ca69f0d1f98c4ee3d8d30b66350c8fafae002e6fc087f451acbc28ae5b9f",
@@ -1306,13 +1309,13 @@
     "apps/tools/src/components/shared/tool-flow-empty-stage.tsx": "c36fb111039970fcf32b308661af3460d10fee837ab55868d579fce773e386d1",
     "apps/tools/src/components/shared/tool-flow.module.css": "7ea0af74c6b6767497671ecfb9e6fcba113755ca1eb264a497520f167cf75803",
     "apps/tools/src/components/shared/tool-frame.module.css": "169cdbd4d660a0d6722e060bdc8d97c895932f6ef302bb2888a3995c025e88f5",
-    "apps/tools/src/components/shared/tool-frame.tsx": "c08f69742e322a729a204b31ea77aa0a41ce12d9475a5c5744277c42e9bd6d2a",
+    "apps/tools/src/components/shared/tool-frame.tsx": "016dca97e5797454a8c7333ae29c6e65bd6fc31096ed0ce4287241a6bec250fc",
     "apps/tools/src/components/shared/tool-group.tsx": "2c8006f4b709109b4d43982fac691cd1a1ee432c105252b4f812a9ee493ffcbb",
     "apps/tools/src/components/shared/tool-help.module.css": "f0398670b518ee48d1cd2f8e16f44ea438bc4d1771531622fbc6895bdc2f2b3f",
     "apps/tools/src/components/shared/tool-help.tsx": "2c4eba9748e365b63c7d9210295c41bbc8dcd1e8f8adf8b3534fcbe7d39a9150",
     "apps/tools/src/components/shared/tool-result-window.tsx": "616b1200659c7f82c35172ad0af874cef2bfdfdc9bf78a012fda43d9dc3a98fa",
     "apps/tools/src/components/shared/tool-zoom-control.tsx": "3f1251894e29ab6c8a36e4a6f5ba5b60f0464d6e3ae194a309f5f268bddca642",
-    "apps/tools/src/components/shared/window-shade.tsx": "bb82cae732c8269a721e85fbb6408a859b079c7c95a848230ab877474e46aa9b",
+    "apps/tools/src/components/shared/window-shade.tsx": "b2aa0f2ce6e150ce0c0429aff7c49e5512d34ab621b0bbb696ab0da8621bf24d",
     "apps/tools/src/components/viewer/viewer-page.tsx": "3641d0fbb422268e1d11d4873c6e1384bc55d3650b99359ec165d157ce816af7",
     "apps/tools/src/components/viewer/viewer-preview.tsx": "f224afd1562315c1d8f9cc2ab66a17a2d69b287f7096fd0ca1a06217ddf22d17",
     "apps/tools/src/components/viewer/viewer.module.css": "87a1a5d17e729bbcfc92e9cb78f22b73b0ceeb66d0d0b9dd8ab1100735e43444",
@@ -1327,16 +1330,16 @@
     "apps/tools/src/managers/beads/bead-failure.ts": "d07065e272b6e49cfd3f5766f692d0e27baeb9f6249a92a2b8218089d2cbc0ef",
     "apps/tools/src/managers/beads/bead-tool-manager.test.ts": "6c03d84d16208d36e9969d52df4147a95f7b217f46b5270f939134cbc2ccf164",
     "apps/tools/src/managers/beads/bead-tool-manager.ts": "bd66cd9d04adc4ce0ec24ec191300f981f7179db148ae92f7ff5107d0f0ec4af",
-    "apps/tools/src/managers/files/files-manager.test.ts": "ecd3b19e8166790f6327f661d5b9c727ff4ee1c6e6935a51efe0f97f27c80019",
-    "apps/tools/src/managers/files/files-manager.ts": "75598f65c1ef95a4fd6252d0d6c9644a52c52ac545160a30abf4ef6140180a96",
+    "apps/tools/src/managers/files/files-manager.test.ts": "221e22b90eac23c45ca93e577abf69db71140ace1c3c87eca8e56b407aed5db3",
+    "apps/tools/src/managers/files/files-manager.ts": "eae0b1b53075f47467a654b1a920116c667a764ba2f25367feeecb46b333624f",
     "apps/tools/src/managers/files/files-model.test.ts": "e49a821bd73813c1cfb6d2bbf7d307ade3ef92ab582eb4e4f6acae7828fad6db",
-    "apps/tools/src/managers/files/files-model.ts": "f73d534bb9d4b45607bd1510efc62f4cac891d6ae44843bf8d3a50c74470a771",
+    "apps/tools/src/managers/files/files-model.ts": "c800a213d08a1321d56040dcc650ea9c4deb9c8f75164b605e09193e7e151ff4",
     "apps/tools/src/managers/gif-sheet/gif-sheet-manager.test.ts": "8abf1834bb2f232a123342ea217c3cc5a3bf6d88316e00663e224a2776ccc9f7",
     "apps/tools/src/managers/gif-sheet/gif-sheet-manager.ts": "c35c7b5b3dcd9932f5d2298237d9f98a2c1bc92119d016e13354b8534aeb869f",
     "apps/tools/src/managers/locale/bead-text.test.ts": "127640410c4557d5f7f50343f6cccb0e1993fc828c8b1dcaaadb3ae141e15c00",
     "apps/tools/src/managers/locale/bead-text.ts": "d78fa38f4860df0a45aaae6ab1285d80b6704a27b8982d247d43ab7010585ce1",
     "apps/tools/src/managers/locale/files-text.test.ts": "b520b849816cf886b971e8e6d25bded917a560d228cd5aa1506b240ee5f22e25",
-    "apps/tools/src/managers/locale/files-text.ts": "98f8ba16c38ca3ac71de71546657d6e442bfa405cc6d28552c6ec9a33c599d20",
+    "apps/tools/src/managers/locale/files-text.ts": "e1bba9934a49671d00dbc9616f77c95b89aa71114443ec1b661f27341dc037cf",
     "apps/tools/src/managers/locale/tool-language.tsx": "3a34a838a91912fbd357a88b0f0d7e0ce43ab479808c4cde7c874eafddbd1f36",
     "apps/tools/src/managers/pixelation/pixelation-manager.ts": "946f90e08ecd6ee5c0ac9b880a024ea10766d7c8552d78a716a1927412dfbe6c",
     "apps/tools/src/managers/ports/animal-crossing-ground.ts": "420ec1668836086eac873cce557aa43abc10d426f35dba57cbd6364be79467bc",
@@ -2076,8 +2079,8 @@
     "packages/ui/assets/patterns/macintosh/system75-9695.png": "481ac3dbe24ccbd44f1fab82714aa792c3b76937c0a647515c7c309dae09488f",
     "packages/ui/assets/patterns/macintosh/system75-987.png": "9d094dc7012eb94d601b4c850de29ed4bacacd162dee34d67a1d686d6792c1cf",
     "packages/ui/assets/themes/aseprite/aseprite-dark-sheet.webp": "ee1f147cb0cec23a9407428b4923ae358290db7da30cf6d6e63a61703a1bed30",
-    "packages/ui/assets/themes/aseprite/aseprite-dark-theme.json": "e7ae6bbdf09b5dd7a294b366a2df7be3500b4a82f7a8c35ca653abbc09d67c70",
-    "packages/ui/assets/themes/aseprite/aseprite-light-theme.json": "f44511e3b6fc30e7b14d514549b25dabfd2703c57937511cdea134a92c5da580",
+    "packages/ui/assets/themes/aseprite/aseprite-dark-theme.json": "e332d9a20d986d2ca3942fa7684735ab5febc3d776c7d7fc07200b0772b8942d",
+    "packages/ui/assets/themes/aseprite/aseprite-light-theme.json": "285b882071c3deb2ea4374d4a8baca9359704b411e12b8566a7dd2e747f4f525",
     "packages/ui/assets/themes/aseprite/aseprite-theme-sheet.webp": "f3ee9649c81778883c1b91b02678d6de6a767fcd729210f13eead7cde78c6a09",
     "packages/ui/assets/themes/macintosh/macintosh-dark-sheet.webp": "049ec910079a45c9fab405485c173c1d7d60c8495d2f386b7303dcecebbfc7c0",
     "packages/ui/assets/themes/macintosh/macintosh-light-sheet.webp": "d5140e80aa74d47fb0288a4c06fb5a37abbb728b9693f013dfbee16b9fea7882",
@@ -2107,8 +2110,8 @@
     "packages/ui/src/base/theme/default-theme.ts": "7e712cf77d4f8ceb7b807d0815e3f8fd2d7fff3ead7d971cbfdf65cc34bb350f",
     "packages/ui/src/base/theme/desktop-pattern-tokens.ts": "41916ed067543965abeb46487d1ce7b696dc3bd6b7a1f76aa094bc979d8c46a7",
     "packages/ui/src/base/theme/font-families.ts": "54810aa5f8102caa916e753f01dce361ee89f573fdbd648e30d9ee5cc06fa068",
-    "packages/ui/src/base/theme/generated/themes/aseprite-dark.ts": "65fce282775b91ce947c95276201390e06927e778a1dd6c912c27e74d1f6479e",
-    "packages/ui/src/base/theme/generated/themes/aseprite-light.ts": "a4ca47b40c7387f7e896dc7784bdc485327ac0612ebe7cd60920b48ef1007dea",
+    "packages/ui/src/base/theme/generated/themes/aseprite-dark.ts": "be60cf1fb0196cc6342f7c7184a994543c968576f041c6a55a2ac352646752c6",
+    "packages/ui/src/base/theme/generated/themes/aseprite-light.ts": "55b9b1c39100148194c9f743a5f27057e6244145d67355691aba50d8140d9ce1",
     "packages/ui/src/base/theme/note-tokens.ts": "b068239a579ac524df393a7440e7142e1c7ce5fb38b2eed6fa75274b693ea26d",
     "packages/ui/src/base/theme/paint-part-surface.ts": "8ba7ce49c99cd278b23cfb8953db1c0227af4ed8f6215b742e1c5040886ae3f0",
     "packages/ui/src/base/theme/part-surface.module.css": "dcd3102e2d8d3f61a08d242e7e0eb09a6967aaa104109f8fc30a22679d6ffca2",
@@ -2125,7 +2128,7 @@
     "packages/ui/src/base/theme/theme-metrics.ts": "708594ebd8fd420ccf9c94d90b55f5986a5b87bde106ff8396f260198a7842c9",
     "packages/ui/src/base/theme/theme-module-loader.test.ts": "689d7c0d631efd890f16b36c3b53c8812732b2af5bba7ca3f9803114ba9ffa1b",
     "packages/ui/src/base/theme/theme-module-loader.ts": "e94622010826ff7ee1e3c11f349195acd6b5bc980b73cc88cdb5fbd2141123d5",
-    "packages/ui/src/base/theme/theme-name-types.ts": "eab62133ba8326de6185c54060b7059a0c6c9f62a4ac1980f9385609a556bf51",
+    "packages/ui/src/base/theme/theme-name-types.ts": "9ab801f4d7d4317af6dcf653043e2318c540879304fe1b7aa6e71b842a45e9c4",
     "packages/ui/src/base/theme/theme-part.module.css": "cd53b9bacab32161db768c9aef78ff862cf75fb0fa693e06cfe3ce0e91b6112b",
     "packages/ui/src/base/theme/theme-part.tsx": "485e64af7ac1484e85e048acd6b1cdac82631f900938f872ab923118761dbc20",
     "packages/ui/src/base/theme/theme-repeat.tsx": "26e5c52e8c8c22bc61d507ab34259f3b0c835c012bc5213ce88a87a03facb854",
@@ -2145,7 +2148,7 @@
     "packages/ui/src/base/theme/themes/macintosh/color-roles.ts": "f09b04232aadfa3d44ee321cd936b6906b9eb8c1752f696a4781d001b9c4adb4",
     "packages/ui/src/base/theme/themes/macintosh/disclosure-artwork.ts": "aab59673575f97c14d28afa4aa7c0bc2936fd5ded79d472702c754d5f18aae6f",
     "packages/ui/src/base/theme/themes/macintosh/font-metrics.json": "7eb0fc18244d15ce28df4513f6016e331829a11db94d0f85250008f3551e0bbb",
-    "packages/ui/src/base/theme/themes/macintosh/geometry.ts": "dd780c6c2366a6113c583b660bc555b1329e66d29cf248d2d149a244e73ad137",
+    "packages/ui/src/base/theme/themes/macintosh/geometry.ts": "a774dbef6c33b1b3c2732d181f427e1438ba14fa9fddf5a4fd106e0811a29927",
     "packages/ui/src/base/theme/themes/macintosh/index.ts": "4119bc273f36bec55301c45f413a20a5c202fcc17503944bd45d4bd03761d96e",
     "packages/ui/src/base/theme/themes/macintosh/public-surface-tokens.ts": "c4fc568a1211b7c2729d99a53a64b8e4061ca63e6660d1f383360100010e7cf6",
     "packages/ui/src/base/theme/themes/macintosh/shortcut-artwork.ts": "58be70d0a9795833505fb6bb33bd3cc9190c5898df23c3d44d33d0e880fcc376",
@@ -2223,7 +2226,7 @@
     "packages/ui/src/components/color-selector/index.tsx": "991a1d68c5b45218b9e4c3c6cfd4b78e71437454d0033866cfdfc90278b63950",
     "packages/ui/src/components/combobox/arrow-position.ts": "c84920ab061dd993549754117baec1e75404ef820cb74ed4a0f970b3b9284a78",
     "packages/ui/src/components/combobox/combobox.module.css": "c12da2038a7e0b1ce427ed246119e3f475cdbd665b9180839a62c9490912662e",
-    "packages/ui/src/components/combobox/index.tsx": "5f5950dafd4a670354640fc2b84936ddd5a6465a3e75c1249dae6539cc0f29a1",
+    "packages/ui/src/components/combobox/index.tsx": "98ba1babe1bc507f812a78f97b71ceaf81af83fceeda3f3f9a2323c14df1e607",
     "packages/ui/src/components/control-flow/control-flow.module.css": "36b29373a81d8d29161cd55f05a7735156557af46229d3d44d81b7f6c22338f9",
     "packages/ui/src/components/control-flow/index.tsx": "3233eeabe8dab0eaba8f66a3eb01760b7d796ebf7d44cd5e5dc4ed9d5936f860",
     "packages/ui/src/components/control-flow/placement.ts": "5713071803c3a414a482574e2539acc0006dcca774b8be0db94d51c95114e392",
@@ -2235,7 +2238,7 @@
     "packages/ui/src/components/divider/divider.module.css": "e6303b775b943e0d92d123ce01a5ce13cad4807c1a2fd0a17e5d3b1dbf9911f0",
     "packages/ui/src/components/divider/index.tsx": "193d8986226e0644cefddc90d22535ce96ea182ec60bbd1a3570d683054c6e3c",
     "packages/ui/src/components/field/Field.tsx": "f2432552e1d5b135d5c5067f5af34a3b173786536f357890c933d404c0bccad4",
-    "packages/ui/src/components/field/field.module.css": "aa9be75df71bf6f1cf27555569b75d280b48e4c0e28689b7c7b16ffba7d05fa3",
+    "packages/ui/src/components/field/field.module.css": "fb1194d528051e00af26ea99950d789264261520f624114406bca44431869c85",
     "packages/ui/src/components/field/index.ts": "9257c1f0dc1cbd340a7bdea5093fa1d0da69d464af29f26fe6accea75c21be14",
     "packages/ui/src/components/focus-ring.ts": "4d52eb8645538b29201af36d96060350e62ecab258f3b8feb060ed2b533cd39e",
     "packages/ui/src/components/icon/icon.module.css": "860849e8ad46ae422c51d5970fcc0222d985ad89a0896a28908bbe2ce5b0f7f0",
@@ -2274,8 +2277,8 @@
     "packages/ui/src/components/panel/note-surface.tsx": "564128cc5a1310ab33405b7ff711bbfcd4c5075ed436e46875209046d5efb9aa",
     "packages/ui/src/components/panel/note.module.css": "e533fd302c5b15eef175a36f723c88121fa4535d262ec7e432b21f5de856a40e",
     "packages/ui/src/components/panel/panel.module.css": "c52cb6bde31db9b7465b163ee57db389a5c4867bb5f93fd58701672f20caea45",
-    "packages/ui/src/components/panel/scene-frame.module.css": "dcfc94610476f098ad394030a3ab7d28b848f21ee6c06ddf11f628c15a291a12",
-    "packages/ui/src/components/panel/scene-frame.tsx": "02caecea3b5c80deb540d07c65b255c5a842a0b3dd2e6b951b982ef2c6cd03a4",
+    "packages/ui/src/components/panel/scene-frame.module.css": "45229f1eb45ed5fe34c755088638f1a7b6eb841c2cdad604e1b0f652b2af8e93",
+    "packages/ui/src/components/panel/scene-frame.tsx": "c3a83b9b84bedffa88488a4887b9c871b3d790a15c65098c96ce7c7a27497041",
     "packages/ui/src/components/panel/types.ts": "f9ca528f8ccabe6129110ec41d878d1751570c7e6d49f38fff004fdc2638ea75",
     "packages/ui/src/components/panel/window.module.css": "26612fedca12fd843f31b6393f18f8db74adca9b2aa483cbe2deb7eba83384b8",
     "packages/ui/src/components/pattern/catalog.ts": "85e25749fb8961ceb1e5087fefcd875b1a7dc7b7ec873c31008dc89997288110",
@@ -2379,7 +2382,7 @@
     "packages/ui/src/components/window/metrics.ts": "7614f3eb15e41f353b5e395bc4dda33af3e073bab9cdc9adac5bf42245fe1e23",
     "packages/ui/src/components/window/scene-focus.ts": "a3ed2bc9e4bf7075d8d77818d30f161a6cf4614af27f76bae4b60802b833a609",
     "packages/ui/src/components/window/variants/popup/index.tsx": "acea0742c60258e0f24e81a8646ef007153820fefe324f2f284a6d4536a9e1f0",
-    "packages/ui/src/components/window/variants/window/index.tsx": "4c0b59725b0c56499abc19bd0999a2c7e08ef9d65c24af0c16d4f6d95aa46816",
+    "packages/ui/src/components/window/variants/window/index.tsx": "7b60c4eebcad9156468a82fac446540b64508f176ef66c6eaffbc8136f41f0f5",
     "packages/ui/src/components/window/visible-scene-bounds.ts": "ba71c4e263a10b3e923e3d1c323781a98d8b3d6c79eed80f8a33ddf5d1c8ac27",
     "packages/ui/src/cursor.ts": "3aee0fb2a841cf199acf58cf4b889a650395c4d015374d5d61672a8300145899",
     "packages/ui/src/index.ts": "241091be7c449d0d0c89e3a2deee5a5dd7e36db985761f991cd7076cca4e5a61",
@@ -2400,7 +2403,7 @@
     "scripts/visual-audit/site/sources.mjs": "19e78a016dc040ea7ee423018fdab627b358eb07ca0be634355804deae975d59",
     "scripts/visual-audit/tools-startup/scenes.mjs": "3cdf7c19df463472d93d2c38d46ed99cd5c52acb00f1a904ade508bec8abefb9"
   },
-  "sourceDigest": "d9f5f3e1f8d74cc5d0ed9abf88cf2f7d3b8feb75105c28dcff5996dd73b323ee",
+  "sourceDigest": "0104dec81e41365eb0f711d97943aa4becd01ea43bf10f459e95394e50727a2d",
   "scenes": [
     "about-zh-CN-wide-light",
     "about-zh-CN-compact-light",
@@ -2453,7 +2456,7 @@
   "cases": [
     {
       "id": "about-zh-CN-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "about-zh-CN-wide-light.png",
       "contract": {
         "id": "about-zh-CN-wide-light",
@@ -2489,7 +2492,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:02:53.183Z",
+        "capturedAt": "2026-10-16T16:37:40.719Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2517,7 +2520,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "dbdf03e4e94788ab21a1fd002df4db457ac4eb8918a8b7fc36151f937c0a2012",
+        "sha256": "b8528b167b33492e52315cb6722794e1dc649cbe0582737e8f4c0673b48d1c09",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2553,7 +2556,7 @@
     },
     {
       "id": "compare-zh-CN-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "compare-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-zh-CN-compact-dark",
@@ -2589,7 +2592,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:02:59.306Z",
+        "capturedAt": "2026-10-16T16:37:50.556Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2617,7 +2620,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "c81b2140d8e8b2f63bd43481368aea168e7bddbabb423dfcc9260b2d40616e22",
+        "sha256": "2e62eed2547f6bd820689d1434def369227eab6d819c0863e87f392a3b113af7",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2653,7 +2656,7 @@
     },
     {
       "id": "features-aseprite-projects-zh-CN-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "features-aseprite-projects-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-aseprite-projects-zh-CN-compact-dark",
@@ -2689,7 +2692,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:05.678Z",
+        "capturedAt": "2026-10-16T16:37:56.789Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2717,7 +2720,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "906fbd6a1b208c3fdb59538fcbbe903a10d91784b002af111b727b72178642fb",
+        "sha256": "1e4bcc5172c91b952ed983affd5bbf9975a7be7e0a71d9513334968a08486f05",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2753,7 +2756,7 @@
     },
     {
       "id": "features-frame-animation-zh-CN-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "features-frame-animation-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-frame-animation-zh-CN-compact-dark",
@@ -2789,7 +2792,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:09.476Z",
+        "capturedAt": "2026-10-16T16:38:00.780Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2817,7 +2820,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "b14031a458b6c1baddaa09ea0f8a3234432e660a27b2633443d74dfeb617d90d",
+        "sha256": "c138c18e27b43e3a04fd0a4390428ea23b7bf9792c1edb34e4d6ff2d0a0b1003",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2853,7 +2856,7 @@
     },
     {
       "id": "features-touch-drawing-zh-CN-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "features-touch-drawing-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-touch-drawing-zh-CN-compact-dark",
@@ -2889,7 +2892,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:11.878Z",
+        "capturedAt": "2026-10-16T16:38:04.802Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2917,7 +2920,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "53080bda354f77c449b34e0d6f870ebede883270deaee803bbb02c41047d9f83",
+        "sha256": "35f863dfde00ef9398d4923089238727d71630cd2e3263af41674d488aa94e80",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2953,7 +2956,7 @@
     },
     {
       "id": "tools-viewer-empty-en-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "tools-viewer-empty-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-empty-en-wide-light",
@@ -2990,7 +2993,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:15.043Z",
+        "capturedAt": "2026-10-16T16:38:09.508Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3018,7 +3021,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "58119395101f066ba0b62d581229df70ad0352627cf7b4a2c3a13133e3455848",
+        "sha256": "482042cd804f84c530a8c00f5a670cecd90d789c2286c8b9a7c5a2993dcddf51",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3054,7 +3057,7 @@
     },
     {
       "id": "tools-pixelate-empty-en-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "tools-pixelate-empty-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-empty-en-wide-light",
@@ -3091,7 +3094,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:18.591Z",
+        "capturedAt": "2026-10-16T16:38:12.419Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3119,7 +3122,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "d95add9b52be466263e11c727ce7cb0867a954138705d46c1b69fd2ec887846f",
+        "sha256": "34a2f8aa3306af5030bea0a7db2bdababda25ae25925260914e56a45edad730b",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3155,7 +3158,7 @@
     },
     {
       "id": "tools-fuse-beads-empty-zh-CN-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "tools-fuse-beads-empty-zh-CN-wide-light.png",
       "contract": {
         "id": "tools-fuse-beads-empty-zh-CN-wide-light",
@@ -3192,7 +3195,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:22.026Z",
+        "capturedAt": "2026-10-16T16:38:14.872Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3220,7 +3223,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "16a3b976aead50c34b90fd5ae32e555b7e2d93cf9327222e80a50de212489b22",
+        "sha256": "17ca0c56bd11b682ad695e6cee3c5781fe020c0da36fbbbf37f816b77bbbb770",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3256,7 +3259,7 @@
     },
     {
       "id": "about-features-en-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "about-features-en-compact-dark.png",
       "contract": {
         "id": "about-features-en-compact-dark",
@@ -3292,7 +3295,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:24.605Z",
+        "capturedAt": "2026-10-16T16:38:16.425Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3320,7 +3323,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "81e4088e104bd1f5b0af0ebe82062919f7b263a97fd0b41bbdab571213686c3b",
+        "sha256": "c2a628370a3216782f469b07a502d54e2baf683ac723779391484a474f17558a",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3356,7 +3359,7 @@
     },
     {
       "id": "site-footer-zh-CN-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "site-footer-zh-CN-compact-dark.png",
       "contract": {
         "id": "site-footer-zh-CN-compact-dark",
@@ -3389,7 +3392,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:26.158Z",
+        "capturedAt": "2026-10-16T16:38:17.575Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3417,7 +3420,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "6feeedf4b9f38766a8718de7351414c5bca649e6813cf380fa2c58d736f09518",
+        "sha256": "066bf2fd4e477f7d4e98f20bc3f6ba4ac5ef9d85d8e8a583948b534ddcd2c3e9",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3446,7 +3449,7 @@
     },
     {
       "id": "help-ko-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "help-ko-compact-dark.png",
       "contract": {
         "id": "help-ko-compact-dark",
@@ -3482,7 +3485,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:27.732Z",
+        "capturedAt": "2026-10-16T16:38:19.070Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3510,7 +3513,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "71d157f5b6903d853805aa6195ef488e4d21a508f966b95d35c810cb271a9581",
+        "sha256": "67e27c5ea6b6c2eb5b4226a83bffa07b5d987fdeea5a9d40da6b23c929774cb6",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3546,7 +3549,7 @@
     },
     {
       "id": "help-pt-BR-compact-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "help-pt-BR-compact-light.png",
       "contract": {
         "id": "help-pt-BR-compact-light",
@@ -3582,7 +3585,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:29.283Z",
+        "capturedAt": "2026-10-16T16:38:20.480Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3610,7 +3613,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "550474987febf6a92583eae45266724d85a5f6e437033842d3f22ea1363af1bf",
+        "sha256": "59b60351834a2f0cc59d0531d72963e2b506b7224cd6d84ab9bf8b8ca6092057",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3646,7 +3649,7 @@
     },
     {
       "id": "about-zh-CN-compact-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "about-zh-CN-compact-light.png",
       "contract": {
         "id": "about-zh-CN-compact-light",
@@ -3682,7 +3685,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:02:53.322Z",
+        "capturedAt": "2026-10-16T16:37:39.179Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3710,7 +3713,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "6066518fa969b1e75c1fe55ffe2e65fdfbf892b39aeb9c14476c27d55908380d",
+        "sha256": "adbb8d47aac68691c08d1d663556228f9080d4ff161ba3732a39ea3247962888",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3746,7 +3749,7 @@
     },
     {
       "id": "compare-aseprite-on-ipad-en-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "compare-aseprite-on-ipad-en-wide-light.png",
       "contract": {
         "id": "compare-aseprite-on-ipad-en-wide-light",
@@ -3782,7 +3785,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:00.780Z",
+        "capturedAt": "2026-10-16T16:37:47.911Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3810,7 +3813,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "af45358e405d993efeb84a978e9a0bb2da3ff824ad824c6e43afea37e2b788e6",
+        "sha256": "6c4db90dbcc1d1a1d22f83e6a7eeca1e7c6a92d3db06a93eb03eae86741ee783",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3846,7 +3849,7 @@
     },
     {
       "id": "features-draw-pixel-art-en-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "features-draw-pixel-art-en-wide-light.png",
       "contract": {
         "id": "features-draw-pixel-art-en-wide-light",
@@ -3882,7 +3885,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:06.261Z",
+        "capturedAt": "2026-10-16T16:37:56.294Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3910,7 +3913,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "78eddda7f930ec300fb49d7fc936489409be79f6d6d51fb8c7aacc7abcdd306f",
+        "sha256": "8aa26ea05351fcc6408562f61781290067a47c256a6c6a20719b027a913437fc",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3946,7 +3949,7 @@
     },
     {
       "id": "features-layers-and-colors-en-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "features-layers-and-colors-en-wide-light.png",
       "contract": {
         "id": "features-layers-and-colors-en-wide-light",
@@ -3982,7 +3985,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:09.593Z",
+        "capturedAt": "2026-10-16T16:38:00.394Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4010,7 +4013,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "5a2a38be110c63fe960ccb5be77c6dcfdc72e81898f91c04a80f84be8cf38180",
+        "sha256": "c074d7e23a5f63502cff5cfb935694d9065d390a67cbf5558acc2989fbd52d4e",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4046,7 +4049,7 @@
     },
     {
       "id": "features-workspace-layout-en-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "features-workspace-layout-en-wide-light.png",
       "contract": {
         "id": "features-workspace-layout-en-wide-light",
@@ -4082,7 +4085,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:12.027Z",
+        "capturedAt": "2026-10-16T16:38:03.768Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4110,7 +4113,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "01ce9f9003dd83a7ca6008b6f1577aca3d04bd66811dbb6cb305bcb861db0664",
+        "sha256": "3d8a28cf4336a549d463302f38442c93c043670c1ae8b1dac493635492cc84cb",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4146,7 +4149,7 @@
     },
     {
       "id": "tools-viewer-loaded-en-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "tools-viewer-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-loaded-en-wide-light",
@@ -4188,7 +4191,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:17.078Z",
+        "capturedAt": "2026-10-16T16:38:09.217Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4216,7 +4219,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "e24b264642744e274f92bb1d05a71939b9a34530cb691eeb1418160b48aeef72",
+        "sha256": "7932490fb66c6190dfa5ca2153d4b9ee6c51f1bcc77dca65479455d2efefa394",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4259,7 +4262,7 @@
     },
     {
       "id": "tools-pixelate-loaded-en-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "tools-pixelate-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-loaded-en-wide-light",
@@ -4301,7 +4304,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:23.128Z",
+        "capturedAt": "2026-10-16T16:38:13.830Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4329,7 +4332,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "35dada17bb21facb446f251f582689853dd09f3f0b1468aada7c1bae12ca2713",
+        "sha256": "5da9b6d87bfc1dd25c35093e149538d44106c074beeb44d47646ae5458731a82",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4372,7 +4375,7 @@
     },
     {
       "id": "tools-fuse-beads-loaded-zh-CN-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "tools-fuse-beads-loaded-zh-CN-wide-light.png",
       "contract": {
         "id": "tools-fuse-beads-loaded-zh-CN-wide-light",
@@ -4414,7 +4417,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:26.342Z",
+        "capturedAt": "2026-10-16T16:38:16.691Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4442,7 +4445,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "3d9e6ff76b6c4524e31e79c40289a7e033abfdd3a4fe361834e9874984153a0d",
+        "sha256": "efa6e1d168013ab8f8a764c9e284804496922227b0494155b15fc6bc0ad66be0",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4485,7 +4488,7 @@
     },
     {
       "id": "feature-window-tools-viewer-en-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "feature-window-tools-viewer-en-wide-light.png",
       "contract": {
         "id": "feature-window-tools-viewer-en-wide-light",
@@ -4527,7 +4530,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:28.994Z",
+        "capturedAt": "2026-10-16T16:38:18.868Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4555,7 +4558,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "ad88288eb7942a69b56f4c1411e642b32915b60f2b3df2a52098d41d3c400b37",
+        "sha256": "4c950bf74e093c53ec84db3e3539d622c5f0aed6b1240a8e8971137a95612bf0",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4598,7 +4601,7 @@
     },
     {
       "id": "about-ja-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "about-ja-wide-light.png",
       "contract": {
         "id": "about-ja-wide-light",
@@ -4634,7 +4637,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:30.507Z",
+        "capturedAt": "2026-10-16T16:38:20.647Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4662,7 +4665,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "dc92b9a729ee40d46106265ac6e641c683492ddd5c382faf7ecfb3f97852c6cc",
+        "sha256": "4f223a051ef9e13b1b4f34fc3d8d64fd7ff43201660a2b04bf94fefabd240ca8",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4698,7 +4701,7 @@
     },
     {
       "id": "feature-window-features-layers-and-colors-ja-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "feature-window-features-layers-and-colors-ja-compact-dark.png",
       "contract": {
         "id": "feature-window-features-layers-and-colors-ja-compact-dark",
@@ -4741,7 +4744,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:34.377Z",
+        "capturedAt": "2026-10-16T16:38:24.678Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4769,7 +4772,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "eddbd7c4392dee0f9dc3bcda9bc6f914e6c81ae5c136a351bde3bee896a7e074",
+        "sha256": "bd791ec155ea0774b9abdb782a302f9b336004bddcf1665a6032240d015ad720",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4812,7 +4815,7 @@
     },
     {
       "id": "compare-aseprite-online-es-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "compare-aseprite-online-es-compact-dark.png",
       "contract": {
         "id": "compare-aseprite-online-es-compact-dark",
@@ -4848,7 +4851,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:34.893Z",
+        "capturedAt": "2026-10-16T16:38:25.535Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4876,7 +4879,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "44f16d6641ff8a47c4ae5c29f95c0b00d803efb0cb8c7ccf175cff3942f2eb72",
+        "sha256": "ea111ff63e5d3bc9cf9cced22183ff7eeeb3f8160be9f26ad18eaad30536544a",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4912,7 +4915,7 @@
     },
     {
       "id": "about-features-zh-CN-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "about-features-zh-CN-compact-dark.png",
       "contract": {
         "id": "about-features-zh-CN-compact-dark",
@@ -4948,7 +4951,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:02:53.398Z",
+        "capturedAt": "2026-10-16T16:37:42.600Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4976,7 +4979,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "e7c0b1c7e6cf0b9e60aebca9eb3366e3f2ab68d94e1567304ae03f3558a2d71b",
+        "sha256": "5bcc5de0bdd762641bc17527ccffe3f77421d7eaeb042ebbe493ff63e0521b57",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5012,7 +5015,7 @@
     },
     {
       "id": "compare-aseprite-online-zh-CN-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "compare-aseprite-online-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-aseprite-online-zh-CN-compact-dark",
@@ -5048,7 +5051,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:00.586Z",
+        "capturedAt": "2026-10-16T16:37:51.347Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5076,7 +5079,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "8542befd368e9aa250a102078e4d30da4e699016a2a33441ae508d92e3206a58",
+        "sha256": "aa7109f1993acca7066c96c4766d8153f10484c905c17771672877f1359ded36",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5112,7 +5115,7 @@
     },
     {
       "id": "features-drawing-process-zh-CN-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "features-drawing-process-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-drawing-process-zh-CN-compact-dark",
@@ -5148,7 +5151,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:06.273Z",
+        "capturedAt": "2026-10-16T16:37:57.755Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5176,7 +5179,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "6736313c9ea31e3873f96d51615c4ed03cf3e40073c2c7a20dc4cb57245628f0",
+        "sha256": "1ba75854f5f95839fc15e75ba3b17bab345389bcb363fe745fe712261ac8797e",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5212,7 +5215,7 @@
     },
     {
       "id": "features-share-artwork-zh-CN-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "features-share-artwork-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-share-artwork-zh-CN-compact-dark",
@@ -5248,7 +5251,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:09.799Z",
+        "capturedAt": "2026-10-16T16:38:01.846Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5276,7 +5279,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "b8d1e07637278e8439a27d2f6981063119e95f15bc620a5a52e325016d4cb51e",
+        "sha256": "f69c3d2167aa2937bfaaf696d6d95657c2f6b54e47b6f111463c994d734508d6",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5312,7 +5315,7 @@
     },
     {
       "id": "help-zh-CN-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "help-zh-CN-compact-dark.png",
       "contract": {
         "id": "help-zh-CN-compact-dark",
@@ -5348,7 +5351,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:12.221Z",
+        "capturedAt": "2026-10-16T16:38:05.311Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5376,7 +5379,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "75d6ef5b454c967460f0b0f938b2f75840282f72d40dc34e45899300fa747a0b",
+        "sha256": "5ad33ce029c36d285f087f5f5347bdd906b45af66d9897a028b85483286ec06a",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5412,7 +5415,7 @@
     },
     {
       "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
@@ -5449,7 +5452,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:16.320Z",
+        "capturedAt": "2026-10-16T16:38:09.494Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5477,7 +5480,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "6c2197e84e43e5f2ad414dfb8e08ef848aa9e42590c8997a21632af93c66fa2c",
+        "sha256": "fa86bef9aad7d560187174d9faf6adb1826b6a79b090daf5a6d9893973a1119f",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5513,7 +5516,7 @@
     },
     {
       "id": "tools-animal-crossing-qr-empty-en-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "tools-animal-crossing-qr-empty-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-empty-en-compact-dark",
@@ -5550,7 +5553,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:19.449Z",
+        "capturedAt": "2026-10-16T16:38:12.247Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5578,7 +5581,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "74201c012216676dc04ae077a2b9b7bba9e4ef7dbaa2824e656d578a483a58b5",
+        "sha256": "1d42a170cef57e92acaa18807d1185ea52ee3056e5c3b1ed4f22ba0ce7449d89",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5614,7 +5617,7 @@
     },
     {
       "id": "files-window-tools-pixelate-en-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "files-window-tools-pixelate-en-wide-light.png",
       "contract": {
         "id": "files-window-tools-pixelate-en-wide-light",
@@ -5657,7 +5660,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:23.996Z",
+        "capturedAt": "2026-10-16T16:38:15.575Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5685,7 +5688,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "85bfd4614261d4f7fbb5f9042bfa092313651250b5f47e560b3081cb972544ab",
+        "sha256": "d9a4ad3ba86ea7539620a7dc3144a1e1b2ab54b212aaf1dca1b69ae139b58c52",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5728,7 +5731,7 @@
     },
     {
       "id": "feature-window-tools-viewer-zh-CN-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "feature-window-tools-viewer-zh-CN-compact-dark.png",
       "contract": {
         "id": "feature-window-tools-viewer-zh-CN-compact-dark",
@@ -5771,7 +5774,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:26.888Z",
+        "capturedAt": "2026-10-16T16:38:17.650Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5799,7 +5802,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "641a2e14a536255e2f935be2698df407749f4ea394e7389d65f3adaad3228a5e",
+        "sha256": "3705525f166738a0237fe9de95c1664a056d47a0098ecefc056bbce2f474f398",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5842,7 +5845,7 @@
     },
     {
       "id": "about-ko-compact-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "about-ko-compact-light.png",
       "contract": {
         "id": "about-ko-compact-light",
@@ -5878,7 +5881,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:28.551Z",
+        "capturedAt": "2026-10-16T16:38:19.030Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5906,7 +5909,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "0ff70b626ce655c11d24d9532a474da44d96c789d71678fd17f19fe1f50d24df",
+        "sha256": "ed392319c05a32a8310cf4cc8bb6c0d43bc53c8e774824a08a48a58fbf786f3b",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5942,7 +5945,7 @@
     },
     {
       "id": "feature-window-features-draw-pixel-art-ko-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "feature-window-features-draw-pixel-art-ko-compact-dark.png",
       "contract": {
         "id": "feature-window-features-draw-pixel-art-ko-compact-dark",
@@ -5984,7 +5987,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:30.383Z",
+        "capturedAt": "2026-10-16T16:38:23.936Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -6012,7 +6015,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "34e50376d0160f41326b42e975ac6fef951ffebd5066f0b82523fb7dc41a29a8",
+        "sha256": "5a763749e742fc4c0253a0750e4bfc7b0ee66192bc2c2ed49c23babd97b8df27",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6055,7 +6058,7 @@
     },
     {
       "id": "feature-window-tools-viewer-ru-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "feature-window-tools-viewer-ru-compact-dark.png",
       "contract": {
         "id": "feature-window-tools-viewer-ru-compact-dark",
@@ -6097,7 +6100,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:34.349Z",
+        "capturedAt": "2026-10-16T16:38:25.338Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -6125,7 +6128,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "9027e1e145dc1b9a8014a8c82b9296e1e7d421890d44ca5ea74ade72c294d8a8",
+        "sha256": "4babbfbc13957e7d7f1dc08039e088c101ccd99badabded54264b9897d2496e3",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6168,7 +6171,7 @@
     },
     {
       "id": "about-how-it-works-en-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "about-how-it-works-en-wide-light.png",
       "contract": {
         "id": "about-how-it-works-en-wide-light",
@@ -6204,7 +6207,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:02:53.636Z",
+        "capturedAt": "2026-10-16T16:37:42.471Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6232,7 +6235,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "9defc67ece53aafb9fda32f0410a956cd2a988729aecced99ba94146fc6c855b",
+        "sha256": "aa63a9cd84235c071bd0d8a0e6b48fe1285cf032b1cdaa7891753b02e316c591",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6268,7 +6271,7 @@
     },
     {
       "id": "compare-piskel-alternatives-en-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "compare-piskel-alternatives-en-wide-light.png",
       "contract": {
         "id": "compare-piskel-alternatives-en-wide-light",
@@ -6304,7 +6307,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:01.541Z",
+        "capturedAt": "2026-10-16T16:37:51.254Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6332,7 +6335,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "9f306dc8be84f716d406ca951a10a7fe92246ed3f03fe9caf2f83ea29dbd1a09",
+        "sha256": "3dbdd7ea46f72151009c44861226ce8a44518aaa12edbb5616a24fe18a1f41b6",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6368,7 +6371,7 @@
     },
     {
       "id": "features-export-images-and-animation-en-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "features-export-images-and-animation-en-wide-light.png",
       "contract": {
         "id": "features-export-images-and-animation-en-wide-light",
@@ -6404,7 +6407,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:06.796Z",
+        "capturedAt": "2026-10-16T16:37:57.367Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6432,7 +6435,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "e42407c8068a49b0cbbff946fb9eb137bdb4d49a54050aacf9c1d0746e488458",
+        "sha256": "5a8142c7c635f7926f8f76b4e94996c57e31ec3f32423b2ebaf7d0a35d9a83f1",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6468,7 +6471,7 @@
     },
     {
       "id": "features-tilemaps-en-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "features-tilemaps-en-wide-light.png",
       "contract": {
         "id": "features-tilemaps-en-wide-light",
@@ -6504,7 +6507,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:10.054Z",
+        "capturedAt": "2026-10-16T16:38:01.099Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6532,7 +6535,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "614d3d47e47e0b7604714d9604f0513c58f2f1a99d7f944d18be85850476dbc6",
+        "sha256": "543ff21bd17b7c378029a6b1b27260d26e74c11b5808aa2a7bad9c75eab7dd54",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6568,7 +6571,7 @@
     },
     {
       "id": "privacy-en-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "privacy-en-wide-light.png",
       "contract": {
         "id": "privacy-en-wide-light",
@@ -6604,7 +6607,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:12.166Z",
+        "capturedAt": "2026-10-16T16:38:05.176Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6632,7 +6635,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "53727ea8696f70e10cb8f162143bdc9fd3564bc99f032fc68c585cef46aeb8b9",
+        "sha256": "79957556c2f73fe76ceab68b3bf585e5be99404dd4e332f518c0fa4e8ce65750",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6668,7 +6671,7 @@
     },
     {
       "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
@@ -6710,7 +6713,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:17.995Z",
+        "capturedAt": "2026-10-16T16:38:11.453Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -6738,7 +6741,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "cf2d6974bfb6b353a2a5e3b8110c75f71e9432dd4596a9e6c936cabe5d4811a4",
+        "sha256": "6dc2e74915d515ab8483886a6f18a9ff00fcfd6be7a81592e4c8e20b800e83f1",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6781,7 +6784,7 @@
     },
     {
       "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "tools-animal-crossing-qr-loaded-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
@@ -6823,7 +6826,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:23.425Z",
+        "capturedAt": "2026-10-16T16:38:15.507Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -6851,7 +6854,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "699c8c888c032c937a5d5322ac0b4a982e41e925e452fa9a635b630ebf679bb4",
+        "sha256": "96b8fd9088996bafafa519c4a36a35a250896a58a8b20ad236bfa92f7813d666",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6894,7 +6897,7 @@
     },
     {
       "id": "files-window-tools-viewer-zh-CN-wide-dark",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "files-window-tools-viewer-zh-CN-wide-dark.png",
       "contract": {
         "id": "files-window-tools-viewer-zh-CN-wide-dark",
@@ -6937,7 +6940,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:26.617Z",
+        "capturedAt": "2026-10-16T16:38:18.020Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6965,7 +6968,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "fe4dcbcb5a8c430b4bb59f84d29fab39e63fa5c0f413b78f60510399ca91af6a",
+        "sha256": "f6ff58c2f9c766438bdee377788b8235b78e1d00b5c8152086e3bbb59442af76",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -7008,7 +7011,7 @@
     },
     {
       "id": "site-footer-en-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "site-footer-en-wide-light.png",
       "contract": {
         "id": "site-footer-en-wide-light",
@@ -7041,7 +7044,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:28.378Z",
+        "capturedAt": "2026-10-16T16:38:19.426Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -7069,7 +7072,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "665d7b1579a8f26621fddb45301ad98730d9ce4dcb0ccd3f06b8b6657c3fd9c8",
+        "sha256": "7832c2e76cb61e5c834f808bb683d9b6de79a87d4b0e2e33e159855f040dfcb0",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -7098,7 +7101,7 @@
     },
     {
       "id": "compare-aseprite-on-ipad-ja-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "compare-aseprite-on-ipad-ja-wide-light.png",
       "contract": {
         "id": "compare-aseprite-on-ipad-ja-wide-light",
@@ -7134,7 +7137,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:30.160Z",
+        "capturedAt": "2026-10-16T16:38:24.347Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -7162,7 +7165,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "f370ea054597c026546e8aa33e1982a3c9429cd72e62d403f9b94b6096cdf536",
+        "sha256": "046573183fe356beca1695149add9c311fad41eb831ecb16d9323e06738704f0",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -7198,7 +7201,7 @@
     },
     {
       "id": "about-ru-wide-light",
-      "runId": "a84cea5a-7952-49d7-8a3e-07dffe775892",
+      "runId": "8845f5d9-769b-4cd5-8a2d-7119750869b6",
       "file": "about-ru-wide-light.png",
       "contract": {
         "id": "about-ru-wide-light",
@@ -7234,7 +7237,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-16T06:03:34.093Z",
+        "capturedAt": "2026-10-16T16:38:25.403Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -7262,7 +7265,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "afb096d640cc11a38dee56c358ed853ef8e512b12125f4730a6d82df6a418965",
+        "sha256": "401e5a2a8ffa4a332de0ec506bf33d7b24d057ec1d8c4d29b17a883bb20f0a2a",
         "requestedClip": {
           "x": 0,
           "y": 0,
