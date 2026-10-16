@@ -67,6 +67,8 @@ const sourceExceptions = new Map([
     "apps/editor/src/adapters/workers/recovery-codec-client.ts",
     new Set(["Provide worker or workerFactory, not both"]),
   ],
+  // The user sees ui.file.import.invalid; this is only its diagnostic cause.
+  ["apps/editor/src/adapters/session/browser-session-ports.ts", new Set(["empty file"])],
   [
     "apps/editor/src/managers/workspace/use-editor-runtime.ts",
     new Set(["Editor runtime requires platform ports"]),

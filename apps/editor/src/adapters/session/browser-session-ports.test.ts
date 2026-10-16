@@ -23,7 +23,9 @@ describe("session-browser-ports", () => {
           name: "browser-port-boundaries",
           setup(builder) {
             builder.onResolve(
-              { filter: /^\$\/(adapters\/files\/images|adapters\/workers\/import-client)$/ },
+              {
+                filter: /^\$\/(adapters\/files\/images|adapters\/workers\/import-client)$/,
+              },
               (args) => ({
                 path: args.path,
                 namespace: "session-port-stub",
@@ -67,7 +69,29 @@ describe("session-browser-ports", () => {
       assert.equal(source.name, file.name);
       assert.equal(typeof source.source, "string");
       assert.equal(await ports.decode(source.source), pixels);
-      assert.equal(calls[0][1], file);
+      assert.ok(calls[0][1] instanceof Blob, "decodes a re-materialised blob");
+      assert.equal(calls[0][1].type, "image/png");
+      assert.equal(await calls[0][1].text(), "pixels");
+      const empty = ports.registerFile(new File([], "empty.png", { type: "image/png" }));
+      const emptyError = await ports.decode(empty.source).then(
+        () => assert.fail("empty file must be rejected"),
+        (error) => error,
+      );
+      assert.match(emptyError.cause.message, /empty file/);
+      assert.deepEqual(emptyError.diagnosticDetails.source, {
+        kind: "browser-file",
+        name: "empty.png",
+        size: 0,
+        mimeType: "image/png",
+      });
+      assert.match(emptyError.diagnosticDetails.causeMessage, /empty file/);
+      const stale = new File(["x"], "stale.png", { type: "image/png" });
+      stale.arrayBuffer = () => Promise.reject(new Error("The requested file could not be read."));
+      const staleError = await ports.decode(ports.registerFile(stale).source).then(
+        () => assert.fail("unreadable file must be rejected"),
+        (error) => error,
+      );
+      assert.match(staleError.diagnosticDetails.causeMessage, /could not be read/);
       ports.releaseSource(source.source);
       await assert.rejects(ports.decode(source.source), /no longer available/);
       const asset = ports.registerAsset("/fixture.png", "Fixture.png");
