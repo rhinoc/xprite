@@ -3,15 +3,21 @@ import { useRef, useState } from "react";
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
 import {
+  algorithmHintKey,
   algorithmLabelKey,
   algorithmNoteKey,
+  colorPickerHintKey,
+  colorPickerLabelKey,
 } from "$/components/dialogs/pixelation-dialog/algorithm-notes";
 import { tUiSource, useUiLanguage } from "$/i18n";
 import {
   getAllAlgorithms,
-  ImportDialogChoice,
+  getAllColorPickers,
+  type ImportAction,
   PixelArtClassification,
   PixelationAlgorithm,
+  PixelationMode,
+  CellColorPicker,
 } from "$/managers/preferences/file-preferences";
 import type { useEditorWorkflows } from "$/managers/workspace/use-editor-workflows";
 import { PixelationControls, PixelationComparison } from "@xprite/editor-ui";
@@ -83,29 +89,28 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     return tUiSource("import.dialog.plain.image");
   };
 
+  /** Every confirmed pick becomes the default next time; the checkbox only turns the question off. */
+  const rememberPicks = (action: ImportAction) =>
+    workflow.setFilePreferences({
+      ...workflow.getFilePreferences(),
+      importLastAction: action,
+      importPixelationAlgorithm: selectedAlgorithm,
+      importColorPicker: workflow.pixelationOptions.colorPicker,
+      ...(rememberChoice ? { importAsk: false } : {}),
+    });
   const handleAcceptOriginal = () => {
-    if (rememberChoice) {
-      const currentPreferences = workflow.getFilePreferences();
-      workflow.setFilePreferences({
-        ...currentPreferences,
-        importDialogChoice: ImportDialogChoice.AlwaysImportAsIs,
-      });
-    }
+    rememberPicks("import-as-is");
     workflow.acceptOriginalImport();
   };
-
   const handleAcceptPixelated = () => {
-    if (rememberChoice) {
-      const currentPreferences = workflow.getFilePreferences();
-      workflow.setFilePreferences({
-        ...currentPreferences,
-        importDialogChoice: ImportDialogChoice.AlwaysPixelate,
-        importPixelationAlgorithm: selectedAlgorithm,
-      });
-    }
+    rememberPicks("pixelate");
     workflow.acceptPixelatedImport();
   };
 
+  const colorPickerOptions = getAllColorPickers().map((picker) => ({
+    value: picker,
+    label: tUiSource(colorPickerLabelKey(picker)),
+  }));
   const algorithmOptions = getAllAlgorithms().map((algorithm) => ({
     value: algorithm,
     label: tUiSource(algorithmLabelKey(algorithm)),
@@ -143,6 +148,26 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 onValueChange={(value) => workflow.setImportAlgorithm(value as PixelationAlgorithm)}
               />
             </Field>
+            <Text variant={TextVariant.Reading} wrap>
+              {tUiSource(algorithmHintKey(selectedAlgorithm))}
+            </Text>
+            <Field label={tUiSource("import.dialog.color.picker")} layout={FieldLayout.Inline}>
+              <Combobox
+                pixelWidth={ALGORITHM_WIDTH}
+                value={workflow.pixelationOptions.colorPicker}
+                aria-label={tUiSource("import.dialog.color.picker")}
+                disabled={
+                  workflow.busy || workflow.pixelationOptions.mode !== PixelationMode.RecoverGrid
+                }
+                options={colorPickerOptions}
+                onValueChange={(value) =>
+                  workflow.setPixelationOptions({ colorPicker: value as CellColorPicker })
+                }
+              />
+            </Field>
+            <Text variant={TextVariant.Reading} wrap>
+              {tUiSource(colorPickerHintKey(workflow.pixelationOptions.colorPicker))}
+            </Text>
             {noteKey && (
               <Text variant={TextVariant.Reading} role="status" wrap>
                 {tUiSource(noteKey)}

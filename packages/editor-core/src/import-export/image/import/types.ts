@@ -70,6 +70,13 @@ export enum PixelationAlgorithm {
   Resize = "resize",
 }
 
+/** How one colour is chosen for each grid cell, independent of how the grid was found. */
+export enum CellColorPicker {
+  MostCommon = "most-common",
+  Average = "average",
+  Median = "median",
+}
+
 export enum ImportDialogChoice {
   AlwaysAsk = "always-ask",
   AlwaysImportAsIs = "always-import-as-is",
@@ -101,6 +108,8 @@ export interface PixelationSize {
 export interface PixelateOptions {
   mode?: PixelationMode;
   algorithm?: PixelationAlgorithm;
+  /** Per-cell colour rule when a grid is recovered; MostCommon when omitted. */
+  colorPicker?: CellColorPicker;
   grid?: PixelGridGeometry;
   outlineStrength?: number;
   /** Sampling rule used to choose one representative color per output cell. */
@@ -140,6 +149,7 @@ export interface PixelationSettings {
   mode: PixelationMode;
   reduceColors: boolean;
   outlineStrength: number;
+  colorPicker: CellColorPicker;
   autoGrid: boolean;
   gridCellWidth: number;
   gridCellHeight: number;
@@ -157,4 +167,5 @@ export interface PixelationSettings {
 export interface ImportDialogPreference {
   choice: ImportDialogChoice;
   algorithm: PixelationAlgorithm;
+  colorPicker: CellColorPicker;
 }

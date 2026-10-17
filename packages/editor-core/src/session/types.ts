@@ -84,7 +84,7 @@ export interface EditorSessionPorts<Source> {
     documentKey?: string,
   ): Promise<SessionWriteResult>;
   /** Retrieve import dialog preference to determine if the dialog should be shown. */
-  getImportPreference?(): { choice: string; algorithm: string };
+  getImportPreference?(): { choice: string; algorithm: string; colorPicker?: string };
   releaseSource?(source: Source): void;
   dispose?(): void;
 }

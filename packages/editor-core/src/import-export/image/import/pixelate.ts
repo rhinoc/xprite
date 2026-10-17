@@ -64,7 +64,7 @@ function sampleImage(
       throw new Error(
         "No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.",
       );
-    return recoverWithGrid(image, found);
+    return recoverWithGrid(image, found, options.colorPicker);
   }
   const target = resolveTargetSize(image, options);
   const strength = options.outlineStrength ?? 0;

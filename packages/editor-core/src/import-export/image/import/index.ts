@@ -12,6 +12,7 @@ export {
   PixelationMethod,
   PixelationMode,
   PixelationAlgorithm,
+  CellColorPicker,
   ImportDialogChoice,
 } from "$/import-export/image/import/types";
 export type {
@@ -45,3 +46,9 @@ export {
   detectWithAlgorithm,
   type PixelationAlgorithmEntry,
 } from "$/import-export/image/import/pixelation-algorithm-registry";
+
+export {
+  getAllColorPickers,
+  getColorPickerEntry,
+  type CellColorPickerEntry,
+} from "$/import-export/image/import/cell-color-picker";

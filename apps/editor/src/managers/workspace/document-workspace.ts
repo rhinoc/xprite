@@ -41,6 +41,7 @@ import { EffectDialogPreferences } from "$/managers/preferences/effect-dialog-pr
 import {
   DEFAULT_FILE_PREFERENCES,
   fileNameWithExtension,
+  importPreferenceOf,
   normalizeFilePreferences,
   type FilePreferences,
 } from "$/managers/preferences/file-preferences";
@@ -374,10 +375,7 @@ export class DocumentWorkspace {
       pixelate: (...args) => ports.pixelate(...args),
       write: (...args) => ports.write(...args),
       writeProject: ports.writeProject?.bind(ports),
-      getImportPreference: () => ({
-        choice: this.filePreferences.importDialogChoice,
-        algorithm: this.filePreferences.importPixelationAlgorithm,
-      }),
+      getImportPreference: () => importPreferenceOf(this.filePreferences),
       releaseSource: ports.releaseSource?.bind(ports),
     };
     this.recovery = recovery;

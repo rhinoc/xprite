@@ -6,6 +6,7 @@ import { jitterWithMargin, sprite } from "$/import-export/image/import/grid-test
 import { pixelateImage } from "$/import-export/image/import/pixelate";
 import { detectWithAlgorithm } from "$/import-export/image/import/pixelation-algorithm-registry";
 import {
+  CellColorPicker,
   PixelArtClassification,
   PixelationAlgorithm,
   PixelationMode,
@@ -60,6 +61,23 @@ describe("registry algorithms on one jittered sprite", () => {
     const resize = outputs.find((o) => o.algorithm === Resize);
     expect(resize?.reliable).toBe(false);
     expect(resize?.size).toBe("40x40");
+  });
+});
+
+describe("import dialog colour pick", () => {
+  test("changing the picker re-renders the preview on the same grid", async () => {
+    const session = openSession(jittered);
+    await session.requestImport({ source: "jitter", name: "jitter.png" });
+    await settle(session);
+    expect(session.getSnapshot().pixelationOptions.colorPicker).toBe(CellColorPicker.MostCommon);
+    const before = session.getSnapshot().pixelationPreview;
+    session.setPixelationOptions({ colorPicker: CellColorPicker.Average });
+    await settle(session);
+    const after = session.getSnapshot();
+    expect(after.pixelationOptions.colorPicker).toBe(CellColorPicker.Average);
+    expect(after.pendingImport?.algorithm).toBe(session.getSnapshot().pendingImport?.algorithm);
+    expect(after.pixelationPreview?.width).toBe(before?.width);
+    session.dispose();
   });
 });
 

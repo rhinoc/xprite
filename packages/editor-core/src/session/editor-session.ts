@@ -15,7 +15,9 @@ import {
   PixelArtClassification,
   PixelationAlgorithm,
   PixelationMode,
+  CellColorPicker,
   getAllAlgorithms,
+  getAllColorPickers,
   defaultPixelationSettings,
   extractPixelationPalette,
   updatePixelationSettings,
@@ -544,6 +546,17 @@ export class EditorSession<Source> {
     const remembered = this.ports.getImportPreference?.()?.algorithm;
     return getAllAlgorithms().find((id) => id === remembered) ?? PixelationAlgorithm.Auto;
   }
+  /** The remembered per-cell colour rule; anything unknown means the default. */
+  private importColorPicker(): CellColorPicker {
+    const remembered = this.ports.getImportPreference?.()?.colorPicker;
+    return getAllColorPickers().find((id) => id === remembered) ?? CellColorPicker.MostCommon;
+  }
+  private defaultOptions(candidate: Candidate) {
+    return {
+      ...defaultPixelationSettings(candidate.pixels, candidate.grid),
+      colorPicker: this.importColorPicker(),
+    };
+  }
   private offerCandidate(candidate: Candidate): SessionOutcome {
     const pref = this.ports.getImportPreference?.();
     if (pref) {
@@ -573,7 +586,7 @@ export class EditorSession<Source> {
             height: candidate.pixels.height,
             classification: candidate.classification,
           },
-          pixelationOptions: defaultPixelationSettings(candidate.pixels, candidate.grid),
+          pixelationOptions: this.defaultOptions(candidate),
           pixelationPreview: null,
           pixelationPalette: [],
           pixelationError: null,
@@ -612,7 +625,7 @@ export class EditorSession<Source> {
         height: candidate.pixels.height,
         classification: candidate.classification,
       },
-      pixelationOptions: defaultPixelationSettings(candidate.pixels, candidate.grid),
+      pixelationOptions: this.defaultOptions(candidate),
       pixelationPreview: null,
       pixelationPalette: [],
       pixelationError: null,

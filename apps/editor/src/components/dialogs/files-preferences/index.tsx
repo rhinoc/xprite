@@ -2,7 +2,6 @@ import type { MutableRefObject } from "react";
 
 import {
   PreferencesCheckbox,
-  PreferencesLabel,
   usePreferencesDialogNarrowLayout,
 } from "$/components/dialogs/preferences-dialog/preferences-dialog-layout";
 import { tUi } from "$/i18n";
@@ -10,9 +9,6 @@ import {
   AnimationExportExtension,
   ImageExportExtension,
   SaveFileExtension,
-  ImportDialogChoice,
-  PixelationAlgorithm,
-  getAllAlgorithms,
 } from "$/managers/preferences/file-preferences";
 import type { FilePreferences } from "$/managers/preferences/file-preferences";
 import type { RecoverySettings } from "$/managers/workspace/recovery-settings";
@@ -240,81 +236,14 @@ export function FilesPreferences({
       />
       {combo("Keep closed sprite on memory for", 321, 15, intervals, true, noop, 452)}
 
-      {/* Import preferences: labelled rows directly under the recovery block, clear of the button row. */}
-      <PreferencesLabel
-        text={tUi("import.preferences.choice")}
-        bounds={narrowLayout ? box(358, 476, 333, 12) : box(358, 343, 100, 16)}
+      {/* The only import setting: whether to be asked. Last picks are remembered automatically. */}
+      <PreferencesCheckbox
+        label={tUi("import.preferences.ask")}
+        checked={filePreferences.importAsk}
+        bounds={narrowLayout ? box(358, 476, 333, 16) : box(358, 345, 333, 16)}
         relativeTo={client}
-      />
-      <Combobox
-        aria-label={tUi("import.preferences.choice")}
-        bounds={narrowLayout ? box(358, 492, 333, 16) : box(459, 343, 232, 16)}
-        relativeTo={client}
-        value={filePreferences.importDialogChoice}
-        options={[
-          {
-            value: ImportDialogChoice.AlwaysAsk,
-            label: tUi("import.preferences.choice.always.ask"),
-          },
-          {
-            value: ImportDialogChoice.AlwaysImportAsIs,
-            label: tUi("import.preferences.choice.always.as.is"),
-          },
-          {
-            value: ImportDialogChoice.AlwaysPixelate,
-            label: tUi("import.preferences.choice.always.pixelate", {
-              algorithm: tUi(
-                `import.algorithm.${filePreferences.importPixelationAlgorithm || PixelationAlgorithm.Auto}`,
-              ),
-            }),
-          },
-        ]}
         disabled={!filePreferencesEnabled}
-        onValueChange={(value) =>
-          onFilePreferencesChange({
-            importDialogChoice: value as ImportDialogChoice,
-          })
-        }
-      />
-      <PreferencesLabel
-        text={tUi("import.preferences.algorithm")}
-        bounds={narrowLayout ? box(358, 512, 333, 12) : box(358, 363, 100, 16)}
-        relativeTo={client}
-      />
-      <Combobox
-        aria-label={tUi("import.preferences.algorithm")}
-        bounds={narrowLayout ? box(358, 528, 333, 16) : box(459, 363, 232, 16)}
-        relativeTo={client}
-        value={filePreferences.importPixelationAlgorithm || PixelationAlgorithm.Auto}
-        options={getAllAlgorithms().map((algorithm) => ({
-          value: algorithm,
-          label: tUi(`import.algorithm.${algorithm}`),
-        }))}
-        disabled={
-          !filePreferencesEnabled ||
-          filePreferences.importDialogChoice !== ImportDialogChoice.AlwaysPixelate
-        }
-        onValueChange={(value) =>
-          onFilePreferencesChange({
-            importPixelationAlgorithm: value as PixelationAlgorithm,
-          })
-        }
-      />
-      <Button
-        aria-label={tUi("import.preferences.reset")}
-        text={tUi("import.preferences.reset")}
-        bounds={narrowLayout ? box(358, 552, 160, 16) : box(459, 383, 160, 16)}
-        relativeTo={client}
-        disabled={
-          !filePreferencesEnabled ||
-          filePreferences.importDialogChoice === ImportDialogChoice.AlwaysAsk
-        }
-        onClick={() =>
-          onFilePreferencesChange({
-            importDialogChoice: ImportDialogChoice.AlwaysAsk,
-            importPixelationAlgorithm: PixelationAlgorithm.Auto,
-          })
-        }
+        onCheckedChange={(importAsk) => onFilePreferencesChange({ importAsk })}
       />
     </>
   );

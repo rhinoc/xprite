@@ -3,6 +3,7 @@ import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/
 import { recoverGrid } from "$/import-export/image/import/grid-sample";
 import { resizeBox } from "$/import-export/image/import/resize";
 import {
+  CellColorPicker,
   PixelationAlgorithm,
   type PixelGridAnalysis,
   type PixelGridGeometry,
@@ -15,7 +16,7 @@ export interface PixelationAlgorithmEntry {
   readonly auto: boolean;
   detect(image: PixelBuffer): PixelGridAnalysis;
   /** One output pixel per grid cell. */
-  run(image: PixelBuffer, grid: PixelGridGeometry): PixelBuffer;
+  run(image: PixelBuffer, grid: PixelGridGeometry, picker: CellColorPicker): PixelBuffer;
 }
 
 const unreliable = (image: PixelBuffer): PixelGridAnalysis => ({
@@ -51,7 +52,8 @@ const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
             next.reliable && (!best.reliable || next.confidence > best.confidence) ? next : best,
           TABLE[FALLBACK].detect(image),
         ),
-    run: (image, grid) => TABLE[(grid as PixelGridAnalysis).algorithm ?? FALLBACK].run(image, grid),
+    run: (image, grid, picker) =>
+      TABLE[(grid as PixelGridAnalysis).algorithm ?? FALLBACK].run(image, grid, picker),
   },
   [PixelationAlgorithm.UniformGrid]: {
     label: "import.algorithm.uniform-grid",
@@ -90,8 +92,12 @@ export function detectWithAlgorithm(
   return getAlgorithmEntry(algorithm).detect(image);
 }
 
-export function recoverWithGrid(image: PixelBuffer, grid: PixelGridGeometry): PixelBuffer {
+export function recoverWithGrid(
+  image: PixelBuffer,
+  grid: PixelGridGeometry,
+  picker: CellColorPicker = CellColorPicker.MostCommon,
+): PixelBuffer {
   return getAlgorithmEntry(
     (grid as PixelGridAnalysis).algorithm ?? PixelationAlgorithm.EdgeGrid,
-  ).run(image, grid);
+  ).run(image, grid, picker);
 }
