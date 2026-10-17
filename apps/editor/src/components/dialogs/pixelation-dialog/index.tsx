@@ -3,13 +3,13 @@ import { useRef, useState } from "react";
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
 import { tUiSource, useUiLanguage } from "$/i18n";
-import type { useEditorWorkflows } from "$/managers/workspace/use-editor-workflows";
 import {
   getAllAlgorithms,
   ImportDialogChoice,
   PixelArtClassification,
   PixelationAlgorithm,
-} from "@xprite/editor-core";
+} from "$/managers/preferences/file-preferences";
+import type { useEditorWorkflows } from "$/managers/workspace/use-editor-workflows";
 import { PixelationControls, PixelationComparison } from "@xprite/editor-ui";
 import {
   Button,

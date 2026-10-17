@@ -11,10 +11,10 @@ import {
   SaveFileExtension,
   ImportDialogChoice,
   PixelationAlgorithm,
+  getAllAlgorithms,
 } from "$/managers/preferences/file-preferences";
 import type { FilePreferences } from "$/managers/preferences/file-preferences";
 import type { RecoverySettings } from "$/managers/workspace/recovery-settings";
-import { getAllAlgorithms } from "@xprite/editor-core";
 import { Button, Combobox, Slider } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 

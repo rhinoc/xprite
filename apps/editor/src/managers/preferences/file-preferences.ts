@@ -1,9 +1,11 @@
 import {
   ImportDialogChoice,
   PixelationAlgorithm,
+  getAllAlgorithms,
+  PixelArtClassification,
 } from "@xprite/editor-core/import-export/image/import";
 
-export { ImportDialogChoice, PixelationAlgorithm };
+export { ImportDialogChoice, PixelationAlgorithm, getAllAlgorithms, PixelArtClassification };
 
 export enum SaveFileExtension {
   Aseprite = "aseprite",
