@@ -105,7 +105,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     workflow.setFilePreferences({
       ...workflow.getFilePreferences(),
       importLastAction: chosen,
-      // "Just shrink" is a one-off choice; persisting it would silently shrink later imports.
+      // "Resize only" is a one-off choice; persisting it would silently shrink later imports.
       ...(selectedAlgorithm === "resize" ? {} : { importPixelationAlgorithm: selectedAlgorithm }),
       importColorPicker: colorPicker,
       ...(rememberChoice ? { importAsk: false } : {}),

@@ -1,4 +1,5 @@
 import type { PixelBuffer } from "$/base/primitives";
+import { labToRgb, rgbToLab } from "$/import-export/image/import/color-lab";
 import { CellColorPicker } from "$/import-export/image/import/types";
 
 /**
@@ -120,6 +121,84 @@ const channelsOf = (image: PixelBuffer, offsets: number[], c: number) =>
   offsets.map((o) => image.data[o + c]);
 const meanOf = (values: number[]) => Math.round(values.reduce((a, b) => a + b, 0) / values.length);
 
+const KMEANS_K = 3;
+const KMEANS_ROUNDS = 8;
+/** L* spread above which the Contrast picker pushes the cell toward its stronger extreme. */
+const CONTRAST_SPREAD = 30;
+const CONTRAST_PULL = 0.5;
+
+const rgbaAt = (image: PixelBuffer, o: number): Rgba4 => [
+  image.data[o],
+  image.data[o + 1],
+  image.data[o + 2],
+  image.data[o + 3],
+];
+const distance2 = (a: number[], b: number[]) =>
+  (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2;
+
+/**
+ * Per-cell k-means (k=3) on RGB; the largest cluster's mean wins. Inspired by the k-centroid
+ * downscaling in PixelOE (Apache-2.0, https://github.com/KohakuBlueleaf/PixelOE); this is an
+ * independent reimplementation with deterministic seeding (darkest, lightest, farthest pixel).
+ */
+function kMeansColor(image: PixelBuffer, offsets: number[]): Rgba4 {
+  const points = offsets.map((o) => rgbaAt(image, o));
+  const luma = (p: number[]) => p[0] * 0.299 + p[1] * 0.587 + p[2] * 0.114;
+  const sorted = [...points].sort((a, b) => luma(a) - luma(b));
+  const centers: number[][] = [sorted[0], sorted[sorted.length - 1]];
+  while (centers.length < KMEANS_K) {
+    let far = points[0];
+    let best = -1;
+    for (const p of points) {
+      const d = Math.min(...centers.map((c) => distance2(p, c)));
+      if (d > best) {
+        best = d;
+        far = p;
+      }
+    }
+    centers.push(far);
+  }
+  let assign = new Int32Array(points.length);
+  for (let round = 0; round < KMEANS_ROUNDS; round++) {
+    assign = Int32Array.from(points, (p) => {
+      let k = 0;
+      for (let i = 1; i < centers.length; i++)
+        if (distance2(p, centers[i]) < distance2(p, centers[k])) k = i;
+      return k;
+    });
+    for (let k = 0; k < centers.length; k++) {
+      const members = points.filter((_, i) => assign[i] === k);
+      if (members.length)
+        centers[k] = [0, 1, 2].map((c) => members.reduce((s, p) => s + p[c], 0) / members.length);
+    }
+  }
+  const sizes = centers.map((_, k) => assign.filter((a) => a === k).length);
+  const winner = sizes.indexOf(Math.max(...sizes));
+  const members = points.filter((_, i) => assign[i] === winner);
+  return [0, 1, 2, 3].map((c) => meanOf(members.map((p) => p[c]))) as Rgba4;
+}
+
+/**
+ * Median L*, a*, b* of the cell. When the cell has strong lightness contrast the lightness is
+ * pulled toward whichever extreme sits farther from the median, keeping thin lines and highlights
+ * from washing out. Follows the contrast-based idea of PixelOE (Apache-2.0), reimplemented.
+ */
+function contrastColor(image: PixelBuffer, offsets: number[]): Rgba4 {
+  const labs = offsets.map((o) => rgbToLab(image.data[o], image.data[o + 1], image.data[o + 2]));
+  const [l, a, b] = [0, 1, 2].map((c) => medianFloat(labs.map((lab) => lab[c])));
+  const lows = labs.map((lab) => lab[0]);
+  const lo = Math.min(...lows);
+  const hi = Math.max(...lows);
+  const extreme = hi - l >= l - lo ? hi : lo;
+  const lightness = hi - lo >= CONTRAST_SPREAD ? l + (extreme - l) * CONTRAST_PULL : l;
+  return [...labToRgb(lightness, a, b), meanOf(channelsOf(image, offsets, 3))] as Rgba4;
+}
+function medianFloat(values: number[]): number {
+  values.sort((x, y) => x - y);
+  const mid = values.length >> 1;
+  return values.length % 2 ? values[mid] : (values[mid - 1] + values[mid]) / 2;
+}
+
 /** Colour picker table: every picker works on any grid, whichever detector found it. */
 const PICKERS: Readonly<Record<CellColorPicker, CellColorPickerEntry>> = {
   [CellColorPicker.MostCommon]: {
@@ -148,6 +227,26 @@ const PICKERS: Readonly<Record<CellColorPicker, CellColorPickerEntry>> = {
         ] as Rgba4)
       );
     },
+  },
+  [CellColorPicker.KMeans]: {
+    label: "import.picker.k-means",
+    pick: (image, x0, y0, x1, y1) => {
+      const o = opaqueOffsets(image, x0, y0, x1, y1);
+      return o && kMeansColor(image, o);
+    },
+  },
+  [CellColorPicker.Contrast]: {
+    label: "import.picker.contrast",
+    pick: (image, x0, y0, x1, y1) => {
+      const o = opaqueOffsets(image, x0, y0, x1, y1);
+      return o && contrastColor(image, o);
+    },
+  },
+  [CellColorPicker.Nearest]: {
+    label: "import.picker.nearest",
+    pick: (image, x0, y0, x1, y1) =>
+      opaqueOffsets(image, x0, y0, x1, y1) &&
+      rgbaAt(image, (((y0 + y1 - 1) >> 1) * image.width + ((x0 + x1 - 1) >> 1)) * CHANNELS),
   },
 };
 export function getColorPickerEntry(picker: CellColorPicker): CellColorPickerEntry {

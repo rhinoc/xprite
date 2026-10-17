@@ -75,6 +75,9 @@ export enum CellColorPicker {
   MostCommon = "most-common",
   Average = "average",
   Median = "median",
+  KMeans = "k-means",
+  Contrast = "contrast",
+  Nearest = "nearest",
 }
 
 export enum ImportDialogChoice {

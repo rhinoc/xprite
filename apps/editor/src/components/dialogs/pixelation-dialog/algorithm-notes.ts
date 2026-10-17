@@ -43,6 +43,9 @@ const PICKER_COPY: Readonly<Record<CellColorPicker, { label: string }>> = {
   [CellColorPicker.MostCommon]: { label: "import.picker.most-common" },
   [CellColorPicker.Average]: { label: "import.picker.average" },
   [CellColorPicker.Median]: { label: "import.picker.median" },
+  [CellColorPicker.KMeans]: { label: "import.picker.k-means" },
+  [CellColorPicker.Contrast]: { label: "import.picker.contrast" },
+  [CellColorPicker.Nearest]: { label: "import.picker.nearest" },
 };
 
 export function colorPickerLabelKey(picker: CellColorPicker): string {

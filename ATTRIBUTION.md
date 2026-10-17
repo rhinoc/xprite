@@ -249,3 +249,12 @@ Reproduce with `scripts/fixtures/animal-crossing/generate-acnh-example.mjs` and 
 source PNG identified in that file. The seasonal grass presets are independently
 generated approximations, not Nintendo texture rips. Three.js powers the tools'
 ground preview under its [MIT license](LICENSES/three-MIT.txt).
+
+## Pixel colour pickers
+
+The import dialog's K-means and Contrast pixel colour pickers are inspired by the
+downscaling modes of [PixelOE](https://github.com/KohakuBlueleaf/PixelOE) by
+KohakuBlueleaf (Apache-2.0). They are independent reimplementations in
+`packages/editor-core/src/import-export/image/import/cell-color-picker.ts`; no PixelOE code is
+copied. Most common follows [proper-pixel-art](https://github.com/KennethJAllen/proper-pixel-art)
+(MIT).
