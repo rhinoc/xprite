@@ -20,8 +20,6 @@
   "ui.support.wechat": "微信赞赏",
   "ui.support.wechat.show": "显示微信赞赏码",
   "ui.support.wechat.qr": "微信赞赏码",
-  "ui.support.wechat.scan": "微信扫一扫",
-  "ui.support.wechat.long.press": "长按保存或识别",
   "ui.support.new.tab": "{name}（在新标签页打开）",
   "ui.support.bilibili": "哔哩哔哩",
   "ui.support.xiaohongshu": "小红书",

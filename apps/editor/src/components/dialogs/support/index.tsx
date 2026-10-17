@@ -40,10 +40,8 @@ const SUPPORT_MIN_HEIGHT = 200;
 const SUPPORT_CHROME_HEIGHT = 46;
 const SUPPORT_QR_SIZE = 168;
 const SUPPORT_HEADING_HEIGHT = 18;
-/** Popup content: the code plus one caption line, inside the theme's popup insets. */
-const SUPPORT_QR_POPUP = { width: SUPPORT_QR_SIZE + 24, height: SUPPORT_QR_SIZE + 52 };
-/** Touch captions ("Long-press to save or scan") may wrap onto a second line. */
-const SUPPORT_QR_TOUCH_EXTRA_HEIGHT = 20;
+/** Popup content: the code image inside the theme's popup insets. */
+const SUPPORT_QR_POPUP = { width: SUPPORT_QR_SIZE + 24, height: SUPPORT_QR_SIZE + 24 };
 const FOCUSABLE = 'a[href],button:not(:disabled),[tabindex]:not([tabindex="-1"])';
 const COARSE_POINTER_QUERY = "(any-pointer: coarse)";
 
@@ -200,7 +198,7 @@ export function SupportDialog({
     x: Math.round(anchor.x + (anchor.width - SUPPORT_QR_POPUP.width) / 2),
     y: anchor.y + anchor.height,
     width: SUPPORT_QR_POPUP.width,
-    height: SUPPORT_QR_POPUP.height + (coarsePointer ? SUPPORT_QR_TOUCH_EXTRA_HEIGHT : 0),
+    height: SUPPORT_QR_POPUP.height,
   };
   return (
     <>
@@ -260,9 +258,6 @@ export function SupportDialog({
               height={SUPPORT_QR_SIZE}
               decoding="async"
             />
-            <Text variant={TextVariant.Inline} scale={RASTER_SCALE} wrap>
-              {tUi(coarsePointer ? "ui.support.wechat.long.press" : "ui.support.wechat.scan")}
-            </Text>
           </div>
         </EditorPopover>
       )}

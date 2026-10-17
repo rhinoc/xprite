@@ -20,8 +20,6 @@
   "ui.support.wechat": "WeChat",
   "ui.support.wechat.show": "WeChat 寄付用 QR コードを表示",
   "ui.support.wechat.qr": "WeChat 寄付用 QR コード",
-  "ui.support.wechat.scan": "WeChat でスキャン",
-  "ui.support.wechat.long.press": "長押しで保存またはスキャン",
   "ui.support.new.tab": "{name}（新しいタブで開く）",
   "ui.support.bilibili": "Bilibili",
   "ui.support.xiaohongshu": "小紅書 (RED)",

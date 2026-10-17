@@ -31,10 +31,8 @@
 
 .qr {
   display: flex;
-  text-align: center;
   flex-direction: column;
   align-items: center;
-  gap: var(--ui-space-2, 4px);
 }
 
 /* Keep the platform long-press menu (save / scan) on touch devices. */

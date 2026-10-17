@@ -20,8 +20,6 @@
   "ui.support.wechat": "WeChat",
   "ui.support.wechat.show": "Mostrar QR code de doação do WeChat",
   "ui.support.wechat.qr": "QR code de doação do WeChat",
-  "ui.support.wechat.scan": "Escaneie com o WeChat",
-  "ui.support.wechat.long.press": "Toque e segure para salvar ou escanear",
   "ui.support.new.tab": "{name} (abre em nova aba)",
   "ui.support.bilibili": "Bilibili",
   "ui.support.xiaohongshu": "Xiaohongshu",

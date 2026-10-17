@@ -20,8 +20,6 @@
   "ui.support.wechat": "WeChat",
   "ui.support.wechat.show": "Показать QR-код WeChat для пожертвования",
   "ui.support.wechat.qr": "QR-код WeChat для пожертвования",
-  "ui.support.wechat.scan": "Сканируйте в WeChat",
-  "ui.support.wechat.long.press": "Удерживайте, чтобы сохранить или сканировать",
   "ui.support.new.tab": "{name} (откроется в новой вкладке)",
   "ui.support.bilibili": "Bilibili",
   "ui.support.xiaohongshu": "Xiaohongshu",
