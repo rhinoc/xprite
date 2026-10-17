@@ -75,9 +75,9 @@ export function WorkspaceLink({
   onHotChange,
   highlighted = false,
 }: WorkspaceLinkProps) {
-  const { translateSource, style: uiStyle } = useUi();
-  const displayText =
-    variant === WorkspaceLinkVariant.Recent ? children : translateSource(children);
+  const { style: uiStyle } = useUi();
+  // Callers pass display text that is already translated by key (or a file name / invariant name).
+  const displayText = children;
   const [hot, setHot] = useState(false);
   const [pressed, setPressed] = useState(false);
   const hover = (value: boolean) => {

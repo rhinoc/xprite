@@ -314,7 +314,7 @@ export function ColorFields({
                 (index ? WorkingColorTarget.Background : WorkingColorTarget.Foreground)
               : undefined
           }
-          aria-label={tUiSource(index ? "Background color: {color}" : "Foreground color: {color}", {
+          aria-label={tUi(index ? "ui.background.color.color" : "ui.foreground.color.color", {
             color,
           })}
           title={

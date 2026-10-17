@@ -1,5 +1,5 @@
 import { RecoveryView as PrimitiveRecoveryView } from "$/components/workspace/recovery-view-base";
-import { tUi, tUiSource } from "$/i18n";
+import { tUi } from "$/i18n";
 import type { RecoveryItem } from "$/managers/workspace/recovery-presentation";
 
 export interface EditorRecoveryViewProps {
@@ -21,10 +21,10 @@ export function EditorRecoveryView(props: EditorRecoveryViewProps) {
       labels={{
         heading: tUi("ui.recover.files"),
         recover: (count) =>
-          count > 1 ? tUi("ui.recover.count.sprites", { count }) : tUiSource("Recover Sprite"),
+          count > 1 ? tUi("ui.recover.count.sprites", { count }) : tUi("ui.recover.sprite"),
         refresh: tUi("ui.refresh"),
         delete: tUi("ui.delete"),
-        loading: tUi("ui.loading.17b11033"),
+        loading: tUi("ui.loading.ellipsis"),
         previousSessions: tUi("ui.recovery.previous.sessions"),
         rawFrames: tUi("ui.recovery.raw.frames"),
         rawLayers: tUi("ui.recovery.raw.layers"),

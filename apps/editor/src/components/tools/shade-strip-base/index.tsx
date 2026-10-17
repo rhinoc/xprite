@@ -312,7 +312,7 @@ export function ShadeStrip<TColor extends ShadeColor = ShadeColor>({
         ref={strip}
         className={styles.colorList}
         role="listbox"
-        aria-label={translateSource("Shade colors")}
+        aria-label={tUi("ui.shade.colors")}
         tabIndex={0}
         data-dragging={dragging || undefined}
         onPointerMove={(event) => {

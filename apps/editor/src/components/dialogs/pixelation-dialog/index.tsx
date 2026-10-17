@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
-import { tUiSource, useUiLanguage } from "$/i18n";
+import { tUiSource, useUiLanguage, tUi } from "$/i18n";
 import type { useEditorWorkflows } from "$/managers/workspace/use-editor-workflows";
 import {
   PixelationControls,
@@ -105,10 +105,10 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
           </Text>
         )}
         <ControlFlow className={styles.actions}>
-          <Button slots={{}} text={tUiSource("Cancel")} onClick={workflow.discardEmptyImport} />
+          <Button slots={{}} text={tUi("ui.cancel")} onClick={workflow.discardEmptyImport} />
           <Button
             slots={{}}
-            text={tUiSource("Keep original")}
+            text={tUi("ui.keep.original")}
             disabled={workflow.busy}
             onClick={workflow.acceptOriginalImport}
           />

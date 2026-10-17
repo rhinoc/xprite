@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { EditorDialog } from "$/components/dialogs/overlay";
-import { tUiSource } from "$/i18n";
+import { tUiSource, tUi } from "$/i18n";
 import {
   inputToShortcut,
   normalizeShortcut,
@@ -75,7 +75,7 @@ export function ShortcutCaptureDialog({
         <div className={styles.captureBody}>
           <Text variant={TextVariant.Inline}>{tUiSource(definition.label)}</Text>
           <div className={styles.captureKeyRow}>
-            <Text variant={TextVariant.Inline}>{tUiSource("Key")}</Text>
+            <Text variant={TextVariant.Inline}>{tUi("ui.key")}</Text>
             <Input
               value={shortcut || (definition.kind === ShortcutBindingKind.Wheel ? "Default" : "")}
               aria-label="Shortcut key"
@@ -132,7 +132,7 @@ export function ShortcutCaptureDialog({
             <Button text="Clear" onClick={() => setValue("")} />
           </div>
           <div className={styles.captureModifiers}>
-            <Text variant={TextVariant.Inline}>{tUiSource("Modifiers")}</Text>
+            <Text variant={TextVariant.Inline}>{tUi("ui.modifiers")}</Text>
             {MODIFIERS.map((modifier) => (
               <Checkbox
                 key={modifier}
@@ -143,16 +143,14 @@ export function ShortcutCaptureDialog({
             ))}
           </div>
           <div className={styles.captureConflict} aria-live="polite">
-            <Text variant={TextVariant.Inline}>{tUiSource("Assigned to")}</Text>
+            <Text variant={TextVariant.Inline}>{tUi("ui.assigned.to")}</Text>
             <Text variant={TextVariant.Inline}>
               {conflicts.length
                 ? conflicts.map((entry) => tUiSource(entry.label)).join(", ")
-                : tUiSource("None")}
+                : tUi("ui.cursors.preview.none")}
             </Text>
             {!!conflicts.length && (
-              <Text variant={TextVariant.Inline}>
-                {tUiSource("This shortcut will be reassigned.")}
-              </Text>
+              <Text variant={TextVariant.Inline}>{tUi("ui.this.shortcut.will.be.reassigned")}</Text>
             )}
           </div>
           <div className={styles.captureFooter}>

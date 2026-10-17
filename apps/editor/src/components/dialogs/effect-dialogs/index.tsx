@@ -298,7 +298,7 @@ export function EffectDialogs({
                     <Combobox
                       bounds={{ x: c.x, y: c.y + 30, width: c.width, height: 30 }}
                       relativeTo={c}
-                      aria-label={tUiSource("Convolution preset")}
+                      aria-label={tUi("ui.convolution.preset")}
                       value={spec.preset}
                       options={DIALOG_CONVOLUTION_PRESETS.map((preset) => ({ ...preset }))}
                       onValueChange={(value) => {

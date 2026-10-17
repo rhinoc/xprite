@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 
 import { EditorPanSurface } from "$/components/canvas/pan-surface";
-import { tUiSource } from "$/i18n";
+import { tUiSource, tUi } from "$/i18n";
 import { CanvasPinchZoomController, CanvasToolId } from "$/managers/canvas/canvas-manager";
 import { documentToScreen } from "$/managers/canvas/canvas-presentation";
 import type {
@@ -112,7 +112,7 @@ export function AnimalCrossingSourceGrid({
       <EditorPanSurface
         className={styles.gridSurface}
         enabled={!editingGrid}
-        aria-label={tUiSource("Source image and grid")}
+        aria-label={tUi("ui.animal.crossing.grid.canvas")}
         pan={view.pan}
         onPan={(pan) => setView((old) => ({ ...old, pan }))}
         handTool={hand}
@@ -219,7 +219,7 @@ export function AnimalCrossingSourceGrid({
         className={styles.fitButton}
         bounds={{ x: bounds.width - 116, y: -28, width: 112, height: 26 }}
         viewport={UNIT_VIEWPORT}
-        text={tUiSource("Fit to View")}
+        text={tUi("ui.fit.to.view")}
         onClick={() => setView(fit())}
       />
     </div>

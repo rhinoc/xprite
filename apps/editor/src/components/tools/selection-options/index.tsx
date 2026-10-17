@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { ColorPicker } from "$/components/tools/color-picker";
 import { EditorColorButton } from "$/components/tools/editor-color-button";
 import { SelectionModeControl } from "$/components/tools/selection-mode-control";
+import { tUi } from "$/i18n";
 import { useSelectionToolbarModel } from "$/managers/tools/selection-toolbar-model";
 import {
   ToolSelectionPivotPosition,
@@ -20,7 +21,6 @@ import {
   MenuCheckType,
   type MenuItem,
   type SurfaceBounds,
-  useUi,
   Text,
   TextVariant,
 } from "@xprite/ui";
@@ -79,7 +79,6 @@ export function SelectionOptions({
   onCommitted,
 }: SelectionOptionsProps) {
   const model = useSelectionToolbarModel();
-  const { translateSource } = useUi();
   const colorButton = useRef<HTMLButtonElement>(null);
   const cornerRadiusInput = useRef<HTMLInputElement | null>(null);
   const [colorAnchor, setColorAnchor] = useState<SurfaceBounds>(CONTROL_BOUNDS.color);
@@ -145,7 +144,7 @@ export function SelectionOptions({
               {...props}
               bounds={CONTROL_BOUNDS.colorOptions}
               icon={model.effectiveOpaque ? "selection_opaque" : "selection_masked"}
-              aria-label={translateSource("Transparent color options")}
+              aria-label={tUi("ui.transparent.color.options")}
               disabled={!transformOptionsEnabled}
             />
           )}
@@ -158,7 +157,7 @@ export function SelectionOptions({
           value={model.transparentColor}
           mask
           disabled={!transformOptionsEnabled || model.effectiveOpaque}
-          aria-label={translateSource("Selection transparent color")}
+          aria-label={tUi("ui.selection.transparent.color")}
           onClick={() => {
             if (colorButton.current)
               setColorAnchor(measurePopoverAnchor(colorButton.current).bounds);
@@ -175,7 +174,7 @@ export function SelectionOptions({
               {...props}
               bounds={CONTROL_BOUNDS.pivot}
               icon={PIVOT_ICONS[model.pivotPosition]}
-              aria-label={translateSource("Selection pivot")}
+              aria-label={tUi("ui.selection.pivot")}
               disabled={!transformOptionsEnabled}
             />
           )}
@@ -190,7 +189,7 @@ export function SelectionOptions({
             model.setRotationAlgorithm(value as ToolSelectionRotationAlgorithm)
           }
           disabled={!transformOptionsEnabled}
-          aria-label={translateSource("Rotation algorithm")}
+          aria-label={tUi("ui.rotation.algorithm")}
         />
       </ControlFlowItem>
       {marquee && (
@@ -209,7 +208,7 @@ export function SelectionOptions({
               mini
               value={String(model.cornerRadius)}
               inputMode="numeric"
-              aria-label={translateSource("Corner radius")}
+              aria-label={tUi("ui.corner.radius")}
               disabled={!model.enabled}
               onFocus={(event) => {
                 cornerRadiusInput.current = event.currentTarget;
@@ -229,7 +228,7 @@ export function SelectionOptions({
           <ColorPicker
             open
             onOpenChange={(open) => setColorPickerOpen(open)}
-            title={translateSource("Selection transparent color")}
+            title={tUi("ui.selection.transparent.color")}
             anchor={colorAnchor}
             value={model.transparentColor}
             onValueChange={model.setTransparentColor}
