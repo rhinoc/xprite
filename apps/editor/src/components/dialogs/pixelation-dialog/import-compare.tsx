@@ -7,7 +7,7 @@ import {
   type PointerEvent,
 } from "react";
 
-import { ScrollbarStyle, ScrollbarThumb, type CanvasPixelSource } from "@xprite/ui";
+import { ScrollbarThumb, type CanvasPixelSource } from "@xprite/ui";
 import { clientPoint, clientRect } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/pixelation-dialog/import-compare.module.css";
@@ -136,11 +136,7 @@ export function ImportCompare({
             onFocus={() => setHot(true)}
             onBlur={() => setHot(false)}
           >
-            <ScrollbarThumb
-              className={styles.grip}
-              hovered={hot}
-              scrollbarStyle={ScrollbarStyle.Classic}
-            />
+            <ScrollbarThumb className={styles.grip} hovered={hot} />
           </div>
         )}
       </div>

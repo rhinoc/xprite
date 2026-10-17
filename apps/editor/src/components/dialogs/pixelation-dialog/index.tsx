@@ -260,6 +260,9 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
               icon="icon_arrow_down"
               label={tUiSource("import.dialog.advanced")}
               expanded={showAdvanced}
+              selected={showAdvanced}
+              /* Down arrow when open, rotated to point right when closed. */
+              style={showAdvanced ? undefined : { transform: "rotate(-90deg)" }}
               disabled={!pixelate}
               onClick={() => setAdvanced((value) => !value)}
             />
@@ -268,6 +271,8 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
               text={tUiSource("import.dialog.advanced")}
               bounds={{ ...advancedRow, x: advancedRow.x + 36, width: 120 }}
               relativeTo={client}
+              onClick={pixelate ? () => setAdvanced((value) => !value) : undefined}
+              style={{ pointerEvents: pixelate ? "auto" : "none", cursor: "pointer" }}
             />
             {algorithmLabel && algorithmCombo && pickerLabel && pickerCombo && (
               <>

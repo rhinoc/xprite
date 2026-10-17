@@ -129,7 +129,8 @@
   background: var(--xse-window);
 }
 .thumbStandalone::after,
-.compactThumbStandalone::after {
+.compactThumbStandalone::after,
+.classicThumbStandalone::after {
   content: "";
   position: absolute;
   left: 50%;
