@@ -17,6 +17,7 @@ import {
   PixelationMode,
   CellColorPicker,
   getAllAlgorithms,
+  getListedAlgorithms,
   getAllColorPickers,
   defaultPixelationSettings,
   extractPixelationPalette,
@@ -544,7 +545,7 @@ export class EditorSession<Source> {
   /** The remembered grid algorithm; anything unknown (e.g. from an older build) means Auto. */
   private importAlgorithm(): PixelationAlgorithm {
     const remembered = this.ports.getImportPreference?.()?.algorithm;
-    return getAllAlgorithms().find((id) => id === remembered) ?? PixelationAlgorithm.Auto;
+    return getListedAlgorithms().find((id) => id === remembered) ?? PixelationAlgorithm.Auto;
   }
   /** The remembered per-cell colour rule; anything unknown means the default. */
   private importColorPicker(): CellColorPicker {
@@ -555,6 +556,8 @@ export class EditorSession<Source> {
     return {
       ...defaultPixelationSettings(candidate.pixels, candidate.grid),
       colorPicker: this.importColorPicker(),
+      // Import sizes the output from the target dimensions and lets the colour rule pick each block.
+      blockPicker: true,
     };
   }
   private offerCandidate(candidate: Candidate): SessionOutcome {

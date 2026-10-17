@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
@@ -8,18 +8,20 @@ import {
   colorPickerLabelKey,
 } from "$/components/dialogs/pixelation-dialog/algorithm-notes";
 import { ImportCompare } from "$/components/dialogs/pixelation-dialog/import-compare";
-import { tUiSource, useUiLanguage } from "$/i18n";
+import { tUi, tUiSource, useUiLanguage } from "$/i18n";
 import {
-  getAllAlgorithms,
+  getListedAlgorithms,
   getAllColorPickers,
   type ImportAction,
   PixelationAlgorithm,
-  PixelationMode,
   CellColorPicker,
+  PixelationMode,
+  PIXELATION_SIZES,
 } from "$/managers/preferences/file-preferences";
 import type { useEditorWorkflows } from "$/managers/workspace/use-editor-workflows";
 import {
   FontRole,
+  TextAlignment,
   Button,
   Checkbox,
   Combobox,
@@ -61,10 +63,16 @@ const SECTION_HEIGHT = 22;
 const OPTION_HEIGHT = 34;
 const HINT_HEIGHT = 58;
 const ROW_HEIGHT = 24;
-const FIELD_LABEL_HEIGHT = 14;
+/** At least the label font's height: the shared Text centres its glyphs and clips what overflows the box. */
+const FIELD_LABEL_HEIGHT = 18;
 const COMBO_HEIGHT = 30;
 const FOOTER_HEIGHT = 34;
 const BUTTON_WIDTH = 120;
+const SIZE_SEPARATOR = 16;
+const SIZE_OPTIONS = PIXELATION_SIZES.map((size) => ({
+  value: String(size),
+  label: tUi("ui.dimension.pixels", { size }),
+}));
 
 export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   useUiLanguage();
@@ -73,6 +81,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   const [action, setAction] = useState<ImportAction | null>(null);
   const [rememberChoice, setRememberChoice] = useState(false);
   const [advanced, setAdvanced] = useState(false);
+  const [sizeDrafts, setSizeDrafts] = useState<{ width?: string; height?: string }>({});
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useModalFocus({
@@ -95,6 +104,23 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   const pixelate = chosen === "pixelate";
   const showAdvanced = advanced && pixelate;
   const selectedAlgorithm = pending.algorithm;
+  const options = workflow.pixelationOptions;
+  /** Output size: the detected grid's cell count until the user sets one. */
+  const detected = options.mode === PixelationMode.RecoverGrid ? pending.grid : undefined;
+  const outputSize = {
+    width: detected?.width ?? options.targetWidth,
+    height: detected?.height ?? options.targetHeight,
+  };
+  const commitSize = (axis: "width" | "height", value: string) => {
+    setSizeDrafts((drafts) => ({ ...drafts, [axis]: undefined }));
+    const size = Number.parseInt(value, 10);
+    if (!Number.isFinite(size) || size < 1) return;
+    workflow.setPixelationOptions({
+      mode: PixelationMode.Convert,
+      reduceColors: options.reduceColors,
+      ...(axis === "width" ? { targetWidth: size } : { targetHeight: size }),
+    });
+  };
   const colorPicker = workflow.pixelationOptions.colorPicker;
   const noteKey = algorithmNoteKey(selectedAlgorithm, !!pending.grid?.reliable);
   const canImport =
@@ -132,7 +158,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     value: picker,
     label: tUiSource(colorPickerLabelKey(picker)),
   }));
-  const algorithmOptions = getAllAlgorithms().map((algorithm) => ({
+  const algorithmOptions = getListedAlgorithms().map((algorithm) => ({
     value: algorithm,
     label: tUiSource(algorithmLabelKey(algorithm)),
   }));
@@ -162,7 +188,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const width = client.width;
         const hintHeight = message ? HINT_HEIGHT + GAP : 0;
         const advancedRowHeight = pixelate ? ROW_HEIGHT + GAP : 0;
-        const advancedHeight = showAdvanced ? 2 * (FIELD_LABEL_HEIGHT + 2 + COMBO_HEIGHT + GAP) : 0;
+        const advancedHeight = showAdvanced ? 3 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) : 0;
         const bottomStack =
           SECTION_HEIGHT +
           4 +
@@ -187,10 +213,12 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         y += OPTION_HEIGHT + GAP;
         const hintBounds = message ? at(HINT_HEIGHT, GAP) : null;
         const advancedRow = at(pixelate ? ROW_HEIGHT : 0, pixelate ? GAP : 0);
-        const algorithmLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT, 2) : null;
+        const algorithmLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
         const algorithmCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
-        const pickerLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT, 2) : null;
+        const pickerLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
         const pickerCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
+        const sizeLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
+        const sizeRow = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         const rememberRow = at(ROW_HEIGHT);
         const footerY = client.y + client.height - FOOTER_HEIGHT;
         const option = (value: ImportAction, label: string, x: number, w: number) => (
@@ -211,7 +239,11 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
             }}
             relativeTo={client}
             disabled={workflow.busy}
-            onClick={() => setAction(value)}
+            onClick={() => {
+              setAction(value);
+              // Advanced only applies to Pixelate; coming back always starts collapsed.
+              if (value !== "pixelate") setAdvanced(false);
+            }}
           />
         );
         return (
@@ -302,9 +334,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                   bounds={pickerCombo}
                   relativeTo={client}
                   value={colorPicker}
-                  disabled={
-                    workflow.busy || workflow.pixelationOptions.mode !== PixelationMode.RecoverGrid
-                  }
+                  disabled={workflow.busy}
                   options={colorPickerOptions}
                   onValueChange={(value) =>
                     workflow.setPixelationOptions({
@@ -312,6 +342,54 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                     })
                   }
                 />
+                {sizeLabel && sizeRow && (
+                  <>
+                    {(["width", "height"] as const).map((axis, index) => {
+                      const half = Math.floor((sizeRow.width - SIZE_SEPARATOR) / 2);
+                      const x = index === 0 ? 0 : half + SIZE_SEPARATOR;
+                      const w = index === 0 ? half : sizeRow.width - half - SIZE_SEPARATOR;
+                      const draft = sizeDrafts[axis];
+                      return (
+                        <Fragment key={axis}>
+                          <Text
+                            variant={TextVariant.Control}
+                            text={axis === "width" ? "Width:" : "Height:"}
+                            bounds={{ ...sizeLabel, x: sizeLabel.x + x, width: w }}
+                            relativeTo={client}
+                          />
+                          <Combobox
+                            aria-label={axis === "width" ? "Width" : "Height"}
+                            bounds={{ ...sizeRow, x: sizeRow.x + x, width: w }}
+                            relativeTo={client}
+                            editable
+                            inputMode="numeric"
+                            suffix="px"
+                            value={draft ?? String(outputSize[axis])}
+                            disabled={workflow.busy}
+                            options={SIZE_OPTIONS}
+                            onDraftValueChange={(value) =>
+                              setSizeDrafts((drafts) => ({ ...drafts, [axis]: value }))
+                            }
+                            onValueChange={(value) => commitSize(axis, value)}
+                          />
+                        </Fragment>
+                      );
+                    })}
+                    <Text
+                      variant={TextVariant.Control}
+                      text="×"
+                      bounds={{
+                        ...sizeRow,
+                        x: sizeRow.x + Math.floor((sizeRow.width - SIZE_SEPARATOR) / 2),
+                        width: SIZE_SEPARATOR,
+                        y: sizeRow.y + 8,
+                        height: 14,
+                      }}
+                      align={TextAlignment.Center}
+                      relativeTo={client}
+                    />
+                  </>
+                )}
               </>
             )}
             <Checkbox

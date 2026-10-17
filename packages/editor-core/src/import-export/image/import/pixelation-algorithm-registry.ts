@@ -14,6 +14,8 @@ export interface PixelationAlgorithmEntry {
   readonly label: string;
   /** Whether Auto considers this entry. */
   readonly auto: boolean;
+  /** Whether the import dialog offers this entry; the plain resize is only Auto's fallback. */
+  readonly listed: boolean;
   detect(image: PixelBuffer): PixelGridAnalysis;
   /** One output pixel per grid cell. */
   run(image: PixelBuffer, grid: PixelGridGeometry, picker: CellColorPicker): PixelBuffer;
@@ -42,6 +44,7 @@ const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
   [PixelationAlgorithm.Auto]: {
     label: "import.algorithm.auto",
     auto: false,
+    listed: true,
     detect: (image) =>
       getAllAlgorithms()
         .map((id) => TABLE[id])
@@ -58,18 +61,21 @@ const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
   [PixelationAlgorithm.UniformGrid]: {
     label: "import.algorithm.uniform-grid",
     auto: true,
+    listed: true,
     detect: tag(PixelationAlgorithm.UniformGrid, detectUniformGrid),
     run: recoverGrid,
   },
   [PixelationAlgorithm.EdgeGrid]: {
     label: "import.algorithm.edge-grid",
     auto: true,
+    listed: true,
     detect: tag(PixelationAlgorithm.EdgeGrid, detectMeshGrid),
     run: recoverGrid,
   },
   [PixelationAlgorithm.Resize]: {
     label: "import.algorithm.resize",
     auto: false,
+    listed: false,
     detect: unreliable,
     run: (image, grid) => resizeBox(image, grid.width, grid.height, "premultiplied"),
   },
@@ -83,6 +89,11 @@ export function getAlgorithmEntry(algorithm: PixelationAlgorithm): PixelationAlg
 
 export function getAllAlgorithms(): readonly PixelationAlgorithm[] {
   return Object.keys(TABLE) as PixelationAlgorithm[];
+}
+
+/** Entries the import dialog offers, in registry order. */
+export function getListedAlgorithms(): readonly PixelationAlgorithm[] {
+  return getAllAlgorithms().filter((id) => TABLE[id].listed);
 }
 
 export function detectWithAlgorithm(

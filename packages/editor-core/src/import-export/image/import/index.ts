@@ -43,6 +43,7 @@ export { manualPixelGrid, MAX_GRID_CELL_SIZE } from "$/import-export/image/impor
 export {
   getAlgorithmEntry,
   getAllAlgorithms,
+  getListedAlgorithms,
   detectWithAlgorithm,
   type PixelationAlgorithmEntry,
 } from "$/import-export/image/import/pixelation-algorithm-registry";

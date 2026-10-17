@@ -32,3 +32,25 @@ export function manualPixelGrid(
     throw new RangeError("Choose larger cells to restore this image.");
   return { width, height, cellWidth, cellHeight, offsetX: 0, offsetY: 0 };
 }
+
+/** Even partition of the image into `width` x `height` blocks (clamped to one pixel per block). */
+export function blockPartition(
+  image: Pick<PixelBuffer, "width" | "height">,
+  width: number,
+  height: number,
+): PixelGridGeometry {
+  const columns = Math.max(1, Math.min(image.width, Math.round(width)));
+  const rows = Math.max(1, Math.min(image.height, Math.round(height)));
+  const cuts = (length: number, count: number) =>
+    Array.from({ length: count + 1 }, (_, index) => Math.round((index * length) / count));
+  return {
+    width: columns,
+    height: rows,
+    cellWidth: image.width / columns,
+    cellHeight: image.height / rows,
+    offsetX: 0,
+    offsetY: 0,
+    cutsX: cuts(image.width, columns),
+    cutsY: cuts(image.height, rows),
+  };
+}

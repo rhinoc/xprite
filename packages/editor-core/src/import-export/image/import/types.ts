@@ -117,6 +117,8 @@ export interface PixelateOptions {
   outlineStrength?: number;
   /** Sampling rule used to choose one representative color per output cell. */
   method?: PixelationMethod;
+  /** Split the image into even blocks of the target size and let `colorPicker` choose each colour (instead of `method`). */
+  blockPicker?: boolean;
   /** The low-resolution dimensions to generate. */
   targetWidth?: number;
   targetHeight?: number;
@@ -160,6 +162,8 @@ export interface PixelationSettings {
   targetHeight: number;
   maxColors: number;
   method: PixelationMethod;
+  /** Colour each target-size block with `colorPicker` rather than resampling with `method`. */
+  blockPicker: boolean;
   preserveDimensions: boolean;
   removeNoise: boolean;
   lockAspectRatio: boolean;

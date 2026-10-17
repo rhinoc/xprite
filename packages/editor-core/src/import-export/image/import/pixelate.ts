@@ -2,6 +2,7 @@ import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { assertDimension, assertPixelBuffer } from "$/document/pixel-validation";
 import { protectPixelationContours } from "$/import-export/image/import/contours";
 import { smoothPixelation } from "$/import-export/image/import/denoise";
+import { blockPartition } from "$/import-export/image/import/grid";
 import { resizeMostFrequent } from "$/import-export/image/import/most-frequent";
 import { reduceToPalette, extractPixelationPalette } from "$/import-export/image/import/palette";
 import {
@@ -15,7 +16,11 @@ import {
   PixelationMode,
   PixelationAlgorithm,
 } from "$/import-export/image/import/types";
-import type { PixelateOptions, PixelationSize } from "$/import-export/image/import/types";
+import type {
+  PixelateOptions,
+  PixelationSize,
+  PixelGridAnalysis,
+} from "$/import-export/image/import/types";
 
 const WORKING_SCALE = 4;
 const MAX_WORKING_PIXELS = 1_048_576;
@@ -36,6 +41,14 @@ function prepareSource(
       ? image
       : resizeBox(image, width, height, "premultiplied");
   return protectPixelationContours(working, outlineStrength);
+}
+function uniformBlocks(image: PixelBuffer, target: PixelationSize): PixelGridAnalysis {
+  return {
+    ...blockPartition(image, target.width, target.height),
+    confidence: 1,
+    reliable: true,
+    algorithm: PixelationAlgorithm.UniformGrid,
+  };
 }
 function sampleImage(
   image: PixelBuffer,
@@ -70,6 +83,8 @@ function sampleImage(
   const strength = options.outlineStrength ?? 0;
   if (!Number.isFinite(strength) || strength < 0 || strength > MAX_OUTLINE_STRENGTH)
     throw new RangeError("Outline protection must be between 0 and 100.");
+  if (options.blockPicker)
+    return recoverWithGrid(image, uniformBlocks(image, target), options.colorPicker);
   const alphaMode = options.alphaMode ?? "straight";
   if (alphaMode !== "straight" && alphaMode !== "premultiplied")
     throw new RangeError("alphaMode must be 'straight' or 'premultiplied'");

@@ -141,7 +141,7 @@ export function ImportCompare({
         )}
       </div>
       {/* Anchored to the frame, not the (aspect-fitted, possibly narrow) stage, so they never clip. */}
-      <span className={`${styles.tag} ${styles.tagLeft}`}>{leftLabel}</span>
+      {comparing && <span className={`${styles.tag} ${styles.tagLeft}`}>{leftLabel}</span>}
       {comparing && <span className={`${styles.tag} ${styles.tagRight}`}>{rightLabel}</span>}
     </div>
   );

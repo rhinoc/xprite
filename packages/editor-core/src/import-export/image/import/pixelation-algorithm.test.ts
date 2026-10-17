@@ -20,8 +20,13 @@ import { pixelateImage } from "$/import-export/image/import/pixelate";
 import {
   detectWithAlgorithm,
   getAllAlgorithms,
+  getListedAlgorithms,
 } from "$/import-export/image/import/pixelation-algorithm-registry";
-import { PixelationAlgorithm, PixelationMode } from "$/import-export/image/import/types";
+import {
+  CellColorPicker,
+  PixelationAlgorithm,
+  PixelationMode,
+} from "$/import-export/image/import/types";
 
 const { Auto, EdgeGrid, UniformGrid, Resize } = PixelationAlgorithm;
 const art = sprite(64);
@@ -30,6 +35,18 @@ describe("algorithm registry table", () => {
   test("lists every algorithm and rejects unknown ids", () => {
     expect([...getAllAlgorithms()].sort()).toEqual([Auto, EdgeGrid, Resize, UniformGrid].sort());
     expect(() => detectWithAlgorithm(art, "nope" as PixelationAlgorithm)).toThrow(RangeError);
+  });
+  test("the dialog offers every entry except the plain Resize fallback", () => {
+    expect([...getListedAlgorithms()].sort()).toEqual([Auto, EdgeGrid, UniformGrid].sort());
+  });
+  test("block picking sizes the output from the target and applies the chosen colour rule", () => {
+    const image = upscaleNearest(art, 4);
+    const size = { targetWidth: 20, targetHeight: 12, blockPicker: true };
+    const common = pixelateImage(image, { ...size, colorPicker: CellColorPicker.MostCommon });
+    const average = pixelateImage(image, { ...size, colorPicker: CellColorPicker.Average });
+    expect([common.width, common.height]).toEqual([20, 12]);
+    expect([average.width, average.height]).toEqual([20, 12]);
+    expect(average.data).not.toEqual(common.data);
   });
   test("Resize never claims a grid", () => {
     const result = detectWithAlgorithm(upscaleNearest(art, 16), Resize);
