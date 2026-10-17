@@ -1,4 +1,5 @@
 import type { PixelBuffer } from "$/base/primitives";
+import { blockPartition } from "$/import-export/image/import/grid";
 import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
 import { recoverGrid } from "$/import-export/image/import/grid-sample";
 import { resizeBox } from "$/import-export/image/import/resize";
@@ -7,6 +8,7 @@ import {
   PixelationAlgorithm,
   type PixelGridAnalysis,
   type PixelGridGeometry,
+  type PixelationSize,
 } from "$/import-export/image/import/types";
 
 export interface PixelationAlgorithmEntry {
@@ -16,7 +18,7 @@ export interface PixelationAlgorithmEntry {
   readonly auto: boolean;
   /** Whether the import dialog offers this entry; the plain resize is only Auto's fallback. */
   readonly listed: boolean;
-  detect(image: PixelBuffer): PixelGridAnalysis;
+  detect(image: PixelBuffer, size?: PixelationSize): PixelGridAnalysis;
   /** One output pixel per grid cell. */
   run(image: PixelBuffer, grid: PixelGridGeometry, picker: CellColorPicker): PixelBuffer;
 }
@@ -34,10 +36,31 @@ const unreliable = (image: PixelBuffer): PixelGridAnalysis => ({
 });
 
 const tag =
-  (algorithm: PixelationAlgorithm, detect: (image: PixelBuffer) => PixelGridAnalysis) =>
-  (image: PixelBuffer): PixelGridAnalysis => ({ ...detect(image), algorithm });
+  (
+    algorithm: PixelationAlgorithm,
+    detect: (image: PixelBuffer, size?: PixelationSize) => PixelGridAnalysis,
+  ) =>
+  (image: PixelBuffer, size?: PixelationSize): PixelGridAnalysis => ({
+    ...detect(image, size),
+    algorithm,
+  });
 
 const FALLBACK = PixelationAlgorithm.Resize;
+const DEFAULT_CUSTOM_SIZE = 64;
+
+/** Even blocks of the requested size; without one, the size a photo is shrunk to by default. */
+const customSize = (image: PixelBuffer, size?: PixelationSize): PixelGridAnalysis => {
+  const scale = Math.min(1, DEFAULT_CUSTOM_SIZE / Math.max(image.width, image.height));
+  return {
+    ...blockPartition(
+      image,
+      size?.width ?? image.width * scale,
+      size?.height ?? image.height * scale,
+    ),
+    confidence: 1,
+    reliable: true,
+  };
+};
 
 /** Algorithm table. Auto is a reduce over the `auto` entries and falls back to FALLBACK as data. */
 const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
@@ -72,6 +95,13 @@ const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
     detect: tag(PixelationAlgorithm.EdgeGrid, detectMeshGrid),
     run: recoverGrid,
   },
+  [PixelationAlgorithm.CustomSize]: {
+    label: "import.algorithm.custom-size",
+    auto: false,
+    listed: true,
+    detect: tag(PixelationAlgorithm.CustomSize, customSize),
+    run: recoverGrid,
+  },
   [PixelationAlgorithm.Resize]: {
     label: "import.algorithm.resize",
     auto: false,
@@ -99,8 +129,9 @@ export function getListedAlgorithms(): readonly PixelationAlgorithm[] {
 export function detectWithAlgorithm(
   image: PixelBuffer,
   algorithm: PixelationAlgorithm = PixelationAlgorithm.Auto,
+  size?: PixelationSize,
 ): PixelGridAnalysis {
-  return getAlgorithmEntry(algorithm).detect(image);
+  return getAlgorithmEntry(algorithm).detect(image, size);
 }
 
 export function recoverWithGrid(

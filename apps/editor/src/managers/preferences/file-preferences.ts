@@ -4,7 +4,6 @@ import {
   getAllAlgorithms,
   getListedAlgorithms,
   getAllColorPickers,
-  PixelationMode,
   PIXELATION_SIZES,
 } from "@xprite/editor-core/import-export/image/import";
 
@@ -14,7 +13,6 @@ export {
   getAllAlgorithms,
   getListedAlgorithms,
   getAllColorPickers,
-  PixelationMode,
   PIXELATION_SIZES,
 };
 

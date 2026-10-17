@@ -1433,8 +1433,8 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
   const discardEmptyImport = () => workspace.discardEmptyImport();
   const setPixelationOptions = (patch: Parameters<typeof session.setPixelationOptions>[0]) =>
     session.setPixelationOptions(patch);
-  const setImportAlgorithm = (algorithm: Parameters<typeof session.setImportAlgorithm>[0]) =>
-    void session.setImportAlgorithm(algorithm);
+  const setImportAlgorithm = (...args: Parameters<typeof session.setImportAlgorithm>) =>
+    void session.setImportAlgorithm(...args);
   const acceptOriginalImport = () => session.acceptOriginal();
   const acceptPixelatedImport = () => void session.pixelate();
   const updateRecoverySettings = (

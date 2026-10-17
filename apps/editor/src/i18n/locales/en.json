@@ -550,6 +550,7 @@
   "import.algorithm.edge-grid": "Flexible grid",
   "import.algorithm.uniform-grid": "Fixed grid",
   "import.algorithm.resize": "Resize only",
+  "import.algorithm.custom-size": "Custom size",
   "import.note.auto.none": "No pixels found, so the picture was just resized. Try Advanced.",
   "import.note.uniform-grid.none": "No fixed grid found, so the picture was just resized. Try Flexible grid or Auto.",
   "import.note.edge-grid.none": "No flexible grid found, so the picture was just resized. Try Fixed grid or Auto.",

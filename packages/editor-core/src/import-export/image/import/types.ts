@@ -29,6 +29,8 @@ export interface PixelArtAnalysisOptions {
   maxSamplePixels?: number;
   /** Grid detection algorithm; Auto when omitted. */
   algorithm?: PixelationAlgorithm;
+  /** Output size for entries that take one (Custom size); ignored by the others. */
+  size?: PixelationSize;
 }
 
 export interface PixelArtAnalysis {
@@ -67,6 +69,8 @@ export enum PixelationAlgorithm {
   Auto = "auto",
   EdgeGrid = "edge-grid",
   UniformGrid = "uniform-grid",
+  /** The user names the output size; the image is split into that many even blocks. */
+  CustomSize = "custom-size",
   Resize = "resize",
 }
 

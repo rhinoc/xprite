@@ -550,6 +550,7 @@
   "import.algorithm.edge-grid": "可変グリッド",
   "import.algorithm.uniform-grid": "固定グリッド",
   "import.algorithm.resize": "リサイズのみ",
+  "import.algorithm.custom-size": "カスタムサイズ",
   "import.note.auto.none": "ピクセルが見つからなかったため、リサイズのみ行いました。「詳細設定」をお試しください。",
   "import.note.uniform-grid.none": "固定グリッドが見つからなかったため、リサイズのみ行いました。「可変グリッド」か「自動」をお試しください。",
   "import.note.edge-grid.none": "可変グリッドが見つからなかったため、リサイズのみ行いました。「固定グリッド」か「自動」をお試しください。",

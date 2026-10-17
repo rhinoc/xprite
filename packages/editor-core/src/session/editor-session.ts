@@ -12,6 +12,7 @@ import type { EditorSnapshot } from "$/editor/types";
 import {
   type PixelationSettings,
   type PixelGridAnalysis,
+  type PixelationSize,
   PixelArtClassification,
   PixelationAlgorithm,
   PixelationMode,
@@ -716,7 +717,7 @@ export class EditorSession<Source> {
    * Switch the grid algorithm for the pending import: detect with that registry entry, then preview
    * what it recovers. A grid that is not reliable falls back to the plain Convert (resize) preview.
    */
-  async setImportAlgorithm(algorithm: PixelationAlgorithm): Promise<void> {
+  async setImportAlgorithm(algorithm: PixelationAlgorithm, size?: PixelationSize): Promise<void> {
     const pending = this.state.pendingImport;
     const candidate = this.candidate;
     if (this.disposed || this.state.busy || !candidate || !pending) return;
@@ -731,7 +732,7 @@ export class EditorSession<Source> {
       pixelationError: null,
     });
     try {
-      const { grid } = await this.ports.analyze(candidate.pixels, { algorithm });
+      const { grid } = await this.ports.analyze(candidate.pixels, { algorithm, size });
       if (!this.valid(generation) || version !== this.algorithmVersion) return;
       this.candidate = { ...candidate, grid };
       const current = this.state.pendingImport;

@@ -12,10 +12,10 @@ import { tUi, tUiSource, useUiLanguage } from "$/i18n";
 import {
   getListedAlgorithms,
   getAllColorPickers,
+  type FilePreferences,
   type ImportAction,
   PixelationAlgorithm,
   CellColorPicker,
-  PixelationMode,
   PIXELATION_SIZES,
 } from "$/managers/preferences/file-preferences";
 import type { useEditorWorkflows } from "$/managers/workspace/use-editor-workflows";
@@ -69,6 +69,12 @@ const COMBO_HEIGHT = 30;
 const FOOTER_HEIGHT = 34;
 const BUTTON_WIDTH = 120;
 const SIZE_SEPARATOR = 16;
+/** Only these survive between imports; Custom size is a one-off, like the plain resize. */
+const REMEMBERED_ALGORITHMS: readonly PixelationAlgorithm[] = [
+  PixelationAlgorithm.Auto,
+  PixelationAlgorithm.EdgeGrid,
+  PixelationAlgorithm.UniformGrid,
+];
 const SIZE_OPTIONS = PIXELATION_SIZES.map((size) => ({
   value: String(size),
   label: tUi("ui.dimension.pixels", { size }),
@@ -105,21 +111,22 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   const showAdvanced = advanced && pixelate;
   const selectedAlgorithm = pending.algorithm;
   const options = workflow.pixelationOptions;
-  /** Output size: the detected grid's cell count until the user sets one. */
-  const detected = options.mode === PixelationMode.RecoverGrid ? pending.grid : undefined;
-  const outputSize = {
-    width: detected?.width ?? options.targetWidth,
-    height: detected?.height ?? options.targetHeight,
-  };
+  /** The size the chosen method produces: its grid's cell count, or the plain target if it found none. */
+  const outputSize = pending.grid?.reliable
+    ? { width: pending.grid.width, height: pending.grid.height }
+    : { width: options.targetWidth, height: options.targetHeight };
+  /** Typing a size is just another way to find pixels: the Custom size entry, aspect ratio kept. */
   const commitSize = (axis: "width" | "height", value: string) => {
     setSizeDrafts((drafts) => ({ ...drafts, [axis]: undefined }));
-    const size = Number.parseInt(value, 10);
-    if (!Number.isFinite(size) || size < 1) return;
-    workflow.setPixelationOptions({
-      mode: PixelationMode.Convert,
-      reduceColors: options.reduceColors,
-      ...(axis === "width" ? { targetWidth: size } : { targetHeight: size }),
-    });
+    const typed = Number.parseInt(value, 10);
+    if (!Number.isFinite(typed) || typed < 1) return;
+    const { width, height } = pending.pixels;
+    workflow.setImportAlgorithm(
+      PixelationAlgorithm.CustomSize,
+      axis === "width"
+        ? { width: typed, height: Math.max(1, Math.round((typed * height) / width)) }
+        : { width: Math.max(1, Math.round((typed * width) / height)), height: typed },
+    );
   };
   const colorPicker = workflow.pixelationOptions.colorPicker;
   const noteKey = algorithmNoteKey(selectedAlgorithm, !!pending.grid?.reliable);
@@ -134,7 +141,12 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       ...workflow.getFilePreferences(),
       importLastAction: chosen,
       // "Resize only" is a one-off choice; persisting it would silently shrink later imports.
-      ...(selectedAlgorithm === "resize" ? {} : { importPixelationAlgorithm: selectedAlgorithm }),
+      ...(REMEMBERED_ALGORITHMS.includes(selectedAlgorithm)
+        ? {
+            importPixelationAlgorithm:
+              selectedAlgorithm as FilePreferences["importPixelationAlgorithm"],
+          }
+        : {}),
       importColorPicker: colorPicker,
       ...(rememberChoice ? { importAsk: false } : {}),
     });
@@ -215,10 +227,10 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const advancedRow = at(pixelate ? ROW_HEIGHT : 0, pixelate ? GAP : 0);
         const algorithmLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
         const algorithmCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
-        const pickerLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
-        const pickerCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         const sizeLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
         const sizeRow = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
+        const pickerLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
+        const pickerCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         const rememberRow = at(ROW_HEIGHT);
         const footerY = client.y + client.height - FOOTER_HEIGHT;
         const option = (value: ImportAction, label: string, x: number, w: number) => (

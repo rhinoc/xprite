@@ -21,6 +21,10 @@ const COPY: Readonly<Record<PixelationAlgorithm, AlgorithmCopy>> = {
     label: "import.algorithm.edge-grid",
     missing: "import.note.edge-grid.none",
   },
+  [PixelationAlgorithm.CustomSize]: {
+    label: "import.algorithm.custom-size",
+    missing: null,
+  },
   [PixelationAlgorithm.Resize]: {
     label: "import.algorithm.resize",
     missing: null,

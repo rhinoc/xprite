@@ -550,6 +550,7 @@
   "import.algorithm.edge-grid": "Grade flexível",
   "import.algorithm.uniform-grid": "Grade fixa",
   "import.algorithm.resize": "Apenas redimensionar",
+  "import.algorithm.custom-size": "Tamanho personalizado",
   "import.note.auto.none": "Nenhum pixel encontrado, então a imagem só foi redimensionada. Tente Avançado.",
   "import.note.uniform-grid.none": "Nenhuma grade fixa encontrada, então a imagem só foi redimensionada. Tente Grade flexível ou Auto.",
   "import.note.edge-grid.none": "Nenhuma grade flexível encontrada, então a imagem só foi redimensionada. Tente Grade fixa ou Auto.",

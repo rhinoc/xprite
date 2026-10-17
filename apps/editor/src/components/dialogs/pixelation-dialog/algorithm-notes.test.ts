@@ -20,10 +20,10 @@ describe("import dialog algorithm copy", () => {
     for (const algorithm of getAllAlgorithms())
       expect(algorithmNoteKey(algorithm, true)).toBeNull();
   });
-  it("explains a missing grid for every grid algorithm, and not for Resize", () => {
+  it("explains a missing grid for every grid algorithm, and not for the ones that never miss", () => {
     for (const algorithm of getAllAlgorithms())
       expect(algorithmNoteKey(algorithm, false) === null).toBe(
-        algorithm === PixelationAlgorithm.Resize,
+        [PixelationAlgorithm.Resize, PixelationAlgorithm.CustomSize].includes(algorithm),
       );
   });
   it("has a distinct label for every colour picker", () => {

@@ -207,6 +207,6 @@ export function analyzePixelArt(
     userOverride,
     overrideApplied,
     isHeuristic: true,
-    grid: detectWithAlgorithm(image, options.algorithm),
+    grid: detectWithAlgorithm(image, options.algorithm, options.size),
   };
 }

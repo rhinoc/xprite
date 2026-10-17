@@ -28,16 +28,31 @@ import {
   PixelationMode,
 } from "$/import-export/image/import/types";
 
-const { Auto, EdgeGrid, UniformGrid, Resize } = PixelationAlgorithm;
+const { Auto, EdgeGrid, UniformGrid, Resize, CustomSize } = PixelationAlgorithm;
 const art = sprite(64);
 
 describe("algorithm registry table", () => {
   test("lists every algorithm and rejects unknown ids", () => {
-    expect([...getAllAlgorithms()].sort()).toEqual([Auto, EdgeGrid, Resize, UniformGrid].sort());
+    expect([...getAllAlgorithms()].sort()).toEqual(
+      [Auto, CustomSize, EdgeGrid, Resize, UniformGrid].sort(),
+    );
     expect(() => detectWithAlgorithm(art, "nope" as PixelationAlgorithm)).toThrow(RangeError);
   });
   test("the dialog offers every entry except the plain Resize fallback", () => {
-    expect([...getListedAlgorithms()].sort()).toEqual([Auto, EdgeGrid, UniformGrid].sort());
+    expect([...getListedAlgorithms()].sort()).toEqual(
+      [Auto, CustomSize, EdgeGrid, UniformGrid].sort(),
+    );
+  });
+  test("Custom size detects the requested block grid and Auto never picks it", () => {
+    const image = upscaleNearest(art, 4);
+    const grid = detectWithAlgorithm(image, CustomSize, { width: 20, height: 12 });
+    expect([grid.width, grid.height, grid.reliable, grid.algorithm]).toEqual([
+      20,
+      12,
+      true,
+      CustomSize,
+    ]);
+    expect(detectWithAlgorithm(image, Auto).algorithm).not.toBe(CustomSize);
   });
   test("block picking sizes the output from the target and applies the chosen colour rule", () => {
     const image = upscaleNearest(art, 4);

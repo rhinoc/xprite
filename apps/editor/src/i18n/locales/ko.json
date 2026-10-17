@@ -550,6 +550,7 @@
   "import.algorithm.edge-grid": "가변 격자",
   "import.algorithm.uniform-grid": "고정 격자",
   "import.algorithm.resize": "크기만 조정",
+  "import.algorithm.custom-size": "사용자 지정 크기",
   "import.note.auto.none": "픽셀을 찾지 못해 그림 크기만 조정했습니다. '고급'을 써 보세요.",
   "import.note.uniform-grid.none": "고정 격자를 찾지 못해 그림 크기만 조정했습니다. '가변 격자'나 '자동'을 써 보세요.",
   "import.note.edge-grid.none": "가변 격자를 찾지 못해 그림 크기만 조정했습니다. '고정 격자'나 '자동'을 써 보세요.",

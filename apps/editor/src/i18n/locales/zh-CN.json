@@ -550,6 +550,7 @@
   "import.algorithm.edge-grid": "灵活网格",
   "import.algorithm.uniform-grid": "固定网格",
   "import.algorithm.resize": "仅调整大小",
+  "import.algorithm.custom-size": "自定义大小",
   "import.note.auto.none": "没有找到像素，图片只是被调整了大小。请试试“高级”。",
   "import.note.uniform-grid.none": "没有找到固定网格，所以图片只是被调整了大小。请试试“灵活网格”或“自动”。",
   "import.note.edge-grid.none": "没有找到灵活网格，所以图片只是被调整了大小。请试试“固定网格”或“自动”。",
