@@ -1,184 +1,98 @@
 import { UINT8_MAX } from "$/base/numeric-constants";
 import type { PixelBuffer } from "$/base/primitives";
 import { assertPixelBuffer } from "$/document/pixel-validation";
+import { pixelGridCuts } from "$/import-export/image/import/grid";
 import type { PixelGridAnalysis } from "$/import-export/image/import/types";
 
-// Inspired by KenneyJAllen/proper-pixel-art (MIT License)
+// Inspired by KennethJAllen/proper-pixel-art (MIT License)
 // https://github.com/KennethJAllen/proper-pixel-art
-// This implementation focuses on edge-based grid detection for upscaled pixel art
-// and AI-generated pixel art with jittered cell sizes.
 
 const CHANNELS = 4;
-const EDGE_SOBEL_THRESHOLD = 0.1;
-const GAP_CLOSE_MAX = 3;
-const MIN_EDGES_PER_AXIS = 8;
+const EDGE_THRESHOLD = 10 / UINT8_MAX;
+const MIN_EDGES = 8;
 const MAX_CELL_SIZE = 128;
 const MIN_CELL_SIZE = 2;
-const MIN_CONFIDENCE = 0.5;
-const JITTER_TOLERANCE = 0.2;
-const MEDIAN_TRIM_FRACTION = 0.15;
+const MAX_GRID_SIZE = 512;
+const SPACING_TOLERANCE = 0.25;
 
-interface Rect {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-interface EdgeMap {
-  width: number;
-  height: number;
-  horizontal: Uint8Array;
-  vertical: Uint8Array;
-}
-
-function trimMargins(image: PixelBuffer): Rect {
-  const { width, height, data } = image;
-  let minX = width,
-    maxX = 0,
-    minY = height,
-    maxY = 0;
-  const isNonEmpty = (offset: number): boolean => {
-    const a = data[offset + 3];
-    if (a === 0) return false;
-    const r = data[offset],
-      g = data[offset + 1],
-      b = data[offset + 2];
-    return r !== g || g !== b || Math.abs(r - 128) > 8;
-  };
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      if (isNonEmpty((y * width + x) * CHANNELS)) {
-        if (x < minX) minX = x;
-        if (x > maxX) maxX = x;
-        if (y < minY) minY = y;
-        if (y > maxY) maxY = y;
-      }
-    }
-  }
-  if (minX > maxX || minY > maxY)
-    return { x: 0, y: 0, width: Math.min(32, width), height: Math.min(32, height) };
-  return { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 };
-}
-
-function sobelEdgeDetection(image: PixelBuffer, bounds: Rect): EdgeMap {
+function colorDifference(image: PixelBuffer, first: number, second: number): number {
   const { data } = image;
-  const { x, y, width, height } = bounds;
-  const horizontal = new Uint8Array(width * height);
-  const vertical = new Uint8Array(width * height);
-  const getGray = (px: number, py: number): number => {
-    if (px < x || px >= x + width || py < y || py >= y + height) return 0;
-    const offset = (py * image.width + px) * CHANNELS;
-    const r = data[offset],
-      g = data[offset + 1],
-      b = data[offset + 2],
-      a = data[offset + 3];
-    return a === 0 ? 0 : (r * 0.299 + g * 0.587 + b * 0.114) / UINT8_MAX;
-  };
-  for (let dy = 0; dy < height; dy++) {
-    for (let dx = 0; dx < width; dx++) {
-      const cx = x + dx,
-        cy = y + dy;
-      const gx =
-        -getGray(cx - 1, cy - 1) -
-        2 * getGray(cx - 1, cy) -
-        getGray(cx - 1, cy + 1) +
-        getGray(cx + 1, cy - 1) +
-        2 * getGray(cx + 1, cy) +
-        getGray(cx + 1, cy + 1);
-      const gy =
-        -getGray(cx - 1, cy - 1) -
-        2 * getGray(cx, cy - 1) -
-        getGray(cx + 1, cy - 1) +
-        getGray(cx - 1, cy + 1) +
-        2 * getGray(cx, cy + 1) +
-        getGray(cx + 1, cy + 1);
-      const magnitude = Math.hypot(gx, gy);
-      const threshold = magnitude > EDGE_SOBEL_THRESHOLD ? 1 : 0;
-      horizontal[dy * width + dx] = Math.abs(gy) > Math.abs(gx) ? threshold : 0;
-      vertical[dy * width + dx] = Math.abs(gx) >= Math.abs(gy) ? threshold : 0;
+  const a = data[first + 3] / UINT8_MAX,
+    b = data[second + 3] / UINT8_MAX;
+  let difference = Math.abs(a - b);
+  for (let c = 0; c < CHANNELS - 1; c++)
+    difference = Math.max(
+      difference,
+      Math.abs(data[first + c] * a - data[second + c] * b) / UINT8_MAX,
+    );
+  return difference;
+}
+
+function findEdges(image: PixelBuffer, horizontal: boolean): number[] {
+  const length = horizontal ? image.width : image.height;
+  const cross = horizontal ? image.height : image.width;
+  const edgeStrength = new Float64Array(length);
+
+  for (let line = 0; line < cross; line++) {
+    for (let position = 1; position < length; position++) {
+      const first =
+        (horizontal ? line * image.width + position - 1 : (position - 1) * image.width + line) *
+        CHANNELS;
+      const second = first + (horizontal ? CHANNELS : image.width * CHANNELS);
+      edgeStrength[position] += colorDifference(image, first, second);
     }
   }
-  return { width, height, horizontal, vertical };
-}
 
-function closeGaps(edges: Uint8Array, length: number, stride: number): void {
-  for (let i = 0; i < length; i++) {
-    let gap = 0,
-      start = -1;
-    for (let j = 0; j < stride; j++) {
-      const index = i + j * length;
-      if (edges[index]) {
-        if (gap > 0 && gap <= GAP_CLOSE_MAX && start >= 0) {
-          for (let k = start; k < j; k++) edges[i + k * length] = 1;
-        }
-        gap = 0;
-        start = j;
-      } else if (start >= 0) {
-        gap++;
-      }
-    }
-  }
-}
+  const edges: number[] = [];
+  const mean = edgeStrength.reduce((a, b) => a + b, 0) / length;
+  const threshold = Math.max(EDGE_THRESHOLD * cross, mean * 0.8);
 
-function projectEdges(edges: Uint8Array, length: number, stride: number): number[] {
-  const projection = Array.from({ length: stride }, () => 0);
-  for (let i = 0; i < stride; i++)
-    for (let j = 0; j < length; j++) if (edges[i * length + j]) projection[i]++;
-  return projection;
-}
-
-function detectPeaks(projection: number[]): number[] {
-  const mean = projection.reduce((a, b) => a + b, 0) / projection.length;
-  const threshold = mean * 0.5;
-  const peaks: number[] = [];
-  for (let i = 1; i < projection.length - 1; i++)
+  for (let i = 1; i < length - 1; i++) {
     if (
-      projection[i] > threshold &&
-      projection[i] >= projection[i - 1] &&
-      projection[i] > projection[i + 1]
-    )
-      peaks.push(i);
-  return peaks;
-}
-
-function estimatePitch(peaks: number[]): { pitch: number; confidence: number } | null {
-  if (peaks.length < MIN_EDGES_PER_AXIS) return null;
-  const spacings: number[] = [];
-  for (let i = 1; i < peaks.length; i++) spacings.push(peaks[i] - peaks[i - 1]);
-  spacings.sort((a, b) => a - b);
-  const trimCount = Math.floor(spacings.length * MEDIAN_TRIM_FRACTION);
-  const trimmed = spacings.slice(trimCount, spacings.length - trimCount);
-  if (!trimmed.length) return null;
-  const median = trimmed[Math.floor(trimmed.length / 2)];
-  if (median < MIN_CELL_SIZE || median > MAX_CELL_SIZE) return null;
-  const jitterMax = median * JITTER_TOLERANCE;
-  const consistent = trimmed.filter((s) => Math.abs(s - median) <= jitterMax).length;
-  const confidence = consistent / trimmed.length;
-  return confidence >= 0.5 ? { pitch: median, confidence } : null;
-}
-
-function buildCuts(peaks: number[], pitch: number, length: number): number[] {
-  if (!peaks.length) return [0, length];
-  const cuts = [0];
-  let expected = peaks[0];
-  for (const peak of peaks) {
-    if (
-      peak >= expected - pitch * JITTER_TOLERANCE &&
-      peak <= expected + pitch * JITTER_TOLERANCE
+      edgeStrength[i] >= threshold &&
+      edgeStrength[i] >= edgeStrength[i - 1] &&
+      edgeStrength[i] >= edgeStrength[i + 1]
     ) {
-      if (peak > cuts[cuts.length - 1]) cuts.push(peak);
-      expected = peak + pitch;
+      edges.push(i);
     }
   }
-  cuts.push(length);
-  return cuts;
+
+  return edges;
+}
+
+function analyzeSpacing(edges: number[]): { spacing: number; confidence: number } | null {
+  if (edges.length < MIN_EDGES) return null;
+
+  const spacings: number[] = [];
+  for (let i = 1; i < edges.length; i++) {
+    spacings.push(edges[i] - edges[i - 1]);
+  }
+
+  spacings.sort((a, b) => a - b);
+  const median = spacings[Math.floor(spacings.length / 2)];
+
+  if (median < MIN_CELL_SIZE || median > MAX_CELL_SIZE) return null;
+
+  const tolerance = median * SPACING_TOLERANCE;
+  const consistent = spacings.filter((s) => Math.abs(s - median) <= tolerance);
+  const confidence = consistent.length / spacings.length;
+
+  if (confidence < 0.5) return null;
+
+  const avgSpacing = consistent.reduce((a, b) => a + b, 0) / consistent.length;
+  return { spacing: avgSpacing, confidence };
 }
 
 export function detectEdgeBasedGrid(image: PixelBuffer): PixelGridAnalysis {
   assertPixelBuffer(image);
-  const bounds = trimMargins(image);
-  if (bounds.width < MIN_CELL_SIZE * 4 || bounds.height < MIN_CELL_SIZE * 4)
+
+  const horizontalEdges = findEdges(image, true);
+  const verticalEdges = findEdges(image, false);
+
+  const hResult = analyzeSpacing(horizontalEdges);
+  const vResult = analyzeSpacing(verticalEdges);
+
+  if (!hResult || !vResult) {
     return {
       width: 1,
       height: 1,
@@ -189,31 +103,15 @@ export function detectEdgeBasedGrid(image: PixelBuffer): PixelGridAnalysis {
       confidence: 0,
       reliable: false,
     };
-  const edges = sobelEdgeDetection(image, bounds);
-  closeGaps(edges.horizontal, edges.width, edges.height);
-  closeGaps(edges.vertical, edges.height, edges.width);
-  const horizontalProj = projectEdges(edges.horizontal, edges.width, edges.height);
-  const verticalProj = projectEdges(edges.vertical, edges.height, edges.width);
-  const horizontalPeaks = detectPeaks(horizontalProj);
-  const verticalPeaks = detectPeaks(verticalProj);
-  const horizontalPitch = estimatePitch(horizontalPeaks);
-  const verticalPitch = estimatePitch(verticalPeaks);
-  if (!horizontalPitch || !verticalPitch)
-    return {
-      width: 1,
-      height: 1,
-      cellWidth: image.width,
-      cellHeight: image.height,
-      offsetX: 0,
-      offsetY: 0,
-      confidence: 0,
-      reliable: false,
-    };
-  const xCuts = buildCuts(verticalPeaks, verticalPitch.pitch, edges.width);
-  const yCuts = buildCuts(horizontalPeaks, horizontalPitch.pitch, edges.height);
+  }
+
+  const xCuts = pixelGridCuts(image.width, vResult.spacing, verticalEdges[0] ?? 0);
+  const yCuts = pixelGridCuts(image.height, hResult.spacing, horizontalEdges[0] ?? 0);
+
   const width = xCuts.length - 1;
   const height = yCuts.length - 1;
-  if (width < 4 || height < 4)
+
+  if (width < 4 || height < 4 || width > MAX_GRID_SIZE || height > MAX_GRID_SIZE) {
     return {
       width: 1,
       height: 1,
@@ -224,15 +122,18 @@ export function detectEdgeBasedGrid(image: PixelBuffer): PixelGridAnalysis {
       confidence: 0,
       reliable: false,
     };
-  const confidence = Math.min(horizontalPitch.confidence, verticalPitch.confidence);
-  const reliable = confidence >= MIN_CONFIDENCE;
+  }
+
+  const confidence = Math.min(hResult.confidence, vResult.confidence);
+  const reliable = confidence >= 0.6;
+
   return {
     width,
     height,
-    cellWidth: verticalPitch.pitch,
-    cellHeight: horizontalPitch.pitch,
-    offsetX: bounds.x + (xCuts[0] ?? 0),
-    offsetY: bounds.y + (yCuts[0] ?? 0),
+    cellWidth: vResult.spacing,
+    cellHeight: hResult.spacing,
+    offsetX: verticalEdges[0] ?? 0,
+    offsetY: horizontalEdges[0] ?? 0,
     confidence,
     reliable,
   };

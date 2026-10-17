@@ -11,15 +11,51 @@ interface PixelationAlgorithmDescriptor {
   readonly id: PixelationAlgorithm;
   readonly label: string;
   readonly supportsDetection: boolean;
+  readonly minCellSize?: number;
+  readonly minGridCells?: number;
   detect(image: PixelBuffer): PixelGridAnalysis;
   prepareMode(detected: PixelGridAnalysis): PixelationMode;
+}
+
+function validateGrid(
+  result: PixelGridAnalysis,
+  minCellSize: number = 4,
+  minGridCells: number = 16,
+): PixelGridAnalysis {
+  if (!result.reliable) return result;
+
+  const tooSmallCells = result.cellWidth < minCellSize || result.cellHeight < minCellSize;
+  const tooFewCells = result.width * result.height < minGridCells;
+  const tooLargeCells = result.cellWidth > 64 || result.cellHeight > 64;
+  const implausible = result.width < 4 || result.height < 4;
+  const tooManySmallCells =
+    (result.cellWidth <= 5 && result.width > 100) ||
+    (result.cellHeight <= 5 && result.height > 100);
+  const suspiciouslyManyTinyCells = result.width > 200 || result.height > 200;
+  const lowConfidence = result.confidence < 0.7;
+
+  if (
+    tooSmallCells ||
+    tooFewCells ||
+    tooLargeCells ||
+    implausible ||
+    tooManySmallCells ||
+    suspiciouslyManyTinyCells ||
+    lowConfidence
+  ) {
+    return { ...result, reliable: false };
+  }
+
+  return result;
 }
 
 const edgeGridDescriptor: PixelationAlgorithmDescriptor = {
   id: PixelationAlgorithm.EdgeGrid,
   label: "import.algorithm.edge-grid",
   supportsDetection: true,
-  detect: detectEdgeBasedGrid,
+  minCellSize: 4,
+  minGridCells: 16,
+  detect: (image) => validateGrid(detectEdgeBasedGrid(image), 4, 16),
   prepareMode: (detected) =>
     detected.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
 };
@@ -28,7 +64,9 @@ const uniformGridDescriptor: PixelationAlgorithmDescriptor = {
   id: PixelationAlgorithm.UniformGrid,
   label: "import.algorithm.uniform-grid",
   supportsDetection: true,
-  detect: detectPixelGrid,
+  minCellSize: 4,
+  minGridCells: 16,
+  detect: (image) => validateGrid(detectPixelGrid(image), 4, 16),
   prepareMode: (detected) =>
     detected.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
 };

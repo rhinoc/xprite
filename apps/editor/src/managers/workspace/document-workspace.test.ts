@@ -58,6 +58,7 @@ describe("bundled-recents", () => {
   readRecentImage=async id=>this.recent.find(item=>item.id===id)??null;
   saveRecentImages=async images=>{this.recent=images.map(item=>"image" in item?item:{...this.recent.find(old=>old.id===item.id),name:item.name})};
   decode=async()=>({width:2,height:2,data:new Uint8ClampedArray(16)});
+  getImportPreference=()=>({choice:'always-ask',algorithm:'auto'});
   bindSourceToDocument(){};
   releaseDocumentHandle(){};
   dispose(){};
@@ -176,6 +177,7 @@ describe("document-workspace [feature-1-6]", () => {
   write=async()=>{this.writes++;return this.result};
   decode=async(source)=>({width:2,height:2,data:new Uint8ClampedArray(16)});
   analyze=async()=>({classification:'likely-pixel-art',confidence:1,reasons:[]});
+  getImportPreference=()=>({choice:'always-ask',algorithm:'auto'});
   bindSourceToDocument(){};
   releaseDocumentHandle(){};
   dispose(){};
