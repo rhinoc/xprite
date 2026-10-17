@@ -58,7 +58,6 @@ describe("bundled-recents", () => {
   readRecentImage=async id=>this.recent.find(item=>item.id===id)??null;
   saveRecentImages=async images=>{this.recent=images.map(item=>"image" in item?item:{...this.recent.find(old=>old.id===item.id),name:item.name})};
   decode=async()=>({width:2,height:2,data:new Uint8ClampedArray(16)});
-  getImportPreference=()=>({choice:'always-ask',algorithm:'auto'});
   bindSourceToDocument(){};
   releaseDocumentHandle(){};
   dispose(){};
@@ -177,7 +176,6 @@ describe("document-workspace [feature-1-6]", () => {
   write=async()=>{this.writes++;return this.result};
   decode=async(source)=>({width:2,height:2,data:new Uint8ClampedArray(16)});
   analyze=async()=>({classification:'likely-pixel-art',confidence:1,reasons:[]});
-  getImportPreference=()=>({choice:'always-ask',algorithm:'auto'});
   bindSourceToDocument(){};
   releaseDocumentHandle(){};
   dispose(){};
@@ -231,7 +229,12 @@ describe("document-workspace [feature-1-6]", () => {
     } = await import(
       `data:text/javascript;base64,${Buffer.from(result.outputFiles[0].contents).toString("base64")}`
     );
+    // Direct-install flows run with "as is" remembered; the decision flow below asks every time.
+    const filePreferenceKey = "xse.workspace.file-preferences.v1";
+    const rememberImportChoice = (choice) =>
+      preferenceStorage.set(filePreferenceKey, JSON.stringify({ importDialogChoice: choice }));
     const preferenceStorage = new Map();
+    rememberImportChoice("always-import-as-is");
     let nextId = 0;
     const createWorkspace = (databaseName) =>
       new DocumentWorkspace({
@@ -293,6 +296,7 @@ describe("document-workspace [feature-1-6]", () => {
       w.dispose();
     }
     {
+      rememberImportChoice("always-ask");
       const w = workspace(),
         opened = [];
       let analyses = 0;
@@ -310,7 +314,13 @@ describe("document-workspace [feature-1-6]", () => {
       await waitForImportState(() => !!w.active.session.getSnapshot().pendingImport);
       assert.deepEqual(opened, ["photo"], "pixelation remains attached to its own file");
       w.active.session.acceptOriginal();
+      // "Always ask" shows the dialog even for likely pixel art.
+      await waitForImportState(
+        () => opened.length === 2 && !!w.active.session.getSnapshot().pendingImport,
+      );
+      w.active.session.acceptOriginal();
       await batch;
+      rememberImportChoice("always-import-as-is");
       assert.deepEqual(opened, ["photo", "sprite"]);
       assert.equal(w.getSnapshot().tabs.length, 3);
       w.dispose();

@@ -2,12 +2,11 @@ import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { assertDimension, assertPixelBuffer } from "$/document/pixel-validation";
 import { protectPixelationContours } from "$/import-export/image/import/contours";
 import { smoothPixelation } from "$/import-export/image/import/denoise";
-import { pixelGridCuts, MAX_RECOVERED_GRID_SIZE } from "$/import-export/image/import/grid";
 import { resizeMostFrequent } from "$/import-export/image/import/most-frequent";
 import { reduceToPalette, extractPixelationPalette } from "$/import-export/image/import/palette";
 import {
   detectWithAlgorithm,
-  getModeForAlgorithm,
+  recoverWithGrid,
 } from "$/import-export/image/import/pixelation-algorithm-registry";
 import { resizeBox, resizeNearest } from "$/import-export/image/import/resize";
 import { samplePixelation } from "$/import-export/image/import/sampling";
@@ -43,26 +42,29 @@ function sampleImage(
   options: PixelateOptions,
   method: PixelationMethod,
 ): PixelBuffer {
-  const algorithm = options.algorithm ?? PixelationAlgorithm.Auto;
-  const mode = options.mode ?? getModeForAlgorithm(image, algorithm);
-
+  // Grid recovery runs when asked for, or when only an algorithm was named and it finds a reliable grid.
+  const wantsGrid =
+    options.mode === PixelationMode.RecoverGrid ||
+    (options.mode === undefined && options.algorithm !== undefined);
+  const grid =
+    options.grid ??
+    (wantsGrid
+      ? detectWithAlgorithm(image, options.algorithm ?? PixelationAlgorithm.Auto)
+      : undefined);
+  const mode =
+    options.mode ??
+    (grid && (!("reliable" in grid) || grid.reliable)
+      ? PixelationMode.RecoverGrid
+      : PixelationMode.Convert);
   if (mode !== PixelationMode.Convert && mode !== PixelationMode.RecoverGrid)
     throw new RangeError("Unknown pixelation mode.");
   if (mode === PixelationMode.RecoverGrid) {
-    const grid = options.grid ?? detectWithAlgorithm(image, algorithm);
-    if ("reliable" in grid && !grid.reliable)
+    const found = grid ?? detectWithAlgorithm(image, options.algorithm ?? PixelationAlgorithm.Auto);
+    if ("reliable" in found && !found.reliable)
       throw new Error(
         "No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.",
       );
-    const x = pixelGridCuts(image.width, grid.cellWidth, grid.offsetX),
-      y = pixelGridCuts(image.height, grid.cellHeight, grid.offsetY);
-    const width = x.length - 1,
-      height = y.length - 1;
-    if (width > MAX_RECOVERED_GRID_SIZE || height > MAX_RECOVERED_GRID_SIZE)
-      throw new RangeError("Choose larger cells to restore this image.");
-    if (grid.width !== width || grid.height !== height)
-      throw new RangeError("The grid no longer matches this image.");
-    return samplePixelation(image, width, height, PixelationMethod.Dominant, { x, y });
+    return recoverWithGrid(image, found);
   }
   const target = resolveTargetSize(image, options);
   const strength = options.outlineStrength ?? 0;

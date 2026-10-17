@@ -96,7 +96,8 @@ export class MiniToolSession implements WorkspaceSessionPorts {
       source.name,
     );
   };
-  analyze: WorkspaceSessionPorts["analyze"] = async (pixels) => analyzePixelArt(pixels);
+  analyze: WorkspaceSessionPorts["analyze"] = async (pixels, options) =>
+    analyzePixelArt(pixels, options);
   pixelate: WorkspaceSessionPorts["pixelate"] = async (pixels, options) =>
     pixelateImage(pixels, options);
   write: WorkspaceSessionPorts["write"] = async (pixels, name) => {

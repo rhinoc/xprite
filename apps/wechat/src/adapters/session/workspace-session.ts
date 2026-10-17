@@ -159,7 +159,8 @@ export class WechatWorkspaceSession implements WorkspaceSessionPorts {
       ? decodeAsepriteBlob(blob, name, wechatAsepriteOptions)
       : decodeAnimatedImageSource(new File([blob], name, { type: blob.type }), name);
   }
-  analyze: WorkspaceSessionPorts["analyze"] = async (image) => analyzePixelArt(image);
+  analyze: WorkspaceSessionPorts["analyze"] = async (image, options) =>
+    analyzePixelArt(image, options);
   pixelate: WorkspaceSessionPorts["pixelate"] = async (image, options) =>
     pixelateImage(image, options);
   write: WorkspaceSessionPorts["write"] = async (image, name) =>

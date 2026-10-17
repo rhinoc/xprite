@@ -27,6 +27,8 @@ export interface PixelArtAnalysisOptions {
   userOverride?: PixelArtClassification | null;
   /** Bound work for very large photographs while retaining deterministic sampling. */
   maxSamplePixels?: number;
+  /** Grid detection algorithm; Auto when omitted. */
+  algorithm?: PixelationAlgorithm;
 }
 
 export interface PixelArtAnalysis {
@@ -80,10 +82,15 @@ export interface PixelGridGeometry {
   cellHeight: number;
   offsetX: number;
   offsetY: number;
+  /** Explicit cell boundaries (pixel indices, first 0, last = image size) for irregular grids. */
+  cutsX?: readonly number[];
+  cutsY?: readonly number[];
 }
 export interface PixelGridAnalysis extends PixelGridGeometry {
   confidence: number;
   reliable: boolean;
+  /** Registry entry that produced this analysis. */
+  algorithm?: PixelationAlgorithm;
 }
 
 export interface PixelationSize {

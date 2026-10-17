@@ -1,142 +1,97 @@
 import type { PixelBuffer } from "$/base/primitives";
-import { detectEdgeBasedGrid } from "$/import-export/image/import/edge-based-grid";
-import { detectPixelGrid } from "$/import-export/image/import/grid";
+import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
+import { recoverGrid } from "$/import-export/image/import/grid-sample";
+import { resizeBox } from "$/import-export/image/import/resize";
 import {
   PixelationAlgorithm,
   type PixelGridAnalysis,
-  PixelationMode,
+  type PixelGridGeometry,
 } from "$/import-export/image/import/types";
 
-interface PixelationAlgorithmDescriptor {
-  readonly id: PixelationAlgorithm;
+export interface PixelationAlgorithmEntry {
+  /** i18n key of the label shown in the import dialog and preferences. */
   readonly label: string;
-  readonly supportsDetection: boolean;
-  readonly minCellSize?: number;
-  readonly minGridCells?: number;
+  /** Whether Auto considers this entry. */
+  readonly auto: boolean;
   detect(image: PixelBuffer): PixelGridAnalysis;
-  prepareMode(detected: PixelGridAnalysis): PixelationMode;
+  /** One output pixel per grid cell. */
+  run(image: PixelBuffer, grid: PixelGridGeometry): PixelBuffer;
 }
 
-function validateGrid(
-  result: PixelGridAnalysis,
-  minCellSize: number = 4,
-  minGridCells: number = 16,
-): PixelGridAnalysis {
-  if (!result.reliable) return result;
+const unreliable = (image: PixelBuffer): PixelGridAnalysis => ({
+  width: 1,
+  height: 1,
+  cellWidth: image.width,
+  cellHeight: image.height,
+  offsetX: 0,
+  offsetY: 0,
+  confidence: 0,
+  reliable: false,
+  algorithm: PixelationAlgorithm.Resize,
+});
 
-  const tooSmallCells = result.cellWidth < minCellSize || result.cellHeight < minCellSize;
-  const tooFewCells = result.width * result.height < minGridCells;
-  const tooLargeCells = result.cellWidth > 64 || result.cellHeight > 64;
-  const implausible = result.width < 4 || result.height < 4;
-  const tooManySmallCells =
-    (result.cellWidth <= 5 && result.width > 100) ||
-    (result.cellHeight <= 5 && result.height > 100);
-  const suspiciouslyManyTinyCells = result.width > 200 || result.height > 200;
-  const lowConfidence = result.confidence < 0.7;
+const tag =
+  (algorithm: PixelationAlgorithm, detect: (image: PixelBuffer) => PixelGridAnalysis) =>
+  (image: PixelBuffer): PixelGridAnalysis => ({ ...detect(image), algorithm });
 
-  if (
-    tooSmallCells ||
-    tooFewCells ||
-    tooLargeCells ||
-    implausible ||
-    tooManySmallCells ||
-    suspiciouslyManyTinyCells ||
-    lowConfidence
-  ) {
-    return { ...result, reliable: false };
-  }
+const FALLBACK = PixelationAlgorithm.Resize;
 
-  return result;
-}
-
-const edgeGridDescriptor: PixelationAlgorithmDescriptor = {
-  id: PixelationAlgorithm.EdgeGrid,
-  label: "import.algorithm.edge-grid",
-  supportsDetection: true,
-  minCellSize: 4,
-  minGridCells: 16,
-  detect: (image) => validateGrid(detectEdgeBasedGrid(image), 4, 16),
-  prepareMode: (detected) =>
-    detected.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
-};
-
-const uniformGridDescriptor: PixelationAlgorithmDescriptor = {
-  id: PixelationAlgorithm.UniformGrid,
-  label: "import.algorithm.uniform-grid",
-  supportsDetection: true,
-  minCellSize: 4,
-  minGridCells: 16,
-  detect: (image) => validateGrid(detectPixelGrid(image), 4, 16),
-  prepareMode: (detected) =>
-    detected.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
-};
-
-const resizeDescriptor: PixelationAlgorithmDescriptor = {
-  id: PixelationAlgorithm.Resize,
-  label: "import.algorithm.resize",
-  supportsDetection: false,
-  detect: (image) => ({
-    width: 1,
-    height: 1,
-    cellWidth: image.width,
-    cellHeight: image.height,
-    offsetX: 0,
-    offsetY: 0,
-    confidence: 0,
-    reliable: false,
-  }),
-  prepareMode: () => PixelationMode.Convert,
-};
-
-const autoDescriptor: PixelationAlgorithmDescriptor = {
-  id: PixelationAlgorithm.Auto,
-  label: "import.algorithm.auto",
-  supportsDetection: true,
-  detect: (image) => {
-    const detectors = [edgeGridDescriptor, uniformGridDescriptor];
-    const results = detectors.map((d) => d.detect(image));
-    const best = results.reduce((a, b) => {
-      if (a.reliable && !b.reliable) return a;
-      if (!a.reliable && b.reliable) return b;
-      return a.confidence >= b.confidence ? a : b;
-    });
-    return best.reliable ? best : resizeDescriptor.detect(image);
+/** Algorithm table. Auto is a reduce over the `auto` entries and falls back to FALLBACK as data. */
+const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
+  [PixelationAlgorithm.Auto]: {
+    label: "import.algorithm.auto",
+    auto: false,
+    detect: (image) =>
+      getAllAlgorithms()
+        .map((id) => TABLE[id])
+        .filter((entry) => entry.auto)
+        .map((entry) => entry.detect(image))
+        .reduce(
+          (best, next) =>
+            next.reliable && (!best.reliable || next.confidence > best.confidence) ? next : best,
+          TABLE[FALLBACK].detect(image),
+        ),
+    run: (image, grid) => TABLE[(grid as PixelGridAnalysis).algorithm ?? FALLBACK].run(image, grid),
   },
-  prepareMode: (detected) =>
-    detected.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
+  [PixelationAlgorithm.UniformGrid]: {
+    label: "import.algorithm.uniform-grid",
+    auto: true,
+    detect: tag(PixelationAlgorithm.UniformGrid, detectUniformGrid),
+    run: recoverGrid,
+  },
+  [PixelationAlgorithm.EdgeGrid]: {
+    label: "import.algorithm.edge-grid",
+    auto: true,
+    detect: tag(PixelationAlgorithm.EdgeGrid, detectMeshGrid),
+    run: recoverGrid,
+  },
+  [PixelationAlgorithm.Resize]: {
+    label: "import.algorithm.resize",
+    auto: false,
+    detect: unreliable,
+    run: (image, grid) => resizeBox(image, grid.width, grid.height, "premultiplied"),
+  },
 };
 
-const ALGORITHM_REGISTRY: ReadonlyMap<PixelationAlgorithm, PixelationAlgorithmDescriptor> = new Map(
-  [
-    [PixelationAlgorithm.Auto, autoDescriptor],
-    [PixelationAlgorithm.EdgeGrid, edgeGridDescriptor],
-    [PixelationAlgorithm.UniformGrid, uniformGridDescriptor],
-    [PixelationAlgorithm.Resize, resizeDescriptor],
-  ],
-);
-
-export type { PixelationAlgorithmDescriptor };
-
-export function getAlgorithmDescriptor(
-  algorithm: PixelationAlgorithm,
-): PixelationAlgorithmDescriptor {
-  const descriptor = ALGORITHM_REGISTRY.get(algorithm);
-  if (!descriptor) throw new RangeError(`Unknown pixelation algorithm: ${algorithm}`);
-  return descriptor;
+export function getAlgorithmEntry(algorithm: PixelationAlgorithm): PixelationAlgorithmEntry {
+  const entry = (TABLE as Partial<Record<string, PixelationAlgorithmEntry>>)[algorithm];
+  if (!entry) throw new RangeError(`Unknown pixelation algorithm: ${algorithm}`);
+  return entry;
 }
 
 export function getAllAlgorithms(): readonly PixelationAlgorithm[] {
-  return [
-    PixelationAlgorithm.Auto,
-    PixelationAlgorithm.EdgeGrid,
-    PixelationAlgorithm.UniformGrid,
-    PixelationAlgorithm.Resize,
-  ];
+  return Object.keys(TABLE) as PixelationAlgorithm[];
 }
 
 export function detectWithAlgorithm(
   image: PixelBuffer,
-  algorithm: PixelationAlgorithm,
+  algorithm: PixelationAlgorithm = PixelationAlgorithm.Auto,
 ): PixelGridAnalysis {
-  return getAlgorithmDescriptor(algorithm).detect(image);
+  return getAlgorithmEntry(algorithm).detect(image);
+}
+
+export function recoverWithGrid(image: PixelBuffer, grid: PixelGridGeometry): PixelBuffer {
+  return getAlgorithmEntry(
+    (grid as PixelGridAnalysis).algorithm ?? PixelationAlgorithm.EdgeGrid,
+  ).run(image, grid);
 }

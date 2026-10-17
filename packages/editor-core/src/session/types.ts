@@ -2,6 +2,7 @@ import type { PixelBuffer, Rgba } from "$/base/primitives";
 import type { EditorProject } from "$/document/project";
 import type {
   PixelArtAnalysis,
+  PixelArtAnalysisOptions,
   PixelGridAnalysis,
   PixelArtClassification,
   PixelateOptions,
@@ -67,7 +68,7 @@ export interface EditorSessionPorts<Source> {
   /** Stable source identity supplied by a platform adapter, independent of display name. */
   identifySource?(source: Source): Promise<string | null>;
   decode(source: Source): Promise<PixelBuffer>;
-  analyze(image: PixelBuffer): Promise<PixelArtAnalysis>;
+  analyze(image: PixelBuffer, options?: PixelArtAnalysisOptions): Promise<PixelArtAnalysis>;
   pixelate(image: PixelBuffer, options: PixelateOptions): Promise<PixelBuffer>;
   write(
     image: PixelBuffer,

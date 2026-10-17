@@ -13,6 +13,8 @@ import {
   type PixelationSettings,
   type PixelGridAnalysis,
   PixelArtClassification,
+  PixelationAlgorithm,
+  getAllAlgorithms,
   defaultPixelationSettings,
   extractPixelationPalette,
   updatePixelationSettings,
@@ -500,7 +502,9 @@ export class EditorSession<Source> {
         ? (this.recentIdentities?.resolve(recentAlias) ?? recentAlias)
         : null;
       if (!this.valid(generation)) return SessionOutcome.Ignored;
-      const analysis = project ? null : await this.ports.analyze(pixels);
+      const analysis = project
+        ? null
+        : await this.ports.analyze(pixels, { algorithm: this.importAlgorithm() });
       if (!this.valid(generation)) return SessionOutcome.Ignored;
       this.release(source.source, generation);
       const candidate: Candidate = {
@@ -532,6 +536,11 @@ export class EditorSession<Source> {
         this.publish({ busy: false });
       }
     }
+  }
+  /** The remembered grid algorithm; anything unknown (e.g. from an older build) means Auto. */
+  private importAlgorithm(): PixelationAlgorithm {
+    const remembered = this.ports.getImportPreference?.()?.algorithm;
+    return getAllAlgorithms().find((id) => id === remembered) ?? PixelationAlgorithm.Auto;
   }
   private offerCandidate(candidate: Candidate): SessionOutcome {
     const pref = this.ports.getImportPreference?.();

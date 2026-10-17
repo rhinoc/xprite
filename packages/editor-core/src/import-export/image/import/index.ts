@@ -37,17 +37,11 @@ export {
   PIXELATION_METHOD_OPTIONS,
 } from "$/import-export/image/import/settings";
 
-export {
-  detectPixelGrid,
-  manualPixelGrid,
-  MAX_GRID_CELL_SIZE,
-} from "$/import-export/image/import/grid";
-
-export { detectEdgeBasedGrid } from "$/import-export/image/import/edge-based-grid";
+export { manualPixelGrid, MAX_GRID_CELL_SIZE } from "$/import-export/image/import/grid";
 
 export {
-  getAlgorithmDescriptor,
+  getAlgorithmEntry,
   getAllAlgorithms,
   detectWithAlgorithm,
-  type PixelationAlgorithmDescriptor,
+  type PixelationAlgorithmEntry,
 } from "$/import-export/image/import/pixelation-algorithm-registry";

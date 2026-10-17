@@ -1,239 +1,167 @@
+import { existsSync, readFileSync } from "node:fs";
+
 import { describe, expect, test } from "vitest";
 
-import { PixelBuffer } from "$/base/primitives";
-import { detectEdgeBasedGrid } from "$/import-export/image/import/edge-based-grid";
-import { detectPixelGrid } from "$/import-export/image/import/grid";
-import { detectWithAlgorithm } from "$/import-export/image/import/pixelation-algorithm-registry";
-import { PixelationAlgorithm } from "$/import-export/image/import/types";
+import type { PixelBuffer } from "$/base/primitives";
+import {
+  addNoise,
+  boxBlur,
+  checkerboard,
+  gradient,
+  jitterWithMargin,
+  smoothPhoto,
+  sprite,
+  texturePhoto,
+  upscaleBilinear,
+  upscaleNearest,
+  vectorShapes,
+} from "$/import-export/image/import/grid-test-images";
+import { pixelateImage } from "$/import-export/image/import/pixelate";
+import {
+  detectWithAlgorithm,
+  getAllAlgorithms,
+} from "$/import-export/image/import/pixelation-algorithm-registry";
+import { PixelationAlgorithm, PixelationMode } from "$/import-export/image/import/types";
 
-function createCheckerboard(cellSize: number, gridWidth: number, gridHeight: number): PixelBuffer {
-  const width = cellSize * gridWidth;
-  const height = cellSize * gridHeight;
-  const data = new Uint8ClampedArray(width * height * 4);
+const { Auto, EdgeGrid, UniformGrid, Resize } = PixelationAlgorithm;
+const art = sprite(64);
 
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const cellX = Math.floor(x / cellSize);
-      const cellY = Math.floor(y / cellSize);
-      const isBlack = (cellX + cellY) % 2 === 0;
-      const offset = (y * width + x) * 4;
-      const value = isBlack ? 0 : 255;
-      data[offset + 0] = value;
-      data[offset + 1] = value;
-      data[offset + 2] = value;
-      data[offset + 3] = 255;
-    }
-  }
-
-  return { width, height, data };
-}
-
-function upscaleNonInteger(
-  source: PixelBuffer,
-  stepX: number,
-  stepY: number,
-  blurRadius: number = 0,
-): PixelBuffer {
-  const width = Math.ceil(source.width * stepX);
-  const height = Math.ceil(source.height * stepY);
-  const data = new Uint8ClampedArray(width * height * 4);
-
-  data.fill(255);
-
-  for (let sy = 0; sy < source.height; sy++) {
-    for (let sx = 0; sx < source.width; sx++) {
-      const sourceOffset = (sy * source.width + sx) * 4;
-      const tx = Math.floor(sx * stepX);
-      const ty = Math.floor(sy * stepY);
-      const cellWidth = Math.ceil(stepX);
-      const cellHeight = Math.ceil(stepY);
-
-      for (let dy = 0; dy < cellHeight && ty + dy < height; dy++) {
-        for (let dx = 0; dx < cellWidth && tx + dx < width; dx++) {
-          const targetOffset = ((ty + dy) * width + (tx + dx)) * 4;
-          data[targetOffset + 0] = source.data[sourceOffset + 0];
-          data[targetOffset + 1] = source.data[sourceOffset + 1];
-          data[targetOffset + 2] = source.data[sourceOffset + 2];
-          data[targetOffset + 3] = 255;
-        }
-      }
-    }
-  }
-
-  if (blurRadius > 0) {
-    const blurred = new Uint8ClampedArray(data);
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        let sumR = 0,
-          sumG = 0,
-          sumB = 0,
-          count = 0;
-        for (let dy = -blurRadius; dy <= blurRadius; dy++) {
-          for (let dx = -blurRadius; dx <= blurRadius; dx++) {
-            const nx = x + dx;
-            const ny = y + dy;
-            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-              const offset = (ny * width + nx) * 4;
-              sumR += data[offset + 0];
-              sumG += data[offset + 1];
-              sumB += data[offset + 2];
-              count++;
-            }
-          }
-        }
-        const offset = (y * width + x) * 4;
-        blurred[offset + 0] = sumR / count;
-        blurred[offset + 1] = sumG / count;
-        blurred[offset + 2] = sumB / count;
-        blurred[offset + 3] = 255;
-      }
-    }
-    return { width, height, data: blurred };
-  }
-
-  return { width, height, data };
-}
-
-function createGradient(width: number, height: number): PixelBuffer {
-  const data = new Uint8ClampedArray(width * height * 4);
-
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const offset = (y * width + x) * 4;
-      data[offset + 0] = Math.floor((x / width) * 255);
-      data[offset + 1] = Math.floor((y / height) * 255);
-      data[offset + 2] = 128;
-      data[offset + 3] = 255;
-    }
-  }
-
-  return { width, height, data };
-}
-
-function countUniqueColors(buffer: PixelBuffer): number {
-  const colors = new Set<string>();
-  for (let i = 0; i < buffer.data.length; i += 4) {
-    const r = buffer.data[i];
-    const g = buffer.data[i + 1];
-    const b = buffer.data[i + 2];
-    const a = buffer.data[i + 3];
-    colors.add(`${r},${g},${b},${a}`);
-  }
-  return colors.size;
-}
-
-describe("Edge-Based Grid Detection", () => {
-  test("Clean 16x nearest upscale should detect exactly 64x64", () => {
-    const upscaled = createCheckerboard(16, 64, 64);
-    const result = detectEdgeBasedGrid(upscaled);
-
-    expect(result.reliable).toBe(true);
-    expect(result.width).toBe(64);
-    expect(result.height).toBe(64);
-    expect(result.cellWidth).toBeCloseTo(16, 1);
-    expect(result.cellHeight).toBeCloseTo(16, 1);
+describe("algorithm registry table", () => {
+  test("lists every algorithm and rejects unknown ids", () => {
+    expect([...getAllAlgorithms()].sort()).toEqual([Auto, EdgeGrid, Resize, UniformGrid].sort());
+    expect(() => detectWithAlgorithm(art, "nope" as PixelationAlgorithm)).toThrow(RangeError);
   });
-
-  test("Non-integer upscale with soft edges should restore to source size", () => {
-    const original = createCheckerboard(1, 187, 181);
-    const upscaled = upscaleNonInteger(original, 6.755, 6.755, 1);
-    const result = detectEdgeBasedGrid(upscaled);
-
-    expect(result.reliable).toBe(true);
-    expect(result.width).toBeGreaterThanOrEqual(175);
-    expect(result.width).toBeLessThanOrEqual(195);
-    expect(result.height).toBeGreaterThanOrEqual(170);
-    expect(result.height).toBeLessThanOrEqual(190);
-  });
-});
-
-describe("Uniform Grid Detection", () => {
-  test("Clean checkerboard should detect reliably", () => {
-    const checkerboard = createCheckerboard(16, 32, 32);
-    const result = detectPixelGrid(checkerboard);
-
-    expect(result.reliable).toBe(true);
-    expect(result.cellWidth).toBeCloseTo(16, 1);
-    expect(result.cellHeight).toBeCloseTo(16, 1);
-  });
-
-  test("Non-integer grid with soft edges should detect", () => {
-    const original = createCheckerboard(1, 187, 181);
-    const upscaled = upscaleNonInteger(original, 6.755, 6.755, 1);
-    const result = detectPixelGrid(upscaled);
-
-    expect(result.reliable).toBe(true);
-    expect(result.width).toBeGreaterThanOrEqual(175);
-    expect(result.width).toBeLessThanOrEqual(195);
-  });
-});
-
-describe("Gradient and Blur Refusal", () => {
-  test.skip("Gradient must be refused (reliable=false)", () => {
-    // TODO: Strengthen gradient detection refusal
-    // Currently gradients can pass uniformity checks
-    const gradient = createGradient(512, 512);
-
-    const uniformResult = detectPixelGrid(gradient);
-    expect(uniformResult.reliable).toBe(false);
-
-    const edgeResult = detectEdgeBasedGrid(gradient);
-    expect(edgeResult.reliable).toBe(false);
-
-    const autoResult = detectWithAlgorithm(gradient, PixelationAlgorithm.Auto);
-    expect(autoResult.reliable).toBe(false);
-  });
-});
-
-describe("Auto Selection", () => {
-  test("Auto should select best detector for clean upscale", () => {
-    const upscaled = createCheckerboard(16, 64, 64);
-    const result = detectWithAlgorithm(upscaled, PixelationAlgorithm.Auto);
-
-    expect(result.reliable).toBe(true);
-    expect(result.width).toBe(64);
-    expect(result.height).toBe(64);
-  });
-
-  test("Auto output differs from input on real pixel art", () => {
-    const upscaled = createCheckerboard(16, 64, 64);
-    const result = detectWithAlgorithm(upscaled, PixelationAlgorithm.Auto);
-
-    expect(result.reliable).toBe(true);
-
-    // Detected grid should be much smaller than input
-    expect(result.width).toBeLessThan(upscaled.width);
-    expect(result.height).toBeLessThan(upscaled.height);
-
-    // Checkerboard has only 2 colors, upscaled still has 2 colors
-    const upscaledColors = countUniqueColors(upscaled);
-    expect(upscaledColors).toBe(2);
-  });
-
-  test("Auto refuses gradient", () => {
-    const gradient = createGradient(512, 512);
-    const result = detectWithAlgorithm(gradient, PixelationAlgorithm.Auto);
-
+  test("Resize never claims a grid", () => {
+    const result = detectWithAlgorithm(upscaleNearest(art, 16), Resize);
     expect(result.reliable).toBe(false);
+    expect(result.confidence).toBe(0);
+  });
+  test("Auto picks the highest-confidence reliable entry and tags it", () => {
+    const image = upscaleNearest(art, 16);
+    const auto = detectWithAlgorithm(image, Auto);
+    const reliable = [EdgeGrid, UniformGrid]
+      .map((id) => detectWithAlgorithm(image, id))
+      .filter((result) => result.reliable);
+    expect(auto.reliable).toBe(true);
+    expect(auto.confidence).toBe(Math.max(...reliable.map((result) => result.confidence)));
+    expect([EdgeGrid, UniformGrid]).toContain(auto.algorithm);
+  });
+  test("Auto falls back to the Resize entry when nothing is reliable", () => {
+    const result = detectWithAlgorithm(gradient(512, 512), Auto);
+    expect(result.reliable).toBe(false);
+    expect(result.algorithm).toBe(Resize);
   });
 });
 
-describe("Registry Integration", () => {
-  test("All algorithms available in registry", () => {
-    const checkerboard = createCheckerboard(16, 32, 32);
-
-    const autoResult = detectWithAlgorithm(checkerboard, PixelationAlgorithm.Auto);
-    const uniformResult = detectWithAlgorithm(checkerboard, PixelationAlgorithm.UniformGrid);
-    const edgeResult = detectWithAlgorithm(checkerboard, PixelationAlgorithm.EdgeGrid);
-    const resizeResult = detectWithAlgorithm(checkerboard, PixelationAlgorithm.Resize);
-
-    expect(autoResult).toBeDefined();
-    expect(uniformResult).toBeDefined();
-    expect(edgeResult).toBeDefined();
-    expect(resizeResult).toBeDefined();
-
-    expect(resizeResult.width).toBe(1);
-    expect(resizeResult.height).toBe(1);
-    expect(resizeResult.reliable).toBe(false);
+describe("grids that must be recovered", () => {
+  test("clean 16x checkerboard", () => {
+    const result = detectWithAlgorithm(checkerboard(16, 32), Auto);
+    expect(result.reliable).toBe(true);
+    expect(result.cellWidth).toBeCloseTo(16, 1);
+    expect(result.width).toBe(32);
+  });
+  test("clean 16x sprite restores exactly", () => {
+    const out = pixelateImage(upscaleNearest(art, 16), { algorithm: Auto });
+    expect(out.width).toBe(64);
+    expect(out.height).toBe(64);
+    expect(Array.from(out.data)).toEqual(Array.from(art.data));
+  });
+  test("screenshot-like: sprite upscaled by 6.755 with 2-3px blurred edges", () => {
+    const image = boxBlur(upscaleNearest(art, 6.755), 1);
+    const result = detectWithAlgorithm(image, Auto);
+    expect(result.reliable).toBe(true);
+    expect(result.cellWidth).toBeCloseTo(6.755, 1);
+    expect(result.cellHeight).toBeCloseTo(6.755, 1);
+    expect(Math.abs(result.width - 64)).toBeLessThanOrEqual(1);
+    expect(Math.abs(result.height - 64)).toBeLessThanOrEqual(1);
+    const out = pixelateImage(image, { algorithm: Auto });
+    let close = 0;
+    for (let i = 0; i < 64 * 64; i++) {
+      const o = i * 4;
+      if (
+        Math.abs(out.data[o] - art.data[o]) <= 24 &&
+        Math.abs(out.data[o + 1] - art.data[o + 1]) <= 24 &&
+        Math.abs(out.data[o + 2] - art.data[o + 2]) <= 24
+      )
+        close++;
+    }
+    expect(close / (64 * 64)).toBeGreaterThan(0.9);
+  });
+  test("jitter plus margin is found by the edge grid, not the uniform one", () => {
+    const image = jitterWithMargin(art);
+    expect(detectWithAlgorithm(image, EdgeGrid).reliable).toBe(true);
+    expect(detectWithAlgorithm(image, UniformGrid).reliable).toBe(false);
+    const result = detectWithAlgorithm(image, Auto);
+    expect(result.algorithm).toBe(EdgeGrid);
+    expect(Math.abs(result.width - 64)).toBeLessThanOrEqual(3);
+  });
+  test("JPEG-like noise still recovers 64x64", () => {
+    const result = detectWithAlgorithm(addNoise(upscaleNearest(art, 16), 12), Auto);
+    expect(result.reliable).toBe(true);
+    expect(result.width).toBe(64);
+  });
+  test("large genuine pixel art is not capped away", () => {
+    const big = upscaleNearest(sprite(300, 9), 4);
+    const result = detectWithAlgorithm(big, Auto);
+    expect(result.reliable).toBe(true);
+    expect(result.width).toBe(300);
   });
 });
+
+describe("images that must be refused", () => {
+  const refused: [string, PixelBuffer][] = [
+    ["512x512 gradient", gradient(512, 512)],
+    ["smooth photo-like field", smoothPhoto(512, 512)],
+    ["blurred textured photo", boxBlur(texturePhoto(256, 256), 4)],
+    ["textured photo", texturePhoto(512, 512)],
+    ["heavily blurred sprite", boxBlur(upscaleNearest(art, 16), 6)],
+    ["bilinear-upscaled sprite", upscaleBilinear(art, 12)],
+    ["hard-edged shapes with no grid", vectorShapes(512, 512)],
+  ];
+  for (const [name, image] of refused)
+    test(name, () => {
+      for (const algorithm of [Auto, EdgeGrid, UniformGrid])
+        expect(detectWithAlgorithm(image, algorithm).reliable).toBe(false);
+    });
+  test("pixelateImage with Auto falls back to plain conversion instead of inventing a grid", () => {
+    const image = gradient(256, 256);
+    const out = pixelateImage(image, { algorithm: Auto });
+    expect([out.width, out.height]).toEqual([256, 256]);
+    expect(() =>
+      pixelateImage(image, { algorithm: Auto, mode: PixelationMode.RecoverGrid }),
+    ).toThrow(/No consistent pixel grid/);
+  });
+});
+
+// Real images are not in the repository; point XPRITE_REAL_IMAGES at a directory holding
+// <name>.rgba (raw RGBA) and <name>.size.json ([width, height]) to run these locally.
+const realDirectory = process.env.XPRITE_REAL_IMAGES;
+describe.skipIf(!realDirectory || !existsSync(`${realDirectory}/knight.rgba`))(
+  "real images",
+  () => {
+    const load = (name: string): PixelBuffer => {
+      const [width, height] = JSON.parse(
+        readFileSync(`${realDirectory}/${name}.size.json`, "utf8"),
+      );
+      return {
+        width,
+        height,
+        data: new Uint8ClampedArray(readFileSync(`${realDirectory}/${name}.rgba`)),
+      };
+    };
+    test("AI-generated knight restores near 90x135", () => {
+      const out = pixelateImage(load("knight"), { algorithm: Auto });
+      expect(Math.abs(out.width - 90)).toBeLessThanOrEqual(2);
+      expect(Math.abs(out.height - 135)).toBeLessThanOrEqual(4);
+    });
+    test("screenshot duo restores near 185x179", () => {
+      const image = load("duo");
+      const result = detectWithAlgorithm(image, Auto);
+      expect(result.reliable).toBe(true);
+      expect(result.cellWidth).toBeCloseTo(6.755, 1);
+      const out = pixelateImage(image, { algorithm: Auto });
+      expect(Math.abs(out.width - 185)).toBeLessThanOrEqual(3);
+      expect(Math.abs(out.height - 179)).toBeLessThanOrEqual(3);
+    });
+  },
+);
