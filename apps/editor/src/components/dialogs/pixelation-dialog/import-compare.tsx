@@ -7,7 +7,7 @@ import {
   type PointerEvent,
 } from "react";
 
-import type { CanvasPixelSource } from "@xprite/ui";
+import { ScrollbarThumb, type CanvasPixelSource } from "@xprite/ui";
 import { clientPoint, clientRect } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/pixelation-dialog/import-compare.module.css";
@@ -59,6 +59,7 @@ export function ImportCompare({
   };
 }) {
   const [split, setSplit] = useState(50);
+  const [hot, setHot] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
@@ -121,8 +122,12 @@ export function ImportCompare({
           aria-valuemax={100}
           aria-valuenow={Math.round(split)}
           onKeyDown={onKey}
+          onPointerEnter={() => setHot(true)}
+          onPointerLeave={() => setHot(false)}
+          onFocus={() => setHot(true)}
+          onBlur={() => setHot(false)}
         >
-          <span className={styles.grip} />
+          <ScrollbarThumb className={styles.grip} hovered={hot} />
         </div>
       </div>
       {/* Anchored to the frame, not the (aspect-fitted, possibly narrow) stage, so they never clip. */}

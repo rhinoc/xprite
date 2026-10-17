@@ -23,6 +23,7 @@ import {
   PanSurface,
   ScrollArea,
   Scrollbar,
+  ScrollbarThumb,
   Splitter,
   StatusBar,
   WindowWorkspace,
@@ -35478,6 +35479,35 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
       },
       orientation: "vertical",
     },
+  },
+  {
+    name: "ScrollbarThumb",
+    group: ComponentsGroup.Containers,
+    component: ScrollbarThumb as unknown as ComponentType<Record<string, unknown>>,
+    props: [
+      {
+        name: "hovered",
+        kind: "boolean",
+        required: false,
+        type: "boolean | undefined",
+        hostProp: false,
+      },
+      {
+        name: "className",
+        kind: "string",
+        required: false,
+        type: "string | undefined",
+        hostProp: false,
+      },
+      {
+        name: "style",
+        kind: "json",
+        required: false,
+        type: "CSSProperties | undefined",
+        hostProp: false,
+      },
+    ],
+    initialProps: {},
   },
   {
     name: "Splitter",

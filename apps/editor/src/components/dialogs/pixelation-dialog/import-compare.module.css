@@ -55,30 +55,13 @@
   outline: 1px dotted #000;
   outline-offset: 3px;
 }
-.grip {
+.bar .grip {
   position: absolute;
   top: 50%;
   left: 50%;
-  box-sizing: border-box;
   width: 14px;
   height: 26px;
   margin: -13px 0 0 -7px;
-  border: 1px solid var(--xse-border, #000);
-  background: var(--ui-theme-paper, var(--xse-window, #fff));
-}
-.grip::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 6px;
-  height: 8px;
-  transform: translate(-50%, -50%);
-  background-image: var(--ui-scrollbar-thumb-grip, none);
-}
-.bar:hover .grip,
-.bar:focus-visible .grip {
-  background: var(--ui-theme-wash, var(--xse-window, #fff));
 }
 .tag {
   position: absolute;
