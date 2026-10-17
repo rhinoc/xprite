@@ -99,10 +99,18 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     workflow.acceptPixelatedImport();
   };
 
-  const algorithmOptions = getAllAlgorithms().map((algorithm) => ({
-    value: algorithm,
-    label: tUiSource(`import.algorithm.${algorithm}`),
-  }));
+  const algorithmOptions = getAllAlgorithms().map((algorithm) => {
+    const labels: Record<PixelationAlgorithm, string> = {
+      [PixelationAlgorithm.Auto]: tUiSource("import.algorithm.auto"),
+      [PixelationAlgorithm.EdgeGrid]: tUiSource("import.algorithm.edge-grid"),
+      [PixelationAlgorithm.UniformGrid]: tUiSource("import.algorithm.uniform-grid"),
+      [PixelationAlgorithm.Resize]: tUiSource("import.algorithm.resize"),
+    };
+    return {
+      value: algorithm,
+      label: labels[algorithm],
+    };
+  });
 
   return (
     <EditorDialog
