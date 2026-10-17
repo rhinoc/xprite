@@ -4,7 +4,6 @@ import {
   getAllAlgorithms,
   getAllColorPickers,
   PixelationMode,
-  PixelArtClassification,
 } from "@xprite/editor-core/import-export/image/import";
 
 export {
@@ -13,7 +12,6 @@ export {
   getAllAlgorithms,
   getAllColorPickers,
   PixelationMode,
-  PixelArtClassification,
 };
 
 export enum SaveFileExtension {
