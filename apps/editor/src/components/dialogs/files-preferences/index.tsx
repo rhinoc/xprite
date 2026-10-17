@@ -15,7 +15,7 @@ import {
 import type { FilePreferences } from "$/managers/preferences/file-preferences";
 import type { RecoverySettings } from "$/managers/workspace/recovery-settings";
 import { getAllAlgorithms } from "@xprite/editor-core";
-import { Button, Combobox, Slider, Text, TextVariant } from "@xprite/ui";
+import { Button, Combobox, Slider } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 
 const intervals = [
@@ -230,16 +230,9 @@ export function FilesPreferences({
       {combo("Keep closed sprite on memory for", 321, 15, intervals, true, noop, 452)}
 
       {/* Import preferences */}
-      <Text
-        bounds={narrowLayout ? box(358, 488, 333, 16) : box(358, 357, 333, 16)}
-        relativeTo={client}
-        variant={TextVariant.Reading}
-      >
-        {tUi("import.preferences.choice")}
-      </Text>
       <Combobox
         aria-label={tUi("import.preferences.choice")}
-        bounds={narrowLayout ? box(358, 508, 333, 16) : box(459, 357, 232, 16)}
+        bounds={narrowLayout ? box(358, 488, 333, 16) : box(459, 357, 232, 16)}
         relativeTo={client}
         value={filePreferences.importDialogChoice}
         options={[
@@ -266,31 +259,22 @@ export function FilesPreferences({
         }
       />
       {filePreferences.importDialogChoice === ImportDialogChoice.AlwaysPixelate && (
-        <>
-          <Text
-            bounds={narrowLayout ? box(358, 544, 333, 16) : box(358, 381, 333, 16)}
-            relativeTo={client}
-            variant={TextVariant.Reading}
-          >
-            {tUi("import.preferences.algorithm")}
-          </Text>
-          <Combobox
-            aria-label={tUi("import.preferences.algorithm")}
-            bounds={narrowLayout ? box(358, 564, 333, 16) : box(459, 381, 232, 16)}
-            relativeTo={client}
-            value={filePreferences.importPixelationAlgorithm || PixelationAlgorithm.Auto}
-            options={getAllAlgorithms().map((algorithm) => ({
-              value: algorithm,
-              label: tUi(`import.algorithm.${algorithm}`),
-            }))}
-            disabled={!filePreferencesEnabled}
-            onValueChange={(value) =>
-              onFilePreferencesChange({
-                importPixelationAlgorithm: value as PixelationAlgorithm,
-              })
-            }
-          />
-        </>
+        <Combobox
+          aria-label={tUi("import.preferences.algorithm")}
+          bounds={narrowLayout ? box(358, 524, 333, 16) : box(459, 381, 232, 16)}
+          relativeTo={client}
+          value={filePreferences.importPixelationAlgorithm || PixelationAlgorithm.Auto}
+          options={getAllAlgorithms().map((algorithm) => ({
+            value: algorithm,
+            label: tUi(`import.algorithm.${algorithm}`),
+          }))}
+          disabled={!filePreferencesEnabled}
+          onValueChange={(value) =>
+            onFilePreferencesChange({
+              importPixelationAlgorithm: value as PixelationAlgorithm,
+            })
+          }
+        />
       )}
       <Button
         aria-label={tUi("import.preferences.reset")}
@@ -300,8 +284,8 @@ export function FilesPreferences({
             ? box(
                 358,
                 filePreferences.importDialogChoice === ImportDialogChoice.AlwaysPixelate
-                  ? 600
-                  : 544,
+                  ? 560
+                  : 524,
                 120,
                 16,
               )
