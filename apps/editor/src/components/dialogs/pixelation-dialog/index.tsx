@@ -72,7 +72,6 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   const [action, setAction] = useState<ImportAction | null>(null);
   const [rememberChoice, setRememberChoice] = useState(false);
   const [advanced, setAdvanced] = useState(false);
-  const [flipped, setFlipped] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useModalFocus({
@@ -228,13 +227,10 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 result={workflow.pixelationPreview}
                 width={width}
                 height={previewHeight}
-                flipped={flipped}
-                onFlip={() => setFlipped((value) => !value)}
                 labels={{
                   original: tUiSource("import.dialog.original"),
                   result: tUiSource("import.dialog.result.label"),
                   preparing: tUiSource("import.dialog.preparing"),
-                  flip: tUiSource("import.dialog.flip"),
                   slider: tUiSource("import.dialog.slider"),
                 }}
               />

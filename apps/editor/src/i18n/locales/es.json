@@ -2422,7 +2422,6 @@
   "import.dialog.original": "Original",
   "import.dialog.result.label": "Pixelado",
   "import.dialog.preparing": "Preparando vista previa…",
-  "import.dialog.flip": "Intercambiar lados",
   "import.dialog.slider": "Control de comparación",
   "import.dialog.import": "Importar"
 }

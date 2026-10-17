@@ -7,7 +7,7 @@ import {
   type PointerEvent,
 } from "react";
 
-import { Button, type CanvasPixelSource } from "@xprite/ui";
+import type { CanvasPixelSource } from "@xprite/ui";
 import { clientPoint, clientRect } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/pixelation-dialog/import-compare.module.css";
@@ -45,26 +45,22 @@ export function ImportCompare({
   result,
   width,
   height,
-  flipped,
-  onFlip,
   labels,
 }: {
   original: CanvasPixelSource;
   result: CanvasPixelSource | null;
   width: number;
   height: number;
-  flipped: boolean;
-  onFlip: () => void;
   labels: {
     original: string;
     result: string;
     preparing: string;
-    flip: string;
     slider: string;
   };
 }) {
   const [split, setSplit] = useState(50);
   const box = useRef<HTMLDivElement>(null);
+  const bar = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const aspect = original.width / original.height;
   const stageWidth = Math.max(40, Math.min(width, Math.floor(height * aspect)));
@@ -81,10 +77,10 @@ export function ImportCompare({
     event.stopPropagation();
     setSplit((value) => Math.max(0, Math.min(100, value + delta)));
   };
-  const left = flipped ? result : original;
-  const right = flipped ? original : result;
-  const leftLabel = flipped ? labels.result : labels.original;
-  const rightLabel = flipped ? labels.original : labels.result;
+  const left = original;
+  const right = result;
+  const leftLabel = labels.original;
+  const rightLabel = labels.result;
   return (
     <div className={styles.frame} style={{ width, height }}>
       <div
@@ -93,6 +89,8 @@ export function ImportCompare({
         style={{ width: stageWidth, height: stageHeight }}
         onPointerDown={(event) => {
           dragging.current = true;
+          event.preventDefault();
+          bar.current?.focus({ preventScroll: true });
           event.currentTarget.setPointerCapture(event.pointerId);
           move(event);
         }}
@@ -115,6 +113,7 @@ export function ImportCompare({
         <span className={`${styles.tag} ${styles.tagLeft}`}>{leftLabel}</span>
         <span className={`${styles.tag} ${styles.tagRight}`}>{rightLabel}</span>
         <div
+          ref={bar}
           className={styles.bar}
           style={{ left: `${split}%` }}
           role="slider"
@@ -128,14 +127,6 @@ export function ImportCompare({
           <span className={styles.grip} />
         </div>
       </div>
-      <Button
-        className={styles.flip}
-        aria-label={labels.flip}
-        title={labels.flip}
-        slots={{}}
-        text="⇄"
-        onClick={onFlip}
-      />
     </div>
   );
 }

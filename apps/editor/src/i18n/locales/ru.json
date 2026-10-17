@@ -2422,7 +2422,6 @@
   "import.dialog.original": "Оригинал",
   "import.dialog.result.label": "Результат",
   "import.dialog.preparing": "Подготовка превью…",
-  "import.dialog.flip": "Поменять стороны",
   "import.dialog.slider": "Ползунок сравнения",
   "import.dialog.import": "Импорт"
 }

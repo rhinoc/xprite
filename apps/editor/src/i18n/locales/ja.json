@@ -2422,7 +2422,6 @@
   "import.dialog.original": "元画像",
   "import.dialog.result.label": "ピクセル化後",
   "import.dialog.preparing": "プレビューを準備中…",
-  "import.dialog.flip": "左右を入れ替え",
   "import.dialog.slider": "比較スライダー",
   "import.dialog.import": "インポート"
 }
