@@ -75,6 +75,8 @@ const ALGORITHM_REGISTRY: ReadonlyMap<PixelationAlgorithm, PixelationAlgorithmDe
   ],
 );
 
+export type { PixelationAlgorithmDescriptor };
+
 export function getAlgorithmDescriptor(
   algorithm: PixelationAlgorithm,
 ): PixelationAlgorithmDescriptor {
