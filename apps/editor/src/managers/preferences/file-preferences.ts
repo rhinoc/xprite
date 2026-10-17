@@ -30,7 +30,7 @@ export interface FilePreferences {
   animationDefaultExtension: AnimationExportExtension;
   recentItemLimit: number;
   importDialogChoice: "always-ask" | "always-import-as-is" | "always-pixelate";
-  importPixelationAlgorithm: "auto" | "edge-grid" | "uniform-grid" | "resize";
+  importPixelationAlgorithm: "auto" | "edge-grid" | "resize";
 }
 export type ExportExtensionDefaults = Pick<
   FilePreferences,
