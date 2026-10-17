@@ -548,6 +548,7 @@
   "ui.import.sprite.sheet.rulers": "Reglas de importación de hoja de sprites",
   "import.algorithm.auto": "Automático",
   "import.algorithm.edge-grid": "Restaurar cuadrícula de píxeles",
+  "import.algorithm.uniform-grid": "Detección de cuadrícula uniforme",
   "import.algorithm.resize": "Redimensionar",
   "import.dialog.title": "Opciones de importación",
   "import.dialog.detected.pixel.art": "Se detectó pixel art almacenado ampliado. Restaura los píxeles originales con detección de cuadrícula o importa la imagen tal cual.",

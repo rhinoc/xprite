@@ -1,5 +1,6 @@
 import type { PixelBuffer } from "$/base/primitives";
 import { detectEdgeBasedGrid } from "$/import-export/image/import/edge-based-grid";
+import { detectPixelGrid } from "$/import-export/image/import/grid";
 import {
   PixelationAlgorithm,
   type PixelGridAnalysis,
@@ -19,6 +20,15 @@ const edgeGridDescriptor: PixelationAlgorithmDescriptor = {
   label: "import.algorithm.edge-grid",
   supportsDetection: true,
   detect: detectEdgeBasedGrid,
+  prepareMode: (detected) =>
+    detected.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
+};
+
+const uniformGridDescriptor: PixelationAlgorithmDescriptor = {
+  id: PixelationAlgorithm.UniformGrid,
+  label: "import.algorithm.uniform-grid",
+  supportsDetection: true,
+  detect: detectPixelGrid,
   prepareMode: (detected) =>
     detected.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
 };
@@ -45,8 +55,14 @@ const autoDescriptor: PixelationAlgorithmDescriptor = {
   label: "import.algorithm.auto",
   supportsDetection: true,
   detect: (image) => {
-    const result = edgeGridDescriptor.detect(image);
-    return result.reliable ? result : resizeDescriptor.detect(image);
+    const detectors = [edgeGridDescriptor, uniformGridDescriptor];
+    const results = detectors.map((d) => d.detect(image));
+    const best = results.reduce((a, b) => {
+      if (a.reliable && !b.reliable) return a;
+      if (!a.reliable && b.reliable) return b;
+      return a.confidence >= b.confidence ? a : b;
+    });
+    return best.reliable ? best : resizeDescriptor.detect(image);
   },
   prepareMode: (detected) =>
     detected.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
@@ -56,6 +72,7 @@ const ALGORITHM_REGISTRY: ReadonlyMap<PixelationAlgorithm, PixelationAlgorithmDe
   [
     [PixelationAlgorithm.Auto, autoDescriptor],
     [PixelationAlgorithm.EdgeGrid, edgeGridDescriptor],
+    [PixelationAlgorithm.UniformGrid, uniformGridDescriptor],
     [PixelationAlgorithm.Resize, resizeDescriptor],
   ],
 );
@@ -71,7 +88,12 @@ export function getAlgorithmDescriptor(
 }
 
 export function getAllAlgorithms(): readonly PixelationAlgorithm[] {
-  return [PixelationAlgorithm.Auto, PixelationAlgorithm.EdgeGrid, PixelationAlgorithm.Resize];
+  return [
+    PixelationAlgorithm.Auto,
+    PixelationAlgorithm.EdgeGrid,
+    PixelationAlgorithm.UniformGrid,
+    PixelationAlgorithm.Resize,
+  ];
 }
 
 export function detectWithAlgorithm(

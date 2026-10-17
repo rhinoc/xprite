@@ -64,6 +64,7 @@ export enum PixelationMode {
 export enum PixelationAlgorithm {
   Auto = "auto",
   EdgeGrid = "edge-grid",
+  UniformGrid = "uniform-grid",
   Resize = "resize",
 }
 

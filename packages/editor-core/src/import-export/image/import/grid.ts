@@ -15,6 +15,7 @@ const PEAK_MAX_FRACTION = 0.16;
 const MAX_PEAKS = 192;
 const MIN_PEAKS = 5;
 const MIN_AXIS_CONFIDENCE = 0.64;
+const HIGH_COHERENCE_THRESHOLD = 0.9;
 const MIN_UNIFORMITY = 0.72;
 const MIN_RUN_FRACTION = 0.015;
 const AXIS_CANDIDATES = 12;
@@ -30,6 +31,8 @@ const FULL_TURN = Math.PI * 2;
 const UNIFORMITY_SAMPLES = 256;
 const UNIFORMITY_SCALE = 20;
 const CORNER_FRACTIONS = [0.3, 0.7] as const;
+const REFINEMENT_STEP = 0.002;
+const REFINEMENT_RANGE = 0.5;
 interface Axis {
   step: number;
   offset: number;
@@ -57,9 +60,10 @@ function scanAxis(image: PixelBuffer, horizontal: boolean): Axis[] {
   const runs = new Float64Array(MAX_GRID_CELL_SIZE + 1);
   let runCount = 0;
   const lines = Math.min(SCANLINES, cross);
+
+  // Scan and accumulate edge profile
   for (let line = 0; line < lines; line++) {
     const row = Math.min(cross - 1, Math.floor(((line + 0.5) * cross) / lines));
-    let last = 0;
     for (let position = 1; position < length; position++) {
       const first =
         (horizontal ? row * image.width + position - 1 : (position - 1) * image.width + row) *
@@ -67,15 +71,9 @@ function scanAxis(image: PixelBuffer, horizontal: boolean): Axis[] {
       const second = first + (horizontal ? CHANNELS : image.width * CHANNELS);
       const difference = colorDifference(image, first, second);
       profile[position] += difference;
-      if (difference <= EDGE_THRESHOLD) continue;
-      const distance = position - last;
-      if (last && distance <= MAX_GRID_CELL_SIZE) {
-        runs[distance]++;
-        runCount++;
-      }
-      last = position;
     }
   }
+
   let total = 0,
     maximum = 0;
   for (const value of profile) {
@@ -83,14 +81,59 @@ function scanAxis(image: PixelBuffer, horizontal: boolean): Axis[] {
     maximum = Math.max(maximum, value);
   }
   const threshold = Math.max((total / length) * PEAK_MEAN_MULTIPLIER, maximum * PEAK_MAX_FRACTION);
-  const peaks: Peak[] = [];
-  for (let i = 1; i < length - 1; i++)
-    if (profile[i] >= threshold && profile[i] > profile[i - 1] && profile[i] >= profile[i + 1])
-      peaks.push({ position: i, weight: profile[i] });
-  if (peaks.length < MIN_PEAKS || !runCount) return [{ step: 1, offset: 0, confidence: 0 }];
-  const strong = peaks
+
+  // Merge consecutive over-threshold edges into weighted centers
+  const mergedPeaks: Peak[] = [];
+  let edgeStart = -1;
+  let edgeWeight = 0;
+  let edgeWeightedSum = 0;
+
+  for (let i = 0; i < length; i++) {
+    if (profile[i] >= EDGE_THRESHOLD) {
+      if (edgeStart === -1) edgeStart = i;
+      edgeWeight += profile[i];
+      edgeWeightedSum += profile[i] * i;
+    } else if (edgeStart !== -1) {
+      // End of edge run, compute weighted center
+      const center = edgeWeightedSum / edgeWeight;
+      if (edgeWeight >= threshold) {
+        mergedPeaks.push({ position: center, weight: edgeWeight });
+      }
+      // Measure run distance for merged edges
+      if (mergedPeaks.length >= 2) {
+        const distance = Math.round(center - mergedPeaks[mergedPeaks.length - 2].position);
+        if (distance > 0 && distance <= MAX_GRID_CELL_SIZE) {
+          runs[distance]++;
+          runCount++;
+        }
+      }
+      edgeStart = -1;
+      edgeWeight = 0;
+      edgeWeightedSum = 0;
+    }
+  }
+  // Handle edge at end
+  if (edgeStart !== -1) {
+    const center = edgeWeightedSum / edgeWeight;
+    if (edgeWeight >= threshold) {
+      mergedPeaks.push({ position: center, weight: edgeWeight });
+      if (mergedPeaks.length >= 2) {
+        const distance = Math.round(center - mergedPeaks[mergedPeaks.length - 2].position);
+        if (distance > 0 && distance <= MAX_GRID_CELL_SIZE) {
+          runs[distance]++;
+          runCount++;
+        }
+      }
+    }
+  }
+
+  if (mergedPeaks.length < MIN_PEAKS || !runCount) return [{ step: 1, offset: 0, confidence: 0 }];
+
+  const strong = mergedPeaks
     .sort((a, b) => b.weight - a.weight || a.position - b.position)
     .slice(0, MAX_PEAKS);
+
+  // Generate integer candidates
   const candidates = new Set<number>();
   for (let cells = MIN_CELLS; cells <= MAX_RECOVERED_GRID_SIZE; cells++) {
     const step = length / cells;
@@ -98,42 +141,78 @@ function scanAxis(image: PixelBuffer, horizontal: boolean): Axis[] {
   }
   for (let step = MIN_CELL_SIZE; step <= Math.min(MAX_GRID_CELL_SIZE, length / MIN_CELLS); step++)
     candidates.add(step);
+
   const ranked: Axis[] = [];
-  for (const step of candidates) {
-    let sine = 0,
-      cosine = 0,
-      weight = 0;
-    for (const peak of strong) {
-      const angle = (peak.position * FULL_TURN) / step;
-      sine += Math.sin(angle) * peak.weight;
-      cosine += Math.cos(angle) * peak.weight;
-      weight += peak.weight;
+
+  for (const baseStep of candidates) {
+    // Evaluate base step
+    const { coherence, offset: baseOffset } = evaluateStep(strong, baseStep);
+
+    // Fine refinement around best candidate if coherence is promising
+    let bestStep = baseStep;
+    let bestCoherence = coherence;
+    let bestOffset = baseOffset;
+
+    if (coherence > 0.7) {
+      const minStep = Math.max(MIN_CELL_SIZE, baseStep - REFINEMENT_RANGE);
+      const maxStep = Math.min(MAX_GRID_CELL_SIZE, baseStep + REFINEMENT_RANGE);
+      for (let refinedStep = minStep; refinedStep <= maxStep; refinedStep += REFINEMENT_STEP) {
+        const refined = evaluateStep(strong, refinedStep);
+        if (refined.coherence > bestCoherence) {
+          bestStep = refinedStep;
+          bestCoherence = refined.coherence;
+          bestOffset = refined.offset;
+        }
+      }
     }
-    const coherence = Math.hypot(sine, cosine) / weight;
+
+    // Compute run-based confidence components
     let comb = 0,
       single = 0;
-    const tolerance = Math.max(MIN_RUN_TOLERANCE, step * RUN_TOLERANCE_FRACTION);
+    const tolerance = Math.max(MIN_RUN_TOLERANCE, bestStep * RUN_TOLERANCE_FRACTION);
     for (let run = 1; run < runs.length; run++) {
       if (!runs[run]) continue;
-      const multiple = Math.max(1, Math.round(run / step));
-      comb += runs[run] * Math.max(0, 1 - Math.abs(run - multiple * step) / tolerance);
-      single += runs[run] * Math.max(0, 1 - Math.abs(run - step) / tolerance);
+      const multiple = Math.max(1, Math.round(run / bestStep));
+      comb += runs[run] * Math.max(0, 1 - Math.abs(run - multiple * bestStep) / tolerance);
+      single += runs[run] * Math.max(0, 1 - Math.abs(run - bestStep) / tolerance);
     }
     const runSupport = single / runCount;
-    if (runSupport < MIN_RUN_FRACTION) continue;
+
+    // Accept axis if high coherence and peaks cluster, or meet minimum run fraction
+    const acceptByCoherence = bestCoherence >= HIGH_COHERENCE_THRESHOLD;
+    const acceptByRuns = runSupport >= MIN_RUN_FRACTION;
+
+    if (!acceptByCoherence && !acceptByRuns) continue;
+
     const confidence =
-      coherence * coherence * PHASE_WEIGHT +
+      bestCoherence * bestCoherence * PHASE_WEIGHT +
       (comb / runCount) * RUN_WEIGHT +
       Math.min(1, runSupport * SINGLE_RUN_SCALE) * SINGLE_RUN_WEIGHT;
-    let offset = ((((Math.atan2(sine, cosine) / FULL_TURN) * step) % step) + step) % step;
-    if (offset < PHASE_SNAP || step - offset < PHASE_SNAP) offset = 0;
-    ranked.push({ step, offset, confidence });
+
+    ranked.push({ step: bestStep, offset: bestOffset, confidence });
   }
+
   return ranked.length
     ? ranked
         .sort((a, b) => b.confidence - a.confidence || a.step - b.step)
         .slice(0, AXIS_CANDIDATES)
     : [{ step: 1, offset: 0, confidence: 0 }];
+}
+
+function evaluateStep(peaks: readonly Peak[], step: number): { coherence: number; offset: number } {
+  let sine = 0,
+    cosine = 0,
+    weight = 0;
+  for (const peak of peaks) {
+    const angle = (peak.position * FULL_TURN) / step;
+    sine += Math.sin(angle) * peak.weight;
+    cosine += Math.cos(angle) * peak.weight;
+    weight += peak.weight;
+  }
+  const coherence = Math.hypot(sine, cosine) / weight;
+  let offset = ((((Math.atan2(sine, cosine) / FULL_TURN) * step) % step) + step) % step;
+  if (offset < PHASE_SNAP || step - offset < PHASE_SNAP) offset = 0;
+  return { coherence, offset };
 }
 export function pixelGridCuts(length: number, step: number, offset = 0): number[] {
   if (!Number.isFinite(step) || step < 1 || !Number.isFinite(offset))

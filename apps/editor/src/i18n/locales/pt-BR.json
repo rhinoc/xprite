@@ -548,6 +548,7 @@
   "ui.import.sprite.sheet.rulers": "Réguas de importação de sprite sheet",
   "import.algorithm.auto": "Automático",
   "import.algorithm.edge-grid": "Restaurar grade de pixels",
+  "import.algorithm.uniform-grid": "Detecção de grade uniforme",
   "import.algorithm.resize": "Redimensionar",
   "import.dialog.title": "Opções de importação",
   "import.dialog.detected.pixel.art": "Pixel art armazenada ampliada detectada. Restaure os pixels originais com detecção de grade ou importe a imagem como está.",

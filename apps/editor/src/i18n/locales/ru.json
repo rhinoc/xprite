@@ -548,6 +548,7 @@
   "ui.import.sprite.sheet.rulers": "Линейки импорта спрайт-листа",
   "import.algorithm.auto": "Автоматически",
   "import.algorithm.edge-grid": "Восстановить пиксельную сетку",
+  "import.algorithm.uniform-grid": "Обнаружение равномерной сетки",
   "import.algorithm.resize": "Изменение размера",
   "import.dialog.title": "Параметры импорта",
   "import.dialog.detected.pixel.art": "Обнаружен увеличенный пиксельный арт. Восстановите исходные пиксели с помощью определения сетки или импортируйте изображение как есть.",

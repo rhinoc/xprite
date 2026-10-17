@@ -548,6 +548,7 @@
   "ui.import.sprite.sheet.rulers": "스프라이트 시트 가져오기 눈금자",
   "import.algorithm.auto": "자동",
   "import.algorithm.edge-grid": "픽셀 그리드 복원",
+  "import.algorithm.uniform-grid": "균일한 그리드 감지",
   "import.algorithm.resize": "크기 조정",
   "import.dialog.title": "가져오기 옵션",
   "import.dialog.detected.pixel.art": "확대 저장된 픽셀 아트를 감지했습니다. 그리드 감지로 원본 픽셀을 복원하거나 그대로 가져오세요.",
