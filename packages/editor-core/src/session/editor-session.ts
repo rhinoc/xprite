@@ -14,6 +14,7 @@ import {
   type PixelGridAnalysis,
   PixelArtClassification,
   PixelationAlgorithm,
+  PixelationMode,
   getAllAlgorithms,
   defaultPixelationSettings,
   extractPixelationPalette,
@@ -99,6 +100,7 @@ export class EditorSession<Source> {
   private bootstrapPromise: Promise<void> | null = null;
   private candidate: Candidate | null = null;
   private previewVersion = 0;
+  private algorithmVersion = 0;
   private replacement: Replacement<Source> | null = null;
   private hydration: Promise<void> | null = null;
   private persistence = Promise.resolve();
@@ -564,6 +566,7 @@ export class EditorSession<Source> {
           pendingImport: {
             sourcePalette: candidate.sourcePalette,
             grid: candidate.grid ?? null,
+            algorithm: this.importAlgorithm(),
             pixels: candidate.pixels,
             name: candidate.name,
             width: candidate.pixels.width,
@@ -602,6 +605,7 @@ export class EditorSession<Source> {
       pendingImport: {
         sourcePalette: candidate.sourcePalette,
         grid: candidate.grid ?? null,
+        algorithm: this.importAlgorithm(),
         pixels: candidate.pixels,
         name: candidate.name,
         width: candidate.pixels.width,
@@ -691,6 +695,53 @@ export class EditorSession<Source> {
       pixelationPalette: [],
     });
     void this.previewPixelation();
+  }
+  /**
+   * Switch the grid algorithm for the pending import: detect with that registry entry, then preview
+   * what it recovers. A grid that is not reliable falls back to the plain Convert (resize) preview.
+   */
+  async setImportAlgorithm(algorithm: PixelationAlgorithm): Promise<void> {
+    const pending = this.state.pendingImport;
+    const candidate = this.candidate;
+    if (this.disposed || this.state.busy || !candidate || !pending) return;
+    if (!getAllAlgorithms().includes(algorithm)) return;
+    const version = ++this.algorithmVersion,
+      generation = this.generation;
+    this.publish({
+      pendingImport: { ...pending, algorithm },
+      pixelationPreview: null,
+      pixelationPalette: [],
+      pixelationPreviewing: true,
+      pixelationError: null,
+    });
+    try {
+      const { grid } = await this.ports.analyze(candidate.pixels, { algorithm });
+      if (!this.valid(generation) || version !== this.algorithmVersion) return;
+      this.candidate = { ...candidate, grid };
+      const current = this.state.pendingImport;
+      this.publish({
+        pendingImport: current ? { ...current, grid, algorithm } : current,
+        pixelationOptions: updatePixelationSettings(
+          this.state.pixelationOptions,
+          grid.reliable
+            ? {
+                mode: PixelationMode.RecoverGrid,
+                autoGrid: true,
+                gridCellWidth: grid.cellWidth,
+                gridCellHeight: grid.cellHeight,
+              }
+            : { mode: PixelationMode.Convert },
+          candidate.pixels,
+        ),
+      });
+      void this.previewPixelation();
+    } catch (reason) {
+      if (this.valid(generation) && version === this.algorithmVersion)
+        this.publish({
+          pixelationPreviewing: false,
+          pixelationError: reason instanceof Error ? reason.message : String(reason),
+        });
+    }
   }
   private async previewPixelation() {
     const candidate = this.candidate;

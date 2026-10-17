@@ -2,6 +2,10 @@ import { useRef, useState } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
+import {
+  algorithmLabelKey,
+  algorithmNoteKey,
+} from "$/components/dialogs/pixelation-dialog/algorithm-notes";
 import { tUiSource, useUiLanguage } from "$/i18n";
 import {
   getAllAlgorithms,
@@ -37,6 +41,7 @@ type Workflow = Pick<
   | "pixelationPreviewing"
   | "pixelationError"
   | "setPixelationOptions"
+  | "setImportAlgorithm"
   | "setFilePreferences"
   | "getFilePreferences"
   | "busy"
@@ -49,7 +54,6 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   const pending = workflow.pending;
   const sceneBounds = useSceneBounds();
   const [choices, setChoices] = useState(workflow.getPixelationPaletteChoices);
-  const [selectedAlgorithm, setSelectedAlgorithm] = useState(PixelationAlgorithm.Auto);
   const [rememberChoice, setRememberChoice] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
@@ -65,6 +69,8 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   });
 
   if (!pending) return null;
+  const selectedAlgorithm = pending.algorithm;
+  const noteKey = algorithmNoteKey(selectedAlgorithm, !!pending.grid?.reliable);
 
   // Determine use case description based on classification and grid detection
   const getUseCaseDescription = () => {
@@ -100,18 +106,10 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     workflow.acceptPixelatedImport();
   };
 
-  const algorithmOptions = getAllAlgorithms().map((algorithm) => {
-    const labels: Record<PixelationAlgorithm, string> = {
-      [PixelationAlgorithm.Auto]: tUiSource("import.algorithm.auto"),
-      [PixelationAlgorithm.EdgeGrid]: tUiSource("import.algorithm.edge-grid"),
-      [PixelationAlgorithm.UniformGrid]: tUiSource("import.algorithm.uniform-grid"),
-      [PixelationAlgorithm.Resize]: tUiSource("import.algorithm.resize"),
-    };
-    return {
-      value: algorithm,
-      label: labels[algorithm],
-    };
-  });
+  const algorithmOptions = getAllAlgorithms().map((algorithm) => ({
+    value: algorithm,
+    label: tUiSource(algorithmLabelKey(algorithm)),
+  }));
 
   return (
     <EditorDialog
@@ -142,9 +140,14 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 aria-label={tUiSource("import.dialog.algorithm")}
                 disabled={workflow.busy}
                 options={algorithmOptions}
-                onValueChange={(value) => setSelectedAlgorithm(value as PixelationAlgorithm)}
+                onValueChange={(value) => workflow.setImportAlgorithm(value as PixelationAlgorithm)}
               />
             </Field>
+            {noteKey && (
+              <Text variant={TextVariant.Reading} role="status" wrap>
+                {tUiSource(noteKey)}
+              </Text>
+            )}
             <PixelationControls
               paletteResources={{
                 choices,

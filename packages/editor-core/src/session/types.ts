@@ -5,6 +5,7 @@ import type {
   PixelArtAnalysisOptions,
   PixelGridAnalysis,
   PixelArtClassification,
+  PixelationAlgorithm,
   PixelateOptions,
   PixelationSettings,
 } from "$/import-export/image/import";
@@ -112,6 +113,8 @@ export interface SessionError {
 export interface SessionPendingImport {
   readonly sourcePalette: readonly Rgba[];
   readonly grid: PixelGridAnalysis | null;
+  /** Grid algorithm the preview was produced with; starts as the remembered one (Auto by default). */
+  readonly algorithm: PixelationAlgorithm;
   readonly pixels: PixelBuffer;
   readonly name: string;
   readonly width: number;
