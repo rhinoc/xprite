@@ -5,13 +5,19 @@ import { EditorDialog } from "$/components/dialogs/overlay";
 import { tUiSource, useUiLanguage } from "$/i18n";
 import type { useEditorWorkflows } from "$/managers/workspace/use-editor-workflows";
 import {
-  PixelationControls,
-  PixelationComparison,
-  pixelationDialogLabels,
-} from "@xprite/editor-ui";
+  getAllAlgorithms,
+  ImportDialogChoice,
+  PixelArtClassification,
+  PixelationAlgorithm,
+} from "@xprite/editor-core";
+import { PixelationControls, PixelationComparison } from "@xprite/editor-ui";
 import {
   Button,
+  Checkbox,
+  Combobox,
   ControlFlow,
+  Field,
+  FieldLayout,
   OverlayContentLayout,
   Text,
   TextVariant,
@@ -19,7 +25,7 @@ import {
 } from "@xprite/ui";
 
 import styles from "$/components/dialogs/pixelation-dialog/pixelation-dialog.module.css";
-const BOUNDS = { x: 0, y: 0, width: 780, height: 760 };
+const BOUNDS = { x: 0, y: 0, width: 780, height: 800 };
 type Workflow = Pick<
   ReturnType<typeof useEditorWorkflows>,
   | "pending"
@@ -30,6 +36,8 @@ type Workflow = Pick<
   | "pixelationPreviewing"
   | "pixelationError"
   | "setPixelationOptions"
+  | "setFilePreferences"
+  | "filePreferences"
   | "busy"
   | "discardEmptyImport"
   | "acceptOriginalImport"
@@ -40,8 +48,10 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   const pending = workflow.pending;
   const sceneBounds = useSceneBounds();
   const [choices, setChoices] = useState(workflow.getPixelationPaletteChoices);
-  const labels = pixelationDialogLabels(workflow.pixelationOptions);
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState(PixelationAlgorithm.Auto);
+  const [rememberChoice, setRememberChoice] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
+
   useModalFocus({
     open: !!pending,
     rootRef,
@@ -52,7 +62,46 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       workflow.discardEmptyImport();
     },
   });
+
   if (!pending) return null;
+
+  // Determine use case description based on classification and grid detection
+  const getUseCaseDescription = () => {
+    if (pending.grid?.reliable) {
+      return tUiSource("import.dialog.detected.pixel.art");
+    }
+    if (pending.classification === PixelArtClassification.LikelyPixelArt) {
+      return tUiSource("import.dialog.upscaled.or.ai");
+    }
+    return tUiSource("import.dialog.plain.image");
+  };
+
+  const handleAcceptOriginal = () => {
+    if (rememberChoice) {
+      workflow.setFilePreferences({
+        ...workflow.filePreferences,
+        importDialogChoice: ImportDialogChoice.AlwaysImportAsIs,
+      });
+    }
+    workflow.acceptOriginalImport();
+  };
+
+  const handleAcceptPixelated = () => {
+    if (rememberChoice) {
+      workflow.setFilePreferences({
+        ...workflow.filePreferences,
+        importDialogChoice: ImportDialogChoice.AlwaysPixelate,
+        importPixelationAlgorithm: selectedAlgorithm,
+      });
+    }
+    workflow.acceptPixelatedImport();
+  };
+
+  const algorithmOptions = getAllAlgorithms().map((algorithm) => ({
+    value: algorithm,
+    label: tUiSource(`import.algorithm.${algorithm}`),
+  }));
+
   return (
     <EditorDialog
       open
@@ -63,13 +112,28 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       centerOnOpen
       constrainToViewport
       contentLayout={OverlayContentLayout.Flow}
-      title={tUiSource(labels.title)}
+      title={tUiSource("import.dialog.title")}
       defaultBounds={BOUNDS}
       onOpenChange={(open) => {
         if (!open) workflow.discardEmptyImport();
       }}
     >
       <div className={styles.body}>
+        <Text variant={TextVariant.Reading} wrap className={styles.useCaseDescription}>
+          {getUseCaseDescription()}
+        </Text>
+
+        <Field label={tUiSource("import.dialog.algorithm")} layout={FieldLayout.Inline}>
+          <Combobox
+            pixelWidth={200}
+            value={selectedAlgorithm}
+            aria-label={tUiSource("import.dialog.algorithm")}
+            disabled={workflow.busy}
+            options={algorithmOptions}
+            onValueChange={(value) => setSelectedAlgorithm(value as PixelationAlgorithm)}
+          />
+        </Field>
+
         <div className={styles.preview}>
           <PixelationComparison
             stacked
@@ -104,19 +168,24 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
             {tUiSource(workflow.pixelationError)}
           </Text>
         )}
+        <Checkbox
+          label={tUiSource("import.dialog.remember")}
+          checked={rememberChoice}
+          onCheckedChange={setRememberChoice}
+        />
         <ControlFlow className={styles.actions}>
           <Button slots={{}} text={tUiSource("Cancel")} onClick={workflow.discardEmptyImport} />
           <Button
             slots={{}}
-            text={tUiSource("Keep original")}
+            text={tUiSource("import.dialog.import.as.is")}
             disabled={workflow.busy}
-            onClick={workflow.acceptOriginalImport}
+            onClick={handleAcceptOriginal}
           />
           <Button
             slots={{}}
-            text={tUiSource(labels.apply)}
+            text={tUiSource("import.dialog.pixelate.with")}
             disabled={workflow.busy || workflow.pixelationPreviewing || !workflow.pixelationPreview}
-            onClick={workflow.acceptPixelatedImport}
+            onClick={handleAcceptPixelated}
           />
         </ControlFlow>
       </div>

@@ -5,14 +5,18 @@
   padding: var(--ui-space-4);
   min-width: 0;
 }
+.useCaseDescription {
+  grid-column: 1 / -1;
+  margin-bottom: var(--ui-space-2);
+}
 .settings {
   grid-column: 1;
-  grid-row: 1;
+  grid-row: 2;
   min-width: 0;
 }
 .preview {
   grid-column: 2;
-  grid-row: 1;
+  grid-row: 2;
   min-width: 0;
 }
 .actions {
@@ -27,10 +31,10 @@
   }
   .preview {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 2;
   }
   .settings {
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 3;
   }
 }
