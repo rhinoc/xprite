@@ -11,3 +11,10 @@
 .advanced > div {
   display: none;
 }
+/* Same label face as the dialog's other field labels (Find pixels by, Don't ask me again). */
+.advanced {
+  --ui-disclosure-font-size: 14px;
+  --ui-disclosure-line-height: 14px;
+  --ui-disclosure-indicator-size: 9px;
+  --ui-disclosure-label-gap: 4px;
+}

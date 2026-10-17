@@ -161,6 +161,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       {({ clientBounds: client }) => {
         const width = client.width;
         const hintHeight = message ? HINT_HEIGHT + GAP : 0;
+        const advancedRowHeight = pixelate ? ROW_HEIGHT + GAP : 0;
         const advancedHeight = showAdvanced ? 2 * (FIELD_LABEL_HEIGHT + 2 + COMBO_HEIGHT + GAP) : 0;
         const bottomStack =
           SECTION_HEIGHT +
@@ -168,8 +169,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
           OPTION_HEIGHT +
           GAP +
           hintHeight +
-          ROW_HEIGHT +
-          GAP +
+          advancedRowHeight +
           advancedHeight +
           ROW_HEIGHT +
           GAP +
@@ -186,7 +186,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const optionY = y;
         y += OPTION_HEIGHT + GAP;
         const hintBounds = message ? at(HINT_HEIGHT, GAP) : null;
-        const advancedRow = at(ROW_HEIGHT, GAP);
+        const advancedRow = at(pixelate ? ROW_HEIGHT : 0, pixelate ? GAP : 0);
         const algorithmLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT, 2) : null;
         const algorithmCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         const pickerLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT, 2) : null;
@@ -255,22 +255,23 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 relativeTo={client}
               />
             )}
-            <Disclosure
-              title={tUiSource("import.dialog.advanced")}
-              open={showAdvanced}
-              onToggle={(event) => setAdvanced(event.currentTarget.open)}
-              className={styles.advanced}
-              style={{
-                position: "absolute",
-                left: 0,
-                top: advancedRow.y - client.y,
-                width,
-                height: advancedRow.height,
-                pointerEvents: pixelate ? "auto" : "none",
-              }}
-            >
-              {null}
-            </Disclosure>
+            {pixelate && (
+              <Disclosure
+                title={tUiSource("import.dialog.advanced")}
+                open={showAdvanced}
+                onToggle={(event) => setAdvanced(event.currentTarget.open)}
+                className={styles.advanced}
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  top: advancedRow.y - client.y,
+                  width,
+                  height: advancedRow.height,
+                }}
+              >
+                {null}
+              </Disclosure>
+            )}
             {algorithmLabel && algorithmCombo && pickerLabel && pickerCombo && (
               <>
                 <Text

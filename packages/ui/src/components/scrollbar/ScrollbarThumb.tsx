@@ -7,8 +7,6 @@ import { ScrollbarStyle } from "$/base/theme/theme-types";
 import styles from "$/components/scrollbar/scrollbar.module.css";
 
 export interface ScrollbarThumbProps {
-  /** Same variant switch `Scrollbar` takes; defaults to the theme's own scrollbar style. */
-  scrollbarStyle?: ScrollbarStyle;
   hovered?: boolean;
   className?: string;
   style?: CSSProperties;
@@ -18,16 +16,10 @@ export interface ScrollbarThumbProps {
  * The same thumb artwork `Scrollbar` paints (vertical orientation), for controls that must look
  * like a scrollbar thumb but are not scrolling anything. Position and size come from the caller.
  */
-export function ScrollbarThumb({
-  scrollbarStyle,
-  hovered = false,
-  className,
-  style,
-}: ScrollbarThumbProps) {
+export function ScrollbarThumb({ hovered = false, className, style }: ScrollbarThumbProps) {
   const { definition } = useTheme();
   const compactThumb = definition.controlParts?.scrollbar?.compactThumb;
-  const classic =
-    (scrollbarStyle ?? definition.controlParts?.scrollbar?.areaStyle) === ScrollbarStyle.Classic;
+  const classic = definition.controlParts?.scrollbar?.areaStyle === ScrollbarStyle.Classic;
   const cls = (base: string) => (className ? `${base} ${className}` : base);
   if (classic)
     return <span aria-hidden="true" className={cls(styles.classicThumbStandalone)} style={style} />;
