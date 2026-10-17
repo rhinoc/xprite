@@ -85,7 +85,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 12px;
+  gap: 2px 8px;
 }
 .adjustFields > * {
   flex: 0 0 auto;
@@ -100,7 +100,7 @@
 
 /* Group boxes in the adjust panel: related controls side by side, wrapping. */
 .inlineField {
-  --ui-field-gap: 6px;
+  --ui-field-gap: 4px;
 }
 .group {
   flex: 1 1 auto !important;
@@ -109,7 +109,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 12px;
+  gap: 2px 8px;
 }
 
 /* The stage window: optional result tabs, one active pane, then the Export footer. */

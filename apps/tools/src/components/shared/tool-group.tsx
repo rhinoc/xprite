@@ -1,10 +1,12 @@
 import type { ReactNode } from "react";
 
-import { ContentLayout, ContentPadding, Field, FieldLayout, Panel } from "@xprite/ui";
+import { ContentLayout, Field, FieldLayout, Panel } from "@xprite/ui";
 
 import styles from "$/components/shared/tool-flow.module.css";
 
-const GROUP_GAP = 4;
+/** Inner group-box padding (tighter than ContentPadding.Compact's 8px). */
+const GROUP_PADDING = 4;
+const GROUP_GAP = 2;
 
 /**
  * A group box of related controls in the adjust panel. Fields inside flow side by side and wrap
@@ -14,7 +16,7 @@ export function ToolGroup({ children, title }: { children: ReactNode; title: str
   return (
     <Panel
       contentLayout={ContentLayout.Column}
-      contentPadding={ContentPadding.Compact}
+      contentPadding={GROUP_PADDING}
       contentGap={GROUP_GAP}
       className={styles.group}
       title={title}
