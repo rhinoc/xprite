@@ -2,8 +2,10 @@ import type { PixelBuffer, Rgba } from "$/base/primitives";
 import type { EditorProject } from "$/document/project";
 import type {
   PixelArtAnalysis,
+  PixelArtAnalysisOptions,
   PixelGridAnalysis,
   PixelArtClassification,
+  PixelationAlgorithm,
   PixelateOptions,
   PixelationSettings,
 } from "$/import-export/image/import";
@@ -67,7 +69,7 @@ export interface EditorSessionPorts<Source> {
   /** Stable source identity supplied by a platform adapter, independent of display name. */
   identifySource?(source: Source): Promise<string | null>;
   decode(source: Source): Promise<PixelBuffer>;
-  analyze(image: PixelBuffer): Promise<PixelArtAnalysis>;
+  analyze(image: PixelBuffer, options?: PixelArtAnalysisOptions): Promise<PixelArtAnalysis>;
   pixelate(image: PixelBuffer, options: PixelateOptions): Promise<PixelBuffer>;
   write(
     image: PixelBuffer,
@@ -81,6 +83,8 @@ export interface EditorSessionPorts<Source> {
     intent: SessionSaveIntent,
     documentKey?: string,
   ): Promise<SessionWriteResult>;
+  /** Retrieve import dialog preference to determine if the dialog should be shown. */
+  getImportPreference?(): { choice: string; algorithm: string; colorPicker?: string };
   releaseSource?(source: Source): void;
   dispose?(): void;
 }
@@ -109,6 +113,8 @@ export interface SessionError {
 export interface SessionPendingImport {
   readonly sourcePalette: readonly Rgba[];
   readonly grid: PixelGridAnalysis | null;
+  /** Grid algorithm the preview was produced with; starts as the remembered one (Auto by default). */
+  readonly algorithm: PixelationAlgorithm;
   readonly pixels: PixelBuffer;
   readonly name: string;
   readonly width: number;

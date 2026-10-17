@@ -33,6 +33,7 @@ import {
   isAsepriteData,
   isAsepriteFileName,
   pngFileName,
+  type PixelArtAnalysisOptions,
   type PixelateOptions,
 } from "@xprite/editor-core/import-export";
 import {
@@ -290,7 +291,8 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
       }))
     );
   }
-  analyze = (pixels: PixelBuffer) => this.getWorker().analyze(pixels);
+  analyze = (pixels: PixelBuffer, options?: PixelArtAnalysisOptions) =>
+    this.getWorker().analyze(pixels, options);
   pixelate = (pixels: PixelBuffer, options: PixelateOptions) =>
     this.getWorker().pixelate(pixels, options);
   private compatibleDocumentHandle(documentKey: string | undefined, kind?: "png" | "aseprite") {

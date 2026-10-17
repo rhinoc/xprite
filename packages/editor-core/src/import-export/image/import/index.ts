@@ -11,6 +11,9 @@ export {
   PixelArtClassification,
   PixelationMethod,
   PixelationMode,
+  PixelationAlgorithm,
+  CellColorPicker,
+  ImportDialogChoice,
 } from "$/import-export/image/import/types";
 export type {
   ExtractPaletteOptions,
@@ -23,6 +26,7 @@ export type {
   PixelationSettings,
   PixelGridGeometry,
   PixelGridAnalysis,
+  ImportDialogPreference,
 } from "$/import-export/image/import/types";
 
 export {
@@ -34,8 +38,18 @@ export {
   PIXELATION_METHOD_OPTIONS,
 } from "$/import-export/image/import/settings";
 
+export { manualPixelGrid, MAX_GRID_CELL_SIZE } from "$/import-export/image/import/grid";
+
 export {
-  detectPixelGrid,
-  manualPixelGrid,
-  MAX_GRID_CELL_SIZE,
-} from "$/import-export/image/import/grid";
+  getAlgorithmEntry,
+  getAllAlgorithms,
+  getListedAlgorithms,
+  detectWithAlgorithm,
+  type PixelationAlgorithmEntry,
+} from "$/import-export/image/import/pixelation-algorithm-registry";
+
+export {
+  getAllColorPickers,
+  getColorPickerEntry,
+  type CellColorPickerEntry,
+} from "$/import-export/image/import/cell-color-picker";

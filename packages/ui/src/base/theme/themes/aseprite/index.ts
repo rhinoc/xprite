@@ -26,6 +26,8 @@ export const asepriteTheme: UiTheme = {
             font: FontRole.Compact,
             // The bitmap button frame reserves its final row for the shadow.
             frameIconOffset: { x: 0, y: -RASTER_SCALE / 2 },
+            // Primary caps sit above the face centre once the shadow row is excluded.
+            textOffsetY: { [FontRole.Primary]: 1 },
           },
         },
       },

@@ -7,6 +7,8 @@ export function IconControl({
   icon,
   label,
   expanded,
+  selected,
+  style,
   disabled,
   onClick,
 }: {
@@ -15,6 +17,9 @@ export function IconControl({
   icon: NonNullable<ButtonProps["icon"]>;
   label: string;
   expanded?: boolean;
+  /** Pressed face while on, for toggles that show state (default: none, like user data). */
+  selected?: boolean;
+  style?: ButtonProps["style"];
   disabled?: boolean;
   onClick: () => void;
 }) {
@@ -26,6 +31,8 @@ export function IconControl({
       icon={icon}
       aria-label={label}
       aria-expanded={expanded}
+      selected={selected}
+      style={style}
       title={label}
       disabled={disabled}
       onClick={onClick}

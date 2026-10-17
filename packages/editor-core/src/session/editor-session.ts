@@ -12,7 +12,14 @@ import type { EditorSnapshot } from "$/editor/types";
 import {
   type PixelationSettings,
   type PixelGridAnalysis,
+  type PixelationSize,
   PixelArtClassification,
+  PixelationAlgorithm,
+  PixelationMode,
+  CellColorPicker,
+  getAllAlgorithms,
+  getListedAlgorithms,
+  getAllColorPickers,
   defaultPixelationSettings,
   extractPixelationPalette,
   updatePixelationSettings,
@@ -97,6 +104,7 @@ export class EditorSession<Source> {
   private bootstrapPromise: Promise<void> | null = null;
   private candidate: Candidate | null = null;
   private previewVersion = 0;
+  private algorithmVersion = 0;
   private replacement: Replacement<Source> | null = null;
   private hydration: Promise<void> | null = null;
   private persistence = Promise.resolve();
@@ -500,7 +508,9 @@ export class EditorSession<Source> {
         ? (this.recentIdentities?.resolve(recentAlias) ?? recentAlias)
         : null;
       if (!this.valid(generation)) return SessionOutcome.Ignored;
-      const analysis = project ? null : await this.ports.analyze(pixels);
+      const analysis = project
+        ? null
+        : await this.ports.analyze(pixels, { algorithm: this.importAlgorithm() });
       if (!this.valid(generation)) return SessionOutcome.Ignored;
       this.release(source.source, generation);
       const candidate: Candidate = {
@@ -533,10 +543,67 @@ export class EditorSession<Source> {
       }
     }
   }
+  /** The remembered grid algorithm; anything unknown (e.g. from an older build) means Auto. */
+  private importAlgorithm(): PixelationAlgorithm {
+    const remembered = this.ports.getImportPreference?.()?.algorithm;
+    return getListedAlgorithms().find((id) => id === remembered) ?? PixelationAlgorithm.Auto;
+  }
+  /** The remembered per-cell colour rule; anything unknown means the default. */
+  private importColorPicker(): CellColorPicker {
+    const remembered = this.ports.getImportPreference?.()?.colorPicker;
+    return getAllColorPickers().find((id) => id === remembered) ?? CellColorPicker.MostCommon;
+  }
+  private defaultOptions(candidate: Candidate) {
+    return {
+      ...defaultPixelationSettings(candidate.pixels, candidate.grid),
+      colorPicker: this.importColorPicker(),
+      // Import sizes the output from the target dimensions and lets the colour rule pick each block.
+      blockPicker: true,
+    };
+  }
   private offerCandidate(candidate: Candidate): SessionOutcome {
+    const pref = this.ports.getImportPreference?.();
+    if (pref) {
+      if (pref.choice === "always-import-as-is")
+        return this.install(
+          candidate.pixels,
+          candidate.name,
+          true,
+          candidate.project?.palette,
+          true,
+          candidate.project,
+          candidate.recentIdentity ?? null,
+          candidate.recentAlias ?? null,
+        );
+      if (pref.choice === "always-pixelate") {
+        this.candidate = candidate;
+        this.publish({
+          busy: false,
+          replacement: null,
+          pendingImport: {
+            sourcePalette: candidate.sourcePalette,
+            grid: candidate.grid ?? null,
+            algorithm: this.importAlgorithm(),
+            pixels: candidate.pixels,
+            name: candidate.name,
+            width: candidate.pixels.width,
+            height: candidate.pixels.height,
+            classification: candidate.classification,
+          },
+          pixelationOptions: this.defaultOptions(candidate),
+          pixelationPreview: null,
+          pixelationPalette: [],
+          pixelationError: null,
+        });
+        void this.previewPixelation();
+        void this.pixelate();
+        return SessionOutcome.Pending;
+      }
+    }
     if (
       candidate.classification === PixelArtClassification.LikelyPixelArt &&
-      !candidate.grid?.reliable
+      !candidate.grid?.reliable &&
+      !pref
     )
       return this.install(
         candidate.pixels,
@@ -555,13 +622,14 @@ export class EditorSession<Source> {
       pendingImport: {
         sourcePalette: candidate.sourcePalette,
         grid: candidate.grid ?? null,
+        algorithm: this.importAlgorithm(),
         pixels: candidate.pixels,
         name: candidate.name,
         width: candidate.pixels.width,
         height: candidate.pixels.height,
         classification: candidate.classification,
       },
-      pixelationOptions: defaultPixelationSettings(candidate.pixels, candidate.grid),
+      pixelationOptions: this.defaultOptions(candidate),
       pixelationPreview: null,
       pixelationPalette: [],
       pixelationError: null,
@@ -644,6 +712,53 @@ export class EditorSession<Source> {
       pixelationPalette: [],
     });
     void this.previewPixelation();
+  }
+  /**
+   * Switch the grid algorithm for the pending import: detect with that registry entry, then preview
+   * what it recovers. A grid that is not reliable falls back to the plain Convert (resize) preview.
+   */
+  async setImportAlgorithm(algorithm: PixelationAlgorithm, size?: PixelationSize): Promise<void> {
+    const pending = this.state.pendingImport;
+    const candidate = this.candidate;
+    if (this.disposed || this.state.busy || !candidate || !pending) return;
+    if (!getAllAlgorithms().includes(algorithm)) return;
+    const version = ++this.algorithmVersion,
+      generation = this.generation;
+    this.publish({
+      pendingImport: { ...pending, algorithm },
+      pixelationPreview: null,
+      pixelationPalette: [],
+      pixelationPreviewing: true,
+      pixelationError: null,
+    });
+    try {
+      const { grid } = await this.ports.analyze(candidate.pixels, { algorithm, size });
+      if (!this.valid(generation) || version !== this.algorithmVersion) return;
+      this.candidate = { ...candidate, grid };
+      const current = this.state.pendingImport;
+      this.publish({
+        pendingImport: current ? { ...current, grid, algorithm } : current,
+        pixelationOptions: updatePixelationSettings(
+          this.state.pixelationOptions,
+          grid.reliable
+            ? {
+                mode: PixelationMode.RecoverGrid,
+                autoGrid: true,
+                gridCellWidth: grid.cellWidth,
+                gridCellHeight: grid.cellHeight,
+              }
+            : { mode: PixelationMode.Convert },
+          candidate.pixels,
+        ),
+      });
+      void this.previewPixelation();
+    } catch (reason) {
+      if (this.valid(generation) && version === this.algorithmVersion)
+        this.publish({
+          pixelationPreviewing: false,
+          pixelationError: reason instanceof Error ? reason.message : String(reason),
+        });
+    }
   }
   private async previewPixelation() {
     const candidate = this.candidate;

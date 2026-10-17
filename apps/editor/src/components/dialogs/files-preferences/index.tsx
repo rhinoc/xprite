@@ -76,7 +76,10 @@ export function FilesPreferences({
       bounds={narrowLayout ? box(358, mobileY, 333, 16) : box(600, y, 91, 16)}
       relativeTo={client}
       value={String(value)}
-      options={options.map(([value, label]) => ({ value: String(value), label }))}
+      options={options.map(([value, label]) => ({
+        value: String(value),
+        label,
+      }))}
       disabled={disabled}
       onValueChange={(value) => change(Number(value))}
     />
@@ -111,7 +114,10 @@ export function FilesPreferences({
         ],
         136,
         152,
-        (value) => onFilePreferencesChange({ saveDefaultExtension: value as SaveFileExtension }),
+        (value) =>
+          onFilePreferencesChange({
+            saveDefaultExtension: value as SaveFileExtension,
+          }),
       )}
       {extensionCombo(
         "File > Export (one image):",
@@ -126,7 +132,9 @@ export function FilesPreferences({
         156,
         188,
         (value) =>
-          onFilePreferencesChange({ imageDefaultExtension: value as ImageExportExtension }),
+          onFilePreferencesChange({
+            imageDefaultExtension: value as ImageExportExtension,
+          }),
       )}
       {extensionCombo(
         "File > Export (animation):",
@@ -139,7 +147,9 @@ export function FilesPreferences({
         176,
         224,
         (value) =>
-          onFilePreferencesChange({ animationDefaultExtension: value as AnimationExportExtension }),
+          onFilePreferencesChange({
+            animationDefaultExtension: value as AnimationExportExtension,
+          }),
       )}
       {extensionCombo(
         "File > Export Sprite Sheet:",
@@ -225,6 +235,16 @@ export function FilesPreferences({
         onCheckedChange={noop}
       />
       {combo("Keep closed sprite on memory for", 321, 15, intervals, true, noop, 452)}
+
+      {/* The only import setting: whether to be asked. Last picks are remembered automatically. */}
+      <PreferencesCheckbox
+        label={tUi("import.preferences.ask")}
+        checked={filePreferences.importAsk}
+        bounds={narrowLayout ? box(358, 476, 333, 16) : box(358, 345, 333, 16)}
+        relativeTo={client}
+        disabled={!filePreferencesEnabled}
+        onCheckedChange={(importAsk) => onFilePreferencesChange({ importAsk })}
+      />
     </>
   );
 }

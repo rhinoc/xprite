@@ -90,11 +90,14 @@ export function createBrowserPixelationPort(): PixelationPort {
       if (!response.ok) throw new Error("The example is unavailable.");
       return new File([await response.blob()], "young-hare.jpg");
     },
-    detectGrid(image) {
-      return request({ operation: PixelationWorkerOperation.DetectGrid, image }, (response) => {
-        if (!("grid" in response)) throw new Error("Unable to detect the pixel grid.");
-        return response.grid;
-      });
+    detectGrid(image, algorithm) {
+      return request(
+        { operation: PixelationWorkerOperation.DetectGrid, image, algorithm },
+        (response) => {
+          if (!("grid" in response)) throw new Error("Unable to detect the pixel grid.");
+          return response.grid;
+        },
+      );
     },
     convert(image, options: PixelateOptions) {
       return request(

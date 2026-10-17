@@ -27,6 +27,10 @@ export interface PixelArtAnalysisOptions {
   userOverride?: PixelArtClassification | null;
   /** Bound work for very large photographs while retaining deterministic sampling. */
   maxSamplePixels?: number;
+  /** Grid detection algorithm; Auto when omitted. */
+  algorithm?: PixelationAlgorithm;
+  /** Output size for entries that take one (Custom size); ignored by the others. */
+  size?: PixelationSize;
 }
 
 export interface PixelArtAnalysis {
@@ -60,6 +64,31 @@ export enum PixelationMode {
   Convert = "convert",
   RecoverGrid = "recover-grid",
 }
+
+export enum PixelationAlgorithm {
+  Auto = "auto",
+  EdgeGrid = "edge-grid",
+  UniformGrid = "uniform-grid",
+  /** The user names the output size; the image is split into that many even blocks. */
+  CustomSize = "custom-size",
+  Resize = "resize",
+}
+
+/** How one colour is chosen for each grid cell, independent of how the grid was found. */
+export enum CellColorPicker {
+  MostCommon = "most-common",
+  Average = "average",
+  Median = "median",
+  KMeans = "k-means",
+  Contrast = "contrast",
+  Nearest = "nearest",
+}
+
+export enum ImportDialogChoice {
+  AlwaysAsk = "always-ask",
+  AlwaysImportAsIs = "always-import-as-is",
+  AlwaysPixelate = "always-pixelate",
+}
 export interface PixelGridGeometry {
   width: number;
   height: number;
@@ -67,10 +96,15 @@ export interface PixelGridGeometry {
   cellHeight: number;
   offsetX: number;
   offsetY: number;
+  /** Explicit cell boundaries (pixel indices, first 0, last = image size) for irregular grids. */
+  cutsX?: readonly number[];
+  cutsY?: readonly number[];
 }
 export interface PixelGridAnalysis extends PixelGridGeometry {
   confidence: number;
   reliable: boolean;
+  /** Registry entry that produced this analysis. */
+  algorithm?: PixelationAlgorithm;
 }
 
 export interface PixelationSize {
@@ -80,10 +114,15 @@ export interface PixelationSize {
 
 export interface PixelateOptions {
   mode?: PixelationMode;
+  algorithm?: PixelationAlgorithm;
+  /** Per-cell colour rule when a grid is recovered; MostCommon when omitted. */
+  colorPicker?: CellColorPicker;
   grid?: PixelGridGeometry;
   outlineStrength?: number;
   /** Sampling rule used to choose one representative color per output cell. */
   method?: PixelationMethod;
+  /** Split the image into even blocks of the target size and let `colorPicker` choose each colour (instead of `method`). */
+  blockPicker?: boolean;
   /** The low-resolution dimensions to generate. */
   targetWidth?: number;
   targetHeight?: number;
@@ -119,6 +158,7 @@ export interface PixelationSettings {
   mode: PixelationMode;
   reduceColors: boolean;
   outlineStrength: number;
+  colorPicker: CellColorPicker;
   autoGrid: boolean;
   gridCellWidth: number;
   gridCellHeight: number;
@@ -126,9 +166,17 @@ export interface PixelationSettings {
   targetHeight: number;
   maxColors: number;
   method: PixelationMethod;
+  /** Colour each target-size block with `colorPicker` rather than resampling with `method`. */
+  blockPicker: boolean;
   preserveDimensions: boolean;
   removeNoise: boolean;
   lockAspectRatio: boolean;
   palette: readonly Rgba[] | null;
   paletteName: string;
+}
+
+export interface ImportDialogPreference {
+  choice: ImportDialogChoice;
+  algorithm: PixelationAlgorithm;
+  colorPicker: CellColorPicker;
 }

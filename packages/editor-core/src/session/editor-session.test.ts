@@ -295,6 +295,7 @@ describe("editor-session", () => {
       // The pending import also carries the decoded pixels, any detected grid and source palette.
       const { pixels, grid, sourcePalette, ...metadata } = state.pendingImport;
       assert.deepEqual(metadata, {
+        algorithm: "auto",
         name: "Imported",
         width: 80,
         height: 40,

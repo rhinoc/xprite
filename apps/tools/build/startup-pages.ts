@@ -4,8 +4,6 @@ import { dirname, extname, isAbsolute, resolve } from "node:path";
 
 import type { Plugin, ViteDevServer } from "vite";
 
-import { SITE_LANGUAGE_PREFERENCE_KEY } from "@xprite/site-shell/language-preference";
-
 import { publicDesktopStartupScript } from "../../../infra/public-desktop-startup.ts";
 import { cursorStylesheet, type SsgAsset } from "../../../infra/react-ssg-renderer.ts";
 import { prependSiteHeadContent, VISUALLY_HIDDEN_STYLE } from "../../../infra/site-html.ts";
@@ -24,6 +22,7 @@ import {
 } from "../../growth/content/tools/index.ts";
 import { createSsgRenderer } from "./ssg-renderer.ts";
 
+const SITE_LANGUAGE_PREFERENCE_KEY = "xse.ui.language.v1";
 const ASSET_PATH = "/ssg-assets/";
 const PUBLIC_ASSET_PATH = `/tools${ASSET_PATH}`;
 const ASSET_TYPES: Readonly<Record<string, string>> = {

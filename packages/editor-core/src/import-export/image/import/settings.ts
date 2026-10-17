@@ -1,6 +1,7 @@
 import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { manualPixelGrid, MAX_GRID_CELL_SIZE } from "$/import-export/image/import/grid";
 import {
+  CellColorPicker,
   PixelationMethod,
   PixelationMode,
   type PixelGridAnalysis,
@@ -29,6 +30,7 @@ export function defaultPixelationSettings(
     mode: grid?.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
     reduceColors: !grid?.reliable,
     outlineStrength: 0,
+    colorPicker: CellColorPicker.MostCommon,
     autoGrid: true,
     gridCellWidth: grid?.reliable ? grid.cellWidth : 8,
     gridCellHeight: grid?.reliable ? grid.cellHeight : 8,
@@ -36,6 +38,7 @@ export function defaultPixelationSettings(
     targetHeight: Math.max(1, Math.round(image.height * scale)),
     maxColors: DEFAULT_COLORS,
     method: PixelationMethod.Structure,
+    blockPicker: false,
     preserveDimensions: false,
     removeNoise: false,
     lockAspectRatio: true,
@@ -103,11 +106,13 @@ export function pixelationSettingsOptions(
   return {
     mode: settings.mode,
     grid,
+    colorPicker: settings.colorPicker,
     outlineStrength: settings.mode === PixelationMode.Convert ? settings.outlineStrength : 0,
     targetWidth: settings.targetWidth,
     targetHeight: settings.targetHeight,
     maxColors: settings.reduceColors && !palette ? settings.maxColors : undefined,
     method: settings.method,
+    blockPicker: settings.blockPicker,
     preserveDimensions: settings.preserveDimensions,
     removeNoise: settings.removeNoise,
     alphaMode: "premultiplied",

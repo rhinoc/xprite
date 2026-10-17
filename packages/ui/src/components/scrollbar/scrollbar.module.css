@@ -109,3 +109,46 @@
 .scrollbar[aria-orientation="horizontal"] .classicThumb {
   border-width: 2px 1px;
 }
+
+/* The real scrollbar clips its artwork to the bar's bounds. */
+.thumbArtwork {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Standalone thumbs (ScrollbarThumb): same skin and grip as the scrollbar's own thumb. */
+.thumbStandalone,
+.compactThumbStandalone,
+.classicThumbStandalone {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+}
+.compactThumbStandalone {
+  border-style: solid;
+  border-color: var(--xse-border);
+  background: var(--ui-theme-paper, var(--xse-window));
+}
+.classicThumbStandalone {
+  border: 1px solid var(--xse-border);
+  border-width: 1px 2px;
+  background: var(--xse-window);
+}
+.thumbStandalone::after,
+.compactThumbStandalone::after,
+.classicThumbStandalone::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 8px;
+  max-width: calc(100% - 4px);
+  max-height: calc(100% - 4px);
+  transform: translate(-50%, -50%);
+  background-image: var(--ui-scrollbar-thumb-grip, none);
+}
+.compactThumbStandalone[data-hovered="true"] {
+  background: var(--ui-theme-wash, var(--xse-window));
+}

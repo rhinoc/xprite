@@ -20,6 +20,7 @@
   "/components/pan-surface",
   "/components/scroll-area",
   "/components/scrollbar",
+  "/components/scrollbar-thumb",
   "/components/splitter",
   "/components/status-bar",
   "/components/window-workspace",

@@ -229,7 +229,7 @@ const MAX_TIMELINE_FIRST_FRAME = 2147483647;
 const narrowContentEnds: Record<string, readonly [number, number]> = {
   General: [424, 9],
   Cursors: [416, 17],
-  Files: [452, 16],
+  Files: [476, 16],
   Editor: [336, 16],
   "Guides & Slices": [233, 17],
   Undo: [193, 16],

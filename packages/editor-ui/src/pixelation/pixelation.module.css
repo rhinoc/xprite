@@ -23,7 +23,7 @@
 }
 .stage {
   position: relative;
-  height: 260px;
+  height: var(--pixelation-stage-height, 260px);
   width: 100%;
   overflow: hidden;
   background: var(--ui-color-canvas);
@@ -35,7 +35,7 @@
 }
 @media (max-width: 600px) {
   .stage {
-    height: 180px;
+    height: var(--pixelation-stage-height-narrow, 180px);
   }
 }
 

@@ -2,17 +2,25 @@ import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { assertDimension, assertPixelBuffer } from "$/document/pixel-validation";
 import { protectPixelationContours } from "$/import-export/image/import/contours";
 import { smoothPixelation } from "$/import-export/image/import/denoise";
-import {
-  detectPixelGrid,
-  pixelGridCuts,
-  MAX_RECOVERED_GRID_SIZE,
-} from "$/import-export/image/import/grid";
+import { blockPartition } from "$/import-export/image/import/grid";
 import { resizeMostFrequent } from "$/import-export/image/import/most-frequent";
 import { reduceToPalette, extractPixelationPalette } from "$/import-export/image/import/palette";
+import {
+  detectWithAlgorithm,
+  recoverWithGrid,
+} from "$/import-export/image/import/pixelation-algorithm-registry";
 import { resizeBox, resizeNearest } from "$/import-export/image/import/resize";
 import { samplePixelation } from "$/import-export/image/import/sampling";
-import { PixelationMethod, PixelationMode } from "$/import-export/image/import/types";
-import type { PixelateOptions, PixelationSize } from "$/import-export/image/import/types";
+import {
+  PixelationMethod,
+  PixelationMode,
+  PixelationAlgorithm,
+} from "$/import-export/image/import/types";
+import type {
+  PixelateOptions,
+  PixelationSize,
+  PixelGridAnalysis,
+} from "$/import-export/image/import/types";
 
 const WORKING_SCALE = 4;
 const MAX_WORKING_PIXELS = 1_048_576;
@@ -34,34 +42,49 @@ function prepareSource(
       : resizeBox(image, width, height, "premultiplied");
   return protectPixelationContours(working, outlineStrength);
 }
+function uniformBlocks(image: PixelBuffer, target: PixelationSize): PixelGridAnalysis {
+  return {
+    ...blockPartition(image, target.width, target.height),
+    confidence: 1,
+    reliable: true,
+    algorithm: PixelationAlgorithm.UniformGrid,
+  };
+}
 function sampleImage(
   image: PixelBuffer,
   options: PixelateOptions,
   method: PixelationMethod,
 ): PixelBuffer {
-  const mode = options.mode ?? PixelationMode.Convert;
+  // Grid recovery runs when asked for, or when only an algorithm was named and it finds a reliable grid.
+  const wantsGrid =
+    options.mode === PixelationMode.RecoverGrid ||
+    (options.mode === undefined && options.algorithm !== undefined);
+  const grid =
+    options.grid ??
+    (wantsGrid
+      ? detectWithAlgorithm(image, options.algorithm ?? PixelationAlgorithm.Auto)
+      : undefined);
+  const mode =
+    options.mode ??
+    (grid && (!("reliable" in grid) || grid.reliable)
+      ? PixelationMode.RecoverGrid
+      : PixelationMode.Convert);
   if (mode !== PixelationMode.Convert && mode !== PixelationMode.RecoverGrid)
     throw new RangeError("Unknown pixelation mode.");
   if (mode === PixelationMode.RecoverGrid) {
-    const grid = options.grid ?? detectPixelGrid(image);
-    if ("reliable" in grid && !grid.reliable)
+    const found = grid ?? detectWithAlgorithm(image, options.algorithm ?? PixelationAlgorithm.Auto);
+    if ("reliable" in found && !found.reliable)
       throw new Error(
         "No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.",
       );
-    const x = pixelGridCuts(image.width, grid.cellWidth, grid.offsetX),
-      y = pixelGridCuts(image.height, grid.cellHeight, grid.offsetY);
-    const width = x.length - 1,
-      height = y.length - 1;
-    if (width > MAX_RECOVERED_GRID_SIZE || height > MAX_RECOVERED_GRID_SIZE)
-      throw new RangeError("Choose larger cells to restore this image.");
-    if (grid.width !== width || grid.height !== height)
-      throw new RangeError("The grid no longer matches this image.");
-    return samplePixelation(image, width, height, PixelationMethod.Dominant, { x, y });
+    return recoverWithGrid(image, found, options.colorPicker);
   }
   const target = resolveTargetSize(image, options);
   const strength = options.outlineStrength ?? 0;
   if (!Number.isFinite(strength) || strength < 0 || strength > MAX_OUTLINE_STRENGTH)
     throw new RangeError("Outline protection must be between 0 and 100.");
+  if (options.blockPicker)
+    return recoverWithGrid(image, uniformBlocks(image, target), options.colorPicker);
   const alphaMode = options.alphaMode ?? "straight";
   if (alphaMode !== "straight" && alphaMode !== "premultiplied")
     throw new RangeError("alphaMode must be 'straight' or 'premultiplied'");
