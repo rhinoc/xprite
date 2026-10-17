@@ -1,3 +1,10 @@
+/* Shared flow chrome: New in the stage title bar, Export bottom right, then the adjust panel. */
+.titleNew {
+  --ui-button-quiet-min-height: var(--ui-panel-window-title-height, 16px);
+  --ui-button-quiet-line-height: var(--ui-panel-window-title-line-height, 12px);
+  --ui-button-quiet-padding: 0 var(--ui-space-2, 4px);
+}
+
 /* Shared flow chrome: the Export button in the stage window's bottom right, then the adjust panel. */
 .exportFooter {
   flex: 0 0 auto;

@@ -163,6 +163,7 @@ export function FileToolShell({
               onExport: () => setExportOpen(true),
               onEditMore: flow.editMore && editMoreRun,
               editMoreDisabled,
+              onNew: onReset,
             }
           : undefined
       }

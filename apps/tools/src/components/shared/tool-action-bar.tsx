@@ -1,7 +1,7 @@
 import { createContext, useContext, type ReactNode } from "react";
 
 import { useToolTranslation } from "$/managers/locale/tool-language";
-import { Button, FontRole } from "@xprite/ui";
+import { Button, ButtonAppearance, FontRole, Icon, IconKind, IconSize } from "@xprite/ui";
 
 import styles from "$/components/shared/tool-flow.module.css";
 
@@ -15,6 +15,8 @@ export interface ToolActionBarProps {
   /** Present when the tool can hand its result to the editor as a new project. */
   onEditMore?(): void;
   editMoreDisabled?: boolean;
+  /** Return the tool to its empty import step on this page (Mac OS 8 “New”). */
+  onNew?(): void;
 }
 
 const ToolActionBarContext = createContext<ToolActionBarProps | undefined>(undefined);
@@ -91,4 +93,21 @@ export function ToolDefaultButton({
 export function ToolStageFooter(): ReactNode {
   const props = useContext(ToolActionBarContext);
   return props ? <ToolActionBar {...props} /> : null;
+}
+
+/** Title-bar control on the stage window: same “New” action as the desktop icon and File ▸ New. */
+export function ToolStageTitleExtra(): ReactNode {
+  const props = useContext(ToolActionBarContext);
+  const t = useToolTranslation();
+  if (!props?.onNew) return null;
+  return (
+    <Button
+      appearance={ButtonAppearance.Quiet}
+      className={styles.titleNew}
+      slots={{ leading: <Icon kind={IconKind.Document} size={IconSize.Small} /> }}
+      aria-label={t("Open another file")}
+      title={t("New")}
+      onClick={props.onNew}
+    />
+  );
 }

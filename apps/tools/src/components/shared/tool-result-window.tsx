@@ -1,6 +1,6 @@
 import { useRef, useState, type ReactNode } from "react";
 
-import { ToolStageFooter } from "$/components/shared/tool-action-bar";
+import { ToolStageFooter, ToolStageTitleExtra } from "$/components/shared/tool-action-bar";
 import { useToolWindowShade } from "$/components/shared/window-shade";
 import {
   Panel,
@@ -53,6 +53,7 @@ export function ToolResultWindow({
         variant={PanelVariant.Document}
         emphasized
         title={title}
+        extra={<ToolStageTitleExtra />}
         contentLayout={ContentLayout.Fill}
         contentPadding={ContentPadding.Compact}
         className={styles.resultWindow}
