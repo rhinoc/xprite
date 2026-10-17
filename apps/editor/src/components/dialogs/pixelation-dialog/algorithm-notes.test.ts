@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  algorithmHintKey,
   algorithmLabelKey,
   algorithmNoteKey,
-  colorPickerHintKey,
   colorPickerLabelKey,
 } from "$/components/dialogs/pixelation-dialog/algorithm-notes";
 import {
@@ -31,11 +29,5 @@ describe("import dialog algorithm copy", () => {
   it("has a distinct label for every colour picker", () => {
     const labels = getAllColorPickers().map(colorPickerLabelKey);
     expect(new Set(labels).size).toBe(labels.length);
-  });
-  it("has a hint for every algorithm and picker", () => {
-    for (const algorithm of getAllAlgorithms())
-      expect(algorithmHintKey(algorithm)).toMatch(/^import\.hint\./);
-    for (const picker of getAllColorPickers())
-      expect(colorPickerHintKey(picker)).toMatch(/^import\.hint\./);
   });
 });

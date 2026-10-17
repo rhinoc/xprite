@@ -7,7 +7,7 @@ import {
   type PointerEvent,
 } from "react";
 
-import { ScrollbarThumb, type CanvasPixelSource } from "@xprite/ui";
+import { ScrollbarStyle, ScrollbarThumb, type CanvasPixelSource } from "@xprite/ui";
 import { clientPoint, clientRect } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/pixelation-dialog/import-compare.module.css";
@@ -46,11 +46,14 @@ export function ImportCompare({
   width,
   height,
   labels,
+  comparing = true,
 }: {
   original: CanvasPixelSource;
   result: CanvasPixelSource | null;
   width: number;
   height: number;
+  /** False shows only the original: no result layer, divider or handle. */
+  comparing?: boolean;
   labels: {
     original: string;
     result: string;
@@ -87,8 +90,13 @@ export function ImportCompare({
       <div
         ref={box}
         className={styles.stage}
-        style={{ width: stageWidth, height: stageHeight }}
+        style={{
+          width: stageWidth,
+          height: stageHeight,
+          ...(comparing ? {} : { cursor: "default" }),
+        }}
         onPointerDown={(event) => {
+          if (!comparing) return;
           dragging.current = true;
           event.preventDefault();
           bar.current?.focus({ preventScroll: true });
@@ -104,35 +112,41 @@ export function ImportCompare({
         ) : (
           <div className={styles.waiting}>{labels.preparing}</div>
         )}
-        {right && (
+        {comparing && right && (
           <PixelCanvas
             pixels={right}
             className={styles.layer}
             style={{ clipPath: `inset(0 0 0 ${split}%)` }}
           />
         )}
-        <div
-          ref={bar}
-          className={styles.bar}
-          style={{ left: `${split}%` }}
-          role="slider"
-          tabIndex={0}
-          aria-label={labels.slider}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round(split)}
-          onKeyDown={onKey}
-          onPointerEnter={() => setHot(true)}
-          onPointerLeave={() => setHot(false)}
-          onFocus={() => setHot(true)}
-          onBlur={() => setHot(false)}
-        >
-          <ScrollbarThumb className={styles.grip} hovered={hot} />
-        </div>
+        {comparing && (
+          <div
+            ref={bar}
+            className={styles.bar}
+            style={{ left: `${split}%` }}
+            role="slider"
+            tabIndex={0}
+            aria-label={labels.slider}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(split)}
+            onKeyDown={onKey}
+            onPointerEnter={() => setHot(true)}
+            onPointerLeave={() => setHot(false)}
+            onFocus={() => setHot(true)}
+            onBlur={() => setHot(false)}
+          >
+            <ScrollbarThumb
+              className={styles.grip}
+              hovered={hot}
+              scrollbarStyle={ScrollbarStyle.Classic}
+            />
+          </div>
+        )}
       </div>
       {/* Anchored to the frame, not the (aspect-fitted, possibly narrow) stage, so they never clip. */}
       <span className={`${styles.tag} ${styles.tagLeft}`}>{leftLabel}</span>
-      <span className={`${styles.tag} ${styles.tagRight}`}>{rightLabel}</span>
+      {comparing && <span className={`${styles.tag} ${styles.tagRight}`}>{rightLabel}</span>}
     </div>
   );
 }

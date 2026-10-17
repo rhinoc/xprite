@@ -3,13 +3,12 @@ import { useRef, useState } from "react";
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
 import {
-  algorithmHintKey,
   algorithmLabelKey,
   algorithmNoteKey,
-  colorPickerHintKey,
   colorPickerLabelKey,
 } from "$/components/dialogs/pixelation-dialog/algorithm-notes";
 import { ImportCompare } from "$/components/dialogs/pixelation-dialog/import-compare";
+import { IconControl } from "$/components/shared/icon-control";
 import { tUiSource, useUiLanguage } from "$/i18n";
 import {
   getAllAlgorithms,
@@ -58,7 +57,7 @@ const PREVIEW_MIN = 72;
 const GAP = 8;
 const SECTION_HEIGHT = 22;
 const OPTION_HEIGHT = 34;
-const HINT_HEIGHT = 46;
+const HINT_HEIGHT = 58;
 const ROW_HEIGHT = 24;
 const FIELD_LABEL_HEIGHT = 14;
 const COMBO_HEIGHT = 30;
@@ -135,11 +134,12 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     value: algorithm,
     label: tUiSource(algorithmLabelKey(algorithm)),
   }));
+  /** Only errors and "no grid found" notices; everything else the labels already say. */
   const message = workflow.pixelationError
     ? tUiSource(workflow.pixelationError)
     : pixelate && noteKey
       ? tUiSource(noteKey)
-      : tUiSource(pixelate ? "import.dialog.hint.pixelate" : "import.dialog.hint.keep");
+      : null;
 
   return (
     <EditorDialog
@@ -158,14 +158,14 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     >
       {({ clientBounds: client }) => {
         const width = client.width;
+        const hintHeight = message ? HINT_HEIGHT + GAP : 0;
         const advancedHeight = showAdvanced ? 2 * (FIELD_LABEL_HEIGHT + 2 + COMBO_HEIGHT + GAP) : 0;
         const bottomStack =
           SECTION_HEIGHT +
           4 +
           OPTION_HEIGHT +
           GAP +
-          HINT_HEIGHT +
-          GAP +
+          hintHeight +
           ROW_HEIGHT +
           GAP +
           advancedHeight +
@@ -183,7 +183,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const half = Math.round(width / 2);
         const optionY = y;
         y += OPTION_HEIGHT + GAP;
-        const hintBounds = at(HINT_HEIGHT, GAP);
+        const hintBounds = message ? at(HINT_HEIGHT, GAP) : null;
         const advancedRow = at(ROW_HEIGHT, GAP);
         const algorithmLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT, 2) : null;
         const algorithmCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
@@ -228,6 +228,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 result={workflow.pixelationPreview}
                 width={width}
                 height={previewHeight}
+                comparing={pixelate}
                 labels={{
                   original: tUiSource("import.dialog.original"),
                   result: tUiSource("import.dialog.result.label"),
@@ -243,22 +244,29 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
             />
             {option("pixelate", tUiSource("import.dialog.pixelate"), 0, half + 1)}
             {option("import-as-is", tUiSource("import.dialog.import.as.is"), half, width - half)}
-            <Text
-              variant={TextVariant.Control}
-              text={message}
-              wrap
-              bounds={hintBounds}
+            {message && hintBounds && (
+              <Text
+                variant={TextVariant.Control}
+                text={message}
+                wrap
+                bounds={hintBounds}
+                relativeTo={client}
+              />
+            )}
+            {/* Same toggle as the user data one in Sprite/Slice/Tag properties. */}
+            <IconControl
+              bounds={{ ...advancedRow, width: 30 }}
               relativeTo={client}
-            />
-            <Button
-              aria-label={tUiSource("import.dialog.advanced")}
-              aria-expanded={showAdvanced}
-              text={tUiSource("import.dialog.advanced")}
-              icon={showAdvanced ? "icon_arrow_down" : undefined}
-              selected={showAdvanced}
+              icon="icon_arrow_down"
+              label={tUiSource("import.dialog.advanced")}
+              expanded={showAdvanced}
               disabled={!pixelate}
               onClick={() => setAdvanced((value) => !value)}
-              bounds={{ ...advancedRow, width: 120 }}
+            />
+            <Text
+              variant={TextVariant.Control}
+              text={tUiSource("import.dialog.advanced")}
+              bounds={{ ...advancedRow, x: advancedRow.x + 36, width: 120 }}
               relativeTo={client}
             />
             {algorithmLabel && algorithmCombo && pickerLabel && pickerCombo && (
@@ -271,7 +279,6 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 />
                 <Combobox
                   aria-label={tUiSource("import.dialog.algorithm")}
-                  title={tUiSource(algorithmHintKey(selectedAlgorithm))}
                   bounds={algorithmCombo}
                   relativeTo={client}
                   value={selectedAlgorithm}
@@ -289,7 +296,6 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 />
                 <Combobox
                   aria-label={tUiSource("import.dialog.color.picker")}
-                  title={tUiSource(colorPickerHintKey(colorPicker))}
                   bounds={pickerCombo}
                   relativeTo={client}
                   value={colorPicker}

@@ -10,16 +10,27 @@ export interface ScrollbarThumbProps {
   hovered?: boolean;
   className?: string;
   style?: CSSProperties;
+  /** Force a scrollbar skin regardless of theme; Classic is the plain bordered thumb. */
+  scrollbarStyle?: ScrollbarStyle;
 }
 
 /**
  * The same thumb artwork `Scrollbar` paints (vertical orientation), for controls that must look
  * like a scrollbar thumb but are not scrolling anything. Position and size come from the caller.
  */
-export function ScrollbarThumb({ hovered = false, className, style }: ScrollbarThumbProps) {
+export function ScrollbarThumb({
+  hovered = false,
+  className,
+  style,
+  scrollbarStyle,
+}: ScrollbarThumbProps) {
   const { definition } = useTheme();
-  const compactThumb = definition.controlParts?.scrollbar?.compactThumb;
-  const classic = definition.controlParts?.scrollbar?.areaStyle === ScrollbarStyle.Classic;
+  const compactThumb =
+    scrollbarStyle === ScrollbarStyle.Classic
+      ? undefined
+      : definition.controlParts?.scrollbar?.compactThumb;
+  const classic =
+    (scrollbarStyle ?? definition.controlParts?.scrollbar?.areaStyle) === ScrollbarStyle.Classic;
   const cls = (base: string) => (className ? `${base} ${className}` : base);
   if (classic)
     return <span aria-hidden="true" className={cls(styles.classicThumbStandalone)} style={style} />;
