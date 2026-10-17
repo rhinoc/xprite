@@ -32,13 +32,23 @@ export function ScrollbarThumb({ hovered = false, className, style }: ScrollbarT
         style={{ ...style, borderWidth: compactThumb.borderWidth }}
       />
     );
+  // Atlas themes draw the thumb outline and bevel with the track artwork, not the thumb part, so
+  // paint track then thumb exactly like Scrollbar does (the thumb fills the whole track here).
   return (
-    <ThemePart
-      part={hovered ? "mini_scrollbar_thumb_hot" : "mini_scrollbar_thumb"}
-      scale={2}
-      drawCenter
-      className={cls(styles.thumbStandalone)}
-      style={style}
-    />
+    <span aria-hidden="true" className={cls(styles.thumbStandalone)} style={style}>
+      <ThemePart
+        part={hovered ? "mini_scrollbar_bg_hot" : "mini_scrollbar_bg"}
+        scale={2}
+        drawCenter
+        className={styles.track}
+      />
+      <ThemePart
+        part={hovered ? "mini_scrollbar_thumb_hot" : "mini_scrollbar_thumb"}
+        scale={2}
+        drawCenter
+        className={styles.thumb}
+        style={{ left: 0, top: 0, width: "100%", height: "100%" }}
+      />
+    </span>
   );
 }
