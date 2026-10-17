@@ -372,10 +372,14 @@ export class ShortcutManager {
       return null;
     return fallback;
   }
-  setPressedKey(key: string, pressed: boolean, editingText = false) {
-    if (pressed && editingText && !MODIFIER_KEYS.has(key.toLowerCase())) return;
-    if (pressed) this.pressedKeys.add(key.toLowerCase());
-    else this.pressedKeys.delete(key.toLowerCase());
+  setPressedKey(key: string | null | undefined, pressed: boolean, editingText = false) {
+    // Safari (and some synthetic key events) can deliver keydown/keyup with an
+    // undefined key; calling toLowerCase then throws TypeError (PostHog 01a1208d…).
+    if (!key) return;
+    const normalized = key.toLowerCase();
+    if (pressed && editingText && !MODIFIER_KEYS.has(normalized)) return;
+    if (pressed) this.pressedKeys.add(normalized);
+    else this.pressedKeys.delete(normalized);
   }
   clearPressedKeys() {
     this.pressedKeys.clear();

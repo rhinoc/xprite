@@ -44,4 +44,16 @@ describe("brush shortcuts", () => {
     manager.clearPressedKeys();
     assert.equal(manager.isControlPressed(), false);
   });
+
+  it("ignores keydown/keyup with a missing key (Safari PostHog TypeError)", () => {
+    const manager = createManager();
+    assert.doesNotThrow(() => manager.setPressedKey(undefined, true));
+    assert.doesNotThrow(() => manager.setPressedKey(null, false));
+    assert.doesNotThrow(() => manager.setPressedKey("", true));
+    assert.equal(manager.isControlPressed(), false);
+    manager.setPressedKey("Control", true);
+    assert.equal(manager.isControlPressed(), true);
+    manager.setPressedKey(undefined, false);
+    assert.equal(manager.isControlPressed(), true);
+  });
 });
