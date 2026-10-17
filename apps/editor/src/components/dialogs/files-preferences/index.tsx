@@ -2,6 +2,7 @@ import type { MutableRefObject } from "react";
 
 import {
   PreferencesCheckbox,
+  PreferencesLabel,
   usePreferencesDialogNarrowLayout,
 } from "$/components/dialogs/preferences-dialog/preferences-dialog-layout";
 import { tUi } from "$/i18n";
@@ -79,7 +80,10 @@ export function FilesPreferences({
       bounds={narrowLayout ? box(358, mobileY, 333, 16) : box(600, y, 91, 16)}
       relativeTo={client}
       value={String(value)}
-      options={options.map(([value, label]) => ({ value: String(value), label }))}
+      options={options.map(([value, label]) => ({
+        value: String(value),
+        label,
+      }))}
       disabled={disabled}
       onValueChange={(value) => change(Number(value))}
     />
@@ -114,7 +118,10 @@ export function FilesPreferences({
         ],
         136,
         152,
-        (value) => onFilePreferencesChange({ saveDefaultExtension: value as SaveFileExtension }),
+        (value) =>
+          onFilePreferencesChange({
+            saveDefaultExtension: value as SaveFileExtension,
+          }),
       )}
       {extensionCombo(
         "File > Export (one image):",
@@ -129,7 +136,9 @@ export function FilesPreferences({
         156,
         188,
         (value) =>
-          onFilePreferencesChange({ imageDefaultExtension: value as ImageExportExtension }),
+          onFilePreferencesChange({
+            imageDefaultExtension: value as ImageExportExtension,
+          }),
       )}
       {extensionCombo(
         "File > Export (animation):",
@@ -142,7 +151,9 @@ export function FilesPreferences({
         176,
         224,
         (value) =>
-          onFilePreferencesChange({ animationDefaultExtension: value as AnimationExportExtension }),
+          onFilePreferencesChange({
+            animationDefaultExtension: value as AnimationExportExtension,
+          }),
       )}
       {extensionCombo(
         "File > Export Sprite Sheet:",
@@ -229,10 +240,15 @@ export function FilesPreferences({
       />
       {combo("Keep closed sprite on memory for", 321, 15, intervals, true, noop, 452)}
 
-      {/* Import preferences */}
+      {/* Import preferences: labelled rows directly under the recovery block, clear of the button row. */}
+      <PreferencesLabel
+        text={tUi("import.preferences.choice")}
+        bounds={narrowLayout ? box(358, 476, 333, 12) : box(358, 343, 100, 16)}
+        relativeTo={client}
+      />
       <Combobox
         aria-label={tUi("import.preferences.choice")}
-        bounds={narrowLayout ? box(358, 488, 333, 16) : box(459, 357, 232, 16)}
+        bounds={narrowLayout ? box(358, 492, 333, 16) : box(459, 343, 232, 16)}
         relativeTo={client}
         value={filePreferences.importDialogChoice}
         options={[
@@ -255,49 +271,39 @@ export function FilesPreferences({
         ]}
         disabled={!filePreferencesEnabled}
         onValueChange={(value) =>
-          onFilePreferencesChange({ importDialogChoice: value as ImportDialogChoice })
+          onFilePreferencesChange({
+            importDialogChoice: value as ImportDialogChoice,
+          })
         }
       />
-      {filePreferences.importDialogChoice === ImportDialogChoice.AlwaysPixelate && (
-        <Combobox
-          aria-label={tUi("import.preferences.algorithm")}
-          bounds={narrowLayout ? box(358, 524, 333, 16) : box(459, 381, 232, 16)}
-          relativeTo={client}
-          value={filePreferences.importPixelationAlgorithm || PixelationAlgorithm.Auto}
-          options={getAllAlgorithms().map((algorithm) => ({
-            value: algorithm,
-            label: tUi(`import.algorithm.${algorithm}`),
-          }))}
-          disabled={!filePreferencesEnabled}
-          onValueChange={(value) =>
-            onFilePreferencesChange({
-              importPixelationAlgorithm: value as PixelationAlgorithm,
-            })
-          }
-        />
-      )}
+      <PreferencesLabel
+        text={tUi("import.preferences.algorithm")}
+        bounds={narrowLayout ? box(358, 512, 333, 12) : box(358, 363, 100, 16)}
+        relativeTo={client}
+      />
+      <Combobox
+        aria-label={tUi("import.preferences.algorithm")}
+        bounds={narrowLayout ? box(358, 528, 333, 16) : box(459, 363, 232, 16)}
+        relativeTo={client}
+        value={filePreferences.importPixelationAlgorithm || PixelationAlgorithm.Auto}
+        options={getAllAlgorithms().map((algorithm) => ({
+          value: algorithm,
+          label: tUi(`import.algorithm.${algorithm}`),
+        }))}
+        disabled={
+          !filePreferencesEnabled ||
+          filePreferences.importDialogChoice !== ImportDialogChoice.AlwaysPixelate
+        }
+        onValueChange={(value) =>
+          onFilePreferencesChange({
+            importPixelationAlgorithm: value as PixelationAlgorithm,
+          })
+        }
+      />
       <Button
         aria-label={tUi("import.preferences.reset")}
         text={tUi("import.preferences.reset")}
-        bounds={
-          narrowLayout
-            ? box(
-                358,
-                filePreferences.importDialogChoice === ImportDialogChoice.AlwaysPixelate
-                  ? 560
-                  : 524,
-                120,
-                16,
-              )
-            : box(
-                571,
-                filePreferences.importDialogChoice === ImportDialogChoice.AlwaysPixelate
-                  ? 405
-                  : 381,
-                120,
-                16,
-              )
-        }
+        bounds={narrowLayout ? box(358, 552, 160, 16) : box(459, 383, 160, 16)}
         relativeTo={client}
         disabled={
           !filePreferencesEnabled ||

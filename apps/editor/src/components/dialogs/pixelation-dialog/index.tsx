@@ -25,7 +25,8 @@ import {
 } from "@xprite/ui";
 
 import styles from "$/components/dialogs/pixelation-dialog/pixelation-dialog.module.css";
-const BOUNDS = { x: 0, y: 0, width: 780, height: 800 };
+const BOUNDS = { x: 0, y: 0, width: 780, height: 480 };
+const ALGORITHM_WIDTH = 210;
 type Workflow = Pick<
   ReturnType<typeof useEditorWorkflows>,
   | "pending"
@@ -129,75 +130,83 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       }}
     >
       <div className={styles.body}>
-        <Text variant={TextVariant.Reading} wrap className={styles.useCaseDescription}>
-          {getUseCaseDescription()}
-        </Text>
-
-        <Field label={tUiSource("import.dialog.algorithm")} layout={FieldLayout.Inline}>
-          <Combobox
-            pixelWidth={200}
-            value={selectedAlgorithm}
-            aria-label={tUiSource("import.dialog.algorithm")}
-            disabled={workflow.busy}
-            options={algorithmOptions}
-            onValueChange={(value) => setSelectedAlgorithm(value as PixelationAlgorithm)}
-          />
-        </Field>
-
-        <div className={styles.preview}>
-          <PixelationComparison
-            stacked
-            mode={workflow.pixelationOptions.mode}
-            source={pending.pixels}
-            result={workflow.pixelationPreview}
-            preparing={workflow.pixelationPreviewing}
-            translate={tUiSource}
-          />
-        </div>
-        <div className={styles.settings}>
-          <PixelationControls
-            paletteResources={{
-              choices,
-              currentPalette: pending.sourcePalette,
-              previewPalette: workflow.pixelationPalette,
-              currentLabel: "Use current palette",
-              currentName: "Current palette",
-              sceneBounds,
-              refresh: () => setChoices(workflow.getPixelationPaletteChoices()),
-            }}
-            grid={pending.grid ?? undefined}
-            settings={workflow.pixelationOptions}
-            sourceSize={pending.pixels}
-            onChange={workflow.setPixelationOptions}
-            disabled={workflow.busy}
-            translate={tUiSource}
-          />
-        </div>
-        {workflow.pixelationError && (
-          <Text variant={TextVariant.Reading} role="alert" wrap>
-            {tUiSource(workflow.pixelationError)}
+        <div className={styles.content}>
+          <Text variant={TextVariant.Reading} wrap className={styles.useCaseDescription}>
+            {getUseCaseDescription()}
           </Text>
-        )}
-        <Checkbox
-          label={tUiSource("import.dialog.remember")}
-          checked={rememberChoice}
-          onCheckedChange={setRememberChoice}
-        />
-        <ControlFlow className={styles.actions}>
-          <Button slots={{}} text={tUiSource("Cancel")} onClick={workflow.discardEmptyImport} />
-          <Button
-            slots={{}}
-            text={tUiSource("import.dialog.import.as.is")}
-            disabled={workflow.busy}
-            onClick={handleAcceptOriginal}
+          <div className={styles.settings}>
+            <Field label={tUiSource("import.dialog.algorithm")} layout={FieldLayout.Inline}>
+              <Combobox
+                pixelWidth={ALGORITHM_WIDTH}
+                value={selectedAlgorithm}
+                aria-label={tUiSource("import.dialog.algorithm")}
+                disabled={workflow.busy}
+                options={algorithmOptions}
+                onValueChange={(value) => setSelectedAlgorithm(value as PixelationAlgorithm)}
+              />
+            </Field>
+            <PixelationControls
+              paletteResources={{
+                choices,
+                currentPalette: pending.sourcePalette,
+                previewPalette: workflow.pixelationPalette,
+                currentLabel: "Use current palette",
+                currentName: "Current palette",
+                sceneBounds,
+                refresh: () => setChoices(workflow.getPixelationPaletteChoices()),
+              }}
+              grid={pending.grid ?? undefined}
+              settings={workflow.pixelationOptions}
+              sourceSize={pending.pixels}
+              onChange={workflow.setPixelationOptions}
+              disabled={workflow.busy}
+              translate={tUiSource}
+            />
+          </div>
+          <div className={styles.preview}>
+            <PixelationComparison
+              mode={workflow.pixelationOptions.mode}
+              source={pending.pixels}
+              result={workflow.pixelationPreview}
+              preparing={workflow.pixelationPreviewing}
+              translate={tUiSource}
+            />
+          </div>
+          {workflow.pixelationError && (
+            <Text
+              variant={TextVariant.Reading}
+              role="alert"
+              wrap
+              className={styles.useCaseDescription}
+            >
+              {tUiSource(workflow.pixelationError)}
+            </Text>
+          )}
+        </div>
+        <div className={styles.footer}>
+          <Checkbox
+            label={tUiSource("import.dialog.remember")}
+            checked={rememberChoice}
+            onCheckedChange={setRememberChoice}
           />
-          <Button
-            slots={{}}
-            text={tUiSource("import.dialog.pixelate.with")}
-            disabled={workflow.busy || workflow.pixelationPreviewing || !workflow.pixelationPreview}
-            onClick={handleAcceptPixelated}
-          />
-        </ControlFlow>
+          <ControlFlow className={styles.actions}>
+            <Button slots={{}} text={tUiSource("Cancel")} onClick={workflow.discardEmptyImport} />
+            <Button
+              slots={{}}
+              text={tUiSource("import.dialog.import.as.is")}
+              disabled={workflow.busy}
+              onClick={handleAcceptOriginal}
+            />
+            <Button
+              slots={{}}
+              text={tUiSource("import.dialog.pixelate")}
+              disabled={
+                workflow.busy || workflow.pixelationPreviewing || !workflow.pixelationPreview
+              }
+              onClick={handleAcceptPixelated}
+            />
+          </ControlFlow>
+        </div>
       </div>
     </EditorDialog>
   );
