@@ -13,7 +13,15 @@
   user-select: none;
   cursor: ew-resize;
   background: conic-gradient(#b8b8b8 25%, #e4e4e4 0 50%, #b8b8b8 0 75%, #e4e4e4 0) 0 0 / 16px 16px;
-  outline: 1px solid var(--ui-border-color, #000);
+}
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--xse-border, #000);
+  pointer-events: none;
+  z-index: 2;
 }
 .layer {
   position: absolute;
@@ -40,8 +48,7 @@
   bottom: 0;
   width: 2px;
   margin-left: -1px;
-  background: #fff;
-  box-shadow: 0 0 0 1px #000;
+  background: var(--xse-border, #000);
   cursor: ew-resize;
 }
 .bar:focus-visible {
@@ -52,11 +59,26 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 18px;
-  height: 30px;
-  margin: -15px 0 0 -9px;
-  background: #fff;
-  box-shadow: 0 0 0 1px #000;
+  box-sizing: border-box;
+  width: 14px;
+  height: 26px;
+  margin: -13px 0 0 -7px;
+  border: 1px solid var(--xse-border, #000);
+  background: var(--ui-theme-paper, var(--xse-window, #fff));
+}
+.grip::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 8px;
+  transform: translate(-50%, -50%);
+  background-image: var(--ui-scrollbar-thumb-grip, none);
+}
+.bar:hover .grip,
+.bar:focus-visible .grip {
+  background: var(--ui-theme-wash, var(--xse-window, #fff));
 }
 .tag {
   position: absolute;

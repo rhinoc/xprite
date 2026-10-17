@@ -2417,7 +2417,7 @@
   "ui.export.beads.size.by": "×",
   "import.dialog.result": "Resultado:",
   "import.dialog.advanced": "Avançado",
-  "import.dialog.hint.pixelate": "Recria os pixels reais. Arraste a barra para comparar.",
+  "import.dialog.hint.pixelate": "Recria os pixels reais.",
   "import.dialog.hint.keep": "Importa a imagem sem alterações.",
   "import.dialog.original": "Original",
   "import.dialog.result.label": "Pixelado",

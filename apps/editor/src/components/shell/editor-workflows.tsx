@@ -740,7 +740,7 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
           message="Your document is closed. This browser cannot close a user-opened tab; use the browser tab's close control to exit."
           actions={[{ label: "OK", onClick: () => setExitNotice(false) }]}
         />
-        {(busy || workspaceSnapshot.importBatch) && (
+        {(busy || workspaceSnapshot.importBatch) && !(pending && !error) && (
           <div className={styles.busy}>
             <span role="status">
               <Text variant={TextVariant.Inline} scale={2}>

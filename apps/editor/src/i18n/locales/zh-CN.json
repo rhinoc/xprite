@@ -2417,7 +2417,7 @@
   "ui.export.beads.size.by": "×",
   "import.dialog.result": "结果：",
   "import.dialog.advanced": "高级",
-  "import.dialog.hint.pixelate": "还原真实像素。拖动分隔条即可对比。",
+  "import.dialog.hint.pixelate": "还原真实像素。",
   "import.dialog.hint.keep": "按原样导入图片。",
   "import.dialog.original": "原图",
   "import.dialog.result.label": "像素化后",

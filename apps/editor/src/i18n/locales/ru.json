@@ -2417,7 +2417,7 @@
   "ui.export.beads.size.by": "×",
   "import.dialog.result": "Результат:",
   "import.dialog.advanced": "Дополнительно",
-  "import.dialog.hint.pixelate": "Восстанавливает настоящие пиксели. Двигайте полосу для сравнения.",
+  "import.dialog.hint.pixelate": "Восстанавливает настоящие пиксели.",
   "import.dialog.hint.keep": "Импортирует картинку без изменений.",
   "import.dialog.original": "Оригинал",
   "import.dialog.result.label": "Результат",

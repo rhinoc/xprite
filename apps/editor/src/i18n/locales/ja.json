@@ -2417,7 +2417,7 @@
   "ui.export.beads.size.by": "×",
   "import.dialog.result": "結果：",
   "import.dialog.advanced": "詳細設定",
-  "import.dialog.hint.pixelate": "本来のピクセルに戻します。バーをドラッグして比較できます。",
+  "import.dialog.hint.pixelate": "本来のピクセルに戻します。",
   "import.dialog.hint.keep": "画像をそのままインポートします。",
   "import.dialog.original": "元画像",
   "import.dialog.result.label": "ピクセル化後",

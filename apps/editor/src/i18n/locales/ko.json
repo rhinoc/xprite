@@ -2417,7 +2417,7 @@
   "ui.export.beads.size.by": "×",
   "import.dialog.result": "결과:",
   "import.dialog.advanced": "고급",
-  "import.dialog.hint.pixelate": "원래 픽셀로 되돌립니다. 막대를 끌어 비교해 보세요.",
+  "import.dialog.hint.pixelate": "원래 픽셀로 되돌립니다.",
   "import.dialog.hint.keep": "그림을 그대로 가져옵니다.",
   "import.dialog.original": "원본",
   "import.dialog.result.label": "픽셀화됨",

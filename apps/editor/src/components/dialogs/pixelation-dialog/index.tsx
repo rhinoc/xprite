@@ -250,12 +250,15 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
               bounds={hintBounds}
               relativeTo={client}
             />
-            <Checkbox
-              label={tUiSource("import.dialog.advanced")}
-              checked={advanced}
+            <Button
+              aria-label={tUiSource("import.dialog.advanced")}
+              aria-expanded={showAdvanced}
+              text={tUiSource("import.dialog.advanced")}
+              icon={showAdvanced ? "icon_arrow_down" : undefined}
+              selected={showAdvanced}
               disabled={!pixelate}
-              onCheckedChange={setAdvanced}
-              bounds={advancedRow}
+              onClick={() => setAdvanced((value) => !value)}
+              bounds={{ ...advancedRow, width: 120 }}
               relativeTo={client}
             />
             {algorithmLabel && algorithmCombo && pickerLabel && pickerCombo && (
