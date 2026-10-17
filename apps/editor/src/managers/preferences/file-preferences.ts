@@ -78,7 +78,6 @@ export function normalizeFilePreferences(value: unknown): FilePreferences {
   const importPixelationAlgorithm =
     saved.importPixelationAlgorithm === "auto" ||
     saved.importPixelationAlgorithm === "edge-grid" ||
-    saved.importPixelationAlgorithm === "uniform-grid" ||
     saved.importPixelationAlgorithm === "resize"
       ? saved.importPixelationAlgorithm
       : DEFAULT_FILE_PREFERENCES.importPixelationAlgorithm;
