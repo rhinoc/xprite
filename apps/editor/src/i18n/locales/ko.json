@@ -20,8 +20,6 @@
   "ui.support.wechat": "WeChat",
   "ui.support.wechat.show": "WeChat 후원 QR 코드 보기",
   "ui.support.wechat.qr": "WeChat 후원 QR 코드",
-  "ui.support.wechat.scan": "WeChat으로 스캔",
-  "ui.support.wechat.long.press": "길게 눌러 저장하거나 스캔",
   "ui.support.new.tab": "{name} (새 탭에서 열기)",
   "ui.support.bilibili": "Bilibili",
   "ui.support.xiaohongshu": "샤오훙수",
