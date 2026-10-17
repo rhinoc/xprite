@@ -47,6 +47,11 @@ interface UiFontMetrics {
   cjkFontFamily: string;
   cjkFontSize: number;
   cjkAdvance: number;
+  /**
+   * Minimum alpha (0-255) for a canvas-rasterised CJK pixel to be kept. Below half, so thin strokes
+   * survive; the scaled faces need different values. Defaults to 64.
+   */
+  cjkCoverageThreshold?: number;
   /** CJK face for tab and window titles. CSS pixels at scale 2. */
   titleCjkFontFamily?: string;
   titleCjkFontSize?: number;

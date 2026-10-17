@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { entrySelection } from "$/base/controls/control-policy";
+import { cjkPixelGlyph } from "$/base/theme/cjk-pixel-glyph";
 import { themeFontFamily } from "$/base/theme/font-families";
 import { paintPartSurface } from "$/base/theme/paint-part-surface";
 import {
@@ -15,25 +16,19 @@ import {
 import {
   getThemeAssets,
   preloadThemeAssets,
-  subscribeThemeAssets,
   type UiAssetBundle,
   type UiBitmap,
 } from "$/base/theme/theme-assets-store";
-import {
-  remapThemeColor,
-  useTheme,
-  type UiStyleDefinition,
-  type UiColorScheme,
-} from "$/base/theme/theme-context";
+import { remapThemeColor, useTheme, type UiStyleDefinition } from "$/base/theme/theme-context";
 import { ThemePart, type AtlasPartName, type UiPartName } from "$/base/theme/theme-part";
 import { themeTextCache } from "$/base/theme/theme-text-cache";
 import { FontRole } from "$/base/theme/theme-types";
-import { UiFontRenderer, type UiFontDefinition } from "$/base/theme/theme-types";
+import { UiFontRenderer } from "$/base/theme/theme-types";
+import { useThemeAssets } from "$/base/theme/use-theme-assets";
 import { cn } from "$/base/utils/cn";
 import { borderSize, observeElementSize, rangeRect } from "$/base/utils/dom-geometry";
 import { markFieldKey } from "$/base/utils/field-key";
 import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
-import { UINT8_MAX } from "$/base/utils/numeric-constants";
 import { surfaceLayout, DEFAULT_SURFACE_VIEWPORT } from "$/components/canvas-surface";
 import { RASTER_SCALE } from "$/components/canvas-surface/metrics";
 import type { ControlPlacement } from "$/components/control-flow/placement";
@@ -44,122 +39,10 @@ import { Text, TextVariant } from "$/components/text";
 
 import styles from "$/base/components/theme-controls.module.css";
 
-export { getThemeAssets, preloadThemeAssets };
+export { getThemeAssets, preloadThemeAssets, useThemeAssets };
 export type { UiAssetBundle, UiBitmap };
 
-export function useThemeAssets(colorScheme?: UiColorScheme): UiAssetBundle | null {
-  const context = useTheme();
-  const requestedColorScheme = colorScheme ?? context.colorScheme;
-  const subscribe = React.useCallback(
-    (listener: () => void) => subscribeThemeAssets(requestedColorScheme, context.uiTheme, listener),
-    [requestedColorScheme, context.uiTheme],
-  );
-  const getSnapshot = React.useCallback(
-    () => getThemeAssets(requestedColorScheme, context.uiTheme),
-    [requestedColorScheme, context.uiTheme],
-  );
-  const assets = React.useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-  React.useEffect(() => {
-    void preloadThemeAssets(requestedColorScheme, context.language, context.uiTheme).catch(
-      (error) => console.error(error),
-    );
-  }, [requestedColorScheme, context.language, context.uiTheme]);
-  return React.useMemo(
-    () => (assets ? { ...assets, language: context.language } : null),
-    [assets, context.language],
-  );
-}
-const cjkPixelGlyphCache = new Map<string, HTMLCanvasElement>();
-const CJK_PIXEL_GLYPH_CACHE_LIMIT = 512;
-const CJK_PIXEL_COVERAGE_THRESHOLD = 64;
 const CJK_FONT_LANGUAGE = "zh";
-/**
- * Draw the CJK face at its own pixel size on the typography's CJK baseline, so
- * every glyph keeps its designed vertical position next to the Latin atlas.
- * Center the ink horizontally in the fixed advance, discard faint edge coverage
- * and snap retained pixels to solid opacity.
- */
-function cjkPixelGlyph(
-  char: string,
-  metrics: Extract<UiFontDefinition, { renderer: UiFontRenderer.Bitmap }>,
-  scale: number,
-  color: string,
-  usePixelFont: boolean,
-  advanceUnits = metrics.cjkAdvance,
-) {
-  const line = Math.max(1, Math.round((metrics.lineHeight * scale) / RASTER_SCALE));
-  const fontSize = Math.max(1, Math.round((metrics.cjkFontSize * scale) / RASTER_SCALE));
-  const advance = Math.max(1, Math.round((advanceUnits * scale) / RASTER_SCALE));
-  const baseline = Math.round((metrics.cjkBaseline * scale) / RASTER_SCALE);
-  const family = usePixelFont ? metrics.cjkFontFamily : metrics.fallbackFontFamily;
-  const key = `${family}:${fontSize}:${line}:${baseline}:${advance}:${color}:${char}`;
-  const cached = cjkPixelGlyphCache.get(key);
-  if (cached) {
-    cjkPixelGlyphCache.delete(key);
-    cjkPixelGlyphCache.set(key, cached);
-    return cached;
-  }
-  if (typeof document === "undefined") return null;
-  const probe = Math.max(line, fontSize) * 3;
-  const mask = document.createElement("canvas");
-  mask.width = probe;
-  mask.height = probe;
-  const maskContext = mask.getContext("2d", { willReadFrequently: true });
-  if (!maskContext) return null;
-  maskContext.font = `${fontSize}px ${family}`;
-  maskContext.textAlign = "left";
-  maskContext.textBaseline = "alphabetic";
-  maskContext.fillStyle = "#fff";
-  const probeBaseline = Math.round(probe / 2);
-  maskContext.fillText(char, 0, probeBaseline);
-  const probed = maskContext.getImageData(0, 0, probe, probe);
-  let minX = probe;
-  let minY = probe;
-  let maxX = -1;
-  let maxY = -1;
-  for (let y = 0; y < probe; y++) {
-    for (let x = 0; x < probe; x++) {
-      if (probed.data[(y * probe + x) * 4 + 3] < CJK_PIXEL_COVERAGE_THRESHOLD) continue;
-      if (x < minX) minX = x;
-      if (y < minY) minY = y;
-      if (x > maxX) maxX = x;
-      if (y > maxY) maxY = y;
-    }
-  }
-  const glyph = document.createElement("canvas");
-  glyph.width = advance;
-  glyph.height = line;
-  const glyphContext = glyph.getContext("2d");
-  if (!glyphContext) return null;
-  if (maxX >= minX && maxY >= minY) {
-    const inkWidth = maxX - minX + 1;
-    const inkHeight = maxY - minY + 1;
-    const destX = Math.round((advance - inkWidth) / 2);
-    const destY = baseline - (probeBaseline - minY);
-    const ink = maskContext.getImageData(minX, minY, inkWidth, inkHeight);
-    for (let index = 0; index < ink.data.length; index += 4) {
-      const covered = ink.data[index + 3] >= CJK_PIXEL_COVERAGE_THRESHOLD;
-      ink.data[index] = UINT8_MAX;
-      ink.data[index + 1] = UINT8_MAX;
-      ink.data[index + 2] = UINT8_MAX;
-      ink.data[index + 3] = covered ? UINT8_MAX : 0;
-    }
-    const inkCanvas = document.createElement("canvas");
-    inkCanvas.width = inkWidth;
-    inkCanvas.height = inkHeight;
-    inkCanvas.getContext("2d")?.putImageData(ink, 0, 0);
-    glyphContext.drawImage(inkCanvas, destX, destY);
-  }
-  glyphContext.globalCompositeOperation = "source-in";
-  glyphContext.fillStyle = color;
-  glyphContext.fillRect(0, 0, advance, line);
-  cjkPixelGlyphCache.set(key, glyph);
-  while (cjkPixelGlyphCache.size > CJK_PIXEL_GLYPH_CACHE_LIMIT) {
-    cjkPixelGlyphCache.delete(cjkPixelGlyphCache.keys().next().value!);
-  }
-  return glyph;
-}
-
 /** Pixel coordinates refer to the physical scene surface; sprite parts are logical pixels. */
 export function paintThemePart(
   context: CanvasRenderingContext2D,
