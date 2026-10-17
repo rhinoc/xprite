@@ -9,10 +9,12 @@ import {
   AnimationExportExtension,
   ImageExportExtension,
   SaveFileExtension,
+  ImportDialogChoice,
 } from "$/managers/preferences/file-preferences";
 import type { FilePreferences } from "$/managers/preferences/file-preferences";
 import type { RecoverySettings } from "$/managers/workspace/recovery-settings";
-import { Button, Combobox, Slider } from "@xprite/ui";
+import { PixelationAlgorithm, getAllAlgorithms } from "@xprite/editor-core";
+import { Button, Combobox, Slider, Text, TextVariant } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 
 const intervals = [
@@ -225,6 +227,104 @@ export function FilesPreferences({
         onCheckedChange={noop}
       />
       {combo("Keep closed sprite on memory for", 321, 15, intervals, true, noop, 452)}
+
+      {/* Import preferences */}
+      <Text
+        bounds={narrowLayout ? box(358, 488, 333, 16) : box(358, 357, 333, 16)}
+        relativeTo={client}
+        variant={TextVariant.PixelBody}
+      >
+        {tUi("import.preferences.choice")}
+      </Text>
+      <Combobox
+        aria-label={tUi("import.preferences.choice")}
+        bounds={narrowLayout ? box(358, 508, 333, 16) : box(459, 357, 232, 16)}
+        relativeTo={client}
+        value={filePreferences.importDialogChoice}
+        options={[
+          {
+            value: ImportDialogChoice.AlwaysAsk,
+            label: tUi("import.preferences.choice.always.ask"),
+          },
+          {
+            value: ImportDialogChoice.AlwaysImportAsIs,
+            label: tUi("import.preferences.choice.always.as.is"),
+          },
+          {
+            value: ImportDialogChoice.AlwaysPixelate,
+            label: tUi("import.preferences.choice.always.pixelate", {
+              algorithm: tUi(
+                `import.algorithm.${filePreferences.importPixelationAlgorithm || PixelationAlgorithm.Auto}`,
+              ),
+            }),
+          },
+        ]}
+        disabled={!filePreferencesEnabled}
+        onValueChange={(value) =>
+          onFilePreferencesChange({ importDialogChoice: value as ImportDialogChoice })
+        }
+      />
+      {filePreferences.importDialogChoice === ImportDialogChoice.AlwaysPixelate && (
+        <>
+          <Text
+            bounds={narrowLayout ? box(358, 544, 333, 16) : box(358, 381, 333, 16)}
+            relativeTo={client}
+            variant={TextVariant.PixelBody}
+          >
+            {tUi("import.preferences.algorithm")}
+          </Text>
+          <Combobox
+            aria-label={tUi("import.preferences.algorithm")}
+            bounds={narrowLayout ? box(358, 564, 333, 16) : box(459, 381, 232, 16)}
+            relativeTo={client}
+            value={filePreferences.importPixelationAlgorithm || PixelationAlgorithm.Auto}
+            options={getAllAlgorithms().map((algorithm) => ({
+              value: algorithm,
+              label: tUi(`import.algorithm.${algorithm}`),
+            }))}
+            disabled={!filePreferencesEnabled}
+            onValueChange={(value) =>
+              onFilePreferencesChange({
+                importPixelationAlgorithm: value as PixelationAlgorithm,
+              })
+            }
+          />
+        </>
+      )}
+      <Button
+        aria-label={tUi("import.preferences.reset")}
+        text={tUi("import.preferences.reset")}
+        bounds={
+          narrowLayout
+            ? box(
+                358,
+                filePreferences.importDialogChoice === ImportDialogChoice.AlwaysPixelate
+                  ? 600
+                  : 544,
+                120,
+                16,
+              )
+            : box(
+                571,
+                filePreferences.importDialogChoice === ImportDialogChoice.AlwaysPixelate
+                  ? 405
+                  : 381,
+                120,
+                16,
+              )
+        }
+        relativeTo={client}
+        disabled={
+          !filePreferencesEnabled ||
+          filePreferences.importDialogChoice === ImportDialogChoice.AlwaysAsk
+        }
+        onClick={() =>
+          onFilePreferencesChange({
+            importDialogChoice: ImportDialogChoice.AlwaysAsk,
+            importPixelationAlgorithm: PixelationAlgorithm.Auto,
+          })
+        }
+      />
     </>
   );
 }
