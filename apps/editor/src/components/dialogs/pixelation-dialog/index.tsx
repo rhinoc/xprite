@@ -8,7 +8,6 @@ import {
   colorPickerLabelKey,
 } from "$/components/dialogs/pixelation-dialog/algorithm-notes";
 import { ImportCompare } from "$/components/dialogs/pixelation-dialog/import-compare";
-import { IconControl } from "$/components/shared/icon-control";
 import { tUiSource, useUiLanguage } from "$/i18n";
 import {
   getAllAlgorithms,
@@ -24,12 +23,15 @@ import {
   Button,
   Checkbox,
   Combobox,
+  Disclosure,
   Divider,
   Text,
   TextVariant,
   defaultActionProps,
   useModalFocus,
 } from "@xprite/ui";
+
+import styles from "$/components/dialogs/pixelation-dialog/pixelation-dialog.module.css";
 
 type Workflow = Pick<
   ReturnType<typeof useEditorWorkflows>,
@@ -253,27 +255,22 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 relativeTo={client}
               />
             )}
-            {/* Same toggle as the user data one in Sprite/Slice/Tag properties. */}
-            <IconControl
-              bounds={{ ...advancedRow, width: 30 }}
-              relativeTo={client}
-              icon="icon_arrow_down"
-              label={tUiSource("import.dialog.advanced")}
-              expanded={showAdvanced}
-              selected={showAdvanced}
-              /* Down arrow when open, rotated to point right when closed. */
-              style={showAdvanced ? undefined : { transform: "rotate(-90deg)" }}
-              disabled={!pixelate}
-              onClick={() => setAdvanced((value) => !value)}
-            />
-            <Text
-              variant={TextVariant.Control}
-              text={tUiSource("import.dialog.advanced")}
-              bounds={{ ...advancedRow, x: advancedRow.x + 36, width: 120 }}
-              relativeTo={client}
-              onClick={pixelate ? () => setAdvanced((value) => !value) : undefined}
-              style={{ pointerEvents: pixelate ? "auto" : "none", cursor: "pointer" }}
-            />
+            <Disclosure
+              title={tUiSource("import.dialog.advanced")}
+              open={showAdvanced}
+              onToggle={(event) => setAdvanced(event.currentTarget.open)}
+              className={styles.advanced}
+              style={{
+                position: "absolute",
+                left: 0,
+                top: advancedRow.y - client.y,
+                width,
+                height: advancedRow.height,
+                pointerEvents: pixelate ? "auto" : "none",
+              }}
+            >
+              {null}
+            </Disclosure>
             {algorithmLabel && algorithmCombo && pickerLabel && pickerCombo && (
               <>
                 <Text

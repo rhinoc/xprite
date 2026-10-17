@@ -1,0 +1,13 @@
+/* The shared Disclosure draws its own framed card; here it is a bare toggle row. */
+.advanced {
+  border: 0;
+  background: transparent;
+}
+.advanced > summary {
+  min-height: 0;
+  padding: 0;
+  height: 100%;
+}
+.advanced > div {
+  display: none;
+}
