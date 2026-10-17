@@ -11,6 +11,8 @@ export {
   PixelArtClassification,
   PixelationMethod,
   PixelationMode,
+  PixelationAlgorithm,
+  ImportDialogChoice,
 } from "$/import-export/image/import/types";
 export type {
   ExtractPaletteOptions,
@@ -23,6 +25,7 @@ export type {
   PixelationSettings,
   PixelGridGeometry,
   PixelGridAnalysis,
+  ImportDialogPreference,
 } from "$/import-export/image/import/types";
 
 export {
@@ -39,3 +42,12 @@ export {
   manualPixelGrid,
   MAX_GRID_CELL_SIZE,
 } from "$/import-export/image/import/grid";
+
+export { detectEdgeBasedGrid } from "$/import-export/image/import/edge-based-grid";
+
+export {
+  getAlgorithmDescriptor,
+  getAllAlgorithms,
+  detectWithAlgorithm,
+  type PixelationAlgorithmDescriptor,
+} from "$/import-export/image/import/pixelation-algorithm-registry";

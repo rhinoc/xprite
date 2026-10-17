@@ -534,9 +534,47 @@ export class EditorSession<Source> {
     }
   }
   private offerCandidate(candidate: Candidate): SessionOutcome {
+    const pref = this.ports.getImportPreference?.();
+    if (pref) {
+      if (pref.choice === "always-import-as-is")
+        return this.install(
+          candidate.pixels,
+          candidate.name,
+          true,
+          candidate.project?.palette,
+          true,
+          candidate.project,
+          candidate.recentIdentity ?? null,
+          candidate.recentAlias ?? null,
+        );
+      if (pref.choice === "always-pixelate") {
+        this.candidate = candidate;
+        this.publish({
+          busy: false,
+          replacement: null,
+          pendingImport: {
+            sourcePalette: candidate.sourcePalette,
+            grid: candidate.grid ?? null,
+            pixels: candidate.pixels,
+            name: candidate.name,
+            width: candidate.pixels.width,
+            height: candidate.pixels.height,
+            classification: candidate.classification,
+          },
+          pixelationOptions: defaultPixelationSettings(candidate.pixels, candidate.grid),
+          pixelationPreview: null,
+          pixelationPalette: [],
+          pixelationError: null,
+        });
+        void this.previewPixelation();
+        void this.pixelate();
+        return SessionOutcome.Pending;
+      }
+    }
     if (
       candidate.classification === PixelArtClassification.LikelyPixelArt &&
-      !candidate.grid?.reliable
+      !candidate.grid?.reliable &&
+      !pref
     )
       return this.install(
         candidate.pixels,

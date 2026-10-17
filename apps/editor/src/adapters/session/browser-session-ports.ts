@@ -54,15 +54,18 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
   private readonly fileHandles: IndexedDbDocumentFileHandles;
   private readonly diagnostics?: DiagnosticsPort;
   private readonly onImportFile?: (file: File) => void;
+  private readonly getFilePreferences?: () => { importDialogChoice: string; importPixelationAlgorithm: string };
   constructor(
     options: IndexedDbRecentImagesOptions & {
       fileHandleDatabaseName?: string;
       diagnostics?: DiagnosticsPort;
       /** Called for each user-imported file, e.g. to keep a copy in Files. */
       onImportFile?: (file: File) => void;
+      getFilePreferences?: () => { importDialogChoice: string; importPixelationAlgorithm: string };
     } = {},
   ) {
     this.onImportFile = options.onImportFile;
+    this.getFilePreferences = options.getFilePreferences;
     this.recents = new IndexedDbRecentImages(options);
     this.fileIdentities = new IndexedDbFileIdentities({
       databaseName: options.databaseName ? `${options.databaseName}-identities` : undefined,
@@ -293,6 +296,10 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
   analyze = (pixels: PixelBuffer) => this.getWorker().analyze(pixels);
   pixelate = (pixels: PixelBuffer, options: PixelateOptions) =>
     this.getWorker().pixelate(pixels, options);
+  getImportPreference = () => {
+    if (!this.getFilePreferences) return { choice: "always-ask", algorithm: "auto" };
+    return this.getFilePreferences();
+  };
   private compatibleDocumentHandle(documentKey: string | undefined, kind?: "png" | "aseprite") {
     if (!documentKey) return undefined;
     const handle = this.documentFileHandles.get(documentKey);

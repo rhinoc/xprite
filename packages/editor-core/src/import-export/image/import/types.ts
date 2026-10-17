@@ -60,6 +60,19 @@ export enum PixelationMode {
   Convert = "convert",
   RecoverGrid = "recover-grid",
 }
+
+export enum PixelationAlgorithm {
+  Auto = "auto",
+  EdgeGrid = "edge-grid",
+  UniformGrid = "uniform-grid",
+  Resize = "resize",
+}
+
+export enum ImportDialogChoice {
+  AlwaysAsk = "always-ask",
+  AlwaysImportAsIs = "always-import-as-is",
+  AlwaysPixelate = "always-pixelate",
+}
 export interface PixelGridGeometry {
   width: number;
   height: number;
@@ -131,4 +144,9 @@ export interface PixelationSettings {
   lockAspectRatio: boolean;
   palette: readonly Rgba[] | null;
   paletteName: string;
+}
+
+export interface ImportDialogPreference {
+  choice: ImportDialogChoice;
+  algorithm: PixelationAlgorithm;
 }

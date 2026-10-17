@@ -81,6 +81,8 @@ export interface EditorSessionPorts<Source> {
     intent: SessionSaveIntent,
     documentKey?: string,
   ): Promise<SessionWriteResult>;
+  /** Retrieve import dialog preference to determine if the dialog should be shown. */
+  getImportPreference?(): { choice: string; algorithm: string };
   releaseSource?(source: Source): void;
   dispose?(): void;
 }

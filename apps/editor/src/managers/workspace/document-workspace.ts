@@ -374,6 +374,10 @@ export class DocumentWorkspace {
       pixelate: (...args) => ports.pixelate(...args),
       write: (...args) => ports.write(...args),
       writeProject: ports.writeProject?.bind(ports),
+      getImportPreference: () => ({
+        choice: this.filePreferences.importDialogChoice,
+        algorithm: this.filePreferences.importPixelationAlgorithm,
+      }),
       releaseSource: ports.releaseSource?.bind(ports),
     };
     this.recovery = recovery;
