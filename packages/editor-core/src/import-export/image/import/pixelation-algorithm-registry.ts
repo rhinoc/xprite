@@ -7,14 +7,11 @@ import {
   PixelationMode,
 } from "$/import-export/image/import/types";
 
-export interface PixelationAlgorithmDetector {
-  readonly label: string;
-  detect(image: PixelBuffer): PixelGridAnalysis;
-}
-
-export interface PixelationAlgorithmDescriptor extends PixelationAlgorithmDetector {
+interface PixelationAlgorithmDescriptor {
   readonly id: PixelationAlgorithm;
+  readonly label: string;
   readonly supportsDetection: boolean;
+  detect(image: PixelBuffer): PixelGridAnalysis;
   prepareMode(detected: PixelGridAnalysis): PixelationMode;
 }
 
@@ -62,22 +59,21 @@ const autoDescriptor: PixelationAlgorithmDescriptor = {
     const results = detectors.map((d) => ({ algorithm: d.id, result: d.detect(image) }));
     const reliable = results.filter((r) => r.result.reliable);
     if (!reliable.length) return resizeDescriptor.detect(image);
-    const best = reliable.reduce((a, b) =>
-      b.result.confidence > a.result.confidence ? b : a,
-    );
+    const best = reliable.reduce((a, b) => (b.result.confidence > a.result.confidence ? b : a));
     return best.result;
   },
   prepareMode: (detected) =>
     detected.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
 };
 
-const ALGORITHM_REGISTRY: ReadonlyMap<PixelationAlgorithm, PixelationAlgorithmDescriptor> =
-  new Map([
+const ALGORITHM_REGISTRY: ReadonlyMap<PixelationAlgorithm, PixelationAlgorithmDescriptor> = new Map(
+  [
     [PixelationAlgorithm.Auto, autoDescriptor],
     [PixelationAlgorithm.EdgeGrid, edgeGridDescriptor],
     [PixelationAlgorithm.UniformGrid, uniformGridDescriptor],
     [PixelationAlgorithm.Resize, resizeDescriptor],
-  ]);
+  ],
+);
 
 export function getAlgorithmDescriptor(
   algorithm: PixelationAlgorithm,

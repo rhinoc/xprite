@@ -122,7 +122,7 @@ function closeGaps(edges: Uint8Array, length: number, stride: number): void {
 }
 
 function projectEdges(edges: Uint8Array, length: number, stride: number): number[] {
-  const projection = new Array(stride).fill(0);
+  const projection = Array.from({ length: stride }, () => 0);
   for (let i = 0; i < stride; i++)
     for (let j = 0; j < length; j++) if (edges[i * length + j]) projection[i]++;
   return projection;
@@ -133,7 +133,11 @@ function detectPeaks(projection: number[]): number[] {
   const threshold = mean * 0.5;
   const peaks: number[] = [];
   for (let i = 1; i < projection.length - 1; i++)
-    if (projection[i] > threshold && projection[i] >= projection[i - 1] && projection[i] > projection[i + 1])
+    if (
+      projection[i] > threshold &&
+      projection[i] >= projection[i - 1] &&
+      projection[i] > projection[i + 1]
+    )
       peaks.push(i);
   return peaks;
 }
@@ -159,7 +163,10 @@ function buildCuts(peaks: number[], pitch: number, length: number): number[] {
   const cuts = [0];
   let expected = peaks[0];
   for (const peak of peaks) {
-    if (peak >= expected - pitch * JITTER_TOLERANCE && peak <= expected + pitch * JITTER_TOLERANCE) {
+    if (
+      peak >= expected - pitch * JITTER_TOLERANCE &&
+      peak <= expected + pitch * JITTER_TOLERANCE
+    ) {
       if (peak > cuts[cuts.length - 1]) cuts.push(peak);
       expected = peak + pitch;
     }
@@ -172,7 +179,16 @@ export function detectEdgeBasedGrid(image: PixelBuffer): PixelGridAnalysis {
   assertPixelBuffer(image);
   const bounds = trimMargins(image);
   if (bounds.width < MIN_CELL_SIZE * 4 || bounds.height < MIN_CELL_SIZE * 4)
-    return { width: 1, height: 1, cellWidth: image.width, cellHeight: image.height, offsetX: 0, offsetY: 0, confidence: 0, reliable: false };
+    return {
+      width: 1,
+      height: 1,
+      cellWidth: image.width,
+      cellHeight: image.height,
+      offsetX: 0,
+      offsetY: 0,
+      confidence: 0,
+      reliable: false,
+    };
   const edges = sobelEdgeDetection(image, bounds);
   closeGaps(edges.horizontal, edges.width, edges.height);
   closeGaps(edges.vertical, edges.height, edges.width);
@@ -183,13 +199,31 @@ export function detectEdgeBasedGrid(image: PixelBuffer): PixelGridAnalysis {
   const horizontalPitch = estimatePitch(horizontalPeaks);
   const verticalPitch = estimatePitch(verticalPeaks);
   if (!horizontalPitch || !verticalPitch)
-    return { width: 1, height: 1, cellWidth: image.width, cellHeight: image.height, offsetX: 0, offsetY: 0, confidence: 0, reliable: false };
+    return {
+      width: 1,
+      height: 1,
+      cellWidth: image.width,
+      cellHeight: image.height,
+      offsetX: 0,
+      offsetY: 0,
+      confidence: 0,
+      reliable: false,
+    };
   const xCuts = buildCuts(verticalPeaks, verticalPitch.pitch, edges.width);
   const yCuts = buildCuts(horizontalPeaks, horizontalPitch.pitch, edges.height);
   const width = xCuts.length - 1;
   const height = yCuts.length - 1;
   if (width < 4 || height < 4)
-    return { width: 1, height: 1, cellWidth: image.width, cellHeight: image.height, offsetX: 0, offsetY: 0, confidence: 0, reliable: false };
+    return {
+      width: 1,
+      height: 1,
+      cellWidth: image.width,
+      cellHeight: image.height,
+      offsetX: 0,
+      offsetY: 0,
+      confidence: 0,
+      reliable: false,
+    };
   const confidence = Math.min(horizontalPitch.confidence, verticalPitch.confidence);
   const reliable = confidence >= MIN_CONFIDENCE;
   return {

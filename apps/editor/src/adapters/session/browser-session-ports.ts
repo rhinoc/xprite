@@ -54,7 +54,10 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
   private readonly fileHandles: IndexedDbDocumentFileHandles;
   private readonly diagnostics?: DiagnosticsPort;
   private readonly onImportFile?: (file: File) => void;
-  private readonly getFilePreferences?: () => { importDialogChoice: string; importPixelationAlgorithm: string };
+  private readonly getFilePreferences?: () => {
+    importDialogChoice: string;
+    importPixelationAlgorithm: string;
+  };
   constructor(
     options: IndexedDbRecentImagesOptions & {
       fileHandleDatabaseName?: string;
@@ -296,9 +299,13 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
   analyze = (pixels: PixelBuffer) => this.getWorker().analyze(pixels);
   pixelate = (pixels: PixelBuffer, options: PixelateOptions) =>
     this.getWorker().pixelate(pixels, options);
-  getImportPreference = () => {
+  getImportPreference = (): { choice: string; algorithm: string } => {
     if (!this.getFilePreferences) return { choice: "always-ask", algorithm: "auto" };
-    return this.getFilePreferences();
+    const prefs = this.getFilePreferences();
+    return {
+      choice: prefs.importDialogChoice,
+      algorithm: prefs.importPixelationAlgorithm,
+    };
   };
   private compatibleDocumentHandle(documentKey: string | undefined, kind?: "png" | "aseprite") {
     if (!documentKey) return undefined;
