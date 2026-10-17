@@ -2,16 +2,20 @@ import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { assertDimension, assertPixelBuffer } from "$/document/pixel-validation";
 import { protectPixelationContours } from "$/import-export/image/import/contours";
 import { smoothPixelation } from "$/import-export/image/import/denoise";
-import {
-  detectPixelGrid,
-  pixelGridCuts,
-  MAX_RECOVERED_GRID_SIZE,
-} from "$/import-export/image/import/grid";
+import { pixelGridCuts, MAX_RECOVERED_GRID_SIZE } from "$/import-export/image/import/grid";
 import { resizeMostFrequent } from "$/import-export/image/import/most-frequent";
 import { reduceToPalette, extractPixelationPalette } from "$/import-export/image/import/palette";
+import {
+  detectWithAlgorithm,
+  getModeForAlgorithm,
+} from "$/import-export/image/import/pixelation-algorithm-registry";
 import { resizeBox, resizeNearest } from "$/import-export/image/import/resize";
 import { samplePixelation } from "$/import-export/image/import/sampling";
-import { PixelationMethod, PixelationMode } from "$/import-export/image/import/types";
+import {
+  PixelationMethod,
+  PixelationMode,
+  PixelationAlgorithm,
+} from "$/import-export/image/import/types";
 import type { PixelateOptions, PixelationSize } from "$/import-export/image/import/types";
 
 const WORKING_SCALE = 4;
@@ -39,11 +43,13 @@ function sampleImage(
   options: PixelateOptions,
   method: PixelationMethod,
 ): PixelBuffer {
-  const mode = options.mode ?? PixelationMode.Convert;
+  const algorithm = options.algorithm ?? PixelationAlgorithm.Auto;
+  const mode = options.mode ?? getModeForAlgorithm(image, algorithm);
+
   if (mode !== PixelationMode.Convert && mode !== PixelationMode.RecoverGrid)
     throw new RangeError("Unknown pixelation mode.");
   if (mode === PixelationMode.RecoverGrid) {
-    const grid = options.grid ?? detectPixelGrid(image);
+    const grid = options.grid ?? detectWithAlgorithm(image, algorithm);
     if ("reliable" in grid && !grid.reliable)
       throw new Error(
         "No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.",

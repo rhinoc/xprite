@@ -93,6 +93,7 @@ export interface PixelationSize {
 
 export interface PixelateOptions {
   mode?: PixelationMode;
+  algorithm?: PixelationAlgorithm;
   grid?: PixelGridGeometry;
   outlineStrength?: number;
   /** Sampling rule used to choose one representative color per output cell. */
