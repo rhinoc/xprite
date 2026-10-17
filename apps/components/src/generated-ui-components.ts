@@ -35486,6 +35486,14 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
     component: ScrollbarThumb as unknown as ComponentType<Record<string, unknown>>,
     props: [
       {
+        name: "scrollbarStyle",
+        kind: "enum",
+        required: false,
+        type: "ScrollbarStyle | undefined",
+        options: ["compact", "classic", "transparent"],
+        hostProp: false,
+      },
+      {
         name: "hovered",
         kind: "boolean",
         required: false,

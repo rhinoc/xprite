@@ -110,6 +110,13 @@
   border-width: 2px 1px;
 }
 
+/* The real scrollbar clips its artwork to the bar's bounds. */
+.thumbArtwork {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
 /* Standalone thumbs (ScrollbarThumb): same skin and grip as the scrollbar's own thumb. */
 .thumbStandalone,
 .compactThumbStandalone,
