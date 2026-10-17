@@ -44,7 +44,7 @@ export interface FilePreferences {
   importAsk: boolean;
   /** What the dialog last did; applied silently when importAsk is off. */
   importLastAction: ImportAction;
-  importPixelationAlgorithm: "auto" | "edge-grid" | "uniform-grid" | "resize";
+  importPixelationAlgorithm: "auto" | "edge-grid" | "uniform-grid";
   importColorPicker: CellColorPicker;
 }
 export type ExportExtensionDefaults = Pick<
@@ -117,8 +117,7 @@ export function normalizeFilePreferences(value: unknown): FilePreferences {
   const importPixelationAlgorithm =
     saved.importPixelationAlgorithm === "auto" ||
     saved.importPixelationAlgorithm === "edge-grid" ||
-    saved.importPixelationAlgorithm === "uniform-grid" ||
-    saved.importPixelationAlgorithm === "resize"
+    saved.importPixelationAlgorithm === "uniform-grid"
       ? saved.importPixelationAlgorithm
       : DEFAULT_FILE_PREFERENCES.importPixelationAlgorithm;
   const importColorPicker = getAllColorPickers().includes(

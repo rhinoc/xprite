@@ -61,10 +61,7 @@
 .tag {
   position: absolute;
   bottom: 2px;
-  max-width: 45%;
   padding: 1px 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 11px;
   line-height: 14px;

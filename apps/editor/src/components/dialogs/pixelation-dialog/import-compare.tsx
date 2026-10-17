@@ -110,8 +110,6 @@ export function ImportCompare({
             style={{ clipPath: `inset(0 0 0 ${split}%)` }}
           />
         )}
-        <span className={`${styles.tag} ${styles.tagLeft}`}>{leftLabel}</span>
-        <span className={`${styles.tag} ${styles.tagRight}`}>{rightLabel}</span>
         <div
           ref={bar}
           className={styles.bar}
@@ -127,6 +125,9 @@ export function ImportCompare({
           <span className={styles.grip} />
         </div>
       </div>
+      {/* Anchored to the frame, not the (aspect-fitted, possibly narrow) stage, so they never clip. */}
+      <span className={`${styles.tag} ${styles.tagLeft}`}>{leftLabel}</span>
+      <span className={`${styles.tag} ${styles.tagRight}`}>{rightLabel}</span>
     </div>
   );
 }
