@@ -10,10 +10,11 @@ import {
   ImageExportExtension,
   SaveFileExtension,
   ImportDialogChoice,
+  PixelationAlgorithm,
 } from "$/managers/preferences/file-preferences";
 import type { FilePreferences } from "$/managers/preferences/file-preferences";
 import type { RecoverySettings } from "$/managers/workspace/recovery-settings";
-import { PixelationAlgorithm, getAllAlgorithms } from "@xprite/editor-core";
+import { getAllAlgorithms } from "@xprite/editor-core";
 import { Button, Combobox, Slider, Text, TextVariant } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 
@@ -232,7 +233,7 @@ export function FilesPreferences({
       <Text
         bounds={narrowLayout ? box(358, 488, 333, 16) : box(358, 357, 333, 16)}
         relativeTo={client}
-        variant={TextVariant.PixelBody}
+        variant={TextVariant.Reading}
       >
         {tUi("import.preferences.choice")}
       </Text>
@@ -269,7 +270,7 @@ export function FilesPreferences({
           <Text
             bounds={narrowLayout ? box(358, 544, 333, 16) : box(358, 381, 333, 16)}
             relativeTo={client}
-            variant={TextVariant.PixelBody}
+            variant={TextVariant.Reading}
           >
             {tUi("import.preferences.algorithm")}
           </Text>

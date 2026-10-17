@@ -582,7 +582,7 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
               pixelationError,
               setPixelationOptions,
               setFilePreferences,
-              filePreferences: getFilePreferences(),
+              getFilePreferences,
               busy,
               discardEmptyImport,
               acceptOriginalImport,

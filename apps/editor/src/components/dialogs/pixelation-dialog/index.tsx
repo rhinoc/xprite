@@ -37,7 +37,7 @@ type Workflow = Pick<
   | "pixelationError"
   | "setPixelationOptions"
   | "setFilePreferences"
-  | "filePreferences"
+  | "getFilePreferences"
   | "busy"
   | "discardEmptyImport"
   | "acceptOriginalImport"
@@ -78,8 +78,9 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
 
   const handleAcceptOriginal = () => {
     if (rememberChoice) {
+      const currentPreferences = workflow.getFilePreferences();
       workflow.setFilePreferences({
-        ...workflow.filePreferences,
+        ...currentPreferences,
         importDialogChoice: ImportDialogChoice.AlwaysImportAsIs,
       });
     }
@@ -88,8 +89,9 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
 
   const handleAcceptPixelated = () => {
     if (rememberChoice) {
+      const currentPreferences = workflow.getFilePreferences();
       workflow.setFilePreferences({
-        ...workflow.filePreferences,
+        ...currentPreferences,
         importDialogChoice: ImportDialogChoice.AlwaysPixelate,
         importPixelationAlgorithm: selectedAlgorithm,
       });
