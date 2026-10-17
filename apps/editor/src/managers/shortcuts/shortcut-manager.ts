@@ -77,6 +77,8 @@ const WHEEL_ACTIONS: Readonly<Record<string, EditorWheelAction>> = {
   BrushSize: EditorWheelAction.Brush,
   Frame: EditorWheelAction.Frame,
 };
+/** Menus show only the first binding so rows stay narrow; the full list lives in the shortcut editor. */
+const firstShortcut = (value: string) => value.split(/,\s+/)[0] ?? "";
 const canonicalContext = (value: string) => value.replace(/\s+|\//g, "").toLowerCase();
 const overlaps = (a: string, b: string) =>
   a === "Any" || b === "Any" || canonicalContext(a) === canonicalContext(b);
@@ -519,7 +521,7 @@ export class ShortcutManager {
         shortcutIdentity(entry.kind, entry.id, entry.context, entry.params) ===
           shortcutIdentity(entry.kind, entry.id, entry.context, params),
     );
-    return definition ? this.bindings(definition).join(", ") : fallback;
+    return definition ? this.bindings(definition)[0] || "" : firstShortcut(fallback);
   }
   matchesCommandShortcut(
     input: ShortcutInput,
