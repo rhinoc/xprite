@@ -177,8 +177,8 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   /** Only errors and "no grid found" notices; everything else the labels already say. */
   const pixelateMessage = workflow.pixelationError
     ? tUiSource(workflow.pixelationError)
-    : noteKey
-      ? tUiSource(noteKey)
+    : pixelate && noteKey
+      ? `${tUiSource(noteKey)} ${tUiSource("import.note.picker.needs-grid")}`
       : null;
   const message = pixelate ? pixelateMessage : null;
 
@@ -278,6 +278,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 width={width}
                 height={previewHeight}
                 comparing={pixelate}
+                updating={workflow.pixelationPreviewing}
                 labels={{
                   original: tUiSource("import.dialog.original"),
                   result: tUiSource("import.dialog.result.label"),
@@ -349,7 +350,8 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                   bounds={pickerCombo}
                   relativeTo={client}
                   value={colorPicker}
-                  disabled={workflow.busy}
+                  // Without a grid the preview is a plain resize, which has no per-cell colour to pick.
+                  disabled={workflow.busy || !pending.grid?.reliable}
                   options={colorPickerOptions}
                   onValueChange={(value) =>
                     workflow.setPixelationOptions({

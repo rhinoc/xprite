@@ -552,6 +552,7 @@
   "import.algorithm.resize": "Solo redimensionar",
   "import.algorithm.custom-size": "Tamaño personalizado",
   "import.note.auto.none": "No se encontraron píxeles, así que solo se redimensionó la imagen. Prueba Avanzado.",
+  "import.note.picker.needs-grid": "El selector de color necesita una cuadrícula de píxeles, por eso está desactivado. Elige Tamaño personalizado para usarlo.",
   "import.note.uniform-grid.none": "No se encontró una cuadrícula fija, así que solo se redimensionó la imagen. Prueba Cuadrícula flexible o Auto.",
   "import.note.edge-grid.none": "No se encontró una cuadrícula flexible, así que solo se redimensionó la imagen. Prueba Cuadrícula fija o Auto.",
   "import.dialog.color.picker": "Color del píxel:",

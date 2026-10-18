@@ -47,11 +47,14 @@ export function ImportCompare({
   height,
   labels,
   comparing = true,
+  updating = false,
 }: {
   original: CanvasPixelSource;
   result: CanvasPixelSource | null;
   width: number;
   height: number;
+  /** A new result is being computed: the previous one stays, dimmed, under a status tag. */
+  updating?: boolean;
   /** False shows only the original: no result layer, divider or handle. */
   comparing?: boolean;
   labels: {
@@ -81,8 +84,13 @@ export function ImportCompare({
     event.stopPropagation();
     setSplit((value) => Math.max(0, Math.min(100, value + delta)));
   };
+  // Keep the previous result on screen (dimmed) while the next one is computed, so changing an
+  // option never blanks the preview and the user can see that something is happening.
+  const lastResult = useRef<CanvasPixelSource | null>(null);
+  if (result) lastResult.current = result;
   const left = original;
-  const right = result;
+  const right = result ?? (updating ? lastResult.current : null);
+  const stale = !result && updating && !!right;
   const leftLabel = labels.original;
   const rightLabel = labels.result;
   return (
@@ -116,7 +124,7 @@ export function ImportCompare({
           <PixelCanvas
             pixels={right}
             className={styles.layer}
-            style={{ clipPath: `inset(0 0 0 ${split}%)` }}
+            style={{ clipPath: `inset(0 0 0 ${split}%)`, ...(stale ? { opacity: 0.45 } : {}) }}
           />
         )}
         {comparing && (
@@ -146,7 +154,11 @@ export function ImportCompare({
       </div>
       {/* Anchored to the frame, not the (aspect-fitted, possibly narrow) stage, so they never clip. */}
       {comparing && <span className={`${styles.tag} ${styles.tagLeft}`}>{leftLabel}</span>}
-      {comparing && <span className={`${styles.tag} ${styles.tagRight}`}>{rightLabel}</span>}
+      {comparing && (
+        <span className={`${styles.tag} ${styles.tagRight}`} role={updating ? "status" : undefined}>
+          {updating ? labels.preparing : rightLabel}
+        </span>
+      )}
     </div>
   );
 }
