@@ -48,6 +48,24 @@ and query parameters, and check that the final URL is the corresponding
 `https://xprite.cc` URL. Also verify that the apex `release.json` still serves the
 deployed production revision.
 
+## IndexNow
+
+Production deployments tell Bing, Yandex and other [IndexNow](https://www.indexnow.org/)
+engines which pages changed. The key is public by design: `infra/indexnow.ts` holds it, and
+`apps/growth/public/<key>.txt` serves it at the site root (`https://xprite.cc/<key>.txt`) so
+engines can confirm that we control the host. Nothing secret is stored or needed. To rotate
+the key, generate a new hexadecimal string, rename the key file, and update `INDEXNOW_KEY`.
+
+- `pnpm run deploy:indexnow:plan` runs before publishing. It compares every sitemap page in
+  the prepared artifact with the live page, ignoring hashed build assets, and writes the pages that differ to
+  `.tmp/deploy/indexnow-urls.json`.
+- `pnpm run deploy:indexnow:submit` runs after the verified publish and posts that list to
+  `https://api.indexnow.org/indexnow`. Set `INDEXNOW_DRY_RUN=1` to print the request instead. Set `INDEXNOW_ALL=1` when planning to
+  submit every sitemap page, for example after the first production deployment.
+- Both steps do nothing unless `EDGEONE_ENV=production`, and the workflow marks them
+  `continue-on-error`, so an IndexNow outage never fails a deployment.
+- The deployment verification also requires the key file to be served as plain text.
+
 ## Search indexing and sharing
 
 Canonical page metadata is registered in `apps/growth/content/site/pages.ts`.
