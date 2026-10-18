@@ -1,12 +1,7 @@
-import { Fragment } from "react";
-
-import { cjkPixelGlyphMask } from "$/base/theme/cjk-pixel-glyph";
 import { themeFontFamily } from "$/base/theme/font-families";
-import { pixelFallbackAdvance } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { FontRole } from "$/base/theme/theme-types";
 import { UiFontRenderer, type UiFontDefinition } from "$/base/theme/theme-types";
-import { useThemeAssets } from "$/base/theme/use-theme-assets";
 import { cn } from "$/base/utils/cn";
 import { ScriptText, useCjkRunStyle } from "$/components/text/script-offset";
 import { textRuns } from "$/components/text/text-runs";
@@ -59,52 +54,6 @@ function atlasGlyphStyle(char: string, scale: number, color: string, font: UiFon
   };
 }
 
-/**
- * Compact CJK in the DOM. The face is a scaled pixel font, and DOM text cannot threshold its own
- * antialiasing, so each glyph is the canvas path's binarised raster, painted as a coloured mask.
- */
-function cjkMaskRun(
-  text: string,
-  metrics: Extract<UiFontDefinition, { renderer: UiFontRenderer.Bitmap }>,
-  scale: number,
-  color: string,
-  offset: React.CSSProperties | undefined,
-) {
-  return (
-    <span style={offset}>
-      {[...text].map((char, index) => {
-        const mask = cjkPixelGlyphMask(
-          char,
-          metrics,
-          scale,
-          pixelFallbackAdvance(char.codePointAt(0)!, metrics.cjkAdvance),
-        );
-        if (!mask) return null;
-        const url = `url("${mask.url}")`;
-        return (
-          <span
-            key={index}
-            aria-hidden="true"
-            className={styles.atlasGlyph}
-            style={{
-              width: mask.width,
-              height: mask.height,
-              backgroundColor: color,
-              imageRendering: "pixelated",
-              maskImage: url,
-              maskSize: "100% 100%",
-              maskRepeat: "no-repeat",
-              WebkitMaskImage: url,
-              WebkitMaskSize: "100% 100%",
-              WebkitMaskRepeat: "no-repeat",
-            }}
-          />
-        );
-      })}
-    </span>
-  );
-}
-
 export function PositionedPixelText({
   text,
   x,
@@ -116,7 +65,6 @@ export function PositionedPixelText({
   style,
 }: Omit<PositionedPixelTextProps, "variant">) {
   const { definition } = useTheme();
-  const cjkFontReady = useThemeAssets()?.cjkFontReady ?? false;
   const scriptRunStyle = useCjkRunStyle(scale);
   const metrics = definition.typography[font];
   const bitmapInDom = metrics.renderer === UiFontRenderer.Bitmap && metrics.atlasInDom;
@@ -152,11 +100,7 @@ export function PositionedPixelText({
     >
       {bitmapInDom ? (
         runs.map((run, index) =>
-          run.cjk && cjkFontReady && metrics.renderer === UiFontRenderer.Bitmap && !titleCjk ? (
-            <Fragment key={index}>
-              {cjkMaskRun(run.text, metrics, scale, color, scriptRunStyle)}
-            </Fragment>
-          ) : run.cjk ? (
+          run.cjk ? (
             <span
               key={index}
               className={styles.fallbackCjk}

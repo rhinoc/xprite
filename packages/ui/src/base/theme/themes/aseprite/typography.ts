@@ -18,15 +18,10 @@ function bitmapFont(glyphs: UiGlyphMap, url: string, width: number, height: numb
     lineHeight,
     // Primary Chinese uses the 10px face at the 14px English line, shifted onto
     // Aseprite's baseline (10 of 14). Mini bitmap glyphs are 5px tall at 2x, so
-    // compact Chinese uses the 8px face (same pixel grid as the 5px Latin Mini at 2x)
-    // enlarged 1.25x to a 10px-equivalent em, so its strokes match the English Mini.
-    // Its native baseline sits 8.75 of 10 at that size, which rounds to 9.
-    cjkFontFamily: mini ? "FusionPixel8" : "FusionPixel10Aseprite",
+    // compact Chinese keeps the unshifted 10px grid (baseline 9 of 10).
+    cjkFontFamily: mini ? "FusionPixel10" : "FusionPixel10Aseprite",
     cjkFontSize: mini ? 10 : 14,
     cjkAdvance: mini ? 10 : 14,
-    // Below half so thin strokes survive; 1.25x of an 8px grid binarises heavier than 1.4x of the
-    // 10px grid at 64, so compact keeps a slightly higher cut-off to avoid blobbed strokes.
-    ...(mini ? { cjkCoverageThreshold: 112 } : {}),
     fallbackFontFamily: "sans-serif",
     fallbackAdvance: glyphs["63"][2] * 2,
     advances: Object.fromEntries(
