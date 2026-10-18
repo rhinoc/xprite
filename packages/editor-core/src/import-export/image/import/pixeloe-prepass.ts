@@ -10,7 +10,7 @@ import type { PixelBuffer } from "$/base/primitives";
  * three channels together, kornia's Lab constants. Not replicated: replicate-padding to a multiple of
  * the pixel size, fp16 Gaussian kernel, unclamped intermediates (output is 8-bit), alpha (kept as is).
  */
-export const PIXELOE_THICKNESS = 3;
+const PIXELOE_THICKNESS = 3;
 const WAVELET_LEVELS = 5;
 
 type Plane = Float32Array;
@@ -347,7 +347,7 @@ function waveletColorFix(inp: Plane, target: Plane, w: number, h: number): Plane
 }
 
 /** Outline expansion only. */
-export function outlineExpansion(
+function outlineExpansion(
   planes: [Plane, Plane, Plane],
   w: number,
   h: number,
@@ -368,7 +368,7 @@ export function outlineExpansion(
 }
 
 /** Colour match of `source` to `target` (global Lab statistics, then wavelet low-frequency swap). */
-export function colorMatch(
+function colorMatch(
   source: [Plane, Plane, Plane],
   target: [Plane, Plane, Plane],
   w: number,
