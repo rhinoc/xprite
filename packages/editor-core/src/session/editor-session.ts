@@ -760,7 +760,30 @@ export class EditorSession<Source> {
         });
     }
   }
+  /**
+   * The import worker is single-threaded and cannot abort a running job, so a preview that is
+   * already computing is never queued behind: the newest request waits and runs once it finishes,
+   * and every request made in between is dropped.
+   */
+  private previewRunning = false;
+  private previewQueued = false;
   private async previewPixelation() {
+    if (this.previewRunning) {
+      this.previewQueued = true;
+      this.publish({ pixelationPreviewing: true, pixelationError: null });
+      return;
+    }
+    this.previewRunning = true;
+    try {
+      do {
+        this.previewQueued = false;
+        await this.runPreviewPixelation();
+      } while (this.previewQueued && !this.disposed);
+    } finally {
+      this.previewRunning = false;
+    }
+  }
+  private async runPreviewPixelation() {
     const candidate = this.candidate;
     if (!candidate || this.disposed) return;
     const version = ++this.previewVersion,
@@ -773,6 +796,8 @@ export class EditorSession<Source> {
         candidate.grid,
       );
       const pixels = await this.ports.pixelate(candidate.pixels, options);
+      // A newer request is already waiting: this result is stale, so keep the spinner up.
+      if (this.previewQueued) return;
       if (this.valid(generation) && version === this.previewVersion)
         this.publish({
           pixelationPreview: pixels,

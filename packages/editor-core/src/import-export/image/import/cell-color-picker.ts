@@ -182,20 +182,38 @@ function kMeansColor(image: PixelBuffer, offsets: number[]): Rgba4 {
  * The reference runs this on the outline-expanded image; we run it on the source cells.
  */
 function contrastColor(image: PixelBuffer, offsets: number[], centre: number): Rgba4 {
-  const labs = offsets.map((o) => rgbToLab(image.data[o], image.data[o + 1], image.data[o + 2]));
-  const [, a, b] = [0, 1, 2].map((c) => medianFloat(labs.map((lab) => lab[c])));
-  const lows = labs.map((lab) => lab[0]);
-  const l = medianFloat([...lows]);
-  const mean = lows.reduce((s, v) => s + v, 0) / lows.length;
-  const lo = Math.min(...lows);
-  const hi = Math.max(...lows);
+  const n = offsets.length;
+  const ls = new Float64Array(n);
+  const as = new Float64Array(n);
+  const bs = new Float64Array(n);
+  let sum = 0;
+  let lo = Infinity;
+  let hi = -Infinity;
+  let alpha = 0;
+  for (let i = 0; i < n; i++) {
+    const o = offsets[i];
+    const [l, a, b] = rgbToLab(image.data[o], image.data[o + 1], image.data[o + 2]);
+    ls[i] = l;
+    as[i] = a;
+    bs[i] = b;
+    sum += l;
+    if (l < lo) lo = l;
+    if (l > hi) hi = l;
+    alpha += image.data[o + 3];
+  }
+  const mean = sum / n;
+  const l = sortedMedian(ls);
   let lightness = rgbToLab(image.data[centre], image.data[centre + 1], image.data[centre + 2])[0];
   if (l < mean && hi - l > l - lo) lightness = lo;
   else if (l > mean && hi - l < l - lo) lightness = hi;
-  return [...labToRgb(lightness, a, b), meanOf(channelsOf(image, offsets, 3))] as Rgba4;
+  return [
+    ...labToRgb(lightness, sortedMedian(as), sortedMedian(bs)),
+    Math.round(alpha / n),
+  ] as Rgba4;
 }
-function medianFloat(values: number[]): number {
-  values.sort((x, y) => x - y);
+/** Median of a typed array; sorts it in place. */
+function sortedMedian(values: Float64Array): number {
+  values.sort();
   const mid = values.length >> 1;
   return values.length % 2 ? values[mid] : (values[mid - 1] + values[mid]) / 2;
 }

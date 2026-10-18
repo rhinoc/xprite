@@ -127,6 +127,9 @@ export function ImportCompare({
             style={{ clipPath: `inset(0 0 0 ${split}%)`, ...(stale ? { opacity: 0.45 } : {}) }}
           />
         )}
+        {comparing && updating && (
+          <div className={styles.progress} role="progressbar" aria-label={labels.preparing} />
+        )}
         {comparing && (
           <div
             ref={bar}

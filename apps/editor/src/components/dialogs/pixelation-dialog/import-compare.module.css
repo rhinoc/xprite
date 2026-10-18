@@ -80,3 +80,27 @@
 .tagRight {
   right: 2px;
 }
+
+/* Indeterminate progress strip along the top of the preview while a new result is computed. */
+.progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  pointer-events: none;
+  border-bottom: 1px solid #000;
+  background: repeating-linear-gradient(-45deg, #f5c342 0 6px, #000 6px 12px);
+  background-size: 17px 100%;
+  animation: progress-slide 0.5s linear infinite;
+}
+@keyframes progress-slide {
+  to {
+    background-position: 17px 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress {
+    animation: none;
+  }
+}
