@@ -175,11 +175,12 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     label: tUiSource(algorithmLabelKey(algorithm)),
   }));
   /** Only errors and "no grid found" notices; everything else the labels already say. */
-  const message = workflow.pixelationError
+  const pixelateMessage = workflow.pixelationError
     ? tUiSource(workflow.pixelationError)
-    : pixelate && noteKey
+    : noteKey
       ? tUiSource(noteKey)
       : null;
+  const message = pixelate ? pixelateMessage : null;
 
   return (
     <EditorDialog
@@ -198,8 +199,10 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     >
       {({ clientBounds: client }) => {
         const width = client.width;
-        const hintHeight = message ? HINT_HEIGHT + GAP : 0;
-        const advancedRowHeight = pixelate ? ROW_HEIGHT + GAP : 0;
+        // Both Pixelate and Keep as is reserve the hint and Advanced rows, so toggling between
+        // them never resizes or moves the preview; Keep as is just leaves those rows empty.
+        const hintHeight = pixelateMessage ? HINT_HEIGHT + GAP : 0;
+        const advancedRowHeight = ROW_HEIGHT + GAP;
         const advancedHeight = showAdvanced ? 3 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) : 0;
         const bottomStack =
           SECTION_HEIGHT +
@@ -223,8 +226,8 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const half = Math.round(width / 2);
         const optionY = y;
         y += OPTION_HEIGHT + GAP;
-        const hintBounds = message ? at(HINT_HEIGHT, GAP) : null;
-        const advancedRow = at(pixelate ? ROW_HEIGHT : 0, pixelate ? GAP : 0);
+        const hintBounds = pixelateMessage ? at(HINT_HEIGHT, GAP) : null;
+        const advancedRow = at(ROW_HEIGHT, GAP);
         const algorithmLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
         const algorithmCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         const sizeLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
