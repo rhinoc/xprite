@@ -103,6 +103,7 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   Width: "幅",
   Height: "高さ",
   "Outline protection": "輪郭を保護",
+  "PixelOE pre-pass": "PixelOE前処理",
   "Keep original dimensions": "元のサイズを維持",
   "Automatic grid": "自動グリッド",
   "Open image": "画像を開く",

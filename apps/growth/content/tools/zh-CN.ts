@@ -165,6 +165,7 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   Width: "宽度",
   Height: "高度",
   "Outline protection": "轮廓保护",
+  "PixelOE pre-pass": "PixelOE 预处理",
   "Keep original dimensions": "保持原始尺寸",
   "Automatic grid": "自动网格",
   "Open image": "打开图片",

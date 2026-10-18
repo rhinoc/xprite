@@ -123,10 +123,6 @@ const meanOf = (values: number[]) => Math.round(values.reduce((a, b) => a + b, 0
 
 const KMEANS_K = 3;
 const KMEANS_ROUNDS = 8;
-/** L* spread above which the Contrast picker pushes the cell toward its stronger extreme. */
-const CONTRAST_SPREAD = 30;
-const CONTRAST_PULL = 0.5;
-
 const rgbaAt = (image: PixelBuffer, o: number): Rgba4 => [
   image.data[o],
   image.data[o + 1],
@@ -179,22 +175,45 @@ function kMeansColor(image: PixelBuffer, offsets: number[]): Rgba4 {
 }
 
 /**
- * Median L*, a*, b* of the cell. When the cell has strong lightness contrast the lightness is
- * pulled toward whichever extreme sits farther from the median, keeping thin lines and highlights
- * from washing out. Follows the contrast-based idea of PixelOE (Apache-2.0), reimplemented.
+ * PixelOE's contrast-based patch pick (Apache-2.0, KohakuBlueleaf/PixelOE `find_pixel_luminance`),
+ * reimplemented. A*, b* are the patch medians. L* is the centre pixel's, unless the patch is skewed:
+ * median below mean and the max farther from the median than the min -> the patch minimum;
+ * median above mean and the max nearer the median than the min -> the patch maximum.
+ * The reference runs this on the outline-expanded image; we run it on the source cells.
  */
-function contrastColor(image: PixelBuffer, offsets: number[]): Rgba4 {
-  const labs = offsets.map((o) => rgbToLab(image.data[o], image.data[o + 1], image.data[o + 2]));
-  const [l, a, b] = [0, 1, 2].map((c) => medianFloat(labs.map((lab) => lab[c])));
-  const lows = labs.map((lab) => lab[0]);
-  const lo = Math.min(...lows);
-  const hi = Math.max(...lows);
-  const extreme = hi - l >= l - lo ? hi : lo;
-  const lightness = hi - lo >= CONTRAST_SPREAD ? l + (extreme - l) * CONTRAST_PULL : l;
-  return [...labToRgb(lightness, a, b), meanOf(channelsOf(image, offsets, 3))] as Rgba4;
+function contrastColor(image: PixelBuffer, offsets: number[], centre: number): Rgba4 {
+  const n = offsets.length;
+  const ls = new Float64Array(n);
+  const as = new Float64Array(n);
+  const bs = new Float64Array(n);
+  let sum = 0;
+  let lo = Infinity;
+  let hi = -Infinity;
+  let alpha = 0;
+  for (let i = 0; i < n; i++) {
+    const o = offsets[i];
+    const [l, a, b] = rgbToLab(image.data[o], image.data[o + 1], image.data[o + 2]);
+    ls[i] = l;
+    as[i] = a;
+    bs[i] = b;
+    sum += l;
+    if (l < lo) lo = l;
+    if (l > hi) hi = l;
+    alpha += image.data[o + 3];
+  }
+  const mean = sum / n;
+  const l = sortedMedian(ls);
+  let lightness = rgbToLab(image.data[centre], image.data[centre + 1], image.data[centre + 2])[0];
+  if (l < mean && hi - l > l - lo) lightness = lo;
+  else if (l > mean && hi - l < l - lo) lightness = hi;
+  return [
+    ...labToRgb(lightness, sortedMedian(as), sortedMedian(bs)),
+    Math.round(alpha / n),
+  ] as Rgba4;
 }
-function medianFloat(values: number[]): number {
-  values.sort((x, y) => x - y);
+/** Median of a typed array; sorts it in place. */
+function sortedMedian(values: Float64Array): number {
+  values.sort();
   const mid = values.length >> 1;
   return values.length % 2 ? values[mid] : (values[mid - 1] + values[mid]) / 2;
 }
@@ -239,7 +258,10 @@ const PICKERS: Readonly<Record<CellColorPicker, CellColorPickerEntry>> = {
     label: "import.picker.contrast",
     pick: (image, x0, y0, x1, y1) => {
       const o = opaqueOffsets(image, x0, y0, x1, y1);
-      return o && contrastColor(image, o);
+      const cx = (x0 + x1) >> 1;
+      const cy = (y0 + y1) >> 1;
+      const centre = (cy * image.width + cx) * CHANNELS;
+      return o && contrastColor(image, o, image.data[centre + 3] ? centre : o[o.length >> 1]);
     },
   },
   [CellColorPicker.Nearest]: {

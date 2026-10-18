@@ -105,6 +105,7 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   Width: "Ancho",
   Height: "Alto",
   "Outline protection": "Protección de contornos",
+  "PixelOE pre-pass": "Pre-paso PixelOE",
   "Keep original dimensions": "Mantener dimensiones originales",
   "Automatic grid": "Cuadrícula automática",
   "Open image": "Abrir imagen",

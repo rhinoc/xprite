@@ -101,6 +101,7 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   Width: "너비",
   Height: "높이",
   "Outline protection": "윤곽 보호",
+  "PixelOE pre-pass": "PixelOE 전처리",
   "Keep original dimensions": "원본 크기 유지",
   "Automatic grid": "자동 격자",
   "Open image": "이미지 열기",

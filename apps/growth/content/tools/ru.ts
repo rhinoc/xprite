@@ -103,6 +103,7 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   Width: "Ширина",
   Height: "Высота",
   "Outline protection": "Защита контуров",
+  "PixelOE pre-pass": "Предобработка PixelOE",
   "Keep original dimensions": "Сохранить исходный размер",
   "Automatic grid": "Автосетка",
   "Open image": "Открыть изображение",
