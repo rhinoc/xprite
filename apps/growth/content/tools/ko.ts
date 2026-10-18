@@ -15,18 +15,18 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
     "에이스프라이트 뷰어: .ase·.aseprite 파일 온라인으로 열기 | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Aseprite 프로젝트를 미리 보고 PNG 프레임이나 GIF 애니메이션으로 내보내세요.",
-  "Open Aseprite projects, preview layers and animation, and export PNG frames or GIF animations in your browser. Files stay on your device, with no cloud upload.":
+  "Free Aseprite viewer: open .aseprite and .ase files online without Aseprite. Preview layers and animation, export PNG or GIF. Files never leave your device.":
     "브라우저에서 Aseprite 프로젝트를 열고 레이어와 애니메이션을 미리 본 뒤 PNG 프레임이나 GIF 애니메이션으로 내보내세요. 파일은 기기에서 처리되며 클라우드에 업로드되지 않습니다.",
   "Choose an Aseprite file": "Aseprite 파일 선택",
   "Open file": "파일 열기",
   "Open file…": "파일 열기…",
   "Drop an .ase or .aseprite file": ".ase 또는 .aseprite 파일을 끌어 놓기",
   "Turn a GIF into a sprite sheet": "GIF를 스프라이트 시트로 변환",
-  "GIF to Sprite Sheet: Free Online Converter | Xprite":
+  "GIF to Sprite Sheet Converter: Free, No Upload | Xprite":
     "GIF 스프라이트 시트 변환기: 무료 온라인 도구 | Xprite",
   "Convert GIF animations into PNG sprite sheets with JSON frame data.":
     "GIF 애니메이션을 PNG 스프라이트 시트와 JSON 프레임 데이터로 변환하세요.",
-  "Convert GIF animations into PNG sprite sheets free in your browser. Choose rows, columns and spacing, and download JSON frame data. Files stay on your device.":
+  "Convert a GIF to a PNG sprite sheet free in your browser. Set rows, columns and spacing; get JSON frame data for game engines. Files stay on your device.":
     "브라우저에서 GIF 애니메이션을 무료로 PNG 스프라이트 시트로 변환하세요. 행, 열, 간격을 고르고 JSON 프레임 데이터도 내려받을 수 있습니다. 파일은 기기에서 처리됩니다.",
   "Choose a GIF file": "GIF 파일 선택",
   "Open GIF": "GIF 열기",
