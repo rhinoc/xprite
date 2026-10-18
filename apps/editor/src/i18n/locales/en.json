@@ -561,6 +561,8 @@
   "import.picker.median": "Median",
   "import.picker.k-means": "K-means",
   "import.picker.contrast": "Contrast",
+  "import.dialog.pixeloe.prepass": "PixelOE pre-pass",
+  "import.dialog.pixeloe.preset": "PixelOE preset",
   "import.picker.nearest": "Nearest",
   "import.preferences.ask": "Ask me how to import pictures that could be pixel art",
   "import.dialog.title": "Import Options",

@@ -561,6 +561,8 @@
   "import.picker.median": "Медиана",
   "import.picker.k-means": "K-средних",
   "import.picker.contrast": "Контраст",
+  "import.dialog.pixeloe.prepass": "Предобработка PixelOE",
+  "import.dialog.pixeloe.preset": "Пресет PixelOE",
   "import.picker.nearest": "Ближайший",
   "import.preferences.ask": "Спрашивать, как импортировать картинки, похожие на пиксель-арт",
   "import.dialog.title": "Параметры импорта",

@@ -244,6 +244,12 @@ export function PixelationControls({
                 onCommit={(value) => onChange({ outlineStrength: Number(value) })}
               />
             </Field>
+            <Checkbox
+              label={translate("PixelOE pre-pass")}
+              checked={settings.pixeloePrepass}
+              disabled={disabled}
+              onCheckedChange={(pixeloePrepass) => onChange({ pixeloePrepass })}
+            />
           </ControlGroup>
         </>
       )}

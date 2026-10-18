@@ -561,6 +561,8 @@
   "import.picker.median": "中央値",
   "import.picker.k-means": "K平均法",
   "import.picker.contrast": "コントラスト",
+  "import.dialog.pixeloe.prepass": "PixelOE前処理",
+  "import.dialog.pixeloe.preset": "PixelOEプリセット",
   "import.picker.nearest": "最近傍",
   "import.preferences.ask": "ドット絵の可能性がある画像のインポート方法を確認する",
   "import.dialog.title": "インポートオプション",

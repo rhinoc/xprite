@@ -9,6 +9,7 @@ import {
   detectWithAlgorithm,
   recoverWithGrid,
 } from "$/import-export/image/import/pixelation-algorithm-registry";
+import { pixeloePrepass } from "$/import-export/image/import/pixeloe-prepass";
 import { resizeBox, resizeNearest } from "$/import-export/image/import/resize";
 import { samplePixelation } from "$/import-export/image/import/sampling";
 import {
@@ -77,9 +78,17 @@ function sampleImage(
       throw new Error(
         "No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.",
       );
-    return recoverWithGrid(image, found, options.colorPicker);
+    const cell = (found.cellWidth + found.cellHeight) / 2;
+    return recoverWithGrid(
+      options.pixeloePrepass ? pixeloePrepass(image, cell) : image,
+      found,
+      options.colorPicker,
+    );
   }
   const target = resolveTargetSize(image, options);
+  // Optional, independent pre-pass; whatever sampler or colour picker follows works on its result.
+  if (options.pixeloePrepass)
+    image = pixeloePrepass(image, (image.width / target.width + image.height / target.height) / 2);
   const strength = options.outlineStrength ?? 0;
   if (!Number.isFinite(strength) || strength < 0 || strength > MAX_OUTLINE_STRENGTH)
     throw new RangeError("Outline protection must be between 0 and 100.");

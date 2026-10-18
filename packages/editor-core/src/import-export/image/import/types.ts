@@ -119,6 +119,8 @@ export interface PixelateOptions {
   colorPicker?: CellColorPicker;
   grid?: PixelGridGeometry;
   outlineStrength?: number;
+  /** Run the PixelOE pre-pass (outline expansion + colour match) before sampling; works with any picker/method. */
+  pixeloePrepass?: boolean;
   /** Sampling rule used to choose one representative color per output cell. */
   method?: PixelationMethod;
   /** Split the image into even blocks of the target size and let `colorPicker` choose each colour (instead of `method`). */
@@ -158,6 +160,8 @@ export interface PixelationSettings {
   mode: PixelationMode;
   reduceColors: boolean;
   outlineStrength: number;
+  /** PixelOE pre-pass (outline expansion + colour match) ahead of the sampler. */
+  pixeloePrepass: boolean;
   colorPicker: CellColorPicker;
   autoGrid: boolean;
   gridCellWidth: number;

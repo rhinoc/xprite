@@ -203,7 +203,9 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         // them never resizes or moves the preview; Keep as is just leaves those rows empty.
         const hintHeight = pixelateMessage ? HINT_HEIGHT + GAP : 0;
         const advancedRowHeight = ROW_HEIGHT + GAP;
-        const advancedHeight = showAdvanced ? 3 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) : 0;
+        const advancedHeight = showAdvanced
+          ? 3 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) + ROW_HEIGHT + GAP
+          : 0;
         const bottomStack =
           SECTION_HEIGHT +
           4 +
@@ -234,6 +236,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const sizeRow = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         const pickerLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
         const pickerCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
+        const prepassRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
         const rememberRow = at(ROW_HEIGHT);
         const footerY = client.y + client.height - FOOTER_HEIGHT;
         const option = (value: ImportAction, label: string, x: number, w: number) => (
@@ -407,6 +410,37 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                     />
                   </>
                 )}
+              </>
+            )}
+            {prepassRow && (
+              <>
+                <Checkbox
+                  label={tUiSource("import.dialog.pixeloe.prepass")}
+                  checked={options.pixeloePrepass}
+                  disabled={workflow.busy}
+                  onCheckedChange={(pixeloePrepass) =>
+                    workflow.setPixelationOptions({ pixeloePrepass })
+                  }
+                  bounds={{ ...prepassRow, width: Math.round(prepassRow.width * 0.6) }}
+                  relativeTo={client}
+                />
+                <Button
+                  text={tUiSource("import.dialog.pixeloe.preset")}
+                  font={FontRole.Compact}
+                  disabled={workflow.busy}
+                  bounds={{
+                    ...prepassRow,
+                    x: prepassRow.x + Math.round(prepassRow.width * 0.6) + GAP,
+                    width: prepassRow.width - Math.round(prepassRow.width * 0.6) - GAP,
+                  }}
+                  relativeTo={client}
+                  onClick={() =>
+                    workflow.setPixelationOptions({
+                      pixeloePrepass: true,
+                      colorPicker: CellColorPicker.Contrast,
+                    })
+                  }
+                />
               </>
             )}
             <Checkbox

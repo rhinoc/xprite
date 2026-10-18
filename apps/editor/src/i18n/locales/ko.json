@@ -561,6 +561,8 @@
   "import.picker.median": "중앙값",
   "import.picker.k-means": "K-평균",
   "import.picker.contrast": "대비",
+  "import.dialog.pixeloe.prepass": "PixelOE 전처리",
+  "import.dialog.pixeloe.preset": "PixelOE 프리셋",
   "import.picker.nearest": "최근접",
   "import.preferences.ask": "픽셀 아트일 수 있는 이미지를 가져올 때 방법 묻기",
   "import.dialog.title": "가져오기 옵션",
