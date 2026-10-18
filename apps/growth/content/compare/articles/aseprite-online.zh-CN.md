@@ -7,7 +7,7 @@ updated: 2026-10-10
 
 Aseprite 只有桌面版，[官方](https://www.aseprite.org/faq/#what-do-i-get-when-i-buy-aseprite)提供 Windows、macOS 和 Ubuntu 三种平台的安装包。所以要在浏览器里打开 `.aseprite` 工程，就得换一个能读这种文件的工具。Xprite、Novaboard、Manabit 和 Pixelorama 都能导入 `.aseprite`，差别在于导入后保留多少内容、能不能存回 `.aseprite`，以及要不要登录：
 
-- 只想看看文件，或者导出一张 PNG、一段 GIF：用 [Xprite 查看器](/tools/viewer/&utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online)。
+- 只想看看文件，或者导出一张 PNG、一段 GIF：用 [Xprite 查看器](/tools/viewer/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online)。
 - 改完还要交回给用 Aseprite 的人：用 Xprite 或 Pixelorama，这两个都能存回 `.aseprite`。
 - 主要在浏览器里画新动画，输出 GIF、视频或游戏素材：Novaboard 和 Manabit 也值得看看。
 
@@ -80,4 +80,4 @@ Xprite 查看器在本地处理文件，不上传云端。编辑器存到「浏�
 
 ---
 
-想直接动手，可以[在查看器中打开文件](/tools/viewer/&utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online)，或者[用 Xprite 编辑](/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online)。只需要导出动图的话，可以看 [Aseprite 转 GIF](/tools/viewer/#export-gif)；在 iPad 上编辑的方案见 [iPad 上的 Aseprite](/zh-CN/compare/aseprite-on-ipad/)。
+想直接动手，可以[在查看器中打开文件](/tools/viewer/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online)，或者[用 Xprite 编辑](/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online)。只需要导出动图的话，可以看 [Aseprite 转 GIF](/tools/viewer/#export-gif)；在 iPad 上编辑的方案见 [iPad 上的 Aseprite](/zh-CN/compare/aseprite-on-ipad/)。
