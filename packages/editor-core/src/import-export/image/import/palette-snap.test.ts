@@ -1,0 +1,161 @@
+import { describe, expect, test } from "vitest";
+
+import type { PixelBuffer, Rgba } from "$/base/primitives";
+import { rgbToLab } from "$/import-export/image/import/color-lab";
+import { snapPalette } from "$/import-export/image/import/palette-snap";
+import { pixelateImage } from "$/import-export/image/import/pixelate";
+import {
+  defaultPixelationSettings,
+  pixelationSettingsOptions,
+  updatePixelationSettings,
+} from "$/import-export/image/import/settings";
+import { PixelationMode } from "$/import-export/image/import/types";
+
+function make(width: number, height: number, paint: (x: number, y: number) => Rgba): PixelBuffer {
+  const data = new Uint8ClampedArray(width * height * 4);
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) data.set(paint(x, y), (y * width + x) * 4);
+  return { width, height, data };
+}
+const colors = (image: PixelBuffer) => {
+  const set = new Set<string>();
+  for (let i = 0; i < image.data.length; i += 4)
+    if (image.data[i + 3]) set.add(Array.from(image.data.subarray(i, i + 3)).join(","));
+  return set;
+};
+const delta = (a: readonly number[], b: readonly number[]) => {
+  const x = rgbToLab(a[0], a[1], a[2]),
+    y = rgbToLab(b[0], b[1], b[2]);
+  return Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]);
+};
+const nearestDelta = (image: PixelBuffer, color: readonly number[]) => {
+  let best = Infinity;
+  for (const key of colors(image)) best = Math.min(best, delta(key.split(",").map(Number), color));
+  return best;
+};
+
+/** Mostly greens and browns with many shades each, plus a few rare pixels that matter. */
+const SKIN: Rgba = [232, 190, 160, 255];
+const HIGHLIGHT: Rgba = [255, 250, 235, 255];
+function scene(): PixelBuffer {
+  return make(40, 40, (x, y) => {
+    if (x === 3 && y === 3) return SKIN;
+    if (x === 36 && y === 5) return HIGHLIGHT;
+    if (x === 20 && y === 30) return [40, 90, 200, 255];
+    const shade = ((x * 7 + y * 13) % 12) - 6;
+    if (y < 20) return [60 + shade, 150 + shade * 2, 70 + shade, 255];
+    return [120 + shade, 80 + shade, 50 + shade * 2, 255];
+  });
+}
+
+describe("snapPalette (k-means)", () => {
+  test("collapses near-shades into the requested number of colours", () => {
+    const out = snapPalette(scene(), { colors: 6 });
+    expect(colors(out).size).toBeLessThanOrEqual(6);
+    expect(colors(scene()).size).toBeGreaterThan(20);
+  });
+  test("keeps rare-but-distinct colours that plain frequency-weighted clustering would lose", () => {
+    const out = snapPalette(scene(), { colors: 6 });
+    for (const rare of [SKIN, HIGHLIGHT, [40, 90, 200, 255] as Rgba])
+      expect(nearestDelta(out, rare)).toBeLessThan(6);
+  });
+  test("leaves images that already fit in the budget unchanged", () => {
+    const flat = make(8, 8, (x) => (x < 4 ? [10, 20, 30, 255] : [200, 100, 50, 255]));
+    expect(Array.from(snapPalette(flat, { colors: 8 }).data)).toEqual(Array.from(flat.data));
+  });
+  test("merges only near-duplicates when the budget is generous", () => {
+    const image = make(8, 8, (x) => (x < 4 ? [100 + (x % 4), 100, 100, 255] : [200, 30, 30, 255]));
+    const out = snapPalette(image, { colors: 3 });
+    expect(colors(image).size).toBe(5);
+    expect(colors(out).size).toBe(2);
+    expect(nearestDelta(out, [200, 30, 30])).toBeLessThan(1);
+  });
+  test("is deterministic and does not modify the source", () => {
+    const source = scene();
+    const copy = Uint8ClampedArray.from(source.data);
+    const a = snapPalette(source, { colors: 8 });
+    const b = snapPalette(source, { colors: 8 });
+    expect(Array.from(a.data)).toEqual(Array.from(b.data));
+    expect(Array.from(source.data)).toEqual(Array.from(copy));
+  });
+  test("keeps each pixel's alpha and leaves transparent pixels alone", () => {
+    const image = make(20, 20, (x, y) =>
+      x < 3 ? [9, 9, 9, 0] : [10 + ((x * y) % 40) * 5, 80, 120, y % 2 ? 255 : 128],
+    );
+    const out = snapPalette(image, { colors: 4 });
+    for (let i = 0; i < image.data.length; i += 4) expect(out.data[i + 3]).toBe(image.data[i + 3]);
+    expect(Array.from(out.data.subarray(0, 4))).toEqual([9, 9, 9, 0]);
+  });
+});
+
+describe("snapPalette (given palette)", () => {
+  test("snaps every visible pixel to its nearest Lab entry", () => {
+    const palette: Rgba[] = [
+      [0, 0, 0, 255],
+      [255, 255, 255, 255],
+      [220, 40, 40, 255],
+    ];
+    const image = make(
+      6,
+      1,
+      (x) =>
+        [
+          [10, 10, 10, 255],
+          [240, 240, 240, 255],
+          [200, 60, 50, 255],
+          [250, 20, 20, 255],
+          [30, 30, 30, 255],
+          [255, 255, 250, 255],
+        ][x] as Rgba,
+    );
+    const out = snapPalette(image, { palette });
+    expect(colors(out)).toEqual(new Set(["0,0,0", "255,255,255", "220,40,40"]));
+    expect(Array.from(out.data.subarray(8, 11))).toEqual([220, 40, 40]);
+  });
+  test("rejects a palette with no visible colour", () => {
+    expect(() => snapPalette(scene(), { palette: [[0, 0, 0, 0]] })).toThrow();
+  });
+});
+
+describe("palette snap in the pixelate pipeline", () => {
+  test("is off by default and independent of Limit colors", () => {
+    const image = scene();
+    const plain = pixelateImage(image, {
+      blockPicker: true,
+      targetWidth: 40,
+      targetHeight: 40,
+    });
+    expect(colors(plain).size).toBeGreaterThan(5);
+    const snapped = pixelateImage(image, {
+      blockPicker: true,
+      targetWidth: 40,
+      targetHeight: 40,
+      paletteSnap: { colors: 5 },
+    });
+    expect(colors(snapped).size).toBeLessThanOrEqual(5);
+  });
+  test("settings: colours clamped, palette wins over count, off yields no option", () => {
+    const base = defaultPixelationSettings({ width: 64, height: 64 });
+    expect(base.snapPalette).toBe(false);
+    expect(
+      pixelationSettingsOptions({ ...base, mode: PixelationMode.Convert }).paletteSnap,
+    ).toBeUndefined();
+    const on = updatePixelationSettings(
+      { ...base, snapPalette: true },
+      { snapColors: 500 },
+      { width: 64, height: 64 },
+    );
+    expect(on.snapColors).toBe(64);
+    expect(pixelationSettingsOptions({ ...on, mode: PixelationMode.Convert }).paletteSnap).toEqual({
+      colors: 64,
+    });
+    const palette: Rgba[] = [[1, 2, 3, 255]];
+    expect(
+      pixelationSettingsOptions({
+        ...on,
+        palette,
+        mode: PixelationMode.Convert,
+      }).paletteSnap,
+    ).toEqual({ palette });
+  });
+});

@@ -563,6 +563,8 @@
   "import.picker.contrast": "대비",
   "import.dialog.pixeloe.prepass": "PixelOE 전처리",
   "import.dialog.pixeloe.preset": "PixelOE 프리셋",
+  "import.dialog.snap.palette": "팔레트 정리",
+  "import.dialog.snap.colors": "팔레트 색상 수",
   "import.picker.nearest": "최근접",
   "import.preferences.ask": "픽셀 아트일 수 있는 이미지를 가져올 때 방법 묻기",
   "import.dialog.title": "가져오기 옵션",
