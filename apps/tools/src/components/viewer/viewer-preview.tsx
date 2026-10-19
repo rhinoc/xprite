@@ -27,7 +27,6 @@ export function ViewerPreview({
   const timeline = manager.getPresentationTimeline();
   const pixels = snapshot.pixels!;
   const frameLabel = `Frame ${snapshot.frame + FRAME_OFFSET} of ${snapshot.frames}`;
-  const info = `${pixels.width} × ${pixels.height} px · ${snapshot.frame + FRAME_OFFSET} / ${snapshot.frames} · ${snapshot.duration} ms`;
   const transport = (
     <ControlFlow toolbar className={styles.playbackToolbar}>
       <PlaybackTransport
@@ -82,7 +81,7 @@ export function ViewerPreview({
           content: (
             <>
               {!timeline && transport}
-              <ToolCanvasPane status={info} controls={<ToolZoomControl navigation={navigation} />}>
+              <ToolCanvasPane controls={<ToolZoomControl navigation={navigation} />}>
                 <ToolCanvasPreview
                   navigation={navigation}
                   identity={snapshot.identity}

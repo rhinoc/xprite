@@ -66,7 +66,6 @@ export function AnimalCrossingPage({ manager }: { manager: AnimalCrossingManager
             <ToolZoomControl navigation={manager.viewport} />
           </>
         }
-        status={`${pixels.width} × ${pixels.height} px`}
       >
         <ToolCanvasPreview
           navigation={manager.viewport}

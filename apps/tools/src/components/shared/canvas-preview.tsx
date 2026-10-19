@@ -134,13 +134,6 @@ export function ToolCanvasPreview({
           selection.current = null;
         }}
       >
-        <UiPart
-          part="editor_normal"
-          scale={2}
-          drawCenter={false}
-          className={styles.stageFrame}
-          aria-hidden="true"
-        />
         <CanvasSurface
           bounds={{ x: 0, y: 0, width: pixels.width, height: pixels.height }}
           className={styles.canvas}
@@ -155,6 +148,14 @@ export function ToolCanvasPreview({
           aria-label={t(label)}
         />
         {overlay?.({ ...view, size, pinching })}
+        {/* Last, so a zoomed or panned image and the overlay layers never cover the frame. */}
+        <UiPart
+          part="editor_normal"
+          scale={2}
+          drawCenter={false}
+          className={styles.stageFrame}
+          aria-hidden="true"
+        />
       </PanSurface>
     </div>
   );

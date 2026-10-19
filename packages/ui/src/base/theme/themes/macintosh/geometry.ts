@@ -850,19 +850,6 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     slider_full: {
-      x: 320,
-      y: 120,
-      w1: 5,
-      w2: 6,
-      w3: 5,
-      h1: 5,
-      h2: 5,
-      h3: 6,
-      width: 16,
-      height: 16,
-      slices: [5, 6, 5, 5, 5, 6],
-    },
-    slider_empty: {
       x: 360,
       y: 120,
       w1: 5,
@@ -875,7 +862,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: [5, 6, 5, 5, 5, 6],
     },
-    slider_full_focused: {
+    slider_empty: {
       x: 400,
       y: 120,
       w1: 5,
@@ -888,7 +875,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: [5, 6, 5, 5, 5, 6],
     },
-    slider_empty_focused: {
+    slider_full_focused: {
       x: 440,
       y: 120,
       w1: 5,
@@ -901,20 +888,20 @@ export const macintoshGeometry = {
       height: 16,
       slices: [5, 6, 5, 5, 5, 6],
     },
-    mini_slider_full: {
+    slider_empty_focused: {
       x: 480,
       y: 120,
-      w1: 2,
-      w2: 12,
-      w3: 2,
-      h1: 2,
-      h2: 11,
-      h3: 3,
+      w1: 5,
+      w2: 6,
+      w3: 5,
+      h1: 5,
+      h2: 5,
+      h3: 6,
       width: 16,
       height: 16,
-      slices: [2, 12, 2, 2, 11, 3],
+      slices: [5, 6, 5, 5, 5, 6],
     },
-    mini_slider_empty: {
+    mini_slider_full: {
       x: 520,
       y: 120,
       w1: 2,
@@ -927,7 +914,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: [2, 12, 2, 2, 11, 3],
     },
-    mini_slider_full_focused: {
+    mini_slider_empty: {
       x: 560,
       y: 120,
       w1: 2,
@@ -940,7 +927,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: [2, 12, 2, 2, 11, 3],
     },
-    mini_slider_empty_focused: {
+    mini_slider_full_focused: {
       x: 600,
       y: 120,
       w1: 2,
@@ -953,16 +940,20 @@ export const macintoshGeometry = {
       height: 16,
       slices: [2, 12, 2, 2, 11, 3],
     },
-    mini_slider_thumb: {
+    mini_slider_empty_focused: {
       x: 0,
       y: 160,
-      w: 5,
-      h: 4,
-      width: 5,
-      height: 4,
-      slices: null,
+      w1: 2,
+      w2: 12,
+      w3: 2,
+      h1: 2,
+      h2: 11,
+      h3: 3,
+      width: 16,
+      height: 16,
+      slices: [2, 12, 2, 2, 11, 3],
     },
-    mini_slider_thumb_focused: {
+    mini_slider_thumb: {
       x: 40,
       y: 160,
       w: 5,
@@ -971,8 +962,17 @@ export const macintoshGeometry = {
       height: 4,
       slices: null,
     },
-    separator_horz: {
+    mini_slider_thumb_focused: {
       x: 80,
+      y: 160,
+      w: 5,
+      h: 4,
+      width: 5,
+      height: 4,
+      slices: null,
+    },
+    separator_horz: {
+      x: 120,
       y: 160,
       w: 9,
       h: 5,
@@ -987,7 +987,7 @@ export const macintoshGeometry = {
       },
     },
     separator_vert: {
-      x: 120,
+      x: 160,
       y: 160,
       w: 5,
       h: 9,
@@ -1002,7 +1002,7 @@ export const macintoshGeometry = {
       },
     },
     combobox_arrow_down: {
-      x: 160,
+      x: 200,
       y: 160,
       w: 6,
       h: 3,
@@ -1017,7 +1017,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     combobox_arrow_down_selected: {
-      x: 200,
+      x: 240,
       y: 160,
       w: 6,
       h: 3,
@@ -1032,7 +1032,7 @@ export const macintoshGeometry = {
       foregroundRole: "button_selected_text",
     },
     combobox_arrow_down_disabled: {
-      x: 240,
+      x: 280,
       y: 160,
       w: 6,
       h: 3,
@@ -1047,7 +1047,7 @@ export const macintoshGeometry = {
       foregroundRole: "disabled",
     },
     combobox_arrow_up: {
-      x: 280,
+      x: 320,
       y: 160,
       w: 6,
       h: 3,
@@ -1062,7 +1062,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     combobox_arrow_up_selected: {
-      x: 320,
+      x: 360,
       y: 160,
       w: 6,
       h: 3,
@@ -1077,7 +1077,7 @@ export const macintoshGeometry = {
       foregroundRole: "button_selected_text",
     },
     combobox_arrow_up_disabled: {
-      x: 360,
+      x: 400,
       y: 160,
       w: 6,
       h: 3,
@@ -1092,7 +1092,7 @@ export const macintoshGeometry = {
       foregroundRole: "disabled",
     },
     combobox_arrow_left: {
-      x: 400,
+      x: 440,
       y: 160,
       w: 3,
       h: 6,
@@ -1107,7 +1107,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     combobox_arrow_left_selected: {
-      x: 440,
+      x: 480,
       y: 160,
       w: 3,
       h: 6,
@@ -1122,7 +1122,7 @@ export const macintoshGeometry = {
       foregroundRole: "button_selected_text",
     },
     combobox_arrow_left_disabled: {
-      x: 480,
+      x: 520,
       y: 160,
       w: 3,
       h: 6,
@@ -1137,7 +1137,7 @@ export const macintoshGeometry = {
       foregroundRole: "disabled",
     },
     combobox_arrow_right: {
-      x: 520,
+      x: 560,
       y: 160,
       w: 3,
       h: 6,
@@ -1152,7 +1152,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     combobox_arrow_right_selected: {
-      x: 560,
+      x: 600,
       y: 160,
       w: 3,
       h: 6,
@@ -1167,8 +1167,8 @@ export const macintoshGeometry = {
       foregroundRole: "button_selected_text",
     },
     combobox_arrow_right_disabled: {
-      x: 600,
-      y: 160,
+      x: 0,
+      y: 200,
       w: 3,
       h: 6,
       width: 3,
@@ -1182,7 +1182,7 @@ export const macintoshGeometry = {
       foregroundRole: "disabled",
     },
     arrow_circle_cw: {
-      x: 0,
+      x: 40,
       y: 200,
       w: 10,
       h: 10,
@@ -1192,7 +1192,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     arrow_circle_cw_selected: {
-      x: 40,
+      x: 80,
       y: 200,
       w: 10,
       h: 10,
@@ -1201,15 +1201,6 @@ export const macintoshGeometry = {
       slices: null,
     },
     newfolder: {
-      x: 80,
-      y: 200,
-      w: 9,
-      h: 9,
-      width: 9,
-      height: 9,
-      slices: null,
-    },
-    newfolder_selected: {
       x: 120,
       y: 200,
       w: 9,
@@ -1218,7 +1209,7 @@ export const macintoshGeometry = {
       height: 9,
       slices: null,
     },
-    list_view: {
+    newfolder_selected: {
       x: 160,
       y: 200,
       w: 9,
@@ -1226,9 +1217,8 @@ export const macintoshGeometry = {
       width: 9,
       height: 9,
       slices: null,
-      foregroundRole: "text",
     },
-    small_icon_view: {
+    list_view: {
       x: 200,
       y: 200,
       w: 9,
@@ -1238,7 +1228,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    big_icon_view: {
+    small_icon_view: {
       x: 240,
       y: 200,
       w: 9,
@@ -1248,8 +1238,18 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    toolbutton_normal: {
+    big_icon_view: {
       x: 280,
+      y: 200,
+      w: 9,
+      h: 9,
+      width: 9,
+      height: 9,
+      slices: null,
+      foregroundRole: "text",
+    },
+    toolbutton_normal: {
+      x: 320,
       y: 200,
       w1: 3,
       w2: 10,
@@ -1267,7 +1267,7 @@ export const macintoshGeometry = {
       },
     },
     toolbutton_hot: {
-      x: 320,
+      x: 360,
       y: 200,
       w1: 3,
       w2: 10,
@@ -1285,7 +1285,7 @@ export const macintoshGeometry = {
       },
     },
     toolbutton_last: {
-      x: 360,
+      x: 400,
       y: 200,
       w1: 3,
       w2: 10,
@@ -1303,7 +1303,7 @@ export const macintoshGeometry = {
       },
     },
     toolbutton_pushed: {
-      x: 400,
+      x: 440,
       y: 200,
       w1: 3,
       w2: 10,
@@ -1321,7 +1321,7 @@ export const macintoshGeometry = {
       },
     },
     buttonset_item_normal: {
-      x: 440,
+      x: 480,
       y: 200,
       w1: 3,
       w2: 10,
@@ -1339,24 +1339,6 @@ export const macintoshGeometry = {
       },
     },
     buttonset_item_hot: {
-      x: 480,
-      y: 200,
-      w1: 3,
-      w2: 10,
-      w3: 3,
-      h1: 3,
-      h2: 8,
-      h3: 5,
-      width: 16,
-      height: 16,
-      slices: [3, 10, 3, 3, 8, 5],
-      surface: {
-        faceRole: "face",
-        borderRole: "text",
-        borderWidth: 1,
-      },
-    },
-    buttonset_item_hot_focused: {
       x: 520,
       y: 200,
       w1: 3,
@@ -1374,8 +1356,26 @@ export const macintoshGeometry = {
         borderWidth: 1,
       },
     },
-    buttonset_item_focused: {
+    buttonset_item_hot_focused: {
       x: 560,
+      y: 200,
+      w1: 3,
+      w2: 10,
+      w3: 3,
+      h1: 3,
+      h2: 8,
+      h3: 5,
+      width: 16,
+      height: 16,
+      slices: [3, 10, 3, 3, 8, 5],
+      surface: {
+        faceRole: "face",
+        borderRole: "text",
+        borderWidth: 1,
+      },
+    },
+    buttonset_item_focused: {
+      x: 600,
       y: 200,
       w1: 3,
       w2: 10,
@@ -1393,8 +1393,8 @@ export const macintoshGeometry = {
       },
     },
     buttonset_item_pushed: {
-      x: 600,
-      y: 200,
+      x: 0,
+      y: 240,
       w1: 3,
       w2: 10,
       w3: 3,
@@ -1411,7 +1411,7 @@ export const macintoshGeometry = {
       },
     },
     buttonset_item_active: {
-      x: 0,
+      x: 40,
       y: 240,
       w1: 3,
       w2: 10,
@@ -1429,7 +1429,7 @@ export const macintoshGeometry = {
       },
     },
     tab_normal: {
-      x: 40,
+      x: 80,
       y: 240,
       w1: 4,
       w2: 5,
@@ -1449,7 +1449,7 @@ export const macintoshGeometry = {
       },
     },
     tab_active: {
-      x: 80,
+      x: 120,
       y: 240,
       w1: 4,
       w2: 7,
@@ -1469,7 +1469,7 @@ export const macintoshGeometry = {
       },
     },
     tab_bottom_active: {
-      x: 120,
+      x: 160,
       y: 240,
       w1: 4,
       w2: 7,
@@ -1488,7 +1488,7 @@ export const macintoshGeometry = {
       },
     },
     tab_bottom_normal: {
-      x: 160,
+      x: 200,
       y: 240,
       w: 12,
       h: 5,
@@ -1509,7 +1509,7 @@ export const macintoshGeometry = {
       },
     },
     tab_filler: {
-      x: 200,
+      x: 240,
       y: 240,
       w: 2,
       h: 12,
@@ -1524,16 +1524,6 @@ export const macintoshGeometry = {
       },
     },
     tab_modified_icon_normal: {
-      x: 240,
-      y: 240,
-      w: 5,
-      h: 5,
-      width: 5,
-      height: 5,
-      slices: null,
-      foregroundRole: "text",
-    },
-    tab_modified_icon_active: {
       x: 280,
       y: 240,
       w: 5,
@@ -1543,7 +1533,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tab_close_icon_normal: {
+    tab_modified_icon_active: {
       x: 320,
       y: 240,
       w: 5,
@@ -1553,7 +1543,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tab_close_icon_active: {
+    tab_close_icon_normal: {
       x: 360,
       y: 240,
       w: 5,
@@ -1563,16 +1553,17 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tab_icon_bg_clicked: {
+    tab_close_icon_active: {
       x: 400,
       y: 240,
-      w: 14,
-      h: 16,
-      width: 14,
-      height: 16,
+      w: 5,
+      h: 5,
+      width: 5,
+      height: 5,
       slices: null,
+      foregroundRole: "text",
     },
-    tab_icon_bg_hover: {
+    tab_icon_bg_clicked: {
       x: 440,
       y: 240,
       w: 14,
@@ -1581,17 +1572,16 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    tab_home_icon_normal: {
+    tab_icon_bg_hover: {
       x: 480,
       y: 240,
-      w: 7,
-      h: 8,
-      width: 7,
-      height: 8,
+      w: 14,
+      h: 16,
+      width: 14,
+      height: 16,
       slices: null,
-      foregroundRole: "text",
     },
-    tab_home_icon_active: {
+    tab_home_icon_normal: {
       x: 520,
       y: 240,
       w: 7,
@@ -1601,20 +1591,17 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    editor_normal: {
+    tab_home_icon_active: {
       x: 560,
       y: 240,
-      w1: 3,
-      w2: 10,
-      w3: 3,
-      h1: 3,
-      h2: 10,
-      h3: 3,
-      width: 16,
-      height: 16,
-      slices: [3, 10, 3, 3, 10, 3],
+      w: 7,
+      h: 8,
+      width: 7,
+      height: 8,
+      slices: null,
+      foregroundRole: "text",
     },
-    editor_selected: {
+    editor_normal: {
       x: 600,
       y: 240,
       w1: 3,
@@ -1627,8 +1614,21 @@ export const macintoshGeometry = {
       height: 16,
       slices: [3, 10, 3, 3, 10, 3],
     },
-    colorbar_0: {
+    editor_selected: {
       x: 0,
+      y: 280,
+      w1: 3,
+      w2: 10,
+      w3: 3,
+      h1: 3,
+      h2: 10,
+      h3: 3,
+      width: 16,
+      height: 16,
+      slices: [3, 10, 3, 3, 10, 3],
+    },
+    colorbar_0: {
+      x: 40,
       y: 280,
       w1: 5,
       w2: 6,
@@ -1645,7 +1645,7 @@ export const macintoshGeometry = {
       },
     },
     colorbar_1: {
-      x: 40,
+      x: 80,
       y: 280,
       w1: 5,
       w2: 6,
@@ -1662,7 +1662,7 @@ export const macintoshGeometry = {
       },
     },
     colorbar_2: {
-      x: 80,
+      x: 120,
       y: 280,
       w1: 5,
       w2: 6,
@@ -1679,7 +1679,7 @@ export const macintoshGeometry = {
       },
     },
     colorbar_3: {
-      x: 120,
+      x: 160,
       y: 280,
       w1: 5,
       w2: 6,
@@ -1696,7 +1696,7 @@ export const macintoshGeometry = {
       },
     },
     colorbar_selection_hot: {
-      x: 160,
+      x: 200,
       y: 280,
       w1: 5,
       w2: 6,
@@ -1713,7 +1713,7 @@ export const macintoshGeometry = {
       },
     },
     colorbar_selection: {
-      x: 200,
+      x: 240,
       y: 280,
       w1: 5,
       w2: 6,
@@ -1730,7 +1730,7 @@ export const macintoshGeometry = {
       },
     },
     scrollbar_bg: {
-      x: 240,
+      x: 280,
       y: 280,
       w1: 1,
       w2: 14,
@@ -1743,7 +1743,7 @@ export const macintoshGeometry = {
       slices: [1, 14, 1, 1, 14, 1],
     },
     scrollbar_thumb: {
-      x: 280,
+      x: 320,
       y: 280,
       w1: 1,
       w2: 14,
@@ -1756,7 +1756,7 @@ export const macintoshGeometry = {
       slices: [1, 14, 1, 1, 14, 1],
     },
     mini_scrollbar_bg: {
-      x: 320,
+      x: 360,
       y: 280,
       w1: 1,
       w2: 6,
@@ -1769,7 +1769,7 @@ export const macintoshGeometry = {
       slices: [1, 6, 1, 1, 6, 1],
     },
     mini_scrollbar_thumb: {
-      x: 360,
+      x: 400,
       y: 280,
       w1: 1,
       w2: 6,
@@ -1782,7 +1782,7 @@ export const macintoshGeometry = {
       slices: [1, 6, 1, 1, 6, 1],
     },
     mini_scrollbar_bg_hot: {
-      x: 400,
+      x: 440,
       y: 280,
       w1: 1,
       w2: 6,
@@ -1795,7 +1795,7 @@ export const macintoshGeometry = {
       slices: [1, 6, 1, 1, 6, 1],
     },
     mini_scrollbar_thumb_hot: {
-      x: 440,
+      x: 480,
       y: 280,
       w1: 1,
       w2: 6,
@@ -1808,7 +1808,7 @@ export const macintoshGeometry = {
       slices: [1, 6, 1, 1, 6, 1],
     },
     transparent_scrollbar_bg: {
-      x: 480,
+      x: 520,
       y: 280,
       w1: 1,
       w2: 6,
@@ -1821,7 +1821,7 @@ export const macintoshGeometry = {
       slices: [1, 6, 1, 1, 6, 1],
     },
     transparent_scrollbar_thumb: {
-      x: 520,
+      x: 560,
       y: 280,
       w1: 1,
       w2: 6,
@@ -1834,7 +1834,7 @@ export const macintoshGeometry = {
       slices: [1, 6, 1, 1, 6, 1],
     },
     transparent_scrollbar_bg_hot: {
-      x: 560,
+      x: 600,
       y: 280,
       w1: 1,
       w2: 6,
@@ -1847,8 +1847,8 @@ export const macintoshGeometry = {
       slices: [1, 6, 1, 1, 6, 1],
     },
     transparent_scrollbar_thumb_hot: {
-      x: 600,
-      y: 280,
+      x: 0,
+      y: 320,
       w1: 1,
       w2: 6,
       w3: 1,
@@ -1860,7 +1860,7 @@ export const macintoshGeometry = {
       slices: [1, 6, 1, 1, 6, 1],
     },
     tooltip: {
-      x: 0,
+      x: 40,
       y: 320,
       w1: 5,
       w2: 6,
@@ -1873,7 +1873,7 @@ export const macintoshGeometry = {
       slices: [5, 6, 5, 5, 5, 6],
     },
     tooltip_arrow: {
-      x: 40,
+      x: 80,
       y: 320,
       w1: 5,
       w2: 6,
@@ -1886,7 +1886,7 @@ export const macintoshGeometry = {
       slices: [5, 6, 5, 5, 5, 6],
     },
     ani_first: {
-      x: 80,
+      x: 120,
       y: 320,
       w: 5,
       h: 5,
@@ -1896,7 +1896,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     ani_previous: {
-      x: 120,
+      x: 160,
       y: 320,
       w: 5,
       h: 5,
@@ -1906,7 +1906,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     ani_play: {
-      x: 160,
+      x: 200,
       y: 320,
       w: 5,
       h: 5,
@@ -1916,7 +1916,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     ani_stop: {
-      x: 200,
+      x: 240,
       y: 320,
       w: 5,
       h: 5,
@@ -1926,7 +1926,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     ani_next: {
-      x: 240,
+      x: 280,
       y: 320,
       w: 5,
       h: 5,
@@ -1936,7 +1936,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     ani_last: {
-      x: 280,
+      x: 320,
       y: 320,
       w: 5,
       h: 5,
@@ -1946,16 +1946,6 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     pal_sort: {
-      x: 320,
-      y: 320,
-      w: 5,
-      h: 5,
-      width: 5,
-      height: 5,
-      slices: null,
-      foregroundRole: "text",
-    },
-    pal_presets: {
       x: 360,
       y: 320,
       w: 5,
@@ -1965,7 +1955,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    pal_options: {
+    pal_presets: {
       x: 400,
       y: 320,
       w: 5,
@@ -1975,7 +1965,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    pal_resize: {
+    pal_options: {
       x: 440,
       y: 320,
       w: 5,
@@ -1985,17 +1975,17 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    debug_continue: {
+    pal_resize: {
       x: 480,
       y: 320,
-      w: 7,
-      h: 7,
-      width: 7,
-      height: 7,
+      w: 5,
+      h: 5,
+      width: 5,
+      height: 5,
       slices: null,
       foregroundRole: "text",
     },
-    debug_pause: {
+    debug_continue: {
       x: 520,
       y: 320,
       w: 7,
@@ -2005,7 +1995,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    debug_step_into: {
+    debug_pause: {
       x: 560,
       y: 320,
       w: 7,
@@ -2015,7 +2005,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    debug_step_over: {
+    debug_step_into: {
       x: 600,
       y: 320,
       w: 7,
@@ -2025,7 +2015,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    debug_step_out: {
+    debug_step_over: {
       x: 0,
       y: 360,
       w: 7,
@@ -2035,7 +2025,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    debug_breakpoint: {
+    debug_step_out: {
       x: 40,
       y: 360,
       w: 7,
@@ -2045,7 +2035,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    selection_replace: {
+    debug_breakpoint: {
       x: 80,
       y: 360,
       w: 7,
@@ -2055,7 +2045,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    selection_add: {
+    selection_replace: {
       x: 120,
       y: 360,
       w: 7,
@@ -2065,7 +2055,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    selection_subtract: {
+    selection_add: {
       x: 160,
       y: 360,
       w: 7,
@@ -2075,7 +2065,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    selection_intersect: {
+    selection_subtract: {
       x: 200,
       y: 360,
       w: 7,
@@ -2085,17 +2075,17 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    unpinned: {
+    selection_intersect: {
       x: 240,
       y: 360,
-      w: 8,
-      h: 8,
-      width: 8,
-      height: 8,
+      w: 7,
+      h: 7,
+      width: 7,
+      height: 7,
       slices: null,
       foregroundRole: "text",
     },
-    pinned: {
+    unpinned: {
       x: 280,
       y: 360,
       w: 8,
@@ -2105,8 +2095,18 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    drop_down_button_left_normal: {
+    pinned: {
       x: 320,
+      y: 360,
+      w: 8,
+      h: 8,
+      width: 8,
+      height: 8,
+      slices: null,
+      foregroundRole: "text",
+    },
+    drop_down_button_left_normal: {
+      x: 360,
       y: 360,
       w1: 3,
       w2: 2,
@@ -2125,7 +2125,7 @@ export const macintoshGeometry = {
       },
     },
     drop_down_button_left_hot: {
-      x: 360,
+      x: 400,
       y: 360,
       w1: 3,
       w2: 2,
@@ -2144,7 +2144,7 @@ export const macintoshGeometry = {
       },
     },
     drop_down_button_left_focused: {
-      x: 400,
+      x: 440,
       y: 360,
       w1: 3,
       w2: 2,
@@ -2163,7 +2163,7 @@ export const macintoshGeometry = {
       },
     },
     drop_down_button_left_selected: {
-      x: 440,
+      x: 480,
       y: 360,
       w1: 3,
       w2: 2,
@@ -2182,7 +2182,7 @@ export const macintoshGeometry = {
       },
     },
     drop_down_button_right_normal: {
-      x: 480,
+      x: 520,
       y: 360,
       w1: 2,
       w2: 1,
@@ -2201,7 +2201,7 @@ export const macintoshGeometry = {
       },
     },
     drop_down_button_right_hot: {
-      x: 520,
+      x: 560,
       y: 360,
       w1: 2,
       w2: 1,
@@ -2220,7 +2220,7 @@ export const macintoshGeometry = {
       },
     },
     drop_down_button_right_focused: {
-      x: 560,
+      x: 600,
       y: 360,
       w1: 2,
       w2: 2,
@@ -2239,8 +2239,8 @@ export const macintoshGeometry = {
       },
     },
     drop_down_button_right_selected: {
-      x: 600,
-      y: 360,
+      x: 0,
+      y: 400,
       w1: 2,
       w2: 2,
       w3: 3,
@@ -2258,7 +2258,7 @@ export const macintoshGeometry = {
       },
     },
     transformation_handle: {
-      x: 0,
+      x: 40,
       y: 400,
       w: 5,
       h: 5,
@@ -2267,7 +2267,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     pivot_handle: {
-      x: 40,
+      x: 80,
       y: 400,
       w: 9,
       h: 9,
@@ -2276,7 +2276,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     timeline_none: {
-      x: 80,
+      x: 120,
       y: 400,
       w1: 2,
       w2: 8,
@@ -2289,7 +2289,7 @@ export const macintoshGeometry = {
       slices: [2, 8, 2, 2, 8, 2],
     },
     timeline_normal: {
-      x: 120,
+      x: 160,
       y: 400,
       w1: 2,
       w2: 8,
@@ -2302,7 +2302,7 @@ export const macintoshGeometry = {
       slices: [2, 8, 2, 2, 8, 2],
     },
     timeline_active: {
-      x: 160,
+      x: 200,
       y: 400,
       w1: 2,
       w2: 8,
@@ -2315,7 +2315,7 @@ export const macintoshGeometry = {
       slices: [2, 8, 2, 2, 8, 2],
     },
     timeline_hover: {
-      x: 200,
+      x: 240,
       y: 400,
       w1: 2,
       w2: 8,
@@ -2328,7 +2328,7 @@ export const macintoshGeometry = {
       slices: [2, 8, 2, 2, 8, 2],
     },
     timeline_active_hover: {
-      x: 240,
+      x: 280,
       y: 400,
       w1: 2,
       w2: 8,
@@ -2341,7 +2341,7 @@ export const macintoshGeometry = {
       slices: [2, 8, 2, 2, 8, 2],
     },
     timeline_clicked: {
-      x: 280,
+      x: 320,
       y: 400,
       w1: 2,
       w2: 8,
@@ -2354,15 +2354,6 @@ export const macintoshGeometry = {
       slices: [2, 8, 2, 2, 8, 2],
     },
     timeline_open_eye_normal: {
-      x: 320,
-      y: 400,
-      w: 12,
-      h: 12,
-      width: 12,
-      height: 12,
-      slices: null,
-    },
-    timeline_open_eye_active: {
       x: 360,
       y: 400,
       w: 12,
@@ -2371,8 +2362,17 @@ export const macintoshGeometry = {
       height: 12,
       slices: null,
     },
-    timeline_closed_eye_normal: {
+    timeline_open_eye_active: {
       x: 400,
+      y: 400,
+      w: 12,
+      h: 12,
+      width: 12,
+      height: 12,
+      slices: null,
+    },
+    timeline_closed_eye_normal: {
+      x: 440,
       y: 400,
       w: 12,
       h: 12,
@@ -2382,7 +2382,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     timeline_closed_eye_active: {
-      x: 440,
+      x: 480,
       y: 400,
       w: 12,
       h: 12,
@@ -2391,7 +2391,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     timeline_open_padlock_normal: {
-      x: 480,
+      x: 520,
       y: 400,
       w: 12,
       h: 12,
@@ -2401,7 +2401,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     timeline_open_padlock_active: {
-      x: 520,
+      x: 560,
       y: 400,
       w: 12,
       h: 12,
@@ -2410,7 +2410,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     timeline_closed_padlock_normal: {
-      x: 560,
+      x: 600,
       y: 400,
       w: 12,
       h: 12,
@@ -2420,8 +2420,8 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     timeline_closed_padlock_active: {
-      x: 600,
-      y: 400,
+      x: 0,
+      y: 440,
       w: 12,
       h: 12,
       width: 12,
@@ -2429,7 +2429,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     timeline_continuous_normal: {
-      x: 0,
+      x: 40,
       y: 440,
       w: 12,
       h: 12,
@@ -2439,7 +2439,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     timeline_continuous_active: {
-      x: 40,
+      x: 80,
       y: 440,
       w: 12,
       h: 12,
@@ -2448,7 +2448,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     timeline_discontinuous_normal: {
-      x: 80,
+      x: 120,
       y: 440,
       w: 12,
       h: 12,
@@ -2458,7 +2458,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     timeline_discontinuous_active: {
-      x: 120,
+      x: 160,
       y: 440,
       w: 12,
       h: 12,
@@ -2467,7 +2467,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     timeline_closed_group_normal: {
-      x: 160,
+      x: 200,
       y: 440,
       w: 12,
       h: 12,
@@ -2477,7 +2477,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     timeline_closed_group_active: {
-      x: 200,
+      x: 240,
       y: 440,
       w: 12,
       h: 12,
@@ -2486,7 +2486,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     timeline_open_group_normal: {
-      x: 240,
+      x: 280,
       y: 440,
       w: 12,
       h: 12,
@@ -2496,7 +2496,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     timeline_open_group_active: {
-      x: 280,
+      x: 320,
       y: 440,
       w: 12,
       h: 12,
@@ -2505,7 +2505,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     timeline_empty_frame_normal: {
-      x: 320,
+      x: 360,
       y: 440,
       w1: 5,
       w2: 3,
@@ -2518,7 +2518,7 @@ export const macintoshGeometry = {
       slices: [5, 3, 4, 5, 3, 4],
     },
     timeline_empty_frame_active: {
-      x: 360,
+      x: 400,
       y: 440,
       w1: 5,
       w2: 3,
@@ -2531,7 +2531,7 @@ export const macintoshGeometry = {
       slices: [5, 3, 4, 5, 3, 4],
     },
     timeline_keyframe_normal: {
-      x: 400,
+      x: 440,
       y: 440,
       w1: 5,
       w2: 3,
@@ -2544,7 +2544,7 @@ export const macintoshGeometry = {
       slices: [5, 3, 4, 5, 3, 4],
     },
     timeline_keyframe_active: {
-      x: 440,
+      x: 480,
       y: 440,
       w1: 5,
       w2: 3,
@@ -2557,7 +2557,7 @@ export const macintoshGeometry = {
       slices: [5, 3, 4, 5, 3, 4],
     },
     timeline_from_left_normal: {
-      x: 480,
+      x: 520,
       y: 440,
       w1: 0,
       w2: 8,
@@ -2570,7 +2570,7 @@ export const macintoshGeometry = {
       slices: [0, 8, 4, 5, 3, 4],
     },
     timeline_from_left_active: {
-      x: 520,
+      x: 560,
       y: 440,
       w1: 0,
       w2: 8,
@@ -2583,7 +2583,7 @@ export const macintoshGeometry = {
       slices: [0, 8, 4, 5, 3, 4],
     },
     timeline_from_right_normal: {
-      x: 560,
+      x: 600,
       y: 440,
       w1: 5,
       w2: 7,
@@ -2596,8 +2596,8 @@ export const macintoshGeometry = {
       slices: [5, 7, 0, 5, 3, 4],
     },
     timeline_from_right_active: {
-      x: 600,
-      y: 440,
+      x: 0,
+      y: 480,
       w1: 5,
       w2: 7,
       w3: 0,
@@ -2609,7 +2609,7 @@ export const macintoshGeometry = {
       slices: [5, 7, 0, 5, 3, 4],
     },
     timeline_from_both_normal: {
-      x: 0,
+      x: 40,
       y: 480,
       w1: 0,
       w2: 12,
@@ -2622,7 +2622,7 @@ export const macintoshGeometry = {
       slices: [0, 12, 0, 5, 3, 4],
     },
     timeline_from_both_active: {
-      x: 40,
+      x: 80,
       y: 480,
       w1: 0,
       w2: 12,
@@ -2635,7 +2635,7 @@ export const macintoshGeometry = {
       slices: [0, 12, 0, 5, 3, 4],
     },
     timeline_left_link_active: {
-      x: 80,
+      x: 120,
       y: 480,
       w1: 3,
       w2: 9,
@@ -2648,7 +2648,7 @@ export const macintoshGeometry = {
       slices: [3, 9, 0, 4, 1, 7],
     },
     timeline_both_links_active: {
-      x: 120,
+      x: 160,
       y: 480,
       w1: 0,
       w2: 12,
@@ -2661,7 +2661,7 @@ export const macintoshGeometry = {
       slices: [0, 12, 0, 4, 1, 7],
     },
     timeline_right_link_active: {
-      x: 160,
+      x: 200,
       y: 480,
       w1: 0,
       w2: 9,
@@ -2674,7 +2674,7 @@ export const macintoshGeometry = {
       slices: [0, 9, 3, 4, 1, 7],
     },
     timeline_gear: {
-      x: 200,
+      x: 240,
       y: 480,
       w: 12,
       h: 12,
@@ -2684,7 +2684,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     timeline_gear_active: {
-      x: 240,
+      x: 280,
       y: 480,
       w: 12,
       h: 12,
@@ -2693,7 +2693,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     timeline_onionskin: {
-      x: 280,
+      x: 320,
       y: 480,
       w: 12,
       h: 12,
@@ -2703,7 +2703,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     timeline_onionskin_active: {
-      x: 320,
+      x: 360,
       y: 480,
       w: 12,
       h: 12,
@@ -2712,7 +2712,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     timeline_onionskin_range: {
-      x: 360,
+      x: 400,
       y: 480,
       w1: 3,
       w2: 6,
@@ -2725,7 +2725,7 @@ export const macintoshGeometry = {
       slices: [3, 6, 3, 3, 6, 3],
     },
     timeline_padding: {
-      x: 400,
+      x: 440,
       y: 480,
       w1: 1,
       w2: 10,
@@ -2738,7 +2738,7 @@ export const macintoshGeometry = {
       slices: [1, 10, 1, 1, 10, 1],
     },
     timeline_padding_tr: {
-      x: 440,
+      x: 480,
       y: 480,
       w1: 1,
       w2: 10,
@@ -2751,7 +2751,7 @@ export const macintoshGeometry = {
       slices: [1, 10, 1, 1, 10, 1],
     },
     timeline_padding_bl: {
-      x: 480,
+      x: 520,
       y: 480,
       w1: 1,
       w2: 10,
@@ -2764,7 +2764,7 @@ export const macintoshGeometry = {
       slices: [1, 10, 1, 1, 10, 1],
     },
     timeline_padding_br: {
-      x: 520,
+      x: 560,
       y: 480,
       w1: 1,
       w2: 10,
@@ -2777,7 +2777,7 @@ export const macintoshGeometry = {
       slices: [1, 10, 1, 1, 10, 1],
     },
     timeline_drop_layer_deco: {
-      x: 560,
+      x: 600,
       y: 480,
       w1: 3,
       w2: 1,
@@ -2790,8 +2790,8 @@ export const macintoshGeometry = {
       slices: [3, 1, 3, 2, 1, 2],
     },
     timeline_drop_frame_deco: {
-      x: 600,
-      y: 480,
+      x: 0,
+      y: 520,
       w1: 2,
       w2: 1,
       w3: 2,
@@ -2803,7 +2803,7 @@ export const macintoshGeometry = {
       slices: [2, 1, 2, 3, 1, 3],
     },
     timeline_loop_range: {
-      x: 0,
+      x: 40,
       y: 520,
       w1: 4,
       w2: 4,
@@ -2816,7 +2816,7 @@ export const macintoshGeometry = {
       slices: [4, 4, 4, 3, 6, 3],
     },
     timeline_focused: {
-      x: 40,
+      x: 80,
       y: 520,
       w1: 2,
       w2: 8,
@@ -2829,7 +2829,7 @@ export const macintoshGeometry = {
       slices: [2, 8, 2, 2, 8, 2],
     },
     timeline_zindex: {
-      x: 80,
+      x: 120,
       y: 520,
       w: 6,
       h: 6,
@@ -2838,7 +2838,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     flag_normal: {
-      x: 120,
+      x: 160,
       y: 520,
       w: 16,
       h: 10,
@@ -2848,7 +2848,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     flag_highlight: {
-      x: 160,
+      x: 200,
       y: 520,
       w: 16,
       h: 10,
@@ -2857,7 +2857,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     drop_pixels_ok: {
-      x: 200,
+      x: 240,
       y: 520,
       w: 7,
       h: 8,
@@ -2867,7 +2867,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     drop_pixels_ok_selected: {
-      x: 240,
+      x: 280,
       y: 520,
       w: 7,
       h: 8,
@@ -2876,7 +2876,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     drop_pixels_drop: {
-      x: 280,
+      x: 320,
       y: 520,
       w: 7,
       h: 8,
@@ -2886,7 +2886,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     drop_pixels_drop_selected: {
-      x: 320,
+      x: 360,
       y: 520,
       w: 7,
       h: 8,
@@ -2895,7 +2895,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     drop_pixels_cancel: {
-      x: 360,
+      x: 400,
       y: 520,
       w: 7,
       h: 8,
@@ -2905,7 +2905,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     drop_pixels_cancel_selected: {
-      x: 400,
+      x: 440,
       y: 520,
       w: 7,
       h: 8,
@@ -2914,7 +2914,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     warning_box: {
-      x: 440,
+      x: 480,
       y: 520,
       w: 9,
       h: 10,
@@ -2923,15 +2923,6 @@ export const macintoshGeometry = {
       slices: null,
     },
     canvas_nw: {
-      x: 480,
-      y: 520,
-      w: 16,
-      h: 16,
-      width: 16,
-      height: 16,
-      slices: null,
-    },
-    canvas_n: {
       x: 520,
       y: 520,
       w: 16,
@@ -2940,7 +2931,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    canvas_ne: {
+    canvas_n: {
       x: 560,
       y: 520,
       w: 16,
@@ -2949,7 +2940,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    canvas_w: {
+    canvas_ne: {
       x: 600,
       y: 520,
       w: 16,
@@ -2958,7 +2949,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    canvas_c: {
+    canvas_w: {
       x: 0,
       y: 560,
       w: 16,
@@ -2967,7 +2958,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    canvas_e: {
+    canvas_c: {
       x: 40,
       y: 560,
       w: 16,
@@ -2976,7 +2967,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    canvas_sw: {
+    canvas_e: {
       x: 80,
       y: 560,
       w: 16,
@@ -2985,7 +2976,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    canvas_s: {
+    canvas_sw: {
       x: 120,
       y: 560,
       w: 16,
@@ -2994,7 +2985,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    canvas_se: {
+    canvas_s: {
       x: 160,
       y: 560,
       w: 16,
@@ -3003,8 +2994,17 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    canvas_empty: {
+    canvas_se: {
       x: 200,
+      y: 560,
+      w: 16,
+      h: 16,
+      width: 16,
+      height: 16,
+      slices: null,
+    },
+    canvas_empty: {
+      x: 240,
       y: 560,
       w: 1,
       h: 1,
@@ -3013,7 +3013,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     ink_simple: {
-      x: 240,
+      x: 280,
       y: 560,
       w: 16,
       h: 16,
@@ -3023,7 +3023,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     ink_alpha_compositing: {
-      x: 280,
+      x: 320,
       y: 560,
       w: 16,
       h: 16,
@@ -3033,7 +3033,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     ink_copy_color: {
-      x: 320,
+      x: 360,
       y: 560,
       w: 16,
       h: 16,
@@ -3043,7 +3043,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     ink_lock_alpha: {
-      x: 360,
+      x: 400,
       y: 560,
       w: 16,
       h: 16,
@@ -3053,7 +3053,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     ink_shading: {
-      x: 400,
+      x: 440,
       y: 560,
       w: 16,
       h: 16,
@@ -3062,15 +3062,6 @@ export const macintoshGeometry = {
       slices: null,
     },
     selection_opaque: {
-      x: 440,
-      y: 560,
-      w: 16,
-      h: 10,
-      width: 16,
-      height: 10,
-      slices: null,
-    },
-    selection_masked: {
       x: 480,
       y: 560,
       w: 16,
@@ -3079,16 +3070,16 @@ export const macintoshGeometry = {
       height: 10,
       slices: null,
     },
-    pivot_northwest: {
+    selection_masked: {
       x: 520,
       y: 560,
-      w: 7,
-      h: 7,
-      width: 7,
-      height: 7,
+      w: 16,
+      h: 10,
+      width: 16,
+      height: 10,
       slices: null,
     },
-    pivot_north: {
+    pivot_northwest: {
       x: 560,
       y: 560,
       w: 7,
@@ -3097,7 +3088,7 @@ export const macintoshGeometry = {
       height: 7,
       slices: null,
     },
-    pivot_northeast: {
+    pivot_north: {
       x: 600,
       y: 560,
       w: 7,
@@ -3106,7 +3097,7 @@ export const macintoshGeometry = {
       height: 7,
       slices: null,
     },
-    pivot_west: {
+    pivot_northeast: {
       x: 0,
       y: 600,
       w: 7,
@@ -3115,7 +3106,7 @@ export const macintoshGeometry = {
       height: 7,
       slices: null,
     },
-    pivot_center: {
+    pivot_west: {
       x: 40,
       y: 600,
       w: 7,
@@ -3124,7 +3115,7 @@ export const macintoshGeometry = {
       height: 7,
       slices: null,
     },
-    pivot_east: {
+    pivot_center: {
       x: 80,
       y: 600,
       w: 7,
@@ -3133,7 +3124,7 @@ export const macintoshGeometry = {
       height: 7,
       slices: null,
     },
-    pivot_southwest: {
+    pivot_east: {
       x: 120,
       y: 600,
       w: 7,
@@ -3142,7 +3133,7 @@ export const macintoshGeometry = {
       height: 7,
       slices: null,
     },
-    pivot_south: {
+    pivot_southwest: {
       x: 160,
       y: 600,
       w: 7,
@@ -3151,7 +3142,7 @@ export const macintoshGeometry = {
       height: 7,
       slices: null,
     },
-    pivot_southeast: {
+    pivot_south: {
       x: 200,
       y: 600,
       w: 7,
@@ -3160,16 +3151,16 @@ export const macintoshGeometry = {
       height: 7,
       slices: null,
     },
-    icon_rgb: {
+    pivot_southeast: {
       x: 240,
       y: 600,
-      w: 16,
-      h: 16,
-      width: 16,
-      height: 16,
+      w: 7,
+      h: 7,
+      width: 7,
+      height: 7,
       slices: null,
     },
-    icon_grayscale: {
+    icon_rgb: {
       x: 280,
       y: 600,
       w: 16,
@@ -3178,7 +3169,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    icon_indexed: {
+    icon_grayscale: {
       x: 320,
       y: 600,
       w: 16,
@@ -3187,8 +3178,17 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    icon_black: {
+    icon_indexed: {
       x: 360,
+      y: 600,
+      w: 16,
+      h: 16,
+      width: 16,
+      height: 16,
+      slices: null,
+    },
+    icon_black: {
+      x: 400,
       y: 600,
       w: 16,
       h: 16,
@@ -3198,15 +3198,6 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     icon_white: {
-      x: 400,
-      y: 600,
-      w: 16,
-      h: 16,
-      width: 16,
-      height: 16,
-      slices: null,
-    },
-    icon_transparent: {
       x: 440,
       y: 600,
       w: 16,
@@ -3215,8 +3206,17 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    color_wheel_indicator: {
+    icon_transparent: {
       x: 480,
+      y: 600,
+      w: 16,
+      h: 16,
+      width: 16,
+      height: 16,
+      slices: null,
+    },
+    color_wheel_indicator: {
+      x: 520,
       y: 600,
       w: 4,
       h: 4,
@@ -3226,7 +3226,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     no_symmetry: {
-      x: 520,
+      x: 560,
       y: 600,
       w: 13,
       h: 13,
@@ -3235,7 +3235,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     horizontal_symmetry: {
-      x: 560,
+      x: 600,
       y: 600,
       w: 13,
       h: 13,
@@ -3244,8 +3244,8 @@ export const macintoshGeometry = {
       slices: null,
     },
     vertical_symmetry: {
-      x: 600,
-      y: 600,
+      x: 0,
+      y: 640,
       w: 13,
       h: 13,
       width: 13,
@@ -3253,7 +3253,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     icon_arrow_down: {
-      x: 0,
+      x: 40,
       y: 640,
       w: 7,
       h: 4,
@@ -3262,7 +3262,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     icon_close: {
-      x: 40,
+      x: 80,
       y: 640,
       w: 7,
       h: 7,
@@ -3271,7 +3271,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     icon_search: {
-      x: 80,
+      x: 120,
       y: 640,
       w: 8,
       h: 8,
@@ -3280,7 +3280,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     icon_user_data: {
-      x: 120,
+      x: 160,
       y: 640,
       w: 8,
       h: 8,
@@ -3289,7 +3289,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     icon_layout: {
-      x: 160,
+      x: 200,
       y: 640,
       w: 5,
       h: 6,
@@ -3298,7 +3298,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     icon_pos: {
-      x: 200,
+      x: 240,
       y: 640,
       w: 8,
       h: 8,
@@ -3307,15 +3307,6 @@ export const macintoshGeometry = {
       slices: null,
     },
     icon_size: {
-      x: 240,
-      y: 640,
-      w: 8,
-      h: 8,
-      width: 8,
-      height: 8,
-      slices: null,
-    },
-    icon_selsize: {
       x: 280,
       y: 640,
       w: 8,
@@ -3324,7 +3315,7 @@ export const macintoshGeometry = {
       height: 8,
       slices: null,
     },
-    icon_frame: {
+    icon_selsize: {
       x: 320,
       y: 640,
       w: 8,
@@ -3333,7 +3324,7 @@ export const macintoshGeometry = {
       height: 8,
       slices: null,
     },
-    icon_clock: {
+    icon_frame: {
       x: 360,
       y: 640,
       w: 8,
@@ -3342,7 +3333,7 @@ export const macintoshGeometry = {
       height: 8,
       slices: null,
     },
-    icon_start: {
+    icon_clock: {
       x: 400,
       y: 640,
       w: 8,
@@ -3351,7 +3342,7 @@ export const macintoshGeometry = {
       height: 8,
       slices: null,
     },
-    icon_end: {
+    icon_start: {
       x: 440,
       y: 640,
       w: 8,
@@ -3360,7 +3351,7 @@ export const macintoshGeometry = {
       height: 8,
       slices: null,
     },
-    icon_angle: {
+    icon_end: {
       x: 480,
       y: 640,
       w: 8,
@@ -3369,7 +3360,7 @@ export const macintoshGeometry = {
       height: 8,
       slices: null,
     },
-    icon_key: {
+    icon_angle: {
       x: 520,
       y: 640,
       w: 8,
@@ -3378,7 +3369,7 @@ export const macintoshGeometry = {
       height: 8,
       slices: null,
     },
-    icon_distance: {
+    icon_key: {
       x: 560,
       y: 640,
       w: 8,
@@ -3387,7 +3378,7 @@ export const macintoshGeometry = {
       height: 8,
       slices: null,
     },
-    icon_grid: {
+    icon_distance: {
       x: 600,
       y: 640,
       w: 8,
@@ -3396,7 +3387,7 @@ export const macintoshGeometry = {
       height: 8,
       slices: null,
     },
-    icon_save: {
+    icon_grid: {
       x: 0,
       y: 680,
       w: 8,
@@ -3405,7 +3396,7 @@ export const macintoshGeometry = {
       height: 8,
       slices: null,
     },
-    icon_save_small: {
+    icon_save: {
       x: 40,
       y: 680,
       w: 8,
@@ -3414,7 +3405,7 @@ export const macintoshGeometry = {
       height: 8,
       slices: null,
     },
-    icon_slice: {
+    icon_save_small: {
       x: 80,
       y: 680,
       w: 8,
@@ -3423,8 +3414,17 @@ export const macintoshGeometry = {
       height: 8,
       slices: null,
     },
-    icon_aspect_ratio: {
+    icon_slice: {
       x: 120,
+      y: 680,
+      w: 8,
+      h: 8,
+      width: 8,
+      height: 8,
+      slices: null,
+    },
+    icon_aspect_ratio: {
+      x: 160,
       y: 680,
       w: 10,
       h: 8,
@@ -3433,7 +3433,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     icon_delta: {
-      x: 160,
+      x: 200,
       y: 680,
       w: 6,
       h: 8,
@@ -3442,7 +3442,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     icon_corner_radius: {
-      x: 200,
+      x: 240,
       y: 680,
       w: 8,
       h: 8,
@@ -3451,7 +3451,7 @@ export const macintoshGeometry = {
       slices: null,
     },
     icon_add: {
-      x: 240,
+      x: 280,
       y: 680,
       w: 5,
       h: 5,
@@ -3461,7 +3461,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     tool_rectangular_marquee: {
-      x: 280,
+      x: 320,
       y: 680,
       w: 16,
       h: 16,
@@ -3471,7 +3471,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     tool_elliptical_marquee: {
-      x: 320,
+      x: 360,
       y: 680,
       w: 16,
       h: 16,
@@ -3481,7 +3481,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     tool_lasso: {
-      x: 360,
+      x: 400,
       y: 680,
       w: 16,
       h: 16,
@@ -3491,7 +3491,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     tool_polygonal_lasso: {
-      x: 400,
+      x: 440,
       y: 680,
       w: 16,
       h: 16,
@@ -3501,15 +3501,6 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     tool_magic_wand: {
-      x: 440,
-      y: 680,
-      w: 16,
-      h: 16,
-      width: 16,
-      height: 16,
-      slices: null,
-    },
-    tool_pencil: {
       x: 480,
       y: 680,
       w: 16,
@@ -3518,7 +3509,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    tool_spray: {
+    tool_pencil: {
       x: 520,
       y: 680,
       w: 16,
@@ -3527,7 +3518,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    tool_eraser: {
+    tool_spray: {
       x: 560,
       y: 680,
       w: 16,
@@ -3536,7 +3527,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    tool_eyedropper: {
+    tool_eraser: {
       x: 600,
       y: 680,
       w: 16,
@@ -3545,7 +3536,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    tool_hand: {
+    tool_eyedropper: {
       x: 0,
       y: 720,
       w: 16,
@@ -3554,7 +3545,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    tool_move: {
+    tool_hand: {
       x: 40,
       y: 720,
       w: 16,
@@ -3563,7 +3554,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    tool_zoom: {
+    tool_move: {
       x: 80,
       y: 720,
       w: 16,
@@ -3572,7 +3563,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    tool_slice: {
+    tool_zoom: {
       x: 120,
       y: 720,
       w: 16,
@@ -3581,7 +3572,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    tool_paint_bucket: {
+    tool_slice: {
       x: 160,
       y: 720,
       w: 16,
@@ -3590,7 +3581,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    tool_gradient: {
+    tool_paint_bucket: {
       x: 200,
       y: 720,
       w: 16,
@@ -3599,7 +3590,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    tool_line: {
+    tool_gradient: {
       x: 240,
       y: 720,
       w: 16,
@@ -3607,9 +3598,8 @@ export const macintoshGeometry = {
       width: 16,
       height: 16,
       slices: null,
-      foregroundRole: "text",
     },
-    tool_curve: {
+    tool_line: {
       x: 280,
       y: 720,
       w: 16,
@@ -3619,7 +3609,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tool_rectangle: {
+    tool_curve: {
       x: 320,
       y: 720,
       w: 16,
@@ -3629,7 +3619,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tool_filled_rectangle: {
+    tool_rectangle: {
       x: 360,
       y: 720,
       w: 16,
@@ -3639,7 +3629,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tool_ellipse: {
+    tool_filled_rectangle: {
       x: 400,
       y: 720,
       w: 16,
@@ -3649,7 +3639,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tool_filled_ellipse: {
+    tool_ellipse: {
       x: 440,
       y: 720,
       w: 16,
@@ -3659,7 +3649,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tool_contour: {
+    tool_filled_ellipse: {
       x: 480,
       y: 720,
       w: 16,
@@ -3669,7 +3659,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tool_polygon: {
+    tool_contour: {
       x: 520,
       y: 720,
       w: 16,
@@ -3679,7 +3669,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tool_text: {
+    tool_polygon: {
       x: 560,
       y: 720,
       w: 16,
@@ -3689,7 +3679,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tool_blur: {
+    tool_text: {
       x: 600,
       y: 720,
       w: 16,
@@ -3699,7 +3689,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tool_jumble: {
+    tool_blur: {
       x: 0,
       y: 760,
       w: 16,
@@ -3709,7 +3699,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tool_configuration: {
+    tool_jumble: {
       x: 40,
       y: 760,
       w: 16,
@@ -3719,7 +3709,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tool_minieditor: {
+    tool_configuration: {
       x: 80,
       y: 760,
       w: 16,
@@ -3729,7 +3719,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tool_timeline: {
+    tool_minieditor: {
       x: 120,
       y: 760,
       w: 16,
@@ -3739,8 +3729,18 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    simple_color_border: {
+    tool_timeline: {
       x: 160,
+      y: 760,
+      w: 16,
+      h: 16,
+      width: 16,
+      height: 16,
+      slices: null,
+      foregroundRole: "text",
+    },
+    simple_color_border: {
+      x: 200,
       y: 760,
       w1: 3,
       w2: 6,
@@ -3753,7 +3753,7 @@ export const macintoshGeometry = {
       slices: [3, 6, 3, 3, 6, 3],
     },
     simple_color_selected: {
-      x: 200,
+      x: 240,
       y: 760,
       w1: 3,
       w2: 6,
@@ -3766,15 +3766,6 @@ export const macintoshGeometry = {
       slices: [3, 6, 3, 3, 6, 3],
     },
     aseprite_face: {
-      x: 240,
-      y: 760,
-      w: 28,
-      h: 30,
-      width: 28,
-      height: 30,
-      slices: null,
-    },
-    aseprite_face_mouse: {
       x: 280,
       y: 760,
       w: 28,
@@ -3783,8 +3774,17 @@ export const macintoshGeometry = {
       height: 30,
       slices: null,
     },
-    aseprite_face_pushed: {
+    aseprite_face_mouse: {
       x: 320,
+      y: 760,
+      w: 28,
+      h: 30,
+      width: 28,
+      height: 30,
+      slices: null,
+    },
+    aseprite_face_pushed: {
+      x: 360,
       y: 760,
       w: 28,
       h: 30,
@@ -3794,7 +3794,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     linear_gradient: {
-      x: 360,
+      x: 400,
       y: 760,
       w: 8,
       h: 8,
@@ -3804,7 +3804,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     radial_gradient: {
-      x: 400,
+      x: 440,
       y: 760,
       w: 8,
       h: 8,
@@ -3814,7 +3814,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     folder_icon_small: {
-      x: 440,
+      x: 480,
       y: 760,
       w: 10,
       h: 8,
@@ -3824,7 +3824,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     folder_icon_big: {
-      x: 480,
+      x: 520,
       y: 760,
       w: 32,
       h: 32,
@@ -3834,7 +3834,7 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     folder_icon_medium: {
-      x: 520,
+      x: 560,
       y: 760,
       w: 16,
       h: 16,
@@ -3844,15 +3844,6 @@ export const macintoshGeometry = {
       foregroundRole: "text",
     },
     outline_circle: {
-      x: 560,
-      y: 760,
-      w: 13,
-      h: 13,
-      width: 13,
-      height: 13,
-      slices: null,
-    },
-    outline_square: {
       x: 600,
       y: 760,
       w: 13,
@@ -3861,7 +3852,7 @@ export const macintoshGeometry = {
       height: 13,
       slices: null,
     },
-    outline_horizontal: {
+    outline_square: {
       x: 0,
       y: 800,
       w: 13,
@@ -3870,7 +3861,7 @@ export const macintoshGeometry = {
       height: 13,
       slices: null,
     },
-    outline_vertical: {
+    outline_horizontal: {
       x: 40,
       y: 800,
       w: 13,
@@ -3879,17 +3870,16 @@ export const macintoshGeometry = {
       height: 13,
       slices: null,
     },
-    outline_empty_pixel: {
+    outline_vertical: {
       x: 80,
       y: 800,
-      w: 5,
-      h: 5,
-      width: 5,
-      height: 5,
+      w: 13,
+      h: 13,
+      width: 13,
+      height: 13,
       slices: null,
-      foregroundRole: "text",
     },
-    outline_full_pixel: {
+    outline_empty_pixel: {
       x: 120,
       y: 800,
       w: 5,
@@ -3899,16 +3889,17 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    dynamics: {
+    outline_full_pixel: {
       x: 160,
       y: 800,
-      w: 16,
-      h: 16,
-      width: 16,
-      height: 16,
+      w: 5,
+      h: 5,
+      width: 5,
+      height: 5,
       slices: null,
+      foregroundRole: "text",
     },
-    dynamics_on: {
+    dynamics: {
       x: 200,
       y: 800,
       w: 16,
@@ -3917,17 +3908,16 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    tiles: {
+    dynamics_on: {
       x: 240,
       y: 800,
-      w: 6,
-      h: 6,
-      width: 6,
-      height: 6,
+      w: 16,
+      h: 16,
+      width: 16,
+      height: 16,
       slices: null,
-      foregroundRole: "text",
     },
-    tiles_manual: {
+    tiles: {
       x: 280,
       y: 800,
       w: 6,
@@ -3937,7 +3927,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tiles_auto: {
+    tiles_manual: {
       x: 320,
       y: 800,
       w: 6,
@@ -3947,7 +3937,7 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    tiles_stack: {
+    tiles_auto: {
       x: 360,
       y: 800,
       w: 6,
@@ -3957,8 +3947,18 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    cursor_skew_n: {
+    tiles_stack: {
       x: 400,
+      y: 800,
+      w: 6,
+      h: 6,
+      width: 6,
+      height: 6,
+      slices: null,
+      foregroundRole: "text",
+    },
+    cursor_skew_n: {
+      x: 440,
       y: 800,
       w: 16,
       h: 16,
@@ -3969,17 +3969,6 @@ export const macintoshGeometry = {
       slices: null,
     },
     cursor_skew_s: {
-      x: 440,
-      y: 800,
-      w: 16,
-      h: 16,
-      focusx: 8,
-      focusy: 8,
-      width: 16,
-      height: 16,
-      slices: null,
-    },
-    cursor_skew_sw: {
       x: 480,
       y: 800,
       w: 16,
@@ -3990,7 +3979,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    cursor_skew_se: {
+    cursor_skew_sw: {
       x: 520,
       y: 800,
       w: 16,
@@ -4001,7 +3990,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    cursor_skew_w: {
+    cursor_skew_se: {
       x: 560,
       y: 800,
       w: 16,
@@ -4012,7 +4001,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    cursor_skew_e: {
+    cursor_skew_w: {
       x: 600,
       y: 800,
       w: 16,
@@ -4023,7 +4012,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    cursor_skew_nw: {
+    cursor_skew_e: {
       x: 0,
       y: 840,
       w: 16,
@@ -4034,7 +4023,7 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    cursor_skew_ne: {
+    cursor_skew_nw: {
       x: 40,
       y: 840,
       w: 16,
@@ -4045,17 +4034,18 @@ export const macintoshGeometry = {
       height: 16,
       slices: null,
     },
-    one_win_icon: {
+    cursor_skew_ne: {
       x: 80,
       y: 840,
-      w: 8,
-      h: 7,
-      width: 8,
-      height: 7,
+      w: 16,
+      h: 16,
+      focusx: 8,
+      focusy: 8,
+      width: 16,
+      height: 16,
       slices: null,
-      foregroundRole: "text",
     },
-    multi_win_icon: {
+    one_win_icon: {
       x: 120,
       y: 840,
       w: 8,
@@ -4065,17 +4055,17 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    spin_up: {
+    multi_win_icon: {
       x: 160,
       y: 840,
-      w: 5,
-      h: 3,
-      width: 5,
-      height: 3,
+      w: 8,
+      h: 7,
+      width: 8,
+      height: 7,
       slices: null,
       foregroundRole: "text",
     },
-    spin_down: {
+    spin_up: {
       x: 200,
       y: 840,
       w: 5,
@@ -4085,16 +4075,17 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
-    right_diagonal_symmetry: {
+    spin_down: {
       x: 240,
       y: 840,
-      w: 13,
-      h: 13,
-      width: 13,
-      height: 13,
+      w: 5,
+      h: 3,
+      width: 5,
+      height: 3,
       slices: null,
+      foregroundRole: "text",
     },
-    left_diagonal_symmetry: {
+    right_diagonal_symmetry: {
       x: 280,
       y: 840,
       w: 13,
@@ -4103,8 +4094,17 @@ export const macintoshGeometry = {
       height: 13,
       slices: null,
     },
-    corner_radius_field: {
+    left_diagonal_symmetry: {
       x: 320,
+      y: 840,
+      w: 13,
+      h: 13,
+      width: 13,
+      height: 13,
+      slices: null,
+    },
+    corner_radius_field: {
+      x: 360,
       y: 840,
       w: 16,
       h: 16,

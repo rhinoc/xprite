@@ -33,8 +33,7 @@ export function PixelationCompare({
   preparing,
   resultName,
   resultImageLabel,
-  resultSize,
-  status: statusOverride,
+  status,
   resultOverlay,
 }: {
   navigation: ToolViewport;
@@ -45,9 +44,7 @@ export function PixelationCompare({
   /** Translated name of the right-hand layer ("Pixelated", "Restored", "Bead pattern"). */
   resultName: string;
   resultImageLabel: string;
-  /** Replaces the result's pixel size in the default status, e.g. a bead count. */
-  resultSize?: string;
-  /** Replaces the whole status line (progress and failures of the owning tool). */
+  /** A transient message of the owning tool (progress, failures); no size label otherwise. */
   status?: string;
   /** Marks drawn over the result layer only, in that layer's pixel size. */
   resultOverlay?: (size: { width: number; height: number }) => ReactNode;
@@ -58,12 +55,6 @@ export function PixelationCompare({
   const [hot, setHot] = useState(false);
   const dragging = useRef<number | null>(null);
   const handle = useRef<HTMLDivElement>(null);
-  const dimensions = (pixels: CanvasPixelSource) => `${pixels.width} × ${pixels.height} px`;
-  const status =
-    statusOverride ??
-    (result
-      ? `${t("Original")} ${dimensions(source)} · ${resultName} ${resultSize ?? dimensions(result)}`
-      : `${t("Original")} ${dimensions(source)}`);
   const move = (event: PointerEvent<HTMLElement>) => {
     const rect = clientRect(event.currentTarget.parentElement);
     const next = rect ? splitFromPointer(clientPoint(event).x, rect) : null;
