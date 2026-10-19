@@ -19,7 +19,8 @@ const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 
 export async function verifyEditorOffline(directory, label = directory) {
   const report = await verifyOfflineManifest(directory);
-  if (report.mismatches.length || report.unlisted.length) {
+  // Unlisted files are not an error: an assembled site also holds the other apps' files.
+  if (report.mismatches.length) {
     const sample = report.mismatches
       .slice(0, 10)
       .map((entry) => `  ${entry.reason}: ${entry.url}`)
