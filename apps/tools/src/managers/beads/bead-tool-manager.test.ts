@@ -4,7 +4,11 @@ import { BeadToolError } from "$/managers/beads/bead-failure";
 import { BeadToolManager, BeadPreviewMode } from "$/managers/beads/bead-tool-manager";
 import type { BeadInput, BeadToolPort } from "$/managers/ports/beads";
 import { ToolFailureCategory } from "$/managers/ports/telemetry";
-import { BEAD_CHART_CELL_SIZE, ENGLISH_BEAD_LABELS } from "@xprite/editor-core/import-export";
+import {
+  BEAD_CHART_CELL_SIZE,
+  ENGLISH_BEAD_LABELS,
+  PixelationAlgorithm,
+} from "@xprite/editor-core/import-export";
 
 const labels = ENGLISH_BEAD_LABELS;
 
@@ -293,6 +297,26 @@ describe("standalone bead tool", () => {
     await manager.edit();
     expect(manager.getSnapshot().error).toEqual({ key: "beads.error.editor" });
     expect(manager.getSnapshot().downloading).toBe(false);
+    manager.dispose();
+  });
+  it("shares the import dialog's algorithm choice and treats a typed size as Custom size", async () => {
+    vi.useFakeTimers();
+    const manager = new BeadToolManager(port());
+    await manager.open(new File([], "art.png"));
+    expect(manager.getSnapshot().settings.algorithm).toBe(PixelationAlgorithm.Auto);
+    manager.changeAlgorithm(PixelationAlgorithm.CustomSize, { width: 1, height: 1 });
+    await vi.runAllTimersAsync();
+    expect(manager.getSnapshot().settings).toMatchObject({
+      algorithm: PixelationAlgorithm.CustomSize,
+      targetWidth: 1,
+      targetHeight: 1,
+    });
+    expect(manager.getSnapshot().detected).toMatchObject({ reliable: true, width: 1, height: 1 });
+    expect(manager.getSnapshot().grid).toMatchObject({ width: 1, height: 1 });
+    manager.changeSettings({ pixeloePrepass: true });
+    expect(manager.getSnapshot().pending).toBe(true);
+    await vi.runAllTimersAsync();
+    expect(manager.getSnapshot().error).toBeNull();
     manager.dispose();
   });
 });

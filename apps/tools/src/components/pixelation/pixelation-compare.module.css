@@ -92,3 +92,9 @@
   color: var(--ui-color-ink);
   font-size: 12px;
 }
+
+/* Marks over the result layer (the bead grid); same box and clip as the layer itself. */
+.marks {
+  position: absolute;
+  pointer-events: none;
+}

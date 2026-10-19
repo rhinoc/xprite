@@ -7,11 +7,7 @@ import type {
   BeadToolSnapshot,
   BeadToolSettings,
 } from "$/managers/beads/bead-tool-manager";
-import {
-  MAX_PIXELATION_SIZE,
-  MIN_BEAD_BOARD_EDGE,
-  MAX_BEAD_BOARD_EDGE,
-} from "$/managers/beads/bead-tool-manager";
+import { MIN_BEAD_BOARD_EDGE, MAX_BEAD_BOARD_EDGE } from "$/managers/beads/bead-tool-manager";
 import type { BeadTextKey } from "$/managers/locale/bead-text";
 import { useBeadText } from "$/managers/locale/tool-language";
 import { BEAD_BOARD_PRESETS } from "@xprite/editor-core/import-export";
@@ -152,7 +148,11 @@ export function BeadSettings({
   );
 }
 
-/** Image-to-grid conversion: only the standalone tool needs it, since editor sprites are already pixels. */
+/**
+ * Bead-specific source settings that sit on top of the shared pixelation controls: which frame of a
+ * project to use and how the plain convert samples. Sampling only shapes the convert, so it is
+ * disabled while a recovered grid decides the beads.
+ */
 export function BeadSourceSettings({
   manager,
   state,
@@ -162,25 +162,6 @@ export function BeadSourceSettings({
 }) {
   const text = useBeadText();
   const busy = state.loading || state.downloading;
-  const gridEdge = (axis: Axis, label: BeadTextKey) => (
-    <ToolField label={text(label)}>
-      <Input
-        pixelWidth={GRID_WIDTH}
-        inputMode="numeric"
-        aria-label={text(label)}
-        value={String(state.settings[axis === "width" ? "targetWidth" : "targetHeight"])}
-        min={MIN_GRID_EDGE}
-        max={MAX_PIXELATION_SIZE}
-        step={MIN_GRID_EDGE}
-        disabled={busy}
-        onCommit={(value) =>
-          manager.changeSettings({
-            [axis === "width" ? "targetWidth" : "targetHeight"]: Number(value),
-          })
-        }
-      />
-    </ToolField>
-  );
   return (
     <ToolGroup title={text("beads.sampling")}>
       {state.frameCount > MIN_GRID_EDGE && (
@@ -198,14 +179,6 @@ export function BeadSourceSettings({
           />
         </ToolField>
       )}
-      {gridEdge("width", "beads.columns")}
-      {gridEdge("height", "beads.rows")}
-      <Checkbox
-        label={text("beads.aspect.keep")}
-        checked={state.settings.lockAspectRatio}
-        disabled={busy}
-        onCheckedChange={(lockAspectRatio) => manager.changeSettings({ lockAspectRatio })}
-      />
       <Combobox
         pixelWidth={SELECT_WIDTH}
         aria-label={text("beads.sampling")}
@@ -214,7 +187,7 @@ export function BeadSourceSettings({
           value: mode.value,
           label: text(SAMPLING_KEYS[mode.value]),
         }))}
-        disabled={busy}
+        disabled={busy || !!state.detected?.reliable}
         onValueChange={(method) =>
           manager.changeSettings({
             method: method as BeadToolSettings["method"],

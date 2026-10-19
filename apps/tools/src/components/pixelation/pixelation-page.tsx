@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 
 import { PixelationCompare } from "$/components/pixelation/pixelation-compare";
+import { PixelationExtraControls } from "$/components/pixelation/pixelation-extras";
 import { PixelationPalette } from "$/components/pixelation/pixelation-palette";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
 import { ToolHelp } from "$/components/shared/tool-help";
@@ -9,7 +10,7 @@ import { useToolTranslation } from "$/managers/locale/tool-language";
 import type { PixelationManager } from "$/managers/pixelation/pixelation-manager";
 import { PIXELATE_TOOL } from "$/managers/tools/tool-catalog";
 import { PixelationMode } from "@xprite/editor-core/import-export";
-import { PixelationControls } from "@xprite/editor-ui";
+import { PixelationBaseControls } from "@xprite/editor-ui";
 import { PIXELATE_HELP, PixelateHelpSection } from "@xprite/growth-content/tools";
 
 export function PixelationPage({ manager }: { manager: PixelationManager }) {
@@ -34,8 +35,7 @@ export function PixelationPage({ manager }: { manager: PixelationManager }) {
         exportDisabled: !ready,
         editMore: { run: () => void manager.edit() },
         adjust: state.source && (
-          <PixelationControls
-            grouped
+          <PixelationBaseControls
             paletteResources={{
               choices: state.paletteChoices,
               currentPalette: state.defaultPalette,
@@ -44,17 +44,25 @@ export function PixelationPage({ manager }: { manager: PixelationManager }) {
               currentName: "Default palette",
               refresh: manager.refreshPalettes,
             }}
+            algorithm={state.algorithm}
             grid={state.grid ?? undefined}
             settings={state.settings}
             sourceSize={state.source}
-            disabled={busy}
+            busy={busy}
             translate={(text, values) =>
               t(text).replace(/\{([^}]+)\}/g, (match, key: string) =>
                 String(values?.[key] ?? match),
               )
             }
             onChange={manager.changeSettings}
-          />
+            onAlgorithm={(algorithm, size) => void manager.changeAlgorithm(algorithm, size)}
+          >
+            <PixelationExtraControls
+              settings={state.settings}
+              disabled={busy}
+              onChange={manager.changeSettings}
+            />
+          </PixelationBaseControls>
         ),
         exportFormats: [
           {
@@ -80,7 +88,8 @@ export function PixelationPage({ manager }: { manager: PixelationManager }) {
                   source={state.source}
                   result={state.result}
                   preparing={state.loading || state.converting}
-                  restored={restored}
+                  resultName={t(restored ? "Restored" : "Pixelated")}
+                  resultImageLabel={t(restored ? "Restored image" : "Pixelated image")}
                 />
               ),
             },

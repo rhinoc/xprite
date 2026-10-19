@@ -1,14 +1,3 @@
-.controls {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ui-space-3);
-  min-width: 0;
-}
-.fields,
-.presets {
-  flex-wrap: wrap;
-  gap: var(--ui-space-3);
-}
 .paletteControl {
   display: flex;
   flex-direction: column;
@@ -36,25 +25,12 @@
 }
 
 /* Tool pages: each group is its own box, side by side in the adjust panel. */
-.grouped {
+.controls {
   display: contents;
 }
 .group {
   flex: 1 1 auto !important;
   min-width: 0;
-}
-/* Mode and Sampling share a row; Size and Output follow (DOM order stays the editor dialog's). */
-.groupSize {
-  order: 3;
-}
-.groupSampling {
-  order: 2;
-}
-.groupMode {
-  order: 1;
-}
-.groupOutput {
-  order: 4;
 }
 .groupRow {
   display: flex;
@@ -65,4 +41,12 @@
 }
 .inlineField {
   --ui-field-gap: 6px;
+}
+.palette {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+.advanced {
+  flex: 1 1 100% !important;
+  min-width: 0;
 }

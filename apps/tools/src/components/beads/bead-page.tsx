@@ -3,21 +3,20 @@ import { useMemo, useSyncExternalStore } from "react";
 import { BeadMaterials } from "$/components/beads/bead-materials";
 import { BeadPreviewGrid } from "$/components/beads/bead-preview-grid";
 import { BeadSettings, BeadSourceSettings } from "$/components/beads/bead-settings";
-import { ToolCanvasPreview } from "$/components/shared/canvas-preview";
+import { PixelationCompare } from "$/components/pixelation/pixelation-compare";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
-import { ToolCanvasPane, ToolResultWindow } from "$/components/shared/tool-result-window";
+import { ToolResultWindow } from "$/components/shared/tool-result-window";
 import { formatBeadFailure } from "$/managers/beads/bead-failure";
-import {
-  BeadPreviewMode,
-  type BeadToolManager,
-  type BeadToolSnapshot,
+import type {
+  BeadToolManager,
+  BeadToolSettings,
+  BeadToolSnapshot,
 } from "$/managers/beads/bead-tool-manager";
 import { beadDocumentLabels } from "$/managers/locale/bead-text";
-import { useBeadText } from "$/managers/locale/tool-language";
+import { useBeadText, useToolTranslation } from "$/managers/locale/tool-language";
 import { BEADS_TOOL } from "$/managers/tools/tool-catalog";
-import { ControlFlow, Button } from "@xprite/ui";
-
-import styles from "$/components/beads/beads.module.css";
+import { PixelationMode, defaultPixelationSettings } from "@xprite/editor-core/import-export";
+import { PixelationBaseControls, PixelationSlot } from "@xprite/editor-ui";
 
 enum ResultTab {
   Pattern = "pattern",
@@ -25,7 +24,14 @@ enum ResultTab {
 }
 
 const PERCENT = 100;
-const ZOOM_STEP = 2;
+/** Beads map to a brand's colours, so the colour-limit controls of the shared panel do not apply. */
+const HIDDEN_BASE_SLOTS: ReadonlySet<PixelationSlot> = new Set([
+  PixelationSlot.LimitColors,
+  PixelationSlot.Colors,
+  PixelationSlot.Palette,
+  PixelationSlot.SnapPalette,
+  PixelationSlot.SnapColors,
+]);
 
 export function BeadPage({ manager }: { manager: BeadToolManager }) {
   const text = useBeadText();
@@ -33,16 +39,12 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
   const state = useSyncExternalStore(manager.subscribe, manager.getSnapshot, manager.getSnapshot);
   const busy = state.loading || state.downloading;
   const outputDisabled = busy || state.pending || !state.grid || !state.outputName.trim();
-  const board = state.mode === BeadPreviewMode.Board ? state.boards[state.selected] : undefined;
   const status =
     state.progress !== null
       ? text("beads.download.progress", { percent: Math.round(state.progress * PERCENT) })
       : state.pending
         ? text("beads.preview.preparing")
-        : (formatBeadFailure(text, state.pdfError ?? state.pngError) ??
-          (board
-            ? text("beads.board.coordinates", { row: board.row + 1, column: board.column + 1 })
-            : ""));
+        : (formatBeadFailure(text, state.pdfError ?? state.pngError) ?? "");
   return (
     <FileToolShell
       tool={BEADS_TOOL}
@@ -57,11 +59,8 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
       flow={{
         exportDisabled: outputDisabled,
         editMore: { run: () => void manager.edit(), disabled: outputDisabled },
-        adjust: (
-          <>
-            <BeadSettings manager={manager} state={state} />
-            <BeadSourceSettings manager={manager} state={state} />
-          </>
+        adjust: state.source && (
+          <BeadAdjust manager={manager} state={state} source={state.source} />
         ),
         exportFormats: [
           {
@@ -84,6 +83,51 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
   );
 }
 
+/** The shared pixelation controls with the bead-specific groups (board, sampling) on top. */
+function BeadAdjust({
+  manager,
+  state,
+  source,
+}: {
+  manager: BeadToolManager;
+  state: BeadToolSnapshot;
+  source: NonNullable<BeadToolSnapshot["source"]>;
+}) {
+  const t = useToolTranslation();
+  const busy = state.loading || state.downloading;
+  const settings = useMemo(
+    () => ({
+      ...defaultPixelationSettings(source),
+      ...state.settings,
+      mode: state.detected?.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
+    }),
+    [source, state.settings, state.detected],
+  );
+  return (
+    <PixelationBaseControls
+      algorithm={state.settings.algorithm}
+      grid={state.detected ?? undefined}
+      settings={settings}
+      sourceSize={source}
+      busy={busy}
+      hidden={HIDDEN_BASE_SLOTS}
+      translate={(label, values) =>
+        t(label).replace(/\{([^}]+)\}/g, (match, key: string) => String(values?.[key] ?? match))
+      }
+      onChange={({ colorPicker, pixeloePrepass }) => {
+        const patch: Partial<BeadToolSettings> = {};
+        if (colorPicker !== undefined) patch.colorPicker = colorPicker;
+        if (pixeloePrepass !== undefined) patch.pixeloePrepass = pixeloePrepass;
+        manager.changeSettings(patch);
+      }}
+      onAlgorithm={manager.changeAlgorithm}
+    >
+      <BeadSettings manager={manager} state={state} />
+      <BeadSourceSettings manager={manager} state={state} />
+    </PixelationBaseControls>
+  );
+}
+
 function BeadStage({
   manager,
   state,
@@ -94,16 +138,8 @@ function BeadStage({
   status: string;
 }) {
   const text = useBeadText();
-  const view = useSyncExternalStore(
-    manager.navigation.subscribe,
-    manager.navigation.getSnapshot,
-    manager.navigation.getSnapshot,
-  );
-  const fit = () => {
-    // Fit returns from a zoomed board to the whole pattern, as in the editor dialog.
-    if (state.mode !== BeadPreviewMode.Overview) manager.setMode(BeadPreviewMode.Overview);
-    manager.navigation.fit();
-  };
+  const layout = state.previewLayout;
+  const grid = state.grid;
   return (
     <ToolResultWindow
       title={text("beads.pattern")}
@@ -111,48 +147,23 @@ function BeadStage({
         {
           id: ResultTab.Pattern,
           label: text("beads.pattern"),
-          content: (
-            <ToolCanvasPane
-              status={status}
-              controls={
-                <ControlFlow className={styles.boardRow}>
-                  <Button
-                    slots={{}}
-                    text="-"
-                    aria-label={text("beads.zoom.out")}
-                    title={text("beads.zoom.out")}
-                    onClick={() => manager.navigation.setZoom(view.zoom / ZOOM_STEP)}
-                  />
-                  <Button
-                    slots={{}}
-                    text="+"
-                    aria-label={text("beads.zoom.in")}
-                    title={text("beads.zoom.in")}
-                    onClick={() => manager.navigation.setZoom(view.zoom * ZOOM_STEP)}
-                  />
-                  <Button slots={{}} text={text("beads.fit")} onClick={fit} />
-                </ControlFlow>
+          content: state.source && (
+            <PixelationCompare
+              navigation={manager.navigation}
+              identity={state.identity}
+              source={state.source}
+              result={state.preview}
+              preparing={state.loading || state.pending}
+              resultName={text("beads.pattern")}
+              resultImageLabel={text("beads.preview.label")}
+              resultSize={
+                grid ? text("beads.size", { width: grid.width, height: grid.height }) : undefined
               }
-            >
-              {state.preview && (
-                <ToolCanvasPreview
-                  navigation={manager.navigation}
-                  identity={state.identity}
-                  pixels={state.preview}
-                  label={text("beads.preview.label")}
-                  onPixelSelect={
-                    state.mode === BeadPreviewMode.Overview ? manager.selectAt : undefined
-                  }
-                  overlay={
-                    state.previewLayout
-                      ? (overlay) => (
-                          <BeadPreviewGrid layout={state.previewLayout!} view={overlay} />
-                        )
-                      : undefined
-                  }
-                />
-              )}
-            </ToolCanvasPane>
+              status={status || undefined}
+              resultOverlay={
+                layout ? (size) => <BeadPreviewGrid layout={layout} size={size} /> : undefined
+              }
+            />
           ),
         },
         {

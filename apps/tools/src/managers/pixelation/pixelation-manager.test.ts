@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { PixelationManager } from "$/managers/pixelation/pixelation-manager";
 import type { PixelationPort } from "$/managers/ports/pixelation";
+import { PixelationAlgorithm, PixelationMode } from "@xprite/editor-core/import-export";
 
 const image = (width: number, height: number) => ({
   width,
@@ -39,6 +40,33 @@ describe("pixelate tool preview", () => {
     await manager.open(new File([], "a.png"));
     manager.changeSettings({ removeNoise: true });
     expect(manager.getSnapshot()).toMatchObject({ result: null, converting: true });
+    manager.dispose();
+  });
+  it("finds pixels with the chosen algorithm, like the import dialog", async () => {
+    const detectGrid = vi.fn(async (_image, algorithm, size) => ({
+      width: size?.width ?? 4,
+      height: size?.height ?? 3,
+      cellWidth: 2,
+      cellHeight: 2,
+      offsetX: 0,
+      offsetY: 0,
+      confidence: 1,
+      reliable: algorithm !== PixelationAlgorithm.Resize,
+    }));
+    const manager = new PixelationManager({ ...port(), detectGrid: detectGrid as never });
+    await manager.open(new File([], "a.png"));
+    await manager.changeAlgorithm(PixelationAlgorithm.CustomSize, { width: 4, height: 3 });
+    expect(detectGrid).toHaveBeenLastCalledWith(expect.anything(), PixelationAlgorithm.CustomSize, {
+      width: 4,
+      height: 3,
+    });
+    expect(manager.getSnapshot()).toMatchObject({
+      algorithm: PixelationAlgorithm.CustomSize,
+      converting: false,
+    });
+    expect(manager.getSnapshot().settings.mode).toBe(PixelationMode.RecoverGrid);
+    await manager.changeAlgorithm(PixelationAlgorithm.Resize);
+    expect(manager.getSnapshot().settings.mode).toBe(PixelationMode.Convert);
     manager.dispose();
   });
 });

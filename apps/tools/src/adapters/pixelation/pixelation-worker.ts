@@ -12,7 +12,7 @@ const scope = globalThis as unknown as Scope;
 scope.onmessage = ({ data }) => {
   try {
     if (data.operation === PixelationWorkerOperation.DetectGrid) {
-      scope.postMessage({ grid: detectWithAlgorithm(data.image, data.algorithm) });
+      scope.postMessage({ grid: detectWithAlgorithm(data.image, data.algorithm, data.size) });
       return;
     }
     const pixels = pixelateImage(data.image, data.options);

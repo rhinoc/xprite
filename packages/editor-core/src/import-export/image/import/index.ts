@@ -35,6 +35,8 @@ export type {
 export {
   defaultPixelationSettings,
   updatePixelationSettings,
+  applyPixelationGrid,
+  pixelationSizeFromAxis,
   pixelationSettingsOptions,
   MAX_PIXELATION_SIZE,
   PIXELATION_SIZES,

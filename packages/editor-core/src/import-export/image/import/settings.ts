@@ -135,3 +135,43 @@ export function pixelationSettingsOptions(
     palette,
   };
 }
+
+/**
+ * What a detected grid means for the settings: a reliable one recovers it, anything else falls back
+ * to the plain convert (resize). Shared by the import dialog and the tool pages.
+ */
+export function applyPixelationGrid(
+  settings: PixelationSettings,
+  grid: PixelGridAnalysis,
+  image: Pick<PixelBuffer, "width" | "height">,
+): PixelationSettings {
+  return updatePixelationSettings(
+    settings,
+    grid.reliable
+      ? {
+          mode: PixelationMode.RecoverGrid,
+          autoGrid: true,
+          gridCellWidth: grid.cellWidth,
+          gridCellHeight: grid.cellHeight,
+        }
+      : { mode: PixelationMode.Convert },
+    image,
+  );
+}
+
+/**
+ * The output size for typing one dimension: the other follows the image's aspect ratio. Null when the
+ * text is not a usable size.
+ */
+export function pixelationSizeFromAxis(
+  axis: "width" | "height",
+  value: string,
+  image: Pick<PixelBuffer, "width" | "height">,
+): { width: number; height: number } | null {
+  const typed = Number.parseInt(value, 10);
+  if (!Number.isFinite(typed) || typed < 1) return null;
+  const { width, height } = image;
+  return axis === "width"
+    ? { width: typed, height: Math.max(1, Math.round((typed * height) / width)) }
+    : { width: Math.max(1, Math.round((typed * width) / height)), height: typed };
+}

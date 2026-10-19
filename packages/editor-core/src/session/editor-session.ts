@@ -15,7 +15,6 @@ import {
   type PixelationSize,
   PixelArtClassification,
   PixelationAlgorithm,
-  PixelationMode,
   CellColorPicker,
   getAllAlgorithms,
   getListedAlgorithms,
@@ -23,6 +22,7 @@ import {
   defaultPixelationSettings,
   extractPixelationPalette,
   updatePixelationSettings,
+  applyPixelationGrid,
   pixelationSettingsOptions,
 } from "$/import-export/image/import";
 import {
@@ -738,16 +738,9 @@ export class EditorSession<Source> {
       const current = this.state.pendingImport;
       this.publish({
         pendingImport: current ? { ...current, grid, algorithm } : current,
-        pixelationOptions: updatePixelationSettings(
+        pixelationOptions: applyPixelationGrid(
           this.state.pixelationOptions,
-          grid.reliable
-            ? {
-                mode: PixelationMode.RecoverGrid,
-                autoGrid: true,
-                gridCellWidth: grid.cellWidth,
-                gridCellHeight: grid.cellHeight,
-              }
-            : { mode: PixelationMode.Convert },
+          grid,
           candidate.pixels,
         ),
       });
