@@ -70,7 +70,14 @@ const stages = [
     ],
   ],
   [
-    ["editor", [filter("@xprite/editor-app"), [pnpm, "run", "telemetry:sourcemaps"]]],
+    [
+      "editor",
+      [
+        filter("@xprite/editor-app"),
+        [pnpm, "run", "telemetry:sourcemaps"],
+        [pnpm, "run", "offline:seal"],
+      ],
+    ],
     ["growth", [filter("@xprite/growth-app")]],
     ["tools", [filter("@xprite/tools-app")]],
     ["components", [filter("@xprite/components-app")]],

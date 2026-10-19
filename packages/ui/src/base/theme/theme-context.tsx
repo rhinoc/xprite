@@ -1,7 +1,11 @@
 import * as React from "react";
 
 import { defaultUiTheme } from "$/base/theme/default-theme";
-import { getThemeAssets, preloadThemeAssets } from "$/base/theme/theme-assets-store";
+import {
+  getThemeAssets,
+  preloadThemeAssets,
+  reportThemeAssetError,
+} from "$/base/theme/theme-assets-store";
 import type { UiAssetBundle } from "$/base/theme/theme-assets-store";
 import { ThemeContext, type ThemeContextValue } from "$/base/theme/theme-context-instance";
 import type { UiTheme } from "$/base/theme/theme-definition";
@@ -90,7 +94,7 @@ export function UIProvider({
       .then((assets) => {
         if (active) setLoaded(assets);
       })
-      .catch((error) => console.error(error));
+      .catch(reportThemeAssetError);
     return () => {
       active = false;
     };

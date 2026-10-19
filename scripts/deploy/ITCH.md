@@ -45,7 +45,10 @@ generation and upload are skipped; configuring only one credential fails the bui
 The ZIP and the directory uploaded by butler must not contain source maps.
 
 Build metadata in `release.json` records the package version and release; set
-`POSTHOG_RELEASE` before building if a commit SHA should identify the artifact.
+`POSTHOG_RELEASE` before building to override it; when unset, `pnpm run build:itch` uses the
+checked-out commit SHA as the release (also the release name for the source map upload) and
+warns when no PostHog credentials are configured, because the bundle's stack traces then stay
+minified.
 
 ## First upload
 

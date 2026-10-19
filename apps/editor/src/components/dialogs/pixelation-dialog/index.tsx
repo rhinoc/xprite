@@ -17,6 +17,7 @@ import {
   PixelationAlgorithm,
   CellColorPicker,
   PIXELATION_SIZES,
+  SNAP_COLOR_PRESETS,
 } from "$/managers/preferences/file-preferences";
 import type { useEditorWorkflows } from "$/managers/workspace/use-editor-workflows";
 import {
@@ -75,6 +76,11 @@ const REMEMBERED_ALGORITHMS: readonly PixelationAlgorithm[] = [
   PixelationAlgorithm.EdgeGrid,
   PixelationAlgorithm.UniformGrid,
 ];
+const SNAP_OPTIONS = SNAP_COLOR_PRESETS.map((count) => ({
+  value: String(count),
+  label: String(count),
+}));
+const SNAP_CHECKBOX_SHARE = 0.6;
 const SIZE_OPTIONS = PIXELATION_SIZES.map((size) => ({
   value: String(size),
   label: tUi("ui.dimension.pixels", { size }),
@@ -204,7 +210,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const hintHeight = pixelateMessage ? HINT_HEIGHT + GAP : 0;
         const advancedRowHeight = ROW_HEIGHT + GAP;
         const advancedHeight = showAdvanced
-          ? 3 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) + ROW_HEIGHT + GAP
+          ? 3 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) + 2 * (ROW_HEIGHT + GAP)
           : 0;
         const bottomStack =
           SECTION_HEIGHT +
@@ -237,6 +243,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const pickerLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
         const pickerCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         const prepassRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
+        const snapRow = showAdvanced ? at(COMBO_HEIGHT, GAP - (COMBO_HEIGHT - ROW_HEIGHT)) : null;
         const rememberRow = at(ROW_HEIGHT);
         const footerY = client.y + client.height - FOOTER_HEIGHT;
         const option = (value: ImportAction, label: string, x: number, w: number) => (
@@ -439,6 +446,38 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                       pixeloePrepass: true,
                       colorPicker: CellColorPicker.Contrast,
                     })
+                  }
+                />
+              </>
+            )}
+            {snapRow && (
+              <>
+                <Checkbox
+                  label={tUiSource("import.dialog.snap.palette")}
+                  checked={options.snapPalette}
+                  disabled={workflow.busy}
+                  onCheckedChange={(snapPalette) => workflow.setPixelationOptions({ snapPalette })}
+                  bounds={{
+                    ...snapRow,
+                    height: ROW_HEIGHT,
+                    width: Math.round(snapRow.width * SNAP_CHECKBOX_SHARE),
+                  }}
+                  relativeTo={client}
+                />
+                <Combobox
+                  aria-label={tUiSource("import.dialog.snap.colors")}
+                  bounds={{
+                    ...snapRow,
+                    x: snapRow.x + Math.round(snapRow.width * SNAP_CHECKBOX_SHARE) + GAP,
+                    width: snapRow.width - Math.round(snapRow.width * SNAP_CHECKBOX_SHARE) - GAP,
+                  }}
+                  relativeTo={client}
+                  value={String(options.snapColors)}
+                  // Only the checked step has a colour count to choose; otherwise it stays inert.
+                  disabled={workflow.busy || !options.snapPalette}
+                  options={SNAP_OPTIONS}
+                  onValueChange={(value) =>
+                    workflow.setPixelationOptions({ snapColors: Number(value) })
                   }
                 />
               </>

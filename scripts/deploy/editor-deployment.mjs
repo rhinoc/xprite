@@ -16,6 +16,7 @@ import {
 } from "../../apps/growth/content/tools/index.ts";
 import { assertEdgeOneRuleLimits, compactServingRules } from "../../infra/edgeone-serving-rules.ts";
 import { INDEXNOW_KEY, INDEXNOW_KEY_FILE } from "../../infra/indexnow.ts";
+import { verifyEditorOffline } from "../build/editor-offline.mjs";
 import { checkAssetVersions } from "../check/check-asset-versions.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
@@ -153,6 +154,8 @@ async function prepareDeployment() {
   if (environment === "production") await readFile(join(outputDirectory, "sitemap.xml"));
   await verifyStaticFiles(outputDirectory);
   await checkAssetVersions(outputDirectory);
+  // sw.js SRI hashes must describe the bytes being published (source map injection rewrites JS).
+  await verifyEditorOffline(outputDirectory, "the deployment output");
   await rm(deploymentDirectory, { recursive: true, force: true });
   await mkdir(dirname(deploymentDirectory), { recursive: true });
   await cp(outputDirectory, deploymentDirectory, { recursive: true });

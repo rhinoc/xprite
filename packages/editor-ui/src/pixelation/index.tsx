@@ -11,6 +11,7 @@ import {
   MAX_GRID_CELL_SIZE,
   type PixelGridAnalysis,
   PIXELATION_SIZES,
+  SNAP_COLOR_PRESETS,
   PIXELATION_METHOD_OPTIONS,
   MAX_PIXELATION_SIZE,
   type PixelationSettings,
@@ -279,6 +280,27 @@ export function PixelationControls({
               onChange={onChange}
             />
           </>
+        )}
+        <Checkbox
+          label={translate("Snap palette")}
+          checked={settings.snapPalette}
+          disabled={disabled}
+          onCheckedChange={(snapPalette) => onChange({ snapPalette })}
+        />
+        {settings.snapPalette && settings.palette === null && (
+          <Field label={translate("Palette colors")} {...fieldProps}>
+            <Combobox
+              pixelWidth={NUMBER_WIDTH + 24}
+              value={String(settings.snapColors)}
+              aria-label={translate("Palette colors")}
+              disabled={disabled}
+              options={SNAP_COLOR_PRESETS.map((count) => ({
+                value: String(count),
+                label: String(count),
+              }))}
+              onValueChange={(value) => onChange({ snapColors: Number(value) })}
+            />
+          </Field>
         )}
       </ControlGroup>
     </div>

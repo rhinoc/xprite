@@ -19,7 +19,6 @@ const INSTALL_HINT_DISMISSED_KEY = "xprite.pwa.install-hint-dismissed";
 const DISMISSED_VALUE = "1";
 const INSTALL_HINT_DURATION_MS = 5_000;
 const INSTALL_INSTRUCTIONS_DURATION_MS = 8_000;
-const UPDATE_AVAILABLE_DURATION_MS = 12_000;
 
 export interface PwaState extends PwaPlatformState {
   readonly installBusy: boolean;
@@ -98,6 +97,9 @@ export class PwaManager {
   private showNotice(notice: PwaNotice): void {
     this.clearNoticeTimeout();
     this.patch({ notice });
+    // The stale-build prompt stays until the user reloads or dismisses it: a failure that lands
+    // while the tab is in the background must still be visible when they come back.
+    if (notice === PwaNotice.UpdateAvailable) return;
     this.noticeTimeout = setTimeout(
       () => {
         this.noticeTimeout = null;
@@ -105,10 +107,13 @@ export class PwaManager {
       },
       notice === PwaNotice.AddToDesktopHint
         ? INSTALL_HINT_DURATION_MS
-        : notice === PwaNotice.UpdateAvailable
-          ? UPDATE_AVAILABLE_DURATION_MS
-          : INSTALL_INSTRUCTIONS_DURATION_MS,
+        : INSTALL_INSTRUCTIONS_DURATION_MS,
     );
+  }
+
+  dismissNotice(): void {
+    this.clearNoticeTimeout();
+    this.patch({ notice: null });
   }
 
   private rememberHint(): void {
