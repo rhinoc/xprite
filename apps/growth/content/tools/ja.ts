@@ -296,6 +296,7 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Default palette": "既定のパレット",
   "Preparing preview…": "プレビューを準備中…",
   "Adjust settings to preview the result.": "設定を調整すると結果をプレビューできます。",
+  "Drag to compare original and result": "ドラッグして元の画像と結果を比較",
   "Pixelated image": "ピクセル化した画像",
   "Restored image": "復元した画像",
   "{value1} ({value2} colors)": "{value1}（{value2} 色）",

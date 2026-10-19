@@ -4,6 +4,7 @@ import {
   type PixelationWorkerRequest,
   type PixelationWorkerResponse,
 } from "$/adapters/pixelation/worker-protocol";
+import { readToolWheel } from "$/adapters/preview/browser-preview";
 import { TOOL_IMPORT_MAX_BYTES } from "$/managers/files/files-model";
 import type { PixelationPort } from "$/managers/ports/pixelation";
 import { downloadBlob } from "@xprite/bedrock/browser/file-system";
@@ -48,6 +49,7 @@ export function createBrowserPixelationPort(): PixelationPort {
     });
   }
   return {
+    readWheel: readToolWheel,
     paletteResources() {
       const bundled = readBundledPalettePresets();
       const get = (key: string) => {

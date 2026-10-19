@@ -80,6 +80,7 @@ export async function renderToolPage(rootId: string) {
             ? new GifSheetManager(ports)
             : rootId === "pixelation-root"
               ? new PixelationManager({
+                  readWheel: unavailable,
                   paletteResources: () => ({ choices: [], defaultPalette: [] }),
                   detectGrid: unavailable,
                   read: unavailable,

@@ -291,6 +291,7 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "Default palette": "기본 팔레트",
   "Preparing preview…": "미리보기 준비 중…",
   "Adjust settings to preview the result.": "설정을 조정하면 결과를 미리 볼 수 있습니다.",
+  "Drag to compare original and result": "드래그하여 원본과 결과 비교",
   "Pixelated image": "픽셀화된 이미지",
   "Restored image": "복원된 이미지",
   "{value1} ({value2} colors)": "{value1} ({value2}색)",
