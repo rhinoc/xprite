@@ -83,6 +83,9 @@ function createWorker(offlineBuild: ReturnType<typeof build>, existing: Record<s
     Map,
     Set,
     Promise,
+    AbortController,
+    setTimeout,
+    clearTimeout,
     Number,
     String,
     Date,
@@ -162,6 +165,28 @@ describe("editor service worker releases", () => {
       respondWith: (response: Promise<Response>) => (responded = response),
     });
     assert.equal(await (await responded!).text(), "prev1");
+  });
+
+  it("serves a newer shell from the network and falls back to the installed shell offline", async () => {
+    const worker = createWorker(build("new", { "editor-offline-x.html": "", ...NEW_FILES }), {
+      "xprite-editor-new": releaseCache("new", 400, ["/editor-offline-x.html"]),
+    });
+    const navigate = async () => {
+      let responded: Promise<Response> | undefined;
+      await worker.dispatch("fetch", {
+        request: { method: "GET", mode: "navigate", url: `${ORIGIN}/?x=1` },
+        respondWith: (response: Promise<Response>) => (responded = response),
+      });
+      return (await responded!).text();
+    };
+    fetchMock.current = async () => new Response("network-html");
+    assert.equal(await navigate(), "network-html");
+    fetchMock.current = async () => new Response("", { status: 503 });
+    assert.equal(await navigate(), "new");
+    fetchMock.current = async () => {
+      throw new TypeError("offline");
+    };
+    assert.equal(await navigate(), "new");
   });
 
   it("tells the page when a build resource fails its fetch or integrity check", async () => {

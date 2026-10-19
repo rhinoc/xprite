@@ -16,18 +16,18 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
     "Visualizador de Aseprite online: abra .ase e .aseprite | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Visualize projetos do Aseprite e exporte quadros PNG ou animações GIF.",
-  "Open Aseprite projects, preview layers and animation, and export PNG frames or GIF animations in your browser. Files stay on your device, with no cloud upload.":
+  "Free Aseprite viewer: open .aseprite and .ase files online without Aseprite. Preview layers and animation, export PNG or GIF. Files never leave your device.":
     "Abra projetos do Aseprite, veja camadas e animações e exporte quadros PNG ou GIFs no navegador. Os arquivos ficam no seu dispositivo, sem envio para a nuvem.",
   "Choose an Aseprite file": "Escolha um arquivo do Aseprite",
   "Open file": "Abrir arquivo",
   "Open file…": "Abrir arquivo…",
   "Drop an .ase or .aseprite file": "Solte um arquivo .ase ou .aseprite",
   "Turn a GIF into a sprite sheet": "Transforme um GIF em sprite sheet",
-  "GIF to Sprite Sheet: Free Online Converter | Xprite":
+  "GIF to Sprite Sheet Converter: Free, No Upload | Xprite":
     "GIF para sprite sheet: conversor online grátis | Xprite",
   "Convert GIF animations into PNG sprite sheets with JSON frame data.":
     "Converta animações GIF em sprite sheets PNG com dados de quadros em JSON.",
-  "Convert GIF animations into PNG sprite sheets free in your browser. Choose rows, columns and spacing, and download JSON frame data. Files stay on your device.":
+  "Convert a GIF to a PNG sprite sheet free in your browser. Set rows, columns and spacing; get JSON frame data for game engines. Files stay on your device.":
     "Converta GIFs em sprite sheets PNG de graça no navegador. Escolha linhas, colunas e espaçamento e baixe os dados dos quadros em JSON. Os arquivos ficam com você.",
   "Choose a GIF file": "Escolha um arquivo GIF",
   "Open GIF": "Abrir GIF",
@@ -104,6 +104,7 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   Width: "Largura",
   Height: "Altura",
   "Outline protection": "Proteção de contorno",
+  "PixelOE pre-pass": "Pré-passo PixelOE",
   "Keep original dimensions": "Manter dimensões originais",
   "Automatic grid": "Grade automática",
   "Open image": "Abrir imagem",

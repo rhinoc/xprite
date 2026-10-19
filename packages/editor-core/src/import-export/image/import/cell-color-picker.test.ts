@@ -42,14 +42,20 @@ describe("cell colour pickers", () => {
     cell.data.set([10, 20, 30, 255], 4 * 4);
     expect(Array.from(recoverWithGrid(cell, oneCell, Nearest).data)).toEqual([10, 20, 30, 255]);
   });
-  test("Contrast keeps a line's lightness a Median cell would wash out", () => {
-    const cell = mixedCell();
-    for (let i = 0; i < 9; i++)
-      cell.data.set(i < 6 ? [230, 230, 230, 255] : [20, 20, 20, 255], i * 4);
-    const light = (picker: CellColorPicker) => recoverWithGrid(cell, oneCell, picker).data[0];
-    expect(light(Median)).toBe(230);
-    expect(light(Contrast)).toBeLessThan(230);
-    expect(light(Contrast)).toBeGreaterThan(20);
+  test("Contrast follows PixelOE: skewed cells snap to the patch min or max", () => {
+    const grey = (values: number[]) => {
+      const cell = mixedCell();
+      values.forEach((v, i) => cell.data.set([v, v, v, 255], i * 4));
+      return (picker: CellColorPicker) => recoverWithGrid(cell, oneCell, picker).data[0];
+    };
+    // median 100 < mean, max is farther from the median than the min -> the patch minimum (20)
+    const skewed = grey([100, 100, 100, 100, 100, 100, 100, 250, 20]);
+    expect(skewed(Median)).toBe(100);
+    expect(Math.abs(skewed(Contrast) - 20)).toBeLessThanOrEqual(1);
+    // median 230 > mean, max is nearer the median than the min -> the patch maximum (230)
+    expect(
+      Math.abs(grey([230, 230, 230, 230, 230, 230, 20, 20, 20])(Contrast) - 230),
+    ).toBeLessThanOrEqual(1);
   });
   test("the picker table lists every picker", () => {
     expect([...getAllColorPickers()].sort()).toEqual(

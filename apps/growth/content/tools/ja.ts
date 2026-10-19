@@ -16,18 +16,18 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
     "Aseprite ビューアー：.ase・.aseprite をオンラインで開く | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Aseprite プロジェクトをプレビューし、PNG のフレームや GIF アニメーションをエクスポート。",
-  "Open Aseprite projects, preview layers and animation, and export PNG frames or GIF animations in your browser. Files stay on your device, with no cloud upload.":
+  "Free Aseprite viewer: open .aseprite and .ase files online without Aseprite. Preview layers and animation, export PNG or GIF. Files never leave your device.":
     "ブラウザで Aseprite プロジェクトを開き、レイヤーやアニメーションをプレビューして、PNG のフレームや GIF アニメーションをエクスポート。ファイルは端末内で処理され、クラウドにはアップロードされません。",
   "Choose an Aseprite file": "Aseprite ファイルを選択",
   "Open file": "ファイルを開く",
   "Open file…": "ファイルを開く…",
   "Drop an .ase or .aseprite file": ".ase または .aseprite ファイルをドロップ",
   "Turn a GIF into a sprite sheet": "GIF をスプライトシートに変換",
-  "GIF to Sprite Sheet: Free Online Converter | Xprite":
+  "GIF to Sprite Sheet Converter: Free, No Upload | Xprite":
     "GIF→スプライトシート変換：無料オンラインツール | Xprite",
   "Convert GIF animations into PNG sprite sheets with JSON frame data.":
     "GIF アニメーションを PNG スプライトシートと JSON フレームデータに変換。",
-  "Convert GIF animations into PNG sprite sheets free in your browser. Choose rows, columns and spacing, and download JSON frame data. Files stay on your device.":
+  "Convert a GIF to a PNG sprite sheet free in your browser. Set rows, columns and spacing; get JSON frame data for game engines. Files stay on your device.":
     "GIF アニメーションをブラウザで無料で PNG スプライトシートに変換。行数・列数・間隔を選び、JSON フレームデータもダウンロードできます。ファイルは端末内で処理されます。",
   "Choose a GIF file": "GIF ファイルを選択",
   "Open GIF": "GIF を開く",
@@ -103,6 +103,7 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   Width: "幅",
   Height: "高さ",
   "Outline protection": "輪郭を保護",
+  "PixelOE pre-pass": "PixelOE前処理",
   "Keep original dimensions": "元のサイズを維持",
   "Automatic grid": "自動グリッド",
   "Open image": "画像を開く",

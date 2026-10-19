@@ -16,18 +16,18 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
     "Visor de Aseprite online: abre archivos .ase y .aseprite | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Previsualiza proyectos de Aseprite y exporta cuadros PNG o animaciones GIF.",
-  "Open Aseprite projects, preview layers and animation, and export PNG frames or GIF animations in your browser. Files stay on your device, with no cloud upload.":
+  "Free Aseprite viewer: open .aseprite and .ase files online without Aseprite. Preview layers and animation, export PNG or GIF. Files never leave your device.":
     "Abre proyectos de Aseprite, revisa capas y animaciones y exporta cuadros PNG o GIF en tu navegador. Los archivos se quedan en tu dispositivo, sin subirlos a la nube.",
   "Choose an Aseprite file": "Elige un archivo de Aseprite",
   "Open file": "Abrir archivo",
   "Open file…": "Abrir archivo…",
   "Drop an .ase or .aseprite file": "Suelta un archivo .ase o .aseprite",
   "Turn a GIF into a sprite sheet": "Convierte un GIF en una hoja de sprites",
-  "GIF to Sprite Sheet: Free Online Converter | Xprite":
+  "GIF to Sprite Sheet Converter: Free, No Upload | Xprite":
     "GIF a hoja de sprites: conversor online gratis | Xprite",
   "Convert GIF animations into PNG sprite sheets with JSON frame data.":
     "Convierte animaciones GIF en hojas de sprites PNG con datos de cuadros en JSON.",
-  "Convert GIF animations into PNG sprite sheets free in your browser. Choose rows, columns and spacing, and download JSON frame data. Files stay on your device.":
+  "Convert a GIF to a PNG sprite sheet free in your browser. Set rows, columns and spacing; get JSON frame data for game engines. Files stay on your device.":
     "Convierte GIF en hojas de sprites PNG gratis en tu navegador. Elige filas, columnas y espaciado, y descarga los datos de cuadros en JSON. Tus archivos no salen de tu equipo.",
   "Choose a GIF file": "Elige un archivo GIF",
   "Open GIF": "Abrir GIF",
@@ -105,6 +105,7 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   Width: "Ancho",
   Height: "Alto",
   "Outline protection": "Protección de contornos",
+  "PixelOE pre-pass": "Pre-paso PixelOE",
   "Keep original dimensions": "Mantener dimensiones originales",
   "Automatic grid": "Cuadrícula automática",
   "Open image": "Abrir imagen",

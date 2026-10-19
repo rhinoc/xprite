@@ -80,17 +80,17 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
     "Aseprite 查看器：在线打开 .aseprite / .ase 文件 | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "预览 Aseprite 工程，导出 PNG 单帧或 GIF 动画。",
-  "Open Aseprite projects, preview layers and animation, and export PNG frames or GIF animations in your browser. Files stay on your device, with no cloud upload.":
+  "Free Aseprite viewer: open .aseprite and .ase files online without Aseprite. Preview layers and animation, export PNG or GIF. Files never leave your device.":
     "在浏览器中打开 Aseprite 工程、查看图层和动画，导出 PNG 单帧或 GIF 动画。文件只在本地处理，不上传云端。",
   "Choose an Aseprite file": "选择 Aseprite 文件",
   "Open file": "打开文件",
   "Open file…": "打开文件…",
   "Drop an .ase or .aseprite file": "拖入 .ase 或 .aseprite 文件",
   "Turn a GIF into a sprite sheet": "将 GIF 转换为精灵表",
-  "GIF to Sprite Sheet: Free Online Converter | Xprite": "GIF 转精灵表：免费在线转换 | Xprite",
+  "GIF to Sprite Sheet Converter: Free, No Upload | Xprite": "GIF 转精灵表：免费在线转换 | Xprite",
   "Convert GIF animations into PNG sprite sheets with JSON frame data.":
     "将 GIF 动画转换为 PNG 精灵表，并导出 JSON 帧数据。",
-  "Convert GIF animations into PNG sprite sheets free in your browser. Choose rows, columns and spacing, and download JSON frame data. Files stay on your device.":
+  "Convert a GIF to a PNG sprite sheet free in your browser. Set rows, columns and spacing; get JSON frame data for game engines. Files stay on your device.":
     "在浏览器里免费把 GIF 动画转换成 PNG 精灵表，设置行列和间距，下载包含帧数据的 JSON。文件只在本地处理。",
   "Choose a GIF file": "选择 GIF 文件",
   "Open GIF": "打开 GIF",
@@ -165,6 +165,7 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   Width: "宽度",
   Height: "高度",
   "Outline protection": "轮廓保护",
+  "PixelOE pre-pass": "PixelOE 预处理",
   "Keep original dimensions": "保持原始尺寸",
   "Automatic grid": "自动网格",
   "Open image": "打开图片",

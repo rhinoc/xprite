@@ -16,18 +16,18 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
     "Просмотр Aseprite онлайн: открыть .ase и .aseprite | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Просматривайте проекты Aseprite и экспортируйте кадры PNG или анимацию GIF.",
-  "Open Aseprite projects, preview layers and animation, and export PNG frames or GIF animations in your browser. Files stay on your device, with no cloud upload.":
+  "Free Aseprite viewer: open .aseprite and .ase files online without Aseprite. Preview layers and animation, export PNG or GIF. Files never leave your device.":
     "Открывайте проекты Aseprite, смотрите слои и анимацию, экспортируйте кадры PNG или GIF прямо в браузере. Файлы остаются на устройстве, без облака.",
   "Choose an Aseprite file": "Выберите файл Aseprite",
   "Open file": "Открыть файл",
   "Open file…": "Открыть файл…",
   "Drop an .ase or .aseprite file": "Перетащите файл .ase или .aseprite",
   "Turn a GIF into a sprite sheet": "Превратите GIF в спрайт-лист",
-  "GIF to Sprite Sheet: Free Online Converter | Xprite":
+  "GIF to Sprite Sheet Converter: Free, No Upload | Xprite":
     "GIF в спрайт-лист: бесплатный онлайн-конвертер | Xprite",
   "Convert GIF animations into PNG sprite sheets with JSON frame data.":
     "Конвертируйте GIF-анимацию в спрайт-листы PNG с данными кадров в JSON.",
-  "Convert GIF animations into PNG sprite sheets free in your browser. Choose rows, columns and spacing, and download JSON frame data. Files stay on your device.":
+  "Convert a GIF to a PNG sprite sheet free in your browser. Set rows, columns and spacing; get JSON frame data for game engines. Files stay on your device.":
     "Бесплатно конвертируйте GIF в спрайт-листы PNG в браузере. Выберите строки, столбцы и отступы, скачайте данные кадров в JSON. Файлы остаются у вас.",
   "Choose a GIF file": "Выберите файл GIF",
   "Open GIF": "Открыть GIF",
@@ -103,6 +103,7 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   Width: "Ширина",
   Height: "Высота",
   "Outline protection": "Защита контуров",
+  "PixelOE pre-pass": "Предобработка PixelOE",
   "Keep original dimensions": "Сохранить исходный размер",
   "Automatic grid": "Автосетка",
   "Open image": "Открыть изображение",

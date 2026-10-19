@@ -15,6 +15,8 @@ const INSTALLED_URL = new URL("__xprite_offline_installed__", BASE_URL).href;
 // Open tabs and restored mobile tabs keep running the release they loaded. Their lazy chunks
 // stay available from this many previous releases; older caches are pruned on activation.
 const RETAINED_PREVIOUS_RELEASES = 2;
+// A slower network falls back to the installed shell so offline and flaky starts stay fast.
+const NAVIGATION_TIMEOUT_MS = 3000;
 const entries = (OFFLINE_BUILD?.entries ?? []).map((entry) => ({
   ...entry,
   url: new URL(entry.url, BASE_URL).href,
@@ -209,6 +211,23 @@ async function previousImmutableResource(request, url) {
   return fetch(request);
 }
 
+async function freshShell(url) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), NAVIGATION_TIMEOUT_MS);
+  try {
+    const response = await fetch(url.href, {
+      cache: "no-cache",
+      credentials: "same-origin",
+      redirect: "manual",
+      signal: controller.signal,
+    });
+    if (response.type === "opaqueredirect" || response.ok) return response;
+    throw new Error(`Editor shell returned HTTP ${response.status}`);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   const url = new URL(request.url);
@@ -218,10 +237,13 @@ self.addEventListener("fetch", (event) => {
     if (!EDITOR_PATHS.has(url.pathname) || !shellUrl) return;
     const shell = entriesByPath.get(new URL(shellUrl).pathname);
     if (!shell) return;
-    // Pin HTML to this worker's release, including when the network has a newer build.
+    // HTML is network-first: a deployed release must reach the next navigation, not the one
+    // after it. The installed shell is only the offline/slow-network/5xx fallback.
     event.respondWith(
-      cachedResource(event, shell).catch(
-        () => new Response("Offline", { status: 503, statusText: "Offline" }),
+      freshShell(url).catch(() =>
+        cachedResource(event, shell).catch(
+          () => new Response("Offline", { status: 503, statusText: "Offline" }),
+        ),
       ),
     );
     return;

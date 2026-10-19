@@ -177,8 +177,8 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   /** Only errors and "no grid found" notices; everything else the labels already say. */
   const pixelateMessage = workflow.pixelationError
     ? tUiSource(workflow.pixelationError)
-    : noteKey
-      ? tUiSource(noteKey)
+    : pixelate && noteKey
+      ? `${tUiSource(noteKey)} ${tUiSource("import.note.picker.needs-grid")}`
       : null;
   const message = pixelate ? pixelateMessage : null;
 
@@ -203,7 +203,9 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         // them never resizes or moves the preview; Keep as is just leaves those rows empty.
         const hintHeight = pixelateMessage ? HINT_HEIGHT + GAP : 0;
         const advancedRowHeight = ROW_HEIGHT + GAP;
-        const advancedHeight = showAdvanced ? 3 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) : 0;
+        const advancedHeight = showAdvanced
+          ? 3 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) + ROW_HEIGHT + GAP
+          : 0;
         const bottomStack =
           SECTION_HEIGHT +
           4 +
@@ -234,6 +236,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const sizeRow = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         const pickerLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
         const pickerCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
+        const prepassRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
         const rememberRow = at(ROW_HEIGHT);
         const footerY = client.y + client.height - FOOTER_HEIGHT;
         const option = (value: ImportAction, label: string, x: number, w: number) => (
@@ -278,6 +281,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 width={width}
                 height={previewHeight}
                 comparing={pixelate}
+                updating={workflow.pixelationPreviewing}
                 labels={{
                   original: tUiSource("import.dialog.original"),
                   result: tUiSource("import.dialog.result.label"),
@@ -349,7 +353,8 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                   bounds={pickerCombo}
                   relativeTo={client}
                   value={colorPicker}
-                  disabled={workflow.busy}
+                  // Without a grid the preview is a plain resize, which has no per-cell colour to pick.
+                  disabled={workflow.busy || !pending.grid?.reliable}
                   options={colorPickerOptions}
                   onValueChange={(value) =>
                     workflow.setPixelationOptions({
@@ -405,6 +410,37 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                     />
                   </>
                 )}
+              </>
+            )}
+            {prepassRow && (
+              <>
+                <Checkbox
+                  label={tUiSource("import.dialog.pixeloe.prepass")}
+                  checked={options.pixeloePrepass}
+                  disabled={workflow.busy}
+                  onCheckedChange={(pixeloePrepass) =>
+                    workflow.setPixelationOptions({ pixeloePrepass })
+                  }
+                  bounds={{ ...prepassRow, width: Math.round(prepassRow.width * 0.6) }}
+                  relativeTo={client}
+                />
+                <Button
+                  text={tUiSource("import.dialog.pixeloe.preset")}
+                  font={FontRole.Compact}
+                  disabled={workflow.busy}
+                  bounds={{
+                    ...prepassRow,
+                    x: prepassRow.x + Math.round(prepassRow.width * 0.6) + GAP,
+                    width: prepassRow.width - Math.round(prepassRow.width * 0.6) - GAP,
+                  }}
+                  relativeTo={client}
+                  onClick={() =>
+                    workflow.setPixelationOptions({
+                      pixeloePrepass: true,
+                      colorPicker: CellColorPicker.Contrast,
+                    })
+                  }
+                />
               </>
             )}
             <Checkbox

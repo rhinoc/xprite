@@ -16,6 +16,7 @@ import {
 } from "../../apps/growth/content/tools/index.ts";
 import { assertEdgeOneRuleLimits, compactServingRules } from "../../infra/edgeone-serving-rules.ts";
 import { verifyEditorOffline } from "../build/editor-offline.mjs";
+import { INDEXNOW_KEY, INDEXNOW_KEY_FILE } from "../../infra/indexnow.ts";
 import { checkAssetVersions } from "../check/check-asset-versions.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
@@ -43,6 +44,7 @@ const SOCIAL_IMAGE_PATHS = ["/social-preview.png"];
 const REQUIRED_DISCOVERY_FILES = [
   "robots.txt",
   "llms.txt",
+  INDEXNOW_KEY_FILE,
   "menu-icon.svg",
   "favicon.ico",
   "favicon-32.png",
@@ -397,8 +399,8 @@ async function verifySearchDiscovery(url, environment) {
     target.pathname = path;
     return verifyFetch(target);
   };
-  const [robots, llms, sitemap] = await Promise.all(
-    ["/robots.txt", "/llms.txt", "/sitemap.xml"].map(get),
+  const [robots, llms, sitemap, indexNowKey] = await Promise.all(
+    ["/robots.txt", "/llms.txt", "/sitemap.xml", `/${INDEXNOW_KEY_FILE}`].map(get),
   );
   const robotsText = await robots.text();
   if (
@@ -416,6 +418,12 @@ async function verifySearchDiscovery(url, environment) {
     !llmsText.includes(`https://xprite.cc${GIF_SHEET_TOOL.path}`)
   )
     throw new Error("llms.txt must expose the public documentation index as plain text.");
+  if (
+    !indexNowKey.ok ||
+    !indexNowKey.headers.get("content-type")?.includes("text/plain") ||
+    (await indexNowKey.text()).trim() !== INDEXNOW_KEY
+  )
+    throw new Error("The public IndexNow key file must be served as plain text at the site root.");
   if (environment === "production") {
     const xml = await sitemap.text();
     if (

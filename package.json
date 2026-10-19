@@ -34,6 +34,8 @@
     "deploy:validate": "node --experimental-transform-types scripts/deploy/editor-deployment.mjs validate",
     "deploy:prepare": "node --experimental-transform-types scripts/deploy/editor-deployment.mjs prepare",
     "deploy:editor": "node --experimental-transform-types scripts/deploy/editor-deployment.mjs publish",
+    "deploy:indexnow:plan": "node --experimental-transform-types scripts/deploy/indexnow.mjs plan",
+    "deploy:indexnow:submit": "node --experimental-transform-types scripts/deploy/indexnow.mjs submit",
     "deploy:verify": "node --experimental-transform-types scripts/deploy/editor-deployment.mjs verify",
     "build:components": "pnpm --filter @xprite/components-app run build",
     "components:generate": "node scripts/generate-components.mjs",
