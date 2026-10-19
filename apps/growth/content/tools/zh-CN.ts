@@ -337,6 +337,7 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Default palette": "默认调色板",
   "Preparing preview…": "正在准备预览…",
   "Adjust settings to preview the result.": "调整设置以预览结果。",
+  "Drag to compare original and result": "拖动以对比原图与结果",
   "Pixelated image": "像素化图像",
   "Restored image": "已还原图像",
   "{value1} ({value2} colors)": "{value1}（{value2} 色）",

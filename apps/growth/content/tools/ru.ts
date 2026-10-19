@@ -294,6 +294,7 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   "Default palette": "Палитра по умолчанию",
   "Preparing preview…": "Подготовка предпросмотра…",
   "Adjust settings to preview the result.": "Измените настройки, чтобы увидеть результат.",
+  "Drag to compare original and result": "Перетащите, чтобы сравнить оригинал и результат",
   "Pixelated image": "Пикселизованное изображение",
   "Restored image": "Восстановленное изображение",
   "{value1} ({value2} colors)": "{value1} ({value2} цв.)",

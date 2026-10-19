@@ -1,4 +1,5 @@
 import type { PixelationPort } from "$/managers/ports/pixelation";
+import { ToolViewport } from "$/managers/preview/tool-viewport";
 import type { Rgba } from "@xprite/editor-core/base";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import {
@@ -22,6 +23,8 @@ export interface PixelationSnapshot {
   palettePreview: readonly Rgba[];
   grid: PixelGridAnalysis | null;
   source: PixelBuffer | null;
+  /** Changes with every opened file, so the shared preview viewport refits for a new image. */
+  identity: number;
   result: PixelBuffer | null;
   settings: Readonly<PixelationSettings>;
   name: string;
@@ -31,12 +34,15 @@ export interface PixelationSnapshot {
   error: string | null;
 }
 export class PixelationManager {
+  /** One shared zoom and pan for the original and the result layers of the comparison. */
+  readonly navigation: ToolViewport;
   private state: PixelationSnapshot = {
     paletteChoices: [],
     defaultPalette: [],
     palettePreview: [],
     grid: null,
     source: null,
+    identity: 0,
     result: null,
     settings: defaultPixelationSettings({ width: 64, height: 64 }),
     name: "",
@@ -50,6 +56,7 @@ export class PixelationManager {
   private conversion = 0;
   private closed = false;
   constructor(private readonly port: PixelationPort) {
+    this.navigation = new ToolViewport(port.readWheel);
     this.refreshPalettes();
   }
   refreshPalettes = () => {
@@ -78,6 +85,7 @@ export class PixelationManager {
       if (this.closed || request !== this.request) return;
       this.publish({
         source,
+        identity: this.state.identity + 1,
         grid,
         name: file.name,
         settings: defaultPixelationSettings(source, grid),

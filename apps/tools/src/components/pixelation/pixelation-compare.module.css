@@ -1,0 +1,94 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.layer {
+  position: absolute;
+  display: block;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+.divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--ui-color-ink, #000);
+  box-shadow: 0 0 0 1px var(--ui-color-paper, #fff);
+  cursor: ew-resize;
+  pointer-events: auto;
+  touch-action: none;
+  outline: none;
+}
+/* A wide invisible hit area: the line itself is 2px. */
+.divider::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -12px;
+  right: -12px;
+}
+.divider:focus-visible {
+  outline: 1px dotted var(--ui-color-ink, #000);
+  outline-offset: 3px;
+}
+.grip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 48px;
+  margin: -24px 0 0 -12px;
+}
+@media (pointer: coarse) {
+  .divider::before {
+    left: -22px;
+    right: -22px;
+  }
+  .grip {
+    width: 28px;
+    height: 56px;
+    margin: -28px 0 0 -14px;
+  }
+}
+/* Labels sit either side of the divider, above the zoom control. */
+.tags {
+  position: absolute;
+  bottom: 44px;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.tag {
+  position: absolute;
+  bottom: 0;
+  padding: 1px 4px;
+  white-space: nowrap;
+  font-size: 11px;
+  line-height: 14px;
+  color: #fff;
+  background: rgb(0 0 0 / 65%);
+  pointer-events: none;
+}
+.tagOriginal {
+  right: 10px;
+}
+.tagResult {
+  left: 10px;
+}
+.waiting {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 80%;
+  padding: 2px 6px;
+  text-align: center;
+  background: var(--ui-color-paper);
+  color: var(--ui-color-ink);
+  font-size: 12px;
+}

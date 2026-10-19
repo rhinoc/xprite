@@ -9,40 +9,6 @@
   flex-wrap: wrap;
   gap: var(--ui-space-3);
 }
-.comparison {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ui-space-4);
-  min-width: 0;
-}
-.image {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ui-space-2);
-  min-width: 0;
-}
-.stage {
-  position: relative;
-  height: var(--pixelation-stage-height, 260px);
-  width: 100%;
-  overflow: hidden;
-  background: var(--ui-color-canvas);
-}
-.canvas {
-  position: absolute;
-  display: block;
-  image-rendering: pixelated;
-}
-@media (max-width: 600px) {
-  .stage {
-    height: var(--pixelation-stage-height-narrow, 180px);
-  }
-}
-
-.stacked {
-  grid-template-columns: minmax(0, 1fr);
-}
-
 .paletteControl {
   display: flex;
   flex-direction: column;
@@ -99,37 +65,4 @@
 }
 .inlineField {
   --ui-field-gap: 6px;
-}
-
-.fill {
-  flex: 1;
-  min-height: 0;
-  grid-template-rows: minmax(0, 1fr);
-}
-.fill .image {
-  min-height: 0;
-}
-.fill .stage {
-  flex: 1;
-  height: auto;
-  min-height: 0;
-}
-@media (max-width: 600px) {
-  .fill {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: repeat(2, minmax(0, 1fr));
-  }
-}
-
-/* One image alone: it takes the whole area, so the phone preview dominates. */
-.single.fill {
-  grid-template-rows: minmax(0, 1fr);
-}
-.single .stage {
-  height: auto;
-}
-@media (max-width: 600px) {
-  .single.fill {
-    grid-template-rows: minmax(0, 1fr);
-  }
 }

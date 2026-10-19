@@ -300,6 +300,7 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "Preparing preview…": "Preparando a prévia…",
   "Adjust settings to preview the result.":
     "Ajuste as configurações para ver a prévia do resultado.",
+  "Drag to compare original and result": "Arraste para comparar o original e o resultado",
   "Pixelated image": "Imagem pixelada",
   "Restored image": "Imagem restaurada",
   "{value1} ({value2} colors)": "{value1} ({value2} cores)",

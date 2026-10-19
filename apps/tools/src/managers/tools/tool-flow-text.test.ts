@@ -13,3 +13,18 @@ describe("flow tool text", () => {
     expect(translateToolText("Adjust", PublicLanguage.SimplifiedChinese)).toBe("调整");
   });
 });
+
+describe("pixelate comparison text", () => {
+  it("localizes the divider label in every locale", () => {
+    for (const language of Object.values(PublicLanguage).filter(
+      (value) => value !== PublicLanguage.English,
+    ))
+      for (const key of [
+        "Drag to compare original and result",
+        "Pixelated",
+        "Restored",
+        "Preparing preview…",
+      ])
+        expect(translateToolText(key, language)).not.toBe(key);
+  });
+});
