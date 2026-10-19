@@ -1,12 +1,18 @@
+/* Transport (and range) on the left, frame info pushed to the right edge of the band. */
 .playbackToolbar {
   flex: 0 0 auto;
   flex-wrap: nowrap;
+  justify-content: space-between;
   align-items: center;
   min-width: 0;
   width: 100%;
 }
 .frameInfo {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-left: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
