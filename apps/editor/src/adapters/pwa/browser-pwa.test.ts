@@ -234,6 +234,41 @@ describe("stale chunk reporting", () => {
     assert.equal(details?.chunk_in_worker_build, null);
   });
 
+  it("re-registers instead of reporting when update finds no registration", async () => {
+    const { port, serviceWorker, errors } = harness();
+    port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    const registration = (await serviceWorker.register.mock.results[0].value) as {
+      update: ReturnType<typeof vi.fn>;
+    };
+    registration.update.mockRejectedValueOnce(
+      Object.assign(new Error("The registration has no worker"), { name: "InvalidStateError" }),
+    );
+    const registrations = serviceWorker.register.mock.calls.length;
+    window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(0);
+    assert.equal(serviceWorker.register.mock.calls.length, registrations + 1);
+    assert.equal(
+      errors.filter((error) => error.diagnosticDetails?.pwa?.stage === "update").length,
+      0,
+    );
+  });
+
+  it("still reports unexpected update failures", async () => {
+    const { port, serviceWorker, errors } = harness();
+    port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    const registration = (await serviceWorker.register.mock.results[0].value) as {
+      update: ReturnType<typeof vi.fn>;
+    };
+    registration.update.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    const registrations = serviceWorker.register.mock.calls.length;
+    window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(0);
+    assert.equal(serviceWorker.register.mock.calls.length, registrations);
+    assert.equal(errors.at(-1)?.diagnosticDetails?.pwa?.stage, "update");
+  });
+
   it("reports a worker fetch or integrity failure explicitly", async () => {
     const { port, serviceWorker, errors } = harness();
     port.start();

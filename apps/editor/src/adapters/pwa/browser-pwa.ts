@@ -192,6 +192,14 @@ function workerRequest(
 }
 
 /** Create before rendering React so the browser installation event is retained. */
+function isInvalidStateError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    (error as { name?: unknown }).name === "InvalidStateError"
+  );
+}
+
 export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
   const supported = options.enabled && window.isSecureContext && "serviceWorker" in navigator;
   const listeners = new Set<() => void>();
@@ -553,9 +561,16 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
           const active = navigator.serviceWorker.controller ?? registration?.active;
           if (active) void prepareOffline(active, currentSession);
           if (registration)
-            void registration
-              .update()
-              .catch((error) => report(error, { stage: PwaDiagnosticStage.Update }));
+            void registration.update().catch((error) => {
+              // The registration was unregistered or lost its worker (storage cleared, browser
+              // cleanup). That is expected after a long offline period: register again.
+              if (isInvalidStateError(error)) {
+                registration = null;
+                void register(currentSession);
+                return;
+              }
+              report(error, { stage: PwaDiagnosticStage.Update });
+            });
           else void register(currentSession);
         };
         const visible = () => {
