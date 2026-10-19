@@ -8,7 +8,7 @@ import {
   type ViewerSnapshot,
 } from "$/managers/viewer/viewer-manager";
 import { PlaybackTransport, ReadOnlyTimeline } from "@xprite/editor-ui/timeline";
-import { Combobox, ControlFlow } from "@xprite/ui";
+import { Combobox, ControlFlow, Text, TextVariant } from "@xprite/ui";
 
 import styles from "$/components/viewer/viewer.module.css";
 
@@ -27,6 +27,14 @@ export function ViewerPreview({
   const timeline = manager.getPresentationTimeline();
   const pixels = snapshot.pixels!;
   const frameLabel = `Frame ${snapshot.frame + FRAME_OFFSET} of ${snapshot.frames}`;
+  // Frame number and duration next to the transport; a single-frame image has nothing to step.
+  const frameInfo =
+    snapshot.frames > 1
+      ? t("{frame} / {frames} · {duration} ms")
+          .replace("{frame}", String(snapshot.frame + FRAME_OFFSET))
+          .replace("{frames}", String(snapshot.frames))
+          .replace("{duration}", String(snapshot.duration))
+      : null;
   const transport = (
     <ControlFlow toolbar className={styles.playbackToolbar}>
       <PlaybackTransport
@@ -57,6 +65,11 @@ export function ViewerPreview({
         onNext={() => manager.stepFrame(FRAME_OFFSET)}
         onLast={() => manager.inspectFrame(snapshot.frames - FRAME_OFFSET)}
       />
+      {frameInfo && (
+        <Text variant={TextVariant.Reading} className={styles.frameInfo} data-viewer-frame-info="">
+          {frameInfo}
+        </Text>
+      )}
       {snapshot.tags.length > 0 && (
         <Combobox
           pixelWidth={RANGE_WIDTH}

@@ -227,6 +227,7 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Next frame (Right)": "下一帧（右方向键）",
   "Last frame": "最后一帧",
   "Last frame (End)": "最后一帧（End）",
+  "{frame} / {frames} · {duration} ms": "{frame} / {frames} · {duration} 毫秒",
   "Play animation": "播放动画",
   "Play animation (Space)": "播放动画（空格）",
   "Pause animation": "暂停动画",

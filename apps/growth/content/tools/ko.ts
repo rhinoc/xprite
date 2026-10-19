@@ -163,6 +163,7 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "Next frame (Right)": "다음 프레임(→)",
   "Last frame": "마지막 프레임",
   "Last frame (End)": "마지막 프레임(End)",
+  "{frame} / {frames} · {duration} ms": "{frame} / {frames} · {duration} ms",
   "Play animation": "애니메이션 재생",
   "Play animation (Space)": "애니메이션 재생(Space)",
   "Pause animation": "애니메이션 일시 정지",

@@ -5,6 +5,11 @@
   min-width: 0;
   width: 100%;
 }
+.frameInfo {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
 .playbackActions {
   flex-wrap: nowrap;
   gap: 0;
