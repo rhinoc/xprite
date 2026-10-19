@@ -4,28 +4,28 @@ import styles from "$/components/beads/beads.module.css";
 
 const MIN_CELL_SPACING = 4;
 
-/** Draw grid guides at screen resolution so a fitted chart retains every visible line. */
+/**
+ * Grid guides over the pattern layer, drawn at screen resolution so a fitted chart retains every
+ * visible line. `size` is the layer's on-screen size: the pattern is stretched over the original's
+ * box, so each bead is `size / columns` wide and `size / rows` tall.
+ */
 export function BeadPreviewGrid({
   layout,
-  view,
+  size,
 }: {
   layout: BeadPreviewLayout;
-  view: {
-    zoom: number;
-    origin: { x: number; y: number };
-    size: { width: number; height: number };
-  };
+  size: { width: number; height: number };
 }) {
-  const step = layout.cellSize * view.zoom;
-  const showCells = step >= MIN_CELL_SPACING;
-  const { x, y } = view.origin;
+  const stepX = size.width / layout.columns;
+  const stepY = size.height / layout.rows;
+  const showCells = Math.min(stepX, stepY) >= MIN_CELL_SPACING;
   const columns = Array.from({ length: layout.columns + 1 }, (_, index) => index);
   const rows = Array.from({ length: layout.rows + 1 }, (_, index) => index);
   return (
     <svg
       className={styles.previewGrid}
       aria-hidden="true"
-      viewBox={`0 0 ${view.size.width} ${view.size.height}`}
+      viewBox={`0 0 ${size.width} ${size.height}`}
     >
       {columns.map((column) => {
         const boundary =
@@ -36,10 +36,10 @@ export function BeadPreviewGrid({
           <line
             key={`x-${column}`}
             className={boundary ? styles.boardLine : styles.gridLine}
-            x1={x + column * step}
-            x2={x + column * step}
-            y1={y}
-            y2={y + layout.rows * step}
+            x1={column * stepX}
+            x2={column * stepX}
+            y1={0}
+            y2={size.height}
           />
         ) : null;
       })}
@@ -52,10 +52,10 @@ export function BeadPreviewGrid({
           <line
             key={`y-${row}`}
             className={boundary ? styles.boardLine : styles.gridLine}
-            y1={y + row * step}
-            y2={y + row * step}
-            x1={x}
-            x2={x + layout.columns * step}
+            y1={row * stepY}
+            y2={row * stepY}
+            x1={0}
+            x2={size.width}
           />
         ) : null;
       })}

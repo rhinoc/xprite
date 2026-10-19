@@ -20,7 +20,13 @@ import {
   pixelateImage,
   defaultPixelationSettings,
   updatePixelationSettings,
+  applyPixelationGrid,
+  detectWithAlgorithm,
+  getAllAlgorithms,
+  getAllColorPickers,
   pixelationSettingsOptions,
+  CellColorPicker,
+  PixelationAlgorithm,
   PixelationMethod,
   PIXELATION_METHOD_OPTIONS,
   mapBeadGrid,
@@ -43,6 +49,8 @@ import {
   type BeadColor,
   type BeadDocumentLabels,
   type PixelationSettings,
+  type PixelationSize,
+  type PixelGridAnalysis,
 } from "@xprite/editor-core/import-export";
 import { TILESET_EMBEDDED_PIXELS_FLAG } from "@xprite/editor-core/tilemap";
 import { layerAncestors } from "@xprite/editor-core/timeline";
@@ -55,11 +63,7 @@ export enum BeadPreviewMode {
   Overview = "overview",
   Source = "source",
 }
-export {
-  MAX_PIXELATION_SIZE,
-  MIN_BEAD_BOARD_EDGE,
-  MAX_BEAD_BOARD_EDGE,
-} from "@xprite/editor-core/import-export";
+export { MIN_BEAD_BOARD_EDGE, MAX_BEAD_BOARD_EDGE } from "@xprite/editor-core/import-export";
 const DEFAULT_GRID_EDGE = 128;
 const PREVIEW_DELAY_MS = 150;
 const MAX_PREVIEW_EDGE = 4096;
@@ -67,16 +71,32 @@ const MAX_PREVIEW_PIXELS = 16 * 1024 * 1024;
 const MIN_GRID_EDGE = 1;
 const DEFAULT_FILE_STEM = "pattern";
 
+const defaultSettings = (): BeadToolSettings => ({
+  brand: BeadBrand.Mard,
+  targetWidth: DEFAULT_GRID_EDGE,
+  targetHeight: DEFAULT_GRID_EDGE,
+  lockAspectRatio: true,
+  boardSize: DEFAULT_BEAD_BOARD_SIZE,
+  showCodes: true,
+  method: PixelationMethod.Nearest,
+  algorithm: PixelationAlgorithm.Auto,
+  colorPicker: CellColorPicker.MostCommon,
+  pixeloePrepass: false,
+});
 export interface BeadToolSettings extends Pick<
   PixelationSettings,
-  "targetWidth" | "targetHeight" | "lockAspectRatio" | "method"
+  "targetWidth" | "targetHeight" | "lockAspectRatio" | "method" | "colorPicker" | "pixeloePrepass"
 > {
+  /** How the image's pixel grid is found; the same choices as the editor import dialog. */
+  algorithm: PixelationAlgorithm;
   brand: BeadBrand;
   boardSize: BeadBoardSize;
   showCodes: boolean;
 }
 export interface BeadToolSnapshot {
   source: PixelBuffer | null;
+  /** The pixel grid the chosen algorithm found in the source (not the bead grid). */
+  detected: PixelGridAnalysis | null;
   grid: BeadGrid | null;
   preview: PixelBuffer | null;
   boards: readonly BeadBoard[];
@@ -123,20 +143,13 @@ export class BeadToolManager {
   readonly samplingModes = PIXELATION_METHOD_OPTIONS;
   private state: BeadToolSnapshot = {
     source: null,
+    detected: null,
     grid: null,
     preview: null,
     boards: [],
     selected: 0,
     mode: BeadPreviewMode.Overview,
-    settings: {
-      brand: BeadBrand.Mard,
-      targetWidth: DEFAULT_GRID_EDGE,
-      targetHeight: DEFAULT_GRID_EDGE,
-      lockAspectRatio: true,
-      boardSize: DEFAULT_BEAD_BOARD_SIZE,
-      showCodes: true,
-      method: PixelationMethod.Nearest,
-    },
+    settings: defaultSettings(),
     name: "",
     outputName: "",
     frame: 0,
@@ -155,6 +168,7 @@ export class BeadToolManager {
     previewLayout: null,
   };
   private input: BeadInput | null = null;
+  private detection: { source: PixelBuffer; key: string; grid: PixelGridAnalysis } | null = null;
   private timer: ReturnType<typeof setTimeout> | undefined;
   private request = 0;
   private closed = false;
@@ -269,6 +283,7 @@ export class BeadToolManager {
         identity: this.state.identity + 1,
         settings: {
           ...this.state.settings,
+          algorithm: PixelationAlgorithm.Auto,
           targetWidth: Math.max(MIN_GRID_EDGE, Math.round(pixels.width * scale)),
           targetHeight: Math.max(MIN_GRID_EDGE, Math.round(pixels.height * scale)),
         },
@@ -331,6 +346,8 @@ export class BeadToolManager {
       method: normalized.method,
     };
     if (
+      !getAllAlgorithms().includes(settings.algorithm) ||
+      !getAllColorPickers().includes(settings.colorPicker) ||
       !Object.values(BeadBrand).includes(settings.brand) ||
       !isValidBeadBoardSize(settings.boardSize) ||
       !Object.values(PixelationMethod).includes(settings.method)
@@ -340,7 +357,10 @@ export class BeadToolManager {
       settings.brand !== this.state.settings.brand ||
       settings.targetWidth !== this.state.settings.targetWidth ||
       settings.targetHeight !== this.state.settings.targetHeight ||
-      settings.method !== this.state.settings.method;
+      settings.method !== this.state.settings.method ||
+      settings.algorithm !== this.state.settings.algorithm ||
+      settings.colorPicker !== this.state.settings.colorPicker ||
+      settings.pixeloePrepass !== this.state.settings.pixeloePrepass;
     const brandChanged = settings.brand !== this.state.settings.brand;
     const boardChanged =
       settings.boardSize.width !== this.state.settings.boardSize.width ||
@@ -354,6 +374,28 @@ export class BeadToolManager {
     if (remap) this.schedulePreview();
     else if (!this.state.pending) this.updatePreview();
   };
+  /**
+   * Find pixels the way the import dialog does. A typed size is the Custom size entry: the bead
+   * grid is that many even blocks of the image.
+   */
+  changeAlgorithm = (algorithm: PixelationAlgorithm, size?: PixelationSize) =>
+    this.changeSettings({
+      algorithm,
+      ...(size ? { targetWidth: size.width, targetHeight: size.height } : {}),
+    });
+  /** The grid the chosen algorithm finds in the source; recomputed only when its inputs change. */
+  private detect(source: PixelBuffer): PixelGridAnalysis {
+    const { algorithm, targetWidth, targetHeight } = this.state.settings;
+    const size =
+      algorithm === PixelationAlgorithm.CustomSize
+        ? { width: targetWidth, height: targetHeight }
+        : undefined;
+    const key = `${algorithm}:${size?.width ?? 0}x${size?.height ?? 0}`;
+    if (this.detection?.source === source && this.detection.key === key) return this.detection.grid;
+    const grid = detectWithAlgorithm(source, algorithm, size);
+    this.detection = { source, key, grid };
+    return grid;
+  }
   setOutputName = (outputName: string) => {
     if (this.closed || this.state.loading || this.state.downloading) return;
     this.publish({ outputName });
@@ -415,23 +457,23 @@ export class BeadToolManager {
     if (!this.state.source || this.closed) return;
     try {
       const { brand } = this.state.settings;
-      const normalized = updatePixelationSettings(
-        {
-          ...defaultPixelationSettings(this.state.source),
-          ...this.state.settings,
-        },
-        {},
-        this.state.source,
+      const source = this.state.source;
+      const detected = this.detect(source);
+      const normalized = applyPixelationGrid(
+        updatePixelationSettings(
+          {
+            ...defaultPixelationSettings(source),
+            ...this.state.settings,
+          },
+          {},
+          source,
+        ),
+        detected,
+        source,
       );
       const pixels = pixelateImage(
-        this.state.source,
-        pixelationSettingsOptions(
-          {
-            ...normalized,
-            reduceColors: false,
-          },
-          this.state.source,
-        ),
+        source,
+        pixelationSettingsOptions({ ...normalized, reduceColors: false }, source, detected),
       );
       const palette = BEAD_PALETTES.find((item) => item.id === brand)!;
       const excluded = new Set(this.state.excludedColors.map((color) => color.code));
@@ -457,6 +499,7 @@ export class BeadToolManager {
         ? this.state.highlight
         : null;
       this.publish({
+        detected,
         grid,
         pngError,
         highlight,
@@ -639,22 +682,16 @@ export class BeadToolManager {
     ++this.request;
     this.cancelPreview();
     this.input = null;
+    this.detection = null;
     this.publish({
       source: null,
+      detected: null,
       grid: null,
       preview: null,
       boards: [],
       selected: 0,
       mode: BeadPreviewMode.Overview,
-      settings: {
-        brand: BeadBrand.Mard,
-        targetWidth: DEFAULT_GRID_EDGE,
-        targetHeight: DEFAULT_GRID_EDGE,
-        lockAspectRatio: true,
-        boardSize: DEFAULT_BEAD_BOARD_SIZE,
-        showCodes: true,
-        method: PixelationMethod.Nearest,
-      },
+      settings: defaultSettings(),
       name: "",
       outputName: "",
       frame: 0,
