@@ -4,13 +4,18 @@ import type { PixelBuffer } from "@xprite/editor-core/base";
 import type {
   PixelateOptions,
   PixelationAlgorithm,
+  PixelationSize,
   PixelGridAnalysis,
 } from "@xprite/editor-core/import-export";
 import type { PaletteBrowserChoice } from "@xprite/editor-ui/palette/model";
 export interface PixelationPort {
   readWheel(event: WheelEvent): ToolWheelInput;
   paletteResources(): { choices: readonly PaletteBrowserChoice[]; defaultPalette: readonly Rgba[] };
-  detectGrid(image: PixelBuffer, algorithm?: PixelationAlgorithm): Promise<PixelGridAnalysis>;
+  detectGrid(
+    image: PixelBuffer,
+    algorithm?: PixelationAlgorithm,
+    size?: PixelationSize,
+  ): Promise<PixelGridAnalysis>;
   read(file: File): Promise<PixelBuffer>;
   example(): Promise<File>;
   convert(image: PixelBuffer, options: PixelateOptions): Promise<PixelBuffer>;

@@ -1,4 +1,4 @@
-import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 
 import {
   clampSplit,
@@ -22,7 +22,8 @@ import styles from "$/components/pixelation/pixelation-compare.module.css";
 
 /**
  * Original and result in one preview. Both layers share the original's coordinate space, zoom and
- * pan; the result is drawn crisp (nearest neighbour) from the divider to the right edge.
+ * pan; the result is drawn crisp (nearest neighbour) from the divider to the right edge. The pixelate
+ * and bead tools both use it: they name their result and may draw their own marks over it.
  */
 export function PixelationCompare({
   navigation,
@@ -30,14 +31,26 @@ export function PixelationCompare({
   source,
   result,
   preparing,
-  restored,
+  resultName,
+  resultImageLabel,
+  resultSize,
+  status: statusOverride,
+  resultOverlay,
 }: {
   navigation: ToolViewport;
   identity: number;
   source: CanvasPixelSource;
   result: CanvasPixelSource | null;
   preparing: boolean;
-  restored: boolean;
+  /** Translated name of the right-hand layer ("Pixelated", "Restored", "Bead pattern"). */
+  resultName: string;
+  resultImageLabel: string;
+  /** Replaces the result's pixel size in the default status, e.g. a bead count. */
+  resultSize?: string;
+  /** Replaces the whole status line (progress and failures of the owning tool). */
+  status?: string;
+  /** Marks drawn over the result layer only, in that layer's pixel size. */
+  resultOverlay?: (size: { width: number; height: number }) => ReactNode;
 }) {
   const t = useToolTranslation();
   const checker = useUiChecker();
@@ -45,11 +58,12 @@ export function PixelationCompare({
   const [hot, setHot] = useState(false);
   const dragging = useRef<number | null>(null);
   const handle = useRef<HTMLDivElement>(null);
-  const resultName = restored ? "Restored" : "Pixelated";
   const dimensions = (pixels: CanvasPixelSource) => `${pixels.width} × ${pixels.height} px`;
-  const status = result
-    ? `${t("Original")} ${dimensions(source)} · ${t(resultName)} ${dimensions(result)}`
-    : `${t("Original")} ${dimensions(source)}`;
+  const status =
+    statusOverride ??
+    (result
+      ? `${t("Original")} ${dimensions(source)} · ${resultName} ${resultSize ?? dimensions(result)}`
+      : `${t("Original")} ${dimensions(source)}`);
   const move = (event: PointerEvent<HTMLElement>) => {
     const rect = clientRect(event.currentTarget.parentElement);
     const next = rect ? splitFromPointer(clientPoint(event).x, rect) : null;
@@ -85,7 +99,7 @@ export function PixelationCompare({
                   pixels={result}
                   checker={checker}
                   bounds={{ x: 0, y: 0, width: result.width, height: result.height }}
-                  aria-label={t(restored ? "Restored image" : "Pixelated image")}
+                  aria-label={resultImageLabel}
                   className={styles.layer}
                   style={{
                     ...layer,
@@ -93,11 +107,22 @@ export function PixelationCompare({
                   }}
                 />
               )}
+              {result && resultOverlay && (
+                <div
+                  className={styles.marks}
+                  style={{
+                    ...layer,
+                    clipPath: `inset(0 0 0 ${resultClipLeft(split, view.size.width, layer)}px)`,
+                  }}
+                >
+                  {resultOverlay(layer)}
+                </div>
+              )}
               {result ? (
                 <>
                   <div className={styles.tags} style={{ left: `${clampSplit(split)}%` }}>
                     <span className={`${styles.tag} ${styles.tagOriginal}`}>{t("Original")}</span>
-                    <span className={`${styles.tag} ${styles.tagResult}`}>{t(resultName)}</span>
+                    <span className={`${styles.tag} ${styles.tagResult}`}>{resultName}</span>
                   </div>
                   <div
                     ref={handle}

@@ -3,12 +3,15 @@ import { ToolViewport } from "$/managers/preview/tool-viewport";
 import type { Rgba } from "@xprite/editor-core/base";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import {
+  PixelationAlgorithm,
   PixelationMode,
+  applyPixelationGrid,
   defaultPixelationSettings,
   extractPixelationPalette,
   updatePixelationSettings,
   pixelationSettingsOptions,
   type PixelationSettings,
+  type PixelationSize,
   type PixelGridAnalysis,
 } from "@xprite/editor-core/import-export";
 import type { PaletteBrowserChoice } from "@xprite/editor-ui/palette/model";
@@ -21,6 +24,8 @@ export interface PixelationSnapshot {
   paletteChoices: readonly PaletteBrowserChoice[];
   defaultPalette: readonly Rgba[];
   palettePreview: readonly Rgba[];
+  /** The grid algorithm the import-dialog controls chose, and the grid it found. */
+  algorithm: PixelationAlgorithm;
   grid: PixelGridAnalysis | null;
   source: PixelBuffer | null;
   /** Changes with every opened file, so the shared preview viewport refits for a new image. */
@@ -40,6 +45,7 @@ export class PixelationManager {
     paletteChoices: [],
     defaultPalette: [],
     palettePreview: [],
+    algorithm: PixelationAlgorithm.Auto,
     grid: null,
     source: null,
     identity: 0,
@@ -86,6 +92,7 @@ export class PixelationManager {
       this.publish({
         source,
         identity: this.state.identity + 1,
+        algorithm: PixelationAlgorithm.Auto,
         grid,
         name: file.name,
         settings: defaultPixelationSettings(source, grid),
@@ -114,6 +121,32 @@ export class PixelationManager {
       result: null,
     });
     void this.convert();
+  };
+  /**
+   * Find pixels the way the import dialog does: detect with the chosen algorithm, recover a reliable
+   * grid, otherwise fall back to the plain convert.
+   */
+  changeAlgorithm = async (algorithm: PixelationAlgorithm, size?: PixelationSize) => {
+    const source = this.state.source;
+    if (!source || this.closed || this.state.loading || this.state.downloading) return;
+    const request = ++this.request;
+    const conversion = ++this.conversion;
+    this.publish({ algorithm, converting: true, result: null, error: null });
+    try {
+      const grid = await this.port.detectGrid(source, algorithm, size);
+      if (this.closed || request !== this.request) return;
+      this.publish({
+        grid,
+        settings: applyPixelationGrid(this.state.settings, grid, source),
+      });
+      await this.convert();
+    } catch (reason) {
+      if (conversion === this.conversion || request === this.request)
+        this.publish({
+          converting: false,
+          error: reason instanceof Error ? reason.message : String(reason),
+        });
+    }
   };
   private async convert() {
     const source = this.state.source;
@@ -188,6 +221,7 @@ export class PixelationManager {
     ++this.request;
     ++this.conversion;
     this.publish({
+      algorithm: PixelationAlgorithm.Auto,
       grid: null,
       source: null,
       result: null,

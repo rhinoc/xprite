@@ -2,29 +2,21 @@ import { Fragment, useRef, useState } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
-import {
-  algorithmLabelKey,
-  algorithmNoteKey,
-  colorPickerLabelKey,
-} from "$/components/dialogs/pixelation-dialog/algorithm-notes";
+import { algorithmNoteKey } from "$/components/dialogs/pixelation-dialog/algorithm-notes";
 import { ImportCompare } from "$/components/dialogs/pixelation-dialog/import-compare";
-import { tUi, tUiSource, useUiLanguage } from "$/i18n";
+import { tUiSource, useUiLanguage } from "$/i18n";
 import {
-  getListedAlgorithms,
-  getAllColorPickers,
   type FilePreferences,
   type ImportAction,
   PixelationAlgorithm,
-  CellColorPicker,
-  PIXELATION_SIZES,
 } from "$/managers/preferences/file-preferences";
 import type { useEditorWorkflows } from "$/managers/workspace/use-editor-workflows";
+import { PixelationSlot, pixelationLabelKey, usePixelationBase } from "@xprite/editor-ui";
 import {
   FontRole,
   TextAlignment,
   Button,
   Checkbox,
-  Combobox,
   Disclosure,
   Divider,
   Text,
@@ -75,10 +67,11 @@ const REMEMBERED_ALGORITHMS: readonly PixelationAlgorithm[] = [
   PixelationAlgorithm.EdgeGrid,
   PixelationAlgorithm.UniformGrid,
 ];
-const SIZE_OPTIONS = PIXELATION_SIZES.map((size) => ({
-  value: String(size),
-  label: tUi("ui.dimension.pixels", { size }),
-}));
+/** The dialog has no palette browser; everything else of the shared base controls is here. */
+const HIDDEN_SLOTS: ReadonlySet<PixelationSlot> = new Set([PixelationSlot.Palette]);
+/** Width of the Limit colors checkbox in its row; the colour count sits to its right. */
+const LIMIT_SHARE = 0.55;
+const COUNT_LABEL_SHARE = 0.2;
 
 export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   useUiLanguage();
@@ -87,7 +80,6 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   const [action, setAction] = useState<ImportAction | null>(null);
   const [rememberChoice, setRememberChoice] = useState(false);
   const [advanced, setAdvanced] = useState(false);
-  const [sizeDrafts, setSizeDrafts] = useState<{ width?: string; height?: string }>({});
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useModalFocus({
@@ -101,6 +93,18 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     },
   });
 
+  const base = usePixelationBase({
+    settings: workflow.pixelationOptions,
+    algorithm: pending?.algorithm ?? PixelationAlgorithm.Auto,
+    grid: pending?.grid ?? undefined,
+    sourceSize: pending?.pixels ?? { width: 1, height: 1 },
+    busy: workflow.busy,
+    hidden: HIDDEN_SLOTS,
+    translate: (text, values) => tUiSource(pixelationLabelKey(text), values),
+    onChange: workflow.setPixelationOptions,
+    onAlgorithm: (algorithm, size) => void workflow.setImportAlgorithm(algorithm, size),
+  });
+
   if (!pending) return null;
   const chosen: ImportAction =
     action ??
@@ -110,24 +114,6 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   const pixelate = chosen === "pixelate";
   const showAdvanced = advanced && pixelate;
   const selectedAlgorithm = pending.algorithm;
-  const options = workflow.pixelationOptions;
-  /** The size the chosen method produces: its grid's cell count, or the plain target if it found none. */
-  const outputSize = pending.grid?.reliable
-    ? { width: pending.grid.width, height: pending.grid.height }
-    : { width: options.targetWidth, height: options.targetHeight };
-  /** Typing a size is just another way to find pixels: the Custom size entry, aspect ratio kept. */
-  const commitSize = (axis: "width" | "height", value: string) => {
-    setSizeDrafts((drafts) => ({ ...drafts, [axis]: undefined }));
-    const typed = Number.parseInt(value, 10);
-    if (!Number.isFinite(typed) || typed < 1) return;
-    const { width, height } = pending.pixels;
-    workflow.setImportAlgorithm(
-      PixelationAlgorithm.CustomSize,
-      axis === "width"
-        ? { width: typed, height: Math.max(1, Math.round((typed * height) / width)) }
-        : { width: Math.max(1, Math.round((typed * width) / height)), height: typed },
-    );
-  };
   const colorPicker = workflow.pixelationOptions.colorPicker;
   const noteKey = algorithmNoteKey(selectedAlgorithm, !!pending.grid?.reliable);
   const canImport =
@@ -166,14 +152,6 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     height: dialogHeight,
   };
 
-  const colorPickerOptions = getAllColorPickers().map((picker) => ({
-    value: picker,
-    label: tUiSource(colorPickerLabelKey(picker)),
-  }));
-  const algorithmOptions = getListedAlgorithms().map((algorithm) => ({
-    value: algorithm,
-    label: tUiSource(algorithmLabelKey(algorithm)),
-  }));
   /** Only errors and "no grid found" notices; everything else the labels already say. */
   const pixelateMessage = workflow.pixelationError
     ? tUiSource(workflow.pixelationError)
@@ -204,7 +182,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const hintHeight = pixelateMessage ? HINT_HEIGHT + GAP : 0;
         const advancedRowHeight = ROW_HEIGHT + GAP;
         const advancedHeight = showAdvanced
-          ? 3 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) + ROW_HEIGHT + GAP
+          ? 3 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) + 2 * (ROW_HEIGHT + GAP)
           : 0;
         const bottomStack =
           SECTION_HEIGHT +
@@ -236,6 +214,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const sizeRow = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         const pickerLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
         const pickerCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
+        const limitRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
         const prepassRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
         const rememberRow = at(ROW_HEIGHT);
         const footerY = client.y + client.height - FOOTER_HEIGHT;
@@ -327,71 +306,42 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
               <>
                 <Text
                   variant={TextVariant.Control}
-                  text={tUiSource("import.dialog.algorithm")}
+                  text={base[PixelationSlot.Algorithm].label ?? ""}
                   bounds={algorithmLabel}
                   relativeTo={client}
                 />
-                <Combobox
-                  aria-label={tUiSource("import.dialog.algorithm")}
-                  bounds={algorithmCombo}
-                  relativeTo={client}
-                  value={selectedAlgorithm}
-                  disabled={workflow.busy}
-                  options={algorithmOptions}
-                  onValueChange={(value) =>
-                    workflow.setImportAlgorithm(value as PixelationAlgorithm)
-                  }
-                />
+                {base[PixelationSlot.Algorithm].render({
+                  bounds: algorithmCombo,
+                  relativeTo: client,
+                })}
                 <Text
                   variant={TextVariant.Control}
-                  text={tUiSource("import.dialog.color.picker")}
+                  text={base[PixelationSlot.ColorPicker].label ?? ""}
                   bounds={pickerLabel}
                   relativeTo={client}
                 />
-                <Combobox
-                  aria-label={tUiSource("import.dialog.color.picker")}
-                  bounds={pickerCombo}
-                  relativeTo={client}
-                  value={colorPicker}
-                  // Without a grid the preview is a plain resize, which has no per-cell colour to pick.
-                  disabled={workflow.busy || !pending.grid?.reliable}
-                  options={colorPickerOptions}
-                  onValueChange={(value) =>
-                    workflow.setPixelationOptions({
-                      colorPicker: value as CellColorPicker,
-                    })
-                  }
-                />
+                {base[PixelationSlot.ColorPicker].render({
+                  bounds: pickerCombo,
+                  relativeTo: client,
+                })}
                 {sizeLabel && sizeRow && (
                   <>
-                    {(["width", "height"] as const).map((axis, index) => {
+                    {([PixelationSlot.Width, PixelationSlot.Height] as const).map((slot, index) => {
                       const half = Math.floor((sizeRow.width - SIZE_SEPARATOR) / 2);
                       const x = index === 0 ? 0 : half + SIZE_SEPARATOR;
                       const w = index === 0 ? half : sizeRow.width - half - SIZE_SEPARATOR;
-                      const draft = sizeDrafts[axis];
                       return (
-                        <Fragment key={axis}>
+                        <Fragment key={slot}>
                           <Text
                             variant={TextVariant.Control}
-                            text={axis === "width" ? "Width:" : "Height:"}
+                            text={base[slot].label ?? ""}
                             bounds={{ ...sizeLabel, x: sizeLabel.x + x, width: w }}
                             relativeTo={client}
                           />
-                          <Combobox
-                            aria-label={axis === "width" ? "Width" : "Height"}
-                            bounds={{ ...sizeRow, x: sizeRow.x + x, width: w }}
-                            relativeTo={client}
-                            editable
-                            inputMode="numeric"
-                            suffix="px"
-                            value={draft ?? String(outputSize[axis])}
-                            disabled={workflow.busy}
-                            options={SIZE_OPTIONS}
-                            onDraftValueChange={(value) =>
-                              setSizeDrafts((drafts) => ({ ...drafts, [axis]: value }))
-                            }
-                            onValueChange={(value) => commitSize(axis, value)}
-                          />
+                          {base[slot].render({
+                            bounds: { ...sizeRow, x: sizeRow.x + x, width: w },
+                            relativeTo: client,
+                          })}
                         </Fragment>
                       );
                     })}
@@ -412,35 +362,56 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 )}
               </>
             )}
+            {limitRow && (
+              <>
+                {base[PixelationSlot.LimitColors].render({
+                  bounds: { ...limitRow, width: Math.round(limitRow.width * LIMIT_SHARE) },
+                  relativeTo: client,
+                })}
+                {base[PixelationSlot.Colors].visible && (
+                  <>
+                    <Text
+                      variant={TextVariant.Control}
+                      text={base[PixelationSlot.Colors].label ?? ""}
+                      bounds={{
+                        ...limitRow,
+                        x: limitRow.x + Math.round(limitRow.width * LIMIT_SHARE) + GAP,
+                        width: Math.round(limitRow.width * COUNT_LABEL_SHARE),
+                      }}
+                      relativeTo={client}
+                    />
+                    {base[PixelationSlot.Colors].render({
+                      bounds: {
+                        ...limitRow,
+                        x:
+                          limitRow.x +
+                          Math.round(limitRow.width * (LIMIT_SHARE + COUNT_LABEL_SHARE)) +
+                          2 * GAP,
+                        width:
+                          limitRow.width -
+                          Math.round(limitRow.width * (LIMIT_SHARE + COUNT_LABEL_SHARE)) -
+                          2 * GAP,
+                      },
+                      relativeTo: client,
+                    })}
+                  </>
+                )}
+              </>
+            )}
             {prepassRow && (
               <>
-                <Checkbox
-                  label={tUiSource("import.dialog.pixeloe.prepass")}
-                  checked={options.pixeloePrepass}
-                  disabled={workflow.busy}
-                  onCheckedChange={(pixeloePrepass) =>
-                    workflow.setPixelationOptions({ pixeloePrepass })
-                  }
-                  bounds={{ ...prepassRow, width: Math.round(prepassRow.width * 0.6) }}
-                  relativeTo={client}
-                />
-                <Button
-                  text={tUiSource("import.dialog.pixeloe.preset")}
-                  font={FontRole.Compact}
-                  disabled={workflow.busy}
-                  bounds={{
+                {base[PixelationSlot.Prepass].render({
+                  bounds: { ...prepassRow, width: Math.round(prepassRow.width * 0.6) },
+                  relativeTo: client,
+                })}
+                {base[PixelationSlot.PrepassPreset].render({
+                  bounds: {
                     ...prepassRow,
                     x: prepassRow.x + Math.round(prepassRow.width * 0.6) + GAP,
                     width: prepassRow.width - Math.round(prepassRow.width * 0.6) - GAP,
-                  }}
-                  relativeTo={client}
-                  onClick={() =>
-                    workflow.setPixelationOptions({
-                      pixeloePrepass: true,
-                      colorPicker: CellColorPicker.Contrast,
-                    })
-                  }
-                />
+                  },
+                  relativeTo: client,
+                })}
               </>
             )}
             <Checkbox
