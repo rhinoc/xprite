@@ -40,7 +40,7 @@ function fakePort() {
 }
 
 describe("update notice", () => {
-  it("shows a temporary notice after a chunk failure, even where installation is unsupported", () => {
+  it("keeps the update prompt until it is dismissed, even where installation is unsupported", () => {
     vi.useFakeTimers();
     const { port, failChunk } = fakePort();
     const manager = new PwaManager({
@@ -51,7 +51,11 @@ describe("update notice", () => {
     assert.equal(manager.getState().notice, null);
     failChunk();
     assert.equal(manager.getState().notice, PwaNotice.UpdateAvailable);
-    vi.advanceTimersByTime(12_000);
+    vi.advanceTimersByTime(10 * 60_000);
+    assert.equal(manager.getState().notice, PwaNotice.UpdateAvailable);
+    manager.dismissNotice();
     assert.equal(manager.getState().notice, null);
+    failChunk();
+    assert.equal(manager.getState().notice, PwaNotice.UpdateAvailable);
   });
 });

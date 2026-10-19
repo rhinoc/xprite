@@ -1,0 +1,25 @@
+.host {
+  position: fixed;
+  inset-inline: 12px;
+  top: 12px;
+  z-index: var(--ui-layer-toast, 9100);
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.prompt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-4, 8px);
+  max-width: min(100%, 420px);
+  padding: var(--ui-space-4, 8px) 12px;
+  border: var(--ui-border-width, 1px) solid;
+  pointer-events: auto;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ui-space-4, 8px);
+}

@@ -104,6 +104,25 @@ function detectCapability(probe: () => boolean): boolean {
 }
 
 /** Persists diagnostics in browser storage and mirrors development records to Vite. */
+/**
+ * Browsers mask errors from cross-origin scripts (extensions, injected widgets, in-app browsers)
+ * as `Script error.` with no filename, line or error object. There is nothing to diagnose or
+ * fix from it, so it is not recorded.
+ */
+export function isOpaqueScriptError(event: {
+  message?: string;
+  filename?: string;
+  lineno?: number;
+  error?: unknown;
+}): boolean {
+  return (
+    event.error == null &&
+    !event.filename &&
+    !event.lineno &&
+    /^script error\.?$/i.test((event.message ?? "").trim())
+  );
+}
+
 export class BrowserDiagnostics implements DiagnosticsPort {
   private readonly store: IndexedDbDiagnosticStore;
   private pending: DiagnosticRecord[] = [];
@@ -210,6 +229,7 @@ export class BrowserDiagnostics implements DiagnosticsPort {
     if (typeof window === "undefined") return () => {};
     const onError = (event: Event) => {
       if (!(event instanceof ErrorEvent)) return;
+      if (isOpaqueScriptError(event)) return;
       const fallback = event.error ?? new Error(event.message || "Uncaught browser error");
       this.capture(fallback, DiagnosticSource.GlobalError, {
         context:

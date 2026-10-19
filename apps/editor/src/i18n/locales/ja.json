@@ -45,6 +45,8 @@
   "ui.pwa.desktop.browser": "ブラウザのメニューから「アプリをインストール」または「ホーム画面に追加」を選びます。",
   "ui.pwa.desktop.hint": "ヘルプメニューの「デスクトップに追加」を選ぶと、次回からすぐに開けます。",
   "ui.pwa.update.available": "新しいバージョンがあります。準備ができたら再読み込みしてください。",
+  "ui.pwa.update.reload": "再読み込み",
+  "ui.pwa.update.dismiss": "あとで",
   "ui.home.introduction.description": "スプライトを描き、レイヤーやアニメーションのフレームを編集して、.ase/.asepriteプロジェクトを開いたり保存したりできます。マウス・タッチ・ペンに対応し、ワークスペースも自由に配置できます。無料のオープンソースで、作品は自分の端末に保存されます。",
   "ui.home.license": "ライセンス",
   "ui.home.credits": "クレジット",

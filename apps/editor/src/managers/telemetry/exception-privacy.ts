@@ -3,6 +3,7 @@ import type { TelemetryException } from "$/managers/ports/telemetry";
 
 const MAX_EXCEPTION_MESSAGE_LENGTH = 512;
 const MAX_EXCEPTION_STACK_LENGTH = 12_000;
+const MAX_COMPONENT_STACK_LENGTH = 4_000;
 const PRIVATE_FILE_PATTERN =
   /[^\s"'<>/\\]+\.(?:aseprite|ase|png|apng|gif|jpe?g|webp|psd|svg|ora|zip)\b/gi;
 const PRIVATE_URL_PATTERN = /(?:file|blob):[^\s)]+/gi;
@@ -39,4 +40,15 @@ export function telemetryException(
         }
       : {}),
   };
+}
+
+/**
+ * React's component stack for a render failure caught by the app error boundary. It names the
+ * components between the throw and the boundary; it is scrubbed like the exception stack.
+ */
+export function telemetryComponentStack(
+  componentStack: string,
+  documentNames: readonly string[],
+): string {
+  return scrub(componentStack.trim(), documentNames).slice(0, MAX_COMPONENT_STACK_LENGTH);
 }
