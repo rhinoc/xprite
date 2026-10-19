@@ -15,8 +15,8 @@ import {
   TOOLS,
 } from "../../apps/growth/content/tools/index.ts";
 import { assertEdgeOneRuleLimits, compactServingRules } from "../../infra/edgeone-serving-rules.ts";
-import { verifyEditorOffline } from "../build/editor-offline.mjs";
 import { INDEXNOW_KEY, INDEXNOW_KEY_FILE } from "../../infra/indexnow.ts";
+import { verifyEditorOffline } from "../build/editor-offline.mjs";
 import { checkAssetVersions } from "../check/check-asset-versions.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
