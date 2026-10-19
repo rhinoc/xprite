@@ -158,6 +158,7 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   Method: "方法",
   "Remove noise": "去除噪点",
   "Limit colors": "限制颜色数",
+  "Snap palette": "吸附调色板",
   "Lock aspect ratio": "锁定比例",
   "Original image": "原图",
   Pixelated: "像素化",

@@ -1,4 +1,5 @@
 import type { PixelBuffer } from "$/base/primitives";
+import { estimateTilt, straighten } from "$/import-export/image/import/deskew";
 import { blockPartition } from "$/import-export/image/import/grid";
 import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
 import { recoverGrid } from "$/import-export/image/import/grid-sample";
@@ -45,6 +46,22 @@ const tag =
     algorithm,
   });
 
+/**
+ * Detect on a straightened copy when the image carries a convincing tilt; the grid then records
+ * the rotation so recovery straightens the same way. A tilt beyond the search range, or a
+ * straightened image that still has no reliable grid, is refused rather than guessed from the
+ * tilted pixels (those yield confident but wrong grids).
+ */
+const deskewed =
+  (detect: (image: PixelBuffer, size?: PixelationSize) => PixelGridAnalysis) =>
+  (image: PixelBuffer, size?: PixelationSize): PixelGridAnalysis => {
+    const tilt = estimateTilt(image);
+    if (tilt.extreme) return unreliable(image);
+    if (!tilt.angle) return detect(image, size);
+    const found = detect(straighten(image, tilt.angle), size);
+    return found.reliable ? { ...found, rotation: tilt.angle } : unreliable(image);
+  };
+
 const FALLBACK = PixelationAlgorithm.Resize;
 const DEFAULT_CUSTOM_SIZE = 64;
 
@@ -85,14 +102,14 @@ const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
     label: "import.algorithm.uniform-grid",
     auto: true,
     listed: true,
-    detect: tag(PixelationAlgorithm.UniformGrid, detectUniformGrid),
+    detect: tag(PixelationAlgorithm.UniformGrid, deskewed(detectUniformGrid)),
     run: recoverGrid,
   },
   [PixelationAlgorithm.EdgeGrid]: {
     label: "import.algorithm.edge-grid",
     auto: true,
     listed: true,
-    detect: tag(PixelationAlgorithm.EdgeGrid, detectMeshGrid),
+    detect: tag(PixelationAlgorithm.EdgeGrid, deskewed(detectMeshGrid)),
     run: recoverGrid,
   },
   [PixelationAlgorithm.CustomSize]: {
@@ -139,7 +156,8 @@ export function recoverWithGrid(
   grid: PixelGridGeometry,
   picker: CellColorPicker = CellColorPicker.MostCommon,
 ): PixelBuffer {
+  const { rotation } = grid as PixelGridAnalysis;
   return getAlgorithmEntry(
     (grid as PixelGridAnalysis).algorithm ?? PixelationAlgorithm.EdgeGrid,
-  ).run(image, grid, picker);
+  ).run(rotation ? straighten(image, rotation) : image, grid, picker);
 }

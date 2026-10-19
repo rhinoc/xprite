@@ -565,6 +565,8 @@
   "import.picker.contrast": "コントラスト",
   "import.dialog.pixeloe.prepass": "PixelOE前処理",
   "import.dialog.pixeloe.preset": "PixelOEプリセット",
+  "import.dialog.snap.palette": "パレットに統一",
+  "import.dialog.snap.colors": "パレットの色数",
   "import.picker.nearest": "最近傍",
   "import.preferences.ask": "ドット絵の可能性がある画像のインポート方法を確認する",
   "import.dialog.title": "インポートオプション",

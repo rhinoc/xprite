@@ -98,6 +98,7 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   Method: "Método",
   "Remove noise": "Quitar ruido",
   "Limit colors": "Limitar colores",
+  "Snap palette": "Ajustar paleta",
   "Lock aspect ratio": "Bloquear proporción",
   "Original image": "Imagen original",
   Pixelated: "Pixelado",

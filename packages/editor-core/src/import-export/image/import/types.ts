@@ -105,11 +105,24 @@ export interface PixelGridAnalysis extends PixelGridGeometry {
   reliable: boolean;
   /** Registry entry that produced this analysis. */
   algorithm?: PixelationAlgorithm;
+  /**
+   * Degrees the source was rotated to straighten a tilted grid before it was detected. The cuts
+   * are measured in that straightened image, so recovery applies the same rotation first.
+   */
+  rotation?: number;
 }
 
 export interface PixelationSize {
   width: number;
   height: number;
+}
+
+/** Optional palette snap applied to the recovered image (see palette-snap.ts). */
+export interface PaletteSnapOptions {
+  /** Number of colours to cluster into (k-means); ignored when `palette` is given. */
+  colors?: number;
+  /** Snap every visible pixel to its nearest entry (CIE Lab) instead of clustering. */
+  palette?: readonly Rgba[];
 }
 
 export interface PixelateOptions {
@@ -133,6 +146,11 @@ export interface PixelateOptions {
   blockSize?: number | PixelationSize;
   /** Nearest-neighbor upscale to the source dimensions after pixelation. */
   preserveDimensions?: boolean;
+  /**
+   * Snap the result's colours to a clean palette (k-means that keeps rare colours, or a given
+   * palette) before any `maxColors` reduction. Off when omitted.
+   */
+  paletteSnap?: PaletteSnapOptions;
   /** Limit RGB colors (maximum 256); alpha coverage remains independent. */
   maxColors?: number;
   /** Optional palette to use for reduction; otherwise a deterministic palette is extracted. */
@@ -159,6 +177,9 @@ export interface ExtractPaletteOptions {
 export interface PixelationSettings {
   mode: PixelationMode;
   reduceColors: boolean;
+  /** Snap the result to a clean palette (k-means keeping rare colours, or the chosen palette). */
+  snapPalette: boolean;
+  snapColors: number;
   outlineStrength: number;
   /** PixelOE pre-pass (outline expansion + colour match) ahead of the sampler. */
   pixeloePrepass: boolean;

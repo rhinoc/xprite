@@ -565,6 +565,8 @@
   "import.picker.contrast": "Контраст",
   "import.dialog.pixeloe.prepass": "Предобработка PixelOE",
   "import.dialog.pixeloe.preset": "Пресет PixelOE",
+  "import.dialog.snap.palette": "Свести палитру",
+  "import.dialog.snap.colors": "Цветов в палитре",
   "import.picker.nearest": "Ближайший",
   "import.preferences.ask": "Спрашивать, как импортировать картинки, похожие на пиксель-арт",
   "import.dialog.title": "Параметры импорта",

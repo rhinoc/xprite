@@ -565,6 +565,8 @@
   "import.picker.contrast": "对比度",
   "import.dialog.pixeloe.prepass": "PixelOE 预处理",
   "import.dialog.pixeloe.preset": "PixelOE 预设",
+  "import.dialog.snap.palette": "统一调色板",
+  "import.dialog.snap.colors": "调色板颜色数",
   "import.picker.nearest": "最近点",
   "import.preferences.ask": "导入可能是像素画的图片时询问我",
   "import.dialog.title": "导入选项",

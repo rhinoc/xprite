@@ -5,6 +5,7 @@ import {
   getListedAlgorithms,
   getAllColorPickers,
   PIXELATION_SIZES,
+  SNAP_COLOR_PRESETS,
 } from "@xprite/editor-core/import-export/image/import";
 
 export {
@@ -14,6 +15,7 @@ export {
   getListedAlgorithms,
   getAllColorPickers,
   PIXELATION_SIZES,
+  SNAP_COLOR_PRESETS,
 };
 
 export enum SaveFileExtension {
