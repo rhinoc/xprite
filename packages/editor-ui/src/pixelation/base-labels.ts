@@ -14,6 +14,8 @@ export const LABELS = {
   colors: { text: "Colors:", key: "ui.colors.50dd3bf1" },
   prepass: { text: "PixelOE pre-pass", key: "import.dialog.pixeloe.prepass" },
   preset: { text: "PixelOE preset", key: "import.dialog.pixeloe.preset" },
+  snapPalette: { text: "Snap palette", key: "import.dialog.snap.palette" },
+  snapColors: { text: "Palette colors", key: "import.dialog.snap.colors" },
   advanced: { text: "Advanced", key: "import.dialog.advanced" },
   pixels: { text: "{size} px", key: "ui.dimension.pixels" },
 } as const satisfies Record<string, PixelationLabel>;

@@ -21,6 +21,10 @@ export const PIXELATION_METHOD_OPTIONS = [
 const DEFAULT_PIXELATION_SIZE = 64;
 const DEFAULT_COLORS = 16;
 const MAX_COLORS = 256;
+export const MIN_SNAP_COLORS = 2;
+export const MAX_SNAP_COLORS = 64;
+export const SNAP_COLOR_PRESETS = [8, 12, 16, 24, 32, 48, 64] as const;
+const DEFAULT_SNAP_COLORS = 16;
 export function defaultPixelationSettings(
   image: Pick<PixelBuffer, "width" | "height">,
   grid?: PixelGridAnalysis,
@@ -29,6 +33,8 @@ export function defaultPixelationSettings(
   return {
     mode: grid?.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
     reduceColors: !grid?.reliable,
+    snapPalette: false,
+    snapColors: DEFAULT_SNAP_COLORS,
     outlineStrength: 0,
     pixeloePrepass: false,
     colorPicker: CellColorPicker.MostCommon,
@@ -83,6 +89,9 @@ export function updatePixelationSettings(
   next.maxColors = Number.isFinite(next.maxColors)
     ? Math.max(2, Math.min(MAX_COLORS, Math.round(next.maxColors)))
     : DEFAULT_COLORS;
+  next.snapColors = Number.isFinite(next.snapColors)
+    ? Math.max(MIN_SNAP_COLORS, Math.min(MAX_SNAP_COLORS, Math.round(next.snapColors)))
+    : DEFAULT_SNAP_COLORS;
   return next;
 }
 export function pixelationSettingsOptions(
@@ -112,6 +121,11 @@ export function pixelationSettingsOptions(
     pixeloePrepass: settings.pixeloePrepass,
     targetWidth: settings.targetWidth,
     targetHeight: settings.targetHeight,
+    paletteSnap: settings.snapPalette
+      ? settings.palette
+        ? { palette: settings.palette }
+        : { colors: settings.snapColors }
+      : undefined,
     maxColors: settings.reduceColors && !palette ? settings.maxColors : undefined,
     method: settings.method,
     blockPicker: settings.blockPicker,

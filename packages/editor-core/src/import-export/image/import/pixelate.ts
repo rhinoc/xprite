@@ -2,9 +2,11 @@ import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { assertDimension, assertPixelBuffer } from "$/document/pixel-validation";
 import { protectPixelationContours } from "$/import-export/image/import/contours";
 import { smoothPixelation } from "$/import-export/image/import/denoise";
+import { straighten } from "$/import-export/image/import/deskew";
 import { blockPartition } from "$/import-export/image/import/grid";
 import { resizeMostFrequent } from "$/import-export/image/import/most-frequent";
 import { reduceToPalette, extractPixelationPalette } from "$/import-export/image/import/palette";
+import { snapPalette } from "$/import-export/image/import/palette-snap";
 import {
   detectWithAlgorithm,
   recoverWithGrid,
@@ -79,9 +81,12 @@ function sampleImage(
         "No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.",
       );
     const cell = (found.cellWidth + found.cellHeight) / 2;
+    // A tilted source is straightened first; the grid's cuts are measured in that image.
+    const rotation = (found as PixelGridAnalysis).rotation;
+    const upright = rotation ? straighten(image, rotation) : image;
     return recoverWithGrid(
-      options.pixeloePrepass ? pixeloePrepass(image, cell) : image,
-      found,
+      options.pixeloePrepass ? pixeloePrepass(upright, cell) : upright,
+      rotation ? ({ ...found, rotation: undefined } as PixelGridAnalysis) : found,
       options.colorPicker,
     );
   }
@@ -191,7 +196,8 @@ export function pixelateImage(image: PixelBuffer, options: PixelateOptions = {})
   assertPixelBuffer(image);
   const method = validateMethod(options.method);
   const sampled = sampleImage(image, options, method);
-  const reduced = options.removeNoise ? smoothPixelation(sampled) : sampled;
+  const smoothed = options.removeNoise ? smoothPixelation(sampled) : sampled;
+  const reduced = options.paletteSnap ? snapPalette(smoothed, options.paletteSnap) : smoothed;
   const maxColors = validateMaxColors(options.maxColors);
   let result = reduced;
   if (maxColors !== undefined || options.palette !== undefined) {

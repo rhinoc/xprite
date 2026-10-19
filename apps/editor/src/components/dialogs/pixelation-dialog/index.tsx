@@ -70,6 +70,7 @@ const REMEMBERED_ALGORITHMS: readonly PixelationAlgorithm[] = [
 /** The dialog has no palette browser; everything else of the shared base controls is here. */
 const HIDDEN_SLOTS: ReadonlySet<PixelationSlot> = new Set([PixelationSlot.Palette]);
 /** Width of the Limit colors checkbox in its row; the colour count sits to its right. */
+const SNAP_CHECKBOX_SHARE = 0.6;
 const LIMIT_SHARE = 0.55;
 const COUNT_LABEL_SHARE = 0.2;
 
@@ -182,7 +183,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const hintHeight = pixelateMessage ? HINT_HEIGHT + GAP : 0;
         const advancedRowHeight = ROW_HEIGHT + GAP;
         const advancedHeight = showAdvanced
-          ? 3 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) + 2 * (ROW_HEIGHT + GAP)
+          ? 3 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) + 3 * (ROW_HEIGHT + GAP)
           : 0;
         const bottomStack =
           SECTION_HEIGHT +
@@ -216,6 +217,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const pickerCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         const limitRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
         const prepassRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
+        const snapRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
         const rememberRow = at(ROW_HEIGHT);
         const footerY = client.y + client.height - FOOTER_HEIGHT;
         const option = (value: ImportAction, label: string, x: number, w: number) => (
@@ -412,6 +414,23 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                   },
                   relativeTo: client,
                 })}
+              </>
+            )}
+            {snapRow && (
+              <>
+                {base[PixelationSlot.SnapPalette].render({
+                  bounds: { ...snapRow, width: Math.round(snapRow.width * SNAP_CHECKBOX_SHARE) },
+                  relativeTo: client,
+                })}
+                {base[PixelationSlot.SnapColors].visible &&
+                  base[PixelationSlot.SnapColors].render({
+                    bounds: {
+                      ...snapRow,
+                      x: snapRow.x + Math.round(snapRow.width * SNAP_CHECKBOX_SHARE) + GAP,
+                      width: snapRow.width - Math.round(snapRow.width * SNAP_CHECKBOX_SHARE) - GAP,
+                    },
+                    relativeTo: client,
+                  })}
               </>
             )}
             <Checkbox

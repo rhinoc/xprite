@@ -15,6 +15,7 @@ import {
 import {
   getThemeAssets,
   preloadThemeAssets,
+  reportThemeAssetError,
   subscribeThemeAssets,
   type UiAssetBundle,
   type UiBitmap,
@@ -61,7 +62,7 @@ export function useThemeAssets(colorScheme?: UiColorScheme): UiAssetBundle | nul
   const assets = React.useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
   React.useEffect(() => {
     void preloadThemeAssets(requestedColorScheme, context.language, context.uiTheme).catch(
-      (error) => console.error(error),
+      reportThemeAssetError,
     );
   }, [requestedColorScheme, context.language, context.uiTheme]);
   return React.useMemo(
@@ -316,7 +317,7 @@ export function paintThemeText(
   if (metrics.renderer === UiFontRenderer.Native) {
     if (!assets.cjkFontReady && [...text].some((char) => isCjkGlyph(char.codePointAt(0)!))) {
       void preloadThemeAssets(assets.colorScheme, CJK_FONT_LANGUAGE, assets.uiTheme).catch(
-        (error) => console.error(error),
+        reportThemeAssetError,
       );
     }
     context.save();

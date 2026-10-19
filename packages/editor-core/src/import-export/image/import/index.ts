@@ -5,6 +5,8 @@ export {
   countDistinctColors,
   reduceToPalette,
 } from "$/import-export/image/import/palette";
+export { snapPalette } from "$/import-export/image/import/palette-snap";
+export { estimateTilt, straighten, MAX_TILT_DEGREES } from "$/import-export/image/import/deskew";
 export { resizeNearest } from "$/import-export/image/import/resize";
 export { pixelateImage } from "$/import-export/image/import/pixelate";
 export {
@@ -21,6 +23,7 @@ export type {
   PixelArtAnalysis,
   PixelArtAnalysisOptions,
   PixelArtMetrics,
+  PaletteSnapOptions,
   PixelateOptions,
   PixelationSize,
   PixelationSettings,
@@ -37,6 +40,9 @@ export {
   pixelationSettingsOptions,
   MAX_PIXELATION_SIZE,
   PIXELATION_SIZES,
+  MIN_SNAP_COLORS,
+  MAX_SNAP_COLORS,
+  SNAP_COLOR_PRESETS,
   PIXELATION_METHOD_OPTIONS,
 } from "$/import-export/image/import/settings";
 

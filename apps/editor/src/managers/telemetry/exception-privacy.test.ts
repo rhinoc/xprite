@@ -3,7 +3,10 @@ import assert from "node:assert/strict";
 import { describe, it } from "vitest";
 
 import { DiagnosticSource, type DiagnosticRecord } from "$/managers/ports/diagnostics";
-import { telemetryException } from "$/managers/telemetry/exception-privacy";
+import {
+  telemetryComponentStack,
+  telemetryException,
+} from "$/managers/telemetry/exception-privacy";
 
 function record(overrides: Partial<DiagnosticRecord>): DiagnosticRecord {
   return {
@@ -36,5 +39,19 @@ describe("telemetryException", () => {
 
   it("leaves the message alone without a cause", () => {
     assert.equal(telemetryException(record({}), []).message, "Could not open [name].");
+  });
+});
+
+describe("telemetryComponentStack", () => {
+  it("keeps component names and scrubs private text", () => {
+    const stack =
+      "\n    at Panel (https://xprite.cc/assets/x.js:2:3)\n    at hero (/Users/me/a.js)";
+    const result = telemetryComponentStack(stack, ["hero"]);
+    assert.ok(result.startsWith("at Panel (https://xprite.cc/assets/x.js:2:3)"));
+    assert.ok(!result.includes("hero") && !result.includes("/Users/me"));
+  });
+
+  it("is bounded", () => {
+    assert.equal(telemetryComponentStack("at A\n".repeat(5_000), []).length, 4_000);
   });
 });
