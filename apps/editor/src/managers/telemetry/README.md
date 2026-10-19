@@ -138,7 +138,8 @@ Only the fixed comparison attribution above is accepted from a URL. The SDK's
 automatic campaign persistence is disabled, while referrer persistence stays on so
 `$referrer` and `$referring_domain` remain available. Outgoing standard UTM,
 click identifiers and search keywords are removed, including initial/session fields.
-Exceptions include a sanitized message/stack and error source, with allowlisted
+Exceptions include a sanitized message/stack and error source (React boundary failures also
+include a scrubbed, length-bounded `component_stack`), with allowlisted
 `pwa_*` and `file_write_*` exception properties: operation
 stage, bounded timings/retry count, worker states/version, browser availability,
 whether the registration function appears native, and write permission/activation.
