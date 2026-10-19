@@ -101,10 +101,34 @@ function loadCjkFont(family: string, size: number) {
   return pending;
 }
 
-function loadImage(url: string) {
-  const cached = softwareSources.get(url);
-  if (cached) return cached;
-  const result = new Promise<HTMLCanvasElement>((resolve, reject) => {
+const IMAGE_RETRY_DELAY_MS = 400;
+/** Set while the page is being hidden or unloaded, when the browser cancels in-flight loads. */
+let pageLeaving = false;
+if (typeof window !== "undefined") {
+  window.addEventListener("pagehide", () => (pageLeaving = true));
+  window.addEventListener("pageshow", () => (pageLeaving = false));
+}
+
+function pageIsLeaving() {
+  return pageLeaving || (typeof document !== "undefined" && document.visibilityState === "hidden");
+}
+
+/** A load that failed because the page was going away, not because the asset is broken. */
+export class ThemeAssetInterruptedError extends Error {
+  constructor(url: string) {
+    super(`Theme asset load interrupted while the page was hiding: ${url}`);
+    this.name = "ThemeAssetInterruptedError";
+  }
+}
+
+/** Log a theme asset failure, except a load cut short by the page hiding or unloading. */
+export function reportThemeAssetError(error: unknown) {
+  if (error instanceof ThemeAssetInterruptedError) return;
+  console.error(error);
+}
+
+function decodeImage(url: string) {
+  return new Promise<HTMLCanvasElement>((resolve, reject) => {
     const image = new Image();
     image.onload = () => {
       const canvas = document.createElement("canvas");
@@ -122,12 +146,37 @@ function loadImage(url: string) {
     image.onerror = () => reject(new Error(`Cannot load theme asset: ${url}`));
     image.src = url;
   });
+}
+
+async function decodeImageWithRetry(url: string) {
+  try {
+    return await decodeImage(url);
+  } catch (first) {
+    // A transient network or cache error is common right after a deploy or tab restore.
+    if (pageIsLeaving()) throw new ThemeAssetInterruptedError(url);
+    await new Promise((resolve) => setTimeout(resolve, IMAGE_RETRY_DELAY_MS));
+    try {
+      return await decodeImage(url);
+    } catch (second) {
+      if (pageIsLeaving()) throw new ThemeAssetInterruptedError(url);
+      throw second ?? first;
+    }
+  }
+}
+
+function loadImage(url: string) {
+  const cached = softwareSources.get(url);
+  if (cached) return cached;
+  const result = decodeImageWithRetry(url);
   softwareSources.set(url, result);
   void result.catch(() => {
     if (softwareSources.get(url) === result) softwareSources.delete(url);
   });
   return result;
 }
+
+/** Uncached image load, exposed for tests. */
+export const loadThemeImageForTest = decodeImageWithRetry;
 
 async function loadThemeFonts(typography: UiStyleDefinition["typography"]): Promise<void> {
   if (typeof document === "undefined" || !document.fonts) return;
