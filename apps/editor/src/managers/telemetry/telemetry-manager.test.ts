@@ -9,6 +9,7 @@ import {
   EditorViewChangeTrigger,
   EditorViewChangeReason,
 } from "$/managers/editor/editor-view-transition";
+import { DiagnosticSource } from "$/managers/ports/diagnostics";
 import { TelemetryEvent, type TelemetryProperties } from "$/managers/ports/telemetry";
 import { TelemetryManager } from "$/managers/telemetry/telemetry-manager";
 
@@ -84,5 +85,31 @@ describe("view telemetry", () => {
       userViewTransition(EditorViewChangeReason.RecoveryOpened),
     );
     telemetry.viewChanged(EditorView.Guide, userViewTransition(EditorViewChangeReason.TabSelected));
+  });
+});
+
+describe("exception telemetry", () => {
+  it("attaches a scrubbed component stack to React boundary failures only", () => {
+    const captured: TelemetryProperties[] = [];
+    const telemetry = new TelemetryManager({
+      enabled: true,
+      capture: () => {},
+      captureException: (_exception, properties) => captured.push(properties),
+    });
+    const base = { id: "1", timestamp: 1, name: "Error", message: "Minified React error #185" };
+    telemetry.observeDiagnostic({
+      ...base,
+      source: DiagnosticSource.ReactBoundary,
+      componentStack: "\n    at Frame (https://xprite.cc/assets/a.js:1:2)",
+    });
+    telemetry.observeDiagnostic({
+      ...base,
+      id: "2",
+      message: "other",
+      source: DiagnosticSource.GlobalError,
+      componentStack: "at Ignored",
+    });
+    assert.equal(captured[0].component_stack, "at Frame (https://xprite.cc/assets/a.js:1:2)");
+    assert.equal("component_stack" in captured[1], false);
   });
 });

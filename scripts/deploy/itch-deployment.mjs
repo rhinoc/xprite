@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { lstat, mkdir, readFile, readdir, rename, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -25,9 +25,25 @@ function runCommand(command, args, env = process.env) {
   });
 }
 
+function currentCommit() {
+  return execFileSync("git", ["rev-parse", "HEAD"], {
+    cwd: repositoryRoot,
+    encoding: "utf8",
+  }).trim();
+}
+
 async function buildEditor() {
+  // Telemetry release = the commit being built, so exceptions from the itch.io bundle can be
+  // matched to uploaded source maps (the release name used by telemetry:sourcemaps).
+  const release = process.env.POSTHOG_RELEASE?.trim() || currentCommit();
+  if (!(process.env.POSTHOG_CLI_API_KEY && process.env.POSTHOG_CLI_PROJECT_ID))
+    console.warn(
+      "itch.io build: PostHog credentials are not set, so source maps are NOT uploaded and " +
+        "production stack traces from this bundle stay minified.",
+    );
   await runCommand(process.platform === "win32" ? "pnpm.cmd" : "pnpm", ["run", "build:editor"], {
     ...process.env,
+    POSTHOG_RELEASE: release,
     XPRITE_DISTRIBUTION: "itch",
   });
   await validateArtifact();

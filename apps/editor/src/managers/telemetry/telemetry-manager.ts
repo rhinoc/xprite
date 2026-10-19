@@ -34,7 +34,10 @@ import {
   documentTelemetryContext,
   workspaceTelemetryContext,
 } from "$/managers/telemetry/document-context";
-import { telemetryException } from "$/managers/telemetry/exception-privacy";
+import {
+  telemetryComponentStack,
+  telemetryException,
+} from "$/managers/telemetry/exception-privacy";
 import type { DocumentSlot, DocumentWorkspace } from "$/managers/workspace/document-workspace";
 import { exampleProjectId } from "$assets/examples/hello/hello-project";
 import type { EditorSnapshot } from "@xprite/editor-core";
@@ -446,6 +449,9 @@ export class TelemetryManager {
         ...this.context(),
         ...telemetryDiagnosticDetails(record),
         error_source: record.source,
+        ...(record.source === DiagnosticSource.ReactBoundary && record.componentStack
+          ? { component_stack: telemetryComponentStack(record.componentStack, names) }
+          : {}),
         ...(record.source === DiagnosticSource.Session &&
         record.context &&
         /^[a-z-]+$/.test(record.context)

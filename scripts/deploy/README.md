@@ -257,6 +257,17 @@ own hash. `sw.js` keeps its URL because the URL identifies the service worker.
 when any HTML, CSS or script in the assembled site references such a file without
 a version. `build:site` and `deploy:prepare` both run it.
 
+## Offline precache integrity
+
+`sw.js` embeds a manifest of SHA-256 integrity values for every precached editor file, and the
+install step fetches each with `integrity`. Any later step that rewrites built bytes invalidates
+it: PostHog source map injection (`telemetry:sourcemaps`) edits every JS chunk, and a stale
+manifest makes `cache.addAll` fail, so the worker never installs. `editorOffline()` writes the
+manifest during the Vite build; `pnpm run offline:seal` (run by `build:editor` and the
+`build:site` editor lane after `telemetry:sourcemaps`) re-hashes the final files and rewrites it.
+`pnpm run offline:verify [dir]` re-hashes a built directory against its manifest and fails on any
+mismatch; `deploy:prepare` runs the same check on the output it publishes.
+
 ## Publishing
 
 First commit the workflow to the default branch. Tags must point to commits
