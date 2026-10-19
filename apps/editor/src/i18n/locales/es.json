@@ -45,6 +45,8 @@
   "ui.pwa.desktop.browser": "Usa la opción Instalar aplicación o Agregar a la pantalla de inicio del navegador.",
   "ui.pwa.desktop.hint": "Para abrirlo más rápido la próxima vez, elige Agregar al escritorio en el menú Ayuda.",
   "ui.pwa.update.available": "Hay una versión nueva disponible. Recarga cuando quieras.",
+  "ui.pwa.update.reload": "Recargar",
+  "ui.pwa.update.dismiss": "Más tarde",
   "ui.home.introduction.description": "Crea sprites, edita capas y cuadros de animación, y abre o guarda proyectos .ase/.aseprite. Usa el mouse, el tacto o un lápiz óptico y organiza tu propio espacio de trabajo. Gratis y de código abierto, con tus obras guardadas en tu dispositivo.",
   "ui.home.license": "Licencia",
   "ui.home.credits": "Créditos",
