@@ -139,7 +139,6 @@ function BeadStage({
 }) {
   const text = useBeadText();
   const layout = state.previewLayout;
-  const grid = state.grid;
   return (
     <ToolResultWindow
       title={text("beads.pattern")}
@@ -156,9 +155,6 @@ function BeadStage({
               preparing={state.loading || state.pending}
               resultName={text("beads.pattern")}
               resultImageLabel={text("beads.preview.label")}
-              resultSize={
-                grid ? text("beads.size", { width: grid.width, height: grid.height }) : undefined
-              }
               status={status || undefined}
               resultOverlay={
                 layout ? (size) => <BeadPreviewGrid layout={layout} size={size} /> : undefined

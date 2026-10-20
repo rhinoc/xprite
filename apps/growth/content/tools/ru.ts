@@ -165,6 +165,7 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   "Next frame (Right)": "Следующий кадр (→)",
   "Last frame": "Последний кадр",
   "Last frame (End)": "Последний кадр (End)",
+  "{frame} / {frames} · {duration} ms": "{frame} / {frames} · {duration} мс",
   "Play animation": "Воспроизвести анимацию",
   "Play animation (Space)": "Воспроизвести анимацию (пробел)",
   "Pause animation": "Приостановить анимацию",

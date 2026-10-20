@@ -167,6 +167,7 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   "Next frame (Right)": "Cuadro siguiente (→)",
   "Last frame": "Último cuadro",
   "Last frame (End)": "Último cuadro (Fin)",
+  "{frame} / {frames} · {duration} ms": "{frame} / {frames} · {duration} ms",
   "Play animation": "Reproducir animación",
   "Play animation (Space)": "Reproducir animación (Espacio)",
   "Pause animation": "Pausar animación",

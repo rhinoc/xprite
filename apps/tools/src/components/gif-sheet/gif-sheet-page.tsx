@@ -135,10 +135,7 @@ export function GifSheetPage({ manager }: { manager: GifSheetManager }) {
               id: "sheet",
               label: t("Sprite sheet"),
               content: (
-                <ToolCanvasPane
-                  controls={<ToolZoomControl navigation={manager.viewport} />}
-                  status={pixels ? `${pixels.width} × ${pixels.height} px` : undefined}
-                >
+                <ToolCanvasPane controls={<ToolZoomControl navigation={manager.viewport} />}>
                   {pixels && (
                     <ToolCanvasPreview
                       navigation={manager.viewport}

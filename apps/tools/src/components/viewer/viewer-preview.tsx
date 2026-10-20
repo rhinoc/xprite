@@ -8,7 +8,7 @@ import {
   type ViewerSnapshot,
 } from "$/managers/viewer/viewer-manager";
 import { PlaybackTransport, ReadOnlyTimeline } from "@xprite/editor-ui/timeline";
-import { Combobox, ControlFlow } from "@xprite/ui";
+import { Combobox, ControlFlow, Text, TextVariant } from "@xprite/ui";
 
 import styles from "$/components/viewer/viewer.module.css";
 
@@ -27,7 +27,14 @@ export function ViewerPreview({
   const timeline = manager.getPresentationTimeline();
   const pixels = snapshot.pixels!;
   const frameLabel = `Frame ${snapshot.frame + FRAME_OFFSET} of ${snapshot.frames}`;
-  const info = `${pixels.width} × ${pixels.height} px · ${snapshot.frame + FRAME_OFFSET} / ${snapshot.frames} · ${snapshot.duration} ms`;
+  // Frame number and duration at the right end of the playback bar; a single-frame image has nothing to step.
+  const frameInfo =
+    snapshot.frames > 1
+      ? t("{frame} / {frames} · {duration} ms")
+          .replace("{frame}", String(snapshot.frame + FRAME_OFFSET))
+          .replace("{frames}", String(snapshot.frames))
+          .replace("{duration}", String(snapshot.duration))
+      : null;
   const transport = (
     <ControlFlow toolbar className={styles.playbackToolbar}>
       <PlaybackTransport
@@ -70,6 +77,11 @@ export function ViewerPreview({
           ]}
         />
       )}
+      {frameInfo && (
+        <Text variant={TextVariant.Reading} className={styles.frameInfo} data-viewer-frame-info="">
+          {frameInfo}
+        </Text>
+      )}
     </ControlFlow>
   );
   return (
@@ -82,7 +94,7 @@ export function ViewerPreview({
           content: (
             <>
               {!timeline && transport}
-              <ToolCanvasPane status={info} controls={<ToolZoomControl navigation={navigation} />}>
+              <ToolCanvasPane controls={<ToolZoomControl navigation={navigation} />}>
                 <ToolCanvasPreview
                   navigation={navigation}
                   identity={snapshot.identity}

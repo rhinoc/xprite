@@ -165,6 +165,7 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Next frame (Right)": "次のフレーム（→）",
   "Last frame": "最後のフレーム",
   "Last frame (End)": "最後のフレーム（End）",
+  "{frame} / {frames} · {duration} ms": "{frame} / {frames} · {duration} ms",
   "Play animation": "アニメーションを再生",
   "Play animation (Space)": "アニメーションを再生（Space）",
   "Pause animation": "アニメーションを一時停止",

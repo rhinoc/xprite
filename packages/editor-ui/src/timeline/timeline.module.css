@@ -13,7 +13,9 @@
   align-items: center;
   gap: var(--ui-space-4, 8px);
   min-width: 0;
-  padding: 2px 4px;
+  /* No inset: a toolbar band (ControlFlow toolbar) brings its own padding and face, and must
+     span the timeline's full width. */
+  padding: 0;
   overflow-x: auto;
 }
 .layerRow {

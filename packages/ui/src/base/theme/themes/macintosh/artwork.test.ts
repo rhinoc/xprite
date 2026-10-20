@@ -27,6 +27,22 @@ describe("Macintosh control contract", () => {
     },
   );
 
+  // build-macintosh-theme.py packs one part per 40px cell in the Aseprite manifest order. A part
+  // inserted into the sheet without regenerating these coordinates shifts every later part onto
+  // its neighbour's artwork (e.g. editor_normal reading a house glyph as a 9-slice frame).
+  it.each(COLOR_SCHEMES)("reads each part from its own atlas cell in %s", (colorScheme) => {
+    const { definition } = macintoshArtwork(colorScheme);
+    const cell = 40;
+    const columns = definition.sheet.width / cell;
+    const misplaced = Object.keys(themeDefinition.parts).flatMap((name, index) => {
+      const part = definition.parts[name as keyof typeof definition.parts];
+      const x = (index % columns) * cell;
+      const y = Math.floor(index / columns) * cell;
+      return part.x === x && part.y === y ? [] : [name];
+    });
+    expect(misplaced).toEqual([]);
+  });
+
   it.each(COLOR_SCHEMES)(
     "keeps unselected, selected, and window title text legible in %s",
     (colorScheme) => {
