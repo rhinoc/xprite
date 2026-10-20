@@ -15,6 +15,7 @@ import { ThemePart, ThemeIcon } from "$/base/theme/theme-part";
 import { ThemeRepeat } from "$/base/theme/theme-repeat";
 import { ScrollbarStyle } from "$/base/theme/theme-types";
 import { hitElement, clientPoint, clientRect, observeResize } from "$/base/utils/dom-geometry";
+import { keyboardEventKey } from "$/base/utils/keyboard-event-key";
 import {
   surfaceLayout,
   DEFAULT_SURFACE_VIEWPORT,
@@ -733,9 +734,11 @@ export function Combobox({
                     ? Math.max(1, Math.floor(popup.innerHeight / rowHeight))
                     : 1);
                 next = enabled[Math.max(0, Math.min(enabled.length - 1, at + delta))];
-              } else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey)
+              } else if (keyboardEventKey(event).length === 1 && !event.ctrlKey && !event.metaKey)
                 next = [...enabled.slice(at + 1), ...enabled.slice(0, at + 1)].find((index) =>
-                  options[index].label.toLowerCase().startsWith(event.key.toLowerCase()),
+                  options[index].label
+                    .toLowerCase()
+                    .startsWith(keyboardEventKey(event).toLowerCase()),
                 );
               if (next !== undefined) {
                 event.preventDefault();

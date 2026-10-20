@@ -5,7 +5,7 @@ import { tUi, tUiSource } from "$/i18n";
 import { DialogEffectTarget } from "$/managers/dialogs/effect-dialog-manager";
 import { FontRole, Button, isDialogPopupTarget, Checkbox, FocusRingBehavior } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
-import { isImeKeyboardEvent } from "@xprite/ui/utils";
+import { isImeKeyboardEvent, keyboardEventKey } from "@xprite/ui/utils";
 export interface EditorFilterWindowProps {
   title: string;
   depth?: 8 | 16 | 32;
@@ -72,7 +72,7 @@ export function EditorFilterWindow({
           return;
         }
         if (e.altKey) {
-          const key = e.key.toLowerCase();
+          const key = keyboardEventKey(e).toLowerCase();
           if (key === "o") {
             e.preventDefault();
             onAccept();

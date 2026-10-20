@@ -6,6 +6,7 @@ import { ThemeIcon, ThemePart, type AtlasPartName } from "$/base/theme/theme-par
 import { FontRole } from "$/base/theme/theme-types";
 import { cn } from "$/base/utils/cn";
 import { clientPoint, clientRect } from "$/base/utils/dom-geometry";
+import { keyboardEventKey } from "$/base/utils/keyboard-event-key";
 import { stylusPointerInputProps } from "$/base/utils/stylus-input";
 import {
   CanvasSurface,
@@ -351,7 +352,8 @@ export function ScalarSlider(props: ValueSliderProps) {
             if (!/^[0-9-]$/.test(event.key)) return;
         }
         if (next === value) {
-          const draft = typing.current.text + (event.key.length === 1 ? event.key : "");
+          const draft =
+            typing.current.text + (keyboardEventKey(event).length === 1 ? event.key : "");
           if (draft === "-") {
             typing.current.text = draft;
             event.preventDefault();

@@ -27,7 +27,7 @@ import {
 } from "@xprite/ui";
 import { centerUiPixel, useUiAssets } from "@xprite/ui/assets";
 import type { UiPartName } from "@xprite/ui/assets";
-import { isImeKeyboardEvent } from "@xprite/ui/utils";
+import { isImeKeyboardEvent, keyboardEventKey } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/new-sprite-dialog/new-sprite-dialog.module.css";
 
@@ -223,11 +223,11 @@ export function NewSpriteDialog({
       onKeyDown={(event) => {
         event.stopPropagation();
         if (isImeKeyboardEvent(event.nativeEvent)) return;
-        if (event.altKey && event.key.toLowerCase() === "c") {
+        if (event.altKey && keyboardEventKey(event).toLowerCase() === "c") {
           event.preventDefault();
           onOpenChange(false);
         } else if (
-          (event.altKey && event.key.toLowerCase() === "o") ||
+          (event.altKey && keyboardEventKey(event).toLowerCase() === "o") ||
           (event.key === "Enter" && event.target instanceof HTMLInputElement)
         ) {
           event.preventDefault();

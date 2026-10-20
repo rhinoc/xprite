@@ -74,6 +74,7 @@ import { SaveTarget } from "$/managers/workspace/save-target";
 import { useWorkflowActionSnapshot } from "$/managers/workspace/workflow-action-snapshot";
 import { useDocumentOutputWorkflows } from "$/managers/workspace/workflows/use-document-output-workflows";
 import { normalizeKeyboardEvent } from "@xprite/bedrock/browser/keyboard";
+import { keyboardKey } from "@xprite/bedrock/common/keyboard-key";
 import {
   projectFromClipboardImage,
   EffectKind,
@@ -1242,7 +1243,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
       const keyboard = normalizeKeyboardEvent(event);
-      const normalizedKey = keyboard.key.toLowerCase();
+      const normalizedKey = keyboardKey(keyboard.key).toLowerCase();
       const target = event.target;
       const editingText =
         target instanceof HTMLElement &&

@@ -9,6 +9,7 @@ import {
 
 import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
+import { keyboardEventKey } from "$/base/utils/keyboard-event-key";
 import {
   DEFAULT_SURFACE_VIEWPORT,
   type SurfaceBounds,
@@ -160,13 +161,13 @@ export function Menubar({
         !event.altKey ||
         event.ctrlKey ||
         event.metaKey ||
-        event.key.length !== 1 ||
+        keyboardEventKey(event).length !== 1 ||
         document.querySelector('[role="dialog"][aria-modal="true"]')
       )
         return;
       if (language !== "en") return;
       const index = allMenus.findIndex(
-        (menu) => mnemonic(menu).toLowerCase() === event.key.toLowerCase(),
+        (menu) => mnemonic(menu).toLowerCase() === keyboardEventKey(event).toLowerCase(),
       );
       if (index >= 0) {
         event.preventDefault();

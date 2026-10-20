@@ -24,6 +24,7 @@ import {
   shortcutToInput,
 } from "$/managers/shortcuts/shortcut-input";
 import { defaultShortcutBindings } from "$/managers/shortcuts/shortcut-platform";
+import { keyboardKey } from "@xprite/bedrock/common/keyboard-key";
 import type { EditorCommand, EditorTool, ShortcutInput } from "@xprite/editor-core";
 
 export {
@@ -298,7 +299,7 @@ export class ShortcutManager {
           const key = shortcutToInput(binding, true).key;
           return (
             !!key &&
-            key.toLowerCase() === input.key.toLowerCase() &&
+            key.toLowerCase() === keyboardKey(input.key).toLowerCase() &&
             this.heldBindingPressed(binding, input)
           );
         }),
@@ -313,7 +314,7 @@ export class ShortcutManager {
           const key = shortcutToInput(binding, true).key;
           return (
             !!key &&
-            key.toLowerCase() === input.key.toLowerCase() &&
+            key.toLowerCase() === keyboardKey(input.key).toLowerCase() &&
             shortcutMatches(binding, input, true, true)
           );
         }),
@@ -400,7 +401,7 @@ export class ShortcutManager {
     return this.bindings(definition).some((binding) => {
       const key = shortcutToInput(binding, true).key.toLowerCase();
       return (
-        (!key || this.pressedKeys.has(key) || input.key.toLowerCase() === key) &&
+        (!key || this.pressedKeys.has(key) || keyboardKey(input.key).toLowerCase() === key) &&
         shortcutMatches(binding, input, true, true)
       );
     });
@@ -409,7 +410,7 @@ export class ShortcutManager {
     const expected = shortcutToInput(binding, true);
     const key = expected.key.toLowerCase();
     return (
-      (!key || this.pressedKeys.has(key) || input.key.toLowerCase() === key) &&
+      (!key || this.pressedKeys.has(key) || keyboardKey(input.key).toLowerCase() === key) &&
       shortcutMatches(binding, input, true)
     );
   }

@@ -14,6 +14,7 @@ import { useTheme } from "$/base/theme/theme-context";
 import { cn } from "$/base/utils/cn";
 import { layoutSize, scrollElementIntoView, observeResize } from "$/base/utils/dom-geometry";
 import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
+import { keyboardEventKey } from "$/base/utils/keyboard-event-key";
 import { DEFAULT_SURFACE_VIEWPORT, type SurfaceViewport } from "$/components/canvas-surface";
 import { Divider, DividerAppearance } from "$/components/divider";
 import { listBoxBorderStyle } from "$/components/list-box/border";
@@ -188,7 +189,7 @@ export function MultipleListBox({
             onKeyDown?.(event);
             if (event.defaultPrevented || disabled || isImeKeyboardEvent(event.nativeEvent)) return;
             const toggle = event.ctrlKey || event.metaKey;
-            if (toggle && event.key.toLowerCase() === "a") {
+            if (toggle && keyboardEventKey(event).toLowerCase() === "a") {
               event.preventDefault();
               onValuesChange(enabled.map((item) => item.value));
               return;

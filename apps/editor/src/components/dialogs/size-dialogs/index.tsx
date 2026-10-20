@@ -30,7 +30,7 @@ import {
   defaultActionProps,
 } from "@xprite/ui";
 import { centerUiPixel, type UiPartName } from "@xprite/ui/assets";
-import { isImeKeyboardEvent, stylusPointerInputProps } from "@xprite/ui/utils";
+import { isImeKeyboardEvent, keyboardEventKey, stylusPointerInputProps } from "@xprite/ui/utils";
 
 import "$/components/dialogs/size-dialogs/size-dialogs.module.css";
 export interface DocumentSizeDialogsProps {
@@ -115,7 +115,7 @@ function SizeDialog({
     if (kind !== "canvas" || suspended || !allowTrimOutside) return;
     const mnemonic = (event: KeyboardEvent) => {
       if (isImeKeyboardEvent(event)) return;
-      if (event.altKey && event.key.toLowerCase() === "t") {
+      if (event.altKey && keyboardEventKey(event).toLowerCase() === "t") {
         event.preventDefault();
         event.stopPropagation();
         setTrim((value) => !value);
@@ -533,11 +533,11 @@ export function SizeDialogShell({
         event.stopPropagation();
         callbacks.current.onAccept();
       }
-      if (event.altKey && event.key.toLowerCase() === "o") {
+      if (event.altKey && keyboardEventKey(event).toLowerCase() === "o") {
         event.preventDefault();
         callbacks.current.onAccept();
       }
-      if (event.altKey && event.key.toLowerCase() === "c") {
+      if (event.altKey && keyboardEventKey(event).toLowerCase() === "c") {
         event.preventDefault();
         callbacks.current.onClose();
       }

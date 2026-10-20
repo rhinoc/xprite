@@ -5,6 +5,7 @@ import { useTheme } from "$/base/theme/theme-context";
 import { FontRole } from "$/base/theme/theme-types";
 import { layoutSize, observeResize } from "$/base/utils/dom-geometry";
 import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
+import { keyboardEventKey } from "$/base/utils/keyboard-event-key";
 import { Button } from "$/components/button";
 import { type SurfaceBounds } from "$/components/canvas-surface";
 import { Text, TextVariant } from "$/components/text";
@@ -158,7 +159,8 @@ export function AlertDialog({
           (candidate) =>
             !candidate.disabled &&
             candidate.mnemonicIndex !== undefined &&
-            candidate.label[candidate.mnemonicIndex]?.toLowerCase() === event.key.toLowerCase(),
+            candidate.label[candidate.mnemonicIndex]?.toLowerCase() ===
+              keyboardEventKey(event).toLowerCase(),
         );
         if (action) {
           if (event.target === event.currentTarget) event.preventDefault();

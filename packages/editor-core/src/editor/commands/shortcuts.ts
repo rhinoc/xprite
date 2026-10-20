@@ -1,6 +1,7 @@
 import type { EditorTool } from "$/drawing/tool-settings";
 import type { EditorCommand } from "$/editor/commands/types";
 import { TilesetMode } from "$/tilemap/types";
+import { keyboardKey } from "@xprite/bedrock/common/keyboard-key";
 export interface ShortcutInput {
   key: string;
   ctrl?: boolean;
@@ -13,7 +14,7 @@ export interface ShortcutInput {
 }
 export function resolveShortcut(input: ShortcutInput): EditorCommand | null {
   if (input.editingText) return null;
-  const k = input.key.toLowerCase(),
+  const k = keyboardKey(input.key).toLowerCase(),
     mod = input.ctrl || input.meta;
   if (input.space && !mod && !input.alt && !input.shift) {
     if (k === "n") return { type: "new-tilemap-layer" };

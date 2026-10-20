@@ -29,7 +29,7 @@ import {
 } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 import { measureUiText } from "@xprite/ui/assets";
-import { isImeKeyboardEvent } from "@xprite/ui/utils";
+import { isImeKeyboardEvent, keyboardEventKey } from "@xprite/ui/utils";
 
 export interface SelectionDialogValues {
   operation: ToolSelectionModifier;
@@ -144,7 +144,7 @@ export function SelectionDialogs({
         )
           return;
         if (!picker && event.altKey) {
-          const key = event.key.toLowerCase();
+          const key = keyboardEventKey(event).toLowerCase();
           if (key === "o") {
             event.preventDefault();
             accept();

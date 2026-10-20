@@ -1,5 +1,6 @@
 import { type ReplayPort, type ReplayCursorAppearance } from "$/managers/ports/replay";
 import { downloadBlob, selectBrowserFiles } from "@xprite/bedrock/browser/file-system";
+import { keyboardKey } from "@xprite/bedrock/common/keyboard-key";
 import { REPLAY_MAX_BYTES } from "@xprite/editor-core";
 import { getCursorArtwork, type CursorRole } from "@xprite/ui/cursor";
 import { clientDeltaToLocal, computedStyle, layoutSize, snapLocalToPixels } from "@xprite/ui/utils";
@@ -104,7 +105,8 @@ export function createBrowserReplayPort(): ReplayPort {
           element.closest(REPLAY_CONTROLS_SELECTOR) ||
           element.closest(PRIVATE_INPUT_SELECTOR) ||
           event.repeat ||
-          event.isComposing
+          event.isComposing ||
+          !keyboardKey(event.key)
         )
           return;
         const keys = [...modifiers].map((name) => MODIFIER_LABELS[name]);

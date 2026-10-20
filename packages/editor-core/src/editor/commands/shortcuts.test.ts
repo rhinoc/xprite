@@ -76,6 +76,9 @@ describe("editor-shortcuts", () => {
       "Implemented Aseprite Reselect is distinct from Deselect",
     );
     assert.deepEqual(resolveShortcut({ key: "d", meta: true, shift: true }), { type: "reselect" });
+    // Safari autofill/IME and synthetic events can dispatch key events without a key.
+    for (const modifiers of [{}, { ctrl: true }, { meta: true }, { space: true }])
+      assert.equal(resolveShortcut({ ...modifiers, key: undefined }), null);
     assert.equal(resolveShortcut({ key: "d", meta: true, shift: true, editingText: true }), null);
     assert.deepEqual(
       resolveShortcut({ key: "'", meta: true, shift: true }),

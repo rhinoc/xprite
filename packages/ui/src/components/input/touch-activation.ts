@@ -7,6 +7,7 @@ import {
   type KeyboardEvent,
 } from "react";
 
+import { keyboardEventKey } from "$/base/utils/keyboard-event-key";
 import { usesNativeTextEditing } from "$/base/utils/native-text-input";
 import { PointerClickSequence } from "$/components/menu/pointer-gestures";
 
@@ -98,7 +99,11 @@ export function useInputTouchActivation(
     onKeyDown(event: KeyboardEvent<HTMLInputElement>): boolean {
       if (!guarded || active.current || event.ctrlKey || event.metaKey || event.altKey)
         return false;
-      if (event.key.length === 1 || event.key === "Backspace" || event.key === "Delete")
+      if (
+        keyboardEventKey(event).length === 1 ||
+        event.key === "Backspace" ||
+        event.key === "Delete"
+      )
         activate(event.currentTarget);
       if (event.key !== "Enter") return false;
       event.preventDefault();
