@@ -26,7 +26,7 @@ import {
 } from "@xprite/ui";
 import { centerUiPixel, measureUiText } from "@xprite/ui/assets";
 import { sceneViewport } from "@xprite/ui/canvas";
-import { clientRect, isImeKeyboardEvent } from "@xprite/ui/utils";
+import { clientRect, isImeKeyboardEvent, keyboardEventKey } from "@xprite/ui/utils";
 export interface TextDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -207,11 +207,11 @@ export function TextDialog({
         event.stopPropagation();
         if (isImeKeyboardEvent(event.nativeEvent)) return;
         if (colorOpen) return;
-        if (event.altKey && event.key.toLowerCase() === "c") {
+        if (event.altKey && keyboardEventKey(event).toLowerCase() === "c") {
           event.preventDefault();
           onOpenChange(false);
         } else if (
-          (event.altKey && event.key.toLowerCase() === "o") ||
+          (event.altKey && keyboardEventKey(event).toLowerCase() === "o") ||
           (event.key === "Enter" && event.target instanceof HTMLInputElement)
         ) {
           event.preventDefault();

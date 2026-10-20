@@ -1,3 +1,4 @@
+import { keyboardKey } from "@xprite/bedrock/common/keyboard-key";
 import type { ShortcutInput } from "@xprite/editor-core";
 
 const MODIFIER_ORDER = ["Ctrl", "Cmd", "Alt", "Shift", "Space"] as const;
@@ -83,7 +84,8 @@ export function inputToShortcut(
   modifiersOnly = false,
   allowKey = false,
 ): string {
-  const key = input.key === " " ? "Space" : input.key;
+  const inputKey = keyboardKey(input.key);
+  const key = inputKey === " " ? "Space" : inputKey;
   return (
     normalizeShortcut(
       [
@@ -125,7 +127,7 @@ export function shortcutMatches(
     );
   }
   return (
-    (modifiersOnly || expected.key.toLowerCase() === input.key.toLowerCase()) &&
+    (modifiersOnly || expected.key.toLowerCase() === keyboardKey(input.key).toLowerCase()) &&
     !!expected.ctrl === !!input.ctrl &&
     !!expected.meta === !!input.meta &&
     !!expected.alt === !!input.alt &&

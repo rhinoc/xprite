@@ -27,6 +27,7 @@ import {
   ToastTone,
   type MenuItem,
 } from "@xprite/ui";
+import { keyboardEventKey } from "@xprite/ui/utils";
 
 import styles from "$/components/shared/tool-frame.module.css";
 
@@ -135,7 +136,7 @@ export function FileToolShell({
         !(event.metaKey || event.ctrlKey) ||
         event.altKey ||
         event.shiftKey ||
-        event.key.toLowerCase() !== "e"
+        keyboardEventKey(event).toLowerCase() !== "e"
       )
         return;
       event.preventDefault();

@@ -25,6 +25,7 @@ import {
   clientPoint,
   clientRect,
 } from "$/base/utils/dom-geometry";
+import { keyboardEventKey } from "$/base/utils/keyboard-event-key";
 import { stylusPointerInputProps } from "$/base/utils/stylus-input";
 import {
   DEFAULT_SURFACE_VIEWPORT,
@@ -1153,7 +1154,7 @@ export function Menu<Trigger extends HTMLElement = HTMLButtonElement>({
                       return;
                     }
                     const mnemonic =
-                      language === "en" && event.key.length === 1
+                      language === "en" && keyboardEventKey(event).length === 1
                         ? menuMnemonicMatch(entries, event.key)
                         : -1;
                     if (mnemonic >= 0) {
@@ -1177,12 +1178,14 @@ export function Menu<Trigger extends HTMLElement = HTMLButtonElement>({
                     else if (event.key === "Home") next = enabled[0];
                     else if (event.key === "End") next = enabled[enabled.length - 1];
                     else if (
-                      event.key.length === 1 &&
+                      keyboardEventKey(event).length === 1 &&
                       !entries.some((item) => menuMnemonicIndex(item) >= 0)
                     )
                       next = [...enabled.slice(offset + 1), ...enabled.slice(0, offset + 1)].find(
                         (index) =>
-                          entries[index].label.toLowerCase().startsWith(event.key.toLowerCase()),
+                          entries[index].label
+                            .toLowerCase()
+                            .startsWith(keyboardEventKey(event).toLowerCase()),
                       );
                     if (next !== undefined) {
                       handled();

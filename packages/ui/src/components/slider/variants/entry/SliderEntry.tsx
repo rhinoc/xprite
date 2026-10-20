@@ -6,6 +6,7 @@ import { useTheme } from "$/base/theme/theme-context";
 import { ThemePart } from "$/base/theme/theme-part";
 import { clientPoint, clientRect } from "$/base/utils/dom-geometry";
 import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
+import { keyboardEventKey } from "$/base/utils/keyboard-event-key";
 import { usesNativeTextEditing } from "$/base/utils/native-text-input";
 import { UINT8_MAX } from "$/base/utils/numeric-constants";
 import { stylusPointerInputProps } from "$/base/utils/stylus-input";
@@ -346,7 +347,7 @@ export function SliderEntry(props: SliderEntryProps) {
                 !event.ctrlKey &&
                 !event.metaKey &&
                 !event.altKey &&
-                event.key.length === 1 &&
+                keyboardEventKey(event).length === 1 &&
                 !/\d/.test(event.key)
               )
                 event.preventDefault();

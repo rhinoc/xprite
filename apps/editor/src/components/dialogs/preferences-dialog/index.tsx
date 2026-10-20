@@ -103,7 +103,12 @@ import {
   Icon,
 } from "@xprite/ui";
 import { centerUiPixel, measureUiText, useUiAssets } from "@xprite/ui/assets";
-import { setScrollPosition, scrollPosition, isImeKeyboardEvent } from "@xprite/ui/utils";
+import {
+  setScrollPosition,
+  scrollPosition,
+  isImeKeyboardEvent,
+  keyboardEventKey,
+} from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/preferences-dialog/preferences-dialog.module.css";
 
@@ -1082,13 +1087,16 @@ export function PreferencesDialog({
           if (isImeKeyboardEvent(event.nativeEvent)) return;
           if (resetConfirmationOpen) return;
           if (event.key === "Enter" && event.target instanceof HTMLButtonElement) return;
-          if (event.altKey && event.key.toLowerCase() === "c") {
+          if (event.altKey && keyboardEventKey(event).toLowerCase() === "c") {
             event.preventDefault();
             cancel();
-          } else if (event.altKey && event.key.toLowerCase() === "a") {
+          } else if (event.altKey && keyboardEventKey(event).toLowerCase() === "a") {
             event.preventDefault();
             apply();
-          } else if (event.key === "Enter" || (event.altKey && event.key.toLowerCase() === "o")) {
+          } else if (
+            event.key === "Enter" ||
+            (event.altKey && keyboardEventKey(event).toLowerCase() === "o")
+          ) {
             event.preventDefault();
             accept();
           }

@@ -39,12 +39,13 @@ export function menuMnemonicMatch(
     mnemonicIndex?: number;
     disabled?: boolean;
   }[],
-  key: string,
+  key: string | null | undefined,
 ) {
+  if (!key) return -1;
+  const normalized = key.toLowerCase();
   return items.findIndex(
     (item) =>
-      !item.disabled &&
-      [...item.label][menuMnemonicIndex(item)]?.toLowerCase() === key.toLowerCase(),
+      !item.disabled && [...item.label][menuMnemonicIndex(item)]?.toLowerCase() === normalized,
   );
 }
 export const SUBMENU_OPEN_DELAY_MS = 250;

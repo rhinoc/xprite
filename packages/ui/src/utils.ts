@@ -10,6 +10,7 @@ export * from "$/base/utils/dom-geometry";
 export { installPageFragmentContainment, scrollFragmentTarget } from "$/base/utils/page-fragment";
 export { formatShortcutForPlatform } from "$/base/utils/format-shortcut";
 export { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
+export { keyboardEventKey } from "$/base/utils/keyboard-event-key";
 export { usesNativeTextEditing } from "$/base/utils/native-text-input";
 export { PointerDragActivation, PointerDragAxis } from "$/base/utils/pointer-drag-activation";
 export {
