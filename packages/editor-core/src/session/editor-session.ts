@@ -34,6 +34,7 @@ import {
 import type {
   EditorSessionPorts,
   EditorSessionSnapshot,
+  ImportPixelationMemory,
   SessionProject,
   SessionSource,
   SessionInitialOptions,
@@ -563,6 +564,27 @@ export class EditorSession<Source> {
       blockPicker: true,
     };
   }
+  /**
+   * The silent Pixelate path repeats the pixelation the dialog last imported with (pre-pass, line
+   * guide, colour rule and colour limit); with nothing saved it is the dialog's default. The dialog
+   * itself always opens on the default.
+   */
+  private silentOptions(candidate: Candidate, saved?: ImportPixelationMemory | null) {
+    const options = this.defaultOptions(candidate);
+    if (!saved) return options;
+    const patch: Partial<PixelationSettings> = {
+      prepass: saved.prepass,
+      lineGuide: saved.lineGuide,
+      ...(getAllColorPickers().includes(saved.colorPicker as CellColorPicker)
+        ? { colorPicker: saved.colorPicker }
+        : {}),
+      ...(typeof saved.reduceColors === "boolean" ? { reduceColors: saved.reduceColors } : {}),
+      ...(typeof saved.maxColors === "number" ? { maxColors: saved.maxColors } : {}),
+    };
+    for (const key of Object.keys(patch) as (keyof typeof patch)[])
+      if (patch[key] === undefined) delete patch[key];
+    return updatePixelationSettings(options, patch, candidate.pixels);
+  }
   private offerCandidate(candidate: Candidate): SessionOutcome {
     const pref = this.ports.getImportPreference?.();
     if (pref) {
@@ -592,7 +614,7 @@ export class EditorSession<Source> {
             height: candidate.pixels.height,
             classification: candidate.classification,
           },
-          pixelationOptions: this.defaultOptions(candidate),
+          pixelationOptions: this.silentOptions(candidate, pref.pixelation),
           pixelationPreview: null,
           pixelationPalette: [],
           pixelationError: null,

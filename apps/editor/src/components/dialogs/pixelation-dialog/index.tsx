@@ -142,6 +142,19 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       ...(workflow.pixelationOptions.prepass === OutlinePrepass.None
         ? { importColorPicker: colorPicker }
         : {}),
+      // The silent Pixelate path ("Don't ask me again") repeats this import's pixelation; the
+      // dialog itself still opens on PixelOE + lines next time.
+      ...(pixelate
+        ? {
+            importPixelation: {
+              prepass: workflow.pixelationOptions.prepass,
+              lineGuide: workflow.pixelationOptions.lineGuide,
+              colorPicker,
+              reduceColors: workflow.pixelationOptions.reduceColors,
+              maxColors: workflow.pixelationOptions.maxColors,
+            },
+          }
+        : {}),
       ...(rememberChoice ? { importAsk: false } : {}),
     });
     if (pixelate) workflow.acceptPixelatedImport();

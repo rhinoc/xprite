@@ -1,10 +1,12 @@
 import {
   PixelationAlgorithm,
   CellColorPicker,
+  LineGuideMode,
   OutlinePrepass,
   getAllAlgorithms,
   getAllColorPickers,
 } from "@xprite/editor-core/import-export/image/import";
+import type { ImportPixelationMemory } from "@xprite/editor-core/session";
 
 export { PixelationAlgorithm, CellColorPicker, OutlinePrepass, getAllAlgorithms };
 
@@ -39,7 +41,13 @@ export interface FilePreferences {
   /** What the dialog last did; applied silently when importAsk is off. */
   importLastAction: ImportAction;
   importPixelationAlgorithm: "auto" | "edge-grid" | "uniform-grid";
+  /** The colour rule of the last import without a pre-pass; picking None brings it back. */
   importColorPicker: CellColorPicker;
+  /**
+   * The pixelation of the last Pixelate import from the dialog, repeated by the silent path ("Don't
+   * ask me again"). Null until the dialog has imported once; the dialog itself never opens on it.
+   */
+  importPixelation: ImportPixelationMemory | null;
 }
 export type ExportExtensionDefaults = Pick<
   FilePreferences,
@@ -55,6 +63,7 @@ export const DEFAULT_FILE_PREFERENCES: Readonly<FilePreferences> = Object.freeze
   importLastAction: "pixelate",
   importPixelationAlgorithm: "auto",
   importColorPicker: CellColorPicker.MostCommon,
+  importPixelation: null,
 });
 
 const MAX_RECENT_ITEM_LIMIT = 100;
@@ -74,6 +83,28 @@ export function importPreferenceOf(prefs: FilePreferences) {
     choice: prefs.importAsk ? "always-ask" : CHOICE_BY_ACTION[prefs.importLastAction],
     algorithm: prefs.importPixelationAlgorithm,
     colorPicker: prefs.importColorPicker,
+    pixelation: prefs.importPixelation,
+  };
+}
+
+const MAX_COLORS = 256;
+/** A saved Pixelate import, or null when it is missing or unreadable. */
+function normalizeImportPixelation(value: unknown): ImportPixelationMemory | null {
+  if (!value || typeof value !== "object") return null;
+  const saved = value as Record<string, unknown>;
+  if (!Object.values(OutlinePrepass).includes(saved.prepass as OutlinePrepass)) return null;
+  return {
+    prepass: saved.prepass as OutlinePrepass,
+    lineGuide: Object.values(LineGuideMode).includes(saved.lineGuide as LineGuideMode)
+      ? (saved.lineGuide as LineGuideMode)
+      : LineGuideMode.Union,
+    ...(getAllColorPickers().includes(saved.colorPicker as CellColorPicker)
+      ? { colorPicker: saved.colorPicker as CellColorPicker }
+      : {}),
+    ...(typeof saved.reduceColors === "boolean" ? { reduceColors: saved.reduceColors } : {}),
+    ...(typeof saved.maxColors === "number" && Number.isFinite(saved.maxColors)
+      ? { maxColors: Math.max(2, Math.min(MAX_COLORS, Math.round(saved.maxColors))) }
+      : {}),
   };
 }
 
@@ -129,6 +160,7 @@ export function normalizeFilePreferences(value: unknown): FilePreferences {
     importLastAction,
     importPixelationAlgorithm,
     importColorPicker,
+    importPixelation: normalizeImportPixelation(saved.importPixelation),
   };
 }
 
