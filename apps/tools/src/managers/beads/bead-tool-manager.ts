@@ -22,10 +22,12 @@ import {
   updatePixelationSettings,
   applyPixelationGrid,
   detectWithAlgorithm,
+  getAlgorithmEntry,
   getAllAlgorithms,
   getAllColorPickers,
   pixelationSettingsOptions,
   CellColorPicker,
+  LineGuideMode,
   PixelationAlgorithm,
   PixelationMethod,
   PIXELATION_METHOD_OPTIONS,
@@ -82,10 +84,17 @@ const defaultSettings = (): BeadToolSettings => ({
   algorithm: PixelationAlgorithm.Auto,
   colorPicker: CellColorPicker.MostCommon,
   pixeloePrepass: false,
+  lineGuide: LineGuideMode.Union,
 });
 export interface BeadToolSettings extends Pick<
   PixelationSettings,
-  "targetWidth" | "targetHeight" | "lockAspectRatio" | "method" | "colorPicker" | "pixeloePrepass"
+  | "targetWidth"
+  | "targetHeight"
+  | "lockAspectRatio"
+  | "method"
+  | "colorPicker"
+  | "pixeloePrepass"
+  | "lineGuide"
 > {
   /** How the image's pixel grid is found; the same choices as the editor import dialog. */
   algorithm: PixelationAlgorithm;
@@ -350,7 +359,8 @@ export class BeadToolManager {
       !getAllColorPickers().includes(settings.colorPicker) ||
       !Object.values(BeadBrand).includes(settings.brand) ||
       !isValidBeadBoardSize(settings.boardSize) ||
-      !Object.values(PixelationMethod).includes(settings.method)
+      !Object.values(PixelationMethod).includes(settings.method) ||
+      !Object.values(LineGuideMode).includes(settings.lineGuide)
     )
       return;
     const remap =
@@ -360,7 +370,8 @@ export class BeadToolManager {
       settings.method !== this.state.settings.method ||
       settings.algorithm !== this.state.settings.algorithm ||
       settings.colorPicker !== this.state.settings.colorPicker ||
-      settings.pixeloePrepass !== this.state.settings.pixeloePrepass;
+      settings.pixeloePrepass !== this.state.settings.pixeloePrepass ||
+      settings.lineGuide !== this.state.settings.lineGuide;
     const brandChanged = settings.brand !== this.state.settings.brand;
     const boardChanged =
       settings.boardSize.width !== this.state.settings.boardSize.width ||
@@ -386,8 +397,9 @@ export class BeadToolManager {
   /** The grid the chosen algorithm finds in the source; recomputed only when its inputs change. */
   private detect(source: PixelBuffer): PixelGridAnalysis {
     const { algorithm, targetWidth, targetHeight } = this.state.settings;
+    // Custom size and PixelOE make the bead grid size; the grid finders ignore it.
     const size =
-      algorithm === PixelationAlgorithm.CustomSize
+      algorithm === PixelationAlgorithm.CustomSize || getAlgorithmEntry(algorithm).standalone
         ? { width: targetWidth, height: targetHeight }
         : undefined;
     const key = `${algorithm}:${size?.width ?? 0}x${size?.height ?? 0}`;

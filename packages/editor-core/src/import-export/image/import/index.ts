@@ -16,6 +16,7 @@ export {
   PixelationAlgorithm,
   CellColorPicker,
   ImportDialogChoice,
+  LineGuideMode,
 } from "$/import-export/image/import/types";
 export type {
   ExtractPaletteOptions,
@@ -53,6 +54,8 @@ export {
   getAllAlgorithms,
   getListedAlgorithms,
   detectWithAlgorithm,
+  openingAlgorithm,
+  DEFAULT_CONVERT_ALGORITHM,
   type PixelationAlgorithmEntry,
 } from "$/import-export/image/import/pixelation-algorithm-registry";
 

@@ -114,10 +114,11 @@ function BeadAdjust({
       translate={(label, values) =>
         t(label).replace(/\{([^}]+)\}/g, (match, key: string) => String(values?.[key] ?? match))
       }
-      onChange={({ colorPicker, pixeloePrepass }) => {
+      onChange={({ colorPicker, pixeloePrepass, lineGuide }) => {
         const patch: Partial<BeadToolSettings> = {};
         if (colorPicker !== undefined) patch.colorPicker = colorPicker;
         if (pixeloePrepass !== undefined) patch.pixeloePrepass = pixeloePrepass;
+        if (lineGuide !== undefined) patch.lineGuide = lineGuide;
         manager.changeSettings(patch);
       }}
       onAlgorithm={manager.changeAlgorithm}

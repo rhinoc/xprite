@@ -316,16 +316,21 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                   bounds: algorithmCombo,
                   relativeTo: client,
                 })}
-                <Text
-                  variant={TextVariant.Control}
-                  text={base[PixelationSlot.ColorPicker].label ?? ""}
-                  bounds={pickerLabel}
-                  relativeTo={client}
-                />
-                {base[PixelationSlot.ColorPicker].render({
-                  bounds: pickerCombo,
-                  relativeTo: client,
-                })}
+                {/* PixelOE has no per-cell colour rule; line-guided PixelOE shows its guide there. */}
+                {([PixelationSlot.LineGuide, PixelationSlot.ColorPicker] as const)
+                  .filter((slot) => base[slot].visible)
+                  .slice(0, 1)
+                  .map((slot) => (
+                    <Fragment key={slot}>
+                      <Text
+                        variant={TextVariant.Control}
+                        text={base[slot].label ?? ""}
+                        bounds={pickerLabel}
+                        relativeTo={client}
+                      />
+                      {base[slot].render({ bounds: pickerCombo, relativeTo: client })}
+                    </Fragment>
+                  ))}
                 {sizeLabel && sizeRow && (
                   <>
                     {([PixelationSlot.Width, PixelationSlot.Height] as const).map((slot, index) => {

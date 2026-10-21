@@ -8,6 +8,8 @@ import {
   applyPixelationGrid,
   defaultPixelationSettings,
   extractPixelationPalette,
+  getAlgorithmEntry,
+  openingAlgorithm,
   updatePixelationSettings,
   pixelationSettingsOptions,
   type PixelationSettings,
@@ -15,10 +17,14 @@ import {
   type PixelGridAnalysis,
 } from "@xprite/editor-core/import-export";
 import type { PaletteBrowserChoice } from "@xprite/editor-ui/palette/model";
-const OUTPUT_SUFFIX = {
-  [PixelationMode.Convert]: "pixelated",
-  [PixelationMode.RecoverGrid]: "restored",
-};
+
+/** A recovered grid restores the source's own pixels; the PixelOE entries draw new ones. */
+export function restoresPixels(state: Pick<PixelationSnapshot, "algorithm" | "settings">) {
+  return (
+    state.settings.mode === PixelationMode.RecoverGrid &&
+    !getAlgorithmEntry(state.algorithm).standalone
+  );
+}
 
 export interface PixelationSnapshot {
   paletteChoices: readonly PaletteBrowserChoice[];
@@ -87,12 +93,19 @@ export class PixelationManager {
     try {
       const source = await this.port.read(file);
       if (this.closed || request !== this.request) return;
-      const grid = await this.port.detectGrid(source);
+      const auto = await this.port.detectGrid(source);
+      if (this.closed || request !== this.request) return;
+      // A reliable grid is recovered; anything else opens on line-guided PixelOE.
+      const algorithm = openingAlgorithm(auto);
+      const grid =
+        algorithm === PixelationAlgorithm.Auto
+          ? auto
+          : await this.port.detectGrid(source, algorithm);
       if (this.closed || request !== this.request) return;
       this.publish({
         source,
         identity: this.state.identity + 1,
-        algorithm: PixelationAlgorithm.Auto,
+        algorithm,
         grid,
         name: file.name,
         settings: defaultPixelationSettings(source, grid),
@@ -179,7 +192,7 @@ export class PixelationManager {
     }
   }
   private outputName() {
-    return `${this.state.name.replace(/\.[^.]+$/, "")}-${OUTPUT_SUFFIX[this.state.settings.mode]}.png`;
+    return `${this.state.name.replace(/\.[^.]+$/, "")}-${restoresPixels(this.state) ? "restored" : "pixelated"}.png`;
   }
   async download() {
     await this.output(false);

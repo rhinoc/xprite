@@ -6,6 +6,7 @@ import { addNoise, sprite, upscaleNearest } from "$/import-export/image/import/g
 import { pixelateImage } from "$/import-export/image/import/pixelate";
 import {
   detectWithAlgorithm,
+  getAlgorithmEntry,
   getAllAlgorithms,
   recoverWithGrid,
 } from "$/import-export/image/import/pixelation-algorithm-registry";
@@ -17,7 +18,10 @@ import {
 
 const { MostCommon, Average, Median, KMeans, Contrast, Nearest } = CellColorPicker;
 const noisy = addNoise(upscaleNearest(sprite(64), 12), 24);
-const gridAlgorithms = getAllAlgorithms().filter((id) => id !== PixelationAlgorithm.Resize);
+// PixelOE entries pick their own colours, so the colour rule does not apply to them.
+const gridAlgorithms = getAllAlgorithms().filter(
+  (id) => id !== PixelationAlgorithm.Resize && !getAlgorithmEntry(id).standalone,
+);
 
 /** One 3x3 cell: six red pixels and three blue ones. */
 function mixedCell(): PixelBuffer {

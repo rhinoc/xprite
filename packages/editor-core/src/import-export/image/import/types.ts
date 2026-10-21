@@ -71,7 +71,19 @@ export enum PixelationAlgorithm {
   UniformGrid = "uniform-grid",
   /** The user names the output size; the image is split into that many even blocks. */
   CustomSize = "custom-size",
+  /** PixelOE with its outline weight guided by an XDoG line drawing of the source. */
+  PixeloeLines = "pixeloe-lines",
+  /** PixelOE's own pipeline (outline expansion, colour match, contrast downscale). */
+  Pixeloe = "pixeloe",
   Resize = "resize",
+}
+
+/** How a line drawing changes PixelOE's outline weight (1 = spread dark, 0 = spread bright). */
+export enum LineGuideMode {
+  /** max(weight, lines): PixelOE's own weight, plus dark spreading along every line. */
+  Union = "union",
+  /** weight = lines: dark spreads only along lines, bright everywhere else. */
+  Replace = "replace",
 }
 
 /** How one colour is chosen for each grid cell, independent of how the grid was found. */
@@ -134,6 +146,8 @@ export interface PixelateOptions {
   outlineStrength?: number;
   /** Run the PixelOE pre-pass (outline expansion + colour match) before sampling; works with any picker/method. */
   pixeloePrepass?: boolean;
+  /** How the line drawing guides the line-guided PixelOE algorithm; Union when omitted. */
+  lineGuide?: LineGuideMode;
   /** Sampling rule used to choose one representative color per output cell. */
   method?: PixelationMethod;
   /** Split the image into even blocks of the target size and let `colorPicker` choose each colour (instead of `method`). */
@@ -183,6 +197,8 @@ export interface PixelationSettings {
   outlineStrength: number;
   /** PixelOE pre-pass (outline expansion + colour match) ahead of the sampler. */
   pixeloePrepass: boolean;
+  /** Line guide of the line-guided PixelOE algorithm. */
+  lineGuide: LineGuideMode;
   colorPicker: CellColorPicker;
   autoGrid: boolean;
   gridCellWidth: number;

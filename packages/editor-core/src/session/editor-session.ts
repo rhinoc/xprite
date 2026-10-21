@@ -24,6 +24,7 @@ import {
   updatePixelationSettings,
   applyPixelationGrid,
   pixelationSettingsOptions,
+  DEFAULT_CONVERT_ALGORITHM,
 } from "$/import-export/image/import";
 import {
   RecentImageStore,
@@ -68,6 +69,8 @@ function layerState(state: EditorSnapshot) {
 interface Candidate {
   sourcePalette: readonly Rgba[];
   grid?: PixelGridAnalysis;
+  /** The algorithm `grid` came from, when it is not the remembered one. */
+  algorithm?: PixelationAlgorithm;
   recentIdentity?: string;
   recentAlias?: string;
   pixels: PixelBuffer;
@@ -508,10 +511,27 @@ export class EditorSession<Source> {
         ? (this.recentIdentities?.resolve(recentAlias) ?? recentAlias)
         : null;
       if (!this.valid(generation)) return SessionOutcome.Ignored;
-      const analysis = project
+      let analysis = project
         ? null
         : await this.ports.analyze(pixels, { algorithm: this.importAlgorithm() });
       if (!this.valid(generation)) return SessionOutcome.Ignored;
+      // Auto without a reliable grid opens on line-guided PixelOE instead of a plain resize, unless
+      // the image is pixel art that would be imported as it is anyway.
+      let algorithm: PixelationAlgorithm | undefined;
+      if (
+        analysis &&
+        this.importAlgorithm() === PixelationAlgorithm.Auto &&
+        !analysis.grid?.reliable &&
+        !(
+          analysis.classification === PixelArtClassification.LikelyPixelArt &&
+          !this.ports.getImportPreference?.()
+        )
+      ) {
+        algorithm = DEFAULT_CONVERT_ALGORITHM;
+        const { grid } = await this.ports.analyze(pixels, { algorithm });
+        if (!this.valid(generation)) return SessionOutcome.Ignored;
+        analysis = { ...analysis, grid };
+      }
       this.release(source.source, generation);
       const candidate: Candidate = {
         sourcePalette: (source.palette ?? this.editor.getSnapshot().palette).map(
@@ -521,6 +541,7 @@ export class EditorSession<Source> {
         name: source.name,
         classification: analysis?.classification ?? PixelArtClassification.LikelyPixelArt,
         ...(analysis ? { grid: analysis.grid } : {}),
+        ...(algorithm ? { algorithm } : {}),
         checkpoint: before,
         ...(recentIdentity ? { recentIdentity } : {}),
         ...(recentAlias ? { recentAlias } : {}),
@@ -583,7 +604,7 @@ export class EditorSession<Source> {
           pendingImport: {
             sourcePalette: candidate.sourcePalette,
             grid: candidate.grid ?? null,
-            algorithm: this.importAlgorithm(),
+            algorithm: candidate.algorithm ?? this.importAlgorithm(),
             pixels: candidate.pixels,
             name: candidate.name,
             width: candidate.pixels.width,
@@ -622,7 +643,7 @@ export class EditorSession<Source> {
       pendingImport: {
         sourcePalette: candidate.sourcePalette,
         grid: candidate.grid ?? null,
-        algorithm: this.importAlgorithm(),
+        algorithm: candidate.algorithm ?? this.importAlgorithm(),
         pixels: candidate.pixels,
         name: candidate.name,
         width: candidate.pixels.width,
@@ -734,7 +755,7 @@ export class EditorSession<Source> {
     try {
       const { grid } = await this.ports.analyze(candidate.pixels, { algorithm, size });
       if (!this.valid(generation) || version !== this.algorithmVersion) return;
-      this.candidate = { ...candidate, grid };
+      this.candidate = { ...candidate, grid, algorithm };
       const current = this.state.pendingImport;
       this.publish({
         pendingImport: current ? { ...current, grid, algorithm } : current,

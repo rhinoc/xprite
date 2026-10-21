@@ -9,6 +9,7 @@ import { reduceToPalette, extractPixelationPalette } from "$/import-export/image
 import { snapPalette } from "$/import-export/image/import/palette-snap";
 import {
   detectWithAlgorithm,
+  getAlgorithmEntry,
   recoverWithGrid,
 } from "$/import-export/image/import/pixelation-algorithm-registry";
 import { pixeloePrepass } from "$/import-export/image/import/pixeloe-prepass";
@@ -84,10 +85,15 @@ function sampleImage(
     // A tilted source is straightened first; the grid's cuts are measured in that image.
     const rotation = (found as PixelGridAnalysis).rotation;
     const upright = rotation ? straighten(image, rotation) : image;
+    // Entries that run their own PixelOE ignore the pre-pass, as they ignore the colour rule.
+    const standalone = getAlgorithmEntry(
+      (found as PixelGridAnalysis).algorithm ?? PixelationAlgorithm.EdgeGrid,
+    ).standalone;
     return recoverWithGrid(
-      options.pixeloePrepass ? pixeloePrepass(upright, cell) : upright,
+      options.pixeloePrepass && !standalone ? pixeloePrepass(upright, cell) : upright,
       rotation ? ({ ...found, rotation: undefined } as PixelGridAnalysis) : found,
       options.colorPicker,
+      { lineGuide: options.lineGuide },
     );
   }
   const target = resolveTargetSize(image, options);

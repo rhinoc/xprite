@@ -3,9 +3,11 @@ import { estimateTilt, straighten } from "$/import-export/image/import/deskew";
 import { blockPartition } from "$/import-export/image/import/grid";
 import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
 import { recoverGrid } from "$/import-export/image/import/grid-sample";
+import { pixeloeGrid, runPixeloe } from "$/import-export/image/import/line-guided/pixeloe-entry";
 import { resizeBox } from "$/import-export/image/import/resize";
 import {
   CellColorPicker,
+  LineGuideMode,
   PixelationAlgorithm,
   type PixelGridAnalysis,
   type PixelGridGeometry,
@@ -19,9 +21,26 @@ export interface PixelationAlgorithmEntry {
   readonly auto: boolean;
   /** Whether the import dialog offers this entry; the plain resize is only Auto's fallback. */
   readonly listed: boolean;
+  /**
+   * Runs its own whole pipeline: the per-cell colour rule and the PixelOE pre-pass do not apply
+   * (the UI disables them).
+   */
+  readonly standalone: boolean;
+  /** Whether the line guide setting changes this entry's result. */
+  readonly lineGuided: boolean;
   detect(image: PixelBuffer, size?: PixelationSize): PixelGridAnalysis;
   /** One output pixel per grid cell. */
-  run(image: PixelBuffer, grid: PixelGridGeometry, picker: CellColorPicker): PixelBuffer;
+  run(
+    image: PixelBuffer,
+    grid: PixelGridGeometry,
+    picker: CellColorPicker,
+    options?: PixelationRunOptions,
+  ): PixelBuffer;
+}
+
+/** Settings only some entries read. */
+export interface PixelationRunOptions {
+  lineGuide?: LineGuideMode;
 }
 
 const unreliable = (image: PixelBuffer): PixelGridAnalysis => ({
@@ -85,6 +104,8 @@ const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
     label: "import.algorithm.auto",
     auto: false,
     listed: true,
+    standalone: false,
+    lineGuided: false,
     detect: (image) =>
       getAllAlgorithms()
         .map((id) => TABLE[id])
@@ -95,13 +116,15 @@ const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
             next.reliable && (!best.reliable || next.confidence > best.confidence) ? next : best,
           TABLE[FALLBACK].detect(image),
         ),
-    run: (image, grid, picker) =>
-      TABLE[(grid as PixelGridAnalysis).algorithm ?? FALLBACK].run(image, grid, picker),
+    run: (image, grid, picker, options) =>
+      TABLE[(grid as PixelGridAnalysis).algorithm ?? FALLBACK].run(image, grid, picker, options),
   },
   [PixelationAlgorithm.UniformGrid]: {
     label: "import.algorithm.uniform-grid",
     auto: true,
     listed: true,
+    standalone: false,
+    lineGuided: false,
     detect: tag(PixelationAlgorithm.UniformGrid, deskewed(detectUniformGrid)),
     run: recoverGrid,
   },
@@ -109,6 +132,8 @@ const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
     label: "import.algorithm.edge-grid",
     auto: true,
     listed: true,
+    standalone: false,
+    lineGuided: false,
     detect: tag(PixelationAlgorithm.EdgeGrid, deskewed(detectMeshGrid)),
     run: recoverGrid,
   },
@@ -116,13 +141,36 @@ const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
     label: "import.algorithm.custom-size",
     auto: false,
     listed: true,
+    standalone: false,
+    lineGuided: false,
     detect: tag(PixelationAlgorithm.CustomSize, customSize),
     run: recoverGrid,
+  },
+  [PixelationAlgorithm.PixeloeLines]: {
+    label: "import.algorithm.pixeloe-lines",
+    auto: false,
+    listed: true,
+    standalone: true,
+    lineGuided: true,
+    detect: tag(PixelationAlgorithm.PixeloeLines, pixeloeGrid),
+    run: (image, grid, _picker, options) =>
+      runPixeloe(image, grid, options?.lineGuide ?? LineGuideMode.Union),
+  },
+  [PixelationAlgorithm.Pixeloe]: {
+    label: "import.algorithm.pixeloe",
+    auto: false,
+    listed: true,
+    standalone: true,
+    lineGuided: false,
+    detect: tag(PixelationAlgorithm.Pixeloe, pixeloeGrid),
+    run: (image, grid) => runPixeloe(image, grid),
   },
   [PixelationAlgorithm.Resize]: {
     label: "import.algorithm.resize",
     auto: false,
     listed: false,
+    standalone: false,
+    lineGuided: false,
     detect: unreliable,
     run: (image, grid) => resizeBox(image, grid.width, grid.height, "premultiplied"),
   },
@@ -155,9 +203,19 @@ export function recoverWithGrid(
   image: PixelBuffer,
   grid: PixelGridGeometry,
   picker: CellColorPicker = CellColorPicker.MostCommon,
+  options?: PixelationRunOptions,
 ): PixelBuffer {
   const { rotation } = grid as PixelGridAnalysis;
   return getAlgorithmEntry(
     (grid as PixelGridAnalysis).algorithm ?? PixelationAlgorithm.EdgeGrid,
-  ).run(rotation ? straighten(image, rotation) : image, grid, picker);
+  ).run(rotation ? straighten(image, rotation) : image, grid, picker, options);
+}
+
+/**
+ * What a source opens with: a reliable Auto grid is recovered; anything else (photos, drawings,
+ * upscaled art without a clean grid) goes to line-guided PixelOE.
+ */
+export const DEFAULT_CONVERT_ALGORITHM = PixelationAlgorithm.PixeloeLines;
+export function openingAlgorithm(autoGrid: PixelGridAnalysis): PixelationAlgorithm {
+  return autoGrid.reliable ? PixelationAlgorithm.Auto : DEFAULT_CONVERT_ALGORITHM;
 }

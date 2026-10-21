@@ -1,4 +1,8 @@
-import { CellColorPicker, PixelationAlgorithm } from "@xprite/editor-core/import-export";
+import {
+  CellColorPicker,
+  LineGuideMode,
+  PixelationAlgorithm,
+} from "@xprite/editor-core/import-export";
 
 /** Source text with the editor's translation key, so each app translates by its own mechanism. */
 export interface PixelationLabel {
@@ -10,6 +14,7 @@ export const LABELS = {
   width: { text: "Width:", key: "ui.width.cf45de5f" },
   height: { text: "Height:", key: "ui.height.2256f988" },
   picker: { text: "Pixel color:", key: "import.dialog.color.picker" },
+  lineGuide: { text: "Line guide:", key: "import.dialog.line.guide" },
   limitColors: { text: "Limit colors", key: "ui.limit.colors" },
   colors: { text: "Colors:", key: "ui.colors.50dd3bf1" },
   prepass: { text: "PixelOE pre-pass", key: "import.dialog.pixeloe.prepass" },
@@ -27,7 +32,16 @@ export const ALGORITHM_LABELS: Readonly<Record<PixelationAlgorithm, PixelationLa
     text: "Custom size",
     key: "import.algorithm.custom-size",
   },
+  [PixelationAlgorithm.PixeloeLines]: {
+    text: "PixelOE + lines",
+    key: "import.algorithm.pixeloe-lines",
+  },
+  [PixelationAlgorithm.Pixeloe]: { text: "PixelOE", key: "import.algorithm.pixeloe" },
   [PixelationAlgorithm.Resize]: { text: "Resize only", key: "import.algorithm.resize" },
+};
+export const LINE_GUIDE_LABELS: Readonly<Record<LineGuideMode, PixelationLabel>> = {
+  [LineGuideMode.Union]: { text: "Add to outlines", key: "import.line-guide.union" },
+  [LineGuideMode.Replace]: { text: "Lines only", key: "import.line-guide.replace" },
 };
 export const PICKER_LABELS: Readonly<Record<CellColorPicker, PixelationLabel>> = {
   [CellColorPicker.MostCommon]: { text: "Most common", key: "import.picker.most-common" },
@@ -41,6 +55,7 @@ const ALL_LABELS: readonly PixelationLabel[] = [
   ...Object.values(LABELS),
   ...Object.values(ALGORITHM_LABELS),
   ...Object.values(PICKER_LABELS),
+  ...Object.values(LINE_GUIDE_LABELS),
 ];
 const KEYS = new Map(ALL_LABELS.map((label) => [label.text, label.key]));
 

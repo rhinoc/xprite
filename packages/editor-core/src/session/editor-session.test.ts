@@ -294,8 +294,9 @@ describe("editor-session", () => {
       let state = h.session.getSnapshot();
       // The pending import also carries the decoded pixels, any detected grid and source palette.
       const { pixels, grid, sourcePalette, ...metadata } = state.pendingImport;
+      // Auto found no grid, so the dialog opens on line-guided PixelOE.
       assert.deepEqual(metadata, {
-        algorithm: "auto",
+        algorithm: "pixeloe-lines",
         name: "Imported",
         width: 80,
         height: 40,

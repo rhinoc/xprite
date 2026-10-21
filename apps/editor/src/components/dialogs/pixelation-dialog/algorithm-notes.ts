@@ -6,6 +6,8 @@ const MISSING: Readonly<Record<PixelationAlgorithm, string | null>> = {
   [PixelationAlgorithm.UniformGrid]: "import.note.uniform-grid.none",
   [PixelationAlgorithm.EdgeGrid]: "import.note.edge-grid.none",
   [PixelationAlgorithm.CustomSize]: null,
+  [PixelationAlgorithm.PixeloeLines]: null,
+  [PixelationAlgorithm.Pixeloe]: null,
   [PixelationAlgorithm.Resize]: null,
 };
 

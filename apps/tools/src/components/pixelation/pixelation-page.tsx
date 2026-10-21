@@ -7,9 +7,8 @@ import { FileToolShell } from "$/components/shared/file-tool-shell";
 import { ToolHelp } from "$/components/shared/tool-help";
 import { ToolListPane, ToolResultWindow } from "$/components/shared/tool-result-window";
 import { useToolTranslation } from "$/managers/locale/tool-language";
-import type { PixelationManager } from "$/managers/pixelation/pixelation-manager";
+import { restoresPixels, type PixelationManager } from "$/managers/pixelation/pixelation-manager";
 import { PIXELATE_TOOL } from "$/managers/tools/tool-catalog";
-import { PixelationMode } from "@xprite/editor-core/import-export";
 import { PixelationBaseControls } from "@xprite/editor-ui";
 import { PIXELATE_HELP, PixelateHelpSection } from "@xprite/growth-content/tools";
 
@@ -18,7 +17,7 @@ export function PixelationPage({ manager }: { manager: PixelationManager }) {
   const state = useSyncExternalStore(manager.subscribe, manager.getSnapshot, manager.getSnapshot);
   const busy = state.loading || state.downloading;
   const ready = !!state.result && !state.converting;
-  const restored = state.settings.mode === PixelationMode.RecoverGrid;
+  const restored = restoresPixels(state);
   return (
     <FileToolShell
       tool={PIXELATE_TOOL}

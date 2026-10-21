@@ -2,6 +2,7 @@ import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { manualPixelGrid, MAX_GRID_CELL_SIZE } from "$/import-export/image/import/grid";
 import {
   CellColorPicker,
+  LineGuideMode,
   PixelationMethod,
   PixelationMode,
   type PixelGridAnalysis,
@@ -37,6 +38,7 @@ export function defaultPixelationSettings(
     snapColors: DEFAULT_SNAP_COLORS,
     outlineStrength: 0,
     pixeloePrepass: false,
+    lineGuide: LineGuideMode.Union,
     colorPicker: CellColorPicker.MostCommon,
     autoGrid: true,
     gridCellWidth: grid?.reliable ? grid.cellWidth : 8,
@@ -119,6 +121,7 @@ export function pixelationSettingsOptions(
     colorPicker: settings.colorPicker,
     outlineStrength: settings.mode === PixelationMode.Convert ? settings.outlineStrength : 0,
     pixeloePrepass: settings.pixeloePrepass,
+    lineGuide: settings.lineGuide,
     targetWidth: settings.targetWidth,
     targetHeight: settings.targetHeight,
     paletteSnap: settings.snapPalette

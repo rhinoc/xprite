@@ -28,19 +28,20 @@ import {
   PixelationMode,
 } from "$/import-export/image/import/types";
 
-const { Auto, EdgeGrid, UniformGrid, Resize, CustomSize } = PixelationAlgorithm;
+const { Auto, EdgeGrid, UniformGrid, Resize, CustomSize, Pixeloe, PixeloeLines } =
+  PixelationAlgorithm;
 const art = sprite(64);
 
 describe("algorithm registry table", () => {
   test("lists every algorithm and rejects unknown ids", () => {
     expect([...getAllAlgorithms()].sort()).toEqual(
-      [Auto, CustomSize, EdgeGrid, Resize, UniformGrid].sort(),
+      [Auto, CustomSize, EdgeGrid, Pixeloe, PixeloeLines, Resize, UniformGrid].sort(),
     );
     expect(() => detectWithAlgorithm(art, "nope" as PixelationAlgorithm)).toThrow(RangeError);
   });
   test("the dialog offers every entry except the plain Resize fallback", () => {
     expect([...getListedAlgorithms()].sort()).toEqual(
-      [Auto, CustomSize, EdgeGrid, UniformGrid].sort(),
+      [Auto, CustomSize, EdgeGrid, Pixeloe, PixeloeLines, UniformGrid].sort(),
     );
   });
   test("Custom size detects the requested block grid and Auto never picks it", () => {
