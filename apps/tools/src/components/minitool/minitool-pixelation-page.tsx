@@ -33,6 +33,10 @@ export function MiniToolPixelationPage({ manager }: { manager: PixelationManager
           saveLabel: t("Save to album"),
           shareLabel: t("Post to note"),
           accept: "image/*",
+          copy: {
+            title: t("Photo to Pixel Art"),
+            emptyHint: t("Choose a photo to turn into pixel art"),
+          },
           onSave: () => {
             saving.current = true;
           },

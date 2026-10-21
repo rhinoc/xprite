@@ -139,6 +139,8 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "Open this tool in the Xiaohongshu app to post a note.":
     "노트를 게시하려면 샤오홍슈(RED) 앱에서 이 도구를 여세요.",
   "Unable to read this image.": "이 이미지를 읽을 수 없습니다.",
+  "Photo to Pixel Art": "사진을 픽셀 아트로",
+  "Choose a photo to turn into pixel art": "사진을 골라 픽셀 아트로 바꿔 보세요",
   "Choose an export format": "내보낼 형식 선택",
   Cancel: "취소",
   Format: "형식",

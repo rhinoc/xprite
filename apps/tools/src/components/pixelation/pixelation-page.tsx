@@ -4,6 +4,7 @@ import { PixelationCompare } from "$/components/pixelation/pixelation-compare";
 import { PixelationExtraControls } from "$/components/pixelation/pixelation-extras";
 import { PixelationPalette } from "$/components/pixelation/pixelation-palette";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
+import type { ToolHostCopy } from "$/components/shared/tool-flow-empty-stage";
 import type { ToolFrameProps } from "$/components/shared/tool-frame";
 import { ToolHelp } from "$/components/shared/tool-help";
 import { ToolListPane, ToolResultWindow } from "$/components/shared/tool-result-window";
@@ -18,6 +19,8 @@ export interface PixelationPageHost {
   frame: ComponentType<ToolFrameProps>;
   saveLabel: string;
   shareLabel: string;
+  /** Translated title and empty-state hint for a host without drag and drop. */
+  copy?: ToolHostCopy;
   /** File picker filter; phone web views show the photo library for `image/*`. */
   accept?: string;
   /** Called as a save starts, before the manager reports it. */
@@ -40,6 +43,7 @@ export function PixelationPage({
     <FileToolShell
       tool={PIXELATE_TOOL}
       accept={host?.accept}
+      copy={host?.copy}
       filename={state.name}
       ready={!!state.source}
       processing={busy || state.converting}

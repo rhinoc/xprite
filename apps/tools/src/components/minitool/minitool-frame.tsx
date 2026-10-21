@@ -24,6 +24,7 @@ import styles from "$/components/shared/tool-frame.module.css";
  */
 export function MiniToolFrame({
   tool,
+  title,
   filename,
   processing = false,
   menus = [],
@@ -59,7 +60,7 @@ export function MiniToolFrame({
           <header className={styles.header}>
             <SiteMenubar
               label={t("Tool navigation")}
-              applicationName={t(tool.label)}
+              applicationName={title ?? t(tool.label)}
               applications={[]}
               menus={menus}
               brandImage={menuIconUrl}

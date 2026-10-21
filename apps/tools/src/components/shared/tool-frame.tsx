@@ -41,6 +41,8 @@ import styles from "$/components/shared/tool-frame.module.css";
 
 export interface ToolFrameProps {
   tool: PublicTool;
+  /** A host's translated application title; the website frame always uses the tool label. */
+  title?: string;
   filename?: string;
   processing?: boolean;
   menus?: readonly MenubarMenu[];

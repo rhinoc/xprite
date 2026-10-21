@@ -203,6 +203,8 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Open this tool in the Xiaohongshu app to post a note.":
     "请在小红书 App 中打开本工具以发布笔记。",
   "Unable to read this image.": "无法读取这张图片。",
+  "Photo to Pixel Art": "图片转像素画",
+  "Choose a photo to turn into pixel art": "选择一张照片，转换成像素画",
   "Choose an export format": "选择导出格式",
   Cancel: "取消",
   Format: "格式",

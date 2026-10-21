@@ -142,6 +142,8 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "Open this tool in the Xiaohongshu app to post a note.":
     "Abra esta ferramenta no app Xiaohongshu para publicar uma nota.",
   "Unable to read this image.": "Não foi possível ler esta imagem.",
+  "Photo to Pixel Art": "Foto em pixel art",
+  "Choose a photo to turn into pixel art": "Escolha uma foto para transformar em pixel art",
   "Choose an export format": "Escolha um formato",
   Cancel: "Cancelar",
   Format: "Formato",

@@ -15,3 +15,18 @@
   display: flex;
   padding: 12px;
 }
+/*
+ * Without drag and drop the empty window is just the photo prompt: size it to its content and
+ * centre it on the desktop instead of stretching a mostly blank window down the phone screen.
+ */
+.desktop :global([data-tool-drop-stage]) {
+  justify-content: center;
+}
+.desktop.desktop
+  :global([data-tool-drop-stage])
+  > :global([data-slot="panel"][data-ui-window-priority]) {
+  flex: 0 0 auto;
+}
+.desktop :global([data-tool-drop-stage]) :global([data-slot="panel-body"]) > div {
+  min-height: 200px;
+}

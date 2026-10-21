@@ -14,7 +14,7 @@ import { useFilesManager, useFilesText } from "$/components/files/files-context"
 import { FileToolEmptyState } from "$/components/shared/file-tool-empty-state";
 import { ToolAdjustSlot } from "$/components/shared/tool-adjust-slot";
 import { ToolExportSheet, type ToolExportFormat } from "$/components/shared/tool-export-sheet";
-import { ToolFlowEmptyStage } from "$/components/shared/tool-flow-empty-stage";
+import { ToolFlowEmptyStage, type ToolHostCopy } from "$/components/shared/tool-flow-empty-stage";
 import { ToolFrame, type ToolFrameProps } from "$/components/shared/tool-frame";
 import { decodeFilesDrag, FILES_DRAG_TYPE } from "$/managers/files/files-model";
 import { useToolTranslation } from "$/managers/locale/tool-language";
@@ -68,6 +68,7 @@ export function FileToolShell({
   flow,
   frame: Frame = ToolFrame,
   accept,
+  copy,
 }: {
   tool: PublicTool;
   filename: string;
@@ -82,6 +83,8 @@ export function FileToolShell({
   frame?: ComponentType<ToolFrameProps>;
   /** File picker filter in place of the tool's own list of types. */
   accept?: string;
+  /** Host wording for the title and empty state, in place of the tool's website copy. */
+  copy?: ToolHostCopy;
   children?: ReactNode;
   onOpen(file: File): Promise<void>;
   onExample(): Promise<void>;
@@ -164,6 +167,7 @@ export function FileToolShell({
   return (
     <Frame
       tool={tool}
+      title={copy?.title}
       processing={processing}
       help={
         help && isValidElement(help)
@@ -245,7 +249,7 @@ export function FileToolShell({
         <Toast text={error ? t(error) : null} tone={ToastTone.Warning} />
         <section
           className={styles.workspace}
-          aria-label={t(tool.label)}
+          aria-label={copy?.title ?? t(tool.label)}
           aria-busy={busy}
           data-flow={flow ? (ready ? "ready" : "empty") : undefined}
           onDragEnter={(event) => {
@@ -284,6 +288,7 @@ export function FileToolShell({
                 busy={busy}
                 onChooseFile={chooseFile}
                 onExample={onExample}
+                copy={copy}
               />
             )}
             {!ready && !flow && (

@@ -141,6 +141,8 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Open this tool in the Xiaohongshu app to post a note.":
     "ノートを投稿するには、小紅書（RED）アプリでこのツールを開いてください。",
   "Unable to read this image.": "この画像を読み込めません。",
+  "Photo to Pixel Art": "写真をピクセルアートに",
+  "Choose a photo to turn into pixel art": "写真を選んで、ピクセルアートに変換します",
   "Choose an export format": "書き出す形式を選択",
   Cancel: "キャンセル",
   Format: "形式",
