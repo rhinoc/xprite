@@ -8,6 +8,7 @@ import { runPixeloe } from "$/import-export/image/import/line-guided/pixeloe-ent
 import { resizeMostFrequent } from "$/import-export/image/import/most-frequent";
 import {
   applyOutlinePrepass,
+  DEFAULT_LINE_GUIDE,
   runsStockPixeloe,
 } from "$/import-export/image/import/outline-prepass";
 import { snapPalette } from "$/import-export/image/import/palette-snap";
@@ -18,7 +19,6 @@ import {
 import { resizeBox, resizeNearest } from "$/import-export/image/import/resize";
 import { samplePixelation } from "$/import-export/image/import/sampling";
 import {
-  LineGuideMode,
   OutlinePrepass,
   PixelationMethod,
   PixelationMode,
@@ -81,9 +81,7 @@ function sampleImage(
     throw new RangeError("Unknown pixelation mode.");
   const prepass = options.prepass ?? OutlinePrepass.None;
   const guide =
-    prepass === OutlinePrepass.PixeloeLines
-      ? (options.lineGuide ?? LineGuideMode.Union)
-      : undefined;
+    prepass === OutlinePrepass.PixeloeLines ? (options.lineGuide ?? DEFAULT_LINE_GUIDE) : undefined;
   if (mode === PixelationMode.RecoverGrid) {
     const found = grid ?? detectWithAlgorithm(image, options.algorithm ?? PixelationAlgorithm.Auto);
     if ("reliable" in found && !found.reliable)

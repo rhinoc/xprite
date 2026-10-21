@@ -58,11 +58,18 @@ describe("remembered import picks", () => {
     });
     expect(saved.importPixelation).toEqual({
       prepass: OutlinePrepass.None,
-      lineGuide: "union",
+      // An unreadable line guide falls back to the default, Lines only.
+      lineGuide: "replace",
       colorPicker: CellColorPicker.Median,
       reduceColors: false,
       maxColors: 256,
     });
     expect(importPreferenceOf(saved).pixelation).toEqual(saved.importPixelation);
+    // A saved choice is kept, including Add to outlines from before Lines only became the default.
+    for (const lineGuide of ["union", "replace"])
+      expect(
+        normalizeFilePreferences({ importPixelation: { prepass: "pixeloe-lines", lineGuide } })
+          .importPixelation?.lineGuide,
+      ).toBe(lineGuide);
   });
 });

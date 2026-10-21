@@ -251,11 +251,11 @@ describe("silent Pixelate import (Don't ask me again)", () => {
     expect(imported).toEqual(art);
     session.dispose();
   });
-  test("with nothing saved the silent import uses PixelOE + lines", async () => {
+  test("with nothing saved the silent import uses PixelOE + lines (Lines only)", async () => {
     const { session, imported } = await importSilently(null);
     expect(session.getSnapshot().pixelationOptions).toMatchObject({
       prepass: OutlinePrepass.PixeloeLines,
-      lineGuide: LineGuideMode.Union,
+      lineGuide: LineGuideMode.Replace,
       colorPicker: CellColorPicker.Contrast,
     });
     const grid = detectWithAlgorithm(upscaled, Auto);
@@ -264,14 +264,37 @@ describe("silent Pixelate import (Don't ask me again)", () => {
         mode: PixelationMode.RecoverGrid,
         grid,
         prepass: OutlinePrepass.PixeloeLines,
-        lineGuide: LineGuideMode.Union,
+        lineGuide: LineGuideMode.Replace,
         colorPicker: CellColorPicker.Contrast,
       }),
     );
     expect(imported).not.toEqual(art);
     session.dispose();
   });
-  test("the dialog still opens on PixelOE + lines after a None import was saved", async () => {
+  test("a saved Add to outlines import keeps Add to outlines", async () => {
+    const { session, imported } = await importSilently({
+      prepass: OutlinePrepass.PixeloeLines,
+      lineGuide: LineGuideMode.Union,
+      colorPicker: CellColorPicker.Contrast,
+      reduceColors: false,
+      maxColors: 16,
+    });
+    expect(session.getSnapshot().pixelationOptions).toMatchObject({
+      prepass: OutlinePrepass.PixeloeLines,
+      lineGuide: LineGuideMode.Union,
+    });
+    expect(imported).toEqual(
+      pixelateImage(upscaled, {
+        mode: PixelationMode.RecoverGrid,
+        grid: detectWithAlgorithm(upscaled, Auto),
+        prepass: OutlinePrepass.PixeloeLines,
+        lineGuide: LineGuideMode.Union,
+        colorPicker: CellColorPicker.Contrast,
+      }),
+    );
+    session.dispose();
+  });
+  test("the dialog still opens on PixelOE + lines (Lines only) after a None import was saved", async () => {
     const { session } = silentSession("always-ask", {
       prepass: OutlinePrepass.None,
       colorPicker: CellColorPicker.MostCommon,
@@ -282,7 +305,7 @@ describe("silent Pixelate import (Don't ask me again)", () => {
     expect(session.getSnapshot().pendingImport).not.toBeNull();
     expect(session.getSnapshot().pixelationOptions).toMatchObject({
       prepass: OutlinePrepass.PixeloeLines,
-      lineGuide: LineGuideMode.Union,
+      lineGuide: LineGuideMode.Replace,
       colorPicker: CellColorPicker.Contrast,
       reduceColors: false,
     });

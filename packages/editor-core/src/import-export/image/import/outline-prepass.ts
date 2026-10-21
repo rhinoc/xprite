@@ -32,7 +32,7 @@ export function applyOutlinePrepass(
   image: PixelBuffer,
   cell: number,
   prepass: OutlinePrepass,
-  lineGuide: LineGuideMode = LineGuideMode.Union,
+  lineGuide: LineGuideMode = DEFAULT_LINE_GUIDE,
 ): PixelBuffer {
   if (prepass === OutlinePrepass.None) return image;
   if (prepass === OutlinePrepass.Pixeloe) return pixeloePrepass(image, cell);
@@ -45,6 +45,13 @@ export function applyOutlinePrepass(
  * Contrast picker). None, the plain grid recovery, is one choice away in the controls.
  */
 export const DEFAULT_OUTLINE_PREPASS = OutlinePrepass.PixeloeLines;
+
+/**
+ * The line guide PixelOE + lines starts with: Lines only (the line mask replaces PixelOE's outline
+ * weight). Add to outlines barely differs from plain PixelOE on line art, while Lines only keeps
+ * continuous drawn lines (e.g. an eye line) through the downscale.
+ */
+export const DEFAULT_LINE_GUIDE = LineGuideMode.Replace;
 
 /**
  * A pre-pass from saved settings: the current value, or the old `pixeloePrepass` checkbox

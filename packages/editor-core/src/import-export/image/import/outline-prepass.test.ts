@@ -48,11 +48,15 @@ describe("outline pre-pass combinations", () => {
           lineGuide,
         });
       expect(run(OutlinePrepass.Pixeloe)).toEqual(runPixeloe(image, size));
+      // No line guide given: the default, Lines only.
       expect(run(OutlinePrepass.PixeloeLines)).toEqual(
-        runPixeloe(image, size, LineGuideMode.Union),
+        runPixeloe(image, size, LineGuideMode.Replace),
       );
       expect(run(OutlinePrepass.PixeloeLines, LineGuideMode.Replace)).toEqual(
         runPixeloe(image, size, LineGuideMode.Replace),
+      );
+      expect(run(OutlinePrepass.PixeloeLines, LineGuideMode.Union)).toEqual(
+        runPixeloe(image, size, LineGuideMode.Union),
       );
     }
   });
@@ -64,7 +68,15 @@ describe("outline pre-pass combinations", () => {
       colorPicker: CellColorPicker.Contrast,
       prepass: OutlinePrepass.PixeloeLines,
     });
-    expect(out).toEqual(runPixeloe(image, size, LineGuideMode.Union));
+    expect(out).toEqual(runPixeloe(image, size, LineGuideMode.Replace));
+    const union = pixelateImage(image, {
+      mode: PixelationMode.RecoverGrid,
+      grid,
+      colorPicker: CellColorPicker.Contrast,
+      prepass: OutlinePrepass.PixeloeLines,
+      lineGuide: LineGuideMode.Union,
+    });
+    expect(union).toEqual(runPixeloe(image, size, LineGuideMode.Union));
   });
   test("other pickers sample the original pre-pass block by block, as the old checkbox did", () => {
     const blocks = { ...blockPartition(image, 30, 24), confidence: 1, reliable: true };
@@ -93,10 +105,12 @@ describe("outline pre-pass combinations", () => {
     const run = (prepass: OutlinePrepass, lineGuide?: LineGuideMode) =>
       pixelateImage(image, { ...convert, colorPicker: CellColorPicker.Median, prepass, lineGuide });
     const plain = run(OutlinePrepass.Pixeloe);
-    const union = run(OutlinePrepass.PixeloeLines);
-    expect(union).toEqual(run(OutlinePrepass.PixeloeLines, LineGuideMode.Union));
+    const lines = run(OutlinePrepass.PixeloeLines);
+    expect(lines).toEqual(run(OutlinePrepass.PixeloeLines, LineGuideMode.Replace));
+    const union = run(OutlinePrepass.PixeloeLines, LineGuideMode.Union);
     expect(union.data).not.toEqual(plain.data);
-    expect(run(OutlinePrepass.PixeloeLines, LineGuideMode.Replace).data).not.toEqual(union.data);
+    expect(lines.data).not.toEqual(union.data);
+    expect(lines.data).not.toEqual(plain.data);
     expect(run(OutlinePrepass.None)).toEqual(
       pixelateImage(image, { ...convert, colorPicker: CellColorPicker.Median }),
     );
@@ -104,11 +118,11 @@ describe("outline pre-pass combinations", () => {
 });
 
 describe("outline pre-pass settings", () => {
-  test("every source opens on PixelOE + lines with Contrast and no limit, grid or not", () => {
+  test("every source opens on PixelOE + lines (Lines only) with Contrast and no limit, grid or not", () => {
     const loose = defaultPixelationSettings(image, detectWithAlgorithm(image));
     const opened = {
       prepass: OutlinePrepass.PixeloeLines,
-      lineGuide: LineGuideMode.Union,
+      lineGuide: LineGuideMode.Replace,
       colorPicker: CellColorPicker.Contrast,
       reduceColors: false,
     };

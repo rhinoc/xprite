@@ -1,6 +1,7 @@
 import {
   PixelationAlgorithm,
   CellColorPicker,
+  DEFAULT_LINE_GUIDE,
   LineGuideMode,
   OutlinePrepass,
   getAllAlgorithms,
@@ -97,7 +98,7 @@ function normalizeImportPixelation(value: unknown): ImportPixelationMemory | nul
     prepass: saved.prepass as OutlinePrepass,
     lineGuide: Object.values(LineGuideMode).includes(saved.lineGuide as LineGuideMode)
       ? (saved.lineGuide as LineGuideMode)
-      : LineGuideMode.Union,
+      : DEFAULT_LINE_GUIDE,
     ...(getAllColorPickers().includes(saved.colorPicker as CellColorPicker)
       ? { colorPicker: saved.colorPicker as CellColorPicker }
       : {}),
