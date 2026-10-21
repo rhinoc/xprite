@@ -1,6 +1,7 @@
 import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { manualPixelGrid, MAX_GRID_CELL_SIZE } from "$/import-export/image/import/grid";
 import {
+  DEFAULT_LINE_GUIDE,
   DEFAULT_OUTLINE_PREPASS,
   readOutlinePrepass,
 } from "$/import-export/image/import/outline-prepass";
@@ -39,7 +40,7 @@ export function defaultPixelationSettings(
     reduceColors: false,
     outlineStrength: 0,
     prepass: DEFAULT_OUTLINE_PREPASS,
-    lineGuide: LineGuideMode.Union,
+    lineGuide: DEFAULT_LINE_GUIDE,
     colorPicker: CellColorPicker.Contrast,
     autoGrid: true,
     gridCellWidth: grid?.reliable ? grid.cellWidth : 8,
@@ -76,7 +77,7 @@ export function updatePixelationSettings(
     delete (next as { snapPalette?: unknown }).snapPalette;
     delete (next as { snapColors?: unknown }).snapColors;
   }
-  if (!Object.values(LineGuideMode).includes(next.lineGuide)) next.lineGuide = LineGuideMode.Union;
+  if (!Object.values(LineGuideMode).includes(next.lineGuide)) next.lineGuide = DEFAULT_LINE_GUIDE;
   // Turning a PixelOE pre-pass on starts from Contrast, PixelOE's own colour rule.
   if (
     settings.prepass === OutlinePrepass.None &&

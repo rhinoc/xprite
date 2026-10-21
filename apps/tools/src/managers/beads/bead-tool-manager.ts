@@ -26,7 +26,7 @@ import {
   getAllColorPickers,
   pixelationSettingsOptions,
   CellColorPicker,
-  LineGuideMode,
+  DEFAULT_LINE_GUIDE,
   OutlinePrepass,
   PixelationAlgorithm,
   PixelationMethod,
@@ -84,7 +84,7 @@ const defaultSettings = (): BeadToolSettings => ({
   algorithm: PixelationAlgorithm.Auto,
   colorPicker: CellColorPicker.MostCommon,
   prepass: OutlinePrepass.None,
-  lineGuide: LineGuideMode.Union,
+  lineGuide: DEFAULT_LINE_GUIDE,
 });
 export interface BeadToolSettings extends Pick<
   PixelationSettings,

@@ -19,7 +19,11 @@ export {
   LineGuideMode,
   OutlinePrepass,
 } from "$/import-export/image/import/types";
-export { readOutlinePrepass, runsStockPixeloe } from "$/import-export/image/import/outline-prepass";
+export {
+  DEFAULT_LINE_GUIDE,
+  readOutlinePrepass,
+  runsStockPixeloe,
+} from "$/import-export/image/import/outline-prepass";
 export type {
   ExtractPaletteOptions,
   PaletteEntry,
