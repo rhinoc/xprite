@@ -5,6 +5,7 @@ import {
   assertRasterAnimationCapacity,
   rasterAnimationProject,
 } from "$/import-export/image/animation";
+import { encodeGif } from "$/import-export/image/encoders";
 import { decodeGifAnimation, isGifData } from "$/import-export/image/gif-import";
 import {
   decodeWebpAnimation,
@@ -24,8 +25,8 @@ function word(value: number) {
 }
 
 /** Specified code stream, not an encoder round-trip: clear before each literal, then end. */
-function literalCodes(indices: readonly number[]) {
-  const codes = indices.flatMap((index) => [4, index]).concat(5);
+function literalCodes(indices: readonly number[], options: { end?: boolean } = {}) {
+  const codes = indices.flatMap((index) => [4, index]).concat(options.end === false ? [] : [5]);
   const bytes = new Uint8Array(Math.ceil((codes.length * 3) / 8));
   for (const [index, code] of codes.entries()) {
     const bit = index * 3;
@@ -203,9 +204,12 @@ describe("animated raster import", () => {
     ]);
   });
 
-  it("rejects truncated, out-of-bounds, over-budget, and unsupported-duration GIF animations", () => {
+  it("rejects GIFs cut off before any frame, out-of-bounds, over-budget, and unsupported-duration GIF animations", () => {
     const valid = gif(1, 1, [gifFrame(), gifFrame()]);
-    expect(() => decodeGifAnimation(valid.subarray(0, valid.length - 1))).toThrow(/Truncated/);
+    // Header, screen descriptor, global palette, the first control extension and image descriptor.
+    expect(() => decodeGifAnimation(valid.subarray(0, 13 + GLOBAL_PALETTE.length + 18))).toThrow(
+      /Truncated GIF data/,
+    );
     expect(() => decodeGifAnimation(gif(1, 1, [gifFrame({ x: 1 }), gifFrame()]))).toThrow(/bounds/);
     expect(() => decodeGifAnimation(gif(4096, 4096, [gifFrame(), gifFrame(), gifFrame()]))).toThrow(
       /limit/,
@@ -213,9 +217,66 @@ describe("animated raster import", () => {
     expect(() => decodeGifAnimation(gif(1, 1, [gifFrame({ delay: 65535 }), gifFrame()]))).toThrow(
       /duration/,
     );
+    // LSB-first 3-bit codes: clear (4), literal 1, then 7 while the next free code is 6.
     expect(() =>
-      decodeGifAnimation(gif(1, 1, [gifFrame({ compressed: [2, 1, 0, 0] }), gifFrame()])),
-    ).toThrow(/LZW/);
+      decodeGifAnimation(
+        gif(2, 1, [gifFrame({ width: 2, compressed: [2, 2, 0xcc, 0x01, 0] }), gifFrame()]),
+      ),
+    ).toThrow(/Invalid GIF LZW dictionary reference/);
+  });
+
+  it("decodes frames whose LZW stream omits the end code, ends early, or overruns the frame, like browsers", () => {
+    const animation = decodeGifAnimation(
+      gif(2, 1, [
+        // Full frame without the end-of-information code.
+        gifFrame({ width: 2, compressed: literalCodes([1, 1], { end: false }) }),
+        // Production case: an image block that is structurally complete but supplies one pixel of
+        // two. The missing pixel stays transparent, so the previous frame shows through.
+        gifFrame({ width: 2, indices: [0] }),
+        // Codes past the end of the frame are ignored.
+        gifFrame({ width: 2, indices: [1, 0, 1, 1] }),
+      ]),
+    )!;
+    expect(animation.frames.map((frame) => Array.from(frame.pixels.data))).toEqual([
+      [...RED, ...RED],
+      [0, 0, 0, 255, ...RED],
+      [...RED, 0, 0, 0, 255],
+    ]);
+  });
+
+  it("keeps the frames that arrived when a real GIF file is cut off, like browsers", () => {
+    const size = 8;
+    const frames = [0, 1, 2].map((frame) => {
+      const data = new Uint8ClampedArray(size * size * 4);
+      for (let index = 0; index < size * size; index++) {
+        // Distinct, poorly compressible pixels per frame so every frame has several data bytes.
+        const color = (index * 7 + frame * 13) % 5;
+        data.set([color * 60, (color * 97) % 256, 255 - color * 50, 255], index * 4);
+      }
+      return { pixels: { width: size, height: size, data }, duration: 100, sourceFrame: frame };
+    });
+    const bytes = encodeGif(frames, { loopCount: 0 });
+    const complete = decodeGifAnimation(bytes)!;
+    expect(complete.frames).toHaveLength(3);
+
+    // Drop the trailer only: every frame is complete.
+    const withoutTrailer = decodeGifAnimation(bytes.subarray(0, bytes.length - 1))!;
+    expect(withoutTrailer.frames.map((frame) => frame.pixels.data)).toEqual(
+      complete.frames.map((frame) => frame.pixels.data),
+    );
+
+    // Cut inside the last frame's pixel data: earlier frames are exact, and the last frame keeps
+    // the pixels its received data describes (at least the first row) over the previous frame.
+    const cut = decodeGifAnimation(bytes.subarray(0, bytes.length - 6))!;
+    expect(cut.frames).toHaveLength(3);
+    expect(cut.frames[0].pixels.data).toEqual(complete.frames[0].pixels.data);
+    expect(cut.frames[1].pixels.data).toEqual(complete.frames[1].pixels.data);
+    const row = size * 4;
+    expect(cut.frames[2].pixels.data.subarray(0, row)).toEqual(
+      complete.frames[2].pixels.data.subarray(0, row),
+    );
+    expect(cut.frames[2].pixels.data).not.toEqual(complete.frames[2].pixels.data);
+    expect(cut.loopCount).toBe(0);
   });
 
   it("demuxes WebP rectangles, flags and exact durations and reconstructs still frames with color profiles", () => {
