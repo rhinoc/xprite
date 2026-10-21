@@ -1,11 +1,4 @@
-.paletteControl {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--ui-space-2);
-  min-width: 0;
-}
 .paletteScroll {
-  flex: 1 1 auto;
   max-height: 128px;
   min-height: 0;
   min-width: 0;
@@ -38,4 +31,8 @@
 .palette {
   flex: 1 1 100%;
   min-width: 0;
+}
+.paletteMenu {
+  display: inline-flex;
+  align-items: center;
 }

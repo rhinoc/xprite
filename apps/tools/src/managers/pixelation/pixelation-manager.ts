@@ -30,6 +30,10 @@ export function restoresPixels(state: Pick<PixelationSnapshot, "settings">) {
 
 export interface PixelationSnapshot {
   paletteChoices: readonly PaletteBrowserChoice[];
+  /**
+   * The automatic palette (colours picked from the result) at the current settings, also while a
+   * preset is loaded; empty while unknown.
+   */
   palettePreview: readonly Rgba[];
   /** The grid algorithm the import-dialog controls chose, and the grid it found. */
   algorithm: PixelationAlgorithm;
@@ -67,6 +71,8 @@ export class PixelationManager {
   private request = 0;
   private conversion = 0;
   private closed = false;
+  /** The image and settings (palette aside) `palettePreview` was picked at. */
+  private automaticKey = "";
   constructor(private readonly port: PixelationPort) {
     this.navigation = new ToolViewport(port.readWheel);
     this.refreshPalettes();
@@ -165,15 +171,20 @@ export class PixelationManager {
         this.state.grid ?? undefined,
       );
       const result = await this.port.convert(source, options);
-      if (conversion === this.conversion)
-        this.publish({
-          result,
-          converting: false,
-          palettePreview:
-            this.state.settings.reduceColors && this.state.settings.palette
-              ? this.state.settings.palette
-              : extractPixelationPalette(result).map((entry) => entry.color),
-        });
+      if (conversion === this.conversion) {
+        // With a preset loaded the result shows the preset, so the automatic palette is the one
+        // last picked at these same settings, or unknown if anything else has changed since.
+        const palette = this.state.settings.palette;
+        const automatic = { ...this.state.settings, palette: null, paletteName: "" };
+        const key = JSON.stringify([this.state.identity, automatic]);
+        let palettePreview: readonly Rgba[];
+        if (palette) palettePreview = key === this.automaticKey ? this.state.palettePreview : [];
+        else {
+          palettePreview = extractPixelationPalette(result).map((entry) => entry.color);
+          this.automaticKey = key;
+        }
+        this.publish({ result, converting: false, palettePreview });
+      }
     } catch (reason) {
       if (conversion === this.conversion)
         this.publish({

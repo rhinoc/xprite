@@ -52,7 +52,13 @@ interface PalettePresetPopupProps {
    * Opt-in first item that hands colour choice back to the host (e.g. the pixelation tool's
    * automatic palette). It is checked while `active`; loading it calls `onSelect` instead of `onLoad`.
    */
-  automatic?: { label: string; active: boolean; onSelect: () => void };
+  automatic?: {
+    label: string;
+    /** Its strip: the palette Automatic currently gives (empty while unknown: no strip). */
+    colors?: readonly Rgba[];
+    active: boolean;
+    onSelect: () => void;
+  };
 }
 
 const ROW_HEIGHT = 40;
@@ -369,9 +375,17 @@ export function PalettePresetPopup({
     if (node) setPortalTarget(node.closest<HTMLElement>("[data-ui-scene]") ?? document.body);
   }, []);
   const automaticLabel = automatic?.label;
+  const automaticColors = automatic?.colors;
   const visibleChoices = useMemo(
-    () => presetMenuChoices(choices, search, automaticLabel),
-    [choices, search, automaticLabel],
+    () =>
+      presetMenuChoices(
+        choices,
+        search,
+        automaticLabel === undefined
+          ? undefined
+          : { label: automaticLabel, colors: automaticColors },
+      ),
+    [choices, search, automaticLabel, automaticColors],
   );
   const automaticActive = automatic?.active ?? false;
   const checked = useCallback(

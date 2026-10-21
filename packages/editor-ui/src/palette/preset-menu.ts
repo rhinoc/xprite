@@ -11,23 +11,26 @@ function samePalette(a: readonly Rgba[], b: readonly Rgba[]) {
   );
 }
 
-/** The menu rows matching the search, with Automatic first when the host offers it. */
+/**
+ * The menu rows matching the search, with Automatic first when the host offers it. Automatic's
+ * strip is the palette it currently gives; with none known yet the row has no strip.
+ */
 export function presetMenuChoices(
   choices: readonly PaletteBrowserChoice[],
   search: string,
-  automaticLabel?: string,
+  automatic?: { label: string; colors?: readonly Rgba[] },
 ): PaletteBrowserChoice[] {
   const terms = search.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
   const all: PaletteBrowserChoice[] =
-    automaticLabel === undefined
+    automatic === undefined
       ? [...choices]
       : [
           {
             id: AUTOMATIC_PALETTE_ID,
-            name: automaticLabel,
+            name: automatic.label,
             group: "",
             author: null,
-            colors: [],
+            colors: automatic.colors ?? [],
             source: PalettePresetKind.Builtin,
           },
           ...choices,

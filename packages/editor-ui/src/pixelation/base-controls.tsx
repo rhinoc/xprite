@@ -10,7 +10,8 @@ import {
   type PixelationLabel as Label,
 } from "$/pixelation/base-labels";
 import {
-  PixelationPaletteControl,
+  PixelationPaletteMenu,
+  PixelationPaletteSwatches,
   type PixelationPaletteResources,
 } from "$/pixelation/palette-control";
 import {
@@ -41,7 +42,10 @@ export enum PixelationSlot {
   ColorPicker = "color-picker",
   LimitColors = "limit-colors",
   Colors = "colors",
+  /** The palette swatches (the loaded preset, else the automatic palette). */
   Palette = "palette",
+  /** The palette preset menu button; tool pages put it right after the colour count. */
+  PaletteMenu = "palette-menu",
   /** Outline pre-pass: None / PixelOE / PixelOE + lines. */
   Prepass = "prepass",
   /** Only for the PixelOE + lines pre-pass. */
@@ -193,7 +197,19 @@ export function usePixelationBase(
       label: null,
       render: () =>
         props.paletteResources && (
-          <PixelationPaletteControl
+          <PixelationPaletteSwatches
+            settings={settings}
+            resources={props.paletteResources}
+            translate={translate}
+          />
+        ),
+    },
+    [PixelationSlot.PaletteMenu]: {
+      visible: show(PixelationSlot.PaletteMenu, limited && !!props.paletteResources),
+      label: null,
+      render: () =>
+        props.paletteResources && (
+          <PixelationPaletteMenu
             settings={settings}
             resources={props.paletteResources}
             disabled={busy}

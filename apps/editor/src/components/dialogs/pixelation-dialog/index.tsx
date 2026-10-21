@@ -69,7 +69,10 @@ const REMEMBERED_ALGORITHMS: readonly PixelationAlgorithm[] = [
   PixelationAlgorithm.UniformGrid,
 ];
 /** The dialog has no palette browser; everything else of the shared base controls is here. */
-const HIDDEN_SLOTS: ReadonlySet<PixelationSlot> = new Set([PixelationSlot.Palette]);
+const HIDDEN_SLOTS: ReadonlySet<PixelationSlot> = new Set([
+  PixelationSlot.Palette,
+  PixelationSlot.PaletteMenu,
+]);
 /** Width of the Limit colors checkbox in its row; the colour count sits to its right. */
 const LIMIT_SHARE = 0.55;
 const COUNT_LABEL_SHARE = 0.2;

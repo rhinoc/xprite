@@ -34,29 +34,36 @@ describe("palette preset menu", () => {
   });
 
   it("puts the opt-in Automatic item first, with no colours", () => {
-    const rows = presetMenuChoices(presets, "", "Automatic");
+    const rows = presetMenuChoices(presets, "", { label: "Automatic" });
     expect(rows.map((c) => c.name)).toEqual(["Automatic", "PICO-8", "Game Boy"]);
     expect(rows[0]).toMatchObject({ id: AUTOMATIC_PALETTE_ID, colors: [] });
   });
 
+  it("gives Automatic the current automatic palette as its strip", () => {
+    const [automatic] = presetMenuChoices(presets, "", { label: "Automatic", colors: gameboy });
+    expect(automatic.colors).toEqual(gameboy);
+    // Still identified by id, not colours: a preset with the same colours is not Automatic.
+    expect(presetMenuChecked(automatic, gameboy, false)).toBe(false);
+  });
+
   it("filters Automatic by the search like any other row", () => {
-    expect(presetMenuChoices(presets, "game", "Automatic").map((c) => c.name)).toEqual([
+    expect(presetMenuChoices(presets, "game", { label: "Automatic" }).map((c) => c.name)).toEqual([
       "Game Boy",
     ]);
-    expect(presetMenuChoices(presets, "auto", "Automatic").map((c) => c.name)).toEqual([
+    expect(presetMenuChoices(presets, "auto", { label: "Automatic" }).map((c) => c.name)).toEqual([
       "Automatic",
     ]);
   });
 
   it("checks Automatic while no palette is loaded, even if a preset has the same colours", () => {
-    const [automatic, picoRow, gbRow] = presetMenuChoices(presets, "", "Automatic");
+    const [automatic, picoRow, gbRow] = presetMenuChoices(presets, "", { label: "Automatic" });
     expect(presetMenuChecked(automatic, pico, true)).toBe(true);
     expect(presetMenuChecked(picoRow, pico, true)).toBe(false);
     expect(presetMenuChecked(gbRow, pico, true)).toBe(false);
   });
 
   it("checks the loaded preset, not Automatic, once a palette is loaded", () => {
-    const [automatic, picoRow, gbRow] = presetMenuChoices(presets, "", "Automatic");
+    const [automatic, picoRow, gbRow] = presetMenuChoices(presets, "", { label: "Automatic" });
     expect(presetMenuChecked(automatic, gameboy, false)).toBe(false);
     expect(presetMenuChecked(picoRow, gameboy, false)).toBe(false);
     expect(presetMenuChecked(gbRow, gameboy, false)).toBe(true);

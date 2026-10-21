@@ -29,6 +29,7 @@ const HIDDEN_BASE_SLOTS: ReadonlySet<PixelationSlot> = new Set([
   PixelationSlot.LimitColors,
   PixelationSlot.Colors,
   PixelationSlot.Palette,
+  PixelationSlot.PaletteMenu,
 ]);
 
 export function BeadPage({ manager }: { manager: BeadToolManager }) {

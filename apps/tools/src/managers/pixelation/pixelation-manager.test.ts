@@ -98,4 +98,25 @@ describe("pixelate tool preview", () => {
     expect(restoresPixels(manager.getSnapshot())).toBe(true);
     manager.dispose();
   });
+  it("keeps the automatic palette for the menu while a preset is loaded at the same settings", async () => {
+    const red = { width: 1, height: 1, data: new Uint8ClampedArray([255, 0, 0, 255]) };
+    const manager = new PixelationManager({ ...port(), convert: vi.fn(async () => red) });
+    await manager.open(new File([], "a.png"));
+    const settled = () => vi.waitFor(() => expect(manager.getSnapshot().converting).toBe(false));
+    manager.changeSettings({ reduceColors: true, maxColors: 8 });
+    await settled();
+    const automatic = manager.getSnapshot().palettePreview;
+    expect(automatic).toEqual([[255, 0, 0, 255]]);
+    manager.changeSettings({ palette: [[0, 0, 255, 255]], paletteName: "Blue" });
+    await settled();
+    expect(manager.getSnapshot().palettePreview).toBe(automatic);
+    // Anything else changing under the preset leaves the automatic palette unknown.
+    manager.changeSettings({ removeNoise: true });
+    await settled();
+    expect(manager.getSnapshot().palettePreview).toEqual([]);
+    manager.changeSettings({ palette: null, paletteName: "" });
+    await settled();
+    expect(manager.getSnapshot().palettePreview).toEqual([[255, 0, 0, 255]]);
+    manager.dispose();
+  });
 });
