@@ -41,12 +41,10 @@ export function applyOutlinePrepass(
 }
 
 /**
- * The pre-pass a source opens with: none when a reliable grid is recovered (pixel art keeps its
- * own pixels), PixelOE + lines otherwise.
+ * The pre-pass every source opens with, whether or not a grid is found: PixelOE + lines (with the
+ * Contrast picker). None, the plain grid recovery, is one choice away in the controls.
  */
-export function defaultOutlinePrepass(grid?: Pick<PixelGridAnalysis, "reliable">): OutlinePrepass {
-  return grid?.reliable ? OutlinePrepass.None : OutlinePrepass.PixeloeLines;
-}
+export const DEFAULT_OUTLINE_PREPASS = OutlinePrepass.PixeloeLines;
 
 /**
  * A pre-pass from saved settings: the current value, or the old `pixeloePrepass` checkbox

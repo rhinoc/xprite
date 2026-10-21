@@ -8,7 +8,7 @@ import {
   applyPixelationGrid,
   defaultPixelationSettings,
   extractPixelationPalette,
-  runsStockPixeloe,
+  OutlinePrepass,
   updatePixelationSettings,
   pixelationSettingsOptions,
   type PixelationSettings,
@@ -18,13 +18,13 @@ import {
 import type { PaletteBrowserChoice } from "@xprite/editor-ui/palette/model";
 
 /**
- * A recovered grid restores the source's own pixels; stock PixelOE (a PixelOE pre-pass with Contrast
- * on Custom size's blocks) draws new ones.
+ * A recovered grid without a pre-pass restores the source's own pixels; any outline pre-pass
+ * (including stock PixelOE on Custom size's blocks) draws new ones.
  */
-export function restoresPixels(state: Pick<PixelationSnapshot, "settings" | "grid">) {
+export function restoresPixels(state: Pick<PixelationSnapshot, "settings">) {
   return (
     state.settings.mode === PixelationMode.RecoverGrid &&
-    !runsStockPixeloe(state.settings, state.grid ?? undefined)
+    state.settings.prepass === OutlinePrepass.None
   );
 }
 

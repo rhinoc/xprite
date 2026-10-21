@@ -1,8 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { PixelationManager } from "$/managers/pixelation/pixelation-manager";
+import { PixelationManager, restoresPixels } from "$/managers/pixelation/pixelation-manager";
 import type { PixelationPort } from "$/managers/ports/pixelation";
-import { PixelationAlgorithm, PixelationMode } from "@xprite/editor-core/import-export";
+import {
+  CellColorPicker,
+  OutlinePrepass,
+  PixelationAlgorithm,
+  PixelationMode,
+} from "@xprite/editor-core/import-export";
 
 const image = (width: number, height: number) => ({
   width,
@@ -67,6 +72,30 @@ describe("pixelate tool preview", () => {
     expect(manager.getSnapshot().settings.mode).toBe(PixelationMode.RecoverGrid);
     await manager.changeAlgorithm(PixelationAlgorithm.Resize);
     expect(manager.getSnapshot().settings.mode).toBe(PixelationMode.Convert);
+    manager.dispose();
+  });
+  it("opens pixel art on PixelOE + lines too, and calls it restored only with None", async () => {
+    const detectGrid = async () => ({
+      width: 4,
+      height: 3,
+      cellWidth: 2,
+      cellHeight: 2,
+      offsetX: 0,
+      offsetY: 0,
+      confidence: 1,
+      reliable: true,
+    });
+    const manager = new PixelationManager({ ...port(), detectGrid: detectGrid as never });
+    await manager.open(new File([], "art.png"));
+    expect(manager.getSnapshot().settings).toMatchObject({
+      mode: PixelationMode.RecoverGrid,
+      prepass: OutlinePrepass.PixeloeLines,
+      colorPicker: CellColorPicker.Contrast,
+      reduceColors: false,
+    });
+    expect(restoresPixels(manager.getSnapshot())).toBe(false);
+    manager.changeSettings({ prepass: OutlinePrepass.None });
+    expect(restoresPixels(manager.getSnapshot())).toBe(true);
     manager.dispose();
   });
 });

@@ -137,8 +137,8 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
               selectedAlgorithm as FilePreferences["importPixelationAlgorithm"],
           }
         : {}),
-      // With a pre-pass the picker opens on Contrast anyway; remembering it would carry Contrast
-      // over to pixel-art recoveries.
+      // The remembered colour rule is the one for plain imports (pre-pass None): every import opens
+      // on PixelOE + lines with Contrast, and switching to None brings this rule back.
       ...(workflow.pixelationOptions.prepass === OutlinePrepass.None
         ? { importColorPicker: colorPicker }
         : {}),

@@ -7,6 +7,7 @@ import { pixelateImage } from "$/import-export/image/import/pixelate";
 import { detectWithAlgorithm } from "$/import-export/image/import/pixelation-algorithm-registry";
 import {
   CellColorPicker,
+  OutlinePrepass,
   PixelArtClassification,
   PixelationAlgorithm,
   PixelationMode,
@@ -17,9 +18,22 @@ import { createBlankImage } from "$/session/recent-images";
 const { Auto, EdgeGrid, UniformGrid, Resize } = PixelationAlgorithm;
 const jittered = jitterWithMargin(sprite(64));
 
-function openSession(source: PixelBuffer, classification = PixelArtClassification.LikelyPixelArt) {
+function openSession(
+  source: PixelBuffer,
+  classification = PixelArtClassification.LikelyPixelArt,
+  rememberedPicker?: CellColorPicker,
+) {
   const session = new EditorSession(new RasterEditor(createBlankImage(2, 2), "Original"), {
     decode: async () => source,
+    ...(rememberedPicker
+      ? {
+          getImportPreference: () => ({
+            choice: "always-ask",
+            algorithm: Auto,
+            colorPicker: rememberedPicker,
+          }),
+        }
+      : {}),
     analyze: async (pixels, options) => ({
       classification,
       grid: detectWithAlgorithm(pixels, options?.algorithm),
@@ -69,7 +83,7 @@ describe("import dialog colour pick", () => {
     const session = openSession(jittered);
     await session.requestImport({ source: "jitter", name: "jitter.png" });
     await settle(session);
-    expect(session.getSnapshot().pixelationOptions.colorPicker).toBe(CellColorPicker.MostCommon);
+    expect(session.getSnapshot().pixelationOptions.colorPicker).toBe(CellColorPicker.Contrast);
     const before = session.getSnapshot().pixelationPreview;
     session.setPixelationOptions({ colorPicker: CellColorPicker.Average });
     await settle(session);
@@ -77,6 +91,37 @@ describe("import dialog colour pick", () => {
     expect(after.pixelationOptions.colorPicker).toBe(CellColorPicker.Average);
     expect(after.pendingImport?.algorithm).toBe(session.getSnapshot().pendingImport?.algorithm);
     expect(after.pixelationPreview?.width).toBe(before?.width);
+    session.dispose();
+  });
+  test("pixel art opens on PixelOE + lines with Contrast; None brings back the remembered rule", async () => {
+    const session = openSession(
+      jittered,
+      PixelArtClassification.LikelyPixelArt,
+      CellColorPicker.Median,
+    );
+    await session.requestImport({ source: "jitter", name: "jitter.png" });
+    await settle(session);
+    const opened = session.getSnapshot();
+    // The grid is still found and recovered; only the pre-pass default ignores it.
+    expect(opened.pendingImport?.grid?.reliable).toBe(true);
+    expect(opened.pixelationOptions).toMatchObject({
+      mode: PixelationMode.RecoverGrid,
+      prepass: OutlinePrepass.PixeloeLines,
+      colorPicker: CellColorPicker.Contrast,
+      reduceColors: false,
+    });
+    session.setPixelationOptions({ prepass: OutlinePrepass.None });
+    await settle(session);
+    const plain = session.getSnapshot();
+    expect(plain.pixelationOptions.colorPicker).toBe(CellColorPicker.Median);
+    // The old exact recovery is one choice away.
+    expect(plain.pixelationPreview).toEqual(
+      pixelateImage(jittered, {
+        mode: PixelationMode.RecoverGrid,
+        grid: opened.pendingImport!.grid!,
+        colorPicker: CellColorPicker.Median,
+      }),
+    );
     session.dispose();
   });
 });

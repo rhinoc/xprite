@@ -1,7 +1,7 @@
 import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { manualPixelGrid, MAX_GRID_CELL_SIZE } from "$/import-export/image/import/grid";
 import {
-  defaultOutlinePrepass,
+  DEFAULT_OUTLINE_PREPASS,
   readOutlinePrepass,
 } from "$/import-export/image/import/outline-prepass";
 import {
@@ -36,19 +36,17 @@ export function defaultPixelationSettings(
   grid?: PixelGridAnalysis,
 ): PixelationSettings {
   const scale = Math.min(1, DEFAULT_PIXELATION_SIZE / Math.max(image.width, image.height));
-  // Without a reliable grid the source opens on PixelOE + lines with Contrast: stock PixelOE's own
-  // colours, so no colour limit either.
-  const prepass = defaultOutlinePrepass(grid);
+  // Every source opens on PixelOE + lines with Contrast, grid or not: PixelOE's own colours, so no
+  // colour limit either. The grid still decides between recovering cells and converting.
   return {
     mode: grid?.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
-    reduceColors: !grid?.reliable && prepass === OutlinePrepass.None,
+    reduceColors: false,
     snapPalette: false,
     snapColors: DEFAULT_SNAP_COLORS,
     outlineStrength: 0,
-    prepass,
+    prepass: DEFAULT_OUTLINE_PREPASS,
     lineGuide: LineGuideMode.Union,
-    colorPicker:
-      prepass === OutlinePrepass.None ? CellColorPicker.MostCommon : CellColorPicker.Contrast,
+    colorPicker: CellColorPicker.Contrast,
     autoGrid: true,
     gridCellWidth: grid?.reliable ? grid.cellWidth : 8,
     gridCellHeight: grid?.reliable ? grid.cellHeight : 8,
@@ -87,8 +85,10 @@ export function updatePixelationSettings(
     next.palette = patch.palette ? patch.palette.map((color) => [...color] as Rgba) : null;
     if (patch.palette === null) next.paletteName = "";
   }
+  // A plain convert limits colours by default; a pre-pass keeps PixelOE's own colours.
   if (patch.mode !== undefined && patch.mode !== settings.mode && patch.reduceColors === undefined)
-    next.reduceColors = patch.mode === PixelationMode.Convert;
+    next.reduceColors =
+      patch.mode === PixelationMode.Convert && next.prepass === OutlinePrepass.None;
   const cellSize = (value: number) =>
     Number.isFinite(value) ? Math.max(1, Math.min(MAX_GRID_CELL_SIZE, value)) : 8;
   next.gridCellWidth = cellSize(next.gridCellWidth);

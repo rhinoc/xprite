@@ -555,15 +555,10 @@ export class EditorSession<Source> {
     return getAllColorPickers().find((id) => id === remembered) ?? CellColorPicker.MostCommon;
   }
   private defaultOptions(candidate: Candidate) {
-    const settings = defaultPixelationSettings(candidate.pixels, candidate.grid);
     return {
-      ...settings,
-      // Without a reliable grid the import opens on PixelOE + lines with Contrast (the PixelOE
-      // reference result); a recovered grid keeps the remembered colour rule.
-      colorPicker:
-        settings.prepass === OutlinePrepass.None
-          ? this.importColorPicker()
-          : CellColorPicker.Contrast,
+      // Every import opens on PixelOE + lines with Contrast, grid or not; the remembered colour
+      // rule comes back when the pre-pass is switched to None (see setPixelationOptions).
+      ...defaultPixelationSettings(candidate.pixels, candidate.grid),
       // Import sizes the output from the target dimensions and lets the colour rule pick each block.
       blockPicker: true,
     };
@@ -709,12 +704,16 @@ export class EditorSession<Source> {
   }
   setPixelationOptions(options: Partial<PixelationSettings>) {
     if (this.disposed || this.state.busy || !this.candidate) return;
+    const current = this.state.pixelationOptions;
+    // Switching the pre-pass off brings back the colour rule remembered for plain imports.
+    const patch =
+      options.prepass === OutlinePrepass.None &&
+      current.prepass !== OutlinePrepass.None &&
+      options.colorPicker === undefined
+        ? { ...options, colorPicker: this.importColorPicker() }
+        : options;
     this.publish({
-      pixelationOptions: updatePixelationSettings(
-        this.state.pixelationOptions,
-        options,
-        this.candidate.pixels,
-      ),
+      pixelationOptions: updatePixelationSettings(current, patch, this.candidate.pixels),
       pixelationPreview: null,
       pixelationPalette: [],
     });

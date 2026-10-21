@@ -104,19 +104,32 @@ describe("outline pre-pass combinations", () => {
 });
 
 describe("outline pre-pass settings", () => {
-  test("a source without a reliable grid opens on PixelOE + lines with Contrast and no limit", () => {
+  test("every source opens on PixelOE + lines with Contrast and no limit, grid or not", () => {
     const loose = defaultPixelationSettings(image, detectWithAlgorithm(image));
-    expect(loose).toMatchObject({
+    const opened = {
       prepass: OutlinePrepass.PixeloeLines,
       lineGuide: LineGuideMode.Union,
       colorPicker: CellColorPicker.Contrast,
       reduceColors: false,
-    });
+    };
+    expect(loose).toMatchObject({ ...opened, mode: PixelationMode.Convert });
     const art = upscaleNearest(sprite(32), 4);
-    expect(defaultPixelationSettings(art, detectWithAlgorithm(art))).toMatchObject({
-      prepass: OutlinePrepass.None,
-      colorPicker: CellColorPicker.MostCommon,
+    const grid = detectWithAlgorithm(art);
+    expect(grid.reliable).toBe(true);
+    // The grid still decides the mode; it no longer decides the pre-pass.
+    expect(defaultPixelationSettings(art, grid)).toMatchObject({
+      ...opened,
+      mode: PixelationMode.RecoverGrid,
     });
+    expect(defaultPixelationSettings(art)).toMatchObject(opened);
+  });
+  test("losing the grid limits colours only without a pre-pass", () => {
+    const art = upscaleNearest(sprite(32), 4);
+    const recovered = defaultPixelationSettings(art, detectWithAlgorithm(art));
+    const convert = { mode: PixelationMode.Convert };
+    expect(updatePixelationSettings(recovered, convert, art).reduceColors).toBe(false);
+    const plain = { ...recovered, prepass: OutlinePrepass.None };
+    expect(updatePixelationSettings(plain, convert, art).reduceColors).toBe(true);
   });
   test("turning a pre-pass on picks Contrast; an explicit picker wins", () => {
     const off = { ...defaultPixelationSettings(image), prepass: OutlinePrepass.None };
