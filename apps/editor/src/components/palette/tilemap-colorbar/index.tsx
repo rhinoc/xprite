@@ -141,8 +141,10 @@ export function TilemapModeBar({
               : uiStyle.colors.button_normal_text
           }
           aria-label="Show Tileset"
-          title={tUiSource(
-            canToggleBoth ? "Show Tileset / Right-click to Show Only the Tileset" : "Show Tileset",
+          title={tUi(
+            canToggleBoth
+              ? "ui.show.tileset.right.click.to.show.only.the.tileset"
+              : "ui.show.tileset",
           )}
           aria-pressed={mode === TilemapPaletteDisplayMode.Tiles}
           onClick={editor.toggleDisplayMode}

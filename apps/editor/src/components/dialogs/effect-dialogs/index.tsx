@@ -261,8 +261,8 @@ export function EffectDialogs({
                       relativeTo={c}
                       value={String(spec[dimension])}
                       inputMode="numeric"
-                      aria-label={tUiSource(
-                        dimension === "width" ? "Median width" : "Median height",
+                      aria-label={tUi(
+                        dimension === "width" ? "ui.median.width" : "ui.median.height",
                       )}
                       onValueChange={(value) => {
                         if (value.trim() && Number.isFinite(Number(value)))

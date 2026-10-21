@@ -4,15 +4,14 @@
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 
+import { findSourceLookups } from "./i18n-source-lookups.mjs";
+
 const roots = ["apps", "packages"];
 const skipDirectories = new Set(["node_modules", "dist", "generated", ".turbo"]);
 const sourcePattern = /\.(?:ts|tsx)$/u;
 // @xprite/ui cannot import the editor catalog; its injected translator keeps a few literal labels.
 const literalAllowlist = new Set(["packages/ui/src/components/panel/note-surface.tsx"]);
-const lookupCall = /\b(tUiSource|translateSource)\(/gu;
-const literalArgument =
-  /\b(?:tUiSource|translateSource)\(\s*(?:["'`]|[^()]*\?\s*["'`][^"'`]*["'`]\s*:\s*["'`])/u;
-// Remaining dynamic call sites. Lower this number as callers move to tUi(key); never raise it.
+// Remaining dynamic call sites (literal lookups are never counted). Lower this number as callers move to tUi(key); never raise it.
 const MAX_SOURCE_LOOKUPS = Number(
   readFileSync(new URL("./i18n-source-lookups.baseline", import.meta.url), "utf8").trim(),
 );
@@ -30,14 +29,11 @@ let total = 0;
 const literalViolations = [];
 for (const root of roots)
   for (const file of sourceFiles(root)) {
-    const lines = readFileSync(file, "utf8").split("\n");
-    lines.forEach((line, index) => {
-      const calls = line.match(lookupCall)?.length ?? 0;
-      if (!calls || /^\s*(?:\/\/|\*)/u.test(line) || /function tUiSource\(/u.test(line)) return;
-      total += calls;
-      if (literalArgument.test(line) && !literalAllowlist.has(file.split(path.sep).join("/")))
-        literalViolations.push(`${file}:${index + 1}: ${line.trim()}`);
-    });
+    const allowLiteral = literalAllowlist.has(file.split(path.sep).join("/"));
+    for (const lookup of findSourceLookups(readFileSync(file, "utf8"), file)) {
+      if (!lookup.literal) total += 1;
+      else if (!allowLiteral) literalViolations.push(`${file}:${lookup.line}: ${lookup.text}`);
+    }
   }
 
 let failed = false;

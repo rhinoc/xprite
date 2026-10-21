@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { PaletteWarning, PaletteWarningTarget } from "$/components/palette/palette-warning";
 import { useColorProfile } from "$/components/tools/color-profile";
 import { EditorColorButton } from "$/components/tools/editor-color-button";
-import { tUi, tUiSource, type UiMessageKey } from "$/i18n";
+import { tUi, type UiMessageKey } from "$/i18n";
 import type { ColorHoverValue } from "$/managers/colors/color-hover-store";
 import {
   useColorSelectorModel,
@@ -216,8 +216,8 @@ export function ColorFields({
             ? "ui.selector.foreground.brightness"
             : "ui.foreground.hue",
     ),
-    [ColorSelectorPart.Alpha]: tUiSource(
-      backgroundTarget ? "Background opacity" : "Foreground opacity",
+    [ColorSelectorPart.Alpha]: tUi(
+      backgroundTarget ? "ui.touch.background.opacity" : "ui.foreground.opacity",
     ),
   };
   const wheelOptions: MenuItem[] = [

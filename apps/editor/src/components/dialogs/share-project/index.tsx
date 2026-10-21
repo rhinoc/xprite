@@ -200,11 +200,7 @@ export function ShareProjectDialog({
           ) : null}
           {!manager.busy && manager.stage === ShareLinkStage.Warning && (
             <div className={styles.notice} role="status">
-              <ShareMessage>
-                {tUiSource(
-                  "This link is long. Some chat apps may truncate it or fail to open it. If that happens, export and send a file.",
-                )}
-              </ShareMessage>
+              <ShareMessage>{tUi("share.warning")}</ShareMessage>
             </div>
           )}
           {!manager.busy && manager.artifact?.url && !manager.artifact.qr && (
