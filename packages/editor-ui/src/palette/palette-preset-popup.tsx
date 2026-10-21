@@ -67,6 +67,11 @@ const SCROLLBAR_INSET = 7;
 const SCROLLBAR_WIDTH = SCROLLBAR_SIZE + SCROLLBAR_INSET;
 const PIXEL_WHEEL_SCROLL_MULTIPLIER = 2;
 const REFRESH_BUTTON_WIDTH = 32;
+/** The check mark's gutter: from the list's clip edge to where the colour strip starts. */
+const CHECK_GUTTER_X = 6;
+const CHECK_GUTTER_WIDTH = 16;
+/** paintUiIcon's default scale. */
+const ICON_SCALE = 2;
 
 function PaletteResourceList({
   client,
@@ -155,22 +160,23 @@ function PaletteResourceList({
           context.fillRect(bounds.x + 6, y, contentWidth - 6, ROW_HEIGHT);
         }
         const ink = selected ? colors.listitem_selected_text : colors.listitem_normal_text;
-        if (checked(choice))
+        const textY = y + Math.floor((ROW_HEIGHT - uiFontHeight(FontRole.Primary)) / 2) + 1;
+        if (checked(choice)) {
+          // Inside the list clip, centred in the gutter before the strip and on the name's line.
+          const check = assets.style.parts.check_selected;
+          const size = { width: check.width * ICON_SCALE, height: check.height * ICON_SCALE };
           paintUiIcon(
             context,
             assets,
             "check_selected",
-            bounds.x,
-            y + Math.floor((ROW_HEIGHT - 16) / 2),
+            bounds.x + CHECK_GUTTER_X + Math.floor((CHECK_GUTTER_WIDTH - size.width) / 2),
+            textY + Math.floor((uiFontHeight(FontRole.Primary) - size.height) / 2),
           );
-        paintUiText(
-          context,
-          assets,
-          choice.name,
-          bounds.x + 26,
-          y + Math.floor((ROW_HEIGHT - uiFontHeight(FontRole.Primary)) / 2) + 1,
-          { font: FontRole.Primary, color: ink },
-        );
+        }
+        paintUiText(context, assets, choice.name, bounds.x + 26, textY, {
+          font: FontRole.Primary,
+          color: ink,
+        });
         const chipStart = bounds.x + 22;
         const chipY = y + ROW_HEIGHT - 12 + (index === 0 ? 1 : 0);
         context.save();
