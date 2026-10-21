@@ -39,16 +39,7 @@ import {
 
 import styles from "$/components/shared/tool-frame.module.css";
 
-export function ToolFrame({
-  tool,
-  filename,
-  processing = false,
-  menus = [],
-  children,
-  help,
-  onReset,
-  actionBar,
-}: {
+export interface ToolFrameProps {
   tool: PublicTool;
   filename?: string;
   processing?: boolean;
@@ -59,7 +50,18 @@ export function ToolFrame({
   onReset?: () => void;
   /** Export button shown in the stage window footer (see `ToolStageFooter`); same slot on every tool. */
   actionBar?: ToolActionBarProps;
-}) {
+}
+
+export function ToolFrame({
+  tool,
+  filename,
+  processing = false,
+  menus = [],
+  children,
+  help,
+  onReset,
+  actionBar,
+}: ToolFrameProps) {
   const { language, setLanguage, translate: t } = useToolLanguage();
   const guidePath = "guidePath" in tool ? tool.guidePath : undefined;
   const toolPath: string = tool.path;

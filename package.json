@@ -20,6 +20,7 @@
     "preview:growth": "pnpm --filter @xprite/growth-app run preview",
     "build:site": "node scripts/build/site.mjs",
     "build:tools": "pnpm --filter @xprite/tools-app run build",
+    "build:pixelate-minitool": "pnpm --filter @xprite/tools-app run build:minitool",
     "dev:tools": "pnpm --filter @xprite/tools-app run dev",
     "preview:tools": "pnpm --filter @xprite/tools-app run preview",
     "build": "pnpm run build:editor && pnpm run build:components",

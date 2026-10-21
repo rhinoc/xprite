@@ -1,9 +1,10 @@
-import { useSyncExternalStore } from "react";
+import { useSyncExternalStore, type ComponentType } from "react";
 
 import { PixelationCompare } from "$/components/pixelation/pixelation-compare";
 import { PixelationExtraControls } from "$/components/pixelation/pixelation-extras";
 import { PixelationPalette } from "$/components/pixelation/pixelation-palette";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
+import type { ToolFrameProps } from "$/components/shared/tool-frame";
 import { ToolHelp } from "$/components/shared/tool-help";
 import { ToolListPane, ToolResultWindow } from "$/components/shared/tool-result-window";
 import { useToolTranslation } from "$/managers/locale/tool-language";
@@ -12,7 +13,24 @@ import { PIXELATE_TOOL } from "$/managers/tools/tool-catalog";
 import { PixelationBaseControls } from "@xprite/editor-ui";
 import { PIXELATE_HELP, PixelateHelpSection } from "@xprite/growth-content/tools";
 
-export function PixelationPage({ manager }: { manager: PixelationManager }) {
+/** A host outside the website: its own frame, and two direct output actions in place of export. */
+export interface PixelationPageHost {
+  frame: ComponentType<ToolFrameProps>;
+  saveLabel: string;
+  shareLabel: string;
+  /** File picker filter; phone web views show the photo library for `image/*`. */
+  accept?: string;
+  /** Called as a save starts, before the manager reports it. */
+  onSave?(): void;
+}
+
+export function PixelationPage({
+  manager,
+  host,
+}: {
+  manager: PixelationManager;
+  host?: PixelationPageHost;
+}) {
   const t = useToolTranslation();
   const state = useSyncExternalStore(manager.subscribe, manager.getSnapshot, manager.getSnapshot);
   const busy = state.loading || state.downloading;
@@ -21,18 +39,29 @@ export function PixelationPage({ manager }: { manager: PixelationManager }) {
   return (
     <FileToolShell
       tool={PIXELATE_TOOL}
+      accept={host?.accept}
       filename={state.name}
       ready={!!state.source}
       processing={busy || state.converting}
       busy={busy}
       error={state.error}
-      help={<ToolHelp id={PixelateHelpSection.Overview} content={PIXELATE_HELP} />}
+      help={
+        host ? undefined : <ToolHelp id={PixelateHelpSection.Overview} content={PIXELATE_HELP} />
+      }
+      frame={host?.frame}
       onOpen={(file) => manager.open(file)}
       onExample={() => manager.openExample()}
       onReset={() => manager.clear()}
       flow={{
         exportDisabled: !ready,
-        editMore: { run: () => void manager.edit() },
+        editMore: { run: () => void manager.edit(), label: host?.shareLabel },
+        exportAction: host && {
+          label: host.saveLabel,
+          run: () => {
+            host.onSave?.();
+            void manager.download();
+          },
+        },
         adjust: state.source && (
           <PixelationBaseControls
             paletteResources={{

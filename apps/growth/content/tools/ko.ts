@@ -131,6 +131,14 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "Open image": "이미지 열기",
   "Drop a PNG, JPEG or WebP image": "PNG, JPEG 또는 WebP 이미지를 끌어다 놓으세요",
   "Edit more": "더 편집",
+  "Save to album": "앨범에 저장",
+  "Post to note": "노트로 게시",
+  "Saved to your album": "앨범에 저장했습니다",
+  "Open this tool in the Xiaohongshu app to save images.":
+    "이미지를 저장하려면 샤오홍슈(RED) 앱에서 이 도구를 여세요.",
+  "Open this tool in the Xiaohongshu app to post a note.":
+    "노트를 게시하려면 샤오홍슈(RED) 앱에서 이 도구를 여세요.",
+  "Unable to read this image.": "이 이미지를 읽을 수 없습니다.",
   "Choose an export format": "내보낼 형식 선택",
   Cancel: "취소",
   Format: "형식",

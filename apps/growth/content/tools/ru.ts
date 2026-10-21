@@ -133,6 +133,14 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   "Open image": "Открыть изображение",
   "Drop a PNG, JPEG or WebP image": "Перетащите изображение PNG, JPEG или WebP",
   "Edit more": "Доработать",
+  "Save to album": "Сохранить в альбом",
+  "Post to note": "Опубликовать заметку",
+  "Saved to your album": "Сохранено в альбом",
+  "Open this tool in the Xiaohongshu app to save images.":
+    "Чтобы сохранять изображения, откройте инструмент в приложении Xiaohongshu.",
+  "Open this tool in the Xiaohongshu app to post a note.":
+    "Чтобы опубликовать заметку, откройте инструмент в приложении Xiaohongshu.",
+  "Unable to read this image.": "Не удалось прочитать изображение.",
   "Choose an export format": "Выберите формат экспорта",
   Cancel: "Отмена",
   Format: "Формат",

@@ -212,3 +212,22 @@ come in 50×50 and 52×52 versions, and [Hama's large mini board](https://hama.d
 has 3,249 pegs (57×57). [Perler's large square boards](https://perler.com/products/large-square-pegboards-2-ct)
 interlock for larger projects. These product examples do not restrict custom dimensions or
 the overall pattern size.
+
+## Xiaohongshu mini tool (pixelate)
+
+`pnpm build:pixelate-minitool` packages the pixelate tool as a Xiaohongshu 小工具: an offline
+H5 ZIP (`apps/tools/dist-minitool.zip`, built from `vite.minitool.config.ts`) with `index.html`
+at the root, one classic ES2017 script, relative asset paths, and Chrome 61 fallbacks for the
+stylesheet (`build/minitool-legacy-css.ts`). It reuses `PixelationManager` and
+`PixelationPage`; only the platform pieces differ:
+
+- `adapters/minitool/minitool-pixelation.ts` converts on the main thread (the container has no
+  Workers), downscales photos to 4 MP first, and enlarges results with whole-pixel scaling for
+  saving.
+- `adapters/minitool/xhs-bridge.ts` feature-detects `window.xhs.miniTool`: **Save to album**
+  calls `saveImageToPhotosAlbum`, **Post to note** calls `postNote`, and preferences use the
+  container Storage API on clients that have it, with browser storage as the fallback. In a
+  normal browser both buttons explain that they need the Xiaohongshu app.
+- `components/minitool/minitool-frame.tsx` replaces the website frame: no site navigation,
+  Files desktop, help, footer, telemetry, downloads or external links. The page opens in
+  Simplified Chinese; the language menu stays.

@@ -1,0 +1,17 @@
+/* The container is a full-height phone web view with its own navigation bar on top. */
+.page {
+  min-height: 100vh;
+}
+.shell {
+  min-height: 100vh;
+}
+.screen {
+  height: 100vh;
+  padding-top: var(--safe-area-inset-top, 0px);
+  padding-bottom: var(--safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
+}
+.desktop {
+  display: flex;
+  padding: 12px;
+}

@@ -134,6 +134,14 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "Open image": "Abrir imagem",
   "Drop a PNG, JPEG or WebP image": "Solte uma imagem PNG, JPEG ou WebP",
   "Edit more": "Editar mais",
+  "Save to album": "Salvar no álbum",
+  "Post to note": "Publicar nota",
+  "Saved to your album": "Salvo no seu álbum",
+  "Open this tool in the Xiaohongshu app to save images.":
+    "Abra esta ferramenta no app Xiaohongshu para salvar imagens.",
+  "Open this tool in the Xiaohongshu app to post a note.":
+    "Abra esta ferramenta no app Xiaohongshu para publicar uma nota.",
+  "Unable to read this image.": "Não foi possível ler esta imagem.",
   "Choose an export format": "Escolha um formato",
   Cancel: "Cancelar",
   Format: "Formato",
