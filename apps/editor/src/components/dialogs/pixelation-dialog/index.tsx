@@ -52,8 +52,6 @@ const DIALOG_HEIGHT = 560;
 const DIALOG_MIN_HEIGHT = 380;
 const PREVIEW_MIN = 72;
 const GAP = 8;
-/** Advanced holds six rows; a tighter gap keeps them and the preview inside the dialog. */
-const ADVANCED_GAP = 4;
 const SECTION_HEIGHT = 22;
 const OPTION_HEIGHT = 34;
 const HINT_HEIGHT = 58;
@@ -73,7 +71,6 @@ const REMEMBERED_ALGORITHMS: readonly PixelationAlgorithm[] = [
 /** The dialog has no palette browser; everything else of the shared base controls is here. */
 const HIDDEN_SLOTS: ReadonlySet<PixelationSlot> = new Set([PixelationSlot.Palette]);
 /** Width of the Limit colors checkbox in its row; the colour count sits to its right. */
-const SNAP_CHECKBOX_SHARE = 0.6;
 const LIMIT_SHARE = 0.55;
 const COUNT_LABEL_SHARE = 0.2;
 
@@ -207,7 +204,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const hintHeight = pixelateMessage ? HINT_HEIGHT + GAP : 0;
         const advancedRowHeight = ROW_HEIGHT + GAP;
         const advancedHeight = showAdvanced
-          ? 4 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + ADVANCED_GAP) + 2 * (ROW_HEIGHT + ADVANCED_GAP)
+          ? 4 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) + ROW_HEIGHT + GAP
           : 0;
         const bottomStack =
           SECTION_HEIGHT +
@@ -234,16 +231,15 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const hintBounds = pixelateMessage ? at(HINT_HEIGHT, GAP) : null;
         const advancedRow = at(ROW_HEIGHT, GAP);
         const algorithmLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
-        const algorithmCombo = showAdvanced ? at(COMBO_HEIGHT, ADVANCED_GAP) : null;
+        const algorithmCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         const sizeLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
-        const sizeRow = showAdvanced ? at(COMBO_HEIGHT, ADVANCED_GAP) : null;
+        const sizeRow = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         const pickerLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
-        const pickerCombo = showAdvanced ? at(COMBO_HEIGHT, ADVANCED_GAP) : null;
+        const pickerCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         // Outline pre-pass and, for PixelOE + lines, its line guide share one row.
         const prepassLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
-        const prepassCombo = showAdvanced ? at(COMBO_HEIGHT, ADVANCED_GAP) : null;
-        const limitRow = showAdvanced ? at(ROW_HEIGHT, ADVANCED_GAP) : null;
-        const snapRow = showAdvanced ? at(ROW_HEIGHT, ADVANCED_GAP) : null;
+        const prepassCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
+        const limitRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
         const rememberRow = at(ROW_HEIGHT);
         const footerY = client.y + client.height - FOOTER_HEIGHT;
         const option = (value: ImportAction, label: string, x: number, w: number) => (
@@ -448,23 +444,6 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                     })}
                   </>
                 )}
-              </>
-            )}
-            {snapRow && (
-              <>
-                {base[PixelationSlot.SnapPalette].render({
-                  bounds: { ...snapRow, width: Math.round(snapRow.width * SNAP_CHECKBOX_SHARE) },
-                  relativeTo: client,
-                })}
-                {base[PixelationSlot.SnapColors].visible &&
-                  base[PixelationSlot.SnapColors].render({
-                    bounds: {
-                      ...snapRow,
-                      x: snapRow.x + Math.round(snapRow.width * SNAP_CHECKBOX_SHARE) + GAP,
-                      width: snapRow.width - Math.round(snapRow.width * SNAP_CHECKBOX_SHARE) - GAP,
-                    },
-                    relativeTo: client,
-                  })}
               </>
             )}
             <Checkbox

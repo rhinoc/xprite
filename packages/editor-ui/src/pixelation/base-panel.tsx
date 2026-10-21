@@ -60,17 +60,13 @@ export function PixelationBaseControls({
         {field(PixelationSlot.Prepass)}
         {field(PixelationSlot.LineGuide)}
       </Group>
-      {(base[PixelationSlot.LimitColors].visible ||
-        base[PixelationSlot.Palette].visible ||
-        base[PixelationSlot.SnapPalette].visible) && (
+      {(base[PixelationSlot.LimitColors].visible || base[PixelationSlot.Palette].visible) && (
         <Group title={translate("Colors")}>
           {bare(PixelationSlot.LimitColors)}
           {field(PixelationSlot.Colors)}
           {base[PixelationSlot.Palette].visible && (
             <div className={styles.palette}>{base[PixelationSlot.Palette].render()}</div>
           )}
-          {bare(PixelationSlot.SnapPalette)}
-          {props.settings.snapPalette && field(PixelationSlot.SnapColors)}
         </Group>
       )}
       {children}

@@ -135,7 +135,7 @@ export interface PixelationSize {
   height: number;
 }
 
-/** Optional palette snap applied to the recovered image (see palette-snap.ts). */
+/** Limit colors, applied to the pixelated image (see palette-snap.ts). */
 export interface PaletteSnapOptions {
   /** Number of colours to cluster into (k-means); ignored when `palette` is given. */
   colors?: number;
@@ -172,14 +172,10 @@ export interface PixelateOptions {
   /** Nearest-neighbor upscale to the source dimensions after pixelation. */
   preserveDimensions?: boolean;
   /**
-   * Snap the result's colours to a clean palette (k-means that keeps rare colours, or a given
-   * palette) before any `maxColors` reduction. Off when omitted.
+   * Limit colors: Lab k-means to a colour count that keeps rare colours, or snapping to a given
+   * palette. Alpha stays per pixel. Off when omitted.
    */
   paletteSnap?: PaletteSnapOptions;
-  /** Limit RGB colors (maximum 256); alpha coverage remains independent. */
-  maxColors?: number;
-  /** Optional palette to use for reduction; otherwise a deterministic palette is extracted. */
-  palette?: readonly Rgba[];
   /** Light smoothing of similar neighboring colors on the working grid. */
   removeNoise?: boolean;
   /** Box mode defaults to straight channel means; premultiplied is useful for compositing. */
@@ -201,10 +197,11 @@ export interface ExtractPaletteOptions {
 /** Shared conversion draft used by import and standalone tools. */
 export interface PixelationSettings {
   mode: PixelationMode;
+  /**
+   * Limit colors: snap the result to `maxColors` colours (k-means keeping rare colours) or, when
+   * one is loaded, to `palette`.
+   */
   reduceColors: boolean;
-  /** Snap the result to a clean palette (k-means keeping rare colours, or the chosen palette). */
-  snapPalette: boolean;
-  snapColors: number;
   outlineStrength: number;
   /** Outline pre-pass ahead of the colour rule (see `PixelateOptions.prepass`). */
   prepass: OutlinePrepass;

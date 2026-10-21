@@ -119,7 +119,6 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   Method: "방식",
   "Remove noise": "노이즈 제거",
   "Limit colors": "색상 수 제한",
-  "Snap palette": "팔레트 맞추기",
   "Lock aspect ratio": "비율 고정",
   "Original image": "원본 이미지",
   Pixelated: "픽셀화됨",

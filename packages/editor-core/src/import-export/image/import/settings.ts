@@ -27,10 +27,6 @@ export const PIXELATION_METHOD_OPTIONS = [
 const DEFAULT_PIXELATION_SIZE = 64;
 const DEFAULT_COLORS = 16;
 const MAX_COLORS = 256;
-export const MIN_SNAP_COLORS = 2;
-export const MAX_SNAP_COLORS = 64;
-export const SNAP_COLOR_PRESETS = [8, 12, 16, 24, 32, 48, 64] as const;
-const DEFAULT_SNAP_COLORS = 16;
 export function defaultPixelationSettings(
   image: Pick<PixelBuffer, "width" | "height">,
   grid?: PixelGridAnalysis,
@@ -41,8 +37,6 @@ export function defaultPixelationSettings(
   return {
     mode: grid?.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
     reduceColors: false,
-    snapPalette: false,
-    snapColors: DEFAULT_SNAP_COLORS,
     outlineStrength: 0,
     prepass: DEFAULT_OUTLINE_PREPASS,
     lineGuide: LineGuideMode.Union,
@@ -71,6 +65,17 @@ export function updatePixelationSettings(
   // Settings saved before the pre-pass dropdown carry the old checkbox instead.
   next.prepass = readOutlinePrepass(patch) ?? readOutlinePrepass(settings) ?? OutlinePrepass.None;
   delete (next as { pixeloePrepass?: unknown }).pixeloePrepass;
+  // Settings saved before Limit colors and Snap palette became one control: either one on means
+  // Limit colors, counting Limit colors' own count if it was on, else Snap palette's.
+  const legacy = { ...settings, ...patch } as { snapPalette?: unknown; snapColors?: unknown };
+  if (legacy.snapPalette !== undefined || legacy.snapColors !== undefined) {
+    if (legacy.snapPalette === true && !next.reduceColors) {
+      next.reduceColors = true;
+      if (typeof legacy.snapColors === "number") next.maxColors = legacy.snapColors;
+    }
+    delete (next as { snapPalette?: unknown }).snapPalette;
+    delete (next as { snapColors?: unknown }).snapColors;
+  }
   if (!Object.values(LineGuideMode).includes(next.lineGuide)) next.lineGuide = LineGuideMode.Union;
   // Turning a PixelOE pre-pass on starts from Contrast, PixelOE's own colour rule.
   if (
@@ -111,9 +116,6 @@ export function updatePixelationSettings(
   next.maxColors = Number.isFinite(next.maxColors)
     ? Math.max(2, Math.min(MAX_COLORS, Math.round(next.maxColors)))
     : DEFAULT_COLORS;
-  next.snapColors = Number.isFinite(next.snapColors)
-    ? Math.max(MIN_SNAP_COLORS, Math.min(MAX_SNAP_COLORS, Math.round(next.snapColors)))
-    : DEFAULT_SNAP_COLORS;
   return next;
 }
 export function pixelationSettingsOptions(
@@ -121,7 +123,6 @@ export function pixelationSettingsOptions(
   image?: Pick<PixelBuffer, "width" | "height">,
   detected?: PixelGridAnalysis,
 ): PixelateOptions {
-  const palette = settings.reduceColors && settings.palette ? settings.palette : undefined;
   let grid;
   if (settings.mode === PixelationMode.RecoverGrid) {
     if (settings.autoGrid) {
@@ -144,19 +145,18 @@ export function pixelationSettingsOptions(
     lineGuide: settings.lineGuide,
     targetWidth: settings.targetWidth,
     targetHeight: settings.targetHeight,
-    paletteSnap: settings.snapPalette
+    // Limit colors: k-means to the colour count, or the loaded palette.
+    paletteSnap: settings.reduceColors
       ? settings.palette
         ? { palette: settings.palette }
-        : { colors: settings.snapColors }
+        : { colors: settings.maxColors }
       : undefined,
-    maxColors: settings.reduceColors && !palette ? settings.maxColors : undefined,
     method: settings.method,
     // A pre-pass hands its result to the colour rule, so the picker (not `method`) fills each block.
     blockPicker: settings.blockPicker || settings.prepass !== OutlinePrepass.None,
     preserveDimensions: settings.preserveDimensions,
     removeNoise: settings.removeNoise,
     alphaMode: "premultiplied",
-    palette,
   };
 }
 

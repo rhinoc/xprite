@@ -570,8 +570,6 @@
   "import.picker.k-means": "K-medias",
   "import.picker.contrast": "Contraste",
   "import.dialog.outline.prepass": "Pre-paso de contornos:",
-  "import.dialog.snap.palette": "Ajustar paleta",
-  "import.dialog.snap.colors": "Colores de la paleta",
   "import.picker.nearest": "Más cercano",
   "import.preferences.ask": "Preguntarme cómo importar imágenes que podrían ser pixel art",
   "import.dialog.title": "Opciones de importación",

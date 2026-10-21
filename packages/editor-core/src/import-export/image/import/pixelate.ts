@@ -1,4 +1,4 @@
-import type { PixelBuffer, Rgba } from "$/base/primitives";
+import type { PixelBuffer } from "$/base/primitives";
 import { assertDimension, assertPixelBuffer } from "$/document/pixel-validation";
 import { protectPixelationContours } from "$/import-export/image/import/contours";
 import { smoothPixelation } from "$/import-export/image/import/denoise";
@@ -10,7 +10,6 @@ import {
   applyOutlinePrepass,
   runsStockPixeloe,
 } from "$/import-export/image/import/outline-prepass";
-import { reduceToPalette, extractPixelationPalette } from "$/import-export/image/import/palette";
 import { snapPalette } from "$/import-export/image/import/palette-snap";
 import {
   detectWithAlgorithm,
@@ -198,44 +197,20 @@ function validateMethod(value: PixelationMethod | undefined): PixelationMethod {
   return method;
 }
 
-function validateMaxColors(value: number | undefined): number | undefined {
-  if (value === undefined) return undefined;
-  if (!Number.isSafeInteger(value) || value < 1)
-    throw new RangeError("maxColors must be a positive integer");
-  return Math.min(256, value);
-}
-
 /**
  * Pixelate an RGBA buffer without touching the source. Nearest mode follows
  * nearest-neighbor `floor(dst * src / dst)` mapping. Box mode averages the
  * source area covered by each destination pixel. Local dominant and structural
  * sampling preserve contrasting regions; grid recovery restores one RGBA pixel
- * per detected cell. Color reduction keeps alpha independent of the RGB budget.
+ * per detected cell. Limiting colours keeps each pixel's own alpha.
  */
 export function pixelateImage(image: PixelBuffer, options: PixelateOptions = {}): PixelBuffer {
   assertPixelBuffer(image);
   const method = validateMethod(options.method);
   const sampled = sampleImage(image, options, method);
   const smoothed = options.removeNoise ? smoothPixelation(sampled) : sampled;
-  const reduced = options.paletteSnap ? snapPalette(smoothed, options.paletteSnap) : smoothed;
-  const maxColors = validateMaxColors(options.maxColors);
-  let result = reduced;
-  if (maxColors !== undefined || options.palette !== undefined) {
-    let palette: readonly Rgba[];
-    if (options.palette !== undefined) {
-      if (!options.palette.length || options.palette.length > 256)
-        throw new RangeError("Choose a palette with 1 to 256 colors.");
-      if (
-        !options.palette.some((color) => color[3] > 0) &&
-        reduced.data.some((value, index) => index % 4 === 3 && value > 0)
-      )
-        throw new Error("Choose a palette containing a visible color.");
-      palette = options.palette;
-    } else {
-      palette = extractPixelationPalette(reduced, { maxColors }).map((entry) => entry.color);
-    }
-    result = reduceToPalette(reduced, palette, { preserveAlpha: true });
-  }
+  // Limit colors: Lab k-means that keeps rare colours, or snapping to a loaded palette.
+  let result = options.paletteSnap ? snapPalette(smoothed, options.paletteSnap) : smoothed;
   if (
     options.preserveDimensions &&
     (result.width !== image.width || result.height !== image.height)

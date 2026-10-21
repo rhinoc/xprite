@@ -19,8 +19,6 @@ export const LABELS = {
   colors: { text: "Colors:", key: "ui.colors.50dd3bf1" },
   prepass: { text: "Outline pre-pass:", key: "import.dialog.outline.prepass" },
   lineGuide: { text: "Line guide:", key: "import.dialog.line.guide" },
-  snapPalette: { text: "Snap palette", key: "import.dialog.snap.palette" },
-  snapColors: { text: "Palette colors", key: "import.dialog.snap.colors" },
   pixels: { text: "{size} px", key: "ui.dimension.pixels" },
 } as const satisfies Record<string, PixelationLabel>;
 export const ALGORITHM_LABELS: Readonly<Record<PixelationAlgorithm, PixelationLabel>> = {

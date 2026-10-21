@@ -43,9 +43,6 @@ export {
   pixelationSettingsOptions,
   MAX_PIXELATION_SIZE,
   PIXELATION_SIZES,
-  MIN_SNAP_COLORS,
-  MAX_SNAP_COLORS,
-  SNAP_COLOR_PRESETS,
   PIXELATION_METHOD_OPTIONS,
 } from "$/import-export/image/import/settings";
 

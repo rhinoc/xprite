@@ -121,7 +121,6 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   Method: "方式",
   "Remove noise": "ノイズを除去",
   "Limit colors": "色数を制限",
-  "Snap palette": "パレットにスナップ",
   "Lock aspect ratio": "縦横比を固定",
   "Original image": "元の画像",
   Pixelated: "ピクセル化後",

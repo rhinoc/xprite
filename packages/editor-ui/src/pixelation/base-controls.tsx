@@ -19,7 +19,6 @@ import {
   OutlinePrepass,
   PIXELATION_SIZES,
   PixelationAlgorithm,
-  SNAP_COLOR_PRESETS,
   getAllColorPickers,
   getListedAlgorithms,
   pixelationSizeFromAxis,
@@ -43,8 +42,6 @@ export enum PixelationSlot {
   LimitColors = "limit-colors",
   Colors = "colors",
   Palette = "palette",
-  SnapPalette = "snap-palette",
-  SnapColors = "snap-colors",
   /** Outline pre-pass: None / PixelOE / PixelOE + lines. */
   Prepass = "prepass",
   /** Only for the PixelOE + lines pre-pass. */
@@ -204,38 +201,6 @@ export function usePixelationBase(
             onChange={onChange}
           />
         ),
-    },
-    [PixelationSlot.SnapPalette]: {
-      visible: show(PixelationSlot.SnapPalette),
-      label: null,
-      render: (placement) => (
-        <Checkbox
-          {...placement}
-          label={t(LABELS.snapPalette)}
-          checked={settings.snapPalette}
-          disabled={busy}
-          onCheckedChange={(snapPalette) => onChange({ snapPalette })}
-        />
-      ),
-    },
-    [PixelationSlot.SnapColors]: {
-      // A loaded palette fixes the count; otherwise it is only live once the step is checked.
-      visible: show(PixelationSlot.SnapColors, settings.palette === null),
-      label: t(LABELS.snapColors),
-      render: (placement, pixelWidth) => (
-        <Combobox
-          pixelWidth={pixelWidth ?? NUMBER_WIDTH + 24}
-          {...placement}
-          aria-label={t(LABELS.snapColors)}
-          value={String(settings.snapColors)}
-          disabled={busy || !settings.snapPalette}
-          options={SNAP_COLOR_PRESETS.map((count) => ({
-            value: String(count),
-            label: String(count),
-          }))}
-          onValueChange={(value) => onChange({ snapColors: Number(value) })}
-        />
-      ),
     },
     [PixelationSlot.Prepass]: {
       visible: show(PixelationSlot.Prepass),

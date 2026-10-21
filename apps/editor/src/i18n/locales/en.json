@@ -570,8 +570,6 @@
   "import.picker.k-means": "K-means",
   "import.picker.contrast": "Contrast",
   "import.dialog.outline.prepass": "Outline pre-pass:",
-  "import.dialog.snap.palette": "Snap palette",
-  "import.dialog.snap.colors": "Palette colors",
   "import.picker.nearest": "Nearest",
   "import.preferences.ask": "Ask me how to import pictures that could be pixel art",
   "import.dialog.title": "Import Options",

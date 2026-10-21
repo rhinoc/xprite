@@ -570,8 +570,6 @@
   "import.picker.k-means": "K-средних",
   "import.picker.contrast": "Контраст",
   "import.dialog.outline.prepass": "Предобработка контуров:",
-  "import.dialog.snap.palette": "Свести палитру",
-  "import.dialog.snap.colors": "Цветов в палитре",
   "import.picker.nearest": "Ближайший",
   "import.preferences.ask": "Спрашивать, как импортировать картинки, похожие на пиксель-арт",
   "import.dialog.title": "Параметры импорта",

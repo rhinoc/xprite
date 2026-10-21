@@ -121,7 +121,6 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   Method: "Метод",
   "Remove noise": "Убрать шум",
   "Limit colors": "Ограничить цвета",
-  "Snap palette": "Привязать палитру",
   "Lock aspect ratio": "Сохранять пропорции",
   "Original image": "Исходное изображение",
   Pixelated: "Пикселизовано",

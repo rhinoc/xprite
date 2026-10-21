@@ -570,8 +570,6 @@
   "import.picker.k-means": "K平均法",
   "import.picker.contrast": "コントラスト",
   "import.dialog.outline.prepass": "輪郭前処理：",
-  "import.dialog.snap.palette": "パレットに統一",
-  "import.dialog.snap.colors": "パレットの色数",
   "import.picker.nearest": "最近傍",
   "import.preferences.ask": "ドット絵の可能性がある画像のインポート方法を確認する",
   "import.dialog.title": "インポートオプション",
