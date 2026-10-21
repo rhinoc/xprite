@@ -268,6 +268,13 @@ manifest during the Vite build; `pnpm run offline:seal` (run by `build:editor` a
 `pnpm run offline:verify [dir]` re-hashes a built directory against its manifest and fails on any
 mismatch; `deploy:prepare` runs the same check on the output it publishes.
 
+The editor and growth apps both publish at the site root and bundle some of the same modules
+(PostHog) into chunks with identical content-hashed names. Only the editor's copy is rewritten by
+injection, so the editor names its scripts `assets/editor-*.js`; otherwise growth's unmodified copy
+replaced the editor's during assembly, breaking both the SRI manifest and the PostHog debug IDs.
+Assembly (`infra/site-assembly.ts`) also refuses any path that two apps write with different bytes;
+identical shared files (fonts, licences, icons) are allowed.
+
 ## Publishing
 
 First commit the workflow to the default branch. Tags must point to commits
