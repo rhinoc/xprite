@@ -2,24 +2,44 @@ import { describe, expect, test } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
 import { RasterEditor } from "$/editor/RasterEditor";
-import { jitterWithMargin, sprite } from "$/import-export/image/import/grid-test-images";
+import {
+  jitterWithMargin,
+  sprite,
+  upscaleNearest,
+} from "$/import-export/image/import/grid-test-images";
 import { pixelateImage } from "$/import-export/image/import/pixelate";
 import { detectWithAlgorithm } from "$/import-export/image/import/pixelation-algorithm-registry";
 import {
   CellColorPicker,
+  LineGuideMode,
+  OutlinePrepass,
   PixelArtClassification,
   PixelationAlgorithm,
   PixelationMode,
 } from "$/import-export/image/import/types";
 import { EditorSession } from "$/session/editor-session";
 import { createBlankImage } from "$/session/recent-images";
+import type { EditorSessionPorts, ImportPixelationMemory } from "$/session/types";
 
 const { Auto, EdgeGrid, UniformGrid, Resize } = PixelationAlgorithm;
 const jittered = jitterWithMargin(sprite(64));
 
-function openSession(source: PixelBuffer, classification = PixelArtClassification.LikelyPixelArt) {
+function openSession(
+  source: PixelBuffer,
+  classification = PixelArtClassification.LikelyPixelArt,
+  rememberedPicker?: CellColorPicker,
+) {
   const session = new EditorSession(new RasterEditor(createBlankImage(2, 2), "Original"), {
     decode: async () => source,
+    ...(rememberedPicker
+      ? {
+          getImportPreference: () => ({
+            choice: "always-ask",
+            algorithm: Auto,
+            colorPicker: rememberedPicker,
+          }),
+        }
+      : {}),
     analyze: async (pixels, options) => ({
       classification,
       grid: detectWithAlgorithm(pixels, options?.algorithm),
@@ -69,7 +89,7 @@ describe("import dialog colour pick", () => {
     const session = openSession(jittered);
     await session.requestImport({ source: "jitter", name: "jitter.png" });
     await settle(session);
-    expect(session.getSnapshot().pixelationOptions.colorPicker).toBe(CellColorPicker.MostCommon);
+    expect(session.getSnapshot().pixelationOptions.colorPicker).toBe(CellColorPicker.Contrast);
     const before = session.getSnapshot().pixelationPreview;
     session.setPixelationOptions({ colorPicker: CellColorPicker.Average });
     await settle(session);
@@ -77,6 +97,37 @@ describe("import dialog colour pick", () => {
     expect(after.pixelationOptions.colorPicker).toBe(CellColorPicker.Average);
     expect(after.pendingImport?.algorithm).toBe(session.getSnapshot().pendingImport?.algorithm);
     expect(after.pixelationPreview?.width).toBe(before?.width);
+    session.dispose();
+  });
+  test("pixel art opens on PixelOE + lines with Contrast; None brings back the remembered rule", async () => {
+    const session = openSession(
+      jittered,
+      PixelArtClassification.LikelyPixelArt,
+      CellColorPicker.Median,
+    );
+    await session.requestImport({ source: "jitter", name: "jitter.png" });
+    await settle(session);
+    const opened = session.getSnapshot();
+    // The grid is still found and recovered; only the pre-pass default ignores it.
+    expect(opened.pendingImport?.grid?.reliable).toBe(true);
+    expect(opened.pixelationOptions).toMatchObject({
+      mode: PixelationMode.RecoverGrid,
+      prepass: OutlinePrepass.PixeloeLines,
+      colorPicker: CellColorPicker.Contrast,
+      reduceColors: false,
+    });
+    session.setPixelationOptions({ prepass: OutlinePrepass.None });
+    await settle(session);
+    const plain = session.getSnapshot();
+    expect(plain.pixelationOptions.colorPicker).toBe(CellColorPicker.Median);
+    // The old exact recovery is one choice away.
+    expect(plain.pixelationPreview).toEqual(
+      pixelateImage(jittered, {
+        mode: PixelationMode.RecoverGrid,
+        grid: opened.pendingImport!.grid!,
+        colorPicker: CellColorPicker.Median,
+      }),
+    );
     session.dispose();
   });
 });
@@ -149,6 +200,92 @@ describe("import dialog algorithm switching", () => {
     expect(shown).not.toBeNull();
     await session.pixelate();
     expect(session.getSnapshot().pendingImport).toBeNull();
+    session.dispose();
+  });
+});
+
+describe("silent Pixelate import (Don't ask me again)", () => {
+  const art = sprite(32);
+  const upscaled = upscaleNearest(art, 4);
+  function silentSession(choice: string, pixelation?: ImportPixelationMemory | null) {
+    const results: PixelBuffer[] = [];
+    const session = new EditorSession(new RasterEditor(createBlankImage(2, 2), "Original"), {
+      decode: async () => upscaled,
+      analyze: async (pixels, options) => ({
+        classification: PixelArtClassification.LikelyPixelArt,
+        grid: detectWithAlgorithm(pixels, options?.algorithm),
+      }),
+      pixelate: async (pixels, options) => {
+        const out = pixelateImage(pixels, options);
+        results.push(out);
+        return out;
+      },
+      write: async (_pixels, name) => ({ method: "download", name }),
+      releaseSource: () => {},
+      dispose: () => {},
+      getImportPreference: () => ({
+        choice,
+        algorithm: Auto,
+        colorPicker: CellColorPicker.MostCommon,
+        pixelation,
+      }),
+    } as EditorSessionPorts<string>);
+    return { session, results };
+  }
+  async function importSilently(pixelation?: ImportPixelationMemory | null) {
+    const { session, results } = silentSession("always-pixelate", pixelation);
+    await session.requestImport({ source: "art", name: "art.png" });
+    for (let i = 0; i < 50 && session.getSnapshot().pendingImport; i++)
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    return { session, imported: results.at(-1)! };
+  }
+  test("a saved None import repeats the exact grid recovery", async () => {
+    const { session, imported } = await importSilently({
+      prepass: OutlinePrepass.None,
+      lineGuide: LineGuideMode.Union,
+      colorPicker: CellColorPicker.MostCommon,
+      reduceColors: false,
+      maxColors: 16,
+    });
+    expect(session.getSnapshot().pendingImport).toBeNull();
+    expect(imported).toEqual(art);
+    session.dispose();
+  });
+  test("with nothing saved the silent import uses PixelOE + lines", async () => {
+    const { session, imported } = await importSilently(null);
+    expect(session.getSnapshot().pixelationOptions).toMatchObject({
+      prepass: OutlinePrepass.PixeloeLines,
+      lineGuide: LineGuideMode.Union,
+      colorPicker: CellColorPicker.Contrast,
+    });
+    const grid = detectWithAlgorithm(upscaled, Auto);
+    expect(imported).toEqual(
+      pixelateImage(upscaled, {
+        mode: PixelationMode.RecoverGrid,
+        grid,
+        prepass: OutlinePrepass.PixeloeLines,
+        lineGuide: LineGuideMode.Union,
+        colorPicker: CellColorPicker.Contrast,
+      }),
+    );
+    expect(imported).not.toEqual(art);
+    session.dispose();
+  });
+  test("the dialog still opens on PixelOE + lines after a None import was saved", async () => {
+    const { session } = silentSession("always-ask", {
+      prepass: OutlinePrepass.None,
+      colorPicker: CellColorPicker.MostCommon,
+      reduceColors: false,
+    });
+    await session.requestImport({ source: "art", name: "art.png" });
+    await settle(session);
+    expect(session.getSnapshot().pendingImport).not.toBeNull();
+    expect(session.getSnapshot().pixelationOptions).toMatchObject({
+      prepass: OutlinePrepass.PixeloeLines,
+      lineGuide: LineGuideMode.Union,
+      colorPicker: CellColorPicker.Contrast,
+      reduceColors: false,
+    });
     session.dispose();
   });
 });

@@ -1,6 +1,7 @@
 import { ToolField, ToolGroup } from "$/components/shared/tool-group";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import {
+  OutlinePrepass,
   PIXELATION_METHOD_OPTIONS,
   PixelationMethod,
   PixelationMode,
@@ -13,7 +14,8 @@ const METHOD_WIDTH = 112;
 
 /**
  * What only the pixelate page adds to the shared base controls. Sampling method and outline
- * protection shape the plain convert, so they are disabled while a recovered grid decides the pixels.
+ * protection shape the plain convert, so they are disabled while a recovered grid or an outline
+ * pre-pass (whose result the colour picker samples) decides the pixels.
  */
 export function PixelationExtraControls({
   settings,
@@ -25,7 +27,8 @@ export function PixelationExtraControls({
   onChange(patch: Partial<PixelationSettings>): void;
 }) {
   const t = useToolTranslation();
-  const recovered = settings.mode === PixelationMode.RecoverGrid;
+  const recovered =
+    settings.mode === PixelationMode.RecoverGrid || settings.prepass !== OutlinePrepass.None;
   return (
     <>
       <ToolGroup title={t("Sampling")}>

@@ -1,7 +1,13 @@
 import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { manualPixelGrid, MAX_GRID_CELL_SIZE } from "$/import-export/image/import/grid";
 import {
+  DEFAULT_OUTLINE_PREPASS,
+  readOutlinePrepass,
+} from "$/import-export/image/import/outline-prepass";
+import {
   CellColorPicker,
+  LineGuideMode,
+  OutlinePrepass,
   PixelationMethod,
   PixelationMode,
   type PixelGridAnalysis,
@@ -21,23 +27,20 @@ export const PIXELATION_METHOD_OPTIONS = [
 const DEFAULT_PIXELATION_SIZE = 64;
 const DEFAULT_COLORS = 16;
 const MAX_COLORS = 256;
-export const MIN_SNAP_COLORS = 2;
-export const MAX_SNAP_COLORS = 64;
-export const SNAP_COLOR_PRESETS = [8, 12, 16, 24, 32, 48, 64] as const;
-const DEFAULT_SNAP_COLORS = 16;
 export function defaultPixelationSettings(
   image: Pick<PixelBuffer, "width" | "height">,
   grid?: PixelGridAnalysis,
 ): PixelationSettings {
   const scale = Math.min(1, DEFAULT_PIXELATION_SIZE / Math.max(image.width, image.height));
+  // Every source opens on PixelOE + lines with Contrast, grid or not: PixelOE's own colours, so no
+  // colour limit either. The grid still decides between recovering cells and converting.
   return {
     mode: grid?.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
-    reduceColors: !grid?.reliable,
-    snapPalette: false,
-    snapColors: DEFAULT_SNAP_COLORS,
+    reduceColors: false,
     outlineStrength: 0,
-    pixeloePrepass: false,
-    colorPicker: CellColorPicker.MostCommon,
+    prepass: DEFAULT_OUTLINE_PREPASS,
+    lineGuide: LineGuideMode.Union,
+    colorPicker: CellColorPicker.Contrast,
     autoGrid: true,
     gridCellWidth: grid?.reliable ? grid.cellWidth : 8,
     gridCellHeight: grid?.reliable ? grid.cellHeight : 8,
@@ -59,14 +62,38 @@ export function updatePixelationSettings(
   image: Pick<PixelBuffer, "width" | "height">,
 ): PixelationSettings {
   const next = { ...settings, ...patch };
+  // Settings saved before the pre-pass dropdown carry the old checkbox instead.
+  next.prepass = readOutlinePrepass(patch) ?? readOutlinePrepass(settings) ?? OutlinePrepass.None;
+  delete (next as { pixeloePrepass?: unknown }).pixeloePrepass;
+  // Settings saved before Limit colors and Snap palette became one control: either one on means
+  // Limit colors, counting Limit colors' own count if it was on, else Snap palette's.
+  const legacy = { ...settings, ...patch } as { snapPalette?: unknown; snapColors?: unknown };
+  if (legacy.snapPalette !== undefined || legacy.snapColors !== undefined) {
+    if (legacy.snapPalette === true && !next.reduceColors) {
+      next.reduceColors = true;
+      if (typeof legacy.snapColors === "number") next.maxColors = legacy.snapColors;
+    }
+    delete (next as { snapPalette?: unknown }).snapPalette;
+    delete (next as { snapColors?: unknown }).snapColors;
+  }
+  if (!Object.values(LineGuideMode).includes(next.lineGuide)) next.lineGuide = LineGuideMode.Union;
+  // Turning a PixelOE pre-pass on starts from Contrast, PixelOE's own colour rule.
+  if (
+    settings.prepass === OutlinePrepass.None &&
+    next.prepass !== OutlinePrepass.None &&
+    patch.colorPicker === undefined
+  )
+    next.colorPicker = CellColorPicker.Contrast;
   if (patch.palette !== undefined) {
     if (patch.palette && (!patch.palette.length || patch.palette.length > MAX_COLORS))
       throw new RangeError("Choose a palette with 1 to 256 colors.");
     next.palette = patch.palette ? patch.palette.map((color) => [...color] as Rgba) : null;
     if (patch.palette === null) next.paletteName = "";
   }
+  // A plain convert limits colours by default; a pre-pass keeps PixelOE's own colours.
   if (patch.mode !== undefined && patch.mode !== settings.mode && patch.reduceColors === undefined)
-    next.reduceColors = patch.mode === PixelationMode.Convert;
+    next.reduceColors =
+      patch.mode === PixelationMode.Convert && next.prepass === OutlinePrepass.None;
   const cellSize = (value: number) =>
     Number.isFinite(value) ? Math.max(1, Math.min(MAX_GRID_CELL_SIZE, value)) : 8;
   next.gridCellWidth = cellSize(next.gridCellWidth);
@@ -89,9 +116,6 @@ export function updatePixelationSettings(
   next.maxColors = Number.isFinite(next.maxColors)
     ? Math.max(2, Math.min(MAX_COLORS, Math.round(next.maxColors)))
     : DEFAULT_COLORS;
-  next.snapColors = Number.isFinite(next.snapColors)
-    ? Math.max(MIN_SNAP_COLORS, Math.min(MAX_SNAP_COLORS, Math.round(next.snapColors)))
-    : DEFAULT_SNAP_COLORS;
   return next;
 }
 export function pixelationSettingsOptions(
@@ -99,7 +123,6 @@ export function pixelationSettingsOptions(
   image?: Pick<PixelBuffer, "width" | "height">,
   detected?: PixelGridAnalysis,
 ): PixelateOptions {
-  const palette = settings.reduceColors && settings.palette ? settings.palette : undefined;
   let grid;
   if (settings.mode === PixelationMode.RecoverGrid) {
     if (settings.autoGrid) {
@@ -118,21 +141,22 @@ export function pixelationSettingsOptions(
     grid,
     colorPicker: settings.colorPicker,
     outlineStrength: settings.mode === PixelationMode.Convert ? settings.outlineStrength : 0,
-    pixeloePrepass: settings.pixeloePrepass,
+    prepass: settings.prepass,
+    lineGuide: settings.lineGuide,
     targetWidth: settings.targetWidth,
     targetHeight: settings.targetHeight,
-    paletteSnap: settings.snapPalette
+    // Limit colors: k-means to the colour count, or the loaded palette.
+    paletteSnap: settings.reduceColors
       ? settings.palette
         ? { palette: settings.palette }
-        : { colors: settings.snapColors }
+        : { colors: settings.maxColors }
       : undefined,
-    maxColors: settings.reduceColors && !palette ? settings.maxColors : undefined,
     method: settings.method,
-    blockPicker: settings.blockPicker,
+    // A pre-pass hands its result to the colour rule, so the picker (not `method`) fills each block.
+    blockPicker: settings.blockPicker || settings.prepass !== OutlinePrepass.None,
     preserveDimensions: settings.preserveDimensions,
     removeNoise: settings.removeNoise,
     alphaMode: "premultiplied",
-    palette,
   };
 }
 

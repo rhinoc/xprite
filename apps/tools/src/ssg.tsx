@@ -81,7 +81,7 @@ export async function renderToolPage(rootId: string) {
             : rootId === "pixelation-root"
               ? new PixelationManager({
                   readWheel: unavailable,
-                  paletteResources: () => ({ choices: [], defaultPalette: [] }),
+                  paletteResources: () => ({ choices: [] }),
                   detectGrid: unavailable,
                   read: unavailable,
                   example: unavailable,

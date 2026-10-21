@@ -74,6 +74,24 @@ export enum PixelationAlgorithm {
   Resize = "resize",
 }
 
+/**
+ * The outline pre-pass ahead of the colour rule. PixelOE runs outline expansion + colour match;
+ * PixelOE + lines also guides the expansion weight with an XDoG line drawing of the source.
+ */
+export enum OutlinePrepass {
+  None = "none",
+  Pixeloe = "pixeloe",
+  PixeloeLines = "pixeloe-lines",
+}
+
+/** How a line drawing changes PixelOE's outline weight (1 = spread dark, 0 = spread bright). */
+export enum LineGuideMode {
+  /** max(weight, lines): PixelOE's own weight, plus dark spreading along every line. */
+  Union = "union",
+  /** weight = lines: dark spreads only along lines, bright everywhere else. */
+  Replace = "replace",
+}
+
 /** How one colour is chosen for each grid cell, independent of how the grid was found. */
 export enum CellColorPicker {
   MostCommon = "most-common",
@@ -117,7 +135,7 @@ export interface PixelationSize {
   height: number;
 }
 
-/** Optional palette snap applied to the recovered image (see palette-snap.ts). */
+/** Limit colors, applied to the pixelated image (see palette-snap.ts). */
 export interface PaletteSnapOptions {
   /** Number of colours to cluster into (k-means); ignored when `palette` is given. */
   colors?: number;
@@ -132,8 +150,15 @@ export interface PixelateOptions {
   colorPicker?: CellColorPicker;
   grid?: PixelGridGeometry;
   outlineStrength?: number;
-  /** Run the PixelOE pre-pass (outline expansion + colour match) before sampling; works with any picker/method. */
-  pixeloePrepass?: boolean;
+  /**
+   * Outline pre-pass; None when omitted. With the Contrast picker and no grid recovered from the
+   * source (a plain convert or Custom size), a PixelOE pre-pass runs stock PixelOE end to end
+   * (contrast downscale + colour match at the output size); otherwise it is an image -> image step
+   * before the picker or sampler.
+   */
+  prepass?: OutlinePrepass;
+  /** How the line drawing guides PixelOE + lines; Union when omitted. */
+  lineGuide?: LineGuideMode;
   /** Sampling rule used to choose one representative color per output cell. */
   method?: PixelationMethod;
   /** Split the image into even blocks of the target size and let `colorPicker` choose each colour (instead of `method`). */
@@ -147,14 +172,10 @@ export interface PixelateOptions {
   /** Nearest-neighbor upscale to the source dimensions after pixelation. */
   preserveDimensions?: boolean;
   /**
-   * Snap the result's colours to a clean palette (k-means that keeps rare colours, or a given
-   * palette) before any `maxColors` reduction. Off when omitted.
+   * Limit colors: Lab k-means to a colour count that keeps rare colours, or snapping to a given
+   * palette. Alpha stays per pixel. Off when omitted.
    */
   paletteSnap?: PaletteSnapOptions;
-  /** Limit RGB colors (maximum 256); alpha coverage remains independent. */
-  maxColors?: number;
-  /** Optional palette to use for reduction; otherwise a deterministic palette is extracted. */
-  palette?: readonly Rgba[];
   /** Light smoothing of similar neighboring colors on the working grid. */
   removeNoise?: boolean;
   /** Box mode defaults to straight channel means; premultiplied is useful for compositing. */
@@ -176,13 +197,16 @@ export interface ExtractPaletteOptions {
 /** Shared conversion draft used by import and standalone tools. */
 export interface PixelationSettings {
   mode: PixelationMode;
+  /**
+   * Limit colors: snap the result to `maxColors` colours (k-means keeping rare colours) or, when
+   * one is loaded, to `palette`.
+   */
   reduceColors: boolean;
-  /** Snap the result to a clean palette (k-means keeping rare colours, or the chosen palette). */
-  snapPalette: boolean;
-  snapColors: number;
   outlineStrength: number;
-  /** PixelOE pre-pass (outline expansion + colour match) ahead of the sampler. */
-  pixeloePrepass: boolean;
+  /** Outline pre-pass ahead of the colour rule (see `PixelateOptions.prepass`). */
+  prepass: OutlinePrepass;
+  /** Line guide of the PixelOE + lines pre-pass. */
+  lineGuide: LineGuideMode;
   colorPicker: CellColorPicker;
   autoGrid: boolean;
   gridCellWidth: number;

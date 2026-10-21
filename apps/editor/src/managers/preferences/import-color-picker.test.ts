@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   CellColorPicker,
+  OutlinePrepass,
   importPreferenceOf,
   normalizeFilePreferences,
 } from "$/managers/preferences/file-preferences";
@@ -34,10 +35,34 @@ describe("remembered import picks", () => {
       choice: "always-ask",
       algorithm: "edge-grid",
       colorPicker: "average",
+      pixelation: null,
     });
     expect(importPreferenceOf({ ...base, importAsk: false }).choice).toBe("always-pixelate");
     expect(
       importPreferenceOf({ ...base, importAsk: false, importLastAction: "import-as-is" }).choice,
     ).toBe("always-import-as-is");
+  });
+  it("keeps the last Pixelate import for the silent path and drops unreadable ones", () => {
+    expect(normalizeFilePreferences(undefined).importPixelation).toBeNull();
+    expect(
+      normalizeFilePreferences({ importPixelation: { prepass: "bogus" } }).importPixelation,
+    ).toBeNull();
+    const saved = normalizeFilePreferences({
+      importPixelation: {
+        prepass: "none",
+        lineGuide: "bogus",
+        colorPicker: "median",
+        reduceColors: false,
+        maxColors: 999,
+      },
+    });
+    expect(saved.importPixelation).toEqual({
+      prepass: OutlinePrepass.None,
+      lineGuide: "union",
+      colorPicker: CellColorPicker.Median,
+      reduceColors: false,
+      maxColors: 256,
+    });
+    expect(importPreferenceOf(saved).pixelation).toEqual(saved.importPixelation);
   });
 });

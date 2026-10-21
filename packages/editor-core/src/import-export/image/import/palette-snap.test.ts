@@ -117,8 +117,8 @@ describe("snapPalette (given palette)", () => {
   });
 });
 
-describe("palette snap in the pixelate pipeline", () => {
-  test("is off by default and independent of Limit colors", () => {
+describe("Limit colors in the pixelate pipeline", () => {
+  test("is off by default; on, it clusters to the colour count", () => {
     const image = scene();
     const plain = pixelateImage(image, {
       blockPicker: true,
@@ -126,29 +126,29 @@ describe("palette snap in the pixelate pipeline", () => {
       targetHeight: 40,
     });
     expect(colors(plain).size).toBeGreaterThan(5);
-    const snapped = pixelateImage(image, {
+    const limited = pixelateImage(image, {
       blockPicker: true,
       targetWidth: 40,
       targetHeight: 40,
       paletteSnap: { colors: 5 },
     });
-    expect(colors(snapped).size).toBeLessThanOrEqual(5);
+    expect(colors(limited).size).toBeLessThanOrEqual(5);
   });
-  test("settings: colours clamped, palette wins over count, off yields no option", () => {
-    const base = defaultPixelationSettings({ width: 64, height: 64 });
-    expect(base.snapPalette).toBe(false);
+  test("settings: one Limit colors control, count 2-256, a loaded palette wins over the count", () => {
+    const size = { width: 64, height: 64 };
+    const base = defaultPixelationSettings(size);
+    expect(base.reduceColors).toBe(false);
     expect(
       pixelationSettingsOptions({ ...base, mode: PixelationMode.Convert }).paletteSnap,
     ).toBeUndefined();
-    const on = updatePixelationSettings(
-      { ...base, snapPalette: true },
-      { snapColors: 500 },
-      { width: 64, height: 64 },
-    );
-    expect(on.snapColors).toBe(64);
+    const on = updatePixelationSettings(base, { reduceColors: true, maxColors: 500 }, size);
+    expect(on.maxColors).toBe(256);
     expect(pixelationSettingsOptions({ ...on, mode: PixelationMode.Convert }).paletteSnap).toEqual({
-      colors: 64,
+      colors: 256,
     });
+    expect(
+      updatePixelationSettings(base, { reduceColors: true, maxColors: 1 }, size).maxColors,
+    ).toBe(2);
     const palette: Rgba[] = [[1, 2, 3, 255]];
     expect(
       pixelationSettingsOptions({
@@ -157,5 +157,27 @@ describe("palette snap in the pixelate pipeline", () => {
         mode: PixelationMode.Convert,
       }).paletteSnap,
     ).toEqual({ palette });
+  });
+  test("saved Limit colors / Snap palette settings become one Limit colors", () => {
+    const size = { width: 64, height: 64 };
+    const base = defaultPixelationSettings(size);
+    const migrate = (saved: Record<string, unknown>) => {
+      const next = updatePixelationSettings({ ...base, ...saved } as typeof base, {}, size);
+      expect(next).not.toHaveProperty("snapPalette");
+      expect(next).not.toHaveProperty("snapColors");
+      return [next.reduceColors, next.maxColors];
+    };
+    // Limit colors on: its own count, whatever Snap palette said.
+    expect(
+      migrate({ reduceColors: true, maxColors: 12, snapPalette: true, snapColors: 32 }),
+    ).toEqual([true, 12]);
+    // Only Snap palette on: Snap palette's count.
+    expect(
+      migrate({ reduceColors: false, maxColors: 12, snapPalette: true, snapColors: 32 }),
+    ).toEqual([true, 32]);
+    // Both off: off.
+    expect(
+      migrate({ reduceColors: false, maxColors: 12, snapPalette: false, snapColors: 32 }),
+    ).toEqual([false, 12]);
   });
 });

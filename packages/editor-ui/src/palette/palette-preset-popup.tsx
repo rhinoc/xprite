@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { PaletteBrowserChoice, PaletteTranslate } from "$/palette/model";
+import { AUTOMATIC_PALETTE_ID, presetMenuChecked, presetMenuChoices } from "$/palette/preset-menu";
 import type { Rgba } from "@xprite/editor-core/base";
 import {
   createUiPortal,
@@ -47,6 +48,17 @@ interface PalettePresetPopupProps {
   requireVisibleColors?: boolean;
   onRefresh: () => void;
   onOpenFolder?: (choice: PaletteBrowserChoice) => void;
+  /**
+   * Opt-in first item that hands colour choice back to the host (e.g. the pixelation tool's
+   * automatic palette). It is checked while `active`; loading it calls `onSelect` instead of `onLoad`.
+   */
+  automatic?: {
+    label: string;
+    /** Its strip: the palette Automatic currently gives (empty while unknown: no strip). */
+    colors?: readonly Rgba[];
+    active: boolean;
+    onSelect: () => void;
+  };
 }
 
 const ROW_HEIGHT = 40;
@@ -55,19 +67,17 @@ const SCROLLBAR_INSET = 7;
 const SCROLLBAR_WIDTH = SCROLLBAR_SIZE + SCROLLBAR_INSET;
 const PIXEL_WHEEL_SCROLL_MULTIPLIER = 2;
 const REFRESH_BUTTON_WIDTH = 32;
-
-function samePalette(a: readonly Rgba[], b: readonly Rgba[]) {
-  return (
-    a.length === b.length &&
-    a.every((color, index) => color.every((channel, i) => channel === b[index][i]))
-  );
-}
+/** The check mark's gutter: from the list's clip edge to where the colour strip starts. */
+const CHECK_GUTTER_X = 6;
+const CHECK_GUTTER_WIDTH = 16;
+/** paintUiIcon's default scale. */
+const ICON_SCALE = 2;
 
 function PaletteResourceList({
   client,
   bounds,
   choices,
-  currentPalette,
+  checked,
   selectedId,
   onSelect,
   onLoad,
@@ -76,7 +86,7 @@ function PaletteResourceList({
   client: SurfaceBounds;
   bounds: SurfaceBounds;
   choices: readonly PaletteBrowserChoice[];
-  currentPalette: readonly Rgba[];
+  checked: (choice: PaletteBrowserChoice) => boolean;
   selectedId: string | null;
   onSelect: (choice: PaletteBrowserChoice) => void;
   onLoad: (choice: PaletteBrowserChoice) => void;
@@ -150,22 +160,23 @@ function PaletteResourceList({
           context.fillRect(bounds.x + 6, y, contentWidth - 6, ROW_HEIGHT);
         }
         const ink = selected ? colors.listitem_selected_text : colors.listitem_normal_text;
-        if (samePalette(choice.colors, currentPalette))
+        const textY = y + Math.floor((ROW_HEIGHT - uiFontHeight(FontRole.Primary)) / 2) + 1;
+        if (checked(choice)) {
+          // Inside the list clip, centred in the gutter before the strip and on the name's line.
+          const check = assets.style.parts.check_selected;
+          const size = { width: check.width * ICON_SCALE, height: check.height * ICON_SCALE };
           paintUiIcon(
             context,
             assets,
             "check_selected",
-            bounds.x,
-            y + Math.floor((ROW_HEIGHT - 16) / 2),
+            bounds.x + CHECK_GUTTER_X + Math.floor((CHECK_GUTTER_WIDTH - size.width) / 2),
+            textY + Math.floor((uiFontHeight(FontRole.Primary) - size.height) / 2),
           );
-        paintUiText(
-          context,
-          assets,
-          choice.name,
-          bounds.x + 26,
-          y + Math.floor((ROW_HEIGHT - uiFontHeight(FontRole.Primary)) / 2) + 1,
-          { font: FontRole.Primary, color: ink },
-        );
+        }
+        paintUiText(context, assets, choice.name, bounds.x + 26, textY, {
+          font: FontRole.Primary,
+          color: ink,
+        });
         const chipStart = bounds.x + 22;
         const chipY = y + ROW_HEIGHT - 12 + (index === 0 ? 1 : 0);
         context.save();
@@ -193,7 +204,7 @@ function PaletteResourceList({
       bounds.width,
       bounds.height,
       choices,
-      currentPalette,
+      checked,
       selectedId,
       contentWidth,
       first,
@@ -219,6 +230,11 @@ function PaletteResourceList({
       ),
     );
   };
+  // Opening the menu selects the checked row; bring it into view (e.g. a loaded preset far down).
+  const initialIndex = useRef(activeIndex);
+  useEffect(() => {
+    if (initialIndex.current > 0) ensureVisible(initialIndex.current);
+  }, []);
   const moveSelection = (direction: number) => {
     if (!choices.length) return;
     const next =
@@ -298,11 +314,16 @@ function PaletteResourceList({
               viewport={DEFAULT_SURFACE_VIEWPORT}
               paintArtwork={false}
               role="option"
-              aria-label={translate("{value1} ({value2} colors)", {
-                value1: choice.name,
-                value2: choice.colors.length,
-              })}
+              aria-label={
+                choice.id === AUTOMATIC_PALETTE_ID
+                  ? choice.name
+                  : translate("{value1} ({value2} colors)", {
+                      value1: choice.name,
+                      value2: choice.colors.length,
+                    })
+              }
               aria-selected={choice.id === selectedId}
+              aria-checked={checked(choice)}
               tabIndex={-1}
               onClick={() => onSelect(choice)}
               onDoubleClick={() => onLoad(choice)}
@@ -343,6 +364,7 @@ export function PalettePresetPopup({
   maxColors = Infinity,
   disabled = false,
   requireVisibleColors = false,
+  automatic,
 }: PalettePresetPopupProps) {
   const assets = useUiAssets();
   const trigger = useRef<HTMLButtonElement>(null),
@@ -358,13 +380,35 @@ export function PalettePresetPopup({
     const node = marker.current;
     if (node) setPortalTarget(node.closest<HTMLElement>("[data-ui-scene]") ?? document.body);
   }, []);
-  const visibleChoices = useMemo(() => {
-    const terms = search.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
-    return choices.filter((choice) => {
-      const text = `${choice.name} ${choice.group} ${choice.author ?? ""}`.toLocaleLowerCase();
-      return terms.every((term) => text.includes(term));
-    });
-  }, [choices, search]);
+  const automaticLabel = automatic?.label;
+  const automaticColors = automatic?.colors;
+  const visibleChoices = useMemo(
+    () =>
+      presetMenuChoices(
+        choices,
+        search,
+        automaticLabel === undefined
+          ? undefined
+          : { label: automaticLabel, colors: automaticColors },
+      ),
+    [choices, search, automaticLabel, automaticColors],
+  );
+  const automaticActive = automatic?.active ?? false;
+  const checked = useCallback(
+    (choice: PaletteBrowserChoice) => presetMenuChecked(choice, activePalette, automaticActive),
+    [automaticActive, activePalette],
+  );
+  const loadable = (choice: PaletteBrowserChoice) =>
+    choice.id === AUTOMATIC_PALETTE_ID
+      ? hasDocument
+      : hasDocument &&
+        choice.colors.length <= maxColors &&
+        (!requireVisibleColors || choice.colors.some((color) => color[3] > 0));
+  const load = (choice: PaletteBrowserChoice) => {
+    if (!loadable(choice)) return;
+    if (choice.id === AUTOMATIC_PALETTE_ID) automatic?.onSelect();
+    else onLoad(choice.colors, choice);
+  };
   useEffect(() => {
     const changed = lastSearch.current !== search;
     lastSearch.current = search;
@@ -393,7 +437,9 @@ export function PalettePresetPopup({
       width,
       height,
     });
-    setSelectedId(visibleChoices[0]?.id ?? null);
+    // With Automatic, the menu opens on the active choice; otherwise on the first, as before.
+    const initial = (automatic && visibleChoices.find(checked)) || visibleChoices[0];
+    setSelectedId(initial?.id ?? null);
     setOpen(true);
   };
   const selected = visibleChoices.find((choice) => choice.id === selectedId) ?? null;
@@ -486,15 +532,10 @@ export function PalettePresetPopup({
           client={client}
           bounds={listBounds}
           choices={visibleChoices}
-          currentPalette={activePalette}
+          checked={checked}
           selectedId={selected?.id ?? null}
           onSelect={(choice) => setSelectedId(choice.id)}
-          onLoad={(choice) =>
-            hasDocument &&
-            choice.colors.length <= maxColors &&
-            (!requireVisibleColors || choice.colors.some((color) => color[3] > 0)) &&
-            onLoad(choice.colors, choice)
-          }
+          onLoad={load}
         />
         <Button
           bounds={loadBounds}
@@ -505,13 +546,8 @@ export function PalettePresetPopup({
           hotPart="button_hot"
           pushedPart="button_selected"
           mnemonicIndex={0}
-          disabled={
-            !hasDocument ||
-            !selected ||
-            selected.colors.length > maxColors ||
-            (requireVisibleColors && !selected.colors.some((color) => color[3] > 0))
-          }
-          onClick={() => selected && onLoad(selected.colors, selected)}
+          disabled={!selected || !loadable(selected)}
+          onClick={() => selected && load(selected)}
         />
         <Button
           bounds={folderBounds}
@@ -522,7 +558,9 @@ export function PalettePresetPopup({
           hotPart="button_hot"
           pushedPart="button_selected"
           mnemonicIndex={0}
-          disabled={!hasDocument || !selected || !onOpenFolder}
+          disabled={
+            !hasDocument || !selected || selected.id === AUTOMATIC_PALETTE_ID || !onOpenFolder
+          }
           onClick={() => selected && onOpenFolder?.(selected)}
         />
       </>

@@ -1,27 +1,13 @@
-.paletteControl {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ui-space-2);
-  min-width: 0;
-}
-.paletteHeader {
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ui-space-2);
-}
 .paletteScroll {
   max-height: 128px;
   min-height: 0;
+  min-width: 0;
 }
 .paletteGrid {
   display: grid;
   grid-template-columns: repeat(8, max-content);
   gap: 2px;
   padding: 2px;
-}
-.paletteActions {
-  flex-wrap: wrap;
-  gap: var(--ui-space-2);
 }
 
 /* Tool pages: each group is its own box, side by side in the adjust panel. */
@@ -46,7 +32,7 @@
   flex: 1 1 100%;
   min-width: 0;
 }
-.advanced {
-  flex: 1 1 100% !important;
-  min-width: 0;
+.paletteMenu {
+  display: inline-flex;
+  align-items: center;
 }

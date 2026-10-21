@@ -16,6 +16,7 @@ import {
   PixelArtClassification,
   PixelationAlgorithm,
   CellColorPicker,
+  OutlinePrepass,
   getAllAlgorithms,
   getListedAlgorithms,
   getAllColorPickers,
@@ -33,6 +34,7 @@ import {
 import type {
   EditorSessionPorts,
   EditorSessionSnapshot,
+  ImportPixelationMemory,
   SessionProject,
   SessionSource,
   SessionInitialOptions,
@@ -555,11 +557,33 @@ export class EditorSession<Source> {
   }
   private defaultOptions(candidate: Candidate) {
     return {
+      // Every import opens on PixelOE + lines with Contrast, grid or not; the remembered colour
+      // rule comes back when the pre-pass is switched to None (see setPixelationOptions).
       ...defaultPixelationSettings(candidate.pixels, candidate.grid),
-      colorPicker: this.importColorPicker(),
       // Import sizes the output from the target dimensions and lets the colour rule pick each block.
       blockPicker: true,
     };
+  }
+  /**
+   * The silent Pixelate path repeats the pixelation the dialog last imported with (pre-pass, line
+   * guide, colour rule and colour limit); with nothing saved it is the dialog's default. The dialog
+   * itself always opens on the default.
+   */
+  private silentOptions(candidate: Candidate, saved?: ImportPixelationMemory | null) {
+    const options = this.defaultOptions(candidate);
+    if (!saved) return options;
+    const patch: Partial<PixelationSettings> = {
+      prepass: saved.prepass,
+      lineGuide: saved.lineGuide,
+      ...(getAllColorPickers().includes(saved.colorPicker as CellColorPicker)
+        ? { colorPicker: saved.colorPicker }
+        : {}),
+      ...(typeof saved.reduceColors === "boolean" ? { reduceColors: saved.reduceColors } : {}),
+      ...(typeof saved.maxColors === "number" ? { maxColors: saved.maxColors } : {}),
+    };
+    for (const key of Object.keys(patch) as (keyof typeof patch)[])
+      if (patch[key] === undefined) delete patch[key];
+    return updatePixelationSettings(options, patch, candidate.pixels);
   }
   private offerCandidate(candidate: Candidate): SessionOutcome {
     const pref = this.ports.getImportPreference?.();
@@ -590,7 +614,7 @@ export class EditorSession<Source> {
             height: candidate.pixels.height,
             classification: candidate.classification,
           },
-          pixelationOptions: this.defaultOptions(candidate),
+          pixelationOptions: this.silentOptions(candidate, pref.pixelation),
           pixelationPreview: null,
           pixelationPalette: [],
           pixelationError: null,
@@ -702,12 +726,16 @@ export class EditorSession<Source> {
   }
   setPixelationOptions(options: Partial<PixelationSettings>) {
     if (this.disposed || this.state.busy || !this.candidate) return;
+    const current = this.state.pixelationOptions;
+    // Switching the pre-pass off brings back the colour rule remembered for plain imports.
+    const patch =
+      options.prepass === OutlinePrepass.None &&
+      current.prepass !== OutlinePrepass.None &&
+      options.colorPicker === undefined
+        ? { ...options, colorPicker: this.importColorPicker() }
+        : options;
     this.publish({
-      pixelationOptions: updatePixelationSettings(
-        this.state.pixelationOptions,
-        options,
-        this.candidate.pixels,
-      ),
+      pixelationOptions: updatePixelationSettings(current, patch, this.candidate.pixels),
       pixelationPreview: null,
       pixelationPalette: [],
     });
