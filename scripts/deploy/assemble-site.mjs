@@ -1,4 +1,4 @@
-import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -12,6 +12,7 @@ import {
   applyViewerSearchMetadata,
 } from "../../apps/growth/build/seo/index.ts";
 import { SITE_PAGES, SitePageKind } from "../../apps/growth/content/site/pages.ts";
+import { mergeSiteOutputs } from "../../infra/site-assembly.ts";
 import { checkAssetVersions } from "../check/check-asset-versions.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
@@ -46,10 +47,13 @@ const [editorHtml, viewerHtml, gifSheetHtml, animalCrossingHtml, pixelateHtml, b
 
 await rm(siteOutput, { recursive: true, force: true });
 await mkdir(siteOutput, { recursive: true });
-await cp(editorOutput, siteOutput, { recursive: true });
-await cp(growthOutput, siteOutput, { recursive: true });
-await cp(toolsOutput, resolve(siteOutput, "tools"), { recursive: true });
-await cp(componentsOutput, resolve(siteOutput, "components"), { recursive: true });
+// Fails before copying when two apps would write different bytes to one path.
+await mergeSiteOutputs(siteOutput, [
+  { label: "editor", directory: editorOutput },
+  { label: "growth", directory: growthOutput },
+  { label: "tools", directory: toolsOutput, prefix: "tools" },
+  { label: "components", directory: componentsOutput, prefix: "components" },
+]);
 await writeFile(
   resolve(siteOutput, INDEX_FILENAME),
   applyEditorSearchMetadata(editorHtml, project.version, indexable),
