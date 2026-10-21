@@ -22,12 +22,12 @@ import {
   updatePixelationSettings,
   applyPixelationGrid,
   detectWithAlgorithm,
-  getAlgorithmEntry,
   getAllAlgorithms,
   getAllColorPickers,
   pixelationSettingsOptions,
   CellColorPicker,
   LineGuideMode,
+  OutlinePrepass,
   PixelationAlgorithm,
   PixelationMethod,
   PIXELATION_METHOD_OPTIONS,
@@ -83,7 +83,7 @@ const defaultSettings = (): BeadToolSettings => ({
   method: PixelationMethod.Nearest,
   algorithm: PixelationAlgorithm.Auto,
   colorPicker: CellColorPicker.MostCommon,
-  pixeloePrepass: false,
+  prepass: OutlinePrepass.None,
   lineGuide: LineGuideMode.Union,
 });
 export interface BeadToolSettings extends Pick<
@@ -93,7 +93,7 @@ export interface BeadToolSettings extends Pick<
   | "lockAspectRatio"
   | "method"
   | "colorPicker"
-  | "pixeloePrepass"
+  | "prepass"
   | "lineGuide"
 > {
   /** How the image's pixel grid is found; the same choices as the editor import dialog. */
@@ -352,6 +352,10 @@ export class BeadToolManager {
       targetWidth: normalized.targetWidth,
       targetHeight: normalized.targetHeight,
       lockAspectRatio: normalized.lockAspectRatio,
+      // The pre-pass picks Contrast when it is turned on, and maps the old checkbox.
+      colorPicker: normalized.colorPicker,
+      prepass: normalized.prepass,
+      lineGuide: normalized.lineGuide,
       method: normalized.method,
     };
     if (
@@ -359,8 +363,7 @@ export class BeadToolManager {
       !getAllColorPickers().includes(settings.colorPicker) ||
       !Object.values(BeadBrand).includes(settings.brand) ||
       !isValidBeadBoardSize(settings.boardSize) ||
-      !Object.values(PixelationMethod).includes(settings.method) ||
-      !Object.values(LineGuideMode).includes(settings.lineGuide)
+      !Object.values(PixelationMethod).includes(settings.method)
     )
       return;
     const remap =
@@ -370,7 +373,7 @@ export class BeadToolManager {
       settings.method !== this.state.settings.method ||
       settings.algorithm !== this.state.settings.algorithm ||
       settings.colorPicker !== this.state.settings.colorPicker ||
-      settings.pixeloePrepass !== this.state.settings.pixeloePrepass ||
+      settings.prepass !== this.state.settings.prepass ||
       settings.lineGuide !== this.state.settings.lineGuide;
     const brandChanged = settings.brand !== this.state.settings.brand;
     const boardChanged =
@@ -397,9 +400,8 @@ export class BeadToolManager {
   /** The grid the chosen algorithm finds in the source; recomputed only when its inputs change. */
   private detect(source: PixelBuffer): PixelGridAnalysis {
     const { algorithm, targetWidth, targetHeight } = this.state.settings;
-    // Custom size and PixelOE make the bead grid size; the grid finders ignore it.
     const size =
-      algorithm === PixelationAlgorithm.CustomSize || getAlgorithmEntry(algorithm).standalone
+      algorithm === PixelationAlgorithm.CustomSize
         ? { width: targetWidth, height: targetHeight }
         : undefined;
     const key = `${algorithm}:${size?.width ?? 0}x${size?.height ?? 0}`;

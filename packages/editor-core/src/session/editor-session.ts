@@ -16,6 +16,7 @@ import {
   PixelArtClassification,
   PixelationAlgorithm,
   CellColorPicker,
+  OutlinePrepass,
   getAllAlgorithms,
   getListedAlgorithms,
   getAllColorPickers,
@@ -24,7 +25,6 @@ import {
   updatePixelationSettings,
   applyPixelationGrid,
   pixelationSettingsOptions,
-  DEFAULT_CONVERT_ALGORITHM,
 } from "$/import-export/image/import";
 import {
   RecentImageStore,
@@ -69,8 +69,6 @@ function layerState(state: EditorSnapshot) {
 interface Candidate {
   sourcePalette: readonly Rgba[];
   grid?: PixelGridAnalysis;
-  /** The algorithm `grid` came from, when it is not the remembered one. */
-  algorithm?: PixelationAlgorithm;
   recentIdentity?: string;
   recentAlias?: string;
   pixels: PixelBuffer;
@@ -511,27 +509,10 @@ export class EditorSession<Source> {
         ? (this.recentIdentities?.resolve(recentAlias) ?? recentAlias)
         : null;
       if (!this.valid(generation)) return SessionOutcome.Ignored;
-      let analysis = project
+      const analysis = project
         ? null
         : await this.ports.analyze(pixels, { algorithm: this.importAlgorithm() });
       if (!this.valid(generation)) return SessionOutcome.Ignored;
-      // Auto without a reliable grid opens on line-guided PixelOE instead of a plain resize, unless
-      // the image is pixel art that would be imported as it is anyway.
-      let algorithm: PixelationAlgorithm | undefined;
-      if (
-        analysis &&
-        this.importAlgorithm() === PixelationAlgorithm.Auto &&
-        !analysis.grid?.reliable &&
-        !(
-          analysis.classification === PixelArtClassification.LikelyPixelArt &&
-          !this.ports.getImportPreference?.()
-        )
-      ) {
-        algorithm = DEFAULT_CONVERT_ALGORITHM;
-        const { grid } = await this.ports.analyze(pixels, { algorithm });
-        if (!this.valid(generation)) return SessionOutcome.Ignored;
-        analysis = { ...analysis, grid };
-      }
       this.release(source.source, generation);
       const candidate: Candidate = {
         sourcePalette: (source.palette ?? this.editor.getSnapshot().palette).map(
@@ -541,7 +522,6 @@ export class EditorSession<Source> {
         name: source.name,
         classification: analysis?.classification ?? PixelArtClassification.LikelyPixelArt,
         ...(analysis ? { grid: analysis.grid } : {}),
-        ...(algorithm ? { algorithm } : {}),
         checkpoint: before,
         ...(recentIdentity ? { recentIdentity } : {}),
         ...(recentAlias ? { recentAlias } : {}),
@@ -575,9 +555,15 @@ export class EditorSession<Source> {
     return getAllColorPickers().find((id) => id === remembered) ?? CellColorPicker.MostCommon;
   }
   private defaultOptions(candidate: Candidate) {
+    const settings = defaultPixelationSettings(candidate.pixels, candidate.grid);
     return {
-      ...defaultPixelationSettings(candidate.pixels, candidate.grid),
-      colorPicker: this.importColorPicker(),
+      ...settings,
+      // Without a reliable grid the import opens on PixelOE + lines with Contrast (the PixelOE
+      // reference result); a recovered grid keeps the remembered colour rule.
+      colorPicker:
+        settings.prepass === OutlinePrepass.None
+          ? this.importColorPicker()
+          : CellColorPicker.Contrast,
       // Import sizes the output from the target dimensions and lets the colour rule pick each block.
       blockPicker: true,
     };
@@ -604,7 +590,7 @@ export class EditorSession<Source> {
           pendingImport: {
             sourcePalette: candidate.sourcePalette,
             grid: candidate.grid ?? null,
-            algorithm: candidate.algorithm ?? this.importAlgorithm(),
+            algorithm: this.importAlgorithm(),
             pixels: candidate.pixels,
             name: candidate.name,
             width: candidate.pixels.width,
@@ -643,7 +629,7 @@ export class EditorSession<Source> {
       pendingImport: {
         sourcePalette: candidate.sourcePalette,
         grid: candidate.grid ?? null,
-        algorithm: candidate.algorithm ?? this.importAlgorithm(),
+        algorithm: this.importAlgorithm(),
         pixels: candidate.pixels,
         name: candidate.name,
         width: candidate.pixels.width,
@@ -755,7 +741,7 @@ export class EditorSession<Source> {
     try {
       const { grid } = await this.ports.analyze(candidate.pixels, { algorithm, size });
       if (!this.valid(generation) || version !== this.algorithmVersion) return;
-      this.candidate = { ...candidate, grid, algorithm };
+      this.candidate = { ...candidate, grid };
       const current = this.state.pendingImport;
       this.publish({
         pendingImport: current ? { ...current, grid, algorithm } : current,

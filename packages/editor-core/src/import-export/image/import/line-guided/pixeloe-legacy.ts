@@ -21,8 +21,6 @@ import { LineGuideMode } from "$/import-export/image/import/types";
  */
 const PIXELOE_PATCH_SIZE = 6;
 const PIXELOE_DEFAULT_THICKNESS = 2;
-/** pixelize()'s default `target_size`. */
-export const PIXELOE_DEFAULT_TARGET = 64;
 const AVG_SCALE = 9;
 const DIST_SCALE = 4;
 const WEIGHT_STRIDE = Math.floor(PIXELOE_PATCH_SIZE / 4) * 2;
@@ -55,7 +53,7 @@ export interface PixeloeSizes {
   out: [number, number];
 }
 /** pixelize() sizes for one `target_size`: working image and contrast-downscale output. */
-export function pixeloeTargetSizes(w: number, h: number, target: number): PixeloeSizes {
+function pixeloeTargetSizes(w: number, h: number, target: number): PixeloeSizes {
   const ratio = w / h;
   const s = Math.sqrt((target ** 2 * PIXELOE_PATCH_SIZE ** 2) / ratio);
   const work: [number, number] = [Math.trunc(s * ratio), Math.trunc(s)];

@@ -71,11 +71,17 @@ export enum PixelationAlgorithm {
   UniformGrid = "uniform-grid",
   /** The user names the output size; the image is split into that many even blocks. */
   CustomSize = "custom-size",
-  /** PixelOE with its outline weight guided by an XDoG line drawing of the source. */
-  PixeloeLines = "pixeloe-lines",
-  /** PixelOE's own pipeline (outline expansion, colour match, contrast downscale). */
-  Pixeloe = "pixeloe",
   Resize = "resize",
+}
+
+/**
+ * The outline pre-pass ahead of the colour rule. PixelOE runs outline expansion + colour match;
+ * PixelOE + lines also guides the expansion weight with an XDoG line drawing of the source.
+ */
+export enum OutlinePrepass {
+  None = "none",
+  Pixeloe = "pixeloe",
+  PixeloeLines = "pixeloe-lines",
 }
 
 /** How a line drawing changes PixelOE's outline weight (1 = spread dark, 0 = spread bright). */
@@ -144,9 +150,14 @@ export interface PixelateOptions {
   colorPicker?: CellColorPicker;
   grid?: PixelGridGeometry;
   outlineStrength?: number;
-  /** Run the PixelOE pre-pass (outline expansion + colour match) before sampling; works with any picker/method. */
-  pixeloePrepass?: boolean;
-  /** How the line drawing guides the line-guided PixelOE algorithm; Union when omitted. */
+  /**
+   * Outline pre-pass; None when omitted. With the Contrast picker and no grid recovered from the
+   * source (a plain convert or Custom size), a PixelOE pre-pass runs stock PixelOE end to end
+   * (contrast downscale + colour match at the output size); otherwise it is an image -> image step
+   * before the picker or sampler.
+   */
+  prepass?: OutlinePrepass;
+  /** How the line drawing guides PixelOE + lines; Union when omitted. */
   lineGuide?: LineGuideMode;
   /** Sampling rule used to choose one representative color per output cell. */
   method?: PixelationMethod;
@@ -195,9 +206,9 @@ export interface PixelationSettings {
   snapPalette: boolean;
   snapColors: number;
   outlineStrength: number;
-  /** PixelOE pre-pass (outline expansion + colour match) ahead of the sampler. */
-  pixeloePrepass: boolean;
-  /** Line guide of the line-guided PixelOE algorithm. */
+  /** Outline pre-pass ahead of the colour rule (see `PixelateOptions.prepass`). */
+  prepass: OutlinePrepass;
+  /** Line guide of the PixelOE + lines pre-pass. */
   lineGuide: LineGuideMode;
   colorPicker: CellColorPicker;
   autoGrid: boolean;

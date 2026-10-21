@@ -11,12 +11,7 @@ describe("import dialog algorithm copy", () => {
   it("explains a missing grid for every grid algorithm, and not for the ones that never miss", () => {
     for (const algorithm of getAllAlgorithms())
       expect(algorithmNoteKey(algorithm, false) === null).toBe(
-        [
-          PixelationAlgorithm.Resize,
-          PixelationAlgorithm.CustomSize,
-          PixelationAlgorithm.PixeloeLines,
-          PixelationAlgorithm.Pixeloe,
-        ].includes(algorithm),
+        [PixelationAlgorithm.Resize, PixelationAlgorithm.CustomSize].includes(algorithm),
       );
   });
 });

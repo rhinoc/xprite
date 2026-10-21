@@ -1,8 +1,13 @@
 import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { manualPixelGrid, MAX_GRID_CELL_SIZE } from "$/import-export/image/import/grid";
 import {
+  defaultOutlinePrepass,
+  readOutlinePrepass,
+} from "$/import-export/image/import/outline-prepass";
+import {
   CellColorPicker,
   LineGuideMode,
+  OutlinePrepass,
   PixelationMethod,
   PixelationMode,
   type PixelGridAnalysis,
@@ -31,15 +36,19 @@ export function defaultPixelationSettings(
   grid?: PixelGridAnalysis,
 ): PixelationSettings {
   const scale = Math.min(1, DEFAULT_PIXELATION_SIZE / Math.max(image.width, image.height));
+  // Without a reliable grid the source opens on PixelOE + lines with Contrast: stock PixelOE's own
+  // colours, so no colour limit either.
+  const prepass = defaultOutlinePrepass(grid);
   return {
     mode: grid?.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
-    reduceColors: !grid?.reliable,
+    reduceColors: !grid?.reliable && prepass === OutlinePrepass.None,
     snapPalette: false,
     snapColors: DEFAULT_SNAP_COLORS,
     outlineStrength: 0,
-    pixeloePrepass: false,
+    prepass,
     lineGuide: LineGuideMode.Union,
-    colorPicker: CellColorPicker.MostCommon,
+    colorPicker:
+      prepass === OutlinePrepass.None ? CellColorPicker.MostCommon : CellColorPicker.Contrast,
     autoGrid: true,
     gridCellWidth: grid?.reliable ? grid.cellWidth : 8,
     gridCellHeight: grid?.reliable ? grid.cellHeight : 8,
@@ -61,6 +70,17 @@ export function updatePixelationSettings(
   image: Pick<PixelBuffer, "width" | "height">,
 ): PixelationSettings {
   const next = { ...settings, ...patch };
+  // Settings saved before the pre-pass dropdown carry the old checkbox instead.
+  next.prepass = readOutlinePrepass(patch) ?? readOutlinePrepass(settings) ?? OutlinePrepass.None;
+  delete (next as { pixeloePrepass?: unknown }).pixeloePrepass;
+  if (!Object.values(LineGuideMode).includes(next.lineGuide)) next.lineGuide = LineGuideMode.Union;
+  // Turning a PixelOE pre-pass on starts from Contrast, PixelOE's own colour rule.
+  if (
+    settings.prepass === OutlinePrepass.None &&
+    next.prepass !== OutlinePrepass.None &&
+    patch.colorPicker === undefined
+  )
+    next.colorPicker = CellColorPicker.Contrast;
   if (patch.palette !== undefined) {
     if (patch.palette && (!patch.palette.length || patch.palette.length > MAX_COLORS))
       throw new RangeError("Choose a palette with 1 to 256 colors.");
@@ -120,7 +140,7 @@ export function pixelationSettingsOptions(
     grid,
     colorPicker: settings.colorPicker,
     outlineStrength: settings.mode === PixelationMode.Convert ? settings.outlineStrength : 0,
-    pixeloePrepass: settings.pixeloePrepass,
+    prepass: settings.prepass,
     lineGuide: settings.lineGuide,
     targetWidth: settings.targetWidth,
     targetHeight: settings.targetHeight,
@@ -131,7 +151,8 @@ export function pixelationSettingsOptions(
       : undefined,
     maxColors: settings.reduceColors && !palette ? settings.maxColors : undefined,
     method: settings.method,
-    blockPicker: settings.blockPicker,
+    // A pre-pass hands its result to the colour rule, so the picker (not `method`) fills each block.
+    blockPicker: settings.blockPicker || settings.prepass !== OutlinePrepass.None,
     preserveDimensions: settings.preserveDimensions,
     removeNoise: settings.removeNoise,
     alphaMode: "premultiplied",

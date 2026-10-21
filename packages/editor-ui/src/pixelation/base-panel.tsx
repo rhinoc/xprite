@@ -5,8 +5,7 @@ import {
   usePixelationBase,
   type PixelationBaseProps,
 } from "$/pixelation/base-controls";
-import { pixelationAdvancedLabel } from "$/pixelation/base-labels";
-import { ContentLayout, ContentPadding, Disclosure, Field, FieldLayout, Panel } from "@xprite/ui";
+import { ContentLayout, ContentPadding, Field, FieldLayout, Panel } from "@xprite/ui";
 
 import styles from "$/pixelation/pixelation.module.css";
 
@@ -55,10 +54,11 @@ export function PixelationBaseControls({
     <div className={styles.controls}>
       <Group title={translate("Pixels")}>
         {field(PixelationSlot.Algorithm)}
-        {field(PixelationSlot.LineGuide)}
         {field(PixelationSlot.Width, SIZE_WIDTH)}
         {field(PixelationSlot.Height, SIZE_WIDTH)}
         {field(PixelationSlot.ColorPicker)}
+        {field(PixelationSlot.Prepass)}
+        {field(PixelationSlot.LineGuide)}
       </Group>
       {(base[PixelationSlot.LimitColors].visible ||
         base[PixelationSlot.Palette].visible ||
@@ -74,12 +74,6 @@ export function PixelationBaseControls({
         </Group>
       )}
       {children}
-      <Disclosure title={translate(pixelationAdvancedLabel.text)} className={styles.advanced}>
-        <div className={styles.groupRow}>
-          {bare(PixelationSlot.Prepass)}
-          {bare(PixelationSlot.PrepassPreset)}
-        </div>
-      </Disclosure>
     </div>
   );
 }

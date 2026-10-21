@@ -1,11 +1,12 @@
 import {
   PixelationAlgorithm,
   CellColorPicker,
+  OutlinePrepass,
   getAllAlgorithms,
   getAllColorPickers,
 } from "@xprite/editor-core/import-export/image/import";
 
-export { PixelationAlgorithm, CellColorPicker, getAllAlgorithms };
+export { PixelationAlgorithm, CellColorPicker, OutlinePrepass, getAllAlgorithms };
 
 export enum SaveFileExtension {
   Aseprite = "aseprite",

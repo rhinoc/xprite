@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { describe, expect, test } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
+import { blockPartition } from "$/import-export/image/import/grid";
 import {
   sprite,
   texturePhoto,
@@ -10,9 +11,11 @@ import {
   vectorShapes,
 } from "$/import-export/image/import/grid-test-images";
 import { pixelateImage } from "$/import-export/image/import/pixelate";
+import { recoverWithGrid } from "$/import-export/image/import/pixelation-algorithm-registry";
 import { pixeloePrepass } from "$/import-export/image/import/pixeloe-prepass";
 import {
   CellColorPicker,
+  OutlinePrepass,
   PixelationAlgorithm,
   PixelationMode,
 } from "$/import-export/image/import/types";
@@ -22,24 +25,22 @@ const digest = (image: PixelBuffer) =>
 
 /**
  * The original PixelOE pre-pass and preset, pinned to their output before line-guided PixelOE
- * was added: the new algorithms must not change them.
+ * was added. The pre-pass itself and every combination the old checkbox offered keep their pixels.
+ * The one exception is deliberate: on a plain convert, PixelOE + Contrast (the old preset) now runs
+ * stock PixelOE (see outline-prepass.test.ts), so the old preset's pipeline is pinned directly.
  */
 const CASES: Record<string, () => PixelBuffer> = {
   "pre-pass alone": () => pixeloePrepass(texturePhoto(96, 80), 6),
-  "preset on a convert": () =>
-    pixelateImage(vectorShapes(150, 120), {
-      mode: PixelationMode.Convert,
-      blockPicker: true,
-      targetWidth: 30,
-      targetHeight: 24,
-      colorPicker: CellColorPicker.Contrast,
-      pixeloePrepass: true,
-    }),
+  "preset on a convert": () => {
+    const image = vectorShapes(150, 120);
+    const blocks = { ...blockPartition(image, 30, 24), confidence: 1, reliable: true };
+    return recoverWithGrid(pixeloePrepass(image, 5), blocks, CellColorPicker.Contrast);
+  },
   "pre-pass on a recovered grid": () =>
     pixelateImage(upscaleNearest(sprite(32), 4), {
       algorithm: PixelationAlgorithm.Auto,
       colorPicker: CellColorPicker.Contrast,
-      pixeloePrepass: true,
+      prepass: OutlinePrepass.Pixeloe,
     }),
   "no pre-pass": () =>
     pixelateImage(vectorShapes(150, 120), {

@@ -8,8 +8,7 @@ import {
   applyPixelationGrid,
   defaultPixelationSettings,
   extractPixelationPalette,
-  getAlgorithmEntry,
-  openingAlgorithm,
+  runsStockPixeloe,
   updatePixelationSettings,
   pixelationSettingsOptions,
   type PixelationSettings,
@@ -18,11 +17,14 @@ import {
 } from "@xprite/editor-core/import-export";
 import type { PaletteBrowserChoice } from "@xprite/editor-ui/palette/model";
 
-/** A recovered grid restores the source's own pixels; the PixelOE entries draw new ones. */
-export function restoresPixels(state: Pick<PixelationSnapshot, "algorithm" | "settings">) {
+/**
+ * A recovered grid restores the source's own pixels; stock PixelOE (a PixelOE pre-pass with Contrast
+ * on Custom size's blocks) draws new ones.
+ */
+export function restoresPixels(state: Pick<PixelationSnapshot, "settings" | "grid">) {
   return (
     state.settings.mode === PixelationMode.RecoverGrid &&
-    !getAlgorithmEntry(state.algorithm).standalone
+    !runsStockPixeloe(state.settings, state.grid ?? undefined)
   );
 }
 
@@ -93,19 +95,12 @@ export class PixelationManager {
     try {
       const source = await this.port.read(file);
       if (this.closed || request !== this.request) return;
-      const auto = await this.port.detectGrid(source);
-      if (this.closed || request !== this.request) return;
-      // A reliable grid is recovered; anything else opens on line-guided PixelOE.
-      const algorithm = openingAlgorithm(auto);
-      const grid =
-        algorithm === PixelationAlgorithm.Auto
-          ? auto
-          : await this.port.detectGrid(source, algorithm);
+      const grid = await this.port.detectGrid(source);
       if (this.closed || request !== this.request) return;
       this.publish({
         source,
         identity: this.state.identity + 1,
-        algorithm,
+        algorithm: PixelationAlgorithm.Auto,
         grid,
         name: file.name,
         settings: defaultPixelationSettings(source, grid),

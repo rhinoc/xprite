@@ -46,7 +46,3 @@
   flex: 1 1 100%;
   min-width: 0;
 }
-.advanced {
-  flex: 1 1 100% !important;
-  min-width: 0;
-}

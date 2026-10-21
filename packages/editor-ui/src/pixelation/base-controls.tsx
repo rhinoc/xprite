@@ -6,6 +6,7 @@ import {
   LABELS,
   LINE_GUIDE_LABELS,
   PICKER_LABELS,
+  PREPASS_LABELS,
   type PixelationLabel as Label,
 } from "$/pixelation/base-labels";
 import {
@@ -15,10 +16,10 @@ import {
 import {
   CellColorPicker,
   LineGuideMode,
+  OutlinePrepass,
   PIXELATION_SIZES,
   PixelationAlgorithm,
   SNAP_COLOR_PRESETS,
-  getAlgorithmEntry,
   getAllColorPickers,
   getListedAlgorithms,
   pixelationSizeFromAxis,
@@ -26,7 +27,7 @@ import {
   type PixelationSettings,
   type PixelationSize,
 } from "@xprite/editor-core/import-export";
-import { Button, Checkbox, Combobox, Input, FontRole, type ControlPlacement } from "@xprite/ui";
+import { Checkbox, Combobox, Input, type ControlPlacement } from "@xprite/ui";
 
 const NUMBER_WIDTH = 36;
 const MAX_COLORS = 256;
@@ -36,8 +37,6 @@ const FIELD_WIDTH = 112;
 /** The base controls every pixelation surface (import dialog, pixelate tool, beads tool) shares. */
 export enum PixelationSlot {
   Algorithm = "algorithm",
-  /** Only for the line-guided PixelOE entry. */
-  LineGuide = "line-guide",
   Width = "width",
   Height = "height",
   ColorPicker = "color-picker",
@@ -46,8 +45,10 @@ export enum PixelationSlot {
   Palette = "palette",
   SnapPalette = "snap-palette",
   SnapColors = "snap-colors",
+  /** Outline pre-pass: None / PixelOE / PixelOE + lines. */
   Prepass = "prepass",
-  PrepassPreset = "prepass-preset",
+  /** Only for the PixelOE + lines pre-pass. */
+  LineGuide = "line-guide",
 }
 
 export interface PixelationBaseProps {
@@ -87,7 +88,6 @@ export function usePixelationBase(
   const { onChange, onAlgorithm } = props;
   const [drafts, setDrafts] = useState<{ width?: string; height?: string }>({});
   const t = (label: Label) => translate(label.text);
-  const entry = getAlgorithmEntry(algorithm);
   const show = (slot: PixelationSlot, visible = true) => visible && !hidden?.has(slot);
   /** The size the chosen method produces: its grid's cell count, or the plain target if it found none. */
   const outputSize = grid?.reliable
@@ -96,8 +96,7 @@ export function usePixelationBase(
   const commitSize = (axis: "width" | "height", value: string) => {
     setDrafts((previous) => ({ ...previous, [axis]: undefined }));
     const size = pixelationSizeFromAxis(axis, value, sourceSize);
-    // A typed size keeps an entry that sizes its own output (PixelOE); grids become Custom size.
-    if (size) onAlgorithm(entry.standalone ? algorithm : PixelationAlgorithm.CustomSize, size);
+    if (size) onAlgorithm(PixelationAlgorithm.CustomSize, size);
   };
   const sizeOptions = PIXELATION_SIZES.map((preset) => ({
     value: String(preset),
@@ -138,38 +137,14 @@ export function usePixelationBase(
             value: id,
             label: t(ALGORITHM_LABELS[id]),
           }))}
-          onValueChange={(value) => {
-            const next = value as PixelationAlgorithm;
-            // Moving between the PixelOE entries keeps the size, so the two compare like for like.
-            const keep = entry.standalone && getAlgorithmEntry(next).standalone;
-            onAlgorithm(next, keep ? outputSize : undefined);
-          }}
-        />
-      ),
-    },
-    [PixelationSlot.LineGuide]: {
-      visible: show(PixelationSlot.LineGuide, entry.lineGuided),
-      label: t(LABELS.lineGuide),
-      render: (placement) => (
-        <Combobox
-          pixelWidth={FIELD_WIDTH}
-          {...placement}
-          aria-label={t(LABELS.lineGuide)}
-          value={settings.lineGuide}
-          disabled={busy}
-          options={Object.values(LineGuideMode).map((id) => ({
-            value: id,
-            label: t(LINE_GUIDE_LABELS[id]),
-          }))}
-          onValueChange={(value) => onChange({ lineGuide: value as LineGuideMode })}
+          onValueChange={(value) => onAlgorithm(value as PixelationAlgorithm)}
         />
       ),
     },
     [PixelationSlot.Width]: size("width", LABELS.width),
     [PixelationSlot.Height]: size("height", LABELS.height),
     [PixelationSlot.ColorPicker]: {
-      // PixelOE picks its own colours, so its entries have no per-cell colour rule to choose.
-      visible: show(PixelationSlot.ColorPicker, !entry.standalone),
+      visible: show(PixelationSlot.ColorPicker),
       label: t(LABELS.picker),
       render: (placement) => (
         <Combobox
@@ -177,8 +152,9 @@ export function usePixelationBase(
           {...placement}
           aria-label={t(LABELS.picker)}
           value={settings.colorPicker}
-          // Without a grid the preview is a plain resize, which has no per-cell colour to pick.
-          disabled={busy || !grid?.reliable}
+          // Without a grid and without a pre-pass the preview is a plain resize, which has no
+          // per-cell colour to pick; a pre-pass hands its result to the picker block by block.
+          disabled={busy || (!grid?.reliable && settings.prepass === OutlinePrepass.None)}
           options={getAllColorPickers().map((id) => ({ value: id, label: t(PICKER_LABELS[id]) }))}
           onValueChange={(value) => onChange({ colorPicker: value as CellColorPicker })}
         />
@@ -263,27 +239,37 @@ export function usePixelationBase(
     },
     [PixelationSlot.Prepass]: {
       visible: show(PixelationSlot.Prepass),
-      label: null,
-      render: (placement) => (
-        <Checkbox
+      label: t(LABELS.prepass),
+      render: (placement, pixelWidth) => (
+        <Combobox
+          pixelWidth={pixelWidth ?? FIELD_WIDTH}
           {...placement}
-          label={t(LABELS.prepass)}
-          checked={settings.pixeloePrepass}
-          disabled={busy || entry.standalone}
-          onCheckedChange={(pixeloePrepass) => onChange({ pixeloePrepass })}
+          aria-label={t(LABELS.prepass)}
+          value={settings.prepass}
+          disabled={busy}
+          options={Object.values(OutlinePrepass).map((id) => ({
+            value: id,
+            label: t(PREPASS_LABELS[id]),
+          }))}
+          onValueChange={(value) => onChange({ prepass: value as OutlinePrepass })}
         />
       ),
     },
-    [PixelationSlot.PrepassPreset]: {
-      visible: show(PixelationSlot.PrepassPreset),
-      label: null,
-      render: (placement) => (
-        <Button
+    [PixelationSlot.LineGuide]: {
+      visible: show(PixelationSlot.LineGuide, settings.prepass === OutlinePrepass.PixeloeLines),
+      label: t(LABELS.lineGuide),
+      render: (placement, pixelWidth) => (
+        <Combobox
+          pixelWidth={pixelWidth ?? FIELD_WIDTH}
           {...placement}
-          text={t(LABELS.preset)}
-          font={FontRole.Compact}
-          disabled={busy || entry.standalone}
-          onClick={() => onChange({ pixeloePrepass: true, colorPicker: CellColorPicker.Contrast })}
+          aria-label={t(LABELS.lineGuide)}
+          value={settings.lineGuide}
+          disabled={busy}
+          options={Object.values(LineGuideMode).map((id) => ({
+            value: id,
+            label: t(LINE_GUIDE_LABELS[id]),
+          }))}
+          onValueChange={(value) => onChange({ lineGuide: value as LineGuideMode })}
         />
       ),
     },

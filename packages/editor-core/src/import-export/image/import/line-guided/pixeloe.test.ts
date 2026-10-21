@@ -11,22 +11,16 @@ import {
 } from "$/import-export/image/import/grid-test-images";
 import { labToRgb8, rgbToLab8 } from "$/import-export/image/import/line-guided/cv-lab";
 import { rgbToGray8 } from "$/import-export/image/import/line-guided/cv-ops";
-import { pixeloeGrid, runPixeloe } from "$/import-export/image/import/line-guided/pixeloe-entry";
+import { runPixeloe } from "$/import-export/image/import/line-guided/pixeloe-entry";
 import REFERENCE from "$/import-export/image/import/line-guided/pixeloe-reference.json";
 import { pixelateImage } from "$/import-export/image/import/pixelate";
 import {
-  detectWithAlgorithm,
-  getAlgorithmEntry,
-  getListedAlgorithms,
-  openingAlgorithm,
-} from "$/import-export/image/import/pixelation-algorithm-registry";
-import {
   CellColorPicker,
   LineGuideMode,
-  PixelationAlgorithm,
+  OutlinePrepass,
+  PixelationMode,
 } from "$/import-export/image/import/types";
 
-const { Pixeloe, PixeloeLines } = PixelationAlgorithm;
 const bytes = (base64: string) => new Uint8Array(Buffer.from(base64, "base64"));
 const rgbOf = (image: PixelBuffer) => {
   const rgb = new Uint8Array(image.width * image.height * 3);
@@ -73,8 +67,8 @@ describe("PixelOE against the Python reference", () => {
     const [name, , mode] = key.split("/");
     test(key, () => {
       const image = FIXTURES[name]();
-      const grid = pixeloeGrid(image, { width: expected.width, height: expected.height });
-      const out = runPixeloe(image, grid, MODES[mode]);
+      const size = { width: expected.width, height: expected.height };
+      const out = runPixeloe(image, size, MODES[mode]);
       expect([out.width, out.height]).toEqual([expected.width, expected.height]);
       const share = differing(rgbOf(out), bytes(expected.rgb));
       if (mode === "replace" || name === "texture") expect(share).toBe(0);
@@ -83,55 +77,16 @@ describe("PixelOE against the Python reference", () => {
   }
 });
 
-describe("PixelOE entries", () => {
-  const image = vectorShapes(150, 120);
-  test("both are listed, run their own pipeline, and only one reads the line guide", () => {
-    expect(getListedAlgorithms()).toEqual(expect.arrayContaining([Pixeloe, PixeloeLines]));
-    expect(getAlgorithmEntry(Pixeloe)).toMatchObject({ standalone: true, lineGuided: false });
-    expect(getAlgorithmEntry(PixeloeLines)).toMatchObject({ standalone: true, lineGuided: true });
-    expect(getAlgorithmEntry(PixelationAlgorithm.CustomSize).standalone).toBe(false);
-  });
-  test("size like PixelOE for a 64 px target (64 x 64 pixels in total), or as asked", () => {
-    expect(detectWithAlgorithm(image, PixeloeLines)).toMatchObject({
-      width: 71,
-      height: 57,
-      reliable: true,
-      algorithm: PixeloeLines,
-    });
-    expect(detectWithAlgorithm(image, Pixeloe, { width: 40, height: 32 })).toMatchObject({
-      width: 40,
-      height: 32,
-    });
-  });
-  test("pixelateImage runs the guide mode and ignores the pre-pass and colour rule", () => {
-    const grid = detectWithAlgorithm(image, PixeloeLines, { width: 30, height: 24 });
-    const run = (options: object) => pixelateImage(image, { grid, ...options });
-    const union = run({ lineGuide: LineGuideMode.Union });
-    expect(run({})).toEqual(union);
-    expect(run({ pixeloePrepass: true, colorPicker: CellColorPicker.Median })).toEqual(union);
-    expect(run({ lineGuide: LineGuideMode.Replace }).data).not.toEqual(union.data);
-    const plain = pixelateImage(image, {
-      grid: detectWithAlgorithm(image, Pixeloe, { width: 30, height: 24 }),
-      lineGuide: LineGuideMode.Replace,
-    });
-    expect(plain.data).not.toEqual(union.data);
-    expect([plain.width, plain.height]).toEqual([30, 24]);
-  });
+describe("stock PixelOE output", () => {
   test("transparent cells stay empty and drawn cells opaque", () => {
     const art = upscaleBilinear(sprite(40), 4);
     for (let y = 0; y < art.height; y++)
       for (let x = 0; x < 40; x++) art.data[(y * art.width + x) * 4 + 3] = 0;
-    const out = runPixeloe(art, pixeloeGrid(art, { width: 32, height: 32 }), LineGuideMode.Union);
+    const out = runPixeloe(art, { width: 32, height: 32 }, LineGuideMode.Union);
     const alpha = (x: number, y: number) => out.data[(y * out.width + x) * 4 + 3];
     expect(alpha(0, 0)).toBe(0);
     expect(alpha(31, 31)).toBe(255);
     expect(out.data.every((v, i) => i % 4 !== 3 || v === 0 || v === 255)).toBe(true);
-  });
-  test("an image without a pixel grid opens on line-guided PixelOE", () => {
-    expect(openingAlgorithm(detectWithAlgorithm(image))).toBe(PixeloeLines);
-    expect(openingAlgorithm({ ...detectWithAlgorithm(image), reliable: true })).toBe(
-      PixelationAlgorithm.Auto,
-    );
   });
 });
 
@@ -159,7 +114,16 @@ describe.skipIf(!references || !existsSync(`${references}/chibi/meta.json`))(
             const image = load(name);
             const dir = `${references}/${name}/t${target}`;
             const [width, height] = JSON.parse(readFileSync(`${dir}/meta.json`, "utf8")).out;
-            const out = runPixeloe(image, pixeloeGrid(image, { width, height }), MODES[mode]);
+            // The import default: a plain convert with the pre-pass and Contrast.
+            const out = pixelateImage(image, {
+              mode: PixelationMode.Convert,
+              blockPicker: true,
+              targetWidth: width,
+              targetHeight: height,
+              colorPicker: CellColorPicker.Contrast,
+              prepass: MODES[mode] ? OutlinePrepass.PixeloeLines : OutlinePrepass.Pixeloe,
+              lineGuide: MODES[mode],
+            });
             const share = differing(rgbOf(out), new Uint8Array(readFileSync(`${dir}/${file}.rgb`)));
             console.info(`${name} ${target} ${mode}: ${(share * 100).toFixed(3)}% pixels differ`);
             expect(share).toBeLessThanOrEqual(EXP_ROUNDING_SHARE);

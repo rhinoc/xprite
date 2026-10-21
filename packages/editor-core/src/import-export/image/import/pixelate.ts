@@ -4,18 +4,23 @@ import { protectPixelationContours } from "$/import-export/image/import/contours
 import { smoothPixelation } from "$/import-export/image/import/denoise";
 import { straighten } from "$/import-export/image/import/deskew";
 import { blockPartition } from "$/import-export/image/import/grid";
+import { runPixeloe } from "$/import-export/image/import/line-guided/pixeloe-entry";
 import { resizeMostFrequent } from "$/import-export/image/import/most-frequent";
+import {
+  applyOutlinePrepass,
+  runsStockPixeloe,
+} from "$/import-export/image/import/outline-prepass";
 import { reduceToPalette, extractPixelationPalette } from "$/import-export/image/import/palette";
 import { snapPalette } from "$/import-export/image/import/palette-snap";
 import {
   detectWithAlgorithm,
-  getAlgorithmEntry,
   recoverWithGrid,
 } from "$/import-export/image/import/pixelation-algorithm-registry";
-import { pixeloePrepass } from "$/import-export/image/import/pixeloe-prepass";
 import { resizeBox, resizeNearest } from "$/import-export/image/import/resize";
 import { samplePixelation } from "$/import-export/image/import/sampling";
 import {
+  LineGuideMode,
+  OutlinePrepass,
   PixelationMethod,
   PixelationMode,
   PixelationAlgorithm,
@@ -75,6 +80,11 @@ function sampleImage(
       : PixelationMode.Convert);
   if (mode !== PixelationMode.Convert && mode !== PixelationMode.RecoverGrid)
     throw new RangeError("Unknown pixelation mode.");
+  const prepass = options.prepass ?? OutlinePrepass.None;
+  const guide =
+    prepass === OutlinePrepass.PixeloeLines
+      ? (options.lineGuide ?? LineGuideMode.Union)
+      : undefined;
   if (mode === PixelationMode.RecoverGrid) {
     const found = grid ?? detectWithAlgorithm(image, options.algorithm ?? PixelationAlgorithm.Auto);
     if ("reliable" in found && !found.reliable)
@@ -85,21 +95,25 @@ function sampleImage(
     // A tilted source is straightened first; the grid's cuts are measured in that image.
     const rotation = (found as PixelGridAnalysis).rotation;
     const upright = rotation ? straighten(image, rotation) : image;
-    // Entries that run their own PixelOE ignore the pre-pass, as they ignore the colour rule.
-    const standalone = getAlgorithmEntry(
-      (found as PixelGridAnalysis).algorithm ?? PixelationAlgorithm.EdgeGrid,
-    ).standalone;
+    // Custom size's even blocks with PixelOE + Contrast: stock PixelOE to that size.
+    if (runsStockPixeloe({ ...options, mode }, found))
+      return runPixeloe(upright, { width: found.width, height: found.height }, guide);
     return recoverWithGrid(
-      options.pixeloePrepass && !standalone ? pixeloePrepass(upright, cell) : upright,
+      applyOutlinePrepass(upright, cell, prepass, options.lineGuide),
       rotation ? ({ ...found, rotation: undefined } as PixelGridAnalysis) : found,
       options.colorPicker,
-      { lineGuide: options.lineGuide },
     );
   }
   const target = resolveTargetSize(image, options);
-  // Optional, independent pre-pass; whatever sampler or colour picker follows works on its result.
-  if (options.pixeloePrepass)
-    image = pixeloePrepass(image, (image.width / target.width + image.height / target.height) / 2);
+  // PixelOE + Contrast without a recovered grid is stock PixelOE: the reference result.
+  if (runsStockPixeloe({ ...options, mode }, undefined)) return runPixeloe(image, target, guide);
+  // Otherwise an independent pre-pass; whatever sampler or colour picker follows works on its result.
+  image = applyOutlinePrepass(
+    image,
+    (image.width / target.width + image.height / target.height) / 2,
+    prepass,
+    options.lineGuide,
+  );
   const strength = options.outlineStrength ?? 0;
   if (!Number.isFinite(strength) || strength < 0 || strength > MAX_OUTLINE_STRENGTH)
     throw new RangeError("Outline protection must be between 0 and 100.");

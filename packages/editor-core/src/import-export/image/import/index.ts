@@ -17,7 +17,13 @@ export {
   CellColorPicker,
   ImportDialogChoice,
   LineGuideMode,
+  OutlinePrepass,
 } from "$/import-export/image/import/types";
+export {
+  defaultOutlinePrepass,
+  readOutlinePrepass,
+  runsStockPixeloe,
+} from "$/import-export/image/import/outline-prepass";
 export type {
   ExtractPaletteOptions,
   PaletteEntry,
@@ -54,8 +60,6 @@ export {
   getAllAlgorithms,
   getListedAlgorithms,
   detectWithAlgorithm,
-  openingAlgorithm,
-  DEFAULT_CONVERT_ALGORITHM,
   type PixelationAlgorithmEntry,
 } from "$/import-export/image/import/pixelation-algorithm-registry";
 

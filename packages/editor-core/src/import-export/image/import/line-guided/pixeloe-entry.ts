@@ -1,21 +1,13 @@
 import type { PixelBuffer } from "$/base/primitives";
-import { blockPartition } from "$/import-export/image/import/grid";
 import { resizeArea8 } from "$/import-export/image/import/line-guided/cv-ops";
 import {
-  PIXELOE_DEFAULT_TARGET,
   legacyPixeloe,
   legacyPixeloeSizes,
-  pixeloeTargetSizes,
   type LineGuide,
 } from "$/import-export/image/import/line-guided/pixeloe-legacy";
 import { otsuThreshold, xdogLines } from "$/import-export/image/import/line-guided/xdog";
 import { resizeBox } from "$/import-export/image/import/resize";
-import type {
-  LineGuideMode,
-  PixelGridAnalysis,
-  PixelGridGeometry,
-  PixelationSize,
-} from "$/import-export/image/import/types";
+import { LineGuideMode, type PixelationSize } from "$/import-export/image/import/types";
 
 /**
  * The line drawing is made at no more than this long side (or the working size, if larger): the
@@ -43,17 +35,6 @@ function fingerprint(data: Uint8ClampedArray): string {
     b = Math.imul(b + words[i], MIX_PRIME) ^ (b >>> 15);
   }
   return `${(a >>> 0).toString(36)}${(b >>> 0).toString(36)}`;
-}
-
-/**
- * The PixelOE entries' "grid": even blocks of the output size PixelOE makes. Without a size, the
- * size PixelOE itself picks for a 64 px target (so the result matches the reference tool).
- */
-export function pixeloeGrid(image: PixelBuffer, size?: PixelationSize): PixelGridAnalysis {
-  const out = size
-    ? legacyPixeloeSizes(image.width, image.height, size.width, size.height).out
-    : pixeloeTargetSizes(image.width, image.height, PIXELOE_DEFAULT_TARGET).out;
-  return { ...blockPartition(image, out[0], out[1]), confidence: 1, reliable: true };
 }
 
 /** RGB composited over white (transparent pixels would otherwise read as dark outlines). */
@@ -89,10 +70,10 @@ function lineGuide(
   return { lines, width: lw, height: lh, threshold: otsuThreshold(lines), mode };
 }
 
-/** Run PixelOE (optionally line-guided) to the grid's size. */
+/** Stock PixelOE pixelize (optionally line-guided) of the whole image to `size`. */
 export function runPixeloe(
   image: PixelBuffer,
-  grid: PixelGridGeometry,
+  grid: PixelationSize,
   guide?: LineGuideMode,
 ): PixelBuffer {
   const { width, height } = image;
@@ -105,7 +86,7 @@ export function runPixeloe(
   return result;
 }
 
-function pixeloe(image: PixelBuffer, grid: PixelGridGeometry, guide?: LineGuideMode): PixelBuffer {
+function pixeloe(image: PixelBuffer, grid: PixelationSize, guide?: LineGuideMode): PixelBuffer {
   const { width, height } = image;
   const { rgb, opaque } = opaqueRgb(image);
   const sizes = legacyPixeloeSizes(width, height, grid.width, grid.height);
@@ -127,4 +108,31 @@ function pixeloe(image: PixelBuffer, grid: PixelGridGeometry, guide?: LineGuideM
     data[i + 3] = alpha && alpha[i + 3] < ALPHA_CUTOFF ? 0 : OPAQUE;
   }
   return { width: result.width, height: result.height, data };
+}
+
+/**
+ * The binarised XDoG line mask at the image's own size (1 = line), for the image -> image PixelOE
+ * + lines pre-pass. Made like the stock guide (Otsu cut of the XDoG drawing at no more than 512 px on
+ * the long side), then enlarged to the image by nearest neighbour. Null when the drawing is uniform.
+ */
+export function sourceLineMask(image: PixelBuffer): Float32Array | null {
+  const { width, height } = image;
+  const { rgb } = opaqueRgb(image);
+  const {
+    lines,
+    width: lw,
+    height: lh,
+    threshold,
+  } = lineGuide(rgb, width, height, 0, LineGuideMode.Union);
+  if (threshold === null) return null;
+  const cut = Math.fround(threshold);
+  const mask = new Float32Array(width * height);
+  for (let y = 0; y < height; y++) {
+    const row = Math.min(lh - 1, Math.floor(((y + 0.5) * lh) / height)) * lw;
+    for (let x = 0; x < width; x++) {
+      const v = lines[row + Math.min(lw - 1, Math.floor(((x + 0.5) * lw) / width))];
+      mask[y * width + x] = Math.fround(v / 255) < cut ? 1 : 0;
+    }
+  }
+  return mask;
 }
