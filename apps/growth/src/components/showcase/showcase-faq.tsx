@@ -1,13 +1,12 @@
 import { SHOWCASE_FAQ_COPY } from "$content/showcase/faq";
 import type { SHOWCASE_HERO_COPY } from "$content/showcase/index";
+import type { FaqInlineContent } from "$content/site/faq";
 
 import { Disclosure, Panel, PanelNoteColor, PanelVariant, RichText, ScrollArea } from "@xprite/ui";
 
 import styles from "$/components/showcase/showcase-faq.module.css";
 
 const FAQ_ACCORDION_NAME = "showcase-faq";
-
-type FaqInlineContent = string | { code: string } | { label: string; href: string };
 
 function FaqAnswer({ content }: { content: readonly FaqInlineContent[] }) {
   return (

@@ -3,6 +3,7 @@ import type { Tokens } from "marked";
 
 import { publicDesktopStartupScript } from "../../../../infra/public-desktop-startup.ts";
 import { siteIcons } from "../../../../infra/site-html.ts";
+import { htmlToText } from "../../../../infra/structured-data.ts";
 import { ARTICLE_DIAGRAM_LANGUAGE, parseArticleDiagram } from "../../content/articles/diagram.ts";
 import {
   ARTICLE_COLLECTIONS,
@@ -12,6 +13,7 @@ import {
   type PublicArticle,
 } from "../../content/articles/index.ts";
 import { SHOWCASE_PAGES } from "../../content/showcase/pages.ts";
+import { type FaqEntry, faqPageSchema } from "../../content/site/faq.ts";
 import {
   articleLanguage,
   localizedSiteHref,
@@ -47,6 +49,7 @@ const SITE_URL = "https://xprite.cc/";
 const SOCIAL_IMAGE_URL = new URL("social-preview.png", SITE_URL).href;
 const ARTICLE_HEADING_DEPTH = 1;
 const CONTENTS_HEADING_DEPTH = 2;
+const FAQ_QUESTION_DEPTH = 3;
 const HTML_ENTITIES: Readonly<Record<string, string>> = {
   "&": "&amp;",
   "<": "&lt;",
@@ -178,6 +181,7 @@ function articlePageHtml(
   classes: Record<string, string>,
   article?: PublicArticle,
   headline = page.title,
+  faq: readonly FaqEntry[] = [],
 ): string {
   const canonical = new URL(page.path, SITE_URL).href;
   const language = page.language;
@@ -223,6 +227,7 @@ function articlePageHtml(
             url: new URL(item.path, SITE_URL).href,
           })),
       };
+  const faqSchema = faqPageSchema(faq, { url: canonical, language });
   return `<!doctype html>
 <html lang="${language}" ${PUBLIC_THEME_ATTRIBUTES}><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -260,6 +265,7 @@ ${language !== PublicLanguage.English ? `<link rel="preload" href="${CHINESE_FON
 <link rel="stylesheet" href="${GROWTH_DESKTOP_STYLE_PATH}">
 <script type="application/ld+json">${jsonForHtml(schema)}</script>
 <script type="application/ld+json">${jsonForHtml(breadcrumbData(collection, article))}</script>
+${faqSchema ? `<script type="application/ld+json">${jsonForHtml({ "@context": "https://schema.org", ...faqSchema })}</script>` : ""}
 </head><body data-growth-desktop data-ui-desktop-pattern="${publicPattern(page.path)}">
 ${publicUiScope(
   `<a class="${classes.skipLink}" href="#main">${text("Skip to content", "跳到正文", "本文へスキップ", "본문으로 건너뛰기", "Перейти к содержимому", "Pular para o conteúdo", "Saltar al contenido")}</a>
@@ -329,6 +335,50 @@ function articleImageHtml(
   });
 }
 
+/** Localized title of the FAQ section that closes an article. */
+const faqHeading = (language: PublicLanguage) =>
+  pickText(
+    language,
+    "FAQ",
+    "常见问题",
+    "よくある質問",
+    "자주 묻는 질문",
+    "Частые вопросы",
+    "Perguntas frequentes",
+    "Preguntas frecuentes",
+  );
+
+/**
+ * Questions of the article's visible FAQ section: each question heading with the blocks
+ * below it, up to the next question, section heading or rule. Text comes from the same
+ * rendered HTML as the page body, so the FAQPage schema matches what readers see.
+ */
+function articleFaq(
+  tokens: readonly Tokens.Generic[],
+  language: PublicLanguage,
+  text: (tokens: Tokens.Generic[]) => string,
+): FaqEntry[] {
+  const start = tokens.findIndex(
+    (token) =>
+      token.type === "heading" &&
+      token.depth === CONTENTS_HEADING_DEPTH &&
+      token.text.trim() === faqHeading(language),
+  );
+  if (start < 0) return [];
+  const entries: { question: Tokens.Heading; answer: Tokens.Generic[] }[] = [];
+  for (const token of tokens.slice(start + 1)) {
+    if (token.type === "hr" || (token.type === "heading" && token.depth < FAQ_QUESTION_DEPTH))
+      break;
+    if (token.type === "heading" && token.depth === FAQ_QUESTION_DEPTH)
+      entries.push({ question: token as Tokens.Heading, answer: [] });
+    else if (token.type !== "space") entries.at(-1)?.answer.push(token);
+  }
+  return entries.map((entry) => ({
+    question: text([entry.question]),
+    answer: entry.answer.map((block) => text([block])).join(" "),
+  }));
+}
+
 function articleContent(
   article: PublicArticle & { language: PublicLanguage },
   classes: Record<string, string>,
@@ -395,6 +445,7 @@ function articleContent(
     )}" tabindex="0">${Renderer.prototype.table.call(this, table)}</div>`;
   };
   parser.setOptions({ renderer });
+  const faq = articleFaq(tokens, language, (part) => htmlToText(parser.parser(part)));
   const outline = headings.filter((heading) => heading.depth === CONTENTS_HEADING_DEPTH);
   const toc = publicDesktopWindow(
     text("Contents", "目录", "目次", "목차", "Содержание", "Conteúdo", "Contenido"),
@@ -422,6 +473,7 @@ function articleContent(
     ),
   );
   return {
+    faq,
     heading: parser.parser([title]),
     headline: title.text,
     html: parser.parser(tokens.filter((token) => token !== title)),
@@ -534,6 +586,7 @@ export function articleHtml(path: string, indexable: boolean): string {
     classes,
     publishedArticle,
     content.headline,
+    content.faq,
   );
 }
 
