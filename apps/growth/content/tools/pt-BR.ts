@@ -319,8 +319,6 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "Open artwork": "Abrir arte",
   "Drop a PNG, JPEG, WebP or Aseprite file": "Solte um arquivo PNG, JPEG, WebP ou Aseprite",
   "Hello pixel art example": "Exemplo de pixel art Hello",
-  "Use default palette": "Usar paleta padrão",
-  "Default palette": "Paleta padrão",
   "Preparing preview…": "Preparando a prévia…",
   "Adjust settings to preview the result.":
     "Ajuste as configurações para ver a prévia do resultado.",
@@ -336,5 +334,5 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   Refresh: "Atualizar",
   Search: "Pesquisar",
   "Search palettes": "Pesquisar paletas",
-  "Automatic palette": "Paleta automática",
+  Automatic: "Automática",
 };

@@ -30,7 +30,6 @@ export function restoresPixels(state: Pick<PixelationSnapshot, "settings">) {
 
 export interface PixelationSnapshot {
   paletteChoices: readonly PaletteBrowserChoice[];
-  defaultPalette: readonly Rgba[];
   palettePreview: readonly Rgba[];
   /** The grid algorithm the import-dialog controls chose, and the grid it found. */
   algorithm: PixelationAlgorithm;
@@ -51,7 +50,6 @@ export class PixelationManager {
   readonly navigation: ToolViewport;
   private state: PixelationSnapshot = {
     paletteChoices: [],
-    defaultPalette: [],
     palettePreview: [],
     algorithm: PixelationAlgorithm.Auto,
     grid: null,
@@ -74,8 +72,7 @@ export class PixelationManager {
     this.refreshPalettes();
   }
   refreshPalettes = () => {
-    const resources = this.port.paletteResources();
-    this.publish({ paletteChoices: resources.choices, defaultPalette: resources.defaultPalette });
+    this.publish({ paletteChoices: this.port.paletteResources().choices });
   };
   getSnapshot = () => this.state;
   subscribe = (listener: () => void) => {

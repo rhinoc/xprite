@@ -357,8 +357,6 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
     "请选择 PNG、JPEG、.acnl 或 Aseprite 文件。支持单张普通设计二维码图片。",
   "Choose a PNG with at most 16 million pixels.": "请选择不超过 1600 万像素的 PNG。",
   "The output could not be generated.": "无法生成输出文件。",
-  "Use default palette": "使用默认调色板",
-  "Default palette": "默认调色板",
   "Preparing preview…": "正在准备预览…",
   "Adjust settings to preview the result.": "调整设置以预览结果。",
   "Drag to compare original and result": "拖动以对比原图与结果",
@@ -373,5 +371,5 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   Refresh: "刷新",
   Search: "搜索",
   "Search palettes": "搜索调色板",
-  "Automatic palette": "自动提取色盘",
+  Automatic: "自动",
 };

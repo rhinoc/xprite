@@ -37,10 +37,7 @@ export function PixelationPage({ manager }: { manager: PixelationManager }) {
           <PixelationBaseControls
             paletteResources={{
               choices: state.paletteChoices,
-              currentPalette: state.defaultPalette,
               previewPalette: state.palettePreview,
-              currentLabel: "Use default palette",
-              currentName: "Default palette",
               refresh: manager.refreshPalettes,
             }}
             algorithm={state.algorithm}

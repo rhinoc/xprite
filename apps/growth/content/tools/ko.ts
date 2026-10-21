@@ -312,8 +312,6 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "Open artwork": "작품 열기",
   "Drop a PNG, JPEG, WebP or Aseprite file": "PNG, JPEG, WebP 또는 Aseprite 파일을 끌어다 놓기",
   "Hello pixel art example": "Hello 픽셀 아트 예제",
-  "Use default palette": "기본 팔레트 사용",
-  "Default palette": "기본 팔레트",
   "Preparing preview…": "미리보기 준비 중…",
   "Adjust settings to preview the result.": "설정을 조정하면 결과를 미리 볼 수 있습니다.",
   "Drag to compare original and result": "드래그하여 원본과 결과 비교",
@@ -328,5 +326,5 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   Refresh: "새로 고침",
   Search: "검색",
   "Search palettes": "팔레트 검색",
-  "Automatic palette": "자동 팔레트",
+  Automatic: "자동",
 };

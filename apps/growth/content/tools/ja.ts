@@ -317,8 +317,6 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Open artwork": "作品を開く",
   "Drop a PNG, JPEG, WebP or Aseprite file": "PNG、JPEG、WebP、Aseprite ファイルをドロップ",
   "Hello pixel art example": "Hello ピクセルアートのサンプル",
-  "Use default palette": "既定のパレットを使う",
-  "Default palette": "既定のパレット",
   "Preparing preview…": "プレビューを準備中…",
   "Adjust settings to preview the result.": "設定を調整すると結果をプレビューできます。",
   "Drag to compare original and result": "ドラッグして元の画像と結果を比較",
@@ -333,5 +331,5 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   Refresh: "更新",
   Search: "検索",
   "Search palettes": "パレットを検索",
-  "Automatic palette": "パレットを自動抽出",
+  Automatic: "自動",
 };

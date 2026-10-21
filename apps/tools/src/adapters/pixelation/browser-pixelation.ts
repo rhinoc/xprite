@@ -12,10 +12,8 @@ import { decodeImageBlob, encodePngBlob } from "@xprite/bedrock/browser/images";
 import { browserLocalStorage } from "@xprite/bedrock/browser/localstorage";
 import { runWorkerJob } from "@xprite/bedrock/browser/worker-job";
 import {
-  readStoredPalette,
   readStoredPalettePresets,
   comparePaletteResourceNames,
-  EDITOR_DEFAULT_PALETTE_KEY,
   EDITOR_PALETTE_PRESETS_KEY,
 } from "@xprite/editor-core/import-export";
 import type { PixelateOptions } from "@xprite/editor-core/import-export";
@@ -75,10 +73,6 @@ export function createBrowserPixelationPort(): PixelationPort {
             source: PalettePresetKind.Saved,
           })),
         ].sort((a, b) => comparePaletteResourceNames(a.name, b.name)),
-        defaultPalette:
-          readStoredPalette(get(EDITOR_DEFAULT_PALETTE_KEY)) ??
-          bundled.find((preset) => preset.id === "PICO-8")?.colors ??
-          [],
       };
     },
     async read(file) {

@@ -17,7 +17,7 @@ const image = (width: number, height: number) => ({
 function port(): PixelationPort {
   return {
     readWheel: () => ({ precise: false, magnify: false, zoom: false, shift: false, unit: 1 }),
-    paletteResources: () => ({ choices: [], defaultPalette: [] }),
+    paletteResources: () => ({ choices: [] }),
     detectGrid: async () => ({ width: 1, height: 1, reliable: false }) as never,
     read: async () => image(8, 6),
     example: async () => new File([], "example.png"),

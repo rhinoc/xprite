@@ -314,8 +314,6 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   "Open artwork": "Открыть рисунок",
   "Drop a PNG, JPEG, WebP or Aseprite file": "Перетащите файл PNG, JPEG, WebP или Aseprite",
   "Hello pixel art example": "Пример пиксель-арта Hello",
-  "Use default palette": "Палитра по умолчанию",
-  "Default palette": "Палитра по умолчанию",
   "Preparing preview…": "Подготовка предпросмотра…",
   "Adjust settings to preview the result.": "Измените настройки, чтобы увидеть результат.",
   "Drag to compare original and result": "Перетащите, чтобы сравнить оригинал и результат",
@@ -330,5 +328,5 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   Refresh: "Обновить",
   Search: "Поиск",
   "Search palettes": "Поиск палитр",
-  "Automatic palette": "Автоматическая палитра",
+  Automatic: "Автоматическая",
 };

@@ -10,7 +10,7 @@ import type {
 import type { PaletteBrowserChoice } from "@xprite/editor-ui/palette/model";
 export interface PixelationPort {
   readWheel(event: WheelEvent): ToolWheelInput;
-  paletteResources(): { choices: readonly PaletteBrowserChoice[]; defaultPalette: readonly Rgba[] };
+  paletteResources(): { choices: readonly PaletteBrowserChoice[] };
   detectGrid(
     image: PixelBuffer,
     algorithm?: PixelationAlgorithm,
