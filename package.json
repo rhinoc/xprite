@@ -33,6 +33,7 @@
     "offline:verify": "node --experimental-transform-types scripts/build/editor-offline.mjs verify",
     "deploy:validate": "node --experimental-transform-types scripts/deploy/editor-deployment.mjs validate",
     "deploy:prepare": "node --experimental-transform-types scripts/deploy/editor-deployment.mjs prepare",
+    "deploy:previous-assets": "node --experimental-transform-types scripts/deploy/previous-assets.mjs",
     "deploy:editor": "node --experimental-transform-types scripts/deploy/editor-deployment.mjs publish",
     "deploy:indexnow:plan": "node --experimental-transform-types scripts/deploy/indexnow.mjs plan",
     "deploy:indexnow:submit": "node --experimental-transform-types scripts/deploy/indexnow.mjs submit",

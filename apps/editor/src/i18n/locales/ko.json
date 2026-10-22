@@ -47,6 +47,7 @@
   "ui.pwa.update.available": "새 버전이 있습니다. 준비되면 새로 고침하세요.",
   "ui.pwa.update.reload": "새로 고침",
   "ui.pwa.update.dismiss": "나중에",
+  "ui.pwa.worker.load.failed": "이 페이지에서 Xprite의 일부를 불러오지 못했습니다. 보통 페이지가 열려 있는 동안 Xprite가 업데이트되었기 때문입니다. 페이지를 새로고침한 뒤 계속하세요.",
   "ui.home.introduction.description": "스프라이트를 그리고 레이어와 애니메이션 프레임을 편집하며 .ase/.aseprite 프로젝트를 열고 저장할 수 있습니다. 마우스, 터치, 펜을 지원하고 작업 공간도 원하는 대로 배치할 수 있습니다. 무료 오픈 소스이며 작품은 내 기기에 저장됩니다.",
   "ui.home.license": "라이선스",
   "ui.home.credits": "크레딧",

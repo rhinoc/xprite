@@ -33,6 +33,12 @@ export enum FileWriteStage {
   Write = "write",
 }
 
+/**
+ * The user declined write access to a file they opened. The editor tells them; it is their
+ * choice, not a defect, so it is kept in local diagnostics but not reported as an exception.
+ */
+export const FILE_WRITE_PERMISSION_ERROR_NAME = "FileWritePermissionError";
+
 export enum DiagnosticSource {
   ReactBoundary = "react-boundary",
   GlobalError = "global-error",
