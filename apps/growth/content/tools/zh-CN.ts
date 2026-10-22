@@ -195,6 +195,16 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Open image": "打开图片",
   "Drop a PNG, JPEG or WebP image": "拖入 PNG、JPEG 或 WebP 图片",
   "Edit more": "继续编辑",
+  "Save to album": "保存到相册",
+  "Post to note": "发布笔记",
+  "Saved to your album": "已保存到相册",
+  "Open this tool in the Xiaohongshu app to save images.":
+    "请在小红书 App 中打开本工具以保存图片。",
+  "Open this tool in the Xiaohongshu app to post a note.":
+    "请在小红书 App 中打开本工具以发布笔记。",
+  "Unable to read this image.": "无法读取这张图片。",
+  "Photo to Pixel Art": "图片转像素画",
+  "Choose a photo to turn into pixel art": "选择一张照片，转换成像素画",
   "Choose an export format": "选择导出格式",
   Cancel: "取消",
   Format: "格式",

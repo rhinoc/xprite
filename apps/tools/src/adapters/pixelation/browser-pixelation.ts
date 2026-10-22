@@ -1,4 +1,5 @@
 import { openInEditor } from "$/adapters/editor/open-in-editor";
+import { readPixelationPalettes } from "$/adapters/pixelation/palette-resources";
 import {
   PixelationWorkerOperation,
   type PixelationWorkerRequest,
@@ -11,14 +12,7 @@ import { downloadBlob } from "@xprite/bedrock/browser/file-system";
 import { decodeImageBlob, encodePngBlob } from "@xprite/bedrock/browser/images";
 import { browserLocalStorage } from "@xprite/bedrock/browser/localstorage";
 import { runWorkerJob } from "@xprite/bedrock/browser/worker-job";
-import {
-  readStoredPalettePresets,
-  comparePaletteResourceNames,
-  EDITOR_PALETTE_PRESETS_KEY,
-} from "@xprite/editor-core/import-export";
 import type { PixelateOptions } from "@xprite/editor-core/import-export";
-import { readBundledPalettePresets } from "@xprite/editor-ui/palette-presets";
-import { PalettePresetKind } from "@xprite/editor-ui/palette/model";
 import exampleUrl from "@xprite/site-assets/tools/pixelate/girl-with-a-pearl-earring.jpg?url";
 const MAX_FILE_BYTES = TOOL_IMPORT_MAX_BYTES;
 const MAX_IMAGE_PIXELS = 16 * 1024 * 1024;
@@ -49,31 +43,13 @@ export function createBrowserPixelationPort(): PixelationPort {
   return {
     readWheel: readToolWheel,
     paletteResources() {
-      const bundled = readBundledPalettePresets();
-      const get = (key: string) => {
+      return readPixelationPalettes((key) => {
         try {
           return browserLocalStorage.getItem(key);
         } catch {
           return null;
         }
-      };
-      const saved = readStoredPalettePresets(get(EDITOR_PALETTE_PRESETS_KEY));
-      return {
-        choices: [
-          ...bundled.map((preset) => ({
-            ...preset,
-            id: `builtin:${preset.id}`,
-            source: PalettePresetKind.Builtin,
-          })),
-          ...saved.map((preset) => ({
-            ...preset,
-            id: `saved:${preset.name.toLocaleLowerCase()}`,
-            group: "Saved Presets",
-            author: null,
-            source: PalettePresetKind.Saved,
-          })),
-        ].sort((a, b) => comparePaletteResourceNames(a.name, b.name)),
-      };
+      });
     },
     async read(file) {
       if (file.size > MAX_FILE_BYTES) throw new Error("Choose a file no larger than 64 MiB.");

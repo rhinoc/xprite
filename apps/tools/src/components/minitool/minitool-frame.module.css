@@ -1,0 +1,32 @@
+/* The container is a full-height phone web view with its own navigation bar on top. */
+.page {
+  min-height: 100vh;
+}
+.shell {
+  min-height: 100vh;
+}
+.screen {
+  height: 100vh;
+  padding-top: var(--safe-area-inset-top, 0px);
+  padding-bottom: var(--safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
+}
+.desktop {
+  display: flex;
+  padding: 12px;
+}
+/*
+ * Without drag and drop the empty window is just the photo prompt: size it to its content and
+ * centre it on the desktop instead of stretching a mostly blank window down the phone screen.
+ */
+.desktop :global([data-tool-drop-stage]) {
+  justify-content: center;
+}
+.desktop.desktop
+  :global([data-tool-drop-stage])
+  > :global([data-slot="panel"][data-ui-window-priority]) {
+  flex: 0 0 auto;
+}
+.desktop :global([data-tool-drop-stage]) :global([data-slot="panel-body"]) > div {
+  min-height: 200px;
+}

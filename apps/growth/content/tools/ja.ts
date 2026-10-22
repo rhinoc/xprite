@@ -133,6 +133,16 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Open image": "画像を開く",
   "Drop a PNG, JPEG or WebP image": "PNG、JPEG、WebP 画像をドロップ",
   "Edit more": "さらに編集",
+  "Save to album": "アルバムに保存",
+  "Post to note": "ノートに投稿",
+  "Saved to your album": "アルバムに保存しました",
+  "Open this tool in the Xiaohongshu app to save images.":
+    "画像を保存するには、小紅書（RED）アプリでこのツールを開いてください。",
+  "Open this tool in the Xiaohongshu app to post a note.":
+    "ノートを投稿するには、小紅書（RED）アプリでこのツールを開いてください。",
+  "Unable to read this image.": "この画像を読み込めません。",
+  "Photo to Pixel Art": "写真をピクセルアートに",
+  "Choose a photo to turn into pixel art": "写真を選んで、ピクセルアートに変換します",
   "Choose an export format": "書き出す形式を選択",
   Cancel: "キャンセル",
   Format: "形式",
