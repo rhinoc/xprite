@@ -1,3 +1,27 @@
+import { TOOLS, type PublicTool } from "../tools/index.ts";
+import { localizedSiteHref, PUBLIC_LANGUAGES } from "./language.ts";
+
+/**
+ * Last content change of each English tool page. One tools build prerenders every language of a
+ * tool, so each localized address takes its English page's date.
+ */
+const TOOL_LAST_MODIFIED: Readonly<Record<PublicTool["path"], string>> = {
+  "/tools/viewer/": "2026-10-22",
+  "/tools/gif-to-sprite-sheet/": "2026-10-22",
+  "/tools/pixelate/": "2026-10-22",
+  "/tools/animal-crossing-qr/": "2026-10-22",
+  "/tools/fuse-beads/": "2026-10-22",
+};
+
+const TOOL_PAGE_LAST_MODIFIED = Object.fromEntries(
+  TOOLS.flatMap((tool) =>
+    PUBLIC_LANGUAGES.map((language) => [
+      localizedSiteHref(tool.path, language),
+      TOOL_LAST_MODIFIED[tool.path],
+    ]),
+  ),
+);
+
 /**
  * Sitemap `<lastmod>` for pages without their own content date (articles carry `updated`).
  * Taken from the last meaningful content change of each page's source; update the date when
@@ -5,41 +29,7 @@
  */
 export const SITE_LAST_MODIFIED: Readonly<Record<string, string>> = {
   "/": "2026-10-12",
-  "/tools/viewer/": "2026-10-12",
-  "/tools/gif-to-sprite-sheet/": "2026-10-12",
-  "/tools/pixelate/": "2026-10-12",
-  "/tools/animal-crossing-qr/": "2026-10-12",
-  "/tools/fuse-beads/": "2026-10-14",
-  "/zh-CN/tools/viewer/": "2026-10-22",
-  "/zh-CN/tools/gif-to-sprite-sheet/": "2026-10-22",
-  "/zh-CN/tools/pixelate/": "2026-10-22",
-  "/zh-CN/tools/animal-crossing-qr/": "2026-10-22",
-  "/zh-CN/tools/fuse-beads/": "2026-10-22",
-  "/ja/tools/viewer/": "2026-10-22",
-  "/ja/tools/gif-to-sprite-sheet/": "2026-10-22",
-  "/ja/tools/pixelate/": "2026-10-22",
-  "/ja/tools/animal-crossing-qr/": "2026-10-22",
-  "/ja/tools/fuse-beads/": "2026-10-22",
-  "/ko/tools/viewer/": "2026-10-22",
-  "/ko/tools/gif-to-sprite-sheet/": "2026-10-22",
-  "/ko/tools/pixelate/": "2026-10-22",
-  "/ko/tools/animal-crossing-qr/": "2026-10-22",
-  "/ko/tools/fuse-beads/": "2026-10-22",
-  "/ru/tools/viewer/": "2026-10-22",
-  "/ru/tools/gif-to-sprite-sheet/": "2026-10-22",
-  "/ru/tools/pixelate/": "2026-10-22",
-  "/ru/tools/animal-crossing-qr/": "2026-10-22",
-  "/ru/tools/fuse-beads/": "2026-10-22",
-  "/pt-BR/tools/viewer/": "2026-10-22",
-  "/pt-BR/tools/gif-to-sprite-sheet/": "2026-10-22",
-  "/pt-BR/tools/pixelate/": "2026-10-22",
-  "/pt-BR/tools/animal-crossing-qr/": "2026-10-22",
-  "/pt-BR/tools/fuse-beads/": "2026-10-22",
-  "/es/tools/viewer/": "2026-10-22",
-  "/es/tools/gif-to-sprite-sheet/": "2026-10-22",
-  "/es/tools/pixelate/": "2026-10-22",
-  "/es/tools/animal-crossing-qr/": "2026-10-22",
-  "/es/tools/fuse-beads/": "2026-10-22",
+  ...TOOL_PAGE_LAST_MODIFIED,
   "/about/": "2026-10-12",
   "/zh-CN/about/": "2026-10-12",
   "/help/": "2026-10-11",
