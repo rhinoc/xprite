@@ -14,8 +14,6 @@ export interface MiniToolScene {
   /** The photo's file name, shown in the Mac OS 8 title bar. */
   title: string;
   labels: { original: string; pixels: string };
-  /** Divider width multiplier, so the line still shows in small thumbnails. */
-  lineScale?: number;
 }
 
 /** Draws scenes; previews and exports share it so an export is exactly what the preview shows. */

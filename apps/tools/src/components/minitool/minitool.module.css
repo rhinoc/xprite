@@ -623,6 +623,16 @@
   margin-top: 6px;
 }
 
+.thumbs.scroller {
+  justify-content: flex-start;
+  margin: 0 -16px;
+  padding: 10px 16px 6px;
+}
+
+.thumbs.scroller > * + * {
+  margin-left: 14px;
+}
+
 .thumbButton {
   position: relative;
   flex: none;
@@ -658,7 +668,6 @@
 
 .tall .thumbImage canvas {
   position: static;
-  image-rendering: auto;
 }
 
 .thumbButton[aria-checked="true"] .thumbImage {

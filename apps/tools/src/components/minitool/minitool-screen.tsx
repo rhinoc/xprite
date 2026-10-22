@@ -5,7 +5,7 @@ import { ExportSheet } from "$/components/minitool/minitool-export-sheet";
 import { Icon, type IconName } from "$/components/minitool/minitool-icons";
 import {
   ComparePanel,
-  LayoutPanel,
+  FramePanel,
   PixelPanel,
   RatioIcon,
 } from "$/components/minitool/minitool-panels";
@@ -211,7 +211,7 @@ export function MiniToolScreen({ editor }: { editor: MiniToolEditor }) {
         {tab === Tab.Compare && (
           <ComparePanel editor={editor} state={state} visible={composition?.visible ?? null} />
         )}
-        {tab === Tab.Layout && <LayoutPanel editor={editor} state={state} scene={scene} />}
+        {tab === Tab.Layout && <FramePanel editor={editor} state={state} scene={scene} />}
       </div>
       <div className={styles.tabbar}>
         <div className={styles.tabs} role="tablist">

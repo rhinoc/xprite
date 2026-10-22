@@ -4,10 +4,7 @@ import {
   labelSize,
   lineWidth,
   MAC_WINDOW,
-  type ConsoleLayout,
-  type LaptopLayout,
-  type MacWindowLayout,
-  type PhoneLayout,
+  type FrameLayout,
 } from "$/managers/minitool/composition";
 import {
   Corner,
@@ -41,7 +38,6 @@ const DESKTOP_TILE = 384;
 /** Previews draw the photo from a copy at most this size; exports use the photo itself. */
 const PREVIEW_SOURCE = 1600;
 const DEVICE_BACKGROUND = "#E8E3DB";
-const INK = "#1B1B1F";
 
 const MAC = {
   face: "#CCCCCC",
@@ -230,7 +226,7 @@ function drawPicture(
   drawPixels();
   context.restore();
   if (split.line !== SplitLine.None) {
-    const width = lineWidth(split.line, visible) * (scene.lineScale ?? 1);
+    const width = lineWidth(split.line, visible);
     context.lineJoin = "miter";
     context.lineCap = "butt";
     polygon(context, shape.line);
@@ -272,16 +268,100 @@ function drawLabels(context: CanvasRenderingContext2D, scene: MiniToolScene, vis
   }
 }
 
-// ---- Frames ----
+// ---- Frames: pixel art at a whole number of export pixels (`u`) per art pixel ----
+
+type Radii = [number, number, number, number];
+
+/** How far row `row` of a stepped corner of radius `radius` (art pixels) is inset. */
+function cornerInset(radius: number, row: number) {
+  const y = radius - row - 0.5;
+  return radius - Math.round(Math.sqrt(Math.max(0, radius * radius - y * y)));
+}
+
+/** A box with stepped, pixel-art rounded corners (radii in art pixels: tl, tr, br, bl). */
+function pixelBox(
+  context: CanvasRenderingContext2D,
+  box: Rect,
+  u: number,
+  radii: number | Radii,
+  color: string,
+) {
+  const [tl, tr, br, bl] = typeof radii === "number" ? [radii, radii, radii, radii] : radii;
+  const top = Math.max(tl, tr);
+  const bottom = Math.max(bl, br);
+  context.fillStyle = color;
+  context.fillRect(box.x, box.y + top * u, box.width, box.height - (top + bottom) * u);
+  for (let row = 0; row < top; row += 1) {
+    const left = row < tl ? cornerInset(tl, row) : 0;
+    const right = row < tr ? cornerInset(tr, row) : 0;
+    context.fillRect(box.x + left * u, box.y + row * u, box.width - (left + right) * u, u);
+  }
+  for (let row = 0; row < bottom; row += 1) {
+    const left = row < bl ? cornerInset(bl, row) : 0;
+    const right = row < br ? cornerInset(br, row) : 0;
+    context.fillRect(
+      box.x + left * u,
+      box.y + box.height - (row + 1) * u,
+      box.width - (left + right) * u,
+      u,
+    );
+  }
+}
+
+function grow(box: Rect, by: number): Rect {
+  return { x: box.x - by, y: box.y - by, width: box.width + 2 * by, height: box.height + 2 * by };
+}
+
+function shifted(box: Rect, dx: number, dy: number): Rect {
+  return { ...box, x: box.x + dx, y: box.y + dy };
+}
+
+/** Pixel-font text, `scale` times its native 12px so it stays on the font's grid. */
+function pixelText(
+  context: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  middle: number,
+  scale: number,
+  color: string,
+  align: CanvasTextAlign = "left",
+) {
+  context.font = pixelFont(PIXEL_GRID * scale);
+  context.fillStyle = color;
+  context.textAlign = align;
+  context.textBaseline = "middle";
+  context.fillText(text, x, middle + scale / 2);
+  context.textAlign = "left";
+}
+
+function drawIcon(context: CanvasRenderingContext2D, assets: Assets, box: Rect) {
+  if (!assets.icon) return;
+  context.imageSmoothingEnabled = false;
+  context.drawImage(assets.icon, box.x, box.y, box.width, box.height);
+}
+
+function dimensionsText(scene: MiniToolScene) {
+  return `${scene.pixels.width} × ${scene.pixels.height}`;
+}
+
+const FRAME_BACKGROUND: Readonly<Record<Exclude<ExportFrame, ExportFrame.None>, string>> = {
+  [ExportFrame.MacOS8]: "#3A5BA8",
+  [ExportFrame.System7]: "#A8A8A8",
+  [ExportFrame.Windows95]: "#008080",
+  [ExportFrame.OldPhone]: DEVICE_BACKGROUND,
+  [ExportFrame.Handheld]: DEVICE_BACKGROUND,
+  [ExportFrame.Crt]: DEVICE_BACKGROUND,
+  [ExportFrame.Polaroid]: "#CDB99C",
+};
 
 function drawDesktop(context: CanvasRenderingContext2D, scene: MiniToolScene, assets: Assets) {
   const { width, height } = scene.composition.size;
-  rect(context, 0, 0, width, height, "#3A5BA8");
   if (!assets.desktop) return;
+  // The pattern tile at a whole multiple of its 128px art: 3× for exports, smaller for thumbnails.
+  const tile = Math.max(128, Math.round((DESKTOP_TILE * width) / 1080 / 128) * 128);
   context.imageSmoothingEnabled = false;
-  for (let y = 0; y < height; y += DESKTOP_TILE)
-    for (let x = 0; x < width; x += DESKTOP_TILE)
-      context.drawImage(assets.desktop, x, y, DESKTOP_TILE, DESKTOP_TILE);
+  for (let y = 0; y < height; y += tile)
+    for (let x = 0; x < width; x += tile) context.drawImage(assets.desktop, x, y, tile, tile);
 }
 
 function macBox(context: CanvasRenderingContext2D, x: number, y: number, unit: number) {
@@ -298,13 +378,51 @@ function macBox(context: CanvasRenderingContext2D, x: number, y: number, unit: n
   return size;
 }
 
+/** Racing stripes or rule lines around a centred title, leaving a gap for the text. */
+function titleWithStripes(
+  context: CanvasRenderingContext2D,
+  options: {
+    title: string;
+    left: number;
+    right: number;
+    middle: number;
+    top: number;
+    rows: number;
+    u: number;
+    stripe: (from: number, to: number, y: number, row: number) => void;
+    textMiddle: number;
+    color: string;
+  },
+) {
+  const { left, right, middle, u } = options;
+  context.font = `${12 * u}px ${CHICAGO_FONT}, ${PIXEL_FONT}, sans-serif`;
+  context.textBaseline = "middle";
+  context.textAlign = "left";
+  // Centred on the window with room for stripes on both sides.
+  const title = fitText(
+    context,
+    options.title,
+    Math.max(0, 2 * Math.min(middle - left, right - middle) - 24 * u),
+  );
+  const titleWidth = Math.ceil(context.measureText(title).width);
+  const textLeft = Math.round(middle - titleWidth / 2);
+  for (let row = 0; row < options.rows; row += 2)
+    for (const [from, to] of [
+      [left, textLeft - 4 * u],
+      [textLeft + titleWidth + 4 * u, right],
+    ])
+      if (to > from) options.stripe(from, to, options.top + row * u, row);
+  context.fillStyle = options.color;
+  context.fillText(title, textLeft, options.textMiddle);
+}
+
 function drawMacWindow(
   context: CanvasRenderingContext2D,
   scene: MiniToolScene,
-  frame: MacWindowLayout,
+  frame: FrameLayout,
   assets: Assets,
 ) {
-  const { unit: u, window: w } = frame;
+  const { unit: u, body: w } = frame;
   const { area } = scene.composition;
   const right = w.x + w.width;
   const bottom = w.y + w.height;
@@ -336,36 +454,21 @@ function drawMacWindow(
   const small = 5 * u;
   rect(context, zoomLeft + 2 * u, boxTop + 2 * u, small, small, MAC.ink);
   rect(context, zoomLeft + 3 * u, boxTop + 3 * u, small - 2 * u, small - 2 * u, MAC.box);
-  // Title, centred between racing stripes.
-  context.font = `${12 * u}px ${CHICAGO_FONT}, ${PIXEL_FONT}, sans-serif`;
-  context.textBaseline = "middle";
-  context.textAlign = "left";
-  const stripesLeft = closeRight + 4 * u;
-  const stripesRight = zoomLeft - 4 * u;
-  // Centred on the window with room for stripes on both sides.
-  const middle = (w.x + right) / 2;
-  const title = fitText(
-    context,
-    scene.title || "Xprite",
-    Math.max(0, 2 * Math.min(middle - stripesLeft, stripesRight - middle) - 24 * u),
-  );
-  const titleWidth = Math.ceil(context.measureText(title).width);
-  const textLeft = Math.round(middle - titleWidth / 2);
-  const gapLeft = textLeft - 4 * u;
-  const gapRight = textLeft + titleWidth + 4 * u;
-  for (let row = 0; row < MAC_WINDOW.box; row += 2) {
-    const y = boxTop + row * u;
-    for (const [from, to] of [
-      [stripesLeft, gapLeft],
-      [gapRight, stripesRight],
-    ]) {
-      if (to <= from) continue;
+  titleWithStripes(context, {
+    title: scene.title || "Xprite",
+    left: closeRight + 4 * u,
+    right: zoomLeft - 4 * u,
+    middle: (w.x + right) / 2,
+    top: boxTop,
+    rows: MAC_WINDOW.box,
+    u,
+    stripe: (from, to, y, row) => {
       rect(context, from, y, to - from, u, MAC.light);
       if (row + 1 < MAC_WINDOW.box) rect(context, from, y + u, to - from, u, MAC.shade);
-    }
-  }
-  context.fillStyle = MAC.ink;
-  context.fillText(title, textLeft, titleTop + titleHeight / 2 + u / 2);
+    },
+    textMiddle: titleTop + titleHeight / 2 + u / 2,
+    color: MAC.ink,
+  });
   // Content panel and the sunken frame around the picture.
   const bodyTop = titleTop + titleHeight + u;
   const statusTop = bottom - u - MAC_WINDOW.status * u - u;
@@ -386,227 +489,395 @@ function drawMacWindow(
   rect(context, w.x + u, statusTopInner, w.width - 2 * u, u, MAC.light);
   rect(context, w.x + u, statusTopInner, u, statusHeight, MAC.light);
   const iconSize = 10 * u;
-  const iconTop = statusTopInner + Math.round((statusHeight - iconSize) / 2);
-  if (assets.icon) {
-    context.imageSmoothingEnabled = false;
-    context.drawImage(assets.icon, w.x + 7 * u, iconTop, iconSize, iconSize);
-  }
-  context.font = pixelFont(PIXEL_GRID * u);
-  context.fillStyle = MAC.ink;
-  context.textBaseline = "middle";
-  const textY = statusTopInner + statusHeight / 2 + u / 2;
-  const brandLeft = w.x + 7 * u + iconSize + 3 * u;
-  const dimensions = `${scene.pixels.width} × ${scene.pixels.height}`;
-  const dimensionsLeft = right - 7 * u - context.measureText(dimensions).width;
-  if (brandLeft + context.measureText("Xprite").width + 6 * u <= dimensionsLeft)
-    context.fillText("Xprite", brandLeft, textY);
-  context.textAlign = "right";
-  context.fillText(dimensions, right - 7 * u, textY);
-  context.textAlign = "left";
+  drawIcon(context, assets, {
+    x: w.x + 7 * u,
+    y: statusTopInner + Math.round((statusHeight - iconSize) / 2),
+    width: iconSize,
+    height: iconSize,
+  });
+  statusTexts(context, scene, {
+    left: w.x + 7 * u + iconSize + 3 * u,
+    right: right - 7 * u,
+    middle: statusTopInner + statusHeight / 2,
+    u,
+    color: MAC.ink,
+  });
 }
 
-function drawWatermark(context: CanvasRenderingContext2D, scene: MiniToolScene, assets: Assets) {
-  const mark = scene.composition.watermark;
-  if (!mark) return;
-  const size = Math.max(PIXEL_GRID * 2, Math.round(mark.size / PIXEL_GRID) * PIXEL_GRID);
-  context.font = pixelFont(size);
-  context.textBaseline = "middle";
-  context.textAlign = "left";
-  const gap = Math.round(size * 0.3);
-  const textWidth = context.measureText("Xprite").width;
-  const total = size + gap + textWidth;
-  const left = Math.round(mark.x - total / 2);
-  context.globalAlpha = 0.7;
-  if (assets.icon) {
-    context.imageSmoothingEnabled = false;
-    context.drawImage(assets.icon, left, Math.round(mark.y - size / 2), size, size);
-  }
-  context.fillStyle = INK;
-  context.fillText("Xprite", left + size + gap, mark.y + size * 0.05);
-  context.globalAlpha = 1;
-}
-
-function shadowed(
+/** "Xprite" on the left and the block count on the right; the mark gives way when tight. */
+function statusTexts(
   context: CanvasRenderingContext2D,
-  blur: number,
-  offset: number,
-  draw: () => void,
+  scene: MiniToolScene,
+  {
+    left,
+    right,
+    middle,
+    u,
+    color,
+  }: { left: number; right: number; middle: number; u: number; color: string },
 ) {
-  context.save();
-  context.shadowColor = "rgba(0,0,0,0.25)";
-  context.shadowBlur = blur;
-  context.shadowOffsetY = offset;
-  draw();
-  context.restore();
+  context.font = pixelFont(PIXEL_GRID * u);
+  const dimensions = dimensionsText(scene);
+  const dimensionsLeft = right - context.measureText(dimensions).width;
+  if (left + context.measureText("Xprite").width + 6 * u <= dimensionsLeft)
+    pixelText(context, "Xprite", left, middle, u, color);
+  pixelText(context, dimensions, right, middle, u, color, "right");
 }
 
-function drawPhone(context: CanvasRenderingContext2D, frame: PhoneLayout, under: boolean) {
-  const { body, screen, scale: s } = frame;
-  if (under) {
-    // Side buttons, then the body with its shadow and steel ring.
-    rect(context, body.x - 5 * s, body.y + 250 * s, 8 * s, 90 * s, "#2C2C30");
-    rect(context, body.x - 5 * s, body.y + 360 * s, 8 * s, 90 * s, "#2C2C30");
-    rect(context, body.x + body.width - 3 * s, body.y + 300 * s, 8 * s, 140 * s, "#2C2C30");
-    shadowed(context, 60 * s, 30 * s, () => {
-      context.fillStyle = "#1A1A1C";
-      roundedPath(context, body, 112 * s);
-      context.fill();
-    });
-    context.strokeStyle = "#3A3A3E";
-    context.lineWidth = 6 * s;
-    roundedPath(
-      context,
-      {
-        x: body.x + 3 * s,
-        y: body.y + 3 * s,
-        width: body.width - 6 * s,
-        height: body.height - 6 * s,
-      },
-      109 * s,
-    );
-    context.stroke();
-    context.fillStyle = "#000";
-    roundedPath(context, screen, 86 * s);
-    context.fill();
-    return;
+function drawSystem7(context: CanvasRenderingContext2D, scene: MiniToolScene, frame: FrameLayout) {
+  const { unit: u, body: w } = frame;
+  const right = w.x + w.width;
+  // The one-pixel drop shadow, black outline and white face.
+  rect(context, w.x + u, w.y + u, w.width, w.height, "#000");
+  rect(context, w.x, w.y, w.width, w.height, "#000");
+  rect(context, w.x + u, w.y + u, w.width - 2 * u, w.height - 2 * u, "#FFF");
+  // Title bar: six rule lines, the close and zoom boxes, the title in a white gap.
+  const titleTop = w.y + u;
+  const box = 11 * u;
+  const boxTop = titleTop + 4 * u;
+  const closeLeft = w.x + 9 * u;
+  const zoomLeft = right - 9 * u - box;
+  const stripe = (from: number, to: number, y: number) =>
+    rect(context, from, y, to - from, u, "#000");
+  for (let row = 0; row < 11; row += 2) {
+    stripe(w.x + 2 * u, closeLeft - u, boxTop + row * u);
+    stripe(zoomLeft + box + u, right - 2 * u, boxTop + row * u);
   }
-  // The screen's rounded corners over the picture, and the camera island.
-  context.beginPath();
-  context.rect(screen.x, screen.y, screen.width, screen.height);
-  roundedPath(context, screen, 86 * s, false);
-  context.fillStyle = "#1A1A1C";
-  context.fill("evenodd");
-  context.fillStyle = "#000";
-  roundedPath(
-    context,
-    { x: body.x + body.width / 2 - 85 * s, y: screen.y + 26 * s, width: 170 * s, height: 48 * s },
-    24 * s,
-  );
-  context.fill();
+  titleWithStripes(context, {
+    title: scene.title || "Xprite",
+    left: closeLeft + box + u,
+    right: zoomLeft - u,
+    middle: (w.x + right) / 2,
+    top: boxTop,
+    rows: 11,
+    u,
+    stripe,
+    textMiddle: titleTop + 9 * u + u / 2,
+    color: "#000",
+  });
+  for (const left of [closeLeft, zoomLeft]) {
+    rect(context, left - u, boxTop - u, box + 2 * u, box + 2 * u, "#FFF");
+    rect(context, left, boxTop, box, box, "#000");
+    rect(context, left + u, boxTop + u, box - 2 * u, box - 2 * u, "#FFF");
+  }
+  rect(context, zoomLeft, boxTop, 6 * u, 6 * u, "#000");
+  rect(context, zoomLeft + u, boxTop + u, 4 * u, 4 * u, "#FFF");
+  // Info bar between two rules: the Xprite mark and the block count.
+  rect(context, w.x, w.y + 19 * u, w.width, u, "#000");
+  statusTexts(context, scene, {
+    left: w.x + 6 * u,
+    right: right - 6 * u,
+    middle: w.y + 20 * u + 7.5 * u,
+    u,
+    color: "#000",
+  });
+  rect(context, w.x, w.y + 35 * u, w.width, u, "#000");
 }
 
-function drawLaptop(context: CanvasRenderingContext2D, frame: LaptopLayout, under: boolean) {
-  const { lid, screen, base, scale: s } = frame;
-  if (!under) return;
-  shadowed(context, 50 * s, 24 * s, () => {
-    context.fillStyle = "#1A1A1C";
-    roundedPath(context, lid, [34 * s, 34 * s, 8 * s, 8 * s]);
-    context.fill();
-  });
-  context.strokeStyle = "#B9BABD";
-  context.lineWidth = 5 * s;
-  roundedPath(
-    context,
+const WIN = {
+  face: "#C0C0C0",
+  light: "#DFDFDF",
+  white: "#FFFFFF",
+  shade: "#808080",
+  dark: "#000000",
+  title: "#000080",
+};
+
+/** Windows-style two-pixel bevel: raised (light top-left) or sunken (dark top-left). */
+function winBevel(context: CanvasRenderingContext2D, box: Rect, u: number, raised: boolean) {
+  const outer = raised ? [WIN.light, WIN.dark] : [WIN.shade, WIN.white];
+  const inner = raised ? [WIN.white, WIN.shade] : [WIN.dark, WIN.light];
+  for (const [inset, [topLeft, bottomRight]] of [
+    [0, outer],
+    [1, inner],
+  ] as const) {
+    const b = grow(box, -inset * u);
+    rect(context, b.x, b.y, b.width, u, topLeft);
+    rect(context, b.x, b.y, u, b.height, topLeft);
+    rect(context, b.x, b.y + b.height - u, b.width, u, bottomRight);
+    rect(context, b.x + b.width - u, b.y, u, b.height, bottomRight);
+  }
+}
+
+function drawWindows95(
+  context: CanvasRenderingContext2D,
+  scene: MiniToolScene,
+  frame: FrameLayout,
+  assets: Assets,
+) {
+  const { unit: u, body: w } = frame;
+  const { area } = scene.composition;
+  const right = w.x + w.width;
+  rect(context, w.x + 2 * u, w.y + 2 * u, w.width, w.height, "rgba(0,0,0,0.3)");
+  rect(context, w.x, w.y, w.width, w.height, WIN.face);
+  winBevel(context, w, u, true);
+  // Title bar with the Xprite icon, the title and three caption buttons.
+  const bar = { x: w.x + 3 * u, y: w.y + 3 * u, width: w.width - 6 * u, height: 18 * u };
+  rect(context, bar.x, bar.y, bar.width, bar.height, WIN.title);
+  drawIcon(context, assets, { x: bar.x + 2 * u, y: bar.y + u, width: 16 * u, height: 16 * u });
+  const button = { width: 16 * u, height: 14 * u };
+  const closeLeft = bar.x + bar.width - 2 * u - button.width;
+  const maximizeLeft = closeLeft - 2 * u - button.width;
+  const minimizeLeft = maximizeLeft - button.width;
+  context.font = pixelFont(PIXEL_GRID * u);
+  const title = fitText(context, scene.title || "Xprite", minimizeLeft - bar.x - 26 * u);
+  pixelText(context, title, bar.x + 21 * u, bar.y + bar.height / 2, u, WIN.white);
+  for (const left of [minimizeLeft, maximizeLeft, closeLeft]) {
+    const box = { x: left, y: bar.y + 2 * u, ...button };
+    rect(context, box.x, box.y, box.width, box.height, WIN.face);
+    winBevel(context, box, u, true);
+  }
+  const glyphTop = bar.y + 5 * u;
+  rect(context, minimizeLeft + 4 * u, glyphTop + 6 * u, 6 * u, 2 * u, WIN.dark);
+  rect(context, maximizeLeft + 3 * u, glyphTop - u, 9 * u, 9 * u, WIN.dark);
+  rect(context, maximizeLeft + 4 * u, glyphTop + u, 7 * u, 6 * u, WIN.face);
+  for (let step = 0; step < 7; step += 1) {
+    rect(context, closeLeft + (4 + step) * u, glyphTop - u + step * u, 2 * u, u, WIN.dark);
+    rect(context, closeLeft + (10 - step) * u, glyphTop - u + step * u, 2 * u, u, WIN.dark);
+  }
+  // The sunken picture well and the status bar's two panes.
+  winBevel(context, grow(area, 2 * u), u, false);
+  const statusTop = area.y + area.height + 4 * u;
+  const split = Math.round((w.width - 6 * u) * 0.6);
+  const panes = [
+    { x: w.x + 3 * u, y: statusTop, width: split - u, height: 18 * u },
     {
-      x: lid.x + 2.5 * s,
-      y: lid.y + 2.5 * s,
-      width: lid.width - 5 * s,
-      height: lid.height - 5 * s,
+      x: w.x + 3 * u + split + u,
+      y: statusTop,
+      width: w.width - 6 * u - split - u,
+      height: 18 * u,
     },
-    [32 * s, 32 * s, 6 * s, 6 * s],
-  );
-  context.stroke();
-  context.fillStyle = "#3A3A3E";
-  context.beginPath();
-  context.arc(lid.x + lid.width / 2, lid.y + 16 * s, 5 * s, 0, Math.PI * 2);
-  context.fill();
-  rect(context, screen.x, screen.y, screen.width, screen.height, "#0E0E10");
-  shadowed(context, 40 * s, 24 * s, () => {
-    const gradient = context.createLinearGradient(0, base.y, 0, base.y + base.height);
-    gradient.addColorStop(0, "#D5D6D9");
-    gradient.addColorStop(1, "#A9AAAE");
-    context.fillStyle = gradient;
-    roundedPath(context, base, [4 * s, 4 * s, 40 * s, 40 * s]);
-    context.fill();
-  });
-  context.fillStyle = "#9C9DA1";
-  roundedPath(
-    context,
-    { x: base.x + base.width / 2 - 90 * s, y: base.y, width: 180 * s, height: 12 * s },
-    [0, 0, 8 * s, 8 * s],
-  );
-  context.fill();
+  ];
+  for (const pane of panes) {
+    rect(context, pane.x, pane.y, pane.width, u, WIN.shade);
+    rect(context, pane.x, pane.y, u, pane.height, WIN.shade);
+    rect(context, pane.x, pane.y + pane.height - u, pane.width, u, WIN.white);
+    rect(context, pane.x + pane.width - u, pane.y, u, pane.height, WIN.white);
+  }
+  const middle = statusTop + 9 * u;
+  pixelText(context, "Xprite", panes[0].x + 4 * u, middle, u, WIN.dark);
+  context.font = pixelFont(PIXEL_GRID * u);
+  if (context.measureText(dimensionsText(scene)).width <= panes[1].width - 6 * u)
+    pixelText(context, dimensionsText(scene), right - 7 * u, middle, u, WIN.dark, "right");
 }
 
-function drawConsole(context: CanvasRenderingContext2D, frame: ConsoleLayout, under: boolean) {
-  const { body, bezel, scale: s } = frame;
-  if (!under) return;
-  shadowed(context, 60 * s, 30 * s, () => {
-    context.fillStyle = "#D7D4CD";
-    roundedPath(context, body, [40 * s, 40 * s, 170 * s, 40 * s]);
-    context.fill();
-  });
-  // A soft inner shade on the lower right edge.
-  context.save();
-  roundedPath(context, body, [40 * s, 40 * s, 170 * s, 40 * s]);
-  context.clip();
-  context.strokeStyle = "rgba(0,0,0,0.08)";
-  context.lineWidth = 24 * s;
-  roundedPath(
+const PHONE = {
+  body: "#34404F",
+  edge: "#4B596C",
+  bezel: "#1A2129",
+  lcd: "#A3BE6E",
+  key: "#D5DAE0",
+  keyShade: "#97A1AD",
+  brand: "#C3CCD6",
+};
+
+function drawOldPhone(context: CanvasRenderingContext2D, scene: MiniToolScene, frame: FrameLayout) {
+  const { unit: u, body: b } = frame;
+  const { area } = scene.composition;
+  const radii: Radii = [10, 10, 14, 14];
+  pixelBox(context, shifted(b, 3 * u, 3 * u), u, radii, "rgba(0,0,0,0.18)");
+  pixelBox(context, b, u, radii, PHONE.body);
+  rect(context, b.x + 2 * u, b.y + 12 * u, u, b.height - 28 * u, PHONE.edge);
+  const middle = b.x + b.width / 2;
+  // Earpiece slot and the brand.
+  pixelBox(
     context,
-    { x: body.x - 12 * s, y: body.y - 12 * s, width: body.width, height: body.height },
-    [40 * s, 40 * s, 170 * s, 40 * s],
+    { x: middle - 9 * u, y: b.y + 5 * u, width: 18 * u, height: 3 * u },
+    u,
+    1,
+    PHONE.bezel,
   );
-  context.stroke();
-  context.restore();
-  context.fillStyle = "#5E6371";
-  roundedPath(context, bezel, [26 * s, 26 * s, 90 * s, 26 * s]);
-  context.fill();
-  context.fillStyle = "#E0294A";
-  context.beginPath();
-  context.arc(bezel.x + 30 * s, bezel.y + 250 * s, 9 * s, 0, Math.PI * 2);
-  context.fill();
-  context.font = pixelFont(Math.round((72 * s) / PIXEL_GRID) * PIXEL_GRID);
-  context.textBaseline = "top";
-  context.textAlign = "left";
-  context.fillStyle = "#2D3A8C";
-  context.fillText("XPRITE", body.x + 80 * s, body.y + 800 * s);
-  // D-pad, A/B buttons, Select/Start and the speaker grille.
-  const pad = { x: body.x + 110 * s, y: body.y + 960 * s, size: 210 * s, arm: 70 * s };
-  context.fillStyle = "#26262A";
-  roundedPath(
-    context,
-    { x: pad.x + (pad.size - pad.arm) / 2, y: pad.y, width: pad.arm, height: pad.size },
-    8 * s,
-  );
-  context.fill();
-  roundedPath(
-    context,
-    { x: pad.x, y: pad.y + (pad.size - pad.arm) / 2, width: pad.size, height: pad.arm },
-    8 * s,
-  );
-  context.fill();
-  for (const [x, y] of [
-    [655, 1005],
-    [505, 1085],
-  ]) {
-    for (const [dx, dy, color] of [
-      [4, 7, "rgba(0,0,0,0.18)"],
-      [0, 0, "#A3245A"],
-    ] as const) {
-      context.fillStyle = color;
-      context.beginPath();
-      context.arc(body.x + (x + dx) * s, body.y + (y + dy) * s, 55 * s, 0, Math.PI * 2);
-      context.fill();
-    }
-  }
-  const pill = (x: number, y: number, width: number, height: number, color: string) => {
-    context.save();
-    context.translate(body.x + x * s, body.y + y * s);
-    context.rotate((-25 * Math.PI) / 180);
-    context.fillStyle = color;
-    roundedPath(
-      context,
-      { x: (-width * s) / 2, y: (-height * s) / 2, width: width * s, height: height * s },
-      (height * s) / 2,
-    );
-    context.fill();
-    context.restore();
+  pixelText(context, "XPRITE", middle, b.y + 16 * u, u, PHONE.brand, "center");
+  // Screen: dark bezel, then the green-lit glass edge around the picture.
+  pixelBox(context, grow(area, 6 * u), u, 3, PHONE.bezel);
+  rect(context, area.x - 3 * u, area.y - 3 * u, area.width + 6 * u, area.height + 6 * u, PHONE.lcd);
+  // Navigation key with the two soft keys, then the keypad.
+  const columns = Math.max(10, Math.floor((b.width / u - 26 - 8) / 3));
+  const keypad = (3 * columns + 8) * u;
+  const left = Math.round(middle - keypad / 2);
+  let y = area.y + area.height + 12 * u;
+  const key = (x: number, top: number, width: number, height: number) => {
+    pixelBox(context, { x, y: top + u, width, height }, u, 2, PHONE.keyShade);
+    pixelBox(context, { x, y: top, width, height }, u, 2, PHONE.key);
   };
-  pill(340, 1234, 100, 28, "#8E8B85");
-  pill(480, 1234, 100, 28, "#8E8B85");
-  for (let index = 0; index < 6; index += 1)
-    pill(640 + index * 26, 1190 + index * 6, 14, 110, "#BDB9B1");
+  const nav = { width: Math.round(keypad * 0.42), height: 10 * u };
+  key(Math.round(middle - nav.width / 2), y, nav.width, nav.height);
+  const soft = columns * u;
+  key(left, y + 2 * u, soft, 7 * u);
+  key(left + keypad - soft, y + 2 * u, soft, 7 * u);
+  rect(context, left + 3 * u, y + 5 * u, soft - 6 * u, u, "#3E9A54");
+  rect(context, left + keypad - soft + 3 * u, y + 5 * u, soft - 6 * u, u, "#C2463F");
+  y += nav.height + 6 * u;
+  for (let row = 0; row < 4; row += 1)
+    for (let column = 0; column < 3; column += 1)
+      key(left + column * (columns + 4) * u, y + row * 10 * u, columns * u, 7 * u);
+  rect(context, middle - u, b.y + b.height - 7 * u, 2 * u, u, PHONE.bezel);
+}
+
+const HANDHELD = {
+  body: "#C9C5BE",
+  shade: "#ADA9A1",
+  bezel: "#5D6077",
+  led: "#D1324C",
+  brand: "#2E3B8E",
+  pad: "#2A2A2E",
+  button: "#9C2A5B",
+  pill: "#8E8A84",
+};
+
+function drawHandheld(context: CanvasRenderingContext2D, scene: MiniToolScene, frame: FrameLayout) {
+  const { unit: u, body: b } = frame;
+  const { area } = scene.composition;
+  const radii: Radii = [4, 4, 22, 4];
+  pixelBox(context, shifted(b, 3 * u, 3 * u), u, radii, "rgba(0,0,0,0.18)");
+  pixelBox(context, b, u, radii, HANDHELD.body);
+  rect(context, b.x + 3 * u, b.y + 3 * u, b.width - 6 * u, u, HANDHELD.shade);
+  // Bezel with the power light; the picture sits in a thin dark rim.
+  const bezel = {
+    x: area.x - 10 * u,
+    y: area.y - 8 * u,
+    width: area.width + 20 * u,
+    height: area.height + 22 * u,
+  };
+  pixelBox(context, bezel, u, [3, 3, 12, 3], HANDHELD.bezel);
+  rect(context, area.x - u, area.y - u, area.width + 2 * u, area.height + 2 * u, "#202230");
+  pixelBox(
+    context,
+    { x: bezel.x + 3 * u, y: area.y + Math.round(area.height / 3), width: 4 * u, height: 4 * u },
+    u,
+    1,
+    HANDHELD.led,
+  );
+  const below = bezel.y + bezel.height;
+  pixelText(context, "XPRITE", bezel.x + u, below + 11 * u, u, HANDHELD.brand);
+  // D-pad, A and B, select and start, and the speaker grille.
+  const controls = below + 24 * u;
+  const pad = { x: b.x + 12 * u, y: controls, arm: 7 * u };
+  rect(context, pad.x + pad.arm, pad.y, pad.arm, 3 * pad.arm, HANDHELD.pad);
+  rect(context, pad.x, pad.y + pad.arm, 3 * pad.arm, pad.arm, HANDHELD.pad);
+  const right = b.x + b.width;
+  for (const [x, y] of [
+    [right - 28 * u, controls + 9 * u],
+    [right - 14 * u, controls + 3 * u],
+  ])
+    pixelBox(
+      context,
+      { x: x - 6 * u, y: y - 6 * u, width: 12 * u, height: 12 * u },
+      u,
+      6,
+      HANDHELD.button,
+    );
+  const middle = b.x + b.width / 2;
+  for (const offset of [-15, 3])
+    pixelBox(
+      context,
+      { x: middle + offset * u, y: controls + 34 * u, width: 12 * u, height: 4 * u },
+      u,
+      2,
+      HANDHELD.pill,
+    );
+  for (let line = 0; line < 5; line += 1)
+    for (let step = 0; step < 9; step += 1)
+      rect(
+        context,
+        right - (26 - line * 4 - step) * u,
+        b.y + b.height - (6 + step) * u,
+        2 * u,
+        u,
+        HANDHELD.shade,
+      );
+}
+
+const CRT = {
+  case: "#D8D1BD",
+  light: "#EEE9DA",
+  shade: "#B3AB94",
+  dark: "#8C846F",
+  glass: "#121416",
+  led: "#3FCF5A",
+};
+
+function drawCrt(
+  context: CanvasRenderingContext2D,
+  scene: MiniToolScene,
+  frame: FrameLayout,
+  assets: Assets,
+) {
+  const { unit: u, body: b } = frame;
+  const { area } = scene.composition;
+  const shell = { x: b.x, y: b.y, width: b.width, height: b.height - 12 * u };
+  const middle = b.x + b.width / 2;
+  // Stand: neck and foot, behind the case.
+  const neck = Math.round((b.width * 0.36) / u) * u;
+  const foot = Math.round((b.width * 0.62) / u) * u;
+  pixelBox(
+    context,
+    shifted(
+      { x: middle - foot / 2, y: b.y + b.height - 7 * u, width: foot, height: 7 * u },
+      3 * u,
+      3 * u,
+    ),
+    u,
+    [2, 2, 1, 1],
+    "rgba(0,0,0,0.18)",
+  );
+  rect(context, middle - neck / 2, shell.y + shell.height, neck, 5 * u, CRT.dark);
+  pixelBox(
+    context,
+    { x: middle - foot / 2, y: b.y + b.height - 7 * u, width: foot, height: 7 * u },
+    u,
+    [2, 2, 1, 1],
+    CRT.shade,
+  );
+  rect(context, middle - foot / 2 + 2 * u, b.y + b.height - 7 * u, foot - 4 * u, u, CRT.light);
+  // Case with a highlight on the top and left, shade on the bottom and right.
+  pixelBox(context, shifted(shell, 3 * u, 3 * u), u, 4, "rgba(0,0,0,0.18)");
+  pixelBox(context, shell, u, 4, CRT.dark);
+  pixelBox(context, grow(shell, -u), u, 3, CRT.case);
+  rect(context, shell.x + 4 * u, shell.y + u, shell.width - 8 * u, u, CRT.light);
+  rect(context, shell.x + u, shell.y + 4 * u, u, shell.height - 8 * u, CRT.light);
+  rect(context, shell.x + 4 * u, shell.y + shell.height - 2 * u, shell.width - 8 * u, u, CRT.shade);
+  // Recessed screen surround and the glass with rounded corners.
+  const recess = grow(area, 8 * u);
+  rect(context, recess.x, recess.y, recess.width, recess.height, CRT.shade);
+  rect(context, recess.x, recess.y, recess.width, u, CRT.dark);
+  rect(context, recess.x, recess.y, u, recess.height, CRT.dark);
+  rect(context, recess.x, recess.y + recess.height - u, recess.width, u, CRT.light);
+  rect(context, recess.x + recess.width - u, recess.y, u, recess.height, CRT.light);
+  const glass = grow(area, 4 * u);
+  pixelBox(context, glass, u, 3, CRT.glass);
+  rect(context, glass.x + 3 * u, glass.y + u, 6 * u, u, "#3A3E44");
+  rect(context, glass.x + u, glass.y + 3 * u, u, 4 * u, "#3A3E44");
+  // Front panel: the Xprite badge, power light and two buttons.
+  const panel = recess.y + recess.height + 10 * u;
+  drawIcon(context, assets, { x: recess.x + u, y: panel - 4 * u, width: 8 * u, height: 8 * u });
+  pixelText(context, "Xprite", recess.x + 12 * u, panel, u, CRT.dark);
+  const right = recess.x + recess.width;
+  rect(context, right - 3 * u, panel - u, 2 * u, 2 * u, CRT.led);
+  for (const offset of [10, 19]) {
+    rect(context, right - offset * u, panel - 2 * u, 6 * u, 4 * u, CRT.dark);
+    rect(context, right - offset * u, panel - 2 * u, 6 * u, 3 * u, CRT.shade);
+  }
+}
+
+function drawPolaroid(context: CanvasRenderingContext2D, scene: MiniToolScene, frame: FrameLayout) {
+  const { unit: u, body: b } = frame;
+  const { area } = scene.composition;
+  rect(context, b.x + 3 * u, b.y + 3 * u, b.width, b.height, "rgba(0,0,0,0.2)");
+  rect(context, b.x, b.y, b.width, b.height, "#F6F3EC");
+  rect(context, b.x, b.y + b.height - u, b.width, u, "#E1DBCF");
+  rect(context, area.x - u, area.y - u, area.width + 2 * u, area.height + 2 * u, "#DCD6CA");
+  // A caption in the wide bottom strip.
+  const scale = Math.max(1, Math.round(u * 0.6));
+  pixelText(
+    context,
+    "Xprite",
+    b.x + b.width / 2,
+    area.y + area.height + Math.round((b.y + b.height - area.y - area.height) / 2 / u) * u,
+    scale,
+    "#6B655C",
+    "center",
+  );
 }
 
 function drawScene(
@@ -617,23 +888,36 @@ function drawScene(
 ) {
   const { composition } = scene;
   const frame = composition.frame;
-  const { width, height } = composition.size;
+  if (frame.kind !== ExportFrame.None) {
+    const { width, height } = composition.size;
+    rect(context, 0, 0, width, height, FRAME_BACKGROUND[frame.kind]);
+  }
   switch (frame.kind) {
     case ExportFrame.MacOS8:
       drawDesktop(context, scene, assets);
       drawMacWindow(context, scene, frame, assets);
       break;
-    case ExportFrame.None:
+    case ExportFrame.System7:
+      drawSystem7(context, scene, frame);
+      break;
+    case ExportFrame.Windows95:
+      drawWindows95(context, scene, frame, assets);
+      break;
+    case ExportFrame.OldPhone:
+      drawOldPhone(context, scene, frame);
+      break;
+    case ExportFrame.Handheld:
+      drawHandheld(context, scene, frame);
+      break;
+    case ExportFrame.Crt:
+      drawCrt(context, scene, frame, assets);
+      break;
+    case ExportFrame.Polaroid:
+      drawPolaroid(context, scene, frame);
       break;
     default:
-      rect(context, 0, 0, width, height, DEVICE_BACKGROUND);
   }
-  if (frame.kind === ExportFrame.Phone) drawPhone(context, frame, true);
-  if (frame.kind === ExportFrame.Laptop) drawLaptop(context, frame, true);
-  if (frame.kind === ExportFrame.Console) drawConsole(context, frame, true);
   drawPicture(context, scene, original);
-  if (frame.kind === ExportFrame.Phone) drawPhone(context, frame, false);
-  drawWatermark(context, scene, assets);
 }
 
 /** Canvas drawing for previews and exports; one scene, any scale. */

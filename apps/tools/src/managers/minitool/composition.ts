@@ -1,4 +1,10 @@
-import { intersectRects, type Placement, type Rect } from "$/managers/minitool/split-geometry";
+import {
+  intersectRects,
+  placementRect,
+  type Placement,
+  type Rect,
+} from "$/managers/minitool/split-geometry";
+import type { PixelBuffer } from "@xprite/editor-core/base";
 
 /** Every export is this wide; heights follow the ratio. */
 const EXPORT_WIDTH = 1080;
@@ -12,9 +18,12 @@ export enum ExportRatio {
 export enum ExportFrame {
   None = "none",
   MacOS8 = "mac-os-8",
-  Phone = "phone",
-  Laptop = "laptop",
-  Console = "console",
+  System7 = "system-7",
+  Windows95 = "windows-95",
+  OldPhone = "old-phone",
+  Handheld = "handheld",
+  Crt = "crt",
+  Polaroid = "polaroid",
 }
 
 /** What the export shows: the before/after split, or only the pixelated picture. */
@@ -37,9 +46,12 @@ export const EXPORT_RATIOS = [ExportRatio.Portrait, ExportRatio.Square, ExportRa
 export const EXPORT_FRAMES = [
   ExportFrame.None,
   ExportFrame.MacOS8,
-  ExportFrame.Phone,
-  ExportFrame.Laptop,
-  ExportFrame.Console,
+  ExportFrame.System7,
+  ExportFrame.Windows95,
+  ExportFrame.OldPhone,
+  ExportFrame.Handheld,
+  ExportFrame.Crt,
+  ExportFrame.Polaroid,
 ] as const;
 
 const RATIO_HEIGHTS: Readonly<Record<ExportRatio, number>> = {
@@ -57,22 +69,11 @@ export function exportSize(ratio: ExportRatio): CanvasSize {
   return { width: EXPORT_WIDTH, height: RATIO_HEIGHTS[ratio] };
 }
 
-/** How the pixelated picture's blocks fill an area. */
-enum Fit {
-  /** Fill the area, cropping the overflow (full-bleed exports). */
-  Cover = "cover",
-  /** Show every block, leaving bars (device screens). */
-  Contain = "contain",
-}
-
-/** Whole-number block size so every exported block has the same width and stays crisp. */
-function placeBlocks(area: Rect, grid: CanvasSize, fit: Fit): Placement {
+/** A frameless export fills the canvas with whole-pixel blocks, cropping the overflow. */
+function coverBlocks(area: Rect, grid: CanvasSize): Placement {
   const columns = Math.max(1, grid.width);
   const rows = Math.max(1, grid.height);
-  const cell =
-    fit === Fit.Cover
-      ? Math.ceil(Math.max(area.width / columns, area.height / rows))
-      : Math.max(1, Math.floor(Math.min(area.width / columns, area.height / rows)));
+  const cell = Math.ceil(Math.max(area.width / columns, area.height / rows));
   return {
     x: area.x + Math.round((area.width - columns * cell) / 2),
     y: area.y + Math.round((area.height - rows * cell) / 2),
@@ -80,6 +81,14 @@ function placeBlocks(area: Rect, grid: CanvasSize, fit: Fit): Placement {
     columns,
     rows,
   };
+}
+
+/** Frame art pixels between the frame's outer edge and the picture, in frame units. */
+interface FrameChrome {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
 }
 
 /** Mac OS 8 window parts, in window pixels (`unit` export units each). */
@@ -91,218 +100,168 @@ export const MAC_WINDOW = {
   status: 16,
   box: 11,
 } as const;
-const MAC_UNIT = 5;
-/** Window chrome around the picture: borders, title, padding, inset frames and status bar. */
-const MAC_CHROME_WIDTH = 2 * (MAC_WINDOW.border + MAC_WINDOW.padding + MAC_WINDOW.inset);
-const MAC_CHROME_HEIGHT =
-  2 * MAC_WINDOW.border +
-  MAC_WINDOW.title +
-  1 +
-  2 * (MAC_WINDOW.padding + MAC_WINDOW.inset) +
-  1 +
-  MAC_WINDOW.status;
-const MAC_MARGIN = { x: 130, y: 120 };
 
-export interface MacWindowLayout {
-  kind: ExportFrame.MacOS8;
+/**
+ * Every frame is pixel art drawn at a whole number of export pixels per art pixel (`unit`), sized
+ * around the picture so the picture itself keeps whole-pixel blocks with no letterboxing.
+ */
+const FRAME_CHROME: Readonly<Record<Exclude<ExportFrame, ExportFrame.None>, FrameChrome>> = {
+  [ExportFrame.MacOS8]: {
+    left: MAC_WINDOW.border + MAC_WINDOW.padding + MAC_WINDOW.inset,
+    right: MAC_WINDOW.border + MAC_WINDOW.padding + MAC_WINDOW.inset,
+    top: MAC_WINDOW.border + MAC_WINDOW.title + 1 + MAC_WINDOW.padding + MAC_WINDOW.inset,
+    bottom: MAC_WINDOW.inset + MAC_WINDOW.padding + 1 + MAC_WINDOW.status + MAC_WINDOW.border,
+  },
+  // Outline, striped title bar, an info bar, the picture flush with the window frame.
+  [ExportFrame.System7]: { left: 1, right: 1, top: 36, bottom: 1 },
+  // Raised frame, title bar, sunken picture well and a status bar.
+  [ExportFrame.Windows95]: { left: 6, right: 6, top: 26, bottom: 26 },
+  // Earpiece and brand above the screen, navigation key and keypad below.
+  [ExportFrame.OldPhone]: { left: 13, right: 13, top: 30, bottom: 78 },
+  // Bezel with a power light, the brand and the buttons below.
+  [ExportFrame.Handheld]: { left: 18, right: 18, top: 18, bottom: 84 },
+  // Beige case, glass with rounded corners, front panel and stand.
+  [ExportFrame.Crt]: { left: 18, right: 18, top: 18, bottom: 40 },
+  // An instant photo: thin sides, a wide caption strip.
+  [ExportFrame.Polaroid]: { left: 9, right: 9, top: 9, bottom: 34 },
+};
+
+/** Space around a frame at the 1080 × 1440 design size, in export pixels. */
+const FRAME_MARGIN: Readonly<Record<Exclude<ExportFrame, ExportFrame.None>, CanvasSize>> = {
+  [ExportFrame.MacOS8]: { width: 130, height: 120 },
+  [ExportFrame.System7]: { width: 110, height: 110 },
+  [ExportFrame.Windows95]: { width: 100, height: 110 },
+  [ExportFrame.OldPhone]: { width: 120, height: 70 },
+  [ExportFrame.Handheld]: { width: 110, height: 70 },
+  [ExportFrame.Crt]: { width: 70, height: 110 },
+  [ExportFrame.Polaroid]: { width: 120, height: 130 },
+};
+/** Export pixels per frame art pixel at the design size. */
+const FRAME_UNIT = 5;
+
+export interface FrameLayout {
+  kind: Exclude<ExportFrame, ExportFrame.None>;
+  /** Export pixels per frame art pixel. */
   unit: number;
-  window: Rect;
-}
-export interface PhoneLayout {
-  kind: ExportFrame.Phone;
-  scale: number;
+  /** The frame's outer box. */
   body: Rect;
-  screen: Rect;
-}
-export interface LaptopLayout {
-  kind: ExportFrame.Laptop;
-  scale: number;
-  lid: Rect;
-  screen: Rect;
-  base: Rect;
-}
-export interface ConsoleLayout {
-  kind: ExportFrame.Console;
-  scale: number;
-  body: Rect;
-  bezel: Rect;
 }
 interface PlainLayout {
   kind: ExportFrame.None;
 }
-type FrameLayout = MacWindowLayout | PhoneLayout | LaptopLayout | ConsoleLayout | PlainLayout;
 
 export interface Composition {
   size: CanvasSize;
-  frame: FrameLayout;
+  frame: FrameLayout | PlainLayout;
   /** Where the picture shows (clip to it). */
   area: Rect;
   /** The picture's blocks; may extend past `area` when cropped. */
   placement: Placement;
   /** The visible part of the picture: the split and labels live here. */
   visible: Rect;
-  /** The Xprite mark under device frames; framed exports only. */
-  watermark: { x: number; y: number; size: number } | null;
+  /** Whether the frame fits the canvas with at least one export pixel per block. */
+  fits: boolean;
 }
 
-/** Design sizes at 1080 × 1440; other ratios scale them to fit. */
+/** Design sizes at 1080 × 1440; other sizes scale them to fit. */
 const DESIGN = { width: 1080, height: 1440 };
-const WATERMARK_SIZE = 36;
 
 function designScale(size: CanvasSize) {
   return Math.min(size.width / DESIGN.width, size.height / DESIGN.height);
 }
 
-function centred(size: CanvasSize, width: number, height: number, offsetY = 0): Rect {
-  return {
-    x: Math.round((size.width - width) / 2),
-    y: Math.round((size.height - height) / 2 + offsetY),
-    width: Math.round(width),
-    height: Math.round(height),
-  };
-}
-
-function finish(
-  size: CanvasSize,
-  frame: FrameLayout,
-  area: Rect,
-  placement: Placement,
-  watermarkTop: number | null,
-  scale = 1,
+/**
+ * Lay out one export: frame parts and where the picture's blocks go. `size` defaults to the
+ * ratio's export size; frame thumbnails pass their own device-pixel size.
+ */
+export function composeLayout(
+  layout: LayoutState,
+  grid: CanvasSize,
+  size: CanvasSize = exportSize(layout.ratio),
 ): Composition {
-  const picture = {
-    x: placement.x,
-    y: placement.y,
-    width: placement.columns * placement.cell,
-    height: placement.rows * placement.cell,
+  const columns = Math.max(1, grid.width);
+  const rows = Math.max(1, grid.height);
+  if (layout.frame === ExportFrame.None) {
+    const area = { x: 0, y: 0, ...size };
+    const placement = coverBlocks(area, { width: columns, height: rows });
+    return {
+      size,
+      frame: { kind: ExportFrame.None },
+      area,
+      placement,
+      visible: intersectRects(area, placementRect(placement)),
+      fits: true,
+    };
+  }
+  const kind = layout.frame;
+  const scale = designScale(size);
+  const unit = Math.max(1, Math.round(FRAME_UNIT * scale));
+  const chrome = FRAME_CHROME[kind];
+  const margin = FRAME_MARGIN[kind];
+  const chromeWidth = (chrome.left + chrome.right) * unit;
+  const chromeHeight = (chrome.top + chrome.bottom) * unit;
+  const room = {
+    width: size.width - 2 * Math.round(margin.width * scale) - chromeWidth,
+    height: size.height - 2 * Math.round(margin.height * scale) - chromeHeight,
+  };
+  const fitted = Math.floor(Math.min(room.width / columns, room.height / rows));
+  const cell = Math.max(1, fitted);
+  const width = columns * cell + chromeWidth;
+  const height = rows * cell + chromeHeight;
+  const body = {
+    x: Math.round((size.width - width) / 2),
+    y: Math.round((size.height - height) / 2),
+    width,
+    height,
+  };
+  const area = {
+    x: body.x + chrome.left * unit,
+    y: body.y + chrome.top * unit,
+    width: columns * cell,
+    height: rows * cell,
   };
   return {
     size,
-    frame,
+    frame: { kind, unit, body },
     area,
-    placement,
-    visible: intersectRects(area, picture),
-    watermark:
-      watermarkTop === null
-        ? null
-        : {
-            x: size.width / 2,
-            y: watermarkTop,
-            size: Math.round(WATERMARK_SIZE * Math.max(scale, 0.75)),
-          },
+    placement: { x: area.x, y: area.y, cell, columns, rows },
+    visible: area,
+    fits: fitted >= 1 && body.x >= 0 && body.y >= 0,
   };
 }
 
-/** Lay out one export: canvas size, frame parts and where the picture's blocks go. */
-export function composeLayout(layout: LayoutState, grid: CanvasSize): Composition {
-  const size = exportSize(layout.ratio);
-  const scale = designScale(size);
-  switch (layout.frame) {
-    case ExportFrame.MacOS8: {
-      // Smaller canvases (1:1) get finer window pixels and margins, so the picture stays large.
-      const unit = Math.max(3, Math.round(MAC_UNIT * scale));
-      const room = {
-        width: size.width - 2 * Math.round(MAC_MARGIN.x * scale) - MAC_CHROME_WIDTH * unit,
-        height: size.height - 2 * Math.round(MAC_MARGIN.y * scale) - MAC_CHROME_HEIGHT * unit,
-      };
-      const cell = Math.max(
-        1,
-        Math.floor(Math.min(room.width / grid.width, room.height / grid.height)),
-      );
-      const picture = { width: grid.width * cell, height: grid.height * cell };
-      const window = centred(
-        size,
-        picture.width + MAC_CHROME_WIDTH * unit,
-        picture.height + MAC_CHROME_HEIGHT * unit,
-      );
-      const area = {
-        x: window.x + (MAC_WINDOW.border + MAC_WINDOW.padding + MAC_WINDOW.inset) * unit,
-        y:
-          window.y +
-          (MAC_WINDOW.border + MAC_WINDOW.title + 1 + MAC_WINDOW.padding + MAC_WINDOW.inset) * unit,
-        ...picture,
-      };
-      const placement = { x: area.x, y: area.y, cell, columns: grid.width, rows: grid.height };
-      return finish(size, { kind: ExportFrame.MacOS8, unit, window }, area, placement, null);
-    }
-    case ExportFrame.Phone: {
-      const body = centred(size, 600 * scale, 1220 * scale, -24 * scale);
-      const bezel = 28 * scale;
-      const screen = {
-        x: body.x + bezel,
-        y: body.y + bezel,
-        width: body.width - 2 * bezel,
-        height: body.height - 2 * bezel,
-      };
-      const placement = placeBlocks(screen, grid, Fit.Contain);
-      return finish(
-        size,
-        { kind: ExportFrame.Phone, scale, body, screen },
-        screen,
-        placement,
-        body.y + body.height + (size.height - body.y - body.height) / 2,
-        scale,
-      );
-    }
-    case ExportFrame.Laptop: {
-      const lid = centred(size, 900 * scale, 590 * scale, -60 * scale);
-      const bezel = 30 * scale;
-      const screen = {
-        x: lid.x + bezel,
-        y: lid.y + bezel,
-        width: lid.width - 2 * bezel,
-        height: lid.height - 2 * bezel,
-      };
-      const base = {
-        x: lid.x - 50 * scale,
-        y: lid.y + lid.height,
-        width: lid.width + 100 * scale,
-        height: 44 * scale,
-      };
-      const placement = placeBlocks(screen, grid, Fit.Contain);
-      return finish(
-        size,
-        { kind: ExportFrame.Laptop, scale, lid, screen, base },
-        screen,
-        placement,
-        Math.min(size.height - 70 * scale, base.y + base.height + 150 * scale),
-        scale,
-      );
-    }
-    case ExportFrame.Console: {
-      const body = centred(size, 820 * scale, 1320 * scale);
-      const bezel = {
-        x: body.x + 70 * scale,
-        y: body.y + 70 * scale,
-        width: 680 * scale,
-        height: 700 * scale,
-      };
-      const screen = {
-        x: bezel.x + 60 * scale,
-        y: bezel.y + 40 * scale,
-        width: 560 * scale,
-        height: 620 * scale,
-      };
-      const placement = placeBlocks(screen, grid, Fit.Contain);
-      return finish(
-        size,
-        { kind: ExportFrame.Console, scale, body, bezel },
-        screen,
-        placement,
-        null,
-      );
-    }
-    default: {
-      const area = { x: 0, y: 0, ...size };
-      return finish(
-        size,
-        { kind: ExportFrame.None },
-        area,
-        placeBlocks(area, grid, Fit.Cover),
-        null,
-      );
-    }
+/**
+ * A frame thumbnail at `size` device pixels: the frame at one device pixel per art pixel, and the
+ * picture sampled down by a whole factor until it fits with at least one pixel per block.
+ */
+export function frameThumbnail(
+  layout: LayoutState,
+  grid: CanvasSize,
+  size: CanvasSize,
+): { composition: Composition; factor: number } {
+  for (let factor = 1; ; factor += 1) {
+    const sampled = {
+      width: Math.max(1, Math.ceil(grid.width / factor)),
+      height: Math.max(1, Math.ceil(grid.height / factor)),
+    };
+    const composition = composeLayout(layout, sampled, size);
+    if (composition.fits || (sampled.width === 1 && sampled.height === 1))
+      return { composition, factor };
   }
+}
+
+/** Every `factor`-th pixel of a buffer, for thumbnails. */
+export function samplePixels(pixels: PixelBuffer, factor: number): PixelBuffer {
+  if (factor <= 1) return pixels;
+  const width = Math.max(1, Math.ceil(pixels.width / factor));
+  const height = Math.max(1, Math.ceil(pixels.height / factor));
+  const data = new Uint8ClampedArray(width * height * 4);
+  for (let y = 0; y < height; y += 1)
+    for (let x = 0; x < width; x += 1) {
+      const from = (y * factor * pixels.width + x * factor) * 4;
+      data.set(pixels.data.subarray(from, from + 4), (y * width + x) * 4);
+    }
+  return { width, height, data };
 }
 
 /** Label text size: a whole multiple of the 12px pixel font, smaller in small screens. */
@@ -313,5 +272,5 @@ export function labelSize(visible: Rect): number {
 /** Divider widths in export units at full width; smaller pictures scale them down. */
 export function lineWidth(line: "thin" | "thick" | "steps", visible: Rect): number {
   const full = { thin: 8, thick: 20, steps: 9 }[line];
-  return Math.max(3, Math.round(full * Math.min(1, Math.max(0.5, visible.width / EXPORT_WIDTH))));
+  return Math.max(1, Math.round(full * Math.min(1, (1.6 * visible.width) / EXPORT_WIDTH)));
 }

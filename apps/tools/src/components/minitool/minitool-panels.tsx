@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import {
   Button,
@@ -12,10 +12,11 @@ import { Icon } from "$/components/minitool/minitool-icons";
 import { SceneCanvas } from "$/components/minitool/minitool-preview";
 import type { MiniToolTextKey } from "$/managers/locale/minitool-text";
 import {
-  composeLayout,
+  frameThumbnail,
+  samplePixels,
   EXPORT_FRAMES,
-  EXPORT_RATIOS,
   ExportContent,
+  type ExportFrame,
   type ExportRatio,
 } from "$/managers/minitool/composition";
 import type { MiniToolEditor, MiniToolSnapshot } from "$/managers/minitool/minitool-editor";
@@ -43,7 +44,7 @@ import {
   type CellColorPicker,
   type PixelationMethod,
 } from "@xprite/editor-core/import-export";
-import { scrollElementIntoView } from "@xprite/ui/utils";
+import { displayPixelRatio, scrollElementIntoView } from "@xprite/ui/utils";
 
 import styles from "$/components/minitool/minitool.module.css";
 
@@ -53,7 +54,6 @@ const COLORS_MIN = 2;
 const COLORS_MAX = 64;
 const OUTLINE_STEP = 10;
 const ROTATE_STEP = 15;
-const LINE_THUMB_SCALE = 2.5;
 const key = (value: string) => value as MiniToolTextKey;
 
 /** A result drawn block for block, cropped to a square thumbnail. */
@@ -489,7 +489,36 @@ export function RatioIcon({ ratio }: { ratio: ExportRatio }) {
   return <span className={styles.ratioIcon} style={RATIO_ICONS[ratio]} />;
 }
 
-export function LayoutPanel({
+/** A frame drawn at one device pixel per frame art pixel, with whole-pixel blocks. */
+function FrameThumb({
+  scene,
+  frame,
+  ratio,
+}: {
+  scene: MiniToolScene;
+  frame: ExportFrame;
+  ratio: ExportRatio;
+}) {
+  const pixelRatio = displayPixelRatio();
+  const width = Math.round(FRAME_THUMB.width * pixelRatio);
+  const height = Math.round(FRAME_THUMB.height * pixelRatio);
+  const thumb = useMemo(() => {
+    const { composition, factor } = frameThumbnail({ frame, ratio }, scene.pixels, {
+      width,
+      height,
+    });
+    return {
+      ...scene,
+      composition,
+      pixels: samplePixels(scene.pixels, factor),
+      split: { ...scene.split, labels: false },
+      content: ExportContent.Split,
+    };
+  }, [scene, frame, ratio, width, height]);
+  return <SceneCanvas scene={thumb} width={width / pixelRatio} height={height / pixelRatio} />;
+}
+
+export function FramePanel({
   editor,
   state,
   scene,
@@ -501,27 +530,15 @@ export function LayoutPanel({
   const t = useText();
   return (
     <>
-      <div className={styles.row}>
-        <span className={styles.label}>{t("layout.ratio")}</span>
-        <ChipGroup
-          label={t("layout.ratio")}
-          value={state.layout.ratio}
-          options={EXPORT_RATIOS.map((value) => ({
-            value,
-            label: (
-              <>
-                <RatioIcon ratio={value} />
-                <span className={styles.pix}>{value}</span>
-              </>
-            ),
-          }))}
-          onChange={(ratio) => editor.changeLayout({ ratio })}
-        />
-      </div>
       <div className={cx(styles.row, styles.compact)}>
         <span className={styles.label}>{t("layout.frame")}</span>
+        <span className={styles.sub}>{t("layout.frame-hint")}</span>
       </div>
-      <div className={styles.thumbs} role="radiogroup" aria-label={t("layout.frame")}>
+      <div
+        className={cx(styles.thumbs, styles.scroller)}
+        role="radiogroup"
+        aria-label={t("layout.frame")}
+      >
         {EXPORT_FRAMES.map((frame) => {
           const selected = state.layout.frame === frame;
           return (
@@ -540,19 +557,7 @@ export function LayoutPanel({
                 </span>
               )}
               <span className={styles.thumbImage}>
-                {scene && (
-                  <SceneCanvas
-                    scene={{
-                      ...scene,
-                      composition: composeLayout({ ...state.layout, frame }, scene.pixels),
-                      split: { ...scene.split, labels: false },
-                      content: ExportContent.Split,
-                      lineScale: LINE_THUMB_SCALE,
-                    }}
-                    width={FRAME_THUMB.width}
-                    height={FRAME_THUMB.height}
-                  />
-                )}
+                {scene && <FrameThumb scene={scene} frame={frame} ratio={state.layout.ratio} />}
               </span>
               <span className={styles.thumbName}>{t(key(`frame.${frame}`))}</span>
             </Button>

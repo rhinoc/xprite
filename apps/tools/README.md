@@ -226,14 +226,17 @@ engine, with its own phone-sized screen instead of `PixelationPage`:
   导出), the before/after split preview, and three tabs. 像素 sets the block count and four presets
   (默认, 清晰, 复古, 少色), with the engine's options under 高级. 对比 sets the divider's angle,
   position, sides, line style and labels; the divider can also be dragged and rotated on the
-  canvas. 版式 picks the export ratio (3:4, 1:1, 9:16) and frame (none, Mac OS 8 window, phone,
-  laptop, game console). The top 88 px stay clear for the container's own bar.
+  canvas. 边框 picks the frame: none, Mac OS 8, System 7 and Windows 95-style windows, an old
+  candy-bar phone, a handheld console, a CRT monitor or an instant photo. The export ratio (3:4,
+  1:1, 9:16) is under 比例 below the canvas. The top 88 px stay clear for the container's bar.
 - `managers/minitool/` holds the screen's state (`MiniToolEditor`: split, layout, presets,
   undo) and the pure geometry: `split-geometry.ts` (the divider and its pixel steps),
   `composition.ts` (export sizes, frames, whole-pixel block placement) and `pixel-presets.ts`.
 - `adapters/minitool/composition-renderer.ts` draws one scene for the preview, the thumbnails,
   the export sheet and the exported PNG, so the export matches the preview. Exports are 1080 px
-  wide; framed exports carry a small Xprite mark, frameless ones never do.
+  wide. Frames are pixel art drawn at a whole number of export pixels per art pixel and sized around
+  the picture, so its blocks stay whole with no letterboxing; framed exports carry the Xprite name
+  in a status bar, on the device or as a caption, and frameless ones never do.
 - `adapters/minitool/minitool-pixelation.ts` converts on the main thread (the container has no
   Workers) and downscales photos to 4 MP first.
 - `adapters/minitool/xhs-bridge.ts` feature-detects `window.xhs.miniTool`: **保存到相册** passes
