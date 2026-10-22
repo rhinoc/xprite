@@ -92,7 +92,10 @@ script selects the saved Light/Dark/System appearance before paint; without
 JavaScript the default is Light. Development previews the same generation path.
 
 `src/bootstrap.tsx` waits for fonts and bitmap resources, then calls `hydrateRoot`
-with the same initial theme metadata. Shared UI atlas controls provide responsive
+with the same initial theme metadata. A font or image that fails or stalls does not hold the
+page: after 4 seconds it hydrates anyway. The generated buttons look ready before React
+attaches events, so an inline script (`adapters/tools/startup-click.ts`) remembers the last
+button pressed until hydration starts, and it is pressed again once the tool is ready. Shared UI atlas controls provide responsive
 first-paint artwork until browser measurements are available. Hydration errors
 fail the startup visual gate alongside pixel and geometry changes.
 All tool routes use the Macintosh skin from `@xprite/ui`. Light/Dark/System is
@@ -180,6 +183,11 @@ The bead tool and Pixelate use the same `pixelateImage`, `updatePixelationSettin
 average, most-frequent RGB, local dominant color and edge-preserving sampling. Bead-specific
 processing follows that shared pixel grid: brand/code matching, color exclusion, material
 counts, board partitioning and chart output.
+
+On the website, Pixelate runs grid detection and conversion in one page-long worker
+(`SerialWorker` from `@xprite/bedrock/browser/worker-job`), started as a file or the example
+begins opening. PixelOE keeps its recent results and colour tables there, so a colour-only change
+does not rerun it. A new request cancels a running one by replacing the worker.
 
 The tool opens with the full pattern and board guides. The material list supports code/name
 search, quantity or code ordering, preview highlights, and color exclusion/restoration.

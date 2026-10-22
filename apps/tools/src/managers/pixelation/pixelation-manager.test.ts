@@ -24,6 +24,7 @@ function port(): PixelationPort {
     convert: vi.fn(async () => image(4, 3)),
     save: async () => {},
     edit: async () => {},
+    prepare: vi.fn(),
     dispose: () => {},
   };
 }
@@ -117,6 +118,48 @@ describe("pixelate tool preview", () => {
     manager.changeSettings({ palette: null, paletteName: "" });
     await settled();
     expect(manager.getSnapshot().palettePreview).toEqual([[255, 0, 0, 255]]);
+    manager.dispose();
+  });
+  it("shows the example opening while it downloads, and keeps only the last one asked for", async () => {
+    const downloads: ((file: File) => void)[] = [];
+    const read = vi.fn(async (_file: File) => image(8, 6));
+    const pixelation = {
+      ...port(),
+      read,
+      example: () => new Promise<File>((resolve) => downloads.push(resolve)),
+    };
+    const manager = new PixelationManager(pixelation);
+    const first = manager.openExample();
+    // Feedback (and disabled Open buttons) from the click on, not only once the file is in.
+    expect(manager.getSnapshot()).toMatchObject({ loading: true, error: null });
+    expect(pixelation.prepare).toHaveBeenCalledTimes(1);
+    const second = manager.openExample();
+    downloads[1](new File([], "second.jpg"));
+    await second;
+    downloads[0](new File([], "first.jpg"));
+    await first;
+    expect(read).toHaveBeenCalledTimes(1);
+    expect(manager.getSnapshot()).toMatchObject({ name: "second.jpg", loading: false });
+
+    const cleared = manager.openExample();
+    manager.clear();
+    downloads[2](new File([], "late.jpg"));
+    await cleared;
+    expect(manager.getSnapshot()).toMatchObject({ source: null, loading: false, name: "" });
+    manager.dispose();
+  });
+  it("reports an unavailable example and leaves the opening state", async () => {
+    const manager = new PixelationManager({
+      ...port(),
+      example: async () => {
+        throw new Error("The example is unavailable.");
+      },
+    });
+    await manager.openExample();
+    expect(manager.getSnapshot()).toMatchObject({
+      loading: false,
+      error: "The example is unavailable.",
+    });
     manager.dispose();
   });
 });

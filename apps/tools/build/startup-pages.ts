@@ -20,6 +20,7 @@ import {
   toolHeading,
   translateToolText,
 } from "../../growth/content/tools/index.ts";
+import { startupClickScript } from "../src/adapters/tools/startup-click.ts";
 import { createSsgRenderer } from "./ssg-renderer.ts";
 
 const SITE_LANGUAGE_PREFERENCE_KEY = "xse.ui.language.v1";
@@ -218,7 +219,7 @@ export function toolsStartupPages(): Plugin {
               `<template data-tool-locale="${language}-light">${localizedHtml[index * 2]}</template><template data-tool-locale="${language}-dark">${localizedHtml[index * 2 + 1]}</template>`,
           )
           .join("");
-        const root = `${heading}<div id="${rootId}" data-tool-startup-view>${light}</div><template data-tool-theme="dark">${dark}</template>${localeTemplates}<script id="tool-initial-artwork" type="application/json">${jsonForHtml(page.artwork)}</script><script>${localeSwitch}${themed.restore}</script>`;
+        const root = `${heading}<div id="${rootId}" data-tool-startup-view>${light}</div><template data-tool-theme="dark">${dark}</template>${localeTemplates}<script id="tool-initial-artwork" type="application/json">${jsonForHtml(page.artwork)}</script><script>${localeSwitch}${themed.restore}${startupClickScript(rootId)}</script>`;
         const appearance = publicDesktopStartupScript(APPEARANCE_MODE_STORAGE_KEY);
         const bodyStyle = `html[data-tool-appearance="light"]{color-scheme:light;background:${page.themes[UiColorScheme.Light].definition.colors.workspace}}html[data-tool-appearance="dark"]{color-scheme:dark;background:${page.themes[UiColorScheme.Dark].definition.colors.workspace}}`;
         return {
