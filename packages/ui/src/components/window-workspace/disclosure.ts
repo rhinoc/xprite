@@ -16,18 +16,22 @@ export interface WindowDisclosureProps {
   onCollapsedChange?(collapsed: boolean): void;
 }
 const INTERACTIVE_CAPTION_CONTENT = "button, a, input, select, textarea, [contenteditable]";
-/** Two touch taps on a title bar within this window (ms) roll the window up or down. */
-const DOUBLE_TAP_INTERVAL = 350;
-const DOUBLE_TAP_DISTANCE = 24;
+/** After a touch toggle, ignore the browser's synthesized double-click for this long (ms). */
+const TOUCH_DOUBLE_CLICK_GUARD = 700;
+/** A touch that travels further than this (px) is a drag or scroll, not a tap. */
+const TAP_DISTANCE = 12;
 
-/** System 7.5 WindowShade: click activates, drag moves, double-click rolls up the titlebar. */
+/**
+ * System 7.5 WindowShade: click activates, drag moves, double-click rolls up the titlebar; on touch
+ * a single tap on the titlebar rolls it.
+ */
 export function useWindowDisclosure({
   collapsed,
   defaultCollapsed = false,
   onCollapsedChange,
 }: WindowDisclosureProps) {
   const [localCollapsed, setLocalCollapsed] = useState(defaultCollapsed);
-  const lastTap = useRef<{ at: number; x: number; y: number }>();
+  const touchStart = useRef<{ id: number; x: number; y: number }>();
   const touchToggledAt = useRef(Number.NEGATIVE_INFINITY);
   const current = collapsed ?? localCollapsed;
   const change = (next: boolean) => {
@@ -47,8 +51,8 @@ export function useWindowDisclosure({
       event.preventDefault();
   };
   const doubleClick = (event: MouseEvent<HTMLElement>) => {
-    // A touch double tap already toggled in pointerUp; ignore the synthesized dblclick.
-    if (event.timeStamp - touchToggledAt.current < DOUBLE_TAP_INTERVAL * 2) {
+    // A touch tap already toggled in pointerUp; ignore the synthesized dblclick.
+    if (event.timeStamp - touchToggledAt.current < TOUCH_DOUBLE_CLICK_GUARD) {
       event.preventDefault();
       return;
     }
@@ -65,27 +69,37 @@ export function useWindowDisclosure({
     event.preventDefault();
     change(!current);
   };
+  const pointerDown = (event: PointerEvent<HTMLElement>) => {
+    touchStart.current =
+      event.pointerType === "touch" ? { id: event.pointerId, ...clientPoint(event) } : undefined;
+  };
   const pointerUp = (event: PointerEvent<HTMLElement>) => {
+    const start = touchStart.current;
+    touchStart.current = undefined;
     if (
       event.pointerType !== "touch" ||
+      (start &&
+        (start.id !== event.pointerId ||
+          Math.hypot(clientPoint(event).x - start.x, clientPoint(event).y - start.y) >
+            TAP_DISTANCE)) ||
       !event.currentTarget.contains(event.target as Node) ||
       (event.target as Element).closest(INTERACTIVE_CAPTION_CONTENT)
     )
       return;
-    const previous = lastTap.current;
-    const tap = { at: event.timeStamp, ...clientPoint(event) };
-    if (
-      previous &&
-      tap.at - previous.at <= DOUBLE_TAP_INTERVAL &&
-      Math.hypot(tap.x - previous.x, tap.y - previous.y) <= DOUBLE_TAP_DISTANCE
-    ) {
-      lastTap.current = undefined;
-      touchToggledAt.current = tap.at;
-      event.preventDefault();
-      change(!current);
-      return;
-    }
-    lastTap.current = tap;
+    // A finger has no double-click to discover: one tap on the title bar rolls the window up or
+    // down, so a collapsed window (such as the compact Adjust bar) opens from its title.
+    touchToggledAt.current = event.timeStamp;
+    event.preventDefault();
+    change(!current);
   };
-  return { collapsed: current, change, toggle, click, doubleClick, keyDown, pointerUp };
+  return {
+    collapsed: current,
+    change,
+    toggle,
+    click,
+    doubleClick,
+    keyDown,
+    pointerDown,
+    pointerUp,
+  };
 }

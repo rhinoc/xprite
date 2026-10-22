@@ -30,6 +30,8 @@ import styles from "$/components/checkbox/checkbox.module.css";
 
 const DEFAULT_CHECKBOX_LABEL_OFFSET = 28;
 const DEFAULT_CHECKBOX_ICON_OFFSET = 4;
+/** A touch tap commits on its click, which the browser fires right after pointerup. */
+const TOUCH_CLICK_WINDOW = 1000;
 interface CheckboxContentProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   viewport?: SurfaceViewport;
   label: string;
@@ -113,8 +115,10 @@ export function Checkbox({
   const displayAriaLabel = ariaLabel ? translateSource(ariaLabel) : displayLabel;
   const displayMnemonic = language === "en" ? mnemonicIndex : undefined;
   const button = useRef<HTMLButtonElement>(null);
-  const pointer = useRef<{ id: number; initial: boolean } | null>(null);
+  const pointer = useRef<{ id: number; initial: boolean; touch?: boolean } | null>(null);
   const keyValue = useRef<boolean | null>(null);
+  /** A finger tap commits on the browser's click, which already applies touch hit slop. */
+  const touchTap = useRef<{ value: boolean; at: number } | null>(null);
   const [preview, setPreview] = useState<boolean | null>(null);
   const [hover, setHover] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -205,6 +209,14 @@ export function Checkbox({
       onPointerLeave={composeEventHandlers(() => setHover(false), onPointerLeave)}
       onPointerDown={composeEventHandlers((event) => {
         if (disabled) return;
+        touchTap.current = null;
+        if (event.pointerType === "touch") {
+          // Fingers land beside a small label; keep native tap targeting and panning.
+          event.currentTarget.focus({ preventScroll: true });
+          pointer.current = { id: event.pointerId, initial: checked, touch: true };
+          setPreview(nextValue(checked));
+          return;
+        }
         event.preventDefault();
         event.currentTarget.focus({ preventScroll: true });
         pointer.current = { id: event.pointerId, initial: checked };
@@ -213,7 +225,7 @@ export function Checkbox({
       }, onPointerDown)}
       onPointerMove={composeEventHandlers((event) => {
         const active = pointer.current;
-        if (!active || active.id !== event.pointerId) return;
+        if (!active || active.id !== event.pointerId || active.touch) return;
         const rect = clientRect(event.currentTarget);
         const inside =
           clientPoint(event).x >= rect.left &&
@@ -226,6 +238,11 @@ export function Checkbox({
       onPointerUp={composeEventHandlers((event) => {
         const active = pointer.current;
         if (!active || active.id !== event.pointerId) return;
+        if (active.touch) {
+          cancel();
+          touchTap.current = { value: !active.initial, at: event.timeStamp };
+          return;
+        }
         const rect = clientRect(event.currentTarget);
         const inside =
           clientPoint(event).x >= rect.left &&
@@ -259,7 +276,11 @@ export function Checkbox({
         }
       }, onKeyUp)}
       onClick={composeEventHandlers((event) => {
-        if (event.detail === 0 && !disabled) commit(!checked);
+        const tap = touchTap.current;
+        touchTap.current = null;
+        if (disabled) return;
+        if (tap && event.timeStamp - tap.at < TOUCH_CLICK_WINDOW) commit(tap.value);
+        else if (event.detail === 0) commit(!checked);
       }, onClick)}
     >
       <span

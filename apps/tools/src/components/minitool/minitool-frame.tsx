@@ -57,7 +57,7 @@ export function MiniToolFrame({
         data-tool-state={filename ? (processing ? "processing" : "ready") : "empty"}
       >
         <div className={`${styles.screen} ${minitool.screen}`}>
-          <header className={styles.header}>
+          <header className={`${styles.header} ${minitool.header}`}>
             <SiteMenubar
               label={t("Tool navigation")}
               applicationName={title ?? t(tool.label)}

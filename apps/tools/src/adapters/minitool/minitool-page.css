@@ -1,0 +1,25 @@
+/*
+ * Page-wide touch behaviour for the container web view (Chrome 61 and later): no double-tap zoom
+ * or 300 ms click delay, no long-press callout or grey tap flash, and no font boosting.
+ */
+html {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+/*
+ * Without getWindowInfo (clients before 9.49) the native top bar is assumed to be the safe area
+ * plus a 48 px button row; window-insets.ts replaces this with the reported rects when it can.
+ */
+html.minitool-container {
+  --minitool-top-inset: calc(var(--safe-area-inset-top, 24px) + 48px);
+}
+@supports (padding-top: env(safe-area-inset-top)) {
+  html.minitool-container {
+    --minitool-top-inset: calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) + 48px);
+  }
+}
