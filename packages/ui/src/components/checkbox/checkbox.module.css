@@ -12,7 +12,7 @@
   border-radius: 0;
   background: transparent;
   outline: none;
-  touch-action: none;
+  touch-action: manipulation;
   line-height: 0;
   font-size: 0;
 }

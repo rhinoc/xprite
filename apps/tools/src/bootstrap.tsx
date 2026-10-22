@@ -4,6 +4,7 @@ import { hydrateRoot, type Root } from "react-dom/client";
 import { createBrowserFilesPort } from "$/adapters/files/browser-files";
 import { browserToolAppearance } from "$/adapters/preview/browser-appearance";
 import { readToolLanguage, writeToolLanguage } from "$/adapters/tools/browser-language";
+import { takeStartupClick } from "$/adapters/tools/startup-click";
 import { FilesManager } from "$/managers/files/files-manager";
 import { ToolApplicationRoot } from "$/tool-application-root";
 import { AppearanceMode, resolveAppearanceMode } from "@xprite/editor-ui/appearance";
@@ -29,6 +30,19 @@ const EDITOR_APPEARANCE_BY_DESKTOP: Record<DesktopAppearance, AppearanceMode> = 
   [DesktopAppearance.Dark]: AppearanceMode.Dark,
   [DesktopAppearance.System]: AppearanceMode.System,
 };
+
+/** Longest wait for fonts and static artwork before the page is made interactive regardless. */
+const STATIC_ASSETS_WAIT_MS = 4_000;
+
+function settledWithin(promises: readonly Promise<unknown>[], timeoutMs: number) {
+  return new Promise<void>((resolve) => {
+    const timeout = setTimeout(resolve, timeoutMs);
+    void Promise.allSettled(promises).then(() => {
+      clearTimeout(timeout);
+      resolve();
+    });
+  });
+}
 
 /** Keep the generated HTML visible until bitmap controls can mount immediately. */
 export async function mountToolApplication(
@@ -74,14 +88,18 @@ export async function mountToolApplication(
   // builds, so hydration matches without 279 KB of theme JSON embedded in every page.
   const initialTheme = await loadUiThemeSnapshot(colorScheme, macintoshTheme);
   const typography = initialTheme.definition.typography;
-  await Promise.all(
-    [FontRole.Primary, FontRole.Compact].map((role) => {
-      const font = typography[role];
-      return document.fonts.load(`${font.fontSize}px ${font.fontFamily}`);
-    }),
+  // Attach events after the bitmap fonts load and the original static artwork is decoded, keeping
+  // its first paint intact. A font or image that fails or stalls must not leave the page inert.
+  await settledWithin(
+    [
+      ...[FontRole.Primary, FontRole.Compact].map((role) => {
+        const font = typography[role];
+        return document.fonts.load(`${font.fontSize}px ${font.fontFamily}`);
+      }),
+      ...[...document.images].map((image) => image.decode()),
+    ],
+    STATIC_ASSETS_WAIT_MS,
   );
-  // Attach events after the original static artwork is decoded, keeping its first paint intact.
-  await Promise.all([...document.images].map((image) => image.decode()));
   if (!active) return;
   application = createApplication(initialTheme, telemetry);
   const files: FilesManager =
@@ -89,6 +107,8 @@ export async function mountToolApplication(
   hot?.dispose((data) => {
     data.files = files;
   });
+  // React replays presses from hydration on; one made before that is pressed again once ready.
+  const replayStartupClick = root ? undefined : takeStartupClick(document.getElementById(rootId)!);
   const view = (
     <StrictMode>
       <ToolApplicationRoot
@@ -96,6 +116,7 @@ export async function mountToolApplication(
         language={language}
         onLanguageChange={writeToolLanguage}
         files={files}
+        onReady={replayStartupClick}
         artwork={
           root ? {} : JSON.parse(document.getElementById("tool-initial-artwork")!.textContent!)
         }

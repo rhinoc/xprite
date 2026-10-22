@@ -7,7 +7,27 @@ interface LaunchOptions {
   miniToolEnv?: { buildVersion?: number | string };
 }
 
+/** A container rect in logical pixels, origin at the container's top-left corner. */
+interface WindowRect {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+  width: number;
+  height: number;
+}
+
+export interface MiniToolWindowInfo {
+  windowWidth?: number;
+  windowHeight?: number;
+  statusBarHeight?: number;
+  safeArea?: WindowRect | null;
+  /** Each native top button's rect, or null while that button is hidden. */
+  menuButtons?: { back?: WindowRect | null; me?: WindowRect | null; share?: WindowRect | null };
+}
+
 interface MiniToolApi {
+  getWindowInfo?(): Promise<MiniToolWindowInfo>;
   getLaunchOptions?(): Promise<LaunchOptions>;
   getStorage?(options: { key: string }): Promise<{ data?: string | null }>;
   setStorage?(options: { key: string; data: string }): Promise<unknown>;
@@ -26,6 +46,8 @@ interface XhsWindow {
 
 /** Client 9.46.0, the first with the Storage JS API (build numbers carry a 3-digit suffix). */
 const STORAGE_CLIENT_VERSION = 9460;
+/** Client 9.49.0, the first with getWindowInfo (window size, safe area, native top buttons). */
+const WINDOW_INFO_CLIENT_VERSION = 9490;
 /** The container recommends a temporary file over a long base64 string for large images. */
 const INLINE_IMAGE_CHARACTERS = 512 * 1024;
 
@@ -38,6 +60,23 @@ class MiniToolUnavailableError extends Error {
 
 function miniTool(): MiniToolApi | undefined {
   return (window as unknown as XhsWindow).xhs?.miniTool;
+}
+
+/** Whether the page runs inside the container, which draws its own buttons over the page top. */
+export function hasMiniToolContainer(): boolean {
+  return !!miniTool();
+}
+
+/** The container's window and native top-button geometry, or null when it cannot report it. */
+export async function readMiniToolWindowInfo(): Promise<MiniToolWindowInfo | null> {
+  const api = miniTool();
+  if (typeof api?.getWindowInfo !== "function") return null;
+  if ((await clientVersion()) < WINDOW_INFO_CLIENT_VERSION) return null;
+  try {
+    return (await api.getWindowInfo()) ?? null;
+  } catch {
+    return null;
+  }
 }
 
 async function clientVersion(): Promise<number> {

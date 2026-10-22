@@ -28,6 +28,16 @@
   user-select: none;
   touch-action: manipulation;
 }
+/*
+ * Inside the container: the exact height of its top bar and buttons once window-insets.ts has
+ * measured them, and never less than 88 pt while it is only an estimate.
+ */
+:global(.minitool-container) .app {
+  padding-top: max(88px, var(--minitool-top-inset));
+}
+:global(.minitool-measured) .app {
+  padding-top: var(--minitool-top-inset);
+}
 
 /* Every button starts from this; the classes below (same specificity, later) restyle it. */
 .button {

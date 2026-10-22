@@ -15,7 +15,9 @@ phone-sized screen:
   position, sides, line style and labels; the divider can also be dragged and rotated on the
   canvas. 边框 picks the frame: none, Mac OS 8, System 7 and Windows 95-style windows, an old
   candy-bar phone, a handheld console, a CRT monitor or an instant photo. The export ratio (3:4,
-  1:1, 9:16) is under 比例 below the canvas. The top 88 px stay clear for the container's bar.
+  1:1, 9:16) is under 比例 below the canvas. The container's status bar and
+  buttons cover the page top: `src/adapters/window-insets.ts` reads their height from `getWindowInfo`
+  (client 9.49+) and otherwise the screen keeps at least the top 88 pt clear.
 - `src/managers/` holds the screen's state (`MiniToolEditor`: split, layout, presets,
   undo), the screen's text (`text.ts`) and the pure geometry: `split-geometry.ts` (the divider and its pixel steps),
   `composition.ts` (export sizes, frames, whole-pixel block placement) and `pixel-presets.ts`.

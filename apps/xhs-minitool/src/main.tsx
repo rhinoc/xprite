@@ -1,8 +1,10 @@
 import "$/adapters/runtime-compat";
+import "$/adapters/minitool-page.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { detectFlexGap } from "$/adapters/runtime-compat";
+import { installWindowInsets } from "$/adapters/window-insets";
 import { loadMiniToolPreferences, miniToolPreferences } from "$/adapters/xhs-bridge";
 import { miniToolText } from "$/managers/text";
 import { createMiniToolPixelationApplication } from "$/MiniToolApp";
@@ -14,7 +16,10 @@ const LANGUAGE_KEY = "xprite-minitool-language";
 
 async function start() {
   detectFlexGap();
-  await loadMiniToolPreferences([LANGUAGE_KEY, EDITOR_PALETTE_PRESETS_KEY]);
+  await Promise.all([
+    installWindowInsets(),
+    loadMiniToolPreferences([LANGUAGE_KEY, EDITOR_PALETTE_PRESETS_KEY]),
+  ]);
   // Xiaohongshu's audience reads Simplified Chinese unless the user picked another language.
   const language = publicLanguage(
     miniToolPreferences.getItem(LANGUAGE_KEY) ?? PublicLanguage.SimplifiedChinese,

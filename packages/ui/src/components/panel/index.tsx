@@ -58,6 +58,7 @@ function PanelWindow({
               onClick: disclosure.click,
               onDoubleClick: disclosure.doubleClick,
               onKeyDown: disclosure.keyDown,
+              onPointerDown: disclosure.pointerDown,
               onPointerUp: disclosure.pointerUp,
               "aria-expanded": !disclosure.collapsed,
             }
