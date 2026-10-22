@@ -28,6 +28,9 @@ const CONTENT_ADDRESSED_PATTERN = /(?:-[A-Za-z0-9_-]{8,}|(?:^|\/)[0-9a-f]{32,})\
 const STABLE_IDENTITY_FILES = new Set(["sw.js"]);
 const EXTERNAL_URL = /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i;
 const HTML_REFERENCE = /(\s(?:href|src)\s*=\s*)(["'])([^"']*)\2/gi;
+/** `srcset` lists one or more `url [descriptor]` candidates separated by commas. */
+const SRCSET_REFERENCE = /(\ssrcset\s*=\s*)(["'])([^"']*)\2/gi;
+const SRCSET_CANDIDATE = /(^|,)(\s*)([^\s,]+)/g;
 const CSS_REFERENCE = /(url\(\s*)(["']?)([^"')\s]+)\2(\s*\))|(@import\s+)(["'])([^"']+)\6/gi;
 
 export function contentVersion(content: string | Uint8Array): string {
@@ -102,6 +105,14 @@ function rewriteReferences(
   return source
     .replace(HTML_REFERENCE, (_match, start: string, quote: string, value: string) => {
       return `${start}${quote}${visit(value)}${quote}`;
+    })
+    .replace(SRCSET_REFERENCE, (_match, start: string, quote: string, value: string) => {
+      const candidates = value.replace(
+        SRCSET_CANDIDATE,
+        (_candidate, separator: string, space: string, url: string) =>
+          `${separator}${space}${visit(url)}`,
+      );
+      return `${start}${quote}${candidates}${quote}`;
     })
     .replace(/(<style\b[^>]*>)([\s\S]*?)(<\/style>)/gi, (_m, open, body, close) => {
       return `${open}${css(body)}${close}`;

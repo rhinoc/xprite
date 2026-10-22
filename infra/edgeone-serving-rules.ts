@@ -240,3 +240,44 @@ export function resolveRule<T extends RewriteRule>(rules: readonly T[], path: st
   }
   return null;
 }
+
+export interface HeaderRule {
+  source: string;
+  headers: readonly { key: string; value: string }[];
+}
+
+/** Documented `source` forms: exact paths, `:name` segments and one `*` (optionally `/x/*.ext`). */
+function headerSourcePattern(source: string) {
+  const expression = source
+    .split(/(:[A-Za-z0-9]+|\*)/)
+    .map((part) => {
+      if (part === "*") return ".*";
+      if (/^:[A-Za-z0-9]+$/.test(part)) return "[^/]+";
+      return part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    })
+    .join("");
+  return new RegExp(`^${expression}$`);
+}
+
+/**
+ * Response headers that `headers` rules add to a request path. Every matching rule applies in
+ * list order, so a later, more specific rule replaces a broader rule's value for the same key,
+ * as in EdgeOne's `/*` then `/assets/*` Cache-Control example. Keys are lower-cased.
+ */
+export function responseHeaders(rules: readonly HeaderRule[], path: string) {
+  const headers: Record<string, string> = {};
+  for (const rule of rules)
+    if (headerSourcePattern(rule.source).test(path))
+      for (const { key, value } of rule.headers) headers[key.toLowerCase()] = value;
+  return headers;
+}
+
+/** Every rule matching `path` that sets `key`, in list order. */
+export function matchingHeaderValues(rules: readonly HeaderRule[], path: string, key: string) {
+  return rules
+    .filter((rule) => headerSourcePattern(rule.source).test(path))
+    .flatMap((rule) =>
+      rule.headers.filter((header) => header.key.toLowerCase() === key.toLowerCase()),
+    )
+    .map((header) => header.value);
+}
