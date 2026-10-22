@@ -43,10 +43,10 @@ const regions = async (scene) => {
       : `${root} main [data-ui-window-priority="primary"] [data-slot="panel-title"]`,
     ...(scene.page.publicPage
       ? {
-          viewer: `${root} main a[href="/tools/viewer/"]`,
-          gifSheet: `${root} main a[href="/tools/gif-to-sprite-sheet/"]`,
+          viewer: `${root} main a[href$="/tools/viewer/"]`,
+          gifSheet: `${root} main a[href$="/tools/gif-to-sprite-sheet/"]`,
           editor: `${root} main a[href="/editor"]`,
-          animalCrossing: `${root} main a[href="/tools/animal-crossing-qr/"]`,
+          animalCrossing: `${root} main a[href$="/tools/animal-crossing-qr/"]`,
         }
       : scene.page.dropStage
         ? { dropStage: `${root} [data-tool-drop-stage]` }

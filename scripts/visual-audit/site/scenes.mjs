@@ -100,41 +100,43 @@ const routes = routeGroups.flatMap(([canonical, translations], index) => {
   return [makeScene(page, layout, appearance)];
 });
 
-const toolPages = SITE_PAGES.filter((page) => page.kind === SitePageKind.Tool).flatMap(
-  (page, index) => {
-    const language = toolLanguages.get(page.path);
-    if (!language) throw Error(`No visual-audit locale selected for tool ${page.path}.`);
-    const rootId = toolRoots.get(page.path);
-    if (!rootId) throw Error(`No startup root registered for tool ${page.path}.`);
-    const layout = index % 2 === 0 ? wide : compact;
-    const appearance = index % 2 === 0 ? light : dark;
-    const base = {
-      name: routeName(page.path),
-      path: localizedSiteHref(page.path, language),
-      language,
-      phase: "ready",
-      ready: `#${rootId}[data-tool-ready]`,
-      rootId,
-      regions: publicRegions,
-    };
-    return [
-      makeScene({ ...base, name: `${base.name}-empty` }, layout, appearance),
-      makeScene(
-        {
-          ...base,
-          name: `${base.name}-loaded`,
-          action: "example",
-          regions: [
-            ...publicRegions,
-            { name: "workspace", selector: '[data-tool-state="ready"] main' },
-          ],
-        },
-        layout,
-        appearance,
-      ),
-    ];
-  },
-);
+// One scene pair per tool: its English entry, opened in the selected language through the saved
+// preference. Localized tool addresses serve the same prerendered markup for that language.
+const toolPages = SITE_PAGES.filter(
+  (page) => page.kind === SitePageKind.Tool && page.language === PublicLanguage.English,
+).flatMap((page, index) => {
+  const language = toolLanguages.get(page.path);
+  if (!language) throw Error(`No visual-audit locale selected for tool ${page.path}.`);
+  const rootId = toolRoots.get(page.path);
+  if (!rootId) throw Error(`No startup root registered for tool ${page.path}.`);
+  const layout = index % 2 === 0 ? wide : compact;
+  const appearance = index % 2 === 0 ? light : dark;
+  const base = {
+    name: routeName(page.path),
+    path: page.path,
+    language,
+    phase: "ready",
+    ready: `#${rootId}[data-tool-ready]`,
+    rootId,
+    regions: publicRegions,
+  };
+  return [
+    makeScene({ ...base, name: `${base.name}-empty` }, layout, appearance),
+    makeScene(
+      {
+        ...base,
+        name: `${base.name}-loaded`,
+        action: "example",
+        regions: [
+          ...publicRegions,
+          { name: "workspace", selector: '[data-tool-state="ready"] main' },
+        ],
+      },
+      layout,
+      appearance,
+    ),
+  ];
+});
 
 /** The Files window over a tool page: one root view with two imported items, one in zh-CN Dark. */
 const filesWindows = [
@@ -146,7 +148,7 @@ const filesWindows = [
   return makeScene(
     {
       name: `files-window-${routeName(canonical)}`,
-      path: localizedSiteHref(canonical, language),
+      path: canonical,
       language,
       phase: "ready",
       ready: `#${rootId}[data-tool-ready]`,
