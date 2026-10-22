@@ -13,7 +13,8 @@ const cssRoots = [
   "apps/components/src",
   "apps/growth/src",
   "apps/tools/src",
-  "apps/xhs-minitool/src",
+  "apps/xhs-minitools/shared",
+  "apps/xhs-minitools/tools",
   "packages/ui/src",
 ];
 const sourceRoots = ["apps", "packages", "infra"];

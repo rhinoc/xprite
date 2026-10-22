@@ -50,9 +50,9 @@ const scopes = [
     sources: ["apps/tools/src"],
   },
   {
-    name: "xhs-minitool",
-    tsConfig: "apps/xhs-minitool/tsconfig.json",
-    sources: ["apps/xhs-minitool/src"],
+    name: "xhs-minitools",
+    tsConfig: "apps/xhs-minitools/tsconfig.json",
+    sources: ["apps/xhs-minitools/shared", "apps/xhs-minitools/tools"],
   },
 ];
 

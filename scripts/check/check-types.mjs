@@ -62,7 +62,7 @@ const projects = [
   "apps/components/tsconfig.json",
   "apps/growth/tsconfig.json",
   "apps/tools/tsconfig.json",
-  "apps/xhs-minitool/tsconfig.json",
+  "apps/xhs-minitools/tsconfig.json",
   "packages/bedrock/tsconfig.common.json",
   "packages/bedrock/tsconfig.browser.json",
   "packages/editor-core/tsconfig.json",

@@ -306,7 +306,7 @@ importers:
         specifier: 5.111.1
         version: 5.111.1(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28)
 
-  apps/xhs-minitool:
+  apps/xhs-minitools:
     dependencies:
       '@xprite/editor-core':
         specifier: workspace:*
@@ -330,6 +330,9 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
+      acorn:
+        specifier: ^8.18.0
+        version: 8.18.0
       fflate:
         specifier: ^0.8.3
         version: 0.8.3

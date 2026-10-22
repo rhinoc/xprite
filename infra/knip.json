@@ -42,8 +42,8 @@
         "src/pixelation-engine.ts"
       ]
     },
-    "apps/xhs-minitool": {
-      "entry": ["src/main.tsx"]
+    "apps/xhs-minitools": {
+      "entry": ["tools/*/main.tsx", "shared/build/build.mjs"]
     },
     "apps/growth/content": {
       "entry": [

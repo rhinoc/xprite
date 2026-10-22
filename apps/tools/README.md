@@ -226,4 +226,4 @@ the overall pattern size.
 
 `src/pixelation-engine.ts` is exported as `@xprite/tools-app/pixelation` (`PixelationManager`, its
 port, palettes and the import limit) for apps that build their own screen on the pixelate tool,
-such as the Xiaohongshu mini tool in [`apps/xhs-minitool`](../xhs-minitool/README.md).
+such as the Xiaohongshu pixelate mini tool in [`apps/xhs-minitools`](../xhs-minitools/README.md).

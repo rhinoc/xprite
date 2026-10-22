@@ -3,7 +3,6 @@ node_modules/
 
 # Generated builds
 dist/
-apps/xhs-minitool/xhs-minitool.zip
 
 # Python/TypeScript/build caches
 __pycache__/

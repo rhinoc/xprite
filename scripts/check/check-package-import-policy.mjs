@@ -43,7 +43,15 @@ const packages = packageDefinitions.map((definition) => {
       path.resolve(root, target),
     ]),
   );
-  return { name: packageJson.name, root, source: path.resolve(root, definition.source), aliases };
+  // Node-run build files (Vite configs, packaging) cannot use `$` aliases; a scope may exclude them.
+  const excluded = (definition.exclude ?? []).map((entry) => path.resolve(root, entry));
+  return {
+    name: packageJson.name,
+    root,
+    source: path.resolve(root, definition.source),
+    aliases,
+    excluded,
+  };
 });
 
 function isWithin(root, target) {
@@ -51,10 +59,11 @@ function isWithin(root, target) {
   return relative === "" || (!relative.startsWith(`..${path.sep}`) && relative !== "..");
 }
 
-function walk(directory) {
+function walk(directory, excluded = []) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const entryPath = path.join(directory, entry.name);
-    if (entry.isDirectory()) return walk(entryPath);
+    if (excluded.includes(entryPath)) return [];
+    if (entry.isDirectory()) return walk(entryPath, excluded);
     return sourceExtensions.has(path.extname(entry.name)) ? [entryPath] : [];
   });
 }
@@ -318,7 +327,7 @@ function enforceSpecifier(scope, file, specifier, location, errors) {
 const errors = [];
 checkTypeScriptAliasMappings(errors);
 for (const scope of packages) {
-  for (const file of walk(scope.source)) {
+  for (const file of walk(scope.source, scope.excluded)) {
     let ast;
     try {
       ast = babelParser.parse(readFileSync(file, "utf8"), {

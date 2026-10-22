@@ -1,5 +1,5 @@
 /**
- * The pixelate tool's engine, shared with the Xiaohongshu mini tool (`apps/xhs-minitool`) as
+ * The pixelate tool's engine, shared with the Xiaohongshu mini tools (`apps/xhs-minitools`) as
  * `@xprite/tools-app/pixelation`: the manager and its port, and the platform pieces a port needs.
  */
 export {
