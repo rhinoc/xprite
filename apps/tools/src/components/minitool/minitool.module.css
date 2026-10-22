@@ -112,13 +112,15 @@
 .wordmark {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font: 24px/1 var(--pix);
+  font: 700 27px/1 var(--ui);
+  letter-spacing: -0.5px;
 }
 
 .wordmark img {
-  width: 20px;
-  height: 20px;
+  width: 32px;
+  height: 32px;
+  margin-right: 1px;
+  border-radius: 5px;
   image-rendering: pixelated;
 }
 
@@ -719,11 +721,8 @@
   text-align: left;
 }
 
-.advanced .sub {
-  flex: 1;
-}
-
 .chevron {
+  margin-left: auto;
   width: 18px;
   height: 18px;
   color: var(--ink2);

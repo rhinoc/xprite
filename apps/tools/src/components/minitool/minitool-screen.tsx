@@ -110,9 +110,10 @@ export function MiniToolScreen({ editor }: { editor: MiniToolEditor }) {
           <Icon name="image" />
           {t("top.photo")}
         </Button>
+        {/* The site's logo lockup: the X-p mark followed by "rite". */}
         <span className={styles.wordmark} aria-hidden="true">
           <img src={iconUrl} alt="" />
-          Xprite
+          rite
         </span>
         <Button
           className={cx(styles.pill, styles.primary)}

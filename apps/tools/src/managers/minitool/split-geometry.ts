@@ -37,7 +37,7 @@ export const DEFAULT_SPLIT: Readonly<SplitState> = {
   angle: 0,
   position: 0.5,
   line: SplitLine.Steps,
-  labels: true,
+  labels: false,
   swapped: false,
 };
 

@@ -30,6 +30,7 @@ describe("split geometry", () => {
     assert.equal(DEFAULT_SPLIT.angle, 0);
     assert.equal(DEFAULT_SPLIT.position, 0.5);
     assert.equal(DEFAULT_SPLIT.line, SplitLine.Steps);
+    assert.equal(DEFAULT_SPLIT.labels, false);
     const segment = splitSegment(DEFAULT_SPLIT, rect);
     assert.ok(segment);
     near(segment[0].x, 150);

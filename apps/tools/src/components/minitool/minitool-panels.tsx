@@ -108,17 +108,6 @@ export function PixelPanel({
   const automatic = state.automatic;
   const isAutomatic = !!automatic && longSide(automatic) === longSide(shownGrid);
   const settings = pixels.settings;
-  const summary = [
-    t(key(`prepass.${settings.prepass}`)),
-    settings.prepass === OutlinePrepass.PixeloeLines
-      ? t(key(`line-guide.${settings.lineGuide}`))
-      : null,
-    settings.reduceColors
-      ? t("advanced.limited", { count: settings.maxColors })
-      : t("advanced.unlimited"),
-  ]
-    .filter(Boolean)
-    .join(" · ");
   const pickerDisabled = !pixels.grid?.reliable && settings.prepass === OutlinePrepass.None;
   const convertOnly = recovered || settings.prepass !== OutlinePrepass.None;
   return (
@@ -201,7 +190,6 @@ export function PixelPanel({
       >
         <Icon name="sliders" />
         <span className={styles.label}>{t("advanced.title")}</span>
-        <span className={styles.sub}>{summary}</span>
         <Icon name="down" className={styles.chevron} />
       </Button>
       {open && source && (
