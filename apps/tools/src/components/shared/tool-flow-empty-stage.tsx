@@ -16,15 +16,23 @@ import {
 import styles from "$/components/shared/tool-flow.module.css";
 import frameStyles from "$/components/shared/tool-frame.module.css";
 
+export interface ToolHostCopy {
+  title: string;
+  emptyHint: string;
+}
+
 /** Empty state of a flow tool: the stage window itself is the drop zone. */
 export function ToolFlowEmptyStage({
   tool,
   busy,
   onChooseFile,
   onExample,
+  copy,
 }: {
   tool: PublicTool;
   busy: boolean;
+  /** Host wording, already translated, in place of the tool's label and drop hint. */
+  copy?: ToolHostCopy;
   onChooseFile(): void;
   onExample(): Promise<void>;
 }) {
@@ -36,7 +44,7 @@ export function ToolFlowEmptyStage({
         variant={PanelVariant.Document}
         emphasized
         className={styles.stagePanel}
-        title={t(tool.label)}
+        title={copy?.title ?? t(tool.label)}
         contentLayout={ContentLayout.Fill}
         contentPadding={ContentPadding.Compact}
         data-ui-window-priority="primary"
@@ -45,7 +53,7 @@ export function ToolFlowEmptyStage({
         <div className={styles.stageBody}>
           <div className={styles.dropZone}>
             <Text variant={TextVariant.Reading} wrap className={styles.dropHint}>
-              {t(busy ? "Opening…" : tool.dropLabel)}
+              {busy ? t("Opening…") : (copy?.emptyHint ?? t(tool.dropLabel))}
             </Text>
             <ControlFlow className={styles.dropActions}>
               <Button

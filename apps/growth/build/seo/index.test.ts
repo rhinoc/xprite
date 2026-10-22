@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 
 import { describe, it } from "vitest";
 
+import { SHOWCASE_FAQ_COPY } from "../../content/showcase/faq.ts";
 import { showcaseSearchMetadata } from "../../content/showcase/index.ts";
 import { SHOWCASE_PAGES, SHOWCASE_SITE_URL } from "../../content/showcase/pages.ts";
+import { faqInlineText } from "../../content/site/faq.ts";
 import { applyEditorSearchMetadata, editorSearchMetadata } from "./index.ts";
 
 const EDITOR_HTML = `<!doctype html><html lang="en"><head><title>Xprite</title></head><body><div id="root"></div><div id="xse-startup"><section class="xse-startup-copy"><p>Intro</p></section></div></body></html>`;
@@ -47,6 +49,7 @@ describe("about page search metadata", () => {
       "AboutPage",
       "BreadcrumbList",
       "WebApplication",
+      "FAQPage",
     ]);
     const breadcrumb = metadata["@graph"][1] as {
       itemListElement: readonly { position: number; item: string }[];
@@ -58,5 +61,25 @@ describe("about page search metadata", () => {
         [2, "https://xprite.cc/about/"],
       ],
     );
+  });
+
+  it("describe the visible FAQ in every language as a FAQPage", () => {
+    for (const [language, page] of Object.entries(SHOWCASE_PAGES)) {
+      const key = language as keyof typeof SHOWCASE_PAGES;
+      const graph = showcaseSearchMetadata(key, page, SHOWCASE_SITE_URL)["@graph"];
+      const faq = graph.find((item) => item["@type"] === "FAQPage") as unknown as {
+        url: string;
+        inLanguage: string;
+        mainEntity: { name: string; acceptedAnswer: { "@type": string; text: string } }[];
+      };
+      assert.equal(faq.url, new URL(page.path, SHOWCASE_SITE_URL).href);
+      assert.equal(faq.inLanguage, language);
+      assert.deepEqual(
+        faq.mainEntity.map((item) => [item.name, item.acceptedAnswer.text]),
+        SHOWCASE_FAQ_COPY[key].questions.map((item) => [item.question, faqInlineText(item.answer)]),
+        language,
+      );
+      assert.ok(faq.mainEntity.length >= 7, language);
+    }
   });
 });

@@ -133,6 +133,16 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   "Open image": "Открыть изображение",
   "Drop a PNG, JPEG or WebP image": "Перетащите изображение PNG, JPEG или WebP",
   "Edit more": "Доработать",
+  "Save to album": "Сохранить в альбом",
+  "Post to note": "Опубликовать заметку",
+  "Saved to your album": "Сохранено в альбом",
+  "Open this tool in the Xiaohongshu app to save images.":
+    "Чтобы сохранять изображения, откройте инструмент в приложении Xiaohongshu.",
+  "Open this tool in the Xiaohongshu app to post a note.":
+    "Чтобы опубликовать заметку, откройте инструмент в приложении Xiaohongshu.",
+  "Unable to read this image.": "Не удалось прочитать изображение.",
+  "Photo to Pixel Art": "Фото в пиксель-арт",
+  "Choose a photo to turn into pixel art": "Выберите фото, чтобы превратить его в пиксель-арт",
   "Choose an export format": "Выберите формат экспорта",
   Cancel: "Отмена",
   Format: "Формат",
@@ -142,6 +152,7 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   "Hello GIF animation preview": "Предпросмотр GIF-анимации Hello",
   "ACNH Winding Cobblestone Path by Amy, with transparent edges":
     "ACNH «Извилистая мощёная дорожка» от Amy, с прозрачными краями",
+  "Girl with a Pearl Earring by Johannes Vermeer": "«Девушка с жемчужной серёжкой» Яна Вермеера",
   "ACNH Winding Cobblestone Path by": "ACNH «Извилистая мощёная дорожка», автор:",
   "Edit in Xprite": "Редактировать в Xprite",
   "Export animation (.gif)": "Экспорт анимации (.gif)",

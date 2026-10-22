@@ -1,4 +1,4 @@
-import { PublicLanguage } from "../site/language";
+import { PublicLanguage } from "../site/language.ts";
 
 enum ShowcaseFaqTopic {
   Access = "access",

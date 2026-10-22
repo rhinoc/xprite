@@ -134,6 +134,16 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "Open image": "Abrir imagem",
   "Drop a PNG, JPEG or WebP image": "Solte uma imagem PNG, JPEG ou WebP",
   "Edit more": "Editar mais",
+  "Save to album": "Salvar no álbum",
+  "Post to note": "Publicar nota",
+  "Saved to your album": "Salvo no seu álbum",
+  "Open this tool in the Xiaohongshu app to save images.":
+    "Abra esta ferramenta no app Xiaohongshu para salvar imagens.",
+  "Open this tool in the Xiaohongshu app to post a note.":
+    "Abra esta ferramenta no app Xiaohongshu para publicar uma nota.",
+  "Unable to read this image.": "Não foi possível ler esta imagem.",
+  "Photo to Pixel Art": "Foto em pixel art",
+  "Choose a photo to turn into pixel art": "Escolha uma foto para transformar em pixel art",
   "Choose an export format": "Escolha um formato",
   Cancel: "Cancelar",
   Format: "Formato",
@@ -143,6 +153,7 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "Hello GIF animation preview": "Pré-visualização da animação GIF Hello",
   "ACNH Winding Cobblestone Path by Amy, with transparent edges":
     "ACNH Caminho de pedras sinuoso, por Amy, com bordas transparentes",
+  "Girl with a Pearl Earring by Johannes Vermeer": "Moça com Brinco de Pérola, de Johannes Vermeer",
   "ACNH Winding Cobblestone Path by": "ACNH Caminho de pedras sinuoso, por",
   "Edit in Xprite": "Editar no Xprite",
   "Export animation (.gif)": "Exportar animação (.gif)",

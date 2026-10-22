@@ -250,6 +250,17 @@ source PNG identified in that file. The seasonal grass presets are independently
 generated approximations, not Nintendo texture rips. Three.js powers the tools'
 ground preview under its [MIT license](LICENSES/three-MIT.txt).
 
+## Pixelate tool example
+
+The pixelate tool's example is **Girl with a Pearl Earring** (c. 1665) by
+Johannes Vermeer, in the collection of the
+[Mauritshuis](https://www.mauritshuis.nl/), The Hague. The painting and its faithful
+photographic reproduction are in the public domain; the image comes from
+[Wikimedia Commons](https://commons.wikimedia.org/wiki/File:1665_Girl_with_a_Pearl_Earring.jpg).
+`apps/growth/public/tools/pixelate/girl-with-a-pearl-earring.jpg` is resized to
+850×1007 and re-encoded as JPEG; the source URL, changes and original SHA-256 are
+recorded in the adjacent `provenance.json`.
+
 ## Pixel colour pickers
 
 The import dialog's K-means and Contrast pixel colour pickers are inspired by the
