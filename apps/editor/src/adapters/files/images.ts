@@ -1,3 +1,4 @@
+import { fileWritePermissionRefused } from "$/adapters/files/file-write-permission";
 import { tUi } from "$/i18n";
 import {
   downloadBlob,
@@ -75,11 +76,10 @@ export async function savePng(
   }
   if (options.fileHandle) {
     const handle = options.fileHandle;
-    const permission = requestFileWritePermission(handle);
-    if (permission && (await permission) !== "granted")
-      throw new Error(
-        tUi("ui.write.permission.was.not.granted.for", { value1: handle.name ?? filename }),
-      );
+    const request = requestFileWritePermission(handle);
+    const permission = request ? await request : "granted";
+    if (permission !== "granted")
+      throw fileWritePermissionRefused(permission, handle.name ?? filename);
     const blob = await encodePng(pixels);
     await writeFileHandle(handle, blob);
     options.onFileDataSaved?.(blob, handle.name || filename);

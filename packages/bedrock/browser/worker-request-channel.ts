@@ -5,6 +5,23 @@ export interface WorkerRequestTransport<Request> {
   terminate?(): void;
 }
 
+/** How a worker failed, as far as the page can tell. */
+export interface WorkerTransportFailure {
+  /**
+   * The worker never answered, and the browser reported no script error (no message, file or
+   * error object). Browsers report a worker script, or a module it imports, that could not be
+   * fetched or evaluated this way. Typically the page runs a release whose files were replaced.
+   */
+  readonly startup: boolean;
+}
+
+/** A plain `error` event with no script error details, as fired for a worker that never loaded. */
+export function isOpaqueWorkerError(event: Event): boolean {
+  if (event.type !== "error") return false;
+  const details = event as Partial<Pick<ErrorEvent, "message" | "filename" | "error">>;
+  return !details.message && !details.filename && details.error == null;
+}
+
 interface PendingResponse<Response> {
   resolve(response: Response): void;
   reject(reason: unknown): void;
@@ -15,12 +32,13 @@ export class WorkerRequestChannel<Request extends { id: number }, Response exten
   private nextId = 1;
   private closed = false;
   private failure: Error | null = null;
+  private answered = false;
   private readonly pending = new Map<number, PendingResponse<Response>>();
   constructor(
     private readonly worker: WorkerRequestTransport<Request>,
     private readonly options: {
       closedError(): Error;
-      transportError(event: Event): Error;
+      transportError(event: Event, failure: WorkerTransportFailure): Error;
       onFatalError?(error: Error): void;
       firstRequestId?: number;
     },
@@ -40,6 +58,7 @@ export class WorkerRequestChannel<Request extends { id: number }, Response exten
     return this.failure !== null;
   }
   private readonly onMessage = (event: Event) => {
+    this.answered = true;
     const response = (event as MessageEvent<Response>).data;
     if (!response || !Number.isSafeInteger(response.id)) return;
     const pending = this.pending.get(response.id);
@@ -49,7 +68,9 @@ export class WorkerRequestChannel<Request extends { id: number }, Response exten
   };
   private readonly onError = (event: Event) => {
     if (this.closed || this.failure) return;
-    const error = this.options.transportError(event);
+    const error = this.options.transportError(event, {
+      startup: !this.answered && isOpaqueWorkerError(event),
+    });
     this.failure = error;
     // Detach the failed batch before callbacks can enqueue an explicit retry.
     const pending = [...this.pending.values()];
