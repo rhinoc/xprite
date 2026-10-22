@@ -20,6 +20,7 @@ import {
   translateToolText,
 } from "../../growth/content/tools/index.ts";
 import { startupClickScript } from "../src/adapters/tools/startup-click.ts";
+import { desktopWallpaperUrl } from "./desktop-wallpaper.ts";
 import { TOOL_BY_ROOT } from "./localized-pages.ts";
 import { createSsgRenderer } from "./ssg-renderer.ts";
 
@@ -210,12 +211,22 @@ export function toolsStartupPages(): Plugin {
           .join("");
         const root = `${heading}<div id="${rootId}" data-tool-startup-view>${light}</div><template data-tool-theme="dark">${dark}</template>${localeTemplates}<script id="tool-initial-artwork" type="application/json">${jsonForHtml(page.artwork)}</script><script>${localeSwitch}${themed.restore}${startupClickScript(rootId)}</script>`;
         const appearance = publicDesktopStartupScript(APPEARANCE_MODE_STORAGE_KEY);
+        const wallpaper = desktopWallpaperUrl(light, runtime.css + themed.css);
         const bodyStyle = `html[data-tool-appearance="light"]{color-scheme:light;background:${page.themes[UiColorScheme.Light].definition.colors.workspace}}html[data-tool-appearance="dark"]{color-scheme:dark;background:${page.themes[UiColorScheme.Dark].definition.colors.workspace}}`;
         return {
           html: prependSiteHeadContent(html, `${localeHead}<script>${appearance}</script>`)
             .replace('<html lang="en">', '<html lang="en" data-tool-appearance="light">')
             .replace(new RegExp(`<div id="${rootId}">[\\s\\S]*?<\\/div>`), root),
           tags: [
+            ...(wallpaper
+              ? [
+                  {
+                    tag: "link",
+                    attrs: { rel: "preload", as: "image", href: wallpaper, fetchpriority: "high" },
+                    injectTo: "head" as const,
+                  },
+                ]
+              : []),
             {
               tag: "style",
               attrs: { "data-tool-ssg-style": "" },
