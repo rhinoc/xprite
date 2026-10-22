@@ -18,7 +18,6 @@ import type { MiniToolEditor } from "$/tools/pixelate/managers/editor";
 import type { MiniToolScene } from "$/tools/pixelate/managers/ports";
 import { ExportContent } from "$/tools/pixelate/managers/scene";
 import { miniToolError, type MiniToolTextKey } from "$/tools/pixelate/managers/text";
-import iconUrl from "@xprite/site-assets/favicon-32.png?url";
 
 import ui from "$/shared/ui/ui.module.css";
 import styles from "$/tools/pixelate/components/pixelate.module.css";
@@ -160,9 +159,6 @@ export function MiniToolScreen({ editor }: { editor: MiniToolEditor }) {
                   </span>
                 ) : (
                   <>
-                    <span className={styles.emptyIcon}>
-                      <img src={iconUrl} alt="" />
-                    </span>
                     <span className={styles.emptyTitle}>{t("empty.title")}</span>
                     <span className={styles.emptyHint}>{t("empty.hint")}</span>
                     <span className={styles.emptyActions}>

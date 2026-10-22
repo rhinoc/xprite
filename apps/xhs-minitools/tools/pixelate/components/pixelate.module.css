@@ -172,30 +172,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 0 24px;
+  gap: 6px;
+  /* No artwork above the title (the top bar shows the logo): the text and buttons sit a little
+     above the card's centre, where the eye expects them. */
+  padding: 0 24px 16px;
   text-align: center;
 }
 
-.emptyIcon {
-  width: 72px;
-  height: 72px;
-  border-radius: 20px;
-  display: grid;
-  place-items: center;
-  background: var(--white);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-}
-
-.emptyIcon img {
-  width: 40px;
-  height: 40px;
-  image-rendering: pixelated;
-}
-
 .emptyTitle {
-  margin-top: 6px;
-  font: 600 17px/1.35 var(--ui);
+  font: 600 18px/1.35 var(--ui);
 }
 
 .emptyHint {
@@ -204,7 +189,7 @@
 }
 
 .emptyActions {
-  margin-top: 8px;
+  margin-top: 18px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
