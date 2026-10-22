@@ -4,6 +4,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import componentRoutes from "../../apps/components/build/generated-routes.json" with { type: "json" };
+import { readOfflineManifest } from "../../apps/editor/build/offline-manifest.ts";
 import { siteServingConfiguration } from "../../apps/growth/build/routing/site-configuration.ts";
 import { GUIDE_PAGES } from "../../apps/growth/content/help/pages.ts";
 import { SHOWCASE_PAGES } from "../../apps/growth/content/showcase/pages.ts";
@@ -16,8 +17,17 @@ import {
 } from "../../apps/growth/content/tools/index.ts";
 import { assertEdgeOneRuleLimits, compactServingRules } from "../../infra/edgeone-serving-rules.ts";
 import { INDEXNOW_KEY, INDEXNOW_KEY_FILE } from "../../infra/indexnow.ts";
+import {
+  EDGEONE_MAX_EDGE_FUNCTION_BYTES,
+  PREVIOUS_RELEASES_KEPT,
+  assertEdgeOneUploadLimits,
+  assetArchiveName,
+  carryOverPreviousAssets,
+  writeAssetArchive,
+} from "../../infra/previous-release-assets.ts";
 import { verifyEditorOffline } from "../build/editor-offline.mjs";
 import { checkAssetVersions } from "../check/check-asset-versions.mjs";
+import { previousAssetsDirectory, releaseAssetsDirectory } from "./previous-assets.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const configuration = siteServingConfiguration(
@@ -124,6 +134,71 @@ async function verifyStaticFiles(directory) {
   }
 }
 
+const MEBIBYTE = 1024 * 1024;
+
+function megabytes(bytes) {
+  return `${(bytes / MEBIBYTE).toFixed(1)} MiB`;
+}
+
+async function appendSummary(text) {
+  if (process.env.GITHUB_STEP_SUMMARY) await appendFile(process.env.GITHUB_STEP_SUMMARY, text);
+}
+
+/**
+ * Archive this build's content-hashed files for later deployments, then add the archived files
+ * of the last PREVIOUS_RELEASES_KEPT production releases (downloaded by
+ * `deploy:previous-assets fetch`) so open tabs of those releases can still load their chunks.
+ */
+async function carryOverPreviousReleases(release) {
+  const ref = environmentValue("DEPLOY_REF") || release.slice(0, 12);
+  await rm(releaseAssetsDirectory, { recursive: true, force: true });
+  // Archive the build output, never the deployment directory: carried files are not re-archived.
+  const archive = await writeAssetArchive(
+    outputDirectory,
+    join(releaseAssetsDirectory, assetArchiveName(ref)),
+    { ref, release },
+  );
+  const report = await carryOverPreviousAssets(deploymentDirectory, previousAssetsDirectory, {
+    currentRelease: release,
+    currentRef: ref,
+  });
+  // The service worker precaches only the files its sealed manifest lists. Carried files must
+  // stay out of it, and the manifest must still describe the bytes being published.
+  const { entries } = await readOfflineManifest(deploymentDirectory);
+  const precached = new Set(entries.map(({ url }) => decodeURIComponent(url)));
+  const precachedCarried = report.carried.filter((path) => precached.has(path));
+  if (precachedCarried.length)
+    throw new Error(`Carried files must not be precached: ${precachedCarried.join(", ")}.`);
+  await verifyEditorOffline(deploymentDirectory, "the deployment with previous release files");
+  const archiveBytes = archive.files.reduce((total, { size }) => total + size, 0);
+  const lines = [
+    `Archived ${archive.files.length} content-hashed files (${megabytes(archiveBytes)}) of ${ref}.`,
+    report.releases.length
+      ? `Carried ${report.carried.length} files (${megabytes(report.carriedBytes)}) from ${report.releases.length} of up to ${PREVIOUS_RELEASES_KEPT} previous releases:`
+      : "No previous release archives; nothing carried over.",
+    ...report.releases.map(
+      ({ ref: previous, added, addedBytes, identical, kept }) =>
+        `  ${previous}: ${added} added (${megabytes(addedBytes)}), ${identical} unchanged` +
+        (kept.length ? `, ${kept.length} kept from the newer build (different bytes)` : ""),
+    ),
+  ];
+  console.log(lines.join("\n"));
+  await appendSummary(`${lines.map((line) => line.trim()).join("\n\n")}\n\n`);
+}
+
+/** EdgeOne project file count/size limits and the middleware's edge function size. */
+async function assertUploadLimits() {
+  const { files, bytes } = await assertEdgeOneUploadLimits(deploymentDirectory);
+  const middleware = (await lstat(join(deploymentDirectory, "middleware.js"))).size;
+  if (middleware > EDGEONE_MAX_EDGE_FUNCTION_BYTES)
+    throw new Error(
+      `middleware.js is ${middleware} bytes; EdgeOne edge functions accept at most ${EDGEONE_MAX_EDGE_FUNCTION_BYTES}.`,
+    );
+  console.log(
+    `Upload: ${files} files, ${megabytes(bytes)}; middleware.js ${megabytes(middleware)}.`,
+  );
+}
+
 async function prepareDeployment() {
   const { preparePublicRouting } = await import("./prepare-public-routing.mjs");
   const { environment } = deploymentSettings();
@@ -159,6 +234,7 @@ async function prepareDeployment() {
   await rm(deploymentDirectory, { recursive: true, force: true });
   await mkdir(dirname(deploymentDirectory), { recursive: true });
   await cp(outputDirectory, deploymentDirectory, { recursive: true });
+  await carryOverPreviousReleases(release);
   // Upload only serving rules; omit build/install commands to keep this package prebuilt.
   const servingConfiguration = {
     $schema: configuration.$schema,
@@ -209,6 +285,7 @@ async function prepareDeployment() {
     )}\n`,
   );
   await preparePublicRouting(deploymentDirectory, servingConfiguration);
+  await assertUploadLimits();
   console.log(
     "Static deployment and public-route middleware prepared in .tmp/deploy/editor (no env files).",
   );

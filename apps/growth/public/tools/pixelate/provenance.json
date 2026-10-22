@@ -1,9 +1,13 @@
 {
-  "file": "young-hare.jpg",
-  "title": "Young Hare",
-  "author": "Albrecht D\u00fcrer",
-  "source": "https://commons.wikimedia.org/wiki/File:Durer_Young_Hare.jpg",
-  "original": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Durer_Young_Hare.jpg",
-  "license": "Public domain",
-  "modified": false
+  "file": "girl-with-a-pearl-earring.jpg",
+  "title": "Girl with a Pearl Earring",
+  "author": "Johannes Vermeer",
+  "date": "c. 1665",
+  "collection": "Mauritshuis, The Hague",
+  "source": "https://commons.wikimedia.org/wiki/File:1665_Girl_with_a_Pearl_Earring.jpg",
+  "original": "https://upload.wikimedia.org/wikipedia/commons/0/0f/1665_Girl_with_a_Pearl_Earring.jpg",
+  "license": "Public domain (PD-Art)",
+  "modified": true,
+  "changes": "Wikimedia's 1280×1516 rendition resized to 850×1007 and saved as a baseline JPEG (quality 85, 4:4:4) without metadata or ICC profile.",
+  "sourceSha256": "fc7aa0b6dcae15e41f1b9b64ba8e89db6fd5e6cbbd9ca74d61eefe8d135fa6f7"
 }

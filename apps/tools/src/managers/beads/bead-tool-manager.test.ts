@@ -7,6 +7,8 @@ import { ToolFailureCategory } from "$/managers/ports/telemetry";
 import {
   BEAD_CHART_CELL_SIZE,
   ENGLISH_BEAD_LABELS,
+  CellColorPicker,
+  OutlinePrepass,
   PixelationAlgorithm,
 } from "@xprite/editor-core/import-export";
 
@@ -313,8 +315,13 @@ describe("standalone bead tool", () => {
     });
     expect(manager.getSnapshot().detected).toMatchObject({ reliable: true, width: 1, height: 1 });
     expect(manager.getSnapshot().grid).toMatchObject({ width: 1, height: 1 });
-    manager.changeSettings({ pixeloePrepass: true });
+    manager.changeSettings({ prepass: OutlinePrepass.Pixeloe });
     expect(manager.getSnapshot().pending).toBe(true);
+    // Turning a pre-pass on picks Contrast, as in the shared controls.
+    expect(manager.getSnapshot().settings).toMatchObject({
+      prepass: OutlinePrepass.Pixeloe,
+      colorPicker: CellColorPicker.Contrast,
+    });
     await vi.runAllTimersAsync();
     expect(manager.getSnapshot().error).toBeNull();
     manager.dispose();

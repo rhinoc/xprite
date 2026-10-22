@@ -11,3 +11,10 @@ export function failedChunkUrl(error: unknown): string | null {
   const match = /(https?:\/\/[^\s"')]+\.(?:m?js|css))/i.exec(message);
   return match ? match[1] : null;
 }
+
+/**
+ * A worker script, or a module it imports, could not be loaded. Like a failed lazy chunk this
+ * usually means the page runs a release whose files were replaced, so it is announced with
+ * {@link CHUNK_LOAD_FAILED_EVENT}; that announcement is the one exception report.
+ */
+export const WORKER_LOAD_ERROR_NAME = "WorkerLoadError";

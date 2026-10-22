@@ -29,8 +29,7 @@ const HIDDEN_BASE_SLOTS: ReadonlySet<PixelationSlot> = new Set([
   PixelationSlot.LimitColors,
   PixelationSlot.Colors,
   PixelationSlot.Palette,
-  PixelationSlot.SnapPalette,
-  PixelationSlot.SnapColors,
+  PixelationSlot.PaletteMenu,
 ]);
 
 export function BeadPage({ manager }: { manager: BeadToolManager }) {
@@ -114,10 +113,11 @@ function BeadAdjust({
       translate={(label, values) =>
         t(label).replace(/\{([^}]+)\}/g, (match, key: string) => String(values?.[key] ?? match))
       }
-      onChange={({ colorPicker, pixeloePrepass }) => {
+      onChange={({ colorPicker, prepass, lineGuide }) => {
         const patch: Partial<BeadToolSettings> = {};
         if (colorPicker !== undefined) patch.colorPicker = colorPicker;
-        if (pixeloePrepass !== undefined) patch.pixeloePrepass = pixeloePrepass;
+        if (prepass !== undefined) patch.prepass = prepass;
+        if (lineGuide !== undefined) patch.lineGuide = lineGuide;
         manager.changeSettings(patch);
       }}
       onAlgorithm={manager.changeAlgorithm}

@@ -45,6 +45,11 @@ const UI_CHUNK_NAME = "ui";
 const UI_MODULE_PATTERN = /[\\/]packages[\\/]ui[\\/]/;
 const BEDROCK_CHUNK_NAME = "bedrock";
 const BEDROCK_MODULE_PATTERN = /[\\/]packages[\\/]bedrock[\\/]/;
+// The editor and growth apps share the site root, and both bundle some of the same modules
+// (PostHog, for example) into same-named chunks. Production rewrites the editor's scripts after
+// the build (PostHog debug-ID injection, then the offline manifest is sealed over the final
+// bytes), so its scripts get their own names: another app's copy can never replace them.
+const EDITOR_SCRIPT_FILE_NAMES = "assets/editor-[name]-[hash].js";
 const DEBUG_INPUT_ENDPOINT = "/__debug/input";
 const DIAGNOSTICS_ENDPOINT = "/__debug/diagnostics";
 const DIAGNOSTIC_ARTIFACT_ENDPOINT = "/__debug/diagnostic-artifact";
@@ -395,11 +400,21 @@ export default defineConfig({
     proxy: developmentSiteProxy(DevelopmentApp.Editor),
   },
   preview: { host: "0.0.0.0" },
+  worker: {
+    rolldownOptions: {
+      output: {
+        entryFileNames: EDITOR_SCRIPT_FILE_NAMES,
+        chunkFileNames: EDITOR_SCRIPT_FILE_NAMES,
+      },
+    },
+  },
   build: {
     outDir: editorOutput,
     emptyOutDir: true,
     rolldownOptions: {
       output: {
+        entryFileNames: EDITOR_SCRIPT_FILE_NAMES,
+        chunkFileNames: EDITOR_SCRIPT_FILE_NAMES,
         // Preserve package dependency direction so shared initializers do not form chunk cycles.
         codeSplitting: {
           groups: [

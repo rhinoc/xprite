@@ -6,6 +6,8 @@
     "prebuild": "node ../../scripts/build/ensure-ui.mjs",
     "dev": "vite",
     "build": "tsc -b tsconfig.json && vite build",
+    "prebuild:minitool": "node ../../scripts/build/ensure-ui.mjs",
+    "build:minitool": "tsc -b tsconfig.json && vite build -c vite.minitool.config.ts",
     "preview": "vite preview"
   },
   "dependencies": {

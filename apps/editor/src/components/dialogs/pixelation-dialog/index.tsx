@@ -8,6 +8,7 @@ import { tUiSource, useUiLanguage } from "$/i18n";
 import {
   type FilePreferences,
   type ImportAction,
+  OutlinePrepass,
   PixelationAlgorithm,
 } from "$/managers/preferences/file-preferences";
 import type { useEditorWorkflows } from "$/managers/workspace/use-editor-workflows";
@@ -68,9 +69,11 @@ const REMEMBERED_ALGORITHMS: readonly PixelationAlgorithm[] = [
   PixelationAlgorithm.UniformGrid,
 ];
 /** The dialog has no palette browser; everything else of the shared base controls is here. */
-const HIDDEN_SLOTS: ReadonlySet<PixelationSlot> = new Set([PixelationSlot.Palette]);
+const HIDDEN_SLOTS: ReadonlySet<PixelationSlot> = new Set([
+  PixelationSlot.Palette,
+  PixelationSlot.PaletteMenu,
+]);
 /** Width of the Limit colors checkbox in its row; the colour count sits to its right. */
-const SNAP_CHECKBOX_SHARE = 0.6;
 const LIMIT_SHARE = 0.55;
 const COUNT_LABEL_SHARE = 0.2;
 
@@ -134,7 +137,24 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
               selectedAlgorithm as FilePreferences["importPixelationAlgorithm"],
           }
         : {}),
-      importColorPicker: colorPicker,
+      // The remembered colour rule is the one for plain imports (pre-pass None): every import opens
+      // on PixelOE + lines with Contrast, and switching to None brings this rule back.
+      ...(workflow.pixelationOptions.prepass === OutlinePrepass.None
+        ? { importColorPicker: colorPicker }
+        : {}),
+      // The silent Pixelate path ("Don't ask me again") repeats this import's pixelation; the
+      // dialog itself still opens on PixelOE + lines next time.
+      ...(pixelate
+        ? {
+            importPixelation: {
+              prepass: workflow.pixelationOptions.prepass,
+              lineGuide: workflow.pixelationOptions.lineGuide,
+              colorPicker,
+              reduceColors: workflow.pixelationOptions.reduceColors,
+              maxColors: workflow.pixelationOptions.maxColors,
+            },
+          }
+        : {}),
       ...(rememberChoice ? { importAsk: false } : {}),
     });
     if (pixelate) workflow.acceptPixelatedImport();
@@ -153,10 +173,14 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     height: dialogHeight,
   };
 
-  /** Only errors and "no grid found" notices; everything else the labels already say. */
+  /**
+   * Only errors and "no grid found" notices; everything else the labels already say. The notice
+   * points at Advanced, so it goes once Advanced is open (the disabled picker says the rest), and
+   * it is false with an outline pre-pass, which redraws the picture and keeps the picker working.
+   */
   const pixelateMessage = workflow.pixelationError
     ? tUiSource(workflow.pixelationError)
-    : pixelate && noteKey
+    : pixelate && noteKey && !advanced && workflow.pixelationOptions.prepass === OutlinePrepass.None
       ? `${tUiSource(noteKey)} ${tUiSource("import.note.picker.needs-grid")}`
       : null;
   const message = pixelate ? pixelateMessage : null;
@@ -183,7 +207,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const hintHeight = pixelateMessage ? HINT_HEIGHT + GAP : 0;
         const advancedRowHeight = ROW_HEIGHT + GAP;
         const advancedHeight = showAdvanced
-          ? 3 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) + 3 * (ROW_HEIGHT + GAP)
+          ? 4 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) + ROW_HEIGHT + GAP
           : 0;
         const bottomStack =
           SECTION_HEIGHT +
@@ -215,9 +239,10 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const sizeRow = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         const pickerLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
         const pickerCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
+        // Outline pre-pass and, for PixelOE + lines, its line guide share one row.
+        const prepassLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
+        const prepassCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         const limitRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
-        const prepassRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
-        const snapRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
         const rememberRow = at(ROW_HEIGHT);
         const footerY = client.y + client.height - FOOTER_HEIGHT;
         const option = (value: ImportAction, label: string, x: number, w: number) => (
@@ -326,6 +351,30 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                   bounds: pickerCombo,
                   relativeTo: client,
                 })}
+                {prepassLabel &&
+                  prepassCombo &&
+                  ([PixelationSlot.Prepass, PixelationSlot.LineGuide] as const).map(
+                    (slot, index) => {
+                      if (!base[slot].visible) return null;
+                      const half = Math.floor((prepassCombo.width - GAP) / 2);
+                      const x = index === 0 ? 0 : half + GAP;
+                      const w = index === 0 ? half : prepassCombo.width - half - GAP;
+                      return (
+                        <Fragment key={slot}>
+                          <Text
+                            variant={TextVariant.Control}
+                            text={base[slot].label ?? ""}
+                            bounds={{ ...prepassLabel, x: prepassLabel.x + x, width: w }}
+                            relativeTo={client}
+                          />
+                          {base[slot].render({
+                            bounds: { ...prepassCombo, x: prepassCombo.x + x, width: w },
+                            relativeTo: client,
+                          })}
+                        </Fragment>
+                      );
+                    },
+                  )}
                 {sizeLabel && sizeRow && (
                   <>
                     {([PixelationSlot.Width, PixelationSlot.Height] as const).map((slot, index) => {
@@ -398,39 +447,6 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                     })}
                   </>
                 )}
-              </>
-            )}
-            {prepassRow && (
-              <>
-                {base[PixelationSlot.Prepass].render({
-                  bounds: { ...prepassRow, width: Math.round(prepassRow.width * 0.6) },
-                  relativeTo: client,
-                })}
-                {base[PixelationSlot.PrepassPreset].render({
-                  bounds: {
-                    ...prepassRow,
-                    x: prepassRow.x + Math.round(prepassRow.width * 0.6) + GAP,
-                    width: prepassRow.width - Math.round(prepassRow.width * 0.6) - GAP,
-                  },
-                  relativeTo: client,
-                })}
-              </>
-            )}
-            {snapRow && (
-              <>
-                {base[PixelationSlot.SnapPalette].render({
-                  bounds: { ...snapRow, width: Math.round(snapRow.width * SNAP_CHECKBOX_SHARE) },
-                  relativeTo: client,
-                })}
-                {base[PixelationSlot.SnapColors].visible &&
-                  base[PixelationSlot.SnapColors].render({
-                    bounds: {
-                      ...snapRow,
-                      x: snapRow.x + Math.round(snapRow.width * SNAP_CHECKBOX_SHARE) + GAP,
-                      width: snapRow.width - Math.round(snapRow.width * SNAP_CHECKBOX_SHARE) - GAP,
-                    },
-                    relativeTo: client,
-                  })}
               </>
             )}
             <Checkbox

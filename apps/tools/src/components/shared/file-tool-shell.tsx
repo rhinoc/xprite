@@ -4,6 +4,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type ComponentType,
   type DragEvent,
   type ReactElement,
   type ReactNode,
@@ -13,8 +14,8 @@ import { useFilesManager, useFilesText } from "$/components/files/files-context"
 import { FileToolEmptyState } from "$/components/shared/file-tool-empty-state";
 import { ToolAdjustSlot } from "$/components/shared/tool-adjust-slot";
 import { ToolExportSheet, type ToolExportFormat } from "$/components/shared/tool-export-sheet";
-import { ToolFlowEmptyStage } from "$/components/shared/tool-flow-empty-stage";
-import { ToolFrame } from "$/components/shared/tool-frame";
+import { ToolFlowEmptyStage, type ToolHostCopy } from "$/components/shared/tool-flow-empty-stage";
+import { ToolFrame, type ToolFrameProps } from "$/components/shared/tool-frame";
 import { decodeFilesDrag, FILES_DRAG_TYPE } from "$/managers/files/files-model";
 import { useToolTranslation } from "$/managers/locale/tool-language";
 import type { PublicTool } from "$/managers/tools/tool-catalog";
@@ -41,7 +42,9 @@ export interface FileToolFlow {
   /** Parameters shown in the adjust panel above the Export bar (same on desktop and phone; rolled up on phones). */
   adjust?: ReactNode;
   /** Opens the result in the editor as a new project; the button shows only with a result. */
-  editMore?: { run(): void; disabled?: boolean };
+  editMore?: { run(): void; disabled?: boolean; label?: string };
+  /** A host's single output action, run directly in place of the export sheet. */
+  exportAction?: { label: string; run(): void };
   /** Formats offered in the export sheet; the sheet closes, then the chosen one runs. */
   exportFormats: readonly ToolExportFormat[];
   /** True until the tool has a result to export. */
@@ -63,6 +66,9 @@ export function FileToolShell({
   onReset,
   help,
   flow,
+  frame: Frame = ToolFrame,
+  accept,
+  copy,
 }: {
   tool: PublicTool;
   filename: string;
@@ -73,6 +79,12 @@ export function FileToolShell({
   fileItems?: readonly MenuItem[];
   help?: ReactNode;
   flow?: FileToolFlow;
+  /** The page chrome around the tool; hosts without the website swap in their own. */
+  frame?: ComponentType<ToolFrameProps>;
+  /** File picker filter in place of the tool's own list of types. */
+  accept?: string;
+  /** Host wording for the title and empty state, in place of the tool's website copy. */
+  copy?: ToolHostCopy;
   children?: ReactNode;
   onOpen(file: File): Promise<void>;
   onExample(): Promise<void>;
@@ -127,8 +139,12 @@ export function FileToolShell({
   const exportDisabled = !flow || !ready || busy || processing || flow.exportDisabled;
   const editMoreDisabled = !!flow?.editMore && (exportDisabled || !!flow.editMore.disabled);
   const editMoreRun = () => flow?.editMore?.run();
+  const exportLabel = flow?.exportAction?.label;
+  const runExport = () => (flow?.exportAction ? flow.exportAction.run() : setExportOpen(true));
   const exportRef = useRef(exportDisabled);
   exportRef.current = exportDisabled;
+  const runExportRef = useRef(runExport);
+  runExportRef.current = runExport;
   useEffect(() => {
     if (!flow) return;
     const onKey = (event: KeyboardEvent) => {
@@ -140,7 +156,7 @@ export function FileToolShell({
       )
         return;
       event.preventDefault();
-      if (!exportRef.current) setExportOpen(true);
+      if (!exportRef.current) runExportRef.current();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -149,8 +165,9 @@ export function FileToolShell({
     if (exportDisabled) setExportOpen(false);
   }, [exportDisabled]);
   return (
-    <ToolFrame
+    <Frame
       tool={tool}
+      title={copy?.title}
       processing={processing}
       help={
         help && isValidElement(help)
@@ -161,9 +178,11 @@ export function FileToolShell({
         flow && ready
           ? {
               exportDisabled,
-              onExport: () => setExportOpen(true),
+              onExport: runExport,
               onEditMore: flow.editMore && editMoreRun,
               editMoreDisabled,
+              exportLabel,
+              editMoreLabel: flow.editMore?.label,
               onNew: onReset,
             }
           : undefined
@@ -189,16 +208,22 @@ export function FileToolShell({
             ...(flow
               ? [
                   {
-                    label: t("Export…"),
+                    label: exportLabel ?? t("Export…"),
                     shortcut: mac ? "Cmd+E" : "Ctrl+E",
                     separator: true,
                     disabled: exportDisabled,
-                    onSelect: () => setExportOpen(true),
+                    onSelect: runExport,
                   },
                 ]
               : []),
             ...(flow?.editMore
-              ? [{ label: t("Edit more"), disabled: editMoreDisabled, onSelect: editMoreRun }]
+              ? [
+                  {
+                    label: flow.editMore.label ?? t("Edit more"),
+                    disabled: editMoreDisabled,
+                    onSelect: editMoreRun,
+                  },
+                ]
               : []),
             ...fileItems.map((item, index) => ({
               ...item,
@@ -212,7 +237,7 @@ export function FileToolShell({
         <input
           ref={input}
           type="file"
-          accept={tool.accept}
+          accept={accept ?? tool.accept}
           className={styles.fileInput}
           aria-label={t(tool.fileLabel)}
           onChange={(event) => {
@@ -224,7 +249,7 @@ export function FileToolShell({
         <Toast text={error ? t(error) : null} tone={ToastTone.Warning} />
         <section
           className={styles.workspace}
-          aria-label={t(tool.label)}
+          aria-label={copy?.title ?? t(tool.label)}
           aria-busy={busy}
           data-flow={flow ? (ready ? "ready" : "empty") : undefined}
           onDragEnter={(event) => {
@@ -263,6 +288,7 @@ export function FileToolShell({
                 busy={busy}
                 onChooseFile={chooseFile}
                 onExample={onExample}
+                copy={copy}
               />
             )}
             {!ready && !flow && (
@@ -299,6 +325,6 @@ export function FileToolShell({
           </Dialog>
         )}
       </main>
-    </ToolFrame>
+    </Frame>
   );
 }

@@ -5,8 +5,10 @@ import {
   EditorView,
   type EditorViewTransition,
 } from "$/managers/editor/editor-view-transition";
+import { WORKER_LOAD_ERROR_NAME } from "$/managers/ports/chunk-load";
 import {
   DiagnosticSource,
+  FILE_WRITE_PERMISSION_ERROR_NAME,
   WorkspaceDiagnosticAction,
   type DiagnosticRecord,
   type WorkspaceDiagnosticEvent,
@@ -95,6 +97,19 @@ function editKind(before: ObservedDocument, snapshot: EditorSnapshot): Telemetry
 }
 
 /** Business telemetry lives here. Observers read canonical state; transport owns network I/O. */
+/**
+ * Local diagnostics keep every record; these are not defects to report as exceptions:
+ * - the user declined write permission for a file (the editor already tells them);
+ * - a worker that could not load, except for the service worker adapter's single stale-build
+ *   report, which carries its context. Its fatal-worker and session echoes would repeat it.
+ */
+function isReportableException(record: DiagnosticRecord): boolean {
+  if (record.name === FILE_WRITE_PERMISSION_ERROR_NAME) return false;
+  if (record.name === WORKER_LOAD_ERROR_NAME)
+    return record.source === DiagnosticSource.ServiceWorker;
+  return true;
+}
+
 export class TelemetryManager {
   private workspace: DocumentWorkspace | null = null;
   private disconnect: (() => void) | null = null;
@@ -429,6 +444,7 @@ export class TelemetryManager {
         return;
       }
       if (record.source === DiagnosticSource.Workspace) return;
+      if (!isReportableException(record)) return;
       const names = this.workspace?.getSnapshot().tabs.map((tab) => tab.name) ?? [];
       const exception = telemetryException(record, names);
       const fingerprint = `${exception.name}:${exception.message}:${exception.stack ?? ""}`;

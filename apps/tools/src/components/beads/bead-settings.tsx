@@ -11,7 +11,7 @@ import { MIN_BEAD_BOARD_EDGE, MAX_BEAD_BOARD_EDGE } from "$/managers/beads/bead-
 import type { BeadTextKey } from "$/managers/locale/bead-text";
 import { useBeadText } from "$/managers/locale/tool-language";
 import { BEAD_BOARD_PRESETS } from "@xprite/editor-core/import-export";
-import { PixelationMethod } from "@xprite/editor-core/import-export";
+import { OutlinePrepass, PixelationMethod } from "@xprite/editor-core/import-export";
 import {
   ControlFlow,
   Input,
@@ -187,7 +187,10 @@ export function BeadSourceSettings({
           value: mode.value,
           label: text(SAMPLING_KEYS[mode.value]),
         }))}
-        disabled={busy || !!state.detected?.reliable}
+        // A recovered grid or an outline pre-pass (sampled by the colour picker) decides the colours.
+        disabled={
+          busy || !!state.detected?.reliable || state.settings.prepass !== OutlinePrepass.None
+        }
         onValueChange={(method) =>
           manager.changeSettings({
             method: method as BeadToolSettings["method"],

@@ -4,18 +4,22 @@ import type { PaletteTranslate } from "$/palette/model";
 import {
   ALGORITHM_LABELS,
   LABELS,
+  LINE_GUIDE_LABELS,
   PICKER_LABELS,
+  PREPASS_LABELS,
   type PixelationLabel as Label,
 } from "$/pixelation/base-labels";
 import {
-  PixelationPaletteControl,
+  PixelationPaletteMenu,
+  PixelationPaletteSwatches,
   type PixelationPaletteResources,
 } from "$/pixelation/palette-control";
 import {
   CellColorPicker,
+  LineGuideMode,
+  OutlinePrepass,
   PIXELATION_SIZES,
   PixelationAlgorithm,
-  SNAP_COLOR_PRESETS,
   getAllColorPickers,
   getListedAlgorithms,
   pixelationSizeFromAxis,
@@ -23,7 +27,7 @@ import {
   type PixelationSettings,
   type PixelationSize,
 } from "@xprite/editor-core/import-export";
-import { Button, Checkbox, Combobox, Input, FontRole, type ControlPlacement } from "@xprite/ui";
+import { Checkbox, Combobox, Input, type ControlPlacement } from "@xprite/ui";
 
 const NUMBER_WIDTH = 36;
 const MAX_COLORS = 256;
@@ -38,11 +42,14 @@ export enum PixelationSlot {
   ColorPicker = "color-picker",
   LimitColors = "limit-colors",
   Colors = "colors",
+  /** The palette swatches (the loaded preset, else the automatic palette). */
   Palette = "palette",
-  SnapPalette = "snap-palette",
-  SnapColors = "snap-colors",
+  /** The palette preset menu button; tool pages put it right after the colour count. */
+  PaletteMenu = "palette-menu",
+  /** Outline pre-pass: None / PixelOE / PixelOE + lines. */
   Prepass = "prepass",
-  PrepassPreset = "prepass-preset",
+  /** Only for the PixelOE + lines pre-pass. */
+  LineGuide = "line-guide",
 }
 
 export interface PixelationBaseProps {
@@ -146,8 +153,9 @@ export function usePixelationBase(
           {...placement}
           aria-label={t(LABELS.picker)}
           value={settings.colorPicker}
-          // Without a grid the preview is a plain resize, which has no per-cell colour to pick.
-          disabled={busy || !grid?.reliable}
+          // Without a grid and without a pre-pass the preview is a plain resize, which has no
+          // per-cell colour to pick; a pre-pass hands its result to the picker block by block.
+          disabled={busy || (!grid?.reliable && settings.prepass === OutlinePrepass.None)}
           options={getAllColorPickers().map((id) => ({ value: id, label: t(PICKER_LABELS[id]) }))}
           onValueChange={(value) => onChange({ colorPicker: value as CellColorPicker })}
         />
@@ -189,7 +197,19 @@ export function usePixelationBase(
       label: null,
       render: () =>
         props.paletteResources && (
-          <PixelationPaletteControl
+          <PixelationPaletteSwatches
+            settings={settings}
+            resources={props.paletteResources}
+            translate={translate}
+          />
+        ),
+    },
+    [PixelationSlot.PaletteMenu]: {
+      visible: show(PixelationSlot.PaletteMenu, limited && !!props.paletteResources),
+      label: null,
+      render: () =>
+        props.paletteResources && (
+          <PixelationPaletteMenu
             settings={settings}
             resources={props.paletteResources}
             disabled={busy}
@@ -198,61 +218,39 @@ export function usePixelationBase(
           />
         ),
     },
-    [PixelationSlot.SnapPalette]: {
-      visible: show(PixelationSlot.SnapPalette),
-      label: null,
-      render: (placement) => (
-        <Checkbox
-          {...placement}
-          label={t(LABELS.snapPalette)}
-          checked={settings.snapPalette}
-          disabled={busy}
-          onCheckedChange={(snapPalette) => onChange({ snapPalette })}
-        />
-      ),
-    },
-    [PixelationSlot.SnapColors]: {
-      // A loaded palette fixes the count; otherwise it is only live once the step is checked.
-      visible: show(PixelationSlot.SnapColors, settings.palette === null),
-      label: t(LABELS.snapColors),
-      render: (placement, pixelWidth) => (
-        <Combobox
-          pixelWidth={pixelWidth ?? NUMBER_WIDTH + 24}
-          {...placement}
-          aria-label={t(LABELS.snapColors)}
-          value={String(settings.snapColors)}
-          disabled={busy || !settings.snapPalette}
-          options={SNAP_COLOR_PRESETS.map((count) => ({
-            value: String(count),
-            label: String(count),
-          }))}
-          onValueChange={(value) => onChange({ snapColors: Number(value) })}
-        />
-      ),
-    },
     [PixelationSlot.Prepass]: {
       visible: show(PixelationSlot.Prepass),
-      label: null,
-      render: (placement) => (
-        <Checkbox
+      label: t(LABELS.prepass),
+      render: (placement, pixelWidth) => (
+        <Combobox
+          pixelWidth={pixelWidth ?? FIELD_WIDTH}
           {...placement}
-          label={t(LABELS.prepass)}
-          checked={settings.pixeloePrepass}
+          aria-label={t(LABELS.prepass)}
+          value={settings.prepass}
           disabled={busy}
-          onCheckedChange={(pixeloePrepass) => onChange({ pixeloePrepass })}
+          options={Object.values(OutlinePrepass).map((id) => ({
+            value: id,
+            label: t(PREPASS_LABELS[id]),
+          }))}
+          onValueChange={(value) => onChange({ prepass: value as OutlinePrepass })}
         />
       ),
     },
-    [PixelationSlot.PrepassPreset]: {
-      visible: show(PixelationSlot.PrepassPreset),
-      label: null,
-      render: (placement) => (
-        <Button
+    [PixelationSlot.LineGuide]: {
+      visible: show(PixelationSlot.LineGuide, settings.prepass === OutlinePrepass.PixeloeLines),
+      label: t(LABELS.lineGuide),
+      render: (placement, pixelWidth) => (
+        <Combobox
+          pixelWidth={pixelWidth ?? FIELD_WIDTH}
           {...placement}
-          text={t(LABELS.preset)}
-          font={FontRole.Compact}
+          aria-label={t(LABELS.lineGuide)}
+          value={settings.lineGuide}
           disabled={busy}
-          onClick={() => onChange({ pixeloePrepass: true, colorPicker: CellColorPicker.Contrast })}
+          options={Object.values(LineGuideMode).map((id) => ({
+            value: id,
+            label: t(LINE_GUIDE_LABELS[id]),
+          }))}
+          onValueChange={(value) => onChange({ lineGuide: value as LineGuideMode })}
         />
       ),
     },

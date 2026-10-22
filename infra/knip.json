@@ -38,7 +38,9 @@
         "src/animal-crossing-main.tsx",
         "src/pixelation-main.tsx",
         "src/bead-main.tsx",
-        "src/ssg.tsx"
+        "src/ssg.tsx",
+        "src/minitool-main.tsx",
+        "vite.minitool.config.ts"
       ]
     },
     "apps/growth/content": {

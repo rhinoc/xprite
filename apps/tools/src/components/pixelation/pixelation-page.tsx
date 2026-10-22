@@ -1,47 +1,76 @@
-import { useSyncExternalStore } from "react";
+import { useSyncExternalStore, type ComponentType } from "react";
 
 import { PixelationCompare } from "$/components/pixelation/pixelation-compare";
 import { PixelationExtraControls } from "$/components/pixelation/pixelation-extras";
 import { PixelationPalette } from "$/components/pixelation/pixelation-palette";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
+import type { ToolHostCopy } from "$/components/shared/tool-flow-empty-stage";
+import type { ToolFrameProps } from "$/components/shared/tool-frame";
 import { ToolHelp } from "$/components/shared/tool-help";
 import { ToolListPane, ToolResultWindow } from "$/components/shared/tool-result-window";
 import { useToolTranslation } from "$/managers/locale/tool-language";
-import type { PixelationManager } from "$/managers/pixelation/pixelation-manager";
+import { restoresPixels, type PixelationManager } from "$/managers/pixelation/pixelation-manager";
 import { PIXELATE_TOOL } from "$/managers/tools/tool-catalog";
-import { PixelationMode } from "@xprite/editor-core/import-export";
 import { PixelationBaseControls } from "@xprite/editor-ui";
 import { PIXELATE_HELP, PixelateHelpSection } from "@xprite/growth-content/tools";
 
-export function PixelationPage({ manager }: { manager: PixelationManager }) {
+/** A host outside the website: its own frame, and two direct output actions in place of export. */
+export interface PixelationPageHost {
+  frame: ComponentType<ToolFrameProps>;
+  saveLabel: string;
+  shareLabel: string;
+  /** Translated title and empty-state hint for a host without drag and drop. */
+  copy?: ToolHostCopy;
+  /** File picker filter; phone web views show the photo library for `image/*`. */
+  accept?: string;
+  /** Called as a save starts, before the manager reports it. */
+  onSave?(): void;
+}
+
+export function PixelationPage({
+  manager,
+  host,
+}: {
+  manager: PixelationManager;
+  host?: PixelationPageHost;
+}) {
   const t = useToolTranslation();
   const state = useSyncExternalStore(manager.subscribe, manager.getSnapshot, manager.getSnapshot);
   const busy = state.loading || state.downloading;
   const ready = !!state.result && !state.converting;
-  const restored = state.settings.mode === PixelationMode.RecoverGrid;
+  const restored = restoresPixels(state);
   return (
     <FileToolShell
       tool={PIXELATE_TOOL}
+      accept={host?.accept}
+      copy={host?.copy}
       filename={state.name}
       ready={!!state.source}
       processing={busy || state.converting}
       busy={busy}
       error={state.error}
-      help={<ToolHelp id={PixelateHelpSection.Overview} content={PIXELATE_HELP} />}
+      help={
+        host ? undefined : <ToolHelp id={PixelateHelpSection.Overview} content={PIXELATE_HELP} />
+      }
+      frame={host?.frame}
       onOpen={(file) => manager.open(file)}
       onExample={() => manager.openExample()}
       onReset={() => manager.clear()}
       flow={{
         exportDisabled: !ready,
-        editMore: { run: () => void manager.edit() },
+        editMore: { run: () => void manager.edit(), label: host?.shareLabel },
+        exportAction: host && {
+          label: host.saveLabel,
+          run: () => {
+            host.onSave?.();
+            void manager.download();
+          },
+        },
         adjust: state.source && (
           <PixelationBaseControls
             paletteResources={{
               choices: state.paletteChoices,
-              currentPalette: state.defaultPalette,
               previewPalette: state.palettePreview,
-              currentLabel: "Use default palette",
-              currentName: "Default palette",
               refresh: manager.refreshPalettes,
             }}
             algorithm={state.algorithm}

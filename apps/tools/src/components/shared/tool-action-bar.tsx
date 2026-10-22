@@ -17,6 +17,9 @@ export interface ToolActionBarProps {
   editMoreDisabled?: boolean;
   /** Return the tool to its empty import step on this page (Mac OS 8 “New”). */
   onNew?(): void;
+  /** Host-specific labels; a custom export label runs directly instead of opening a sheet. */
+  exportLabel?: string;
+  editMoreLabel?: string;
 }
 
 const ToolActionBarContext = createContext<ToolActionBarProps | undefined>(undefined);
@@ -33,6 +36,8 @@ function ToolActionBar({
   onExport,
   onEditMore,
   editMoreDisabled = false,
+  exportLabel,
+  editMoreLabel,
 }: ToolActionBarProps) {
   const t = useToolTranslation();
   return (
@@ -40,7 +45,7 @@ function ToolActionBar({
       {onEditMore && (
         <Button
           className={styles.exportButton}
-          text={t("Edit more")}
+          text={editMoreLabel ?? t("Edit more")}
           font={FontRole.Primary}
           minimumWidth={MINIMUM_EXPORT_WIDTH}
           disabled={editMoreDisabled}
@@ -49,9 +54,9 @@ function ToolActionBar({
         />
       )}
       <ToolDefaultButton
-        text={t("Export…")}
+        text={exportLabel ?? t("Export…")}
         disabled={exportDisabled}
-        aria-haspopup="dialog"
+        aria-haspopup={exportLabel ? undefined : "dialog"}
         data-flow-export=""
         onClick={onExport}
       />

@@ -46,6 +46,11 @@ jobs:
       VITE_POSTHOG_API_HOST: ${{ vars.VITE_POSTHOG_API_HOST }}
       VITE_POSTHOG_PROJECT_TOKEN: ${{ (inputs.environment || 'production') == 'production' && vars.VITE_POSTHOG_PROJECT_TOKEN || '' }}
 
+    outputs:
+      deploy_ref: ${{ steps.revision.outputs.ref }}
+      release: ${{ steps.revision.outputs.release }}
+      archive_saved: ${{ steps.archive.outcome == 'success' }}
+
     steps:
       - name: Checkout release
         uses: actions/checkout@v4
@@ -72,9 +77,14 @@ jobs:
           POSTHOG_CLI_PROJECT_ID: ${{ (inputs.environment || 'production') == 'production' && secrets.POSTHOG_CLI_API_KEY != '' && vars.POSTHOG_CLI_PROJECT_ID || '' }}
 
       - name: Record actual build revision
+        id: revision
         run: |
-          echo "POSTHOG_RELEASE=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
-          echo "DEPLOY_REF=$(git describe --tags --exact-match HEAD 2>/dev/null || git rev-parse --short HEAD)" >> "$GITHUB_ENV"
+          release="$(git rev-parse HEAD)"
+          ref="$(git describe --tags --exact-match HEAD 2>/dev/null || git rev-parse --short HEAD)"
+          echo "POSTHOG_RELEASE=$release" >> "$GITHUB_ENV"
+          echo "DEPLOY_REF=$ref" >> "$GITHUB_ENV"
+          echo "release=$release" >> "$GITHUB_OUTPUT"
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
 
       - name: Validate EdgeOne configuration
         run: pnpm exec edgeone validate
@@ -84,6 +94,14 @@ jobs:
         env:
           POSTHOG_CLI_API_KEY: ${{ (inputs.environment || 'production') == 'production' && secrets.POSTHOG_CLI_API_KEY || '' }}
           POSTHOG_CLI_PROJECT_ID: ${{ (inputs.environment || 'production') == 'production' && secrets.POSTHOG_CLI_API_KEY != '' && vars.POSTHOG_CLI_PROJECT_ID || '' }}
+
+      # Content-hashed files of the last 3 production releases stay deployable so open tabs of
+      # those releases can still lazy-load their chunks (scripts/deploy/README.md).
+      - name: Fetch previous release assets (production only)
+        if: env.EDGEONE_ENV == 'production'
+        run: pnpm run deploy:previous-assets fetch
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Prepare static deployment
         run: pnpm run deploy:prepare
@@ -111,6 +129,17 @@ jobs:
         env:
           EDGEONE_API_TOKEN: ${{ secrets.EDGEONE_API_TOKEN }}
 
+      # Only a verified production deployment of a v* tag hands its archive to archive-assets.
+      - name: Save release asset archive (production tags only)
+        id: archive
+        if: env.EDGEONE_ENV == 'production' && startsWith(env.DEPLOY_REF, 'v')
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets-${{ env.POSTHOG_RELEASE }}
+          path: .tmp/deploy/release-assets/
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Submit changed pages to IndexNow (production only)
         if: env.EDGEONE_ENV == 'production'
         continue-on-error: true
@@ -125,3 +154,32 @@ jobs:
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 14
+
+  # The next production deployments download this archive (deploy:previous-assets fetch). It is
+  # the only job that writes to the repository: it attaches the archive to the tag's GitHub release.
+  archive-assets:
+    name: Attach content-hashed assets to the release
+    needs: deploy
+    if: needs.deploy.outputs.archive_saved == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ needs.deploy.outputs.deploy_ref }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-assets-${{ needs.deploy.outputs.release }}
+          path: release-assets
+
+      - name: Upload archive to the tag's release
+        run: |
+          if ! gh release view "$TAG" > /dev/null 2>&1; then
+            # Release notes are written by hand later (gh release edit "$TAG" --notes-file …).
+            gh release create "$TAG" --verify-tag --title "$TAG" \
+              --notes "Production deployment of $TAG. Release notes follow."
+          fi
+          gh release upload "$TAG" release-assets/*.tar.gz --clobber

@@ -26,6 +26,8 @@ import {
   getAllColorPickers,
   pixelationSettingsOptions,
   CellColorPicker,
+  DEFAULT_LINE_GUIDE,
+  OutlinePrepass,
   PixelationAlgorithm,
   PixelationMethod,
   PIXELATION_METHOD_OPTIONS,
@@ -81,11 +83,18 @@ const defaultSettings = (): BeadToolSettings => ({
   method: PixelationMethod.Nearest,
   algorithm: PixelationAlgorithm.Auto,
   colorPicker: CellColorPicker.MostCommon,
-  pixeloePrepass: false,
+  prepass: OutlinePrepass.None,
+  lineGuide: DEFAULT_LINE_GUIDE,
 });
 export interface BeadToolSettings extends Pick<
   PixelationSettings,
-  "targetWidth" | "targetHeight" | "lockAspectRatio" | "method" | "colorPicker" | "pixeloePrepass"
+  | "targetWidth"
+  | "targetHeight"
+  | "lockAspectRatio"
+  | "method"
+  | "colorPicker"
+  | "prepass"
+  | "lineGuide"
 > {
   /** How the image's pixel grid is found; the same choices as the editor import dialog. */
   algorithm: PixelationAlgorithm;
@@ -343,6 +352,10 @@ export class BeadToolManager {
       targetWidth: normalized.targetWidth,
       targetHeight: normalized.targetHeight,
       lockAspectRatio: normalized.lockAspectRatio,
+      // The pre-pass picks Contrast when it is turned on, and maps the old checkbox.
+      colorPicker: normalized.colorPicker,
+      prepass: normalized.prepass,
+      lineGuide: normalized.lineGuide,
       method: normalized.method,
     };
     if (
@@ -360,7 +373,8 @@ export class BeadToolManager {
       settings.method !== this.state.settings.method ||
       settings.algorithm !== this.state.settings.algorithm ||
       settings.colorPicker !== this.state.settings.colorPicker ||
-      settings.pixeloePrepass !== this.state.settings.pixeloePrepass;
+      settings.prepass !== this.state.settings.prepass ||
+      settings.lineGuide !== this.state.settings.lineGuide;
     const brandChanged = settings.brand !== this.state.settings.brand;
     const boardChanged =
       settings.boardSize.width !== this.state.settings.boardSize.width ||

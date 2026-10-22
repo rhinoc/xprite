@@ -58,18 +58,26 @@ interface GifAnimation {
   readonly frames: readonly GifFrame[];
 }
 
+/** The file ends before a block is complete, typically an interrupted download or copy. */
+class GifTruncatedError extends Error {
+  constructor() {
+    super("Truncated GIF data");
+    this.name = "GifTruncatedError";
+  }
+}
+
 class GifReader {
   offset = 0;
   constructor(readonly bytes: Uint8Array) {}
   byte() {
-    if (this.offset >= this.bytes.length) throw new Error("Truncated GIF data");
+    if (this.offset >= this.bytes.length) throw new GifTruncatedError();
     return this.bytes[this.offset++];
   }
   word() {
     return this.byte() | (this.byte() << 8);
   }
   take(length: number) {
-    if (this.offset + length > this.bytes.length) throw new Error("Truncated GIF data");
+    if (this.offset + length > this.bytes.length) throw new GifTruncatedError();
     const data = this.bytes.subarray(this.offset, this.offset + length);
     this.offset += length;
     return data;
@@ -84,14 +92,38 @@ class GifReader {
         length += size;
       }
     }
-    const result = new Uint8Array(length);
-    let offset = 0;
-    for (const block of blocks) {
-      result.set(block, offset);
-      offset += block.length;
-    }
-    return result;
+    return concatBlocks(blocks, length);
   }
+  /**
+   * Image data sub-blocks. When the file ends inside them, keeps the bytes that did arrive so the
+   * frame can be decoded as far as it goes, like browsers show the received part of a GIF.
+   */
+  imageData(): { data: Uint8Array; complete: boolean } {
+    const blocks: Uint8Array[] = [];
+    let length = 0;
+    while (this.offset < this.bytes.length) {
+      const size = this.bytes[this.offset++];
+      if (!size) return { data: concatBlocks(blocks, length), complete: true };
+      const block = this.bytes.subarray(
+        this.offset,
+        Math.min(this.offset + size, this.bytes.length),
+      );
+      this.offset += block.length;
+      blocks.push(block);
+      length += block.length;
+    }
+    return { data: concatBlocks(blocks, length), complete: false };
+  }
+}
+
+function concatBlocks(blocks: readonly Uint8Array[], length: number): Uint8Array {
+  const result = new Uint8Array(length);
+  let offset = 0;
+  for (const block of blocks) {
+    result.set(block, offset);
+    offset += block.length;
+  }
+  return result;
 }
 
 /** Probe by signature rather than trusting a filename or browser MIME type. */
@@ -130,76 +162,97 @@ function parseGif(bytes: Uint8Array): GifAnimation {
   let disposal = GifDisposal.Unspecified;
   let loopCount = 1;
   let hasLoopCount = false;
-  while (true) {
-    const block = reader.byte();
-    if (block === GIF_TRAILER) break;
-    if (block === GIF_EXTENSION) {
-      const label = reader.byte();
-      if (label === GIF_CONTROL_EXTENSION) {
-        if (reader.byte() !== 4) throw new Error("Invalid GIF graphics control extension");
-        const control = reader.byte();
-        const method = (control >> 2) & 7;
-        if (method > GifDisposal.Previous) throw new Error("Unsupported GIF disposal method");
-        disposal = method;
-        durationMs = Math.max(MIN_IMPORTED_FRAME_DURATION_MS, reader.word() * GIF_DELAY_MS);
-        const index = reader.byte();
-        transparentIndex = control & 1 ? index : -1;
-        if (reader.byte() !== 0) throw new Error("Invalid GIF control extension terminator");
-      } else if (label === GIF_APPLICATION_EXTENSION) {
-        const identifier = String.fromCharCode(...reader.take(reader.byte()));
-        const looping = identifier === "NETSCAPE2.0" || identifier === "ANIMEXTS1.0";
-        const data = reader.subBlocks(looping);
-        if (looping && data[0] === 1 && !hasLoopCount) {
-          if (data.length < 3) throw new Error("Truncated GIF loop extension");
-          const repetitions = data[1] | (data[2] << 8);
-          loopCount = repetitions === 0 ? 0 : repetitions + 1;
-          hasLoopCount = true;
+  try {
+    while (true) {
+      const block = reader.byte();
+      if (block === GIF_TRAILER) break;
+      if (block === GIF_EXTENSION) {
+        const label = reader.byte();
+        if (label === GIF_CONTROL_EXTENSION) {
+          if (reader.byte() !== 4) throw new Error("Invalid GIF graphics control extension");
+          const control = reader.byte();
+          const method = (control >> 2) & 7;
+          if (method > GifDisposal.Previous) throw new Error("Unsupported GIF disposal method");
+          disposal = method;
+          durationMs = Math.max(MIN_IMPORTED_FRAME_DURATION_MS, reader.word() * GIF_DELAY_MS);
+          const index = reader.byte();
+          transparentIndex = control & 1 ? index : -1;
+          if (reader.byte() !== 0) throw new Error("Invalid GIF control extension terminator");
+        } else if (label === GIF_APPLICATION_EXTENSION) {
+          const identifier = String.fromCharCode(...reader.take(reader.byte()));
+          const looping = identifier === "NETSCAPE2.0" || identifier === "ANIMEXTS1.0";
+          const data = reader.subBlocks(looping);
+          if (looping && data[0] === 1 && !hasLoopCount) {
+            if (data.length < 3) throw new Error("Truncated GIF loop extension");
+            const repetitions = data[1] | (data[2] << 8);
+            loopCount = repetitions === 0 ? 0 : repetitions + 1;
+            hasLoopCount = true;
+          }
+        } else {
+          if (label === GIF_PLAIN_TEXT_EXTENSION)
+            throw new Error("GIF plain-text rendering extensions are not supported");
+          reader.subBlocks(false);
         }
-      } else {
-        if (label === GIF_PLAIN_TEXT_EXTENSION)
-          throw new Error("GIF plain-text rendering extensions are not supported");
-        reader.subBlocks(false);
+        continue;
       }
-      continue;
+      if (block !== GIF_IMAGE) throw new Error("Invalid GIF image block");
+      const x = reader.word();
+      const y = reader.word();
+      const frameWidth = reader.word();
+      const frameHeight = reader.word();
+      if (!frameWidth || !frameHeight || x + frameWidth > width || y + frameHeight > height)
+        throw new Error("GIF frame rectangle exceeds the canvas bounds");
+      if (frames.length) assertRasterAnimationCapacity(width, height, frames.length + 1);
+      const flags = reader.byte();
+      const palette =
+        flags & 0x80 ? reader.take((1 << ((flags & 7) + 1)) * GIF_COLOR_CHANNELS) : globalPalette;
+      if (!palette) throw new Error("GIF frame has no color table");
+      const minimumCodeSize = reader.byte();
+      if (minimumCodeSize < 2 || minimumCodeSize > 8)
+        throw new Error("Invalid GIF LZW minimum code size");
+      const image = reader.imageData();
+      // A frame cut off before any of its pixel data is dropped, as browsers do.
+      if (!image.complete && !image.data.length) break;
+      frames.push({
+        x,
+        y,
+        width: frameWidth,
+        height: frameHeight,
+        interlaced: !!(flags & 0x40),
+        palette,
+        transparentIndex,
+        durationMs,
+        disposal,
+        minimumCodeSize,
+        compressed: image.data,
+      });
+      if (!image.complete) break;
+      transparentIndex = -1;
+      durationMs = GIF_DELAY_MS;
+      disposal = GifDisposal.Unspecified;
     }
-    if (block !== GIF_IMAGE) throw new Error("Invalid GIF image block");
-    const x = reader.word();
-    const y = reader.word();
-    const frameWidth = reader.word();
-    const frameHeight = reader.word();
-    if (!frameWidth || !frameHeight || x + frameWidth > width || y + frameHeight > height)
-      throw new Error("GIF frame rectangle exceeds the canvas bounds");
-    if (frames.length) assertRasterAnimationCapacity(width, height, frames.length + 1);
-    const flags = reader.byte();
-    const palette =
-      flags & 0x80 ? reader.take((1 << ((flags & 7) + 1)) * GIF_COLOR_CHANNELS) : globalPalette;
-    if (!palette) throw new Error("GIF frame has no color table");
-    const minimumCodeSize = reader.byte();
-    if (minimumCodeSize < 2 || minimumCodeSize > 8)
-      throw new Error("Invalid GIF LZW minimum code size");
-    frames.push({
-      x,
-      y,
-      width: frameWidth,
-      height: frameHeight,
-      interlaced: !!(flags & 0x40),
-      palette,
-      transparentIndex,
-      durationMs,
-      disposal,
-      minimumCodeSize,
-      compressed: reader.subBlocks(true),
-    });
-    transparentIndex = -1;
-    durationMs = GIF_DELAY_MS;
-    disposal = GifDisposal.Unspecified;
+  } catch (error) {
+    // Browsers show the frames that arrived before the file was cut off. Without one, it fails.
+    if (!(error instanceof GifTruncatedError) || !frames.length) throw error;
   }
   if (!frames.length) throw new Error("GIF contains no image frames");
   return { width, height, background, frames, loopCount, hasLoopCount };
 }
 
-/** GIF LZW uses least-significant-bit codes and a resettable 12-bit dictionary. */
-function decodeIndices(frame: GifFrame): Uint8Array {
+interface GifFrameIndices {
+  readonly indices: Uint8Array;
+  /** Pixels the code stream supplied, in stream order; the rest of the frame stays transparent. */
+  readonly decoded: number;
+}
+
+/**
+ * GIF LZW uses least-significant-bit codes and a resettable 12-bit dictionary.
+ *
+ * Like browsers, it accepts a stream that ends early or omits the end code (common encoder and
+ * interrupted-transfer defects): the pixels it did supply are kept and the rest stay transparent.
+ * Codes past a full frame are ignored. Only a code that references nothing valid is an error.
+ */
+function decodeIndices(frame: GifFrame): GifFrameIndices {
   const clear = 1 << frame.minimumCodeSize;
   const end = clear + 1;
   const prefix = new Uint16Array(GIF_DICTIONARY_SIZE);
@@ -213,8 +266,7 @@ function decodeIndices(frame: GifFrame): Uint8Array {
   let first = 0;
   let bitOffset = 0;
   let offset = 0;
-  let terminated = false;
-  while (bitOffset + bits <= frame.compressed.length * 8) {
+  while (offset < output.length && bitOffset + bits <= frame.compressed.length * 8) {
     const byteOffset = bitOffset >> 3;
     const raw =
       frame.compressed[byteOffset] |
@@ -228,12 +280,9 @@ function decodeIndices(frame: GifFrame): Uint8Array {
       old = -1;
       continue;
     }
-    if (code === end) {
-      terminated = true;
-      break;
-    }
+    if (code === end) break;
     if (old < 0) {
-      if (code >= clear || offset >= output.length) throw new Error("Invalid GIF LZW initial code");
+      if (code >= clear) throw new Error("Invalid GIF LZW initial code");
       output[offset++] = first = code;
       old = code;
       continue;
@@ -253,9 +302,8 @@ function decodeIndices(frame: GifFrame): Uint8Array {
       code = prefix[code];
     }
     stack[depth++] = first = suffix[code];
-    if (offset + depth > output.length)
-      throw new Error("GIF LZW data exceeds the frame dimensions");
-    while (depth) output[offset++] = stack[--depth];
+    // A string that runs past the frame is clipped to it; the loop then stops.
+    while (depth && offset < output.length) output[offset++] = stack[--depth];
     if (next < GIF_DICTIONARY_SIZE) {
       prefix[next] = old;
       suffix[next++] = first;
@@ -263,8 +311,7 @@ function decodeIndices(frame: GifFrame): Uint8Array {
     }
     old = incoming;
   }
-  if (!terminated || offset !== output.length) throw new Error("Truncated GIF LZW frame data");
-  return output;
+  return { indices: output, decoded: offset };
 }
 
 function fillRectangle(
@@ -301,10 +348,10 @@ export function decodeGifAnimation(
   const frames: RasterAnimationFrame[] = [];
   for (const frame of gif.frames) {
     const previous = frame.disposal === GifDisposal.Previous ? canvas.slice() : null;
-    const indices = decodeIndices(frame);
+    const { indices, decoded } = decodeIndices(frame);
     let sourceOffset = 0;
     const paintRow = (y: number) => {
-      for (let x = 0; x < frame.width; x++) {
+      for (let x = 0; x < frame.width && sourceOffset < decoded; x++) {
         const index = indices[sourceOffset++];
         if (index === frame.transparentIndex) continue;
         const paletteOffset = index * GIF_COLOR_CHANNELS;

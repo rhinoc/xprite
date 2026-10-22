@@ -6,6 +6,7 @@ import type {
 } from "$/adapters/workers/recovery-codec-worker";
 import type { RecoveryCompression } from "$/adapters/workers/recovery-compression";
 import { RecoverySnapshotDeltaSender } from "$/adapters/workers/recovery-snapshot-delta";
+import { workerLoadFailed } from "$/adapters/workers/worker-load-failure";
 import {
   WorkerRequestChannel,
   type WorkerRequestTransport,
@@ -86,7 +87,10 @@ export class RecoveryCodecClient {
       ? new WorkerRequestChannel(this.worker, {
           firstRequestId,
           closedError: () => new Error("Recovery codec client is closed"),
-          transportError: () => new Error("Recovery codec worker failed"),
+          transportError: (_event, failure) =>
+            failure.startup
+              ? workerLoadFailed("The recovery codec worker script could not be loaded")
+              : new Error("Recovery codec worker failed"),
           onFatalError: (error) => {
             this.snapshotDelta.clear();
             this.failure = error;
