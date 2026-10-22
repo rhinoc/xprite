@@ -83,7 +83,7 @@ export function MiniToolScreen({ editor }: { editor: MiniToolEditor }) {
         setToast(t(miniToolError(reason instanceof Error ? reason.message : String(reason)))),
     );
   };
-  const status = pixels.loading
+  const status = state.opening
     ? t("canvas.opening")
     : pixels.converting
       ? t("canvas.converting")
@@ -154,7 +154,7 @@ export function MiniToolScreen({ editor }: { editor: MiniToolEditor }) {
               />
             ) : (
               <div className={cx(styles.stage, styles.empty)}>
-                {pixels.loading ? (
+                {state.opening ? (
                   <span className={styles.emptyHint} role="status">
                     {t("canvas.opening")}
                   </span>

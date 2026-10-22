@@ -24,8 +24,8 @@ const PATHS = {
   ratio: <rect x="6" y="3.5" width="12" height="17" rx="2" />,
   reset: (
     <>
-      <path d="M4 12a8 8 0 1 0 2.4-5.7" />
-      <path d="M4 4.5v4.3h4.3" />
+      <path d="M4 12a8 8 0 1 0 2.34-5.66" />
+      <path d="M6.34 2.5v3.84h3.84" />
     </>
   ),
   grid: (
@@ -48,16 +48,21 @@ const PATHS = {
     </>
   ),
   down: <path d="M7 10l5 5 5-5" />,
+  /*
+   * Rotate arrows: an arc about (12, 12) ending at 45° on its upper side, and an arrowhead whose
+   * corner is that end point. Its arms run straight up and across, which at 45° is ±45° off the
+   * arc's tangent, so the head points along the turn and sits on the grid at small sizes.
+   */
   rotateLeft: (
     <>
-      <path d="M5 12a7 7 0 1 0 2.1-5" />
-      <path d="M5 4.5V8h3.5" />
+      <path d="M4.93 12A7.07 7.07 0 1 0 7 7" />
+      <path d="M7 3.5V7h3.5" />
     </>
   ),
   rotateRight: (
     <>
-      <path d="M19 12a7 7 0 1 1-2.1-5" />
-      <path d="M19 4.5V8h-3.5" />
+      <path d="M19.07 12A7.07 7.07 0 1 1 17 7" />
+      <path d="M17 3.5V7h-3.5" />
     </>
   ),
   swap: (
@@ -106,10 +111,11 @@ const PATHS = {
       <path d="M8.5 8.5L5 12l3.5 3.5M15.5 8.5L19 12l-3.5 3.5" />
     </>
   ),
+  /** The divider's rotate knob: {@link PATHS.rotateRight}'s turn, a little tighter for 18px. */
   rotate: (
     <>
-      <path d="M18.5 12a6.5 6.5 0 1 1-2.6-5.2" />
-      <path d="M16.5 3.5l-.6 3.4 3.4.6" />
+      <path d="M18.5 12A6.5 6.5 0 1 1 16.6 7.4" />
+      <path d="M16.6 3.6v3.8h-3.8" />
     </>
   ),
   minus: <path d="M6 12h12" />,

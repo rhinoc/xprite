@@ -48,6 +48,11 @@ export interface MiniToolSnapshot {
   preset: PixelPreset | null;
   /** The last finished result for this photo, kept on screen while a new one converts. */
   shown: PixelBuffer | null;
+  /**
+   * A photo or the example is opening: from the read through its first result, so the empty state
+   * never shows between the file being read and the first conversion finishing. Clears on failure.
+   */
+  opening: boolean;
   /** The engine's own block count for this photo (shown as 自动识别). */
   automatic: GridSize | null;
   thumbnails: Partial<Record<PixelPreset, PixelBuffer>>;
@@ -71,6 +76,7 @@ export class MiniToolEditor {
     content: ExportContent.Split,
     preset: PixelPreset.Default,
     shown: null,
+    opening: false,
     automatic: null,
     thumbnails: {},
     canUndo: false,
@@ -109,6 +115,13 @@ export class MiniToolEditor {
 
   private sync = () => {
     const pixels = this.pixelation.getSnapshot();
+    this.syncPhoto(pixels);
+    // Reading the file, then (source set, no result yet) its first conversion: one opening state.
+    const opening = pixels.loading || (!!pixels.source && !this.state.shown && !pixels.error);
+    if (opening !== this.state.opening) this.publish({ opening });
+  };
+
+  private syncPhoto(pixels: PixelationSnapshot) {
     if (!pixels.source) {
       if (this.identity !== -1 || this.state.shown) {
         this.identity = -1;
@@ -146,7 +159,7 @@ export class MiniToolEditor {
         void this.renderThumbnails();
       }
     }
-  };
+  }
 
   /** The layout the preview and export use for the current result. */
   composition(layout = this.state.layout): Composition | null {
