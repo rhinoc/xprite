@@ -63,6 +63,26 @@ describe("about page search metadata", () => {
     );
   });
 
+  it("describe the application as a free browser app with its core features", () => {
+    const graph = showcaseSearchMetadata("en", SHOWCASE_PAGES.en, SHOWCASE_SITE_URL)["@graph"];
+    const application = graph.find((item) => item["@type"] === "WebApplication") as unknown as {
+      applicationCategory: string;
+      operatingSystem: string;
+      offers: { price: string };
+      featureList: readonly string[];
+    };
+    assert.equal(application.applicationCategory, "MultimediaApplication");
+    assert.equal(application.operatingSystem, "Any");
+    assert.equal(application.offers.price, "0");
+    assert.deepEqual(application.featureList, [
+      "Pixel art drawing",
+      "Frame-by-frame animation",
+      "Aseprite .ase/.aseprite import",
+      "GIF and PNG export",
+    ]);
+    assert.equal("aggregateRating" in application, false);
+  });
+
   it("describe the visible FAQ in every language as a FAQPage", () => {
     for (const [language, page] of Object.entries(SHOWCASE_PAGES)) {
       const key = language as keyof typeof SHOWCASE_PAGES;

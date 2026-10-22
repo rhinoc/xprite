@@ -261,7 +261,7 @@ export function ShowcaseStaticHero({ language }: { language: ShowcaseContentLang
         >
           <ShowcaseIntro language={language as ShowcaseLanguage} />
           <div data-showcase-static-stage>
-            <ShowcaseOverviewPreview alt={copy.titleOverview} />
+            <ShowcaseOverviewPreview alt={copy.heroImageAlt} />
             <div data-showcase-action>
               <Button href={EDITOR_URL} slots={{}}>
                 {copy.open}

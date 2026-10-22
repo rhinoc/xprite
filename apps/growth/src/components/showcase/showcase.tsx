@@ -190,7 +190,7 @@ export function Showcase({
                   {...swipe}
                 >
                   {state.status !== ShowcaseStatus.Ready && (
-                    <ShowcaseOverviewPreview alt={copy.stage} />
+                    <ShowcaseOverviewPreview alt={copy.heroImageAlt} />
                   )}
                   <div
                     ref={host}
@@ -199,7 +199,7 @@ export function Showcase({
                     aria-label={
                       state.started
                         ? `${SHOWCASE_DEVICE_NAMES[state.device]} — ${copy.screen}`
-                        : deviceTitle
+                        : copy.heroImageAlt
                     }
                   />
                   {!state.started && state.status === ShowcaseStatus.Ready && (
