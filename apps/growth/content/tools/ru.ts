@@ -24,6 +24,7 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   "K-means": "K-средних",
   Contrast: "Контраст",
   Nearest: "Ближайший",
+  Sampling: "Выборка",
   Pixels: "Пиксели",
   "Xprite Editor": "Редактор Xprite",
   "Xprite Aseprite Viewer": "Xprite: просмотр Aseprite",

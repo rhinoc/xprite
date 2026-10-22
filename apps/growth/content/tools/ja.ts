@@ -24,6 +24,7 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "K-means": "K平均法",
   Contrast: "コントラスト",
   Nearest: "最近傍",
+  Sampling: "サンプリング",
   Pixels: "ピクセル",
   "Xprite Editor": "Xprite エディター",
   "Xprite Aseprite Viewer": "Xprite Aseprite ビューアー",
@@ -38,7 +39,7 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
     "ファイルは端末内に留まり、クラウドにはアップロードされません。",
   "Inspect an Aseprite file": "Aseprite ファイルを確認",
   "Aseprite Viewer: Open .aseprite & .ase Files Online | Xprite":
-    "Aseprite ビューアー：.ase・.aseprite をオンラインで開く | Xprite",
+    "Aseprite ビューアー：.aseprite をオンラインで開く | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Aseprite プロジェクトをプレビューし、PNG のフレームや GIF アニメーションをエクスポート。",
   "Free Aseprite viewer: open .aseprite and .ase files online without Aseprite. Preview layers and animation, export PNG or GIF. Files never leave your device.":
@@ -53,7 +54,7 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Convert GIF animations into PNG sprite sheets with JSON frame data.":
     "GIF アニメーションを PNG スプライトシートと JSON フレームデータに変換。",
   "Convert a GIF to a PNG sprite sheet free in your browser. Set rows, columns and spacing; get JSON frame data for game engines. Files stay on your device.":
-    "GIF アニメーションをブラウザで無料で PNG スプライトシートに変換。行数・列数・間隔を選び、JSON フレームデータもダウンロードできます。ファイルは端末内で処理されます。",
+    "GIF アニメーションをブラウザで無料で PNG スプライトシートに変換。行数・列数・間隔を選び、JSON フレームデータも保存できます。ファイルは端末内で処理されます。",
   "Choose a GIF file": "GIF ファイルを選択",
   "Open GIF": "GIF を開く",
   "Open GIF…": "GIF を開く…",
@@ -322,7 +323,7 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Create bead charts with MARD, Artkal, Perler or Hama colors and a material list.":
     "MARD、Artkal、Perler、Hama の色でビーズ図案と材料リストを作成します。",
   "Open artwork, choose MARD, Artkal, Perler or Hama colors, preview bead boards and download PNG charts or paginated PDFs. Files stay on your device.":
-    "作品を開き、MARD、Artkal、Perler、Hama の色を選んでボードをプレビューし、PNG 図案またはページ分けした PDF をダウンロードできます。ファイルは端末内で処理されます。",
+    "作品を開き、MARD、Artkal、Perler、Hama の色を選んでボードをプレビューし、PNG 図案やページ分けした PDF を書き出せます。ファイルは端末内で処理されます。",
   "Choose an image or Aseprite file for a bead pattern":
     "ビーズ図案にする画像または Aseprite ファイルを選択",
   "Open artwork": "作品を開く",
