@@ -142,6 +142,7 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   "Hello GIF animation preview": "Предпросмотр GIF-анимации Hello",
   "ACNH Winding Cobblestone Path by Amy, with transparent edges":
     "ACNH «Извилистая мощёная дорожка» от Amy, с прозрачными краями",
+  "Girl with a Pearl Earring by Johannes Vermeer": "«Девушка с жемчужной серёжкой» Яна Вермеера",
   "ACNH Winding Cobblestone Path by": "ACNH «Извилистая мощёная дорожка», автор:",
   "Edit in Xprite": "Редактировать в Xprite",
   "Export animation (.gif)": "Экспорт анимации (.gif)",

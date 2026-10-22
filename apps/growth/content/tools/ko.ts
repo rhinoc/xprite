@@ -140,6 +140,8 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "Hello GIF animation preview": "Hello GIF 애니메이션 미리 보기",
   "ACNH Winding Cobblestone Path by Amy, with transparent edges":
     "Amy가 만든 동물의 숲 구불구불한 돌길(가장자리 투명)",
+  "Girl with a Pearl Earring by Johannes Vermeer":
+    "요하네스 페르메이르의 「진주 귀걸이를 한 소녀」",
   "ACNH Winding Cobblestone Path by": "동물의 숲 구불구불한 돌길 제작:",
   "Edit in Xprite": "Xprite에서 편집",
   "Export animation (.gif)": "애니메이션 내보내기(.gif)",

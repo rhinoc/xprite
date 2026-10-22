@@ -204,6 +204,7 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Hello GIF animation preview": "Hello GIF 动画预览",
   "ACNH Winding Cobblestone Path by Amy, with transparent edges":
     "Amy 制作的动物森友会曲折鹅卵石道路，边缘透明",
+  "Girl with a Pearl Earring by Johannes Vermeer": "约翰内斯·维米尔《戴珍珠耳环的少女》",
   "ACNH Winding Cobblestone Path by": "动物森友会曲折鹅卵石道路，作者：",
   "Edit in Xprite": "在 Xprite 中编辑",
   "Export animation (.gif)": "导出动画（.gif）",
