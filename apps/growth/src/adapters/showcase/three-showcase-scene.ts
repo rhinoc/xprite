@@ -5,6 +5,7 @@ import { HDRLoader } from "three/addons/loaders/HDRLoader.js";
 
 import { afterBrowserPaint } from "$/adapters/showcase/browser-scheduling";
 import { ClassicGameFilter } from "$/adapters/showcase/classic-game-filter";
+import { compressedAssetVersion, fetchCompressedAsset } from "$/adapters/showcase/compressed-asset";
 import { createDeviceDisplays } from "$/adapters/showcase/device-models";
 import {
   DisplayRenderPass,
@@ -108,6 +109,7 @@ const ASSET_ROOT = "/showcase/ipad/";
 const MODEL_REVISION = modelManifest.revision;
 const IPAD_MODEL_FILE = "ipad.glb";
 const PHONE_MODEL_FILE = "iphone.glb";
+const ENVIRONMENT_FILE = "studio_small_08_1k.hdr";
 const SCREEN_WIDTH = 9.38;
 const SCREEN_HEIGHT = (SCREEN_WIDTH * 834) / 1194;
 const TABLET_WIDTH = 10;
@@ -323,8 +325,12 @@ export async function mountScene(
   signal.addEventListener("abort", dispose, { once: true });
 
   try {
-    const loadModel = async (file: string, parent: THREE.Object3D = product) => {
-      const { scene: model } = await loader.loadAsync(`${ASSET_ROOT}${file}?v=${MODEL_REVISION}`);
+    const loadModel = async (
+      file: Parameters<typeof fetchCompressedAsset>[1],
+      parent: THREE.Object3D = product,
+    ) => {
+      const bytes = await fetchCompressedAsset(ASSET_ROOT, file, MODEL_REVISION, signal);
+      const { scene: model } = await loader.parseAsync(bytes, ASSET_ROOT);
       if (disposed) {
         disposeObject(model);
         throw new Error("Scene disposed");
@@ -338,6 +344,21 @@ export async function mountScene(
       parent.add(model);
       return model;
     };
+    const loadEnvironment = async () => {
+      const bytes = await fetchCompressedAsset(
+        ASSET_ROOT,
+        ENVIRONMENT_FILE,
+        compressedAssetVersion(ENVIRONMENT_FILE),
+        signal,
+      );
+      // Load the inflated bytes through the loader's own URL path so the texture is set up as before.
+      const url = URL.createObjectURL(new Blob([bytes]));
+      try {
+        return await new HDRLoader().loadAsync(url);
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    };
     devices = createDeviceDisplays(language, project, renderer.capabilities.getMaxAnisotropy());
     const [ipad, pencil, hand, computer, phone] = await Promise.all([
       loadModel(IPAD_MODEL_FILE),
@@ -347,7 +368,7 @@ export async function mountScene(
       loadModel(PHONE_MODEL_FILE, scene),
       devices.ready,
       screen.ready,
-      new HDRLoader().loadAsync(`${ASSET_ROOT}studio_small_08_1k.hdr`).then((hdr) => {
+      loadEnvironment().then((hdr) => {
         if (!disposed) {
           environment = pmrem.fromEquirectangular(hdr);
           scene.environment = environment.texture;
