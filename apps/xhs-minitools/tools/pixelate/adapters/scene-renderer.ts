@@ -10,12 +10,7 @@ import {
 import { placementRect, type Rect } from "$/shared/frames/geometry";
 import type { MiniToolRenderer, MiniToolScene } from "$/tools/pixelate/managers/ports";
 import { ExportContent, labelSize, lineWidth } from "$/tools/pixelate/managers/scene";
-import {
-  Corner,
-  labelCorners,
-  SplitLine,
-  splitShape,
-} from "$/tools/pixelate/managers/split-geometry";
+import { Corner, labelCorners, splitShape } from "$/tools/pixelate/managers/split-geometry";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 
 /** Previews draw the photo from a copy at most this size; exports use the photo itself. */
@@ -104,7 +99,7 @@ function drawPicture(
   context.clip();
   drawPixels();
   context.restore();
-  if (split.line !== SplitLine.None) {
+  if (split.divider) {
     const width = lineWidth(split.line, visible);
     context.lineJoin = "miter";
     context.lineCap = "butt";

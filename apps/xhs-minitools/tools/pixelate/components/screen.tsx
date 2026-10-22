@@ -18,7 +18,6 @@ import type { MiniToolEditor } from "$/tools/pixelate/managers/editor";
 import type { MiniToolScene } from "$/tools/pixelate/managers/ports";
 import { ExportContent } from "$/tools/pixelate/managers/scene";
 import { miniToolError, type MiniToolTextKey } from "$/tools/pixelate/managers/text";
-import iconUrl from "@xprite/site-assets/favicon-32.png?url";
 
 import ui from "$/shared/ui/ui.module.css";
 import styles from "$/tools/pixelate/components/pixelate.module.css";
@@ -62,11 +61,12 @@ export function MiniToolScreen({ editor }: { editor: MiniToolEditor }) {
             content: ExportContent.Split,
             original: pixels.source,
             pixels: state.shown,
-            title: pixels.name,
+            name: pixels.name,
+            title: state.title,
             labels: { original: t("label.original"), pixels: t("label.pixels") },
           }
         : null,
-    [composition, pixels.source, pixels.name, state.shown, state.split, t],
+    [composition, pixels.source, pixels.name, state.shown, state.split, state.title, t],
   );
   useEffect(() => {
     if (pixels.error) setToast(t(miniToolError(pixels.error)));
@@ -82,7 +82,7 @@ export function MiniToolScreen({ editor }: { editor: MiniToolEditor }) {
         setToast(t(miniToolError(reason instanceof Error ? reason.message : String(reason)))),
     );
   };
-  const status = pixels.loading
+  const status = state.opening
     ? t("canvas.opening")
     : pixels.converting
       ? t("canvas.converting")
@@ -153,15 +153,12 @@ export function MiniToolScreen({ editor }: { editor: MiniToolEditor }) {
               />
             ) : (
               <div className={cx(styles.stage, styles.empty)}>
-                {pixels.loading ? (
+                {state.opening ? (
                   <span className={styles.emptyHint} role="status">
                     {t("canvas.opening")}
                   </span>
                 ) : (
                   <>
-                    <span className={styles.emptyIcon}>
-                      <img src={iconUrl} alt="" />
-                    </span>
                     <span className={styles.emptyTitle}>{t("empty.title")}</span>
                     <span className={styles.emptyHint}>{t("empty.hint")}</span>
                     <span className={styles.emptyActions}>

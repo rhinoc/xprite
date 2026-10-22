@@ -15,12 +15,17 @@ import pixelUrl from "@xprite/ui/fonts/fusion-pixel/fusion-12.woff2?url";
 import chicagoUrl from "@xprite/ui/fonts/macintosh/chikarego2.woff2?url";
 import desktopUrl from "@xprite/ui/patterns/macintosh/macos8-bumpy-blue.png?url";
 
-/** What a frame shows besides the picture: a window title and a status text such as the size. */
+/** What a frame shows besides the picture: a title and a status text such as the size. */
 export interface FramedPicture {
   composition: Composition;
-  /** The window title; frames fall back to "Xprite". */
+  /** The window title or caption (see `frameShowsTitle`); empty shows "Xprite". */
   title: string;
   status: string;
+}
+
+/** The text a titled frame shows. */
+function frameTitle(scene: Pick<FramedPicture, "title">): string {
+  return scene.title.trim() || "Xprite";
 }
 
 /** Font families the page stylesheet and the drawings share. */
@@ -343,7 +348,7 @@ function drawMacWindow(
   rect(context, zoomLeft + 2 * u, boxTop + 2 * u, small, small, MAC.ink);
   rect(context, zoomLeft + 3 * u, boxTop + 3 * u, small - 2 * u, small - 2 * u, MAC.box);
   titleWithStripes(context, {
-    title: scene.title || "Xprite",
+    title: frameTitle(scene),
     left: closeRight + 4 * u,
     right: zoomLeft - 4 * u,
     middle: (w.x + right) / 2,
@@ -432,7 +437,7 @@ function drawSystem7(context: CanvasRenderingContext2D, scene: FramedPicture, fr
     stripe(zoomLeft + box + u, right - 2 * u, boxTop + row * u);
   }
   titleWithStripes(context, {
-    title: scene.title || "Xprite",
+    title: frameTitle(scene),
     left: closeLeft + box + u,
     right: zoomLeft - u,
     middle: (w.x + right) / 2,
@@ -508,7 +513,7 @@ function drawWindows95(
   const maximizeLeft = closeLeft - 2 * u - button.width;
   const minimizeLeft = maximizeLeft - button.width;
   context.font = pixelFont(PIXEL_GRID * u);
-  const title = fitText(context, scene.title || "Xprite", minimizeLeft - bar.x - 26 * u);
+  const title = fitText(context, frameTitle(scene), minimizeLeft - bar.x - 26 * u);
   pixelText(context, title, bar.x + 21 * u, bar.y + bar.height / 2, u, WIN.white);
   for (const left of [minimizeLeft, maximizeLeft, closeLeft]) {
     const box = { x: left, y: bar.y + 2 * u, ...button };
@@ -755,11 +760,12 @@ function drawPolaroid(context: CanvasRenderingContext2D, scene: FramedPicture, f
   rect(context, b.x, b.y, b.width, b.height, "#F6F3EC");
   rect(context, b.x, b.y + b.height - u, b.width, u, "#E1DBCF");
   rect(context, area.x - u, area.y - u, area.width + 2 * u, area.height + 2 * u, "#DCD6CA");
-  // A caption in the wide bottom strip.
+  // The title as a caption in the wide bottom strip.
   const scale = Math.max(1, Math.round(u * 0.6));
+  context.font = pixelFont(PIXEL_GRID * scale);
   pixelText(
     context,
-    "Xprite",
+    fitText(context, frameTitle(scene), area.width - 4 * u),
     b.x + b.width / 2,
     area.y + area.height + Math.round((b.y + b.height - area.y - area.height) / 2 / u) * u,
     scale,

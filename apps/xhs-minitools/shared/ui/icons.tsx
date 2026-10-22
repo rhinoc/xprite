@@ -48,16 +48,22 @@ const PATHS = {
     </>
   ),
   down: <path d="M7 10l5 5 5-5" />,
+  /*
+   * Rotate arrows in {@link PATHS.reset}'s style, on a smaller circle: the arc stops at 45° on its
+   * upper side, and an open chevron sits a short gap further along that end's tangent, its apex on
+   * the tangent and its arms (straight up and across) at ±45° to it, so the head is centred on the
+   * line without the arc running into it.
+   */
   rotateLeft: (
     <>
-      <path d="M5 12a7 7 0 1 0 2.1-5" />
-      <path d="M5 4.5V8h3.5" />
+      <path d="M5 12A7 7 0 1 0 7.09 7.01" />
+      <path d="M4.59 5.75V9.51h3.76" />
     </>
   ),
   rotateRight: (
     <>
-      <path d="M19 12a7 7 0 1 1-2.1-5" />
-      <path d="M19 4.5V8h-3.5" />
+      <path d="M19 12A7 7 0 1 1 16.91 7.01" />
+      <path d="M19.41 5.75V9.51h-3.76" />
     </>
   ),
   swap: (
@@ -106,10 +112,11 @@ const PATHS = {
       <path d="M8.5 8.5L5 12l3.5 3.5M15.5 8.5L19 12l-3.5 3.5" />
     </>
   ),
+  /** The divider's rotate knob: {@link PATHS.rotateRight}, the way the knob turns the line. */
   rotate: (
     <>
-      <path d="M18.5 12a6.5 6.5 0 1 1-2.6-5.2" />
-      <path d="M16.5 3.5l-.6 3.4 3.4.6" />
+      <path d="M19 12A7 7 0 1 1 16.91 7.01" />
+      <path d="M19.41 5.75V9.51h-3.76" />
     </>
   ),
   minus: <path d="M6 12h12" />,

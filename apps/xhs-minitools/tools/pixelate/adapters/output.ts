@@ -11,7 +11,7 @@ function yieldToPaint(): Promise<void> {
 }
 
 function exportName(scene: MiniToolScene) {
-  const base = scene.title.replace(/\.[^.]+$/, "") || "xprite";
+  const base = scene.name.replace(/\.[^.]+$/, "") || "xprite";
   return `${base}-xprite.png`;
 }
 

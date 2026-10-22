@@ -7,6 +7,14 @@ export enum ExportContent {
   Pixels = "pixels",
 }
 
+/** The longest window title or caption the 边框 tab accepts. */
+export const TITLE_MAX = 40;
+
+/** The title a photo opens with: its file name without the extension. */
+export function defaultTitle(name: string): string {
+  return name.replace(/\.[^.]+$/, "").slice(0, TITLE_MAX);
+}
+
 /** Label text size: a whole multiple of the 12px pixel font, smaller in small screens. */
 export function labelSize(visible: Rect): number {
   return 12 * Math.max(2, Math.min(4, Math.round(visible.width / 230)));

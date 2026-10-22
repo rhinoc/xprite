@@ -10,23 +10,26 @@ export enum SplitLine {
   Thin = "thin",
   Thick = "thick",
   Steps = "steps",
-  None = "none",
 }
 
 export interface SplitState {
   angle: number;
   position: number;
+  /** The edge between the sides: straight or along block edges, and how thick it is drawn. */
   line: SplitLine;
+  /** Whether the divider line is drawn; when hidden the sides still meet along `line`'s edge. */
+  divider: boolean;
   labels: boolean;
   /** The original on the normal's side instead of the pixelated picture. */
   swapped: boolean;
 }
 
-/** A new photo opens with a straight vertical split at the centre and the pixel-stepped line. */
+/** A new photo opens with a straight vertical split at the centre and the pixel-stepped line shown. */
 export const DEFAULT_SPLIT: Readonly<SplitState> = {
   angle: 0,
   position: 0.5,
   line: SplitLine.Steps,
+  divider: true,
   labels: false,
   swapped: false,
 };

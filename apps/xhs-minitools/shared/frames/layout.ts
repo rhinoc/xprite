@@ -43,6 +43,21 @@ export const EXPORT_FRAMES = [
   ExportFrame.Polaroid,
 ] as const;
 
+/**
+ * Frames that show the picture's title: the Mac OS 8, System 7 and Windows 95 title bars and the
+ * instant photo's caption. Status bars and device badges carry the Xprite name instead.
+ */
+const TITLED_FRAMES: ReadonlySet<ExportFrame> = new Set([
+  ExportFrame.MacOS8,
+  ExportFrame.System7,
+  ExportFrame.Windows95,
+  ExportFrame.Polaroid,
+]);
+
+export function frameShowsTitle(frame: ExportFrame): boolean {
+  return TITLED_FRAMES.has(frame);
+}
+
 const RATIO_HEIGHTS: Readonly<Record<ExportRatio, number>> = {
   [ExportRatio.Portrait]: 1440,
   [ExportRatio.Square]: 1080,

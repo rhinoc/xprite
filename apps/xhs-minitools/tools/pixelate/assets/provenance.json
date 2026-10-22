@@ -1,0 +1,13 @@
+{
+  "file": "girl-with-a-pearl-earring-720.jpg",
+  "title": "Girl with a Pearl Earring",
+  "author": "Johannes Vermeer",
+  "date": "c. 1665",
+  "collection": "Mauritshuis, The Hague",
+  "source": "https://commons.wikimedia.org/wiki/File:1665_Girl_with_a_Pearl_Earring.jpg",
+  "license": "Public domain (PD-Art)",
+  "modified": true,
+  "derivedFrom": "apps/growth/public/tools/pixelate/girl-with-a-pearl-earring.jpg",
+  "changes": "The site example (850×1007) resized with Lanczos to 608×720 and saved as an optimized baseline JPEG (quality 80, 4:2:0) without metadata, for the Xiaohongshu mini tool only.",
+  "derivedFromSha256": "4d991453541bc7755b5a77eb067390b589d16cb3f7ed41fc678926b92a2a931b"
+}

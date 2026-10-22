@@ -5,6 +5,7 @@ import {
   frameThumbnail,
   samplePixels,
   EXPORT_FRAMES,
+  frameShowsTitle,
   type ExportFrame,
   type ExportRatio,
 } from "$/shared/frames/layout";
@@ -24,7 +25,7 @@ import {
   type GridSize,
 } from "$/tools/pixelate/managers/pixel-presets";
 import type { MiniToolScene } from "$/tools/pixelate/managers/ports";
-import { ExportContent } from "$/tools/pixelate/managers/scene";
+import { ExportContent, TITLE_MAX } from "$/tools/pixelate/managers/scene";
 import { rotateSplit, splitHandle, SplitLine } from "$/tools/pixelate/managers/split-geometry";
 import type { MiniToolTextKey } from "$/tools/pixelate/managers/text";
 import type { PixelBuffer } from "@xprite/editor-core/base";
@@ -448,16 +449,23 @@ export function ComparePanel({
         </Button>
       </div>
       <div className={styles.row}>
+        <span className={styles.label}>{t("compare.divider")}</span>
+        <span className={styles.spacer} />
+        <Toggle
+          label={t("compare.divider")}
+          checked={split.divider}
+          onChange={(divider) => editor.changeSplit({ divider })}
+        />
+      </div>
+      <div className={styles.row}>
         <span className={styles.label}>{t("compare.line")}</span>
         <ChipGroup
           label={t("compare.line")}
           value={split.line}
-          options={[SplitLine.Thin, SplitLine.Thick, SplitLine.Steps, SplitLine.None].map(
-            (value) => ({
-              value,
-              label: t(key(`line.${value}`)),
-            }),
-          )}
+          options={[SplitLine.Thin, SplitLine.Thick, SplitLine.Steps].map((value) => ({
+            value,
+            label: t(key(`line.${value}`)),
+          }))}
           onChange={(line) => editor.changeSplit({ line })}
         />
       </div>
@@ -560,6 +568,43 @@ export function FramePanel({
           );
         })}
       </div>
+      {scene && frameShowsTitle(state.layout.frame) && (
+        <TitleField editor={editor} title={state.title} />
+      )}
     </>
+  );
+}
+
+/** The window title or caption, live while typing and one undo step per edit. */
+function TitleField({ editor, title }: { editor: MiniToolEditor; title: string }) {
+  const t = useText();
+  const fallback = editor.defaultTitle();
+  return (
+    <div className={styles.row}>
+      <span className={styles.label}>{t("layout.title")}</span>
+      <input
+        className={styles.titleInput}
+        type="text"
+        value={title}
+        placeholder="Xprite"
+        maxLength={TITLE_MAX}
+        enterKeyHint="done"
+        autoComplete="off"
+        spellCheck={false}
+        aria-label={t("layout.title")}
+        data-frame-title=""
+        onFocus={editor.beginGesture}
+        onChange={(event) => editor.previewTitle(event.target.value)}
+        onBlur={editor.endGesture}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") event.currentTarget.blur();
+        }}
+      />
+      {title !== fallback && (
+        <Button className={ui.small} onClick={() => editor.changeTitle(fallback)}>
+          {t("layout.title-reset")}
+        </Button>
+      )}
+    </div>
   );
 }

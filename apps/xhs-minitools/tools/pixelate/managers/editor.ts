@@ -16,7 +16,7 @@ import {
   type GridSize,
 } from "$/tools/pixelate/managers/pixel-presets";
 import type { MiniToolPort } from "$/tools/pixelate/managers/ports";
-import { ExportContent } from "$/tools/pixelate/managers/scene";
+import { defaultTitle, ExportContent, TITLE_MAX } from "$/tools/pixelate/managers/scene";
 import { DEFAULT_SPLIT, type SplitState } from "$/tools/pixelate/managers/split-geometry";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import {
@@ -33,6 +33,7 @@ type PixelState = Pick<PixelationSnapshot, "algorithm" | "grid" | "settings">;
 interface HistoryEntry {
   split: SplitState;
   layout: LayoutState;
+  title: string;
   preset: PixelPreset | null;
   pixels: PixelState | null;
 }
@@ -40,11 +41,18 @@ interface HistoryEntry {
 export interface MiniToolSnapshot {
   split: SplitState;
   layout: LayoutState;
+  /** The window title or caption titled frames show; the file name without extension at first. */
+  title: string;
   content: ExportContent;
   /** The preset the settings came from; null after a manual change. */
   preset: PixelPreset | null;
   /** The last finished result for this photo, kept on screen while a new one converts. */
   shown: PixelBuffer | null;
+  /**
+   * A photo or the example is opening: from the read through its first result, so the empty state
+   * never shows between the file being read and the first conversion finishing. Clears on failure.
+   */
+  opening: boolean;
   /** The engine's own block count for this photo (shown as 自动识别). */
   automatic: GridSize | null;
   thumbnails: Partial<Record<PixelPreset, PixelBuffer>>;
@@ -64,9 +72,11 @@ export class MiniToolEditor {
   private state: MiniToolSnapshot = {
     split: DEFAULT_SPLIT,
     layout: DEFAULT_LAYOUT,
+    title: "",
     content: ExportContent.Split,
     preset: PixelPreset.Default,
     shown: null,
+    opening: false,
     automatic: null,
     thumbnails: {},
     canUndo: false,
@@ -105,6 +115,13 @@ export class MiniToolEditor {
 
   private sync = () => {
     const pixels = this.pixelation.getSnapshot();
+    this.syncPhoto(pixels);
+    // Reading the file, then (source set, no result yet) its first conversion: one opening state.
+    const opening = pixels.loading || (!!pixels.source && !this.state.shown && !pixels.error);
+    if (opening !== this.state.opening) this.publish({ opening });
+  };
+
+  private syncPhoto(pixels: PixelationSnapshot) {
     if (!pixels.source) {
       if (this.identity !== -1 || this.state.shown) {
         this.identity = -1;
@@ -127,6 +144,7 @@ export class MiniToolEditor {
           position: DEFAULT_SPLIT.position,
           swapped: false,
         },
+        title: defaultTitle(pixels.name),
         preset: PixelPreset.Default,
         shown: pixels.result,
         automatic: outputGrid(pixels.settings, pixels.grid),
@@ -141,7 +159,7 @@ export class MiniToolEditor {
         void this.renderThumbnails();
       }
     }
-  };
+  }
 
   /** The layout the preview and export use for the current result. */
   composition(layout = this.state.layout): Composition | null {
@@ -154,6 +172,7 @@ export class MiniToolEditor {
     return {
       split: this.state.split,
       layout: this.state.layout,
+      title: this.state.title,
       preset: this.state.preset,
       pixels: pixels.source
         ? { algorithm: pixels.algorithm, grid: pixels.grid, settings: pixels.settings }
@@ -238,7 +257,10 @@ export class MiniToolEditor {
     this.publish({ split: { ...this.state.split, ...patch }, canUndo: true });
   };
 
-  /** Start a drag (handle, knob or slider): live updates, one undo step when it ends. */
+  /**
+   * Start a drag (handle, knob or slider) or a title edit: live updates, one undo step when it
+   * ends.
+   */
   beginGesture = () => {
     this.gesture ??= this.entry();
   };
@@ -249,10 +271,10 @@ export class MiniToolEditor {
     const before = this.gesture;
     this.gesture = null;
     if (!before) return;
-    const { split } = this.state;
-    const changed = (Object.keys(split) as (keyof SplitState)[]).some(
-      (key) => split[key] !== before.split[key],
-    );
+    const { split, title } = this.state;
+    const changed =
+      title !== before.title ||
+      (Object.keys(split) as (keyof SplitState)[]).some((key) => split[key] !== before.split[key]);
     if (!changed) return;
     this.record(before);
     this.publish({ canUndo: true });
@@ -267,6 +289,22 @@ export class MiniToolEditor {
     this.record();
     this.publish({ layout, canUndo: true });
   };
+
+  /** The title while it is typed; wrap edits in {@link beginGesture} and {@link endGesture}. */
+  previewTitle = (title: string) => {
+    this.publish({ title: title.slice(0, TITLE_MAX) });
+  };
+
+  /** A committed title change, such as going back to the file name. */
+  changeTitle = (title: string) => {
+    const next = title.slice(0, TITLE_MAX);
+    if (next === this.state.title) return;
+    this.record();
+    this.publish({ title: next, canUndo: true });
+  };
+
+  /** The title a photo opens with. */
+  defaultTitle = () => defaultTitle(this.pixelation.getSnapshot().name);
 
   setContent = (content: ExportContent) => this.publish({ content });
 
@@ -288,6 +326,7 @@ export class MiniToolEditor {
     this.publish({
       split: entry.split,
       layout: entry.layout,
+      title: entry.title,
       preset: entry.preset,
       canUndo: this.history.length > 0,
     });
@@ -297,7 +336,12 @@ export class MiniToolEditor {
   reset = () => {
     if (!this.ready()) return;
     this.record();
-    this.publish({ split: DEFAULT_SPLIT, layout: DEFAULT_LAYOUT, canUndo: true });
+    this.publish({
+      split: DEFAULT_SPLIT,
+      layout: DEFAULT_LAYOUT,
+      title: this.defaultTitle(),
+      canUndo: true,
+    });
     this.usePreset(PixelPreset.Default);
   };
 
@@ -319,7 +363,8 @@ export class MiniToolEditor {
           content: this.state.content,
           original: pixels.source,
           pixels: pixels.result,
-          title: pixels.name,
+          name: pixels.name,
+          title: this.state.title,
           labels,
         },
         target,

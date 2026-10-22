@@ -1,11 +1,11 @@
 import { miniToolPreferences, postImageNote, saveImageToAlbum } from "$/shared/bridge/xhs-bridge";
+import exampleUrl from "$/tools/pixelate/assets/girl-with-a-pearl-earring-720.jpg?url";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import {
   detectWithAlgorithm,
   pixelateImage,
   type PixelateOptions,
 } from "@xprite/editor-core/import-export";
-import exampleUrl from "@xprite/site-assets/tools/pixelate/girl-with-a-pearl-earring.jpg?url";
 import {
   readPixelationPalettes,
   readToolWheel,
@@ -41,25 +41,29 @@ function loadImage(source: string): Promise<HTMLImageElement> {
   });
 }
 
-/** Decode with the browser and reduce to {@link MINITOOL_MAX_SOURCE_PIXELS}, smoothing as it scales. */
+/** A decoded image's pixels, reduced to {@link MINITOOL_MAX_SOURCE_PIXELS} and smoothed as it scales. */
+function pixelsOf(image: HTMLImageElement): PixelBuffer {
+  const width = image.naturalWidth;
+  const height = image.naturalHeight;
+  if (!width || !height) throw new Error("Unable to read this image.");
+  const scale = Math.min(1, Math.sqrt(MINITOOL_MAX_SOURCE_PIXELS / (width * height)));
+  const target = {
+    width: Math.max(1, Math.floor(width * scale)),
+    height: Math.max(1, Math.floor(height * scale)),
+  };
+  const { context } = canvas(target.width, target.height);
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = "high";
+  context.drawImage(image, 0, 0, target.width, target.height);
+  const data = context.getImageData(0, 0, target.width, target.height).data;
+  return { ...target, data: new Uint8ClampedArray(data) };
+}
+
+/** Decode a chosen file with the browser; see {@link pixelsOf}. */
 async function decode(file: Blob): Promise<PixelBuffer> {
   const url = URL.createObjectURL(file);
   try {
-    const image = await loadImage(url);
-    const width = image.naturalWidth;
-    const height = image.naturalHeight;
-    if (!width || !height) throw new Error("Unable to read this image.");
-    const scale = Math.min(1, Math.sqrt(MINITOOL_MAX_SOURCE_PIXELS / (width * height)));
-    const target = {
-      width: Math.max(1, Math.floor(width * scale)),
-      height: Math.max(1, Math.floor(height * scale)),
-    };
-    const { context } = canvas(target.width, target.height);
-    context.imageSmoothingEnabled = true;
-    context.imageSmoothingQuality = "high";
-    context.drawImage(image, 0, 0, target.width, target.height);
-    const data = context.getImageData(0, 0, target.width, target.height).data;
-    return { ...target, data: new Uint8ClampedArray(data) };
+    return pixelsOf(await loadImage(url));
   } finally {
     URL.revokeObjectURL(url);
   }
@@ -93,6 +97,12 @@ class SupersededError extends Error {}
 
 export function createMiniToolPixelationPort(): PixelationPort {
   let latestConversion = 0;
+  /**
+   * The example as the image element that already decoded it. The container has no fetch, so the
+   * bundled JPEG is read through an image; its pixels come straight from that decode instead of a
+   * canvas re-encode to a new file and a second decode of it.
+   */
+  const examples = new WeakMap<File, HTMLImageElement>();
   async function convert(image: PixelBuffer, options: PixelateOptions) {
     const request = ++latestConversion;
     await yieldToPaint();
@@ -108,15 +118,20 @@ export function createMiniToolPixelationPort(): PixelationPort {
         throw new Error("Choose a file no larger than 64 MiB.");
       if (file.type && !file.type.startsWith("image/"))
         throw new Error("Choose a PNG, JPEG or WebP image.");
-      return decode(file);
+      const example = examples.get(file);
+      return example ? pixelsOf(example) : decode(file);
     },
     async example() {
-      const image = await loadImage(exampleUrl);
-      const { element, context } = canvas(image.naturalWidth, image.naturalHeight);
-      context.drawImage(image, 0, 0);
-      const blob = await new Promise<Blob | null>((resolve) => element.toBlob(resolve));
-      if (!blob) throw new Error("The example is unavailable.");
-      return new File([blob], EXAMPLE_NAME, { type: "image/png" });
+      let image: HTMLImageElement;
+      try {
+        image = await loadImage(exampleUrl);
+      } catch {
+        throw new Error("The example is unavailable.");
+      }
+      // A stand-in that names the example; read() takes its pixels from the decoded image.
+      const file = new File([], EXAMPLE_NAME, { type: "image/jpeg" });
+      examples.set(file, image);
+      return file;
     },
     async detectGrid(image, algorithm, size) {
       await yieldToPaint();

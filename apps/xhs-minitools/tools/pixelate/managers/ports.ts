@@ -12,7 +12,9 @@ export interface MiniToolScene {
   content: ExportContent;
   original: PixelBuffer;
   pixels: PixelBuffer;
-  /** The photo's file name, shown in the Mac OS 8 title bar. */
+  /** The photo's file name, for the exported PNG's name. */
+  name: string;
+  /** The window title or caption frames show; the file name without extension by default. */
   title: string;
   labels: { original: string; pixels: string };
 }
