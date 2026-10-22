@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 import { describe, it } from "vitest";
 
 import { PublicLanguage } from "../../growth/content/site/language.ts";
+import { TOOLS } from "../../growth/content/tools/index.ts";
 import { localizedToolPage } from "./localized-pages.ts";
 
 const META = [
@@ -53,5 +56,26 @@ describe("localized tool pages", () => {
         ),
       /application-name/,
     );
+  });
+});
+
+describe("English tool page sources", () => {
+  it("describe each tool the same way in search results and link previews", () => {
+    for (const tool of TOOLS) {
+      const html = readFileSync(
+        fileURLToPath(
+          new URL(`../${tool.path.slice("/tools/".length)}index.html`, import.meta.url),
+        ),
+        "utf8",
+      );
+      const content = (selector: string) =>
+        new RegExp(`<meta\\s+${selector}\\s+content="([^"]*)"`).exec(html)?.[1];
+      for (const selector of [
+        'name="description"',
+        'property="og:description"',
+        'name="twitter:description"',
+      ])
+        assert.equal(content(selector), tool.description, `${tool.path} ${selector}`);
+    }
   });
 });
