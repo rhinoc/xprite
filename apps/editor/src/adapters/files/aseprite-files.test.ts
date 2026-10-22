@@ -83,6 +83,34 @@ describe("ASE project file save preserves group metadata", () => {
     assert.deepEqual(project, before);
   });
 
+  it("cancels quietly when the overwrite permission dialog is dismissed", async () => {
+    const write = vi.fn();
+    const picker = vi.fn();
+    await assert.rejects(
+      saveAseprite(groupedProject(), "Groups.aseprite", SessionSaveIntent.Save, {
+        fileHandle: {
+          name: "Groups.aseprite",
+          createWritable: write,
+          // Chrome resolves `prompt` when the user closes the dialog without choosing.
+          requestPermission: async () => "prompt",
+        },
+        fileHandlePermissionActivation: true,
+        saveFilePicker: picker,
+      }),
+      (reason: unknown) => {
+        const error = reason as Error & {
+          diagnosticDetails?: { fileWrite?: Record<string, unknown> };
+        };
+        // The session treats AbortError like a cancelled picker: no error dialog, no exception.
+        assert.equal(error.name, "AbortError");
+        assert.equal(error.diagnosticDetails?.fileWrite?.permission, "prompt");
+        return true;
+      },
+    );
+    assert.equal(write.mock.calls.length, 0);
+    assert.equal(picker.mock.calls.length, 0);
+  });
+
   it("exposes the same once-read input for identity hashing", async () => {
     const encoded = encodeAsepriteSync(
       asepriteFromProject(groupedProject(), { preserveGroupMetadata: true }),

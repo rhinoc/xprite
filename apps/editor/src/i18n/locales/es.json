@@ -47,6 +47,7 @@
   "ui.pwa.update.available": "Hay una versión nueva disponible. Recarga cuando quieras.",
   "ui.pwa.update.reload": "Recargar",
   "ui.pwa.update.dismiss": "Más tarde",
+  "ui.pwa.worker.load.failed": "Esta página no pudo cargar una parte de Xprite, normalmente porque Xprite se actualizó mientras estaba abierta. Recarga la página para continuar.",
   "ui.home.introduction.description": "Crea sprites, edita capas y cuadros de animación, y abre o guarda proyectos .ase/.aseprite. Usa el mouse, el tacto o un lápiz óptico y organiza tu propio espacio de trabajo. Gratis y de código abierto, con tus obras guardadas en tu dispositivo.",
   "ui.home.license": "Licencia",
   "ui.home.credits": "Créditos",

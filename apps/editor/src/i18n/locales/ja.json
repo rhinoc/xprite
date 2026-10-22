@@ -47,6 +47,7 @@
   "ui.pwa.update.available": "新しいバージョンがあります。準備ができたら再読み込みしてください。",
   "ui.pwa.update.reload": "再読み込み",
   "ui.pwa.update.dismiss": "あとで",
+  "ui.pwa.worker.load.failed": "このページで Xprite の一部を読み込めませんでした。通常は、ページを開いている間に Xprite が更新されたことが原因です。ページを再読み込みしてから続けてください。",
   "ui.home.introduction.description": "スプライトを描き、レイヤーやアニメーションのフレームを編集して、.ase/.asepriteプロジェクトを開いたり保存したりできます。マウス・タッチ・ペンに対応し、ワークスペースも自由に配置できます。無料のオープンソースで、作品は自分の端末に保存されます。",
   "ui.home.license": "ライセンス",
   "ui.home.credits": "クレジット",

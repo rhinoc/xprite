@@ -4,6 +4,7 @@ import type {
   ImportWorkerResponse,
 } from "$/adapters/workers/import-worker";
 import { ImportWorkerOperation } from "$/adapters/workers/import-worker-types";
+import { workerLoadFailed } from "$/adapters/workers/worker-load-failure";
 import {
   WorkerRequestChannel,
   type WorkerRequestTransport,
@@ -58,7 +59,9 @@ export class ImageImportWorkerClient {
     }
     this.channel = new WorkerRequestChannel(worker, {
       closedError: () => new Error("Image import worker client is closed"),
-      transportError: (event) => {
+      transportError: (event, failure) => {
+        if (failure.startup)
+          return workerLoadFailed("The image import worker script could not be loaded");
         if (event.type === "messageerror")
           return new Error("Image import worker could not deserialize a request");
         const error = event as ErrorEvent;

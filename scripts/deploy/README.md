@@ -18,6 +18,9 @@ Its output uses relative URLs and hash routes and does not use EdgeOne commands.
   pinned EdgeOne CLI (`edgeone@1.6.41` in the lockfile).
 - `scripts/deploy/editor-deployment.mjs`: configuration validation, static
   artifact preparation, upload and verification of the deployed revision.
+- `scripts/deploy/previous-assets.mjs`: downloads the content-hashed files of
+  the last 3 production releases that each deployment keeps serving (see
+  [Previous release assets](#previous-release-assets)).
 
 The release workflow controls deployment. Use an EdgeOne **direct upload**
 project. CLI uploads cannot update a project created using Git integration.
@@ -274,6 +277,71 @@ injection, so the editor names its scripts `assets/editor-*.js`; otherwise growt
 replaced the editor's during assembly, breaking both the SRI manifest and the PostHog debug IDs.
 Assembly (`infra/site-assembly.ts`) also refuses any path that two apps write with different bytes;
 identical shared files (fonts, licences, icons) are allowed.
+
+## Previous release assets
+
+Every upload replaces the whole site, so without help a tab still running the previous release
+gets HTTP 404 for the chunks, workers and wasm it lazy-loads (the stale-chunk reload prompt and
+the service worker's previous-release caches only soften that). Production deployments therefore
+keep serving the content-hashed files of the last `PREVIOUS_RELEASES_KEPT` (3) production releases
+(`infra/previous-release-assets.ts`):
+
+1. `deploy:prepare` archives the content-hashed files of the build it prepares (taken from
+   `.tmp/site`, after source map injection, so the bytes are the ones published) into
+   `.tmp/deploy/release-assets/xprite-hashed-assets-<ref>.tar.gz`, with a manifest of SHA-256
+   digests. Carried files are never re-archived.
+2. After a verified production deployment of a `v*` tag, the `archive-assets` job (the only job
+   with `contents: write`) attaches that archive to the tag's GitHub release, replacing an earlier
+   copy when the tag is redeployed. If the tag has no release yet it creates one with placeholder
+   notes; write the notes with `gh release edit <tag> --notes-file …` instead of
+   `gh release create`.
+3. The next production deployment runs `pnpm run deploy:previous-assets fetch` (read-only
+   `GITHUB_TOKEN`) before `deploy:prepare`. It downloads the archives of the 3 most recently
+   uploaded releases other than the tag being deployed (upload time is when a release last went
+   live, so a rollback keeps the releases that were actually open in tabs) into
+   `.tmp/deploy/previous-assets/` with an `index.json` order. `deploy:prepare` verifies every
+   archive (only immutable paths, digests match, no extra files or links) and copies its files
+   into `.tmp/deploy/editor/`, newest release first.
+
+GitHub release assets are used instead of fetching from the live site because they are the
+exact bytes each production build published, independent of what the CDN currently serves or
+whether a deployment failed half way, do not expire like Actions artifacts (whose 90-day
+maximum would drop the previous release after a quiet period), and are downloadable in CI
+without EdgeOne credentials. Rebuilding old tags is not an option: environment-specific entry
+chunks (PostHog configuration, injected debug IDs) do not reproduce the published names or bytes.
+
+Only immutable files are carried: files inside an `assets/` or `ssg-assets/` folder (the Vite
+`assetsDir` of the editor, growth, tools and components apps, and the SSG asset stores) named
+`<name>-<8 character hash>.<ext>` or `<sha256>.<ext>`. HTML, `sw.js`, `release.json`, manifests,
+sitemaps, JSON, source maps and every stable-name file always come from the new build only. A
+carried file never replaces a file of the new build: identical bytes are skipped, and a name
+clash with different bytes (the same chunk with different PostHog debug IDs) keeps the new
+build's copy and is reported in the log and the Actions summary.
+
+Carried files are copied after the build, so they are not in the service worker's sealed offline
+manifest: they are never precached, and `deploy:prepare` re-verifies the manifest against the
+final package and fails if a carried path is listed. The worker's fetch handler serves them from
+the network. They are added to the middleware's published path list and, like other hashed
+files, use the `/assets/*` cache rule. The checks that read `.tmp/site` (`check:asset-versions`,
+`check:site-output`, `offline:verify`) see only the new build.
+
+**First deployment.** With no archived release (the first production deployment after this was
+introduced, or a repository without archives) `fetch` finds nothing and nothing is carried; with
+one or two archives, those are carried. Releases deployed before this change have no archive. To
+backfill one, build the tag and run
+`pnpm run deploy:previous-assets archive .tmp/site <tag> <full sha>`, then upload the archive to
+the tag's release; a local rebuild matches most but not all published chunk names (entry chunks
+depend on the production PostHog variables).
+
+**Size.** Measured with v0.1.12–v0.1.14 against main: a build has about 660 content-hashed files
+(26.5 MiB; a 15 MB release archive). Each previous release adds the 77–91 files that changed
+(8.7–10.6 MiB, almost all JavaScript), so keeping 3 releases adds about 250 files and 30 MiB to
+the upload (1,209 → 1,460 files, 83.5 → 113 MiB) and 10 KB to `middleware.js` (619 → 629 KB). `deploy:prepare` fails before upload when the package exceeds EdgeOne's 20,000 files or
+25 MB per file, or `middleware.js` exceeds the 5 MB edge function limit.
+
+To try it locally, put archives (from `deploy:previous-assets archive` or a GitHub release) in
+`.tmp/deploy/previous-assets/` and run `pnpm run check:deploy --prepare`; delete that folder to
+prepare without carried files.
 
 ## Publishing
 
