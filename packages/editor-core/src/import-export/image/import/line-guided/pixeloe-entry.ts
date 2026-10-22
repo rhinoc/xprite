@@ -20,6 +20,8 @@ const ALPHA_CUTOFF = 128;
 const PAPER = 255;
 /** Recent results, so changing only colour settings does not rerun PixelOE. */
 const MEMO_SIZE = 4;
+/** Larger results (full-size pre-passes of big photos, 8 MB and up) are not kept. */
+const MAX_REMEMBERED_PIXELS = 2_097_152;
 const memo: { key: string; result: PixelBuffer }[] = [];
 const FNV_OFFSET = 0x811c9dc5;
 const FNV_PRIME = 0x01000193;
@@ -70,20 +72,34 @@ function lineGuide(
   return { lines, width: lw, height: lh, threshold: otsuThreshold(lines), mode };
 }
 
+/**
+ * A recent PixelOE result for `image` under `variant` (the step and its settings), else computed
+ * and remembered. Callers get their own copy of the pixels.
+ */
+export function rememberPixeloe(
+  image: PixelBuffer,
+  variant: string,
+  compute: () => PixelBuffer,
+): PixelBuffer {
+  const key = `${image.width}x${image.height}:${fingerprint(image.data)}:${variant}`;
+  const known = memo.find((entry) => entry.key === key);
+  if (known) return { ...known.result, data: known.result.data.slice() };
+  const result = compute();
+  if (result.width * result.height > MAX_REMEMBERED_PIXELS) return result;
+  memo.unshift({ key, result: { ...result, data: result.data.slice() } });
+  memo.length = Math.min(memo.length, MEMO_SIZE);
+  return result;
+}
+
 /** Stock PixelOE pixelize (optionally line-guided) of the whole image to `size`. */
 export function runPixeloe(
   image: PixelBuffer,
   grid: PixelationSize,
   guide?: LineGuideMode,
 ): PixelBuffer {
-  const { width, height } = image;
-  const key = `${width}x${height}:${fingerprint(image.data)}:${grid.width}x${grid.height}:${guide ?? ""}`;
-  const known = memo.find((entry) => entry.key === key);
-  if (known) return { ...known.result, data: known.result.data.slice() };
-  const result = pixeloe(image, grid, guide);
-  memo.unshift({ key, result: { ...result, data: result.data.slice() } });
-  memo.length = Math.min(memo.length, MEMO_SIZE);
-  return result;
+  return rememberPixeloe(image, `${grid.width}x${grid.height}:${guide ?? ""}`, () =>
+    pixeloe(image, grid, guide),
+  );
 }
 
 function pixeloe(image: PixelBuffer, grid: PixelationSize, guide?: LineGuideMode): PixelBuffer {

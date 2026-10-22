@@ -233,7 +233,12 @@ function labStats(lab: Float32Array) {
 
 /** color.match_color(source, target, level=5) on interleaved RGB. */
 function matchColor(source: Uint8Array, target: Uint8Array, w: number, h: number) {
-  const toFloat = (rgb: Uint8Array) => Float32Array.from(rgbToLab8(rgb), (v) => f32(v / 255));
+  const toFloat = (rgb: Uint8Array) => {
+    const lab = rgbToLab8(rgb);
+    const out = new Float32Array(lab.length);
+    for (let i = 0; i < lab.length; i++) out[i] = lab[i] / 255;
+    return out;
+  };
   const s = toFloat(source),
     t = toFloat(target);
   const ss = labStats(s),
@@ -298,7 +303,11 @@ function contrastDownscale(
 ): Uint8Array {
   const patch = Math.max(Math.floor(h / oh), Math.floor(w / ow));
   const lab = rgbToLab8(rgb);
-  const planes = [0, 1, 2].map((c) => Uint8Array.from({ length: w * h }, (_, i) => lab[i * 3 + c]));
+  const planes = [0, 1, 2].map((c) => {
+    const plane = new Uint8Array(w * h);
+    for (let i = 0; i < plane.length; i++) plane[i] = lab[i * 3 + c];
+    return plane;
+  });
   const picked = [
     chunkStat(planes[0], w, h, patch, patch, contrastPick),
     chunkStat(planes[1], w, h, patch, patch, lowerMedian),
@@ -342,8 +351,10 @@ export function legacyPixeloe(
   const work = resizeLinear8(rgb, w, h, 3, ww, wh);
   let expanded = work;
   if (thickness > 0) {
-    let weight: ArrayLike<number> = expansionWeight(work, ww, wh);
     const guide = options.guide;
+    // Lines only replaces the contrast weight outright, so it is not computed at all then.
+    let weight: ArrayLike<number> =
+      guide?.mode === LineGuideMode.Replace ? [] : expansionWeight(work, ww, wh);
     if (guide) {
       const mask =
         guide.threshold === null

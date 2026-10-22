@@ -1,5 +1,8 @@
 import type { PixelBuffer } from "$/base/primitives";
-import { sourceLineMask } from "$/import-export/image/import/line-guided/pixeloe-entry";
+import {
+  rememberPixeloe,
+  sourceLineMask,
+} from "$/import-export/image/import/line-guided/pixeloe-entry";
 import { pixeloePrepass } from "$/import-export/image/import/pixeloe-prepass";
 import {
   CellColorPicker,
@@ -27,7 +30,10 @@ export function runsStockPixeloe(
   return (grid as PixelGridAnalysis | undefined)?.algorithm === PixelationAlgorithm.CustomSize;
 }
 
-/** The image -> image pre-pass (the original PixelOE pre-pass, optionally line-guided). */
+/**
+ * The image -> image pre-pass (the original PixelOE pre-pass, optionally line-guided). Recent
+ * results are reused, so a colour or picker change on the same image does not rerun it.
+ */
 export function applyOutlinePrepass(
   image: PixelBuffer,
   cell: number,
@@ -35,9 +41,13 @@ export function applyOutlinePrepass(
   lineGuide: LineGuideMode = DEFAULT_LINE_GUIDE,
 ): PixelBuffer {
   if (prepass === OutlinePrepass.None) return image;
-  if (prepass === OutlinePrepass.Pixeloe) return pixeloePrepass(image, cell);
-  const mask = sourceLineMask(image);
-  return pixeloePrepass(image, cell, mask ? { mask, mode: lineGuide } : undefined);
+  // The pre-pass reads the cell size rounded to whole pixels only.
+  const variant = `prepass:${prepass}:${Math.round(cell)}:${prepass === OutlinePrepass.Pixeloe ? "" : lineGuide}`;
+  return rememberPixeloe(image, variant, () => {
+    if (prepass === OutlinePrepass.Pixeloe) return pixeloePrepass(image, cell);
+    const mask = sourceLineMask(image);
+    return pixeloePrepass(image, cell, mask ? { mask, mode: lineGuide } : undefined);
+  });
 }
 
 /**

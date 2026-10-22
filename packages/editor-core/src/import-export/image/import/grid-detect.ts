@@ -2,6 +2,16 @@ import { UINT8_MAX } from "$/base/numeric-constants";
 import type { PixelBuffer } from "$/base/primitives";
 import { assertPixelBuffer } from "$/document/pixel-validation";
 import {
+  colorStep,
+  neighbourSteps,
+  OPAQUE_STEPS,
+  OPAQUE_STEPS_32,
+  releaseNeighbourSteps,
+  step32Of,
+  stepOf,
+  TRANSLUCENT,
+} from "$/import-export/image/import/color-step";
+import {
   MAX_GRID_CELL_SIZE,
   MAX_RECOVERED_GRID_SIZE,
   pixelGridCuts,
@@ -58,37 +68,33 @@ interface Analysis {
   y: AxisResult | null;
 }
 
-function colorDifference(data: Uint8ClampedArray, first: number, second: number): number {
-  const a = data[first + 3] / UINT8_MAX,
-    b = data[second + 3] / UINT8_MAX;
-  let difference = Math.abs(a - b);
-  for (let c = 0; c < CHANNELS - 1; c++)
-    difference = Math.max(
-      difference,
-      Math.abs(data[first + c] * a - data[second + c] * b) / UINT8_MAX,
-    );
-  return difference;
-}
 /**
  * profile[i] is the mean colour step above the noise floor between pixel i-1 and pixel i, taken
  * across the whole cross axis. The floor is twice the median step, so JPEG-like noise and smooth
  * gradients contribute nothing while real edges do.
  */
 function edgeProfile(image: PixelBuffer, horizontal: boolean): Float64Array {
-  const length = horizontal ? image.width : image.height;
-  const cross = horizontal ? image.height : image.width;
-  const stride = horizontal ? 1 : image.width;
-  const steps = new Float32Array(cross * length);
+  const { width, height, data } = image;
+  const length = horizontal ? width : height;
+  const cross = horizontal ? height : width;
+  // Both directions walk the pixels row by row: the step into pixel (x, y) from its left (or upper)
+  // neighbour q is the pair code at q. Opaque pairs are counted by code and looked up; the profile
+  // sums every position's steps in line order.
+  const codes = horizontal ? neighbourSteps(image).right : neighbourSteps(image).down;
+  const neighbour = horizontal ? 1 : width;
+  const firstY = horizontal ? 0 : 1,
+    firstX = horizontal ? 1 : 0;
   const histogram = new Uint32Array(HISTOGRAM_BINS);
-  for (let line = 0; line < cross; line++) {
-    const base = horizontal ? line * image.width : line;
-    for (let i = 1; i < length; i++) {
-      const first = (base + (i - 1) * stride) * CHANNELS;
-      const step = colorDifference(image.data, first, first + stride * CHANNELS);
-      steps[line * length + i] = step;
-      histogram[Math.min(HISTOGRAM_BINS - 1, Math.floor(step * HISTOGRAM_BINS))]++;
-    }
-  }
+  const byCode = new Uint32Array(TRANSLUCENT + 1);
+  for (let y = firstY; y < height; y++)
+    for (let q = y * width + firstX - neighbour, end = y * width + width - neighbour; q < end; q++)
+      byCode[codes[q]]++;
+  const bin = (step: number) => Math.min(HISTOGRAM_BINS - 1, Math.floor(step * HISTOGRAM_BINS));
+  for (let code = 0; code < TRANSLUCENT; code++) histogram[bin(OPAQUE_STEPS[code])] += byCode[code];
+  if (byCode[TRANSLUCENT])
+    for (let y = firstY; y < height; y++)
+      for (let x = firstX, q = y * width + x - neighbour; x < width; x++, q++)
+        if (codes[q] === TRANSLUCENT) histogram[bin(stepOf(codes, data, q, neighbour))]++;
   let seen = 0;
   let median = 0;
   const half = (cross * (length - 1)) / 2;
@@ -100,11 +106,29 @@ function edgeProfile(image: PixelBuffer, horizontal: boolean): Float64Array {
     }
   }
   const floor = Math.max(MIN_STEP, NOISE_MULTIPLIER * median);
+  // The profile reads the steps rounded to float32, as they were once stored. A step at or below
+  // the floor adds zero, which leaves the (positive) sums unchanged.
+  const above = new Float64Array(TRANSLUCENT + 1);
+  for (let code = 0; code < TRANSLUCENT; code++) {
+    const step = OPAQUE_STEPS_32[code];
+    above[code] = step > floor ? step - floor : 0;
+  }
+  const translucent = byCode[TRANSLUCENT] > 0;
+  const contribution = (q: number) => {
+    const code = codes[q];
+    if (code < TRANSLUCENT || !translucent) return above[code];
+    const step = step32Of(codes, data, q, neighbour);
+    return step > floor ? step - floor : 0;
+  };
   const profile = new Float64Array(length);
-  for (let line = 0; line < cross; line++)
-    for (let i = 1; i < length; i++) {
-      const step = steps[line * length + i];
-      if (step > floor) profile[i] += step - floor;
+  if (horizontal)
+    for (let y = 0; y < height; y++)
+      for (let x = 1, q = y * width; x < width; x++, q++) profile[x] += contribution(q);
+  else
+    for (let y = 1; y < height; y++) {
+      let sum = 0;
+      for (let q = (y - 1) * width, end = q + width; q < end; q++) sum += contribution(q);
+      profile[y] = sum;
     }
   for (let i = 0; i < length; i++) profile[i] /= cross;
   return profile;
@@ -396,7 +420,7 @@ function flatShare(image: PixelBuffer, xCuts: readonly number[], yCuts: readonly
         );
         const index = (Math.max(0, sy) * image.width + Math.max(0, sx)) * CHANNELS;
         if (reference < 0) reference = index;
-        else if (colorDifference(image.data, reference, index) > FLAT_RANGE) ok = false;
+        else if (colorStep(image.data, reference, index) > FLAT_RANGE) ok = false;
       }
     measured++;
     if (ok) flat++;
@@ -424,6 +448,7 @@ function analysisOf(image: PixelBuffer): Analysis {
       const [px, py] = sharedPitches(x, y);
       found = { x: finishAxis(x, px), y: finishAxis(y, py) };
     } else found = { x: null, y: null };
+    releaseNeighbourSteps(image);
     cache.set(image, found);
   }
   return found;

@@ -58,6 +58,13 @@ function kernelFor(iters: number): { k: Float64Array; n: number } {
 
 // kornia sRGB <-> Lab (D65), floats, no input clamp.
 const lin = (v: number) => (v > 0.04045 ? ((v + 0.055) / 1.055) ** 2.4 : v / 12.92);
+/** Channels read from 8-bit pixels are one of 256 float32 values; their `lin` is looked up. */
+const BYTE_LEVELS = Float32Array.from({ length: 256 }, (_, i) => i / 255);
+const BYTE_LIN = Float64Array.from(BYTE_LEVELS, lin);
+function linear(v: number): number {
+  const level = Math.round(v * 255);
+  return level >= 0 && level <= 255 && BYTE_LEVELS[level] === v ? BYTE_LIN[level] : lin(v);
+}
 const unlin = (v: number) =>
   v > 0.0031308 ? 1.055 * Math.max(v, 0) ** (1 / 2.4) - 0.055 : v * 12.92;
 const f = (t: number) => (t > 0.008856 ? Math.cbrt(Math.max(t, 0.008856)) : 7.787 * t + 4 / 29);
@@ -67,9 +74,9 @@ function toLab(r: Plane, g: Plane, b: Plane): [Plane, Plane, Plane] {
     A = new Float32Array(n),
     B = new Float32Array(n);
   for (let i = 0; i < n; i++) {
-    const lr = lin(r[i]),
-      lg = lin(g[i]),
-      lb = lin(b[i]);
+    const lr = linear(r[i]),
+      lg = linear(g[i]),
+      lb = linear(b[i]);
     const x = f((0.412453 * lr + 0.35758 * lg + 0.180423 * lb) / 0.95047);
     const y = f(0.212671 * lr + 0.71516 * lg + 0.072169 * lb);
     const z = f((0.019334 * lr + 0.119193 * lg + 0.950227 * lb) / 1.08883);
@@ -205,90 +212,235 @@ function morph(
   iterations: number,
 ): Plane {
   let cur = src;
-  const p = kern.n >> 1;
   for (let it = 0; it < iterations; it++) {
     const out = new Float32Array(w * h);
-    const clampTop = (v: number) => (erode ? v : Math.min(1, Math.max(0, v)));
     if (kern.n === 3 && w > 2 && h > 2) {
-      const k = kern.k;
-      for (let y = 1; y < h - 1; y++)
-        for (let x = 1; x < w - 1; x++) {
-          const o = y * w + x;
-          let best = erode ? Infinity : -Infinity;
-          for (let j = 0; j < 3; j++) {
-            const r = o + (j - 1) * w;
-            for (let i = 0; i < 3; i++) {
-              const c = erode
-                ? cur[r + i - 1] - k[j * 3 + i] + 1
-                : cur[r + i - 1] + k[j * 3 + i] - 1;
-              if (erode ? c < best : c > best) best = c;
-            }
-          }
-          out[o] = clampTop(best);
-        }
-    }
-    const fast = kern.n === 3 && w > 2 && h > 2;
-    for (let y = 0; y < h; y++)
-      for (let x = 0; x < w; x++) {
-        if (fast && y > 0 && y < h - 1 && x > 0 && x < w - 1) {
-          x = w - 2;
-          continue;
-        }
-        let best = erode ? Infinity : -Infinity;
-        for (let j = 0; j < kern.n; j++)
-          for (let i = 0; i < kern.n; i++) {
-            const xx = x + i - p,
-              yy = y + j - p;
-            const v = xx >= 0 && yy >= 0 && xx < w && yy < h ? cur[yy * w + xx] : 0;
-            const kv = kern.k[j * kern.n + i];
-            const c = erode ? v - kv + 1 : v + kv - 1;
-            if (erode ? c < best : c > best) best = c;
-          }
-        out[y * w + x] = erode ? best : Math.min(1, Math.max(0, best));
-      }
+      morphInterior3(cur, out, w, h, kern.k, erode);
+      morphBorder(cur, out, w, h, kern, erode, true);
+    } else morphBorder(cur, out, w, h, kern, erode, false);
     cur = out;
   }
   return cur;
 }
+/** One 3x3 pass over the pixels whose window lies inside the image. */
+function morphInterior3(
+  cur: Plane,
+  out: Plane,
+  w: number,
+  h: number,
+  k: Float64Array,
+  erode: boolean,
+) {
+  // Per tap, the value added to the neighbour: erode takes min(v - k + 1), dilate max(v + k - 1).
+  const offsets = [-w - 1, -w, -w + 1, -1, 0, 1, w - 1, w, w + 1];
+  const [o0, o1, o2, o3, o4, o5, o6, o7, o8] = offsets;
+  const [k0, k1, k2, k3, k4, k5, k6, k7, k8] = k;
+  for (let y = 1; y < h - 1; y++) {
+    const end = y * w + w - 1;
+    if (erode)
+      for (let o = y * w + 1; o < end; o++) {
+        let best = Infinity,
+          c: number;
+        if ((c = cur[o + o0] - k0 + 1) < best) best = c;
+        if ((c = cur[o + o1] - k1 + 1) < best) best = c;
+        if ((c = cur[o + o2] - k2 + 1) < best) best = c;
+        if ((c = cur[o + o3] - k3 + 1) < best) best = c;
+        if ((c = cur[o + o4] - k4 + 1) < best) best = c;
+        if ((c = cur[o + o5] - k5 + 1) < best) best = c;
+        if ((c = cur[o + o6] - k6 + 1) < best) best = c;
+        if ((c = cur[o + o7] - k7 + 1) < best) best = c;
+        if ((c = cur[o + o8] - k8 + 1) < best) best = c;
+        out[o] = best;
+      }
+    else
+      for (let o = y * w + 1; o < end; o++) {
+        let best = -Infinity,
+          c: number;
+        if ((c = cur[o + o0] + k0 - 1) > best) best = c;
+        if ((c = cur[o + o1] + k1 - 1) > best) best = c;
+        if ((c = cur[o + o2] + k2 - 1) > best) best = c;
+        if ((c = cur[o + o3] + k3 - 1) > best) best = c;
+        if ((c = cur[o + o4] + k4 - 1) > best) best = c;
+        if ((c = cur[o + o5] + k5 - 1) > best) best = c;
+        if ((c = cur[o + o6] + k6 - 1) > best) best = c;
+        if ((c = cur[o + o7] + k7 - 1) > best) best = c;
+        if ((c = cur[o + o8] + k8 - 1) > best) best = c;
+        out[o] = Math.min(1, Math.max(0, best));
+      }
+  }
+}
+/** The generic window pass, over the border pixels only when the interior is done already. */
+function morphBorder(
+  cur: Plane,
+  out: Plane,
+  w: number,
+  h: number,
+  kern: { k: Float64Array; n: number },
+  erode: boolean,
+  borderOnly: boolean,
+) {
+  const p = kern.n >> 1;
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++) {
+      if (borderOnly && y > 0 && y < h - 1 && x > 0 && x < w - 1) {
+        x = w - 2;
+        continue;
+      }
+      let best = erode ? Infinity : -Infinity;
+      for (let j = 0; j < kern.n; j++)
+        for (let i = 0; i < kern.n; i++) {
+          const xx = x + i - p,
+            yy = y + j - p;
+          const v = xx >= 0 && yy >= 0 && xx < w && yy < h ? cur[yy * w + xx] : 0;
+          const kv = kern.k[j * kern.n + i];
+          const c = erode ? v - kv + 1 : v + kv - 1;
+          if (erode ? c < best : c > best) best = c;
+        }
+      out[y * w + x] = erode ? best : Math.min(1, Math.max(0, best));
+    }
+}
 
+/**
+ * Symmetric taps along a row: `out[base + x]` (a float32 store) is `taps[0] * row[x + radius]` plus
+ * `taps[t] * (row[x + radius - t] + row[x + radius + t])` for t = 1..radius, summed in doubles in
+ * that order. Eight pixels run side by side.
+ */
+function blurRow(row: Plane, taps: Plane, radius: number, out: Plane, base: number, w: number) {
+  const centre = taps[0];
+  let x = 0;
+  for (; x + 7 < w; x += 8) {
+    const c = x + radius;
+    let s0 = centre * row[c],
+      s1 = centre * row[c + 1],
+      s2 = centre * row[c + 2],
+      s3 = centre * row[c + 3],
+      s4 = centre * row[c + 4],
+      s5 = centre * row[c + 5],
+      s6 = centre * row[c + 6],
+      s7 = centre * row[c + 7];
+    for (let t = 1; t <= radius; t++) {
+      const wt = taps[t],
+        l = c - t,
+        r = c + t;
+      s0 += wt * (row[l] + row[r]);
+      s1 += wt * (row[l + 1] + row[r + 1]);
+      s2 += wt * (row[l + 2] + row[r + 2]);
+      s3 += wt * (row[l + 3] + row[r + 3]);
+      s4 += wt * (row[l + 4] + row[r + 4]);
+      s5 += wt * (row[l + 5] + row[r + 5]);
+      s6 += wt * (row[l + 6] + row[r + 6]);
+      s7 += wt * (row[l + 7] + row[r + 7]);
+    }
+    const o = base + x;
+    out[o] = s0;
+    out[o + 1] = s1;
+    out[o + 2] = s2;
+    out[o + 3] = s3;
+    out[o + 4] = s4;
+    out[o + 5] = s5;
+    out[o + 6] = s6;
+    out[o + 7] = s7;
+  }
+  for (; x < w; x++) {
+    const c = x + radius;
+    let acc = centre * row[c];
+    for (let t = 1; t <= radius; t++) acc += taps[t] * (row[c - t] + row[c + t]);
+    out[base + x] = acc;
+  }
+}
+/**
+ * Symmetric taps down a column: the centre row times `taps[0]`, then each pair of rows added in,
+ * rounding to float32 after every step (as accumulating in a float32 image). Eight pixels at once.
+ */
+function blurColumn(
+  tmp: Plane,
+  taps: Plane,
+  radius: number,
+  ups: Int32Array,
+  downs: Int32Array,
+  out: Plane,
+  dst: number,
+  w: number,
+) {
+  const f32 = Math.fround;
+  const centre = taps[0];
+  let x = 0;
+  for (; x + 7 < w; x += 8) {
+    const c = dst + x;
+    let s0 = f32(centre * tmp[c]),
+      s1 = f32(centre * tmp[c + 1]),
+      s2 = f32(centre * tmp[c + 2]),
+      s3 = f32(centre * tmp[c + 3]),
+      s4 = f32(centre * tmp[c + 4]),
+      s5 = f32(centre * tmp[c + 5]),
+      s6 = f32(centre * tmp[c + 6]),
+      s7 = f32(centre * tmp[c + 7]);
+    for (let t = 1; t <= radius; t++) {
+      const wt = taps[t],
+        u = ups[t] + x,
+        d = downs[t] + x;
+      s0 = f32(s0 + wt * (tmp[u] + tmp[d]));
+      s1 = f32(s1 + wt * (tmp[u + 1] + tmp[d + 1]));
+      s2 = f32(s2 + wt * (tmp[u + 2] + tmp[d + 2]));
+      s3 = f32(s3 + wt * (tmp[u + 3] + tmp[d + 3]));
+      s4 = f32(s4 + wt * (tmp[u + 4] + tmp[d + 4]));
+      s5 = f32(s5 + wt * (tmp[u + 5] + tmp[d + 5]));
+      s6 = f32(s6 + wt * (tmp[u + 6] + tmp[d + 6]));
+      s7 = f32(s7 + wt * (tmp[u + 7] + tmp[d + 7]));
+    }
+    out[c] = s0;
+    out[c + 1] = s1;
+    out[c + 2] = s2;
+    out[c + 3] = s3;
+    out[c + 4] = s4;
+    out[c + 5] = s5;
+    out[c + 6] = s6;
+    out[c + 7] = s7;
+  }
+  for (; x < w; x++) {
+    let s = f32(centre * tmp[dst + x]);
+    for (let t = 1; t <= radius; t++) s = f32(s + taps[t] * (tmp[ups[t] + x] + tmp[downs[t] + x]));
+    out[dst + x] = s;
+  }
+}
 function gaussianBlur(src: Plane, w: number, h: number, radius: number): Plane {
   const taps = new Float32Array(radius + 1);
   let sum = 0;
   for (let i = -radius; i <= radius; i++) sum += Math.exp(-(i * i) / (2 * radius * radius));
   for (let i = 0; i <= radius; i++) taps[i] = Math.exp(-(i * i) / (2 * radius * radius)) / sum;
   const reflectOk = h > radius && w > radius;
-  const index = (v: number, n: number) => {
-    if (reflectOk) {
-      if (v < 0) v = -v;
-      if (v >= n) v = 2 * (n - 1) - v;
+  const indices = (n: number) => {
+    const table = new Int32Array(n + 2 * radius);
+    for (let i = -radius; i < n + radius; i++) {
+      let v = i;
+      if (reflectOk) {
+        if (v < 0) v = -v;
+        if (v >= n) v = 2 * (n - 1) - v;
+      }
+      table[i + radius] = Math.min(n - 1, Math.max(0, v));
     }
-    return Math.min(n - 1, Math.max(0, v));
+    return table;
   };
   // Horizontal pass on a reflect-padded row, symmetric taps.
+  const columns = indices(w);
   const row = new Float32Array(w + 2 * radius);
   const tmp = new Float32Array(w * h);
   for (let y = 0; y < h; y++) {
     const base = y * w;
-    for (let x = -radius; x < w + radius; x++) row[x + radius] = src[base + index(x, w)];
-    for (let x = 0; x < w; x++) {
-      const c = x + radius;
-      let acc = taps[0] * row[c];
-      for (let t = 1; t <= radius; t++) acc += taps[t] * (row[c - t] + row[c + t]);
-      tmp[base + x] = acc;
-    }
+    for (let i = 0; i < row.length; i++) row[i] = src[base + columns[i]];
+    blurRow(row, taps, radius, tmp, base, w);
   }
-  // Vertical pass, row-wise accumulation (contiguous memory).
+  // Vertical pass.
+  const lines = indices(h);
   const out = new Float32Array(w * h);
+  const ups = new Int32Array(radius + 1),
+    downs = new Int32Array(radius + 1);
   for (let y = 0; y < h; y++) {
-    const dst = y * w;
-    const c = tmp.subarray(y * w, y * w + w);
-    for (let x = 0; x < w; x++) out[dst + x] = taps[0] * c[x];
     for (let t = 1; t <= radius; t++) {
-      const up = index(y - t, h) * w;
-      const down = index(y + t, h) * w;
-      const wt = taps[t];
-      for (let x = 0; x < w; x++) out[dst + x] += wt * (tmp[up + x] + tmp[down + x]);
+      ups[t] = lines[y - t + radius] * w;
+      downs[t] = lines[y + t + radius] * w;
     }
+    blurColumn(tmp, taps, radius, ups, downs, out, y * w, w);
   }
   return out;
 }
@@ -356,13 +508,15 @@ function outlineExpansion(
   guide?: PrepassGuide,
   thickness = PIXELOE_THICKNESS,
 ): [Plane, Plane, Plane] {
-  const [L] = toLab(...planes);
-  const weight = expansionWeight(L, w, h, pixelSize);
-  // PixelOE + lines: dark spreads along the drawn lines too (union) or only there (replace).
-  if (guide)
-    for (let i = 0; i < weight.length; i++)
-      weight[i] =
-        guide.mode === LineGuideMode.Replace ? guide.mask[i] : Math.max(weight[i], guide.mask[i]);
+  // PixelOE + lines: dark spreads along the drawn lines too (union) or only there (replace). Lines
+  // only replaces the contrast weight outright, so it is not computed at all then.
+  let weight: Plane;
+  if (guide?.mode === LineGuideMode.Replace) weight = guide.mask;
+  else {
+    weight = expansionWeight(toLab(...planes)[0], w, h, pixelSize);
+    if (guide)
+      for (let i = 0; i < weight.length; i++) weight[i] = Math.max(weight[i], guide.mask[i]);
+  }
   const kt = kernelFor(thickness);
   const kc = kernelFor(2);
   return planes.map((p) => {
@@ -394,7 +548,11 @@ function colorMatch(
   };
   const s = stats(sl),
     t = stats(tl);
-  const shifted = sl.map((c) => c.map((v) => ((v - s.mean) / s.std) * t.std + t.mean)) as Plane[];
+  const shifted = sl.map((c) => {
+    const plane = new Float32Array(c.length);
+    for (let i = 0; i < c.length; i++) plane[i] = ((c[i] - s.mean) / s.std) * t.std + t.mean;
+    return plane;
+  });
   const rgb = fromLab(shifted[0], shifted[1], shifted[2]);
   return rgb.map((p, i) => waveletColorFix(p, target[i], w, h)) as [Plane, Plane, Plane];
 }
