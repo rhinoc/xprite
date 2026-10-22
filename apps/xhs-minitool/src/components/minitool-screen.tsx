@@ -1,22 +1,17 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 
-import { Button, cx, useText } from "$/components/minitool/minitool-controls";
-import { ExportSheet } from "$/components/minitool/minitool-export-sheet";
-import { Icon, type IconName } from "$/components/minitool/minitool-icons";
-import {
-  ComparePanel,
-  FramePanel,
-  PixelPanel,
-  RatioIcon,
-} from "$/components/minitool/minitool-panels";
-import { SplitPreview } from "$/components/minitool/minitool-preview";
-import { miniToolError, type MiniToolTextKey } from "$/managers/locale/minitool-text";
-import { composeLayout, EXPORT_RATIOS, ExportContent } from "$/managers/minitool/composition";
-import type { MiniToolEditor } from "$/managers/minitool/minitool-editor";
-import { MiniToolOutcome, MiniToolTarget, type MiniToolScene } from "$/managers/ports/minitool";
+import { Button, cx, useText } from "$/components/minitool-controls";
+import { ExportSheet } from "$/components/minitool-export-sheet";
+import { Icon, type IconName } from "$/components/minitool-icons";
+import { ComparePanel, FramePanel, PixelPanel, RatioIcon } from "$/components/minitool-panels";
+import { SplitPreview } from "$/components/minitool-preview";
+import { composeLayout, EXPORT_RATIOS, ExportContent } from "$/managers/composition";
+import type { MiniToolEditor } from "$/managers/minitool-editor";
+import { MiniToolOutcome, MiniToolTarget, type MiniToolScene } from "$/managers/ports";
+import { miniToolError, type MiniToolTextKey } from "$/managers/text";
 import iconUrl from "@xprite/site-assets/favicon-32.png?url";
 
-import styles from "$/components/minitool/minitool.module.css";
+import styles from "$/components/minitool.module.css";
 
 enum Tab {
   Pixel = "pixel",

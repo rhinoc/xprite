@@ -12,8 +12,8 @@ import {
   exportSize,
   frameThumbnail,
   samplePixels,
-} from "$/managers/minitool/composition";
-import { placementRect, type Rect } from "$/managers/minitool/split-geometry";
+} from "$/managers/composition";
+import { placementRect, type Rect } from "$/managers/split-geometry";
 
 const grid = { width: 54, height: 64 };
 const inside = (inner: Rect, outer: Rect) =>

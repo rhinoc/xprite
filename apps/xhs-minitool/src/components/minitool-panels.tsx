@@ -1,16 +1,8 @@
 import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
-import {
-  Button,
-  ChipGroup,
-  cx,
-  Slider,
-  Toggle,
-  useText,
-} from "$/components/minitool/minitool-controls";
-import { Icon } from "$/components/minitool/minitool-icons";
-import { SceneCanvas } from "$/components/minitool/minitool-preview";
-import type { MiniToolTextKey } from "$/managers/locale/minitool-text";
+import { Button, ChipGroup, cx, Slider, Toggle, useText } from "$/components/minitool-controls";
+import { Icon } from "$/components/minitool-icons";
+import { SceneCanvas } from "$/components/minitool-preview";
 import {
   frameThumbnail,
   samplePixels,
@@ -18,8 +10,8 @@ import {
   ExportContent,
   type ExportFrame,
   type ExportRatio,
-} from "$/managers/minitool/composition";
-import type { MiniToolEditor, MiniToolSnapshot } from "$/managers/minitool/minitool-editor";
+} from "$/managers/composition";
+import type { MiniToolEditor, MiniToolSnapshot } from "$/managers/minitool-editor";
 import {
   gridForLongSide,
   longSide,
@@ -29,10 +21,10 @@ import {
   SIZE_MAX,
   SIZE_MIN,
   type GridSize,
-} from "$/managers/minitool/pixel-presets";
-import { rotateSplit, splitHandle, SplitLine, type Rect } from "$/managers/minitool/split-geometry";
-import type { PixelationSnapshot } from "$/managers/pixelation/pixelation-manager";
-import type { MiniToolScene } from "$/managers/ports/minitool";
+} from "$/managers/pixel-presets";
+import type { MiniToolScene } from "$/managers/ports";
+import { rotateSplit, splitHandle, SplitLine, type Rect } from "$/managers/split-geometry";
+import type { MiniToolTextKey } from "$/managers/text";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import {
   getAllColorPickers,
@@ -44,9 +36,10 @@ import {
   type CellColorPicker,
   type PixelationMethod,
 } from "@xprite/editor-core/import-export";
+import type { PixelationSnapshot } from "@xprite/tools-app/pixelation";
 import { displayPixelRatio, scrollElementIntoView } from "@xprite/ui/utils";
 
-import styles from "$/components/minitool/minitool.module.css";
+import styles from "$/components/minitool.module.css";
 
 const THUMB = 62;
 const FRAME_THUMB = { width: 62, height: 83 };

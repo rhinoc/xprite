@@ -1,12 +1,12 @@
-import { Button, useText } from "$/components/minitool/minitool-controls";
-import { Icon } from "$/components/minitool/minitool-icons";
-import { SceneCanvas } from "$/components/minitool/minitool-preview";
-import type { MiniToolTextKey } from "$/managers/locale/minitool-text";
-import { ExportContent, ExportFrame } from "$/managers/minitool/composition";
-import type { MiniToolEditor, MiniToolSnapshot } from "$/managers/minitool/minitool-editor";
-import { MiniToolTarget, type MiniToolScene } from "$/managers/ports/minitool";
+import { Button, useText } from "$/components/minitool-controls";
+import { Icon } from "$/components/minitool-icons";
+import { SceneCanvas } from "$/components/minitool-preview";
+import { ExportContent, ExportFrame } from "$/managers/composition";
+import type { MiniToolEditor, MiniToolSnapshot } from "$/managers/minitool-editor";
+import { MiniToolTarget, type MiniToolScene } from "$/managers/ports";
+import type { MiniToolTextKey } from "$/managers/text";
 
-import styles from "$/components/minitool/minitool.module.css";
+import styles from "$/components/minitool.module.css";
 
 const PREVIEW = { width: 300, height: 272 };
 

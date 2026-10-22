@@ -5,7 +5,8 @@ import {
   lineWidth,
   MAC_WINDOW,
   type FrameLayout,
-} from "$/managers/minitool/composition";
+} from "$/managers/composition";
+import type { MiniToolRenderer, MiniToolScene } from "$/managers/ports";
 import {
   Corner,
   labelCorners,
@@ -14,8 +15,7 @@ import {
   splitShape,
   type Point,
   type Rect,
-} from "$/managers/minitool/split-geometry";
-import type { MiniToolRenderer, MiniToolScene } from "$/managers/ports/minitool";
+} from "$/managers/split-geometry";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import iconUrl from "@xprite/site-assets/favicon-32.png?url";
 import pixelBaseUrl from "@xprite/ui/fonts/fusion-pixel/fusion-12-base.woff2?url";

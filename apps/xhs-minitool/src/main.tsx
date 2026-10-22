@@ -1,11 +1,11 @@
-import "$/adapters/minitool/runtime-compat";
+import "$/adapters/runtime-compat";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import { detectFlexGap } from "$/adapters/minitool/runtime-compat";
-import { loadMiniToolPreferences, miniToolPreferences } from "$/adapters/minitool/xhs-bridge";
-import { miniToolText } from "$/managers/locale/minitool-text";
-import { createMiniToolPixelationApplication } from "$/MiniToolPixelationApp";
+import { detectFlexGap } from "$/adapters/runtime-compat";
+import { loadMiniToolPreferences, miniToolPreferences } from "$/adapters/xhs-bridge";
+import { miniToolText } from "$/managers/text";
+import { createMiniToolPixelationApplication } from "$/MiniToolApp";
 import { EDITOR_PALETTE_PRESETS_KEY } from "@xprite/editor-core/import-export";
 import { publicLanguage, PublicLanguage } from "@xprite/growth-content/language";
 

@@ -1,0 +1,21 @@
+{
+  "name": "@xprite/xhs-minitool",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prebuild": "node ../../scripts/build/ensure-ui.mjs",
+    "build": "tsc -b tsconfig.json && vite build"
+  },
+  "dependencies": {
+    "@xprite/editor-core": "workspace:*",
+    "@xprite/growth-content": "workspace:*",
+    "@xprite/site-assets": "workspace:*",
+    "@xprite/tools-app": "workspace:*",
+    "@xprite/ui": "workspace:*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "fflate": "^0.8.3"
+  }
+}

@@ -17,7 +17,7 @@ import {
   splitShape,
   SplitLine,
   type SplitState,
-} from "$/managers/minitool/split-geometry";
+} from "$/managers/split-geometry";
 
 const rect = { x: 0, y: 0, width: 300, height: 400 };
 const placement = { x: 0, y: 0, cell: 10, columns: 30, rows: 40 };

@@ -4,7 +4,7 @@ import {
   ExportContent,
   type Composition,
   type LayoutState,
-} from "$/managers/minitool/composition";
+} from "$/managers/composition";
 import {
   gridForLongSide,
   longSide,
@@ -14,13 +14,9 @@ import {
   presetPlan,
   sizePatch,
   type GridSize,
-} from "$/managers/minitool/pixel-presets";
-import { DEFAULT_SPLIT, type SplitState } from "$/managers/minitool/split-geometry";
-import type {
-  PixelationManager,
-  PixelationSnapshot,
-} from "$/managers/pixelation/pixelation-manager";
-import { MiniToolTarget, type MiniToolOutcome, type MiniToolPort } from "$/managers/ports/minitool";
+} from "$/managers/pixel-presets";
+import { MiniToolTarget, type MiniToolOutcome, type MiniToolPort } from "$/managers/ports";
+import { DEFAULT_SPLIT, type SplitState } from "$/managers/split-geometry";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import {
   PixelationAlgorithm,
@@ -29,6 +25,7 @@ import {
   type PixelGridAnalysis,
   type PixelationSettings,
 } from "@xprite/editor-core/import-export";
+import type { PixelationManager, PixelationSnapshot } from "@xprite/tools-app/pixelation";
 
 type PixelState = Pick<PixelationSnapshot, "algorithm" | "grid" | "settings">;
 

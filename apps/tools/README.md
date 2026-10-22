@@ -214,34 +214,8 @@ has 3,249 pegs (57×57). [Perler's large square boards](https://perler.com/produ
 interlock for larger projects. These product examples do not restrict custom dimensions or
 the overall pattern size.
 
-## Xiaohongshu mini tool (pixelate)
+## Shared pixelate engine
 
-`pnpm build:pixelate-minitool` packages the pixelate tool as a Xiaohongshu 小工具: an offline
-H5 ZIP (`apps/tools/dist-minitool.zip`, built from `vite.minitool.config.ts`) with `index.html`
-at the root, one classic ES2017 script, relative asset paths, and Chrome 61 fallbacks for the
-stylesheet (`build/minitool-legacy-css.ts`). It reuses `PixelationManager` and the pixelate
-engine, with its own phone-sized screen instead of `PixelationPage`:
-
-- `components/minitool/` is a single 390-wide screen in Simplified Chinese: a top row (换照片,
-  导出), the before/after split preview, and three tabs. 像素 sets the block count and four presets
-  (默认, 清晰, 复古, 少色), with the engine's options under 高级. 对比 sets the divider's angle,
-  position, sides, line style and labels; the divider can also be dragged and rotated on the
-  canvas. 边框 picks the frame: none, Mac OS 8, System 7 and Windows 95-style windows, an old
-  candy-bar phone, a handheld console, a CRT monitor or an instant photo. The export ratio (3:4,
-  1:1, 9:16) is under 比例 below the canvas. The top 88 px stay clear for the container's bar.
-- `managers/minitool/` holds the screen's state (`MiniToolEditor`: split, layout, presets,
-  undo) and the pure geometry: `split-geometry.ts` (the divider and its pixel steps),
-  `composition.ts` (export sizes, frames, whole-pixel block placement) and `pixel-presets.ts`.
-- `adapters/minitool/composition-renderer.ts` draws one scene for the preview, the thumbnails,
-  the export sheet and the exported PNG, so the export matches the preview. Exports are 1080 px
-  wide. Frames are pixel art drawn at a whole number of export pixels per art pixel and sized around
-  the picture, so its blocks stay whole with no letterboxing; framed exports carry the Xprite name
-  in a status bar, on the device or as a caption, and frameless ones never do.
-- `adapters/minitool/minitool-pixelation.ts` converts on the main thread (the container has no
-  Workers) and downscales photos to 4 MP first.
-- `adapters/minitool/xhs-bridge.ts` feature-detects `window.xhs.miniTool`: **保存到相册** passes
-  the PNG (through `writeTempFile` when large) to `saveImageToPhotosAlbum`, **发布笔记** to `postNote`,
-  and preferences use the container Storage API on clients that have it, with browser storage as
-  the fallback. On `localhost` outside the container, saving downloads the PNG instead, for
-  testing; elsewhere both buttons explain that they need the Xiaohongshu app.
-- No site navigation, help, footer, telemetry, network requests or external links.
+`src/pixelation-engine.ts` is exported as `@xprite/tools-app/pixelation` (`PixelationManager`, its
+port, palettes and the import limit) for apps that build their own screen on the pixelate tool,
+such as the Xiaohongshu mini tool in [`apps/xhs-minitool`](../xhs-minitool/README.md).

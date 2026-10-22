@@ -9,11 +9,11 @@ import {
   type ReactNode,
 } from "react";
 
-import type { MiniToolText } from "$/managers/locale/minitool-text";
-import type { MiniToolRenderer } from "$/managers/ports/minitool";
+import type { MiniToolRenderer } from "$/managers/ports";
+import type { MiniToolText } from "$/managers/text";
 import { clientPoint, clientRect } from "@xprite/ui/utils";
 
-import styles from "$/components/minitool/minitool.module.css";
+import styles from "$/components/minitool.module.css";
 
 export const MiniToolTextContext = createContext<MiniToolText>((key) => key);
 export const MiniToolRendererContext = createContext<MiniToolRenderer | null>(null);

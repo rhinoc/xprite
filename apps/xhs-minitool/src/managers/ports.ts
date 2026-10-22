@@ -1,6 +1,6 @@
-import type { Composition } from "$/managers/minitool/composition";
-import type { ExportContent } from "$/managers/minitool/composition";
-import type { SplitState } from "$/managers/minitool/split-geometry";
+import type { Composition } from "$/managers/composition";
+import type { ExportContent } from "$/managers/composition";
+import type { SplitState } from "$/managers/split-geometry";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import type { PixelateOptions } from "@xprite/editor-core/import-export";
 

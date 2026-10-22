@@ -10,7 +10,7 @@ import {
   PixelPreset,
   presetBadge,
   presetPlan,
-} from "$/managers/minitool/pixel-presets";
+} from "$/managers/pixel-presets";
 
 const photo = { width: 1080, height: 1280 };
 

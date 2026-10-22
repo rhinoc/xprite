@@ -1,12 +1,4 @@
-import {
-  miniToolPreferences,
-  postImageNote,
-  saveImageToAlbum,
-} from "$/adapters/minitool/xhs-bridge";
-import { readPixelationPalettes } from "$/adapters/pixelation/palette-resources";
-import { readToolWheel } from "$/adapters/preview/browser-preview";
-import { TOOL_IMPORT_MAX_BYTES } from "$/managers/files/files-model";
-import type { PixelationPort } from "$/managers/ports/pixelation";
+import { miniToolPreferences, postImageNote, saveImageToAlbum } from "$/adapters/xhs-bridge";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import {
   detectWithAlgorithm,
@@ -14,6 +6,12 @@ import {
   type PixelateOptions,
 } from "@xprite/editor-core/import-export";
 import exampleUrl from "@xprite/site-assets/tools/pixelate/girl-with-a-pearl-earring.jpg?url";
+import {
+  readPixelationPalettes,
+  readToolWheel,
+  TOOL_IMPORT_MAX_BYTES,
+  type PixelationPort,
+} from "@xprite/tools-app/pixelation";
 
 /**
  * The container has no Workers, so conversion runs on the main thread. Larger photos are

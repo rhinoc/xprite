@@ -1,13 +1,10 @@
-import { createMiniToolPort } from "$/adapters/minitool/minitool-output";
-import { createMiniToolPixelationPort } from "$/adapters/minitool/minitool-pixelation";
-import {
-  MiniToolRendererContext,
-  MiniToolTextContext,
-} from "$/components/minitool/minitool-controls";
-import { MiniToolScreen } from "$/components/minitool/minitool-screen";
-import type { MiniToolText } from "$/managers/locale/minitool-text";
-import { MiniToolEditor } from "$/managers/minitool/minitool-editor";
-import { PixelationManager } from "$/managers/pixelation/pixelation-manager";
+import { createMiniToolPort } from "$/adapters/minitool-output";
+import { createMiniToolPixelationPort } from "$/adapters/minitool-pixelation";
+import { MiniToolRendererContext, MiniToolTextContext } from "$/components/minitool-controls";
+import { MiniToolScreen } from "$/components/minitool-screen";
+import { MiniToolEditor } from "$/managers/minitool-editor";
+import type { MiniToolText } from "$/managers/text";
+import { PixelationManager } from "@xprite/tools-app/pixelation";
 
 /** The pixelate tool as a Xiaohongshu mini tool: the same pixelation manager, a phone layout. */
 export function createMiniToolPixelationApplication(text: MiniToolText) {

@@ -1,11 +1,11 @@
-import { createCompositionRenderer } from "$/adapters/minitool/composition-renderer";
-import { downloadImage, postImageNote, saveImageToAlbum } from "$/adapters/minitool/xhs-bridge";
+import { createCompositionRenderer } from "$/adapters/composition-renderer";
+import { downloadImage, postImageNote, saveImageToAlbum } from "$/adapters/xhs-bridge";
 import {
   MiniToolOutcome,
   MiniToolTarget,
   type MiniToolPort,
   type MiniToolScene,
-} from "$/managers/ports/minitool";
+} from "$/managers/ports";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import { pixelateImage } from "@xprite/editor-core/import-export";
 

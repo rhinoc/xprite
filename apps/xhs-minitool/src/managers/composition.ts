@@ -3,7 +3,7 @@ import {
   placementRect,
   type Placement,
   type Rect,
-} from "$/managers/minitool/split-geometry";
+} from "$/managers/split-geometry";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 
 /** Every export is this wide; heights follow the ratio. */

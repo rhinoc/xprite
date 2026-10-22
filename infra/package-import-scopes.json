@@ -35,6 +35,14 @@
     }
   },
   {
+    "directory": "apps/xhs-minitool",
+    "source": "src",
+    "tsconfig": "tsconfig.json",
+    "aliases": {
+      "$/": "src"
+    }
+  },
+  {
     "directory": "apps/growth",
     "source": "src",
     "tsconfig": "tsconfig.json",

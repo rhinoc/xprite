@@ -1,8 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent } from "react";
 
-import { useRenderer, useText } from "$/components/minitool/minitool-controls";
-import { Icon } from "$/components/minitool/minitool-icons";
-import type { MiniToolEditor } from "$/managers/minitool/minitool-editor";
+import { useRenderer, useText } from "$/components/minitool-controls";
+import { Icon } from "$/components/minitool-icons";
+import type { MiniToolEditor } from "$/managers/minitool-editor";
+import type { MiniToolScene } from "$/managers/ports";
 import {
   knobAngle,
   movedPosition,
@@ -14,11 +15,10 @@ import {
   splitSegment,
   type Point,
   type SplitState,
-} from "$/managers/minitool/split-geometry";
-import type { MiniToolScene } from "$/managers/ports/minitool";
+} from "$/managers/split-geometry";
 import { clientPoint, clientRect, displayPixelRatio, useElementSize } from "@xprite/ui/utils";
 
-import styles from "$/components/minitool/minitool.module.css";
+import styles from "$/components/minitool.module.css";
 
 /** Keep the rotate knob this far (CSS px) from the handle and from the picture's edge. */
 const KNOB_MIN = 40;

@@ -1,4 +1,4 @@
-import styles from "$/components/minitool/minitool.module.css";
+import styles from "$/components/minitool.module.css";
 
 /** Line icons drawn on a 24 × 24 grid, from the approved phone mockup. */
 const PATHS = {
