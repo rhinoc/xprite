@@ -152,6 +152,7 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Hello GIF animation preview": "Hello GIF のアニメーションプレビュー",
   "ACNH Winding Cobblestone Path by Amy, with transparent edges":
     "Amy さん作「あつ森 曲がりくねった石畳の道」（縁は透明）",
+  "Girl with a Pearl Earring by Johannes Vermeer": "ヨハネス・フェルメール「真珠の耳飾りの少女」",
   "ACNH Winding Cobblestone Path by": "あつ森 曲がりくねった石畳の道 作者：",
   "Edit in Xprite": "Xprite で編集",
   "Export animation (.gif)": "アニメーションをエクスポート（.gif）",

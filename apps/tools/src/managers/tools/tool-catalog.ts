@@ -8,7 +8,7 @@ import {
 } from "@xprite/growth-content/tools";
 import viewerPreview from "@xprite/site-assets/showcase/ipad/hello/hello-frame-01.png?url";
 import islandPreview from "@xprite/site-assets/tools/animal-crossing/acnh/winding-cobblestone.png?url";
-import harePreview from "@xprite/site-assets/tools/pixelate/young-hare.jpg?url";
+import pearlPreview from "@xprite/site-assets/tools/pixelate/girl-with-a-pearl-earring.jpg?url";
 
 export { VIEWER_TOOL, GIF_SHEET_TOOL, PIXELATE_TOOL, ANIMAL_CROSSING_TOOL, BEADS_TOOL };
 export type { PublicTool };
@@ -22,11 +22,11 @@ export const TOOL_EXAMPLES = {
     height: 80,
   },
   [PIXELATE_TOOL.path]: {
-    name: "young-hare.jpg",
-    preview: harePreview,
-    alt: "Young Hare by Albrecht Dürer",
+    name: "girl-with-a-pearl-earring.jpg",
+    preview: pearlPreview,
+    alt: "Girl with a Pearl Earring by Johannes Vermeer",
     width: 850,
-    height: 943,
+    height: 1007,
   },
   [ANIMAL_CROSSING_TOOL.path]: {
     name: "acnh-winding-cobblestone.png",

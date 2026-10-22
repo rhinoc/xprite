@@ -13,7 +13,7 @@ import {
   pixelateImage,
   type PixelateOptions,
 } from "@xprite/editor-core/import-export";
-import exampleUrl from "@xprite/site-assets/tools/pixelate/young-hare.jpg?url";
+import exampleUrl from "@xprite/site-assets/tools/pixelate/girl-with-a-pearl-earring.jpg?url";
 
 /**
  * The container has no Workers, so conversion runs on the main thread. Larger photos are
@@ -23,7 +23,7 @@ const MINITOOL_MAX_SOURCE_PIXELS = 4_000_000;
 /** Saved and posted images are enlarged with whole-pixel scaling so blocks stay crisp. */
 const OUTPUT_TARGET_SIZE = 1080;
 const OUTPUT_MAX_SIZE = 2048;
-const EXAMPLE_NAME = "young-hare.png";
+const EXAMPLE_NAME = "girl-with-a-pearl-earring.jpg";
 
 function canvas(width: number, height: number) {
   const element = document.createElement("canvas");
