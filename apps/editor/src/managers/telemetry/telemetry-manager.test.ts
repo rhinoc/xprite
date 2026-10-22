@@ -112,4 +112,27 @@ describe("exception telemetry", () => {
     assert.equal(captured[0].component_stack, "at Frame (https://xprite.cc/assets/a.js:1:2)");
     assert.equal("component_stack" in captured[1], false);
   });
+
+  it("does not report declined file permissions or echoes of a worker that could not load", () => {
+    const captured: { name: string; source: unknown }[] = [];
+    const telemetry = new TelemetryManager({
+      enabled: true,
+      capture: () => {},
+      captureException: (exception, properties) =>
+        captured.push({ name: exception.name, source: properties.error_source }),
+    });
+    const record = (id: string, name: string, source: DiagnosticSource) =>
+      telemetry.observeDiagnostic({ id, timestamp: 1, name, message: `${name} ${id}`, source });
+    record("1", "FileWritePermissionError", DiagnosticSource.Session);
+    record("2", "WorkerLoadError", DiagnosticSource.RecoveryWorker);
+    record("3", "WorkerLoadError", DiagnosticSource.Session);
+    record("4", "WorkerLoadError", DiagnosticSource.ImportWorker);
+    // The service worker adapter's stale-build report is the one that is kept.
+    record("5", "WorkerLoadError", DiagnosticSource.ServiceWorker);
+    record("6", "Error", DiagnosticSource.RecoveryWorker);
+    assert.deepEqual(captured, [
+      { name: "WorkerLoadError", source: DiagnosticSource.ServiceWorker },
+      { name: "Error", source: DiagnosticSource.RecoveryWorker },
+    ]);
+  });
 });

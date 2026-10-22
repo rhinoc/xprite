@@ -1,3 +1,4 @@
+import { fileWritePermissionRefused } from "$/adapters/files/file-write-permission";
 import { encodePng } from "$/adapters/files/images";
 import { importAsepriteInWorker } from "$/adapters/workers/aseprite-import-client";
 import { tUi } from "$/i18n";
@@ -36,7 +37,6 @@ import {
 const ASEPRITE_MIME = "application/x-aseprite";
 const DEVELOPMENT_DIAGNOSTIC_ARTIFACT_ENDPOINT = "/__debug/diagnostic-artifact";
 const DEVELOPMENT_ARTIFACT_NAME_FALLBACK = "unnamed.aseprite";
-const FILE_WRITE_PERMISSION_ERROR_NAME = "FileWritePermissionError";
 
 function fileWriteError(
   reason: unknown,
@@ -396,15 +396,15 @@ export async function saveAseprite(
       });
     }
     if (permission !== undefined && permission !== "granted") {
-      const error = new Error(
-        tUi("ui.write.permission.was.not.granted.for", { value1: handle.name ?? fileName }),
+      throw fileWriteError(
+        fileWritePermissionRefused(permission, handle.name ?? fileName),
+        FileWriteStage.Permission,
+        {
+          permission,
+          user_activation: activation,
+          elapsed_ms: Math.round(performance.now() - startedAt),
+        },
       );
-      error.name = FILE_WRITE_PERMISSION_ERROR_NAME;
-      throw fileWriteError(error, FileWriteStage.Permission, {
-        permission,
-        user_activation: activation,
-        elapsed_ms: Math.round(performance.now() - startedAt),
-      });
     }
     const format = fileFormat(handle.name);
     const output = await encodeOutput(format);

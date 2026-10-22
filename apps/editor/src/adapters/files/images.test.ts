@@ -321,6 +321,30 @@ describe("browser-images", () => {
       check(anchors.length, 0);
       check(createdUrls.length, 0);
 
+      // A saved PNG handle whose write permission is not granted never writes or downloads:
+      // a dismissed dialog cancels like a closed picker, a refusal says so.
+      for (const [permission, name] of [
+        ["prompt", "AbortError"],
+        ["denied", "FileWritePermissionError"],
+      ]) {
+        resetCounters();
+        let handleWrites = 0;
+        const fileHandle = {
+          name: "kept.png",
+          requestPermission: async () => permission,
+          async createWritable() {
+            handleWrites += 1;
+            return { async write() {}, async close() {} };
+          },
+        };
+        await rejects(
+          images.savePng(sourcePixels, "kept", { fileHandle }),
+          (error) => error.name === name,
+        );
+        check(handleWrites, 0);
+        check(anchors.length, 0);
+      }
+
       // Explicit download mode bypasses an available picker and reuses PNG encoding.
       resetCounters();
       let forcedPickerCalled = false;
