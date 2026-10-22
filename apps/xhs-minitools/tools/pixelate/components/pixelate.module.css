@@ -85,7 +85,8 @@
 .knob svg {
   width: 18px;
   height: 18px;
-  stroke-width: 2.4;
+  /* The rotate arrows' chevron needs this weight or less to stay clear of the arc's end. */
+  stroke-width: 2;
 }
 
 .status {
