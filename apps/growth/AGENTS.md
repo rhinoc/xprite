@@ -52,3 +52,7 @@ skipped. Lengths are display units: Latin characters count 1, CJK characters 2.
   `searchTitle`/`searchDescription`, so visible headings and intros stay unchanged.
 - `pnpm run check` runs it with `--no-build` inside `check:site-build`, after the
   SSR check builds both apps. Limits and tests live in `infra/page-metadata.ts`.
+- The same check parses every `application/ld+json` block and validates each FAQPage
+  against the page's visible text (`infra/structured-data.ts`). Build FAQPage nodes with
+  `faqPageSchema` from `content/site/faq.ts` out of the same entries the page renders;
+  add one only where the page shows a FAQ, never for questions readers cannot see.

@@ -1,6 +1,7 @@
 // Fails when a public page's <title> or meta description is missing, duplicated or
-// outside the search snippet limits in infra/page-metadata.ts. Reads built HTML, so it
-// builds the growth and tools apps first unless --no-build reuses their dist output.
+// outside the search snippet limits in infra/page-metadata.ts, or when its JSON-LD does not
+// parse or a FAQPage disagrees with the visible FAQ (infra/structured-data.ts). Reads built
+// HTML, so it builds the growth and tools apps first unless --no-build reuses their dist output.
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
@@ -11,6 +12,7 @@ import {
   formatMetadataIssue,
   readPageMetadata,
 } from "../../infra/page-metadata.ts";
+import { checkStructuredData, formatStructuredDataIssue } from "../../infra/structured-data.ts";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const packageManager = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
@@ -65,6 +67,7 @@ function build() {
 
 function collectPages() {
   const pages = [];
+  const documents = [];
   for (const source of SOURCES) {
     if (source.file) {
       const html = readFileSync(resolve(repositoryRoot, source.file), "utf8");
@@ -77,16 +80,19 @@ function collectPages() {
     for (const file of htmlFiles(root)) {
       const page = pagePath(source.prefix, root, file);
       const indexable = ASSEMBLED_PAGES.has(page) || undefined;
-      pages.push(readPageMetadata(readFileSync(file, "utf8"), page, { indexable }));
+      const html = readFileSync(file, "utf8");
+      pages.push(readPageMetadata(html, page, { indexable }));
+      documents.push({ page, html });
     }
   }
-  return pages;
+  return { pages, documents };
 }
 
 if (!process.argv.includes("--no-build")) build();
 const started = performance.now();
-const pages = collectPages();
+const { pages, documents } = collectPages();
 const issues = checkPageMetadata(pages);
+const structuredData = checkStructuredData(documents);
 const errors = issues.filter((issue) => issue.severity === "error");
 const warnings = issues.filter((issue) => issue.severity === "warning");
 for (const issue of [...errors, ...warnings]) {
@@ -97,7 +103,15 @@ const elapsed = Math.round(performance.now() - started);
 console.log(
   `Page metadata: ${indexed} indexable pages, ${errors.length} errors, ${warnings.length} warnings (${elapsed} ms).`,
 );
+for (const issue of structuredData.issues) console.error(formatStructuredDataIssue(issue));
+console.log(
+  `Structured data: ${structuredData.blocks} JSON-LD blocks, ${structuredData.faqPages} FAQPage (${structuredData.questions} questions), ${structuredData.issues.length} errors.`,
+);
 if (errors.length) {
   console.error("Fix titles and descriptions per apps/growth/AGENTS.md (Search metadata).");
+  process.exitCode = 1;
+}
+if (structuredData.issues.length) {
+  console.error("Fix JSON-LD per apps/growth/AGENTS.md (Search metadata).");
   process.exitCode = 1;
 }
