@@ -11,6 +11,7 @@ import {
   ExportFrame,
   ExportRatio,
   exportSize,
+  frameShowsTitle,
   frameThumbnail,
   samplePixels,
 } from "$/shared/frames/layout";
@@ -87,5 +88,14 @@ describe("export composition", () => {
     assert.equal(sampled.height, 2);
     assert.deepEqual([...sampled.data.subarray(4, 8)], [8, 9, 10, 11]);
     assert.deepEqual([...sampled.data.subarray(8, 12)], [32, 33, 34, 35]);
+  });
+
+  it("shows a title on the window frames and the instant photo only", () => {
+    assert.deepEqual(EXPORT_FRAMES.filter(frameShowsTitle), [
+      ExportFrame.MacOS8,
+      ExportFrame.System7,
+      ExportFrame.Windows95,
+      ExportFrame.Polaroid,
+    ]);
   });
 });

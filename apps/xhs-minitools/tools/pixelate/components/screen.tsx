@@ -62,11 +62,12 @@ export function MiniToolScreen({ editor }: { editor: MiniToolEditor }) {
             content: ExportContent.Split,
             original: pixels.source,
             pixels: state.shown,
-            title: pixels.name,
+            name: pixels.name,
+            title: state.title,
             labels: { original: t("label.original"), pixels: t("label.pixels") },
           }
         : null,
-    [composition, pixels.source, pixels.name, state.shown, state.split, t],
+    [composition, pixels.source, pixels.name, state.shown, state.split, state.title, t],
   );
   useEffect(() => {
     if (pixels.error) setToast(t(miniToolError(pixels.error)));

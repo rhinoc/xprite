@@ -32,8 +32,9 @@ dynamic `import()`.
   - `frames/`: export sizes (3:4, 1:1, 9:16 at 1080 px wide), whole-pixel block placement, and
     the retro frames (none, Mac OS 8, System 7, Windows 95-style, old phone, handheld, CRT,
     instant photo) drawn as pixel art at a whole number of export pixels per art pixel and sized
-    around the picture, so its blocks stay whole. Framed exports carry the Xprite name in a status
-    bar, on the device or as a caption; frameless ones never do.
+    around the picture, so its blocks stay whole. The Mac OS 8, System 7 and Windows 95 title bars
+    and the instant photo's caption show the picture's title (`frameShowsTitle`). Framed exports
+    carry the Xprite name in a status bar or on the device; frameless ones never do.
   - `build/`: the Vite config for one tool, the CSS lowering, the audit and the ZIP packaging.
 - `tools/<tool>/` is one tool: `index.html`, `main.tsx` and its own screens and logic.
 
@@ -42,9 +43,10 @@ dynamic `import()`.
 The pixelate engine through `@xprite/tools-app/pixelation` (`PixelationManager` and its port)
 with a 390-wide screen in Simplified Chinese: the before/after split preview and three tabs.
 像素 sets the block count and four presets (默认, 清晰, 复古, 少色), with the engine's options
-under 高级. 对比 sets the divider's angle, position, sides, line style and labels; the divider can
-also be dragged and rotated on the canvas. 边框 picks the frame; the export ratio is under 比例
-below the canvas.
+under 高级. 对比 sets the divider's angle, position, sides, whether the line shows (显示分割线), its
+style and labels; the divider can also be dragged and rotated on the canvas. 边框 picks the frame
+and, for frames with a title bar or caption, edits its 标题 (the file name without extension by
+default; 用文件名 restores it). The export ratio is under 比例 below the canvas.
 
 - `managers/`: the screen's state (`MiniToolEditor`: split, layout, presets, undo), its text, the
   divider geometry (`split-geometry.ts`), what an export shows (`scene.ts`) and `pixel-presets.ts`.

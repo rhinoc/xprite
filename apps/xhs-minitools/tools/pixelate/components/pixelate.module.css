@@ -274,6 +274,30 @@
   flex: 1;
 }
 
+.titleInput {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--ink);
+  /* 16px keeps iOS from zooming in on focus. */
+  font: 400 16px/1 var(--ui);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.titleInput::placeholder {
+  color: var(--ink3);
+}
+
+.titleInput:focus {
+  border-color: var(--ink);
+  outline: none;
+}
+
 .end {
   flex: none;
   color: var(--ink3);
