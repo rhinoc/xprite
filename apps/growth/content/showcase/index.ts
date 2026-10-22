@@ -14,9 +14,9 @@ export const SHOWCASE_HERO_COPY = {
     titleLead: "Meet",
     titleOverview: "Choose your device",
     productDescription: [
-      "An online pixel art and animation editor.",
-      "Draw sprites with layers, frames and palettes. Open Aseprite projects and export GIF or PNG.",
-      "Use your computer, iPad or phone. Your artwork stays on your device.",
+      "Xprite is a free, open-source pixel art and animation editor that runs in your browser.",
+      "I build it on my own so you can draw sprites on a computer, iPad or phone, and still open and save Aseprite files.",
+      "You don't need an account, and your artwork stays on your device.",
     ],
     open: "Start editing",
     goToEditor: "Go to editor",
@@ -28,9 +28,9 @@ export const SHOWCASE_HERO_COPY = {
     titleLead: "遇见",
     titleOverview: "选择你的设备",
     productDescription: [
-      "在线像素画与动画编辑器。",
-      "用图层、动画帧和调色板创作，打开 Aseprite 作品，导出 GIF 或 PNG。",
-      "在电脑、iPad 和手机上使用，作品保存在自己的设备上。",
+      "Xprite 是一款免费、开源的在线像素画与动画编辑器。",
+      "我独立开发它，是为了让你在电脑、iPad 和手机上都能画像素画，打开和保存 Aseprite 文件。",
+      "不需要注册账号，作品保存在自己的设备上。",
     ],
     open: "开始编辑",
     goToEditor: "进入编辑器",
@@ -425,7 +425,7 @@ export const SHOWCASE_STORY_FEATURE_SLUGS = [
 export const SHOWCASE_STORY_COPY = {
   en: {
     createLabel: "02 / CREATE",
-    createTitle: "Drawing and animation",
+    createTitle: "Pixel art and animation",
     createDescription: "Draw pixel art with layers and animate it frame by frame.",
     features: ["Drawing tools", "Layers & frames", "GIF & PNG export"],
     screenshot: "The Xprite editor with layers and an eight-frame pixel animation",
@@ -437,7 +437,7 @@ export const SHOWCASE_STORY_COPY = {
     fileTitle: "Open Aseprite files",
     fileDescription:
       "Keep working with .ase and .aseprite projects. Export a still frame or an animated GIF.",
-    saveTitle: "Save projects",
+    saveTitle: "Save on your device",
     saveDescription:
       "Save projects in your browser or as files on your device. Install Xprite for offline editing after your first online visit.",
     layoutAlt: "Moving the Xprite timeline to the right, resizing it, and docking it at the bottom",
@@ -445,7 +445,7 @@ export const SHOWCASE_STORY_COPY = {
   },
   "zh-CN": {
     createLabel: "02 / 创作",
-    createTitle: "绘画与动画",
+    createTitle: "像素画与动画",
     createDescription: "用图层组织画面，在时间轴上逐帧制作动画。",
     features: ["绘画工具", "图层与动画帧", "GIF 与 PNG 导出"],
     screenshot: "Xprite 编辑器中的图层与八帧像素动画",
@@ -455,7 +455,7 @@ export const SHOWCASE_STORY_COPY = {
     browserDescription: "使用鼠标、笔或触控绘画，移动和调整面板大小。",
     fileTitle: "打开 Aseprite 文件",
     fileDescription: "打开 .ase 和 .aseprite 作品，继续绘画与制作动画，导出单帧图片或 GIF。",
-    saveTitle: "保存作品",
+    saveTitle: "保存在本地",
     saveDescription:
       "保存到当前浏览器，或另存为设备上的文件。首次联网准备好资源后，也可安装 Xprite 离线编辑。",
     layoutAlt: "将 Xprite 时间线移到右侧、调整宽度，再停靠到底部",
