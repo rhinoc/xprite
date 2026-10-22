@@ -26,7 +26,6 @@ import {
   PUBLIC_THEME_ATTRIBUTES,
   PUBLIC_THEME_STYLE_PATH,
   PUBLIC_FONT_PATH,
-  PUBLIC_FONT_STYLE_PATH,
   GROWTH_DESKTOP_STYLE_PATH,
   publicDesktopWindow,
   publicReaderScroll,
@@ -259,7 +258,6 @@ ${article ? `<meta property="article:modified_time" content="${article.dateModif
 ${siteIcons()}
 <link rel="preload" href="${PUBLIC_FONT_PATH}?v=ec44f36e057a" as="font" type="font/woff2" crossorigin>
 ${language !== PublicLanguage.English ? `<link rel="preload" href="${CHINESE_FONT_PATH}" as="font" type="font/woff2" crossorigin>` : ""}
-<link rel="stylesheet" href="${PUBLIC_FONT_STYLE_PATH}">
 <link rel="stylesheet" href="${PUBLIC_THEME_STYLE_PATH}">
 <link rel="stylesheet" href="${GUIDE_STYLE_PATH}">
 <link rel="stylesheet" href="${GROWTH_DESKTOP_STYLE_PATH}">

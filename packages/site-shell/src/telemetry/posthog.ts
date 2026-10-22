@@ -280,8 +280,9 @@ export class BrowserTelemetry {
       // Collect early events in the existing queue while rendering takes priority over the SDK.
       await new Promise<void>((resolve) => {
         let request: number | undefined;
+        let timeout: ReturnType<typeof setTimeout> | undefined;
         const resume = () => {
-          clearTimeout(timeout);
+          if (timeout !== undefined) clearTimeout(timeout);
           if (request !== undefined) window.cancelIdleCallback(request);
           window.removeEventListener("load", idle);
           window.removeEventListener("pointerdown", resume);
@@ -289,11 +290,12 @@ export class BrowserTelemetry {
           this.resumeInitialization = undefined;
           resolve();
         };
+        // The SDK download waits for the page's own load; a press or key still starts it at once.
         const idle = () => {
+          timeout = setTimeout(resume, TELEMETRY_IDLE_TIMEOUT_MS);
           if (typeof window.requestIdleCallback === "function")
             request = window.requestIdleCallback(resume, { timeout: TELEMETRY_IDLE_TIMEOUT_MS });
         };
-        const timeout = setTimeout(resume, TELEMETRY_IDLE_TIMEOUT_MS);
         this.resumeInitialization = resume;
         window.addEventListener("pointerdown", resume, { once: true, passive: true });
         window.addEventListener("keydown", resume, { once: true });

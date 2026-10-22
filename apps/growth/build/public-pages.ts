@@ -27,6 +27,7 @@ import {
 } from "../content/site/language.ts";
 import { languageSwitchLinks, showcaseLabel } from "../content/site/navigation.ts";
 import { DOCUMENT_PAGES, SITE_REDIRECTS } from "../content/site/pages.ts";
+import { missingFontFaces } from "./font-faces.ts";
 import { ARTICLE_CONTENT_ROOT, articleHtml, articleImageResources } from "./pages/article-pages.ts";
 import {
   documentHtml,
@@ -591,6 +592,17 @@ export async function growthPublicPages(): Promise<Plugin> {
       else await rm(resolve(output, "sitemap.xml"), { force: true });
       // One URL per font, whether a page reaches it through Vite, /theme/fonts.css or the SSG CSS.
       await shareDuplicateFonts(output, { directory: PUBLIC_UI_ASSET_PREFIX });
+      // Pages take their faces from growth-desktop.css. /theme/fonts.css stays published for
+      // pages cached from earlier releases, so it must not declare a face that stylesheet lacks.
+      const desktopStylesheet = await readFile(desktopStylesheetFile, "utf8");
+      for (const path of [PUBLIC_FONT_STYLE_PATH, "/pixel-code/fonts.css"]) {
+        const missing = missingFontFaces(
+          desktopStylesheet,
+          await readFile(resolve(output, `.${path}`), "utf8"),
+        );
+        if (missing.length)
+          throw new Error(`${GROWTH_DESKTOP_STYLE_PATH} lacks ${path} faces: ${missing.join(" ")}`);
+      }
       // Last step: every page and stylesheet now has its final references and bytes.
       await versionOutputDirectory(output);
     },
