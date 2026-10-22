@@ -70,10 +70,19 @@
   transform: translate(50%, 50%) scale(2);
 }
 
-.productDescription {
-  width: min(680px, 100%);
-  margin: 16px auto 0;
-  text-wrap: wrap;
+.summary {
+  display: block;
+  max-width: 44ch;
+  margin-top: 12px;
+  font-size: var(--site-scene-summary-size);
+  line-height: var(--site-scene-summary-line-height);
+  white-space: normal;
+  text-wrap: balance;
+}
+/* Break Chinese only at its punctuation, so the device list stays on its own line. */
+.summary:lang(zh) {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 .intro {
@@ -304,10 +313,6 @@
   clip-path: inset(50%);
 }
 
-.productDescription:lang(zh) span {
-  display: inline-block;
-}
-
 :global([data-showcase-desktop]) {
   position: relative;
   display: grid;
@@ -336,9 +341,9 @@
 }
 .intro {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
   padding: 16px 20px;
   text-align: left;
 }
@@ -362,13 +367,6 @@
   font: inherit;
   color: inherit;
   -webkit-text-stroke: 0;
-}
-.productDescription,
-.productDescription:lang(zh) {
-  width: auto;
-  max-width: 44ch;
-  min-width: 0;
-  margin: 0;
 }
 @media (max-width: 1000px) {
   :global([data-showcase-desktop]) {
