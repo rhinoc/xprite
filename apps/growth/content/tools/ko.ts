@@ -24,6 +24,12 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "K-means": "K-평균",
   Contrast: "대비",
   Nearest: "최근접",
+  Sampling: "샘플링",
+  "Preserve edges": "가장자리 유지",
+  "Dominant colors": "주요 색상",
+  "Most frequent color": "가장 많은 색상",
+  "Box average": "영역 평균",
+  "Nearest-neighbor": "최근접 이웃",
   Pixels: "픽셀",
   "Xprite Editor": "Xprite 에디터",
   "Xprite Aseprite Viewer": "Xprite Aseprite 뷰어",
@@ -52,7 +58,7 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "Convert GIF animations into PNG sprite sheets with JSON frame data.":
     "GIF 애니메이션을 PNG 스프라이트 시트와 JSON 프레임 데이터로 변환하세요.",
   "Convert a GIF to a PNG sprite sheet free in your browser. Set rows, columns and spacing; get JSON frame data for game engines. Files stay on your device.":
-    "브라우저에서 GIF 애니메이션을 무료로 PNG 스프라이트 시트로 변환하세요. 행, 열, 간격을 고르고 JSON 프레임 데이터도 내려받을 수 있습니다. 파일은 기기에서 처리됩니다.",
+    "브라우저에서 GIF 애니메이션을 무료로 PNG 스프라이트 시트로 변환하세요. 행, 열, 간격을 고르고 JSON 프레임 데이터도 받을 수 있습니다. 파일은 기기에서 처리됩니다.",
   "Choose a GIF file": "GIF 파일 선택",
   "Open GIF": "GIF 열기",
   "Open GIF…": "GIF 열기…",

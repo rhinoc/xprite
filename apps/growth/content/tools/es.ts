@@ -24,6 +24,12 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   "K-means": "K-medias",
   Contrast: "Contraste",
   Nearest: "Más cercano",
+  Sampling: "Muestreo",
+  "Preserve edges": "Conservar bordes",
+  "Dominant colors": "Colores dominantes",
+  "Most frequent color": "Color más frecuente",
+  "Box average": "Promedio de área",
+  "Nearest-neighbor": "Vecino más cercano",
   Pixels: "Píxeles",
   "Xprite Editor": "Editor Xprite",
   "Xprite Aseprite Viewer": "Visor de Aseprite de Xprite",
@@ -38,11 +44,11 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
     "Los archivos se quedan en tu dispositivo. Sin subir nada a la nube.",
   "Inspect an Aseprite file": "Revisa un archivo de Aseprite",
   "Aseprite Viewer: Open .aseprite & .ase Files Online | Xprite":
-    "Visor de Aseprite online: abre archivos .ase y .aseprite | Xprite",
+    "Visor de Aseprite online: abre .ase y .aseprite | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Previsualiza proyectos de Aseprite y exporta cuadros PNG o animaciones GIF.",
   "Free Aseprite viewer: open .aseprite and .ase files online without Aseprite. Preview layers and animation, export PNG or GIF. Files never leave your device.":
-    "Abre proyectos de Aseprite, revisa capas y animaciones y exporta cuadros PNG o GIF en tu navegador. Los archivos se quedan en tu dispositivo, sin subirlos a la nube.",
+    "Abre proyectos de Aseprite, revisa capas y animaciones y exporta cuadros PNG o GIF en tu navegador. Los archivos no salen de tu dispositivo.",
   "Choose an Aseprite file": "Elige un archivo de Aseprite",
   "Open file": "Abrir archivo",
   "Open file…": "Abrir archivo…",
@@ -53,7 +59,7 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   "Convert GIF animations into PNG sprite sheets with JSON frame data.":
     "Convierte animaciones GIF en hojas de sprites PNG con datos de cuadros en JSON.",
   "Convert a GIF to a PNG sprite sheet free in your browser. Set rows, columns and spacing; get JSON frame data for game engines. Files stay on your device.":
-    "Convierte GIF en hojas de sprites PNG gratis en tu navegador. Elige filas, columnas y espaciado, y descarga los cuadros en JSON. Tus archivos no salen de tu equipo.",
+    "Convierte GIF en hojas de sprites PNG gratis en tu navegador. Elige filas, columnas y espaciado y descarga el JSON de los cuadros. Nada sale de tu equipo.",
   "Choose a GIF file": "Elige un archivo GIF",
   "Open GIF": "Abrir GIF",
   "Open GIF…": "Abrir GIF…",

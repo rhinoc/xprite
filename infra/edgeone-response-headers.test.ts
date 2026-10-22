@@ -50,6 +50,10 @@ const LONG_LIVED_PATHS = [
   "/showcase/overview/desktop.png",
   "/showcase/overview/portrait.png",
   "/showcase/ipad/macbook-pro.glb",
+  // Gzip copies of the showcase models and HDR, fetched with `?v=` by compressed-asset.ts.
+  "/showcase/ipad/macbook-pro.glb.gz",
+  "/showcase/ipad/ipad.glb.gz",
+  "/showcase/ipad/studio_small_08_1k.hdr.gz",
 ];
 // Stable-name files that some page or script loads without a content version.
 const REVALIDATED_PATHS = [
@@ -93,6 +97,11 @@ describe("EdgeOne response headers", () => {
       const values = matchingHeaderValues(rules, path, "Cache-Control");
       expect(values.at(-1), path).toBe(IMMUTABLE);
     }
+  });
+
+  it("stays within EdgeOne's header rule limit, even with the preview noindex rule", () => {
+    // EdgeOne ignores every header rule after the 30th; preview deployments append one more.
+    expect(rules.length + 1).toBeLessThanOrEqual(30);
   });
 
   it("keeps component docs out of search results", () => {

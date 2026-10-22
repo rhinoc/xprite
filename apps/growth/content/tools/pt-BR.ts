@@ -24,6 +24,12 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "K-means": "K-médias",
   Contrast: "Contraste",
   Nearest: "Mais próximo",
+  Sampling: "Amostragem",
+  "Preserve edges": "Preservar bordas",
+  "Dominant colors": "Cores dominantes",
+  "Most frequent color": "Cor mais frequente",
+  "Box average": "Média da área",
+  "Nearest-neighbor": "Vizinho mais próximo",
   Pixels: "Pixels",
   "Xprite Editor": "Editor Xprite",
   "Xprite Aseprite Viewer": "Visualizador de Aseprite do Xprite",
@@ -38,7 +44,7 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
     "Os arquivos ficam no seu dispositivo. Sem envio para a nuvem.",
   "Inspect an Aseprite file": "Inspecione um arquivo do Aseprite",
   "Aseprite Viewer: Open .aseprite & .ase Files Online | Xprite":
-    "Visualizador de Aseprite online: abra .ase e .aseprite | Xprite",
+    "Visualizador de Aseprite online: abra .aseprite | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Visualize projetos do Aseprite e exporte quadros PNG ou animações GIF.",
   "Free Aseprite viewer: open .aseprite and .ase files online without Aseprite. Preview layers and animation, export PNG or GIF. Files never leave your device.":
@@ -53,14 +59,14 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "Convert GIF animations into PNG sprite sheets with JSON frame data.":
     "Converta animações GIF em sprite sheets PNG com dados de quadros em JSON.",
   "Convert a GIF to a PNG sprite sheet free in your browser. Set rows, columns and spacing; get JSON frame data for game engines. Files stay on your device.":
-    "Converta GIFs em sprite sheets PNG de graça no navegador. Escolha linhas, colunas e espaçamento e baixe os dados dos quadros em JSON. Os arquivos ficam com você.",
+    "Converta GIFs em sprite sheets PNG de graça no navegador. Escolha linhas, colunas e espaçamento e baixe o JSON dos quadros. Os arquivos ficam com você.",
   "Choose a GIF file": "Escolha um arquivo GIF",
   "Open GIF": "Abrir GIF",
   "Open GIF…": "Abrir GIF…",
   "Drop a GIF file": "Solte um arquivo GIF",
   "Make a design for your island": "Crie um design para sua ilha",
   "Animal Crossing QR Code Converter: PNG & Aseprite | Xprite":
-    "Conversor de QR codes do Animal Crossing: PNG e Aseprite | Xprite",
+    "Conversor de QR do Animal Crossing: PNG e Aseprite | Xprite",
   "Convert PNG images and Aseprite tilemaps into island designs, or open an existing design QR code and export it unchanged.":
     "Converta imagens PNG e tilemaps do Aseprite em designs para a ilha, ou abra o QR code de um design existente e exporte sem alterações.",
   "Create Animal Crossing design QR codes from PNG images and Aseprite tilemaps, or read design QR images and export their data. Files stay on your device.":

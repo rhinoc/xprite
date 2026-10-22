@@ -15,7 +15,7 @@ import {
   TOOL_PAGES,
   type SitePage,
 } from "../../content/site/pages.ts";
-import { sitemap } from "../seo/discovery.ts";
+import { pageLastModified, sitemap } from "../seo/discovery.ts";
 import {
   documentContent,
   documentHtml,
@@ -112,6 +112,15 @@ describe("document pages", () => {
     assert.ok(entries.length > 0);
     for (const entry of entries)
       assert.match(entry, /<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/, entry);
+  });
+
+  it("date every localized tool page like its English page", () => {
+    for (const page of TOOL_PAGES) {
+      const english = TOOL_PAGES.find((item) => item.path === unlocalizedPath(page.path));
+      assert.ok(english, page.path);
+      assert.match(pageLastModified(page) ?? "", /^\d{4}-\d{2}-\d{2}$/, page.path);
+      assert.equal(pageLastModified(page), pageLastModified(english), page.path);
+    }
   });
 
   it("pair each translated document with its other language", () => {

@@ -27,10 +27,13 @@ export enum SitePageType {
   Other = "other",
 }
 
+/** The last segment of each `/tools/{tool}/` page; also the `cta_target` for links to it. */
 export enum SiteToolName {
   Viewer = "viewer",
   GifSheet = "gif-to-sprite-sheet",
   AnimalCrossing = "animal-crossing-qr",
+  Pixelate = "pixelate",
+  FuseBeads = "fuse-beads",
 }
 
 export type SiteTelemetryProperties = Readonly<Record<string, string | number | boolean | null>>;
