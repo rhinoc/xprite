@@ -1,4 +1,5 @@
 import type { PixelBuffer } from "$/base/primitives";
+import { LineGuideMode } from "$/import-export/image/import/types";
 
 /**
  * PixelOE pre-pass (Apache-2.0, KohakuBlueleaf/PixelOE, `torch/outline.py` + `torch/color.py`), ported:
@@ -352,10 +353,16 @@ function outlineExpansion(
   w: number,
   h: number,
   pixelSize: number,
+  guide?: PrepassGuide,
   thickness = PIXELOE_THICKNESS,
 ): [Plane, Plane, Plane] {
   const [L] = toLab(...planes);
   const weight = expansionWeight(L, w, h, pixelSize);
+  // PixelOE + lines: dark spreads along the drawn lines too (union) or only there (replace).
+  if (guide)
+    for (let i = 0; i < weight.length; i++)
+      weight[i] =
+        guide.mode === LineGuideMode.Replace ? guide.mask[i] : Math.max(weight[i], guide.mask[i]);
   const kt = kernelFor(thickness);
   const kc = kernelFor(2);
   return planes.map((p) => {
@@ -392,8 +399,21 @@ function colorMatch(
   return rgb.map((p, i) => waveletColorFix(p, target[i], w, h)) as [Plane, Plane, Plane];
 }
 
-/** Full pre-pass: outline expansion, then colour match to the original. `pixelSize` is the cell size in source pixels. */
-export function pixeloePrepass(image: PixelBuffer, pixelSize: number): PixelBuffer {
+/** A line mask at the image size (1 = line) and how it changes the expansion weight. */
+export interface PrepassGuide {
+  mask: Float32Array;
+  mode: LineGuideMode;
+}
+
+/**
+ * Full pre-pass: outline expansion, then colour match to the original. `pixelSize` is the cell size
+ * in source pixels. Without `guide` this is the original pre-pass, unchanged.
+ */
+export function pixeloePrepass(
+  image: PixelBuffer,
+  pixelSize: number,
+  guide?: PrepassGuide,
+): PixelBuffer {
   const size = Math.round(pixelSize);
   if (size < 2 || image.width < 2 || image.height < 2) return image;
   const { width: w, height: h, data } = image;
@@ -403,7 +423,7 @@ export function pixeloePrepass(image: PixelBuffer, pixelSize: number): PixelBuff
     new Float32Array(w * h),
   ];
   for (let i = 0; i < w * h; i++) for (let c = 0; c < 3; c++) planes[c][i] = data[i * 4 + c] / 255;
-  const expanded = outlineExpansion(planes, w, h, size);
+  const expanded = outlineExpansion(planes, w, h, size, guide);
   const matched = colorMatch(expanded, planes, w, h);
   const out = new Uint8ClampedArray(data);
   for (let i = 0; i < w * h; i++)

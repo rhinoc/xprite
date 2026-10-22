@@ -1,4 +1,9 @@
-import { CellColorPicker, PixelationAlgorithm } from "@xprite/editor-core/import-export";
+import {
+  CellColorPicker,
+  LineGuideMode,
+  OutlinePrepass,
+  PixelationAlgorithm,
+} from "@xprite/editor-core/import-export";
 
 /** Source text with the editor's translation key, so each app translates by its own mechanism. */
 export interface PixelationLabel {
@@ -12,11 +17,8 @@ export const LABELS = {
   picker: { text: "Pixel color:", key: "import.dialog.color.picker" },
   limitColors: { text: "Limit colors", key: "ui.limit.colors" },
   colors: { text: "Colors:", key: "ui.colors.label" },
-  prepass: { text: "PixelOE pre-pass", key: "import.dialog.pixeloe.prepass" },
-  preset: { text: "PixelOE preset", key: "import.dialog.pixeloe.preset" },
-  snapPalette: { text: "Snap palette", key: "import.dialog.snap.palette" },
-  snapColors: { text: "Palette colors", key: "import.dialog.snap.colors" },
-  advanced: { text: "Advanced", key: "import.dialog.advanced" },
+  prepass: { text: "Outline pre-pass:", key: "import.dialog.outline.prepass" },
+  lineGuide: { text: "Line guide:", key: "import.dialog.line.guide" },
   pixels: { text: "{size} px", key: "ui.dimension.pixels" },
 } as const satisfies Record<string, PixelationLabel>;
 export const ALGORITHM_LABELS: Readonly<Record<PixelationAlgorithm, PixelationLabel>> = {
@@ -28,6 +30,15 @@ export const ALGORITHM_LABELS: Readonly<Record<PixelationAlgorithm, PixelationLa
     key: "import.algorithm.custom-size",
   },
   [PixelationAlgorithm.Resize]: { text: "Resize only", key: "import.algorithm.resize" },
+};
+export const PREPASS_LABELS: Readonly<Record<OutlinePrepass, PixelationLabel>> = {
+  [OutlinePrepass.None]: { text: "None", key: "import.prepass.none" },
+  [OutlinePrepass.Pixeloe]: { text: "PixelOE", key: "import.prepass.pixeloe" },
+  [OutlinePrepass.PixeloeLines]: { text: "PixelOE + lines", key: "import.prepass.pixeloe-lines" },
+};
+export const LINE_GUIDE_LABELS: Readonly<Record<LineGuideMode, PixelationLabel>> = {
+  [LineGuideMode.Union]: { text: "Add to outlines", key: "import.line-guide.union" },
+  [LineGuideMode.Replace]: { text: "Lines only", key: "import.line-guide.replace" },
 };
 export const PICKER_LABELS: Readonly<Record<CellColorPicker, PixelationLabel>> = {
   [CellColorPicker.MostCommon]: { text: "Most common", key: "import.picker.most-common" },
@@ -41,6 +52,8 @@ const ALL_LABELS: readonly PixelationLabel[] = [
   ...Object.values(LABELS),
   ...Object.values(ALGORITHM_LABELS),
   ...Object.values(PICKER_LABELS),
+  ...Object.values(PREPASS_LABELS),
+  ...Object.values(LINE_GUIDE_LABELS),
 ];
 const KEYS = new Map(ALL_LABELS.map((label) => [label.text, label.key]));
 
@@ -50,6 +63,3 @@ export function pixelationLabelKey(text: string): string {
 }
 /** Every shared English text, for the apps that translate by source text. */
 export const PIXELATION_BASE_TEXTS: readonly string[] = ALL_LABELS.map((label) => label.text);
-
-/** Title of the collapsible row that holds the PixelOE controls. */
-export const pixelationAdvancedLabel = LABELS.advanced;

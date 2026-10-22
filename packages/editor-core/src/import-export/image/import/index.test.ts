@@ -114,14 +114,14 @@ describe("image-import", () => {
     );
 
     const original = new Uint8ClampedArray(pixelGrid.data);
-    pixelateImage(pixelGrid, { targetSize: { width: 5, height: 5 }, maxColors: 2 });
+    pixelateImage(pixelGrid, { targetSize: { width: 5, height: 5 }, paletteSnap: { colors: 2 } });
     equal([...pixelGrid.data], [...original], "pixelation does not mutate its input");
     equal(countDistinctColors(pixelGrid), 3, "distinct color count");
     const palette = extractPalette(pixelGrid, { maxColors: 2 });
     equal(palette.length, 2, "palette reduction limit");
     equal(palette[0].count, 128, "palette counts are deterministic");
-    const reduced = pixelateImage(pixelGrid, { maxColors: 2 });
-    check(countDistinctColors(reduced) <= 2, "maxColors bounds output colors");
+    const reduced = pixelateImage(pixelGrid, { paletteSnap: { colors: 2 } });
+    check(countDistinctColors(reduced) <= 2, "Limit colors bounds output colors");
 
     for (const bad of [
       () => pixelateImage({ width: 0, height: 1, data: new Uint8ClampedArray() }),
@@ -144,7 +144,7 @@ describe("image-import", () => {
     const preview = pixelateImage(large, {
       blockSize: 32,
       preserveDimensions: true,
-      maxColors: 32,
+      paletteSnap: { colors: 32 },
     });
     const elapsed = performance.now() - started;
     equal([preview.width, preview.height], [largeWidth, largeHeight], "4K preview dimensions");

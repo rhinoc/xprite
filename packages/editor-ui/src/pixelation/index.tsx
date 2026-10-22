@@ -1,8 +1,4 @@
-export {
-  PIXELATION_BASE_TEXTS,
-  pixelationAdvancedLabel,
-  pixelationLabelKey,
-} from "$/pixelation/base-labels";
+export { PIXELATION_BASE_TEXTS, pixelationLabelKey } from "$/pixelation/base-labels";
 export {
   PixelationSlot,
   usePixelationBase,

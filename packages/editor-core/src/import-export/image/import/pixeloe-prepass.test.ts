@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { pixelateImage } from "$/import-export/image/import/pixelate";
 import { pixeloePrepass } from "$/import-export/image/import/pixeloe-prepass";
-import { CellColorPicker, PixelationMode } from "$/import-export/image/import/types";
+import {
+  CellColorPicker,
+  OutlinePrepass,
+  PixelationMode,
+} from "$/import-export/image/import/types";
 
 function gradient(width: number, height: number) {
   const data = new Uint8ClampedArray(width * height * 4);
@@ -37,8 +41,8 @@ describe("PixelOE pre-pass", () => {
       colorPicker: CellColorPicker.Median,
     };
     const off = pixelateImage(image, base);
-    const on = pixelateImage(image, { ...base, pixeloePrepass: true });
-    expect(pixelateImage(image, { ...base, pixeloePrepass: false })).toEqual(off);
+    const on = pixelateImage(image, { ...base, prepass: OutlinePrepass.Pixeloe });
+    expect(pixelateImage(image, { ...base, prepass: OutlinePrepass.None })).toEqual(off);
     expect(on.width).toBe(off.width);
     expect(on.data).not.toEqual(off.data);
   });

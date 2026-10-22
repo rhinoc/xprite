@@ -5,8 +5,7 @@ import {
   usePixelationBase,
   type PixelationBaseProps,
 } from "$/pixelation/base-controls";
-import { pixelationAdvancedLabel } from "$/pixelation/base-labels";
-import { ContentLayout, ContentPadding, Disclosure, Field, FieldLayout, Panel } from "@xprite/ui";
+import { ContentLayout, ContentPadding, Field, FieldLayout, Panel } from "@xprite/ui";
 
 import styles from "$/pixelation/pixelation.module.css";
 
@@ -58,27 +57,22 @@ export function PixelationBaseControls({
         {field(PixelationSlot.Width, SIZE_WIDTH)}
         {field(PixelationSlot.Height, SIZE_WIDTH)}
         {field(PixelationSlot.ColorPicker)}
+        {field(PixelationSlot.Prepass)}
+        {field(PixelationSlot.LineGuide)}
       </Group>
-      {(base[PixelationSlot.LimitColors].visible ||
-        base[PixelationSlot.Palette].visible ||
-        base[PixelationSlot.SnapPalette].visible) && (
+      {(base[PixelationSlot.LimitColors].visible || base[PixelationSlot.Palette].visible) && (
         <Group title={translate("Colors")}>
           {bare(PixelationSlot.LimitColors)}
           {field(PixelationSlot.Colors)}
+          {base[PixelationSlot.PaletteMenu].visible && (
+            <span className={styles.paletteMenu}>{base[PixelationSlot.PaletteMenu].render()}</span>
+          )}
           {base[PixelationSlot.Palette].visible && (
             <div className={styles.palette}>{base[PixelationSlot.Palette].render()}</div>
           )}
-          {bare(PixelationSlot.SnapPalette)}
-          {props.settings.snapPalette && field(PixelationSlot.SnapColors)}
         </Group>
       )}
       {children}
-      <Disclosure title={translate(pixelationAdvancedLabel.text)} className={styles.advanced}>
-        <div className={styles.groupRow}>
-          {bare(PixelationSlot.Prepass)}
-          {bare(PixelationSlot.PrepassPreset)}
-        </div>
-      </Disclosure>
     </div>
   );
 }
