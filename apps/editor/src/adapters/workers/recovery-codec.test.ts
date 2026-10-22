@@ -243,7 +243,10 @@ describe("recovery-codec", () => {
     const failed = restarting.encode(png);
     // Fail the worker while the request is in flight (encode posts after its queue turn).
     await workers[0].posted;
-    workers[0].dispatchEvent(new Event("error"));
+    // A crash while busy reports a script error (a bare Event before any answer is a missing script).
+    workers[0].dispatchEvent(
+      Object.assign(new Event("error"), { message: "Uncaught RangeError: crashed" }),
+    );
     await assert.rejects(failed, /worker failed/);
     const retried = await restarting.encode(png);
     assert.equal(workers.length, 2, "explicit retry replaces the failed worker");

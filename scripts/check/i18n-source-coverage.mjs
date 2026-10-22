@@ -61,11 +61,16 @@ const sourceExceptions = new Map([
     new Set([
       "Provide worker or workerFactory, not both",
       "Worker is unavailable; provide workerFactory in this environment",
+      // Stale-build report for diagnostics; the user sees ui.pwa.worker.load.failed.
+      "The image import worker script could not be loaded",
     ]),
   ],
   [
     "apps/editor/src/adapters/workers/recovery-codec-client.ts",
-    new Set(["Provide worker or workerFactory, not both"]),
+    new Set([
+      "Provide worker or workerFactory, not both",
+      "The recovery codec worker script could not be loaded",
+    ]),
   ],
   // The user sees ui.file.import.invalid; this is only its diagnostic cause.
   ["apps/editor/src/adapters/session/browser-session-ports.ts", new Set(["empty file"])],
