@@ -6,7 +6,6 @@ import {
   SHOWCASE_COPY,
   ShowcaseLanguage,
 } from "$/managers/showcase/showcase-language";
-import { RichText } from "@xprite/ui";
 
 import styles from "$/components/showcase/showcase.module.css";
 
@@ -36,9 +35,19 @@ export function ShowcaseIntro({
     ? `${titleEnd.prefix}${titleEnd.device}${titleEnd.suffix}`
     : copy.titleOverview;
   const deviceTitle = `${copy.titleLead} ${SHOWCASE_BRAND_NAME} ${titleDescription}`;
+  // The summary sits between the brand line and the device prompt, and moves below
+  // "on your <device>" once a demo starts, so each state reads as one sentence at the same height.
+  const headingLabel = started
+    ? `${deviceTitle}. ${copy.summary}`
+    : `${copy.titleLead} ${SHOWCASE_BRAND_NAME}. ${copy.summary} ${copy.titleOverview}`;
+  const summary = (
+    <span className={styles.summary} aria-hidden="true">
+      {copy.summary}
+    </span>
+  );
   return (
     <div ref={introRef} className={styles.intro} data-overview={!started}>
-      <h1 className={styles.title} aria-label={deviceTitle}>
+      <h1 className={styles.title} aria-label={headingLabel}>
         <span ref={titleLineRef} className={styles.titleLine}>
           <span className={styles.titleLead} aria-hidden="true">
             {copy.titleLead}
@@ -51,6 +60,7 @@ export function ShowcaseIntro({
             {SHOWCASE_BRAND_NAME}
           </span>
         </span>
+        {started ? null : summary}
         <span ref={subtitleRef} className={styles.titleEnd} aria-hidden="true">
           {started ? (
             <>
@@ -72,15 +82,8 @@ export function ShowcaseIntro({
             </span>
           )}
         </span>
+        {started ? summary : null}
       </h1>
-      <RichText className={styles.productDescription}>
-        {copy.productDescription.map((phrase, index) => (
-          <span key={phrase}>
-            {index > 0 ? " " : ""}
-            {phrase}
-          </span>
-        ))}
-      </RichText>
     </div>
   );
 }

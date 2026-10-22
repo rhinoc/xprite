@@ -3,15 +3,15 @@ export const SHOWCASE_SITE_URL = "https://xprite.cc/";
 export const SHOWCASE_PAGES = {
   en: {
     path: "/about/",
-    title: "About Xprite — free online pixel art and animation editor",
+    title: "Xprite — Free pixel art & animation editor for any device",
     description:
-      "Xprite is a free, open-source pixel art and animation editor by one developer. Open Aseprite files online on PC, iPad or phone. Your art stays on your device.",
+      "Xprite is a free online pixel art and animation editor. Draw and animate sprites on a computer, iPad or phone, open Aseprite files, and export GIF or PNG.",
   },
   "zh-CN": {
     path: "/zh-CN/about/",
-    title: "关于 Xprite｜免费开源的在线像素画与动画编辑器",
+    title: "Xprite｜免费的在线像素画与动画编辑器",
     description:
-      "Xprite 是一位开发者独立制作的免费开源像素画与动画编辑器。在电脑、iPad 和手机浏览器中打开和保存 Aseprite 文件，导出 GIF 或 PNG，作品保存在自己的设备上。",
+      "Xprite 是免费的在线像素画与动画编辑器。在电脑、iPad 或手机上画像素画、做逐帧动画，打开 Aseprite 文件，导出 GIF 或 PNG。",
   },
   ja: {
     path: "/ja/about/",
