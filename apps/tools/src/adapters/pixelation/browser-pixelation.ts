@@ -19,7 +19,7 @@ import {
 import type { PixelateOptions } from "@xprite/editor-core/import-export";
 import { readBundledPalettePresets } from "@xprite/editor-ui/palette-presets";
 import { PalettePresetKind } from "@xprite/editor-ui/palette/model";
-import exampleUrl from "@xprite/site-assets/tools/pixelate/young-hare.jpg?url";
+import exampleUrl from "@xprite/site-assets/tools/pixelate/girl-with-a-pearl-earring.jpg?url";
 const MAX_FILE_BYTES = TOOL_IMPORT_MAX_BYTES;
 const MAX_IMAGE_PIXELS = 16 * 1024 * 1024;
 const TIMEOUT_MS = 30_000;
@@ -84,7 +84,7 @@ export function createBrowserPixelationPort(): PixelationPort {
     async example() {
       const response = await fetch(exampleUrl);
       if (!response.ok) throw new Error("The example is unavailable.");
-      return new File([await response.blob()], "young-hare.jpg");
+      return new File([await response.blob()], "girl-with-a-pearl-earring.jpg");
     },
     detectGrid(image, algorithm, size) {
       return request(

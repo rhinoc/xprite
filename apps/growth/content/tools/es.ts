@@ -144,6 +144,7 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   "Hello GIF animation preview": "Vista previa de la animación GIF Hello",
   "ACNH Winding Cobblestone Path by Amy, with transparent edges":
     "ACNH Camino empedrado sinuoso de Amy, con bordes transparentes",
+  "Girl with a Pearl Earring by Johannes Vermeer": "La joven de la perla, de Johannes Vermeer",
   "ACNH Winding Cobblestone Path by": "ACNH Camino empedrado sinuoso, de",
   "Edit in Xprite": "Editar en Xprite",
   "Export animation (.gif)": "Exportar animación (.gif)",
