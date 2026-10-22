@@ -1,24 +1,31 @@
+import { createMiniToolPort } from "$/adapters/minitool/minitool-output";
 import { createMiniToolPixelationPort } from "$/adapters/minitool/minitool-pixelation";
-import { MiniToolPixelationPage } from "$/components/minitool/minitool-pixelation-page";
-import { ToolAppearance } from "$/components/shared/tool-appearance";
+import {
+  MiniToolRendererContext,
+  MiniToolTextContext,
+} from "$/components/minitool/minitool-controls";
+import { MiniToolScreen } from "$/components/minitool/minitool-screen";
+import type { MiniToolText } from "$/managers/locale/minitool-text";
+import { MiniToolEditor } from "$/managers/minitool/minitool-editor";
 import { PixelationManager } from "$/managers/pixelation/pixelation-manager";
-import { DesktopAppearance } from "@xprite/site-shell";
-import { createBrowserDesktop } from "@xprite/site-shell/browser";
-import type { UiThemeSnapshot } from "@xprite/ui/assets";
 
-/** The pixelate tool as a Xiaohongshu mini tool: same manager and page, container adapters. */
-export function createMiniToolPixelationApplication(initialTheme: UiThemeSnapshot) {
+/** The pixelate tool as a Xiaohongshu mini tool: the same pixelation manager, a phone layout. */
+export function createMiniToolPixelationApplication(text: MiniToolText) {
   const manager = new PixelationManager(createMiniToolPixelationPort());
-  const desktop = createBrowserDesktop({
-    // The container follows the phone's light or dark setting.
-    appearance: DesktopAppearance.System,
-  });
+  const port = createMiniToolPort();
+  const editor = new MiniToolEditor(manager, port);
+  void port.renderer.ready();
   return {
     view: (
-      <ToolAppearance desktop={desktop} initialTheme={initialTheme}>
-        <MiniToolPixelationPage manager={manager} />
-      </ToolAppearance>
+      <MiniToolTextContext.Provider value={text}>
+        <MiniToolRendererContext.Provider value={port.renderer}>
+          <MiniToolScreen editor={editor} />
+        </MiniToolRendererContext.Provider>
+      </MiniToolTextContext.Provider>
     ),
-    dispose: () => manager.dispose(),
+    dispose: () => {
+      editor.dispose();
+      manager.dispose();
+    },
   };
 }

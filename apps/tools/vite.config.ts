@@ -117,6 +117,14 @@ export default defineConfig(({ command }) => ({
         find: /^@xprite\/ui\/style\.css$/,
         replacement: resolve(repositoryRoot, "packages/ui/dist/style.css"),
       },
+      {
+        find: "@xprite/ui/fonts/",
+        replacement: `${resolve(repositoryRoot, "packages/ui/assets/fonts")}/`,
+      },
+      {
+        find: "@xprite/ui/patterns/",
+        replacement: `${resolve(repositoryRoot, "packages/ui/assets/patterns")}/`,
+      },
       { find: /^@xprite\/ui$/, replacement: `${uiSource}/index.ts` },
       { find: "@xprite/ui/", replacement: `${uiSource}/` },
       {

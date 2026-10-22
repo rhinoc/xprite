@@ -105,6 +105,7 @@ Typography also comes from the skin: ChiKareGo2 for ordinary copy and controls,
 FindersKeepers for the theme’s mini text, and Fusion Pixel for CJK glyphs.
 The shell does not override the theme font, and bootstrap waits for the active
 skin’s declared fonts before hydration.
+
 ## Animal Crossing Design Converter
 
 `/tools/animal-crossing-qr/` accepts local PNGs and Aseprite projects with embedded
@@ -218,16 +219,26 @@ the overall pattern size.
 `pnpm build:pixelate-minitool` packages the pixelate tool as a Xiaohongshu 小工具: an offline
 H5 ZIP (`apps/tools/dist-minitool.zip`, built from `vite.minitool.config.ts`) with `index.html`
 at the root, one classic ES2017 script, relative asset paths, and Chrome 61 fallbacks for the
-stylesheet (`build/minitool-legacy-css.ts`). It reuses `PixelationManager` and
-`PixelationPage`; only the platform pieces differ:
+stylesheet (`build/minitool-legacy-css.ts`). It reuses `PixelationManager` and the pixelate
+engine, with its own phone-sized screen instead of `PixelationPage`:
 
+- `components/minitool/` is a single 390-wide screen in Simplified Chinese: a top row (换照片,
+  导出), the before/after split preview, and three tabs. 像素 sets the block count and four presets
+  (默认, 清晰, 复古, 少色), with the engine's options under 高级. 对比 sets the divider's angle,
+  position, sides, line style and labels; the divider can also be dragged and rotated on the
+  canvas. 版式 picks the export ratio (3:4, 1:1, 9:16) and frame (none, Mac OS 8 window, phone,
+  laptop, game console). The top 88 px stay clear for the container's own bar.
+- `managers/minitool/` holds the screen's state (`MiniToolEditor`: split, layout, presets,
+  undo) and the pure geometry: `split-geometry.ts` (the divider and its pixel steps),
+  `composition.ts` (export sizes, frames, whole-pixel block placement) and `pixel-presets.ts`.
+- `adapters/minitool/composition-renderer.ts` draws one scene for the preview, the thumbnails,
+  the export sheet and the exported PNG, so the export matches the preview. Exports are 1080 px
+  wide; framed exports carry a small Xprite mark, frameless ones never do.
 - `adapters/minitool/minitool-pixelation.ts` converts on the main thread (the container has no
-  Workers), downscales photos to 4 MP first, and enlarges results with whole-pixel scaling for
-  saving.
-- `adapters/minitool/xhs-bridge.ts` feature-detects `window.xhs.miniTool`: **Save to album**
-  calls `saveImageToPhotosAlbum`, **Post to note** calls `postNote`, and preferences use the
-  container Storage API on clients that have it, with browser storage as the fallback. In a
-  normal browser both buttons explain that they need the Xiaohongshu app.
-- `components/minitool/minitool-frame.tsx` replaces the website frame: no site navigation,
-  Files desktop, help, footer, telemetry, downloads or external links. The page opens in
-  Simplified Chinese; the language menu stays.
+  Workers) and downscales photos to 4 MP first.
+- `adapters/minitool/xhs-bridge.ts` feature-detects `window.xhs.miniTool`: **保存到相册** passes
+  the PNG (through `writeTempFile` when large) to `saveImageToPhotosAlbum`, **发布笔记** to `postNote`,
+  and preferences use the container Storage API on clients that have it, with browser storage as
+  the fallback. On `localhost` outside the container, saving downloads the PNG instead, for
+  testing; elsewhere both buttons explain that they need the Xiaohongshu app.
+- No site navigation, help, footer, telemetry, network requests or external links.

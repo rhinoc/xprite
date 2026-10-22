@@ -134,6 +134,22 @@ export class PixelationManager {
     void this.convert();
   };
   /**
+   * Put back settings together with the algorithm and grid they were made with (an undo step or a
+   * preset), then convert.
+   */
+  restore = (saved: Pick<PixelationSnapshot, "algorithm" | "grid" | "settings">) => {
+    if (!this.state.source || this.closed || this.state.loading || this.state.downloading) return;
+    // A grid detection still running would overwrite the restored grid.
+    ++this.request;
+    this.publish({
+      algorithm: saved.algorithm,
+      grid: saved.grid,
+      settings: saved.settings,
+      result: null,
+    });
+    void this.convert();
+  };
+  /**
    * Find pixels the way the import dialog does: detect with the chosen algorithm, recover a reliable
    * grid, otherwise fall back to the plain convert.
    */

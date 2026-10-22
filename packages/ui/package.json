@@ -43,7 +43,9 @@
       "types": "./dist/types/assets.d.ts",
       "import": "./dist/assets.js"
     },
-    "./pattern-data": "./assets/patterns/macintosh/catalog.json"
+    "./pattern-data": "./assets/patterns/macintosh/catalog.json",
+    "./fonts/*": "./assets/fonts/*",
+    "./patterns/*": "./assets/patterns/*"
   },
   "scripts": {
     "build": "node ../../scripts/generate-ui-theme.mjs && vite build && tsc -b tsconfig.json && node ../../scripts/rewrite-package-type-imports.mjs dist/types"
