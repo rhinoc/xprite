@@ -139,7 +139,11 @@ export function ToolFrame({
             <SiteMenubar
               label={t("Tool navigation")}
               applicationName={t(tool.label)}
-              applications={siteApplications(tool.path, language, helpHref)}
+              applications={siteApplications(
+                localizedSiteHref(tool.path, language),
+                language,
+                helpHref,
+              )}
               menus={frameMenus}
               help={
                 helpHref

@@ -7,7 +7,13 @@ import {
 import { FEATURES_PATH } from "../features/index.ts";
 import { GUIDE_PAGES } from "../help/pages.ts";
 import { SHOWCASE_PAGES } from "../showcase/pages.ts";
-import { EDITOR_TOOL, TOOLS, VIEWER_TOOL, ViewerHelpSection } from "../tools/index.ts";
+import {
+  EDITOR_TOOL,
+  TOOLS,
+  translateToolText,
+  VIEWER_TOOL,
+  ViewerHelpSection,
+} from "../tools/index.ts";
 import { documentTranslations, SITE_DOCUMENTS } from "./documents.ts";
 import { localizedSiteHref, PUBLIC_LANGUAGES, PublicLanguage } from "./language.ts";
 
@@ -52,6 +58,22 @@ export const DOCUMENT_PAGES: readonly SitePage[] = SITE_DOCUMENTS.flatMap((docum
     translations,
   }));
 });
+
+/** Every tool page in every public language; English keeps the unprefixed `/tools/` path. */
+export const TOOL_PAGES: readonly SitePage[] = PUBLIC_LANGUAGES.flatMap((language) =>
+  TOOLS.map((tool) => ({
+    kind: SitePageKind.Tool,
+    path: localizedSiteHref(tool.path, language),
+    language,
+    title: translateToolText(tool.title, language),
+    description: translateToolText(tool.description, language),
+    indexable: true,
+    translations: PUBLIC_LANGUAGES.map((value) => ({
+      language: value,
+      path: localizedSiteHref(tool.path, value),
+    })),
+  })),
+);
 
 const localizedPublishedPages: readonly SitePage[] = PUBLIC_LANGUAGES.flatMap((language) => [
   {
@@ -117,13 +139,7 @@ export const SITE_PAGES: readonly SitePage[] = [
     description: EDITOR_TOOL.description,
     indexable: true,
   },
-  ...TOOLS.map((tool) => ({
-    kind: SitePageKind.Tool,
-    path: tool.path,
-    title: tool.title,
-    description: tool.description,
-    indexable: true,
-  })),
+  ...TOOL_PAGES,
   ...localizedPublishedPages,
   ...DOCUMENT_PAGES,
 ];

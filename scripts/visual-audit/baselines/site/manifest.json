@@ -5826,7 +5826,7 @@
           "phase": "ready",
           "ready": "html[data-public-controls-ready]",
           "action": "feature",
-          "href": "/tools/viewer/",
+          "href": "/zh-CN/tools/viewer/",
           "regions": [
             {
               "name": "navigation",
@@ -6153,7 +6153,7 @@
           "phase": "ready",
           "ready": "html[data-public-controls-ready]",
           "action": "feature",
-          "href": "/tools/viewer/",
+          "href": "/ru/tools/viewer/",
           "regions": [
             {
               "name": "navigation",

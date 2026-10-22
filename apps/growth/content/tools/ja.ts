@@ -37,12 +37,12 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Files stay on your device. No cloud upload.":
     "ファイルは端末内に留まり、クラウドにはアップロードされません。",
   "Inspect an Aseprite file": "Aseprite ファイルを確認",
-  "Aseprite Viewer Online: Open .ase & .aseprite Files | Xprite":
+  "Aseprite Viewer: Open .aseprite & .ase Files Online | Xprite":
     "Aseprite ビューアー：.ase・.aseprite をオンラインで開く | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Aseprite プロジェクトをプレビューし、PNG のフレームや GIF アニメーションをエクスポート。",
   "Free Aseprite viewer: open .aseprite and .ase files online without Aseprite. Preview layers and animation, export PNG or GIF. Files never leave your device.":
-    "ブラウザで Aseprite プロジェクトを開き、レイヤーやアニメーションをプレビューして、PNG のフレームや GIF アニメーションをエクスポート。ファイルは端末内で処理され、クラウドにはアップロードされません。",
+    "ブラウザで Aseprite ファイルを開き、レイヤーとアニメーションをプレビューして PNG や GIF に書き出せます。ファイルは端末内で処理されます。",
   "Choose an Aseprite file": "Aseprite ファイルを選択",
   "Open file": "ファイルを開く",
   "Open file…": "ファイルを開く…",
@@ -64,7 +64,7 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Convert PNG images and Aseprite tilemaps into island designs, or open an existing design QR code and export it unchanged.":
     "PNG 画像や Aseprite のタイルマップを島のマイデザインに変換、または既存のマイデザイン QR コードを開いてそのままエクスポート。",
   "Create Animal Crossing design QR codes from PNG images and Aseprite tilemaps, or read design QR images and export their data. Files stay on your device.":
-    "PNG 画像や Aseprite のタイルマップから、あつ森のマイデザイン QR コードを作成。マイデザインの QR 画像を読み込んでデータをエクスポートすることもできます。ファイルは端末内で処理されます。",
+    "PNG 画像や Aseprite のタイルマップからマイデザインの QR コードを作成。QR 画像を読み込んでデータを書き出すこともできます。ファイルは端末内で処理されます。",
   "Choose artwork or an Animal Crossing QR image": "作品またはあつ森の QR 画像を選択",
   "Drop artwork, a QR image or an .acnl file": "作品、QR 画像、.acnl ファイルをドロップ",
   "Free online pixel art editor": "無料のオンラインドット絵エディター",
@@ -141,8 +141,8 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Open this tool in the Xiaohongshu app to post a note.":
     "ノートを投稿するには、小紅書（RED）アプリでこのツールを開いてください。",
   "Unable to read this image.": "この画像を読み込めません。",
-  "Photo to Pixel Art": "写真をピクセルアートに",
-  "Choose a photo to turn into pixel art": "写真を選んで、ピクセルアートに変換します",
+  "Image to Pixel Art": "画像→ドット絵変換",
+  "Choose an image to pixelate": "ドット絵にする画像を選択",
   "Choose an export format": "書き出す形式を選択",
   Cancel: "キャンセル",
   Format: "形式",
@@ -343,4 +343,21 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   Search: "検索",
   "Search palettes": "パレットを検索",
   Automatic: "自動",
+  "Turn an image into pixel art": "画像をドット絵に変換",
+  "Image to Pixel Art Converter: Free, No Upload | Xprite":
+    "画像→ドット絵変換：無料オンラインツール | Xprite",
+  "Image to pixel art": "画像をドット絵に",
+  "Convert images to pixel art or recover enlarged pixel grids, with local previews.":
+    "画像をドット絵に変換したり、拡大されたピクセルグリッドを復元したりできます。プレビューは端末内で表示されます。",
+  "Turn any photo into pixel art free in your browser. Pick the size, colors and palette, or restore an enlarged pixel grid. Files stay on your device.":
+    "写真をブラウザで無料でドット絵に変換。サイズ、色数、パレットを選べるほか、拡大されたピクセルグリッドも復元できます。ファイルは端末内で処理されます。",
+  "Xprite Pixel Art Converter": "Xprite 画像→ドット絵変換",
+  "Enable JavaScript to use the viewer.": "ビューアーを使うには JavaScript を有効にしてください。",
+  "Enable JavaScript to convert your GIF.": "GIF を変換するには JavaScript を有効にしてください。",
+  "Enable JavaScript to convert images to pixel art.":
+    "画像をドット絵に変換するには JavaScript を有効にしてください。",
+  "Enable JavaScript to generate design QR codes.":
+    "マイデザインの QR コードを作るには JavaScript を有効にしてください。",
+  "Enable JavaScript to create fuse bead patterns.":
+    "アイロンビーズの図案を作るには JavaScript を有効にしてください。",
 };

@@ -13,6 +13,7 @@ import {
   readPageMetadata,
 } from "../../infra/page-metadata.ts";
 import { checkStructuredData, formatStructuredDataIssue } from "../../infra/structured-data.ts";
+import { toolPages } from "../deploy/tool-pages.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const packageManager = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
@@ -65,7 +66,7 @@ function build() {
   }
 }
 
-function collectPages() {
+async function collectPages() {
   const pages = [];
   const documents = [];
   for (const source of SOURCES) {
@@ -85,12 +86,21 @@ function collectPages() {
       documents.push({ page, html });
     }
   }
+  // The English tool pages above come straight from the tools build; assembly derives the
+  // localized ones from them, so check exactly what it publishes.
+  const project = JSON.parse(readFileSync(resolve(repositoryRoot, "package.json"), "utf8"));
+  const tools = await toolPages(resolve(repositoryRoot, "apps/tools/dist"), project.version, true);
+  for (const { path, language, html } of tools) {
+    if (language === "en") continue;
+    pages.push(readPageMetadata(html, path));
+    documents.push({ page: path, html });
+  }
   return { pages, documents };
 }
 
 if (!process.argv.includes("--no-build")) build();
 const started = performance.now();
-const { pages, documents } = collectPages();
+const { pages, documents } = await collectPages();
 const issues = checkPageMetadata(pages);
 const structuredData = checkStructuredData(documents);
 const errors = issues.filter((issue) => issue.severity === "error");

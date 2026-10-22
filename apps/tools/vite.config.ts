@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -17,7 +18,14 @@ import { ssgScopedName } from "../../infra/react-ssg-style-names.ts";
 import { siteHtml } from "../../infra/site-html.ts";
 import { siteTelemetryDefines } from "../../infra/site-telemetry.ts";
 import { FEATURES_PATH } from "../growth/content/features/index.ts";
-import { localizedSiteHref, PublicLanguage } from "../growth/content/site/language.ts";
+import {
+  LOCALIZED_PREFIX,
+  localizedSiteHref,
+  publicLanguage,
+  PublicLanguage,
+  unlocalizedPath,
+} from "../growth/content/site/language.ts";
+import { localizedToolPage } from "./build/localized-pages.ts";
 import { toolsStartupPages } from "./build/startup-pages.ts";
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -67,6 +75,8 @@ export default defineConfig(({ command }) => ({
             response.end();
             return;
           }
+          const prefix = LOCALIZED_PREFIX.exec(url.pathname)?.[0] ?? "";
+          const pathname = unlocalizedPath(url.pathname);
           for (const path of [
             VIEWER_PATH,
             GIF_PATH,
@@ -74,9 +84,20 @@ export default defineConfig(({ command }) => ({
             ANIMAL_CROSSING_PATH,
             BEADS_PATH,
           ]) {
-            if (url.pathname === path.slice(0, -1) || url.pathname === `${path}index.html`) {
-              response.writeHead(301, { Location: `${path}${url.search}` });
+            if (pathname === path.slice(0, -1) || pathname === `${path}index.html`) {
+              response.writeHead(301, { Location: `${prefix}${path}${url.search}` });
               response.end();
+              return;
+            }
+            // Assembly derives localized pages from the English build; serve the same in dev.
+            if (prefix && pathname === path) {
+              void readFile(resolve(root, path.slice(TOOLS_BASE_PATH.length), "index.html"), "utf8")
+                .then((html) => server.transformIndexHtml(path, html, request.originalUrl))
+                .then((html) => {
+                  response.setHeader("Content-Type", "text/html; charset=utf-8");
+                  response.end(localizedToolPage(html, publicLanguage(prefix.slice(1))));
+                })
+                .catch(next);
               return;
             }
           }

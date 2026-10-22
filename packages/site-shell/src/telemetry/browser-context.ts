@@ -15,15 +15,18 @@ enum HistoryMethod {
 const PRIMARY_BUTTON = 0;
 const MIDDLE_BUTTON = 1;
 
-function toolAtPath(path: string): SiteToolName | null {
+// Localized pages share their English page type under a root /zh-CN/, /ja/, /ko/, /ru/, /pt-BR/ or /es/ prefix.
+const LOCALIZED_PREFIX = /^\/(?:zh-CN|ja|ko|ru|pt-BR|es)(?=\/|$)/u;
+
+function toolAtPath(requestPath: string): SiteToolName | null {
+  const path = requestPath.replace(LOCALIZED_PREFIX, "");
   return Object.values(SiteToolName).find((tool) => path === `${TOOLS_PREFIX}${tool}`) ?? null;
 }
 
 /** Page types keep their original values; the about page reports as "showcase". */
 function pageAtPath(requestPath: string): SitePageType {
   if (requestPath === "/" || requestPath === EDITOR_PATH) return SitePageType.Editor;
-  // Localized pages share their English page type under a root /zh-CN/, /ja/, /ko/, /ru/, /pt-BR/ or /es/ prefix.
-  const path = requestPath.replace(/^\/(?:zh-CN|ja|ko|ru|pt-BR|es)(?=\/|$)/u, "");
+  const path = requestPath.replace(LOCALIZED_PREFIX, "");
   if (path === "/about" || path.startsWith("/about/")) return SitePageType.Showcase;
   if (path === "/components" || path.startsWith("/components/")) return SitePageType.Components;
   if (

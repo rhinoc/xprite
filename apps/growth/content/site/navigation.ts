@@ -9,6 +9,7 @@ import {
   PUBLIC_LANGUAGES,
   publicLanguage,
   PublicLanguage,
+  unlocalizedPath,
 } from "./language.ts";
 
 const ABOUT_LABELS = {
@@ -97,7 +98,8 @@ function navigationTree(language: PublicLanguage, guideHref?: string): Navigatio
       children: [
         {
           label:
-            guideHref?.startsWith("/tools/") || guideHref?.startsWith("#")
+            (guideHref && unlocalizedPath(guideHref).startsWith("/tools/")) ||
+            guideHref?.startsWith("#")
               ? text(
                   "Read Me",
                   "使用说明",
@@ -139,7 +141,7 @@ export function siteApplications(
   guideHref?: string,
 ): readonly SiteApplicationItem[] {
   const selectedLanguage = publicLanguage(language);
-  const tool = TOOLS.find((tool) => tool.path === currentPath);
+  const tool = TOOLS.find((tool) => tool.path === unlocalizedPath(currentPath));
   const declaredGuide =
     guideHref ??
     (tool && "guidePath" in tool && typeof tool.guidePath === "string"

@@ -37,7 +37,7 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "Files stay on your device. No cloud upload.":
     "Os arquivos ficam no seu dispositivo. Sem envio para a nuvem.",
   "Inspect an Aseprite file": "Inspecione um arquivo do Aseprite",
-  "Aseprite Viewer Online: Open .ase & .aseprite Files | Xprite":
+  "Aseprite Viewer: Open .aseprite & .ase Files Online | Xprite":
     "Visualizador de Aseprite online: abra .ase e .aseprite | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Visualize projetos do Aseprite e exporte quadros PNG ou animações GIF.",
@@ -142,8 +142,8 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "Open this tool in the Xiaohongshu app to post a note.":
     "Abra esta ferramenta no app Xiaohongshu para publicar uma nota.",
   "Unable to read this image.": "Não foi possível ler esta imagem.",
-  "Photo to Pixel Art": "Foto em pixel art",
-  "Choose a photo to turn into pixel art": "Escolha uma foto para transformar em pixel art",
+  "Image to Pixel Art": "Imagem para pixel art",
+  "Choose an image to pixelate": "Escolha uma imagem para pixelizar",
   "Choose an export format": "Escolha um formato",
   Cancel: "Cancelar",
   Format: "Formato",
@@ -346,4 +346,21 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   Search: "Pesquisar",
   "Search palettes": "Pesquisar paletas",
   Automatic: "Automática",
+  "Turn an image into pixel art": "Transforme uma imagem em pixel art",
+  "Image to Pixel Art Converter: Free, No Upload | Xprite":
+    "Imagem para pixel art: conversor online grátis | Xprite",
+  "Image to pixel art": "Imagem para pixel art",
+  "Convert images to pixel art or recover enlarged pixel grids, with local previews.":
+    "Converta imagens em pixel art ou recupere grades de pixels ampliadas, com pré-visualização no seu dispositivo.",
+  "Turn any photo into pixel art free in your browser. Pick the size, colors and palette, or restore an enlarged pixel grid. Files stay on your device.":
+    "Transforme fotos em pixel art de graça no navegador. Escolha tamanho, cores e paleta, ou recupere uma grade ampliada. Os arquivos ficam no seu dispositivo.",
+  "Xprite Pixel Art Converter": "Xprite Imagem para pixel art",
+  "Enable JavaScript to use the viewer.": "Ative o JavaScript para usar o visualizador.",
+  "Enable JavaScript to convert your GIF.": "Ative o JavaScript para converter o GIF.",
+  "Enable JavaScript to convert images to pixel art.":
+    "Ative o JavaScript para converter imagens em pixel art.",
+  "Enable JavaScript to generate design QR codes.":
+    "Ative o JavaScript para gerar QR codes de designs.",
+  "Enable JavaScript to create fuse bead patterns.":
+    "Ative o JavaScript para criar padrões de miçangas.",
 };

@@ -37,7 +37,7 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   "Files stay on your device. No cloud upload.":
     "Файлы остаются на вашем устройстве. Без загрузки в облако.",
   "Inspect an Aseprite file": "Просмотрите файл Aseprite",
-  "Aseprite Viewer Online: Open .ase & .aseprite Files | Xprite":
+  "Aseprite Viewer: Open .aseprite & .ase Files Online | Xprite":
     "Просмотр Aseprite онлайн: открыть .ase и .aseprite | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Просматривайте проекты Aseprite и экспортируйте кадры PNG или анимацию GIF.",
@@ -141,8 +141,8 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   "Open this tool in the Xiaohongshu app to post a note.":
     "Чтобы опубликовать заметку, откройте инструмент в приложении Xiaohongshu.",
   "Unable to read this image.": "Не удалось прочитать изображение.",
-  "Photo to Pixel Art": "Фото в пиксель-арт",
-  "Choose a photo to turn into pixel art": "Выберите фото, чтобы превратить его в пиксель-арт",
+  "Image to Pixel Art": "Изображение в пиксель-арт",
+  "Choose an image to pixelate": "Выберите изображение для пикселизации",
   "Choose an export format": "Выберите формат экспорта",
   Cancel: "Отмена",
   Format: "Формат",
@@ -340,4 +340,21 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   Search: "Поиск",
   "Search palettes": "Поиск палитр",
   Automatic: "Автоматическая",
+  "Turn an image into pixel art": "Превратите изображение в пиксель-арт",
+  "Image to Pixel Art Converter: Free, No Upload | Xprite":
+    "Изображение в пиксель-арт: бесплатный конвертер | Xprite",
+  "Image to pixel art": "Изображение в пиксель-арт",
+  "Convert images to pixel art or recover enlarged pixel grids, with local previews.":
+    "Превращайте изображения в пиксель-арт или восстанавливайте увеличенную пиксельную сетку с предпросмотром на устройстве.",
+  "Turn any photo into pixel art free in your browser. Pick the size, colors and palette, or restore an enlarged pixel grid. Files stay on your device.":
+    "Превратите фото в пиксель-арт бесплатно прямо в браузере. Задайте размер, цвета и палитру или восстановите увеличенную сетку. Файлы остаются на устройстве.",
+  "Xprite Pixel Art Converter": "Xprite: изображение в пиксель-арт",
+  "Enable JavaScript to use the viewer.": "Чтобы открыть просмотр, включите JavaScript.",
+  "Enable JavaScript to convert your GIF.": "Чтобы преобразовать GIF, включите JavaScript.",
+  "Enable JavaScript to convert images to pixel art.":
+    "Чтобы превратить изображение в пиксель-арт, включите JavaScript.",
+  "Enable JavaScript to generate design QR codes.":
+    "Чтобы создать QR-коды дизайнов, включите JavaScript.",
+  "Enable JavaScript to create fuse bead patterns.":
+    "Чтобы создать схему из термобусин, включите JavaScript.",
 };

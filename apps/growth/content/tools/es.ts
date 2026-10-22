@@ -37,7 +37,7 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   "Files stay on your device. No cloud upload.":
     "Los archivos se quedan en tu dispositivo. Sin subir nada a la nube.",
   "Inspect an Aseprite file": "Revisa un archivo de Aseprite",
-  "Aseprite Viewer Online: Open .ase & .aseprite Files | Xprite":
+  "Aseprite Viewer: Open .aseprite & .ase Files Online | Xprite":
     "Visor de Aseprite online: abre archivos .ase y .aseprite | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Previsualiza proyectos de Aseprite y exporta cuadros PNG o animaciones GIF.",
@@ -53,18 +53,18 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   "Convert GIF animations into PNG sprite sheets with JSON frame data.":
     "Convierte animaciones GIF en hojas de sprites PNG con datos de cuadros en JSON.",
   "Convert a GIF to a PNG sprite sheet free in your browser. Set rows, columns and spacing; get JSON frame data for game engines. Files stay on your device.":
-    "Convierte GIF en hojas de sprites PNG gratis en tu navegador. Elige filas, columnas y espaciado, y descarga los datos de cuadros en JSON. Tus archivos no salen de tu equipo.",
+    "Convierte GIF en hojas de sprites PNG gratis en tu navegador. Elige filas, columnas y espaciado, y descarga los cuadros en JSON. Tus archivos no salen de tu equipo.",
   "Choose a GIF file": "Elige un archivo GIF",
   "Open GIF": "Abrir GIF",
   "Open GIF…": "Abrir GIF…",
   "Drop a GIF file": "Suelta un archivo GIF",
   "Make a design for your island": "Crea un diseño para tu isla",
   "Animal Crossing QR Code Converter: PNG & Aseprite | Xprite":
-    "Conversor de códigos QR de Animal Crossing: PNG y Aseprite | Xprite",
+    "Conversor de QR de Animal Crossing: PNG y Aseprite | Xprite",
   "Convert PNG images and Aseprite tilemaps into island designs, or open an existing design QR code and export it unchanged.":
     "Convierte imágenes PNG y tilemaps de Aseprite en diseños para tu isla, o abre el código QR de un diseño existente y expórtalo sin cambios.",
   "Create Animal Crossing design QR codes from PNG images and Aseprite tilemaps, or read design QR images and export their data. Files stay on your device.":
-    "Crea códigos QR de diseños de Animal Crossing a partir de PNG y tilemaps de Aseprite, o lee códigos QR de diseños y exporta sus datos. Tus archivos no salen de tu equipo.",
+    "Crea QR de diseños de Animal Crossing desde PNG y tilemaps de Aseprite, o lee QR de diseños y exporta sus datos. Tus archivos no salen de tu equipo.",
   "Choose artwork or an Animal Crossing QR image":
     "Elige una ilustración o una imagen QR de Animal Crossing",
   "Drop artwork, a QR image or an .acnl file":
@@ -143,8 +143,8 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   "Open this tool in the Xiaohongshu app to post a note.":
     "Abre esta herramienta en la app de Xiaohongshu para publicar una nota.",
   "Unable to read this image.": "No se puede leer esta imagen.",
-  "Photo to Pixel Art": "Foto a pixel art",
-  "Choose a photo to turn into pixel art": "Elige una foto para convertirla en pixel art",
+  "Image to Pixel Art": "Imagen a pixel art",
+  "Choose an image to pixelate": "Elige una imagen para pixelar",
   "Choose an export format": "Elige un formato",
   Cancel: "Cancelar",
   Format: "Formato",
@@ -348,4 +348,21 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   Search: "Buscar",
   "Search palettes": "Buscar paletas",
   Automatic: "Automática",
+  "Turn an image into pixel art": "Convierte una imagen en pixel art",
+  "Image to Pixel Art Converter: Free, No Upload | Xprite":
+    "Imagen a pixel art: conversor online gratis | Xprite",
+  "Image to pixel art": "Imagen a pixel art",
+  "Convert images to pixel art or recover enlarged pixel grids, with local previews.":
+    "Convierte imágenes en pixel art o recupera cuadrículas de píxeles ampliadas, con vista previa en tu dispositivo.",
+  "Turn any photo into pixel art free in your browser. Pick the size, colors and palette, or restore an enlarged pixel grid. Files stay on your device.":
+    "Convierte fotos en pixel art gratis en tu navegador. Elige tamaño, colores y paleta, o recupera una cuadrícula ampliada. Tus archivos no salen de tu equipo.",
+  "Xprite Pixel Art Converter": "Xprite Imagen a pixel art",
+  "Enable JavaScript to use the viewer.": "Activa JavaScript para usar el visor.",
+  "Enable JavaScript to convert your GIF.": "Activa JavaScript para convertir el GIF.",
+  "Enable JavaScript to convert images to pixel art.":
+    "Activa JavaScript para convertir imágenes en pixel art.",
+  "Enable JavaScript to generate design QR codes.":
+    "Activa JavaScript para generar códigos QR de diseños.",
+  "Enable JavaScript to create fuse bead patterns.":
+    "Activa JavaScript para crear patrones de cuentas Hama.",
 };

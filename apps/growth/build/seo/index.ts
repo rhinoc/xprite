@@ -9,20 +9,15 @@ import { ARTICLE_COLLECTIONS } from "../../content/articles/index.ts";
 import { FEATURES_PATH } from "../../content/features/index.ts";
 import { GUIDE_PAGES } from "../../content/help/pages.ts";
 import { SHOWCASE_PAGES } from "../../content/showcase/pages.ts";
-import { PublicLanguage } from "../../content/site/language.ts";
 import {
-  GIF_SHEET_TOOL,
-  ANIMAL_CROSSING_TOOL,
-  PIXELATE_TOOL,
-  TOOLS,
-  VIEWER_TOOL,
-  BEADS_TOOL,
-} from "../../content/tools/index.ts";
+  localizedSiteHref,
+  PUBLIC_LANGUAGES,
+  PublicLanguage,
+} from "../../content/site/language.ts";
+import { TOOLS, translateToolText, type PublicTool } from "../../content/tools/index.ts";
 
 const SITE_URL = "https://xprite.cc/";
 const SOCIAL_IMAGE_URL = new URL("social-preview.png", SITE_URL).href;
-const VIEWER_URL = new URL(VIEWER_TOOL.path, SITE_URL).href;
-const VIEWER_DESCRIPTION = VIEWER_TOOL.description;
 const CANONICAL_ELEMENT_PATTERN = /\s*<link\b[^>]*rel=["']canonical["'][^>]*>/gi;
 const ROBOTS_ELEMENT_PATTERN = /\s*<meta\b[^>]*name=["']robots["'][^>]*>/gi;
 const HEAD_CLOSE_PATTERN = /<\/head>/i;
@@ -105,19 +100,41 @@ export function applyEditorSearchMetadata(
   );
 }
 
-function applyToolSearchMetadata(
+/**
+ * Tool pages share one address shape in every language. Each page names its own address as
+ * canonical, lists every language plus the English default, and describes the application in
+ * the page language.
+ */
+export function applyToolSearchMetadata(
   html: string,
+  tool: PublicTool,
+  language: PublicLanguage,
   version: string,
   indexable: boolean,
-  tool: { name: string; url: string; description: string },
 ): string {
-  const content = applyPageSearchMetadata(html, indexable);
+  const url = new URL(localizedSiteHref(tool.path, language), SITE_URL).href;
+  const content = applyPageSearchMetadata(html, indexable).replace(
+    /(<meta\s+property="og:url"\s+content=)"[^"]*"/i,
+    `$1"${url}"`,
+  );
   if (!indexable) return content;
+  const alternates = [
+    ...PUBLIC_LANGUAGES.map((value) => [value, value] as const),
+    ["x-default", PublicLanguage.English] as const,
+  ]
+    .map(
+      ([hreflang, value]) =>
+        `<link rel="alternate" hreflang="${hreflang}" href="${new URL(localizedSiteHref(tool.path, value), SITE_URL).href}">`,
+    )
+    .join("\n");
   const application = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "@id": `${tool.url}#application`,
-    ...tool,
+    "@id": `${url}#application`,
+    name: translateToolText(tool.name, language),
+    url,
+    description: translateToolText(tool.description, language),
+    inLanguage: language,
     image: SOCIAL_IMAGE_URL,
     applicationCategory: "MultimediaApplication",
     operatingSystem: "Any",
@@ -126,66 +143,12 @@ function applyToolSearchMetadata(
     isAccessibleForFree: true,
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
   };
-  return content.replace(
-    HEAD_CLOSE_PATTERN,
-    `<script type="application/ld+json">${JSON.stringify(application)}</script>\n</head>`,
-  );
-}
-
-export function applyViewerSearchMetadata(
-  html: string,
-  version: string,
-  indexable: boolean,
-): string {
-  return applyToolSearchMetadata(html, version, indexable, {
-    name: "Xprite Aseprite Viewer",
-    url: VIEWER_URL,
-    description: VIEWER_DESCRIPTION,
-  });
-}
-
-export function applyGifSheetSearchMetadata(
-  html: string,
-  version: string,
-  indexable: boolean,
-): string {
-  return applyToolSearchMetadata(html, version, indexable, {
-    name: GIF_SHEET_TOOL.name,
-    url: new URL(GIF_SHEET_TOOL.path, SITE_URL).href,
-    description: GIF_SHEET_TOOL.description,
-  });
-}
-
-export function applyAnimalCrossingSearchMetadata(
-  html: string,
-  version: string,
-  indexable: boolean,
-): string {
-  return applyToolSearchMetadata(html, version, indexable, {
-    name: ANIMAL_CROSSING_TOOL.name,
-    url: new URL(ANIMAL_CROSSING_TOOL.path, SITE_URL).href,
-    description: ANIMAL_CROSSING_TOOL.description,
-  });
-}
-
-export function applyBeadSearchMetadata(html: string, version: string, indexable: boolean): string {
-  return applyToolSearchMetadata(html, version, indexable, {
-    name: BEADS_TOOL.name,
-    url: new URL(BEADS_TOOL.path, SITE_URL).href,
-    description: BEADS_TOOL.description,
-  });
-}
-
-export function applyPixelateSearchMetadata(
-  html: string,
-  version: string,
-  indexable: boolean,
-): string {
-  return applyToolSearchMetadata(html, version, indexable, {
-    name: PIXELATE_TOOL.name,
-    url: new URL(PIXELATE_TOOL.path, SITE_URL).href,
-    description: PIXELATE_TOOL.description,
-  });
+  return content
+    .replace(CANONICAL_ELEMENT_PATTERN, "")
+    .replace(
+      HEAD_CLOSE_PATTERN,
+      `<link rel="canonical" href="${url}">\n${alternates}\n<script type="application/ld+json">${JSON.stringify(application).replaceAll("<", "\\u003c")}</script>\n</head>`,
+    );
 }
 
 /** Development and preview pages stay out of search results. */

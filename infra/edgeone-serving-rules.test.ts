@@ -92,4 +92,35 @@ describe("EdgeOne serving rules", () => {
     );
     expect(compacted.rewrites).toHaveLength(2);
   });
+
+  it("collapses localized tool pages without shadowing the bare tools redirect", () => {
+    const languages = ["", "/zh-CN", "/ja", "/ko", "/ru", "/pt-BR", "/es"];
+    const tools = languages.flatMap((prefix) =>
+      ["viewer", "pixelate", "fuse-beads"].map((name) => `${prefix}/tools/${name}/`),
+    );
+    const bare = ["/tools", "/tools/", "/tools/index.html"].map((source) => ({
+      source,
+      destination: "/features/",
+      statusCode: 301,
+    }));
+    const configuration = {
+      redirects: [
+        ...bare,
+        ...tools.flatMap((path) => [
+          { source: path.slice(0, -1), destination: path, statusCode: 301 },
+          { source: `${path}index.html`, destination: path, statusCode: 301 },
+        ]),
+      ],
+      rewrites: tools.map((path) => ({ source: path, destination: `${path}index.html` })),
+    };
+    const compacted = compactServingRules(configuration, ["/tools/menu-icon.svg"]);
+    expect(() => assertEdgeOneRuleLimits(compacted)).not.toThrow();
+    for (const list of ["redirects", "rewrites"] as const)
+      for (const rule of configuration[list])
+        expect(resolveRule(compacted[list], rule.source)?.destination, rule.source).toBe(
+          rule.destination,
+        );
+    expect(resolveRule(compacted.rewrites, "/ja/tools/")).toBeNull();
+    expect(resolveRule(compacted.redirects, "/tools/menu-icon.svg")).toBeNull();
+  });
 });
