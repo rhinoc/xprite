@@ -70,6 +70,7 @@ groups.check = {
   format: [bin("oxfmt"), "--config", "infra/oxfmt.json", "--check", ...formatTargets],
   lint: [bin("oxlint"), "--config", "infra/oxlint.json"],
   i18n: node("scripts/check/check-i18n-coverage.mjs"),
+  "i18n-source-lookups": node("scripts/check/check-i18n-source-lookups.mjs"),
   duplicates: [
     bin("jscpd"),
     "apps",

@@ -292,7 +292,7 @@ function preferencesBox(
 const guideSliceColorRows = [
   { key: "layerEdgesColor", label: "ui.layer.edges.color", y: 123 },
   { key: "autoGuidesColor", label: "ui.auto.guides.color", y: 143 },
-  { key: "defaultSliceColor", label: "ui.default.color.aa509e35", y: 190 },
+  { key: "defaultSliceColor", label: "ui.default.color.label", y: 190 },
 ] as const;
 type PreferencesColorTarget = keyof GuideSlicePreferences | CanvasDisplayColorKey | "cursorColor";
 

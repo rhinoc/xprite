@@ -78,7 +78,7 @@ export function ShareProjectDialog({
       modal
       constrainToViewport
       resizable={false}
-      title={tUiSource("Share...")}
+      title={tUi("share.title")}
       bounds={{
         x: position?.x ?? Math.max(0, Math.round((scene.width - width) / 2)),
         y: position?.y ?? Math.max(0, Math.round((scene.height - height) / 2)),
@@ -159,13 +159,13 @@ export function ShareProjectDialog({
           )}
           {manager.busy ? (
             <div className={styles.pending} role="status">
-              <ShareMessage>{tUiSource("Preparing share link…")}</ShareMessage>
+              <ShareMessage>{tUi("share.preparing")}</ShareMessage>
             </div>
           ) : manager.artifact?.url ? (
             <div className={styles.columns}>
-              <ShareSection title={tUiSource("Share link")}>
+              <ShareSection title={tUi("share.link")}>
                 <TextArea
-                  aria-label={tUiSource("Share link")}
+                  aria-label={tUi("share.link")}
                   rows={URL_ROWS}
                   height={LINK_HEIGHT}
                   readOnly
@@ -175,7 +175,7 @@ export function ShareProjectDialog({
                 />
                 <ControlFlow className={styles.linkActions}>
                   <Button
-                    text={tUiSource(manager.copied ? "Copied" : "Copy link")}
+                    text={manager.copied ? tUi("share.copied") : tUi("share.copy")}
                     disabled={!manager.canCopy || manager.copyBusy}
                     onClick={() => void manager.copy()}
                   />
@@ -185,14 +185,14 @@ export function ShareProjectDialog({
                 </ControlFlow>
               </ShareSection>
               {manager.artifact.qr && (
-                <ShareSection title={tUiSource("QR code")}>
+                <ShareSection title={tUi("share.qr")}>
                   <img
                     className={styles.qrImage}
                     src={manager.artifact.qr.preview}
-                    alt={tUiSource("Share QR code")}
+                    alt={tUi("share.qrImage")}
                   />
                   <ControlFlow>
-                    <Button text={tUiSource("Save QR code")} onClick={manager.downloadQr} />
+                    <Button text={tUi("share.saveQr")} onClick={manager.downloadQr} />
                   </ControlFlow>
                 </ShareSection>
               )}
@@ -200,17 +200,11 @@ export function ShareProjectDialog({
           ) : null}
           {!manager.busy && manager.stage === ShareLinkStage.Warning && (
             <div className={styles.notice} role="status">
-              <ShareMessage>
-                {tUiSource(
-                  "This link is long. Some chat apps may truncate it or fail to open it. If that happens, export and send a file.",
-                )}
-              </ShareMessage>
+              <ShareMessage>{tUi("share.warning")}</ShareMessage>
             </div>
           )}
           {!manager.busy && manager.artifact?.url && !manager.artifact.qr && (
-            <ShareMessage muted>
-              {tUiSource("This link is too large for a single QR code. Copy the link instead.")}
-            </ShareMessage>
+            <ShareMessage muted>{tUi("share.noQr")}</ShareMessage>
           )}
           {!manager.busy && manager.stage === ShareLinkStage.Rejected && manager.artifact && (
             <div className={styles.notice} role="status">

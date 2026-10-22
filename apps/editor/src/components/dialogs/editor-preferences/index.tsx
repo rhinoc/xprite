@@ -2,7 +2,7 @@ import {
   PreferencesLabel,
   PreferencesCheckbox,
 } from "$/components/dialogs/preferences-dialog/preferences-dialog-layout";
-import { tUi, tUiSource } from "$/i18n";
+import { tUi } from "$/i18n";
 import { WheelDevice, type DetectedWheelDevice } from "$/managers/input/wheel-device-context";
 import { RightClickMode, type EditorPreferences } from "$/managers/preferences/editor-preferences";
 import { Combobox, type SurfaceBounds } from "@xprite/ui";
@@ -116,12 +116,12 @@ export function EditorPreferencesSection({
           {
             value: WheelDevice.Auto,
             label: tUi("ui.automatic.2", {
-              value1: tUiSource(
+              value1: tUi(
                 detectedWheelDevice === WheelDevice.Mouse
-                  ? "Mouse"
+                  ? "ui.mouse.title"
                   : detectedWheelDevice === WheelDevice.Trackpad
-                    ? "Trackpad"
-                    : "Unknown",
+                    ? "ui.trackpad.title"
+                    : "ui.unknown",
               ),
             }),
           },

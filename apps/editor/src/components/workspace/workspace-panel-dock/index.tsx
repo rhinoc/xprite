@@ -2122,8 +2122,8 @@ export function WorkspacePanelDock({
               background: layoutEditing ? "var(--xse-window-tooltip-face)" : undefined,
             }}
             {...stylusPointerInputProps(layoutEditing)}
-            aria-label={layoutEditing ? tUi("ui.move.panel") : tUiSource("Collapse to button")}
-            title={layoutEditing ? tUi("ui.move.panel") : tUiSource("Collapse to button")}
+            aria-label={layoutEditing ? tUi("ui.move.panel") : tUi("ui.collapse.to.button")}
+            title={layoutEditing ? tUi("ui.move.panel") : tUi("ui.collapse.to.button")}
             onPointerDown={(event) => {
               event.stopPropagation();
               moveFloatingHeader(event, pane);

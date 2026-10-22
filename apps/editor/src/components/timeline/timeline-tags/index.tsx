@@ -2,7 +2,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 
 import { FormDialog } from "$/components/dialogs/form-dialog";
 import { useTimelineActions } from "$/components/timeline/timeline-actions";
-import { tUi, tUiSource } from "$/i18n";
+import { tUi } from "$/i18n";
 import { useTimelineManager } from "$/managers/timeline/timeline-manager";
 import {
   timelineTags,
@@ -504,7 +504,7 @@ export function TimelineTags({
                 tabIndex={0}
                 aria-label={tUi("ui.frame.2", {
                   value1: tag.name,
-                  value2: tUiSource(edge === "from" ? "start" : "end"),
+                  value2: edge === "from" ? tUi("ui.start") : tUi("ui.end"),
                 })}
                 aria-valuemin={firstFrame}
                 aria-valuemax={timeline.frames.length - 1 + firstFrame}

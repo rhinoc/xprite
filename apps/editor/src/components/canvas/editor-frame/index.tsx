@@ -7,7 +7,7 @@ import {
   type PointerEvent,
 } from "react";
 
-import { tUi, tUiSource } from "$/i18n";
+import { tUi } from "$/i18n";
 import {
   editorFrameGeometry,
   editorScrollDragPan,
@@ -342,7 +342,7 @@ export function EditorFrame({
             key={axis}
             role="scrollbar"
             aria-label={tUi("ui.editor.scroll", {
-              value1: tUiSource(axis === "horizontal" ? "Horizontal" : "Vertical"),
+              value1: axis === "horizontal" ? tUi("ui.horizontal") : tUi("ui.vertical"),
             })}
             aria-orientation={axis}
             aria-valuemin={0}

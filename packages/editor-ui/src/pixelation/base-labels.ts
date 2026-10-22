@@ -12,11 +12,11 @@ export interface PixelationLabel {
 }
 export const LABELS = {
   algorithm: { text: "Find pixels by:", key: "import.dialog.algorithm" },
-  width: { text: "Width:", key: "ui.width.cf45de5f" },
-  height: { text: "Height:", key: "ui.height.2256f988" },
+  width: { text: "Width:", key: "ui.width.label" },
+  height: { text: "Height:", key: "ui.height.label" },
   picker: { text: "Pixel color:", key: "import.dialog.color.picker" },
   limitColors: { text: "Limit colors", key: "ui.limit.colors" },
-  colors: { text: "Colors:", key: "ui.colors.50dd3bf1" },
+  colors: { text: "Colors:", key: "ui.colors.label" },
   prepass: { text: "Outline pre-pass:", key: "import.dialog.outline.prepass" },
   lineGuide: { text: "Line guide:", key: "import.dialog.line.guide" },
   pixels: { text: "{size} px", key: "ui.dimension.pixels" },

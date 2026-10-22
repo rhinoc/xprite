@@ -218,7 +218,7 @@ export function SaveAsDialog({
         constrainToViewport
       >
         {({ clientBounds: client }) => {
-          const fileNameLabel = tUi("ui.file.name.da5ac4f8");
+          const fileNameLabel = tUi("ui.file.name.label");
           const fileNameLabelWidth = measureUiText(fileNameLabel);
           const fileNameInputX = 2 + fileNameLabelWidth + SAVE_AS_FILE_NAME_GAP;
           const firstTargetWidth = Math.round(client.width / SAVE_AS_TARGETS.length);

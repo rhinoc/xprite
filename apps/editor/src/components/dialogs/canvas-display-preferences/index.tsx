@@ -272,18 +272,16 @@ export function CanvasDisplayPreferencesSection({
           options={[
             {
               value: CanvasDisplayPreferenceTarget.Defaults,
-              label: tUiSource(
-                background ? "Background for New Documents" : "Grid for New Documents",
-              ),
+              label: tUi(background ? "ui.preferences.background.new" : "ui.preferences.grid.new"),
             },
             ...(hasActiveDocument
               ? [
                   {
                     value: CanvasDisplayPreferenceTarget.Document,
-                    label: tUiSource(
+                    label: tUi(
                       background
-                        ? "Background for the Active Document"
-                        : "Grid for the Active Document",
+                        ? "ui.preferences.background.active"
+                        : "ui.preferences.grid.active",
                     ),
                   },
                 ]

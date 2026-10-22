@@ -1,7 +1,7 @@
 import { BrushPicker } from "$/components/tools/brush-picker";
+import { DynamicsPicker } from "$/components/tools/dynamics-picker";
 
 import "$/components/tools/context-bar/context-bar.module.css";
-import { DynamicsPicker } from "$/components/tools/dynamics-picker";
 import { FillReferenceMenu } from "$/components/tools/fill-reference-menu";
 import { FontSelector } from "$/components/tools/font-selector";
 import { GradientContextBar } from "$/components/tools/gradient-options";
@@ -9,6 +9,7 @@ import { InkPicker } from "$/components/tools/ink-picker";
 import { SelectionOptions } from "$/components/tools/selection-options";
 import { EditorShadeStrip, editorShadeStripWidth } from "$/components/tools/shade-strip";
 import { SymmetryControls } from "$/components/tools/symmetry-controls";
+import { tUi } from "$/i18n";
 import { parseEditorColor as hexToRgba } from "$/managers/tools/color-control";
 import { useContextBarEditorModel } from "$/managers/tools/context-bar-model";
 import { useReleaseEditorInputFocus } from "$/managers/tools/input-commands";
@@ -74,7 +75,7 @@ function checkboxSize(label: string, mini = false) {
 export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
   const editor = useContextBarEditorModel();
   const releaseEditorFocus = useReleaseEditorInputFocus();
-  const { style, translateSource } = useUi();
+  const { style } = useUi();
   const metrics = uiMetrics(style);
   const capabilities = getXpriteToolCapabilities(editor.tool);
   const isSelection = [
@@ -154,7 +155,7 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
           ? 738
           : 682
         : pixelX !== null
-          ? pixelX - 4 + checkboxSize(translateSource("Pixel-perfect"), false).width + 8
+          ? pixelX - 4 + checkboxSize(tUi("ui.pixel.perfect.hyphenated"), false).width + 8
           : cursor;
   const controlHeight = metrics.toolHeight * UI_SCALE;
   return (
@@ -268,7 +269,7 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
               bounds={{
                 x: 164,
                 y: 0,
-                width: checkboxSize(translateSource("Auto Select Layer"), true).width,
+                width: checkboxSize(tUi("ui.auto.select.layer"), true).width,
                 height: 32,
               }}
               label="Auto Select Layer"
@@ -621,7 +622,7 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
               bounds={{
                 x: pixelX - 4,
                 y: 0,
-                width: checkboxSize(translateSource("Pixel-perfect"), false).width,
+                width: checkboxSize(tUi("ui.pixel.perfect.hyphenated"), false).width,
                 height: 32,
               }}
               label="Pixel-perfect"

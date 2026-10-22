@@ -40,7 +40,7 @@ export function EditorKeyboardShortcutsDialog({
   const row = (definition: ShortcutDefinition): KeyboardShortcutItem => {
     const bindings = editor.manager.bindings(definition, editor.draft);
     const format = (binding: string) =>
-      binding ? formatShortcutForPlatform(binding) : tUiSource("Default");
+      binding ? formatShortcutForPlatform(binding) : tUi("ui.default");
     return {
       definitionKey: definition.key,
       label:
@@ -157,14 +157,14 @@ export function EditorKeyboardShortcutsDialog({
           { id: "reset", label: "Reset", disabled: editor.busy, onSelect: () => editor.reset() },
         ]}
         labels={{
-          title: tUi("ui.keyboard.shortcuts.ba51bd57"),
+          title: tUi("ui.keyboard.shortcuts.title"),
           search: tUi("ui.search.keyboard.shortcuts"),
           action: tUi("ui.action"),
           key: tUi("ui.key"),
           context: tUi("ui.context"),
-          confirm: tUiSource("OK"),
-          cancel: tUiSource("Cancel"),
-          fileActions: tUiSource("Shortcut file actions"),
+          confirm: tUi("ui.ok"),
+          cancel: tUi("ui.cancel"),
+          fileActions: tUi("ui.shortcut.file.actions"),
           list: tUi("ui.shortcuts"),
           describeResults: (count, query, section) =>
             query
