@@ -149,3 +149,25 @@
   --ui-window-shadow-offset: var(--ui-panel-window-emphasized-shadow-offset, 3px);
   --ui-window-title-face: var(--ui-panel-window-emphasized-title-face, var(--xse-window));
 }
+
+/*
+ * On touch screens a tap on the title bar rolls the window up or down; stretch the thin bar's
+ * hit area with an invisible layer (nothing is drawn) and keep caption buttons above it.
+ */
+@media (pointer: coarse) {
+  .window > .header {
+    position: relative;
+  }
+  .window > .header > .title::after {
+    content: "";
+    position: absolute;
+    top: -10px;
+    right: 0;
+    bottom: -10px;
+    left: 0;
+  }
+  .window > .header > .extra {
+    position: relative;
+    z-index: 1;
+  }
+}

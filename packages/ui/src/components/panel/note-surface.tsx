@@ -140,6 +140,7 @@ export function PanelNoteSurface({
         <div
           data-slot="panel-header"
           onDoubleClick={collapsible ? disclosure.doubleClick : undefined}
+          onPointerDown={collapsible ? disclosure.pointerDown : undefined}
           onPointerUp={collapsible ? disclosure.pointerUp : undefined}
         >
           <button
