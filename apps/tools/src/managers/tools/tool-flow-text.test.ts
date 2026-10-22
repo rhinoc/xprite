@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { PIXELATION_METHOD_OPTIONS } from "@xprite/editor-core/import-export";
 import { PublicLanguage } from "@xprite/growth-content/language";
 import { translateToolText } from "@xprite/growth-content/tools";
 
@@ -26,5 +27,15 @@ describe("pixelate comparison text", () => {
         "Preparing preview…",
       ])
         expect(translateToolText(key, language)).not.toBe(key);
+  });
+});
+
+describe("pixelate sampling text", () => {
+  it("localizes the sampling group and every method in every locale", () => {
+    for (const language of Object.values(PublicLanguage).filter(
+      (value) => value !== PublicLanguage.English,
+    ))
+      for (const key of ["Sampling", ...PIXELATION_METHOD_OPTIONS.map((option) => option.label)])
+        expect(translateToolText(key, language), `${language} ${key}`).not.toBe(key);
   });
 });
