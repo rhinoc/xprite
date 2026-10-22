@@ -19,18 +19,18 @@ export const PIXELATE_HELP = {
         id: PixelateHelpSection.Convert,
         title: "将图片转换为像素画",
         steps: [
-          "在「Action」中选择「Convert image」，再选尺寸预设，或填写「Width」「Height」。",
-          "在「Method」中选择处理方式，对照原图和预览调整结果；需要时限制颜色或选择调色板。",
+          "在「操作」中选择「转换图片」，再选尺寸预设，或填写「宽度」「高度」。",
+          "在「方法」中选择处理方式，对照原图和预览调整结果；需要时限制颜色或选择调色板。",
         ],
         notes:
-          "开启「Lock aspect ratio」可按原图比例调整尺寸。「Keep original dimensions」会把像素化结果放大到原图尺寸。",
+          "开启「锁定比例」可按原图比例调整尺寸。「保持原始尺寸」会把像素化结果放大到原图尺寸。",
       },
       {
         id: PixelateHelpSection.Recover,
         title: "恢复放大的像素网格",
         steps: [
-          "在「Action」中选择「Recover pixel grid」，开启「Automatic grid」使用检测到的网格。",
-          "没有检测到可靠网格时，关闭「Automatic grid」，填写「Cell width」和「Cell height」。",
+          "在「操作」中选择「还原像素网格」，开启「自动网格」使用检测到的网格。",
+          "没有检测到可靠网格时，关闭「自动网格」，填写「图块宽度」和「图块高度」。",
         ],
         notes: "单元格宽高按原图像素计算。",
       },

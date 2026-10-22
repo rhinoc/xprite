@@ -203,8 +203,8 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Open this tool in the Xiaohongshu app to post a note.":
     "请在小红书 App 中打开本工具以发布笔记。",
   "Unable to read this image.": "无法读取这张图片。",
-  "Photo to Pixel Art": "图片转像素画",
-  "Choose a photo to turn into pixel art": "选择一张照片，转换成像素画",
+  "Image to Pixel Art": "图片转像素画",
+  "Choose an image to pixelate": "选择要像素化的图片",
   "Choose an export format": "选择导出格式",
   Cancel: "取消",
   Format: "格式",
@@ -383,4 +383,17 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   Search: "搜索",
   "Search palettes": "搜索调色板",
   Automatic: "自动",
+  "Turn an image into pixel art": "把图片转换成像素画",
+  "Image to Pixel Art Converter: Free, No Upload | Xprite": "图片转像素画：免费在线转换 | Xprite",
+  "Image to pixel art": "图片转像素画",
+  "Convert images to pixel art or recover enlarged pixel grids, with local previews.":
+    "把图片转换为像素画，或还原被放大的像素网格，在本地预览结果。",
+  "Turn any photo into pixel art free in your browser. Pick the size, colors and palette, or restore an enlarged pixel grid. Files stay on your device.":
+    "在浏览器中免费把照片转换为像素画。可以选择尺寸、颜色数和调色板，也可以还原被放大的像素网格。文件只在你的设备上处理。",
+  "Xprite Pixel Art Converter": "Xprite 图片转像素画",
+  "Enable JavaScript to use the viewer.": "请启用 JavaScript 以使用查看器。",
+  "Enable JavaScript to convert your GIF.": "请启用 JavaScript 以转换 GIF。",
+  "Enable JavaScript to convert images to pixel art.": "请启用 JavaScript 以将图片转换为像素画。",
+  "Enable JavaScript to generate design QR codes.": "请启用 JavaScript 以生成设计二维码。",
+  "Enable JavaScript to create fuse bead patterns.": "请启用 JavaScript 以生成拼豆图纸。",
 };

@@ -80,7 +80,7 @@ export function languagePrefix(language: PublicLanguage | string): string {
 }
 
 /** Localized pages live under one root `/<lang>/` prefix; English paths stay unprefixed. */
-const LOCALIZED_SECTIONS = /^\/(?:learn|compare|help|about|features|privacy)(?:\/|$)/;
+const LOCALIZED_SECTIONS = /^\/(?:learn|compare|help|about|features|privacy|tools)(?:\/|$)/;
 export const LOCALIZED_PREFIX = /^\/(zh-CN|ja|ko|ru|pt-BR|es)(?=\/|$)/;
 
 export function articleLanguage(path: string): PublicLanguage {
@@ -101,9 +101,9 @@ export function localizedSiteHref(href: string, language: PublicLanguage | strin
   const path = unlocalizedPath(url.pathname);
   if (LOCALIZED_SECTIONS.test(path) && !/\.[a-z0-9]+$/i.test(path)) {
     url.pathname = `${languagePrefix(language)}${path}`;
-  } else if (/^\/(?:tools|components)(?:\/|$)/.test(url.pathname)) {
-    url.searchParams.delete("lang");
   }
+  // Tool pages carry their language in the path; components have a single language.
+  if (/^\/(?:tools|components)(?:\/|$)/.test(path)) url.searchParams.delete("lang");
   return `${url.pathname}${url.search}${url.hash}`;
 }
 

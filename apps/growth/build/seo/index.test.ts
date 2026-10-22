@@ -6,7 +6,13 @@ import { SHOWCASE_FAQ_COPY } from "../../content/showcase/faq.ts";
 import { showcaseSearchMetadata } from "../../content/showcase/index.ts";
 import { SHOWCASE_PAGES, SHOWCASE_SITE_URL } from "../../content/showcase/pages.ts";
 import { faqInlineText } from "../../content/site/faq.ts";
-import { applyEditorSearchMetadata, editorSearchMetadata } from "./index.ts";
+import { PublicLanguage } from "../../content/site/language.ts";
+import { PIXELATE_TOOL } from "../../content/tools/index.ts";
+import {
+  applyEditorSearchMetadata,
+  applyToolSearchMetadata,
+  editorSearchMetadata,
+} from "./index.ts";
 
 const EDITOR_HTML = `<!doctype html><html lang="en"><head><title>Xprite</title></head><body><div id="root"></div><div id="xse-startup"><section class="xse-startup-copy"><p>Intro</p></section></div></body></html>`;
 
@@ -101,5 +107,61 @@ describe("about page search metadata", () => {
       );
       assert.ok(faq.mainEntity.length >= 7, language);
     }
+  });
+});
+
+describe("tool page search metadata", () => {
+  const TOOL_HTML = `<!doctype html><html lang="ja"><head><link rel="canonical" href="https://xprite.cc/tools/pixelate/"><meta property="og:url" content="https://xprite.cc/tools/pixelate/"></head><body></body></html>`;
+
+  it("name the page itself as canonical and list every language with an English default", () => {
+    const html = applyToolSearchMetadata(
+      TOOL_HTML,
+      PIXELATE_TOOL,
+      PublicLanguage.Japanese,
+      "1.0.0",
+      true,
+    );
+    assert.deepEqual(
+      [...html.matchAll(/<link rel="canonical" href="([^"]+)">/g)].map((match) => match[1]),
+      ["https://xprite.cc/ja/tools/pixelate/"],
+    );
+    assert.match(
+      html,
+      /<meta property="og:url" content="https:\/\/xprite.cc\/ja\/tools\/pixelate\/"/,
+    );
+    const alternates = [
+      ...html.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)">/g),
+    ];
+    assert.deepEqual(
+      alternates.map((match) => [match[1], match[2]]),
+      [
+        ["en", "https://xprite.cc/tools/pixelate/"],
+        ["zh-CN", "https://xprite.cc/zh-CN/tools/pixelate/"],
+        ["ja", "https://xprite.cc/ja/tools/pixelate/"],
+        ["ko", "https://xprite.cc/ko/tools/pixelate/"],
+        ["ru", "https://xprite.cc/ru/tools/pixelate/"],
+        ["pt-BR", "https://xprite.cc/pt-BR/tools/pixelate/"],
+        ["es", "https://xprite.cc/es/tools/pixelate/"],
+        ["x-default", "https://xprite.cc/tools/pixelate/"],
+      ],
+    );
+    const json = html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)?.[1];
+    assert.ok(json);
+    assert.deepEqual((({ url, inLanguage }) => ({ url, inLanguage }))(JSON.parse(json)), {
+      url: "https://xprite.cc/ja/tools/pixelate/",
+      inLanguage: "ja",
+    });
+  });
+
+  it("leave preview pages without canonical or alternates", () => {
+    const html = applyToolSearchMetadata(
+      TOOL_HTML,
+      PIXELATE_TOOL,
+      PublicLanguage.Japanese,
+      "1.0.0",
+      false,
+    );
+    assert.doesNotMatch(html, /rel="(?:canonical|alternate)"/);
+    assert.match(html, /<meta name="robots" content="noindex, follow">/);
   });
 });

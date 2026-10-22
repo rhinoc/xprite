@@ -36,12 +36,12 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "Files stay on your device. No cloud upload.":
     "파일은 기기에만 남고 클라우드에 업로드되지 않습니다.",
   "Inspect an Aseprite file": "Aseprite 파일 살펴보기",
-  "Aseprite Viewer Online: Open .ase & .aseprite Files | Xprite":
-    "에이스프라이트 뷰어: .ase·.aseprite 파일 온라인으로 열기 | Xprite",
+  "Aseprite Viewer: Open .aseprite & .ase Files Online | Xprite":
+    "Aseprite 뷰어: .ase·.aseprite 파일 온라인으로 열기 | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Aseprite 프로젝트를 미리 보고 PNG 프레임이나 GIF 애니메이션으로 내보내세요.",
   "Free Aseprite viewer: open .aseprite and .ase files online without Aseprite. Preview layers and animation, export PNG or GIF. Files never leave your device.":
-    "브라우저에서 Aseprite 프로젝트를 열고 레이어와 애니메이션을 미리 본 뒤 PNG 프레임이나 GIF 애니메이션으로 내보내세요. 파일은 기기에서 처리되며 클라우드에 업로드되지 않습니다.",
+    "브라우저에서 Aseprite 프로젝트를 열어 레이어와 애니메이션을 미리 보고 PNG 프레임이나 GIF로 내보내세요. 파일은 기기에서 처리됩니다.",
   "Choose an Aseprite file": "Aseprite 파일 선택",
   "Open file": "파일 열기",
   "Open file…": "파일 열기…",
@@ -139,8 +139,8 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "Open this tool in the Xiaohongshu app to post a note.":
     "노트를 게시하려면 샤오홍슈(RED) 앱에서 이 도구를 여세요.",
   "Unable to read this image.": "이 이미지를 읽을 수 없습니다.",
-  "Photo to Pixel Art": "사진을 픽셀 아트로",
-  "Choose a photo to turn into pixel art": "사진을 골라 픽셀 아트로 바꿔 보세요",
+  "Image to Pixel Art": "이미지 픽셀 아트 변환기",
+  "Choose an image to pixelate": "픽셀 아트로 바꿀 이미지 선택",
   "Choose an export format": "내보낼 형식 선택",
   Cancel: "취소",
   Format: "형식",
@@ -339,4 +339,21 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   Search: "검색",
   "Search palettes": "팔레트 검색",
   Automatic: "자동",
+  "Turn an image into pixel art": "이미지를 픽셀 아트로 변환",
+  "Image to Pixel Art Converter: Free, No Upload | Xprite":
+    "이미지 픽셀 아트 변환기: 무료 온라인 도구 | Xprite",
+  "Image to pixel art": "이미지를 픽셀 아트로",
+  "Convert images to pixel art or recover enlarged pixel grids, with local previews.":
+    "이미지를 픽셀 아트로 바꾸거나 확대된 픽셀 격자를 복원하고, 결과를 기기에서 미리 볼 수 있습니다.",
+  "Turn any photo into pixel art free in your browser. Pick the size, colors and palette, or restore an enlarged pixel grid. Files stay on your device.":
+    "브라우저에서 사진을 무료로 픽셀 아트로 바꾸세요. 크기, 색 수, 팔레트를 고르거나 확대된 픽셀 격자를 복원할 수 있습니다. 파일은 기기에서 처리됩니다.",
+  "Xprite Pixel Art Converter": "Xprite 이미지 픽셀 아트 변환기",
+  "Enable JavaScript to use the viewer.": "뷰어를 사용하려면 JavaScript를 켜 주세요.",
+  "Enable JavaScript to convert your GIF.": "GIF를 변환하려면 JavaScript를 켜 주세요.",
+  "Enable JavaScript to convert images to pixel art.":
+    "이미지를 픽셀 아트로 바꾸려면 JavaScript를 켜 주세요.",
+  "Enable JavaScript to generate design QR codes.":
+    "마이 디자인 QR 코드를 만들려면 JavaScript를 켜 주세요.",
+  "Enable JavaScript to create fuse bead patterns.":
+    "퓨즈 비즈 도안을 만들려면 JavaScript를 켜 주세요.",
 };

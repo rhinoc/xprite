@@ -27,12 +27,14 @@ describe("localized site links", () => {
     assert.equal(localizedSiteHref("/zh-CN/help/", zh), "/zh-CN/help/");
   });
 
-  it("keeps tool and component URLs independent of language", () => {
-    assert.equal(localizedSiteHref("/tools/viewer/", zh), "/tools/viewer/");
+  it("prefix tool pages but keep tool assets and components independent of language", () => {
+    assert.equal(localizedSiteHref("/tools/viewer/", zh), "/zh-CN/tools/viewer/");
+    assert.equal(localizedSiteHref("/ja/tools/pixelate/#help", en), "/tools/pixelate/#help");
     assert.equal(
       localizedSiteHref("/tools/viewer/?lang=zh-CN&source=menu", en),
       "/tools/viewer/?source=menu",
     );
+    assert.equal(localizedSiteHref("/tools/ssg-assets/a1b2.png", zh), "/tools/ssg-assets/a1b2.png");
     assert.equal(localizedSiteHref("/components/?lang=zh-CN", en), "/components/");
   });
 
@@ -58,7 +60,7 @@ describe("localized site links", () => {
     assert.equal(localizedSiteHref("/ko/learn/x/", en), "/learn/x/");
     assert.equal(
       localizedSiteHref("/tools/viewer/?lang=ja", PublicLanguage.Korean),
-      "/tools/viewer/",
+      "/ko/tools/viewer/",
     );
   });
 

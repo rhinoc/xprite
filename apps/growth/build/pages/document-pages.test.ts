@@ -3,8 +3,18 @@ import { existsSync } from "node:fs";
 
 import { describe, it, vi } from "vitest";
 
-import { PublicLanguage } from "../../content/site/language.ts";
-import { DOCUMENT_PAGES, SitePageKind, type SitePage } from "../../content/site/pages.ts";
+import {
+  PUBLIC_LANGUAGES,
+  PublicLanguage,
+  localizedSiteHref,
+  unlocalizedPath,
+} from "../../content/site/language.ts";
+import {
+  DOCUMENT_PAGES,
+  SitePageKind,
+  TOOL_PAGES,
+  type SitePage,
+} from "../../content/site/pages.ts";
 import { sitemap } from "../seo/discovery.ts";
 import {
   documentContent,
@@ -72,6 +82,29 @@ describe("document pages", () => {
       assert.equal(page.indexable, true);
       assert.ok(urls.includes(`<loc>https://xprite.cc${page.path}</loc>`), page.path);
     }
+  });
+
+  it("list every tool page in each language with all its alternates", () => {
+    const entries = sitemap().match(/<url>.*?<\/url>/g) ?? [];
+    for (const page of TOOL_PAGES) {
+      const entry = entries.find((item) =>
+        item.includes(`<loc>https://xprite.cc${page.path}</loc>`),
+      );
+      assert.ok(entry, page.path);
+      const tool = unlocalizedPath(page.path);
+      const alternates = [...entry.matchAll(/hreflang="([^"]+)" href="([^"]+)"/g)].map((match) => [
+        match[1],
+        match[2],
+      ]);
+      assert.deepEqual(alternates, [
+        ...PUBLIC_LANGUAGES.map((language) => [
+          language,
+          `https://xprite.cc${localizedSiteHref(tool, language)}`,
+        ]),
+        ["x-default", `https://xprite.cc${tool}`],
+      ]);
+    }
+    assert.equal(TOOL_PAGES.length, 35);
   });
 
   it("give every sitemap URL a lastmod date", () => {

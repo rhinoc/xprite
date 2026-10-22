@@ -44,10 +44,10 @@ const TEMPORARY_REDIRECT_STATUS = 307;
 
 // Put shared artwork before the tools runtime: these files belong to growth's public package.
 const GROWTH_ROUTES =
-  "^/(?:__growth(?:/|$)|(?:showcase|about|features|help|learn|compare|privacy|zh-CN)(?:/|\\?|$)|theme(?:/|$)|(?:fusion-pixel|pixel-code)/|tools/animal-crossing/|(?:menu-icon\\.svg|social-preview\\.png|robots\\.txt|sitemap\\.xml|llms\\.txt|404\\.html)(?:\\?|$))";
+  "^/(?:__growth(?:/|$)|(?:showcase|about|features|help|learn|compare|privacy|zh-CN(?!/tools/))(?:/|\\?|$)|theme(?:/|$)|(?:fusion-pixel|pixel-code)/|tools/animal-crossing/|(?:menu-icon\\.svg|social-preview\\.png|robots\\.txt|sitemap\\.xml|llms\\.txt|404\\.html)(?:\\?|$))";
 const escapeRoute = (path: string) => path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const COMPONENTS_ROUTES = `^(?:${componentRoutes.map((path) => `${escapeRoute(path.replace(/\/$/, ""))}/?`).join("|")}|/components/index\\.html)(?:\\?|$)|^/components/(?:src/|@|node_modules/|assets/|menu-icon\\.svg(?:\\?|$))`;
-const TOOLS_ROUTES = `^(?:/tools(?:/index\\.html)?/?|${TOOL_PATHS.map((path) => `${escapeRoute(path.replace(/\/$/, ""))}(?:/index\\.html|/)?`).join("|")})(?:\\?|$)|^/tools/(?:src/|@|node_modules/|assets/|ssg-assets/)`;
+const TOOLS_ROUTES = `^(?:/tools(?:/index\\.html)?/?|(?:/(?:zh-CN|ja|ko|ru|pt-BR|es))?(?:${TOOL_PATHS.map((path) => `${escapeRoute(path.replace(/\/$/, ""))}(?:/index\\.html|/)?`).join("|")}))(?:\\?|$)|^/tools/(?:src/|@|node_modules/|assets/|ssg-assets/)`;
 const EDITOR_ROUTES =
   "^/(?:$|\\?|editor/?(?:\\?|$)|src/|@|node_modules/|assets/|agent/|__debug/|(?:index\\.html|favicon[^/]*|icon[^/]*|startup[^/]*|manifest\\.webmanifest|sw\\.js)(?:\\?|$))";
 

@@ -9,18 +9,18 @@ import { cursorStylesheet, type SsgAsset } from "../../../infra/react-ssg-render
 import { prependSiteHeadContent, VISUALLY_HIDDEN_STYLE } from "../../../infra/site-html.ts";
 import { APPEARANCE_MODE_STORAGE_KEY } from "../../../packages/editor-ui/src/appearance/index.ts";
 import { UiColorScheme } from "../../../packages/ui/src/base/theme/theme-types.ts";
-import { PUBLIC_LANGUAGES, PublicLanguage } from "../../growth/content/site/language.ts";
 import {
-  VIEWER_TOOL,
-  GIF_SHEET_TOOL,
-  PIXELATE_TOOL,
-  ANIMAL_CROSSING_TOOL,
-  BEADS_TOOL,
+  LOCALIZED_PREFIX,
+  PUBLIC_LANGUAGES,
+  PublicLanguage,
+} from "../../growth/content/site/language.ts";
+import {
   TOOL_HEADING_ID,
   toolHeading,
   translateToolText,
 } from "../../growth/content/tools/index.ts";
 import { startupClickScript } from "../src/adapters/tools/startup-click.ts";
+import { TOOL_BY_ROOT } from "./localized-pages.ts";
 import { createSsgRenderer } from "./ssg-renderer.ts";
 
 const SITE_LANGUAGE_PREFERENCE_KEY = "xse.ui.language.v1";
@@ -34,20 +34,7 @@ const ASSET_TYPES: Readonly<Record<string, string>> = {
   ".jpg": "image/jpeg",
   ".woff2": "font/woff2",
 };
-const TOOL_BY_ROOT = {
-  "viewer-root": VIEWER_TOOL,
-  "gif-sheet-root": GIF_SHEET_TOOL,
-  "pixelation-root": PIXELATE_TOOL,
-  "animal-crossing-root": ANIMAL_CROSSING_TOOL,
-  "beads-root": BEADS_TOOL,
-};
-const ROOT_IDS = [
-  "viewer-root",
-  "gif-sheet-root",
-  "pixelation-root",
-  "animal-crossing-root",
-  "beads-root",
-];
+const ROOT_IDS = Object.keys(TOOL_BY_ROOT);
 const jsonForHtml = (value: unknown) => JSON.stringify(value).replaceAll("<", "\\u003c");
 const escapeHtml = (value: string) =>
   value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
@@ -192,8 +179,10 @@ export function toolsStartupPages(): Plugin {
         if (!rootId) return html;
         const runtime = await load();
         const page = await runtime.render(rootId);
-        const tool = TOOL_BY_ROOT[rootId as keyof typeof TOOL_BY_ROOT];
-        const localeHead = `<script>try{const lang=localStorage.getItem(${JSON.stringify(SITE_LANGUAGE_PREFERENCE_KEY)});if(${JSON.stringify(PUBLIC_LANGUAGES)}.includes(lang))document.documentElement.lang=lang}catch{}</script>`;
+        const tool = TOOL_BY_ROOT[rootId];
+        // A localized address (`/ja/tools/…`) is served in its own language; only the English
+        // address follows a saved language choice.
+        const localeHead = `<script>try{const lang=localStorage.getItem(${JSON.stringify(SITE_LANGUAGE_PREFERENCE_KEY)});if(!${LOCALIZED_PREFIX}.test(location.pathname)&&${JSON.stringify(PUBLIC_LANGUAGES)}.includes(lang))document.documentElement.lang=lang}catch{}</script>`;
         const localizedCopy = Object.fromEntries(
           PUBLIC_LANGUAGES.map((language) => [
             language,
