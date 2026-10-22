@@ -31,6 +31,20 @@ afterEach(async () => {
 });
 
 describe("content versions", () => {
+  it("versions every candidate in a srcset", () => {
+    const html = [
+      '<source media="(max-width: 700px)" srcSet="/showcase/overview/portrait.png" width="444">',
+      '<img srcset="/a.webp 1x, /b.webp?x=1 2x,/assets/c-BEsLzuJ0.webp 3x" src="/a.png">',
+    ].join("\n");
+    assert.equal(
+      versionReferences(html, "html", () => "0123456789ab"),
+      [
+        '<source media="(max-width: 700px)" srcSet="/showcase/overview/portrait.png?v=0123456789ab" width="444">',
+        '<img srcset="/a.webp?v=0123456789ab 1x, /b.webp?x=1&v=0123456789ab 2x,/assets/c-BEsLzuJ0.webp 3x" src="/a.png?v=0123456789ab">',
+      ].join("\n"),
+    );
+  });
+
   it("leaves content-addressed, external and service worker URLs alone", () => {
     assert.equal(isContentAddressed("/assets/showcase-BEsLzuJ0.css"), true);
     assert.equal(isContentAddressed(`/theme/ssg-assets/${"a".repeat(64)}.png`), true);

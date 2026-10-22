@@ -146,7 +146,14 @@ former `/gallery/` routes. EdgeOne reads at most 100 redirects, 100 rewrites and
 30 header rules and silently ignores the rest, so `deploy:prepare` compacts repeated rule shapes
 into `:name` placeholders (`infra/edgeone-serving-rules.ts`), checks that every generated exact
 rule still resolves to the same destination, and fails before upload if a list is still over
-its limit. The middleware keeps the full exact path list. `pnpm run check` runs
+its limit. The middleware keeps the full exact path list. `edgeone.json` header rules
+label every page URL (`/`, `/editor`, `/*.html` and directory URLs up to three segments deep
+through `:p1` placeholders) as `text/html; charset=utf-8` with HSTS, because Makers otherwise
+sends HTML without a charset. Content-versioned (`?v=`) and content-addressed files get
+`public, max-age=31536000, immutable`; those rules come after the broad `no-cache` rules they
+narrow, since EdgeOne's documented example lists the specific rule last. Keep a stable-name file
+on `no-cache` while any page or script loads it without a content version.
+`infra/edgeone-response-headers.test.ts` checks these headers for representative paths. `pnpm run check` runs
 `check:components-generated`, which fails when the committed component catalog or route list
 differs from what `components:generate` produces. After a deployment,
 `pnpm run deploy:verify <url>` re-runs the post-upload checks against the prepared
