@@ -1,5 +1,5 @@
-import { UINT8_MAX } from "$/base/numeric-constants";
 import type { PixelBuffer } from "$/base/primitives";
+import { neighbourSteps, stepOf } from "$/import-export/image/import/color-step";
 
 /**
  * Tilt estimation and straightening for pixel grids that were photographed, scanned or rotated a
@@ -42,41 +42,51 @@ interface EdgePoints {
   horizontal: Float32Array;
 }
 
-function colorStep(data: Uint8ClampedArray, first: number, second: number): number {
-  const a = data[first + 3] / UINT8_MAX,
-    b = data[second + 3] / UINT8_MAX;
-  let difference = Math.abs(a - b);
-  for (let c = 0; c < CHANNELS - 1; c++)
-    difference = Math.max(
-      difference,
-      Math.abs(data[first + c] * a - data[second + c] * b) / UINT8_MAX,
-    );
-  return difference;
-}
-
-function thin(points: number[], limit: number): Float32Array {
-  const count = points.length / 2;
+const VERTICAL_EDGE = 1;
+const HORIZONTAL_EDGE = 2;
+/**
+ * Every `stride`-th of the `count` pixels flagged with `bit` (stride chosen to keep at most `limit`),
+ * in row order, as x, y pairs offset by (dx, dy).
+ */
+function thin(
+  flags: Uint8Array,
+  width: number,
+  bit: number,
+  count: number,
+  limit: number,
+  dx: number,
+  dy: number,
+): Float32Array {
   const stride = Math.max(1, Math.ceil(count / limit));
-  const kept: number[] = [];
-  for (let i = 0; i < count; i += stride) kept.push(points[2 * i], points[2 * i + 1]);
-  return Float32Array.from(kept);
+  const kept = new Float32Array(2 * Math.ceil(count / stride));
+  for (let p = 0, seen = 0, n = 0; n < kept.length; p++) {
+    if (!(flags[p] & bit)) continue;
+    if (seen++ % stride) continue;
+    kept[n++] = (p % width) + dx;
+    kept[n++] = Math.floor(p / width) + dy;
+  }
+  return kept;
 }
-
 function collectEdges(image: PixelBuffer): EdgePoints {
   const { width, height, data } = image;
-  const vertical: number[] = [],
-    horizontal: number[] = [];
-  for (let y = 0; y < height; y++)
-    for (let x = 0; x < width; x++) {
-      const offset = (y * width + x) * CHANNELS;
-      if (x + 1 < width && colorStep(data, offset, offset + CHANNELS) > EDGE_STEP)
-        vertical.push(x + 1, y + 0.5);
-      if (y + 1 < height && colorStep(data, offset, offset + width * CHANNELS) > EDGE_STEP)
-        horizontal.push(x + 0.5, y + 1);
+  const { right, down } = neighbourSteps(image);
+  const flags = new Uint8Array(width * height);
+  let vertical = 0,
+    horizontal = 0;
+  for (let y = 0, p = 0; y < height; y++)
+    for (let x = 0; x < width; x++, p++) {
+      if (x + 1 < width && stepOf(right, data, p, 1) > EDGE_STEP) {
+        flags[p] |= VERTICAL_EDGE;
+        vertical++;
+      }
+      if (y + 1 < height && stepOf(down, data, p, width) > EDGE_STEP) {
+        flags[p] |= HORIZONTAL_EDGE;
+        horizontal++;
+      }
     }
   return {
-    vertical: thin(vertical, MAX_POINTS),
-    horizontal: thin(horizontal, MAX_POINTS),
+    vertical: thin(flags, width, VERTICAL_EDGE, vertical, MAX_POINTS, 1, 0.5),
+    horizontal: thin(flags, width, HORIZONTAL_EDGE, horizontal, MAX_POINTS, 0.5, 1),
   };
 }
 
@@ -88,27 +98,27 @@ function sharpness(
   points: EdgePoints,
   degrees: number,
   scale: number,
-  bins: Float64Array,
+  bins: Int32Array,
   offset: number,
 ): number {
   const cos = Math.cos(degrees * DEGREES) * scale,
     sin = Math.sin(degrees * DEGREES) * scale;
-  let total = 0;
-  const run = (source: Float32Array, along: "u" | "v") => {
-    bins.fill(0);
-    for (let i = 0; i < source.length; i += 2) {
-      const x = source[i],
-        y = source[i + 1];
-      const position = along === "u" ? x * cos + y * sin : -x * sin + y * cos;
-      bins[Math.floor(position + offset)] += 1;
-    }
-    let sum = 0;
-    for (let i = 0; i < bins.length; i++) sum += bins[i] * bins[i];
-    total += sum;
-  };
-  run(points.vertical, "u");
-  run(points.horizontal, "v");
-  return total / Math.max(1, (points.vertical.length + points.horizontal.length) / 2);
+  const { vertical, horizontal } = points;
+  // Vertical edges project on u = x cos + y sin, horizontal edges on v = -x sin + y cos.
+  bins.fill(0);
+  for (let i = 0; i < vertical.length; i += 2)
+    bins[Math.floor(vertical[i] * cos + vertical[i + 1] * sin + offset)]++;
+  let total = squaredCounts(bins);
+  bins.fill(0);
+  for (let i = 0; i < horizontal.length; i += 2)
+    bins[Math.floor(-horizontal[i] * sin + horizontal[i + 1] * cos + offset)]++;
+  total += squaredCounts(bins);
+  return total / Math.max(1, (vertical.length + horizontal.length) / 2);
+}
+function squaredCounts(bins: Int32Array): number {
+  let sum = 0;
+  for (let i = 0; i < bins.length; i++) sum += bins[i] * bins[i];
+  return sum;
 }
 
 function scaled(points: EdgePoints, scale: number): EdgePoints {
@@ -139,7 +149,7 @@ function measureTilt(image: PixelBuffer): TiltEstimate {
   const edges = collectEdges(image);
   if (edges.vertical.length / 2 + edges.horizontal.length / 2 < MIN_EDGE_POINTS) return UPRIGHT;
 
-  const bins = new Float64Array(Math.ceil(3 * longest) + 8);
+  const bins = new Int32Array(Math.ceil(3 * longest) + 8);
   const offset = longest;
   const evaluate = (points: EdgePoints, degrees: number, scale: number) =>
     sharpness(points, degrees, scale, bins, offset * scale);
@@ -194,6 +204,8 @@ export function straighten(image: PixelBuffer, degrees: number): PixelBuffer {
     cy = height / 2;
   const pick = (x: number, y: number) =>
     (Math.max(0, Math.min(height - 1, y)) * width + Math.max(0, Math.min(width - 1, x))) * CHANNELS;
+  const corners = new Int32Array(4);
+  const weights = new Float64Array(4);
   for (let y = 0; y < height; y++)
     for (let x = 0; x < width; x++) {
       const u = x + 0.5 - cx,
@@ -204,18 +216,22 @@ export function straighten(image: PixelBuffer, degrees: number): PixelBuffer {
         y0 = Math.floor(sy);
       const fx = sx - x0,
         fy = sy - y0;
-      const corners = [
-        [pick(x0, y0), (1 - fx) * (1 - fy)],
-        [pick(x0 + 1, y0), fx * (1 - fy)],
-        [pick(x0, y0 + 1), (1 - fx) * fy],
-        [pick(x0 + 1, y0 + 1), fx * fy],
-      ] as const;
+      // The four corners in order, accumulated from zero.
+      corners[0] = pick(x0, y0);
+      corners[1] = pick(x0 + 1, y0);
+      corners[2] = pick(x0, y0 + 1);
+      corners[3] = pick(x0 + 1, y0 + 1);
+      weights[0] = (1 - fx) * (1 - fy);
+      weights[1] = fx * (1 - fy);
+      weights[2] = (1 - fx) * fy;
+      weights[3] = fx * fy;
       let alpha = 0,
         r = 0,
         g = 0,
         b = 0;
-      for (const [at, weight] of corners) {
-        const a = data[at + 3] * weight;
+      for (let corner = 0; corner < 4; corner++) {
+        const at = corners[corner];
+        const a = data[at + 3] * weights[corner];
         alpha += a;
         r += data[at] * a;
         g += data[at + 1] * a;

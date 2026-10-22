@@ -1,4 +1,5 @@
 import type { PixelBuffer } from "$/base/primitives";
+import { forgetNeighbourSteps } from "$/import-export/image/import/color-step";
 import { estimateTilt, straighten } from "$/import-export/image/import/deskew";
 import { blockPartition } from "$/import-export/image/import/grid";
 import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
@@ -47,6 +48,18 @@ const tag =
   });
 
 /**
+ * One detection call's shared work: Auto runs several grid algorithms on the same image, and each
+ * straightens it the same way (the tilt and the edge analysis are cached per image). Kept only
+ * while the call runs; recovery straightens its own copy.
+ */
+let detection: { image: PixelBuffer; upright?: PixelBuffer } | null = null;
+function uprightOf(image: PixelBuffer, angle: number): PixelBuffer {
+  if (detection?.image !== image) return straighten(image, angle);
+  if (!detection.upright) detection.upright = straighten(image, angle);
+  return detection.upright;
+}
+
+/**
  * Detect on a straightened copy when the image carries a convincing tilt; the grid then records
  * the rotation so recovery straightens the same way. A tilt beyond the search range, or a
  * straightened image that still has no reliable grid, is refused rather than guessed from the
@@ -58,7 +71,7 @@ const deskewed =
     const tilt = estimateTilt(image);
     if (tilt.extreme) return unreliable(image);
     if (!tilt.angle) return detect(image, size);
-    const found = detect(straighten(image, tilt.angle), size);
+    const found = detect(uprightOf(image, tilt.angle), size);
     return found.reliable ? { ...found, rotation: tilt.angle } : unreliable(image);
   };
 
@@ -148,7 +161,15 @@ export function detectWithAlgorithm(
   algorithm: PixelationAlgorithm = PixelationAlgorithm.Auto,
   size?: PixelationSize,
 ): PixelGridAnalysis {
-  return getAlgorithmEntry(algorithm).detect(image, size);
+  const entry = getAlgorithmEntry(algorithm);
+  if (detection) return entry.detect(image, size);
+  detection = { image };
+  try {
+    return entry.detect(image, size);
+  } finally {
+    detection = null;
+    forgetNeighbourSteps();
+  }
 }
 
 export function recoverWithGrid(

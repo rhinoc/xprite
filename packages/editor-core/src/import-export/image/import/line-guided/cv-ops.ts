@@ -288,6 +288,7 @@ function resizeAreaDown(
   if (Math.abs(scaleX - ix) < Number.EPSILON && Math.abs(scaleY - iy) < Number.EPSILON) {
     const area = ix * iy;
     const inv = f32(1 / area);
+    const values = new Float64Array(area);
     for (let y = 0; y < dh; y++)
       for (let x = 0; x < dw; x++)
         for (let c = 0; c < cn; c++) {
@@ -297,10 +298,10 @@ function resizeAreaDown(
             out[(y * dw + x) * cn + c] = round ? (s + 2) >> 2 : f32(f32(s) * 0.25);
             continue;
           }
-          const values: number[] = [];
+          let n = 0;
           for (let sy = 0; sy < iy; sy++)
             for (let sx = 0; sx < ix; sx++)
-              values.push(src[((y * iy + sy) * sw + x * ix + sx) * cn + c]);
+              values[n++] = src[((y * iy + sy) * sw + x * ix + sx) * cn + c];
           let sum = 0;
           let k = 0;
           for (; k <= area - 4; k += 4)
@@ -317,13 +318,31 @@ function resizeAreaDown(
   const width = dw * cn;
   const buf = new Float32Array(width);
   const sum = new Float32Array(width);
+  // The column taps as flat tables (destination and source element offsets, weight).
+  const into = Int32Array.from(xt, (tap) => tap.d * cn);
+  const from = Int32Array.from(xt, (tap) => tap.s * cn);
+  const weights = Float64Array.from(xt, (tap) => tap.alpha);
   let prev = yt[0]?.d ?? 0;
   for (const { d: dy, s: sy, alpha: beta } of yt) {
     buf.fill(0);
     const base = sy * sw * cn;
-    for (const { d, s, alpha } of xt)
-      for (let c = 0; c < cn; c++)
-        buf[d * cn + c] = f32(buf[d * cn + c] + f32(src[base + s * cn + c] * alpha));
+    if (cn === 3)
+      for (let t = 0; t < into.length; t++) {
+        const d = into[t],
+          s = base + from[t],
+          alpha = weights[t];
+        // Float32 stores round each sum, as f32(buf + f32(src * alpha)).
+        buf[d] = buf[d] + f32(src[s] * alpha);
+        buf[d + 1] = buf[d + 1] + f32(src[s + 1] * alpha);
+        buf[d + 2] = buf[d + 2] + f32(src[s + 2] * alpha);
+      }
+    else
+      for (let t = 0; t < into.length; t++) {
+        const d = into[t],
+          s = base + from[t],
+          alpha = weights[t];
+        for (let c = 0; c < cn; c++) buf[d + c] = f32(buf[d + c] + f32(src[s + c] * alpha));
+      }
     if (dy !== prev) {
       for (let i = 0; i < width; i++) out[prev * width + i] = store(sum[i]);
       for (let i = 0; i < width; i++) sum[i] = f32(buf[i] * beta);
@@ -464,6 +483,117 @@ function reflect101(i: number, n: number): number {
   while (i < 0 || i >= n) i = i < 0 ? -i : 2 * n - 2 - i;
   return i;
 }
+/** Source index of every position of a row padded by `r` on each side (BORDER_REFLECT_101). */
+function reflectedIndices(n: number, r: number): Int32Array {
+  const indices = new Int32Array(n + 2 * r);
+  for (let i = -r; i < n + r; i++) indices[i + r] = reflect101(i, n);
+  return indices;
+}
+
+/**
+ * One row of the float32 horizontal pass: `out[x]` is `fround(p * k + s)` chained over the taps in
+ * order from s = 0. Eight pixels run side by side so their chains overlap; each keeps its own order.
+ */
+function fmaRow32(
+  padded: Float32Array,
+  k: Float32Array,
+  out: Float32Array,
+  base: number,
+  w: number,
+) {
+  const size = k.length;
+  let x = 0;
+  for (; x + 7 < w; x += 8) {
+    let s0 = 0,
+      s1 = 0,
+      s2 = 0,
+      s3 = 0,
+      s4 = 0,
+      s5 = 0,
+      s6 = 0,
+      s7 = 0;
+    for (let i = 0; i < size; i++) {
+      const q = k[i],
+        p = x + i;
+      s0 = f32(padded[p] * q + s0);
+      s1 = f32(padded[p + 1] * q + s1);
+      s2 = f32(padded[p + 2] * q + s2);
+      s3 = f32(padded[p + 3] * q + s3);
+      s4 = f32(padded[p + 4] * q + s4);
+      s5 = f32(padded[p + 5] * q + s5);
+      s6 = f32(padded[p + 6] * q + s6);
+      s7 = f32(padded[p + 7] * q + s7);
+    }
+    const o = base + x;
+    out[o] = s0;
+    out[o + 1] = s1;
+    out[o + 2] = s2;
+    out[o + 3] = s3;
+    out[o + 4] = s4;
+    out[o + 5] = s5;
+    out[o + 6] = s6;
+    out[o + 7] = s7;
+  }
+  for (; x < w; x++) {
+    let s = 0;
+    for (let i = 0; i < size; i++) s = f32(padded[x + i] * k[i] + s);
+    out[base + x] = s;
+  }
+}
+/**
+ * One row of the float32 vertical pass: the centre row times `k[r]`, then for each distance the
+ * rounded sum of the rows above and below, fused in, nearest first. Eight pixels side by side.
+ */
+function symmetricColumn32(
+  rows: Float32Array,
+  k: Float32Array,
+  r: number,
+  ups: Int32Array,
+  downs: Int32Array,
+  out: Float32Array,
+  o: number,
+  w: number,
+) {
+  const centre = k[r];
+  let x = 0;
+  for (; x + 7 < w; x += 8) {
+    const c = o + x;
+    let s0 = f32(rows[c] * centre),
+      s1 = f32(rows[c + 1] * centre),
+      s2 = f32(rows[c + 2] * centre),
+      s3 = f32(rows[c + 3] * centre),
+      s4 = f32(rows[c + 4] * centre),
+      s5 = f32(rows[c + 5] * centre),
+      s6 = f32(rows[c + 6] * centre),
+      s7 = f32(rows[c + 7] * centre);
+    for (let i = 1; i <= r; i++) {
+      const q = k[r + i],
+        u = ups[i] + x,
+        d = downs[i] + x;
+      s0 = f32(f32(rows[d] + rows[u]) * q + s0);
+      s1 = f32(f32(rows[d + 1] + rows[u + 1]) * q + s1);
+      s2 = f32(f32(rows[d + 2] + rows[u + 2]) * q + s2);
+      s3 = f32(f32(rows[d + 3] + rows[u + 3]) * q + s3);
+      s4 = f32(f32(rows[d + 4] + rows[u + 4]) * q + s4);
+      s5 = f32(f32(rows[d + 5] + rows[u + 5]) * q + s5);
+      s6 = f32(f32(rows[d + 6] + rows[u + 6]) * q + s6);
+      s7 = f32(f32(rows[d + 7] + rows[u + 7]) * q + s7);
+    }
+    out[c] = s0;
+    out[c + 1] = s1;
+    out[c + 2] = s2;
+    out[c + 3] = s3;
+    out[c + 4] = s4;
+    out[c + 5] = s5;
+    out[c + 6] = s6;
+    out[c + 7] = s7;
+  }
+  for (; x < w; x++) {
+    let s = f32(rows[o + x] * centre);
+    for (let i = 1; i <= r; i++) s = f32(f32(rows[downs[i] + x] + rows[ups[i] + x]) * k[r + i] + s);
+    out[o + x] = s;
+  }
+}
 
 /** cv::GaussianBlur of a one-channel float32 image (separable, REFLECT_101, FMA accumulation). */
 export function gaussianBlur32(
@@ -475,36 +605,39 @@ export function gaussianBlur32(
 ): Float32Array {
   const k = gaussianKernel(w === 1 ? 1 : size, sigma);
   const r = (size - 1) >> 1;
+  // A one-pixel-wide image has a one-tap kernel but still reads `size` taps (as undefined).
+  const taps = k.length === size ? k : Float32Array.from({ length: size }, (_, i) => k[i] ?? NaN);
   const rows = new Float32Array(w * h);
   const padded = new Float32Array(w + 2 * r);
+  const columns = reflectedIndices(w, r);
   for (let y = 0; y < h; y++) {
     const base = y * w;
-    for (let i = -r; i < w + r; i++) padded[i + r] = src[base + reflect101(i, w)];
+    for (let i = 0; i < padded.length; i++) padded[i] = src[base + columns[i]];
+    if (size > 5) {
+      fmaRow32(padded, taps, rows, base, w);
+      continue;
+    }
+    // SymmRowSmallVec_32f: ((left + right) * k1, then centre, then the outer pair) fused.
+    const k0 = taps[r],
+      k1 = taps[r + 1],
+      k2 = taps[r + 2];
     for (let x = 0; x < w; x++) {
-      let s: number;
-      if (size <= 5) {
-        // SymmRowSmallVec_32f: ((left + right) * k1, then centre, then the outer pair) fused.
-        const c = x + r;
-        s = fma32(padded[c], k[r], f32(f32(padded[c - 1] + padded[c + 1]) * k[r + 1]));
-        if (size === 5) s = fma32(f32(padded[c + 2] + padded[c - 2]), k[r + 2], s);
-      } else {
-        s = 0;
-        for (let i = 0; i < size; i++) s = Math.fround(padded[x + i] * k[i] + s);
-      }
+      const c = x + r;
+      let s = fma32(padded[c], k0, f32(f32(padded[c - 1] + padded[c + 1]) * k1));
+      if (size === 5) s = fma32(f32(padded[c + 2] + padded[c - 2]), k2, s);
       rows[base + x] = s;
     }
   }
   const out = new Float32Array(w * h);
+  const lines = reflectedIndices(h, r);
+  const ups = new Int32Array(r + 1),
+    downs = new Int32Array(r + 1);
   for (let y = 0; y < h; y++) {
-    const o = y * w;
-    for (let x = 0; x < w; x++) out[o + x] = f32(rows[o + x] * k[r]);
     for (let i = 1; i <= r; i++) {
-      const up = reflect101(y - i, h) * w,
-        down = reflect101(y + i, h) * w;
-      const weight = k[r + i];
-      for (let x = 0; x < w; x++)
-        out[o + x] = Math.fround(rows[down + x] + rows[up + x]) * weight + out[o + x];
+      ups[i] = lines[y - i + r] * w;
+      downs[i] = lines[y + i + r] * w;
     }
+    symmetricColumn32(rows, taps, r, ups, downs, out, y * w, w);
   }
   return out;
 }
@@ -527,9 +660,30 @@ export function morph8(
   erode: boolean,
   iterations: number,
 ): Uint8Array {
-  const pick = erode
-    ? (a: number, b: number) => (a < b ? a : b)
-    : (a: number, b: number) => (a > b ? a : b);
+  // A dilation is the erosion of the inverted image, inverted back: max(a, b) = 255 - min(255 - a, 255 - b).
+  if (!erode) return invert8(erode8(invert8(src), w, h, cn, shape, iterations));
+  return erode8(src, w, h, cn, shape, iterations);
+}
+function invert8(src: Uint8Array): Uint8Array {
+  const out = new Uint8Array(src.length);
+  for (let i = 0; i < src.length; i++) out[i] = 255 - src[i];
+  return out;
+}
+/** Minimum of an element and its left and right neighbours that lie inside the row. */
+function rowEdgeMin(cur: Uint8Array, i: number, row: number, end: number, cn: number): number {
+  let v = cur[i];
+  if (i - cn >= row && cur[i - cn] < v) v = cur[i - cn];
+  if (i + cn < end && cur[i + cn] < v) v = cur[i + cn];
+  return v;
+}
+function erode8(
+  src: Uint8Array,
+  w: number,
+  h: number,
+  cn: number,
+  shape: MorphShape,
+  iterations: number,
+): Uint8Array {
   const stride = w * cn;
   // Clamping a neighbour index to the image repeats a pixel already in the window, which is the
   // same as ignoring pixels outside the image.
@@ -537,24 +691,32 @@ export function morph8(
   const across = new Uint8Array(src.length);
   for (let it = 0; it < iterations; it++) {
     for (let y = 0; y < h; y++) {
-      const row = y * stride;
-      for (let x = 0; x < w; x++) {
-        const left = row + Math.max(0, x - 1) * cn,
-          here = row + x * cn,
-          right = row + Math.min(w - 1, x + 1) * cn;
-        for (let c = 0; c < cn; c++)
-          across[here + c] = pick(pick(cur[left + c], cur[here + c]), cur[right + c]);
+      const row = y * stride,
+        end = row + stride;
+      // The first and last pixel of a row have one neighbour; the rest two.
+      const head = Math.min(end, row + cn),
+        tail = Math.max(head, end - cn);
+      for (let i = row; i < head; i++) across[i] = rowEdgeMin(cur, i, row, end, cn);
+      for (let i = head; i < tail; i++) {
+        let v = cur[i - cn];
+        if (cur[i] < v) v = cur[i];
+        if (cur[i + cn] < v) v = cur[i + cn];
+        across[i] = v;
       }
+      for (let i = tail; i < end; i++) across[i] = rowEdgeMin(cur, i, row, end, cn);
     }
     const next = new Uint8Array(src.length);
     // Rect: the horizontal result of the rows above and below; cross: only their centre pixel.
     const vertical = shape === MorphShape.Rect ? across : cur;
     for (let y = 0; y < h; y++) {
-      const up = Math.max(0, y - 1) * stride,
-        here = y * stride,
-        down = Math.min(h - 1, y + 1) * stride;
-      for (let i = 0; i < stride; i++)
-        next[here + i] = pick(pick(vertical[up + i], across[here + i]), vertical[down + i]);
+      const up = Math.max(0, y - 1) * stride - y * stride,
+        down = Math.min(h - 1, y + 1) * stride - y * stride;
+      for (let i = y * stride, end = i + stride; i < end; i++) {
+        let v = across[i];
+        if (vertical[i + up] < v) v = vertical[i + up];
+        if (vertical[i + down] < v) v = vertical[i + down];
+        next[i] = v;
+      }
     }
     cur = next;
   }
@@ -570,13 +732,28 @@ export function pairwiseSum32(a: ArrayLike<number>, start = 0, n = a.length): nu
     return r;
   }
   if (n <= PAIRWISE_BLOCK) {
-    const r = new Float32Array(8);
-    for (let j = 0; j < 8; j++) r[j] = a[start + j];
+    // Eight float32 lanes, as NumPy's unrolled loop.
+    let r0 = f32(a[start]),
+      r1 = f32(a[start + 1]),
+      r2 = f32(a[start + 2]),
+      r3 = f32(a[start + 3]),
+      r4 = f32(a[start + 4]),
+      r5 = f32(a[start + 5]),
+      r6 = f32(a[start + 6]),
+      r7 = f32(a[start + 7]);
     let i = 8;
-    for (; i < n - (n % 8); i += 8) for (let j = 0; j < 8; j++) r[j] = r[j] + a[start + i + j];
-    let res = f32(
-      f32(f32(r[0] + r[1]) + f32(r[2] + r[3])) + f32(f32(r[4] + r[5]) + f32(r[6] + r[7])),
-    );
+    for (; i < n - (n % 8); i += 8) {
+      const at = start + i;
+      r0 = f32(r0 + a[at]);
+      r1 = f32(r1 + a[at + 1]);
+      r2 = f32(r2 + a[at + 2]);
+      r3 = f32(r3 + a[at + 3]);
+      r4 = f32(r4 + a[at + 4]);
+      r5 = f32(r5 + a[at + 5]);
+      r6 = f32(r6 + a[at + 6]);
+      r7 = f32(r7 + a[at + 7]);
+    }
+    let res = f32(f32(f32(r0 + r1) + f32(r2 + r3)) + f32(f32(r4 + r5) + f32(r6 + r7)));
     for (; i < n; i++) res = f32(res + a[start + i]);
     return res;
   }
@@ -619,31 +796,93 @@ function gaussianKernel64(size: number, sigma: number): Float64Array {
   return kernel;
 }
 
+/**
+ * Integer sums `k[r] * src[c] + k[r + i] * (src[c + lefts[i]] + src[c + rights[i]])` for the `w`
+ * pixels c = centre + x, eight side by side. Integer sums are exact in any order, so mirrored taps
+ * (the kernel is symmetric) share a multiply and zero taps are skipped.
+ */
+function symmetricSums(
+  src: Int32Array,
+  k: Int32Array,
+  r: number,
+  centre: number,
+  lefts: Int32Array,
+  rights: Int32Array,
+  out: Int32Array,
+  w: number,
+) {
+  const middle = k[r];
+  let x = 0;
+  for (; x + 7 < w; x += 8) {
+    const c = centre + x;
+    let s0 = middle * src[c],
+      s1 = middle * src[c + 1],
+      s2 = middle * src[c + 2],
+      s3 = middle * src[c + 3],
+      s4 = middle * src[c + 4],
+      s5 = middle * src[c + 5],
+      s6 = middle * src[c + 6],
+      s7 = middle * src[c + 7];
+    for (let i = 1; i <= r; i++) {
+      const q = k[r + i];
+      if (!q) continue;
+      const a = c + lefts[i],
+        b = c + rights[i];
+      s0 += q * (src[a] + src[b]);
+      s1 += q * (src[a + 1] + src[b + 1]);
+      s2 += q * (src[a + 2] + src[b + 2]);
+      s3 += q * (src[a + 3] + src[b + 3]);
+      s4 += q * (src[a + 4] + src[b + 4]);
+      s5 += q * (src[a + 5] + src[b + 5]);
+      s6 += q * (src[a + 6] + src[b + 6]);
+      s7 += q * (src[a + 7] + src[b + 7]);
+    }
+    out[x] = s0;
+    out[x + 1] = s1;
+    out[x + 2] = s2;
+    out[x + 3] = s3;
+    out[x + 4] = s4;
+    out[x + 5] = s5;
+    out[x + 6] = s6;
+    out[x + 7] = s7;
+  }
+  for (; x < w; x++) {
+    const c = centre + x;
+    let sum = middle * src[c];
+    for (let i = 1; i <= r; i++) sum += k[r + i] * (src[c + lefts[i]] + src[c + rights[i]]);
+    out[x] = sum;
+  }
+}
+
 /** cv::GaussianBlur of a one-channel 8-bit image with sigma 0 (OpenCV's bit-exact fixed point). */
 export function gaussianBlur8(src: Uint8Array, w: number, h: number, size: number): Uint8Array {
   const k = fixedKernel8(size);
   const r = size >> 1;
-  const rows = new Uint32Array(w * h);
-  const padded = new Uint8Array(w + 2 * r);
+  const rows = new Int32Array(w * h);
+  const padded = new Int32Array(w + 2 * r);
+  const columns = reflectedIndices(w, r);
+  const sums = new Int32Array(w);
+  const lefts = new Int32Array(r + 1),
+    rights = new Int32Array(r + 1);
+  for (let i = 1; i <= r; i++) {
+    lefts[i] = -i;
+    rights[i] = i;
+  }
   for (let y = 0; y < h; y++) {
     const base = y * w;
-    for (let i = -r; i < w + r; i++) padded[i + r] = src[base + reflect101(i, w)];
-    for (let x = 0; x < w; x++) {
-      let s = 0;
-      for (let i = 0; i < size; i++) s += k[i] * padded[x + i];
-      rows[base + x] = s > 0xffff ? 0xffff : s;
-    }
+    for (let i = 0; i < padded.length; i++) padded[i] = src[base + columns[i]];
+    symmetricSums(padded, k, r, r, lefts, rights, sums, w);
+    for (let x = 0; x < w; x++) rows[base + x] = sums[x] > 0xffff ? 0xffff : sums[x];
   }
   const out = new Uint8Array(w * h);
-  const sums = new Float64Array(w);
+  const lines = reflectedIndices(h, r);
   for (let y = 0; y < h; y++) {
-    sums.fill(0);
-    for (let i = -r; i <= r; i++) {
-      const source = reflect101(y + i, h) * w,
-        weight = k[i + r];
-      for (let x = 0; x < w; x++) sums[x] += weight * rows[source + x];
-    }
     const o = y * w;
+    for (let i = 1; i <= r; i++) {
+      lefts[i] = lines[y - i + r] * w - o;
+      rights[i] = lines[y + i + r] * w - o;
+    }
+    symmetricSums(rows, k, r, o, lefts, rights, sums, w);
     for (let x = 0; x < w; x++) out[o + x] = Math.min(255, (sums[x] + (1 << 15)) >>> 16);
   }
   return out;
