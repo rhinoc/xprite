@@ -2,10 +2,12 @@ import {
   hasMiniToolContainer,
   readMiniToolWindowInfo,
   type MiniToolWindowInfo,
-} from "$/adapters/minitool/xhs-bridge";
+} from "$/shared/bridge/xhs-bridge";
 
 /** Set on the root inside the container; the stylesheet falls back to the safe area + 48px. */
 const CONTAINER_CLASS = "minitool-container";
+/** Set once the inset comes from getWindowInfo rather than the stylesheet's estimate. */
+const MEASURED_CLASS = "minitool-measured";
 const TOP_INSET = "--minitool-top-inset";
 /** Breathing room between the native buttons and the tool's menu bar. */
 const BUTTON_GAP = 4;
@@ -41,6 +43,7 @@ export function installWindowInsets(): Promise<void> {
     const inset = info && windowTopInset(info);
     if (current !== request || inset === null || inset === undefined) return;
     root.style.setProperty(TOP_INSET, `${inset}px`);
+    root.classList.add(MEASURED_CLASS);
   };
   let timer = 0;
   const schedule = () => {

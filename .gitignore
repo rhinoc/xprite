@@ -3,8 +3,6 @@ node_modules/
 
 # Generated builds
 dist/
-dist-minitool/
-dist-minitool.zip
 
 # Python/TypeScript/build caches
 __pycache__/

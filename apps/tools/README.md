@@ -108,6 +108,7 @@ Typography also comes from the skin: ChiKareGo2 for ordinary copy and controls,
 FindersKeepers for the theme’s mini text, and Fusion Pixel for CJK glyphs.
 The shell does not override the theme font, and bootstrap waits for the active
 skin’s declared fonts before hydration.
+
 ## Animal Crossing Design Converter
 
 `/tools/animal-crossing-qr/` accepts local PNGs and Aseprite projects with embedded
@@ -221,21 +222,8 @@ has 3,249 pegs (57×57). [Perler's large square boards](https://perler.com/produ
 interlock for larger projects. These product examples do not restrict custom dimensions or
 the overall pattern size.
 
-## Xiaohongshu mini tool (pixelate)
+## Shared pixelate engine
 
-`pnpm build:pixelate-minitool` packages the pixelate tool as a Xiaohongshu 小工具: an offline
-H5 ZIP (`apps/tools/dist-minitool.zip`, built from `vite.minitool.config.ts`) with `index.html`
-at the root, one classic ES2017 script, relative asset paths, and Chrome 61 fallbacks for the
-stylesheet (`build/minitool-legacy-css.ts`). It reuses `PixelationManager` and
-`PixelationPage`; only the platform pieces differ:
-
-- `adapters/minitool/minitool-pixelation.ts` converts on the main thread (the container has no
-  Workers), downscales photos to 4 MP first, and enlarges results with whole-pixel scaling for
-  saving.
-- `adapters/minitool/xhs-bridge.ts` feature-detects `window.xhs.miniTool`: **Save to album**
-  calls `saveImageToPhotosAlbum`, **Post to note** calls `postNote`, and preferences use the
-  container Storage API on clients that have it, with browser storage as the fallback. In a
-  normal browser both buttons explain that they need the Xiaohongshu app.
-- `components/minitool/minitool-frame.tsx` replaces the website frame: no site navigation,
-  Files desktop, help, footer, telemetry, downloads or external links. The page opens in
-  Simplified Chinese; the language menu stays.
+`src/pixelation-engine.ts` is exported as `@xprite/tools-app/pixelation` (`PixelationManager`, its
+port, palettes and the import limit) for apps that build their own screen on the pixelate tool,
+such as the Xiaohongshu pixelate mini tool in [`apps/xhs-minitools`](../xhs-minitools/README.md).

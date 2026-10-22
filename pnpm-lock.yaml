@@ -306,6 +306,37 @@ importers:
         specifier: 5.111.1
         version: 5.111.1(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28)
 
+  apps/xhs-minitools:
+    dependencies:
+      '@xprite/editor-core':
+        specifier: workspace:*
+        version: link:../../packages/editor-core
+      '@xprite/growth-content':
+        specifier: workspace:*
+        version: link:../growth/content
+      '@xprite/site-assets':
+        specifier: workspace:*
+        version: link:../growth/public
+      '@xprite/tools-app':
+        specifier: workspace:*
+        version: link:../tools
+      '@xprite/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      acorn:
+        specifier: ^8.18.0
+        version: 8.18.0
+      fflate:
+        specifier: ^0.8.3
+        version: 0.8.3
+
   packages/bedrock: {}
 
   packages/editor-core:

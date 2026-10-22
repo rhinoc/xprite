@@ -21,6 +21,7 @@ const configs = [
   "apps/editor/tsconfig.json",
   "apps/components/tsconfig.json",
   "apps/tools/tsconfig.json",
+  "apps/xhs-minitools/tsconfig.json",
   "packages/editor-ui/tsconfig.json",
   "packages/ui/tsconfig.json",
   "packages/bedrock/tsconfig.browser.json",

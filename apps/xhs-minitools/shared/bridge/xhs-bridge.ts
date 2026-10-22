@@ -174,3 +174,20 @@ export async function postImageNote(dataUrl: string): Promise<void> {
     mediaInfo: { image_resources: [{ url: await localImagePath(api, dataUrl) }] },
   });
 }
+
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]", "::1"]);
+
+/**
+ * Development preview: outside the container on this computer (localhost), save and post download
+ * the PNG instead. Returns false where the container's own album and note APIs should be used.
+ */
+export function downloadImage(dataUrl: string, name: string): boolean {
+  if (miniTool() || !LOCAL_HOSTS.has(location.hostname)) return false;
+  const link = document.createElement("a");
+  link.href = dataUrl;
+  link.download = name;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  return true;
+}

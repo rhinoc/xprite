@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { windowTopInset } from "$/adapters/minitool/window-insets";
+import { windowTopInset } from "$/shared/bridge/window-insets";
 
 const rect = (left: number, top: number, width: number, height: number) => ({
   left,

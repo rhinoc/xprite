@@ -39,9 +39,11 @@
         "src/pixelation-main.tsx",
         "src/bead-main.tsx",
         "src/ssg.tsx",
-        "src/minitool-main.tsx",
-        "vite.minitool.config.ts"
+        "src/pixelation-engine.ts"
       ]
+    },
+    "apps/xhs-minitools": {
+      "entry": ["tools/*/main.tsx", "shared/build/build.mjs"]
     },
     "apps/growth/content": {
       "entry": [

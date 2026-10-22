@@ -35,6 +35,15 @@
     }
   },
   {
+    "directory": "apps/xhs-minitools",
+    "source": ".",
+    "tsconfig": "tsconfig.json",
+    "aliases": {
+      "$/": "."
+    },
+    "exclude": ["node_modules", "dist", "shared/build", "vite.config.ts"]
+  },
+  {
     "directory": "apps/growth",
     "source": "src",
     "tsconfig": "tsconfig.json",

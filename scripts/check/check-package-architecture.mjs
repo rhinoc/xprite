@@ -49,6 +49,11 @@ const scopes = [
     tsConfig: "apps/tools/tsconfig.json",
     sources: ["apps/tools/src"],
   },
+  {
+    name: "xhs-minitools",
+    tsConfig: "apps/xhs-minitools/tsconfig.json",
+    sources: ["apps/xhs-minitools/shared", "apps/xhs-minitools/tools"],
+  },
 ];
 
 // Each scope is an independent dependency-cruiser run; they run in parallel child processes and

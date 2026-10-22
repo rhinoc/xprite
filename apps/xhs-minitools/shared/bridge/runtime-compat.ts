@@ -56,22 +56,6 @@ define(String.prototype, "trimStart", String.prototype.trimLeft);
 define(String.prototype, "trimEnd", String.prototype.trimRight);
 installResizeObserverFallback();
 
-/** The stylesheet's `:root:has([data-ui-compact])` becomes this class in Chrome 61. */
-export function mirrorCompactLayout() {
-  const update = () =>
-    document.documentElement.classList.toggle(
-      "minitool-compact",
-      !!document.querySelector('[data-ui-compact="true"]'),
-    );
-  new MutationObserver(update).observe(document.body, {
-    subtree: true,
-    childList: true,
-    attributes: true,
-    attributeFilter: ["data-ui-compact"],
-  });
-  update();
-}
-
 /** Flex `gap` arrived in Chrome 84; older web views get child margins from the minitool CSS. */
 export function detectFlexGap() {
   const probe = document.createElement("div");

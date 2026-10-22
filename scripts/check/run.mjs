@@ -42,10 +42,14 @@ const groups = {
     "editor-core-graph": node("scripts/check/check-editor-core-graph.mjs"),
   },
   "stale-css": Object.fromEntries(
-    ["apps/editor", "apps/components", "apps/growth", "apps/tools", "packages/ui"].map((dir) => [
-      `unused-css:${dir}`,
-      [bin("check-unused-css"), `${dir}/src`],
-    ]),
+    [
+      "apps/editor/src",
+      "apps/components/src",
+      "apps/growth/src",
+      "apps/tools/src",
+      "apps/xhs-minitools",
+      "packages/ui/src",
+    ].map((dir) => [`unused-css:${dir.replace(/\/src$/, "")}`, [bin("check-unused-css"), dir]]),
   ),
   "site-build": {
     // One growth + tools build, then every check that reads its output.
