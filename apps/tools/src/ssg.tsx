@@ -88,6 +88,7 @@ export async function renderToolPage(rootId: string) {
                   convert: unavailable,
                   save: unavailable,
                   edit: unavailable,
+                  prepare: () => {},
                   dispose: () => {},
                 })
               : rootId === "animal-crossing-root"

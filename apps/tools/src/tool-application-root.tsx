@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import { FilesProvider } from "$/components/files/files-context";
 import { ToolArtworkProvider } from "$/components/shared/tool-artwork";
@@ -14,6 +14,7 @@ export function ToolApplicationRoot({
   language,
   onLanguageChange,
   files,
+  onReady,
 }: {
   rootId: string;
   children: ReactNode;
@@ -22,11 +23,16 @@ export function ToolApplicationRoot({
   onLanguageChange?: (language: PublicLanguage) => void;
   /** Browser-only local Files library; static rendering omits it. */
   files?: FilesManager;
+  /** Runs once events are attached (after hydration commits). */
+  onReady?: () => void;
 }) {
+  const ready = useRef(onReady);
+  ready.current = onReady;
   useEffect(() => {
     const root = document.getElementById(rootId)!;
     delete root.dataset.toolStartupView;
     root.dataset.toolReady = "";
+    ready.current?.();
   }, [rootId]);
   return (
     <ToolLanguageProvider language={language} onChange={onLanguageChange}>

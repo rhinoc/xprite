@@ -90,11 +90,20 @@ export class PixelationManager {
     this.state = { ...this.state, ...patch };
     for (const listener of this.listeners) listener();
   }
-  async open(file: File) {
-    if (this.closed || this.state.downloading) return;
+  /** Leave the current image and show the opening state; returns the request it belongs to. */
+  private startOpening() {
     const request = ++this.request;
     ++this.conversion;
+    this.port.prepare();
     this.publish({ loading: true, converting: false, result: null, error: null });
+    return request;
+  }
+  async open(file: File) {
+    if (this.closed || this.state.downloading) return;
+    await this.read(file, this.startOpening());
+  }
+  private async read(file: File, request: number) {
+    if (this.closed || request !== this.request) return;
     try {
       const source = await this.port.read(file);
       if (this.closed || request !== this.request) return;
@@ -118,12 +127,25 @@ export class PixelationManager {
         });
     }
   }
+  /**
+   * The example downloads first: show it opening (and disable the open buttons) from the click on,
+   * and open only the example asked for last.
+   */
   async openExample() {
+    if (this.closed || this.state.downloading) return;
+    const request = this.startOpening();
+    let file: File;
     try {
-      await this.open(await this.port.example());
+      file = await this.port.example();
     } catch (reason) {
-      this.publish({ error: String(reason) });
+      if (request === this.request)
+        this.publish({
+          loading: false,
+          error: reason instanceof Error ? reason.message : String(reason),
+        });
+      return;
     }
+    await this.read(file, request);
   }
   changeSettings = (patch: Partial<PixelationSettings>) => {
     if (!this.state.source || this.closed || this.state.loading || this.state.downloading) return;

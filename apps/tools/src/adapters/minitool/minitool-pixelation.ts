@@ -128,6 +128,8 @@ export function createMiniToolPixelationPort(): PixelationPort {
     save: async (pixels) => saveImageToAlbum(pngDataUrl(pixels)),
     /** The flow's second action posts the result to a new note instead of opening the editor. */
     edit: async (pixels) => postImageNote(pngDataUrl(pixels)),
+    /** Conversions run on the page's own thread: nothing to start ahead. */
+    prepare() {},
     dispose() {
       ++latestConversion;
     },

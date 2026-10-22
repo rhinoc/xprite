@@ -11,26 +11,26 @@ import type { PixelationPort } from "$/managers/ports/pixelation";
 import { downloadBlob } from "@xprite/bedrock/browser/file-system";
 import { decodeImageBlob, encodePngBlob } from "@xprite/bedrock/browser/images";
 import { browserLocalStorage } from "@xprite/bedrock/browser/localstorage";
-import { runWorkerJob } from "@xprite/bedrock/browser/worker-job";
+import { SerialWorker } from "@xprite/bedrock/browser/worker-job";
 import type { PixelateOptions } from "@xprite/editor-core/import-export";
 import exampleUrl from "@xprite/site-assets/tools/pixelate/girl-with-a-pearl-earring.jpg?url";
 const MAX_FILE_BYTES = TOOL_IMPORT_MAX_BYTES;
 const MAX_IMAGE_PIXELS = 16 * 1024 * 1024;
 const TIMEOUT_MS = 30_000;
 export function createBrowserPixelationPort(): PixelationPort {
-  let operation: AbortController | undefined;
+  // One worker for the page: PixelOE's recent results and colour tables live in the worker, so
+  // detection, the first convert and colour-only changes reuse them instead of starting cold.
+  const worker = new SerialWorker(
+    () => new Worker(new URL("./pixelation-worker.ts", import.meta.url), { type: "module" }),
+  );
   function request<T>(
     message: PixelationWorkerRequest,
     readResponse: (response: PixelationWorkerResponse) => T,
   ): Promise<T> {
-    operation?.abort();
-    operation = new AbortController();
     const image = { ...message.image, data: new Uint8ClampedArray(message.image.data) };
-    return runWorkerJob<PixelationWorkerRequest, PixelationWorkerResponse, T>({
-      worker: new Worker(new URL("./pixelation-worker.ts", import.meta.url), { type: "module" }),
+    return worker.run<PixelationWorkerRequest, PixelationWorkerResponse, T>({
       request: { ...message, image },
       transfer: [image.data.buffer],
-      signal: operation.signal,
       timeoutMs: TIMEOUT_MS,
       timeoutError: () => new Error("Pixelation took too long. Try a smaller image."),
       transportError: () => new Error("Unable to pixelate this image."),
@@ -88,8 +88,11 @@ export function createBrowserPixelationPort(): PixelationPort {
         palette,
       });
     },
+    prepare() {
+      worker.prepare();
+    },
     dispose() {
-      operation?.abort();
+      worker.dispose();
     },
   };
 }
