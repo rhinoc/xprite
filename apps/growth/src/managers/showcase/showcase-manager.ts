@@ -79,6 +79,7 @@ export class ShowcaseManager {
   private visible = true;
   private dragging = false;
   private loading?: AbortController;
+  private waiting?: AbortController;
   private deviceNameElapsed = DEVICE_NAME_SCRAMBLE_MILLISECONDS;
   private deviceNameTick = -1;
 
@@ -135,7 +136,22 @@ export class ShowcaseManager {
         this.frame = undefined;
       } else if (visible) this.wake();
     });
-    void this.loadScene(element);
+    void this.loadWhenWanted(element);
+  }
+
+  private async loadWhenWanted(element: HTMLElement): Promise<void> {
+    const waiting = new AbortController();
+    this.waiting = waiting;
+    try {
+      await this.port.whenSceneWanted(element, waiting.signal);
+    } catch {
+      return;
+    } finally {
+      if (this.waiting === waiting) this.waiting = undefined;
+    }
+    // Choosing a device may already have started the scene.
+    if (this.host === element && this.state.status === ShowcaseStatus.Idle)
+      void this.loadScene(element);
   }
 
   private async loadScene(element: HTMLElement): Promise<void> {
@@ -369,6 +385,8 @@ export class ShowcaseManager {
 
   unmount() {
     ++this.mounted;
+    this.waiting?.abort();
+    this.waiting = undefined;
     this.disposeScene();
     this.music?.dispose();
     this.music = undefined;

@@ -183,4 +183,6 @@ manifest.revision = hash(JSON.stringify(manifest.models)).slice(0, 16);
 for (const { name } of PROFILES)
   await rename(join(temporary, `${name}-optimized.glb`), join(OUTPUT, `${name}.glb`));
 await writeFile(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`);
+// The browser downloads gzip copies of the models; refresh them with the models.
+await import("./compress-assets.mjs");
 console.log(`Optimized runtime assets written to ${OUTPUT}; editable sources remain unchanged.`);

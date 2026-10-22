@@ -9,7 +9,12 @@ import {
   observeShowcaseLanguage,
   readShowcaseLanguage,
 } from "$/adapters/showcase/browser-language";
-import { afterBrowserPaint, whenBrowserVisible } from "$/adapters/showcase/browser-scheduling";
+import {
+  afterBrowserPaint,
+  prefersLightweightPage,
+  whenBrowserInteraction,
+  whenBrowserVisible,
+} from "$/adapters/showcase/browser-scheduling";
 import { observeShowcaseNavigation } from "$/adapters/showcase/showcase-navigation";
 import type { ShowcasePort, ShowcaseScreenContent } from "$/managers/ports/showcase";
 
@@ -22,6 +27,9 @@ export function createShowcasePort(content: ShowcaseScreenContent): ShowcasePort
     readMusicVolume,
     saveMusicVolume,
     mountMusic: mountBackgroundMusic,
+    // The static poster is the same frame, so the scene can wait until someone uses the page.
+    whenSceneWanted: (host, signal) =>
+      whenBrowserInteraction(host.parentElement ?? host, prefersLightweightPage(), signal),
     mount: async (host, language, signal) => {
       await whenBrowserVisible(host, signal);
       await afterBrowserPaint(signal);

@@ -42,6 +42,8 @@ export interface ShowcasePort {
   readMusicVolume(): number | undefined;
   saveMusicVolume(volume: number): void;
   mountMusic(muted: boolean, volume: number, onUnavailable: () => void): ShowcaseMusic;
+  /** Resolves once the scene is worth loading; the poster stands in until then. */
+  whenSceneWanted(element: HTMLElement, signal: AbortSignal): Promise<void>;
   mount(
     element: HTMLElement,
     language: ShowcaseLanguage,
