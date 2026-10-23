@@ -371,6 +371,8 @@
   "ui.duration.milliseconds": "Длительность (мс)",
   "ui.duration.milliseconds.label": "Длительность (мс):",
   "ui.dynamics": "Динамика",
+  "ui.slow.tracking": "Медленное следование",
+  "ui.slow.tracking.description": "Сглаживает дрожание указателя. Чем выше значение, тем медленнее оно догоняет курсор.",
   "ui.edit": "Правка",
   "ui.edit.palette": "Редактировать палитру",
   "ui.edit.settings": "Изменить настройки",

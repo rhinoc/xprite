@@ -53,6 +53,35 @@ selection cursor direction. Product-specific menu actions are maintained here.
 The applicable [GPLv2 text](LICENSE)
 is distributed with this repository. Source: [LibreSprite](https://github.com/LibreSprite/LibreSprite).
 
+## Brush dynamics
+
+Brush size, angle, and color follow stylus pressure and pointer speed through an
+independent adaptation of libmypaint 1.6.1 (ISC), commit
+`2768251dacce3939136c839aeca413f4aa4241d0`. The adapted steps are the
+piecewise-linear input mapping, the fine-speed curve, pressure gain, the
+logarithmic radius, and slow tracking. The license text is
+[`LICENSES/libmypaint.txt`](LICENSES/libmypaint.txt). Source:
+[libmypaint v1.6.1](https://github.com/mypaint/libmypaint/tree/v1.6.1).
+
+Pixel stamps round the mapped radius and angle. A selected dither pattern uses
+a classic Bayer matrix. Those two steps are local to this editor. GIMP brush
+engines were not used: they are GPLv3 or later, and this application is
+GPL-2.0-only. LibreSprite's pressure-to-size path is not the source of this
+dynamics model.
+
+## Tilemap
+
+Reading and writing `.aseprite` tileset chunks, and the tile index and flip
+masks (`0x1fffffff`, `0x80000000`, `0x40000000`, `0x20000000`), follow the
+public Aseprite file specification together with the MIT-licensed document
+library. That library's notice is
+[`LICENSES/aseprite-doc.txt`](LICENSES/aseprite-doc.txt). Upstream file IO in
+the dio library is MIT and is separate from the application layer.
+
+Manual, Auto, and Stack placement, and the Pixels and Tiles display modes, are
+Xprite editing controls. They are an independent editing experience, and they
+are not a port of the application-layer tilemap modes.
+
 ## Xprite sample artwork
 
 The editor and viewer import the bundled editable example from the asset-only

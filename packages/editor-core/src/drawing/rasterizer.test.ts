@@ -8,7 +8,7 @@ import {
   type DrawingRasterPaintTarget,
   type DrawingRasterSettings,
 } from "$/drawing/rasterizer";
-import { AsepriteInk } from "$/drawing/tool-settings";
+import { PaintInk } from "$/drawing/tool-settings";
 
 const red: Rgba = [240, 30, 20, 255];
 const transparent: Rgba = [0, 0, 0, 0];
@@ -204,7 +204,7 @@ describe("DrawingRasterizer", () => {
 
     const writer = rasterizer.createAsepriteIndexWriter(
       1,
-      makeSettings({ ink: AsepriteInk.Simple, foreground: red }),
+      makeSettings({ ink: PaintInk.Simple, foreground: red }),
     );
 
     expect(writer).toBeDefined();
@@ -223,7 +223,7 @@ describe("DrawingRasterizer", () => {
     expect(
       rasterizer.createAsepriteIndexWriter(
         1,
-        makeSettings({ ink: AsepriteInk.AlphaCompositing, foreground: transparent }),
+        makeSettings({ ink: PaintInk.AlphaCompositing, foreground: transparent }),
       ),
     ).toBeUndefined();
     expect(writerCalls).toHaveLength(0);

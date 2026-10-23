@@ -21,8 +21,11 @@ describe("ink-dynamics", () => {
     const { inkBlend, normalBlend } = await moduleAt(
       "packages/editor-core/src/canvas/raster/index.ts",
     );
-    const { StrokeDynamics, sensorThreshold } = await moduleAt(
+    const { StrokeDynamics } = await moduleAt(
       "packages/editor-core/src/canvas/raster/stroke-dynamics.ts",
+    );
+    const { dynamicStampSize, smoothNormSpeed, speed1Input, slowTrackingPosition } = await moduleAt(
+      "packages/editor-core/src/drawing/mypaint-dynamics.ts",
     );
     const { defaultDynamicsSettings } = await moduleAt(
       "apps/editor/src/managers/preferences/dynamics-state.ts",
@@ -45,7 +48,7 @@ describe("ink-dynamics", () => {
       };
     assert.deepEqual(
       new StrokeDynamics({ x: 0, y: 0, pointerType: "pen", pressure: 0.5 }, settings).brush(brush),
-      { shape: "line", size: 5, angle: 45 },
+      { shape: "line", size: 3, angle: 45 },
     );
     assert.deepEqual(
       new StrokeDynamics({ x: 0, y: 0, pointerType: "mouse", pressure: 0.5 }, settings).brush(
@@ -53,27 +56,46 @@ describe("ink-dynamics", () => {
       ),
       brush,
     );
-    assert.equal(sensorThreshold(0.5, 0.5, 0.5), 1);
-    const velocity = new StrokeDynamics(
+    const speed = new StrokeDynamics(
       { x: 0, y: 0, screen: { x: 0, y: 0 }, timeStamp: 0 },
-      { ...settings, size: "velocity", angle: "static" },
+      { ...settings, size: "speed", angle: "off" },
     );
-    velocity.update({ x: 1, y: 0, screen: { x: 32, y: 0 }, timeStamp: 50 });
-    assert.equal(velocity.brush(brush).size, 1, "initial motion initializes velocity origin");
-    velocity.update({ x: 2, y: 0, screen: { x: 64, y: 0 }, timeStamp: 100 });
-    assert.deepEqual(velocity.brush(brush), brush);
-    const stabilizer = new StrokeDynamics(
-      { x: 0, y: 0 },
-      { ...settings, stabilizer: true, stabilizerFactor: 4 },
+    speed.update({ x: 1, y: 0, screen: { x: 32, y: 0 }, timeStamp: 50 });
+    assert.equal(
+      speed.brush(brush).size,
+      dynamicStampSize(speed1Input(0), 0, 4, 1, brush.size),
+      "fine speed lags one sample, so the first motion still uses a stopped brush",
     );
-    assert.deepEqual(stabilizer.update({ x: 8, y: 0 }), { x: 2, y: 0 });
+    speed.update({ x: 2, y: 0, screen: { x: 64, y: 0 }, timeStamp: 100 });
+    const followedSize = dynamicStampSize(
+      speed1Input(smoothNormSpeed(0, 32 / 0.05, 0.05)),
+      0,
+      4,
+      1,
+      brush.size,
+    );
+    assert.equal(followedSize, 5);
+    assert.notEqual(followedSize, brush.size);
+    assert.equal(speed.brush(brush).size, followedSize);
+    const tracking = new StrokeDynamics(
+      { x: 0, y: 0, timeStamp: 0 },
+      { ...settings, slowTracking: true, slowTrackingAmount: 4 },
+    );
+    const followed = slowTrackingPosition(0, 0, 8, 0, 4, 0.05);
+    assert.deepEqual(tracking.update({ x: 8, y: 0, timeStamp: 50 }), {
+      x: Math.round(followed.x),
+      y: Math.round(followed.y),
+    });
+    assert.equal(Math.round(followed.x), 6);
+    const continued = slowTrackingPosition(followed.x, followed.y, 8, 0, 4, 0.05);
     assert.deepEqual(
-      stabilizer.update({ x: 8, y: 0, shift: true }),
-      { x: 3, y: 0 },
-      "Shift introduced mid-stroke does not disable Aseprite stabilizer",
+      tracking.update({ x: 8, y: 0, timeStamp: 100, shift: true }),
+      { x: Math.round(continued.x), y: Math.round(continued.y) },
+      "Shift introduced mid-stroke does not disable slow tracking",
     );
-    stabilizer.disableStabilizer();
-    assert.deepEqual(stabilizer.update({ x: 8, y: 0 }), { x: 8, y: 0 });
+    assert.equal(Math.round(continued.x), 7);
+    tracking.disableSlowTracking();
+    assert.deepEqual(tracking.update({ x: 8, y: 0, timeStamp: 150 }), { x: 8, y: 0 });
     const image = () => ({ width: 32, height: 32, data: new Uint8ClampedArray(32 * 32 * 4) });
     const e = new RasterEditor(image());
     e.drawing.settings.setSettings({
@@ -108,7 +130,7 @@ describe("ink-dynamics", () => {
       1,
     );
     console.log(
-      "Ink/dynamics checks pass: Aseprite modes, thresholds, pen-only pressure, screen velocity, stabilizer, right-button painting, undo/redo and cancellation.",
+      "Ink/dynamics checks pass: logarithmic pressure, lagged fine speed, slow tracking, pen-only pressure, right-button painting, undo/redo and cancellation.",
     );
 
     const layers = new RasterEditor(image());
@@ -140,8 +162,8 @@ describe("ink-dynamics", () => {
     stationary.drawing.settings.setSettings({
       brush: { shape: "square", size: 9, angle: 0 },
       foreground: [255, 0, 0, 255],
-      dynamics: { ...settings, angle: "static" },
-      // Regular freehand (Aseprite's default); pixel-perfect would drop the stationary repeat.
+      dynamics: { ...settings, angle: "off" },
+      // Regular freehand; pixel-perfect would drop the stationary repeat.
       pixelPerfect: false,
     });
     stationary.pointerDown({ x: 16, y: 16, pointerType: "pen", pressure: 0 });
@@ -156,7 +178,7 @@ describe("ink-dynamics", () => {
     release.drawing.settings.setSettings({
       brush: { shape: "square", size: 9, angle: 0 },
       foreground: [255, 0, 0, 255],
-      dynamics: { ...settings, angle: "static" },
+      dynamics: { ...settings, angle: "off" },
     });
     release.pointerDown({ x: 8, y: 16, pointerType: "pen", pressure: 1 });
     release.pointerUp({ x: 20, y: 16, pointerType: "pen", pressure: 0 });

@@ -4,8 +4,8 @@ import { describe, it } from "vitest";
 
 import {
   RasterEditor,
-  AsepriteInk,
-  AsepriteDynamicSensor,
+  PaintInk,
+  BrushDynamicInput,
   DEFAULT_DYNAMICS_SETTINGS,
   FillReference,
   EyedropperChannel,
@@ -112,7 +112,7 @@ describe("persistent tool preferences", () => {
     editor.drawing.settings.setSettings({
       pixelPerfect: true,
       brush: { shape: "square", size: 7, angle: 30 },
-      ink: AsepriteInk.LockAlpha,
+      ink: PaintInk.LockAlpha,
       opacity: 120,
       foreground: [12, 34, 56, 255],
       eyedropperChannel: EyedropperChannel.Alpha,
@@ -141,7 +141,7 @@ describe("persistent tool preferences", () => {
     assert.equal(settings.selectionMode, SelectionMode.Replace);
     assert.equal(settings.pixelPerfect, true);
     assert.deepEqual(settings.brush, { shape: "square", size: 7, angle: 30 });
-    assert.equal(settings.ink, AsepriteInk.LockAlpha);
+    assert.equal(settings.ink, PaintInk.LockAlpha);
     assert.equal(settings.opacity, 120);
     assert.deepEqual(settings.foreground, [12, 34, 56, 255]);
     assert.equal(settings.eyedropperChannel, EyedropperChannel.Alpha);
@@ -165,7 +165,7 @@ describe("persistent tool preferences", () => {
       shareDynamics: false,
       dynamics: {
         ...DEFAULT_DYNAMICS_SETTINGS,
-        size: AsepriteDynamicSensor.Pressure,
+        size: BrushDynamicInput.Pressure,
         minAngle: -45,
       },
     });
@@ -173,9 +173,9 @@ describe("persistent tool preferences", () => {
       tool: "eraser",
       dynamics: {
         ...DEFAULT_DYNAMICS_SETTINGS,
-        angle: AsepriteDynamicSensor.Velocity,
+        angle: BrushDynamicInput.Speed,
       },
-      ink: AsepriteInk.CopyColor,
+      ink: PaintInk.CopyColor,
       opacity: 90,
     });
     editor.drawing.settings.setSettings({ shareInk: true, shareDynamics: true });
@@ -187,13 +187,13 @@ describe("persistent tool preferences", () => {
     const settings = restored.getSnapshot().settings;
     assert.equal(settings.shareInk, true);
     assert.equal(settings.shareDynamics, true);
-    assert.equal(settings.ink, AsepriteInk.CopyColor);
+    assert.equal(settings.ink, PaintInk.CopyColor);
     assert.equal(settings.opacity, 90);
-    assert.equal(settings.dynamics?.angle, AsepriteDynamicSensor.Velocity);
+    assert.equal(settings.dynamics?.angle, BrushDynamicInput.Speed);
     const pencilBank = restored.drawing.settings
       .capturePersistentPreferences()
       .parameters.find(([tool]) => tool === "pencil")?.[1];
-    assert.equal(pencilBank?.dynamics?.size, AsepriteDynamicSensor.Pressure);
+    assert.equal(pencilBank?.dynamics?.size, BrushDynamicInput.Pressure);
     assert.equal(pencilBank?.dynamics?.minAngle, -45);
   });
 
@@ -244,5 +244,43 @@ describe("persistent tool preferences", () => {
     // A non-boolean pixel-perfect value is ignored, so the pencil keeps its default.
     assert.equal(settings.pixelPerfect, new RasterEditor().getSnapshot().settings.pixelPerfect);
     assert.deepEqual(settings.brush, { shape: "circle", size: 64, angle: -180 });
+  });
+
+  it("keeps current dynamics inputs and drops removed control fields", () => {
+    const editor = new RasterEditor();
+    editor.drawing.settings.restorePersistentPreferences({
+      version: 1,
+      settings: {
+        shareDynamics: true,
+        dynamics: {
+          stabilizer: true,
+          stabilizerFactor: 16,
+          size: "velocity",
+          angle: "static",
+          gradient: "pressure",
+          minSize: 3,
+          minAngle: 12,
+          minPressureThreshold: 0.1,
+          maxPressureThreshold: 0.9,
+          matrixName: "Bayer Matrix 2x2",
+          colorFromTo: "fg-to-bg",
+          color: BrushDynamicInput.Speed,
+          ditherMatrix: "Bayer Matrix 2x2",
+          slowTrackingAmount: 4,
+        },
+      },
+    });
+    const dynamics = editor.getSnapshot().settings.dynamics!;
+    assert.equal(dynamics.size, BrushDynamicInput.Off);
+    assert.equal(dynamics.angle, BrushDynamicInput.Off);
+    assert.equal(dynamics.color, BrushDynamicInput.Speed);
+    assert.equal(dynamics.minSize, 3);
+    assert.equal(dynamics.minAngle, 12);
+    assert.equal(dynamics.slowTracking, false);
+    assert.equal(dynamics.slowTrackingAmount, 4);
+    assert.equal(dynamics.ditherMatrix, "Bayer Matrix 2x2");
+    assert.equal("stabilizer" in dynamics, false);
+    assert.equal("gradient" in dynamics, false);
+    assert.equal("matrixName" in dynamics, false);
   });
 });

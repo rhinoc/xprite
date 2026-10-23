@@ -1,19 +1,19 @@
 import type { Ink } from "$/managers/preferences/tool-ink-settings";
-import { ToolInk as AsepriteInk } from "$/managers/tools/tool-options";
+import { ToolInk as PaintInk } from "$/managers/tools/tool-options";
 import { Button, Menu, MenuCheckType, Tooltip, TooltipPlacement } from "@xprite/ui";
 import type { SurfaceBounds, SurfaceViewport } from "@xprite/ui";
 import type { UiPartName } from "@xprite/ui/assets";
 
-const asepriteInkOptions: readonly { value: Ink; label: string; icon: UiPartName }[] = [
-  { value: AsepriteInk.Simple, label: "Simple Ink", icon: "ink_simple" },
+const paintInkOptions: readonly { value: Ink; label: string; icon: UiPartName }[] = [
+  { value: PaintInk.Simple, label: "Simple Ink", icon: "ink_simple" },
   {
-    value: AsepriteInk.AlphaCompositing,
+    value: PaintInk.AlphaCompositing,
     label: "Alpha Compositing",
     icon: "ink_alpha_compositing",
   },
-  { value: AsepriteInk.CopyColor, label: "Copy Alpha + Color", icon: "ink_copy_color" },
-  { value: AsepriteInk.LockAlpha, label: "Lock Alpha", icon: "ink_lock_alpha" },
-  { value: AsepriteInk.Shading, label: "Shading", icon: "ink_shading" },
+  { value: PaintInk.CopyColor, label: "Copy Alpha + Color", icon: "ink_copy_color" },
+  { value: PaintInk.LockAlpha, label: "Lock Alpha", icon: "ink_lock_alpha" },
+  { value: PaintInk.Shading, label: "Shading", icon: "ink_shading" },
 ];
 
 export interface InkPickerProps {
@@ -25,7 +25,7 @@ export interface InkPickerProps {
   relativeTo?: { x: number; y: number };
   viewport?: SurfaceViewport;
 }
-/** Exact English ink popup order and source toolbar icon variants. */
+/** Ink menu order and toolbar icons. */
 export function InkPicker({
   value,
   onValueChange,
@@ -35,13 +35,12 @@ export function InkPicker({
   relativeTo,
   viewport,
 }: InkPickerProps) {
-  const selected =
-    asepriteInkOptions.find((option) => option.value === value) ?? asepriteInkOptions[0];
+  const selected = paintInkOptions.find((option) => option.value === value) ?? paintInkOptions[0];
   return (
     <Menu
       label="Ink"
       items={[
-        ...asepriteInkOptions.map((option) => ({
+        ...paintInkOptions.map((option) => ({
           label: option.label,
           checked: value === option.value,
           onSelect: () => onValueChange(option.value),

@@ -21,7 +21,7 @@ import {
   DEFAULT_LAYER_EDGES_COLOR,
   DEFAULT_SLICE_COLOR,
   FillReference,
-  AsepriteInk,
+  PaintInk,
   EditorToolId,
 } from "$/drawing/tool-settings";
 import type { EditorTool, ToolSettings } from "$/drawing/tool-settings";
@@ -40,7 +40,7 @@ export const DEFAULT_PIXEL_PERFECT = false;
 const DEFAULT_SETTINGS: ToolSettings = {
   shareInk: false,
   shareDynamics: true,
-  ink: AsepriteInk.Simple,
+  ink: PaintInk.Simple,
   dynamics: { ...DEFAULT_DYNAMICS_SETTINGS },
   composeGroups: false,
   sliceUseKeys: false,

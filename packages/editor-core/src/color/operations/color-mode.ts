@@ -11,7 +11,7 @@ import {
   type AsepriteImageSamples,
 } from "$/color/samples";
 import type { EditorDocument } from "$/document/types";
-import { AsepriteInk } from "$/drawing/tool-settings";
+import { PaintInk } from "$/drawing/tool-settings";
 import type { AsepritePalette } from "$/import-export/aseprite/model";
 import { refreshTilemapProjections } from "$/tilemap/model";
 import { cloneTileset } from "$/tilemap/tileset-clone";
@@ -201,7 +201,7 @@ export function libreSpriteWorkingBrushColor(
     const index = libreSpriteWorkingBrushIndex(color, t, palette, preferredIndex)!;
     return index === (t.transparentIndex ?? 0) &&
       !(t.layers[t.activeLayer].flags & 8) &&
-      ink !== AsepriteInk.LockAlpha
+      ink !== PaintInk.LockAlpha
       ? [0, 0, 0, 0]
       : palette[index];
   }

@@ -1,12 +1,15 @@
 import {
   DEFAULT_DYNAMICS_SETTINGS,
-  type AsepriteDynamicsSettings,
-  type AsepriteDynamicSensor,
+  SLOW_TRACKING_ENABLED_AMOUNT,
+  SLOW_TRACKING_MAX,
+  type BrushDynamicsSettings,
+  type BrushDynamicInput,
 } from "@xprite/editor-core";
-export type { AsepriteDynamicsSettings, AsepriteDynamicSensor } from "@xprite/editor-core";
+export type { BrushDynamicsSettings, BrushDynamicInput } from "@xprite/editor-core";
+export { SLOW_TRACKING_ENABLED_AMOUNT, SLOW_TRACKING_MAX };
 
-export type DynamicsSettings = AsepriteDynamicsSettings;
-export type DynamicsSensor = AsepriteDynamicSensor;
+export type DynamicsSettings = BrushDynamicsSettings;
+export type DynamicsSensor = BrushDynamicInput;
 export const defaultDynamicsSettings: Readonly<DynamicsSettings> = DEFAULT_DYNAMICS_SETTINGS;
 export interface DynamicsPreferences {
   shared: boolean;
@@ -36,8 +39,8 @@ export function updateDynamicsSettings(
         tools: { ...preferences.tools, [tool]: { ...settings } },
       };
 }
-/** DynamicsPopup transfers the current panel to the new bank; unlike ink
- * sharing, enabling shared dynamics does not overwrite every tool's own bank. */
+/** The dynamics panel copies the current tool into the newly selected bank.
+ * Enabling shared dynamics does not overwrite every tool's own bank. */
 export function shareDynamicsSettings(
   preferences: DynamicsPreferences,
   tool: string,
@@ -50,13 +53,13 @@ export function shareDynamicsSettings(
     getDynamicsSettings(preferences, tool),
   );
 }
-export function setDynamicsStabilizer(
-  settings: DynamicsSettings,
-  enabled: boolean,
-): DynamicsSettings {
+export function setSlowTracking(settings: DynamicsSettings, enabled: boolean): DynamicsSettings {
   return {
     ...settings,
-    stabilizer: enabled,
-    stabilizerFactor: enabled && settings.stabilizerFactor === 0 ? 16 : settings.stabilizerFactor,
+    slowTracking: enabled,
+    slowTrackingAmount:
+      enabled && settings.slowTrackingAmount === 0
+        ? SLOW_TRACKING_ENABLED_AMOUNT
+        : settings.slowTrackingAmount,
   };
 }

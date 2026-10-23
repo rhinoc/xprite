@@ -371,6 +371,8 @@
   "ui.duration.milliseconds": "时长（毫秒）",
   "ui.duration.milliseconds.label": "时长（毫秒）：",
   "ui.dynamics": "动态",
+  "ui.slow.tracking": "慢速跟踪",
+  "ui.slow.tracking.description": "平滑抖动的指针移动。数值越大，光标跟随越慢。",
   "ui.edit": "编辑",
   "ui.edit.palette": "编辑调色板",
   "ui.edit.settings": "编辑设置",

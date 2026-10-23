@@ -187,7 +187,7 @@ describe("indexed-raster-writer [feature-7-12]", () => {
       paint = new DynamicPaintStroke(),
       dynamics = new StrokeDynamics(
         { x: 1, y: 1, pointerType: "pen", pressure: 1 },
-        { ...defaultDynamicsSettings, gradient: "pressure" },
+        { ...defaultDynamicsSettings, color: "pressure" },
       );
     paint.paint(
       dynamic.im,
@@ -292,7 +292,7 @@ describe("indexed-raster-writer [feature-7-12]", () => {
       const stroke = dynamicMode ? new DynamicPaintStroke() : new PixelPerfectStroke(),
         dynamics = new StrokeDynamics(
           { x: 1, y: 1, pointerType: "pen", pressure: 1 },
-          { ...defaultDynamicsSettings, gradient: "pressure" },
+          { ...defaultDynamicsSettings, color: "pressure" },
         );
       const paint = (points) => {
         if (dynamicMode) {

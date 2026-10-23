@@ -15,7 +15,7 @@ import {
   syncTimeline,
   type EditorDocument,
 } from "$/document";
-import { AsepriteInk, ellipsePixels } from "$/drawing";
+import { PaintInk, ellipsePixels } from "$/drawing";
 import {
   BATCH_EDIT_LIMITS,
   BatchEditError,
@@ -376,7 +376,7 @@ export function applyDocumentBatch(
                 : batchInteger(op.size ?? 1, "size", 1, BATCH_EDIT_LIMITS.brushSize),
             angle: 0,
           },
-          ink: AsepriteInk.CopyColor,
+          ink: PaintInk.CopyColor,
           clip: { x: -currentCel.x, y: -currentCel.y, width: doc.width, height: doc.height },
           selection: doc.selection
             ? {

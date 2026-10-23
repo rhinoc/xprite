@@ -1,0 +1,44 @@
+libmypaint — The MyPaint Brush Library
+https://github.com/mypaint/libmypaint
+
+Xprite adapts the brush-dynamics math from release v1.6.1, commit
+2768251dacce3939136c839aeca413f4aa4241d0 (tag v1.6.1).
+
+Adapted into packages/editor-core/src/drawing/mypaint-dynamics.ts:
+
+- mypaint-mapping.c — mypaint_mapping_calculate (piecewise-linear control points)
+- mypaint-brush.c — exp_decay
+- mypaint-brush.c — settings_base_values_have_changed (fine-speed curve)
+- mypaint-brush.c — norm speed, SPEED1 input, and NORM_SPEED1_SLOW
+- mypaint-brush.c — pressure gain (`pressure * exp(pressure_gain_log)`)
+- mypaint-brush.c — logarithmic radius (`exp` of the mapped setting)
+- mypaint-brush.c — slow position tracking in stroke_to
+- brushsettings.json — defaults and ranges for speed1_gamma (4),
+  speed1_slowness (0.04), pressure_gain_log (0), slow_tracking (0..10),
+  and the speed1 soft range (0..4)
+
+The pixel editor evaluates one input per stamp parameter, rounds the mapped
+radius and angle to pixel stamps, and draws a two-color mix with a classic
+Bayer matrix when a dither pattern is selected. Those stamp and dither steps
+are not part of libmypaint.
+
+The upstream license follows.
+
+libmypaint - The MyPaint Brush Library
+Copyright (C) 2008-2011 Martin Renold and contributors
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+mypaint-mapping.c and mypaint-brush.c additionally state:
+
+Copyright (C) 2007-2011 Martin Renold <martinxyz@gmx.ch>

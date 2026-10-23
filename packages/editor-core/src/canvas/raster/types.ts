@@ -1,5 +1,5 @@
 import type { Brush, PixelBuffer, PixelMask, Point, Rect, Rgba } from "$/base/primitives";
-import type { AsepriteInk } from "$/drawing/tool-settings";
+import type { PaintInk } from "$/drawing/tool-settings";
 
 export interface RasterOptions {
   indexedPixelWriter?: {
@@ -24,7 +24,7 @@ export interface RasterOptions {
   /** Optional pixel source used to find fill regions while pixels are written to `image`. */
   referenceImage?: PixelBuffer;
   tiled?: { mode: 0 | 1 | 2 | 3; width: number; height: number; origin: Point };
-  ink?: AsepriteInk;
+  ink?: PaintInk;
   color: Rgba;
   /** Background layers are opaque: erasing blends toward the active background color. */
   eraseColor?: Rgba;
