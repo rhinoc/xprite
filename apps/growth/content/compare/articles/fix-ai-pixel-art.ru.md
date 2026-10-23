@@ -71,7 +71,7 @@ A recovered PNG is a starting point. In the [editor](/?utm_source=compare&utm_me
 
 No account. Works in the browser on computers, tablets and phones.
 
-## FAQ
+## Частые вопросы
 
 ### Is Fix AI Pixel Art an AI model?
 
