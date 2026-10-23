@@ -9,7 +9,7 @@
  * `?v=<content hash>` of the exact bytes it was built with.
  */
 import { createHash } from "node:crypto";
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { access, constants, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve, sep } from "node:path";
 
 import type { Plugin } from "vite";
@@ -247,6 +247,11 @@ export function contentVersionedOutput(
       sequential: true,
       async handler() {
         if (!build) return;
+        try {
+          await access(output, constants.R_OK);
+        } catch {
+          return;
+        }
         if (options.sharedFontDirectory)
           await shareDuplicateFonts(output, { base, directory: options.sharedFontDirectory });
         await versionOutputDirectory(output, { base });

@@ -19,6 +19,7 @@
     "./tools/animal-crossing/acnh/grass-green.png": "./tools/animal-crossing/acnh/grass-green.png",
     "./tools/animal-crossing/acnh/grass-spring.png": "./tools/animal-crossing/acnh/grass-spring.png",
     "./tools/animal-crossing/acnh/grass-autumn.png": "./tools/animal-crossing/acnh/grass-autumn.png",
-    "./tools/pixelate/girl-with-a-pearl-earring.jpg": "./tools/pixelate/girl-with-a-pearl-earring.jpg"
+    "./tools/pixelate/girl-with-a-pearl-earring.jpg": "./tools/pixelate/girl-with-a-pearl-earring.jpg",
+    "./tools/fix-ai-pixel-art/ai-warrior.png": "./tools/fix-ai-pixel-art/ai-warrior.png"
   }
 }
