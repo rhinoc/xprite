@@ -18,10 +18,3 @@ export function exportFileLayout(
     actions: {},
   };
 }
-
-export const gifOptionsLayout: FormLayout = {
-  height: 254,
-  initialFocusAction: "OK",
-  fields: {},
-  actions: {},
-};
