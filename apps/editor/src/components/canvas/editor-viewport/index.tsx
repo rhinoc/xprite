@@ -6,7 +6,7 @@ import { EditorFrame, asepriteEditorFrameBounds } from "$/components/canvas/edit
 import { EditorPanSurface } from "$/components/canvas/pan-surface";
 import { useEditorLayoutSettings } from "$/components/shared/editor-layout-context";
 import { tUi, useUiLanguage } from "$/i18n";
-import { useCanvasManager, stepAsepriteZoom } from "$/managers/canvas/canvas-manager";
+import { useCanvasManager, stepZoomPercent } from "$/managers/canvas/canvas-manager";
 import {
   tiledCanvasLayout,
   clampCanvasPan,
@@ -76,7 +76,7 @@ export function EditorViewport({
           } else if (action === WheelAction.Zoom) {
             const steps = wheelZoomSteps(decision, delta);
             if (!steps) return;
-            const next = stepAsepriteZoom(editor.zoom, steps);
+            const next = stepZoomPercent(editor.zoom, steps);
             const ratio = next / editor.zoom;
             // Anchor the document-space point under the pointer while zooming.
             const center = {

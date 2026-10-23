@@ -1,4 +1,4 @@
-export const asepriteZoomLevels = [
+export const ZOOM_PERCENT_LEVELS = [
   100 / 64,
   100 / 48,
   100 / 32,
@@ -25,14 +25,14 @@ export const asepriteZoomLevels = [
   4800,
   6400,
 ] as const;
-export function stepAsepriteZoom(value: number, steps: number): number {
+export function stepZoomPercent(value: number, steps: number): number {
   let closest = 0;
-  for (let index = 1; index < asepriteZoomLevels.length; index++) {
-    if (Math.abs(value - asepriteZoomLevels[index]) < Math.abs(value - asepriteZoomLevels[closest]))
+  for (let index = 1; index < ZOOM_PERCENT_LEVELS.length; index++) {
+    if (Math.abs(value - ZOOM_PERCENT_LEVELS[index]) < Math.abs(value - ZOOM_PERCENT_LEVELS[closest]))
       closest = index;
   }
-  return asepriteZoomLevels[
-    Math.max(0, Math.min(asepriteZoomLevels.length - 1, closest + Math.trunc(steps)))
+  return ZOOM_PERCENT_LEVELS[
+    Math.max(0, Math.min(ZOOM_PERCENT_LEVELS.length - 1, closest + Math.trunc(steps)))
   ];
 }
 

@@ -15,7 +15,7 @@ import {
   useEditorWorkflowBoundaryHost,
 } from "$/components/shared/editor-workflow-boundary";
 import { InputModeNotice } from "$/components/shell/input-mode-notice";
-import { useCanvasManager, stepAsepriteZoom } from "$/managers/canvas/canvas-manager";
+import { useCanvasManager, stepZoomPercent } from "$/managers/canvas/canvas-manager";
 import {
   chooseShortcutTool,
   resolveShortcut,
@@ -341,7 +341,7 @@ export function EditorSurface({
               editor.stepPaletteColor("foreground", command.type === "palette-next" ? 1 : -1);
             } else if (command.type === "zoom-in" || command.type === "zoom-out") {
               event.preventDefault();
-              editor.setZoom((zoom) => stepAsepriteZoom(zoom, command.type === "zoom-in" ? 1 : -1));
+              editor.setZoom((zoom) => stepZoomPercent(zoom, command.type === "zoom-in" ? 1 : -1));
             } else if (command.type === "zoom-to") {
               event.preventDefault();
               editor.setZoom(command.zoom * ZOOM_PERCENT_SCALE);

@@ -4,7 +4,7 @@ import {
   clampZoom,
   documentToScreen,
   screenToDocument,
-  stepAsepriteZoom,
+  stepZoomPercent,
   type Point,
   type ViewSettings,
 } from "@xprite/editor-core";
@@ -64,7 +64,7 @@ export class CanvasPinchZoomController {
   }
 
   private snapZoom(zoom: number) {
-    return stepAsepriteZoom(zoom * 100, 0) / 100;
+    return stepZoomPercent(zoom * 100, 0) / 100;
   }
 
   private anchoredView(

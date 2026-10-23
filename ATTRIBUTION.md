@@ -82,6 +82,23 @@ Manual, Auto, and Stack placement, and the Pixels and Tiles display modes, are
 Xprite editing controls. They are an independent editing experience, and they
 are not a port of the application-layer tilemap modes.
 
+## Slices
+
+Slice metadata in `.aseprite` files is read and written according to the public
+[Aseprite file format specification](https://github.com/aseprite/aseprite/blob/main/docs/ase-file-specs.md).
+Slice rectangle and pivot data follow the MIT-licensed `doc` library; the notice
+is retained in [`LICENSES/aseprite-doc.txt`](LICENSES/aseprite-doc.txt).
+
+## Reference layers
+
+The reference-layer flag in `.aseprite` files follows the format specification.
+Support for the flag is independent editor implementation.
+
+## Shading
+
+Indexed-color shading follows LibreSprite's GPLv2 palette shade remap. RGBA
+shading is independent exact-color ramp lookup.
+
 ## Xprite sample artwork
 
 The editor and viewer import the bundled editable example from the asset-only
