@@ -42,11 +42,11 @@ const SPEED_CURVE_FIX2_X = 45;
 const SPEED_CURVE_FIX2_DY = 0.015;
 
 /** `speed1_gamma` default. Constant setting; larger values straighten the curve. */
-export const SPEED1_GAMMA = 4;
+const SPEED1_GAMMA = 4;
 /** `speed1_slowness` default, in seconds. */
-export const SPEED1_SLOWNESS = 0.04;
+const SPEED1_SLOWNESS = 0.04;
 /** `pressure_gain_log` default. Gain is `exp` of this value. */
-export const PRESSURE_GAIN_LOG = 0;
+const PRESSURE_GAIN_LOG = 0;
 /** Published soft range of the fine-speed input. */
 export const SPEED1_SOFT_MIN = 0;
 export const SPEED1_SOFT_MAX = 4;
@@ -56,11 +56,11 @@ export const SLOW_TRACKING_MAX = 10;
 /** Amount used when an artist turns slow tracking on from zero. */
 export const SLOW_TRACKING_ENABLED_AMOUNT = 2;
 /** Clock used when a pointer sample has no timestamp. libmypaint always receives dt. */
-export const MISSING_CLOCK_DTIME_SECONDS = 1 / 60;
+const MISSING_CLOCK_DTIME_SECONDS = 1 / 60;
 
-export const BRUSH_STAMP_SIZE_MIN = 1;
-export const BRUSH_STAMP_SIZE_MAX = 64;
-export const BRUSH_STAMP_ANGLE_LIMIT = 180;
+const BRUSH_STAMP_SIZE_MIN = 1;
+const BRUSH_STAMP_SIZE_MAX = 64;
+const BRUSH_STAMP_ANGLE_LIMIT = 180;
 
 export interface MappingPoint {
   x: number;

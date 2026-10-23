@@ -211,7 +211,7 @@ export function DynamicsPicker({
                           check
                             ? tUi("ui.with", {
                                 value1: tUiSource(NAMES[parameter]),
-                                value2: tUiSource(col === 1 ? "Pressure" : "Speed"),
+                                value2: col === 1 ? tUi("ui.pressure") : tUi("replay.speed"),
                               })
                             : text || "Dynamics matrix"
                         }
