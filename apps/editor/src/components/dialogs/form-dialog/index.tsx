@@ -222,7 +222,7 @@ export function FormDialog({
   const flow = !content && !headerActions && !tabs && (!layout || narrow);
   const dialogWidth = Math.max(
     1,
-    flow && scene.width > 0 ? Math.min(preferredWidth, scene.width) : preferredWidth,
+    scene.width > 0 ? Math.min(preferredWidth, scene.width) : preferredWidth,
   );
   const lines = useMemo(
     () =>
