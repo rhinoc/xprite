@@ -18,7 +18,7 @@ import {
   EditorWheelAction,
   wheelCellSizeDelta,
 } from "$/managers/input/use-wheel-input";
-import { getPaletteGridLayout as asepritePaletteLayout } from "$/managers/palette/palette-view";
+import { getPaletteGridLayout } from "$/managers/palette/palette-view";
 import {
   paletteTileIndex,
   paletteTileSourcePoint,
@@ -66,7 +66,7 @@ const TILESET_EDITING_MODES = [
   TilesetEditingMode.Stack,
 ] as const;
 
-/** ColorBar::m_tilesHBox: visible only for a selected Tilemap layer. */
+/** Tilemap mode bar: visible only for a selected tilemap layer. */
 export function TilemapModeBar({
   width,
   showBoth,
@@ -190,7 +190,7 @@ type TileDrag = {
   indices: number[];
   started: boolean;
 };
-/** Aseprite's PaletteView tiles adapter, sharing its frame and selection painter. */
+/** Tileset adapter sharing the palette frame and selection painter. */
 export function InlineTileset({ bounds }: { bounds: SurfaceBounds }) {
   const { resolve: resolveWheel } = useWheelInput();
   const wheelTarget = useRef<HTMLDivElement>(null);
@@ -258,7 +258,7 @@ export function InlineTileset({ bounds }: { bounds: SurfaceBounds }) {
   const count = set?.tileCount ?? 0,
     displayCount = resizePreview ?? count,
     innerHeight = Math.max(1, bounds.height - 12),
-    layout = asepritePaletteLayout(
+    layout = getPaletteGridLayout(
       displayCount,
       boxSize,
       undefined,
@@ -793,7 +793,7 @@ export function InlineTileset({ bounds }: { bounds: SurfaceBounds }) {
   );
 }
 
-/** ColorBar::m_tilesHelpers: large foreground/background tile swatches. */
+/** Large foreground/background tile swatches. */
 export function TileFields({ bounds, style }: { bounds: SurfaceBounds; style?: CSSProperties }) {
   const editor = useTilemapPaletteModel();
   const assets = useUiAssets();

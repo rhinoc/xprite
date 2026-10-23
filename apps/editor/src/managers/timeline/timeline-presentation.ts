@@ -12,7 +12,7 @@ export {
   layerSubtree,
   libreSpriteZoomAtAnchor,
   normalizeOnionSkin,
-  asepritePlaybackSpeeds,
+  playbackSpeeds,
   onionSkinRangeGeometry,
   rgbaToHex,
   stepZoom,

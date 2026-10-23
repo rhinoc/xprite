@@ -1,7 +1,7 @@
-/** PaletteView::onResize/onSizeHint, reference viewport 136x660, scale 2.
- * The mini vertical bar consumes 12 scene pixels when content overflows.
+/** Palette grid layout for reference viewport 136×660 at scale 2.
+ * Mini vertical bar uses 12 scene px when content overflows.
  */
-export function asepritePaletteLayout(
+export function paletteLayout(
   count: number,
   boxSize = 11,
   initialColumns?: number,

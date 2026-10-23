@@ -28,7 +28,7 @@ export interface ExperimentalPreferencesProps {
   composeGroups: boolean;
   onComposeGroupsChange?: (value: boolean) => void;
 }
-/** options.xml Experimental page, measured from the original intact hidden widget tree. */
+/** Experimental preferences page layout (fixed row positions). */
 export function ExperimentalPreferences({
   box,
   client,

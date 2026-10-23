@@ -13,8 +13,8 @@ import { PixelPerfectPath, PixelPerfectTracePolicy } from "$/canvas/raster/pixel
 import { PixelPerfectStroke } from "$/canvas/raster/pixel-perfect-stroke";
 import { StrokeDynamics } from "$/canvas/raster/stroke-dynamics";
 import { getXpriteToolCapabilities } from "$/drawing/capabilities";
-import { AsepriteLineFreehandController } from "$/drawing/line/controller";
-import { AsepriteShapeController, isShapeTool } from "$/drawing/shapes";
+import { LineFreehandController } from "$/drawing/line/controller";
+import { ShapeController, isShapeTool } from "$/drawing/shapes";
 import {
   LibreSpriteTwoPointsController,
   isTwoPointShape,
@@ -92,8 +92,8 @@ export interface DrawingGestureState {
     maxY: number;
   };
   twoPoints?: LibreSpriteTwoPointsController;
-  lineFreehand?: AsepriteLineFreehandController;
-  controller?: AsepriteShapeController;
+  lineFreehand?: LineFreehandController;
+  controller?: ShapeController;
   selectionMode?: SelectionMode;
   selectionBase?: PixelMask | null;
   dynamics: StrokeDynamics | null;
@@ -343,13 +343,13 @@ export class DrawingGestureController {
         ? lastDrawingPoint
         : undefined;
     const initialLinePoints = lineStart
-      ? new AsepriteLineFreehandController(lineStart).move(
+      ? new LineFreehandController(lineStart).move(
           at,
           input.actionModifiers?.angleSnapFromLastPoint ?? input.physicalCtrl ?? input.ctrl,
         )
       : undefined;
     const lineFreehand = initialLinePoints
-      ? new AsepriteLineFreehandController(initialLinePoints[initialLinePoints.length - 1])
+      ? new LineFreehandController(initialLinePoints[initialLinePoints.length - 1])
       : undefined;
     if (
       tool === "move" &&
@@ -462,7 +462,7 @@ export class DrawingGestureController {
       gesture.points = gesture.twoPoints.points.map((value) => ({ ...value }));
     }
     if (tool === "curve" || tool === "polygon" || tool === "polygonal_lasso") {
-      gesture.controller = new AsepriteShapeController(
+      gesture.controller = new ShapeController(
         tool === "curve" ? "curve" : "polygon",
         input.pointerType === "touch",
       );
@@ -727,7 +727,7 @@ export class DrawingGestureController {
       lastDrawingPoint &&
       capabilities.behavior.connectFreehandStroke
     ) {
-      const controller = new AsepriteLineFreehandController(lastDrawingPoint);
+      const controller = new LineFreehandController(lastDrawingPoint);
       controller.move(
         this.port.getPointer() ?? lastDrawingPoint,
         input?.actionModifiers?.angleSnapFromLastPoint ?? input?.physicalCtrl ?? input?.ctrl,

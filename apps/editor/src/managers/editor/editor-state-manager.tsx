@@ -71,8 +71,8 @@ import {
   DEFAULT_PIXEL_PERFECT,
   type BrushImage,
   type EditorTool as CoreTool,
-  type AsepriteBrushShape,
-  type AsepriteBrushValue,
+  type BrushShape,
+  type BrushValue,
   type PaletteOperation,
   type RasterEditor,
   type Rgba,
@@ -212,7 +212,7 @@ function usePreviewEditorState(
     if (closing === "document") setPlaying(false);
   };
   const [brushSizes, setBrushSizes] = useState<Partial<Record<EditorTool, number>>>({});
-  const [brushShapes, setBrushShapes] = useState<Partial<Record<EditorTool, AsepriteBrushShape>>>(
+  const [brushShapes, setBrushShapes] = useState<Partial<Record<EditorTool, BrushShape>>>(
     {},
   );
   const [brushAngles, setBrushAngles] = useState<Partial<Record<EditorTool, number>>>({});
@@ -222,7 +222,7 @@ function usePreviewEditorState(
   const brushImage = brushImages[tool];
   const setBrushImage = (image: BrushImage | undefined) =>
     setBrushImages((previous) => ({ ...previous, [tool]: image }));
-  const setBrushShape = (shape: AsepriteBrushShape) => {
+  const setBrushShape = (shape: BrushShape) => {
     setBrushShapes((previous) => ({ ...previous, [tool]: shape }));
     if (shape !== "image") setBrushImage(undefined);
   };
@@ -462,7 +462,7 @@ function usePreviewEditorState(
     brushImage,
     setBrushShape,
     setBrushAngle,
-    setBrush: (brush: AsepriteBrushValue) => {
+    setBrush: (brush: BrushValue) => {
       setBrushShape(brush.shape);
       setBrushSize(brush.size);
       setBrushAngle(brush.angle);
@@ -891,7 +891,7 @@ function useEditorState(
     brushShape: settings.brush.shape,
     brushAngle: settings.brush.angle,
     brushImage: settings.brush.image,
-    setBrushShape: (shape: AsepriteBrushShape) => {
+    setBrushShape: (shape: BrushShape) => {
       const brush = core.getSnapshot().settings.brush;
       core.drawing.settings.setSettings({
         brush: { ...brush, shape, image: shape === "image" ? brush.image : undefined },
@@ -901,7 +901,7 @@ function useEditorState(
       core.drawing.settings.setSettings({
         brush: { ...core.getSnapshot().settings.brush, angle },
       }),
-    setBrush: (brush: AsepriteBrushValue) => {
+    setBrush: (brush: BrushValue) => {
       const current = core.getSnapshot().settings.brush;
       core.drawing.settings.setSettings({
         brush: {

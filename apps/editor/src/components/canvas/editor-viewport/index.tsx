@@ -2,7 +2,7 @@ import "$/components/canvas/editor-viewport/editor-viewport.module.css";
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { EditorCanvas } from "$/components/canvas/editor-canvas";
-import { EditorFrame, asepriteEditorFrameBounds } from "$/components/canvas/editor-frame";
+import { EditorFrame, editorFrameBounds } from "$/components/canvas/editor-frame";
 import { EditorPanSurface } from "$/components/canvas/pan-surface";
 import { useEditorLayoutSettings } from "$/components/shared/editor-layout-context";
 import { tUi, useUiLanguage } from "$/i18n";
@@ -140,9 +140,9 @@ export function EditorViewport({
       </EditorPanSurface>
       <EditorFrame
         frameBounds={{
-          ...asepriteEditorFrameBounds,
-          x: asepriteEditorFrameBounds.x + colorbarDeltaScene,
-          width: Math.max(30, asepriteEditorFrameBounds.width - colorbarDeltaScene),
+          ...editorFrameBounds,
+          x: editorFrameBounds.x + colorbarDeltaScene,
+          width: Math.max(30, editorFrameBounds.width - colorbarDeltaScene),
         }}
         extraHeight={extraHeight}
         documentBounds={{

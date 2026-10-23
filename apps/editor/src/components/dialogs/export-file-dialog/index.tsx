@@ -19,8 +19,8 @@ import {
   WebpCompression,
 } from "$/managers/files/export-format-preferences";
 import {
-  exportFileAsepriteLayout,
-  gifOptionsAsepriteLayout,
+  exportFileLayout,
+  gifOptionsLayout,
 } from "$/managers/files/policies/export-file-geometry";
 import { DEFAULT_FILE_PREFERENCES } from "$/managers/preferences/file-preferences";
 import type { FilePreferences } from "$/managers/preferences/file-preferences";
@@ -37,8 +37,7 @@ export interface ExportFileDialogProps {
   documentKey?: string;
   filePreferences?: FilePreferences;
 }
-/** Aseprite export_file.xml field order and en.ini strings. Unsupported output
- * behaviors remain visibly disabled rather than being silently ignored. */
+/** Export dialog field order and label strings. Unsupported outputs stay visibly disabled. */
 export function ExportFileDialog({
   embedded = false,
   formatRequest,
@@ -248,7 +247,7 @@ export function ExportFileDialog({
         open
         title="GIF Options"
         width={548}
-        layout={gifOptionsAsepriteLayout}
+        layout={gifOptionsLayout}
         fields={[
           {
             key: "interlaced",
@@ -314,7 +313,7 @@ export function ExportFileDialog({
     outputFormat === ExportOutputFormat.Gif ||
     outputFormat === ExportOutputFormat.Apng ||
     (webpImage && options.frames !== "current");
-  const layout = exportFileAsepriteLayout(
+  const layout = exportFileLayout(
     showSubtags,
     showPixelRatio,
     showPlayCount,

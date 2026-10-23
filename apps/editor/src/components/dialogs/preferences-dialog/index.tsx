@@ -320,9 +320,9 @@ const enabledSections = new Set([
   DIAGNOSTICS_SECTION,
   RESET_SECTION,
 ]);
-/** Latin/Cyrillic locales whose segment labels can outgrow Aseprite's fixed widths; other locales keep the locked geometry. */
+/** Latin/Cyrillic locales whose segment labels can outgrow the locked segment widths; other locales keep locked geometry. */
 const AUTO_WIDTH_SEGMENT_LANGUAGES: ReadonlySet<UiLanguage> = new Set(["ru", "pt-BR", "es"]);
-/** Keeps the Aseprite segment widths, growing a segment (and shifting the rest) only when its translated label needs more room. */
+/** Keeps default segment widths, growing a segment (and shifting the rest) only when the translated label needs more room. */
 function widenToText<T extends { label: string; x: number; width: number }>(
   buttons: readonly T[],
 ): readonly T[] {

@@ -1,7 +1,7 @@
 import type { FormLayout } from "$/managers/dialogs/form-layout";
 import type { SpriteSheetOptions } from "@xprite/editor-core/import-export";
 /** Sprite sheet export dialog geometry; units are the shared 2× scene coordinates. */
-export function spriteSheetAsepriteLayout(
+export function spriteSheetLayout(
   tab: string,
   o: Pick<SpriteSheetOptions, "imageEnabled" | "dataEnabled">,
 ): FormLayout {
@@ -108,7 +108,7 @@ export function spriteSheetAsepriteLayout(
   };
 }
 
-export function importSpriteSheetAsepriteLayout(paddingEnabled: boolean): FormLayout {
+export function importSpriteSheetLayout(paddingEnabled: boolean): FormLayout {
   const extra = paddingEnabled ? 38 : 0;
   return {
     height: 386 + extra,

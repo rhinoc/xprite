@@ -1,6 +1,6 @@
 import { UINT8_MAX } from "$/base/numeric-constants";
 import type { Rgba } from "$/base/primitives";
-import { asepritePaletteColorIndex, stepAsepritePaletteIndex } from "$/color/palette-commands";
+import { paletteColorIndex, stepPaletteIndex } from "$/color/palette-commands";
 import { operatePalette, type PaletteOperation } from "$/color/palette-operations";
 import { assertPaletteAllocation } from "$/color/palette-resize";
 import { appendMissingPaletteColor } from "$/color/palette-warning";
@@ -122,8 +122,8 @@ export class PaletteController {
     const current =
       remembered?.palette === colors && remembered.color === color
         ? remembered.index
-        : asepritePaletteColorIndex(colors, color);
-    const index = stepAsepritePaletteIndex(current, step, colors.length)!;
+        : paletteColorIndex(colors, color);
+    const index = stepPaletteIndex(current, step, colors.length)!;
     this.port.setColor(target, colors[index], index);
     this.choices[target] = { index, palette: colors, color: this.port.getColor(target, scope) };
     return index;

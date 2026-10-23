@@ -37,7 +37,7 @@ const EditorLayoutContext = createContext({ ...editorSceneLayout(), ...defaultLa
 const WorkspaceLayoutConfigurationContext = createContext(COMPACT_WORKSPACE_LAYOUT_CONFIGURATION);
 export const useWorkspaceLayoutConfiguration = () =>
   useContext(WorkspaceLayoutConfigurationContext);
-/** Shared by Aseprite chrome primitives; demos only compose these primitives. */
+/** Shared by editor chrome primitives; demos only compose these primitives. */
 export function EditorLayoutProvider({
   width,
   height,

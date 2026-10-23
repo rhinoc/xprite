@@ -401,7 +401,7 @@ export function paintShape(
 }
 /** Keep one history gesture alive while release() returns true; movement is
  * also delivered with no buttons down. Aseprite polygons finish on a no-drag click. */
-export class AsepriteShapeController {
+export class ShapeController {
   points: Point[] = [];
   private clicks = 0;
   private last: Point = { x: 0, y: 0 };

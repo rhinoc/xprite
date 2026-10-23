@@ -64,7 +64,7 @@ import {
   celIdentity,
   celsShareImage,
   timelinePartForCel,
-  asepriteLayerRows,
+  timelineLayerRows,
   paintLayerRowArtwork,
   paintTimelineTagArtwork,
   paintTimelineFrameArtwork,
@@ -373,7 +373,7 @@ function EditorTimelineContent({
   const frames = timeline.frames;
   const activeLayer = Math.max(0, Math.min(layers.length - 1, timeline.activeLayer));
   const activeFrame = Math.max(0, Math.min(frames.length - 1, editor.frame - 1));
-  const visibleLayers = useMemo(() => asepriteLayerRows(timeline), [layers]);
+  const visibleLayers = useMemo(() => timelineLayerRows(timeline), [layers]);
   const maxFrames = Math.max(1, frames.length);
   const scrollableHeight = (visibleLayers.length + 1) * rowSize + 2;
   const timelineScrollbarGutter = scrollableHeight > rowsHeight ? 12 : 0;
@@ -1391,7 +1391,7 @@ function EditorTimelineContent({
               relativeTo={bottomOrigin}
             />
           );
-          // F3 toggles onion skin (gui.xml ShowOnionSkin), named like the other buttons' tooltips.
+          // F3 toggles onion skin, named like the other buttons' tooltips.
           return label === "Onion skin" ? (
             <Tooltip
               key={label}

@@ -24,7 +24,7 @@ import {
   resizeEditorPalette as resizePaletteColors,
 } from "$/managers/palette/palette-operations";
 import {
-  getPaletteGridLayout as asepritePaletteLayout,
+  getPaletteGridLayout,
   getPaletteSelectionFrames as paletteSelectionGeometry,
   findPaletteSelectionOutline as hitPaletteSelectionOutline,
   previewPaletteDrop as dropPaletteColors,
@@ -195,7 +195,7 @@ export function EditorPalette({
     paletteIndex: number | null;
     selection: number[];
   } | null>(null);
-  const layout = asepritePaletteLayout(
+  const layout = getPaletteGridLayout(
     colors.length,
     effectiveBoxSize,
     undefined,

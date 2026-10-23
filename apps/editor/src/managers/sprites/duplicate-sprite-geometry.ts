@@ -1,7 +1,7 @@
 import type { FormLayout } from "$/managers/dialogs/form-layout";
 
 /** Duplicate sprite dialog geometry. */
-export const duplicateSpriteAsepriteLayout: FormLayout = {
+export const duplicateSpriteLayout: FormLayout = {
   height: 164,
   initialFocusAction: "OK",
   fields: {

@@ -2,17 +2,17 @@ import type { BrushImage } from "$/base/primitives";
 import { isValidBrushImage, rasterizeBrushShape } from "$/canvas/raster";
 /** Integer brush raster from the MIT-licensed doc/brush.cpp and doc/algo.cpp.
  * This is the popup thumbnail, including the nine-pixel clamp/crop. */
-export type AsepriteBrushShape = "circle" | "square" | "line" | "image";
-export interface AsepriteBrushValue {
-  shape: AsepriteBrushShape;
+export type BrushShape = "circle" | "square" | "line" | "image";
+export interface BrushValue {
+  shape: BrushShape;
   size: number;
   angle: number;
   image?: BrushImage;
 }
-const MAX_ASEPRITE_BRUSH_PREVIEW_SIZE = 9;
-const ASEPRITE_BRUSH_PREVIEW_ELLIPSE_EXTRA_OFFSET_SIZES = [8] as const;
+const MAX_BRUSH_PREVIEW_SIZE = 9;
+const BRUSH_PREVIEW_ELLIPSE_EXTRA_OFFSET_SIZES = [8] as const;
 
-export function asepriteBrushMask(brush: AsepriteBrushValue): {
+export function brushPreviewMask(brush: BrushValue): {
   width: number;
   height: number;
   pixels: readonly number[];
@@ -20,8 +20,8 @@ export function asepriteBrushMask(brush: AsepriteBrushValue): {
   if (brush.shape === "image") {
     const image = brush.image;
     if (!isValidBrushImage(image)) return { width: 1, height: 1, pixels: [0] };
-    const width = Math.min(MAX_ASEPRITE_BRUSH_PREVIEW_SIZE, image.width),
-      height = Math.min(MAX_ASEPRITE_BRUSH_PREVIEW_SIZE, image.height);
+    const width = Math.min(MAX_BRUSH_PREVIEW_SIZE, image.width),
+      height = Math.min(MAX_BRUSH_PREVIEW_SIZE, image.height);
     const anchorX =
       image.anchor && Number.isFinite(image.anchor.x)
         ? Math.max(0, Math.min(image.width - 1, Math.trunc(image.anchor.x)))
@@ -50,10 +50,10 @@ export function asepriteBrushMask(brush: AsepriteBrushValue): {
     };
   }
   const { extent, bitmap } = rasterizeBrushShape(brush.shape, brush.size, brush.angle, {
-    maxSize: MAX_ASEPRITE_BRUSH_PREVIEW_SIZE,
-    ellipseExtraOffsetSizes: ASEPRITE_BRUSH_PREVIEW_ELLIPSE_EXTRA_OFFSET_SIZES,
+    maxSize: MAX_BRUSH_PREVIEW_SIZE,
+    ellipseExtraOffsetSizes: BRUSH_PREVIEW_ELLIPSE_EXTRA_OFFSET_SIZES,
   });
-  const width = Math.min(MAX_ASEPRITE_BRUSH_PREVIEW_SIZE, extent),
+  const width = Math.min(MAX_BRUSH_PREVIEW_SIZE, extent),
     offset = Math.trunc((width - extent - 1) / 2);
   return {
     width,

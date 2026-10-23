@@ -53,7 +53,7 @@ export interface SelectionDialogsProps {
   /** Preview must not replace the committed mask/history; null restores it. */
   onPreview?: (values: ColorRangeValues | null) => void;
 }
-/** Aseprite modify_selection.xml / MaskByColorWindow layout and shared control behavior. */
+/** Selection / mask-by-color dialog layout and shared control behavior. */
 export function SelectionDialogs({
   kind,
   onClose,
@@ -109,7 +109,7 @@ export function SelectionDialogs({
     kind === ToolSelectionModifier.Border
       ? "Width:"
       : tUi("ui.by.2", { value1: tUiSource(kind[0].toUpperCase() + kind.slice(1)) });
-  // Aseprite Grid: label border adds two GUI pixels; radios determine column width.
+  // Grid label border adds two GUI pixels; radios determine column width.
   const labelWidth = measureUiText(byLabel) + 4;
   const modifyContentWidth = Math.max(248, labelWidth + 8 + 148);
   const modifyEntryX = labelWidth + 8;

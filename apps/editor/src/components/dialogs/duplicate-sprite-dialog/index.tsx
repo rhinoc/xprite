@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { FormDialog } from "$/components/dialogs/form-dialog";
-import { duplicateSpriteAsepriteLayout } from "$/managers/sprites/duplicate-sprite-geometry";
+import { duplicateSpriteLayout } from "$/managers/sprites/duplicate-sprite-geometry";
 
 export interface DuplicateSpriteOptions {
   name: string;
@@ -47,7 +47,7 @@ export function DuplicateSpriteDialog({
       }}
       title="Duplicate Sprite"
       width={406}
-      layout={duplicateSpriteAsepriteLayout}
+      layout={duplicateSpriteLayout}
       fields={[
         { key: "duplicate", type: "label", label: "Duplicate:" },
         { key: "source", type: "label", label: sourceName },

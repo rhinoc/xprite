@@ -21,16 +21,16 @@ import {
   getXpriteToolCapabilities,
   isSelectionTool,
   isTwoPointShape,
-  asepriteBrushMask,
+  brushPreviewMask,
   type BrushImage,
-  type AsepriteBrushShape,
-  type AsepriteBrushValue,
+  type BrushShape,
+  type BrushValue,
   type Rgba,
 } from "@xprite/editor-core";
 
 /** Narrow domain names for settings presented by the editor's tool controls. */
-export type BrushPickerValue = AsepriteBrushValue;
-export type BrushPickerShape = AsepriteBrushShape;
+export type BrushPickerValue = BrushValue;
+export type BrushPickerShape = BrushShape;
 export type BrushPickerImage = BrushImage;
 export type ToolColor = Rgba;
 export const BrushImagePatternChoice = BrushImagePattern;
@@ -69,7 +69,7 @@ export const MIN_TILEMAP_BASE_INDEX = INT16_MIN;
 export const MAX_TILEMAP_BASE_INDEX = INT16_MAX;
 
 export function getBrushPickerMask(value: BrushPickerValue) {
-  return asepriteBrushMask(value);
+  return brushPreviewMask(value);
 }
 
 /** Only the view-facing capability fields used to place tool controls. */

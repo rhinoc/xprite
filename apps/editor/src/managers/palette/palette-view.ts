@@ -1,4 +1,4 @@
-import { asepritePaletteLayout } from "$/managers/palette/policies/palette-layout";
+import { paletteLayout } from "$/managers/palette/policies/palette-layout";
 import {
   hitPaletteSelectionOutline,
   paletteSelectionGeometry,
@@ -22,7 +22,7 @@ export function getPaletteGridLayout(
   viewportHeight = 660,
   viewportWidth = 134,
 ) {
-  return asepritePaletteLayout(count, boxSize, initialColumns, viewportHeight, viewportWidth);
+  return paletteLayout(count, boxSize, initialColumns, viewportHeight, viewportWidth);
 }
 
 export function getPaletteSelectionFrames(

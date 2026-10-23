@@ -42,7 +42,7 @@ export function paletteResizeHandle(count: number, geometry: PaletteResizeGeomet
     height: geometry.cellSize,
   };
 }
-/** PaletteView::hitTest: captured drags can address empty cells and the next row.
+/** Hit-test: captured drags can address empty cells and the next row. */
  * A zero-size preview is legal; release commits max(1, hit.color).
  */
 export function paletteResizeTarget(

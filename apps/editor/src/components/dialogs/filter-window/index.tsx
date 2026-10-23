@@ -25,7 +25,7 @@ export interface EditorFilterWindowProps {
   onCancel: () => void;
   children: (bounds: SurfaceBounds) => ReactNode;
 }
-/** Aseprite FilterWindow right-hand control column shared by every filter. */
+/** Shared filter dialog right-hand control column. */
 export function EditorFilterWindow({
   title,
   depth = 32,

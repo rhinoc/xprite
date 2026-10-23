@@ -418,7 +418,7 @@ export function rasterizeSelectionTransform(value: SelectionTransform): {
 /** RotSprite or color-key transforms produce new RGBA samples. Let document
  * normalization map them back to the source palette instead of writing stale
  * source indices over the transformed colors. */
-export function canKeepSelectionAsepriteSamples(value: SelectionTransform): boolean {
+export function canKeepSelectionSamples(value: SelectionTransform): boolean {
   if (
     value.rotationAlgorithm === SelectionRotationAlgorithm.RotSprite &&
     !transformHasAxisAlignedPixelShape(value)
@@ -603,7 +603,7 @@ export function selectionHandlePositions(
   }));
 }
 
-export const asepriteSelectionHandleRect = (x: number, y: number, w: number, angle: number) => {
+export const selectionHandleRect = (x: number, y: number, w: number, angle: number) => {
   const i = ((Math.round(angle / (Math.PI / 4)) % 8) + 8) % 8;
   // Integer division (handle_w / 2). Math.floor on the negative offset made
   // a 5px midpoint handle start three pixels away.
@@ -633,7 +633,7 @@ export function hitSelectionHandles(
   for (const size of [10, 15])
     for (const t of targets) {
       if (size === 15 && t.handle.length !== 2) continue;
-      const r = asepriteSelectionHandleRect(t.screen.x, t.screen.y, size, t.angle);
+      const r = selectionHandleRect(t.screen.x, t.screen.y, size, t.angle);
       if (p.x >= r.x && p.y >= r.y && p.x < r.x + r.width && p.y < r.y + r.height)
         return size === 10 ? t.handle : (`rotate-${t.handle}` as SelectionHandle);
     }
@@ -757,7 +757,7 @@ export function selectionShaderOffset(
 }
 
 /** Eight-pixel checker phase follows the MIT-licensed UI library. */
-export function asepriteSelectionBoundaryWhite(x: number, y: number, antsOffset: number): boolean {
+export function selectionBoundaryWhite(x: number, y: number, antsOffset: number): boolean {
   const offset = 7 - (antsOffset & 7);
   return ((x + y + offset) & 7) < 4;
 }

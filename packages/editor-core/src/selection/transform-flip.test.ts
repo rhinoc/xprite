@@ -171,7 +171,7 @@ describe("selection handle crossing", () => {
       bounds: { x: 2, y: 2, width: -2, height: -2 },
       rotationAlgorithm: api.SelectionRotationAlgorithm.RotSprite,
     };
-    assert.equal(api.canKeepSelectionAsepriteSamples(flipped), true);
+    assert.equal(api.canKeepSelectionSamples(flipped), true);
     assert.deepEqual(channels(flipped), [4, 3, 0, 1]);
   });
 });

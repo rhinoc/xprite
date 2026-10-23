@@ -1,6 +1,6 @@
 import type { FormLayout } from "$/managers/dialogs/form-layout";
 /** Export file and GIF options dialog geometry in scene units. */
-export function exportFileAsepriteLayout(
+export function exportFileLayout(
   playSubtags: boolean,
   pixelRatio: boolean,
   playCount = false,
@@ -85,7 +85,7 @@ export function exportFileAsepriteLayout(
   };
   if (!includeFormat) {
     // The format row is 30 tall plus a 10 gap (format at y 38, resize at y 78), so removing it
-    // shifts every later row up by 40. That lands resize at Aseprite's y 38 and the window at 342.
+    // shifts every later row up by 40. That lands resize at y 38 and the window height at 342.
     const formatRowHeight = 40;
     const fields = Object.fromEntries(
       Object.entries(layout.fields).filter(([key]) => key !== "format"),
@@ -109,7 +109,7 @@ export function exportFileAsepriteLayout(
   }
   return layout;
 }
-export const gifOptionsAsepriteLayout: FormLayout = {
+export const gifOptionsLayout: FormLayout = {
   height: 222,
   initialFocusAction: "OK",
   fields: {

@@ -1,5 +1,5 @@
 import { AsepriteTagDirection } from "$/import-export/aseprite/model";
-import { AsepriteAnimationPlayback, AsepritePlaybackMode } from "$/timeline/playback";
+import { AnimationPlayback, PlaybackMode } from "$/timeline/playback";
 import { MAX_TIMELINE_FRAMES, type TimelinePlaybackRange } from "$/timeline/timeline";
 import type {
   OnionSkinSettings,
@@ -31,7 +31,7 @@ export const defaultPlaybackSettings: Readonly<PlaybackSettings> = {
   playSubtags: true,
   rewindOnStop: false,
 };
-export const asepritePlaybackSpeeds = [0.25, 0.5, 1, 1.5, 2, 3] as const;
+export const playbackSpeeds = [0.25, 0.5, 1, 1.5, 2, 3] as const;
 const integer = (value: number, min: number, max: number) =>
   Number.isFinite(value) ? Math.max(min, Math.min(max, Math.round(value))) : min;
 export function normalizeOnionSkin(settings: Partial<OnionSkinSettings>): OnionSkinSettings {
@@ -82,11 +82,11 @@ export function onionSkinFrames(
       : undefined;
   const result: { frame: number; offset: number; opacity: number }[] = [];
   const previous = tag ? s.previousFrames : Math.min(frame, s.previousFrames);
-  const playback = new AsepriteAnimationPlayback(
+  const playback = new AnimationPlayback(
     t.frames.length - 1,
     [],
     frame,
-    tag ? AsepritePlaybackMode.Loop : AsepritePlaybackMode.All,
+    tag ? PlaybackMode.Loop : PlaybackMode.All,
     tag,
   );
   playback.next(-previous);
@@ -98,7 +98,7 @@ export function onionSkinFrames(
       at >= 0 &&
       at < t.frames.length &&
       opacity > 0 &&
-      playback.mode !== AsepritePlaybackMode.Stopped
+      playback.mode !== PlaybackMode.Stopped
     )
       result.push({ frame: at, offset, opacity });
   }
@@ -145,15 +145,15 @@ export function createAnimationPlayback(
         .sort((a, b) => a.to - a.from - (b.to - b.from))[0] ??
       timelineTags(t).find((candidate) => candidate.name === "Loop"));
   if (settings.playSubtags && tag && tag.repeat !== 0) tag = undefined;
-  return new AsepriteAnimationPlayback(
+  return new AnimationPlayback(
     t.frames.length - 1,
     settings.playSubtags ? timelineTags(t) : [],
     frame,
     settings.playOnce
-      ? AsepritePlaybackMode.Once
+      ? PlaybackMode.Once
       : settings.playAll
-        ? AsepritePlaybackMode.WithoutTags
-        : AsepritePlaybackMode.Loop,
+        ? PlaybackMode.WithoutTags
+        : PlaybackMode.Loop,
     tag,
   );
 }
@@ -162,7 +162,7 @@ export class AnimationPreviewPlayer {
   playing = false;
   private elapsed = 0;
   private start = 0;
-  private clock: AsepriteAnimationPlayback | undefined;
+  private clock: AnimationPlayback | undefined;
   private remainingPlays = 0;
   play(t: SpriteTimeline, settings: PlaybackSettings, frame = t.activeFrame) {
     this.start = frame;
@@ -209,7 +209,7 @@ export class AnimationPreviewPlayer {
         }
       }
       this.frame = this.clock.next();
-      if (this.clock.mode === AsepritePlaybackMode.Stopped) this.stop(settings);
+      if (this.clock.mode === PlaybackMode.Stopped) this.stop(settings);
     }
     return before !== this.frame;
   }

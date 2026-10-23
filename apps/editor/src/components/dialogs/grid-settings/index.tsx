@@ -32,7 +32,7 @@ interface GridSettingsProps {
   onClose: () => void;
   suspended?: boolean;
 }
-/** grid_settings.xml remapped dialogSize176x86 GUI pixels. */
+/** Grid settings dialog size 176×86 GUI pixels (remapped to scene units). */
 function GridSettings({ bounds, onAccept, onClose, suspended }: GridSettingsProps) {
   const [values, setValues] = useState({
     x: String(bounds.x),
