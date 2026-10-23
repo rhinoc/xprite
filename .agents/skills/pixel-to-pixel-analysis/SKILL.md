@@ -8,8 +8,7 @@ metadata:
 # Pixel-to-pixel analysis
 
 For Xprite UI regression, compare against the repository's current Xprite
-baselines. The old Aseprite screenshot comparison workflow has been retired.
-For unrelated PNG or sprite comparisons, use the standalone comparator.
+baselines. For unrelated PNG or sprite comparisons, use the standalone comparator.
 Both use the repository's existing `pixelmatch` and `pngjs` dependencies.
 Preserve captures exactly: do not resize, mask, or rewrite candidate pixels.
 Capture scripts reuse `scripts/base/screenshot.mjs`: native compositor pixels,

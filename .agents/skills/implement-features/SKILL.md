@@ -14,7 +14,10 @@ Use this skill for product changes that need both behavior research and integrat
 1. Read the root `AGENTS.md` and the nearest package `AGENTS.md` before editing. Check current package scripts and the working tree; preserve existing user changes.
 2. Search `.refs/` for the matching workflow, command, settings model, renderer, and persistence code. Compare actual behavior and defaults, not only screenshots or labels. Identify the reference version and platform when that affects the result.
 3. Read relevant `.docs/` notes as historical evidence. Check their dates, cited sources, and current implementation before treating them as requirements.
-4. Read the applicable reference license. Use it to understand behavior and design; do not copy implementation text or code unless its license permits that use.
+4. Read the applicable reference license before using `.refs/`.
+   - **Allowed** as implementation reference: only **MIT-licensed** Aseprite modules (e.g. `doc`, `render`, `ui`, `dio`, `laf`, and any other module that ships an MIT `LICENSE`). Use those only as the license permits, with required attribution.
+   - **Forbidden** as implementation reference: `data/widgets/` (dialog XML / layouts / control placement), `src/app/` (including UI chrome, dialogs, layout, and algorithms), and any other EULA or non-MIT program material. Do not copy, transcribe, or re-encode widget geometry, dialog placement, or app-layer algorithms from those paths into Xprite.
+   - Do not copy implementation text or code from any reference unless its license permits that use.
 5. Record the behavior that matters to the request: entry point, state scope, defaults, interactions, persistence, undo/dirty-state effects, and unsupported cases. Separate source facts from implementation choices.
 
 ## Map the feature into the repository
