@@ -53,6 +53,36 @@ selection cursor direction. Product-specific menu actions are maintained here.
 The applicable [GPLv2 text](LICENSE)
 is distributed with this repository. Source: [LibreSprite](https://github.com/LibreSprite/LibreSprite).
 
+## Brush dynamics
+
+Brush dynamics use a TypeScript port of libmypaint 1.6.1 by Martin Renold and
+contributors, at commit
+[`2768251`](https://github.com/mypaint/libmypaint/tree/2768251dacce3939136c839aeca413f4aa4241d0).
+The port in `packages/editor-core/src/canvas/raster/mypaint.ts` covers the
+input mapping from `mypaint-mapping.c`, and the speed filter, speed input
+curve, slow position tracking and pressure gain from `mypaint-brush.c`, with
+the input ranges and defaults from `brushsettings.json`. Mapping those inputs
+to pixel brush size, angle and dithered color, and the Dynamics panel, are
+Xprite's own. The ISC license is retained in
+[`LICENSES/libmypaint.txt`](LICENSES/libmypaint.txt). Source:
+[libmypaint](https://github.com/mypaint/libmypaint).
+
+## Shading ink
+
+Indexed-color shading follows LibreSprite's GPLv2 palette shade remap. RGBA
+shading is Xprite's own exact-color ramp lookup.
+
+## Tilemaps
+
+Tilemap layers, tilesets and tile flip flags in `.aseprite` files are read and
+written according to the public
+[Aseprite file format specification](https://github.com/aseprite/aseprite/blob/main/docs/ase-file-specs.md).
+Tile index and flip masks match the MIT-licensed `doc` and `dio` libraries;
+their notices are retained in [`LICENSES/aseprite-doc.txt`](LICENSES/aseprite-doc.txt) and
+[`LICENSES/aseprite-dio.txt`](LICENSES/aseprite-dio.txt). The Manual, Auto and
+Stack tileset modes, Pixels and Tiles editing modes, and their editing behavior
+are Xprite's own implementation.
+
 ## Xprite sample artwork
 
 The editor and viewer import the bundled editable example from the asset-only
