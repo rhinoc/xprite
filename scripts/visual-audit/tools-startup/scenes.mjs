@@ -41,6 +41,7 @@ const selectedCoverage = [
   { language: "zh-CN", layout: layouts[0], appearance: appearances[1] },
   { language: "en", layout: layouts[1], appearance: appearances[0] },
   { language: "zh-CN", layout: layouts[1], appearance: appearances[0] },
+  { language: "en", layout: layouts[0], appearance: appearances[1] },
   { language: "en", layout: layouts[1], appearance: appearances[1] },
 ];
 
