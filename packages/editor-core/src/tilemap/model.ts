@@ -390,17 +390,9 @@ export function commitTilemapPixels(
         continue;
       }
       modified.add(id);
-      let matchFlags = 0;
       let match = block.every((v, i) => i % 4 !== 3 || v === 0)
         ? 0
         : blocks.findIndex((b, i) => i > 0 && same(b, block));
-      if (match < 0) {
-        const flipped = findFlippedTile(block, blocks, w, h, set.flags);
-        if (flipped) {
-          match = flipped.id;
-          matchFlags = flipped.flags;
-        }
-      }
       if (match < 0) {
         if (mode === TilesetMode.Auto && id > 0 && usage.get(id) === 1) {
           match = id;
@@ -410,7 +402,7 @@ export function commitTilemapPixels(
           blocks.push(block);
         }
       }
-      tiles[gy * width + gx] = (match | matchFlags) >>> 0;
+      tiles[gy * width + gx] = match >>> 0;
       if (mode === TilesetMode.Auto && match !== id) {
         usage.set(id, (usage.get(id) ?? 0) - 1);
         usage.set(match, (usage.get(match) ?? 0) + 1);
@@ -810,49 +802,6 @@ export function duplicateTilesetTile(t: SpriteTimeline, id: number, index: numbe
     ),
   };
 }
-
-function findFlippedTile(
-  block: Uint8Array,
-  blocks: readonly Uint8Array[],
-  w: number,
-  h: number,
-  matchFlags: number,
-): { id: number; flags: number } | undefined {
-  const allowed =
-    (matchFlags & 8 ? TILE_X_FLIP : 0) |
-    (matchFlags & 16 ? TILE_Y_FLIP : 0) |
-    (matchFlags & 32 ? TILE_DIAGONAL_FLIP : 0);
-  if (!allowed) return undefined;
-  const variants = [
-    TILE_X_FLIP,
-    TILE_Y_FLIP,
-    TILE_X_FLIP | TILE_Y_FLIP,
-    TILE_DIAGONAL_FLIP,
-    TILE_X_FLIP | TILE_DIAGONAL_FLIP,
-    TILE_X_FLIP | TILE_Y_FLIP | TILE_DIAGONAL_FLIP,
-    TILE_Y_FLIP | TILE_DIAGONAL_FLIP,
-  ];
-  for (const flags of variants) {
-    if ((flags & allowed) >>> 0 !== flags >>> 0) continue;
-    for (let id = 1; id < blocks.length; id++) {
-      let matches = true;
-      for (let y = 0; y < h && matches; y++)
-        for (let x = 0; x < w && matches; x++) {
-          const point = sourcePoint(x, y, w, h, flags),
-            at = (y * w + x) * 4,
-            src = point ? (point[1] * w + point[0]) * 4 : -1;
-          for (let ch = 0; ch < 4; ch++) {
-            if (block[at + ch] !== (src < 0 ? 0 : blocks[id][src + ch])) {
-              matches = false;
-              break;
-            }
-          }
-        }
-      if (matches) return { id, flags };
-    }
-  }
-  return undefined;
-}
 /** Validate graph and aggregate retained storage without allocating raster projections. */
 export function assertTilemapTimeline(t: SpriteTimeline): void {
   const sets = new Map<number, AsepriteTileset>(),
@@ -1029,7 +978,7 @@ function commitTilemapSamples(
     asepriteSamples.height !== pixels.height
   )
     throw new Error("Aseprite tile patch dimensions/depth mismatch");
-  // Use an injective surrogate color per Aseprite sample so matching, flips, Auto
+  // Use an injective surrogate color per Aseprite sample so matching, Auto
   // reuse and Manual writes share one algorithm without collapsing equal colors.
   const surrogate = (samples: Uint8Array) => {
     const out = new Uint8Array((samples.length / bpp) * 4);

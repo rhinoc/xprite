@@ -143,6 +143,14 @@ with the deployed application. The build-only PostHog CLI is MIT licensed.
 
 ## MIT libraries
 
+Paint-time tileset Manual / Auto / Stack commit behavior (unique-tile
+rewrite-in-place, unused-tile prune, and exact tile-image matching without
+flip-variant search) is adapted from Pixelorama by Orama Interactive,
+licensed under the MIT License. Upstream:
+[Pixelorama](https://github.com/Orama-Interactive/Pixelorama)
+(`LICENSE`). The MIT notice is retained in
+[`LICENSES/pixelorama-MIT.txt`](LICENSES/pixelorama-MIT.txt).
+
 The editor uses core-js 3.50.0 for structured cloning compatibility. Its upstream
 MIT license is retained in [`LICENSES/core-js-MIT.txt`](LICENSES/core-js-MIT.txt)
 and distributed with the application. Source: [core-js](https://github.com/zloirock/core-js).
