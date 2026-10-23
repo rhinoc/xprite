@@ -11,6 +11,7 @@ import { SHOWCASE_PAGES } from "../../apps/growth/content/showcase/pages.ts";
 import { SITE_PAGES, SitePageKind } from "../../apps/growth/content/site/pages.ts";
 import {
   BEADS_TOOL,
+  FIX_AI_PIXEL_ART_TOOL,
   GIF_SHEET_TOOL,
   PIXELATE_TOOL,
   TOOLS,
@@ -429,7 +430,9 @@ async function verifyApplicationPages(url, environment) {
               ? "pixelation-root"
               : tool.path === BEADS_TOOL.path
                 ? "beads-root"
-                : "animal-crossing-root",
+                : tool.path === FIX_AI_PIXEL_ART_TOOL.path
+                  ? "fix-ai-root"
+                  : "animal-crossing-root",
       indexable: true,
     })),
     ...componentRoutes.flatMap((path) =>
