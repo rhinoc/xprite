@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import { build, transform } from "esbuild";
 import { describe, it } from "vitest";
 
-import { AsepriteInk, UINT8_MAX } from "$/index";
+import { PaintInk, UINT8_MAX } from "$/index";
 
 describe("tool-settings", () => {
   it("tool-settings behavior", async () => {
@@ -18,8 +18,8 @@ describe("tool-settings", () => {
       )
     )
       .replace(
-        /^import \{ AsepriteInk \} from "@xprite\/editor-core";\r?\n/m,
-        `const AsepriteInk = ${JSON.stringify(AsepriteInk)};\n`,
+        /^import \{ PaintInk \} from "@xprite\/editor-core";\r?\n/m,
+        `const PaintInk = ${JSON.stringify(PaintInk)};\n`,
       )
       .replace(
         /^import \{ UINT8_MAX \} from "@xprite\/editor-core";\r?\n/m,

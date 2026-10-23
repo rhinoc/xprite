@@ -371,6 +371,8 @@
   "ui.duration.milliseconds": "길이 (밀리초)",
   "ui.duration.milliseconds.label": "길이 (밀리초):",
   "ui.dynamics": "다이내믹스",
+  "ui.slow.tracking": "느린 추적",
+  "ui.slow.tracking.description": "흔들리는 포인터 움직임을 부드럽게 합니다. 값이 클수록 커서를 더 천천히 따라갑니다.",
   "ui.edit": "편집",
   "ui.edit.palette": "팔레트 편집",
   "ui.edit.settings": "설정 편집",

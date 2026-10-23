@@ -371,6 +371,8 @@
   "ui.duration.milliseconds": "Duración (milisegundos)",
   "ui.duration.milliseconds.label": "Duración (milisegundos):",
   "ui.dynamics": "Dinámica",
+  "ui.slow.tracking": "Seguimiento lento",
+  "ui.slow.tracking.description": "Suaviza el temblor del puntero. Los valores altos siguen el cursor más despacio.",
   "ui.edit": "Editar",
   "ui.edit.palette": "Editar paleta",
   "ui.edit.settings": "Editar ajustes",

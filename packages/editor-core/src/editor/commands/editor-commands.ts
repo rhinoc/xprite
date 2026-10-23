@@ -2,7 +2,7 @@ import type { Point } from "$/base/primitives";
 import { DocumentViewTarget } from "$/canvas/document-view-preferences";
 import { DocumentShowOption } from "$/canvas/types";
 import { fitScreenZoom, stepZoom } from "$/canvas/view";
-import { AsepriteInk } from "$/drawing/tool-settings";
+import { PaintInk } from "$/drawing/tool-settings";
 import type { EditorCommand } from "$/editor/commands/types";
 import type { RasterEditor } from "$/editor/RasterEditor";
 import type { EditorSnapshot } from "$/editor/types";
@@ -420,7 +420,7 @@ export function executeEditorCommand(
       break;
     case "swap-colors":
       core.drawing.settings.setSettings({
-        ...(state.settings.ink === AsepriteInk.Shading
+        ...(state.settings.ink === PaintInk.Shading
           ? {
               shade: state.settings.shade?.slice().reverse(),
               shadeIndices: state.settings.shadeIndices?.slice().reverse(),

@@ -1,70 +1,100 @@
 import type { PointerInput } from "$/base/pointer-input";
 import type { Brush, Point } from "$/base/primitives";
 import { line } from "$/canvas/raster/geometry";
-import { AsepriteDynamicSensor, type AsepriteDynamicsSettings } from "$/drawing/tool-settings";
+import {
+  MAX_STROKE_DTIME_SECONDS,
+  SPEED1_SOFT_MAX,
+  SPEED1_SOFT_MIN,
+  dynamicColorMix,
+  dynamicStampAngle,
+  dynamicStampSize,
+  normSpeed,
+  pressureInput,
+  slowTrackingPosition,
+  smoothNormSpeed,
+  speed1Input,
+  strokeDtimeSeconds,
+} from "$/drawing/mypaint-dynamics";
+import { BrushDynamicInput, type BrushDynamicsSettings } from "$/drawing/tool-settings";
 import { clamp } from "@xprite/bedrock/common/clamp";
+
 const f = Math.fround;
-/** Normalize a pointer sensor to the configured interval. */
-export function sensorThreshold(value: number, min: number, max: number): number {
-  if (!Number.isFinite(value) || !Number.isFinite(min) || !Number.isFinite(max)) return 0;
-  if (min >= max) return value < min ? 0 : 1;
-  return clamp((value - min) / (max - min), 0, 1);
-}
+
 export interface DynamicBrushSample {
   brush: Brush;
   gradient: number;
 }
-/** Keep pointer pressure, screen motion, and canvas smoothing state for a stroke.
- * The first move establishes the velocity origin; Shift can disable smoothing. */
+
+function pixelTarget(input: PointerInput): Point {
+  return { x: Math.floor(input.x), y: Math.floor(input.y) };
+}
+
+/**
+ * Keep libmypaint pressure, fine speed, and slow tracking for one stroke.
+ * Speed is sampled from the smoothed value before this step is folded in,
+ * which is the order in `update_states_and_setting_values`.
+ * Devices without a stylus axis hold pressure at 1 so the stamp stays on the
+ * brush size at the top of the curve. Pen and eraser use the reported pressure.
+ */
 export class StrokeDynamics {
   revision = 0;
   private last: PointerInput;
-  private velocity: Point = { x: 0, y: 0 };
-  private velocityStarted = false;
   private center: Point;
-  private stabilizerDisabled: boolean;
+  private point: Point;
+  private smoothedNormSpeed = 0;
+  private sampledNormSpeed = 0;
+  private trackingDisabled: boolean;
   private releasing = false;
+
   constructor(
     input: PointerInput,
-    readonly settings?: AsepriteDynamicsSettings,
+    readonly settings?: BrushDynamicsSettings,
   ) {
     this.last = input;
-    this.center = { x: Math.floor(input.x), y: Math.floor(input.y) };
-    this.stabilizerDisabled = !!input.shift;
+    this.point = pixelTarget(input);
+    this.center = { ...this.point };
+    this.trackingDisabled = !!input.shift;
   }
-  disableStabilizer() {
-    this.stabilizerDisabled = true;
+
+  disableSlowTracking() {
+    this.trackingDisabled = true;
   }
+
   update(input: PointerInput): Point {
     const same = this.last.x === input.x && this.last.y === input.y;
     if (this.releasing && same) {
       this.releasing = false;
-      return { x: Math.trunc(this.center.x) || 0, y: Math.trunc(this.center.y) || 0 };
+      return { ...this.point };
     }
     this.releasing = false;
     this.revision++;
-    const elapsed = Math.max(0, (input.timeStamp ?? 0) - (this.last.timeStamp ?? 0));
-    const weight = clamp(elapsed / 50, 0, 1),
-      p = input.screen ?? input,
-      prev = this.last.screen ?? this.last;
-    if (this.velocityStarted)
-      this.velocity = {
-        x: f(this.velocity.x + (Math.trunc(p.x) - Math.trunc(prev.x) - this.velocity.x) * weight),
-        y: f(this.velocity.y + (Math.trunc(p.y) - Math.trunc(prev.y) - this.velocity.y) * weight),
-      };
-    else this.velocityStarted = true;
+    const target = pixelTarget(input);
+    const dtime = strokeDtimeSeconds(this.last.timeStamp, input.timeStamp);
+    if (dtime > MAX_STROKE_DTIME_SECONDS) {
+      this.center = target;
+      this.point = target;
+      this.smoothedNormSpeed = 0;
+      this.sampledNormSpeed = 0;
+      this.last = input;
+      return { ...this.point };
+    }
+    const amount =
+      this.settings?.slowTracking && !this.trackingDisabled ? this.settings.slowTrackingAmount : 0;
+    this.center =
+      amount > 0
+        ? slowTrackingPosition(this.center.x, this.center.y, target.x, target.y, amount, dtime)
+        : target;
+    this.point =
+      amount > 0 ? { x: Math.round(this.center.x), y: Math.round(this.center.y) } : target;
+    const current = input.screen ?? input;
+    const previous = this.last.screen ?? this.last;
+    const physical = normSpeed(current.x - previous.x, current.y - previous.y, dtime);
+    this.sampledNormSpeed = this.smoothedNormSpeed;
+    this.smoothedNormSpeed = smoothNormSpeed(this.smoothedNormSpeed, physical, dtime);
     this.last = input;
-    const x = Math.floor(input.x),
-      y = Math.floor(input.y),
-      factor =
-        this.settings?.stabilizer && !this.stabilizerDisabled ? this.settings.stabilizerFactor : 0;
-    if (factor > 0) {
-      const dx = Math.trunc(f(x - this.center.x)),
-        dy = Math.trunc(f(y - this.center.y));
-      this.center = { x: f(this.center.x + dx / factor), y: f(this.center.y + dy / factor) };
-    } else this.center = { x, y };
-    return { x: Math.trunc(this.center.x) || 0, y: Math.trunc(this.center.y) || 0 };
+    return { ...this.point };
   }
+
   releaseInput(input: PointerInput): PointerInput {
     this.releasing = true;
     return {
@@ -75,53 +105,54 @@ export class StrokeDynamics {
       screen: this.last.screen,
     };
   }
-  private sensors() {
-    const s = this.settings;
-    if (!s) return { pressure: 1, velocity: 0 };
-    const hasPressure = this.last.pointerType === "pen" || this.last.pointerType === "eraser";
-    return {
-      pressure:
-        hasPressure && Number.isFinite(this.last.pressure)
-          ? sensorThreshold(this.last.pressure!, s.minPressureThreshold, s.maxPressureThreshold)
-          : 1,
-      velocity: sensorThreshold(
-        clamp(Math.hypot(this.velocity.x, this.velocity.y) / 32, 0, 1),
-        s.minVelocityThreshold,
-        s.maxVelocityThreshold,
-      ),
-    };
+
+  private pressure(): number {
+    const stylus = this.last.pointerType === "pen" || this.last.pointerType === "eraser";
+    const reported = stylus
+      ? Number.isFinite(this.last.pressure)
+        ? Math.max(0, this.last.pressure!)
+        : 1
+      : 1;
+    return pressureInput(reported);
   }
+
+  private parameter(
+    mode: BrushDynamicInput,
+    min: number,
+    max: number,
+    kind: "size" | "angle" | "color",
+  ): number {
+    if (mode === BrushDynamicInput.Off) return kind === "color" ? 0 : max;
+    const pressure = mode === BrushDynamicInput.Pressure;
+    const input = pressure ? this.pressure() : speed1Input(this.sampledNormSpeed);
+    const low = pressure ? 0 : SPEED1_SOFT_MIN;
+    const high = pressure ? 1 : SPEED1_SOFT_MAX;
+    if (kind === "size") return dynamicStampSize(input, low, high, min, max);
+    if (kind === "angle") return dynamicStampAngle(input, low, high, min, max);
+    return dynamicColorMix(input, low, high);
+  }
+
   gradient(): number {
-    const s = this.settings;
-    if (!s || s.gradient === AsepriteDynamicSensor.Static) return 0;
-    const values = this.sensors();
-    return s.gradient === AsepriteDynamicSensor.Pressure ? values.pressure : values.velocity;
+    const settings = this.settings;
+    if (!settings) return 0;
+    return this.parameter(settings.color, 0, 1, "color");
   }
+
   sample(base: Brush): DynamicBrushSample {
     return { brush: this.brush(base), gradient: this.gradient() };
   }
+
   brush(base: Brush): Brush {
-    const s = this.settings;
-    if (!s) return base;
-    const values = this.sensors();
-    const value = (mode: string, min: number, max: number) => {
-      if (
-        mode === AsepriteDynamicSensor.Static ||
-        (mode === AsepriteDynamicSensor.Pressure &&
-          this.last.pointerType !== "pen" &&
-          this.last.pointerType !== "eraser")
-      )
-        return max;
-      const t = mode === AsepriteDynamicSensor.Pressure ? values.pressure : values.velocity;
-      return Math.trunc(min + (max - min) * t) || 0;
-    };
+    const settings = this.settings;
+    if (!settings) return base;
     return {
       ...base,
-      size: clamp(value(s.size, s.minSize, base.size), 1, 64),
-      angle: clamp(value(s.angle, s.minAngle, base.angle), -180, 180),
+      size: this.parameter(settings.size, settings.minSize, base.size, "size"),
+      angle: this.parameter(settings.angle, settings.minAngle, base.angle, "angle"),
     };
   }
 }
+
 /** Interpolate brush controls by distance along the integer centerline. */
 export function interpolateDynamicStroke(
   from: Point,
@@ -153,6 +184,7 @@ export function interpolateDynamicStroke(
     stamp({ x, y }, sample);
   });
 }
+
 export function interpolateBrushStroke(
   from: Point,
   to: Point,

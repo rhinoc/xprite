@@ -94,7 +94,7 @@ import {
   isTwoPointShape,
   getXpriteToolCapabilities,
   timelineWheelFrameIndex,
-  AsepriteInk,
+  PaintInk,
   UINT8_MAX,
 } from "$/managers/canvas/canvas-presentation";
 import { useColorSource } from "$/managers/colors/color-sources";
@@ -1262,7 +1262,7 @@ export function EditorCanvas({
       const activeTimelineLayer = doc?.timeline?.layers[doc.timeline.activeLayer];
       const transparentLayer = !activeTimelineLayer || !isBackgroundLayer(activeTimelineLayer);
       const transparentInk =
-        transparentLayer && brushColor?.[3] === 0 && state.settings.ink !== AsepriteInk.Shading;
+        transparentLayer && brushColor?.[3] === 0 && state.settings.ink !== PaintInk.Shading;
       const rawCursorPoint =
         state.pointer && doc && pointerScreen
           ? screenToDocument(pointerScreen, v, doc, state.view)

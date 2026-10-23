@@ -51,7 +51,7 @@ export {
   tiledCanvasLayout,
   tileNumberLabels,
   syncAsepriteSelectionAnts,
-  AsepriteInk,
+  PaintInk,
   SelectionMode,
   canMoveSelectionPixels,
   canTransformTimelineSelection,

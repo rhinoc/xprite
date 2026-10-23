@@ -7,9 +7,9 @@ import {
   GradientType,
   INT16_MAX,
   INT16_MIN,
-  AsepriteDynamicSensor,
-  AsepriteDynamicsColorDirection,
-  AsepriteInk,
+  BrushDynamicInput,
+  BrushColorOrder,
+  PaintInk,
   PaletteOperation,
   PixelResizeMethod,
   SelectionMode,
@@ -35,8 +35,8 @@ export type BrushPickerImage = BrushImage;
 export type ToolColor = Rgba;
 export const BrushImagePatternChoice = BrushImagePattern;
 export type BrushImagePatternChoice = BrushImagePattern;
-export const ToolInk = AsepriteInk;
-export type ToolInk = AsepriteInk;
+export const ToolInk = PaintInk;
+export type ToolInk = PaintInk;
 export const ToolSelectionMode = SelectionMode;
 export type ToolSelectionMode = SelectionMode;
 export const ToolSelectionModifier = SelectionModifier;
@@ -57,10 +57,10 @@ export const ToolEyedropperChannel = EyedropperChannel;
 export type ToolEyedropperChannel = EyedropperChannel;
 export const ToolEyedropperSample = EyedropperSample;
 export type ToolEyedropperSample = EyedropperSample;
-export const DynamicsSensorControl = AsepriteDynamicSensor;
-export type DynamicsSensorControl = AsepriteDynamicSensor;
-export const DynamicsColorFlow = AsepriteDynamicsColorDirection;
-export type DynamicsColorFlow = AsepriteDynamicsColorDirection;
+export const DynamicsSensorControl = BrushDynamicInput;
+export type DynamicsSensorControl = BrushDynamicInput;
+export const DynamicsColorFlow = BrushColorOrder;
+export type DynamicsColorFlow = BrushColorOrder;
 export const PaletteMenuOperation = PaletteOperation;
 export type PaletteMenuOperation = PaletteOperation;
 export const ContextBarResizeMethod = PixelResizeMethod;

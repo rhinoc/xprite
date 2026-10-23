@@ -12,7 +12,7 @@ import {
 } from "$/selection/types";
 import type { TilemapDisplayMode, TilesetMode } from "$/tilemap/types";
 
-export enum AsepriteInk {
+export enum PaintInk {
   Simple = "simple",
   AlphaCompositing = "alpha-compositing",
   CopyColor = "copy-color",
@@ -35,31 +35,33 @@ export enum RightClickMode {
   SelectLayerAndMove = "select-layer-and-move",
 }
 
-export enum AsepriteDynamicSensor {
-  Static = "static",
+/** Which libmypaint input drives a stamp parameter. */
+export enum BrushDynamicInput {
+  Off = "off",
   Pressure = "pressure",
-  Velocity = "velocity",
+  Speed = "speed",
 }
 
-export enum AsepriteDynamicsColorDirection {
-  BackgroundToForeground = "bg-to-fg",
-  ForegroundToBackground = "fg-to-bg",
+export enum BrushColorOrder {
+  BackgroundToForeground = "background-to-foreground",
+  ForegroundToBackground = "foreground-to-background",
 }
 
-export interface AsepriteDynamicsSettings {
-  stabilizer: boolean;
-  stabilizerFactor: number;
-  size: AsepriteDynamicSensor;
-  angle: AsepriteDynamicSensor;
-  gradient: AsepriteDynamicSensor;
+export interface BrushDynamicsSettings {
+  /** When true, libmypaint slow tracking follows the pointer. */
+  slowTracking: boolean;
+  /** `slow_tracking` base value, from 0 through 10. */
+  slowTrackingAmount: number;
+  size: BrushDynamicInput;
+  angle: BrushDynamicInput;
+  color: BrushDynamicInput;
+  /** Stamp size at the low end of the active input. The brush size is the high end. */
   minSize: number;
+  /** Stamp angle at the low end of the active input. The brush angle is the high end. */
   minAngle: number;
-  minPressureThreshold: number;
-  maxPressureThreshold: number;
-  minVelocityThreshold: number;
-  maxVelocityThreshold: number;
-  colorFromTo: AsepriteDynamicsColorDirection;
-  matrixName: string;
+  colorOrder: BrushColorOrder;
+  /** Ordered-dither pattern name. Empty blends the two colors directly. */
+  ditherMatrix: string;
 }
 
 export enum EditorToolId {
@@ -112,8 +114,8 @@ export interface ToolSettings {
   symmetryEnabled?: boolean;
   shade?: readonly Rgba[];
   shadeIndices?: readonly number[];
-  ink?: AsepriteInk;
-  dynamics?: AsepriteDynamicsSettings;
+  ink?: PaintInk;
+  dynamics?: BrushDynamicsSettings;
   selectionMode?: SelectionMode;
   selectionOpaque?: boolean;
   selectionAutoOpaque?: boolean;

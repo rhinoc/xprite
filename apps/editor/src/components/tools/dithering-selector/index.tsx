@@ -53,7 +53,7 @@ function bayerThreshold(size: number, x: number, y: number): number {
   );
 }
 
-/** Aseprite's preview-bearing dynamics matrix selector. */
+/** Preview-bearing dither matrix selector for brush color dynamics. */
 export function DitheringSelector({
   bounds,
   relativeTo = { x: 0, y: 0 },

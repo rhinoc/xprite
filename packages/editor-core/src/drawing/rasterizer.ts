@@ -44,9 +44,9 @@ import { roundedRectanglePixels } from "$/drawing/shapes/rounded-rectangle";
 import { paintText } from "$/drawing/text/text";
 import {
   FillReference,
-  AsepriteDynamicSensor,
-  AsepriteInk,
-  type AsepriteDynamicsSettings,
+  BrushDynamicInput,
+  PaintInk,
+  type BrushDynamicsSettings,
   type ToolSettings,
 } from "$/drawing/tool-settings";
 import { GradientDither, GradientType } from "$/drawing/types";
@@ -76,8 +76,8 @@ export interface DrawingRasterSettings {
   background: Rgba;
   foregroundIndex?: number | null;
   backgroundIndex?: number | null;
-  ink?: AsepriteInk;
-  dynamics?: AsepriteDynamicsSettings;
+  ink?: PaintInk;
+  dynamics?: BrushDynamicsSettings;
   shade?: readonly Rgba[];
   shadeIndices?: readonly number[];
   opacity: number;
@@ -231,7 +231,7 @@ function workingBrushColor(
   color: Rgba,
   target: DrawingRasterPaintTarget,
   preferredIndex?: number,
-  ink?: AsepriteInk,
+  ink?: PaintInk,
 ): Rgba {
   const palette = target.framePalette ?? target.palette;
   if (target.colorDepth === 16) {
@@ -249,7 +249,7 @@ function workingBrushColor(
     if (
       index === (target.transparentIndex ?? 0) &&
       !target.backgroundLayer &&
-      ink !== AsepriteInk.LockAlpha
+      ink !== PaintInk.LockAlpha
     )
       return [0, 0, 0, 0];
     return palette[index];
@@ -295,7 +295,7 @@ export class DrawingRasterizer {
         !supportsPixelPerfect({ tool: settings.tool })
       )
         return undefined;
-      const ink = settings.ink ?? AsepriteInk.AlphaCompositing;
+      const ink = settings.ink ?? PaintInk.AlphaCompositing;
       if (!getXpriteToolCapabilities(settings.tool).settings.hasInk)
         return this.ports.tilemap!.createAsepriteIndexWriter();
       const color = button === 2 ? settings.background : settings.foreground;
@@ -307,7 +307,7 @@ export class DrawingRasterizer {
           : (settings.foregroundIndex ?? undefined),
       );
       const preferred =
-        ink === AsepriteInk.AlphaCompositing &&
+        ink === PaintInk.AlphaCompositing &&
         index === target.transparentIndex &&
         !target.backgroundLayer
           ? undefined
@@ -316,15 +316,15 @@ export class DrawingRasterizer {
             : undefined;
       return this.ports.tilemap!.createAsepriteIndexWriter(
         preferred,
-        ink === AsepriteInk.LockAlpha ? "bestfit" : "octree",
+        ink === PaintInk.LockAlpha ? "bestfit" : "octree",
       );
     }
 
     if (target.colorDepth !== 8) return undefined;
-    const ink = settings.ink ?? AsepriteInk.AlphaCompositing;
+    const ink = settings.ink ?? PaintInk.AlphaCompositing;
     if (!getXpriteToolCapabilities(settings.tool).settings.hasInk)
       return this.ports.asepriteIndexWriter.create();
-    if (ink === AsepriteInk.Shading)
+    if (ink === PaintInk.Shading)
       return this.ports.asepriteIndexWriter.createShading(
         button === 2 ? "right" : "left",
         settings.shade,
@@ -339,30 +339,29 @@ export class DrawingRasterizer {
         : (settings.foregroundIndex ?? undefined),
     );
     if (
-      ink === AsepriteInk.AlphaCompositing &&
+      ink === PaintInk.AlphaCompositing &&
       index === target.transparentIndex &&
       !target.backgroundLayer
     )
       return undefined;
     return this.ports.asepriteIndexWriter.create(
       this.hasDirectIndex(settings, ink, index, target) ? index : undefined,
-      ink === AsepriteInk.LockAlpha ? "bestfit" : "octree",
+      ink === PaintInk.LockAlpha ? "bestfit" : "octree",
     );
   }
 
   private hasDirectIndex(
     settings: DrawingRasterSettings,
-    ink: AsepriteInk,
+    ink: PaintInk,
     index: number | undefined,
     target: DrawingRasterPaintTarget,
   ): boolean {
     const palette = target.framePalette ?? target.palette;
     return (
-      (settings.dynamics?.gradient ?? AsepriteDynamicSensor.Static) ===
-        AsepriteDynamicSensor.Static &&
-      (ink === AsepriteInk.Simple ||
-        ink === AsepriteInk.CopyColor ||
-        (ink === AsepriteInk.AlphaCompositing &&
+      (settings.dynamics?.color ?? BrushDynamicInput.Off) === BrushDynamicInput.Off &&
+      (ink === PaintInk.Simple ||
+        ink === PaintInk.CopyColor ||
+        (ink === PaintInk.AlphaCompositing &&
           settings.opacity === UINT8_MAX &&
           index !== undefined &&
           palette?.[index]?.[3] === UINT8_MAX))
@@ -473,10 +472,9 @@ export class DrawingRasterizer {
       ink:
         target.colorDepth === 8 &&
         baseBrush.shape !== "image" &&
-        settings.ink === AsepriteInk.Simple &&
-        (settings.dynamics?.gradient ?? AsepriteDynamicSensor.Static) ===
-          AsepriteDynamicSensor.Static
-          ? AsepriteInk.CopyColor
+        settings.ink === PaintInk.Simple &&
+        (settings.dynamics?.color ?? BrushDynamicInput.Off) === BrushDynamicInput.Off
+          ? PaintInk.CopyColor
           : settings.ink,
       indexedPixelWriter: gesture?.indexedPixelWriter as AsepriteIndexWriter | undefined,
       shade: settings.shade,

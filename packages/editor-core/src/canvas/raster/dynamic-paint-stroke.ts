@@ -14,31 +14,34 @@ import {
 } from "$/canvas/raster/stroke-dynamics";
 import type { RasterOptions } from "$/canvas/raster/types";
 import {
-  AsepriteDynamicSensor,
-  AsepriteDynamicsColorDirection,
-  AsepriteInk,
-  type AsepriteDynamicsSettings,
+  BrushColorOrder,
+  BrushDynamicInput,
+  PaintInk,
+  type BrushDynamicsSettings,
 } from "$/drawing/tool-settings";
 
 import { blurStroke, eraseStroke, normalBlend, paintStroke, samplePixel } from ".";
 
-const f = Math.fround;
 const overlapRevisions = new WeakMap<Map<string, Rgba>, number>();
 export function dynamicDitherSize(name: string): number {
   return name.includes("8x8") ? 8 : name.includes("4x4") ? 4 : name.includes("2x2") ? 2 : 1;
 }
-export function dynamicBayer(size: number, x: number, y: number): number {
+/** Classic Bayer index. The 2×2 kernel is the standard ordered-dither recurrence. */
+function bayerIndex(size: number, x: number, y: number): number {
   x = ((x % size) + size) % size;
   y = ((y % size) + size) % size;
   if (size === 1) return 0;
   const half = size / 2;
   return (
-    4 * dynamicBayer(half, x % half, y % half) +
+    4 * bayerIndex(half, x % half, y % half) +
     [
       [0, 2],
       [3, 1],
     ][Math.floor(y / half)][Math.floor(x / half)]
   );
+}
+function bayerThreshold(size: number, x: number, y: number): number {
+  return (bayerIndex(size, x, y) + 0.5) / (size * size);
 }
 /** Interpolate a gradient ramp. When one endpoint is fully transparent, use
  * the visible endpoint's RGB throughout that fade to avoid hidden-color fringes. */
@@ -97,21 +100,21 @@ export class DynamicPaintStroke {
     if (!points.length) return { dirty: null };
     this.colors ??= { primary: options.color, secondary };
     const settings = dynamics.settings,
-      active = settings?.gradient !== AsepriteDynamicSensor.Static && !!settings;
-    const size = active ? dynamicDitherSize(settings.matrixName) : 1;
+      active = settings?.color !== BrushDynamicInput.Off && !!settings;
+    const size = active ? dynamicDitherSize(settings.ditherMatrix) : 1;
     if (active && tool !== "eraser" && overlapRevisions.get(this.original) !== dynamics.revision) {
       this.original.clear();
       overlapRevisions.set(this.original, dynamics.revision);
     }
     const ink =
-      options.ink === AsepriteInk.Simple
+      options.ink === PaintInk.Simple
         ? this.colors.primary[3] === 0
-          ? AsepriteInk.CopyColor
-          : AsepriteInk.AlphaCompositing
+          ? PaintInk.CopyColor
+          : PaintInk.AlphaCompositing
         : options.ink;
-    const opacity = options.ink === AsepriteInk.Simple ? UINT8_MAX : (options.opacity ?? UINT8_MAX);
+    const opacity = options.ink === PaintInk.Simple ? UINT8_MAX : (options.opacity ?? UINT8_MAX);
     const [a, b] =
-      settings?.colorFromTo === AsepriteDynamicsColorDirection.ForegroundToBackground
+      settings?.colorOrder === BrushColorOrder.ForegroundToBackground
         ? [this.colors.primary, this.colors.secondary]
         : [this.colors.secondary, this.colors.primary];
     const origin = options.patternOrigin ?? { x: 0, y: 0 };
@@ -146,21 +149,19 @@ export class DynamicPaintStroke {
         // patternImage() aligns Bayer cells in destination image coordinates.
         opts = {
           ...opts,
-          ink: AsepriteInk.CopyColor,
+          ink: PaintInk.CopyColor,
           sourcePixel: undefined,
           colorAt: (x, y) => {
             const src = sourcePixel(x, y),
               dst = samplePixel(image, { x, y }),
-              c = f(f(value) * (size * size + 1)) < dynamicBayer(size, x, y) + 1 ? a : b;
-            if (ink === AsepriteInk.CopyColor) return c[3] ? c : dst;
-            if (ink === AsepriteInk.Shading)
+              c = value >= bayerThreshold(size, x, y) ? b : a;
+            if (ink === PaintInk.CopyColor) return c[3] ? c : dst;
+            if (ink === PaintInk.Shading)
               return c[3] && options.shade?.some((s) => s.every((v, i) => v === c[i]))
                 ? shadePixel(src, options.shade, options.shadeDirection)
                 : dst;
             const result = normalBlend(dst, c, opacity);
-            return ink === AsepriteInk.LockAlpha
-              ? [result[0], result[1], result[2], src[3]]
-              : result;
+            return ink === PaintInk.LockAlpha ? [result[0], result[1], result[2], src[3]] : result;
           },
         };
       }
@@ -188,7 +189,7 @@ export class DynamicPaintStroke {
     const next = dynamics.sample(baseBrush);
     // Dynamics are sampled per stroke point. A changing line-brush angle
     // makes the stamp footprint vary while the path is being simplified.
-    const dynamicAngle = !!settings && settings.angle !== AsepriteDynamicSensor.Static;
+    const dynamicAngle = !!settings && settings.angle !== BrushDynamicInput.Off;
     // A moving line-brush angle keeps every center. For a static line brush,
     // PixelPerfectPath checks whether adjacent stamps cover a removed center.
     const supportsDynamicPixelPerfect =
@@ -265,11 +266,11 @@ export class DynamicPaintStroke {
     return { dirty };
   }
 }
-export function usesDynamicBrush(settings: AsepriteDynamicsSettings | undefined): boolean {
+export function usesDynamicBrush(settings: BrushDynamicsSettings | undefined): boolean {
   return (
     !!settings &&
-    (settings.size !== AsepriteDynamicSensor.Static ||
-      settings.angle !== AsepriteDynamicSensor.Static ||
-      settings.gradient !== AsepriteDynamicSensor.Static)
+    (settings.size !== BrushDynamicInput.Off ||
+      settings.angle !== BrushDynamicInput.Off ||
+      settings.color !== BrushDynamicInput.Off)
   );
 }

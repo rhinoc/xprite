@@ -14,7 +14,7 @@ import { brushMask, line, polygon } from "$/canvas/raster/geometry";
 import { shadePixel } from "$/canvas/raster/shading";
 import type { RasterOptions } from "$/canvas/raster/types";
 import { projectTiledPixel } from "$/canvas/tiled-canvas";
-import { AsepriteInk } from "$/drawing/tool-settings";
+import { PaintInk } from "$/drawing/tool-settings";
 
 export type { RasterOptions } from "$/canvas/raster/types";
 export {
@@ -49,11 +49,11 @@ export function inkBlend(
   ink: RasterOptions["ink"],
   options?: Pick<RasterOptions, "shade" | "shadeDirection">,
 ): Rgba {
-  if (ink === AsepriteInk.Shading)
+  if (ink === PaintInk.Shading)
     return shadePixel(background, options?.shade, options?.shadeDirection);
-  if (ink === AsepriteInk.CopyColor || (ink === AsepriteInk.Simple && color[3] === 0)) return color;
-  const result = normalBlend(background, color, ink === AsepriteInk.Simple ? UINT8_MAX : opacity);
-  return ink === AsepriteInk.LockAlpha ? [result[0], result[1], result[2], background[3]] : result;
+  if (ink === PaintInk.CopyColor || (ink === PaintInk.Simple && color[3] === 0)) return color;
+  const result = normalBlend(background, color, ink === PaintInk.Simple ? UINT8_MAX : opacity);
+  return ink === PaintInk.LockAlpha ? [result[0], result[1], result[2], background[3]] : result;
 }
 export function mergeBlend(b: Rgba, s: Rgba, opacity: number): Rgba {
   const a = b[3] + mulUn8(s[3] - b[3], opacity);
@@ -673,7 +673,7 @@ function paintBrushPixel(
       color[3] === UINT8_MAX
         ? source.paletteIndex
         : undefined;
-    if (options.ink === AsepriteInk.CopyColor) {
+    if (options.ink === PaintInk.CopyColor) {
       // Aseprite's image Copy ink leaves transparent RGB/Grayscale source
       // pixels untouched and copies opaque/semitransparent source pixels.
       const copyPixel = source.indexedSource ? !source.transparent : color[3] !== 0;
@@ -684,7 +684,7 @@ function paintBrushPixel(
           color,
           options.indexedPixelWriter && source.indexedSource ? source.paletteIndex : undefined,
         );
-    } else if (options.ink === AsepriteInk.LockAlpha) {
+    } else if (options.ink === PaintInk.LockAlpha) {
       const blended = normalBlend(destination, color, opacity);
       const destinationIndex = options.indexedPixelWriter?.read(x, y);
       const preserveIndex =
@@ -699,7 +699,7 @@ function paintBrushPixel(
         [blended[0], blended[1], blended[2], destination[3]],
         preserveIndex ? paletteIndex : undefined,
       );
-    } else if (options.ink === AsepriteInk.Shading) {
+    } else if (options.ink === PaintInk.Shading) {
       const shadeMatches =
         !!color[3] &&
         !!options.shade?.some((shade) => shade.every((value, channel) => value === color[channel]));
@@ -1291,8 +1291,8 @@ export function floodFill(
     );
   };
   const solid =
-    options.ink !== AsepriteInk.LockAlpha &&
-    options.ink !== AsepriteInk.Shading &&
+    options.ink !== PaintInk.LockAlpha &&
+    options.ink !== PaintInk.Shading &&
     !options.colorAt &&
     options.color[3] === UINT8_MAX &&
     opacity === UINT8_MAX;

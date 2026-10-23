@@ -1,33 +1,31 @@
 import { UINT8_MAX } from "$/base/numeric-constants";
 import type { Brush, Rgba } from "$/base/primitives";
+import { SLOW_TRACKING_MAX, SLOW_TRACKING_MIN } from "$/drawing/mypaint-dynamics";
 import { MAX_TEXT_FONT_SIZE } from "$/drawing/text/font-settings";
+export { SLOW_TRACKING_ENABLED_AMOUNT, SLOW_TRACKING_MAX } from "$/drawing/mypaint-dynamics";
 import {
-  AsepriteInk,
-  AsepriteDynamicSensor,
-  AsepriteDynamicsColorDirection,
+  PaintInk,
+  BrushDynamicInput,
+  BrushColorOrder,
   EditorToolId,
   FillReference,
-  type AsepriteDynamicsSettings,
+  type BrushDynamicsSettings,
   type EditorTool,
   type ToolSettings,
 } from "$/drawing/tool-settings";
 import { EyedropperChannel, EyedropperSample } from "$/drawing/types";
 import { SelectionPivotPosition, SelectionRotationAlgorithm } from "$/selection/types";
 
-export const DEFAULT_DYNAMICS_SETTINGS: Readonly<AsepriteDynamicsSettings> = {
-  stabilizer: false,
-  stabilizerFactor: 0,
-  size: AsepriteDynamicSensor.Static,
-  angle: AsepriteDynamicSensor.Static,
-  gradient: AsepriteDynamicSensor.Static,
+export const DEFAULT_DYNAMICS_SETTINGS: Readonly<BrushDynamicsSettings> = {
+  slowTracking: false,
+  slowTrackingAmount: SLOW_TRACKING_MIN,
+  size: BrushDynamicInput.Off,
+  angle: BrushDynamicInput.Off,
+  color: BrushDynamicInput.Off,
   minSize: 1,
-  minAngle: 1,
-  minPressureThreshold: 0.1,
-  maxPressureThreshold: 0.9,
-  minVelocityThreshold: 0.1,
-  maxVelocityThreshold: 0.9,
-  colorFromTo: AsepriteDynamicsColorDirection.BackgroundToForeground,
-  matrixName: "",
+  minAngle: 0,
+  colorOrder: BrushColorOrder.BackgroundToForeground,
+  ditherMatrix: "",
 };
 
 export type ToolParameterPreferences = Pick<
@@ -68,7 +66,7 @@ const BOOLEAN_SETTINGS = [
   "symmetryEnabled",
 ] as const;
 const ENUM_SETTINGS = {
-  ink: AsepriteInk,
+  ink: PaintInk,
   fillReference: FillReference,
   eyedropperChannel: EyedropperChannel,
   eyedropperSample: EyedropperSample,
@@ -120,35 +118,25 @@ function color(value: unknown): Rgba | undefined {
       ) as unknown as Rgba)
     : undefined;
 }
-export function normalizeDynamicsSettings(value: unknown): AsepriteDynamicsSettings {
+export function normalizeDynamicsSettings(value: unknown): BrushDynamicsSettings {
   const source = record(value);
   const next = { ...DEFAULT_DYNAMICS_SETTINGS };
-  if (typeof source.stabilizer === "boolean") next.stabilizer = source.stabilizer;
-  for (const key of ["size", "angle", "gradient"] as const)
-    if (Object.values(AsepriteDynamicSensor).includes(source[key] as AsepriteDynamicSensor))
-      next[key] = source[key] as AsepriteDynamicSensor;
-  if (
-    Object.values(AsepriteDynamicsColorDirection).includes(
-      source.colorFromTo as AsepriteDynamicsColorDirection,
-    )
-  )
-    next.colorFromTo = source.colorFromTo as AsepriteDynamicsColorDirection;
-  for (const key of [
-    "minPressureThreshold",
-    "maxPressureThreshold",
-    "minVelocityThreshold",
-    "maxVelocityThreshold",
-  ] as const)
-    next[key] = finite(source[key], 0, 1) ?? next[key];
-  next.stabilizerFactor = Math.round(
-    finite(source.stabilizerFactor, 0, 64) ?? next.stabilizerFactor,
+  if (typeof source.slowTracking === "boolean") next.slowTracking = source.slowTracking;
+  for (const key of ["size", "angle", "color"] as const)
+    if (Object.values(BrushDynamicInput).includes(source[key] as BrushDynamicInput))
+      next[key] = source[key] as BrushDynamicInput;
+  if (Object.values(BrushColorOrder).includes(source.colorOrder as BrushColorOrder))
+    next.colorOrder = source.colorOrder as BrushColorOrder;
+  next.slowTrackingAmount = Math.round(
+    finite(source.slowTrackingAmount, SLOW_TRACKING_MIN, SLOW_TRACKING_MAX) ??
+      next.slowTrackingAmount,
   );
   next.minSize = Math.round(finite(source.minSize, 1, MAX_BRUSH_SIZE) ?? next.minSize);
   next.minAngle = Math.round(
     finite(source.minAngle, -MAX_BRUSH_ANGLE, MAX_BRUSH_ANGLE) ?? next.minAngle,
   );
-  if (typeof source.matrixName === "string")
-    next.matrixName = source.matrixName.slice(0, MAX_MATRIX_NAME_LENGTH);
+  if (typeof source.ditherMatrix === "string")
+    next.ditherMatrix = source.ditherMatrix.slice(0, MAX_MATRIX_NAME_LENGTH);
   return next;
 }
 export function persistentToolSettings(value: unknown): Partial<ToolSettings> {

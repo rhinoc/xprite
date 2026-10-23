@@ -371,6 +371,8 @@
   "ui.duration.milliseconds": "Duration (milliseconds)",
   "ui.duration.milliseconds.label": "Duration (milliseconds):",
   "ui.dynamics": "Dynamics",
+  "ui.slow.tracking": "Slow tracking",
+  "ui.slow.tracking.description": "Smooths shaky pointer movement. Higher values follow the cursor more slowly.",
   "ui.edit": "Edit",
   "ui.edit.palette": "Edit Palette",
   "ui.edit.settings": "Edit Settings",
