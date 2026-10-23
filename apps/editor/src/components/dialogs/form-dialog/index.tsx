@@ -387,8 +387,13 @@ export function FormDialog({
     ) : (
       <>
         {headerActions?.map((action) => {
-          const actionX = client.x + client.width - action.width - 8;
-          const actionY = client.y + (tabs ? (layout?.tabs?.y ?? 0) : action.y);
+          const useRelativePositioning = tabs && !layout?.tabs;
+          const actionX = useRelativePositioning
+            ? client.x + client.width - action.width - 8
+            : client.x + action.x;
+          const actionY = useRelativePositioning
+            ? client.y + (layout?.tabs?.y ?? 0)
+            : client.y + action.y;
           return (
             <Button
               variant={ButtonVariant.FlatIcon}
