@@ -97,6 +97,27 @@ export const ARTICLES: readonly PublicArticle[] = [
     topic: "Editor alternatives",
     dateModified: ARTICLE_UPDATE_DATE,
   },
+  {
+    collection: "compare",
+    slug: "fix-ai-pixel-art",
+    path: "/compare/fix-ai-pixel-art/",
+    title: "Fix AI Pixel Art: Recover the Real Grid | Xprite",
+    shortTitle: {
+      en: "Fix AI pixel art",
+      "zh-CN": "修复 AI 像素画",
+      ja: "AI ドット絵を修正",
+      ko: "AI 픽셀 아트 수정",
+      ru: "Исправить AI пиксель-арт",
+      "pt-BR": "Corrigir pixel art de IA",
+      es: "Corregir pixel art de IA",
+    },
+    description:
+      "Fix soft or AI pixel art that sits off-grid. Recover the real pixel grid free in your browser, then edit in Xprite. Not magic AI—files stay on device.",
+    summary:
+      'Recover Grid rebuilds a true pixel lattice from soft or AI "pixel art"; it is not a generative fixer. Then edit in Xprite or download PNG.',
+    topic: "Converters and grid recovery",
+    dateModified: "2026-10-23",
+  },
 ];
 
 const LOCALIZED_ARTICLES: Partial<

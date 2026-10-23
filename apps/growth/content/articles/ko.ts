@@ -33,4 +33,12 @@ export const KOREAN_ARTICLES = {
       "Pixelorama는 .piskel을 바로 열 수 있고, Xprite는 .aseprite 편집과 터치 드로잉에, Pixilart는 작품 공유에 알맞습니다.",
     topic: "에디터 대안",
   },
+  "fix-ai-pixel-art": {
+    title: "AI 픽셀 아트 고치기: 진짜 격자 복원 | Xprite",
+    description:
+      "격자를 벗어난 흐릿한 AI 픽셀 아트를 고칩니다. 브라우저에서 진짜 픽셀 격자를 무료로 복원한 뒤 Xprite에서 편집하세요. 마법 AI가 아니며 파일은 기기에 남습니다.",
+    summary:
+      "Recover Grid는 부드럽거나 AI 「픽셀 아트」에서 진짜 픽셀 격자를 다시 만듭니다. 생성형 수정이 아닙니다. 이후 Xprite에서 편집하거나 PNG를 받으세요.",
+    topic: "변환과 격자 복원",
+  },
 } as const;

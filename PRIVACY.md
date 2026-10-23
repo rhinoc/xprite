@@ -26,7 +26,7 @@ Submitting the feedback dialog sends your selected type, written content and opt
 
 PostHog retains events according to its [event retention rules](https://posthog.com/docs/data/events-retention). The browser identifier normally remains until you or your browser clear this site's data.
 
-Comparison links can attach one of three fixed article identifiers (`aseprite-online`, `aseprite-on-ipad` or `piskel-alternatives`) to the current editor visit and its actions. Xprite accepts these identifiers only with the fixed comparison source and referral medium. It does not collect arbitrary campaign values, search keywords or raw URL query/hash parameters, and does not save this attribution for later visits.
+Comparison links can attach one of four fixed article identifiers (`aseprite-online`, `aseprite-on-ipad`, `piskel-alternatives` or `fix-ai-pixel-art`) to the current editor visit and its actions. Xprite accepts these identifiers only with the fixed comparison source and referral medium. It does not collect arbitrary campaign values, search keywords or raw URL query/hash parameters, and does not save this attribution for later visits.
 
 ## Your choice
 

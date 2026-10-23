@@ -2,6 +2,7 @@ enum CompareCampaign {
   AsepriteOnline = "aseprite-online",
   AsepriteOnIpad = "aseprite-on-ipad",
   PiskelAlternatives = "piskel-alternatives",
+  FixAiPixelArt = "fix-ai-pixel-art",
 }
 
 const COMPARE_SOURCE = "compare";

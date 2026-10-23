@@ -33,4 +33,12 @@ export const JAPANESE_ARTICLES = {
       "Pixelorama は .piskel をそのまま開けます。Xprite は .aseprite の編集とタッチでの描画に、Pixilart は作品の共有に向いています。",
     topic: "代替エディター",
   },
+  "fix-ai-pixel-art": {
+    title: "AI ドット絵を直す：本物のグリッドを復元 | Xprite",
+    description:
+      "グリッドからズレた・ぼやけた AI ドット絵を修正。ブラウザで本物のピクセルグリッドを無料復元し、Xprite で編集。魔法の AI ではなく、ファイルは端末に残ります。",
+    summary:
+      "Recover Grid は柔らかい／AI の「ドット絵」から本物の格子を再構築します。生成モデルではありません。その後 Xprite で編集するか PNG を保存。",
+    topic: "変換とグリッド復元",
+  },
 } as const;

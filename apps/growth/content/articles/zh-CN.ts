@@ -33,4 +33,12 @@ export const CHINESE_ARTICLES = {
       "Pixelorama 能直接打开 .piskel；Xprite 适合编辑 .aseprite 和触控绘画；Pixilart 适合分享作品。",
     topic: "编辑器替代工具",
   },
+  "fix-ai-pixel-art": {
+    title: "修复 AI 像素画：还原真实网格 | Xprite",
+    description:
+      "修好偏格、发糊的 AI 像素画。在浏览器里免费还原真实像素网格，再进 Xprite 编辑。不是魔法 AI——文件留在本机。",
+    summary:
+      "Recover Grid 从发糊或 AI「像素画」重建真正的像素格子；不是生成式修复。然后在 Xprite 编辑或下载 PNG。",
+    topic: "转换与网格还原",
+  },
 } as const;

@@ -33,4 +33,12 @@ export const SPANISH_ARTICLES = {
       "Pixelorama abre .piskel directamente; Xprite sirve para editar .aseprite y dibujar con el dedo; Pixilart, para compartir tu trabajo.",
     topic: "Editores alternativos",
   },
+  "fix-ai-pixel-art": {
+    title: "Corregir pixel art de IA: recuperar la cuadrícula | Xprite",
+    description:
+      "Arregla pixel art de IA fuera de cuadrícula. Recupera la rejilla real de píxeles gratis en el navegador y edita en Xprite. No es magia de IA.",
+    summary:
+      'Recover Grid reconstruye una rejilla de píxeles real a partir de "pixel art" blando o de IA; no es un arreglo generativo. Luego edita en Xprite o descarga PNG.',
+    topic: "Convertidores y recuperación de cuadrícula",
+  },
 } as const;

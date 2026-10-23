@@ -110,6 +110,7 @@ export enum CompareCampaign {
   AsepriteOnline = "aseprite-online",
   AsepriteOnIpad = "aseprite-on-ipad",
   PiskelAlternatives = "piskel-alternatives",
+  FixAiPixelArt = "fix-ai-pixel-art",
 }
 
 export interface TelemetryAttributionInput {
