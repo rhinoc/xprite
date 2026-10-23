@@ -267,7 +267,7 @@ export function SpriteSheetDialog({
         {
           label: expanded ? "Collapse Sections" : "Show all sections",
           icon: "window_center_icon",
-          x: 518,
+          x: 542,
           y: 0,
           width: 18,
           height: 30,

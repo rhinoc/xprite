@@ -231,7 +231,7 @@ export function FormDialog({
         : [],
     [displayMessage, dialogWidth],
   );
-  const tabHeight = tabs ? 44 : 0;
+  const tabHeight = layout?.tabs?.height ?? (tabs ? 44 : 0);
   const messageHeight = (lines.length ? lines.length * 22 + 12 : 0) + tabHeight;
   const rows = [...new Set(fields.map((field) => field.row ?? field.key))];
   const activeColorField = fields.find(
@@ -453,12 +453,26 @@ export function FormDialog({
           />
         ))}
         {layout?.separators?.map((separator, index) => {
-          const footerY = 8 + messageHeight + rows.length * 44;
-          const actualY = separator.y >= 9999 ? footerY - 16 : separator.y;
+          let actualY = separator.y;
+          if (separator.y < 0) {
+            const footerRowIndex = rows.indexOf("footer");
+            if (footerRowIndex >= 0) {
+              actualY = 8 + messageHeight + footerRowIndex * 44 - 16;
+            } else {
+              const footerY = 8 + messageHeight + rows.length * 44;
+              actualY = footerY - 16;
+            }
+          }
+          const actualWidth = Math.min(separator.width, client.width - separator.x);
           return (
             <Divider
               key={`separator-${index}`}
-              bounds={{ ...separator, x: client.x + separator.x, y: client.y + actualY }}
+              bounds={{
+                ...separator,
+                x: client.x + separator.x,
+                y: client.y + actualY,
+                width: actualWidth,
+              }}
               relativeTo={client}
               text={separator.text}
               vertical={separator.vertical}
