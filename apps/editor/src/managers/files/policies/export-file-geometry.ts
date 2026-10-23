@@ -110,7 +110,7 @@ export function exportFileLayout(
   return layout;
 }
 export const gifOptionsLayout: FormLayout = {
-  height: 290,
+  height: 344,
   initialFocusAction: "OK",
   fields: {
     interlaced: { x: 0, y: 30, width: 524, height: 24, inset: 0 },
