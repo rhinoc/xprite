@@ -452,15 +452,19 @@ export function FormDialog({
             text={line}
           />
         ))}
-        {layout?.separators?.map((separator, index) => (
-          <Divider
-            key={`separator-${index}`}
-            bounds={{ ...separator, x: client.x + separator.x, y: client.y + separator.y }}
-            relativeTo={client}
-            text={separator.text}
-            vertical={separator.vertical}
-          />
-        ))}
+        {layout?.separators?.map((separator, index) => {
+          const footerY = 8 + messageHeight + rows.length * 44;
+          const actualY = separator.y >= 9999 ? footerY - 16 : separator.y;
+          return (
+            <Divider
+              key={`separator-${index}`}
+              bounds={{ ...separator, x: client.x + separator.x, y: client.y + actualY }}
+              relativeTo={client}
+              text={separator.text}
+              vertical={separator.vertical}
+            />
+          );
+        })}
         {fields.map((field) => {
           const row = field.row ?? field.key;
           const peers = fields.filter((item) => (item.row ?? item.key) === row);

@@ -260,7 +260,7 @@ export function SpriteSheetDialog({
       open
       title={initialSource === "tilesets" ? "Tileset" : "Sprite Sheet"}
       helpUrl="https://www.aseprite.org/docs/sprite-sheet/#export"
-      width={560}
+      width={584}
       layout={expanded ? undefined : sourceLayout}
       fields={fields}
       headerActions={[
