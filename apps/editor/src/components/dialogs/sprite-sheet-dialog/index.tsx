@@ -414,7 +414,7 @@ export function ImportSpriteSheetDialog({
       open
       title="Import Sprite Sheet"
       helpUrl="https://www.aseprite.org/docs/sprite-sheet/#import"
-      width={410}
+      width={460}
       layout={layout}
       fields={fields}
       overlay={
