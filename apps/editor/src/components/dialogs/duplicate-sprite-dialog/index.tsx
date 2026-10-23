@@ -51,8 +51,15 @@ export function DuplicateSpriteDialog({
       fields={[
         { key: "duplicate", type: "label", label: "Duplicate:" },
         { key: "source", type: "label", label: sourceName },
-        { key: "as", type: "label", label: "As:" },
-        { key: "destination", type: "text", label: "", value: name, onChange: setName },
+        { key: "as", type: "label", label: "As:", row: "name" },
+        {
+          key: "destination",
+          type: "text",
+          label: "",
+          value: name,
+          onChange: setName,
+          row: "name",
+        },
         {
           key: "flatten",
           type: "checkbox",
