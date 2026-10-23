@@ -373,7 +373,8 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Xprite Fix AI Pixel Art": "Xprite AI ドット絵を修正",
   "Fix AI Pixel Art": "AI ドット絵を修正",
   "Fix AI-generated pixel art": "AI 生成のドット絵を修正",
-  "Fix AI Pixel Art: Recover Real Pixel Grid | Xprite": "AI ドット絵を修正：本物のピクセルグリッドを復元 | Xprite",
+  "Fix AI Pixel Art: Recover Real Pixel Grid | Xprite":
+    "AI ドット絵を修正：本物のピクセルグリッドを復元 | Xprite",
   "Fix AI pixel art": "AI ドット絵を修正",
   "Fix soft or AI-generated pixel art by snapping it to a real pixel grid.":
     "ぼやけた AI 生成のドット絵を本物のピクセルグリッドに吸着させて修正します。",

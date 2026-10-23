@@ -369,7 +369,8 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "Xprite Fix AI Pixel Art": "Xprite AI 픽셀 아트 수정",
   "Fix AI Pixel Art": "AI 픽셀 아트 수정",
   "Fix AI-generated pixel art": "AI 생성 픽셀 아트 수정",
-  "Fix AI Pixel Art: Recover Real Pixel Grid | Xprite": "AI 픽셀 아트 수정: 실제 픽셀 격자 복원 | Xprite",
+  "Fix AI Pixel Art: Recover Real Pixel Grid | Xprite":
+    "AI 픽셀 아트 수정: 실제 픽셀 격자 복원 | Xprite",
   "Fix AI pixel art": "AI 픽셀 아트 수정",
   "Fix soft or AI-generated pixel art by snapping it to a real pixel grid.":
     "흐릿한 AI 생성 픽셀 아트를 실제 픽셀 격자에 맞춰 수정합니다.",
