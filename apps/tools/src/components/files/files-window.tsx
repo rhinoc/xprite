@@ -31,6 +31,7 @@ import { FileEntryKind, type FileEntry } from "$/managers/ports/files";
 import {
   ANIMAL_CROSSING_TOOL,
   BEADS_TOOL,
+  FIX_AI_PIXEL_ART_TOOL,
   GIF_SHEET_TOOL,
   PIXELATE_TOOL,
   VIEWER_TOOL,
@@ -57,7 +58,7 @@ import { layoutSize } from "@xprite/ui/utils";
 
 import styles from "$/components/files/files.module.css";
 
-const FILE_TOOLS = [VIEWER_TOOL, PIXELATE_TOOL, BEADS_TOOL, GIF_SHEET_TOOL, ANIMAL_CROSSING_TOOL];
+const FILE_TOOLS = [VIEWER_TOOL, PIXELATE_TOOL, FIX_AI_PIXEL_ART_TOOL, BEADS_TOOL, GIF_SHEET_TOOL, ANIMAL_CROSSING_TOOL];
 
 /** Preferred size; shared Dialog chrome keeps a viewport edge inset so it never goes flush. */
 const WINDOW_BOUNDS = { x: 0, y: 0, width: 640, height: 420 };

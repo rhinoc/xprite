@@ -10,7 +10,7 @@ import {
   SitePageKind,
   type SitePage,
 } from "../../content/site/pages.ts";
-import { ANIMAL_CROSSING_TOOL, GIF_SHEET_TOOL, BEADS_TOOL } from "../../content/tools/index.ts";
+import { ANIMAL_CROSSING_TOOL, GIF_SHEET_TOOL, BEADS_TOOL, FIX_AI_PIXEL_ART_TOOL } from "../../content/tools/index.ts";
 import { readArticleDocument } from "../pages/article-source.ts";
 
 const SITE_URL = "https://xprite.cc/";
@@ -70,6 +70,7 @@ ${Object.entries(SHOWCASE_PAGES)
 - [Aseprite viewer](${SITE_URL}tools/viewer/): Inspect local .ase and .aseprite files and export PNG or GIF.
 - [Animal Crossing Design Converter](${new URL(ANIMAL_CROSSING_TOOL.path, SITE_URL).href}): Convert PNG images and Aseprite tilemap layers into NookLink QR codes.
 - [GIF to Sprite Sheet](${new URL(GIF_SHEET_TOOL.path, SITE_URL).href}): Convert GIF frames into PNG sheets and JSON frame coordinates and timing.
+- [Fix AI Pixel Art](${new URL(FIX_AI_PIXEL_ART_TOOL.path, SITE_URL).href}): Fix blurry or AI-generated pixel art by recovering the original pixel grid.
 - [Fuse Bead Pattern Maker](${new URL(BEADS_TOOL.path, SITE_URL).href}): Map artwork to MARD, Artkal, Perler or Hama colors and export PNG charts or PDFs with board pages and a material list.
 
 ## User guides

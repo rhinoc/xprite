@@ -2,6 +2,7 @@ import { pickText, PublicLanguage } from "../../growth/content/site/language.ts"
 import {
   ANIMAL_CROSSING_TOOL,
   BEADS_TOOL,
+  FIX_AI_PIXEL_ART_TOOL,
   GIF_SHEET_TOOL,
   PIXELATE_TOOL,
   TOOL_HEADING_ID,
@@ -16,6 +17,7 @@ export const TOOL_BY_ROOT: Readonly<Record<string, PublicTool>> = {
   "viewer-root": VIEWER_TOOL,
   "gif-sheet-root": GIF_SHEET_TOOL,
   "pixelation-root": PIXELATE_TOOL,
+  "fix-ai-root": FIX_AI_PIXEL_ART_TOOL,
   "animal-crossing-root": ANIMAL_CROSSING_TOOL,
   "beads-root": BEADS_TOOL,
 };
