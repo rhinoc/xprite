@@ -7,9 +7,9 @@ import {
   GradientType,
   INT16_MAX,
   INT16_MIN,
-  AsepriteDynamicSensor,
-  AsepriteDynamicsColorDirection,
-  AsepriteInk,
+  DynamicsColorOrder,
+  DynamicsInput,
+  InkMode,
   PaletteOperation,
   PixelResizeMethod,
   SelectionMode,
@@ -35,8 +35,8 @@ export type BrushPickerImage = BrushImage;
 export type ToolColor = Rgba;
 export const BrushImagePatternChoice = BrushImagePattern;
 export type BrushImagePatternChoice = BrushImagePattern;
-export const ToolInk = AsepriteInk;
-export type ToolInk = AsepriteInk;
+export const ToolInk = InkMode;
+export type ToolInk = InkMode;
 export const ToolSelectionMode = SelectionMode;
 export type ToolSelectionMode = SelectionMode;
 export const ToolSelectionModifier = SelectionModifier;
@@ -57,10 +57,10 @@ export const ToolEyedropperChannel = EyedropperChannel;
 export type ToolEyedropperChannel = EyedropperChannel;
 export const ToolEyedropperSample = EyedropperSample;
 export type ToolEyedropperSample = EyedropperSample;
-export const DynamicsSensorControl = AsepriteDynamicSensor;
-export type DynamicsSensorControl = AsepriteDynamicSensor;
-export const DynamicsColorFlow = AsepriteDynamicsColorDirection;
-export type DynamicsColorFlow = AsepriteDynamicsColorDirection;
+export const DynamicsInputControl = DynamicsInput;
+export type DynamicsInputControl = DynamicsInput;
+export const DynamicsColorOrderControl = DynamicsColorOrder;
+export type DynamicsColorOrderControl = DynamicsColorOrder;
 export const PaletteMenuOperation = PaletteOperation;
 export type PaletteMenuOperation = PaletteOperation;
 export const ContextBarResizeMethod = PixelResizeMethod;
@@ -82,7 +82,6 @@ export function getToolControlCapabilities(tool: string) {
       brushAngle: controls.brushAngle,
       opacity: controls.opacity,
       dynamics: controls.dynamics,
-      dynamicsOptionsGrid: controls.dynamicsOptionsGrid,
       pixelAlgorithm: controls.pixelAlgorithm,
     },
     settings: { hasInk: settings.hasInk },

@@ -4,8 +4,8 @@ import { describe, it } from "vitest";
 
 import {
   RasterEditor,
-  AsepriteInk,
-  AsepriteDynamicSensor,
+  InkMode,
+  DynamicsInput,
   DEFAULT_DYNAMICS_SETTINGS,
   FillReference,
   EyedropperChannel,
@@ -112,7 +112,7 @@ describe("persistent tool preferences", () => {
     editor.drawing.settings.setSettings({
       pixelPerfect: true,
       brush: { shape: "square", size: 7, angle: 30 },
-      ink: AsepriteInk.LockAlpha,
+      ink: InkMode.LockAlpha,
       opacity: 120,
       foreground: [12, 34, 56, 255],
       eyedropperChannel: EyedropperChannel.Alpha,
@@ -141,7 +141,7 @@ describe("persistent tool preferences", () => {
     assert.equal(settings.selectionMode, SelectionMode.Replace);
     assert.equal(settings.pixelPerfect, true);
     assert.deepEqual(settings.brush, { shape: "square", size: 7, angle: 30 });
-    assert.equal(settings.ink, AsepriteInk.LockAlpha);
+    assert.equal(settings.ink, InkMode.LockAlpha);
     assert.equal(settings.opacity, 120);
     assert.deepEqual(settings.foreground, [12, 34, 56, 255]);
     assert.equal(settings.eyedropperChannel, EyedropperChannel.Alpha);
@@ -165,17 +165,17 @@ describe("persistent tool preferences", () => {
       shareDynamics: false,
       dynamics: {
         ...DEFAULT_DYNAMICS_SETTINGS,
-        size: AsepriteDynamicSensor.Pressure,
-        minAngle: -45,
+        sizeInput: DynamicsInput.Pressure,
+        angleLow: -45,
       },
     });
     editor.drawing.settings.setSettings({
       tool: "eraser",
       dynamics: {
         ...DEFAULT_DYNAMICS_SETTINGS,
-        angle: AsepriteDynamicSensor.Velocity,
+        angleInput: DynamicsInput.Speed,
       },
-      ink: AsepriteInk.CopyColor,
+      ink: InkMode.CopyColor,
       opacity: 90,
     });
     editor.drawing.settings.setSettings({ shareInk: true, shareDynamics: true });
@@ -187,14 +187,14 @@ describe("persistent tool preferences", () => {
     const settings = restored.getSnapshot().settings;
     assert.equal(settings.shareInk, true);
     assert.equal(settings.shareDynamics, true);
-    assert.equal(settings.ink, AsepriteInk.CopyColor);
+    assert.equal(settings.ink, InkMode.CopyColor);
     assert.equal(settings.opacity, 90);
-    assert.equal(settings.dynamics?.angle, AsepriteDynamicSensor.Velocity);
+    assert.equal(settings.dynamics?.angleInput, DynamicsInput.Speed);
     const pencilBank = restored.drawing.settings
       .capturePersistentPreferences()
       .parameters.find(([tool]) => tool === "pencil")?.[1];
-    assert.equal(pencilBank?.dynamics?.size, AsepriteDynamicSensor.Pressure);
-    assert.equal(pencilBank?.dynamics?.minAngle, -45);
+    assert.equal(pencilBank?.dynamics?.sizeInput, DynamicsInput.Pressure);
+    assert.equal(pencilBank?.dynamics?.angleLow, -45);
   });
 
   it("excludes drafts and image brushes and leaves artwork and history untouched", () => {

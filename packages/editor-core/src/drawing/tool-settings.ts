@@ -12,7 +12,7 @@ import {
 } from "$/selection/types";
 import type { TilemapDisplayMode, TilesetMode } from "$/tilemap/types";
 
-export enum AsepriteInk {
+export enum InkMode {
   Simple = "simple",
   AlphaCompositing = "alpha-compositing",
   CopyColor = "copy-color",
@@ -35,31 +35,32 @@ export enum RightClickMode {
   SelectLayerAndMove = "select-layer-and-move",
 }
 
-export enum AsepriteDynamicSensor {
-  Static = "static",
+/** libmypaint brush inputs available to pixel brushes. */
+export enum DynamicsInput {
+  None = "none",
   Pressure = "pressure",
-  Velocity = "velocity",
+  Speed = "speed",
 }
 
-export enum AsepriteDynamicsColorDirection {
+/** Which color the low end of the input range paints. */
+export enum DynamicsColorOrder {
   BackgroundToForeground = "bg-to-fg",
   ForegroundToBackground = "fg-to-bg",
 }
 
-export interface AsepriteDynamicsSettings {
-  stabilizer: boolean;
-  stabilizerFactor: number;
-  size: AsepriteDynamicSensor;
-  angle: AsepriteDynamicSensor;
-  gradient: AsepriteDynamicSensor;
-  minSize: number;
-  minAngle: number;
-  minPressureThreshold: number;
-  maxPressureThreshold: number;
-  minVelocityThreshold: number;
-  maxVelocityThreshold: number;
-  colorFromTo: AsepriteDynamicsColorDirection;
-  matrixName: string;
+/** Each output maps its input's range linearly from the `*Low` value to the
+ * current brush value. `slowTracking` and `pressureGain` use libmypaint's
+ * `slow_tracking` and logarithmic `pressure_gain_log` units. */
+export interface BrushDynamicsSettings {
+  slowTracking: number;
+  pressureGain: number;
+  sizeInput: DynamicsInput;
+  sizeLow: number;
+  angleInput: DynamicsInput;
+  angleLow: number;
+  colorInput: DynamicsInput;
+  colorOrder: DynamicsColorOrder;
+  ditherMatrix: string;
 }
 
 export enum EditorToolId {
@@ -112,8 +113,8 @@ export interface ToolSettings {
   symmetryEnabled?: boolean;
   shade?: readonly Rgba[];
   shadeIndices?: readonly number[];
-  ink?: AsepriteInk;
-  dynamics?: AsepriteDynamicsSettings;
+  ink?: InkMode;
+  dynamics?: BrushDynamicsSettings;
   selectionMode?: SelectionMode;
   selectionOpaque?: boolean;
   selectionAutoOpaque?: boolean;

@@ -29,7 +29,7 @@ import type { EditorDocument } from "$/document/types";
 import { DrawingRuntimeController, type DrawingLinePreview } from "$/drawing/controller";
 import { DrawingSettingsController } from "$/drawing/settings-controller";
 import { BitmapTextController } from "$/drawing/text/controller";
-import { AsepriteDynamicSensor, type ToolSettings } from "$/drawing/tool-settings";
+import { DynamicsInput, type ToolSettings } from "$/drawing/tool-settings";
 import { EditorPriorityGestureController } from "$/editor/input/priority-gesture-controller";
 import { EditorInputRouter } from "$/editor/input/router";
 import { EditorKernel, type EditorSnapshotDraft } from "$/editor/kernel";
@@ -795,8 +795,7 @@ class EditorComposition {
         symmetryEnabled: this.settings.symmetryEnabled,
         brush: this.inputSettings.brush,
         brushAngleStatic:
-          (this.inputSettings.dynamics?.angle ?? AsepriteDynamicSensor.Static) ===
-          AsepriteDynamicSensor.Static,
+          (this.inputSettings.dynamics?.angleInput ?? DynamicsInput.None) === DynamicsInput.None,
       }),
       getSymmetry: () => ({
         mode: this.view.symmetryMode ?? 0,

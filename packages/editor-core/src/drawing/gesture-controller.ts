@@ -21,7 +21,11 @@ import {
   supportsCornerRadius,
 } from "$/drawing/shapes/modifiers";
 import { inlineTextBox } from "$/drawing/text/inline-text";
-import type { AsepriteDynamicsSettings, ToolSettings } from "$/drawing/tool-settings";
+import {
+  DynamicsInput,
+  type BrushDynamicsSettings,
+  type ToolSettings,
+} from "$/drawing/tool-settings";
 import type { HistoryCommand } from "$/history/history";
 import { canMoveSelectionPixels } from "$/selection";
 import { SelectionMode } from "$/selection/types";
@@ -41,7 +45,7 @@ export interface DrawingGestureSettings {
   tool: ToolSettings["tool"];
   brush: Brush;
   pixelPerfect: boolean;
-  dynamics?: AsepriteDynamicsSettings;
+  dynamics?: BrushDynamicsSettings;
   selectionMode?: SelectionMode;
   selectionMoveOnAddMode?: boolean;
   selectionCornerRadius?: number;
@@ -441,7 +445,7 @@ export class DrawingGestureController {
         y: firstPoint.y + bounds.y,
       };
     }
-    if (lineFreehand) gesture.dynamics?.disableStabilizer();
+    if (lineFreehand) gesture.dynamics?.disableTracking();
     if (isTwoPointShape(tool)) {
       gesture.twoPoints = new LibreSpriteTwoPointsController(
         at,
@@ -608,7 +612,8 @@ export class DrawingGestureController {
       gesture.tool === "contour"
         ? {
             brush: settings.brush,
-            brushAngleStatic: (gesture.dynamics?.settings?.angle ?? "static") === "static",
+            brushAngleStatic:
+              (gesture.dynamics?.settings?.angleInput ?? DynamicsInput.None) === DynamicsInput.None,
           }
         : undefined,
     );

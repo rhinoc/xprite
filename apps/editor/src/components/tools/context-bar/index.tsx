@@ -16,7 +16,7 @@ import { useReleaseEditorInputFocus } from "$/managers/tools/input-commands";
 import {
   ToolEyedropperChannel as EyedropperChannel,
   ToolEyedropperSample as EyedropperSample,
-  ToolInk as AsepriteInk,
+  ToolInk as InkMode,
   ContextBarResizeMethod as PixelResizeMethod,
   TOOL_CONTROL_CHANNEL_MAX as UINT8_MAX,
   getToolControlCapabilities as getXpriteToolCapabilities,
@@ -124,7 +124,7 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
     !isGradient &&
     (capabilities.controls.opacity ||
       (capabilities.settings.hasInk &&
-        (editor.ink === AsepriteInk.AlphaCompositing || editor.ink === AsepriteInk.LockAlpha)));
+        (editor.ink === InkMode.AlphaCompositing || editor.ink === InkMode.LockAlpha)));
   const opacityLabelWidth = measureUiText("Opacity:", FontRole.Compact);
   const opacityLabelX = take(showOpacity, opacityLabelWidth);
   const opacityWidth = sliderEntryWidth({
@@ -134,7 +134,7 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
   });
   const opacityX = take(showOpacity, opacityWidth);
   const shadeX = take(
-    !isGradient && capabilities.settings.hasInk && editor.ink === AsepriteInk.Shading,
+    !isGradient && capabilities.settings.hasInk && editor.ink === InkMode.Shading,
     editorShadeStripWidth(editor.inkShade),
   );
   const dynamicsX = take(!isGradient && capabilities.controls.dynamics, 30);
@@ -550,7 +550,6 @@ export function ContextBar({ flow = false }: { flow?: boolean } = {}) {
                 onBrushSizeChange={editor.setBrushSize}
                 brushAngle={editor.brushAngle}
                 onBrushAngleChange={editor.setBrushAngle}
-                showOptionsGrid={capabilities.controls.dynamicsOptionsGrid}
               />
             </ControlFlowItem>
           ))}

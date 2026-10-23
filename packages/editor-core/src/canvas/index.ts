@@ -8,6 +8,10 @@ export * from "$/canvas/overlay-geometry";
 export * from "$/canvas/raster";
 export { supportsPixelPerfect } from "$/canvas/raster/pixel-perfect-stroke";
 export * from "$/canvas/raster/dynamic-paint-stroke";
+export {
+  MYPAINT_PRESSURE_GAIN_LOG_LIMIT,
+  MYPAINT_SLOW_TRACKING_MAX,
+} from "$/canvas/raster/mypaint";
 export * from "$/canvas/raster/stroke-dynamics";
 export * from "$/canvas/selection-ants";
 export * from "$/canvas/types";

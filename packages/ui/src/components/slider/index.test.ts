@@ -18,7 +18,7 @@ describe("slider-family", () => {
       await build({
         stdin: {
           contents:
-            'export { Slider } from "./packages/ui/src/components/slider/Slider.tsx"; export { SliderMode, SliderRendering, SliderValueFormat } from "./packages/ui/src/components/slider/types.ts"; export { UIProvider, UiColorScheme, loadUiThemeSnapshot } from "./packages/ui/src/components/theme/provider.tsx"; export { asepriteTheme } from "./packages/ui/src/base/theme/themes/aseprite";',
+            'export { Slider } from "./packages/ui/src/components/slider/Slider.tsx"; export { SliderRendering, SliderValueFormat } from "./packages/ui/src/components/slider/types.ts"; export { UIProvider, UiColorScheme, loadUiThemeSnapshot } from "./packages/ui/src/components/theme/provider.tsx"; export { asepriteTheme } from "./packages/ui/src/base/theme/themes/aseprite";',
           resolveDir: process.cwd(),
           loader: "tsx",
         },
@@ -48,7 +48,6 @@ describe("slider-family", () => {
         );
       assert.equal(typeof family.Slider, "function");
       assert.equal("SliderEntry" in family, false);
-      assert.equal("ThresholdSlider" in family, false);
       const common = {
         bounds: { x: 0, y: 0, width: 200, height: 32 },
         "aria-label": "Value",
@@ -59,13 +58,6 @@ describe("slider-family", () => {
       assert.match(pixel, /aria-valuenow="42"/);
       assert.match(pixel, /aria-valuemin="0"/);
       assert.match(pixel, /aria-valuemax="100"/);
-      const range = render({
-        ...common,
-        mode: family.SliderMode.Range,
-        value: [0.2, 0.8],
-      });
-      assert.match(range, /aria-label="Value"/);
-      assert.match(range, /role="group"/);
       const entry = render({
         ...common,
         rendering: family.SliderRendering.NumberEntry,
@@ -86,7 +78,7 @@ describe("slider-family", () => {
       });
       assert.match(disabled, /disabled=""/);
       console.log(
-        "Slider family: pixel, range, number-entry, percentage and disabled semantics verified; only one component export.",
+        "Slider family: pixel, number-entry, percentage and disabled semantics verified; only one component export.",
       );
     } finally {
       await rm(directory, { recursive: true, force: true });

@@ -13,12 +13,7 @@ import {
   StrokeDynamics,
 } from "$/canvas/raster/stroke-dynamics";
 import type { RasterOptions } from "$/canvas/raster/types";
-import {
-  AsepriteDynamicSensor,
-  AsepriteDynamicsColorDirection,
-  AsepriteInk,
-  type AsepriteDynamicsSettings,
-} from "$/drawing/tool-settings";
+import { DynamicsColorOrder, DynamicsInput, InkMode } from "$/drawing/tool-settings";
 
 import { blurStroke, eraseStroke, normalBlend, paintStroke, samplePixel } from ".";
 
@@ -97,21 +92,21 @@ export class DynamicPaintStroke {
     if (!points.length) return { dirty: null };
     this.colors ??= { primary: options.color, secondary };
     const settings = dynamics.settings,
-      active = settings?.gradient !== AsepriteDynamicSensor.Static && !!settings;
-    const size = active ? dynamicDitherSize(settings.matrixName) : 1;
+      active = !!settings && settings.colorInput !== DynamicsInput.None;
+    const size = active ? dynamicDitherSize(settings.ditherMatrix) : 1;
     if (active && tool !== "eraser" && overlapRevisions.get(this.original) !== dynamics.revision) {
       this.original.clear();
       overlapRevisions.set(this.original, dynamics.revision);
     }
     const ink =
-      options.ink === AsepriteInk.Simple
+      options.ink === InkMode.Simple
         ? this.colors.primary[3] === 0
-          ? AsepriteInk.CopyColor
-          : AsepriteInk.AlphaCompositing
+          ? InkMode.CopyColor
+          : InkMode.AlphaCompositing
         : options.ink;
-    const opacity = options.ink === AsepriteInk.Simple ? UINT8_MAX : (options.opacity ?? UINT8_MAX);
+    const opacity = options.ink === InkMode.Simple ? UINT8_MAX : (options.opacity ?? UINT8_MAX);
     const [a, b] =
-      settings?.colorFromTo === AsepriteDynamicsColorDirection.ForegroundToBackground
+      settings?.colorOrder === DynamicsColorOrder.ForegroundToBackground
         ? [this.colors.primary, this.colors.secondary]
         : [this.colors.secondary, this.colors.primary];
     const origin = options.patternOrigin ?? { x: 0, y: 0 };
@@ -146,21 +141,19 @@ export class DynamicPaintStroke {
         // patternImage() aligns Bayer cells in destination image coordinates.
         opts = {
           ...opts,
-          ink: AsepriteInk.CopyColor,
+          ink: InkMode.CopyColor,
           sourcePixel: undefined,
           colorAt: (x, y) => {
             const src = sourcePixel(x, y),
               dst = samplePixel(image, { x, y }),
               c = f(f(value) * (size * size + 1)) < dynamicBayer(size, x, y) + 1 ? a : b;
-            if (ink === AsepriteInk.CopyColor) return c[3] ? c : dst;
-            if (ink === AsepriteInk.Shading)
+            if (ink === InkMode.CopyColor) return c[3] ? c : dst;
+            if (ink === InkMode.Shading)
               return c[3] && options.shade?.some((s) => s.every((v, i) => v === c[i]))
                 ? shadePixel(src, options.shade, options.shadeDirection)
                 : dst;
             const result = normalBlend(dst, c, opacity);
-            return ink === AsepriteInk.LockAlpha
-              ? [result[0], result[1], result[2], src[3]]
-              : result;
+            return ink === InkMode.LockAlpha ? [result[0], result[1], result[2], src[3]] : result;
           },
         };
       }
@@ -188,7 +181,7 @@ export class DynamicPaintStroke {
     const next = dynamics.sample(baseBrush);
     // Dynamics are sampled per stroke point. A changing line-brush angle
     // makes the stamp footprint vary while the path is being simplified.
-    const dynamicAngle = !!settings && settings.angle !== AsepriteDynamicSensor.Static;
+    const dynamicAngle = !!settings && settings.angleInput !== DynamicsInput.None;
     // A moving line-brush angle keeps every center. For a static line brush,
     // PixelPerfectPath checks whether adjacent stamps cover a removed center.
     const supportsDynamicPixelPerfect =
@@ -264,12 +257,4 @@ export class DynamicPaintStroke {
     this.previous = next;
     return { dirty };
   }
-}
-export function usesDynamicBrush(settings: AsepriteDynamicsSettings | undefined): boolean {
-  return (
-    !!settings &&
-    (settings.size !== AsepriteDynamicSensor.Static ||
-      settings.angle !== AsepriteDynamicSensor.Static ||
-      settings.gradient !== AsepriteDynamicSensor.Static)
-  );
 }

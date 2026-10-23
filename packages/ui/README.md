@@ -179,11 +179,9 @@ child-first order; `preventDefault` suppresses opening a context menu.
 provides its image and hotspot for canvas and other imperative surfaces.
 Import `@xprite/ui/style.css` for the shared cursor styles.
 
-`SliderMode.Value` is the default for a single value; `SliderMode.Range` accepts
-a pair of endpoints. `SliderRendering.Pixel` draws the theme's slider;
-`NumberEntry` supplies the editable number and popup slider, while
-`BrowserRange` uses an HTML range input. Range uses pixel rendering. Color
-channel sliders use the theme's artwork where appropriate.
+`SliderRendering.Pixel` draws the theme's slider; `NumberEntry` supplies the
+editable number and popup slider, while `BrowserRange` uses an HTML range
+input. Color channel sliders use the theme's artwork where appropriate.
 `SliderValueFormat.Integer` and `Percentage` control number-entry formatting.
 `DividerAppearance.Panel`, `Content`, and `Heading` select the divider's context.
 

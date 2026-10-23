@@ -28,12 +28,6 @@ export type ValueSliderProps = Placement & {
   label?: string;
 };
 
-export type ThresholdSliderProps = Placement & {
-  value: [number, number];
-  onValueChange: (value: [number, number]) => void;
-  sensorValue?: number;
-};
-
 export enum SliderOrientation {
   Horizontal = "horizontal",
   Vertical = "vertical",
@@ -54,11 +48,6 @@ export interface BrowserRangeSliderProps {
   disabled?: boolean;
 }
 
-export enum SliderMode {
-  Value = "value",
-  Range = "range",
-}
-
 export enum SliderRendering {
   Pixel = "pixel",
   NumberEntry = "number-entry",
@@ -71,10 +60,6 @@ export enum SliderValueFormat {
 }
 
 export type SliderProps =
-  | (ValueSliderProps & { mode?: SliderMode.Value; rendering?: SliderRendering.Pixel })
-  | (ThresholdSliderProps & { mode: SliderMode.Range; rendering?: SliderRendering.Pixel })
-  | (SliderEntryProps & { mode?: SliderMode.Value; rendering: SliderRendering.NumberEntry })
-  | (BrowserRangeSliderProps & {
-      mode?: SliderMode.Value;
-      rendering: SliderRendering.BrowserRange;
-    });
+  | (ValueSliderProps & { rendering?: SliderRendering.Pixel })
+  | (SliderEntryProps & { rendering: SliderRendering.NumberEntry })
+  | (BrowserRangeSliderProps & { rendering: SliderRendering.BrowserRange });

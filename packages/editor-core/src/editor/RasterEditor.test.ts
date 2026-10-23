@@ -1173,16 +1173,10 @@ describe("editor-model", () => {
       format: "esm",
       write: false,
     });
-    const {
-      AsepriteInk,
-      RasterEditor,
-      screenToDocument,
-      documentToScreen,
-      resolveShortcut,
-      stepZoom,
-    } = await import(
-      `data:text/javascript;base64,${Buffer.from(outputFiles[0].contents).toString("base64")}`
-    );
+    const { InkMode, RasterEditor, screenToDocument, documentToScreen, resolveShortcut, stepZoom } =
+      await import(
+        `data:text/javascript;base64,${Buffer.from(outputFiles[0].contents).toString("base64")}`
+      );
     const blank = (w = 8, h = 8) => ({
       width: w,
       height: h,
@@ -1342,17 +1336,17 @@ describe("editor-model", () => {
       return pixel(e, 1, 1)[3];
     };
     assert.equal(
-      backAndForth({ ink: AsepriteInk.Simple, foreground: [255, 0, 0, 128] }),
+      backAndForth({ ink: InkMode.Simple, foreground: [255, 0, 0, 128] }),
       128,
       "Repeated pointer segments do not accumulate a translucent Simple-ink color",
     );
     assert.equal(
-      backAndForth({ ink: AsepriteInk.AlphaCompositing, foreground: red, opacity: 128 }),
+      backAndForth({ ink: InkMode.AlphaCompositing, foreground: red, opacity: 128 }),
       128,
       "Repeated pointer segments do not accumulate Alpha Compositing opacity",
     );
     assert.equal(
-      backAndForth({ ink: AsepriteInk.Simple, foreground: red, opacity: 128 }),
+      backAndForth({ ink: InkMode.Simple, foreground: red, opacity: 128 }),
       255,
       "Simple ink ignores the opacity setting, as in Aseprite",
     );
@@ -1467,9 +1461,7 @@ describe("feature-9-editor [feature-7-12]", () => {
     assert.deepEqual(pixel(e.canvas.composite(), 4, 3), ramp[1]);
     const settings = {
       ...defaultDynamicsSettings,
-      gradient: "pressure",
-      minPressureThreshold: 0,
-      maxPressureThreshold: 1,
+      colorInput: "pressure",
     };
     const gradient = new RasterEditor(image());
     gradient.drawing.settings.setSettings({
@@ -1479,7 +1471,7 @@ describe("feature-9-editor [feature-7-12]", () => {
       background: [0, 0, 255, 255],
       opacity: 128,
       dynamics: settings,
-      // Regular freehand (Aseprite's default); pixel-perfect would drop the stationary repeat.
+      // Pixel-perfect would drop the stationary repeat.
       pixelPerfect: false,
     });
     gradient.pointerDown({ x: 4, y: 4, pointerType: "pen", pressure: 0 });
@@ -1500,7 +1492,7 @@ describe("feature-9-editor [feature-7-12]", () => {
       foreground: [255, 0, 0, 255],
       background: [0, 0, 255, 255],
       brush: { shape: "square", size: 4, angle: 0 },
-      dynamics: { ...settings, matrixName: "Bayer Matrix 2x2" },
+      dynamics: { ...settings, ditherMatrix: "Bayer Matrix 2x2" },
     });
     dither.pointerDown({ x: 6, y: 6, pointerType: "pen", pressure: 0.5 });
     dither.pointerUp();
@@ -1518,7 +1510,7 @@ describe("feature-9-editor [feature-7-12]", () => {
     const forkImage = image(ramp[1]),
       dynamics = new StrokeDynamics(
         { x: 3, y: 3, pointerType: "pen", pressure: 0.5 },
-        { ...settings, gradient: "static", size: "pressure" },
+        { ...settings, colorInput: "none", sizeInput: "pressure" },
       ),
       primary = new DynamicPaintStroke(),
       mirror = primary.fork(),
