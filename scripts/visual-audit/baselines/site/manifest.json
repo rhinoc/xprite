@@ -6168,7 +6168,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-22T08:02:22.147Z",
+        "capturedAt": "2026-10-23T11:32:39.929Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6196,7 +6196,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "665d7b1579a8f26621fddb45301ad98730d9ce4dcb0ccd3f06b8b6657c3fd9c8",
+        "sha256": "5d0ef7ca55ce53563188e3acd6845a62fffc134e8c5fc542c7a12f5f8f08ee67",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6215,9 +6215,9 @@
         {
           "name": "footer",
           "x": 0,
-          "y": 603,
+          "y": 571,
           "width": 1424,
-          "height": 297
+          "height": 329
         }
       ],
       "platform": "Linux x86_64",
