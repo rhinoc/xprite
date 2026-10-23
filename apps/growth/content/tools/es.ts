@@ -375,4 +375,16 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
     "Activa JavaScript para generar códigos QR de diseños.",
   "Enable JavaScript to create fuse bead patterns.":
     "Activa JavaScript para crear patrones de cuentas Hama.",
+  "Xprite Fix AI Pixel Art": "Xprite Corregir pixel art de IA",
+  "Fix AI Pixel Art": "Corregir pixel art de IA",
+  "Fix AI-generated pixel art": "Corrige pixel art generado por IA",
+  "Fix AI Pixel Art: Recover Real Pixel Grid | Xprite":
+    "Corregir pixel art de IA: recuperar cuadrícula real | Xprite",
+  "Fix AI pixel art": "Corregir pixel art de IA",
+  "Fix soft or AI-generated pixel art by snapping it to a real pixel grid.":
+    "Corrige pixel art borroso o de IA ajustándolo a una cuadrícula de píxeles real.",
+  "Fix soft or AI pixel art that is off-grid or blurry. Recover a real pixel grid in your browser—no upload. Then edit in Xprite or download PNG.":
+    "Corrige pixel art de IA desalineado o borroso. Recupera una cuadrícula real en tu navegador—sin subir nada. Luego edita en Xprite o descarga PNG.",
+  "Enable JavaScript to fix AI-generated pixel art.":
+    "Activa JavaScript para corregir pixel art generado por IA.",
 };

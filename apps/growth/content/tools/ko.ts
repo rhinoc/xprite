@@ -366,4 +366,16 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
     "마이 디자인 QR 코드를 만들려면 JavaScript를 켜 주세요.",
   "Enable JavaScript to create fuse bead patterns.":
     "퓨즈 비즈 도안을 만들려면 JavaScript를 켜 주세요.",
+  "Xprite Fix AI Pixel Art": "Xprite AI 픽셀 아트 수정",
+  "Fix AI Pixel Art": "AI 픽셀 아트 수정",
+  "Fix AI-generated pixel art": "AI 생성 픽셀 아트 수정",
+  "Fix AI Pixel Art: Recover Real Pixel Grid | Xprite":
+    "AI 픽셀 아트 수정: 실제 픽셀 격자 복원 | Xprite",
+  "Fix AI pixel art": "AI 픽셀 아트 수정",
+  "Fix soft or AI-generated pixel art by snapping it to a real pixel grid.":
+    "흐릿한 AI 생성 픽셀 아트를 실제 픽셀 격자에 맞춰 수정합니다.",
+  "Fix soft or AI pixel art that is off-grid or blurry. Recover a real pixel grid in your browser—no upload. Then edit in Xprite or download PNG.":
+    "어긋나거나 흐릿한 AI 픽셀 아트를 수정하세요. 브라우저에서 실제 픽셀 격자를 복원하고—업로드 불필요. 이후 Xprite에서 편집하거나 PNG를 다운로드하세요.",
+  "Enable JavaScript to fix AI-generated pixel art.":
+    "AI 생성 픽셀 아트를 수정하려면 JavaScript를 켜 주세요.",
 };

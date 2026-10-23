@@ -370,4 +370,16 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
     "マイデザインの QR コードを作るには JavaScript を有効にしてください。",
   "Enable JavaScript to create fuse bead patterns.":
     "アイロンビーズの図案を作るには JavaScript を有効にしてください。",
+  "Xprite Fix AI Pixel Art": "Xprite AI ドット絵を修正",
+  "Fix AI Pixel Art": "AI ドット絵を修正",
+  "Fix AI-generated pixel art": "AI 生成のドット絵を修正",
+  "Fix AI Pixel Art: Recover Real Pixel Grid | Xprite":
+    "AI ドット絵を修正：本物のピクセルグリッドを復元 | Xprite",
+  "Fix AI pixel art": "AI ドット絵を修正",
+  "Fix soft or AI-generated pixel art by snapping it to a real pixel grid.":
+    "ぼやけた AI 生成のドット絵を本物のピクセルグリッドに吸着させて修正します。",
+  "Fix soft or AI pixel art that is off-grid or blurry. Recover a real pixel grid in your browser—no upload. Then edit in Xprite or download PNG.":
+    "ずれたりぼやけたりした AI ドット絵を修正します。ブラウザで本物のピクセルグリッドを復元—アップロード不要。その後 Xprite で編集するか PNG をダウンロードできます。",
+  "Enable JavaScript to fix AI-generated pixel art.":
+    "AI 生成のドット絵を修正するには JavaScript を有効にしてください。",
 };
