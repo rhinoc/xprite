@@ -400,4 +400,14 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Enable JavaScript to convert images to pixel art.": "请启用 JavaScript 以将图片转换为像素画。",
   "Enable JavaScript to generate design QR codes.": "请启用 JavaScript 以生成设计二维码。",
   "Enable JavaScript to create fuse bead patterns.": "请启用 JavaScript 以生成拼豆图纸。",
+  "Xprite Fix AI Pixel Art": "Xprite 修复 AI 像素画",
+  "Fix AI Pixel Art": "修复 AI 像素画",
+  "Fix AI-generated pixel art": "修复 AI 生成的像素画",
+  "Fix AI Pixel Art: Recover Real Pixel Grid | Xprite": "修复 AI 像素画：还原真实像素网格 | Xprite",
+  "Fix AI pixel art": "修复 AI 像素画",
+  "Fix soft or AI-generated pixel art by snapping it to a real pixel grid.":
+    "通过对齐到真实像素网格来修复模糊或 AI 生成的像素画。",
+  "Fix soft or AI pixel art that is off-grid or blurry. Recover a real pixel grid in your browser—no upload. Then edit in Xprite or download PNG.":
+    "修复偏离网格或模糊的 AI 像素画。在浏览器中还原真实像素网格，无需上传。然后在 Xprite 中继续编辑或下载 PNG。",
+  "Enable JavaScript to fix AI-generated pixel art.": "请启用 JavaScript 以修复 AI 生成的像素画。",
 };
