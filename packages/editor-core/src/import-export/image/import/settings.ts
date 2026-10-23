@@ -33,15 +33,17 @@ export function defaultPixelationSettings(
   grid?: PixelGridAnalysis,
 ): PixelationSettings {
   const scale = Math.min(1, DEFAULT_PIXELATION_SIZE / Math.max(image.width, image.height));
-  // Every source opens on PixelOE + lines with Contrast, grid or not: PixelOE's own colours, so no
-  // colour limit either. The grid still decides between recovering cells and converting.
+  const mode = grid?.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert;
+  // Recover Grid opens on PixelOE + lines with Median and Limit colors (16). Convert opens on
+  // PixelOE + lines with Contrast and no color limit. Both use PixelOE's outline pre-pass.
   return {
-    mode: grid?.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert,
-    reduceColors: false,
+    mode,
+    reduceColors: mode === PixelationMode.RecoverGrid,
     outlineStrength: 0,
     prepass: DEFAULT_OUTLINE_PREPASS,
     lineGuide: DEFAULT_LINE_GUIDE,
-    colorPicker: CellColorPicker.Contrast,
+    colorPicker:
+      mode === PixelationMode.RecoverGrid ? CellColorPicker.Median : CellColorPicker.Contrast,
     autoGrid: true,
     gridCellWidth: grid?.reliable ? grid.cellWidth : 8,
     gridCellHeight: grid?.reliable ? grid.cellHeight : 8,
@@ -91,10 +93,19 @@ export function updatePixelationSettings(
     next.palette = patch.palette ? patch.palette.map((color) => [...color] as Rgba) : null;
     if (patch.palette === null) next.paletteName = "";
   }
-  // A plain convert limits colours by default; a pre-pass keeps PixelOE's own colours.
-  if (patch.mode !== undefined && patch.mode !== settings.mode && patch.reduceColors === undefined)
-    next.reduceColors =
-      patch.mode === PixelationMode.Convert && next.prepass === OutlinePrepass.None;
+  // Mode-switch defaults: Recover uses Median and limits colours; plain Convert limits only without a pre-pass.
+  if (patch.mode !== undefined && patch.mode !== settings.mode) {
+    if (patch.reduceColors === undefined) {
+      if (patch.mode === PixelationMode.RecoverGrid) {
+        next.reduceColors = true;
+      } else {
+        next.reduceColors = next.prepass === OutlinePrepass.None;
+      }
+    }
+    if (patch.colorPicker === undefined && patch.mode === PixelationMode.RecoverGrid) {
+      next.colorPicker = CellColorPicker.Median;
+    }
+  }
   const cellSize = (value: number) =>
     Number.isFinite(value) ? Math.max(1, Math.min(MAX_GRID_CELL_SIZE, value)) : 8;
   next.gridCellWidth = cellSize(next.gridCellWidth);

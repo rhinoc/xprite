@@ -89,7 +89,7 @@ describe("import dialog colour pick", () => {
     const session = openSession(jittered);
     await session.requestImport({ source: "jitter", name: "jitter.png" });
     await settle(session);
-    expect(session.getSnapshot().pixelationOptions.colorPicker).toBe(CellColorPicker.Contrast);
+    expect(session.getSnapshot().pixelationOptions.colorPicker).toBe(CellColorPicker.Median);
     const before = session.getSnapshot().pixelationPreview;
     session.setPixelationOptions({ colorPicker: CellColorPicker.Average });
     await settle(session);
@@ -99,7 +99,7 @@ describe("import dialog colour pick", () => {
     expect(after.pixelationPreview?.width).toBe(before?.width);
     session.dispose();
   });
-  test("pixel art opens on PixelOE + lines with Contrast; None brings back the remembered rule", async () => {
+  test("pixel art opens on PixelOE + lines with Median and Limit colors; None brings back the remembered rule", async () => {
     const session = openSession(
       jittered,
       PixelArtClassification.LikelyPixelArt,
@@ -108,13 +108,13 @@ describe("import dialog colour pick", () => {
     await session.requestImport({ source: "jitter", name: "jitter.png" });
     await settle(session);
     const opened = session.getSnapshot();
-    // The grid is still found and recovered; only the pre-pass default ignores it.
+    // Recover Grid opens on Median with Limit colors (16).
     expect(opened.pendingImport?.grid?.reliable).toBe(true);
     expect(opened.pixelationOptions).toMatchObject({
       mode: PixelationMode.RecoverGrid,
       prepass: OutlinePrepass.PixeloeLines,
-      colorPicker: CellColorPicker.Contrast,
-      reduceColors: false,
+      colorPicker: CellColorPicker.Median,
+      reduceColors: true,
     });
     session.setPixelationOptions({ prepass: OutlinePrepass.None });
     await settle(session);
@@ -251,12 +251,13 @@ describe("silent Pixelate import (Don't ask me again)", () => {
     expect(imported).toEqual(art);
     session.dispose();
   });
-  test("with nothing saved the silent import uses PixelOE + lines (Lines only)", async () => {
+  test("with nothing saved the silent import uses PixelOE + lines with Median and Limit colors", async () => {
     const { session, imported } = await importSilently(null);
     expect(session.getSnapshot().pixelationOptions).toMatchObject({
       prepass: OutlinePrepass.PixeloeLines,
       lineGuide: LineGuideMode.Replace,
-      colorPicker: CellColorPicker.Contrast,
+      colorPicker: CellColorPicker.Median,
+      reduceColors: true,
     });
     const grid = detectWithAlgorithm(upscaled, Auto);
     expect(imported).toEqual(
@@ -265,7 +266,8 @@ describe("silent Pixelate import (Don't ask me again)", () => {
         grid,
         prepass: OutlinePrepass.PixeloeLines,
         lineGuide: LineGuideMode.Replace,
-        colorPicker: CellColorPicker.Contrast,
+        colorPicker: CellColorPicker.Median,
+        paletteSnap: { colors: 16 },
       }),
     );
     expect(imported).not.toEqual(art);
@@ -294,7 +296,7 @@ describe("silent Pixelate import (Don't ask me again)", () => {
     );
     session.dispose();
   });
-  test("the dialog still opens on PixelOE + lines (Lines only) after a None import was saved", async () => {
+  test("the dialog still opens on PixelOE + lines with Median after a None import was saved", async () => {
     const { session } = silentSession("always-ask", {
       prepass: OutlinePrepass.None,
       colorPicker: CellColorPicker.MostCommon,
@@ -306,8 +308,8 @@ describe("silent Pixelate import (Don't ask me again)", () => {
     expect(session.getSnapshot().pixelationOptions).toMatchObject({
       prepass: OutlinePrepass.PixeloeLines,
       lineGuide: LineGuideMode.Replace,
-      colorPicker: CellColorPicker.Contrast,
-      reduceColors: false,
+      colorPicker: CellColorPicker.Median,
+      reduceColors: true,
     });
     session.dispose();
   });
