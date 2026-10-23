@@ -386,58 +386,106 @@ export function FormDialog({
       </>
     ) : (
       <>
-        {headerActions?.map((action) => (
-          <Button
-            variant={ButtonVariant.FlatIcon}
-            key={action.label}
-            bounds={{
-              x: client.x + action.x,
-              y: client.y + action.y,
-              width: action.width,
-              height: action.height,
-            }}
-            relativeTo={client}
-            icon={action.icon}
-            label={action.label}
-            title={action.label}
-            onClick={action.onClick}
-            disabled={action.disabled}
-          />
-        ))}
-        {tabs?.items.map((tab, index) => (
-          <Button
-            key={tab.value}
-            bounds={
-              layout?.tabs
-                ? {
-                    x:
-                      client.x +
-                      layout.tabs.x +
-                      layout.tabs.widths.slice(0, index).reduce((n, w) => n + w, 0),
-                    y: client.y + layout.tabs.y,
-                    width: layout.tabs.widths[index] + (index < tabs.items.length - 1 ? 2 : 0),
-                    height: layout.tabs.height,
-                  }
-                : {
-                    x: client.x + 8 + (index * (client.width - 16)) / tabs.items.length,
-                    y: client.y + 8,
-                    width: (client.width - 16) / tabs.items.length,
-                    height: 32,
-                  }
-            }
-            relativeTo={client}
-            text={tab.label}
-            focusRing={FocusRingBehavior.Always}
-            selected={tabs.selectedValues?.includes(tab.value) ?? tabs.value === tab.value}
-            part="buttonset_item_normal"
-            hotPart="buttonset_item_hot"
-            pushedPart="buttonset_item_pushed"
-            selectedPart="buttonset_item_hot"
-            role="tab"
-            aria-selected={tabs.selectedValues?.includes(tab.value) ?? tabs.value === tab.value}
-            onClick={() => tabs.onChange(tab.value)}
-          />
-        ))}
+        {headerActions?.map((action) => {
+          const actionX = client.x + client.width - action.width - 8;
+          const actionY = client.y + (tabs ? (layout?.tabs?.y ?? 0) : action.y);
+          return (
+            <Button
+              variant={ButtonVariant.FlatIcon}
+              key={action.label}
+              bounds={{
+                x: actionX,
+                y: actionY,
+                width: action.width,
+                height: action.height,
+              }}
+              relativeTo={client}
+              icon={action.icon}
+              label={action.label}
+              title={action.label}
+              onClick={action.onClick}
+              disabled={action.disabled}
+            />
+          );
+        })}
+        {tabs &&
+          (() => {
+            const tabHeight = layout?.tabs?.height ?? 30;
+            const tabY = client.y + (layout?.tabs?.y ?? 0);
+            const hasStubs = !layout?.tabs;
+            const stubWidth = 136;
+            const leftStubX = client.x;
+            const tabStartX = hasStubs ? client.x + stubWidth + 8 : client.x + 8;
+            const rightReserved = hasStubs && headerActions ? headerActions[0].width + 24 : 8;
+            const rightStubEnd = client.x + client.width - rightReserved;
+            const tabWidths = tabs.items.map((tab) => measureUiText(tUiSource(tab.label)) + 16);
+            const totalTabWidth = tabWidths.reduce((sum, w) => sum + w, 0);
+            const availableWidth = rightStubEnd - tabStartX - (hasStubs ? stubWidth + 8 : 0);
+            const scale = totalTabWidth > availableWidth ? availableWidth / totalTabWidth : 1;
+            let currentX = tabStartX;
+
+            return (
+              <>
+                {hasStubs && (
+                  <Divider
+                    key="left-stub"
+                    bounds={{
+                      x: leftStubX,
+                      y: tabY,
+                      width: stubWidth,
+                      height: tabHeight,
+                    }}
+                    relativeTo={client}
+                    text=""
+                  />
+                )}
+                {tabs.items.map((tab, index) => {
+                  const width = Math.floor(tabWidths[index] * scale);
+                  const bounds = {
+                    x: currentX,
+                    y: tabY,
+                    width: width + (index < tabs.items.length - 1 ? 2 : 0),
+                    height: tabHeight,
+                  };
+                  currentX += width;
+                  return (
+                    <Button
+                      key={tab.value}
+                      bounds={bounds}
+                      relativeTo={client}
+                      text={tab.label}
+                      focusRing={FocusRingBehavior.Always}
+                      selected={
+                        tabs.selectedValues?.includes(tab.value) ?? tabs.value === tab.value
+                      }
+                      part="buttonset_item_normal"
+                      hotPart="buttonset_item_hot"
+                      pushedPart="buttonset_item_pushed"
+                      selectedPart="buttonset_item_hot"
+                      role="tab"
+                      aria-selected={
+                        tabs.selectedValues?.includes(tab.value) ?? tabs.value === tab.value
+                      }
+                      onClick={() => tabs.onChange(tab.value)}
+                    />
+                  );
+                })}
+                {hasStubs && (
+                  <Divider
+                    key="right-stub"
+                    bounds={{
+                      x: currentX,
+                      y: tabY,
+                      width: rightStubEnd - currentX,
+                      height: tabHeight,
+                    }}
+                    relativeTo={client}
+                    text=""
+                  />
+                )}
+              </>
+            );
+          })()}
         {lines.map((line, i) => (
           <Text
             variant={TextVariant.Control}
