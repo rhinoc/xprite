@@ -25,6 +25,7 @@ const toolLanguages = new Map([
   ["/tools/viewer/", PublicLanguage.English],
   ["/tools/gif-to-sprite-sheet/", PublicLanguage.SimplifiedChinese],
   ["/tools/pixelate/", PublicLanguage.English],
+  ["/tools/fix-ai-pixel-art/", PublicLanguage.English],
   ["/tools/animal-crossing-qr/", PublicLanguage.English],
   ["/tools/fuse-beads/", PublicLanguage.SimplifiedChinese],
 ]);

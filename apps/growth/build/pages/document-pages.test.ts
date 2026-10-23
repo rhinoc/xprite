@@ -104,7 +104,7 @@ describe("document pages", () => {
         ["x-default", `https://xprite.cc${tool}`],
       ]);
     }
-    assert.equal(TOOL_PAGES.length, 35);
+    assert.equal(TOOL_PAGES.length, 42);
   });
 
   it("give every sitemap URL a lastmod date", () => {
