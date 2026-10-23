@@ -96,14 +96,14 @@ const GOLDEN: Record<string, Record<string, string>> = {
     "few-colors": "53x64:8bdd68ef61e88825",
   },
   "pixel art": {
-    default: "24x24:643f52d944270ce3",
-    clear: "24x24:643f52d944270ce3",
-    "clear regridded": "36x36:cfe9391d55362e45",
-    "clear thumbnail": "36x36:cfe9391d55362e45",
-    retro: "24x24:5906b9768fdcf4c2",
-    "retro regridded": "14x14:a2e10fd37bfebb4a",
-    "retro thumbnail": "14x14:a2e10fd37bfebb4a",
-    "few-colors": "24x24:8208f24b6068d8f0",
+    default: "24x24:b494bc2993594b6d",
+    clear: "24x24:b494bc2993594b6d",
+    "clear regridded": "36x36:4e1214f5996786a9",
+    "clear thumbnail": "36x36:4e1214f5996786a9",
+    retro: "24x24:b494bc2993594b6d",
+    "retro regridded": "14x14:22c4ceba5fe71bfe",
+    "retro thumbnail": "14x14:22c4ceba5fe71bfe",
+    "few-colors": "24x24:64212b546546510b",
   },
 };
 

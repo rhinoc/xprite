@@ -118,24 +118,27 @@ describe("outline pre-pass combinations", () => {
 });
 
 describe("outline pre-pass settings", () => {
-  test("every source opens on PixelOE + lines (Lines only) with Contrast and no limit, grid or not", () => {
+  test("Convert opens on PixelOE + lines with Contrast and no limit; Recover on Median + limit", () => {
     const loose = defaultPixelationSettings(image, detectWithAlgorithm(image));
-    const opened = {
+    const convert = {
       prepass: OutlinePrepass.PixeloeLines,
       lineGuide: LineGuideMode.Replace,
       colorPicker: CellColorPicker.Contrast,
       reduceColors: false,
     };
-    expect(loose).toMatchObject({ ...opened, mode: PixelationMode.Convert });
+    expect(loose).toMatchObject({ ...convert, mode: PixelationMode.Convert });
     const art = upscaleNearest(sprite(32), 4);
     const grid = detectWithAlgorithm(art);
     expect(grid.reliable).toBe(true);
-    // The grid still decides the mode; it no longer decides the pre-pass.
+    // Recover Grid opens on Median with Limit colors (16).
     expect(defaultPixelationSettings(art, grid)).toMatchObject({
-      ...opened,
+      prepass: OutlinePrepass.PixeloeLines,
+      lineGuide: LineGuideMode.Replace,
+      colorPicker: CellColorPicker.Median,
+      reduceColors: true,
       mode: PixelationMode.RecoverGrid,
     });
-    expect(defaultPixelationSettings(art)).toMatchObject(opened);
+    expect(defaultPixelationSettings(art)).toMatchObject(convert);
   });
   test("losing the grid limits colours only without a pre-pass", () => {
     const art = upscaleNearest(sprite(32), 4);
