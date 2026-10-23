@@ -26,7 +26,7 @@ PostHog는 재방문을 세기 위해 이 브라우저의 `localStorage`에 방�
 
 PostHog는 [이벤트 보존 규칙](https://posthog.com/docs/data/events-retention)에 따라 이벤트를 보관합니다. 브라우저 식별자는 보통 사용자나 브라우저가 이 사이트의 데이터를 지울 때까지 남습니다.
 
-비교 글 링크는 세 가지 고정된 글 식별자(`aseprite-online`, `aseprite-on-ipad`, `piskel-alternatives`) 중 하나를 현재 에디터 방문과 그 동작에 붙일 수 있습니다. Xprite는 고정된 비교 글 소스와 추천 매체가 함께 있을 때만 이 식별자를 받습니다. 임의의 캠페인 값, 검색 키워드, URL의 원본 쿼리·해시 매개변수는 수집하지 않으며, 이 정보를 이후 방문을 위해 저장하지도 않습니다.
+비교 글 링크는 네 가지 고정된 글 식별자(`aseprite-online`, `aseprite-on-ipad`, `piskel-alternatives`, `fix-ai-pixel-art`) 중 하나를 현재 에디터 방문과 그 동작에 붙일 수 있습니다. Xprite는 고정된 비교 글 소스와 추천 매체가 함께 있을 때만 이 식별자를 받습니다. 임의의 캠페인 값, 검색 키워드, URL의 원본 쿼리·해시 매개변수는 수집하지 않으며, 이 정보를 이후 방문을 위해 저장하지도 않습니다.
 
 ## 선택할 수 있는 것
 
