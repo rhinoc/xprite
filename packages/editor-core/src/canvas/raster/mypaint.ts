@@ -24,7 +24,7 @@ export const MYPAINT_SPEED_RANGE = [0, 4] as const;
 /** `speed1_slowness` default: fine speed filter time constant in seconds. */
 export const MYPAINT_SPEED_SLOWNESS = 0.04;
 /** `speed1_gamma` default; the stored value is the logarithm of gamma. */
-export const MYPAINT_SPEED_GAMMA_LOG = 4;
+const MYPAINT_SPEED_GAMMA_LOG = 4;
 /** `slow_tracking` range. 0 disables slow position tracking. */
 export const MYPAINT_SLOW_TRACKING_MAX = 10;
 /** `pressure_gain_log` range. */
@@ -39,12 +39,12 @@ const SPEED_FIX_Y = 0.5;
 const SPEED_FIX_DY = 0.015;
 
 /** exp_decay(): the fraction still left after `time` for `timeConstant`. */
-export function mypaintExpDecay(timeConstant: number, time: number): number {
+function mypaintExpDecay(timeConstant: number, time: number): number {
   if (timeConstant <= EXP_DECAY_MIN_TIME_CONSTANT) return 0;
   return Math.exp(-time / timeConstant);
 }
 
-export type MyPaintControlPoint = readonly [x: number, y: number];
+type MyPaintControlPoint = readonly [x: number, y: number];
 
 /** One input of a MyPaintMapping: stepwise linear control points, at least two. */
 export interface MyPaintCurve {

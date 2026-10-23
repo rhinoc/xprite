@@ -68,8 +68,12 @@ describe("ink-dynamics", () => {
     close(mypaint.mypaintSpeedInput(speed, 45), 0.5, "speed fix point");
     const slope = (mypaint.mypaintSpeedInput(speed, 45 + 1e-6) - 0.5) / 1e-6;
     assert.ok(Math.abs(slope - 0.015) < 1e-6, `speed fix slope: ${slope}`);
-    assert.equal(mypaint.mypaintExpDecay(0.001, 1), 0, "tiny time constants decay at once");
-    close(mypaint.mypaintExpDecay(2, 2), Math.exp(-1), "exp decay");
+    assert.equal(
+      mypaint.mypaintFilterSpeed(0, 1, 0.001, 1),
+      1,
+      "tiny time constants decay at once",
+    );
+    close(mypaint.mypaintFilterSpeed(0, 1, 2, 2), 1 - Math.exp(-1), "exp decay");
     close(mypaint.mypaintSlowTracking(0, 10, 1, 0.01), 10 * (1 - Math.exp(-1)), "slow tracking");
     close(mypaint.mypaintPressureInput(0.25, Math.log(2)), 0.5, "pressure gain");
 
