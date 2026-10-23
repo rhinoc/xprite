@@ -219,8 +219,7 @@ export function FormDialog({
         : 0,
     );
   const narrow = scene.width > 0 && preferredWidth > scene.width;
-  const emptyLayout = layout && Object.keys(layout.fields ?? {}).length === 0;
-  const flow = !content && !headerActions && !tabs && (!layout || emptyLayout || narrow);
+  const flow = !content && !headerActions && !tabs && (!layout || narrow);
   const dialogWidth = Math.max(
     1,
     flow && scene.width > 0 ? Math.min(preferredWidth, scene.width) : preferredWidth,
