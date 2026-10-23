@@ -30,7 +30,7 @@ import {
   type SurfaceViewport,
   useUi,
 } from "@xprite/ui";
-import { UiPart } from "@xprite/ui/assets";
+import { measureUiText, UiPart } from "@xprite/ui/assets";
 import { DEFAULT_SURFACE_VIEWPORT, surfaceLayout } from "@xprite/ui/canvas";
 import { anchoredPopoverStyle, useAnchoredPopover } from "@xprite/ui/popover";
 
@@ -72,17 +72,47 @@ const INPUT_CHOICES = [
 const MIN_SIZE = 1;
 const MAX_SIZE = 64;
 const MAX_ANGLE = 180;
-const PANEL_WIDTH = 300;
+const LABELS = ["Smoothing", "Size", "Angle", "Color", "Low", "High", "Pressure gain"] as const;
+const COLOR_ORDER_LABELS = ["BG > FG", "FG > BG"] as const;
 const PADDING = 6;
 const LABEL_X = 8;
-const LABEL_WIDTH = 92;
-const CONTROL_X = 102;
+const LABEL_GAP = 8;
+const BUTTON_TEXT_PADDING = 16;
+const MIN_CONTROL_WIDTH = 192;
 const ROW_HEIGHT = 28;
 const ROW_STEP = 30;
 const COLOR_ROW_HEIGHT = 58;
 const SEPARATOR_HEIGHT = 8;
 const SHARED_HEIGHT = 24;
 const BOTTOM_PADDING = 8;
+
+interface PanelColumns {
+  labelWidth: number;
+  controlX: number;
+  choiceWidth: number;
+  controlWidth: number;
+  width: number;
+}
+
+/** Column widths follow the translated label and button text. */
+function panelColumns(): PanelColumns {
+  const textWidth = (texts: readonly string[], font?: FontRole) =>
+    Math.max(...texts.map((text) => measureUiText(tUiSource(text), font)));
+  const labelWidth = Math.max(
+    textWidth(LABELS, FontRole.Compact) + LABEL_GAP,
+    textWidth(COLOR_ORDER_LABELS) + BUTTON_TEXT_PADDING + PADDING + LABEL_GAP / 2 - LABEL_X,
+  );
+  const controlX = LABEL_X + labelWidth;
+  const choiceWidth = textWidth(INPUT_CHOICES.map((choice) => choice.label)) + BUTTON_TEXT_PADDING;
+  const controlWidth = Math.max(MIN_CONTROL_WIDTH, choiceWidth * INPUT_CHOICES.length);
+  return {
+    labelWidth,
+    controlX,
+    choiceWidth: Math.floor(controlWidth / INPUT_CHOICES.length),
+    controlWidth,
+    width: controlX + controlWidth + PADDING,
+  };
+}
 
 interface PanelLayout {
   height: number;
@@ -156,9 +186,8 @@ export function DynamicsPicker({
     value.slowTracking > 0 ||
     OUTPUTS.some((output) => value[OUTPUT_INPUT_KEYS[output]] !== DynamicsInputControl.None);
   const layout = panelLayout(value);
-  const width = PANEL_WIDTH,
-    height = layout.height,
-    controlWidth = width - CONTROL_X - PADDING;
+  const { labelWidth, controlX, choiceWidth, controlWidth, width } = panelColumns();
+  const height = layout.height;
   const pb = popup ? { x: popup.x, y: popup.y, width, height } : null;
   const update = (next: Partial<DynamicsSettings>) => onValueChange({ ...value, ...next });
   const toggle = () => {
@@ -176,7 +205,7 @@ export function DynamicsPicker({
     <Text
       variant={TextVariant.Control}
       {...common}
-      bounds={b(LABEL_X, y, LABEL_WIDTH, ROW_HEIGHT)}
+      bounds={b(LABEL_X, y, labelWidth, ROW_HEIGHT)}
       text={text}
       font={FontRole.Compact}
     />
@@ -191,7 +220,7 @@ export function DynamicsPicker({
         {label("Low", y)}
         <Slider
           {...common}
-          bounds={b(CONTROL_X, y, controlWidth, ROW_HEIGHT)}
+          bounds={b(controlX, y, controlWidth, ROW_HEIGHT)}
           font={FontRole.Compact}
           min={min}
           max={max}
@@ -202,7 +231,7 @@ export function DynamicsPicker({
         {label("High", y + ROW_STEP)}
         <Slider
           {...common}
-          bounds={b(CONTROL_X, y + ROW_STEP, controlWidth, ROW_HEIGHT)}
+          bounds={b(controlX, y + ROW_STEP, controlWidth, ROW_HEIGHT)}
           font={FontRole.Compact}
           min={min}
           max={max}
@@ -219,7 +248,7 @@ export function DynamicsPicker({
       <>
         <Button
           {...common}
-          bounds={b(PADDING, y, CONTROL_X - PADDING - 2, ROW_HEIGHT)}
+          bounds={b(PADDING, y, controlX - PADDING - LABEL_GAP / 2, ROW_HEIGHT)}
           text={backgroundFirst ? "BG > FG" : "FG > BG"}
           aria-label={tUi("ui.gradient.direction")}
           onClick={() =>
@@ -232,7 +261,7 @@ export function DynamicsPicker({
         />
         <DitheringSelector
           {...common}
-          bounds={b(CONTROL_X, y, controlWidth, COLOR_ROW_HEIGHT)}
+          bounds={b(controlX, y, controlWidth, COLOR_ROW_HEIGHT)}
           value={value.ditherMatrix}
           onValueChange={(ditherMatrix) => update({ ditherMatrix })}
         />
@@ -304,7 +333,7 @@ export function DynamicsPicker({
               {label("Smoothing", layout.smoothingY)}
               <Slider
                 {...common}
-                bounds={b(CONTROL_X, layout.smoothingY, controlWidth, ROW_HEIGHT)}
+                bounds={b(controlX, layout.smoothingY, controlWidth, ROW_HEIGHT)}
                 font={FontRole.Compact}
                 min={0}
                 max={SLOW_TRACKING_SLIDER_MAX}
@@ -325,7 +354,6 @@ export function DynamicsPicker({
               {OUTPUTS.map((output) => {
                 const { inputY, valuesY } = layout.outputs[output];
                 const key = OUTPUT_INPUT_KEYS[output];
-                const choiceWidth = Math.floor(controlWidth / INPUT_CHOICES.length);
                 return (
                   <React.Fragment key={output}>
                     {label(OUTPUT_LABELS[output], inputY)}
@@ -333,7 +361,7 @@ export function DynamicsPicker({
                       <Button
                         key={choice.input}
                         {...common}
-                        bounds={b(CONTROL_X + index * choiceWidth, inputY, choiceWidth, ROW_HEIGHT)}
+                        bounds={b(controlX + index * choiceWidth, inputY, choiceWidth, ROW_HEIGHT)}
                         text={choice.label}
                         selected={value[key] === choice.input}
                         aria-label={tUi("ui.with", {
@@ -365,7 +393,7 @@ export function DynamicsPicker({
                   {label("Pressure gain", layout.gainY)}
                   <Slider
                     {...common}
-                    bounds={b(CONTROL_X, layout.gainY, controlWidth, ROW_HEIGHT)}
+                    bounds={b(controlX, layout.gainY, controlWidth, ROW_HEIGHT)}
                     font={FontRole.Compact}
                     min={-PRESSURE_GAIN_SLIDER_LIMIT}
                     max={PRESSURE_GAIN_SLIDER_LIMIT}
