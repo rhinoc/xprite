@@ -470,9 +470,7 @@ export function FormDialog({
           const columnWidth = authored?.width ?? client.width / peers.length;
           const columnX = client.x + (authored?.x ?? column * columnWidth);
           const y = client.y + (authored?.y ?? 8 + messageHeight + rows.indexOf(row) * 44);
-          const labelWidth =
-            authored?.labelWidth ??
-            (peers.length > 1 ? measureUiText(tUiSource(field.label)) + 24 : labelWidthHint);
+          const labelWidth = authored?.labelWidth ?? measureUiText(tUiSource(field.label)) + 24;
           const input = {
             x: columnX + labelWidth,
             y,

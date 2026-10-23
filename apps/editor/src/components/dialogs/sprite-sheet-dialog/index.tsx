@@ -156,9 +156,9 @@ export function SpriteSheetDialog({
               "constraints",
             ),
           ]),
-      check("mergeDuplicates", "Merge Duplicates", "flags"),
-      check("ignoreEmpty", "Ignore Empty", "flags"),
-      check("powerOfTwo", "Size=2^n", "flags"),
+      check("mergeDuplicates", "Merge Duplicates"),
+      check("ignoreEmpty", "Ignore Empty"),
+      check("powerOfTwo", "Size=2^n"),
     ],
     sprite: [
       {
