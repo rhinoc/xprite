@@ -10,7 +10,12 @@ import {
   SitePageKind,
   type SitePage,
 } from "../../content/site/pages.ts";
-import { ANIMAL_CROSSING_TOOL, GIF_SHEET_TOOL, BEADS_TOOL, FIX_AI_PIXEL_ART_TOOL } from "../../content/tools/index.ts";
+import {
+  ANIMAL_CROSSING_TOOL,
+  GIF_SHEET_TOOL,
+  BEADS_TOOL,
+  FIX_AI_PIXEL_ART_TOOL,
+} from "../../content/tools/index.ts";
 import { readArticleDocument } from "../pages/article-source.ts";
 
 const SITE_URL = "https://xprite.cc/";

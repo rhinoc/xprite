@@ -44,7 +44,8 @@ export const FIX_AI_PIXEL_ART_HELP = {
           "After opening an image, the tool automatically detects and recovers the original pixel grid.",
           "If automatic detection fails, turn off Automatic grid and manually enter Cell width and Cell height.",
         ],
-        notes: "Cell sizes are measured in pixels of the original image. You can choose different cell color extraction methods.",
+        notes:
+          "Cell sizes are measured in pixels of the original image. You can choose different cell color extraction methods.",
       },
       {
         id: FixAiPixelArtHelpSection.Result,
@@ -52,8 +53,7 @@ export const FIX_AI_PIXEL_ART_HELP = {
         steps: [
           "Click Export… to save the PNG, or Edit more to open the result in the Xprite editor as a new project.",
         ],
-        notes:
-          "The PNG filename adds -fixed before the extension; the original stays unchanged.",
+        notes: "The PNG filename adds -fixed before the extension; the original stays unchanged.",
       },
     ],
     closing:
@@ -79,8 +79,7 @@ export const FIX_AI_PIXEL_ART_HELP = {
         steps: [
           "「エクスポート…」で PNG を保存するか、「さらに編集」で Xprite エディターに新しいプロジェクトとして開きます。",
         ],
-        notes:
-          "PNG のファイル名は拡張子の前に -fixed が付き、元のファイルは変更されません。",
+        notes: "PNG のファイル名は拡張子の前に -fixed が付き、元のファイルは変更されません。",
       },
     ],
     closing: "プレビューは現在の設定で更新され、満足のいく結果が得られるまで調整できます。",
@@ -97,17 +96,18 @@ export const FIX_AI_PIXEL_ART_HELP = {
           "이미지를 열면 도구가 자동으로 원본 픽셀 격자를 감지하고 복원합니다.",
           "자동 감지가 실패하면 자동 격자를 끄고 칸 너비와 칸 높이를 수동으로 입력하세요.",
         ],
-        notes: "칸 크기는 원본 이미지의 픽셀 단위입니다. 다양한 칸 색상 추출 방법을 선택할 수 있습니다.",
+        notes:
+          "칸 크기는 원본 이미지의 픽셀 단위입니다. 다양한 칸 색상 추출 방법을 선택할 수 있습니다.",
       },
       {
         id: FixAiPixelArtHelpSection.Result,
         title: "저장하거나 계속 편집하기",
         steps: ["PNG 다운로드로 결과를 저장하거나, 계속 편집으로 Xprite 에디터에서 여세요."],
-        notes:
-          "PNG 파일 이름에는 확장자 앞에 -fixed가 붙으며 원본은 바뀌지 않습니다.",
+        notes: "PNG 파일 이름에는 확장자 앞에 -fixed가 붙으며 원본은 바뀌지 않습니다.",
       },
     ],
-    closing: "미리 보기는 현재 설정에 맞춰 업데이트되며, 원하는 결과를 얻을 때까지 조정할 수 있습니다.",
+    closing:
+      "미리 보기는 현재 설정에 맞춰 업데이트되며, 원하는 결과를 얻을 때까지 조정할 수 있습니다.",
   },
   [PublicLanguage.Russian]: {
     title: "Исправление пиксель-арта, созданного ИИ",
@@ -121,7 +121,8 @@ export const FIX_AI_PIXEL_ART_HELP = {
           "После открытия изображения инструмент автоматически определяет и восстанавливает исходную пиксельную сетку.",
           "Если автоопределение не сработало, отключите автоопределение сетки и вручную введите ширину и высоту ячейки.",
         ],
-        notes: "Размер ячеек измеряется в пикселях исходного изображения. Вы можете выбрать различные методы извлечения цвета ячеек.",
+        notes:
+          "Размер ячеек измеряется в пикселях исходного изображения. Вы можете выбрать различные методы извлечения цвета ячеек.",
       },
       {
         id: FixAiPixelArtHelpSection.Result,
@@ -129,8 +130,7 @@ export const FIX_AI_PIXEL_ART_HELP = {
         steps: [
           "Нажмите «Скачать PNG», чтобы сохранить результат, или «Продолжить редактирование», чтобы открыть его в редакторе Xprite.",
         ],
-        notes:
-          "К имени PNG перед расширением добавляется -fixed; оригинал не меняется.",
+        notes: "К имени PNG перед расширением добавляется -fixed; оригинал не меняется.",
       },
     ],
     closing:
@@ -148,7 +148,8 @@ export const FIX_AI_PIXEL_ART_HELP = {
           "Após abrir uma imagem, a ferramenta detecta e recupera automaticamente a grade de pixels original.",
           "Se a detecção automática falhar, desative Grade automática e informe manualmente Largura da célula e Altura da célula.",
         ],
-        notes: "O tamanho das células é medido em pixels da imagem original. Você pode escolher diferentes métodos de extração de cor das células.",
+        notes:
+          "O tamanho das células é medido em pixels da imagem original. Você pode escolher diferentes métodos de extração de cor das células.",
       },
       {
         id: FixAiPixelArtHelpSection.Result,
@@ -156,8 +157,7 @@ export const FIX_AI_PIXEL_ART_HELP = {
         steps: [
           "Escolha Baixar PNG para salvar o resultado ou Continuar editando para abri-lo no editor Xprite.",
         ],
-        notes:
-          "O nome do PNG ganha -fixed antes da extensão; o original não muda.",
+        notes: "O nome do PNG ganha -fixed antes da extensão; o original não muda.",
       },
     ],
     closing:
@@ -175,7 +175,8 @@ export const FIX_AI_PIXEL_ART_HELP = {
           "Tras abrir una imagen, la herramienta detecta y recupera automáticamente la cuadrícula de píxeles original.",
           "Si la detección automática falla, desactiva Cuadrícula automática e introduce manualmente Ancho de celda y Alto de celda.",
         ],
-        notes: "El tamaño de las celdas se mide en píxeles de la imagen original. Puedes elegir diferentes métodos de extracción de color de las celdas.",
+        notes:
+          "El tamaño de las celdas se mide en píxeles de la imagen original. Puedes elegir diferentes métodos de extracción de color de las celdas.",
       },
       {
         id: FixAiPixelArtHelpSection.Result,
@@ -183,8 +184,7 @@ export const FIX_AI_PIXEL_ART_HELP = {
         steps: [
           "Elige Descargar PNG para guardar el resultado o Seguir editando para abrirlo en el editor Xprite.",
         ],
-        notes:
-          "El nombre del PNG añade -fixed antes de la extensión; el original no cambia.",
+        notes: "El nombre del PNG añade -fixed antes de la extensión; el original no cambia.",
       },
     ],
     closing:

@@ -26,9 +26,7 @@ export function FixAiPixelArtPage({ manager }: { manager: PixelationManager }) {
       processing={busy || state.converting}
       busy={busy}
       error={state.error}
-      help={
-        <ToolHelp id={FixAiPixelArtHelpSection.Overview} content={FIX_AI_PIXEL_ART_HELP} />
-      }
+      help={<ToolHelp id={FixAiPixelArtHelpSection.Overview} content={FIX_AI_PIXEL_ART_HELP} />}
       onOpen={(file) => manager.open(file)}
       onExample={() => manager.openExample()}
       onReset={() => manager.clear()}

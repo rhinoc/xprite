@@ -37,6 +37,7 @@
         "src/gif-main.tsx",
         "src/animal-crossing-main.tsx",
         "src/pixelation-main.tsx",
+        "src/fix-ai-main.tsx",
         "src/bead-main.tsx",
         "src/ssg.tsx",
         "src/pixelation-engine.ts"
