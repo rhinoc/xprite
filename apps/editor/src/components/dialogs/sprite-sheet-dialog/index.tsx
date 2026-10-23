@@ -30,7 +30,8 @@ export interface SpriteSheetDialogProps {
   busy?: boolean;
   documentKey?: string;
 }
-/** Sprite-sheet dialog: four section tabs. Form primitive owns geometry, focus, controls, styling. */
+/** Sprite Sheet dialog with four section tabs for layout, sprite, borders, and output options.
+ * The form primitive owns all geometry, focus, controls and styling. */
 export function SpriteSheetDialog({
   embedded = false,
   active = true,

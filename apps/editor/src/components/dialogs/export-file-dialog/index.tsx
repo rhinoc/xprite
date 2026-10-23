@@ -34,7 +34,8 @@ export interface ExportFileDialogProps {
   documentKey?: string;
   filePreferences?: FilePreferences;
 }
-/** Export dialog field order and label strings. Unsupported outputs stay visibly disabled. */
+/** Export File dialog with field order and options familiar to pixel-art editors.
+ * Unsupported output behaviors remain visibly disabled rather than being silently ignored. */
 export function ExportFileDialog({
   embedded = false,
   formatRequest,
