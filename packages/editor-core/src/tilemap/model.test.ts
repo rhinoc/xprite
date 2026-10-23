@@ -416,8 +416,140 @@ describe("tilemap-model", () => {
       0,
       "stack",
     );
-    assert.equal(flipped.tilesets[0].tileCount, 2);
-    assert.equal(flipped.frames[0].cels[0].tilemap.tiles[0], (1 | m.TILE_X_FLIP) >>> 0);
+    assert.equal(
+      flipped.tilesets[0].tileCount,
+      3,
+      "Stack must not reuse tile 1 with X flip for mirrored pixels; adds new tile instead",
+    );
+    assert.equal(flipped.frames[0].cels[0].tilemap.tiles[0] & m.TILE_INDEX_MASK, 2);
+    // Exact-match reuse (Auto): paint a block identical to an existing tile → remaps to that index
+    let exactMatch = m.createTilemapLayer(
+      { layers: [], frames: [{ duration: 100, cels: [] }], activeLayer: 0, activeFrame: 0 },
+      { tileWidth: 1, tileHeight: 1 },
+    );
+    exactMatch = {
+      ...exactMatch,
+      tilesets: [{ ...exactMatch.tilesets[0], tileCount: 3, pixels: rgba([0, 10, 20]) }],
+    };
+    exactMatch = m.setTilesAt(exactMatch, 0, 0, [
+      { x: 0, y: 0, tile: 1 },
+      { x: 1, y: 0, tile: 2 },
+    ]);
+    const exactReuse = m.commitTilemapPixels(
+      exactMatch,
+      0,
+      0,
+      { width: 1, height: 1, data: rgba([20]) },
+      0,
+      0,
+      "auto",
+    );
+    const tilePixels = exactReuse.tilesets[0].pixels.slice(
+      exactReuse.frames[0].cels[0].tilemap.tiles[0] * 4,
+      (exactReuse.frames[0].cels[0].tilemap.tiles[0] + 1) * 4,
+    );
+    assert.equal(tilePixels[0], 20, "Auto remaps to exact match (tile reindexed after prune)");
+    assert.equal(exactReuse.tilesets[0].tileCount, 2, "Auto prunes unused modified tile");
+    // Unique rewrite (Auto): sole reference to tile N, paint different pixels → same index, bytes updated
+    let uniqueT = m.createTilemapLayer(
+      { layers: [], frames: [{ duration: 100, cels: [] }], activeLayer: 0, activeFrame: 0 },
+      { tileWidth: 1, tileHeight: 1 },
+    );
+    uniqueT = {
+      ...uniqueT,
+      tilesets: [{ ...uniqueT.tilesets[0], tileCount: 2, pixels: rgba([0, 10]) }],
+    };
+    uniqueT = m.setTileAt(uniqueT, 0, 0, 0, 0, 1);
+    const uniqueRewrite = m.commitTilemapPixels(
+      uniqueT,
+      0,
+      0,
+      { width: 1, height: 1, data: rgba([30]) },
+      0,
+      0,
+      "auto",
+    );
+    assert.equal(uniqueRewrite.frames[0].cels[0].tilemap.tiles[0], 1, "Auto reuses unique tile ID");
+    assert.equal(uniqueRewrite.tilesets[0].tileCount, 2, "Tile count unchanged");
+    assert.equal(uniqueRewrite.tilesets[0].pixels[1 * 4], 30, "Tile pixels updated in place");
+    // Shared → add (Auto): tile N used twice, paint one cell differently → new tile; old tile unchanged
+    let sharedT = m.createTilemapLayer(
+      { layers: [], frames: [{ duration: 100, cels: [] }], activeLayer: 0, activeFrame: 0 },
+      { tileWidth: 1, tileHeight: 1 },
+    );
+    sharedT = {
+      ...sharedT,
+      tilesets: [{ ...sharedT.tilesets[0], tileCount: 2, pixels: rgba([0, 10]) }],
+    };
+    sharedT = m.setTilesAt(sharedT, 0, 0, [
+      { x: 0, y: 0, tile: 1 },
+      { x: 1, y: 0, tile: 1 },
+    ]);
+    const sharedAdd = m.commitTilemapPixels(
+      sharedT,
+      0,
+      0,
+      { width: 2, height: 1, data: rgba([40, 10]) },
+      0,
+      0,
+      "auto",
+    );
+    assert.equal(sharedAdd.tilesets[0].tileCount, 3, "Auto adds new tile for shared tile edit");
+    assert.equal(sharedAdd.frames[0].cels[0].tilemap.tiles[0], 2, "Cell 0 remapped to new tile");
+    assert.equal(sharedAdd.frames[0].cels[0].tilemap.tiles[1], 1, "Cell 1 keeps old tile");
+    assert.equal(sharedAdd.tilesets[0].pixels[1 * 4], 10, "Old tile unchanged");
+    assert.equal(sharedAdd.tilesets[0].pixels[2 * 4], 40, "New tile has new pixels");
+    // No flip discovery (Auto and Stack): tileset has tile [10,20]; paint [20,10] must not yield id|TILE_X_FLIP
+    let noFlipAuto = m.createTilemapLayer(
+      { layers: [], frames: [{ duration: 100, cels: [] }], activeLayer: 0, activeFrame: 0 },
+      { tileWidth: 2, tileHeight: 1 },
+    );
+    noFlipAuto = {
+      ...noFlipAuto,
+      tilesets: [
+        { ...noFlipAuto.tilesets[0], flags: 14, tileCount: 2, pixels: rgba([0, 0, 10, 20]) },
+      ],
+    };
+    noFlipAuto = m.setTileAt(noFlipAuto, 0, 0, 0, 0, 0);
+    const noFlipAutoResult = m.commitTilemapPixels(
+      noFlipAuto,
+      0,
+      0,
+      { width: 2, height: 1, data: rgba([20, 10]) },
+      0,
+      0,
+      "auto",
+    );
+    assert.equal(
+      noFlipAutoResult.frames[0].cels[0].tilemap.tiles[0] & ~m.TILE_INDEX_MASK,
+      0,
+      "Auto must not set flip flags via discovery",
+    );
+    let noFlipStack = m.createTilemapLayer(
+      { layers: [], frames: [{ duration: 100, cels: [] }], activeLayer: 0, activeFrame: 0 },
+      { tileWidth: 2, tileHeight: 1 },
+    );
+    noFlipStack = {
+      ...noFlipStack,
+      tilesets: [
+        { ...noFlipStack.tilesets[0], flags: 14, tileCount: 2, pixels: rgba([0, 0, 10, 20]) },
+      ],
+    };
+    noFlipStack = m.setTileAt(noFlipStack, 0, 0, 0, 0, 1);
+    const noFlipStackResult = m.commitTilemapPixels(
+      noFlipStack,
+      0,
+      0,
+      { width: 2, height: 1, data: rgba([20, 10]) },
+      0,
+      0,
+      "stack",
+    );
+    assert.equal(
+      noFlipStackResult.frames[0].cels[0].tilemap.tiles[0] & ~m.TILE_INDEX_MASK,
+      0,
+      "Stack must not set flip flags via discovery",
+    );
     m.assertTilemapTimeline(flipped);
     assert.throws(() => m.assertTilemapTimeline({ ...flipped, tilesets: [] }), /missing Tileset/);
     assert.throws(
