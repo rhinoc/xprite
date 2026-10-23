@@ -2840,7 +2840,7 @@
     {
       "id": "export-file-wide",
       "file": "export-file-wide.png",
-      "sha256": "dea0e0222d5ba630ec1f675568a59e6a2583f627393c5e282edf88f31fbd86d8",
+      "sha256": "9810814d04d9bd7bb3e23d4284d701b7177423d4b7e62b05ed1556bd26ca2106",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:23.933Z",
@@ -2963,7 +2963,7 @@
     {
       "id": "gif-options-wide",
       "file": "gif-options-wide.png",
-      "sha256": "b32409be0dc7553f34d0d44908734277ed36a12e7ff25dcdb9bcd112af6810ed",
+      "sha256": "eec4c89e0dd7724c925749da7d73adfa02c858b83e8f17c1545ddc1ed3e7e2d7",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:24.293Z",
@@ -3318,7 +3318,7 @@
           "height": 64
         }
       ],
-      "tooltip": "연필 도구\n\n단축키: B",
+      "tooltip": "\uc5f0\ud544 \ub3c4\uad6c\n\n\ub2e8\ucd95\ud0a4: B",
       "capture": {
         "capturedAt": "2026-10-18T05:02:26.337Z",
         "sourceDigest": "842a79ddcc064ba208d126e3a1c4569f2ef577b4bce49c0880856409c03cdbd5",
@@ -4296,7 +4296,7 @@
     {
       "id": "gif-options-compact",
       "file": "gif-options-compact.png",
-      "sha256": "a21db27db9966c3051de8e2e86c4ea62b7e58044cc85904be4a5c2b70165dd2c",
+      "sha256": "bb2c1e11ae9928800c18ba15ee1c3dc5888aea3de79e06d07137b284dc65aa68",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:24.147Z",
@@ -4609,7 +4609,7 @@
           "height": 64
         }
       ],
-      "tooltip": "연필 도구\n\n단축키: B",
+      "tooltip": "\uc5f0\ud544 \ub3c4\uad6c\n\n\ub2e8\ucd95\ud0a4: B",
       "capture": {
         "capturedAt": "2026-10-18T05:02:26.337Z",
         "sourceDigest": "842a79ddcc064ba208d126e3a1c4569f2ef577b4bce49c0880856409c03cdbd5",

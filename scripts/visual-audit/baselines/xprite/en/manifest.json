@@ -2840,7 +2840,7 @@
     {
       "id": "export-file-wide",
       "file": "export-file-wide.png",
-      "sha256": "b053083a60281b9f646ba82fa04efd56bc93163a13b0778b7f9ea2251cb8d048",
+      "sha256": "95866140aa57a7d968136ebd558e8d7a59f14b11480cd8c0be32e5a95003488e",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:23.978Z",
@@ -2963,7 +2963,7 @@
     {
       "id": "gif-options-wide",
       "file": "gif-options-wide.png",
-      "sha256": "79d9983d94855f2118559a004f88bdfda871f0b22cc6b3c99c60896b069a1a67",
+      "sha256": "e79492261c496d5a30ebd1580dc6b53319ac16847385efbacf01d6d716e49341",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:24.291Z",
@@ -4296,7 +4296,7 @@
     {
       "id": "gif-options-compact",
       "file": "gif-options-compact.png",
-      "sha256": "5963a4de573bc64a17bfff7053c25383d3d077918c4ec07149859ecc217fbc05",
+      "sha256": "10b612d9199390a8bf695cf4670e1d972708616fbbdc7da0653d84b7861ab9f4",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:24.210Z",

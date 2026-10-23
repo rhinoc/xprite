@@ -2840,7 +2840,7 @@
     {
       "id": "export-file-wide",
       "file": "export-file-wide.png",
-      "sha256": "6f363841150043ba077ef87dd1ccaf929dbb3468ccf356f96cf8bcaf8cb3b95f",
+      "sha256": "7e505ee864de7c03e54ebaec8675521ea8ceafbcf320dce9aa35e44d11b04963",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:23.858Z",
@@ -2963,7 +2963,7 @@
     {
       "id": "gif-options-wide",
       "file": "gif-options-wide.png",
-      "sha256": "7c24b6924303d1afc9be631960ca2eeb8e283ab4e597e1910cdba130af74a67b",
+      "sha256": "ea6689ff0e140abc1fb8e64f20122f7b515f6c9167c655e38c5121cee7d93bbe",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:24.244Z",
@@ -3318,7 +3318,7 @@
           "height": 64
         }
       ],
-      "tooltip": "铅笔工具\n\n快捷键：B",
+      "tooltip": "\u94c5\u7b14\u5de5\u5177\n\n\u5feb\u6377\u952e\uff1aB",
       "capture": {
         "capturedAt": "2026-10-18T05:02:26.297Z",
         "sourceDigest": "842a79ddcc064ba208d126e3a1c4569f2ef577b4bce49c0880856409c03cdbd5",
@@ -4296,7 +4296,7 @@
     {
       "id": "gif-options-compact",
       "file": "gif-options-compact.png",
-      "sha256": "888ed071999c4421b17699cdcf23e755c20e33c8e99ad608c451012aca08ac5e",
+      "sha256": "b758b7880c468ac5103bccc9734950ff58f2fe993ccd9d81719f10526e0095a7",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:24.260Z",
@@ -4609,7 +4609,7 @@
           "height": 64
         }
       ],
-      "tooltip": "铅笔工具\n\n快捷键：B",
+      "tooltip": "\u94c5\u7b14\u5de5\u5177\n\n\u5feb\u6377\u952e\uff1aB",
       "capture": {
         "capturedAt": "2026-10-18T05:02:26.297Z",
         "sourceDigest": "842a79ddcc064ba208d126e3a1c4569f2ef577b4bce49c0880856409c03cdbd5",

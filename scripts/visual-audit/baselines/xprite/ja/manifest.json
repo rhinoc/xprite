@@ -2840,7 +2840,7 @@
     {
       "id": "export-file-wide",
       "file": "export-file-wide.png",
-      "sha256": "5d168f85c88f54187902b859463f7f4cc1494c8dfb5146b030c2bd63b3574967",
+      "sha256": "90f015deacc2643bb190a9de08924eee81d44a1593f4d7609b450a8636771cb6",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:23.923Z",
@@ -2963,7 +2963,7 @@
     {
       "id": "gif-options-wide",
       "file": "gif-options-wide.png",
-      "sha256": "8b5cc90d5c8695becd3f24204cf3e4d081da71fdfa03734f275647205567f90b",
+      "sha256": "75696b9aecf5c2ada34ce842d4beb27fde263f734e6f3a0e1724f4fff6f870f7",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:24.312Z",
@@ -3318,7 +3318,7 @@
           "height": 64
         }
       ],
-      "tooltip": "鉛筆ツール\n\nショートカット：B",
+      "tooltip": "\u925b\u7b46\u30c4\u30fc\u30eb\n\n\u30b7\u30e7\u30fc\u30c8\u30ab\u30c3\u30c8\uff1aB",
       "capture": {
         "capturedAt": "2026-10-18T05:02:26.326Z",
         "sourceDigest": "842a79ddcc064ba208d126e3a1c4569f2ef577b4bce49c0880856409c03cdbd5",
@@ -4296,7 +4296,7 @@
     {
       "id": "gif-options-compact",
       "file": "gif-options-compact.png",
-      "sha256": "7859a7c4056affca2dcf21b9817f5a620a0a837c42e1ae7f6e5387f6f1204168",
+      "sha256": "5b654fb4f61b62630025426db97940cf99487d1bbda4b32335d978dee53beadc",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:24.283Z",
@@ -4609,7 +4609,7 @@
           "height": 64
         }
       ],
-      "tooltip": "鉛筆ツール\n\nショートカット：B",
+      "tooltip": "\u925b\u7b46\u30c4\u30fc\u30eb\n\n\u30b7\u30e7\u30fc\u30c8\u30ab\u30c3\u30c8\uff1aB",
       "capture": {
         "capturedAt": "2026-10-18T05:02:26.326Z",
         "sourceDigest": "842a79ddcc064ba208d126e3a1c4569f2ef577b4bce49c0880856409c03cdbd5",
