@@ -20,6 +20,12 @@ export const pages = [
     dropStage: true,
   },
   { name: "pixelate", path: "/tools/pixelate/", rootId: "pixelation-root", dropStage: true },
+  {
+    name: "fix-ai-pixel-art",
+    path: "/tools/fix-ai-pixel-art/",
+    rootId: "fix-ai-root",
+    dropStage: true,
+  },
   { name: "beads", path: "/tools/fuse-beads/", rootId: "beads-root", dropStage: true },
 ];
 export const appearances = [

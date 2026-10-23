@@ -4,6 +4,7 @@ import { renderToString } from "react-dom/server";
 import { AnimalCrossingPage } from "$/components/animal-crossing/animal-crossing-page";
 import { BeadPage } from "$/components/beads/bead-page";
 import { GifSheetPage } from "$/components/gif-sheet/gif-sheet-page";
+import { FixAiPixelArtPage } from "$/components/pixelation/fix-ai-pixel-art-page";
 import { PixelationPage } from "$/components/pixelation/pixelation-page";
 import { ToolAppearance } from "$/components/shared/tool-appearance";
 import { ToolArtworkKind, toolArtworkKey } from "$/components/shared/tool-artwork";
@@ -78,7 +79,7 @@ export async function renderToolPage(rootId: string) {
           ? new ViewerManager(ports)
           : rootId === "gif-sheet-root"
             ? new GifSheetManager(ports)
-            : rootId === "pixelation-root"
+            : rootId === "pixelation-root" || rootId === "fix-ai-root"
               ? new PixelationManager({
                   readWheel: unavailable,
                   paletteResources: () => ({ choices: [] }),
@@ -99,7 +100,11 @@ export async function renderToolPage(rootId: string) {
         manager instanceof BeadToolManager ? (
           <BeadPage manager={manager} />
         ) : manager instanceof PixelationManager ? (
-          <PixelationPage manager={manager} />
+          rootId === "fix-ai-root" ? (
+            <FixAiPixelArtPage manager={manager} />
+          ) : (
+            <PixelationPage manager={manager} />
+          )
         ) : manager instanceof AnimalCrossingManager ? (
           <AnimalCrossingPage manager={manager} />
         ) : manager instanceof ViewerManager ? (
