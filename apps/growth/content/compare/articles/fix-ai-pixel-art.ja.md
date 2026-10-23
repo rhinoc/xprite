@@ -3,100 +3,100 @@ published: 2026-10-23
 updated: 2026-10-23
 ---
 
-# Fix AI Pixel Art: Recover the Real Grid (Not Magic AI)
+# AI ドット絵を直す：本物のグリッドを復元（魔法の AI ではない）
 
-Most AI "pixel art" only looks right from far away. Zoom in and the cells are uneven, edges are soft, and you get hundreds of near-identical colours. That is not a sprite you can drop into a game or an editor.
+AI の「ドット絵」は遠くから見るとそれっぽく見えます。拡大するとマスの大きさがバラバラで、輪郭は柔らかく、ほぼ同じ色が何百色にもなります。ゲームやエディターにそのまま放り込めるスプライトではありません。
 
-Xprite's [Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) tool runs **Recover Grid**: it looks for the upscaled cell lattice in your image and rebuilds a true 1×1 pixel grid on your device. It is not a generative model and it does not invent missing detail.
+Xprite の [AI ドット絵を修正](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) ツールは **Recover Grid** を実行します。画像内の拡大されたマス格子を探し、端末上で本物の 1×1 ピクセルグリッドを組み直します。生成モデルではなく、欠けた細部を捏造もしません。
 
-- Off-grid or blurry AI / soft "pixel art": start with [Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art).
-- A normal photo or drawing you want *turned into* pixel art: use [Image to Pixel Art](/tools/pixelate/) (Convert), then edit.
-- After the grid is right: [Edit more](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) in the Xprite editor (layers, palette, animation).
+- グリッドからズレた、またはぼやけた AI / 柔らかい「ドット絵」：まず [AI ドット絵を修正](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)。
+- 普通の写真や絵を*ドット絵にしたい*とき：[画像をドット絵に](/tools/pixelate/)（変換）してから編集。
+- グリッドが整ったら：Xprite エディターで[さらに編集](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)（レイヤー、パレット、アニメ）。
 
-## What people mean by "broken" AI pixel art
+## 「壊れた」AI ドット絵とは何か
 
-From recent artist and gamedev talk (Reddit, X, V2EX, HN), the same complaints repeat:
+最近のアーティストやゲーム開発者の話（Reddit、X、V2EX、HN）でも、同じ不満が繰り返されます。
 
-- **Broken / off-grid cells** — "pixels" of different sizes; lines that don't sit on a lattice.
-- **Blurry or mushy edges** — a soft image shrunk down, not hard pixels.
-- **Too many colours** — dozens of near-blacks or "a thousand shades of blue."
-- **Nearest-neighbor alone fails** — downscaling without a recovered grid ignores shape and contrast.
+- **マスが崩れている / グリッドから外れている** — 大きさの違う「ピクセル」；格子に乗らない線。
+- **輪郭がぼやけて柔らかい** — 硬いピクセルではなく、柔らかい画像を縮めただけ。
+- **色が多すぎる** — ほぼ黒が何十色、あるいは「青の千色」。
+- **最近傍だけだと失敗する** — グリッドを復元せずに縮小すると、形とコントラストが崩れる。
 
-Hand-made pixel art is drawn on a grid. Upscaled or model-made "pixel style" usually is not. Fixing that is a grid problem first, then a palette problem.
+手描きのドット絵はグリッド上に描かれます。拡大されたものやモデル製の「ドット風」は、たいていはそうではありません。直すならまずグリッド、次にパレットです。
 
-## What Recover Grid does (and does not)
+## Recover Grid がすること（しないこと）
 
-| | Recover Grid (this tool) | Nearest-neighbor resize | "AI pixel art" generators |
+| | Recover Grid（このツール） | 最近傍リサイズ | 「AI ドット絵」ジェネレーター |
 | --- | --- | --- | --- |
-| Job | Find cell size/phase and rebuild native pixels | Sample every Nth pixel | Synthesize a new look |
-| Needs | Something close to a regular lattice | A chosen output size | A prompt / model |
-| Invents detail? | No | No | Yes |
-| Runs where? | In your browser; file stays on device | Anywhere | Usually a server |
+| 仕事 | マスのサイズ/位相を探し、ネイティブ画素を再構築 | N ピクセルごとにサンプリング | 新しい見た目を合成 |
+| 必要なもの | 規則的な格子に近いもの | 指定した出力サイズ | プロンプト / モデル |
+| 細部を捏造する？ | いいえ | いいえ | はい |
+| どこで動く？ | ブラウザ内；ファイルは端末に残る | どこでも | 通常はサーバー |
 
-Honest limits:
+正直な限界：
 
-- If the image is too soft or the lattice drifts, automatic detection may fail. Turn **Automatic grid** off and set **Cell width** / **Cell height** yourself.
-- Recover does not replace redrawing faces, hands, or game-ready silhouettes. Cleanup can still be human work.
-- Colour count is separate: after the grid is right, limit colours or pick a palette in the tool, or finish in the editor.
+- 画像が柔らかすぎたり格子がずれていたりすると、自動検出は失敗することがあります。**自動グリッド** をオフにして、**マスの幅** / **マスの高さ** を自分で入れます。
+- 復元は、顔・手・ゲーム向けシルエットの描き直しの代わりにはなりません。掃除は人手の仕事のままです。
+- 色数は別問題です。グリッドが整ったら、ツールで色を制限するかパレットを選ぶか、エディターで仕上げます。
 
-## Fix an AI sprite in a few steps
+## AI スプライトを直す手順
 
-1. Open [Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art). Nothing to install; PNG, JPEG or WebP.
-2. Drop your image, or use **Open example** to try the sample warrior.
-3. Leave **Automatic grid** on when a grid is found. If not, enter cell size in source pixels.
-4. Compare original vs **Fixed** in the preview. Adjust cell colour picking if edges look wrong.
-5. Optionally **Limit colours** or select a palette so you are not exporting 300 near-duplicates.
-6. **Export…** a PNG (`-fixed`), or **Edit more** to open the result as a new project in Xprite.
+1. [AI ドット絵を修正](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) を開きます。インストール不要；PNG、JPEG、WebP。
+2. 画像をドロップするか、**サンプルを開く** で戦士のサンプルを試します。
+3. グリッドが見つかったら **自動グリッド** をオンのままに。見つからなければ、元画像のピクセル単位でマスサイズを入力。
+4. プレビューで元画像と **修正後** を比較。輪郭がおかしければマスの色の取り方を調整。
+5. 任意で **色数を制限** するかパレットを選び、ほぼ同じ色を 300 色も書き出さないようにする。
+6. **エクスポート…** で PNG（`-fixed`）を保存するか、**さらに編集** で結果を Xprite の新規プロジェクトとして開く。
 
-Privacy: processing stays on your device. The source file is never overwritten.
+プライバシー：処理は端末内で完結します。元ファイルは上書きされません。
 
-## When to use Pixelate instead
+## Pixelate を使うべきとき
 
-| You have… | Use |
+| 手元にあるもの | 使うもの |
 | --- | --- |
-| Soft / AI image that still shows a cell lattice | [Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) (Recover) |
-| Photo, painting, or UI shot to stylise as pixels | [Image to Pixel Art](/tools/pixelate/) → **Convert image** |
-| Already-native pixel art that was only enlarged | Either tool's Recover path; Fix AI is labelled for the AI/soft case |
+| 柔らかい / AI 画像でもマス格子が見える | [AI ドット絵を修正](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)（Recover） |
+| 写真・絵画・UI 画面をドット風にしたい | [画像をドット絵に](/tools/pixelate/) → **画像を変換** |
+| もともとネイティブのドット絵で、拡大されただけ | どちらの Recover パスでも可；修正 AI は AI/柔らかいケース向けの表記 |
 
-Both tools share the same engine. The Fix AI page defaults the copy and example toward recovery; Pixelate is the general converter.
+両ツールは同じエンジンを共有します。修正 AI ページは復元向けの文言とサンプルが既定；Pixelate は汎用コンバーターです。
 
-## After the grid: edit in Xprite
+## グリッドのあと：Xprite で編集
 
-A recovered PNG is a starting point. In the [editor](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) you can:
+復元した PNG は出発点です。[エディター](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)では次ができます。
 
-- Clean outlines and fix mis-detected cells by hand.
-- Snap to a palette (including indexed colour) for game assets.
-- Add frames, onion skin and tags for animation.
-- Open and save `.ase` / `.aseprite` if you already work in that format.
+- 輪郭を手直しし、誤検出のマスを直す。
+- パレットにスナップ（インデックスカラー含む）してゲーム素材にする。
+- フレーム、オニオンスキン、タグを足してアニメにする。
+- 既にその形式で作業しているなら `.ase` / `.aseprite` を開いて保存。
 
-No account. Works in the browser on computers, tablets and phones.
+アカウント不要。パソコン、タブレット、スマホのブラウザで動作します。
 
 ## よくある質問
 
-### Is Fix AI Pixel Art an AI model?
+### AI ドット絵を修正は AI モデルですか？
 
-No. It recovers a pixel grid from the image you provide. It does not generate a new sprite from a prompt.
+いいえ。渡した画像からピクセルグリッドを復元するだけで、プロンプトから新しいスプライトを生成しません。
 
-### Will it fix every AI pixel-art image?
+### あらゆる AI ドット絵を直せますか？
 
-No. It works best when a regular cell grid is still detectable. Very soft or irregular images may need manual cell size or a redraw.
+いいえ。規則的なマス格子がまだ検出できるときに最もよく働きます。非常に柔らかい・不規則な画像は、手入力のマスサイズか描き直しが必要になることがあります。
 
-### Is this the same as nearest-neighbor downscale?
+### 最近傍縮小と同じですか？
 
-No. Nearest-neighbor picks samples on a fixed step. Recover Grid estimates the lattice (including phase) and rebuilds cells from that analysis.
+いいえ。最近傍は固定ステップでサンプルを取ります。Recover Grid は格子（位相含む）を推定し、その分析からマスを再構築します。
 
-### Does my image get uploaded?
+### 画像はアップロードされますか？
 
-No. The tool processes the file on your device.
+いいえ。ツールは端末上でファイルを処理します。
 
-### Can I open the result in Aseprite?
+### 結果を Aseprite で開けますか？
 
-Export PNG and open it elsewhere, or use **Edit more** in Xprite and save `.aseprite` from the editor when you need that format.
+PNG を書き出して他のソフトで開くか、Xprite で **さらに編集** し、必要なときにエディターから `.aseprite` を保存します。
 
-### What about "image to pixel art converter"?
+### 「画像をドット絵にするコンバーター」は？
 
-That query usually means photo → pixel style. Use [Image to Pixel Art](/tools/pixelate/). Use Fix AI Pixel Art when the input already pretends to be pixels but the grid is wrong.
+その検索はたいてい写真 → ドット風を指します。[画像をドット絵に](/tools/pixelate/) を使います。入力がすでにドットのフリをしていてグリッドだけがおかしいときは、AI ドット絵を修正を使います。
 
 ---
 
-[Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Open the editor](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Image to Pixel Art](/tools/pixelate/) · [What Xprite is](/about/)
+[AI ドット絵を修正](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [エディターを開く](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [画像をドット絵に](/tools/pixelate/) · [Xprite とは](/about/)

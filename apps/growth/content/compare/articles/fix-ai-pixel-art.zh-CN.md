@@ -3,100 +3,100 @@ published: 2026-10-23
 updated: 2026-10-23
 ---
 
-# Fix AI Pixel Art: Recover the Real Grid (Not Magic AI)
+# 修复 AI 像素画：还原真实网格（不是魔法 AI）
 
-Most AI "pixel art" only looks right from far away. Zoom in and the cells are uneven, edges are soft, and you get hundreds of near-identical colours. That is not a sprite you can drop into a game or an editor.
+多数 AI「像素画」只有远看才像。放大一看，格子大小不一、边缘发虚，近乎相同的颜色能堆出几百种。那不是能直接丢进游戏或编辑器的精灵图。
 
-Xprite's [Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) tool runs **Recover Grid**: it looks for the upscaled cell lattice in your image and rebuilds a true 1×1 pixel grid on your device. It is not a generative model and it does not invent missing detail.
+Xprite 的 [修复 AI 像素画](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) 工具会跑 **Recover Grid**：在本地找出图像里放大后的格子结构，重建真正的 1×1 像素网格。它不是生成模型，也不会凭空补细节。
 
-- Off-grid or blurry AI / soft "pixel art": start with [Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art).
-- A normal photo or drawing you want *turned into* pixel art: use [Image to Pixel Art](/tools/pixelate/) (Convert), then edit.
-- After the grid is right: [Edit more](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) in the Xprite editor (layers, palette, animation).
+- 偏格或发糊的 AI / 软「像素画」：先用 [修复 AI 像素画](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)。
+- 普通照片或手绘，想*转成*像素画：用 [图片转像素画](/tools/pixelate/)（转换），再编辑。
+- 网格对了以后：在 Xprite 编辑器里[继续编辑](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)（图层、调色板、动画）。
 
-## What people mean by "broken" AI pixel art
+## 大家说的「坏掉的」AI 像素画是什么
 
-From recent artist and gamedev talk (Reddit, X, V2EX, HN), the same complaints repeat:
+近期画师和游戏开发者讨论里（Reddit、X、V2EX、HN），抱怨几乎一样：
 
-- **Broken / off-grid cells** — "pixels" of different sizes; lines that don't sit on a lattice.
-- **Blurry or mushy edges** — a soft image shrunk down, not hard pixels.
-- **Too many colours** — dozens of near-blacks or "a thousand shades of blue."
-- **Nearest-neighbor alone fails** — downscaling without a recovered grid ignores shape and contrast.
+- **格子乱了 / 不在网格上** — 「像素」大小不一；线条不坐在格子上。
+- **边缘发糊发软** — 软图缩小后的样子，不是硬像素。
+- **颜色太多** — 几十种近黑，或「一千种蓝」。
+- **只靠最近邻不够** — 没还原网格就缩小，形状和对比都会丢。
 
-Hand-made pixel art is drawn on a grid. Upscaled or model-made "pixel style" usually is not. Fixing that is a grid problem first, then a palette problem.
+手绘像素画本来就画在网格上。放大过的、或模型做的「像素风」通常不是。先修网格，再管调色板。
 
-## What Recover Grid does (and does not)
+## Recover Grid 做什么（和不做什么）
 
-| | Recover Grid (this tool) | Nearest-neighbor resize | "AI pixel art" generators |
+| | Recover Grid（本工具） | 最近邻缩放 | 「AI 像素画」生成器 |
 | --- | --- | --- | --- |
-| Job | Find cell size/phase and rebuild native pixels | Sample every Nth pixel | Synthesize a new look |
-| Needs | Something close to a regular lattice | A chosen output size | A prompt / model |
-| Invents detail? | No | No | Yes |
-| Runs where? | In your browser; file stays on device | Anywhere | Usually a server |
+| 任务 | 找格子尺寸/相位，重建原生像素 | 每隔 N 个像素采样 | 合成新外观 |
+| 需要 | 接近规则的格子结构 | 选定输出尺寸 | 提示词 / 模型 |
+| 会发明细节？ | 否 | 否 | 是 |
+| 在哪运行？ | 浏览器里；文件留在本机 | 任意处 | 通常在服务器 |
 
-Honest limits:
+坦诚的限制：
 
-- If the image is too soft or the lattice drifts, automatic detection may fail. Turn **Automatic grid** off and set **Cell width** / **Cell height** yourself.
-- Recover does not replace redrawing faces, hands, or game-ready silhouettes. Cleanup can still be human work.
-- Colour count is separate: after the grid is right, limit colours or pick a palette in the tool, or finish in the editor.
+- 图太糊，或格子漂了，自动检测可能失败。关掉 **自动网格**，自己填 **图块宽度** / **图块高度**。
+- 还原替代不了重画脸、手或可进游戏的轮廓。清理往往还得人手。
+- 颜色数量另算：网格对了以后，在工具里限制颜色或选调色板，或到编辑器里收尾。
 
-## Fix an AI sprite in a few steps
+## 几步修好一张 AI 精灵图
 
-1. Open [Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art). Nothing to install; PNG, JPEG or WebP.
-2. Drop your image, or use **Open example** to try the sample warrior.
-3. Leave **Automatic grid** on when a grid is found. If not, enter cell size in source pixels.
-4. Compare original vs **Fixed** in the preview. Adjust cell colour picking if edges look wrong.
-5. Optionally **Limit colours** or select a palette so you are not exporting 300 near-duplicates.
-6. **Export…** a PNG (`-fixed`), or **Edit more** to open the result as a new project in Xprite.
+1. 打开 [修复 AI 像素画](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)。不用安装；支持 PNG、JPEG 或 WebP。
+2. 拖入图片，或点 **打开示例** 试用样例战士。
+3. 检测到网格时保持 **自动网格** 开启。否则按源图像素填格子尺寸。
+4. 在预览里对比原图与 **修复后**。边缘不对就调格子取色。
+5. 可选 **限制颜色数** 或选调色板，别导出 300 个近乎重复的色。
+6. **导出…** 成 PNG（`-fixed`），或 **继续编辑**，把结果作为新项目开进 Xprite。
 
-Privacy: processing stays on your device. The source file is never overwritten.
+隐私：处理留在本机。源文件绝不会被覆盖。
 
-## When to use Pixelate instead
+## 什么时候改用 Pixelate
 
-| You have… | Use |
+| 你有… | 用 |
 | --- | --- |
-| Soft / AI image that still shows a cell lattice | [Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) (Recover) |
-| Photo, painting, or UI shot to stylise as pixels | [Image to Pixel Art](/tools/pixelate/) → **Convert image** |
-| Already-native pixel art that was only enlarged | Either tool's Recover path; Fix AI is labelled for the AI/soft case |
+| 偏软 / AI 图，但仍看得出格子 | [修复 AI 像素画](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)（Recover） |
+| 照片、绘画或 UI 截图，要做成像素风 | [图片转像素画](/tools/pixelate/) → **转换图片** |
+| 本来就是原生像素画，只是被放大了 | 两个工具的 Recover 路径都行；修复 AI 更面向 AI/偏软的情况 |
 
-Both tools share the same engine. The Fix AI page defaults the copy and example toward recovery; Pixelate is the general converter.
+两个工具共用同一引擎。修复 AI 页默认文案和示例偏还原；Pixelate 是通用转换器。
 
-## After the grid: edit in Xprite
+## 网格对了以后：在 Xprite 里编辑
 
-A recovered PNG is a starting point. In the [editor](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) you can:
+还原出的 PNG 只是起点。在[编辑器](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)里你可以：
 
-- Clean outlines and fix mis-detected cells by hand.
-- Snap to a palette (including indexed colour) for game assets.
-- Add frames, onion skin and tags for animation.
-- Open and save `.ase` / `.aseprite` if you already work in that format.
+- 手修轮廓，改掉误检的格子。
+- 对齐调色板（含索引色），做游戏素材。
+- 加帧、洋葱皮和标签做动画。
+- 打开并保存 `.ase` / `.aseprite`，如果你本来就用这格式。
 
-No account. Works in the browser on computers, tablets and phones.
+不用账号。电脑、平板、手机上的浏览器都能用。
 
 ## 常见问题
 
-### Is Fix AI Pixel Art an AI model?
+### 修复 AI 像素画是 AI 模型吗？
 
-No. It recovers a pixel grid from the image you provide. It does not generate a new sprite from a prompt.
+不是。它从你提供的图像里还原像素网格，不会根据提示词生成新精灵图。
 
-### Will it fix every AI pixel-art image?
+### 能修好每一张 AI 像素画吗？
 
-No. It works best when a regular cell grid is still detectable. Very soft or irregular images may need manual cell size or a redraw.
+不能。规则格子还能检测出来时效果最好。太糊或不规则的图，可能要手填格子尺寸，或重画。
 
-### Is this the same as nearest-neighbor downscale?
+### 这和最近邻缩小一样吗？
 
-No. Nearest-neighbor picks samples on a fixed step. Recover Grid estimates the lattice (including phase) and rebuilds cells from that analysis.
+不一样。最近邻按固定步长取样。Recover Grid 会估计格子（含相位），再据此重建每个格子。
 
-### Does my image get uploaded?
+### 我的图会上传吗？
 
-No. The tool processes the file on your device.
+不会。工具在本机处理文件。
 
-### Can I open the result in Aseprite?
+### 结果能用 Aseprite 打开吗？
 
-Export PNG and open it elsewhere, or use **Edit more** in Xprite and save `.aseprite` from the editor when you need that format.
+导出 PNG 到别处打开，或在 Xprite 里点 **继续编辑**，需要时从编辑器保存 `.aseprite`。
 
-### What about "image to pixel art converter"?
+### 「图片转像素画转换器」呢？
 
-That query usually means photo → pixel style. Use [Image to Pixel Art](/tools/pixelate/). Use Fix AI Pixel Art when the input already pretends to be pixels but the grid is wrong.
+这类搜索通常指照片 → 像素风。用 [图片转像素画](/tools/pixelate/)。输入已经装作是像素、只是网格不对时，用修复 AI 像素画。
 
 ---
 
-[Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Open the editor](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Image to Pixel Art](/tools/pixelate/) · [What Xprite is](/about/)
+[修复 AI 像素画](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [打开编辑器](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [图片转像素画](/tools/pixelate/) · [Xprite 是什么](/about/)

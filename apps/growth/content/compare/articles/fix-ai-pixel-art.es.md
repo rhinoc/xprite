@@ -3,100 +3,100 @@ published: 2026-10-23
 updated: 2026-10-23
 ---
 
-# Fix AI Pixel Art: Recover the Real Grid (Not Magic AI)
+# Corregir pixel art de IA: recuperar la cuadrícula real (no es magia de IA)
 
-Most AI "pixel art" only looks right from far away. Zoom in and the cells are uneven, edges are soft, and you get hundreds of near-identical colours. That is not a sprite you can drop into a game or an editor.
+La mayor parte del “pixel art” de IA solo se ve bien de lejos. Amplía y las celdas salen irregulares, los bordes blandos y aparecen cientos de colores casi iguales. Eso no es un sprite que puedas soltar en un juego o un editor.
 
-Xprite's [Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) tool runs **Recover Grid**: it looks for the upscaled cell lattice in your image and rebuilds a true 1×1 pixel grid on your device. It is not a generative model and it does not invent missing detail.
+La herramienta [Corregir pixel art de IA](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) de Xprite ejecuta **Recover Grid**: busca la rejilla de celdas ampliada en tu imagen y reconstruye una cuadrícula verdadera de 1×1 píxel en tu dispositivo. No es un modelo generativo y no inventa el detalle que falta.
 
-- Off-grid or blurry AI / soft "pixel art": start with [Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art).
-- A normal photo or drawing you want *turned into* pixel art: use [Image to Pixel Art](/tools/pixelate/) (Convert), then edit.
-- After the grid is right: [Edit more](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) in the Xprite editor (layers, palette, animation).
+- Pixel art de IA fuera de cuadrícula o borroso / “pixel art” blando: empieza por [Corregir pixel art de IA](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art).
+- Una foto o un dibujo normal que quieres *convertir* en pixel art: usa [Imagen a pixel art](/tools/pixelate/) (Convertir) y luego edita.
+- Con la cuadrícula bien: [Editar más](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) en el editor de Xprite (capas, paleta, animación).
 
-## What people mean by "broken" AI pixel art
+## Qué entiende la gente por pixel art de IA “roto”
 
-From recent artist and gamedev talk (Reddit, X, V2EX, HN), the same complaints repeat:
+En charlas recientes de artistas y gamedevs (Reddit, X, V2EX, HN) se repiten las mismas quejas:
 
-- **Broken / off-grid cells** — "pixels" of different sizes; lines that don't sit on a lattice.
-- **Blurry or mushy edges** — a soft image shrunk down, not hard pixels.
-- **Too many colours** — dozens of near-blacks or "a thousand shades of blue."
-- **Nearest-neighbor alone fails** — downscaling without a recovered grid ignores shape and contrast.
+- **Celdas rotas / fuera de cuadrícula** — “píxeles” de distintos tamaños; líneas que no caen en la rejilla.
+- **Bordes borrosos o pastosos** — una imagen blanda reducida, no píxeles duros.
+- **Demasiados colores** — docenas de casi-negros o “mil tonos de azul”.
+- **Solo nearest-neighbor falla** — reducir sin recuperar la cuadrícula ignora forma y contraste.
 
-Hand-made pixel art is drawn on a grid. Upscaled or model-made "pixel style" usually is not. Fixing that is a grid problem first, then a palette problem.
+El pixel art a mano se dibuja sobre una cuadrícula. El “estilo pixel” ampliado o hecho por un modelo suele no estarlo. Arreglarlo es primero un problema de cuadrícula y luego de paleta.
 
-## What Recover Grid does (and does not)
+## Qué hace Recover Grid (y qué no)
 
-| | Recover Grid (this tool) | Nearest-neighbor resize | "AI pixel art" generators |
+| | Recover Grid (esta herramienta) | Redimensionar nearest-neighbor | Generadores de “pixel art de IA” |
 | --- | --- | --- | --- |
-| Job | Find cell size/phase and rebuild native pixels | Sample every Nth pixel | Synthesize a new look |
-| Needs | Something close to a regular lattice | A chosen output size | A prompt / model |
-| Invents detail? | No | No | Yes |
-| Runs where? | In your browser; file stays on device | Anywhere | Usually a server |
+| Trabajo | Hallar tamaño/fase de celda y reconstruir píxeles nativos | Muestrear cada N píxeles | Sintetizar un look nuevo |
+| Necesita | Algo cercano a una rejilla regular | Un tamaño de salida elegido | Un prompt / modelo |
+| ¿Inventa detalle? | No | No | Sí |
+| ¿Dónde corre? | En el navegador; el archivo se queda en el dispositivo | En cualquier sitio | Suele ser un servidor |
 
-Honest limits:
+Límites honestos:
 
-- If the image is too soft or the lattice drifts, automatic detection may fail. Turn **Automatic grid** off and set **Cell width** / **Cell height** yourself.
-- Recover does not replace redrawing faces, hands, or game-ready silhouettes. Cleanup can still be human work.
-- Colour count is separate: after the grid is right, limit colours or pick a palette in the tool, or finish in the editor.
+- Si la imagen es demasiado blanda o la rejilla se desplaza, la detección automática puede fallar. Apaga **Cuadrícula automática** y pon tú el **Ancho de celda** / **Alto de celda**.
+- Recuperar no sustituye redibujar caras, manos o siluetas listas para juego. La limpieza sigue pudiendo ser trabajo humano.
+- El número de colores es aparte: con la cuadrícula bien, limita colores o elige una paleta en la herramienta, o termina en el editor.
 
-## Fix an AI sprite in a few steps
+## Arregla un sprite de IA en unos pasos
 
-1. Open [Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art). Nothing to install; PNG, JPEG or WebP.
-2. Drop your image, or use **Open example** to try the sample warrior.
-3. Leave **Automatic grid** on when a grid is found. If not, enter cell size in source pixels.
-4. Compare original vs **Fixed** in the preview. Adjust cell colour picking if edges look wrong.
-5. Optionally **Limit colours** or select a palette so you are not exporting 300 near-duplicates.
-6. **Export…** a PNG (`-fixed`), or **Edit more** to open the result as a new project in Xprite.
+1. Abre [Corregir pixel art de IA](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art). Nada que instalar; PNG, JPEG o WebP.
+2. Suelta tu imagen, o usa **Abrir ejemplo** para probar el guerrero de muestra.
+3. Deja **Cuadrícula automática** activada cuando se encuentre una cuadrícula. Si no, introduce el tamaño de celda en píxeles del origen.
+4. Compara el original con **Corregido** en la vista previa. Ajusta la toma de color de celda si los bordes se ven mal.
+5. Opcionalmente **Limita colores** o elige una paleta para no exportar 300 casi-duplicados.
+6. **Exportar…** un PNG (`-fixed`), o **Editar más** para abrir el resultado como proyecto nuevo en Xprite.
 
-Privacy: processing stays on your device. The source file is never overwritten.
+Privacidad: el procesamiento se queda en tu dispositivo. El archivo de origen nunca se sobrescribe.
 
-## When to use Pixelate instead
+## Cuándo usar Pixelate en su lugar
 
-| You have… | Use |
+| Tienes… | Usa |
 | --- | --- |
-| Soft / AI image that still shows a cell lattice | [Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) (Recover) |
-| Photo, painting, or UI shot to stylise as pixels | [Image to Pixel Art](/tools/pixelate/) → **Convert image** |
-| Already-native pixel art that was only enlarged | Either tool's Recover path; Fix AI is labelled for the AI/soft case |
+| Imagen blanda / de IA que aún muestra una rejilla de celdas | [Corregir pixel art de IA](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) (Recover) |
+| Foto, pintura o captura de UI para estilizar como píxeles | [Imagen a pixel art](/tools/pixelate/) → **Convertir imagen** |
+| Pixel art ya nativo que solo se amplió | La ruta Recover de cualquiera de las dos herramientas; Fix AI está etiquetado para el caso de IA/blando |
 
-Both tools share the same engine. The Fix AI page defaults the copy and example toward recovery; Pixelate is the general converter.
+Ambas herramientas comparten el mismo motor. La página Fix AI prioriza el texto y el ejemplo de recuperación; Pixelate es el conversor general.
 
-## After the grid: edit in Xprite
+## Después de la cuadrícula: editar en Xprite
 
-A recovered PNG is a starting point. In the [editor](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) you can:
+Un PNG recuperado es un punto de partida. En el [editor](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) puedes:
 
-- Clean outlines and fix mis-detected cells by hand.
-- Snap to a palette (including indexed colour) for game assets.
-- Add frames, onion skin and tags for animation.
-- Open and save `.ase` / `.aseprite` if you already work in that format.
+- Limpiar contornos y corregir a mano celdas mal detectadas.
+- Ajustar a una paleta (incluido color indexado) para assets de juego.
+- Añadir cuadros, papel cebolla y etiquetas para animación.
+- Abrir y guardar `.ase` / `.aseprite` si ya trabajas en ese formato.
 
-No account. Works in the browser on computers, tablets and phones.
+Sin cuenta. Funciona en el navegador en ordenadores, tabletas y móviles.
 
 ## Preguntas frecuentes
 
-### Is Fix AI Pixel Art an AI model?
+### ¿Corregir pixel art de IA es un modelo de IA?
 
-No. It recovers a pixel grid from the image you provide. It does not generate a new sprite from a prompt.
+No. Recupera la cuadrícula de píxeles de la imagen que aportas. No genera un sprite nuevo a partir de un prompt.
 
-### Will it fix every AI pixel-art image?
+### ¿Arregla cualquier imagen de pixel art de IA?
 
-No. It works best when a regular cell grid is still detectable. Very soft or irregular images may need manual cell size or a redraw.
+No. Funciona mejor cuando aún se puede detectar una rejilla regular de celdas. Las imágenes muy blandas o irregulares pueden necesitar tamaño de celda manual o un redibujo.
 
-### Is this the same as nearest-neighbor downscale?
+### ¿Es lo mismo que reducir con nearest-neighbor?
 
-No. Nearest-neighbor picks samples on a fixed step. Recover Grid estimates the lattice (including phase) and rebuilds cells from that analysis.
+No. Nearest-neighbor elige muestras con un paso fijo. Recover Grid estima la rejilla (incluida la fase) y reconstruye las celdas a partir de ese análisis.
 
-### Does my image get uploaded?
+### ¿Se sube mi imagen?
 
-No. The tool processes the file on your device.
+No. La herramienta procesa el archivo en tu dispositivo.
 
-### Can I open the result in Aseprite?
+### ¿Puedo abrir el resultado en Aseprite?
 
-Export PNG and open it elsewhere, or use **Edit more** in Xprite and save `.aseprite` from the editor when you need that format.
+Exporta PNG y ábrelo en otro sitio, o usa **Editar más** en Xprite y guarda `.aseprite` desde el editor cuando necesites ese formato.
 
-### What about "image to pixel art converter"?
+### ¿Y el “convertidor de imagen a pixel art”?
 
-That query usually means photo → pixel style. Use [Image to Pixel Art](/tools/pixelate/). Use Fix AI Pixel Art when the input already pretends to be pixels but the grid is wrong.
+Esa búsqueda suele significar foto → estilo pixel. Usa [Imagen a pixel art](/tools/pixelate/). Usa Corregir pixel art de IA cuando la entrada ya finge ser píxeles pero la cuadrícula está mal.
 
 ---
 
-[Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Open the editor](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Image to Pixel Art](/tools/pixelate/) · [What Xprite is](/about/)
+[Corregir pixel art de IA](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Abrir el editor](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Imagen a pixel art](/tools/pixelate/) · [Qué es Xprite](/about/)

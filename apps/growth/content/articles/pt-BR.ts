@@ -33,4 +33,12 @@ export const PORTUGUESE_ARTICLES = {
       "O Pixelorama abre .piskel direto; o Xprite serve para editar .aseprite e desenhar com toque; o Pixilart, para compartilhar seu trabalho.",
     topic: "Editores alternativos",
   },
+  "fix-ai-pixel-art": {
+    title: "Corrigir pixel art de IA: recuperar a grade | Xprite",
+    description:
+      "Conserte pixel art de IA mole ou fora da grade. Recupere a grade real de pixels de graça no navegador e edite no Xprite. Não é mágica de IA — os arquivos ficam no dispositivo.",
+    summary:
+      'Recover Grid reconstrói uma grade de pixels verdadeira a partir de "pixel art" mole ou de IA; não é um conserto generativo. Depois edite no Xprite ou baixe PNG.',
+    topic: "Conversores e recuperação de grade",
+  },
 } as const;
