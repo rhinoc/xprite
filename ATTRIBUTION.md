@@ -151,7 +151,10 @@ Pixel rasterization, blending, palette operations, playback, viewport rendering,
 UI skin geometry, and some font layout use separately MIT-licensed Aseprite document/render/UI/LAF
 library files. Their original notices are retained in `LICENSES/aseprite-doc.txt`,
 `LICENSES/aseprite-render.txt`, `LICENSES/aseprite-ui.txt`, and `LICENSES/laf.txt`. These libraries have
-distinct licenses from Aseprite's application layer.
+distinct licenses from Aseprite's application layer. Note: Aseprite `src/ui/` is MIT by default
+(see that tree's `LICENSE.txt`), but exceptions exist—`src/ui/textedit.cpp` and `src/ui/textedit.h`
+carry EULA headers. Aseprite `src/app/ui/` is EULA by default, except for verified MIT files
+such as `src/app/ui/alpha_entry.cpp` and `src/app/ui/alpha_entry.h`.
 
 Six selected Pixelarticons 2.4.1 SVGs by Gerrit Halfmann are included
 in `apps/editor/assets/icons/pixelarticons/`. They retain the upstream MIT license in
