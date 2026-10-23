@@ -1,3 +1,7 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { describe, expect, test } from "vitest";
 
 import type { PixelBuffer, Rgba } from "$/base/primitives";
@@ -212,6 +216,37 @@ describe("snapPalette dithering", () => {
     expect(
       Array.from(snapPalette(image, { palette: twoTone, dither: PixelationDither.Ordered }).data),
     ).toEqual(Array.from(ordered.data));
+  });
+
+  test("Ordered Bayer 8×8 dithers stepped bands when unique shades ≤ Limit colors", () => {
+    // Ryan's BOX-resized stepped gradient (36×48): unique shades ≤ 16, so every pixel is
+    // already a palette entry. Old ±RGB Bayer then Lab nearest was a no-op; Bayer8→palette must dither.
+    const dir = dirname(fileURLToPath(import.meta.url));
+    const meta = JSON.parse(
+      readFileSync(join(dir, "fixtures/stepped7-box-36x48.json"), "utf8"),
+    ) as { width: number; height: number };
+    const buf = readFileSync(join(dir, "fixtures/stepped7-box-36x48.rgba"));
+    const image: PixelBuffer = {
+      width: meta.width,
+      height: meta.height,
+      data: new Uint8ClampedArray(buf.buffer, buf.byteOffset, buf.byteLength),
+    };
+    expect(colors(image).size).toBeLessThanOrEqual(16);
+    const nearest = snapPalette(image, { colors: 16, dither: PixelationDither.None });
+    const ordered = snapPalette(image, { colors: 16, dither: PixelationDither.Ordered });
+    expect(Array.from(nearest.data)).toEqual(Array.from(image.data));
+    expect(Array.from(ordered.data)).not.toEqual(Array.from(nearest.data));
+    let mixedRows = 0;
+    for (let y = 0; y < image.height; y++) {
+      const row = new Set<string>();
+      for (let x = 0; x < image.width; x++) {
+        const at = (y * image.width + x) * 4;
+        row.add(`${ordered.data[at]},${ordered.data[at + 1]},${ordered.data[at + 2]}`);
+      }
+      if (row.size > 1) mixedRows += 1;
+    }
+    expect(mixedRows / image.height).toBeGreaterThan(0.3);
+    for (const key of colors(ordered)) expect(colors(image).has(key)).toBe(true);
   });
 
   test("Floyd–Steinberg differs from nearest and Ordered, stays in the palette", () => {

@@ -151,6 +151,13 @@ licensed under the MIT License. Upstream:
 (`LICENSE`). The MIT notice is retained in
 [`LICENSES/pixelorama-MIT.txt`](LICENSES/pixelorama-MIT.txt).
 
+Limit-colors Ordered dither (Bayer 8×8 → palette) in
+`packages/editor-core/src/import-export/image/import/palette-snap.ts` is a
+TypeScript port of the `ordered_palette` / Bayer matrix path from
+[tensorhead/dithering](https://github.com/tensorhead/dithering) (MIT). The
+upstream notice is retained in
+[`LICENSES/dithering-MIT.txt`](LICENSES/dithering-MIT.txt).
+
 The editor uses core-js 3.50.0 for structured cloning compatibility. Its upstream
 MIT license is retained in [`LICENSES/core-js-MIT.txt`](LICENSES/core-js-MIT.txt)
 and distributed with the application. Source: [core-js](https://github.com/zloirock/core-js).

@@ -10,8 +10,9 @@ import { PixelationDither, type PaletteSnapOptions } from "$/import-export/image
  *  - k-means is seeded by weighted farthest-point selection, so a colour far from everything else
  *    gets its own palette entry before a frequent shade that is only a little different.
  * Alpha is never clustered: each pixel keeps its own opacity and fully transparent pixels stay put.
- * When Limit colors dithering is on, the built palette is applied per pixel with ordered (Bayer 4×4)
- * or Floyd–Steinberg error diffusion in Lab-nearest space instead of a flat shade remap.
+ * When Limit colors dithering is on, the built palette is applied per pixel with ordered
+ * (Bayer 8×8 → palette, ported from tensorhead/dithering MIT) or Floyd–Steinberg error
+ * diffusion instead of a flat shade remap.
  */
 const MIN_COLORS = 2;
 const MAX_COLORS = 256;
@@ -24,8 +25,15 @@ const SEED_WEIGHT = 0.25;
 const PULL_WEIGHT = 0.5;
 const MAX_ITERATIONS = 32;
 const CHANNELS = 4;
-/** Classic Bayer 4×4 threshold matrix (0..15). */
-const BAYER_4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+/**
+ * Bayer 8×8 indices from tensorhead/dithering (MIT). Thresholds use (index + 0.5) / 64.
+ * See https://github.com/tensorhead/dithering — matrices.rs / ordered.rs ordered_palette.
+ */
+const BAYER_8 = [
+  0, 32, 8, 40, 2, 34, 10, 42, 48, 16, 56, 24, 50, 18, 58, 26, 12, 44, 4, 36, 14, 46, 6, 38, 60, 28,
+  52, 20, 62, 30, 54, 22, 3, 35, 11, 43, 1, 33, 9, 41, 51, 19, 59, 27, 49, 17, 57, 25, 15, 47, 7,
+  39, 13, 45, 5, 37, 63, 31, 55, 23, 61, 29, 53, 21,
+];
 
 interface Shade {
   rgb: [number, number, number];
@@ -193,50 +201,119 @@ function nearestPaletteRgb(
 }
 
 /**
- * Quantize every visible pixel to `palette` with ordered Bayer 4×4 or Floyd–Steinberg diffusion.
- * Nearest colour is CIE Lab (same metric as the flat snap). Transparent pixels are left alone.
+ * Per-channel palette spread used by ordered Bayer→palette (tensorhead/dithering):
+ * (max − min) / (distinct − 1) in each channel; 0 when the channel is constant.
  */
-function ditherToPalette(
-  image: PixelBuffer,
+function paletteSpread(palette: readonly Rgba[]): [number, number, number] {
+  const spread: [number, number, number] = [0, 0, 0];
+  for (let channel = 0; channel < 3; channel++) {
+    const values: number[] = [];
+    for (const color of palette) {
+      const value = color[channel];
+      if (!values.includes(value)) values.push(value);
+    }
+    values.sort((a, b) => a - b);
+    if (values.length > 1)
+      spread[channel] = (values[values.length - 1] - values[0]) / (values.length - 1);
+  }
+  return spread;
+}
+
+/** Nearest palette entry by Euclidean RGB distance (working space of tensorhead/dithering). */
+function nearestPaletteRgbEuclidean(
+  r: number,
+  g: number,
+  b: number,
   palette: readonly Rgba[],
-  dither: PixelationDither.Ordered | PixelationDither.FloydSteinberg,
-): PixelBuffer {
+): [number, number, number] {
+  let best = 0,
+    bestDistance = Infinity;
+  for (let i = 0; i < palette.length; i++) {
+    const dr = r - palette[i][0];
+    const dg = g - palette[i][1];
+    const db = b - palette[i][2];
+    const d = dr * dr + dg * dg + db * db;
+    if (d < bestDistance) {
+      bestDistance = d;
+      best = i;
+    }
+  }
+  return [palette[best][0], palette[best][1], palette[best][2]];
+}
+
+/**
+ * Ordered Bayer 8×8 → palette. Port of tensorhead/dithering `ordered_palette` (MIT):
+ * threshold offset (t − 0.5) scaled by each channel's palette spread, then RGB nearest.
+ * Unlike ±RGB Bayer then Lab nearest, this still dithers when every pixel is already a palette colour.
+ */
+function orderedBayer8ToPalette(image: PixelBuffer, palette: readonly Rgba[]): PixelBuffer {
+  const spread = paletteSpread(palette);
+  const output = new Uint8ClampedArray(image.data);
+  const { width, height, data } = image;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const at = (y * width + x) * CHANNELS;
+      if (data[at + 3] === 0) continue;
+      const t = (BAYER_8[(y & 7) * 8 + (x & 7)] + 0.5) / 64 - 0.5;
+      const chosen = nearestPaletteRgbEuclidean(
+        data[at] + t * spread[0],
+        data[at + 1] + t * spread[1],
+        data[at + 2] + t * spread[2],
+        palette,
+      );
+      output[at] = chosen[0];
+      output[at + 1] = chosen[1];
+      output[at + 2] = chosen[2];
+    }
+  }
+  return { width, height, data: output };
+}
+
+/**
+ * Floyd–Steinberg error diffusion to `palette` in Lab-nearest space.
+ * Transparent pixels are left alone.
+ */
+function floydSteinbergToPalette(image: PixelBuffer, palette: readonly Rgba[]): PixelBuffer {
   const { labs, rgb } = paletteLabs(palette);
   const output = new Uint8ClampedArray(image.data);
   const { width, height, data } = image;
-  const count = width * height;
-  const error =
-    dither === PixelationDither.FloydSteinberg ? new Float32Array(count * 3) : undefined;
+  const error = new Float32Array(width * height * 3);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
       const at = i * CHANNELS;
       if (data[at + 3] === 0) continue;
-      const correction =
-        dither === PixelationDither.Ordered ? (BAYER_4[(y & 3) * 4 + (x & 3)] - 7.5) * 2 : 0;
       const sample: [number, number, number] = [
-        clampByte(data[at] + correction + (error?.[i * 3] ?? 0)),
-        clampByte(data[at + 1] + correction + (error?.[i * 3 + 1] ?? 0)),
-        clampByte(data[at + 2] + correction + (error?.[i * 3 + 2] ?? 0)),
+        clampByte(data[at] + error[i * 3]),
+        clampByte(data[at + 1] + error[i * 3 + 1]),
+        clampByte(data[at + 2] + error[i * 3 + 2]),
       ];
       const chosen = nearestPaletteRgb(rgbToLab(sample[0], sample[1], sample[2]), labs, rgb);
       output[at] = chosen[0];
       output[at + 1] = chosen[1];
       output[at + 2] = chosen[2];
-      if (error) {
-        for (let channel = 0; channel < 3; channel++) {
-          const delta = sample[channel] - chosen[channel];
-          if (x + 1 < width) error[(i + 1) * 3 + channel] += (delta * 7) / 16;
-          if (y + 1 < height) {
-            if (x > 0) error[(i + width - 1) * 3 + channel] += (delta * 3) / 16;
-            error[(i + width) * 3 + channel] += (delta * 5) / 16;
-            if (x + 1 < width) error[(i + width + 1) * 3 + channel] += delta / 16;
-          }
+      for (let channel = 0; channel < 3; channel++) {
+        const delta = sample[channel] - chosen[channel];
+        if (x + 1 < width) error[(i + 1) * 3 + channel] += (delta * 7) / 16;
+        if (y + 1 < height) {
+          if (x > 0) error[(i + width - 1) * 3 + channel] += (delta * 3) / 16;
+          error[(i + width) * 3 + channel] += (delta * 5) / 16;
+          if (x + 1 < width) error[(i + width + 1) * 3 + channel] += delta / 16;
         }
       }
     }
   }
   return { width, height, data: output };
+}
+
+function ditherToPalette(
+  image: PixelBuffer,
+  palette: readonly Rgba[],
+  dither: PixelationDither.Ordered | PixelationDither.FloydSteinberg,
+): PixelBuffer {
+  return dither === PixelationDither.Ordered
+    ? orderedBayer8ToPalette(image, palette)
+    : floydSteinbergToPalette(image, palette);
 }
 
 /** Build the reduced RGB palette (k-means or the given list); null when the image already fits. */
