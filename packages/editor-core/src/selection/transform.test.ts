@@ -33,11 +33,11 @@ describe("selection-transform", () => {
       asepriteSelectionHandleRect,
     } = modules.find((m) => m.selectionBoundarySegments);
     const {
-      createAsepriteSelectionAntsState,
-      syncAsepriteSelectionAnts,
-      requestAsepriteSelectionAntsTick,
-      paintAsepriteSelectionAnts,
-    } = modules.find((m) => m.createAsepriteSelectionAntsState);
+      createSelectionAntsState,
+      syncSelectionAnts,
+      requestSelectionAntsTick,
+      paintSelectionAnts,
+    } = modules.find((m) => m.createSelectionAntsState);
     const fullMask = {
       x: 10,
       y: 20,
@@ -83,15 +83,15 @@ describe("selection-transform", () => {
       width: 5,
       height: 5,
     });
-    let ants = syncAsepriteSelectionAnts(createAsepriteSelectionAntsState(), true);
+    let ants = syncSelectionAnts(createSelectionAntsState(), true);
     assert.equal(ants.offset, 0);
-    ants = requestAsepriteSelectionAntsTick(ants);
-    let paintedAnts = paintAsepriteSelectionAnts(ants);
+    ants = requestSelectionAntsTick(ants);
+    let paintedAnts = paintSelectionAnts(ants);
     assert.deepEqual([paintedAnts.phase, paintedAnts.state.offset], [0, 1]);
-    ants = syncAsepriteSelectionAnts(paintedAnts.state, false);
-    ants = syncAsepriteSelectionAnts(ants, true);
+    ants = syncSelectionAnts(paintedAnts.state, false);
+    ants = syncSelectionAnts(ants, true);
     assert.equal(ants.offset, 1, "Paused mask keeps its offset without wall-clock catch-up");
-    paintedAnts = paintAsepriteSelectionAnts(requestAsepriteSelectionAntsTick(ants));
+    paintedAnts = paintSelectionAnts(requestSelectionAntsTick(ants));
     assert.deepEqual([paintedAnts.phase, paintedAnts.state.offset], [1, 2]);
     const image = { width: 10, height: 10, data: new Uint8ClampedArray(400) };
     image.data.set([255, 0, 0, 255], (3 * 10 + 3) * 4);

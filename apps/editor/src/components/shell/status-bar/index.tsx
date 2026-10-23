@@ -5,7 +5,7 @@ import { BackupIndicator } from "$/components/shell/backup-indicator";
 import { FunctionalStatusText } from "$/components/shell/live-status";
 import type { HomeViewFooterSegment } from "$/components/workspace/home-view-base";
 import { tUi } from "$/i18n";
-import { stepAsepriteZoom } from "$/managers/canvas/canvas-manager";
+import { stepZoomPercent } from "$/managers/canvas/canvas-manager";
 import type { useEditor } from "$/managers/editor/editor-state-manager";
 import { useWheelInput } from "$/managers/input/use-wheel-input";
 import { useEditorDocumentView } from "$/managers/shell/editor-document-view";
@@ -71,7 +71,7 @@ export function StatusBar({
       event.stopPropagation();
       const current = latestEditor.current;
       const direction = Math.sign(event.deltaX) - Math.sign(event.deltaY);
-      if (direction) current.setZoom(stepAsepriteZoom(current.zoom, direction));
+      if (direction) current.setZoom(stepZoomPercent(current.zoom, direction));
     };
     return connectWheel(input, wheel);
   }, [about, editor.functional, hasDocument, connectWheel]);

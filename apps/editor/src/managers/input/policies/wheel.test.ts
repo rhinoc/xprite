@@ -19,7 +19,7 @@ import {
   type EditorWheelPreferences,
 } from "$/managers/ports/platform";
 import { WheelDevice } from "$/managers/ports/wheel-device";
-import { asepriteZoomLevels, stepAsepriteZoom, timelineWheelFrameIndex } from "@xprite/editor-core";
+import { ZOOM_PERCENT_LEVELS, stepZoomPercent, timelineWheelFrameIndex } from "@xprite/editor-core";
 
 const event = (fields: Partial<WheelEvent> & { wheelDeltaY?: number } = {}) =>
   ({
@@ -263,13 +263,13 @@ describe("shared wheel input", () => {
   });
 
   it("retains zoom stops and frame navigation wrapping", () => {
-    assert.equal(stepAsepriteZoom(100, 1), 200);
-    assert.equal(stepAsepriteZoom(100, -1), 50);
-    assert.equal(stepAsepriteZoom(600, 1), 800);
-    assert.equal(stepAsepriteZoom(800, 1), 1200);
-    assert.equal(stepAsepriteZoom(100, -999), 100 / 64);
-    assert.equal(stepAsepriteZoom(100, 999), 6400);
-    assert.equal(asepriteZoomLevels.length, 25);
+    assert.equal(stepZoomPercent(100, 1), 200);
+    assert.equal(stepZoomPercent(100, -1), 50);
+    assert.equal(stepZoomPercent(600, 1), 800);
+    assert.equal(stepZoomPercent(800, 1), 1200);
+    assert.equal(stepZoomPercent(100, -999), 100 / 64);
+    assert.equal(stepZoomPercent(100, 999), 6400);
+    assert.equal(ZOOM_PERCENT_LEVELS.length, 25);
     assert.equal(timelineWheelFrameIndex(0, 3, 1, false), 2);
     assert.equal(timelineWheelFrameIndex(2, 3, -1, false), 0);
     assert.equal(timelineWheelFrameIndex(0, 3, -30, true), 1);

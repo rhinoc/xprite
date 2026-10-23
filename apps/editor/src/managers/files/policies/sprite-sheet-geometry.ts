@@ -1,7 +1,6 @@
 import type { FormLayout } from "$/managers/dialogs/form-layout";
 import type { SpriteSheetOptions } from "@xprite/editor-core/import-export";
-/** Geometry transcribed from unmodified Aseprite widget dumps; units are the
- * shared Aseprite scene's 2× source-pixel coordinates. */
+/** Sprite sheet export dialog geometry; units are the shared 2× scene coordinates. */
 export function spriteSheetAsepriteLayout(
   tab: string,
   o: Pick<SpriteSheetOptions, "imageEnabled" | "dataEnabled">,

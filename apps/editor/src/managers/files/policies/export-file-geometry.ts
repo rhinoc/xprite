@@ -1,5 +1,5 @@
 import type { FormLayout } from "$/managers/dialogs/form-layout";
-/** Aseprite ExportFileWindow and GifOptions widget-dump geometry in scene units. */
+/** Export file and GIF options dialog geometry in scene units. */
 export function exportFileAsepriteLayout(
   playSubtags: boolean,
   pixelRatio: boolean,

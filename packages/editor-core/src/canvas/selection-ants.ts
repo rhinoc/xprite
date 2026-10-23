@@ -1,33 +1,33 @@
-/** Pure Aseprite marching-ants timer state. The Aseprite editor paints the
- * current offset, then advances it after each delivered 100ms timer event. */
-export interface AsepriteSelectionAntsState {
+/** Marching-ants timer state. The editor paints the current offset, then
+ * advances it after each delivered 100ms timer event. */
+export interface SelectionAntsState {
   offset: number;
   active: boolean;
   pendingTicks: number;
 }
 
-export function createAsepriteSelectionAntsState(offset = 0): AsepriteSelectionAntsState {
+export function createSelectionAntsState(offset = 0): SelectionAntsState {
   return { offset: ((offset % 8) + 8) % 8, active: false, pendingTicks: 0 };
 }
 
-export function syncAsepriteSelectionAnts(
-  state: AsepriteSelectionAntsState,
+export function syncSelectionAnts(
+  state: SelectionAntsState,
   active: boolean,
-): AsepriteSelectionAntsState {
+): SelectionAntsState {
   if (!active) return { ...state, active: false, pendingTicks: 0 };
   if (state.active) return state;
   return { ...state, active: true, pendingTicks: 0 };
 }
 
-export function requestAsepriteSelectionAntsTick(
-  state: AsepriteSelectionAntsState,
-): AsepriteSelectionAntsState {
+export function requestSelectionAntsTick(
+  state: SelectionAntsState,
+): SelectionAntsState {
   return state.active ? { ...state, pendingTicks: state.pendingTicks + 1 } : state;
 }
 
-export function paintAsepriteSelectionAnts(state: AsepriteSelectionAntsState): {
+export function paintSelectionAnts(state: SelectionAntsState): {
   phase: number;
-  state: AsepriteSelectionAntsState;
+  state: SelectionAntsState;
 } {
   const phase = state.offset;
   return {

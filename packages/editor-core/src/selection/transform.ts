@@ -579,7 +579,7 @@ export function rotateSelectionTransform(
     };
   return { ...next, pivotPoint: pivot };
 }
-/** Source transform_handles.cpp clockwise corner/midpoint ordering. */
+/** Clockwise corner/midpoint ordering. */
 export function selectionHandlePositions(
   bounds: Rect,
   angle = 0,
@@ -605,8 +605,8 @@ export function selectionHandlePositions(
 
 export const asepriteSelectionHandleRect = (x: number, y: number, w: number, angle: number) => {
   const i = ((Math.round(angle / (Math.PI / 4)) % 8) + 8) % 8;
-  // transform_handles.cpp uses integer division (handle_w / 2). Math.floor
-  // on the negative offset made a 5px midpoint handle start three pixels away.
+  // Integer division (handle_w / 2). Math.floor on the negative offset made
+  // a 5px midpoint handle start three pixels away.
   const half = Math.trunc(w / 2);
   const offsets = [
     [0, -half],

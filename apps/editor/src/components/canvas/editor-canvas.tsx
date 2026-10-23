@@ -69,11 +69,11 @@ import {
   type SelectionBoundarySegment,
   maskContains,
   type SelectionHandle,
-  createAsepriteSelectionAntsState,
-  paintAsepriteSelectionAnts,
-  requestAsepriteSelectionAntsTick,
-  syncAsepriteSelectionAnts,
-  type AsepriteSelectionAntsState,
+  createSelectionAntsState,
+  paintSelectionAnts,
+  requestSelectionAntsTick,
+  syncSelectionAnts,
+  type SelectionAntsState,
   type Point,
   type PointerInput,
   type PixelMask,
@@ -715,7 +715,7 @@ export function EditorCanvas({
       selectionScreenSource: object | null = null,
       selectionScreenOrigin = { x: Number.NaN, y: Number.NaN },
       selectionScreenZoom = Number.NaN,
-      antsState: AsepriteSelectionAntsState = createAsepriteSelectionAntsState();
+      antsState: SelectionAntsState = createSelectionAntsState();
     let timer: ReturnType<typeof setTimeout> | undefined;
     let antsTimer: ReturnType<typeof setTimeout> | undefined;
     // Touchpads and touchscreens can deliver several view-only events before
@@ -778,7 +778,7 @@ export function EditorCanvas({
       // Aseprite starts its timer after painting an active mask and advances the
       // stored offset only after each delivered timer paint. There is no
       // wall-clock catch-up while the mask/timer is stopped.
-      antsState = syncAsepriteSelectionAnts(antsState, active);
+      antsState = syncSelectionAnts(antsState, active);
     };
     const stopAntsTimer = () => {
       syncAntsPhase(false);
@@ -1128,7 +1128,7 @@ export function EditorCanvas({
     };
     const antsTick = () => {
       antsTimer = undefined;
-      antsState = requestAsepriteSelectionAntsTick(antsState);
+      antsState = requestSelectionAntsTick(antsState);
       schedule();
       // Keep the Aseprite repeating-timer cadence independent of RAF delivery;
       // pending ticks are painted current-phase-first on the next draw.
@@ -1908,7 +1908,7 @@ export function EditorCanvas({
         selectionShaderOffset(v, doc, zoom, origin),
       );
       if (showSelectionEdges && selectionScreenSegments.length)
-        antsState = paintAsepriteSelectionAnts(antsState).state;
+        antsState = paintSelectionAnts(antsState).state;
       if (floating && !state.selectionTransform) {
         const border = new Path2D();
         border.rect(floating.x, floating.y, floating.pixels.width, floating.pixels.height);
