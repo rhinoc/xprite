@@ -308,9 +308,9 @@ export const TOOLS = [
   VIEWER_TOOL,
   GIF_SHEET_TOOL,
   PIXELATE_TOOL,
-  FIX_AI_PIXEL_ART_TOOL,
   ANIMAL_CROSSING_TOOL,
   BEADS_TOOL,
+  FIX_AI_PIXEL_ART_TOOL,
 ];
 export const TOOL_PATHS = TOOLS.map((tool) => tool.path);
 export type PublicTool = (typeof TOOLS)[number];
