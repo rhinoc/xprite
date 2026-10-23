@@ -46,7 +46,7 @@ export function DuplicateSpriteDialog({
         if (!isOpen) onClose();
       }}
       title="Duplicate Sprite"
-      width={450}
+      width={500}
       layout={duplicateSpriteLayout}
       fields={[
         { key: "duplicate", type: "label", label: "Duplicate:" },
