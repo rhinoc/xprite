@@ -14,11 +14,21 @@ Use this skill for product changes that need both behavior research and integrat
 1. Read the root `AGENTS.md` and the nearest package `AGENTS.md` before editing. Check current package scripts and the working tree; preserve existing user changes.
 2. Search `.refs/` for the matching workflow, command, settings model, renderer, and persistence code. Compare actual behavior and defaults, not only screenshots or labels. Identify the reference version and platform when that affects the result.
 3. Read relevant `.docs/` notes as historical evidence. Check their dates, cited sources, and current implementation before treating them as requirements.
-4. Read the applicable reference license before using `.refs/`.
-   - **Allowed** as implementation reference: only **MIT-licensed** Aseprite modules (e.g. `doc`, `render`, `ui`, `dio`, `laf`, and any other module that ships an MIT `LICENSE`). Use those only as the license permits, with required attribution.
-   - **Forbidden** as implementation reference: `data/widgets/` (dialog XML / layouts / control placement), `src/app/` (including UI chrome, dialogs, layout, and algorithms), and any other EULA or non-MIT program material. Do not copy, transcribe, or re-encode widget geometry, dialog placement, or app-layer algorithms from those paths into Xprite.
-   - Do not copy implementation text or code from any reference unless its license permits that use.
-5. Record the behavior that matters to the request: entry point, state scope, defaults, interactions, persistence, undo/dirty-state effects, and unsupported cases. Separate source facts from implementation choices.
+4. Read the applicable reference license **per file**, not per directory README.
+   - Aseprite `src/ui/`: default is MIT (see that tree's `LICENSE.txt`), but
+     **exceptions exist**. Do not treat the whole directory as MIT.
+     Known EULA files in current ASE snapshots: `src/ui/textedit.cpp`,
+     `src/ui/textedit.h`. Confirm the banner in the first ~40 lines before use.
+   - Aseprite `src/app/` and `data/widgets/`: treat as EULA / non-copyable
+     implementation sources (do not cite as MIT; do not port layout XML,
+     dialog structure, or app algorithms from them).
+   - A few `src/app/ui/` files can be MIT (example in current ASE:
+     `alpha_entry.cpp` / `alpha_entry.h`); still verify the per-file banner.
+5. Use reference trees only to understand behavior and design. Copy or port
+   implementation text or code **only** from modules whose own file header
+   grants MIT (or another license that permits that use). Prefer Xprite's
+   existing layers (`@xprite/ui`, managers, editor-core) over new ports.
+6. Record the behavior that matters to the request: entry point, state scope, defaults, interactions, persistence, undo/dirty-state effects, and unsupported cases. Separate source facts from implementation choices.
 
 ## Map the feature into the repository
 
@@ -47,3 +57,5 @@ Follow the nearest `AGENTS.md` if these summaries differ from current repository
 Inspect the changed call chain and diff for stale disabled styling, disconnected callbacks, wrong state scope, and changes to unrelated user work. Follow repository validation instructions. In this repository, root `AGENTS.md` says not to run builds or tests during development because git hooks run them automatically; respect that rule.
 
 In the final response, summarize the behavior implemented, name the reference sources used and any meaningful divergence, state what validation was or was not run, and identify remaining unsupported behavior.
+
+- Name every external reference file used and its license class (MIT / EULA / other).
