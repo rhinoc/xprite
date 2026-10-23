@@ -28,7 +28,9 @@ export const ZOOM_PERCENT_LEVELS = [
 export function stepZoomPercent(value: number, steps: number): number {
   let closest = 0;
   for (let index = 1; index < ZOOM_PERCENT_LEVELS.length; index++) {
-    if (Math.abs(value - ZOOM_PERCENT_LEVELS[index]) < Math.abs(value - ZOOM_PERCENT_LEVELS[closest]))
+    if (
+      Math.abs(value - ZOOM_PERCENT_LEVELS[index]) < Math.abs(value - ZOOM_PERCENT_LEVELS[closest])
+    )
       closest = index;
   }
   return ZOOM_PERCENT_LEVELS[
