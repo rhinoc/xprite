@@ -50,8 +50,8 @@ export function exportFrameOrder(doc: EditorDocument, options: ExportFileOptions
       : base;
   };
   if (options.playSubtags && options.frames !== "selected" && options.frames !== "current") {
-    // calculate_frames_sequence() in app/ui/layer_frame_comboboxes.cpp:
-    // PlayAll receives original sprite bounds and an owned tag-direction override.
+    // Subtag playback walks the whole sprite range; each tag is copied so the
+    // direction override does not change the document's tags.
     const direction = options.direction ?? AsepriteTagDirection.Forward,
       all = options.frames === "all";
     const owned = tags.map((tag) => ({ ...tag }));

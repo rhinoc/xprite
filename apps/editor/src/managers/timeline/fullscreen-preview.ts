@@ -1,4 +1,4 @@
-/** What a key does in the fullscreen preview (cmd_fullscreen_preview.cpp kKeyDownMessage). */
+/** What a key does in the fullscreen preview. */
 export enum FullscreenPreviewKeyAction {
   FirstFrame = "first-frame",
   PreviousFrame = "previous-frame",

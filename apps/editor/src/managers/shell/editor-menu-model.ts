@@ -166,7 +166,7 @@ export function useEditorMenuModel() {
       clearSelectionPixels: () =>
         core?.selection.clearSelectionPixels(source?.settings.selectionKeepAfterClear ?? false),
       deselect: () => core?.selection.deselect(),
-      // cmd_flip.cpp: without a visible mask, Flip(target=mask) mirrors the selected cels.
+      // Without a visible mask, Flip(target=mask) mirrors the selected cels.
       flipSelection: (orientation: MenuFlipOrientation) =>
         source?.document?.selection
           ? core?.selection.flipSelection(orientation)

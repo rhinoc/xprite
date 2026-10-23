@@ -40,7 +40,7 @@ export function flipDocumentCanvas(doc: EditorDocument, orientation: FlipOrienta
 }
 
 /**
- * Flip(target=mask) without a visible selection (cmd_flip.cpp onExecute): mirror the whole image
+ * Flip(target=mask) without a visible selection: mirror the whole image
  * of each cel in the timeline range, or of the active cel, across the sprite bounds. Layers that
  * cannot edit pixels are skipped; linked cels move with their image. Returns false if none.
  */
@@ -108,14 +108,14 @@ function flipDocumentCels(
               for (let x = 0; x < old.width; x++) {
                 const sx = orientation === FlipOrientation.Horizontal ? old.width - 1 - x : x;
                 const sy = orientation === FlipOrientation.Vertical ? old.height - 1 - y : y;
-                // Aseprite FlipImage swaps packed words, including existing flags.
+                // Swap packed words, keeping each tile's existing flip flags.
                 tiles[y * old.width + x] = old.tiles[sy * old.width + sx];
               }
             tilemap = { ...old, tiles };
             tilemaps.set(old, tilemap);
           }
-          // cmd_flip.cpp uses image dimensions in cells even for cel position.
-          // Aseprite CLI oracle confirms this is not a pixel-wise visual mirror.
+          // Tilemap cel positions mirror by image dimensions in cells, so this
+          // is not a pixel-wise visual mirror.
           return {
             ...cel,
             tilemap,

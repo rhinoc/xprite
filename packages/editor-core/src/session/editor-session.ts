@@ -1088,7 +1088,7 @@ export class EditorSession<Source> {
         intent !== SessionSaveIntent.Export &&
         !!timeline &&
         (requiresProject || !!this.ports.writeProject);
-      // Aseprite reference layers are editing guides: display previews may include them,
+      // Reference layers are editing guides: display previews may include them,
       // flattened PNG output must use the export renderer.
       let project: SessionProject | undefined;
       if (needsProject) {

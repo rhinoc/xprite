@@ -23,7 +23,7 @@ export interface FullscreenPreviewProps {
 }
 
 /**
- * Aseprite FullscreenPreview (F8, cmd_fullscreen_preview.cpp): the sprite at the editor zoom over
+ * Fullscreen preview (F8): the sprite at the editor zoom over
  * the whole window. Moving the mouse pans; frame navigation keys change the frame; a click or any
  * other key closes it.
  */

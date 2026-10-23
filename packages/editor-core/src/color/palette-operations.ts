@@ -1,6 +1,6 @@
 import { UINT8_MAX } from "$/base/numeric-constants";
 import { MAX_ALLOCATED_PALETTE_COLORS } from "$/color/palette-resize";
-/** Pure palette commands from ColorBar, doc/palette.cpp and doc/sort_palette.cpp. */
+/** Pure palette commands; ordering follows the MIT-licensed doc/palette.cpp and doc/sort_palette.cpp. */
 export enum PaletteOperation {
   Reverse = "reverse",
   Gradient = "gradient",
@@ -17,7 +17,7 @@ export enum PaletteOperation {
 export type PaletteRgba = [number, number, number, number];
 
 /** PaletteView drop target is an index in the preview with selected colors
- * removed. Convert it to pal_ops.cpp's insertion index before remapping. */
+ * removed. Convert it to an insertion index in the full palette before remapping. */
 export function dropPaletteColors(
   colors: readonly (readonly number[])[],
   selected: readonly number[],

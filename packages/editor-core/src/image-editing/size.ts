@@ -51,8 +51,8 @@ function buffer(width: number, height: number): PixelBuffer {
   validateSize(width, height);
   return { width, height, data: new Uint8ClampedArray(width * height * 4) };
 }
-/** CanvasSizeWindow::updateBorderFromSize: Aseprite integer division truncates
- * toward zero; an odd horizontal remainder belongs right, vertical goes top. */
+/** Border division truncates toward zero; an odd horizontal remainder belongs
+ * right, vertical goes top. */
 export function canvasBoundsForAnchor(
   oldWidth: number,
   oldHeight: number,
@@ -680,7 +680,7 @@ export function resizeDocumentSprite(
   commit(doc, finishTilemapTransform({ ...resizedTimeline, frames }), width, height, selection);
 }
 /** Trim considers the rendered sprite over every frame, including solid
- * background border colors (autocrop.cpp), not the active layer alone. */
+ * background border colors, not the active layer alone. */
 export function trimDocumentCanvas(doc: EditorDocument): boolean {
   const timeline = doc.timeline ?? ensureTimeline({ ...doc, layer: { ...doc.layer } });
   let l = doc.width,

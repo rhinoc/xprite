@@ -308,8 +308,8 @@ export function importSpriteSheetData(image: PixelBuffer, input: unknown): Edito
   };
 }
 
-/** cmd_import_sprite_sheet.cpp replaces all root layers inside ONE Aseprite undo
- * transaction, retaining document identity and resizing the timeline/canvas.
+/** Import replaces all root layers inside one undo transaction, retaining
+ * document identity and resizing the timeline/canvas.
  * Caller wraps this mutation in RasterEditor.changeDocument. */
 export function applyImportSpriteSheet(
   doc: EditorDocument,

@@ -64,7 +64,7 @@ export function FunctionalStatusText({
     if (!("text" in indicator)) return null;
     const measuredWidth = measureUiText(tUiSource(indicator.text));
     const previousWidth = previousTextWidths.current[index];
-    // Mirrors .refs/aseprite/src/app/ui/status_bar.cpp's TextIndicator sizing.
+    // Text indicators grow immediately but shrink only once the text is clearly narrower.
     return previousWidth == null || previousWidth > measuredWidth * TEXT_WIDTH_SHRINK_RATIO
       ? measuredWidth
       : Math.max(previousWidth, measuredWidth);
