@@ -28,16 +28,16 @@ describe("selection-transform", () => {
     const {
       selectionBoundarySegments,
       projectSelectionBoundarySegments,
-      asepriteSelectionBoundaryWhite,
+      selectionAntsBoundaryWhite,
       selectionShaderOffset,
       asepriteSelectionHandleRect,
     } = modules.find((m) => m.selectionBoundarySegments);
     const {
-      createAsepriteSelectionAntsState,
-      syncAsepriteSelectionAnts,
-      requestAsepriteSelectionAntsTick,
-      paintAsepriteSelectionAnts,
-    } = modules.find((m) => m.createAsepriteSelectionAntsState);
+      createSelectionAntsState,
+      syncSelectionAnts,
+      requestSelectionAntsTick,
+      paintSelectionAnts,
+    } = modules.find((m) => m.createSelectionAntsState);
     const fullMask = {
       x: 10,
       y: 20,
@@ -67,31 +67,31 @@ describe("selection-transform", () => {
       ],
     );
     assert.deepEqual(
-      Array.from({ length: 8 }, (_, x) => asepriteSelectionBoundaryWhite(x, 0, 0)),
+      Array.from({ length: 8 }, (_, x) => selectionAntsBoundaryWhite(x, 0, 0)),
       [false, true, true, true, true, false, false, false],
     );
     assert.deepEqual(
-      Array.from({ length: 8 }, (_, x) => asepriteSelectionBoundaryWhite(x, 0, 7)),
+      Array.from({ length: 8 }, (_, x) => selectionAntsBoundaryWhite(x, 0, 7)),
       [true, true, true, true, false, false, false, false],
     );
     for (let phase = 0; phase < 8; phase++)
       for (let x = 0; x < 8; x++)
-        assert.equal(asepriteSelectionBoundaryWhite(x, 0, phase), ((x + 7 - phase) & 7) < 4);
+        assert.equal(selectionAntsBoundaryWhite(x, 0, phase), ((x + 7 - phase) & 7) < 4);
     assert.deepEqual(asepriteSelectionHandleRect(10, 10, 5, 0), {
       x: 10,
       y: 8,
       width: 5,
       height: 5,
     });
-    let ants = syncAsepriteSelectionAnts(createAsepriteSelectionAntsState(), true);
+    let ants = syncSelectionAnts(createSelectionAntsState(), true);
     assert.equal(ants.offset, 0);
-    ants = requestAsepriteSelectionAntsTick(ants);
-    let paintedAnts = paintAsepriteSelectionAnts(ants);
+    ants = requestSelectionAntsTick(ants);
+    let paintedAnts = paintSelectionAnts(ants);
     assert.deepEqual([paintedAnts.phase, paintedAnts.state.offset], [0, 1]);
-    ants = syncAsepriteSelectionAnts(paintedAnts.state, false);
-    ants = syncAsepriteSelectionAnts(ants, true);
+    ants = syncSelectionAnts(paintedAnts.state, false);
+    ants = syncSelectionAnts(ants, true);
     assert.equal(ants.offset, 1, "Paused mask keeps its offset without wall-clock catch-up");
-    paintedAnts = paintAsepriteSelectionAnts(requestAsepriteSelectionAntsTick(ants));
+    paintedAnts = paintSelectionAnts(requestSelectionAntsTick(ants));
     assert.deepEqual([paintedAnts.phase, paintedAnts.state.offset], [1, 2]);
     const image = { width: 10, height: 10, data: new Uint8ClampedArray(400) };
     image.data.set([255, 0, 0, 255], (3 * 10 + 3) * 4);

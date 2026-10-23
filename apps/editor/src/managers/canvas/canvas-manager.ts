@@ -5,7 +5,7 @@ export { cursorPreviewGeometry, cursorPreviewRaster } from "$/managers/canvas/cu
 export { rasterUploadLayout, canOffsetRaster } from "$/managers/canvas/raster-upload-layout";
 import type { StoreApi } from "zustand/vanilla";
 
-import { executeEditorCommand, stepAsepriteZoom } from "$/managers/canvas/canvas-presentation";
+import { executeEditorCommand, stepZoomPercent } from "$/managers/canvas/canvas-presentation";
 import type { SampledColor } from "$/managers/colors/color-sources";
 import { useEditorManagerContext } from "$/managers/editor/editor-state-manager";
 import type { EditorUiState } from "$/managers/editor/editor-ui-store";
@@ -361,7 +361,7 @@ export {
   canvasAutoScroll,
   cursorNeedsWhite,
   usesBrushBoundaryCursor,
-  stepAsepriteZoom,
+  stepZoomPercent,
   CanvasPointerController,
   CanvasHistoryGestureController,
   StagedTouchIntent,

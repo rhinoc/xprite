@@ -1,5 +1,5 @@
 import {
-  AsepriteInk,
+  InkMode,
   EditorToolId,
   RightClickMode,
   type EditorTool,
@@ -28,7 +28,7 @@ const RIGHT_CLICK_OVERRIDE_TOOLS: readonly EditorTool[] = [
 export function resolveRightClickTool(settings: ToolSettings): EditorTool | null {
   if (
     !RIGHT_CLICK_OVERRIDE_TOOLS.includes(settings.tool) ||
-    (settings.ink === AsepriteInk.Shading && (settings.shade?.length ?? 0) >= 2)
+    (settings.ink === InkMode.Shading && (settings.shade?.length ?? 0) >= 2)
   )
     return null;
   switch (settings.rightClickMode) {

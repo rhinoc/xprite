@@ -10,7 +10,7 @@ import {
 export type { Ink } from "$/managers/preferences/tool-ink-settings";
 
 /** Per-editor tool ink controls; it owns preferences only, not drawing settings. */
-export function useAsepriteInkSettings(tool: string, tools: readonly string[]) {
+export function useInkModeSettings(tool: string, tools: readonly string[]) {
   const [settings, setSettings] = useState<ToolInkSettingsMap>({});
   const [shared, setSharedState] = useState(false);
   const share = useRef(false);

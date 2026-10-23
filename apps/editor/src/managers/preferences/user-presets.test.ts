@@ -8,7 +8,7 @@ import {
   restoreUserShade,
   type UserBrushSlot,
 } from "$/managers/preferences/user-presets";
-import { AsepriteInk } from "@xprite/editor-core";
+import { InkMode } from "@xprite/editor-core";
 
 function storage() {
   let value: unknown = null;
@@ -39,7 +39,7 @@ function brush(id: number, locked: boolean): UserBrushSlot {
     pixelPerfect: true,
     foreground: [1, 2, 3, 255],
     background: [4, 5, 6, 255],
-    ink: AsepriteInk.LockAlpha,
+    ink: InkMode.LockAlpha,
     opacity: 90,
     shade: [{ color: [7, 8, 9, 255], paletteIndex: 3 }],
   };

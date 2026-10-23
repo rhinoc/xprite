@@ -1,4 +1,4 @@
-import { stepAsepriteZoom, type Point } from "@xprite/editor-core";
+import { stepZoomPercent, type Point } from "@xprite/editor-core";
 
 const ZOOM_DRAG_THRESHOLD = 8;
 const ZOOM_PERCENT = 100;
@@ -21,7 +21,7 @@ export class CanvasZoomGesture {
     if (!this.moved && Math.hypot(dx, dy) <= ZOOM_DRAG_THRESHOLD) return null;
     this.moved = true;
     return (
-      stepAsepriteZoom(this.initialZoom * ZOOM_PERCENT, Math.trunc(dx / ZOOM_DRAG_THRESHOLD)) /
+      stepZoomPercent(this.initialZoom * ZOOM_PERCENT, Math.trunc(dx / ZOOM_DRAG_THRESHOLD)) /
       ZOOM_PERCENT
     );
   }
@@ -30,7 +30,7 @@ export class CanvasZoomGesture {
     const zoom = this.move(point);
     return (
       zoom ??
-      stepAsepriteZoom(
+      stepZoomPercent(
         this.initialZoom * ZOOM_PERCENT,
         this.button === SECONDARY_POINTER_BUTTON ? -1 : 1,
       ) / ZOOM_PERCENT

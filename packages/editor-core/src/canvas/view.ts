@@ -1,6 +1,6 @@
 import type { Point } from "$/base/primitives";
 import type { ViewSettings } from "$/canvas/types";
-import { asepriteZoomLevels, stepAsepriteZoom } from "$/canvas/zoom";
+import { ZOOM_PERCENT_LEVELS, stepZoomPercent } from "$/canvas/zoom";
 import { clamp } from "@xprite/bedrock/common/clamp";
 type CanvasProjectionView = Pick<ViewSettings, "zoom" | "pan"> &
   Partial<Pick<ViewSettings, "tiledMode">>;
@@ -69,13 +69,13 @@ export function screenToDocument(
     y: (point.y - origin.y) / view.zoom,
   };
 }
-export const ZOOM_LEVELS = asepriteZoomLevels.map((value) => value / 100);
+export const ZOOM_LEVELS = ZOOM_PERCENT_LEVELS.map((value) => value / 100);
 /** Common zoom bounds for view assignment and anchored user interactions. */
 export function clampZoom(value: number, fallback = 1): number {
   return Number.isNaN(value) ? fallback : Math.max(1 / 64, Math.min(64, value));
 }
 export function stepZoom(current: number, direction: number) {
-  return stepAsepriteZoom(current * 100, direction) / 100;
+  return stepZoomPercent(current * 100, direction) / 100;
 }
 /** Keep the projected canvas within the padded scroll interval used by
  * LibreSprite's GPLv2 `calcExtraPadding` and `View::onSetViewScroll` model.

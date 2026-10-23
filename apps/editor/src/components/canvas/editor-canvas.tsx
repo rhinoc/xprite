@@ -64,16 +64,16 @@ import {
   projectSelectionBoundarySegments,
   selectionPivotPoint,
   selectionTransformPivotPoint,
-  asepriteSelectionBoundaryWhite,
+  selectionAntsBoundaryWhite,
   selectionShaderOffset,
   type SelectionBoundarySegment,
   maskContains,
   type SelectionHandle,
-  createAsepriteSelectionAntsState,
-  paintAsepriteSelectionAnts,
-  requestAsepriteSelectionAntsTick,
-  syncAsepriteSelectionAnts,
-  type AsepriteSelectionAntsState,
+  createSelectionAntsState,
+  paintSelectionAnts,
+  requestSelectionAntsTick,
+  syncSelectionAnts,
+  type SelectionAntsState,
   type Point,
   type PointerInput,
   type PixelMask,
@@ -94,7 +94,7 @@ import {
   isTwoPointShape,
   getXpriteToolCapabilities,
   timelineWheelFrameIndex,
-  AsepriteInk,
+  InkMode,
   UINT8_MAX,
 } from "$/managers/canvas/canvas-presentation";
 import { useColorSource } from "$/managers/colors/color-sources";
@@ -715,7 +715,7 @@ export function EditorCanvas({
       selectionScreenSource: object | null = null,
       selectionScreenOrigin = { x: Number.NaN, y: Number.NaN },
       selectionScreenZoom = Number.NaN,
-      antsState: AsepriteSelectionAntsState = createAsepriteSelectionAntsState();
+      antsState: SelectionAntsState = createSelectionAntsState();
     let timer: ReturnType<typeof setTimeout> | undefined;
     let antsTimer: ReturnType<typeof setTimeout> | undefined;
     // Touchpads and touchscreens can deliver several view-only events before
@@ -745,7 +745,7 @@ export function EditorCanvas({
       context.setTransform(2, 0, 0, 2, 0, 0);
       for (const segment of segments) {
         let runStart = 0;
-        let runWhite = asepriteSelectionBoundaryWhite(
+        let runWhite = selectionAntsBoundaryWhite(
           segment.x + shaderOffset.x,
           segment.y + shaderOffset.y,
           antsState.offset,
@@ -759,7 +759,7 @@ export function EditorCanvas({
         for (let index = 1; index < segment.length; index++) {
           const x = segment.axis === "horizontal" ? segment.x + index : segment.x;
           const y = segment.axis === "horizontal" ? segment.y : segment.y + index;
-          const white = asepriteSelectionBoundaryWhite(
+          const white = selectionAntsBoundaryWhite(
             x + shaderOffset.x,
             y + shaderOffset.y,
             antsState.offset,
@@ -775,10 +775,10 @@ export function EditorCanvas({
       context.restore();
     };
     const syncAntsPhase = (active: boolean) => {
-      // Aseprite starts its timer after painting an active mask and advances the
-      // stored offset only after each delivered timer paint. There is no
+      // The timer starts after an active mask is painted and the stored offset
+      // advances only after each delivered timer paint. There is no
       // wall-clock catch-up while the mask/timer is stopped.
-      antsState = syncAsepriteSelectionAnts(antsState, active);
+      antsState = syncSelectionAnts(antsState, active);
     };
     const stopAntsTimer = () => {
       syncAntsPhase(false);
@@ -1128,9 +1128,9 @@ export function EditorCanvas({
     };
     const antsTick = () => {
       antsTimer = undefined;
-      antsState = requestAsepriteSelectionAntsTick(antsState);
+      antsState = requestSelectionAntsTick(antsState);
       schedule();
-      // Keep the Aseprite repeating-timer cadence independent of RAF delivery;
+      // Keep the repeating-timer cadence independent of RAF delivery;
       // pending ticks are painted current-phase-first on the next draw.
       if (!disposed && antsState.active) antsTimer = setTimeout(antsTick, 100);
     };
@@ -1262,7 +1262,7 @@ export function EditorCanvas({
       const activeTimelineLayer = doc?.timeline?.layers[doc.timeline.activeLayer];
       const transparentLayer = !activeTimelineLayer || !isBackgroundLayer(activeTimelineLayer);
       const transparentInk =
-        transparentLayer && brushColor?.[3] === 0 && state.settings.ink !== AsepriteInk.Shading;
+        transparentLayer && brushColor?.[3] === 0 && state.settings.ink !== InkMode.Shading;
       const rawCursorPoint =
         state.pointer && doc && pointerScreen
           ? screenToDocument(pointerScreen, v, doc, state.view)
@@ -1908,7 +1908,7 @@ export function EditorCanvas({
         selectionShaderOffset(v, doc, zoom, origin),
       );
       if (showSelectionEdges && selectionScreenSegments.length)
-        antsState = paintAsepriteSelectionAnts(antsState).state;
+        antsState = paintSelectionAnts(antsState).state;
       if (floating && !state.selectionTransform) {
         const border = new Path2D();
         border.rect(floating.x, floating.y, floating.pixels.width, floating.pixels.height);

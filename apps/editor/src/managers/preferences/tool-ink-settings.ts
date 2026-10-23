@@ -1,14 +1,14 @@
-import { AsepriteInk } from "@xprite/editor-core";
+import { InkMode } from "@xprite/editor-core";
 import { UINT8_MAX } from "@xprite/editor-core";
 
-export type { AsepriteInk as Ink } from "@xprite/editor-core";
+export type { InkMode as Ink } from "@xprite/editor-core";
 export interface ToolInkSettings {
-  ink: AsepriteInk;
+  ink: InkMode;
   opacity: number;
 }
 export type ToolInkSettingsMap = Record<string, ToolInkSettings>;
 export const defaultToolInkSettings: ToolInkSettings = {
-  ink: AsepriteInk.Simple,
+  ink: InkMode.Simple,
   opacity: UINT8_MAX,
 };
 

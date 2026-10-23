@@ -2,7 +2,7 @@ import type { Point } from "$/base/primitives";
 import { DocumentViewTarget } from "$/canvas/document-view-preferences";
 import { DocumentShowOption } from "$/canvas/types";
 import { fitScreenZoom, stepZoom } from "$/canvas/view";
-import { AsepriteInk } from "$/drawing/tool-settings";
+import { InkMode } from "$/drawing/tool-settings";
 import type { EditorCommand } from "$/editor/commands/types";
 import type { RasterEditor } from "$/editor/RasterEditor";
 import type { EditorSnapshot } from "$/editor/types";
@@ -275,7 +275,7 @@ export function executeEditorCommand(
           ? FlipOrientation.Horizontal
           : FlipOrientation.Vertical;
       if (state.document?.selection) core.selection.flipSelection(orientation);
-      // cmd_flip.cpp: without a visible mask, target=mask flips the selected cels.
+      // Without a visible mask, target=mask flips the selected cels.
       else if (!core.imageEditing.flipCels(orientation)) return { kind: "unavailable" };
       break;
     }
@@ -420,7 +420,7 @@ export function executeEditorCommand(
       break;
     case "swap-colors":
       core.drawing.settings.setSettings({
-        ...(state.settings.ink === AsepriteInk.Shading
+        ...(state.settings.ink === InkMode.Shading
           ? {
               shade: state.settings.shade?.slice().reverse(),
               shadeIndices: state.settings.shadeIndices?.slice().reverse(),

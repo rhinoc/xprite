@@ -22,7 +22,7 @@ import {
   type EditorUiState,
 } from "$/managers/editor/editor-ui-store";
 import { useEditorSnapshot, EditorSnapshotScope } from "$/managers/editor/use-editor-snapshot";
-import { useAsepriteInkSettings } from "$/managers/editor/use-ink-settings";
+import { useInkModeSettings } from "$/managers/editor/use-ink-settings";
 import { useEditorPlatformPorts } from "$/managers/platform/editor-platform-context";
 import {
   createDynamicsPreferences,
@@ -65,7 +65,7 @@ import {
   EyedropperChannel,
   EyedropperSample,
   FillReference,
-  AsepriteInk,
+  InkMode,
   DEFAULT_DYNAMICS_SETTINGS,
   supportsPixelPerfect,
   DEFAULT_PIXEL_PERFECT,
@@ -123,7 +123,7 @@ function usePreviewEditorState(
   activeTool: EditorTool | undefined,
   uiStore: StoreApi<EditorUiState>,
   activePalette?: readonly (readonly number[])[],
-  activeInk?: AsepriteInk,
+  activeInk?: InkMode,
   activeCore?: RasterEditor | null,
   activeShade?: readonly Rgba[],
 ) {
@@ -163,7 +163,7 @@ function usePreviewEditorState(
   const [eyedropperSample, setEyedropperSample] = useState<EyedropperSample>(
     EyedropperSample.AllLayers,
   );
-  const inkSettings = useAsepriteInkSettings(tool, editorTools);
+  const inkSettings = useInkModeSettings(tool, editorTools);
   const [dynamicsPreferences, setDynamicsPreferences] = useState(createDynamicsPreferences);
   const dynamics = getDynamicsSettings(dynamicsPreferences, tool);
   const setDynamics = (value: DynamicsSettings) =>
@@ -273,7 +273,7 @@ function usePreviewEditorState(
     if (explicitShade.current && !paletteChanged) return;
     explicitShade.current = false;
     const shadeVisible =
-      (activeInk ?? inkSettings.ink) === AsepriteInk.Shading &&
+      (activeInk ?? inkSettings.ink) === InkMode.Shading &&
       getXpriteToolCapabilities(tool).settings.hasInk;
     if (
       shadeVisible &&
@@ -935,8 +935,8 @@ function useEditorState(
     fillReference: settings.fillReference ?? FillReference.ActiveLayer,
     setFillReference: (fillReference: FillReference) =>
       core.drawing.settings.setSettings({ fillReference }),
-    ink: settings.ink ?? AsepriteInk.Simple,
-    setInk: (ink: AsepriteInk) => core.drawing.settings.setSettings({ ink }),
+    ink: settings.ink ?? InkMode.Simple,
+    setInk: (ink: InkMode) => core.drawing.settings.setSettings({ ink }),
     inkOpacity: settings.opacity,
     setInkOpacity: (opacity: number) => core.drawing.settings.setSettings({ opacity }),
     shareInk: settings.shareInk ?? false,

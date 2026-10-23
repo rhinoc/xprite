@@ -1,6 +1,6 @@
 import type { UserPresetStoragePort } from "$/managers/ports/user-presets";
 import {
-  AsepriteInk,
+  InkMode,
   cloneGraph,
   persistentBrush,
   UINT8_MAX,
@@ -41,7 +41,7 @@ export type UserShadeColor = Rgba & { paletteIndex?: number };
 export interface UserBrushSettings {
   foreground?: Rgba;
   background?: Rgba;
-  ink?: AsepriteInk;
+  ink?: InkMode;
   opacity?: number;
   shade?: readonly UserShadeColor[];
 }
@@ -53,7 +53,7 @@ export interface UserBrushSlot {
   pixelPerfect: boolean;
   foreground?: Rgba;
   background?: Rgba;
-  ink?: AsepriteInk;
+  ink?: InkMode;
   opacity?: number;
   shade: UserShadeEntry[];
 }
@@ -155,8 +155,8 @@ function normalizeSlot(value: unknown): UserBrushSlot | null {
     pixelPerfect: source.pixelPerfect === true,
     ...(rgba(source.foreground) ? { foreground: rgba(source.foreground) } : {}),
     ...(rgba(source.background) ? { background: rgba(source.background) } : {}),
-    ...(Object.values(AsepriteInk).includes(source.ink as AsepriteInk)
-      ? { ink: source.ink as AsepriteInk }
+    ...(Object.values(InkMode).includes(source.ink as InkMode)
+      ? { ink: source.ink as InkMode }
       : {}),
     ...(typeof source.opacity === "number" && Number.isFinite(source.opacity)
       ? { opacity: Math.round(Math.max(0, Math.min(UINT8_MAX, source.opacity))) }
