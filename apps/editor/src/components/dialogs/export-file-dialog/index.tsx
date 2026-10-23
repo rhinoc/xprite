@@ -244,7 +244,7 @@ export function ExportFileDialog({
         key="gif-options"
         open
         title="GIF Options"
-        width={366}
+        width={548}
         layout={gifOptionsLayout}
         fields={[
           {
