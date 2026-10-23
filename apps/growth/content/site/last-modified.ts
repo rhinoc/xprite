@@ -9,6 +9,7 @@ const TOOL_LAST_MODIFIED: Readonly<Record<PublicTool["path"], string>> = {
   "/tools/viewer/": "2026-10-22",
   "/tools/gif-to-sprite-sheet/": "2026-10-22",
   "/tools/pixelate/": "2026-10-22",
+  "/tools/fix-ai-pixel-art/": "2026-10-23",
   "/tools/animal-crossing-qr/": "2026-10-22",
   "/tools/fuse-beads/": "2026-10-22",
 };
