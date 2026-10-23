@@ -18,7 +18,7 @@ import {
   ImageExportFormat,
   WebpCompression,
 } from "$/managers/files/export-format-preferences";
-import { exportFileLayout, gifOptionsLayout } from "$/managers/files/policies/export-file-geometry";
+import { exportFileLayout } from "$/managers/files/policies/export-file-geometry";
 import { DEFAULT_FILE_PREFERENCES } from "$/managers/preferences/file-preferences";
 import type { FilePreferences } from "$/managers/preferences/file-preferences";
 
@@ -245,7 +245,6 @@ export function ExportFileDialog({
         open
         title="GIF Options"
         width={548}
-        layout={gifOptionsLayout}
         fields={[
           {
             key: "interlaced",

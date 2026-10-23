@@ -537,7 +537,7 @@ export function FormDialog({
           const peers = fields.filter((item) => (item.row ?? item.key) === row);
           const column = peers.indexOf(field);
           const authored = layout?.fields[field.key];
-          const inset = authored?.inset ?? 8;
+          const inset = authored?.inset ?? (authored ? 8 : 0);
 
           const rowLabelWidths = peers.map(
             (p) => layout?.fields[p.key]?.labelWidth ?? measureUiText(tUiSource(p.label)) + 24,
@@ -565,6 +565,11 @@ export function FormDialog({
           } else {
             columnWidth = client.width / peers.length;
             columnX = client.x + column * columnWidth;
+          }
+
+          if (!authored) {
+            columnWidth = Math.floor(columnWidth) - 8;
+            columnX = client.x + 4;
           }
 
           const y = client.y + (authored?.y ?? 8 + messageHeight + rows.indexOf(row) * 44);
@@ -789,23 +794,22 @@ export function FormDialog({
         {actions.map((action, i) => {
           const widths = actions.map((item) => measureUiText(tUiSource(item.label)) + 32);
           const remaining = widths.slice(i).reduce((total, item) => total + item + 8, 0);
+          const actionBounds = layout?.actions?.[action.label]
+            ? {
+                ...layout.actions[action.label],
+                x: client.x + layout.actions[action.label].x,
+                y: client.y + layout.actions[action.label].y,
+              }
+            : {
+                x: client.x + client.width - remaining - (layout ? 0 : 8),
+                y: client.y + 8 + messageHeight + rows.length * 44,
+                width: widths[i],
+                height: 32,
+              };
           return (
             <Button
               key={`${action.label}-${i}`}
-              bounds={
-                layout?.actions?.[action.label]
-                  ? {
-                      ...layout.actions[action.label],
-                      x: client.x + layout.actions[action.label].x,
-                      y: client.y + layout.actions[action.label].y,
-                    }
-                  : {
-                      x: client.x + client.width - remaining,
-                      y: client.y + 8 + messageHeight + rows.length * 44,
-                      width: widths[i],
-                      height: 32,
-                    }
-              }
+              bounds={actionBounds}
               relativeTo={client}
               text={action.label}
               data-ui-form-action={action.label}

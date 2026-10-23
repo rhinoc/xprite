@@ -10,7 +10,7 @@ export function exportFileLayout(
   const extra = (Number(playSubtags) + Number(pixelRatio)) * 44;
   const playCountHeight = playCount ? 44 : 0;
   const webpModeHeight = webpMode ? 44 : 0;
-  const baseHeight = includeFormat ? 506 : 466;
+  const baseHeight = includeFormat ? 538 : 498;
   return {
     height: baseHeight + extra + playCountHeight + webpModeHeight,
     initialFocusAction: "Export",
@@ -20,9 +20,8 @@ export function exportFileLayout(
 }
 
 export const gifOptionsLayout: FormLayout = {
-  height: 222,
+  height: 254,
   initialFocusAction: "OK",
   fields: {},
-  separators: [{ x: 0, y: 0, width: 0, height: 0, text: "General Options:" }],
   actions: {},
 };
