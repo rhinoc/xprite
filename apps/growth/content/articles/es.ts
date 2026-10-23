@@ -36,7 +36,7 @@ export const SPANISH_ARTICLES = {
   "fix-ai-pixel-art": {
     title: "Corregir pixel art de IA: recuperar la cuadrícula | Xprite",
     description:
-      "Arregla pixel art de IA blando o fuera de cuadrícula. Recupera la cuadrícula real de píxeles gratis en el navegador y edita en Xprite. No es magia de IA: los archivos se quedan en el dispositivo.",
+      "Arregla pixel art de IA fuera de cuadrícula. Recupera la rejilla real de píxeles gratis en el navegador y edita en Xprite. No es magia de IA.",
     summary:
       'Recover Grid reconstruye una rejilla de píxeles real a partir de "pixel art" blando o de IA; no es un arreglo generativo. Luego edita en Xprite o descarga PNG.',
     topic: "Convertidores y recuperación de cuadrícula",
