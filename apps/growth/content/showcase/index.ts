@@ -185,6 +185,10 @@ const CHINESE_TOOL_COPY = {
     label: "图片转像素画",
     summary: "将图片转换为像素画，或还原放大的像素网格。",
   },
+  "/tools/fix-ai-pixel-art/": {
+    label: "修复 AI 像素画",
+    summary: "自动恢复 AI 生成或模糊像素画的真实像素网格。",
+  },
 } as const;
 
 const JAPANESE_TOOL_COPY = {
@@ -212,6 +216,10 @@ const JAPANESE_TOOL_COPY = {
     label: "画像をドット絵に変換",
     summary: "画像をドット絵に変換したり、拡大されたピクセルグリッドを復元したりできます。",
   },
+  "/tools/fix-ai-pixel-art/": {
+    label: "AI ドット絵を修正",
+    summary: "AI 生成やぼやけたドット絵のピクセルグリッドを自動的に復元します。",
+  },
 } as const;
 
 const KOREAN_TOOL_COPY = {
@@ -236,6 +244,10 @@ const KOREAN_TOOL_COPY = {
   "/tools/pixelate/": {
     label: "이미지 픽셀 아트 변환",
     summary: "이미지를 픽셀 아트로 바꾸거나 확대된 픽셀 격자를 복원합니다.",
+  },
+  "/tools/fix-ai-pixel-art/": {
+    label: "AI 픽셀 아트 수정",
+    summary: "AI 생성 또는 흐릿한 픽셀 아트의 픽셀 격자를 자동으로 복원합니다.",
   },
 } as const;
 
@@ -264,6 +276,11 @@ const RUSSIAN_TOOL_COPY = {
     summary:
       "Превращает изображение в пиксель-арт или восстанавливает увеличенную пиксельную сетку.",
   },
+  "/tools/fix-ai-pixel-art/": {
+    label: "Исправить AI пиксель-арт",
+    summary:
+      "Автоматически восстанавливает пиксельную сетку AI-созданного или размытого пиксель-арта.",
+  },
 } as const;
 
 const PORTUGUESE_TOOL_COPY = {
@@ -291,6 +308,10 @@ const PORTUGUESE_TOOL_COPY = {
     label: "Imagem para pixel art",
     summary: "Transforma imagens em pixel art ou recupera uma grade de pixels ampliada.",
   },
+  "/tools/fix-ai-pixel-art/": {
+    label: "Consertar pixel art de IA",
+    summary: "Recupera automaticamente a grade de pixels de pixel art criada por IA ou desfocada.",
+  },
 } as const;
 
 const SPANISH_TOOL_COPY = {
@@ -317,6 +338,11 @@ const SPANISH_TOOL_COPY = {
   "/tools/pixelate/": {
     label: "Imagen a pixel art",
     summary: "Convierte imágenes en pixel art o recupera una cuadrícula de píxeles ampliada.",
+  },
+  "/tools/fix-ai-pixel-art/": {
+    label: "Corregir pixel art de IA",
+    summary:
+      "Recupera automáticamente la cuadrícula de píxeles de pixel art creado por IA o difuminado.",
   },
 } as const;
 

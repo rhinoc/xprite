@@ -11,6 +11,7 @@ import { SHOWCASE_PAGES } from "../../apps/growth/content/showcase/pages.ts";
 import { SITE_PAGES, SitePageKind } from "../../apps/growth/content/site/pages.ts";
 import {
   BEADS_TOOL,
+  FIX_AI_PIXEL_ART_TOOL,
   GIF_SHEET_TOOL,
   PIXELATE_TOOL,
   TOOLS,
@@ -413,6 +414,14 @@ async function verifyShowcasePages(url, environment) {
   });
 }
 
+const TOOL_ROOT_IDS = {
+  "/tools/viewer/": "viewer-root",
+  [GIF_SHEET_TOOL.path]: "gif-sheet-root",
+  [PIXELATE_TOOL.path]: "pixelation-root",
+  [BEADS_TOOL.path]: "beads-root",
+  [FIX_AI_PIXEL_ART_TOOL.path]: "fix-ai-root",
+};
+
 async function verifyApplicationPages(url, environment) {
   const verifiedAssets = new Map();
   const pages = [
@@ -420,16 +429,7 @@ async function verifyApplicationPages(url, environment) {
     { path: "/editor/", root: "root", indexable: false },
     ...TOOLS.map((tool) => ({
       path: tool.path,
-      root:
-        tool.path === "/tools/viewer/"
-          ? "viewer-root"
-          : tool.path === GIF_SHEET_TOOL.path
-            ? "gif-sheet-root"
-            : tool.path === PIXELATE_TOOL.path
-              ? "pixelation-root"
-              : tool.path === BEADS_TOOL.path
-                ? "beads-root"
-                : "animal-crossing-root",
+      root: TOOL_ROOT_IDS[tool.path] ?? "animal-crossing-root",
       indexable: true,
     })),
     ...componentRoutes.flatMap((path) =>

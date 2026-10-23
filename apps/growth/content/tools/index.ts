@@ -7,6 +7,7 @@ import { TOOL_RUSSIAN_TEXT } from "./ru.ts";
 import { TOOL_CHINESE_TEXT } from "./zh-CN.ts";
 
 export { ANIMAL_CROSSING_HELP, AnimalCrossingHelpSection } from "./animal-crossing-help.ts";
+export { FIX_AI_PIXEL_ART_HELP, FixAiPixelArtHelpSection } from "./fix-ai-pixel-art-help.ts";
 export { GIF_SHEET_HELP, GifSheetHelpSection } from "./gif-sheet-help.ts";
 export { PIXELATE_HELP, PixelateHelpSection } from "./pixelate-help.ts";
 export type { ToolHelpContent } from "./help.ts";
@@ -254,6 +255,23 @@ export const PIXELATE_TOOL = {
   dropLabel: "Drop a PNG, JPEG or WebP image",
 } as const;
 
+export const FIX_AI_PIXEL_ART_TOOL = {
+  path: "/tools/fix-ai-pixel-art/",
+  name: "Xprite Fix AI Pixel Art",
+  label: "Fix AI Pixel Art",
+  startTitle: "Fix AI-generated pixel art",
+  title: "Fix AI Pixel Art: Recover Real Pixel Grid | Xprite",
+  headline: "Fix AI pixel art",
+  summary: "Fix soft or AI-generated pixel art by snapping it to a real pixel grid.",
+  privacy: TOOL_FILE_PRIVACY,
+  description:
+    "Fix blurry or AI-generated pixel art free in your browser. Automatically recover the pixel grid from upscaled or soft images. Files stay on your device.",
+  accept: ".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp",
+  fileLabel: "Choose an AI-generated pixel art image",
+  openLabel: "Open image",
+  dropLabel: "Drop a PNG, JPEG or WebP image",
+} as const;
+
 export const BEADS_TOOL = {
   path: "/tools/fuse-beads/",
   name: "Xprite Fuse Bead Pattern Maker",
@@ -286,6 +304,13 @@ export const EDITOR_TOOL = {
     "Create pixel art and animations in Xprite. Open and save Aseprite projects in your browser.",
 } as const;
 
-export const TOOLS = [VIEWER_TOOL, GIF_SHEET_TOOL, PIXELATE_TOOL, ANIMAL_CROSSING_TOOL, BEADS_TOOL];
+export const TOOLS = [
+  VIEWER_TOOL,
+  GIF_SHEET_TOOL,
+  PIXELATE_TOOL,
+  ANIMAL_CROSSING_TOOL,
+  BEADS_TOOL,
+  FIX_AI_PIXEL_ART_TOOL,
+];
 export const TOOL_PATHS = TOOLS.map((tool) => tool.path);
 export type PublicTool = (typeof TOOLS)[number];

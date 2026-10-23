@@ -13,11 +13,19 @@ import { decodeImageBlob, encodePngBlob } from "@xprite/bedrock/browser/images";
 import { browserLocalStorage } from "@xprite/bedrock/browser/localstorage";
 import { SerialWorker } from "@xprite/bedrock/browser/worker-job";
 import type { PixelateOptions } from "@xprite/editor-core/import-export";
-import exampleUrl from "@xprite/site-assets/tools/pixelate/girl-with-a-pearl-earring.jpg?url";
+import defaultExampleUrl from "@xprite/site-assets/tools/pixelate/girl-with-a-pearl-earring.jpg?url";
 const MAX_FILE_BYTES = TOOL_IMPORT_MAX_BYTES;
 const MAX_IMAGE_PIXELS = 16 * 1024 * 1024;
 const TIMEOUT_MS = 30_000;
-export function createBrowserPixelationPort(): PixelationPort {
+
+export interface PixelationPortOptions {
+  exampleUrl?: string;
+  exampleName?: string;
+}
+
+export function createBrowserPixelationPort(options: PixelationPortOptions = {}): PixelationPort {
+  const exampleUrl = options.exampleUrl ?? defaultExampleUrl;
+  const exampleName = options.exampleName ?? "girl-with-a-pearl-earring.jpg";
   // One worker for the page: PixelOE's recent results and colour tables live in the worker, so
   // detection, the first convert and colour-only changes reuse them instead of starting cold.
   const worker = new SerialWorker(
@@ -60,7 +68,7 @@ export function createBrowserPixelationPort(): PixelationPort {
     async example() {
       const response = await fetch(exampleUrl);
       if (!response.ok) throw new Error("The example is unavailable.");
-      return new File([await response.blob()], "girl-with-a-pearl-earring.jpg");
+      return new File([await response.blob()], exampleName);
     },
     detectGrid(image, algorithm, size) {
       return request(
