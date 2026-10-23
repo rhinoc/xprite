@@ -75,7 +75,7 @@ export interface EffectDialogsProps {
   onApply: (spec: DialogEffectSpec, target: DialogEffectTarget) => void;
   onPreview: (spec: DialogEffectSpec | null) => void;
 }
-/** Actual Aseprite FilterWindow controls; the scene host only binds core actions. */
+/** Filter dialog controls; scene host only binds core actions. */
 export function EffectDialogs({
   kind,
   depth = 32,

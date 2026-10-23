@@ -30,7 +30,7 @@ import {
   type DrawingGestureTransaction,
   type DrawingPaintTarget,
 } from "$/drawing/gesture-controller";
-import { AsepriteLineFreehandController } from "$/drawing/line/controller";
+import { LineFreehandController } from "$/drawing/line/controller";
 import {
   DrawingRasterizer,
   type AsepriteIndexMatchMode,
@@ -442,7 +442,7 @@ export class DrawingRuntimeController {
     if (linePreview && this.port.state.getDocument()) {
       const source = this.port.state.getDocument()!;
       const image = selectionLayerReference(source.layer, source.width, source.height);
-      const segment = new AsepriteLineFreehandController(linePreview.start).move(linePreview.end);
+      const segment = new LineFreehandController(linePreview.start).move(linePreview.end);
       const baseOptions: RasterOptions = {
         ...this.rasterizer.rasterOptionsForPreview(linePreview.button, settings, target)!,
         indexedPixelWriter: undefined,
@@ -882,7 +882,7 @@ export class DrawingRuntimeController {
       lastPoint &&
       capabilities.behavior.connectFreehandStroke
     ) {
-      const controller = new AsepriteLineFreehandController(lastPoint);
+      const controller = new LineFreehandController(lastPoint);
       controller.move(
         at,
         input.actionModifiers?.angleSnapFromLastPoint ?? input.physicalCtrl ?? input.ctrl,

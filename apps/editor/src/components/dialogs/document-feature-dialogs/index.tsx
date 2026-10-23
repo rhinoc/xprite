@@ -57,7 +57,7 @@ export interface DocumentFeatureDialogsProps {
   canvasViewportBounds?: SurfaceBounds;
 }
 /** Scene-root host. Geometry may be supplied explicitly; otherwise it reads
- * this scene's canvas-authored Aseprite bounds, so mockups need no layout code.
+ * Scene-root host. Geometry may be supplied explicitly; otherwise reads this scene's canvas-authored bounds so mockups need no layout code.
  * Observers run only while a dialog is open and track dock/viewport resizing. */
 export function DocumentFeatureDialogs({
   enabled = true,
@@ -148,7 +148,7 @@ export function DocumentFeatureDialogs({
   }, [kind, targetCurrent, canvasViewportBounds]);
   const canvas = canvasViewportBounds ?? measuredCanvas ?? undefined;
   // View's client starts three GUI pixels inside its top/left; right/bottom
-  // additionally contain the Aseprite nine-GUI-pixel scrollbars.
+  // …nine-GUI-pixel scrollbars.
   const editor =
     editorBounds ??
     (canvas

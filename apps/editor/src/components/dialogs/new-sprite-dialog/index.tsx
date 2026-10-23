@@ -69,7 +69,7 @@ export interface NewSpriteDialogProps {
   clientBounds?: SurfaceBounds;
 }
 
-/** Source new_sprite.xml: color mode and background are independent button sets. */
+/** New sprite dialog: color mode and background are independent button sets. */
 export function NewSpriteDialog({
   open,
   onOpenChange,
@@ -588,7 +588,7 @@ export function NewSpriteDialog({
   );
 }
 
-/** theme.xml buttonset_item_text_top_icon_bottom selection styling. */
+/** Theme buttonset: text-top / icon-bottom selection styling (CC BY theme metrics). */
 function NewSpriteOption({
   label,
   selected,

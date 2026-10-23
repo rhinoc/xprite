@@ -35,7 +35,7 @@ const retention = [
 ] as const;
 const noop = () => {};
 
-/** Files page controls follow options.xml; browser-only unavailable behaviors stay disabled. */
+/** Files preferences controls; browser-unavailable behaviors stay disabled. */
 export function FilesPreferences({
   box,
   client,

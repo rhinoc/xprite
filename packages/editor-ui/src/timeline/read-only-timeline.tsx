@@ -10,7 +10,7 @@ import {
 import { paintTimelineCelArtwork } from "$/timeline/cel-artwork";
 import { paintTimelineThumbnail } from "$/timeline/cel-thumbnail";
 import { paintTimelineFrameArtwork } from "$/timeline/frame-artwork";
-import { asepriteLayerRows } from "$/timeline/layer-artwork";
+import { timelineLayerRows } from "$/timeline/layer-artwork";
 import { ReadOnlyLayerRow } from "$/timeline/layer-row";
 import { paintTimelineTagArtwork } from "$/timeline/tag-artwork";
 import { TIMELINE_TAG_BAND_HEIGHT, useTimelineTagBands } from "$/timeline/tag-bands";
@@ -98,7 +98,7 @@ export function ReadOnlyTimeline({
   const bands = useTimelineTagBands(tags, identity, FRAME_WIDTH, measureText);
   const tagHeight = tags.length ? bands.height : 0;
   const headerHeight = tagHeight + FRAME_HEADER_HEIGHT;
-  const rows = asepriteLayerRows(timeline);
+  const rows = timelineLayerRows(timeline);
   const height = headerHeight + rows.length * ROW_HEIGHT;
   const horizontalGutter =
     timeline.frames.length * FRAME_WIDTH > width

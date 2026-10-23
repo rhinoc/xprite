@@ -20,7 +20,7 @@ import type { EditorDocument } from "$/document/types";
 import type { AsepriteTileset } from "$/import-export/aseprite/model";
 import { asepriteFromProject } from "$/import-export/aseprite/project";
 import {
-  canKeepSelectionAsepriteSamples,
+  canKeepSelectionSamples,
   transformCorners,
   type SelectionTransform,
 } from "$/selection/transform";
@@ -338,7 +338,7 @@ export function transformClipboardAsepriteSamples(
   transform: SelectionTransform,
   transparentIndex = 0,
 ): AsepriteImageSamples | undefined {
-  if (!canKeepSelectionAsepriteSamples(transform)) return undefined;
+  if (!canKeepSelectionSamples(transform)) return undefined;
   const corners = transformCorners(transform.bounds, transform.angle),
     xs = corners.map((p) => p.x),
     ys = corners.map((p) => p.y),

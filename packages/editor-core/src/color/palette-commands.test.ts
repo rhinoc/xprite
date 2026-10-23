@@ -18,8 +18,8 @@ describe("palette-commands", () => {
     });
     const {
       RasterEditor,
-      asepritePaletteColorIndex,
-      stepAsepritePaletteIndex,
+      paletteColorIndex,
+      stepPaletteIndex,
       MAX_ALLOCATED_PALETTE_COLORS,
       appendMissingPaletteColor,
       indexedPaletteColorIndex,
@@ -52,14 +52,14 @@ describe("palette-commands", () => {
     assert.equal(e.getSnapshot().pixelRevision, revision);
     assert.equal(e.color.stepPaletteColor("foreground", Infinity), null);
     // Aseprite RGBA lookup gives exact match priority, including mask index zero.
-    assert.equal(asepritePaletteColorIndex([black, red, green], black), 0);
-    assert.equal(asepritePaletteColorIndex([black, red, green], [1, 1, 1, 255]), 1); // Excludes mask0 for nonexact fits.
-    assert.equal(asepritePaletteColorIndex([black, red, green], [200, 100, 30, 7]), 0);
-    assert.equal(asepritePaletteColorIndex([black, red, green], [240, 15, 3, 255]), 1);
-    assert.equal(asepritePaletteColorIndex([black, red, green], [15, 240, 3, 255]), 2);
-    assert.equal(stepAsepritePaletteIndex(0, -8, 3), 1);
-    assert.equal(stepAsepritePaletteIndex(2, 8, 3), 1);
-    assert.equal(stepAsepritePaletteIndex(0, 1, 0), null);
+    assert.equal(paletteColorIndex([black, red, green], black), 0);
+    assert.equal(paletteColorIndex([black, red, green], [1, 1, 1, 255]), 1); // Excludes mask0 for nonexact fits.
+    assert.equal(paletteColorIndex([black, red, green], [200, 100, 30, 7]), 0);
+    assert.equal(paletteColorIndex([black, red, green], [240, 15, 3, 255]), 1);
+    assert.equal(paletteColorIndex([black, red, green], [15, 240, 3, 255]), 2);
+    assert.equal(stepPaletteIndex(0, -8, 3), 1);
+    assert.equal(stepPaletteIndex(2, 8, 3), 1);
+    assert.equal(stepPaletteIndex(0, 1, 0), null);
     // An indexed duplicate selection must progress, not repeatedly rematch first RGB.
     e.color.setPalette([black, red, red, green]);
     e.history.markSaved();

@@ -13,7 +13,7 @@ import {
 } from "$/managers/preferences/timeline-panel-preferences";
 import {
   defaultOnionSkinSettings,
-  asepritePlaybackSpeeds,
+  playbackSpeeds,
   normalizeOnionSkin,
   type OnionSkinSettings,
   type PlaybackSettings,
@@ -43,7 +43,7 @@ export interface OnionSkinSettingsPanelProps {
   onOpenChange: (open: boolean) => void;
   value: OnionSkinSettings;
   onChange: (value: OnionSkinSettings) => void;
-  /** Aseprite gear bounds. Without an explicit anchor the primitive measures the shared timeline gear. */
+  /** Gear control bounds. Without an explicit anchor the primitive measures the shared timeline gear. */
   anchor?: SurfaceBounds;
   onSetAsDefaults?: () => void;
   firstFrame?: number;
@@ -53,7 +53,7 @@ export interface OnionSkinSettingsPanelProps {
   timelinePanelPreferences?: TimelinePanelPreferences;
   onTimelinePanelPreferencesChange?: (patch: TimelinePanelPreferencesPatch) => void;
 }
-export const asepriteTimelineSettingsSize = { width: 456, height: 436 };
+export const timelineSettingsSize = { width: 456, height: 436 };
 /** Reset preserves the active toggle and timeline's dragged previous/next handles. */
 export function resetOnionSkinOptions(value: OnionSkinSettings): OnionSkinSettings {
   return {
@@ -74,8 +74,7 @@ function SectionLabel({
 }) {
   return <Divider text={text} bounds={bounds} relativeTo={relativeTo} />;
 }
-/** Aseprite ConfigureTimelinePopup / timeline_conf.xml bound to editor view and
- * per-document timeline panel preferences. */
+/** Timeline configuration popup bound to editor view and per-document timeline prefs. */
 export function OnionSkinSettingsPanel({
   open,
   onOpenChange,
@@ -113,8 +112,8 @@ export function OnionSkinSettingsPanel({
   const thumbnailExtra = timelinePanelPreferences.thumbnailsEnabled ? 96 : 0;
   const at = anchor ?? measured ?? { x: 232, y: scene.height - 224, width: 24, height: 24 },
     size = {
-      ...asepriteTimelineSettingsSize,
-      height: asepriteTimelineSettingsSize.height + thumbnailExtra,
+      ...timelineSettingsSize,
+      height: timelineSettingsSize.height + thumbnailExtra,
     };
   const y =
     at.y + at.height + size.height <= scene.height
@@ -403,7 +402,7 @@ export function animationPlaybackMenuItems(
   onChange: (value: PlaybackSettings) => void,
 ): MenuItem[] {
   return [
-    ...asepritePlaybackSpeeds.map((speed) => ({
+    ...playbackSpeeds.map((speed) => ({
       label: `${speed}x`,
       checked: value.speed === speed,
       onSelect: () => onChange({ ...value, speed }),

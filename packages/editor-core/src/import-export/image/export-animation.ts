@@ -10,7 +10,7 @@ import {
   type ExportFileOptions,
 } from "$/import-export/image/export-plan";
 import { timelineTags } from "$/timeline/operations/timeline-range";
-import { AsepriteAnimationPlayback, AsepritePlaybackMode } from "$/timeline/playback";
+import { AnimationPlayback, PlaybackMode } from "$/timeline/playback";
 
 export interface ExportAnimationFrame {
   pixels: PixelBuffer;
@@ -86,18 +86,18 @@ export function exportFrameOrder(doc: EditorDocument, options: ExportFileOptions
           ? selected.to
           : selected.from;
     }
-    const playback = new AsepriteAnimationPlayback(
+    const playback = new AnimationPlayback(
       count - 1,
       owned,
       start,
-      AsepritePlaybackMode.All,
+      PlaybackMode.All,
       selected,
       forward,
     );
     const result = [playback.frame];
-    while (playback.mode !== AsepritePlaybackMode.Stopped) {
+    while (playback.mode !== PlaybackMode.Stopped) {
       playback.next();
-      if ((playback.mode as AsepritePlaybackMode) === AsepritePlaybackMode.Stopped) break;
+      if ((playback.mode as PlaybackMode) === PlaybackMode.Stopped) break;
       result.push(playback.frame);
       if (result.length > UINT16_MAX)
         throw new RangeError("Animation repetitions exceed the export limit.");

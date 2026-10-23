@@ -57,14 +57,14 @@ import {
   sliceKeyAt,
   sliceGestureTargetAt,
   selectionHandlePositions,
-  asepriteSelectionHandleRect as handleRect,
+  selectionHandleRect as handleRect,
   hitSelectionHandles,
   selectionBoundaryContains,
   selectionBoundarySegments,
   projectSelectionBoundarySegments,
   selectionPivotPoint,
   selectionTransformPivotPoint,
-  asepriteSelectionBoundaryWhite,
+  selectionBoundaryWhite,
   selectionShaderOffset,
   type SelectionBoundarySegment,
   maskContains,
@@ -745,7 +745,7 @@ export function EditorCanvas({
       context.setTransform(2, 0, 0, 2, 0, 0);
       for (const segment of segments) {
         let runStart = 0;
-        let runWhite = asepriteSelectionBoundaryWhite(
+        let runWhite = selectionBoundaryWhite(
           segment.x + shaderOffset.x,
           segment.y + shaderOffset.y,
           antsState.offset,
@@ -759,7 +759,7 @@ export function EditorCanvas({
         for (let index = 1; index < segment.length; index++) {
           const x = segment.axis === "horizontal" ? segment.x + index : segment.x;
           const y = segment.axis === "horizontal" ? segment.y : segment.y + index;
-          const white = asepriteSelectionBoundaryWhite(
+          const white = selectionBoundaryWhite(
             x + shaderOffset.x,
             y + shaderOffset.y,
             antsState.offset,

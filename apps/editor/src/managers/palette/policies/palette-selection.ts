@@ -11,9 +11,7 @@ export interface PaletteSelectionGeometry {
   edges: { left: boolean; top: boolean; right: boolean; bottom: boolean };
 }
 
-/** PaletteView::getEntryBoundsAndClip at reference GUI scale 2.
- * Connected cells hide their shared outline; row ends never wrap sideways.
- */
+/** Entry bounds and clip at reference GUI scale 2. Connected cells hide shared outline; row ends do not wrap sideways. */
 export function paletteSelectionGeometry(
   selected: readonly number[],
   count: number,
@@ -69,7 +67,7 @@ export function paletteSelectionGeometry(
     });
 }
 
-/** PaletteView::hitTest's external 6px outline strips. */
+/** External 6px outline hit strips around the selection. */
 export function hitPaletteSelectionOutline(
   point: { x: number; y: number },
   geometry: readonly PaletteSelectionGeometry[],

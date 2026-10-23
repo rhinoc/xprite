@@ -24,7 +24,7 @@ import {
   stylusPointerInputProps,
 } from "@xprite/ui/utils";
 
-export const asepriteEditorFrameBounds: SurfaceBounds = {
+export const editorFrameBounds: SurfaceBounds = {
   x: 160,
   y: 102,
   width: 1724,
@@ -66,7 +66,7 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 /** Reusable Aseprite editor border, document outline, and interactive mini scrollbars. */
 export function EditorFrame({
   viewport = DEFAULT_SURFACE_VIEWPORT,
-  frameBounds: baseFrameBounds = asepriteEditorFrameBounds,
+  frameBounds: baseFrameBounds = editorFrameBounds,
   extraHeight = 0,
   relativeTo = { x: 0, y: 0 },
   zoom = 1,

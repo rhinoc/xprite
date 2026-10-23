@@ -14,10 +14,10 @@ export function paletteColorIndex(palette: readonly (readonly number[])[], color
 }
 /** AddColor uses the same allocation limit as palette resize and replacement. */
 export function appendMissingPaletteColor(
-  palette: readonly (readonly number[])[],
+  palette: readonly Rgba[],
   color: Rgba,
   maximum = MAX_ALLOCATED_PALETTE_COLORS,
-): { palette: readonly (readonly number[])[]; index: number; added: boolean } {
+): { palette: readonly Rgba[]; index: number; added: boolean } {
   const index = paletteColorIndex(palette, color);
   if (index >= 0) return { palette, index, added: false };
   if (palette.length >= maximum) return { palette, index: -1, added: false };

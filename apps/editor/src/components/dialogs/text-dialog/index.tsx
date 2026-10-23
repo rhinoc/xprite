@@ -37,7 +37,7 @@ export interface TextDialogProps {
   bold?: boolean;
   italic?: boolean;
   antialias?: boolean;
-  /** Aseprite client area used for source integer-GUI centering. No OS caption is assumed. */
+  /** Editor client area for integer-GUI centering (no OS caption). */
   clientBounds?: SurfaceBounds;
   disabled?: boolean;
   /** Return an accessible error when the selected font cannot render this text. */
@@ -60,11 +60,7 @@ export interface TextDialogProps {
   ) => void;
 }
 
-/** paste_text.xml: Text / Font / Color, separator, homogeneous OK + Cancel.
- * Geometry is GUI scale 2: source text minwidth=256, grid/box spacing=4,
- * window border=6/top=17; Input's 7px font + 4px north/south borders.
- * The browser adapter rasterizes the chosen face and styles into the core's bitmap glyphs.
- */
+/** Text dialog: Text / Font / Color, separator, homogeneous OK + Cancel. Geometry at GUI scale 2 (text min width 256, grid spacing 4, window border 6/top 17; input font 7px + 4px N/S borders). The browser adapter rasterizes the chosen face and styles into the core's bitmap glyphs. */
 export function TextDialog({
   open,
   onOpenChange,

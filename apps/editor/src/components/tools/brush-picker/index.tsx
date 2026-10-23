@@ -10,10 +10,10 @@ import {
   type UserBrushSettings,
 } from "$/managers/preferences/user-presets";
 import {
-  getBrushPickerMask as asepriteBrushMask,
+  getBrushPickerMask as brushPreviewMask,
   BrushImagePatternChoice as BrushImagePattern,
-  type BrushPickerValue as AsepriteBrushValue,
-  type BrushPickerShape as AsepriteBrushShape,
+  type BrushPickerValue,
+  type BrushPickerShape,
   type BrushPickerImage as BrushImage,
   type ToolColor as Rgba,
 } from "$/managers/tools/tool-options";
@@ -39,8 +39,8 @@ import { anchoredPopoverStyle, useAnchoredPopover } from "@xprite/ui/popover";
 import { stylusPointerInputProps } from "@xprite/ui/utils";
 
 export interface BrushPickerProps {
-  value: AsepriteBrushValue;
-  onValueChange: (value: AsepriteBrushValue) => void;
+  value: BrushPickerValue;
+  onValueChange: (value: BrushPickerValue) => void;
   pixelPerfect?: boolean;
   onPixelPerfectChange?: (value: boolean) => void;
   onCreateFromSelection?: () => BrushImage | null;
@@ -57,21 +57,21 @@ export interface BrushPickerProps {
   disabled?: boolean;
   "aria-label"?: string;
 }
-const SHAPES: readonly AsepriteBrushShape[] = ["circle", "square", "line"];
+const SHAPES: readonly BrushPickerShape[] = ["circle", "square", "line"];
 const names = { circle: "Circle", square: "Square", line: "Line", image: "Image" };
 
 /** The bitmap belongs to the brush, not the UI atlas. Both use the same sampling grid. */
 function BrushButton({
   brush,
   ...props
-}: ButtonProps & { bounds: SurfaceBounds; brush: AsepriteBrushValue }) {
+}: ButtonProps & { bounds: SurfaceBounds; brush: BrushPickerValue }) {
   const { style: uiStyle } = useUi();
   const [pressed, setPressed] = React.useState(false);
   const viewport = props.viewport ?? DEFAULT_SURFACE_VIEWPORT;
   const b = props.bounds,
     relative = props.relativeTo ?? { x: 0, y: 0 };
   const layout = surfaceLayout(b, viewport);
-  const mask = asepriteBrushMask(brush);
+  const mask = brushPreviewMask(brush);
   let path = "";
   for (let row = 0; row < mask.height; row++)
     for (let col = 0; col < mask.width; col++)
@@ -245,7 +245,7 @@ export function BrushPicker({
   const createFromSelection = () => {
     const image = onCreateFromSelection?.();
     if (!image) return;
-    const nextValue: AsepriteBrushValue = { ...value, shape: "image", image };
+    const nextValue: BrushPickerValue = { ...value, shape: "image", image };
     onValueChange(nextValue);
     // Aseprite brush slots retain created image brushes for later selection.
     setSlots((items) => [

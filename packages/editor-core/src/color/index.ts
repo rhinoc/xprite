@@ -9,7 +9,7 @@ export * from "$/color/palette/controller";
 export * from "$/color/palette-commands";
 export * from "$/color/palette-operations";
 export * from "$/color/palette-resize";
-export * from "$/color/palette-warning";
+export { appendMissingPaletteColor } from "$/color/palette-warning";
 export * from "$/color/palette-usage";
 export * from "$/color/selector";
 export * from "$/color/quantization";

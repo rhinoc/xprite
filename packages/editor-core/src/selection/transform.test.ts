@@ -28,9 +28,9 @@ describe("selection-transform", () => {
     const {
       selectionBoundarySegments,
       projectSelectionBoundarySegments,
-      asepriteSelectionBoundaryWhite,
+      selectionBoundaryWhite,
       selectionShaderOffset,
-      asepriteSelectionHandleRect,
+      selectionHandleRect,
     } = modules.find((m) => m.selectionBoundarySegments);
     const {
       createSelectionAntsState,
@@ -67,17 +67,17 @@ describe("selection-transform", () => {
       ],
     );
     assert.deepEqual(
-      Array.from({ length: 8 }, (_, x) => asepriteSelectionBoundaryWhite(x, 0, 0)),
+      Array.from({ length: 8 }, (_, x) => selectionBoundaryWhite(x, 0, 0)),
       [false, true, true, true, true, false, false, false],
     );
     assert.deepEqual(
-      Array.from({ length: 8 }, (_, x) => asepriteSelectionBoundaryWhite(x, 0, 7)),
+      Array.from({ length: 8 }, (_, x) => selectionBoundaryWhite(x, 0, 7)),
       [true, true, true, true, false, false, false, false],
     );
     for (let phase = 0; phase < 8; phase++)
       for (let x = 0; x < 8; x++)
-        assert.equal(asepriteSelectionBoundaryWhite(x, 0, phase), ((x + 7 - phase) & 7) < 4);
-    assert.deepEqual(asepriteSelectionHandleRect(10, 10, 5, 0), {
+        assert.equal(selectionBoundaryWhite(x, 0, phase), ((x + 7 - phase) & 7) < 4);
+    assert.deepEqual(selectionHandleRect(10, 10, 5, 0), {
       x: 10,
       y: 8,
       width: 5,

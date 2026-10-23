@@ -27,6 +27,7 @@ import {
   displayEditorColorInSrgb as colorProfileToSrgb,
   parseEditorColor as hexToRgba,
   findEditorPaletteColor as paletteColorIndex,
+  type EditorColor as Rgba,
 } from "$/managers/tools/color-control";
 import {
   ColorSelector,
@@ -91,7 +92,7 @@ export interface ColorFieldsProps {
   onColorChange?: (color: string, target: WorkingColorTarget) => void;
   target?: WorkingColorTarget;
   onTargetChange?: (target: WorkingColorTarget) => void;
-  palette?: readonly (readonly number[])[];
+  palette?: readonly Rgba[];
   onAddColor?: (target: "foreground" | "background") => void;
   canAddColor?: boolean;
   bounds?: SurfaceBounds;

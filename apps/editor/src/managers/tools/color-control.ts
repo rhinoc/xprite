@@ -101,9 +101,6 @@ export function displayEditorColorInSrgb(
   return colorProfileToSrgb(color, profile);
 }
 
-export function findEditorPaletteColor(
-  palette: readonly (readonly number[])[],
-  color: EditorColor,
-): number {
+export function findEditorPaletteColor(palette: readonly Rgba[], color: EditorColor): number {
   return paletteColorIndex(palette, color);
 }

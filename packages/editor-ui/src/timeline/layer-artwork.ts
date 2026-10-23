@@ -16,8 +16,8 @@ import {
   type UiPartName,
 } from "@xprite/ui/assets";
 
-/** Aseprite Timeline::drawLayer adapter: source hierarchy, order and flags in one primitive. */
-export function asepriteLayerRows(timeline: SpriteTimeline) {
+/** Timeline layer rows: source hierarchy, order and flags in one primitive. */
+export function timelineLayerRows(timeline: SpriteTimeline) {
   return visibleTimelineLayers(timeline).map((index, row) => ({
     layer: timeline.layers[index],
     index,

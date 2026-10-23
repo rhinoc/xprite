@@ -15,7 +15,7 @@ import {
 
 export type PaletteRgba = readonly [number, number, number, number];
 export interface PaletteSurfaceProps {
-  /** Aseprite-scene outer frame; defaults to the historical library specimen. */
+  /** Outer palette frame; defaults to the library specimen bounds. */
   bounds?: SurfaceBounds;
   colors: readonly PaletteRgba[];
   foregroundIndex?: number | null;
@@ -38,8 +38,8 @@ export interface PaletteSurfaceProps {
   style?: CSSProperties;
 }
 
-/** Aseprite screenshot coordinate system, with layout derived from PaletteView. */
-const asepritePaletteBounds = { x: 4, y: 102, width: 148, height: 672 };
+/** Default palette surface bounds in scene coordinates. */
+const defaultPaletteBounds = { x: 4, y: 102, width: 148, height: 672 };
 function paintPart(
   context: CanvasRenderingContext2D,
   assets: UiAssets,
@@ -84,11 +84,11 @@ function paintPart(
 
 /**
  * A source-driven palette painter. The owning Palette supplies semantic DOM
- * options and hit areas; this surface only paints the Aseprite pixel skin.
+ * Palette painter: owner supplies semantic DOM/hit areas; this surface paints cells and markers.
  * Colors and markers are recomputed whenever the corresponding props change.
  */
 export function PaletteSurface({
-  bounds = asepritePaletteBounds,
+  bounds = defaultPaletteBounds,
   colors,
   foregroundIndex,
   backgroundIndex,
@@ -149,7 +149,7 @@ export function PaletteSurface({
         const x = origin.x + (index % columnCount) * pitch;
         const y = origin.y + Math.floor(index / columnCount) * pitch - scrollY;
         context.fillStyle = assets.style.colors.palette_entries_separator;
-        // PaletteView::drawEntry enlarges each separator, then fills the cell.
+        // Enlarge separator under each cell, then fill the cell.
         context.fillRect(x - 2, y - 2, cellSize + 4, cellSize + 4);
         // draw_color uses floor(11 / 2) UI pixels and restarts light-first.
         if (tileset || alpha !== UINT8_MAX) {

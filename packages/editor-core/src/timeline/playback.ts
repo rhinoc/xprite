@@ -1,5 +1,5 @@
 import { AsepriteTagDirection, type AsepriteTag } from "$/import-export/aseprite/model";
-export enum AsepritePlaybackMode {
+export enum PlaybackMode {
   All = "all",
   Loop = "loop",
   WithoutTags = "without-tags",
@@ -19,10 +19,10 @@ const ping = (t: AsepriteTag) => t.direction.startsWith(AsepriteTagDirection.Pin
 /** Playback state machine based on the MIT-licensed doc::Playback library.
  * Stack traversal avoids expanding nested repetitions into enormous frame
  * arrays; authored tag order is retained. */
-export class AsepriteAnimationPlayback {
+export class AnimationPlayback {
   frame: number;
   readonly initialFrame: number;
-  mode: AsepritePlaybackMode;
+  mode: PlaybackMode;
   private playing: PlayingTag[] = [];
   private played = new Set<AsepriteTag>();
   private forward = 1;
@@ -30,7 +30,7 @@ export class AsepriteAnimationPlayback {
     private lastFrame: number,
     private tags: readonly AsepriteTag[],
     frame: number,
-    mode: AsepritePlaybackMode,
+    mode: PlaybackMode,
     tag?: AsepriteTag,
     forward = 1,
   ) {
@@ -39,7 +39,7 @@ export class AsepriteAnimationPlayback {
     this.initialFrame = frame;
     this.mode = mode;
     this.forward = forward;
-    if (mode === AsepritePlaybackMode.Once) {
+    if (mode === PlaybackMode.Once) {
       if (tag) {
         this.frame =
           tag.direction === AsepriteTagDirection.Reverse ||
@@ -48,7 +48,7 @@ export class AsepriteAnimationPlayback {
             : tag.from;
         this.addTag(tag, false, 1);
       } else this.frame = 0;
-    } else if (mode === AsepritePlaybackMode.Loop && tag) {
+    } else if (mode === PlaybackMode.Loop && tag) {
       this.addTag(tag, false, 1);
       this.playing[this.playing.length - 1].repeat = Number.MAX_SAFE_INTEGER;
     }
@@ -67,24 +67,20 @@ export class AsepriteAnimationPlayback {
     return this.parentForward() > 0 ? tag.to : tag.from;
   }
   stop() {
-    if (this.mode === AsepritePlaybackMode.All || this.mode === AsepritePlaybackMode.Once)
+    if (this.mode === PlaybackMode.All || this.mode === PlaybackMode.Once)
       this.frame = this.initialFrame;
-    this.mode = AsepritePlaybackMode.Stopped;
+    this.mode = PlaybackMode.Stopped;
   }
   next(delta = 1) {
     const step = delta > 0 ? 1 : -1;
-    for (
-      let count = Math.abs(delta);
-      count > 0 && this.mode !== AsepritePlaybackMode.Stopped;
-      count--
-    ) {
+    for (let count = Math.abs(delta); count > 0 && this.mode !== PlaybackMode.Stopped; count--) {
       if (this.exit(step)) this.move(step);
       this.enter(step, false);
     }
     return this.frame;
   }
   private enter(delta: number, firstTime: boolean) {
-    if (this.mode !== AsepritePlaybackMode.All && this.mode !== AsepritePlaybackMode.Loop) return;
+    if (this.mode !== PlaybackMode.All && this.mode !== PlaybackMode.Loop) return;
     const tag = this.top()?.tag,
       frame = this.frame,
       forward = this.parentForward();
@@ -101,7 +97,7 @@ export class AsepriteAnimationPlayback {
     }
   }
   private exit(delta: number): boolean {
-    if (this.mode === AsepritePlaybackMode.All || this.mode === AsepritePlaybackMode.Loop) {
+    if (this.mode === PlaybackMode.All || this.mode === PlaybackMode.Loop) {
       const tag = this.top()?.tag;
       if (tag && contains(tag, this.frame)) {
         if (!ping(tag) && delta > 0 && this.frame === this.last(tag)) {
@@ -112,22 +108,21 @@ export class AsepriteAnimationPlayback {
           this.top().forward *= -1;
           return this.decrement(delta);
         }
-        if (this.mode === AsepritePlaybackMode.Loop) {
+        if (this.mode === PlaybackMode.Loop) {
           if (delta < 0 && this.frame === this.first(tag)) {
             this.frame = this.last(tag);
             return false;
           }
           return true;
         }
-        if (this.mode === AsepritePlaybackMode.All) return true;
+        if (this.mode === PlaybackMode.All) return true;
       }
       if (
         delta > 0 &&
         ((this.frame === this.lastFrame && this.forward > 0) ||
           (this.frame === 0 && this.forward < 0))
       ) {
-        if (this.mode === AsepritePlaybackMode.Loop)
-          this.frame = this.forward > 0 ? 0 : this.lastFrame;
+        if (this.mode === PlaybackMode.Loop) this.frame = this.forward > 0 ? 0 : this.lastFrame;
         else this.stop();
         return false;
       }
@@ -136,12 +131,11 @@ export class AsepriteAnimationPlayback {
         ((this.frame === 0 && this.forward > 0) ||
           (this.frame === this.lastFrame && this.forward < 0))
       ) {
-        if (this.mode === AsepritePlaybackMode.Loop)
-          this.frame = this.forward > 0 ? this.lastFrame : 0;
+        if (this.mode === PlaybackMode.Loop) this.frame = this.forward > 0 ? this.lastFrame : 0;
         else this.stop();
         return false;
       }
-    } else if (this.mode === AsepritePlaybackMode.Once) {
+    } else if (this.mode === PlaybackMode.Once) {
       const p = this.top(),
         tag = p?.tag;
       if (tag) {
@@ -175,9 +169,9 @@ export class AsepriteAnimationPlayback {
     return true;
   }
   private move(delta: number) {
-    if (this.mode === AsepritePlaybackMode.WithoutTags)
+    if (this.mode === PlaybackMode.WithoutTags)
       this.frame = (this.frame + delta + this.lastFrame + 1) % (this.lastFrame + 1);
-    else if (this.mode !== AsepritePlaybackMode.Stopped) this.frame += delta * this.parentForward();
+    else if (this.mode !== PlaybackMode.Stopped) this.frame += delta * this.parentForward();
   }
   private addTag(tag: AsepriteTag, rewind: boolean, forward: number) {
     const p: PlayingTag = {
@@ -227,7 +221,7 @@ export class AsepriteAnimationPlayback {
           ? tag.from - 1
           : tag.to + 1;
       if (next < 0 || next > this.lastFrame) {
-        if (this.mode === AsepritePlaybackMode.All) {
+        if (this.mode === PlaybackMode.All) {
           this.stop();
           return false;
         }
@@ -268,7 +262,7 @@ export class AsepriteAnimationPlayback {
         if (contains(newTag, this.frame)) return false;
       } else {
         if (
-          this.mode === AsepritePlaybackMode.Loop &&
+          this.mode === PlaybackMode.Loop &&
           ping(tag) &&
           tag.from === 0 &&
           tag.to === this.lastFrame

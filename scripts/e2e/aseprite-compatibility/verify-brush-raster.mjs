@@ -79,14 +79,14 @@ try {
     ),
     { loader: "ts", format: "esm" },
   );
-  const { asepriteBrushMask } = await import(
+  const { brushPreviewMask } = await import(
     `data:text/javascript;base64,${Buffer.from(code).toString("base64")}`
   );
   const shapes = ["circle", "square", "line"];
   let count = 0;
   for (const row of oracle.trim().split("\n")) {
     const [type, size, angle, width, pixels] = row.split(",");
-    const mask = asepriteBrushMask({ shape: shapes[+type], size: +size, angle: +angle });
+    const mask = brushPreviewMask({ shape: shapes[+type], size: +size, angle: +angle });
     assert.equal(mask.width, +width);
     assert.equal(mask.height, +width);
     assert.equal(mask.pixels.join(""), pixels, `${shapes[+type]} size=${size} angle=${angle}`);
@@ -95,8 +95,8 @@ try {
   for (const shape of shapes)
     for (const angle of [-180, -45, 0, 22, 45, 90, 180])
       assert.deepEqual(
-        asepriteBrushMask({ shape, size: 64, angle }),
-        asepriteBrushMask({ shape, size: 9, angle }),
+        brushPreviewMask({ shape, size: 64, angle }),
+        brushPreviewMask({ shape, size: 9, angle }),
       );
   console.log(
     `${count} thumbnail masks match compiled upstream C++ raster; 21 size-clamp checks pass. GUI popup capture remains separate.`,

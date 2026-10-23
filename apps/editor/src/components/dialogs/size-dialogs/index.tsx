@@ -68,8 +68,7 @@ const names = [
   "Bottom",
   "Bottom Right",
 ];
-/** Purpose-built source dialogs: every bound is relative to XML's remapped
- * client region. The components app supplies domain actions and no layout or paint. */
+/** Size dialogs: every bound is relative to the remapped client region. Host supplies domain actions only. */
 export function DocumentSizeDialogs(props: DocumentSizeDialogsProps) {
   return props.kind ? (
     <SizeDialog

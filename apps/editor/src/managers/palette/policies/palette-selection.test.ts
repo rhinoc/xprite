@@ -20,7 +20,7 @@ describe("palette-placement", () => {
     const {
       paletteSelectionGeometry: geometry,
       hitPaletteSelectionOutline: hit,
-      asepritePaletteLayout: layout,
+      paletteLayout: layout,
     } = await import(
       `data:text/javascript;base64,${Buffer.from(outputFiles[0].contents).toString("base64")}`
     );
@@ -147,7 +147,7 @@ describe("palette-selection", () => {
       await readFile(new URL("./palette-layout.ts", import.meta.url), "utf8"),
       { loader: "ts", format: "esm" },
     );
-    const { asepritePaletteLayout: layout } = await import(
+    const { paletteLayout: layout } = await import(
       `data:text/javascript;base64,${Buffer.from(layoutSource.code).toString("base64")}`
     );
     assert.deepEqual(layout(108, 11), {

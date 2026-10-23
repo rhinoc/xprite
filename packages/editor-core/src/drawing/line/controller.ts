@@ -19,7 +19,7 @@ function snapByAngle(start: Point, end: Point): Point {
 }
 
 /** LineFreehandController's incremental segment used by Shift+freehand. */
-export class AsepriteLineFreehandController {
+export class LineFreehandController {
   private readonly start: Point;
   private last: Point;
 

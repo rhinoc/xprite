@@ -5,7 +5,7 @@ export enum MenuCheckKind {
 
 /** Read-only defaults for unsupported modes of the basic single-cel editor.
  * Disabled commands retain their checkmarks; this does not enable their actions.
- * Sources: preferences.xml and each command's onChecked (see view-menu-state-findings.md).
+ * Checkmarks follow preference flags and each command's checked state (see view-menu-state-findings.md).
  */
 const checks: Readonly<Record<string, boolean>> = {
   ShowExtras: true,
