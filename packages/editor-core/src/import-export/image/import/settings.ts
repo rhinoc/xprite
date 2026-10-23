@@ -9,6 +9,7 @@ import {
   CellColorPicker,
   LineGuideMode,
   OutlinePrepass,
+  PixelationDither,
   PixelationMethod,
   PixelationMode,
   type PixelGridAnalysis,
@@ -55,6 +56,7 @@ export function defaultPixelationSettings(
     preserveDimensions: false,
     removeNoise: false,
     lockAspectRatio: true,
+    dither: PixelationDither.None,
     palette: null,
     paletteName: "",
   };
@@ -80,6 +82,7 @@ export function updatePixelationSettings(
     delete (next as { snapColors?: unknown }).snapColors;
   }
   if (!Object.values(LineGuideMode).includes(next.lineGuide)) next.lineGuide = DEFAULT_LINE_GUIDE;
+  if (!Object.values(PixelationDither).includes(next.dither)) next.dither = PixelationDither.None;
   // Turning a PixelOE pre-pass on starts from Contrast, PixelOE's own colour rule.
   if (
     settings.prepass === OutlinePrepass.None &&
@@ -160,8 +163,8 @@ export function pixelationSettingsOptions(
     // Limit colors: k-means to the colour count, or the loaded palette.
     paletteSnap: settings.reduceColors
       ? settings.palette
-        ? { palette: settings.palette }
-        : { colors: settings.maxColors }
+        ? { palette: settings.palette, dither: settings.dither }
+        : { colors: settings.maxColors, dither: settings.dither }
       : undefined,
     method: settings.method,
     // A pre-pass hands its result to the colour rule, so the picker (not `method`) fills each block.

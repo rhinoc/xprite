@@ -9,7 +9,7 @@ import {
   pixelationSettingsOptions,
   updatePixelationSettings,
 } from "$/import-export/image/import/settings";
-import { PixelationMode } from "$/import-export/image/import/types";
+import { PixelationDither, PixelationMode } from "$/import-export/image/import/types";
 
 function make(width: number, height: number, paint: (x: number, y: number) => Rgba): PixelBuffer {
   const data = new Uint8ClampedArray(width * height * 4);
@@ -145,6 +145,7 @@ describe("Limit colors in the pixelate pipeline", () => {
     expect(on.maxColors).toBe(256);
     expect(pixelationSettingsOptions({ ...on, mode: PixelationMode.Convert }).paletteSnap).toEqual({
       colors: 256,
+      dither: PixelationDither.None,
     });
     expect(
       updatePixelationSettings(base, { reduceColors: true, maxColors: 1 }, size).maxColors,
@@ -156,7 +157,7 @@ describe("Limit colors in the pixelate pipeline", () => {
         palette,
         mode: PixelationMode.Convert,
       }).paletteSnap,
-    ).toEqual({ palette });
+    ).toEqual({ palette, dither: PixelationDither.None });
   });
   test("saved Limit colors / Snap palette settings become one Limit colors", () => {
     const size = { width: 64, height: 64 };
@@ -179,5 +180,67 @@ describe("Limit colors in the pixelate pipeline", () => {
     expect(
       migrate({ reduceColors: false, maxColors: 12, snapPalette: false, snapColors: 32 }),
     ).toEqual([false, 12]);
+  });
+});
+
+describe("snapPalette dithering", () => {
+  const grayRamp = () =>
+    make(8, 8, (x, y) => {
+      const v = Math.round(((x + y * 8) / 63) * 255);
+      return [v, v, v, 255];
+    });
+  const twoTone: Rgba[] = [
+    [0, 0, 0, 255],
+    [255, 255, 255, 255],
+  ];
+
+  test("Off (nearest) matches the previous flat snap", () => {
+    const image = grayRamp();
+    const none = snapPalette(image, { palette: twoTone, dither: PixelationDither.None });
+    const omitted = snapPalette(image, { palette: twoTone });
+    expect(Array.from(none.data)).toEqual(Array.from(omitted.data));
+    expect(colors(none)).toEqual(new Set(["0,0,0", "255,255,255"]));
+  });
+
+  test("Ordered Bayer differs from nearest and stays in the palette", () => {
+    const image = grayRamp();
+    const nearest = snapPalette(image, { palette: twoTone, dither: PixelationDither.None });
+    const ordered = snapPalette(image, { palette: twoTone, dither: PixelationDither.Ordered });
+    expect(Array.from(ordered.data)).not.toEqual(Array.from(nearest.data));
+    expect(colors(ordered)).toEqual(new Set(["0,0,0", "255,255,255"]));
+    // Deterministic.
+    expect(
+      Array.from(snapPalette(image, { palette: twoTone, dither: PixelationDither.Ordered }).data),
+    ).toEqual(Array.from(ordered.data));
+  });
+
+  test("Floyd–Steinberg differs from nearest and Ordered, stays in the palette", () => {
+    const image = grayRamp();
+    const nearest = snapPalette(image, { palette: twoTone, dither: PixelationDither.None });
+    const ordered = snapPalette(image, { palette: twoTone, dither: PixelationDither.Ordered });
+    const floyd = snapPalette(image, {
+      palette: twoTone,
+      dither: PixelationDither.FloydSteinberg,
+    });
+    expect(Array.from(floyd.data)).not.toEqual(Array.from(nearest.data));
+    expect(Array.from(floyd.data)).not.toEqual(Array.from(ordered.data));
+    expect(colors(floyd)).toEqual(new Set(["0,0,0", "255,255,255"]));
+  });
+
+  test("settings default dither Off and unknown values migrate to Off", () => {
+    const size = { width: 32, height: 32 };
+    const base = defaultPixelationSettings(size);
+    expect(base.dither).toBe(PixelationDither.None);
+    const limited = updatePixelationSettings(base, { reduceColors: true }, size);
+    expect(
+      pixelationSettingsOptions({ ...limited, mode: PixelationMode.Convert }).paletteSnap?.dither,
+    ).toBe(PixelationDither.None);
+    const ordered = updatePixelationSettings(limited, { dither: PixelationDither.Ordered }, size);
+    expect(
+      pixelationSettingsOptions({ ...ordered, mode: PixelationMode.Convert }).paletteSnap,
+    ).toEqual({ colors: 16, dither: PixelationDither.Ordered });
+    expect(updatePixelationSettings(limited, { dither: "bogus" as never }, size).dither).toBe(
+      PixelationDither.None,
+    );
   });
 });

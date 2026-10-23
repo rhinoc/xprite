@@ -152,6 +152,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
               colorPicker,
               reduceColors: workflow.pixelationOptions.reduceColors,
               maxColors: workflow.pixelationOptions.maxColors,
+              dither: workflow.pixelationOptions.dither,
             },
           }
         : {}),
@@ -206,8 +207,12 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         // them never resizes or moves the preview; Keep as is just leaves those rows empty.
         const hintHeight = pixelateMessage ? HINT_HEIGHT + GAP : 0;
         const advancedRowHeight = ROW_HEIGHT + GAP;
+        const showDither = showAdvanced && workflow.pixelationOptions.reduceColors;
         const advancedHeight = showAdvanced
-          ? 4 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) + ROW_HEIGHT + GAP
+          ? 4 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) +
+            ROW_HEIGHT +
+            GAP +
+            (showDither ? FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP : 0)
           : 0;
         const bottomStack =
           SECTION_HEIGHT +
@@ -243,6 +248,8 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const prepassLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
         const prepassCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         const limitRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
+        const ditherLabel = showDither ? at(FIELD_LABEL_HEIGHT) : null;
+        const ditherCombo = showDither ? at(COMBO_HEIGHT, GAP) : null;
         const rememberRow = at(ROW_HEIGHT);
         const footerY = client.y + client.height - FOOTER_HEIGHT;
         const option = (value: ImportAction, label: string, x: number, w: number) => (
@@ -447,6 +454,20 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                     })}
                   </>
                 )}
+              </>
+            )}
+            {ditherLabel && ditherCombo && base[PixelationSlot.Dither].visible && (
+              <>
+                <Text
+                  variant={TextVariant.Control}
+                  text={base[PixelationSlot.Dither].label ?? ""}
+                  bounds={ditherLabel}
+                  relativeTo={client}
+                />
+                {base[PixelationSlot.Dither].render({
+                  bounds: ditherCombo,
+                  relativeTo: client,
+                })}
               </>
             )}
             <Checkbox

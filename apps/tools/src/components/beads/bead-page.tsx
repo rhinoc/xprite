@@ -28,6 +28,7 @@ const PERCENT = 100;
 const HIDDEN_BASE_SLOTS: ReadonlySet<PixelationSlot> = new Set([
   PixelationSlot.LimitColors,
   PixelationSlot.Colors,
+  PixelationSlot.Dither,
   PixelationSlot.Palette,
   PixelationSlot.PaletteMenu,
 ]);

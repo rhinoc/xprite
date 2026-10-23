@@ -580,6 +580,7 @@ export class EditorSession<Source> {
         : {}),
       ...(typeof saved.reduceColors === "boolean" ? { reduceColors: saved.reduceColors } : {}),
       ...(typeof saved.maxColors === "number" ? { maxColors: saved.maxColors } : {}),
+      ...(saved.dither !== undefined ? { dither: saved.dither } : {}),
     };
     for (const key of Object.keys(patch) as (keyof typeof patch)[])
       if (patch[key] === undefined) delete patch[key];

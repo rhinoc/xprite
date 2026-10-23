@@ -64,6 +64,7 @@ export function PixelationBaseControls({
         <Group title={translate("Colors")}>
           {bare(PixelationSlot.LimitColors)}
           {field(PixelationSlot.Colors)}
+          {field(PixelationSlot.Dither)}
           {base[PixelationSlot.PaletteMenu].visible && (
             <span className={styles.paletteMenu}>{base[PixelationSlot.PaletteMenu].render()}</span>
           )}

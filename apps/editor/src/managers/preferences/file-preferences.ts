@@ -4,6 +4,7 @@ import {
   DEFAULT_LINE_GUIDE,
   LineGuideMode,
   OutlinePrepass,
+  PixelationDither,
   getAllAlgorithms,
   getAllColorPickers,
 } from "@xprite/editor-core/import-export/image/import";
@@ -105,6 +106,9 @@ function normalizeImportPixelation(value: unknown): ImportPixelationMemory | nul
     ...(typeof saved.reduceColors === "boolean" ? { reduceColors: saved.reduceColors } : {}),
     ...(typeof saved.maxColors === "number" && Number.isFinite(saved.maxColors)
       ? { maxColors: Math.max(2, Math.min(MAX_COLORS, Math.round(saved.maxColors))) }
+      : {}),
+    ...(Object.values(PixelationDither).includes(saved.dither as PixelationDither)
+      ? { dither: saved.dither as PixelationDither }
       : {}),
   };
 }

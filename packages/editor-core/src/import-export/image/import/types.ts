@@ -84,6 +84,13 @@ export enum OutlinePrepass {
   PixeloeLines = "pixeloe-lines",
 }
 
+/** Dithering when Limit colors snaps the result to a smaller palette. Off leaves nearest-colour. */
+export enum PixelationDither {
+  None = "none",
+  Ordered = "ordered",
+  FloydSteinberg = "floyd-steinberg",
+}
+
 /** How a line drawing changes PixelOE's outline weight (1 = spread dark, 0 = spread bright). */
 export enum LineGuideMode {
   /** max(weight, lines): PixelOE's own weight, plus dark spreading along every line. */
@@ -141,6 +148,8 @@ export interface PaletteSnapOptions {
   colors?: number;
   /** Snap every visible pixel to its nearest entry (CIE Lab) instead of clustering. */
   palette?: readonly Rgba[];
+  /** Ordered / Floyd–Steinberg while snapping; None (nearest) when omitted. */
+  dither?: PixelationDither;
 }
 
 export interface PixelateOptions {
@@ -220,6 +229,8 @@ export interface PixelationSettings {
   preserveDimensions: boolean;
   removeNoise: boolean;
   lockAspectRatio: boolean;
+  /** Dithering for Limit colors; ignored when Limit colors is off. */
+  dither: PixelationDither;
   palette: readonly Rgba[] | null;
   paletteName: string;
 }
