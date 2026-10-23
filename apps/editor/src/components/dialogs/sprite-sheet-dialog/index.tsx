@@ -260,14 +260,14 @@ export function SpriteSheetDialog({
       open
       title={initialSource === "tilesets" ? "Tileset" : "Sprite Sheet"}
       helpUrl="https://www.aseprite.org/docs/sprite-sheet/#export"
-      width={tab === "output" && o.dataEnabled ? 586 : 584}
+      width={tab === "output" && o.dataEnabled ? 506 : 504}
       layout={expanded ? undefined : sourceLayout}
       fields={fields}
       headerActions={[
         {
           label: expanded ? "Collapse Sections" : "Show all sections",
           icon: "window_center_icon",
-          x: tab === "output" && o.dataEnabled ? 544 : 542,
+          x: tab === "output" && o.dataEnabled ? 464 : 462,
           y: 0,
           width: 18,
           height: 30,
@@ -414,7 +414,7 @@ export function ImportSpriteSheetDialog({
       open
       title="Import Sprite Sheet"
       helpUrl="https://www.aseprite.org/docs/sprite-sheet/#import"
-      width={460}
+      width={500}
       layout={layout}
       fields={fields}
       overlay={
