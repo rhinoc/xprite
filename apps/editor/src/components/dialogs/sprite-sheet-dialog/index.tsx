@@ -16,8 +16,8 @@ import {
   type SpriteSheetPreviewResult,
 } from "$/managers/dialogs/sprite-sheet-dialog-model";
 import {
-  spriteSheetAsepriteLayout,
-  importSpriteSheetAsepriteLayout,
+  spriteSheetLayout,
+  importSpriteSheetLayout,
 } from "$/managers/files/policies/sprite-sheet-geometry";
 export interface SpriteSheetDialogProps {
   embedded?: boolean;
@@ -30,8 +30,8 @@ export interface SpriteSheetDialogProps {
   busy?: boolean;
   documentKey?: string;
 }
-/** Source export_sprite_sheet.xml's four source-skinned section tabs. The form
- * primitive owns all geometry, focus, controls and styling. */
+/** Sprite Sheet dialog with four section tabs for layout, sprite, borders, and output options.
+ * The form primitive owns all geometry, focus, controls and styling. */
 export function SpriteSheetDialog({
   embedded = false,
   active = true,
@@ -252,7 +252,7 @@ export function SpriteSheetDialog({
     disabled: busy || !onPreview,
     row: "footer",
   });
-  const sourceLayout = spriteSheetAsepriteLayout(tab, o);
+  const sourceLayout = spriteSheetLayout(tab, o);
   return (
     <FormDialog
       embedded={embedded}
@@ -408,7 +408,7 @@ export function ImportSpriteSheetDialog({
       disabled: busy,
     },
   ];
-  const layout = importSpriteSheetAsepriteLayout(o.paddingEnabled);
+  const layout = importSpriteSheetLayout(o.paddingEnabled);
   return (
     <FormDialog
       open
