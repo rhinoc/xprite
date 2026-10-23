@@ -1,8 +1,8 @@
-import type { BrushImage } from "$/base/primitives";
+import type { BrushImage, BrushShape } from "$/base/primitives";
 import { isValidBrushImage, rasterizeBrushShape } from "$/canvas/raster";
 /** Integer brush raster from the MIT-licensed doc/brush.cpp and doc/algo.cpp.
  * This is the popup thumbnail, including the nine-pixel clamp/crop. */
-export type BrushShape = "circle" | "square" | "line" | "image";
+export type { BrushShape };
 export interface BrushValue {
   shape: BrushShape;
   size: number;

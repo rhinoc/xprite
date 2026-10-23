@@ -60,9 +60,7 @@ export interface TextDialogProps {
   ) => void;
 }
 
-/** Text dialog: Text / Font / Color, separator, homogeneous OK + Cancel. Geometry at GUI scale 2 (text min width 256, grid spacing 4, window border 6/top 17; input font 7px + 4px N/S borders). */
- * The browser adapter rasterizes the chosen face and styles into the core's bitmap glyphs.
- */
+/** Text dialog: Text / Font / Color, separator, homogeneous OK + Cancel. Geometry at GUI scale 2 (text min width 256, grid spacing 4, window border 6/top 17; input font 7px + 4px N/S borders). The browser adapter rasterizes the chosen face and styles into the core's bitmap glyphs. */
 export function TextDialog({
   open,
   onOpenChange,

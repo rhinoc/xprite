@@ -188,7 +188,7 @@ function usePreviewEditorState(
     setPaletteEditableState(editable);
     if (!editable) setPaletteSelection([]);
   };
-  const [paletteColors, setPaletteColors] = useState<readonly (readonly number[])[]>([]);
+  const [paletteColors, setPaletteColors] = useState<readonly Rgba[]>([]);
   const [paletteIndex, setPaletteIndex] = useState<number | null>(null);
   const [visible, setVisible] = useState(true);
   const [locked, setLocked] = useState(false);
@@ -212,9 +212,7 @@ function usePreviewEditorState(
     if (closing === "document") setPlaying(false);
   };
   const [brushSizes, setBrushSizes] = useState<Partial<Record<EditorTool, number>>>({});
-  const [brushShapes, setBrushShapes] = useState<Partial<Record<EditorTool, BrushShape>>>(
-    {},
-  );
+  const [brushShapes, setBrushShapes] = useState<Partial<Record<EditorTool, BrushShape>>>({});
   const [brushAngles, setBrushAngles] = useState<Partial<Record<EditorTool, number>>>({});
   const brushShape = brushShapes[tool] ?? "circle";
   const brushAngle = brushAngles[tool] ?? 0;

@@ -73,11 +73,7 @@ export class AnimationPlayback {
   }
   next(delta = 1) {
     const step = delta > 0 ? 1 : -1;
-    for (
-      let count = Math.abs(delta);
-      count > 0 && this.mode !== PlaybackMode.Stopped;
-      count--
-    ) {
+    for (let count = Math.abs(delta); count > 0 && this.mode !== PlaybackMode.Stopped; count--) {
       if (this.exit(step)) this.move(step);
       this.enter(step, false);
     }
@@ -126,8 +122,7 @@ export class AnimationPlayback {
         ((this.frame === this.lastFrame && this.forward > 0) ||
           (this.frame === 0 && this.forward < 0))
       ) {
-        if (this.mode === PlaybackMode.Loop)
-          this.frame = this.forward > 0 ? 0 : this.lastFrame;
+        if (this.mode === PlaybackMode.Loop) this.frame = this.forward > 0 ? 0 : this.lastFrame;
         else this.stop();
         return false;
       }
@@ -136,8 +131,7 @@ export class AnimationPlayback {
         ((this.frame === 0 && this.forward > 0) ||
           (this.frame === this.lastFrame && this.forward < 0))
       ) {
-        if (this.mode === PlaybackMode.Loop)
-          this.frame = this.forward > 0 ? this.lastFrame : 0;
+        if (this.mode === PlaybackMode.Loop) this.frame = this.forward > 0 ? this.lastFrame : 0;
         else this.stop();
         return false;
       }

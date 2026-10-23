@@ -18,10 +18,7 @@ import {
   ImageExportFormat,
   WebpCompression,
 } from "$/managers/files/export-format-preferences";
-import {
-  exportFileLayout,
-  gifOptionsLayout,
-} from "$/managers/files/policies/export-file-geometry";
+import { exportFileLayout, gifOptionsLayout } from "$/managers/files/policies/export-file-geometry";
 import { DEFAULT_FILE_PREFERENCES } from "$/managers/preferences/file-preferences";
 import type { FilePreferences } from "$/managers/preferences/file-preferences";
 
@@ -313,13 +310,7 @@ export function ExportFileDialog({
     outputFormat === ExportOutputFormat.Gif ||
     outputFormat === ExportOutputFormat.Apng ||
     (webpImage && options.frames !== "current");
-  const layout = exportFileLayout(
-    showSubtags,
-    showPixelRatio,
-    showPlayCount,
-    webpImage,
-    !embedded,
-  );
+  const layout = exportFileLayout(showSubtags, showPixelRatio, showPlayCount, webpImage, !embedded);
   let preferred = 1;
   while (preferred < 10 && (document.width * preferred < 240 || document.height * preferred < 240))
     preferred++;

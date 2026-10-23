@@ -38,7 +38,7 @@ import {
 } from "$/managers/palette/tilemap-model";
 import { EditorCursorName } from "$/managers/ports/platform";
 import { usePaletteBoxSizePreference } from "$/managers/preferences/use-panel-layout-preferences";
-import { parseEditorColor } from "$/managers/tools/color-control";
+import { parseEditorColor, type EditorColor as Rgba } from "$/managers/tools/color-control";
 import { Scrollbar, TOUCH_LONG_PRESS_DELAY_MS, TOUCH_MOVE_THRESHOLD } from "@xprite/ui";
 import { UI_SCALE_X, UI_SCALE_Y, surfaceLayout } from "@xprite/ui/canvas";
 import {
@@ -60,10 +60,7 @@ const PALETTE_DRAG_SCROLL_ROWS_PER_SECOND = 12;
 const PALETTE_DRAG_SCROLL_MAX_FRAME_MS = 50;
 const MILLISECONDS_PER_SECOND = 1000;
 
-const samePaletteColors = (
-  left: readonly (readonly number[])[],
-  right: readonly (readonly number[])[],
-) =>
+const samePaletteColors = (left: readonly Rgba[], right: readonly Rgba[]) =>
   left.length === right.length &&
   left.every((color, index) => {
     const otherColor = right[index];
@@ -79,7 +76,7 @@ export function EditorPalette({
   columns: _initialColumns,
   panelDocked = false,
 }: {
-  colors: readonly (readonly number[])[];
+  colors: readonly Rgba[];
   columns?: number;
   panelDocked?: boolean;
 }) {
@@ -92,7 +89,7 @@ export function EditorPalette({
   const paletteRoot = useRef<HTMLElement>(null);
   const paletteSize = useElementSize(paletteRoot);
   const previousPaletteSource = useRef<{
-    colors: readonly (readonly number[])[];
+    colors: readonly Rgba[];
     functional: boolean;
   } | null>(null);
   const tilemapActive = editor.tilemapLayerActive && editor.hasTileset;
