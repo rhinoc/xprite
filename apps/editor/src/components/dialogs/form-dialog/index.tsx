@@ -467,10 +467,41 @@ export function FormDialog({
           const column = peers.indexOf(field);
           const authored = layout?.fields[field.key];
           const inset = authored?.inset ?? 8;
-          const columnWidth = authored?.width ?? client.width / peers.length;
-          const columnX = client.x + (authored?.x ?? column * columnWidth);
+
+          const rowLabelWidths = peers.map(
+            (p) => layout?.fields[p.key]?.labelWidth ?? measureUiText(tUiSource(p.label)) + 24,
+          );
+          const maxRowLabelWidth = Math.max(...rowLabelWidths);
+
+          let columnWidth: number;
+          let columnX: number;
+
+          if (authored?.width !== undefined) {
+            columnWidth = authored.width;
+            columnX = client.x + (authored.x ?? column * columnWidth);
+          } else if (peers.length > 1 && peers.every((p) => p.type === "checkbox")) {
+            const peerWidths = peers.map((p) => measureUiText(tUiSource(p.label)) + 40);
+            const totalWidth = peerWidths.reduce((sum, w) => sum + w, 0);
+            const scale = totalWidth > 0 ? client.width / totalWidth : 1;
+            columnWidth = peerWidths[column] * scale;
+            columnX = client.x + peerWidths.slice(0, column).reduce((sum, w) => sum + w * scale, 0);
+          } else if (
+            peers.length > 1 &&
+            peers.every((p) => p.type === "number" || p.type === "select")
+          ) {
+            columnWidth = client.width / peers.length;
+            columnX = client.x + column * columnWidth;
+          } else {
+            columnWidth = client.width / peers.length;
+            columnX = client.x + column * columnWidth;
+          }
+
           const y = client.y + (authored?.y ?? 8 + messageHeight + rows.indexOf(row) * 44);
-          const labelWidth = authored?.labelWidth ?? measureUiText(tUiSource(field.label)) + 24;
+          const labelWidth =
+            authored?.labelWidth ??
+            (peers.length > 1 && peers.every((p) => p.type === "number" || p.type === "select")
+              ? maxRowLabelWidth
+              : measureUiText(tUiSource(field.label)) + 24);
           const input = {
             x: columnX + labelWidth,
             y,
