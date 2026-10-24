@@ -62,6 +62,7 @@
     "test:ci": "node scripts/check/run-tests.mjs",
     "check": "node scripts/check/run.mjs check",
     "check:architecture": "node scripts/check/run.mjs architecture",
+    "check:barrel-exports": "node scripts/check/check-barrel-export-collisions.mjs",
     "check:site-build": "node scripts/check/run.mjs site-build",
     "check:site-output": "node scripts/check/run.mjs site-output",
     "check:public-docs": "node scripts/check/check-public-docs.mjs",

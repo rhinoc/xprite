@@ -1,6 +1,7 @@
 import { UINT8_MAX } from "$/base/numeric-constants";
 import type { BitmapFont, PixelBuffer, Point, RasterResult } from "$/base/primitives";
-import { mulUn8, normalBlend, pixelWriter, samplePixel } from "$/canvas/raster";
+import { mulUn8 } from "$/canvas/blend-modes";
+import { normalBlend, pixelWriter, samplePixel } from "$/canvas/raster";
 import type { RasterOptions } from "$/canvas/raster/types";
 
 /** Basic atlas mode deliberately excludes platform-dependent system fallback fonts. */
