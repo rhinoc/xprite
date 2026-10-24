@@ -80,10 +80,10 @@ export const ARTICLES: readonly PublicArticle[] = [
     collection: "compare",
     slug: "piskel-alternatives",
     path: "/compare/piskel-alternatives/",
-    title: "Piskel Alternatives: 3 Pixel Animation Editors Compared | Xprite",
+    title: "Piskel Alternative: Xprite vs Piskel vs Pixelorama | Xprite",
     shortTitle: {
-      en: "Piskel alternatives",
-      "zh-CN": "Piskel 替代工具",
+      en: "Xprite vs Piskel",
+      "zh-CN": "Xprite 与 Piskel",
       ja: "Piskel の代替",
       ko: "Piskel 대안",
       ru: "Альтернативы Piskel",
@@ -91,9 +91,9 @@ export const ARTICLES: readonly PublicArticle[] = [
       es: "Alternativas a Piskel",
     },
     description:
-      "Compare Piskel alternatives: Pixelorama opens .piskel, Xprite edits .aseprite in the browser with pen and touch, and Pixilart suits sharing your pixel art.",
+      "Xprite vs Piskel: both are free, open-source browser sprite editors. Xprite also opens and saves .aseprite and works on phones; Pixelorama opens .piskel.",
     summary:
-      "Pixelorama opens .piskel directly; Xprite suits .aseprite editing and touch drawing; Pixilart suits sharing your work.",
+      "Xprite opens and saves .aseprite and works on phones and tablets; Piskel is simpler for small desktop animations; Pixelorama opens .piskel files directly.",
     topic: "Editor alternatives",
     dateModified: ARTICLE_UPDATE_DATE,
   },
