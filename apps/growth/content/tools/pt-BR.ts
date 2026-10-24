@@ -389,6 +389,4 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
     "Corrija pixel art de IA fora da grade ou desfocada. Recupere uma grade real no navegador—sem upload. Depois edite no Xprite ou baixe PNG.",
   "Enable JavaScript to fix AI-generated pixel art.":
     "Ative o JavaScript para corrigir pixel art gerada por IA.",
-  "Xprite is not affiliated with, endorsed by, or partnered with Wplace. This preset matches publicly visible map paint colors for preparing a PNG you upload yourself as an Overlays reference. Painting stays manual on wplace.live. Colors can change.":
-    "O Xprite não é afiliado, endossado nem parceiro do Wplace. Esta predefinição corresponde às cores de pintura do mapa visíveis publicamente para você preparar um PNG e enviar como referência de Overlays. Pintar em wplace.live continua manual. As cores podem mudar.",
 };

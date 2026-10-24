@@ -13,13 +13,6 @@ import { restoresPixels, type PixelationManager } from "$/managers/pixelation/pi
 import { PIXELATE_TOOL } from "$/managers/tools/tool-catalog";
 import { PixelationBaseControls } from "@xprite/editor-ui";
 import { PIXELATE_HELP, PixelateHelpSection } from "@xprite/growth-content/tools";
-import { Text, TextTone, TextVariant } from "@xprite/ui";
-
-/** Catalog display name for the Wplace map paint-color preset (`id`: wplace). */
-const WPLACE_MAP_PALETTE_NAME = "Wplace map";
-
-const WPLACE_MAP_DISCLAIMER =
-  "Xprite is not affiliated with, endorsed by, or partnered with Wplace. This preset matches publicly visible map paint colors for preparing a PNG you upload yourself as an Overlays reference. Painting stays manual on wplace.live. Colors can change.";
 
 /** A host outside the website: its own frame, and two direct output actions in place of export. */
 export interface PixelationPageHost {
@@ -92,13 +85,6 @@ export function PixelationPage({
             }
             onChange={manager.changeSettings}
             onAlgorithm={(algorithm, size) => void manager.changeAlgorithm(algorithm, size)}
-            paletteNotice={
-              state.settings.paletteName === WPLACE_MAP_PALETTE_NAME ? (
-                <Text variant={TextVariant.Reading} tone={TextTone.Muted} wrap>
-                  {t(WPLACE_MAP_DISCLAIMER)}
-                </Text>
-              ) : undefined
-            }
           >
             <PixelationExtraControls
               settings={state.settings}

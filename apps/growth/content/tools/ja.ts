@@ -386,6 +386,4 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
     "ずれたりぼやけたりした AI ドット絵を修正します。ブラウザで本物のピクセルグリッドを復元—アップロード不要。その後 Xprite で編集するか PNG をダウンロードできます。",
   "Enable JavaScript to fix AI-generated pixel art.":
     "AI 生成のドット絵を修正するには JavaScript を有効にしてください。",
-  "Xprite is not affiliated with, endorsed by, or partnered with Wplace. This preset matches publicly visible map paint colors for preparing a PNG you upload yourself as an Overlays reference. Painting stays manual on wplace.live. Colors can change.":
-    "Xprite は Wplace と提携・後援・パートナー関係にありません。このプリセットは公開されているマップの塗色に対応し、Overlays の参照用 PNG を自分で用意してアップロードするためのものです。wplace.live 上の塗装は手動のままです。色は変更されることがあります。",
 };
