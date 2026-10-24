@@ -70,9 +70,10 @@ import {
   type RecoveryItem,
 } from "$/managers/workspace/recovery-presentation";
 import { DEFAULT_RECOVERY_SETTINGS } from "$/managers/workspace/recovery-settings";
-import { SaveTarget } from "$/managers/workspace/save-target";
+import { SaveTarget, shouldOpenSaveAsDialog } from "$/managers/workspace/save-target";
 import { useWorkflowActionSnapshot } from "$/managers/workspace/workflow-action-snapshot";
 import { useDocumentOutputWorkflows } from "$/managers/workspace/workflows/use-document-output-workflows";
+import { canPickSaveFile } from "@xprite/bedrock/browser/file-system";
 import { normalizeKeyboardEvent } from "@xprite/bedrock/browser/keyboard";
 import { keyboardKey } from "@xprite/bedrock/common/keyboard-key";
 import {
@@ -766,7 +767,10 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       .finally(() => setClosingSaveBusy(false));
   };
   const performDocumentSave = (intent: SessionSaveIntent, target = currentSaveTarget()) => {
-    if (intent === SessionSaveIntent.SaveAs) {
+    const dialogIntent = intent === SessionSaveIntent.SaveAs ? "save-as" : "save";
+    if (
+      shouldOpenSaveAsDialog(dialogIntent, workspace.getConfiguredSaveTarget(), canPickSaveFile())
+    ) {
       telemetry.featureUsed(TelemetryFeature.SaveAs, TelemetryFeatureAction.Open);
       setSaveAsOpen(true);
       return;
