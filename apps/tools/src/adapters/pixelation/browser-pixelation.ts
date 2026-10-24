@@ -16,7 +16,7 @@ import type { PixelateOptions } from "@xprite/editor-core/import-export";
 import defaultExampleUrl from "@xprite/site-assets/tools/pixelate/girl-with-a-pearl-earring.jpg?url";
 const MAX_FILE_BYTES = TOOL_IMPORT_MAX_BYTES;
 const MAX_IMAGE_PIXELS = 16 * 1024 * 1024;
-const TIMEOUT_MS = 30_000;
+const TIMEOUT_MS = 90_000;
 
 export interface PixelationPortOptions {
   exampleUrl?: string;
