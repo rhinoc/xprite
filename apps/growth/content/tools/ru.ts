@@ -360,8 +360,8 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   "Image to pixel art": "Изображение в пиксель-арт",
   "Convert images to pixel art or recover enlarged pixel grids, with local previews.":
     "Превращайте изображения в пиксель-арт или восстанавливайте увеличенную пиксельную сетку с предпросмотром на устройстве.",
-  "Turn any photo into pixel art free in your browser. Pick the size, colors and palette, or restore an enlarged pixel grid. Files stay on your device.":
-    "Превратите фото в пиксель-арт бесплатно прямо в браузере. Задайте размер, цвета и палитру или восстановите увеличенную сетку. Файлы остаются на устройстве.",
+  "Free image to pixel art converter—no upload. Pick size, colors and palette, then Edit more in Xprite or download PNG.":
+    "Бесплатный конвертер фото в пиксель-арт без загрузки. Размер, цвета, палитра — затем Edit more в Xprite или PNG.",
   "Xprite Pixel Art Converter": "Xprite: изображение в пиксель-арт",
   "Enable JavaScript to use the viewer.": "Чтобы открыть просмотр, включите JavaScript.",
   "Enable JavaScript to convert your GIF.": "Чтобы преобразовать GIF, включите JavaScript.",

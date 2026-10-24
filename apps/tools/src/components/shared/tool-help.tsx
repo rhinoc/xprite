@@ -30,8 +30,11 @@ export function ToolHelp({
   const help = content[language];
   const files = useFilesManager();
   const filesState = useFilesSnapshot(files);
+  // Expand while empty/unuploaded so Open stays discoverable with the note;
+  // collapse on phones once a file is uploaded and preview exists (Ryan mobile rule).
+  // Do not collapseWhenCramped on empty — that buried the drop zone on short phones.
   const shade = useToolWindowShade("help", {
-    collapseWhenCramped: true,
+    collapseWhenCramped: false,
     collapseWhenReady: true,
     collapseWhenFilesOpen: true,
     ready,

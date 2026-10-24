@@ -10,7 +10,7 @@ updated: 2026-10-23
 Xprite의 [AI 픽셀 아트 수정](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) 도구는 **Recover Grid**를 실행합니다. 이미지에 확대된 칸 격자를 찾아 기기에서 진짜 1×1 픽셀 격자를 다시 만듭니다. 생성 모델이 아니며, 빠진 디테일을 지어내지도 않습니다.
 
 - 격자를 벗어난 흐릿한 AI / 부드러운 「픽셀 아트」: 먼저 [AI 픽셀 아트 수정](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art).
-- 일반 사진이나 그림을 *픽셀 아트로 만들고* 싶을 때: [이미지를 픽셀 아트로](/tools/pixelate/) (변환) 한 뒤 편집.
+- 일반 사진이나 그림을 *픽셀 아트로 만들고* 싶을 때: [이미지를 픽셀 아트로](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) (변환) 한 뒤 편집.
 - 격자가 맞으면: Xprite 에디터에서[더 편집](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) (레이어, 팔레트, 애니메이션).
 
 ## 「깨진」 AI 픽셀 아트가 의미하는 것
@@ -55,7 +55,7 @@ Xprite의 [AI 픽셀 아트 수정](/tools/fix-ai-pixel-art/?utm_source=compare&
 | 가진 것 | 사용 |
 | --- | --- |
 | 부드럽거나 AI 이미지인데 칸 격자가 보이는 경우 | [AI 픽셀 아트 수정](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) (Recover) |
-| 사진·그림·UI 캡처를 픽셀 스타일로 | [이미지를 픽셀 아트로](/tools/pixelate/) → **이미지 변환** |
+| 사진·그림·UI 캡처를 픽셀 스타일로 | [이미지를 픽셀 아트로](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) → **이미지 변환** |
 | 원래 네이티브 픽셀 아트인데 확대만 된 경우 | 두 도구의 Recover 경로 모두 가능; 수정 AI는 AI/부드러운 경우에 맞춰 표기 |
 
 두 도구는 같은 엔진을 씁니다. 수정 AI 페이지는 복원 쪽 문구와 예제가 기본이고, Pixelate는 일반 변환기입니다.
@@ -95,8 +95,8 @@ PNG를 내보내 다른 곳에서 열거나, Xprite에서 **더 편집**한 뒤 
 
 ### 「이미지 픽셀 아트 변환기」는요?
 
-그 검색은 보통 사진 → 픽셀 스타일을 뜻합니다. [이미지를 픽셀 아트로](/tools/pixelate/)를 쓰세요. 입력이 이미 픽셀인 척하는데 격자만 틀린 경우에는 AI 픽셀 아트 수정을 쓰세요.
+그 검색은 보통 사진 → 픽셀 스타일을 뜻합니다. [이미지를 픽셀 아트로](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)를 쓰세요. 입력이 이미 픽셀인 척하는데 격자만 틀린 경우에는 AI 픽셀 아트 수정을 쓰세요.
 
 ---
 
-[AI 픽셀 아트 수정](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [에디터 열기](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [이미지를 픽셀 아트로](/tools/pixelate/) · [Xprite란](/about/)
+[AI 픽셀 아트 수정](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [에디터 열기](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [이미지를 픽셀 아트로](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Xprite란](/about/)

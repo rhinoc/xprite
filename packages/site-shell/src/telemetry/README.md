@@ -28,8 +28,8 @@ Comparison (`/compare/`) landing pages use
 their English counterpart; `/privacy/` reports `other`.
 
 Each `/tools/{tool}/` page, English or localized, reports `page_type: tool` and its
-`tool_name` (`viewer`, `gif-to-sprite-sheet`, `animal-crossing-qr`, `pixelate` or
-`fuse-beads`); a `site_cta_click` to one of them reports that name as `cta_target`.
+`tool_name` (`viewer`, `gif-to-sprite-sheet`, `animal-crossing-qr`, `pixelate`,
+`fix-ai-pixel-art` or `fuse-beads`); a `site_cta_click` to one of them reports that name as `cta_target`.
 
 All events include `page_type`, `page_path`, nullable `tool_name`, nullable
 `referring_domain`, `entry_referrer_present`, nullable `entry_referring_domain`,

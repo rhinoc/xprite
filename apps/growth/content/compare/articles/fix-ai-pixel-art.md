@@ -10,7 +10,7 @@ Most AI "pixel art" only looks right from far away. Zoom in and the cells are un
 Xprite's [Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) tool runs **Recover Grid**: it looks for the upscaled cell lattice in your image and rebuilds a true 1×1 pixel grid on your device. It is not a generative model and it does not invent missing detail.
 
 - Off-grid or blurry AI / soft "pixel art": start with [Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art).
-- A normal photo or drawing you want *turned into* pixel art: use [Image to Pixel Art](/tools/pixelate/) (Convert), then edit.
+- A normal photo or drawing you want *turned into* pixel art: use [Image to Pixel Art](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) (Convert), then edit.
 - After the grid is right: [Edit more](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) in the Xprite editor (layers, palette, animation).
 
 ## What people mean by "broken" AI pixel art
@@ -55,7 +55,7 @@ Privacy: processing stays on your device. The source file is never overwritten.
 | You have… | Use |
 | --- | --- |
 | Soft / AI image that still shows a cell lattice | [Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) (Recover) |
-| Photo, painting, or UI shot to stylise as pixels | [Image to Pixel Art](/tools/pixelate/) → **Convert image** |
+| Photo, painting, or UI shot to stylise as pixels | [Image to Pixel Art](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) → **Convert image** |
 | Already-native pixel art that was only enlarged | Either tool's Recover path; Fix AI is labelled for the AI/soft case |
 
 Both tools share the same engine. The Fix AI page defaults the copy and example toward recovery; Pixelate is the general converter.
@@ -95,8 +95,8 @@ Export PNG and open it elsewhere, or use **Edit more** in Xprite and save `.asep
 
 ### What about "image to pixel art converter"?
 
-That query usually means photo → pixel style. Use [Image to Pixel Art](/tools/pixelate/). Use Fix AI Pixel Art when the input already pretends to be pixels but the grid is wrong.
+That query usually means photo → pixel style. Use [Image to Pixel Art](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art). Use Fix AI Pixel Art when the input already pretends to be pixels but the grid is wrong.
 
 ---
 
-[Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Open the editor](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Image to Pixel Art](/tools/pixelate/) · [What Xprite is](/about/)
+[Fix AI Pixel Art](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Open the editor](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Image to Pixel Art](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [What Xprite is](/about/)

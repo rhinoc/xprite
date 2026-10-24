@@ -30,7 +30,8 @@ export const FIX_AI_PIXEL_ART_HELP = {
         notes: "导出 PNG 会在主文件名后添加 -fixed；原图保持不变。",
       },
     ],
-    closing: "结果预览会实时更新；可以调整设置直到得到满意的结果。",
+    closing:
+      "结果预览会实时更新。若要把普通照片转成像素画（而不是修复错位网格），请改用「图片转像素画」。",
   },
   [PublicLanguage.English]: {
     title: "Fix AI-generated pixel art",
@@ -57,7 +58,7 @@ export const FIX_AI_PIXEL_ART_HELP = {
       },
     ],
     closing:
-      "The preview updates with the current settings, and you can adjust them until you get the desired result.",
+      "The preview updates with the current settings. For a normal photo you want turned into pixel art (not fixing a broken grid), use Image to Pixel Art instead.",
   },
   [PublicLanguage.Japanese]: {
     title: "AI 生成のドット絵を修正",

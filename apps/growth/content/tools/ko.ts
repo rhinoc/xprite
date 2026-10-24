@@ -359,8 +359,8 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "Image to pixel art": "이미지를 픽셀 아트로",
   "Convert images to pixel art or recover enlarged pixel grids, with local previews.":
     "이미지를 픽셀 아트로 바꾸거나 확대된 픽셀 격자를 복원하고, 결과를 기기에서 미리 볼 수 있습니다.",
-  "Turn any photo into pixel art free in your browser. Pick the size, colors and palette, or restore an enlarged pixel grid. Files stay on your device.":
-    "브라우저에서 사진을 무료로 픽셀 아트로 바꾸세요. 크기, 색 수, 팔레트를 고르거나 확대된 픽셀 격자를 복원할 수 있습니다. 파일은 기기에서 처리됩니다.",
+  "Free image to pixel art converter—no upload. Pick size, colors and palette, then Edit more in Xprite or download PNG.":
+    "무료·업로드 없는 이미지→픽셀 아트 변환. 크기·색·팔레트 선택 후 Xprite에서 편집하거나 PNG 저장.",
   "Xprite Pixel Art Converter": "Xprite 이미지 픽셀 아트 변환기",
   "Enable JavaScript to use the viewer.": "뷰어를 사용하려면 JavaScript를 켜 주세요.",
   "Enable JavaScript to convert your GIF.": "GIF를 변환하려면 JavaScript를 켜 주세요.",

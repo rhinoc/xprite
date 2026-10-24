@@ -10,7 +10,7 @@ A maior parte do “pixel art” de IA só parece certo de longe. Amplie e as c�
 A ferramenta [Corrigir pixel art de IA](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) do Xprite roda **Recover Grid**: procura a grade de células ampliada na imagem e reconstrói uma grade verdadeira de 1×1 pixel no seu dispositivo. Não é um modelo generativo e não inventa detalhe que faltava.
 
 - Pixel art de IA fora da grade ou borrado / “pixel art” mole: comece por [Corrigir pixel art de IA](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art).
-- Foto ou desenho normal que você quer *transformar* em pixel art: use [Imagem para pixel art](/tools/pixelate/) (Converter) e depois edite.
+- Foto ou desenho normal que você quer *transformar* em pixel art: use [Imagem para pixel art](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) (Converter) e depois edite.
 - Com a grade certa: [Editar mais](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) no editor Xprite (camadas, paleta, animação).
 
 ## O que as pessoas chamam de pixel art de IA “quebrado”
@@ -55,7 +55,7 @@ Privacidade: o processamento fica no seu dispositivo. O arquivo de origem nunca 
 | Você tem… | Use |
 | --- | --- |
 | Imagem mole / de IA que ainda mostra uma grade de células | [Corrigir pixel art de IA](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) (Recover) |
-| Foto, pintura ou captura de UI para estilizar como pixels | [Imagem para pixel art](/tools/pixelate/) → **Converter imagem** |
+| Foto, pintura ou captura de UI para estilizar como pixels | [Imagem para pixel art](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) → **Converter imagem** |
 | Pixel art já nativo que só foi ampliado | O caminho Recover de qualquer ferramenta; o Fix AI é rotulado para o caso de IA/mole |
 
 As duas ferramentas compartilham o mesmo motor. A página Fix AI prioriza o texto e o exemplo de recuperação; o Pixelate é o conversor geral.
@@ -95,8 +95,8 @@ Exporte PNG e abra em outro lugar, ou use **Editar mais** no Xprite e salve `.as
 
 ### E o “conversor de imagem para pixel art”?
 
-Essa busca costuma significar foto → estilo pixel. Use [Imagem para pixel art](/tools/pixelate/). Use Corrigir pixel art de IA quando a entrada já finge ser pixels, mas a grade está errada.
+Essa busca costuma significar foto → estilo pixel. Use [Imagem para pixel art](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art). Use Corrigir pixel art de IA quando a entrada já finge ser pixels, mas a grade está errada.
 
 ---
 
-[Corrigir pixel art de IA](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Abrir o editor](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Imagem para pixel art](/tools/pixelate/) · [O que é o Xprite](/about/)
+[Corrigir pixel art de IA](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Abrir o editor](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Imagem para pixel art](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [O que é o Xprite](/about/)
