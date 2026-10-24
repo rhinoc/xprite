@@ -60,7 +60,12 @@ interface AxisResult {
   profile: Float64Array;
   edges: readonly Edge[];
   pitch: number;
-  lattice: { step: number; offset: number; share: number; residual: number } | null;
+  lattice: {
+    step: number;
+    offset: number;
+    share: number;
+    residual: number;
+  } | null;
   meshCuts: number[];
 }
 interface Analysis {
@@ -273,7 +278,12 @@ function fitLattice(
     }
   }
   if (!fit) return null;
-  return { step, offset, share: fit / total, residual: Math.sqrt(squares / fit) / step };
+  return {
+    step,
+    offset,
+    share: fit / total,
+    residual: Math.sqrt(squares / fit) / step,
+  };
 }
 /** Cuts anchored on every edge, with even subdivisions wherever a gap spans several pitches. */
 function buildMesh(edges: readonly Edge[], pitch: number, length: number): number[] {
@@ -297,7 +307,7 @@ function buildMesh(edges: readonly Edge[], pitch: number, length: number): numbe
   return mergeSlivers(cuts, pitch);
 }
 /** A cell cropped to less than half a pitch at the image border joins its neighbour. */
-function mergeSlivers(cuts: number[], pitch: number): number[] {
+export function mergeSlivers(cuts: number[], pitch: number): number[] {
   const merged = [...cuts];
   if (merged.length > 2 && merged[1] - merged[0] < SLIVER_FRACTION * pitch) merged.splice(1, 1);
   const n = merged.length;

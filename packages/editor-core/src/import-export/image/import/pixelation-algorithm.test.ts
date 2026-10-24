@@ -9,6 +9,8 @@ import {
   checkerboard,
   gradient,
   jitterWithMargin,
+  mush,
+  resampleBilinear,
   smoothPhoto,
   sprite,
   texturePhoto,
@@ -45,7 +47,10 @@ describe("algorithm registry table", () => {
   });
   test("Custom size detects the requested block grid and Auto never picks it", () => {
     const image = upscaleNearest(art, 4);
-    const grid = detectWithAlgorithm(image, CustomSize, { width: 20, height: 12 });
+    const grid = detectWithAlgorithm(image, CustomSize, {
+      width: 20,
+      height: 12,
+    });
     expect([grid.width, grid.height, grid.reliable, grid.algorithm]).toEqual([
       20,
       12,
@@ -57,8 +62,14 @@ describe("algorithm registry table", () => {
   test("block picking sizes the output from the target and applies the chosen colour rule", () => {
     const image = upscaleNearest(art, 4);
     const size = { targetWidth: 20, targetHeight: 12, blockPicker: true };
-    const common = pixelateImage(image, { ...size, colorPicker: CellColorPicker.MostCommon });
-    const average = pixelateImage(image, { ...size, colorPicker: CellColorPicker.Average });
+    const common = pixelateImage(image, {
+      ...size,
+      colorPicker: CellColorPicker.MostCommon,
+    });
+    const average = pixelateImage(image, {
+      ...size,
+      colorPicker: CellColorPicker.Average,
+    });
     expect([common.width, common.height]).toEqual([20, 12]);
     expect([average.width, average.height]).toEqual([20, 12]);
     expect(average.data).not.toEqual(common.data);
@@ -140,15 +151,77 @@ describe("grids that must be recovered", () => {
   });
 });
 
+describe("soft upscales the edge detectors refuse", () => {
+  const soft: [string, PixelBuffer, number, number][] = [
+    ["bilinear-upscaled sprite", upscaleBilinear(art, 12), 12, 64],
+    ["heavily blurred sprite", boxBlur(upscaleNearest(art, 16), 6), 16, 64],
+    ["centred bilinear at 6.5x", resampleBilinear(sprite(32, 7), 6.5), 6.5, 32],
+    ["centred bilinear at 9.3x", resampleBilinear(sprite(48, 13), 9.3), 9.3, 48],
+    ["mush at 5x", mush(sprite(48, 29), 5), 5, 48],
+    ["mush at 12x", mush(sprite(32, 7), 12), 12, 32],
+  ];
+  for (const [name, image, pitch, cells] of soft)
+    test(name, () => {
+      for (const algorithm of [EdgeGrid, UniformGrid])
+        expect(detectWithAlgorithm(image, algorithm).reliable).toBe(false);
+      const result = detectWithAlgorithm(image, Auto);
+      expect(result.reliable).toBe(true);
+      expect(result.cellWidth).toBeCloseTo(pitch, 0);
+      expect(result.cellHeight).toBeCloseTo(pitch, 0);
+      expect(Math.abs(result.width - cells)).toBeLessThanOrEqual(1);
+      expect(Math.abs(result.height - cells)).toBeLessThanOrEqual(1);
+      const out = pixelateImage(image, {
+        algorithm: Auto,
+        mode: PixelationMode.RecoverGrid,
+      });
+      expect([out.width, out.height]).toEqual([result.width, result.height]);
+    });
+  test("the recovered colours match the source sprite", () => {
+    const source = sprite(40, 41);
+    const out = pixelateImage(resampleBilinear(source, 7.25), {
+      algorithm: Auto,
+      colorPicker: CellColorPicker.Median,
+    });
+    expect([out.width, out.height]).toEqual([40, 40]);
+    let close = 0;
+    for (let i = 0; i < 40 * 40; i++) {
+      let error = 0;
+      for (let c = 0; c < 3; c++)
+        error = Math.max(error, Math.abs(out.data[i * 4 + c] - source.data[i * 4 + c]));
+      if (error <= 24) close++;
+    }
+    expect(close / (40 * 40)).toBeGreaterThan(0.85);
+  });
+  test("a soft grid is not split into half cells", () => {
+    const result = detectWithAlgorithm(resampleBilinear(sprite(32, 13), 8), Auto);
+    expect([result.width, result.height]).toEqual([32, 32]);
+  });
+  test("a tilt claimed on soft edges does not hide the upright grid", () => {
+    const result = detectWithAlgorithm(mush(sprite(56, 53), 14, 54), Auto);
+    expect([result.width, result.height]).toEqual([56, 56]);
+    expect(result.rotation).toBeUndefined();
+  });
+  test("a low-confidence edge grid that missed cuts is replaced", () => {
+    const image = boxBlur(upscaleNearest(sprite(36, 83), 7.75), 1);
+    const edge = detectWithAlgorithm(image, EdgeGrid);
+    expect(edge.reliable).toBe(true);
+    expect([edge.width, edge.height]).not.toEqual([36, 36]);
+    expect([
+      detectWithAlgorithm(image, Auto).width,
+      detectWithAlgorithm(image, Auto).height,
+    ]).toEqual([36, 36]);
+  });
+});
+
 describe("images that must be refused", () => {
   const refused: [string, PixelBuffer][] = [
     ["512x512 gradient", gradient(512, 512)],
     ["smooth photo-like field", smoothPhoto(512, 512)],
     ["blurred textured photo", boxBlur(texturePhoto(256, 256), 4)],
     ["textured photo", texturePhoto(512, 512)],
-    ["heavily blurred sprite", boxBlur(upscaleNearest(art, 16), 6)],
-    ["bilinear-upscaled sprite", upscaleBilinear(art, 12)],
+    ["periodic smooth field", smoothPhoto(700, 500)],
     ["hard-edged shapes with no grid", vectorShapes(512, 512)],
+    ["small hard-edged shapes", vectorShapes(180, 140)],
   ];
   for (const [name, image] of refused)
     test(name, () => {
@@ -160,7 +233,10 @@ describe("images that must be refused", () => {
     const out = pixelateImage(image, { algorithm: Auto });
     expect([out.width, out.height]).toEqual([256, 256]);
     expect(() =>
-      pixelateImage(image, { algorithm: Auto, mode: PixelationMode.RecoverGrid }),
+      pixelateImage(image, {
+        algorithm: Auto,
+        mode: PixelationMode.RecoverGrid,
+      }),
     ).toThrow(/No consistent pixel grid/);
   });
 });

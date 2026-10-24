@@ -80,26 +80,54 @@ export function upscaleNearest(source: PixelBuffer, fx: number, fy = fx): PixelB
     }
   return out;
 }
+/** Writes into out[o..o+3] the bilinear sample of `source` at source coordinates (sx, sy). */
+function sampleBilinear(
+  source: PixelBuffer,
+  sx: number,
+  sy: number,
+  out: Uint8ClampedArray,
+  o: number,
+): void {
+  const x0 = Math.floor(sx),
+    y0 = Math.floor(sy);
+  const x1 = Math.min(source.width - 1, x0 + 1),
+    y1 = Math.min(source.height - 1, y0 + 1);
+  const fx = sx - x0,
+    fy = sy - y0;
+  for (let c = 0; c < 4; c++) {
+    const g = (xx: number, yy: number) => source.data[(yy * source.width + xx) * 4 + c];
+    out[o + c] =
+      (g(x0, y0) * (1 - fx) + g(x1, y0) * fx) * (1 - fy) +
+      (g(x0, y1) * (1 - fx) + g(x1, y1) * fx) * fy;
+  }
+}
 export function upscaleBilinear(source: PixelBuffer, scale: number): PixelBuffer {
   const out = blank(source.width * scale, source.height * scale);
   for (let y = 0; y < out.height; y++)
-    for (let x = 0; x < out.width; x++) {
-      const sx = x / scale,
-        sy = y / scale;
-      const x0 = Math.floor(sx),
-        y0 = Math.floor(sy);
-      const x1 = Math.min(source.width - 1, x0 + 1),
-        y1 = Math.min(source.height - 1, y0 + 1);
-      const fx = sx - x0,
-        fy = sy - y0;
-      for (let c = 0; c < 4; c++) {
-        const g = (xx: number, yy: number) => source.data[(yy * source.width + xx) * 4 + c];
-        out.data[(y * out.width + x) * 4 + c] =
-          (g(x0, y0) * (1 - fx) + g(x1, y0) * fx) * (1 - fy) +
-          (g(x0, y1) * (1 - fx) + g(x1, y1) * fx) * fy;
-      }
-    }
+    for (let x = 0; x < out.width; x++)
+      sampleBilinear(source, x / scale, y / scale, out.data, (y * out.width + x) * 4);
   return out;
+}
+/** Bilinear resample with pixel-centre alignment (as image libraries do), by a possibly fractional factor. */
+export function resampleBilinear(source: PixelBuffer, scale: number): PixelBuffer {
+  const out = blank(Math.round(source.width * scale), Math.round(source.height * scale));
+  const fx = source.width / out.width,
+    fy = source.height / out.height;
+  const clamp = (value: number, max: number) => Math.max(0, Math.min(max, value));
+  for (let y = 0; y < out.height; y++)
+    for (let x = 0; x < out.width; x++)
+      sampleBilinear(
+        source,
+        clamp((x + 0.5) * fx - 0.5, source.width - 1),
+        clamp((y + 0.5) * fy - 0.5, source.height - 1),
+        out.data,
+        (y * out.width + x) * 4,
+      );
+  return out;
+}
+/** A soft "AI upscale": centred bilinear, a further blur and mild noise. */
+export function mush(source: PixelBuffer, scale: number, seed = 13): PixelBuffer {
+  return addNoise(boxBlur(resampleBilinear(source, scale), 1), 6, seed);
 }
 /** Separable box blur with the given radius (radius 1 smears each edge over about 3 pixels). */
 export function boxBlur(source: PixelBuffer, radius: number): PixelBuffer {
