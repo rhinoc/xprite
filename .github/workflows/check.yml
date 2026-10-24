@@ -1,7 +1,9 @@
 name: Check
 
 # Safety net only: the pre-push hook already runs check, unit tests, visual audits and the deploy
-# build locally. One job, PRs only (no duplicate push run), superseded runs are cancelled.
+# build locally. PRs only (no duplicate push run), superseded runs are cancelled.
+# Static checks and unit tests run as parallel jobs on separate runners — same-runner parallel of
+# check + test:ci was slower (111s vs 86s); separate runners cut wall clock roughly to the longer job.
 on:
   pull_request:
   workflow_dispatch:
@@ -17,8 +19,8 @@ env:
   HUSKY: "0"
 
 jobs:
-  check:
-    name: Check and unit tests
+  static:
+    name: Static checks
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -29,7 +31,33 @@ jobs:
           node-version: "24"
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # Covers public docs, i18n coverage, asset versions, types, lint, format and the site build.
-      # Serial on purpose: in parallel with test:ci on the hosted runner it measured 111 s vs 86 s.
+      - name: Cache TypeScript incremental
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.cache/xprite-types
+          key: tsgo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', '**/tsconfig*.json') }}
+          restore-keys: |
+            tsgo-${{ runner.os }}-
+      - name: Cache knip
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.cache/knip
+          key: knip-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'infra/knip.json') }}
+          restore-keys: |
+            knip-${{ runner.os }}-
+      # public docs, i18n, types, lint, format, architecture (incl. barrel-exports), site build
       - run: pnpm run check
+
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
       - run: pnpm run test:ci

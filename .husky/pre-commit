@@ -1,2 +1,1 @@
 pnpm exec lint-staged --config infra/lint-staged.json
-pnpm run check:public-docs

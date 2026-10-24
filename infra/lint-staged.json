@@ -3,5 +3,7 @@
     "oxfmt --config infra/oxfmt.json",
     "oxlint --config infra/oxlint.json"
   ],
-  "*.{css,scss,html,json,jsonc}": "oxfmt --config infra/oxfmt.json"
+  "*.{css,scss,html,json,jsonc}": "oxfmt --config infra/oxfmt.json",
+  "**/index.ts": "node scripts/check/check-barrel-export-collisions.mjs",
+  "{PRIVACY*.md,README*.md,CONTRIBUTING.md,LICENSE,ATTRIBUTION.md,apps/growth/content/**,apps/growth/public/**,apps/editor/assets/public/**,apps/editor/index.html,apps/growth/showcase/index.html}": "pnpm run check:public-docs"
 }
