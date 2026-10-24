@@ -8,7 +8,7 @@ describe("palette-commands", () => {
     const { outputFiles } = await build({
       stdin: {
         contents:
-          "export {RasterEditor} from './packages/editor-core/src/editor/RasterEditor.ts';export * from './packages/editor-core/src/color/palette-commands.ts';export * from './packages/editor-core/src/color/palette-resize.ts';export * from './packages/editor-core/src/color/samples.ts';export {appendMissingPaletteColor} from './packages/editor-core/src/color/palette-warning.ts';",
+          "export {RasterEditor} from './packages/editor-core/src/editor/RasterEditor.ts';export * from './packages/editor-core/src/color/palette-commands.ts';export * from './packages/editor-core/src/color/palette-resize.ts';export * from './packages/editor-core/src/color/samples.ts';export {appendMissingPaletteColor, exactPaletteColorIndex} from './packages/editor-core/src/color/palette-warning.ts';",
         resolveDir: process.cwd(),
       },
       bundle: true,
@@ -19,6 +19,7 @@ describe("palette-commands", () => {
     const {
       RasterEditor,
       paletteColorIndex,
+      exactPaletteColorIndex,
       stepPaletteIndex,
       MAX_ALLOCATED_PALETTE_COLORS,
       appendMissingPaletteColor,
@@ -57,6 +58,11 @@ describe("palette-commands", () => {
     assert.equal(paletteColorIndex([black, red, green], [200, 100, 30, 7]), 0);
     assert.equal(paletteColorIndex([black, red, green], [240, 15, 3, 255]), 1);
     assert.equal(paletteColorIndex([black, red, green], [15, 240, 3, 255]), 2);
+    // Exact matcher returns -1 for non-palette colors; fuzzy best-fit still finds a neighbor.
+    assert.equal(exactPaletteColorIndex([black, red, green], black), 0);
+    assert.equal(exactPaletteColorIndex([black, red, green], [1, 1, 1, 255]), -1);
+    assert.equal(exactPaletteColorIndex([black, red, green], [240, 15, 3, 255]), -1);
+    assert.ok(paletteColorIndex([black, red, green], [1, 1, 1, 255]) >= 0);
     assert.equal(stepPaletteIndex(0, -8, 3), 1);
     assert.equal(stepPaletteIndex(2, 8, 3), 1);
     assert.equal(stepPaletteIndex(0, 1, 0), null);

@@ -1,12 +1,12 @@
 import type { Rgba } from "$/base/primitives";
-import { paletteColorIndex as exactPaletteMatch } from "$/color/palette-warning";
+import { exactPaletteColorIndex } from "$/color/palette-warning";
 
 /** RGBA palette lookup follows the MIT-licensed doc/palette.cpp and
  * .refs/libresprite/src/app/color.cpp: exact match, then palette best-fit.
  * Best-fit uses five-bit channels and squared 59/30/11/8 weights;
  * index zero is the mask candidate and is excluded for nontransparent fits. */
 export function paletteColorIndex(palette: readonly Rgba[], color: Rgba): number {
-  const exact = exactPaletteMatch(palette, color);
+  const exact = exactPaletteColorIndex(palette, color);
   if (exact >= 0) return exact;
   if (color[3] >> 3 === 0) return 0;
   let best = 0,
