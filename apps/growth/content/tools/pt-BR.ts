@@ -366,8 +366,8 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "Image to pixel art": "Imagem para pixel art",
   "Convert images to pixel art or recover enlarged pixel grids, with local previews.":
     "Converta imagens em pixel art ou recupere grades de pixels ampliadas, com pré-visualização no seu dispositivo.",
-  "Turn any photo into pixel art free in your browser. Pick the size, colors and palette, or restore an enlarged pixel grid. Files stay on your device.":
-    "Transforme fotos em pixel art de graça no navegador. Escolha tamanho, cores e paleta, ou recupere uma grade ampliada. Os arquivos ficam no seu dispositivo.",
+  "Free image to pixel art converter—no upload. Pick size, colors and palette, then Edit more in Xprite or download PNG.":
+    "Conversor grátis de imagem para pixel art sem enviar arquivos. Escolha tamanho, cores e paleta; continue no Xprite ou baixe PNG.",
   "Xprite Pixel Art Converter": "Xprite Imagem para pixel art",
   "Enable JavaScript to use the viewer.": "Ative o JavaScript para usar o visualizador.",
   "Enable JavaScript to convert your GIF.": "Ative o JavaScript para converter o GIF.",

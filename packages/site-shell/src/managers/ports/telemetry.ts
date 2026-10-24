@@ -33,6 +33,7 @@ export enum SiteToolName {
   GifSheet = "gif-to-sprite-sheet",
   AnimalCrossing = "animal-crossing-qr",
   Pixelate = "pixelate",
+  FixAiPixelArt = "fix-ai-pixel-art",
   FuseBeads = "fuse-beads",
 }
 

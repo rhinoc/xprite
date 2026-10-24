@@ -10,7 +10,7 @@ AI の「ドット絵」は遠くから見るとそれっぽく見えます。�
 Xprite の [AI ドット絵を修正](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) ツールは **Recover Grid** を実行します。画像内の拡大されたマス格子を探し、端末上で本物の 1×1 ピクセルグリッドを組み直します。生成モデルではなく、欠けた細部を捏造もしません。
 
 - グリッドからズレた、またはぼやけた AI / 柔らかい「ドット絵」：まず [AI ドット絵を修正](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)。
-- 普通の写真や絵を*ドット絵にしたい*とき：[画像をドット絵に](/tools/pixelate/)（変換）してから編集。
+- 普通の写真や絵を*ドット絵にしたい*とき：[画像をドット絵に](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)（変換）してから編集。
 - グリッドが整ったら：Xprite エディターで[さらに編集](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)（レイヤー、パレット、アニメ）。
 
 ## 「壊れた」AI ドット絵とは何か
@@ -55,7 +55,7 @@ Xprite の [AI ドット絵を修正](/tools/fix-ai-pixel-art/?utm_source=compar
 | 手元にあるもの | 使うもの |
 | --- | --- |
 | 柔らかい / AI 画像でもマス格子が見える | [AI ドット絵を修正](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)（Recover） |
-| 写真・絵画・UI 画面をドット風にしたい | [画像をドット絵に](/tools/pixelate/) → **画像を変換** |
+| 写真・絵画・UI 画面をドット風にしたい | [画像をドット絵に](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) → **画像を変換** |
 | もともとネイティブのドット絵で、拡大されただけ | どちらの Recover パスでも可；修正 AI は AI/柔らかいケース向けの表記 |
 
 両ツールは同じエンジンを共有します。修正 AI ページは復元向けの文言とサンプルが既定；Pixelate は汎用コンバーターです。
@@ -95,8 +95,8 @@ PNG を書き出して他のソフトで開くか、Xprite で **さらに編集
 
 ### 「画像をドット絵にするコンバーター」は？
 
-その検索はたいてい写真 → ドット風を指します。[画像をドット絵に](/tools/pixelate/) を使います。入力がすでにドットのフリをしていてグリッドだけがおかしいときは、AI ドット絵を修正を使います。
+その検索はたいてい写真 → ドット風を指します。[画像をドット絵に](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) を使います。入力がすでにドットのフリをしていてグリッドだけがおかしいときは、AI ドット絵を修正を使います。
 
 ---
 
-[AI ドット絵を修正](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [エディターを開く](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [画像をドット絵に](/tools/pixelate/) · [Xprite とは](/about/)
+[AI ドット絵を修正](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [エディターを開く](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [画像をドット絵に](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Xprite とは](/about/)

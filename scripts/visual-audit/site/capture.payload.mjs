@@ -254,6 +254,29 @@ try {
         if (!activation.ready && !activation.busy && activation.active === "true")
           await page.click(selector);
         await page.waitForSelector('[data-tool-state="ready"]', { timeout: siteConfig.timeout });
+        // Pixelation tools can report ready after a worker timeout with no result preview.
+        // Wait for the compare result tag (CSS module class) before capturing those tools.
+        await page
+          .waitForFunction(
+            () => {
+              const body = document.body?.innerText ?? "";
+              if (body.includes("Pixelation took too long")) return "timeout";
+              if (document.querySelector('[class*="tagResult"]')) return "result";
+              // Non-pixelation example tools (viewer/gif/AC) never show that tag.
+              return document.querySelector('[data-tool-state="ready"]') &&
+                !body.includes("Adjust settings to preview the result.") &&
+                !body.includes("Preparing preview…")
+                ? "ready"
+                : false;
+            },
+            undefined,
+            { timeout: siteConfig.timeout },
+          )
+          .then(async (handle) => {
+            const status = await handle.jsonValue();
+            if (status === "timeout")
+              throw new Error("Example pixelation timed out before a preview was ready.");
+          });
         if (
           await page.evaluate(
             () =>

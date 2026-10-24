@@ -248,7 +248,7 @@ export const PIXELATE_TOOL = {
   summary: "Convert images to pixel art or recover enlarged pixel grids, with local previews.",
   privacy: TOOL_FILE_PRIVACY,
   description:
-    "Turn any photo into pixel art free in your browser. Pick the size, colors and palette, or restore an enlarged pixel grid. Files stay on your device.",
+    "Free image to pixel art converter—no upload. Pick size, colors and palette, then Edit more in Xprite or download PNG.",
   accept: ".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp",
   fileLabel: "Choose an image to pixelate",
   openLabel: "Open image",

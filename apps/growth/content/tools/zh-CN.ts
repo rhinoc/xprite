@@ -396,8 +396,8 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Image to pixel art": "图片转像素画",
   "Convert images to pixel art or recover enlarged pixel grids, with local previews.":
     "把图片转换为像素画，或还原被放大的像素网格，在本地预览结果。",
-  "Turn any photo into pixel art free in your browser. Pick the size, colors and palette, or restore an enlarged pixel grid. Files stay on your device.":
-    "在浏览器中免费把照片转换为像素画。可以选择尺寸、颜色数和调色板，也可以还原被放大的像素网格。文件只在你的设备上处理。",
+  "Free image to pixel art converter—no upload. Pick size, colors and palette, then Edit more in Xprite or download PNG.":
+    "免费图片转像素画，无需上传。可选尺寸、颜色和调色板，然后在 Xprite 继续编辑或下载 PNG。",
   "Xprite Pixel Art Converter": "Xprite 图片转像素画",
   "Enable JavaScript to use the viewer.": "请启用 JavaScript 以使用查看器。",
   "Enable JavaScript to convert your GIF.": "请启用 JavaScript 以转换 GIF。",

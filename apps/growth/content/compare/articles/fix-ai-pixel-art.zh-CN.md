@@ -10,7 +10,7 @@ updated: 2026-10-23
 Xprite 的 [修复 AI 像素画](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) 工具会跑 **Recover Grid**：在本地找出图像里放大后的格子结构，重建真正的 1×1 像素网格。它不是生成模型，也不会凭空补细节。
 
 - 偏格或发糊的 AI / 软「像素画」：先用 [修复 AI 像素画](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)。
-- 普通照片或手绘，想*转成*像素画：用 [图片转像素画](/tools/pixelate/)（转换），再编辑。
+- 普通照片或手绘，想*转成*像素画：用 [图片转像素画](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)（转换），再编辑。
 - 网格对了以后：在 Xprite 编辑器里[继续编辑](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)（图层、调色板、动画）。
 
 ## 大家说的「坏掉的」AI 像素画是什么
@@ -55,7 +55,7 @@ Xprite 的 [修复 AI 像素画](/tools/fix-ai-pixel-art/?utm_source=compare&utm
 | 你有… | 用 |
 | --- | --- |
 | 偏软 / AI 图，但仍看得出格子 | [修复 AI 像素画](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)（Recover） |
-| 照片、绘画或 UI 截图，要做成像素风 | [图片转像素画](/tools/pixelate/) → **转换图片** |
+| 照片、绘画或 UI 截图，要做成像素风 | [图片转像素画](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) → **转换图片** |
 | 本来就是原生像素画，只是被放大了 | 两个工具的 Recover 路径都行；修复 AI 更面向 AI/偏软的情况 |
 
 两个工具共用同一引擎。修复 AI 页默认文案和示例偏还原；Pixelate 是通用转换器。
@@ -95,8 +95,8 @@ Xprite 的 [修复 AI 像素画](/tools/fix-ai-pixel-art/?utm_source=compare&utm
 
 ### 「图片转像素画转换器」呢？
 
-这类搜索通常指照片 → 像素风。用 [图片转像素画](/tools/pixelate/)。输入已经装作是像素、只是网格不对时，用修复 AI 像素画。
+这类搜索通常指照片 → 像素风。用 [图片转像素画](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)。输入已经装作是像素、只是网格不对时，用修复 AI 像素画。
 
 ---
 
-[修复 AI 像素画](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [打开编辑器](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [图片转像素画](/tools/pixelate/) · [Xprite 是什么](/about/)
+[修复 AI 像素画](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [打开编辑器](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [图片转像素画](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Xprite 是什么](/about/)

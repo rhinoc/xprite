@@ -506,15 +506,15 @@
   }
 }
 /*
- * Phones: one column under the menu bar, top to bottom: the desktop icons (Files, Applications,
- * Read Me, Trash) sitting directly on the desktop pattern, then the help note, then the tool
- * windows, which take the rest of the 100dvh screen. The note keeps its WindowShade (it starts
- * rolled up on short screens) and its height cap, so the tool windows always get the space.
+ * Phones: one column under the menu bar, top to bottom: desktop icons, then the tool stage
+ * (drop zone / preview + Edit more + Export) so Open stays above the fold, then the help note.
+ * The note expands while empty and collapses once a preview exists (Ryan mobile tool UI rule);
+ * its height cap keeps the stage usable when the note is open.
  */
 @media (max-width: 700px) {
   .desktop,
   .desktop:has(.utilities > :not(.shortcuts)) {
-    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
   }
   .utilities {
     display: contents;
@@ -541,12 +541,12 @@
     width: auto;
     max-width: 100%;
   }
-  .helpFrame {
-    grid-row: 2;
-  }
   .content {
-    grid-row: 3;
+    grid-row: 2;
     min-height: 0;
+  }
+  .helpFrame {
+    grid-row: 3;
   }
 }
 /*

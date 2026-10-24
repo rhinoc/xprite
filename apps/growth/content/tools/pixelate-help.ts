@@ -13,7 +13,7 @@ export const PIXELATE_HELP = {
   [PublicLanguage.SimplifiedChinese]: {
     title: "图片像素化与网格恢复",
     introduction:
-      "打开 PNG、JPEG 或 WebP 图片，也可用「打开示例」试用。图片在本地处理，源文件不会被覆盖。",
+      "免费图片转像素画，无需上传。打开 PNG、JPEG 或 WebP（或「打开示例」）。处理只在本地进行，源文件不会被覆盖。模糊或 AI「像素画」需要对齐真实网格时，请改用「修复 AI 像素画」。",
     sections: [
       {
         id: PixelateHelpSection.Convert,
@@ -41,12 +41,13 @@ export const PIXELATE_HELP = {
         notes: "导出 PNG 会在主文件名后添加 -pixelated 或 -restored；原图保持不变。",
       },
     ],
-    closing: "结果预览会随设置更新；切换操作后也可以继续比较原图和新结果。",
+    closing:
+      "预览会随设置更新。满意后点「继续编辑」在 Xprite 中打开，或点「导出…」保存 PNG。免费、无需账号、无需上传，文件只留在你的设备上。",
   },
   [PublicLanguage.English]: {
     title: "Pixelate an image or recover its grid",
     introduction:
-      "Open a PNG, JPEG, or WebP image, or use Open example to try the tool. Images are processed on your device, and the source file is never overwritten.",
+      "Free image to pixel art converter—no upload. Open a PNG, JPEG, or WebP (or Open example). Processing stays on your device; the source file is never overwritten. Soft or AI pixel-style art that needs a real grid belongs in Fix AI Pixel Art instead.",
     sections: [
       {
         id: PixelateHelpSection.Convert,
@@ -78,7 +79,7 @@ export const PIXELATE_HELP = {
       },
     ],
     closing:
-      "The preview updates with the current settings, and you can compare each result with the original.",
+      "The preview updates with your settings. When it looks right, use Edit more to open the result in Xprite, or Export… for PNG. Free, no account, no upload—files stay on your device.",
   },
   [PublicLanguage.Japanese]: {
     title: "画像をドット絵化・グリッドを復元",

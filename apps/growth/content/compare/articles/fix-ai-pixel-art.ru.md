@@ -10,7 +10,7 @@ updated: 2026-10-23
 Инструмент Xprite [Исправить AI пиксель-арт](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) запускает **Recover Grid**: ищет увеличенную решётку ячеек на изображении и на устройстве собирает настоящую сетку 1×1 пиксель. Это не генеративная модель и она не выдумывает недостающие детали.
 
 - Сбитая с сетки или размытая AI / мягкий «пиксель-арт»: начните с [Исправить AI пиксель-арт](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art).
-- Обычное фото или рисунок, который нужно *сделать* пиксель-артом: [Изображение в пиксель-арт](/tools/pixelate/) (Convert), затем правьте.
+- Обычное фото или рисунок, который нужно *сделать* пиксель-артом: [Изображение в пиксель-арт](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) (Convert), затем правьте.
 - Когда сетка на месте: [Доработать](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) в редакторе Xprite (слои, палитра, анимация).
 
 ## Что люди называют «сломанным» AI пиксель-артом
@@ -55,7 +55,7 @@ updated: 2026-10-23
 | У вас… | Используйте |
 | --- | --- |
 | Мягкое / AI-изображение, где ещё видна решётка ячеек | [Исправить AI пиксель-арт](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) (Recover) |
-| Фото, картина или UI-скриншот под пиксельный стиль | [Изображение в пиксель-арт](/tools/pixelate/) → **Преобразовать** |
+| Фото, картина или UI-скриншот под пиксельный стиль | [Изображение в пиксель-арт](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) → **Преобразовать** |
 | Уже нативный пиксель-арт, который только увеличили | Любой Recover-путь обоих инструментов; Fix AI помечен под AI/мягкий случай |
 
 Оба инструмента делят один движок. Страница Fix AI по умолчанию заточена под восстановление; Pixelate — общий конвертер.
@@ -95,8 +95,8 @@ updated: 2026-10-23
 
 ### А «конвертер изображения в пиксель-арт»?
 
-Этот запрос обычно значит фото → пиксельный стиль. Используйте [Изображение в пиксель-арт](/tools/pixelate/). Исправляйте AI пиксель-арт, когда вход уже притворяется пикселями, но сетка неверна.
+Этот запрос обычно значит фото → пиксельный стиль. Используйте [Изображение в пиксель-арт](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art). Исправляйте AI пиксель-арт, когда вход уже притворяется пикселями, но сетка неверна.
 
 ---
 
-[Исправить AI пиксель-арт](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Открыть редактор](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Изображение в пиксель-арт](/tools/pixelate/) · [Что такое Xprite](/about/)
+[Исправить AI пиксель-арт](/tools/fix-ai-pixel-art/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Открыть редактор](/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Изображение в пиксель-арт](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art) · [Что такое Xprite](/about/)

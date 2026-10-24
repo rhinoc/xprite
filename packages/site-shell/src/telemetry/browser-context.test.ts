@@ -13,6 +13,7 @@ const TOOL_PATHS = [
   "/tools/gif-to-sprite-sheet/",
   "/tools/animal-crossing-qr/",
   "/tools/pixelate/",
+  "/tools/fix-ai-pixel-art/",
   "/tools/fuse-beads/",
 ];
 
@@ -95,9 +96,14 @@ describe("browser page context", () => {
     );
   });
 
-  it("reports pixelate and fuse bead pages as tools, not other pages", () => {
+  it("reports pixelate, fix-ai-pixel-art and fuse bead pages as tools, not other pages", () => {
     visit("/ja/tools/pixelate/");
     expect(browserPageContext()).toMatchObject({ page_type: "tool", tool_name: "pixelate" });
+    visit("/zh-CN/tools/fix-ai-pixel-art/");
+    expect(browserPageContext()).toMatchObject({
+      page_type: "tool",
+      tool_name: "fix-ai-pixel-art",
+    });
     visit("/tools/fuse-beads/");
     expect(browserPageContext()).toMatchObject({ page_type: "tool", tool_name: "fuse-beads" });
   });

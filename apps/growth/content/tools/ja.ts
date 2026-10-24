@@ -363,8 +363,8 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Image to pixel art": "画像をドット絵に",
   "Convert images to pixel art or recover enlarged pixel grids, with local previews.":
     "画像をドット絵に変換したり、拡大されたピクセルグリッドを復元したりできます。プレビューは端末内で表示されます。",
-  "Turn any photo into pixel art free in your browser. Pick the size, colors and palette, or restore an enlarged pixel grid. Files stay on your device.":
-    "写真をブラウザで無料でドット絵に変換。サイズ、色数、パレットを選べるほか、拡大されたピクセルグリッドも復元できます。ファイルは端末内で処理されます。",
+  "Free image to pixel art converter—no upload. Pick size, colors and palette, then Edit more in Xprite or download PNG.":
+    "無料・アップロード不要の画像→ドット絵変換。サイズ・色・パレットを選び、Xpriteで編集するかPNGを保存。",
   "Xprite Pixel Art Converter": "Xprite 画像→ドット絵変換",
   "Enable JavaScript to use the viewer.": "ビューアーを使うには JavaScript を有効にしてください。",
   "Enable JavaScript to convert your GIF.": "GIF を変換するには JavaScript を有効にしてください。",
