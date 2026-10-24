@@ -2,12 +2,12 @@ import { EditorAllocationError } from "$/base/errors";
 import { UINT8_MAX } from "$/base/numeric-constants";
 import type { PointerInput } from "$/base/pointer-input";
 import type { PixelBuffer, PixelMask, Point, Rgba } from "$/base/primitives";
+import { mulUn8 } from "$/canvas/blend-modes";
 import type { EditorRenderInput } from "$/canvas/editor-renderer";
 import {
   blurStroke,
   eraseStroke,
   lineStrokePoints,
-  mulUn8,
   paintLine,
   paintStroke,
   samplePixel,

@@ -40,6 +40,7 @@ const groups = {
     "ui-control-placement": node("scripts/check/check-ui-control-placement.mjs"),
     "global-css": node("scripts/check/check-global-css.mjs"),
     "editor-core-graph": node("scripts/check/check-editor-core-graph.mjs"),
+    "barrel-exports": node("scripts/check/check-barrel-export-collisions.mjs"),
   },
   "stale-css": Object.fromEntries(
     [

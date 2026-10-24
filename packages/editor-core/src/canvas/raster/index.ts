@@ -10,6 +10,7 @@ import type {
 } from "$/base/primitives";
 import { BrushImagePattern } from "$/base/primitives";
 import { symmetryBrushMask } from "$/canvas/assistance/symmetry";
+import { mulUn8 } from "$/canvas/blend-modes";
 import { brushMask, line, polygon } from "$/canvas/raster/geometry";
 import { shadePixel } from "$/canvas/raster/shading";
 import type { RasterOptions } from "$/canvas/raster/types";
@@ -24,11 +25,6 @@ export {
   polygon,
   rasterizeBrushShape,
 } from "$/canvas/raster/geometry";
-/** Same integer rounding macro as pixman/ Aseprite MUL_UN8, including signed differences. */
-export function mulUn8(a: number, b: number) {
-  const t = a * b + 128;
-  return ((t >> 8) + t) >> 8;
-}
 export function normalBlend(b: Rgba, s: Rgba, opacity: number): Rgba {
   const sa = mulUn8(s[3], opacity);
   if (!b[3]) return [s[0], s[1], s[2], sa];
