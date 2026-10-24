@@ -3,6 +3,7 @@ import { useState, type ReactNode } from "react";
 import type { PaletteTranslate } from "$/palette/model";
 import {
   ALGORITHM_LABELS,
+  DITHER_LABELS,
   LABELS,
   LINE_GUIDE_LABELS,
   PICKER_LABELS,
@@ -20,6 +21,7 @@ import {
   OutlinePrepass,
   PIXELATION_SIZES,
   PixelationAlgorithm,
+  PixelationDither,
   getAllColorPickers,
   getListedAlgorithms,
   pixelationSizeFromAxis,
@@ -42,6 +44,8 @@ export enum PixelationSlot {
   ColorPicker = "color-picker",
   LimitColors = "limit-colors",
   Colors = "colors",
+  /** Only when Limit colors is on. */
+  Dither = "dither",
   /** The palette swatches (the loaded preset, else the automatic palette). */
   Palette = "palette",
   /** The palette preset menu button; tool pages put it right after the colour count. */
@@ -217,6 +221,24 @@ export function usePixelationBase(
             onChange={onChange}
           />
         ),
+    },
+    [PixelationSlot.Dither]: {
+      visible: show(PixelationSlot.Dither, limited),
+      label: t(LABELS.dither),
+      render: (placement, pixelWidth) => (
+        <Combobox
+          pixelWidth={pixelWidth ?? FIELD_WIDTH}
+          {...placement}
+          aria-label={t(LABELS.dither)}
+          value={settings.dither}
+          disabled={busy || !limited}
+          options={Object.values(PixelationDither).map((id) => ({
+            value: id,
+            label: t(DITHER_LABELS[id]),
+          }))}
+          onValueChange={(value) => onChange({ dither: value as PixelationDither })}
+        />
+      ),
     },
     [PixelationSlot.Prepass]: {
       visible: show(PixelationSlot.Prepass),

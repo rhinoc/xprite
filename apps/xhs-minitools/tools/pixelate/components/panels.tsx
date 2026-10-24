@@ -35,6 +35,7 @@ import {
   LineGuideMode,
   OutlinePrepass,
   PIXELATION_METHOD_OPTIONS,
+  PixelationDither,
   PixelationMode,
   type CellColorPicker,
   type PixelationMethod,
@@ -255,6 +256,20 @@ export function PixelPanel({
               value={settings.maxColors}
               onCommit={(maxColors) => editor.changeSettings({ maxColors })}
             />
+          )}
+          {settings.reduceColors && (
+            <Field label={t("advanced.dither")}>
+              <ChipGroup
+                scroll
+                label={t("advanced.dither")}
+                value={settings.dither}
+                options={Object.values(PixelationDither).map((value) => ({
+                  value,
+                  label: t(key(`dither.${value}`)),
+                }))}
+                onChange={(dither) => editor.changeSettings({ dither })}
+              />
+            </Field>
           )}
           <Field label={t("advanced.method")}>
             <ChipGroup

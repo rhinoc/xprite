@@ -11,7 +11,10 @@ import type {
 } from "$/import-export/image/import";
 /** What the import dialog remembers of its last Pixelate import for the silent path. */
 export type ImportPixelationMemory = Partial<
-  Pick<PixelationSettings, "prepass" | "lineGuide" | "colorPicker" | "reduceColors" | "maxColors">
+  Pick<
+    PixelationSettings,
+    "prepass" | "lineGuide" | "colorPicker" | "reduceColors" | "maxColors" | "dither"
+  >
 >;
 export interface SessionSource<Source> {
   readonly palette?: readonly Rgba[];

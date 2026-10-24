@@ -1,6 +1,6 @@
 import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { rgbToLab, labToRgb, type Lab } from "$/import-export/image/import/color-lab";
-import type { PaletteSnapOptions } from "$/import-export/image/import/types";
+import { PixelationDither, type PaletteSnapOptions } from "$/import-export/image/import/types";
 
 /**
  * Optional "snap palette" step for a recovered (small) image: collapse the many near-shades that
@@ -10,6 +10,9 @@ import type { PaletteSnapOptions } from "$/import-export/image/import/types";
  *  - k-means is seeded by weighted farthest-point selection, so a colour far from everything else
  *    gets its own palette entry before a frequent shade that is only a little different.
  * Alpha is never clustered: each pixel keeps its own opacity and fully transparent pixels stay put.
+ * When Limit colors dithering is on, the built palette is applied per pixel with ordered
+ * (Bayer 8×8 → palette, ported from tensorhead/dithering MIT) or Floyd–Steinberg error
+ * diffusion instead of a flat shade remap.
  */
 const MIN_COLORS = 2;
 const MAX_COLORS = 256;
@@ -22,6 +25,15 @@ const SEED_WEIGHT = 0.25;
 const PULL_WEIGHT = 0.5;
 const MAX_ITERATIONS = 32;
 const CHANNELS = 4;
+/**
+ * Bayer 8×8 indices from tensorhead/dithering (MIT). Thresholds use (index + 0.5) / 64.
+ * See https://github.com/tensorhead/dithering — matrices.rs / ordered.rs ordered_palette.
+ */
+const BAYER_8 = [
+  0, 32, 8, 40, 2, 34, 10, 42, 48, 16, 56, 24, 50, 18, 58, 26, 12, 44, 4, 36, 14, 46, 6, 38, 60, 28,
+  52, 20, 62, 30, 54, 22, 3, 35, 11, 43, 1, 33, 9, 41, 51, 19, 59, 27, 49, 17, 57, 25, 15, 47, 7,
+  39, 13, 45, 5, 37, 63, 31, 55, 23, 61, 29, 53, 21,
+];
 
 interface Shade {
   rgb: [number, number, number];
@@ -31,6 +43,8 @@ interface Shade {
 
 const distance = (a: Lab, b: Lab) =>
   Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2);
+
+const clampByte = (value: number) => Math.max(0, Math.min(255, Math.round(value)));
 
 function histogram(image: PixelBuffer): { shades: Shade[]; index: Int32Array } {
   const { data } = image;
@@ -169,34 +183,186 @@ function paletteLabs(palette: readonly Rgba[]): { labs: Lab[]; rgb: Rgba[] } {
   };
 }
 
-/** The recovered image with its colours snapped; the source is never modified. */
-export function snapPalette(image: PixelBuffer, options: PaletteSnapOptions): PixelBuffer {
-  const { shades, index } = histogram(image);
+function nearestPaletteRgb(
+  lab: Lab,
+  labs: readonly Lab[],
+  rgb: readonly Rgba[],
+): [number, number, number] {
+  let best = 0,
+    bestDistance = Infinity;
+  for (let i = 0; i < labs.length; i++) {
+    const d = distance(lab, labs[i]);
+    if (d < bestDistance) {
+      bestDistance = d;
+      best = i;
+    }
+  }
+  return [rgb[best][0], rgb[best][1], rgb[best][2]];
+}
+
+/**
+ * Per-channel palette spread used by ordered Bayer→palette (tensorhead/dithering):
+ * (max − min) / (distinct − 1) in each channel; 0 when the channel is constant.
+ */
+function paletteSpread(palette: readonly Rgba[]): [number, number, number] {
+  const spread: [number, number, number] = [0, 0, 0];
+  for (let channel = 0; channel < 3; channel++) {
+    const values: number[] = [];
+    for (const color of palette) {
+      const value = color[channel];
+      if (!values.includes(value)) values.push(value);
+    }
+    values.sort((a, b) => a - b);
+    if (values.length > 1)
+      spread[channel] = (values[values.length - 1] - values[0]) / (values.length - 1);
+  }
+  return spread;
+}
+
+/** Nearest palette entry by Euclidean RGB distance (working space of tensorhead/dithering). */
+function nearestPaletteRgbEuclidean(
+  r: number,
+  g: number,
+  b: number,
+  palette: readonly Rgba[],
+): [number, number, number] {
+  let best = 0,
+    bestDistance = Infinity;
+  for (let i = 0; i < palette.length; i++) {
+    const dr = r - palette[i][0];
+    const dg = g - palette[i][1];
+    const db = b - palette[i][2];
+    const d = dr * dr + dg * dg + db * db;
+    if (d < bestDistance) {
+      bestDistance = d;
+      best = i;
+    }
+  }
+  return [palette[best][0], palette[best][1], palette[best][2]];
+}
+
+/**
+ * Ordered Bayer 8×8 → palette. Port of tensorhead/dithering `ordered_palette` (MIT):
+ * threshold offset (t − 0.5) scaled by each channel's palette spread, then RGB nearest.
+ * Unlike ±RGB Bayer then Lab nearest, this still dithers when every pixel is already a palette colour.
+ */
+function orderedBayer8ToPalette(image: PixelBuffer, palette: readonly Rgba[]): PixelBuffer {
+  const spread = paletteSpread(palette);
   const output = new Uint8ClampedArray(image.data);
-  const colors = options.palette
-    ? 0
-    : Math.max(MIN_COLORS, Math.min(MAX_COLORS, Math.round(options.colors ?? DEFAULT_COLORS)));
+  const { width, height, data } = image;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const at = (y * width + x) * CHANNELS;
+      if (data[at + 3] === 0) continue;
+      const t = (BAYER_8[(y & 7) * 8 + (x & 7)] + 0.5) / 64 - 0.5;
+      const chosen = nearestPaletteRgbEuclidean(
+        data[at] + t * spread[0],
+        data[at + 1] + t * spread[1],
+        data[at + 2] + t * spread[2],
+        palette,
+      );
+      output[at] = chosen[0];
+      output[at + 1] = chosen[1];
+      output[at + 2] = chosen[2];
+    }
+  }
+  return { width, height, data: output };
+}
+
+/**
+ * Floyd–Steinberg error diffusion to `palette` in Lab-nearest space.
+ * Transparent pixels are left alone.
+ */
+function floydSteinbergToPalette(image: PixelBuffer, palette: readonly Rgba[]): PixelBuffer {
+  const { labs, rgb } = paletteLabs(palette);
+  const output = new Uint8ClampedArray(image.data);
+  const { width, height, data } = image;
+  const error = new Float32Array(width * height * 3);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = y * width + x;
+      const at = i * CHANNELS;
+      if (data[at + 3] === 0) continue;
+      const sample: [number, number, number] = [
+        clampByte(data[at] + error[i * 3]),
+        clampByte(data[at + 1] + error[i * 3 + 1]),
+        clampByte(data[at + 2] + error[i * 3 + 2]),
+      ];
+      const chosen = nearestPaletteRgb(rgbToLab(sample[0], sample[1], sample[2]), labs, rgb);
+      output[at] = chosen[0];
+      output[at + 1] = chosen[1];
+      output[at + 2] = chosen[2];
+      for (let channel = 0; channel < 3; channel++) {
+        const delta = sample[channel] - chosen[channel];
+        if (x + 1 < width) error[(i + 1) * 3 + channel] += (delta * 7) / 16;
+        if (y + 1 < height) {
+          if (x > 0) error[(i + width - 1) * 3 + channel] += (delta * 3) / 16;
+          error[(i + width) * 3 + channel] += (delta * 5) / 16;
+          if (x + 1 < width) error[(i + width + 1) * 3 + channel] += delta / 16;
+        }
+      }
+    }
+  }
+  return { width, height, data: output };
+}
+
+function ditherToPalette(
+  image: PixelBuffer,
+  palette: readonly Rgba[],
+  dither: PixelationDither.Ordered | PixelationDither.FloydSteinberg,
+): PixelBuffer {
+  return dither === PixelationDither.Ordered
+    ? orderedBayer8ToPalette(image, palette)
+    : floydSteinbergToPalette(image, palette);
+}
+
+/** Build the reduced RGB palette (k-means or the given list); null when the image already fits. */
+function buildPalette(shades: readonly Shade[], options: PaletteSnapOptions): Rgba[] | null {
+  if (options.palette) return paletteLabs(options.palette).rgb;
+  const colors = Math.max(
+    MIN_COLORS,
+    Math.min(MAX_COLORS, Math.round(options.colors ?? DEFAULT_COLORS)),
+  );
+  if (shades.length <= colors) return null;
+  const groups = mergeNearDuplicates(shades);
+  const points = toPoints(shades, groups);
+  const assignment = points.length <= colors ? points.map((_, i) => i) : cluster(points, colors);
+  const sums = new Map<number, { lab: [number, number, number]; count: number }>();
+  points.forEach((point, i) => {
+    const entry = sums.get(assignment[i]) ?? { lab: [0, 0, 0], count: 0 };
+    for (let c = 0; c < 3; c++) entry.lab[c] += point.lab[c] * point.count;
+    entry.count += point.count;
+    sums.set(assignment[i], entry);
+  });
+  const palette: Rgba[] = [];
+  for (const { lab, count } of sums.values()) {
+    const [r, g, b] = labToRgb(lab[0] / count, lab[1] / count, lab[2] / count);
+    palette.push([r, g, b, 255]);
+  }
+  return palette;
+}
+
+/** Flat nearest-shade remap (no positional dither). */
+function remapShades(
+  image: PixelBuffer,
+  shades: readonly Shade[],
+  index: Int32Array,
+  options: PaletteSnapOptions,
+): PixelBuffer {
+  const output = new Uint8ClampedArray(image.data);
   let target: [number, number, number][];
   if (options.palette) {
     const { labs, rgb } = paletteLabs(options.palette);
-    target = shades.map((shade) => {
-      let best = 0,
-        bestDistance = Infinity;
-      for (let i = 0; i < labs.length; i++) {
-        const d = distance(shade.lab, labs[i]);
-        if (d < bestDistance) {
-          bestDistance = d;
-          best = i;
-        }
-      }
-      return [rgb[best][0], rgb[best][1], rgb[best][2]];
-    });
+    target = shades.map((shade) => nearestPaletteRgb(shade.lab, labs, rgb));
   } else {
+    const colors = Math.max(
+      MIN_COLORS,
+      Math.min(MAX_COLORS, Math.round(options.colors ?? DEFAULT_COLORS)),
+    );
     if (shades.length <= colors) return { width: image.width, height: image.height, data: output };
     const groups = mergeNearDuplicates(shades);
     const points = toPoints(shades, groups);
     const assignment = points.length <= colors ? points.map((_, i) => i) : cluster(points, colors);
-    // Output colour of each cluster: the count-weighted mean of its members (a flat shade).
     const sums = new Map<number, { lab: [number, number, number]; count: number }>();
     points.forEach((point, i) => {
       const entry = sums.get(assignment[i]) ?? { lab: [0, 0, 0], count: 0 };
@@ -220,4 +386,23 @@ export function snapPalette(image: PixelBuffer, options: PaletteSnapOptions): Pi
     output[i * CHANNELS + 2] = color[2];
   }
   return { width: image.width, height: image.height, data: output };
+}
+
+/** The recovered image with its colours snapped; the source is never modified. */
+export function snapPalette(image: PixelBuffer, options: PaletteSnapOptions): PixelBuffer {
+  const dither = Object.values(PixelationDither).includes(options.dither as PixelationDither)
+    ? (options.dither as PixelationDither)
+    : PixelationDither.None;
+  const { shades, index } = histogram(image);
+  if (dither === PixelationDither.None) return remapShades(image, shades, index, options);
+  // Ordered / Floyd–Steinberg need a concrete palette, then per-pixel Lab nearest.
+  const palette = buildPalette(shades, options);
+  if (!palette) {
+    // Already within budget and no user palette: dither among the image's own shades.
+    if (!shades.length)
+      return { width: image.width, height: image.height, data: new Uint8ClampedArray(image.data) };
+    const own: Rgba[] = shades.map((shade) => [shade.rgb[0], shade.rgb[1], shade.rgb[2], 255]);
+    return ditherToPalette(image, own, dither);
+  }
+  return ditherToPalette(image, palette, dither);
 }

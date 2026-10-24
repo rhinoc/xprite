@@ -3,6 +3,7 @@ import {
   LineGuideMode,
   OutlinePrepass,
   PixelationAlgorithm,
+  PixelationDither,
 } from "@xprite/editor-core/import-export";
 
 /** Source text with the editor's translation key, so each app translates by its own mechanism. */
@@ -19,6 +20,7 @@ export const LABELS = {
   colors: { text: "Colors:", key: "ui.colors.label" },
   prepass: { text: "Outline pre-pass:", key: "import.dialog.outline.prepass" },
   lineGuide: { text: "Line guide:", key: "import.dialog.line.guide" },
+  dither: { text: "Dither:", key: "import.dialog.dither" },
   pixels: { text: "{size} px", key: "ui.dimension.pixels" },
 } as const satisfies Record<string, PixelationLabel>;
 export const ALGORITHM_LABELS: Readonly<Record<PixelationAlgorithm, PixelationLabel>> = {
@@ -40,6 +42,14 @@ export const LINE_GUIDE_LABELS: Readonly<Record<LineGuideMode, PixelationLabel>>
   [LineGuideMode.Union]: { text: "Add to outlines", key: "import.line-guide.union" },
   [LineGuideMode.Replace]: { text: "Lines only", key: "import.line-guide.replace" },
 };
+export const DITHER_LABELS: Readonly<Record<PixelationDither, PixelationLabel>> = {
+  [PixelationDither.None]: { text: "Off", key: "import.dither.off" },
+  [PixelationDither.Ordered]: { text: "Ordered", key: "import.dither.ordered" },
+  [PixelationDither.FloydSteinberg]: {
+    text: "Floyd–Steinberg",
+    key: "import.dither.floyd-steinberg",
+  },
+};
 export const PICKER_LABELS: Readonly<Record<CellColorPicker, PixelationLabel>> = {
   [CellColorPicker.MostCommon]: { text: "Most common", key: "import.picker.most-common" },
   [CellColorPicker.Average]: { text: "Average", key: "import.picker.average" },
@@ -54,6 +64,7 @@ const ALL_LABELS: readonly PixelationLabel[] = [
   ...Object.values(PICKER_LABELS),
   ...Object.values(PREPASS_LABELS),
   ...Object.values(LINE_GUIDE_LABELS),
+  ...Object.values(DITHER_LABELS),
 ];
 const KEYS = new Map(ALL_LABELS.map((label) => [label.text, label.key]));
 

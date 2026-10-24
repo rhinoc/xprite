@@ -54,6 +54,7 @@ describe("remembered import picks", () => {
         colorPicker: "median",
         reduceColors: false,
         maxColors: 999,
+        dither: "ordered",
       },
     });
     expect(saved.importPixelation).toEqual({
@@ -63,7 +64,13 @@ describe("remembered import picks", () => {
       colorPicker: CellColorPicker.Median,
       reduceColors: false,
       maxColors: 256,
+      dither: "ordered",
     });
+    expect(
+      normalizeFilePreferences({
+        importPixelation: { prepass: "none", dither: "bogus" },
+      }).importPixelation,
+    ).toEqual({ prepass: OutlinePrepass.None, lineGuide: "replace" });
     expect(importPreferenceOf(saved).pixelation).toEqual(saved.importPixelation);
     // A saved choice is kept, including Add to outlines from before Lines only became the default.
     for (const lineGuide of ["union", "replace"])

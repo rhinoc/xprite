@@ -18,6 +18,7 @@ export {
   ImportDialogChoice,
   LineGuideMode,
   OutlinePrepass,
+  PixelationDither,
 } from "$/import-export/image/import/types";
 export {
   DEFAULT_LINE_GUIDE,
