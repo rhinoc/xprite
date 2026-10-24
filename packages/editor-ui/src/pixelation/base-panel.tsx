@@ -31,8 +31,9 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
  */
 export function PixelationBaseControls({
   children,
+  paletteNotice,
   ...props
-}: PixelationBaseProps & { children?: ReactNode }) {
+}: PixelationBaseProps & { children?: ReactNode; paletteNotice?: ReactNode }) {
   const base = usePixelationBase(props);
   const { translate } = props;
   const field = (slot: PixelationSlot, pixelWidth?: number) => {
@@ -71,6 +72,7 @@ export function PixelationBaseControls({
           {base[PixelationSlot.Palette].visible && (
             <div className={styles.palette}>{base[PixelationSlot.Palette].render()}</div>
           )}
+          {paletteNotice ? <div className={styles.paletteNotice}>{paletteNotice}</div> : null}
         </Group>
       )}
       {children}

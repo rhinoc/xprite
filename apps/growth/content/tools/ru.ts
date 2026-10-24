@@ -383,4 +383,6 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
     "Исправьте неточный или размытый AI пиксель-арт. Восстановите настоящую пиксельную сетку в браузере — без загрузки. Затем редактируйте в Xprite или скачайте PNG.",
   "Enable JavaScript to fix AI-generated pixel art.":
     "Чтобы исправить AI пиксель-арт, включите JavaScript.",
+  "Xprite is not affiliated with, endorsed by, or partnered with Wplace. This preset matches publicly visible map paint colors for preparing a PNG you upload yourself as an Overlays reference. Painting stays manual on wplace.live. Colors can change.":
+    "Xprite не связан с Wplace, не одобрен им и не является его партнёром. Этот пресет соответствует публично видимым цветам карты, чтобы вы могли подготовить PNG и загрузить его как образец Overlays. Рисование на wplace.live остаётся ручным. Цвета могут меняться.",
 };

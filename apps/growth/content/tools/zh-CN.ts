@@ -414,4 +414,6 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Fix soft or AI pixel art that is off-grid or blurry. Recover a real pixel grid in your browser—no upload. Then edit in Xprite or download PNG.":
     "修复偏离网格或模糊的 AI 像素画。在浏览器中还原真实像素网格，无需上传。然后在 Xprite 中继续编辑或下载 PNG。",
   "Enable JavaScript to fix AI-generated pixel art.": "请启用 JavaScript 以修复 AI 生成的像素画。",
+  "Xprite is not affiliated with, endorsed by, or partnered with Wplace. This preset matches publicly visible map paint colors for preparing a PNG you upload yourself as an Overlays reference. Painting stays manual on wplace.live. Colors can change.":
+    "Xprite 与 Wplace 无关联、未获其背书或合作。此预设对应公开可见的地图绘制颜色，用于自行准备并上传为 Overlays 参考图。在 wplace.live 上绘制仍为手动。颜色可能会变更。",
 };

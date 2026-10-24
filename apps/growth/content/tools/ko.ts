@@ -382,4 +382,6 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
     "어긋나거나 흐릿한 AI 픽셀 아트를 수정하세요. 브라우저에서 실제 픽셀 격자를 복원하고—업로드 불필요. 이후 Xprite에서 편집하거나 PNG를 다운로드하세요.",
   "Enable JavaScript to fix AI-generated pixel art.":
     "AI 생성 픽셀 아트를 수정하려면 JavaScript를 켜 주세요.",
+  "Xprite is not affiliated with, endorsed by, or partnered with Wplace. This preset matches publicly visible map paint colors for preparing a PNG you upload yourself as an Overlays reference. Painting stays manual on wplace.live. Colors can change.":
+    "Xprite는 Wplace와 제휴·후원·파트너 관계가 아닙니다. 이 프리셋은 공개된 맵 페인트 색에 맞춰 Overlays 참고용 PNG를 직접 준비·업로드하기 위한 것입니다. wplace.live에서의 칠하기는 수동입니다. 색은 변경될 수 있습니다.",
 };

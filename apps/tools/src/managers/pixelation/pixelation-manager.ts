@@ -73,9 +73,58 @@ export class PixelationManager {
   private closed = false;
   /** The image and settings (palette aside) `palettePreview` was picked at. */
   private automaticKey = "";
-  constructor(private readonly port: PixelationPort) {
+  /**
+   * When `?palette=` resolves to a bundled preset, keep selecting it on each open until the user
+   * picks another palette (or Automatic).
+   */
+  private preferredPalette: { colors: Rgba[]; name: string } | null = null;
+  constructor(
+    private readonly port: PixelationPort,
+    options?: { paletteSlug?: string | null },
+  ) {
     this.navigation = new ToolViewport(port.readWheel);
     this.refreshPalettes();
+    this.applyPaletteSlug(options?.paletteSlug ?? null);
+  }
+  /** Match a catalog / deep-link slug to a loaded choice (`wplace` or `builtin:wplace`). */
+  private applyPaletteSlug(slug: string | null) {
+    if (!slug) return;
+    const normalized = slug
+      .trim()
+      .toLowerCase()
+      .replace(/^builtin:/, "");
+    if (!normalized) return;
+    const choice = this.state.paletteChoices.find((entry) => {
+      const id = entry.id.toLowerCase();
+      return id === normalized || id === `builtin:${normalized}`;
+    });
+    if (!choice?.colors.length) return;
+    this.preferredPalette = {
+      colors: choice.colors.map((color) => [...color] as Rgba),
+      name: choice.name,
+    };
+    this.state = {
+      ...this.state,
+      settings: this.withPreferredPalette(this.state.settings),
+    };
+  }
+  private withPreferredPalette(settings: PixelationSettings): PixelationSettings {
+    if (!this.preferredPalette) return settings;
+    return {
+      ...settings,
+      palette: this.preferredPalette.colors.map((color) => [...color] as Rgba),
+      paletteName: this.preferredPalette.name,
+      reduceColors: true,
+    };
+  }
+  private clearPreferredIfPaletteChanged(patch: Partial<PixelationSettings>) {
+    if (patch.palette === undefined || !this.preferredPalette) return;
+    if (patch.palette === null) {
+      this.preferredPalette = null;
+      return;
+    }
+    if (patch.paletteName !== undefined && patch.paletteName !== this.preferredPalette.name)
+      this.preferredPalette = null;
   }
   refreshPalettes = () => {
     this.publish({ paletteChoices: this.port.paletteResources().choices });
@@ -115,7 +164,7 @@ export class PixelationManager {
         algorithm: PixelationAlgorithm.Auto,
         grid,
         name: file.name,
-        settings: defaultPixelationSettings(source, grid),
+        settings: this.withPreferredPalette(defaultPixelationSettings(source, grid)),
         loading: false,
       });
       await this.convert();
@@ -149,6 +198,7 @@ export class PixelationManager {
   }
   changeSettings = (patch: Partial<PixelationSettings>) => {
     if (!this.state.source || this.closed || this.state.loading || this.state.downloading) return;
+    this.clearPreferredIfPaletteChanged(patch);
     this.publish({
       settings: updatePixelationSettings(this.state.settings, patch, this.state.source),
       result: null,
@@ -279,7 +329,7 @@ export class PixelationManager {
       grid: null,
       source: null,
       result: null,
-      settings: defaultPixelationSettings({ width: 64, height: 64 }),
+      settings: this.withPreferredPalette(defaultPixelationSettings({ width: 64, height: 64 })),
       name: "",
       loading: false,
       converting: false,

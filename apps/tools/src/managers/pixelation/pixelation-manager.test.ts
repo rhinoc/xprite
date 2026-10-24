@@ -162,4 +162,65 @@ describe("pixelate tool preview", () => {
     });
     manager.dispose();
   });
+
+  it("applies a deep-link palette slug on open and ignores unknown slugs", async () => {
+    const blue = [[0, 0, 255, 255]] as const;
+    const choices = [
+      {
+        id: "builtin:wplace",
+        name: "Wplace map",
+        colors: blue.map((color) => [...color]),
+        source: "builtin",
+      },
+    ];
+    const manager = new PixelationManager(
+      { ...port(), paletteResources: () => ({ choices: choices as never }) },
+      { paletteSlug: "wplace" },
+    );
+    expect(manager.getSnapshot().settings).toMatchObject({
+      paletteName: "Wplace map",
+      reduceColors: true,
+    });
+    await manager.open(new File([], "a.png"));
+    expect(manager.getSnapshot().settings).toMatchObject({
+      paletteName: "Wplace map",
+      reduceColors: true,
+      palette: [[0, 0, 255, 255]],
+    });
+    manager.dispose();
+
+    const ignored = new PixelationManager(
+      { ...port(), paletteResources: () => ({ choices: choices as never }) },
+      { paletteSlug: "not-a-real-palette" },
+    );
+    expect(ignored.getSnapshot().settings.palette).toBeNull();
+    await ignored.open(new File([], "a.png"));
+    expect(ignored.getSnapshot().settings.palette).toBeNull();
+    ignored.dispose();
+  });
+  it("keeps the deep-link palette across clear until the user picks another", async () => {
+    const choices = [
+      {
+        id: "builtin:wplace",
+        name: "Wplace map",
+        colors: [[1, 2, 3, 255]],
+        source: "builtin",
+      },
+    ];
+    const manager = new PixelationManager(
+      { ...port(), paletteResources: () => ({ choices: choices as never }) },
+      { paletteSlug: "wplace" },
+    );
+    await manager.open(new File([], "a.png"));
+    manager.clear();
+    expect(manager.getSnapshot().settings.paletteName).toBe("Wplace map");
+    await manager.open(new File([], "b.png"));
+    expect(manager.getSnapshot().settings.paletteName).toBe("Wplace map");
+    manager.changeSettings({ palette: null, paletteName: "" });
+    await vi.waitFor(() => expect(manager.getSnapshot().converting).toBe(false));
+    manager.clear();
+    await manager.open(new File([], "c.png"));
+    expect(manager.getSnapshot().settings.palette).toBeNull();
+    manager.dispose();
+  });
 });

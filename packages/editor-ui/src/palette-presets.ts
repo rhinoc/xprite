@@ -55,6 +55,7 @@ import palette31 from "@xprite/palette-assets/paleto/horror-dark.gpl?raw";
 import palette41 from "@xprite/palette-assets/paleto/retro-8-bit.gpl?raw";
 import palette46 from "@xprite/palette-assets/paleto/underwater-ruins.gpl?raw";
 import palette49 from "@xprite/palette-assets/paleto/western-desert.gpl?raw";
+import palette53 from "@xprite/palette-assets/wplace/wplace-map.gpl?raw";
 export interface BundledPalettePreset {
   id: string;
   name: string;
@@ -118,6 +119,7 @@ const resources: Record<string, string> = {
   "libresprite/vga-13h.gpl": palette47,
   "libresprite/web-safe-colors.gpl": palette48,
   "paleto/western-desert.gpl": palette49,
+  "wplace/wplace-map.gpl": palette53,
   "libresprite/win16.gpl": palette50,
   "libresprite/x11.gpl": palette51,
   "libresprite/zx-spectrum.gpl": palette52,
