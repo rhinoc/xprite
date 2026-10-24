@@ -60,4 +60,7 @@ jobs:
           node-version: "24"
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Unit tests import @xprite/ui from dist (package exports). Parallel static job used to
+      # build that via site-build; this job needs its own UI build.
+      - run: pnpm run build:ui
       - run: pnpm run test:ci
