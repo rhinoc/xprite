@@ -16,6 +16,13 @@ import {
   MAX_RECOVERED_GRID_SIZE,
   pixelGridCuts,
 } from "$/import-export/image/import/grid";
+import {
+  type AxisWarp,
+  fitWarp,
+  warpAt,
+  warpInverse,
+  warpPitch,
+} from "$/import-export/image/import/grid-warp";
 import type { PixelGridAnalysis } from "$/import-export/image/import/types";
 
 /**
@@ -25,7 +32,7 @@ import type { PixelGridAnalysis } from "$/import-export/image/import/types";
  * on those centres, and a grid is accepted only when its cuts sit on sharp edges.
  */
 const CHANNELS = 4;
-const MIN_PITCH = 3;
+const MIN_PITCH = 2;
 const MIN_CELLS = 4;
 const MIN_GRID_CELLS = 16;
 const EDGE_PEAK_MULTIPLIER = 4;
@@ -50,6 +57,26 @@ const NOISE_MULTIPLIER = 2.5;
 const SLIVER_FRACTION = 0.5;
 const SQUARE_TOLERANCE = 1.3;
 const SQUARE_SUPPORT = 0.3;
+/** Pixels an edge may sit from the warped lattice's cut and still count as explained. */
+const WARP_TOLERANCE = 0.75;
+/** Variance in px² of a crisp edge about its true cut: the cut rounded to the raster. */
+const ROUNDING_VARIANCE = 1 / 12;
+/** Cells inward from the outermost edge over which a flat margin's pitch is averaged. */
+const BORDER_CELLS = 6;
+/** Weight of the pitch next to a flat margin against the mean pitch, for the margin's pitch. */
+const LOCAL_MARGIN_WEIGHT = 0.7;
+/** Share of the edge weight the warped lattice must explain on both axes for a mesh grid. */
+const MIN_WARP_SHARE = 0.8;
+/** Share of the edge energy in isolated one-pixel steps that marks a crisp profile. */
+const CRISP_SHARE = 0.9;
+/** A crisp edge's strength against the mean profile, below which it is ignored. */
+const CRISP_FLOOR = 0.05;
+/** Longest run of changed lines in a fine (below 2x) nearest-neighbour upscale. */
+const FINE_RUN = 2;
+/** Share of repeated lines that marks a fine upscale: a 1.5x upscale repeats a third. */
+const MIN_REPEAT_SHARE = 0.25;
+/** Smallest pitch of a fine upscale, where one-pixel cells start to meet. */
+const FINE_MIN_PITCH = 1.5;
 
 interface Edge {
   position: number;
@@ -67,6 +94,8 @@ interface AxisResult {
     residual: number;
   } | null;
   meshCuts: number[];
+  /** Share of the edge weight the warped lattice explains (each edge within rounding of a cut). */
+  warpShare: number;
 }
 interface Analysis {
   x: AxisResult | null;
@@ -138,6 +167,24 @@ function edgeProfile(image: PixelBuffer, horizontal: boolean): Float64Array {
   for (let i = 0; i < length; i++) profile[i] /= cross;
   return profile;
 }
+/** changed[i] is 1 when pixel line i differs anywhere from line i - 1 (changed[0] is 0). */
+function lineChanges(image: PixelBuffer, horizontal: boolean): Uint8Array {
+  const { width, height, data } = image;
+  const steps = neighbourSteps(image);
+  const codes = horizontal ? steps.right : steps.down;
+  const neighbour = horizontal ? 1 : width;
+  const changed = new Uint8Array(horizontal ? width : height);
+  for (let y = horizontal ? 0 : 1; y < height; y++)
+    for (let x = horizontal ? 1 : 0; x < width; x++) {
+      const line = horizontal ? x : y;
+      if (changed[line]) continue;
+      const q = y * width + x - neighbour;
+      const code = codes[q];
+      if (code === TRANSLUCENT ? stepOf(codes, data, q, neighbour) > 0 : code > 0)
+        changed[line] = 1;
+    }
+  return changed;
+}
 function mergeEdges(profile: Float64Array): Edge[] {
   const length = profile.length;
   let mean = 0;
@@ -166,6 +213,64 @@ function mergeEdges(profile: Float64Array): Edge[] {
   close();
   return edges;
 }
+/**
+ * On a crisp (nearest-neighbour) upscale every colour change sits on a cut, one pixel wide, with
+ * nothing in between: then each change is an edge, however faint, instead of only the strong ones
+ * mergeEdges keeps. Null when the profile is not crisp.
+ */
+function crispEdges(profile: Float64Array): Edge[] | null {
+  const length = profile.length;
+  let total = 0,
+    isolated = 0;
+  const value = (i: number) => (i >= 1 && i < length ? profile[i] : 0);
+  for (let i = 1; i < length; i++) {
+    total += profile[i];
+    if (value(i - 1) === 0 && value(i + 1) === 0) isolated += profile[i];
+  }
+  if (!total || isolated < CRISP_SHARE * total) return null;
+  const edges: Edge[] = [];
+  for (let i = 1; i < length; i++)
+    if (profile[i] > CRISP_FLOOR * (total / length))
+      edges.push({ position: i, weight: profile[i] });
+  return edges;
+}
+/**
+ * Below 2x a nearest-neighbour upscale has cells of one and two pixels, so changes come in pairs
+ * around one-pixel cells and crispEdges declines. Such an upscale still repeats most lines exactly:
+ * a line inside a cell equals its predecessor, and no two one-pixel cells meet above 1.5x, so every
+ * run of changed lines is at most two long. Art drawn at 1x, or a blurred upscale, changes almost
+ * every line. Null unless both hold; otherwise every changed line is an edge.
+ */
+function fineEdges(profile: Float64Array, changed: Uint8Array): Edge[] | null {
+  const length = profile.length;
+  const first = changed.indexOf(1),
+    last = changed.lastIndexOf(1);
+  if (first < 0 || last <= first) return null;
+  let total = 0;
+  for (let i = 1; i < length; i++) total += profile[i];
+  if (!total) return null;
+  let changes = 0,
+    paired = 0;
+  for (let i = first; i <= last;) {
+    if (!changed[i]) {
+      i++;
+      continue;
+    }
+    let end = i;
+    while (end + 1 <= last && changed[end + 1]) end++;
+    const run = end - i + 1;
+    changes += run;
+    if (run <= FINE_RUN) paired += run;
+    i = end + 1;
+  }
+  const span = last - first + 1;
+  if ((span - changes) / span < MIN_REPEAT_SHARE || paired < CRISP_SHARE * changes) return null;
+  const floor = CRISP_FLOOR * (total / length);
+  const edges: Edge[] = [];
+  for (let i = 1; i < length; i++)
+    if (changed[i]) edges.push({ position: i, weight: Math.max(profile[i], floor) });
+  return edges;
+}
 interface Gap {
   gap: number;
   weight: number;
@@ -189,11 +294,11 @@ function pitchScore(gaps: readonly Gap[], pitch: number): number {
   return score;
 }
 /** Most common edge-to-edge gap, preferring the smallest mode so multiples of the pitch lose. */
-function estimatePitch(gaps: readonly Gap[], length: number): number {
+function estimatePitch(gaps: readonly Gap[], length: number, minPitch: number): number {
   const max = Math.min(MAX_GRID_CELL_SIZE, length / MIN_CELLS);
   const scores: number[] = [];
   const candidates: number[] = [];
-  for (let pitch = MIN_PITCH; pitch <= max; pitch += PITCH_STEP) {
+  for (let pitch = minPitch; pitch <= max; pitch += PITCH_STEP) {
     candidates.push(pitch);
     scores.push(pitchScore(gaps, pitch));
   }
@@ -226,18 +331,27 @@ function refinePitch(edges: readonly Edge[], initial: number): number {
   }
   return pitch;
 }
-/** Weighted least-squares lattice position = offset + k * step over edges that agree with it. */
+/**
+ * Weighted least-squares lattice position = offset + k * step over edges that agree with it. Crisp
+ * edges agree within rounding to the raster, and their residual discounts that rounding.
+ */
 function fitLattice(
   edges: readonly Edge[],
   pitch: number,
+  warp: AxisWarp | null,
+  crisp: boolean,
 ): { step: number; offset: number; share: number; residual: number } | null {
   if (edges.length < 3) return null;
+  const tolerance = (step: number) => Math.max(CONSISTENT_GAP * step, crisp ? WARP_TOLERANCE : 0);
   let step = pitch;
   let offset = edges[0].position;
-  // Chain neighbouring edges first so a small pitch error cannot drift across the image.
+  // Index the edges by the warped lattice (or, without one, by chaining neighbouring edges) first,
+  // so a small pitch error cannot drift across the image.
   const index = Array.from({ length: edges.length }, () => 0);
   for (let pass = 0; pass < REFINE_PASSES; pass++) {
-    if (pass === 0)
+    if (pass === 0 && warp)
+      for (let i = 0; i < edges.length; i++) index[i] = Math.round(warpAt(warp, edges[i].position));
+    else if (pass === 0)
       for (let i = 1; i < edges.length; i++)
         index[i] =
           index[i - 1] +
@@ -252,7 +366,7 @@ function fitLattice(
       skp = 0;
     for (let i = 0; i < edges.length; i++) {
       const residual = edges[i].position - (offset + index[i] * step);
-      if (pass > 0 && Math.abs(residual) > CONSISTENT_GAP * step) continue;
+      if (pass > 0 && Math.abs(residual) > tolerance(step)) continue;
       const w = edges[i].weight;
       sw += w;
       sk += w * index[i];
@@ -272,7 +386,7 @@ function fitLattice(
     const k = Math.round((edge.position - offset) / step);
     const residual = edge.position - (offset + k * step);
     total += edge.weight;
-    if (Math.abs(residual) <= CONSISTENT_GAP * step) {
+    if (Math.abs(residual) <= tolerance(step)) {
       fit += edge.weight;
       squares += edge.weight * residual * residual;
     }
@@ -282,15 +396,24 @@ function fitLattice(
     step,
     offset,
     share: fit / total,
-    residual: Math.sqrt(squares / fit) / step,
+    residual: Math.sqrt(Math.max(0, squares / fit - (crisp ? ROUNDING_VARIANCE : 0))) / step,
   };
 }
-/** Cuts anchored on every edge, with even subdivisions wherever a gap spans several pitches. */
-function buildMesh(edges: readonly Edge[], pitch: number, length: number): number[] {
+/**
+ * Cuts anchored on every edge. A gap spanning several cells is split evenly in the warped lattice's
+ * index, so its cell count follows the local pitch where the cell size drifts.
+ */
+function buildMesh(
+  edges: readonly Edge[],
+  pitch: number,
+  length: number,
+  warp: AxisWarp | null,
+): number[] {
   const anchors: Edge[] = [];
   for (const edge of edges) {
     const last = anchors[anchors.length - 1];
-    if (last && edge.position - last.position < DEDUPE_FRACTION * pitch) {
+    const local = warp ? Math.min(pitch, warpPitch(warp, edge.position)) : pitch;
+    if (last && edge.position - last.position < DEDUPE_FRACTION * local) {
       if (edge.weight > last.weight) anchors[anchors.length - 1] = edge;
     } else anchors.push(edge);
   }
@@ -299,12 +422,84 @@ function buildMesh(edges: readonly Edge[], pitch: number, length: number): numbe
   for (let i = 1; i < marks.length; i++) {
     const left = marks[i - 1],
       right = marks[i];
-    const cells = Math.max(1, Math.round((right - left) / pitch));
-    for (let n = 1; n < cells; n++) pushCut(cuts, left + ((right - left) * n) / cells, length);
+    const border = i === 1 || i === marks.length - 1;
+    const borderPitch =
+      warp && border
+        ? marginPitch(
+            warp,
+            i === 1 ? right : left,
+            i === 1,
+            length,
+            marks[1],
+            marks[marks.length - 2],
+          )
+        : 0;
+    if (borderPitch) {
+      const cells = Math.max(1, Math.round((right - left) / borderPitch));
+      for (let n = 1; n < cells; n++) pushCut(cuts, left + ((right - left) * n) / cells, length);
+    } else if (warp) {
+      const from = warpAt(warp, left),
+        to = warpAt(warp, right);
+      const cells = Math.max(1, Math.round(to - from));
+      for (let n = 1; n < cells; n++) {
+        const cut = warpInverse(warp, from + ((to - from) * n) / cells, left, right);
+        if (Number.isFinite(cut)) pushCut(cuts, cut, length);
+      }
+    } else {
+      const cells = Math.max(1, Math.round((right - left) / pitch));
+      for (let n = 1; n < cells; n++) pushCut(cuts, left + ((right - left) * n) / cells, length);
+    }
     if (i < marks.length - 1) pushCut(cuts, right, length);
   }
   cuts.push(length);
-  return mergeSlivers(cuts, pitch);
+  return mergeSlivers(
+    cuts,
+    warp ? Math.min(pitch, warpPitch(warp, 0), warpPitch(warp, length)) : pitch,
+  );
+}
+/**
+ * Mean pitch over BORDER_CELLS cells inward from the outermost edge `anchor`. Past that edge u is
+ * extrapolated from the last knot interval, whose slope a few rounded edges set; a longer span
+ * counts a flat margin more reliably. 0 when the lattice does not reach that far inward.
+ */
+function innerPitch(warp: AxisWarp, anchor: number, leading: boolean, length: number): number {
+  const index = warpAt(warp, anchor);
+  const inner = leading
+    ? warpInverse(warp, index + BORDER_CELLS, anchor, length)
+    : warpInverse(warp, index - BORDER_CELLS, 0, anchor);
+  return Number.isFinite(inner) ? Math.abs(inner - anchor) / BORDER_CELLS : 0;
+}
+/**
+ * Pitch across a flat margin beyond the outermost edge `anchor`, whose cells show no edges. The
+ * pitch next to the margin predicts it, but less the wider the margin, so the estimate is shrunk
+ * toward the mean pitch between the outermost edges `first` and `last`.
+ */
+function marginPitch(
+  warp: AxisWarp,
+  anchor: number,
+  leading: boolean,
+  length: number,
+  first: number,
+  last: number,
+): number {
+  const local = innerPitch(warp, anchor, leading, length);
+  if (!local) return 0;
+  const cells = warpAt(warp, last) - warpAt(warp, first);
+  const mean = cells > 0 ? (last - first) / cells : local;
+  return mean + LOCAL_MARGIN_WEIGHT * (local - mean);
+}
+/** Share of the edge weight within rounding of an integer index of the warped lattice. */
+function warpShare(edges: readonly Edge[], warp: AxisWarp): number {
+  let total = 0,
+    fit = 0;
+  for (const edge of edges) {
+    const u = warpAt(warp, edge.position);
+    const pitch = warpPitch(warp, edge.position);
+    const pixels = Math.abs(u - Math.round(u)) * pitch;
+    total += edge.weight;
+    if (pixels <= Math.max(WARP_TOLERANCE, CONSISTENT_GAP * pitch)) fit += edge.weight;
+  }
+  return total ? fit / total : 0;
 }
 /** A cell cropped to less than half a pitch at the image border joins its neighbour. */
 export function mergeSlivers(cuts: number[], pitch: number): number[] {
@@ -325,30 +520,50 @@ interface AxisDraft {
   gaps: readonly Gap[];
   pitch: number;
   best: number;
+  /** MIN_PITCH, or FINE_MIN_PITCH when the edges show a fine upscale. */
+  minPitch: number;
+  /** The edges are the whole-pixel steps of a nearest-neighbour upscale. */
+  crisp: boolean;
 }
 function draftAxis(image: PixelBuffer, horizontal: boolean): AxisDraft | null {
   const length = horizontal ? image.width : image.height;
   const profile = edgeProfile(image, horizontal);
-  const edges = mergeEdges(profile);
+  const crisp = crispEdges(profile);
+  const fine = crisp ? null : fineEdges(profile, lineChanges(image, horizontal));
+  const edges = crisp ?? fine ?? mergeEdges(profile);
   if (edges.length < MIN_CELLS) return null;
   const gaps = edgeGaps(edges);
-  const pitch = estimatePitch(gaps, length);
+  const minPitch = fine ? FINE_MIN_PITCH : MIN_PITCH;
+  const pitch = estimatePitch(gaps, length, minPitch);
   if (!pitch) return null;
-  return { length, profile, edges, gaps, pitch, best: pitchScore(gaps, pitch) };
+  return {
+    length,
+    profile,
+    edges,
+    gaps,
+    pitch,
+    best: pitchScore(gaps, pitch),
+    minPitch,
+    crisp: !!(crisp ?? fine),
+  };
 }
 function finishAxis(draft: AxisDraft, requested: number): AxisResult | null {
   const refined = refinePitch(draft.edges, requested);
-  const lattice = Number.isFinite(refined) ? fitLattice(draft.edges, refined) : null;
+  const { minPitch, crisp } = draft;
+  const seed = Number.isFinite(refined) && refined >= minPitch ? refined : requested;
+  const warp = fitWarp(draft.edges, draft.length, seed, minPitch, crisp);
+  const lattice = Number.isFinite(refined) ? fitLattice(draft.edges, refined, warp, crisp) : null;
   // A true lattice supplies its own exact pitch; otherwise keep the shared square-cell estimate.
   const pitch = lattice && lattice.share >= MIN_LATTICE_SHARE ? lattice.step : requested;
-  if (!Number.isFinite(pitch) || pitch < MIN_PITCH || pitch > MAX_GRID_CELL_SIZE) return null;
+  if (!Number.isFinite(pitch) || pitch < minPitch || pitch > MAX_GRID_CELL_SIZE) return null;
   return {
     length: draft.length,
     profile: draft.profile,
     edges: draft.edges,
     pitch,
     lattice,
-    meshCuts: buildMesh(draft.edges, pitch, draft.length),
+    meshCuts: buildMesh(draft.edges, pitch, draft.length, warp),
+    warpShare: warp ? warpShare(draft.edges, warp) : 0,
   };
 }
 /**
@@ -356,7 +571,11 @@ function finishAxis(draft: AxisDraft, requested: number): AxisResult | null {
  * that agrees with the pooled one, and otherwise adopts the pooled pitch if its edges support it.
  */
 function sharedPitches(x: AxisDraft, y: AxisDraft): [number, number] {
-  const pooled = estimatePitch([...x.gaps, ...y.gaps], Math.max(x.length, y.length));
+  const pooled = estimatePitch(
+    [...x.gaps, ...y.gaps],
+    Math.max(x.length, y.length),
+    Math.max(x.minPitch, y.minPitch),
+  );
   if (!pooled) return [x.pitch, y.pitch];
   const pick = (axis: AxisDraft) =>
     Math.max(axis.pitch, pooled) / Math.min(axis.pitch, pooled) <= SQUARE_TOLERANCE ||
@@ -521,6 +740,7 @@ export function detectMeshGrid(image: PixelBuffer): PixelGridAnalysis {
   const { x, y } = analysisOf(image);
   if (!x || !y) return NO_GRID(image);
   const verdict = judge(image, x, y, x.meshCuts, y.meshCuts, 1);
+  const explained = Math.min(x.warpShare, y.warpShare) >= MIN_WARP_SHARE;
   return {
     width: x.meshCuts.length - 1,
     height: y.meshCuts.length - 1,
@@ -530,6 +750,7 @@ export function detectMeshGrid(image: PixelBuffer): PixelGridAnalysis {
     offsetY: 0,
     cutsX: x.meshCuts,
     cutsY: y.meshCuts,
-    ...verdict,
+    confidence: verdict.confidence,
+    reliable: verdict.reliable && explained,
   };
 }

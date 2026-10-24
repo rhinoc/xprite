@@ -56,6 +56,120 @@ export function sprite(size: number, seed = 7): PixelBuffer {
   }
   return image;
 }
+/**
+ * Detailed pixel art: a dithered two-tone sky, outlined blobs with a lit and a shaded tone,
+ * single-pixel highlights and scattered speckles, so many neighbouring cells share a colour while
+ * others change every pixel.
+ */
+export function detailedSprite(width: number, height: number, seed = 7): PixelBuffer {
+  const random = rng(seed);
+  const image = blank(width, height);
+  const paint = (x: number, y: number, color: readonly number[]) => {
+    if (x < 0 || y < 0 || x >= width || y >= height) return;
+    const o = (y * width + x) * 4;
+    image.data[o] = color[0];
+    image.data[o + 1] = color[1];
+    image.data[o + 2] = color[2];
+    image.data[o + 3] = 255;
+  };
+  const tone = (color: readonly number[], factor: number) => color.map((v) => v * factor);
+  const sky = PALETTE[1 + Math.floor(random() * (PALETTE.length - 1))];
+  const band = height * (0.3 + random() * 0.4);
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const lower = y > band || (y > band - 3 && (x + y) % 2 === 0);
+      paint(x, y, lower ? tone(sky, 0.7) : sky);
+    }
+  const outline = PALETTE[2];
+  const blobs = 6 + Math.floor(random() * 6);
+  for (let shape = 0; shape < blobs; shape++) {
+    const color = PALETTE[3 + Math.floor(random() * (PALETTE.length - 3))];
+    const rx = 3 + random() * width * 0.18,
+      ry = 3 + random() * height * 0.18;
+    const cx = random() * width,
+      cy = random() * height;
+    for (let y = Math.floor(cy - ry - 1); y <= cy + ry + 1; y++)
+      for (let x = Math.floor(cx - rx - 1); x <= cx + rx + 1; x++) {
+        const d = Math.hypot((x + 0.5 - cx) / rx, (y + 0.5 - cy) / ry);
+        if (d > 1) continue;
+        const edge = d > 1 - 1.2 / Math.min(rx, ry);
+        const lit = (x - cx) / rx + (y - cy) / ry < -0.3;
+        paint(x, y, edge ? outline : lit ? color : tone(color, 0.65));
+      }
+  }
+  for (let i = 0; i < width * height * 0.02; i++)
+    paint(Math.floor(random() * width), Math.floor(random() * height), PALETTE[1]);
+  return image;
+}
+/**
+ * Nearest resample onto `cuts` (output positions of every native cell boundary, first 0, last the
+ * output length): output pixel centre x + 0.5 takes the native cell whose span contains it.
+ */
+function resampleOnCuts(
+  source: PixelBuffer,
+  cutsX: readonly number[],
+  cutsY: readonly number[],
+): PixelBuffer {
+  const out = blank(Math.round(cutsX[cutsX.length - 1]), Math.round(cutsY[cutsY.length - 1]));
+  const index = (cuts: readonly number[], length: number) => {
+    const map = new Int32Array(length);
+    let cell = 0;
+    for (let x = 0; x < length; x++) {
+      while (cell < cuts.length - 2 && x + 0.5 >= cuts[cell + 1]) cell++;
+      map[x] = cell;
+    }
+    return map;
+  };
+  const columns = index(cutsX, out.width),
+    rows = index(cutsY, out.height);
+  for (let y = 0; y < out.height; y++)
+    for (let x = 0; x < out.width; x++)
+      for (let c = 0; c < 4; c++)
+        out.data[(y * out.width + x) * 4 + c] =
+          source.data[(rows[y] * source.width + columns[x]) * 4 + c];
+  return out;
+}
+const evenCuts = (cells: number, length: number) =>
+  Array.from({ length: cells + 1 }, (_, i) => (i * length) / cells);
+/** Non-integer square nearest upscale: cells alternate between two integer widths. */
+export function fractionalUpscale(source: PixelBuffer, scale: number): PixelBuffer {
+  return resampleOnCuts(
+    source,
+    evenCuts(source.width, Math.round(source.width * scale)),
+    evenCuts(source.height, Math.round(source.height * scale)),
+  );
+}
+/** Cuts whose cell size swells and shrinks smoothly (two sine waves) by up to `drift` of a cell. */
+function driftCuts(cells: number, length: number, drift: number, random: () => number): number[] {
+  const p0 = random() * 2 * Math.PI,
+    p1 = random() * 2 * Math.PI;
+  const sizes = Array.from({ length: cells }, (_, i) => {
+    const t = i / Math.max(cells - 1, 1);
+    return (
+      1 +
+      drift *
+        (0.7 * Math.sin(2 * Math.PI * 1.3 * t + p0) + 0.3 * Math.sin(2 * Math.PI * 3.1 * t + p1))
+    );
+  });
+  const total = sizes.reduce((a, b) => a + b, 0);
+  const cuts = [0];
+  for (const size of sizes) cuts.push(cuts[cuts.length - 1] + (size * length) / total);
+  return cuts;
+}
+/** Nearest upscale whose cell size drifts smoothly across the image (a non-uniform grid). */
+export function driftUpscale(
+  source: PixelBuffer,
+  scale: number,
+  drift: number,
+  seed = 17,
+): PixelBuffer {
+  const random = rng(seed);
+  return resampleOnCuts(
+    source,
+    driftCuts(source.width, Math.round(source.width * scale), drift, random),
+    driftCuts(source.height, Math.round(source.height * scale), drift, random),
+  );
+}
 export function checkerboard(cell: number, cells: number): PixelBuffer {
   const size = cell * cells;
   const image = blank(size, size);

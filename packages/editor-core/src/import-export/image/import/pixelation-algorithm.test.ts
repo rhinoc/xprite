@@ -7,6 +7,9 @@ import {
   addNoise,
   boxBlur,
   checkerboard,
+  detailedSprite,
+  driftUpscale,
+  fractionalUpscale,
   gradient,
   jitterWithMargin,
   mush,
@@ -79,15 +82,25 @@ describe("algorithm registry table", () => {
     expect(result.reliable).toBe(false);
     expect(result.confidence).toBe(0);
   });
-  test("Auto picks the highest-confidence reliable entry and tags it", () => {
+  test("Auto picks a reliable entry within a near tie of the most confident and tags it", () => {
     const image = upscaleNearest(art, 16);
     const auto = detectWithAlgorithm(image, Auto);
     const reliable = [EdgeGrid, UniformGrid]
       .map((id) => detectWithAlgorithm(image, id))
       .filter((result) => result.reliable);
     expect(auto.reliable).toBe(true);
-    expect(auto.confidence).toBe(Math.max(...reliable.map((result) => result.confidence)));
+    expect(auto.confidence).toBeGreaterThanOrEqual(
+      Math.max(...reliable.map((result) => result.confidence)) - 0.02,
+    );
     expect([EdgeGrid, UniformGrid]).toContain(auto.algorithm);
+  });
+  test("near a tie Auto keeps the uniform lattice over the edge mesh", () => {
+    const image = fractionalUpscale(sprite(240, 106), 2.8);
+    const uniform = detectWithAlgorithm(image, UniformGrid);
+    expect(uniform.reliable).toBe(true);
+    const auto = detectWithAlgorithm(image, Auto);
+    expect(auto.algorithm).toBe(UniformGrid);
+    expect([auto.width, auto.height]).toEqual([240, 240]);
   });
   test("Auto falls back to the Resize entry when nothing is reliable", () => {
     const result = detectWithAlgorithm(gradient(512, 512), Auto);
@@ -148,6 +161,62 @@ describe("grids that must be recovered", () => {
     const result = detectWithAlgorithm(big, Auto);
     expect(result.reliable).toBe(true);
     expect(result.width).toBe(300);
+  });
+});
+
+/** Recovery merges near-identical shades such as the fixtures' 0.65 and 0.7 tones of one colour. */
+const MERGED_SHADE_DELTA = 12;
+
+describe("uneven cells from non-integer and drifting upscales", () => {
+  const uneven: [string, PixelBuffer, PixelBuffer][] = [
+    [
+      "2.43x, cells of 2 and 3 pixels",
+      detailedSprite(120, 90, 3),
+      fractionalUpscale(detailedSprite(120, 90, 3), 2.43),
+    ],
+    ["2.56x blocky sprite", sprite(80, 6), fractionalUpscale(sprite(80, 6), 2.56)],
+    [
+      "4.37x detailed sprite",
+      detailedSprite(96, 80, 5),
+      fractionalUpscale(detailedSprite(96, 80, 5), 4.37),
+    ],
+    [
+      "cell size drifting 12% at 4.3x",
+      detailedSprite(120, 90, 1),
+      driftUpscale(detailedSprite(120, 90, 1), 4.3, 0.12, 1),
+    ],
+    [
+      "cell size drifting 12% at 3.3x",
+      detailedSprite(160, 120, 7),
+      driftUpscale(detailedSprite(160, 120, 7), 3.3, 0.12, 7),
+    ],
+    ["blocky sprite drifting at 6.4x", sprite(64, 4), driftUpscale(sprite(64, 4), 6.4, 0.12, 4)],
+    [
+      "1.86x, cells of 1 and 2 pixels",
+      detailedSprite(200, 150, 9),
+      fractionalUpscale(detailedSprite(200, 150, 9), 1.86),
+    ],
+    [
+      "cell size drifting 12% at 1.94x",
+      detailedSprite(240, 180, 11),
+      driftUpscale(detailedSprite(240, 180, 11), 1.94, 0.12, 11),
+    ],
+  ];
+  for (const [name, source, image] of uneven)
+    test(name, () => {
+      const result = detectWithAlgorithm(image, Auto);
+      expect(result.reliable).toBe(true);
+      expect([result.width, result.height]).toEqual([source.width, source.height]);
+      const out = pixelateImage(image, { algorithm: Auto, mode: PixelationMode.RecoverGrid });
+      const off = out.data.findIndex(
+        (value, i) => Math.abs(value - source.data[i]) > MERGED_SHADE_DELTA,
+      );
+      expect(off).toBe(-1);
+    });
+  test("a drifting grid is no uniform lattice", () => {
+    const image = driftUpscale(detailedSprite(120, 90, 1), 4.3, 0.12, 1);
+    expect(detectWithAlgorithm(image, UniformGrid).reliable).toBe(false);
+    expect(detectWithAlgorithm(image, Auto).algorithm).toBe(EdgeGrid);
   });
 });
 
@@ -222,6 +291,9 @@ describe("images that must be refused", () => {
     ["periodic smooth field", smoothPhoto(700, 500)],
     ["hard-edged shapes with no grid", vectorShapes(512, 512)],
     ["small hard-edged shapes", vectorShapes(180, 140)],
+    ["native detailed pixel art", detailedSprite(220, 150, 1)],
+    ["native blocky pixel art", sprite(200, 2)],
+    ["native blocky pixel art, other shapes", sprite(240, 4)],
   ];
   for (const [name, image] of refused)
     test(name, () => {

@@ -94,6 +94,13 @@ const customSize = (image: PixelBuffer, size?: PixelationSize): PixelGridAnalysi
   };
 };
 
+/**
+ * How much more confident a later Auto entry must be to replace an earlier reliable one. Entries
+ * run from the simplest model (one uniform lattice) to freer ones (cuts anchored on every edge),
+ * and the freer model fits a uniform grid at least as well, so near ties keep the simpler grid.
+ */
+const SIMPLER_MARGIN = 0.02;
+
 /** Below this confidence an accepted edge-detector grid gets the arbiter's second opinion. */
 const CHALLENGE_CONFIDENCE = 0.8;
 
@@ -141,7 +148,9 @@ const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
         .map((entry) => entry.detect(image))
         .reduce(
           (best, next) =>
-            next.reliable && (!best.reliable || next.confidence > best.confidence) ? next : best,
+            next.reliable && (!best.reliable || next.confidence > best.confidence + SIMPLER_MARGIN)
+              ? next
+              : best,
           TABLE[FALLBACK].detect(image),
         );
       if (!best.reliable) return softGrid(image);
