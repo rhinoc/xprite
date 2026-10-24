@@ -9,6 +9,9 @@ export * from "$/color/palette/controller";
 export * from "$/color/palette-commands";
 export * from "$/color/palette-operations";
 export * from "$/color/palette-resize";
+// Exact RGBA match for PaletteWarning / Add Color. Do not re-export fuzzy
+// paletteColorIndex from palette-commands under this name — ColorFields shows "!"
+// when findEditorPaletteColor returns -1 (exact miss). See palette-warning.test.ts.
 export { appendMissingPaletteColor, exactPaletteColorIndex } from "$/color/palette-warning";
 export * from "$/color/palette-usage";
 export * from "$/color/selector";
