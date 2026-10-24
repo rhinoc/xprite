@@ -3,7 +3,10 @@ import type { Rgba } from "$/base/primitives";
 import { MAX_ALLOCATED_PALETTE_COLORS } from "$/color/palette-resize";
 
 /** Palette::findExactMatch compares all four channels, including transparent RGB. */
-export function paletteColorIndex(palette: readonly (readonly number[])[], color: Rgba): number {
+export function exactPaletteColorIndex(
+  palette: readonly (readonly number[])[],
+  color: Rgba,
+): number {
   return palette.findIndex(
     (entry) =>
       entry[0] === color[0] &&
@@ -18,7 +21,7 @@ export function appendMissingPaletteColor(
   color: Rgba,
   maximum = MAX_ALLOCATED_PALETTE_COLORS,
 ): { palette: readonly Rgba[]; index: number; added: boolean } {
-  const index = paletteColorIndex(palette, color);
+  const index = exactPaletteColorIndex(palette, color);
   if (index >= 0) return { palette, index, added: false };
   if (palette.length >= maximum) return { palette, index: -1, added: false };
   return { palette: [...palette, [...color]], index: palette.length, added: true };

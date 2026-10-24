@@ -5,7 +5,7 @@ import {
   hexToRgba,
   hslaToRgba,
   hsvaToRgba,
-  paletteColorIndex,
+  exactPaletteColorIndex,
   rgbaToHex,
   rgbaToHsla,
   rgbaToHsva,
@@ -102,5 +102,5 @@ export function displayEditorColorInSrgb(
 }
 
 export function findEditorPaletteColor(palette: readonly Rgba[], color: EditorColor): number {
-  return paletteColorIndex(palette, color);
+  return exactPaletteColorIndex(palette, color);
 }
