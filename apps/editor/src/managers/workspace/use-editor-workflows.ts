@@ -769,11 +769,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
   const performDocumentSave = (intent: SessionSaveIntent, target = currentSaveTarget()) => {
     const dialogIntent = intent === SessionSaveIntent.SaveAs ? "save-as" : "save";
     if (
-      shouldOpenSaveAsDialog(
-        dialogIntent,
-        workspace.getConfiguredSaveTarget(),
-        canPickSaveFile(),
-      )
+      shouldOpenSaveAsDialog(dialogIntent, workspace.getConfiguredSaveTarget(), canPickSaveFile())
     ) {
       telemetry.featureUsed(TelemetryFeature.SaveAs, TelemetryFeatureAction.Open);
       setSaveAsOpen(true);
