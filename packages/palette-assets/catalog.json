@@ -160,7 +160,7 @@
     "group": "Lospec Palettes",
     "author": "_Nicola",
     "authorUrl": null,
-    "license": "Creator permission — use in any way",
+    "license": "Creator permission \u2014 use in any way",
     "licenseUrl": "https://lospec.com/palette-list/cl8uds",
     "sourceUrl": "https://lospec.com/palette-list/cl8uds"
   },
@@ -314,7 +314,7 @@
     "group": "Lospec Palettes",
     "author": "Haboo",
     "authorUrl": null,
-    "license": "Creator permission — any use, including commercial",
+    "license": "Creator permission \u2014 any use, including commercial",
     "licenseUrl": "https://lospec.com/palette-list/florentine24",
     "sourceUrl": "https://lospec.com/palette-list/florentine24"
   },
@@ -380,7 +380,7 @@
     "group": "Lospec Palettes",
     "author": "jaxrud",
     "authorUrl": null,
-    "license": "Creator permission — commercial-game use",
+    "license": "Creator permission \u2014 commercial-game use",
     "licenseUrl": "https://lospec.com/palette-list/jexru-64",
     "sourceUrl": "https://lospec.com/palette-list/jexru-64"
   },
@@ -490,7 +490,7 @@
     "group": "Lospec Palettes",
     "author": "Kerrie Lake",
     "authorUrl": "https://lospec.com/palette-list/user/kerrielake",
-    "license": "Creator permission — commercial-game use",
+    "license": "Creator permission \u2014 commercial-game use",
     "licenseUrl": "https://lospec.com/palette-list/resurrect-64",
     "sourceUrl": "https://lospec.com/palette-list/resurrect-64"
   },
@@ -512,7 +512,7 @@
     "group": "Lospec Palettes",
     "author": "HappyPiggy",
     "authorUrl": null,
-    "license": "Creator permission — use of the palette",
+    "license": "Creator permission \u2014 use of the palette",
     "licenseUrl": "https://lospec.com/palette-list/sepia6",
     "sourceUrl": "https://lospec.com/palette-list/sepia6"
   },
@@ -603,6 +603,17 @@
     "license": "GPL-2.0-only",
     "licenseUrl": "https://github.com/LibreSprite/LibreSprite/blob/eb34acdf27805504fe6637093685944877b51fe5/LICENSE.txt",
     "sourceUrl": "https://github.com/LibreSprite/LibreSprite/blob/eb34acdf27805504fe6637093685944877b51fe5/data/palettes/win16.gpl"
+  },
+  {
+    "id": "wplace",
+    "name": "Wplace map",
+    "file": "wplace/wplace-map.gpl",
+    "group": "Community Map Palettes",
+    "author": null,
+    "authorUrl": "https://wplace.live/",
+    "license": "Unofficial capture of publicly visible map paint colors (2026-10-25)",
+    "licenseUrl": "https://wplace.live/",
+    "sourceUrl": "https://wplace.live/_app/immutable/chunks/Bt1-y6b9.js"
   },
   {
     "id": "X11",

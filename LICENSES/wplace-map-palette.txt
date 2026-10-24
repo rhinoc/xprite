@@ -1,0 +1,19 @@
+Wplace map palette (unofficial)
+
+Display name: Wplace map
+Catalog id: wplace
+File: packages/palette-assets/wplace/wplace-map.gpl
+
+Captured: 2026-10-25 Asia/Shanghai
+Source URL: https://wplace.live/_app/immutable/chunks/Bt1-y6b9.js
+  (script chunk referenced from https://wplace.live/)
+Method: parse `{name,rgb:[r,g,b]}` entries from that chunk
+Count: 63 paint colors (Transparent omitted from the live picker)
+
+This is an unofficial capture of publicly visible map paint colors for preparing
+a PNG overlay reference. It is not an official palette dump. Colors can drift
+when wplace.live updates its client. Xprite is not affiliated with, endorsed by,
+or partnered with Wplace / wplace.live.
+
+Cross-check: free and paid paint hex lists matched placepixels.com/wplace-colors
+when reviewed earlier (2026-09-04).

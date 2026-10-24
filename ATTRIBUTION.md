@@ -134,6 +134,12 @@ under this project's GPL license. See
 [`LICENSES/PALETTE-REVIEW.md`](LICENSES/PALETTE-REVIEW.md) for the separate
 review of the original Aseprite palette copies.
 
+The **Wplace map** preset (`packages/palette-assets/wplace/wplace-map.gpl`) is an
+unofficial capture of publicly visible map paint colors from wplace.live
+(chunk `Bt1-y6b9.js`, captured 2026-10-25 Asia/Shanghai). It is not an official
+palette dump; colors can drift. See
+[`LICENSES/wplace-map-palette.txt`](LICENSES/wplace-map-palette.txt).
+
 ## PostHog
 
 The PostHog browser SDK is used as a third-party dependency. Its Apache-2.0
