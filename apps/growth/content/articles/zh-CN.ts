@@ -26,11 +26,11 @@ export const CHINESE_ARTICLES = {
     topic: "iPad 与触控",
   },
   "piskel-alternatives": {
-    title: "Piskel 替代工具：3 款像素动画编辑器对比 | Xprite",
+    title: "Piskel 替代工具：Xprite、Piskel 与 Pixelorama 对比 | Xprite",
     description:
-      "对比 Piskel 替代工具：Pixelorama 能直接打开 .piskel，Xprite 在浏览器里编辑 .aseprite、支持笔和触控，Pixilart 适合分享作品。",
+      "Xprite 能打开 .aseprite，支持手机和平板；Piskel 在电脑上画小动画更简单，也能打开 .piskel；Pixelorama 同样能打开 .piskel。",
     summary:
-      "Pixelorama 能直接打开 .piskel；Xprite 适合编辑 .aseprite 和触控绘画；Pixilart 适合分享作品。",
+      "Xprite 能打开和保存 .aseprite，支持手机和平板；Piskel 画小型桌面动画更简单；Pixelorama 能直接打开 .piskel。",
     topic: "编辑器替代工具",
   },
   "fix-ai-pixel-art": {

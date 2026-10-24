@@ -90,3 +90,44 @@ Keep original `.piskel` and rendered reference. Pixelorama documents native impo
 ## Outstanding work and refresh triggers
 
 No search-volume, ranking difficulty, CPC or conversion forecast has been verified. No phone/iPad performance, pen precision, large animation, `.piskel` preservation or Aseprite round-trip experiment has been run. Recheck pricing and editor-generation changes before release and on relevant product updates; revisit compatibility whenever a source or parser changes. Track update effort in the same ROI ledger as article production.
+
+---
+
+# Piskel facts recheck: 2026-10-22 (Asia/Singapore)
+
+Method: official site pages, the Piskel GitHub repository (README, templates, commits, releases) and AlternativeTo, all read on 2026-10-22. No hands-on editor test was done.
+
+| Area | Fact | Source |
+| --- | --- | --- |
+| What it is | "Free online sprite editor", built primarily as a browser-based editor | https://www.piskelapp.com/ , https://www.piskelapp.com/download |
+| Cost / ads | Free. The main editor shows ads, and there's no paid ad-free version | https://www.piskelapp.com/faq ("Why ads?") |
+| Kids edition | Piskel for Kids: free, no ads, no tracking of personal information, no social features (galleries/discussions) | https://www.piskelapp.com/faq |
+| Open source | Apache-2.0, repo `piskelapp/piskel` | https://github.com/piskelapp/piskel (README License; GitHub API `license: Apache-2.0`) |
+| Platforms (web) | Latest Chrome, Firefox, Edge; Brave only with canvas fingerprinting disabled | GitHub README "Browser Support" |
+| Mobile/tablet | "There is no support for mobile." | GitHub README "Mobile/Tablets" |
+| Offline | Windows, macOS, Linux apps; the download page lists **v0.14.0**. "best-effort releases… very limited QA", no ETA, web version recommended | https://www.piskelapp.com/download |
+| Releases | Latest GitHub release **v0.15.0, 2018-11-26 01:12 SGT** (2018-11-25 17:12 UTC); v0.14.0 2018-03-04 | GitHub releases API |
+| Activity | Latest commit on `master` 2026-10-22 05:20 SGT (2026-10-21 21:20 UTC): cleanup commits such as "Delete RELEASE.md", "Remove save to gallery obsolete remains". Earlier batch 2026-09-20 (Q.js removal). Repo not archived, ~12.9k stars, ~100 open issues | GitHub commits API, repo API |
+| Contributions | README says complex or UX-changing PRs are "unlikely to be reviewed or merged due to limited time and resources" | GitHub README |
+| Import | `.piskel` file, "local piskel" saved in browser, pictures: "PNG, JPG, BMP, Animated GIF"; session backups | `src/templates/settings/import.html` |
+| Export | Animated GIF; PNG sprite sheet (columns/rows), data-URI, PixiJS movie (sheet + JSON), selected frame PNG; ZIP of one PNG per frame with "Split by layers"; C file | `src/templates/settings/export/{png,zip,misc}.html`, homepage "Export to GIF, PNG… spritesheet PNG/ZIP" |
+| Layers | Yes (layers list controller) | `src/js/controller/LayersListController.js` |
+| Onion skin | Yes (toggle in preview) | `src/templates/preview.html` |
+| Timing | One FPS slider (0–24) on the animated preview; no per-frame duration control found | `src/templates/preview.html` (inference: no per-frame duration UI found, not proven absent) |
+| Aseprite | No `.aseprite`/`.ase` import or export. Import accepts `.piskel` + `image/*`; GitHub code search for "aseprite" in the repo returns 0 | import.html; code search |
+
+## AlternativeTo
+
+- Piskel page exists: https://alternativeto.net/software/piskel/about/ . It shows 35 likes, 52 alternatives, "Open Source (Apache-2.0)", and says the page was last updated Apr 29, 2025.
+- **Xprite is listed as a Piskel alternative**, at position 12 of 52 on https://alternativeto.net/software/piskel/ (that alternatives list was updated Oct 9, 2026). Its entry shows "Free Open Source (GPL-2.0)", platform Online, with no likes.
+- Xprite's own page: https://alternativeto.net/software/xprite/about/ , added by rhinoc on Oct 9, 2026. It has 0 likes and 18 alternatives, with Piskel listed as a popular alternative. The activity feed shows "rhinoc added Piskel as alternative to Xprite" about 3 days ago.
+- Popular alternatives shown on the Piskel page: Pixelorama (87 likes), PixiEditor, Aseprite.
+- Opportunity: likes and comments on Xprite's AlternativeTo entry drive its ranking in that list. Ryan has to do this himself; nothing was posted.
+
+## Pixelorama (re-verified)
+
+Imports `.piskel`, `.ase/.aseprite`, `.kra`, `.psd`, `.ora`, with limited support. Aseprite import keeps frame tags and frame duration; it doesn't yet support slices, cel extra, color profile, external files or masks. Source: https://pixelorama.org/user_manual/Import
+
+## Revision log
+
+- **2026-10-24 (Asia/Shanghai):** Appended 2026-10-22 recheck; EN + zh-CN article rewrite shipping (slug unchanged).
