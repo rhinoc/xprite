@@ -35,7 +35,7 @@ describe("article publication dates", () => {
   });
 
   it("uses English frontmatter for the English page", () => {
-    assert.equal(english.dateModified, "2026-10-10");
+    assert.equal(english.dateModified, "2026-10-25");
     assert.equal(english.datePublished, "2026-10-10");
     const page = SITE_PAGES.find((item) => item.path === ENGLISH_PATH);
     assert.equal(pageLastModified(page!), english.dateModified);
