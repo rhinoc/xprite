@@ -1,0 +1,68 @@
+# Soft-scan list for scripts/scan.py — one Python regex per line.
+# # comments and blank lines ignored. Edit here; leave scan.py alone.
+# Soft WARN only: review in context. Some hits are fine to keep.
+# Only patterns that actually showed up in drafts.
+
+# --- Negative framing / contrast openers ---
+# 「不是怎么…不是怎么…」「不是 A 而是 B」
+不是.{0,24}而是
+不是怎么
+不是说
+并不是
+并非
+与其说.{0,24}不如
+与其.{0,16}不如
+# Ban-first rule phrasing
+^(不要|禁止|切勿|切忌|严禁)
+本.{0,6}不是
+不是写给
+不是用来
+不应该出现
+不要再把
+
+# --- AI fillers (其实 / 剩下的是 / 最后一个坑) ---
+其实
+剩下的是
+最后一个坑
+
+# --- English-calque AI verbs (not colloquial Chinese) ---
+# Prefer 明白/理解/遇到/收到/记下; soft-flag literal EN→ZH (catch/bump/pierce)
+接住你
+接住了
+接住
+接不住
+撞上
+碰上.{0,12}(问题|bug|Bug)
+击穿
+打穿
+扛住
+撑不住
+不崩
+不爆
+捕捉到你
+get你
+
+
+# --- Process / drafting meta leaking into finished copy ---
+请删
+手动删除
+旧图可删
+【待补】
+待确认
+文档没写
+没试过
+下面按.{0,24}写
+证据[：:]
+证据强度
+diagram-only
+本帖未跑
+RETIRED
+MIGRATION
+来源[：:].{0,40}(README|官方|文档)
+
+# --- Internal / process tokens in product narrative ---
+settings\.ts
+/workspace/
+argmin
+CHALLENGE_CONFIDENCE
+MESH_OVERRIDE
