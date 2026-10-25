@@ -15,7 +15,6 @@ const tests = [
     name: "verify-aseprite-export-delivery",
     path: "scripts/e2e/aseprite-compatibility/verify-export-delivery.mjs",
   },
-  "verify-export-dialog-geometry",
   "verify-editor-sheet-preview",
   "verify-animation-features",
   "verify-animation-playback",

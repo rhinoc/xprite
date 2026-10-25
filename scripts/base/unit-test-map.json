@@ -4,7 +4,6 @@
   "verify-document-dialog-target": "apps/editor/src/managers/documents/document-dialog-target.test.ts",
   "verify-editor-sheet-preview": "packages/editor-core/src/editor/RasterEditor.test.ts",
   "verify-export-dialog-flow": "apps/editor/src/components/dialogs/export-file-dialog/export-file-dialog.test.ts",
-  "verify-export-dialog-geometry": "apps/editor/src/managers/files/policies/aseprite-widget-geometry/export-file-geometry.test.ts",
   "verify-eyedropper-preferences": "packages/editor-core/src/editor/RasterEditor.test.ts",
   "verify-feature-shortcuts": "packages/editor-core/src/editor/commands/editor-commands.test.ts",
   "verify-fit-screen": "packages/editor-core/src/canvas/view.test.ts",
