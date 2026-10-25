@@ -377,7 +377,7 @@ export function FormDialog({
           tabs={tabs}
           headerActions={headerActions}
           sections={sections}
-          density={layoutMode === "flow" && (!narrow || tabs) ? "compact" : "default"}
+          density={layoutMode === "flow" && !narrow ? "compact" : "default"}
           submitOnEnter={submitOnEnter}
           actionSize={embedded ? NATIVE_ACTION_SIZE : undefined}
           onHeightChange={setFlowHeight}

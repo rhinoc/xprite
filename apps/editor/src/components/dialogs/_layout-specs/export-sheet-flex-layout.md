@@ -40,3 +40,11 @@ Derived from current Xprite dialog field lists and show/hide rules in
   origin x|y, size width|height, columns|rows, paddingEnabled,
   horizontal|vertical padding (when enabled), partialTiles.
 - Actions: Import, Cancel.
+
+## Usability gate (no clipped controls)
+
+Compact density must never shrink peer-row controls or checkbox rows below a
+usable size. Peer label+control fields (Resize|Area) use content-sized captions
+and a ~200px field floor; checkbox peers size to `max-content` and wrap.
+Prefer wrap over horizontal/vertical clip. Dialog height follows FlowForm
+content via `onHeightChange`.

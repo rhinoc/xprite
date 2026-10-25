@@ -4,6 +4,7 @@
   gap: var(--ui-space-6, 12px);
   padding: var(--ui-space-4, 8px);
   min-width: 0;
+  box-sizing: border-box;
 }
 
 .row {
@@ -11,6 +12,7 @@
   flex-wrap: wrap;
   gap: var(--ui-space-4, 8px);
   min-width: 0;
+  align-items: center;
 }
 
 .field {
@@ -45,6 +47,7 @@
   justify-content: flex-end;
   gap: var(--ui-space-4, 8px);
   padding-top: var(--ui-space-4, 8px);
+  flex-shrink: 0;
 }
 
 .chrome {
@@ -82,22 +85,29 @@
   gap: var(--ui-space-2, 4px);
 }
 
-/* Compact density: closer to Xprite absolute dialog packing (label ~176, gap 6, control 30). */
+/*
+ * Compact density: closer to Xprite absolute dialog packing (label ~176 on
+ * single-field rows, gap 6, control 30). Peer rows and checkbox rows MUST NOT
+ * shrink below a usable control width — prefer wrap over clip.
+ */
 .compact {
   gap: 6px;
-  padding: 2px 8px 6px;
+  padding: 4px 8px 8px;
 }
 
 .compact .row {
-  flex-wrap: nowrap;
+  /* Allow wrap so peer controls stay usable when the dialog is tight. */
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .compact .field {
-  grid-template-columns: 176px minmax(0, 1fr);
+  grid-template-columns: 176px minmax(96px, 1fr);
   flex: 1 1 0;
   gap: 2px 8px;
   min-height: 30px;
+  /* Single-field rows still fill; peer override below sets a floor. */
+  min-width: 0;
 }
 
 .compact .caption {
@@ -106,13 +116,41 @@
   overflow: hidden;
 }
 
+.compact .control {
+  /* Never let the measured control box collapse under the Combobox/Input. */
+  min-width: 96px;
+  flex: 1 1 auto;
+}
+
+/* Peer label+control fields (e.g. Resize|Area): content-sized labels like the
+ * old absolute layout (Area used labelWidth 54, not 176). */
+.compact .row:has(> .field ~ .field) > .field {
+  grid-template-columns: max-content minmax(96px, 1fr);
+  flex: 1 1 200px;
+  min-width: 200px;
+}
+
+.compact .row:has(> .field ~ .field) > .field .caption {
+  width: auto;
+  max-width: none;
+  overflow: visible;
+}
+
+/* Checkboxes / buttons sharing a row: size to content, wrap instead of clip
+ * (Merge Duplicates | Ignore Empty | Size=2^n). */
 .compact .standalone {
-  flex: 1 1 0;
+  flex: 0 1 auto;
+  min-width: max-content;
+}
+
+.compact .row:has(> .standalone) {
+  gap: 8px 16px;
 }
 
 .compact .actions {
-  padding-top: 6px;
+  padding-top: 8px;
   gap: 8px;
+  min-width: 0;
 }
 
 .compact .chrome {
@@ -120,15 +158,18 @@
 }
 
 @media (max-width: 420px) {
-  .compact .row {
-    flex-wrap: wrap;
-  }
   .compact .field {
-    grid-template-columns: minmax(96px, max-content) minmax(0, 1fr);
+    grid-template-columns: minmax(72px, max-content) minmax(96px, 1fr);
     flex: 1 1 160px;
+    min-width: 160px;
   }
   .compact .caption {
     width: auto;
     max-width: none;
+    overflow: visible;
+  }
+  .compact .row:has(> .field ~ .field) > .field {
+    flex: 1 1 160px;
+    min-width: 160px;
   }
 }
