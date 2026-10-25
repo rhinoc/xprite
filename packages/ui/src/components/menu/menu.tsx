@@ -34,7 +34,10 @@ import {
   type SurfaceBounds,
   type SurfaceViewport,
 } from "$/components/canvas-surface";
-import { PointerCompatibilityMouseSuppression } from "$/components/menu/pointer-gestures";
+import {
+  PointerCompatibilityMouseSuppression,
+  isMenuPressPointer,
+} from "$/components/menu/pointer-gestures";
 import {
   placeSubmenu,
   menuMnemonicIndex,
@@ -954,12 +957,7 @@ export function Menu<Trigger extends HTMLElement = HTMLButtonElement>({
         onPointerDown:
           activation === MenuActivation.Press
             ? (event) => {
-                if (
-                  disabledMenuTrigger(event.currentTarget) ||
-                  event.pointerType !== "mouse" ||
-                  event.button !== 0
-                )
-                  return;
+                if (disabledMenuTrigger(event.currentTarget) || !isMenuPressPointer(event)) return;
                 event.preventDefault();
                 skipTriggerClick.current = true;
                 if (layout && toggleOnTrigger) close();

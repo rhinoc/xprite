@@ -8,6 +8,19 @@ export interface PointerContact {
   timeStamp: number;
 }
 
+const PRIMARY_POINTER_BUTTON = 0;
+const MENU_PRESS_POINTER_TYPES = new Set(["mouse", "pen", "touch"]);
+
+/** Primary-button press that opens a Press-activated menu trigger.
+ * Pen/touch must open on pointerdown; Apple Pencil often never synthesizes click.
+ * Eraser (non-zero button) stays out. Hover-open remains mouse-only in the menubar.
+ */
+export function isMenuPressPointer(pointer: { pointerType: string; button: number }): boolean {
+  return (
+    pointer.button === PRIMARY_POINTER_BUTTON && MENU_PRESS_POINTER_TYPES.has(pointer.pointerType)
+  );
+}
+
 export const TOUCH_LONG_PRESS_DELAY_MS = 550;
 export const TOUCH_MOVE_THRESHOLD = 9;
 export enum LongPressActivation {
