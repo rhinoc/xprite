@@ -170,6 +170,25 @@ export function driftUpscale(
     driftCuts(source.height, Math.round(source.height * scale), drift, random),
   );
 }
+/** Nearest upscale whose every inner cut moves by up to `jitter` cells, as pixel-bench's jitter. */
+export function jitterUpscale(
+  source: PixelBuffer,
+  scale: number,
+  jitter: number,
+  seed = 23,
+): PixelBuffer {
+  const random = rng(seed);
+  const cuts = (cells: number) => {
+    const length = Math.round(cells * scale);
+    const base = length / cells;
+    const out = Array.from({ length: cells + 1 }, (_, i) =>
+      i === 0 || i === cells ? i * base : i * base + (random() * 2 - 1) * jitter * base,
+    );
+    for (let i = 1; i < out.length; i++) out[i] = Math.max(out[i], out[i - 1]);
+    return out;
+  };
+  return resampleOnCuts(source, cuts(source.width), cuts(source.height));
+}
 export function checkerboard(cell: number, cells: number): PixelBuffer {
   const size = cell * cells;
   const image = blank(size, size);
@@ -238,6 +257,150 @@ export function resampleBilinear(source: PixelBuffer, scale: number): PixelBuffe
         (y * out.width + x) * 4,
       );
   return out;
+}
+/** Float RGBA planes, so multi-stage soft fixtures quantise once at the end. */
+interface Planes {
+  width: number;
+  height: number;
+  data: Float32Array;
+}
+function bilinearPlanes(source: PixelBuffer, scale: number): Planes {
+  const width = Math.round(source.width * scale),
+    height = Math.round(source.height * scale);
+  const data = new Float32Array(width * height * 4);
+  const fx = source.width / width,
+    fy = source.height / height;
+  for (let y = 0; y < height; y++) {
+    const sy = Math.max(0, Math.min(source.height - 1, (y + 0.5) * fy - 0.5));
+    const y0 = Math.floor(sy),
+      y1 = Math.min(source.height - 1, y0 + 1),
+      ty = sy - y0;
+    for (let x = 0; x < width; x++) {
+      const sx = Math.max(0, Math.min(source.width - 1, (x + 0.5) * fx - 0.5));
+      const x0 = Math.floor(sx),
+        x1 = Math.min(source.width - 1, x0 + 1),
+        tx = sx - x0;
+      for (let c = 0; c < 4; c++) {
+        const g = (xx: number, yy: number) => source.data[(yy * source.width + xx) * 4 + c];
+        data[(y * width + x) * 4 + c] =
+          (g(x0, y0) * (1 - tx) + g(x1, y0) * tx) * (1 - ty) +
+          (g(x0, y1) * (1 - tx) + g(x1, y1) * tx) * ty;
+      }
+    }
+  }
+  return { width, height, data };
+}
+/** Separable Gaussian blur (radius 4 sigma) with replicated borders. */
+function gaussPlanes(planes: Planes, sigma: number, channels = 4): Planes {
+  const { width, height } = planes;
+  const radius = Math.max(1, Math.ceil(4 * sigma));
+  const kernel = Array.from({ length: 2 * radius + 1 }, (_, i) =>
+    Math.exp(-((i - radius) ** 2) / (2 * sigma * sigma)),
+  );
+  const norm = kernel.reduce((a, b) => a + b, 0);
+  const pass = (input: Float32Array, horizontal: boolean) => {
+    const out = new Float32Array(input.length);
+    for (let y = 0; y < height; y++)
+      for (let x = 0; x < width; x++)
+        for (let c = 0; c < channels; c++) {
+          let sum = 0;
+          for (let d = -radius; d <= radius; d++) {
+            const xx = horizontal ? Math.max(0, Math.min(width - 1, x + d)) : x,
+              yy = horizontal ? y : Math.max(0, Math.min(height - 1, y + d));
+            sum += kernel[d + radius] * input[(yy * width + xx) * channels + c];
+          }
+          out[(y * width + x) * channels + c] = sum / norm;
+        }
+    return out;
+  };
+  return { width, height, data: pass(pass(planes.data, true), false) };
+}
+/** Bilinear sample of every pixel at (x + dx, y + dy), with replicated borders. */
+function displacePlanes(planes: Planes, dx: Float32Array, dy: Float32Array): Planes {
+  const { width, height, data } = planes;
+  const out = new Float32Array(data.length);
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const i = y * width + x;
+      const sx = Math.max(0, Math.min(width - 1, x + dx[i])),
+        sy = Math.max(0, Math.min(height - 1, y + dy[i]));
+      const x0 = Math.floor(sx),
+        y0 = Math.floor(sy),
+        x1 = Math.min(width - 1, x0 + 1),
+        y1 = Math.min(height - 1, y0 + 1),
+        tx = sx - x0,
+        ty = sy - y0;
+      for (let c = 0; c < 4; c++) {
+        const g = (xx: number, yy: number) => data[(yy * width + xx) * 4 + c];
+        out[i * 4 + c] =
+          (g(x0, y0) * (1 - tx) + g(x1, y0) * tx) * (1 - ty) +
+          (g(x0, y1) * (1 - tx) + g(x1, y1) * tx) * ty;
+      }
+    }
+  return { width, height, data: out };
+}
+/** Smooth random field over width x height with peak magnitude 1: blurred noise at half size. */
+function smoothField(width: number, height: number, sigma: number, random: () => number) {
+  const hw = Math.max(2, width >> 1),
+    hh = Math.max(2, height >> 1);
+  const noise = new Float32Array(hw * hh);
+  for (let i = 0; i < noise.length; i++)
+    noise[i] = Math.sqrt(-2 * Math.log(1 - random())) * Math.cos(2 * Math.PI * random());
+  const small = gaussPlanes({ width: hw, height: hh, data: noise }, sigma, 1).data;
+  const field = new Float32Array(width * height);
+  let peak = 0;
+  for (let y = 0; y < height; y++) {
+    const sy = Math.max(0, Math.min(hh - 1, ((y + 0.5) * hh) / height - 0.5));
+    const y0 = Math.floor(sy),
+      y1 = Math.min(hh - 1, y0 + 1),
+      ty = sy - y0;
+    for (let x = 0; x < width; x++) {
+      const sx = Math.max(0, Math.min(hw - 1, ((x + 0.5) * hw) / width - 0.5));
+      const x0 = Math.floor(sx),
+        x1 = Math.min(hw - 1, x0 + 1),
+        tx = sx - x0;
+      const v =
+        (small[y0 * hw + x0] * (1 - tx) + small[y0 * hw + x1] * tx) * (1 - ty) +
+        (small[y1 * hw + x0] * (1 - tx) + small[y1 * hw + x1] * tx) * ty;
+      field[y * width + x] = v;
+      peak = Math.max(peak, Math.abs(v));
+    }
+  }
+  for (let i = 0; i < field.length; i++) field[i] /= peak || 1;
+  return field;
+}
+function quantise(planes: Planes): PixelBuffer {
+  return { width: planes.width, height: planes.height, data: Uint8ClampedArray.from(planes.data) };
+}
+/** pixel-bench's soft_bilinear: a centred bilinear upscale, then a Gaussian blur. */
+export function softBilinear(source: PixelBuffer, scale: number, blur = 0.5): PixelBuffer {
+  return quantise(gaussPlanes(bilinearPlanes(source, scale), blur));
+}
+/**
+ * pixel-bench's mush: a centred bilinear upscale displaced by a smooth random field of up to
+ * `amplitude` pixels (correlated over about a cell), a soft-focus blend and a Gaussian blur.
+ */
+export function mushWarp(
+  source: PixelBuffer,
+  scale: number,
+  seed = 19,
+  amplitude = 1.6,
+  blur = 0.7,
+): PixelBuffer {
+  const random = rng(seed);
+  const base = bilinearPlanes(source, scale);
+  const sigma = Math.max(scale * 0.6, 1);
+  const dx = smoothField(base.width, base.height, sigma, random),
+    dy = smoothField(base.width, base.height, sigma, random);
+  for (let i = 0; i < dx.length; i++) {
+    dx[i] *= amplitude;
+    dy[i] *= amplitude;
+  }
+  const moved = displacePlanes(base, dx, dy);
+  const focus = gaussPlanes(moved, 0.6);
+  for (let i = 0; i < moved.data.length; i++)
+    moved.data[i] = 0.6 * moved.data[i] + 0.4 * focus.data[i];
+  return quantise(gaussPlanes(moved, blur));
 }
 /** A soft "AI upscale": centred bilinear, a further blur and mild noise. */
 export function mush(source: PixelBuffer, scale: number, seed = 13): PixelBuffer {
