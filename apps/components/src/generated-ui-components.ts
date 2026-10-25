@@ -51133,7 +51133,7 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
         hostProp: true,
       },
       {
-        name: "__@iterator@844",
+        name: "__@iterator@836",
         kind: "callback",
         required: false,
         type: "(() => StringIterator<string>) | (() => Iterator<ReactNode, any, any>)",
