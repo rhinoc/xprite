@@ -67,7 +67,7 @@ function ensureFullscreenPortalHost(fullscreen: Element): HTMLElement {
 }
 
 /** Fullscreen element (via a host layer), else preferred, else body. */
-export function resolveUiPortalContainer(
+function resolveUiPortalContainer(
   preferred?: Element | DocumentFragment | null,
   rootDocument: Document | null | undefined = typeof document === "undefined"
     ? undefined
@@ -99,7 +99,7 @@ function fullscreenElementSnapshot(): Element | null {
 }
 
 /** Re-resolve the portal mount when the browser fullscreen element changes. */
-export function useUiPortalContainer(
+function useUiPortalContainer(
   preferred?: Element | DocumentFragment | null,
 ): Element | DocumentFragment | null {
   useSyncExternalStore(subscribeUiPortalContainer, fullscreenElementSnapshot, () => null);
@@ -110,7 +110,7 @@ function UiPortalHost({
   children,
   container,
 }: {
-  children: ReactNode;
+  children?: ReactNode;
   container?: Element | DocumentFragment | null;
 }) {
   const target = useUiPortalContainer(container);
@@ -122,6 +122,6 @@ function UiPortalHost({
 }
 
 /** Carry the current UI theme into a different DOM container. */
-export function createUiPortal(children: ReactNode, container?: Element | DocumentFragment | null) {
+export function createUiPortal(children: ReactNode, container: Element | DocumentFragment) {
   return createElement(UiPortalHost, { container }, children);
 }
