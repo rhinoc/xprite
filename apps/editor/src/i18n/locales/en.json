@@ -2432,5 +2432,7 @@
   "import.dialog.result.label": "Pixelated",
   "import.dialog.preparing": "Preparing preview…",
   "import.dialog.slider": "Compare slider",
-  "import.dialog.import": "Import"
+  "import.dialog.import": "Import",
+  "ui.fullscreen": "Fullscreen",
+  "ui.fullscreen.exit": "Exit Fullscreen"
 }

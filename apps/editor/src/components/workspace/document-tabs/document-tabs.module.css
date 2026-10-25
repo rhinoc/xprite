@@ -116,3 +116,26 @@
   background: transparent;
   cursor: var(--ui-cursor-hand, pointer);
 }
+:global(.xse-tab-strip .xse-fullscreen-button) {
+  flex-basis: 32px;
+  width: 32px;
+  height: 100%;
+  margin-left: 0;
+}
+:global(.xse-tab-strip .xse-fullscreen-icon-frame) {
+  position: relative;
+  flex: none;
+  width: 10px;
+  height: 12px;
+  pointer-events: none;
+}
+:global(.xse-tab-strip .xse-fullscreen-icon) {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+:global(.xse-tab-strip .xse-fullscreen-button[data-active="true"]) {
+  outline: var(--ui-border-width, 1px) dotted var(--ui-menu-highlight-face, currentColor);
+  outline-offset: -2px;
+}

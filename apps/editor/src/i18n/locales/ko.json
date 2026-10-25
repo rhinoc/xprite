@@ -2432,5 +2432,7 @@
   "import.dialog.result.label": "픽셀화됨",
   "import.dialog.preparing": "미리보기 준비 중…",
   "import.dialog.slider": "비교 슬라이더",
-  "import.dialog.import": "가져오기"
+  "import.dialog.import": "가져오기",
+  "ui.fullscreen": "전체 화면",
+  "ui.fullscreen.exit": "전체 화면 종료"
 }

@@ -135,6 +135,8 @@ export type AtlasPartName =
   | "icon_distance"
   | "icon_end"
   | "icon_frame"
+  | "icon_fullscreen"
+  | "icon_fullscreen_exit"
   | "icon_grayscale"
   | "icon_grid"
   | "icon_indexed"

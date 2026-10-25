@@ -2432,5 +2432,7 @@
   "import.dialog.result.label": "Результат",
   "import.dialog.preparing": "Подготовка превью…",
   "import.dialog.slider": "Ползунок сравнения",
-  "import.dialog.import": "Импорт"
+  "import.dialog.import": "Импорт",
+  "ui.fullscreen": "Полный экран",
+  "ui.fullscreen.exit": "Выйти из полного экрана"
 }
