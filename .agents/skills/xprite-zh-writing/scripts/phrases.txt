@@ -25,6 +25,19 @@
 剩下的是
 最后一个坑
 
+# --- ChatGPT-style personified / chatty calques ---
+# Prefer 同义复合词 (遇到/发现/处理/说明); soft-flag empathy slang
+接住你
+接住了
+撞上
+咱们一起
+很棒的问题
+好问题[！!]
+让我们一步步
+我完全理解
+坦白说
+说实话[，,]
+
 # --- Process / drafting meta leaking into finished copy ---
 请删
 手动删除
