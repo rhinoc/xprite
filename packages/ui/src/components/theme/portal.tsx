@@ -30,7 +30,7 @@ function belongsToOtherDocument(
   return !!node && node.ownerDocument != null && node.ownerDocument !== rootDocument;
 }
 
-export function activeFullscreenElement(rootDocument: Document | null | undefined): Element | null {
+function activeFullscreenElement(rootDocument: Document | null | undefined): Element | null {
   if (!rootDocument) return null;
   return (
     rootDocument.fullscreenElement ??
