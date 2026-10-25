@@ -2,8 +2,11 @@ import type { PixelBuffer } from "$/base/primitives";
 import { forgetNeighbourSteps } from "$/import-export/image/import/color-step";
 import { estimateTilt, straighten } from "$/import-export/image/import/deskew";
 import { blockPartition } from "$/import-export/image/import/grid";
+import { arbitrateGrids } from "$/import-export/image/import/grid-arbitrate";
 import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
+import { detectFrameLattices } from "$/import-export/image/import/grid-frame-lattice";
 import { recoverGrid } from "$/import-export/image/import/grid-sample";
+import { sharpenForGridDetect } from "$/import-export/image/import/grid-sharpen-prepass";
 import { resizeBox } from "$/import-export/image/import/resize";
 import {
   CellColorPicker,
@@ -92,22 +95,63 @@ const customSize = (image: PixelBuffer, size?: PixelationSize): PixelGridAnalysi
   };
 };
 
-/** Algorithm table. Auto is a reduce over the `auto` entries and falls back to FALLBACK as data. */
+/** The edge detectors' grids on a sharpened copy: extra hypotheses for the arbiter. */
+function sharpenedProposals(image: PixelBuffer): PixelGridAnalysis[] {
+  const sharpened = sharpenForGridDetect(image);
+  return [
+    { ...detectMeshGrid(sharpened), algorithm: PixelationAlgorithm.EdgeGrid },
+    {
+      ...detectUniformGrid(sharpened),
+      algorithm: PixelationAlgorithm.UniformGrid,
+    },
+  ].filter((grid) => grid.reliable);
+}
+
+/**
+ * Auto: every hypothesis competes on its description length of the input and the shortest wins,
+ * whichever detector proposed it. The ring holds the reliable grids of the `auto` entries and the
+ * frame lattices; when neither found a grid (soft upscales) it holds the pitch-search lattices and
+ * the edge detectors' grids on a sharpened copy, which only propose cuts. The entries detect on a
+ * straightened copy when the image carries a tilt, so the ring scores their grids there, beside
+ * frame lattices of the same copy. Soft edges make the tilt estimate unreliable, so without an
+ * entry's grid the image as it is competes as well.
+ */
+function autoGrid(image: PixelBuffer): PixelGridAnalysis {
+  const tilt = estimateTilt(image);
+  if (tilt.extreme) return unreliable(image);
+  const entries = getAllAlgorithms()
+    .map((id) => TABLE[id])
+    .filter((entry) => entry.auto)
+    .map((entry) => entry.detect(image))
+    .filter((grid) => grid.reliable);
+  const rings: { image: PixelBuffer; rotation: number; grids: PixelGridAnalysis[] }[] = [];
+  if (tilt.angle) {
+    const upright = uprightOf(image, tilt.angle);
+    rings.push({
+      image: upright,
+      rotation: tilt.angle,
+      grids: [...entries, ...detectFrameLattices(upright)],
+    });
+  }
+  if (!tilt.angle || !entries.length)
+    rings.push({ image, rotation: 0, grids: [...entries, ...detectFrameLattices(image)] });
+  let best: { length: number; grid: PixelGridAnalysis; rotation: number } | null = null;
+  for (const ring of rings) {
+    const winner = arbitrateGrids(ring.image, ring.grids, () => sharpenedProposals(ring.image));
+    if (winner && (!best || winner.length < best.length))
+      best = { ...winner, rotation: ring.rotation };
+  }
+  if (!best) return unreliable(image);
+  return best.rotation ? { ...best.grid, rotation: best.rotation } : best.grid;
+}
+
+/** Algorithm table. Auto arbitrates the `auto` entries' grids and falls back to FALLBACK as data. */
 const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
   [PixelationAlgorithm.Auto]: {
     label: "import.algorithm.auto",
     auto: false,
     listed: true,
-    detect: (image) =>
-      getAllAlgorithms()
-        .map((id) => TABLE[id])
-        .filter((entry) => entry.auto)
-        .map((entry) => entry.detect(image))
-        .reduce(
-          (best, next) =>
-            next.reliable && (!best.reliable || next.confidence > best.confidence) ? next : best,
-          TABLE[FALLBACK].detect(image),
-        ),
+    detect: autoGrid,
     run: (image, grid, picker) =>
       TABLE[(grid as PixelGridAnalysis).algorithm ?? FALLBACK].run(image, grid, picker),
   },

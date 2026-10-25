@@ -10,7 +10,7 @@ export function pixelGridCuts(length: number, step: number, offset = 0): number[
     throw new RangeError("Grid cells must be at least one pixel wide.");
   const phase = ((offset % step) + step) % step;
   const cuts = [0];
-  let position = phase > PHASE_SNAP ? phase : step;
+  let position = phase > PHASE_SNAP ? phase : phase + step;
   for (; position < length - PHASE_SNAP; position += step) {
     // Quantize one regular lattice to raster edges; never chase individual content edges.
     const cut = Math.max(0, Math.min(length, Math.ceil(position - PIXEL_CENTER_OFFSET)));
