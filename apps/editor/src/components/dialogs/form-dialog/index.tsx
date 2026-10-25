@@ -85,6 +85,13 @@ export interface FormDialogProps {
   /** Width in scene pixels, before the scene's display scale. */
   width?: number;
   layout?: FormLayout;
+  /**
+   * Force CSS flex FlowForm even when tabs/headerActions/layout are present.
+   * Used by Export File / Sprite Sheet dialogs so wide + narrow share one flex path.
+   */
+  layoutMode?: "flow" | "positioned";
+  /** Section labels inserted before a field key (flow path; no absolute y needed). */
+  sections?: readonly { before: string; text: string }[];
   /** Disable the default Enter-to-first-action behavior for search-like forms. */
   submitOnEnter?: boolean;
   /** Select the initial editable text input when the dialog opens. */
@@ -96,10 +103,11 @@ export interface FormDialogProps {
   headerActions?: readonly {
     label: string;
     icon: NonNullable<ButtonProps["icon"]>;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
+    /** Required for positioned layout; ignored when layoutMode is flow. */
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
     onClick(): void;
     disabled?: boolean;
   }[];
@@ -158,6 +166,8 @@ export function FormDialog({
   width,
   tabs,
   layout,
+  layoutMode,
+  sections,
   submitOnEnter = true,
   selectInitialInput = false,
   content,
@@ -219,7 +229,8 @@ export function FormDialog({
         : 0,
     );
   const narrow = scene.width > 0 && preferredWidth > scene.width;
-  const flow = !content && !headerActions && !tabs && (!layout || narrow);
+  const flow =
+    layoutMode === "flow" ? !content : !content && !headerActions && !tabs && (!layout || narrow);
   const dialogWidth = Math.max(
     1,
     flow && scene.width > 0 ? Math.min(preferredWidth, scene.width) : preferredWidth,
@@ -363,6 +374,10 @@ export function FormDialog({
           message={displayMessage}
           actions={actions}
           layout={layout}
+          tabs={tabs}
+          headerActions={headerActions}
+          sections={sections}
+          density={layoutMode === "flow" && (!narrow || tabs) ? "compact" : "default"}
           submitOnEnter={submitOnEnter}
           actionSize={embedded ? NATIVE_ACTION_SIZE : undefined}
           onHeightChange={setFlowHeight}
@@ -391,10 +406,10 @@ export function FormDialog({
             variant={ButtonVariant.FlatIcon}
             key={action.label}
             bounds={{
-              x: client.x + action.x,
-              y: client.y + action.y,
-              width: action.width,
-              height: action.height,
+              x: client.x + (action.x ?? client.width - 26),
+              y: client.y + (action.y ?? 0),
+              width: action.width ?? 18,
+              height: action.height ?? 30,
             }}
             relativeTo={client}
             icon={action.icon}

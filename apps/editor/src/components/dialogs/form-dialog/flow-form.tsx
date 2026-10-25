@@ -24,6 +24,7 @@ import { useElementSize } from "@xprite/ui/utils";
 import styles from "$/components/dialogs/form-dialog/flow-form.module.css";
 
 const CONTROL_HEIGHT = 32;
+const COMPACT_CONTROL_HEIGHT = 30;
 const FALLBACK_CONTROL_WIDTH = 180;
 const BROWSE_BUTTON_WIDTH = 28;
 const BROWSE_BUTTON_GAP = 4;
@@ -33,14 +34,16 @@ const FORM_SEPARATOR_HEIGHT = 22;
 function FlowField({
   field,
   onColorClick,
+  controlHeight = CONTROL_HEIGHT,
 }: {
   field: FormField;
   onColorClick: (field: FormField, anchor: SurfaceBounds) => void;
+  controlHeight?: number;
 }) {
   const control = useRef<HTMLDivElement>(null);
   const size = useElementSize(control);
   const width = size.width || FALLBACK_CONTROL_WIDTH;
-  const pixelSize = { width: width / RASTER_SCALE, height: CONTROL_HEIGHT / RASTER_SCALE };
+  const pixelSize = { width: width / RASTER_SCALE, height: controlHeight / RASTER_SCALE };
   const label = (
     <Text variant={TextVariant.Inline} scale={RASTER_SCALE} wrap>
       {tUiSource(field.label)}
@@ -79,7 +82,7 @@ function FlowField({
         <WorkspaceLink
           layout="flow"
           variant={WorkspaceLinkVariant.Inline}
-          bounds={{ x: 0, y: 0, width, height: CONTROL_HEIGHT }}
+          bounds={{ x: 0, y: 0, width, height: controlHeight }}
           href={field.href}
           onClick={field.onClick}
           disabled={field.disabled}
@@ -161,7 +164,7 @@ function FlowField({
           <Button
             pixelSize={{
               width: BROWSE_BUTTON_WIDTH / RASTER_SCALE,
-              height: CONTROL_HEIGHT / RASTER_SCALE,
+              height: controlHeight / RASTER_SCALE,
             }}
             text="..."
             aria-label={tUi("ui.choose.2", { value1: tUiSource(field.label || "output file") })}
@@ -180,12 +183,20 @@ export function FlowForm({
   message,
   actions,
   layout,
+  tabs,
+  headerActions,
+  sections,
   onHeightChange,
   onColorClick,
   actionSize,
+  density = "default",
   submitOnEnter = true,
-}: Pick<FormDialogProps, "fields" | "actions" | "layout" | "submitOnEnter"> & {
+}: Pick<
+  FormDialogProps,
+  "fields" | "actions" | "layout" | "submitOnEnter" | "tabs" | "headerActions" | "sections"
+> & {
   message?: string;
+  density?: "default" | "compact";
   onHeightChange: (height: number) => void;
   actionSize?: { width: number; height: number };
   onColorClick: (field: FormField, anchor: SurfaceBounds) => void;
@@ -197,6 +208,12 @@ export function FlowForm({
   useEffect(() => {
     if (size.height > 0) onHeightChange(size.height);
   }, [size.height, onHeightChange]);
+  const sectionBefore = new Map<string, string[]>();
+  for (const section of sections ?? []) {
+    const list = sectionBefore.get(section.before) ?? [];
+    list.push(section.text);
+    sectionBefore.set(section.before, list);
+  }
   const separators = (layout?.separators ?? [])
     .filter((separator) => !separator.vertical)
     .map((separator) => {
@@ -216,8 +233,68 @@ export function FlowForm({
           }}
         />
       ));
+  const renderSections = (before: string) =>
+    (sectionBefore.get(before) ?? []).map((text, index) => (
+      <Divider
+        key={`section-${before}-${index}`}
+        text={text}
+        pixelSize={{
+          width: Math.max(0, size.width - FORM_PADDING * 2) / RASTER_SCALE,
+          height: FORM_SEPARATOR_HEIGHT / RASTER_SCALE,
+        }}
+      />
+    ));
+  const hasChrome = !!(tabs?.items.length || headerActions?.length);
+  const formClass = [styles.form, density === "compact" ? styles.compact : ""]
+    .filter(Boolean)
+    .join(" ");
   return (
-    <div ref={form} className={styles.form}>
+    <div ref={form} className={formClass}>
+      {hasChrome && (
+        <div className={styles.chrome}>
+          {tabs?.items.length ? (
+            <div className={styles.tabs} role="tablist">
+              <div className={styles.tabSep} aria-hidden="true" />
+              <div className={styles.tabsInner}>
+                {tabs.items.map((tab) => {
+                  const selected =
+                    tabs.selectedValues?.includes(tab.value) ?? tabs.value === tab.value;
+                  return (
+                    <Button
+                      key={tab.value}
+                      text={tab.label}
+                      role="tab"
+                      aria-selected={selected}
+                      selected={selected}
+                      part="buttonset_item_normal"
+                      hotPart="buttonset_item_hot"
+                      pushedPart="buttonset_item_pushed"
+                      selectedPart="buttonset_item_hot"
+                      onClick={() => tabs.onChange(tab.value)}
+                    />
+                  );
+                })}
+              </div>
+              <div className={styles.tabSep} aria-hidden="true" />
+            </div>
+          ) : null}
+          {headerActions?.length ? (
+            <div className={styles.headerActions}>
+              {headerActions.map((action) => (
+                <Button
+                  key={action.label}
+                  variant={ButtonVariant.FlatIcon}
+                  icon={action.icon}
+                  label={action.label}
+                  title={action.label}
+                  disabled={action.disabled}
+                  onClick={action.onClick}
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
+      )}
       {message && (
         <Text variant={TextVariant.Inline} scale={RASTER_SCALE} wrap>
           {message}
@@ -225,12 +302,18 @@ export function FlowForm({
       )}
       {rows.map((row) => (
         <Fragment key={row}>
+          {renderSections(row)}
           {renderSeparators(row)}
           <div className={styles.row}>
             {fields
               .filter((field) => (field.row ?? field.key) === row)
               .map((field) => (
-                <FlowField key={field.key} field={field} onColorClick={onColorClick} />
+                <FlowField
+                  key={field.key}
+                  field={field}
+                  onColorClick={onColorClick}
+                  controlHeight={density === "compact" ? COMPACT_CONTROL_HEIGHT : CONTROL_HEIGHT}
+                />
               ))}
           </div>
         </Fragment>

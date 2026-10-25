@@ -15,10 +15,6 @@ import {
   type SpriteSheetImageView,
   type SpriteSheetPreviewResult,
 } from "$/managers/dialogs/sprite-sheet-dialog-model";
-import {
-  spriteSheetLayout,
-  importSpriteSheetLayout,
-} from "$/managers/files/policies/sprite-sheet-geometry";
 export interface SpriteSheetDialogProps {
   embedded?: boolean;
   active?: boolean;
@@ -172,20 +168,26 @@ export function SpriteSheetDialog({
         ],
         disabled: busy,
       },
-      select("layers", "Layers:", [
-        ["visible", "Visible layers"],
-        ["selected", "Selected layers"],
-      ]),
-      check("splitLayers", "Split Layers"),
-      select("frames", "Frames:", [
-        ["all", "All frames"],
-        ["selected", "Selected frames"],
-        ["current", "Current frame"],
-        ...(document.tags.length
-          ? document.tags.map((tag) => [`tag:${tag}`, tag] as [string, string])
-          : []),
-      ]),
-      check("splitTags", "Split Tags"),
+      {
+        ...select("layers", "Layers:", [
+          ["visible", "Visible layers"],
+          ["selected", "Selected layers"],
+        ]),
+        row: "layers",
+      },
+      check("splitLayers", "Split Layers", "layers"),
+      {
+        ...select("frames", "Frames:", [
+          ["all", "All frames"],
+          ["selected", "Selected frames"],
+          ["current", "Current frame"],
+          ...(document.tags.length
+            ? document.tags.map((tag) => [`tag:${tag}`, tag] as [string, string])
+            : []),
+        ]),
+        row: "frames",
+      },
+      check("splitTags", "Split Tags", "frames"),
     ],
     borders: [
       number("borderPadding", "Border Padding:"),
@@ -211,10 +213,11 @@ export function SpriteSheetDialog({
             check("listLayers", "Layers", "meta"),
             check("listTags", "Tags", "meta"),
             check("listSlices", "Slices", "meta"),
-            text("filenameFormat", "Item Filename:"),
+            { ...text("filenameFormat", "Item Filename:"), row: "filename" },
             {
               key: "filenameHelp",
               label: "(?)",
+              row: "filename",
               type: "link" as const,
               onClick: () =>
                 window.open(
@@ -223,10 +226,11 @@ export function SpriteSheetDialog({
                   "noopener",
                 ),
             },
-            text("tagnameFormat", "Item Tagname:"),
+            { ...text("tagnameFormat", "Item Tagname:"), row: "tagname" },
             {
               key: "tagnameHelp",
               label: "(?)",
+              row: "tagname",
               type: "link" as const,
               onClick: () =>
                 window.open(
@@ -251,7 +255,6 @@ export function SpriteSheetDialog({
     disabled: busy || !onPreview,
     row: "footer",
   });
-  const sourceLayout = spriteSheetLayout(tab, o);
   return (
     <FormDialog
       embedded={embedded}
@@ -260,16 +263,13 @@ export function SpriteSheetDialog({
       title={initialSource === "tilesets" ? "Tileset" : "Sprite Sheet"}
       helpUrl="https://www.aseprite.org/docs/sprite-sheet/#export"
       width={tab === "output" && o.dataEnabled ? 586 : 584}
-      layout={expanded ? undefined : sourceLayout}
+      layoutMode="flow"
+      sections={[{ before: "openGenerated", text: "" }]}
       fields={fields}
       headerActions={[
         {
           label: expanded ? "Collapse Sections" : "Show all sections",
           icon: "window_center_icon",
-          x: tab === "output" && o.dataEnabled ? 544 : 542,
-          y: 0,
-          width: 18,
-          height: 30,
           onClick: () => setExpanded((value) => !value),
           disabled: busy,
         },
@@ -358,6 +358,17 @@ export function ImportSpriteSheetDialog({
     disabled: busy,
   });
   const fields: FormField[] = [
+    ...(onSelectFile
+      ? [
+          {
+            key: "selectFile",
+            label: "Select File",
+            type: "button" as const,
+            onClick: onSelectFile,
+            disabled: busy,
+          },
+        ]
+      : []),
     {
       key: "layout",
       label: "Type:",
@@ -407,14 +418,14 @@ export function ImportSpriteSheetDialog({
       disabled: busy,
     },
   ];
-  const layout = importSpriteSheetLayout(o.paddingEnabled);
   return (
     <FormDialog
       open
       title="Import Sprite Sheet"
       helpUrl="https://www.aseprite.org/docs/sprite-sheet/#import"
       width={410}
-      layout={layout}
+      layoutMode="flow"
+      sections={[{ before: "x", text: "Tiles:" }]}
       fields={fields}
       overlay={
         editor.snapshot.document ? (
@@ -427,7 +438,6 @@ export function ImportSpriteSheetDialog({
       actions={[
         { label: "Import", disabled: busy, onClick: () => onImport(o) },
         { label: "Cancel", disabled: busy, onClick: onClose },
-        ...(onSelectFile ? [{ label: "Select File", onClick: onSelectFile, disabled: busy }] : []),
       ]}
     />
   );

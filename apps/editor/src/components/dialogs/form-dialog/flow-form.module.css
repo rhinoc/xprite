@@ -46,3 +46,89 @@
   gap: var(--ui-space-4, 8px);
   padding-top: var(--ui-space-4, 8px);
 }
+
+.chrome {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-4, 8px);
+  min-width: 0;
+}
+
+.tabs {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: var(--ui-space-2, 4px);
+  min-width: 0;
+}
+
+.tabSep {
+  flex: 1 1 auto;
+  min-width: 8px;
+  height: 0;
+  border-top: 1px dashed color-mix(in srgb, currentColor 35%, transparent);
+}
+
+.tabsInner {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 0;
+  min-width: 0;
+}
+
+.headerActions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: var(--ui-space-2, 4px);
+}
+
+/* Compact density: closer to Xprite absolute dialog packing (label ~176, gap 6, control 30). */
+.compact {
+  gap: 6px;
+  padding: 2px 8px 6px;
+}
+
+.compact .row {
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.compact .field {
+  grid-template-columns: 176px minmax(0, 1fr);
+  flex: 1 1 0;
+  gap: 2px 8px;
+  min-height: 30px;
+}
+
+.compact .caption {
+  width: 176px;
+  max-width: 176px;
+  overflow: hidden;
+}
+
+.compact .standalone {
+  flex: 1 1 0;
+}
+
+.compact .actions {
+  padding-top: 6px;
+  gap: 8px;
+}
+
+.compact .chrome {
+  margin-bottom: 0;
+}
+
+@media (max-width: 420px) {
+  .compact .row {
+    flex-wrap: wrap;
+  }
+  .compact .field {
+    grid-template-columns: minmax(96px, max-content) minmax(0, 1fr);
+    flex: 1 1 160px;
+  }
+  .compact .caption {
+    width: auto;
+    max-width: none;
+  }
+}
