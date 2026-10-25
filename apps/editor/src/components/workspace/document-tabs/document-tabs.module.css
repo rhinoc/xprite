@@ -125,8 +125,8 @@
 :global(.xse-tab-strip .xse-fullscreen-icon-frame) {
   position: relative;
   flex: none;
-  width: 16px;
-  height: 16px;
+  width: 10px;
+  height: 12px;
   pointer-events: none;
 }
 :global(.xse-tab-strip .xse-fullscreen-icon) {
