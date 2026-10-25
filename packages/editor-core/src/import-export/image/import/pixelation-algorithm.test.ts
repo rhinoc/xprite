@@ -204,6 +204,11 @@ describe("uneven cells from non-integer and drifting upscales", () => {
       detailedSprite(240, 180, 11),
       driftUpscale(detailedSprite(240, 180, 11), 1.94, 0.12, 11),
     ],
+    [
+      "detailed sprite drifting 25% at 6.7x",
+      detailedSprite(120, 74, 3),
+      driftUpscale(detailedSprite(120, 74, 3), 6.7, 0.25, 13),
+    ],
   ];
   for (const [name, source, image] of uneven)
     test(name, () => {
@@ -216,6 +221,11 @@ describe("uneven cells from non-integer and drifting upscales", () => {
       );
       expect(off).toBe(-1);
     });
+  test("a noisy drifting 6.7x upscale keeps the measured mesh size", () => {
+    const image = addNoise(driftUpscale(detailedSprite(120, 74, 3), 6.7, 0.25, 13), 24, 3);
+    const result = detectWithAlgorithm(image, Auto);
+    expect([result.width, result.height]).toEqual([120, 74]);
+  });
   test("a drifting grid is no uniform lattice", () => {
     const image = driftUpscale(detailedSprite(120, 90, 1), 4.3, 0.12, 1);
     expect(detectWithAlgorithm(image, UniformGrid).reliable).toBe(false);
@@ -321,10 +331,9 @@ describe("frame-locked lattices on soft and damaged upscales", () => {
     const result = detectWithAlgorithm(image, Auto);
     expect([result.width, result.height]).toEqual([160, 120]);
   });
-  test("edge detectors that agree confidently outweigh a fine frame alias", () => {
+  test("a fine frame alias does not displace the jittered grid the edges measure", () => {
     const image = jitterUpscale(detailedSprite(160, 120, 9), 2.42, 0.12, 9);
     const result = detectWithAlgorithm(image, Auto);
-    expect(result.algorithm).toBe(EdgeGrid);
     expect([result.width, result.height]).toEqual([160, 120]);
   });
 });

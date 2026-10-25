@@ -450,13 +450,7 @@ function stepExcess(profile: Float64Array, count: number): number {
   return all > 0 ? (((on / (count - 1)) * (length - 1)) / all - 1) / (pitch - 1) : 0;
 }
 
-interface FrameFit {
-  grid: PixelGridAnalysis;
-  /** Joint comb significance times reconstruction gain. */
-  evidence: number;
-}
-
-function fitFrame(image: PixelBuffer, model: FrameModel): FrameFit | null {
+function fitFrame(image: PixelBuffer, model: FrameModel): PixelGridAnalysis | null {
   const { width, height } = image;
   const rangeX = countRange(width),
     rangeY = countRange(height);
@@ -494,36 +488,27 @@ function fitFrame(image: PixelBuffer, model: FrameModel): FrameFit | null {
   const cellWidth = width / columns,
     cellHeight = height / rows;
   return {
-    grid: {
-      width: columns,
-      height: rows,
-      cellWidth,
-      cellHeight,
-      offsetX: 0,
-      offsetY: 0,
-      cutsX: pixelGridCuts(width, cellWidth),
-      cutsY: pixelGridCuts(height, cellHeight),
-      confidence: Math.min(1, gain),
-      reliable: true,
-      algorithm: PixelationAlgorithm.UniformGrid,
-    },
-    evidence: best.joint * gain,
+    width: columns,
+    height: rows,
+    cellWidth,
+    cellHeight,
+    offsetX: 0,
+    offsetY: 0,
+    cutsX: pixelGridCuts(width, cellWidth),
+    cutsY: pixelGridCuts(height, cellHeight),
+    confidence: Math.min(1, gain),
+    reliable: true,
+    algorithm: PixelationAlgorithm.UniformGrid,
   };
 }
 
 /**
- * The frame-aligned lattice under `models`, or null when no count passes the significance,
- * reconstruction, alias and subdivision tests. Cells are square up to SQUARE_TOLERANCE. Of a
- * soft and a hard reading, the one with more evidence stands.
+ * The frame-aligned lattice of each of `models` that passes the significance, reconstruction,
+ * alias and subdivision tests. Cells are square up to SQUARE_TOLERANCE.
  */
-export function detectFrameLattice(
+export function detectFrameLattices(
   image: PixelBuffer,
   models: readonly FrameModel[] = [FrameModel.Soft, FrameModel.Hard],
-): PixelGridAnalysis | null {
-  let best: FrameFit | null = null;
-  for (const model of models) {
-    const fit = fitFrame(image, model);
-    if (fit && (!best || fit.evidence > best.evidence)) best = fit;
-  }
-  return best?.grid ?? null;
+): PixelGridAnalysis[] {
+  return models.flatMap((model) => fitFrame(image, model) ?? []);
 }

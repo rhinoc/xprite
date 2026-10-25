@@ -3,13 +3,15 @@ import { describe, expect, test } from "vitest";
 import {
   ARBITER_FLOOR,
   arbitrateGrids,
-  challengeGrid,
   pitchSearchGrids,
   scoreHypothesis,
 } from "$/import-export/image/import/grid-arbitrate";
+import { detectMeshGrid } from "$/import-export/image/import/grid-detect";
 import { searchGridPitches } from "$/import-export/image/import/grid-pitch-search";
 import {
   boxBlur,
+  detailedSprite,
+  driftUpscale,
   gradient,
   mush,
   resampleBilinear,
@@ -82,35 +84,53 @@ describe("arbiter scoring", () => {
       smoothPhoto(700, 500),
       vectorShapes(512, 512),
     ])
-      expect(arbitrateGrids(image)).toBeNull();
+      expect(arbitrateGrids(image, [], () => [])).toBeNull();
   });
   test("the winner is the coarsest lattice the image supports", () => {
     const image = resampleBilinear(sprite(32, 29), 12);
-    const winner = arbitrateGrids(image);
+    const winner = arbitrateGrids(image, [], () => []);
     expect(winner?.grid.width).toBe(32);
     expect(winner?.grid.height).toBe(32);
     expect(pitchSearchGrids(image).some((grid) => grid.width > 32)).toBe(true);
   });
 });
 
-describe("second opinion on an accepted grid", () => {
-  test("keeps an incumbent the challenger would only subdivide", () => {
+describe("one scoring ring for every hypothesis", () => {
+  test("a proposed grid that only spans pairs of cells loses to the true lattice", () => {
     const image = resampleBilinear(sprite(32, 7), 8);
-    const coarse = {
-      ...lattice(image.width, image.height, 16),
-      confidence: 0.5,
-    };
-    expect(challengeGrid(image, coarse)).toBe(coarse);
+    const coarse = { ...lattice(image.width, image.height, 16), confidence: 1 };
+    const winner = arbitrateGrids(image, [coarse, ...pitchSearchGrids(image)]);
+    expect([winner?.grid.width, winner?.grid.height]).toEqual([32, 32]);
   });
-  test("replaces an incumbent whose cells span several real ones on one axis", () => {
+  test("a proposed grid whose cells span several real ones on one axis loses", () => {
     const image = resampleBilinear(sprite(36, 13), 8);
     const wrong: PixelGridAnalysis = {
       ...lattice(image.width, image.height, 8),
       height: 20,
       cellHeight: image.height / 20,
-      confidence: 0.5,
+      confidence: 1,
     };
-    const result = challengeGrid(image, wrong);
-    expect([result.width, result.height]).toEqual([36, 36]);
+    const winner = arbitrateGrids(image, [wrong, ...pitchSearchGrids(image)]);
+    expect([winner?.grid.width, winner?.grid.height]).toEqual([36, 36]);
+  });
+  test("a drifting mesh beats a coarse lattice whatever confidence either reports", () => {
+    const image = driftUpscale(detailedSprite(120, 74, 3), 6.7, 0.25, 13);
+    const mesh = { ...detectMeshGrid(image), algorithm: PixelationAlgorithm.EdgeGrid };
+    const coarse = lattice(image.width, image.height, image.width / 51);
+    for (const [meshConfidence, coarseConfidence] of [
+      [0.3, 1],
+      [1, 0.3],
+    ]) {
+      const winner = arbitrateGrids(image, [
+        { ...mesh, confidence: meshConfidence },
+        { ...coarse, confidence: coarseConfidence },
+      ]);
+      expect([winner?.grid.width, winner?.grid.height]).toEqual([120, 74]);
+    }
+  });
+  test("a winning proposed grid is returned as proposed", () => {
+    const image = upscaleNearest(sprite(40, 3), 8);
+    const proposed = { ...lattice(image.width, image.height, 8), confidence: 0.42 };
+    expect(arbitrateGrids(image, [proposed])?.grid).toBe(proposed);
   });
 });
