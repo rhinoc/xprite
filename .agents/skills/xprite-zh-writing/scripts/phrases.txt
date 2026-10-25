@@ -26,20 +26,22 @@
 最后一个坑
 
 # --- English-calque AI verbs (not colloquial Chinese) ---
-# Prefer 明白/理解/遇到; soft-flag literal EN→ZH (catch you / bump into)
+# Prefer 明白/理解/遇到/收到/记下; soft-flag literal EN→ZH (catch/bump/pierce)
 接住你
 接住了
+接住
+接不住
 撞上
 碰上.{0,12}(问题|bug|Bug)
+击穿
+打穿
+扛住
+撑不住
+不崩
+不爆
 捕捉到你
 get你
-咱们一起
-很棒的问题
-好问题[！!]
-让我们一步步
-我完全理解
-坦白说
-说实话[，,]
+
 
 # --- Process / drafting meta leaking into finished copy ---
 请删
