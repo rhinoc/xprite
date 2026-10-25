@@ -1,4 +1,10 @@
-import { createElement, useSyncExternalStore, type HTMLAttributes, type ReactNode } from "react";
+import {
+  createElement,
+  useSyncExternalStore,
+  type HTMLAttributes,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 import { createPortal } from "react-dom";
 
 import { CursorProvider } from "$/base/components/cursor";
@@ -152,12 +158,17 @@ function UiPortalHost({
 }
 
 /** Stable overlay layer for the fullscreen element. Keep it outside overflow/clip scroll areas. */
-export function UiPortalRoot({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return createElement("div", {
-    ...props,
-    className: className ? `${styles.root} ${className}` : styles.root,
-    "data-ui-portal-root": "",
-  });
+export function UiPortalRoot({
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement>): ReactElement {
+  return (
+    <div
+      {...props}
+      data-ui-portal-root=""
+      className={className ? `${styles.root} ${className}` : styles.root}
+    />
+  );
 }
 
 /** Carry the current UI theme into a different DOM container. */
