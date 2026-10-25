@@ -4,6 +4,7 @@ import { estimateTilt, straighten } from "$/import-export/image/import/deskew";
 import { blockPartition } from "$/import-export/image/import/grid";
 import { arbitrateGrids, challengeGrid } from "$/import-export/image/import/grid-arbitrate";
 import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
+import { detectFrameLattice } from "$/import-export/image/import/grid-frame-lattice";
 import { recoverGrid } from "$/import-export/image/import/grid-sample";
 import { sharpenForGridDetect } from "$/import-export/image/import/grid-sharpen-prepass";
 import { resizeBox } from "$/import-export/image/import/resize";
@@ -104,6 +105,34 @@ const SIMPLER_MARGIN = 0.02;
 /** Below this confidence an accepted edge-detector grid gets the arbiter's second opinion. */
 const CHALLENGE_CONFIDENCE = 0.8;
 
+/**
+ * Reconstruction gain at which a frame lattice replaces a confident edge mesh: compression,
+ * noise and jitter bend mesh cuts onto false edges while the frame-locked comb still integrates
+ * every line, but a mesh that follows a drifting grid is only matched by weaker lattices.
+ */
+const MESH_OVERRIDE_GAIN = 0.4;
+
+/**
+ * Whether a frame lattice only repeats, or evenly splits, the cells an edge detector measured:
+ * the measured edges then stand.
+ */
+const splitsMeasuredCells = (measured: PixelGridAnalysis, frame: PixelGridAnalysis) =>
+  frame.width % measured.width === 0 && frame.height % measured.height === 0;
+
+/**
+ * Whether every edge detector confidently measured the same cell count: independent models that
+ * agree outweigh a frame lattice, whose comb aliases at fine counts under jittered cuts.
+ */
+const agreeConfidently = (detections: readonly PixelGridAnalysis[]) =>
+  detections.length > 1 &&
+  detections.every(
+    (grid) =>
+      grid.reliable &&
+      grid.confidence >= CHALLENGE_CONFIDENCE &&
+      grid.width === detections[0].width &&
+      grid.height === detections[0].height,
+  );
+
 /** The edge detectors' grids on a sharpened copy: extra hypotheses for the arbiter. */
 function sharpenedProposals(image: PixelBuffer): PixelGridAnalysis[] {
   const sharpened = sharpenForGridDetect(image);
@@ -120,10 +149,11 @@ const arbitrateSoft = (image: PixelBuffer) =>
   arbitrateGrids(image, () => sharpenedProposals(image));
 
 /**
- * Auto's second stage, for soft upscales the edge detectors refuse: lattices from the pitch
- * search, plus the edge detectors' grids on a sharpened copy, arbitrated on the input alone. The
- * sharpened copy only proposes cuts; scoring and recovery read the original. Soft edges make the
- * tilt estimate unreliable, so a claimed tilt competes with the image as it is.
+ * Auto's last stage, for soft upscales the edge detectors and the frame lattice refuse: lattices
+ * from the pitch search, plus the edge detectors' grids on a sharpened copy, arbitrated on the
+ * input alone. The sharpened copy only proposes cuts; scoring and recovery read the original.
+ * Soft edges make the tilt estimate unreliable, so a claimed tilt competes with the image as it
+ * is.
  */
 function softGrid(image: PixelBuffer): PixelGridAnalysis {
   const tilt = estimateTilt(image);
@@ -142,19 +172,32 @@ const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
     auto: false,
     listed: true,
     detect: (image) => {
-      const best = getAllAlgorithms()
+      const detections = getAllAlgorithms()
         .map((id) => TABLE[id])
         .filter((entry) => entry.auto)
-        .map((entry) => entry.detect(image))
-        .reduce(
-          (best, next) =>
-            next.reliable && (!best.reliable || next.confidence > best.confidence + SIMPLER_MARGIN)
-              ? next
-              : best,
-          TABLE[FALLBACK].detect(image),
-        );
-      if (!best.reliable) return softGrid(image);
-      if (best.confidence >= CHALLENGE_CONFIDENCE || best.rotation) return best;
+        .map((entry) => entry.detect(image));
+      const best = detections.reduce(
+        (best, next) =>
+          next.reliable && (!best.reliable || next.confidence > best.confidence + SIMPLER_MARGIN)
+            ? next
+            : best,
+        TABLE[FALLBACK].detect(image),
+      );
+      if (!best.reliable) return detectFrameLattice(image) ?? softGrid(image);
+      const confident = best.confidence >= CHALLENGE_CONFIDENCE;
+      if (
+        best.rotation ||
+        (confident && best.algorithm === PixelationAlgorithm.UniformGrid) ||
+        agreeConfidently(detections)
+      )
+        return best;
+      const frame = detectFrameLattice(image);
+      const replaces =
+        frame !== null &&
+        !splitsMeasuredCells(best, frame) &&
+        (!confident || frame.confidence >= MESH_OVERRIDE_GAIN);
+      if (replaces) return frame;
+      if (confident || frame) return best;
       return challengeGrid(image, best, () => sharpenedProposals(image));
     },
     run: (image, grid, picker) =>
