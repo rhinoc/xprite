@@ -2432,5 +2432,7 @@
   "import.dialog.result.label": "ピクセル化後",
   "import.dialog.preparing": "プレビューを準備中…",
   "import.dialog.slider": "比較スライダー",
-  "import.dialog.import": "インポート"
+  "import.dialog.import": "インポート",
+  "ui.fullscreen": "フルスクリーン",
+  "ui.fullscreen.exit": "フルスクリーンを終了"
 }

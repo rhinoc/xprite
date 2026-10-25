@@ -5,7 +5,7 @@ export const macintoshGeometry = {
   provenance: {
     source: "Xprite Macintosh frames; Aseprite CC-BY-4.0 icon silhouettes and control metrics",
     sha256: "678284ce5c6fc0e78c20b2f2d1c0bc1e76e458f1ac7e2da4f7c77ee104654784",
-    sheetSha256: "b65cc2287d09627c2b16ac3e9b276642f5962f739196023c49ecd965e3f28a5c",
+    sheetSha256: "57118c6b3d955691766a5c46f7bb71369dfa9286595785d9ca312d0f07eb9852",
   },
   sheet: {
     width: 640,
@@ -4113,12 +4113,30 @@ export const macintoshGeometry = {
       slices: null,
       foregroundRole: "text",
     },
+    icon_fullscreen: {
+      x: 400,
+      y: 840,
+      w: 8,
+      h: 8,
+      width: 8,
+      height: 8,
+      slices: null,
+    },
+    icon_fullscreen_exit: {
+      x: 440,
+      y: 840,
+      w: 8,
+      h: 8,
+      width: 8,
+      height: 8,
+      slices: null,
+    },
   },
 } satisfies Omit<UiStyleDefinition, "colors" | "typography">;
 
 export const macintoshSheetHashes = {
-  light: "b65cc2287d09627c2b16ac3e9b276642f5962f739196023c49ecd965e3f28a5c",
-  dark: "24cbb9390a0c249554fb2a83ade15a8c8063678e050ac6c23bdf89b793d173ad",
+  light: "57118c6b3d955691766a5c46f7bb71369dfa9286595785d9ca312d0f07eb9852",
+  dark: "0e0c5f52e64cd275fa3db06aebccba875e3b16b0d58bbfcd7418ce7e47df132e",
 } as const;
 
 export const macintoshPalettes = {

@@ -21,6 +21,7 @@ import { MenuCheckKind, unsupportedMenuCheck } from "$/managers/menus/menu-check
 import { usePwaManager, usePwaState } from "$/managers/pwa/pwa-context";
 import { PwaInstallMethod } from "$/managers/pwa/pwa-manager";
 import { useReplayCommands } from "$/managers/replay/replay-context";
+import { toggleBrowserFullscreen, useBrowserFullscreen } from "$/managers/shell/browser-fullscreen";
 import { useEditorChromePreferences } from "$/managers/shell/editor-chrome-preferences-context";
 import {
   MenuDocumentShowOption,
@@ -66,6 +67,7 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
   const layout = useEditorLayout();
   const pwaManager = usePwaManager();
   const pwaState = usePwaState();
+  const browserFullscreen = useBrowserFullscreen();
   const chromePreferences = useEditorChromePreferences();
   const inputInteractionMode = useInputInteractionMode();
   const menuInRail = presentation ? presentation === "rail" : inputInteractionMode === "touch";
@@ -915,6 +917,13 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
           shortcut: shortcutManager?.formatShortcut("GotoNextTab"),
           onSelect: actions.nextDocumentTab,
           disabled: !actions.canSelectOtherDocumentTab,
+        },
+        {
+          label: tUi("ui.fullscreen"),
+          separator: true,
+          checked: browserFullscreen,
+          checkType: MenuCheckType.Checkbox,
+          onSelect: () => void toggleBrowserFullscreen(),
         },
       ],
     };

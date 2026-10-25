@@ -2432,5 +2432,7 @@
   "import.dialog.result.label": "Pixelado",
   "import.dialog.preparing": "Preparando prévia…",
   "import.dialog.slider": "Controle de comparação",
-  "import.dialog.import": "Importar"
+  "import.dialog.import": "Importar",
+  "ui.fullscreen": "Tela cheia",
+  "ui.fullscreen.exit": "Sair da tela cheia"
 }

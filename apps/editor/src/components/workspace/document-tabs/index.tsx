@@ -9,11 +9,13 @@ import { WORKSPACE_LAYOUT_SELECTOR_WIDTH } from "$/components/workspace/workspac
 import { tUi } from "$/i18n";
 import type { useEditor } from "$/managers/editor/editor-state-manager";
 import type { EditorTab } from "$/managers/editor/editor-ui-store";
+import { useBrowserFullscreen, toggleBrowserFullscreen } from "$/managers/shell/browser-fullscreen";
 import { HelpDocumentTab } from "$/managers/shell/help";
 import { ContextMenu, Tabs, useUi, type TabDragPoint, type TabItem, Icon } from "@xprite/ui";
 
 type Editor = ReturnType<typeof useEditor>;
 const WORKSPACE_LAYOUT_BUTTON_WIDTH = 32;
+const FULLSCREEN_BUTTON_WIDTH = 32;
 const DOCUMENT_FLAG_WIDTH = 32;
 const DOCUMENT_MENU_TOGGLE_WIDTH = 32;
 const RECOVERY_TAB_ID = "recovery";
@@ -80,6 +82,7 @@ export function DocumentTabs({
   const { sceneWidth } = useEditorLayout();
   const actions = useEditorActions();
   const { style } = useUi();
+  const fullscreen = useBrowserFullscreen();
   const [contextTab, setContextTab] = useState("home");
   const visible = visibleDocumentIds ? new Set(visibleDocumentIds) : undefined;
   const sourceTabs = useMemo(
@@ -156,6 +159,7 @@ export function DocumentTabs({
   });
   const trailingContentWidth = showWorkspaceControls
     ? DOCUMENT_FLAG_WIDTH +
+      FULLSCREEN_BUTTON_WIDTH +
       (showWorkspaceLayoutButton
         ? WORKSPACE_LAYOUT_BUTTON_WIDTH +
           (workspaceLayoutOpen ? WORKSPACE_LAYOUT_SELECTOR_WIDTH : 0)
@@ -197,6 +201,27 @@ export function DocumentTabs({
           </span>
         </button>
       )}
+      <button
+        type="button"
+        className="xse-layout-button xse-fullscreen-button"
+        data-fullscreen-trigger=""
+        data-active={fullscreen ? "true" : undefined}
+        aria-label={tUi(fullscreen ? "ui.fullscreen.exit" : "ui.fullscreen")}
+        title={tUi(fullscreen ? "ui.fullscreen.exit" : "ui.fullscreen")}
+        aria-pressed={fullscreen}
+        onClick={() => void toggleBrowserFullscreen()}
+      >
+        <span className="xse-fullscreen-icon-frame" aria-hidden="true">
+          <Icon
+            kind={fullscreen ? "icon_fullscreen_exit" : "icon_fullscreen"}
+            className="xse-fullscreen-icon"
+            color="var(--xse-layout-button-icon-color, var(--xse-window-menuitem-normal-text, currentColor))"
+            x={0}
+            y={0}
+            scale={2}
+          />
+        </span>
+      </button>
       <span className="xse-document-notifications">
         <span
           aria-hidden="true"

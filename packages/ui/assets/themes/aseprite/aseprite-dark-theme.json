@@ -2,7 +2,7 @@
   "provenance": {
     "source": "aseprite/data/extensions/aseprite-theme/dark/theme.xml",
     "sha256": "39dc9a6f571acacb927a4d8c61348a7e711f134b25c28647384b9ba607b475dc",
-    "sheetSha256": "77538778a01fe26e2866c25c8cfa446c9a88407a48f343a8d051906877abcd86"
+    "sheetSha256": "41cdcb61dea814336d5c353b3b1897244c384d93b35b3b89905628f34c9f730e"
   },
   "sheet": {
     "width": 304,
@@ -3686,6 +3686,24 @@
       "h": 16,
       "width": 16,
       "height": 16,
+      "slices": null
+    },
+    "icon_fullscreen": {
+      "x": 184,
+      "y": 256,
+      "w": 8,
+      "h": 8,
+      "width": 8,
+      "height": 8,
+      "slices": null
+    },
+    "icon_fullscreen_exit": {
+      "x": 193,
+      "y": 256,
+      "w": 8,
+      "h": 8,
+      "width": 8,
+      "height": 8,
       "slices": null
     }
   }
