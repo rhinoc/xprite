@@ -9,7 +9,7 @@
     "file": "apps/growth/public/showcase/ipad/hello/hello.aseprite",
     "sha256": "3fc1e6823932ac1c08d6af4e43702a8c9a5af1744d4d681324cee5293f4c25da"
   },
-  "sourceDigest": "82ab7bc4e2db67e94bb65e7b0232ee01a3ec88e10d42d00ddf38aa0bc48817ca",
+  "sourceDigest": "77c8f3f81a0cca2af582cd5bf87f5460398eed265db7e8d9af23506b0bc3ad09",
   "sourceHashes": {
     "apps/editor/assets/commands/aseprite-tool-tips.json": "e9e275e9d3b024deaa66850fa53e43713f155b70afd619d6d8c9d3ad86c47c26",
     "apps/editor/assets/commands/libresprite-keyboard-shortcuts.json": "36bfd19176989e659289b5e89927f29d7e4f2fe4e9389a1520552bd8711560d1",
@@ -297,7 +297,7 @@
     "apps/editor/src/components/shell/backup-indicator/index.tsx": "58e4d636b39fa5f95e91c0640d732b3ddcf79675fc3b4a4ede66fea787be87fd",
     "apps/editor/src/components/shell/editor-actions.tsx": "c3399c5947f0bb45695c538ca05de88fd4653bf386b869e8fd02643c76ad3d65",
     "apps/editor/src/components/shell/editor-menubar.module.css": "843c5d13a0c1730f638b99c80809317d198aeb77f33536bd2efa372c889175a5",
-    "apps/editor/src/components/shell/editor-menubar.tsx": "198dec8751683122dbf62a754772d17c97b08f66a8524667fa19a6fe4f9afb06",
+    "apps/editor/src/components/shell/editor-menubar.tsx": "91fe0fdce4c023466bb86a6b09905fc69f1c8252db2a7157dfcefaeec51f6496",
     "apps/editor/src/components/shell/editor-startup.tsx": "168a95b077ff436307bf475a723164fcf38e2df70b0bc33030253169a7f052e3",
     "apps/editor/src/components/shell/editor-statusbar-host/index.tsx": "526141740498bb88e29695388a7a2af7538f227422bb7df76b392c51299833cc",
     "apps/editor/src/components/shell/editor-view/index.tsx": "16dce744f6518354442c4a527bdfe14d8319d19d4459c2214870e8f8583ea6b2",
@@ -374,8 +374,8 @@
     "apps/editor/src/components/tools/touch-editor-controls/TouchShortcutButton.tsx": "9d9a5dc8fc0b57df089ed7abeb99661a17c583ffa1245dc2f6bd78135d4f5bb0",
     "apps/editor/src/components/tools/touch-editor-controls/index.tsx": "6661e099f2d6a8c9eb037bbc6221a295e05479718e172eab83f6c0678a4e3c41",
     "apps/editor/src/components/tools/touch-editor-controls/touch-editor-controls.module.css": "11553c0c53adcf366219b4b4349d6c234ce1df3518514f0d728292262b11ef2f",
-    "apps/editor/src/components/workspace/document-tabs/document-tabs.module.css": "a086885615e3124d121ea35283f48cb511343d50c873c9776cc12a6fba392fb9",
-    "apps/editor/src/components/workspace/document-tabs/index.tsx": "a9f1499f6e2d0344805c3f867cf454a6c27f3e871facd975879a6525947957f9",
+    "apps/editor/src/components/workspace/document-tabs/document-tabs.module.css": "50d524bab428604d8cb36c5e3f2011fa01d7654a8982c2a58b61126d2f074e19",
+    "apps/editor/src/components/workspace/document-tabs/index.tsx": "6bdb59a127f4cbbd1a95edcd8f97fdfa17daf3087b7a0b8d75058256c2b7c463",
     "apps/editor/src/components/workspace/editor-document-tabs-host/index.tsx": "70b03d1734496f14de3869ef0d79959c5a2c64c66df06522ef2e86200d99439c",
     "apps/editor/src/components/workspace/home-view-base/home-identity.tsx": "89971646ab17b9665bf8e9da3aae41275e834e0d1dbbffab51dc13349a16351a",
     "apps/editor/src/components/workspace/home-view-base/home-view-base.module.css": "2f4e4261e93550b2ace49e3b40a450a3399371af2cdbd9c89c23dcb6c397764a",
@@ -399,13 +399,13 @@
     "apps/editor/src/embedded-runtime.ts": "11308453ec703eff62709432e4a4e5856e21156cbdab502cfe89e1a201bfd38a",
     "apps/editor/src/host-contracts.ts": "081f9b1f40a289f9f24570c6eeeda8e0608d48d85ed09339a67e814c112218e1",
     "apps/editor/src/i18n/index.ts": "a021fd4a5bdaa01d1f0a925cbe16d00e522e440cbf8a8b6ce3f2c48a61429fc8",
-    "apps/editor/src/i18n/locales/en.json": "64711d8997a615b9345102d620a9b8ede22e5472425f7302bf2859840a3c4cc5",
-    "apps/editor/src/i18n/locales/es.json": "01c9de7c6885e3f0ebf94405aa4a93ae8ec7b2638b4949535c0e4281198edfaf",
-    "apps/editor/src/i18n/locales/ja.json": "c8689f1bef6513de8b200e4c14258c5aaee943c133aa43b65a105d33e8246b38",
-    "apps/editor/src/i18n/locales/ko.json": "b06546c55907c5801c2b3d71531a9be673615377da3d04e32028958247862252",
-    "apps/editor/src/i18n/locales/pt-BR.json": "f073e983c3a0302ab04e5f4b0604fd0ee5cd39e0b4453361c27bbeb9773e3598",
-    "apps/editor/src/i18n/locales/ru.json": "6e3c069725da96821eb30cb16193f70302cc95319e1f816f7bddbc7ea1207014",
-    "apps/editor/src/i18n/locales/zh-CN.json": "054e70ba4d0c35b2b021600d00c93e45be04d4c674f089fba83eeb71f029fd2d",
+    "apps/editor/src/i18n/locales/en.json": "f52dce984ce988db549c55932c18d253642122dc9b154c62695909cd3fbc7d37",
+    "apps/editor/src/i18n/locales/es.json": "806f07ca8b5b1c8dbdee6cf9665d110d0f3de26042f227f9107593217580506b",
+    "apps/editor/src/i18n/locales/ja.json": "dec2ba91a3efa134248d866ac7a8da7572da7b07e24f405ef14f2488b2ad87dd",
+    "apps/editor/src/i18n/locales/ko.json": "c7eed5f7f0b216361f6a3335f364b1e06857db1553a21779054c887818583b51",
+    "apps/editor/src/i18n/locales/pt-BR.json": "72e8eb1362e3b49215bd33061993568ef9ac7a19794f9c6247d1d4ffb59d8078",
+    "apps/editor/src/i18n/locales/ru.json": "b988fe4645ab92c42e0ea52bc7a86681e42b6be2e5389aee3a940a208124a1bd",
+    "apps/editor/src/i18n/locales/zh-CN.json": "8ae03f46160fa7de7040eacecde76bb8902f652fc6b3ad479fa4714abefedd90",
     "apps/editor/src/main.tsx": "e8e55235237f8f4b8ba720cf60a4a84a626b4cb65289b5a094d3253f54310b07",
     "apps/editor/src/managers/agent/agent-tool-definitions.ts": "5caa6790160bfb9a94f60c73e4012503a1127bd206c86f99d7d0de8cb6f67b52",
     "apps/editor/src/managers/agent/agent-tools-manager.ts": "15eebc94001025c1f0917fe41b0598bedb576e5c7d3c65b10bb0d13b35749b00",
@@ -594,6 +594,7 @@
     "apps/editor/src/managers/replay/replay-timing.ts": "bd2c44a00905f466238477da0fdc2f4871ad3ea3b57ec4ff2f8c4031449a71b4",
     "apps/editor/src/managers/selection/selection-dialog-owner.test.ts": "27a6031f0b5cc7b6635aed37681027de5ff5e08bda7ee098ff381b5dbb3be845",
     "apps/editor/src/managers/selection/selection-dialog-owner.ts": "18cf3b692252e554358c4f9e8439e458e9a9b4f7fcd28b1d56912a6379dc28db",
+    "apps/editor/src/managers/shell/browser-fullscreen.ts": "8c00a20c5f097029f7380d8944d0dd834b54339d600e38b953da86e6a56fa92c",
     "apps/editor/src/managers/shell/editor-chrome-preferences-context.tsx": "11b38f3418c5edec8558caf36d2dc2703bb4bf52a7e0a8a121ced458fdde19c8",
     "apps/editor/src/managers/shell/editor-chrome-preferences.test.ts": "45d658558858c995684f2d76a95306b4699400084147d60b4de0caa879ef3362",
     "apps/editor/src/managers/shell/editor-chrome-preferences.ts": "861671a7e38d285660400d9f525dffa379530b5194d8e37571e71988945e2ffe",
@@ -1754,12 +1755,12 @@
     "packages/ui/assets/patterns/macintosh/system75-870.png": "3ef640235b2d3e9c998e720cf7b10ead2c6f049528099114c3fc72420272c7e6",
     "packages/ui/assets/patterns/macintosh/system75-9695.png": "481ac3dbe24ccbd44f1fab82714aa792c3b76937c0a647515c7c309dae09488f",
     "packages/ui/assets/patterns/macintosh/system75-987.png": "9d094dc7012eb94d601b4c850de29ed4bacacd162dee34d67a1d686d6792c1cf",
-    "packages/ui/assets/themes/aseprite/aseprite-dark-sheet.webp": "ee1f147cb0cec23a9407428b4923ae358290db7da30cf6d6e63a61703a1bed30",
-    "packages/ui/assets/themes/aseprite/aseprite-dark-theme.json": "aa02d89838b854c91357f9ef2fd5a6c7a5fb5329067281aa27ae5a3785ad331e",
-    "packages/ui/assets/themes/aseprite/aseprite-light-theme.json": "9ebf556430e42bba1a549d8c90360434801ffd70ddc329b5932160936910a6dd",
-    "packages/ui/assets/themes/aseprite/aseprite-theme-sheet.webp": "f3ee9649c81778883c1b91b02678d6de6a767fcd729210f13eead7cde78c6a09",
-    "packages/ui/assets/themes/macintosh/macintosh-dark-sheet.webp": "24cbb9390a0c249554fb2a83ade15a8c8063678e050ac6c23bdf89b793d173ad",
-    "packages/ui/assets/themes/macintosh/macintosh-light-sheet.webp": "b65cc2287d09627c2b16ac3e9b276642f5962f739196023c49ecd965e3f28a5c",
+    "packages/ui/assets/themes/aseprite/aseprite-dark-sheet.webp": "41cdcb61dea814336d5c353b3b1897244c384d93b35b3b89905628f34c9f730e",
+    "packages/ui/assets/themes/aseprite/aseprite-dark-theme.json": "5695b5eca415d49afef04160af3f0fed39b7b919da3df7d07fc8725372a47298",
+    "packages/ui/assets/themes/aseprite/aseprite-light-theme.json": "7b188d24b6727d07a8b635e6e62a773d2e28847a94c2fece8ccabdb3146dda5e",
+    "packages/ui/assets/themes/aseprite/aseprite-theme-sheet.webp": "a70821e0dbcdff70aa775c9016d48c9547cc607a4fdbeabb59062a27154829e9",
+    "packages/ui/assets/themes/macintosh/macintosh-dark-sheet.webp": "0e0c5f52e64cd275fa3db06aebccba875e3b16b0d58bbfcd7418ce7e47df132e",
+    "packages/ui/assets/themes/macintosh/macintosh-light-sheet.webp": "57118c6b3d955691766a5c46f7bb71369dfa9286595785d9ca312d0f07eb9852",
     "packages/ui/assets/themes/macintosh/macintosh-site.css": "f47758e3c86b43a5b9710b3988933b5ea77355f9e2a69203bbf1d28295d9dda9",
     "packages/ui/assets/themes/macintosh/palette.json": "c431b097a69cb8da37026d0196062d2d98674dc2e51a55c9ab9d725dfb8eda6e",
     "packages/ui/package.json": "2db5625b0dc07a31ef5edd82816c02cca13097d0f77898171dfaf4f6f492b372",
@@ -1786,8 +1787,8 @@
     "packages/ui/src/base/theme/default-theme.ts": "7e712cf77d4f8ceb7b807d0815e3f8fd2d7fff3ead7d971cbfdf65cc34bb350f",
     "packages/ui/src/base/theme/desktop-pattern-tokens.ts": "41916ed067543965abeb46487d1ce7b696dc3bd6b7a1f76aa094bc979d8c46a7",
     "packages/ui/src/base/theme/font-families.ts": "54810aa5f8102caa916e753f01dce361ee89f573fdbd648e30d9ee5cc06fa068",
-    "packages/ui/src/base/theme/generated/themes/aseprite-dark.ts": "4f565f6f958ea8358c2fe3166aeb161947df19d8006d49163eea0ec298ad1e4f",
-    "packages/ui/src/base/theme/generated/themes/aseprite-light.ts": "8fabee7690a309431260c8bf272af5293fb64ecf7ab9fcc399e3a219ebcc2158",
+    "packages/ui/src/base/theme/generated/themes/aseprite-dark.ts": "0ab4009231cc709d8ca88b2b7528713434b1c7c82c5b054d70c154e0db672aba",
+    "packages/ui/src/base/theme/generated/themes/aseprite-light.ts": "764804551785d3f3165eae8f2d90d99276cfc39f740350d4b2e714f391c35063",
     "packages/ui/src/base/theme/note-tokens.ts": "b068239a579ac524df393a7440e7142e1c7ce5fb38b2eed6fa75274b693ea26d",
     "packages/ui/src/base/theme/paint-part-surface.ts": "8ba7ce49c99cd278b23cfb8953db1c0227af4ed8f6215b742e1c5040886ae3f0",
     "packages/ui/src/base/theme/part-surface.module.css": "dcd3102e2d8d3f61a08d242e7e0eb09a6967aaa104109f8fc30a22679d6ffca2",
@@ -1805,7 +1806,7 @@
     "packages/ui/src/base/theme/theme-metrics.ts": "708594ebd8fd420ccf9c94d90b55f5986a5b87bde106ff8396f260198a7842c9",
     "packages/ui/src/base/theme/theme-module-loader.test.ts": "689d7c0d631efd890f16b36c3b53c8812732b2af5bba7ca3f9803114ba9ffa1b",
     "packages/ui/src/base/theme/theme-module-loader.ts": "e94622010826ff7ee1e3c11f349195acd6b5bc980b73cc88cdb5fbd2141123d5",
-    "packages/ui/src/base/theme/theme-name-types.ts": "9ab801f4d7d4317af6dcf653043e2318c540879304fe1b7aa6e71b842a45e9c4",
+    "packages/ui/src/base/theme/theme-name-types.ts": "a235b30c54e9c3369e71acf260b3a5ac8fd24abbb4e6146e3fb2bba301ebfc2c",
     "packages/ui/src/base/theme/theme-part.module.css": "cd53b9bacab32161db768c9aef78ff862cf75fb0fa693e06cfe3ce0e91b6112b",
     "packages/ui/src/base/theme/theme-part.tsx": "485e64af7ac1484e85e048acd6b1cdac82631f900938f872ab923118761dbc20",
     "packages/ui/src/base/theme/theme-repeat.tsx": "26e5c52e8c8c22bc61d507ab34259f3b0c835c012bc5213ce88a87a03facb854",
@@ -1825,7 +1826,7 @@
     "packages/ui/src/base/theme/themes/macintosh/color-roles.ts": "f09b04232aadfa3d44ee321cd936b6906b9eb8c1752f696a4781d001b9c4adb4",
     "packages/ui/src/base/theme/themes/macintosh/disclosure-artwork.ts": "aab59673575f97c14d28afa4aa7c0bc2936fd5ded79d472702c754d5f18aae6f",
     "packages/ui/src/base/theme/themes/macintosh/font-metrics.json": "7eb0fc18244d15ce28df4513f6016e331829a11db94d0f85250008f3551e0bbb",
-    "packages/ui/src/base/theme/themes/macintosh/geometry.ts": "b623d996a10aa12d8053a2f533ab4d8c7cc24e00ce75cfba6a36fc87941e4201",
+    "packages/ui/src/base/theme/themes/macintosh/geometry.ts": "77ec96bae248513ff551040e940060b1316f4953c1df7ba4419b369865eda0e6",
     "packages/ui/src/base/theme/themes/macintosh/index.ts": "4119bc273f36bec55301c45f413a20a5c202fcc17503944bd45d4bd03761d96e",
     "packages/ui/src/base/theme/themes/macintosh/public-surface-tokens.ts": "c4fc568a1211b7c2729d99a53a64b8e4061ca63e6660d1f383360100010e7cf6",
     "packages/ui/src/base/theme/themes/macintosh/shortcut-artwork.ts": "58be70d0a9795833505fb6bb33bd3cc9190c5898df23c3d44d33d0e880fcc376",
@@ -2084,7 +2085,7 @@
     {
       "id": "home-wide",
       "file": "home-wide.png",
-      "sha256": "7bca10e505cae7c382529c8bc3ccaf397ebad37bd17add25e20b3a3e1ef723bc",
+      "sha256": "9f5a668c42a3d7d75c6dd104d7a2ba53f16643661bedf5540ffb1ed0a2b50cbe",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:19.538Z",
@@ -2191,7 +2192,7 @@
     {
       "id": "recovery-wide",
       "file": "recovery-wide.png",
-      "sha256": "df8b5b36729993d4110954011b84bca5c045d2fc99db598b6dfc54130ea95cf4",
+      "sha256": "e9cf842ab72f1e8911a9ce6698a4839a0090fd80daed1d40d60bbc36d874f058",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:20.117Z",
@@ -2270,7 +2271,7 @@
     {
       "id": "editor-wide",
       "file": "editor-wide.png",
-      "sha256": "40855b17bbb250d1d63e7b8a22ea70332fbde4f401e5d88e59d887708120fdbf",
+      "sha256": "ca051e65649a1eb8e3df69762dfec1d21f4db466c2312474332041bf2d3dfb70",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:22.150Z",
@@ -2386,7 +2387,7 @@
     {
       "id": "preferences-wide",
       "file": "preferences-wide.png",
-      "sha256": "772c9d5d5a2f261c43e2050541c4e2fdcc41b633e95f68ee2220ec2e9c9caeb6",
+      "sha256": "2348a333a58f5c0a6d35c94eb3a09678b4df96bd88b5d59f8a8d635c4dac2960",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:22.567Z",
@@ -2509,7 +2510,7 @@
     {
       "id": "edit-menu-wide",
       "file": "edit-menu-wide.png",
-      "sha256": "9c0227897306c7f8ebb141811fd6cca84f625d1e94d4d6de648fce9f8772dc9e",
+      "sha256": "c673b7d7bc4c5e49393123f39d9b79e5c0b43e4aaad6fb28b8e036a8c3d13f37",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:22.870Z",
@@ -2632,7 +2633,7 @@
     {
       "id": "new-sprite-wide",
       "file": "new-sprite-wide.png",
-      "sha256": "127eaf9613ef3e7ae8ea352e66e8d142b6ebf489e195ea423064dfdbfb6006f1",
+      "sha256": "afcdea93194a79e9e3db0c5326fb885a1018b5d8c02cbcb1a5a75689dfc24b3c",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:23.182Z",
@@ -2755,7 +2756,7 @@
     {
       "id": "save-as-wide",
       "file": "save-as-wide.png",
-      "sha256": "2ef0b386e1658ee2569024bf38216430f56941218e03ba72d2fb826ffdadb636",
+      "sha256": "26b717f76258702a9d1e99f230780bbdaf4fb56d5b656fad8aae15ef0a017182",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:23.491Z",
@@ -3124,7 +3125,7 @@
     {
       "id": "color-picker-wide",
       "file": "color-picker-wide.png",
-      "sha256": "4b3ceec08cc414d241371370cbdc91896f761a01857565bc5c7d93d80ad214b2",
+      "sha256": "a6a8b6d90780b2770930a5fe7ae3941190dad1aa877bb6c80d71ef4d55db2c31",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:24.793Z",
@@ -3247,7 +3248,7 @@
     {
       "id": "tooltip-wide",
       "file": "tooltip-wide.png",
-      "sha256": "4c1a3f3831f1eb642eac083bf64a090aaa966ac41e7032d14b1065851a9b91ac",
+      "sha256": "cca7f0f64f1d9ca2bc235b2b198960afbdff045bf6fa3779791491ae29c2254f",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:25.829Z",
@@ -3371,7 +3372,7 @@
     {
       "id": "layer-properties-wide",
       "file": "layer-properties-wide.png",
-      "sha256": "e058fb6f65b7b751981093054ce43ce1fba12d4f7427ba0457937dd7155576ef",
+      "sha256": "b36d575a50a9be91e8b206dd00d797a19822630d283d30f84021712d338b0edc",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:26.059Z",
@@ -3494,7 +3495,7 @@
     {
       "id": "home-compact",
       "file": "home-compact.png",
-      "sha256": "9e34ebdfdc920ebe468ff373567a95eeae24ccc7f786a4a33968e7752e6aa39b",
+      "sha256": "78e1f4c2df9666eb39e1801c70a59f4b778cd53e3430a9fea816355cdc511abf",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:19.523Z",
@@ -3601,7 +3602,7 @@
     {
       "id": "recovery-compact",
       "file": "recovery-compact.png",
-      "sha256": "adbac6f1f26b2235cc73d3d5db3059965089921c66b39332e280d9e528eb6903",
+      "sha256": "f2cfc7a54b18a36a311b37aa9da9a09f8007b282c57a743bde767c68be51d03e",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:20.045Z",
@@ -3680,7 +3681,7 @@
     {
       "id": "editor-compact",
       "file": "editor-compact.png",
-      "sha256": "10c32a331e26696bddbe539ea8080a2d52f6a365117575ce4d745664b0704c2e",
+      "sha256": "a9278957ae0b3229587839ff22de6b1f3b06095a5ed92035c04173fe9988c0d2",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:21.886Z",
@@ -3782,7 +3783,7 @@
     {
       "id": "preferences-compact",
       "file": "preferences-compact.png",
-      "sha256": "ef333c563ed3e286a421c0722acea826d4817523359be97d0251cd1c23b3b37c",
+      "sha256": "9460fa4bef5854c104e9817f0999bf17b8d950a511956507919b0198260f0a05",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:22.198Z",
@@ -3891,7 +3892,7 @@
     {
       "id": "edit-menu-compact",
       "file": "edit-menu-compact.png",
-      "sha256": "dd0e131693c04dc61d77bf5e180e728867b66237bd8183a97765b87f726a5ad6",
+      "sha256": "98347bad5ec1ca5db3c408a0309a1440575d4b38c9aa1b7e51a61bd0c07f9eef",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:22.968Z",
@@ -4007,7 +4008,7 @@
     {
       "id": "new-sprite-compact",
       "file": "new-sprite-compact.png",
-      "sha256": "d4c9d13eed66774cbcbc06faa37631f022a6286ade8c7b07339d6df931aa6845",
+      "sha256": "0124ab14250c09105eddf5e88e4e42c95d1ebb7646c0ef5897174c78e70277df",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:23.246Z",
@@ -4116,7 +4117,7 @@
     {
       "id": "save-as-compact",
       "file": "save-as-compact.png",
-      "sha256": "e051e7c4b5079db9b7b47f77a4b7882b4a05a40089e9143d99236b04aa31e87d",
+      "sha256": "f0c3f6ab5fe6dafd9993f747d8b13da83634d7f5cefcf7318346fcc0f942ad79",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:23.550Z",
@@ -4225,7 +4226,7 @@
     {
       "id": "export-file-compact",
       "file": "export-file-compact.png",
-      "sha256": "f6938863a3f0c27fe427276b82d58cb0e54f1a4cbcc7453892e15f243c12284a",
+      "sha256": "5a3745f64cb354b50b860e430d86128c4e62adc50cbd8f8cdf4a5f9379789e9b",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-25T13:19:48.154Z",
@@ -4443,7 +4444,7 @@
     {
       "id": "color-picker-compact",
       "file": "color-picker-compact.png",
-      "sha256": "ec5af9c7e268e01bf260986e9b886adce7f4521d00a30acbc6ca3c65ade529d5",
+      "sha256": "6b13a97b59ac026c9c979268e39d9b82330ef34d53da220736cd80dff8ba0be4",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:24.814Z",
@@ -4552,7 +4553,7 @@
     {
       "id": "tooltip-compact",
       "file": "tooltip-compact.png",
-      "sha256": "bdfcac56849a29a4b46dd12ddb42ddeb89f0e2b6cff82f1ec270a9802a7ea8c1",
+      "sha256": "e9b662f618156984b28171b9ae30c773d2cd495efe3f85c862c0561449d68a42",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:25.800Z",
@@ -4662,7 +4663,7 @@
     {
       "id": "layer-properties-compact",
       "file": "layer-properties-compact.png",
-      "sha256": "4433a8cae1626d5d5fae60a5f93d10b5123e615c0b4c3cf6e0f9f8c3814869be",
+      "sha256": "35c65b820b7af19df352391c6e1a17bd56bbe22f92fb28a21e1c652fc7b81711",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-18T05:02:26.016Z",
