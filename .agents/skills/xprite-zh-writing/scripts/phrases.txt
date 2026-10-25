@@ -25,11 +25,14 @@
 剩下的是
 最后一个坑
 
-# --- ChatGPT-style personified / chatty calques ---
-# Prefer 同义复合词 (遇到/发现/处理/说明); soft-flag empathy slang
+# --- English-calque AI verbs (not colloquial Chinese) ---
+# Prefer 明白/理解/遇到; soft-flag literal EN→ZH (catch you / bump into)
 接住你
 接住了
 撞上
+碰上.{0,12}(问题|bug|Bug)
+捕捉到你
+get你
 咱们一起
 很棒的问题
 好问题[！!]
