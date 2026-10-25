@@ -5,7 +5,7 @@ export const macintoshGeometry = {
   provenance: {
     source: "Xprite Macintosh frames; Aseprite CC-BY-4.0 icon silhouettes and control metrics",
     sha256: "678284ce5c6fc0e78c20b2f2d1c0bc1e76e458f1ac7e2da4f7c77ee104654784",
-    sheetSha256: "573a045217b8ac8ac90e9e4f228f99c94f3b662d6cee7fcf91bd1b3ebc3452c3",
+    sheetSha256: "732d9f97a9db215ef178d91e5e7162d8df0b26e957e6312926909dc9513ca2c3",
   },
   sheet: {
     width: 640,
@@ -4135,8 +4135,8 @@ export const macintoshGeometry = {
 } satisfies Omit<UiStyleDefinition, "colors" | "typography">;
 
 export const macintoshSheetHashes = {
-  light: "573a045217b8ac8ac90e9e4f228f99c94f3b662d6cee7fcf91bd1b3ebc3452c3",
-  dark: "f23d333ccc9b83eb5b56d8052c281f4ea8546c3606ada448108104316a865eac",
+  light: "732d9f97a9db215ef178d91e5e7162d8df0b26e957e6312926909dc9513ca2c3",
+  dark: "dfb418e03d946ff9f2611766ee53aa6c0719d39d74942b96ba8c4f990bfbe2bf",
 } as const;
 
 export const macintoshPalettes = {

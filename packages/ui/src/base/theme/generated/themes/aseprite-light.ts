@@ -5,7 +5,7 @@ export const themeDefinition = {
   provenance: {
     source: "aseprite/data/extensions/aseprite-theme/theme.xml",
     sha256: "678284ce5c6fc0e78c20b2f2d1c0bc1e76e458f1ac7e2da4f7c77ee104654784",
-    sheetSha256: "2f977d043ea5b3059f2cfc49599ed5105df3699ecfeb80aa8d6e54ba3e26237e",
+    sheetSha256: "cf9e0e3a3add4c53117017826e0190f55bc11d7d9895df9714fe725164a48334",
   },
   sheet: {
     width: 304,
