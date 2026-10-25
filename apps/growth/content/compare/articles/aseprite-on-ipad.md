@@ -1,16 +1,13 @@
 ---
 published: 2026-10-10
-updated: 2026-10-10
+updated: 2026-10-25
 ---
 
-# Can You Use Aseprite on iPad? A Free Option and 3 Apps Compared
+# Aseprite on iPad and iOS — Free Browser Option
 
-There's no iPad version of Aseprite. The [official](https://www.aseprite.org/faq/#what-do-i-get-when-i-buy-aseprite) downloads are for Windows, macOS and Ubuntu only. To keep working on an `.aseprite` project on iPad, you need a different editor that can read the format. There are two main routes:
+There's no native Aseprite app for iPad or iOS—the [official](https://www.aseprite.org/faq/#what-do-i-get-when-i-buy-aseprite) downloads are for Windows, macOS and Ubuntu only. Xprite runs in Safari as a free browser editor: open a `.aseprite` project, keep editing, and save it back. Nothing to install, no in-app purchases.
 
-- Keep drawing for free: open Xprite in Safari, import the project, and save it back to `.aseprite` when you're done. There's nothing to install and no in-app purchases.
-- Buy an iPad app: Pixquare, Resprite and Pixaki Pro all import `.aseprite` projects and support double-tap on Apple Pencil. The first two also support squeeze on Apple Pencil Pro.
-
-Price isn't the only difference. The table compares the four editors feature by feature.
+Prefer a native App Store app? Pixquare, Resprite and Pixaki Pro all import `.aseprite` and support double-tap on Apple Pencil (Pixquare and Resprite also support squeeze on Apple Pencil Pro). Price isn't the only difference—the table compares the four editors feature by feature.
 
 |                            | Xprite                        | Pixquare                            | Resprite                                  | Pixaki Pro                       |
 | -------------------------- | ----------------------------- | ----------------------------------- | ----------------------------------------- | -------------------------------- |
@@ -138,4 +135,4 @@ No. A two-finger tap means tapping the canvas with your fingers, and Xprite uses
 
 ---
 
-To see how it feels, open [Xprite](/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-on-ipad) in Safari, import a project, and try undo, switching frames and saving.
+To open a `.aseprite` file online, use the [Aseprite Viewer](/tools/viewer/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-on-ipad) or [edit in Xprite](/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-on-ipad) in Safari—import a project, then try undo, switching frames and saving.

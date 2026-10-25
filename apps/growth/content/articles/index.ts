@@ -59,7 +59,7 @@ export const ARTICLES: readonly PublicArticle[] = [
     collection: "compare",
     slug: "aseprite-on-ipad",
     path: "/compare/aseprite-on-ipad/",
-    title: "Aseprite for iPad & iOS: Free in Safari, No Install | Xprite",
+    title: "Aseprite on iPad / iOS: Free Online Alternative | Xprite",
     shortTitle: {
       en: "Aseprite on iPad",
       "zh-CN": "iPad 上的 Aseprite",
@@ -70,11 +70,11 @@ export const ARTICLES: readonly PublicArticle[] = [
       es: "Aseprite en iPad",
     },
     description:
-      "No Aseprite for iPad or iOS? Open, edit and save .aseprite files free in Safari with Xprite. Compare it with Pixquare, Resprite and Pixaki Pro.",
+      "Aseprite on iPad or for iOS? Open and edit .aseprite free in Safari with Xprite. No App Store install—browser editor that saves the original format.",
     summary:
       "Xprite opens and saves .aseprite for free in the browser; for Apple Pencil gestures and iCloud sync, look at Pixquare, Resprite and Pixaki Pro.",
     topic: "iPad and touch",
-    dateModified: ARTICLE_UPDATE_DATE,
+    dateModified: "2026-10-25",
   },
   {
     collection: "compare",

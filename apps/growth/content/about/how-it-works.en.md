@@ -266,6 +266,8 @@ const actual = coalesced.filter(
 
 In Safari on iPad, Apple Pencil touches trigger system behavior by default, such as text selection and Scribble. React's touch listeners are passive and can't prevent default behavior, so we register a non-passive native `touchstart` listener directly on the canvas and draggable controls, and call `preventDefault()` only when `touchType` is `stylus`. Text fields and other editable areas aren't affected, so you can still write in them with Scribble.
 
+For editing `.aseprite` projects on an iPad in Safari versus App Store apps, see [Aseprite on iPad](/compare/aseprite-on-ipad/).
+
 ## Layout: from a desktop window to a phone in portrait
 
 Xprite's interface recreates Aseprite 1.3. Dialog sizes and control positions come from measurements of Aseprite 1.3.18, and tests keep them in line. The theme graphics follow Aseprite's pixel style, and the Chinese interface uses the Fusion Pixel font.
