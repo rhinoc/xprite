@@ -1,3 +1,4 @@
+import { loadStylesheet } from "$/base/theme/load-stylesheet";
 import type { UiTheme } from "$/base/theme/theme-definition";
 import { FontRole, UiColorScheme } from "$/base/theme/theme-types";
 import { asepriteCursors } from "$/base/theme/themes/aseprite/cursors";
@@ -11,6 +12,10 @@ export const asepriteTheme: UiTheme = {
   label: "Aseprite",
   cursors: asepriteCursors,
   typography: asepriteTypography,
+  async loadCjkFonts() {
+    const href = (await import("$assets/fonts/aseprite/cjk-fonts.css?url")).default;
+    await loadStylesheet(href);
+  },
   async load(colorScheme) {
     await import("$assets/fonts/aseprite/fonts.css");
     const { themeDefinition, ...artwork } = await (colorScheme === UiColorScheme.Dark

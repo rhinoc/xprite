@@ -1,0 +1,25 @@
+/*
+ * Full Fusion CJK faces for Macintosh — loaded only when the UI language is Asian.
+ * The 35 KB base face (non-CJK + 简体中文) stays in fonts.css for Latin-script pages.
+ */
+@font-face {
+  font-family: MacintoshCjkPixel;
+  src: url("../fusion-pixel/fusion-12.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  size-adjust: 75%;
+  unicode-range:
+    U+2E80-4E2C, U+4E2E-4F52, U+4F54-6586, U+6588-7B7F, U+7B81-9FFF, U+AC00-D7AF, U+F900-FAFF,
+    U+FE30-FE4F, U+FF00-FFEF, U+20000-10FFFF;
+}
+
+@font-face {
+  font-family: MacintoshCjkCompact;
+  src: url("../fusion-pixel/fusion-10.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  /* 16px CSS × 62.5% requests the 10px Fusion Pixel grid. */
+  size-adjust: 62.5%;
+}

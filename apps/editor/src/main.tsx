@@ -9,8 +9,8 @@ import { readBrowserAttribution } from "$/adapters/telemetry/browser-attribution
 import { connectBrowserTelemetryLifecycle } from "$/adapters/telemetry/browser-telemetry-lifecycle";
 import { PostHogTelemetry } from "$/adapters/telemetry/posthog-telemetry";
 import App from "$/App";
-import "$/i18n";
 import { AppErrorBoundary } from "$/components/errors/app-error-boundary";
+import { prepareUiLanguage } from "$/i18n";
 import { DiagnosticsProvider } from "$/managers/diagnostics/diagnostics-context";
 import { DiagnosticSource } from "$/managers/ports/diagnostics";
 import { TelemetryStartupStage, TelemetryStartupStatus } from "$/managers/ports/telemetry";
@@ -52,28 +52,34 @@ const showDevelopmentErrorPreview =
   import.meta.env.DEV && new URLSearchParams(window.location.search).get("mockError") === "1";
 
 const root = createRoot(document.getElementById("root")!);
-root.render(
-  <StrictMode>
-    <AppErrorBoundary
-      onError={(error, componentStack) => {
-        dismissBrowserStartupScreen();
-        telemetry.startup(TelemetryStartupStage.Bootstrap, TelemetryStartupStatus.Failed);
-        diagnostics.capture(error, DiagnosticSource.ReactBoundary, { componentStack });
-      }}
-      onExportDiagnostics={() => diagnostics.exportLogs()}
-    >
-      <DiagnosticsProvider diagnostics={diagnostics}>
-        <TelemetryProvider manager={telemetry}>
-          {showDevelopmentErrorPreview ? (
-            <DevelopmentErrorPreview />
-          ) : (
-            <App workspaceLifetime={workspaceLifetime} pwaPort={pwaPort} />
-          )}
-        </TelemetryProvider>
-      </DiagnosticsProvider>
-    </AppErrorBoundary>
-  </StrictMode>,
-);
+
+void prepareUiLanguage().then(() => {
+  root.render(
+    <StrictMode>
+      <AppErrorBoundary
+        onError={(error, componentStack) => {
+          dismissBrowserStartupScreen();
+          telemetry.startup(TelemetryStartupStage.Bootstrap, TelemetryStartupStatus.Failed);
+          diagnostics.capture(error, DiagnosticSource.ReactBoundary, { componentStack });
+        }}
+        onExportDiagnostics={() => diagnostics.exportLogs()}
+      >
+        <DiagnosticsProvider diagnostics={diagnostics}>
+          <TelemetryProvider manager={telemetry}>
+            {showDevelopmentErrorPreview ? (
+              <DevelopmentErrorPreview />
+            ) : (
+              <App workspaceLifetime={workspaceLifetime} pwaPort={pwaPort} />
+            )}
+          </TelemetryProvider>
+        </DiagnosticsProvider>
+      </AppErrorBoundary>
+    </StrictMode>,
+  );
+
+  // The HTML guard owns failures before this module and its dependencies can execute.
+  window.dispatchEvent(new Event(STARTUP_BOOTSTRAPPED_EVENT));
+});
 
 if (import.meta.hot) {
   import.meta.hot.accept();
@@ -87,6 +93,3 @@ if (import.meta.hot) {
     await workspaceLifetime.retire();
   });
 }
-
-// The HTML guard owns failures before this module and its dependencies can execute.
-window.dispatchEvent(new Event(STARTUP_BOOTSTRAPPED_EVENT));

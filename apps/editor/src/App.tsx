@@ -130,6 +130,7 @@ function EditorApplication({
     (appearance: ResolvedAppearance) =>
       preloadUiAssets(
         appearance === AppearanceMode.Dark ? UiColorScheme.Dark : UiColorScheme.Light,
+        currentUiLanguage(),
       ),
     [],
   );

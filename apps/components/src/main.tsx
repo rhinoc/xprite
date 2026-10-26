@@ -12,6 +12,7 @@ import {
 import Components from "$/Components";
 import type { ComponentsAppearance } from "$/managers/appearance";
 import { ComponentsLanguageProvider, useComponentsLanguage } from "$/managers/components-language";
+import { publicLanguage } from "@xprite/growth-content/language";
 import { DesktopAppearance, DesktopProvider } from "@xprite/site-shell";
 import { createBrowserDesktop } from "@xprite/site-shell/browser";
 import { createBrowserSiteTelemetry } from "@xprite/site-shell/telemetry/browser";
@@ -85,7 +86,10 @@ let active = true;
 let root: Root | undefined = import.meta.hot?.data.root;
 
 async function mountComponents() {
-  const language = readComponentsLanguage();
+  // The probe URL carries the script under test (`?alignment-probe=zh-CN|ja`). Wire that
+  // language into preload so Asian Fusion faces load before paint; otherwise positioned-pixel
+  // keeps the Latin fallback and the visual text-alignment audit fails by ~0.5–1 CSS px.
+  const language = probeLanguage ? publicLanguage(probeLanguage) : readComponentsLanguage();
   writeComponentsLanguage(language);
   const initialPreferences = readComponentsAppearance();
   const preference = desktop.getSnapshot().appearance;

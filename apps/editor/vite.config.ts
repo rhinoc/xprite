@@ -50,6 +50,10 @@ const BEDROCK_MODULE_PATTERN = /[\\/]packages[\\/]bedrock[\\/]/;
 // the build (PostHog debug-ID injection, then the offline manifest is sealed over the final
 // bytes), so its scripts get their own names: another app's copy can never replace them.
 const EDITOR_SCRIPT_FILE_NAMES = "assets/editor-[name]-[hash].js";
+// Same collision risk for CSS emitted from shared packages (e.g. cjk-fonts.css): growth and
+// editor rewrite font URLs differently, so identical source hashes would still collide on assemble.
+const EDITOR_STYLE_FILE_NAMES = "assets/editor-[name]-[hash][extname]";
+const EDITOR_ASSET_FILE_NAMES = "assets/[name]-[hash][extname]";
 const DEBUG_INPUT_ENDPOINT = "/__debug/input";
 const DIAGNOSTICS_ENDPOINT = "/__debug/diagnostics";
 const DIAGNOSTIC_ARTIFACT_ENDPOINT = "/__debug/diagnostic-artifact";
@@ -415,6 +419,11 @@ export default defineConfig({
       output: {
         entryFileNames: EDITOR_SCRIPT_FILE_NAMES,
         chunkFileNames: EDITOR_SCRIPT_FILE_NAMES,
+        assetFileNames: (assetInfo) => {
+          const name = assetInfo.names?.[0] ?? assetInfo.name ?? "";
+          if (name.endsWith(".css")) return EDITOR_STYLE_FILE_NAMES;
+          return EDITOR_ASSET_FILE_NAMES;
+        },
         // Preserve package dependency direction so shared initializers do not form chunk cycles.
         codeSplitting: {
           groups: [

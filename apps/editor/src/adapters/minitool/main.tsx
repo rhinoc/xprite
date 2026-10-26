@@ -9,7 +9,7 @@ import App from "$/App";
 import { AppErrorBoundary } from "$/components/errors/app-error-boundary";
 import { MiniToolStartup } from "$/components/minitool/startup";
 import { MiniToolWelcomeDialog } from "$/components/minitool/welcome";
-import { tUi } from "$/i18n";
+import { prepareUiLanguage, tUi } from "$/i18n";
 import { DiagnosticsProvider } from "$/managers/diagnostics/diagnostics-context";
 import {
   DiagnosticsReportProvider,
@@ -81,6 +81,7 @@ async function start(): Promise<void> {
   root.render(<MiniToolStartup />);
   window.dispatchEvent(new Event(MOUNTED_EVENT));
   try {
+    await prepareUiLanguage();
     await initializeMiniTool();
     const welcome = new MiniToolWelcomeManager(miniToolWelcomeStorage, (error) =>
       diagnostics.capture(error, DiagnosticSource.GlobalError, {
