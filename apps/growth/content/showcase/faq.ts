@@ -195,7 +195,12 @@ export const SHOWCASE_FAQ_COPY = {
           { label: "keep editing Aseprite projects", href: "/features/aseprite-projects/" },
           ". The browser tools turn a photo into pixel art with the ",
           { label: "Image to Pixel Art converter", href: "/tools/pixelate/" },
-          " and a GIF into a ",
+          ", ",
+          {
+            label: "Fix AI pixel art / recover grid",
+            href: "/tools/fix-ai-pixel-art/",
+          },
+          " for soft or off-grid AI pixels, and a GIF into a ",
           { label: "sprite sheet", href: "/tools/gif-to-sprite-sheet/" },
           ". See all ",
           { label: "features", href: "/features/" },

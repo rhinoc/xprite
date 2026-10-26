@@ -379,7 +379,7 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   "Fix AI pixel art": "Исправить AI пиксель-арт",
   "Fix soft or AI-generated pixel art by snapping it to a real pixel grid.":
     "Исправьте размытый или AI пиксель-арт, привязав его к настоящей пиксельной сетке.",
-  "Fix soft or AI pixel art that is off-grid or blurry. Recover a real pixel grid in your browser—no upload. Then edit in Xprite or download PNG.":
+  "Fix AI pixel art that is soft or off-grid. Snap it to a real pixel grid in your browser—no upload—then edit in Xprite.":
     "Исправьте неточный или размытый AI пиксель-арт. Восстановите настоящую пиксельную сетку в браузере — без загрузки. Затем редактируйте в Xprite или скачайте PNG.",
   "Enable JavaScript to fix AI-generated pixel art.":
     "Чтобы исправить AI пиксель-арт, включите JavaScript.",

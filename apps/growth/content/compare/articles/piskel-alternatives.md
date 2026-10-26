@@ -1,6 +1,6 @@
 ---
 published: 2026-10-10
-updated: 2026-10-24
+updated: 2026-10-26
 ---
 
 # Xprite vs Piskel: A Free Piskel Alternative That Opens Aseprite Files
@@ -15,20 +15,20 @@ Xprite is a free, open-source browser pixel art editor that, unlike Piskel, open
 
 ## Xprite vs Piskel at a glance
 
-|                | Piskel                                                                    | Xprite                                                         |
-| -------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Price          | 🆓 Free, with ads. Piskel for Kids has no ads                             | 🆓 Free, no account                                            |
-| Source code    | ✅ Open source, Apache-2.0                                                | ✅ Open source, GPL-2.0-only                                   |
-| Devices        | ⚠️ Desktop browsers. No phone or tablet support                           | ✅ Browsers on computers, tablets and phones                   |
-| Pen and touch  | ❌ No                                                                     | ✅ Pen draws, fingers pan, zoom and undo                       |
-| `.piskel`      | ✅ Native format                                                          | ❌ Export a GIF or PNG sprite sheet first                      |
-| `.aseprite`    | ❌ No                                                                     | ✅ Open and save                                               |
-| Layers         | ✅ Yes                                                                    | ✅ Yes, plus RGB, grayscale and indexed color                  |
-| Onion skin     | ✅ Yes                                                                    | ✅ Yes                                                         |
-| Frame timing   | ⚠️ One frame rate (FPS) for the whole animation                          | ✅ Duration per frame, plus tags to split animations           |
-| Export         | ✅ GIF, PNG sprite sheet, single PNG, ZIP of frames, PixiJS JSON, C array | ✅ PNG, GIF, APNG, WebP, PNG sprite sheet with JSON, tilesets  |
-| Offline        | ⚠️ Windows, macOS and Linux apps, best-effort releases                    | ⚠️ Add to desktop or home screen; open once online first       |
-| Saving         | `.piskel` file, or this browser                                           | `.aseprite` or `.png` file, or this browser                    |
+|               | Piskel                                                                    | Xprite                                                        |
+| ------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Price         | 🆓 Free, with ads. Piskel for Kids has no ads                             | 🆓 Free, no account                                           |
+| Source code   | ✅ Open source, Apache-2.0                                                | ✅ Open source, GPL-2.0-only                                  |
+| Devices       | ⚠️ Desktop browsers. No phone or tablet support                           | ✅ Browsers on computers, tablets and phones                  |
+| Pen and touch | ❌ No                                                                     | ✅ Pen draws, fingers pan, zoom and undo                      |
+| `.piskel`     | ✅ Native format                                                          | ❌ Export a GIF or PNG sprite sheet first                     |
+| `.aseprite`   | ❌ No                                                                     | ✅ Open and save                                              |
+| Layers        | ✅ Yes                                                                    | ✅ Yes, plus RGB, grayscale and indexed color                 |
+| Onion skin    | ✅ Yes                                                                    | ✅ Yes                                                        |
+| Frame timing  | ⚠️ One frame rate (FPS) for the whole animation                           | ✅ Duration per frame, plus tags to split animations          |
+| Export        | ✅ GIF, PNG sprite sheet, single PNG, ZIP of frames, PixiJS JSON, C array | ✅ PNG, GIF, APNG, WebP, PNG sprite sheet with JSON, tilesets |
+| Offline       | ⚠️ Windows, macOS and Linux apps, best-effort releases                    | ⚠️ Add to desktop or home screen; open once online first      |
+| Saving        | `.piskel` file, or this browser                                           | `.aseprite` or `.png` file, or this browser                   |
 
 ## Where Piskel is better
 
@@ -69,7 +69,7 @@ Things to know before switching: Xprite is maintained by one person and is still
 
 GIFs and sprite sheets only carry the merged pixels, so layers are lost. To keep them, use Piskel's ZIP export with **Split by layers** and rebuild the layers in Xprite. GIF is limited to 256 colors, so use a PNG sprite sheet when color matters.
 
-If you only need the frames for a game engine, the [GIF to Sprite Sheet](/tools/gif-to-sprite-sheet/) tool turns a GIF into a PNG sheet with JSON frame coordinates and timing, without opening the editor.
+If you only need the frames for a game engine, the [GIF to Sprite Sheet](/tools/gif-to-sprite-sheet/) tool turns a GIF into a PNG sheet with JSON frame coordinates and timing, without opening the editor. Soft or off-grid AI “pixel art” can be cleaned with [Fix AI Pixel Art](/tools/fix-ai-pixel-art/) (Recover Grid) before you keep editing in a free browser editor.
 
 ## FAQ
 
