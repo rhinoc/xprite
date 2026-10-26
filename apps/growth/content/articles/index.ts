@@ -112,11 +112,11 @@ export const ARTICLES: readonly PublicArticle[] = [
       es: "Corregir pixel art de IA",
     },
     description:
-      "Fix soft or AI pixel art that sits off-grid. Recover the real pixel grid free in your browser, then edit in Xprite. Not magic AI—files stay on device.",
+      "Fix soft or AI pixel art that sits off-grid. Snap it to a real pixel grid free in your browser, then edit in Xprite. Not magic AI—files stay on device.",
     summary:
       'Recover Grid rebuilds a true pixel lattice from soft or AI "pixel art"; it is not a generative fixer. Then edit in Xprite or download PNG.',
     topic: "Converters and grid recovery",
-    dateModified: "2026-10-23",
+    dateModified: "2026-10-26",
   },
 ];
 

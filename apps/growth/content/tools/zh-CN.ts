@@ -411,7 +411,7 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Fix AI pixel art": "修复 AI 像素画",
   "Fix soft or AI-generated pixel art by snapping it to a real pixel grid.":
     "通过对齐到真实像素网格来修复模糊或 AI 生成的像素画。",
-  "Fix soft or AI pixel art that is off-grid or blurry. Recover a real pixel grid in your browser—no upload. Then edit in Xprite or download PNG.":
+  "Fix AI pixel art that is soft or off-grid. Snap it to a real pixel grid in your browser—no upload—then edit in Xprite.":
     "修复偏离网格或模糊的 AI 像素画。在浏览器中还原真实像素网格，无需上传。然后在 Xprite 中继续编辑或下载 PNG。",
   "Enable JavaScript to fix AI-generated pixel art.": "请启用 JavaScript 以修复 AI 生成的像素画。",
 };

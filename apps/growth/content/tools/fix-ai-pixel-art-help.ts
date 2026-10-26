@@ -36,7 +36,7 @@ export const FIX_AI_PIXEL_ART_HELP = {
   [PublicLanguage.English]: {
     title: "Fix AI-generated pixel art",
     introduction:
-      "Open a soft or AI-generated pixel art image (PNG, JPEG, or WebP) and automatically snap it to a real pixel grid. Images are processed on your device, and the source file is never overwritten.",
+      "Soft or AI “pixel art” that looks off-grid or not on a true grid? Open a PNG, JPEG, or WebP and Recover Grid snaps it to real pixels on your device—no upload; the source file is never overwritten.",
     sections: [
       {
         id: FixAiPixelArtHelpSection.Recover,
@@ -58,7 +58,7 @@ export const FIX_AI_PIXEL_ART_HELP = {
       },
     ],
     closing:
-      "The preview updates with the current settings. For a normal photo you want turned into pixel art (not fixing a broken grid), use Image to Pixel Art instead.",
+      "The preview updates with the current settings. For a normal photo you want turned into pixel art (not fixing a broken grid), use Image to Pixel Art instead—the image-to-pixel-art converter.",
   },
   [PublicLanguage.Japanese]: {
     title: "AI 生成のドット絵を修正",

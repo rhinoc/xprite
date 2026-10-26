@@ -47,7 +47,7 @@ export const PIXELATE_HELP = {
   [PublicLanguage.English]: {
     title: "Pixelate an image or recover its grid",
     introduction:
-      "Free image to pixel art converter—no upload. Open a PNG, JPEG, or WebP (or Open example). Processing stays on your device; the source file is never overwritten. Soft or AI pixel-style art that needs a real grid belongs in Fix AI Pixel Art instead.",
+      "Free image to pixel art converter—no upload. Open a PNG, JPEG, or WebP (or Open example). Processing stays on your device; the source file is never overwritten. Soft or off-grid AI pixel art that needs a real grid belongs in Fix AI Pixel Art (Recover Grid) instead.",
     sections: [
       {
         id: PixelateHelpSection.Convert,

@@ -265,7 +265,7 @@ export const FIX_AI_PIXEL_ART_TOOL = {
   summary: "Fix soft or AI-generated pixel art by snapping it to a real pixel grid.",
   privacy: TOOL_FILE_PRIVACY,
   description:
-    "Fix soft or AI pixel art that is off-grid or blurry. Recover a real pixel grid in your browser—no upload. Then edit in Xprite or download PNG.",
+    "Fix AI pixel art that is soft or off-grid. Snap it to a real pixel grid in your browser—no upload—then edit in Xprite.",
   accept: ".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp",
   fileLabel: "Choose an AI-generated pixel art image",
   openLabel: "Open image",

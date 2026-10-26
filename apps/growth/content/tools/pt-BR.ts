@@ -385,7 +385,7 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "Fix AI pixel art": "Corrigir pixel art de IA",
   "Fix soft or AI-generated pixel art by snapping it to a real pixel grid.":
     "Corrija pixel art suave ou gerada por IA ajustando-a a uma grade de pixels real.",
-  "Fix soft or AI pixel art that is off-grid or blurry. Recover a real pixel grid in your browser—no upload. Then edit in Xprite or download PNG.":
+  "Fix AI pixel art that is soft or off-grid. Snap it to a real pixel grid in your browser—no upload—then edit in Xprite.":
     "Corrija pixel art de IA fora da grade ou desfocada. Recupere uma grade real no navegador—sem upload. Depois edite no Xprite ou baixe PNG.",
   "Enable JavaScript to fix AI-generated pixel art.":
     "Ative o JavaScript para corrigir pixel art gerada por IA.",
