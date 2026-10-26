@@ -3281,7 +3281,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-24T13:39:03.911Z",
+        "capturedAt": "2026-10-26T13:31:14.565Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3309,7 +3309,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "e3ae60a0c370729c1ad4a9ae86e91d079a9bcf12a191c894912624e4c8edc675",
+        "sha256": "0e479f578d814cc5e8e5d7ad6ecbf6abe40a65f1a71fa41c3f4a4c9f66dbc55e",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5110,7 +5110,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-24T13:43:05.771Z",
+        "capturedAt": "2026-10-26T13:31:16.061Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5138,7 +5138,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "11073e9ffc0154bf242ddd042b55a3f9d20eee8a31b1e7b09f1eeab5a8ca9748",
+        "sha256": "de71b51db14f74b9f8fd035be1863a0dea7edbd3deda752afee33b8faa3edf99",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5216,7 +5216,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-24T13:43:09.066Z",
+        "capturedAt": "2026-10-26T13:31:17.654Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5244,7 +5244,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "25ac9f5d6c28d12ebed1be6c8d9cb9d48cc1db4b8eee09811106710c431789e5",
+        "sha256": "9d32391aab7274ffb236ba96b13cb4580d9a70ab13d7ef4ebb8cc10ab202bd5a",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5752,7 +5752,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-24T13:43:08.649Z",
+        "capturedAt": "2026-10-26T13:31:16.510Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5780,7 +5780,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "5694231d08d4ed0dea95bb9f81308923449af60c227ed7b3973563eb0470a839",
+        "sha256": "729face220e3771575c51e701e23c9138d66437f97e5c357d8b1d2f080be88b6",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -5808,7 +5808,7 @@
           "x": 12,
           "y": 98,
           "width": 350,
-          "height": 558
+          "height": 546
         }
       ],
       "platform": "Linux x86_64",
@@ -5972,7 +5972,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-24T13:43:10.479Z",
+        "capturedAt": "2026-10-26T13:31:16.947Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6000,7 +6000,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "f8e8be6755bb9a929f145e8fc72d9b4d2df422e0ed1e742b72b00d72a8da9587",
+        "sha256": "cb0eaa1155a1b6814a8f83fbea51441dc35656cff0879733870cfa4bf4d696d1",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6193,7 +6193,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-24T13:39:14.742Z",
+        "capturedAt": "2026-10-26T13:31:16.743Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -6221,7 +6221,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "c2a628370a3216782f469b07a502d54e2baf683ac723779391484a474f17558a",
+        "sha256": "b4234709aa2cce5228cd5ebd5dbd6403062a6eb51882644d8238803660eb5b16",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -6517,7 +6517,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-24T13:39:20.691Z",
+        "capturedAt": "2026-10-26T13:31:19.040Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6545,7 +6545,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "6340129e87abc4db06699c21f24a3588909d1866023c6b3b739bb25e40b0068c",
+        "sha256": "6879a8e3b59353ec0a5c38a7a7acc5164d5a22ed9a3ee9c365e3710fe47f0a91",
         "requestedClip": {
           "x": 0,
           "y": 0,
