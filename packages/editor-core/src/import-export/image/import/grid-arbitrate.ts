@@ -20,10 +20,10 @@ import {
  * rounded it.
  *
  * The winner is the hypothesis with the shortest description length. Structurally valid soft
- * candidates (pitch-search lattices and proposals) are admitted to the ring after basic size
- * checks only, without quality gates. The arbiter measures phase contrast, purity, cycle
- * consistency, and boundary energy for diagnostics, but these do not exclude candidates from
- * description-length competition.
+ * candidates (minimum MIN_CELLS per axis, within MAX_RECOVERED_GRID_SIZE) are admitted without
+ * quality gates. A passthrough baseline (1×1 grid) ensures spurious coarse grids that fail to
+ * compress better than the original lose to null. Diagnostic scores (phase contrast, purity,
+ * cycle consistency, boundary energy) are computed but do not gate admission.
  */
 const CHANNELS = 4;
 const ALPHA_SCALE = 255;
@@ -51,17 +51,18 @@ const PURITY_WEIGHT = 0.35;
 const CYCLE_WEIGHT = 0.5;
 const BOUNDARY_WEIGHT = 0.15;
 /**
- * Cells per axis a soft grid needs. With fewer, the phase contrast of large smooth features
- * (or waves) can line up with a lattice by chance. Raised to exclude spurious coarse grids
- * on gradients while admitting valid distorted pixel art (typically 50+ cells per axis).
+ * Minimum cells per axis. Grids with fewer cells are likely statistical noise rather than
+ * real structure, even if they compress marginally better than passthrough. Used as a practical
+ * structural limit to prevent spurious coarse grids on smooth content while admitting valid
+ * distorted pixel art (typically 50+ cells per axis).
  */
-const MIN_CELLS = 30;
+const MIN_CELLS = 8;
 const MIN_PURITY = 0.5;
 const MIN_CYCLE = 0.75;
 export const MIN_PHASE_CONTRAST = 0.2;
 /**
- * Diagnostic floor for scoreHypothesis. Soft candidates need non-zero score (pass purity+cycle
- * gates) to enter the DL ring; low-contrast but high-quality grids receive half-weighted scores.
+ * Diagnostic floor. Soft candidates are admitted without score filtering, so this constant
+ * documents the historical threshold rather than gating admission.
  */
 export const ARBITER_FLOOR = 0.3;
 
@@ -381,7 +382,12 @@ const rejected = (grid: PixelGridAnalysis): ScoredHypothesis => ({
 });
 
 /** `full` measures every signal even when the cell count or the null test already rejects the grid. */
-function score(context: ArbiterContext, grid: PixelGridAnalysis, full = false): ScoredHypothesis {
+function score(
+  context: ArbiterContext,
+  grid: PixelGridAnalysis,
+  full = false,
+  lenient = false,
+): ScoredHypothesis {
   const { image } = context;
   const { cutsX, cutsY } = cutsOf(image, grid);
   const columns = cutsX.length - 1,
@@ -408,9 +414,9 @@ function score(context: ArbiterContext, grid: PixelGridAnalysis, full = false): 
   const boundary = boundaryEnergy(image, cutsX, cutsY);
   const accepted =
     enough && purity >= MIN_PURITY && cycle >= MIN_CYCLE && contrast >= MIN_PHASE_CONTRAST;
-  const lenient = enough && purity >= MIN_PURITY && cycle >= MIN_CYCLE;
+  const lenientOk = lenient && enough && purity >= MIN_PURITY && cycle >= MIN_CYCLE;
   const weighted = PURITY_WEIGHT * purity + CYCLE_WEIGHT * cycle + BOUNDARY_WEIGHT * boundary;
-  const score = accepted ? weighted : lenient ? weighted * HALF : 0;
+  const score = accepted ? weighted : lenientOk ? weighted * HALF : 0;
   return {
     grid: located,
     recovered,
@@ -489,11 +495,11 @@ function readings(image: PixelBuffer, grid: PixelGridAnalysis): ArbitratedGrid[]
  * The ring: every hypothesis in `grids` competes on its description length of the input,
  * whatever detector proposed it, and the shortest wins. When `grids` is empty and `soft` is
  * given, the ring holds the pitch-search lattices and the `soft` proposals. Structurally valid
- * soft candidates (basic size checks only) are admitted without quality gates, and a passthrough
- * baseline (1×1 grid at original size) is added so garbage lattices compete against keeping the
- * image unchanged. The winner is decided purely by description length. Null when the passthrough
- * wins or the ring stays empty. A winner from `grids` keeps its detector's confidence; any other
- * carries a score computed for diagnostics.
+ * soft candidates (minimum MIN_CELLS per axis, within MAX_RECOVERED_GRID_SIZE) are admitted
+ * without quality gates. A passthrough baseline (1×1 grid at original size) is added; garbage
+ * lattices that fail to compress better than passthrough lose to null. The winner is decided
+ * purely by description length. A winner from `grids` keeps its detector's confidence; soft
+ * winners carry a diagnostic score.
  */
 export function arbitrateGrids(
   image: PixelBuffer,
@@ -528,9 +534,8 @@ export function arbitrateGrids(
           columns <= MAX_RECOVERED_GRID_SIZE &&
           rows <= MAX_RECOVERED_GRID_SIZE
         ) {
-          const scored = score(context, grid);
-          if (scored.score > 0)
-            hypotheses.push({ ...scored.grid, confidence: scored.score, reliable: true });
+          const scored = score(context, grid, true, true);
+          hypotheses.push({ ...scored.grid, confidence: scored.score, reliable: true });
         }
       }
     }

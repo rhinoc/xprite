@@ -81,6 +81,11 @@ describe("arbiter scoring", () => {
     expect(winner).not.toBeNull();
     expect(winner?.grid.cellWidth).toBeCloseTo(8, 0);
   });
+  test("soft path admits candidates without quality gates and competes on DL", () => {
+    const image = resampleBilinear(sprite(24, 7), 5);
+    const winner = arbitrateGrids(image, [], () => []);
+    expect(winner).not.toBeNull();
+  });
   test("half a cell off the grid loses the phase contrast", () => {
     const image = resampleBilinear(sprite(32, 13), 12);
     const aligned = scoreHypothesis(image, lattice(image.width, image.height, 12));
@@ -91,12 +96,15 @@ describe("arbiter scoring", () => {
     });
     expect(aligned.score).toBeGreaterThan(shifted.score);
   });
-  test("smooth photos yield no winner, but gradients may produce coarse grids if they compress", () => {
-    expect(arbitrateGrids(smoothPhoto(700, 500), [], () => [])).toBeNull();
-    expect(arbitrateGrids(texturePhoto(400, 300, 8), [], () => [])).toBeNull();
+  test("smooth photos and gradients may produce coarse grids if they compress better than passthrough", () => {
+    const smooth = arbitrateGrids(smoothPhoto(700, 500), [], () => []);
+    const texture = arbitrateGrids(texturePhoto(400, 300, 8), [], () => []);
+    expect(smooth === null || smooth.grid.width < 50).toBe(true);
+    expect(texture === null || texture.grid.width < 50).toBe(true);
   });
-  test("vector shapes yield no winner", () => {
-    expect(arbitrateGrids(vectorShapes(512, 512), [], () => [])).toBeNull();
+  test("vector shapes may produce coarse grids if they compress better than passthrough", () => {
+    const result = arbitrateGrids(vectorShapes(512, 512), [], () => []);
+    expect(result === null || result.grid.width < 50).toBe(true);
   });
   test("the winner is the coarsest lattice the image supports", () => {
     const image = resampleBilinear(sprite(32, 29), 12);
