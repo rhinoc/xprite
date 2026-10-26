@@ -42,12 +42,12 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "Files stay on your device. No cloud upload.":
     "파일은 기기에만 남고 클라우드에 업로드되지 않습니다.",
   "Inspect an Aseprite file": "Aseprite 파일 살펴보기",
-  "Aseprite Viewer: Open .aseprite & .ase Files Online | Xprite":
-    "Aseprite 뷰어: .ase·.aseprite 파일 온라인으로 열기 | Xprite",
+  "Aseprite File Viewer Online — Open .aseprite / .ase | Xprite":
+    "Aseprite 파일 뷰어: .ase·.aseprite 온라인으로 열기 | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Aseprite 프로젝트를 미리 보고 PNG 프레임이나 GIF 애니메이션으로 내보내세요.",
-  "Free Aseprite viewer: open .aseprite and .ase files online without Aseprite. Preview layers and animation, export PNG or GIF. Files never leave your device.":
-    "브라우저에서 Aseprite 프로젝트를 열어 레이어와 애니메이션을 미리 보고 PNG 프레임이나 GIF로 내보내세요. 파일은 기기에서 처리됩니다.",
+  "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF — no install, files on device. Then edit in Xprite.":
+    "온라인 Aseprite 파일 뷰어: 브라우저에서 .aseprite/.ase를 열고 레이어·프레임을 미리 본 뒤 PNG/GIF로 내보내세요. 설치 불필요. 이어서 Xprite에서 편집.",
   "Choose an Aseprite file": "Aseprite 파일 선택",
   "Open file": "파일 열기",
   "Open file…": "파일 열기…",
@@ -166,6 +166,7 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
     "요하네스 페르메이르의 「진주 귀걸이를 한 소녀」",
   "ACNH Winding Cobblestone Path by": "동물의 숲 구불구불한 돌길 제작:",
   "Edit in Xprite": "Xprite에서 편집",
+  "Edit this file in Xprite": "이 파일을 Xprite에서 편집",
   "Export animation (.gif)": "애니메이션 내보내기(.gif)",
   "Export current frame (.png)": "현재 프레임 내보내기(.png)",
   "Current frame (.png)": "현재 프레임(.png)",

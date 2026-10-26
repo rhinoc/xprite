@@ -38,7 +38,7 @@ export const VIEWER_EXPORT_HELP = {
       },
     ],
     closing:
-      "PNG 和 GIF 不保留工程的图层与标签。需要修改或放大作品时，点「继续编辑」，编辑器会把原始工程作为新项目打开。",
+      "PNG 和 GIF 不保留工程的图层与标签。需要修改或放大作品时，点「在 Xprite 中编辑此文件」，编辑器会把原始工程作为新项目打开。",
   },
   [PublicLanguage.English]: {
     title: "Export PNG and GIF",
@@ -69,7 +69,7 @@ export const VIEWER_EXPORT_HELP = {
       },
     ],
     closing:
-      "PNG and GIF do not keep project layers or tags. To edit or resize your work, click Edit more to open the original project in the editor as a new project.",
+      "PNG and GIF do not keep project layers or tags. To edit or resize your work, choose Edit this file in Xprite to open the original project in the editor as a new project.",
   },
   [PublicLanguage.Japanese]: {
     title: "PNG と GIF をエクスポート",
@@ -100,7 +100,7 @@ export const VIEWER_EXPORT_HELP = {
       },
     ],
     closing:
-      "PNG と GIF にはプロジェクトのレイヤーやタグは残りません。作品を修正したり拡大したりするには、「さらに編集」をクリックすると、エディターで元のプロジェクトが開きます。",
+      "PNG と GIF にはプロジェクトのレイヤーやタグは残りません。作品を修正したり拡大したりするには、「このファイルを Xprite で編集」をクリックすると、エディターで元のプロジェクトが開きます。",
   },
   [PublicLanguage.Korean]: {
     title: "PNG와 GIF 내보내기",
@@ -131,7 +131,7 @@ export const VIEWER_EXPORT_HELP = {
       },
     ],
     closing:
-      "PNG와 GIF에는 프로젝트의 레이어와 태그가 남지 않습니다. 작품을 고치거나 크기를 바꾸려면 파일 → Xprite에서 편집을 선택해 에디터에서 원본 프로젝트를 여세요.",
+      "PNG와 GIF에는 프로젝트의 레이어와 태그가 남지 않습니다. 작품을 고치거나 크기를 바꾸려면 「이 파일을 Xprite에서 편집」을 선택해 에디터에서 원본 프로젝트를 여세요.",
   },
   [PublicLanguage.Russian]: {
     title: "Экспорт PNG и GIF",
@@ -162,7 +162,7 @@ export const VIEWER_EXPORT_HELP = {
       },
     ],
     closing:
-      "PNG и GIF не сохраняют слои и метки проекта. Чтобы отредактировать работу или изменить её размер, выберите «Файл» → «Редактировать в Xprite» — исходный проект откроется в редакторе.",
+      "PNG и GIF не сохраняют слои и метки проекта. Чтобы отредактировать работу или изменить её размер, выберите «Редактировать этот файл в Xprite» — исходный проект откроется в редакторе.",
   },
   [PublicLanguage.BrazilianPortuguese]: {
     title: "Exportar PNG e GIF",
@@ -193,7 +193,7 @@ export const VIEWER_EXPORT_HELP = {
       },
     ],
     closing:
-      "PNG e GIF não guardam as camadas nem as tags do projeto. Para editar ou redimensionar seu trabalho, escolha Arquivo → Editar no Xprite e abra o projeto original no editor.",
+      "PNG e GIF não guardam as camadas nem as tags do projeto. Para editar ou redimensionar seu trabalho, escolha Editar este arquivo no Xprite e abra o projeto original no editor.",
   },
   [PublicLanguage.Spanish]: {
     title: "Exportar PNG y GIF",
@@ -224,6 +224,6 @@ export const VIEWER_EXPORT_HELP = {
       },
     ],
     closing:
-      "PNG y GIF no conservan las capas ni las etiquetas del proyecto. Para editar o cambiar el tamaño de tu trabajo, elige Archivo → Editar en Xprite y se abrirá el proyecto original en el editor.",
+      "PNG y GIF no conservan las capas ni las etiquetas del proyecto. Para editar o cambiar el tamaño de tu trabajo, elige Editar este archivo en Xprite y se abrirá el proyecto original en el editor.",
   },
 } as const satisfies Record<PublicLanguage, ToolHelpContent>;

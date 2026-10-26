@@ -47,7 +47,11 @@ export function ViewerPage({ manager }: { manager: ViewerManager }) {
       onReset={() => manager.clear()}
       flow={{
         exportDisabled: !ready || snapshot.exporting || snapshot.openingEditor,
-        editMore: { run: () => void manager.openEditor(), disabled: snapshot.openingEditor },
+        editMore: {
+          run: () => void manager.openEditor(),
+          disabled: snapshot.openingEditor,
+          label: t("Edit this file in Xprite"),
+        },
         exportFormats: [
           {
             id: "gif",

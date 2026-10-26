@@ -43,12 +43,12 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   "Files stay on your device. No cloud upload.":
     "Los archivos se quedan en tu dispositivo. Sin subir nada a la nube.",
   "Inspect an Aseprite file": "Revisa un archivo de Aseprite",
-  "Aseprite Viewer: Open .aseprite & .ase Files Online | Xprite":
-    "Visor de Aseprite online: abre .ase y .aseprite | Xprite",
+  "Aseprite File Viewer Online — Open .aseprite / .ase | Xprite":
+    "Visor de archivos Aseprite online: abre .ase y .aseprite | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Previsualiza proyectos de Aseprite y exporta cuadros PNG o animaciones GIF.",
-  "Free Aseprite viewer: open .aseprite and .ase files online without Aseprite. Preview layers and animation, export PNG or GIF. Files never leave your device.":
-    "Abre proyectos de Aseprite, revisa capas y animaciones y exporta cuadros PNG o GIF en tu navegador. Los archivos no salen de tu dispositivo.",
+  "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF — no install, files on device. Then edit in Xprite.":
+    "Visor de Aseprite online: abre .aseprite/.ase. Previsualiza capas y fotogramas, exporta PNG/GIF. Sin instalar; archivos en tu dispositivo. Edita en Xprite.",
   "Choose an Aseprite file": "Elige un archivo de Aseprite",
   "Open file": "Abrir archivo",
   "Open file…": "Abrir archivo…",
@@ -169,6 +169,7 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   "Girl with a Pearl Earring by Johannes Vermeer": "La joven de la perla, de Johannes Vermeer",
   "ACNH Winding Cobblestone Path by": "ACNH Camino empedrado sinuoso, de",
   "Edit in Xprite": "Editar en Xprite",
+  "Edit this file in Xprite": "Editar este archivo en Xprite",
   "Export animation (.gif)": "Exportar animación (.gif)",
   "Export current frame (.png)": "Exportar cuadro actual (.png)",
   "Current frame (.png)": "Cuadro actual (.png)",

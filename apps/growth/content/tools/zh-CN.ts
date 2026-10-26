@@ -101,12 +101,12 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Processed on your device. No cloud upload.": "文件在本地处理，不上传云端。",
   "Files stay on your device. No cloud upload.": "文件只在本地处理，不上传云端。",
   "Inspect an Aseprite file": "查看 Aseprite 文件",
-  "Aseprite Viewer: Open .aseprite & .ase Files Online | Xprite":
-    "Aseprite 查看器：在线打开 .aseprite / .ase 文件 | Xprite",
+  "Aseprite File Viewer Online — Open .aseprite / .ase | Xprite":
+    "Aseprite 文件查看器：在线打开 .aseprite / .ase | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "预览 Aseprite 工程，导出 PNG 单帧或 GIF 动画。",
-  "Free Aseprite viewer: open .aseprite and .ase files online without Aseprite. Preview layers and animation, export PNG or GIF. Files never leave your device.":
-    "在浏览器中打开 Aseprite 工程、查看图层和动画，导出 PNG 单帧或 GIF 动画。文件只在本地处理，不上传云端。",
+  "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF — no install, files on device. Then edit in Xprite.":
+    "在线 Aseprite 文件查看器：在浏览器中打开 .aseprite/.ase，预览图层与帧，导出 PNG 或 GIF，无需安装。文件留在本机，可继续在 Xprite 中编辑。",
   "Choose an Aseprite file": "选择 Aseprite 文件",
   "Open file": "打开文件",
   "Open file…": "打开文件…",
@@ -223,6 +223,7 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
   "Girl with a Pearl Earring by Johannes Vermeer": "约翰内斯·维米尔《戴珍珠耳环的少女》",
   "ACNH Winding Cobblestone Path by": "动物森友会曲折鹅卵石道路，作者：",
   "Edit in Xprite": "在 Xprite 中编辑",
+  "Edit this file in Xprite": "在 Xprite 中编辑此文件",
   "Export animation (.gif)": "导出动画（.gif）",
   "Export current frame (.png)": "导出当前帧（.png）",
   "Current frame (.png)": "当前帧（.png）",

@@ -6,7 +6,7 @@ import { localizedSiteHref, PUBLIC_LANGUAGES } from "./language.ts";
  * tool, so each localized address takes its English page's date.
  */
 const TOOL_LAST_MODIFIED: Readonly<Record<PublicTool["path"], string>> = {
-  "/tools/viewer/": "2026-10-25",
+  "/tools/viewer/": "2026-10-26",
   "/tools/gif-to-sprite-sheet/": "2026-10-22",
   "/tools/pixelate/": "2026-10-26",
   "/tools/fix-ai-pixel-art/": "2026-10-26",

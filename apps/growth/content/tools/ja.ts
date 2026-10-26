@@ -43,12 +43,12 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Files stay on your device. No cloud upload.":
     "ファイルは端末内に留まり、クラウドにはアップロードされません。",
   "Inspect an Aseprite file": "Aseprite ファイルを確認",
-  "Aseprite Viewer: Open .aseprite & .ase Files Online | Xprite":
-    "Aseprite ビューアー：.aseprite をオンラインで開く | Xprite",
+  "Aseprite File Viewer Online — Open .aseprite / .ase | Xprite":
+    "Aseprite ファイルビューアー：.aseprite をオンラインで開く | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Aseprite プロジェクトをプレビューし、PNG のフレームや GIF アニメーションをエクスポート。",
-  "Free Aseprite viewer: open .aseprite and .ase files online without Aseprite. Preview layers and animation, export PNG or GIF. Files never leave your device.":
-    "ブラウザで Aseprite ファイルを開き、レイヤーとアニメーションをプレビューして PNG や GIF に書き出せます。ファイルは端末内で処理されます。",
+  "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF — no install, files on device. Then edit in Xprite.":
+    "Aseprite ファイルビューアー。ブラウザで .aseprite/.ase を開き、レイヤーとフレームをプレビュー、PNG/GIF 書き出し。インストール不要。続けて Xprite で編集。",
   "Choose an Aseprite file": "Aseprite ファイルを選択",
   "Open file": "ファイルを開く",
   "Open file…": "ファイルを開く…",
@@ -167,6 +167,7 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Girl with a Pearl Earring by Johannes Vermeer": "ヨハネス・フェルメール「真珠の耳飾りの少女」",
   "ACNH Winding Cobblestone Path by": "あつ森 曲がりくねった石畳の道 作者：",
   "Edit in Xprite": "Xprite で編集",
+  "Edit this file in Xprite": "このファイルを Xprite で編集",
   "Export animation (.gif)": "アニメーションをエクスポート（.gif）",
   "Export current frame (.png)": "現在のフレームをエクスポート（.png）",
   "Current frame (.png)": "現在のフレーム（.png）",
