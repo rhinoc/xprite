@@ -43,12 +43,12 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "Files stay on your device. No cloud upload.":
     "Os arquivos ficam no seu dispositivo. Sem envio para a nuvem.",
   "Inspect an Aseprite file": "Inspecione um arquivo do Aseprite",
-  "Aseprite Viewer: Open .aseprite & .ase Files Online | Xprite":
-    "Visualizador de Aseprite online: abra .aseprite | Xprite",
+  "Aseprite File Viewer Online — Open .aseprite / .ase | Xprite":
+    "Visualizador de arquivos Aseprite: abra .aseprite online | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Visualize projetos do Aseprite e exporte quadros PNG ou animações GIF.",
-  "Free Aseprite viewer: open .aseprite and .ase files online without Aseprite. Preview layers and animation, export PNG or GIF. Files never leave your device.":
-    "Abra projetos do Aseprite, veja camadas e animações e exporte quadros PNG ou GIFs no navegador. Os arquivos ficam no seu dispositivo, sem envio para a nuvem.",
+  "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF — no install, files on device. Then edit in Xprite.":
+    "Visualizador de Aseprite online: abra .aseprite/.ase no navegador. Veja camadas e quadros, exporte PNG/GIF. Sem instalar; arquivos no dispositivo. Edite no Xprite.",
   "Choose an Aseprite file": "Escolha um arquivo do Aseprite",
   "Open file": "Abrir arquivo",
   "Open file…": "Abrir arquivo…",
@@ -168,6 +168,7 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "Girl with a Pearl Earring by Johannes Vermeer": "Moça com Brinco de Pérola, de Johannes Vermeer",
   "ACNH Winding Cobblestone Path by": "ACNH Caminho de pedras sinuoso, por",
   "Edit in Xprite": "Editar no Xprite",
+  "Edit this file in Xprite": "Editar este arquivo no Xprite",
   "Export animation (.gif)": "Exportar animação (.gif)",
   "Export current frame (.png)": "Exportar quadro atual (.png)",
   "Current frame (.png)": "Quadro atual (.png)",
