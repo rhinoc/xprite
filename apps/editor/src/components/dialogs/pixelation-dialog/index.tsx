@@ -165,9 +165,8 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     else workflow.acceptOriginalImport();
   };
 
-  // Advanced fields grow the window downward when the scene has room; otherwise the body
-  // scrolls vertically. Preview height is sized from the collapsed stack so opening Advanced
-  // never steals canvas space.
+  // Window size stays put when Advanced opens; the body scrolls vertically. Preview height is
+  // sized from the collapsed stack so opening Advanced never steals canvas space.
   const showDitherExtra =
     showAdvanced && workflow.pixelationOptions.reduceColors
       ? FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP
@@ -176,18 +175,13 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     ? 4 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) + ROW_HEIGHT + GAP + showDitherExtra
     : 0;
   const dialogWidth = Math.min(DIALOG_WIDTH, Math.max(DIALOG_MIN_WIDTH, sceneBounds.width));
-  const heightCap = Math.max(DIALOG_MIN_HEIGHT, sceneBounds.height - 16);
-  const baseHeight = Math.min(DIALOG_HEIGHT, heightCap);
-  const dialogHeight = Math.min(baseHeight + advancedHeight, heightCap);
-  const baseY = sceneBounds.y + Math.max(0, Math.round((sceneBounds.height - baseHeight) / 2));
-  // Prefer expanding down from the collapsed top; clamp so the window stays on-screen.
-  const dialogY = Math.max(
-    sceneBounds.y,
-    Math.min(baseY, sceneBounds.y + sceneBounds.height - dialogHeight),
+  const dialogHeight = Math.min(
+    DIALOG_HEIGHT,
+    Math.max(DIALOG_MIN_HEIGHT, sceneBounds.height - 16),
   );
   const bounds = {
     x: sceneBounds.x + Math.round((sceneBounds.width - dialogWidth) / 2),
-    y: dialogY,
+    y: sceneBounds.y + Math.max(0, Math.round((sceneBounds.height - dialogHeight) / 2)),
     width: dialogWidth,
     height: dialogHeight,
   };
@@ -223,7 +217,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       {({ clientBounds: client }) => {
         // Both Pixelate and Keep as is reserve the hint and Advanced toggle rows, so toggling
         // between them never resizes or moves the preview; Keep as is just leaves those rows empty.
-        // Advanced *fields* are excluded from the preview budget: they grow the window (or V-scroll).
+        // Advanced *fields* are excluded from the preview budget: they scroll inside the body.
         const hintHeight = pixelateMessage ? HINT_HEIGHT + GAP : 0;
         const advancedRowHeight = ROW_HEIGHT + GAP;
         const showDither = showAdvanced && workflow.pixelationOptions.reduceColors;
@@ -237,12 +231,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
           ROW_HEIGHT +
           GAP +
           FOOTER_HEIGHT;
-        // Space added to the window for Advanced must go to the fields, not the preview.
-        const grownForAdvanced = Math.min(advancedHeight, Math.max(0, dialogHeight - baseHeight));
-        const previewHeight = Math.max(
-          PREVIEW_MIN,
-          client.height - collapsedBottom - GAP - grownForAdvanced,
-        );
+        const previewHeight = Math.max(PREVIEW_MIN, client.height - collapsedBottom - GAP);
         const contentHeight = previewHeight + GAP + collapsedBottom + advancedHeight;
         // A vertical track must not make the fixed-width plane spill sideways (dual scrollbars).
         const width =
