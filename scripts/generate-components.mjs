@@ -19,6 +19,7 @@ const LOGIC_COMPONENTS = new Set([
   "TooltipGroup",
   "TooltipProvider",
   "UIProvider",
+  "UiPortalRoot",
 ]);
 const COMPONENT_GROUP_BY_FAMILY = {
   button: "Controls",

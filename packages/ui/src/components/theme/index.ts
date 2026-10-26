@@ -5,7 +5,7 @@ export {
   useSystemColorScheme,
 } from "$/components/theme/provider";
 export type { UIProviderProps, UiContextValue, UiColorRole } from "$/components/theme/provider";
-export { createUiPortal } from "$/components/theme/portal";
+export { createUiPortal, UiPortalRoot } from "$/components/theme/portal";
 export { UiColorScheme } from "$/base/theme/theme-types";
 
 export { asepriteTheme } from "$/base/theme/themes/aseprite";

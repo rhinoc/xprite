@@ -39,7 +39,7 @@ import {
   type WorkspaceLayoutMode,
   type WorkspaceLayoutPresetId,
 } from "$/managers/workspace/workspace-panel-layout";
-import { CanvasScaleProvider, ScrollArea, useUi } from "@xprite/ui";
+import { CanvasScaleProvider, ScrollArea, UiPortalRoot, useUi } from "@xprite/ui";
 import { uiMetrics } from "@xprite/ui/assets";
 import { UI_SCALE } from "@xprite/ui/canvas";
 import { cursorScopeClassName, cursorScopeStyle } from "@xprite/ui/cursor";
@@ -220,163 +220,168 @@ export function EditorSurface({
         } as CSSProperties
       }
     >
-      <ScrollArea
-        viewportRef={hostRef}
+      <div
         className={`${cursorScopeClassName} xse-root xse-global`}
         style={cursorScopeStyle({
           native: canvasManager.cursorPreferences.useNativeCursor,
           scale: canvasManager.cursorPreferences.cursorScale,
         })}
-        contentStyle={{ height: "100%" }}
         // Suppress the browser menu after child controls have handled their own
         // context actions, including controls rendered through React portals.
         onContextMenu={(event) => event.preventDefault()}
       >
-        <section
-          {...workflowHost.props}
-          data-slot="editor-window"
-          data-ui-scene="true"
-          data-ui-element-scale={uiElementScale}
-          className="xse-editor-window"
-          style={
-            {
-              width: "100%",
-              height: "100%",
-              zoom: uiElementScale,
-              "--xse-ui-scale": UI_SCALE,
-              "--xse-editor-horizontal-inset": `${horizontalInset}px`,
-              "--xse-window-tooltip-face": style.colors.tooltip_face,
-              "--xse-window-tooltip-text": style.colors.tooltip_text,
-              "--xse-window-menuitem-normal-face": style.colors.menuitem_normal_face,
-              "--xse-window-menuitem-normal-text": style.colors.menuitem_normal_text,
-              "--xse-window-menuitem-hot-face": style.colors.menuitem_hot_face,
-              "--xse-window-menuitem-hot-text": style.colors.menuitem_hot_text,
-              "--xse-context-height": `${metrics.toolHeight * UI_SCALE}px`,
-              "--xse-workspace-bar-thickness": `${metrics.toolHeight * UI_SCALE}px`,
-              "--xse-workspace-bar-gap": `${WORKSPACE_BAR_GAP}px`,
-              "--xse-workspace-window-gap": `${WORKSPACE_WINDOW_GAP}px`,
-              "--xse-timeline-row": `${metrics.timelineRowHeight * UI_SCALE}px`,
-              "--xse-tool-pitch": `${metrics.toolPitch * UI_SCALE}px`,
-              "--xse-workspace-column-gap": `${activeWorkspaceLayoutConfiguration.surface.workspaceColumnGap}px`,
-              "--xse-workspace-overflow":
-                activeWorkspaceLayoutConfiguration.surface.workspaceOverflow,
-              "--xse-document-dock-trailing-margin": `${activeWorkspaceLayoutConfiguration.surface.documentDockTrailingMargin}px`,
-              "--xse-side-timeline-direction":
-                activeWorkspaceLayoutConfiguration.surface.sideTimelineDirection,
-              "--xse-workspace-panel-tab-height": `${activeWorkspaceLayoutConfiguration.surface.panelTabHeight}px`,
-            } as CSSProperties
-          }
-          data-client-layout="intrinsic"
-          data-ui-appearance={canvasManager.snapshot?.view.appearance ?? "light"}
-          data-timeline-visible={editor.timelineVisible}
-          data-ui-compact={compact ? "true" : "false"}
-          data-ui-input-mode={inputInteractionMode}
-          data-workspace-panel-arrangement={
-            activeWorkspaceLayoutConfiguration.panelLayout.defaultArrangement
-          }
-          data-workspace-tabs-adjacent={
-            activeWorkspaceLayoutConfiguration.chrome.tabsAdjacentToMenu ? "true" : "false"
-          }
-          data-home-file-content-height={activeWorkspaceLayoutConfiguration.home.contentHeight}
-          data-workspace-recovery-layout={activeWorkspaceLayoutConfiguration.recovery.toolbarLayout}
-          aria-label={label}
-          tabIndex={0}
-          onKeyDown={(event) => {
-            if (editor.functional) return;
-            if (
-              event.target instanceof HTMLElement &&
-              (event.target.matches("input, textarea, select") || event.target.isContentEditable)
-            )
-              return;
-            if (
-              event.defaultPrevented ||
-              (event.target instanceof HTMLElement &&
-                event.target.closest('[role="menu"], [role="dialog"], dialog'))
-            )
-              return;
-            if (
-              (event.key === " " || event.key === "Enter") &&
-              event.target instanceof HTMLElement &&
-              event.target.closest(
-                'button, [role="button"], [role="checkbox"], [role="tab"], [role="option"]',
-              )
-            )
-              return;
-            const input = {
-              key: event.key,
-              ctrl: event.ctrlKey,
-              meta: event.metaKey,
-              alt: event.altKey,
-              shift: event.shiftKey,
-            };
-            const command = shortcuts?.resolve(input, resolveShortcut(input));
-            if (!command) return;
-            if (
-              command.type === "toggle-timeline" &&
-              event.key === "Tab" &&
-              event.target !== event.currentTarget &&
-              !(
-                event.target instanceof HTMLElement &&
-                event.target.classList.contains("xse-viewport")
-              )
-            )
-              return;
-            if (command?.type === "tool") {
-              event.preventDefault();
-              editor.setTool(
-                chooseShortcutTool(
-                  command.tools ?? [command.tool],
-                  editor.tool as CoreTool,
-                  visibleShapeTool.current,
-                ),
-              );
-            } else if (command.type === "commit") {
-              event.preventDefault();
-              editor.setPlaying((playing) => !playing);
-            } else if (command.type === "brush-grow" || command.type === "brush-shrink") {
-              event.preventDefault();
-              editor.setBrushSize((brush) => brush + (command.type === "brush-grow" ? 1 : -1));
-            } else if (command.type === "palette-next" || command.type === "palette-previous") {
-              event.preventDefault();
-              editor.stepPaletteColor("foreground", command.type === "palette-next" ? 1 : -1);
-            } else if (command.type === "zoom-in" || command.type === "zoom-out") {
-              event.preventDefault();
-              editor.setZoom((zoom) => stepZoomPercent(zoom, command.type === "zoom-in" ? 1 : -1));
-            } else if (command.type === "zoom-to") {
-              event.preventDefault();
-              editor.setZoom(command.zoom * ZOOM_PERCENT_SCALE);
-            } else if (command.type === "toggle-timeline") {
-              event.preventDefault();
-              editor.setTimelineVisible((visible) => !visible);
-            } else if (command.type === "new-frame") {
-              event.preventDefault();
-              editor.addFrame();
-            } else if (command.type === "move-selection" && command.dx && !command.dy) {
-              event.preventDefault();
-              editor.setFrame((frame) =>
-                Math.max(1, Math.min(editor.frameCount, frame + Math.sign(command.dx))),
-              );
+        <ScrollArea viewportRef={hostRef} contentStyle={{ height: "100%" }}>
+          <section
+            {...workflowHost.props}
+            data-slot="editor-window"
+            data-ui-scene="true"
+            data-ui-element-scale={uiElementScale}
+            className="xse-editor-window"
+            style={
+              {
+                width: "100%",
+                height: "100%",
+                zoom: uiElementScale,
+                "--xse-ui-scale": UI_SCALE,
+                "--xse-editor-horizontal-inset": `${horizontalInset}px`,
+                "--xse-window-tooltip-face": style.colors.tooltip_face,
+                "--xse-window-tooltip-text": style.colors.tooltip_text,
+                "--xse-window-menuitem-normal-face": style.colors.menuitem_normal_face,
+                "--xse-window-menuitem-normal-text": style.colors.menuitem_normal_text,
+                "--xse-window-menuitem-hot-face": style.colors.menuitem_hot_face,
+                "--xse-window-menuitem-hot-text": style.colors.menuitem_hot_text,
+                "--xse-context-height": `${metrics.toolHeight * UI_SCALE}px`,
+                "--xse-workspace-bar-thickness": `${metrics.toolHeight * UI_SCALE}px`,
+                "--xse-workspace-bar-gap": `${WORKSPACE_BAR_GAP}px`,
+                "--xse-workspace-window-gap": `${WORKSPACE_WINDOW_GAP}px`,
+                "--xse-timeline-row": `${metrics.timelineRowHeight * UI_SCALE}px`,
+                "--xse-tool-pitch": `${metrics.toolPitch * UI_SCALE}px`,
+                "--xse-workspace-column-gap": `${activeWorkspaceLayoutConfiguration.surface.workspaceColumnGap}px`,
+                "--xse-workspace-overflow":
+                  activeWorkspaceLayoutConfiguration.surface.workspaceOverflow,
+                "--xse-document-dock-trailing-margin": `${activeWorkspaceLayoutConfiguration.surface.documentDockTrailingMargin}px`,
+                "--xse-side-timeline-direction":
+                  activeWorkspaceLayoutConfiguration.surface.sideTimelineDirection,
+                "--xse-workspace-panel-tab-height": `${activeWorkspaceLayoutConfiguration.surface.panelTabHeight}px`,
+              } as CSSProperties
             }
-          }}
-        >
-          <EditorLayoutProvider
-            width={layoutWidth}
-            height={layoutHeight}
-            workspaceLayoutSelection={workspaceLayoutSelection}
-            workspaceLayoutConfiguration={activeWorkspaceLayoutConfiguration}
-            onWorkspaceLayoutModeChange={setWorkspaceLayoutMode}
+            data-client-layout="intrinsic"
+            data-ui-appearance={canvasManager.snapshot?.view.appearance ?? "light"}
+            data-timeline-visible={editor.timelineVisible}
+            data-ui-compact={compact ? "true" : "false"}
+            data-ui-input-mode={inputInteractionMode}
+            data-workspace-panel-arrangement={
+              activeWorkspaceLayoutConfiguration.panelLayout.defaultArrangement
+            }
+            data-workspace-tabs-adjacent={
+              activeWorkspaceLayoutConfiguration.chrome.tabsAdjacentToMenu ? "true" : "false"
+            }
+            data-home-file-content-height={activeWorkspaceLayoutConfiguration.home.contentHeight}
+            data-workspace-recovery-layout={
+              activeWorkspaceLayoutConfiguration.recovery.toolbarLayout
+            }
+            aria-label={label}
+            tabIndex={0}
+            onKeyDown={(event) => {
+              if (editor.functional) return;
+              if (
+                event.target instanceof HTMLElement &&
+                (event.target.matches("input, textarea, select") || event.target.isContentEditable)
+              )
+                return;
+              if (
+                event.defaultPrevented ||
+                (event.target instanceof HTMLElement &&
+                  event.target.closest('[role="menu"], [role="dialog"], dialog'))
+              )
+                return;
+              if (
+                (event.key === " " || event.key === "Enter") &&
+                event.target instanceof HTMLElement &&
+                event.target.closest(
+                  'button, [role="button"], [role="checkbox"], [role="tab"], [role="option"]',
+                )
+              )
+                return;
+              const input = {
+                key: event.key,
+                ctrl: event.ctrlKey,
+                meta: event.metaKey,
+                alt: event.altKey,
+                shift: event.shiftKey,
+              };
+              const command = shortcuts?.resolve(input, resolveShortcut(input));
+              if (!command) return;
+              if (
+                command.type === "toggle-timeline" &&
+                event.key === "Tab" &&
+                event.target !== event.currentTarget &&
+                !(
+                  event.target instanceof HTMLElement &&
+                  event.target.classList.contains("xse-viewport")
+                )
+              )
+                return;
+              if (command?.type === "tool") {
+                event.preventDefault();
+                editor.setTool(
+                  chooseShortcutTool(
+                    command.tools ?? [command.tool],
+                    editor.tool as CoreTool,
+                    visibleShapeTool.current,
+                  ),
+                );
+              } else if (command.type === "commit") {
+                event.preventDefault();
+                editor.setPlaying((playing) => !playing);
+              } else if (command.type === "brush-grow" || command.type === "brush-shrink") {
+                event.preventDefault();
+                editor.setBrushSize((brush) => brush + (command.type === "brush-grow" ? 1 : -1));
+              } else if (command.type === "palette-next" || command.type === "palette-previous") {
+                event.preventDefault();
+                editor.stepPaletteColor("foreground", command.type === "palette-next" ? 1 : -1);
+              } else if (command.type === "zoom-in" || command.type === "zoom-out") {
+                event.preventDefault();
+                editor.setZoom((zoom) =>
+                  stepZoomPercent(zoom, command.type === "zoom-in" ? 1 : -1),
+                );
+              } else if (command.type === "zoom-to") {
+                event.preventDefault();
+                editor.setZoom(command.zoom * ZOOM_PERCENT_SCALE);
+              } else if (command.type === "toggle-timeline") {
+                event.preventDefault();
+                editor.setTimelineVisible((visible) => !visible);
+              } else if (command.type === "new-frame") {
+                event.preventDefault();
+                editor.addFrame();
+              } else if (command.type === "move-selection" && command.dx && !command.dy) {
+                event.preventDefault();
+                editor.setFrame((frame) =>
+                  Math.max(1, Math.min(editor.frameCount, frame + Math.sign(command.dx))),
+                );
+              }
+            }}
           >
-            <EditorWorkflowBoundaryProvider value={workflowHost.boundary}>
-              <InputInteractionProvider mode={inputInteractionMode}>
-                <CanvasScaleProvider scale={uiElementScale}>
-                  {measured ? children : null}
-                </CanvasScaleProvider>
-              </InputInteractionProvider>
-            </EditorWorkflowBoundaryProvider>
-          </EditorLayoutProvider>
-          <InputModeNotice />
-        </section>
-      </ScrollArea>
+            <EditorLayoutProvider
+              width={layoutWidth}
+              height={layoutHeight}
+              workspaceLayoutSelection={workspaceLayoutSelection}
+              workspaceLayoutConfiguration={activeWorkspaceLayoutConfiguration}
+              onWorkspaceLayoutModeChange={setWorkspaceLayoutMode}
+            >
+              <EditorWorkflowBoundaryProvider value={workflowHost.boundary}>
+                <InputInteractionProvider mode={inputInteractionMode}>
+                  <CanvasScaleProvider scale={uiElementScale}>
+                    {measured ? children : null}
+                  </CanvasScaleProvider>
+                </InputInteractionProvider>
+              </EditorWorkflowBoundaryProvider>
+            </EditorLayoutProvider>
+            <InputModeNotice />
+          </section>
+        </ScrollArea>
+        <UiPortalRoot />
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 .root {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: var(--ui-z-menu-overlay, 9000);
   pointer-events: none;
