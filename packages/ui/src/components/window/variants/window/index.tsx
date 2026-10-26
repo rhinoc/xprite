@@ -66,6 +66,9 @@ export interface WindowVariantProps {
   /** Side margin when constrained; omit to flush (export dialogs). Files passes metrics.viewportEdgeInset. */
   viewportEdgeInset?: number;
   contentLayout?: OverlayContentLayout;
+  /** When false, the client never shows a horizontal scrollbar (vertical may still scroll). */
+  scrollX?: boolean;
+  scrollY?: boolean;
   children?: ReactNode | ((context: WindowVariantContext) => ReactNode);
   titlebarActions?: ReactNode | ((context: WindowVariantContext) => ReactNode);
   className?: string;
@@ -117,6 +120,8 @@ export function WindowVariant({
   constrainToViewport = false,
   viewportEdgeInset = 0,
   contentLayout = OverlayContentLayout.Positioned,
+  scrollX,
+  scrollY,
   children,
   titlebarActions,
   className,
@@ -449,6 +454,8 @@ export function WindowVariant({
     label: displayTitle,
     clientOverflow: constrainToViewport ? "auto" : "hidden",
     contentLayout,
+    scrollX,
+    scrollY,
     titleIcon,
     inactive,
     viewportRef: focusReveal.viewportRef,
