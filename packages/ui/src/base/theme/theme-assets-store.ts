@@ -60,10 +60,12 @@ function cjkFaceRequests(typography: UiStyleDefinition["typography"]) {
   });
 }
 
-function loadThemeCjkFonts(typography: UiStyleDefinition["typography"]) {
-  return Promise.all(
+async function loadThemeCjkFonts(typography: UiStyleDefinition["typography"], uiTheme: UiTheme) {
+  await uiTheme.loadCjkFonts?.();
+  const ready = await Promise.all(
     cjkFaceRequests(typography).map((face) => loadCjkFont(face.family, face.size)),
-  ).then((ready) => ready.every(Boolean));
+  );
+  return ready.every(Boolean);
 }
 
 export function subscribeThemeAssets(
@@ -200,7 +202,7 @@ export function preloadThemeAssets(
     return existing.then(async (assets) => {
       const current = cachedAssets.get(colorScheme) ?? assets;
       if (current.cjkFontReady || !CJK_LANGUAGE_PATTERN.test(language)) return current;
-      const cjkFontReady = await loadThemeCjkFonts(current.theme.typography);
+      const cjkFontReady = await loadThemeCjkFonts(current.theme.typography, uiTheme);
       const latest = cachedAssets.get(colorScheme) ?? current;
       if (latest.cjkFontReady || !cjkFontReady) return latest;
       const ready = { ...latest, cjkFontReady };
@@ -211,9 +213,7 @@ export function preloadThemeAssets(
   }
   const promise = loadThemeModule(colorScheme, uiTheme).then(async (module) => {
     const typography = module.definition.typography;
-    const needsCjkFont =
-      typography[FontRole.Primary].renderer === UiFontRenderer.Bitmap ||
-      CJK_LANGUAGE_PATTERN.test(language);
+    const needsCjkFont = CJK_LANGUAGE_PATTERN.test(language);
     const [sheet, fonts, cjkFontReady] = await Promise.all([
       loadImage(module.sheetUrl),
       Promise.all(
@@ -225,7 +225,7 @@ export function preloadThemeAssets(
           ] as const;
         }),
       ),
-      needsCjkFont ? loadThemeCjkFonts(typography) : Promise.resolve(false),
+      needsCjkFont ? loadThemeCjkFonts(typography, uiTheme) : Promise.resolve(false),
       loadThemeFonts(typography),
     ]);
     const fontAtlases = Object.fromEntries(fonts.filter(([, atlas]) => atlas !== undefined));

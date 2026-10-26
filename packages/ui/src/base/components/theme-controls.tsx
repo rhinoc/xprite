@@ -4,7 +4,6 @@ import { entrySelection } from "$/base/controls/control-policy";
 import { themeFontFamily } from "$/base/theme/font-families";
 import { paintPartSurface } from "$/base/theme/paint-part-surface";
 import {
-  isCjkGlyph,
   isPixelFallbackGlyph,
   pixelFallbackAdvance,
   measureThemeText,
@@ -73,7 +72,6 @@ export function useThemeAssets(colorScheme?: UiColorScheme): UiAssetBundle | nul
 const cjkPixelGlyphCache = new Map<string, HTMLCanvasElement>();
 const CJK_PIXEL_GLYPH_CACHE_LIMIT = 512;
 const CJK_PIXEL_COVERAGE_THRESHOLD = 64;
-const CJK_FONT_LANGUAGE = "zh";
 /**
  * Draw the CJK face at its own pixel size on the typography's CJK baseline, so
  * every glyph keeps its designed vertical position next to the Latin atlas.
@@ -315,11 +313,6 @@ export function paintThemeText(
     scale = options.scale ?? 2;
   const metrics = assets.theme.typography[font];
   if (metrics.renderer === UiFontRenderer.Native) {
-    if (!assets.cjkFontReady && [...text].some((char) => isCjkGlyph(char.codePointAt(0)!))) {
-      void preloadThemeAssets(assets.colorScheme, CJK_FONT_LANGUAGE, assets.uiTheme).catch(
-        reportThemeAssetError,
-      );
-    }
     context.save();
     context.font = `${(metrics.fontSize * scale) / RASTER_SCALE}px ${themeFontFamily(metrics)}`;
     context.textAlign = "left";

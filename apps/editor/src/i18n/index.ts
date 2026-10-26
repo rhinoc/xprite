@@ -1,12 +1,6 @@
 import { useSyncExternalStore } from "react";
 
 import en from "$/i18n/locales/en.json";
-import es from "$/i18n/locales/es.json";
-import ja from "$/i18n/locales/ja.json";
-import ko from "$/i18n/locales/ko.json";
-import ptBR from "$/i18n/locales/pt-BR.json";
-import ru from "$/i18n/locales/ru.json";
-import zhCN from "$/i18n/locales/zh-CN.json";
 import { browserLocalStorage as localStorage } from "@xprite/bedrock/browser/localstorage";
 
 const UI_LANGUAGES = ["en", "zh-CN", "ja", "ko", "ru", "pt-BR", "es"] as const;
@@ -14,15 +8,44 @@ export type UiLanguage = (typeof UI_LANGUAGES)[number];
 const DEFAULT_UI_LANGUAGE: UiLanguage = "en";
 const LANGUAGE_STORAGE_KEY = "xse.ui.language.v1";
 export type UiMessageKey = keyof typeof en;
-const locales: Record<UiLanguage, Record<string, string>> = {
+
+type LocaleMessages = Record<string, string>;
+
+const locales: Partial<Record<UiLanguage, LocaleMessages>> & { en: LocaleMessages } = {
   en,
-  "zh-CN": zhCN,
-  ja,
-  ko,
-  ru,
-  "pt-BR": ptBR,
-  es,
 };
+
+const localeLoaders: Record<
+  Exclude<UiLanguage, "en">,
+  () => Promise<{ default: LocaleMessages }>
+> = {
+  "zh-CN": () => import("$/i18n/locales/zh-CN.json"),
+  ja: () => import("$/i18n/locales/ja.json"),
+  ko: () => import("$/i18n/locales/ko.json"),
+  ru: () => import("$/i18n/locales/ru.json"),
+  "pt-BR": () => import("$/i18n/locales/pt-BR.json"),
+  es: () => import("$/i18n/locales/es.json"),
+};
+
+const localePending = new Map<UiLanguage, Promise<void>>();
+
+async function ensureLocale(language: UiLanguage): Promise<void> {
+  if (language === "en" || locales[language]) return;
+  let pending = localePending.get(language);
+  if (!pending) {
+    const loader = localeLoaders[language];
+    pending = loader()
+      .then((module) => {
+        locales[language] = module.default;
+      })
+      .finally(() => {
+        if (localePending.get(language) === pending) localePending.delete(language);
+      });
+    localePending.set(language, pending);
+  }
+  await pending;
+}
+
 const englishMessageKeys = new Map<string, UiMessageKey>(
   Object.entries(en).map(([key, message]) => [message, key as UiMessageKey] as const),
 );
@@ -49,7 +72,10 @@ function initialLanguage(): UiLanguage {
   return DEFAULT_UI_LANGUAGE;
 }
 
-let language = initialLanguage();
+/** Detected preference; published only after its locale map is available. */
+const detectedLanguage = initialLanguage();
+let language: UiLanguage = DEFAULT_UI_LANGUAGE;
+let languageReady = detectedLanguage === DEFAULT_UI_LANGUAGE;
 
 function subscribeLanguage(listener: () => void) {
   listeners.add(listener);
@@ -75,9 +101,13 @@ function interpolate(message: string, values?: Record<string, string | number>):
   return translated;
 }
 
+function messageFor(key: UiMessageKey): string {
+  return locales[language]?.[key] ?? en[key] ?? key;
+}
+
 /** Translate a stable message key from the current UI language corpus. */
 export function tUi(key: UiMessageKey, values?: Record<string, string | number>): string {
-  return interpolate(locales[language][key] ?? en[key], values);
+  return interpolate(messageFor(key), values);
 }
 
 /** Resolve text supplied by existing dynamic label catalogs, then translate by its stable key. */
@@ -85,7 +115,7 @@ export function tUiSource(source: string, values?: Record<string, string | numbe
   const key = Object.prototype.hasOwnProperty.call(en, source)
     ? (source as UiMessageKey)
     : englishMessageKeys.get(source);
-  return interpolate(key ? (locales[language][key] ?? en[key]) : source, values);
+  return interpolate(key ? messageFor(key) : source, values);
 }
 
 export function currentUiLanguage(): UiLanguage {
@@ -96,9 +126,26 @@ export function useUiLanguage() {
   return useSyncExternalStore(subscribeLanguage, languageSnapshot, languageSnapshot);
 }
 
+/**
+ * Ensure the active UI language's locale map is loaded before first paint of UI strings.
+ * Safe to call multiple times; resolves once the detected (or current) language is ready.
+ */
+export function prepareUiLanguage(): Promise<void> {
+  return bootLanguage;
+}
+
+const bootLanguage = (async () => {
+  await ensureLocale(detectedLanguage);
+  language = detectedLanguage;
+  languageReady = true;
+  publishLanguage();
+})();
+
 export async function changeUiLanguage(next: UiLanguage): Promise<void> {
-  if (language !== next) {
+  await ensureLocale(next);
+  if (language !== next || !languageReady) {
     language = next;
+    languageReady = true;
     publishLanguage();
   }
   try {

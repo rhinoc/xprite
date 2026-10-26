@@ -1,4 +1,7 @@
+import * as React from "react";
+
 import { themeFontFamily } from "$/base/theme/font-families";
+import { getThemeAssets, subscribeThemeAssets } from "$/base/theme/theme-assets-store";
 import { useTheme } from "$/base/theme/theme-context";
 import { FontRole } from "$/base/theme/theme-types";
 import { UiFontRenderer, type UiFontDefinition } from "$/base/theme/theme-types";
@@ -15,10 +18,11 @@ function cjkRunStyle(
   scale: number,
   titleCjk: boolean,
   offset: React.CSSProperties | undefined,
+  cjkFontReady: boolean,
 ): React.CSSProperties {
   const titleFamily = titleCjk ? font.titleCjkFontFamily : undefined;
   const titleSize = titleCjk ? font.titleCjkFontSize : undefined;
-  const family = titleFamily ?? font.cjkFontFamily;
+  const family = cjkFontReady ? (titleFamily ?? font.cjkFontFamily) : font.fallbackFontFamily;
   const size = titleSize ?? font.cjkFontSize;
   return {
     ...offset,
@@ -64,7 +68,18 @@ export function PositionedPixelText({
   titleCjk = false,
   style,
 }: Omit<PositionedPixelTextProps, "variant">) {
-  const { definition } = useTheme();
+  const { definition, colorScheme, uiTheme } = useTheme();
+  const cjkFontReady = React.useSyncExternalStore(
+    React.useCallback(
+      (listener: () => void) => subscribeThemeAssets(colorScheme, uiTheme, listener),
+      [colorScheme, uiTheme],
+    ),
+    React.useCallback(
+      () => getThemeAssets(colorScheme, uiTheme)?.cjkFontReady ?? false,
+      [colorScheme, uiTheme],
+    ),
+    () => false,
+  );
   const scriptRunStyle = useCjkRunStyle(scale);
   const metrics = definition.typography[font];
   const bitmapInDom = metrics.renderer === UiFontRenderer.Bitmap && metrics.atlasInDom;
@@ -104,7 +119,7 @@ export function PositionedPixelText({
             <span
               key={index}
               className={styles.fallbackCjk}
-              style={cjkRunStyle(metrics, scale, titleCjk, scriptRunStyle)}
+              style={cjkRunStyle(metrics, scale, titleCjk, scriptRunStyle, cjkFontReady)}
             >
               {run.text}
             </span>
@@ -136,7 +151,10 @@ export function PositionedPixelText({
       ) : metrics.renderer === UiFontRenderer.Bitmap ? (
         runs.map((run, index) =>
           run.cjk ? (
-            <span key={index} style={cjkRunStyle(metrics, scale, titleCjk, scriptRunStyle)}>
+            <span
+              key={index}
+              style={cjkRunStyle(metrics, scale, titleCjk, scriptRunStyle, cjkFontReady)}
+            >
               {run.text}
             </span>
           ) : (

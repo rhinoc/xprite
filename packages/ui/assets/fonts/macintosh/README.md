@@ -18,3 +18,7 @@ The Macintosh skin uses Fusion Pixel for Chinese text. ChiKareGo2 pairs with the
 FindersKeepers pairs with the 10px face: `size-adjust: 62.5%` turns that same 16px
 CSS size into a 10px request. The files stay in `assets/fonts/fusion-pixel/`.
 The Aseprite text tool uses the 12px face, and a 7px line's missing glyphs use the 8px face.
+
+The full Fusion CJK faces live in `cjk-fonts.css` and are injected only when the UI
+language is Asian (`zh` / `ja` / `ko`). Latin-script sessions keep the 35 KB base face
+from `fonts.css` so the language menu can still show 简体中文 without fetching ~1.8 MB.

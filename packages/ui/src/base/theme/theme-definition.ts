@@ -25,4 +25,6 @@ export interface UiTheme {
   readonly cursors: Readonly<Record<string, UiCursorArtwork>>;
   readonly typography: UiStyleDefinition["typography"];
   readonly load: (colorScheme: UiColorScheme) => Promise<UiThemeArtwork>;
+  /** Declare and fetch Asian/CJK Fusion faces. Called only for Asian UI languages. */
+  readonly loadCjkFonts?: () => Promise<void>;
 }
