@@ -199,10 +199,14 @@ export function ScenePanelFrame({
         contentStyle={
           contentLayout === OverlayContentLayout.Positioned
             ? {
-                width: clientBounds.width * sx,
+                // When X scrolling is off, fill the viewport so a vertical track cannot
+                // make a fixed scene-width plane wider than the client and spawn an X bar.
+                width: scrollX === false ? "100%" : clientBounds.width * sx,
                 height: clientBounds.height * sy,
                 minWidth: 0,
                 minHeight: 0,
+                maxWidth: scrollX === false ? "100%" : undefined,
+                boxSizing: "border-box",
               }
             : undefined
         }

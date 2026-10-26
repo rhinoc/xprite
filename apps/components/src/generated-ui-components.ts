@@ -45996,6 +45996,20 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
         hostProp: false,
       },
       {
+        name: "scrollX",
+        kind: "boolean",
+        required: false,
+        type: "boolean | undefined",
+        hostProp: false,
+      },
+      {
+        name: "scrollY",
+        kind: "boolean",
+        required: false,
+        type: "boolean | undefined",
+        hostProp: false,
+      },
+      {
         name: "children",
         kind: "node",
         required: false,

@@ -61,7 +61,10 @@ const FIELD_LABEL_HEIGHT = 18;
 const COMBO_HEIGHT = 30;
 const FOOTER_HEIGHT = 34;
 const BUTTON_WIDTH = 120;
+const BUTTON_GAP = 8;
 const SIZE_SEPARATOR = 16;
+/** Classic themed vertical track (scrollbar_size 12 × artwork scale 2), in scene units. */
+const VERTICAL_SCROLLBAR_TRACK = 24;
 /** Only these survive between imports; Custom size is a one-off, like the plain resize. */
 const REMEMBERED_ALGORITHMS: readonly PixelationAlgorithm[] = [
   PixelationAlgorithm.Auto,
@@ -162,6 +165,15 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     else workflow.acceptOriginalImport();
   };
 
+  // Window size stays put when Advanced opens; the body scrolls vertically. Preview height is
+  // sized from the collapsed stack so opening Advanced never steals canvas space.
+  const showDitherExtra =
+    showAdvanced && workflow.pixelationOptions.reduceColors
+      ? FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP
+      : 0;
+  const advancedHeight = showAdvanced
+    ? 4 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) + ROW_HEIGHT + GAP + showDitherExtra
+    : 0;
   const dialogWidth = Math.min(DIALOG_WIDTH, Math.max(DIALOG_MIN_WIDTH, sceneBounds.width));
   const dialogHeight = Math.min(
     DIALOG_HEIGHT,
@@ -194,6 +206,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       }}
       modal
       constrainToViewport
+      scrollX={false}
       resizable={false}
       title={tUi("import.dialog.title")}
       bounds={bounds}
@@ -202,30 +215,29 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       }}
     >
       {({ clientBounds: client }) => {
-        const width = client.width;
-        // Both Pixelate and Keep as is reserve the hint and Advanced rows, so toggling between
-        // them never resizes or moves the preview; Keep as is just leaves those rows empty.
+        // Both Pixelate and Keep as is reserve the hint and Advanced toggle rows, so toggling
+        // between them never resizes or moves the preview; Keep as is just leaves those rows empty.
+        // Advanced *fields* are excluded from the preview budget: they scroll inside the body.
         const hintHeight = pixelateMessage ? HINT_HEIGHT + GAP : 0;
         const advancedRowHeight = ROW_HEIGHT + GAP;
         const showDither = showAdvanced && workflow.pixelationOptions.reduceColors;
-        const advancedHeight = showAdvanced
-          ? 4 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) +
-            ROW_HEIGHT +
-            GAP +
-            (showDither ? FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP : 0)
-          : 0;
-        const bottomStack =
+        const collapsedBottom =
           SECTION_HEIGHT +
           4 +
           OPTION_HEIGHT +
           GAP +
           hintHeight +
           advancedRowHeight +
-          advancedHeight +
           ROW_HEIGHT +
           GAP +
           FOOTER_HEIGHT;
-        const previewHeight = Math.max(PREVIEW_MIN, client.height - bottomStack - GAP);
+        const previewHeight = Math.max(PREVIEW_MIN, client.height - collapsedBottom - GAP);
+        const contentHeight = previewHeight + GAP + collapsedBottom + advancedHeight;
+        // A vertical track must not make the fixed-width plane spill sideways (dual scrollbars).
+        const width =
+          contentHeight > client.height + 0.5
+            ? Math.max(0, client.width - VERTICAL_SCROLLBAR_TRACK)
+            : client.width;
         let y = previewHeight + GAP;
         const at = (height: number, extra = 0) => {
           const top = y;
@@ -250,8 +262,12 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const limitRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
         const ditherLabel = showDither ? at(FIELD_LABEL_HEIGHT) : null;
         const ditherCombo = showDither ? at(COMBO_HEIGHT, GAP) : null;
-        const rememberRow = at(ROW_HEIGHT);
-        const footerY = client.y + client.height - FOOTER_HEIGHT;
+        const rememberRow = at(ROW_HEIGHT, GAP);
+        const footerY = at(FOOTER_HEIGHT).y;
+        const buttonWidth = Math.min(
+          BUTTON_WIDTH,
+          Math.max(72, Math.floor((width - BUTTON_GAP) / 2)),
+        );
         const option = (value: ImportAction, label: string, x: number, w: number) => (
           <Button
             key={value}
@@ -487,9 +503,9 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
               pushedPart="button_selected"
               disabled={!canImport}
               bounds={{
-                x: client.x + width - 2 * BUTTON_WIDTH - 8,
+                x: client.x + width - 2 * buttonWidth - BUTTON_GAP,
                 y: footerY,
-                width: BUTTON_WIDTH,
+                width: buttonWidth,
                 height: FOOTER_HEIGHT,
               }}
               relativeTo={client}
@@ -503,9 +519,9 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
               focusedPart="button_focused"
               pushedPart="button_selected"
               bounds={{
-                x: client.x + width - BUTTON_WIDTH,
+                x: client.x + width - buttonWidth,
                 y: footerY,
-                width: BUTTON_WIDTH,
+                width: buttonWidth,
                 height: FOOTER_HEIGHT,
               }}
               relativeTo={client}
