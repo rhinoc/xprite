@@ -13,7 +13,13 @@ import type {
 export type ImportPixelationMemory = Partial<
   Pick<
     PixelationSettings,
-    "prepass" | "lineGuide" | "colorPicker" | "reduceColors" | "maxColors" | "dither"
+    | "prepass"
+    | "lineGuide"
+    | "colorPicker"
+    | "reduceColors"
+    | "maxColors"
+    | "dither"
+    | "paletteColorMode"
   >
 >;
 export interface SessionSource<Source> {

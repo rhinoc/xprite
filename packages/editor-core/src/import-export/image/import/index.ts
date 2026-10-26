@@ -5,7 +5,11 @@ export {
   countDistinctColors,
   reduceToPalette,
 } from "$/import-export/image/import/palette";
-export { snapPalette } from "$/import-export/image/import/palette-snap";
+export {
+  snapPalette,
+  estimateAdaptiveColorsForTest,
+  ADAPTIVE_COLOR_RANGE,
+} from "$/import-export/image/import/palette-snap";
 export { estimateTilt, straighten, MAX_TILT_DEGREES } from "$/import-export/image/import/deskew";
 export { resizeNearest } from "$/import-export/image/import/resize";
 export { pixelateImage } from "$/import-export/image/import/pixelate";
@@ -19,6 +23,7 @@ export {
   LineGuideMode,
   OutlinePrepass,
   PixelationDither,
+  PaletteColorMode,
 } from "$/import-export/image/import/types";
 export {
   DEFAULT_LINE_GUIDE,

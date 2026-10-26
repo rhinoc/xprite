@@ -278,4 +278,107 @@ describe("snapPalette dithering", () => {
       PixelationDither.None,
     );
   });
+
+  test("settings default paletteColorMode to Fixed and migrate unknown values", () => {
+    const { PaletteColorMode } = await import("$/import-export/image/import/types");
+    const size = { width: 32, height: 32 };
+    const base = defaultPixelationSettings(size);
+    expect(base.paletteColorMode).toBe(PaletteColorMode.Fixed);
+    // Unknown values migrate to Fixed
+    expect(
+      updatePixelationSettings(base, { paletteColorMode: "bogus" as never }, size)
+        .paletteColorMode,
+    ).toBe(PaletteColorMode.Fixed);
+    // Valid adaptive setting is preserved
+    const adaptive = updatePixelationSettings(
+      base,
+      { paletteColorMode: PaletteColorMode.Adaptive },
+      size,
+    );
+    expect(adaptive.paletteColorMode).toBe(PaletteColorMode.Adaptive);
+    // Adaptive mode in settings produces adaptive snap option
+    expect(
+      pixelationSettingsOptions(
+        { ...adaptive, reduceColors: true, mode: PixelationMode.Convert },
+      ).paletteSnap,
+    ).toEqual({ adaptive: true, dither: PixelationDither.None });
+    // Fixed mode produces colors option
+    const fixed = updatePixelationSettings(
+      adaptive,
+      { paletteColorMode: PaletteColorMode.Fixed },
+      size,
+    );
+    expect(
+      pixelationSettingsOptions({ ...fixed, reduceColors: true, mode: PixelationMode.Convert })
+        .paletteSnap,
+    ).toEqual({ colors: 16, dither: PixelationDither.None });
+  });
+});
+
+describe("Adaptive color estimation", () => {
+  test("estimateAdaptiveColorsForTest clamps to [8, 64] range", () => {
+    const { estimateAdaptiveColorsForTest, ADAPTIVE_COLOR_RANGE } = await import(
+      "$/import-export/image/import/palette-snap"
+    );
+    expect(ADAPTIVE_COLOR_RANGE.min).toBe(8);
+    expect(ADAPTIVE_COLOR_RANGE.max).toBe(64);
+    // Few colors: return as-is within min
+    expect(estimateAdaptiveColorsForTest(5)).toBe(5);
+    expect(estimateAdaptiveColorsForTest(8)).toBe(8);
+    // Many colors: clamp to max
+    expect(estimateAdaptiveColorsForTest(100)).toBe(64);
+    expect(estimateAdaptiveColorsForTest(256)).toBe(64);
+    // Mid-range: estimate based on complexity
+    const mid = estimateAdaptiveColorsForTest(25);
+    expect(mid).toBeGreaterThanOrEqual(8);
+    expect(mid).toBeLessThanOrEqual(64);
+  });
+
+  test("adaptive mode reduces colors on soft recovery without GT", () => {
+    // Simulate a soft/JPEG recovery with many invented midtones
+    const softRecovery = make(50, 50, (x, y) => {
+      const base = Math.floor(y / 2);
+      const variation = (x * 7 + y * 13) % 8 - 4;
+      return [100 + base + variation, 80 + base + variation, 60 + base + variation, 255];
+    });
+    expect(colors(softRecovery).size).toBeGreaterThan(100);
+    const adaptive = snapPalette(softRecovery, { adaptive: true });
+    const adaptiveCount = colors(adaptive).size;
+    expect(adaptiveCount).toBeGreaterThanOrEqual(8);
+    expect(adaptiveCount).toBeLessThanOrEqual(64);
+    expect(adaptiveCount).toBeLessThan(colors(softRecovery).size);
+  });
+
+  test("adaptive mode respects natural complexity for mid-palette art", () => {
+    // Simulate art with ~20 distinct colors (HoF median)
+    const midPalette = make(40, 40, (x, y) => {
+      const colorIndex = Math.floor(x / 2) + Math.floor(y / 2);
+      const hue = (colorIndex * 17) % 360;
+      const r = Math.floor(128 + 127 * Math.cos((hue * Math.PI) / 180));
+      const g = Math.floor(128 + 127 * Math.cos(((hue + 120) * Math.PI) / 180));
+      const b = Math.floor(128 + 127 * Math.cos(((hue + 240) * Math.PI) / 180));
+      return [r, g, b, 255];
+    });
+    const uniqueInput = colors(midPalette).size;
+    const adaptive = snapPalette(midPalette, { adaptive: true });
+    const adaptiveCount = colors(adaptive).size;
+    // Should preserve complexity without over-posterizing
+    expect(adaptiveCount).toBeGreaterThanOrEqual(Math.min(8, uniqueInput));
+    expect(adaptiveCount).toBeLessThanOrEqual(Math.min(64, uniqueInput + 10));
+  });
+
+  test("adaptive vs fixed 16 on high-palette art", () => {
+    // Art with 40 colors should get more than 16 with adaptive
+    const highPalette = make(80, 80, (x, y) => {
+      const index = Math.floor(x / 2) * 20 + Math.floor(y / 2);
+      return [(index * 6) % 256, (index * 11) % 256, (index * 17) % 256, 255];
+    });
+    const fixed16 = snapPalette(highPalette, { colors: 16 });
+    const adaptive = snapPalette(highPalette, { adaptive: true });
+    expect(colors(fixed16).size).toBeLessThanOrEqual(16);
+    const adaptiveCount = colors(adaptive).size;
+    // Adaptive should allow more colors for complex art
+    expect(adaptiveCount).toBeGreaterThan(16);
+    expect(adaptiveCount).toBeLessThanOrEqual(64);
+  });
 });

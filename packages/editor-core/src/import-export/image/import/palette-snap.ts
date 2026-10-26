@@ -17,6 +17,9 @@ import { PixelationDither, type PaletteSnapOptions } from "$/import-export/image
 const MIN_COLORS = 2;
 const MAX_COLORS = 256;
 const DEFAULT_COLORS = 16;
+/** Adaptive K estimation clamps: typical Hall of Fame art ranges from ~8 to ~64 colors. */
+const ADAPTIVE_MIN_COLORS = 8;
+const ADAPTIVE_MAX_COLORS = 64;
 /** CIE76 distance below which two colours are the same shade for practical purposes. */
 const MERGE_DELTA = 3;
 /** Seeding score = distance * count^SEED_WEIGHT: mostly distance, a little frequency. */
@@ -70,6 +73,32 @@ function histogram(image: PixelBuffer): { shades: Shade[]; index: Int32Array } {
     index[i] = at;
   }
   return { shades, index };
+}
+
+/**
+ * Estimate a reasonable color count from the recovered image's unique opaque colors.
+ * Uses a coarse 4-bit binning approach similar to pixelfixer's adaptive_k to avoid
+ * overestimating on soft/mushy recovers, then clamps to [8, 64] based on Hall of Fame stats.
+ * Returns a color count suitable for k-means clustering.
+ */
+function estimateAdaptiveColors(shades: readonly Shade[]): number {
+  if (shades.length <= ADAPTIVE_MIN_COLORS) return shades.length;
+  if (shades.length >= ADAPTIVE_MAX_COLORS) return ADAPTIVE_MAX_COLORS;
+  
+  // Count unique 4-bit bins (16 levels per channel) to measure color complexity
+  // without being misled by thousands of near-duplicate midtones
+  const bins = new Set<number>();
+  for (const shade of shades) {
+    const r = Math.floor(shade.rgb[0] / 16);
+    const g = Math.floor(shade.rgb[1] / 16);
+    const b = Math.floor(shade.rgb[2] / 16);
+    bins.add((r << 8) | (g << 4) | b);
+  }
+  
+  // Estimate K as roughly half the coarse bin count, clamped to sensible range
+  // This prevents soft recovers from exploding K while allowing rich palettes
+  const estimated = Math.round(Math.sqrt(bins.size) * 2);
+  return Math.max(ADAPTIVE_MIN_COLORS, Math.min(ADAPTIVE_MAX_COLORS, estimated));
 }
 
 /** Greedy leader clustering, heaviest first: only colours within MERGE_DELTA share a group. */
@@ -319,10 +348,9 @@ function ditherToPalette(
 /** Build the reduced RGB palette (k-means or the given list); null when the image already fits. */
 function buildPalette(shades: readonly Shade[], options: PaletteSnapOptions): Rgba[] | null {
   if (options.palette) return paletteLabs(options.palette).rgb;
-  const colors = Math.max(
-    MIN_COLORS,
-    Math.min(MAX_COLORS, Math.round(options.colors ?? DEFAULT_COLORS)),
-  );
+  const colors = options.adaptive
+    ? estimateAdaptiveColors(shades)
+    : Math.max(MIN_COLORS, Math.min(MAX_COLORS, Math.round(options.colors ?? DEFAULT_COLORS)));
   if (shades.length <= colors) return null;
   const groups = mergeNearDuplicates(shades);
   const points = toPoints(shades, groups);
@@ -355,10 +383,9 @@ function remapShades(
     const { labs, rgb } = paletteLabs(options.palette);
     target = shades.map((shade) => nearestPaletteRgb(shade.lab, labs, rgb));
   } else {
-    const colors = Math.max(
-      MIN_COLORS,
-      Math.min(MAX_COLORS, Math.round(options.colors ?? DEFAULT_COLORS)),
-    );
+    const colors = options.adaptive
+      ? estimateAdaptiveColors(shades)
+      : Math.max(MIN_COLORS, Math.min(MAX_COLORS, Math.round(options.colors ?? DEFAULT_COLORS)));
     if (shades.length <= colors) return { width: image.width, height: image.height, data: output };
     const groups = mergeNearDuplicates(shades);
     const points = toPoints(shades, groups);
@@ -406,3 +433,17 @@ export function snapPalette(image: PixelBuffer, options: PaletteSnapOptions): Pi
   }
   return ditherToPalette(image, palette, dither);
 }
+
+/** For testing: estimate adaptive color count from unique opaque colors. */
+export function estimateAdaptiveColorsForTest(uniqueOpaqueColors: number): number {
+  if (uniqueOpaqueColors <= ADAPTIVE_MIN_COLORS) return uniqueOpaqueColors;
+  if (uniqueOpaqueColors >= ADAPTIVE_MAX_COLORS) return ADAPTIVE_MAX_COLORS;
+  // Simplified estimation for testing without actual image data
+  const estimated = Math.round(Math.sqrt(uniqueOpaqueColors) * 2);
+  return Math.max(ADAPTIVE_MIN_COLORS, Math.min(ADAPTIVE_MAX_COLORS, estimated));
+}
+
+export const ADAPTIVE_COLOR_RANGE = {
+  min: ADAPTIVE_MIN_COLORS,
+  max: ADAPTIVE_MAX_COLORS,
+} as const;

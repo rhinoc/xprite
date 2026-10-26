@@ -9,6 +9,7 @@ import {
   CellColorPicker,
   LineGuideMode,
   OutlinePrepass,
+  PaletteColorMode,
   PixelationDither,
   PixelationMethod,
   PixelationMode,
@@ -57,6 +58,7 @@ export function defaultPixelationSettings(
     removeNoise: false,
     lockAspectRatio: true,
     dither: PixelationDither.None,
+    paletteColorMode: PaletteColorMode.Fixed,
     palette: null,
     paletteName: "",
   };
@@ -80,6 +82,10 @@ export function updatePixelationSettings(
     }
     delete (next as { snapPalette?: unknown }).snapPalette;
     delete (next as { snapColors?: unknown }).snapColors;
+  }
+  // Migrate settings saved before paletteColorMode: default to Fixed.
+  if (!Object.values(PaletteColorMode).includes(next.paletteColorMode as PaletteColorMode)) {
+    next.paletteColorMode = PaletteColorMode.Fixed;
   }
   if (!Object.values(LineGuideMode).includes(next.lineGuide)) next.lineGuide = DEFAULT_LINE_GUIDE;
   if (!Object.values(PixelationDither).includes(next.dither)) next.dither = PixelationDither.None;
@@ -160,11 +166,13 @@ export function pixelationSettingsOptions(
     lineGuide: settings.lineGuide,
     targetWidth: settings.targetWidth,
     targetHeight: settings.targetHeight,
-    // Limit colors: k-means to the colour count, or the loaded palette.
+    // Limit colors: k-means to the colour count, adaptive estimation, or the loaded palette.
     paletteSnap: settings.reduceColors
       ? settings.palette
         ? { palette: settings.palette, dither: settings.dither }
-        : { colors: settings.maxColors, dither: settings.dither }
+        : settings.paletteColorMode === PaletteColorMode.Adaptive
+          ? { adaptive: true, dither: settings.dither }
+          : { colors: settings.maxColors, dither: settings.dither }
       : undefined,
     method: settings.method,
     // A pre-pass hands its result to the colour rule, so the picker (not `method`) fills each block.
