@@ -10,6 +10,7 @@ import {
   Text,
   TextVariant,
 } from "@xprite/ui";
+import { useUiAssets } from "@xprite/ui/assets";
 
 /** Labels with no Latin descenders so ink spans compare cleanly across scripts. */
 export const ALIGNMENT_PROBE_LABELS = {
@@ -59,9 +60,13 @@ export function AlignmentProbe({ language }: { language: AlignmentProbeLanguage 
   const selectHeight = Number(new URLSearchParams(window.location.search).get("select-height"));
   const label = ALIGNMENT_PROBE_LABELS[language];
   const [checked, setChecked] = useState(true);
+  const assets = useUiAssets();
+  // Latin probes never need Asian faces; Asian probes wait until Fusion CJK is applied.
+  const cjkFontReady = language === "en" || Boolean(assets?.cjkFontReady);
   return (
     <div
       data-alignment-probe-root={language}
+      data-cjk-font-ready={cjkFontReady ? "true" : "false"}
       style={{ position: "fixed", inset: 0, background: "#fff", color: "#000" }}
     >
       <Row name="checkbox" index={0}>

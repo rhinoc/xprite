@@ -93,7 +93,8 @@ function loadCjkFont(family: string, size: number) {
   const pending = (async () => {
     if (typeof document === "undefined" || !document.fonts) return false;
     try {
-      const faces = await document.fonts.load(`${size}px ${family}`, "中");
+      // "图" is outside the Latin-page base unicode-range, so this waits on the full CJK face.
+      const faces = await document.fonts.load(`${size}px ${family}`, "图");
       return faces.some((face) => face.family === family && face.status === "loaded");
     } catch {
       return false;

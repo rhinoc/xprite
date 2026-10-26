@@ -56,6 +56,11 @@ async function capture(lang, hideText) {
     await page.waitForSelector("[data-alignment-probe=tabs] [role=tab]", {
       timeout: 30000,
     });
+    // Asian probes must wait until Fusion CJK faces are applied (lazy-loaded stylesheet),
+    // otherwise midpoints are measured against the Latin fallback metrics.
+    await page.waitForSelector(`[data-alignment-probe-root="${lang}"][data-cjk-font-ready=true]`, {
+      timeout: 30000,
+    });
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(1500);
     if (hideText) await page.addStyleTag({ content: HIDE_TEXT });
