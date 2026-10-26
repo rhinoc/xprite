@@ -60,8 +60,8 @@ const MIN_PURITY = 0.5;
 const MIN_CYCLE = 0.75;
 export const MIN_PHASE_CONTRAST = 0.2;
 /**
- * Diagnostic floor for scoreHypothesis. No longer used as an admission gate for soft candidates
- * entering the description-length ring.
+ * Diagnostic floor for scoreHypothesis. Soft candidates need non-zero score (pass purity+cycle
+ * gates) to enter the DL ring; low-contrast but high-quality grids receive half-weighted scores.
  */
 export const ARBITER_FLOOR = 0.3;
 
@@ -408,8 +408,9 @@ function score(context: ArbiterContext, grid: PixelGridAnalysis, full = false): 
   const boundary = boundaryEnergy(image, cutsX, cutsY);
   const accepted =
     enough && purity >= MIN_PURITY && cycle >= MIN_CYCLE && contrast >= MIN_PHASE_CONTRAST;
+  const lenient = enough && purity >= MIN_PURITY && cycle >= MIN_CYCLE;
   const weighted = PURITY_WEIGHT * purity + CYCLE_WEIGHT * cycle + BOUNDARY_WEIGHT * boundary;
-  const score = accepted ? weighted : 0;
+  const score = accepted ? weighted : lenient ? weighted * HALF : 0;
   return {
     grid: located,
     recovered,
@@ -528,7 +529,8 @@ export function arbitrateGrids(
           rows <= MAX_RECOVERED_GRID_SIZE
         ) {
           const scored = score(context, grid);
-          hypotheses.push({ ...scored.grid, confidence: scored.score, reliable: true });
+          if (scored.score > 0)
+            hypotheses.push({ ...scored.grid, confidence: scored.score, reliable: true });
         }
       }
     }
