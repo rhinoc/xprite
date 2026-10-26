@@ -19,15 +19,11 @@ import {
  * cuts snapped to the nearest edges, so a regular count can follow the cuts of the raster that
  * rounded it.
  *
- * Pitch-search lattices and proposals have passed no detector's tests, so they first face the
- * null test and the quality gates below:
- *
- * - Phase contrast (the null test): the per-line within-cell residual on the lattice against the
- *   same lattice shifted by half a cell. A real grid is phase-locked; a photo, gradient or
- *   vector drawing has the same residual at every phase.
- * - Cell purity: share of cells whose colour spread stays small.
- * - Cycle consistency: the recovered image, repainted through the same cuts, against the input.
- * - Boundary energy: colour steps on the cuts against steps at the cell middles.
+ * The winner is the hypothesis with the shortest description length. Structurally valid soft
+ * candidates (pitch-search lattices and proposals) are admitted to the ring after basic size
+ * checks only, without quality gates. The arbiter measures phase contrast, purity, cycle
+ * consistency, and boundary energy for diagnostics, but these do not exclude candidates from
+ * description-length competition.
  */
 const CHANNELS = 4;
 const ALPHA_SCALE = 255;
@@ -56,13 +52,17 @@ const CYCLE_WEIGHT = 0.5;
 const BOUNDARY_WEIGHT = 0.15;
 /**
  * Cells per axis a soft grid needs. With fewer, the phase contrast of large smooth features
- * (or waves) can line up with a lattice by chance.
+ * (or waves) can line up with a lattice by chance. Raised to exclude spurious coarse grids
+ * on gradients while admitting valid distorted pixel art (typically 50+ cells per axis).
  */
-const MIN_CELLS = 8;
+const MIN_CELLS = 30;
 const MIN_PURITY = 0.5;
 const MIN_CYCLE = 0.75;
-const MIN_PHASE_CONTRAST = 0.2;
-/** Lowest weighted score an accepted hypothesis may have. */
+export const MIN_PHASE_CONTRAST = 0.2;
+/**
+ * Diagnostic floor for scoreHypothesis. No longer used as an admission gate for soft candidates
+ * entering the description-length ring.
+ */
 export const ARBITER_FLOOR = 0.3;
 
 /** Prefix sums (premultiplied R, G, B and their summed squares) along sampled lines of one axis. */
@@ -189,8 +189,9 @@ const around = (centre: number, span: number) =>
 /**
  * The pitch (near the proposal) and phase whose cuts leave the least within-cell residual: a
  * coarse sweep on sparse lines, then a fine one around its best on dense lines, so a pitch
- * derived from a multiple still locks. Null when the coarse lattice already fails the null
- * test, which spares the fine sweep on photos.
+ * derived from a multiple still locks. The fine sweep is skipped when the coarse lattice shows
+ * low phase contrast (an efficiency optimization for photos), but the coarse fit is still
+ * returned so it can compete on description length.
  */
 function fitAxis(axis: Axis, proposed: number): AxisFit | null {
   const coarseStep = (pitch: number) =>
@@ -198,7 +199,7 @@ function fitAxis(axis: Axis, proposed: number): AxisFit | null {
   const coarse = sweep(axis.coarse, around(proposed, COARSE_PITCH_SPAN), (pitch) =>
     Array.from({ length: Math.round(pitch / coarseStep(pitch)) }, (_, k) => k * coarseStep(pitch)),
   );
-  if (phaseContrast(axis.coarse, coarse.cuts) < SCREEN_CONTRAST) return null;
+  if (phaseContrast(axis.coarse, coarse.cuts) < SCREEN_CONTRAST) return coarse;
   const step = coarseStep(coarse.pitch) / FINE_PHASE_STEPS;
   return sweep(axis.fine, around(coarse.pitch, FINE_PITCH_SPAN), () =>
     Array.from(
@@ -336,7 +337,10 @@ export interface ScoredHypothesis {
   /** The hypothesis with its cuts and cell counts filled in. */
   grid: PixelGridAnalysis;
   recovered: PixelBuffer;
-  /** Weighted score, 0 when a gate (purity, cycle, phase contrast) rejects the hypothesis. */
+  /**
+   * Weighted score, 0 when a gate (purity, cycle, phase contrast) rejects the hypothesis.
+   * Used for diagnostics and the `scoreHypothesis` export; not as an admission filter.
+   */
   score: number;
   purity: number;
   cycle: number;
@@ -483,10 +487,12 @@ function readings(image: PixelBuffer, grid: PixelGridAnalysis): ArbitratedGrid[]
 /**
  * The ring: every hypothesis in `grids` competes on its description length of the input,
  * whatever detector proposed it, and the shortest wins. When `grids` is empty and `soft` is
- * given, the ring holds the pitch-search lattices and, once a pitch was found, the `soft`
- * proposals instead, each only after it passes the gates and ARBITER_FLOOR. Null when the ring
- * stays empty. A winner from `grids` keeps its detector's confidence; any other carries its
- * arbiter score.
+ * given, the ring holds the pitch-search lattices and the `soft` proposals. Structurally valid
+ * soft candidates (basic size checks only) are admitted without quality gates, and a passthrough
+ * baseline (1×1 grid at original size) is added so garbage lattices compete against keeping the
+ * image unchanged. The winner is decided purely by description length. Null when the passthrough
+ * wins or the ring stays empty. A winner from `grids` keeps its detector's confidence; any other
+ * carries a score computed for diagnostics.
  */
 export function arbitrateGrids(
   image: PixelBuffer,
@@ -494,20 +500,44 @@ export function arbitrateGrids(
   soft?: GridProposals,
 ): ArbitratedGrid | null {
   const hypotheses = [...grids];
+  let passthroughLength: number | null = null;
   if (soft && !grids.length) {
     const context = contextOf(image);
     const lattices = pitchHypotheses(context);
-    if (lattices.length)
+    if (lattices.length) {
+      const passthrough: PixelGridAnalysis = {
+        width: 1,
+        height: 1,
+        cellWidth: image.width,
+        cellHeight: image.height,
+        offsetX: 0,
+        offsetY: 0,
+        confidence: 0,
+        reliable: false,
+        algorithm: PixelationAlgorithm.UniformGrid,
+      };
+      passthroughLength = readings(image, passthrough)[0]?.length ?? Infinity;
       for (const grid of [...lattices, ...soft()]) {
-        const scored = score(context, grid);
-        if (scored.score >= ARBITER_FLOOR)
+        const { cutsX, cutsY } = cutsOf(image, grid);
+        const columns = cutsX.length - 1,
+          rows = cutsY.length - 1;
+        if (
+          columns >= MIN_CELLS &&
+          rows >= MIN_CELLS &&
+          columns <= MAX_RECOVERED_GRID_SIZE &&
+          rows <= MAX_RECOVERED_GRID_SIZE
+        ) {
+          const scored = score(context, grid);
           hypotheses.push({ ...scored.grid, confidence: scored.score, reliable: true });
+        }
       }
+    }
   }
   let best: ArbitratedGrid | null = null;
   for (const grid of hypotheses)
     for (const reading of readings(image, grid))
       if (!best || reading.length < best.length) best = reading;
+  if (passthroughLength !== null && (!best || best.length >= passthroughLength)) return null;
   return best;
 }
 

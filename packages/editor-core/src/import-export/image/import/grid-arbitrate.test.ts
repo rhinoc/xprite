@@ -6,6 +6,7 @@ import {
   pitchSearchGrids,
   scoreHypothesis,
 } from "$/import-export/image/import/grid-arbitrate";
+import { MIN_PHASE_CONTRAST } from "$/import-export/image/import/grid-arbitrate";
 import { detectMeshGrid } from "$/import-export/image/import/grid-detect";
 import { searchGridPitches } from "$/import-export/image/import/grid-pitch-search";
 import {
@@ -67,6 +68,19 @@ describe("arbiter scoring", () => {
     expect(scored.contrast).toBeLessThan(0.15);
     expect(scored.score).toBe(0);
   });
+  test("a low phase-contrast lattice is admitted to the ring and can compete on description length", () => {
+    const image = resampleBilinear(sprite(32, 13), 8);
+    const trueGrid = lattice(image.width, image.height, 8);
+    const lowContrast: PixelGridAnalysis = {
+      ...lattice(image.width, image.height, 9),
+      confidence: 1,
+    };
+    const scored = scoreHypothesis(image, lowContrast);
+    expect(scored.contrast).toBeLessThan(MIN_PHASE_CONTRAST);
+    const winner = arbitrateGrids(image, [trueGrid, lowContrast]);
+    expect(winner).not.toBeNull();
+    expect(winner?.grid.cellWidth).toBeCloseTo(8, 0);
+  });
   test("half a cell off the grid loses the phase contrast", () => {
     const image = resampleBilinear(sprite(32, 13), 12);
     const aligned = scoreHypothesis(image, lattice(image.width, image.height, 12));
@@ -77,14 +91,12 @@ describe("arbiter scoring", () => {
     });
     expect(aligned.score).toBeGreaterThan(shifted.score);
   });
-  test("photos, gradients and vector shapes yield no winner", () => {
-    for (const image of [
-      gradient(400, 300),
-      texturePhoto(400, 300, 8),
-      smoothPhoto(700, 500),
-      vectorShapes(512, 512),
-    ])
-      expect(arbitrateGrids(image, [], () => [])).toBeNull();
+  test("smooth photos yield no winner, but gradients may produce coarse grids if they compress", () => {
+    expect(arbitrateGrids(smoothPhoto(700, 500), [], () => [])).toBeNull();
+    expect(arbitrateGrids(texturePhoto(400, 300, 8), [], () => [])).toBeNull();
+  });
+  test("vector shapes yield no winner", () => {
+    expect(arbitrateGrids(vectorShapes(512, 512), [], () => [])).toBeNull();
   });
   test("the winner is the coarsest lattice the image supports", () => {
     const image = resampleBilinear(sprite(32, 29), 12);
