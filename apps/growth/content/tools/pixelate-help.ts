@@ -13,7 +13,7 @@ export const PIXELATE_HELP = {
   [PublicLanguage.SimplifiedChinese]: {
     title: "图片像素化与网格恢复",
     introduction:
-      "免费图片转像素画，无需上传。打开 PNG、JPEG 或 WebP（或「打开示例」）。处理只在本地进行，源文件不会被覆盖。模糊或 AI「像素画」需要对齐真实网格时，请改用「修复 AI 像素画」。",
+      "免费图片转像素画转换器，无需上传。打开 PNG、JPEG 或 WebP（或「打开示例」），把照片或插画转成像素画。处理只在本地进行，源文件不会被覆盖。模糊或偏离网格的 AI「像素画」请改用「修复 AI 像素画」（还原网格）。",
     sections: [
       {
         id: PixelateHelpSection.Convert,
@@ -42,12 +42,12 @@ export const PIXELATE_HELP = {
       },
     ],
     closing:
-      "预览会随设置更新。满意后点「继续编辑」在 Xprite 中打开，或点「导出…」保存 PNG。免费、无需账号、无需上传，文件只留在你的设备上。",
+      "预览会随设置更新。满意后点「继续编辑」在 Xprite 中作为新项目打开，或点「导出…」保存 PNG。免费、无需账号、无需上传。要把普通照片转成像素画用本工具；要对齐已有 AI 像素画的网格，请用「修复 AI 像素画」。",
   },
   [PublicLanguage.English]: {
-    title: "Pixelate an image or recover its grid",
+    title: "Image to pixel art converter",
     introduction:
-      "Free image to pixel art converter—no upload. Open a PNG, JPEG, or WebP (or Open example). Processing stays on your device; the source file is never overwritten. Soft or off-grid AI pixel art that needs a real grid belongs in Fix AI Pixel Art (Recover Grid) instead.",
+      "Free image to pixel art converter—no upload. Open a PNG, JPEG, or WebP (or Open example) to turn a photo or drawing into pixel art. Processing stays on your device; the source file is never overwritten. Soft or off-grid AI pixel art that needs a real grid belongs in Fix AI Pixel Art (Recover Grid) instead.",
     sections: [
       {
         id: PixelateHelpSection.Convert,
@@ -79,7 +79,7 @@ export const PIXELATE_HELP = {
       },
     ],
     closing:
-      "The preview updates with your settings. When it looks right, use Edit more to open the result in Xprite, or Export… for PNG. Free, no account, no upload—files stay on your device.",
+      "The preview updates with your settings. When it looks right, use Edit more to open the result in Xprite as a new project, or Export… for PNG. Free, no account, no upload. Photo → pixel art is this converter; recovering a soft AI grid is Fix AI Pixel Art.",
   },
   [PublicLanguage.Japanese]: {
     title: "画像をドット絵化・グリッドを復元",
