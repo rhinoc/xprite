@@ -5,6 +5,7 @@ import { blockPartition } from "$/import-export/image/import/grid";
 import { arbitrateGrids } from "$/import-export/image/import/grid-arbitrate";
 import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
 import { detectFrameLattices } from "$/import-export/image/import/grid-frame-lattice";
+import { detectBoundaryPeriodGrids } from "$/import-export/image/import/grid-period-boundary";
 import { recoverGrid } from "$/import-export/image/import/grid-sample";
 import { sharpenForGridDetect } from "$/import-export/image/import/grid-sharpen-prepass";
 import { resizeBox } from "$/import-export/image/import/resize";
@@ -95,16 +96,27 @@ const customSize = (image: PixelBuffer, size?: PixelationSize): PixelGridAnalysi
   };
 };
 
-/** The edge detectors' grids on a sharpened copy: extra hypotheses for the arbiter. */
+/**
+ * Soft proposals for the arbiter when no reliable detector grid was found:
+ * - Edge detectors on a sharpened copy
+ * - Boundary run-length period grids for painterly inputs
+ *
+ * Each proposal competes on min-DL alongside pitch-search lattices and the passthrough baseline.
+ */
 function sharpenedProposals(image: PixelBuffer): PixelGridAnalysis[] {
   const sharpened = sharpenForGridDetect(image);
-  return [
+  const edgeProposals = [
     { ...detectMeshGrid(sharpened), algorithm: PixelationAlgorithm.EdgeGrid },
     {
       ...detectUniformGrid(sharpened),
       algorithm: PixelationAlgorithm.UniformGrid,
     },
   ].filter((grid) => grid.reliable);
+
+  // Boundary period proposals: multiple candidates for painterly/soft inputs
+  const periodProposals = detectBoundaryPeriodGrids(image);
+
+  return [...edgeProposals, ...periodProposals];
 }
 
 /**
