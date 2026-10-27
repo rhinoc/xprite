@@ -460,7 +460,13 @@ function readings(image: PixelBuffer, grid: PixelGridAnalysis): ArbitratedGrid[]
   const { cutsX, cutsY } = cutsOf(image, grid);
   const columns = cutsX.length - 1,
     rows = cutsY.length - 1;
-  if (Math.min(columns, rows) < 2 || Math.max(columns, rows) > MAX_RECOVERED_GRID_SIZE) return [];
+  // Allow 1×1 passthrough baseline, reject < 2 otherwise
+  if (
+    Math.min(columns, rows) < 1 ||
+    (Math.min(columns, rows) === 1 && Math.max(columns, rows) !== 1) ||
+    Math.max(columns, rows) > MAX_RECOVERED_GRID_SIZE
+  )
+    return [];
   const located = { ...grid, width: columns, height: rows, cutsX, cutsY };
   if (grid.algorithm === PixelationAlgorithm.EdgeGrid)
     return [{ grid, length: descriptionLength(image, { cutsX, cutsY, model: CutModel.Free }) }];
@@ -481,29 +487,51 @@ function readings(image: PixelBuffer, grid: PixelGridAnalysis): ArbitratedGrid[]
 }
 
 /**
- * The ring: every hypothesis in `grids` competes on its description length of the input,
- * whatever detector proposed it, and the shortest wins. When `grids` is empty and `soft` is
- * given, the ring holds the pitch-search lattices and, once a pitch was found, the `soft`
- * proposals instead, each only after it passes the gates and ARBITER_FLOOR. Null when the ring
- * stays empty. A winner from `grids` keeps its detector's confidence; any other carries its
- * arbiter score.
+ * Pure min-DL arbitration: every detector runs, every candidate (plus passthrough baseline)
+ * enters the ring, and the shortest description length wins. No admission gates, no score
+ * thresholds, no conditional expansion. The winner's confidence comes from its source detector
+ * or arbiter score.
  */
 export function arbitrateGrids(
   image: PixelBuffer,
   grids: readonly PixelGridAnalysis[],
   soft?: GridProposals,
 ): ArbitratedGrid | null {
-  const hypotheses = [...grids];
-  if (soft && !grids.length) {
+  const hypotheses: PixelGridAnalysis[] = [...grids];
+
+  // Always run soft detectors when available (pitch search, boundary period, sharpened edge, etc.)
+  if (soft) {
     const context = contextOf(image);
     const lattices = pitchHypotheses(context);
-    if (lattices.length)
-      for (const grid of [...lattices, ...soft()]) {
-        const scored = score(context, grid);
-        if (scored.score >= ARBITER_FLOOR)
-          hypotheses.push({ ...scored.grid, confidence: scored.score, reliable: true });
-      }
+    const softProposals = soft();
+
+    // Add all pitch-search lattices
+    for (const grid of lattices) {
+      const scored = score(context, grid);
+      hypotheses.push({ ...scored.grid, confidence: scored.score, reliable: true });
+    }
+
+    // Add all soft proposals (boundary period, sharpened edge, etc.)
+    for (const grid of softProposals) {
+      const scored = score(context, grid);
+      hypotheses.push({ ...scored.grid, confidence: scored.score, reliable: true });
+    }
   }
+
+  // Always include passthrough baseline (1×1, no subdivision)
+  hypotheses.push({
+    width: 1,
+    height: 1,
+    cellWidth: image.width,
+    cellHeight: image.height,
+    offsetX: 0,
+    offsetY: 0,
+    confidence: 0,
+    reliable: true,
+    algorithm: PixelationAlgorithm.UniformGrid,
+  });
+
+  // Pure min-DL: shortest description length wins
   let best: ArbitratedGrid | null = null;
   for (const grid of hypotheses)
     for (const reading of readings(image, grid))
