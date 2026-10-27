@@ -1,8 +1,10 @@
 import { describe, expect, test } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
-
-import { detectBoundaryPeriodGrids, detectBoundaryPeriodGrid } from "./grid-period-boundary";
+import {
+  detectBoundaryPeriodGrids,
+  detectBoundaryPeriodGrid,
+} from "$/import-export/image/import/grid-period-boundary";
 
 /**
  * Create a synthetic image with a regular grid pattern.

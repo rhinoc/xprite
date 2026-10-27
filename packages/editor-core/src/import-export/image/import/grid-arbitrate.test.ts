@@ -1,8 +1,11 @@
 import { describe, expect, test } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
-
-import { arbitrateGrids, gridEvidence, twinCuts } from "./grid-arbitrate";
+import {
+  arbitrateGrids,
+  gridEvidence,
+  twinCuts,
+} from "$/import-export/image/import/grid-arbitrate";
 import {
   gradient,
   mush,
@@ -11,8 +14,8 @@ import {
   sprite,
   upscaleBilinear,
   upscaleNearest,
-} from "./grid-test-images";
-import { PixelationAlgorithm, type PixelGridAnalysis } from "./types";
+} from "$/import-export/image/import/grid-test-images";
+import { PixelationAlgorithm, type PixelGridAnalysis } from "$/import-export/image/import/types";
 
 const STRIDE = 4;
 const OPAQUE_WHITE = 255;
