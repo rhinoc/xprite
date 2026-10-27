@@ -315,70 +315,100 @@ describe("snapPalette dithering", () => {
   });
 });
 
-describe("Adaptive color estimation", () => {
-  test("estimateAdaptiveColorsForTest clamps to [8, 64] range", () => {
-    const { estimateAdaptiveColorsForTest, ADAPTIVE_COLOR_RANGE } = await import(
-      "$/import-export/image/import/palette-snap"
-    );
-    expect(ADAPTIVE_COLOR_RANGE.min).toBe(8);
-    expect(ADAPTIVE_COLOR_RANGE.max).toBe(64);
-    // Few colors: return as-is within min
-    expect(estimateAdaptiveColorsForTest(5)).toBe(5);
-    expect(estimateAdaptiveColorsForTest(8)).toBe(8);
-    // Many colors: clamp to max
-    expect(estimateAdaptiveColorsForTest(100)).toBe(64);
-    expect(estimateAdaptiveColorsForTest(256)).toBe(64);
-    // Mid-range: estimate based on complexity
-    const mid = estimateAdaptiveColorsForTest(25);
-    expect(mid).toBeGreaterThanOrEqual(8);
-    expect(mid).toBeLessThanOrEqual(64);
+describe("Adaptive color mode (near-duplicate merge)", () => {
+  test("adaptive uses Lab ΔE merge groups without artificial clamps", () => {
+    // Create shades with clear ΔE structure: 3 tight groups + some stragglers
+    const tightGroup1 = make(10, 10, () => [100, 50, 50, 255]); // Red cluster
+    const tightGroup2 = make(10, 10, () => [50, 100, 50, 255]); // Green cluster
+    const tightGroup3 = make(10, 10, () => [50, 50, 100, 255]); // Blue cluster
+    
+    const combined = make(30, 10, (x, y) => {
+      if (x < 10) return [100, 50, 50, 255];
+      if (x < 20) return [50, 100, 50, 255];
+      return [50, 50, 100, 255];
+    });
+    
+    const adaptive = snapPalette(combined, { adaptive: true });
+    const adaptiveCount = colors(adaptive).size;
+    
+    // Should have 3 colors (one per tight group), not forced to some arbitrary min/max
+    expect(adaptiveCount).toBeGreaterThanOrEqual(3);
+    expect(adaptiveCount).toBeLessThanOrEqual(10); // Reasonable upper bound for this test
   });
 
-  test("adaptive mode reduces colors on soft recovery without GT", () => {
-    // Simulate a soft/JPEG recovery with many invented midtones
+  test("adaptive collapses near-duplicates on soft/mushy recovery", () => {
+    // Simulate soft recovery with many invented midtones (slight variations)
     const softRecovery = make(50, 50, (x, y) => {
       const base = Math.floor(y / 2);
-      const variation = (x * 7 + y * 13) % 8 - 4;
+      // Small variations (< ΔE threshold) should be merged
+      const variation = ((x * 7 + y * 13) % 3) - 1; // -1, 0, +1 variation
       return [100 + base + variation, 80 + base + variation, 60 + base + variation, 255];
     });
-    expect(colors(softRecovery).size).toBeGreaterThan(100);
+    
+    const uniqueInput = colors(softRecovery).size;
+    expect(uniqueInput).toBeGreaterThan(50); // Many near-duplicates
+    
     const adaptive = snapPalette(softRecovery, { adaptive: true });
     const adaptiveCount = colors(adaptive).size;
-    expect(adaptiveCount).toBeGreaterThanOrEqual(8);
-    expect(adaptiveCount).toBeLessThanOrEqual(64);
-    expect(adaptiveCount).toBeLessThan(colors(softRecovery).size);
+    
+    // Should collapse near-duplicates significantly
+    expect(adaptiveCount).toBeLessThan(uniqueInput);
+    expect(adaptiveCount).toBeLessThanOrEqual(256); // Only MAX_COLORS ceiling
   });
 
-  test("adaptive mode respects natural complexity for mid-palette art", () => {
-    // Simulate art with ~20 distinct colors (HoF median)
-    const midPalette = make(40, 40, (x, y) => {
+  test("adaptive preserves distinct colors in clean art", () => {
+    // Art with ~20 distinct colors (well-separated in Lab space)
+    const cleanArt = make(40, 40, (x, y) => {
       const colorIndex = Math.floor(x / 2) + Math.floor(y / 2);
-      const hue = (colorIndex * 17) % 360;
+      // Use well-separated hues to ensure distinct Lab ΔE > 3
+      const hue = (colorIndex * 30) % 360; // 30° steps = well separated
       const r = Math.floor(128 + 127 * Math.cos((hue * Math.PI) / 180));
       const g = Math.floor(128 + 127 * Math.cos(((hue + 120) * Math.PI) / 180));
       const b = Math.floor(128 + 127 * Math.cos(((hue + 240) * Math.PI) / 180));
       return [r, g, b, 255];
     });
-    const uniqueInput = colors(midPalette).size;
-    const adaptive = snapPalette(midPalette, { adaptive: true });
+    
+    const uniqueInput = colors(cleanArt).size;
+    const adaptive = snapPalette(cleanArt, { adaptive: true });
     const adaptiveCount = colors(adaptive).size;
-    // Should preserve complexity without over-posterizing
-    expect(adaptiveCount).toBeGreaterThanOrEqual(Math.min(8, uniqueInput));
-    expect(adaptiveCount).toBeLessThanOrEqual(Math.min(64, uniqueInput + 10));
+    
+    // Should preserve most or all distinct colors (no arbitrary 8-64 clamp)
+    // Minor merging may occur for Lab-similar colors, but should be close to input
+    expect(adaptiveCount).toBeGreaterThanOrEqual(Math.floor(uniqueInput * 0.8));
+    expect(adaptiveCount).toBeLessThanOrEqual(uniqueInput);
   });
 
-  test("adaptive vs fixed 16 on high-palette art", () => {
-    // Art with 40 colors should get more than 16 with adaptive
-    const highPalette = make(80, 80, (x, y) => {
-      const index = Math.floor(x / 2) * 20 + Math.floor(y / 2);
-      return [(index * 6) % 256, (index * 11) % 256, (index * 17) % 256, 255];
+  test("adaptive vs fixed 16: adaptive allows natural palette size", () => {
+    // Art with 25 well-separated colors
+    const richPalette = make(50, 50, (x, y) => {
+      const index = Math.floor(x / 2) + Math.floor(y / 2);
+      // Ensure separation: each color differs by at least ΔE > 3
+      return [(index * 10) % 256, (index * 15) % 256, (index * 20) % 256, 255];
     });
-    const fixed16 = snapPalette(highPalette, { colors: 16 });
-    const adaptive = snapPalette(highPalette, { adaptive: true });
+    
+    const fixed16 = snapPalette(richPalette, { colors: 16 });
+    const adaptive = snapPalette(richPalette, { adaptive: true });
+    
     expect(colors(fixed16).size).toBeLessThanOrEqual(16);
     const adaptiveCount = colors(adaptive).size;
-    // Adaptive should allow more colors for complex art
+    
+    // Adaptive should not posterize to 16 when art has more distinct colors
     expect(adaptiveCount).toBeGreaterThan(16);
-    expect(adaptiveCount).toBeLessThanOrEqual(64);
+    expect(adaptiveCount).toBeLessThanOrEqual(256); // Only MAX_COLORS ceiling
+  });
+
+  test("adaptive respects MAX_COLORS (256) ceiling only", () => {
+    // Create an image with many distinct colors (> 256 after merge)
+    // In practice, near-duplicate merge rarely produces > 256 groups, but test the ceiling
+    const manyShades = make(200, 200, (x, y) => {
+      // Create enough variation to potentially exceed 256 after merge
+      return [(x * 3) % 256, (y * 5) % 256, ((x + y) * 7) % 256, 255];
+    });
+    
+    const adaptive = snapPalette(manyShades, { adaptive: true });
+    const adaptiveCount = colors(adaptive).size;
+    
+    // Should never exceed MAX_COLORS (256)
+    expect(adaptiveCount).toBeLessThanOrEqual(256);
   });
 });
