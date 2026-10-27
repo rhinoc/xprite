@@ -13,8 +13,8 @@ import type { PixelBuffer } from "$/base/primitives";
  *   that repeats its neighbour costs almost nothing, so cutting a flat run finer, or merging
  *   repeated columns of pixel art, changes little, while a cell of new colour costs about the
  *   precision it is given to.
- * - Each cell costs one parameter (half the log of the samples, as in BIC), so equal fits keep the
- *   coarser grid. A lattice costs four cut parameters; a lattice snapped to edges adds each cut's
+ * - Each cell costs one parameter (half the log of the samples, as in BIC), scaled by CELL_PARAMETERS so equal fits keep the
+ *   coarser grid without drowning a small residual win. A lattice costs four cut parameters; a lattice snapped to edges adds each cut's
  *   offset within its radius (weighted so mild snaps stay expensive); a free mesh pays MESH_CUT_PARAMETERS per cut.
  *
  * The rebuild is nearest (each pixel takes its cell's mean) or bilinear (between cell centres
@@ -44,6 +44,13 @@ const MESH_CUT_PARAMETERS = 80;
  * useful when residual drops a lot (jittered soft grids) but stops mild snap fits from winning.
  */
 const SNAP_OFFSET_WEIGHT = 400;
+/**
+ * Per described cell in the structure term (BIC-style). Full weight (1) made a coarser wrong
+ * covering lattice beat the true count when residual only improves slightly (painterly scale
+ * noise). A fractional weight keeps a cell prior so invented fine grids still lose, while a
+ * better residual at the true count can win.
+ */
+const CELL_PARAMETERS = 0.55;
 
 export enum CutModel {
   /** One lattice per axis. */
@@ -241,7 +248,7 @@ export function descriptionLength(image: PixelBuffer, cuts: GridCuts): number {
   let described = 0;
   for (const count of counts) if (count) described++;
   const perParameter = Math.log(samples) / 2;
-  const structure = cutCost(cuts, perParameter) + described * perParameter;
+  const structure = cutCost(cuts, perParameter) + described * perParameter * CELL_PARAMETERS;
   const reading = (error: number, colours: Float64Array) => {
     const variance = error / samples + RESIDUAL_FLOOR;
     return (
