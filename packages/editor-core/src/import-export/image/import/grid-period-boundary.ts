@@ -206,51 +206,70 @@ export function detectBoundaryPeriodGrids(image: PixelBuffer): PixelGridAnalysis
 
   if (xCandidates.length === 0 || yCandidates.length === 0) return [];
 
-  // Generate grid proposals from period combinations
+  // Generate grid proposals from period combinations.
+  // For each axis step, emit covering lattices at floor/round/ceil cell counts so a step
+  // that lands between two integers (e.g. 826/2.35 ≈ 351.5) still proposes the true count.
   const grids: PixelGridAnalysis[] = [];
+  const seen = new Set<string>();
 
-  // Try top candidate from each axis
+  /**
+   * Covering cell counts for a period: always the nearest integer, plus the other side when
+   * length/step is near halfway (so 826/2.35 ≈ 351.5 still proposes 352). Far-from-half
+   * fractions (545/2.35 ≈ 231.91) keep only the rounded count — emitting the farther floor
+   * let a lower-residual wrong height win on painterly inputs.
+   */
+  const countNeighbors = (length: number, step: number): number[] => {
+    const exact = length / step;
+    if (!Number.isFinite(exact) || exact <= 0) return [];
+    const rounded = Math.round(exact);
+    const neighbors = [rounded];
+    const frac = exact - Math.floor(exact);
+    if (frac > 0.35 && frac < 0.65) {
+      const other = frac >= 0.5 ? Math.floor(exact) : Math.ceil(exact);
+      if (other > 0 && other !== rounded) neighbors.push(other);
+    }
+    return neighbors;
+  };
+
   for (const xCand of xCandidates.slice(0, 3)) {
     for (const yCand of yCandidates.slice(0, 3)) {
-      const cellWidth = xCand.step;
-      const cellHeight = yCand.step;
-      const cols = Math.round(width / cellWidth);
-      const rows = Math.round(height / cellHeight);
-
-      // Check cell count constraints
-      if (
-        cols < MIN_CELLS ||
-        rows < MIN_CELLS ||
-        cols * rows < MIN_GRID_CELLS ||
-        cols > MAX_RECOVERED_GRID_SIZE ||
-        rows > MAX_RECOVERED_GRID_SIZE
-      ) {
-        continue;
-      }
-
-      // Image-covering lattice for the rounded cell counts (not the raw float step): uneven
-      // trailing cells from step-based cuts inflated description length of the true count.
-      const coverWidth = width / cols;
-      const coverHeight = height / rows;
-      const cutsX = pixelGridCuts(width, coverWidth, 0);
-      const cutsY = pixelGridCuts(height, coverHeight, 0);
-
-      // Confidence is the minimum of the two axis scores
       const confidence = Math.min(xCand.score, yCand.score);
+      for (const cols of countNeighbors(width, xCand.step)) {
+        for (const rows of countNeighbors(height, yCand.step)) {
+          if (
+            cols < MIN_CELLS ||
+            rows < MIN_CELLS ||
+            cols * rows < MIN_GRID_CELLS ||
+            cols > MAX_RECOVERED_GRID_SIZE ||
+            rows > MAX_RECOVERED_GRID_SIZE
+          ) {
+            continue;
+          }
+          const key = `${cols}x${rows}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
 
-      grids.push({
-        width: cols,
-        height: rows,
-        cellWidth: coverWidth,
-        cellHeight: coverHeight,
-        offsetX: 0,
-        offsetY: 0,
-        cutsX,
-        cutsY,
-        confidence,
-        reliable: true,
-        algorithm: PixelationAlgorithm.UniformGrid,
-      });
+          // Image-covering lattice for the cell counts (not the raw float step).
+          const coverWidth = width / cols;
+          const coverHeight = height / rows;
+          const cutsX = pixelGridCuts(width, coverWidth, 0);
+          const cutsY = pixelGridCuts(height, coverHeight, 0);
+
+          grids.push({
+            width: cols,
+            height: rows,
+            cellWidth: coverWidth,
+            cellHeight: coverHeight,
+            offsetX: 0,
+            offsetY: 0,
+            cutsX,
+            cutsY,
+            confidence,
+            reliable: true,
+            algorithm: PixelationAlgorithm.UniformGrid,
+          });
+        }
+      }
     }
   }
 
