@@ -15,7 +15,7 @@ import type { PixelBuffer } from "$/base/primitives";
  *   precision it is given to.
  * - Each cell costs one parameter (half the log of the samples, as in BIC), so equal fits keep the
  *   coarser grid. A lattice costs four cut parameters; a lattice snapped to edges adds each cut's
- *   offset within its radius; a free mesh pays MESH_CUT_PARAMETERS per cut.
+ *   offset within its radius (weighted so mild snaps stay expensive); a free mesh pays MESH_CUT_PARAMETERS per cut.
  *
  * The rebuild is nearest (each pixel takes its cell's mean) or bilinear (between cell centres
  * read from the image); the cheaper reading stands.
@@ -34,8 +34,16 @@ const LATTICE_CUT_PARAMETERS = 4;
 /**
  * Parameters a free mesh cut costs. Native pixel grids are regular, so a mesh must explain
  * markedly more than the lattice snapped to the same edges; a drifting or warped grid does.
+ * Kept high enough that a slightly wrong free mesh loses to a snapped lattice of the true count
+ * once snapped offsets themselves carry SNAP_OFFSET_WEIGHT.
  */
-const MESH_CUT_PARAMETERS = 20;
+const MESH_CUT_PARAMETERS = 80;
+/**
+ * Extra weight on Snapped cut-offset terms. Radius ≈ 1 made snap nearly free, so wrong lattices
+ * overfit edges and beat nearer covering lattices on description length. Large weight keeps snap
+ * useful when residual drops a lot (jittered soft grids) but stops mild snap fits from winning.
+ */
+const SNAP_OFFSET_WEIGHT = 400;
 
 export enum CutModel {
   /** One lattice per axis. */
@@ -182,8 +190,9 @@ function cutCost(cuts: GridCuts, perParameter: number): number {
     case CutModel.Snapped:
       return (
         lattice +
-        (across - 1) * Math.log(2 * (cuts.radiusX ?? 0) + 1) +
-        (down - 1) * Math.log(2 * (cuts.radiusY ?? 0) + 1)
+        SNAP_OFFSET_WEIGHT *
+          ((across - 1) * Math.log(2 * (cuts.radiusX ?? 0) + 1) +
+            (down - 1) * Math.log(2 * (cuts.radiusY ?? 0) + 1))
       );
     case CutModel.Free:
       return MESH_CUT_PARAMETERS * perParameter * (across + down - 2);

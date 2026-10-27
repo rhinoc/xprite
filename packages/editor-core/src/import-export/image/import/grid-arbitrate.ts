@@ -518,7 +518,7 @@ export function arbitrateGrids(
     }
   }
 
-  // Always include passthrough baseline (1×1, no subdivision)
+  // Always include passthrough baseline (1×1, no subdivision). Winning as 1×1 means refuse.
   hypotheses.push({
     width: 1,
     height: 1,
@@ -527,15 +527,18 @@ export function arbitrateGrids(
     offsetX: 0,
     offsetY: 0,
     confidence: 0,
-    reliable: true,
+    reliable: false,
     algorithm: PixelationAlgorithm.UniformGrid,
   });
 
-  // Pure min-DL: shortest description length wins
+  // Pure min-DL: shortest description length wins. Passthrough or native 1px cells → null.
   let best: ArbitratedGrid | null = null;
   for (const grid of hypotheses)
     for (const reading of readings(image, grid))
       if (!best || reading.length < best.length) best = reading;
+  if (!best) return null;
+  if (best.grid.width <= 1 && best.grid.height <= 1) return null;
+  if (best.grid.cellWidth <= 1 && best.grid.cellHeight <= 1) return null;
   return best;
 }
 
