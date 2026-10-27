@@ -20,10 +20,10 @@ import { PixelationAlgorithm, type PixelGridAnalysis } from "$/import-export/ima
 const MIN_STEP = 2.0;
 const MIN_CELLS = 4;
 const MIN_GRID_CELLS = 16;
-const MAX_STEP_SEARCH = 32;
-const STEP_INCREMENT = 0.1;
+const MAX_STEP_SEARCH = 48; // Expanded to cover larger periods
+const STEP_INCREMENT = 0.05; // Finer granularity for better precision
 /** Number of top-scoring periods to consider per axis. */
-const MAX_CANDIDATES_PER_AXIS = 6;
+const MAX_CANDIDATES_PER_AXIS = 8;
 /** Exponential weight decay for successive comb teeth (k0 in the reference). */
 const DECAY_CONSTANT = 12.0;
 /** Maximum teeth count (comb order) when scoring a period. */
@@ -36,20 +36,20 @@ interface RunLengthCandidate {
 
 /**
  * Extract run lengths of consecutive similar colors across sampled lines.
- * A run is a sequence of pixels whose color difference is below a threshold.
- * Returns histogram of run lengths for period detection.
+ * Uses a more permissive threshold to catch soft edges in painterly inputs.
  */
 function extractColorRuns(image: PixelBuffer, horizontal: boolean): number[] {
   const { width, height, data } = image;
   const scanLength = horizontal ? width : height;
   const crossLength = horizontal ? height : width;
 
-  // Sample lines with stride to limit work on large images
-  const maxSampledLines = 64;
+  // Sample more lines for better statistics
+  const maxSampledLines = 128;
   const stride = Math.max(1, Math.floor(crossLength / maxSampledLines));
 
   const runs: number[] = [];
-  const COLOR_THRESHOLD = 20; // RGB distance threshold for "same color"
+  // Looser threshold for painterly/blurred edges
+  const COLOR_THRESHOLD = 30;
 
   for (let line = 0; line < crossLength; line += stride) {
     let runLength = 0;
@@ -70,9 +70,8 @@ function extractColorRuns(image: PixelBuffer, horizontal: boolean): number[] {
       let similar = false;
       if (lastR >= 0) {
         const dist = Math.sqrt((r - lastR) ** 2 + (g - lastG) ** 2 + (b - lastB) ** 2);
-        // Weight alpha difference
         const alphaDiff = Math.abs(a - lastA);
-        similar = dist <= COLOR_THRESHOLD && alphaDiff <= 30;
+        similar = dist <= COLOR_THRESHOLD && alphaDiff <= 40;
       }
 
       if (i === 0 || similar) {
@@ -95,8 +94,9 @@ function extractColorRuns(image: PixelBuffer, horizontal: boolean): number[] {
 }
 
 /**
- * Score a period hypothesis by measuring how well it directly matches the observed run lengths.
- * Prefer periods that match the actual run lengths over periods that are factors.
+ * Score a period hypothesis using a comb-anticomb approach on run lengths.
+ * Comb peaks at k*step, anticomb at k*step ± 0.5*step.
+ * A true period will have strong alignment at multiples of the step.
  */
 function scorePeriod(runs: readonly number[], step: number): number {
   if (runs.length < 2 || step < MIN_STEP) return -1;
@@ -111,41 +111,55 @@ function scorePeriod(runs: readonly number[], step: number): number {
     totalRuns++;
   }
 
-  // Primary score: how many runs directly match the step (k=1)?
-  const window = Math.max(0.5, step * 0.1);
-  let directMatches = 0;
-  for (const [runLength, count] of histogram) {
-    if (Math.abs(runLength - step) <= window) {
-      directMatches += count;
-    }
-  }
-
-  const directScore = directMatches / totalRuns;
-
-  // Secondary score: harmonic alignment for multiples
   const maxK = Math.min(MAX_COMB_ORDER, Math.floor(maxRun / step));
-  let harmonicScore = 0;
+  if (maxK < 2) return -1;
+
+  let combScore = 0;
+  let antiCombScore = 0;
   let totalWeight = 0;
 
-  for (let k = 2; k <= maxK; k++) {
+  // Comb-anticomb scoring: measure alignment vs offset
+  for (let k = 1; k <= maxK; k++) {
     const target = k * step;
     const weight = Math.exp(-(k - 1) / DECAY_CONSTANT);
     totalWeight += weight;
 
-    let matchCount = 0;
+    // Window for "near" the target
+    const window = Math.max(0.5, step * 0.12);
+
+    // Comb: count runs near k*step
+    let combCount = 0;
+    // Anticomb: count runs near k*step ± 0.5*step
+    let antiCombCount = 0;
+
+    const offsetLeft = target - 0.5 * step;
+    const offsetRight = target + 0.5 * step;
+
     for (const [runLength, count] of histogram) {
-      if (Math.abs(runLength - target) <= window * k) {
-        matchCount += count;
+      const distTarget = Math.abs(runLength - target);
+      const distLeft = Math.abs(runLength - offsetLeft);
+      const distRight = Math.abs(runLength - offsetRight);
+
+      if (distTarget <= window) {
+        combCount += count;
+      }
+      if (distLeft <= window || distRight <= window) {
+        antiCombCount += count;
       }
     }
 
-    harmonicScore += (weight * matchCount) / totalRuns;
+    combScore += weight * combCount;
+    antiCombScore += weight * antiCombCount;
   }
 
-  const normalizedHarmonic = totalWeight > 0 ? harmonicScore / totalWeight : 0;
+  // Normalize by total weight and runs
+  if (totalWeight === 0 || totalRuns === 0) return -1;
 
-  // Heavily weight direct matches (80%) vs harmonics (20%)
-  return directScore * 0.8 + normalizedHarmonic * 0.2;
+  const normalizedComb = combScore / (totalWeight * totalRuns);
+  const normalizedAntiComb = antiCombScore / (totalWeight * totalRuns);
+
+  // Return comb - anticomb difference
+  return normalizedComb - normalizedAntiComb;
 }
 
 /**
