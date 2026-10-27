@@ -6,8 +6,9 @@ import { arbitrateGrids } from "$/import-export/image/import/grid-arbitrate";
 import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
 import { detectFrameLattices } from "$/import-export/image/import/grid-frame-lattice";
 import { detectBoundaryPeriodGrids } from "$/import-export/image/import/grid-period-boundary";
+import { combCountGrids } from "$/import-export/image/import/grid-period-comb";
+import { pitchLattices } from "$/import-export/image/import/grid-pitch-lattice";
 import { recoverGrid } from "$/import-export/image/import/grid-sample";
-import { sharpenForGridDetect } from "$/import-export/image/import/grid-sharpen-prepass";
 import { resizeBox } from "$/import-export/image/import/resize";
 import {
   CellColorPicker,
@@ -97,36 +98,23 @@ const customSize = (image: PixelBuffer, size?: PixelationSize): PixelGridAnalysi
 };
 
 /**
- * Soft proposals for the arbiter when no reliable detector grid was found:
- * - Edge detectors on a sharpened copy
- * - Boundary run-length period grids for painterly inputs
- *
- * Each proposal competes on min-DL alongside pitch-search lattices and the passthrough baseline.
+ * Every grid the image proposes beside the `auto` entries': lattices locked to the frame, to the
+ * pitch search's pitches and to the boundary run lengths, and lattices covering the image at the
+ * cell counts of the comb periods.
  */
-function sharpenedProposals(image: PixelBuffer): PixelGridAnalysis[] {
-  const sharpened = sharpenForGridDetect(image);
-  const edgeProposals = [
-    { ...detectMeshGrid(sharpened), algorithm: PixelationAlgorithm.EdgeGrid },
-    {
-      ...detectUniformGrid(sharpened),
-      algorithm: PixelationAlgorithm.UniformGrid,
-    },
-  ].filter((grid) => grid.reliable);
-
-  // Boundary period proposals: multiple candidates for painterly/soft inputs
-  const periodProposals = detectBoundaryPeriodGrids(image);
-
-  return [...edgeProposals, ...periodProposals];
-}
+const proposals = (image: PixelBuffer): PixelGridAnalysis[] => [
+  ...detectFrameLattices(image),
+  ...pitchLattices(image),
+  ...combCountGrids(image),
+  ...detectBoundaryPeriodGrids(image),
+];
 
 /**
- * Auto: every hypothesis competes on its description length of the input and the shortest wins,
- * whichever detector proposed it. The ring holds the reliable grids of the `auto` entries and the
- * frame lattices; when neither found a grid (soft upscales) it holds the pitch-search lattices and
- * the edge detectors' grids on a sharpened copy, which only propose cuts. The entries detect on a
- * straightened copy when the image carries a tilt, so the ring scores their grids there, beside
- * frame lattices of the same copy. Soft edges make the tilt estimate unreliable, so without an
- * entry's grid the image as it is competes as well.
+ * Auto: the reliable grids of the `auto` entries and every proposal compete in one arbitration
+ * (see grid-arbitrate), with the passthrough as one more candidate. The entries detect on a
+ * straightened copy when the image carries a tilt, so that copy is arbitrated with its own
+ * proposals. Soft edges make the tilt estimate unreliable, so without an entry's grid the image
+ * as it is competes as well.
  */
 function autoGrid(image: PixelBuffer): PixelGridAnalysis {
   const tilt = estimateTilt(image);
@@ -136,21 +124,13 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     .filter((entry) => entry.auto)
     .map((entry) => entry.detect(image))
     .filter((grid) => grid.reliable);
-  const rings: { image: PixelBuffer; rotation: number; grids: PixelGridAnalysis[] }[] = [];
-  if (tilt.angle) {
-    const upright = uprightOf(image, tilt.angle);
-    rings.push({
-      image: upright,
-      rotation: tilt.angle,
-      grids: [...entries, ...detectFrameLattices(upright)],
-    });
-  }
-  if (!tilt.angle || !entries.length)
-    rings.push({ image, rotation: 0, grids: [...entries, ...detectFrameLattices(image)] });
-  let best: { length: number; grid: PixelGridAnalysis; rotation: number } | null = null;
+  const rings: { image: PixelBuffer; rotation: number }[] = [];
+  if (tilt.angle) rings.push({ image: uprightOf(image, tilt.angle), rotation: tilt.angle });
+  if (!tilt.angle || !entries.length) rings.push({ image, rotation: 0 });
+  let best: { score: number; grid: PixelGridAnalysis; rotation: number } | null = null;
   for (const ring of rings) {
-    const winner = arbitrateGrids(ring.image, ring.grids, () => sharpenedProposals(ring.image));
-    if (winner && (!best || winner.length < best.length))
+    const winner = arbitrateGrids(ring.image, [...entries, ...proposals(ring.image)]);
+    if (winner && (!best || winner.score < best.score))
       best = { ...winner, rotation: ring.rotation };
   }
   if (!best) return unreliable(image);

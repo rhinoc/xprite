@@ -2,130 +2,161 @@ import { describe, expect, test } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
 
-import { arbitrateGrids } from "./grid-arbitrate";
-import { detectBoundaryPeriodGrids } from "./grid-period-boundary";
-import { PixelationAlgorithm } from "./types";
+import { arbitrateGrids, gridEvidence, twinCuts } from "./grid-arbitrate";
+import {
+  gradient,
+  mush,
+  resampleBilinear,
+  smoothPhoto,
+  sprite,
+  upscaleBilinear,
+  upscaleNearest,
+} from "./grid-test-images";
+import { PixelationAlgorithm, type PixelGridAnalysis } from "./types";
 
-/**
- * Create a synthetic painterly grid image that produces zero pitch-search results
- * but should still allow boundary period detection to propose candidates.
- */
-function createPainterlyNoPitchImage(
-  cols: number,
-  rows: number,
-  cellWidth: number,
-  cellHeight: number,
-): PixelBuffer {
-  const width = cols * cellWidth;
-  const height = rows * cellHeight;
-  const data = new Uint8ClampedArray(width * height * 4);
+const STRIDE = 4;
+const OPAQUE_WHITE = 255;
 
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const col = Math.floor(x / cellWidth);
-      const row = Math.floor(y / cellHeight);
+const lattice = (image: PixelBuffer, pitch: number, offset = 0): PixelGridAnalysis => ({
+  width: Math.round(image.width / pitch),
+  height: Math.round(image.height / pitch),
+  cellWidth: pitch,
+  cellHeight: pitch,
+  offsetX: offset,
+  offsetY: offset,
+  confidence: 0,
+  reliable: false,
+  algorithm: PixelationAlgorithm.UniformGrid,
+});
 
-      // Soft gradient within each cell (no sharp edges)
-      const cellX = (x % cellWidth) / cellWidth;
-      const cellY = (y % cellHeight) / cellHeight;
+/** A square grid given by its cuts, the same on both axes. */
+const cutGrid = (cuts: number[]): PixelGridAnalysis => ({
+  width: cuts.length - 1,
+  height: cuts.length - 1,
+  cellWidth: cuts[cuts.length - 1] / (cuts.length - 1),
+  cellHeight: cuts[cuts.length - 1] / (cuts.length - 1),
+  offsetX: 0,
+  offsetY: 0,
+  cutsX: cuts,
+  cutsY: cuts,
+  confidence: 0,
+  reliable: false,
+  algorithm: PixelationAlgorithm.UniformGrid,
+});
 
-      const blend = Math.sin(cellX * Math.PI) * Math.sin(cellY * Math.PI);
-      const isOdd = (col + row) % 2 === 1;
-
-      const offset = (y * width + x) * 4;
-      data[offset] = isOdd ? Math.round(255 * blend) : Math.round(100 * blend);
-      data[offset + 1] = isOdd ? Math.round(100 * blend) : Math.round(255 * blend);
-      data[offset + 2] = Math.round(150 * blend);
-      data[offset + 3] = 255;
-    }
+/** Cuts every `pitch` pixels from `offset`, inside [0, length]. */
+function latticeCuts(pitch: number, offset: number, length: number): number[] {
+  const cuts = [0];
+  for (let k = 0; ; k++) {
+    const at = Math.round(offset + k * pitch);
+    if (at >= length) break;
+    if (at > 0) cuts.push(at);
   }
+  cuts.push(length);
+  return cuts;
+}
 
+/** The image inside a white border `margin` pixels wide. */
+function framed(image: PixelBuffer, margin: number): PixelBuffer {
+  const width = image.width + 2 * margin,
+    height = image.height + 2 * margin;
+  const data = new Uint8ClampedArray(width * height * STRIDE).fill(OPAQUE_WHITE);
+  for (let y = 0; y < image.height; y++)
+    data.set(
+      image.data.subarray(y * image.width * STRIDE, (y + 1) * image.width * STRIDE),
+      ((y + margin) * width + margin) * STRIDE,
+    );
   return { width, height, data };
 }
 
-describe("arbitrateGrids - pure min-DL design", () => {
-  test("passthrough baseline wins as null when nothing else competes", () => {
-    const image = createPainterlyNoPitchImage(20, 15, 4, 4);
+const octaves = (image: PixelBuffer, pitch: number) =>
+  [pitch / 2, pitch, pitch * 2].map((p) => lattice(image, p));
 
-    // Call without any initial grids or soft proposals: only 1×1 is in the ring
-    const result = arbitrateGrids(image, []);
+const size = (image: PixelBuffer, grids: readonly PixelGridAnalysis[]) => {
+  const result = arbitrateGrids(image, grids);
+  return result && [result.grid.width, result.grid.height];
+};
 
-    // Winning as passthrough means refuse (null), not a reliable 1×1 grid
-    expect(result).toBeNull();
+describe("twin cuts", () => {
+  test("put one cut at each cell middle inside the same extent", () => {
+    expect(twinCuts([0, 4, 8, 12])).toEqual([0, 2, 6, 10, 12]);
+  });
+});
+
+describe("one score over every proposal and the passthrough", () => {
+  test("refuses when nothing is proposed", () => {
+    expect(arbitrateGrids(upscaleNearest(sprite(32), 4), [])).toBeNull();
   });
 
-  test("evaluates soft proposals even when pitch search returns empty", () => {
-    const image = createPainterlyNoPitchImage(40, 30, 3, 3);
-
-    // Soft proposals include boundary period detection
-    const soft = () => detectBoundaryPeriodGrids(image);
-
-    // Call with empty grids array but with soft proposals
-    const result = arbitrateGrids(image, [], soft);
-
-    // Soft runs into the ring; min-DL may pick a grid or refuse (null) if passthrough wins
-    if (result) {
-      expect(result.grid.width).toBeGreaterThan(1);
-      expect(result.grid.height).toBeGreaterThan(1);
-    }
+  test("a true lattice beats its finer and coarser octaves", () => {
+    const image = upscaleNearest(sprite(32), 6);
+    expect(size(image, octaves(image, 6))).toEqual([32, 32]);
   });
 
-  test("includes all detector proposals in competition", () => {
-    const image = createPainterlyNoPitchImage(50, 40, 2.5, 2.5);
-
-    // Mock edge/uniform detector results
-    const edgeGrid = {
-      width: 25,
-      height: 20,
-      cellWidth: 5,
-      cellHeight: 5,
-      offsetX: 0,
-      offsetY: 0,
-      confidence: 0.6,
-      reliable: true,
-      algorithm: PixelationAlgorithm.EdgeGrid,
-    };
-
-    const uniformGrid = {
-      width: 50,
-      height: 40,
-      cellWidth: 2.5,
-      cellHeight: 2.5,
-      offsetX: 0,
-      offsetY: 0,
-      confidence: 0.8,
-      reliable: true,
-      algorithm: PixelationAlgorithm.UniformGrid,
-    };
-
-    // Soft includes boundary period
-    const soft = () => detectBoundaryPeriodGrids(image);
-
-    // All detectors participate
-    const result = arbitrateGrids(image, [edgeGrid, uniformGrid], soft);
-
-    // Winner is chosen by min-DL from: edgeGrid, uniformGrid, boundary proposals, passthrough
-    if (result) {
-      expect(result.grid.width).toBeGreaterThan(0);
-      expect(result.grid.height).toBeGreaterThan(0);
-    }
+  test("a bilinear upscale is read at its own pitch, not at half of it", () => {
+    const image = resampleBilinear(sprite(32), 12);
+    expect(size(image, octaves(image, 12))).toEqual([32, 32]);
   });
 
-  test("no score-based admission gates prevent candidates from competing", () => {
-    const image = createPainterlyNoPitchImage(60, 45, 2.35, 2.35);
+  test("a corner-aligned bilinear upscale keeps its pitch, centred on its samples", () => {
+    const image = upscaleBilinear(sprite(32), 12);
+    const grids = [6, 12, 24].map((pitch) => cutGrid(latticeCuts(pitch, pitch / 2, image.width)));
+    expect(size(image, grids)).toEqual([33, 33]);
+  });
 
-    const soft = () => {
-      const boundary = detectBoundaryPeriodGrids(image);
-      // Boundary might return low-confidence candidates - they should still compete
-      return boundary;
-    };
+  test("a blurred, noisy upscale without edges keeps its pitch", () => {
+    const image = mush(sprite(32), 12);
+    expect(size(image, octaves(image, 12))).toEqual([32, 32]);
+  });
 
-    const result = arbitrateGrids(image, [], soft);
+  test("a frame around the content does not displace the grid it encloses", () => {
+    const pitch = 8,
+      cells = 24,
+      margin = 3;
+    const image = framed(upscaleNearest(sprite(cells), pitch), margin);
+    const enclosing = [
+      0,
+      ...Array.from({ length: cells - 1 }, (_, k) => margin + (k + 1) * pitch),
+      image.width,
+    ];
+    const finer = [pitch / 2, pitch / 3].map((p) => cutGrid(latticeCuts(p, margin, image.width)));
+    expect(size(image, [cutGrid(enclosing), ...finer])).toEqual([cells, cells]);
+  });
 
-    // Soft proposals enter with no score gate. Min-DL may refuse (null) or return a grid.
-    if (result) {
-      expect(result.grid.width).toBeGreaterThan(0);
-      expect(result.grid.height).toBeGreaterThan(0);
-    }
+  test("the winner does not depend on the order of the proposals", () => {
+    const image = upscaleNearest(sprite(40), 5);
+    const grids = octaves(image, 5);
+    expect(size(image, [...grids].reverse())).toEqual(size(image, grids));
+  });
+
+  test("snapping does not move the cuts of an exact lattice", () => {
+    const image = upscaleNearest(sprite(32), 6);
+    const result = arbitrateGrids(image, [lattice(image, 6)]);
+    expect(result?.grid.cutsX).toEqual(latticeCuts(6, 0, image.width));
+  });
+
+  test("native pixel art passes through rather than taking an invented coarse grid", () => {
+    const image = sprite(64);
+    expect(size(image, [lattice(image, 2), lattice(image, 4)])).toBeNull();
+  });
+
+  test.each([
+    ["a smooth photo", smoothPhoto(240, 180)],
+    ["a gradient", gradient(240, 180)],
+  ])("%s carries no phase evidence and passes through", (_, image) => {
+    expect(
+      size(
+        image,
+        [4, 6, 8].map((p) => lattice(image, p)),
+      ),
+    ).toBeNull();
+  });
+
+  test("a locked lattice describes the image markedly better than its twin", () => {
+    const image = upscaleNearest(sprite(32), 6);
+    const { readings, pixels } = gridEvidence(image, [lattice(image, 6)]);
+    const [reading] = readings;
+    expect(reading.twin).toBeGreaterThan(reading.length);
+    expect(reading.length).toBeLessThan(pixels);
   });
 });
