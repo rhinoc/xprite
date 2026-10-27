@@ -424,32 +424,43 @@ function bilinearError(
   const cx = centres(cutsX, width),
     cy = centres(cutsY, height);
   const colours = new Float64Array(across * down * CHANNELS);
+  const lefts = new Int32Array(width),
+    rights = new Int32Array(width);
+  for (let x = 0; x < width; x++) {
+    lefts[x] = cx.lower[x] * CHANNELS;
+    rights[x] = Math.min(across - 1, cx.lower[x] + 1) * CHANNELS;
+  }
   const corners = new Int32Array(BILINEAR_CORNERS),
     shares = new Float64Array(BILINEAR_CORNERS);
-  const blend = (y: number, x: number) => {
-    const top = cy.lower[y] * across,
-      bottom = Math.min(down - 1, cy.lower[y] + 1) * across,
-      ty = cy.weight[y];
-    const left = cx.lower[x],
-      right = Math.min(across - 1, left + 1),
-      tx = cx.weight[x];
-    corners[0] = top + left;
-    corners[1] = top + right;
-    corners[2] = bottom + left;
-    corners[3] = bottom + right;
+  /** Points `corners` and `shares` at the four centres blended into pixel x of the row. */
+  const blend = (top: number, bottom: number, ty: number, x: number) => {
+    const tx = cx.weight[x];
+    corners[0] = top + lefts[x];
+    corners[1] = top + rights[x];
+    corners[2] = bottom + lefts[x];
+    corners[3] = bottom + rights[x];
     shares[0] = (1 - tx) * (1 - ty);
     shares[1] = tx * (1 - ty);
     shares[2] = (1 - tx) * ty;
     shares[3] = tx * ty;
   };
-  for (let r = 0; r < lines.length; r++)
+  const rowOf = (y: number) => ({
+    top: cy.lower[y] * across * CHANNELS,
+    bottom: Math.min(down - 1, cy.lower[y] + 1) * across * CHANNELS,
+    ty: cy.weight[y],
+  });
+  for (let r = 0; r < lines.length; r++) {
+    const { top, bottom, ty } = rowOf(lines[r]);
     for (let x = 0; x < width; x++) {
-      blend(lines[r], x);
+      blend(top, bottom, ty, x);
       const v = (r * width + x) * CHANNELS;
-      for (let k = 0; k < BILINEAR_CORNERS; k++)
-        for (let c = 0; c < CHANNELS; c++)
-          colours[corners[k] * CHANNELS + c] += shares[k] * values[v + c];
+      for (let k = 0; k < BILINEAR_CORNERS; k++) {
+        const share = shares[k],
+          o = corners[k];
+        for (let c = 0; c < CHANNELS; c++) colours[o + c] += share * values[v + c];
+      }
     }
+  }
   const columns = Int32Array.from({ length: width }, (_, x) => x);
   const gramX = blendGram(cx, across, columns),
     gramY = blendGram(cy, down, lines);
@@ -461,18 +472,27 @@ function bilinearError(
     for (let c = 0; c < CHANNELS; c++)
       solveTridiagonal(gramY, colours, i * CHANNELS + c, across * CHANNELS, scratch);
   let error = 0;
-  for (let r = 0; r < lines.length; r++)
+  for (let r = 0; r < lines.length; r++) {
+    const { top, bottom, ty } = rowOf(lines[r]);
     for (let x = 0; x < width; x++) {
-      blend(lines[r], x);
+      blend(top, bottom, ty, x);
       const v = (r * width + x) * CHANNELS;
+      const s0 = shares[0],
+        s1 = shares[1],
+        s2 = shares[2],
+        s3 = shares[3];
+      const o0 = corners[0],
+        o1 = corners[1],
+        o2 = corners[2],
+        o3 = corners[3];
       for (let c = 0; c < CHANNELS; c++) {
-        let rebuilt = 0;
-        for (let k = 0; k < BILINEAR_CORNERS; k++)
-          rebuilt += shares[k] * colours[corners[k] * CHANNELS + c];
+        const rebuilt =
+          s0 * colours[o0 + c] + s1 * colours[o1 + c] + s2 * colours[o2 + c] + s3 * colours[o3 + c];
         const difference = values[v + c] - rebuilt;
         error += difference * difference;
       }
     }
+  }
   return { error, colours };
 }
 
@@ -498,6 +518,8 @@ function blurredError(
   const blend = new Float64Array((across + 2 * BLUR_REACH) * CHANNELS);
   let error = 0;
   for (let step = 0; step <= DECONVOLUTION_STEPS; step++) {
+    // Each pass before the last only corrects the colours; the last only measures the residual.
+    const last = step === DECONVOLUTION_STEPS;
     error = 0;
     correction.fill(0);
     for (let r = 0; r < lines.length; r++) {
@@ -514,17 +536,19 @@ function blurredError(
       for (let x = 0; x < width; x++) {
         const i = columns[x],
           v = (r * width + x) * CHANNELS,
-          t = x * BLUR_TAPS;
+          t = x * BLUR_TAPS,
+          b = i * CHANNELS,
+          cell = (j * across + i) * CHANNELS;
         for (let c = 0; c < CHANNELS; c++) {
           let rebuilt = 0;
-          for (let d = 0; d < BLUR_TAPS; d++) rebuilt += wx[t + d] * blend[(i + d) * CHANNELS + c];
+          for (let d = 0; d < BLUR_TAPS; d++) rebuilt += wx[t + d] * blend[b + d * CHANNELS + c];
           const difference = pixels[v + c] - rebuilt;
-          error += difference * difference;
-          correction[(j * across + i) * CHANNELS + c] += difference;
+          if (last) error += difference * difference;
+          else correction[cell + c] += difference;
         }
       }
     }
-    if (step === DECONVOLUTION_STEPS) break;
+    if (last) break;
     for (let cell = 0; cell < across * down; cell++) {
       const n = moments.counts[cell];
       if (n)

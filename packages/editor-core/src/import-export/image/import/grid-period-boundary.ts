@@ -34,6 +34,14 @@ interface RunLengthCandidate {
   score: number;
 }
 
+/** How many runs have each length, shared by every step scored on one axis. */
+interface RunHistogram {
+  lengths: number[];
+  counts: number[];
+  total: number;
+  longest: number;
+}
+
 /**
  * Extract run lengths of consecutive similar colors across sampled lines.
  * Uses a more permissive threshold to catch soft edges in painterly inputs.
@@ -98,18 +106,19 @@ function extractColorRuns(image: PixelBuffer, horizontal: boolean): number[] {
  * Comb peaks at k*step, anticomb at k*step ± 0.5*step.
  * A true period will have strong alignment at multiples of the step.
  */
-function scorePeriod(runs: readonly number[], step: number): number {
-  if (runs.length < 2 || step < MIN_STEP) return -1;
-
-  // Build histogram of run lengths
-  const histogram = new Map<number, number>();
-  let maxRun = 0;
-  let totalRuns = 0;
+function runHistogram(runs: readonly number[]): RunHistogram {
+  const tally = new Map<number, number>();
+  let longest = 0;
   for (const run of runs) {
-    histogram.set(run, (histogram.get(run) || 0) + 1);
-    maxRun = Math.max(maxRun, run);
-    totalRuns++;
+    tally.set(run, (tally.get(run) || 0) + 1);
+    longest = Math.max(longest, run);
   }
+  return { lengths: [...tally.keys()], counts: [...tally.values()], total: runs.length, longest };
+}
+
+function scorePeriod(histogram: RunHistogram, step: number): number {
+  const { lengths, counts, total: totalRuns, longest: maxRun } = histogram;
+  if (totalRuns < 2 || step < MIN_STEP) return -1;
 
   const maxK = Math.min(MAX_COMB_ORDER, Math.floor(maxRun / step));
   if (maxK < 2) return -1;
@@ -135,7 +144,9 @@ function scorePeriod(runs: readonly number[], step: number): number {
     const offsetLeft = target - 0.5 * step;
     const offsetRight = target + 0.5 * step;
 
-    for (const [runLength, count] of histogram) {
+    for (let h = 0; h < lengths.length; h++) {
+      const runLength = lengths[h],
+        count = counts[h];
       const distTarget = Math.abs(runLength - target);
       const distLeft = Math.abs(runLength - offsetLeft);
       const distRight = Math.abs(runLength - offsetRight);
@@ -168,9 +179,10 @@ function scorePeriod(runs: readonly number[], step: number): number {
  */
 function searchAxisPeriod(runs: readonly number[], maxStep: number): RunLengthCandidate[] {
   const candidates: RunLengthCandidate[] = [];
+  const histogram = runHistogram(runs);
 
   for (let step = MIN_STEP; step <= maxStep; step += STEP_INCREMENT) {
-    const score = scorePeriod(runs, step);
+    const score = scorePeriod(histogram, step);
     if (score > 0) {
       candidates.push({ step, score });
     }

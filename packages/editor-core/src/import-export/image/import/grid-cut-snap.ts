@@ -24,7 +24,7 @@ export interface AvoidedCuts {
 }
 
 /** Colour step between each pixel column (or row) and the one before it, summed along the line. */
-function stepProfile(image: PixelBuffer, horizontal: boolean): Float64Array {
+function computeStepProfile(image: PixelBuffer, horizontal: boolean): Float64Array {
   const { width, height, data } = image;
   const length = horizontal ? width : height;
   const profile = new Float64Array(length);
@@ -39,6 +39,18 @@ function stepProfile(image: PixelBuffer, horizontal: boolean): Float64Array {
       profile[along] += step;
     }
   return profile;
+}
+
+/** Every reading of one image snaps against the same profiles. */
+const profiles = new WeakMap<PixelBuffer, { x: Float64Array; y: Float64Array }>();
+
+function stepProfiles(image: PixelBuffer) {
+  let cached = profiles.get(image);
+  if (!cached) {
+    cached = { x: computeStepProfile(image, true), y: computeStepProfile(image, false) };
+    profiles.set(image, cached);
+  }
+  return cached;
 }
 
 function snapAxis(
@@ -68,8 +80,9 @@ export function snapLatticeCuts(
   cutsY: readonly number[],
   avoid: AvoidedCuts = { x: [], y: [] },
 ): { x: SnappedAxis; y: SnappedAxis } {
+  const profile = stepProfiles(image);
   return {
-    x: snapAxis(stepProfile(image, true), cutsX, avoid.x),
-    y: snapAxis(stepProfile(image, false), cutsY, avoid.y),
+    x: snapAxis(profile.x, cutsX, avoid.x),
+    y: snapAxis(profile.y, cutsY, avoid.y),
   };
 }
