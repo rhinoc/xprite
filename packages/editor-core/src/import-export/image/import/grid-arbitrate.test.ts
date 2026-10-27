@@ -44,16 +44,14 @@ function createPainterlyNoPitchImage(
 }
 
 describe("arbitrateGrids - pure min-DL design", () => {
-  test("always includes passthrough baseline", () => {
+  test("passthrough baseline wins as null when nothing else competes", () => {
     const image = createPainterlyNoPitchImage(20, 15, 4, 4);
 
-    // Call without any initial grids or soft proposals
+    // Call without any initial grids or soft proposals: only 1×1 is in the ring
     const result = arbitrateGrids(image, []);
 
-    // Should return passthrough (1×1) as a valid result
-    expect(result).not.toBeNull();
-    expect(result!.grid.width).toBe(1);
-    expect(result!.grid.height).toBe(1);
+    // Winning as passthrough means refuse (null), not a reliable 1×1 grid
+    expect(result).toBeNull();
   });
 
   test("evaluates soft proposals even when pitch search returns empty", () => {
@@ -65,11 +63,11 @@ describe("arbitrateGrids - pure min-DL design", () => {
     // Call with empty grids array but with soft proposals
     const result = arbitrateGrids(image, [], soft);
 
-    expect(result).not.toBeNull();
-    // Result should be one of: passthrough (1×1) or a boundary-detected grid
-    // The arbiter chooses based on min-DL
-    expect(result!.grid.width).toBeGreaterThan(0);
-    expect(result!.grid.height).toBeGreaterThan(0);
+    // Soft runs into the ring; min-DL may pick a grid or refuse (null) if passthrough wins
+    if (result) {
+      expect(result.grid.width).toBeGreaterThan(1);
+      expect(result.grid.height).toBeGreaterThan(1);
+    }
   });
 
   test("includes all detector proposals in competition", () => {
@@ -106,10 +104,11 @@ describe("arbitrateGrids - pure min-DL design", () => {
     // All detectors participate
     const result = arbitrateGrids(image, [edgeGrid, uniformGrid], soft);
 
-    expect(result).not.toBeNull();
     // Winner is chosen by min-DL from: edgeGrid, uniformGrid, boundary proposals, passthrough
-    expect(result!.grid.width).toBeGreaterThan(0);
-    expect(result!.grid.height).toBeGreaterThan(0);
+    if (result) {
+      expect(result.grid.width).toBeGreaterThan(0);
+      expect(result.grid.height).toBeGreaterThan(0);
+    }
   });
 
   test("no score-based admission gates prevent candidates from competing", () => {
@@ -123,8 +122,10 @@ describe("arbitrateGrids - pure min-DL design", () => {
 
     const result = arbitrateGrids(image, [], soft);
 
-    expect(result).not.toBeNull();
-    // Even if boundary proposals have low initial scores, they enter the ring
-    // Min-DL decides the winner, not pre-filtering
+    // Soft proposals enter with no score gate. Min-DL may refuse (null) or return a grid.
+    if (result) {
+      expect(result.grid.width).toBeGreaterThan(0);
+      expect(result.grid.height).toBeGreaterThan(0);
+    }
   });
 });

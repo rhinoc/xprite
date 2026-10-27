@@ -228,9 +228,12 @@ export function detectBoundaryPeriodGrids(image: PixelBuffer): PixelGridAnalysis
         continue;
       }
 
-      // Build the lattice with the detected periods
-      const cutsX = pixelGridCuts(width, cellWidth, 0);
-      const cutsY = pixelGridCuts(height, cellHeight, 0);
+      // Image-covering lattice for the rounded cell counts (not the raw float step): uneven
+      // trailing cells from step-based cuts inflated description length of the true count.
+      const coverWidth = width / cols;
+      const coverHeight = height / rows;
+      const cutsX = pixelGridCuts(width, coverWidth, 0);
+      const cutsY = pixelGridCuts(height, coverHeight, 0);
 
       // Confidence is the minimum of the two axis scores
       const confidence = Math.min(xCand.score, yCand.score);
@@ -238,8 +241,8 @@ export function detectBoundaryPeriodGrids(image: PixelBuffer): PixelGridAnalysis
       grids.push({
         width: cols,
         height: rows,
-        cellWidth,
-        cellHeight,
+        cellWidth: coverWidth,
+        cellHeight: coverHeight,
         offsetX: 0,
         offsetY: 0,
         cutsX,
