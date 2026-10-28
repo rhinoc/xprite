@@ -9,26 +9,36 @@ import {
   type DescribedImage,
   type GridCuts,
 } from "$/import-export/image/import/grid-description-length";
+import {
+  chanceEvidence,
+  StripImage,
+  stripShear,
+} from "$/import-export/image/import/grid-strip-shift";
 import { PixelationAlgorithm, type PixelGridAnalysis } from "$/import-export/image/import/types";
 
 /**
- * One decision over every proposed grid and the passthrough. Each proposal is read once: an edge
- * mesh as placed, and a lattice as cut or with its cuts snapped to the nearest edges, whichever
- * describes the input shorter (leaving every cut in place is one of the snaps, so the offsets
- * have to pay for themselves). Every reading carries two numbers:
+ * One decision over every proposed grid and the passthrough. Each proposal is read in the ways
+ * its cuts allow, and the reading that describes the input shortest stands: an edge mesh as
+ * placed; a lattice as cut or with its cuts snapped to the nearest edges (leaving every cut in
+ * place is one of the snaps, so the offsets have to pay for themselves); and either of them
+ * through strip shifts (see grid-strip-shift), described on the straightened image and paying for
+ * the shifts. Every reading carries three numbers:
  *
- * - its description length of the input (see grid-description-length), and
+ * - its description length of the input (see grid-description-length);
  * - the length of its twin: the same model with every cut moved half a cell, onto the cell
  *   middles. A real grid is phase-locked, so its twin describes the input markedly worse; a
  *   grid the content ignores (photos, gradients, a finer or coarser octave of the true grid that
  *   only partly lines up) describes it about as well at either phase. Cuts placed on edges
  *   chose their positions from the input, so their twin settles on edges the same way; it may
- *   not settle on the reading's own cuts, or it would no longer stand at the other phase.
+ *   not settle on the reading's own cuts, or it would no longer stand at the other phase. The
+ *   twin of a strip-shifted reading shifts every strip into the anti-phase of its own shift.
+ * - its chance evidence: the phase evidence its strip search finds at pitches the content does
+ *   not have, which the reading does not count as its own (none for unshifted readings).
  *
  * A reading scores its length less PHASE_EVIDENCE_WEIGHT times its phase evidence (the twin's
- * length less its own), so among lattices that describe the image about equally, the one the
- * content is locked to wins. The passthrough carries no phase evidence and scores the shorter of
- * two descriptions without a recovered grid, less NULL_MARGIN:
+ * length less its own and its chance evidence), so among lattices that describe the image about
+ * equally, the one the content is locked to wins. The passthrough carries no phase evidence and
+ * scores the shorter of two descriptions without a recovered grid, less NULL_MARGIN:
  *
  * - the image as it is, one cell per pixel (native pixel art and drawings), and
  * - the best length any proposal reaches at the worse of its two phases: what a lattice explains
@@ -52,6 +62,8 @@ export interface GridEvidence {
   grid: PixelGridAnalysis;
   length: number;
   twin: number;
+  /** Phase evidence, per sample, the reading's strip search finds by chance. */
+  chance: number;
 }
 
 export interface ArbitratedGrid {
@@ -62,8 +74,8 @@ export interface ArbitratedGrid {
   score: number;
 }
 
-const evidenceScore = (reading: GridEvidence) =>
-  reading.length - PHASE_EVIDENCE_WEIGHT * (reading.twin - reading.length);
+const phaseScore = (reading: GridEvidence) =>
+  reading.length - PHASE_EVIDENCE_WEIGHT * (reading.twin - reading.length - reading.chance);
 
 /** The cuts moved half a cell: one cut at each cell middle, inside the same extent. */
 export function twinCuts(cuts: readonly number[]): number[] {
@@ -107,19 +119,27 @@ function settledTwin(
   };
 }
 
-function readingOf(
+interface Reading {
+  cuts: GridCuts;
+  length: number;
+  twin: number;
+  chance: number;
+}
+
+/** The proposal as placed or snapped, with the twin to measure it against. */
+function placedReading(
   image: PixelBuffer,
   described: DescribedImage,
   grid: PixelGridAnalysis,
   cutsX: number[],
   cutsY: number[],
-): { cuts: GridCuts; length: number; twin: GridCuts } {
+): { cuts: GridCuts; length: number; twin: () => GridCuts } {
   if (grid.algorithm === PixelationAlgorithm.EdgeGrid) {
     const cuts = { cutsX, cutsY, model: CutModel.Free };
     return {
       cuts,
       length: descriptionLength(described, cuts),
-      twin: settledTwin(image, cutsX, cutsY, CutModel.Free),
+      twin: () => settledTwin(image, cutsX, cutsY, CutModel.Free),
     };
   }
   const lattice = { cutsX, cutsY, model: CutModel.Lattice };
@@ -137,12 +157,46 @@ function readingOf(
     return {
       cuts: lattice,
       length: latticeLength,
-      twin: { cutsX: twinCuts(cutsX), cutsY: twinCuts(cutsY), model: CutModel.Lattice },
+      twin: () => ({ cutsX: twinCuts(cutsX), cutsY: twinCuts(cutsY), model: CutModel.Lattice }),
     };
   return {
     cuts: snapped,
     length: snappedLength,
-    twin: settledTwin(image, snap.x.cuts, snap.y.cuts, CutModel.Snapped),
+    twin: () => settledTwin(image, snap.x.cuts, snap.y.cuts, CutModel.Snapped),
+  };
+}
+
+function readingOf(
+  strips: StripImage,
+  described: DescribedImage,
+  grid: PixelGridAnalysis,
+  cutsX: number[],
+  cutsY: number[],
+): Reading {
+  const placed = placedReading(strips.image, described, grid, cutsX, cutsY);
+  const shear = stripShear(strips, cutsX, cutsY);
+  if (shear) {
+    const cuts = {
+      cutsX,
+      cutsY,
+      model: grid.algorithm === PixelationAlgorithm.EdgeGrid ? CutModel.Free : CutModel.Lattice,
+    };
+    const straight = describeImage(shear.straight);
+    const cost = shear.cost / straight.samples;
+    const length = descriptionLength(straight, cuts) + cost;
+    if (length < placed.length)
+      return {
+        cuts,
+        length,
+        twin: descriptionLength(describeImage(shear.twin()), cuts) + cost,
+        chance: chanceEvidence(strips, cutsX, cutsY),
+      };
+  }
+  return {
+    cuts: placed.cuts,
+    length: placed.length,
+    twin: descriptionLength(described, placed.twin()),
+    chance: 0,
   };
 }
 
@@ -152,6 +206,7 @@ export function gridEvidence(
   grids: readonly PixelGridAnalysis[],
 ): { readings: GridEvidence[]; pixels: number } {
   const described = describeImage(image);
+  const strips = new StripImage(image);
   const seen = new Set<string>();
   const readings: GridEvidence[] = [];
   for (const grid of grids) {
@@ -163,7 +218,7 @@ export function gridEvidence(
     const key = keyOf(cutsX, cutsY);
     if (seen.has(key)) continue;
     seen.add(key);
-    const { cuts, length, twin } = readingOf(image, described, grid, cutsX, cutsY);
+    const { cuts, length, twin, chance } = readingOf(strips, described, grid, cutsX, cutsY);
     readings.push({
       grid: {
         ...grid,
@@ -173,7 +228,8 @@ export function gridEvidence(
         cutsY: [...cuts.cutsY],
       },
       length,
-      twin: descriptionLength(described, twin),
+      twin,
+      chance,
     });
   }
   return { readings, pixels: pixelLength(described) };
@@ -193,10 +249,10 @@ export function arbitrateGrids(
   let best: GridEvidence | null = null;
   for (const reading of readings) {
     passthrough = Math.min(passthrough, Math.max(reading.length, reading.twin));
-    if (!best || evidenceScore(reading) < evidenceScore(best)) best = reading;
+    if (!best || phaseScore(reading) < phaseScore(best)) best = reading;
   }
   if (!best) return null;
-  const score = evidenceScore(best);
+  const score = phaseScore(best);
   if (score >= passthrough - NULL_MARGIN) return null;
   const share = Math.max(0, Math.min(1, (best.twin - best.length) / best.twin));
   return {
