@@ -2,6 +2,7 @@ import {
   CellColorPicker,
   LineGuideMode,
   OutlinePrepass,
+  PaletteColorMode,
   PixelationAlgorithm,
   PixelationDither,
 } from "@xprite/editor-core/import-export";
@@ -18,6 +19,7 @@ export const LABELS = {
   picker: { text: "Pixel color:", key: "import.dialog.color.picker" },
   limitColors: { text: "Limit colors", key: "ui.limit.colors" },
   colors: { text: "Colors:", key: "ui.colors.label" },
+  colorMode: { text: "Color mode", key: "import.dialog.color-mode" },
   prepass: { text: "Outline pre-pass:", key: "import.dialog.outline.prepass" },
   lineGuide: { text: "Line guide:", key: "import.dialog.line.guide" },
   dither: { text: "Dither:", key: "import.dialog.dither" },
@@ -50,6 +52,10 @@ export const DITHER_LABELS: Readonly<Record<PixelationDither, PixelationLabel>> 
     key: "import.dither.floyd-steinberg",
   },
 };
+export const COLOR_MODE_LABELS: Readonly<Record<PaletteColorMode, PixelationLabel>> = {
+  [PaletteColorMode.Fixed]: { text: "Fixed count", key: "import.color-mode.fixed" },
+  [PaletteColorMode.Adaptive]: { text: "Adaptive", key: "import.color-mode.adaptive" },
+};
 export const PICKER_LABELS: Readonly<Record<CellColorPicker, PixelationLabel>> = {
   [CellColorPicker.MostCommon]: { text: "Most common", key: "import.picker.most-common" },
   [CellColorPicker.Average]: { text: "Average", key: "import.picker.average" },
@@ -65,6 +71,7 @@ const ALL_LABELS: readonly PixelationLabel[] = [
   ...Object.values(PREPASS_LABELS),
   ...Object.values(LINE_GUIDE_LABELS),
   ...Object.values(DITHER_LABELS),
+  ...Object.values(COLOR_MODE_LABELS),
 ];
 const KEYS = new Map(ALL_LABELS.map((label) => [label.text, label.key]));
 

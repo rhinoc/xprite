@@ -4,6 +4,7 @@ import {
   DEFAULT_LINE_GUIDE,
   LineGuideMode,
   OutlinePrepass,
+  PaletteColorMode,
   PixelationDither,
   getAllAlgorithms,
   getAllColorPickers,
@@ -109,6 +110,9 @@ function normalizeImportPixelation(value: unknown): ImportPixelationMemory | nul
       : {}),
     ...(Object.values(PixelationDither).includes(saved.dither as PixelationDither)
       ? { dither: saved.dither as PixelationDither }
+      : {}),
+    ...(Object.values(PaletteColorMode).includes(saved.paletteColorMode as PaletteColorMode)
+      ? { paletteColorMode: saved.paletteColorMode as PaletteColorMode }
       : {}),
   };
 }

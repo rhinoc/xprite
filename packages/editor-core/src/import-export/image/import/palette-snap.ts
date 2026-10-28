@@ -319,12 +319,11 @@ function ditherToPalette(
 /** Build the reduced RGB palette (k-means or the given list); null when the image already fits. */
 function buildPalette(shades: readonly Shade[], options: PaletteSnapOptions): Rgba[] | null {
   if (options.palette) return paletteLabs(options.palette).rgb;
-  const colors = Math.max(
-    MIN_COLORS,
-    Math.min(MAX_COLORS, Math.round(options.colors ?? DEFAULT_COLORS)),
-  );
-  if (shades.length <= colors) return null;
   const groups = mergeNearDuplicates(shades);
+  const colors = options.adaptive
+    ? Math.min(groups.length, MAX_COLORS)
+    : Math.max(MIN_COLORS, Math.min(MAX_COLORS, Math.round(options.colors ?? DEFAULT_COLORS)));
+  if (shades.length <= colors) return null;
   const points = toPoints(shades, groups);
   const assignment = points.length <= colors ? points.map((_, i) => i) : cluster(points, colors);
   const sums = new Map<number, { lab: [number, number, number]; count: number }>();
@@ -355,12 +354,11 @@ function remapShades(
     const { labs, rgb } = paletteLabs(options.palette);
     target = shades.map((shade) => nearestPaletteRgb(shade.lab, labs, rgb));
   } else {
-    const colors = Math.max(
-      MIN_COLORS,
-      Math.min(MAX_COLORS, Math.round(options.colors ?? DEFAULT_COLORS)),
-    );
-    if (shades.length <= colors) return { width: image.width, height: image.height, data: output };
     const groups = mergeNearDuplicates(shades);
+    const colors = options.adaptive
+      ? Math.min(groups.length, MAX_COLORS)
+      : Math.max(MIN_COLORS, Math.min(MAX_COLORS, Math.round(options.colors ?? DEFAULT_COLORS)));
+    if (shades.length <= colors) return { width: image.width, height: image.height, data: output };
     const points = toPoints(shades, groups);
     const assignment = points.length <= colors ? points.map((_, i) => i) : cluster(points, colors);
     const sums = new Map<number, { lab: [number, number, number]; count: number }>();
