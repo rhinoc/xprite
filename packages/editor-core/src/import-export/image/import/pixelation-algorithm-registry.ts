@@ -60,11 +60,10 @@ function uprightOf(image: PixelBuffer, angle: number): PixelBuffer {
 }
 
 /**
- * Proposers that work best on upright images. These are run once on the appropriate view
- * (upright if tilt is claimed, original otherwise) and their reliable candidates are reused
- * for all evaluation views.
+ * Every proposer Auto runs. Each proposer runs on each evaluation view; their candidates compete
+ * equally in arbitration.
  */
-const DESKEWING_PROPOSERS: readonly GridProposer[] = [
+const PROPOSERS: readonly GridProposer[] = [
   (image): PixelGridAnalysis[] => {
     const grid = detectUniformGrid(image);
     return grid.reliable
@@ -77,19 +76,28 @@ const DESKEWING_PROPOSERS: readonly GridProposer[] = [
       ? [{ ...grid, algorithm: PixelationAlgorithm.EdgeGrid, reliable: true }]
       : [];
   },
-];
-
-/**
- * Proposers that work on any view. These are run per evaluation view: for each view, their
- * candidates are collected and arbitrated alongside the deskewed candidates.
- */
-const OTHER_PROPOSERS: readonly GridProposer[] = [
   detectFrameLattices,
   pitchLattices,
   combCountGrids,
   detectBoundaryPeriodGrids,
   distanceCountGrids,
 ];
+
+/**
+ * Detect on a straightened copy when the image carries a convincing tilt; the grid then records
+ * the rotation so recovery straightens the same way. A tilt beyond the search range, or a
+ * straightened image that still has no reliable grid, is refused rather than guessed from the
+ * tilted pixels (those yield confident but wrong grids). Used for manual algorithm selection.
+ */
+const deskewed =
+  (algorithm: PixelationAlgorithm, detect: (image: PixelBuffer) => PixelGridAnalysis) =>
+  (image: PixelBuffer): PixelGridAnalysis => {
+    const tilt = estimateTilt(image);
+    if (tilt.extreme) return unreliable(image);
+    if (!tilt.angle) return { ...detect(image), algorithm };
+    const found = detect(uprightOf(image, tilt.angle));
+    return found.reliable ? { ...found, rotation: tilt.angle, algorithm } : unreliable(image);
+  };
 
 const FALLBACK = PixelationAlgorithm.Resize;
 const DEFAULT_CUSTOM_SIZE = 64;
@@ -109,43 +117,33 @@ const customSize = (image: PixelBuffer, size?: PixelationSize): PixelGridAnalysi
 };
 
 /**
- * Auto: every proposer runs on one or more evaluation views (扶正 and/or 原图), their candidates
- * compete in one arbitration per view (see grid-arbitrate), and the passthrough is one more
- * candidate in each. Deskewing proposers (Uniform, Edge) are run once on the appropriate view
- * (upright if the image carries a tilt, original otherwise); other proposers are run per view.
- * Soft edges make the tilt estimate unreliable, so when deskewing proposers find nothing on the
- * upright view, the original competes as well.
+ * Auto: every proposer runs on each evaluation view (扶正 and/or 原图), their candidates compete
+ * in one arbitration per view (see grid-arbitrate), and the passthrough is one more candidate in
+ * each. When the image carries a tilt, the upright view is tried; when no proposer finds a
+ * reliable grid there (soft edges), the original competes as well, so a false tilt does not hide
+ * the upright grid.
  */
 function autoGrid(image: PixelBuffer): PixelGridAnalysis {
   const tilt = estimateTilt(image);
   if (tilt.extreme) return unreliable(image);
 
-  // Run deskewing proposers once on the appropriate view
-  let deskewedCandidates: PixelGridAnalysis[] = [];
-  if (tilt.angle) {
-    const upright = uprightOf(image, tilt.angle);
-    deskewedCandidates = DESKEWING_PROPOSERS.flatMap((proposer) => proposer(upright))
-      .filter((grid) => grid.reliable)
-      .map((grid) => ({ ...grid, rotation: tilt.angle }));
-  } else {
-    deskewedCandidates = DESKEWING_PROPOSERS.flatMap((proposer) => proposer(image)).filter(
-      (grid) => grid.reliable,
-    );
-  }
-
   // Determine evaluation views
   const rings: { image: PixelBuffer; rotation: number }[] = [];
   if (tilt.angle) rings.push({ image: uprightOf(image, tilt.angle), rotation: tilt.angle });
-  if (!tilt.angle || deskewedCandidates.length === 0) rings.push({ image, rotation: 0 });
 
-  // Arbitrate each view: deskewed candidates + other proposers on this view
+  // Run all proposers on the upright view; if none find a grid, also try the original
+  const uprightCandidates = tilt.angle
+    ? PROPOSERS.flatMap((proposer) => proposer(rings[0].image)).filter((grid) => grid.reliable)
+    : [];
+  if (!tilt.angle || uprightCandidates.length === 0) rings.push({ image, rotation: 0 });
+
+  // Arbitrate each view: all proposers run on this view
   let best: { score: number; grid: PixelGridAnalysis; rotation: number } | null = null;
   for (const ring of rings) {
-    const otherCandidates = OTHER_PROPOSERS.flatMap((proposer) => proposer(ring.image)).map(
-      (grid) => (ring.rotation ? { ...grid, rotation: ring.rotation } : grid),
+    const candidates = PROPOSERS.flatMap((proposer) => proposer(ring.image)).map((grid) =>
+      ring.rotation ? { ...grid, rotation: ring.rotation } : grid,
     );
-    const allCandidates = [...deskewedCandidates, ...otherCandidates];
-    const winner = arbitrateGrids(ring.image, allCandidates);
+    const winner = arbitrateGrids(ring.image, candidates);
     if (winner && (!best || winner.score < best.score))
       best = { ...winner, rotation: ring.rotation };
   }
@@ -166,19 +164,13 @@ const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
   [PixelationAlgorithm.UniformGrid]: {
     label: "import.algorithm.uniform-grid",
     listed: true,
-    detect: (image) => {
-      const grid = detectUniformGrid(image);
-      return { ...grid, algorithm: PixelationAlgorithm.UniformGrid };
-    },
+    detect: deskewed(PixelationAlgorithm.UniformGrid, detectUniformGrid),
     run: recoverGrid,
   },
   [PixelationAlgorithm.EdgeGrid]: {
     label: "import.algorithm.edge-grid",
     listed: true,
-    detect: (image) => {
-      const grid = detectMeshGrid(image);
-      return { ...grid, algorithm: PixelationAlgorithm.EdgeGrid };
-    },
+    detect: deskewed(PixelationAlgorithm.EdgeGrid, detectMeshGrid),
     run: recoverGrid,
   },
   [PixelationAlgorithm.CustomSize]: {
