@@ -10,6 +10,7 @@ import {
   gradient,
   mush,
   resampleBilinear,
+  rowJitterUpscale,
   smoothPhoto,
   sprite,
   upscaleBilinear,
@@ -112,6 +113,11 @@ describe("one score over every proposal and the passthrough", () => {
     expect(size(image, octaves(image, 12))).toEqual([32, 32]);
   });
 
+  test("a row-jittered upscale is read through its strip shifts at its true count", () => {
+    const image = rowJitterUpscale(sprite(32), 6, 1.2);
+    expect(size(image, octaves(image, 6))).toEqual([32, 32]);
+  });
+
   test("a frame around the content does not displace the grid it encloses", () => {
     const pitch = 8,
       cells = 24,
@@ -161,5 +167,13 @@ describe("one score over every proposal and the passthrough", () => {
     const [reading] = readings;
     expect(reading.twin).toBeGreaterThan(reading.length);
     expect(reading.length).toBeLessThan(pixels);
+    expect(reading.chance).toBe(0);
+  });
+
+  test("a strip-shifted reading owns more phase evidence than its search finds by chance", () => {
+    const image = rowJitterUpscale(sprite(32), 6, 1.2);
+    const [reading] = gridEvidence(image, [lattice(image, 6)]).readings;
+    expect(reading.chance).toBeGreaterThan(0);
+    expect(reading.twin - reading.length).toBeGreaterThan(2 * reading.chance);
   });
 });
