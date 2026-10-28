@@ -1,12 +1,17 @@
 import type { PixelBuffer } from "$/base/primitives";
-import { RESIDUAL_FLOOR } from "$/import-export/image/import/grid-description-length";
+import {
+  RESIDUAL_FLOOR,
+  describedLines,
+} from "$/import-export/image/import/grid-description-length";
 
 /**
  * Strip shifts of a grid. Every strip of cells (a row of cells for the column cuts, a column of
  * cells for the row cuts) may move the cuts across it by whole pixels, within half a cell, as a
  * warped, sheared or row-jittered upscale displaces them. Each strip takes the shift that leaves
  * the least variance inside its cells, and moving every strip back by its shift straightens the
- * grid. The column cuts are settled first, the row cuts then on the straightened columns.
+ * grid. The column cuts are settled first, the row cuts then on the straightened columns. The
+ * variance is read on the lines a description covers, so a large image costs no more than its
+ * description.
  *
  * The same search with every strip confined to the anti-phase of its shift (a quarter to three
  * quarters of a cell away) straightens the twin. Because every strip picks its shift from the
@@ -30,20 +35,22 @@ const MIN_OFF_PITCH_CELLS = 3;
 const MIN_OFF_PITCH = 1.5;
 const TIE = 1e-9;
 
-/** Per line, prefix sums along it of the premultiplied colour and of its squared norm. */
+/** Per described line, prefix sums along it of the premultiplied colour and of its squared norm. */
 export interface LinePrefix {
   length: number;
-  lines: number;
+  /** The described lines, ascending. */
+  lines: Int32Array;
   sums: Float64Array;
 }
 
 function linePrefix(image: PixelBuffer, vertical: boolean): LinePrefix {
   const { width, height, data } = image;
-  const length = vertical ? height : width,
-    lines = vertical ? width : height;
-  const sums = new Float64Array(lines * (length + 1) * (CHANNELS + 1));
-  for (let line = 0; line < lines; line++) {
-    const base = line * (length + 1) * (CHANNELS + 1);
+  const length = vertical ? height : width;
+  const lines = describedLines(vertical ? width : height, length);
+  const sums = new Float64Array(lines.length * (length + 1) * (CHANNELS + 1));
+  for (let k = 0; k < lines.length; k++) {
+    const line = lines[k],
+      base = k * (length + 1) * (CHANNELS + 1);
     for (let p = 0; p < length; p++) {
       const o = (vertical ? p * width + line : line * width + p) * STRIDE;
       const alpha = data[o + CHANNELS] / ALPHA_SCALE;
@@ -96,6 +103,18 @@ interface StripShifts {
 
 const pitchOf = (cuts: readonly number[]) => (cuts[cuts.length - 1] - cuts[0]) / (cuts.length - 1);
 
+/** Index of the first described line at or after `line`. */
+function lineIndex(lines: Int32Array, line: number): number {
+  let low = 0,
+    high = lines.length;
+  while (low < high) {
+    const middle = (low + high) >> 1;
+    if (lines[middle] < line) low = middle + 1;
+    else high = middle;
+  }
+  return low;
+}
+
 /**
  * For each strip of lines between consecutive `across` cuts, the shift of the inner `cuts` that
  * leaves the least energy inside the cells. With `anchor`, each strip's shift is confined to the
@@ -107,7 +126,7 @@ function stripShifts(
   across: readonly number[],
   anchor?: readonly number[],
 ): StripShifts {
-  const { length, sums } = prefix;
+  const { length, lines, sums } = prefix;
   const cells = cuts.length - 1;
   const pitch = pitchOf(cuts);
   const low = -Math.floor((pitch - 1) * HALF),
@@ -117,11 +136,13 @@ function stripShifts(
   for (let k = 0; k + 1 < across.length; k++) {
     const from = anchor ? Math.ceil(anchor[k] + ANTI_PHASE_FROM * pitch) : low,
       to = anchor ? Math.floor(anchor[k] + ANTI_PHASE_TO * pitch) : high;
+    const first = lineIndex(lines, across[k]),
+      last = lineIndex(lines, across[k + 1]);
     let best = from,
       least = Infinity;
     for (let shift = from; shift <= to; shift++) {
       let sum = 0;
-      for (let line = across[k]; line < across[k + 1]; line++) {
+      for (let line = first; line < last; line++) {
         const base = line * (length + 1) * (CHANNELS + 1);
         let previous = 0;
         for (let i = 1; i <= cells; i++) {
@@ -151,15 +172,32 @@ function unshear(
 ): PixelBuffer {
   const { width, height, data } = image;
   const out = new Uint8ClampedArray(data.length);
-  const length = vertical ? height : width;
-  for (let k = 0; k + 1 < across.length; k++)
-    for (let line = across[k]; line < across[k + 1]; line++)
-      for (let p = 0; p < length; p++) {
-        const source = Math.max(0, Math.min(length - 1, p + shifts[k]));
-        const to = vertical ? p * width + line : line * width + p,
-          from = vertical ? source * width + line : line * width + source;
-        out.set(data.subarray(from * STRIDE, (from + 1) * STRIDE), to * STRIDE);
+  const row = width * STRIDE;
+  for (let k = 0; k + 1 < across.length; k++) {
+    const shift = shifts[k];
+    if (vertical) {
+      const left = across[k] * STRIDE,
+        right = across[k + 1] * STRIDE;
+      for (let y = 0; y < height; y++) {
+        const source = Math.max(0, Math.min(height - 1, y + shift)) * row;
+        out.set(data.subarray(source + left, source + right), y * row + left);
       }
+      continue;
+    }
+    const start = Math.max(0, -shift),
+      end = Math.min(width, width - shift);
+    for (let line = across[k]; line < across[k + 1]; line++) {
+      const base = line * row;
+      out.set(
+        data.subarray(base + (start + shift) * STRIDE, base + (end + shift) * STRIDE),
+        base + start * STRIDE,
+      );
+      const head = data.subarray(base, base + STRIDE),
+        tail = data.subarray(base + row - STRIDE, base + row);
+      for (let p = 0; p < start; p++) out.set(head, base + p * STRIDE);
+      for (let p = end; p < width; p++) out.set(tail, base + p * STRIDE);
+    }
+  }
   return { width, height, data: out };
 }
 
@@ -211,7 +249,7 @@ function offPitch(cuts: readonly number[], factor: number): number[] | null {
 
 /** Phase evidence, per sample, of one axis's strip search: its shifts against their anti-phase. */
 function axisEvidence(prefix: LinePrefix, cuts: readonly number[], across: readonly number[]) {
-  const samples = prefix.lines * prefix.length * CHANNELS;
+  const samples = prefix.lines.length * prefix.length * CHANNELS;
   const best = stripShifts(prefix, cuts, across);
   const anti = stripShifts(prefix, cuts, across, best.shifts);
   return (
