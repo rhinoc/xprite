@@ -32,7 +32,7 @@ const CHANNELS = 3;
 const ALPHA_CHANNEL = 3;
 const STRIDE = 4;
 const ALPHA_SCALE = 255;
-const RESIDUAL_FLOOR = 16;
+export const RESIDUAL_FLOOR = 16;
 /** Pixels a description covers; larger images are described on evenly spread whole rows. */
 const PIXEL_BUDGET = 1 << 19;
 /** Pixels a cell's centre sits from its first pixel, as a share of the cell. */

@@ -402,6 +402,83 @@ export function mushWarp(
     moved.data[i] = 0.6 * moved.data[i] + 0.4 * focus.data[i];
   return quantise(gaussPlanes(moved, blur));
 }
+/**
+ * pixel-bench's warp on a nearest upscale: a smooth shear that moves every row along x and every
+ * column along y by two sine waves of up to `amplitude` pixels.
+ */
+export function warpUpscale(
+  source: PixelBuffer,
+  scale: number,
+  amplitude: number,
+  seed = 29,
+): PixelBuffer {
+  const random = rng(seed);
+  const up = upscaleNearest(source, scale);
+  const { width, height } = up;
+  const phases = Array.from({ length: 4 }, () => random() * 2 * Math.PI);
+  const wave = (t: number, a: number, b: number) =>
+    amplitude * (Math.sin(2 * Math.PI * 2.5 * t + a) + 0.5 * Math.sin(2 * Math.PI * 5.75 * t + b));
+  const out = blank(width, height);
+  for (let y = 0; y < height; y++) {
+    const dx = wave(y / height, phases[0], phases[1]);
+    for (let x = 0; x < width; x++) {
+      const dy = wave(x / width, phases[2], phases[3]);
+      const sx = Math.max(0, Math.min(width - 1, Math.round(x + dx))),
+        sy = Math.max(0, Math.min(height - 1, Math.round(y + dy)));
+      out.data.set(
+        up.data.subarray((sy * width + sx) * 4, (sy * width + sx + 1) * 4),
+        (y * width + x) * 4,
+      );
+    }
+  }
+  return out;
+}
+/**
+ * pixel-bench's row_jitter: a nearest upscale whose every row of cells moves along x, and every
+ * column of cells along y, by up to `amplitude` pixels.
+ */
+export function rowJitterUpscale(
+  source: PixelBuffer,
+  scale: number,
+  amplitude: number,
+  seed = 31,
+): PixelBuffer {
+  const random = rng(seed);
+  const rowShifts = Array.from({ length: source.height }, () => (random() * 2 - 1) * amplitude);
+  const columnShifts = Array.from({ length: source.width }, () => (random() * 2 - 1) * amplitude);
+  const out = blank(Math.round(source.width * scale), Math.round(source.height * scale));
+  const cell = (position: number, cells: number) =>
+    Math.max(0, Math.min(cells - 1, Math.floor(position / scale)));
+  for (let y = 0; y < out.height; y++)
+    for (let x = 0; x < out.width; x++) {
+      const sx = cell(x + 0.5 + rowShifts[cell(y + 0.5, source.height)], source.width),
+        sy = cell(y + 0.5 + columnShifts[cell(x + 0.5, source.width)], source.height);
+      out.data.set(
+        source.data.subarray((sy * source.width + sx) * 4, (sy * source.width + sx + 1) * 4),
+        (y * out.width + x) * 4,
+      );
+    }
+  return out;
+}
+/**
+ * pixel-bench's cell_texture: a nearest upscale under a smooth multiplicative texture (correlated
+ * over a fifth of a cell) of standard deviation `amplitude`.
+ */
+export function texturedUpscale(
+  source: PixelBuffer,
+  scale: number,
+  amplitude: number,
+  seed = 37,
+): PixelBuffer {
+  const out = upscaleNearest(source, scale);
+  const field = smoothField(out.width, out.height, scale / 5, rng(seed));
+  let squares = 0;
+  for (const value of field) squares += value * value;
+  const deviation = Math.sqrt(squares / field.length) || 1;
+  for (let i = 0; i < field.length; i++)
+    for (let c = 0; c < 3; c++) out.data[i * 4 + c] *= 1 + (amplitude * field[i]) / deviation;
+  return out;
+}
 /** A soft "AI upscale": centred bilinear, a further blur and mild noise. */
 export function mush(source: PixelBuffer, scale: number, seed = 13): PixelBuffer {
   return addNoise(boxBlur(resampleBilinear(source, scale), 1), 6, seed);
