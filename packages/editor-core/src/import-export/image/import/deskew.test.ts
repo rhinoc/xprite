@@ -16,7 +16,11 @@ import {
 } from "$/import-export/image/import/grid-test-images";
 import { pixelateImage } from "$/import-export/image/import/pixelate";
 import { detectWithAlgorithm } from "$/import-export/image/import/pixelation-algorithm-registry";
-import { PixelationAlgorithm, PixelationMode } from "$/import-export/image/import/types";
+import {
+  PixelationAlgorithm,
+  PixelationMode,
+  type PixelGridAnalysis,
+} from "$/import-export/image/import/types";
 
 /** Independent reference rotation (nearest neighbour, repeated border) used to tilt test images. */
 function tilt(source: PixelBuffer, degrees: number): PixelBuffer {
@@ -95,20 +99,31 @@ describe("tilt estimation", () => {
   });
 });
 
+const tiltedGrids = new Map<number, { image: PixelBuffer; grid: PixelGridAnalysis }>();
+/** One Auto detection per tilt; recovery straightens on its grid, as the tools pass it. */
+function tiltedGrid(degrees: number) {
+  let found = tiltedGrids.get(degrees);
+  if (!found) {
+    const image = tilt(upright, degrees);
+    found = { image, grid: detectWithAlgorithm(image, PixelationAlgorithm.Auto) };
+    tiltedGrids.set(degrees, found);
+  }
+  return found;
+}
+
 describe("grid recovery from a tilted image", () => {
   test.each([1.2, -3, 6])("recovers the 64x64 grid of a %f° tilted sprite", (degrees) => {
-    const image = tilt(upright, degrees);
-    const grid = detectWithAlgorithm(image, PixelationAlgorithm.Auto);
+    const { image, grid } = tiltedGrid(degrees);
     expect(grid.reliable).toBe(true);
     expect([grid.width, grid.height]).toEqual([64, 64]);
     expect(Math.abs((grid.rotation ?? 0) - degrees)).toBeLessThan(0.1);
-    const out = pixelateImage(image, { algorithm: PixelationAlgorithm.Auto });
+    const out = pixelateImage(image, { algorithm: PixelationAlgorithm.Auto, grid });
     expect([out.width, out.height]).toEqual([64, 64]);
     // Only the cells along the replicated border and the staircase edges may differ.
     expect(same(out, art)).toBeGreaterThan(0.97);
   });
   test("a clean 1.2° tilt no longer yields a confident wrong grid", () => {
-    const grid = detectWithAlgorithm(tilt(upright, 1.2), PixelationAlgorithm.Auto);
+    const { grid } = tiltedGrid(1.2);
     expect([grid.width, grid.height]).not.toEqual([180, 168]);
     expect(grid.width).toBe(64);
   });
@@ -117,7 +132,7 @@ describe("grid recovery from a tilted image", () => {
     expect(grid.reliable).toBe(true);
     expect(grid.rotation).toBeUndefined();
     expect(
-      Array.from(pixelateImage(upright, { algorithm: PixelationAlgorithm.Auto }).data),
+      Array.from(pixelateImage(upright, { algorithm: PixelationAlgorithm.Auto, grid }).data),
     ).toEqual(Array.from(art.data));
   });
   test("a tilt beyond the search range is refused", () => {
