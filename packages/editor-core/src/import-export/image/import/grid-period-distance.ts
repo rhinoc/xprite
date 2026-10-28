@@ -200,7 +200,8 @@ function axisStep(image: PixelBuffer, horizontal: boolean): number | null {
 
 /**
  * The lattice covering the image at the cell counts of the axes' standing steps; an axis without
- * one takes the other's.
+ * one takes the other's. Also proposes adjacent counts (±1) to handle rounding ambiguities in
+ * block-reset and phase-varied upscales.
  */
 export function distanceCountGrids(image: PixelBuffer): PixelGridAnalysis[] {
   const across = axisStep(image, true),
@@ -213,7 +214,7 @@ export function distanceCountGrids(image: PixelBuffer): PixelGridAnalysis[] {
   const fits = (count: number, length: number) =>
     count >= MIN_GRID_CELLS && count <= Math.min(length, MAX_RECOVERED_GRID_SIZE);
   if (!fits(columns, image.width) || !fits(rows, image.height)) return [];
-  return [
+  const grids: PixelGridAnalysis[] = [
     {
       ...blockPartition(image, columns, rows),
       confidence: 0,
@@ -221,4 +222,18 @@ export function distanceCountGrids(image: PixelBuffer): PixelGridAnalysis[] {
       algorithm: PixelationAlgorithm.UniformGrid,
     },
   ];
+  // Adjacent counts for block-reset ambiguities
+  for (const dc of [-1, 1])
+    for (const dr of [-1, 1]) {
+      const c = columns + dc,
+        r = rows + dr;
+      if (fits(c, image.width) && fits(r, image.height))
+        grids.push({
+          ...blockPartition(image, c, r),
+          confidence: 0,
+          reliable: true,
+          algorithm: PixelationAlgorithm.UniformGrid,
+        });
+    }
+  return grids;
 }

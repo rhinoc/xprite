@@ -59,6 +59,8 @@ const SQUARE_TOLERANCE = 1.3;
 const SQUARE_SUPPORT = 0.3;
 /** Pixels an edge may sit from the warped lattice's cut and still count as explained. */
 const WARP_TOLERANCE = 0.75;
+/** Pixels a soft edge may sit from the warped lattice's cut and still count as explained. */
+const WARP_TOLERANCE_SOFT = 1.0;
 /** Variance in px² of a crisp edge about its true cut: the cut rounded to the raster. */
 const ROUNDING_VARIANCE = 1 / 12;
 /** Cells inward from the outermost edge over which a flat margin's pitch is averaged. */
@@ -66,7 +68,7 @@ const BORDER_CELLS = 6;
 /** Weight of the pitch next to a flat margin against the mean pitch, for the margin's pitch. */
 const LOCAL_MARGIN_WEIGHT = 0.7;
 /** Share of the edge weight the warped lattice must explain on both axes for a mesh grid. */
-const MIN_WARP_SHARE = 0.8;
+const MIN_WARP_SHARE = 0.75;
 /** Share of the edge energy in isolated one-pixel steps that marks a crisp profile. */
 const CRISP_SHARE = 0.9;
 /** A crisp edge's strength against the mean profile, below which it is ignored. */
@@ -489,15 +491,16 @@ function marginPitch(
   return mean + LOCAL_MARGIN_WEIGHT * (local - mean);
 }
 /** Share of the edge weight within rounding of an integer index of the warped lattice. */
-function warpShare(edges: readonly Edge[], warp: AxisWarp): number {
+function warpShare(edges: readonly Edge[], warp: AxisWarp, crisp: boolean): number {
   let total = 0,
     fit = 0;
+  const baseTolerance = crisp ? WARP_TOLERANCE : WARP_TOLERANCE_SOFT;
   for (const edge of edges) {
     const u = warpAt(warp, edge.position);
     const pitch = warpPitch(warp, edge.position);
     const pixels = Math.abs(u - Math.round(u)) * pitch;
     total += edge.weight;
-    if (pixels <= Math.max(WARP_TOLERANCE, CONSISTENT_GAP * pitch)) fit += edge.weight;
+    if (pixels <= Math.max(baseTolerance, CONSISTENT_GAP * pitch)) fit += edge.weight;
   }
   return total ? fit / total : 0;
 }
@@ -563,7 +566,7 @@ function finishAxis(draft: AxisDraft, requested: number): AxisResult | null {
     pitch,
     lattice,
     meshCuts: buildMesh(draft.edges, pitch, draft.length, warp),
-    warpShare: warp ? warpShare(draft.edges, warp) : 0,
+    warpShare: warp ? warpShare(draft.edges, warp, crisp) : 0,
   };
 }
 /**
