@@ -66,7 +66,7 @@ const BORDER_CELLS = 6;
 /** Weight of the pitch next to a flat margin against the mean pitch, for the margin's pitch. */
 const LOCAL_MARGIN_WEIGHT = 0.7;
 /** Share of the edge weight the warped lattice must explain on both axes for a mesh grid. */
-const MIN_WARP_SHARE = 0.8;
+const MIN_WARP_SHARE = 0.75;
 /** Share of the edge energy in isolated one-pixel steps that marks a crisp profile. */
 const CRISP_SHARE = 0.9;
 /** A crisp edge's strength against the mean profile, below which it is ignored. */
