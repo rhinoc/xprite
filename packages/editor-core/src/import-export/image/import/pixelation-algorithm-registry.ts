@@ -5,7 +5,9 @@ import { blockPartition } from "$/import-export/image/import/grid";
 import {
   arbitrateGrids,
   gridEvidence,
+  octaveShortfall,
   phaseScore,
+  type ArbitratedGrid,
 } from "$/import-export/image/import/grid-arbitrate";
 import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
 import { detectFrameLattices } from "$/import-export/image/import/grid-frame-lattice";
@@ -163,7 +165,24 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     const candidates = PROPOSERS.flatMap((proposer) => proposer(ring.image)).map((grid) =>
       ring.rotation ? { ...grid, rotation: ring.rotation } : grid,
     );
-    const winner = arbitrateGrids(ring.image, candidates);
+
+    // Tag candidates with their proposer for corroboration tracking
+    const tagged = corroboratingProposers.flatMap((proposer, index) =>
+      proposer(ring.image).map((grid) => ({
+        grid: ring.rotation ? { ...grid, rotation: ring.rotation } : grid,
+        proposerIndex: index,
+      })),
+    );
+
+    let winner = arbitrateGrids(ring.image, candidates);
+
+    // Prefer corroborated near-count with strict gates: winner corrob=1, challenger≥2,
+    // bd_dist in challenger proposers, phaseScore margin ≤0.40
+    if (winner) {
+      const preferred = preferCorroboratedNearCountMarginBdDist(ring.image, winner, tagged);
+      if (preferred) winner = preferred;
+    }
+
     if (winner && (!best || winner.score < best.score))
       best = { ...winner, rotation: ring.rotation };
 
@@ -180,6 +199,124 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
 
   if (!best) return unreliable(image);
   return best.rotation ? { ...best.grid, rotation: best.rotation } : best.grid;
+}
+
+/**
+ * After arbitration picks a winner, check if near-count readings (±1 cell per axis) have
+ * strictly higher corroboration from period proposers. Only override when ALL gates hold:
+ * 1. Winner corroboration = 1 (singleton period proposer)
+ * 2. Challenger corroboration ≥ 2
+ * 3. bd_dist (distanceCountGrids, index 4) in challenger proposers
+ * 4. phaseScore(challenger) - phaseScore(winner) ≤ 0.40 nats
+ *
+ * Stricter than reverted ungated version to prevent drift cliff (game1x −0.233pp, drift −20pp).
+ */
+function preferCorroboratedNearCountMarginBdDist(
+  image: PixelBuffer,
+  winner: ArbitratedGrid,
+  tagged: readonly { grid: PixelGridAnalysis; proposerIndex: number }[],
+): ArbitratedGrid | null {
+  const BD_DIST_INDEX = 4; // distanceCountGrids in corroboratingProposers
+  const MAX_PHASE_SCORE_DELTA = 0.4;
+
+  const winnerWidth = winner.grid.width;
+  const winnerHeight = winner.grid.height;
+
+  // Group tagged grids by size and track proposers
+  const bySize = new Map<
+    string,
+    { proposers: Set<number>; grids: { grid: PixelGridAnalysis; proposerIndex: number }[] }
+  >();
+  for (const entry of tagged) {
+    const key = `${entry.grid.width}x${entry.grid.height}`;
+    const group = bySize.get(key) ?? { proposers: new Set(), grids: [] };
+    group.proposers.add(entry.proposerIndex);
+    group.grids.push(entry);
+    bySize.set(key, group);
+  }
+
+  // Count winner's corroboration
+  const winnerKey = `${winnerWidth}x${winnerHeight}`;
+  const winnerCorroboration = bySize.get(winnerKey)?.proposers.size ?? 0;
+
+  // Gate 1: only apply when winner has corroboration=1 (singleton period proposer)
+  if (winnerCorroboration !== 1) return null;
+
+  // Compute winner's phase score once
+  const { readings: winnerReadings } = gridEvidence(image, [winner.grid]);
+  if (winnerReadings.length === 0) return null;
+  const winnerPhaseScore = phaseScore(winnerReadings[0]);
+
+  // Find near-count candidates (±1 cell per axis)
+  let bestChallenger: {
+    grid: PixelGridAnalysis;
+    corroboration: number;
+    score: number;
+    phaseScore: number;
+  } | null = null;
+
+  for (const [key, group] of bySize) {
+    const [w, h] = key.split("x").map(Number);
+    const deltaW = Math.abs(w - winnerWidth);
+    const deltaH = Math.abs(h - winnerHeight);
+
+    // Must be ±1 cell per axis
+    if (deltaW > 1 || deltaH > 1 || (deltaW === 0 && deltaH === 0)) continue;
+
+    const corroboration = group.proposers.size;
+
+    // Gate 2: challenger must have corroboration ≥ 2
+    if (corroboration < 2) continue;
+
+    // Gate 3: bd_dist must be in challenger's proposers
+    if (!group.proposers.has(BD_DIST_INDEX)) continue;
+
+    // Must have strictly higher corroboration than winner
+    if (corroboration <= winnerCorroboration) continue;
+
+    // Compute challenger's arbitration score and phase score
+    const candidateGrid = group.grids[0].grid;
+    const { readings } = gridEvidence(image, [candidateGrid]);
+    if (readings.length === 0) continue;
+
+    const reading = readings[0];
+    const challengerPhaseScore = phaseScore(reading);
+
+    // Gate 4: phase score delta must be ≤ 0.40
+    const phaseDelta = challengerPhaseScore - winnerPhaseScore;
+    if (phaseDelta > MAX_PHASE_SCORE_DELTA) continue;
+
+    const { cutsX, cutsY } = reading.grid;
+    const totalScore = challengerPhaseScore + octaveShortfall(reading.frame(), cutsX!, cutsY!);
+
+    // Pick best-corroborated among valid challengers
+    if (
+      !bestChallenger ||
+      corroboration > bestChallenger.corroboration ||
+      (corroboration === bestChallenger.corroboration && totalScore < bestChallenger.score)
+    ) {
+      bestChallenger = {
+        grid: candidateGrid,
+        corroboration,
+        score: totalScore,
+        phaseScore: challengerPhaseScore,
+      };
+    }
+  }
+
+  if (!bestChallenger) return null;
+
+  // Return the preferred challenger
+  const share = Math.max(0, Math.min(1, bestChallenger.grid.confidence ?? 0));
+  return {
+    grid: {
+      ...bestChallenger.grid,
+      confidence: Math.max(bestChallenger.grid.confidence, share),
+      reliable: true,
+    },
+    length: 0, // Not used after this point
+    score: bestChallenger.score,
+  };
 }
 
 /**
