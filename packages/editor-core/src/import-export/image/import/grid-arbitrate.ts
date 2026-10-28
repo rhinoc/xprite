@@ -43,8 +43,9 @@ import { PixelationAlgorithm, type PixelGridAnalysis } from "$/import-export/ima
  * scores the shorter of two descriptions without a recovered grid, less NULL_MARGIN:
  *
  * - the image as it is, one cell per pixel (native pixel art and drawings), and
- * - the best length any proposal reaches at the worse of its two phases: what a lattice explains
- *   whatever its phase (smooth photos and gradients) is no evidence of a grid.
+ * - the best length any proposal reaches at the worse of its two phases, less the phase evidence
+ *   its search finds by chance: what a lattice explains whatever its phase (smooth photos and
+ *   gradients), or with shifts that find a phase on any content, is no evidence of a grid.
  *
  * Phase evidence has to come from every cut, which also settles octaves. Split a reading's cuts
  * into OCTAVE_CLASSES (every second cut, every third cut) and moving one class to the cell
@@ -308,7 +309,7 @@ export function arbitrateGrids(
   const { readings, pixels } = gridEvidence(image, grids);
   let passthrough = pixels;
   for (const reading of readings)
-    passthrough = Math.min(passthrough, Math.max(reading.length, reading.twin));
+    passthrough = Math.min(passthrough, Math.max(reading.length, reading.twin - reading.chance));
   let best: GridEvidence | null = null;
   let score = passthrough - NULL_MARGIN;
   // The octave shortfall only adds to a score, so readings are checked best phase score first
