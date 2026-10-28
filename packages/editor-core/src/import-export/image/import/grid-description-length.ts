@@ -167,13 +167,17 @@ function contentCuts(cuts: readonly number[], start: number, length: number): nu
   return inside;
 }
 
+/** The lines a description covers: every one, or as many evenly spread as PIXEL_BUDGET allows. */
+export function describedLines(lines: number, length: number): Int32Array {
+  const count = Math.min(lines, Math.max(1, Math.floor(PIXEL_BUDGET / length)));
+  return Int32Array.from({ length: count }, (_, i) => Math.floor(((i + HALF) * lines) / count));
+}
+
 export function describeImage(input: PixelBuffer): DescribedImage {
   const { content: image, left, top } = contentOf(input);
   const { width, height, data } = image;
-  const count = Math.min(height, Math.max(1, Math.floor(PIXEL_BUDGET / width)));
-  const lines = Int32Array.from({ length: count }, (_, i) =>
-    Math.floor(((i + HALF) * height) / count),
-  );
+  const lines = describedLines(height, width);
+  const count = lines.length;
   const values = new Float64Array(count * width * CHANNELS);
   for (let r = 0; r < count; r++)
     for (let x = 0; x < width; x++) {
