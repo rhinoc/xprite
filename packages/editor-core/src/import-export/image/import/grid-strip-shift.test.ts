@@ -1,9 +1,8 @@
 import { describe, expect, test } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
-
-import { StripImage, stripShear } from "./grid-strip-shift";
-import { sprite, upscaleNearest } from "./grid-test-images";
+import { StripImage, stripShear } from "$/import-export/image/import/grid-strip-shift";
+import { sprite, upscaleNearest } from "$/import-export/image/import/grid-test-images";
 
 const STRIDE = 4;
 const PITCH = 6;
