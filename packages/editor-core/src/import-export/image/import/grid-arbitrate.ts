@@ -61,6 +61,14 @@ const PHASE_EVIDENCE_WEIGHT = 1;
 /** Nats per sample the passthrough is preferred by. */
 const NULL_MARGIN = 0.03;
 /**
+ * Phase strength threshold above which passthrough margin is boosted. When any reading has
+ * (twin - length) / twin above this value, indicating strong phase lock, the passthrough margin
+ * increases to help that reading win over refusal.
+ */
+const STRONG_PHASE_THRESHOLD = 0.2;
+/** Passthrough margin boost (added to NULL_MARGIN) when strong phase evidence is present. */
+const PHASE_MARGIN_BOOST = 0.03;
+/**
  * Cells per axis a grid needs: with fewer, a few large features can line up with the cuts by
  * chance and pass for phase evidence.
  */
@@ -310,8 +318,21 @@ export function arbitrateGrids(
   let passthrough = pixels;
   for (const reading of readings)
     passthrough = Math.min(passthrough, Math.max(reading.length, reading.twin - reading.chance));
+
+  // Adaptive passthrough margin: boost when strong phase-locked grids are present
+  let maxPhaseStrength = 0;
+  for (const reading of readings) {
+    const phaseStrength =
+      reading.twin > 0
+        ? Math.max(0, reading.twin - reading.length - reading.chance) / reading.twin
+        : 0;
+    maxPhaseStrength = Math.max(maxPhaseStrength, phaseStrength);
+  }
+  const margin =
+    maxPhaseStrength >= STRONG_PHASE_THRESHOLD ? NULL_MARGIN + PHASE_MARGIN_BOOST : NULL_MARGIN;
+
   let best: GridEvidence | null = null;
-  let score = passthrough - NULL_MARGIN;
+  let score = passthrough - margin;
   // The octave shortfall only adds to a score, so readings are checked best phase score first
   // and the search stops at the first that cannot win even without it.
   for (const reading of [...readings].sort((a, b) => phaseScore(a) - phaseScore(b))) {
