@@ -55,8 +55,6 @@ const REFINE_PASSES = 2;
 /** A distance counts for a multiple while within this share of a step of it. */
 const REFINE_TOLERANCE = 0.3;
 const MIN_GRID_CELLS = 2;
-/** Maximum competitive steps per axis to propose when multiple peaks tie. */
-const MAX_COMPETITIVE_STEPS = 3;
 
 /** Colour step summed over COHERENCE_LINES lines, at each position of each line read. */
 function lineSteps(image: PixelBuffer, horizontal: boolean) {
@@ -168,25 +166,22 @@ function refine(histogram: Float64Array, step: number): number {
   return best;
 }
 
-/**
- * The competitive steps of an axis (up to MAX_COMPETITIVE_STEPS peaks within TIE_SHARE of the
- * best that have fundamental support), or an empty array when boundaries are too few or keep no step.
- */
-function axisSteps(image: PixelBuffer, horizontal: boolean): number[] {
+/** The standing step of an axis, or null when its boundaries are too few or keep no step. */
+function axisStep(image: PixelBuffer, horizontal: boolean): number | null {
   const length = horizontal ? image.width : image.height;
   const longest = Math.min(MAX_STEP, length / MIN_PERIODS);
-  if (longest <= MIN_STEP) return [];
+  if (longest <= MIN_STEP) return null;
   const histogram = boundaryDistances(image, horizontal);
   let total = 0;
   for (const count of histogram) total += count;
-  if (total < MIN_DISTANCES) return [];
+  if (total < MIN_DISTANCES) return null;
   const steps: number[] = [];
   for (let step = MIN_STEP; step <= longest; step *= STEP_RATIO) steps.push(step);
   const scores = steps.map((step) => combScore(histogram, BIN, step));
   const peaks: number[] = [];
   for (let i = 1; i + 1 < steps.length; i++)
     if (scores[i] > scores[i - 1] && scores[i] >= scores[i + 1] && scores[i] > 0) peaks.push(i);
-  if (!peaks.length) return [];
+  if (!peaks.length) return null;
   peaks.sort((a, b) => scores[b] - scores[a]);
   const top = scores[peaks[0]];
   const support = (step: number) => {
@@ -197,49 +192,33 @@ function axisSteps(image: PixelBuffer, horizontal: boolean): number[] {
     return near / total;
   };
   const tied = peaks
-    .filter((i) => scores[i] >= TIE_SHARE * top && support(steps[i]) >= FUNDAMENTAL_SHARE)
+    .filter((i) => scores[i] >= TIE_SHARE * top)
     .sort((a, b) => steps[b] - steps[a])
-    .slice(0, MAX_COMPETITIVE_STEPS);
-  if (!tied.length) {
-    const fallback = peaks.find((i) => support(steps[i]) >= FUNDAMENTAL_SHARE) ?? peaks[0];
-    return [refine(histogram, steps[fallback])];
-  }
-  return tied.map((i) => refine(histogram, steps[i]));
+    .find((i) => support(steps[i]) >= FUNDAMENTAL_SHARE);
+  return refine(histogram, steps[tied ?? peaks[0]]);
 }
 
 /**
- * Lattice grids at the cell counts of the axes' competitive steps. When one axis has no steps,
- * it takes the other's. Proposes a grid for each competitive step combination.
+ * The lattice covering the image at the cell counts of the axes' standing steps; an axis without
+ * one takes the other's.
  */
 export function distanceCountGrids(image: PixelBuffer): PixelGridAnalysis[] {
-  const acrossSteps = axisSteps(image, true);
-  const downSteps = axisSteps(image, false);
-  const xSteps = acrossSteps.length ? acrossSteps : downSteps;
-  const ySteps = downSteps.length ? downSteps : acrossSteps;
-  if (!xSteps.length || !ySteps.length) return [];
-
+  const across = axisStep(image, true),
+    down = axisStep(image, false);
+  const x = across ?? down,
+    y = down ?? across;
+  if (x === null || y === null) return [];
+  const columns = Math.round(image.width / x),
+    rows = Math.round(image.height / y);
   const fits = (count: number, length: number) =>
     count >= MIN_GRID_CELLS && count <= Math.min(length, MAX_RECOVERED_GRID_SIZE);
-
-  const proposals: PixelGridAnalysis[] = [];
-  const seen = new Set<string>();
-
-  for (const x of xSteps) {
-    for (const y of ySteps) {
-      const columns = Math.round(image.width / x);
-      const rows = Math.round(image.height / y);
-      if (!fits(columns, image.width) || !fits(rows, image.height)) continue;
-      const key = `${columns}x${rows}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      proposals.push({
-        ...blockPartition(image, columns, rows),
-        confidence: 0,
-        reliable: true,
-        algorithm: PixelationAlgorithm.UniformGrid,
-      });
-    }
-  }
-
-  return proposals;
+  if (!fits(columns, image.width) || !fits(rows, image.height)) return [];
+  return [
+    {
+      ...blockPartition(image, columns, rows),
+      confidence: 0,
+      reliable: true,
+      algorithm: PixelationAlgorithm.UniformGrid,
+    },
+  ];
 }
