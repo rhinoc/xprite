@@ -59,7 +59,7 @@ import { PixelationAlgorithm, type PixelGridAnalysis } from "$/import-export/ima
  */
 const PHASE_EVIDENCE_WEIGHT = 1;
 /** Nats per sample the passthrough is preferred by. */
-const NULL_MARGIN = 0.03;
+const NULL_MARGIN = 0.05;
 /**
  * Cells per axis a grid needs: with fewer, a few large features can line up with the cuts by
  * chance and pass for phase evidence.
