@@ -349,23 +349,25 @@ function unfield(
   field: AxisField,
 ): PixelBuffer {
   const { width, height, data } = image;
+  const pixels = new Uint32Array(data.buffer, data.byteOffset, data.length / STRIDE);
   const out = new Uint8ClampedArray(data.length);
+  const moved = new Uint32Array(out.buffer);
   const length = vertical ? height : width,
     count = vertical ? width : height;
-  const step = vertical ? width * STRIDE : STRIDE,
-    across = vertical ? STRIDE : width * STRIDE;
   const band = bandIndex(field, cuts, length);
-  for (let line = 0; line < count; line++) {
-    const k = nearestLine(lines, line);
-    for (let p = 0; p < length; p++) {
-      const source = Math.max(0, Math.min(length - 1, p + field.shifts[band[p]][k]));
-      const o = line * across + p * step,
-        i = line * across + source * step;
-      out[o] = data[i];
-      out[o + 1] = data[i + 1];
-      out[o + 2] = data[i + 2];
-      out[o + 3] = data[i + 3];
+  const nearest = Int32Array.from({ length: count }, (_, line) => nearestLine(lines, line));
+  for (let y = 0; y < height; y++) {
+    const row = y * width;
+    if (vertical) {
+      const shifts = field.shifts[band[y]];
+      for (let x = 0; x < width; x++)
+        moved[row + x] =
+          pixels[Math.max(0, Math.min(height - 1, y + shifts[nearest[x]])) * width + x];
+      continue;
     }
+    const k = nearest[y];
+    for (let x = 0; x < width; x++)
+      moved[row + x] = pixels[row + Math.max(0, Math.min(width - 1, x + field.shifts[band[x]][k]))];
   }
   return { width, height, data: out };
 }
