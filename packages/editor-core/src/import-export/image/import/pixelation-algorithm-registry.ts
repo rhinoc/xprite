@@ -5,9 +5,7 @@ import { blockPartition } from "$/import-export/image/import/grid";
 import {
   arbitrateGrids,
   gridEvidence,
-  octaveShortfall,
   phaseScore,
-  type ArbitratedGrid,
 } from "$/import-export/image/import/grid-arbitrate";
 import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
 import { detectFrameLattices } from "$/import-export/image/import/grid-frame-lattice";
@@ -165,25 +163,7 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     const candidates = PROPOSERS.flatMap((proposer) => proposer(ring.image)).map((grid) =>
       ring.rotation ? { ...grid, rotation: ring.rotation } : grid,
     );
-
-    // Tag candidates with their proposer for corroboration tracking
-    const tagged = corroboratingProposers.flatMap((proposer, index) =>
-      proposer(ring.image).map((grid) => ({
-        grid: ring.rotation ? { ...grid, rotation: ring.rotation } : grid,
-        proposerIndex: index,
-      })),
-    );
-
-    let winner = arbitrateGrids(ring.image, candidates);
-
-    // Prefer corroborated near-count: among readings ±1 cell/axis of winner, prefer strictly
-    // highest corroboration from period proposers, but only when winner has corroboration=1
-    // and challenger≥2 (sweaty safety: prevents multi-proposer ±1 from flipping corroborated GT)
-    if (winner) {
-      const preferred = preferCorroboratedNearCount(ring.image, winner, tagged);
-      if (preferred) winner = preferred;
-    }
-
+    const winner = arbitrateGrids(ring.image, candidates);
     if (winner && (!best || winner.score < best.score))
       best = { ...winner, rotation: ring.rotation };
 
@@ -200,85 +180,6 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
 
   if (!best) return unreliable(image);
   return best.rotation ? { ...best.grid, rotation: best.rotation } : best.grid;
-}
-
-/**
- * After arbitration picks a winner, check if a near-count reading (±1 cell per axis) has
- * strictly higher corroboration from period proposers. Only override when winner has
- * corroboration=1 and challenger≥2 (sweaty safety: preserves corroborated GT).
- */
-function preferCorroboratedNearCount(
-  image: PixelBuffer,
-  winner: ArbitratedGrid,
-  tagged: readonly { grid: PixelGridAnalysis; proposerIndex: number }[],
-): ArbitratedGrid | null {
-  const winnerWidth = winner.grid.width;
-  const winnerHeight = winner.grid.height;
-
-  // Group tagged grids by size and count distinct proposers
-  const bySize = new Map<string, Set<number>>();
-  for (const entry of tagged) {
-    const key = `${entry.grid.width}x${entry.grid.height}`;
-    const proposers = bySize.get(key) ?? new Set();
-    proposers.add(entry.proposerIndex);
-    bySize.set(key, proposers);
-  }
-
-  // Count winner's corroboration
-  const winnerKey = `${winnerWidth}x${winnerHeight}`;
-  const winnerCorroboration = bySize.get(winnerKey)?.size ?? 0;
-
-  // Safety gate: only apply when winner has corroboration=1 (singleton period proposer)
-  if (winnerCorroboration !== 1) return null;
-
-  // Find near-count candidates (±1 cell per axis)
-  const nearCandidates: { grid: PixelGridAnalysis; corroboration: number }[] = [];
-  for (const [key, proposers] of bySize) {
-    const [w, h] = key.split("x").map(Number);
-    const deltaW = Math.abs(w - winnerWidth);
-    const deltaH = Math.abs(h - winnerHeight);
-    if (deltaW <= 1 && deltaH <= 1 && (deltaW > 0 || deltaH > 0)) {
-      // Find grids of this size in tagged
-      for (const entry of tagged) {
-        if (entry.grid.width === w && entry.grid.height === h) {
-          nearCandidates.push({ grid: entry.grid, corroboration: proposers.size });
-          break; // One representative per size
-        }
-      }
-    }
-  }
-
-  // Find best-corroborated near-count with corroboration≥2 and strictly higher than winner
-  let bestNear: { grid: PixelGridAnalysis; corroboration: number; score: number } | null = null;
-  for (const candidate of nearCandidates) {
-    if (candidate.corroboration >= 2 && candidate.corroboration > winnerCorroboration) {
-      // Compute its arbitration score
-      const { readings } = gridEvidence(image, [candidate.grid]);
-      if (readings.length === 0) continue;
-      const reading = readings[0];
-      const phase = phaseScore(reading);
-      const { cutsX, cutsY } = reading.grid;
-      const total = phase + octaveShortfall(reading.frame(), cutsX!, cutsY!);
-
-      if (!bestNear || candidate.corroboration > bestNear.corroboration) {
-        bestNear = { grid: candidate.grid, corroboration: candidate.corroboration, score: total };
-      }
-    }
-  }
-
-  if (!bestNear) return null;
-
-  // Return the preferred near-count as the new winner
-  const share = Math.max(0, Math.min(1, bestNear.grid.confidence ?? 0));
-  return {
-    grid: {
-      ...bestNear.grid,
-      confidence: Math.max(bestNear.grid.confidence, share),
-      reliable: true,
-    },
-    length: 0, // Not used after this point
-    score: bestNear.score,
-  };
 }
 
 /**

@@ -114,7 +114,7 @@ export function classTwinCuts(cuts: readonly number[], period: number, phase: nu
 }
 
 /** Phase evidence, per sample, the reading's cuts miss from their least evident class. */
-export function octaveShortfall(
+function octaveShortfall(
   frame: DescribedImage,
   cutsX: readonly number[],
   cutsY: readonly number[],
