@@ -71,8 +71,6 @@ const BILINEAR_CORNERS = 4;
 /** Neighbours on each side a blurred pixel mixes. */
 const BLUR_REACH = 1;
 const BLUR_TAPS = 2 * BLUR_REACH + 1;
-/** Sub-pixel offsets to try for bilinear centers when phase fields straighten the image. */
-const SUB_PIXEL_OFFSETS = [0, 0.25, 0.5] as const;
 /** Coefficients of the Abramowitz-Stegun approximation of erf (7.1.26). */
 const ERF_P = 0.3275911;
 const ERF_A = [0.254829592, -0.284496736, 1.421413741, -1.453152027, 1.061405429] as const;
@@ -204,10 +202,10 @@ interface Centres {
   weight: Float64Array;
 }
 
-function centres(cuts: readonly number[], length: number, offset = 0): Centres {
+function centres(cuts: readonly number[], length: number): Centres {
   const points = Array.from(
     { length: cuts.length - 1 },
-    (_, i) => (cuts[i] + cuts[i + 1]) * HALF - HALF + offset,
+    (_, i) => (cuts[i] + cuts[i + 1]) * HALF - HALF,
   );
   const lower = new Int32Array(length),
     weight = new Float64Array(length);
@@ -416,22 +414,19 @@ function solveTridiagonal(
 /**
  * Residual of the bilinear blend of the cell centres, with the centre colours that rebuild the
  * described pixels best. The blend is separable, so the least-squares colours solve one
- * tridiagonal system along each axis. With `offsetX` and `offsetY`, the centres shift by that
- * many pixels, for sub-pixel resampled upscales.
+ * tridiagonal system along each axis.
  */
 function bilinearError(
   described: DescribedImage,
   cutsX: readonly number[],
   cutsY: readonly number[],
-  offsetX = 0,
-  offsetY = 0,
 ) {
   const { content: image, lines, values } = described;
   const { width, height } = image;
   const across = cutsX.length - 1,
     down = cutsY.length - 1;
-  const cx = centres(cutsX, width, offsetX),
-    cy = centres(cutsY, height, offsetY);
+  const cx = centres(cutsX, width),
+    cy = centres(cutsY, height);
   const colours = new Float64Array(across * down * CHANNELS);
   const lefts = new Int32Array(width),
     rights = new Int32Array(width);
@@ -595,13 +590,6 @@ function renderingLength(
   let best = length(moments.flat, moments.means);
   const bilinear = bilinearError(described, cutsX, cutsY);
   best = Math.min(best, length(bilinear.error, bilinear.colours));
-  // Sub-pixel bilinear: try fractional offsets for warped grids with sub-pixel resampling.
-  for (const dx of SUB_PIXEL_OFFSETS)
-    for (const dy of SUB_PIXEL_OFFSETS) {
-      if (dx === 0 && dy === 0) continue;
-      const subPixel = bilinearError(described, cutsX, cutsY, dx, dy);
-      best = Math.min(best, length(subPixel.error, subPixel.colours));
-    }
   // A slope pays for itself where the residual it removes, at the flat cells' precision, beats
   // its parameters; every cell also says whether it carries one.
   const precision = 2 * (moments.flat / samples + RESIDUAL_FLOOR);
