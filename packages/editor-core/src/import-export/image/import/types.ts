@@ -91,6 +91,14 @@ export enum PixelationDither {
   FloydSteinberg = "floyd-steinberg",
 }
 
+/** How the max color count is determined when Limit colors is on. */
+export enum PaletteColorMode {
+  /** User-specified fixed count (e.g. 16). */
+  Fixed = "fixed",
+  /** One colour per group of near-duplicate shades (Lab ΔE) in the recovered image. */
+  Adaptive = "adaptive",
+}
+
 /** How a line drawing changes PixelOE's outline weight (1 = spread dark, 0 = spread bright). */
 export enum LineGuideMode {
   /** max(weight, lines): PixelOE's own weight, plus dark spreading along every line. */
@@ -144,8 +152,10 @@ export interface PixelationSize {
 
 /** Limit colors, applied to the pixelated image (see palette-snap.ts). */
 export interface PaletteSnapOptions {
-  /** Number of colours to cluster into (k-means); ignored when `palette` is given. */
+  /** Number of colours to cluster into (k-means); ignored when `palette` or `adaptive` is given. */
   colors?: number;
+  /** Estimate color count from the image instead of using a fixed count. */
+  adaptive?: boolean;
   /** Snap every visible pixel to its nearest entry (CIE Lab) instead of clustering. */
   palette?: readonly Rgba[];
   /** Ordered / Floyd–Steinberg while snapping; None (nearest) when omitted. */
@@ -231,6 +241,8 @@ export interface PixelationSettings {
   lockAspectRatio: boolean;
   /** Dithering for Limit colors; ignored when Limit colors is off. */
   dither: PixelationDither;
+  /** How the color count is chosen when Limit colors is on and no palette is loaded. */
+  paletteColorMode: PaletteColorMode;
   palette: readonly Rgba[] | null;
   paletteName: string;
 }
