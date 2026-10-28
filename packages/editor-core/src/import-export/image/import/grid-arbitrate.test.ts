@@ -8,6 +8,7 @@ import {
   twinCuts,
 } from "$/import-export/image/import/grid-arbitrate";
 import {
+  blockResetUpscale,
   gradient,
   mush,
   resampleBilinear,
@@ -123,7 +124,8 @@ describe("one score over every proposal and the passthrough", () => {
   test.each([
     ["a warped", warpUpscale(sprite(32), 6, 1)],
     ["a row-jittered", rowJitterUpscale(sprite(32), 6, 1.2)],
-  ])("%s upscale is read through its strip shifts at its true count", (_, image) => {
+    ["a block-reset", blockResetUpscale(sprite(32), 6, 2)],
+  ])("%s upscale is read through its shifts at its true count", (_, image) => {
     expect(size(image, octaves(image, 6))).toEqual([32, 32]);
   });
 

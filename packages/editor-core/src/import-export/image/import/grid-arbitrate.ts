@@ -9,20 +9,22 @@ import {
   type DescribedImage,
   type GridCuts,
 } from "$/import-export/image/import/grid-description-length";
+import { fieldChanceEvidence, phaseField } from "$/import-export/image/import/grid-phase-field";
 import {
   chanceEvidence,
   StripImage,
   stripShear,
+  type StripShear,
 } from "$/import-export/image/import/grid-strip-shift";
 import { PixelationAlgorithm, type PixelGridAnalysis } from "$/import-export/image/import/types";
 
 /**
  * One decision over every proposed grid and the passthrough. Each proposal is read in the ways
- * its cuts allow, and the reading that describes the input shortest stands: an edge mesh as
- * placed; a lattice as cut or with its cuts snapped to the nearest edges (leaving every cut in
- * place is one of the snaps, so the offsets have to pay for themselves); and either of them
- * through strip shifts (see grid-strip-shift), described on the straightened image and paying for
- * the shifts. Every reading carries three numbers:
+ * its cuts allow, and the reading that scores best stands: an edge mesh as placed; a lattice as
+ * cut or with its cuts snapped to the nearest edges (leaving every cut in place is one of the
+ * snaps, so the offsets have to pay for themselves); and either of them through strip shifts (see
+ * grid-strip-shift) or a phase field (see grid-phase-field), described on the straightened image
+ * and paying for the shifts. Every reading carries three numbers:
  *
  * - its description length of the input (see grid-description-length);
  * - the length of its twin: the same model with every cut moved half a cell, onto the cell
@@ -85,7 +87,7 @@ export interface ArbitratedGrid {
   score: number;
 }
 
-const phaseScore = (reading: GridEvidence) =>
+const phaseScore = (reading: Pick<GridEvidence, "length" | "twin" | "chance">) =>
   reading.length - PHASE_EVIDENCE_WEIGHT * (reading.twin - reading.length - reading.chance);
 
 /** The cuts moved half a cell: one cut at each cell middle, inside the same extent. */
@@ -219,32 +221,43 @@ function readingOf(
   cutsY: number[],
 ): Reading {
   const placed = placedReading(strips.image, described, grid, cutsX, cutsY);
-  const shear = stripShear(strips, cutsX, cutsY);
-  if (shear) {
-    const cuts = {
-      cutsX,
-      cutsY,
-      model: grid.algorithm === PixelationAlgorithm.EdgeGrid ? CutModel.Free : CutModel.Lattice,
-    };
-    const straight = describeImage(shear.straight);
-    const cost = shear.cost / straight.samples;
-    const length = descriptionLength(straight, cuts) + cost;
-    if (length < placed.length)
-      return {
-        cuts,
-        length,
-        twin: descriptionLength(describeImage(shear.twin()), cuts) + cost,
-        chance: chanceEvidence(strips, cutsX, cutsY),
-        frame: () => describeImage(shear.straight),
-      };
-  }
-  return {
+  let best: Reading = {
     cuts: placed.cuts,
     length: placed.length,
     twin: descriptionLength(described, placed.twin()),
     chance: 0,
     frame: () => described,
   };
+  const cuts = {
+    cutsX,
+    cutsY,
+    model: grid.algorithm === PixelationAlgorithm.EdgeGrid ? CutModel.Free : CutModel.Lattice,
+  };
+  const field = phaseField(strips, cutsX, cutsY);
+  const shifted: { shear: StripShear | null; chance: () => number }[] = [
+    { shear: stripShear(strips, cutsX, cutsY), chance: () => chanceEvidence(strips, cutsX, cutsY) },
+    {
+      shear: field,
+      chance: () => fieldChanceEvidence(strips, cutsX, cutsY, field!.bandsX, field!.bandsY),
+    },
+  ];
+  for (const { shear, chance } of shifted) {
+    if (!shear) continue;
+    const straight = describeImage(shear.straight);
+    const cost = shear.cost / straight.samples;
+    const reading: Reading = {
+      cuts,
+      length: descriptionLength(straight, cuts) + cost,
+      twin: descriptionLength(describeImage(shear.twin()), cuts) + cost,
+      chance: 0,
+      frame: () => describeImage(shear.straight),
+    };
+    // Chance evidence only adds to a score, so it is measured only for a reading that could win.
+    if (phaseScore(reading) >= phaseScore(best)) continue;
+    reading.chance = chance();
+    if (phaseScore(reading) < phaseScore(best)) best = reading;
+  }
+  return best;
 }
 
 /** Every distinct reading of the proposals, and the image's own length per sample. */

@@ -461,6 +461,36 @@ export function rowJitterUpscale(
   return out;
 }
 /**
+ * pixel-bench's block_reset: a nearest upscale split into `blocks` by `blocks` parts, each of which
+ * samples the source at its own phase, up to half a cell either way on both axes.
+ */
+export function blockResetUpscale(
+  source: PixelBuffer,
+  scale: number,
+  blocks: number,
+  seed = 37,
+): PixelBuffer {
+  const random = rng(seed);
+  const phase = () => (random() - 0.5) * scale;
+  const shifts = Array.from({ length: blocks * blocks }, () => [phase(), phase()] as const);
+  const out = blank(Math.round(source.width * scale), Math.round(source.height * scale));
+  const cell = (position: number, cells: number) =>
+    Math.max(0, Math.min(cells - 1, Math.floor(position / scale)));
+  const block = (position: number, length: number) =>
+    Math.min(blocks - 1, Math.floor((position * blocks) / length));
+  for (let y = 0; y < out.height; y++)
+    for (let x = 0; x < out.width; x++) {
+      const [dx, dy] = shifts[block(y, out.height) * blocks + block(x, out.width)];
+      const sx = cell(x + 0.5 + dx, source.width),
+        sy = cell(y + 0.5 + dy, source.height);
+      out.data.set(
+        source.data.subarray((sy * source.width + sx) * 4, (sy * source.width + sx + 1) * 4),
+        (y * out.width + x) * 4,
+      );
+    }
+  return out;
+}
+/**
  * pixel-bench's cell_texture: a nearest upscale under a smooth multiplicative texture (correlated
  * over a fifth of a cell) of standard deviation `amplitude`.
  */

@@ -646,13 +646,20 @@ export function descriptionLength(described: DescribedImage, cuts: GridCuts): nu
 }
 
 /**
+ * Nats of a pixel's colour coded against a neighbour `step` (squared premultiplied distance) away,
+ * beyond the residual floor every sample pays, as `pixelLength` codes every pixel.
+ */
+export function colourStepCost(step: number): number {
+  return (CHANNELS / 2) * Math.log1p(step / (CHANNELS * RESIDUAL_FLOOR));
+}
+
+/**
  * Description length per sample of the image as it is: one cell per pixel, which rebuilds it
  * exactly, each pixel coded against its left or upper neighbour.
  */
 export function pixelLength(described: DescribedImage): number {
   const { content: image, lines, values, samples, parameter } = described;
   const { width } = image;
-  const variance = RESIDUAL_FLOOR;
   let colours = 0;
   for (let r = 0; r < lines.length; r++) {
     const above = r > 0 && lines[r - 1] === lines[r] - 1;
@@ -670,12 +677,12 @@ export function pixelLength(described: DescribedImage): number {
         step = 0;
         for (let c = 0; c < CHANNELS; c++) step += values[v + c] ** 2;
       }
-      colours += (CHANNELS / 2) * Math.log1p(step / (CHANNELS * variance));
+      colours += colourStepCost(step);
     }
   }
   const cells = lines.length * width;
   return (
-    ((samples / 2) * Math.log(variance) +
+    ((samples / 2) * Math.log(RESIDUAL_FLOOR) +
       colours +
       cells * parameter * CELL_PARAMETERS +
       LATTICE_CUT_PARAMETERS * parameter) /

@@ -29,7 +29,7 @@ const HALF = 0.5;
  * Pitch factors at which the chance evidence is measured: a quarter octave either side, clear of
  * the grid's octaves and of its neighbouring cell counts.
  */
-const OFF_PITCH_FACTORS = [2 ** 0.25, 2 ** -0.25] as const;
+export const OFF_PITCH_FACTORS = [2 ** 0.25, 2 ** -0.25] as const;
 /** Cells and pixels per cell an off-pitch lattice needs to be searched. */
 const MIN_OFF_PITCH_CELLS = 3;
 const MIN_OFF_PITCH = 1.5;
@@ -43,7 +43,7 @@ export interface LinePrefix {
   sums: Float64Array;
 }
 
-function linePrefix(image: PixelBuffer, vertical: boolean): LinePrefix {
+export function linePrefix(image: PixelBuffer, vertical: boolean): LinePrefix {
   const { width, height, data } = image;
   const length = vertical ? height : width;
   const lines = describedLines(vertical ? width : height, length);
@@ -81,7 +81,7 @@ export class StripImage {
 }
 
 /** Squared deviation from their mean of the pixels [from, to) of one line. */
-function intervalEnergy(sums: Float64Array, base: number, from: number, to: number) {
+export function intervalEnergy(sums: Float64Array, base: number, from: number, to: number) {
   if (to <= from) return 0;
   const count = to - from;
   let energy =
@@ -237,7 +237,7 @@ export function stripShear(
 }
 
 /** Uniform cuts over the same extent at `factor` times the pitch. */
-function offPitch(cuts: readonly number[], factor: number): number[] | null {
+export function offPitch(cuts: readonly number[], factor: number): number[] | null {
   const first = cuts[0],
     last = cuts[cuts.length - 1];
   const cells = Math.round((cuts.length - 1) / factor);
