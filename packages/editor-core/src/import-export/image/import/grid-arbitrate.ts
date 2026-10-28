@@ -57,7 +57,7 @@ import { PixelationAlgorithm, type PixelGridAnalysis } from "$/import-export/ima
  * The lowest score wins; no proposer is consulted or skipped by the kind of image, and no
  * proposal passes a gate of its own.
  */
-const PHASE_EVIDENCE_WEIGHT = 1;
+const PHASE_EVIDENCE_WEIGHT = 1.1;
 /** Nats per sample the passthrough is preferred by. */
 const NULL_MARGIN = 0.03;
 /**
