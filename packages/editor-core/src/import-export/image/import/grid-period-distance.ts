@@ -199,29 +199,8 @@ function axisStep(image: PixelBuffer, horizontal: boolean): number | null {
 }
 
 /**
- * Fractional part of a number, in [0, 1).
- */
-function frac(x: number): number {
-  return x - Math.floor(x);
-}
-
-/**
- * Distance from the fractional part to 0.5 (rounding boundary).
- */
-function roundingAmbiguity(x: number): number {
-  const f = frac(x);
-  return Math.abs(f - 0.5);
-}
-
-/**
- * When the cell count rounds near a half, both adjacent counts may fit equally well.
- * Propose both when the rounding is ambiguous.
- */
-const ROUNDING_AMBIGUITY_THRESHOLD = 0.3;
-
-/**
  * The lattice covering the image at the cell counts of the axes' standing steps; an axis without
- * one takes the other's. When the count rounds near a half-integer, proposes both adjacent counts.
+ * one takes the other's.
  */
 export function distanceCountGrids(image: PixelBuffer): PixelGridAnalysis[] {
   const across = axisStep(image, true),
@@ -229,17 +208,12 @@ export function distanceCountGrids(image: PixelBuffer): PixelGridAnalysis[] {
   const x = across ?? down,
     y = down ?? across;
   if (x === null || y === null) return [];
-
-  const exactColumns = image.width / x,
-    exactRows = image.height / y;
-  const columns = Math.round(exactColumns),
-    rows = Math.round(exactRows);
-
+  const columns = Math.round(image.width / x),
+    rows = Math.round(image.height / y);
   const fits = (count: number, length: number) =>
     count >= MIN_GRID_CELLS && count <= Math.min(length, MAX_RECOVERED_GRID_SIZE);
   if (!fits(columns, image.width) || !fits(rows, image.height)) return [];
-
-  const proposals: PixelGridAnalysis[] = [
+  return [
     {
       ...blockPartition(image, columns, rows),
       confidence: 0,
@@ -247,37 +221,4 @@ export function distanceCountGrids(image: PixelBuffer): PixelGridAnalysis[] {
       algorithm: PixelationAlgorithm.UniformGrid,
     },
   ];
-
-  const ambiguousX = roundingAmbiguity(exactColumns) < ROUNDING_AMBIGUITY_THRESHOLD;
-  const ambiguousY = roundingAmbiguity(exactRows) < ROUNDING_AMBIGUITY_THRESHOLD;
-
-  if (ambiguousX || ambiguousY) {
-    const alternatives: Array<[number, number]> = [];
-    if (ambiguousX && !ambiguousY) {
-      const altColumns = exactColumns < columns ? columns - 1 : columns + 1;
-      if (fits(altColumns, image.width)) alternatives.push([altColumns, rows]);
-    } else if (!ambiguousX && ambiguousY) {
-      const altRows = exactRows < rows ? rows - 1 : rows + 1;
-      if (fits(columns, image.width) && fits(altRows, image.height))
-        alternatives.push([columns, altRows]);
-    } else {
-      const altColumns = exactColumns < columns ? columns - 1 : columns + 1;
-      const altRows = exactRows < rows ? rows - 1 : rows + 1;
-      if (fits(altColumns, image.width)) alternatives.push([altColumns, rows]);
-      if (fits(altRows, image.height)) alternatives.push([columns, altRows]);
-      if (fits(altColumns, image.width) && fits(altRows, image.height))
-        alternatives.push([altColumns, altRows]);
-    }
-
-    for (const [cols, rws] of alternatives) {
-      proposals.push({
-        ...blockPartition(image, cols, rws),
-        confidence: 0,
-        reliable: true,
-        algorithm: PixelationAlgorithm.UniformGrid,
-      });
-    }
-  }
-
-  return proposals;
 }
