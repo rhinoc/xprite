@@ -2,7 +2,11 @@ import type { PixelBuffer } from "$/base/primitives";
 import { forgetNeighbourSteps } from "$/import-export/image/import/color-step";
 import { estimateTilt, straighten } from "$/import-export/image/import/deskew";
 import { blockPartition } from "$/import-export/image/import/grid";
-import { arbitrateGrids } from "$/import-export/image/import/grid-arbitrate";
+import {
+  arbitrateGrids,
+  gridEvidence,
+  phaseScore,
+} from "$/import-export/image/import/grid-arbitrate";
 import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
 import { detectFrameLattices } from "$/import-export/image/import/grid-frame-lattice";
 import { detectBoundaryPeriodGrids } from "$/import-export/image/import/grid-period-boundary";
@@ -117,6 +121,13 @@ const customSize = (image: PixelBuffer, size?: PixelationSize): PixelGridAnalysi
 };
 
 /**
+ * Minimum number of proposers that must agree on a lattice size for corroborated admission.
+ * When arbitration refuses (passthrough wins), if this many proposers agree on a strict lattice,
+ * admit the best-phaseScore corroborated lattice instead of falling through to passthrough.
+ */
+const MIN_CORROBORATORS = 2;
+
+/**
  * Auto: every proposer runs on each evaluation view (扶正 and/or 原图), their candidates compete
  * in one arbitration per view (see grid-arbitrate), and the passthrough is one more candidate in
  * each. When the image carries a tilt, the upright view is tried; when no proposer finds a
@@ -137,6 +148,15 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     : [];
   if (!tilt.angle || uprightCandidates.length === 0) rings.push({ image, rotation: 0 });
 
+  // Specific proposers for corroborated admission: frame, pitchLat, comb, bd, bd_dist
+  const corroboratingProposers = [
+    detectFrameLattices,
+    pitchLattices,
+    combCountGrids,
+    detectBoundaryPeriodGrids,
+    distanceCountGrids,
+  ];
+
   // Arbitrate each view: all proposers run on this view
   let best: { score: number; grid: PixelGridAnalysis; rotation: number } | null = null;
   for (const ring of rings) {
@@ -146,10 +166,75 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     const winner = arbitrateGrids(ring.image, candidates);
     if (winner && (!best || winner.score < best.score))
       best = { ...winner, rotation: ring.rotation };
+
+    // Corroborated admission: when arbitration refuses, check if multiple proposers agree
+    if (!winner && !best) {
+      const corroborated = admitCorroboratedLattice(
+        ring.image,
+        corroboratingProposers,
+        ring.rotation,
+      );
+      if (corroborated) best = corroborated;
+    }
   }
 
   if (!best) return unreliable(image);
   return best.rotation ? { ...best.grid, rotation: best.rotation } : best.grid;
+}
+
+/**
+ * When arbitration refuses (passthrough wins), check if multiple corroborating proposers agree
+ * on a strict lattice size. If ≥MIN_CORROBORATORS agree, admit the best-phaseScore among them.
+ */
+function admitCorroboratedLattice(
+  image: PixelBuffer,
+  proposers: readonly GridProposer[],
+  rotation: number,
+): { score: number; grid: PixelGridAnalysis; rotation: number } | null {
+  // Collect proposals from corroborating proposers, tagged by source
+  const tagged = proposers.flatMap((proposer, index) =>
+    proposer(image).map((grid) => ({ grid, proposerIndex: index })),
+  );
+
+  // Group by strict lattice size (width × height)
+  const bySize = new Map<string, { grid: PixelGridAnalysis; proposerIndex: number }[]>();
+  for (const entry of tagged) {
+    const key = `${entry.grid.width}x${entry.grid.height}`;
+    const group = bySize.get(key) ?? [];
+    group.push(entry);
+    bySize.set(key, group);
+  }
+
+  // Find sizes corroborated by ≥MIN_CORROBORATORS distinct proposers
+  let bestCorroborated: PixelGridAnalysis | null = null;
+  let bestScore = Infinity;
+
+  for (const [, group] of bySize) {
+    // Count distinct proposers in this group
+    const proposerIndices = new Set(group.map((entry) => entry.proposerIndex));
+    if (proposerIndices.size < MIN_CORROBORATORS) continue;
+
+    // Among corroborated grids of this size, find best phaseScore
+    const { readings } = gridEvidence(
+      image,
+      group.map((e) => e.grid),
+    );
+    for (const reading of readings) {
+      const phase = phaseScore(reading);
+      if (phase < bestScore) {
+        bestScore = phase;
+        bestCorroborated = reading.grid;
+      }
+    }
+  }
+
+  if (!bestCorroborated) return null;
+
+  return {
+    score: bestScore,
+    grid: rotation ? { ...bestCorroborated, rotation } : bestCorroborated,
+    rotation,
+  };
 }
 
 /** Algorithm table. Auto runs pluggable proposers and falls back to FALLBACK as data. */

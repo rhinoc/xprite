@@ -88,7 +88,7 @@ export interface ArbitratedGrid {
   score: number;
 }
 
-const phaseScore = (reading: Pick<GridEvidence, "length" | "twin" | "chance">) =>
+export const phaseScore = (reading: Pick<GridEvidence, "length" | "twin" | "chance">) =>
   reading.length - PHASE_EVIDENCE_WEIGHT * (reading.twin - reading.length - reading.chance);
 
 /** The cuts moved half a cell: one cut at each cell middle, inside the same extent. */
