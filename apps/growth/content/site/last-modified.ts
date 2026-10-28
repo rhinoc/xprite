@@ -6,9 +6,9 @@ import { localizedSiteHref, PUBLIC_LANGUAGES } from "./language.ts";
  * tool, so each localized address takes its English page's date.
  */
 const TOOL_LAST_MODIFIED: Readonly<Record<PublicTool["path"], string>> = {
-  "/tools/viewer/": "2026-10-27",
-  "/tools/gif-to-sprite-sheet/": "2026-10-27",
-  "/tools/pixelate/": "2026-10-27",
+  "/tools/viewer/": "2026-10-28",
+  "/tools/gif-to-sprite-sheet/": "2026-10-28",
+  "/tools/pixelate/": "2026-10-28",
   "/tools/fix-ai-pixel-art/": "2026-10-26",
   "/tools/animal-crossing-qr/": "2026-10-22",
   "/tools/fuse-beads/": "2026-10-22",
@@ -31,14 +31,14 @@ const TOOL_PAGE_LAST_MODIFIED = Object.fromEntries(
 export const SITE_LAST_MODIFIED: Readonly<Record<string, string>> = {
   "/": "2026-10-12",
   ...TOOL_PAGE_LAST_MODIFIED,
-  "/about/": "2026-10-27",
-  "/zh-CN/about/": "2026-10-12",
+  "/about/": "2026-10-28",
+  "/zh-CN/about/": "2026-10-28",
   "/help/": "2026-10-11",
   "/zh-CN/help/": "2026-10-11",
   "/compare/": "2026-10-12",
   "/zh-CN/compare/": "2026-10-12",
-  "/features/": "2026-10-27",
-  "/zh-CN/features/": "2026-10-11",
+  "/features/": "2026-10-28",
+  "/zh-CN/features/": "2026-10-28",
   "/features/draw-pixel-art/": "2026-10-11",
   "/zh-CN/features/draw-pixel-art/": "2026-10-11",
   "/features/layers-and-colors/": "2026-10-11",

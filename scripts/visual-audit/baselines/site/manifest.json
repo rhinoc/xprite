@@ -3206,7 +3206,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-27T01:08:20.534Z",
+        "capturedAt": "2026-10-28T13:28:40.612Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3234,7 +3234,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "d19f910111349b79f8fae871122fa7b166e67899fb7a93ad2516a10cf05e5f41",
+        "sha256": "61a5e59ced41c56258586e57324e3c656852f58ae0a953cda8c1cf85983109c2",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -7067,7 +7067,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-27T01:08:16.679Z",
+        "capturedAt": "2026-10-28T13:28:40.228Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -7095,7 +7095,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "ece6321111a8d42665d53c185efcb0e1a1b63b729ea7379c080d1329e9497718",
+        "sha256": "45f9a8a7052e34bae6d00205d0a4387e0e8e797733c613dcdcb2af097811699b",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -7123,7 +7123,7 @@
           "x": 12,
           "y": 98,
           "width": 350,
-          "height": 558
+          "height": 534
         }
       ],
       "platform": "Linux x86_64",
