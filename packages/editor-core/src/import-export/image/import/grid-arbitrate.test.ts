@@ -3,6 +3,7 @@ import { describe, expect, test } from "vitest";
 import type { PixelBuffer } from "$/base/primitives";
 import {
   arbitrateGrids,
+  classTwinCuts,
   gridEvidence,
   twinCuts,
 } from "$/import-export/image/import/grid-arbitrate";
@@ -13,8 +14,10 @@ import {
   rowJitterUpscale,
   smoothPhoto,
   sprite,
+  texturedUpscale,
   upscaleBilinear,
   upscaleNearest,
+  warpUpscale,
 } from "$/import-export/image/import/grid-test-images";
 import { PixelationAlgorithm, type PixelGridAnalysis } from "$/import-export/image/import/types";
 
@@ -85,6 +88,10 @@ describe("twin cuts", () => {
   test("put one cut at each cell middle inside the same extent", () => {
     expect(twinCuts([0, 4, 8, 12])).toEqual([0, 2, 6, 10, 12]);
   });
+
+  test("of one class move every period-th inner cut to its cell middle", () => {
+    expect(classTwinCuts([0, 4, 8, 12, 16], 2, 1)).toEqual([0, 6, 8, 14, 16]);
+  });
 });
 
 describe("one score over every proposal and the passthrough", () => {
@@ -113,9 +120,16 @@ describe("one score over every proposal and the passthrough", () => {
     expect(size(image, octaves(image, 12))).toEqual([32, 32]);
   });
 
-  test("a row-jittered upscale is read through its strip shifts at its true count", () => {
-    const image = rowJitterUpscale(sprite(32), 6, 1.2);
+  test.each([
+    ["a warped", warpUpscale(sprite(32), 6, 1)],
+    ["a row-jittered", rowJitterUpscale(sprite(32), 6, 1.2)],
+  ])("%s upscale is read through its strip shifts at its true count", (_, image) => {
     expect(size(image, octaves(image, 6))).toEqual([32, 32]);
+  });
+
+  test("a textured upscale keeps its pitch rather than a finer octave", () => {
+    const image = texturedUpscale(sprite(32), 8, 0.3);
+    expect(size(image, octaves(image, 8))).toEqual([32, 32]);
   });
 
   test("a frame around the content does not displace the grid it encloses", () => {

@@ -44,6 +44,13 @@ import { PixelationAlgorithm, type PixelGridAnalysis } from "$/import-export/ima
  * - the best length any proposal reaches at the worse of its two phases: what a lattice explains
  *   whatever its phase (smooth photos and gradients) is no evidence of a grid.
  *
+ * Phase evidence has to come from every cut, which also settles octaves. Split a reading's cuts
+ * into OCTAVE_CLASSES (every second cut, every third cut) and moving one class to the cell
+ * middles should lose about its share of the twin's evidence. A finer octave of a coarser grid,
+ * such as a lattice at half the pitch of a textured upscale, has a class inside the coarser
+ * cells, which moves for free: the shortfall of the least evident class from its share is
+ * evidence the reading does not own, and it adds to the reading's score.
+ *
  * The lowest score wins; no proposer is consulted or skipped by the kind of image, and no
  * proposal passes a gate of its own.
  */
@@ -55,6 +62,8 @@ const NULL_MARGIN = 0.03;
  * chance and pass for phase evidence.
  */
 const MIN_CELLS = 8;
+/** Every how many cuts the octave classes take. */
+const OCTAVE_CLASSES = [2, 3] as const;
 const HALF = 0.5;
 
 /** A grid reading: the hypothesis with its cuts, its length and its twin's, per sample. */
@@ -64,6 +73,8 @@ export interface GridEvidence {
   twin: number;
   /** Phase evidence, per sample, the reading's strip search finds by chance. */
   chance: number;
+  /** The image the reading describes: the input, or its straightened strips. */
+  frame: () => DescribedImage;
 }
 
 export interface ArbitratedGrid {
@@ -87,6 +98,39 @@ export function twinCuts(cuts: readonly number[]): number[] {
   }
   twin.push(last);
   return twin;
+}
+
+/** The cuts with every `period`th inner cut, from the `phase`th, moved to its cell's middle. */
+export function classTwinCuts(cuts: readonly number[], period: number, phase: number): number[] {
+  const twin = [...cuts];
+  const cells = cuts.length - 1;
+  for (let i = 1; i < cells; i++)
+    if (i % period === phase) twin[i] = Math.round((cuts[i] + cuts[i + 1]) * HALF);
+  for (let i = 1; i <= cells; i++) if (twin[i] <= twin[i - 1]) twin[i] = twin[i - 1] + 1;
+  return twin;
+}
+
+/** Phase evidence, per sample, the reading's cuts miss from their least evident class. */
+function octaveShortfall(
+  frame: DescribedImage,
+  cutsX: readonly number[],
+  cutsY: readonly number[],
+): number {
+  const length = (x: readonly number[], y: readonly number[]) =>
+    descriptionLength(frame, { cutsX: x, cutsY: y, model: CutModel.Lattice });
+  const own = length(cutsX, cutsY);
+  const evidence = length(twinCuts(cutsX), twinCuts(cutsY)) - own;
+  let shortfall = 0;
+  for (const period of OCTAVE_CLASSES) {
+    let least = Infinity;
+    for (let phase = 0; phase < period; phase++)
+      least = Math.min(
+        least,
+        length(classTwinCuts(cutsX, period, phase), classTwinCuts(cutsY, period, phase)) - own,
+      );
+    shortfall = Math.max(shortfall, evidence - period * least);
+  }
+  return shortfall;
 }
 
 function cutsOf(image: PixelBuffer, grid: PixelGridAnalysis) {
@@ -124,6 +168,7 @@ interface Reading {
   length: number;
   twin: number;
   chance: number;
+  frame: () => DescribedImage;
 }
 
 /** The proposal as placed or snapped, with the twin to measure it against. */
@@ -190,6 +235,7 @@ function readingOf(
         length,
         twin: descriptionLength(describeImage(shear.twin()), cuts) + cost,
         chance: chanceEvidence(strips, cutsX, cutsY),
+        frame: () => describeImage(shear.straight),
       };
   }
   return {
@@ -197,6 +243,7 @@ function readingOf(
     length: placed.length,
     twin: descriptionLength(described, placed.twin()),
     chance: 0,
+    frame: () => described,
   };
 }
 
@@ -218,7 +265,7 @@ export function gridEvidence(
     const key = keyOf(cutsX, cutsY);
     if (seen.has(key)) continue;
     seen.add(key);
-    const { cuts, length, twin, chance } = readingOf(strips, described, grid, cutsX, cutsY);
+    const { cuts, length, twin, chance, frame } = readingOf(strips, described, grid, cutsX, cutsY);
     readings.push({
       grid: {
         ...grid,
@@ -230,6 +277,7 @@ export function gridEvidence(
       length,
       twin,
       chance,
+      frame,
     });
   }
   return { readings, pixels: pixelLength(described) };
@@ -246,14 +294,23 @@ export function arbitrateGrids(
 ): ArbitratedGrid | null {
   const { readings, pixels } = gridEvidence(image, grids);
   let passthrough = pixels;
-  let best: GridEvidence | null = null;
-  for (const reading of readings) {
+  for (const reading of readings)
     passthrough = Math.min(passthrough, Math.max(reading.length, reading.twin));
-    if (!best || phaseScore(reading) < phaseScore(best)) best = reading;
+  let best: GridEvidence | null = null;
+  let score = passthrough - NULL_MARGIN;
+  // The octave shortfall only adds to a score, so readings are checked best phase score first
+  // and the search stops at the first that cannot win even without it.
+  for (const reading of [...readings].sort((a, b) => phaseScore(a) - phaseScore(b))) {
+    const phase = phaseScore(reading);
+    if (phase >= score) break;
+    const { cutsX, cutsY } = reading.grid;
+    const total = phase + octaveShortfall(reading.frame(), cutsX!, cutsY!);
+    if (total < score) {
+      best = reading;
+      score = total;
+    }
   }
   if (!best) return null;
-  const score = phaseScore(best);
-  if (score >= passthrough - NULL_MARGIN) return null;
   const share = Math.max(0, Math.min(1, (best.twin - best.length) / best.twin));
   return {
     grid: { ...best.grid, confidence: Math.max(best.grid.confidence, share), reliable: true },
