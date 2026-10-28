@@ -84,6 +84,29 @@ The repository's `.gitattributes` keeps Git hook files on LF line endings even
 when `core.autocrlf` is enabled. `pnpm install` installs the hooks automatically;
 the generated `.husky/_` directory does not need to be committed.
 
+### Pre-push checks
+
+`pnpm install` wires a husky **pre-push** hook that runs a **change-scoped** gate based on the
+commits being pushed (not the dirty working tree):
+
+| Bucket | When it runs | Command |
+| --- | --- | --- |
+| Static check | Always | `pnpm run check` (site-build step skipped here) |
+| Unit tests | `packages/`, `apps/`, `services/`, `scripts/`, `infra/`, lockfiles | `pnpm run test:ci` |
+| Site build / deploy prep | UI, site apps, deploy/build scripts, `infra/`, lockfiles | `check:deploy --build` / `--prepare`, `check:site-output` |
+| Visual audits | UI / site / visual baselines / `infra/` (not editor-core-only) | `pnpm run visual --prebuilt` |
+
+Force the full local suite (same as before scoping):
+
+```sh
+XPRITE_PREPUSH_FULL=1 git push
+# or
+pnpm run pre-push:full
+```
+
+`XPRITE_SKIP_VISUAL=1` still skips only the visual audits. CI (Check + Visual audits workflows)
+remains the full gate for pull requests.
+
 `pnpm run dev` starts the independent editor, growth, tools and components servers,
 reusing this workspace's existing servers on their fixed ports. It performs no
 builds. Shared UI output must already exist; regenerate the component catalog with

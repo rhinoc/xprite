@@ -1,4 +1,5 @@
-# Full gate on every push, no caching: `pnpm run check`, then `pnpm run test:ci` and `pnpm run visual`
-# in parallel with grouped output. XPRITE_SKIP_VISUAL=1 skips only the visual audits, explicitly.
-# Note: husky skips every hook when HUSKY=0 is set in the environment; unset it before pushing.
+# Change-scoped gate: static check always; unit / site-build / visual only when the pushed
+# commits touch those buckets (see scripts/check/pre-push-scope.mjs). Force the full suite with
+# XPRITE_PREPUSH_FULL=1 or `pnpm run pre-push:full`. XPRITE_SKIP_VISUAL=1 skips only visual.
+# Note: husky skips every hook when HUSKY=0 is set; unset it before pushing.
 node scripts/check/pre-push.mjs

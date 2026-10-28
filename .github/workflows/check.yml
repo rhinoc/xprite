@@ -1,7 +1,8 @@
 name: Check
 
-# Safety net only: the pre-push hook already runs check, unit tests, visual audits and the deploy
-# build locally. PRs only (no duplicate push run), superseded runs are cancelled.
+# Full static + unit gate for PRs. Local husky pre-push is change-scoped (may skip site-build /
+# visual / unit depending on the push); this workflow stays the full CI safety net. PRs only
+# (no duplicate push run), superseded runs are cancelled.
 # Static checks and unit tests run as parallel jobs on separate runners — same-runner parallel of
 # check + test:ci was slower (111s vs 86s); separate runners cut wall clock roughly to the longer job.
 on:

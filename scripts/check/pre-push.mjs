@@ -1,44 +1,67 @@
 #!/usr/bin/env node
-// Pre-push gate. Phase 1: `pnpm run check` (without its own growth/tools build) alongside the one
-// production site build (`check:deploy --build`). Phase 2, all on that build and in parallel:
-// `test:ci`, `visual --prebuilt` (unless XPRITE_SKIP_VISUAL=1),
-// `check:deploy --prepare` and the site-output checks (SSR warnings, page metadata, asset
-// versions) that `check` would otherwise build growth and tools for, racing the site build.
-// The parallel steps' output is buffered and printed as one block per step, so logs never interleave.
-// Knip and tsgo use on-disk caches under node_modules/.cache; CI restores those between runs.
-// XPRITE_SKIP_VISUAL=1 skips only the visual audits (explicit opt-out).
+// Change-scoped pre-push gate. Classifies commits being pushed (git stdin ranges) into buckets:
+//   always — `pnpm run check` without its own growth/tools build
+//   unit   — `test:ci`
+//   site   — one production site build (`check:deploy --build`), then `--prepare` + site-output
+//   visual — `visual --prebuilt` on that build (implies site)
+// editor-core-only / non-UI pushes skip site + visual. CI keeps the full suite.
+// Force every bucket: XPRITE_PREPUSH_FULL=1 or `pnpm run pre-push:full`.
+// XPRITE_SKIP_VISUAL=1 still skips only visual when that bucket would otherwise run.
+// Note: husky skips every hook when HUSKY=0; unset it before pushing.
 import { report, run, seconds } from "./parallel-run.mjs";
+import { formatBuckets, resolvePrePushScope } from "./pre-push-scope.mjs";
 
 const started = performance.now();
-const skipVisual = process.env.XPRITE_SKIP_VISUAL === "1";
+const scope = await resolvePrePushScope({ full: process.argv.includes("--full") });
+const skipVisualEnv = process.env.XPRITE_SKIP_VISUAL === "1";
+const runVisual = scope.visual && !skipVisualEnv;
 
-// Phase 1: static checks alongside the one production site build (deploy environment) that
-// both the visual audits and deploy preparation use.
-console.log("pre-push: [1/2] check in parallel with the site build (check:deploy --build)");
-let failed = report(
-  await Promise.all([
-    run("check", { buffered: true, args: ["--skip", "site-build"] }),
-    run("check:deploy", { buffered: true, args: ["--build"] }),
-  ]),
+console.log(
+  `pre-push: ${scope.full ? "full suite (forced)" : `change-scoped (${scope.source})`}; ${formatBuckets({ ...scope, visual: runVisual })}`,
 );
+if (!scope.full && scope.files) {
+  console.log(`pre-push: ${scope.files.length} changed file(s) in push range`);
+}
+if (scope.visual && skipVisualEnv) {
+  console.log("pre-push: visual bucket selected but XPRITE_SKIP_VISUAL=1 — skipping visual only");
+}
+
+const phase1 = [run("check", { buffered: true, args: ["--skip", "site-build"] })];
+if (scope.site) {
+  phase1.push(run("check:deploy", { buffered: true, args: ["--build"] }));
+  console.log("pre-push: [1/2] check in parallel with the site build (check:deploy --build)");
+} else {
+  console.log("pre-push: [1/2] check only (site-build skipped)");
+}
+
+let failed = report(await Promise.all(phase1));
 if (failed) {
-  console.error(`pre-push: FAILED in ${seconds(started)}; tests and visual audits not run.`);
+  console.error(`pre-push: FAILED in ${seconds(started)}; later buckets not run.`);
   process.exit(failed);
 }
 
-const phase2 = [
-  run("test:ci", { buffered: true }),
-  run("check:deploy", { buffered: true, args: ["--prepare"] }),
-  run("check:site-output", { buffered: true }),
-];
-if (skipVisual) {
-  console.log("\npre-push: [2/2] test:ci, check:deploy --prepare and site-output (visual skipped)");
-} else {
-  console.log(
-    "\npre-push: [2/2] test:ci, visual --prebuilt, check:deploy --prepare and site-output checks in parallel",
-  );
-  phase2.splice(1, 0, run("visual", { buffered: true, args: ["--prebuilt"] }));
+const phase2 = [];
+const phase2Labels = [];
+if (scope.unit) {
+  phase2.push(run("test:ci", { buffered: true }));
+  phase2Labels.push("test:ci");
 }
-failed = report(await Promise.all(phase2));
+if (runVisual) {
+  phase2.push(run("visual", { buffered: true, args: ["--prebuilt"] }));
+  phase2Labels.push("visual --prebuilt");
+}
+if (scope.site) {
+  phase2.push(run("check:deploy", { buffered: true, args: ["--prepare"] }));
+  phase2.push(run("check:site-output", { buffered: true }));
+  phase2Labels.push("check:deploy --prepare", "site-output");
+}
+
+if (phase2.length === 0) {
+  console.log("\npre-push: [2/2] nothing else to run for this change set");
+} else {
+  console.log(`\npre-push: [2/2] ${phase2Labels.join(", ")} in parallel`);
+  failed = report(await Promise.all(phase2));
+}
+
 console.log(`\npre-push: ${failed ? "FAILED" : "all steps passed"} in ${seconds(started)} total.`);
 process.exit(failed);
