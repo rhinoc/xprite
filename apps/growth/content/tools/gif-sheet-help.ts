@@ -10,9 +10,9 @@ export enum GifSheetHelpSection {
 /** Sprite sheet and frame data instructions for the GIF converter's static and interactive page. */
 export const GIF_SHEET_HELP = {
   [PublicLanguage.SimplifiedChinese]: {
-    title: "导出精灵表和帧数据",
+    title: "GIF 转精灵表转换器",
     introduction:
-      "点「文件」→「打开 GIF…」，或拖入 GIF 文件。也可以用「打开示例」试用。文件在本地处理，GIF 不超过 64 MiB、最多 10000 帧。每一帧都按 GIF 的画布合成为完整画面，再排进精灵表。",
+      "免费 GIF 转精灵表转换器，无需上传。点「文件」→「打开 GIF…」，或拖入 GIF 文件，把动画转成 PNG 精灵表并导出 JSON 帧数据。也可以用「打开示例」试用。文件在本地处理，GIF 不超过 64 MiB、最多 10000 帧。每一帧都按 GIF 的画布合成为完整画面，再排进精灵表。",
     sections: [
       {
         id: GifSheetHelpSection.Png,
@@ -38,12 +38,12 @@ export const GIF_SHEET_HELP = {
       },
     ],
     closing:
-      "精灵表包含 GIF 的所有帧，不裁剪空白，也不合并重复帧。需要这些选项时，在 Xprite 编辑器中打开 GIF，在「导出」对话框中选择「精灵表」，再勾选「裁剪精灵」或「合并重复项」。",
+      "免费、无需账号、无需上传。精灵表包含 GIF 的所有帧，不裁剪空白，也不合并重复帧。需要裁剪或合并重复帧时，在 Xprite 编辑器中打开 GIF，在「导出」对话框中选择「精灵表」，再勾选「裁剪精灵」或「合并重复项」。",
   },
   [PublicLanguage.English]: {
-    title: "Export a sprite sheet and frame data",
+    title: "GIF to sprite sheet converter",
     introduction:
-      "Choose File → Open GIF… or drop a GIF file here. Use Open example to try it first. Files are processed on your device; a GIF can be up to 64 MiB and 10,000 frames. Each frame is composited into a full image at the GIF’s canvas size before it is placed on the sheet.",
+      "Free GIF to sprite sheet converter—no upload. Choose File → Open GIF… or drop a GIF file here to turn it into a PNG sprite sheet with JSON frame data. Use Open example to try it first. Files are processed on your device; a GIF can be up to 64 MiB and 10,000 frames. Each frame is composited into a full image at the GIF’s canvas size before it is placed on the sheet.",
     sections: [
       {
         id: GifSheetHelpSection.Png,
@@ -69,7 +69,7 @@ export const GIF_SHEET_HELP = {
       },
     ],
     closing:
-      "The sheet includes every GIF frame without trimming empty space or merging duplicate frames. For those options, open the GIF in the Xprite editor, choose Sprite Sheet in the Export dialog, and check Trim Sprite or Merge Duplicates.",
+      "Free, no account, no upload. The sheet includes every GIF frame without trimming empty space or merging duplicate frames. For trim or merge duplicates, open the GIF in the Xprite editor, choose Sprite Sheet in the Export dialog, and check Trim Sprite or Merge Duplicates.",
   },
   [PublicLanguage.Japanese]: {
     title: "スプライトシートとフレームデータをエクスポート",

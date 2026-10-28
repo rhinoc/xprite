@@ -75,7 +75,7 @@ ${Object.entries(SHOWCASE_PAGES)
 - [Features](${new URL(FEATURES_PATH, SITE_URL).href}): Browse drawing, animation, file conversion, workspace and game design features.
 - [Aseprite viewer](${SITE_URL}tools/viewer/): Inspect local .ase and .aseprite files and export PNG or GIF.
 - [Animal Crossing Design Converter](${new URL(ANIMAL_CROSSING_TOOL.path, SITE_URL).href}): Convert PNG images and Aseprite tilemap layers into NookLink QR codes.
-- [GIF to Sprite Sheet](${new URL(GIF_SHEET_TOOL.path, SITE_URL).href}): Convert GIF frames into PNG sheets and JSON frame coordinates and timing.
+- [GIF to sprite sheet converter](${new URL(GIF_SHEET_TOOL.path, SITE_URL).href}): Free GIF to sprite sheet converter—no upload; PNG sheets and JSON frame coordinates and timing.
 - [Image to Pixel Art](${new URL(PIXELATE_TOOL.path, SITE_URL).href}): Free image to pixel art converter—no upload; then Edit more in Xprite or download PNG.
 - [Fix AI Pixel Art](${new URL(FIX_AI_PIXEL_ART_TOOL.path, SITE_URL).href}): Fix soft or off-grid AI pixel art by snapping it to a real pixel grid.
 - [Fuse Bead Pattern Maker](${new URL(BEADS_TOOL.path, SITE_URL).href}): Map artwork to MARD, Artkal, Perler or Hama colors and export PNG charts or PDFs with board pages and a material list.
