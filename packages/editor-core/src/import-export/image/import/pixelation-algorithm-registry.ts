@@ -23,7 +23,7 @@ import {
  * A grid proposer: takes an image and returns zero or more candidate grids. Auto runs every
  * proposer per evaluation view, collects their candidates, and arbitrates them in one decision.
  */
-export type GridProposer = (image: PixelBuffer) => PixelGridAnalysis[];
+type GridProposer = (image: PixelBuffer) => PixelGridAnalysis[];
 
 export interface PixelationAlgorithmEntry {
   /** i18n key of the label shown in the import dialog and preferences. */
