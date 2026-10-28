@@ -11,6 +11,8 @@
     "assets:aseprite-cjk-font": "python3 scripts/fixtures/assets/build-aseprite-cjk-font.py",
     "assets:fusion-base-font": "python3 scripts/fixtures/assets/build-fusion-base-font.py",
     "prepare": "husky",
+    "pre-push": "node scripts/check/pre-push.mjs",
+    "pre-push:full": "node scripts/check/pre-push.mjs --full",
     "build:ui": "pnpm --filter @xprite/ui run build",
     "dev": "node scripts/dev/site.mjs",
     "dev:editor": "pnpm --filter @xprite/editor-app run dev",

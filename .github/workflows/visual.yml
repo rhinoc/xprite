@@ -1,6 +1,8 @@
 name: Visual audits
 
-# Runs only when files that can change rendering do; the pre-push hook runs the same audits.
+# Full Playwright visual gate for PRs when path filters match. Local husky pre-push may skip
+# visual for non-UI pushes (e.g. packages/editor-core algorithms only); this workflow stays the
+# CI safety net. Path filters are intentionally broad (includes packages/**).
 on:
   pull_request:
     paths:
