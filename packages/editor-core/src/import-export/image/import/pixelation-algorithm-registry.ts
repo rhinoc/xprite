@@ -7,6 +7,7 @@ import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/
 import { detectFrameLattices } from "$/import-export/image/import/grid-frame-lattice";
 import { detectBoundaryPeriodGrids } from "$/import-export/image/import/grid-period-boundary";
 import { combCountGrids } from "$/import-export/image/import/grid-period-comb";
+import { distanceCountGrids } from "$/import-export/image/import/grid-period-distance";
 import { pitchLattices } from "$/import-export/image/import/grid-pitch-lattice";
 import { recoverGrid } from "$/import-export/image/import/grid-sample";
 import { resizeBox } from "$/import-export/image/import/resize";
@@ -107,6 +108,7 @@ const proposals = (image: PixelBuffer): PixelGridAnalysis[] => [
   ...pitchLattices(image),
   ...combCountGrids(image),
   ...detectBoundaryPeriodGrids(image),
+  ...distanceCountGrids(image),
 ];
 
 /**
