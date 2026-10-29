@@ -58,7 +58,6 @@ export enum PixelationMethod {
   MostFrequent = "most-frequent",
   Dominant = "dominant",
   Structure = "structure",
-  EdgeReject = "edge-reject",
 }
 
 export enum PixelationMode {
@@ -117,7 +116,6 @@ export enum CellColorPicker {
   Contrast = "contrast",
   Nearest = "nearest",
   Structure = "structure",
-  EdgeReject = "edge-reject",
 }
 
 export enum ImportDialogChoice {

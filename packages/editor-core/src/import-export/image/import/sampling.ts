@@ -152,58 +152,7 @@ function structure(samples: Sample[], labels: Uint8ClampedArray): Sample[] {
   return samples.filter((sample) => key(sample) === winner);
 }
 
-/**
- * Reject high-edge (soft border) pixels from samples, keeping only the flat core.
- * Edge strength is measured as local gradient magnitude: max color channel difference
- * to 4-connected neighbors. Keeps the flattest 70% of pixels; if fewer than 4 remain,
- * returns all samples unchanged (fallback to avoid empty cells or color invention).
- */
-function edgeReject(image: PixelBuffer, samples: Sample[]): Sample[] {
-  const MIN_SURVIVORS = 4;
-  const KEEP_FRACTION = 0.7;
-
-  if (samples.length < MIN_SURVIVORS) return samples;
-
-  // Compute gradient magnitude for each sample
-  const gradients = samples.map((sample) => {
-    const x = sample.index % image.width;
-    const y = Math.floor(sample.index / image.width);
-    const offset = sample.index * CHANNELS;
-
-    let maxGrad = 0;
-    // Check 4-connected neighbors
-    const neighbors = [
-      [x - 1, y],
-      [x + 1, y],
-      [x, y - 1],
-      [x, y + 1],
-    ];
-
-    for (const [nx, ny] of neighbors) {
-      if (nx < 0 || nx >= image.width || ny < 0 || ny >= image.height) continue;
-      const nOffset = (ny * image.width + nx) * CHANNELS;
-
-      // Max color channel difference (L∞ norm in RGB space)
-      for (let c = 0; c < COLOR_CHANNELS; c++) {
-        const diff = Math.abs(image.data[offset + c] - image.data[nOffset + c]);
-        maxGrad = Math.max(maxGrad, diff);
-      }
-    }
-
-    return { sample, gradient: maxGrad };
-  });
-
-  // Sort by gradient (low to high = flat to edgy)
-  gradients.sort((a, b) => a.gradient - b.gradient);
-
-  // Keep flattest KEEP_FRACTION
-  const keepCount = Math.max(MIN_SURVIVORS, Math.floor(samples.length * KEEP_FRACTION));
-  const survivors = gradients.slice(0, keepCount).map((g) => g.sample);
-
-  return survivors.length >= MIN_SURVIVORS ? survivors : samples;
-}
-
-/** RGB is taken from the winning region. Conversion keeps area alpha; recovery keeps the chosen region's original alpha. */
+/** RGB is taken from the winning region. Conversion keeps area alpha; recovery keeps the chosen region’s original alpha. */
 export function samplePixelation(
   image: PixelBuffer,
   width: number,
@@ -217,14 +166,12 @@ export function samplePixelation(
   const recovery = cuts !== undefined;
   const axes = recovery ? CHANNELS : COLOR_CHANNELS;
   const points = method === PixelationMethod.Dominant ? coordinateLookup(image, axes) : undefined;
-  const useStructure =
-    method === PixelationMethod.Structure || method === PixelationMethod.EdgeReject;
-  const useEdgeReject = method === PixelationMethod.EdgeReject;
-  const palette = useStructure
-    ? extractPixelationPalette(image, {
-        maxColors: STRUCTURE_COLORS,
-      }).map((entry) => entry.color)
-    : undefined;
+  const palette =
+    method === PixelationMethod.Structure
+      ? extractPixelationPalette(image, {
+          maxColors: STRUCTURE_COLORS,
+        }).map((entry) => entry.color)
+      : undefined;
   const labels = palette
     ? reduceToPalette(image, palette, { preserveAlpha: true }).data
     : undefined;
@@ -246,16 +193,11 @@ export function samplePixelation(
         const local = new Map<number, Rgba>();
         for (const sample of current.samples) sample.point = points(sample, local);
       }
-      let selected = points
+      const selected = points
         ? dominant(current.samples, axes)
         : labels
           ? structure(current.samples, labels)
           : current.samples;
-
-      // EdgeReject: apply edge rejection after structure filtering
-      if (useEdgeReject && labels && recovery) {
-        selected = edgeReject(image, selected);
-      }
       if (recovery) {
         const area = selected.reduce((sum, sample) => sum + sample.weight, 0);
         const alpha = selected.reduce(
