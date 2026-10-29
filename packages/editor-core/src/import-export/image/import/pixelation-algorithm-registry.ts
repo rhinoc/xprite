@@ -246,7 +246,10 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
       );
 
     // Detect WASM consensus early to preserve consensus candidate during pruning
-    const consensus = detectAcRlConsensus(ring.image);
+    const consensus =
+      ring.image.width * ring.image.height >= 1_000_000
+        ? null
+        : detectAcRlConsensus(ring.image);
 
     // WASM-first short-circuit: when consensus fires and candidate@G exists, skip expensive full arb
     let winner: ArbitratedGrid | null = null;
