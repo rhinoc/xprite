@@ -41,4 +41,12 @@ export const SPANISH_ARTICLES = {
       'Recover Grid reconstruye una rejilla de píxeles real a partir de "pixel art" blando o de IA; no es un arreglo generativo. Luego edita en Xprite o descarga PNG.',
     topic: "Convertidores y recuperación de cuadrícula",
   },
+  "wplace-palette": {
+    title: "Conversor de paleta Wplace: imagen → colores mapa | Xprite",
+    description:
+      "Conversor no oficial de la paleta Wplace map en el navegador — sin subida. Ajusta la imagen, exporta PNG para Overlays y pinta en wplace.live.",
+    summary:
+      "Paleta no oficial Wplace map en Pixelate: ajusta la imagen en el dispositivo, exporta PNG para overlay de referencia y pinta a mano en wplace.live.",
+    topic: "Convertidores y paletas de mapa",
+  },
 } as const;

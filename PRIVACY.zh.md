@@ -26,7 +26,7 @@ PostHog 在当前浏览器的 `localStorage` 中保存访客标识，用于统�
 
 PostHog 按其[事件保留规则](https://posthog.com/docs/data/events-retention)保留事件。浏览器中的访客标识通常会保留到你或浏览器清理该网站的数据为止。
 
-对比文章链接可以为本次编辑器访问及其操作附加四个固定文章标识之一（`aseprite-online`、`aseprite-on-ipad`、`piskel-alternatives` 或 `fix-ai-pixel-art`）。Xprite 仅接受同时带有固定对比来源和引荐方式的标识，不采集任意推广参数值、搜索词或原始 URL 查询参数及片段，也不会将这次归因保存到后续访问中。
+对比文章链接可以为本次编辑器访问及其操作附加五个固定文章标识之一（`aseprite-online`、`aseprite-on-ipad`、`piskel-alternatives`、`fix-ai-pixel-art` 或 `wplace-palette`）。Xprite 仅接受同时带有固定对比来源和引荐方式的标识，不采集任意推广参数值、搜索词或原始 URL 查询参数及片段，也不会将这次归因保存到后续访问中。
 
 ## 你的选择
 

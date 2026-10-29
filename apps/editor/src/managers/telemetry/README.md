@@ -110,7 +110,7 @@ The shared SDK still persists `$referrer` and `$referring_domain` (`save_referre
 
 When an editor URL contains exactly the recognized attribution values
 `utm_source=compare`, `utm_medium=referral`, and one of `utm_campaign=aseprite-online`,
-`aseprite-on-ipad` or `piskel-alternatives`, the provider-independent visit context
+`aseprite-on-ipad`, `piskel-alternatives`, `fix-ai-pixel-art` or `wplace-palette`, the provider-independent visit context
 adds `compare_source`, `compare_medium` and `compare_campaign`. These fields are
 attached to `$pageview`, readiness, document and output events for this page visit.
 They are not saved or carried to an unrelated return visit. The viewer's Continue

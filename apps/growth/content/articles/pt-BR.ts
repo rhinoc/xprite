@@ -41,4 +41,12 @@ export const PORTUGUESE_ARTICLES = {
       'Recover Grid reconstrói uma grade de pixels verdadeira a partir de "pixel art" mole ou de IA; não é um conserto generativo. Depois edite no Xprite ou baixe PNG.',
     topic: "Conversores e recuperação de grade",
   },
+  "wplace-palette": {
+    title: "Conversor de paleta Wplace: imagem → cores do mapa | Xprite",
+    description:
+      "Conversor não oficial da paleta Wplace map no navegador — sem upload. Case a imagem, exporte PNG para Overlays e pinte no wplace.live.",
+    summary:
+      "Paleta não oficial Wplace map no Pixelate: case a imagem no dispositivo, exporte PNG para overlay de referência e pinte à mão no wplace.live.",
+    topic: "Conversores e paletas de mapa",
+  },
 } as const;

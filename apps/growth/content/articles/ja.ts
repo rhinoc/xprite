@@ -41,4 +41,12 @@ export const JAPANESE_ARTICLES = {
       "Recover Grid は柔らかい／AI の「ドット絵」から本物の格子を再構築します。生成モデルではありません。その後 Xprite で編集するか PNG を保存。",
     topic: "変換とグリッド復元",
   },
+  "wplace-palette": {
+    title: "Wplace パレット変換：画像 → マップの色 | Xprite",
+    description:
+      "非公式の無料 Wplace map パレット変換。ブラウザ完結・アップロードなし。画像を Wplace map の色に合わせ、Overlays 用 PNG を書き出し、wplace.live で手塗り。",
+    summary:
+      "Pixelate の非公式 Wplace map パレット：端末で画像を合わせ、参照オーバーレイ用 PNG を書き出し、wplace.live で手塗り。",
+    topic: "変換とマップパレット",
+  },
 } as const;
