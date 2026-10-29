@@ -118,6 +118,27 @@ export const ARTICLES: readonly PublicArticle[] = [
     topic: "Converters and grid recovery",
     dateModified: "2026-10-26",
   },
+  {
+    collection: "compare",
+    slug: "wplace-palette",
+    path: "/compare/wplace-palette/",
+    title: "Wplace Palette Converter: Image → Map Colors | Xprite",
+    shortTitle: {
+      en: "Wplace map palette",
+      "zh-CN": "Wplace map 调色板",
+      ja: "Wplace map パレット",
+      ko: "Wplace map 팔레트",
+      ru: "Палитра Wplace map",
+      "pt-BR": "Paleta Wplace map",
+      es: "Paleta Wplace map",
+    },
+    description:
+      "Free unofficial Wplace map palette converter in the browser—no upload. Match an image to Wplace map colors, export PNG for Overlays, then paint on wplace.live.",
+    summary:
+      "Unofficial Wplace map palette in Pixelate: match an image on-device, export PNG for a reference overlay, then paint manually on wplace.live.",
+    topic: "Converters and map palettes",
+    dateModified: "2026-10-29",
+  },
 ];
 
 const LOCALIZED_ARTICLES: Partial<

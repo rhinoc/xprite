@@ -41,4 +41,12 @@ export const KOREAN_ARTICLES = {
       "Recover Grid는 부드럽거나 AI 「픽셀 아트」에서 진짜 픽셀 격자를 다시 만듭니다. 생성형 수정이 아닙니다. 이후 Xprite에서 편집하거나 PNG를 받으세요.",
     topic: "변환과 격자 복원",
   },
+  "wplace-palette": {
+    title: "Wplace 팔레트 변환: 이미지 → 맵 색상 | Xprite",
+    description:
+      "무료 비공식 Wplace map 팔레트 변환—브라우저, 업로드 없음. 이미지를 Wplace map 색에 맞추고 Overlays용 PNG를 내보낸 뒤 wplace.live에서 손으로 칠하세요.",
+    summary:
+      "Pixelate의 비공식 Wplace map 팔레트: 기기에서 이미지를 맞추고 참고 오버레이용 PNG를 내보낸 뒤 wplace.live에서 수동으로 칠합니다.",
+    topic: "변환과 맵 팔레트",
+  },
 } as const;

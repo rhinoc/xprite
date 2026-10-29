@@ -26,7 +26,7 @@ Al enviar el diálogo de comentarios se mandan a PostHog el tipo elegido, el tex
 
 PostHog conserva los eventos según sus [reglas de retención de eventos](https://posthog.com/docs/data/events-retention). El identificador del navegador normalmente se mantiene hasta que tú o tu navegador borren los datos de este sitio.
 
-Los enlaces de las comparativas pueden asociar uno de cuatro identificadores fijos de artículo (`aseprite-online`, `aseprite-on-ipad`, `piskel-alternatives` o `fix-ai-pixel-art`) a la visita actual al editor y a sus acciones. Xprite solo acepta estos identificadores con la fuente de comparación y el medio de referencia fijos. No recopila valores de campaña arbitrarios, palabras clave de búsqueda ni parámetros de consulta o hash de la URL sin procesar, y no guarda esta atribución para visitas posteriores.
+Los enlaces de las comparativas pueden asociar uno de cinco identificadores fijos de artículo (`aseprite-online`, `aseprite-on-ipad`, `piskel-alternatives`, `fix-ai-pixel-art` o `wplace-palette`) a la visita actual al editor y a sus acciones. Xprite solo acepta estos identificadores con la fuente de comparación y el medio de referencia fijos. No recopila valores de campaña arbitrarios, palabras clave de búsqueda ni parámetros de consulta o hash de la URL sin procesar, y no guarda esta atribución para visitas posteriores.
 
 ## Tu elección
 

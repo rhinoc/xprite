@@ -111,6 +111,7 @@ export enum CompareCampaign {
   AsepriteOnIpad = "aseprite-on-ipad",
   PiskelAlternatives = "piskel-alternatives",
   FixAiPixelArt = "fix-ai-pixel-art",
+  WplacePalette = "wplace-palette",
 }
 
 export interface TelemetryAttributionInput {

@@ -26,7 +26,7 @@ Enviar a janela de feedback manda ao PostHog o tipo escolhido, o texto escrito e
 
 O PostHog retém eventos de acordo com suas [regras de retenção de eventos](https://posthog.com/docs/data/events-retention). O identificador do navegador normalmente permanece até você ou o navegador limparem os dados deste site.
 
-Links de comparação podem associar um de quatro identificadores fixos de artigo (`aseprite-online`, `aseprite-on-ipad`, `piskel-alternatives` ou `fix-ai-pixel-art`) à visita atual ao editor e às suas ações. O Xprite só aceita esses identificadores com a origem de comparação e o meio de indicação fixos. Ele não coleta valores arbitrários de campanha, palavras-chave de busca nem parâmetros brutos de consulta ou hash da URL, e não guarda essa atribuição para visitas futuras.
+Links de comparação podem associar um de cinco identificadores fixos de artigo (`aseprite-online`, `aseprite-on-ipad`, `piskel-alternatives`, `fix-ai-pixel-art` ou `wplace-palette`) à visita atual ao editor e às suas ações. O Xprite só aceita esses identificadores com a origem de comparação e o meio de indicação fixos. Ele não coleta valores arbitrários de campanha, palavras-chave de busca nem parâmetros brutos de consulta ou hash da URL, e não guarda essa atribuição para visitas futuras.
 
 ## Sua escolha
 

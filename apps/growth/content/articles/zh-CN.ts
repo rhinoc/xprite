@@ -41,4 +41,12 @@ export const CHINESE_ARTICLES = {
       "Recover Grid 从发糊或 AI「像素画」重建真正的像素格子；不是生成式修复。然后在 Xprite 编辑或下载 PNG。",
     topic: "转换与网格还原",
   },
+  "wplace-palette": {
+    title: "Wplace 调色板转换：图片 → 地图颜色 | Xprite",
+    description:
+      "免费非官方 Wplace map 调色板转换，浏览器本地、不上传。把图片匹配到 Wplace map 颜色，导出 PNG 作 Overlays 参考，再在 wplace.live 上手绘。",
+    summary:
+      "Pixelate 中的非官方 Wplace map 调色板：本机匹配图片，导出 PNG 作参考叠加层，再在 wplace.live 上手动绘制。",
+    topic: "转换与地图调色板",
+  },
 } as const;

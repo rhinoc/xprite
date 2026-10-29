@@ -26,7 +26,7 @@ PostHog は再訪問を数えるため、このブラウザの `localStorage` �
 
 PostHog は[イベントの保持ルール](https://posthog.com/docs/data/events-retention)に従ってイベントを保持します。ブラウザの ID は通常、あなたやブラウザがこのサイトのデータを消去するまで残ります。
 
-比較記事のリンクは、4 つの固定された記事 ID（`aseprite-online`、`aseprite-on-ipad`、`piskel-alternatives`、`fix-ai-pixel-art`）のいずれかを、現在のエディターの訪問とその操作に付けることがあります。Xprite がこれらの ID を受け付けるのは、固定の比較記事のソースと参照メディアの組み合わせの場合だけです。任意のキャンペーン値、検索キーワード、URL の生のクエリやハッシュのパラメーターは収集せず、この情報を次回以降の訪問のために保存することもありません。
+比較記事のリンクは、5 つの固定された記事 ID（`aseprite-online`、`aseprite-on-ipad`、`piskel-alternatives`、`fix-ai-pixel-art`、`wplace-palette`）のいずれかを、現在のエディターの訪問とその操作に付けることがあります。Xprite がこれらの ID を受け付けるのは、固定の比較記事のソースと参照メディアの組み合わせの場合だけです。任意のキャンペーン値、検索キーワード、URL の生のクエリやハッシュのパラメーターは収集せず、この情報を次回以降の訪問のために保存することもありません。
 
 ## 選択できること
 
