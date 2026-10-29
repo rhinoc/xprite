@@ -29,6 +29,11 @@ export function recoverGrid(
     return samplePixelation(image, width, height, PixelationMethod.Structure, { x, y });
   }
 
+  // EdgeReject picker: Structure + edge-rejection of soft borders
+  if (picker === CellColorPicker.EdgeReject) {
+    return samplePixelation(image, width, height, PixelationMethod.EdgeReject, { x, y });
+  }
+
   // Traditional cell-by-cell color picking
   const entry = getColorPickerEntry(picker);
   const data = new Uint8ClampedArray(width * height * CHANNELS);
