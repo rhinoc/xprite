@@ -35,6 +35,7 @@ const SAMPLING_KEYS: Readonly<Record<PixelationMethod, BeadTextKey>> = {
   [PixelationMethod.MostFrequent]: "beads.sampling.frequent",
   [PixelationMethod.Box]: "beads.sampling.box",
   [PixelationMethod.Nearest]: "beads.sampling.nearest",
+  [PixelationMethod.TwoStage]: "beads.sampling.two-stage",
 };
 type Axis = "width" | "height";
 
