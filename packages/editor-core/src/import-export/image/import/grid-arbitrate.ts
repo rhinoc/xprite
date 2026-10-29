@@ -205,6 +205,13 @@ function placedReading(
   }
   const lattice = { cutsX, cutsY, model: CutModel.Lattice };
   const latticeLength = descriptionLength(described, lattice);
+  // Large images (area >= 1M): lattice-only placed reading (skip snap compare).
+  if (image.width * image.height >= 1_000_000)
+    return {
+      cuts: lattice,
+      length: latticeLength,
+      twin: () => ({ cutsX: twinCuts(cutsX), cutsY: twinCuts(cutsY), model: CutModel.Lattice }),
+    };
   const snap = snapLatticeCuts(image, cutsX, cutsY);
   const snapped = {
     cutsX: snap.x.cuts,
