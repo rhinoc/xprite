@@ -117,6 +117,7 @@ export enum CellColorPicker {
   Contrast = "contrast",
   Nearest = "nearest",
   Structure = "structure",
+  TwoStage = "two-stage",
   DualRtTwoStage = "dual-rt-two-stage",
 }
 

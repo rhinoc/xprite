@@ -64,6 +64,7 @@ export const PICKER_LABELS: Readonly<Record<CellColorPicker, PixelationLabel>> =
   [CellColorPicker.Contrast]: { text: "Contrast", key: "import.picker.contrast" },
   [CellColorPicker.Nearest]: { text: "Nearest", key: "import.picker.nearest" },
   [CellColorPicker.Structure]: { text: "Structure", key: "import.picker.structure" },
+  [CellColorPicker.TwoStage]: { text: "Two-Stage", key: "import.picker.two-stage" },
   [CellColorPicker.DualRtTwoStage]: {
     text: "Dual RT (Structure vs Two-Stage)",
     key: "import.picker.dual-rt-two-stage",

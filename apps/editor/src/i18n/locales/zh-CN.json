@@ -582,6 +582,7 @@
   "import.dialog.outline.prepass": "轮廓预处理：",
   "import.picker.nearest": "最近点",
   "import.picker.structure": "结构",
+  "import.picker.two-stage": "二阶段",
   "import.picker.dual-rt-two-stage": "双候选往返（结构 vs 二阶段）",
   "import.preferences.ask": "导入可能是像素画的图片时询问我",
   "import.dialog.title": "导入选项",

@@ -113,21 +113,34 @@ function cellTriangular(
 }
 
 /**
- * Compute adaptive K for TwoStage method.
- * Counts unique opaque colors, clamps to [TWO_STAGE_MIN_COLORS, TWO_STAGE_MAX_COLORS].
+ * Compute adaptive K for TwoStage method (Fixer-aligned).
+ * Counts 4-bit RGB bins (R/16, G/16, B/16) with share ≥ 0.003 of opaque pixels.
+ * Clamps to [TWO_STAGE_MIN_COLORS, TWO_STAGE_MAX_COLORS].
  */
 function adaptiveTwoStageK(image: PixelBuffer): number {
-  const uniqueColors = new Set<number>();
-  const limit = 1000; // Sample up to 1000 unique colors
+  const bins = new Map<number, number>();
+  let opaqueCount = 0;
 
-  for (let i = 0; i < image.data.length && uniqueColors.size < limit; i += CHANNELS) {
+  for (let i = 0; i < image.data.length; i += CHANNELS) {
     const alpha = image.data[i + COLOR_CHANNELS];
     if (alpha === 0) continue;
-    const key = (image.data[i] << 16) | (image.data[i + 1] << 8) | image.data[i + 2];
-    uniqueColors.add(key);
+    opaqueCount++;
+    // 4-bit RGB: divide each channel by 16
+    const r4 = image.data[i] >> 4;
+    const g4 = image.data[i + 1] >> 4;
+    const b4 = image.data[i + 2] >> 4;
+    const key = (r4 << 8) | (g4 << 4) | b4;
+    bins.set(key, (bins.get(key) ?? 0) + 1);
   }
 
-  const count = uniqueColors.size;
+  if (opaqueCount === 0) return TWO_STAGE_MIN_COLORS;
+
+  const threshold = opaqueCount * 0.003;
+  let count = 0;
+  for (const binCount of bins.values()) {
+    if (binCount >= threshold) count++;
+  }
+
   return Math.max(TWO_STAGE_MIN_COLORS, Math.min(TWO_STAGE_MAX_COLORS, count));
 }
 

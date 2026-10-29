@@ -79,6 +79,11 @@ export function recoverGrid(
     return samplePixelation(image, width, height, PixelationMethod.Structure, { x, y });
   }
 
+  // TwoStage picker: Fixer-like two-stage packing (adaptive K, pure triangular weights)
+  if (picker === CellColorPicker.TwoStage) {
+    return samplePixelation(image, width, height, PixelationMethod.TwoStage, { x, y });
+  }
+
   // Dual RT picker: Structure vs TwoStage, winner chosen by round-trip error
   if (picker === CellColorPicker.DualRtTwoStage) {
     const candidateA = samplePixelation(image, width, height, PixelationMethod.Structure, { x, y });
