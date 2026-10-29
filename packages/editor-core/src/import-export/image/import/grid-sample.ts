@@ -1,6 +1,5 @@
 import type { PixelBuffer } from "$/base/primitives";
 import { getColorPickerEntry } from "$/import-export/image/import/cell-color-picker";
-import { ciede2000, rgbToLab } from "$/import-export/image/import/color-lab";
 import { MAX_RECOVERED_GRID_SIZE, pixelGridCuts } from "$/import-export/image/import/grid";
 import { samplePixelation } from "$/import-export/image/import/sampling";
 import {
@@ -13,7 +12,7 @@ const COLOR_CHANNELS = 3;
 
 /**
  * Round-trip error: upscale candidate grid back to input size via nearest-neighbor,
- * compute mean CIEDE2000 on opaque input pixels (same as product color metric).
+ * compute mean RGB Euclidean distance on opaque input pixels.
  * Lower score means better fidelity.
  */
 function roundTripError(
@@ -47,17 +46,12 @@ function roundTripError(
       }
 
       const candOffset = (cellY * candidate.width + cellX) * CHANNELS;
-      const inputLab = rgbToLab(
-        input.data[inputOffset],
-        input.data[inputOffset + 1],
-        input.data[inputOffset + 2],
-      );
-      const candLab = rgbToLab(
-        candidate.data[candOffset],
-        candidate.data[candOffset + 1],
-        candidate.data[candOffset + 2],
-      );
-      errorSum += ciede2000(inputLab, candLab);
+      let colorError = 0;
+      for (let c = 0; c < COLOR_CHANNELS; c++) {
+        const diff = input.data[inputOffset + c] - candidate.data[candOffset + c];
+        colorError += diff * diff;
+      }
+      errorSum += Math.sqrt(colorError);
       pixelCount++;
     }
   }
