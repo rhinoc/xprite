@@ -279,11 +279,15 @@ export function gridEvidence(
   image: PixelBuffer,
   grids: readonly PixelGridAnalysis[],
 ): { readings: GridEvidence[]; pixels: number } {
+  const CONF_HIGH = 0.9;
+  const CONF_GAP = 0.5;
   const described = describeImage(image);
   const strips = new StripImage(image);
   const seen = new Set<string>();
   const readings: GridEvidence[] = [];
-  for (const grid of grids) {
+  const ordered = [...grids].sort((a, b) => b.confidence - a.confidence);
+  let bestConf = -1;
+  for (const grid of ordered) {
     const { cutsX, cutsY } = cutsOf(image, grid);
     const columns = cutsX.length - 1,
       rows = cutsY.length - 1;
@@ -292,6 +296,8 @@ export function gridEvidence(
     const key = keyOf(cutsX, cutsY);
     if (seen.has(key)) continue;
     seen.add(key);
+    if (readings.length > 0 && bestConf >= CONF_HIGH && bestConf - grid.confidence >= CONF_GAP)
+      continue;
     const { cuts, length, twin, chance, frame } = readingOf(strips, described, grid, cutsX, cutsY);
     readings.push({
       grid: {
@@ -306,6 +312,7 @@ export function gridEvidence(
       chance,
       frame,
     });
+    if (grid.confidence > bestConf) bestConf = grid.confidence;
   }
   return { readings, pixels: pixelLength(described) };
 }
