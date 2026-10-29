@@ -15,7 +15,6 @@ import { detectFrameLattices } from "$/import-export/image/import/grid-frame-lat
 import { detectBoundaryPeriodGrids } from "$/import-export/image/import/grid-period-boundary";
 import { combCountGrids } from "$/import-export/image/import/grid-period-comb";
 import { distanceCountGrids } from "$/import-export/image/import/grid-period-distance";
-import { pitchLattices } from "$/import-export/image/import/grid-pitch-lattice";
 import { recoverGrid } from "$/import-export/image/import/grid-sample";
 import { resizeBox } from "$/import-export/image/import/resize";
 import {
@@ -84,7 +83,6 @@ const PROPOSERS: readonly GridProposer[] = [
       : [];
   },
   detectFrameLattices,
-  pitchLattices,
   combCountGrids,
   detectBoundaryPeriodGrids,
   distanceCountGrids,
@@ -214,10 +212,9 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     : [];
   if (!tilt.angle || uprightCandidates.length === 0) rings.push({ image, rotation: 0 });
 
-  // Specific proposers for corroborated admission: frame, pitchLat, comb, bd, bd_dist
+  // Specific proposers for corroborated admission: frame, comb, bd, bd_dist
   const corroboratingProposers = [
     detectFrameLattices,
-    pitchLattices,
     combCountGrids,
     detectBoundaryPeriodGrids,
     distanceCountGrids,
@@ -372,7 +369,7 @@ function preferCorroboratedNearCountMarginBdDist(
   winner: ArbitratedGrid,
   tagged: readonly { grid: PixelGridAnalysis; proposerIndex: number }[],
 ): ArbitratedGrid | null {
-  const BD_DIST_INDEX = 4; // distanceCountGrids in corroboratingProposers
+  const BD_DIST_INDEX = 3; // distanceCountGrids in corroboratingProposers
   const MAX_PHASE_SCORE_DELTA = 0.4;
 
   const winnerWidth = winner.grid.width;
