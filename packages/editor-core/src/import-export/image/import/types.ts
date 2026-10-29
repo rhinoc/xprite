@@ -115,6 +115,7 @@ export enum CellColorPicker {
   KMeans = "k-means",
   Contrast = "contrast",
   Nearest = "nearest",
+  Structure = "structure",
 }
 
 export enum ImportDialogChoice {
