@@ -6,19 +6,19 @@ import { algorithmNoteKey } from "$/components/dialogs/pixelation-dialog/algorit
 import { ImportCompare } from "$/components/dialogs/pixelation-dialog/import-compare";
 import { tUi, tUiSource, useUiLanguage } from "$/i18n";
 import {
+  DEFAULT_REMOVE_BACKGROUND,
+  removeBackground,
+  RemoveBackgroundMode,
+  sampleKeyColor,
+  type RemoveBackgroundSettings,
+} from "$/managers/import/remove-background";
+import {
   type FilePreferences,
   type ImportAction,
   OutlinePrepass,
   PixelationAlgorithm,
 } from "$/managers/preferences/file-preferences";
 import type { useEditorWorkflows } from "$/managers/workspace/use-editor-workflows";
-import {
-  DEFAULT_REMOVE_BACKGROUND,
-  removeBackground,
-  RemoveBackgroundMode,
-  sampleKeyColor,
-  type RemoveBackgroundSettings,
-} from "@xprite/editor-core/import-export/image/import";
 import { PixelationSlot, pixelationLabelKey, usePixelationBase } from "@xprite/editor-ui";
 import {
   FontRole,
