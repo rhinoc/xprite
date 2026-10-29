@@ -2,7 +2,6 @@ import type { PixelBuffer } from "$/base/primitives";
 import { forgetNeighbourSteps } from "$/import-export/image/import/color-step";
 import { estimateTilt, straighten } from "$/import-export/image/import/deskew";
 import { blockPartition } from "$/import-export/image/import/grid";
-import { detectAcRlConsensus } from "$/import-export/image/import/grid-ac-rl-consensus";
 import {
   arbitrateGrids,
   gridEvidence,
@@ -182,28 +181,6 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     if (winner) {
       const preferred = preferCorroboratedNearCountMarginBdDist(ring.image, winner, tagged);
       if (preferred) winner = preferred;
-    }
-
-    // Ungated AC+RL consensus override (Fixer Rust WASM)
-    // When consensus fires (size_close(ac,rl) AND min(rl.score)>=0.3) and G≠W, override W→G
-    if (winner) {
-      const consensus = detectAcRlConsensus(ring.image);
-      if (
-        consensus &&
-        (consensus.cols !== winner.grid.width || consensus.rows !== winner.grid.height)
-      ) {
-        winner = {
-          grid: {
-            ...winner.grid,
-            width: consensus.cols,
-            height: consensus.rows,
-            cellWidth: ring.image.width / consensus.cols,
-            cellHeight: ring.image.height / consensus.rows,
-          },
-          length: winner.length,
-          score: winner.score,
-        };
-      }
     }
 
     if (winner && (!best || winner.score < best.score))
