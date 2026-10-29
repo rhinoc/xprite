@@ -11,7 +11,7 @@ import {
   type ArbitratedGrid,
 } from "$/import-export/image/import/grid-arbitrate";
 import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
-import { detectFrameLattices } from "$/import-export/image/import/grid-frame-lattice";
+import { detectFrameLattices, FrameModel } from "$/import-export/image/import/grid-frame-lattice";
 import { detectBoundaryPeriodGrids } from "$/import-export/image/import/grid-period-boundary";
 import { combCountGrids } from "$/import-export/image/import/grid-period-comb";
 import { distanceCountGrids } from "$/import-export/image/import/grid-period-distance";
@@ -44,6 +44,15 @@ const _distanceCountGridsLargeAreaSkip: GridProposer = (image) =>
  */
 const _combCountGridsLargeAreaSkip: GridProposer = (image) =>
   image.width * image.height >= 1_000_000 ? [] : combCountGrids(image);
+
+/**
+ * Soft-only frame on large images (area >= 1M pixels) with cheaper energy/recon sampling.
+ * Same function ref used in both PROPOSERS and corroboratingProposers.
+ */
+const _frameLatticesSoftOnlyLargeArea: GridProposer = (image) =>
+  image.width * image.height >= 1_000_000
+    ? detectFrameLattices(image, [FrameModel.Soft])
+    : detectFrameLattices(image);
 
 export interface PixelationAlgorithmEntry {
   /** i18n key of the label shown in the import dialog and preferences. */
@@ -96,7 +105,7 @@ const PROPOSERS: readonly GridProposer[] = [
       ? [{ ...grid, algorithm: PixelationAlgorithm.EdgeGrid, reliable: true }]
       : [];
   },
-  detectFrameLattices,
+  _frameLatticesSoftOnlyLargeArea,
   _combCountGridsLargeAreaSkip,
   detectBoundaryPeriodGrids,
   _distanceCountGridsLargeAreaSkip,
@@ -228,7 +237,7 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
 
   // Specific proposers for corroborated admission: frame, comb, bd, bd_dist
   const corroboratingProposers = [
-    detectFrameLattices,
+    _frameLatticesSoftOnlyLargeArea,
     _combCountGridsLargeAreaSkip,
     detectBoundaryPeriodGrids,
     _distanceCountGridsLargeAreaSkip,
