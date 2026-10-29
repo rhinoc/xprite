@@ -5,67 +5,67 @@ updated: 2026-10-29
 
 # Конвертер палитры Wplace: изображение → цвета карты
 
-Кто ищет **Wplace palette converter**, **Wplace colors** или **image to Wplace colors**, обычно хочет одно: подогнать картинку под цвета рисования **Wplace map**, экспортировать PNG, загрузить как эталонный оверлей и вручную красить на [wplace.live](https://wplace.live/).
+Wplace map принимает только свои цвета рисования. Фото или логотип бесполезны как ориентир, пока каждый пиксель не подогнан под этот набор. Подгоните изображение, экспортируйте PNG, загрузите как эталонный оверлей и красьте вручную на [wplace.live](https://wplace.live/).
 
-Xprite делает это в браузере инструментом [Картинка в пиксель-арт](/tools/pixelate/?palette=wplace&utm_source=compare&utm_medium=referral&utm_campaign=wplace-palette) и встроенной палитрой **Wplace map**. Файлы остаются на устройстве — без загрузки. Xprite **не связан, не одобрен и не является партнёром** Wplace / wplace.live. Эта страница — неофициальный гид.
+Инструмент Xprite [Картинка в пиксель-арт](/tools/pixelate/?palette=wplace&utm_source=compare&utm_medium=referral&utm_campaign=wplace-palette) делает подгонку в браузере со встроенной палитрой **Wplace map**. Файлы остаются на устройстве. Ничего не загружается. Xprite **не связан, не одобрен и не является партнёром** Wplace / wplace.live. Эта страница — неофициальный гид.
 
-- Конвертация по прямой ссылке: [палитра Wplace map в Pixelate](/tools/pixelate/?palette=wplace&utm_source=compare&utm_medium=referral&utm_campaign=wplace-palette) (палитра уже выбрана).
+- Прямая ссылка с уже выбранной палитрой: [палитра Wplace map в Pixelate](/tools/pixelate/?palette=wplace&utm_source=compare&utm_medium=referral&utm_campaign=wplace-palette).
 - Загрузка оверлея: официальный [гид Overlays](https://wplace.live/guides/overlays) на wplace.live.
-- После экспорта: красьте карту **вручную**. Xprite не автокрасит и не экспортирует `.wplace`.
+- После экспорта: красьте **вручную**. Xprite не автокрасит и не экспортирует `.wplace`.
 
 ## Что здесь значит «конвертер палитры Wplace»
 
-Открыть изображение в Xprite Pixelate, на устройстве привести пиксели к набору цветов **Wplace map** и скачать PNG для **эталонного оверлея**.
+Открыть изображение в Xprite Pixelate, на устройстве привести пиксели к цветам **Wplace map** и скачать PNG для **эталонного оверлея**.
 
-Это **не**:
+Это не:
 
 - Бот или userscript, который красит карту за вас
 - Автопокраска или любой конвейер «Studio / alliance»
-- Официальный продукт Wplace, партнёрский инструмент или экспорт `.wplace`
-- Обещание, что цвета на wplace.live никогда не изменятся
+- Официальный продукт Wplace, партнёрский инструмент или экспортёр `.wplace`
+- Обещание, что wplace.live навсегда сохранит те же цвета
 
-PNG — эталон для позиционирования и ручной покраски, а не официальный шаблонный пайплайн.
+PNG нужен для позиционирования и ручной покраски. Это не официальный шаблонный пайплайн.
 
 ## Как перевести изображение в цвета Wplace map
 
-1. Откройте [Картинка в пиксель-арт с палитрой Wplace map](/tools/pixelate/?palette=wplace&utm_source=compare&utm_medium=referral&utm_campaign=wplace-palette). Без установки; PNG, JPEG или WebP.
+1. Откройте [Картинка в пиксель-арт с палитрой Wplace map](/tools/pixelate/?palette=wplace&utm_source=compare&utm_medium=referral&utm_campaign=wplace-palette). Без установки. PNG, JPEG или WebP.
 2. Выберите **Преобразовать изображение** и перетащите или откройте файл. Обработка на устройстве.
-3. Убедитесь, что палитра — **Wplace map** (прямая ссылка её выбирает). При необходимости подправьте размер и другие параметры.
+3. Убедитесь, что палитра — **Wplace map** (прямая ссылка её выбирает). При необходимости измените размер и другие параметры конвертации.
 4. Посмотрите превью и **экспортируйте** PNG.
-5. На wplace.live загрузите PNG как оверлей по официальному [гиду Overlays](https://wplace.live/guides/overlays), выставьте позицию и красьте карту **вручную**.
+5. На wplace.live загрузите этот PNG как оверлей по официальному [гиду Overlays](https://wplace.live/guides/overlays), выставьте позицию и красьте карту **вручную**.
 
-По желанию: **Доработать** в [редакторе Xprite](/?utm_source=compare&utm_medium=referral&utm_campaign=wplace-palette) перед повторным экспортом.
+По желанию: **Доработать** открывает результат в [редакторе Xprite](/?utm_source=compare&utm_medium=referral&utm_campaign=wplace-palette), чтобы подчистить перед повторным экспортом.
 
 ## Цвета и hex (откройте пресет)
 
-Пресет **Wplace map** содержит **63 цвета краски** (Transparent из живого пикера опущен). Происхождение зафиксировано в репозитории: `LICENSES/wplace-map-palette.txt`, `ATTRIBUTION.md` и GPL в `packages/palette-assets/wplace/wplace-map.gpl` (неофициальный снимок от 2026-10-25; URL и метод — в этих файлах).
+Пресет **Wplace map** содержит **63 цвета краски** (Transparent из живого пикера опущен). Происхождение — в репозитории: `LICENSES/wplace-map-palette.txt`, `ATTRIBUTION.md` и GPL в `packages/palette-assets/wplace/wplace-map.gpl` (неофициальный снимок от 2026-10-25; URL и метод — в этих файлах).
 
-Цвета **могут смещаться**, когда wplace.live обновляет клиент. Лучше открыть инструмент и смотреть актуальный пресет, чем публиковать здесь полную hex-таблицу. Это не официальный дамп палитры.
+Цвета **могут смещаться**, когда wplace.live обновляет клиент. Откройте инструмент и читайте актуальный пресет, а не публикуйте здесь полную hex-таблицу. Это не официальный дамп палитры.
 
 ## Честные ограничения
 
-- Неофициально и без связи: Xprite не одобрен и не партнёр Wplace / wplace.live. Без логотипов и формулировок «официально / powered by».
-- Экспорт — **PNG-эталонный оверлей** для самостоятельной загрузки. Нет гарантии совпадения каждого тайла или вечного списка цветов.
-- Нет автопокраски, нет экспорта `.wplace`, нет userscript’ов для покраски карты в составе Xprite.
-- Правила оверлея и ручной покраски задаёт wplace.live; следуйте [гиду Overlays](https://wplace.live/guides/overlays).
+- Неофициально и без связи: Xprite не одобрен и не партнёр Wplace / wplace.live. На этой странице нет логотипов Wplace и формулировок «официально / powered by».
+- Экспорт — **PNG-эталонный оверлей**, который вы загружаете сами. Нет гарантии совпадения каждого тайла или вечного списка цветов.
+- Нет автопокраски, нет экспорта `.wplace` и нет userscript’ов в Xprite для покраски карты.
+- Правила оверлея и ручной покраски задаёт wplace.live. Следуйте [гиду Overlays](https://wplace.live/guides/overlays).
 
 ## Частые вопросы
 
 ### Что такое конвертер палитры Wplace?
 
-Способ подогнать изображение под цвета рисования **Wplace map** и экспортировать PNG для эталонного оверлея. В Xprite это Pixelate с пресетом **Wplace map** — конвертация на устройстве, не бот карты.
+Способ подогнать изображение под цвета рисования **Wplace map** и экспортировать PNG для эталонного оверлея. В Xprite это Pixelate с пресетом **Wplace map**: конвертация на устройстве, не бот карты.
 
 ### Это официально / связано с wplace.live?
 
-Нет. Xprite не связан, не одобрен и не партнёр Wplace / wplace.live. Гид и палитра неофициальны.
+Нет. Xprite не связан, не одобрен и не партнёр Wplace / wplace.live. Гид и пресет палитры неофициальны.
 
 ### Нужно ли загружать изображение в Xprite?
 
-Нет. Pixelate обрабатывает файл в браузере и не отправляет его на серверы Xprite.
+Нет. Pixelate работает в браузере. Изображение не уходит на серверы Xprite.
 
 ### Как перевести изображение в цвета Wplace map?
 
-Откройте [Pixelate с `?palette=wplace`](/tools/pixelate/?palette=wplace&utm_source=compare&utm_medium=referral&utm_campaign=wplace-palette), конвертируйте, подтвердите **Wplace map**, превью и экспорт PNG. Затем официальный поток [Overlays](https://wplace.live/guides/overlays) и ручная покраска.
+Откройте [Pixelate с `?palette=wplace`](/tools/pixelate/?palette=wplace&utm_source=compare&utm_medium=referral&utm_campaign=wplace-palette), конвертируйте изображение, подтвердите **Wplace map**, превью и экспорт PNG. Затем официальный поток [Overlays](https://wplace.live/guides/overlays) и ручная покраска.
 
 ### Где использовать PNG на wplace.live?
 
@@ -73,7 +73,7 @@ PNG — эталон для позиционирования и ручной п�
 
 ### Может ли Xprite автокрасить карту или экспортировать `.wplace`?
 
-Нет. Только PNG-эталон. Без автопокраски и без экспорта `.wplace`.
+Нет. Xprite экспортирует PNG-эталон. Он не автокрасит карту и не экспортирует файлы `.wplace`.
 
 ---
 
