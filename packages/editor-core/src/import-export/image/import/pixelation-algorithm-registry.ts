@@ -133,7 +133,7 @@ const MIN_CORROBORATORS = 2;
  * and each candidate requires strip computation + phase field. Pruning reduces latency
  * while preserving high-confidence and diverse-dimension candidates.
  */
-const MAX_ARBITRATION_CANDIDATES = 10;
+const MAX_ARBITRATION_CANDIDATES = 6;
 
 /**
  * Prune candidates before expensive DL/arbitration to reduce latency.
