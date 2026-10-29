@@ -248,10 +248,33 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     // Detect WASM consensus early to preserve consensus candidate during pruning
     const consensus = detectAcRlConsensus(ring.image);
 
-    // Prune candidates before expensive DL/arbitration: dedupe near-dimensions, keep high-conf
-    const prunedCandidates = pruneCandidatesBeforeArbitration(candidates, consensus);
+    // WASM-first short-circuit: when consensus fires and candidate@G exists, skip expensive full arb
+    let winner: ArbitratedGrid | null = null;
+    if (consensus) {
+      const candidateAtG = candidates.find(
+        (c) => c.width === consensus.cols && c.height === consensus.rows && c.reliable,
+      );
+      if (candidateAtG) {
+        // Score just the G candidate + near-G alternatives (±1 dimension) for safety
+        const nearGCandidates = candidates.filter(
+          (c) =>
+            c.reliable &&
+            Math.abs(c.width - consensus.cols) <= 1 &&
+            Math.abs(c.height - consensus.rows) <= 1,
+        );
+        // Short-circuit: arbitrate only near-G subset (much cheaper than full candidate list)
+        winner = arbitrateGrids(
+          ring.image,
+          nearGCandidates.length > 0 ? nearGCandidates : [candidateAtG],
+        );
+      }
+    }
 
-    let winner = arbitrateGrids(ring.image, prunedCandidates);
+    // Fallback: if WASM didn't fire or no G candidate, run full arbitration
+    if (!winner) {
+      const prunedCandidates = pruneCandidatesBeforeArbitration(candidates, consensus);
+      winner = arbitrateGrids(ring.image, prunedCandidates);
+    }
 
     // Prefer corroborated near-count with strict gates: winner corrob=1, challenger≥2,
     // bd_dist in challenger proposers, phaseScore margin ≤0.40
