@@ -2437,5 +2437,13 @@
   "import.dialog.zoom.fit": "适应",
   "import.dialog.import": "导入",
   "ui.fullscreen": "全屏",
-  "ui.fullscreen.exit": "退出全屏"
+  "ui.fullscreen.exit": "退出全屏",
+  "import.dialog.remove.background": "去除背景",
+  "import.dialog.remove.background.auto": "自动",
+  "import.dialog.remove.background.manual": "手动",
+  "import.dialog.remove.background.tolerance": "容差：",
+  "import.dialog.remove.background.auto.tol": "自动",
+  "import.dialog.remove.background.pick": "拾取颜色…",
+  "import.dialog.remove.background.picking": "点击预览…",
+  "import.dialog.remove.background.result": "无背景"
 }

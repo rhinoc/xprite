@@ -2437,5 +2437,13 @@
   "import.dialog.zoom.fit": "맞춤",
   "import.dialog.import": "가져오기",
   "ui.fullscreen": "전체 화면",
-  "ui.fullscreen.exit": "전체 화면 종료"
+  "ui.fullscreen.exit": "전체 화면 종료",
+  "import.dialog.remove.background": "배경 제거",
+  "import.dialog.remove.background.auto": "자동",
+  "import.dialog.remove.background.manual": "수동",
+  "import.dialog.remove.background.tolerance": "허용 오차:",
+  "import.dialog.remove.background.auto.tol": "자동",
+  "import.dialog.remove.background.pick": "색 선택…",
+  "import.dialog.remove.background.picking": "미리보기 클릭…",
+  "import.dialog.remove.background.result": "배경 없음"
 }

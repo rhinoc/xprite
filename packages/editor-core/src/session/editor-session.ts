@@ -847,21 +847,25 @@ export class EditorSession<Source> {
   resetNewSizeDraft() {
     if (!this.disposed) this.publish({ newSize: { ...this.acceptedNewSize } });
   }
-  acceptOriginal(): SessionOutcome {
+  /**
+   * Keep-as-is import. Optional `pixels` replaces the source (e.g. after Remove background).
+   */
+  acceptOriginal(pixels?: PixelBuffer): SessionOutcome {
     if (this.disposed || !this.candidate) return SessionOutcome.Ignored;
     const candidate = this.candidate;
+    const image = pixels ?? candidate.pixels;
     this.invalidate();
     if (this.changedSince(candidate.checkpoint)) {
       this.askReplacement({
         kind: "accepted",
         candidate,
-        pixels: candidate.pixels,
+        pixels: image,
       });
       return SessionOutcome.Confirmation;
     }
     try {
       return this.install(
-        candidate.pixels,
+        image,
         candidate.name,
         true,
         candidate.project?.palette,
@@ -875,7 +879,14 @@ export class EditorSession<Source> {
       return SessionOutcome.Error;
     }
   }
-  async pixelate(options?: Partial<PixelationSettings>): Promise<SessionOutcome> {
+  /**
+   * Pixelate & import. Optional `overridePixels` skips the preview/worker result (e.g. after
+   * Remove background on the preview).
+   */
+  async pixelate(
+    options?: Partial<PixelationSettings>,
+    overridePixels?: PixelBuffer,
+  ): Promise<SessionOutcome> {
     if (this.disposed || !this.candidate || this.state.busy) return SessionOutcome.Ignored;
     if (options) this.setPixelationOptions(options);
     const acceptedPalette =
@@ -888,6 +899,7 @@ export class EditorSession<Source> {
     this.publish({ busy: true, error: null });
     try {
       const pixels =
+        overridePixels ??
         this.state.pixelationPreview ??
         (await this.ports.pixelate(
           candidate.pixels,

@@ -2437,5 +2437,13 @@
   "import.dialog.zoom.fit": "Вписать",
   "import.dialog.import": "Импорт",
   "ui.fullscreen": "Полный экран",
-  "ui.fullscreen.exit": "Выйти из полного экрана"
+  "ui.fullscreen.exit": "Выйти из полного экрана",
+  "import.dialog.remove.background": "Удалить фон",
+  "import.dialog.remove.background.auto": "Авто",
+  "import.dialog.remove.background.manual": "Вручную",
+  "import.dialog.remove.background.tolerance": "Допуск:",
+  "import.dialog.remove.background.auto.tol": "Авто",
+  "import.dialog.remove.background.pick": "Выбрать цвет…",
+  "import.dialog.remove.background.picking": "Клик по превью…",
+  "import.dialog.remove.background.result": "Без фона"
 }

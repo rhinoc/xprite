@@ -2437,5 +2437,13 @@
   "import.dialog.zoom.fit": "Ajustar",
   "import.dialog.import": "Importar",
   "ui.fullscreen": "Pantalla completa",
-  "ui.fullscreen.exit": "Salir de pantalla completa"
+  "ui.fullscreen.exit": "Salir de pantalla completa",
+  "import.dialog.remove.background": "Quitar fondo",
+  "import.dialog.remove.background.auto": "Auto",
+  "import.dialog.remove.background.manual": "Manual",
+  "import.dialog.remove.background.tolerance": "Tolerancia:",
+  "import.dialog.remove.background.auto.tol": "Auto",
+  "import.dialog.remove.background.pick": "Elegir color…",
+  "import.dialog.remove.background.picking": "Clic en vista previa…",
+  "import.dialog.remove.background.result": "Sin fondo"
 }

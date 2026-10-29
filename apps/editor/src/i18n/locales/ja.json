@@ -2437,5 +2437,13 @@
   "import.dialog.zoom.fit": "フィット",
   "import.dialog.import": "インポート",
   "ui.fullscreen": "フルスクリーン",
-  "ui.fullscreen.exit": "フルスクリーンを終了"
+  "ui.fullscreen.exit": "フルスクリーンを終了",
+  "import.dialog.remove.background": "背景を削除",
+  "import.dialog.remove.background.auto": "自動",
+  "import.dialog.remove.background.manual": "手動",
+  "import.dialog.remove.background.tolerance": "許容値：",
+  "import.dialog.remove.background.auto.tol": "自動",
+  "import.dialog.remove.background.pick": "色を選ぶ…",
+  "import.dialog.remove.background.picking": "プレビューをクリック…",
+  "import.dialog.remove.background.result": "背景なし"
 }

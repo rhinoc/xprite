@@ -87,6 +87,7 @@ import {
   validateBitmapText,
 } from "@xprite/editor-core";
 import type { EditorCommand, RasterEditor } from "@xprite/editor-core";
+import type { PixelBuffer } from "@xprite/editor-core/base";
 import { comparePaletteResourceNames } from "@xprite/editor-core/import-export";
 import {
   SessionSaveIntent,
@@ -1467,8 +1468,9 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     session.setPixelationOptions(patch);
   const setImportAlgorithm = (...args: Parameters<typeof session.setImportAlgorithm>) =>
     void session.setImportAlgorithm(...args);
-  const acceptOriginalImport = () => session.acceptOriginal();
-  const acceptPixelatedImport = () => void session.pixelate();
+  const acceptOriginalImport = (pixels?: PixelBuffer) => session.acceptOriginal(pixels);
+  const acceptPixelatedImport = (overridePixels?: PixelBuffer) =>
+    void session.pixelate(undefined, overridePixels);
   const updateRecoverySettings = (
     settings: Parameters<typeof workspace.recovery.setRecoverySettings>[0],
   ) => {
