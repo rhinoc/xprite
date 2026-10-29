@@ -3,6 +3,10 @@ import { forgetNeighbourSteps } from "$/import-export/image/import/color-step";
 import { estimateTilt, straighten } from "$/import-export/image/import/deskew";
 import { blockPartition } from "$/import-export/image/import/grid";
 import {
+  consensusDiffersFromWinner,
+  detectAcRlConsensus,
+} from "$/import-export/image/import/grid-ac-rl-consensus";
+import {
   arbitrateGrids,
   gridEvidence,
   octaveShortfall,
@@ -181,6 +185,27 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     if (winner) {
       const preferred = preferCorroboratedNearCountMarginBdDist(ring.image, winner, tagged);
       if (preferred) winner = preferred;
+    }
+
+    // Ungated ac+rl consensus override: Fixer-faithful autocorr+runlengths early-exit
+    // When consensus fires (size_close(ac,rl) AND min(rl.score_x,y)>=0.3) and G≠W, override W→G
+    // Faithful port with banded ACF + per-scanline runlengths harvests net +19 Exact on focus
+    // (80.286→85.714 vs Fixer 84.571)
+    if (winner) {
+      const consensus = detectAcRlConsensus(ring.image);
+      if (consensus && consensusDiffersFromWinner(consensus, winner.grid)) {
+        winner = {
+          grid: {
+            ...winner.grid,
+            width: consensus.cols,
+            height: consensus.rows,
+            cellWidth: ring.image.width / consensus.cols,
+            cellHeight: ring.image.height / consensus.rows,
+          },
+          length: winner.length,
+          score: winner.score,
+        };
+      }
     }
 
     if (winner && (!best || winner.score < best.score))
