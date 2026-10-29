@@ -198,8 +198,24 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
         );
 
         if (candidateAtG) {
-          // Use existing candidate's full grid
-          winner = arbitrateGrids(ring.image, [candidateAtG]) ?? winner;
+          // Use existing candidate's full grid directly (singleton arbitration would return null)
+          const { readings } = gridEvidence(ring.image, [candidateAtG]);
+          const reading = readings[0];
+          if (reading) {
+            const phase = phaseScore(reading);
+            const { cutsX, cutsY } = reading.grid;
+            const score = phase + octaveShortfall(reading.frame(), cutsX!, cutsY!);
+            const share = Math.max(0, Math.min(1, (reading.twin - reading.length) / reading.twin));
+            winner = {
+              grid: {
+                ...reading.grid,
+                confidence: Math.max(reading.grid.confidence, share),
+                reliable: true,
+              },
+              length: reading.length,
+              score,
+            };
+          }
         } else {
           // Rebuild: create grid with G dimensions and consistent geometry
           const cellWidth = ring.image.width / consensus.cols;
