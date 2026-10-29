@@ -1,13 +1,14 @@
 /**
  * Grid arbitration via description-length (MDL).
  *
- * Performance notes:
- * - StripImage already caches line prefixes (good)
- * - Future optimization opportunities:
- *   - Reuse DescribedImage buffer across candidates (currently re-described per candidate)
- *   - Pool Float64Array scratch buffers in strip/phase computation
- *   - Typed arrays in hot paths (already partially done)
- *   - Parallel candidate scoring (requires worker threads)
+ * Performance: Buffer reuse already optimized within gridEvidence:
+ * - DescribedImage (Float64Array values) computed once, reused for all candidates
+ * - StripImage caches line prefixes across readingOf calls
+ * - These eliminate per-candidate allocation churn in DL computation
+ *
+ * Current allocations per candidate:
+ * - GridCuts arrays (cutsX/cutsY) - small, ~10-100 elements
+ * - Strip/phase intermediate buffers - future pool opportunity
  */
 
 import type { PixelBuffer } from "$/base/primitives";

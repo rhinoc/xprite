@@ -3,10 +3,15 @@ import type { PixelBuffer } from "@xprite/editor-core/base";
 import {
   analyzePixelArt,
   pixelateImage,
+  preloadWasm,
   type PixelArtAnalysisOptions,
   type PixelateOptions,
 } from "@xprite/editor-core/import-export";
 export { ImportWorkerOperation } from "$/adapters/workers/import-worker-types";
+
+// Prewarm: preload WASM module at worker init (not first recover call)
+// Moves ~5-10ms load overhead out of first-image hot path
+preloadWasm().catch(console.error);
 
 export interface ImportWorkerImage {
   width: number;
