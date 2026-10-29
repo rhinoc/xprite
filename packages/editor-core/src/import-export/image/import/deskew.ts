@@ -136,6 +136,7 @@ const cache = new WeakMap<object, TiltEstimate>();
  * no convincing evidence, so images without a grid (photos) and aligned images are never touched.
  */
 export function estimateTilt(image: PixelBuffer): TiltEstimate {
+  if (image.width * image.height >= 1_000_000) return UPRIGHT;
   const known = cache.get(image);
   if (known) return known;
   const result = measureTilt(image);

@@ -31,6 +31,13 @@ import {
  */
 type GridProposer = (image: PixelBuffer) => PixelGridAnalysis[];
 
+/**
+ * Skip bd_dist proposer on large images (area >= 1M pixels) where it returns 0 useful candidates.
+ * Same function ref used in both PROPOSERS and corroboratingProposers so BD_DIST_INDEX stays correct.
+ */
+const _distanceCountGridsLargeAreaSkip: GridProposer = (image) =>
+  image.width * image.height >= 1_000_000 ? [] : distanceCountGrids(image);
+
 export interface PixelationAlgorithmEntry {
   /** i18n key of the label shown in the import dialog and preferences. */
   readonly label: string;
@@ -85,7 +92,7 @@ const PROPOSERS: readonly GridProposer[] = [
   detectFrameLattices,
   combCountGrids,
   detectBoundaryPeriodGrids,
-  distanceCountGrids,
+  _distanceCountGridsLargeAreaSkip,
 ];
 
 /**
@@ -217,7 +224,7 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     detectFrameLattices,
     combCountGrids,
     detectBoundaryPeriodGrids,
-    distanceCountGrids,
+    _distanceCountGridsLargeAreaSkip,
   ];
 
   // Arbitrate each view: all proposers run on this view
