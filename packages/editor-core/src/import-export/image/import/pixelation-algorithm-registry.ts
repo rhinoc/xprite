@@ -278,8 +278,22 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
         ? null
         : detectAcRlConsensus(ring.image);
 
-    // WASM-first short-circuit: when consensus fires and candidate@G exists, skip expensive full arb
+    // Large-area admit: high-conf Soft (or other) with clear gap → skip expensive DL arb.
+    // On soft1080 Soft@0.92 vs bd@~0.001 already wins via conf-gap Soft-only readingOf;
+    // this short-circuits that paid Soft readingOf. Focus <1M inert.
     let winner: ArbitratedGrid | null = null;
+    if (!winner && ring.image.width * ring.image.height >= 1_000_000) {
+      const ordered = [...candidates].filter((c) => c.reliable).sort((a, b) => b.confidence - a.confidence);
+      const top = ordered[0];
+      const second = ordered[1];
+      if (
+        top &&
+        top.confidence >= 0.9 &&
+        (!second || top.confidence - second.confidence >= 0.5)
+      ) {
+        winner = { grid: { ...top, reliable: true }, length: 0, score: 0 };
+      }
+    }
     if (consensus) {
       const candidateAtG = candidates.find(
         (c) => c.width === consensus.cols && c.height === consensus.rows && c.reliable,
