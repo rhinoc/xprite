@@ -94,12 +94,16 @@ function uprightOf(image: PixelBuffer, angle: number): PixelBuffer {
  */
 const PROPOSERS: readonly GridProposer[] = [
   (image): PixelGridAnalysis[] => {
+    // Large images (area >= 1M): skip uniform+mesh (shared analysisOf).
+    if (image.width * image.height >= 1_000_000) return [];
     const grid = detectUniformGrid(image);
     return grid.reliable
       ? [{ ...grid, algorithm: PixelationAlgorithm.UniformGrid, reliable: true }]
       : [];
   },
   (image): PixelGridAnalysis[] => {
+    // Large images (area >= 1M): skip uniform+mesh (shared analysisOf).
+    if (image.width * image.height >= 1_000_000) return [];
     const grid = detectMeshGrid(image);
     return grid.reliable
       ? [{ ...grid, algorithm: PixelationAlgorithm.EdgeGrid, reliable: true }]
