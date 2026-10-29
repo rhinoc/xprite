@@ -81,6 +81,18 @@ export function recoverGrid(
 
   // TwoStage picker: Fixer-like two-stage packing (adaptive K, pure triangular weights)
   if (picker === CellColorPicker.TwoStage) {
+    // Large images (area >= 1M): use Average cell picker instead of TwoStage
+    if (image.width * image.height >= 1_000_000) {
+      const entry = getColorPickerEntry(CellColorPicker.Average);
+      const data = new Uint8ClampedArray(width * height * CHANNELS);
+      for (let row = 0; row < height; row++)
+        for (let column = 0; column < width; column++) {
+          const color = entry.pick(image, x[column], y[row], x[column + 1], y[row + 1]);
+          if (color) data.set(color, (row * width + column) * CHANNELS);
+        }
+      entry.finish?.(data);
+      return { width, height, data };
+    }
     return samplePixelation(image, width, height, PixelationMethod.TwoStage, { x, y });
   }
 
