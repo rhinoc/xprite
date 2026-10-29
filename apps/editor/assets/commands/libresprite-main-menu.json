@@ -30,7 +30,7 @@
           "label": "Open from Clipboard",
           "mnemonic": "B",
           "mnemonicIndex": 14,
-          "command": "NewFile",
+          "command": "OpenFile",
           "params": {
             "fromClipboard": "true"
           }

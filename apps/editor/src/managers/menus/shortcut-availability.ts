@@ -93,6 +93,8 @@ const commandActions: Record<string, string> = {
 };
 
 export function browserCommandAction(command: string, params?: Record<string, string>) {
+  if (command === "OpenFile" && params?.fromClipboard === "true") return null;
+  if (command === "NewFile" && params?.fromClipboard === "true") return "paste-new-sprite";
   if (command === "NewLayer") {
     if (params?.tilemap === "true") return "new-tilemap-layer";
     if (params?.viaCopy === "true") return "new-layer-via-copy";

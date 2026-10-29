@@ -32,6 +32,8 @@ export interface EditorActions {
   new: () => void;
   preferences: () => void;
   open: () => void;
+  /** File → Open from Clipboard: import via Import Options (not Paste as New Sprite). */
+  openFromClipboard: () => void;
   closeDocument: () => void;
   closeAllDocuments: () => void;
   copy: () => void;

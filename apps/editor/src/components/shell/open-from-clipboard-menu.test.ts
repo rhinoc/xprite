@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import { describe, it } from "vitest";
 
 describe("File menu Open from Clipboard", () => {
-  it("reuses NewFile + fromClipboard (same as Edit Paste as New Sprite)", async () => {
+  it("routes through OpenFile + fromClipboard (Import Options), not Paste as New Sprite", async () => {
     const catalog = JSON.parse(
       await readFile("apps/editor/assets/commands/libresprite-main-menu.json", "utf8"),
     );
@@ -20,7 +20,7 @@ describe("File menu Open from Clipboard", () => {
       (node) => node.label === "Open from Clipboard",
     );
     assert.ok(openFromClipboard, "File → Open from Clipboard");
-    assert.equal(openFromClipboard.command, "NewFile");
+    assert.equal(openFromClipboard.command, "OpenFile");
     assert.equal(openFromClipboard.params?.fromClipboard, "true");
     assert.equal(openFromClipboard.shortcut, undefined, "menu-only; no LibreSprite shortcut");
 
@@ -31,7 +31,9 @@ describe("File menu Open from Clipboard", () => {
     assert.equal(editPasteAsNewSprite.command, "NewFile");
     assert.equal(editPasteAsNewSprite.params?.fromClipboard, "true");
 
-    const openIndex = file.children.findIndex((node) => node.command === "OpenFile");
+    const openIndex = file.children.findIndex(
+      (node) => node.command === "OpenFile" && !node.params,
+    );
     const clipboardIndex = file.children.findIndex((node) => node.label === "Open from Clipboard");
     assert.ok(openIndex >= 0 && clipboardIndex === openIndex + 1, "placed directly after Open…");
   });
