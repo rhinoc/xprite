@@ -9,7 +9,7 @@ import {
 } from "$/managers/clipboard/paste-source";
 
 describe("clipboard paste-source", () => {
-  it("menu paste (File Open from Clipboard / Edit Paste as New Sprite) reads the system clipboard", () => {
+  it("menu paste (Edit Paste as New Sprite) reads the system clipboard", () => {
     assert.equal(
       resolveClipboardPasteSource(
         { intent: ClipboardPasteIntent.Menu, hasEventImage: false },

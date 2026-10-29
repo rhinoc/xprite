@@ -363,7 +363,7 @@ export function createClipboardActions(options: ClipboardActionOptions) {
       !clipboard.hasPalette && (clipboard.hasImage || clipboard.canReadExternal);
     // Open from Clipboard / Paste as New Sprite: never enable on canRead alone — browsers expose
     // clipboard.read even when empty/non-image. Enable only for a known workspace image or a
-    // system image last confirmed by peek/write/read (menu open probes under user gesture).
+    // system image last confirmed by peek/write/read (File/Edit menu open probes under gesture).
     const knownImageForNewSprite =
       !clipboard.hasPalette && (clipboard.hasImage || clipboard.hasSystemImage);
     const pending = !!state?.inlineText || !!state?.floatingPaste || !!state?.preview;

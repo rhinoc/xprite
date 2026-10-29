@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { changeUiLanguage, tUi, type UiLanguage } from "$/i18n";
 import { ClipboardRegion, createClipboardActions } from "$/managers/clipboard";
+import { fileFromClipboardImage } from "$/managers/clipboard/clipboard-open-file";
 import { useDiagnosticsPort } from "$/managers/diagnostics/diagnostics-context";
 import { useEditor, useEditorManagerContext } from "$/managers/editor/editor-state-manager";
 import { editorSceneForTab } from "$/managers/editor/editor-ui-store";
@@ -893,6 +894,29 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     pasteNewSprite: () => {
       if (!canDispatchEditorInput()) return;
       void clipboard.pasteNewSprite();
+    },
+    openFromClipboard: () => {
+      if (!canStartInteraction() || !clipboard.getCapabilities().canPasteNewSprite) return;
+      if (sequenceSources.current.length) return;
+      timelineActions?.flushPendingLayerProperties?.();
+      telemetry.documentOpenRequested(DocumentOpenMethod.Import);
+      void (async () => {
+        try {
+          const image = await workspace.clipboard.read();
+          if (!image || !workflowMounted.current || !canStartInteraction()) {
+            telemetry.documentOpenCancelled(DocumentOpenMethod.Import);
+            return;
+          }
+          const file = await fileFromClipboardImage(image);
+          if (!workflowMounted.current || !canStartInteraction()) {
+            telemetry.documentOpenCancelled(DocumentOpenMethod.Import);
+            return;
+          }
+          requestImport([file]);
+        } catch (reason) {
+          session.reportError(reason, SessionOperation.Import);
+        }
+      })();
     },
     newSpriteFromSelection: () => {
       if (!canStartInteraction()) return;

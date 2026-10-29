@@ -530,6 +530,12 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
           disabled: documentUnavailable,
         };
       }
+      if (node.command === "OpenFile" && node.params?.fromClipboard === "true")
+        return {
+          onSelect: actions.openFromClipboard,
+          disabled: !clip?.canPasteNewSprite || !actions.canStartInteraction,
+        };
+      if (node.command === "OpenFile" && Object.keys(node.params ?? {}).length) return undefined;
       if (node.command === "NewFile" && node.params?.fromClipboard === "true")
         return {
           onSelect: actions.pasteNewSprite,
@@ -1049,7 +1055,7 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
               if (index === 0) actions.loadRecentFiles?.();
               if (index === 1) actions.prepareText?.();
               // File / Edit: peek system clipboard under the open gesture so Open from Clipboard
-              // / Paste as New Sprite enable only when an image is actually present.
+              // and Paste as New Sprite enable only when an image is actually present.
               if (index === 0 || index === 1) actions.probeClipboardImage?.();
             }}
           />
