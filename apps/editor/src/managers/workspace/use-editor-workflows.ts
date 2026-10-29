@@ -963,6 +963,9 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       if (!modalOpen) setPreferencesOpen(true);
     },
     recentFiles,
+    probeClipboardImage: () => {
+      clipboard.probeSystemImage();
+    },
     loadRecentFiles: () => {
       void session.restoreRecent();
     },

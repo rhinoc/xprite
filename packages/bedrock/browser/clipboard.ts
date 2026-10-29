@@ -2,6 +2,8 @@ export type ClipboardItemPayload = Record<string, Blob | Promise<Blob>>;
 
 export interface BrowserClipboard {
   canRead(): boolean;
+  /** true = image type present; false = readable but no image; null = cannot tell (no API / denied). */
+  peekImage(acceptedTypes?: readonly string[]): Promise<boolean | null>;
   read(acceptedTypes?: readonly string[]): Promise<Blob | null>;
   write(item: ClipboardItemPayload): Promise<boolean>;
   clear(): Promise<void>;
@@ -17,6 +19,19 @@ function accepts(type: string, acceptedTypes: readonly string[]): boolean {
 
 export const browserClipboard: BrowserClipboard = {
   canRead: () => typeof globalThis.navigator?.clipboard?.read === "function",
+  async peekImage(acceptedTypes = ["image/png", "image/*"]) {
+    const clipboard = globalThis.navigator?.clipboard;
+    if (typeof clipboard?.read !== "function") return null;
+    try {
+      const items = await clipboard.read();
+      for (const item of items) {
+        if (item.types.some((candidate) => accepts(candidate, acceptedTypes))) return true;
+      }
+      return false;
+    } catch {
+      return null;
+    }
+  },
   async read(acceptedTypes = []) {
     const clipboard = globalThis.navigator?.clipboard;
     if (typeof clipboard?.read !== "function") return null;

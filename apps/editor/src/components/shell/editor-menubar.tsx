@@ -1003,6 +1003,7 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
             if (open) {
               actions.loadRecentFiles?.();
               actions.prepareText?.();
+              actions.probeClipboardImage?.();
             }
           }}
           renderTrigger={({ buttonRef, ...props }) => (
@@ -1047,6 +1048,9 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
             onMenuOpen={(index) => {
               if (index === 0) actions.loadRecentFiles?.();
               if (index === 1) actions.prepareText?.();
+              // File / Edit: peek system clipboard under the open gesture so Open from Clipboard
+              // / Paste as New Sprite enable only when an image is actually present.
+              if (index === 0 || index === 1) actions.probeClipboardImage?.();
             }}
           />
         </div>

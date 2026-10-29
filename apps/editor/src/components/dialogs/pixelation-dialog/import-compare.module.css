@@ -5,13 +5,22 @@
   justify-content: center;
   min-width: 0;
   min-height: 0;
+  overflow: hidden;
+}
+.zoom {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 3;
+  pointer-events: auto;
 }
 .stage {
-  position: relative;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   touch-action: none;
   user-select: none;
-  cursor: ew-resize;
+  outline: none;
   background: conic-gradient(#b8b8b8 25%, #e4e4e4 0 50%, #b8b8b8 0 75%, #e4e4e4 0) 0 0 / 16px 16px;
 }
 .stage::after {
@@ -23,11 +32,15 @@
   pointer-events: none;
   z-index: 2;
 }
-.layer {
+.layers {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+.layer {
+  position: absolute;
+  display: block;
   image-rendering: pixelated;
   pointer-events: none;
 }
@@ -50,6 +63,18 @@
   margin-left: -1px;
   background: var(--xse-border, #000);
   cursor: ew-resize;
+  pointer-events: auto;
+  touch-action: none;
+  outline: none;
+}
+/* A wide invisible hit area: the line itself is 2px. */
+.bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -12px;
+  right: -12px;
 }
 .bar:focus-visible {
   outline: 1px dotted #000;
@@ -63,6 +88,17 @@
   height: 48px;
   margin: -24px 0 0 -12px;
 }
+@media (pointer: coarse) {
+  .bar::before {
+    left: -22px;
+    right: -22px;
+  }
+  .bar .grip {
+    width: 28px;
+    height: 56px;
+    margin: -28px 0 0 -14px;
+  }
+}
 .tag {
   position: absolute;
   bottom: 2px;
@@ -73,6 +109,7 @@
   color: #fff;
   background: rgb(0 0 0 / 65%);
   pointer-events: none;
+  z-index: 2;
 }
 .tagLeft {
   left: 2px;
@@ -93,6 +130,7 @@
   background: repeating-linear-gradient(-45deg, #f5c342 0 6px, #000 6px 12px);
   background-size: 17px 100%;
   animation: progress-slide 0.5s linear infinite;
+  z-index: 2;
 }
 @keyframes progress-slide {
   to {

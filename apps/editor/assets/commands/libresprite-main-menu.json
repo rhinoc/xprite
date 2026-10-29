@@ -26,6 +26,16 @@
           "shortcutBindingContext": "Any"
         },
         {
+          "kind": "item",
+          "label": "Open from Clipboard",
+          "mnemonic": "B",
+          "mnemonicIndex": 14,
+          "command": "NewFile",
+          "params": {
+            "fromClipboard": "true"
+          }
+        },
+        {
           "kind": "menu",
           "label": "Open Recent",
           "mnemonic": "R",

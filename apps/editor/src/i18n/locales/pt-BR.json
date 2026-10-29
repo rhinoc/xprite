@@ -764,6 +764,7 @@
   "ui.open.in.folder": "Mostrar na pasta",
   "ui.open.preferences": "Abrir preferências",
   "ui.open.recent": "Abrir recente",
+  "ui.open.from.clipboard": "Abrir da área de transferência",
   "ui.open.with.os": "Abrir com o sistema",
   "ui.options": "Opções",
   "ui.ordered": "Ordenado",
@@ -2432,6 +2433,8 @@
   "import.dialog.result.label": "Pixelado",
   "import.dialog.preparing": "Preparando prévia…",
   "import.dialog.slider": "Controle de comparação",
+  "import.dialog.zoom.preview": "Zoom da prévia",
+  "import.dialog.zoom.fit": "Ajustar",
   "import.dialog.import": "Importar",
   "ui.fullscreen": "Tela cheia",
   "ui.fullscreen.exit": "Sair da tela cheia"

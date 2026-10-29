@@ -39,10 +39,13 @@ export interface ClipboardPort {
   write(item: ClipboardItemPayload): Promise<boolean | void>;
   clear?(): Promise<void>;
   canRead?(): boolean;
+  /** true/false when the OS clipboard was readable; null when the API or permission cannot tell. */
+  peekImage?(): Promise<boolean | null>;
 }
 const browserClipboardPort: ClipboardPort = {
   canRead: browserClipboard.canRead,
   clear: browserClipboard.clear,
+  peekImage: () => browserClipboard.peekImage(["image/png", "image/*"]),
   read: () => browserClipboard.read(["image/png", "image/*"]),
   write: (item) => browserClipboard.write(item),
 };
@@ -51,6 +54,8 @@ const browserClipboardPort: ClipboardPort = {
 export class ImageClipboard {
   private image: ClipboardImage | null = null;
   private appImageCopy = false;
+  /** Last successful observation of an image MIME on the system clipboard (not mere API presence). */
+  private systemImagePresent = false;
   private timeline: TimelineClipboard | null = null;
   private timelineCopySource: {
     core: RasterEditor;
@@ -102,6 +107,25 @@ export class ImageClipboard {
   }
   get canReadExternal() {
     return this.port.canRead?.() ?? false;
+  }
+  /** True only after a successful peek/read/write observed a system image (never from canRead alone). */
+  get hasSystemImage() {
+    return this.systemImagePresent;
+  }
+  /**
+   * Best-effort OS clipboard image check. Needs a user gesture for the first permission prompt.
+   * Does not decode or adopt clipboard contents into the workspace clipboard.
+   */
+  async probeSystemImage(): Promise<void> {
+    if (!this.port.peekImage) return;
+    const result = await this.port.peekImage();
+    if (result === null || result === this.systemImagePresent) return;
+    this.systemImagePresent = result;
+    this.publish();
+  }
+  private setSystemImagePresent(value: boolean) {
+    if (this.systemImagePresent === value) return;
+    this.systemImagePresent = value;
   }
   getTimeline() {
     return this.timeline ? cloneTimelineClipboard(this.timeline) : null;
@@ -161,6 +185,7 @@ export class ImageClipboard {
     this.palette = null;
     this.image = null;
     this.appImageCopy = false;
+    this.setSystemImagePresent(false);
     this.timelineSourceCleared = false;
     this.publish();
     try {
@@ -200,6 +225,10 @@ export class ImageClipboard {
       // write promise when supported and must never become an unhandled reject.
       void png.catch(() => {});
       await this.port.write({ "image/png": png });
+      if (this.image === owned && !this.hasSystemImage) {
+        this.setSystemImagePresent(true);
+        this.publish();
+      }
     } catch {
       /* internal clipboard remains available */
     }
@@ -245,6 +274,7 @@ export class ImageClipboard {
     this.image = { pixels, mask: null };
     this.clearTimelineCopySource();
     this.appImageCopy = false;
+    this.setSystemImagePresent(true);
     this.publish();
     return this.getImage();
   }
@@ -331,6 +361,11 @@ export function createClipboardActions(options: ClipboardActionOptions) {
       doc = options.isDocumentActive?.() === false ? null : state?.document;
     const imageAvailable =
       !clipboard.hasPalette && (clipboard.hasImage || clipboard.canReadExternal);
+    // Open from Clipboard / Paste as New Sprite: never enable on canRead alone — browsers expose
+    // clipboard.read even when empty/non-image. Enable only for a known workspace image or a
+    // system image last confirmed by peek/write/read (menu open probes under user gesture).
+    const knownImageForNewSprite =
+      !clipboard.hasPalette && (clipboard.hasImage || clipboard.hasSystemImage);
     const pending = !!state?.inlineText || !!state?.floatingPaste || !!state?.preview;
     if (region() === ClipboardRegion.Palette || region() === ClipboardRegion.Tileset) {
       const selectedIndices = region() === ClipboardRegion.Palette ? paletteSelection() : [];
@@ -346,7 +381,7 @@ export function createClipboardActions(options: ClipboardActionOptions) {
           clipboard.canPastePalette(state!.palette.length, selectedIndices),
         canPasteNewLayer:
           !!doc && imageAvailable && (doc.timeline?.layers.length ?? 1) < MAX_TIMELINE_LAYERS,
-        canPasteNewSprite: imageAvailable,
+        canPasteNewSprite: knownImageForNewSprite,
       };
     }
     const mask = !!doc?.selection?.data.some(Boolean);
@@ -372,7 +407,7 @@ export function createClipboardActions(options: ClipboardActionOptions) {
         (clipboard.hasTimeline ? !pending : imageAvailable && editableImage),
       canPasteNewLayer:
         !!doc && imageAvailable && (doc.timeline?.layers.length ?? 1) < MAX_TIMELINE_LAYERS,
-      canPasteNewSprite: imageAvailable,
+      canPasteNewSprite: knownImageForNewSprite,
     };
   };
   const copy = async (merged = false) => {
@@ -534,6 +569,9 @@ export function createClipboardActions(options: ClipboardActionOptions) {
   };
   return {
     dismissTimelineCopyRange: () => clipboard.dismissTimelineCopyRange(),
+    probeSystemImage: () => {
+      void clipboard.probeSystemImage();
+    },
     getCapabilities,
     subscribe: clipboard.subscribe,
     getVersion: clipboard.getVersion,
