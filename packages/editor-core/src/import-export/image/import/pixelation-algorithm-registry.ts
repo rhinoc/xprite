@@ -38,6 +38,13 @@ type GridProposer = (image: PixelBuffer) => PixelGridAnalysis[];
 const _distanceCountGridsLargeAreaSkip: GridProposer = (image) =>
   image.width * image.height >= 1_000_000 ? [] : distanceCountGrids(image);
 
+/**
+ * Skip comb proposer on large images (area >= 1M pixels) where frame already covers the grid.
+ * Same function ref used in both PROPOSERS and corroboratingProposers.
+ */
+const _combCountGridsLargeAreaSkip: GridProposer = (image) =>
+  image.width * image.height >= 1_000_000 ? [] : combCountGrids(image);
+
 export interface PixelationAlgorithmEntry {
   /** i18n key of the label shown in the import dialog and preferences. */
   readonly label: string;
@@ -90,7 +97,7 @@ const PROPOSERS: readonly GridProposer[] = [
       : [];
   },
   detectFrameLattices,
-  combCountGrids,
+  _combCountGridsLargeAreaSkip,
   detectBoundaryPeriodGrids,
   _distanceCountGridsLargeAreaSkip,
 ];
@@ -222,7 +229,7 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
   // Specific proposers for corroborated admission: frame, comb, bd, bd_dist
   const corroboratingProposers = [
     detectFrameLattices,
-    combCountGrids,
+    _combCountGridsLargeAreaSkip,
     detectBoundaryPeriodGrids,
     _distanceCountGridsLargeAreaSkip,
   ];
