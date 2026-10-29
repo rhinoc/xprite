@@ -58,6 +58,7 @@ export enum PixelationMethod {
   MostFrequent = "most-frequent",
   Dominant = "dominant",
   Structure = "structure",
+  TwoStage = "two-stage",
 }
 
 export enum PixelationMode {
@@ -116,6 +117,7 @@ export enum CellColorPicker {
   Contrast = "contrast",
   Nearest = "nearest",
   Structure = "structure",
+  DualRtTwoStage = "dual-rt-two-stage",
 }
 
 export enum ImportDialogChoice {

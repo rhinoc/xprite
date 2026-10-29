@@ -63,6 +63,11 @@ export const PICKER_LABELS: Readonly<Record<CellColorPicker, PixelationLabel>> =
   [CellColorPicker.KMeans]: { text: "K-means", key: "import.picker.k-means" },
   [CellColorPicker.Contrast]: { text: "Contrast", key: "import.picker.contrast" },
   [CellColorPicker.Nearest]: { text: "Nearest", key: "import.picker.nearest" },
+  [CellColorPicker.Structure]: { text: "Structure", key: "import.picker.structure" },
+  [CellColorPicker.DualRtTwoStage]: {
+    text: "Dual RT (Structure vs Two-Stage)",
+    key: "import.picker.dual-rt-two-stage",
+  },
 };
 const ALL_LABELS: readonly PixelationLabel[] = [
   ...Object.values(LABELS),

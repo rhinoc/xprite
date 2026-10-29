@@ -581,6 +581,8 @@
   "import.picker.contrast": "Contrast",
   "import.dialog.outline.prepass": "Outline pre-pass:",
   "import.picker.nearest": "Nearest",
+  "import.picker.structure": "Structure",
+  "import.picker.dual-rt-two-stage": "Dual RT (Structure vs Two-Stage)",
   "import.preferences.ask": "Ask me how to import pictures that could be pixel art",
   "import.dialog.title": "Import Options",
   "import.dialog.import.as.is": "Keep as is",

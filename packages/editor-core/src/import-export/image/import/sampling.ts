@@ -11,6 +11,8 @@ const CLUSTERS = 2;
 const ITERATIONS = 6;
 const CENTER_FLOOR = 0.25;
 const STRUCTURE_COLORS = 48;
+const TWO_STAGE_MIN_COLORS = 16;
+const TWO_STAGE_MAX_COLORS = 48;
 const CONVERGENCE = 1e-7;
 const MAX_COORDINATE_COLORS = 65_536;
 interface Sample {
@@ -64,6 +66,71 @@ function cell(
     }
   return { samples, alpha: area ? clampByte(alphaSum / area) : 0 };
 }
+
+/**
+ * Like cell(), but uses pure triangular center weights with no floor.
+ * Corners can go to 0. Used for TwoStage method (Fixer-like).
+ */
+function cellTriangular(
+  image: PixelBuffer,
+  left: number,
+  top: number,
+  right: number,
+  bottom: number,
+  recovery: boolean,
+): Cell {
+  left = Math.max(0, left);
+  top = Math.max(0, top);
+  right = Math.min(image.width, right);
+  bottom = Math.min(image.height, bottom);
+  const samples: Sample[] = [];
+  let area = 0,
+    alphaSum = 0;
+  for (let y = Math.floor(top); y < Math.ceil(bottom); y++)
+    for (let x = Math.floor(left); x < Math.ceil(right); x++) {
+      const coverage =
+        (Math.min(right, x + 1) - Math.max(left, x)) * (Math.min(bottom, y + 1) - Math.max(top, y));
+      if (coverage <= 0) continue;
+      const index = y * image.width + x;
+      const alpha = image.data[index * CHANNELS + COLOR_CHANNELS];
+      area += coverage;
+      alphaSum += coverage * alpha;
+      if (!alpha && !recovery) continue;
+      const fx = (Math.max(left, x) + Math.min(right, x + 1)) / 2;
+      const fy = (Math.max(top, y) + Math.min(bottom, y + 1)) / 2;
+      // Pure triangular: no CENTER_FLOOR
+      const horizontal = 1 - Math.abs((2 * (fx - left)) / (right - left) - 1);
+      const vertical = 1 - Math.abs((2 * (fy - top)) / (bottom - top) - 1);
+      const weight = coverage * horizontal * vertical;
+      samples.push({
+        index,
+        weight,
+        visibleWeight: (weight * alpha) / UINT8_MAX,
+        voteWeight: recovery ? weight : (weight * alpha) / UINT8_MAX,
+      });
+    }
+  return { samples, alpha: area ? clampByte(alphaSum / area) : 0 };
+}
+
+/**
+ * Compute adaptive K for TwoStage method.
+ * Counts unique opaque colors, clamps to [TWO_STAGE_MIN_COLORS, TWO_STAGE_MAX_COLORS].
+ */
+function adaptiveTwoStageK(image: PixelBuffer): number {
+  const uniqueColors = new Set<number>();
+  const limit = 1000; // Sample up to 1000 unique colors
+
+  for (let i = 0; i < image.data.length && uniqueColors.size < limit; i += CHANNELS) {
+    const alpha = image.data[i + COLOR_CHANNELS];
+    if (alpha === 0) continue;
+    const key = (image.data[i] << 16) | (image.data[i + 1] << 8) | image.data[i + 2];
+    uniqueColors.add(key);
+  }
+
+  const count = uniqueColors.size;
+  return Math.max(TWO_STAGE_MIN_COLORS, Math.min(TWO_STAGE_MAX_COLORS, count));
+}
+
 function coordinateLookup(image: PixelBuffer, axes: number) {
   const cache = new Map<number, Rgba>();
   return (sample: Sample, local: Map<number, Rgba>): Rgba => {
@@ -166,19 +233,26 @@ export function samplePixelation(
   const recovery = cuts !== undefined;
   const axes = recovery ? CHANNELS : COLOR_CHANNELS;
   const points = method === PixelationMethod.Dominant ? coordinateLookup(image, axes) : undefined;
-  const palette =
-    method === PixelationMethod.Structure
+  const useStructure = method === PixelationMethod.Structure;
+  const useTwoStage = method === PixelationMethod.TwoStage;
+  const useTriangular = useTwoStage; // TwoStage uses pure triangular weights
+  const palette = useStructure
+    ? extractPixelationPalette(image, {
+        maxColors: STRUCTURE_COLORS,
+      }).map((entry) => entry.color)
+    : useTwoStage
       ? extractPixelationPalette(image, {
-          maxColors: STRUCTURE_COLORS,
+          maxColors: adaptiveTwoStageK(image),
         }).map((entry) => entry.color)
       : undefined;
   const labels = palette
     ? reduceToPalette(image, palette, { preserveAlpha: true }).data
     : undefined;
   const data = new Uint8ClampedArray(width * height * CHANNELS);
+  const cellFn = useTriangular ? cellTriangular : cell;
   for (let y = 0; y < height; y++)
     for (let x = 0; x < width; x++) {
-      const current = cell(
+      const current = cellFn(
         image,
         cuts?.x[x] ?? (x * image.width) / width,
         cuts?.y[y] ?? (y * image.height) / height,

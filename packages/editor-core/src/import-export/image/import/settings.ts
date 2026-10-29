@@ -45,7 +45,9 @@ export function defaultPixelationSettings(
     prepass: DEFAULT_OUTLINE_PREPASS,
     lineGuide: DEFAULT_LINE_GUIDE,
     colorPicker:
-      mode === PixelationMode.RecoverGrid ? CellColorPicker.Structure : CellColorPicker.Contrast,
+      mode === PixelationMode.RecoverGrid
+        ? CellColorPicker.DualRtTwoStage
+        : CellColorPicker.Contrast,
     autoGrid: true,
     gridCellWidth: grid?.reliable ? grid.cellWidth : 8,
     gridCellHeight: grid?.reliable ? grid.cellHeight : 8,
@@ -110,7 +112,7 @@ export function updatePixelationSettings(
       }
     }
     if (patch.colorPicker === undefined && patch.mode === PixelationMode.RecoverGrid) {
-      next.colorPicker = CellColorPicker.Structure;
+      next.colorPicker = CellColorPicker.DualRtTwoStage;
     }
   }
   const cellSize = (value: number) =>
