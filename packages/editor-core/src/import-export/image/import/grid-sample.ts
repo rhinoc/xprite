@@ -81,9 +81,9 @@ export function recoverGrid(
 
   // TwoStage picker: Fixer-like two-stage packing (adaptive K, pure triangular weights)
   if (picker === CellColorPicker.TwoStage) {
-    // Large images (area >= 1M): use Average cell picker instead of TwoStage
+    // Large images (area >= 1M): Nearest cell picker instead of Average (faster; focus <1M keeps TwoStage).
     if (image.width * image.height >= 1_000_000) {
-      const entry = getColorPickerEntry(CellColorPicker.Average);
+      const entry = getColorPickerEntry(CellColorPicker.Nearest);
       const data = new Uint8ClampedArray(width * height * CHANNELS);
       for (let row = 0; row < height; row++)
         for (let column = 0; column < width; column++) {
