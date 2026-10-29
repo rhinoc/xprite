@@ -764,6 +764,7 @@
   "ui.open.in.folder": "在文件夹中打开",
   "ui.open.preferences": "打开首选项",
   "ui.open.recent": "打开最近文件",
+  "ui.open.from.clipboard": "从剪贴板打开",
   "ui.open.with.os": "用操作系统打开",
   "ui.options": "选项",
   "ui.ordered": "有序",
@@ -2432,6 +2433,8 @@
   "import.dialog.result.label": "像素化后",
   "import.dialog.preparing": "正在准备预览…",
   "import.dialog.slider": "对比滑块",
+  "import.dialog.zoom.preview": "预览缩放",
+  "import.dialog.zoom.fit": "适应",
   "import.dialog.import": "导入",
   "ui.fullscreen": "全屏",
   "ui.fullscreen.exit": "退出全屏"

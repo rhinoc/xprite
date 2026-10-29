@@ -764,6 +764,7 @@
   "ui.open.in.folder": "Показать в папке",
   "ui.open.preferences": "Открыть настройки",
   "ui.open.recent": "Открыть недавние",
+  "ui.open.from.clipboard": "Открыть из буфера обмена",
   "ui.open.with.os": "Открыть в системе",
   "ui.options": "Параметры",
   "ui.ordered": "Упорядоченный",
@@ -2432,6 +2433,8 @@
   "import.dialog.result.label": "Результат",
   "import.dialog.preparing": "Подготовка превью…",
   "import.dialog.slider": "Ползунок сравнения",
+  "import.dialog.zoom.preview": "Масштаб предпросмотра",
+  "import.dialog.zoom.fit": "Вписать",
   "import.dialog.import": "Импорт",
   "ui.fullscreen": "Полный экран",
   "ui.fullscreen.exit": "Выйти из полного экрана"

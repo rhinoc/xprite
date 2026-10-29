@@ -764,6 +764,7 @@
   "ui.open.in.folder": "フォルダで表示",
   "ui.open.preferences": "環境設定を開く",
   "ui.open.recent": "最近使ったファイルを開く",
+  "ui.open.from.clipboard": "クリップボードから開く",
   "ui.open.with.os": "OSで開く",
   "ui.options": "オプション",
   "ui.ordered": "規則的",
@@ -2432,6 +2433,8 @@
   "import.dialog.result.label": "ピクセル化後",
   "import.dialog.preparing": "プレビューを準備中…",
   "import.dialog.slider": "比較スライダー",
+  "import.dialog.zoom.preview": "プレビューのズーム",
+  "import.dialog.zoom.fit": "フィット",
   "import.dialog.import": "インポート",
   "ui.fullscreen": "フルスクリーン",
   "ui.fullscreen.exit": "フルスクリーンを終了"

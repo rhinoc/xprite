@@ -764,6 +764,7 @@
   "ui.open.in.folder": "Open in Folder",
   "ui.open.preferences": "Open Preferences",
   "ui.open.recent": "Open Recent",
+  "ui.open.from.clipboard": "Open from Clipboard",
   "ui.open.with.os": "Open with OS",
   "ui.options": "Options",
   "ui.ordered": "Ordered",
@@ -2432,6 +2433,8 @@
   "import.dialog.result.label": "Pixelated",
   "import.dialog.preparing": "Preparing preview…",
   "import.dialog.slider": "Compare slider",
+  "import.dialog.zoom.preview": "Preview zoom",
+  "import.dialog.zoom.fit": "Fit",
   "import.dialog.import": "Import",
   "ui.fullscreen": "Fullscreen",
   "ui.fullscreen.exit": "Exit Fullscreen"

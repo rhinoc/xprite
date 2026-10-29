@@ -764,6 +764,7 @@
   "ui.open.in.folder": "폴더에서 열기",
   "ui.open.preferences": "환경설정 열기",
   "ui.open.recent": "최근 파일 열기",
+  "ui.open.from.clipboard": "클립보드에서 열기",
   "ui.open.with.os": "OS로 열기",
   "ui.options": "옵션",
   "ui.ordered": "규칙적",
@@ -2432,6 +2433,8 @@
   "import.dialog.result.label": "픽셀화됨",
   "import.dialog.preparing": "미리보기 준비 중…",
   "import.dialog.slider": "비교 슬라이더",
+  "import.dialog.zoom.preview": "미리보기 확대/축소",
+  "import.dialog.zoom.fit": "맞춤",
   "import.dialog.import": "가져오기",
   "ui.fullscreen": "전체 화면",
   "ui.fullscreen.exit": "전체 화면 종료"
