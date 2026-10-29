@@ -131,6 +131,66 @@ const customSize = (image: PixelBuffer, size?: PixelationSize): PixelGridAnalysi
 const MIN_CORROBORATORS = 2;
 
 /**
+ * Maximum candidates to pass to arbitration. Description-length scoring scales O(pixels),
+ * and each candidate requires strip computation + phase field. Pruning reduces latency
+ * while preserving high-confidence and diverse-dimension candidates.
+ */
+const MAX_ARBITRATION_CANDIDATES = 10;
+
+/**
+ * Prune candidates before expensive DL/arbitration to reduce latency.
+ * Strategy: dedupe near-dimensions (±1), keep highest confidence per size class, cap total.
+ * Preserves Exact by keeping diverse sizes and high-confidence candidates.
+ * Always keeps WASM consensus candidate (if present) to enable consensus override.
+ */
+function pruneCandidatesBeforeArbitration(
+  candidates: PixelGridAnalysis[],
+  wasmConsensus?: { cols: number; rows: number } | null,
+): PixelGridAnalysis[] {
+  if (candidates.length <= MAX_ARBITRATION_CANDIDATES) return candidates;
+
+  // Always keep WASM consensus candidate if present
+  const wasmCandidate = wasmConsensus
+    ? candidates.find(
+        (c) => c.width === wasmConsensus.cols && c.height === wasmConsensus.rows && c.reliable,
+      )
+    : undefined;
+
+  // Group by similar dimensions (within ±1 on both width and height)
+  const groups = new Map<string, PixelGridAnalysis[]>();
+  for (const cand of candidates) {
+    // Use rounded dimensions as group key to cluster near-identical sizes
+    const key = `${cand.width}×${cand.height}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(cand);
+  }
+
+  // Keep best (highest confidence) from each group
+  const pruned: PixelGridAnalysis[] = [];
+  for (const group of groups.values()) {
+    // Sort by confidence desc, then by cellWidth*cellHeight asc (prefer smaller cells)
+    const sorted = group.sort(
+      (a, b) =>
+        b.confidence - a.confidence || a.cellWidth * a.cellHeight - b.cellWidth * b.cellHeight,
+    );
+    pruned.push(sorted[0]);
+  }
+
+  // If still over limit, keep highest-confidence candidates
+  if (pruned.length > MAX_ARBITRATION_CANDIDATES) {
+    pruned.sort((a, b) => b.confidence - a.confidence);
+    const limited = pruned.slice(0, MAX_ARBITRATION_CANDIDATES);
+    // Ensure WASM candidate is in the limited set
+    if (wasmCandidate && !limited.includes(wasmCandidate)) {
+      limited[limited.length - 1] = wasmCandidate;
+    }
+    return limited;
+  }
+
+  return pruned;
+}
+
+/**
  * Auto: every proposer runs on each evaluation view (扶正 and/or 原图), their candidates compete
  * in one arbitration per view (see grid-arbitrate), and the passthrough is one more candidate in
  * each. When the image carries a tilt, the upright view is tried; when no proposer finds a
@@ -163,19 +223,35 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
   // Arbitrate each view: all proposers run on this view
   let best: { score: number; grid: PixelGridAnalysis; rotation: number } | null = null;
   for (const ring of rings) {
-    const candidates = PROPOSERS.flatMap((proposer) => proposer(ring.image)).map((grid) =>
-      ring.rotation ? { ...grid, rotation: ring.rotation } : grid,
+    // Run each proposer once and track outputs with their corroboration index
+    const proposerOutputs = PROPOSERS.map((proposer) => {
+      const grids = proposer(ring.image);
+      const corrobIndex = corroboratingProposers.indexOf(proposer);
+      return { grids, corrobIndex };
+    });
+
+    // Build candidates list from all proposer outputs
+    const candidates = proposerOutputs.flatMap(({ grids }) =>
+      grids.map((grid) => (ring.rotation ? { ...grid, rotation: ring.rotation } : grid)),
     );
 
-    // Tag candidates with their proposer for corroboration tracking
-    const tagged = corroboratingProposers.flatMap((proposer, index) =>
-      proposer(ring.image).map((grid) => ({
-        grid: ring.rotation ? { ...grid, rotation: ring.rotation } : grid,
-        proposerIndex: index,
-      })),
-    );
+    // Tag candidates from corroborating proposers (reuse outputs, no re-run)
+    const tagged = proposerOutputs
+      .filter(({ corrobIndex }) => corrobIndex >= 0)
+      .flatMap(({ grids, corrobIndex }) =>
+        grids.map((grid) => ({
+          grid: ring.rotation ? { ...grid, rotation: ring.rotation } : grid,
+          proposerIndex: corrobIndex,
+        })),
+      );
 
-    let winner = arbitrateGrids(ring.image, candidates);
+    // Detect WASM consensus early to preserve consensus candidate during pruning
+    const consensus = detectAcRlConsensus(ring.image);
+
+    // Prune candidates before expensive DL/arbitration: dedupe near-dimensions, keep high-conf
+    const prunedCandidates = pruneCandidatesBeforeArbitration(candidates, consensus);
+
+    let winner = arbitrateGrids(ring.image, prunedCandidates);
 
     // Prefer corroborated near-count with strict gates: winner corrob=1, challenger≥2,
     // bd_dist in challenger proposers, phaseScore margin ≤0.40
@@ -186,12 +262,8 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
 
     // AC+RL consensus override: when WASM consensus fires and differs from winner,
     // select an existing candidate at G dimensions (preferred) or rebuild grid for G
-    if (winner) {
-      const consensus = detectAcRlConsensus(ring.image);
-      if (
-        consensus &&
-        (consensus.cols !== winner.grid.width || consensus.rows !== winner.grid.height)
-      ) {
+    if (winner && consensus) {
+      if (consensus.cols !== winner.grid.width || consensus.rows !== winner.grid.height) {
         // Prefer: select existing candidate with G dimensions (full grid with consistent cuts/offsets)
         const candidateAtG = candidates.find(
           (c) => c.width === consensus.cols && c.height === consensus.rows && c.reliable,
