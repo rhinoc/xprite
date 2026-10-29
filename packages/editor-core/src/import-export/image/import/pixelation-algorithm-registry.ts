@@ -2,6 +2,7 @@ import type { PixelBuffer } from "$/base/primitives";
 import { forgetNeighbourSteps } from "$/import-export/image/import/color-step";
 import { estimateTilt, straighten } from "$/import-export/image/import/deskew";
 import { blockPartition } from "$/import-export/image/import/grid";
+import { detectAcRlConsensus } from "$/import-export/image/import/grid-ac-rl-consensus";
 import {
   arbitrateGrids,
   gridEvidence,
@@ -181,6 +182,47 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     if (winner) {
       const preferred = preferCorroboratedNearCountMarginBdDist(ring.image, winner, tagged);
       if (preferred) winner = preferred;
+    }
+
+    // AC+RL consensus override: when WASM consensus fires and differs from winner,
+    // select an existing candidate at G dimensions (preferred) or rebuild grid for G
+    if (winner) {
+      const consensus = detectAcRlConsensus(ring.image);
+      if (
+        consensus &&
+        (consensus.cols !== winner.grid.width || consensus.rows !== winner.grid.height)
+      ) {
+        // Prefer: select existing candidate with G dimensions (full grid with consistent cuts/offsets)
+        const candidateAtG = candidates.find(
+          (c) => c.width === consensus.cols && c.height === consensus.rows && c.reliable,
+        );
+
+        if (candidateAtG) {
+          // Use existing candidate's full grid
+          winner = arbitrateGrids(ring.image, [candidateAtG]) ?? winner;
+        } else {
+          // Rebuild: create grid with G dimensions and consistent geometry
+          const cellWidth = ring.image.width / consensus.cols;
+          const cellHeight = ring.image.height / consensus.rows;
+
+          winner = {
+            grid: {
+              ...winner.grid,
+              width: consensus.cols,
+              height: consensus.rows,
+              cellWidth,
+              cellHeight,
+              // Clear cuts/offsets that were computed for old dimensions
+              cutsX: undefined,
+              cutsY: undefined,
+              offsetX: 0,
+              offsetY: 0,
+            },
+            length: winner.length,
+            score: winner.score,
+          };
+        }
+      }
     }
 
     if (winner && (!best || winner.score < best.score))
