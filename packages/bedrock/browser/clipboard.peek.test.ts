@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 
 import { describe, it } from "vitest";
 
-import { browserClipboard } from "./clipboard";
+import { browserClipboard } from "$/clipboard";
 
 describe("browserClipboard.peekImage", () => {
   it("returns null when clipboard.read is unavailable", async () => {
