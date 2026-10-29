@@ -308,7 +308,8 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
 
     // Prefer corroborated near-count with strict gates: winner corrob=1, challenger≥2,
     // bd_dist in challenger proposers, phaseScore margin ≤0.40
-    if (winner) {
+    // Large images (area >= 1M): skip preferCorroborated (Gate3 dead without bd_dist).
+    if (winner && ring.image.width * ring.image.height < 1_000_000) {
       const preferred = preferCorroboratedNearCountMarginBdDist(ring.image, winner, tagged);
       if (preferred) winner = preferred;
     }
