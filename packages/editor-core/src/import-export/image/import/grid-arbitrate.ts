@@ -242,6 +242,7 @@ function readingOf(
     chance: 0,
     frame: () => described,
   };
+  if (strips.image.width * strips.image.height >= 1_000_000) return best;
   const cuts = {
     cutsX,
     cutsY,
