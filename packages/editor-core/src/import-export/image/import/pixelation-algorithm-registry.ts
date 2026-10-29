@@ -196,6 +196,9 @@ function pruneCandidatesBeforeArbitration(
  * each. When the image carries a tilt, the upright view is tried; when no proposer finds a
  * reliable grid there (soft edges), the original competes as well, so a false tilt does not hide
  * the upright grid.
+ *
+ * Performance: For best latency, call preloadWasm() during app/worker initialization to prewarm
+ * the WASM module. Proposers are independent and could be parallelized via workers in the future.
  */
 function autoGrid(image: PixelBuffer): PixelGridAnalysis {
   const tilt = estimateTilt(image);
@@ -223,7 +226,8 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
   // Arbitrate each view: all proposers run on this view
   let best: { score: number; grid: PixelGridAnalysis; rotation: number } | null = null;
   for (const ring of rings) {
-    // Run each proposer once and track outputs with their corroboration index
+    // Run proposers - structured for future parallelization via workers
+    // Currently synchronous; each proposer is independent and could run in parallel
     const proposerOutputs = PROPOSERS.map((proposer) => {
       const grids = proposer(ring.image);
       const corrobIndex = corroboratingProposers.indexOf(proposer);

@@ -1,3 +1,15 @@
+/**
+ * Grid arbitration via description-length (MDL).
+ *
+ * Performance notes:
+ * - StripImage already caches line prefixes (good)
+ * - Future optimization opportunities:
+ *   - Reuse DescribedImage buffer across candidates (currently re-described per candidate)
+ *   - Pool Float64Array scratch buffers in strip/phase computation
+ *   - Typed arrays in hot paths (already partially done)
+ *   - Parallel candidate scoring (requires worker threads)
+ */
+
 import type { PixelBuffer } from "$/base/primitives";
 import { MAX_RECOVERED_GRID_SIZE, pixelGridCuts } from "$/import-export/image/import/grid";
 import { snapLatticeCuts } from "$/import-export/image/import/grid-cut-snap";
