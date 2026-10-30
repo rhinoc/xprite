@@ -510,19 +510,20 @@ export class EditorSession<Source> {
         ? (this.recentIdentities?.resolve(recentAlias) ?? recentAlias)
         : null;
       if (!this.valid(generation)) return SessionOutcome.Ignored;
-      const analysis = project
-        ? null
-        : await this.ports.analyze(pixels, { algorithm: this.importAlgorithm() });
-      if (!this.valid(generation)) return SessionOutcome.Ignored;
       this.release(source.source, generation);
+
+      // Don't run Auto detection here - it will be done lazily when preview is first requested.
+      // This allows the dialog to open quickly without blocking on expensive grid detection.
       const candidate: Candidate = {
         sourcePalette: (source.palette ?? this.editor.getSnapshot().palette).map(
           (color) => [...color] as Rgba,
         ),
         pixels,
         name: source.name,
-        classification: analysis?.classification ?? PixelArtClassification.LikelyPixelArt,
-        ...(analysis ? { grid: analysis.grid } : {}),
+        // Projects are known pixel art; plain images need classification but we'll do that lazily too.
+        classification: project
+          ? PixelArtClassification.LikelyPixelArt
+          : PixelArtClassification.Uncertain,
         checkpoint: before,
         ...(recentIdentity ? { recentIdentity } : {}),
         ...(recentAlias ? { recentAlias } : {}),
@@ -660,7 +661,12 @@ export class EditorSession<Source> {
       pixelationPalette: [],
       pixelationError: null,
     });
-    void this.previewPixelation();
+    // Only start the preview if there's no preference set (first-time user).
+    // When preferences exist, defer preview until the user switches to Pixelate tab,
+    // to avoid blocking on expensive grid detection when default is "import-as-is".
+    if (!pref) {
+      void this.previewPixelation();
+    }
     return SessionOutcome.Pending;
   }
   private askReplacement(intent: Replacement<Source>) {
@@ -813,12 +819,38 @@ export class EditorSession<Source> {
       generation = this.generation;
     this.publish({ pixelationPreviewing: true, pixelationError: null });
     try {
+      // If Auto algorithm is selected but grid hasn't been detected yet, run detection first.
+      const pending = this.state.pendingImport;
+      if (
+        pending &&
+        pending.algorithm === PixelationAlgorithm.Auto &&
+        !candidate.grid &&
+        !candidate.project
+      ) {
+        const analysis = await this.ports.analyze(candidate.pixels, {
+          algorithm: PixelationAlgorithm.Auto,
+        });
+        if (!this.valid(generation) || version !== this.previewVersion) return;
+        // Update the candidate with the detected grid.
+        this.candidate = { ...candidate, ...analysis };
+        const current = this.state.pendingImport;
+        this.publish({
+          pendingImport: current
+            ? { ...current, grid: analysis.grid ?? null, classification: analysis.classification }
+            : current,
+          pixelationOptions: applyPixelationGrid(
+            this.state.pixelationOptions,
+            analysis.grid ?? { reliable: false, cellWidth: 8, cellHeight: 8 },
+            candidate.pixels,
+          ),
+        });
+      }
       const options = pixelationSettingsOptions(
         this.state.pixelationOptions,
-        candidate.pixels,
-        candidate.grid,
+        this.candidate!.pixels,
+        this.candidate!.grid,
       );
-      const pixels = await this.ports.pixelate(candidate.pixels, options);
+      const pixels = await this.ports.pixelate(this.candidate!.pixels, options);
       // A newer request is already waiting: this result is stale, so keep the spinner up.
       if (this.previewQueued) return;
       if (this.valid(generation) && version === this.previewVersion)

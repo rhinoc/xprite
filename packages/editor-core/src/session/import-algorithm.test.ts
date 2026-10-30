@@ -89,7 +89,7 @@ describe("import dialog colour pick", () => {
     const session = openSession(jittered);
     await session.requestImport({ source: "jitter", name: "jitter.png" });
     await settle(session);
-    expect(session.getSnapshot().pixelationOptions.colorPicker).toBe(CellColorPicker.Median);
+    expect(session.getSnapshot().pixelationOptions.colorPicker).toBe(CellColorPicker.TwoStage);
     const before = session.getSnapshot().pixelationPreview;
     session.setPixelationOptions({ colorPicker: CellColorPicker.Average });
     await settle(session);
@@ -99,7 +99,7 @@ describe("import dialog colour pick", () => {
     expect(after.pixelationPreview?.width).toBe(before?.width);
     session.dispose();
   });
-  test("pixel art opens on PixelOE + lines with Median and Limit colors; None brings back the remembered rule", async () => {
+  test("pixel art opens on PixelOE + lines with TwoStage and Limit colors; None brings back the remembered rule", async () => {
     const session = openSession(
       jittered,
       PixelArtClassification.LikelyPixelArt,
@@ -108,17 +108,18 @@ describe("import dialog colour pick", () => {
     await session.requestImport({ source: "jitter", name: "jitter.png" });
     await settle(session);
     const opened = session.getSnapshot();
-    // Recover Grid opens on Median with Limit colors (16).
+    // Recover Grid opens on TwoStage with Limit colors (16), regardless of remembered picker.
     expect(opened.pendingImport?.grid?.reliable).toBe(true);
     expect(opened.pixelationOptions).toMatchObject({
       mode: PixelationMode.RecoverGrid,
       prepass: OutlinePrepass.PixeloeLines,
-      colorPicker: CellColorPicker.Median,
+      colorPicker: CellColorPicker.TwoStage,
       reduceColors: true,
     });
     session.setPixelationOptions({ prepass: OutlinePrepass.None });
     await settle(session);
     const plain = session.getSnapshot();
+    // Switching to None pre-pass brings back the remembered Median picker.
     expect(plain.pixelationOptions.colorPicker).toBe(CellColorPicker.Median);
     // The old exact recovery is one choice away.
     expect(plain.pixelationPreview).toEqual(
@@ -251,12 +252,12 @@ describe("silent Pixelate import (Don't ask me again)", () => {
     expect(imported).toEqual(art);
     session.dispose();
   });
-  test("with nothing saved the silent import uses PixelOE + lines with Median and Limit colors", async () => {
+  test("with nothing saved the silent import uses PixelOE + lines with TwoStage and Limit colors", async () => {
     const { session, imported } = await importSilently(null);
     expect(session.getSnapshot().pixelationOptions).toMatchObject({
       prepass: OutlinePrepass.PixeloeLines,
       lineGuide: LineGuideMode.Replace,
-      colorPicker: CellColorPicker.Median,
+      colorPicker: CellColorPicker.TwoStage,
       reduceColors: true,
     });
     const grid = detectWithAlgorithm(upscaled, Auto);
@@ -266,7 +267,7 @@ describe("silent Pixelate import (Don't ask me again)", () => {
         grid,
         prepass: OutlinePrepass.PixeloeLines,
         lineGuide: LineGuideMode.Replace,
-        colorPicker: CellColorPicker.Median,
+        colorPicker: CellColorPicker.TwoStage,
         paletteSnap: { colors: 16 },
       }),
     );
@@ -296,7 +297,7 @@ describe("silent Pixelate import (Don't ask me again)", () => {
     );
     session.dispose();
   });
-  test("the dialog still opens on PixelOE + lines with Median after a None import was saved", async () => {
+  test("the dialog still opens on PixelOE + lines with TwoStage after a None import was saved", async () => {
     const { session } = silentSession("always-ask", {
       prepass: OutlinePrepass.None,
       colorPicker: CellColorPicker.MostCommon,
@@ -308,7 +309,7 @@ describe("silent Pixelate import (Don't ask me again)", () => {
     expect(session.getSnapshot().pixelationOptions).toMatchObject({
       prepass: OutlinePrepass.PixeloeLines,
       lineGuide: LineGuideMode.Replace,
-      colorPicker: CellColorPicker.Median,
+      colorPicker: CellColorPicker.TwoStage,
       reduceColors: true,
     });
     session.dispose();

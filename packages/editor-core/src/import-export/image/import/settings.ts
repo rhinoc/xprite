@@ -36,7 +36,7 @@ export function defaultPixelationSettings(
 ): PixelationSettings {
   const scale = Math.min(1, DEFAULT_PIXELATION_SIZE / Math.max(image.width, image.height));
   const mode = grid?.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert;
-  // Recover Grid opens on PixelOE + lines with Median and Limit colors (16). Convert opens on
+  // Recover Grid opens on PixelOE + lines with TwoStage and Limit colors (16). Convert opens on
   // PixelOE + lines with Contrast and no color limit. Both use PixelOE's outline pre-pass.
   return {
     mode,

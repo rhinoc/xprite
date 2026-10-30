@@ -63,7 +63,7 @@ export const DEFAULT_FILE_PREFERENCES: Readonly<FilePreferences> = Object.freeze
   animationDefaultExtension: AnimationExportExtension.Gif,
   recentItemLimit: 16,
   importAsk: true,
-  importLastAction: "pixelate",
+  importLastAction: "import-as-is",
   importPixelationAlgorithm: "auto",
   importColorPicker: CellColorPicker.MostCommon,
   importPixelation: null,
