@@ -26,11 +26,11 @@ export const RUSSIAN_ARTICLES = {
     topic: "iPad и сенсорный ввод",
   },
   "piskel-alternatives": {
-    title: "Альтернативы Piskel: 3 редактора анимации | Xprite",
+    title: "Альтернатива Piskel: Xprite vs Piskel vs Pixelorama | Xprite",
     description:
-      "Альтернативы Piskel: Pixelorama открывает .piskel, Xprite редактирует .aseprite в браузере с пером и касанием, а Pixilart удобен, чтобы делиться работами.",
+      "Xprite vs Piskel: оба — бесплатные открытые браузерные редакторы спрайтов. Xprite ещё открывает и сохраняет .aseprite и работает на телефоне; Pixelorama открывает .piskel.",
     summary:
-      "Pixelorama открывает .piskel напрямую; Xprite подходит для правки .aseprite и рисования касанием; Pixilart — чтобы делиться работами.",
+      "Xprite открывает и сохраняет .aseprite и работает на телефоне и планшете; Piskel проще для короткой анимации на компьютере; Pixelorama открывает .piskel напрямую.",
     topic: "Альтернативные редакторы",
   },
   "fix-ai-pixel-art": {

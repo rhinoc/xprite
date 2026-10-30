@@ -1,75 +1,98 @@
 ---
-updated: 2026-10-10
+published: 2026-10-10
+updated: 2026-10-30
 ---
 
-# Alternativas a Piskel: 3 editores de animación en pixel art comparados
+# Xprite vs Piskel: una alternativa gratis a Piskel que abre archivos Aseprite
 
-[Piskel](https://www.piskelapp.com/) es un editor de sprites gratuito y de código abierto que funciona en el navegador. Es ideal para pequeñas animaciones en bucle y exporta GIF y hojas de sprites sin complicaciones. A medida que los proyectos crecen, se suele querer organizar varias animaciones, intercambiar proyectos con quienes usan Aseprite, dibujar con lápiz en una tableta o compartir el trabajo con una comunidad. Elige la herramienta según lo que necesites:
+Xprite es un editor de pixel art gratis y de código abierto en el navegador que, a diferencia de Piskel, abre y guarda archivos `.aseprite` y funciona en móviles y tabletas. Piskel sigue siendo la opción más simple para animaciones cortas en un navegador de escritorio, y es el único de los dos que abre archivos `.piskel`.
 
-- Tienes un montón de proyectos `.piskel` que quieres seguir editando: usa Pixelorama, que abre `.piskel` directamente.
-- Quieres editar `.aseprite` en el navegador o dibujar en un iPad con lápiz y dedos: usa Xprite.
-- Quieres publicar mientras dibujas y participar en eventos de la comunidad: usa Pixilart.
+- Quieres editar `.aseprite`, dibujar con lápiz o con los dedos, o poner una duración distinta en cada cuadro: usa Xprite.
+- Haces bucles cortos en el ordenador y quieres el menor número de menús posible: quédate con Piskel.
+- Tienes un montón de proyectos `.piskel` que quieres seguir editando en otra herramienta: usa Pixelorama, que abre `.piskel` directamente.
 
-|                           | Piskel                                         | Xprite                                           | Pixelorama                                 | Pixilart                              |
-| ------------------------- | ---------------------------------------------- | ------------------------------------------------ | ------------------------------------------ | ------------------------------------- |
-| Precio                    | 🆓 Gratis, con anuncios                        | 🆓 Gratis                                        | 🆓 Gratis, versión de Steam 💰             | 🆓 Gratis, PRO 💰                     |
-| Abrir `.piskel`           | ✅ Formato nativo                              | ❌ Convertir antes a GIF o a hoja de sprites     | ✅ Sí                                      | —                                     |
-| Proyectos `.aseprite`     | ❌ No                                          | ✅ Abre y guarda                                 | ✅ Importa; exporta desde la v1.2.2        | —                                     |
-| Animación                 | ✅ Capas, papel cebolla                        | ✅ Etiquetas, duración de cuadros, papel cebolla | ✅ Etiquetas, capas de audio               | ✅ Duración por cuadro, papel cebolla |
-| Táctil                    | —                                              | ✅ El lápiz dibuja, los dedos navegan            | ⚠️ La versión para Android es experimental | ✅ App para móvil                     |
-| Sin conexión y escritorio | ⚠️ La versión de escritorio apenas se mantiene | ⚠️ Abrir una vez con conexión antes              | ✅ App de escritorio gratis                | —                                     |
+[Abre Xprite en tu navegador](/?utm_source=compare&utm_medium=referral&utm_campaign=piskel-alternatives). No hay nada que instalar ni cuenta que crear.
 
-## Cuándo quedarte con Piskel
+## Xprite vs Piskel de un vistazo
 
-Para ciclos de caminata cortos, iconos animados o ejercicios de clase, Piskel es más que suficiente. Tiene capas, papel cebolla y una vista previa en vivo cuya velocidad puedes cambiar en cualquier momento. Exporta GIF, hojas de sprites PNG y ZIP.
+|               | Piskel                                                                    | Xprite                                                        |
+| ------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Precio        | 🆓 Gratis, con anuncios. Piskel for Kids no tiene anuncios                | 🆓 Gratis, sin cuenta                                         |
+| Código fuente | ✅ Código abierto, Apache-2.0                                             | ✅ Código abierto, GPL-2.0-only                               |
+| Dispositivos  | ⚠️ Navegadores de escritorio. Sin soporte para móvil o tableta            | ✅ Navegadores en ordenadores, tabletas y móviles             |
+| Lápiz y tacto | ❌ No                                                                     | ✅ El lápiz dibuja; los dedos desplazan, hacen zoom y deshacen |
+| `.piskel`     | ✅ Formato nativo                                                         | ❌ Primero exporta un GIF o una hoja de sprites PNG           |
+| `.aseprite`   | ❌ No                                                                     | ✅ Abrir y guardar                                            |
+| Capas         | ✅ Sí                                                                     | ✅ Sí, más RGB, escala de grises e indexado                   |
+| Papel cebolla | ✅ Sí                                                                     | ✅ Sí                                                         |
+| Timing        | ⚠️ Un único FPS para toda la animación                                    | ✅ Duración por cuadro, más etiquetas para partir animaciones |
+| Exportar      | ✅ GIF, hoja PNG, PNG, ZIP de cuadros, PixiJS JSON, array en C            | ✅ PNG, GIF, APNG, WebP, hoja PNG con JSON, tilesets          |
+| Sin conexión  | ⚠️ Apps para Windows, macOS y Linux, con actualizaciones a medias         | ⚠️ Añadir a escritorio o inicio; abrir una vez con conexión   |
+| Guardado      | Archivo `.piskel`, o este navegador                                       | Archivo `.aseprite` o `.png`, o este navegador                |
 
-Piskel también tiene versiones sin conexión para Windows, macOS y Linux, pero [solo reciben pruebas limitadas](https://www.piskelapp.com/download) y no tienen un calendario de lanzamientos regular, así que se recomienda la versión web. [Piskel for Kids](https://www.piskelapp.com/faq), pensado para niños y docentes, no tiene anuncios ni funciones sociales como la galería.
+## Dónde Piskel es mejor
 
-## Pixelorama: abre `.piskel` directamente
+- **Abre tus proyectos `.piskel`.** Xprite no puede leerlos.
+- **Menos que aprender.** Piskel tiene menos herramientas y una vista previa en vivo cuya velocidad puedes cambiar mientras dibujas. Para un ciclo de caminata o un icono animado, a menudo basta.
+- **Piskel for Kids.** La [edición para niños](https://www.piskelapp.com/faq) no tiene anuncios, no rastrea información personal y no tiene funciones sociales, lo que encaja en el aula. Xprite envía analíticas de uso anónimas (sin obras), descritas en su [aviso de privacidad](/privacy/).
+- **Apps de escritorio descargables.** Piskel ofrece [apps sin conexión](https://www.piskelapp.com/download) para Windows, macOS y Linux. Reciben pruebas «muy limitadas» y no tienen calendario de lanzamientos, así que Piskel recomienda la versión web.
+- **Algunos destinos de exportación extra**: una hoja PixiJS con JSON, un archivo C con el cuadro como array, y un ZIP de cuadros que se puede partir por capa.
 
-[Pixelorama](https://pixelorama.org/user_manual/Import) importa `.piskel`, además de `.aseprite`, PSD y archivos de Krita, lo que lo convierte en la forma más directa de migrar proyectos antiguos.
+## Dónde Xprite es mejor
 
-- **Animación**: las etiquetas de cuadros dividen un proyecto en varias animaciones, y las capas de audio sincronizan la animación con el sonido.
-- **Plataformas**: las apps de escritorio para Windows, macOS y Linux y la versión web son gratuitas. La [versión de Steam](https://pixelorama.org/user_manual/installation) es de pago, tiene las mismas funciones y añade extras de Steam como las actualizaciones automáticas. La versión para Android sigue siendo experimental.
-- **Archivos**: los proyectos se guardan como `.pxo`. Desde la [v1.2.2](https://github.com/Orama-Interactive/Pixelorama/releases/tag/v1.2.2) también puede exportar `.aseprite`.
+- **Archivos Aseprite.** Xprite lee y escribe `.ase` y `.aseprite`, conservando capas, cuadros y etiquetas. Puedes devolver el archivo a alguien que use Aseprite. Algunos proyectos pueden no ser del todo compatibles, y los scripts y extensiones de Aseprite no se ejecutan.
+- **Móviles y tabletas.** El propio [README](https://github.com/piskelapp/piskel#mobiletablets) de Piskel dice que no hay soporte móvil. En Xprite, en cuanto usas un lápiz, el lápiz dibuja y los dedos desplazan; pellizca para zoom, toca con dos dedos para deshacer y con tres para rehacer. Ver [dedos y lápiz](/help/#fingers-and-a-pen).
+- **Timing y estructura.** Cada cuadro puede tener su propia duración, y las etiquetas parten un archivo en varias animaciones. Hay capas de tilemap y color indexado cuando un proyecto de juego las necesita.
+- **Más formatos de exportación.** GIF, APNG y WebP animados, y hojas PNG con JSON opcional.
 
-## Xprite: edita proyectos de Aseprite en el navegador
+Antes de cambiar: Xprite lo mantiene una sola persona y sigue mejorando, así que algunas funciones pueden tener errores. Los proyectos guardados en **Navegador** se quedan en ese navegador de ese dispositivo, así que guarda en **Gestor de archivos** lo que quieras conservar.
 
-Xprite lee y escribe `.aseprite` en su formato original y conserva capas, etiquetas y duración de los cuadros, así que funciona bien para pasar archivos de un lado a otro con quienes usan Aseprite.
+## ¿Cuál deberías elegir?
 
-- **Táctil**: en cuanto usas un lápiz, el lápiz dibuja y los dedos desplazan el lienzo. Toca con dos dedos para deshacer y con tres para rehacer. Puedes cambiar los gestos en **Editar → Preferencias → Táctil**.
-- **Guardado**: **Archivo → Guardar como** guarda en **Navegador** o en **Gestor de archivos**. Un proyecto guardado en el navegador solo se abre en el mismo navegador y en el mismo dispositivo, así que guarda en **Gestor de archivos** los archivos que quieras llevar a otro sitio.
-- **Sin conexión**: abre el editor una vez con conexión y, a partir de ahí, funciona sin conexión.
+- **Principiantes, niños y GIF rápidos en el ordenador**: Piskel, o Piskel for Kids en el aula.
+- **Quien intercambia archivos con usuarios de Aseprite**: Xprite.
+- **Dibujar en un iPad o un móvil**: Xprite. Piskel no soporta móvil.
+- **Sprites de juego que necesitan duración por cuadro, etiquetas o una hoja con JSON**: Xprite.
+- **Seguir editando proyectos `.piskel` antiguos fuera de Piskel**: Pixelorama.
 
-Xprite no puede abrir `.piskel` directamente; más abajo verás cómo migrar tu trabajo.
+## Otras alternativas a Piskel
 
-## Pixilart: publica tu trabajo en cuanto lo termines
-
-[Pixilart](https://www.pixilart.com/features) reúne un editor y una comunidad de arte en un solo lugar, y puedes dibujar en la web o en la app para móvil. Las animaciones pueden tener una duración distinta para cada cuadro, y hay papel cebolla. El lienzo puede medir hasta 700 píxeles por lado.
-
-La versión gratuita se puede usar por completo. [PRO](https://www.pixilart.com/subscribe) cuesta 4,99 USD al mes, quita los anuncios y sincroniza archivos `.pixil` editables entre la computadora y el teléfono.
+- [Pixelorama](https://pixelorama.org/user_manual/Import): gratis y de código abierto, con apps de escritorio y versión web. Importa `.piskel`, `.aseprite`, PSD y Krita, así que es la forma más directa de migrar proyectos antiguos de Piskel. Los proyectos se guardan como `.pxo`.
+- [Pixilart](https://www.pixilart.com/features): editor y comunidad de arte en uno, en la web y en apps móviles. Tiene duración por cuadro y papel cebolla. Un plan PRO de pago quita anuncios y sincroniza archivos `.pixil`.
 
 ## Lleva tu trabajo de Piskel a Xprite
 
-Xprite no puede leer `.piskel`, así que primero exporta tu trabajo de Piskel como imágenes:
+1. **Conserva el original**: descarga una copia `.piskel` desde Piskel como respaldo.
+2. **Exporta la animación** desde Piskel como GIF, o como hoja PNG si quieres controlar cómo se cortan los cuadros.
+3. **Abre el GIF** en Xprite con **Archivo → Abrir…**. Cada cuadro del GIF llega como un cuadro.
+4. **Para una hoja de sprites**, usa **Archivo → Importar hoja de sprites** y define los bordes del cuadro. Las hojas no guardan el timing, así que ajusta las duraciones en la línea de tiempo después.
 
-1. **Conserva el original**: descarga desde Piskel una copia `.piskel` como respaldo.
-2. **Exporta la animación**: exporta un GIF. Si quieres controlar cómo se cortan los cuadros, exporta una hoja de sprites PNG.
-3. **Abre el GIF**: en Xprite, abre el GIF con **Archivo → Abrir...**. Se importan todos los cuadros y sus duraciones.
-4. **Importa una hoja de sprites**: para una hoja de sprites PNG, usa **Archivo → Importar hoja de sprites** y marca en el lienzo los bordes de un cuadro para dividirla. Las hojas de sprites no guardan la duración de los cuadros, así que vuelve a definirla en la línea de tiempo después de importar.
+Los GIF y las hojas solo llevan los píxeles combinados, así que se pierden las capas. Para conservarlas, usa la exportación ZIP de Piskel con **Split by layers** y reconstruye las capas en Xprite. El GIF está limitado a 256 colores, así que usa una hoja PNG cuando el color importe.
 
-Los GIF y las hojas de sprites solo contienen los píxeles combinados, así que se pierden las capas de Piskel y sus nombres. Si necesitas capas, exporta cada capa por separado desde Piskel y vuelve a armarlas en Xprite. El GIF está limitado a 256 colores y vuelve opacos los píxeles semitransparentes, así que usa una hoja de sprites PNG cuando el color importe.
+Si solo necesitas los cuadros para un motor de juego, la herramienta [GIF a hoja de sprites](/tools/gif-to-sprite-sheet/) convierte un GIF en una hoja PNG con coordenadas y timing en JSON, sin abrir el editor. El «pixel art» de IA suave o fuera de rejilla se puede limpiar con [Corregir pixel art de IA](/tools/fix-ai-pixel-art/) (Recover Grid) antes de seguir editando en un editor gratis en el navegador.
 
 ## Preguntas frecuentes
 
-### ¿Piskel puede abrir archivos `.aseprite`?
+### ¿Cuál es la mejor alternativa gratis a Piskel?
 
-No. Piskel solo importa `.piskel`, GIF y PNG.
+Depende de lo que necesites. Xprite si quieres abrir `.aseprite` o dibujar en un móvil o tableta; Pixelorama si necesitas abrir `.piskel`. Ambos son gratis y de código abierto.
 
-### ¿Qué herramienta se parece más a Piskel?
+### ¿Puede Xprite abrir archivos `.piskel`?
 
-Pixelorama. También es gratuito y de código abierto, y abre `.piskel` directamente.
+No. Exporta un GIF o una hoja PNG desde Piskel y ábrelo en Xprite.
+
+### ¿Puede Piskel abrir archivos `.aseprite`?
+
+No. Piskel importa `.piskel` e imágenes PNG, JPG, BMP y GIF animado.
+
+### ¿Funciona Piskel en un iPad o un móvil?
+
+El README de Piskel dice que no hay soporte móvil. Xprite corre en navegadores de móviles y tabletas, con gestos de lápiz y tacto.
+
+### ¿Se sigue manteniendo Piskel?
+
+Su repositorio de GitHub recibió commits en octubre de 2026. La última versión en GitHub es la v0.15.0 de noviembre de 2018, y las apps de escritorio solo reciben lanzamientos a medias.
 
 ---
 
-Para probarlo en tu navegador, [abre Xprite](/?utm_source=compare&utm_medium=referral&utm_campaign=piskel-alternatives) e importa un GIF. Si trabajas con proyectos de Aseprite, consulta [Aseprite online](/es/compare/aseprite-online/).
+[Abre Xprite](/?utm_source=compare&utm_medium=referral&utm_campaign=piskel-alternatives) e importa un GIF de Piskel para probarlo. ¿Tienes un `.aseprite` que quieras revisar primero? Ábrelo en el [visor de Aseprite](/tools/viewer/?utm_source=compare&utm_medium=referral&utm_campaign=piskel-alternatives). Para saber más sobre Xprite, mira [qué es Xprite](/about/), o compara [editores de Aseprite online](/compare/aseprite-online/).

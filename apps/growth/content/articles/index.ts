@@ -84,11 +84,11 @@ export const ARTICLES: readonly PublicArticle[] = [
     shortTitle: {
       en: "Xprite vs Piskel",
       "zh-CN": "Xprite 与 Piskel",
-      ja: "Piskel の代替",
-      ko: "Piskel 대안",
-      ru: "Альтернативы Piskel",
-      "pt-BR": "Alternativas ao Piskel",
-      es: "Alternativas a Piskel",
+      ja: "Xprite vs Piskel",
+      ko: "Xprite vs Piskel",
+      ru: "Xprite vs Piskel",
+      "pt-BR": "Xprite vs Piskel",
+      es: "Xprite vs Piskel",
     },
     description:
       "Xprite vs Piskel: both are free, open-source browser sprite editors. Xprite also opens and saves .aseprite and works on phones; Pixelorama opens .piskel.",

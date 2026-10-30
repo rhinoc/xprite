@@ -77,3 +77,27 @@
     margin-left: 20px;
   }
 }
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 20px 0 28px;
+}
+.proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.proof li {
+  margin: 0;
+  padding: 4px 10px;
+  border: 1px solid var(--ui-color-line);
+  background: var(--ui-color-paper);
+  font-size: 0.875rem;
+  line-height: 1.3;
+}

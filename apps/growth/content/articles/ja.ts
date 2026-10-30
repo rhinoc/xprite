@@ -26,11 +26,11 @@ export const JAPANESE_ARTICLES = {
     topic: "iPad とタッチ",
   },
   "piskel-alternatives": {
-    title: "Piskel の代わりに：ドット絵アニメツール3種を比較 | Xprite",
+    title: "Piskel の代替：Xprite vs Piskel vs Pixelorama | Xprite",
     description:
-      "Piskel の代替を比較：Pixelorama は .piskel をそのまま開け、Xprite はブラウザで .aseprite をペンやタッチで編集でき、Pixilart は作品の共有に向いています。",
+      "Xprite と Piskel：どちらも無料・オープンソースのブラウザ用スプライトエディターです。Xprite は .aseprite の開閉とスマホ対応もでき、Pixelorama は .piskel を開けます。",
     summary:
-      "Pixelorama は .piskel をそのまま開けます。Xprite は .aseprite の編集とタッチでの描画に、Pixilart は作品の共有に向いています。",
+      "Xprite は .aseprite を開いて保存でき、スマホやタブレットでも使えます。短いデスクトップアニメなら Piskel の方が簡単。Pixelorama は .piskel を直接開けます。",
     topic: "代替エディター",
   },
   "fix-ai-pixel-art": {

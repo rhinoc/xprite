@@ -82,6 +82,59 @@ function editorUrl(article?: PublicArticle): string {
   return `${url.pathname}${url.search}${url.hash}`;
 }
 
+/** Above-fold primary push + honest proof chips (Ahrefs-style hero, after H1+lede). */
+function compareHero(
+  language: PublicLanguage,
+  callout: { url: string; label: string },
+  classes: Record<string, string>,
+): string {
+  const text = (
+    en: string,
+    zh: string,
+    ja: string,
+    ko: string,
+    ru: string,
+    pt: string,
+    es: string,
+  ) => pickText(language, en, zh, ja, ko, ru, pt, es);
+  const chips = [
+    text("Free", "免费", "無料", "무료", "Бесплатно", "Grátis", "Gratis"),
+    text(
+      "Open source",
+      "开源",
+      "オープンソース",
+      "오픈소스",
+      "Открытый код",
+      "Código aberto",
+      "Código abierto",
+    ),
+    text(
+      "No upload",
+      "不上传",
+      "アップロードなし",
+      "업로드 없음",
+      "Без загрузки",
+      "Sem upload",
+      "Sin subida",
+    ),
+    ".aseprite",
+  ];
+  return `<div class="${classes.hero}" data-compare-hero>${publicDesktopButton(
+    callout.url,
+    callout.label,
+  )}<ul class="${classes.proof}" data-compare-proof aria-label="${escapeHtml(
+    text(
+      "Why Xprite",
+      "为什么选 Xprite",
+      "Xprite を選ぶ理由",
+      "Xprite를 고르는 이유",
+      "Почему Xprite",
+      "Por que o Xprite",
+      "Por qué Xprite",
+    ),
+  )}">${chips.map((chip) => `<li>${escapeHtml(chip)}</li>`).join("")}</ul></div>`;
+}
+
 function articleList(
   articles: readonly (PublicArticle & { language: PublicLanguage })[],
   classes: Record<string, string>,
@@ -470,11 +523,19 @@ function articleContent(
       `${outline.length} secciones`,
     ),
   );
+  const bodyTokens = tokens.filter((token) => token !== title);
+  let ledeEnd = 0;
+  for (const token of bodyTokens) {
+    if (token.type === "heading" && token.depth <= CONTENTS_HEADING_DEPTH) break;
+    if (token.type === "table" || token.type === "hr") break;
+    ledeEnd += 1;
+  }
   return {
     faq,
     heading: parser.parser([title]),
     headline: title.text,
-    html: parser.parser(tokens.filter((token) => token !== title)),
+    lede: parser.parser(bodyTokens.slice(0, ledeEnd)),
+    html: parser.parser(bodyTokens.slice(ledeEnd)),
     toc,
   };
 }
@@ -548,7 +609,7 @@ export function articleHtml(path: string, indexable: boolean): string {
     indexable,
     `<div data-public-sidebar>${content.toc}</div><div class="${classes.readingStack}" data-public-reading-stack>${publicDesktopWindow(
       article.shortTitle[language],
-      `${publicStatus(parent.label, `${text("Updated", "更新", "更新日", "업데이트", "Обновлено", "Atualizado", "Actualizado")}: ${publishedArticle.dateModified}`, parent.path)}${publicReaderScroll(`<article class="${classes.article}">${publicRichText(content.heading + content.html, { "data-public-document-content": true })}</article>`, language)}`,
+      `${publicStatus(parent.label, `${text("Updated", "更新", "更新日", "업데이트", "Обновлено", "Atualizado", "Actualizado")}: ${publishedArticle.dateModified}`, parent.path)}${publicReaderScroll(`<article class="${classes.article}">${publicRichText(content.heading + content.lede + compareHero(language, callout, classes) + content.html, { "data-public-document-content": true })}</article>`, language)}`,
       "data-public-document",
       `<a href="${parent.path}">${text(
         `Back to ${parent.label}`,

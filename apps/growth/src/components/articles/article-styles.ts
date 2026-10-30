@@ -11,5 +11,7 @@ export function articleStyleClasses() {
     readingStack: styles.readingStack,
     related: styles.related,
     tableScroll: styles.tableScroll,
+    hero: styles.hero,
+    proof: styles.proof,
   };
 }

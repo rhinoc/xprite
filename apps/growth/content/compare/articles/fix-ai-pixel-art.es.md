@@ -1,6 +1,6 @@
 ---
 published: 2026-10-23
-updated: 2026-10-23
+updated: 2026-10-30
 ---
 
 # Corregir pixel art de IA: recuperar la cuadrícula real (no es magia de IA)
@@ -95,7 +95,15 @@ Exporta PNG y ábrelo en otro sitio, o usa **Editar más** en Xprite y guarda `.
 
 ### ¿Y el “convertidor de imagen a pixel art”?
 
-Esa búsqueda suele significar foto → estilo pixel. Usa [Imagen a pixel art](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art). Usa Corregir pixel art de IA cuando la entrada ya finge ser píxeles pero la cuadrícula está mal.
+Esa búsqueda suele significar foto → estilo pixel. Usa [Imagen a pixel art](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art). Usa Corregir pixel art de IA cuando la entrada ya finge ser píxeles pero la cuadrícula está mal. Corregir IA recupera la cuadrícula; Pixelate es el convertidor general de imagen a pixel art; comparten motor pero parten de trabajos distintos.
+
+### ¿Qué es el pixel art de IA “pseudo” o “falso”?
+
+Blando, a escala incorrecta o fuera de una cuadrícula de píxeles enteros—a menudo salida de modelo ampliada que solo parece píxeles de lejos. Recover Grid intenta recuperar una rejilla real de esa lattice. No siempre es perfecto; las imágenes muy blandas o irregulares pueden seguir necesitando tamaño de celda manual o un redibujo.
+
+### ¿Esto “ajusta los píxeles a una cuadrícula”?
+
+Sí. Ese es el trabajo de Recover Grid: estimar la lattice de celdas (incluida la fase) y reconstruir píxeles 1×1 reales en tu dispositivo. Se formula así porque la experiencia publicada es recuperación de rejilla, no un “arreglo con IA” generativo.
 
 ---
 

@@ -26,11 +26,11 @@ export const SPANISH_ARTICLES = {
     topic: "iPad y tacto",
   },
   "piskel-alternatives": {
-    title: "Alternativas a Piskel: 3 editores de animación | Xprite",
+    title: "Alternativa a Piskel: Xprite vs Piskel vs Pixelorama | Xprite",
     description:
-      "Alternativas a Piskel: Pixelorama abre .piskel, Xprite edita .aseprite en el navegador con lápiz y tacto, y Pixilart es ideal para compartir tu pixel art.",
+      "Xprite vs Piskel: ambos son editores de sprites gratis y de código abierto en el navegador. Xprite también abre y guarda .aseprite y funciona en el móvil; Pixelorama abre .piskel.",
     summary:
-      "Pixelorama abre .piskel directamente; Xprite sirve para editar .aseprite y dibujar con el dedo; Pixilart, para compartir tu trabajo.",
+      "Xprite abre y guarda .aseprite y funciona en móviles y tabletas; Piskel es más simple para animaciones cortas en el escritorio; Pixelorama abre .piskel directamente.",
     topic: "Editores alternativos",
   },
   "fix-ai-pixel-art": {
