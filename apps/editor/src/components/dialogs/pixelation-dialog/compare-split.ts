@@ -40,3 +40,17 @@ export function resultClipLeft(
   const divider = (clampSplit(split) / SPLIT_MAX) * stageWidth;
   return Math.max(0, Math.min(layer.width, divider - layer.left));
 }
+
+/**
+ * How far the original layer is cut from its own right edge: everything right of the divider shows
+ * the result alone (over the stage checker), so soft original fringe cannot leak through transparent
+ * result cells.
+ */
+export function originalClipRight(
+  split: number,
+  stageWidth: number,
+  layer: { left: number; width: number },
+) {
+  const divider = (clampSplit(split) / SPLIT_MAX) * stageWidth;
+  return Math.max(0, Math.min(layer.width, layer.left + layer.width - divider));
+}
