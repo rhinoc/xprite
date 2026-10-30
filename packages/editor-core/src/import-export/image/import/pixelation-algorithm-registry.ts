@@ -11,7 +11,7 @@ import {
   type ArbitratedGrid,
 } from "$/import-export/image/import/grid-arbitrate";
 import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
-import { detectFrameLattices, FrameModel } from "$/import-export/image/import/grid-frame-lattice";
+import { detectFrameLattices } from "$/import-export/image/import/grid-frame-lattice";
 import { detectBoundaryPeriodGrids } from "$/import-export/image/import/grid-period-boundary";
 import { combCountGrids } from "$/import-export/image/import/grid-period-comb";
 import { distanceCountGrids } from "$/import-export/image/import/grid-period-distance";
@@ -30,29 +30,6 @@ import {
  * proposer per evaluation view, collects their candidates, and arbitrates them in one decision.
  */
 type GridProposer = (image: PixelBuffer) => PixelGridAnalysis[];
-
-/**
- * Skip bd_dist proposer on large images (area >= 1M pixels) where it returns 0 useful candidates.
- * Same function ref used in both PROPOSERS and corroboratingProposers so BD_DIST_INDEX stays correct.
- */
-const _distanceCountGridsLargeAreaSkip: GridProposer = (image) =>
-  image.width * image.height >= 1_000_000 ? [] : distanceCountGrids(image);
-
-/**
- * Skip comb proposer on large images (area >= 1M pixels) where frame already covers the grid.
- * Same function ref used in both PROPOSERS and corroboratingProposers.
- */
-const _combCountGridsLargeAreaSkip: GridProposer = (image) =>
-  image.width * image.height >= 1_000_000 ? [] : combCountGrids(image);
-
-/**
- * Soft-only frame on large images (area >= 1M pixels) with cheaper energy/recon sampling.
- * Same function ref used in both PROPOSERS and corroboratingProposers.
- */
-const _frameLatticesSoftOnlyLargeArea: GridProposer = (image) =>
-  image.width * image.height >= 1_000_000
-    ? detectFrameLattices(image, [FrameModel.Soft])
-    : detectFrameLattices(image);
 
 export interface PixelationAlgorithmEntry {
   /** i18n key of the label shown in the import dialog and preferences. */
@@ -94,25 +71,21 @@ function uprightOf(image: PixelBuffer, angle: number): PixelBuffer {
  */
 const PROPOSERS: readonly GridProposer[] = [
   (image): PixelGridAnalysis[] => {
-    // Large images (area >= 1M): skip uniform+mesh (shared analysisOf).
-    if (image.width * image.height >= 1_000_000) return [];
     const grid = detectUniformGrid(image);
     return grid.reliable
       ? [{ ...grid, algorithm: PixelationAlgorithm.UniformGrid, reliable: true }]
       : [];
   },
   (image): PixelGridAnalysis[] => {
-    // Large images (area >= 1M): skip uniform+mesh (shared analysisOf).
-    if (image.width * image.height >= 1_000_000) return [];
     const grid = detectMeshGrid(image);
     return grid.reliable
       ? [{ ...grid, algorithm: PixelationAlgorithm.EdgeGrid, reliable: true }]
       : [];
   },
-  _frameLatticesSoftOnlyLargeArea,
-  _combCountGridsLargeAreaSkip,
+  detectFrameLattices,
+  combCountGrids,
   detectBoundaryPeriodGrids,
-  _distanceCountGridsLargeAreaSkip,
+  distanceCountGrids,
 ];
 
 /**
@@ -241,10 +214,10 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
 
   // Specific proposers for corroborated admission: frame, comb, bd, bd_dist
   const corroboratingProposers = [
-    _frameLatticesSoftOnlyLargeArea,
-    _combCountGridsLargeAreaSkip,
+    detectFrameLattices,
+    combCountGrids,
     detectBoundaryPeriodGrids,
-    _distanceCountGridsLargeAreaSkip,
+    distanceCountGrids,
   ];
 
   // Arbitrate each view: all proposers run on this view
@@ -273,27 +246,10 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
       );
 
     // Detect WASM consensus early to preserve consensus candidate during pruning
-    const consensus =
-      ring.image.width * ring.image.height >= 1_000_000
-        ? null
-        : detectAcRlConsensus(ring.image);
+    const consensus = detectAcRlConsensus(ring.image);
 
-    // Large-area admit: high-conf Soft (or other) with clear gap → skip expensive DL arb.
-    // On soft1080 Soft@0.92 vs bd@~0.001 already wins via conf-gap Soft-only readingOf;
-    // this short-circuits that paid Soft readingOf. Focus <1M inert.
+    // WASM-first short-circuit: when consensus fires and candidate@G exists, skip expensive full arb
     let winner: ArbitratedGrid | null = null;
-    if (!winner && ring.image.width * ring.image.height >= 1_000_000) {
-      const ordered = [...candidates].filter((c) => c.reliable).sort((a, b) => b.confidence - a.confidence);
-      const top = ordered[0];
-      const second = ordered[1];
-      if (
-        top &&
-        top.confidence >= 0.9 &&
-        (!second || top.confidence - second.confidence >= 0.5)
-      ) {
-        winner = { grid: { ...top, reliable: true }, length: 0, score: 0 };
-      }
-    }
     if (consensus) {
       const candidateAtG = candidates.find(
         (c) => c.width === consensus.cols && c.height === consensus.rows && c.reliable,
@@ -322,8 +278,7 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
 
     // Prefer corroborated near-count with strict gates: winner corrob=1, challenger≥2,
     // bd_dist in challenger proposers, phaseScore margin ≤0.40
-    // Large images (area >= 1M): skip preferCorroborated (Gate3 dead without bd_dist).
-    if (winner && ring.image.width * ring.image.height < 1_000_000) {
+    if (winner) {
       const preferred = preferCorroboratedNearCountMarginBdDist(ring.image, winner, tagged);
       if (preferred) winner = preferred;
     }

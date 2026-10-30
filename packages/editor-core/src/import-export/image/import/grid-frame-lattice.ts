@@ -89,9 +89,7 @@ function energyProfile(image: PixelBuffer, horizontal: boolean, model: FrameMode
   const { width, height, data } = image;
   const length = horizontal ? width : height;
   const cross = horizontal ? height : width;
-  // Large images (area >= 1M): cheaper energy profile with fewer sampled lines.
-  const maxLines = width * height >= 1_000_000 ? 128 : MAX_SAMPLED_LINES;
-  const stride = Math.max(1, Math.ceil(cross / maxLines));
+  const stride = Math.max(1, Math.ceil(cross / MAX_SAMPLED_LINES));
   const unit = (horizontal ? 1 : width) * CHANNELS;
   const soft = model === FrameModel.Soft;
   const profile = new Float64Array(length);
@@ -278,9 +276,7 @@ function reconstructionError(
   const { across, down, values } = lattice;
   const sx = spread(width, lattice.columns, across, resample),
     sy = spread(height, lattice.rows, down, resample);
-  // Large images (area >= 1M): cheaper reconstruction error with fewer sampled rows.
-  const reconRows = width * height >= 1_000_000 ? 64 : RECONSTRUCTION_ROWS;
-  const stride = Math.max(1, Math.floor(height / reconRows));
+  const stride = Math.max(1, Math.floor(height / RECONSTRUCTION_ROWS));
   let error = 0,
     count = 0;
   for (let y = 0; y < height; y += stride) {

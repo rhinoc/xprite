@@ -205,13 +205,6 @@ function placedReading(
   }
   const lattice = { cutsX, cutsY, model: CutModel.Lattice };
   const latticeLength = descriptionLength(described, lattice);
-  // Large images (area >= 1M): lattice-only placed reading (skip snap compare).
-  if (image.width * image.height >= 1_000_000)
-    return {
-      cuts: lattice,
-      length: latticeLength,
-      twin: () => ({ cutsX: twinCuts(cutsX), cutsY: twinCuts(cutsY), model: CutModel.Lattice }),
-    };
   const snap = snapLatticeCuts(image, cutsX, cutsY);
   const snapped = {
     cutsX: snap.x.cuts,
@@ -249,7 +242,6 @@ function readingOf(
     chance: 0,
     frame: () => described,
   };
-  if (strips.image.width * strips.image.height >= 1_000_000) return best;
   const cuts = {
     cutsX,
     cutsY,
@@ -340,17 +332,13 @@ export function arbitrateGrids(
     passthrough = Math.min(passthrough, Math.max(reading.length, reading.twin - reading.chance));
   let best: GridEvidence | null = null;
   let score = passthrough - NULL_MARGIN;
-  // Large images (area >= 1M): phase-only scoring (skip octaveShortfall DLs).
-  const skipOctave = image.width * image.height >= 1_000_000;
   // The octave shortfall only adds to a score, so readings are checked best phase score first
   // and the search stops at the first that cannot win even without it.
   for (const reading of [...readings].sort((a, b) => phaseScore(a) - phaseScore(b))) {
     const phase = phaseScore(reading);
     if (phase >= score) break;
     const { cutsX, cutsY } = reading.grid;
-    const total = skipOctave
-      ? phase
-      : phase + octaveShortfall(reading.frame(), cutsX!, cutsY!);
+    const total = phase + octaveShortfall(reading.frame(), cutsX!, cutsY!);
     if (total < score) {
       best = reading;
       score = total;
