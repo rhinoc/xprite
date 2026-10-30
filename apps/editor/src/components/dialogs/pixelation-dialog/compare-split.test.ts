@@ -4,6 +4,7 @@ import { describe, it } from "vitest";
 
 import {
   clampSplit,
+  originalClipRight,
   resultClipLeft,
   splitFromKey,
   splitFromPointer,
@@ -27,5 +28,12 @@ describe("import compare split", () => {
     assert.equal(resultClipLeft(25, 200, { left: 40, width: 160 }), 10);
     assert.equal(resultClipLeft(10, 200, { left: 50, width: 100 }), 0);
     assert.equal(clampSplit(Number.NaN), 50);
+  });
+
+  it("clips the original layer from the right so it cannot leak past the divider", () => {
+    assert.equal(originalClipRight(50, 200, { left: 0, width: 200 }), 100);
+    assert.equal(originalClipRight(25, 200, { left: 40, width: 160 }), 150);
+    assert.equal(originalClipRight(10, 200, { left: 50, width: 100 }), 100);
+    assert.equal(originalClipRight(90, 200, { left: 0, width: 200 }), 20);
   });
 });
