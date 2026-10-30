@@ -1,4 +1,4 @@
-/* Fusion Pixel CJK faces — loaded only when the UI language is Asian. */
+/* Fusion Pixel CJK faces used by the UI and text tool. */
 @font-face {
   font-family: FusionPixel12;
   src: url("../fusion-pixel/fusion-12.woff2") format("woff2");
