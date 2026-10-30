@@ -20,6 +20,7 @@ export {
   OutlinePrepass,
   PixelationDither,
   PaletteColorMode,
+  PixelGridSamplingAxis,
 } from "$/import-export/image/import/types";
 export {
   DEFAULT_LINE_GUIDE,
@@ -38,6 +39,7 @@ export type {
   PixelationSettings,
   PixelGridGeometry,
   PixelGridAnalysis,
+  PixelGridSamplingStage,
   ImportDialogPreference,
 } from "$/import-export/image/import/types";
 

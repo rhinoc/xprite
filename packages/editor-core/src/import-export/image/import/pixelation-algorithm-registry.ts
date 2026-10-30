@@ -1,20 +1,29 @@
 import type { PixelBuffer } from "$/base/primitives";
 import { forgetNeighbourSteps } from "$/import-export/image/import/color-step";
 import { estimateTilt, straighten } from "$/import-export/image/import/deskew";
-import { blockPartition } from "$/import-export/image/import/grid";
+import { blockPartition, MAX_RECOVERED_GRID_SIZE } from "$/import-export/image/import/grid";
 import {
   beginAcRlConsensusJob,
   beginAcRlConsensusJobAsync,
   finishAcRlConsensusJob,
   finishAcRlConsensusJobAsync,
+  type AcRlConsensusAsyncJob,
+  type AcRlConsensusJob,
 } from "$/import-export/image/import/grid-ac-rl-consensus";
 import {
   arbitrateGrids,
   GridEvidenceReader,
   octaveShortfall,
   phaseScore,
+  twinCuts,
   type ArbitratedGrid,
+  type GridEvidence,
 } from "$/import-export/image/import/grid-arbitrate";
+import {
+  CutModel,
+  describeImage,
+  descriptionLength,
+} from "$/import-export/image/import/grid-description-length";
 import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
 import { detectFrameLattices } from "$/import-export/image/import/grid-frame-lattice";
 import { detectBoundaryPeriodGrids } from "$/import-export/image/import/grid-period-boundary";
@@ -22,6 +31,7 @@ import { combCountGrids } from "$/import-export/image/import/grid-period-comb";
 import { distanceCountGrids } from "$/import-export/image/import/grid-period-distance";
 import { pitchLattices } from "$/import-export/image/import/grid-pitch-lattice";
 import { recoverGrid } from "$/import-export/image/import/grid-sample";
+import { prepareGridSampling } from "$/import-export/image/import/grid-sampling";
 import { resizeBox } from "$/import-export/image/import/resize";
 import {
   CellColorPicker,
@@ -161,6 +171,105 @@ function pruneCandidatesBeforeArbitration(
   return candidates;
 }
 
+/** A dimension-only consensus describes one complete, uniformly partitioned frame. */
+function consensusLattice(
+  image: PixelBuffer,
+  columns: number,
+  rows: number,
+): PixelGridAnalysis | null {
+  if (
+    !Number.isSafeInteger(columns) ||
+    !Number.isSafeInteger(rows) ||
+    Math.min(columns, rows) < 2 ||
+    columns > Math.min(image.width, MAX_RECOVERED_GRID_SIZE) ||
+    rows > Math.min(image.height, MAX_RECOVERED_GRID_SIZE)
+  )
+    return null;
+  return {
+    ...blockPartition(image, columns, rows),
+    confidence: 0,
+    reliable: true,
+    algorithm: PixelationAlgorithm.UniformGrid,
+  };
+}
+
+function scoredReading(reading: GridEvidence): ArbitratedGrid {
+  const { cutsX, cutsY } = reading.grid;
+  const score = phaseScore(reading) + octaveShortfall(reading.frame(), cutsX!, cutsY!);
+  const share =
+    reading.twin > 0 ? Math.max(0, Math.min(1, (reading.twin - reading.length) / reading.twin)) : 0;
+  return {
+    grid: {
+      ...reading.grid,
+      confidence: Math.max(reading.grid.confidence, share),
+      reliable: true,
+    },
+    length: reading.length,
+    score,
+  };
+}
+
+const geometryKey = (grid: PixelGridAnalysis) =>
+  `${grid.algorithm}:${grid.cutsX?.join(",")}:${grid.cutsY?.join(",")}`;
+
+/** A deterministic tie keeps proposer ordering out of model/geometry selection. */
+function betterReading(candidate: ArbitratedGrid, current: ArbitratedGrid | null): boolean {
+  return (
+    !current ||
+    candidate.score < current.score ||
+    (candidate.score === current.score &&
+      (candidate.length < current.length ||
+        (candidate.length === current.length &&
+          geometryKey(candidate.grid) < geometryKey(current.grid))))
+  );
+}
+
+function consensusWinner(
+  evidence: GridEvidenceReader,
+  image: PixelBuffer,
+  candidates: readonly PixelGridAnalysis[],
+  consensus: { cols: number; rows: number },
+): ArbitratedGrid | null {
+  const matching = candidates.filter(
+    (grid) => grid.width === consensus.cols && grid.height === consensus.rows && grid.reliable,
+  );
+  let readings: readonly GridEvidence[];
+  if (matching.length) {
+    readings = evidence.read(matching).readings;
+  } else {
+    // A dimension-only consensus carries no placement or local-deformation evidence. Score
+    // its whole-frame partition on the original view and keep that exact geometry for coloring.
+    const grid = consensusLattice(image, consensus.cols, consensus.rows);
+    if (!grid) return null;
+    const described = describeImage(image);
+    const { cutsX, cutsY } = grid;
+    readings = [
+      {
+        grid,
+        length: descriptionLength(described, {
+          cutsX: cutsX!,
+          cutsY: cutsY!,
+          model: CutModel.Lattice,
+        }),
+        twin: descriptionLength(described, {
+          cutsX: twinCuts(cutsX!),
+          cutsY: twinCuts(cutsY!),
+          model: CutModel.Lattice,
+        }),
+        chance: 0,
+        frame: () => described,
+      },
+    ];
+  }
+  let best: ArbitratedGrid | null = null;
+  for (const reading of readings) {
+    if (reading.grid.width !== consensus.cols || reading.grid.height !== consensus.rows) continue;
+    const candidate = scoredReading(reading);
+    if (betterReading(candidate, best)) best = candidate;
+  }
+  return best;
+}
+
 /**
  * Auto: every proposer runs on each evaluation view (扶正 and/or 原图), their candidates compete
  * in one arbitration per view (see grid-arbitrate), and the passthrough is one more candidate in
@@ -182,11 +291,13 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     image: PixelBuffer;
     rotation: number;
     outputs?: PixelGridAnalysis[][];
+    wasmJob?: AcRlConsensusJob;
   }[] = [];
   if (tilt.angle) {
     const upright = uprightOf(image, tilt.angle);
+    const wasmJob = beginAcRlConsensusJob(upright);
     const outputs = PROPOSERS.map((proposer) => proposer(upright));
-    rings.push({ image: upright, rotation: tilt.angle, outputs });
+    rings.push({ image: upright, rotation: tilt.angle, outputs, wasmJob });
     if (!outputs.some((grids) => grids.some((grid) => grid.reliable)))
       rings.push({ image, rotation: 0 });
   } else {
@@ -205,7 +316,7 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
   let best: { score: number; grid: PixelGridAnalysis; rotation: number } | null = null;
   for (const ring of rings) {
     // Overlap: start WASM AC+RL on a Node worker (no-op→sync fallback in browser) while proposers run
-    const wasmJob = beginAcRlConsensusJob(ring.image);
+    const wasmJob = ring.wasmJob ?? beginAcRlConsensusJob(ring.image);
 
     // Run each proposer once and track outputs with their corroboration index
     const proposerOutputs = PROPOSERS.map((proposer, index) => {
@@ -236,10 +347,10 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     const evidence = new GridEvidenceReader(ring.image);
     let winner: ArbitratedGrid | null = null;
     if (consensus) {
-      const candidateAtG = candidates.find(
+      const candidatesAtG = candidates.filter(
         (c) => c.width === consensus.cols && c.height === consensus.rows && c.reliable,
       );
-      if (candidateAtG) {
+      if (candidatesAtG.length) {
         // Score just the G candidate + near-G alternatives (±1 dimension) for safety
         const nearGCandidates = candidates.filter(
           (c) =>
@@ -250,7 +361,7 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
         // Short-circuit: arbitrate only near-G subset (much cheaper than full candidate list)
         winner = arbitrateGrids(
           ring.image,
-          nearGCandidates.length > 0 ? nearGCandidates : [candidateAtG],
+          nearGCandidates.length > 0 ? nearGCandidates : candidatesAtG,
           evidence,
         );
       }
@@ -269,59 +380,13 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
       if (preferred) winner = preferred;
     }
 
-    // AC+RL consensus override: when WASM consensus fires and differs from winner,
-    // select an existing candidate at G dimensions (preferred) or rebuild grid for G
-    if (winner && consensus) {
-      if (consensus.cols !== winner.grid.width || consensus.rows !== winner.grid.height) {
-        // Prefer: select existing candidate with G dimensions (full grid with consistent cuts/offsets)
-        const candidateAtG = candidates.find(
-          (c) => c.width === consensus.cols && c.height === consensus.rows && c.reliable,
-        );
-
-        if (candidateAtG) {
-          // Use existing candidate's full grid directly (singleton arbitration would return null)
-          const { readings } = evidence.read([candidateAtG]);
-          const reading = readings[0];
-          if (reading) {
-            const phase = phaseScore(reading);
-            const { cutsX, cutsY } = reading.grid;
-            const score = phase + octaveShortfall(reading.frame(), cutsX!, cutsY!);
-            const share = Math.max(0, Math.min(1, (reading.twin - reading.length) / reading.twin));
-            winner = {
-              grid: {
-                ...reading.grid,
-                confidence: Math.max(reading.grid.confidence, share),
-                reliable: true,
-              },
-              length: reading.length,
-              score,
-            };
-          }
-        } else {
-          // Rebuild: create grid with G dimensions and consistent geometry
-          const cellWidth = ring.image.width / consensus.cols;
-          const cellHeight = ring.image.height / consensus.rows;
-
-          winner = {
-            grid: {
-              ...winner.grid,
-              width: consensus.cols,
-              height: consensus.rows,
-              cellWidth,
-              cellHeight,
-              // Clear cuts/offsets that were computed for old dimensions
-              cutsX: undefined,
-              cutsY: undefined,
-              offsetX: 0,
-              offsetY: 0,
-              // Prior reading's straight no longer matches rebuilt geometry
-              sample: undefined,
-            },
-            length: winner.length,
-            score: winner.score,
-          };
-        }
-      }
+    if (
+      winner &&
+      consensus &&
+      (consensus.cols !== winner.grid.width || consensus.rows !== winner.grid.height)
+    ) {
+      const replacement = consensusWinner(evidence, ring.image, candidates, consensus);
+      if (replacement) winner = replacement;
     }
 
     if (winner && (!best || winner.score < best.score))
@@ -350,11 +415,13 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
     image: PixelBuffer;
     rotation: number;
     outputs?: PixelGridAnalysis[][];
+    wasmJob?: AcRlConsensusAsyncJob;
   }[] = [];
   if (tilt.angle) {
     const upright = uprightOf(image, tilt.angle);
+    const wasmJob = await beginAcRlConsensusJobAsync(upright);
     const outputs = PROPOSERS.map((proposer) => proposer(upright));
-    rings.push({ image: upright, rotation: tilt.angle, outputs });
+    rings.push({ image: upright, rotation: tilt.angle, outputs, wasmJob });
     if (!outputs.some((grids) => grids.some((grid) => grid.reliable)))
       rings.push({ image, rotation: 0 });
   } else {
@@ -371,7 +438,7 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
 
   let best: { score: number; grid: PixelGridAnalysis; rotation: number } | null = null;
   for (const ring of rings) {
-    const wasmJob = await beginAcRlConsensusJobAsync(ring.image);
+    const wasmJob = ring.wasmJob ?? (await beginAcRlConsensusJobAsync(ring.image));
 
     const proposerOutputs = PROPOSERS.map((proposer, index) => {
       const grids = ring.outputs?.[index] ?? proposer(ring.image);
@@ -397,10 +464,10 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
     const evidence = new GridEvidenceReader(ring.image);
     let winner: ArbitratedGrid | null = null;
     if (consensus) {
-      const candidateAtG = candidates.find(
+      const candidatesAtG = candidates.filter(
         (c) => c.width === consensus.cols && c.height === consensus.rows && c.reliable,
       );
-      if (candidateAtG) {
+      if (candidatesAtG.length) {
         const nearGCandidates = candidates.filter(
           (c) =>
             c.reliable &&
@@ -409,7 +476,7 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
         );
         winner = arbitrateGrids(
           ring.image,
-          nearGCandidates.length > 0 ? nearGCandidates : [candidateAtG],
+          nearGCandidates.length > 0 ? nearGCandidates : candidatesAtG,
           evidence,
         );
       }
@@ -425,52 +492,13 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
       if (preferred) winner = preferred;
     }
 
-    if (winner && consensus) {
-      if (consensus.cols !== winner.grid.width || consensus.rows !== winner.grid.height) {
-        const candidateAtG = candidates.find(
-          (c) => c.width === consensus.cols && c.height === consensus.rows && c.reliable,
-        );
-
-        if (candidateAtG) {
-          const { readings } = evidence.read([candidateAtG]);
-          const reading = readings[0];
-          if (reading) {
-            const phase = phaseScore(reading);
-            const { cutsX, cutsY } = reading.grid;
-            const score = phase + octaveShortfall(reading.frame(), cutsX!, cutsY!);
-            const share = Math.max(0, Math.min(1, (reading.twin - reading.length) / reading.twin));
-            winner = {
-              grid: {
-                ...reading.grid,
-                confidence: Math.max(reading.grid.confidence, share),
-                reliable: true,
-              },
-              length: reading.length,
-              score,
-            };
-          }
-        } else {
-          const cellWidth = ring.image.width / consensus.cols;
-          const cellHeight = ring.image.height / consensus.rows;
-
-          winner = {
-            grid: {
-              ...winner.grid,
-              width: consensus.cols,
-              height: consensus.rows,
-              cellWidth,
-              cellHeight,
-              cutsX: undefined,
-              cutsY: undefined,
-              offsetX: 0,
-              offsetY: 0,
-              sample: undefined,
-            },
-            length: winner.length,
-            score: winner.score,
-          };
-        }
-      }
+    if (
+      winner &&
+      consensus &&
+      (consensus.cols !== winner.grid.width || consensus.rows !== winner.grid.height)
+    ) {
+      const replacement = consensusWinner(evidence, ring.image, candidates, consensus);
+      if (replacement) winner = replacement;
     }
 
     if (winner && (!best || winner.score < best.score))
@@ -531,12 +559,7 @@ function preferCorroboratedNearCountMarginBdDist(
   let winnerPhaseScore: number | undefined;
 
   // Find near-count candidates (±1 cell per axis)
-  let bestChallenger: {
-    grid: PixelGridAnalysis;
-    corroboration: number;
-    score: number;
-    phaseScore: number;
-  } | null = null;
+  let bestChallenger: (ArbitratedGrid & { corroboration: number }) | null = null;
 
   for (const [key, group] of bySize) {
     const [w, h] = key.split("x").map(Number);
@@ -563,47 +586,28 @@ function preferCorroboratedNearCountMarginBdDist(
       winnerPhaseScore = phaseScore(readings[0]);
     }
 
-    // Compute challenger's arbitration score and phase score
-    const candidateGrid = group.grids[0].grid;
-    const { readings } = evidence.read([candidateGrid]);
-    if (readings.length === 0) continue;
-
-    const reading = readings[0];
-    const challengerPhaseScore = phaseScore(reading);
-
-    // Gate 4: phase score delta must be ≤ 0.40
-    const phaseDelta = challengerPhaseScore - winnerPhaseScore;
-    if (phaseDelta > MAX_PHASE_SCORE_DELTA) continue;
-
-    const { cutsX, cutsY } = reading.grid;
-    const totalScore = challengerPhaseScore + octaveShortfall(reading.frame(), cutsX!, cutsY!);
-
-    // Pick best-corroborated among valid challengers; keep reading.grid (cuts + sample).
-    if (
-      !bestChallenger ||
-      corroboration > bestChallenger.corroboration ||
-      (corroboration === bestChallenger.corroboration && totalScore < bestChallenger.score)
-    ) {
-      bestChallenger = {
-        grid: reading.grid,
-        corroboration,
-        score: totalScore,
-        phaseScore: challengerPhaseScore,
-      };
+    const { readings } = evidence.read(group.grids.map(({ grid }) => grid));
+    for (const reading of readings) {
+      // Gate 4 applies to each geometry/model, rather than whichever proposer arrived first.
+      if (phaseScore(reading) - winnerPhaseScore > MAX_PHASE_SCORE_DELTA) continue;
+      const challenger = scoredReading(reading);
+      // Corroboration admits a size; it does not calibrate the proposer's local-correction
+      // confidence. Keep that confidence so admission cannot activate a different coloring map.
+      challenger.grid = { ...challenger.grid, confidence: reading.grid.confidence };
+      if (
+        !bestChallenger ||
+        corroboration > bestChallenger.corroboration ||
+        (corroboration === bestChallenger.corroboration &&
+          betterReading(challenger, bestChallenger))
+      )
+        bestChallenger = { ...challenger, corroboration };
     }
   }
 
   if (!bestChallenger) return null;
-
-  // Return the preferred challenger
-  const share = Math.max(0, Math.min(1, bestChallenger.grid.confidence ?? 0));
   return {
-    grid: {
-      ...bestChallenger.grid,
-      confidence: Math.max(bestChallenger.grid.confidence, share),
-      reliable: true,
-    },
-    length: 0, // Not used after this point
+    grid: bestChallenger.grid,
+    length: bestChallenger.length,
     score: bestChallenger.score,
   };
 }
@@ -639,7 +643,12 @@ function admitCorroboratedLattice(
     const { readings } = evidence.read(group.map((e) => e.grid));
     for (const reading of readings) {
       const phase = phaseScore(reading);
-      if (phase < bestScore) {
+      if (
+        phase < bestScore ||
+        (phase === bestScore &&
+          bestCorroborated &&
+          geometryKey(reading.grid) < geometryKey(bestCorroborated))
+      ) {
         bestScore = phase;
         bestCorroborated = reading.grid;
       }
@@ -752,8 +761,7 @@ export function recoverWithGrid(
   grid: PixelGridGeometry,
   picker: CellColorPicker = CellColorPicker.MostCommon,
 ): PixelBuffer {
-  const { rotation } = grid as PixelGridAnalysis;
   return getAlgorithmEntry(
     (grid as PixelGridAnalysis).algorithm ?? PixelationAlgorithm.EdgeGrid,
-  ).run(rotation ? straighten(image, rotation) : image, grid, picker);
+  ).run(prepareGridSampling(image, grid as PixelGridAnalysis), grid, picker);
 }

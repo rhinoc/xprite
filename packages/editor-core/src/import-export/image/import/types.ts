@@ -1,4 +1,4 @@
-import type { PixelBuffer, Rgba } from "$/base/primitives";
+import type { Rgba } from "$/base/primitives";
 
 /** The intentionally conservative result of the image import heuristic. */
 export enum PixelArtClassification {
@@ -137,6 +137,22 @@ export interface PixelGridGeometry {
   cutsX?: readonly number[];
   cutsY?: readonly number[];
 }
+export enum PixelGridSamplingAxis {
+  Horizontal = "horizontal",
+  Vertical = "vertical",
+}
+
+/** A piecewise constant inverse displacement: one shift per band and across-axis interval. */
+export interface PixelGridSamplingStage {
+  axis: PixelGridSamplingAxis;
+  /** Boundaries along the displaced axis, first 0 and last its length. */
+  bands: readonly number[];
+  /** Boundaries on the other axis, first 0 and last its length. */
+  across: readonly number[];
+  /** [band][across interval], in whole source pixels. */
+  shifts: readonly (readonly number[] | Int32Array)[];
+}
+
 export interface PixelGridAnalysis extends PixelGridGeometry {
   confidence: number;
   reliable: boolean;
@@ -147,12 +163,8 @@ export interface PixelGridAnalysis extends PixelGridGeometry {
    * are measured in that straightened image, so recovery applies the same rotation first.
    */
   rotation?: number;
-  /**
-   * Full image Auto's winning reading described (input, strip-straight, or phase-straight).
-   * Recovery colors from this buffer with the grid's cuts when present; same extent as the cuts.
-   * Cleared when consensus rebuilds geometry without a matching re-read.
-   */
-  sample?: PixelBuffer;
+  /** Local inverse sampling steps in the straightened source, in application order. */
+  sampling?: readonly PixelGridSamplingStage[];
 }
 
 export interface PixelationSize {

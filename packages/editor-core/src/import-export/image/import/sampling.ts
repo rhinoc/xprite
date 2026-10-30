@@ -71,51 +71,6 @@ function cell(
 }
 
 /**
- * Like cell(), but uses pure triangular center weights with no floor.
- * Corners can go to 0. Used for TwoStage method (Fixer-like).
- */
-function cellTriangular(
-  image: PixelBuffer,
-  left: number,
-  top: number,
-  right: number,
-  bottom: number,
-  recovery: boolean,
-): Cell {
-  left = Math.max(0, left);
-  top = Math.max(0, top);
-  right = Math.min(image.width, right);
-  bottom = Math.min(image.height, bottom);
-  const samples: Sample[] = [];
-  let area = 0,
-    alphaSum = 0;
-  for (let y = Math.floor(top); y < Math.ceil(bottom); y++)
-    for (let x = Math.floor(left); x < Math.ceil(right); x++) {
-      const coverage =
-        (Math.min(right, x + 1) - Math.max(left, x)) * (Math.min(bottom, y + 1) - Math.max(top, y));
-      if (coverage <= 0) continue;
-      const index = y * image.width + x;
-      const alpha = image.data[index * CHANNELS + COLOR_CHANNELS];
-      area += coverage;
-      alphaSum += coverage * alpha;
-      if (!alpha && !recovery) continue;
-      const fx = (Math.max(left, x) + Math.min(right, x + 1)) / 2;
-      const fy = (Math.max(top, y) + Math.min(bottom, y + 1)) / 2;
-      // Pure triangular: no CENTER_FLOOR
-      const horizontal = 1 - Math.abs((2 * (fx - left)) / (right - left) - 1);
-      const vertical = 1 - Math.abs((2 * (fy - top)) / (bottom - top) - 1);
-      const weight = coverage * horizontal * vertical;
-      samples.push({
-        index,
-        weight,
-        visibleWeight: (weight * alpha) / UINT8_MAX,
-        voteWeight: recovery ? weight : (weight * alpha) / UINT8_MAX,
-      });
-    }
-  return { samples, alpha: area ? clampByte(alphaSum / area) : 0 };
-}
-
-/**
  * Compute adaptive K for TwoStage method (Fixer-aligned).
  * Counts 4-bit RGB bins (R/16, G/16, B/16) with share ≥ 0.003 of opaque pixels.
  * Clamps to [TWO_STAGE_MIN_COLORS, TWO_STAGE_MAX_COLORS].
@@ -217,24 +172,106 @@ function dominant(samples: Sample[], axes: number): Sample[] {
   const weight = (group: Sample[]) => group.reduce((sum, sample) => sum + sample.voteWeight, 0);
   return weight(groups[0]) >= weight(groups[1]) ? groups[0] : groups[1];
 }
-function structure(
-  samples: Sample[],
+/** Reuse one bounded set of statistics for every cell, in the original sample order. */
+function labelSampler(
+  image: PixelBuffer,
   labels: ReturnType<typeof reduceToPixelationLabels>,
-): Sample[] {
-  const votes = new Map<number, number>();
-  const key = (sample: Sample) => {
-    return labels.keys[labels.data[sample.index]];
-  };
-  for (const sample of samples)
-    votes.set(key(sample), (votes.get(key(sample)) ?? 0) + sample.visibleWeight);
-  let winner = -1,
-    weight = -1;
-  for (const [label, total] of votes)
-    if (total > weight || (total === weight && label < winner)) {
-      winner = label;
-      weight = total;
+  recovery: boolean,
+  triangular: boolean,
+) {
+  const groups = labels.keys.length;
+  const touched = new Uint8Array(groups);
+  const active = new Uint16Array(groups);
+  let activeCount = 0;
+  const weights = new Float64Array(groups);
+  const alphaSums = new Float64Array(groups);
+  const visibleWeights = new Float64Array(groups);
+  const redSums = new Float64Array(groups);
+  const greenSums = new Float64Array(groups);
+  const blueSums = new Float64Array(groups);
+  return (
+    left: number,
+    top: number,
+    right: number,
+    bottom: number,
+    output: Uint8ClampedArray,
+    outputOffset: number,
+  ): void => {
+    for (let index = 0; index < activeCount; index++) {
+      const group = active[index];
+      touched[group] = 0;
+      weights[group] = 0;
+      alphaSums[group] = 0;
+      visibleWeights[group] = 0;
+      redSums[group] = 0;
+      greenSums[group] = 0;
+      blueSums[group] = 0;
     }
-  return samples.filter((sample) => key(sample) === winner);
+    activeCount = 0;
+    left = Math.max(0, left);
+    top = Math.max(0, top);
+    right = Math.min(image.width, right);
+    bottom = Math.min(image.height, bottom);
+    let area = 0,
+      alphaSum = 0;
+    for (let y = Math.floor(top); y < Math.ceil(bottom); y++)
+      for (let x = Math.floor(left); x < Math.ceil(right); x++) {
+        const coverage =
+          (Math.min(right, x + 1) - Math.max(left, x)) *
+          (Math.min(bottom, y + 1) - Math.max(top, y));
+        if (coverage <= 0) continue;
+        const index = y * image.width + x;
+        const offset = index * CHANNELS;
+        const alpha = image.data[offset + COLOR_CHANNELS];
+        area += coverage;
+        alphaSum += coverage * alpha;
+        if (!alpha && !recovery) continue;
+        const fx = (Math.max(left, x) + Math.min(right, x + 1)) / 2;
+        const fy = (Math.max(top, y) + Math.min(bottom, y + 1)) / 2;
+        const horizontal = 1 - Math.abs((2 * (fx - left)) / (right - left) - 1);
+        const vertical = 1 - Math.abs((2 * (fy - top)) / (bottom - top) - 1);
+        const weight = triangular
+          ? coverage * horizontal * vertical
+          : coverage * (CENTER_FLOOR + (1 - CENTER_FLOOR) * horizontal * vertical);
+        const visibleWeight = (weight * alpha) / UINT8_MAX;
+        // Label zero also contains opaque black, matching the original RGB grouping.
+        const group = labels.data[index];
+        if (!touched[group]) {
+          touched[group] = 1;
+          active[activeCount++] = group;
+        }
+        weights[group] += weight;
+        alphaSums[group] += weight * alpha;
+        visibleWeights[group] += visibleWeight;
+        redSums[group] += image.data[offset] * visibleWeight;
+        greenSums[group] += image.data[offset + 1] * visibleWeight;
+        blueSums[group] += image.data[offset + 2] * visibleWeight;
+      }
+    const alpha = area ? clampByte(alphaSum / area) : 0;
+    output[outputOffset + COLOR_CHANNELS] = alpha;
+    if (!alpha) return;
+    let winner = -1,
+      vote = -1;
+    for (let index = 0; index < activeCount; index++) {
+      const group = active[index];
+      if (
+        visibleWeights[group] > vote ||
+        (visibleWeights[group] === vote && labels.keys[group] < labels.keys[winner])
+      ) {
+        winner = group;
+        vote = visibleWeights[group];
+      }
+    }
+    if (winner < 0) return;
+    if (recovery)
+      output[outputOffset + COLOR_CHANNELS] = clampByte(
+        weights[winner] ? alphaSums[winner] / weights[winner] : 0,
+      );
+    const visible = visibleWeights[winner];
+    output[outputOffset] = clampByte(visible ? redSums[winner] / visible : 0);
+    output[outputOffset + 1] = clampByte(visible ? greenSums[winner] / visible : 0);
+    output[outputOffset + 2] = clampByte(visible ? blueSums[winner] / visible : 0);
+  };
 }
 
 /** RGB is taken from the winning region. Conversion keeps area alpha; recovery keeps the chosen region’s original alpha. */
@@ -253,7 +290,6 @@ export function samplePixelation(
   const points = method === PixelationMethod.Dominant ? coordinateLookup(image, axes) : undefined;
   const useStructure = method === PixelationMethod.Structure;
   const useTwoStage = method === PixelationMethod.TwoStage;
-  const useTriangular = useTwoStage; // TwoStage uses pure triangular weights
   const palette = useStructure
     ? extractPixelationPalette(image, {
         maxColors: STRUCTURE_COLORS,
@@ -265,29 +301,26 @@ export function samplePixelation(
       : undefined;
   const labels = palette ? reduceToPixelationLabels(image, palette) : undefined;
   const data = new Uint8ClampedArray(width * height * CHANNELS);
-  const cellFn = useTriangular ? cellTriangular : cell;
+  const sampleLabel = labels ? labelSampler(image, labels, recovery, useTwoStage) : undefined;
   for (let y = 0; y < height; y++)
     for (let x = 0; x < width; x++) {
-      const current = cellFn(
-        image,
-        cuts?.x[x] ?? (x * image.width) / width,
-        cuts?.y[y] ?? (y * image.height) / height,
-        cuts?.x[x + 1] ?? ((x + 1) * image.width) / width,
-        cuts?.y[y + 1] ?? ((y + 1) * image.height) / height,
-        recovery,
-      );
+      const left = cuts?.x[x] ?? (x * image.width) / width;
+      const top = cuts?.y[y] ?? (y * image.height) / height;
+      const right = cuts?.x[x + 1] ?? ((x + 1) * image.width) / width;
+      const bottom = cuts?.y[y + 1] ?? ((y + 1) * image.height) / height;
       const offset = (y * width + x) * CHANNELS;
+      if (sampleLabel) {
+        sampleLabel(left, top, right, bottom, data, offset);
+        continue;
+      }
+      const current = cell(image, left, top, right, bottom, recovery);
       data[offset + COLOR_CHANNELS] = current.alpha;
       if (!current.alpha || !current.samples.length) continue;
       if (points) {
         const local = new Map<number, Rgba>();
         for (const sample of current.samples) sample.point = points(sample, local);
       }
-      const selected = points
-        ? dominant(current.samples, axes)
-        : labels
-          ? structure(current.samples, labels)
-          : current.samples;
+      const selected = points ? dominant(current.samples, axes) : current.samples;
       if (recovery) {
         const area = selected.reduce((sum, sample) => sum + sample.weight, 0);
         const alpha = selected.reduce(

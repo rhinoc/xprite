@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
+import { materializeGridImage } from "$/import-export/image/import/grid-sampling";
 import { StripImage, stripShear } from "$/import-export/image/import/grid-strip-shift";
 import { sprite, upscaleNearest } from "$/import-export/image/import/grid-test-images";
 
@@ -35,6 +36,7 @@ describe("strip shifts", () => {
     const upscale = upscaleNearest(sprite(CELLS), PITCH);
     const shifts = Array.from({ length: CELLS }, (_, k) => ((k * 7) % 5) - 2);
     const shear = stripShear(new StripImage(shiftRows(upscale, shifts)), cuts, cuts);
-    expect(shear?.straight.data).toEqual(upscale.data);
+    expect(shear).not.toBeNull();
+    expect(materializeGridImage(shear!.straight).data).toEqual(upscale.data);
   });
 });

@@ -1,8 +1,8 @@
-import type { PixelBuffer } from "$/base/primitives";
 import {
   colourStepCost,
   RESIDUAL_FLOOR,
 } from "$/import-export/image/import/grid-description-length";
+import { shiftedGridImage, type GridImageView } from "$/import-export/image/import/grid-sampling";
 import {
   intervalEnergy,
   linePrefix,
@@ -12,6 +12,7 @@ import {
   type StripImage,
   type StripShear,
 } from "$/import-export/image/import/grid-strip-shift";
+import { PixelGridSamplingAxis } from "$/import-export/image/import/types";
 
 /**
  * Phase fields of a grid: the lattice keeps its pitch, but its phase may drift along the image and
@@ -32,7 +33,6 @@ import {
  * pitches the grid does not have.
  */
 const CHANNELS = 3;
-const STRIDE = 4;
 const HALF = 0.5;
 const ANTI_PHASE_FROM = 0.25;
 const ANTI_PHASE_TO = 0.75;
@@ -322,59 +322,27 @@ function bestField(table: RangedTable, bandCounts: readonly number[] = BAND_COUN
   return best!;
 }
 
-/** Index of the described line nearest to `line`. */
-function nearestLine(lines: Int32Array, line: number): number {
-  let low = 0,
-    high = lines.length - 1;
-  while (low < high) {
-    const middle = (low + high) >> 1;
-    if (lines[middle] < line) low = middle + 1;
-    else high = middle;
-  }
-  if (low > 0 && line - lines[low - 1] < lines[low] - line) low--;
-  return low;
-}
-
-/** Per pixel along an axis of `length`, the band of the field it lies in. */
-function bandIndex(field: AxisField, cuts: readonly number[], length: number): Int32Array {
-  const index = new Int32Array(length);
-  for (let b = 1; b + 1 < field.bands.length; b++) index.fill(b, cuts[field.bands[b]]);
-  return index;
-}
-
 /**
- * The image with every line of every band moved back by its shift, out(p) = in(p + shift); lines
- * between the described ones take the shifts of the nearest.
+ * The image with each field line moved back by its shift. Reads interpolate by the original
+ * nearest described line rule; an exact midpoint chooses the later line.
  */
 function unfield(
-  image: PixelBuffer,
+  image: GridImageView,
   vertical: boolean,
   cuts: readonly number[],
   lines: Int32Array,
   field: AxisField,
-): PixelBuffer {
-  const { width, height, data } = image;
-  const pixels = new Uint32Array(data.buffer, data.byteOffset, data.length / STRIDE);
-  const out = new Uint8ClampedArray(data.length);
-  const moved = new Uint32Array(out.buffer);
-  const length = vertical ? height : width,
-    count = vertical ? width : height;
-  const band = bandIndex(field, cuts, length);
-  const nearest = Int32Array.from({ length: count }, (_, line) => nearestLine(lines, line));
-  for (let y = 0; y < height; y++) {
-    const row = y * width;
-    if (vertical) {
-      const shifts = field.shifts[band[y]];
-      for (let x = 0; x < width; x++)
-        moved[row + x] =
-          pixels[Math.max(0, Math.min(height - 1, y + shifts[nearest[x]])) * width + x];
-      continue;
-    }
-    const k = nearest[y];
-    for (let x = 0; x < width; x++)
-      moved[row + x] = pixels[row + Math.max(0, Math.min(width - 1, x + field.shifts[band[x]][k]))];
-  }
-  return { width, height, data: out };
+): GridImageView {
+  const count = vertical ? image.width : image.height;
+  const across = [0];
+  for (let i = 1; i < lines.length; i++) across.push(Math.ceil((lines[i - 1] + lines[i]) / 2));
+  across.push(count);
+  return shiftedGridImage(image, {
+    axis: vertical ? PixelGridSamplingAxis.Vertical : PixelGridSamplingAxis.Horizontal,
+    bands: field.bands.map((cell) => cuts[cell]),
+    across,
+    shifts: field.shifts,
+  });
 }
 
 const moved = (field: AxisField) => field.shifts.some((shifts) => shifts.some(Boolean));

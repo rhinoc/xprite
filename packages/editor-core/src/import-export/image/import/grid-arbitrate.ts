@@ -23,7 +23,11 @@ import {
   stripShear,
   type StripShear,
 } from "$/import-export/image/import/grid-strip-shift";
-import { PixelationAlgorithm, type PixelGridAnalysis } from "$/import-export/image/import/types";
+import {
+  PixelationAlgorithm,
+  type PixelGridAnalysis,
+  type PixelGridSamplingStage,
+} from "$/import-export/image/import/types";
 
 /**
  * One decision over every proposed grid and the passthrough. Each proposal is read in the ways
@@ -61,8 +65,8 @@ import { PixelationAlgorithm, type PixelGridAnalysis } from "$/import-export/ima
  * cells, which moves for free: the shortfall of the least evident class from its share is
  * evidence the reading does not own, and it adds to the reading's score.
  *
- * The lowest score wins; no proposer is consulted or skipped by the kind of image, and no
- * proposal passes a gate of its own.
+ * Geometries are admitted by the strongest proposal's confidence; every cut model for an
+ * admitted geometry competes on the same score, independently of its proposer's confidence.
  */
 const PHASE_EVIDENCE_WEIGHT = 1.1;
 /** Nats per sample the passthrough is preferred by. */
@@ -72,6 +76,8 @@ const NULL_MARGIN = 0.03;
  * chance and pass for phase evidence.
  */
 const MIN_CELLS = 8;
+const STRONG_GRID_CONFIDENCE = 0.9;
+const DISTINCT_GEOMETRY_CONFIDENCE_GAP = 0.5;
 /** Every how many cuts the octave classes take. */
 const OCTAVE_CLASSES = [2, 3] as const;
 const HALF = 0.5;
@@ -179,8 +185,8 @@ interface Reading {
   twin: number;
   chance: number;
   frame: () => DescribedImage;
-  /** Full image this reading describes (not the optional scoring crop). */
-  sample: PixelBuffer;
+  /** Compact inverse steps into the full source, independent of the scoring crop. */
+  sampling?: readonly PixelGridSamplingStage[];
 }
 
 /** The proposal as placed or snapped, with the twin to measure it against. */
@@ -223,27 +229,19 @@ function placedReading(
   };
 }
 
-function readingOf(
+interface ShiftedReading {
+  shear: StripShear;
+  frame: () => DescribedImage;
+  twin: () => DescribedImage;
+  chance: () => number;
+}
+
+/** The correction search and sampled colors depend on geometry, independently of the cut model. */
+function shiftedReadings(
   strips: StripImage,
-  described: DescribedImage,
-  grid: PixelGridAnalysis,
   cutsX: number[],
   cutsY: number[],
-): Reading {
-  const placed = placedReading(strips.image, described, grid, cutsX, cutsY);
-  let best: Reading = {
-    cuts: placed.cuts,
-    length: placed.length,
-    twin: descriptionLength(described, placed.twin()),
-    chance: 0,
-    frame: () => described,
-    sample: strips.image,
-  };
-  const cuts = {
-    cutsX,
-    cutsY,
-    model: grid.algorithm === PixelationAlgorithm.EdgeGrid ? CutModel.Free : CutModel.Lattice,
-  };
+): readonly ShiftedReading[] {
   const field = phaseField(strips, cutsX, cutsY);
   const shifted: { shear: StripShear | null; chance: () => number }[] = [
     { shear: stripShear(strips, cutsX, cutsY), chance: () => chanceEvidence(strips, cutsX, cutsY) },
@@ -252,17 +250,54 @@ function readingOf(
       chance: () => fieldChanceEvidence(strips, cutsX, cutsY, field!.bandsX, field!.bandsY),
     },
   ];
-  for (const { shear, chance } of shifted) {
-    if (!shear) continue;
-    const straight = describeImage(shear.straight);
+  return shifted.flatMap(({ shear, chance }) => {
+    if (!shear) return [];
+    let frame: DescribedImage | undefined,
+      twin: DescribedImage | undefined,
+      evidence: number | undefined;
+    return [
+      {
+        shear,
+        frame: () => (frame ??= describeImage(shear.straight)),
+        twin: () => (twin ??= describeImage(shear.twin())),
+        chance: () => (evidence ??= chance()),
+      },
+    ];
+  });
+}
+
+function readingOf(
+  strips: StripImage,
+  described: DescribedImage,
+  grid: PixelGridAnalysis,
+  cutsX: number[],
+  cutsY: number[],
+  shifted: () => readonly ShiftedReading[],
+): Reading {
+  const placed = placedReading(strips.image, described, grid, cutsX, cutsY);
+  let best: Reading = {
+    cuts: placed.cuts,
+    length: placed.length,
+    twin: descriptionLength(described, placed.twin()),
+    chance: 0,
+    frame: () => described,
+    sampling: strips.image.sampling,
+  };
+  const cuts = {
+    cutsX,
+    cutsY,
+    model: grid.algorithm === PixelationAlgorithm.EdgeGrid ? CutModel.Free : CutModel.Lattice,
+  };
+  for (const { shear, frame, twin, chance } of shifted()) {
+    const straight = frame();
     const cost = shear.cost / straight.samples;
     const reading: Reading = {
       cuts,
       length: descriptionLength(straight, cuts) + cost,
-      twin: descriptionLength(describeImage(shear.twin()), cuts) + cost,
+      twin: descriptionLength(twin(), cuts) + cost,
       chance: 0,
-      frame: () => straight,
-      sample: shear.straight,
+      frame,
+      sampling: shear.straight.sampling,
     };
     // Chance evidence only adds to a score, so it is measured only for a reading that could win.
     if (phaseScore(reading) >= phaseScore(best)) continue;
@@ -286,33 +321,71 @@ export class GridEvidenceReader {
   }
 
   read(grids: readonly PixelGridAnalysis[]): { readings: GridEvidence[]; pixels: number } {
-    const CONF_HIGH = 0.9;
-    const CONF_GAP = 0.5;
     const { image, described, strips } = this;
     const seen = new Set<string>();
     const readings: GridEvidence[] = [];
-    const ordered = [...grids].sort((a, b) => b.confidence - a.confidence);
-    let bestConf = -1;
-    for (const grid of ordered) {
-      const { cutsX, cutsY } = cutsOf(image, grid);
+    // Admission is scoped to geometry; every model of admitted cuts is evaluated.
+    const ordered = grids
+      .map((grid) => {
+        const { cutsX, cutsY } = cutsOf(image, grid);
+        const model =
+          grid.algorithm === PixelationAlgorithm.EdgeGrid ? CutModel.Free : CutModel.Lattice;
+        const geometry = keyOf(cutsX, cutsY);
+        return { grid, cutsX, cutsY, geometry, key: `${model}:${geometry}` };
+      })
+      .sort(
+        (a, b) =>
+          b.grid.confidence - a.grid.confidence ||
+          a.key.localeCompare(b.key) ||
+          (a.grid.algorithm ?? "").localeCompare(b.grid.algorithm ?? "") ||
+          a.grid.cellWidth - b.grid.cellWidth ||
+          a.grid.cellHeight - b.grid.cellHeight ||
+          a.grid.offsetX - b.grid.offsetX ||
+          a.grid.offsetY - b.grid.offsetY,
+      );
+    // Only pending models of the same geometry need shared auxiliary descriptions. Release
+    // those once both models are read; persistent readings retain only their winning frame.
+    const pending = new Map<string, Set<string>>();
+    const corrections = new Map<string, readonly ShiftedReading[]>();
+    for (const { geometry, key } of ordered) {
+      if (this.readings.has(key)) continue;
+      const models = pending.get(geometry) ?? new Set<string>();
+      models.add(key);
+      pending.set(geometry, models);
+    }
+    const admittedGeometries = new Set<string>();
+    let bestConfidence = -Infinity;
+    for (const { grid, cutsX, cutsY, geometry, key } of ordered) {
       const columns = cutsX.length - 1,
         rows = cutsY.length - 1;
       if (Math.min(columns, rows) < MIN_CELLS || Math.max(columns, rows) > MAX_RECOVERED_GRID_SIZE)
         continue;
-      const key = keyOf(cutsX, cutsY);
       if (seen.has(key)) continue;
       seen.add(key);
-      if (readings.length > 0 && bestConf >= CONF_HIGH && bestConf - grid.confidence >= CONF_GAP)
+      if (
+        !admittedGeometries.has(geometry) &&
+        readings.length > 0 &&
+        bestConfidence >= STRONG_GRID_CONFIDENCE &&
+        bestConfidence - grid.confidence >= DISTINCT_GEOMETRY_CONFIDENCE_GAP
+      )
         continue;
-      const model =
-        grid.algorithm === PixelationAlgorithm.EdgeGrid ? CutModel.Free : CutModel.Lattice;
-      const readingKey = `${model}:${key}`;
-      let reading = this.readings.get(readingKey);
+      admittedGeometries.add(geometry);
+      let reading = this.readings.get(key);
       if (!reading) {
-        reading = readingOf(strips, described, grid, cutsX, cutsY);
-        this.readings.set(readingKey, reading);
+        reading = readingOf(strips, described, grid, cutsX, cutsY, () => {
+          let shifted = corrections.get(geometry);
+          if (!shifted) {
+            shifted = shiftedReadings(strips, cutsX, cutsY);
+            if (pending.get(geometry)!.size > 1) corrections.set(geometry, shifted);
+          }
+          return shifted;
+        });
+        this.readings.set(key, reading);
+        const models = pending.get(geometry)!;
+        models.delete(key);
+        if (!models.size) corrections.delete(geometry);
       }
-      const { cuts, length, twin, chance, frame, sample } = reading;
+      const { cuts, length, twin, chance, frame, sampling } = reading;
       readings.push({
         grid: {
           ...grid,
@@ -320,14 +393,14 @@ export class GridEvidenceReader {
           height: rows,
           cutsX: [...cuts.cutsX],
           cutsY: [...cuts.cutsY],
-          sample,
+          sampling,
         },
         length,
         twin,
         chance,
         frame,
       });
-      if (grid.confidence > bestConf) bestConf = grid.confidence;
+      bestConfidence = Math.max(bestConfidence, grid.confidence);
     }
     return { readings, pixels: this.pixels };
   }

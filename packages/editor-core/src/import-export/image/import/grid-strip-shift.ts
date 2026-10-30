@@ -1,8 +1,9 @@
-import type { PixelBuffer } from "$/base/primitives";
 import {
   RESIDUAL_FLOOR,
   describedLines,
 } from "$/import-export/image/import/grid-description-length";
+import { shiftedGridImage, type GridImageView } from "$/import-export/image/import/grid-sampling";
+import { PixelGridSamplingAxis } from "$/import-export/image/import/types";
 
 /**
  * Strip shifts of a grid. Every strip of cells (a row of cells for the column cuts, a column of
@@ -43,8 +44,8 @@ export interface LinePrefix {
   sums: Float64Array;
 }
 
-export function linePrefix(image: PixelBuffer, vertical: boolean): LinePrefix {
-  const { width, height, data } = image;
+export function linePrefix(image: GridImageView, vertical: boolean): LinePrefix {
+  const { width, height, data, offset } = image;
   const length = vertical ? height : width;
   const lines = describedLines(vertical ? width : height, length);
   const sums = new Float64Array(lines.length * (length + 1) * (CHANNELS + 1));
@@ -52,7 +53,11 @@ export function linePrefix(image: PixelBuffer, vertical: boolean): LinePrefix {
     const line = lines[k],
       base = k * (length + 1) * (CHANNELS + 1);
     for (let p = 0; p < length; p++) {
-      const o = (vertical ? p * width + line : line * width + p) * STRIDE;
+      const o = offset
+        ? vertical
+          ? offset(line, p)
+          : offset(p, line)
+        : (vertical ? p * width + line : line * width + p) * STRIDE;
       const alpha = data[o + CHANNELS] / ALPHA_SCALE;
       const at = base + (p + 1) * (CHANNELS + 1),
         previous = base + p * (CHANNELS + 1);
@@ -72,7 +77,7 @@ export function linePrefix(image: PixelBuffer, vertical: boolean): LinePrefix {
 export class StripImage {
   private readonly prefixes: (LinePrefix | null)[] = [null, null];
 
-  constructor(readonly image: PixelBuffer) {}
+  constructor(readonly image: GridImageView) {}
 
   prefix(vertical: boolean): LinePrefix {
     const axis = Number(vertical);
@@ -165,40 +170,17 @@ function stripShifts(
 
 /** The image with each strip moved back by its shift: out(p) = in(p + shift). */
 function unshear(
-  image: PixelBuffer,
+  image: GridImageView,
   vertical: boolean,
   across: readonly number[],
   shifts: readonly number[],
-): PixelBuffer {
-  const { width, height, data } = image;
-  const out = new Uint8ClampedArray(data.length);
-  const row = width * STRIDE;
-  for (let k = 0; k + 1 < across.length; k++) {
-    const shift = shifts[k];
-    if (vertical) {
-      const left = across[k] * STRIDE,
-        right = across[k + 1] * STRIDE;
-      for (let y = 0; y < height; y++) {
-        const source = Math.max(0, Math.min(height - 1, y + shift)) * row;
-        out.set(data.subarray(source + left, source + right), y * row + left);
-      }
-      continue;
-    }
-    const start = Math.max(0, -shift),
-      end = Math.min(width, width - shift);
-    for (let line = across[k]; line < across[k + 1]; line++) {
-      const base = line * row;
-      out.set(
-        data.subarray(base + (start + shift) * STRIDE, base + (end + shift) * STRIDE),
-        base + start * STRIDE,
-      );
-      const head = data.subarray(base, base + STRIDE),
-        tail = data.subarray(base + row - STRIDE, base + row);
-      for (let p = 0; p < start; p++) out.set(head, base + p * STRIDE);
-      for (let p = end; p < width; p++) out.set(tail, base + p * STRIDE);
-    }
-  }
-  return { width, height, data: out };
+): GridImageView {
+  return shiftedGridImage(image, {
+    axis: vertical ? PixelGridSamplingAxis.Vertical : PixelGridSamplingAxis.Horizontal,
+    bands: [0, vertical ? image.height : image.width],
+    across,
+    shifts: [shifts],
+  });
 }
 
 const moved = (shifts: readonly number[]) => shifts.some(Boolean);
@@ -206,11 +188,11 @@ const moved = (shifts: readonly number[]) => shifts.some(Boolean);
 /** A grid read through strip shifts. */
 export interface StripShear {
   /** The image with every strip moved back by its shift. */
-  straight: PixelBuffer;
+  straight: GridImageView;
   /** Nats the shifts cost: each strip names one of its options. */
   cost: number;
   /** The image straightened by the anti-phase search, for the twin. */
-  twin: () => PixelBuffer;
+  twin: () => GridImageView;
 }
 
 /** The grid's strip shifts, or null when no strip moves. */

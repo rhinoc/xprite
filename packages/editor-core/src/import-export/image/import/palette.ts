@@ -8,10 +8,14 @@ const HISTOGRAM_BINS = 32 * 32 * 32 * 16 + 1;
 const MAX_EXACT_COLORS = 16_384;
 const REDUCTION_CACHE_SIZE = 65_536;
 
-function colorKey(data: Uint8ClampedArray, offset: number): number {
+function colorKey(data: Uint8ClampedArray, offset: number, opaqueVisible = false): number {
   if (data[offset + 3] === 0) return 0;
   return (
-    (data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | data[offset + 3] | 0
+    (data[offset] << 24) |
+    (data[offset + 1] << 16) |
+    (data[offset + 2] << 8) |
+    (opaqueVisible ? UINT8_MAX : data[offset + 3]) |
+    0
   );
 }
 
@@ -41,6 +45,7 @@ function histogramPalette(
   image: PixelBuffer,
   maxColors: number,
   ignoreTransparent: boolean,
+  opaqueVisible: boolean,
 ): PaletteEntry[] {
   const counts = new Uint32Array(HISTOGRAM_BINS);
   const sumR = new Float64Array(HISTOGRAM_BINS);
@@ -52,7 +57,7 @@ function histogramPalette(
   let total = 0;
 
   for (let offset = 0; offset < data.length; offset += 4) {
-    const a = data[offset + 3];
+    const a = opaqueVisible && data[offset + 3] ? UINT8_MAX : data[offset + 3];
     if (ignoreTransparent && !a) continue;
     total++;
     const r = a ? data[offset] : 0;
@@ -95,6 +100,14 @@ export function extractPalette(
   image: PixelBuffer,
   options: ExtractPaletteOptions = {},
 ): PaletteEntry[] {
+  return extractPaletteWithAlpha(image, options, false);
+}
+
+function extractPaletteWithAlpha(
+  image: PixelBuffer,
+  options: ExtractPaletteOptions,
+  opaqueVisible: boolean,
+): PaletteEntry[] {
   assertPixelBuffer(image);
   const maxColors = paletteLimit(options.maxColors);
   const exact = new Map<number, number>();
@@ -105,7 +118,7 @@ export function extractPalette(
   for (let offset = 0; offset < data.length; offset += 4) {
     if (options.ignoreTransparent && !data[offset + 3]) continue;
     total++;
-    const key = colorKey(data, offset);
+    const key = colorKey(data, offset, opaqueVisible);
     const previous = exact.get(key);
     if (previous !== undefined) {
       exact.set(key, previous + 1);
@@ -117,7 +130,8 @@ export function extractPalette(
     }
   }
 
-  if (overflowed) return histogramPalette(image, maxColors, options.ignoreTransparent ?? false);
+  if (overflowed)
+    return histogramPalette(image, maxColors, options.ignoreTransparent ?? false, opaqueVisible);
 
   const entries = [...exact.entries()]
     .sort(([keyA, countA], [keyB, countB]) => countB - countA || (keyA >>> 0) - (keyB >>> 0))
@@ -232,13 +246,7 @@ export function extractPixelationPalette(
   image: PixelBuffer,
   options: ExtractPaletteOptions = {},
 ): PaletteEntry[] {
-  const data = new Uint8ClampedArray(image.data);
-  for (let offset = 3; offset < data.length; offset += 4)
-    if (data[offset]) data[offset] = UINT8_MAX;
-  const entries = extractPalette(
-    { width: image.width, height: image.height, data },
-    { ...options, ignoreTransparent: true },
-  );
+  const entries = extractPaletteWithAlpha(image, { ...options, ignoreTransparent: true }, true);
   return entries.length
     ? entries
     : [{ color: [0, 0, 0, 0], count: image.width * image.height, coverage: 1 }];

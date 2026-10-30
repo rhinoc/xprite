@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
 import {
@@ -6,7 +6,11 @@ import {
   classTwinCuts,
   GridEvidenceReader,
   twinCuts,
+  type GridEvidence,
 } from "$/import-export/image/import/grid-arbitrate";
+import * as phaseFields from "$/import-export/image/import/grid-phase-field";
+import { materializeGridImage } from "$/import-export/image/import/grid-sampling";
+import * as stripShifts from "$/import-export/image/import/grid-strip-shift";
 import {
   blockResetUpscale,
   gradient,
@@ -105,7 +109,13 @@ describe("one score over every proposal and the passthrough", () => {
     const evidence = new GridEvidenceReader(image);
     const summarize = ({ readings, pixels }: ReturnType<GridEvidenceReader["read"]>) => ({
       pixels,
-      readings: readings.map(({ frame, ...reading }) => ({ ...reading, frame: frame() })),
+      readings: readings.map(({ frame, ...reading }) => {
+        const description = frame();
+        return {
+          ...reading,
+          frame: { ...description, content: materializeGridImage(description.content) },
+        };
+      }),
     });
     for (const grids of [[grid], [mesh], [offset], [highConfidence, offset], [offset, grid], []]) {
       expect(summarize(evidence.read(grids))).toEqual(
@@ -113,6 +123,112 @@ describe("one score over every proposal and the passthrough", () => {
       );
       expect(arbitrateGrids(image, grids, evidence)).toEqual(arbitrateGrids(image, grids));
     }
+  });
+
+  test("the same geometry keeps both free and lattice models in either proposal order", () => {
+    const image = upscaleNearest(sprite(16), 5);
+    const grid = lattice(image, 5);
+    const mesh = { ...grid, algorithm: PixelationAlgorithm.EdgeGrid };
+    const evidence = new GridEvidenceReader(image);
+    const summarize = (grids: readonly PixelGridAnalysis[]) =>
+      evidence.read(grids).readings.map(({ grid: found, length, twin, chance }) => ({
+        algorithm: found.algorithm,
+        cutsX: found.cutsX,
+        cutsY: found.cutsY,
+        length,
+        twin,
+        chance,
+      }));
+    const combined = summarize([grid, mesh]);
+    expect(combined).toHaveLength(2);
+    expect(combined).toEqual(summarize([mesh, grid]));
+    for (const proposal of [grid, mesh])
+      expect(combined.find(({ algorithm }) => algorithm === proposal.algorithm)).toEqual(
+        summarize([proposal])[0],
+      );
+    expect(arbitrateGrids(image, [grid, mesh], evidence)).toEqual(
+      arbitrateGrids(image, [mesh, grid], evidence),
+    );
+  });
+
+  test("free and lattice readings share geometry work while preserving independently scored evidence", () => {
+    const image = rowJitterUpscale(sprite(16), 5, 1.2);
+    const grid = lattice(image, 5);
+    const mesh = { ...grid, algorithm: PixelationAlgorithm.EdgeGrid };
+    const snapshot = ({ frame, ...reading }: GridEvidence) => {
+      const description = frame();
+      return {
+        ...reading,
+        frame: { ...description, content: materializeGridImage(description.content) },
+      };
+    };
+    const independent = [grid, mesh].map((proposal) =>
+      snapshot(new GridEvidenceReader(image).read([proposal]).readings[0]),
+    );
+    const fields = vi.spyOn(phaseFields, "phaseField");
+    const strips = vi.spyOn(stripShifts, "stripShear");
+    try {
+      const evidence = new GridEvidenceReader(image);
+      const combined = evidence.read([grid, mesh]).readings;
+      for (const reading of combined)
+        expect(snapshot(reading)).toEqual(
+          independent.find(({ grid: proposal }) => proposal.algorithm === reading.grid.algorithm),
+        );
+      expect(fields).toHaveBeenCalledTimes(1);
+      expect(strips).toHaveBeenCalledTimes(1);
+      evidence.read([mesh]);
+      evidence.read([grid]);
+      expect(fields).toHaveBeenCalledTimes(1);
+      expect(strips).toHaveBeenCalledTimes(1);
+      evidence.read([lattice(image, 5, 1)]);
+      expect(fields).toHaveBeenCalledTimes(2);
+      expect(strips).toHaveBeenCalledTimes(2);
+    } finally {
+      fields.mockRestore();
+      strips.mockRestore();
+    }
+  });
+
+  test("a strong geometry retains both cut models while admission limits distinct weak geometry", () => {
+    const image = upscaleNearest(sprite(32), 6);
+    const strong = { ...lattice(image, 6), confidence: 0.95, reliable: true };
+    const mesh = { ...strong, algorithm: PixelationAlgorithm.EdgeGrid, confidence: 0.1 };
+    const weaker = { ...lattice(image, 3), confidence: 0.1, reliable: true };
+    const proposals = [weaker, mesh, strong];
+    const evidence = new GridEvidenceReader(image);
+    const { readings } = evidence.read(proposals);
+    expect(readings).toHaveLength(2);
+    expect(readings.map(({ grid }) => grid.algorithm)).toEqual([
+      PixelationAlgorithm.UniformGrid,
+      PixelationAlgorithm.EdgeGrid,
+    ]);
+    expect(
+      readings.every(({ grid }) => grid.width === strong.width && grid.height === strong.height),
+    ).toBe(true);
+    expect(size(image, proposals)).toEqual([32, 32]);
+    expect(size(image, [...proposals].reverse())).toEqual([32, 32]);
+  });
+
+  test("distinct weaker geometry remains eligible without a strong proposal", () => {
+    const image = upscaleNearest(sprite(16), 6);
+    const stronger = { ...lattice(image, 6), confidence: 0.8, reliable: true };
+    const weaker = { ...lattice(image, 3), confidence: 0.1, reliable: true };
+    const { readings } = new GridEvidenceReader(image).read([stronger, weaker]);
+    expect(readings).toHaveLength(2);
+  });
+
+  test("duplicate readings retain the strongest proposal without leaking cached confidence", () => {
+    const image = upscaleNearest(sprite(16), 5);
+    const grid = lattice(image, 5);
+    const stronger = { ...grid, confidence: 0.8, reliable: true };
+    const weaker = { ...grid, confidence: 0.2 };
+    const proposals = [weaker, stronger];
+    const evidence = new GridEvidenceReader(image);
+    const [reading] = evidence.read(proposals).readings;
+    expect(evidence.read(proposals).readings).toHaveLength(1);
+    expect(reading.grid.confidence).toBe(stronger.confidence);
+    expect(evidence.read([...proposals].reverse()).readings[0].grid).toEqual(reading.grid);
+    expect(evidence.read([weaker]).readings[0].grid.confidence).toBe(weaker.confidence);
   });
 
   test("refuses when nothing is proposed", () => {

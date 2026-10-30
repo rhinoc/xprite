@@ -1,4 +1,4 @@
-import type { PixelBuffer } from "$/base/primitives";
+import type { GridImageView } from "$/import-export/image/import/grid-sampling";
 
 /**
  * Description length of an image under a grid hypothesis: the cost of the cuts and the cell
@@ -28,9 +28,9 @@ import type { PixelBuffer } from "$/base/primitives";
  * - Blurred: cell colours seen through a Gaussian of one of BLUR_WIDTHS, as a soft or resampled
  *   upscale renders them. The colours are the cell means sharpened by one deconvolution step.
  */
+const STRIDE = 4;
 const CHANNELS = 3;
 const ALPHA_CHANNEL = 3;
-const STRIDE = 4;
 const ALPHA_SCALE = 255;
 export const RESIDUAL_FLOOR = 16;
 /** Pixels a description covers; larger images are described on evenly spread whole rows. */
@@ -99,7 +99,7 @@ export interface GridCuts {
 /** The rows a description covers and their premultiplied colours, shared by every grid. */
 export interface DescribedImage {
   /** The input inside its frame. */
-  content: PixelBuffer;
+  content: GridImageView;
   /** Where the content starts in the input. */
   left: number;
   top: number;
@@ -124,10 +124,12 @@ function packedColour(data: Uint8ClampedArray, o: number): number {
  * The image less its frame: the outer rows and columns of the corner's colour. A frame describes
  * the same for every grid, so it says nothing about which one fits; only what it encloses does.
  */
-function contentOf(image: PixelBuffer): { content: PixelBuffer; left: number; top: number } {
-  const { width, height, data } = image;
-  const frame = packedColour(data, 0);
-  const framed = (x: number, y: number) => packedColour(data, (y * width + x) * STRIDE) === frame;
+function contentOf(image: GridImageView): { content: GridImageView; left: number; top: number } {
+  const { width, height, data, offset } = image;
+  const frame = packedColour(data, offset ? offset(0, 0) : 0);
+  const framed = offset
+    ? (x: number, y: number) => packedColour(data, offset(x, y)) === frame
+    : (x: number, y: number) => packedColour(data, (y * width + x) * STRIDE) === frame;
   const column = (x: number) => {
     for (let y = 0; y < height; y++) if (!framed(x, y)) return false;
     return true;
@@ -146,16 +148,14 @@ function contentOf(image: PixelBuffer): { content: PixelBuffer; left: number; to
   while (row(top)) top++;
   while (row(bottom - 1)) bottom--;
   if (right - left === width && bottom - top === height) return { content: image, left, top };
-  const content = {
+  const content: GridImageView = {
     width: right - left,
     height: bottom - top,
-    data: new Uint8ClampedArray((right - left) * (bottom - top) * STRIDE),
+    data,
+    offset: offset
+      ? (x, y) => offset(x + left, y + top)
+      : (x, y) => ((y + top) * width + x + left) * STRIDE,
   };
-  for (let y = top; y < bottom; y++)
-    content.data.set(
-      data.subarray((y * width + left) * STRIDE, (y * width + right) * STRIDE),
-      (y - top) * content.width * STRIDE,
-    );
   return { content, left, top };
 }
 
@@ -173,15 +173,15 @@ export function describedLines(lines: number, length: number): Int32Array {
   return Int32Array.from({ length: count }, (_, i) => Math.floor(((i + HALF) * lines) / count));
 }
 
-export function describeImage(input: PixelBuffer): DescribedImage {
+export function describeImage(input: GridImageView): DescribedImage {
   const { content: image, left, top } = contentOf(input);
-  const { width, height, data } = image;
+  const { width, height, data, offset } = image;
   const lines = describedLines(height, width);
   const count = lines.length;
   const values = new Float64Array(count * width * CHANNELS);
   for (let r = 0; r < count; r++)
     for (let x = 0; x < width; x++) {
-      const o = (lines[r] * width + x) * STRIDE,
+      const o = offset ? offset(x, lines[r]) : (lines[r] * width + x) * STRIDE,
         v = (r * width + x) * CHANNELS;
       const alpha = data[o + ALPHA_CHANNEL] / ALPHA_SCALE;
       for (let c = 0; c < CHANNELS; c++) values[v + c] = data[o + c] * alpha;

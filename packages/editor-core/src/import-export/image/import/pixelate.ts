@@ -2,8 +2,8 @@ import type { PixelBuffer } from "$/base/primitives";
 import { assertDimension, assertPixelBuffer } from "$/document/pixel-validation";
 import { protectPixelationContours } from "$/import-export/image/import/contours";
 import { smoothPixelation } from "$/import-export/image/import/denoise";
-import { straighten } from "$/import-export/image/import/deskew";
 import { blockPartition } from "$/import-export/image/import/grid";
+import { prepareGridSampling } from "$/import-export/image/import/grid-sampling";
 import { runPixeloe } from "$/import-export/image/import/line-guided/pixeloe-entry";
 import { resizeMostFrequent } from "$/import-export/image/import/most-frequent";
 import {
@@ -31,12 +31,6 @@ import type {
   PixelGridAnalysis,
 } from "$/import-export/image/import/types";
 
-/** Min Auto confidence to color from winning-reading sample (strip/field straight).
- * Below this, fall back to input/rotation upright — GT-free shear-risk gate.
- * Tuned on e2e-mapping-1 ΔE00: fixes 4 regressions (warps + block_reset, conf≤0.287);
- * keeps high-conf field wins (sine ≈0.55+). Not a case-name denylist.
- */
-const SAMPLE_COLOR_MIN_CONFIDENCE = 0.35;
 const WORKING_SCALE = 4;
 const MAX_WORKING_PIXELS = 1_048_576;
 const MAX_OUTLINE_STRENGTH = 100;
@@ -96,20 +90,9 @@ function sampleImage(
         "No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.",
       );
     const cell = (found.cellWidth + found.cellHeight) / 2;
-    // A tilted source is straightened first; the grid's cuts are measured in that image.
-    // Auto may attach sample = the winning reading's full straight (strip/phase/placed);
-    // color from that buffer only when confidence clears the shear-risk gate.
     const analysis = found as PixelGridAnalysis;
-    const rotation = analysis.rotation;
-    const sample =
-      analysis.sample && analysis.confidence >= SAMPLE_COLOR_MIN_CONFIDENCE
-        ? analysis.sample
-        : undefined;
-    const upright = sample ?? (rotation ? straighten(image, rotation) : image);
-    const gridForRecover =
-      sample || rotation
-        ? ({ ...analysis, rotation: undefined, sample: undefined } as PixelGridAnalysis)
-        : found;
+    const upright = prepareGridSampling(image, analysis);
+    const gridForRecover = { ...analysis, rotation: undefined, sampling: undefined };
     // Custom size's even blocks with PixelOE + Contrast: stock PixelOE to that size.
     if (runsStockPixeloe({ ...options, mode }, found))
       return runPixeloe(upright, { width: found.width, height: found.height }, guide);
@@ -269,16 +252,8 @@ async function sampleImageAsync(
       );
     const cell = (found.cellWidth + found.cellHeight) / 2;
     const analysis = found as PixelGridAnalysis;
-    const rotation = analysis.rotation;
-    const sample =
-      analysis.sample && analysis.confidence >= SAMPLE_COLOR_MIN_CONFIDENCE
-        ? analysis.sample
-        : undefined;
-    const upright = sample ?? (rotation ? straighten(image, rotation) : image);
-    const gridForRecover =
-      sample || rotation
-        ? ({ ...analysis, rotation: undefined, sample: undefined } as PixelGridAnalysis)
-        : found;
+    const upright = prepareGridSampling(image, analysis);
+    const gridForRecover = { ...analysis, rotation: undefined, sampling: undefined };
     if (runsStockPixeloe({ ...options, mode }, found))
       return runPixeloe(upright, { width: found.width, height: found.height }, guide);
     return recoverWithGrid(

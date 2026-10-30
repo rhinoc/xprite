@@ -10,16 +10,30 @@ import {
 const CHANNELS = 4;
 const COLOR_CHANNELS = 3;
 
+interface PixelCells {
+  x: Int32Array;
+  y: Int32Array;
+}
+
+/** Integer pixel positions inside each half-open cut interval; uncovered positions keep cell 0. */
+function pixelCells(length: number, cuts: readonly number[]): Int32Array {
+  const cells = new Int32Array(length);
+  // Earlier intervals win, as in the original first-match search. For ordered cuts the fills
+  // touch each pixel at most once, including when a boundary falls between two pixel positions.
+  for (let cell = cuts.length - 2; cell >= 0; cell--) {
+    const first = Math.max(0, Math.ceil(cuts[cell]));
+    const end = Math.min(length, Math.ceil(cuts[cell + 1]));
+    if (end > first) cells.fill(cell, first, end);
+  }
+  return cells;
+}
+
 /**
  * Round-trip error: upscale candidate grid back to input size via nearest-neighbor,
  * compute mean RGB Euclidean distance on opaque input pixels.
  * Lower score means better fidelity.
  */
-function roundTripError(
-  input: PixelBuffer,
-  candidate: PixelBuffer,
-  cuts: { x: readonly number[]; y: readonly number[] },
-): number {
+function roundTripError(input: PixelBuffer, candidate: PixelBuffer, cells: PixelCells): number {
   let errorSum = 0;
   let pixelCount = 0;
 
@@ -29,23 +43,7 @@ function roundTripError(
       const alpha = input.data[inputOffset + COLOR_CHANNELS];
       if (alpha === 0) continue; // Skip transparent pixels
 
-      // Find which cell this input pixel maps to (nearest-neighbor)
-      let cellX = 0;
-      for (let i = 0; i < cuts.x.length - 1; i++) {
-        if (x >= cuts.x[i] && x < cuts.x[i + 1]) {
-          cellX = i;
-          break;
-        }
-      }
-      let cellY = 0;
-      for (let i = 0; i < cuts.y.length - 1; i++) {
-        if (y >= cuts.y[i] && y < cuts.y[i + 1]) {
-          cellY = i;
-          break;
-        }
-      }
-
-      const candOffset = (cellY * candidate.width + cellX) * CHANNELS;
+      const candOffset = (cells.y[y] * candidate.width + cells.x[x]) * CHANNELS;
       let colorError = 0;
       for (let c = 0; c < COLOR_CHANNELS; c++) {
         const diff = input.data[inputOffset + c] - candidate.data[candOffset + c];
@@ -88,8 +86,9 @@ export function recoverGrid(
   if (picker === CellColorPicker.DualRtTwoStage) {
     const candidateA = samplePixelation(image, width, height, PixelationMethod.Structure, { x, y });
     const candidateB = samplePixelation(image, width, height, PixelationMethod.TwoStage, { x, y });
-    const errorA = roundTripError(image, candidateA, { x, y });
-    const errorB = roundTripError(image, candidateB, { x, y });
+    const cells = { x: pixelCells(image.width, x), y: pixelCells(image.height, y) };
+    const errorA = roundTripError(image, candidateA, cells);
+    const errorB = roundTripError(image, candidateB, cells);
     // Lower error wins; tie goes to Structure (A)
     return errorB < errorA ? candidateB : candidateA;
   }

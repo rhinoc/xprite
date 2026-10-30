@@ -7,6 +7,7 @@ import {
   descriptionLength,
 } from "$/import-export/image/import/grid-description-length";
 import { phaseField } from "$/import-export/image/import/grid-phase-field";
+import { materializeGridImage } from "$/import-export/image/import/grid-sampling";
 import { StripImage } from "$/import-export/image/import/grid-strip-shift";
 import {
   blockResetUpscale,
@@ -63,7 +64,9 @@ describe("phase fields", () => {
       Math.round(DRIFT * Math.sin((2 * Math.PI * y) / DRIFT_PERIOD)),
     );
     const field = phaseField(new StripImage(drifted), cuts, cuts);
-    expect(field && inner(field.straight, DRIFT)).toEqual(inner(upscale, DRIFT));
+    expect(field && inner(materializeGridImage(field.straight), DRIFT)).toEqual(
+      inner(upscale, DRIFT),
+    );
   });
 
   test("straighten an upscale whose blocks sample it at their own phases", () => {
@@ -71,7 +74,7 @@ describe("phase fields", () => {
     const reset = blockResetUpscale(sprite(CELLS), PITCH, 2);
     const field = phaseField(new StripImage(reset), cuts, cuts);
     expect(field).not.toBeNull();
-    const straight = length(field!.straight);
+    const straight = length(materializeGridImage(field!.straight));
     expect(straight - length(upscale)).toBeLessThan((length(reset) - length(upscale)) / 4);
   });
 });
