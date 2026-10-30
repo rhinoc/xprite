@@ -18,13 +18,77 @@
 
 import type { DetectResult } from "@xprite/fixer-detect-wasm";
 
+/**
+ * Minimal messaging / Node shapes used by this file only.
+ * editor-core tsconfig keeps lib=["ES2020"] and types=[] (no DOM / @types/node),
+ * so we must not rely on ambient MessagePort/Worker/process names.
+ */
+type AcRlTransferable = ArrayBufferLike | AcRlMessagePort;
+
+type AcRlMessagePort = {
+  onmessage: ((ev: { data: unknown }) => void) | null;
+  postMessage(message: unknown, transfer?: AcRlTransferable[]): void;
+  start?: () => void;
+  close?: () => void;
+  on?: (event: "message", cb: (msg: unknown) => void) => void;
+  off?: (event: "message", cb: (msg: unknown) => void) => void;
+};
+
+type AcRlBrowserWorker = {
+  postMessage(value: unknown, transfer?: AcRlTransferable[]): void;
+  terminate(): void;
+  onerror: ((ev: unknown) => void) | null;
+};
+
+type AcRlMessageChannelCtor = {
+  new (): { port1: AcRlMessagePort; port2: AcRlMessagePort };
+};
+
+type NodeProcess = {
+  versions?: { node?: string };
+  env: Record<string, string | undefined>;
+  cwd(): string;
+};
+
+type NodeRequireLike = {
+  (id: string): unknown;
+  resolve(id: string): string;
+};
+
+type NodeFsLike = {
+  readFileSync(path: string): Uint8Array;
+};
+
+type NodePathLike = {
+  join(...parts: string[]): string;
+  dirname(p: string): string;
+};
+
+function nodeProcess(): NodeProcess | undefined {
+  return (globalThis as { process?: NodeProcess }).process;
+}
+
+function browserMessageChannelCtor(): AcRlMessageChannelCtor | undefined {
+  return (globalThis as { MessageChannel?: AcRlMessageChannelCtor }).MessageChannel;
+}
+
 let wasmLoaded = false;
 let detectFastAcRl: ((rgba: Uint8Array, w: number, h: number) => DetectResult) | null = null;
 
 type Consensus = { cols: number; rows: number };
 
 export type AcRlConsensusJob =
-  | { mode: "worker"; port1: MessagePort }
+  | {
+      mode: "worker";
+      port1: {
+        onmessage: ((ev: { data: unknown }) => void) | null;
+        postMessage(message: unknown, transfer?: AcRlTransferable[]): void;
+        start?: () => void;
+        close?: () => void;
+        on?: (event: "message", cb: (msg: unknown) => void) => void;
+        off?: (event: "message", cb: (msg: unknown) => void) => void;
+      };
+    }
   | {
       mode: "sync";
       imageData: {
@@ -50,14 +114,14 @@ type NodeWt = {
     filename: string,
     options?: object,
   ) => {
-    postMessage(value: unknown, transfer?: Transferable[]): void;
+    postMessage(value: unknown, transfer?: AcRlTransferable[]): void;
     on(event: "error", cb: (err: Error) => void): void;
   };
-  MessageChannel: new () => { port1: MessagePort; port2: MessagePort };
-  receiveMessageOnPort: (port: MessagePort) => { message: unknown } | undefined;
+  MessageChannel: AcRlMessageChannelCtor;
+  receiveMessageOnPort: (port: AcRlMessagePort) => { message: unknown } | undefined;
 };
 
-type BrowserWorkerFactory = () => Worker;
+type BrowserWorkerFactory = () => AcRlBrowserWorker;
 
 let wtModule: NodeWt | null | undefined;
 let detectWorker: InstanceType<NodeWt["Worker"]> | null = null;
@@ -65,19 +129,23 @@ let workerReady = false;
 let workerFailed = false;
 
 let browserWorkerFactory: BrowserWorkerFactory | null = null;
-let browserDetectWorker: Worker | null = null;
+let browserDetectWorker: AcRlBrowserWorker | null = null;
 let browserWorkerReady = false;
 let browserWorkerFailed = false;
 
 function nodeWorkerEnabled(): boolean {
-  if (typeof process === "undefined" || !process.versions?.node) return false;
+  const process = nodeProcess();
+  if (!process?.versions?.node) return false;
   if (process.env.XPRITE_AC_RL_WORKER === "0") return false;
   return true;
 }
 
-/** Product import-worker: register nested Worker factory (Vite `new URL(..., import.meta.url)`). */
-export function setAcRlBrowserWorkerFactory(factory: BrowserWorkerFactory | null): void {
-  browserWorkerFactory = factory;
+/**
+ * Product import-worker: register nested Worker factory (Vite `new URL(..., import.meta.url)`).
+ * Param is `() => unknown` so DOM `Worker` from apps/editor assigns without sharing DOM libs.
+ */
+export function setAcRlBrowserWorkerFactory(factory: (() => unknown) | null): void {
+  browserWorkerFactory = factory ? () => factory() as AcRlBrowserWorker : null;
   if (browserDetectWorker) {
     try {
       browserDetectWorker.terminate();
@@ -98,7 +166,12 @@ function loadWorkerThreads(): NodeWt | null {
     return null;
   }
   const injected = (globalThis as { __XPRITE_WORKER_THREADS__?: NodeWt }).__XPRITE_WORKER_THREADS__;
-  if (injected?.Worker && injected.MessageChannel && injected.receiveMessageOnPort) {
+  if (
+    injected &&
+    typeof injected.Worker === "function" &&
+    typeof injected.MessageChannel === "function" &&
+    typeof injected.receiveMessageOnPort === "function"
+  ) {
     wtModule = injected;
     return wtModule;
   }
@@ -131,7 +204,8 @@ async function loadWorkerThreadsAsync(): Promise<NodeWt | null> {
 }
 
 function resolveWorkerPath(): string | null {
-  if (typeof process !== "undefined" && process.env.XPRITE_AC_RL_WORKER_PATH) {
+  const process = nodeProcess();
+  if (process?.env.XPRITE_AC_RL_WORKER_PATH) {
     return process.env.XPRITE_AC_RL_WORKER_PATH;
   }
   // Harness should set XPRITE_AC_RL_WORKER_PATH; without it, skip worker rather than invent a path
@@ -142,7 +216,7 @@ function syncCall(
   wt: NodeWt,
   worker: InstanceType<NodeWt["Worker"]>,
   payload: Record<string, unknown>,
-  transfer: Transferable[] = [],
+  transfer: AcRlTransferable[] = [],
 ): { ok: boolean; consensus?: Consensus | null; error?: string } {
   const { port1, port2 } = new wt.MessageChannel();
   worker.postMessage({ ...payload, port: port2 }, [port2, ...transfer]);
@@ -192,7 +266,7 @@ function ensureDetectWorker(): boolean {
 }
 
 function portMessagePromise(
-  port1: MessagePort,
+  port1: AcRlMessagePort,
 ): Promise<{ ok: boolean; consensus?: Consensus | null; error?: string }> {
   return new Promise((resolve) => {
     let settled = false;
@@ -202,22 +276,18 @@ function portMessagePromise(
       resolve(body);
     };
     // Node worker_threads MessagePort is an EventEmitter (prefer over onmessage).
-    const nodePort = port1 as MessagePort & {
-      on?: (event: "message", cb: (msg: unknown) => void) => void;
-      off?: (event: "message", cb: (msg: unknown) => void) => void;
-      start?: () => void;
-    };
-    if (typeof nodePort.on === "function" && typeof process !== "undefined" && process.versions?.node) {
+    const process = nodeProcess();
+    if (typeof port1.on === "function" && process?.versions?.node) {
       const onMsg = (msg: unknown) => {
-        nodePort.off?.("message", onMsg);
+        port1.off?.("message", onMsg);
         finish(msg as { ok: boolean; consensus?: Consensus | null; error?: string });
       };
-      nodePort.on("message", onMsg);
-      nodePort.start?.();
+      port1.on("message", onMsg);
+      port1.start?.();
       return;
     }
     // Browser MessagePort
-    port1.onmessage = (ev: MessageEvent) => {
+    port1.onmessage = (ev: { data: unknown }) => {
       port1.onmessage = null;
       finish(ev.data as { ok: boolean; consensus?: Consensus | null; error?: string });
     };
@@ -236,6 +306,8 @@ async function ensureBrowserDetectWorker(): Promise<boolean> {
         browserWorkerReady = false;
       };
     }
+    const MessageChannel = browserMessageChannelCtor();
+    if (!MessageChannel) throw new Error("MessageChannel unavailable");
     const { port1, port2 } = new MessageChannel();
     const initPromise = portMessagePromise(port1);
     browserDetectWorker.postMessage({ type: "init", port: port2 }, [port2]);
@@ -280,14 +352,18 @@ export async function preloadWasm(): Promise<void> {
       await module.default();
     } catch {
       // Node/Vite SSR: file:// fetch of wasm often fails; initSync from package path
-      if (typeof process !== "undefined" && process.versions?.node) {
+      const process = nodeProcess();
+      if (process?.versions?.node) {
         // eslint-disable-next-line no-new-func
-        const nodeRequire = new Function("m", "return require(m)") as (m: string) => NodeRequire;
-        const fs = nodeRequire("node:fs") as typeof import("node:fs");
-        const path = nodeRequire("node:path") as typeof import("node:path");
-        const req = nodeRequire("module").createRequire(
-          `${process.cwd()}/package.json`,
-        ) as NodeRequire;
+        const nodeRequire = new Function("m", "return require(m)") as (
+          m: string,
+        ) => NodeRequireLike;
+        const fs = nodeRequire("node:fs") as unknown as NodeFsLike;
+        const path = nodeRequire("node:path") as unknown as NodePathLike;
+        const mod = nodeRequire("module") as unknown as {
+          createRequire: (filename: string) => NodeRequireLike;
+        };
+        const req = mod.createRequire(`${process.cwd()}/package.json`);
         const wasmJs = req.resolve("@xprite/fixer-detect-wasm");
         const wasmBin = path.join(path.dirname(wasmJs), "pixelfixer_detect_bg.wasm");
         module.initSync({ module: fs.readFileSync(wasmBin) });
@@ -457,6 +533,8 @@ export async function beginAcRlConsensusJobAsync(imageData: {
   }
   if (browserDetectWorker && browserWorkerReady && !browserWorkerFailed) {
     try {
+      const MessageChannel = browserMessageChannelCtor();
+      if (!MessageChannel) throw new Error("MessageChannel unavailable");
       const { port1, port2 } = new MessageChannel();
       const copy = copyRgba(imageData);
       const promise = portMessagePromise(port1).then((body) =>
