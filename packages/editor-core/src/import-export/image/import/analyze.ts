@@ -1,7 +1,10 @@
 import { UINT8_MAX } from "$/base/numeric-constants";
 import type { PixelBuffer } from "$/base/primitives";
 import { assertPixelBuffer } from "$/document/pixel-validation";
-import { detectWithAlgorithm } from "$/import-export/image/import/pixelation-algorithm-registry";
+import {
+  detectWithAlgorithm,
+  detectWithAlgorithmAsync,
+} from "$/import-export/image/import/pixelation-algorithm-registry";
 import { PixelArtClassification } from "$/import-export/image/import/types";
 import type {
   PixelArtAnalysis,
@@ -31,10 +34,10 @@ function checkedMaxSamples(value: number | undefined): number {
  * This is intentionally a suggestion: callers should expose the result and
  * keep the user's override when the heuristic is wrong.
  */
-export function analyzePixelArt(
+function analyzePixelArtWithoutGrid(
   image: PixelBuffer,
   options: PixelArtAnalysisOptions = {},
-): PixelArtAnalysis {
+): Omit<PixelArtAnalysis, "grid"> {
   assertPixelBuffer(image);
   const maxSamples = checkedMaxSamples(options.maxSamplePixels);
   const totalPixels = image.width * image.height;
@@ -207,6 +210,29 @@ export function analyzePixelArt(
     userOverride,
     overrideApplied,
     isHeuristic: true,
+  };
+}
+
+export function analyzePixelArt(
+  image: PixelBuffer,
+  options: PixelArtAnalysisOptions = {},
+): PixelArtAnalysis {
+  return {
+    ...analyzePixelArtWithoutGrid(image, options),
     grid: detectWithAlgorithm(image, options.algorithm, options.size),
   };
 }
+
+/**
+ * Async analyze for product import-worker. Same metrics/classification as analyzePixelArt;
+ * Auto grid uses detectWithAlgorithmAsync (WASM||proposers Promise overlap).
+ */
+export async function analyzePixelArtAsync(
+  image: PixelBuffer,
+  options: PixelArtAnalysisOptions = {},
+): Promise<PixelArtAnalysis> {
+  const base = analyzePixelArtWithoutGrid(image, options);
+  const grid = await detectWithAlgorithmAsync(image, options.algorithm, options.size);
+  return { ...base, grid };
+}
+

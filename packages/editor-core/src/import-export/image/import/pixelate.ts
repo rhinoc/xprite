@@ -14,6 +14,7 @@ import {
 import { snapPalette } from "$/import-export/image/import/palette-snap";
 import {
   detectWithAlgorithm,
+  detectWithAlgorithmAsync,
   recoverWithGrid,
 } from "$/import-export/image/import/pixelation-algorithm-registry";
 import { resizeBox, resizeNearest } from "$/import-export/image/import/resize";
@@ -208,6 +209,73 @@ export function pixelateImage(image: PixelBuffer, options: PixelateOptions = {})
   const sampled = sampleImage(image, options, method);
   const smoothed = options.removeNoise ? smoothPixelation(sampled) : sampled;
   // Limit colors: Lab k-means that keeps rare colours, or snapping to a loaded palette.
+  let result = options.paletteSnap ? snapPalette(smoothed, options.paletteSnap) : smoothed;
+  if (
+    options.preserveDimensions &&
+    (result.width !== image.width || result.height !== image.height)
+  ) {
+    result = resizeNearest(result, image.width, image.height);
+  }
+  return result;
+}
+
+async function sampleImageAsync(
+  image: PixelBuffer,
+  options: PixelateOptions,
+  method: PixelationMethod,
+): Promise<PixelBuffer> {
+  const wantsGrid =
+    options.mode === PixelationMode.RecoverGrid ||
+    (options.mode === undefined && options.algorithm !== undefined);
+  const grid =
+    options.grid ??
+    (wantsGrid
+      ? await detectWithAlgorithmAsync(image, options.algorithm ?? PixelationAlgorithm.Auto)
+      : undefined);
+  const mode =
+    options.mode ??
+    (grid && (!("reliable" in grid) || grid.reliable)
+      ? PixelationMode.RecoverGrid
+      : PixelationMode.Convert);
+  if (mode !== PixelationMode.Convert && mode !== PixelationMode.RecoverGrid)
+    throw new RangeError("Unknown pixelation mode.");
+  const prepass = options.prepass ?? OutlinePrepass.None;
+  const guide =
+    prepass === OutlinePrepass.PixeloeLines ? (options.lineGuide ?? DEFAULT_LINE_GUIDE) : undefined;
+  if (mode === PixelationMode.RecoverGrid) {
+    const found =
+      grid ?? (await detectWithAlgorithmAsync(image, options.algorithm ?? PixelationAlgorithm.Auto));
+    if ("reliable" in found && !found.reliable)
+      throw new Error(
+        "No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.",
+      );
+    const cell = (found.cellWidth + found.cellHeight) / 2;
+    const rotation = (found as PixelGridAnalysis).rotation;
+    const upright = rotation ? straighten(image, rotation) : image;
+    if (runsStockPixeloe({ ...options, mode }, found))
+      return runPixeloe(upright, { width: found.width, height: found.height }, guide);
+    return recoverWithGrid(
+      applyOutlinePrepass(upright, cell, prepass, options.lineGuide),
+      rotation ? ({ ...found, rotation: undefined } as PixelGridAnalysis) : found,
+      options.colorPicker,
+    );
+  }
+  // Convert path is sync — reuse sampleImage body for non-recover.
+  return sampleImage(image, { ...options, grid: undefined, mode: PixelationMode.Convert }, method);
+}
+
+/**
+ * Async pixelate for product Auto path (import-worker). Same output as pixelateImage;
+ * Auto detect overlaps WASM AC+RL with proposers via Promise join (no COOP/COEP).
+ */
+export async function pixelateImageAsync(
+  image: PixelBuffer,
+  options: PixelateOptions = {},
+): Promise<PixelBuffer> {
+  assertPixelBuffer(image);
+  const method = validateMethod(options.method);
+  const sampled = await sampleImageAsync(image, options, method);
+  const smoothed = options.removeNoise ? smoothPixelation(sampled) : sampled;
   let result = options.paletteSnap ? snapPalette(smoothed, options.paletteSnap) : smoothed;
   if (
     options.preserveDimensions &&

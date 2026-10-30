@@ -4,7 +4,9 @@ import { estimateTilt, straighten } from "$/import-export/image/import/deskew";
 import { blockPartition } from "$/import-export/image/import/grid";
 import {
   beginAcRlConsensusJob,
+  beginAcRlConsensusJobAsync,
   finishAcRlConsensusJob,
+  finishAcRlConsensusJobAsync,
 } from "$/import-export/image/import/grid-ac-rl-consensus";
 import {
   arbitrateGrids,
@@ -40,7 +42,13 @@ export interface PixelationAlgorithmEntry {
   readonly label: string;
   /** Whether the import dialog offers this entry; the plain resize is only Auto's fallback. */
   readonly listed: boolean;
+  /**
+   * Sync detect for most algorithms. Auto also exposes detectAsync for product overlap
+   * (browser nested Worker join without COOP/COEP).
+   */
   detect(image: PixelBuffer, size?: PixelationSize): PixelGridAnalysis;
+  /** Optional async detect (Auto): awaitable WASM||proposers overlap. */
+  detectAsync?(image: PixelBuffer, size?: PixelationSize): Promise<PixelGridAnalysis>;
   /** One output pixel per grid cell. */
   run(image: PixelBuffer, grid: PixelGridGeometry, picker: CellColorPicker): PixelBuffer;
 }
@@ -162,7 +170,8 @@ function pruneCandidatesBeforeArbitration(
  *
  * Performance: Call preloadWasm() during app/worker initialization to prewarm WASM module.
  * On Node, AC+RL WASM detect starts on a worker_threads worker before proposers run on this
- * thread (begin/finish); browser stays on-thread (nested Worker needs COOP/COEP SAB to sync-join).
+ * thread (begin/finish sync join). Product Auto uses autoGridAsync + browser nested Worker
+ * Promise join (no COOP/COEP SAB). Exact semantics identical.
  */
 function autoGrid(image: PixelBuffer): PixelGridAnalysis {
   const tilt = estimateTilt(image);
@@ -310,6 +319,148 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
       best = { ...winner, rotation: ring.rotation };
 
     // Corroborated admission: when arbitration refuses, check if multiple proposers agree
+    if (!winner && !best) {
+      const corroborated = admitCorroboratedLattice(
+        ring.image,
+        corroboratingProposers,
+        ring.rotation,
+      );
+      if (corroborated) best = corroborated;
+    }
+  }
+
+  if (!best) return unreliable(image);
+  return best.rotation ? { ...best.grid, rotation: best.rotation } : best.grid;
+}
+
+/**
+ * Async Auto: same Exact logic as autoGrid, but joins WASM via Promise so a browser nested
+ * Worker can overlap proposers without COOP/COEP / SharedArrayBuffer sync-join.
+ */
+async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
+  const tilt = estimateTilt(image);
+  if (tilt.extreme) return unreliable(image);
+
+  const rings: { image: PixelBuffer; rotation: number }[] = [];
+  if (tilt.angle) rings.push({ image: uprightOf(image, tilt.angle), rotation: tilt.angle });
+
+  const uprightCandidates = tilt.angle
+    ? PROPOSERS.flatMap((proposer) => proposer(rings[0].image)).filter((grid) => grid.reliable)
+    : [];
+  if (!tilt.angle || uprightCandidates.length === 0) rings.push({ image, rotation: 0 });
+
+  const corroboratingProposers = [
+    detectFrameLattices,
+    pitchLattices,
+    combCountGrids,
+    detectBoundaryPeriodGrids,
+    distanceCountGrids,
+  ];
+
+  let best: { score: number; grid: PixelGridAnalysis; rotation: number } | null = null;
+  for (const ring of rings) {
+    const wasmJob = await beginAcRlConsensusJobAsync(ring.image);
+
+    const proposerOutputs = PROPOSERS.map((proposer) => {
+      const grids = proposer(ring.image);
+      const corrobIndex = corroboratingProposers.indexOf(proposer);
+      return { grids, corrobIndex };
+    });
+
+    const candidates = proposerOutputs.flatMap(({ grids }) =>
+      grids.map((grid) => (ring.rotation ? { ...grid, rotation: ring.rotation } : grid)),
+    );
+
+    const tagged = proposerOutputs
+      .filter(({ corrobIndex }) => corrobIndex >= 0)
+      .flatMap(({ grids, corrobIndex }) =>
+        grids.map((grid) => ({
+          grid: ring.rotation ? { ...grid, rotation: ring.rotation } : grid,
+          proposerIndex: corrobIndex,
+        })),
+      );
+
+    const consensus = await finishAcRlConsensusJobAsync(wasmJob);
+
+    let winner: ArbitratedGrid | null = null;
+    if (consensus) {
+      const candidateAtG = candidates.find(
+        (c) => c.width === consensus.cols && c.height === consensus.rows && c.reliable,
+      );
+      if (candidateAtG) {
+        const nearGCandidates = candidates.filter(
+          (c) =>
+            c.reliable &&
+            Math.abs(c.width - consensus.cols) <= 1 &&
+            Math.abs(c.height - consensus.rows) <= 1,
+        );
+        winner = arbitrateGrids(
+          ring.image,
+          nearGCandidates.length > 0 ? nearGCandidates : [candidateAtG],
+        );
+      }
+    }
+
+    if (!winner) {
+      const prunedCandidates = pruneCandidatesBeforeArbitration(candidates, consensus);
+      winner = arbitrateGrids(ring.image, prunedCandidates);
+    }
+
+    if (winner) {
+      const preferred = preferCorroboratedNearCountMarginBdDist(ring.image, winner, tagged);
+      if (preferred) winner = preferred;
+    }
+
+    if (winner && consensus) {
+      if (consensus.cols !== winner.grid.width || consensus.rows !== winner.grid.height) {
+        const candidateAtG = candidates.find(
+          (c) => c.width === consensus.cols && c.height === consensus.rows && c.reliable,
+        );
+
+        if (candidateAtG) {
+          const { readings } = gridEvidence(ring.image, [candidateAtG]);
+          const reading = readings[0];
+          if (reading) {
+            const phase = phaseScore(reading);
+            const { cutsX, cutsY } = reading.grid;
+            const score = phase + octaveShortfall(reading.frame(), cutsX!, cutsY!);
+            const share = Math.max(0, Math.min(1, (reading.twin - reading.length) / reading.twin));
+            winner = {
+              grid: {
+                ...reading.grid,
+                confidence: Math.max(reading.grid.confidence, share),
+                reliable: true,
+              },
+              length: reading.length,
+              score,
+            };
+          }
+        } else {
+          const cellWidth = ring.image.width / consensus.cols;
+          const cellHeight = ring.image.height / consensus.rows;
+
+          winner = {
+            grid: {
+              ...winner.grid,
+              width: consensus.cols,
+              height: consensus.rows,
+              cellWidth,
+              cellHeight,
+              cutsX: undefined,
+              cutsY: undefined,
+              offsetX: 0,
+              offsetY: 0,
+            },
+            length: winner.length,
+            score: winner.score,
+          };
+        }
+      }
+    }
+
+    if (winner && (!best || winner.score < best.score))
+      best = { ...winner, rotation: ring.rotation };
+
     if (!winner && !best) {
       const corroborated = admitCorroboratedLattice(
         ring.image,
@@ -503,6 +654,7 @@ const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
     label: "import.algorithm.auto",
     listed: true,
     detect: autoGrid,
+    detectAsync: autoGridAsync,
     run: (image, grid, picker) =>
       TABLE[(grid as PixelGridAnalysis).algorithm ?? FALLBACK].run(image, grid, picker),
   },
@@ -560,6 +712,28 @@ export function detectWithAlgorithm(
   detection = { image };
   try {
     return entry.detect(image, size);
+  } finally {
+    detection = null;
+    forgetNeighbourSteps();
+  }
+}
+
+/**
+ * Async detect for product Auto path: uses detectAsync when present (WASM||proposers
+ * overlap via nested Worker Promise join). Other algorithms resolve sync detect.
+ */
+export async function detectWithAlgorithmAsync(
+  image: PixelBuffer,
+  algorithm: PixelationAlgorithm = PixelationAlgorithm.Auto,
+  size?: PixelationSize,
+): Promise<PixelGridAnalysis> {
+  const entry = getAlgorithmEntry(algorithm);
+  const run = () =>
+    entry.detectAsync ? entry.detectAsync(image, size) : Promise.resolve(entry.detect(image, size));
+  if (detection) return run();
+  detection = { image };
+  try {
+    return await run();
   } finally {
     detection = null;
     forgetNeighbourSteps();

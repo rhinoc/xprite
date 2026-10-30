@@ -4,12 +4,16 @@
  * Returns grid dimensions when autocorrelation and run-lengths agree
  * on pixel grid size (consensus="fast:ac+rl(S)").
  *
- * Node (pixelbench / Vite SSR harness): optional worker_threads overlap —
- * beginAcRlConsensusJob copies pixels to a persistent worker, proposers run on
- * the main thread, finishAcRlConsensusJob sync-joins via receiveMessageOnPort.
- * Browser product path: recover already runs inside import-worker; nested Worker
- * cannot sync-join without crossOriginIsolated SharedArrayBuffer, so detect stays
- * on-thread. Set XPRITE_AC_RL_WORKER=0 to force sync detect on Node.
+ * Overlap modes:
+ * - Node (pixelbench / Vite SSR): worker_threads — beginAcRlConsensusJob + sync
+ *   finishAcRlConsensusJob via receiveMessageOnPort (existing Exact harness path).
+ * - Browser product (import-worker): nested Worker + Promise join via
+ *   beginAcRlConsensusJobAsync / finishAcRlConsensusJobAsync — no COOP/COEP /
+ *   SharedArrayBuffer required (sync Atomics.wait join is what needed isolation).
+ * - Fallback: on-thread detectAcRlConsensus (sync job).
+ *
+ * Set XPRITE_AC_RL_WORKER=0 to force sync detect on Node. Product registers a
+ * browser worker factory with setAcRlBrowserWorkerFactory from import-worker.
  */
 
 import type { DetectResult } from "@xprite/fixer-detect-wasm";
@@ -21,6 +25,17 @@ type Consensus = { cols: number; rows: number };
 
 export type AcRlConsensusJob =
   | { mode: "worker"; port1: MessagePort }
+  | {
+      mode: "sync";
+      imageData: {
+        data: Uint8ClampedArray | Uint8Array;
+        width: number;
+        height: number;
+      };
+    };
+
+export type AcRlConsensusAsyncJob =
+  | { mode: "async"; promise: Promise<Consensus | null> }
   | {
       mode: "sync";
       imageData: {
@@ -42,15 +57,37 @@ type NodeWt = {
   receiveMessageOnPort: (port: MessagePort) => { message: unknown } | undefined;
 };
 
+type BrowserWorkerFactory = () => Worker;
+
 let wtModule: NodeWt | null | undefined;
 let detectWorker: InstanceType<NodeWt["Worker"]> | null = null;
 let workerReady = false;
 let workerFailed = false;
 
+let browserWorkerFactory: BrowserWorkerFactory | null = null;
+let browserDetectWorker: Worker | null = null;
+let browserWorkerReady = false;
+let browserWorkerFailed = false;
+
 function nodeWorkerEnabled(): boolean {
   if (typeof process === "undefined" || !process.versions?.node) return false;
   if (process.env.XPRITE_AC_RL_WORKER === "0") return false;
   return true;
+}
+
+/** Product import-worker: register nested Worker factory (Vite `new URL(..., import.meta.url)`). */
+export function setAcRlBrowserWorkerFactory(factory: BrowserWorkerFactory | null): void {
+  browserWorkerFactory = factory;
+  if (browserDetectWorker) {
+    try {
+      browserDetectWorker.terminate();
+    } catch {
+      /* ignore */
+    }
+  }
+  browserDetectWorker = null;
+  browserWorkerReady = false;
+  browserWorkerFailed = false;
 }
 
 /** Lazy-load worker_threads without a static import (browser-safe). */
@@ -154,6 +191,71 @@ function ensureDetectWorker(): boolean {
   }
 }
 
+function portMessagePromise(
+  port1: MessagePort,
+): Promise<{ ok: boolean; consensus?: Consensus | null; error?: string }> {
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (body: { ok: boolean; consensus?: Consensus | null; error?: string }) => {
+      if (settled) return;
+      settled = true;
+      resolve(body);
+    };
+    // Node worker_threads MessagePort is an EventEmitter (prefer over onmessage).
+    const nodePort = port1 as MessagePort & {
+      on?: (event: "message", cb: (msg: unknown) => void) => void;
+      off?: (event: "message", cb: (msg: unknown) => void) => void;
+      start?: () => void;
+    };
+    if (typeof nodePort.on === "function" && typeof process !== "undefined" && process.versions?.node) {
+      const onMsg = (msg: unknown) => {
+        nodePort.off?.("message", onMsg);
+        finish(msg as { ok: boolean; consensus?: Consensus | null; error?: string });
+      };
+      nodePort.on("message", onMsg);
+      nodePort.start?.();
+      return;
+    }
+    // Browser MessagePort
+    port1.onmessage = (ev: MessageEvent) => {
+      port1.onmessage = null;
+      finish(ev.data as { ok: boolean; consensus?: Consensus | null; error?: string });
+    };
+  });
+}
+
+async function ensureBrowserDetectWorker(): Promise<boolean> {
+  if (browserWorkerFailed || !browserWorkerFactory) return false;
+  if (browserDetectWorker && browserWorkerReady) return true;
+  try {
+    if (!browserDetectWorker) {
+      browserDetectWorker = browserWorkerFactory();
+      browserDetectWorker.onerror = () => {
+        browserWorkerFailed = true;
+        browserDetectWorker = null;
+        browserWorkerReady = false;
+      };
+    }
+    const { port1, port2 } = new MessageChannel();
+    const initPromise = portMessagePromise(port1);
+    browserDetectWorker.postMessage({ type: "init", port: port2 }, [port2]);
+    const init = await initPromise;
+    if (!init.ok) {
+      browserWorkerFailed = true;
+      browserDetectWorker = null;
+      browserWorkerReady = false;
+      return false;
+    }
+    browserWorkerReady = true;
+    return true;
+  } catch {
+    browserWorkerFailed = true;
+    browserDetectWorker = null;
+    browserWorkerReady = false;
+    return false;
+  }
+}
+
 /**
  * Preload WASM module asynchronously (call during app/worker initialization).
  * After this completes, detectAcRlConsensus will work synchronously without load overhead.
@@ -161,7 +263,8 @@ function ensureDetectWorker(): boolean {
  * Best practice: Call this during app startup or worker ready event, NOT on first recover call.
  * Reduces first-image latency by ~5-10ms and eliminates async overhead from hot path.
  *
- * Also warms the Node AC+RL detect worker when worker_threads overlap is available.
+ * Also warms the Node AC+RL detect worker when worker_threads overlap is available,
+ * and the browser nested Worker when a factory was registered.
  *
  * @example
  * // In worker initialization:
@@ -200,6 +303,11 @@ export async function preloadWasm(): Promise<void> {
     ensureDetectWorker();
   } catch {
     /* sync fallback remains */
+  }
+  try {
+    await ensureBrowserDetectWorker();
+  } catch {
+    /* sync / Node path remains */
   }
 }
 
@@ -295,7 +403,107 @@ export function finishAcRlConsensusJob(job: AcRlConsensusJob): Consensus | null 
   }
 }
 
+function copyRgba(imageData: {
+  data: Uint8ClampedArray | Uint8Array;
+  width: number;
+  height: number;
+}): Uint8Array {
+  const src =
+    imageData.data instanceof Uint8Array ? imageData.data : new Uint8Array(imageData.data);
+  const copy = new Uint8Array(src.byteLength);
+  copy.set(src);
+  return copy;
+}
+
+/**
+ * Start AC+RL detect for async Auto: Node worker_threads or browser nested Worker.
+ * Promise is attached before proposers run; finishAcRlConsensusJobAsync awaits it
+ * (no SAB / COOP/COEP). Falls back to deferred sync detect when no worker is available.
+ * Async so browser nested Worker can be warmed on first use.
+ */
+export async function beginAcRlConsensusJobAsync(imageData: {
+  data: Uint8ClampedArray | Uint8Array;
+  width: number;
+  height: number;
+}): Promise<AcRlConsensusAsyncJob> {
+  // Prefer Node worker_threads when available (harness / SSR).
+  const wt = loadWorkerThreads();
+  if (wt && ensureDetectWorker() && detectWorker) {
+    try {
+      const { port1, port2 } = new wt.MessageChannel();
+      const copy = copyRgba(imageData);
+      const promise = portMessagePromise(port1).then((body) =>
+        body.ok ? (body.consensus ?? null) : null,
+      );
+      detectWorker.postMessage(
+        {
+          type: "detect",
+          width: imageData.width,
+          height: imageData.height,
+          data: copy.buffer,
+          port: port2,
+        },
+        [copy.buffer, port2],
+      );
+      return { mode: "async", promise };
+    } catch {
+      /* fall through */
+    }
+  }
+
+  // Browser nested Worker (product import-worker) — async join, no COOP/COEP.
+  if (browserWorkerFactory && !browserWorkerFailed) {
+    await ensureBrowserDetectWorker();
+  }
+  if (browserDetectWorker && browserWorkerReady && !browserWorkerFailed) {
+    try {
+      const { port1, port2 } = new MessageChannel();
+      const copy = copyRgba(imageData);
+      const promise = portMessagePromise(port1).then((body) =>
+        body.ok ? (body.consensus ?? null) : null,
+      );
+      browserDetectWorker.postMessage(
+        {
+          type: "detect",
+          width: imageData.width,
+          height: imageData.height,
+          data: copy.buffer,
+          port: port2,
+        },
+        [copy.buffer, port2],
+      );
+      return { mode: "async", promise };
+    } catch {
+      /* fall through */
+    }
+  }
+
+  return { mode: "sync", imageData };
+}
+
+/**
+ * Await a job from beginAcRlConsensusJobAsync. Same consensus semantics as detectAcRlConsensus.
+ */
+export async function finishAcRlConsensusJobAsync(
+  job: AcRlConsensusAsyncJob,
+): Promise<Consensus | null> {
+  if (job.mode === "sync") {
+    return detectAcRlConsensus(job.imageData);
+  }
+  return job.promise;
+}
+
+/** Kick off browser nested Worker warm-up after setAcRlBrowserWorkerFactory (non-blocking OK). */
+export async function warmAcRlBrowserWorker(): Promise<boolean> {
+  return ensureBrowserDetectWorker();
+}
+
 /** Test/harness: whether Node worker overlap is active after preload. */
 export function acRlWorkerOverlapActive(): boolean {
   return !workerFailed && workerReady && nodeWorkerEnabled();
+}
+
+/** Test/harness: whether browser nested-Worker async overlap is ready. */
+export function acRlBrowserWorkerOverlapActive(): boolean {
+  return !browserWorkerFailed && browserWorkerReady && browserWorkerFactory !== null;
 }

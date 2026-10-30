@@ -1,17 +1,28 @@
 import { ImportWorkerOperation } from "$/adapters/workers/import-worker-types";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import {
-  analyzePixelArt,
-  pixelateImage,
+  analyzePixelArtAsync,
+  pixelateImageAsync,
   preloadWasm,
+  setAcRlBrowserWorkerFactory,
+  warmAcRlBrowserWorker,
   type PixelArtAnalysisOptions,
   type PixelateOptions,
 } from "@xprite/editor-core/import-export";
 export { ImportWorkerOperation } from "$/adapters/workers/import-worker-types";
 
-// Prewarm: preload WASM module at worker init (not first recover call)
-// Moves ~5-10ms load overhead out of first-image hot path
-preloadWasm().catch(console.error);
+// Nested Worker factory for Auto WASM||proposers overlap without COOP/COEP SAB.
+setAcRlBrowserWorkerFactory(
+  () =>
+    new Worker(new URL("./ac-rl-detect-nested-worker.ts", import.meta.url), {
+      type: "module",
+    }),
+);
+
+// Prewarm: preload WASM + nested AC+RL worker at import-worker init (not first recover call).
+preloadWasm()
+  .then(() => warmAcRlBrowserWorker())
+  .catch(console.error);
 
 export interface ImportWorkerImage {
   width: number;
@@ -38,7 +49,7 @@ export type ImportWorkerResponse =
       id: number;
       ok: true;
       operation: ImportWorkerOperation.Analyze;
-      result: ReturnType<typeof analyzePixelArt>;
+      result: Awaited<ReturnType<typeof analyzePixelArtAsync>>;
     }
   | { id: number; ok: true; operation: ImportWorkerOperation.Pixelate; result: PixelBuffer }
   | {
@@ -59,51 +70,59 @@ interface WorkerScope {
 const workerScope = globalThis as unknown as WorkerScope;
 
 workerScope.addEventListener("message", (event) => {
-  const request = event.data;
-  try {
-    if (!request || !Number.isSafeInteger(request.id))
-      throw new TypeError("Invalid image import worker request");
-    const image: PixelBuffer = {
-      width: request.image.width,
-      height: request.image.height,
-      data: new Uint8ClampedArray(request.image.data),
-    };
-    if (request.operation === ImportWorkerOperation.Analyze) {
-      const result = analyzePixelArt(image, request.options as PixelArtAnalysisOptions | undefined);
+  void (async () => {
+    const request = event.data;
+    try {
+      if (!request || !Number.isSafeInteger(request.id))
+        throw new TypeError("Invalid image import worker request");
+      const image: PixelBuffer = {
+        width: request.image.width,
+        height: request.image.height,
+        data: new Uint8ClampedArray(request.image.data),
+      };
+      if (request.operation === ImportWorkerOperation.Analyze) {
+        const result = await analyzePixelArtAsync(
+          image,
+          request.options as PixelArtAnalysisOptions | undefined,
+        );
+        workerScope.postMessage({
+          id: request.id,
+          ok: true,
+          operation: ImportWorkerOperation.Analyze,
+          result,
+        });
+        return;
+      }
+      if (request.operation !== ImportWorkerOperation.Pixelate)
+        throw new RangeError("Unknown image import worker operation");
+      const result = await pixelateImageAsync(
+        image,
+        request.options as PixelateOptions | undefined,
+      );
+      workerScope.postMessage(
+        {
+          id: request.id,
+          ok: true,
+          operation: ImportWorkerOperation.Pixelate,
+          result,
+        },
+        [result.data.buffer as ArrayBuffer],
+      );
+    } catch (error) {
+      const failure =
+        error instanceof Error
+          ? { name: error.name, message: error.message, stack: error.stack }
+          : { name: "Error", message: String(error) };
       workerScope.postMessage({
-        id: request.id,
-        ok: true,
-        operation: ImportWorkerOperation.Analyze,
-        result,
+        id: request?.id ?? -1,
+        ok: false,
+        operation:
+          request?.operation === ImportWorkerOperation.Analyze ||
+          request?.operation === ImportWorkerOperation.Pixelate
+            ? request.operation
+            : ImportWorkerOperation.Analyze,
+        error: failure,
       });
-      return;
     }
-    if (request.operation !== ImportWorkerOperation.Pixelate)
-      throw new RangeError("Unknown image import worker operation");
-    const result = pixelateImage(image, request.options as PixelateOptions | undefined);
-    workerScope.postMessage(
-      {
-        id: request.id,
-        ok: true,
-        operation: ImportWorkerOperation.Pixelate,
-        result,
-      },
-      [result.data.buffer as ArrayBuffer],
-    );
-  } catch (error) {
-    const failure =
-      error instanceof Error
-        ? { name: error.name, message: error.message, stack: error.stack }
-        : { name: "Error", message: String(error) };
-    workerScope.postMessage({
-      id: request?.id ?? -1,
-      ok: false,
-      operation:
-        request?.operation === ImportWorkerOperation.Analyze ||
-        request?.operation === ImportWorkerOperation.Pixelate
-          ? request.operation
-          : ImportWorkerOperation.Analyze,
-      error: failure,
-    });
-  }
+  })();
 });
