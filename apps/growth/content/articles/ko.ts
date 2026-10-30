@@ -26,11 +26,11 @@ export const KOREAN_ARTICLES = {
     topic: "아이패드와 터치",
   },
   "piskel-alternatives": {
-    title: "Piskel 대안: 도트 애니메이션 에디터 3종 비교 | Xprite",
+    title: "Piskel 대안: Xprite vs Piskel vs Pixelorama | Xprite",
     description:
-      "Piskel 대안 비교: Pixelorama는 .piskel을 바로 열고, Xprite는 브라우저에서 펜과 터치로 .aseprite를 편집하며, Pixilart는 작품 공유에 알맞습니다.",
+      "Xprite vs Piskel: 둘 다 무료 오픈소스 브라우저 스프라이트 에디터입니다. Xprite는 .aseprite를 열고 저장하며 폰에서도 되고, Pixelorama는 .piskel을 엽니다.",
     summary:
-      "Pixelorama는 .piskel을 바로 열 수 있고, Xprite는 .aseprite 편집과 터치 드로잉에, Pixilart는 작품 공유에 알맞습니다.",
+      "Xprite는 .aseprite를 열고 저장하며 폰·태블릿에서도 됩니다. 짧은 데스크톱 애니메이션은 Piskel이 더 단순하고, Pixelorama는 .piskel을 바로 엽니다.",
     topic: "에디터 대안",
   },
   "fix-ai-pixel-art": {

@@ -1,6 +1,6 @@
 ---
 published: 2026-10-23
-updated: 2026-10-23
+updated: 2026-10-30
 ---
 
 # 修复 AI 像素画：还原真实网格（不是魔法 AI）
@@ -95,7 +95,15 @@ Xprite 的 [修复 AI 像素画](/tools/fix-ai-pixel-art/?utm_source=compare&utm
 
 ### 「图片转像素画转换器」呢？
 
-这类搜索通常指照片 → 像素风。用 [图片转像素画](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)。输入已经装作是像素、只是网格不对时，用修复 AI 像素画。
+这类搜索通常指照片 → 像素风。用 [图片转像素画](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art)。输入已经装作是像素、只是网格不对时，用修复 AI 像素画。修复 AI 负责还原网格；图片转像素画是通用的图片转像素风工具；引擎相同，起点不同。
+
+### 什么是「伪」或「假」AI 像素画？
+
+发糊、比例不对，或不在整数像素格子上——常见于放大后的模型输出，远处像像素、近看对不齐。Recover Grid 想从那层格子里还原真实网格。不总能完美；太糊或不规则的图仍可能要手填格子尺寸或重画。
+
+### 这会把像素「对齐到网格」吗？
+
+会。这就是 Recover Grid 的工作：估计格子（含相位），在本机重建真正的 1×1 像素。这样措辞是因为现成体验是网格还原，不是生成式「AI 修复」。
 
 ---
 

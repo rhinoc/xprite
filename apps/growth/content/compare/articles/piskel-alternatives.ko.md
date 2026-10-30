@@ -1,75 +1,98 @@
 ---
-updated: 2026-10-10
+published: 2026-10-10
+updated: 2026-10-30
 ---
 
-# Piskel 대안: 도트 애니메이션 에디터 3종 비교
+# Xprite vs Piskel: Aseprite 파일을 여는 무료 Piskel 대안
 
-[Piskel](https://www.piskelapp.com/)은 브라우저에서 실행되는 무료 오픈 소스 스프라이트 에디터입니다. 짧은 반복 애니메이션에 잘 맞고 GIF와 스프라이트 시트를 간편하게 내보냅니다. 하지만 작업이 커지면 여러 애니메이션을 정리하거나, Aseprite 사용자와 프로젝트를 주고받거나, 태블릿에서 펜으로 그리거나, 커뮤니티에 작품을 공유하고 싶어집니다. 필요한 것에 맞춰 도구를 고르세요.
+Xprite는 무료 오픈소스 브라우저 픽셀 아트 에디터로, Piskel과 달리 `.aseprite`를 열고 저장하며 휴대폰·태블릿에서도 됩니다. 데스크톱 브라우저에서 짧은 애니메이션을 그릴 때는 여전히 Piskel이 더 단순하고, 둘 중 `.piskel`을 여는 것도 Piskel뿐입니다.
 
-- 계속 편집할 `.piskel` 프로젝트가 많다면: `.piskel`을 바로 여는 Pixelorama를 쓰세요.
-- 브라우저에서 `.aseprite`를 편집하거나 아이패드에서 펜과 손가락으로 그리고 싶다면: Xprite를 쓰세요.
-- 그리면서 바로 올리고 커뮤니티 이벤트에 참여하고 싶다면: Pixilart를 쓰세요.
+- `.aseprite`를 편집하거나, 펜·손가락으로 그리거나, 프레임마다 다른 길이를 두고 싶을 때: Xprite.
+- 컴퓨터에서 짧은 루프를 만들고 메뉴는 적을수록 좋을 때: Piskel 유지.
+- `.piskel` 프로젝트를 다른 도구에서 계속 편집하고 싶을 때: `.piskel`을 바로 여는 Pixelorama.
 
-|                      | Piskel                           | Xprite                                 | Pixelorama                       | Pixilart                           |
-| -------------------- | -------------------------------- | -------------------------------------- | -------------------------------- | ---------------------------------- |
-| 가격                 | 🆓 무료, 광고 있음               | 🆓 무료                                | 🆓 무료, Steam 버전 💰           | 🆓 무료, PRO 💰                    |
-| `.piskel` 열기       | ✅ 기본 형식                     | ❌ 먼저 GIF나 스프라이트 시트로 변환   | ✅ 지원                          | —                                  |
-| `.aseprite` 프로젝트 | ❌ 미지원                        | ✅ 열기와 저장                         | ✅ 가져오기, v1.2.2부터 내보내기 | —                                  |
-| 애니메이션           | ✅ 레이어, 어니언 스킨           | ✅ 태그, 프레임 지속 시간, 어니언 스킨 | ✅ 태그, 오디오 레이어           | ✅ 프레임별 지속 시간, 어니언 스킨 |
-| 터치                 | —                                | ✅ 펜으로 그리고 손가락으로 이동       | ⚠️ Android 버전은 실험 단계      | ✅ 모바일 앱                       |
-| 오프라인과 데스크톱  | ⚠️ 데스크톱 버전은 관리가 제한적 | ⚠️ 처음 한 번은 온라인에서 열기        | ✅ 무료 데스크톱 앱              | —                                  |
+[브라우저에서 Xprite 열기](/?utm_source=compare&utm_medium=referral&utm_campaign=piskel-alternatives). 설치도 계정도 필요 없습니다.
 
-## Piskel을 계속 써도 되는 경우
+## Xprite vs Piskel 한눈에
 
-짧은 걷기 사이클, 애니메이션 아이콘, 수업 과제라면 Piskel로 충분합니다. 레이어, 어니언 스킨, 재생 속도를 언제든 바꿀 수 있는 실시간 미리 보기가 있고, GIF, PNG 스프라이트 시트, ZIP으로 내보낼 수 있습니다.
+|               | Piskel                                                                    | Xprite                                                        |
+| ------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| 가격          | 🆓 무료, 광고 있음. Piskel for Kids는 광고 없음                           | 🆓 무료, 계정 없음                                            |
+| 소스 코드     | ✅ 오픈소스, Apache-2.0                                                   | ✅ 오픈소스, GPL-2.0-only                                     |
+| 기기          | ⚠️ 데스크톱 브라우저. 휴대폰·태블릿 미지원                                | ✅ 컴퓨터·태블릿·휴대폰 브라우저                              |
+| 펜과 터치     | ❌ 없음                                                                   | ✅ 펜이 그리고, 손가락으로 팬·줌·실행 취소                    |
+| `.piskel`     | ✅ 네이티브 형식                                                          | ❌ 먼저 GIF 또는 PNG 스프라이트 시트로 내보내기               |
+| `.aseprite`   | ❌ 없음                                                                   | ✅ 열고 저장                                                  |
+| 레이어        | ✅ 있음                                                                   | ✅ 있음 (RGB, 그레이스케일, 인덱스 컬러)                      |
+| 양파 껍질     | ✅ 있음                                                                   | ✅ 있음                                                       |
+| 프레임 길이   | ⚠️ 애니메이션 전체에 하나의 FPS                                           | ✅ 프레임별 길이, 태그로 애니메이션 분할                      |
+| 내보내기      | ✅ GIF, PNG 시트, 단일 PNG, 프레임 ZIP, PixiJS JSON, C 배열               | ✅ PNG, GIF, APNG, WebP, JSON 포함 PNG 시트, 타일셋           |
+| 오프라인      | ⚠️ Windows·macOS·Linux 앱 (테스트 제한적)                                 | ⚠️ 데스크톱/홈 화면에 추가; 먼저 온라인으로 한 번 열기        |
+| 저장          | `.piskel` 파일, 또는 이 브라우저                                          | `.aseprite` / `.png` 파일, 또는 이 브라우저                   |
 
-Piskel에는 Windows, macOS, Linux용 오프라인 버전도 있지만 [테스트가 제한적](https://www.piskelapp.com/download)이고 정기 릴리스가 없어서 웹 버전을 권장합니다. 어린이와 교사를 위한 [Piskel for Kids](https://www.piskelapp.com/faq)에는 광고가 없고 갤러리 같은 소셜 기능도 없습니다.
+## Piskel이 더 나은 점
 
-## Pixelorama: `.piskel`을 바로 열기
+- **`.piskel` 프로젝트를 연다.** Xprite는 읽지 못합니다.
+- **배울 것이 적다.** 도구가 적고, 그리면서 속도를 바꿀 수 있는 실시간 미리보기가 있습니다. 걷기 사이클이나 아이콘 애니메이션에는 대개 충분합니다.
+- **Piskel for Kids.** [어린이 버전](https://www.piskelapp.com/faq)은 광고·개인정보 추적·소셜 기능이 없어 교실에 맞습니다. Xprite는 익명 사용 통계(작품 제외)를 보내며 [개인정보 안내](/privacy/)에 적혀 있습니다.
+- **다운로드 가능한 데스크톱 앱.** Piskel은 Windows·macOS·Linux용 [오프라인 앱](https://www.piskelapp.com/download)을 제공합니다. “매우 제한적”인 테스트와 출시 일정이 없어 웹 버전을 권합니다.
+- **내보내기 대상이 조금 더 많음**: PixiJS JSON 시트, 프레임을 배열로 담은 C 파일, 레이어별 분할 ZIP.
 
-[Pixelorama](https://pixelorama.org/user_manual/Import)는 `.piskel`뿐 아니라 `.aseprite`, PSD, Krita 파일도 가져올 수 있어 예전 프로젝트를 옮기기에 가장 간단합니다.
+## Xprite가 더 나은 점
 
-- **애니메이션**: 프레임 태그로 한 프로젝트를 여러 애니메이션으로 나누고, 오디오 레이어로 애니메이션을 소리에 맞출 수 있습니다.
-- **플랫폼**: Windows, macOS, Linux용 데스크톱 앱과 웹 버전은 무료입니다. [Steam 버전](https://pixelorama.org/user_manual/installation)은 유료이며 기능은 같지만 자동 업데이트 같은 Steam 기능이 더해집니다. Android 버전은 아직 실험 단계입니다.
-- **파일**: 프로젝트는 `.pxo`로 저장됩니다. [v1.2.2](https://github.com/Orama-Interactive/Pixelorama/releases/tag/v1.2.2)부터 `.aseprite`로도 내보낼 수 있습니다.
+- **Aseprite 파일.** `.ase` / `.aseprite`를 읽고 쓰며 레이어·프레임·태그를 유지합니다. Aseprite 사용자에게 파일을 돌려줄 수 있습니다. 일부 프로젝트는 완전 호환이 아닐 수 있고, Aseprite 스크립트·확장은 실행되지 않습니다.
+- **휴대폰과 태블릿.** Piskel [README](https://github.com/piskelapp/piskel#mobiletablets)는 모바일 미지원이라고 합니다. Xprite에서는 펜을 쓰면 펜이 그리고 손가락이 팬합니다. 핀치로 줌, 두 손가락 탭으로 실행 취소, 세 손가락으로 다시 실행. [손가락과 펜](/help/#fingers-and-a-pen) 참고.
+- **길이와 구조.** 프레임마다 길이를 둘 수 있고, 태그로 한 파일을 여러 애니메이션으로 나눕니다. 게임용 타일맵 레이어와 인덱스 컬러도 있습니다.
+- **내보내기 형식이 더 많음.** 애니 GIF·APNG·WebP, 선택적 JSON이 있는 PNG 스프라이트 시트.
 
-## Xprite: 브라우저에서 Aseprite 프로젝트 편집
+바꾸기 전에: Xprite는 한 사람이 유지하며 계속 개선 중이라 일부 기능에 버그가 있을 수 있습니다. **브라우저**에 저장한 프로젝트는 그 기기의 그 브라우저에만 남으니, 보관할 파일은 **파일 관리자**에 저장하세요.
 
-Xprite는 `.aseprite`를 원본 형식 그대로 읽고 쓰며 레이어, 태그, 프레임 지속 시간을 유지하므로 Aseprite 사용자와 파일을 주고받기에 좋습니다.
+## 무엇을 고를까?
 
-- **터치**: 펜을 쓰면 펜으로 그리고 손가락으로 화면을 이동합니다. 두 손가락 탭으로 실행 취소, 세 손가락 탭으로 다시 실행합니다. 제스처는 **편집 → 환경설정 → 터치**에서 바꿀 수 있습니다.
-- **저장**: **파일 → 다른 이름으로 저장**으로 **브라우저**나 **파일 관리자**에 저장합니다. 브라우저에 저장한 프로젝트는 같은 기기의 같은 브라우저에서만 열리므로, 다른 곳으로 가져갈 파일은 **파일 관리자**에 저장하세요.
-- **오프라인**: 온라인에서 에디터를 한 번 열면 그 뒤로는 오프라인에서도 동작합니다.
+- **초보·어린이·컴퓨터에서 빠른 GIF**: Piskel, 교실이면 Piskel for Kids.
+- **Aseprite 사용자와 파일을 주고받는 사람**: Xprite.
+- **아이패드나 휴대폰에서 그리기**: Xprite. Piskel은 모바일 미지원.
+- **프레임별 길이·태그·JSON 시트가 필요한 게임 스프라이트**: Xprite.
+- **옛 `.piskel`을 Piskel 밖에서 계속 편집**: Pixelorama.
 
-Xprite는 `.piskel`을 바로 열 수 없습니다. 작품을 옮기는 방법은 아래를 참고하세요.
+## 다른 Piskel 대안
 
-## Pixilart: 완성하자마자 작품 올리기
+- [Pixelorama](https://pixelorama.org/user_manual/Import): 무료 오픈소스, 데스크톱 앱과 웹. `.piskel`, `.aseprite`, PSD, Krita를 가져와 옛 Piskel 프로젝트 이전에 가장 직행입니다. 프로젝트는 `.pxo`.
+- [Pixilart](https://www.pixilart.com/features): 에디터와 아트 커뮤니티가 하나, 웹과 모바일 앱. 프레임별 길이와 양파 껍질. 유료 PRO로 광고 제거와 `.pixil` 동기화.
 
-[Pixilart](https://www.pixilart.com/features)는 에디터와 아트 커뮤니티를 한곳에 모았고, 웹이나 모바일 앱에서 그릴 수 있습니다. 애니메이션은 프레임마다 지속 시간을 따로 정할 수 있고 어니언 스킨도 있습니다. 캔버스는 한 변 최대 700픽셀입니다.
+## Piskel 작업을 Xprite로 옮기기
 
-무료 버전으로도 충분히 쓸 수 있습니다. [PRO](https://www.pixilart.com/subscribe)는 월 $4.99로, 광고를 없애고 편집 가능한 `.pixil` 파일을 컴퓨터와 휴대폰 사이에서 동기화합니다.
+1. **원본 보관**: Piskel에서 `.piskel` 사본을 내려받아 백업.
+2. **애니메이션 내보내기**: GIF, 또는 프레임 자르기를 직접 정하려면 PNG 스프라이트 시트.
+3. **GIF 열기**: Xprite에서 **파일 → 열기…**. GIF 각 프레임이 프레임이 됩니다.
+4. **스프라이트 시트**: **파일 → 스프라이트 시트 가져오기**로 프레임 경계를 설정. 시트에는 길이가 없으니 타임라인에서 다시 맞춥니다.
 
-## Piskel 작품을 Xprite로 옮기기
+GIF와 스프라이트 시트는 합쳐진 픽셀만 있어 레이어가 사라집니다. 레이어를 남기려면 Piskel ZIP 내보내기에서 **Split by layers**를 쓰고 Xprite에서 레이어를 다시 만드세요. GIF는 256색 제한이니 색이 중요하면 PNG 시트를 쓰세요.
 
-Xprite는 `.piskel`을 읽을 수 없으므로 먼저 Piskel에서 이미지로 내보내세요.
-
-1. **원본 보관**: 백업용으로 Piskel에서 `.piskel` 사본을 내려받습니다.
-2. **애니메이션 내보내기**: GIF로 내보냅니다. 프레임을 자르는 방식을 직접 정하고 싶다면 PNG 스프라이트 시트로 내보냅니다.
-3. **GIF 열기**: Xprite에서 **파일 → 열기**로 GIF를 엽니다. 모든 프레임과 지속 시간이 함께 들어옵니다.
-4. **스프라이트 시트 가져오기**: PNG 스프라이트 시트라면 **파일 → 스프라이트 시트 가져오기**를 사용하고, 캔버스에서 프레임 하나의 가장자리를 표시해 나눕니다. 스프라이트 시트에는 프레임 지속 시간이 저장되지 않으므로 가져온 뒤 타임라인에서 다시 설정하세요.
-
-GIF와 스프라이트 시트에는 합쳐진 픽셀만 담기므로 Piskel의 레이어와 레이어 이름은 사라집니다. 레이어가 필요하면 Piskel에서 레이어마다 따로 내보낸 뒤 Xprite에서 다시 구성하세요. GIF는 256색까지만 쓰고 반투명 픽셀을 불투명하게 바꾸므로, 색이 중요하다면 PNG 스프라이트 시트를 쓰세요.
+게임 엔진용 프레임만 필요하면 [GIF → 스프라이트 시트](/tools/gif-to-sprite-sheet/)로 GIF를 PNG 시트+JSON(좌표·길이)으로 바꿀 수 있어 에디터를 열지 않아도 됩니다. 부드럽거나 격자 밖 AI 「픽셀 아트」는 [AI 픽셀 아트 수정](/tools/fix-ai-pixel-art/)(Recover Grid)으로 정리한 뒤 무료 브라우저 에디터에서 이어서 편집하세요.
 
 ## 자주 묻는 질문
 
-### Piskel에서 `.aseprite` 파일을 열 수 있나요?
+### 최고의 무료 Piskel 대안은?
 
-없습니다. Piskel은 `.piskel`, GIF, PNG만 가져올 수 있습니다.
+필요에 따라 다릅니다. `.aseprite`를 열거나 휴대폰·태블릿에서 그리려면 Xprite, `.piskel`을 열려면 Pixelorama. 둘 다 무료 오픈소스입니다.
 
-### Piskel과 가장 비슷한 도구는 무엇인가요?
+### Xprite가 `.piskel`을 열 수 있나요?
 
-Pixelorama입니다. 마찬가지로 무료 오픈 소스이며 `.piskel`을 바로 엽니다.
+아니요. Piskel에서 GIF 또는 PNG 스프라이트 시트를 내보낸 뒤 Xprite에서 여세요.
+
+### Piskel이 `.aseprite`를 열 수 있나요?
+
+아니요. Piskel은 `.piskel`과 PNG·JPG·BMP·애니 GIF만 가져옵니다.
+
+### Piskel이 아이패드나 휴대폰에서 되나요?
+
+README에 모바일 미지원이라고 되어 있습니다. Xprite는 휴대폰·태블릿 브라우저에서 동작하며 펜·터치 제스처를 지원합니다.
+
+### Piskel은 아직 유지보수되나요?
+
+GitHub 저장소는 2026년 10월에도 커밋이 있었습니다. GitHub 최신 릴리스는 2018년 11월 v0.15.0이고, 데스크톱 앱은 최선을 다하는 수준의 출시만 있습니다.
 
 ---
 
-브라우저에서 써 보려면 [Xprite를 열고](/?utm_source=compare&utm_medium=referral&utm_campaign=piskel-alternatives) GIF를 가져와 보세요. Aseprite 프로젝트를 다룬다면 [에이스프라이트 온라인 편집](/ko/compare/aseprite-online/)을 참고하세요.
+[Xprite를 열고](/?utm_source=compare&utm_medium=referral&utm_campaign=piskel-alternatives) Piskel GIF를 가져와 보세요. 먼저 `.aseprite`를 확인할까요? [Aseprite 뷰어](/tools/viewer/?utm_source=compare&utm_medium=referral&utm_campaign=piskel-alternatives)에서 여세요. Xprite에 대해 더 보려면 [Xprite란](/about/), 또는 [온라인 Aseprite 에디터 비교](/compare/aseprite-online/)를 보세요.

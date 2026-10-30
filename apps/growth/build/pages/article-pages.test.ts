@@ -9,9 +9,22 @@ import { articleHtml } from "./article-pages.ts";
 import { readArticleDocument } from "./article-source.ts";
 
 vi.mock("../static-ui-renderer.ts", () => ({
-  publicArticleClasses: () => ({}),
-  renderPublicUi: (kind: string, props: { content?: string; html?: string }) =>
-    `<div data-kind="${kind}">${props.content ?? props.html ?? ""}</div>`,
+  publicArticleClasses: () => ({ hero: "hero", proof: "proof" }),
+  renderPublicUi: (
+    kind: string,
+    props: {
+      content?: string;
+      html?: string;
+      href?: string;
+      label?: string;
+      footer?: string;
+    },
+  ) => {
+    if (kind === "button")
+      return `<a data-kind="button" href="${props.href ?? ""}">${props.label ?? ""}</a>`;
+    const body = `${props.content ?? props.html ?? ""}${props.footer ?? ""}`;
+    return `<div data-kind="${kind}">${body}</div>`;
+  },
 }));
 
 const JSON_LD_PATTERN = /<script type="application\/ld\+json">(.*?)<\/script>/g;
@@ -94,5 +107,32 @@ describe("compare article FAQ schema", () => {
       jsonLd(html).map((block) => block["@type"]),
       ["CollectionPage", "BreadcrumbList"],
     );
+  });
+});
+
+describe("compare article hero CTA", () => {
+  it("places an above-fold Open Xprite push after the lede on every article", () => {
+    for (const article of ARTICLES) {
+      const html = articleHtml(article.path, true);
+      const href = `/?utm_source=compare&utm_medium=referral&utm_campaign=${article.slug}`;
+      assert.match(html, /data-compare-hero/, article.path);
+      assert.match(html, /data-compare-proof/, article.path);
+      assert.ok(
+        html.includes(`data-compare-hero><a data-kind="button" href="${href}">Open Xprite</a>`),
+        article.path,
+      );
+      // Panel-footer CTA stays (same unprefixed editor URL).
+      assert.ok(html.split(`href="${href}"`).length >= 3, article.path);
+    }
+  });
+
+  it("keeps the Spanish hero CTA as Abrir Xprite to unprefixed /", () => {
+    const html = articleHtml("/es/compare/aseprite-online/", true);
+    assert.ok(
+      html.includes(
+        'data-compare-hero><a data-kind="button" href="/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-online">Abrir Xprite</a>',
+      ),
+    );
+    assert.doesNotMatch(html, /href="\/es\/(?:editor\/?)?(?:\?|")/);
   });
 });

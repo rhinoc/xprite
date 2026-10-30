@@ -1,6 +1,6 @@
 ---
 published: 2026-10-23
-updated: 2026-10-23
+updated: 2026-10-30
 ---
 
 # Corrigir pixel art de IA: recuperar a grade real (não é mágica de IA)
@@ -95,7 +95,15 @@ Exporte PNG e abra em outro lugar, ou use **Editar mais** no Xprite e salve `.as
 
 ### E o “conversor de imagem para pixel art”?
 
-Essa busca costuma significar foto → estilo pixel. Use [Imagem para pixel art](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art). Use Corrigir pixel art de IA quando a entrada já finge ser pixels, mas a grade está errada.
+Essa busca costuma significar foto → estilo pixel. Use [Imagem para pixel art](/tools/pixelate/?utm_source=compare&utm_medium=referral&utm_campaign=fix-ai-pixel-art). Use Corrigir pixel art de IA quando a entrada já finge ser pixels, mas a grade está errada. Corrigir IA recupera a grade; Pixelate é o conversor geral de imagem para pixel art; compartilham o motor, mas partem de trabalhos diferentes.
+
+### O que é pixel art de IA “pseudo” ou “falsa”?
+
+Mole, em escala errada ou fora de uma grade de pixels inteiros—muitas vezes saída de modelo ampliada que só parece pixels de longe. Recover Grid tenta recuperar uma grade real dessa lattice. Nem sempre é perfeito; imagens muito moles ou irregulares ainda podem precisar de tamanho de célula manual ou um redesenho.
+
+### Isso “encaixa os pixels numa grade”?
+
+Sim. Esse é o trabalho do Recover Grid: estimar a lattice de células (incluindo a fase) e reconstruir pixels 1×1 verdadeiros no seu dispositivo. A formulação é essa porque a experiência publicada é recuperação de grade, não um “conserto com IA” generativo.
 
 ---
 
