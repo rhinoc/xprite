@@ -91,14 +91,21 @@ function sampleImage(
       );
     const cell = (found.cellWidth + found.cellHeight) / 2;
     // A tilted source is straightened first; the grid's cuts are measured in that image.
-    const rotation = (found as PixelGridAnalysis).rotation;
-    const upright = rotation ? straighten(image, rotation) : image;
+    // Auto may attach sample = the winning reading's full straight (strip/phase/placed);
+    // color from that buffer so local geometry corrections reach TwoStage.
+    const analysis = found as PixelGridAnalysis;
+    const rotation = analysis.rotation;
+    const upright = analysis.sample ?? (rotation ? straighten(image, rotation) : image);
+    const gridForRecover =
+      analysis.sample || rotation
+        ? ({ ...analysis, rotation: undefined, sample: undefined } as PixelGridAnalysis)
+        : found;
     // Custom size's even blocks with PixelOE + Contrast: stock PixelOE to that size.
     if (runsStockPixeloe({ ...options, mode }, found))
       return runPixeloe(upright, { width: found.width, height: found.height }, guide);
     return recoverWithGrid(
       applyOutlinePrepass(upright, cell, prepass, options.lineGuide),
-      rotation ? ({ ...found, rotation: undefined } as PixelGridAnalysis) : found,
+      gridForRecover,
       options.colorPicker,
     );
   }
@@ -250,13 +257,18 @@ async function sampleImageAsync(
         "No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.",
       );
     const cell = (found.cellWidth + found.cellHeight) / 2;
-    const rotation = (found as PixelGridAnalysis).rotation;
-    const upright = rotation ? straighten(image, rotation) : image;
+    const analysis = found as PixelGridAnalysis;
+    const rotation = analysis.rotation;
+    const upright = analysis.sample ?? (rotation ? straighten(image, rotation) : image);
+    const gridForRecover =
+      analysis.sample || rotation
+        ? ({ ...analysis, rotation: undefined, sample: undefined } as PixelGridAnalysis)
+        : found;
     if (runsStockPixeloe({ ...options, mode }, found))
       return runPixeloe(upright, { width: found.width, height: found.height }, guide);
     return recoverWithGrid(
       applyOutlinePrepass(upright, cell, prepass, options.lineGuide),
-      rotation ? ({ ...found, rotation: undefined } as PixelGridAnalysis) : found,
+      gridForRecover,
       options.colorPicker,
     );
   }

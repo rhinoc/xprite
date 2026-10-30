@@ -1,4 +1,4 @@
-import type { Rgba } from "$/base/primitives";
+import type { PixelBuffer, Rgba } from "$/base/primitives";
 
 /** The intentionally conservative result of the image import heuristic. */
 export enum PixelArtClassification {
@@ -147,6 +147,12 @@ export interface PixelGridAnalysis extends PixelGridGeometry {
    * are measured in that straightened image, so recovery applies the same rotation first.
    */
   rotation?: number;
+  /**
+   * Full image Auto's winning reading described (input, strip-straight, or phase-straight).
+   * Recovery colors from this buffer with the grid's cuts when present; same extent as the cuts.
+   * Cleared when consensus rebuilds geometry without a matching re-read.
+   */
+  sample?: PixelBuffer;
 }
 
 export interface PixelationSize {

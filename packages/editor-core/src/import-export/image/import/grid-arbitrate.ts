@@ -179,6 +179,8 @@ interface Reading {
   twin: number;
   chance: number;
   frame: () => DescribedImage;
+  /** Full image this reading describes (not the optional scoring crop). */
+  sample: PixelBuffer;
 }
 
 /** The proposal as placed or snapped, with the twin to measure it against. */
@@ -235,6 +237,7 @@ function readingOf(
     twin: descriptionLength(described, placed.twin()),
     chance: 0,
     frame: () => described,
+    sample: strips.image,
   };
   const cuts = {
     cutsX,
@@ -259,6 +262,7 @@ function readingOf(
       twin: descriptionLength(describeImage(shear.twin()), cuts) + cost,
       chance: 0,
       frame: () => straight,
+      sample: shear.straight,
     };
     // Chance evidence only adds to a score, so it is measured only for a reading that could win.
     if (phaseScore(reading) >= phaseScore(best)) continue;
@@ -308,7 +312,7 @@ export class GridEvidenceReader {
         reading = readingOf(strips, described, grid, cutsX, cutsY);
         this.readings.set(readingKey, reading);
       }
-      const { cuts, length, twin, chance, frame } = reading;
+      const { cuts, length, twin, chance, frame, sample } = reading;
       readings.push({
         grid: {
           ...grid,
@@ -316,6 +320,7 @@ export class GridEvidenceReader {
           height: rows,
           cutsX: [...cuts.cutsX],
           cutsY: [...cuts.cutsY],
+          sample,
         },
         length,
         twin,

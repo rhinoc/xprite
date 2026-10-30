@@ -314,6 +314,8 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
               cutsY: undefined,
               offsetX: 0,
               offsetY: 0,
+              // Prior reading's straight no longer matches rebuilt geometry
+              sample: undefined,
             },
             length: winner.length,
             score: winner.score,
@@ -462,6 +464,7 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
               cutsY: undefined,
               offsetX: 0,
               offsetY: 0,
+              sample: undefined,
             },
             length: winner.length,
             score: winner.score,
@@ -575,14 +578,14 @@ function preferCorroboratedNearCountMarginBdDist(
     const { cutsX, cutsY } = reading.grid;
     const totalScore = challengerPhaseScore + octaveShortfall(reading.frame(), cutsX!, cutsY!);
 
-    // Pick best-corroborated among valid challengers
+    // Pick best-corroborated among valid challengers; keep reading.grid (cuts + sample).
     if (
       !bestChallenger ||
       corroboration > bestChallenger.corroboration ||
       (corroboration === bestChallenger.corroboration && totalScore < bestChallenger.score)
     ) {
       bestChallenger = {
-        grid: candidateGrid,
+        grid: reading.grid,
         corroboration,
         score: totalScore,
         phaseScore: challengerPhaseScore,
