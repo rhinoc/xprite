@@ -1,14 +1,8 @@
 /**
  * Grid arbitration via description-length (MDL).
  *
- * Performance: Buffer reuse already optimized within gridEvidence:
- * - DescribedImage (Float64Array values) computed once, reused for all candidates
- * - StripImage caches line prefixes across readingOf calls
- * - These eliminate per-candidate allocation churn in DL computation
- *
- * Current allocations per candidate:
- * - GridCuts arrays (cutsX/cutsY) - small, ~10-100 elements
- * - Strip/phase intermediate buffers - future pool opportunity
+ * GridEvidenceReader shares the image description, line prefixes and distinct readings across
+ * arbitration, corroboration and consensus selection for one evaluation view.
  */
 
 import type { PixelBuffer } from "$/base/primitives";
@@ -264,7 +258,7 @@ function readingOf(
       length: descriptionLength(straight, cuts) + cost,
       twin: descriptionLength(describeImage(shear.twin()), cuts) + cost,
       chance: 0,
-      frame: () => describeImage(shear.straight),
+      frame: () => straight,
     };
     // Chance evidence only adds to a score, so it is measured only for a reading that could win.
     if (phaseScore(reading) >= phaseScore(best)) continue;
@@ -274,47 +268,64 @@ function readingOf(
   return best;
 }
 
-/** Every distinct reading of the proposals, and the image's own length per sample. */
-export function gridEvidence(
-  image: PixelBuffer,
-  grids: readonly PixelGridAnalysis[],
-): { readings: GridEvidence[]; pixels: number } {
-  const CONF_HIGH = 0.9;
-  const CONF_GAP = 0.5;
-  const described = describeImage(image);
-  const strips = new StripImage(image);
-  const seen = new Set<string>();
-  const readings: GridEvidence[] = [];
-  const ordered = [...grids].sort((a, b) => b.confidence - a.confidence);
-  let bestConf = -1;
-  for (const grid of ordered) {
-    const { cutsX, cutsY } = cutsOf(image, grid);
-    const columns = cutsX.length - 1,
-      rows = cutsY.length - 1;
-    if (Math.min(columns, rows) < MIN_CELLS || Math.max(columns, rows) > MAX_RECOVERED_GRID_SIZE)
-      continue;
-    const key = keyOf(cutsX, cutsY);
-    if (seen.has(key)) continue;
-    seen.add(key);
-    if (readings.length > 0 && bestConf >= CONF_HIGH && bestConf - grid.confidence >= CONF_GAP)
-      continue;
-    const { cuts, length, twin, chance, frame } = readingOf(strips, described, grid, cutsX, cutsY);
-    readings.push({
-      grid: {
-        ...grid,
-        width: columns,
-        height: rows,
-        cutsX: [...cuts.cutsX],
-        cutsY: [...cuts.cutsY],
-      },
-      length,
-      twin,
-      chance,
-      frame,
-    });
-    if (grid.confidence > bestConf) bestConf = grid.confidence;
+/** Reuse one evaluation view's descriptions and distinct readings during Auto's decision. */
+export class GridEvidenceReader {
+  private readonly described: DescribedImage;
+  private readonly strips: StripImage;
+  private readonly pixels: number;
+  private readonly readings = new Map<string, Reading>();
+
+  constructor(private readonly image: PixelBuffer) {
+    this.described = describeImage(image);
+    this.strips = new StripImage(image);
+    this.pixels = pixelLength(this.described);
   }
-  return { readings, pixels: pixelLength(described) };
+
+  read(grids: readonly PixelGridAnalysis[]): { readings: GridEvidence[]; pixels: number } {
+    const CONF_HIGH = 0.9;
+    const CONF_GAP = 0.5;
+    const { image, described, strips } = this;
+    const seen = new Set<string>();
+    const readings: GridEvidence[] = [];
+    const ordered = [...grids].sort((a, b) => b.confidence - a.confidence);
+    let bestConf = -1;
+    for (const grid of ordered) {
+      const { cutsX, cutsY } = cutsOf(image, grid);
+      const columns = cutsX.length - 1,
+        rows = cutsY.length - 1;
+      if (Math.min(columns, rows) < MIN_CELLS || Math.max(columns, rows) > MAX_RECOVERED_GRID_SIZE)
+        continue;
+      const key = keyOf(cutsX, cutsY);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      if (readings.length > 0 && bestConf >= CONF_HIGH && bestConf - grid.confidence >= CONF_GAP)
+        continue;
+      const model =
+        grid.algorithm === PixelationAlgorithm.EdgeGrid ? CutModel.Free : CutModel.Lattice;
+      const readingKey = `${model}:${key}`;
+      let reading = this.readings.get(readingKey);
+      if (!reading) {
+        reading = readingOf(strips, described, grid, cutsX, cutsY);
+        this.readings.set(readingKey, reading);
+      }
+      const { cuts, length, twin, chance, frame } = reading;
+      readings.push({
+        grid: {
+          ...grid,
+          width: columns,
+          height: rows,
+          cutsX: [...cuts.cutsX],
+          cutsY: [...cuts.cutsY],
+        },
+        length,
+        twin,
+        chance,
+        frame,
+      });
+      if (grid.confidence > bestConf) bestConf = grid.confidence;
+    }
+    return { readings, pixels: this.pixels };
+  }
 }
 
 /**
@@ -325,8 +336,9 @@ export function gridEvidence(
 export function arbitrateGrids(
   image: PixelBuffer,
   grids: readonly PixelGridAnalysis[],
+  evidence = new GridEvidenceReader(image),
 ): ArbitratedGrid | null {
-  const { readings, pixels } = gridEvidence(image, grids);
+  const { readings, pixels } = evidence.read(grids);
   let passthrough = pixels;
   for (const reading of readings)
     passthrough = Math.min(passthrough, Math.max(reading.length, reading.twin - reading.chance));

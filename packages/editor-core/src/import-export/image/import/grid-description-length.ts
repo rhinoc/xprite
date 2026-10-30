@@ -633,16 +633,28 @@ function cutLength(described: DescribedImage, cuts: GridCuts): number {
   return cost / described.samples;
 }
 
+/** Rendering costs shared by the cut models and phase readings of one description. */
+const renderingLengths = new WeakMap<DescribedImage, Map<string, number>>();
+
 /** Description length per sample (pixel channel of a described row), in nats. */
 export function descriptionLength(described: DescribedImage, cuts: GridCuts): number {
   const { content, left, top } = described;
-  return (
-    renderingLength(
-      described,
-      contentCuts(cuts.cutsX, left, content.width),
-      contentCuts(cuts.cutsY, top, content.height),
-    ) + cutLength(described, cuts)
-  );
+  const cutsX = contentCuts(cuts.cutsX, left, content.width),
+    cutsY = contentCuts(cuts.cutsY, top, content.height);
+  // The rendering depends on the clipped cuts; the cut model's cost is added separately.
+  // Arbitration revisits these cuts for snapped readings, twins and octave evidence.
+  const key = `${cutsX.join(",")}|${cutsY.join(",")}`;
+  let lengths = renderingLengths.get(described);
+  if (!lengths) {
+    lengths = new Map();
+    renderingLengths.set(described, lengths);
+  }
+  let rendering = lengths.get(key);
+  if (rendering === undefined) {
+    rendering = renderingLength(described, cutsX, cutsY);
+    lengths.set(key, rendering);
+  }
+  return rendering + cutLength(described, cuts);
 }
 
 /**

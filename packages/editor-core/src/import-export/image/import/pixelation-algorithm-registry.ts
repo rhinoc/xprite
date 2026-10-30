@@ -10,7 +10,7 @@ import {
 } from "$/import-export/image/import/grid-ac-rl-consensus";
 import {
   arbitrateGrids,
-  gridEvidence,
+  GridEvidenceReader,
   octaveShortfall,
   phaseScore,
   type ArbitratedGrid,
@@ -178,16 +178,21 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
   if (tilt.extreme) return unreliable(image);
 
   // Determine evaluation views
-  const rings: { image: PixelBuffer; rotation: number }[] = [];
-  if (tilt.angle) rings.push({ image: uprightOf(image, tilt.angle), rotation: tilt.angle });
+  const rings: {
+    image: PixelBuffer;
+    rotation: number;
+    outputs?: PixelGridAnalysis[][];
+  }[] = [];
+  if (tilt.angle) {
+    const upright = uprightOf(image, tilt.angle);
+    const outputs = PROPOSERS.map((proposer) => proposer(upright));
+    rings.push({ image: upright, rotation: tilt.angle, outputs });
+    if (!outputs.some((grids) => grids.some((grid) => grid.reliable)))
+      rings.push({ image, rotation: 0 });
+  } else {
+    rings.push({ image, rotation: 0 });
+  }
 
-  // Run all proposers on the upright view; if none find a grid, also try the original
-  const uprightCandidates = tilt.angle
-    ? PROPOSERS.flatMap((proposer) => proposer(rings[0].image)).filter((grid) => grid.reliable)
-    : [];
-  if (!tilt.angle || uprightCandidates.length === 0) rings.push({ image, rotation: 0 });
-
-  // Specific proposers for corroborated admission: frame, pitchLat, comb, bd, bd_dist
   const corroboratingProposers = [
     detectFrameLattices,
     pitchLattices,
@@ -203,8 +208,8 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     const wasmJob = beginAcRlConsensusJob(ring.image);
 
     // Run each proposer once and track outputs with their corroboration index
-    const proposerOutputs = PROPOSERS.map((proposer) => {
-      const grids = proposer(ring.image);
+    const proposerOutputs = PROPOSERS.map((proposer, index) => {
+      const grids = ring.outputs?.[index] ?? proposer(ring.image);
       const corrobIndex = corroboratingProposers.indexOf(proposer);
       return { grids, corrobIndex };
     });
@@ -228,6 +233,7 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     const consensus = finishAcRlConsensusJob(wasmJob);
 
     // WASM-first short-circuit: when consensus fires and candidate@G exists, skip expensive full arb
+    const evidence = new GridEvidenceReader(ring.image);
     let winner: ArbitratedGrid | null = null;
     if (consensus) {
       const candidateAtG = candidates.find(
@@ -245,6 +251,7 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
         winner = arbitrateGrids(
           ring.image,
           nearGCandidates.length > 0 ? nearGCandidates : [candidateAtG],
+          evidence,
         );
       }
     }
@@ -252,13 +259,13 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     // Fallback: if WASM didn't fire or no G candidate, run full arbitration
     if (!winner) {
       const prunedCandidates = pruneCandidatesBeforeArbitration(candidates, consensus);
-      winner = arbitrateGrids(ring.image, prunedCandidates);
+      winner = arbitrateGrids(ring.image, prunedCandidates, evidence);
     }
 
     // Prefer corroborated near-count with strict gates: winner corrob=1, challenger≥2,
     // bd_dist in challenger proposers, phaseScore margin ≤0.40
     if (winner) {
-      const preferred = preferCorroboratedNearCountMarginBdDist(ring.image, winner, tagged);
+      const preferred = preferCorroboratedNearCountMarginBdDist(evidence, winner, tagged);
       if (preferred) winner = preferred;
     }
 
@@ -273,7 +280,7 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
 
         if (candidateAtG) {
           // Use existing candidate's full grid directly (singleton arbitration would return null)
-          const { readings } = gridEvidence(ring.image, [candidateAtG]);
+          const { readings } = evidence.read([candidateAtG]);
           const reading = readings[0];
           if (reading) {
             const phase = phaseScore(reading);
@@ -320,11 +327,7 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
 
     // Corroborated admission: when arbitration refuses, check if multiple proposers agree
     if (!winner && !best) {
-      const corroborated = admitCorroboratedLattice(
-        ring.image,
-        corroboratingProposers,
-        ring.rotation,
-      );
+      const corroborated = admitCorroboratedLattice(evidence, tagged, ring.rotation);
       if (corroborated) best = corroborated;
     }
   }
@@ -341,13 +344,20 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
   const tilt = estimateTilt(image);
   if (tilt.extreme) return unreliable(image);
 
-  const rings: { image: PixelBuffer; rotation: number }[] = [];
-  if (tilt.angle) rings.push({ image: uprightOf(image, tilt.angle), rotation: tilt.angle });
-
-  const uprightCandidates = tilt.angle
-    ? PROPOSERS.flatMap((proposer) => proposer(rings[0].image)).filter((grid) => grid.reliable)
-    : [];
-  if (!tilt.angle || uprightCandidates.length === 0) rings.push({ image, rotation: 0 });
+  const rings: {
+    image: PixelBuffer;
+    rotation: number;
+    outputs?: PixelGridAnalysis[][];
+  }[] = [];
+  if (tilt.angle) {
+    const upright = uprightOf(image, tilt.angle);
+    const outputs = PROPOSERS.map((proposer) => proposer(upright));
+    rings.push({ image: upright, rotation: tilt.angle, outputs });
+    if (!outputs.some((grids) => grids.some((grid) => grid.reliable)))
+      rings.push({ image, rotation: 0 });
+  } else {
+    rings.push({ image, rotation: 0 });
+  }
 
   const corroboratingProposers = [
     detectFrameLattices,
@@ -361,8 +371,8 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
   for (const ring of rings) {
     const wasmJob = await beginAcRlConsensusJobAsync(ring.image);
 
-    const proposerOutputs = PROPOSERS.map((proposer) => {
-      const grids = proposer(ring.image);
+    const proposerOutputs = PROPOSERS.map((proposer, index) => {
+      const grids = ring.outputs?.[index] ?? proposer(ring.image);
       const corrobIndex = corroboratingProposers.indexOf(proposer);
       return { grids, corrobIndex };
     });
@@ -382,6 +392,7 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
 
     const consensus = await finishAcRlConsensusJobAsync(wasmJob);
 
+    const evidence = new GridEvidenceReader(ring.image);
     let winner: ArbitratedGrid | null = null;
     if (consensus) {
       const candidateAtG = candidates.find(
@@ -397,17 +408,18 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
         winner = arbitrateGrids(
           ring.image,
           nearGCandidates.length > 0 ? nearGCandidates : [candidateAtG],
+          evidence,
         );
       }
     }
 
     if (!winner) {
       const prunedCandidates = pruneCandidatesBeforeArbitration(candidates, consensus);
-      winner = arbitrateGrids(ring.image, prunedCandidates);
+      winner = arbitrateGrids(ring.image, prunedCandidates, evidence);
     }
 
     if (winner) {
-      const preferred = preferCorroboratedNearCountMarginBdDist(ring.image, winner, tagged);
+      const preferred = preferCorroboratedNearCountMarginBdDist(evidence, winner, tagged);
       if (preferred) winner = preferred;
     }
 
@@ -418,7 +430,7 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
         );
 
         if (candidateAtG) {
-          const { readings } = gridEvidence(ring.image, [candidateAtG]);
+          const { readings } = evidence.read([candidateAtG]);
           const reading = readings[0];
           if (reading) {
             const phase = phaseScore(reading);
@@ -462,11 +474,7 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
       best = { ...winner, rotation: ring.rotation };
 
     if (!winner && !best) {
-      const corroborated = admitCorroboratedLattice(
-        ring.image,
-        corroboratingProposers,
-        ring.rotation,
-      );
+      const corroborated = admitCorroboratedLattice(evidence, tagged, ring.rotation);
       if (corroborated) best = corroborated;
     }
   }
@@ -486,7 +494,7 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
  * Stricter than reverted ungated version to prevent drift cliff (game1x −0.233pp, drift −20pp).
  */
 function preferCorroboratedNearCountMarginBdDist(
-  image: PixelBuffer,
+  evidence: GridEvidenceReader,
   winner: ArbitratedGrid,
   tagged: readonly { grid: PixelGridAnalysis; proposerIndex: number }[],
 ): ArbitratedGrid | null {
@@ -516,10 +524,8 @@ function preferCorroboratedNearCountMarginBdDist(
   // Gate 1: only apply when winner has corroboration=1 (singleton period proposer)
   if (winnerCorroboration !== 1) return null;
 
-  // Compute winner's phase score once
-  const { readings: winnerReadings } = gridEvidence(image, [winner.grid]);
-  if (winnerReadings.length === 0) return null;
-  const winnerPhaseScore = phaseScore(winnerReadings[0]);
+  // Read the winner only if a corroborated near-count challenger can compete.
+  let winnerPhaseScore: number | undefined;
 
   // Find near-count candidates (±1 cell per axis)
   let bestChallenger: {
@@ -548,9 +554,15 @@ function preferCorroboratedNearCountMarginBdDist(
     // Must have strictly higher corroboration than winner
     if (corroboration <= winnerCorroboration) continue;
 
+    if (winnerPhaseScore === undefined) {
+      const { readings } = evidence.read([winner.grid]);
+      if (readings.length === 0) return null;
+      winnerPhaseScore = phaseScore(readings[0]);
+    }
+
     // Compute challenger's arbitration score and phase score
     const candidateGrid = group.grids[0].grid;
-    const { readings } = gridEvidence(image, [candidateGrid]);
+    const { readings } = evidence.read([candidateGrid]);
     if (readings.length === 0) continue;
 
     const reading = readings[0];
@@ -598,15 +610,10 @@ function preferCorroboratedNearCountMarginBdDist(
  * on a strict lattice size. If ≥MIN_CORROBORATORS agree, admit the best-phaseScore among them.
  */
 function admitCorroboratedLattice(
-  image: PixelBuffer,
-  proposers: readonly GridProposer[],
+  evidence: GridEvidenceReader,
+  tagged: readonly { grid: PixelGridAnalysis; proposerIndex: number }[],
   rotation: number,
 ): { score: number; grid: PixelGridAnalysis; rotation: number } | null {
-  // Collect proposals from corroborating proposers, tagged by source
-  const tagged = proposers.flatMap((proposer, index) =>
-    proposer(image).map((grid) => ({ grid, proposerIndex: index })),
-  );
-
   // Group by strict lattice size (width × height)
   const bySize = new Map<string, { grid: PixelGridAnalysis; proposerIndex: number }[]>();
   for (const entry of tagged) {
@@ -626,10 +633,7 @@ function admitCorroboratedLattice(
     if (proposerIndices.size < MIN_CORROBORATORS) continue;
 
     // Among corroborated grids of this size, find best phaseScore
-    const { readings } = gridEvidence(
-      image,
-      group.map((e) => e.grid),
-    );
+    const { readings } = evidence.read(group.map((e) => e.grid));
     for (const reading of readings) {
       const phase = phaseScore(reading);
       if (phase < bestScore) {

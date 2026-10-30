@@ -4,7 +4,7 @@ import type { PixelBuffer } from "$/base/primitives";
 import {
   arbitrateGrids,
   classTwinCuts,
-  gridEvidence,
+  GridEvidenceReader,
   twinCuts,
 } from "$/import-export/image/import/grid-arbitrate";
 import {
@@ -96,6 +96,25 @@ describe("twin cuts", () => {
 });
 
 describe("one score over every proposal and the passthrough", () => {
+  test("reused evidence preserves cut models, geometry and each proposal list's confidence", () => {
+    const image = rowJitterUpscale(sprite(16), 5, 1.2);
+    const grid = lattice(image, 5);
+    const mesh = { ...grid, algorithm: PixelationAlgorithm.EdgeGrid };
+    const offset = lattice(image, 5, 1);
+    const highConfidence = { ...grid, confidence: 0.95, reliable: true };
+    const evidence = new GridEvidenceReader(image);
+    const summarize = ({ readings, pixels }: ReturnType<GridEvidenceReader["read"]>) => ({
+      pixels,
+      readings: readings.map(({ frame, ...reading }) => ({ ...reading, frame: frame() })),
+    });
+    for (const grids of [[grid], [mesh], [offset], [highConfidence, offset], [offset, grid], []]) {
+      expect(summarize(evidence.read(grids))).toEqual(
+        summarize(new GridEvidenceReader(image).read(grids)),
+      );
+      expect(arbitrateGrids(image, grids, evidence)).toEqual(arbitrateGrids(image, grids));
+    }
+  });
+
   test("refuses when nothing is proposed", () => {
     expect(arbitrateGrids(upscaleNearest(sprite(32), 4), [])).toBeNull();
   });
@@ -179,7 +198,7 @@ describe("one score over every proposal and the passthrough", () => {
 
   test("a locked lattice describes the image markedly better than its twin", () => {
     const image = upscaleNearest(sprite(32), 6);
-    const { readings, pixels } = gridEvidence(image, [lattice(image, 6)]);
+    const { readings, pixels } = new GridEvidenceReader(image).read([lattice(image, 6)]);
     const [reading] = readings;
     expect(reading.twin).toBeGreaterThan(reading.length);
     expect(reading.length).toBeLessThan(pixels);
@@ -188,7 +207,7 @@ describe("one score over every proposal and the passthrough", () => {
 
   test("a strip-shifted reading owns more phase evidence than its search finds by chance", () => {
     const image = rowJitterUpscale(sprite(32), 6, 1.2);
-    const [reading] = gridEvidence(image, [lattice(image, 6)]).readings;
+    const [reading] = new GridEvidenceReader(image).read([lattice(image, 6)]).readings;
     expect(reading.chance).toBeGreaterThan(0);
     expect(reading.twin - reading.length).toBeGreaterThan(2 * reading.chance);
   });

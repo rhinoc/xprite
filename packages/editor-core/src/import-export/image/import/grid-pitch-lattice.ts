@@ -27,12 +27,17 @@ const FINE_PHASE_STEPS = 4;
  */
 const SCREEN_CONTRAST = 0.1;
 const HALF = 0.5;
+/** Bound the interval lookup tables to eight MiB per sampled axis. */
+const INTERVAL_CACHE_VALUES = 1 << 20;
 
 /** Prefix sums (premultiplied R, G, B and their summed squares) along sampled lines of one axis. */
 interface AxisSamples {
   length: number;
   lines: number;
   prefix: Float64Array;
+  /** Rounded pitch/phase proposals often produce the same integer cuts. */
+  residuals: Map<string, number>;
+  intervals: Map<number, Float64Array>;
 }
 
 function axisSamples(image: PixelBuffer, horizontal: boolean, maxLines: number): AxisSamples {
@@ -66,17 +71,52 @@ function axisSamples(image: PixelBuffer, horizontal: boolean, maxLines: number):
       prefix[p + 3] = squares;
     }
   }
-  return { length, lines, prefix };
+  return { length, lines, prefix, residuals: new Map(), intervals: new Map() };
+}
+
+/** Each interval keeps the same arithmetic as the direct residual, including summation order. */
+function intervalResiduals(samples: AxisSamples, size: number): Float64Array | undefined {
+  if (size <= 0) return undefined;
+  const { length, lines, prefix, intervals } = samples;
+  const cached = intervals.get(size);
+  if (cached) return cached;
+  const values = length * lines;
+  if ((intervals.size + 1) * values > INTERVAL_CACHE_VALUES) return undefined;
+  const residuals = new Float64Array(values);
+  const row = (length + 1) * CHANNELS;
+  for (let line = 0; line < lines; line++) {
+    const base = line * row;
+    for (let start = 0; start + size <= length; start++) {
+      const a = base + start * CHANNELS,
+        b = a + size * CHANNELS;
+      const r = prefix[b] - prefix[a],
+        g = prefix[b + 1] - prefix[a + 1],
+        bl = prefix[b + 2] - prefix[a + 2];
+      residuals[line * length + start] =
+        prefix[b + 3] - prefix[a + 3] - (r * r + g * g + bl * bl) / size;
+    }
+  }
+  intervals.set(size, residuals);
+  return residuals;
 }
 
 /** Mean squared within-segment residual along the sampled lines when the axis is cut at `cuts`. */
 function lineResidual(samples: AxisSamples, cuts: readonly number[]): number {
-  const { length, lines, prefix } = samples;
+  const { length, lines, prefix, residuals } = samples;
+  const key = cuts.join(",");
+  const cached = residuals.get(key);
+  if (cached !== undefined) return cached;
+  const intervals = cuts.slice(1).map((end, i) => intervalResiduals(samples, end - cuts[i]));
   const row = (length + 1) * CHANNELS;
   let total = 0;
   for (let line = 0; line < lines; line++) {
     const base = line * row;
     for (let s = 0; s + 1 < cuts.length; s++) {
+      const interval = intervals[s];
+      if (interval) {
+        total += interval[line * length + cuts[s]];
+        continue;
+      }
       const a = base + cuts[s] * CHANNELS,
         b = base + cuts[s + 1] * CHANNELS;
       const n = cuts[s + 1] - cuts[s];
@@ -87,7 +127,9 @@ function lineResidual(samples: AxisSamples, cuts: readonly number[]): number {
       total += prefix[b + 3] - prefix[a + 3] - (r * r + g * g + bl * bl) / n;
     }
   }
-  return Math.max(0, total / (lines * length));
+  const residual = Math.max(0, total / (lines * length));
+  residuals.set(key, residual);
+  return residual;
 }
 
 function latticeCuts(length: number, pitch: number, phase: number): number[] {

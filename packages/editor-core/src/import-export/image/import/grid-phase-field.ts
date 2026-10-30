@@ -63,12 +63,16 @@ interface EnergyTable {
   drops: Float64Array;
 }
 
+const dropTables = new WeakMap<LinePrefix, Float64Array>();
+
 /**
  * Per described line, the cumulative nats of coding each pixel's colour against its neighbour
  * (see colourStepCost). Where a dropped pixel lies follows from the shifts, and the straightened
  * image holds a repeated pixel in its place, which already pays the residual floor.
  */
 function dropTable(prefix: LinePrefix): Float64Array {
+  const cached = dropTables.get(prefix);
+  if (cached) return cached;
   const { length, lines, sums } = prefix;
   const drops = new Float64Array(lines.length * (length + 1));
   const value = (base: number, p: number, c: number) =>
@@ -84,6 +88,7 @@ function dropTable(prefix: LinePrefix): Float64Array {
       drops[row + p + 1] = drops[row + p] + colourStepCost(step);
     }
   }
+  dropTables.set(prefix, drops);
   return drops;
 }
 
@@ -382,17 +387,21 @@ function antiField(table: RangedTable, anchor: AxisField): AxisField {
 
 /** The image straightened by a column field, then by the row field read on the result. */
 function straighten(
-  image: PixelBuffer,
+  strips: StripImage,
   cutsX: readonly number[],
   cutsY: readonly number[],
   columnTable: RangedTable,
   columns: AxisField,
   rowsOf: (table: RangedTable) => AxisField,
 ) {
+  const { image } = strips;
   const once = moved(columns)
     ? unfield(image, false, cutsX, columnTable.prefix.lines, columns)
     : image;
-  const rowTable = rangedTable(linePrefix(once, true), cutsY);
+  const rowTable = rangedTable(
+    once === image ? strips.prefix(true) : linePrefix(once, true),
+    cutsY,
+  );
   const rows = rowsOf(rowTable);
   const straight = moved(rows) ? unfield(once, true, cutsY, rowTable.prefix.lines, rows) : once;
   return { straight, rows };
@@ -404,13 +413,12 @@ export function phaseField(
   cutsX: readonly number[],
   cutsY: readonly number[],
 ): (StripShear & { bandsX: number; bandsY: number }) | null {
-  const { image } = strips;
   const columnTable = rangedTable(strips.prefix(false), cutsX);
   const columns = bestField(columnTable);
-  const { straight, rows } = straighten(image, cutsX, cutsY, columnTable, columns, bestField);
+  const { straight, rows } = straighten(strips, cutsX, cutsY, columnTable, columns, bestField);
   if (!moved(columns) && !moved(rows)) return null;
   const twin = () =>
-    straighten(image, cutsX, cutsY, columnTable, antiField(columnTable, columns), (table) =>
+    straighten(strips, cutsX, cutsY, columnTable, antiField(columnTable, columns), (table) =>
       antiField(table, rows),
     ).straight;
   return {

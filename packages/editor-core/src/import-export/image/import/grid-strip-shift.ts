@@ -222,7 +222,11 @@ export function stripShear(
   const { image } = strips;
   const columns = stripShifts(strips.prefix(false), cutsX, cutsY);
   const once = moved(columns.shifts) ? unshear(image, false, cutsY, columns.shifts) : image;
-  const rows = stripShifts(linePrefix(once, true), cutsY, cutsX);
+  const rows = stripShifts(
+    once === image ? strips.prefix(true) : linePrefix(once, true),
+    cutsY,
+    cutsX,
+  );
   if (!moved(columns.shifts) && !moved(rows.shifts)) return null;
   const straight = moved(rows.shifts) ? unshear(once, true, cutsX, rows.shifts) : once;
   const cost =
