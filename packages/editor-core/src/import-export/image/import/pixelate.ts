@@ -31,6 +31,12 @@ import type {
   PixelGridAnalysis,
 } from "$/import-export/image/import/types";
 
+/** Min Auto confidence to color from winning-reading sample (strip/field straight).
+ * Below this, fall back to input/rotation upright — GT-free shear-risk gate.
+ * Tuned on e2e-mapping-1 ΔE00: fixes 4 regressions (warps + block_reset, conf≤0.287);
+ * keeps high-conf field wins (sine ≈0.55+). Not a case-name denylist.
+ */
+const SAMPLE_COLOR_MIN_CONFIDENCE = 0.35;
 const WORKING_SCALE = 4;
 const MAX_WORKING_PIXELS = 1_048_576;
 const MAX_OUTLINE_STRENGTH = 100;
@@ -92,12 +98,16 @@ function sampleImage(
     const cell = (found.cellWidth + found.cellHeight) / 2;
     // A tilted source is straightened first; the grid's cuts are measured in that image.
     // Auto may attach sample = the winning reading's full straight (strip/phase/placed);
-    // color from that buffer so local geometry corrections reach TwoStage.
+    // color from that buffer only when confidence clears the shear-risk gate.
     const analysis = found as PixelGridAnalysis;
     const rotation = analysis.rotation;
-    const upright = analysis.sample ?? (rotation ? straighten(image, rotation) : image);
+    const sample =
+      analysis.sample && analysis.confidence >= SAMPLE_COLOR_MIN_CONFIDENCE
+        ? analysis.sample
+        : undefined;
+    const upright = sample ?? (rotation ? straighten(image, rotation) : image);
     const gridForRecover =
-      analysis.sample || rotation
+      sample || rotation
         ? ({ ...analysis, rotation: undefined, sample: undefined } as PixelGridAnalysis)
         : found;
     // Custom size's even blocks with PixelOE + Contrast: stock PixelOE to that size.
@@ -260,9 +270,13 @@ async function sampleImageAsync(
     const cell = (found.cellWidth + found.cellHeight) / 2;
     const analysis = found as PixelGridAnalysis;
     const rotation = analysis.rotation;
-    const upright = analysis.sample ?? (rotation ? straighten(image, rotation) : image);
+    const sample =
+      analysis.sample && analysis.confidence >= SAMPLE_COLOR_MIN_CONFIDENCE
+        ? analysis.sample
+        : undefined;
+    const upright = sample ?? (rotation ? straighten(image, rotation) : image);
     const gridForRecover =
-      analysis.sample || rotation
+      sample || rotation
         ? ({ ...analysis, rotation: undefined, sample: undefined } as PixelGridAnalysis)
         : found;
     if (runsStockPixeloe({ ...options, mode }, found))
