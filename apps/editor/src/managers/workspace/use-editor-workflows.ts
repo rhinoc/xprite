@@ -897,7 +897,10 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       void clipboard.pasteNewSprite();
     },
     openFromClipboard: () => {
-      if (!canStartInteraction() || !clipboard.getCapabilities().canPasteNewSprite) return;
+      // Do not gate on canPasteNewSprite: first click must run under the user gesture so
+      // the browser can show the clipboard permission prompt. After permission is known,
+      // menu probing may disable the item when the OS clipboard has no image.
+      if (!canStartInteraction()) return;
       if (sequenceSources.current.length) return;
       timelineActions?.flushPendingLayerProperties?.();
       telemetry.documentOpenRequested(DocumentOpenMethod.Import);
@@ -906,6 +909,16 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
           const image = await workspace.clipboard.read();
           if (!image || !workflowMounted.current || !canStartInteraction()) {
             telemetry.documentOpenCancelled(DocumentOpenMethod.Import);
+            // Toast only after a definitive OS read found no image (empty/non-image).
+            // Permission denial leaves hasSystemClipboardAccess false — browser UI handles that.
+            if (
+              !image &&
+              workflowMounted.current &&
+              workspace.clipboard.hasSystemClipboardAccess &&
+              !workspace.clipboard.hasImage
+            ) {
+              editor.setNotice(tUi("ui.open.from.clipboard.empty"));
+            }
             return;
           }
           const file = await fileFromClipboardImage(image);

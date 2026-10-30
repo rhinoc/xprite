@@ -1009,6 +1009,7 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
             if (open) {
               actions.loadRecentFiles?.();
               actions.prepareText?.();
+              // Peek only when clipboard-read already granted (probe no-ops otherwise).
               actions.probeClipboardImage?.();
             }
           }}
@@ -1054,8 +1055,8 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
             onMenuOpen={(index) => {
               if (index === 0) actions.loadRecentFiles?.();
               if (index === 1) actions.prepareText?.();
-              // File / Edit: peek system clipboard under the open gesture so Open from Clipboard
-              // and Paste as New Sprite enable only when an image is actually present.
+              // File / Edit: peek only when clipboard-read is already granted (probe skips
+              // otherwise) so the first Open from Clipboard click can still request permission.
               if (index === 0 || index === 1) actions.probeClipboardImage?.();
             }}
           />

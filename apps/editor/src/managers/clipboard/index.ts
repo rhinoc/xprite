@@ -39,12 +39,15 @@ export interface ClipboardPort {
   write(item: ClipboardItemPayload): Promise<boolean | void>;
   clear?(): Promise<void>;
   canRead?(): boolean;
+  /** true only when Permissions API already reports clipboard-read granted. */
+  isClipboardReadGranted?(): Promise<boolean>;
   /** true/false when the OS clipboard was readable; null when the API or permission cannot tell. */
   peekImage?(): Promise<boolean | null>;
 }
 const browserClipboardPort: ClipboardPort = {
   canRead: browserClipboard.canRead,
   clear: browserClipboard.clear,
+  isClipboardReadGranted: () => browserClipboard.isClipboardReadGranted(),
   peekImage: () => browserClipboard.peekImage(["image/png", "image/*"]),
   read: () => browserClipboard.read(["image/png", "image/*"]),
   write: (item) => browserClipboard.write(item),
@@ -56,6 +59,12 @@ export class ImageClipboard {
   private appImageCopy = false;
   /** Last successful observation of an image MIME on the system clipboard (not mere API presence). */
   private systemImagePresent = false;
+  /**
+   * True after a definitive OS clipboard peek/read (not permission-denied).
+   * Until then, Open from Clipboard / Paste as New Sprite stay enabled so the
+   * first click can trigger the browser permission prompt.
+   */
+  private systemClipboardReadable = false;
   private timeline: TimelineClipboard | null = null;
   private timelineCopySource: {
     core: RasterEditor;
@@ -112,14 +121,26 @@ export class ImageClipboard {
   get hasSystemImage() {
     return this.systemImagePresent;
   }
+  /** True after a definitive OS peek/read succeeded (permission already usable). */
+  get hasSystemClipboardAccess() {
+    return this.systemClipboardReadable;
+  }
   /**
-   * Best-effort OS clipboard image check. Needs a user gesture for the first permission prompt.
+   * Best-effort OS clipboard image check for menu enablement.
+   * Peeks only when clipboard-read is already granted (Permissions API) or a prior
+   * peek/read already succeeded — never forces the first permission prompt on File/Edit open.
    * Does not decode or adopt clipboard contents into the workspace clipboard.
    */
   async probeSystemImage(): Promise<void> {
     if (!this.port.peekImage) return;
+    const granted =
+      this.systemClipboardReadable || (await this.port.isClipboardReadGranted?.()) === true;
+    if (!granted) return;
     const result = await this.port.peekImage();
-    if (result === null || result === this.systemImagePresent) return;
+    if (result === null) return;
+    const wasReadable = this.systemClipboardReadable;
+    this.systemClipboardReadable = true;
+    if (result === this.systemImagePresent && wasReadable) return;
     this.systemImagePresent = result;
     this.publish();
   }
@@ -225,9 +246,11 @@ export class ImageClipboard {
       // write promise when supported and must never become an unhandled reject.
       void png.catch(() => {});
       await this.port.write({ "image/png": png });
-      if (this.image === owned && !this.hasSystemImage) {
+      if (this.image === owned) {
+        const changed = !this.systemClipboardReadable || !this.hasSystemImage;
+        this.systemClipboardReadable = true;
         this.setSystemImagePresent(true);
-        this.publish();
+        if (changed) this.publish();
       }
     } catch {
       /* internal clipboard remains available */
@@ -247,7 +270,17 @@ export class ImageClipboard {
       }
     }
     if (version !== this.version) return null;
-    if (!source) return this.getImage();
+    if (!source) {
+      // OS read returned no image. Only treat as a confirmed empty clipboard when
+      // clipboard.read exists (unavailable API also yields null without throwing).
+      if (this.canReadExternal) {
+        const changed = !this.systemClipboardReadable || this.systemImagePresent;
+        this.systemClipboardReadable = true;
+        this.setSystemImagePresent(false);
+        if (changed) this.publish();
+      }
+      return this.getImage();
+    }
     const pixels = await decodeImage(source);
     if (version !== this.version) return null;
     const previous = this.image
@@ -274,6 +307,7 @@ export class ImageClipboard {
     this.image = { pixels, mask: null };
     this.clearTimelineCopySource();
     this.appImageCopy = false;
+    this.systemClipboardReadable = true;
     this.setSystemImagePresent(true);
     this.publish();
     return this.getImage();
@@ -361,11 +395,13 @@ export function createClipboardActions(options: ClipboardActionOptions) {
       doc = options.isDocumentActive?.() === false ? null : state?.document;
     const imageAvailable =
       !clipboard.hasPalette && (clipboard.hasImage || clipboard.canReadExternal);
-    // Open from Clipboard / Paste as New Sprite: never enable on canRead alone — browsers expose
-    // clipboard.read even when empty/non-image. Enable only for a known workspace image or a
-    // system image last confirmed by peek/write/read (File/Edit menu open probes under gesture).
+    // Open from Clipboard / Paste as New Sprite: stay enabled until the OS clipboard has been
+    // peeked/read under already-granted permission (or a prior successful read). Menu open only
+    // peeks when clipboard-read is already granted so the first click can still trigger the
+    // permission prompt; after that, empty/non-image disables the items.
     const knownImageForNewSprite =
-      !clipboard.hasPalette && (clipboard.hasImage || clipboard.hasSystemImage);
+      !clipboard.hasPalette &&
+      (clipboard.hasImage || clipboard.hasSystemImage || !clipboard.hasSystemClipboardAccess);
     const pending = !!state?.inlineText || !!state?.floatingPaste || !!state?.preview;
     if (region() === ClipboardRegion.Palette || region() === ClipboardRegion.Tileset) {
       const selectedIndices = region() === ClipboardRegion.Palette ? paletteSelection() : [];

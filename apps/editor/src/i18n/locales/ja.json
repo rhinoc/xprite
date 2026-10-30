@@ -765,6 +765,7 @@
   "ui.open.preferences": "環境設定を開く",
   "ui.open.recent": "最近使ったファイルを開く",
   "ui.open.from.clipboard": "クリップボードから開く",
+  "ui.open.from.clipboard.empty": "クリップボードに画像がありません",
   "ui.open.with.os": "OSで開く",
   "ui.options": "オプション",
   "ui.ordered": "規則的",
