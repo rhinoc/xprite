@@ -10,8 +10,11 @@ import type {
 import { MIN_BEAD_BOARD_EDGE, MAX_BEAD_BOARD_EDGE } from "$/managers/beads/bead-tool-manager";
 import type { BeadTextKey } from "$/managers/locale/bead-text";
 import { useBeadText } from "$/managers/locale/tool-language";
-import { BEAD_BOARD_PRESETS } from "@xprite/editor-core/import-export";
-import { OutlinePrepass, PixelationMethod } from "@xprite/editor-core/import-export";
+import {
+  BEAD_BOARD_PRESETS,
+  OutlinePrepass,
+  PIXELATION_METHOD_OPTIONS,
+} from "@xprite/editor-core/import-export";
 import {
   ControlFlow,
   Input,
@@ -29,13 +32,16 @@ const NUMBER_WIDTH = 40;
 const GRID_WIDTH = 64;
 const SELECT_WIDTH = 108;
 const MIN_GRID_EDGE = 1;
-const SAMPLING_KEYS: Readonly<Record<PixelationMethod, BeadTextKey>> = {
-  [PixelationMethod.Structure]: "beads.sampling.structure",
-  [PixelationMethod.Dominant]: "beads.sampling.dominant",
-  [PixelationMethod.MostFrequent]: "beads.sampling.frequent",
-  [PixelationMethod.Box]: "beads.sampling.box",
-  [PixelationMethod.Nearest]: "beads.sampling.nearest",
-};
+type BeadSamplingMethod = (typeof PIXELATION_METHOD_OPTIONS)[number]["value"];
+
+/** Beads only offers PIXELATION_METHOD_OPTIONS (not internal TwoStage). */
+const SAMPLING_KEYS = {
+  structure: "beads.sampling.structure",
+  dominant: "beads.sampling.dominant",
+  "most-frequent": "beads.sampling.frequent",
+  box: "beads.sampling.box",
+  nearest: "beads.sampling.nearest",
+} as const satisfies Readonly<Record<BeadSamplingMethod, BeadTextKey>>;
 type Axis = "width" | "height";
 
 function parseBoardEdge(raw: string): number | null {

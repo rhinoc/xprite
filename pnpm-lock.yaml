@@ -145,6 +145,9 @@ importers:
       '@xprite/editor-ui':
         specifier: workspace:*
         version: link:../../packages/editor-ui
+      '@xprite/fixer-detect-wasm':
+        specifier: workspace:*
+        version: link:../../packages/fixer-detect-wasm
       '@xprite/growth-content':
         specifier: workspace:*
         version: link:../growth/content
