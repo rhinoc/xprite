@@ -163,25 +163,17 @@ function validatePalette(palette: readonly Rgba[]): Rgba[] {
   });
 }
 
-/** Perceptual matching with exact RGBA cache keys; colors within a coarse bin may differ. */
-export function reduceToPalette(
-  image: PixelBuffer,
-  palette: readonly Rgba[],
-  options: { preserveAlpha?: boolean } = {},
-): PixelBuffer {
-  assertPixelBuffer(image);
+function paletteMatcher(palette: readonly Rgba[], preserveAlpha = false) {
   const colors = validatePalette(palette);
   const transparent = colors.some((color) => color[3] === 0);
   const cache = new Map<number, number>();
   const coordinates = colors.map((color) =>
     paletteCoordinates(
-      options.preserveAlpha && color[3] ? [color[0], color[1], color[2], UINT8_MAX] : color,
+      preserveAlpha && color[3] ? [color[0], color[1], color[2], UINT8_MAX] : color,
     ),
   );
-  const output = new Uint8ClampedArray(image.data.length);
-  const source = image.data;
   const nearest = (r: number, g: number, b: number, a: number): number => {
-    const opacity = options.preserveAlpha && a ? UINT8_MAX : a;
+    const opacity = preserveAlpha && a ? UINT8_MAX : a;
     const cacheKey = opacity ? (r << 24) | (g << 16) | (b << 8) | opacity : 0;
     const cached = cache.get(cacheKey);
     if (cached !== undefined) return cached;
@@ -189,7 +181,7 @@ export function reduceToPalette(
     let best = 0,
       bestDistance = Number.POSITIVE_INFINITY;
     for (let i = 0; i < coordinates.length; i++) {
-      if (options.preserveAlpha && a && !colors[i][3]) continue;
+      if (preserveAlpha && a && !colors[i][3]) continue;
       const color = coordinates[i];
       const dl = sample[0] - color[0],
         da = sample[1] - color[1],
@@ -204,6 +196,19 @@ export function reduceToPalette(
     if (cache.size < REDUCTION_CACHE_SIZE) cache.set(cacheKey, best);
     return best;
   };
+  return { colors, transparent, nearest };
+}
+
+/** Perceptual matching with exact RGBA cache keys; colors within a coarse bin may differ. */
+export function reduceToPalette(
+  image: PixelBuffer,
+  palette: readonly Rgba[],
+  options: { preserveAlpha?: boolean } = {},
+): PixelBuffer {
+  assertPixelBuffer(image);
+  const { colors, transparent, nearest } = paletteMatcher(palette, options.preserveAlpha);
+  const output = new Uint8ClampedArray(image.data.length);
+  const source = image.data;
 
   for (let offset = 0; offset < source.length; offset += 4) {
     if ((transparent || options.preserveAlpha) && source[offset + 3] === 0) continue;
@@ -237,4 +242,32 @@ export function extractPixelationPalette(
   return entries.length
     ? entries
     : [{ color: [0, 0, 0, 0], count: image.width * image.height, coverage: 1 }];
+}
+
+/** Compact mapped-RGB groups for the bounded Structure/TwoStage palettes. */
+export function reduceToPixelationLabels(image: PixelBuffer, palette: readonly Rgba[]) {
+  assertPixelBuffer(image);
+  const { colors, nearest } = paletteMatcher(palette, true);
+  const keys = [0];
+  const groups = new Map<number, number>([[0, 0]]);
+  const paletteGroups = colors.map((color) => {
+    const key = (color[0] << 16) | (color[1] << 8) | color[2];
+    let group = groups.get(key);
+    if (group === undefined) {
+      group = keys.length;
+      groups.set(key, group);
+      keys.push(key);
+    }
+    return group;
+  });
+  const data = new Uint8Array(image.width * image.height);
+  const source = image.data;
+  for (let offset = 0; offset < source.length; offset += 4) {
+    if (source[offset + 3] === 0) continue;
+    data[offset / 4] =
+      paletteGroups[
+        nearest(source[offset], source[offset + 1], source[offset + 2], source[offset + 3])
+      ];
+  }
+  return { data, keys };
 }

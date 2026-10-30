@@ -1,7 +1,10 @@
 import { UINT8_MAX } from "$/base/numeric-constants";
 import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { assertDimension, assertPixelCount, clampByte } from "$/document/pixel-validation";
-import { extractPixelationPalette, reduceToPalette } from "$/import-export/image/import/palette";
+import {
+  extractPixelationPalette,
+  reduceToPixelationLabels,
+} from "$/import-export/image/import/palette";
 import { paletteCoordinates } from "$/import-export/image/import/quantization";
 import { PixelationMethod } from "$/import-export/image/import/types";
 
@@ -214,11 +217,13 @@ function dominant(samples: Sample[], axes: number): Sample[] {
   const weight = (group: Sample[]) => group.reduce((sum, sample) => sum + sample.voteWeight, 0);
   return weight(groups[0]) >= weight(groups[1]) ? groups[0] : groups[1];
 }
-function structure(samples: Sample[], labels: Uint8ClampedArray): Sample[] {
+function structure(
+  samples: Sample[],
+  labels: ReturnType<typeof reduceToPixelationLabels>,
+): Sample[] {
   const votes = new Map<number, number>();
   const key = (sample: Sample) => {
-    const offset = sample.index * CHANNELS;
-    return (labels[offset] << 16) | (labels[offset + 1] << 8) | labels[offset + 2];
+    return labels.keys[labels.data[sample.index]];
   };
   for (const sample of samples)
     votes.set(key(sample), (votes.get(key(sample)) ?? 0) + sample.visibleWeight);
@@ -258,9 +263,7 @@ export function samplePixelation(
           maxColors: adaptiveTwoStageK(image),
         }).map((entry) => entry.color)
       : undefined;
-  const labels = palette
-    ? reduceToPalette(image, palette, { preserveAlpha: true }).data
-    : undefined;
+  const labels = palette ? reduceToPixelationLabels(image, palette) : undefined;
   const data = new Uint8ClampedArray(width * height * CHANNELS);
   const cellFn = useTriangular ? cellTriangular : cell;
   for (let y = 0; y < height; y++)
