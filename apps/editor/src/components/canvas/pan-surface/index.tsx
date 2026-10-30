@@ -10,7 +10,12 @@ import { borderSize, clientPoint, clientDeltaToLocal, clientToLocal } from "@xpr
 
 export type EditorPanPoint = PanPoint;
 
-export interface EditorPanSurfaceProps extends Omit<PanSurfaceProps, "cursor" | "onWheelEvent"> {
+const THEMED_PAN_CURSOR = {
+  hand: "var(--ui-cursor-hand, grab)",
+  dragging: "var(--ui-cursor-scroll, grabbing)",
+} as const;
+
+export interface EditorPanSurfaceProps extends Omit<PanSurfaceProps, "onWheelEvent"> {
   onWheelAction?: (
     decision: EditorWheelDecision,
     delta: EditorPanPoint,
@@ -19,7 +24,7 @@ export interface EditorPanSurfaceProps extends Omit<PanSurfaceProps, "cursor" | 
 }
 
 /** Editor adapter that maps browser wheel policy into the shared pan surface. */
-export function EditorPanSurface({ onWheelAction, ...props }: EditorPanSurfaceProps) {
+export function EditorPanSurface({ onWheelAction, cursor, ...props }: EditorPanSurfaceProps) {
   const { resolve, projectDelta } = useWheelInput();
   const onWheelEvent = useCallback(
     (event: WheelEvent, node: HTMLDivElement, coordinateScale: EditorPanPoint) => {
@@ -48,10 +53,7 @@ export function EditorPanSurface({ onWheelAction, ...props }: EditorPanSurfacePr
     <PanSurface
       {...props}
       onWheelEvent={onWheelAction ? onWheelEvent : undefined}
-      cursor={{
-        hand: "var(--ui-cursor-hand, grab)",
-        dragging: "var(--ui-cursor-scroll, grabbing)",
-      }}
+      cursor={cursor ?? THEMED_PAN_CURSOR}
     />
   );
 }

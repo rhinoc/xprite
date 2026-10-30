@@ -10,6 +10,7 @@ import {
 import { EditorPanSurface } from "$/components/canvas/pan-surface";
 import {
   clampSplit,
+  originalClipRight,
   resultClipLeft,
   splitFromKey,
   splitFromPointer,
@@ -35,6 +36,8 @@ const PRESET_ZOOMS = [1, 2, 4];
 const ZOOM_WIDTH = 72;
 const PERCENT = 100;
 const PAN_BUTTONS = [0, 1];
+/** Native keywords — themed `url()` cursors vanish under the editor's CSS `zoom` on this stage. */
+const NATIVE_PAN_CURSOR = { hand: "grab", dragging: "grabbing" } as const;
 
 interface View {
   zoom: number;
@@ -231,6 +234,7 @@ export function ImportCompare({
         }}
         enabled
         handTool={!picking}
+        cursor={picking ? undefined : NATIVE_PAN_CURSOR}
         preserveChildFocus
         panButtons={picking ? [] : PAN_BUTTONS}
         pan={view.pan}
@@ -329,6 +333,9 @@ export function ImportCompare({
                 top: layer.top,
                 width: layer.width,
                 height: layer.height,
+                ...(comparing
+                  ? { clipPath: `inset(0 ${originalClipRight(split, width, layer)}px 0 0)` }
+                  : {}),
               }}
             />
           ) : (
