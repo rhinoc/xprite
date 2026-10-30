@@ -512,8 +512,9 @@ export class EditorSession<Source> {
       if (!this.valid(generation)) return SessionOutcome.Ignored;
       this.release(source.source, generation);
 
-      // Don't await Auto detection - start it async so dialog can open immediately.
-      // If analysis completes quickly, it will update the dialog state in the background.
+      // Don't await Auto detection - dialog opens immediately with Uncertain classification.
+      // Analysis runs in background and auto-import happens if completed before user acts.
+      // This prevents UI hang when Auto grid detection is slow.
       const candidate: Candidate = {
         sourcePalette: (source.palette ?? this.editor.getSnapshot().palette).map(
           (color) => [...color] as Rgba,
@@ -529,14 +530,15 @@ export class EditorSession<Source> {
         ...(project ? { project } : {}),
       };
 
-      // For non-projects, start async analysis that updates state when complete.
+      this.candidate = candidate;
+
+      // Start async analysis for non-projects (won't block dialog).
       if (!project) {
         void this.ports.analyze(pixels, { algorithm: this.importAlgorithm() }).then((analysis) => {
           if (!this.valid(generation)) return;
-          // Update candidate if this generation is still active.
           if (this.candidate && this.candidate.pixels === pixels) {
             this.candidate = { ...this.candidate, ...analysis };
-            // Update pending import if dialog is showing.
+            // Update dialog if it's showing.
             const pending = this.state.pendingImport;
             if (pending && pending.pixels === pixels) {
               this.publish({
@@ -556,27 +558,13 @@ export class EditorSession<Source> {
         });
       }
 
-      // Store candidate for async update.
-      this.candidate = candidate;
-
       if (this.changedSince(before)) {
         this.askReplacement({ kind: "candidate", candidate });
         return SessionOutcome.Confirmation;
       }
 
-      // Yield multiple times to let fast analysis (tests with synchronous mocks) complete.
-      // Real-world slow analysis won't complete in this time, so dialog still opens quickly.
-      for (let i = 0; i < 10; i++) await Promise.resolve();
-
-      // Check validity after yields in case session was disposed.
-      if (!this.valid(generation)) return SessionOutcome.Ignored;
-
-      // Use the updated candidate if async analysis completed.
-      const finalCandidate =
-        this.candidate && this.candidate.pixels === pixels ? this.candidate : candidate;
-
-      // Show dialog. Async analysis will update state when complete (if not already).
-      const outcome = this.offerCandidate(finalCandidate);
+      // Show dialog (or auto-import if conditions are met).
+      const outcome = this.offerCandidate(candidate);
       await this.flushPersistence();
       return outcome;
     } catch (reason) {

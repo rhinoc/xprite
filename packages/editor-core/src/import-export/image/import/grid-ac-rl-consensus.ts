@@ -394,7 +394,7 @@ export async function preloadWasm(): Promise<void> {
  * @param imageData - RGBA image data (Uint8ClampedArray or plain object with data/width/height)
  * @returns Grid dimensions when consensus fires, otherwise null
  */
-export function detectAcRlConsensus(imageData: {
+function detectAcRlConsensus(imageData: {
   data: Uint8ClampedArray | Uint8Array;
   width: number;
   height: number;

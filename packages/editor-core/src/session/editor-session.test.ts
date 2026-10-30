@@ -161,7 +161,11 @@ describe("editor-session", () => {
       });
       const first = h.session.initialize(source("Sample"));
       const replay = h.session.initialize(source("Replay"));
-      await h.session.requestImport(source("New"));
+      // With async analysis, requestImport shows dialog instead of auto-importing.
+      const importResult = await h.session.requestImport(source("New"));
+      assert.equal(importResult, "pending");
+      // Accept the import to replace the document.
+      await h.session.acceptOriginal();
       slow.resolve(image(11));
       await Promise.all([first, replay]);
       assert.equal(h.core.getSnapshot().document.name, "New");
@@ -192,11 +196,17 @@ describe("editor-session", () => {
       });
       const initial = h.session.initialize(source("Shared"));
       dirty(h.core);
-      await h.session.requestImport(source("Shared"));
+      // With async analysis, dialog shows instead of auto-import.
+      const importResult = await h.session.requestImport(source("Shared"));
+      assert.equal(importResult, "confirmation");
       slow.resolve(image(1));
       await initial;
       assert.deepEqual(h.released, []);
-      await h.session.confirmReplacement();
+      // confirmReplacement with async analysis shows the dialog.
+      const confirmResult = await h.session.confirmReplacement();
+      assert.equal(confirmResult, "pending");
+      // Accept the import.
+      await h.session.acceptOriginal();
       assert.deepEqual(h.released, ["Shared"]);
       assert.equal(h.core.getSnapshot().document.name, "Shared");
     });
@@ -230,7 +240,11 @@ describe("editor-session", () => {
       let h = harness();
       dirty(h.core);
       await h.session.requestImport(source());
-      assert.equal(await h.session.confirmReplacement(), "created");
+      // With async analysis, confirmReplacement shows dialog instead of auto-importing.
+      const confirmResult = await h.session.confirmReplacement();
+      assert.equal(confirmResult, "pending");
+      // Accept the import.
+      await h.session.acceptOriginal();
       assert.equal(h.core.getSnapshot().document.name, "Imported");
       assert.equal(h.core.getSnapshot().dirty, false);
       assert.equal(h.session.getSnapshot().documentActivation, 1);
@@ -249,7 +263,9 @@ describe("editor-session", () => {
       d.resolve(image(88));
       assert.equal(await request, "confirmation");
       assert.equal(h.core.getSnapshot().document.name, "Original");
-      assert.equal(await h.session.confirmReplacement(), "created");
+      // With async analysis, dialog shows immediately with Uncertain classification
+      // instead of auto-importing (which required awaiting analysis for LikelyPixelArt).
+      assert.equal(await h.session.confirmReplacement(), "pending");
       assert.equal(decodes, 1);
     });
     await test("palette edits during analysis are protected while pure view changes are not", async () => {
