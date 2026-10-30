@@ -101,6 +101,9 @@ function loadCjkFont(family: string, size: number) {
     }
   })();
   cjkFontPromises.set(family, pending);
+  void pending.then((ready) => {
+    if (!ready && cjkFontPromises.get(family) === pending) cjkFontPromises.delete(family);
+  });
   return pending;
 }
 
@@ -191,6 +194,19 @@ async function loadThemeFonts(typography: UiStyleDefinition["typography"]): Prom
   );
 }
 
+async function ensureThemeCjkFonts(assets: UiAssetBundle): Promise<UiAssetBundle> {
+  const { assets: cachedAssets, listeners } = themeCache(assets.uiTheme);
+  const current = cachedAssets.get(assets.colorScheme) ?? assets;
+  if (current.cjkFontReady) return current;
+  const cjkFontReady = await loadThemeCjkFonts(current.theme.typography, current.uiTheme);
+  const latest = cachedAssets.get(assets.colorScheme) ?? current;
+  if (latest.cjkFontReady || !cjkFontReady) return latest;
+  const ready = { ...latest, cjkFontReady };
+  cachedAssets.set(assets.colorScheme, ready);
+  for (const listener of listeners.get(assets.colorScheme) ?? []) listener();
+  return ready;
+}
+
 /** Load the selected theme module, its atlas, and its declared fonts once. */
 export function preloadThemeAssets(
   colorScheme: UiColorScheme,
@@ -203,13 +219,7 @@ export function preloadThemeAssets(
     return existing.then(async (assets) => {
       const current = cachedAssets.get(colorScheme) ?? assets;
       if (current.cjkFontReady || !CJK_LANGUAGE_PATTERN.test(language)) return current;
-      const cjkFontReady = await loadThemeCjkFonts(current.theme.typography, uiTheme);
-      const latest = cachedAssets.get(colorScheme) ?? current;
-      if (latest.cjkFontReady || !cjkFontReady) return latest;
-      const ready = { ...latest, cjkFontReady };
-      cachedAssets.set(colorScheme, ready);
-      for (const listener of themeCache(uiTheme).listeners.get(colorScheme) ?? []) listener();
-      return ready;
+      return ensureThemeCjkFonts(current);
     });
   }
   const promise = loadThemeModule(colorScheme, uiTheme).then(async (module) => {
@@ -244,6 +254,11 @@ export function preloadThemeAssets(
     };
     cachedAssets.set(colorScheme, assets);
     for (const listener of themeCache(uiTheme).listeners.get(colorScheme) ?? []) listener();
+    if (!needsCjkFont && typography[FontRole.Primary].renderer === UiFontRenderer.Bitmap) {
+      // User-provided text can contain CJK even when the interface language does not.
+      // Start after the initial assets are ready, without holding up the first screen.
+      void ensureThemeCjkFonts(assets).catch(reportThemeAssetError);
+    }
     return assets;
   });
   assetsPromises.set(colorScheme, promise);
