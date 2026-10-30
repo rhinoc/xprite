@@ -2,7 +2,10 @@ import type { PixelBuffer } from "$/base/primitives";
 import { forgetNeighbourSteps } from "$/import-export/image/import/color-step";
 import { estimateTilt, straighten } from "$/import-export/image/import/deskew";
 import { blockPartition } from "$/import-export/image/import/grid";
-import { detectAcRlConsensus } from "$/import-export/image/import/grid-ac-rl-consensus";
+import {
+  beginAcRlConsensusJob,
+  finishAcRlConsensusJob,
+} from "$/import-export/image/import/grid-ac-rl-consensus";
 import {
   arbitrateGrids,
   gridEvidence,
@@ -158,7 +161,8 @@ function pruneCandidatesBeforeArbitration(
  * the upright grid.
  *
  * Performance: Call preloadWasm() during app/worker initialization to prewarm WASM module.
- * Proposers run sequentially (JavaScript single-threaded); future: Web Workers for true parallelization.
+ * On Node, AC+RL WASM detect starts on a worker_threads worker before proposers run on this
+ * thread (begin/finish); browser stays on-thread (nested Worker needs COOP/COEP SAB to sync-join).
  */
 function autoGrid(image: PixelBuffer): PixelGridAnalysis {
   const tilt = estimateTilt(image);
@@ -186,6 +190,9 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
   // Arbitrate each view: all proposers run on this view
   let best: { score: number; grid: PixelGridAnalysis; rotation: number } | null = null;
   for (const ring of rings) {
+    // Overlap: start WASM AC+RL on a Node worker (no-op→sync fallback in browser) while proposers run
+    const wasmJob = beginAcRlConsensusJob(ring.image);
+
     // Run each proposer once and track outputs with their corroboration index
     const proposerOutputs = PROPOSERS.map((proposer) => {
       const grids = proposer(ring.image);
@@ -208,8 +215,8 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
         })),
       );
 
-    // Detect WASM consensus early to preserve consensus candidate during pruning
-    const consensus = detectAcRlConsensus(ring.image);
+    // Join WASM consensus (already running during proposers when worker overlap is active)
+    const consensus = finishAcRlConsensusJob(wasmJob);
 
     // WASM-first short-circuit: when consensus fires and candidate@G exists, skip expensive full arb
     let winner: ArbitratedGrid | null = null;

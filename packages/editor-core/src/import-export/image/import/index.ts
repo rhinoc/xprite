@@ -83,4 +83,9 @@ export {
   type CellColorPickerEntry,
 } from "$/import-export/image/import/cell-color-picker";
 
-export { preloadWasm } from "$/import-export/image/import/grid-ac-rl-consensus";
+export {
+  preloadWasm,
+  beginAcRlConsensusJob,
+  finishAcRlConsensusJob,
+  acRlWorkerOverlapActive,
+} from "$/import-export/image/import/grid-ac-rl-consensus";

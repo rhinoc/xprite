@@ -15,7 +15,8 @@
     "pixelfixer_detect_bg.wasm",
     "README.md",
     "rust-src/",
-    "rebuild.sh"
+    "rebuild.sh",
+    "ac-rl-detect-worker.mjs"
   ],
   "type": "module",
   "exports": {
@@ -23,6 +24,7 @@
       "types": "./pixelfixer_detect.d.ts",
       "default": "./pixelfixer_detect.js"
     },
-    "./pixelfixer_detect_bg.wasm": "./pixelfixer_detect_bg.wasm"
+    "./pixelfixer_detect_bg.wasm": "./pixelfixer_detect_bg.wasm",
+    "./ac-rl-detect-worker.mjs": "./ac-rl-detect-worker.mjs"
   }
 }
