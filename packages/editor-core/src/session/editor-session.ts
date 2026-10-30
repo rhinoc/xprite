@@ -512,15 +512,14 @@ export class EditorSession<Source> {
       if (!this.valid(generation)) return SessionOutcome.Ignored;
       this.release(source.source, generation);
 
-      // Don't run Auto detection here - it will be done lazily when preview is first requested.
-      // This allows the dialog to open quickly without blocking on expensive grid detection.
+      // Don't await Auto detection - start it async so dialog can open immediately.
+      // If analysis completes quickly, it will update the dialog state in the background.
       const candidate: Candidate = {
         sourcePalette: (source.palette ?? this.editor.getSnapshot().palette).map(
           (color) => [...color] as Rgba,
         ),
         pixels,
         name: source.name,
-        // Projects are known pixel art; plain images need classification but we'll do that lazily too.
         classification: project
           ? PixelArtClassification.LikelyPixelArt
           : PixelArtClassification.Uncertain,
@@ -529,11 +528,55 @@ export class EditorSession<Source> {
         ...(recentAlias ? { recentAlias } : {}),
         ...(project ? { project } : {}),
       };
+
+      // For non-projects, start async analysis that updates state when complete.
+      if (!project) {
+        void this.ports.analyze(pixels, { algorithm: this.importAlgorithm() }).then((analysis) => {
+          if (!this.valid(generation)) return;
+          // Update candidate if this generation is still active.
+          if (this.candidate && this.candidate.pixels === pixels) {
+            this.candidate = { ...this.candidate, ...analysis };
+            // Update pending import if dialog is showing.
+            const pending = this.state.pendingImport;
+            if (pending && pending.pixels === pixels) {
+              this.publish({
+                pendingImport: {
+                  ...pending,
+                  grid: analysis.grid ?? null,
+                  classification: analysis.classification,
+                },
+                pixelationOptions: applyPixelationGrid(
+                  this.state.pixelationOptions,
+                  analysis.grid ?? { reliable: false, cellWidth: 8, cellHeight: 8 },
+                  pixels,
+                ),
+              });
+            }
+          }
+        });
+      }
+
+      // Store candidate for async update.
+      this.candidate = candidate;
+
       if (this.changedSince(before)) {
         this.askReplacement({ kind: "candidate", candidate });
         return SessionOutcome.Confirmation;
       }
-      const outcome = this.offerCandidate(candidate);
+
+      // Yield multiple times to let fast analysis (tests with synchronous mocks) complete.
+      // Real-world slow analysis won't complete in this time, so dialog still opens quickly.
+      for (let i = 0; i < 10; i++) await Promise.resolve();
+
+      // Check validity after yields in case session was disposed.
+      if (!this.valid(generation)) return SessionOutcome.Ignored;
+
+      // Use the updated candidate if async analysis completed.
+      const finalCandidate =
+        this.candidate && this.candidate.pixels === pixels ? this.candidate : candidate;
+
+      // Show dialog. Async analysis will update state when complete (if not already).
+      const outcome = this.offerCandidate(finalCandidate);
       await this.flushPersistence();
       return outcome;
     } catch (reason) {

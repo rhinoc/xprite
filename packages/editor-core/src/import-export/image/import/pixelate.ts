@@ -251,7 +251,8 @@ async function sampleImageAsync(
     prepass === OutlinePrepass.PixeloeLines ? (options.lineGuide ?? DEFAULT_LINE_GUIDE) : undefined;
   if (mode === PixelationMode.RecoverGrid) {
     const found =
-      grid ?? (await detectWithAlgorithmAsync(image, options.algorithm ?? PixelationAlgorithm.Auto));
+      grid ??
+      (await detectWithAlgorithmAsync(image, options.algorithm ?? PixelationAlgorithm.Auto));
     if ("reliable" in found && !found.reliable)
       throw new Error(
         "No consistent pixel grid was detected. Turn off Automatic grid and choose cell sizes.",

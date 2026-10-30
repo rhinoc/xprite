@@ -235,4 +235,3 @@ export async function analyzePixelArtAsync(
   const grid = await detectWithAlgorithmAsync(image, options.algorithm, options.size);
   return { ...base, grid };
 }
-

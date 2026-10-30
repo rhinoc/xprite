@@ -50,9 +50,7 @@ scope.onmessage = async (event: MessageEvent) => {
       const result = detect(rgba, msg.width!, msg.height!);
       const ms = performance.now() - t0;
       const consensus =
-        result.consensus === "fast:ac+rl(S)"
-          ? { cols: result.cols, rows: result.rows }
-          : null;
+        result.consensus === "fast:ac+rl(S)" ? { cols: result.cols, rows: result.rows } : null;
       port.postMessage({ ok: true, type: "detect", consensus, ms });
       return;
     }
