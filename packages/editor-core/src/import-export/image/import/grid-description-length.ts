@@ -66,8 +66,7 @@ const BLUR_WIDTHS = [1.2, 2] as const;
 const MAX_BLUR_SHARE = 0.5;
 /** Deconvolution steps from the cell means to the blurred colours. */
 const DECONVOLUTION_STEPS = 1;
-/** Cell centres a bilinear pixel blends. */
-const BILINEAR_CORNERS = 4;
+
 /** Neighbours on each side a blurred pixel mixes. */
 const BLUR_REACH = 1;
 const BLUR_TAPS = 2 * BLUR_REACH + 1;
@@ -300,75 +299,107 @@ function cellMoments(
   described: DescribedImage,
   cutsX: readonly number[],
   cutsY: readonly number[],
-  columns: Int32Array,
-  rows: Int32Array,
 ): CellMoments {
   const { content: image, lines, values } = described;
   const { width } = image;
   const across = cutsX.length - 1,
-    cells = across * (cutsY.length - 1);
+    down = cutsY.length - 1,
+    cells = across * down;
   const counts = new Float64Array(cells),
-    sx = new Float64Array(cells),
-    sy = new Float64Array(cells),
-    sxx = new Float64Array(cells),
-    syy = new Float64Array(cells),
-    sxy = new Float64Array(cells),
-    squares = new Float64Array(cells);
-  const sv = new Float64Array(cells * CHANNELS),
-    svx = new Float64Array(cells * CHANNELS),
-    svy = new Float64Array(cells * CHANNELS);
-  for (let r = 0; r < lines.length; r++) {
-    const y = lines[r],
-      j = rows[y],
-      ly = y - cutsY[j];
-    for (let x = 0; x < width; x++) {
-      const i = columns[x],
-        cell = j * across + i,
-        lx = x - cutsX[i],
-        v = (r * width + x) * CHANNELS;
-      counts[cell]++;
-      sx[cell] += lx;
-      sy[cell] += ly;
-      sxx[cell] += lx * lx;
-      syy[cell] += ly * ly;
-      sxy[cell] += lx * ly;
-      for (let c = 0; c < CHANNELS; c++) {
-        const value = values[v + c],
-          k = cell * CHANNELS + c;
-        sv[k] += value;
-        svx[k] += value * lx;
-        svy[k] += value * ly;
-        squares[cell] += value * value;
-      }
-    }
-  }
-  const means = new Float64Array(cells * CHANNELS),
+    means = new Float64Array(cells * CHANNELS),
     slopes = new Float64Array(cells);
-  let flat = 0;
-  for (let cell = 0; cell < cells; cell++) {
-    const n = counts[cell];
-    if (!n) continue;
-    const mxx = sxx[cell] - (sx[cell] * sx[cell]) / n,
-      myy = syy[cell] - (sy[cell] * sy[cell]) / n,
-      mxy = sxy[cell] - (sx[cell] * sy[cell]) / n;
-    const det = mxx * myy - mxy * mxy;
-    let residual = squares[cell],
-      removed = 0;
-    for (let c = 0; c < CHANNELS; c++) {
-      const k = cell * CHANNELS + c,
-        s = sv[k];
-      means[k] = s / n;
-      residual -= (s * s) / n;
-      const gx = svx[k] - (sx[cell] * s) / n,
-        gy = svy[k] - (sy[cell] * s) / n;
+  let flat = 0,
+    first = 0;
+  for (let j = 0; j < down; j++) {
+    const bottom = Math.trunc(cutsY[j + 1]);
+    let last = first;
+    while (last < lines.length && lines[last] < bottom) last++;
+    for (let i = 0; i < across; i++) {
+      const cell = j * across + i,
+        left = Math.trunc(cutsX[i]),
+        right = Math.trunc(cutsX[i + 1]);
+      let n = 0,
+        sx = 0,
+        sy = 0,
+        sxx = 0,
+        syy = 0,
+        sxy = 0,
+        squares = 0,
+        sr = 0,
+        sg = 0,
+        sb = 0,
+        srx = 0,
+        sgx = 0,
+        sbx = 0,
+        sry = 0,
+        sgy = 0,
+        sby = 0;
+      for (let r = first; r < last; r++) {
+        const ly = lines[r] - cutsY[j],
+          row = r * width * CHANNELS;
+        for (let x = left; x < right; x++) {
+          const lx = x - cutsX[i],
+            at = row + x * CHANNELS,
+            red = values[at],
+            green = values[at + 1],
+            blue = values[at + 2];
+          n++;
+          sx += lx;
+          sy += ly;
+          sxx += lx * lx;
+          syy += ly * ly;
+          sxy += lx * ly;
+          sr += red;
+          srx += red * lx;
+          sry += red * ly;
+          squares += red * red;
+          sg += green;
+          sgx += green * lx;
+          sgy += green * ly;
+          squares += green * green;
+          sb += blue;
+          sbx += blue * lx;
+          sby += blue * ly;
+          squares += blue * blue;
+        }
+      }
+      if (!n) continue;
+      counts[cell] = n;
+      const mxx = sxx - (sx * sx) / n,
+        myy = syy - (sy * sy) / n,
+        mxy = sxy - (sx * sy) / n,
+        det = mxx * myy - mxy * mxy;
+      let residual = squares,
+        removed = 0;
+      means[cell * CHANNELS] = sr / n;
+      residual -= (sr * sr) / n;
+      const grx = srx - (sx * sr) / n,
+        gry = sry - (sy * sr) / n;
       if (det > SINGULAR && n >= MIN_PLANAR_AREA)
-        removed += (myy * gx * gx - 2 * mxy * gx * gy + mxx * gy * gy) / det;
-      else if (mxx > SINGULAR && n >= MIN_PLANAR_PIXELS) removed += (gx * gx) / mxx;
-      else if (myy > SINGULAR && n >= MIN_PLANAR_PIXELS) removed += (gy * gy) / myy;
+        removed += (myy * grx * grx - 2 * mxy * grx * gry + mxx * gry * gry) / det;
+      else if (mxx > SINGULAR && n >= MIN_PLANAR_PIXELS) removed += (grx * grx) / mxx;
+      else if (myy > SINGULAR && n >= MIN_PLANAR_PIXELS) removed += (gry * gry) / myy;
+      means[cell * CHANNELS + 1] = sg / n;
+      residual -= (sg * sg) / n;
+      const ggx = sgx - (sx * sg) / n,
+        ggy = sgy - (sy * sg) / n;
+      if (det > SINGULAR && n >= MIN_PLANAR_AREA)
+        removed += (myy * ggx * ggx - 2 * mxy * ggx * ggy + mxx * ggy * ggy) / det;
+      else if (mxx > SINGULAR && n >= MIN_PLANAR_PIXELS) removed += (ggx * ggx) / mxx;
+      else if (myy > SINGULAR && n >= MIN_PLANAR_PIXELS) removed += (ggy * ggy) / myy;
+      means[cell * CHANNELS + 2] = sb / n;
+      residual -= (sb * sb) / n;
+      const gbx = sbx - (sx * sb) / n,
+        gby = sby - (sy * sb) / n;
+      if (det > SINGULAR && n >= MIN_PLANAR_AREA)
+        removed += (myy * gbx * gbx - 2 * mxy * gbx * gby + mxx * gby * gby) / det;
+      else if (mxx > SINGULAR && n >= MIN_PLANAR_PIXELS) removed += (gbx * gbx) / mxx;
+      else if (myy > SINGULAR && n >= MIN_PLANAR_PIXELS) removed += (gby * gby) / myy;
+      residual = Math.max(0, residual);
+      flat += residual;
+      slopes[cell] = Math.max(0, Math.min(removed, residual));
     }
-    residual = Math.max(0, residual);
-    flat += residual;
-    slopes[cell] = Math.max(0, Math.min(removed, residual));
+    first = last;
   }
   return { counts, means, flat, slopes };
 }
@@ -434,35 +465,34 @@ function bilinearError(
     lefts[x] = cx.lower[x] * CHANNELS;
     rights[x] = Math.min(across - 1, cx.lower[x] + 1) * CHANNELS;
   }
-  const corners = new Int32Array(BILINEAR_CORNERS),
-    shares = new Float64Array(BILINEAR_CORNERS);
-  /** Points `corners` and `shares` at the four centres blended into pixel x of the row. */
-  const blend = (top: number, bottom: number, ty: number, x: number) => {
-    const tx = cx.weight[x];
-    corners[0] = top + lefts[x];
-    corners[1] = top + rights[x];
-    corners[2] = bottom + lefts[x];
-    corners[3] = bottom + rights[x];
-    shares[0] = (1 - tx) * (1 - ty);
-    shares[1] = tx * (1 - ty);
-    shares[2] = (1 - tx) * ty;
-    shares[3] = tx * ty;
-  };
-  const rowOf = (y: number) => ({
-    top: cy.lower[y] * across * CHANNELS,
-    bottom: Math.min(down - 1, cy.lower[y] + 1) * across * CHANNELS,
-    ty: cy.weight[y],
-  });
   for (let r = 0; r < lines.length; r++) {
-    const { top, bottom, ty } = rowOf(lines[r]);
+    const y = lines[r],
+      top = cy.lower[y] * across * CHANNELS,
+      bottom = Math.min(down - 1, cy.lower[y] + 1) * across * CHANNELS,
+      ty = cy.weight[y];
     for (let x = 0; x < width; x++) {
-      blend(top, bottom, ty, x);
-      const v = (r * width + x) * CHANNELS;
-      for (let k = 0; k < BILINEAR_CORNERS; k++) {
-        const share = shares[k],
-          o = corners[k];
-        for (let c = 0; c < CHANNELS; c++) colours[o + c] += share * values[v + c];
-      }
+      const tx = cx.weight[x],
+        o0 = top + lefts[x],
+        o1 = top + rights[x],
+        o2 = bottom + lefts[x],
+        o3 = bottom + rights[x],
+        s0 = (1 - tx) * (1 - ty),
+        s1 = tx * (1 - ty),
+        s2 = (1 - tx) * ty,
+        s3 = tx * ty,
+        v = (r * width + x) * CHANNELS;
+      colours[o0] += s0 * values[v];
+      colours[o0 + 1] += s0 * values[v + 1];
+      colours[o0 + 2] += s0 * values[v + 2];
+      colours[o1] += s1 * values[v];
+      colours[o1 + 1] += s1 * values[v + 1];
+      colours[o1 + 2] += s1 * values[v + 2];
+      colours[o2] += s2 * values[v];
+      colours[o2 + 1] += s2 * values[v + 1];
+      colours[o2 + 2] += s2 * values[v + 2];
+      colours[o3] += s3 * values[v];
+      colours[o3 + 1] += s3 * values[v + 1];
+      colours[o3 + 2] += s3 * values[v + 2];
     }
   }
   const columns = Int32Array.from({ length: width }, (_, x) => x);
@@ -477,27 +507,43 @@ function bilinearError(
       solveTridiagonal(gramY, colours, i * CHANNELS + c, across * CHANNELS, scratch);
   let error = 0;
   for (let r = 0; r < lines.length; r++) {
-    const { top, bottom, ty } = rowOf(lines[r]);
+    const y = lines[r],
+      top = cy.lower[y] * across * CHANNELS,
+      bottom = Math.min(down - 1, cy.lower[y] + 1) * across * CHANNELS,
+      ty = cy.weight[y];
     for (let x = 0; x < width; x++) {
-      blend(top, bottom, ty, x);
-      const v = (r * width + x) * CHANNELS;
-      const s0 = shares[0],
-        s1 = shares[1],
-        s2 = shares[2],
-        s3 = shares[3];
-      const o0 = corners[0],
-        o1 = corners[1],
-        o2 = corners[2],
-        o3 = corners[3];
-      for (let c = 0; c < CHANNELS; c++) {
-        const rebuilt =
-          s0 * colours[o0 + c] + s1 * colours[o1 + c] + s2 * colours[o2 + c] + s3 * colours[o3 + c];
-        const difference = values[v + c] - rebuilt;
-        error += difference * difference;
-      }
+      const tx = cx.weight[x],
+        o0 = top + lefts[x],
+        o1 = top + rights[x],
+        o2 = bottom + lefts[x],
+        o3 = bottom + rights[x],
+        s0 = (1 - tx) * (1 - ty),
+        s1 = tx * (1 - ty),
+        s2 = (1 - tx) * ty,
+        s3 = tx * ty,
+        v = (r * width + x) * CHANNELS;
+      const rebuilt0 = s0 * colours[o0] + s1 * colours[o1] + s2 * colours[o2] + s3 * colours[o3];
+      const difference0 = values[v] - rebuilt0;
+      error += difference0 * difference0;
+      const rebuilt1 =
+        s0 * colours[o0 + 1] + s1 * colours[o1 + 1] + s2 * colours[o2 + 1] + s3 * colours[o3 + 1];
+      const difference1 = values[v + 1] - rebuilt1;
+      error += difference1 * difference1;
+      const rebuilt2 =
+        s0 * colours[o0 + 2] + s1 * colours[o1 + 2] + s2 * colours[o2 + 2] + s3 * colours[o3 + 2];
+      const difference2 = values[v + 2] - rebuilt2;
+      error += difference2 * difference2;
     }
   }
   return { error, colours };
+}
+
+/** Numerical slack keeps a bound evaluation away from libm and comparison rounding edges. */
+const BLUR_BOUND_ROUNDING_ULPS = 64;
+
+interface BlurLengthBound {
+  best: number;
+  structure: number;
 }
 
 /** Residual of the cell colours seen through a Gaussian of `sigma`, after deconvolution. */
@@ -509,8 +555,16 @@ function blurredError(
   columns: Int32Array,
   rows: Int32Array,
   sigma: number,
+  bound?: BlurLengthBound,
 ) {
-  const { lines, values: pixels } = described;
+  const { lines, values: pixels, samples, parameter } = described;
+  const useBound =
+    bound !== undefined &&
+    Number.isFinite(bound.best) &&
+    Number.isFinite(bound.structure) &&
+    Number.isFinite(samples) &&
+    samples > 0 &&
+    Number.isFinite(parameter);
   const width = columns.length;
   const across = cutsX.length - 1,
     down = cutsY.length - 1;
@@ -525,7 +579,7 @@ function blurredError(
     // Each pass before the last only corrects the colours; the last only measures the residual.
     const last = step === DECONVOLUTION_STEPS;
     error = 0;
-    correction.fill(0);
+    if (!last) correction.fill(0);
     for (let r = 0; r < lines.length; r++) {
       const y = lines[r],
         j = rows[y];
@@ -537,19 +591,76 @@ function blurredError(
         for (let k = 0; k < across * CHANNELS; k++)
           blend[BLUR_REACH * CHANNELS + k] += w * colours[jj * across * CHANNELS + k];
       }
-      for (let x = 0; x < width; x++) {
-        const i = columns[x],
-          v = (r * width + x) * CHANNELS,
-          t = x * BLUR_TAPS,
-          b = i * CHANNELS,
-          cell = (j * across + i) * CHANNELS;
-        for (let c = 0; c < CHANNELS; c++) {
-          let rebuilt = 0;
-          for (let d = 0; d < BLUR_TAPS; d++) rebuilt += wx[t + d] * blend[b + d * CHANNELS + c];
-          const difference = pixels[v + c] - rebuilt;
-          if (last) error += difference * difference;
-          else correction[cell + c] += difference;
+      if (last) {
+        for (let x = 0; x < width; x++) {
+          const i = columns[x],
+            v = (r * width + x) * CHANNELS,
+            t = x * BLUR_TAPS,
+            b = i * CHANNELS,
+            w0 = wx[t],
+            w1 = wx[t + 1],
+            w2 = wx[t + 2];
+          let red = 0;
+          red += w0 * blend[b];
+          red += w1 * blend[b + CHANNELS];
+          red += w2 * blend[b + 2 * CHANNELS];
+          const dr = pixels[v] - red;
+          let green = 0;
+          green += w0 * blend[b + 1];
+          green += w1 * blend[b + CHANNELS + 1];
+          green += w2 * blend[b + 2 * CHANNELS + 1];
+          const dg = pixels[v + 1] - green;
+          let blue = 0;
+          blue += w0 * blend[b + 2];
+          blue += w1 * blend[b + CHANNELS + 2];
+          blue += w2 * blend[b + 2 * CHANNELS + 2];
+          const db = pixels[v + 2] - blue;
+          error += dr * dr;
+          error += dg * dg;
+          error += db * db;
         }
+      } else {
+        for (let x = 0; x < width; x++) {
+          const i = columns[x],
+            v = (r * width + x) * CHANNELS,
+            t = x * BLUR_TAPS,
+            b = i * CHANNELS,
+            w0 = wx[t],
+            w1 = wx[t + 1],
+            w2 = wx[t + 2];
+          let red = 0;
+          red += w0 * blend[b];
+          red += w1 * blend[b + CHANNELS];
+          red += w2 * blend[b + 2 * CHANNELS];
+          const dr = pixels[v] - red;
+          let green = 0;
+          green += w0 * blend[b + 1];
+          green += w1 * blend[b + CHANNELS + 1];
+          green += w2 * blend[b + 2 * CHANNELS + 1];
+          const dg = pixels[v + 1] - green;
+          let blue = 0;
+          blue += w0 * blend[b + 2];
+          blue += w1 * blend[b + CHANNELS + 2];
+          blue += w2 * blend[b + 2 * CHANNELS + 2];
+          const db = pixels[v + 2] - blue;
+          const cell = (j * across + i) * CHANNELS;
+          correction[cell] += dr;
+          correction[cell + 1] += dg;
+          correction[cell + 2] += db;
+        }
+      }
+      if (last && useBound) {
+        // Remaining squared residuals and the color code can only increase this length.
+        // Keep the additions in the same order as renderingLength's length() below.
+        const lower =
+          (samples / 2) * Math.log(error / samples + RESIDUAL_FLOOR) +
+          0 +
+          bound!.structure +
+          parameter;
+        const slack =
+          BLUR_BOUND_ROUNDING_ULPS * Number.EPSILON * (Math.abs(lower) + Math.abs(bound!.best) + 1);
+        if (Number.isFinite(lower) && Number.isFinite(slack) && lower - bound!.best > slack)
+          return { error, colours, discarded: true };
       }
     }
     if (last) break;
@@ -560,7 +671,7 @@ function blurredError(
           colours[cell * CHANNELS + c] += correction[cell * CHANNELS + c] / n;
     }
   }
-  return { error, colours };
+  return { error, colours, discarded: false };
 }
 
 /** Description length per sample of the cell colours and residual, cheapest rendering first. */
@@ -574,7 +685,7 @@ function renderingLength(
     down = cutsY.length - 1;
   const columns = cellOf(cutsX, image.width),
     rows = cellOf(cutsY, image.height);
-  const moments = cellMoments(described, cutsX, cutsY, columns, rows);
+  const moments = cellMoments(described, cutsX, cutsY);
   let cells = 0;
   for (const count of moments.counts) if (count) cells++;
   const structure = cells * parameter * CELL_PARAMETERS;
@@ -605,8 +716,12 @@ function renderingLength(
   const pitch = Math.min(image.width / across, image.height / down);
   for (const sigma of BLUR_WIDTHS) {
     if (sigma > MAX_BLUR_SHARE * pitch) break;
-    const blurred = blurredError(described, moments, cutsX, cutsY, columns, rows, sigma);
-    best = Math.min(best, length(blurred.error, blurred.colours, parameter));
+    const blurred = blurredError(described, moments, cutsX, cutsY, columns, rows, sigma, {
+      best,
+      structure,
+    });
+    if (!blurred.discarded)
+      best = Math.min(best, length(blurred.error, blurred.colours, parameter));
   }
   return best / samples;
 }

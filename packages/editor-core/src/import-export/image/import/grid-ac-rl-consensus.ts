@@ -405,8 +405,7 @@ function detectAcRlConsensus(imageData: {
   }
 
   // Convert Uint8ClampedArray to Uint8Array if needed
-  const rgba =
-    imageData.data instanceof Uint8Array ? imageData.data : new Uint8Array(imageData.data);
+  const rgba = rgbaBytes(imageData);
 
   const result = detectFastAcRl(rgba, imageData.width, imageData.height);
 
@@ -437,10 +436,7 @@ export function beginAcRlConsensusJob(imageData: {
   }
   try {
     const { port1, port2 } = new wt.MessageChannel();
-    const src =
-      imageData.data instanceof Uint8Array ? imageData.data : new Uint8Array(imageData.data);
-    const copy = new Uint8Array(src.byteLength);
-    copy.set(src);
+    const copy = copyRgba(imageData);
     detectWorker.postMessage(
       {
         type: "detect",
@@ -479,16 +475,19 @@ export function finishAcRlConsensusJob(job: AcRlConsensusJob): Consensus | null 
   }
 }
 
+/** Reinterpret the exact typed-array slice without copying or including adjacent pixels. */
+function rgbaBytes(imageData: { data: Uint8ClampedArray | Uint8Array }): Uint8Array {
+  const { data } = imageData;
+  return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+}
+
 function copyRgba(imageData: {
   data: Uint8ClampedArray | Uint8Array;
   width: number;
   height: number;
 }): Uint8Array {
-  const src =
-    imageData.data instanceof Uint8Array ? imageData.data : new Uint8Array(imageData.data);
-  const copy = new Uint8Array(src.byteLength);
-  copy.set(src);
-  return copy;
+  // One owned allocation is required because transfer must not detach the caller's buffer.
+  return new Uint8Array(rgbaBytes(imageData));
 }
 
 /**

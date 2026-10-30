@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import { describe, expect, test } from "vitest";
 
 import type { PixelBuffer, Rgba } from "$/base/primitives";
@@ -198,5 +200,65 @@ describe.each(METHODS)("%s streaming colour groups", (method) => {
       objectSampling(image, 6, 4, method, cuts),
     );
     expect(image.data).toEqual(original);
+  });
+});
+
+describe("TwoStage adaptive palette", () => {
+  test.each([
+    [333, 127],
+    [334, 128],
+  ])("one-pixel shades at 1/%i coverage retain the expected cell colour", (width, red) => {
+    const rare: readonly (readonly number[])[] = [
+      [16, 16, 16],
+      [16, 16, 240],
+      [16, 240, 16],
+      [16, 240, 240],
+      [240, 16, 16],
+      [240, 16, 240],
+      [240, 240, 16],
+      [127, 80, 80],
+      [128, 80, 80],
+      [16, 128, 240],
+      [240, 128, 16],
+      [128, 240, 16],
+      [16, 240, 128],
+      [128, 16, 240],
+      [240, 16, 128],
+      [16, 128, 16],
+    ];
+    const data = new Uint8ClampedArray(width * CHANNELS);
+    for (let x = 0; x < width; x++)
+      data.set([...(rare[x] ?? [240, 240, 240]), OPAQUE], x * CHANNELS);
+    // Seventeen occupied bins qualify at 333 pixels; at 334 the one-pixel bins fall below
+    // 0.3%, leaving a sixteen-colour budget. Only then do the two central shades share a region.
+    const output = samplePixelation({ width, height: 1, data }, 2, 1, PixelationMethod.TwoStage, {
+      x: [0, rare.length, width],
+      y: [0, 1],
+    });
+    expect([...output.data]).toEqual([red, 80, 80, OPAQUE, 240, 240, 240, OPAQUE]);
+  });
+
+  test("a large distinct-colour image retains its recorded TwoStage RGBA output", () => {
+    const side = 257;
+    const image = {
+      width: side,
+      height: side,
+      data: new Uint8ClampedArray(side * side * CHANNELS),
+    };
+    for (let index = 0; index < side * side; index++)
+      image.data.set(
+        [
+          index & OPAQUE,
+          (index >>> 8) & OPAQUE,
+          (index >>> 16) * 128 + ((index * 17) & 127),
+          OPAQUE,
+        ],
+        index * CHANNELS,
+      );
+    const output = samplePixelation(image, 17, 19, PixelationMethod.TwoStage);
+    // Recorded on the pre-optimization 27a17deac implementation, with 66,049 distinct RGB colours.
+    expect(createHash("sha256").update(output.data).digest("hex")).toBe(
+      "a3890745fd6547b0354e39ecae44f9f16638d52df3a3a9513b6727184a1225f0",
+    );
   });
 });

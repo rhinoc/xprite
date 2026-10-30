@@ -16,6 +16,7 @@ const CENTER_FLOOR = 0.25;
 const STRUCTURE_COLORS = 48;
 const TWO_STAGE_MIN_COLORS = 16;
 const TWO_STAGE_MAX_COLORS = 48;
+const TWO_STAGE_COLOR_BINS = 16 ** COLOR_CHANNELS;
 const CONVERGENCE = 1e-7;
 const MAX_COORDINATE_COLORS = 65_536;
 interface Sample {
@@ -76,7 +77,7 @@ function cell(
  * Clamps to [TWO_STAGE_MIN_COLORS, TWO_STAGE_MAX_COLORS].
  */
 function adaptiveTwoStageK(image: PixelBuffer): number {
-  const bins = new Map<number, number>();
+  const bins = new Uint32Array(TWO_STAGE_COLOR_BINS);
   let opaqueCount = 0;
 
   for (let i = 0; i < image.data.length; i += CHANNELS) {
@@ -88,14 +89,14 @@ function adaptiveTwoStageK(image: PixelBuffer): number {
     const g4 = image.data[i + 1] >> 4;
     const b4 = image.data[i + 2] >> 4;
     const key = (r4 << 8) | (g4 << 4) | b4;
-    bins.set(key, (bins.get(key) ?? 0) + 1);
+    bins[key] += 1;
   }
 
   if (opaqueCount === 0) return TWO_STAGE_MIN_COLORS;
 
   const threshold = opaqueCount * 0.003;
   let count = 0;
-  for (const binCount of bins.values()) {
+  for (const binCount of bins) {
     if (binCount >= threshold) count++;
   }
 

@@ -57,8 +57,11 @@ interface EnergyTable {
   /** The first shift of the table and the number of shifts. */
   first: number;
   span: number;
-  /** [line][shift][cell + 1], cumulative over the cells of the line. */
+  /** [line][shift][bandStride], cumulative at every supported band boundary. */
   sums: Float64Array;
+  /** Logical cell boundary -> stored prefix slot; unqueried boundaries are -1. */
+  bandSlots: Int32Array;
+  bandStride: number;
   /** [line][pixel + 1]: nats of coding the line's pixels on their own, cumulative along it. */
   drops: Float64Array;
 }
@@ -101,27 +104,79 @@ function energyTable(
   const { length, lines, sums: line } = prefix;
   const cells = cuts.length - 1,
     span = last - first + 1;
-  const sums = new Float64Array(lines.length * span * (cells + 1));
+  // Every bandEnergy caller uses bandsOf for a supported split, including the anti-field.
+  // Keep all cell additions, storing only the prefixes those splits can query.
+  const needed = new Set<number>([0, cells]);
+  for (const count of BAND_COUNTS) {
+    if (count > 1 && cells < count * MIN_BAND_CELLS) break;
+    for (const boundary of bandsOf(cells, count)) needed.add(boundary);
+  }
+  const boundaries = [...needed].sort((a, b) => a - b);
+  const bandStride = boundaries.length;
+  const bandSlots = new Int32Array(cells + 1).fill(-1);
+  for (let slot = 0; slot < bandStride; slot++) bandSlots[boundaries[slot]] = slot;
+  const sums = new Float64Array(lines.length * span * bandStride);
+  // Shifted cut bounds are identical on every described line.
+  const froms = new Float64Array(span * cells),
+    tos = new Float64Array(span * cells);
+  for (let j = 0; j < span; j++) {
+    const shift = first + j;
+    for (let i = 0; i < cells; i++) {
+      const from = i === 0 ? 0 : Math.max(0, Math.min(length, cuts[i] + shift));
+      const to = i + 1 === cells ? length : Math.max(0, Math.min(length, cuts[i + 1] + shift));
+      froms[j * cells + i] = from;
+      tos[j * cells + i] = Math.max(from, to);
+    }
+  }
+  // Different shifts/cells often request the exact same source interval. Evaluate it once,
+  // then retain the original line/shift/cell order of additions into the cumulative table.
+  const ids = new Int32Array(froms.length);
+  const unique = new Map<string, number>();
+  const uniqueFroms: number[] = [],
+    uniqueTos: number[] = [];
+  for (let i = 0; i < froms.length; i++) {
+    const key = `${froms[i]},${tos[i]}`;
+    let id = unique.get(key);
+    if (id === undefined) {
+      id = uniqueFroms.length;
+      unique.set(key, id);
+      uniqueFroms.push(froms[i]);
+      uniqueTos.push(tos[i]);
+    }
+    ids[i] = id;
+  }
+  const intervalEnergies = new Float64Array(uniqueFroms.length);
   for (let k = 0; k < lines.length; k++) {
     const base = k * (length + 1) * (CHANNELS + 1);
+    for (let i = 0; i < intervalEnergies.length; i++)
+      intervalEnergies[i] = intervalEnergy(line, base, uniqueFroms[i], uniqueTos[i]);
     for (let j = 0; j < span; j++) {
-      const shift = first + j,
-        row = (k * span + j) * (cells + 1);
-      let total = 0;
-      for (let i = 0; i < cells; i++) {
-        const from = i === 0 ? 0 : Math.max(0, Math.min(length, cuts[i] + shift));
-        const to = i + 1 === cells ? length : Math.max(0, Math.min(length, cuts[i + 1] + shift));
-        total += intervalEnergy(line, base, from, Math.max(from, to));
-        sums[row + i + 1] = total;
+      const row = (k * span + j) * bandStride,
+        bounds = j * cells;
+      let total = 0,
+        cell = 0;
+      for (let slot = 1; slot < bandStride; slot++) {
+        for (; cell < boundaries[slot]; cell++) total += intervalEnergies[ids[bounds + cell]];
+        sums[row + slot] = total;
       }
     }
   }
-  return { prefix, cuts, cells, first, span, sums, drops: dropTable(prefix) };
+  return {
+    prefix,
+    cuts,
+    cells,
+    first,
+    span,
+    sums,
+    bandSlots,
+    bandStride,
+    drops: dropTable(prefix),
+  };
 }
 
 const bandEnergy = (table: EnergyTable, k: number, j: number, from: number, to: number) => {
-  const row = (k * table.span + j) * (table.cells + 1);
-  return table.sums[row + to] - table.sums[row + from];
+  const row = (k * table.span + j) * table.bandStride;
+  return table.sums[row + table.bandSlots[to]] - table.sums[row + table.bandSlots[from]];
 };
 
 /** Nats of coding the pixels [from, to) of line k on their own. */
@@ -166,43 +221,56 @@ function bandPath(
     { span, first } = table;
   const back = new Int32Array(lines * span);
   let previous = new Float64Array(span),
-    current = new Float64Array(span);
+    current = new Float64Array(span),
+    best = Infinity,
+    bestAt = -1;
+  const tieBias = Float64Array.from({ length: span }, (_, j) => Math.abs(first + j) * TIE);
   for (let k = 0; k < lines; k++) {
     const [low, high] = window(k);
-    let best = Infinity,
-      bestAt = -1;
-    for (let j = 0; k > 0 && j < span; j++)
-      if (previous[j] < best) {
-        best = previous[j];
-        bestAt = j;
-      }
+    let nextBest = Infinity,
+      nextBestAt = -1;
+    const jumpCost = best + change.jump;
     for (let j = 0; j < span; j++) {
       const shift = first + j;
       if (shift < low || shift > high) {
         current[j] = Infinity;
         continue;
       }
-      const energy =
-        bandEnergy(table, k, j, from, to) * scale + drop(k, shift) + Math.abs(shift) * TIE;
+      const energy = bandEnergy(table, k, j, from, to) * scale + drop(k, shift) + tieBias[j];
       if (k === 0) {
         current[j] = energy;
+        if (current[j] < nextBest) {
+          nextBest = current[j];
+          nextBestAt = j;
+        }
         continue;
       }
       let cost = previous[j],
         source = j;
-      for (const side of [j - 1, j + 1])
-        if (side >= 0 && side < span && previous[side] + change.step < cost) {
-          cost = previous[side] + change.step;
-          source = side;
-        }
-      if (best + change.jump < cost) {
-        cost = best + change.jump;
+      if (j > 0 && previous[j - 1] + change.step < cost) {
+        cost = previous[j - 1] + change.step;
+        source = j - 1;
+      }
+      if (j + 1 < span && previous[j + 1] + change.step < cost) {
+        cost = previous[j + 1] + change.step;
+        source = j + 1;
+      }
+      if (jumpCost < cost) {
+        cost = jumpCost;
         source = bestAt;
       }
       current[j] = cost + energy;
+      if (current[j] < nextBest) {
+        nextBest = current[j];
+        nextBestAt = j;
+      }
       back[k * span + j] = source;
     }
-    [previous, current] = [current, previous];
+    const scratch = previous;
+    previous = current;
+    current = scratch;
+    best = nextBest;
+    bestAt = nextBestAt;
   }
   let at = 0;
   for (let j = 1; j < span; j++) if (previous[j] < previous[at]) at = j;
@@ -266,6 +334,7 @@ function splitField(
   const line = Math.log(Math.max(2, table.prefix.lines.length)) + Math.LN2;
   const change = { step: line + Math.LN2, jump: line + Math.log(options - 1) };
   const shifts: Int32Array[] = [];
+  const stationaryWindow: [number, number] = [low, high];
   let energy = 0,
     cost = 0;
   for (let b = 0; b + 1 < bands.length; b++) {
@@ -274,7 +343,7 @@ function splitField(
           Math.ceil(anchor.shifts[b][k] + ANTI_PHASE_FROM * pitch),
           Math.floor(anchor.shifts[b][k] + ANTI_PHASE_TO * pitch),
         ]
-      : (): [number, number] => [low, high];
+      : (): [number, number] => stationaryWindow;
     const start = b === 0 ? 0 : table.cuts[bands[b]],
       before = shifts[b - 1],
       last = b + 2 === bands.length;
@@ -353,26 +422,71 @@ function antiField(table: RangedTable, anchor: AxisField): AxisField {
   return splitField(table, anchor.bands, variance, anchor);
 }
 
-/** The image straightened by a column field, then by the row field read on the result. */
-function straighten(
+interface ColumnView {
+  once: GridImageView;
+  rowPrefix: LinePrefix;
+}
+
+interface LastColumns extends ColumnView {
+  key: string;
+  table: RangedTable;
+  field: AxisField;
+  anti?: ColumnView;
+}
+
+/** Only the most recent x geometry may retain its normal/anti row prefixes. */
+const lastColumns = new WeakMap<StripImage, LastColumns>();
+
+function columnView(
+  strips: StripImage,
+  cutsX: readonly number[],
+  table: RangedTable,
+  field: AxisField,
+): ColumnView {
+  const once = moved(field)
+    ? unfield(strips.image, false, cutsX, table.prefix.lines, field)
+    : strips.image;
+  return {
+    once,
+    rowPrefix: once === strips.image ? strips.prefix(true) : linePrefix(once, true),
+  };
+}
+
+function columnsOf(strips: StripImage, cutsX: readonly number[]): LastColumns {
+  const key = cutsX.join(",");
+  const cached = lastColumns.get(strips);
+  if (cached?.key === key) return cached;
+  const table = rangedTable(strips.prefix(false), cutsX);
+  const field = bestField(table);
+  const entry = { key, table, field, ...columnView(strips, cutsX, table, field) };
+  lastColumns.set(strips, entry);
+  return entry;
+}
+
+/**
+ * Keep this closure separate from columnsOf/phaseField: retained readings must not retain an
+ * evicted cache entry's normal/anti line prefixes. Only the last WeakMap entry owns those.
+ */
+function fieldTwin(
   strips: StripImage,
   cutsX: readonly number[],
   cutsY: readonly number[],
   columnTable: RangedTable,
   columns: AxisField,
-  rowsOf: (table: RangedTable) => AxisField,
-) {
-  const { image } = strips;
-  const once = moved(columns)
-    ? unfield(image, false, cutsX, columnTable.prefix.lines, columns)
-    : image;
-  const rowTable = rangedTable(
-    once === image ? strips.prefix(true) : linePrefix(once, true),
-    cutsY,
-  );
-  const rows = rowsOf(rowTable);
-  const straight = moved(rows) ? unfield(once, true, cutsY, rowTable.prefix.lines, rows) : once;
-  return { straight, rows };
+  rows: AxisField,
+): () => GridImageView {
+  return () => {
+    const cached = lastColumns.get(strips);
+    const anti =
+      cached?.table === columnTable
+        ? (cached.anti ??= columnView(strips, cutsX, columnTable, antiField(columnTable, columns)))
+        : columnView(strips, cutsX, columnTable, antiField(columnTable, columns));
+    const rowTable = rangedTable(anti.rowPrefix, cutsY);
+    const rowField = antiField(rowTable, rows);
+    return moved(rowField)
+      ? unfield(anti.once, true, cutsY, rowTable.prefix.lines, rowField)
+      : anti.once;
+  };
 }
 
 /** The grid read through phase fields, or null when no line of any band moves. */
@@ -381,18 +495,15 @@ export function phaseField(
   cutsX: readonly number[],
   cutsY: readonly number[],
 ): (StripShear & { bandsX: number; bandsY: number }) | null {
-  const columnTable = rangedTable(strips.prefix(false), cutsX);
-  const columns = bestField(columnTable);
-  const { straight, rows } = straighten(strips, cutsX, cutsY, columnTable, columns, bestField);
+  const { table: columnTable, field: columns, once, rowPrefix } = columnsOf(strips, cutsX);
+  const rowTable = rangedTable(rowPrefix, cutsY);
+  const rows = bestField(rowTable);
+  const straight = moved(rows) ? unfield(once, true, cutsY, rowTable.prefix.lines, rows) : once;
   if (!moved(columns) && !moved(rows)) return null;
-  const twin = () =>
-    straighten(strips, cutsX, cutsY, columnTable, antiField(columnTable, columns), (table) =>
-      antiField(table, rows),
-    ).straight;
   return {
     straight,
     cost: columns.cost + rows.cost,
-    twin,
+    twin: fieldTwin(strips, cutsX, cutsY, columnTable, columns, rows),
     bandsX: columns.bands.length - 1,
     bandsY: rows.bands.length - 1,
   };

@@ -66,19 +66,32 @@ function lineSteps(image: PixelBuffer, horizontal: boolean) {
   const half = (COHERENCE_LINES - 1) >> 1;
   const offset = (along: number, line: number) =>
     (horizontal ? line * width + along : along * width + line) * STRIDE;
+  // Adjacent coherence windows overlap; keep each source line only until its last use.
+  const cached = new Map<number, Float64Array>();
   for (let k = 0; k < lines; k++) {
     const centre = Math.floor(((k + 0.5) * count) / lines);
-    for (let line = Math.max(0, centre - half); line <= Math.min(count - 1, centre + half); line++)
-      for (let i = 0; i + 1 < length; i++) {
-        const a = offset(i, line),
-          b = offset(i + 1, line);
-        const alphaA = data[a + ALPHA_CHANNEL] / ALPHA_SCALE,
-          alphaB = data[b + ALPHA_CHANNEL] / ALPHA_SCALE;
-        let step = Math.abs(data[a + ALPHA_CHANNEL] - data[b + ALPHA_CHANNEL]);
-        for (let c = 0; c < CHANNELS; c++)
-          step += Math.abs(data[a + c] * alphaA - data[b + c] * alphaB);
-        steps[k * (length - 1) + i] += step;
+    const first = Math.max(0, centre - half);
+    const last = Math.min(count - 1, centre + half);
+    for (const line of cached.keys()) if (line < first) cached.delete(line);
+    for (let line = first; line <= last; line++) {
+      let values = cached.get(line);
+      if (!values) {
+        values = new Float64Array(length - 1);
+        for (let i = 0; i + 1 < length; i++) {
+          const a = offset(i, line),
+            b = offset(i + 1, line);
+          const alphaA = data[a + ALPHA_CHANNEL] / ALPHA_SCALE,
+            alphaB = data[b + ALPHA_CHANNEL] / ALPHA_SCALE;
+          let step = Math.abs(data[a + ALPHA_CHANNEL] - data[b + ALPHA_CHANNEL]);
+          for (let c = 0; c < CHANNELS; c++)
+            step += Math.abs(data[a + c] * alphaA - data[b + c] * alphaB);
+          values[i] = step;
+        }
+        cached.set(line, values);
       }
+      // Preserve the original ascending source-line summation order for every output step.
+      for (let i = 0; i + 1 < length; i++) steps[k * (length - 1) + i] += values[i];
+    }
   }
   return { lines, length: length - 1, steps };
 }

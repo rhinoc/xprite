@@ -4,7 +4,8 @@ import { assertPixelBuffer, clampByte } from "$/document/pixel-validation";
 import { optimizePalette, paletteCoordinates } from "$/import-export/image/import/quantization";
 import type { ExtractPaletteOptions, PaletteEntry } from "$/import-export/image/import/types";
 
-const HISTOGRAM_BINS = 32 * 32 * 32 * 16 + 1;
+const RGB_HISTOGRAM_BINS = 32 * 32 * 32;
+const HISTOGRAM_BINS = RGB_HISTOGRAM_BINS * 16 + 1;
 const MAX_EXACT_COLORS = 16_384;
 const REDUCTION_CACHE_SIZE = 65_536;
 
@@ -41,12 +42,54 @@ function histogramIndex(r: number, g: number, b: number, a: number): number {
   return (r >>> 3) | ((g >>> 3) << 5) | ((b >>> 3) << 10) | ((a >>> 4) << 15);
 }
 
+/** The visible-alpha palette uses the same RGB bins without the constant alpha-plane offset. */
+function opaqueHistogramPalette(image: PixelBuffer, maxColors: number): PaletteEntry[] {
+  const counts = new Uint32Array(RGB_HISTOGRAM_BINS);
+  const sumR = new Float64Array(RGB_HISTOGRAM_BINS);
+  const sumG = new Float64Array(RGB_HISTOGRAM_BINS);
+  const sumB = new Float64Array(RGB_HISTOGRAM_BINS);
+  const touched: number[] = [];
+  const { data } = image;
+  let total = 0;
+  for (let offset = 0; offset < data.length; offset += 4) {
+    if (!data[offset + 3]) continue;
+    total++;
+    const r = data[offset];
+    const g = data[offset + 1];
+    const b = data[offset + 2];
+    const index = (r >>> 3) | ((g >>> 3) << 5) | ((b >>> 3) << 10);
+    if (counts[index] === 0) touched.push(index);
+    counts[index] += 1;
+    sumR[index] += r;
+    sumG[index] += g;
+    sumB[index] += b;
+  }
+  touched.sort((left, right) => counts[right] - counts[left] || left - right);
+  const entries: PaletteEntry[] = [];
+  for (let i = 0; i < touched.length; i++) {
+    const index = touched[i];
+    const count = counts[index];
+    entries.push({
+      color: [
+        clampByte(sumR[index] / count),
+        clampByte(sumG[index] / count),
+        clampByte(sumB[index] / count),
+        UINT8_MAX,
+      ],
+      count,
+      coverage: count / total,
+    });
+  }
+  return optimizePalette(entries, maxColors);
+}
+
 function histogramPalette(
   image: PixelBuffer,
   maxColors: number,
   ignoreTransparent: boolean,
   opaqueVisible: boolean,
 ): PaletteEntry[] {
+  if (opaqueVisible && ignoreTransparent) return opaqueHistogramPalette(image, maxColors);
   const counts = new Uint32Array(HISTOGRAM_BINS);
   const sumR = new Float64Array(HISTOGRAM_BINS);
   const sumG = new Float64Array(HISTOGRAM_BINS);

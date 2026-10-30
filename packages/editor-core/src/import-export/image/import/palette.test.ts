@@ -5,7 +5,9 @@ import { extractPalette, extractPixelationPalette } from "$/import-export/image/
 
 const CHANNELS = 4;
 const OPAQUE = 255;
-const EXACT_OVERFLOW_SIDE = 129;
+const EXACT_COLOR_LIMIT = 16_384;
+const HISTOGRAM_WIDTH = 129;
+const HISTOGRAM_HEIGHT = 128;
 
 /** Previous pixelation palette generation normalized alpha in a separate image. */
 function copiedPalette(image: PixelBuffer) {
@@ -49,21 +51,32 @@ describe("pixelation palette alpha reads", () => {
     expect(image.data).toEqual(original);
   });
 
-  test("matches copied alpha normalization after exact colours overflow into the histogram", () => {
-    const image = {
-      width: EXACT_OVERFLOW_SIDE,
-      height: EXACT_OVERFLOW_SIDE,
-      data: new Uint8ClampedArray(EXACT_OVERFLOW_SIDE ** 2 * CHANNELS),
-    };
-    for (let index = 0; index < image.width * image.height; index++)
-      image.data.set(
-        [index >>> 8, index & OPAQUE, (index * 17) & OPAQUE, 1 + (index % OPAQUE)],
-        index * CHANNELS,
-      );
-    const original = new Uint8ClampedArray(image.data);
-    expect(extractPixelationPalette(image, { maxColors: 16 })).toEqual(copiedPalette(image));
-    expect(image.data).toEqual(original);
-  });
+  test.each([EXACT_COLOR_LIMIT, EXACT_COLOR_LIMIT + 1])(
+    "%i visible RGB colours preserve palette counts and alpha across the histogram boundary",
+    (visibleColors) => {
+      const image = {
+        width: HISTOGRAM_WIDTH,
+        height: HISTOGRAM_HEIGHT,
+        data: new Uint8ClampedArray(HISTOGRAM_WIDTH * HISTOGRAM_HEIGHT * CHANNELS),
+      };
+      for (let index = 0; index < image.width * image.height; index++)
+        image.data.set(
+          [
+            index >>> 8,
+            index & OPAQUE,
+            (index * 17) & OPAQUE,
+            index < visibleColors ? 1 + (index % OPAQUE) : 0,
+          ],
+          index * CHANNELS,
+        );
+      const original = new Uint8ClampedArray(image.data);
+      const palette = extractPixelationPalette(image, { maxColors: 16 });
+      expect(palette).toEqual(copiedPalette(image));
+      expect(palette.reduce((sum, entry) => sum + entry.count, 0)).toBe(visibleColors);
+      expect(palette.every((entry) => entry.color[3] === OPAQUE)).toBe(true);
+      expect(image.data).toEqual(original);
+    },
+  );
 
   test("retains the all-transparent fallback and ignores hidden RGB", () => {
     const image = {

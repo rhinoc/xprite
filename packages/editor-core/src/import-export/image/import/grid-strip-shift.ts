@@ -137,6 +137,7 @@ function stripShifts(
   const low = -Math.floor((pitch - 1) * HALF),
     high = Math.floor(pitch * HALF);
   const shifts: number[] = [];
+  const positions = new Float64Array(cells + 1);
   let energy = 0;
   for (let k = 0; k + 1 < across.length; k++) {
     const from = anchor ? Math.ceil(anchor[k] + ANTI_PHASE_FROM * pitch) : low,
@@ -146,15 +147,15 @@ function stripShifts(
     let best = from,
       least = Infinity;
     for (let shift = from; shift <= to; shift++) {
+      for (let i = 1; i <= cells; i++) {
+        const at = i === cells ? length : Math.max(0, Math.min(length, cuts[i] + shift));
+        positions[i] = Math.max(positions[i - 1], at);
+      }
       let sum = 0;
       for (let line = first; line < last; line++) {
         const base = line * (length + 1) * (CHANNELS + 1);
-        let previous = 0;
-        for (let i = 1; i <= cells; i++) {
-          const at = i === cells ? length : Math.max(0, Math.min(length, cuts[i] + shift));
-          sum += intervalEnergy(sums, base, previous, Math.max(previous, at));
-          previous = Math.max(previous, at);
-        }
+        for (let i = 1; i <= cells; i++)
+          sum += intervalEnergy(sums, base, positions[i - 1], positions[i]);
       }
       const nearer = !anchor && Math.abs(shift) < Math.abs(best);
       if (sum < least - TIE || (sum <= least + TIE && nearer)) {

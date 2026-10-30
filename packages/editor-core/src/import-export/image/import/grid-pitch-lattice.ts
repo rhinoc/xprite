@@ -29,6 +29,18 @@ const SCREEN_CONTRAST = 0.1;
 const HALF = 0.5;
 /** Bound the interval lookup tables to eight MiB per sampled axis. */
 const INTERVAL_CACHE_VALUES = 1 << 20;
+const REMAINDER_ERROR_BUDGET = 1 / 8;
+const REMAINDER_ROUNDING_FACTOR = 4;
+const REMAINDER_ROUNDING_OPERATIONS = 8;
+const REMAINDER_MIN_SCALE = 1;
+const REMAINDER_MAX_SCALE = Number.MAX_VALUE / 16;
+
+interface IntervalResiduals {
+  values: Float64Array;
+  /** Bounds include zero, including the unpopulated end of each lookup row. */
+  minimum: number;
+  maximumAbsolute: number;
+}
 
 /** Prefix sums (premultiplied R, G, B and their summed squares) along sampled lines of one axis. */
 interface AxisSamples {
@@ -37,7 +49,7 @@ interface AxisSamples {
   prefix: Float64Array;
   /** Rounded pitch/phase proposals often produce the same integer cuts. */
   residuals: Map<string, number>;
-  intervals: Map<number, Float64Array>;
+  intervals: Map<number, IntervalResiduals>;
 }
 
 function axisSamples(image: PixelBuffer, horizontal: boolean, maxLines: number): AxisSamples {
@@ -75,7 +87,7 @@ function axisSamples(image: PixelBuffer, horizontal: boolean, maxLines: number):
 }
 
 /** Each interval keeps the same arithmetic as the direct residual, including summation order. */
-function intervalResiduals(samples: AxisSamples, size: number): Float64Array | undefined {
+function intervalResiduals(samples: AxisSamples, size: number): IntervalResiduals | undefined {
   if (size <= 0) return undefined;
   const { length, lines, prefix, intervals } = samples;
   const cached = intervals.get(size);
@@ -84,6 +96,8 @@ function intervalResiduals(samples: AxisSamples, size: number): Float64Array | u
   if ((intervals.size + 1) * values > INTERVAL_CACHE_VALUES) return undefined;
   const residuals = new Float64Array(values);
   const row = (length + 1) * CHANNELS;
+  let minimum = 0,
+    maximumAbsolute = 0;
   for (let line = 0; line < lines; line++) {
     const base = line * row;
     for (let start = 0; start + size <= length; start++) {
@@ -92,39 +106,111 @@ function intervalResiduals(samples: AxisSamples, size: number): Float64Array | u
       const r = prefix[b] - prefix[a],
         g = prefix[b + 1] - prefix[a + 1],
         bl = prefix[b + 2] - prefix[a + 2];
-      residuals[line * length + start] =
-        prefix[b + 3] - prefix[a + 3] - (r * r + g * g + bl * bl) / size;
+      const value = prefix[b + 3] - prefix[a + 3] - (r * r + g * g + bl * bl) / size;
+      residuals[line * length + start] = value;
+      minimum = Math.min(minimum, value);
+      maximumAbsolute = Math.max(maximumAbsolute, Math.abs(value));
     }
   }
-  intervals.set(size, residuals);
-  return residuals;
+  const table = { values: residuals, minimum, maximumAbsolute };
+  intervals.set(size, table);
+  return table;
 }
 
-/** Mean squared within-segment residual along the sampled lines when the axis is cut at `cuts`. */
-function lineResidual(samples: AxisSamples, cuts: readonly number[]): number {
+/**
+ * Bound the exact continuation of the original left-to-right floating-point accumulation.
+ * With n remaining stored-double terms v, m <= v and |v| <= M, the real continuation is
+ * at least partial + n*m. Its IEEE addition error is bounded by gamma_n*(|partial| + n*M),
+ * gamma_n = n*u/(1-n*u), u = EPSILON/2. The guard below is deliberately larger: when
+ * n*EPSILON <= 1/8, 4*(n+8)*EPSILON*scale covers gamma_n as well as rounding in the
+ * products, scale, guard and subtraction. Restricting scale >= 1 also makes this margin
+ * larger than all possible subnormal roundoff across these additions. Unsafe bounds decline.
+ *
+ * Division by a positive denominator is monotonic, including its IEEE rounding, so comparing
+ * this lower bound after division preserves the original sweep's strict less-than decision.
+ */
+function cannotImprove(
+  partial: number,
+  remaining: number,
+  minimum: number,
+  maximumAbsolute: number,
+  denominator: number,
+  ceiling: number,
+): boolean {
+  if (!Number.isFinite(ceiling) || ceiling < 0) return false;
+  if (remaining * Number.EPSILON > REMAINDER_ERROR_BUDGET) return false;
+  const scale = Math.abs(partial) + remaining * maximumAbsolute;
+  if (!Number.isFinite(scale) || scale < REMAINDER_MIN_SCALE || scale > REMAINDER_MAX_SCALE)
+    return false;
+  const guard =
+    REMAINDER_ROUNDING_FACTOR *
+    (remaining + REMAINDER_ROUNDING_OPERATIONS) *
+    Number.EPSILON *
+    scale;
+  const lower = partial + remaining * minimum - guard;
+  return Number.isFinite(lower) && lower / denominator > ceiling;
+}
+
+/** A sweep may stop a proven loser; only complete, exact residuals enter the shared cache. */
+function lineResidual(samples: AxisSamples, cuts: readonly number[], ceiling = Infinity): number {
   const { length, lines, prefix, residuals } = samples;
   const key = cuts.join(",");
   const cached = residuals.get(key);
   if (cached !== undefined) return cached;
-  const intervals = cuts.slice(1).map((end, i) => intervalResiduals(samples, end - cuts[i]));
-  const row = (length + 1) * CHANNELS;
+  const segments = cuts.length - 1;
+  const intervals: (Float64Array | undefined)[] = [];
+  const starts = new Int32Array(segments),
+    ends = new Int32Array(segments),
+    sizes = new Int32Array(segments);
+  let allCached = true,
+    minimum = 0,
+    maximumAbsolute = 0;
+  for (let segment = 0; segment < segments; segment++) {
+    starts[segment] = cuts[segment] * CHANNELS;
+    ends[segment] = cuts[segment + 1] * CHANNELS;
+    sizes[segment] = cuts[segment + 1] - cuts[segment];
+    const table = intervalResiduals(samples, sizes[segment]);
+    intervals.push(table?.values);
+    if (!table) allCached = false;
+    else {
+      minimum = Math.min(minimum, table.minimum);
+      maximumAbsolute = Math.max(maximumAbsolute, table.maximumAbsolute);
+    }
+  }
   let total = 0;
-  for (let line = 0; line < lines; line++) {
-    const base = line * row;
-    for (let s = 0; s + 1 < cuts.length; s++) {
-      const interval = intervals[s];
-      if (interval) {
-        total += interval[line * length + cuts[s]];
-        continue;
+  if (allCached) {
+    // Most sweeps use only cached segment sizes. Resolve the cache branch once per proposal.
+    for (let line = 0; line < lines; line++) {
+      const base = line * length;
+      for (let segment = 0; segment < segments; segment++)
+        total += intervals[segment]![base + cuts[segment]];
+      const remaining = (lines - line - 1) * segments;
+      if (
+        remaining > 0 &&
+        cannotImprove(total, remaining, minimum, maximumAbsolute, lines * length, ceiling)
+      )
+        return Infinity;
+    }
+  } else {
+    const row = (length + 1) * CHANNELS;
+    for (let line = 0; line < lines; line++) {
+      const base = line * row,
+        cachedBase = line * length;
+      for (let segment = 0; segment < segments; segment++) {
+        const interval = intervals[segment];
+        if (interval) {
+          total += interval[cachedBase + cuts[segment]];
+          continue;
+        }
+        const n = sizes[segment];
+        if (n <= 0) continue;
+        const a = base + starts[segment],
+          b = base + ends[segment];
+        const r = prefix[b] - prefix[a],
+          g = prefix[b + 1] - prefix[a + 1],
+          bl = prefix[b + 2] - prefix[a + 2];
+        total += prefix[b + 3] - prefix[a + 3] - (r * r + g * g + bl * bl) / n;
       }
-      const a = base + cuts[s] * CHANNELS,
-        b = base + cuts[s + 1] * CHANNELS;
-      const n = cuts[s + 1] - cuts[s];
-      if (n <= 0) continue;
-      const r = prefix[b] - prefix[a],
-        g = prefix[b + 1] - prefix[a + 1],
-        bl = prefix[b + 2] - prefix[a + 2];
-      total += prefix[b + 3] - prefix[a + 3] - (r * r + g * g + bl * bl) / n;
     }
   }
   const residual = Math.max(0, total / (lines * length));
@@ -179,7 +265,7 @@ function sweep(
   for (const pitch of pitches)
     for (const phase of phasesOf(pitch)) {
       const cuts = latticeCuts(samples.length, pitch, phase);
-      const residual = lineResidual(samples, cuts);
+      const residual = lineResidual(samples, cuts, best.residual);
       if (residual < best.residual) best = { pitch, phase, cuts, residual };
     }
   return best;
