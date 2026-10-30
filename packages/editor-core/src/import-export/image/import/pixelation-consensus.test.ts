@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
 import type { ArbitratedGrid, GridEvidence } from "$/import-export/image/import/grid-arbitrate";
-import type { GridCuts } from "$/import-export/image/import/grid-description-length";
+import { describeImage, type GridCuts } from "$/import-export/image/import/grid-description-length";
 import {
   detectWithAlgorithm,
   detectWithAlgorithmAsync,
@@ -125,9 +125,7 @@ const reading = (proposal: PixelGridAnalysis, length: number): GridEvidence => (
   length,
   twin: 100,
   chance: 0,
-  frame: () => {
-    throw new Error("The mocked octave penalty does not inspect the frame");
-  },
+  frame: () => describeImage(image()),
 });
 
 beforeEach(() => {
