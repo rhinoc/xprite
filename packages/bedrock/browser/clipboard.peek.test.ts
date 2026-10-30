@@ -62,3 +62,52 @@ describe("browserClipboard.peekImage", () => {
     }
   });
 });
+
+describe("browserClipboard.isClipboardReadGranted", () => {
+  it("returns false when Permissions API is unavailable", async () => {
+    const previous = globalThis.navigator;
+    Object.defineProperty(globalThis, "navigator", {
+      configurable: true,
+      value: { clipboard: { read: async () => [] } },
+    });
+    try {
+      assert.equal(await browserClipboard.isClipboardReadGranted(), false);
+    } finally {
+      Object.defineProperty(globalThis, "navigator", { configurable: true, value: previous });
+    }
+  });
+
+  it("returns true only when clipboard-read state is granted", async () => {
+    const previous = globalThis.navigator;
+    Object.defineProperty(globalThis, "navigator", {
+      configurable: true,
+      value: {
+        permissions: {
+          query: async () => ({ state: "granted" }),
+        },
+      },
+    });
+    try {
+      assert.equal(await browserClipboard.isClipboardReadGranted(), true);
+    } finally {
+      Object.defineProperty(globalThis, "navigator", { configurable: true, value: previous });
+    }
+  });
+
+  it("returns false for prompt or denied", async () => {
+    const previous = globalThis.navigator;
+    Object.defineProperty(globalThis, "navigator", {
+      configurable: true,
+      value: {
+        permissions: {
+          query: async () => ({ state: "prompt" }),
+        },
+      },
+    });
+    try {
+      assert.equal(await browserClipboard.isClipboardReadGranted(), false);
+    } finally {
+      Object.defineProperty(globalThis, "navigator", { configurable: true, value: previous });
+    }
+  });
+});

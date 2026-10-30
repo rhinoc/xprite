@@ -2,6 +2,12 @@ export type ClipboardItemPayload = Record<string, Blob | Promise<Blob>>;
 
 export interface BrowserClipboard {
   canRead(): boolean;
+  /**
+   * Whether the Permissions API reports clipboard-read as already granted.
+   * false when denied, prompt, unavailable, or query fails — callers must not peek
+   * in those cases if they want to avoid a permission prompt.
+   */
+  isClipboardReadGranted(): Promise<boolean>;
   /** true = image type present; false = readable but no image; null = cannot tell (no API / denied). */
   peekImage(acceptedTypes?: readonly string[]): Promise<boolean | null>;
   read(acceptedTypes?: readonly string[]): Promise<Blob | null>;
@@ -19,6 +25,18 @@ function accepts(type: string, acceptedTypes: readonly string[]): boolean {
 
 export const browserClipboard: BrowserClipboard = {
   canRead: () => typeof globalThis.navigator?.clipboard?.read === "function",
+  async isClipboardReadGranted() {
+    const permissions = globalThis.navigator?.permissions;
+    if (typeof permissions?.query !== "function") return false;
+    try {
+      const status = await permissions.query({
+        name: "clipboard-read" as PermissionName,
+      });
+      return status.state === "granted";
+    } catch {
+      return false;
+    }
+  },
   async peekImage(acceptedTypes = ["image/png", "image/*"]) {
     const clipboard = globalThis.navigator?.clipboard;
     if (typeof clipboard?.read !== "function") return null;

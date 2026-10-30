@@ -52,7 +52,7 @@ export interface EditorActions {
   feedback: () => void;
   exit: () => void;
   loadRecentFiles?: () => void;
-  /** File/Edit menu open: peek OS clipboard for an image under the user gesture. */
+  /** File/Edit menu open: peek OS clipboard only when clipboard-read is already granted. */
   probeClipboardImage?: () => void;
   canClearRecentFiles: boolean;
   clearRecentFiles: () => void;

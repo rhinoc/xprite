@@ -765,6 +765,7 @@
   "ui.open.preferences": "Открыть настройки",
   "ui.open.recent": "Открыть недавние",
   "ui.open.from.clipboard": "Открыть из буфера обмена",
+  "ui.open.from.clipboard.empty": "В буфере обмена нет изображения",
   "ui.open.with.os": "Открыть в системе",
   "ui.options": "Параметры",
   "ui.ordered": "Упорядоченный",

@@ -765,6 +765,7 @@
   "ui.open.preferences": "Open Preferences",
   "ui.open.recent": "Open Recent",
   "ui.open.from.clipboard": "Open from Clipboard",
+  "ui.open.from.clipboard.empty": "Clipboard has no image",
   "ui.open.with.os": "Open with OS",
   "ui.options": "Options",
   "ui.ordered": "Ordered",

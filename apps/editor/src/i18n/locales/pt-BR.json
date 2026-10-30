@@ -765,6 +765,7 @@
   "ui.open.preferences": "Abrir preferências",
   "ui.open.recent": "Abrir recente",
   "ui.open.from.clipboard": "Abrir da área de transferência",
+  "ui.open.from.clipboard.empty": "A área de transferência não tem nenhuma imagem",
   "ui.open.with.os": "Abrir com o sistema",
   "ui.options": "Opções",
   "ui.ordered": "Ordenado",

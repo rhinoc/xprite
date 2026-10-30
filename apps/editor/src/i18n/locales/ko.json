@@ -765,6 +765,7 @@
   "ui.open.preferences": "환경설정 열기",
   "ui.open.recent": "최근 파일 열기",
   "ui.open.from.clipboard": "클립보드에서 열기",
+  "ui.open.from.clipboard.empty": "클립보드에 이미지가 없습니다",
   "ui.open.with.os": "OS로 열기",
   "ui.options": "옵션",
   "ui.ordered": "규칙적",

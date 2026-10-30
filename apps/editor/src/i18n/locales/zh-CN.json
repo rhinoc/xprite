@@ -765,6 +765,7 @@
   "ui.open.preferences": "打开首选项",
   "ui.open.recent": "打开最近文件",
   "ui.open.from.clipboard": "从剪贴板打开",
+  "ui.open.from.clipboard.empty": "剪贴板中没有图片",
   "ui.open.with.os": "用操作系统打开",
   "ui.options": "选项",
   "ui.ordered": "有序",

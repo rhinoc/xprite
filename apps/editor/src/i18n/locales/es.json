@@ -765,6 +765,7 @@
   "ui.open.preferences": "Abrir preferencias",
   "ui.open.recent": "Abrir reciente",
   "ui.open.from.clipboard": "Abrir desde el portapapeles",
+  "ui.open.from.clipboard.empty": "El portapapeles no tiene ninguna imagen",
   "ui.open.with.os": "Abrir con el sistema",
   "ui.options": "Opciones",
   "ui.ordered": "Ordenado",
