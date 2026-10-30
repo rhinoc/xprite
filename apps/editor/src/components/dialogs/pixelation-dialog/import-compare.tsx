@@ -125,6 +125,8 @@ export function ImportCompare({
   labels,
   comparing = true,
   updating = false,
+  picking = false,
+  onPick,
 }: {
   original: CanvasPixelSource;
   result: CanvasPixelSource | null;
@@ -134,6 +136,9 @@ export function ImportCompare({
   updating?: boolean;
   /** False shows only the original: no result layer, divider or handle. */
   comparing?: boolean;
+  /** Eyedropper: next primary click samples a document pixel instead of panning. */
+  picking?: boolean;
+  onPick?: (x: number, y: number) => void;
   labels: {
     original: string;
     result: string;
@@ -222,12 +227,16 @@ export function ImportCompare({
       </div>
       <EditorPanSurface
         className={styles.stage}
-        style={{ width, height, cursor: comparing ? undefined : "default" }}
+        style={{
+          width,
+          height,
+          cursor: picking ? "crosshair" : comparing ? undefined : "default",
+        }}
         enabled
-        handTool
-        cursor={NATIVE_PAN_CURSOR}
+        handTool={!picking}
+        cursor={picking ? undefined : NATIVE_PAN_CURSOR}
         preserveChildFocus
-        panButtons={PAN_BUTTONS}
+        panButtons={picking ? [] : PAN_BUTTONS}
         pan={view.pan}
         onPan={(pan) =>
           setView((old) => ({
@@ -300,7 +309,21 @@ export function ImportCompare({
         }}
         aria-label={tUi("import.dialog.zoom.preview")}
       >
-        <div ref={box} className={styles.layers}>
+        <div
+          ref={box}
+          className={styles.layers}
+          onPointerDown={(event) => {
+            if (!picking || !onPick || !event.isPrimary || event.button !== 0) return;
+            event.preventDefault();
+            event.stopPropagation();
+            const rect = clientRect(box.current);
+            if (!rect) return;
+            const point = clientPoint(event);
+            const docX = (point.x - rect.left - origin.x) / view.zoom;
+            const docY = (point.y - rect.top - origin.y) / view.zoom;
+            onPick(docX, docY);
+          }}
+        >
           {left ? (
             <PixelCanvas
               pixels={left}

@@ -1,10 +1,17 @@
-import { Fragment, useRef, useState } from "react";
+import { Fragment, useMemo, useRef, useState } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
 import { algorithmNoteKey } from "$/components/dialogs/pixelation-dialog/algorithm-notes";
 import { ImportCompare } from "$/components/dialogs/pixelation-dialog/import-compare";
 import { tUi, tUiSource, useUiLanguage } from "$/i18n";
+import {
+  DEFAULT_REMOVE_BACKGROUND,
+  removeBackground,
+  RemoveBackgroundMode,
+  sampleKeyColor,
+  type RemoveBackgroundSettings,
+} from "$/managers/import/remove-background";
 import {
   type FilePreferences,
   type ImportAction,
@@ -18,8 +25,11 @@ import {
   TextAlignment,
   Button,
   Checkbox,
+  CheckboxMode,
+  CheckboxShape,
   Disclosure,
   Divider,
+  Slider,
   Text,
   TextVariant,
   defaultActionProps,
@@ -87,6 +97,8 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   const [action, setAction] = useState<ImportAction | null>(null);
   const [rememberChoice, setRememberChoice] = useState(false);
   const [advanced, setAdvanced] = useState(false);
+  const [removeBg, setRemoveBg] = useState<RemoveBackgroundSettings>(DEFAULT_REMOVE_BACKGROUND);
+  const [pickingColor, setPickingColor] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useModalFocus({
@@ -96,6 +108,10 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       if (event.key !== "Escape") return;
       event.preventDefault();
       event.stopPropagation();
+      if (pickingColor) {
+        setPickingColor(false);
+        return;
+      }
       workflow.discardEmptyImport();
     },
   });
@@ -112,13 +128,34 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     onAlgorithm: (algorithm, size) => void workflow.setImportAlgorithm(algorithm, size),
   });
 
-  if (!pending) return null;
   const chosen: ImportAction =
     action ??
     (workflow.getFilePreferences().importLastAction === "import-as-is"
       ? "import-as-is"
       : "pixelate");
   const pixelate = chosen === "pixelate";
+  const removeBgOptions = useMemo(
+    () => ({
+      mode: removeBg.mode,
+      tolerance: removeBg.tolerance,
+      keyColor: removeBg.keyColor,
+    }),
+    [removeBg.mode, removeBg.tolerance, removeBg.keyColor],
+  );
+  /** Source the classical remover runs on: pixelated preview, else the original. */
+  const removeBgSource = pixelate ? workflow.pixelationPreview : (pending?.pixels ?? null);
+  const processedPreview = useMemo(() => {
+    if (!removeBg.enabled || !removeBgSource) return null;
+    return removeBackground(removeBgSource, removeBgOptions);
+  }, [removeBg.enabled, removeBgSource, removeBgOptions]);
+  const displayResult = removeBg.enabled
+    ? processedPreview
+    : pixelate
+      ? workflow.pixelationPreview
+      : null;
+  const showCompare = pixelate || removeBg.enabled;
+
+  if (!pending) return null;
   const showAdvanced = advanced && pixelate;
   const selectedAlgorithm = pending.algorithm;
   const colorPicker = workflow.pixelationOptions.colorPicker;
@@ -161,8 +198,17 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         : {}),
       ...(rememberChoice ? { importAsk: false } : {}),
     });
-    if (pixelate) workflow.acceptPixelatedImport();
-    else workflow.acceptOriginalImport();
+    if (pixelate) {
+      const base = workflow.pixelationPreview;
+      if (!base) return;
+      workflow.acceptPixelatedImport(
+        removeBg.enabled ? removeBackground(base, removeBgOptions) : undefined,
+      );
+    } else {
+      workflow.acceptOriginalImport(
+        removeBg.enabled ? removeBackground(pending.pixels, removeBgOptions) : undefined,
+      );
+    }
   };
 
   // Window size stays put when Advanced opens; the body scrolls vertically. Preview height is
@@ -173,6 +219,14 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       : 0;
   const advancedHeight = showAdvanced
     ? 4 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) + ROW_HEIGHT + GAP + showDitherExtra
+    : 0;
+  // Remove background checkbox is always reserved; mode + tolerance appear when checked.
+  const removeBgExtra = removeBg.enabled
+    ? ROW_HEIGHT +
+      GAP +
+      ROW_HEIGHT +
+      GAP +
+      (removeBg.mode === RemoveBackgroundMode.Manual ? ROW_HEIGHT + GAP : 0)
     : 0;
   const dialogWidth = Math.min(DIALOG_WIDTH, Math.max(DIALOG_MIN_WIDTH, sceneBounds.width));
   const dialogHeight = Math.min(
@@ -230,9 +284,12 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
           advancedRowHeight +
           ROW_HEIGHT +
           GAP +
+          ROW_HEIGHT +
+          GAP +
           FOOTER_HEIGHT;
         const previewHeight = Math.max(PREVIEW_MIN, client.height - collapsedBottom - GAP);
-        const contentHeight = previewHeight + GAP + collapsedBottom + advancedHeight;
+        const contentHeight =
+          previewHeight + GAP + collapsedBottom + advancedHeight + removeBgExtra;
         // A vertical track must not make the fixed-width plane spill sideways (dual scrollbars).
         const width =
           contentHeight > client.height + 0.5
@@ -262,6 +319,13 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const limitRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
         const ditherLabel = showDither ? at(FIELD_LABEL_HEIGHT) : null;
         const ditherCombo = showDither ? at(COMBO_HEIGHT, GAP) : null;
+        const removeBgRow = at(ROW_HEIGHT, GAP);
+        const removeModeRow = removeBg.enabled ? at(ROW_HEIGHT, GAP) : null;
+        const removeTolRow = removeBg.enabled ? at(ROW_HEIGHT, GAP) : null;
+        const removePickRow =
+          removeBg.enabled && removeBg.mode === RemoveBackgroundMode.Manual
+            ? at(ROW_HEIGHT, GAP)
+            : null;
         const rememberRow = at(ROW_HEIGHT, GAP);
         const footerY = at(FOOTER_HEIGHT).y;
         const buttonWidth = Math.min(
@@ -306,14 +370,24 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
             >
               <ImportCompare
                 original={pending.pixels}
-                result={workflow.pixelationPreview}
+                result={displayResult}
                 width={width}
                 height={previewHeight}
-                comparing={pixelate}
-                updating={workflow.pixelationPreviewing}
+                comparing={showCompare}
+                updating={pixelate && workflow.pixelationPreviewing}
+                picking={pickingColor}
+                onPick={(x, y) => {
+                  if (!removeBgSource) return;
+                  const key = sampleKeyColor(removeBgSource, x, y);
+                  if (!key) return;
+                  setRemoveBg((prev) => ({ ...prev, keyColor: key }));
+                  setPickingColor(false);
+                }}
                 labels={{
                   original: tUi("import.dialog.original"),
-                  result: tUi("import.dialog.result.label"),
+                  result: removeBg.enabled
+                    ? tUi("import.dialog.remove.background.result")
+                    : tUi("import.dialog.result.label"),
                   preparing: tUi("import.dialog.preparing"),
                   slider: tUi("import.dialog.slider"),
                 }}
@@ -485,6 +559,99 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                   relativeTo: client,
                 })}
               </>
+            )}
+            <Checkbox
+              label={tUi("import.dialog.remove.background")}
+              checked={removeBg.enabled}
+              onCheckedChange={(enabled) => {
+                setRemoveBg((prev) => ({ ...prev, enabled }));
+                if (!enabled) setPickingColor(false);
+              }}
+              bounds={removeBgRow}
+              relativeTo={client}
+            />
+            {removeModeRow && (
+              <>
+                <Checkbox
+                  mode={CheckboxMode.Radio}
+                  shape={CheckboxShape.Round}
+                  label={tUi("import.dialog.remove.background.auto")}
+                  checked={removeBg.mode === RemoveBackgroundMode.Auto}
+                  onCheckedChange={() => {
+                    setRemoveBg((prev) => ({ ...prev, mode: RemoveBackgroundMode.Auto }));
+                    setPickingColor(false);
+                  }}
+                  bounds={{ ...removeModeRow, width: Math.floor(removeModeRow.width / 2) }}
+                  relativeTo={client}
+                />
+                <Checkbox
+                  mode={CheckboxMode.Radio}
+                  shape={CheckboxShape.Round}
+                  label={tUi("import.dialog.remove.background.manual")}
+                  checked={removeBg.mode === RemoveBackgroundMode.Manual}
+                  onCheckedChange={() =>
+                    setRemoveBg((prev) => ({
+                      ...prev,
+                      mode: RemoveBackgroundMode.Manual,
+                      keyColor: prev.keyColor,
+                    }))
+                  }
+                  bounds={{
+                    ...removeModeRow,
+                    x: removeModeRow.x + Math.floor(removeModeRow.width / 2),
+                    width: Math.ceil(removeModeRow.width / 2),
+                  }}
+                  relativeTo={client}
+                />
+              </>
+            )}
+            {removeTolRow && (
+              <>
+                <Text
+                  variant={TextVariant.Control}
+                  text={tUi("import.dialog.remove.background.tolerance")}
+                  bounds={{
+                    ...removeTolRow,
+                    width: Math.round(removeTolRow.width * 0.4),
+                  }}
+                  relativeTo={client}
+                />
+                <Slider
+                  aria-label={tUi("import.dialog.remove.background.tolerance")}
+                  bounds={{
+                    ...removeTolRow,
+                    x: removeTolRow.x + Math.round(removeTolRow.width * 0.4) + GAP,
+                    width: removeTolRow.width - Math.round(removeTolRow.width * 0.4) - GAP,
+                  }}
+                  relativeTo={client}
+                  value={removeBg.tolerance}
+                  min={0}
+                  max={120}
+                  label={
+                    removeBg.mode === RemoveBackgroundMode.Auto
+                      ? tUi("import.dialog.remove.background.auto.tol")
+                      : String(removeBg.tolerance)
+                  }
+                  disabled={removeBg.mode === RemoveBackgroundMode.Auto}
+                  onValueChange={(tolerance) => setRemoveBg((prev) => ({ ...prev, tolerance }))}
+                />
+              </>
+            )}
+            {removePickRow && (
+              <Button
+                text={
+                  pickingColor
+                    ? tUi("import.dialog.remove.background.picking")
+                    : tUi("import.dialog.remove.background.pick")
+                }
+                font={FontRole.Compact}
+                part="button_normal"
+                hotPart="button_hot"
+                bounds={removePickRow}
+                relativeTo={client}
+                selected={pickingColor}
+                onClick={() => setPickingColor((on) => !on)}
+              />
             )}
             <Checkbox
               label={tUi("import.dialog.remember")}

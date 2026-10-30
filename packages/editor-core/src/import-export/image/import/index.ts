@@ -54,6 +54,21 @@ export {
 export { manualPixelGrid, MAX_GRID_CELL_SIZE } from "$/import-export/image/import/grid";
 
 export {
+  removeBackground,
+  modeBorderColor,
+  edgeSeededFloodAlpha,
+  colorKeyDistance,
+  adaptiveTolerance,
+  sampleKeyColor,
+  RemoveBackgroundMode,
+  DEFAULT_REMOVE_BACKGROUND,
+} from "$/import-export/image/import/remove-background";
+export type {
+  RemoveBackgroundOptions,
+  RemoveBackgroundSettings,
+} from "$/import-export/image/import/remove-background";
+
+export {
   getAlgorithmEntry,
   getAllAlgorithms,
   getListedAlgorithms,
