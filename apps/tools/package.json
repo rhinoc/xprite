@@ -15,6 +15,7 @@
     "@xprite/bedrock": "workspace:*",
     "@xprite/editor-core": "workspace:*",
     "@xprite/editor-ui": "workspace:*",
+    "@xprite/fixer-detect-wasm": "workspace:*",
     "@xprite/growth-content": "workspace:*",
     "@xprite/palette-assets": "workspace:*",
     "@xprite/site-assets": "workspace:*",
