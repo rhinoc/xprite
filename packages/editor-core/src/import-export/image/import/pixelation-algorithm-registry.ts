@@ -138,56 +138,16 @@ const MIN_CORROBORATORS = 2;
 const MAX_ARBITRATION_CANDIDATES = 10;
 
 /**
- * Prune candidates before expensive DL/arbitration to reduce latency.
- * Strategy: dedupe near-dimensions (±1), keep highest confidence per size class, cap total.
- * Preserves Exact by keeping diverse sizes and high-confidence candidates.
- * Always keeps WASM consensus candidate (if present) to enable consensus override.
+ * Exact A/B: pass-through (no prune). Peak d698be86 scored without pruning;
+ * tip prune path (39ba4659) is bypassed so arbitration sees the full candidate list.
+ * MAX_ARBITRATION_CANDIDATES / wasmConsensus args retained for call-site compatibility.
  */
 function pruneCandidatesBeforeArbitration(
   candidates: PixelGridAnalysis[],
-  wasmConsensus?: { cols: number; rows: number } | null,
+  _wasmConsensus?: { cols: number; rows: number } | null,
 ): PixelGridAnalysis[] {
-  if (candidates.length <= MAX_ARBITRATION_CANDIDATES) return candidates;
-
-  // Always keep WASM consensus candidate if present
-  const wasmCandidate = wasmConsensus
-    ? candidates.find(
-        (c) => c.width === wasmConsensus.cols && c.height === wasmConsensus.rows && c.reliable,
-      )
-    : undefined;
-
-  // Group by similar dimensions (within ±1 on both width and height)
-  const groups = new Map<string, PixelGridAnalysis[]>();
-  for (const cand of candidates) {
-    // Use rounded dimensions as group key to cluster near-identical sizes
-    const key = `${cand.width}×${cand.height}`;
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key)!.push(cand);
-  }
-
-  // Keep best (highest confidence) from each group
-  const pruned: PixelGridAnalysis[] = [];
-  for (const group of groups.values()) {
-    // Sort by confidence desc, then by cellWidth*cellHeight asc (prefer smaller cells)
-    const sorted = group.sort(
-      (a, b) =>
-        b.confidence - a.confidence || a.cellWidth * a.cellHeight - b.cellWidth * b.cellHeight,
-    );
-    pruned.push(sorted[0]);
-  }
-
-  // If still over limit, keep highest-confidence candidates
-  if (pruned.length > MAX_ARBITRATION_CANDIDATES) {
-    pruned.sort((a, b) => b.confidence - a.confidence);
-    const limited = pruned.slice(0, MAX_ARBITRATION_CANDIDATES);
-    // Ensure WASM candidate is in the limited set
-    if (wasmCandidate && !limited.includes(wasmCandidate)) {
-      limited[limited.length - 1] = wasmCandidate;
-    }
-    return limited;
-  }
-
-  return pruned;
+  void MAX_ARBITRATION_CANDIDATES;
+  return candidates;
 }
 
 /**
