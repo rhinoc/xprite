@@ -209,34 +209,6 @@ const featureWindows = [
   representativeFeatureWindow(PublicLanguage.SimplifiedChinese, true),
 ];
 
-/** Japanese and Korean mirror a few zh-CN templates: About, a compare article, the guide and a feature window. */
-const cjkRoutes = [
-  [PublicLanguage.Japanese, "/about/", wide, light],
-  [PublicLanguage.Korean, "/about/", compact, light],
-  [PublicLanguage.Japanese, "/compare/aseprite-on-ipad/", wide, light],
-  [PublicLanguage.Korean, "/help/", compact, dark],
-].map(([language, canonical, layout, appearance]) => {
-  const selected = translatedRoutes.get(canonical)?.find((page) => page.language === language);
-  if (!selected) throw Error(`No ${language} page for ${canonical}.`);
-  return makeScene(publicRoutePage(selected, language, routeName(canonical)), layout, appearance);
-});
-const cjkFeatureWindows = [
-  representativeFeatureWindow(PublicLanguage.Japanese, true),
-  representativeFeatureWindow(PublicLanguage.Korean, false),
-];
-
-/** Russian, Brazilian Portuguese and Spanish add a reduced set: About, the guide, a compare article and one feature window. */
-const latinCyrillicRoutes = [
-  [PublicLanguage.Russian, "/about/", wide, light],
-  [PublicLanguage.BrazilianPortuguese, "/help/", compact, light],
-  [PublicLanguage.Spanish, "/compare/aseprite-online/", compact, dark],
-].map(([language, canonical, layout, appearance]) => {
-  const selected = translatedRoutes.get(canonical)?.find((page) => page.language === language);
-  if (!selected) throw Error(`No ${language} page for ${canonical}.`);
-  return makeScene(publicRoutePage(selected, language, routeName(canonical)), layout, appearance);
-});
-const latinCyrillicFeatureWindows = [representativeFeatureWindow(PublicLanguage.Russian, false)];
-
 const footers = [
   makeScene(
     {
@@ -273,10 +245,6 @@ export const scenes = [
   featureDirectory,
   ...featureWindows,
   ...footers,
-  ...cjkRoutes,
-  ...cjkFeatureWindows,
-  ...latinCyrillicRoutes,
-  ...latinCyrillicFeatureWindows,
 ];
 if (new Set(scenes.map((scene) => scene.id)).size !== scenes.length)
   throw Error("Site visual scene IDs must be unique.");

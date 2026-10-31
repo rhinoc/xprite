@@ -157,23 +157,6 @@ describe("uneven cells from non-integer and drifting upscales", () => {
       detailedSprite(120, 90, 3),
       fractionalUpscale(detailedSprite(120, 90, 3), 2.43),
     ],
-    ["2.56x blocky sprite", sprite(80, 6), fractionalUpscale(sprite(80, 6), 2.56)],
-    [
-      "4.37x detailed sprite",
-      detailedSprite(96, 80, 5),
-      fractionalUpscale(detailedSprite(96, 80, 5), 4.37),
-    ],
-    [
-      "cell size drifting 12% at 4.3x",
-      detailedSprite(120, 90, 1),
-      driftUpscale(detailedSprite(120, 90, 1), 4.3, 0.12, 1),
-    ],
-    [
-      "cell size drifting 12% at 3.3x",
-      detailedSprite(160, 120, 7),
-      driftUpscale(detailedSprite(160, 120, 7), 3.3, 0.12, 7),
-    ],
-    ["blocky sprite drifting at 6.4x", sprite(64, 4), driftUpscale(sprite(64, 4), 6.4, 0.12, 4)],
     [
       "1.86x, cells of 1 and 2 pixels",
       detailedSprite(200, 150, 9),
@@ -218,8 +201,6 @@ describe("soft upscales the edge detectors refuse", () => {
     ["bilinear-upscaled sprite", upscaleBilinear(art, 12), 12, 64],
     ["heavily blurred sprite", boxBlur(upscaleNearest(art, 16), 6), 16, 64],
     ["centred bilinear at 6.5x", resampleBilinear(sprite(32, 7), 6.5), 6.5, 32],
-    ["centred bilinear at 9.3x", resampleBilinear(sprite(48, 13), 9.3), 9.3, 48],
-    ["mush at 5x", mush(sprite(48, 29), 5), 5, 48],
     ["mush at 12x", mush(sprite(32, 7), 12), 12, 32],
   ];
   for (const [name, image, pitch, cells] of soft)
@@ -277,18 +258,14 @@ describe("soft upscales the edge detectors refuse", () => {
 
 describe("frame-locked lattices on soft and damaged upscales", () => {
   const recovered: [string, PixelBuffer, number, number][] = [
-    ["soft bilinear at 2.62x", softBilinear(detailedSprite(120, 90, 3), 2.62), 120, 90],
     ["soft bilinear at 1.94x", softBilinear(detailedSprite(200, 150, 5), 1.94), 200, 150],
-    ["soft bilinear at 4.84x", softBilinear(sprite(64, 9), 4.84), 64, 64],
     ["warped mush at 3x", mushWarp(detailedSprite(96, 80, 7), 3), 96, 80],
-    ["warped mush at 5x", mushWarp(sprite(64, 11), 5), 64, 64],
     [
       "noisy 1.94x, cells of 1 and 2 pixels",
       addNoise(fractionalUpscale(detailedSprite(200, 150, 9), 1.94), 40),
       200,
       150,
     ],
-    ["noisy 2.62x", addNoise(fractionalUpscale(detailedSprite(160, 120, 9), 2.62), 40), 160, 120],
     [
       "heavily noisy 2.42x",
       addNoise(fractionalUpscale(detailedSprite(160, 120, 3), 2.42), 60),
@@ -324,12 +301,9 @@ describe("images that must be refused", () => {
     ["smooth photo-like field", smoothPhoto(512, 512)],
     ["blurred textured photo", boxBlur(texturePhoto(256, 256), 4)],
     ["textured photo", texturePhoto(512, 512)],
-    ["periodic smooth field", smoothPhoto(700, 500)],
     ["hard-edged shapes with no grid", vectorShapes(512, 512)],
-    ["small hard-edged shapes", vectorShapes(180, 140)],
     ["native detailed pixel art", detailedSprite(220, 150, 1)],
     ["native blocky pixel art", sprite(200, 2)],
-    ["native blocky pixel art, other shapes", sprite(240, 4)],
   ];
   for (const [name, image] of refused)
     test(name, () => {

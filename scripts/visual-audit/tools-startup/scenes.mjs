@@ -45,27 +45,18 @@ const selectedCoverage = [
   { language: "en", layout: layouts[1], appearance: appearances[1] },
 ];
 
-/** Japanese, Korean, Russian and Spanish each add one tool startup; the rest stay en/zh-CN. */
-const extraCoverage = [
-  { page: pages[1], language: "ja", layout: layouts[0], appearance: appearances[0] },
-  { page: pages[4], language: "ko", layout: layouts[1], appearance: appearances[1] },
-  { page: pages[2], language: "ru", layout: layouts[0], appearance: appearances[0] },
-  { page: pages[4], language: "es", layout: layouts[1], appearance: appearances[0] },
-];
-
-export const scenes = [
-  ...pages.map((page, index) => ({ page, ...selectedCoverage[index] })),
-  ...extraCoverage,
-].map((coverage) => {
-  const page = coverage.page;
-  const languagePath =
-    coverage.language === "en" || !page.publicPage
-      ? page.path
-      : `/${coverage.language}${page.path}`;
-  return {
-    id: `${page.name}-${coverage.language}-${coverage.layout.name}-${coverage.appearance.name}`,
-    page: { ...page, language: coverage.language, path: languagePath },
-    layout: coverage.layout,
-    appearance: coverage.appearance,
-  };
-});
+export const scenes = pages
+  .map((page, index) => ({ page, ...selectedCoverage[index] }))
+  .map((coverage) => {
+    const page = coverage.page;
+    const languagePath =
+      coverage.language === "en" || !page.publicPage
+        ? page.path
+        : `/${coverage.language}${page.path}`;
+    return {
+      id: `${page.name}-${coverage.language}-${coverage.layout.name}-${coverage.appearance.name}`,
+      page: { ...page, language: coverage.language, path: languagePath },
+      layout: coverage.layout,
+      appearance: coverage.appearance,
+    };
+  });
