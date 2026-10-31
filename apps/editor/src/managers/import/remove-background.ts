@@ -1,8 +1,8 @@
-/** Manager façade: Import Options remove-background (components must not import editor-core). */
+/** Manager façade: Import Options remove-background (components must not import the importer package). */
 export {
   removeBackground,
   sampleKeyColor,
   RemoveBackgroundMode,
   DEFAULT_REMOVE_BACKGROUND,
   type RemoveBackgroundSettings,
-} from "@xprite/editor-core/import-export/image/import";
+} from "@xprite/pixelate";

@@ -1,13 +1,13 @@
 import type { ToolWheelInput } from "$/managers/ports/preview";
 import type { Rgba } from "@xprite/editor-core/base";
 import type { PixelBuffer } from "@xprite/editor-core/base";
+import type { PaletteBrowserChoice } from "@xprite/editor-ui/palette/model";
 import type {
   PixelateOptions,
   PixelationAlgorithm,
   PixelationSize,
   PixelGridAnalysis,
-} from "@xprite/editor-core/import-export";
-import type { PaletteBrowserChoice } from "@xprite/editor-ui/palette/model";
+} from "@xprite/pixelate";
 export interface PixelationPort {
   readWheel(event: WheelEvent): ToolWheelInput;
   paletteResources(): { choices: readonly PaletteBrowserChoice[] };

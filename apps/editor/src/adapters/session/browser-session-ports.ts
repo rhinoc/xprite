@@ -33,14 +33,13 @@ import {
   isAsepriteData,
   isAsepriteFileName,
   pngFileName,
-  type PixelArtAnalysisOptions,
-  type PixelateOptions,
 } from "@xprite/editor-core/import-export";
 import {
   SessionSaveIntent,
   type EditorSessionPorts,
   type SessionProject,
 } from "@xprite/editor-core/session";
+import type { PixelArtAnalysisOptions, PixelateOptions } from "@xprite/pixelate";
 
 interface OpenFileHandle extends SaveFileHandle, ReadableFileHandle {}
 type BrowserSessionSource =

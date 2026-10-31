@@ -7,7 +7,7 @@ import {
   OutlinePrepass,
   PixelationAlgorithm,
   PixelationMode,
-} from "@xprite/editor-core/import-export";
+} from "@xprite/pixelate";
 
 const image = (width: number, height: number) => ({
   width,

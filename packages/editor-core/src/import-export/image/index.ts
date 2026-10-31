@@ -8,7 +8,6 @@ export * from "$/import-export/image/export-sheet";
 export * from "$/import-export/image/import-overlay";
 export * from "$/import-export/image/import-sprite-sheet";
 export * from "$/import-export/image/sheet-packing";
-export * from "$/import-export/image/import";
 export * from "$/import-export/image/webp-lossless";
 export * from "$/import-export/image/webp-export";
 export * from "$/import-export/image/project-preview";

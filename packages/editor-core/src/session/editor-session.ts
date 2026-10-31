@@ -10,6 +10,22 @@ import {
 import { RasterEditor } from "$/editor/RasterEditor";
 import type { EditorSnapshot } from "$/editor/types";
 import {
+  RecentImageStore,
+  createBlankImage,
+  type RecentImageStoreOptions,
+} from "$/session/recent-images";
+import type {
+  EditorSessionPorts,
+  EditorSessionSnapshot,
+  ImportPixelationMemory,
+  SessionProject,
+  SessionSource,
+  SessionInitialOptions,
+  SessionSize,
+  RecentIdentityPort,
+} from "$/session/types";
+import { SessionOperation, SessionOutcome, SessionSaveIntent } from "$/session/types";
+import {
   type PixelationSettings,
   type PixelArtAnalysis,
   type PixelGridAnalysis,
@@ -27,23 +43,7 @@ import {
   updatePixelationSettings,
   applyPixelationGrid,
   pixelationSettingsOptions,
-} from "$/import-export/image/import";
-import {
-  RecentImageStore,
-  createBlankImage,
-  type RecentImageStoreOptions,
-} from "$/session/recent-images";
-import type {
-  EditorSessionPorts,
-  EditorSessionSnapshot,
-  ImportPixelationMemory,
-  SessionProject,
-  SessionSource,
-  SessionInitialOptions,
-  SessionSize,
-  RecentIdentityPort,
-} from "$/session/types";
-import { SessionOperation, SessionOutcome, SessionSaveIntent } from "$/session/types";
+} from "@xprite/pixelate";
 
 type Checkpoint = Pick<
   EditorSnapshot,

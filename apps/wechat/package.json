@@ -13,6 +13,7 @@
     "@xprite/editor-app": "workspace:*",
     "@xprite/editor-core": "workspace:*",
     "@xprite/editor-ui": "workspace:*",
+    "@xprite/pixelate": "0.1.0",
     "@xprite/ui": "workspace:*",
     "core-js-pure": "3.50.0",
     "fflate": "^0.8.3",

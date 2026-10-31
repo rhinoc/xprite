@@ -10,11 +10,8 @@ import type {
 import { MIN_BEAD_BOARD_EDGE, MAX_BEAD_BOARD_EDGE } from "$/managers/beads/bead-tool-manager";
 import type { BeadTextKey } from "$/managers/locale/bead-text";
 import { useBeadText } from "$/managers/locale/tool-language";
-import {
-  BEAD_BOARD_PRESETS,
-  OutlinePrepass,
-  PIXELATION_METHOD_OPTIONS,
-} from "@xprite/editor-core/import-export";
+import { BEAD_BOARD_PRESETS } from "@xprite/editor-core/import-export";
+import { OutlinePrepass, PIXELATION_METHOD_OPTIONS } from "@xprite/pixelate";
 import {
   ControlFlow,
   Input,

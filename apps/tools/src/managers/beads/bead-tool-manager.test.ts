@@ -4,13 +4,8 @@ import { BeadToolError } from "$/managers/beads/bead-failure";
 import { BeadToolManager, BeadPreviewMode } from "$/managers/beads/bead-tool-manager";
 import type { BeadInput, BeadToolPort } from "$/managers/ports/beads";
 import { ToolFailureCategory } from "$/managers/ports/telemetry";
-import {
-  BEAD_CHART_CELL_SIZE,
-  ENGLISH_BEAD_LABELS,
-  CellColorPicker,
-  OutlinePrepass,
-  PixelationAlgorithm,
-} from "@xprite/editor-core/import-export";
+import { BEAD_CHART_CELL_SIZE, ENGLISH_BEAD_LABELS } from "@xprite/editor-core/import-export";
+import { CellColorPicker, OutlinePrepass, PixelationAlgorithm } from "@xprite/pixelate";
 
 const labels = ENGLISH_BEAD_LABELS;
 

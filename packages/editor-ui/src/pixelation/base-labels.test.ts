@@ -6,7 +6,7 @@ import {
   PIXELATION_BASE_TEXTS,
   pixelationLabelKey,
 } from "$/pixelation/base-labels";
-import { getAllAlgorithms, getAllColorPickers } from "@xprite/editor-core/import-export";
+import { getAllAlgorithms, getAllColorPickers } from "@xprite/pixelate";
 
 describe("shared pixelation labels", () => {
   it("labels every registry algorithm and colour picker distinctly", () => {

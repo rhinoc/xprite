@@ -2,6 +2,7 @@ import type { PixelationPort } from "$/managers/ports/pixelation";
 import { ToolViewport } from "$/managers/preview/tool-viewport";
 import type { Rgba } from "@xprite/editor-core/base";
 import type { PixelBuffer } from "@xprite/editor-core/base";
+import type { PaletteBrowserChoice } from "@xprite/editor-ui/palette/model";
 import {
   PixelationAlgorithm,
   PixelationMode,
@@ -14,8 +15,7 @@ import {
   type PixelationSettings,
   type PixelationSize,
   type PixelGridAnalysis,
-} from "@xprite/editor-core/import-export";
-import type { PaletteBrowserChoice } from "@xprite/editor-ui/palette/model";
+} from "@xprite/pixelate";
 
 /**
  * A recovered grid without a pre-pass restores the source's own pixels; any outline pre-pass

@@ -15,8 +15,6 @@ import { decodeImageBlob, encodePngBlob } from "@xprite/bedrock/browser/images";
 import { sha256Hex, randomId } from "@xprite/bedrock/browser/runtime-crypto";
 import { cloneGraph } from "@xprite/editor-core/base";
 import {
-  analyzePixelArt,
-  pixelateImage,
   encodeAseprite,
   asepriteFromProject,
   projectPngImage,
@@ -29,6 +27,7 @@ import {
   recentImageRetainedBytes,
   type SessionProject,
 } from "@xprite/editor-core/session";
+import { analyzePixelArt, pixelateImage } from "@xprite/pixelate";
 
 const RECENT_CATALOG_READ_ATTEMPTS = 2;
 const RECENTS_KEY = "recents-v2";

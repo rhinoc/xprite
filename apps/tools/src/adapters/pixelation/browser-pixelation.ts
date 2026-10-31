@@ -12,7 +12,7 @@ import { downloadBlob } from "@xprite/bedrock/browser/file-system";
 import { decodeImageBlob, encodePngBlob } from "@xprite/bedrock/browser/images";
 import { browserLocalStorage } from "@xprite/bedrock/browser/localstorage";
 import { SerialWorker } from "@xprite/bedrock/browser/worker-job";
-import type { PixelateOptions } from "@xprite/editor-core/import-export";
+import type { PixelateOptions } from "@xprite/pixelate";
 import defaultExampleUrl from "@xprite/site-assets/tools/pixelate/girl-with-a-pearl-earring.jpg?url";
 const MAX_FILE_BYTES = TOOL_IMPORT_MAX_BYTES;
 const MAX_IMAGE_PIXELS = 16 * 1024 * 1024;

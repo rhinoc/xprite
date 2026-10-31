@@ -10,11 +10,7 @@ import {
   type WorkerRequestTransport,
 } from "@xprite/bedrock/browser/worker-request-channel";
 import type { PixelBuffer } from "@xprite/editor-core/base";
-import type {
-  PixelArtAnalysis,
-  PixelArtAnalysisOptions,
-  PixelateOptions,
-} from "@xprite/editor-core/import-export";
+import type { PixelArtAnalysis, PixelArtAnalysisOptions, PixelateOptions } from "@xprite/pixelate";
 
 export interface ImportWorkerClientOptions {
   worker?: WorkerRequestTransport<ImportWorkerRequest>;

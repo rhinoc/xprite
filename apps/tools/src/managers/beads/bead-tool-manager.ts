@@ -17,20 +17,6 @@ import type { PixelBuffer } from "@xprite/editor-core/base";
 import type { EditorDocument } from "@xprite/editor-core/document";
 import {
   renderExport,
-  pixelateImage,
-  defaultPixelationSettings,
-  updatePixelationSettings,
-  applyPixelationGrid,
-  detectWithAlgorithm,
-  getAllAlgorithms,
-  getAllColorPickers,
-  pixelationSettingsOptions,
-  CellColorPicker,
-  DEFAULT_LINE_GUIDE,
-  OutlinePrepass,
-  PixelationAlgorithm,
-  PixelationMethod,
-  PIXELATION_METHOD_OPTIONS,
   mapBeadGrid,
   beadGridPixels,
   beadBoards,
@@ -50,14 +36,30 @@ import {
   type BeadBoardSize,
   type BeadColor,
   type BeadDocumentLabels,
-  type PixelationSettings,
-  type PixelationSize,
-  type PixelGridAnalysis,
 } from "@xprite/editor-core/import-export";
 import { TILESET_EMBEDDED_PIXELS_FLAG } from "@xprite/editor-core/tilemap";
 import { layerAncestors } from "@xprite/editor-core/timeline";
 import { BEAD_ARTIFACT_ATTRIBUTION } from "@xprite/growth-content/tools";
 import { BEAD_PALETTES, BeadBrand } from "@xprite/palette-assets/beads";
+import {
+  pixelateImage,
+  defaultPixelationSettings,
+  updatePixelationSettings,
+  applyPixelationGrid,
+  detectWithAlgorithm,
+  getAllAlgorithms,
+  getAllColorPickers,
+  pixelationSettingsOptions,
+  CellColorPicker,
+  DEFAULT_LINE_GUIDE,
+  OutlinePrepass,
+  PixelationAlgorithm,
+  PixelationMethod,
+  PIXELATION_METHOD_OPTIONS,
+  type PixelationSettings,
+  type PixelationSize,
+  type PixelGridAnalysis,
+} from "@xprite/pixelate";
 import type { SiteTelemetryPort } from "@xprite/site-shell/telemetry";
 
 export enum BeadPreviewMode {

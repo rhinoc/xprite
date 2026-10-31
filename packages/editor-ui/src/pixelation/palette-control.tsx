@@ -1,7 +1,7 @@
 import { PalettePresetPopup } from "$/palette";
 import type { PaletteBrowserChoice, PaletteTranslate } from "$/palette/model";
 import type { Rgba } from "@xprite/editor-core/base";
-import type { PixelationSettings } from "@xprite/editor-core/import-export";
+import type { PixelationSettings } from "@xprite/pixelate";
 import { Button, ButtonVariant, ScrollArea } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 
