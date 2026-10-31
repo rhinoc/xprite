@@ -54,6 +54,7 @@ export function PixelationBaseControls({
     <div className={styles.controls}>
       <Group title={translate("Pixels")}>
         {field(PixelationSlot.Algorithm)}
+        {field(PixelationSlot.GridSource)}
         {field(PixelationSlot.Width, SIZE_WIDTH)}
         {field(PixelationSlot.Height, SIZE_WIDTH)}
         {field(PixelationSlot.ColorPicker)}

@@ -9,17 +9,21 @@ import { pixelateImage } from "$/import-export/image/import/pixelate";
 import {
   detectWithAlgorithm,
   getAllAlgorithms,
+  getGridSources,
   getListedAlgorithms,
+  pixelationMethodOf,
 } from "$/import-export/image/import/pixelation-algorithm-registry";
 import { CellColorPicker, PixelationAlgorithm } from "$/import-export/image/import/types";
 
 const { Auto, EdgeGrid, UniformGrid, Resize, CustomSize } = PixelationAlgorithm;
+const { FrameLattice, PitchLattice, ColorPeriod, BorderRuns, EdgeSpacing } = PixelationAlgorithm;
+const PROPOSERS = [FrameLattice, PitchLattice, ColorPeriod, BorderRuns, EdgeSpacing];
 const art = sprite(64);
 
 describe("algorithm registry table", () => {
   test("lists every algorithm and rejects unknown ids", () => {
     expect([...getAllAlgorithms()].sort()).toEqual(
-      [Auto, CustomSize, EdgeGrid, Resize, UniformGrid].sort(),
+      [Auto, CustomSize, EdgeGrid, Resize, UniformGrid, ...PROPOSERS].sort(),
     );
     expect(() => detectWithAlgorithm(art, "nope" as PixelationAlgorithm)).toThrow(RangeError);
   });
@@ -27,6 +31,11 @@ describe("algorithm registry table", () => {
     expect([...getListedAlgorithms()].sort()).toEqual(
       [Auto, CustomSize, EdgeGrid, UniformGrid].sort(),
     );
+  });
+  test("the single proposers are Fixed grid's sources, after its own edge fit", () => {
+    expect(getGridSources()).toEqual([UniformGrid, ...PROPOSERS]);
+    for (const source of getGridSources()) expect(pixelationMethodOf(source)).toBe(UniformGrid);
+    expect(pixelationMethodOf(EdgeGrid)).toBe(EdgeGrid);
   });
   test("Custom size detects the requested block grid and Auto never picks it", () => {
     const image = upscaleNearest(art, 4);

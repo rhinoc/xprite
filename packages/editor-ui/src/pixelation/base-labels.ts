@@ -14,6 +14,7 @@ export interface PixelationLabel {
 }
 export const LABELS = {
   algorithm: { text: "Find pixels by:", key: "import.dialog.algorithm" },
+  gridSource: { text: "Read grid from:", key: "import.dialog.grid-source" },
   width: { text: "Width:", key: "ui.width.label" },
   height: { text: "Height:", key: "ui.height.label" },
   picker: { text: "Pixel color:", key: "import.dialog.color.picker" },
@@ -29,11 +30,27 @@ export const ALGORITHM_LABELS: Readonly<Record<PixelationAlgorithm, PixelationLa
   [PixelationAlgorithm.Auto]: { text: "Auto", key: "import.algorithm.auto" },
   [PixelationAlgorithm.UniformGrid]: { text: "Fixed grid", key: "import.algorithm.uniform-grid" },
   [PixelationAlgorithm.EdgeGrid]: { text: "Flexible grid", key: "import.algorithm.edge-grid" },
+  [PixelationAlgorithm.FrameLattice]: {
+    text: "Whole image",
+    key: "import.algorithm.frame-lattice",
+  },
+  [PixelationAlgorithm.PitchLattice]: {
+    text: "Pixel pitch",
+    key: "import.algorithm.pitch-lattice",
+  },
+  [PixelationAlgorithm.ColorPeriod]: { text: "Color repeat", key: "import.algorithm.color-period" },
+  [PixelationAlgorithm.BorderRuns]: { text: "Border colors", key: "import.algorithm.border-runs" },
+  [PixelationAlgorithm.EdgeSpacing]: { text: "Edge spacing", key: "import.algorithm.edge-spacing" },
   [PixelationAlgorithm.CustomSize]: {
     text: "Custom size",
     key: "import.algorithm.custom-size",
   },
   [PixelationAlgorithm.Resize]: { text: "Resize only", key: "import.algorithm.resize" },
+};
+/** Fixed grid's own edge fit, named as one of its sources; the rest keep their algorithm label. */
+export const EDGE_SOURCE_LABEL: PixelationLabel = {
+  text: "Edges",
+  key: "import.grid-source.edges",
 };
 export const PREPASS_LABELS: Readonly<Record<OutlinePrepass, PixelationLabel>> = {
   [OutlinePrepass.None]: { text: "None", key: "import.prepass.none" },
@@ -73,6 +90,7 @@ export const PICKER_LABELS: Readonly<Record<CellColorPicker, PixelationLabel>> =
 const ALL_LABELS: readonly PixelationLabel[] = [
   ...Object.values(LABELS),
   ...Object.values(ALGORITHM_LABELS),
+  EDGE_SOURCE_LABEL,
   ...Object.values(PICKER_LABELS),
   ...Object.values(PREPASS_LABELS),
   ...Object.values(LINE_GUIDE_LABELS),

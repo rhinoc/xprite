@@ -20,6 +20,7 @@ import {
   OutlinePrepass,
   getAllAlgorithms,
   getListedAlgorithms,
+  pixelationMethodOf,
   getAllColorPickers,
   defaultPixelationSettings,
   extractPixelationPalette,
@@ -576,8 +577,12 @@ export class EditorSession<Source> {
   }
   /** The remembered grid algorithm; anything unknown (e.g. from an older build) means Auto. */
   private importAlgorithm(): PixelationAlgorithm {
-    const remembered = this.ports.getImportPreference?.()?.algorithm;
-    return getListedAlgorithms().find((id) => id === remembered) ?? PixelationAlgorithm.Auto;
+    const remembered = getAllAlgorithms().find(
+      (id) => id === this.ports.getImportPreference?.()?.algorithm,
+    );
+    return remembered && getListedAlgorithms().includes(pixelationMethodOf(remembered))
+      ? remembered
+      : PixelationAlgorithm.Auto;
   }
   /** The remembered per-cell colour rule; anything unknown means the default. */
   private importColorPicker(): CellColorPicker {

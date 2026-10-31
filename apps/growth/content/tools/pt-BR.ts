@@ -1,6 +1,7 @@
 /** Brazilian Portuguese copy for tool pages, keyed by the English source text like `zh-CN.ts`. */
 export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   "Find pixels by:": "Encontrar pixels por:",
+  "Read grid from:": "Ler grade de:",
   "Width:": "Largura:",
   "Height:": "Altura:",
   "Pixel color:": "Cor do pixel:",
@@ -9,6 +10,12 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
   Auto: "Auto",
   "Fixed grid": "Grade fixa",
   "Flexible grid": "Grade flexível",
+  "Whole image": "Imagem inteira",
+  Edges: "Bordas",
+  "Pixel pitch": "Passo do pixel",
+  "Color repeat": "Ciclo de cor",
+  "Border colors": "Cores da borda",
+  "Edge spacing": "Espaçamento de bordas",
   "Custom size": "Tamanho personalizado",
   "Outline pre-pass:": "Pré-passo de contornos:",
   None: "Nenhum",
