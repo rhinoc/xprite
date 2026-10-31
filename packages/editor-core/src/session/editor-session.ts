@@ -87,6 +87,16 @@ type Replacement<S> =
   | { kind: "new"; size: SessionSize }
   | { kind: "recent"; id: string; name: string }
   | { kind: "close"; exit: boolean };
+const IMPORT_GEOMETRY_OPTIONS: ReadonlySet<keyof PixelationSettings> = new Set([
+  "mode",
+  "autoGrid",
+  "gridCellWidth",
+  "gridCellHeight",
+  "targetWidth",
+  "targetHeight",
+  "lockAspectRatio",
+  "preserveDimensions",
+]);
 const messageOf = (reason: unknown): string =>
   reason instanceof Error
     ? reason.message
@@ -110,7 +120,8 @@ export class EditorSession<Source> {
   private previewVersion = 0;
   private algorithmVersion = 0;
   private analyzedAlgorithmVersion = -1;
-  private gridOptionsVersion = 0;
+  private gridOptionsCustomized = false;
+  private processingOptionsCustomized = false;
   private importSize: PixelationSize | undefined;
   private readonly importAnalyses = new Map<string, Promise<PixelArtAnalysis>>();
   private replacement: Replacement<Source> | null = null;
@@ -218,6 +229,8 @@ export class EditorSession<Source> {
     ++this.previewVersion;
     ++this.algorithmVersion;
     this.analyzedAlgorithmVersion = -1;
+    this.gridOptionsCustomized = false;
+    this.processingOptionsCustomized = false;
     this.importSize = undefined;
     this.importAnalyses.clear();
     this.previewQueued = false;
@@ -572,10 +585,12 @@ export class EditorSession<Source> {
     return getAllColorPickers().find((id) => id === remembered) ?? CellColorPicker.MostCommon;
   }
   private defaultOptions(candidate: Candidate) {
+    const photo = candidate.grid?.reliable === false;
     return {
       ...defaultPixelationSettings(candidate.pixels, candidate.grid),
-      prepass: OutlinePrepass.None,
-      colorPicker: this.importColorPicker(),
+      // An unknown grid stays plain while analysis runs; only a completed refusal opts into lines.
+      prepass: photo ? OutlinePrepass.PixeloeLines : OutlinePrepass.None,
+      colorPicker: photo ? CellColorPicker.Contrast : this.importColorPicker(),
       reduceColors: false,
       // Import sizes the output from the target dimensions and lets the colour rule pick each block.
       blockPicker: true,
@@ -583,10 +598,18 @@ export class EditorSession<Source> {
   }
   private gridOptions(candidate: Candidate, grid: PixelGridAnalysis): PixelationSettings {
     const current = this.state.pixelationOptions;
+    const located = this.gridOptionsCustomized
+      ? current
+      : applyPixelationGrid(current, grid, candidate.pixels);
+    const processing = this.processingOptionsCustomized
+      ? current
+      : this.defaultOptions({ ...candidate, grid });
     return {
-      ...applyPixelationGrid(current, grid, candidate.pixels),
-      colorPicker: current.colorPicker,
-      reduceColors: current.reduceColors,
+      ...located,
+      prepass: processing.prepass,
+      lineGuide: processing.lineGuide,
+      colorPicker: processing.colorPicker,
+      reduceColors: processing.reduceColors,
     };
   }
   /**
@@ -753,15 +776,11 @@ export class EditorSession<Source> {
   setPixelationOptions(options: Partial<PixelationSettings>) {
     if (this.disposed || this.state.busy || !this.candidate) return;
     const current = this.state.pixelationOptions;
-    if (
-      options.mode !== undefined ||
-      options.autoGrid !== undefined ||
-      options.gridCellWidth !== undefined ||
-      options.gridCellHeight !== undefined ||
-      options.targetWidth !== undefined ||
-      options.targetHeight !== undefined
-    )
-      ++this.gridOptionsVersion;
+    for (const key of Object.keys(options) as (keyof PixelationSettings)[]) {
+      if (options[key] === undefined) continue;
+      if (IMPORT_GEOMETRY_OPTIONS.has(key)) this.gridOptionsCustomized = true;
+      else this.processingOptionsCustomized = true;
+    }
     // Switching the pre-pass off brings back the colour rule remembered for plain imports.
     const patch =
       options.prepass === OutlinePrepass.None &&
@@ -801,6 +820,7 @@ export class EditorSession<Source> {
       return;
     }
     ++this.algorithmVersion;
+    this.gridOptionsCustomized = false;
     this.importSize = size ? { ...size } : undefined;
     this.candidate = { ...candidate, grid: undefined };
     this.publish({
@@ -850,7 +870,6 @@ export class EditorSession<Source> {
     if (!candidate || this.disposed) return;
     const version = this.previewVersion,
       algorithmVersion = this.algorithmVersion,
-      gridOptionsVersion = this.gridOptionsVersion,
       generation = this.generation;
     try {
       const pending = this.state.pendingImport;
@@ -869,17 +888,13 @@ export class EditorSession<Source> {
           pendingImport: current
             ? { ...current, grid: analysis.grid ?? null, classification: analysis.classification }
             : current,
-          ...(gridOptionsVersion === this.gridOptionsVersion
-            ? {
-                pixelationOptions:
-                  candidate.silentPixelation !== undefined
-                    ? this.silentOptions(this.candidate, candidate.silentPixelation)
-                    : this.gridOptions(
-                        candidate,
-                        analysis.grid ?? { reliable: false, cellWidth: 8, cellHeight: 8 },
-                      ),
-              }
-            : {}),
+          pixelationOptions:
+            candidate.silentPixelation !== undefined
+              ? this.silentOptions(this.candidate, candidate.silentPixelation)
+              : this.gridOptions(
+                  this.candidate,
+                  analysis.grid ?? { reliable: false, cellWidth: 8, cellHeight: 8 },
+                ),
         });
       }
       if (!this.valid(generation) || version !== this.previewVersion || this.previewQueued) return;

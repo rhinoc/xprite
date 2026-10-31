@@ -150,7 +150,12 @@ describe("import dialog algorithm switching", () => {
     const resized = session.getSnapshot();
     expect(resized.pendingImport?.algorithm).toBe(Resize);
     expect(resized.pendingImport?.grid?.reliable).toBe(false);
-    expect(resized.pixelationOptions.mode).toBe(PixelationMode.Convert);
+    expect(resized.pixelationOptions).toMatchObject({
+      mode: PixelationMode.Convert,
+      prepass: OutlinePrepass.PixeloeLines,
+      colorPicker: CellColorPicker.Contrast,
+      reduceColors: false,
+    });
     expect(sizeOf(session)).toBe(
       `${resized.pixelationOptions.targetWidth}x${resized.pixelationOptions.targetHeight}`,
     );

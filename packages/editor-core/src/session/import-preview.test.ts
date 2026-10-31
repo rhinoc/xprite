@@ -8,6 +8,10 @@ import {
   PixelationAlgorithm,
   PixelationMode,
   OutlinePrepass,
+  LineGuideMode,
+  PixelationDither,
+  PaletteColorMode,
+  type PixelationSettings,
   type PixelArtAnalysis,
 } from "$/import-export/image/import";
 import { EditorSession } from "$/session/editor-session";
@@ -610,6 +614,223 @@ describe("editor import coloring defaults", () => {
           reduceColors: false,
         });
       }
+    } finally {
+      session.dispose();
+    }
+  });
+});
+
+describe("adaptive import processing", () => {
+  test("a photo enables the shared line guide only after grid analysis finishes", async () => {
+    const source = createBlankImage(8, 8),
+      preview = createBlankImage(2, 2);
+    const detection = deferred<PixelArtAnalysis>();
+    const pixelate = vi.fn(async () => preview);
+    const session = new EditorSession(originalEditor(), {
+      decode: async () => source,
+      analyze: () => detection.promise,
+      pixelate,
+      write,
+    });
+    try {
+      await session.requestImport({ source: "photo", name: "photo.png" });
+      expect(session.getSnapshot().pixelationOptions.prepass).toBe(OutlinePrepass.None);
+      expect(pixelate).not.toHaveBeenCalled();
+      detection.resolve(analysisFor(source, PixelationAlgorithm.Auto));
+      await vi.waitFor(() => expect(session.getSnapshot().pixelationPreview).toBe(preview));
+      expect(session.getSnapshot().pixelationOptions).toMatchObject({
+        mode: PixelationMode.Convert,
+        prepass: OutlinePrepass.PixeloeLines,
+        lineGuide: defaultPixelationSettings(source).lineGuide,
+        colorPicker: CellColorPicker.Contrast,
+        reduceColors: false,
+      });
+      expect(pixelate).toHaveBeenCalledTimes(1);
+    } finally {
+      session.dispose();
+    }
+  });
+
+  test("default processing follows algorithm results until the user edits it", async () => {
+    const source = createBlankImage(8, 8),
+      preview = createBlankImage(2, 2);
+    const session = new EditorSession(originalEditor(), {
+      decode: async () => source,
+      analyze: async (_pixels, options) =>
+        analysisFor(source, options!.algorithm, options?.algorithm !== PixelationAlgorithm.Resize),
+      pixelate: async () => preview,
+      write,
+      getImportPreference: () => ({
+        choice: "always-ask",
+        algorithm: PixelationAlgorithm.Auto,
+        colorPicker: CellColorPicker.Median,
+      }),
+    });
+    try {
+      await session.requestImport({ source: "art", name: "art.png" });
+      await vi.waitFor(() => expect(session.getSnapshot().pixelationPreview).toBe(preview));
+      expect(session.getSnapshot().pixelationOptions).toMatchObject({
+        prepass: OutlinePrepass.None,
+        colorPicker: CellColorPicker.Median,
+        reduceColors: false,
+      });
+      await session.setImportAlgorithm(PixelationAlgorithm.Resize);
+      expect(session.getSnapshot().pixelationOptions).toMatchObject({
+        prepass: OutlinePrepass.PixeloeLines,
+        colorPicker: CellColorPicker.Contrast,
+        reduceColors: false,
+      });
+      await session.setImportAlgorithm(PixelationAlgorithm.UniformGrid);
+      expect(session.getSnapshot().pixelationOptions).toMatchObject({
+        prepass: OutlinePrepass.None,
+        colorPicker: CellColorPicker.Median,
+        reduceColors: false,
+      });
+    } finally {
+      session.dispose();
+    }
+  });
+
+  test.each([
+    { prepass: OutlinePrepass.None },
+    { lineGuide: LineGuideMode.Union },
+    { colorPicker: CellColorPicker.Median },
+    { reduceColors: false },
+    { maxColors: 7 },
+    { palette: [[3, 4, 5, 255]] },
+    { dither: PixelationDither.Ordered },
+    { paletteColorMode: PaletteColorMode.Adaptive },
+  ] as Partial<PixelationSettings>[])(
+    "explicit processing survives late analysis and algorithm changes: %j",
+    async (patch) => {
+      const source = createBlankImage(8, 8),
+        preview = createBlankImage(2, 2);
+      const detection = deferred<PixelArtAnalysis>();
+      const session = new EditorSession(originalEditor(), {
+        decode: async () => source,
+        analyze: (_pixels, options) =>
+          options?.algorithm === PixelationAlgorithm.Auto
+            ? detection.promise
+            : Promise.resolve(analysisFor(source, options!.algorithm)),
+        pixelate: async () => preview,
+        write,
+      });
+      try {
+        await session.requestImport({ source: "photo", name: "photo.png" });
+        session.setPixelationOptions(patch);
+        detection.resolve(analysisFor(source, PixelationAlgorithm.Auto));
+        await vi.waitFor(() => expect(session.getSnapshot().pixelationPreview).toBe(preview));
+        expect(session.getSnapshot().pixelationOptions).toMatchObject({
+          ...patch,
+          prepass: OutlinePrepass.None,
+        });
+        await session.setImportAlgorithm(PixelationAlgorithm.Resize);
+        expect(session.getSnapshot().pixelationOptions).toMatchObject({
+          ...patch,
+          prepass: OutlinePrepass.None,
+        });
+      } finally {
+        session.dispose();
+      }
+    },
+  );
+
+  test("editing only dimensions preserves the size while a photo still receives line processing", async () => {
+    const source = createBlankImage(8, 8),
+      preview = createBlankImage(3, 3);
+    const detection = deferred<PixelArtAnalysis>();
+    const session = new EditorSession(originalEditor(), {
+      decode: async () => source,
+      analyze: () => detection.promise,
+      pixelate: async () => preview,
+      write,
+    });
+    try {
+      await session.requestImport({ source: "photo", name: "photo.png" });
+      session.setPixelationOptions({ targetWidth: 3 });
+      detection.resolve(analysisFor(source, PixelationAlgorithm.Auto));
+      await vi.waitFor(() => expect(session.getSnapshot().pixelationPreview).toBe(preview));
+      expect(session.getSnapshot().pixelationOptions).toMatchObject({
+        targetWidth: 3,
+        targetHeight: 3,
+        mode: PixelationMode.Convert,
+        prepass: OutlinePrepass.PixeloeLines,
+        colorPicker: CellColorPicker.Contrast,
+        reduceColors: false,
+      });
+    } finally {
+      session.dispose();
+    }
+  });
+
+  test.each([
+    {
+      reliable: false,
+      saved: null,
+      prepass: OutlinePrepass.PixeloeLines,
+      picker: CellColorPicker.Contrast,
+    },
+    {
+      reliable: false,
+      saved: { prepass: OutlinePrepass.None, colorPicker: CellColorPicker.Median },
+      prepass: OutlinePrepass.None,
+      picker: CellColorPicker.Median,
+    },
+    {
+      reliable: true,
+      saved: { prepass: OutlinePrepass.PixeloeLines, colorPicker: CellColorPicker.Contrast },
+      prepass: OutlinePrepass.PixeloeLines,
+      picker: CellColorPicker.Contrast,
+    },
+  ])(
+    "silent imports choose adaptive defaults unless saved settings override them: %j",
+    async ({ reliable, saved, prepass, picker }) => {
+      const source = createBlankImage(8, 8),
+        preview = createBlankImage(2, 2);
+      const pixelate = vi.fn(async () => preview);
+      const session = new EditorSession(originalEditor(), {
+        decode: async () => source,
+        analyze: async () => analysisFor(source, PixelationAlgorithm.Auto, reliable),
+        pixelate,
+        write,
+        getImportPreference: () => ({
+          choice: "always-pixelate",
+          algorithm: PixelationAlgorithm.Auto,
+          pixelation: saved,
+        }),
+      });
+      try {
+        await session.requestImport({ source: "image", name: "image.png" });
+        await vi.waitFor(() => expect(session.getSnapshot().pendingImport).toBeNull());
+        expect(pixelate).toHaveBeenCalledExactlyOnceWith(
+          source,
+          expect.objectContaining({ prepass, colorPicker: picker, paletteSnap: undefined }),
+        );
+      } finally {
+        session.dispose();
+      }
+    },
+  );
+
+  test("processing overrides are scoped to one import", async () => {
+    const source = createBlankImage(8, 8),
+      preview = createBlankImage(2, 2);
+    const session = new EditorSession(originalEditor(), {
+      decode: async () => source,
+      analyze: async () => analysisFor(source, PixelationAlgorithm.Auto),
+      pixelate: async () => preview,
+      write,
+    });
+    try {
+      await session.requestImport({ source: "first", name: "first.png" });
+      await vi.waitFor(() => expect(session.getSnapshot().pixelationPreview).toBe(preview));
+      session.setPixelationOptions({ prepass: OutlinePrepass.None });
+      await vi.waitFor(() => expect(session.getSnapshot().pixelationPreview).toBe(preview));
+      expect(session.getSnapshot().pixelationOptions.prepass).toBe(OutlinePrepass.None);
+      session.cancelImport();
+      await session.requestImport({ source: "next", name: "next.png" });
+      await vi.waitFor(() => expect(session.getSnapshot().pixelationPreview).toBe(preview));
+      expect(session.getSnapshot().pixelationOptions.prepass).toBe(OutlinePrepass.PixeloeLines);
     } finally {
       session.dispose();
     }
