@@ -5,6 +5,26 @@ export enum AppearanceMode {
 }
 export type ResolvedAppearance = Exclude<AppearanceMode, AppearanceMode.System>;
 export const APPEARANCE_MODE_STORAGE_KEY = "xse.ui.appearance-mode.v1";
+export const APPEARANCE_THEME_STORAGE_KEY = "xse.ui.theme.v1";
+
+/** Editor color themes; Aseprite keeps the original artwork, the others are OKLCH families. */
+export enum AppearanceTheme {
+  Ocean = "color-family-ocean",
+  OceanVivid = "color-family-ocean-vivid",
+  Moss = "color-family-moss",
+  MossVivid = "color-family-moss-vivid",
+  Ember = "color-family-ember",
+  EmberVivid = "color-family-ember-vivid",
+  Grape = "color-family-grape",
+  GrapeVivid = "color-family-grape-vivid",
+  Mustard = "color-family-mustard",
+  MustardVivid = "color-family-mustard-vivid",
+  Cocoa = "color-family-cocoa",
+  CocoaVivid = "color-family-cocoa-vivid",
+  Aseprite = "aseprite",
+}
+export const DEFAULT_APPEARANCE_THEME = AppearanceTheme.Ocean;
+const APPEARANCE_THEMES = new Set<string>(Object.values(AppearanceTheme));
 
 export function resolveAppearanceMode(
   mode: AppearanceMode,
@@ -28,4 +48,16 @@ export function readAppearanceMode(storage: {
     /* Storage is optional; the editor's default is light. */
   }
   return AppearanceMode.Light;
+}
+
+export function readAppearanceTheme(storage: {
+  getItem(key: string): string | null;
+}): AppearanceTheme {
+  try {
+    const saved = storage.getItem(APPEARANCE_THEME_STORAGE_KEY);
+    if (saved && APPEARANCE_THEMES.has(saved)) return saved as AppearanceTheme;
+  } catch {
+    /* Storage is optional; the default theme applies. */
+  }
+  return DEFAULT_APPEARANCE_THEME;
 }

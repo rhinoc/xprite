@@ -16,7 +16,10 @@ import {
   usePreferencesDialogNarrowLayout,
 } from "$/components/dialogs/preferences-dialog/preferences-dialog-layout";
 import { PREFERENCES_SEARCH_LABELS } from "$/components/dialogs/preferences-dialog/preferences-search-catalog";
-import { useAppearancePreferences } from "$/components/dialogs/preferences/use-appearance-preferences";
+import {
+  useAppearancePreferences,
+  type AppearanceSelection,
+} from "$/components/dialogs/preferences/use-appearance-preferences";
 import { ResetPreferences } from "$/components/dialogs/reset-preferences";
 import { TouchInputPreferencesSection } from "$/components/dialogs/touch-input-preferences";
 import { ColorPicker } from "$/components/tools/color-picker";
@@ -47,6 +50,7 @@ import {
   DEFAULT_EDITOR_PREFERENCES,
   type EditorPreferences,
 } from "$/managers/preferences/editor-preferences";
+import { EDITOR_THEME_OPTIONS } from "$/managers/preferences/editor-themes";
 import {
   DEFAULT_FILE_PREFERENCES,
   type FilePreferences,
@@ -85,7 +89,11 @@ import type { EditorChromePreferences } from "$/managers/shell/editor-chrome-pre
 import { useEditorChromePreferences } from "$/managers/shell/editor-chrome-preferences-context";
 import type { RecoverySettings } from "$/managers/workspace/recovery-settings";
 import { WorkspaceContextPresentation } from "$/managers/workspace/workspace-panel-layout";
-import { AppearanceMode } from "@xprite/editor-ui/appearance";
+import {
+  AppearanceMode,
+  DEFAULT_APPEARANCE_THEME,
+  type AppearanceTheme,
+} from "@xprite/editor-ui/appearance";
 import {
   FontRole,
   Button,
@@ -155,6 +163,8 @@ export interface PreferencesDialogProps {
   onOpenChange: (open: boolean) => void;
   appearanceMode?: AppearanceMode;
   onAppearanceModeChange?: (mode: AppearanceMode) => void;
+  appearanceTheme?: AppearanceTheme;
+  onAppearanceThemeChange?: (theme: AppearanceTheme) => void;
   onApply?: () => void;
   onAccept?: () => void;
   onCancel?: () => void;
@@ -238,6 +248,7 @@ const narrowContentEnds: Record<string, readonly [number, number]> = {
   Editor: [336, 16],
   "Guides & Slices": [233, 17],
   Undo: [193, 16],
+  Theme: [395, 0],
   Experimental: [389, 12],
   Tablet: [394, 18],
   Selection: [269, 16],
@@ -315,6 +326,7 @@ const enabledSections = new Set([
   "Grid",
   "Guides & Slices",
   "Undo",
+  "Theme",
   "Tablet",
   "Experimental",
   DIAGNOSTICS_SECTION,
@@ -420,6 +432,7 @@ function PreferencesChrome({
     "Grid",
     "Guides & Slices",
     "Undo",
+    "Theme",
     "Experimental",
     "Tablet",
     DIAGNOSTICS_SECTION,
@@ -561,6 +574,8 @@ export function PreferencesDialog({
   onOpenChange,
   appearanceMode,
   onAppearanceModeChange,
+  appearanceTheme,
+  onAppearanceThemeChange,
   onApply,
   onAccept,
   onCancel,
@@ -615,8 +630,10 @@ export function PreferencesDialog({
     host = useRef<HTMLDivElement>(null);
   const dialogRoot = useRef<HTMLDivElement | null>(null);
   const selectedAppearanceMode = appearanceMode ?? AppearanceMode.Light;
-  const updateAppearanceMode = (next: AppearanceMode) => {
-    onAppearanceModeChange?.(next);
+  const selectedAppearanceTheme = appearanceTheme ?? DEFAULT_APPEARANCE_THEME;
+  const updateAppearance = (next: AppearanceSelection) => {
+    onAppearanceModeChange?.(next.mode);
+    onAppearanceThemeChange?.(next.theme);
   };
   const [windowBounds, setWindowBounds] = useState<SurfaceBounds | null>(null);
   const [narrowScrollTop, setNarrowScrollTop] = useState(0);
@@ -972,8 +989,8 @@ export function PreferencesDialog({
     setColorPicker({ target, title, anchor });
   const transaction = useAppearancePreferences({
     open,
-    mode: selectedAppearanceMode,
-    onModeChange: updateAppearanceMode,
+    value: { mode: selectedAppearanceMode, theme: selectedAppearanceTheme },
+    onValueChange: updateAppearance,
     onOpenChange,
     onApply: () => {
       commitSettings();
@@ -1338,7 +1355,12 @@ export function PreferencesDialog({
                                 disabled:
                                   value === AppearanceMode.System && !onAppearanceModeChange,
                               }))}
-                              onValueChange={(value) => preview(value as AppearanceMode)}
+                              onValueChange={(value) =>
+                                preview({
+                                  mode: value as AppearanceMode,
+                                  theme: selectedAppearanceTheme,
+                                })
+                              }
                             />
                           ) : (
                             appearanceButtons.map(({ value, label: text, x, width }) => (
@@ -1354,7 +1376,9 @@ export function PreferencesDialog({
                                   value === AppearanceMode.System && !onAppearanceModeChange
                                 }
                                 color={assets?.style.colors.button_normal_text}
-                                onClick={() => preview(value)}
+                                onClick={() =>
+                                  preview({ mode: value, theme: selectedAppearanceTheme })
+                                }
                               />
                             ))
                           )}
@@ -1755,6 +1779,22 @@ export function PreferencesDialog({
                             relativeTo={client}
                           />
                         </>
+                      )}
+                      {section === "Theme" && (
+                        <ListBox
+                          aria-label={tUi("ui.preferences.section.theme")}
+                          data-ui-listbox="preferences-theme"
+                          bounds={box(358, 125, narrowLayout ? 333 : 160, 270)}
+                          relativeTo={client}
+                          items={EDITOR_THEME_OPTIONS}
+                          value={selectedAppearanceTheme}
+                          onValueChange={(theme) =>
+                            preview({
+                              mode: selectedAppearanceMode,
+                              theme: theme as AppearanceTheme,
+                            })
+                          }
+                        />
                       )}
                       {section === "Cursors" && (
                         <CursorPreferencesSection

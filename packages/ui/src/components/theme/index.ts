@@ -9,6 +9,7 @@ export { createUiPortal, UiPortalRoot } from "$/components/theme/portal";
 export { UiColorScheme } from "$/base/theme/theme-types";
 
 export { asepriteTheme } from "$/base/theme/themes/aseprite";
+export { colorFamilyThemes } from "$/base/theme/themes/color-family";
 export { macintoshTheme } from "$/base/theme/themes/macintosh";
 export type {
   UiTheme,

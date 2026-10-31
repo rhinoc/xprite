@@ -6,11 +6,17 @@ import {
   type AppearancePreferencesAction,
   type AppearancePreferencesTransaction,
 } from "$/managers/preferences/appearance-preferences";
-import type { AppearanceMode } from "@xprite/editor-ui/appearance";
+import type { AppearanceMode, AppearanceTheme } from "@xprite/editor-ui/appearance";
+
+/** The appearance mode and the theme preview together and commit together. */
+export interface AppearanceSelection {
+  mode: AppearanceMode;
+  theme: AppearanceTheme;
+}
 export interface AppearancePreferencesBindings {
   open: boolean;
-  mode: AppearanceMode;
-  onModeChange: (mode: AppearanceMode) => void;
+  value: AppearanceSelection;
+  onValueChange: (value: AppearanceSelection) => void;
   onOpenChange: (open: boolean) => void;
   onApply?: () => void;
   onAccept?: () => void;
@@ -20,34 +26,34 @@ export interface AppearancePreferencesBindings {
 export function useAppearancePreferences(bindings: AppearancePreferencesBindings) {
   const latest = useRef(bindings);
   latest.current = bindings;
-  const transaction = useRef<AppearancePreferencesTransaction | null>(null);
+  const transaction = useRef<AppearancePreferencesTransaction<AppearanceSelection> | null>(null);
   useEffect(() => {
-    if (bindings.open) transaction.current = beginAppearancePreferences(latest.current.mode);
+    if (bindings.open) transaction.current = beginAppearancePreferences(latest.current.value);
     else if (transaction.current) {
-      latest.current.onModeChange(transaction.current.committed);
+      latest.current.onValueChange(transaction.current.committed);
       transaction.current = null;
     }
   }, [bindings.open]);
   useEffect(
     () => () => {
-      if (transaction.current) latest.current.onModeChange(transaction.current.committed);
+      if (transaction.current) latest.current.onValueChange(transaction.current.committed);
     },
     [],
   );
-  const dispatch = useCallback((action: AppearancePreferencesAction) => {
+  const dispatch = useCallback((action: AppearancePreferencesAction<AppearanceSelection>) => {
     const props = latest.current;
     if (!props.open) return;
-    const state = transaction.current ?? beginAppearancePreferences(props.mode);
+    const state = transaction.current ?? beginAppearancePreferences(props.value);
     const next = updateAppearancePreferences(state, action);
     transaction.current = next.open ? next : null;
-    props.onModeChange(next.current);
+    props.onValueChange(next.current);
     if (action.type === "apply") props.onApply?.();
     if (action.type === "accept") props.onAccept?.();
     if (action.type === "cancel") props.onCancel?.();
     if (!next.open) props.onOpenChange(false);
   }, []);
   return {
-    preview: (mode: AppearanceMode) => dispatch({ type: "preview", mode }),
+    preview: (value: AppearanceSelection) => dispatch({ type: "preview", mode: value }),
     apply: () => dispatch({ type: "apply" }),
     accept: () => dispatch({ type: "accept" }),
     cancel: () => dispatch({ type: "cancel" }),

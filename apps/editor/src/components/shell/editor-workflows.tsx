@@ -149,6 +149,9 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
     appearanceMode,
     onAppearanceModeChange,
     persistAppearanceMode,
+    appearanceTheme,
+    onAppearanceThemeChange,
+    persistAppearanceTheme,
     wheelDevice,
     setWheelDevice,
     detectedWheelDevice,
@@ -611,8 +614,16 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
               onReset={resetPreferences}
               appearanceMode={appearanceMode}
               onAppearanceModeChange={onAppearanceModeChange}
-              onApply={() => persistAppearanceMode(appearanceMode)}
-              onAccept={() => persistAppearanceMode(appearanceMode)}
+              appearanceTheme={appearanceTheme}
+              onAppearanceThemeChange={onAppearanceThemeChange}
+              onApply={() => {
+                persistAppearanceMode(appearanceMode);
+                persistAppearanceTheme(appearanceTheme);
+              }}
+              onAccept={() => {
+                persistAppearanceMode(appearanceMode);
+                persistAppearanceTheme(appearanceTheme);
+              }}
               recoverySettings={recoveryState.settings}
               onRecoverySettingsChange={(settings) => {
                 updateRecoverySettings(settings);

@@ -70,7 +70,7 @@ import {
 import { EditorDocumentPane } from "$/managers/workspace/editor-document-pane";
 import { WORKSPACE_WINDOW_GAP } from "$/managers/workspace/workspace-panel-geometry";
 import { useWorkspaceResizeScheduler } from "$/managers/workspace/workspace-resize-scheduler";
-import type { AppearanceMode } from "@xprite/editor-ui/appearance";
+import type { AppearanceMode, AppearanceTheme } from "@xprite/editor-ui/appearance";
 import examplePreview from "@xprite/site-assets/showcase/ipad/hello/hello-frame-01.png?url";
 import { ScrollArea, Splitter, SplitterDirection, type TabDragPoint } from "@xprite/ui";
 
@@ -177,11 +177,17 @@ export function EditorView({
   appearanceMode,
   onAppearanceModeChange,
   persistAppearanceMode,
+  appearanceTheme,
+  onAppearanceThemeChange,
+  persistAppearanceTheme,
 }: {
   home?: boolean;
   appearanceMode: AppearanceMode;
   onAppearanceModeChange: (mode: AppearanceMode) => void;
   persistAppearanceMode: (mode: AppearanceMode) => void;
+  appearanceTheme: AppearanceTheme;
+  onAppearanceThemeChange: (theme: AppearanceTheme) => void;
+  persistAppearanceTheme: (theme: AppearanceTheme) => void;
 }) {
   return (
     <GridActionsProvider>
@@ -195,6 +201,9 @@ export function EditorView({
                     appearanceMode={appearanceMode}
                     onAppearanceModeChange={onAppearanceModeChange}
                     persistAppearanceMode={persistAppearanceMode}
+                    appearanceTheme={appearanceTheme}
+                    onAppearanceThemeChange={onAppearanceThemeChange}
+                    persistAppearanceTheme={persistAppearanceTheme}
                   >
                     <DocumentScene />
                   </EditorWorkflows>

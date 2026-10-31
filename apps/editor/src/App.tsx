@@ -46,6 +46,7 @@ import type {
   EditorInitialProject,
 } from "$/managers/ports/editor-host";
 import type { PwaPort } from "$/managers/ports/pwa";
+import { editorUiTheme } from "$/managers/preferences/editor-themes";
 import { PwaProvider } from "$/managers/pwa/pwa-context";
 import { PwaManager } from "$/managers/pwa/pwa-manager";
 import { ReplayProvider } from "$/managers/replay/replay-context";
@@ -64,8 +65,12 @@ import { useEditorRuntime } from "$/managers/workspace/use-editor-runtime";
 import { WorkspaceLifetime } from "$/managers/workspace/workspace-lifetime";
 import { WorkspaceRecovery } from "$/managers/workspace/workspace-recovery";
 import { randomId } from "@xprite/bedrock/browser/runtime-crypto";
-import { AppearanceMode, type ResolvedAppearance } from "@xprite/editor-ui/appearance";
-import { UiColorScheme, UIProvider, useSystemColorScheme } from "@xprite/ui";
+import {
+  AppearanceMode,
+  type AppearanceTheme,
+  type ResolvedAppearance,
+} from "@xprite/editor-ui/appearance";
+import { asepriteTheme, UiColorScheme, UIProvider, useSystemColorScheme } from "@xprite/ui";
 import { preloadUiAssets } from "@xprite/ui/assets";
 
 const PROJECT_DATABASE_NAME = DEFAULT_PROJECT_DATABASE_NAME;
@@ -127,11 +132,18 @@ function EditorApplication({
   const systemAppearance =
     systemColorScheme === UiColorScheme.Dark ? AppearanceMode.Dark : AppearanceMode.Light;
   const preloadEditorUiAssets = useCallback(
-    (appearance: ResolvedAppearance) =>
-      preloadUiAssets(
-        appearance === AppearanceMode.Dark ? UiColorScheme.Dark : UiColorScheme.Light,
-        currentUiLanguage(),
-      ),
+    (appearance: ResolvedAppearance, theme: AppearanceTheme) => {
+      const colorScheme =
+        appearance === AppearanceMode.Dark ? UiColorScheme.Dark : UiColorScheme.Light;
+      const uiTheme = editorUiTheme(theme);
+      // The text tool draws with the Aseprite font, whichever skin the interface uses.
+      return Promise.all([
+        preloadUiAssets(colorScheme, currentUiLanguage(), uiTheme),
+        uiTheme === asepriteTheme
+          ? null
+          : preloadUiAssets(colorScheme, currentUiLanguage(), asepriteTheme),
+      ]);
+    },
     [],
   );
   const runtime = useEditorRuntime(
@@ -216,6 +228,7 @@ function EditorApplication({
                   ? UiColorScheme.Dark
                   : UiColorScheme.Light
               }
+              theme={editorUiTheme(runtime.appearanceTheme)}
               language={language}
               translateKey={(key) => tUi(key as Parameters<typeof tUi>[0])}
               translateSource={tUiSource}
@@ -239,6 +252,9 @@ function EditorApplication({
                           appearanceMode={runtime.appearanceMode}
                           onAppearanceModeChange={runtime.changeAppearanceMode}
                           persistAppearanceMode={runtime.persistAppearanceMode}
+                          appearanceTheme={runtime.appearanceTheme}
+                          onAppearanceThemeChange={runtime.changeAppearanceTheme}
+                          persistAppearanceTheme={runtime.persistAppearanceTheme}
                         />
                         <PwaNotifications />
                         <ReplayHost />
@@ -265,6 +281,9 @@ function EditorApplication({
       runtime.appearanceMode,
       runtime.changeAppearanceMode,
       runtime.persistAppearanceMode,
+      runtime.appearanceTheme,
+      runtime.changeAppearanceTheme,
+      runtime.persistAppearanceTheme,
       wheelDevice.device,
       wheelDevice.detected,
       wheelDevice.setDevice,

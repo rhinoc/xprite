@@ -95,7 +95,11 @@ import {
   SessionOperation,
   type SessionSource,
 } from "@xprite/editor-core/session";
-import { AppearanceMode } from "@xprite/editor-ui/appearance";
+import {
+  AppearanceMode,
+  DEFAULT_APPEARANCE_THEME,
+  type AppearanceTheme,
+} from "@xprite/editor-ui/appearance";
 import { readBundledPalettePresets } from "@xprite/editor-ui/palette-presets";
 import { PalettePresetKind } from "@xprite/editor-ui/palette/model";
 
@@ -113,6 +117,9 @@ export interface EditorWorkflowOptions {
   appearanceMode: AppearanceMode;
   onAppearanceModeChange: (mode: AppearanceMode) => void;
   persistAppearanceMode: (mode: AppearanceMode) => void;
+  appearanceTheme: AppearanceTheme;
+  onAppearanceThemeChange: (theme: AppearanceTheme) => void;
+  persistAppearanceTheme: (theme: AppearanceTheme) => void;
   timelineActions?: TimelineWorkflowActions | null;
   animationActions?: AnimationWorkflowActions | null;
   effectActions?: EffectWorkflowActions | null;
@@ -1514,6 +1521,8 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
         editor.setDefaultTimelineFirstFrame(defaultTimelinePanelPreferences.firstFrame);
         managerOptions.onAppearanceModeChange(AppearanceMode.Light);
         managerOptions.persistAppearanceMode(AppearanceMode.Light);
+        managerOptions.onAppearanceThemeChange(DEFAULT_APPEARANCE_THEME);
+        managerOptions.persistAppearanceTheme(DEFAULT_APPEARANCE_THEME);
         pendingWrites.push(changeUiLanguage(PREFERENCE_RESET_LANGUAGE));
         pendingWrites.push(
           workspace.recovery.setRecoverySettings({ ...DEFAULT_RECOVERY_SETTINGS }),

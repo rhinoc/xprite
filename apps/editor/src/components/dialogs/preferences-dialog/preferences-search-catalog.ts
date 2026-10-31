@@ -112,6 +112,7 @@ export const PREFERENCES_SEARCH_LABELS: Readonly<Record<string, readonly string[
     "Allow non-linear history",
     "Show Undo Tooltip",
   ],
+  Theme: ["Ocean", "Moss", "Ember", "Grape", "Mustard", "Cocoa", "Vivid", "Aseprite"],
   Experimental: [
     "User Interface",
     "Compose groups separately",
