@@ -1,20 +1,19 @@
-import type { AppearanceMode } from "@xprite/editor-ui/appearance";
-
-export interface AppearancePreferencesTransaction {
-  readonly current: AppearanceMode;
-  readonly committed: AppearanceMode;
+/** Preview, apply, accept and cancel for appearance values such as the mode and the theme. */
+export interface AppearancePreferencesTransaction<T> {
+  readonly current: T;
+  readonly committed: T;
   readonly open: boolean;
 }
-export type AppearancePreferencesAction =
-  | { type: "preview"; mode: AppearanceMode }
+export type AppearancePreferencesAction<T> =
+  | { type: "preview"; mode: T }
   | { type: "apply" | "accept" | "cancel" };
-export function beginAppearancePreferences(mode: AppearanceMode): AppearancePreferencesTransaction {
+export function beginAppearancePreferences<T>(mode: T): AppearancePreferencesTransaction<T> {
   return { current: mode, committed: mode, open: true };
 }
-export function updateAppearancePreferences(
-  state: AppearancePreferencesTransaction,
-  action: AppearancePreferencesAction,
-): AppearancePreferencesTransaction {
+export function updateAppearancePreferences<T>(
+  state: AppearancePreferencesTransaction<T>,
+  action: AppearancePreferencesAction<T>,
+): AppearancePreferencesTransaction<T> {
   if (!state.open) return state;
   switch (action.type) {
     case "preview":

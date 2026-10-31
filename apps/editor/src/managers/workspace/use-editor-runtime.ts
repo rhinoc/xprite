@@ -9,12 +9,18 @@ import { workingColorProfile } from "@xprite/editor-core/color";
 import {
   resolveAppearanceMode,
   readAppearanceMode,
+  readAppearanceTheme,
   AppearanceMode,
   APPEARANCE_MODE_STORAGE_KEY,
+  APPEARANCE_THEME_STORAGE_KEY,
+  type AppearanceTheme,
   type ResolvedAppearance,
 } from "@xprite/editor-ui/appearance";
 
-export type EditorUiAssetsPreloader = (appearance: ResolvedAppearance) => Promise<unknown>;
+export type EditorUiAssetsPreloader = (
+  appearance: ResolvedAppearance,
+  theme: AppearanceTheme,
+) => Promise<unknown>;
 export type EditorRuntimeStartup = "loading" | "ready" | "error";
 
 /** Owns workspace startup, persistence flushing, and disposal for one editor app instance. */
@@ -41,11 +47,30 @@ export function useEditorRuntime(
   const appearance: ResolvedAppearance = resolvedAppearance;
   const appearanceRef = useRef(appearance);
   appearanceRef.current = appearance;
+  const [appearanceTheme, setAppearanceTheme] = useState<AppearanceTheme>(() =>
+    readAppearanceTheme(preferenceStorage),
+  );
+  const themeRef = useRef(appearanceTheme);
+  themeRef.current = appearanceTheme;
   const changeAppearanceMode = useCallback((mode: AppearanceMode) => setAppearanceMode(mode), []);
+  const changeAppearanceTheme = useCallback(
+    (theme: AppearanceTheme) => setAppearanceTheme(theme),
+    [],
+  );
   const persistAppearanceMode = useCallback(
     (mode: AppearanceMode) => {
       try {
         preferenceStorage.setItem(APPEARANCE_MODE_STORAGE_KEY, mode);
+      } catch {
+        /* Keep the in-session preference. */
+      }
+    },
+    [preferenceStorage],
+  );
+  const persistAppearanceTheme = useCallback(
+    (theme: AppearanceTheme) => {
+      try {
+        preferenceStorage.setItem(APPEARANCE_THEME_STORAGE_KEY, theme);
       } catch {
         /* Keep the in-session preference. */
       }
@@ -61,7 +86,7 @@ export function useEditorRuntime(
 
   useEffect(() => {
     let live = true;
-    void preloadUiAssets(appearance).then(
+    void preloadUiAssets(appearance, appearanceTheme).then(
       () => {
         if (live) active.core.canvas.setView({ appearance });
       },
@@ -72,7 +97,7 @@ export function useEditorRuntime(
     return () => {
       live = false;
     };
-  }, [active.core, active.session, preloadUiAssets, appearance]);
+  }, [active.core, active.session, preloadUiAssets, appearance, appearanceTheme]);
 
   const lifetime = useRef(0);
   useEffect(() => {
@@ -80,7 +105,7 @@ export function useEditorRuntime(
     let live = true;
     telemetry.startup(TelemetryStartupStage.Workspace, TelemetryStartupStatus.Started);
     telemetry.startup(TelemetryStartupStage.UiAssets, TelemetryStartupStatus.Started);
-    const assets = preloadUiAssets(appearanceRef.current).catch((reason) => {
+    const assets = preloadUiAssets(appearanceRef.current, themeRef.current).catch((reason) => {
       if (live) telemetry.startup(TelemetryStartupStage.UiAssets, TelemetryStartupStatus.Failed);
       throw reason;
     });
@@ -97,11 +122,13 @@ export function useEditorRuntime(
     void Promise.all([initialized, assets])
       .then(async () => {
         let readyAppearance = appearanceRef.current;
+        let readyTheme = themeRef.current;
         try {
           do {
-            await preloadUiAssets(readyAppearance);
-            if (readyAppearance === appearanceRef.current) break;
+            await preloadUiAssets(readyAppearance, readyTheme);
+            if (readyAppearance === appearanceRef.current && readyTheme === themeRef.current) break;
             readyAppearance = appearanceRef.current;
+            readyTheme = themeRef.current;
           } while (live);
         } catch (reason) {
           if (live)
@@ -153,7 +180,10 @@ export function useEditorRuntime(
     systemAppearance: systemAppearanceMode,
     resolvedAppearance,
     appearance,
+    appearanceTheme,
     changeAppearanceMode,
+    changeAppearanceTheme,
     persistAppearanceMode,
+    persistAppearanceTheme,
   };
 }
