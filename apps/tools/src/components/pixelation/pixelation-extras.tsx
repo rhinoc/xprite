@@ -6,7 +6,7 @@ import {
   PixelationMethod,
   PixelationMode,
   type PixelationSettings,
-} from "@xprite/editor-core/import-export";
+} from "@xprite/pixelate";
 import { Checkbox, Combobox, Input } from "@xprite/ui";
 
 const NUMBER_WIDTH = 36;

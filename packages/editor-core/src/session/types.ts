@@ -8,7 +8,7 @@ import type {
   PixelationAlgorithm,
   PixelateOptions,
   PixelationSettings,
-} from "$/import-export/image/import";
+} from "@xprite/pixelate";
 /** What the import dialog remembers of its last Pixelate import for the silent path. */
 export type ImportPixelationMemory = Partial<
   Pick<

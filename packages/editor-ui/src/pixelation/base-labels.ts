@@ -5,7 +5,7 @@ import {
   PaletteColorMode,
   PixelationAlgorithm,
   PixelationDither,
-} from "@xprite/editor-core/import-export";
+} from "@xprite/pixelate";
 
 /** Source text with the editor's translation key, so each app translates by its own mechanism. */
 export interface PixelationLabel {

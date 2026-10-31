@@ -1,4 +1,0 @@
-Box smoke 2026-10-29 Asia/Singapore:
-- Sequentialized Fixer Rust ac+rl (rayon stripped) → wasm32 OK (~457KB bg.wasm)
-- Native smoke of same sources vs Python core.detect(mode=fast) on scratch-ac-rl-goldens: 8/8 cols/rows/consensus match (all fast:ac+rl(S))
-- System rustc 1.85.1 cannot build upstream image crate; rustup stable 1.99.1 can; wasm path needs no image

@@ -7,8 +7,6 @@ import { decodeAnimatedImageSource, decodeAsepriteBlob } from "@xprite/editor-ap
 import type { WorkspaceSessionPorts } from "@xprite/editor-app/host-contracts";
 import { cloneGraph } from "@xprite/editor-core/base";
 import {
-  analyzePixelArt,
-  pixelateImage,
   encodeAseprite,
   asepriteFromProject,
   projectPngImage,
@@ -21,6 +19,7 @@ import {
   type SessionRecentMetadata,
   recentImageRetainedBytes,
 } from "@xprite/editor-core/session";
+import { analyzePixelArt, pixelateImage } from "@xprite/pixelate";
 
 const RECENT_CATALOG_READ_ATTEMPTS = 2;
 const RECENTS_KEY = "recent-projects-v2";

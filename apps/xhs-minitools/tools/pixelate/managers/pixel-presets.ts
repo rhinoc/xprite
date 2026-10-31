@@ -5,7 +5,7 @@ import {
   updatePixelationSettings,
   type PixelGridAnalysis,
   type PixelationSettings,
-} from "@xprite/editor-core/import-export";
+} from "@xprite/pixelate";
 
 export enum PixelPreset {
   /** The engine's own defaults for this photo. */

@@ -1,3 +1,4 @@
+import type { ImportPixelationMemory } from "@xprite/editor-core/session";
 import {
   PixelationAlgorithm,
   CellColorPicker,
@@ -7,8 +8,7 @@ import {
   PaletteColorMode,
   PixelationDither,
   getAllColorPickers,
-} from "@xprite/editor-core/import-export/image/import";
-import type { ImportPixelationMemory } from "@xprite/editor-core/session";
+} from "@xprite/pixelate";
 
 export { PixelationAlgorithm, CellColorPicker, OutlinePrepass };
 

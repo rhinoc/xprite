@@ -4,7 +4,7 @@ import type {
   PixelationAlgorithm,
   PixelationSize,
   PixelGridAnalysis,
-} from "@xprite/editor-core/import-export";
+} from "@xprite/pixelate";
 export enum PixelationWorkerOperation {
   Convert = "convert",
   DetectGrid = "detect-grid",

@@ -102,5 +102,5 @@ interpreting pixel scores. Use this mode when the task does not require the
 app's capture provenance or area-level audit rules.
 
 For pixel-art import classification, use the application heuristic exported by
-`packages/editor-core/src/import-export/image/import/analyze.ts`; it is advisory
+`@xprite/pixelate` (`src/analyze.ts` in rhinoc/xprite-pixelate); it is advisory
 and must not override a user's choice silently.

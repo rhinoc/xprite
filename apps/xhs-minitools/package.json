@@ -9,6 +9,7 @@
   "dependencies": {
     "@xprite/editor-core": "workspace:*",
     "@xprite/growth-content": "workspace:*",
+    "@xprite/pixelate": "0.1.0",
     "@xprite/site-assets": "workspace:*",
     "@xprite/tools-app": "workspace:*",
     "@xprite/ui": "workspace:*",

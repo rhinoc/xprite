@@ -3,7 +3,7 @@ import type { Composition } from "$/shared/frames/layout";
 import type { ExportContent } from "$/tools/pixelate/managers/scene";
 import type { SplitState } from "$/tools/pixelate/managers/split-geometry";
 import type { PixelBuffer } from "@xprite/editor-core/base";
-import type { PixelateOptions } from "@xprite/editor-core/import-export";
+import type { PixelateOptions } from "@xprite/pixelate";
 
 /** Everything one export (or its preview) draws. */
 export interface MiniToolScene {

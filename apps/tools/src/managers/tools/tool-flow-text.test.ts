@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { PIXELATION_METHOD_OPTIONS } from "@xprite/editor-core/import-export";
 import { PublicLanguage } from "@xprite/growth-content/language";
 import { translateToolText } from "@xprite/growth-content/tools";
+import { PIXELATION_METHOD_OPTIONS } from "@xprite/pixelate";
 
 describe("flow tool text", () => {
   it("localizes the adjust and export strings in every locale", () => {

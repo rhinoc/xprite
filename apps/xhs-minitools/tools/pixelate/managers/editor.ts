@@ -25,7 +25,7 @@ import {
   pixelationSettingsOptions,
   type PixelGridAnalysis,
   type PixelationSettings,
-} from "@xprite/editor-core/import-export";
+} from "@xprite/pixelate";
 import type { PixelationManager, PixelationSnapshot } from "@xprite/tools-app/pixelation";
 
 type PixelState = Pick<PixelationSnapshot, "algorithm" | "grid" | "settings">;

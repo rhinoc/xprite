@@ -5,7 +5,7 @@ import { describe, it } from "vitest";
 import { MiniToolEditor } from "$/tools/pixelate/managers/editor";
 import type { MiniToolPort } from "$/tools/pixelate/managers/ports";
 import { DEFAULT_SPLIT } from "$/tools/pixelate/managers/split-geometry";
-import { defaultPixelationSettings, PixelationAlgorithm } from "@xprite/editor-core/import-export";
+import { defaultPixelationSettings, PixelationAlgorithm } from "@xprite/pixelate";
 import type { PixelationManager, PixelationSnapshot } from "@xprite/tools-app/pixelation";
 
 const photo = { width: 40, height: 30, data: new Uint8ClampedArray(40 * 30 * 4) };

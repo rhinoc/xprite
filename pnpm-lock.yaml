@@ -142,15 +142,15 @@ importers:
       '@xprite/editor-ui':
         specifier: workspace:*
         version: link:../../packages/editor-ui
-      '@xprite/fixer-detect-wasm':
-        specifier: workspace:*
-        version: link:../../packages/fixer-detect-wasm
       '@xprite/growth-content':
         specifier: workspace:*
         version: link:../growth/content
       '@xprite/palette-assets':
         specifier: workspace:*
         version: link:../../packages/palette-assets
+      '@xprite/pixelate':
+        specifier: 0.1.0
+        version: 0.1.0
       '@xprite/site-assets':
         specifier: workspace:*
         version: link:../growth/public
@@ -212,6 +212,9 @@ importers:
       '@xprite/palette-assets':
         specifier: workspace:*
         version: link:../../packages/palette-assets
+      '@xprite/pixelate':
+        specifier: 0.1.0
+        version: 0.1.0
       '@xprite/site-assets':
         specifier: workspace:*
         version: link:../growth/public
@@ -252,6 +255,9 @@ importers:
       '@xprite/editor-ui':
         specifier: workspace:*
         version: link:../../packages/editor-ui
+      '@xprite/pixelate':
+        specifier: 0.1.0
+        version: 0.1.0
       '@xprite/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -307,6 +313,9 @@ importers:
       '@xprite/growth-content':
         specifier: workspace:*
         version: link:../growth/content
+      '@xprite/pixelate':
+        specifier: 0.1.0
+        version: 0.1.0
       '@xprite/site-assets':
         specifier: workspace:*
         version: link:../growth/public
@@ -337,9 +346,9 @@ importers:
       '@xprite/bedrock':
         specifier: workspace:*
         version: link:../bedrock
-      '@xprite/fixer-detect-wasm':
-        specifier: workspace:*
-        version: link:../fixer-detect-wasm
+      '@xprite/pixelate':
+        specifier: 0.1.0
+        version: 0.1.0
       fflate:
         specifier: ^0.8.3
         version: 0.8.3
@@ -358,14 +367,15 @@ importers:
       '@xprite/palette-assets':
         specifier: workspace:*
         version: link:../palette-assets
+      '@xprite/pixelate':
+        specifier: 0.1.0
+        version: 0.1.0
       '@xprite/ui':
         specifier: workspace:*
         version: link:../ui
       react:
         specifier: ^18.3.1
         version: 18.3.1
-
-  packages/fixer-detect-wasm: {}
 
   packages/palette-assets: {}
 
@@ -2125,6 +2135,10 @@ packages:
 
   '@webassemblyjs/wast-printer@1.14.1':
     resolution: {integrity: sha512-kPSSXE6De1XOR820C90RIo2ogvZG+c3KiHzqUoO/F34Y2shGzesfqv7o57xrxovZJH/MetF5UjroJ/R/3isoiw==}
+
+  '@xprite/pixelate@0.1.0':
+    resolution: {integrity: sha512-IivInWv7LBA3hsf08B3/kIy+9T1WHU1RXUwSrgwyjVxdhMJ/xBegbmZEqp8fk1PufjYc3V3V1X7zVXQ136pBAQ==}
+    engines: {node: '>=20'}
 
   '@xtuc/ieee754@1.2.0':
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
@@ -4985,6 +4999,8 @@ snapshots:
     dependencies:
       '@webassemblyjs/ast': 1.14.1
       '@xtuc/long': 4.2.2
+
+  '@xprite/pixelate@0.1.0': {}
 
   '@xtuc/ieee754@1.2.0': {}
 

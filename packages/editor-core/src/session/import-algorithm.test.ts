@@ -3,14 +3,12 @@ import { describe, expect, test } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
 import { RasterEditor } from "$/editor/RasterEditor";
+import { EditorSession } from "$/session/editor-session";
+import { createBlankImage } from "$/session/recent-images";
+import type { EditorSessionPorts, ImportPixelationMemory } from "$/session/types";
 import {
-  jitterWithMargin,
-  sprite,
-  upscaleNearest,
-} from "$/import-export/image/import/grid-test-images";
-import { pixelateImage } from "$/import-export/image/import/pixelate";
-import { detectWithAlgorithm } from "$/import-export/image/import/pixelation-algorithm-registry";
-import {
+  pixelateImage,
+  detectWithAlgorithm,
   CellColorPicker,
   LineGuideMode,
   OutlinePrepass,
@@ -18,10 +16,8 @@ import {
   PixelationAlgorithm,
   PixelationMode,
   type PixelGridAnalysis,
-} from "$/import-export/image/import/types";
-import { EditorSession } from "$/session/editor-session";
-import { createBlankImage } from "$/session/recent-images";
-import type { EditorSessionPorts, ImportPixelationMemory } from "$/session/types";
+} from "@xprite/pixelate";
+import { jitterWithMargin, sprite, upscaleNearest } from "@xprite/pixelate/testing";
 
 const { Auto, EdgeGrid, UniformGrid, Resize } = PixelationAlgorithm;
 const jittered = jitterWithMargin(sprite(64));
