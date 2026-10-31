@@ -18,7 +18,7 @@ const pageApplications = [
   },
   {
     directory: "apps/growth",
-    entries: ["src/main.tsx", "src/public-main.tsx", "src/public-ssg.tsx"],
+    entries: ["src/public-main.tsx", "src/public-ssg.tsx"],
   },
   {
     directory: "apps/components",
@@ -110,7 +110,12 @@ function getJsxTagSymbol(tagName) {
     return canonicalSymbol(checker.getSymbolAtLocation(tagName.name));
   }
   if (!ts.isIdentifier(tagName)) return undefined;
-  return canonicalSymbol(checker.getSymbolAtLocation(tagName));
+  const symbol = canonicalSymbol(checker.getSymbolAtLocation(tagName));
+  // A component prop such as `frame: Frame = ToolFrame` renders its default.
+  const binding = symbol?.declarations?.find(ts.isBindingElement);
+  if (binding?.initializer && ts.isIdentifier(binding.initializer))
+    return canonicalSymbol(checker.getSymbolAtLocation(binding.initializer));
+  return symbol;
 }
 
 function hasJsx(node) {

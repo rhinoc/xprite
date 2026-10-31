@@ -1,0 +1,61 @@
+{
+  "source": "scripts/showcase/landing/capture.mjs",
+  "captures": [
+    {
+      "file": "editor-en-light.png",
+      "theme": "color-family-moss",
+      "appearance": "light",
+      "language": "en",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "deviceScaleFactor": 2,
+      "width": 2560,
+      "height": 1600,
+      "sha256": "3707b3140ea46880382ce552936d3c8af5dc79ed10018516cd5225c1d04f9689"
+    },
+    {
+      "file": "editor-en-dark.png",
+      "theme": "color-family-moss",
+      "appearance": "dark",
+      "language": "en",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "deviceScaleFactor": 2,
+      "width": 2560,
+      "height": 1600,
+      "sha256": "1f5379038ae4aec6aeca761fc8c8ea0838eef3102eaeccb278e48ee0f1b0a996"
+    },
+    {
+      "file": "editor-zh-CN-light.png",
+      "theme": "color-family-moss",
+      "appearance": "light",
+      "language": "zh-CN",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "deviceScaleFactor": 2,
+      "width": 2560,
+      "height": 1600,
+      "sha256": "7e5bd88ceb4da4213a25a2393f80d997315f8447481878af7a4c9259e18db238"
+    },
+    {
+      "file": "editor-zh-CN-dark.png",
+      "theme": "color-family-moss",
+      "appearance": "dark",
+      "language": "zh-CN",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "deviceScaleFactor": 2,
+      "width": 2560,
+      "height": 1600,
+      "sha256": "7da173834f8bf1798ebae72957a04f72365e61c1590cf0b57d52a33693859175"
+    }
+  ]
+}

@@ -1,11 +1,13 @@
 import { renderToString } from "react-dom/server";
 
 export { articleStyleClasses } from "$/components/articles/article-styles";
+export { landingStylesheet } from "$/components/landing/landing-palette";
 
 import { pageScrollLabel } from "$content/site/language";
 
 import { PublicArticleDiagram } from "$/components/articles/article-diagram";
 import { FeatureDirectory } from "$/components/features/feature-directory";
+import { Landing } from "$/components/landing/landing";
 import { PublicNotFound } from "$/components/public/not-found";
 import { PublicImage, type PublicImageProps } from "$/components/public/public-image";
 import {
@@ -22,26 +24,18 @@ import {
   type PublicWindowProps,
   type PublicNavigationProps,
 } from "$/components/public/static-ui";
-import {
-  ShowcaseStaticHero,
-  ShowcaseStaticHeader,
-  ShowcaseStoryContent,
-} from "$/components/showcase/showcase-story-content";
-import type { ShowcaseLanguage } from "$/managers/showcase/showcase-language";
 import { DesktopProvider, DesktopManager, DesktopAppearance } from "@xprite/site-shell";
 import {
   macintoshTheme,
   ScrollArea,
   ScrollAreaTarget,
   ScrollbarRendering,
-  PatternId,
   UiColorScheme,
 } from "@xprite/ui";
 import { loadUiThemeSnapshot } from "@xprite/ui/assets";
 import { cursorScopeStyle } from "@xprite/ui/cursor";
 
 import "$/components/public/desktop.module.css";
-import showcaseStyles from "$/components/showcase/showcase.module.css";
 
 function publicImageProps(props: Record<string, unknown>): PublicImageProps {
   const { src, alt, width, height } = props;
@@ -122,7 +116,7 @@ export async function preparePublicUi() {
       | "index"
       | "page"
       | "reader"
-      | "showcase-page"
+      | "landing"
       | "site-footer"
       | "features"
       | "status",
@@ -131,27 +125,8 @@ export async function preparePublicUi() {
   ) => {
     const colorScheme = appearance === "dark" ? UiColorScheme.Dark : UiColorScheme.Light;
     const content =
-      kind === "showcase-page" ? (
-        <ScrollArea
-          target={ScrollAreaTarget.Page}
-          scrollbarRendering={ScrollbarRendering.Browser}
-          aria-label={pageScrollLabel(String(props.language))}
-        >
-          <div
-            className={showcaseStyles.page}
-            data-growth-desktop
-            data-showcase-static-page
-            data-ui-desktop-pattern={PatternId.MacOS8BlueCord}
-            lang={String(props.language)}
-          >
-            <ShowcaseStaticHeader language={props.language as ShowcaseLanguage} />
-            <main>
-              <ShowcaseStaticHero language={props.language as ShowcaseLanguage} />
-              <ShowcaseStoryContent language={props.language as ShowcaseLanguage} />
-            </main>
-            <PublicFooter language={String(props.language)} />
-          </div>
-        </ScrollArea>
+      kind === "landing" ? (
+        <Landing language={String(props.language)} />
       ) : kind === "reader" ? (
         <PublicReaderScroll {...(props as Parameters<typeof PublicReaderScroll>[0])} />
       ) : kind === "image" ? (
@@ -198,7 +173,7 @@ export async function preparePublicUi() {
         language={typeof props.language === "string" ? props.language : "en"}
         initialTheme={themes[colorScheme]}
         preloadArtwork={false}
-        scope={kind === "page" || kind === "showcase-page"}
+        scope={kind === "page"}
         cursorVariables={false}
       >
         {content}

@@ -1,0 +1,689 @@
+@import "../../../../../packages/ui/assets/fonts/aseprite/fonts.css";
+@import "../../../../../packages/ui/assets/fonts/fusion-pixel/fonts.css";
+
+:global(body:has([data-landing])) {
+  margin: 0;
+}
+
+/*
+ * The About page in a color family theme. Colors come from --landing-* variables that the
+ * build writes per appearance (see build/seo/landing-palette.ts); geometry uses the pixel
+ * grid of the editor: 4px steps, square corners and hard shadows.
+ */
+.landing {
+  --landing-unit: 4px;
+  --landing-ruler: 24px;
+  --landing-content: min(1200px, calc(100% - 48px));
+  --landing-display: Aseprite, "Pixel Code", FusionPixel12, monospace;
+  --landing-mono: "Pixel Code", FusionPixel12, monospace;
+  --landing-body:
+    system-ui, -apple-system, "Segoe UI", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+  --landing-shadow: 4px 4px 0 var(--landing-ink);
+  display: block;
+  color: var(--landing-ink);
+  background: var(--landing-field);
+  font: 17px/1.6 var(--landing-body);
+  -webkit-font-smoothing: antialiased;
+}
+.landing :where(h1, h2, h3, p, ul, figure) {
+  margin: 0;
+}
+.landing :where(ul) {
+  padding: 0;
+  list-style: none;
+}
+.landing :where(a) {
+  color: inherit;
+}
+.landing :where(img) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.pixelArt {
+  image-rendering: pixelated;
+}
+
+/* Buttons: square pixel corners and a shadow the button presses into. */
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--landing-unit) * 3);
+  padding: 14px 22px;
+  border: 2px solid var(--landing-ink);
+  font: 15px/1 var(--landing-mono);
+  text-decoration: none;
+  box-shadow: var(--landing-shadow);
+  transition:
+    transform 60ms steps(2),
+    box-shadow 60ms steps(2);
+}
+.primary {
+  color: var(--landing-accent-ink);
+  background: var(--landing-accent);
+}
+.secondary {
+  color: var(--landing-ink);
+  background: var(--landing-field);
+}
+.primary:hover,
+.secondary:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--landing-ink);
+}
+.primary:active,
+.secondary:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+.primary:focus-visible,
+.secondary:focus-visible,
+.feature:focus-visible,
+.tool:focus-visible {
+  outline: 2px dashed var(--landing-accent);
+  outline-offset: 4px;
+}
+.arrow {
+  width: 12px;
+  height: 10px;
+  background: currentColor;
+  clip-path: polygon(0 40%, 60% 40%, 60% 0, 100% 50%, 60% 100%, 60% 60%, 0 60%);
+}
+
+/* Hero: the page as an editor canvas with rulers. */
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 2px solid var(--landing-ink);
+  background: var(--landing-face);
+}
+.paint {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+.rulerCorner,
+.rulerX,
+.rulerY {
+  position: absolute;
+  z-index: 2;
+  overflow: hidden;
+  color: var(--landing-ink);
+  background: var(--landing-face);
+  font: 10px/1 var(--landing-mono);
+  opacity: 0.85;
+}
+.rulerCorner {
+  inset: 0 auto auto 0;
+  width: var(--landing-ruler);
+  height: var(--landing-ruler);
+  background: var(--landing-ink);
+  opacity: 1;
+}
+.rulerX {
+  inset: 0 0 auto var(--landing-ruler);
+  display: flex;
+  height: var(--landing-ruler);
+  border-bottom: 1px solid var(--landing-ink);
+  background-image:
+    linear-gradient(90deg, var(--landing-ink) 1px, transparent 1px),
+    linear-gradient(90deg, var(--landing-line) 1px, transparent 1px);
+  background-position: 0 100%;
+  background-size:
+    64px 10px,
+    8px 5px;
+  background-repeat: repeat-x;
+}
+.rulerY {
+  inset: var(--landing-ruler) auto 0 0;
+  display: flex;
+  flex-direction: column;
+  width: var(--landing-ruler);
+  border-right: 1px solid var(--landing-ink);
+  background-image:
+    linear-gradient(var(--landing-ink) 1px, transparent 1px),
+    linear-gradient(var(--landing-line) 1px, transparent 1px);
+  background-position: 100% 0;
+  background-size:
+    10px 64px,
+    5px 8px;
+  background-repeat: repeat-y;
+}
+.rulerX span,
+.rulerY span {
+  flex: 0 0 64px;
+  padding: 3px;
+}
+.rulerY span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+.rulerMark {
+  position: absolute;
+  background: var(--landing-accent);
+  visibility: hidden;
+}
+.rulerX .rulerMark {
+  bottom: 0;
+  width: 1px;
+  height: 100%;
+}
+.rulerY .rulerMark {
+  right: 0;
+  width: 100%;
+  height: 1px;
+}
+.heroInner {
+  position: relative;
+  z-index: 1;
+  width: var(--landing-content);
+  margin: 0 auto;
+  padding: calc(var(--landing-ruler) + 64px) 0 0 var(--landing-ruler);
+}
+.status {
+  display: inline-flex;
+  border: 1px solid var(--landing-ink);
+  background: var(--landing-field);
+  font: 12px/1 var(--landing-mono);
+}
+.status span {
+  padding: 6px 10px;
+}
+.status span + span {
+  border-left: 1px solid var(--landing-ink);
+}
+.status span:first-child::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  background: var(--landing-accent);
+}
+.title {
+  max-width: 12em;
+  margin: 28px 0;
+  font: 400 clamp(44px, 7vw, 100px) / 1 var(--landing-display);
+  letter-spacing: -0.01em;
+}
+.title:lang(zh),
+.title:lang(ja),
+.title:lang(ko) {
+  font-family: FusionPixel12, var(--landing-display);
+  line-height: 1.15;
+}
+/* The selection marquee from the editor, with marching ants and handles. */
+.selection {
+  position: relative;
+  display: inline-block;
+  padding: 0 0.08em;
+}
+.selection::before {
+  content: "";
+  position: absolute;
+  inset: -6px -10px;
+  background:
+    linear-gradient(90deg, var(--landing-ink) 50%, var(--landing-face) 0) 0 0 / 12px 2px repeat-x,
+    linear-gradient(90deg, var(--landing-ink) 50%, var(--landing-face) 0) 0 100% / 12px 2px repeat-x,
+    linear-gradient(0deg, var(--landing-ink) 50%, var(--landing-face) 0) 0 0 / 2px 12px repeat-y,
+    linear-gradient(0deg, var(--landing-ink) 50%, var(--landing-face) 0) 100% 0 / 2px 12px repeat-y;
+  animation: ants 600ms steps(6) infinite;
+}
+@keyframes ants {
+  to {
+    background-position:
+      12px 0,
+      -12px 100%,
+      0 -12px,
+      100% 12px;
+  }
+}
+.selection i {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--landing-ink);
+  background: var(--landing-field);
+}
+.selection i:nth-of-type(1) {
+  top: -11px;
+  left: -15px;
+}
+.selection i:nth-of-type(2) {
+  top: -11px;
+  right: -15px;
+}
+.selection i:nth-of-type(3) {
+  bottom: -11px;
+  left: -15px;
+}
+.selection i:nth-of-type(4) {
+  right: -15px;
+  bottom: -11px;
+}
+.lead {
+  max-width: 34em;
+  margin-bottom: 34px;
+  font-size: 20px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 64px;
+}
+.shot {
+  position: relative;
+  border: 2px solid var(--landing-ink);
+  border-bottom: 0;
+  background: var(--landing-canvas);
+}
+.shot img[data-landing-shot="dark"] {
+  display: none;
+}
+:global(:root[data-ui-appearance="dark"]) .shot img[data-landing-shot="light"] {
+  display: none;
+}
+:global(:root[data-ui-appearance="dark"]) .shot img[data-landing-shot="dark"] {
+  display: block;
+}
+
+/* Facts: a four-column table of short values. */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 2px solid var(--landing-ink);
+}
+.facts > div {
+  padding: 32px 28px 36px;
+}
+.facts > div + div {
+  border-left: 1px solid var(--landing-ink);
+}
+.factKey {
+  margin-bottom: 16px;
+  color: var(--landing-ink);
+  opacity: 0.7;
+  font: 12px/1 var(--landing-mono);
+  text-transform: uppercase;
+}
+.factValue {
+  margin-bottom: 8px;
+  font: 400 28px/1.1 var(--landing-display);
+}
+.factText {
+  opacity: 0.8;
+  font-size: 15px;
+}
+
+/* Sections */
+.section,
+.gallery,
+.closing {
+  padding: 104px 0;
+}
+.section > *,
+.gallery > *,
+.closing {
+  width: var(--landing-content);
+  margin-inline: auto;
+}
+.sectionHead {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: end;
+  margin-bottom: 40px;
+}
+.sectionHead h2,
+.closing h2 {
+  font: 400 clamp(32px, 4.2vw, 54px) / 1.05 var(--landing-display);
+}
+.sectionHead h2:lang(zh),
+.sectionHead h2:lang(ja),
+.sectionHead h2:lang(ko),
+.closing h2:lang(zh),
+.closing h2:lang(ja),
+.closing h2:lang(ko) {
+  font-family: FusionPixel12, var(--landing-display);
+}
+.sectionHead p {
+  max-width: 32em;
+  opacity: 0.8;
+  font-size: 18px;
+}
+
+/* Features as a titled list with one shortcut tag per item. */
+.featureList {
+  border: 2px solid var(--landing-ink);
+  background: var(--landing-field);
+  box-shadow: 8px 8px 0 var(--landing-ink);
+}
+.featureListTitle {
+  display: flex;
+  justify-content: space-between;
+  padding: 9px 16px;
+  color: var(--landing-frame-ink);
+  background: var(--landing-frame);
+  font: 13px/1 var(--landing-mono);
+}
+.featureList ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.featureList li {
+  display: grid;
+  border-top: 1px solid var(--landing-line);
+}
+.featureList li:nth-child(-n + 2) {
+  border-top: 0;
+}
+.featureList li:nth-child(even) {
+  border-left: 1px solid var(--landing-line);
+}
+/* Title and its description read as one block; the tag sits beside the title. */
+.feature {
+  display: grid;
+  grid-template-areas:
+    "title meta"
+    "text text";
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 14px;
+  align-items: center;
+  padding: 20px 24px;
+  text-decoration: none;
+}
+.feature:hover {
+  background: var(--landing-hot);
+}
+.featureTitle {
+  grid-area: title;
+  font: 600 19px/1.3 var(--landing-body);
+}
+.featureText {
+  grid-area: text;
+  opacity: 0.85;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.featureMeta {
+  grid-area: meta;
+  padding: 4px 6px;
+  border: 1px solid currentColor;
+  opacity: 0.75;
+  font: 12px/1 var(--landing-mono);
+}
+
+/* Tools as an input → output table. */
+.tools {
+  border-top: 2px solid var(--landing-ink);
+}
+.tool {
+  display: grid;
+  grid-template-columns: 1.4fr auto 24px auto 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 22px 4px;
+  border-bottom: 1px solid var(--landing-ink);
+  text-decoration: none;
+}
+.tool:hover {
+  color: var(--landing-frame-ink);
+  background: var(--landing-frame);
+}
+.toolName {
+  font: 400 21px/1.2 var(--landing-display);
+}
+.toolName:lang(zh),
+.toolName:lang(ja),
+.toolName:lang(ko) {
+  font-family: FusionPixel12, var(--landing-display);
+}
+.io {
+  padding: 4px 8px;
+  border: 1px solid currentColor;
+  font: 13px/1 var(--landing-mono);
+}
+
+/* Gallery on the canvas color, with artwork on the transparency checkerboard. */
+.gallery {
+  color: var(--landing-frame-ink);
+  background: var(--landing-canvas);
+}
+.gallery .sectionHead p {
+  opacity: 0.85;
+}
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px;
+  border: 2px solid var(--landing-ink);
+  background: var(--landing-ink);
+}
+.tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 48px 24px 56px;
+  background: repeating-conic-gradient(#c0c0c0 0 25%, #808080 0 50%) 0 0 / 16px 16px;
+}
+.tile img {
+  width: min(480px, 90%);
+  image-rendering: pixelated;
+}
+.tile figcaption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 6px 10px;
+  color: var(--landing-field);
+  background: var(--landing-ink);
+  font: 12px/1 var(--landing-mono);
+}
+
+/* FAQ as native disclosures, so answers stay in the page text. */
+.faq {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 48px;
+  border-top: 2px solid var(--landing-ink);
+}
+.faq details {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--landing-ink);
+}
+.faq summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 18px;
+  list-style: none;
+  cursor: pointer;
+}
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+.faq summary::after {
+  content: "+";
+  font: 20px/1 var(--landing-mono);
+}
+.faq details[open] summary::after {
+  content: "−";
+}
+.faq details p {
+  margin-top: 12px;
+  opacity: 0.85;
+}
+
+.closing {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding-block: 64px;
+  border-top: 2px solid var(--landing-ink);
+}
+
+@media (max-width: 900px) {
+  .landing {
+    --landing-ruler: 16px;
+    --landing-content: calc(100% - 32px);
+  }
+  .rulerX span,
+  .rulerY span {
+    visibility: hidden;
+  }
+  .heroInner {
+    padding-top: calc(var(--landing-ruler) + 40px);
+  }
+  .lead {
+    font-size: 18px;
+  }
+  .actions {
+    margin-bottom: 40px;
+  }
+  .facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .facts > div {
+    padding: 24px 16px 28px;
+  }
+  .facts > div:nth-child(3) {
+    border-left: 0;
+  }
+  .facts > div:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--landing-ink);
+  }
+  .factValue {
+    font-size: 22px;
+  }
+  .section,
+  .gallery {
+    padding: 64px 0;
+  }
+  .sectionHead {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .featureList ul {
+    grid-template-columns: 1fr;
+  }
+  .featureList li:nth-child(2) {
+    border-top: 1px solid var(--landing-line);
+  }
+  .featureList li:nth-child(even) {
+    border-left: 0;
+  }
+  .feature {
+    padding: 16px;
+  }
+  .tool {
+    grid-template-columns: 1fr auto 24px auto;
+  }
+  .toolName {
+    grid-column: 1 / -1;
+  }
+  .faq,
+  .tiles {
+    grid-template-columns: 1fr;
+  }
+  .closing {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/*
+ * Wide screens move one screen at a time. The menubar and the first screen fill one viewport;
+ * every later screen is at least one viewport tall, so a taller one still scrolls inside.
+ */
+@media (min-width: 901px) {
+  :global(html:has([data-landing])) {
+    scroll-snap-type: y mandatory;
+  }
+  :global([data-showcase-static-page]:has([data-landing]) > header) {
+    scroll-snap-align: start;
+  }
+  :global(body:has([data-landing]) [data-public-island="site-footer"] footer) {
+    scroll-snap-align: end;
+  }
+  .screen {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - var(--ui-menu-navigation-height, 20px));
+    min-height: 600px;
+  }
+  .screen .hero {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .screen .heroInner {
+    display: grid;
+    flex: 1 1 0;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: 48px;
+    align-items: center;
+    min-height: 0;
+    padding-block: var(--landing-ruler) 0;
+  }
+  .screen .heroText {
+    align-self: center;
+  }
+  .screen .title {
+    margin-block: min(28px, 3vh);
+    font-size: clamp(40px, min(4.6vw, 8vh), 80px);
+  }
+  .screen .lead {
+    margin-bottom: min(34px, 3.5vh);
+    font-size: 18px;
+  }
+  .screen .actions {
+    margin-bottom: 0;
+  }
+  .screen .shot {
+    border-bottom: 2px solid var(--landing-ink);
+    box-shadow: 8px 8px 0 var(--landing-ink);
+  }
+  .section,
+  .gallery,
+  .finale {
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
+  .section,
+  .gallery {
+    padding-block: min(104px, 8vh);
+  }
+  .finale .closing {
+    padding-block: min(64px, 5vh);
+  }
+  .finale .section,
+  .finale .closing {
+    min-height: 0;
+  }
+  .finale .section {
+    display: block;
+    flex: 1 0 auto;
+    align-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .selection::before {
+    animation: none;
+  }
+  .primary,
+  .secondary {
+    transition: none;
+  }
+}

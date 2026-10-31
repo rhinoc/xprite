@@ -396,7 +396,7 @@ function developmentRoutes(
             ([, page]) => page.path === pathname,
           )![0] as keyof typeof SHOWCASE_PAGES;
           const template = readFileSync(resolve(APP_ROOT, `.${SHOWCASE_HTML_PATH}`), "utf8");
-          const html = await server.transformIndexHtml(
+          const html = await controls(
             pathname,
             applyShowcaseSearchMetadata(template, language, false),
           );
@@ -546,10 +546,12 @@ export async function growthPublicPages(): Promise<Plugin> {
         await mkdir(dirname(filename), { recursive: true });
         await writeFile(
           filename,
-          applyShowcaseSearchMetadata(
-            showcaseHtml,
-            language as keyof typeof SHOWCASE_PAGES,
-            indexable,
+          controls(
+            applyShowcaseSearchMetadata(
+              showcaseHtml,
+              language as keyof typeof SHOWCASE_PAGES,
+              indexable,
+            ),
           ),
         );
       }

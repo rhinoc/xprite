@@ -1,10 +1,14 @@
+import { FEATURES_PATH } from "../../content/features/index.ts";
 import { SHOWCASE_SEARCH_ATTRIBUTE, showcaseSearchMetadata } from "../../content/showcase/index.ts";
+import { LANDING_EDITOR_HREF, landingCopy } from "../../content/showcase/landing.ts";
 import {
   SHOWCASE_DEFAULT_PATH,
   SHOWCASE_PAGES,
   SHOWCASE_SITE_URL,
 } from "../../content/showcase/pages.ts";
-import { publicStaticPage } from "../public-theme.ts";
+import { localizedSiteHref, pickText, publicLanguage } from "../../content/site/language.ts";
+import { languageSwitchLinks, showcaseLabel } from "../../content/site/navigation.ts";
+import { publicDesktopNavigation, publicSiteFooter, publicUiScope } from "../public-theme.ts";
 import { renderPublicUi } from "../static-ui-renderer.ts";
 import { applyPageSearchMetadata } from "./index.ts";
 
@@ -25,6 +29,42 @@ const HTML_ENTITIES: Readonly<Record<string, string>> = {
 const escapeHtml = (value: string) =>
   value.replace(/[&"<>]/g, (character) => HTML_ENTITIES[character]);
 
+/** The About page: hydrated site menubar and footer around the static landing body. */
+function landingPage(language: keyof typeof SHOWCASE_PAGES): string {
+  const copy = landingCopy(language);
+  const navigation = publicDesktopNavigation({
+    label: pickText(
+      publicLanguage(language),
+      "Website navigation",
+      "网站导航",
+      "サイトナビゲーション",
+      "웹사이트 탐색",
+      "Навигация по сайту",
+      "Navegação do site",
+      "Navegación del sitio",
+    ),
+    language,
+    currentHref: SHOWCASE_PAGES[language].path,
+    brandLabel: showcaseLabel(language),
+    brandHref: SHOWCASE_PAGES[language].path,
+    links: [
+      { label: copy.features, href: localizedSiteHref(FEATURES_PATH, language) },
+      { label: copy.openEditor, href: LANDING_EDITOR_HREF },
+      ...languageSwitchLinks(
+        publicLanguage(language),
+        Object.fromEntries(
+          Object.entries(SHOWCASE_PAGES).map(([value, page]) => [value, page.path]),
+        ),
+        true,
+      ),
+    ],
+  });
+  return publicUiScope(
+    `<div data-showcase-static-page><header>${navigation}</header><main>${renderPublicUi("landing", { language })}</main>${publicSiteFooter(language)}</div>`,
+    language,
+  );
+}
+
 export function applyShowcaseSearchMetadata(
   html: string,
   language: keyof typeof SHOWCASE_PAGES,
@@ -38,7 +78,7 @@ export function applyShowcaseSearchMetadata(
     .replace(PRODUCT_PAGE_SCHEMA_PATTERN, "")
     .replace(
       SHOWCASE_STATIC_PATTERN,
-      `<!-- showcase-static-start -->${publicStaticPage(renderPublicUi("showcase-page", { language }))}<!-- showcase-static-end -->`,
+      `<!-- showcase-static-start -->${landingPage(language)}<!-- showcase-static-end -->`,
     )
     .replace(CHINESE_FONT_PRELOAD_PATTERN, language === "en" ? "" : "$&")
     .replace(CANONICAL_ELEMENT_PATTERN, "")

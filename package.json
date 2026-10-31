@@ -92,8 +92,7 @@
     "wechat:watch": "node apps/wechat/build/build.mts --watch",
     "wechat:probe": "node apps/wechat/build/build.mts --probe",
     "assets:macintosh-theme": "python3 scripts/fixtures/assets/build-macintosh-theme.py",
-    "assets:macos8-icons": "python3 scripts/fixtures/assets/extract-macos8-icons.py",
-    "assets:showcase-models": "node scripts/showcase/optimize-models.mjs"
+    "assets:macos8-icons": "python3 scripts/fixtures/assets/extract-macos8-icons.py"
   },
   "devDependencies": {
     "@babel/parser": "^7.29.9",
@@ -109,7 +108,6 @@
     "edgeone": "1.6.41",
     "esbuild": "0.28.2",
     "fake-indexeddb": "^6.2.4",
-    "gltfpack": "1.3.0",
     "husky": "^9.1.7",
     "jpeg-js": "^0.4.4",
     "jscpd": "^5.3.2",

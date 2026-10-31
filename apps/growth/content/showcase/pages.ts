@@ -3,45 +3,45 @@ export const SHOWCASE_SITE_URL = "https://xprite.cc/";
 export const SHOWCASE_PAGES = {
   en: {
     path: "/about/",
-    title: "Xprite — Free pixel art & animation editor for any device",
+    title: "Pixel Art Maker & Sprite Editor Online, Free | Xprite",
     description:
-      "Xprite is a free online pixel art and animation editor. Draw and animate sprites on a computer, iPad or phone, open Aseprite files, and export GIF or PNG.",
+      "Free pixel art maker and sprite editor in your browser. Draw, animate frame by frame and open .aseprite files on a computer, iPad or phone. No account.",
   },
   "zh-CN": {
     path: "/zh-CN/about/",
-    title: "Xprite｜免费的在线像素画与动画编辑器",
+    title: "在线像素画制作与精灵动画编辑器，免费 | Xprite",
     description:
-      "Xprite 是免费的在线像素画与动画编辑器。在电脑、iPad 或手机上画像素画、做逐帧动画，打开 Aseprite 文件，导出 GIF 或 PNG。",
+      "免费的在线像素画与精灵动画编辑器。在电脑、iPad 或手机浏览器里画像素画、逐帧做动画、打开 .aseprite 文件，无需注册，作品保存在本机。",
   },
   ja: {
     path: "/ja/about/",
-    title: "Xprite｜無料のオンラインドット絵・アニメーションエディター",
+    title: "ドット絵メーカー・スプライトエディター（無料）| Xprite",
     description:
-      "パソコン、iPad、スマホのブラウザでドット絵とアニメーションを無料で制作。Aseprite ファイルを編集し、GIF や PNG でエクスポート。作品は自分の端末に保存されます。",
+      "ブラウザで使える無料のドット絵メーカー。パソコン、iPad、スマホでスプライトを描き、フレームごとに動かし、.aseprite ファイルを開けます。登録不要。",
   },
   ko: {
     path: "/ko/about/",
-    title: "Xprite - 무료 온라인 도트·픽셀 아트 애니메이션 에디터",
+    title: "무료 온라인 도트 메이커·스프라이트 에디터 | Xprite",
     description:
-      "컴퓨터, 아이패드, 휴대폰 브라우저에서 무료로 도트 애니메이션을 만드세요. 에이스프라이트(Aseprite) 파일을 편집하고 GIF·PNG로 내보내며 작품은 기기에 남습니다.",
+      "브라우저에서 쓰는 무료 도트 메이커. 컴퓨터, iPad, 휴대폰에서 스프라이트를 그리고 프레임 단위로 움직이며 .aseprite 파일을 엽니다. 가입 불필요.",
   },
   ru: {
     path: "/ru/about/",
-    title: "Xprite — пиксель арт редактор онлайн, бесплатно",
+    title: "Пиксель-арт и спрайты онлайн, бесплатно | Xprite",
     description:
-      "Бесплатный пиксель арт редактор и анимация в браузере на ПК, iPad и телефоне. Открывайте файлы Aseprite онлайн, экспортируйте GIF и PNG; работы остаются у вас.",
+      "Бесплатный онлайн-редактор пиксель-арта и спрайтов. Рисуйте, анимируйте покадрово и открывайте файлы .aseprite на ПК, iPad и телефоне без регистрации.",
   },
   "pt-BR": {
     path: "/pt-BR/about/",
-    title: "Xprite — editor de pixel art online grátis",
+    title: "Criador de pixel art e editor de sprites grátis | Xprite",
     description:
-      "Editor de pixel art online grátis para PC, iPad e celular. Crie animações, abra e salve arquivos do Aseprite, exporte GIF ou PNG e guarde sua arte no aparelho.",
+      "Criador de pixel art e editor de sprites grátis no navegador. Desenhe, anime quadro a quadro e abra arquivos .aseprite no PC, iPad ou celular. Sem cadastro.",
   },
   es: {
     path: "/es/about/",
-    title: "Xprite — editor de pixel art online gratis",
+    title: "Creador de pixel art y editor de sprites gratis | Xprite",
     description:
-      "Editor de pixel art online gratis para PC, iPad y móvil. Crea animaciones, abre y guarda archivos de Aseprite, exporta GIF o PNG y guarda tu arte en tu equipo.",
+      "Creador de pixel art y editor de sprites gratis en el navegador. Dibuja, anima cuadro a cuadro y abre archivos .aseprite en PC, iPad o móvil. Sin registro.",
   },
 } as const;
 export const SHOWCASE_DEFAULT_PATH = SHOWCASE_PAGES.en.path;
