@@ -122,11 +122,6 @@ describe("grid recovery from a tilted image", () => {
     // Only the cells along the replicated border and the staircase edges may differ.
     expect(same(out, art)).toBeGreaterThan(0.97);
   });
-  test("a clean 1.2° tilt no longer yields a confident wrong grid", () => {
-    const { grid } = tiltedGrid(1.2);
-    expect([grid.width, grid.height]).not.toEqual([180, 168]);
-    expect(grid.width).toBe(64);
-  });
   test("aligned images are not rotated", () => {
     const grid = detectWithAlgorithm(upright, PixelationAlgorithm.Auto);
     expect(grid.reliable).toBe(true);

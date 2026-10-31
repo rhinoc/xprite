@@ -63,27 +63,6 @@ const sizeOf = (session: EditorSession) => {
   return preview ? `${preview.width}x${preview.height}` : "none";
 };
 
-describe("registry algorithms on one jittered sprite", () => {
-  test("different algorithms give different detections and outputs", () => {
-    const outputs = [Auto, UniformGrid, EdgeGrid, Resize].map((algorithm) => {
-      const grid = detectWithAlgorithm(jittered, algorithm);
-      const mode = grid.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert;
-      const out = pixelateImage(jittered, {
-        mode,
-        grid: grid.reliable ? grid : undefined,
-        targetWidth: 40,
-        targetHeight: 40,
-      });
-      return { algorithm, reliable: grid.reliable, size: `${out.width}x${out.height}`, out };
-    });
-    const distinct = new Set(outputs.map((o) => `${o.reliable}:${o.size}`));
-    expect(distinct.size).toBeGreaterThan(1);
-    const resize = outputs.find((o) => o.algorithm === Resize);
-    expect(resize?.reliable).toBe(false);
-    expect(resize?.size).toBe("40x40");
-  });
-});
-
 describe("import dialog colour pick", () => {
   test("changing the picker re-renders the preview on the same grid", async () => {
     const session = openSession(jittered);

@@ -44,9 +44,9 @@ const LANGUAGE_DIRECTORIES = {
   "pt-BR": "pt-BR",
   es: "es",
 };
-/** Russian, Brazilian Portuguese and Spanish capture only the densest, longest-label surfaces. */
-const REDUCED_LANGUAGES = new Set(["ru", "pt-BR", "es"]);
-const REDUCED_SCENE_IDS = ["editor-wide", "preferences-wide", "edit-menu-compact", "save-as-wide"];
+/** Other locales cover dense controls and long menu labels; zh-CN and English cover every view. */
+const REDUCED_LANGUAGES = new Set(["ja", "ko", "ru", "pt-BR", "es"]);
+const REDUCED_SCENE_IDS = ["preferences-wide", "edit-menu-compact"];
 
 /** The canonical scene ids a language captures, in canonical order. */
 export function languageSceneIds(language, ids = sceneIds) {

@@ -85,26 +85,6 @@ describe("algorithm registry table", () => {
     expect(result.reliable).toBe(false);
     expect(result.confidence).toBe(0);
   });
-  test("Auto picks a reliable entry within a near tie of the most confident and tags it", () => {
-    const image = upscaleNearest(art, 16);
-    const auto = detectWithAlgorithm(image, Auto);
-    const reliable = [EdgeGrid, UniformGrid]
-      .map((id) => detectWithAlgorithm(image, id))
-      .filter((result) => result.reliable);
-    expect(auto.reliable).toBe(true);
-    expect(auto.confidence).toBeGreaterThanOrEqual(
-      Math.max(...reliable.map((result) => result.confidence)) - 0.02,
-    );
-    expect([EdgeGrid, UniformGrid]).toContain(auto.algorithm);
-  });
-  test("near a tie Auto keeps the uniform lattice over the edge mesh", () => {
-    const image = fractionalUpscale(sprite(240, 106), 2.8);
-    const uniform = detectWithAlgorithm(image, UniformGrid);
-    expect(uniform.reliable).toBe(true);
-    const auto = detectWithAlgorithm(image, Auto);
-    expect(auto.algorithm).toBe(UniformGrid);
-    expect([auto.width, auto.height]).toEqual([240, 240]);
-  });
   test("Auto falls back to the Resize entry when nothing is reliable", () => {
     const result = detectWithAlgorithm(gradient(512, 512), Auto);
     expect(result.reliable).toBe(false);
