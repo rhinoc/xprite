@@ -64,10 +64,12 @@ function roundTripError(input: PixelBuffer, candidate: PixelBuffer, cells: Pixel
  * half-transparent ring around the recovered sprite and an almost-opaque inside.
  *
  * A cell that holds both covered pixels (alpha of at least HALF_ALPHA) and uncovered ones lies on
- * the outline. It is in the art when its covered pixels fill at least half of it, and clear
+ * the outline. In translucent art, a cell with no covered pixel takes the median alpha of its
+ * pixels: a shadow keeps its level, a soft outline (mostly clear) is cleared. It is in the art when its covered pixels fill at least half of it, and clear
  * otherwise; in opaque art, so is a cell with no covered pixel. A covered cell takes the mean alpha of its covered pixels, raised to OPAQUE when the
  * source's art is opaque: at most TRANSLUCENT_SHARE of its visible pixels between TRANSLUCENT_LOW
- * and TRANSLUCENT_HIGH. Art drawn translucent (glass, shadows, glow) keeps its alpha.
+ * and TRANSLUCENT_HIGH. Art drawn translucent (glass, shadows, glow) keeps its alpha, except that a
+ * covered cell above TRANSLUCENT_HIGH is still raised to OPAQUE.
  */
 const HALF_ALPHA = 128;
 const HALF = 0.5;
@@ -107,19 +109,32 @@ function settleEdgeAlpha(
         bottom = Math.min(image.height, Math.ceil(y[row + 1]));
       let covered = 0,
         coveredAlpha = 0;
+      const alphas: number[] = [];
       for (let py = top; py < bottom; py++)
         for (let px = left; px < right; px++) {
           const alpha = image.data[(py * image.width + px) * CHANNELS + COLOR_CHANNELS];
+          alphas.push(alpha);
           if (alpha < HALF_ALPHA) continue;
           covered++;
           coveredAlpha += alpha;
         }
       const area = (right - left) * (bottom - top);
-      if (!covered && !opaque) continue;
+      if (!covered && !opaque) {
+        // Translucent art fills its cell evenly; a soft outline leaves most of the cell clear.
+        alphas.sort((a, b) => a - b);
+        const median = alphas[alphas.length >> 1] ?? 0;
+        if (median < TRANSLUCENT_LOW) out.data.fill(0, offset, offset + CHANNELS);
+        else out.data[offset + COLOR_CHANNELS] = median;
+        continue;
+      }
       if (covered < HALF * area) out.data.fill(0, offset, offset + CHANNELS);
       else if (opaque) out.data[offset + COLOR_CHANNELS] = OPAQUE;
-      else if (covered < area)
-        out.data[offset + COLOR_CHANNELS] = Math.round(coveredAlpha / covered);
+      else {
+        // Translucent art (a shadow, a glow) keeps its alpha, but a covered cell above
+        // TRANSLUCENT_HIGH is opaque art drawn a little below 255, as everywhere else.
+        const alpha = covered < area ? coveredAlpha / covered : out.data[offset + COLOR_CHANNELS];
+        out.data[offset + COLOR_CHANNELS] = alpha > TRANSLUCENT_HIGH ? OPAQUE : Math.round(alpha);
+      }
     }
 }
 

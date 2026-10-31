@@ -402,6 +402,7 @@ export class GridEvidenceReader {
       let reading = this.readings.get(key);
       if (!reading) {
         reading = readingOf(strips, described, grid, cutsX, cutsY, () => {
+          if (grid.placed) return [];
           let shifted = corrections.get(geometry);
           if (!shifted) {
             shifted = shiftedReadings(strips, cutsX, cutsY);

@@ -26,6 +26,7 @@ import {
 } from "$/import-export/image/import/grid-description-length";
 import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
 import { coherentGrids } from "$/import-export/image/import/grid-edge-coherence";
+import { edgePathGrids } from "$/import-export/image/import/grid-edge-path";
 import { detectFrameLattices } from "$/import-export/image/import/grid-frame-lattice";
 import { detectBoundaryPeriodGrids } from "$/import-export/image/import/grid-period-boundary";
 import { combCountGrids } from "$/import-export/image/import/grid-period-comb";
@@ -328,12 +329,14 @@ function consensusWinner(
   return best;
 }
 
-/** Every proposer's grids for one view, less those the view's edges reject. */
+/**
+ * Every proposer's grids for one view, with the edge paths at the pitches the view's edges keep
+ * (see grid-edge-path) as one more proposer's output, less the grids the edges reject.
+ */
 function proposalsOf(image: PixelBuffer, outputs?: PixelGridAnalysis[][]): PixelGridAnalysis[][] {
-  return coherentGrids(
-    image,
-    PROPOSERS.map((proposer, index) => outputs?.[index] ?? proposer(image)),
-  );
+  const proposed = PROPOSERS.map((proposer, index) => outputs?.[index] ?? proposer(image));
+  const paths = edgePathGrids(image, coherentGrids(image, proposed).flat());
+  return coherentGrids(image, [...proposed, paths]);
 }
 
 /**

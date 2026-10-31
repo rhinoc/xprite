@@ -216,10 +216,11 @@ export function adaptiveTolerance(
   return bestTol;
 }
 
+/** Clears every removed pixel, colour included, so the old background leaves no hidden pattern. */
 function applyAlpha(image: PixelBuffer, alpha: Uint8Array): PixelBuffer {
   const data = new Uint8ClampedArray(image.data);
-  for (let i = 0, p = 3; i < alpha.length; i++, p += CHANNELS) {
-    if (alpha[i] === 0) data[p] = 0;
+  for (let i = 0, p = 0; i < alpha.length; i++, p += CHANNELS) {
+    if (alpha[i] === 0) data.fill(0, p, p + CHANNELS);
   }
   return { width: image.width, height: image.height, data };
 }

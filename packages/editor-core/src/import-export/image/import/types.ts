@@ -171,6 +171,11 @@ export interface PixelGridAnalysis extends PixelGridGeometry {
   rotation?: number;
   /** Local inverse sampling steps in the straightened source, in application order. */
   sampling?: readonly PixelGridSamplingStage[];
+  /**
+   * The cuts already follow the image's edges one by one (grid-edge-path), so arbitration reads
+   * them as placed, without strip shifts or a phase field.
+   */
+  placed?: boolean;
 }
 
 export interface PixelationSize {
