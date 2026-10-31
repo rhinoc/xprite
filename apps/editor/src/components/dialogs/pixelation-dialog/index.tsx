@@ -2,7 +2,6 @@ import { Fragment, useMemo, useRef, useState } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
-import { algorithmNoteKey } from "$/components/dialogs/pixelation-dialog/algorithm-notes";
 import { ImportCompare } from "$/components/dialogs/pixelation-dialog/import-compare";
 import { tUi, tUiSource, useUiLanguage } from "$/i18n";
 import {
@@ -159,7 +158,6 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   const showAdvanced = advanced && pixelate;
   const selectedAlgorithm = pending.algorithm;
   const colorPicker = workflow.pixelationOptions.colorPicker;
-  const noteKey = algorithmNoteKey(selectedAlgorithm, !!pending.grid?.reliable);
   const canImport =
     !workflow.busy &&
     (!pixelate || (!workflow.pixelationPreviewing && !!workflow.pixelationPreview));
@@ -238,16 +236,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     height: dialogHeight,
   };
 
-  /**
-   * Only errors and "no grid found" notices; everything else the labels already say. The notice
-   * points at Advanced, so it goes once Advanced is open (the disabled picker says the rest), and
-   * it is false with an outline pre-pass, which redraws the picture and keeps the picker working.
-   */
-  const pixelateMessage = workflow.pixelationError
-    ? tUiSource(workflow.pixelationError)
-    : pixelate && noteKey && !advanced && workflow.pixelationOptions.prepass === OutlinePrepass.None
-      ? `${tUiSource(noteKey)} ${tUi("import.note.picker.needs-grid")}`
-      : null;
+  const pixelateMessage = workflow.pixelationError ? tUiSource(workflow.pixelationError) : null;
   const message = pixelate ? pixelateMessage : null;
 
   return (
