@@ -29,10 +29,10 @@ const mod = await server.ssrLoadModule(
   "/packages/editor-core/src/import-export/image/import/index.ts",
 );
 const reg = await server.ssrLoadModule(
-  "/packages/editor-core/src/import-export/image/import/pixelation-algorithm-registry.ts",
+  "/packages/editor-core/src/import-export/image/import/grid/registry.ts",
 );
 const consMod = await server.ssrLoadModule(
-  "/packages/editor-core/src/import-export/image/import/grid-ac-rl-consensus.ts",
+  "/packages/editor-core/src/import-export/image/import/grid/period/ac-rl-consensus.ts",
 );
 const {
   pixelateImage,

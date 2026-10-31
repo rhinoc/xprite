@@ -5,7 +5,7 @@ import type { EditorDocument } from "$/document/types";
 import type { BitmapTextController } from "$/drawing/text/controller";
 import type { HistoryController } from "$/history/controller";
 import type { ImageEditingController } from "$/image-editing/controller";
-import { extractPalette } from "$/import-export/image/import/palette";
+import { extractPalette } from "$/import-export/image/import/color/palette";
 import type { SpriteController } from "$/sprite/controller";
 import type { TilemapGestureController } from "$/tilemap/gesture-controller";
 import type { TimelineController } from "$/timeline/controller";

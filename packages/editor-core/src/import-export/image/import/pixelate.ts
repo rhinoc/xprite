@@ -1,24 +1,24 @@
 import type { PixelBuffer } from "$/base/primitives";
 import { assertDimension, assertPixelBuffer } from "$/document/pixel-validation";
-import { protectPixelationContours } from "$/import-export/image/import/contours";
-import { smoothPixelation } from "$/import-export/image/import/denoise";
-import { blockPartition } from "$/import-export/image/import/grid";
-import { prepareGridSampling } from "$/import-export/image/import/grid-sampling";
-import { runPixeloe } from "$/import-export/image/import/line-guided/pixeloe-entry";
-import { resizeMostFrequent } from "$/import-export/image/import/most-frequent";
-import {
-  applyOutlinePrepass,
-  DEFAULT_LINE_GUIDE,
-  runsStockPixeloe,
-} from "$/import-export/image/import/outline-prepass";
-import { snapPalette } from "$/import-export/image/import/palette-snap";
+import { resizeMostFrequent } from "$/import-export/image/import/color/most-frequent";
+import { snapPalette } from "$/import-export/image/import/color/palette-snap";
+import { samplePixelation } from "$/import-export/image/import/color/sampling";
+import { blockPartition } from "$/import-export/image/import/grid/lattice";
 import {
   detectWithAlgorithm,
   detectWithAlgorithmAsync,
   recoverWithGrid,
-} from "$/import-export/image/import/pixelation-algorithm-registry";
-import { resizeBox, resizeNearest } from "$/import-export/image/import/resize";
-import { samplePixelation } from "$/import-export/image/import/sampling";
+} from "$/import-export/image/import/grid/registry";
+import { prepareGridSampling } from "$/import-export/image/import/grid/sampling";
+import { protectPixelationContours } from "$/import-export/image/import/prepass/contours";
+import { smoothPixelation } from "$/import-export/image/import/prepass/denoise";
+import { runPixeloe } from "$/import-export/image/import/prepass/line-guided/pixeloe-entry";
+import {
+  applyOutlinePrepass,
+  DEFAULT_LINE_GUIDE,
+  runsStockPixeloe,
+} from "$/import-export/image/import/prepass/outline-prepass";
+import { resizeBox, resizeNearest } from "$/import-export/image/import/prepass/resize";
 import {
   OutlinePrepass,
   PixelationMethod,
