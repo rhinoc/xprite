@@ -177,13 +177,11 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
               selectedAlgorithm as FilePreferences["importPixelationAlgorithm"],
           }
         : {}),
-      // The remembered colour rule is the one for plain imports (pre-pass None): every import opens
-      // on PixelOE + lines with Contrast, and switching to None brings this rule back.
+      // Plain imports start with this colour rule; outline pre-passes keep their own selection.
       ...(workflow.pixelationOptions.prepass === OutlinePrepass.None
         ? { importColorPicker: colorPicker }
         : {}),
-      // The silent Pixelate path ("Don't ask me again") repeats this import's pixelation; the
-      // dialog itself still opens on PixelOE + lines next time.
+      // The silent Pixelate path ("Don't ask me again") repeats this import's saved settings.
       ...(pixelate
         ? {
             importPixelation: {

@@ -11,6 +11,7 @@ import { RasterEditor } from "$/editor/RasterEditor";
 import type { EditorSnapshot } from "$/editor/types";
 import {
   type PixelationSettings,
+  type PixelArtAnalysis,
   type PixelGridAnalysis,
   type PixelationSize,
   PixelArtClassification,
@@ -77,6 +78,7 @@ interface Candidate {
   classification: PixelArtClassification;
   checkpoint: Checkpoint;
   project?: SessionProject;
+  silentPixelation?: ImportPixelationMemory | null;
 }
 type Replacement<S> =
   | { kind: "source"; source: SessionSource<S> }
@@ -107,6 +109,10 @@ export class EditorSession<Source> {
   private candidate: Candidate | null = null;
   private previewVersion = 0;
   private algorithmVersion = 0;
+  private analyzedAlgorithmVersion = -1;
+  private gridOptionsVersion = 0;
+  private importSize: PixelationSize | undefined;
+  private readonly importAnalyses = new Map<string, Promise<PixelArtAnalysis>>();
   private replacement: Replacement<Source> | null = null;
   private hydration: Promise<void> | null = null;
   private persistence = Promise.resolve();
@@ -210,6 +216,11 @@ export class EditorSession<Source> {
   private invalidate(except?: Source) {
     ++this.generation;
     ++this.previewVersion;
+    ++this.algorithmVersion;
+    this.analyzedAlgorithmVersion = -1;
+    this.importSize = undefined;
+    this.importAnalyses.clear();
+    this.previewQueued = false;
     for (const source of this.ownedSources.keys()) if (source !== except) this.release(source);
     this.candidate = null;
     this.replacement = null;
@@ -512,9 +523,7 @@ export class EditorSession<Source> {
       if (!this.valid(generation)) return SessionOutcome.Ignored;
       this.release(source.source, generation);
 
-      // Don't await Auto detection - dialog opens immediately with Uncertain classification.
-      // Analysis runs in background and auto-import happens if completed before user acts.
-      // This prevents UI hang when Auto grid detection is slow.
+      // Open immediately; the preview owns the analysis and shares its result with import.
       const candidate: Candidate = {
         sourcePalette: (source.palette ?? this.editor.getSnapshot().palette).map(
           (color) => [...color] as Rgba,
@@ -532,32 +541,6 @@ export class EditorSession<Source> {
 
       this.candidate = candidate;
 
-      // Start async analysis for non-projects (won't block dialog).
-      if (!project) {
-        void this.ports.analyze(pixels, { algorithm: this.importAlgorithm() }).then((analysis) => {
-          if (!this.valid(generation)) return;
-          if (this.candidate && this.candidate.pixels === pixels) {
-            this.candidate = { ...this.candidate, ...analysis };
-            // Update dialog if it's showing.
-            const pending = this.state.pendingImport;
-            if (pending && pending.pixels === pixels) {
-              this.publish({
-                pendingImport: {
-                  ...pending,
-                  grid: analysis.grid ?? null,
-                  classification: analysis.classification,
-                },
-                pixelationOptions: applyPixelationGrid(
-                  this.state.pixelationOptions,
-                  analysis.grid ?? { reliable: false, cellWidth: 8, cellHeight: 8 },
-                  pixels,
-                ),
-              });
-            }
-          }
-        });
-      }
-
       if (this.changedSince(before)) {
         this.askReplacement({ kind: "candidate", candidate });
         return SessionOutcome.Confirmation;
@@ -573,7 +556,8 @@ export class EditorSession<Source> {
     } finally {
       if (this.valid(generation)) {
         this.release(source.source);
-        this.publish({ busy: false });
+        // A silent import may already be waiting for this same preview to finish.
+        if (!this.state.pendingImport || !this.state.busy) this.publish({ busy: false });
       }
     }
   }
@@ -589,11 +573,20 @@ export class EditorSession<Source> {
   }
   private defaultOptions(candidate: Candidate) {
     return {
-      // Every import opens on PixelOE + lines with Contrast, grid or not; the remembered colour
-      // rule comes back when the pre-pass is switched to None (see setPixelationOptions).
       ...defaultPixelationSettings(candidate.pixels, candidate.grid),
+      prepass: OutlinePrepass.None,
+      colorPicker: this.importColorPicker(),
+      reduceColors: false,
       // Import sizes the output from the target dimensions and lets the colour rule pick each block.
       blockPicker: true,
+    };
+  }
+  private gridOptions(candidate: Candidate, grid: PixelGridAnalysis): PixelationSettings {
+    const current = this.state.pixelationOptions;
+    return {
+      ...applyPixelationGrid(current, grid, candidate.pixels),
+      colorPicker: current.colorPicker,
+      reduceColors: current.reduceColors,
     };
   }
   /**
@@ -634,7 +627,7 @@ export class EditorSession<Source> {
           candidate.recentAlias ?? null,
         );
       if (pref.choice === "always-pixelate") {
-        this.candidate = candidate;
+        this.candidate = { ...candidate, silentPixelation: pref.pixelation ?? null };
         this.publish({
           busy: false,
           replacement: null,
@@ -653,7 +646,6 @@ export class EditorSession<Source> {
           pixelationPalette: [],
           pixelationError: null,
         });
-        void this.previewPixelation();
         void this.pixelate();
         return SessionOutcome.Pending;
       }
@@ -761,6 +753,15 @@ export class EditorSession<Source> {
   setPixelationOptions(options: Partial<PixelationSettings>) {
     if (this.disposed || this.state.busy || !this.candidate) return;
     const current = this.state.pixelationOptions;
+    if (
+      options.mode !== undefined ||
+      options.autoGrid !== undefined ||
+      options.gridCellWidth !== undefined ||
+      options.gridCellHeight !== undefined ||
+      options.targetWidth !== undefined ||
+      options.targetHeight !== undefined
+    )
+      ++this.gridOptionsVersion;
     // Switching the pre-pass off brings back the colour rule remembered for plain imports.
     const patch =
       options.prepass === OutlinePrepass.None &&
@@ -768,8 +769,14 @@ export class EditorSession<Source> {
       options.colorPicker === undefined
         ? { ...options, colorPicker: this.importColorPicker() }
         : options;
+    const next = updatePixelationSettings(current, patch, this.candidate.pixels);
+    if (options.mode !== undefined) {
+      if (options.reduceColors === undefined) next.reduceColors = current.reduceColors;
+      if (options.colorPicker === undefined && options.prepass === undefined)
+        next.colorPicker = current.colorPicker;
+    }
     this.publish({
-      pixelationOptions: updatePixelationSettings(current, patch, this.candidate.pixels),
+      pixelationOptions: next,
       pixelationPreview: null,
       pixelationPalette: [],
     });
@@ -784,108 +791,110 @@ export class EditorSession<Source> {
     const candidate = this.candidate;
     if (this.disposed || this.state.busy || !candidate || !pending) return;
     if (!getAllAlgorithms().includes(algorithm)) return;
-    const version = ++this.algorithmVersion,
-      generation = this.generation;
-    this.publish({
-      pendingImport: { ...pending, algorithm },
-      pixelationPreview: null,
-      pixelationPalette: [],
-      pixelationPreviewing: true,
-      pixelationError: null,
-    });
-    try {
-      const { grid } = await this.ports.analyze(candidate.pixels, { algorithm, size });
-      if (!this.valid(generation) || version !== this.algorithmVersion) return;
-      this.candidate = { ...candidate, grid };
-      const current = this.state.pendingImport;
-      this.publish({
-        pendingImport: current ? { ...current, grid, algorithm } : current,
-        pixelationOptions: applyPixelationGrid(
-          this.state.pixelationOptions,
-          grid,
-          candidate.pixels,
-        ),
-      });
-      void this.previewPixelation();
-    } catch (reason) {
-      if (this.valid(generation) && version === this.algorithmVersion)
-        this.publish({
-          pixelationPreviewing: false,
-          pixelationError: reason instanceof Error ? reason.message : String(reason),
-        });
-    }
-  }
-  /**
-   * The import worker is single-threaded and cannot abort a running job, so a preview that is
-   * already computing is never queued behind: the newest request waits and runs once it finishes,
-   * and every request made in between is dropped.
-   */
-  private previewRunning = false;
-  private previewQueued = false;
-  private async previewPixelation() {
-    if (this.previewRunning) {
-      this.previewQueued = true;
-      this.publish({ pixelationPreviewing: true, pixelationError: null });
+    if (
+      pending.algorithm === algorithm &&
+      this.importSize?.width === size?.width &&
+      this.importSize?.height === size?.height &&
+      !this.state.pixelationError
+    ) {
+      await this.previewTask;
       return;
     }
-    this.previewRunning = true;
+    ++this.algorithmVersion;
+    this.importSize = size ? { ...size } : undefined;
+    this.candidate = { ...candidate, grid: undefined };
+    this.publish({
+      pendingImport: { ...pending, algorithm, grid: null },
+      pixelationPreview: null,
+      pixelationPalette: [],
+    });
+    await this.previewPixelation();
+  }
+
+  private analyzeImport(candidate: Candidate, algorithm: PixelationAlgorithm) {
+    const size = this.importSize;
+    const key = `${algorithm}:${size?.width ?? ""}:${size?.height ?? ""}`;
+    const cached = this.importAnalyses.get(key);
+    if (cached) return cached;
+    const analysis = this.ports.analyze(candidate.pixels, { algorithm, ...(size ? { size } : {}) });
+    const pending: Promise<PixelArtAnalysis> = analysis.catch((reason: unknown) => {
+      if (this.importAnalyses.get(key) === pending) this.importAnalyses.delete(key);
+      throw reason;
+    });
+    this.importAnalyses.set(key, pending);
+    return pending;
+  }
+
+  /** Keep one preview pipeline running and coalesce edits into its newest pending request. */
+  private previewTask: Promise<void> | null = null;
+  private previewQueued = false;
+  private previewPixelation(): Promise<void> {
+    ++this.previewVersion;
+    this.previewQueued = true;
+    this.publish({ pixelationPreviewing: true, pixelationError: null });
+    if (!this.previewTask) this.previewTask = this.drainPreviews();
+    return this.previewTask;
+  }
+  private async drainPreviews() {
     try {
-      do {
+      while (this.previewQueued && !this.disposed) {
         this.previewQueued = false;
         await this.runPreviewPixelation();
-      } while (this.previewQueued && !this.disposed);
+      }
     } finally {
-      this.previewRunning = false;
+      this.previewTask = null;
     }
   }
   private async runPreviewPixelation() {
     const candidate = this.candidate;
     if (!candidate || this.disposed) return;
-    const version = ++this.previewVersion,
+    const version = this.previewVersion,
+      algorithmVersion = this.algorithmVersion,
+      gridOptionsVersion = this.gridOptionsVersion,
       generation = this.generation;
-    this.publish({ pixelationPreviewing: true, pixelationError: null });
     try {
-      // If Auto algorithm is selected but grid hasn't been detected yet, run detection first.
       const pending = this.state.pendingImport;
-      if (
-        pending &&
-        pending.algorithm === PixelationAlgorithm.Auto &&
-        !candidate.grid &&
-        !candidate.project
-      ) {
-        const analysis = await this.ports.analyze(candidate.pixels, {
-          algorithm: PixelationAlgorithm.Auto,
-        });
-        if (!this.valid(generation) || version !== this.previewVersion) return;
-        // Update the candidate with the detected grid.
-        this.candidate = { ...candidate, ...analysis };
+      if (pending && this.analyzedAlgorithmVersion !== algorithmVersion && !candidate.project) {
+        const analysis = await this.analyzeImport(candidate, pending.algorithm);
+        if (
+          !this.valid(generation) ||
+          algorithmVersion !== this.algorithmVersion ||
+          this.candidate?.pixels !== candidate.pixels
+        )
+          return;
+        this.analyzedAlgorithmVersion = algorithmVersion;
+        this.candidate = { ...this.candidate, ...analysis };
         const current = this.state.pendingImport;
         this.publish({
           pendingImport: current
             ? { ...current, grid: analysis.grid ?? null, classification: analysis.classification }
             : current,
-          pixelationOptions: applyPixelationGrid(
-            this.state.pixelationOptions,
-            analysis.grid ?? { reliable: false, cellWidth: 8, cellHeight: 8 },
-            candidate.pixels,
-          ),
+          ...(gridOptionsVersion === this.gridOptionsVersion
+            ? {
+                pixelationOptions:
+                  candidate.silentPixelation !== undefined
+                    ? this.silentOptions(this.candidate, candidate.silentPixelation)
+                    : this.gridOptions(
+                        candidate,
+                        analysis.grid ?? { reliable: false, cellWidth: 8, cellHeight: 8 },
+                      ),
+              }
+            : {}),
         });
       }
-      const options = pixelationSettingsOptions(
-        this.state.pixelationOptions,
-        this.candidate!.pixels,
-        this.candidate!.grid,
-      );
-      const pixels = await this.ports.pixelate(this.candidate!.pixels, options);
-      // A newer request is already waiting: this result is stale, so keep the spinner up.
-      if (this.previewQueued) return;
+      if (!this.valid(generation) || version !== this.previewVersion || this.previewQueued) return;
+      const current = this.candidate;
+      if (!current) return;
+      const settings = this.state.pixelationOptions;
+      const options = pixelationSettingsOptions(settings, current.pixels, current.grid);
+      const pixels = await this.ports.pixelate(current.pixels, options);
       if (this.valid(generation) && version === this.previewVersion)
         this.publish({
           pixelationPreview: pixels,
           pixelationPreviewing: false,
           pixelationPalette:
-            this.state.pixelationOptions.reduceColors && this.state.pixelationOptions.palette
-              ? this.state.pixelationOptions.palette
+            settings.reduceColors && settings.palette
+              ? settings.palette
               : extractPixelationPalette(pixels).map((entry) => entry.color),
         });
     } catch (reason) {
@@ -948,23 +957,24 @@ export class EditorSession<Source> {
   ): Promise<SessionOutcome> {
     if (this.disposed || !this.candidate || this.state.busy) return SessionOutcome.Ignored;
     if (options) this.setPixelationOptions(options);
-    const acceptedPalette =
-      this.state.pixelationOptions.reduceColors && this.state.pixelationOptions.palette
-        ? this.state.pixelationOptions.palette
-        : undefined;
     const candidate = this.candidate,
       generation = this.generation;
     let completionGeneration = generation;
     this.publish({ busy: true, error: null });
     try {
-      const pixels =
-        overridePixels ??
-        this.state.pixelationPreview ??
-        (await this.ports.pixelate(
-          candidate.pixels,
-          pixelationSettingsOptions(this.state.pixelationOptions, candidate.pixels, candidate.grid),
-        ));
+      let pixels = overridePixels ?? this.state.pixelationPreview;
+      if (!pixels) {
+        await (this.previewTask ?? this.previewPixelation());
+        if (!this.valid(generation)) return SessionOutcome.Ignored;
+        pixels = this.state.pixelationPreview;
+        if (!pixels)
+          throw new Error(this.state.pixelationError ?? "No pixelation preview is available.");
+      }
       if (!this.valid(generation)) return SessionOutcome.Ignored;
+      const acceptedPalette =
+        this.state.pixelationOptions.reduceColors && this.state.pixelationOptions.palette
+          ? this.state.pixelationOptions.palette
+          : undefined;
       this.invalidate();
       completionGeneration = this.generation;
       if (this.changedSince(candidate.checkpoint)) {
@@ -1276,6 +1286,8 @@ export class EditorSession<Source> {
     if (this.disposed) return;
     this.disposed = true;
     ++this.generation;
+    this.importAnalyses.clear();
+    this.previewQueued = false;
     this.candidate = null;
     this.replacement = null;
     for (const source of this.ownedSources.keys()) this.release(source);

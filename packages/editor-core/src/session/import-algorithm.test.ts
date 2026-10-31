@@ -89,7 +89,7 @@ describe("import dialog colour pick", () => {
     const session = openSession(jittered);
     await session.requestImport({ source: "jitter", name: "jitter.png" });
     await settle(session);
-    expect(session.getSnapshot().pixelationOptions.colorPicker).toBe(CellColorPicker.TwoStage);
+    expect(session.getSnapshot().pixelationOptions.colorPicker).toBe(CellColorPicker.MostCommon);
     const before = session.getSnapshot().pixelationPreview;
     session.setPixelationOptions({ colorPicker: CellColorPicker.Average });
     await settle(session);
@@ -99,7 +99,7 @@ describe("import dialog colour pick", () => {
     expect(after.pixelationPreview?.width).toBe(before?.width);
     session.dispose();
   });
-  test("pixel art opens on PixelOE + lines with TwoStage and Limit colors; None brings back the remembered rule", async () => {
+  test("pixel art opens with the remembered plain picker and optional outlines remain available", async () => {
     const session = openSession(
       jittered,
       PixelArtClassification.LikelyPixelArt,
@@ -108,27 +108,31 @@ describe("import dialog colour pick", () => {
     await session.requestImport({ source: "jitter", name: "jitter.png" });
     await settle(session);
     const opened = session.getSnapshot();
-    // Recover Grid opens on TwoStage with Limit colors (16), regardless of remembered picker.
     expect(opened.pendingImport?.grid?.reliable).toBe(true);
     expect(opened.pixelationOptions).toMatchObject({
       mode: PixelationMode.RecoverGrid,
-      prepass: OutlinePrepass.PixeloeLines,
-      colorPicker: CellColorPicker.TwoStage,
-      reduceColors: true,
+      prepass: OutlinePrepass.None,
+      colorPicker: CellColorPicker.Median,
+      reduceColors: false,
     });
-    session.setPixelationOptions({ prepass: OutlinePrepass.None });
-    await settle(session);
-    const plain = session.getSnapshot();
-    // Switching to None pre-pass brings back the remembered Median picker.
-    expect(plain.pixelationOptions.colorPicker).toBe(CellColorPicker.Median);
-    // The old exact recovery is one choice away.
-    expect(plain.pixelationPreview).toEqual(
+    expect(opened.pixelationPreview).toEqual(
       pixelateImage(jittered, {
         mode: PixelationMode.RecoverGrid,
         grid: opened.pendingImport!.grid!,
         colorPicker: CellColorPicker.Median,
       }),
     );
+    session.setPixelationOptions({ prepass: OutlinePrepass.PixeloeLines, reduceColors: true });
+    await settle(session);
+    expect(session.getSnapshot().pixelationOptions).toMatchObject({
+      prepass: OutlinePrepass.PixeloeLines,
+      colorPicker: CellColorPicker.Contrast,
+      reduceColors: true,
+    });
+    session.setPixelationOptions({ prepass: OutlinePrepass.None, reduceColors: false });
+    await settle(session);
+    expect(session.getSnapshot().pixelationOptions.colorPicker).toBe(CellColorPicker.Median);
+    expect(session.getSnapshot().pixelationPreview).toEqual(opened.pixelationPreview);
     session.dispose();
   });
 });
@@ -252,26 +256,14 @@ describe("silent Pixelate import (Don't ask me again)", () => {
     expect(imported).toEqual(art);
     session.dispose();
   });
-  test("with nothing saved the silent import uses PixelOE + lines with TwoStage and Limit colors", async () => {
+  test("with nothing saved the silent import uses plain recovery without a color limit", async () => {
     const { session, imported } = await importSilently(null);
     expect(session.getSnapshot().pixelationOptions).toMatchObject({
-      prepass: OutlinePrepass.PixeloeLines,
-      lineGuide: LineGuideMode.Replace,
-      colorPicker: CellColorPicker.TwoStage,
-      reduceColors: true,
+      prepass: OutlinePrepass.None,
+      colorPicker: CellColorPicker.MostCommon,
+      reduceColors: false,
     });
-    const grid = detectWithAlgorithm(upscaled, Auto);
-    expect(imported).toEqual(
-      pixelateImage(upscaled, {
-        mode: PixelationMode.RecoverGrid,
-        grid,
-        prepass: OutlinePrepass.PixeloeLines,
-        lineGuide: LineGuideMode.Replace,
-        colorPicker: CellColorPicker.TwoStage,
-        paletteSnap: { colors: 16 },
-      }),
-    );
-    expect(imported).not.toEqual(art);
+    expect(imported).toEqual(art);
     session.dispose();
   });
   test("a saved Add to outlines import keeps Add to outlines", async () => {
@@ -297,20 +289,19 @@ describe("silent Pixelate import (Don't ask me again)", () => {
     );
     session.dispose();
   });
-  test("the dialog still opens on PixelOE + lines with TwoStage after a None import was saved", async () => {
+  test("the dialog uses plain defaults when the silent path has saved outline settings", async () => {
     const { session } = silentSession("always-ask", {
-      prepass: OutlinePrepass.None,
-      colorPicker: CellColorPicker.MostCommon,
-      reduceColors: false,
+      prepass: OutlinePrepass.PixeloeLines,
+      colorPicker: CellColorPicker.Contrast,
+      reduceColors: true,
     });
     await session.requestImport({ source: "art", name: "art.png" });
     await settle(session);
     expect(session.getSnapshot().pendingImport).not.toBeNull();
     expect(session.getSnapshot().pixelationOptions).toMatchObject({
-      prepass: OutlinePrepass.PixeloeLines,
-      lineGuide: LineGuideMode.Replace,
-      colorPicker: CellColorPicker.TwoStage,
-      reduceColors: true,
+      prepass: OutlinePrepass.None,
+      colorPicker: CellColorPicker.MostCommon,
+      reduceColors: false,
     });
     session.dispose();
   });
