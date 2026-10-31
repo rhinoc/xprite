@@ -2,11 +2,13 @@
 // Capture the editor in a color family theme for the About page hero. Run against a dev
 // or preview editor server: `node scripts/showcase/landing/capture.mjs http://localhost:5173/`.
 import { createHash } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { chromium } from "playwright";
+
+import { encodeLosslessWebp } from "../../base/webp-assets.mjs";
 
 const REPOSITORY = fileURLToPath(new URL("../../../", import.meta.url));
 const OUTPUT = resolve(REPOSITORY, "apps/growth/public/showcase/landing");
@@ -56,9 +58,13 @@ try {
         else await example.dblclick();
         await page.waitForSelector("canvas[data-editor-canvas]", { timeout: 30_000 });
         await page.waitForTimeout(SETTLE_MS);
-        const png = await page.screenshot();
-        const name = `${device.name}-${language}-${appearance}.png`;
-        await writeFile(resolve(OUTPUT, name), png);
+        // Lossless WebP keeps every captured pixel at about a third of the PNG size.
+        const name = `${device.name}-${language}-${appearance}.webp`;
+        const png = resolve(OUTPUT, `${name}.png`);
+        await writeFile(png, await page.screenshot());
+        await encodeLosslessWebp(png, resolve(OUTPUT, name));
+        await rm(png);
+        const webp = await readFile(resolve(OUTPUT, name));
         records.push({
           file: name,
           theme: THEME,
@@ -68,7 +74,7 @@ try {
           deviceScaleFactor: device.deviceScaleFactor,
           width: device.viewport.width * device.deviceScaleFactor,
           height: device.viewport.height * device.deviceScaleFactor,
-          sha256: createHash("sha256").update(png).digest("hex"),
+          sha256: createHash("sha256").update(webp).digest("hex"),
         });
         await context.close();
       }

@@ -3,7 +3,7 @@ import { PATTERNS, patternColorImage } from "@xprite/ui";
 import { SITE_LANGUAGE_PREFERENCE_KEY } from "../language-preference";
 import { DesktopAppearance, DesktopManager, type DesktopPreferences } from "../managers/desktop";
 import { SITE_LANGUAGES, type SiteLanguageCode } from "../site-language";
-import { DESKTOP_PREFERENCES_KEY } from "../startup";
+import { DESKTOP_PATTERN_IMAGE_KEY, DESKTOP_PREFERENCES_KEY } from "../startup";
 
 export { renderArtifactSignature } from "../export/signature";
 export { createArtifactRasterText } from "../export/raster-text";
@@ -89,6 +89,17 @@ export function createBrowserDesktop(defaults?: DesktopPreferences) {
           patternColorImage(pattern, preferences.patternForeground, preferences.patternBackground);
         if (image) document.documentElement.style.setProperty("--ui-pattern-override-image", image);
         else document.documentElement.style.removeProperty("--ui-pattern-override-image");
+        // The startup script paints this image before load, so pages do not inline every template.
+        try {
+          if (image)
+            localStorage.setItem(
+              DESKTOP_PATTERN_IMAGE_KEY,
+              JSON.stringify({ pattern: preferences.pattern, image }),
+            );
+          else localStorage.removeItem(DESKTOP_PATTERN_IMAGE_KEY);
+        } catch {
+          // Without storage the pattern still applies once this script runs.
+        }
       },
       applyTheme(tokens, colorScheme, themeId) {
         document.documentElement.dataset.uiAppearance = colorScheme;

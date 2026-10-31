@@ -2,7 +2,7 @@
   "source": "scripts/showcase/landing/capture.mjs",
   "captures": [
     {
-      "file": "editor-en-light.png",
+      "file": "editor-en-light.webp",
       "theme": "color-family-moss",
       "appearance": "light",
       "language": "en",
@@ -13,10 +13,10 @@
       "deviceScaleFactor": 2,
       "width": 2560,
       "height": 1600,
-      "sha256": "3707b3140ea46880382ce552936d3c8af5dc79ed10018516cd5225c1d04f9689"
+      "sha256": "c448c46277e41afcf499bd8be3dbdc9422c1dfb287bba6eec6c87427ecbf30f7"
     },
     {
-      "file": "editor-en-dark.png",
+      "file": "editor-en-dark.webp",
       "theme": "color-family-moss",
       "appearance": "dark",
       "language": "en",
@@ -27,10 +27,10 @@
       "deviceScaleFactor": 2,
       "width": 2560,
       "height": 1600,
-      "sha256": "1f5379038ae4aec6aeca761fc8c8ea0838eef3102eaeccb278e48ee0f1b0a996"
+      "sha256": "c63ab697dd2edc6008282f65f6afb1215087ea1b60648cd6204d61a15d95f2be"
     },
     {
-      "file": "editor-zh-CN-light.png",
+      "file": "editor-zh-CN-light.webp",
       "theme": "color-family-moss",
       "appearance": "light",
       "language": "zh-CN",
@@ -41,10 +41,10 @@
       "deviceScaleFactor": 2,
       "width": 2560,
       "height": 1600,
-      "sha256": "7e5bd88ceb4da4213a25a2393f80d997315f8447481878af7a4c9259e18db238"
+      "sha256": "ff45512a3afb5f4c86ec73040206bc4f437edbbe64f0d861438cd85df4cdfe98"
     },
     {
-      "file": "editor-zh-CN-dark.png",
+      "file": "editor-zh-CN-dark.webp",
       "theme": "color-family-moss",
       "appearance": "dark",
       "language": "zh-CN",
@@ -55,10 +55,10 @@
       "deviceScaleFactor": 2,
       "width": 2560,
       "height": 1600,
-      "sha256": "7da173834f8bf1798ebae72957a04f72365e61c1590cf0b57d52a33693859175"
+      "sha256": "e86cd5bd8e1f571f903ad703584609f1d640f0a584213506a66af37ebe6ce1ea"
     },
     {
-      "file": "phone-en-light.png",
+      "file": "phone-en-light.webp",
       "theme": "color-family-moss",
       "appearance": "light",
       "language": "en",
@@ -69,10 +69,10 @@
       "deviceScaleFactor": 3,
       "width": 1170,
       "height": 2532,
-      "sha256": "78780187fcb87241fbafdf99a3cc810159b26d8074af6fe2b66a8e9b28ba0a03"
+      "sha256": "9ae0df9b6e37b042a43656e2997e8cb6642cb4dfd40f5031ef0b78cf973bd687"
     },
     {
-      "file": "phone-en-dark.png",
+      "file": "phone-en-dark.webp",
       "theme": "color-family-moss",
       "appearance": "dark",
       "language": "en",
@@ -83,10 +83,10 @@
       "deviceScaleFactor": 3,
       "width": 1170,
       "height": 2532,
-      "sha256": "ad48a24bfc62f1d4c749d1ad465a26e82bfa48bef94c0447bfb47b4dccfb384f"
+      "sha256": "54ba2c5f23ff20fcfe2907f617514ab22223e956b9e3bc3a8a843b5879b04149"
     },
     {
-      "file": "phone-zh-CN-light.png",
+      "file": "phone-zh-CN-light.webp",
       "theme": "color-family-moss",
       "appearance": "light",
       "language": "zh-CN",
@@ -97,10 +97,10 @@
       "deviceScaleFactor": 3,
       "width": 1170,
       "height": 2532,
-      "sha256": "e8d4d734b1f227753d860299c06020faaf556feeb59a761c69b6748b59925f76"
+      "sha256": "ae577e1a2af3fe6efd125c4d3cc0bbf2f2c290594f1a117cc68655c84a159a4d"
     },
     {
-      "file": "phone-zh-CN-dark.png",
+      "file": "phone-zh-CN-dark.webp",
       "theme": "color-family-moss",
       "appearance": "dark",
       "language": "zh-CN",
@@ -111,7 +111,7 @@
       "deviceScaleFactor": 3,
       "width": 1170,
       "height": 2532,
-      "sha256": "fe8b72ece114ee464232144ab80f3ba1f55541f9399186ce8a60ab1f68e902e6"
+      "sha256": "dcc07aad4f4449a7b86a04f9513cf3678e8810f9b09c2d6e30f386ef27f48b34"
     }
   ]
 }

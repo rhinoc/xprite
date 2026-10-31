@@ -107,7 +107,7 @@ export function Landing({ language }: { language: string }) {
                   <img
                     key={appearance}
                     data-landing-shot={appearance}
-                    src={`${LANDING_SCREENSHOT_ROOT}/editor-${capture}-${appearance}.png`}
+                    src={`${LANDING_SCREENSHOT_ROOT}/editor-${capture}-${appearance}.webp`}
                     width={SCREENSHOT_WIDTH}
                     height={SCREENSHOT_HEIGHT}
                     alt={appearance === "light" ? copy.screenshotAlt : ""}
@@ -121,7 +121,7 @@ export function Landing({ language }: { language: string }) {
                   <img
                     key={appearance}
                     data-landing-shot={appearance}
-                    src={`${LANDING_SCREENSHOT_ROOT}/phone-${capture}-${appearance}.png`}
+                    src={`${LANDING_SCREENSHOT_ROOT}/phone-${capture}-${appearance}.webp`}
                     width={PHONE_WIDTH}
                     height={PHONE_HEIGHT}
                     alt={appearance === "light" ? copy.phoneAlt : ""}

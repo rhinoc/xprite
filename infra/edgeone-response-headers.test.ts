@@ -51,7 +51,7 @@ const LONG_LIVED_PATHS = [
 // Stable-name files that some page or script loads without a content version.
 const REVALIDATED_PATHS = [
   "/showcase/devices/computer/en/animation.png",
-  "/showcase/landing/editor-en-light.png",
+  "/showcase/landing/editor-en-light.webp",
   "/showcase/workspace-layout/en/poster.png",
   "/about/images/workspace-compact-en.png",
   "/compare/articles/images/editor-with-aseprite-en.png",
