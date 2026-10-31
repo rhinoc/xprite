@@ -11,6 +11,12 @@ const MULTISTAGE_HEADER_BYTES = 32;
 const CLUT_HEADER_BYTES = 20;
 const MATRIX_BYTES = 48;
 const ALIGNMENT = 4;
+/**
+ * An mAB/mBA matrix carries PCSXYZ in its 16-bit encoding (1.0 stored as 32768/65535). skcms scales
+ * the matrix, and only the matrix, by this factor when the PCS is XYZ: by it towards the PCS, and by
+ * its inverse away from it.
+ */
+const XYZ_MATRIX_SCALE = UINT16_MAX / 32768;
 
 enum LutType {
   Byte = "mft1",
@@ -29,16 +35,17 @@ enum StageOffset {
 
 export interface IccLut {
   apply: IccTransform;
-  legacyLab: boolean;
 }
 
+/** Each curve takes its channel as it stands; table curves clamp to [0, 1] themselves. */
 const applyCurves = (curves: readonly IccCurve[], value: IccVector): IccVector =>
-  value.map((channel, index) => curves[index](unit(channel))) as unknown as IccVector;
+  value.map((channel, index) => curves[index](channel)) as unknown as IccVector;
 
-function matrixStage(data: IccData, offset: number, affine: boolean): IccTransform {
+function matrixStage(data: IccData, offset: number, affine: boolean, scale = 1): IccTransform {
   data.need(offset, affine ? MATRIX_BYTES : CHANNELS * CHANNELS * ALIGNMENT);
-  const values = Array.from({ length: affine ? 12 : 9 }, (_, index) =>
-    data.fixed(offset + index * ALIGNMENT),
+  const values = Array.from(
+    { length: affine ? 12 : 9 },
+    (_, index) => scale * data.fixed(offset + index * ALIGNMENT),
   );
   return (input) => [
     values[0] * input[0] + values[1] * input[1] + values[2] * input[2] + (values[9] ?? 0),
@@ -121,13 +128,12 @@ function legacyLut(
     tableCurve(data, outputOffset + channel * outputEntries * precision, outputEntries, precision),
   );
   return {
-    legacyLab: precision === 2,
     apply: (value) =>
       applyCurves(output, clut(applyCurves(input, useMatrix ? matrix(value) : value))),
   };
 }
 
-function multistageLut(data: IccData, reverse: boolean): IccLut {
+function multistageLut(data: IccData, pcs: IccPcs, reverse: boolean): IccLut {
   data.need(0, MULTISTAGE_HEADER_BYTES);
   if (data.u8(8) !== CHANNELS || data.u8(9) !== CHANNELS)
     unsupportedIcc("only three-channel RGB LUTs are supported");
@@ -155,7 +161,8 @@ function multistageLut(data: IccData, reverse: boolean): IccLut {
   const b = curves(bOffset),
     m = mOffset ? curves(mOffset) : undefined,
     a = aOffset ? curves(aOffset) : undefined;
-  const matrix = matrixOffset ? matrixStage(data, matrixOffset, true) : undefined;
+  const matrixScale = pcs === IccPcs.Xyz ? (reverse ? 1 / XYZ_MATRIX_SCALE : XYZ_MATRIX_SCALE) : 1;
+  const matrix = matrixOffset ? matrixStage(data, matrixOffset, true, matrixScale) : undefined;
   let clut: IccTransform | undefined;
   if (gridOffset) {
     data.need(gridOffset, CLUT_HEADER_BYTES);
@@ -169,7 +176,6 @@ function multistageLut(data: IccData, reverse: boolean): IccLut {
     );
   }
   return {
-    legacyLab: false,
     apply(value) {
       let out = value;
       if (reverse) {
@@ -189,14 +195,15 @@ function multistageLut(data: IccData, reverse: boolean): IccLut {
 export function parseIccLut(data: IccData, pcs: IccPcs, reverse: boolean): IccLut {
   const type = data.signature(0);
   if (type === LutType.Byte || type === LutType.Word) return legacyLut(data, pcs, reverse, type);
-  if (type === (reverse ? LutType.FromPcs : LutType.ToPcs)) return multistageLut(data, reverse);
+  if (type === (reverse ? LutType.FromPcs : LutType.ToPcs))
+    return multistageLut(data, pcs, reverse);
   return unsupportedIcc(`LUT type ${type.trim()} is not supported`);
 }
 
 export function lutToPcs(lut: IccLut, pcs: IccPcs): IccTransform {
-  return (value) => decodePcs(lut.apply(value), pcs, lut.legacyLab);
+  return (value) => decodePcs(lut.apply(value), pcs);
 }
 
 export function lutFromPcs(lut: IccLut, pcs: IccPcs): IccTransform {
-  return (value) => lut.apply(encodePcs(value, pcs, lut.legacyLab));
+  return (value) => lut.apply(encodePcs(value, pcs));
 }

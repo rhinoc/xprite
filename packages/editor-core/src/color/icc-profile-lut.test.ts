@@ -35,6 +35,9 @@ const skia = resolve(".refs/skia-arm64");
 const skcms = join(skia, "out/Release-arm64/libskcms.a");
 const fixedScale = 65536;
 const xyzScale = 65535 / 32768;
+/** The PCS illuminant every ICC header carries (D50, s15Fixed16); skcms rejects any other. */
+const D50_ILLUMINANT = [0.9642, 1, 0.8249] as const;
+const ILLUMINANT_OFFSET = 68;
 const matrix = [0x6fa2, 0x6299, 0x24a0, 0x38f5, 0xb785, 0x0f84, 0x0390, 0x18da, 0xb6cf].map(
   (value) => value / fixedScale,
 );
@@ -68,6 +71,7 @@ function profile(
   signature(bytes, 16, "RGB ");
   signature(bytes, 20, pcs);
   signature(bytes, 36, "acsp");
+  D50_ILLUMINANT.forEach((value, index) => fixed(view, ILLUMINANT_OFFSET + index * 4, value));
   view.setUint32(128, tags.length, false);
   tags.forEach(([name, tag], index) => {
     const offset = 132 + index * 12;
@@ -125,7 +129,7 @@ function staged(reverse: boolean, nonlinear: boolean, precision: 1 | 2 = 2): Uin
     matrixView = new DataView(affine.buffer);
   for (let row = 0; row < 3; row++) {
     fixed(matrixView, (row * 3 + row) * 4, reverse ? 2 : 0.5);
-    fixed(matrixView, 36 + row * 4, reverse ? -0.5 : 0.25);
+    fixed(matrixView, 36 + row * 4, reverse ? -0.5 * xyzScale : 0.25);
   }
   const blocks = [b, affine, curves(), clut(precision, true), curves(reverse ? 0.5 : 2)];
   const bytes = new Uint8Array(32 + blocks.reduce((size, block) => size + block.length, 0)),
@@ -214,15 +218,16 @@ describe("ICC RGB LUT, Lab PCS and SDR CICP", () => {
       assert.equal(parsed.kind, "lut");
       if (parsed.kind !== "lut") throw new Error("Expected LUT");
       const input = [0.2, 0.4, 0.7] as const;
+      // The XYZ encoding scale applies to the matrix, before the B curves (as in skcms).
       const expected = [input[2], input[1], input[0]].map(
-        (value) => (value ** 2 * 0.5 + 0.25) ** 2 * xyzScale,
+        (value) => ((value ** 2 * 0.5 + 0.25) * xyzScale) ** 2,
       );
       close(parsed.toPcs(input), expected);
       close(parsed.fromPcs(parsed.toPcs(input)), input, 0.0001);
     });
 
   for (const precision of [1, 2] as const)
-    it(`decodes the ${precision === 1 ? "8-bit" : "legacy 16-bit"} Lab PCS encoding`, () => {
+    it(`decodes ${precision === 1 ? "8-bit" : "16-bit"} Lab PCS with the v4 encoding`, () => {
       const parsed = parseIccProfile(
         profile("Lab ", [
           ["A2B0", legacy(precision)],
@@ -230,10 +235,7 @@ describe("ICC RGB LUT, Lab PCS and SDR CICP", () => {
         ]),
       );
       if (parsed.kind !== "lut") throw new Error("Expected LUT");
-      const input =
-        precision === 1
-          ? ([0.5, 128 / 255, 128 / 255] as const)
-          : ([32640 / 65535, 32768 / 65535, 32768 / 65535] as const);
+      const input = [0.5, 128 / 255, 128 / 255] as const;
       const y = ((50 + 16) / 116) ** 3;
       close(parsed.toPcs(input), [y * 0.9642, y, y * 0.8249]);
       close(parsed.fromPcs(parsed.toPcs(input)), input);

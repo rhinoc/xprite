@@ -67,7 +67,7 @@ export function parseIccCurve(
       data.fixed(offset + PARAMETRIC_HEADER_BYTES + index * ALIGNMENT),
     );
     if (g <= 0 || (kind > 0 && a <= 0)) unsupportedIcc("invalid parametric curve");
-    curve = (value) => {
+    const positive = (value: number) => {
       switch (kind) {
         case 0:
           return Math.pow(value, g);
@@ -81,6 +81,9 @@ export function parseIccCurve(
           return value >= d ? Math.pow(a * value + b, g) + e : c * value + f;
       }
     };
+    // As in skcms, a parametric curve is not clamped to [0, 1]: it extends past 1, and is mirrored
+    // through the origin below 0, so out-of-range stage values keep their place.
+    curve = (value) => Math.sign(value) * positive(Math.abs(value));
   } else unsupportedIcc(`tone curve ${type.trim()} is not supported`);
   for (let i = 0; i <= CURVE_VALIDATION_STEPS; i++)
     if (!Number.isFinite(curve(i / CURVE_VALIDATION_STEPS)))
