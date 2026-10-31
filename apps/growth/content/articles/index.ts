@@ -38,7 +38,7 @@ export const ARTICLES: readonly PublicArticle[] = [
     collection: "compare",
     slug: "aseprite-online",
     path: "/compare/aseprite-online/",
-    title: "Edit Aseprite Files Online: 4 Browser Tools Compared | Xprite",
+    title: "Edit Aseprite Files Online: 4 Browser Tools | Xprite",
     shortTitle: {
       en: "Aseprite online",
       "zh-CN": "在线编辑 Aseprite",

@@ -51,11 +51,11 @@ export const TOOL_PORTUGUESE_TEXT: Readonly<Record<string, string>> = {
     "Os arquivos ficam no seu dispositivo. Sem envio para a nuvem.",
   "Inspect an Aseprite file": "Inspecione um arquivo do Aseprite",
   "Aseprite File Viewer Online — Open .aseprite / .ase | Xprite":
-    "Visualizador de arquivos Aseprite: abra .aseprite online | Xprite",
+    "Visualizador Aseprite: abra .aseprite online | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Visualize projetos do Aseprite e exporte quadros PNG ou animações GIF.",
-  "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF — no install, files on device. Then edit in Xprite.":
-    "Visualizador de Aseprite online: abra .aseprite/.ase no navegador. Veja camadas e quadros, exporte PNG/GIF. Sem instalar; arquivos no dispositivo. Edite no Xprite.",
+  "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF. No install; files stay on device. Edit in Xprite.":
+    "Visualizador Aseprite online: abra .aseprite/.ase no navegador. Veja camadas e quadros e exporte PNG/GIF. Sem instalar; arquivos no aparelho. Edite no Xprite.",
   "Choose an Aseprite file": "Escolha um arquivo do Aseprite",
   "Open file": "Abrir arquivo",
   "Open file…": "Abrir arquivo…",

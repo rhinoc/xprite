@@ -51,11 +51,11 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
     "Файлы остаются на вашем устройстве. Без загрузки в облако.",
   "Inspect an Aseprite file": "Просмотрите файл Aseprite",
   "Aseprite File Viewer Online — Open .aseprite / .ase | Xprite":
-    "Просмотр файлов Aseprite онлайн: открыть .ase/.aseprite | Xprite",
+    "Просмотр файлов Aseprite онлайн: .ase и .aseprite | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Просматривайте проекты Aseprite и экспортируйте кадры PNG или анимацию GIF.",
-  "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF — no install, files on device. Then edit in Xprite.":
-    "Онлайн-просмотрщик Aseprite: открывайте .aseprite/.ase в браузере. Слои и кадры, экспорт PNG или GIF — без установки. Файлы на устройстве; затем правьте в Xprite.",
+  "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF. No install; files stay on device. Edit in Xprite.":
+    "Онлайн-просмотрщик Aseprite: открывайте .aseprite/.ase в браузере. Слои и кадры, экспорт PNG или GIF без установки. Файлы на устройстве; правьте в Xprite.",
   "Choose an Aseprite file": "Выберите файл Aseprite",
   "Open file": "Открыть файл",
   "Open file…": "Открыть файл…",
@@ -386,7 +386,7 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   "Fix AI Pixel Art": "Исправить AI пиксель-арт",
   "Fix AI-generated pixel art": "Исправьте AI пиксель-арт",
   "Fix AI Pixel Art: Recover Real Pixel Grid | Xprite":
-    "Исправить AI пиксель-арт: восстановить настоящую сетку | Xprite",
+    "Исправить AI пиксель-арт: вернуть настоящую сетку | Xprite",
   "Fix AI pixel art": "Исправить AI пиксель-арт",
   "Fix soft or AI-generated pixel art by snapping it to a real pixel grid.":
     "Исправьте размытый или AI пиксель-арт, привязав его к настоящей пиксельной сетке.",

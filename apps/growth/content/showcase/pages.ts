@@ -35,13 +35,13 @@ export const SHOWCASE_PAGES = {
     path: "/pt-BR/about/",
     title: "Criador de pixel art e editor de sprites grátis | Xprite",
     description:
-      "Criador de pixel art e editor de sprites grátis no navegador. Desenhe, anime quadro a quadro e abra arquivos .aseprite no PC, iPad ou celular. Sem cadastro.",
+      "Faça pixel art no navegador, de graça: desenhe sprites, anime quadro a quadro e abra arquivos .aseprite no PC, iPad ou celular. Sem cadastro.",
   },
   es: {
     path: "/es/about/",
     title: "Creador de pixel art y editor de sprites gratis | Xprite",
     description:
-      "Creador de pixel art y editor de sprites gratis en el navegador. Dibuja, anima cuadro a cuadro y abre archivos .aseprite en PC, iPad o móvil. Sin registro.",
+      "Haz pixel art en el navegador, gratis: dibuja sprites, anima cuadro a cuadro y abre archivos .aseprite en PC, iPad o móvil. Sin registro.",
   },
 } as const;
 export const SHOWCASE_DEFAULT_PATH = SHOWCASE_PAGES.en.path;

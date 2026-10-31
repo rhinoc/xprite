@@ -1,7 +1,7 @@
 export const CHINESE_COLLECTIONS = {
   compare: {
     label: "编辑器比较",
-    title: "像素画编辑器比较 | Xprite",
+    title: "像素画编辑器比较：Aseprite、Piskel 与网页工具 | Xprite",
     headline: "像素画编辑器比较",
     description:
       "比较 iPad 上的 Aseprite 替代方案、浏览器里编辑 .aseprite 的工具，以及 Piskel 的替代工具。按文件格式、动画、触控和价格挑选像素画编辑器。",
@@ -18,7 +18,7 @@ export const CHINESE_ARTICLES = {
     topic: "浏览器编辑",
   },
   "aseprite-on-ipad": {
-    title: "iPad / iOS 上用 Aseprite：免费浏览器方案和 3 款 App 对比 | Xprite",
+    title: "iPad 上用 Aseprite：免费网页方案与 3 款 App | Xprite",
     description:
       "Aseprite 没有 iPad / iOS 版。用 Xprite 在 Safari 里免费打开并存回 .aseprite，无需安装；也可对比 Pixquare、Resprite 和 Pixaki Pro 三款 App。",
     summary:

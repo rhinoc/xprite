@@ -196,7 +196,7 @@ export const VIEWER_TOOL = {
   summary: "Preview Aseprite projects and export PNG frames or GIF animations.",
   privacy: TOOL_FILE_PRIVACY,
   description:
-    "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF — no install, files on device. Then edit in Xprite.",
+    "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF. No install; files stay on device. Edit in Xprite.",
   accept: ".ase,.aseprite",
   fileLabel: "Choose an Aseprite file",
   openLabel: "Open file",
