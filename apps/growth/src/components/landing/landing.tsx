@@ -16,6 +16,9 @@ function screenshotLanguage(language: string) {
 }
 const SCREENSHOT_WIDTH = 2560;
 const SCREENSHOT_HEIGHT = 1600;
+const PHONE_WIDTH = 1170;
+const PHONE_HEIGHT = 2532;
+const APPEARANCES = ["light", "dark"] as const;
 const RULER_STEP = 64;
 const RULER_MARKS = 24;
 
@@ -66,9 +69,15 @@ export function Landing({ language }: { language: string }) {
           <div className={styles.heroInner}>
             <div className={styles.heroText}>
               <p className={styles.status}>
-                {copy.status.map((item) => (
-                  <span key={item}>{item}</span>
-                ))}
+                {copy.status.map((item) =>
+                  item.href ? (
+                    <a key={item.label} href={item.href} rel="noopener">
+                      {item.label} ↗
+                    </a>
+                  ) : (
+                    <span key={item.label}>{item.label}</span>
+                  ),
+                )}
               </p>
               <h1 id="landing-title" className={styles.title}>
                 {copy.titleLead}{" "}
@@ -91,21 +100,36 @@ export function Landing({ language }: { language: string }) {
                 </a>
               </div>
             </div>
-            <figure className={styles.shot}>
-              {/* Both captures ship; the page appearance (not the system setting) picks one. */}
-              {(["light", "dark"] as const).map((appearance) => (
-                <img
-                  key={appearance}
-                  data-landing-shot={appearance}
-                  src={`${LANDING_SCREENSHOT_ROOT}/editor-${capture}-${appearance}.png`}
-                  width={SCREENSHOT_WIDTH}
-                  height={SCREENSHOT_HEIGHT}
-                  alt={appearance === "light" ? copy.screenshotAlt : ""}
-                  decoding="async"
-                  fetchPriority={appearance === "light" ? "high" : "low"}
-                />
-              ))}
-            </figure>
+            <div className={styles.devices}>
+              {/* Both appearances ship; the page appearance (not the system setting) picks one. */}
+              <figure className={styles.shot}>
+                {APPEARANCES.map((appearance) => (
+                  <img
+                    key={appearance}
+                    data-landing-shot={appearance}
+                    src={`${LANDING_SCREENSHOT_ROOT}/editor-${capture}-${appearance}.png`}
+                    width={SCREENSHOT_WIDTH}
+                    height={SCREENSHOT_HEIGHT}
+                    alt={appearance === "light" ? copy.screenshotAlt : ""}
+                    decoding="async"
+                    fetchPriority={appearance === "light" ? "high" : "low"}
+                  />
+                ))}
+              </figure>
+              <figure className={styles.phone}>
+                {APPEARANCES.map((appearance) => (
+                  <img
+                    key={appearance}
+                    data-landing-shot={appearance}
+                    src={`${LANDING_SCREENSHOT_ROOT}/phone-${capture}-${appearance}.png`}
+                    width={PHONE_WIDTH}
+                    height={PHONE_HEIGHT}
+                    alt={appearance === "light" ? copy.phoneAlt : ""}
+                    decoding="async"
+                  />
+                ))}
+              </figure>
+            </div>
           </div>
         </section>
 

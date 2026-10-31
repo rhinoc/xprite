@@ -56,6 +56,62 @@
       "width": 2560,
       "height": 1600,
       "sha256": "7da173834f8bf1798ebae72957a04f72365e61c1590cf0b57d52a33693859175"
+    },
+    {
+      "file": "phone-en-light.png",
+      "theme": "color-family-moss",
+      "appearance": "light",
+      "language": "en",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 3,
+      "width": 1170,
+      "height": 2532,
+      "sha256": "78780187fcb87241fbafdf99a3cc810159b26d8074af6fe2b66a8e9b28ba0a03"
+    },
+    {
+      "file": "phone-en-dark.png",
+      "theme": "color-family-moss",
+      "appearance": "dark",
+      "language": "en",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 3,
+      "width": 1170,
+      "height": 2532,
+      "sha256": "ad48a24bfc62f1d4c749d1ad465a26e82bfa48bef94c0447bfb47b4dccfb384f"
+    },
+    {
+      "file": "phone-zh-CN-light.png",
+      "theme": "color-family-moss",
+      "appearance": "light",
+      "language": "zh-CN",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 3,
+      "width": 1170,
+      "height": 2532,
+      "sha256": "e8d4d734b1f227753d860299c06020faaf556feeb59a761c69b6748b59925f76"
+    },
+    {
+      "file": "phone-zh-CN-dark.png",
+      "theme": "color-family-moss",
+      "appearance": "dark",
+      "language": "zh-CN",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 3,
+      "width": 1170,
+      "height": 2532,
+      "sha256": "fe8b72ece114ee464232144ab80f3ba1f55541f9399186ce8a60ab1f68e902e6"
     }
   ]
 }

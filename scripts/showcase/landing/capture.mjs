@@ -11,8 +11,11 @@ import { chromium } from "playwright";
 const REPOSITORY = fileURLToPath(new URL("../../../", import.meta.url));
 const OUTPUT = resolve(REPOSITORY, "apps/growth/public/showcase/landing");
 const THEME = "color-family-moss";
-const VIEWPORT = { width: 1280, height: 800 };
-const DEVICE_SCALE = 2;
+/** Desktop and phone editors; the phone uses touch so the editor picks its compact layout. */
+const DEVICES = [
+  { name: "editor", viewport: { width: 1280, height: 800 }, deviceScaleFactor: 2, touch: false },
+  { name: "phone", viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, touch: true },
+];
 const EXAMPLE_NAME = "example.aseprite";
 const SETTLE_MS = 1500;
 const LANGUAGES = ["en", "zh-CN"];
@@ -27,43 +30,48 @@ const browser = await chromium.launch(
 await mkdir(OUTPUT, { recursive: true });
 const records = [];
 try {
-  for (const language of LANGUAGES)
-    for (const appearance of APPEARANCES) {
-      const context = await browser.newContext({
-        viewport: VIEWPORT,
-        deviceScaleFactor: DEVICE_SCALE,
-        reducedMotion: "reduce",
-      });
-      await context.addInitScript(
-        ({ theme, appearance: mode, language: locale }) => {
-          localStorage.setItem("xse.ui.theme.v1", theme);
-          localStorage.setItem("xse.ui.appearance-mode.v1", mode);
-          localStorage.setItem("xse.ui.language.v1", locale);
-        },
-        { theme: THEME, appearance, language },
-      );
-      const page = await context.newPage();
-      await page.goto(editorUrl);
-      await page.waitForSelector('[role="menuitem"]', { timeout: 60_000 });
-      await page.getByText(EXAMPLE_NAME, { exact: true }).first().dblclick();
-      await page.waitForSelector("canvas[data-editor-canvas]", { timeout: 30_000 });
-      await page.waitForTimeout(SETTLE_MS);
-      const png = await page.screenshot();
-      const name = `editor-${language}-${appearance}.png`;
-      await writeFile(resolve(OUTPUT, name), png);
-      records.push({
-        file: name,
-        theme: THEME,
-        appearance,
-        language,
-        viewport: VIEWPORT,
-        deviceScaleFactor: DEVICE_SCALE,
-        width: VIEWPORT.width * DEVICE_SCALE,
-        height: VIEWPORT.height * DEVICE_SCALE,
-        sha256: createHash("sha256").update(png).digest("hex"),
-      });
-      await context.close();
-    }
+  for (const device of DEVICES)
+    for (const language of LANGUAGES)
+      for (const appearance of APPEARANCES) {
+        const context = await browser.newContext({
+          viewport: device.viewport,
+          deviceScaleFactor: device.deviceScaleFactor,
+          hasTouch: device.touch,
+          isMobile: device.touch,
+          reducedMotion: "reduce",
+        });
+        await context.addInitScript(
+          ({ theme, appearance: mode, language: locale }) => {
+            localStorage.setItem("xse.ui.theme.v1", theme);
+            localStorage.setItem("xse.ui.appearance-mode.v1", mode);
+            localStorage.setItem("xse.ui.language.v1", locale);
+          },
+          { theme: THEME, appearance, language },
+        );
+        const page = await context.newPage();
+        await page.goto(editorUrl);
+        const example = page.getByText(EXAMPLE_NAME, { exact: true }).first();
+        await example.waitFor({ timeout: 60_000 });
+        if (device.touch) await example.tap();
+        else await example.dblclick();
+        await page.waitForSelector("canvas[data-editor-canvas]", { timeout: 30_000 });
+        await page.waitForTimeout(SETTLE_MS);
+        const png = await page.screenshot();
+        const name = `${device.name}-${language}-${appearance}.png`;
+        await writeFile(resolve(OUTPUT, name), png);
+        records.push({
+          file: name,
+          theme: THEME,
+          appearance,
+          language,
+          viewport: device.viewport,
+          deviceScaleFactor: device.deviceScaleFactor,
+          width: device.viewport.width * device.deviceScaleFactor,
+          height: device.viewport.height * device.deviceScaleFactor,
+          sha256: createHash("sha256").update(png).digest("hex"),
+        });
+        await context.close();
+      }
 } finally {
   await browser.close();
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
-  "capturedAt": "2026-10-31T18:29:35.183Z",
+  "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
+  "capturedAt": "2026-10-31T18:53:29.945Z",
   "captureComplete": true,
   "sourceHashes": {
     ".husky/pre-push": "1657bd0a3d7f3378dddf3d2b9ffbab957f5b2322be5734fde6255944bfd1f7f6",
@@ -924,7 +924,7 @@
     "apps/growth/content/package.json": "90ab1c6ca4cc70df3f69efc70e65fb2f10ff22e8b3373907a3a4ff6478faac08",
     "apps/growth/content/showcase/faq.ts": "e5a13a60e112464503ea87a84053790c771679732c9a943170687176fcdbaf73",
     "apps/growth/content/showcase/index.ts": "8a81c0c3980cbcadf7a76db9e5e2a652f6fe7a59594057e5f08ae288af89c752",
-    "apps/growth/content/showcase/landing.ts": "3fd3d9089f9a4926ea1a13977f1aba634f775a3072937126771c385bddb26654",
+    "apps/growth/content/showcase/landing.ts": "6f3849155e50f651c3efd2823220cdfff6f371fa6690ed6fe6175197287a707f",
     "apps/growth/content/showcase/pages.ts": "dfcca22222db9765ae07fccf12c94f2d63b6c83786abce9e3f0e6575009b886a",
     "apps/growth/content/site/documents.ts": "f34a8fc728a540bd8d61ebc4559947b472e6682b7f1ac97de467a1ef904daab2",
     "apps/growth/content/site/faq.test.ts": "d1516788c746b54fdc85655022bb81e8a8bbbe925b41000a392438c4f74c9c78",
@@ -1030,11 +1030,15 @@
     "apps/growth/public/showcase/ipad/hello/motion.json": "29fe7af76dda6f0d2cefdc999759e60e8c0cb0433dffe334228af598edf74af8",
     "apps/growth/public/showcase/ipad/hello/writing.json": "7f4ed8fb1ed21acc67906174a6cba1478eeef65cff13706e6ce8d9d064817d8e",
     "apps/growth/public/showcase/ipad/hello/writing.png": "b64b33eedc58f253c4a0453b6a0d014f1ec61f9d4d6df28e9777d11592f35d23",
-    "apps/growth/public/showcase/landing/capture.json": "312ed6ce4f06d371e45991c3a127b440b030843d0bd1bd5478a79d1dcc4c84c5",
+    "apps/growth/public/showcase/landing/capture.json": "7830eccb25db9a87d4a5f1e8dcacbcaec7cb6fbea70bfc0ad7f4ae517aac73ab",
     "apps/growth/public/showcase/landing/editor-en-dark.png": "1f5379038ae4aec6aeca761fc8c8ea0838eef3102eaeccb278e48ee0f1b0a996",
     "apps/growth/public/showcase/landing/editor-en-light.png": "3707b3140ea46880382ce552936d3c8af5dc79ed10018516cd5225c1d04f9689",
     "apps/growth/public/showcase/landing/editor-zh-CN-dark.png": "7da173834f8bf1798ebae72957a04f72365e61c1590cf0b57d52a33693859175",
     "apps/growth/public/showcase/landing/editor-zh-CN-light.png": "7e5bd88ceb4da4213a25a2393f80d997315f8447481878af7a4c9259e18db238",
+    "apps/growth/public/showcase/landing/phone-en-dark.png": "ad48a24bfc62f1d4c749d1ad465a26e82bfa48bef94c0447bfb47b4dccfb384f",
+    "apps/growth/public/showcase/landing/phone-en-light.png": "78780187fcb87241fbafdf99a3cc810159b26d8074af6fe2b66a8e9b28ba0a03",
+    "apps/growth/public/showcase/landing/phone-zh-CN-dark.png": "fe8b72ece114ee464232144ab80f3ba1f55541f9399186ce8a60ab1f68e902e6",
+    "apps/growth/public/showcase/landing/phone-zh-CN-light.png": "e8d4d734b1f227753d860299c06020faaf556feeb59a761c69b6748b59925f76",
     "apps/growth/public/showcase/textures/macintosh-dither.svg": "4f0140390082e8712ddbef63f682b26eb5550553d9aa7dbdc299975d7c6b95c8",
     "apps/growth/public/showcase/workspace-layout/en/capture.json": "078f987fc6e4cd9c0bdec6feb7e7bcb8a595e61ed17d132a9e4f2c1fcc9c572e",
     "apps/growth/public/showcase/workspace-layout/en/layout.gif": "fd7ded0d8ab784e4b01995a3d625f202ecce9348e800ad973929484dfc54a065",
@@ -1064,8 +1068,8 @@
     "apps/growth/src/components/features/feature-directory.module.css": "38a3cea50418bebabc6e2ecde8bc0445e79f572ee761072a98b3d272844e0b28",
     "apps/growth/src/components/features/feature-directory.tsx": "7782176154039cf14f086d37aa6c1ed80a4d8988c5179834b1e4c7813601263b",
     "apps/growth/src/components/landing/landing-palette.ts": "d3b366e29da08dd9b139d4f865b0b1fbebb0c223e50da1276107d1effa5449b7",
-    "apps/growth/src/components/landing/landing.module.css": "94023e6829c3c2a4c13e3e7f6704e44fe56a9550868360e15a008403eca5f394",
-    "apps/growth/src/components/landing/landing.tsx": "e447cf89d9ea58b3d067538da022a9282099d294a3d846b8e1e3ebe30633c39e",
+    "apps/growth/src/components/landing/landing.module.css": "3307d66446133769a0deed46dab0c68ac7a39a07bc6d86d1032cf53c088f797f",
+    "apps/growth/src/components/landing/landing.tsx": "66ee79b9203f4dede2e04ec32095343ba174403b4f46484b17386fc5ed98a38f",
     "apps/growth/src/components/public/desktop.module.css": "1c2f2e0e699f8e215f1f9fedcbeebb4dbcaa957ead25f6ac4b553afbe58c2f53",
     "apps/growth/src/components/public/not-found.module.css": "7151aaed14907e6ef9a3489a5e61126a40ce67b2630f0f20057fd6bdc9c22b83",
     "apps/growth/src/components/public/not-found.tsx": "bef160be767ff3e8690d9dbf8627901dc2a97278ad441ce8baa4266f3f5d35c2",
@@ -2375,7 +2379,7 @@
     "scripts/visual-audit/site/sources.mjs": "19e78a016dc040ea7ee423018fdab627b358eb07ca0be634355804deae975d59",
     "scripts/visual-audit/tools-startup/scenes.mjs": "383acd0faf9978dfb82ca6cdc5822ce01e04b9c419caf6dad08b244311ddb514"
   },
-  "sourceDigest": "77e6989ecae39c646ee7a401cbf4e633938259b5c0998043b4bc6de925bf504e",
+  "sourceDigest": "394ab65209bd40c8b92ec4459acf3e75fcc2c146d94aaf43a96ac131bc2d4cb8",
   "scenes": [
     "about-zh-CN-wide-light",
     "about-zh-CN-compact-light",
@@ -2422,7 +2426,7 @@
   "cases": [
     {
       "id": "about-zh-CN-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "about-zh-CN-wide-light.png",
       "contract": {
         "id": "about-zh-CN-wide-light",
@@ -2458,7 +2462,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:35.625Z",
+        "capturedAt": "2026-10-31T18:53:31.010Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2486,7 +2490,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "bfea9affe47bc06f5c4741f7c3d7651e1b88b47e15ab9b37d6102ad2f1d838b9",
+        "sha256": "11f20d1df70ec78bb6b0d80a27ab12d15f4e7f88f9d1940148b56c6056aff016",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2522,7 +2526,7 @@
     },
     {
       "id": "about-features-zh-CN-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "about-features-zh-CN-compact-dark.png",
       "contract": {
         "id": "about-features-zh-CN-compact-dark",
@@ -2558,7 +2562,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:35.847Z",
+        "capturedAt": "2026-10-31T18:53:31.666Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2622,7 +2626,7 @@
     },
     {
       "id": "compare-zh-CN-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "compare-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-zh-CN-compact-dark",
@@ -2658,7 +2662,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:36.010Z",
+        "capturedAt": "2026-10-31T18:53:32.292Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2722,7 +2726,7 @@
     },
     {
       "id": "compare-aseprite-online-zh-CN-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "compare-aseprite-online-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-aseprite-online-zh-CN-compact-dark",
@@ -2758,7 +2762,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:36.447Z",
+        "capturedAt": "2026-10-31T18:53:32.950Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2822,7 +2826,7 @@
     },
     {
       "id": "compare-piskel-alternatives-zh-CN-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "compare-piskel-alternatives-zh-CN-compact-dark.png",
       "contract": {
         "id": "compare-piskel-alternatives-zh-CN-compact-dark",
@@ -2858,7 +2862,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:36.813Z",
+        "capturedAt": "2026-10-31T18:53:33.917Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -2922,7 +2926,7 @@
     },
     {
       "id": "features-aseprite-projects-zh-CN-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "features-aseprite-projects-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-aseprite-projects-zh-CN-compact-dark",
@@ -2958,7 +2962,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:37.072Z",
+        "capturedAt": "2026-10-31T18:53:34.281Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3022,7 +3026,7 @@
     },
     {
       "id": "features-drawing-process-zh-CN-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "features-drawing-process-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-drawing-process-zh-CN-compact-dark",
@@ -3058,7 +3062,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:37.467Z",
+        "capturedAt": "2026-10-31T18:53:34.533Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3122,7 +3126,7 @@
     },
     {
       "id": "features-frame-animation-zh-CN-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "features-frame-animation-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-frame-animation-zh-CN-compact-dark",
@@ -3158,7 +3162,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:37.856Z",
+        "capturedAt": "2026-10-31T18:53:34.785Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3222,7 +3226,7 @@
     },
     {
       "id": "features-share-artwork-zh-CN-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "features-share-artwork-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-share-artwork-zh-CN-compact-dark",
@@ -3258,7 +3262,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:38.091Z",
+        "capturedAt": "2026-10-31T18:53:35.150Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3322,7 +3326,7 @@
     },
     {
       "id": "features-touch-drawing-zh-CN-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "features-touch-drawing-zh-CN-compact-dark.png",
       "contract": {
         "id": "features-touch-drawing-zh-CN-compact-dark",
@@ -3358,7 +3362,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:38.299Z",
+        "capturedAt": "2026-10-31T18:53:35.556Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3422,7 +3426,7 @@
     },
     {
       "id": "help-zh-CN-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "help-zh-CN-compact-dark.png",
       "contract": {
         "id": "help-zh-CN-compact-dark",
@@ -3458,7 +3462,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:38.497Z",
+        "capturedAt": "2026-10-31T18:53:35.843Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3522,7 +3526,7 @@
     },
     {
       "id": "tools-viewer-empty-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "tools-viewer-empty-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-empty-en-wide-light",
@@ -3559,7 +3563,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:38.748Z",
+        "capturedAt": "2026-10-31T18:53:36.242Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3623,7 +3627,7 @@
     },
     {
       "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-empty-zh-CN-compact-dark",
@@ -3660,7 +3664,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:38.985Z",
+        "capturedAt": "2026-10-31T18:53:36.593Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3724,7 +3728,7 @@
     },
     {
       "id": "tools-pixelate-empty-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "tools-pixelate-empty-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-empty-en-wide-light",
@@ -3761,7 +3765,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:39.246Z",
+        "capturedAt": "2026-10-31T18:53:36.955Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -3825,7 +3829,7 @@
     },
     {
       "id": "tools-animal-crossing-qr-empty-en-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "tools-animal-crossing-qr-empty-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-empty-en-compact-dark",
@@ -3862,7 +3866,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:39.438Z",
+        "capturedAt": "2026-10-31T18:53:37.198Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3926,7 +3930,7 @@
     },
     {
       "id": "tools-fuse-beads-empty-zh-CN-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "tools-fuse-beads-empty-zh-CN-wide-light.png",
       "contract": {
         "id": "tools-fuse-beads-empty-zh-CN-wide-light",
@@ -3963,7 +3967,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:39.685Z",
+        "capturedAt": "2026-10-31T18:53:37.698Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4027,7 +4031,7 @@
     },
     {
       "id": "tools-fix-ai-pixel-art-empty-en-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "tools-fix-ai-pixel-art-empty-en-compact-dark.png",
       "contract": {
         "id": "tools-fix-ai-pixel-art-empty-en-compact-dark",
@@ -4064,7 +4068,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:40.005Z",
+        "capturedAt": "2026-10-31T18:53:38.044Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4128,7 +4132,7 @@
     },
     {
       "id": "files-window-tools-pixelate-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "files-window-tools-pixelate-en-wide-light.png",
       "contract": {
         "id": "files-window-tools-pixelate-en-wide-light",
@@ -4171,7 +4175,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:40.440Z",
+        "capturedAt": "2026-10-31T18:53:38.696Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4242,7 +4246,7 @@
     },
     {
       "id": "about-features-en-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "about-features-en-compact-dark.png",
       "contract": {
         "id": "about-features-en-compact-dark",
@@ -4278,7 +4282,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:40.617Z",
+        "capturedAt": "2026-10-31T18:53:39.182Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4342,7 +4346,7 @@
     },
     {
       "id": "feature-window-tools-viewer-zh-CN-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "feature-window-tools-viewer-zh-CN-compact-dark.png",
       "contract": {
         "id": "feature-window-tools-viewer-zh-CN-compact-dark",
@@ -4385,7 +4389,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:40.887Z",
+        "capturedAt": "2026-10-31T18:53:39.575Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4456,7 +4460,7 @@
     },
     {
       "id": "site-footer-zh-CN-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "site-footer-zh-CN-compact-dark.png",
       "contract": {
         "id": "site-footer-zh-CN-compact-dark",
@@ -4489,7 +4493,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:41.111Z",
+        "capturedAt": "2026-10-31T18:53:39.906Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4546,7 +4550,7 @@
     },
     {
       "id": "about-zh-CN-compact-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "about-zh-CN-compact-light.png",
       "contract": {
         "id": "about-zh-CN-compact-light",
@@ -4582,7 +4586,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:35.618Z",
+        "capturedAt": "2026-10-31T18:53:30.990Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -4610,7 +4614,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "efef1c31fac09fc144bb3e77a1e868e0f6b5b1c9357a179e1fd4320beae311c1",
+        "sha256": "4f434760e70ef4e7595b9c4004dbc41746f95bbdbe5c6536c94010c53fcf93e0",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4638,7 +4642,7 @@
           "x": 0,
           "y": 20,
           "width": 374,
-          "height": 4723.28125
+          "height": 4704.046875
         }
       ],
       "platform": "Linux x86_64",
@@ -4646,7 +4650,7 @@
     },
     {
       "id": "about-how-it-works-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "about-how-it-works-en-wide-light.png",
       "contract": {
         "id": "about-how-it-works-en-wide-light",
@@ -4682,7 +4686,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:35.884Z",
+        "capturedAt": "2026-10-31T18:53:31.659Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4746,7 +4750,7 @@
     },
     {
       "id": "compare-aseprite-on-ipad-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "compare-aseprite-on-ipad-en-wide-light.png",
       "contract": {
         "id": "compare-aseprite-on-ipad-en-wide-light",
@@ -4782,7 +4786,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:36.403Z",
+        "capturedAt": "2026-10-31T18:53:32.355Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4846,7 +4850,7 @@
     },
     {
       "id": "compare-fix-ai-pixel-art-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "compare-fix-ai-pixel-art-en-wide-light.png",
       "contract": {
         "id": "compare-fix-ai-pixel-art-en-wide-light",
@@ -4882,7 +4886,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:36.694Z",
+        "capturedAt": "2026-10-31T18:53:33.402Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4946,7 +4950,7 @@
     },
     {
       "id": "compare-wplace-palette-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "compare-wplace-palette-en-wide-light.png",
       "contract": {
         "id": "compare-wplace-palette-en-wide-light",
@@ -4982,7 +4986,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:36.917Z",
+        "capturedAt": "2026-10-31T18:53:33.982Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5046,7 +5050,7 @@
     },
     {
       "id": "features-draw-pixel-art-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "features-draw-pixel-art-en-wide-light.png",
       "contract": {
         "id": "features-draw-pixel-art-en-wide-light",
@@ -5082,7 +5086,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:37.165Z",
+        "capturedAt": "2026-10-31T18:53:34.321Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5146,7 +5150,7 @@
     },
     {
       "id": "features-export-images-and-animation-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "features-export-images-and-animation-en-wide-light.png",
       "contract": {
         "id": "features-export-images-and-animation-en-wide-light",
@@ -5182,7 +5186,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:37.624Z",
+        "capturedAt": "2026-10-31T18:53:34.601Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5246,7 +5250,7 @@
     },
     {
       "id": "features-layers-and-colors-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "features-layers-and-colors-en-wide-light.png",
       "contract": {
         "id": "features-layers-and-colors-en-wide-light",
@@ -5282,7 +5286,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:37.898Z",
+        "capturedAt": "2026-10-31T18:53:34.978Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5346,7 +5350,7 @@
     },
     {
       "id": "features-tilemaps-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "features-tilemaps-en-wide-light.png",
       "contract": {
         "id": "features-tilemaps-en-wide-light",
@@ -5382,7 +5386,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:38.128Z",
+        "capturedAt": "2026-10-31T18:53:35.336Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5446,7 +5450,7 @@
     },
     {
       "id": "features-workspace-layout-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "features-workspace-layout-en-wide-light.png",
       "contract": {
         "id": "features-workspace-layout-en-wide-light",
@@ -5482,7 +5486,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:38.317Z",
+        "capturedAt": "2026-10-31T18:53:35.671Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5546,7 +5550,7 @@
     },
     {
       "id": "privacy-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "privacy-en-wide-light.png",
       "contract": {
         "id": "privacy-en-wide-light",
@@ -5582,7 +5586,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:38.547Z",
+        "capturedAt": "2026-10-31T18:53:35.933Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5646,7 +5650,7 @@
     },
     {
       "id": "tools-viewer-loaded-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "tools-viewer-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-viewer-loaded-en-wide-light",
@@ -5688,7 +5692,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:38.950Z",
+        "capturedAt": "2026-10-31T18:53:36.564Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5759,7 +5763,7 @@
     },
     {
       "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark.png",
       "contract": {
         "id": "tools-gif-to-sprite-sheet-loaded-zh-CN-compact-dark",
@@ -5801,7 +5805,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:39.465Z",
+        "capturedAt": "2026-10-31T18:53:37.268Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -5872,7 +5876,7 @@
     },
     {
       "id": "tools-pixelate-loaded-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "tools-pixelate-loaded-en-wide-light.png",
       "contract": {
         "id": "tools-pixelate-loaded-en-wide-light",
@@ -5914,7 +5918,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:44.111Z",
+        "capturedAt": "2026-10-31T18:53:43.079Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -5985,7 +5989,7 @@
     },
     {
       "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "tools-animal-crossing-qr-loaded-en-compact-dark.png",
       "contract": {
         "id": "tools-animal-crossing-qr-loaded-en-compact-dark",
@@ -6027,7 +6031,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:44.603Z",
+        "capturedAt": "2026-10-31T18:53:43.618Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -6098,7 +6102,7 @@
     },
     {
       "id": "tools-fuse-beads-loaded-zh-CN-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "tools-fuse-beads-loaded-zh-CN-wide-light.png",
       "contract": {
         "id": "tools-fuse-beads-loaded-zh-CN-wide-light",
@@ -6140,7 +6144,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:45.008Z",
+        "capturedAt": "2026-10-31T18:53:44.225Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6211,7 +6215,7 @@
     },
     {
       "id": "tools-fix-ai-pixel-art-loaded-en-compact-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "tools-fix-ai-pixel-art-loaded-en-compact-dark.png",
       "contract": {
         "id": "tools-fix-ai-pixel-art-loaded-en-compact-dark",
@@ -6253,7 +6257,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:53.209Z",
+        "capturedAt": "2026-10-31T18:53:53.757Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -6324,7 +6328,7 @@
     },
     {
       "id": "files-window-tools-viewer-zh-CN-wide-dark",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "files-window-tools-viewer-zh-CN-wide-dark.png",
       "contract": {
         "id": "files-window-tools-viewer-zh-CN-wide-dark",
@@ -6367,7 +6371,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:53.671Z",
+        "capturedAt": "2026-10-31T18:53:54.184Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6438,7 +6442,7 @@
     },
     {
       "id": "feature-window-tools-viewer-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "feature-window-tools-viewer-en-wide-light.png",
       "contract": {
         "id": "feature-window-tools-viewer-en-wide-light",
@@ -6480,7 +6484,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:53.975Z",
+        "capturedAt": "2026-10-31T18:53:54.612Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -6551,7 +6555,7 @@
     },
     {
       "id": "site-footer-en-wide-light",
-      "runId": "cb4325a5-c46a-4470-a939-0b4c45eed492",
+      "runId": "46f3c72a-e384-4763-83fc-ea9baa4a62e2",
       "file": "site-footer-en-wide-light.png",
       "contract": {
         "id": "site-footer-en-wide-light",
@@ -6584,7 +6588,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T18:29:54.154Z",
+        "capturedAt": "2026-10-31T18:53:54.872Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,

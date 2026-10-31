@@ -190,13 +190,21 @@
   background: var(--landing-field);
   font: 12px/1 var(--landing-mono);
 }
-.status span {
+.status > * {
   padding: 6px 10px;
 }
-.status span + span {
+.status > * + * {
   border-left: 1px solid var(--landing-ink);
 }
-.status span:first-child::before {
+.status a:hover {
+  color: var(--landing-accent-ink);
+  background: var(--landing-accent);
+}
+.status a:focus-visible {
+  outline: 2px dashed var(--landing-accent);
+  outline-offset: 2px;
+}
+.status > :first-child::before {
   content: "";
   display: inline-block;
   width: 8px;
@@ -282,13 +290,30 @@
   border-bottom: 0;
   background: var(--landing-canvas);
 }
-.shot img[data-landing-shot="dark"] {
+/* The phone overlaps the lower right corner of the desktop screenshot. */
+.devices {
+  position: relative;
+  padding-right: 9%;
+}
+.phone {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 22%;
+  overflow: hidden;
+  border: 2px solid var(--landing-ink);
+  border-radius: 10px;
+  background: var(--landing-canvas);
+  box-shadow: 4px 4px 0 var(--landing-ink);
+}
+.devices img[data-landing-shot="dark"] {
   display: none;
 }
-:global(:root[data-ui-appearance="dark"]) .shot img[data-landing-shot="light"] {
+:global(:root[data-ui-appearance="dark"]) .devices img[data-landing-shot="light"] {
   display: none;
 }
-:global(:root[data-ui-appearance="dark"]) .shot img[data-landing-shot="dark"] {
+:global(:root[data-ui-appearance="dark"]) .devices img[data-landing-shot="dark"] {
   display: block;
 }
 
@@ -649,6 +674,9 @@
   .screen .shot {
     border-bottom: 2px solid var(--landing-ink);
     box-shadow: 8px 8px 0 var(--landing-ink);
+  }
+  .screen .phone {
+    bottom: -24px;
   }
   .section,
   .gallery,

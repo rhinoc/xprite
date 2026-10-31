@@ -14,6 +14,7 @@ import {
 export const LANDING_EDITOR_HREF = "/editor";
 const EXAMPLE_ART = "/showcase/ipad/hello";
 export const LANDING_SCREENSHOT_ROOT = "/showcase/landing";
+const SOURCE_URL = "https://github.com/rhinoc/xprite";
 
 type Text = (
   en: string,
@@ -132,25 +133,30 @@ export function landingCopy(language: string) {
   const t = texts(language);
   return {
     status: [
-      t("Free", "免费", "無料", "무료", "Бесплатно", "Grátis", "Gratis"),
-      t(
-        "No account",
-        "无需注册",
-        "登録不要",
-        "가입 불필요",
-        "Без регистрации",
-        "Sem cadastro",
-        "Sin registro",
-      ),
-      t(
-        "Open source",
-        "开源",
-        "オープンソース",
-        "오픈 소스",
-        "Открытый код",
-        "Código aberto",
-        "Código abierto",
-      ),
+      { label: t("Free", "免费", "無料", "무료", "Бесплатно", "Grátis", "Gratis") },
+      {
+        label: t(
+          "No account",
+          "无需注册",
+          "登録不要",
+          "가입 불필요",
+          "Без регистрации",
+          "Sem cadastro",
+          "Sin registro",
+        ),
+      },
+      {
+        label: t(
+          "Open source",
+          "开源",
+          "オープンソース",
+          "오픈 소스",
+          "Открытый код",
+          "Código aberto",
+          "Código abierto",
+        ),
+        href: SOURCE_URL,
+      },
     ],
     titleLead: t(
       "Pixel art and animation,",
@@ -197,6 +203,15 @@ export function landingCopy(language: string) {
       "Редактор Xprite в теме «Мох» с пиксельной анимацией из восьми кадров",
       "O editor Xprite no tema Musgo com uma animação de oito quadros",
       "El editor Xprite con el tema Musgo y una animación de ocho cuadros",
+    ),
+    phoneAlt: t(
+      "The same animation open in the Xprite phone layout",
+      "同一段动画在 Xprite 手机布局中打开",
+      "スマホ用レイアウトの Xprite で開いた同じアニメーション",
+      "Xprite 휴대폰 레이아웃에서 연 같은 애니메이션",
+      "Та же анимация в мобильной раскладке Xprite",
+      "A mesma animação aberta no layout de celular do Xprite",
+      "La misma animación abierta en el diseño móvil de Xprite",
     ),
     facts: [
       {
