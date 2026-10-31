@@ -275,7 +275,9 @@ describe("editor-session", () => {
       await flush();
       dirty(h.core);
       a.resolve({ classification: "likely-pixel-art" });
-      assert.equal(await request, "confirmation");
+      assert.equal(await request, "pending");
+      await flush();
+      assert.equal(await h.session.pixelate(), "confirmation");
       h.session.cancelReplacement();
       const a2 = deferred();
       h = harness({ analyze: () => a2.promise });
@@ -283,7 +285,9 @@ describe("editor-session", () => {
       await flush();
       h.core.canvas.setView({ pan: { x: 30, y: 10 } });
       a2.resolve({ classification: "likely-pixel-art" });
-      assert.equal(await request, "created");
+      assert.equal(await request, "pending");
+      await flush();
+      assert.equal(await h.session.pixelate(), "created");
     });
     await test("newest import wins and stale failures cannot clear newer busy state", async () => {
       const a = deferred(),
@@ -296,7 +300,10 @@ describe("editor-session", () => {
       assert.equal(h.session.getSnapshot().busy, true);
       assert.equal(h.session.getSnapshot().error, null);
       b.resolve(image());
-      await second;
+      assert.equal(await second, "pending");
+      await flush();
+      assert.equal(h.session.getSnapshot().pendingImport.name, "B");
+      assert.equal(await h.session.pixelate(), "created");
       assert.equal(h.core.getSnapshot().document.name, "B");
       assert.equal(h.session.getSnapshot().busy, false);
       assert.deepEqual(h.released.sort(), ["A", "B"]);
@@ -467,7 +474,7 @@ describe("editor-session", () => {
       assert.equal(h.core.getSnapshot().document.width, 3);
     });
     await test("recent activation preserves same-name edits; other recent replacement is guarded", async () => {
-      let h = harness();
+      let h = harness({ getImportPreference: () => ({ choice: "always-import-as-is" }) });
       await h.session.initialize(source("A"));
       await h.session.requestImport(source("B"));
       const recent = h.session.getSnapshot().recentFiles,
@@ -487,7 +494,10 @@ describe("editor-session", () => {
       );
     });
     await test("recent snapshots remain bounded by count and bytes", async () => {
-      let h = harness({}, { maxBytes: 32, maxItems: 2 });
+      let h = harness(
+        { getImportPreference: () => ({ choice: "always-import-as-is" }) },
+        { maxBytes: 32, maxItems: 2 },
+      );
       await h.session.requestImport(source("A"));
       await h.session.requestImport(source("B"));
       await h.session.requestImport(source("C"));
@@ -805,6 +815,7 @@ describe("editor-session", () => {
       let persisted = [{ name: "Stored.png", image: image(91) }];
       let reads = 0;
       const ports = {
+        getImportPreference: () => ({ choice: "always-import-as-is" }),
         listRecentImages: async () => recentCatalog(persisted),
         readRecentImage: async (id) => {
           reads++;
@@ -892,6 +903,7 @@ describe("editor-session", () => {
       const pending = deferred();
       const saved = [];
       const h = harness({
+        getImportPreference: () => ({ choice: "always-import-as-is" }),
         listRecentImages: () => {
           reads++;
           return pending.promise;
@@ -989,6 +1001,7 @@ describe("editor-session", () => {
     await test("failed recent hydration never clears existing durable storage", async () => {
       let writes = 0;
       const h = harness({
+        getImportPreference: () => ({ choice: "always-import-as-is" }),
         listRecentImages: async () => {
           throw new Error("Storage blocked");
         },
@@ -1007,6 +1020,7 @@ describe("editor-session", () => {
       const writes = [];
       let count = 0;
       const h = harness({
+        getImportPreference: () => ({ choice: "always-import-as-is" }),
         listRecentImages: async () => [],
         saveRecentImages: async (items) => {
           writes.push(items.map((item) => item.name));
@@ -1134,7 +1148,7 @@ describe("editor-session", () => {
       assert.equal(failed.session.getSnapshot().prompt, "replacement");
     });
     await test("Save/Don't Save/Cancel also protects New and import replacement", async () => {
-      const h = harness();
+      const h = harness({ getImportPreference: () => ({ choice: "always-import-as-is" }) });
       dirty(h.core);
       h.session.requestNew({ width: 4, height: 3 });
       assert.equal(await h.session.saveAndContinue(), "created");
@@ -1169,6 +1183,7 @@ describe("editor-session", () => {
     await test("same-name files keep distinct persistent identities while repeated Save updates one file", async () => {
       let persisted = [];
       const shared = {
+        getImportPreference: () => ({ choice: "always-import-as-is" }),
         listRecentImages: async () => recentCatalog(persisted),
         readRecentImage: async (id) => persisted.find((item) => item.id === id) ?? null,
         saveRecentImages: async (items) => {

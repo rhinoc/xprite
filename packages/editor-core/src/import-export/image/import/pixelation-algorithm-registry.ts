@@ -91,7 +91,7 @@ function uprightOf(image: PixelBuffer, angle: number): PixelBuffer {
  * Every proposer Auto runs. Each proposer runs on each evaluation view; their candidates compete
  * equally in arbitration.
  */
-const PROPOSERS: readonly GridProposer[] = [
+const BOUNDARY_PROPOSERS: readonly GridProposer[] = [
   (image): PixelGridAnalysis[] => {
     const grid = detectUniformGrid(image);
     return grid.reliable
@@ -104,6 +104,9 @@ const PROPOSERS: readonly GridProposer[] = [
       ? [{ ...grid, algorithm: PixelationAlgorithm.EdgeGrid, reliable: true }]
       : [];
   },
+];
+const PROPOSERS: readonly GridProposer[] = [
+  ...BOUNDARY_PROPOSERS,
   detectFrameLattices,
   pitchLattices,
   combCountGrids,
@@ -273,9 +276,8 @@ function consensusWinner(
 /**
  * Auto: every proposer runs on each evaluation view (扶正 and/or 原图), their candidates compete
  * in one arbitration per view (see grid-arbitrate), and the passthrough is one more candidate in
- * each. When the image carries a tilt, the upright view is tried; when no proposer finds a
- * reliable grid there (soft edges), the original competes as well, so a false tilt does not hide
- * the upright grid.
+ * each. When the image carries a tilt, the upright view is tried. Without boundary or independent
+ * count support there, corroborated readings of the original view may also compete.
  *
  * Performance: Call preloadWasm() during app/worker initialization to prewarm WASM module.
  * On Node, AC+RL WASM detect starts on a worker_threads worker before proposers run on this
@@ -290,6 +292,7 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
   const rings: {
     image: PixelBuffer;
     rotation: number;
+    requiresCountAgreement?: boolean;
     outputs?: PixelGridAnalysis[][];
     wasmJob?: AcRlConsensusJob;
   }[] = [];
@@ -342,6 +345,17 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
 
     // Join WASM consensus (already running during proposers when worker overlap is active)
     const consensus = finishAcRlConsensusJob(wasmJob);
+    // Preserve the original view when rotation has neither boundary support nor independent
+    // count consensus; fitted lattices alone do not establish the rotation.
+    if (
+      ring.rotation &&
+      !consensus &&
+      !rings.some((view) => view.rotation === 0) &&
+      !proposerOutputs
+        .slice(0, BOUNDARY_PROPOSERS.length)
+        .some(({ grids }) => grids.some((grid) => grid.reliable))
+    )
+      rings.push({ image, rotation: 0, requiresCountAgreement: true });
 
     // WASM-first short-circuit: when consensus fires and candidate@G exists, skip expensive full arb
     const evidence = new GridEvidenceReader(ring.image);
@@ -389,6 +403,18 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
       if (replacement) winner = replacement;
     }
 
+    if (winner && ring.requiresCountAgreement) {
+      // Reuse the existing independent-proposer quorum for this additional evaluation view.
+      const supporters = new Set(
+        tagged
+          .filter(
+            ({ grid }) => grid.width === winner!.grid.width && grid.height === winner!.grid.height,
+          )
+          .map(({ proposerIndex }) => proposerIndex),
+      );
+      if (supporters.size < MIN_CORROBORATORS) winner = null;
+    }
+
     if (winner && (!best || winner.score < best.score))
       best = { ...winner, rotation: ring.rotation };
 
@@ -414,6 +440,7 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
   const rings: {
     image: PixelBuffer;
     rotation: number;
+    requiresCountAgreement?: boolean;
     outputs?: PixelGridAnalysis[][];
     wasmJob?: AcRlConsensusAsyncJob;
   }[] = [];
@@ -460,6 +487,17 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
       );
 
     const consensus = await finishAcRlConsensusJobAsync(wasmJob);
+    // Preserve the original view when rotation has neither boundary support nor independent
+    // count consensus; fitted lattices alone do not establish the rotation.
+    if (
+      ring.rotation &&
+      !consensus &&
+      !rings.some((view) => view.rotation === 0) &&
+      !proposerOutputs
+        .slice(0, BOUNDARY_PROPOSERS.length)
+        .some(({ grids }) => grids.some((grid) => grid.reliable))
+    )
+      rings.push({ image, rotation: 0, requiresCountAgreement: true });
 
     const evidence = new GridEvidenceReader(ring.image);
     let winner: ArbitratedGrid | null = null;
@@ -499,6 +537,18 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
     ) {
       const replacement = consensusWinner(evidence, ring.image, candidates, consensus);
       if (replacement) winner = replacement;
+    }
+
+    if (winner && ring.requiresCountAgreement) {
+      // Reuse the existing independent-proposer quorum for this additional evaluation view.
+      const supporters = new Set(
+        tagged
+          .filter(
+            ({ grid }) => grid.width === winner!.grid.width && grid.height === winner!.grid.height,
+          )
+          .map(({ proposerIndex }) => proposerIndex),
+      );
+      if (supporters.size < MIN_CORROBORATORS) winner = null;
     }
 
     if (winner && (!best || winner.score < best.score))

@@ -1,6 +1,7 @@
 import { defineConfig } from "vitest/config";
 
 import { packageLocalAliases } from "./package-local-aliases";
+import { CpuFirstSequencer } from "./vitest-sequencer";
 
 export default defineConfig({
   plugins: [packageLocalAliases()],
@@ -16,6 +17,7 @@ export default defineConfig({
     // Per-file isolation stays on: several modules cache browser feature detection at import, so
     // sharing a module graph across files makes results depend on file order.
     pool: "forks",
+    sequence: { sequencer: CpuFirstSequencer },
     testTimeout: 60_000,
   },
 });

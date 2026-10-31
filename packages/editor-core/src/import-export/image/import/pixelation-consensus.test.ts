@@ -219,6 +219,26 @@ describe.each([
     expect(result.rotation).toBeUndefined();
   });
 
+  test.each([
+    { consensus: true, corroborated: false },
+    { consensus: false, corroborated: false },
+    { consensus: false, corroborated: true },
+  ])("requires independent count support for an additional original view %j", async (policy) => {
+    state.angle = 1;
+    state.pitch = [grid(10)];
+    state.frame = policy.corroborated ? [grid(10)] : [];
+    state.consensus = policy.consensus ? { cols: 12, rows: 12 } : null;
+    const originalWinner = { grid: grid(10), length: -101, score: -101 };
+    state.winnerFor = (source) => (source === state.upright ? state.winner : originalWinner);
+    const result = await detect(image());
+    const acceptsOriginal = !policy.consensus && policy.corroborated;
+    expect([result.width, result.height]).toEqual(acceptsOriginal ? [10, 10] : [12, 12]);
+    expect(result.rotation).toBe(acceptsOriginal ? undefined : 1);
+    expect(state.events.filter((event) => event === "begin")).toHaveLength(
+      policy.consensus ? 1 : 2,
+    );
+  });
+
   test("corroborating a size preserves the proposer's correction confidence", async () => {
     const chosen = { ...grid(8), confidence: 0 };
     state.frame = [grid(9)];

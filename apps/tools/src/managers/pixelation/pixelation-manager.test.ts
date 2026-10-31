@@ -91,7 +91,7 @@ describe("pixelate tool preview", () => {
     expect(manager.getSnapshot().settings).toMatchObject({
       mode: PixelationMode.RecoverGrid,
       prepass: OutlinePrepass.PixeloeLines,
-      colorPicker: CellColorPicker.Median,
+      colorPicker: CellColorPicker.TwoStage,
       reduceColors: true,
     });
     expect(restoresPixels(manager.getSnapshot())).toBe(false);

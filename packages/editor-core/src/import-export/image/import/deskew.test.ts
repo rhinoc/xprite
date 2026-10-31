@@ -1,3 +1,4 @@
+// @cpu-intensive
 import { describe, expect, test } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";

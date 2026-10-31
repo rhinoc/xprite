@@ -1,3 +1,4 @@
+// @cpu-intensive
 import { describe, expect, test } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
@@ -16,6 +17,7 @@ import {
   PixelArtClassification,
   PixelationAlgorithm,
   PixelationMode,
+  type PixelGridAnalysis,
 } from "$/import-export/image/import/types";
 import { EditorSession } from "$/session/editor-session";
 import { createBlankImage } from "$/session/recent-images";
@@ -23,6 +25,16 @@ import type { EditorSessionPorts, ImportPixelationMemory } from "$/session/types
 
 const { Auto, EdgeGrid, UniformGrid, Resize } = PixelationAlgorithm;
 const jittered = jitterWithMargin(sprite(64));
+
+// Session assertions exercise workflow transitions; each fixed source/algorithm needs one detection.
+const fixtureGrids = new WeakMap<PixelBuffer, Map<PixelationAlgorithm, PixelGridAnalysis>>();
+function fixtureGrid(source: PixelBuffer, algorithm = Auto): PixelGridAnalysis {
+  let grids = fixtureGrids.get(source);
+  if (!grids) fixtureGrids.set(source, (grids = new Map()));
+  let grid = grids.get(algorithm);
+  if (!grid) grids.set(algorithm, (grid = detectWithAlgorithm(source, algorithm)));
+  return structuredClone(grid);
+}
 
 function openSession(
   source: PixelBuffer,
@@ -42,7 +54,7 @@ function openSession(
       : {}),
     analyze: async (pixels, options) => ({
       classification,
-      grid: detectWithAlgorithm(pixels, options?.algorithm),
+      grid: fixtureGrid(pixels, options?.algorithm),
     }),
     pixelate: async (pixels, options) => pixelateImage(pixels, options),
     write: async (_pixels, name) => ({ method: "download", name }),
@@ -202,7 +214,7 @@ describe("silent Pixelate import (Don't ask me again)", () => {
       decode: async () => upscaled,
       analyze: async (pixels, options) => ({
         classification: PixelArtClassification.LikelyPixelArt,
-        grid: detectWithAlgorithm(pixels, options?.algorithm),
+        grid: fixtureGrid(pixels, options?.algorithm),
       }),
       pixelate: async (pixels, options) => {
         const out = pixelateImage(pixels, options);
