@@ -1,0 +1,117 @@
+{
+  "source": "scripts/showcase/landing/capture.mjs",
+  "captures": [
+    {
+      "file": "editor-en-light.webp",
+      "theme": "color-family-moss",
+      "appearance": "light",
+      "language": "en",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "deviceScaleFactor": 2,
+      "width": 2560,
+      "height": 1600,
+      "sha256": "c448c46277e41afcf499bd8be3dbdc9422c1dfb287bba6eec6c87427ecbf30f7"
+    },
+    {
+      "file": "editor-en-dark.webp",
+      "theme": "color-family-moss",
+      "appearance": "dark",
+      "language": "en",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "deviceScaleFactor": 2,
+      "width": 2560,
+      "height": 1600,
+      "sha256": "c63ab697dd2edc6008282f65f6afb1215087ea1b60648cd6204d61a15d95f2be"
+    },
+    {
+      "file": "editor-zh-CN-light.webp",
+      "theme": "color-family-moss",
+      "appearance": "light",
+      "language": "zh-CN",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "deviceScaleFactor": 2,
+      "width": 2560,
+      "height": 1600,
+      "sha256": "ff45512a3afb5f4c86ec73040206bc4f437edbbe64f0d861438cd85df4cdfe98"
+    },
+    {
+      "file": "editor-zh-CN-dark.webp",
+      "theme": "color-family-moss",
+      "appearance": "dark",
+      "language": "zh-CN",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "deviceScaleFactor": 2,
+      "width": 2560,
+      "height": 1600,
+      "sha256": "e86cd5bd8e1f571f903ad703584609f1d640f0a584213506a66af37ebe6ce1ea"
+    },
+    {
+      "file": "phone-en-light.webp",
+      "theme": "color-family-moss",
+      "appearance": "light",
+      "language": "en",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 3,
+      "width": 1170,
+      "height": 2532,
+      "sha256": "9ae0df9b6e37b042a43656e2997e8cb6642cb4dfd40f5031ef0b78cf973bd687"
+    },
+    {
+      "file": "phone-en-dark.webp",
+      "theme": "color-family-moss",
+      "appearance": "dark",
+      "language": "en",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 3,
+      "width": 1170,
+      "height": 2532,
+      "sha256": "54ba2c5f23ff20fcfe2907f617514ab22223e956b9e3bc3a8a843b5879b04149"
+    },
+    {
+      "file": "phone-zh-CN-light.webp",
+      "theme": "color-family-moss",
+      "appearance": "light",
+      "language": "zh-CN",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 3,
+      "width": 1170,
+      "height": 2532,
+      "sha256": "ae577e1a2af3fe6efd125c4d3cc0bbf2f2c290594f1a117cc68655c84a159a4d"
+    },
+    {
+      "file": "phone-zh-CN-dark.webp",
+      "theme": "color-family-moss",
+      "appearance": "dark",
+      "language": "zh-CN",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 3,
+      "width": 1170,
+      "height": 2532,
+      "sha256": "dcc07aad4f4449a7b86a04f9513cf3678e8810f9b09c2d6e30f386ef27f48b34"
+    }
+  ]
+}

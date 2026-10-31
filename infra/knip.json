@@ -29,7 +29,7 @@
       ]
     },
     "apps/growth": {
-      "entry": ["src/main.tsx", "src/public-main.tsx"]
+      "entry": ["src/public-main.tsx"]
     },
     "apps/tools": {
       "entry": [

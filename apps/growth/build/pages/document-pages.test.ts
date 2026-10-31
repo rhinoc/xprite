@@ -130,13 +130,16 @@ describe("document pages", () => {
     assert.match(privacy, /hreflang="x-default" href="https:\/\/xprite\.cc\/privacy\/"/);
     const article = documentHtml("/zh-CN/about/how-it-works/", true);
     assert.match(article, /hreflang="en" href="https:\/\/xprite\.cc\/about\/how-it-works\/"/);
-    assert.match(article, /<title>工作原理 \| Xprite<\/title>/);
+    assert.match(article, /<title>工作原理：在浏览器里读写 Aseprite 文件 \| Xprite<\/title>/);
     const english = documentHtml("/about/how-it-works/", true);
     assert.match(
       english,
       /hreflang="zh-CN" href="https:\/\/xprite\.cc\/zh-CN\/about\/how-it-works\/"/,
     );
-    assert.match(english, /<title>How Xprite Works<\/title>/);
+    assert.match(
+      english,
+      /<title>How Xprite Works: Aseprite Files in the Browser \| Xprite<\/title>/,
+    );
   });
 
   it("drop the repository language link and describe the page from its introduction", () => {

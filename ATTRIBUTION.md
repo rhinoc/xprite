@@ -182,23 +182,9 @@ in `apps/editor/assets/icons/pixelarticons/`. They retain the upstream MIT licen
 [`LICENSES/pixelarticons.txt`](LICENSES/pixelarticons.txt). Source:
 [Pixelarticons](https://github.com/halfmage/pixelarticons).
 
-The iPad showcase uses Three.js 0.186.1 by the three.js authors. Its upstream
+The Animal Crossing ground preview uses Three.js 0.186.1 by the three.js authors. Its upstream
 MIT license is retained in [`LICENSES/three-MIT.txt`](LICENSES/three-MIT.txt)
 and distributed with the application. Source: [Three.js](https://threejs.org/).
-
-The showcase's compressed models use Meshoptimizer by Arseny Kapoulkine. Its
-Meshopt decoder is bundled through Three.js, and gltfpack 1.3.0 prepares the runtime
-assets. The upstream MIT notice is retained in
-[`LICENSES/meshoptimizer-MIT.txt`](LICENSES/meshoptimizer-MIT.txt). Source:
-[Meshoptimizer](https://github.com/zeux/meshoptimizer).
-
-## GSAP
-
-The public showcase's title and button animations use GSAP 3.15.0 by GreenSock under the
-[Standard "No Charge" GSAP License](https://gsap.com/standard-license).
-The upstream copyright and license link are retained in
-[`LICENSES/gsap-notice.txt`](LICENSES/gsap-notice.txt). GSAP retains its own
-license separately from the application code.
 
 ## CC BY 4.0 art and text
 
@@ -242,22 +228,6 @@ copying and distribution without fee while preserving the original file;
 use of the ICC name in distribution advertising requires prior written permission.
 See the [profile and terms](https://registry.color.org/rgb-registry/srgbprofiles#v4pref)
 and the adjacent `provenance.json` for its source and checksum.
-
-## Showcase icons
-
-The music and language controls use the `volume-3`, `volume-x`, and `globe`
-SVGs from [Pixelarticons](https://github.com/halfmage/pixelarticons), copyright
-© 2019 Gerrit Halfmann, under the MIT license. The complete notice is retained in
-`LICENSES/pixelarticons-MIT.txt` and alongside the public SVGs. Their pinned source
-commit and SHA-256 hashes are recorded in
-`apps/growth/public/showcase/icons/sources.json`.
-
-## Showcase device models
-
-- MacBook Pro M3 16-inch 2024 by [jackbaeten](https://sketchfab.com/jackbaeten), [source](https://sketchfab.com/3d-models/macbook-pro-m3-16-inch-2024-8e34fc2b303144f78490007d91ff57c4), CC BY 4.0.
-- iPhone 15 Pro Max by [MajdyModels / MpPower™](https://sketchfab.com/MG990), [source](https://sketchfab.com/3d-models/iphone-15-pro-max-5b7b35513a154ac69619dc2b2fe15686), CC BY 4.0.
-
-Changes: orientation and size normalization, display UV mapping and replacement with Xprite content, laptop viewing pitch, and GLB export. Original geometry and body materials are preserved. Download provenance, source files, license, and editable Blender files are documented in `scripts/showcase/devices/README.md`; public credits and the full CC BY 4.0 license are in `apps/growth/public/showcase/ipad/`. These model assets retain CC BY 4.0 separately from the application code. No endorsement by Apple or the model authors is implied.
 
 ## Animal Crossing design QR export
 

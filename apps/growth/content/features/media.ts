@@ -1,5 +1,5 @@
-import { showcaseMedia } from "../showcase/media.ts";
 import { pickText, publicLanguage, PublicLanguage } from "../site/language.ts";
+import { editorCaptureMedia } from "./capture-media.ts";
 import { FEATURE_DETAIL_PATH, type FeatureMedia } from "./index.ts";
 
 const ABOUT_IMAGES = "/about/images";
@@ -26,7 +26,7 @@ export function featureMedia(href: string, language: string): FeatureMedia | und
     pt: string,
     es: string,
   ) => pickText(selected, en, zh, ja, ko, ru, pt, es);
-  const shared = showcaseMedia(selected);
+  const shared = editorCaptureMedia(selected);
   const media: Record<string, FeatureMedia> = {
     [`${FEATURE_DETAIL_PATH}layers-and-colors/`]: {
       src: `${ARTICLE_IMAGES}/editor-with-aseprite${suffix}.png`,

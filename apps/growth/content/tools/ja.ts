@@ -51,10 +51,10 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
     "ファイルは端末内に留まり、クラウドにはアップロードされません。",
   "Inspect an Aseprite file": "Aseprite ファイルを確認",
   "Aseprite File Viewer Online — Open .aseprite / .ase | Xprite":
-    "Aseprite ファイルビューアー：.aseprite をオンラインで開く | Xprite",
+    "Aseprite ビューアー：.aseprite をオンラインで開く | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Aseprite プロジェクトをプレビューし、PNG のフレームや GIF アニメーションをエクスポート。",
-  "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF — no install, files on device. Then edit in Xprite.":
+  "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF. No install; files stay on device. Edit in Xprite.":
     "Aseprite ファイルビューアー。ブラウザで .aseprite/.ase を開き、レイヤーとフレームをプレビュー、PNG/GIF 書き出し。インストール不要。続けて Xprite で編集。",
   "Choose an Aseprite file": "Aseprite ファイルを選択",
   "Open file": "ファイルを開く",

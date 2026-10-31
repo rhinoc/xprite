@@ -5,6 +5,7 @@ import { BeadPreviewGrid } from "$/components/beads/bead-preview-grid";
 import { BeadSettings, BeadSourceSettings } from "$/components/beads/bead-settings";
 import { PixelationCompare } from "$/components/pixelation/pixelation-compare";
 import { FileToolShell } from "$/components/shared/file-tool-shell";
+import { ToolHelp } from "$/components/shared/tool-help";
 import { ToolResultWindow } from "$/components/shared/tool-result-window";
 import { formatBeadFailure } from "$/managers/beads/bead-failure";
 import type {
@@ -16,6 +17,7 @@ import { beadDocumentLabels } from "$/managers/locale/bead-text";
 import { useBeadText, useToolTranslation } from "$/managers/locale/tool-language";
 import { BEADS_TOOL } from "$/managers/tools/tool-catalog";
 import { PixelationBaseControls, PixelationSlot } from "@xprite/editor-ui";
+import { BEADS_HELP, BeadsHelpSection } from "@xprite/growth-content/tools";
 import { PixelationMode, defaultPixelationSettings } from "@xprite/pixelate";
 
 enum ResultTab {
@@ -53,6 +55,7 @@ export function BeadPage({ manager }: { manager: BeadToolManager }) {
       busy={busy}
       processing={busy || state.pending}
       error={formatBeadFailure(text, state.error)}
+      help={<ToolHelp id={BeadsHelpSection.Overview} content={BEADS_HELP} />}
       onOpen={manager.open}
       onExample={manager.openExample}
       onReset={() => manager.clear()}

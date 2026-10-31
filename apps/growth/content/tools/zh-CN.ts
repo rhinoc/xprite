@@ -112,7 +112,7 @@ export const TOOL_CHINESE_TEXT: Readonly<Record<string, string>> = {
     "Aseprite 文件查看器：在线打开 .aseprite / .ase | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "预览 Aseprite 工程，导出 PNG 单帧或 GIF 动画。",
-  "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF — no install, files on device. Then edit in Xprite.":
+  "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF. No install; files stay on device. Edit in Xprite.":
     "在线 Aseprite 文件查看器：在浏览器中打开 .aseprite/.ase，预览图层与帧，导出 PNG 或 GIF，无需安装。文件留在本机，可继续在 Xprite 中编辑。",
   "Choose an Aseprite file": "选择 Aseprite 文件",
   "Open file": "打开文件",

@@ -1,6 +1,7 @@
 import { createReactSsgRenderer, cursorStylesheet } from "../../../infra/react-ssg-renderer.ts";
 import type {
   articleStyleClasses,
+  landingStylesheet,
   preparePublicUi,
   publicCursorVariables,
 } from "../src/public-ssg.tsx";
@@ -17,6 +18,7 @@ export async function createPublicUiRenderer() {
     preparePublicUi: typeof preparePublicUi;
     articleStyleClasses: typeof articleStyleClasses;
     publicCursorVariables: typeof publicCursorVariables;
+    landingStylesheet: typeof landingStylesheet;
   }>({
     entry: "apps/growth/src/public-ssg.tsx",
     assetPrefix: PUBLIC_UI_ASSET_PREFIX,
@@ -29,7 +31,7 @@ export async function createPublicUiRenderer() {
     result.assets,
     PUBLIC_UI_ASSET_PREFIX,
   );
-  return { ...result, css: `${result.css}\n${cursors}` };
+  return { ...result, css: `${result.css}\n${cursors}\n${result.renderer.landingStylesheet()}` };
 }
 
 export function publicArticleClasses() {
@@ -39,7 +41,7 @@ export function publicArticleClasses() {
 }
 export function renderPublicUi(kind: PublicUiKind, props: Record<string, unknown>) {
   if (!render) throw new Error("Public UI renderer must be initialized before rendering pages.");
-  if (kind !== "page" && kind !== "showcase-page") {
+  if (kind !== "page") {
     const id = fragmentId++;
     fragments.set(id, { kind, props });
     return `<!--public-ui:${id}-->`;

@@ -23,6 +23,10 @@ export interface PublicDocumentPage {
   description: string;
   navigation: string;
   canonical?: boolean;
+  /** The visible page heading, used as its breadcrumb name. */
+  heading?: string;
+  /** Breadcrumb names of the pages above this one, from the site root down. */
+  parents?: readonly { name: string; path: string }[];
 }
 const HTML_ENTITIES: Readonly<Record<string, string>> = {
   "&": "&amp;",
@@ -33,6 +37,44 @@ const HTML_ENTITIES: Readonly<Record<string, string>> = {
 };
 const escapeHtml = (value: string) =>
   value.replace(/[&<>"']/g, (character) => HTML_ENTITIES[character]);
+const jsonForHtml = (value: unknown) => JSON.stringify(value).replaceAll("<", "\\u003c");
+
+/** The page node and its breadcrumb, linked to the site and organization nodes. */
+function documentSearchMetadata(page: PublicDocumentPage) {
+  const url = new URL(page.path, SITE_URL).href;
+  const name = page.heading ?? page.title.replace(/\s*\|\s*Xprite$/, "");
+  const trail = [
+    { name: "Xprite", path: SHOWCASE_PAGES[page.language].path },
+    ...(page.parents ?? []),
+    { name, path: page.path },
+  ];
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": `${url}#page`,
+        url,
+        name: page.title,
+        description: page.description,
+        inLanguage: page.language,
+        isPartOf: { "@id": `${SITE_URL}#website` },
+        publisher: { "@id": `${SITE_URL}#organization` },
+        breadcrumb: { "@id": `${url}#breadcrumb` },
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${url}#breadcrumb`,
+        itemListElement: trail.map((item, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: item.name,
+          item: new URL(item.path, SITE_URL).href,
+        })),
+      },
+    ],
+  };
+}
 
 export function publicDocumentHtml(
   page: PublicDocumentPage,
@@ -52,6 +94,9 @@ export function publicDocumentHtml(
     indexable || page.canonical
       ? `<link rel="canonical" href="${new URL(page.path, SITE_URL).href}">\n${alternates}`
       : "";
+  const schema = indexable
+    ? `<script type="application/ld+json">${jsonForHtml(documentSearchMetadata(page))}</script>`
+    : "";
   return `<!doctype html>
 <html lang="${page.language}" ${PUBLIC_THEME_ATTRIBUTES}><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -73,6 +118,7 @@ ${indexing}
 <meta name="twitter:title" content="${escapeHtml(page.title)}">
 <meta name="twitter:description" content="${escapeHtml(page.description)}">
 <meta name="twitter:image" content="${SITE_URL}social-preview.png">
+${schema}
 ${siteIcons()}
 <link rel="preload" href="${PUBLIC_FONT_PATH}?v=ec44f36e057a" as="font" type="font/woff2" crossorigin>
 ${page.language !== PublicLanguage.English ? `<link rel="preload" href="${CHINESE_FONT_PATH}" as="font" type="font/woff2" crossorigin>` : ""}

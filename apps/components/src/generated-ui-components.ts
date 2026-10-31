@@ -2065,6 +2065,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
         hostProp: false,
       },
       {
+        name: "selected",
+        kind: "boolean",
+        required: false,
+        type: "boolean | undefined",
+        hostProp: false,
+      },
+      {
         name: "readOnly",
         kind: "boolean",
         required: false,
@@ -2098,13 +2105,6 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
         kind: "json",
         required: false,
         type: "ButtonSlots | undefined",
-        hostProp: false,
-      },
-      {
-        name: "selected",
-        kind: "boolean",
-        required: false,
-        type: "boolean | undefined",
         hostProp: false,
       },
       {
@@ -2456,6 +2456,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             hostProp: false,
           },
           {
+            name: "selected",
+            kind: "boolean",
+            required: false,
+            type: "boolean | undefined",
+            hostProp: false,
+          },
+          {
             name: "readOnly",
             kind: "boolean",
             required: false,
@@ -2489,13 +2496,6 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             kind: "json",
             required: false,
             type: "ButtonSlots | undefined",
-            hostProp: false,
-          },
-          {
-            name: "selected",
-            kind: "boolean",
-            required: false,
-            type: "boolean | undefined",
             hostProp: false,
           },
           {
@@ -2752,6 +2752,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             hostProp: false,
           },
           {
+            name: "selected",
+            kind: "boolean",
+            required: false,
+            type: "boolean | undefined",
+            hostProp: false,
+          },
+          {
             name: "readOnly",
             kind: "boolean",
             required: false,
@@ -2778,13 +2785,6 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             kind: "json",
             required: false,
             type: "ButtonSlots | undefined",
-            hostProp: false,
-          },
-          {
-            name: "selected",
-            kind: "boolean",
-            required: false,
-            type: "boolean | undefined",
             hostProp: false,
           },
           {
@@ -3041,6 +3041,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             hostProp: false,
           },
           {
+            name: "selected",
+            kind: "boolean",
+            required: false,
+            type: "boolean | undefined",
+            hostProp: false,
+          },
+          {
             name: "readOnly",
             kind: "boolean",
             required: false,
@@ -3067,13 +3074,6 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             kind: "json",
             required: false,
             type: "ButtonSlots | undefined",
-            hostProp: false,
-          },
-          {
-            name: "selected",
-            kind: "boolean",
-            required: false,
-            type: "boolean | undefined",
             hostProp: false,
           },
           {
@@ -3330,6 +3330,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             hostProp: false,
           },
           {
+            name: "selected",
+            kind: "boolean",
+            required: false,
+            type: "boolean | undefined",
+            hostProp: false,
+          },
+          {
             name: "readOnly",
             kind: "boolean",
             required: false,
@@ -3356,13 +3363,6 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             kind: "json",
             required: false,
             type: "ButtonSlots | undefined",
-            hostProp: false,
-          },
-          {
-            name: "selected",
-            kind: "boolean",
-            required: false,
-            type: "boolean | undefined",
             hostProp: false,
           },
           {
@@ -3632,6 +3632,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             hostProp: false,
           },
           {
+            name: "selected",
+            kind: "boolean",
+            required: false,
+            type: "boolean | undefined",
+            hostProp: false,
+          },
+          {
             name: "readOnly",
             kind: "boolean",
             required: false,
@@ -3658,13 +3665,6 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             kind: "json",
             required: false,
             type: "ButtonSlots | undefined",
-            hostProp: false,
-          },
-          {
-            name: "selected",
-            kind: "boolean",
-            required: false,
-            type: "boolean | undefined",
             hostProp: false,
           },
           {
@@ -3921,6 +3921,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             hostProp: false,
           },
           {
+            name: "selected",
+            kind: "boolean",
+            required: false,
+            type: "boolean | undefined",
+            hostProp: false,
+          },
+          {
             name: "readOnly",
             kind: "boolean",
             required: false,
@@ -3947,13 +3954,6 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             kind: "json",
             required: false,
             type: "ButtonSlots | undefined",
-            hostProp: false,
-          },
-          {
-            name: "selected",
-            kind: "boolean",
-            required: false,
-            type: "boolean | undefined",
             hostProp: false,
           },
           {
