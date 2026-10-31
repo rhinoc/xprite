@@ -634,3 +634,44 @@ export function vectorShapes(width: number, height: number, seed = 21): PixelBuf
   }
   return image;
 }
+/** Cuts whose every cell is an independent 1 ± `spread` share of the pitch, as generators draw. */
+function wanderCuts(cells: number, pitch: number, spread: number, random: () => number): number[] {
+  const cuts = [0];
+  for (let i = 0; i < cells; i++) cuts.push(cuts[i] + pitch * (1 + spread * (2 * random() - 1)));
+  return cuts;
+}
+/**
+ * A generated sprite: `art` on a clear margin of `margin` cells, drawn with cells of 1 ± `spread`
+ * of `pitch`, each on its own, then softened by a box blur of `blur` pixels. No lattice fits it.
+ */
+export function generatedSprite(
+  art: PixelBuffer,
+  pitch: number,
+  spread: number,
+  margin = 6,
+  blur = 1,
+  seed = 29,
+): PixelBuffer {
+  const random = rng(seed);
+  const padded = blank(art.width + 2 * margin, art.height + 2 * margin);
+  for (let y = 0; y < art.height; y++)
+    padded.data.set(
+      art.data.subarray(y * art.width * 4, (y + 1) * art.width * 4),
+      ((y + margin) * padded.width + margin) * 4,
+    );
+  const drawn = resampleOnCuts(
+    padded,
+    wanderCuts(padded.width, pitch, spread, random),
+    wanderCuts(padded.height, pitch, spread, random),
+  );
+  return blur ? boxBlur(drawn, blur) : drawn;
+}
+/** A sprite on a clear background: `sprite` with its background colour made transparent. */
+export function clearSprite(size: number, seed = 7): PixelBuffer {
+  const image = sprite(size, seed);
+  const [r, g, b] = [image.data[0], image.data[1], image.data[2]];
+  for (let o = 0; o < image.data.length; o += 4)
+    if (image.data[o] === r && image.data[o + 1] === g && image.data[o + 2] === b)
+      image.data.fill(0, o, o + 4);
+  return image;
+}
