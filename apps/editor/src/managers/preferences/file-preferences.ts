@@ -131,6 +131,7 @@ function normalizeImportPixelation(value: unknown): ImportPixelationMemory | nul
     ...(Object.values(PaletteColorMode).includes(saved.paletteColorMode as PaletteColorMode)
       ? { paletteColorMode: saved.paletteColorMode as PaletteColorMode }
       : {}),
+    ...(typeof saved.removeNoise === "boolean" ? { removeNoise: saved.removeNoise } : {}),
   };
 }
 

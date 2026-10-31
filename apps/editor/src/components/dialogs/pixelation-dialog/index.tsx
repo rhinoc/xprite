@@ -180,6 +180,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
               reduceColors: workflow.pixelationOptions.reduceColors,
               maxColors: workflow.pixelationOptions.maxColors,
               dither: workflow.pixelationOptions.dither,
+              removeNoise: workflow.pixelationOptions.removeNoise,
             },
           }
         : {}),
@@ -207,8 +208,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   const showGridSource = showAdvanced && base[PixelationSlot.GridSource].visible;
   const advancedHeight = showAdvanced
     ? (showGridSource ? 5 : 4) * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) +
-      ROW_HEIGHT +
-      GAP +
+      2 * (ROW_HEIGHT + GAP) +
       showDitherExtra
     : 0;
   // Remove background checkbox is always reserved; mode + tolerance appear when checked.
@@ -303,6 +303,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const limitRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
         const ditherLabel = showDither ? at(FIELD_LABEL_HEIGHT) : null;
         const ditherCombo = showDither ? at(COMBO_HEIGHT, GAP) : null;
+        const noiseRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
         const removeBgRow = at(ROW_HEIGHT, GAP);
         const removeModeRow = removeBg.enabled ? at(ROW_HEIGHT, GAP) : null;
         const removeTolRow = removeBg.enabled ? at(ROW_HEIGHT, GAP) : null;
@@ -557,6 +558,16 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                   relativeTo: client,
                 })}
               </>
+            )}
+            {noiseRow && (
+              <Checkbox
+                label={tUi("ui.remove.noise")}
+                checked={workflow.pixelationOptions.removeNoise}
+                disabled={workflow.busy}
+                onCheckedChange={(removeNoise) => workflow.setPixelationOptions({ removeNoise })}
+                bounds={noiseRow}
+                relativeTo={client}
+              />
             )}
             <Checkbox
               label={tUi("import.dialog.remove.background")}

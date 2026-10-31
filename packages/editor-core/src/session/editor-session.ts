@@ -619,8 +619,8 @@ export class EditorSession<Source> {
   }
   /**
    * The silent Pixelate path repeats the pixelation the dialog last imported with (pre-pass, line
-   * guide, colour rule and colour limit); with nothing saved it is the dialog's default. The dialog
-   * itself always opens on the default.
+   * guide, colour rule, colour limit and noise removal); with nothing saved it is the dialog's
+   * default. The dialog itself always opens on the default.
    */
   private silentOptions(candidate: Candidate, saved?: ImportPixelationMemory | null) {
     const options = this.defaultOptions(candidate);
@@ -635,6 +635,7 @@ export class EditorSession<Source> {
       ...(typeof saved.maxColors === "number" ? { maxColors: saved.maxColors } : {}),
       ...(saved.dither !== undefined ? { dither: saved.dither } : {}),
       ...(saved.paletteColorMode !== undefined ? { paletteColorMode: saved.paletteColorMode } : {}),
+      ...(typeof saved.removeNoise === "boolean" ? { removeNoise: saved.removeNoise } : {}),
     };
     for (const key of Object.keys(patch) as (keyof typeof patch)[])
       if (patch[key] === undefined) delete patch[key];

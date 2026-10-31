@@ -20,6 +20,7 @@ export type ImportPixelationMemory = Partial<
     | "maxColors"
     | "dither"
     | "paletteColorMode"
+    | "removeNoise"
   >
 >;
 export interface SessionSource<Source> {
