@@ -132,6 +132,8 @@ let browserWorkerFactory: BrowserWorkerFactory | null = null;
 let browserDetectWorker: AcRlBrowserWorker | null = null;
 let browserWorkerReady = false;
 let browserWorkerFailed = false;
+let browserWorkerInitializing: Promise<boolean> | null = null;
+const browserRequests = new Set<() => void>();
 
 function nodeWorkerEnabled(): boolean {
   const process = nodeProcess();
@@ -146,6 +148,7 @@ function nodeWorkerEnabled(): boolean {
  */
 export function setAcRlBrowserWorkerFactory(factory: (() => unknown) | null): void {
   browserWorkerFactory = factory ? () => factory() as AcRlBrowserWorker : null;
+  for (const cancel of browserRequests) cancel();
   if (browserDetectWorker) {
     try {
       browserDetectWorker.terminate();
@@ -156,6 +159,7 @@ export function setAcRlBrowserWorkerFactory(factory: (() => unknown) | null): vo
   browserDetectWorker = null;
   browserWorkerReady = false;
   browserWorkerFailed = false;
+  browserWorkerInitializing = null;
 }
 
 /** Lazy-load worker_threads without a static import (browser-safe). */
@@ -267,14 +271,20 @@ function ensureDetectWorker(): boolean {
 
 function portMessagePromise(
   port1: AcRlMessagePort,
+  pending?: Set<() => void>,
 ): Promise<{ ok: boolean; consensus?: Consensus | null; error?: string }> {
   return new Promise((resolve) => {
     let settled = false;
+    const cancel = () => finish({ ok: false });
     const finish = (body: { ok: boolean; consensus?: Consensus | null; error?: string }) => {
       if (settled) return;
       settled = true;
+      pending?.delete(cancel);
+      port1.onmessage = null;
+      port1.close?.();
       resolve(body);
     };
+    pending?.add(cancel);
     // Node worker_threads MessagePort is an EventEmitter (prefer over onmessage).
     const process = nodeProcess();
     if (typeof port1.on === "function" && process?.versions?.node) {
@@ -294,37 +304,58 @@ function portMessagePromise(
   });
 }
 
-async function ensureBrowserDetectWorker(): Promise<boolean> {
-  if (browserWorkerFailed || !browserWorkerFactory) return false;
-  if (browserDetectWorker && browserWorkerReady) return true;
+function failBrowserDetectWorker(worker: AcRlBrowserWorker): void {
+  if (browserDetectWorker !== worker) return;
+  browserWorkerFailed = true;
+  browserDetectWorker = null;
+  browserWorkerReady = false;
   try {
-    if (!browserDetectWorker) {
-      browserDetectWorker = browserWorkerFactory();
-      browserDetectWorker.onerror = () => {
-        browserWorkerFailed = true;
-        browserDetectWorker = null;
-        browserWorkerReady = false;
-      };
+    worker.terminate();
+  } catch {
+    /* Already stopped. */
+  }
+  for (const cancel of browserRequests) cancel();
+}
+
+async function initializeBrowserDetectWorker(): Promise<boolean> {
+  let worker = browserDetectWorker;
+  try {
+    if (!worker) {
+      worker = browserWorkerFactory!();
+      browserDetectWorker = worker;
+      const ownedWorker = worker;
+      worker.onerror = () => failBrowserDetectWorker(ownedWorker);
     }
     const MessageChannel = browserMessageChannelCtor();
     if (!MessageChannel) throw new Error("MessageChannel unavailable");
     const { port1, port2 } = new MessageChannel();
-    const initPromise = portMessagePromise(port1);
-    browserDetectWorker.postMessage({ type: "init", port: port2 }, [port2]);
+    const initPromise = portMessagePromise(port1, browserRequests);
+    worker.postMessage({ type: "init", port: port2 }, [port2]);
     const init = await initPromise;
+    if (browserDetectWorker !== worker) return false;
     if (!init.ok) {
-      browserWorkerFailed = true;
-      browserDetectWorker = null;
-      browserWorkerReady = false;
+      failBrowserDetectWorker(worker);
       return false;
     }
     browserWorkerReady = true;
     return true;
   } catch {
-    browserWorkerFailed = true;
-    browserDetectWorker = null;
-    browserWorkerReady = false;
+    if (worker) failBrowserDetectWorker(worker);
+    else browserWorkerFailed = true;
     return false;
+  }
+}
+
+async function ensureBrowserDetectWorker(): Promise<boolean> {
+  if (browserWorkerFailed || !browserWorkerFactory) return false;
+  if (browserDetectWorker && browserWorkerReady) return true;
+  if (browserWorkerInitializing) return browserWorkerInitializing;
+  const initializing = initializeBrowserDetectWorker();
+  browserWorkerInitializing = initializing;
+  try {
+    return await initializing;
+  } finally {
+    if (browserWorkerInitializing === initializing) browserWorkerInitializing = null;
   }
 }
 
@@ -531,15 +562,16 @@ export async function beginAcRlConsensusJobAsync(imageData: {
     await ensureBrowserDetectWorker();
   }
   if (browserDetectWorker && browserWorkerReady && !browserWorkerFailed) {
+    const worker = browserDetectWorker;
     try {
       const MessageChannel = browserMessageChannelCtor();
       if (!MessageChannel) throw new Error("MessageChannel unavailable");
       const { port1, port2 } = new MessageChannel();
       const copy = copyRgba(imageData);
-      const promise = portMessagePromise(port1).then((body) =>
+      const promise = portMessagePromise(port1, browserRequests).then((body) =>
         body.ok ? (body.consensus ?? null) : null,
       );
-      browserDetectWorker.postMessage(
+      worker.postMessage(
         {
           type: "detect",
           width: imageData.width,
@@ -551,7 +583,7 @@ export async function beginAcRlConsensusJobAsync(imageData: {
       );
       return { mode: "async", promise };
     } catch {
-      /* fall through */
+      failBrowserDetectWorker(worker);
     }
   }
 

@@ -692,12 +692,7 @@ export class EditorSession<Source> {
       pixelationPalette: [],
       pixelationError: null,
     });
-    // Only start the preview if there's no preference set (first-time user).
-    // When preferences exist, defer preview until the user switches to Pixelate tab,
-    // to avoid blocking on expensive grid detection when default is "import-as-is".
-    if (!pref) {
-      void this.previewPixelation();
-    }
+    void this.previewPixelation();
     return SessionOutcome.Pending;
   }
   private askReplacement(intent: Replacement<Source>) {

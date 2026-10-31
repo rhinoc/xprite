@@ -11,11 +11,19 @@
 import init, { detectFastAcRl } from "@xprite/fixer-detect-wasm";
 
 let detect: typeof detectFastAcRl | null = null;
+let initializing: Promise<void> | null = null;
 
 async function ensureInit(): Promise<void> {
   if (detect) return;
-  await init();
-  detect = detectFastAcRl;
+  // Warm-up and the first jobs can arrive while WASM is still loading.
+  initializing ??= init()
+    .then(() => {
+      detect = detectFastAcRl;
+    })
+    .finally(() => {
+      initializing = null;
+    });
+  await initializing;
 }
 
 const scope = globalThis as unknown as {

@@ -16,6 +16,8 @@ class BrowserDetector {
   readonly requests: { width: number; height: number; bytes: Uint8Array; detached: boolean }[] = [];
   readonly ports: MessagePort[] = [];
   initCount = 0;
+  holdInit = false;
+  holdDetect = false;
   consensus: { cols: number; rows: number } | null = { cols: 2, rows: 1 };
 
   postMessage(message: DetectMessage, transfer: (ArrayBuffer | MessagePort)[]): void {
@@ -23,6 +25,7 @@ class BrowserDetector {
     this.ports.push(received.port);
     if (received.type === "init") {
       this.initCount++;
+      if (this.holdInit) return;
       received.port.postMessage({ ok: true, type: "init" });
     } else {
       this.requests.push({
@@ -31,6 +34,7 @@ class BrowserDetector {
         bytes: new Uint8Array(received.data!).slice(),
         detached: message.data!.byteLength === 0,
       });
+      if (this.holdDetect) return;
       received.port.postMessage({ ok: true, type: "detect", consensus: this.consensus });
     }
     received.port.close();
@@ -62,6 +66,63 @@ afterEach(() => {
 });
 
 describe("AC+RL nested-worker image ownership", () => {
+  test("warm-up and concurrent first jobs share one initialization", async () => {
+    api.setAcRlBrowserWorkerFactory(() => detector);
+    detector.holdInit = true;
+    const previousInits = detector.initCount;
+    const warm = api.warmAcRlBrowserWorker();
+    const image = { width: 1, height: 1, data: Uint8ClampedArray.from([17, 23, 41, 255]) };
+    const jobs = Array.from({ length: 3 }, () => api.beginAcRlConsensusJobAsync(image));
+    expect(detector.initCount).toBe(previousInits + 1);
+    detector.ports.at(-1)!.postMessage({ ok: true, type: "init" });
+    expect(await warm).toBe(true);
+    for (const job of await Promise.all(jobs))
+      expect(await api.finishAcRlConsensusJobAsync(job)).toEqual(detector.consensus);
+    expect(detector.initCount).toBe(previousInits + 1);
+  });
+
+  test("a startup error releases the initialization waiter", async () => {
+    api.setAcRlBrowserWorkerFactory(() => detector);
+    detector.holdInit = true;
+    const warm = api.warmAcRlBrowserWorker();
+    detector.onerror?.(new Error("worker load failed"));
+    expect(await warm).toBe(false);
+    const job = await api.beginAcRlConsensusJobAsync({
+      width: 1,
+      height: 1,
+      data: Uint8ClampedArray.from([17, 23, 41, 255]),
+    });
+    expect(job.mode).toBe("sync");
+  });
+
+  test("a worker error releases every in-flight detection", async () => {
+    detector.holdDetect = true;
+    const image = { width: 1, height: 1, data: Uint8ClampedArray.from([17, 23, 41, 255]) };
+    const jobs = await Promise.all([
+      api.beginAcRlConsensusJobAsync(image),
+      api.beginAcRlConsensusJobAsync(image),
+    ]);
+    detector.onerror?.(new Error("worker stopped"));
+    for (const job of jobs) expect(await api.finishAcRlConsensusJobAsync(job)).toBeNull();
+    expect(await api.warmAcRlBrowserWorker()).toBe(false);
+    expect(image.data).toEqual(Uint8ClampedArray.from([17, 23, 41, 255]));
+  });
+
+  test("replacing a worker cancels its warm-up without changing the replacement", async () => {
+    api.setAcRlBrowserWorkerFactory(() => detector);
+    detector.holdInit = true;
+    const old = detector;
+    const warm = api.warmAcRlBrowserWorker();
+    detector = new BrowserDetector();
+    api.setAcRlBrowserWorkerFactory(() => detector);
+    const replacement = api.warmAcRlBrowserWorker();
+    expect(await warm).toBe(false);
+    expect(await replacement).toBe(true);
+    old.onerror?.(new Error("late error"));
+    expect(await api.warmAcRlBrowserWorker()).toBe(true);
+    expect(detector.initCount).toBe(1);
+  });
+
   for (const Source of [Uint8Array, Uint8ClampedArray])
     test.each([1, 3, 7])(
       `${Source.name} subview at byte offset %i transfers only its own pixels`,
