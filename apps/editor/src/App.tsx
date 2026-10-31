@@ -16,6 +16,7 @@ import {
   tilesetExporter,
 } from "$/components/dialogs/export-dialog/exporters/sheet";
 import { ReplayHost } from "$/components/replay/replay-host";
+import { editorUiTheme } from "$/components/shared/editor-themes";
 import { EditorStartup } from "$/components/shell/editor-startup";
 import { EditorView } from "$/components/shell/editor-view";
 import { PwaNotifications } from "$/components/shell/pwa";
@@ -46,7 +47,6 @@ import type {
   EditorInitialProject,
 } from "$/managers/ports/editor-host";
 import type { PwaPort } from "$/managers/ports/pwa";
-import { editorUiTheme } from "$/managers/preferences/editor-themes";
 import { PwaProvider } from "$/managers/pwa/pwa-context";
 import { PwaManager } from "$/managers/pwa/pwa-manager";
 import { ReplayProvider } from "$/managers/replay/replay-context";

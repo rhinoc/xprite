@@ -7,7 +7,6 @@ import { asepriteTypography } from "$/base/theme/themes/aseprite/typography";
 import { recolorAtlas } from "$/base/theme/themes/color-family/atlas-recolor";
 import {
   COLOR_FAMILIES,
-  ColorIntensity,
   colorFamilyColors,
   colorFamilyEditorTokens,
   type ColorFamily,
@@ -49,7 +48,7 @@ async function recoloredAtlasUrl(
 function colorFamilyTheme(family: ColorFamily): UiTheme {
   return {
     id: `color-family-${family.id}`,
-    label: family.intensity === ColorIntensity.Vivid ? `${family.label} Vivid` : family.label,
+    label: family.id,
     cursors: asepriteCursors,
     typography: asepriteTypography,
     async loadCjkFonts() {

@@ -105,21 +105,11 @@ const FAMILY_HUES: Readonly<Record<ColorFamilyId, FamilyHues>> = {
   // Brown frame, tan face, rust canvas, teal selection.
   [ColorFamilyId.Cocoa]: { frame: 55, face: 75, canvas: 25, accent: 165, darkAccent: 75 },
 };
-const FAMILY_LABELS: Readonly<Record<ColorFamilyId, string>> = {
-  [ColorFamilyId.Ocean]: "Ocean",
-  [ColorFamilyId.Moss]: "Moss",
-  [ColorFamilyId.Ember]: "Ember",
-  [ColorFamilyId.Grape]: "Grape",
-  [ColorFamilyId.Mustard]: "Mustard",
-  [ColorFamilyId.Cocoa]: "Cocoa",
-};
-
 export interface ColorFamily {
   /** Theme id: the family, with a suffix for the vivid intensity. */
   id: string;
   family: ColorFamilyId;
   intensity: ColorIntensity;
-  label: string;
   hues: Readonly<Record<UiColorScheme, RoleHues>>;
   rule: IntensityRule;
 }
@@ -141,7 +131,6 @@ export const COLOR_FAMILIES: readonly ColorFamily[] = Object.values(ColorFamilyI
       id: intensity === ColorIntensity.Soft ? family : `${family}-${intensity}`,
       family,
       intensity,
-      label: FAMILY_LABELS[family],
       hues: familyHues(FAMILY_HUES[family]),
       rule: INTENSITIES[intensity],
     })),
@@ -153,7 +142,6 @@ export function classicFamily(): ColorFamily {
     id: "classic",
     family: ColorFamilyId.Ocean,
     intensity: ColorIntensity.Soft,
-    label: "Classic",
     hues: CLASSIC_HUES,
     rule: CLASSIC_INTENSITY,
   };

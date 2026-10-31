@@ -22,6 +22,7 @@ import {
 } from "$/components/dialogs/preferences/use-appearance-preferences";
 import { ResetPreferences } from "$/components/dialogs/reset-preferences";
 import { TouchInputPreferencesSection } from "$/components/dialogs/touch-input-preferences";
+import { editorThemeOptions } from "$/components/shared/editor-themes";
 import { ColorPicker } from "$/components/tools/color-picker";
 import { EditorColorButton } from "$/components/tools/editor-color-button";
 import { changeUiLanguage, currentUiLanguage, tUi, type UiLanguage, tUiSource } from "$/i18n";
@@ -50,7 +51,6 @@ import {
   DEFAULT_EDITOR_PREFERENCES,
   type EditorPreferences,
 } from "$/managers/preferences/editor-preferences";
-import { EDITOR_THEME_OPTIONS } from "$/managers/preferences/editor-themes";
 import {
   DEFAULT_FILE_PREFERENCES,
   type FilePreferences,
@@ -1786,7 +1786,7 @@ export function PreferencesDialog({
                           data-ui-listbox="preferences-theme"
                           bounds={box(358, 125, narrowLayout ? 333 : 160, 270)}
                           relativeTo={client}
-                          items={EDITOR_THEME_OPTIONS}
+                          items={editorThemeOptions()}
                           value={selectedAppearanceTheme}
                           onValueChange={(theme) =>
                             preview({
