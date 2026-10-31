@@ -61,12 +61,23 @@ export function linePrefix(image: GridImageView, vertical: boolean): LinePrefix 
       const alpha = data[o + CHANNELS] / ALPHA_SCALE;
       const at = base + (p + 1) * (CHANNELS + 1),
         previous = base + p * (CHANNELS + 1);
-      let square = 0;
-      for (let c = 0; c < CHANNELS; c++) {
-        const value = data[o + c] * alpha;
-        sums[at + c] = sums[previous + c] + value;
-        square += value * value;
+      if (alpha === 0) {
+        sums[at] = sums[previous];
+        sums[at + 1] = sums[previous + 1];
+        sums[at + 2] = sums[previous + 2];
+        sums[at + CHANNELS] = sums[previous + CHANNELS];
+        continue;
       }
+      const red = data[o] * alpha,
+        green = data[o + 1] * alpha,
+        blue = data[o + 2] * alpha;
+      sums[at] = sums[previous] + red;
+      sums[at + 1] = sums[previous + 1] + green;
+      sums[at + 2] = sums[previous + 2] + blue;
+      let square = 0;
+      square += red * red;
+      square += green * green;
+      square += blue * blue;
       sums[at + CHANNELS] = sums[previous + CHANNELS] + square;
     }
   }
@@ -88,13 +99,17 @@ export class StripImage {
 /** Squared deviation from their mean of the pixels [from, to) of one line. */
 export function intervalEnergy(sums: Float64Array, base: number, from: number, to: number) {
   if (to <= from) return 0;
-  const count = to - from;
-  let energy =
-    sums[base + to * (CHANNELS + 1) + CHANNELS] - sums[base + from * (CHANNELS + 1) + CHANNELS];
-  for (let c = 0; c < CHANNELS; c++) {
-    const sum = sums[base + to * (CHANNELS + 1) + c] - sums[base + from * (CHANNELS + 1) + c];
-    energy -= (sum * sum) / count;
-  }
+  const count = to - from,
+    start = base + from * (CHANNELS + 1),
+    end = base + to * (CHANNELS + 1);
+  let energy = sums[end + CHANNELS] - sums[start + CHANNELS];
+  const red = sums[end] - sums[start],
+    green = sums[end + 1] - sums[start + 1],
+    blue = sums[end + 2] - sums[start + 2];
+  if (energy === 0 && red === 0 && green === 0 && blue === 0) return energy;
+  energy -= (red * red) / count;
+  energy -= (green * green) / count;
+  energy -= (blue * blue) / count;
   return energy;
 }
 
@@ -245,6 +260,10 @@ function axisEvidence(prefix: LinePrefix, cuts: readonly number[], across: reado
   );
 }
 
+export type ChanceEvidenceStop = (lowerBound: number) => boolean;
+/** Raw per-axis/per-factor measurements; totals depend on the caller's incumbent. */
+export type ChanceEvidenceFragments = (number | undefined)[];
+
 /**
  * Phase evidence the strip search finds without the grid, per sample: on each axis, the most it
  * finds at the off-pitch factors, averaged over the two axes.
@@ -253,15 +272,34 @@ export function chanceEvidence(
   strips: StripImage,
   cutsX: readonly number[],
   cutsY: readonly number[],
+  stopIfCannotWin?: ChanceEvidenceStop,
+  fragments?: ChanceEvidenceFragments,
 ): number {
-  let total = 0;
-  for (const vertical of [false, true]) {
+  const axes = [false, true] as const;
+  let total = 0,
+    remaining = axes.length * OFF_PITCH_FACTORS.length,
+    slot = 0;
+  for (const vertical of axes) {
     const cuts = vertical ? cutsY : cutsX,
       across = vertical ? cutsX : cutsY;
     let most = 0;
     for (const factor of OFF_PITCH_FACTORS) {
       const off = offPitch(cuts, factor);
-      if (off) most = Math.max(most, axisEvidence(strips.prefix(vertical), off, across));
+      if (off) {
+        let value = fragments?.[slot];
+        if (value === undefined) {
+          value = axisEvidence(strips.prefix(vertical), off, across);
+          if (fragments) fragments[slot] = value;
+        }
+        most = Math.max(most, value);
+      }
+      slot++;
+      remaining--;
+      if (stopIfCannotWin && remaining > 0) {
+        const lowerBound = (total + most) * HALF;
+        if (Number.isFinite(lowerBound) && lowerBound >= 0 && stopIfCannotWin(lowerBound))
+          return Infinity;
+      }
     }
     total += most;
   }

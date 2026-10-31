@@ -53,6 +53,35 @@ function driftRows(image: PixelBuffer): PixelBuffer {
 }
 
 describe("compact inverse grid sampling", () => {
+  test("large distinct shift patterns keep source ownership and per-stage clamping", () => {
+    const size = 600;
+    const source = { width: size, height: size, data: new Uint8ClampedArray(size * size * STRIDE) };
+    const view = shiftedGridImage(source, {
+      axis: PixelGridSamplingAxis.Horizontal,
+      bands: [0, size],
+      across: Array.from({ length: size + 1 }, (_, i) => i),
+      shifts: [Array.from({ length: size }, (_, i) => i - size / 2)],
+    });
+    expect(view.data).toBe(source.data);
+    expect(view.offset!(0, 0)).toBe(0);
+    expect(view.offset!(599, 0)).toBe(299 * STRIDE);
+    expect(view.offset!(300, 300)).toBe((300 * size + 300) * STRIDE);
+    expect(view.offset!(0, 599)).toBe((599 * size + 299) * STRIDE);
+    expect(view.offset!(599, 599)).toBe((size * size - 1) * STRIDE);
+  });
+
+  test("an invalid shift matrix fails when read instead of substituting pixel zero", () => {
+    const source = { width: 4, height: 4, data: new Uint8ClampedArray(4 * 4 * STRIDE) };
+    const view = shiftedGridImage(source, {
+      axis: PixelGridSamplingAxis.Horizontal,
+      bands: [0, 4],
+      across: [0, 4],
+      shifts: [],
+    });
+    expect(view.data).toBe(source.data);
+    expect(() => view.offset!(0, 0)).toThrow(TypeError);
+  });
+
   test("interval lookup keeps the later band at equal and fractional boundaries", () => {
     const source = {
       width: 5,

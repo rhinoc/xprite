@@ -21,6 +21,8 @@ import {
   chanceEvidence,
   StripImage,
   stripShear,
+  type ChanceEvidenceFragments,
+  type ChanceEvidenceStop,
   type StripShear,
 } from "$/import-export/image/import/grid-strip-shift";
 import {
@@ -233,7 +235,7 @@ interface ShiftedReading {
   shear: StripShear;
   frame: () => DescribedImage;
   twin: () => DescribedImage;
-  chance: () => number;
+  chance: (stopIfCannotWin?: ChanceEvidenceStop) => number;
 }
 
 /** The correction search and sampled colors depend on geometry, independently of the cut model. */
@@ -243,24 +245,38 @@ function shiftedReadings(
   cutsY: number[],
 ): readonly ShiftedReading[] {
   const field = phaseField(strips, cutsX, cutsY);
-  const shifted: { shear: StripShear | null; chance: () => number }[] = [
-    { shear: stripShear(strips, cutsX, cutsY), chance: () => chanceEvidence(strips, cutsX, cutsY) },
+  const shifted: {
+    shear: StripShear | null;
+    chance: (stopIfCannotWin?: ChanceEvidenceStop, fragments?: ChanceEvidenceFragments) => number;
+  }[] = [
+    {
+      shear: stripShear(strips, cutsX, cutsY),
+      chance: (stop, fragments) => chanceEvidence(strips, cutsX, cutsY, stop, fragments),
+    },
     {
       shear: field,
-      chance: () => fieldChanceEvidence(strips, cutsX, cutsY, field!.bandsX, field!.bandsY),
+      chance: (stop, fragments) =>
+        fieldChanceEvidence(strips, cutsX, cutsY, field!.bandsX, field!.bandsY, stop, fragments),
     },
   ];
   return shifted.flatMap(({ shear, chance }) => {
     if (!shear) return [];
     let frame: DescribedImage | undefined,
       twin: DescribedImage | undefined,
-      evidence: number | undefined;
+      evidence: number | undefined,
+      fragments: ChanceEvidenceFragments | undefined;
     return [
       {
         shear,
         frame: () => (frame ??= describeImage(shear.straight)),
         twin: () => (twin ??= describeImage(shear.twin())),
-        chance: () => (evidence ??= chance()),
+        chance: (stop) => {
+          if (evidence !== undefined) return evidence;
+          const measured = chance(stop, (fragments ??= []));
+          // A stopped measurement is not a reusable exact value for another cut model.
+          if (measured !== Infinity) evidence = measured;
+          return measured;
+        },
       },
     ];
   });
@@ -300,9 +316,22 @@ function readingOf(
       sampling: shear.straight.sampling,
     };
     // Chance evidence only adds to a score, so it is measured only for a reading that could win.
-    if (phaseScore(reading) >= phaseScore(best)) continue;
-    reading.chance = chance();
-    if (phaseScore(reading) < phaseScore(best)) best = reading;
+    const optimistic = phaseScore(reading),
+      incumbent = phaseScore(best);
+    if (optimistic >= incumbent) continue;
+    const canBound =
+      Number.isFinite(reading.length) &&
+      Number.isFinite(reading.twin) &&
+      Number.isFinite(optimistic) &&
+      Number.isFinite(incumbent);
+    reading.chance = chance(
+      canBound
+        ? (lowerBound) =>
+            phaseScore({ length: reading.length, twin: reading.twin, chance: lowerBound }) >=
+            incumbent
+        : undefined,
+    );
+    if (phaseScore(reading) < incumbent) best = reading;
   }
   return best;
 }

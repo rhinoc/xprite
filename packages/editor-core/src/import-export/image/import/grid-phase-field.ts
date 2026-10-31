@@ -8,6 +8,8 @@ import {
   linePrefix,
   OFF_PITCH_FACTORS,
   offPitch,
+  type ChanceEvidenceFragments,
+  type ChanceEvidenceStop,
   type LinePrefix,
   type StripImage,
   type StripShear,
@@ -78,17 +80,39 @@ function dropTable(prefix: LinePrefix): Float64Array {
   if (cached) return cached;
   const { length, lines, sums } = prefix;
   const drops = new Float64Array(lines.length * (length + 1));
-  const value = (base: number, p: number, c: number) =>
-    sums[base + (p + 1) * (CHANNELS + 1) + c] - sums[base + p * (CHANNELS + 1) + c];
   for (let k = 0; k < lines.length; k++) {
+    // linePrefix accumulates nonnegative squared premultiplied RGB; a zero sum codes a zero line.
+    if (sums[(k + 1) * (length + 1) * (CHANNELS + 1) - 1] === 0) continue;
     const base = k * (length + 1) * (CHANNELS + 1),
       row = k * (length + 1);
+    let previousRed = 0,
+      previousGreen = 0,
+      previousBlue = 0;
     for (let p = 0; p < length; p++) {
-      const neighbour = p > 0 ? p - 1 : Math.min(length - 1, p + 1);
+      const at = base + (p + 1) * (CHANNELS + 1),
+        before = at - (CHANNELS + 1);
+      const red = sums[at] - sums[before];
+      const green = sums[at + 1] - sums[before + 1];
+      const blue = sums[at + 2] - sums[before + 2];
+      let neighbourRed = previousRed,
+        neighbourGreen = previousGreen,
+        neighbourBlue = previousBlue;
+      if (p === 0) {
+        const neighbour = Math.min(length - 1, 1);
+        const neighbourAt = base + (neighbour + 1) * (CHANNELS + 1),
+          neighbourBefore = neighbourAt - (CHANNELS + 1);
+        neighbourRed = sums[neighbourAt] - sums[neighbourBefore];
+        neighbourGreen = sums[neighbourAt + 1] - sums[neighbourBefore + 1];
+        neighbourBlue = sums[neighbourAt + 2] - sums[neighbourBefore + 2];
+      }
       let step = 0;
-      for (let c = 0; c < CHANNELS; c++)
-        step += (value(base, p, c) - value(base, neighbour, c)) ** 2;
+      step += (red - neighbourRed) ** 2;
+      step += (green - neighbourGreen) ** 2;
+      step += (blue - neighbourBlue) ** 2;
       drops[row + p + 1] = drops[row + p] + colourStepCost(step);
+      previousRed = red;
+      previousGreen = green;
+      previousBlue = blue;
     }
   }
   dropTables.set(prefix, drops);
@@ -146,7 +170,20 @@ function energyTable(
     ids[i] = id;
   }
   const intervalEnergies = new Float64Array(uniqueFroms.length);
+  // Preserve non-integer typed-array lookup behaviour for fractional cell boundaries.
+  const zeroLineSafe = uniqueFroms.every(
+    (from, i) =>
+      Number.isInteger(from) &&
+      Number.isInteger(uniqueTos[i]) &&
+      from >= 0 &&
+      from <= length &&
+      uniqueTos[i] >= 0 &&
+      uniqueTos[i] <= length,
+  );
+
   for (let k = 0; k < lines.length; k++) {
+    // linePrefix accumulates nonnegative squared premultiplied RGB; a zero sum codes a zero line.
+    if (zeroLineSafe && line[(k + 1) * (length + 1) * (CHANNELS + 1) - 1] === 0) continue;
     const base = k * (length + 1) * (CHANNELS + 1);
     for (let i = 0; i < intervalEnergies.length; i++)
       intervalEnergies[i] = intervalEnergy(line, base, uniqueFroms[i], uniqueTos[i]);
@@ -533,18 +570,33 @@ export function fieldChanceEvidence(
   cutsY: readonly number[],
   bandsX: number,
   bandsY: number,
+  stopIfCannotWin?: ChanceEvidenceStop,
+  fragments?: ChanceEvidenceFragments,
 ): number {
-  let total = 0;
-  for (const vertical of [false, true]) {
+  const axes = [false, true] as const;
+  let total = 0,
+    remaining = axes.length * OFF_PITCH_FACTORS.length,
+    slot = 0;
+  for (const vertical of axes) {
     const cuts = vertical ? cutsY : cutsX;
     let most = 0;
     for (const factor of OFF_PITCH_FACTORS) {
       const off = offPitch(cuts, factor);
-      if (off)
-        most = Math.max(
-          most,
-          axisEvidence(strips.prefix(vertical), off, vertical ? bandsY : bandsX),
-        );
+      if (off) {
+        let value = fragments?.[slot];
+        if (value === undefined) {
+          value = axisEvidence(strips.prefix(vertical), off, vertical ? bandsY : bandsX);
+          if (fragments) fragments[slot] = value;
+        }
+        most = Math.max(most, value);
+      }
+      slot++;
+      remaining--;
+      if (stopIfCannotWin && remaining > 0) {
+        const lowerBound = (total + most) * HALF;
+        if (Number.isFinite(lowerBound) && lowerBound >= 0 && stopIfCannotWin(lowerBound))
+          return Infinity;
+      }
     }
     total += most;
   }

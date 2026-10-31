@@ -9,6 +9,9 @@ import {
 const STRIDE = 4;
 /** Retain Auto's existing confidence gate for local correction during coloring. */
 const SAMPLING_MIN_CONFIDENCE = 0.35;
+/** Bounded coordinate metadata, with no corrected RGBA allocation. */
+const MAX_SHIFT_LOOKUP_ENTRIES = 1 << 18;
+const MAX_INT32_COORDINATE = 2 ** 31 - 1;
 
 /** Internal image view. Its data stays in the source; only offset reads apply local shifts. */
 export interface GridImageView extends PixelBuffer {
@@ -50,6 +53,81 @@ export function shiftedGridImage(
       ? (x, y) => previous(Math.max(0, Math.min(width - 1, x + shifts[bands[x]][across[y]])), y)
       : (x, y) =>
           (y * width + Math.max(0, Math.min(width - 1, x + shifts[bands[x]][across[y]]))) * STRIDE;
+  }
+  const length = vertical ? height : width;
+  const perpendicular = vertical ? width : height;
+  const intervals = stage.across.length - 1;
+  // Keep original reads for fractional/non-index coordinates and unsupported shift inputs.
+  const original = offset;
+  const matrixValid =
+    stage.bands.length >= 2 &&
+    stage.across.length >= 2 &&
+    Array.isArray(stage.shifts) &&
+    stage.shifts.length === stage.bands.length - 1 &&
+    Array.from(stage.shifts).every((row) => row?.length === intervals);
+  if (
+    matrixValid &&
+    Number.isSafeInteger(length) &&
+    length <= MAX_INT32_COORDINATE &&
+    Number.isSafeInteger(perpendicular) &&
+    length + 2 * stage.shifts.length + 2 * perpendicular + intervals <= MAX_SHIFT_LOOKUP_ENTRIES
+  ) {
+    const ids = new Int32Array(intervals);
+    const bySignature = new Map<string, number>();
+    const patterns: number[][] = [];
+    let valid = true;
+    for (let k = 0; k < intervals; k++) {
+      const pattern = stage.shifts.map((row) => row[k]);
+      if (!pattern.every(Number.isSafeInteger)) {
+        valid = false;
+        break;
+      }
+      const signature = pattern.join(",");
+      let id = bySignature.get(signature);
+      if (id === undefined) {
+        if (
+          (patterns.length + 1) * (length + 2 * pattern.length) + 2 * perpendicular + intervals >
+          MAX_SHIFT_LOOKUP_ENTRIES
+        ) {
+          valid = false;
+          break;
+        }
+        id = patterns.length;
+        bySignature.set(signature, id);
+        patterns.push(pattern);
+      }
+      ids[k] = id;
+    }
+    if (valid) {
+      const maps = patterns.map((pattern) => {
+        const coordinates = new Int32Array(length);
+        for (let p = 0; p < length; p++)
+          coordinates[p] = Math.max(0, Math.min(length - 1, p + pattern[bands[p]]));
+        return coordinates;
+      });
+      const byLine = Array.from({ length: perpendicular }, (_, p) => maps[ids[across[p]]]);
+      if (vertical) {
+        offset = previous
+          ? (x, y) => {
+              const at = byLine[x]?.[y];
+              return at === undefined ? original(x, y) : previous(x, at);
+            }
+          : (x, y) => {
+              const at = byLine[x]?.[y];
+              return at === undefined ? original(x, y) : (at * width + x) * STRIDE;
+            };
+      } else {
+        offset = previous
+          ? (x, y) => {
+              const at = byLine[y]?.[x];
+              return at === undefined ? original(x, y) : previous(at, y);
+            }
+          : (x, y) => {
+              const at = byLine[y]?.[x];
+              return at === undefined ? original(x, y) : (y * width + at) * STRIDE;
+            };
+      }
+    }
   }
   return { width, height, data, sampling: [...(image.sampling ?? []), stage], offset };
 }

@@ -17,7 +17,6 @@ import { PixelationAlgorithm, type PixelGridAnalysis } from "$/import-export/ima
  * divides its multiples too and scores about as high, so among the steps near the best score the
  * longest one that is itself a common distance stands for its axis, at the cell count it rounds to.
  */
-const CHANNELS = 3;
 const STRIDE = 4;
 const ALPHA_SCALE = 255;
 const ALPHA_CHANNEL = 3;
@@ -64,8 +63,6 @@ function lineSteps(image: PixelBuffer, horizontal: boolean) {
   const lines = Math.min(count, MAX_LINES);
   const steps = new Float64Array(lines * (length - 1));
   const half = (COHERENCE_LINES - 1) >> 1;
-  const offset = (along: number, line: number) =>
-    (horizontal ? line * width + along : along * width + line) * STRIDE;
   // Adjacent coherence windows overlap; keep each source line only until its last use.
   const cached = new Map<number, Float64Array>();
   for (let k = 0; k < lines; k++) {
@@ -77,15 +74,18 @@ function lineSteps(image: PixelBuffer, horizontal: boolean) {
       let values = cached.get(line);
       if (!values) {
         values = new Float64Array(length - 1);
+        const stride = horizontal ? STRIDE : width * STRIDE;
+        let a = (horizontal ? line * width : line) * STRIDE;
         for (let i = 0; i + 1 < length; i++) {
-          const a = offset(i, line),
-            b = offset(i + 1, line);
+          const b = a + stride;
           const alphaA = data[a + ALPHA_CHANNEL] / ALPHA_SCALE,
             alphaB = data[b + ALPHA_CHANNEL] / ALPHA_SCALE;
           let step = Math.abs(data[a + ALPHA_CHANNEL] - data[b + ALPHA_CHANNEL]);
-          for (let c = 0; c < CHANNELS; c++)
-            step += Math.abs(data[a + c] * alphaA - data[b + c] * alphaB);
+          step += Math.abs(data[a] * alphaA - data[b] * alphaB);
+          step += Math.abs(data[a + 1] * alphaA - data[b + 1] * alphaB);
+          step += Math.abs(data[a + 2] * alphaA - data[b + 2] * alphaB);
           values[i] = step;
+          a = b;
         }
         cached.set(line, values);
       }

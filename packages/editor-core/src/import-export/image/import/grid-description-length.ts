@@ -451,13 +451,22 @@ function bilinearError(
   described: DescribedImage,
   cutsX: readonly number[],
   cutsY: readonly number[],
+  bound?: RenderingLengthBound,
 ) {
-  const { content: image, lines, values } = described;
+  const { content: image, lines, values, samples, parameter } = described;
+  const useBound =
+    bound !== undefined &&
+    Number.isFinite(bound.best) &&
+    Number.isFinite(bound.structure) &&
+    Number.isFinite(samples) &&
+    samples > 0 &&
+    Number.isFinite(parameter);
   const { width, height } = image;
   const across = cutsX.length - 1,
     down = cutsY.length - 1;
   const cx = centres(cutsX, width),
     cy = centres(cutsY, height);
+  const finiteWeights = cx.weight.every(Number.isFinite) && cy.weight.every(Number.isFinite);
   const colours = new Float64Array(across * down * CHANNELS);
   const lefts = new Int32Array(width),
     rights = new Int32Array(width);
@@ -471,6 +480,9 @@ function bilinearError(
       bottom = Math.min(down - 1, cy.lower[y] + 1) * across * CHANNELS,
       ty = cy.weight[y];
     for (let x = 0; x < width; x++) {
+      const v = (r * width + x) * CHANNELS;
+      // Finite interpolation weights add only zeros here; the other additions keep their order.
+      if (finiteWeights && values[v] === 0 && values[v + 1] === 0 && values[v + 2] === 0) continue;
       const tx = cx.weight[x],
         o0 = top + lefts[x],
         o1 = top + rights[x],
@@ -479,8 +491,7 @@ function bilinearError(
         s0 = (1 - tx) * (1 - ty),
         s1 = tx * (1 - ty),
         s2 = (1 - tx) * ty,
-        s3 = tx * ty,
-        v = (r * width + x) * CHANNELS;
+        s3 = tx * ty;
       colours[o0] += s0 * values[v];
       colours[o0 + 1] += s0 * values[v + 1];
       colours[o0 + 2] += s0 * values[v + 2];
@@ -505,6 +516,7 @@ function bilinearError(
   for (let i = 0; i < across; i++)
     for (let c = 0; c < CHANNELS; c++)
       solveTridiagonal(gramY, colours, i * CHANNELS + c, across * CHANNELS, scratch);
+  const fittedBound = useBound && finiteWeights && colours.every(Number.isFinite);
   let error = 0;
   for (let r = 0; r < lines.length; r++) {
     const y = lines[r],
@@ -534,14 +546,23 @@ function bilinearError(
       const difference2 = values[v + 2] - rebuilt2;
       error += difference2 * difference2;
     }
+    if (fittedBound) {
+      // Remaining squared residuals and the colour code cannot reduce this rendering length.
+      const lower =
+        (samples / 2) * Math.log(error / samples + RESIDUAL_FLOOR) + 0 + bound!.structure + 0;
+      const slack =
+        LENGTH_BOUND_ROUNDING_ULPS * Number.EPSILON * (Math.abs(lower) + Math.abs(bound!.best) + 1);
+      if (Number.isFinite(lower) && Number.isFinite(slack) && lower - bound!.best > slack)
+        return { error, colours, discarded: true };
+    }
   }
-  return { error, colours };
+  return { error, colours, discarded: false };
 }
 
 /** Numerical slack keeps a bound evaluation away from libm and comparison rounding edges. */
-const BLUR_BOUND_ROUNDING_ULPS = 64;
+const LENGTH_BOUND_ROUNDING_ULPS = 64;
 
-interface BlurLengthBound {
+interface RenderingLengthBound {
   best: number;
   structure: number;
 }
@@ -555,7 +576,7 @@ function blurredError(
   columns: Int32Array,
   rows: Int32Array,
   sigma: number,
-  bound?: BlurLengthBound,
+  bound?: RenderingLengthBound,
 ) {
   const { lines, values: pixels, samples, parameter } = described;
   const useBound =
@@ -572,6 +593,8 @@ function blurredError(
     wy = blurWeights(cutsY, rows, sigma);
   const colours = new Float64Array(moments.means);
   const correction = new Float64Array(colours.length);
+  const finiteHorizontalWeights = wx.every(Number.isFinite);
+  const zeroBlend = new Uint8Array(across);
   // One cell of zeros pads each end of a row's vertical blend.
   const blend = new Float64Array((across + 2 * BLUR_REACH) * CHANNELS);
   let error = 0;
@@ -591,6 +614,22 @@ function blurredError(
         for (let k = 0; k < across * CHANNELS; k++)
           blend[BLUR_REACH * CHANNELS + k] += w * colours[jj * across * CHANNELS + k];
       }
+      // Mark exact zero blends only when multiplying them cannot introduce a nonfinite value.
+      if (finiteHorizontalWeights)
+        for (let i = 0; i < across; i++) {
+          const b = i * CHANNELS;
+          zeroBlend[i] = Number(
+            blend[b] === 0 &&
+              blend[b + 1] === 0 &&
+              blend[b + 2] === 0 &&
+              blend[b + CHANNELS] === 0 &&
+              blend[b + CHANNELS + 1] === 0 &&
+              blend[b + CHANNELS + 2] === 0 &&
+              blend[b + 2 * CHANNELS] === 0 &&
+              blend[b + 2 * CHANNELS + 1] === 0 &&
+              blend[b + 2 * CHANNELS + 2] === 0,
+          );
+        }
       if (last) {
         for (let x = 0; x < width; x++) {
           const i = columns[x],
@@ -600,6 +639,8 @@ function blurredError(
             w0 = wx[t],
             w1 = wx[t + 1],
             w2 = wx[t + 2];
+          if (zeroBlend[i] && pixels[v] === 0 && pixels[v + 1] === 0 && pixels[v + 2] === 0)
+            continue;
           let red = 0;
           red += w0 * blend[b];
           red += w1 * blend[b + CHANNELS];
@@ -628,6 +669,8 @@ function blurredError(
             w0 = wx[t],
             w1 = wx[t + 1],
             w2 = wx[t + 2];
+          if (zeroBlend[i] && pixels[v] === 0 && pixels[v + 1] === 0 && pixels[v + 2] === 0)
+            continue;
           let red = 0;
           red += w0 * blend[b];
           red += w1 * blend[b + CHANNELS];
@@ -658,7 +701,9 @@ function blurredError(
           bound!.structure +
           parameter;
         const slack =
-          BLUR_BOUND_ROUNDING_ULPS * Number.EPSILON * (Math.abs(lower) + Math.abs(bound!.best) + 1);
+          LENGTH_BOUND_ROUNDING_ULPS *
+          Number.EPSILON *
+          (Math.abs(lower) + Math.abs(bound!.best) + 1);
         if (Number.isFinite(lower) && Number.isFinite(slack) && lower - bound!.best > slack)
           return { error, colours, discarded: true };
       }
@@ -699,8 +744,6 @@ function renderingLength(
     );
   };
   let best = length(moments.flat, moments.means);
-  const bilinear = bilinearError(described, cutsX, cutsY);
-  best = Math.min(best, length(bilinear.error, bilinear.colours));
   // A slope pays for itself where the residual it removes, at the flat cells' precision, beats
   // its parameters; every cell also says whether it carries one.
   const precision = 2 * (moments.flat / samples + RESIDUAL_FLOOR);
@@ -713,6 +756,8 @@ function renderingLength(
       planarCost += slopeCost;
     }
   best = Math.min(best, length(planarError, moments.means, planarCost));
+  const bilinear = bilinearError(described, cutsX, cutsY, { best, structure });
+  if (!bilinear.discarded) best = Math.min(best, length(bilinear.error, bilinear.colours));
   const pitch = Math.min(image.width / across, image.height / down);
   for (const sigma of BLUR_WIDTHS) {
     if (sigma > MAX_BLUR_SHARE * pitch) break;

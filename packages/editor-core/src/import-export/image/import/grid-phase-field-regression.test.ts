@@ -5,7 +5,11 @@ import { describe, expect, test } from "vitest";
 import type { PixelBuffer } from "$/base/primitives";
 import { fieldChanceEvidence, phaseField } from "$/import-export/image/import/grid-phase-field";
 import { materializeGridImage } from "$/import-export/image/import/grid-sampling";
-import { StripImage } from "$/import-export/image/import/grid-strip-shift";
+import {
+  chanceEvidence,
+  StripImage,
+  type ChanceEvidenceFragments,
+} from "$/import-export/image/import/grid-strip-shift";
 
 const STRIDE = 4;
 const PITCH = 4;
@@ -114,6 +118,33 @@ const CASES = [
 ];
 
 describe("phase-field energy prefixes and column reuse", () => {
+  test.each([false, true])(
+    "resumes a stopped chance measurement for a later model (field=%s)",
+    (field) => {
+      const cells = 16;
+      const cuts = regularCuts(cells);
+      const strips = new StripImage(bandWarp(cells));
+      const measure = (stop?: (lower: number) => boolean, fragments?: ChanceEvidenceFragments) =>
+        field
+          ? fieldChanceEvidence(strips, cuts, cuts, 2, 2, stop, fragments)
+          : chanceEvidence(strips, cuts, cuts, stop, fragments);
+      const expected = measure();
+      const fragments: ChanceEvidenceFragments = [];
+      expect(measure(() => true, fragments)).toBe(Infinity);
+      expect(fragments).toHaveLength(1);
+      expect(
+        Object.is(
+          measure(() => false, fragments),
+          expected,
+        ),
+      ).toBe(true);
+      expect(fragments).toHaveLength(4);
+      const complete = [...fragments];
+      expect(Object.is(measure(undefined, fragments), expected)).toBe(true);
+      expect(fragments).toEqual(complete);
+    },
+  );
+
   test.each(CASES)("preserves the $bandsX-band field and its off-pitch evidence", (expected) => {
     const image = bandWarp(expected.cells);
     const cuts = regularCuts(expected.cells);
