@@ -7,7 +7,7 @@ export type ResolvedAppearance = Exclude<AppearanceMode, AppearanceMode.System>;
 export const APPEARANCE_MODE_STORAGE_KEY = "xse.ui.appearance-mode.v1";
 export const APPEARANCE_THEME_STORAGE_KEY = "xse.ui.theme.v1";
 
-/** Editor color themes; Aseprite keeps the original artwork, the others are OKLCH families. */
+/** Editor color themes; Aseprite keeps the original artwork and stays the default. */
 export enum AppearanceTheme {
   Ocean = "color-family-ocean",
   OceanVivid = "color-family-ocean-vivid",
@@ -23,7 +23,7 @@ export enum AppearanceTheme {
   CocoaVivid = "color-family-cocoa-vivid",
   Aseprite = "aseprite",
 }
-export const DEFAULT_APPEARANCE_THEME = AppearanceTheme.Ocean;
+export const DEFAULT_APPEARANCE_THEME = AppearanceTheme.Aseprite;
 const APPEARANCE_THEMES = new Set<string>(Object.values(AppearanceTheme));
 
 export function resolveAppearanceMode(
