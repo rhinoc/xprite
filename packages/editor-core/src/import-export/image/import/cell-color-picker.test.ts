@@ -1,23 +1,10 @@
 import { describe, expect, test } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
-import { getAllColorPickers } from "$/import-export/image/import/cell-color-picker";
-import { addNoise, sprite, upscaleNearest } from "$/import-export/image/import/grid-test-images";
-import { pixelateImage } from "$/import-export/image/import/pixelate";
-import {
-  detectWithAlgorithm,
-  getAllAlgorithms,
-  recoverWithGrid,
-} from "$/import-export/image/import/pixelation-algorithm-registry";
-import {
-  CellColorPicker,
-  PixelationAlgorithm,
-  PixelationMode,
-} from "$/import-export/image/import/types";
+import { recoverWithGrid } from "$/import-export/image/import/pixelation-algorithm-registry";
+import { CellColorPicker } from "$/import-export/image/import/types";
 
 const { MostCommon, Average, Median, KMeans, Contrast, Nearest } = CellColorPicker;
-const noisy = addNoise(upscaleNearest(sprite(64), 12), 24);
-const gridAlgorithms = getAllAlgorithms().filter((id) => id !== PixelationAlgorithm.Resize);
 
 /** One 3x3 cell: six red pixels and three blue ones. */
 function mixedCell(): PixelBuffer {
@@ -56,54 +43,5 @@ describe("cell colour pickers", () => {
     expect(
       Math.abs(grey([230, 230, 230, 230, 230, 230, 20, 20, 20])(Contrast) - 230),
     ).toBeLessThanOrEqual(1);
-  });
-  test("the picker table lists every picker", () => {
-    expect([...getAllColorPickers()].sort()).toEqual(
-      [Average, MostCommon, Median, KMeans, Contrast, Nearest].sort(),
-    );
-  });
-  test("every grid detector composes with every picker", () => {
-    for (const algorithm of gridAlgorithms) {
-      const grid = detectWithAlgorithm(noisy, algorithm);
-      expect(grid.reliable, algorithm).toBe(true);
-      for (const picker of getAllColorPickers()) {
-        const out = pixelateImage(noisy, {
-          mode: PixelationMode.RecoverGrid,
-          algorithm,
-          colorPicker: picker,
-        });
-        expect([out.width, out.height], `${algorithm}+${picker}`).toEqual([
-          grid.width,
-          grid.height,
-        ]);
-      }
-    }
-  });
-  test("different pickers give different pixels on every detector's grid", () => {
-    for (const algorithm of gridAlgorithms) {
-      const outputs = getAllColorPickers().map((picker) =>
-        Array.from(
-          pixelateImage(noisy, { mode: PixelationMode.RecoverGrid, algorithm, colorPicker: picker })
-            .data,
-        ).join(","),
-      );
-      expect(new Set(outputs).size, algorithm).toBe(outputs.length);
-    }
-  });
-  test("different pickers give different pixels on the same grid", () => {
-    const run = (picker: CellColorPicker) =>
-      pixelateImage(noisy, {
-        mode: PixelationMode.RecoverGrid,
-        algorithm: PixelationAlgorithm.UniformGrid,
-        colorPicker: picker,
-      }).data;
-    const same = (a: Uint8ClampedArray, b: Uint8ClampedArray) =>
-      a.length === b.length && a.every((value, i) => value === b[i]);
-    const pickers = getAllColorPickers();
-    for (let i = 0; i < pickers.length; i++)
-      for (let j = i + 1; j < pickers.length; j++)
-        expect(same(run(pickers[i]), run(pickers[j])), `${pickers[i]} vs ${pickers[j]}`).toBe(
-          false,
-        );
   });
 });

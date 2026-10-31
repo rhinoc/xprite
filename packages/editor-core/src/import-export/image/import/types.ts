@@ -58,6 +58,7 @@ export enum PixelationMethod {
   MostFrequent = "most-frequent",
   Dominant = "dominant",
   Structure = "structure",
+  TwoStage = "two-stage",
 }
 
 export enum PixelationMode {
@@ -91,6 +92,14 @@ export enum PixelationDither {
   FloydSteinberg = "floyd-steinberg",
 }
 
+/** How the max color count is determined when Limit colors is on. */
+export enum PaletteColorMode {
+  /** User-specified fixed count (e.g. 16). */
+  Fixed = "fixed",
+  /** One colour per group of near-duplicate shades (Lab ΔE) in the recovered image. */
+  Adaptive = "adaptive",
+}
+
 /** How a line drawing changes PixelOE's outline weight (1 = spread dark, 0 = spread bright). */
 export enum LineGuideMode {
   /** max(weight, lines): PixelOE's own weight, plus dark spreading along every line. */
@@ -107,6 +116,9 @@ export enum CellColorPicker {
   KMeans = "k-means",
   Contrast = "contrast",
   Nearest = "nearest",
+  Structure = "structure",
+  TwoStage = "two-stage",
+  DualRtTwoStage = "dual-rt-two-stage",
 }
 
 export enum ImportDialogChoice {
@@ -125,6 +137,22 @@ export interface PixelGridGeometry {
   cutsX?: readonly number[];
   cutsY?: readonly number[];
 }
+export enum PixelGridSamplingAxis {
+  Horizontal = "horizontal",
+  Vertical = "vertical",
+}
+
+/** A piecewise constant inverse displacement: one shift per band and across-axis interval. */
+export interface PixelGridSamplingStage {
+  axis: PixelGridSamplingAxis;
+  /** Boundaries along the displaced axis, first 0 and last its length. */
+  bands: readonly number[];
+  /** Boundaries on the other axis, first 0 and last its length. */
+  across: readonly number[];
+  /** [band][across interval], in whole source pixels. */
+  shifts: readonly (readonly number[] | Int32Array)[];
+}
+
 export interface PixelGridAnalysis extends PixelGridGeometry {
   confidence: number;
   reliable: boolean;
@@ -135,6 +163,8 @@ export interface PixelGridAnalysis extends PixelGridGeometry {
    * are measured in that straightened image, so recovery applies the same rotation first.
    */
   rotation?: number;
+  /** Local inverse sampling steps in the straightened source, in application order. */
+  sampling?: readonly PixelGridSamplingStage[];
 }
 
 export interface PixelationSize {
@@ -144,8 +174,10 @@ export interface PixelationSize {
 
 /** Limit colors, applied to the pixelated image (see palette-snap.ts). */
 export interface PaletteSnapOptions {
-  /** Number of colours to cluster into (k-means); ignored when `palette` is given. */
+  /** Number of colours to cluster into (k-means); ignored when `palette` or `adaptive` is given. */
   colors?: number;
+  /** Estimate color count from the image instead of using a fixed count. */
+  adaptive?: boolean;
   /** Snap every visible pixel to its nearest entry (CIE Lab) instead of clustering. */
   palette?: readonly Rgba[];
   /** Ordered / Floyd–Steinberg while snapping; None (nearest) when omitted. */
@@ -231,6 +263,8 @@ export interface PixelationSettings {
   lockAspectRatio: boolean;
   /** Dithering for Limit colors; ignored when Limit colors is off. */
   dither: PixelationDither;
+  /** How the color count is chosen when Limit colors is on and no palette is loaded. */
+  paletteColorMode: PaletteColorMode;
   palette: readonly Rgba[] | null;
   paletteName: string;
 }

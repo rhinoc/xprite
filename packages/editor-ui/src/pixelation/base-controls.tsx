@@ -3,6 +3,7 @@ import { useState, type ReactNode } from "react";
 import type { PaletteTranslate } from "$/palette/model";
 import {
   ALGORITHM_LABELS,
+  COLOR_MODE_LABELS,
   DITHER_LABELS,
   LABELS,
   LINE_GUIDE_LABELS,
@@ -19,6 +20,7 @@ import {
   CellColorPicker,
   LineGuideMode,
   OutlinePrepass,
+  PaletteColorMode,
   PIXELATION_SIZES,
   PixelationAlgorithm,
   PixelationDither,
@@ -43,6 +45,8 @@ export enum PixelationSlot {
   Height = "height",
   ColorPicker = "color-picker",
   LimitColors = "limit-colors",
+  /** Choose between Fixed N and Adaptive when Limit colors is on and no palette loaded. */
+  ColorMode = "color-mode",
   Colors = "colors",
   /** Only when Limit colors is on. */
   Dither = "dither",
@@ -178,8 +182,31 @@ export function usePixelationBase(
         />
       ),
     },
+    [PixelationSlot.ColorMode]: {
+      visible: show(PixelationSlot.ColorMode, limited && settings.palette === null),
+      label: null,
+      render: (placement, pixelWidth) => (
+        <Combobox
+          pixelWidth={pixelWidth ?? FIELD_WIDTH}
+          {...placement}
+          aria-label={t(LABELS.colorMode)}
+          value={settings.paletteColorMode}
+          disabled={busy || !limited}
+          options={Object.values(PaletteColorMode).map((id) => ({
+            value: id,
+            label: t(COLOR_MODE_LABELS[id]),
+          }))}
+          onValueChange={(value) => onChange({ paletteColorMode: value as PaletteColorMode })}
+        />
+      ),
+    },
     [PixelationSlot.Colors]: {
-      visible: show(PixelationSlot.Colors, limited && settings.palette === null),
+      visible: show(
+        PixelationSlot.Colors,
+        limited &&
+          settings.palette === null &&
+          settings.paletteColorMode === PaletteColorMode.Fixed,
+      ),
       label: t(LABELS.colors),
       render: (placement) => (
         <Input

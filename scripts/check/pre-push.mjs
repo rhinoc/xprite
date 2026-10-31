@@ -29,9 +29,9 @@ if (scope.visual && skipVisualEnv) {
 const phase1 = [run("check", { buffered: true, args: ["--skip", "site-build"] })];
 if (scope.site) {
   phase1.push(run("check:deploy", { buffered: true, args: ["--build"] }));
-  console.log("pre-push: [1/2] check in parallel with the site build (check:deploy --build)");
+  console.log("pre-push: [1/3] check in parallel with the site build (check:deploy --build)");
 } else {
-  console.log("pre-push: [1/2] check only (site-build skipped)");
+  console.log("pre-push: [1/3] check only (site-build skipped)");
 }
 
 let failed = report(await Promise.all(phase1));
@@ -40,12 +40,16 @@ if (failed) {
   process.exit(failed);
 }
 
+if (scope.unit) {
+  console.log("\npre-push: [2/3] test:ci (visual audits wait for the unit workers)");
+  const unitFailure = report([await run("test:ci", { buffered: true })]);
+  failed ||= unitFailure;
+} else {
+  console.log("\npre-push: [2/3] unit tests skipped for this change set");
+}
+
 const phase2 = [];
 const phase2Labels = [];
-if (scope.unit) {
-  phase2.push(run("test:ci", { buffered: true }));
-  phase2Labels.push("test:ci");
-}
 if (runVisual) {
   phase2.push(run("visual", { buffered: true, args: ["--prebuilt"] }));
   phase2Labels.push("visual --prebuilt");
@@ -57,10 +61,11 @@ if (scope.site) {
 }
 
 if (phase2.length === 0) {
-  console.log("\npre-push: [2/2] nothing else to run for this change set");
+  console.log("\npre-push: [3/3] nothing else to run for this change set");
 } else {
-  console.log(`\npre-push: [2/2] ${phase2Labels.join(", ")} in parallel`);
-  failed = report(await Promise.all(phase2));
+  console.log(`\npre-push: [3/3] ${phase2Labels.join(", ")} in parallel`);
+  const laterFailure = report(await Promise.all(phase2));
+  failed ||= laterFailure;
 }
 
 console.log(`\npre-push: ${failed ? "FAILED" : "all steps passed"} in ${seconds(started)} total.`);

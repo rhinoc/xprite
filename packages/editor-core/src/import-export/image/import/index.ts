@@ -1,4 +1,4 @@
-export { analyzePixelArt } from "$/import-export/image/import/analyze";
+export { analyzePixelArt, analyzePixelArtAsync } from "$/import-export/image/import/analyze";
 export {
   extractPalette,
   extractPixelationPalette,
@@ -8,7 +8,7 @@ export {
 export { snapPalette } from "$/import-export/image/import/palette-snap";
 export { estimateTilt, straighten, MAX_TILT_DEGREES } from "$/import-export/image/import/deskew";
 export { resizeNearest } from "$/import-export/image/import/resize";
-export { pixelateImage } from "$/import-export/image/import/pixelate";
+export { pixelateImage, pixelateImageAsync } from "$/import-export/image/import/pixelate";
 export {
   PixelArtClassification,
   PixelationMethod,
@@ -19,6 +19,8 @@ export {
   LineGuideMode,
   OutlinePrepass,
   PixelationDither,
+  PaletteColorMode,
+  PixelGridSamplingAxis,
 } from "$/import-export/image/import/types";
 export {
   DEFAULT_LINE_GUIDE,
@@ -37,6 +39,7 @@ export type {
   PixelationSettings,
   PixelGridGeometry,
   PixelGridAnalysis,
+  PixelGridSamplingStage,
   ImportDialogPreference,
 } from "$/import-export/image/import/types";
 
@@ -73,6 +76,7 @@ export {
   getAllAlgorithms,
   getListedAlgorithms,
   detectWithAlgorithm,
+  detectWithAlgorithmAsync,
   type PixelationAlgorithmEntry,
 } from "$/import-export/image/import/pixelation-algorithm-registry";
 
@@ -81,3 +85,15 @@ export {
   getColorPickerEntry,
   type CellColorPickerEntry,
 } from "$/import-export/image/import/cell-color-picker";
+
+export {
+  preloadWasm,
+  beginAcRlConsensusJob,
+  finishAcRlConsensusJob,
+  beginAcRlConsensusJobAsync,
+  finishAcRlConsensusJobAsync,
+  setAcRlBrowserWorkerFactory,
+  warmAcRlBrowserWorker,
+  acRlWorkerOverlapActive,
+  acRlBrowserWorkerOverlapActive,
+} from "$/import-export/image/import/grid-ac-rl-consensus";

@@ -1,362 +1,154 @@
+/**
+ * Grid arbitration via description-length (MDL).
+ *
+ * GridEvidenceReader shares the image description, line prefixes and distinct readings across
+ * arbitration, corroboration and consensus selection for one evaluation view.
+ */
+
 import type { PixelBuffer } from "$/base/primitives";
 import { MAX_RECOVERED_GRID_SIZE, pixelGridCuts } from "$/import-export/image/import/grid";
 import { snapLatticeCuts } from "$/import-export/image/import/grid-cut-snap";
-import { CutModel, descriptionLength } from "$/import-export/image/import/grid-description-length";
-import { mergeSlivers } from "$/import-export/image/import/grid-detect";
-import { searchGridPitches } from "$/import-export/image/import/grid-pitch-search";
-import { recoverGrid } from "$/import-export/image/import/grid-sample";
 import {
-  CellColorPicker,
+  CutModel,
+  describeImage,
+  descriptionLength,
+  pixelLength,
+  type DescribedImage,
+  type GridCuts,
+} from "$/import-export/image/import/grid-description-length";
+import { fieldChanceEvidence, phaseField } from "$/import-export/image/import/grid-phase-field";
+import {
+  chanceEvidence,
+  StripImage,
+  stripShear,
+  type ChanceEvidenceFragments,
+  type ChanceEvidenceStop,
+  type StripShear,
+} from "$/import-export/image/import/grid-strip-shift";
+import {
   PixelationAlgorithm,
   type PixelGridAnalysis,
+  type PixelGridSamplingStage,
 } from "$/import-export/image/import/types";
 
 /**
- * Multi-hypothesis grid arbitration. The grids of every detector, plus on soft upscales the
- * pitch-search lattices and extra grids the caller proposes (e.g. edge detection on a sharpened
- * copy), compete on their description length of the input (see grid-description-length): no
- * signal reads a native size, a reference image or a label. Each lattice also competes with its
- * cuts snapped to the nearest edges, so a regular count can follow the cuts of the raster that
- * rounded it.
+ * One decision over every proposed grid and the passthrough. Each proposal is read in the ways
+ * its cuts allow, and the reading that scores best stands: an edge mesh as placed; a lattice as
+ * cut or with its cuts snapped to the nearest edges (leaving every cut in place is one of the
+ * snaps, so the offsets have to pay for themselves); and either of them through strip shifts (see
+ * grid-strip-shift) or a phase field (see grid-phase-field), described on the straightened image
+ * and paying for the shifts. Every reading carries three numbers:
  *
- * Pitch-search lattices and proposals have passed no detector's tests, so they first face the
- * null test and the quality gates below:
+ * - its description length of the input (see grid-description-length);
+ * - the length of its twin: the same model with every cut moved half a cell, onto the cell
+ *   middles. A real grid is phase-locked, so its twin describes the input markedly worse; a
+ *   grid the content ignores (photos, gradients, a finer or coarser octave of the true grid that
+ *   only partly lines up) describes it about as well at either phase. Cuts placed on edges
+ *   chose their positions from the input, so their twin settles on edges the same way; it may
+ *   not settle on the reading's own cuts, or it would no longer stand at the other phase. The
+ *   twin of a strip-shifted reading shifts every strip into the anti-phase of its own shift.
+ * - its chance evidence: the phase evidence its strip search finds at pitches the content does
+ *   not have, which the reading does not count as its own (none for unshifted readings).
  *
- * - Phase contrast (the null test): the per-line within-cell residual on the lattice against the
- *   same lattice shifted by half a cell. A real grid is phase-locked; a photo, gradient or
- *   vector drawing has the same residual at every phase.
- * - Cell purity: share of cells whose colour spread stays small.
- * - Cycle consistency: the recovered image, repainted through the same cuts, against the input.
- * - Boundary energy: colour steps on the cuts against steps at the cell middles.
+ * A reading scores its length less PHASE_EVIDENCE_WEIGHT times its phase evidence (the twin's
+ * length less its own and its chance evidence), so among lattices that describe the image about
+ * equally, the one the content is locked to wins. The passthrough carries no phase evidence and
+ * scores the shorter of two descriptions without a recovered grid, less NULL_MARGIN:
+ *
+ * - the image as it is, one cell per pixel (native pixel art and drawings), and
+ * - the best length any proposal reaches at the worse of its two phases, less the phase evidence
+ *   its search finds by chance: what a lattice explains whatever its phase (smooth photos and
+ *   gradients), or with shifts that find a phase on any content, is no evidence of a grid.
+ *
+ * Phase evidence has to come from every cut, which also settles octaves. Split a reading's cuts
+ * into OCTAVE_CLASSES (every second cut, every third cut) and moving one class to the cell
+ * middles should lose about its share of the twin's evidence. A finer octave of a coarser grid,
+ * such as a lattice at half the pitch of a textured upscale, has a class inside the coarser
+ * cells, which moves for free: the shortfall of the least evident class from its share is
+ * evidence the reading does not own, and it adds to the reading's score.
+ *
+ * Geometries are admitted by the strongest proposal's confidence; every cut model for an
+ * admitted geometry competes on the same score, independently of its proposer's confidence.
  */
-const CHANNELS = 4;
-const ALPHA_SCALE = 255;
-const MAX_SAMPLED_LINES = 128;
-const COARSE_SAMPLED_LINES = 32;
-/** Relative pitch ranges (each side) of the coarse and fine sweeps, and their step count. */
-const COARSE_PITCH_SPAN = 0.04;
-const FINE_PITCH_SPAN = 0.006;
-const PITCH_REFINE_STEPS = 6;
-const COARSE_PHASES = 8;
-/** Fine phase steps on each side of the coarse phase, within one coarse step. */
-const FINE_PHASE_STEPS = 4;
-/** Coarse-sweep phase contrast below which a pitch is dropped before the fine sweep. */
-const SCREEN_CONTRAST = 0.1;
-const HALF = 0.5;
-const PURITY_BUDGET = 4096;
-const CYCLE_ROWS = 160;
-const BOUNDARY_LINES = 256;
-/** Inverse golden ratio: a low-discrepancy row sequence that cannot alias with a pitch. */
-const SEQUENCE_STEP = 0.6180339887498949;
-const PURE_STDDEV = 22;
-const CYCLE_ERROR_SCALE = 60;
-const FLAT_ENERGY = 0.5;
-const PURITY_WEIGHT = 0.35;
-const CYCLE_WEIGHT = 0.5;
-const BOUNDARY_WEIGHT = 0.15;
+const PHASE_EVIDENCE_WEIGHT = 1.1;
+/** Nats per sample the passthrough is preferred by. */
+const NULL_MARGIN = 0.03;
 /**
- * Cells per axis a soft grid needs. With fewer, the phase contrast of large smooth features
- * (or waves) can line up with a lattice by chance.
+ * Cells per axis a grid needs: with fewer, a few large features can line up with the cuts by
+ * chance and pass for phase evidence.
  */
 const MIN_CELLS = 8;
-const MIN_PURITY = 0.5;
-const MIN_CYCLE = 0.75;
-const MIN_PHASE_CONTRAST = 0.2;
-/** Lowest weighted score an accepted hypothesis may have. */
-export const ARBITER_FLOOR = 0.3;
+const STRONG_GRID_CONFIDENCE = 0.9;
+const DISTINCT_GEOMETRY_CONFIDENCE_GAP = 0.5;
+/** Every how many cuts the octave classes take. */
+const OCTAVE_CLASSES = [2, 3] as const;
+const HALF = 0.5;
 
-/** Prefix sums (premultiplied R, G, B and their summed squares) along sampled lines of one axis. */
-interface AxisSamples {
-  length: number;
-  lines: number;
-  prefix: Float64Array;
-}
-
-function axisSamples(image: PixelBuffer, horizontal: boolean, maxLines: number): AxisSamples {
-  const { width, height, data } = image;
-  const length = horizontal ? width : height;
-  const cross = horizontal ? height : width;
-  const stride = Math.max(1, Math.floor(cross / maxLines));
-  const lines = Math.ceil(cross / stride);
-  const row = (length + 1) * CHANNELS;
-  const prefix = new Float64Array(lines * row);
-  for (let line = 0; line < lines; line++) {
-    const at = line * stride;
-    let r = 0,
-      g = 0,
-      b = 0,
-      squares = 0;
-    for (let i = 0; i < length; i++) {
-      const o = (horizontal ? at * width + i : i * width + at) * CHANNELS;
-      const alpha = data[o + 3] / ALPHA_SCALE;
-      const pr = data[o] * alpha,
-        pg = data[o + 1] * alpha,
-        pb = data[o + 2] * alpha;
-      r += pr;
-      g += pg;
-      b += pb;
-      squares += pr * pr + pg * pg + pb * pb;
-      const p = line * row + (i + 1) * CHANNELS;
-      prefix[p] = r;
-      prefix[p + 1] = g;
-      prefix[p + 2] = b;
-      prefix[p + 3] = squares;
-    }
-  }
-  return { length, lines, prefix };
-}
-
-/** Mean squared within-segment residual along the sampled lines when the axis is cut at `cuts`. */
-function lineResidual(samples: AxisSamples, cuts: readonly number[]): number {
-  const { length, lines, prefix } = samples;
-  const row = (length + 1) * CHANNELS;
-  let total = 0;
-  for (let line = 0; line < lines; line++) {
-    const base = line * row;
-    for (let s = 0; s + 1 < cuts.length; s++) {
-      const a = base + cuts[s] * CHANNELS,
-        b = base + cuts[s + 1] * CHANNELS;
-      const n = cuts[s + 1] - cuts[s];
-      if (n <= 0) continue;
-      const r = prefix[b] - prefix[a],
-        g = prefix[b + 1] - prefix[a + 1],
-        bl = prefix[b + 2] - prefix[a + 2];
-      total += prefix[b + 3] - prefix[a + 3] - (r * r + g * g + bl * bl) / n;
-    }
-  }
-  return Math.max(0, total / (lines * length));
-}
-
-function latticeCuts(length: number, pitch: number, phase: number): number[] {
-  const wrapped = ((phase % pitch) + pitch) % pitch;
-  return mergeSlivers(pixelGridCuts(length, pitch, wrapped), pitch);
-}
-
-/** Interior cuts moved by `delta`, kept strictly increasing inside (0, length). */
-function shiftCuts(cuts: readonly number[], length: number, delta: number): number[] {
-  const shifted = [0];
-  for (let i = 1; i < cuts.length - 1; i++) {
-    const cut = Math.round(cuts[i] + delta);
-    if (cut > shifted[shifted.length - 1] && cut < length) shifted.push(cut);
-  }
-  shifted.push(length);
-  return shifted;
-}
-
-/** 1 - residual / residual-half-a-cell-off: near 0 when the content ignores the cuts. */
-function phaseContrast(samples: AxisSamples, cuts: readonly number[]): number {
-  const cells = cuts.length - 1;
-  if (cells < 2) return 0;
-  const pitch = samples.length / cells;
-  const aligned = lineResidual(samples, cuts);
-  const off = lineResidual(samples, shiftCuts(cuts, samples.length, pitch * HALF));
-  return off > 0 ? Math.max(0, 1 - aligned / off) : 0;
-}
-
-interface AxisFit {
-  pitch: number;
-  phase: number;
-  cuts: number[];
-}
-
-/** Both sample densities of one axis: sparse lines for the coarse sweep, dense for the rest. */
-interface Axis {
-  coarse: AxisSamples;
-  fine: AxisSamples;
-}
-
-function sweep(
-  samples: AxisSamples,
-  pitches: readonly number[],
-  phasesOf: (pitch: number) => readonly number[],
-): AxisFit {
-  let best = { pitch: pitches[0], phase: 0, cuts: [0, samples.length], residual: Infinity };
-  for (const pitch of pitches)
-    for (const phase of phasesOf(pitch)) {
-      const cuts = latticeCuts(samples.length, pitch, phase);
-      const residual = lineResidual(samples, cuts);
-      if (residual < best.residual) best = { pitch, phase, cuts, residual };
-    }
-  return best;
-}
-
-const around = (centre: number, span: number) =>
-  Array.from(
-    { length: 2 * PITCH_REFINE_STEPS + 1 },
-    (_, i) => centre * (1 + ((i - PITCH_REFINE_STEPS) * span) / PITCH_REFINE_STEPS),
-  );
-
-/**
- * The pitch (near the proposal) and phase whose cuts leave the least within-cell residual: a
- * coarse sweep on sparse lines, then a fine one around its best on dense lines, so a pitch
- * derived from a multiple still locks. Null when the coarse lattice already fails the null
- * test, which spares the fine sweep on photos.
- */
-function fitAxis(axis: Axis, proposed: number): AxisFit | null {
-  const coarseStep = (pitch: number) =>
-    pitch / Math.min(COARSE_PHASES, Math.max(2, Math.ceil(pitch)));
-  const coarse = sweep(axis.coarse, around(proposed, COARSE_PITCH_SPAN), (pitch) =>
-    Array.from({ length: Math.round(pitch / coarseStep(pitch)) }, (_, k) => k * coarseStep(pitch)),
-  );
-  if (phaseContrast(axis.coarse, coarse.cuts) < SCREEN_CONTRAST) return null;
-  const step = coarseStep(coarse.pitch) / FINE_PHASE_STEPS;
-  return sweep(axis.fine, around(coarse.pitch, FINE_PITCH_SPAN), () =>
-    Array.from(
-      { length: 2 * FINE_PHASE_STEPS + 1 },
-      (_, k) => coarse.phase + (k - FINE_PHASE_STEPS) * step,
-    ),
-  );
-}
-
-const sequence = (count: number, length: number): number[] =>
-  Array.from({ length: Math.min(count, length) }, (_, k) =>
-    Math.floor(((k * SEQUENCE_STEP) % 1) * length),
-  );
-
-/** Share of (sampled) cells whose RGB standard deviation stays under PURE_STDDEV. */
-function cellPurity(
-  image: PixelBuffer,
-  cutsX: readonly number[],
-  cutsY: readonly number[],
-): number {
-  const columns = cutsX.length - 1,
-    rows = cutsY.length - 1;
-  const stride = Math.max(1, Math.ceil((columns * rows) / PURITY_BUDGET));
-  let pure = 0,
-    measured = 0;
-  for (let cell = 0; cell < columns * rows; cell += stride) {
-    const cx = cell % columns,
-      cy = Math.floor(cell / columns);
-    let r = 0,
-      g = 0,
-      b = 0,
-      squares = 0,
-      n = 0;
-    for (let y = cutsY[cy]; y < cutsY[cy + 1]; y++)
-      for (let x = cutsX[cx]; x < cutsX[cx + 1]; x++) {
-        const o = (y * image.width + x) * CHANNELS;
-        const alpha = image.data[o + 3] / ALPHA_SCALE;
-        const pr = image.data[o] * alpha,
-          pg = image.data[o + 1] * alpha,
-          pb = image.data[o + 2] * alpha;
-        r += pr;
-        g += pg;
-        b += pb;
-        squares += pr * pr + pg * pg + pb * pb;
-        n++;
-      }
-    if (!n) continue;
-    const variance = (squares - (r * r + g * g + b * b) / n) / (n * 3);
-    measured++;
-    if (Math.sqrt(Math.max(0, variance)) < PURE_STDDEV) pure++;
-  }
-  return measured ? pure / measured : 0;
-}
-
-function cellIndex(cuts: readonly number[], length: number): Int32Array {
-  const index = new Int32Array(length);
-  for (let cell = 0; cell + 1 < cuts.length; cell++) index.fill(cell, cuts[cell], cuts[cell + 1]);
-  return index;
-}
-
-/** 1 - mean RGB error / CYCLE_ERROR_SCALE between the input and the recovery repainted by cuts. */
-function cycleConsistency(
-  input: PixelBuffer,
-  recovered: PixelBuffer,
-  cutsX: readonly number[],
-  cutsY: readonly number[],
-): number {
-  const column = cellIndex(cutsX, input.width),
-    row = cellIndex(cutsY, input.height);
-  let error = 0,
-    count = 0;
-  for (const y of sequence(CYCLE_ROWS, input.height))
-    for (let x = 0; x < input.width; x++) {
-      const o = (y * input.width + x) * CHANNELS;
-      const r = (row[y] * recovered.width + column[x]) * CHANNELS;
-      const a = input.data[o + 3] / ALPHA_SCALE,
-        ra = recovered.data[r + 3] / ALPHA_SCALE;
-      let squares = 0;
-      for (let c = 0; c < 3; c++)
-        squares += (input.data[o + c] * a - recovered.data[r + c] * ra) ** 2;
-      error += Math.sqrt(squares / 3);
-      count++;
-    }
-  return count ? Math.max(0, 1 - error / count / CYCLE_ERROR_SCALE) : 0;
-}
-
-/** Mean colour step on the cuts against the mean step at cell middles, as a 0..1 share. */
-function boundaryEnergy(
-  image: PixelBuffer,
-  cutsX: readonly number[],
-  cutsY: readonly number[],
-): number {
-  const { width, height, data } = image;
-  const step = (a: number, b: number) =>
-    Math.abs(data[a] - data[b]) +
-    Math.abs(data[a + 1] - data[b + 1]) +
-    Math.abs(data[a + 2] - data[b + 2]);
-  const along = (cuts: readonly number[], horizontal: boolean) => {
-    const cross = horizontal ? height : width;
-    const length = horizontal ? width : height;
-    const lines = sequence(BOUNDARY_LINES, cross);
-    const at = (i: number, line: number) =>
-      (horizontal ? line * width + i : i * width + line) * CHANNELS;
-    let cut = 0,
-      mid = 0,
-      cutCount = 0,
-      midCount = 0;
-    for (let c = 0; c + 1 < cuts.length; c++) {
-      const middle = Math.floor((cuts[c] + cuts[c + 1]) / 2);
-      for (const line of lines) {
-        if (c > 0 && cuts[c] >= 1 && cuts[c] < length) {
-          cut += step(at(cuts[c], line), at(cuts[c] - 1, line));
-          cutCount++;
-        }
-        if (middle >= 1 && middle < length) {
-          mid += step(at(middle, line), at(middle - 1, line));
-          midCount++;
-        }
-      }
-    }
-    return {
-      cut: cutCount ? cut / cutCount : 0,
-      mid: midCount ? mid / midCount : 0,
-    };
-  };
-  const x = along(cutsX, true),
-    y = along(cutsY, false);
-  const cut = (x.cut + y.cut) / 2,
-    mid = (x.mid + y.mid) / 2;
-  if (cut + mid < FLAT_ENERGY) return HALF;
-  return Math.min(1, cut / (cut + mid));
-}
-
-export interface ScoredHypothesis {
-  /** The hypothesis with its cuts and cell counts filled in. */
+/** A grid reading: the hypothesis with its cuts, its length and its twin's, per sample. */
+export interface GridEvidence {
   grid: PixelGridAnalysis;
-  recovered: PixelBuffer;
-  /** Weighted score, 0 when a gate (purity, cycle, phase contrast) rejects the hypothesis. */
+  length: number;
+  twin: number;
+  /** Phase evidence, per sample, the reading's strip search finds by chance. */
+  chance: number;
+  /** The image the reading describes: the input, or its straightened strips. */
+  frame: () => DescribedImage;
+}
+
+export interface ArbitratedGrid {
+  grid: PixelGridAnalysis;
+  /** Description length per sample, in nats. */
+  length: number;
+  /** The decision's score, per sample; lower is better. */
   score: number;
-  purity: number;
-  cycle: number;
-  boundary: number;
-  contrast: number;
 }
 
-interface ArbiterContext {
-  image: PixelBuffer;
-  x: Axis;
-  y: Axis;
+export const phaseScore = (reading: Pick<GridEvidence, "length" | "twin" | "chance">) =>
+  reading.length - PHASE_EVIDENCE_WEIGHT * (reading.twin - reading.length - reading.chance);
+
+/** The cuts moved half a cell: one cut at each cell middle, inside the same extent. */
+export function twinCuts(cuts: readonly number[]): number[] {
+  const last = cuts[cuts.length - 1];
+  const twin = [0];
+  for (let i = 0; i + 1 < cuts.length; i++) {
+    const middle = Math.round((cuts[i] + cuts[i + 1]) * HALF);
+    if (middle > twin[twin.length - 1] && middle < last) twin.push(middle);
+  }
+  twin.push(last);
+  return twin;
 }
 
-const axisOf = (image: PixelBuffer, horizontal: boolean): Axis => ({
-  coarse: axisSamples(image, horizontal, COARSE_SAMPLED_LINES),
-  fine: axisSamples(image, horizontal, MAX_SAMPLED_LINES),
-});
+/** The cuts with every `period`th inner cut, from the `phase`th, moved to its cell's middle. */
+export function classTwinCuts(cuts: readonly number[], period: number, phase: number): number[] {
+  const twin = [...cuts];
+  const cells = cuts.length - 1;
+  for (let i = 1; i < cells; i++)
+    if (i % period === phase) twin[i] = Math.round((cuts[i] + cuts[i + 1]) * HALF);
+  for (let i = 1; i <= cells; i++) if (twin[i] <= twin[i - 1]) twin[i] = twin[i - 1] + 1;
+  return twin;
+}
 
-function contextOf(image: PixelBuffer): ArbiterContext {
-  return { image, x: axisOf(image, true), y: axisOf(image, false) };
+/** Phase evidence, per sample, the reading's cuts miss from their least evident class. */
+export function octaveShortfall(
+  frame: DescribedImage,
+  cutsX: readonly number[],
+  cutsY: readonly number[],
+): number {
+  const length = (x: readonly number[], y: readonly number[]) =>
+    descriptionLength(frame, { cutsX: x, cutsY: y, model: CutModel.Lattice });
+  const own = length(cutsX, cutsY);
+  const evidence = length(twinCuts(cutsX), twinCuts(cutsY)) - own;
+  let shortfall = 0;
+  for (const period of OCTAVE_CLASSES) {
+    let least = Infinity;
+    for (let phase = 0; phase < period; phase++)
+      least = Math.min(
+        least,
+        length(classTwinCuts(cutsX, period, phase), classTwinCuts(cutsY, period, phase)) - own,
+      );
+    shortfall = Math.max(shortfall, evidence - period * least);
+  }
+  return shortfall;
 }
 
 function cutsOf(image: PixelBuffer, grid: PixelGridAnalysis) {
@@ -366,152 +158,316 @@ function cutsOf(image: PixelBuffer, grid: PixelGridAnalysis) {
   };
 }
 
-const rejected = (grid: PixelGridAnalysis): ScoredHypothesis => ({
-  grid,
-  recovered: { width: 1, height: 1, data: new Uint8ClampedArray(CHANNELS) },
-  score: 0,
-  purity: 0,
-  cycle: 0,
-  boundary: 0,
-  contrast: 0,
-});
+const keyOf = (cutsX: readonly number[], cutsY: readonly number[]) =>
+  `${cutsX.join(",")}|${cutsY.join(",")}`;
 
-/** `full` measures every signal even when the cell count or the null test already rejects the grid. */
-function score(context: ArbiterContext, grid: PixelGridAnalysis, full = false): ScoredHypothesis {
-  const { image } = context;
-  const { cutsX, cutsY } = cutsOf(image, grid);
-  const columns = cutsX.length - 1,
-    rows = cutsY.length - 1;
-  const located = { ...grid, width: columns, height: rows, cutsX, cutsY };
-  const enough = columns >= MIN_CELLS && rows >= MIN_CELLS;
-  if (
-    columns < 2 ||
-    rows < 2 ||
-    columns > MAX_RECOVERED_GRID_SIZE ||
-    rows > MAX_RECOVERED_GRID_SIZE ||
-    (!full && !enough)
-  )
-    return rejected(located);
-  const contrast = Math.min(
-    phaseContrast(context.x.fine, cutsX),
-    phaseContrast(context.y.fine, cutsY),
-  );
-  // The null test is cheap; a grid the content ignores is not worth recovering.
-  if (!full && contrast < MIN_PHASE_CONTRAST) return { ...rejected(located), contrast };
-  const recovered = recoverGrid(image, located, CellColorPicker.Median);
-  const purity = cellPurity(image, cutsX, cutsY);
-  const cycle = cycleConsistency(image, recovered, cutsX, cutsY);
-  const boundary = boundaryEnergy(image, cutsX, cutsY);
-  const accepted =
-    enough && purity >= MIN_PURITY && cycle >= MIN_CYCLE && contrast >= MIN_PHASE_CONTRAST;
-  const weighted = PURITY_WEIGHT * purity + CYCLE_WEIGHT * cycle + BOUNDARY_WEIGHT * boundary;
-  const score = accepted ? weighted : 0;
+/** The twin of cuts placed on edges: settled on edges the same way, but never on its own cuts. */
+function settledTwin(
+  image: PixelBuffer,
+  cutsX: readonly number[],
+  cutsY: readonly number[],
+  model: CutModel,
+): GridCuts {
+  const settled = snapLatticeCuts(image, twinCuts(cutsX), twinCuts(cutsY), {
+    x: cutsX,
+    y: cutsY,
+  });
   return {
-    grid: located,
-    recovered,
-    score,
-    purity,
-    cycle,
-    boundary,
-    contrast,
+    cutsX: settled.x.cuts,
+    cutsY: settled.y.cuts,
+    model,
+    radiusX: settled.x.radius,
+    radiusY: settled.y.radius,
   };
 }
 
-/** Score one grid on the input image; exported for tests and diagnostics. */
-export function scoreHypothesis(image: PixelBuffer, grid: PixelGridAnalysis): ScoredHypothesis {
-  return score(contextOf(image), grid, true);
-}
-
-/** Uniform lattices for every proposed pitch, each with its own refined pitch and phase per axis. */
-function pitchHypotheses(context: ArbiterContext): PixelGridAnalysis[] {
-  const lattices: PixelGridAnalysis[] = [];
-  for (const { pitch, strength } of searchGridPitches(context.image)) {
-    const x = fitAxis(context.x, pitch);
-    const y = x && fitAxis(context.y, pitch);
-    if (!x || !y) continue;
-    lattices.push({
-      width: x.cuts.length - 1,
-      height: y.cuts.length - 1,
-      cellWidth: x.pitch,
-      cellHeight: y.pitch,
-      offsetX: ((x.phase % x.pitch) + x.pitch) % x.pitch,
-      offsetY: ((y.phase % y.pitch) + y.pitch) % y.pitch,
-      cutsX: x.cuts,
-      cutsY: y.cuts,
-      confidence: strength,
-      reliable: true,
-      algorithm: PixelationAlgorithm.UniformGrid,
-    });
-  }
-  return lattices;
-}
-
-/** Extra hypotheses, computed only when the image shows a periodic structure at all. */
-export type GridProposals = () => readonly PixelGridAnalysis[];
-
-export interface ArbitratedGrid {
-  grid: PixelGridAnalysis;
-  /** Description length per sample, in nats; lower is better. */
+interface Reading {
+  cuts: GridCuts;
   length: number;
+  twin: number;
+  chance: number;
+  frame: () => DescribedImage;
+  /** Compact inverse steps into the full source, independent of the scoring crop. */
+  sampling?: readonly PixelGridSamplingStage[];
 }
 
-/** The hypothesis as cut, and for a lattice also with its cuts snapped to the nearest edges. */
-function readings(image: PixelBuffer, grid: PixelGridAnalysis): ArbitratedGrid[] {
-  const { cutsX, cutsY } = cutsOf(image, grid);
-  const columns = cutsX.length - 1,
-    rows = cutsY.length - 1;
-  if (Math.min(columns, rows) < 2 || Math.max(columns, rows) > MAX_RECOVERED_GRID_SIZE) return [];
-  const located = { ...grid, width: columns, height: rows, cutsX, cutsY };
-  if (grid.algorithm === PixelationAlgorithm.EdgeGrid)
-    return [{ grid, length: descriptionLength(image, { cutsX, cutsY, model: CutModel.Free }) }];
-  const snapped = snapLatticeCuts(image, cutsX, cutsY);
-  return [
-    { grid, length: descriptionLength(image, { cutsX, cutsY, model: CutModel.Lattice }) },
+/** The proposal as placed or snapped, with the twin to measure it against. */
+function placedReading(
+  image: PixelBuffer,
+  described: DescribedImage,
+  grid: PixelGridAnalysis,
+  cutsX: number[],
+  cutsY: number[],
+): { cuts: GridCuts; length: number; twin: () => GridCuts } {
+  if (grid.algorithm === PixelationAlgorithm.EdgeGrid) {
+    const cuts = { cutsX, cutsY, model: CutModel.Free };
+    return {
+      cuts,
+      length: descriptionLength(described, cuts),
+      twin: () => settledTwin(image, cutsX, cutsY, CutModel.Free),
+    };
+  }
+  const lattice = { cutsX, cutsY, model: CutModel.Lattice };
+  const latticeLength = descriptionLength(described, lattice);
+  const snap = snapLatticeCuts(image, cutsX, cutsY);
+  const snapped = {
+    cutsX: snap.x.cuts,
+    cutsY: snap.y.cuts,
+    model: CutModel.Snapped,
+    radiusX: snap.x.radius,
+    radiusY: snap.y.radius,
+  };
+  const snappedLength = descriptionLength(described, snapped);
+  if (latticeLength <= snappedLength)
+    return {
+      cuts: lattice,
+      length: latticeLength,
+      twin: () => ({ cutsX: twinCuts(cutsX), cutsY: twinCuts(cutsY), model: CutModel.Lattice }),
+    };
+  return {
+    cuts: snapped,
+    length: snappedLength,
+    twin: () => settledTwin(image, snap.x.cuts, snap.y.cuts, CutModel.Snapped),
+  };
+}
+
+interface ShiftedReading {
+  shear: StripShear;
+  frame: () => DescribedImage;
+  twin: () => DescribedImage;
+  chance: (stopIfCannotWin?: ChanceEvidenceStop) => number;
+}
+
+/** The correction search and sampled colors depend on geometry, independently of the cut model. */
+function shiftedReadings(
+  strips: StripImage,
+  cutsX: number[],
+  cutsY: number[],
+): readonly ShiftedReading[] {
+  const field = phaseField(strips, cutsX, cutsY);
+  const shifted: {
+    shear: StripShear | null;
+    chance: (stopIfCannotWin?: ChanceEvidenceStop, fragments?: ChanceEvidenceFragments) => number;
+  }[] = [
     {
-      grid: { ...located, cutsX: snapped.x.cuts, cutsY: snapped.y.cuts },
-      length: descriptionLength(image, {
-        cutsX: snapped.x.cuts,
-        cutsY: snapped.y.cuts,
-        model: CutModel.Snapped,
-        radiusX: snapped.x.radius,
-        radiusY: snapped.y.radius,
-      }),
+      shear: stripShear(strips, cutsX, cutsY),
+      chance: (stop, fragments) => chanceEvidence(strips, cutsX, cutsY, stop, fragments),
+    },
+    {
+      shear: field,
+      chance: (stop, fragments) =>
+        fieldChanceEvidence(strips, cutsX, cutsY, field!.bandsX, field!.bandsY, stop, fragments),
     },
   ];
+  return shifted.flatMap(({ shear, chance }) => {
+    if (!shear) return [];
+    let frame: DescribedImage | undefined,
+      twin: DescribedImage | undefined,
+      evidence: number | undefined,
+      fragments: ChanceEvidenceFragments | undefined;
+    return [
+      {
+        shear,
+        frame: () => (frame ??= describeImage(shear.straight)),
+        twin: () => (twin ??= describeImage(shear.twin())),
+        chance: (stop) => {
+          if (evidence !== undefined) return evidence;
+          const measured = chance(stop, (fragments ??= []));
+          // A stopped measurement is not a reusable exact value for another cut model.
+          if (measured !== Infinity) evidence = measured;
+          return measured;
+        },
+      },
+    ];
+  });
+}
+
+function readingOf(
+  strips: StripImage,
+  described: DescribedImage,
+  grid: PixelGridAnalysis,
+  cutsX: number[],
+  cutsY: number[],
+  shifted: () => readonly ShiftedReading[],
+): Reading {
+  const placed = placedReading(strips.image, described, grid, cutsX, cutsY);
+  let best: Reading = {
+    cuts: placed.cuts,
+    length: placed.length,
+    twin: descriptionLength(described, placed.twin()),
+    chance: 0,
+    frame: () => described,
+    sampling: strips.image.sampling,
+  };
+  const cuts = {
+    cutsX,
+    cutsY,
+    model: grid.algorithm === PixelationAlgorithm.EdgeGrid ? CutModel.Free : CutModel.Lattice,
+  };
+  for (const { shear, frame, twin, chance } of shifted()) {
+    const straight = frame();
+    const cost = shear.cost / straight.samples;
+    const reading: Reading = {
+      cuts,
+      length: descriptionLength(straight, cuts) + cost,
+      twin: descriptionLength(twin(), cuts) + cost,
+      chance: 0,
+      frame,
+      sampling: shear.straight.sampling,
+    };
+    // Chance evidence only adds to a score, so it is measured only for a reading that could win.
+    const optimistic = phaseScore(reading),
+      incumbent = phaseScore(best);
+    if (optimistic >= incumbent) continue;
+    const canBound =
+      Number.isFinite(reading.length) &&
+      Number.isFinite(reading.twin) &&
+      Number.isFinite(optimistic) &&
+      Number.isFinite(incumbent);
+    reading.chance = chance(
+      canBound
+        ? (lowerBound) =>
+            phaseScore({ length: reading.length, twin: reading.twin, chance: lowerBound }) >=
+            incumbent
+        : undefined,
+    );
+    if (phaseScore(reading) < incumbent) best = reading;
+  }
+  return best;
+}
+
+/** Reuse one evaluation view's descriptions and distinct readings during Auto's decision. */
+export class GridEvidenceReader {
+  private readonly described: DescribedImage;
+  private readonly strips: StripImage;
+  private readonly pixels: number;
+  private readonly readings = new Map<string, Reading>();
+
+  constructor(private readonly image: PixelBuffer) {
+    this.described = describeImage(image);
+    this.strips = new StripImage(image);
+    this.pixels = pixelLength(this.described);
+  }
+
+  read(grids: readonly PixelGridAnalysis[]): { readings: GridEvidence[]; pixels: number } {
+    const { image, described, strips } = this;
+    const seen = new Set<string>();
+    const readings: GridEvidence[] = [];
+    // Admission is scoped to geometry; every model of admitted cuts is evaluated.
+    const ordered = grids
+      .map((grid) => {
+        const { cutsX, cutsY } = cutsOf(image, grid);
+        const model =
+          grid.algorithm === PixelationAlgorithm.EdgeGrid ? CutModel.Free : CutModel.Lattice;
+        const geometry = keyOf(cutsX, cutsY);
+        return { grid, cutsX, cutsY, geometry, key: `${model}:${geometry}` };
+      })
+      .sort(
+        (a, b) =>
+          b.grid.confidence - a.grid.confidence ||
+          a.key.localeCompare(b.key) ||
+          (a.grid.algorithm ?? "").localeCompare(b.grid.algorithm ?? "") ||
+          a.grid.cellWidth - b.grid.cellWidth ||
+          a.grid.cellHeight - b.grid.cellHeight ||
+          a.grid.offsetX - b.grid.offsetX ||
+          a.grid.offsetY - b.grid.offsetY,
+      );
+    // Only pending models of the same geometry need shared auxiliary descriptions. Release
+    // those once both models are read; persistent readings retain only their winning frame.
+    const pending = new Map<string, Set<string>>();
+    const corrections = new Map<string, readonly ShiftedReading[]>();
+    for (const { geometry, key } of ordered) {
+      if (this.readings.has(key)) continue;
+      const models = pending.get(geometry) ?? new Set<string>();
+      models.add(key);
+      pending.set(geometry, models);
+    }
+    const admittedGeometries = new Set<string>();
+    let bestConfidence = -Infinity;
+    for (const { grid, cutsX, cutsY, geometry, key } of ordered) {
+      const columns = cutsX.length - 1,
+        rows = cutsY.length - 1;
+      if (Math.min(columns, rows) < MIN_CELLS || Math.max(columns, rows) > MAX_RECOVERED_GRID_SIZE)
+        continue;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      if (
+        !admittedGeometries.has(geometry) &&
+        readings.length > 0 &&
+        bestConfidence >= STRONG_GRID_CONFIDENCE &&
+        bestConfidence - grid.confidence >= DISTINCT_GEOMETRY_CONFIDENCE_GAP
+      )
+        continue;
+      admittedGeometries.add(geometry);
+      let reading = this.readings.get(key);
+      if (!reading) {
+        reading = readingOf(strips, described, grid, cutsX, cutsY, () => {
+          let shifted = corrections.get(geometry);
+          if (!shifted) {
+            shifted = shiftedReadings(strips, cutsX, cutsY);
+            if (pending.get(geometry)!.size > 1) corrections.set(geometry, shifted);
+          }
+          return shifted;
+        });
+        this.readings.set(key, reading);
+        const models = pending.get(geometry)!;
+        models.delete(key);
+        if (!models.size) corrections.delete(geometry);
+      }
+      const { cuts, length, twin, chance, frame, sampling } = reading;
+      readings.push({
+        grid: {
+          ...grid,
+          width: columns,
+          height: rows,
+          cutsX: [...cuts.cutsX],
+          cutsY: [...cuts.cutsY],
+          sampling,
+        },
+        length,
+        twin,
+        chance,
+        frame,
+      });
+      bestConfidence = Math.max(bestConfidence, grid.confidence);
+    }
+    return { readings, pixels: this.pixels };
+  }
 }
 
 /**
- * The ring: every hypothesis in `grids` competes on its description length of the input,
- * whatever detector proposed it, and the shortest wins. When `grids` is empty and `soft` is
- * given, the ring holds the pitch-search lattices and, once a pitch was found, the `soft`
- * proposals instead, each only after it passes the gates and ARBITER_FLOOR. Null when the ring
- * stays empty. A winner from `grids` keeps its detector's confidence; any other carries its
- * arbiter score.
+ * The best-scoring grid among the proposals, or null when the passthrough scores lower. The
+ * winner's confidence is the larger of its proposer's and the share of its twin's length that
+ * its phase saves.
  */
 export function arbitrateGrids(
   image: PixelBuffer,
   grids: readonly PixelGridAnalysis[],
-  soft?: GridProposals,
+  evidence = new GridEvidenceReader(image),
 ): ArbitratedGrid | null {
-  const hypotheses = [...grids];
-  if (soft && !grids.length) {
-    const context = contextOf(image);
-    const lattices = pitchHypotheses(context);
-    if (lattices.length)
-      for (const grid of [...lattices, ...soft()]) {
-        const scored = score(context, grid);
-        if (scored.score >= ARBITER_FLOOR)
-          hypotheses.push({ ...scored.grid, confidence: scored.score, reliable: true });
-      }
+  const { readings, pixels } = evidence.read(grids);
+  let passthrough = pixels;
+  for (const reading of readings)
+    passthrough = Math.min(passthrough, Math.max(reading.length, reading.twin - reading.chance));
+  let best: GridEvidence | null = null;
+  let score = passthrough - NULL_MARGIN;
+  // The octave shortfall only adds to a score, so readings are checked best phase score first
+  // and the search stops at the first that cannot win even without it.
+  for (const reading of [...readings].sort((a, b) => phaseScore(a) - phaseScore(b))) {
+    const phase = phaseScore(reading);
+    if (phase >= score) break;
+    const { cutsX, cutsY } = reading.grid;
+    const total = phase + octaveShortfall(reading.frame(), cutsX!, cutsY!);
+    if (total < score) {
+      best = reading;
+      score = total;
+    }
   }
-  let best: ArbitratedGrid | null = null;
-  for (const grid of hypotheses)
-    for (const reading of readings(image, grid))
-      if (!best || reading.length < best.length) best = reading;
-  return best;
-}
-
-/** The pitch-search lattices alone, before scoring; exported for diagnostics. */
-export function pitchSearchGrids(image: PixelBuffer): PixelGridAnalysis[] {
-  return pitchHypotheses(contextOf(image));
+  if (!best) return null;
+  const share = Math.max(0, Math.min(1, (best.twin - best.length) / best.twin));
+  return {
+    grid: { ...best.grid, confidence: Math.max(best.grid.confidence, share), reliable: true },
+    length: best.length,
+    score,
+  };
 }

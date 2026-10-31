@@ -30,6 +30,7 @@ const aliases: Record<string, string> = {
   "@xprite/palette-assets/beads": "packages/palette-assets/beads/index.ts",
   "@xprite/palette-assets/": "packages/palette-assets/",
   "@xprite/bedrock/": "packages/bedrock/",
+  "@xprite/fixer-detect-wasm": "packages/fixer-detect-wasm/pixelfixer_detect.js",
 };
 const scopes = JSON.parse(
   readFileSync(resolve(ROOT, "infra/package-import-scopes.json"), "utf8"),
@@ -103,9 +104,12 @@ export async function createReactSsgRenderer<T>(options: {
     const prefix = Object.keys(aliases)
       .sort((a, b) => b.length - a.length)
       .find((prefix) => (prefix.endsWith("/") ? clean.startsWith(prefix) : clean === prefix));
-    return prefix
-      ? resolve(ROOT, aliases[prefix], prefix.endsWith("/") ? clean.slice(prefix.length) : "")
-      : resolve(dirname(importer), clean);
+    if (prefix) {
+      return resolve(ROOT, aliases[prefix], prefix.endsWith("/") ? clean.slice(prefix.length) : "");
+    }
+    // Relative CSS/asset URLs only. Bare @xprite/* packages must not join against the importer.
+    if (clean.startsWith(".")) return resolve(dirname(importer), clean);
+    throw new Error(`No react-ssg alias for ${source} (from ${importer})`);
   };
   const assetUrl = (filename: string) => {
     const bytes = readFileSync(filename);

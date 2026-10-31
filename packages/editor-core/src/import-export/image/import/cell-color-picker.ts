@@ -270,6 +270,20 @@ const PICKERS: Readonly<Record<CellColorPicker, CellColorPickerEntry>> = {
       opaqueOffsets(image, x0, y0, x1, y1) &&
       rgbaAt(image, (((y0 + y1 - 1) >> 1) * image.width + ((x0 + x1 - 1) >> 1)) * CHANNELS),
   },
+  // Structure, TwoStage and DualRtTwoStage are handled specially in recoverGrid via samplePixelation,
+  // but need placeholder entries here for completeness.
+  [CellColorPicker.Structure]: {
+    label: "import.picker.structure",
+    pick: () => null, // Not used; handled in recoverGrid
+  },
+  [CellColorPicker.TwoStage]: {
+    label: "import.picker.two-stage",
+    pick: () => null, // Not used; handled in recoverGrid
+  },
+  [CellColorPicker.DualRtTwoStage]: {
+    label: "import.picker.dual-rt-two-stage",
+    pick: () => null, // Not used; handled in recoverGrid
+  },
 };
 export function getColorPickerEntry(picker: CellColorPicker): CellColorPickerEntry {
   const entry = (PICKERS as Partial<Record<string, CellColorPickerEntry>>)[picker];

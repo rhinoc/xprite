@@ -4,14 +4,19 @@ import { assertPixelBuffer, clampByte } from "$/document/pixel-validation";
 import { optimizePalette, paletteCoordinates } from "$/import-export/image/import/quantization";
 import type { ExtractPaletteOptions, PaletteEntry } from "$/import-export/image/import/types";
 
-const HISTOGRAM_BINS = 32 * 32 * 32 * 16 + 1;
+const RGB_HISTOGRAM_BINS = 32 * 32 * 32;
+const HISTOGRAM_BINS = RGB_HISTOGRAM_BINS * 16 + 1;
 const MAX_EXACT_COLORS = 16_384;
 const REDUCTION_CACHE_SIZE = 65_536;
 
-function colorKey(data: Uint8ClampedArray, offset: number): number {
+function colorKey(data: Uint8ClampedArray, offset: number, opaqueVisible = false): number {
   if (data[offset + 3] === 0) return 0;
   return (
-    (data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | data[offset + 3] | 0
+    (data[offset] << 24) |
+    (data[offset + 1] << 16) |
+    (data[offset + 2] << 8) |
+    (opaqueVisible ? UINT8_MAX : data[offset + 3]) |
+    0
   );
 }
 
@@ -37,11 +42,54 @@ function histogramIndex(r: number, g: number, b: number, a: number): number {
   return (r >>> 3) | ((g >>> 3) << 5) | ((b >>> 3) << 10) | ((a >>> 4) << 15);
 }
 
+/** The visible-alpha palette uses the same RGB bins without the constant alpha-plane offset. */
+function opaqueHistogramPalette(image: PixelBuffer, maxColors: number): PaletteEntry[] {
+  const counts = new Uint32Array(RGB_HISTOGRAM_BINS);
+  const sumR = new Float64Array(RGB_HISTOGRAM_BINS);
+  const sumG = new Float64Array(RGB_HISTOGRAM_BINS);
+  const sumB = new Float64Array(RGB_HISTOGRAM_BINS);
+  const touched: number[] = [];
+  const { data } = image;
+  let total = 0;
+  for (let offset = 0; offset < data.length; offset += 4) {
+    if (!data[offset + 3]) continue;
+    total++;
+    const r = data[offset];
+    const g = data[offset + 1];
+    const b = data[offset + 2];
+    const index = (r >>> 3) | ((g >>> 3) << 5) | ((b >>> 3) << 10);
+    if (counts[index] === 0) touched.push(index);
+    counts[index] += 1;
+    sumR[index] += r;
+    sumG[index] += g;
+    sumB[index] += b;
+  }
+  touched.sort((left, right) => counts[right] - counts[left] || left - right);
+  const entries: PaletteEntry[] = [];
+  for (let i = 0; i < touched.length; i++) {
+    const index = touched[i];
+    const count = counts[index];
+    entries.push({
+      color: [
+        clampByte(sumR[index] / count),
+        clampByte(sumG[index] / count),
+        clampByte(sumB[index] / count),
+        UINT8_MAX,
+      ],
+      count,
+      coverage: count / total,
+    });
+  }
+  return optimizePalette(entries, maxColors);
+}
+
 function histogramPalette(
   image: PixelBuffer,
   maxColors: number,
   ignoreTransparent: boolean,
+  opaqueVisible: boolean,
 ): PaletteEntry[] {
+  if (opaqueVisible && ignoreTransparent) return opaqueHistogramPalette(image, maxColors);
   const counts = new Uint32Array(HISTOGRAM_BINS);
   const sumR = new Float64Array(HISTOGRAM_BINS);
   const sumG = new Float64Array(HISTOGRAM_BINS);
@@ -52,7 +100,7 @@ function histogramPalette(
   let total = 0;
 
   for (let offset = 0; offset < data.length; offset += 4) {
-    const a = data[offset + 3];
+    const a = opaqueVisible && data[offset + 3] ? UINT8_MAX : data[offset + 3];
     if (ignoreTransparent && !a) continue;
     total++;
     const r = a ? data[offset] : 0;
@@ -95,6 +143,14 @@ export function extractPalette(
   image: PixelBuffer,
   options: ExtractPaletteOptions = {},
 ): PaletteEntry[] {
+  return extractPaletteWithAlpha(image, options, false);
+}
+
+function extractPaletteWithAlpha(
+  image: PixelBuffer,
+  options: ExtractPaletteOptions,
+  opaqueVisible: boolean,
+): PaletteEntry[] {
   assertPixelBuffer(image);
   const maxColors = paletteLimit(options.maxColors);
   const exact = new Map<number, number>();
@@ -105,7 +161,7 @@ export function extractPalette(
   for (let offset = 0; offset < data.length; offset += 4) {
     if (options.ignoreTransparent && !data[offset + 3]) continue;
     total++;
-    const key = colorKey(data, offset);
+    const key = colorKey(data, offset, opaqueVisible);
     const previous = exact.get(key);
     if (previous !== undefined) {
       exact.set(key, previous + 1);
@@ -117,7 +173,8 @@ export function extractPalette(
     }
   }
 
-  if (overflowed) return histogramPalette(image, maxColors, options.ignoreTransparent ?? false);
+  if (overflowed)
+    return histogramPalette(image, maxColors, options.ignoreTransparent ?? false, opaqueVisible);
 
   const entries = [...exact.entries()]
     .sort(([keyA, countA], [keyB, countB]) => countB - countA || (keyA >>> 0) - (keyB >>> 0))
@@ -163,25 +220,17 @@ function validatePalette(palette: readonly Rgba[]): Rgba[] {
   });
 }
 
-/** Perceptual matching with exact RGBA cache keys; colors within a coarse bin may differ. */
-export function reduceToPalette(
-  image: PixelBuffer,
-  palette: readonly Rgba[],
-  options: { preserveAlpha?: boolean } = {},
-): PixelBuffer {
-  assertPixelBuffer(image);
+function paletteMatcher(palette: readonly Rgba[], preserveAlpha = false) {
   const colors = validatePalette(palette);
   const transparent = colors.some((color) => color[3] === 0);
   const cache = new Map<number, number>();
   const coordinates = colors.map((color) =>
     paletteCoordinates(
-      options.preserveAlpha && color[3] ? [color[0], color[1], color[2], UINT8_MAX] : color,
+      preserveAlpha && color[3] ? [color[0], color[1], color[2], UINT8_MAX] : color,
     ),
   );
-  const output = new Uint8ClampedArray(image.data.length);
-  const source = image.data;
   const nearest = (r: number, g: number, b: number, a: number): number => {
-    const opacity = options.preserveAlpha && a ? UINT8_MAX : a;
+    const opacity = preserveAlpha && a ? UINT8_MAX : a;
     const cacheKey = opacity ? (r << 24) | (g << 16) | (b << 8) | opacity : 0;
     const cached = cache.get(cacheKey);
     if (cached !== undefined) return cached;
@@ -189,7 +238,7 @@ export function reduceToPalette(
     let best = 0,
       bestDistance = Number.POSITIVE_INFINITY;
     for (let i = 0; i < coordinates.length; i++) {
-      if (options.preserveAlpha && a && !colors[i][3]) continue;
+      if (preserveAlpha && a && !colors[i][3]) continue;
       const color = coordinates[i];
       const dl = sample[0] - color[0],
         da = sample[1] - color[1],
@@ -204,6 +253,19 @@ export function reduceToPalette(
     if (cache.size < REDUCTION_CACHE_SIZE) cache.set(cacheKey, best);
     return best;
   };
+  return { colors, transparent, nearest };
+}
+
+/** Perceptual matching with exact RGBA cache keys; colors within a coarse bin may differ. */
+export function reduceToPalette(
+  image: PixelBuffer,
+  palette: readonly Rgba[],
+  options: { preserveAlpha?: boolean } = {},
+): PixelBuffer {
+  assertPixelBuffer(image);
+  const { colors, transparent, nearest } = paletteMatcher(palette, options.preserveAlpha);
+  const output = new Uint8ClampedArray(image.data.length);
+  const source = image.data;
 
   for (let offset = 0; offset < source.length; offset += 4) {
     if ((transparent || options.preserveAlpha) && source[offset + 3] === 0) continue;
@@ -227,14 +289,36 @@ export function extractPixelationPalette(
   image: PixelBuffer,
   options: ExtractPaletteOptions = {},
 ): PaletteEntry[] {
-  const data = new Uint8ClampedArray(image.data);
-  for (let offset = 3; offset < data.length; offset += 4)
-    if (data[offset]) data[offset] = UINT8_MAX;
-  const entries = extractPalette(
-    { width: image.width, height: image.height, data },
-    { ...options, ignoreTransparent: true },
-  );
+  const entries = extractPaletteWithAlpha(image, { ...options, ignoreTransparent: true }, true);
   return entries.length
     ? entries
     : [{ color: [0, 0, 0, 0], count: image.width * image.height, coverage: 1 }];
+}
+
+/** Compact mapped-RGB groups for the bounded Structure/TwoStage palettes. */
+export function reduceToPixelationLabels(image: PixelBuffer, palette: readonly Rgba[]) {
+  assertPixelBuffer(image);
+  const { colors, nearest } = paletteMatcher(palette, true);
+  const keys = [0];
+  const groups = new Map<number, number>([[0, 0]]);
+  const paletteGroups = colors.map((color) => {
+    const key = (color[0] << 16) | (color[1] << 8) | color[2];
+    let group = groups.get(key);
+    if (group === undefined) {
+      group = keys.length;
+      groups.set(key, group);
+      keys.push(key);
+    }
+    return group;
+  });
+  const data = new Uint8Array(image.width * image.height);
+  const source = image.data;
+  for (let offset = 0; offset < source.length; offset += 4) {
+    if (source[offset + 3] === 0) continue;
+    data[offset / 4] =
+      paletteGroups[
+        nearest(source[offset], source[offset + 1], source[offset + 2], source[offset + 3])
+      ];
+  }
+  return { data, keys };
 }

@@ -4,13 +4,13 @@ import {
   DEFAULT_LINE_GUIDE,
   LineGuideMode,
   OutlinePrepass,
+  PaletteColorMode,
   PixelationDither,
-  getAllAlgorithms,
   getAllColorPickers,
 } from "@xprite/editor-core/import-export/image/import";
 import type { ImportPixelationMemory } from "@xprite/editor-core/session";
 
-export { PixelationAlgorithm, CellColorPicker, OutlinePrepass, getAllAlgorithms };
+export { PixelationAlgorithm, CellColorPicker, OutlinePrepass };
 
 export enum SaveFileExtension {
   Aseprite = "aseprite",
@@ -62,7 +62,7 @@ export const DEFAULT_FILE_PREFERENCES: Readonly<FilePreferences> = Object.freeze
   animationDefaultExtension: AnimationExportExtension.Gif,
   recentItemLimit: 16,
   importAsk: true,
-  importLastAction: "pixelate",
+  importLastAction: "import-as-is",
   importPixelationAlgorithm: "auto",
   importColorPicker: CellColorPicker.MostCommon,
   importPixelation: null,
@@ -109,6 +109,9 @@ function normalizeImportPixelation(value: unknown): ImportPixelationMemory | nul
       : {}),
     ...(Object.values(PixelationDither).includes(saved.dither as PixelationDither)
       ? { dither: saved.dither as PixelationDither }
+      : {}),
+    ...(Object.values(PaletteColorMode).includes(saved.paletteColorMode as PaletteColorMode)
+      ? { paletteColorMode: saved.paletteColorMode as PaletteColorMode }
       : {}),
   };
 }

@@ -16,6 +16,8 @@ const linear = (byte: number) => {
     ? value / LINEAR_DIVISOR
     : ((value + GAMMA_OFFSET) / GAMMA_SCALE) ** GAMMA_EXPONENT;
 };
+const LINEAR = Float64Array.from({ length: UINT8_MAX + 1 }, (_, byte) => linear(byte));
+const linearChannel = (byte: number) => (byte === 0 ? byte : (LINEAR[byte] ?? linear(byte)));
 
 // Oklab matrices published by Björn Ottosson (public domain):
 // https://bottosson.github.io/posts/oklab/
@@ -29,18 +31,22 @@ const LMS_TO_OKLAB = [
   [1.9779984951, -2.428592205, 0.4505937099],
   [0.0259040371, 0.7827717662, -0.808675766],
 ] as const;
-function dot(row: readonly number[], values: readonly number[]): number {
-  return row[0] * values[0] + row[1] * values[1] + row[2] * values[2];
+function dot(row: readonly number[], a: number, b: number, c: number): number {
+  return row[0] * a + row[1] * b + row[2] * c;
 }
 /** Oklab plus opacity; invisible RGB never participates in matching. */
 export function paletteCoordinates(color: Rgba): Rgba {
   const opacity = color[3] / UINT8_MAX;
-  const rgb = [linear(color[0]), linear(color[1]), linear(color[2])];
-  const lms = LINEAR_SRGB_TO_LMS.map((row) => Math.cbrt(dot(row, rgb)));
+  const r = linearChannel(color[0]);
+  const g = linearChannel(color[1]);
+  const b = linearChannel(color[2]);
+  const l = Math.cbrt(dot(LINEAR_SRGB_TO_LMS[0], r, g, b));
+  const m = Math.cbrt(dot(LINEAR_SRGB_TO_LMS[1], r, g, b));
+  const s = Math.cbrt(dot(LINEAR_SRGB_TO_LMS[2], r, g, b));
   return [
-    dot(LMS_TO_OKLAB[0], lms) * opacity,
-    dot(LMS_TO_OKLAB[1], lms) * opacity,
-    dot(LMS_TO_OKLAB[2], lms) * opacity,
+    dot(LMS_TO_OKLAB[0], l, m, s) * opacity,
+    dot(LMS_TO_OKLAB[1], l, m, s) * opacity,
+    dot(LMS_TO_OKLAB[2], l, m, s) * opacity,
     opacity,
   ];
 }

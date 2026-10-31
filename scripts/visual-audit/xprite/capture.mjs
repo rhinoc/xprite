@@ -6,8 +6,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { parseEgoReport, printEgoNonReportLines } from "../../base/ego-report.mjs";
+import { mapConcurrent } from "../../base/map-concurrent.mjs";
 import { collectVisualSources } from "../base/audit-source-files.mjs";
-import { runBrowserPayload } from "../base/browser.mjs";
+import { runBrowserPayload, visualShardCount } from "../base/browser.mjs";
 import { generateImageReport } from "../report.mjs";
 import { startCaptureStream } from "./capture-stream.mjs";
 import {
@@ -149,20 +150,18 @@ try {
       .filter((ids) => ids.length > 0)
       .map((ids) => ({ language, ids })),
   );
-  const runs = await Promise.all(
-    shards.map(({ language, ids }) =>
-      runBrowserPayload({
-        payload,
-        globals: {
-          captureConfig: {
-            ...config,
-            languages: [language],
-            selectedIds: { ...config.selectedIds, [language]: ids },
-          },
+  const runs = await mapConcurrent(shards, visualShardCount(shards.length), ({ language, ids }) =>
+    runBrowserPayload({
+      payload,
+      globals: {
+        captureConfig: {
+          ...config,
+          languages: [language],
+          selectedIds: { ...config.selectedIds, [language]: ids },
         },
-        forward: baseline ? /^CAPTURE_(SPACE|CASE):/ : /^CAPTURE_SPACE:/,
-      }),
-    ),
+      },
+      forward: baseline ? /^CAPTURE_(SPACE|CASE):/ : /^CAPTURE_SPACE:/,
+    }),
   );
   for (const run of runs)
     printEgoNonReportLines(

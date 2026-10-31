@@ -4,6 +4,7 @@ import {
   MAX_RECOVERED_GRID_SIZE,
   pixelGridCuts,
 } from "$/import-export/image/import/grid";
+import { gridFrequencySpectrum } from "$/import-export/image/import/grid-frequency-spectrum";
 import { PixelationAlgorithm, type PixelGridAnalysis } from "$/import-export/image/import/types";
 
 /**
@@ -124,7 +125,7 @@ interface AxisComb {
  * standard deviation were the profile structureless: positive when the energy gathers on the
  * sample points (soft) or on the cell boundaries (hard).
  */
-function combSignificance(
+export function combSignificance(
   profile: Float64Array,
   first: number,
   last: number,
@@ -146,21 +147,13 @@ function combSignificance(
   const noise = Math.sqrt(energy / 2);
   const significance = new Float64Array(Math.max(0, last - first + 1));
   if (noise <= 0) return { first, significance };
+  const spectrum = gridFrequencySpectrum(centred);
   for (let count = first; count <= last; count++) {
-    // cos(2 pi count u / length) by rotation, u the pixel centre i + 0.5 (soft) or the edge i
-    // (hard): -1 on the sample points, 1 on the boundaries.
-    const step = (2 * Math.PI * count) / length;
-    const stepCos = Math.cos(step),
-      stepSin = Math.sin(step);
-    let cos = soft ? Math.cos(step / 2) : 1,
-      sin = soft ? Math.sin(step / 2) : 0,
-      sum = 0;
-    for (let i = 0; i < length; i++) {
-      sum += centred[i] * cos;
-      const next = cos * stepCos - sin * stepSin;
-      sin = sin * stepCos + cos * stepSin;
-      cos = next;
-    }
+    // F[k] uses exp(-i theta). Re(F[k] exp(-i phi)) therefore keeps the signed
+    // cosine projection, including the soft comb's half-pixel phase phi = pi k / length.
+    const phase = soft ? (Math.PI * count) / length : 0;
+    const sum =
+      spectrum.real[count] * Math.cos(phase) + spectrum.imaginary[count] * Math.sin(phase);
     significance[count - first] = ((soft ? -1 : 1) * sum) / noise;
   }
   return { first, significance };

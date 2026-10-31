@@ -145,6 +145,9 @@ importers:
       '@xprite/editor-ui':
         specifier: workspace:*
         version: link:../../packages/editor-ui
+      '@xprite/fixer-detect-wasm':
+        specifier: workspace:*
+        version: link:../../packages/fixer-detect-wasm
       '@xprite/growth-content':
         specifier: workspace:*
         version: link:../growth/content
@@ -344,6 +347,9 @@ importers:
       '@xprite/bedrock':
         specifier: workspace:*
         version: link:../bedrock
+      '@xprite/fixer-detect-wasm':
+        specifier: workspace:*
+        version: link:../fixer-detect-wasm
       fflate:
         specifier: ^0.8.3
         version: 0.8.3
@@ -368,6 +374,8 @@ importers:
       react:
         specifier: ^18.3.1
         version: 18.3.1
+
+  packages/fixer-detect-wasm: {}
 
   packages/palette-assets: {}
 

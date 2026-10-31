@@ -18,10 +18,12 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
 import configuration from "../../infra/dev-site.json" with { type: "json" };
+import { mapConcurrent } from "../base/map-concurrent.mjs";
 import { BROWSER_ARGS, launchBrowserServer } from "./base/browser.mjs";
 import { startStaticSite } from "./base/static-site.mjs";
 
 const root = fileURLToPath(new URL("../../", import.meta.url)).replace(/[\\/]$/, "");
+const AUDIT_GROUP_CONCURRENCY = 2;
 const started = performance.now();
 const seconds = (since) => ((performance.now() - since) / 1000).toFixed(1);
 
@@ -181,35 +183,45 @@ try {
       `Dev site ready and warmed in ${seconds(warmStarted)}s (Chromium ${BROWSER_ARGS.length} pinned flags).`,
     );
   }
-  const results = await Promise.all([
-    run(
-      "startup continuity",
-      [["scripts/visual-audit/startup-continuity/audit.mjs", ...portArgs]],
-      env,
-    ),
-    run(
-      "editor capture + compare",
-      [
-        ["scripts/visual-audit/xprite/capture.mjs", ...portArgs],
-        ["scripts/visual-audit/xprite/compare.mjs"],
-      ],
-      env,
-    ),
-    run(
-      "text alignment (zh/ja/en)",
-      [["scripts/visual-audit/text-alignment.mjs", ...portArgs]],
-      env,
-    ),
-    run("tools SSG startup", [["scripts/visual-audit/tools-startup/audit.mjs", ...portArgs]], env),
-    run(
-      "site capture + compare",
-      [
-        [...ts, "scripts/visual-audit/site/audit.mjs", "capture", ...portArgs],
-        [...ts, "scripts/visual-audit/site/audit.mjs", "compare"],
-      ],
-      env,
-    ),
-  ]);
+  const audits = [
+    () =>
+      run(
+        "startup continuity",
+        [["scripts/visual-audit/startup-continuity/audit.mjs", ...portArgs]],
+        env,
+      ),
+    () =>
+      run(
+        "editor capture + compare",
+        [
+          ["scripts/visual-audit/xprite/capture.mjs", ...portArgs],
+          ["scripts/visual-audit/xprite/compare.mjs"],
+        ],
+        env,
+      ),
+    () =>
+      run(
+        "text alignment (zh/ja/en)",
+        [["scripts/visual-audit/text-alignment.mjs", ...portArgs]],
+        env,
+      ),
+    () =>
+      run(
+        "tools SSG startup",
+        [["scripts/visual-audit/tools-startup/audit.mjs", ...portArgs]],
+        env,
+      ),
+    () =>
+      run(
+        "site capture + compare",
+        [
+          [...ts, "scripts/visual-audit/site/audit.mjs", "capture", ...portArgs],
+          [...ts, "scripts/visual-audit/site/audit.mjs", "compare"],
+        ],
+        env,
+      ),
+  ];
+  const results = await mapConcurrent(audits, AUDIT_GROUP_CONCURRENCY, (audit) => audit());
   failed = results.filter(({ passed }) => !passed).map(({ name }) => name);
 } finally {
   await server.close().catch(() => {});

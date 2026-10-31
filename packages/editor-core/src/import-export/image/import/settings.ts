@@ -9,6 +9,7 @@ import {
   CellColorPicker,
   LineGuideMode,
   OutlinePrepass,
+  PaletteColorMode,
   PixelationDither,
   PixelationMethod,
   PixelationMode,
@@ -35,7 +36,7 @@ export function defaultPixelationSettings(
 ): PixelationSettings {
   const scale = Math.min(1, DEFAULT_PIXELATION_SIZE / Math.max(image.width, image.height));
   const mode = grid?.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert;
-  // Recover Grid opens on PixelOE + lines with Median and Limit colors (16). Convert opens on
+  // Recover Grid opens on PixelOE + lines with TwoStage and Limit colors (16). Convert opens on
   // PixelOE + lines with Contrast and no color limit. Both use PixelOE's outline pre-pass.
   return {
     mode,
@@ -44,7 +45,7 @@ export function defaultPixelationSettings(
     prepass: DEFAULT_OUTLINE_PREPASS,
     lineGuide: DEFAULT_LINE_GUIDE,
     colorPicker:
-      mode === PixelationMode.RecoverGrid ? CellColorPicker.Median : CellColorPicker.Contrast,
+      mode === PixelationMode.RecoverGrid ? CellColorPicker.TwoStage : CellColorPicker.Contrast,
     autoGrid: true,
     gridCellWidth: grid?.reliable ? grid.cellWidth : 8,
     gridCellHeight: grid?.reliable ? grid.cellHeight : 8,
@@ -57,6 +58,7 @@ export function defaultPixelationSettings(
     removeNoise: false,
     lockAspectRatio: true,
     dither: PixelationDither.None,
+    paletteColorMode: PaletteColorMode.Fixed,
     palette: null,
     paletteName: "",
   };
@@ -81,6 +83,8 @@ export function updatePixelationSettings(
     delete (next as { snapPalette?: unknown }).snapPalette;
     delete (next as { snapColors?: unknown }).snapColors;
   }
+  if (!Object.values(PaletteColorMode).includes(next.paletteColorMode))
+    next.paletteColorMode = PaletteColorMode.Fixed;
   if (!Object.values(LineGuideMode).includes(next.lineGuide)) next.lineGuide = DEFAULT_LINE_GUIDE;
   if (!Object.values(PixelationDither).includes(next.dither)) next.dither = PixelationDither.None;
   // Turning a PixelOE pre-pass on starts from Contrast, PixelOE's own colour rule.
@@ -106,7 +110,7 @@ export function updatePixelationSettings(
       }
     }
     if (patch.colorPicker === undefined && patch.mode === PixelationMode.RecoverGrid) {
-      next.colorPicker = CellColorPicker.Median;
+      next.colorPicker = CellColorPicker.TwoStage;
     }
   }
   const cellSize = (value: number) =>
@@ -160,11 +164,13 @@ export function pixelationSettingsOptions(
     lineGuide: settings.lineGuide,
     targetWidth: settings.targetWidth,
     targetHeight: settings.targetHeight,
-    // Limit colors: k-means to the colour count, or the loaded palette.
+    // Limit colors: k-means to the colour count, adaptive estimation, or the loaded palette.
     paletteSnap: settings.reduceColors
       ? settings.palette
         ? { palette: settings.palette, dither: settings.dither }
-        : { colors: settings.maxColors, dither: settings.dither }
+        : settings.paletteColorMode === PaletteColorMode.Adaptive
+          ? { adaptive: true, dither: settings.dither }
+          : { colors: settings.maxColors, dither: settings.dither }
       : undefined,
     method: settings.method,
     // A pre-pass hands its result to the colour rule, so the picker (not `method`) fills each block.

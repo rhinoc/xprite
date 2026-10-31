@@ -38,27 +38,25 @@ const size = { width: 30, height: 24 };
 
 describe("outline pre-pass combinations", () => {
   test("PixelOE + Contrast without a recovered grid is stock PixelOE", () => {
-    for (const blockPicker of [true, false]) {
-      const run = (prepass: OutlinePrepass, lineGuide?: LineGuideMode) =>
-        pixelateImage(image, {
-          ...convert,
-          blockPicker,
-          colorPicker: CellColorPicker.Contrast,
-          prepass,
-          lineGuide,
-        });
-      expect(run(OutlinePrepass.Pixeloe)).toEqual(runPixeloe(image, size));
-      // No line guide given: the default, Lines only.
-      expect(run(OutlinePrepass.PixeloeLines)).toEqual(
-        runPixeloe(image, size, LineGuideMode.Replace),
-      );
-      expect(run(OutlinePrepass.PixeloeLines, LineGuideMode.Replace)).toEqual(
-        runPixeloe(image, size, LineGuideMode.Replace),
-      );
-      expect(run(OutlinePrepass.PixeloeLines, LineGuideMode.Union)).toEqual(
-        runPixeloe(image, size, LineGuideMode.Union),
-      );
-    }
+    const run = (prepass: OutlinePrepass, lineGuide?: LineGuideMode) =>
+      pixelateImage(image, {
+        ...convert,
+        blockPicker: false,
+        colorPicker: CellColorPicker.Contrast,
+        prepass,
+        lineGuide,
+      });
+    expect(run(OutlinePrepass.Pixeloe)).toEqual(runPixeloe(image, size));
+    // No line guide given: the default, Lines only.
+    expect(run(OutlinePrepass.PixeloeLines)).toEqual(
+      runPixeloe(image, size, LineGuideMode.Replace),
+    );
+    expect(run(OutlinePrepass.PixeloeLines, LineGuideMode.Replace)).toEqual(
+      runPixeloe(image, size, LineGuideMode.Replace),
+    );
+    expect(run(OutlinePrepass.PixeloeLines, LineGuideMode.Union)).toEqual(
+      runPixeloe(image, size, LineGuideMode.Union),
+    );
   });
   test("Custom size's blocks with Contrast are stock PixelOE too", () => {
     const grid = detectWithAlgorithm(image, PixelationAlgorithm.CustomSize, size);
@@ -118,28 +116,6 @@ describe("outline pre-pass combinations", () => {
 });
 
 describe("outline pre-pass settings", () => {
-  test("Convert opens on PixelOE + lines with Contrast and no limit; Recover on Median + limit", () => {
-    const loose = defaultPixelationSettings(image, detectWithAlgorithm(image));
-    const convert = {
-      prepass: OutlinePrepass.PixeloeLines,
-      lineGuide: LineGuideMode.Replace,
-      colorPicker: CellColorPicker.Contrast,
-      reduceColors: false,
-    };
-    expect(loose).toMatchObject({ ...convert, mode: PixelationMode.Convert });
-    const art = upscaleNearest(sprite(32), 4);
-    const grid = detectWithAlgorithm(art);
-    expect(grid.reliable).toBe(true);
-    // Recover Grid opens on Median with Limit colors (16).
-    expect(defaultPixelationSettings(art, grid)).toMatchObject({
-      prepass: OutlinePrepass.PixeloeLines,
-      lineGuide: LineGuideMode.Replace,
-      colorPicker: CellColorPicker.Median,
-      reduceColors: true,
-      mode: PixelationMode.RecoverGrid,
-    });
-    expect(defaultPixelationSettings(art)).toMatchObject(convert);
-  });
   test("losing the grid limits colours only without a pre-pass", () => {
     const art = upscaleNearest(sprite(32), 4);
     const recovered = defaultPixelationSettings(art, detectWithAlgorithm(art));

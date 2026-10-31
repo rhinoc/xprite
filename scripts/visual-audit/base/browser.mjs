@@ -191,10 +191,13 @@ export async function runBrowserPayload({ payload, globals, forward = /^$/ }) {
   return { status, ...output };
 }
 
-/** Parallel pages per sharded audit: four audits share the CPUs (XPRITE_VISUAL_SHARDS overrides). */
+const MAX_AUDIT_SHARDS = 2;
+
+/** Each audit uses at most two pages by default; the orchestrator runs two audit groups. */
 export function visualShardCount(scenes) {
   const requested = Number(
-    process.env.XPRITE_VISUAL_SHARDS ?? Math.max(1, Math.floor(os.availableParallelism() / 2)),
+    process.env.XPRITE_VISUAL_SHARDS ??
+      Math.max(1, Math.min(MAX_AUDIT_SHARDS, Math.floor(os.availableParallelism() / 2))),
   );
   return Math.max(1, Math.min(scenes, requested));
 }

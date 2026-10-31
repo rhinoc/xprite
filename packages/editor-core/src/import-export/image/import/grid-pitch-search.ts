@@ -107,12 +107,16 @@ function normalizedAutocorrelation(signal: Float64Array, maxLag: number): Float6
   for (let i = 0; i < n; i++) mean += signal[i];
   mean /= n;
   let energy = 0;
-  for (let i = 0; i < n; i++) energy += (signal[i] - mean) ** 2;
+  const centred = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
+    centred[i] = signal[i] - mean;
+    energy += centred[i] ** 2;
+  }
   const result = new Float64Array(maxLag + 1);
   if (energy < 1e-12) return result;
   for (let lag = 0; lag <= maxLag; lag++) {
     let sum = 0;
-    for (let i = 0; i < n - lag; i++) sum += (signal[i] - mean) * (signal[i + lag] - mean);
+    for (let i = 0; i < n - lag; i++) sum += centred[i] * centred[i + lag];
     result[lag] = sum / energy;
   }
   return result;

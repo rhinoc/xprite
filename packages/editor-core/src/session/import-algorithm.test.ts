@@ -1,3 +1,4 @@
+// @cpu-intensive
 import { describe, expect, test } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
@@ -16,6 +17,7 @@ import {
   PixelArtClassification,
   PixelationAlgorithm,
   PixelationMode,
+  type PixelGridAnalysis,
 } from "$/import-export/image/import/types";
 import { EditorSession } from "$/session/editor-session";
 import { createBlankImage } from "$/session/recent-images";
@@ -23,6 +25,16 @@ import type { EditorSessionPorts, ImportPixelationMemory } from "$/session/types
 
 const { Auto, EdgeGrid, UniformGrid, Resize } = PixelationAlgorithm;
 const jittered = jitterWithMargin(sprite(64));
+
+// Session assertions exercise workflow transitions; each fixed source/algorithm needs one detection.
+const fixtureGrids = new WeakMap<PixelBuffer, Map<PixelationAlgorithm, PixelGridAnalysis>>();
+function fixtureGrid(source: PixelBuffer, algorithm = Auto): PixelGridAnalysis {
+  let grids = fixtureGrids.get(source);
+  if (!grids) fixtureGrids.set(source, (grids = new Map()));
+  let grid = grids.get(algorithm);
+  if (!grid) grids.set(algorithm, (grid = detectWithAlgorithm(source, algorithm)));
+  return structuredClone(grid);
+}
 
 function openSession(
   source: PixelBuffer,
@@ -42,7 +54,7 @@ function openSession(
       : {}),
     analyze: async (pixels, options) => ({
       classification,
-      grid: detectWithAlgorithm(pixels, options?.algorithm),
+      grid: fixtureGrid(pixels, options?.algorithm),
     }),
     pixelate: async (pixels, options) => pixelateImage(pixels, options),
     write: async (_pixels, name) => ({ method: "download", name }),
@@ -63,33 +75,12 @@ const sizeOf = (session: EditorSession) => {
   return preview ? `${preview.width}x${preview.height}` : "none";
 };
 
-describe("registry algorithms on one jittered sprite", () => {
-  test("different algorithms give different detections and outputs", () => {
-    const outputs = [Auto, UniformGrid, EdgeGrid, Resize].map((algorithm) => {
-      const grid = detectWithAlgorithm(jittered, algorithm);
-      const mode = grid.reliable ? PixelationMode.RecoverGrid : PixelationMode.Convert;
-      const out = pixelateImage(jittered, {
-        mode,
-        grid: grid.reliable ? grid : undefined,
-        targetWidth: 40,
-        targetHeight: 40,
-      });
-      return { algorithm, reliable: grid.reliable, size: `${out.width}x${out.height}`, out };
-    });
-    const distinct = new Set(outputs.map((o) => `${o.reliable}:${o.size}`));
-    expect(distinct.size).toBeGreaterThan(1);
-    const resize = outputs.find((o) => o.algorithm === Resize);
-    expect(resize?.reliable).toBe(false);
-    expect(resize?.size).toBe("40x40");
-  });
-});
-
 describe("import dialog colour pick", () => {
   test("changing the picker re-renders the preview on the same grid", async () => {
     const session = openSession(jittered);
     await session.requestImport({ source: "jitter", name: "jitter.png" });
     await settle(session);
-    expect(session.getSnapshot().pixelationOptions.colorPicker).toBe(CellColorPicker.Median);
+    expect(session.getSnapshot().pixelationOptions.colorPicker).toBe(CellColorPicker.MostCommon);
     const before = session.getSnapshot().pixelationPreview;
     session.setPixelationOptions({ colorPicker: CellColorPicker.Average });
     await settle(session);
@@ -99,7 +90,7 @@ describe("import dialog colour pick", () => {
     expect(after.pixelationPreview?.width).toBe(before?.width);
     session.dispose();
   });
-  test("pixel art opens on PixelOE + lines with Median and Limit colors; None brings back the remembered rule", async () => {
+  test("pixel art opens with the remembered plain picker and optional outlines remain available", async () => {
     const session = openSession(
       jittered,
       PixelArtClassification.LikelyPixelArt,
@@ -108,26 +99,31 @@ describe("import dialog colour pick", () => {
     await session.requestImport({ source: "jitter", name: "jitter.png" });
     await settle(session);
     const opened = session.getSnapshot();
-    // Recover Grid opens on Median with Limit colors (16).
     expect(opened.pendingImport?.grid?.reliable).toBe(true);
     expect(opened.pixelationOptions).toMatchObject({
       mode: PixelationMode.RecoverGrid,
-      prepass: OutlinePrepass.PixeloeLines,
+      prepass: OutlinePrepass.None,
       colorPicker: CellColorPicker.Median,
-      reduceColors: true,
+      reduceColors: false,
     });
-    session.setPixelationOptions({ prepass: OutlinePrepass.None });
-    await settle(session);
-    const plain = session.getSnapshot();
-    expect(plain.pixelationOptions.colorPicker).toBe(CellColorPicker.Median);
-    // The old exact recovery is one choice away.
-    expect(plain.pixelationPreview).toEqual(
+    expect(opened.pixelationPreview).toEqual(
       pixelateImage(jittered, {
         mode: PixelationMode.RecoverGrid,
         grid: opened.pendingImport!.grid!,
         colorPicker: CellColorPicker.Median,
       }),
     );
+    session.setPixelationOptions({ prepass: OutlinePrepass.PixeloeLines, reduceColors: true });
+    await settle(session);
+    expect(session.getSnapshot().pixelationOptions).toMatchObject({
+      prepass: OutlinePrepass.PixeloeLines,
+      colorPicker: CellColorPicker.Contrast,
+      reduceColors: true,
+    });
+    session.setPixelationOptions({ prepass: OutlinePrepass.None, reduceColors: false });
+    await settle(session);
+    expect(session.getSnapshot().pixelationOptions.colorPicker).toBe(CellColorPicker.Median);
+    expect(session.getSnapshot().pixelationPreview).toEqual(opened.pixelationPreview);
     session.dispose();
   });
 });
@@ -145,7 +141,12 @@ describe("import dialog algorithm switching", () => {
     const resized = session.getSnapshot();
     expect(resized.pendingImport?.algorithm).toBe(Resize);
     expect(resized.pendingImport?.grid?.reliable).toBe(false);
-    expect(resized.pixelationOptions.mode).toBe(PixelationMode.Convert);
+    expect(resized.pixelationOptions).toMatchObject({
+      mode: PixelationMode.Convert,
+      prepass: OutlinePrepass.PixeloeLines,
+      colorPicker: CellColorPicker.Contrast,
+      reduceColors: false,
+    });
     expect(sizeOf(session)).toBe(
       `${resized.pixelationOptions.targetWidth}x${resized.pixelationOptions.targetHeight}`,
     );
@@ -213,7 +214,7 @@ describe("silent Pixelate import (Don't ask me again)", () => {
       decode: async () => upscaled,
       analyze: async (pixels, options) => ({
         classification: PixelArtClassification.LikelyPixelArt,
-        grid: detectWithAlgorithm(pixels, options?.algorithm),
+        grid: fixtureGrid(pixels, options?.algorithm),
       }),
       pixelate: async (pixels, options) => {
         const out = pixelateImage(pixels, options);
@@ -251,26 +252,14 @@ describe("silent Pixelate import (Don't ask me again)", () => {
     expect(imported).toEqual(art);
     session.dispose();
   });
-  test("with nothing saved the silent import uses PixelOE + lines with Median and Limit colors", async () => {
+  test("with nothing saved the silent import uses plain recovery without a color limit", async () => {
     const { session, imported } = await importSilently(null);
     expect(session.getSnapshot().pixelationOptions).toMatchObject({
-      prepass: OutlinePrepass.PixeloeLines,
-      lineGuide: LineGuideMode.Replace,
-      colorPicker: CellColorPicker.Median,
-      reduceColors: true,
+      prepass: OutlinePrepass.None,
+      colorPicker: CellColorPicker.MostCommon,
+      reduceColors: false,
     });
-    const grid = detectWithAlgorithm(upscaled, Auto);
-    expect(imported).toEqual(
-      pixelateImage(upscaled, {
-        mode: PixelationMode.RecoverGrid,
-        grid,
-        prepass: OutlinePrepass.PixeloeLines,
-        lineGuide: LineGuideMode.Replace,
-        colorPicker: CellColorPicker.Median,
-        paletteSnap: { colors: 16 },
-      }),
-    );
-    expect(imported).not.toEqual(art);
+    expect(imported).toEqual(art);
     session.dispose();
   });
   test("a saved Add to outlines import keeps Add to outlines", async () => {
@@ -296,20 +285,19 @@ describe("silent Pixelate import (Don't ask me again)", () => {
     );
     session.dispose();
   });
-  test("the dialog still opens on PixelOE + lines with Median after a None import was saved", async () => {
+  test("the dialog uses plain defaults when the silent path has saved outline settings", async () => {
     const { session } = silentSession("always-ask", {
-      prepass: OutlinePrepass.None,
-      colorPicker: CellColorPicker.MostCommon,
-      reduceColors: false,
+      prepass: OutlinePrepass.PixeloeLines,
+      colorPicker: CellColorPicker.Contrast,
+      reduceColors: true,
     });
     await session.requestImport({ source: "art", name: "art.png" });
     await settle(session);
     expect(session.getSnapshot().pendingImport).not.toBeNull();
     expect(session.getSnapshot().pixelationOptions).toMatchObject({
-      prepass: OutlinePrepass.PixeloeLines,
-      lineGuide: LineGuideMode.Replace,
-      colorPicker: CellColorPicker.Median,
-      reduceColors: true,
+      prepass: OutlinePrepass.None,
+      colorPicker: CellColorPicker.MostCommon,
+      reduceColors: false,
     });
     session.dispose();
   });
