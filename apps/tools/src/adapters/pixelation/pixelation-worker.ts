@@ -3,7 +3,7 @@ import {
   type PixelationWorkerRequest,
   type PixelationWorkerResponse,
 } from "$/adapters/pixelation/worker-protocol";
-import { pixelateImage, detectWithAlgorithm } from "@xprite/editor-core/import-export";
+import { pixelateImage, detectWithAlgorithm } from "@xprite/pixelate";
 interface Scope {
   onmessage: ((event: MessageEvent<PixelationWorkerRequest>) => void) | null;
   postMessage(message: PixelationWorkerResponse, transfer?: Transferable[]): void;

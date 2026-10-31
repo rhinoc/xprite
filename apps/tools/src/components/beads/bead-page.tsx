@@ -15,8 +15,8 @@ import type {
 import { beadDocumentLabels } from "$/managers/locale/bead-text";
 import { useBeadText, useToolTranslation } from "$/managers/locale/tool-language";
 import { BEADS_TOOL } from "$/managers/tools/tool-catalog";
-import { PixelationMode, defaultPixelationSettings } from "@xprite/editor-core/import-export";
 import { PixelationBaseControls, PixelationSlot } from "@xprite/editor-ui";
+import { PixelationMode, defaultPixelationSettings } from "@xprite/pixelate";
 
 enum ResultTab {
   Pattern = "pattern",

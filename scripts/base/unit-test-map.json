@@ -62,7 +62,6 @@
   "verify-document-transforms": "packages/editor-core/src/image-editing/transform.test.ts",
   "verify-editor-document-size": "packages/editor-core/src/image-editing/size.test.ts",
   "verify-file-names": "packages/editor-core/src/import-export/file-names.test.ts",
-  "verify-image-import": "packages/editor-core/src/import-export/image/import/index.test.ts",
   "verify-sprite-properties": "packages/editor-core/src/sprite/properties.test.ts",
   "verify-palette-history": "packages/editor-core/src/history/history.test.ts",
   "verify-symmetry-handles": "packages/editor-core/src/canvas/assistance/symmetry.test.ts",

@@ -3,7 +3,7 @@ import { downloadImage, postImageNote, saveImageToAlbum } from "$/shared/bridge/
 import { createCompositionRenderer } from "$/tools/pixelate/adapters/scene-renderer";
 import type { MiniToolPort, MiniToolScene } from "$/tools/pixelate/managers/ports";
 import type { PixelBuffer } from "@xprite/editor-core/base";
-import { pixelateImage } from "@xprite/editor-core/import-export";
+import { pixelateImage } from "@xprite/pixelate";
 
 /** Let a pending paint happen before a synchronous step takes the main thread. */
 function yieldToPaint(): Promise<void> {

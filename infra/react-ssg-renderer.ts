@@ -11,6 +11,7 @@ import { ssgScopedName } from "./react-ssg-style-names.ts";
 
 const RAW_ASSET_NAMESPACE = "raw-asset";
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
+const PIXELATE_PACKAGE = "@xprite/pixelate";
 const aliases: Record<string, string> = {
   "@xprite/growth-content/features": "apps/growth/content/features/index.ts",
   "@xprite/growth-content/language": "apps/growth/content/site/language.ts",
@@ -30,7 +31,6 @@ const aliases: Record<string, string> = {
   "@xprite/palette-assets/beads": "packages/palette-assets/beads/index.ts",
   "@xprite/palette-assets/": "packages/palette-assets/",
   "@xprite/bedrock/": "packages/bedrock/",
-  "@xprite/fixer-detect-wasm": "packages/fixer-detect-wasm/pixelfixer_detect.js",
 };
 const scopes = JSON.parse(
   readFileSync(resolve(ROOT, "infra/package-import-scopes.json"), "utf8"),
@@ -123,6 +123,8 @@ export async function createReactSsgRenderer<T>(options: {
     name: "react-ssg",
     setup(context) {
       context.onResolve({ filter: /^(?:\$|@xprite\/)|\?(?:url|raw)$/ }, async (args) => {
+        // A published npm package: esbuild resolves it from node_modules.
+        if (args.path === PIXELATE_PACKAGE || args.path.startsWith(`${PIXELATE_PACKAGE}/`)) return;
         const source = resolveSource(args.path, args.importer);
         if (args.path.endsWith("?raw")) return { path: source, namespace: RAW_ASSET_NAMESPACE };
         return context.resolve(source, { kind: args.kind, resolveDir: dirname(args.importer) });

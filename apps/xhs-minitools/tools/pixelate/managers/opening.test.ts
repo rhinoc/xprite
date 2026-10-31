@@ -5,7 +5,7 @@ import { describe, it } from "vitest";
 import { MiniToolEditor } from "$/tools/pixelate/managers/editor";
 import type { MiniToolPort } from "$/tools/pixelate/managers/ports";
 import type { PixelBuffer } from "@xprite/editor-core/base";
-import { PixelationAlgorithm, type PixelGridAnalysis } from "@xprite/editor-core/import-export";
+import { PixelationAlgorithm, type PixelGridAnalysis } from "@xprite/pixelate";
 import { PixelationManager, type PixelationPort } from "@xprite/tools-app/pixelation";
 
 const photo: PixelBuffer = { width: 40, height: 30, data: new Uint8ClampedArray(40 * 30 * 4) };

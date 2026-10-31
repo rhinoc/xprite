@@ -158,7 +158,7 @@ licensed under the MIT License. Upstream:
 [`LICENSES/pixelorama-MIT.txt`](LICENSES/pixelorama-MIT.txt).
 
 Limit-colors Ordered dither (Bayer 8×8 → palette) in
-`packages/editor-core/src/import-export/image/import/palette-snap.ts` is a
+[`@xprite/pixelate`](https://github.com/rhinoc/xprite-pixelate) (`src/palette-snap.ts`) is a
 TypeScript port of the `ordered_palette` / Bayer matrix path from
 [tensorhead/dithering](https://github.com/tensorhead/dithering) (MIT). The
 upstream notice is retained in
@@ -336,6 +336,6 @@ recorded in the adjacent `provenance.json`.
 The import dialog's K-means and Contrast pixel colour pickers are inspired by the
 downscaling modes of [PixelOE](https://github.com/KohakuBlueleaf/PixelOE) by
 KohakuBlueleaf (Apache-2.0). They are independent reimplementations in
-`packages/editor-core/src/import-export/image/import/cell-color-picker.ts`; no PixelOE code is
+[`@xprite/pixelate`](https://github.com/rhinoc/xprite-pixelate) (`src/cell-color-picker.ts`); no PixelOE code is
 copied. Most common follows [proper-pixel-art](https://github.com/KennethJAllen/proper-pixel-art)
 (MIT).

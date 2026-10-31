@@ -1,11 +1,7 @@
 import { miniToolPreferences, postImageNote, saveImageToAlbum } from "$/shared/bridge/xhs-bridge";
 import exampleUrl from "$/tools/pixelate/assets/girl-with-a-pearl-earring-720.jpg?url";
 import type { PixelBuffer } from "@xprite/editor-core/base";
-import {
-  detectWithAlgorithm,
-  pixelateImage,
-  type PixelateOptions,
-} from "@xprite/editor-core/import-export";
+import { detectWithAlgorithm, pixelateImage, type PixelateOptions } from "@xprite/pixelate";
 import {
   readPixelationPalettes,
   readToolWheel,

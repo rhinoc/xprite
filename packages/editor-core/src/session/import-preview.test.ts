@@ -1,6 +1,9 @@
 import { describe, expect, test, vi } from "vitest";
 
 import { RasterEditor } from "$/editor/RasterEditor";
+import { EditorSession } from "$/session/editor-session";
+import { createBlankImage } from "$/session/recent-images";
+import { SessionOutcome } from "$/session/types";
 import {
   analyzePixelArt,
   defaultPixelationSettings,
@@ -13,10 +16,7 @@ import {
   PaletteColorMode,
   type PixelationSettings,
   type PixelArtAnalysis,
-} from "$/import-export/image/import";
-import { EditorSession } from "$/session/editor-session";
-import { createBlankImage } from "$/session/recent-images";
-import { SessionOutcome } from "$/session/types";
+} from "@xprite/pixelate";
 
 describe("import preview with file preferences", () => {
   test("opens immediately and generates a preview without changing an option", async () => {

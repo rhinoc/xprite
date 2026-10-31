@@ -14,6 +14,9 @@ allowBuilds:
   # Wrangler uses workerd's installer to select its native runtime binary.
   workerd: true
 
+minimumReleaseAgeExclude:
+  - '@xprite/pixelate@0.1.0'
+
 # dependency-cruiser 18 uses the TypeScript compiler API that changed in v7.
 packageExtensions:
   dependency-cruiser@^18.4.0:

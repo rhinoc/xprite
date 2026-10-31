@@ -5,12 +5,12 @@ import type { EditorDocument } from "$/document/types";
 import type { BitmapTextController } from "$/drawing/text/controller";
 import type { HistoryController } from "$/history/controller";
 import type { ImageEditingController } from "$/image-editing/controller";
-import { extractPalette } from "$/import-export/image/import/palette";
 import type { SpriteController } from "$/sprite/controller";
 import type { TilemapGestureController } from "$/tilemap/gesture-controller";
 import type { TimelineController } from "$/timeline/controller";
 import { ensureLayerUuids } from "$/timeline/layer-uuid";
 import { compositeTimeline } from "$/timeline/operations/composite-timeline";
+import { extractPalette } from "@xprite/pixelate";
 
 export interface EditorDocumentLifecyclePort {
   kernel: {

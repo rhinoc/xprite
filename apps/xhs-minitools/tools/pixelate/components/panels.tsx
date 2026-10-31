@@ -42,7 +42,7 @@ import {
   pixelationMethodOf,
   type CellColorPicker,
   type PixelationMethod,
-} from "@xprite/editor-core/import-export";
+} from "@xprite/pixelate";
 import type { PixelationSnapshot } from "@xprite/tools-app/pixelation";
 import { displayPixelRatio, scrollElementIntoView } from "@xprite/ui/utils";
 

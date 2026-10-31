@@ -8,13 +8,13 @@ import {
   warmAcRlBrowserWorker,
   type PixelArtAnalysisOptions,
   type PixelateOptions,
-} from "@xprite/editor-core/import-export";
+} from "@xprite/pixelate";
 export { ImportWorkerOperation } from "$/adapters/workers/import-worker-types";
 
 // Nested Worker factory for Auto WASM||proposers overlap without COOP/COEP SAB.
 setAcRlBrowserWorkerFactory(
   () =>
-    new Worker(new URL("./ac-rl-detect-nested-worker.ts", import.meta.url), {
+    new Worker(new URL("@xprite/pixelate/wasm/ac-rl-detect-browser-worker.js", import.meta.url), {
       type: "module",
     }),
 );

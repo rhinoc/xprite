@@ -18,6 +18,7 @@
   "dependencies": {
     "@xprite/editor-core": "workspace:*",
     "@xprite/palette-assets": "workspace:*",
+    "@xprite/pixelate": "0.1.0",
     "@xprite/ui": "workspace:*",
     "react": "^18.3.1"
   }
