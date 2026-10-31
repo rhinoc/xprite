@@ -25,6 +25,7 @@ import {
   descriptionLength,
 } from "$/import-export/image/import/grid-description-length";
 import { detectMeshGrid, detectUniformGrid } from "$/import-export/image/import/grid-detect";
+import { coherentGrids } from "$/import-export/image/import/grid-edge-coherence";
 import { detectFrameLattices } from "$/import-export/image/import/grid-frame-lattice";
 import { detectBoundaryPeriodGrids } from "$/import-export/image/import/grid-period-boundary";
 import { combCountGrids } from "$/import-export/image/import/grid-period-comb";
@@ -155,6 +156,40 @@ const customSize = (image: PixelBuffer, size?: PixelationSize): PixelGridAnalysi
 const MIN_CORROBORATORS = 2;
 
 /**
+ * The AC+RL consensus counts cells across the whole image. A sprite exported on a clear canvas
+ * has soft edges against the clear margin, which shift that count by one cell, so on such an
+ * image (at least CLEAR_MARGIN_SHARE of its pixels clear) a consensus within one cell of the
+ * arbitrated winner does not replace it. A farther consensus still does.
+ */
+const CLEAR_MARGIN_SHARE = 0.25;
+const ALPHA_CHANNEL = 3;
+const STRIDE = 4;
+
+const clearMargins = new WeakMap<PixelBuffer, boolean>();
+function hasClearMargin(image: PixelBuffer): boolean {
+  let known = clearMargins.get(image);
+  if (known === undefined) {
+    let clear = 0;
+    for (let o = ALPHA_CHANNEL; o < image.data.length; o += STRIDE) if (!image.data[o]) clear++;
+    known = clear >= CLEAR_MARGIN_SHARE * image.width * image.height;
+    clearMargins.set(image, known);
+  }
+  return known;
+}
+
+/** Whether the consensus counts replace the arbitrated winner (see CLEAR_MARGIN_SHARE). */
+function consensusOverrides(
+  image: PixelBuffer,
+  winner: PixelGridAnalysis,
+  consensus: { cols: number; rows: number },
+): boolean {
+  const columns = Math.abs(consensus.cols - winner.width),
+    rows = Math.abs(consensus.rows - winner.height);
+  if (!columns && !rows) return false;
+  return !hasClearMargin(image) || columns > 1 || rows > 1;
+}
+
+/**
  * Maximum candidates to pass to arbitration. Description-length scoring scales O(pixels),
  * and each candidate requires strip computation + phase field. Pruning reduces latency
  * while preserving high-confidence and diverse-dimension candidates.
@@ -273,6 +308,14 @@ function consensusWinner(
   return best;
 }
 
+/** Every proposer's grids for one view, less those the view's edges reject. */
+function proposalsOf(image: PixelBuffer, outputs?: PixelGridAnalysis[][]): PixelGridAnalysis[][] {
+  return coherentGrids(
+    image,
+    PROPOSERS.map((proposer, index) => outputs?.[index] ?? proposer(image)),
+  );
+}
+
 /**
  * Auto: every proposer runs on each evaluation view (扶正 and/or 原图), their candidates compete
  * in one arbitration per view (see grid-arbitrate), and the passthrough is one more candidate in
@@ -322,11 +365,10 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
     const wasmJob = ring.wasmJob ?? beginAcRlConsensusJob(ring.image);
 
     // Run each proposer once and track outputs with their corroboration index
-    const proposerOutputs = PROPOSERS.map((proposer, index) => {
-      const grids = ring.outputs?.[index] ?? proposer(ring.image);
-      const corrobIndex = corroboratingProposers.indexOf(proposer);
-      return { grids, corrobIndex };
-    });
+    const proposerOutputs = proposalsOf(ring.image, ring.outputs).map((grids, index) => ({
+      grids,
+      corrobIndex: corroboratingProposers.indexOf(PROPOSERS[index]),
+    }));
 
     // Build candidates list from all proposer outputs
     const candidates = proposerOutputs.flatMap(({ grids }) =>
@@ -394,11 +436,7 @@ function autoGrid(image: PixelBuffer): PixelGridAnalysis {
       if (preferred) winner = preferred;
     }
 
-    if (
-      winner &&
-      consensus &&
-      (consensus.cols !== winner.grid.width || consensus.rows !== winner.grid.height)
-    ) {
+    if (winner && consensus && consensusOverrides(ring.image, winner.grid, consensus)) {
       const replacement = consensusWinner(evidence, ring.image, candidates, consensus);
       if (replacement) winner = replacement;
     }
@@ -467,11 +505,10 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
   for (const ring of rings) {
     const wasmJob = ring.wasmJob ?? (await beginAcRlConsensusJobAsync(ring.image));
 
-    const proposerOutputs = PROPOSERS.map((proposer, index) => {
-      const grids = ring.outputs?.[index] ?? proposer(ring.image);
-      const corrobIndex = corroboratingProposers.indexOf(proposer);
-      return { grids, corrobIndex };
-    });
+    const proposerOutputs = proposalsOf(ring.image, ring.outputs).map((grids, index) => ({
+      grids,
+      corrobIndex: corroboratingProposers.indexOf(PROPOSERS[index]),
+    }));
 
     const candidates = proposerOutputs.flatMap(({ grids }) =>
       grids.map((grid) => (ring.rotation ? { ...grid, rotation: ring.rotation } : grid)),
@@ -530,11 +567,7 @@ async function autoGridAsync(image: PixelBuffer): Promise<PixelGridAnalysis> {
       if (preferred) winner = preferred;
     }
 
-    if (
-      winner &&
-      consensus &&
-      (consensus.cols !== winner.grid.width || consensus.rows !== winner.grid.height)
-    ) {
+    if (winner && consensus && consensusOverrides(ring.image, winner.grid, consensus)) {
       const replacement = consensusWinner(evidence, ring.image, candidates, consensus);
       if (replacement) winner = replacement;
     }

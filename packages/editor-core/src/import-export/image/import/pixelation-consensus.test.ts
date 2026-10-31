@@ -190,6 +190,19 @@ describe.each([
     expect(state.fixedReads).toHaveLength(2);
   });
 
+  test("on a clear canvas a consensus one cell off keeps the winner", async () => {
+    state.consensus = { cols: 11, rows: 12 };
+    expect(await detect(image())).toEqual(state.winner!.grid);
+  });
+
+  test("on an opaque image a consensus one cell off replaces the winner", async () => {
+    state.consensus = { cols: 11, rows: 12 };
+    const opaque = image();
+    opaque.data.fill(255);
+    const result = await detect(opaque);
+    expect([result.width, result.height]).toEqual([11, 12]);
+  });
+
   test("keeps the existing winner when the rebuilt geometry has no valid reading", async () => {
     state.consensus = { cols: 8, rows: 8 };
     state.outputs = [grid(8)];

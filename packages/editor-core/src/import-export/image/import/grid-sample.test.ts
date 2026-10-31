@@ -115,3 +115,66 @@ describe("Dual RT cell lookup", () => {
     expect(dual(pixels(2, [CLEAR, CLEAR]), [0, 1, 2], [0, 1], structure, twoStage)).toBe(structure);
   });
 });
+
+describe("silhouette alpha", () => {
+  const SOFT_RED: Rgba = [160, 0, 0, 40];
+  const cells: PixelGridGeometry = {
+    width: 2,
+    height: 1,
+    cellWidth: 2,
+    cellHeight: 2,
+    offsetX: 0,
+    offsetY: 0,
+    cutsX: [0, 2, 4],
+    cutsY: [0, 2],
+  };
+
+  beforeEach(async () => {
+    const actual = await vi.importActual<typeof import("$/import-export/image/import/sampling")>(
+      "$/import-export/image/import/sampling",
+    );
+    vi.mocked(samplePixelation).mockImplementation(actual.samplePixelation);
+  });
+
+  test("a cell mostly covered by the art keeps the art's alpha", () => {
+    const image = pixels(4, [RED, RED, RED, SOFT_RED, RED, SOFT_RED, CLEAR, CLEAR]);
+    const out = recoverGrid(image, cells, CellColorPicker.Average);
+    expect(out.data[3]).toBe(255);
+  });
+
+  test("a cell mostly outside the art is clear", () => {
+    const image = pixels(4, [RED, CLEAR, RED, RED, SOFT_RED, CLEAR, RED, RED]);
+    const out = recoverGrid(image, cells, CellColorPicker.TwoStage);
+    expect(Array.from(out.data.slice(0, 4))).toEqual([0, 0, 0, 0]);
+    expect(out.data[7]).toBe(255);
+  });
+
+  test("a cell that is translucent throughout keeps its alpha", () => {
+    const image = pixels(4, [SOFT_RED, SOFT_RED, RED, RED, SOFT_RED, SOFT_RED, RED, RED]);
+    const out = recoverGrid(image, cells, CellColorPicker.Average);
+    expect(out.data[3]).toBe(40);
+  });
+
+  test("almost opaque art becomes opaque", () => {
+    const NEAR_RED: Rgba = [160, 0, 0, 252];
+    const image = pixels(4, [
+      NEAR_RED,
+      NEAR_RED,
+      NEAR_RED,
+      NEAR_RED,
+      NEAR_RED,
+      NEAR_RED,
+      CLEAR,
+      CLEAR,
+    ]);
+    const out = recoverGrid(image, cells, CellColorPicker.Average);
+    expect([out.data[3], out.data[7]]).toEqual([255, 255]);
+  });
+
+  test("translucent art keeps the alpha of its covered pixels", () => {
+    const GLASS: Rgba = [160, 0, 0, 180];
+    const image = pixels(4, [GLASS, GLASS, GLASS, GLASS, GLASS, CLEAR, GLASS, GLASS]);
+    const out = recoverGrid(image, cells, CellColorPicker.Average);
+    expect([out.data[3], out.data[7]]).toEqual([180, 180]);
+  });
+});
