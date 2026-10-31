@@ -4,7 +4,7 @@ import { assertPixelBuffer } from "$/document/pixel-validation";
 import {
   detectWithAlgorithm,
   detectWithAlgorithmAsync,
-} from "$/import-export/image/import/pixelation-algorithm-registry";
+} from "$/import-export/image/import/grid/registry";
 import { PixelArtClassification } from "$/import-export/image/import/types";
 import type {
   PixelArtAnalysis,

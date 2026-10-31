@@ -3,13 +3,13 @@ import { describe, expect, test } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
 import { RasterEditor } from "$/editor/RasterEditor";
+import { detectWithAlgorithm } from "$/import-export/image/import/grid/registry";
 import {
   jitterWithMargin,
   sprite,
   upscaleNearest,
-} from "$/import-export/image/import/grid-test-images";
+} from "$/import-export/image/import/grid/test-images";
 import { pixelateImage } from "$/import-export/image/import/pixelate";
-import { detectWithAlgorithm } from "$/import-export/image/import/pixelation-algorithm-registry";
 import {
   CellColorPicker,
   LineGuideMode,

@@ -4,10 +4,14 @@ export {
   extractPixelationPalette,
   countDistinctColors,
   reduceToPalette,
-} from "$/import-export/image/import/palette";
-export { snapPalette } from "$/import-export/image/import/palette-snap";
-export { estimateTilt, straighten, MAX_TILT_DEGREES } from "$/import-export/image/import/deskew";
-export { resizeNearest } from "$/import-export/image/import/resize";
+} from "$/import-export/image/import/color/palette";
+export { snapPalette } from "$/import-export/image/import/color/palette-snap";
+export {
+  estimateTilt,
+  straighten,
+  MAX_TILT_DEGREES,
+} from "$/import-export/image/import/prepass/deskew";
+export { resizeNearest } from "$/import-export/image/import/prepass/resize";
 export { pixelateImage, pixelateImageAsync } from "$/import-export/image/import/pixelate";
 export {
   PixelArtClassification,
@@ -26,7 +30,7 @@ export {
   DEFAULT_LINE_GUIDE,
   readOutlinePrepass,
   runsStockPixeloe,
-} from "$/import-export/image/import/outline-prepass";
+} from "$/import-export/image/import/prepass/outline-prepass";
 export type {
   ExtractPaletteOptions,
   PaletteEntry,
@@ -54,7 +58,7 @@ export {
   PIXELATION_METHOD_OPTIONS,
 } from "$/import-export/image/import/settings";
 
-export { manualPixelGrid, MAX_GRID_CELL_SIZE } from "$/import-export/image/import/grid";
+export { manualPixelGrid, MAX_GRID_CELL_SIZE } from "$/import-export/image/import/grid/lattice";
 
 export {
   removeBackground,
@@ -65,11 +69,11 @@ export {
   sampleKeyColor,
   RemoveBackgroundMode,
   DEFAULT_REMOVE_BACKGROUND,
-} from "$/import-export/image/import/remove-background";
+} from "$/import-export/image/import/prepass/remove-background";
 export type {
   RemoveBackgroundOptions,
   RemoveBackgroundSettings,
-} from "$/import-export/image/import/remove-background";
+} from "$/import-export/image/import/prepass/remove-background";
 
 export {
   getAlgorithmEntry,
@@ -78,13 +82,13 @@ export {
   detectWithAlgorithm,
   detectWithAlgorithmAsync,
   type PixelationAlgorithmEntry,
-} from "$/import-export/image/import/pixelation-algorithm-registry";
+} from "$/import-export/image/import/grid/registry";
 
 export {
   getAllColorPickers,
   getColorPickerEntry,
   type CellColorPickerEntry,
-} from "$/import-export/image/import/cell-color-picker";
+} from "$/import-export/image/import/color/cell-color-picker";
 
 export {
   preloadWasm,
@@ -96,4 +100,4 @@ export {
   warmAcRlBrowserWorker,
   acRlWorkerOverlapActive,
   acRlBrowserWorkerOverlapActive,
-} from "$/import-export/image/import/grid-ac-rl-consensus";
+} from "$/import-export/image/import/grid/period/ac-rl-consensus";

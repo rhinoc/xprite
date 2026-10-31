@@ -1,10 +1,10 @@
 import type { PixelBuffer, Rgba } from "$/base/primitives";
-import { manualPixelGrid, MAX_GRID_CELL_SIZE } from "$/import-export/image/import/grid";
+import { manualPixelGrid, MAX_GRID_CELL_SIZE } from "$/import-export/image/import/grid/lattice";
 import {
   DEFAULT_LINE_GUIDE,
   DEFAULT_OUTLINE_PREPASS,
   readOutlinePrepass,
-} from "$/import-export/image/import/outline-prepass";
+} from "$/import-export/image/import/prepass/outline-prepass";
 import {
   CellColorPicker,
   LineGuideMode,
