@@ -12,8 +12,8 @@ import {
   type RemoveBackgroundSettings,
 } from "$/managers/import/remove-background";
 import {
-  type FilePreferences,
   type ImportAction,
+  isRememberedPixelationAlgorithm,
   OutlinePrepass,
   PixelationAlgorithm,
 } from "$/managers/preferences/file-preferences";
@@ -74,12 +74,6 @@ const BUTTON_GAP = 8;
 const SIZE_SEPARATOR = 16;
 /** Classic themed vertical track (scrollbar_size 12 × artwork scale 2), in scene units. */
 const VERTICAL_SCROLLBAR_TRACK = 24;
-/** Only these survive between imports; Custom size is a one-off, like the plain resize. */
-const REMEMBERED_ALGORITHMS: readonly PixelationAlgorithm[] = [
-  PixelationAlgorithm.Auto,
-  PixelationAlgorithm.EdgeGrid,
-  PixelationAlgorithm.UniformGrid,
-];
 /** The dialog has no palette browser; everything else of the shared base controls is here. */
 const HIDDEN_SLOTS: ReadonlySet<PixelationSlot> = new Set([
   PixelationSlot.Palette,
@@ -169,11 +163,8 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       ...workflow.getFilePreferences(),
       importLastAction: chosen,
       // "Resize only" is a one-off choice; persisting it would silently shrink later imports.
-      ...(REMEMBERED_ALGORITHMS.includes(selectedAlgorithm)
-        ? {
-            importPixelationAlgorithm:
-              selectedAlgorithm as FilePreferences["importPixelationAlgorithm"],
-          }
+      ...(isRememberedPixelationAlgorithm(selectedAlgorithm)
+        ? { importPixelationAlgorithm: selectedAlgorithm }
         : {}),
       // Plain imports start with this colour rule; outline pre-passes keep their own selection.
       ...(workflow.pixelationOptions.prepass === OutlinePrepass.None
@@ -189,6 +180,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
               reduceColors: workflow.pixelationOptions.reduceColors,
               maxColors: workflow.pixelationOptions.maxColors,
               dither: workflow.pixelationOptions.dither,
+              removeNoise: workflow.pixelationOptions.removeNoise,
             },
           }
         : {}),
@@ -213,8 +205,11 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     showAdvanced && workflow.pixelationOptions.reduceColors
       ? FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP
       : 0;
+  const showGridSource = showAdvanced && base[PixelationSlot.GridSource].visible;
   const advancedHeight = showAdvanced
-    ? 4 * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) + ROW_HEIGHT + GAP + showDitherExtra
+    ? (showGridSource ? 5 : 4) * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) +
+      2 * (ROW_HEIGHT + GAP) +
+      showDitherExtra
     : 0;
   // Remove background checkbox is always reserved; mode + tolerance appear when checked.
   const removeBgExtra = removeBg.enabled
@@ -296,6 +291,8 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const advancedRow = at(ROW_HEIGHT, GAP);
         const algorithmLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
         const algorithmCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
+        const gridSourceLabel = showGridSource ? at(FIELD_LABEL_HEIGHT) : null;
+        const gridSourceCombo = showGridSource ? at(COMBO_HEIGHT, GAP) : null;
         const sizeLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
         const sizeRow = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
         const pickerLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
@@ -306,6 +303,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const limitRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
         const ditherLabel = showDither ? at(FIELD_LABEL_HEIGHT) : null;
         const ditherCombo = showDither ? at(COMBO_HEIGHT, GAP) : null;
+        const noiseRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
         const removeBgRow = at(ROW_HEIGHT, GAP);
         const removeModeRow = removeBg.enabled ? at(ROW_HEIGHT, GAP) : null;
         const removeTolRow = removeBg.enabled ? at(ROW_HEIGHT, GAP) : null;
@@ -425,6 +423,20 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                   bounds: algorithmCombo,
                   relativeTo: client,
                 })}
+                {gridSourceLabel && gridSourceCombo && (
+                  <>
+                    <Text
+                      variant={TextVariant.Control}
+                      text={base[PixelationSlot.GridSource].label ?? ""}
+                      bounds={gridSourceLabel}
+                      relativeTo={client}
+                    />
+                    {base[PixelationSlot.GridSource].render({
+                      bounds: gridSourceCombo,
+                      relativeTo: client,
+                    })}
+                  </>
+                )}
                 <Text
                   variant={TextVariant.Control}
                   text={base[PixelationSlot.ColorPicker].label ?? ""}
@@ -546,6 +558,16 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                   relativeTo: client,
                 })}
               </>
+            )}
+            {noiseRow && (
+              <Checkbox
+                label={tUi("ui.remove.noise")}
+                checked={workflow.pixelationOptions.removeNoise}
+                disabled={workflow.busy}
+                onCheckedChange={(removeNoise) => workflow.setPixelationOptions({ removeNoise })}
+                bounds={noiseRow}
+                relativeTo={client}
+              />
             )}
             <Checkbox
               label={tUi("import.dialog.remove.background")}

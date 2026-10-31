@@ -1,6 +1,7 @@
 /** Spanish copy for tool pages, keyed by the English source text like `zh-CN.ts`. */
 export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   "Find pixels by:": "Buscar píxeles por:",
+  "Read grid from:": "Leer cuadrícula de:",
   "Width:": "Ancho:",
   "Height:": "Alto:",
   "Pixel color:": "Color del píxel:",
@@ -9,6 +10,12 @@ export const TOOL_SPANISH_TEXT: Readonly<Record<string, string>> = {
   Auto: "Auto",
   "Fixed grid": "Cuadrícula fija",
   "Flexible grid": "Cuadrícula flexible",
+  "Whole image": "Imagen completa",
+  Edges: "Bordes",
+  "Pixel pitch": "Paso de píxel",
+  "Color repeat": "Ciclo de color",
+  "Border colors": "Colores del borde",
+  "Edge spacing": "Espaciado de bordes",
   "Custom size": "Tamaño personalizado",
   "Outline pre-pass:": "Pre-paso de contornos:",
   None: "Ninguno",

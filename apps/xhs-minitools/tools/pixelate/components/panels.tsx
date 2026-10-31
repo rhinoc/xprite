@@ -31,12 +31,15 @@ import type { MiniToolTextKey } from "$/tools/pixelate/managers/text";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import {
   getAllColorPickers,
+  getGridSources,
   getListedAlgorithms,
   LineGuideMode,
   OutlinePrepass,
   PIXELATION_METHOD_OPTIONS,
   PixelationDither,
+  PixelationAlgorithm,
   PixelationMode,
+  pixelationMethodOf,
   type CellColorPicker,
   type PixelationMethod,
 } from "@xprite/editor-core/import-export";
@@ -196,14 +199,31 @@ export function PixelPanel({
             <ChipGroup
               scroll
               label={t("advanced.algorithm")}
-              value={pixels.algorithm}
+              value={pixelationMethodOf(pixels.algorithm)}
               options={getListedAlgorithms().map((value) => ({
                 value,
                 label: t(key(`algorithm.${value}`)),
               }))}
-              onChange={editor.changeAlgorithm}
+              onChange={(value) => {
+                // Picking Fixed grid again keeps its chosen source.
+                if (value !== pixelationMethodOf(pixels.algorithm)) editor.changeAlgorithm(value);
+              }}
             />
           </Field>
+          {pixelationMethodOf(pixels.algorithm) === PixelationAlgorithm.UniformGrid && (
+            <Field label={t("advanced.grid-source")}>
+              <ChipGroup
+                scroll
+                label={t("advanced.grid-source")}
+                value={pixels.algorithm}
+                options={getGridSources().map((value) => ({
+                  value,
+                  label: t(key(`grid-source.${value}`)),
+                }))}
+                onChange={editor.changeAlgorithm}
+              />
+            </Field>
+          )}
           <Field label={t("advanced.prepass")}>
             <ChipGroup
               scroll

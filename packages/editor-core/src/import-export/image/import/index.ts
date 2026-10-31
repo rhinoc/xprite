@@ -75,6 +75,8 @@ export {
   getAlgorithmEntry,
   getAllAlgorithms,
   getListedAlgorithms,
+  getGridSources,
+  pixelationMethodOf,
   detectWithAlgorithm,
   detectWithAlgorithmAsync,
   type PixelationAlgorithmEntry,

@@ -33,6 +33,24 @@ export enum AnimationExportExtension {
 
 export type ImportAction = "import-as-is" | "pixelate";
 
+/** Grid algorithms the next import starts with; Custom size and the plain resize are one-offs. */
+export type RememberedPixelationAlgorithm = Exclude<
+  PixelationAlgorithm,
+  PixelationAlgorithm.CustomSize | PixelationAlgorithm.Resize
+>;
+const ONE_OFF_ALGORITHMS: ReadonlySet<PixelationAlgorithm> = new Set([
+  PixelationAlgorithm.CustomSize,
+  PixelationAlgorithm.Resize,
+]);
+export function isRememberedPixelationAlgorithm(
+  value: unknown,
+): value is RememberedPixelationAlgorithm {
+  return (
+    Object.values(PixelationAlgorithm).includes(value as PixelationAlgorithm) &&
+    !ONE_OFF_ALGORITHMS.has(value as PixelationAlgorithm)
+  );
+}
+
 export interface FilePreferences {
   saveDefaultExtension: SaveFileExtension;
   imageDefaultExtension: ImageExportExtension;
@@ -42,7 +60,7 @@ export interface FilePreferences {
   importAsk: boolean;
   /** What the dialog last did; applied silently when importAsk is off. */
   importLastAction: ImportAction;
-  importPixelationAlgorithm: "auto" | "edge-grid" | "uniform-grid";
+  importPixelationAlgorithm: RememberedPixelationAlgorithm;
   /** The colour rule of the last import without a pre-pass; picking None brings it back. */
   importColorPicker: CellColorPicker;
   /**
@@ -63,7 +81,7 @@ export const DEFAULT_FILE_PREFERENCES: Readonly<FilePreferences> = Object.freeze
   recentItemLimit: 16,
   importAsk: true,
   importLastAction: "import-as-is",
-  importPixelationAlgorithm: "auto",
+  importPixelationAlgorithm: PixelationAlgorithm.Auto,
   importColorPicker: CellColorPicker.MostCommon,
   importPixelation: null,
 });
@@ -113,6 +131,7 @@ function normalizeImportPixelation(value: unknown): ImportPixelationMemory | nul
     ...(Object.values(PaletteColorMode).includes(saved.paletteColorMode as PaletteColorMode)
       ? { paletteColorMode: saved.paletteColorMode as PaletteColorMode }
       : {}),
+    ...(typeof saved.removeNoise === "boolean" ? { removeNoise: saved.removeNoise } : {}),
   };
 }
 
@@ -147,12 +166,9 @@ export function normalizeFilePreferences(value: unknown): FilePreferences {
     saved.importLastAction === "import-as-is" || saved.importLastAction === "pixelate"
       ? saved.importLastAction
       : (legacy?.action ?? DEFAULT_FILE_PREFERENCES.importLastAction);
-  const importPixelationAlgorithm =
-    saved.importPixelationAlgorithm === "auto" ||
-    saved.importPixelationAlgorithm === "edge-grid" ||
-    saved.importPixelationAlgorithm === "uniform-grid"
-      ? saved.importPixelationAlgorithm
-      : DEFAULT_FILE_PREFERENCES.importPixelationAlgorithm;
+  const importPixelationAlgorithm = isRememberedPixelationAlgorithm(saved.importPixelationAlgorithm)
+    ? saved.importPixelationAlgorithm
+    : DEFAULT_FILE_PREFERENCES.importPixelationAlgorithm;
   const importColorPicker = getAllColorPickers().includes(
     saved.importColorPicker as CellColorPicker,
   )

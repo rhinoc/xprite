@@ -70,6 +70,12 @@ export enum PixelationAlgorithm {
   Auto = "auto",
   EdgeGrid = "edge-grid",
   UniformGrid = "uniform-grid",
+  /** Auto's single proposers, each on its own; see the registry for which detector each runs. */
+  FrameLattice = "frame-lattice",
+  PitchLattice = "pitch-lattice",
+  ColorPeriod = "color-period",
+  BorderRuns = "border-runs",
+  EdgeSpacing = "edge-spacing",
   /** The user names the output size; the image is split into that many even blocks. */
   CustomSize = "custom-size",
   Resize = "resize",

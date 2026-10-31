@@ -1,6 +1,7 @@
 /** Korean copy for tool pages, keyed by the English source text like `zh-CN.ts`. */
 export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   "Find pixels by:": "픽셀 찾는 방법:",
+  "Read grid from:": "격자 읽기 기준:",
   "Width:": "너비:",
   "Height:": "높이:",
   "Pixel color:": "픽셀 색상:",
@@ -9,6 +10,12 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
   Auto: "자동",
   "Fixed grid": "고정 격자",
   "Flexible grid": "가변 격자",
+  "Whole image": "이미지 전체",
+  Edges: "가장자리",
+  "Pixel pitch": "픽셀 간격",
+  "Color repeat": "색 주기",
+  "Border colors": "테두리 색",
+  "Edge spacing": "경계 간격",
   "Custom size": "사용자 지정 크기",
   "Outline pre-pass:": "윤곽 전처리:",
   None: "없음",

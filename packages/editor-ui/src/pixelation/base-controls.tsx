@@ -5,6 +5,7 @@ import {
   ALGORITHM_LABELS,
   COLOR_MODE_LABELS,
   DITHER_LABELS,
+  EDGE_SOURCE_LABEL,
   LABELS,
   LINE_GUIDE_LABELS,
   PICKER_LABELS,
@@ -25,7 +26,9 @@ import {
   PixelationAlgorithm,
   PixelationDither,
   getAllColorPickers,
+  getGridSources,
   getListedAlgorithms,
+  pixelationMethodOf,
   pixelationSizeFromAxis,
   type PixelGridAnalysis,
   type PixelationSettings,
@@ -41,6 +44,8 @@ const FIELD_WIDTH = 112;
 /** The base controls every pixelation surface (import dialog, pixelate tool, beads tool) shares. */
 export enum PixelationSlot {
   Algorithm = "algorithm",
+  /** Only for Fixed grid: which detector reads its lattice. */
+  GridSource = "grid-source",
   Width = "width",
   Height = "height",
   ColorPicker = "color-picker",
@@ -131,6 +136,7 @@ export function usePixelationBase(
     ),
   });
   const limited = settings.reduceColors;
+  const method = pixelationMethodOf(algorithm);
   return {
     [PixelationSlot.Algorithm]: {
       visible: show(PixelationSlot.Algorithm),
@@ -140,11 +146,34 @@ export function usePixelationBase(
           pixelWidth={FIELD_WIDTH}
           {...placement}
           aria-label={t(LABELS.algorithm)}
-          value={algorithm}
+          value={method}
           disabled={busy}
           options={getListedAlgorithms().map((id) => ({
             value: id,
             label: t(ALGORITHM_LABELS[id]),
+          }))}
+          onValueChange={(value) => {
+            // Picking Fixed grid again keeps its chosen source.
+            if (value !== method) onAlgorithm(value as PixelationAlgorithm);
+          }}
+        />
+      ),
+    },
+    [PixelationSlot.GridSource]: {
+      visible: show(PixelationSlot.GridSource, method === PixelationAlgorithm.UniformGrid),
+      label: t(LABELS.gridSource),
+      render: (placement) => (
+        <Combobox
+          pixelWidth={FIELD_WIDTH}
+          {...placement}
+          aria-label={t(LABELS.gridSource)}
+          value={algorithm}
+          disabled={busy}
+          options={getGridSources().map((id) => ({
+            value: id,
+            label: t(
+              id === PixelationAlgorithm.UniformGrid ? EDGE_SOURCE_LABEL : ALGORITHM_LABELS[id],
+            ),
           }))}
           onValueChange={(value) => onAlgorithm(value as PixelationAlgorithm)}
         />

@@ -1,6 +1,7 @@
 /** Russian copy for tool pages, keyed by the English source text like `zh-CN.ts`. */
 export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   "Find pixels by:": "Как искать пиксели:",
+  "Read grid from:": "Сетка по:",
   "Width:": "Ширина:",
   "Height:": "Высота:",
   "Pixel color:": "Цвет пикселя:",
@@ -9,6 +10,12 @@ export const TOOL_RUSSIAN_TEXT: Readonly<Record<string, string>> = {
   Auto: "Авто",
   "Fixed grid": "Фиксированная сетка",
   "Flexible grid": "Гибкая сетка",
+  "Whole image": "Весь кадр",
+  Edges: "Края",
+  "Pixel pitch": "Шаг пикселя",
+  "Color repeat": "Период цвета",
+  "Border colors": "Цвета края",
+  "Edge spacing": "Шаг границ",
   "Custom size": "Свой размер",
   "Outline pre-pass:": "Предобработка контуров:",
   None: "Нет",

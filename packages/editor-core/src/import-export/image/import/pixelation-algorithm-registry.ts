@@ -51,7 +51,10 @@ type GridProposer = (image: PixelBuffer) => PixelGridAnalysis[];
 export interface PixelationAlgorithmEntry {
   /** i18n key of the label shown in the import dialog and preferences. */
   readonly label: string;
-  /** Whether the import dialog offers this entry; the plain resize is only Auto's fallback. */
+  /**
+   * Whether "Find pixels by" offers this entry; the plain resize is only Auto's fallback, and the
+   * single proposers are Fixed grid's sources (see getGridSources).
+   */
   readonly listed: boolean;
   /**
    * Sync detect for most algorithms. Auto also exposes detectAsync for product overlap
@@ -129,6 +132,23 @@ const deskewed =
     if (!tilt.angle) return { ...detect(image), algorithm };
     const found = detect(uprightOf(image, tilt.angle));
     return found.reliable ? { ...found, rotation: tilt.angle, algorithm } : unreliable(image);
+  };
+
+/**
+ * One of Auto's multi-candidate proposers on its own: its candidates are read on the evidence Auto
+ * uses and the best reading wins. The user chose this proposer, so the passthrough does not compete.
+ */
+const bestOf =
+  (propose: GridProposer) =>
+  (image: PixelBuffer): PixelGridAnalysis => {
+    const grids = propose(image).filter((grid) => grid.reliable);
+    if (!grids.length) return unreliable(image);
+    let best: ArbitratedGrid | null = null;
+    for (const reading of new GridEvidenceReader(image).read(grids).readings) {
+      const candidate = scoredReading(reading);
+      if (betterReading(candidate, best)) best = candidate;
+    }
+    return best?.grid ?? unreliable(image);
   };
 
 const FALLBACK = PixelationAlgorithm.Resize;
@@ -769,6 +789,36 @@ const TABLE: Readonly<Record<PixelationAlgorithm, PixelationAlgorithmEntry>> = {
     detect: deskewed(PixelationAlgorithm.EdgeGrid, detectMeshGrid),
     run: recoverGrid,
   },
+  [PixelationAlgorithm.FrameLattice]: {
+    label: "import.algorithm.frame-lattice",
+    listed: false,
+    detect: deskewed(PixelationAlgorithm.FrameLattice, bestOf(detectFrameLattices)),
+    run: recoverGrid,
+  },
+  [PixelationAlgorithm.PitchLattice]: {
+    label: "import.algorithm.pitch-lattice",
+    listed: false,
+    detect: deskewed(PixelationAlgorithm.PitchLattice, bestOf(pitchLattices)),
+    run: recoverGrid,
+  },
+  [PixelationAlgorithm.ColorPeriod]: {
+    label: "import.algorithm.color-period",
+    listed: false,
+    detect: deskewed(PixelationAlgorithm.ColorPeriod, bestOf(combCountGrids)),
+    run: recoverGrid,
+  },
+  [PixelationAlgorithm.BorderRuns]: {
+    label: "import.algorithm.border-runs",
+    listed: false,
+    detect: deskewed(PixelationAlgorithm.BorderRuns, bestOf(detectBoundaryPeriodGrids)),
+    run: recoverGrid,
+  },
+  [PixelationAlgorithm.EdgeSpacing]: {
+    label: "import.algorithm.edge-spacing",
+    listed: false,
+    detect: deskewed(PixelationAlgorithm.EdgeSpacing, bestOf(distanceCountGrids)),
+    run: recoverGrid,
+  },
   [PixelationAlgorithm.CustomSize]: {
     label: "import.algorithm.custom-size",
     listed: true,
@@ -799,6 +849,25 @@ export function getAllAlgorithms(): readonly PixelationAlgorithm[] {
 /** Entries the import dialog offers, in registry order. */
 export function getListedAlgorithms(): readonly PixelationAlgorithm[] {
   return getAllAlgorithms().filter((id) => TABLE[id].listed);
+}
+
+/** What Fixed grid reads its lattice from: its own edge fit first, then Auto's single proposers. */
+const GRID_SOURCES: readonly PixelationAlgorithm[] = [
+  PixelationAlgorithm.UniformGrid,
+  PixelationAlgorithm.FrameLattice,
+  PixelationAlgorithm.PitchLattice,
+  PixelationAlgorithm.ColorPeriod,
+  PixelationAlgorithm.BorderRuns,
+  PixelationAlgorithm.EdgeSpacing,
+];
+
+export function getGridSources(): readonly PixelationAlgorithm[] {
+  return GRID_SOURCES;
+}
+
+/** The "Find pixels by" entry an algorithm belongs to: a grid source is a kind of Fixed grid. */
+export function pixelationMethodOf(algorithm: PixelationAlgorithm): PixelationAlgorithm {
+  return GRID_SOURCES.includes(algorithm) ? PixelationAlgorithm.UniformGrid : algorithm;
 }
 
 export function detectWithAlgorithm(

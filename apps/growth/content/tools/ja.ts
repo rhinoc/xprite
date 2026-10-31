@@ -1,6 +1,7 @@
 /** Japanese copy for tool pages, keyed by the English source text like `zh-CN.ts`. */
 export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   "Find pixels by:": "ピクセルの見つけ方：",
+  "Read grid from:": "グリッドの読み取り元：",
   "Width:": "幅：",
   "Height:": "高さ：",
   "Pixel color:": "ピクセルの色：",
@@ -9,6 +10,12 @@ export const TOOL_JAPANESE_TEXT: Readonly<Record<string, string>> = {
   Auto: "自動",
   "Fixed grid": "固定グリッド",
   "Flexible grid": "可変グリッド",
+  "Whole image": "画像全体",
+  Edges: "エッジ",
+  "Pixel pitch": "ピクセル間隔",
+  "Color repeat": "色の周期",
+  "Border colors": "外周の色",
+  "Edge spacing": "境界の間隔",
   "Custom size": "カスタムサイズ",
   "Outline pre-pass:": "輪郭前処理：",
   None: "なし",
