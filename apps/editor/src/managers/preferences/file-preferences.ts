@@ -6,12 +6,11 @@ import {
   OutlinePrepass,
   PaletteColorMode,
   PixelationDither,
-  getAllAlgorithms,
   getAllColorPickers,
 } from "@xprite/editor-core/import-export/image/import";
 import type { ImportPixelationMemory } from "@xprite/editor-core/session";
 
-export { PixelationAlgorithm, CellColorPicker, OutlinePrepass, getAllAlgorithms };
+export { PixelationAlgorithm, CellColorPicker, OutlinePrepass };
 
 export enum SaveFileExtension {
   Aseprite = "aseprite",
