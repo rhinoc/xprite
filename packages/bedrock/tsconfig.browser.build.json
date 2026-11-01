@@ -8,9 +8,14 @@
     "rootDir": "browser",
     "paths": {
       "$/*": ["./browser/*"],
-      "@xprite/bedrock/common/*": ["../../dist/bedrock/common/*"]
+      "@xprite/bedrock/common/*": ["../../dist/bedrock/common/*"],
+      "$/common/*": ["../../dist/bedrock/common/*"]
     },
     "tsBuildInfoFile": "../../node_modules/.tmp/bedrock-browser.build.tsbuildinfo"
   },
-  "references": [{ "path": "./tsconfig.common.build.json" }]
+  "references": [
+    {
+      "path": "./tsconfig.common.build.json"
+    }
+  ]
 }

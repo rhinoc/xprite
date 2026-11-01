@@ -1,3 +1,5 @@
+import { hasPngSignature, readPng } from "$/common/png";
+
 export interface RgbaImageData {
   width: number;
   height: number;
@@ -31,6 +33,8 @@ export class ImageDimensionError extends Error {
     this.height = height;
   }
 }
+
+const PNG_HEADER_BYTES = 33;
 
 type CanvasSurface = HTMLCanvasElement | OffscreenCanvas;
 type Canvas2dContext = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
@@ -183,7 +187,32 @@ function loadImageFallback(blob: Blob): Promise<HTMLImageElement> {
   });
 }
 
-/** Decode a browser image Blob into straight RGBA pixel data. */
+/** Inflate into a fixed buffer so malformed PNG streams cannot exceed their declared size. */
+async function inflatePng(bytes: Uint8Array, expected: number): Promise<Uint8Array> {
+  const stream = new Blob([new Uint8Array(bytes).buffer])
+    .stream()
+    .pipeThrough(new DecompressionStream("deflate"));
+  const reader = stream.getReader();
+  const output = new Uint8Array(expected);
+  let offset = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (offset + value.length > expected)
+        throw new Error("PNG samples exceed the declared size.");
+      output.set(value, offset);
+      offset += value.length;
+    }
+    if (offset !== expected) throw new Error("Incomplete PNG samples.");
+    return output;
+  } finally {
+    await reader.cancel();
+    reader.releaseLock();
+  }
+}
+
+/** Decode PNG source RGBA exactly; use the browser canvas decoder for other image formats. */
 export async function decodeImageBlob(
   blob: Blob,
   options: ImageDecodeOptions = {},
@@ -191,6 +220,15 @@ export async function decodeImageBlob(
   if (!(blob instanceof Blob)) throw new TypeError("decodeImageBlob expects a Blob");
   // Validate option values even when the preferred decoder is unavailable.
   limitsFor(options);
+  // Canvas premultiplies alpha: reading it back can change translucent RGB and grid detection.
+  const header = new Uint8Array(await blob.slice(0, PNG_HEADER_BYTES).arrayBuffer());
+  if (hasPngSignature(header)) {
+    if (header.length < PNG_HEADER_BYTES) throw new Error("Incomplete PNG header.");
+    const view = new DataView(header.buffer);
+    assertImageDimensions(view.getUint32(16), view.getUint32(20), options);
+    const source = readPng(new Uint8Array(await blob.arrayBuffer()))!;
+    return source.decode(await inflatePng(source.compressed, source.inflatedByteLength));
+  }
   const bitmapDecoder = globalThis.createImageBitmap;
   let bitmapError: unknown;
   if (typeof bitmapDecoder === "function") {
