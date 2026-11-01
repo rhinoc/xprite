@@ -405,6 +405,7 @@ export default defineConfig({
   },
   preview: { host: "0.0.0.0" },
   worker: {
+    plugins: () => [packageLocalAliases()],
     rolldownOptions: {
       output: {
         entryFileNames: EDITOR_SCRIPT_FILE_NAMES,

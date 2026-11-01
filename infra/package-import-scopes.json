@@ -74,7 +74,8 @@
     "source": "browser",
     "tsconfig": "tsconfig.browser.json",
     "aliases": {
-      "$/": "browser"
+      "$/": "browser",
+      "$common/": "common"
     }
   },
   {
