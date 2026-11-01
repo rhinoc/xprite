@@ -84,7 +84,7 @@
     },
     "packages/bedrock": {
       "paths": {
-        "$/common/*": ["common/*"],
+        "$common/*": ["common/*"],
         "$/*": ["browser/*"]
       }
     }

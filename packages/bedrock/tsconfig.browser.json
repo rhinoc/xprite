@@ -14,7 +14,7 @@
     "composite": true,
     "paths": {
       "$/*": ["./browser/*"],
-      "$/common/*": ["./common/*"]
+      "$common/*": ["./common/*"]
     },
     "tsBuildInfoFile": "../../node_modules/.tmp/bedrock-browser.tsbuildinfo"
   },

@@ -1,9 +1,9 @@
 import { deflateSync } from "node:zlib";
 
+import { crc32 } from "$common/crc32";
+import { joinBytes } from "$common/join-bytes";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { crc32 } from "$/common/crc32";
-import { joinBytes } from "$/common/join-bytes";
 import { decodeImageBlob, ImageDimensionError } from "$/images";
 
 function chunk(name: string, data: Uint8Array): Uint8Array {

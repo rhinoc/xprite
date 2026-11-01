@@ -1,4 +1,4 @@
-import { hasPngSignature, readPng } from "$/common/png";
+import { hasPngSignature, readPng } from "$common/png";
 
 export interface RgbaImageData {
   width: number;
