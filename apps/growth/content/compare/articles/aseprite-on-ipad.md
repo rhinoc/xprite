@@ -1,6 +1,6 @@
 ---
 published: 2026-10-10
-updated: 2026-10-25
+updated: 2026-11-01
 ---
 
 # Aseprite on iPad and iOS — Free Browser Option
@@ -123,15 +123,19 @@ PNG, GIF and sprite sheets have no layers. They're fine for delivering finished 
 
 ### Is there an iPad version of Aseprite?
 
-No. Aseprite is only available for Windows, macOS and Ubuntu.
+No. Official Aseprite downloads are only for Windows, macOS, and Ubuntu — there is no App Store Aseprite for iPad. On iPad you can open and edit `.aseprite` files in Safari with [Xprite](/?utm_source=compare&utm_medium=referral&utm_campaign=aseprite-on-ipad) (free browser editor), or use a native app such as Pixquare, Resprite, or Pixaki Pro.
+
+### Is there Aseprite for iOS or iPhone?
+
+No. There is no official Aseprite app for iOS or iPhone. Xprite is not Aseprite; it is a free browser-based alternative that runs in Safari on iPhone and iPad, so you can open a `.aseprite` project, edit it, and save it back without an App Store install. For a native iPhone app, see Pixquare or Resprite instead.
+
+### Can I open `.aseprite` files on iPhone?
+
+Yes. In Safari, open Xprite, import the `.aseprite` (or `.ase`) file, edit, then save it back to Files. Native apps (Pixquare, Resprite, and others) can also import `.aseprite`, sometimes with format conversion — compare the table above.
 
 ### Can I use Xprite without an `.aseprite` file?
 
 Yes. You can start a new canvas and draw or animate right away, and import an `.ase` or `.aseprite` file whenever you have one.
-
-### Is a two-finger tap the same as double-tap on Apple Pencil?
-
-No. A two-finger tap means tapping the canvas with your fingers, and Xprite uses it for undo by default. Double-tap means tapping the side of Apple Pencil. Xprite has no setting for it; Pixquare, Resprite and Pixaki do.
 
 ---
 
