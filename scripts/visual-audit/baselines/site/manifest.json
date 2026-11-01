@@ -4787,7 +4787,7 @@
       },
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-31T19:52:35.217Z",
+        "capturedAt": "2026-11-01T15:53:35.566Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -4815,7 +4815,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "0aa7ba11fe672ebf351f2abe8cfb643d79fb0ef121d3d86ae977bab568766d81",
+        "sha256": "3e2f93086a1ff527b0fb892ae0d3505337b717e2b7239a8aeee5df866e8df697",
         "requestedClip": {
           "x": 0,
           "y": 0,
