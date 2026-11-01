@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
     "paths": {
-      "$/*": ["./browser/*"],
-      "$/common/*": ["./common/*"]
+      "$/*": ["./browser/*"]
     }
   },
   "files": [],

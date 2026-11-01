@@ -81,6 +81,12 @@
         "src/managers/ports/telemetry.ts",
         "src/telemetry/posthog.ts"
       ]
+    },
+    "packages/bedrock": {
+      "paths": {
+        "$/common/*": ["common/*"],
+        "$/*": ["browser/*"]
+      }
     }
   }
 }
