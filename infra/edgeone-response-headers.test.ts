@@ -39,7 +39,6 @@ const HTML_PATHS = [
 ];
 // Content-versioned (`?v=`) or content-addressed files.
 const LONG_LIVED_PATHS = [
-  "/assets/showcase-e_E1mfzf.js",
   "/theme/growth-desktop.css",
   "/theme/macintosh.css",
   "/theme/fonts.css",
@@ -47,19 +46,12 @@ const LONG_LIVED_PATHS = [
   "/pixel-code/fonts.css",
   "/tools/assets/bootstrap-BaWKj1Ig.js",
   "/tools/ssg-assets/b38196b4c1bbe27b2bf38371cf48ef92b1d4ec5aa82c357e6a390710a6946eca.png",
-  "/showcase/overview/desktop.png",
-  "/showcase/overview/portrait.png",
-  "/showcase/ipad/macbook-pro.glb",
-  // Gzip copies of the showcase models and HDR, fetched with `?v=` by compressed-asset.ts.
-  "/showcase/ipad/macbook-pro.glb.gz",
-  "/showcase/ipad/ipad.glb.gz",
-  "/showcase/ipad/studio_small_08_1k.hdr.gz",
+  "/assets/public-main-e_E1mfzf.js",
 ];
 // Stable-name files that some page or script loads without a content version.
 const REVALIDATED_PATHS = [
-  "/showcase/ipad/studio_small_08_1k.hdr",
-  "/showcase/ipad/wallpapers/mountain-lake-wolfgang-hasselmann.jpg",
   "/showcase/devices/computer/en/animation.png",
+  "/showcase/landing/editor-en-light.webp",
   "/showcase/workspace-layout/en/poster.png",
   "/about/images/workspace-compact-en.png",
   "/compare/articles/images/editor-with-aseprite-en.png",

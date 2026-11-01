@@ -22,7 +22,7 @@ const showcasePage = (language) => ({
   name: `showcase-${language}`,
   path: localized("/about/", language),
   language,
-  ready: "[data-showcase-desktop]",
+  ready: publicReady,
   regions: [pageRegion, { name: "main", selectors: ["main"] }],
 });
 const guidePage = (language) => ({

@@ -136,5 +136,11 @@ async function mountPublicControls() {
 
 void mountPublicControls();
 
+const landingHero = document.querySelector<HTMLElement>("[data-landing-hero]");
+if (landingHero)
+  void import("$/adapters/landing/landing-hero").then(({ connectLandingHero }) =>
+    connectLandingHero(landingHero),
+  );
+
 // Static document scopes carry inline tokens that CSS-only HMR cannot replace.
 if (import.meta.hot) import.meta.hot.on("public-ui:invalidate", () => location.reload());

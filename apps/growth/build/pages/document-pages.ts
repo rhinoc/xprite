@@ -211,6 +211,11 @@ export function documentHtml(path: string, indexable: boolean): string {
       ? `${translations.map((item) => `<link rel="alternate" hreflang="${item.language}" href="${new URL(item.path, SITE_URL).href}">`).join("\n")}
 ${english ? `<link rel="alternate" hreflang="x-default" href="${new URL(english.path, SITE_URL).href}">` : ""}`
       : "";
+  const directoryPath = localizedSiteHref(FEATURES_PATH, language);
+  const directory =
+    page.path !== directoryPath && page.path.startsWith(directoryPath)
+      ? DOCUMENT_PAGES.find((candidate) => candidate.path === directoryPath)
+      : undefined;
   return publicDocumentHtml(
     {
       language,
@@ -218,6 +223,8 @@ ${english ? `<link rel="alternate" hreflang="x-default" href="${new URL(english.
       title:
         page.searchTitle ?? (page.title.includes("Xprite") ? page.title : `${page.title} | Xprite`),
       description: page.description ?? content.description,
+      heading: page.title,
+      parents: directory ? [{ name: directory.title, path: directory.path }] : [],
       navigation: text(
         "Website navigation",
         "网站导航",

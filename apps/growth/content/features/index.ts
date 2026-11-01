@@ -177,6 +177,9 @@ export const FEATURE_DETAILS = [
       "pt-BR": "Espaço de trabalho personalizável e uso offline | Xprite",
       es: "Espacio de trabajo personalizable y sin conexión | Xprite",
     },
+    searchDescription: {
+      es: "Mueve, redimensiona y acopla paneles y guarda el diseño. Guarda proyectos en el navegador o en archivos y usa Xprite sin conexión desde tu pantalla de inicio.",
+    },
   },
   {
     slug: "drawing-process",

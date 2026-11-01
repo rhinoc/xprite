@@ -53,7 +53,7 @@ export const TOOL_KOREAN_TEXT: Readonly<Record<string, string>> = {
     "Aseprite 파일 뷰어: .ase·.aseprite 온라인으로 열기 | Xprite",
   "Preview Aseprite projects and export PNG frames or GIF animations.":
     "Aseprite 프로젝트를 미리 보고 PNG 프레임이나 GIF 애니메이션으로 내보내세요.",
-  "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF — no install, files on device. Then edit in Xprite.":
+  "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF. No install; files stay on device. Edit in Xprite.":
     "온라인 Aseprite 파일 뷰어: 브라우저에서 .aseprite/.ase를 열고 레이어·프레임을 미리 본 뒤 PNG/GIF로 내보내세요. 설치 불필요. 이어서 Xprite에서 편집.",
   "Choose an Aseprite file": "Aseprite 파일 선택",
   "Open file": "파일 열기",

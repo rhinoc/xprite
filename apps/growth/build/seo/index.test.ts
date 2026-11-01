@@ -49,10 +49,10 @@ describe("editor search metadata", () => {
 });
 
 describe("about page search metadata", () => {
-  it("mark the about page with an AboutPage and its breadcrumb", () => {
+  it("mark the about page with a WebPage and its breadcrumb", () => {
     const metadata = showcaseSearchMetadata("en", SHOWCASE_PAGES.en, SHOWCASE_SITE_URL);
     assert.deepEqual(graphTypes(metadata["@graph"]), [
-      "AboutPage",
+      "WebPage",
       "BreadcrumbList",
       "WebApplication",
       "FAQPage",

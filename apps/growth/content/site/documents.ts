@@ -55,6 +55,15 @@ export const SITE_DOCUMENTS: readonly SiteDocumentDefinition[] = [
       "pt-BR": "Aviso de privacidade",
       es: "Aviso de privacidad",
     },
+    searchTitle: {
+      en: "Privacy Notice: What Data Xprite Uses | Xprite",
+      "zh-CN": "隐私说明：Xprite 使用哪些数据 | Xprite",
+      ja: "プライバシー：Xprite が使うデータ | Xprite",
+      ko: "개인정보 안내: Xprite가 쓰는 데이터 | Xprite",
+      ru: "Конфиденциальность: какие данные использует Xprite",
+      "pt-BR": "Aviso de privacidade: quais dados o Xprite usa | Xprite",
+      es: "Aviso de privacidad: qué datos usa Xprite | Xprite",
+    },
     navigationTitle: {
       en: "Privacy",
       "zh-CN": "隐私",
@@ -93,6 +102,15 @@ export const SITE_DOCUMENTS: readonly SiteDocumentDefinition[] = [
       ru: "Как устроен Xprite",
       "pt-BR": "Como o Xprite funciona",
       es: "Cómo funciona Xprite",
+    },
+    searchTitle: {
+      en: "How Xprite Works: Aseprite Files in the Browser | Xprite",
+      "zh-CN": "工作原理：在浏览器里读写 Aseprite 文件 | Xprite",
+      ja: "Xprite のしくみ：ブラウザで Aseprite を編集 | Xprite",
+      ko: "Xprite 작동 방식: 브라우저에서 Aseprite 편집 | Xprite",
+      ru: "Как устроен Xprite: Aseprite в браузере | Xprite",
+      "pt-BR": "Como o Xprite funciona: Aseprite no navegador | Xprite",
+      es: "Cómo funciona Xprite: Aseprite en el navegador | Xprite",
     },
     navigationTitle: {
       en: "How it works",
@@ -140,6 +158,10 @@ export const SITE_DOCUMENTS: readonly SiteDocumentDefinition[] = [
       ru: "Возможности пиксель арт редактора и анимации | Xprite",
       "pt-BR": "Recursos do editor de pixel art: desenho e animação | Xprite",
       es: "Funciones del editor de pixel art y animación | Xprite",
+    },
+    searchDescription: {
+      "zh-CN":
+        "Xprite 能做什么：画像素画、逐帧做动画、打开和保存 .aseprite、用平板和手写笔绘画；也能用小工具查看文件、转换 GIF 和生成游戏图案。",
     },
   },
 ];

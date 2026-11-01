@@ -1,17 +1,17 @@
 # Growth app
 
-This app owns public help pages, SEO metadata, and product showcases. Keep its
+This app owns public help pages, SEO metadata, and the About landing page. Keep its
 runtime, development server, build output, and public assets independent from
 `apps/editor`.
 
 - Follow the root repository rules and use its `dev:growth`, `build:growth`,
   and `preview:growth` scripts. Do not run builds or tests during development.
-- Keep scene rendering, animation timing, and page composition here. Do not import
-  editor app internals or editor-core for the presentation.
+- Keep page composition here. Do not import editor app internals or editor-core
+  for the presentation.
 - Reuse `@xprite/ui` controls and geometry helpers. Use CSS Modules and tokens.
-- Group scene components, managers and adapters by their presentation scope.
-- Preserve editable Blender source, model generators, and asset provenance.
-- Showcase assets live in `public/showcase/ipad/`; public help source lives in
+- Group components, managers and adapters by their presentation scope.
+- Preserve asset provenance.
+- Showcase assets live in `public/showcase/`; public help source lives in
   `content/help/`. The private `@xprite/growth-content` package exports guide and tool catalog
   data. The editor must not depend on this app's page runtime.
 - `public/` is the shared, asset-only `@xprite/site-assets` workspace for brand
@@ -24,7 +24,7 @@ runtime, development server, build output, and public assets independent from
   apps through the root `build:site` pipeline, without modifying editor output.
 - Keep shared page, language and navigation data in `content/site/`; individual
   content scopes own their definitions. Menu and footer use the same hierarchy.
-- The localized Showcase is the website Home; `/` still opens the editor.
+- The localized About landing page is the website Home; `/` still opens the editor.
 - Register title-only planned pages as non-indexable. Exclude them from discovery
   until they have published content, while retaining usable navigation routes.
 - Keep article presentation in `src/components/articles/` and page renderers in

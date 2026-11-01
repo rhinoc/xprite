@@ -118,7 +118,7 @@ export function publicPageStartupScript(): string {
   return `(${initializePublicPage.toString()})()`;
 }
 
-export function publicStaticPage(markup: string): string {
+function publicStaticPage(markup: string): string {
   return `${markup}<script>${publicPageStartupScript()}</script>`;
 }
 

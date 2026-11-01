@@ -7,6 +7,7 @@ import { TOOL_RUSSIAN_TEXT } from "./ru.ts";
 import { TOOL_CHINESE_TEXT } from "./zh-CN.ts";
 
 export { ANIMAL_CROSSING_HELP, AnimalCrossingHelpSection } from "./animal-crossing-help.ts";
+export { BEADS_HELP, BeadsHelpSection } from "./beads-help.ts";
 export { FIX_AI_PIXEL_ART_HELP, FixAiPixelArtHelpSection } from "./fix-ai-pixel-art-help.ts";
 export { GIF_SHEET_HELP, GifSheetHelpSection } from "./gif-sheet-help.ts";
 export { PIXELATE_HELP, PixelateHelpSection } from "./pixelate-help.ts";
@@ -196,7 +197,7 @@ export const VIEWER_TOOL = {
   summary: "Preview Aseprite projects and export PNG frames or GIF animations.",
   privacy: TOOL_FILE_PRIVACY,
   description:
-    "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF — no install, files on device. Then edit in Xprite.",
+    "Aseprite file viewer online: open .aseprite/.ase in the browser. Preview layers and frames, export PNG or GIF. No install; files stay on device. Edit in Xprite.",
   accept: ".ase,.aseprite",
   fileLabel: "Choose an Aseprite file",
   openLabel: "Open file",
