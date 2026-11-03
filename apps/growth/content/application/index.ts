@@ -8,6 +8,7 @@ const SAME_AS = [
   "https://lospec.com/software/xprite",
   "https://pwa.directory/directory/xprite",
   "https://alternativeto.net/software/xprite/about/",
+  "https://www.tinytooltown.com/tools/xprite/",
 ] as const;
 const APPLICATION_DESCRIPTION =
   "Xprite pixel editor: pixel art and animation in your browser at xprite.cc. Open and save .ase/.aseprite projects, use touch and stylus input, and customize your workspace.";
