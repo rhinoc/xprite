@@ -5,10 +5,6 @@ const ORGANIZATION_ID = `${SITE_URL}#organization`;
 const SAME_AS = [
   "https://github.com/rhinoc/xprite",
   "https://rhinoc.itch.io/xprite",
-  "https://x.com/rya_nooo",
-  "https://ko-fi.com/rhinoc",
-  "https://space.bilibili.com/32089863",
-  "https://www.xiaohongshu.com/user/profile/6199f8f10000000010009efe",
 ] as const;
 const APPLICATION_DESCRIPTION =
   "Xprite pixel editor: pixel art and animation in your browser at xprite.cc. Open and save .ase/.aseprite projects, use touch and stylus input, and customize your workspace.";
