@@ -2,7 +2,9 @@ import { Fragment, useMemo, useRef, useState } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorDialog } from "$/components/dialogs/overlay";
+import { ImportAdvanced } from "$/components/dialogs/pixelation-dialog/import-advanced";
 import { ImportCompare } from "$/components/dialogs/pixelation-dialog/import-compare";
+import { ImportMode } from "$/components/dialogs/pixelation-dialog/import-mode";
 import { tUi, tUiSource, useUiLanguage } from "$/i18n";
 import {
   DEFAULT_REMOVE_BACKGROUND,
@@ -26,7 +28,6 @@ import {
   Checkbox,
   CheckboxMode,
   CheckboxShape,
-  Disclosure,
   Divider,
   Slider,
   Text,
@@ -36,8 +37,6 @@ import {
   ScrollArea,
 } from "@xprite/ui";
 import { useElementSize } from "@xprite/ui/utils";
-
-import styles from "$/components/dialogs/pixelation-dialog/pixelation-dialog.module.css";
 
 type Workflow = Pick<
   ReturnType<typeof useEditorWorkflows>,
@@ -259,7 +258,6 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
           return { x: client.x, y: client.y + top, width, height };
         };
         const sectionBounds = at(SECTION_HEIGHT, 4);
-        const half = Math.round(width / 2);
         const optionY = y;
         y += OPTION_HEIGHT + GAP;
         const hintBounds = pixelateMessage ? at(HINT_HEIGHT, GAP) : null;
@@ -297,31 +295,6 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const buttonWidth = Math.min(
           BUTTON_WIDTH,
           Math.max(72, Math.floor((client.width - BUTTON_GAP) / 2)),
-        );
-        const option = (value: ImportAction, label: string, x: number, w: number) => (
-          <Button
-            key={value}
-            aria-label={label}
-            aria-pressed={chosen === value}
-            selected={chosen === value}
-            text={label}
-            font={FontRole.Compact}
-            part="buttonset_item_normal"
-            hotPart="buttonset_item_hot"
-            bounds={{
-              x: client.x + x,
-              y: client.y + optionY,
-              width: w,
-              height: OPTION_HEIGHT,
-            }}
-            relativeTo={client}
-            disabled={workflow.busy}
-            onClick={() => {
-              setAction(value);
-              // Advanced only applies to Pixelate; coming back always starts collapsed.
-              if (value !== "pixelate") setAdvanced(false);
-            }}
-          />
         );
         return (
           <>
@@ -388,8 +361,16 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 bounds={sectionBounds}
                 relativeTo={client}
               />
-              {option("pixelate", tUi("import.dialog.pixelate"), 0, half + 1)}
-              {option("import-as-is", tUi("import.dialog.import.as.is"), half, width - half)}
+              <ImportMode
+                value={chosen}
+                disabled={workflow.busy}
+                bounds={{ x: client.x, y: client.y + optionY, width, height: OPTION_HEIGHT }}
+                relativeTo={client}
+                onChange={(value) => {
+                  setAction(value);
+                  if (value !== "pixelate") setAdvanced(false);
+                }}
+              />
               {message && hintBounds && (
                 <Text
                   variant={TextVariant.Control}
@@ -400,11 +381,9 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 />
               )}
               {pixelate && (
-                <Disclosure
-                  title={tUi("import.dialog.advanced")}
+                <ImportAdvanced
                   open={showAdvanced}
-                  onToggle={(event) => setAdvanced(event.currentTarget.open)}
-                  className={styles.advanced}
+                  onChange={setAdvanced}
                   style={{
                     position: "absolute",
                     left: 0,
@@ -412,9 +391,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                     width,
                     height: advancedRow.height,
                   }}
-                >
-                  {null}
-                </Disclosure>
+                />
               )}
               {algorithmLabel && algorithmCombo && pickerLabel && pickerCombo && (
                 <>

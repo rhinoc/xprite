@@ -50,6 +50,12 @@ function FlowField({
       {tUiSource(field.label)}
     </Text>
   );
+  if (field.type === "custom" && field.fullWidth)
+    return (
+      <div ref={control} className={`${styles.standalone} ${styles.fullWidth}`}>
+        {field.render({ pixelSize })}
+      </div>
+    );
   if (field.type === "label") return <div className={styles.standalone}>{label}</div>;
   if (field.type === "checkbox" && field.text === undefined)
     return (
@@ -115,7 +121,9 @@ function FlowField({
     <div className={styles.field}>
       <div className={styles.caption}>{label}</div>
       <div ref={control} className={styles.control}>
-        {field.type === "checkbox" ? (
+        {field.type === "custom" ? (
+          field.render({ pixelSize })
+        ) : field.type === "checkbox" ? (
           <Checkbox
             pixelSize={pixelSize}
             label={field.text ?? ""}

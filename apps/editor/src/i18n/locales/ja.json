@@ -2475,9 +2475,6 @@
   "video.import.preview.position": "プレビュー位置",
   "video.import.start": "開始（秒）",
   "video.import.end": "終了（秒）",
-  "video.import.sampling": "拡大縮小方式",
-  "video.import.smooth": "滑らか",
-  "video.import.nearest": "ニアレストネイバー",
   "video.import.confirm": "{frames} フレームを読み込む",
   "video.import.browser.unsupported": "このブラウザーでは動画を読み込めません。最新版の Chrome、Edge、Safari をお試しください。",
   "video.import.format.unsupported": "動画形式を読み取れません。MP4 または WebM をお試しください。",
@@ -2491,10 +2488,5 @@
   "video.import.fps.invalid": "フレームレートを 1～60 fps に設定してください。",
   "video.import.size.invalid": "幅と高さを 1～16,384 の整数に設定してください。",
   "video.import.capacity": "アニメーションが大きすぎます。範囲、サイズ、フレームレートを減らしてください。",
-  "video.import.recover": "グリッドを復元",
-  "video.import.colors.invalid": "色数を 2～256 の整数に設定してください。",
-  "video.import.detecting": "グリッドを検出中",
-  "video.import.palette": "パレットを準備中",
-  "video.import.progress": "{phase} · {completed}/{total}",
-  "video.import.frames.progress": "{completed}/{total} フレーム · {percent}%"
+  "video.import.colors.invalid": "色数を 2～256 の整数に設定してください。"
 }

@@ -1,13 +1,16 @@
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 
 import { FormDialog, type FormField } from "$/components/dialogs/form-dialog";
-import { tUi, useUiLanguage } from "$/i18n";
+import { ImportAdvanced } from "$/components/dialogs/pixelation-dialog/import-advanced";
+import { ImportMode } from "$/components/dialogs/pixelation-dialog/import-mode";
+import { tUi, tUiSource, useUiLanguage } from "$/i18n";
 import {
   VideoImportStage,
-  VideoImportSampling,
-  VideoImportPhase,
+  EMPTY_VIDEO_PIXELATION_SETTINGS,
+  PixelationAlgorithm,
   type VideoImportManager,
 } from "$/managers/files/video-import-manager";
+import { PixelationSlot, pixelationLabelKey, usePixelationBase } from "@xprite/editor-ui";
 import {
   Button,
   ControlFlow,
@@ -27,8 +30,11 @@ const DIALOG_WIDTH = 480;
 const DIALOG_HEIGHT = 640;
 const LOADING_DIALOG_WIDTH = 360;
 const FRAME_RATE_PRESETS = [1, 6, 8, 10, 12, 15, 24, 25, 30, 60];
-const DIMENSION_PRESETS = [16, 32, 64, 128, 256, 512, 1024, 2048];
-const COLOR_PRESETS = [8, 16, 32, 64, 128, 256];
+const HIDDEN_SLOTS: ReadonlySet<PixelationSlot> = new Set([
+  PixelationSlot.Palette,
+  PixelationSlot.PaletteMenu,
+  PixelationSlot.ColorMode,
+]);
 const MILLISECONDS_PER_SECOND = 1000;
 const SECONDS_PER_MINUTE = 60;
 const PERCENT = 100;
@@ -50,37 +56,42 @@ export function VideoImportDialog({
   useUiLanguage();
   const state = useSyncExternalStore(manager.subscribe, manager.getSnapshot, manager.getSnapshot);
   const { settings, metadata } = state;
-  const ready = state.stage === VideoImportStage.Ready;
+  const [advanced, setAdvanced] = useState(false);
+  const ready = state.stage === VideoImportStage.Ready && !state.analyzing;
   const importing = state.stage === VideoImportStage.Importing;
   const loading = state.stage === VideoImportStage.Loading;
   const updating = state.previewing && (!state.playing || !state.previewUrl);
   const showProgress = loading || updating;
-  const progress = state.progress.total
-    ? Math.round((state.progress.completed / state.progress.total) * PERCENT)
-    : 0;
-  const progressLabel =
-    state.progress.phase === VideoImportPhase.Grid
-      ? tUi("video.import.detecting")
-      : state.progress.phase === VideoImportPhase.Palette
-        ? tUi("video.import.palette")
-        : state.progress.phase === VideoImportPhase.Frames
-          ? tUi("video.import.frames.progress", { ...state.progress, percent: progress })
-          : loading
-            ? tUi("video.import.loading")
-            : tUi("ui.preparing.preview");
-  const progressText =
-    state.progress.phase === VideoImportPhase.Grid ||
-    state.progress.phase === VideoImportPhase.Palette
-      ? tUi("video.import.progress", {
-          phase: progressLabel,
-          completed: state.progress.completed,
-          total: state.progress.total,
-        })
-      : progressLabel;
-  const progressValue =
-    state.progress.total && state.progress.completed > 0
-      ? state.progress.completed / state.progress.total
-      : undefined;
+  const progress = Math.floor(Math.max(0, Math.min(1, state.progress.fraction)) * PERCENT);
+  const progressText = `${progress}%`;
+  const progressLabel = loading
+    ? tUi("video.import.loading")
+    : importing
+      ? tUi("video.import.title")
+      : tUi("ui.preparing.preview");
+  const progressValue = state.progress.fraction > 0 ? state.progress.fraction : undefined;
+  const base = usePixelationBase({
+    settings: settings?.pixelation ?? EMPTY_VIDEO_PIXELATION_SETTINGS,
+    algorithm: settings?.algorithm ?? PixelationAlgorithm.Auto,
+    grid: state.grid ?? undefined,
+    sourceSize: metadata ?? { width: 1, height: 1 },
+    busy: !ready,
+    hidden: HIDDEN_SLOTS,
+    translate: (text, values) => tUiSource(pixelationLabelKey(text), values),
+    onChange: manager.updatePixelation,
+    onAlgorithm: (algorithm, size) => void manager.setAlgorithm(algorithm, size),
+  });
+  const sharedField = (slot: PixelationSlot): FormField[] =>
+    base[slot].visible
+      ? [
+          {
+            key: slot,
+            type: "custom",
+            label: base[slot].label ?? "",
+            render: (placement) => base[slot].render(placement),
+          },
+        ]
+      : [];
   const fields: FormField[] = settings
     ? [
         {
@@ -98,68 +109,67 @@ export function VideoImportDialog({
           onChange: (value) => manager.update({ frameRate: Number(value) }),
         },
         {
-          key: "recover",
-          type: "checkbox",
-          label: tUi("video.import.recover"),
-          text: "",
-          value: settings.recoverGrid,
-          disabled: !ready,
-          onChange: (recoverGrid) => manager.update({ recoverGrid }),
+          key: "action",
+          type: "custom",
+          fullWidth: true,
+          label: "",
+          render: (placement) => (
+            <ImportMode
+              {...placement}
+              value={settings.action}
+              disabled={!ready}
+              onChange={(action) => {
+                manager.update({ action });
+                if (action !== "pixelate") setAdvanced(false);
+              }}
+            />
+          ),
         },
-        ...(["width", "height"] as const).map((axis): FormField => ({
-          key: axis,
-          type: "select",
-          label: tUi(axis === "width" ? "ui.width" : "ui.height"),
-          editable: true,
-          suffix: "px",
-          disabled: !ready,
-          value: String(settings[axis]),
-          options: DIMENSION_PRESETS.map((value) => ({
-            value: String(value),
-            label: String(value),
-          })),
-          onChange: (value) => manager.update({ [axis]: Number(value) }),
-        })),
-        {
-          key: "ratio",
-          type: "checkbox",
-          label: tUi("ui.lock.ratio"),
-          text: "",
-          disabled: !ready,
-          value: settings.keepAspectRatio,
-          onChange: (keepAspectRatio) => manager.update({ keepAspectRatio }),
-        },
-        {
-          key: "sampling",
-          type: "select",
-          label: tUi("video.import.sampling"),
-          disabled: !ready,
-          value: settings.sampling,
-          options: [
-            { value: VideoImportSampling.Smooth, label: tUi("video.import.smooth") },
-            { value: VideoImportSampling.Nearest, label: tUi("video.import.nearest") },
-          ],
-          onChange: (value) => manager.update({ sampling: value as VideoImportSampling }),
-        },
-        {
-          key: "limit-colors",
-          type: "checkbox",
-          label: tUi("ui.limit.colors"),
-          text: "",
-          value: settings.reduceColors,
-          disabled: !ready,
-          onChange: (reduceColors) => manager.update({ reduceColors }),
-        },
-        {
-          key: "colors",
-          type: "select",
-          label: tUi("ui.colors"),
-          editable: true,
-          value: String(settings.maxColors),
-          disabled: !ready || !settings.reduceColors,
-          options: COLOR_PRESETS.map((value) => ({ value: String(value), label: String(value) })),
-          onChange: (value) => manager.update({ maxColors: Number(value) }),
-        },
+        ...(settings.action === "pixelate"
+          ? [
+              {
+                key: "advanced",
+                type: "custom" as const,
+                fullWidth: true,
+                label: "",
+                render: () => (
+                  <ImportAdvanced open={advanced} onChange={setAdvanced} style={{ height: 22 }} />
+                ),
+              },
+              ...(advanced
+                ? [
+                    ...sharedField(PixelationSlot.Algorithm),
+                    ...sharedField(PixelationSlot.GridSource),
+                    ...sharedField(PixelationSlot.ColorPicker),
+                    ...sharedField(PixelationSlot.Prepass),
+                    ...sharedField(PixelationSlot.LineGuide),
+                    ...sharedField(PixelationSlot.Width),
+                    ...sharedField(PixelationSlot.Height),
+                    {
+                      key: "limit-colors",
+                      type: "checkbox" as const,
+                      label: tUi("ui.limit.colors"),
+                      text: "",
+                      value: settings.pixelation.reduceColors,
+                      disabled: !ready,
+                      onChange: (reduceColors: boolean) =>
+                        manager.updatePixelation({ reduceColors }),
+                    },
+                    ...sharedField(PixelationSlot.Colors),
+                    ...sharedField(PixelationSlot.Dither),
+                    {
+                      key: "noise",
+                      type: "checkbox" as const,
+                      label: tUi("ui.remove.noise"),
+                      text: "",
+                      value: settings.pixelation.removeNoise,
+                      disabled: !ready,
+                      onChange: (removeNoise: boolean) => manager.updatePixelation({ removeNoise }),
+                    },
+                  ]
+                : []),
+            ]
+          : []),
       ]
     : [];
   const error = state.validationError ?? state.error ?? state.previewError;
@@ -187,8 +197,8 @@ export function VideoImportDialog({
                   <PixelImage
                     src={state.previewUrl}
                     alt={tUi("video.import.preview")}
-                    width={settings.width}
-                    height={settings.height}
+                    width={state.outputSize.width}
+                    height={state.outputSize.height}
                     fit={PixelImageFit.Contain}
                     checker={false}
                   />
@@ -202,7 +212,7 @@ export function VideoImportDialog({
                     value={progressValue}
                   />
                   <div className={state.previewUrl ? styles.status : styles.waiting} role="status">
-                    <Text variant={TextVariant.Inline} scale={2} ink="var(--ui-color-white)" wrap>
+                    <Text variant={TextVariant.Inline} scale={3} ink="var(--ui-color-white)" wrap>
                       {progressText}
                     </Text>
                   </div>
@@ -259,7 +269,7 @@ export function VideoImportDialog({
       beforeActions={
         importing ? (
           <div className={styles.importProgress}>
-            <Text variant={TextVariant.Inline} scale={2} wrap>
+            <Text variant={TextVariant.Inline} scale={3} wrap>
               {progressText}
             </Text>
             <ProgressBar label={progressLabel} value={progressValue} />

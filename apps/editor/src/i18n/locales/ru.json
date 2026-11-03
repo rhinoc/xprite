@@ -2475,9 +2475,6 @@
   "video.import.preview.position": "Позиция предпросмотра",
   "video.import.start": "Начало (с)",
   "video.import.end": "Конец (с)",
-  "video.import.sampling": "Масштабирование",
-  "video.import.smooth": "Плавное",
-  "video.import.nearest": "Ближайший сосед",
   "video.import.confirm": "Импортировать {frames} кадров",
   "video.import.browser.unsupported": "Этот браузер не поддерживает импорт видео. Используйте актуальную версию Chrome, Edge или Safari.",
   "video.import.format.unsupported": "Не удалось прочитать формат видео. Попробуйте MP4 или WebM.",
@@ -2491,10 +2488,5 @@
   "video.import.fps.invalid": "Задайте частоту от 1 до 60 кадров/с.",
   "video.import.size.invalid": "Задайте целые размеры от 1 до 16,384 пикселей.",
   "video.import.capacity": "Анимация слишком велика. Сократите диапазон, размер или частоту кадров.",
-  "video.import.recover": "Восстановить сетку",
-  "video.import.colors.invalid": "Выберите целое число цветов от 2 до 256.",
-  "video.import.detecting": "Определение сетки",
-  "video.import.palette": "Подготовка палитры",
-  "video.import.progress": "{phase} · {completed}/{total}",
-  "video.import.frames.progress": "Кадры: {completed}/{total} · {percent}%"
+  "video.import.colors.invalid": "Выберите целое число цветов от 2 до 256."
 }

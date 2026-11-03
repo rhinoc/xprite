@@ -3,27 +3,22 @@ import { VideoSampleSink, type InputVideoTrack, type VideoSample } from "mediabu
 import {
   VideoImportFailure,
   VideoImportPhase,
-  VideoImportSampling,
   type VideoImportPlan,
-  type VideoImportRecovery,
   type VideoImportProgress,
 } from "$/managers/ports/video-import";
 import type { PixelBuffer, Rgba } from "@xprite/editor-core/base";
 import {
-  CellColorPicker,
   PixelationAlgorithm,
-  PixelationMethod,
-  PixelationMode,
   detectWithAlgorithmAsync,
-  detectWithAlgorithm,
   extractPixelationPalette,
-  pixelateImage,
+  pixelateImageAsync,
+  pixelationSettingsOptions,
   preloadWasm,
-  reduceToPalette,
   resizeNearest,
   setAcRlBrowserWorkerFactory,
   snapPalette,
   type PixelGridAnalysis,
+  type PixelationSize,
 } from "@xprite/pixelate";
 
 const MAX_WORKING_SIDE = 2048;
@@ -54,6 +49,8 @@ export class VideoFrameProcessing {
   private readonly workingWidth: number;
   private readonly workingHeight: number;
   private grid: PixelGridAnalysis | null = null;
+  private analysisSource: PixelBuffer | null = null;
+  private readonly analyses = new Map<string, Promise<PixelGridAnalysis>>();
   private prepared: { key: string; palette: Promise<readonly Rgba[]> } | null = null;
 
   constructor(
@@ -75,13 +72,13 @@ export class VideoFrameProcessing {
     sample: VideoSample,
     width: number,
     height: number,
-    sampling: VideoImportSampling,
+    smooth = false,
   ): PixelBuffer {
     if (this.canvas.width !== width) this.canvas.width = width;
     if (this.canvas.height !== height) this.canvas.height = height;
     const context = this.canvas.getContext("2d", { colorSpace: "srgb" });
     if (!context) throw processingError(VideoImportFailure.Browser);
-    context.imageSmoothingEnabled = sampling === VideoImportSampling.Smooth;
+    context.imageSmoothingEnabled = smooth;
     context.imageSmoothingQuality = "high";
     context.clearRect(0, 0, width, height);
     sample.draw(context, 0, 0, width, height);
@@ -92,9 +89,14 @@ export class VideoFrameProcessing {
     };
   }
 
-  async analyze(onProgress: (progress: VideoImportProgress) => void): Promise<VideoImportRecovery> {
+  async analyze(onProgress: (progress: VideoImportProgress) => void): Promise<PixelGridAnalysis> {
     const report = (completed: number) =>
-      onProgress({ phase: VideoImportPhase.Grid, completed, total: GRID_SAMPLE_COUNT });
+      onProgress({
+        phase: VideoImportPhase.Grid,
+        completed,
+        total: GRID_SAMPLE_COUNT,
+        fraction: completed / GRID_SAMPLE_COUNT,
+      });
     report(0);
     await preloadWasm().catch(() => {});
     const sink = new VideoSampleSink(this.track);
@@ -108,16 +110,13 @@ export class VideoFrameProcessing {
       const sample = await sink.getSample(this.firstTimestamp + time);
       if (!sample) continue;
       try {
-        const source = this.rasterize(
-          sample,
-          this.workingWidth,
-          this.workingHeight,
-          VideoImportSampling.Nearest,
-        );
+        const source = this.rasterize(sample, this.workingWidth, this.workingHeight, false);
+        if (!this.analysisSource) this.analysisSource = source;
         const grid = await detectWithAlgorithmAsync(source, PixelationAlgorithm.Auto);
+        this.grid = grid;
         if (grid.reliable) {
-          this.grid = grid;
-          return { reliable: true, width: grid.width, height: grid.height };
+          this.analysisSource = source;
+          return grid;
         }
       } catch {
         // A later representative frame may contain a usable grid.
@@ -126,53 +125,65 @@ export class VideoFrameProcessing {
         report(index + 1);
       }
     }
-    return { reliable: false, width: this.track.displayWidth, height: this.track.displayHeight };
+    if (!this.analysisSource) throw processingError(VideoImportFailure.Frame);
+    return (
+      this.grid ?? {
+        width: 1,
+        height: 1,
+        cellWidth: this.workingWidth,
+        cellHeight: this.workingHeight,
+        offsetX: 0,
+        offsetY: 0,
+        reliable: false,
+        confidence: 0,
+      }
+    );
   }
 
-  private spatial(
-    sample: VideoSample,
-    plan: VideoImportPlan,
-    width = plan.width,
-    height = plan.height,
-  ): PixelBuffer {
-    if (!plan.recoverGrid) return this.rasterize(sample, width, height, plan.sampling);
-    const source = this.rasterize(
-      sample,
-      this.workingWidth,
-      this.workingHeight,
-      VideoImportSampling.Nearest,
-    );
-    const recovered = pixelateImage(source, {
-      mode: PixelationMode.RecoverGrid,
-      grid:
-        this.grid ??
-        detectWithAlgorithm(source, PixelationAlgorithm.CustomSize, {
-          width: plan.width,
-          height: plan.height,
-        }),
-      colorPicker: CellColorPicker.MostCommon,
-    });
-    if (recovered.width === width && recovered.height === height) return recovered;
-    return plan.sampling === VideoImportSampling.Nearest
-      ? resizeNearest(recovered, width, height)
-      : pixelateImage(recovered, {
-          mode: PixelationMode.Convert,
-          method: PixelationMethod.Box,
-          targetSize: { width, height },
-        });
+  async detect(
+    algorithm: PixelationAlgorithm,
+    size: PixelationSize | undefined,
+    onProgress: (progress: VideoImportProgress) => void,
+  ): Promise<PixelGridAnalysis> {
+    if (!this.analysisSource) throw processingError(VideoImportFailure.Frame);
+    if (algorithm === PixelationAlgorithm.Auto && this.grid) return this.grid;
+    const key = JSON.stringify([algorithm, size]);
+    const cached = this.analyses.get(key);
+    if (cached) return cached;
+    onProgress({ phase: VideoImportPhase.Grid, completed: 0, total: 1, fraction: 0 });
+    const analysis = detectWithAlgorithmAsync(this.analysisSource, algorithm, size);
+    this.analyses.set(key, analysis);
+    try {
+      const grid = await analysis;
+      onProgress({ phase: VideoImportPhase.Grid, completed: 1, total: 1, fraction: 1 });
+      return grid;
+    } catch (reason) {
+      this.analyses.delete(key);
+      throw reason;
+    }
+  }
+
+  private async spatial(sample: VideoSample, plan: VideoImportPlan): Promise<PixelBuffer> {
+    if (!plan.pixelate) return this.rasterize(sample, plan.width, plan.height);
+    const source = this.rasterize(sample, this.workingWidth, this.workingHeight);
+    const options = pixelationSettingsOptions(plan.pixelation, source, plan.grid);
+    const result = await pixelateImageAsync(source, { ...options, paletteSnap: undefined });
+    return result.width === plan.width && result.height === plan.height
+      ? result
+      : resizeNearest(result, plan.width, plan.height);
   }
 
   prepare(
     plan: VideoImportPlan,
     onProgress: (progress: VideoImportProgress) => void,
   ): Promise<readonly Rgba[]> {
-    if (!plan.reduceColors) return Promise.resolve([]);
+    if (!plan.pixelate || !plan.pixelation.reduceColors) return Promise.resolve([]);
+    if (plan.pixelation.palette) return Promise.resolve(plan.pixelation.palette);
     const key = JSON.stringify([
       plan.width,
       plan.height,
-      plan.sampling,
-      plan.recoverGrid,
-      plan.maxColors,
+      { ...plan.pixelation, dither: undefined },
+      plan.grid,
       plan.frames.length,
       plan.frames[0].timestampSeconds,
       plan.frames[plan.frames.length - 1].timestampSeconds,
@@ -192,7 +203,12 @@ export class VideoFrameProcessing {
   ): Promise<readonly Rgba[]> {
     const count = Math.min(PALETTE_FRAME_COUNT, plan.frames.length);
     const report = (completed: number) =>
-      onProgress({ phase: VideoImportPhase.Palette, completed, total: count });
+      onProgress({
+        phase: VideoImportPhase.Palette,
+        completed,
+        total: count,
+        fraction: completed / count,
+      });
     report(0);
     const timestamps = Array.from(
       { length: count },
@@ -212,7 +228,11 @@ export class VideoFrameProcessing {
     for await (const sample of sink.samplesAtTimestamps(timestamps)) {
       if (!sample) throw processingError(VideoImportFailure.Frame);
       try {
-        const image = this.spatial(sample, plan, width, height);
+        const spatial = await this.spatial(sample, plan);
+        const image =
+          spatial.width === width && spatial.height === height
+            ? spatial
+            : resizeNearest(spatial, width, height);
         const pixels = image.width * image.height;
         const samples = Math.min(sampleSize, pixels);
         for (let index = 0; index < samples; index++) {
@@ -237,14 +257,18 @@ export class VideoFrameProcessing {
       height: sheetHeight,
       data: data.slice(0, PALETTE_SHEET_WIDTH * sheetHeight * RGBA_CHANNELS),
     };
-    const snapped = snapPalette(sheet, { colors: plan.maxColors });
-    return extractPixelationPalette(snapped, { maxColors: plan.maxColors }).map(
+    const snapped = snapPalette(sheet, { colors: plan.pixelation.maxColors });
+    return extractPixelationPalette(snapped, { maxColors: plan.pixelation.maxColors }).map(
       (entry) => entry.color,
     );
   }
 
-  frame(sample: VideoSample, plan: VideoImportPlan, palette: readonly Rgba[]): PixelBuffer {
-    const image = this.spatial(sample, plan);
-    return palette.length ? reduceToPalette(image, palette) : image;
+  async frame(
+    sample: VideoSample,
+    plan: VideoImportPlan,
+    palette: readonly Rgba[],
+  ): Promise<PixelBuffer> {
+    const image = await this.spatial(sample, plan);
+    return palette.length ? snapPalette(image, { palette, dither: plan.pixelation.dither }) : image;
   }
 }

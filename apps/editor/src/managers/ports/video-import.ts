@@ -1,10 +1,12 @@
+import type { ImportAction } from "$/managers/preferences/file-preferences";
 import type { Rgba } from "@xprite/editor-core/base";
 import type { RasterAnimation } from "@xprite/editor-core/import-export";
-
-export enum VideoImportSampling {
-  Smooth = "smooth",
-  Nearest = "nearest",
-}
+import type {
+  PixelGridAnalysis,
+  PixelationAlgorithm,
+  PixelationSettings,
+  PixelationSize,
+} from "@xprite/pixelate";
 
 export enum VideoImportFailure {
   Browser = "browser",
@@ -16,41 +18,30 @@ export enum VideoImportFailure {
   Decode = "decode",
 }
 
-export interface VideoImportRecovery {
-  reliable: boolean;
-  width: number;
-  height: number;
-}
-
 export interface VideoImportMetadata {
   width: number;
   height: number;
   durationSeconds: number;
   frameRate: number;
   codec: string;
-  recovery: VideoImportRecovery;
+  grid: PixelGridAnalysis;
 }
 
 export interface VideoImportSettings {
   startSeconds: number;
   endSeconds: number;
   frameRate: number;
-  width: number;
-  height: number;
-  keepAspectRatio: boolean;
-  sampling: VideoImportSampling;
-  recoverGrid: boolean;
-  reduceColors: boolean;
-  maxColors: number;
+  action: ImportAction;
+  algorithm: PixelationAlgorithm;
+  pixelation: PixelationSettings;
 }
 
 export interface VideoImportPlan {
   width: number;
   height: number;
-  sampling: VideoImportSampling;
-  recoverGrid: boolean;
-  reduceColors: boolean;
-  maxColors: number;
+  pixelate: boolean;
+  pixelation: PixelationSettings;
+  grid: PixelGridAnalysis;
   frames: readonly { timestampSeconds: number; durationMs: number }[];
 }
 
@@ -66,6 +57,8 @@ export interface VideoImportProgress {
   phase: VideoImportPhase;
   completed: number;
   total: number;
+  /** Completed work in this operation, including preparation, from zero to one. */
+  fraction: number;
 }
 
 export interface VideoImportPreview {
@@ -80,6 +73,11 @@ export interface VideoImportAnimation extends RasterAnimation {
 /** One source owns its decoder worker and all temporary preview URLs. */
 export interface VideoImportHandle {
   readonly metadata: VideoImportMetadata;
+  analyze(
+    algorithm: PixelationAlgorithm,
+    size: PixelationSize | undefined,
+    onProgress: (progress: VideoImportProgress) => void,
+  ): Promise<PixelGridAnalysis>;
   thumbnails(
     timestamps: readonly number[],
     width: number,

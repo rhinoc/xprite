@@ -2475,9 +2475,6 @@
   "video.import.preview.position": "미리 보기 위치",
   "video.import.start": "시작(초)",
   "video.import.end": "끝(초)",
-  "video.import.sampling": "크기 조정 방식",
-  "video.import.smooth": "부드럽게",
-  "video.import.nearest": "최근접 이웃",
   "video.import.confirm": "{frames}프레임 가져오기",
   "video.import.browser.unsupported": "이 브라우저에서는 동영상을 가져올 수 없습니다. 최신 Chrome, Edge 또는 Safari를 사용하세요.",
   "video.import.format.unsupported": "동영상 형식을 읽을 수 없습니다. MP4 또는 WebM 파일을 사용하세요.",
@@ -2491,10 +2488,5 @@
   "video.import.fps.invalid": "프레임 속도를 1~60 fps로 설정하세요.",
   "video.import.size.invalid": "너비와 높이를 1~16,384 사이의 정수로 설정하세요.",
   "video.import.capacity": "애니메이션이 너무 큽니다. 범위, 크기 또는 프레임 속도를 줄이세요.",
-  "video.import.recover": "격자 복원",
-  "video.import.colors.invalid": "색상 수를 2~256 사이의 정수로 설정하세요.",
-  "video.import.detecting": "격자 감지 중",
-  "video.import.palette": "팔레트 준비 중",
-  "video.import.progress": "{phase} · {completed}/{total}",
-  "video.import.frames.progress": "{completed}/{total} 프레임 · {percent}%"
+  "video.import.colors.invalid": "색상 수를 2~256 사이의 정수로 설정하세요."
 }

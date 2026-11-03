@@ -2475,9 +2475,6 @@
   "video.import.preview.position": "Posição da prévia",
   "video.import.start": "Início (s)",
   "video.import.end": "Fim (s)",
-  "video.import.sampling": "Reamostragem",
-  "video.import.smooth": "Suave",
-  "video.import.nearest": "Vizinho mais próximo",
   "video.import.confirm": "Importar {frames} quadros",
   "video.import.browser.unsupported": "Este navegador não pode importar vídeo. Use uma versão atual do Chrome, Edge ou Safari.",
   "video.import.format.unsupported": "Não foi possível ler este formato. Tente um arquivo MP4 ou WebM.",
@@ -2491,10 +2488,5 @@
   "video.import.fps.invalid": "Escolha uma taxa de 1 a 60 fps.",
   "video.import.size.invalid": "Use dimensões inteiras entre 1 e 16,384 pixels.",
   "video.import.capacity": "A animação é grande demais. Reduza o intervalo, o tamanho ou a taxa de quadros.",
-  "video.import.recover": "Recuperar grade",
-  "video.import.colors.invalid": "Escolha um número inteiro de cores entre 2 e 256.",
-  "video.import.detecting": "Detectando grade",
-  "video.import.palette": "Preparando paleta",
-  "video.import.progress": "{phase} · {completed}/{total}",
-  "video.import.frames.progress": "{completed}/{total} quadros · {percent}%"
+  "video.import.colors.invalid": "Escolha um número inteiro de cores entre 2 e 256."
 }

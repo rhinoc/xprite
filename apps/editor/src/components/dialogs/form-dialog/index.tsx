@@ -32,6 +32,7 @@ import {
   isDialogPopupTarget,
   type ButtonProps,
   type SurfaceBounds,
+  type ControlPlacement,
   Text,
   TextVariant,
 } from "@xprite/ui";
@@ -46,6 +47,7 @@ export type FormField = FieldBase &
     | { type: "color"; value: string; onChange: (value: string) => void }
     | { type: "filename"; value: string; onChange: (value: string) => void; onBrowse?: () => void }
     | { type: "label" }
+    | { type: "custom"; fullWidth?: boolean; render(placement: ControlPlacement): ReactNode }
     | { type: "link"; onClick?: () => void; href?: string }
     | {
         type: "button";
@@ -583,6 +585,27 @@ export function FormDialog({
               >
                 {field.label}
               </WorkspaceLink>
+            );
+          if (field.type === "custom" && field.fullWidth)
+            return (
+              <Fragment key={field.key}>
+                {field.render({
+                  bounds: { ...input, x: columnX + inset, width: columnWidth - inset },
+                  relativeTo: client,
+                })}
+              </Fragment>
+            );
+          if (field.type === "custom")
+            return (
+              <Fragment key={field.key}>
+                <Text
+                  variant={TextVariant.Control}
+                  bounds={{ x: columnX + inset, y: y + 6, width: labelWidth - inset, height: 20 }}
+                  relativeTo={client}
+                  text={field.label}
+                />
+                {field.render({ bounds: input, relativeTo: client })}
+              </Fragment>
             );
           if (field.type === "checkbox" && field.text !== undefined)
             return (

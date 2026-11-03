@@ -110,6 +110,7 @@ export async function openVideoImport(
   const run = (
     request:
       | Omit<Extract<VideoImportRequest, { operation: VideoImportOperation.Open }>, "id">
+      | Omit<Extract<VideoImportRequest, { operation: VideoImportOperation.Analyze }>, "id">
       | Omit<Extract<VideoImportRequest, { operation: VideoImportOperation.Preview }>, "id">
       | Omit<Extract<VideoImportRequest, { operation: VideoImportOperation.Decode }>, "id">
       | Omit<Extract<VideoImportRequest, { operation: VideoImportOperation.Thumbnails }>, "id">,
@@ -148,6 +149,15 @@ export async function openVideoImport(
       throw new Error(tUi("video.import.decode.failed"));
     return {
       metadata: opened.metadata,
+      async analyze(algorithm, size, onProgress) {
+        const result = await run(
+          { operation: VideoImportOperation.Analyze, algorithm, size },
+          onProgress,
+        );
+        if (result.operation !== VideoImportOperation.Analyze)
+          throw new Error(tUi("video.import.decode.failed"));
+        return result.grid;
+      },
       async thumbnails(timestamps, width, height, onFrame) {
         await run(
           { operation: VideoImportOperation.Thumbnails, timestamps, width, height },

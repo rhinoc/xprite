@@ -366,7 +366,10 @@ export class DocumentWorkspace {
     onSessionError,
   }: DocumentWorkspaceDependencies) {
     this.ports = ports;
-    this.videoImport = new VideoImportManager(ports.videoImport);
+    this.videoImport = new VideoImportManager(
+      ports.videoImport,
+      () => this.filePreferences.importColorPicker,
+    );
     // Document and bootstrap sessions borrow these resources; only the workspace disposes them.
     this.sessionPorts = {
       listRecentImages: ports.listRecentImages?.bind(ports),

@@ -10,10 +10,26 @@ import {
   type VideoImportProgress,
   type VideoImportSettings,
 } from "$/managers/ports/video-import";
+import { defaultImportPixelationSettings } from "@xprite/editor-core/import-export";
 import { rasterAnimationProject } from "@xprite/editor-core/import-export";
 import type { SessionProject, SessionSource } from "@xprite/editor-core/session";
+import {
+  CellColorPicker,
+  OutlinePrepass,
+  PixelationAlgorithm,
+  applyPixelationGrid,
+  updatePixelationSettings,
+  type PixelGridAnalysis,
+  type PixelationSettings,
+  type PixelationSize,
+} from "@xprite/pixelate";
 
-export { VideoImportSampling, VideoImportPhase } from "$/managers/ports/video-import";
+export { PixelationAlgorithm } from "@xprite/pixelate";
+
+export const EMPTY_VIDEO_PIXELATION_SETTINGS = defaultImportPixelationSettings({
+  width: 1,
+  height: 1,
+});
 
 export enum VideoImportStage {
   Idle = "idle",
@@ -27,6 +43,9 @@ export interface VideoImportSnapshot {
   stage: VideoImportStage;
   name: string;
   metadata: VideoImportMetadata | null;
+  grid: PixelGridAnalysis | null;
+  analyzing: boolean;
+  outputSize: { width: number; height: number };
   settings: VideoImportSettings | null;
   previewUrl: string | null;
   previewTime: number;
@@ -48,10 +67,14 @@ const THUMBNAIL_MAX_WIDTH = 160;
 const PREVIEW_MAX_FRAME_RATE = 24;
 const MILLISECONDS_PER_SECOND = 1000;
 const PREVIEW_FRAME_EPSILON = 1e-9;
+const SOURCE_OPENING_SHARE = 1 / 3;
 const IDLE: VideoImportSnapshot = {
   stage: VideoImportStage.Idle,
   name: "",
   metadata: null,
+  grid: null,
+  analyzing: false,
+  outputSize: { width: 1, height: 1 },
   settings: null,
   previewUrl: null,
   previewTime: 0,
@@ -62,7 +85,7 @@ const IDLE: VideoImportSnapshot = {
   error: null,
   validationError: null,
   frameCount: 0,
-  progress: { phase: VideoImportPhase.Reading, completed: 0, total: 0 },
+  progress: { phase: VideoImportPhase.Reading, completed: 0, total: 0, fraction: 0 },
 };
 
 function failureMessage(reason: unknown): string {
@@ -102,7 +125,14 @@ export class VideoImportManager {
   private playbackTimer: ReturnType<typeof setTimeout> | null = null;
   private playbackOrigin = { clock: 0, time: 0 };
 
-  constructor(private readonly port?: VideoImportPort) {}
+  private previewBase = 0;
+  private algorithmVersion = 0;
+  private processingCustomized = false;
+
+  constructor(
+    private readonly port?: VideoImportPort,
+    private readonly getColorPicker: () => CellColorPicker = () => CellColorPicker.MostCommon,
+  ) {}
 
   getSnapshot = () => this.state;
   subscribe = (listener: () => void) => {
@@ -123,6 +153,7 @@ export class VideoImportManager {
     if (this.controller) throw new Error(tUi("video.import.settings.invalid"));
     const controller = new AbortController();
     this.controller = controller;
+    this.processingCustomized = false;
     this.publish({ ...IDLE, stage: VideoImportStage.Loading, name: source.name });
     return new Promise((resolve) => {
       this.complete = resolve;
@@ -137,17 +168,21 @@ export class VideoImportManager {
     try {
       const handle = await this.port!.open(source, controller.signal, (progress) => {
         if (controller === this.controller && !controller.signal.aborted)
-          this.publish({ progress });
+          this.publish({
+            progress: { ...progress, fraction: progress.fraction * SOURCE_OPENING_SHARE },
+          });
       });
       if (controller !== this.controller || controller.signal.aborted) {
         handle.dispose();
         return;
       }
       this.handle = handle;
+      this.previewBase = SOURCE_OPENING_SHARE;
       this.publish({
         stage: VideoImportStage.Ready,
         metadata: handle.metadata,
-        settings: defaultVideoImportSettings(handle.metadata),
+        settings: defaultVideoImportSettings(handle.metadata, this.getColorPicker()),
+        grid: handle.metadata.grid,
         thumbnails: Array.from({ length: THUMBNAIL_COUNT }, () => null),
       });
       this.validate();
@@ -180,19 +215,12 @@ export class VideoImportManager {
   }
 
   update(patch: Partial<VideoImportSettings>) {
-    if (this.state.stage !== VideoImportStage.Ready || !this.state.settings) return;
+    if (this.state.stage !== VideoImportStage.Ready || !this.state.settings || this.state.analyzing)
+      return;
     this.stopPlayback();
+    this.previewBase = 0;
     const previous = this.state.settings;
     const settings = { ...previous, ...patch };
-    const metadata = this.state.metadata!;
-    const aspect =
-      settings.recoverGrid && metadata.recovery.reliable ? metadata.recovery : metadata;
-    if (settings.keepAspectRatio) {
-      if (patch.width !== undefined)
-        settings.height = Math.max(1, Math.round((settings.width * aspect.height) / aspect.width));
-      else if (patch.height !== undefined || patch.keepAspectRatio === true)
-        settings.width = Math.max(1, Math.round((settings.height * aspect.width) / aspect.height));
-    }
     this.publish({ settings, error: null });
     this.validate();
     this.seek(
@@ -204,10 +232,97 @@ export class VideoImportManager {
     );
   }
 
+  updatePixelation = (patch: Partial<PixelationSettings>) => {
+    if (
+      !this.state.settings ||
+      !this.state.metadata ||
+      this.state.stage !== VideoImportStage.Ready ||
+      this.state.analyzing
+    )
+      return;
+    const current = this.state.settings.pixelation;
+    const options =
+      patch.prepass === OutlinePrepass.None &&
+      current.prepass !== OutlinePrepass.None &&
+      patch.colorPicker === undefined
+        ? { ...patch, colorPicker: this.getColorPicker() }
+        : patch;
+    const pixelation = updatePixelationSettings(current, options, this.state.metadata);
+    if (patch.mode !== undefined) {
+      if (patch.reduceColors === undefined) pixelation.reduceColors = current.reduceColors;
+      if (patch.colorPicker === undefined && patch.prepass === undefined)
+        pixelation.colorPicker = current.colorPicker;
+    }
+    this.processingCustomized = true;
+    this.update({ pixelation });
+  };
+
+  setAlgorithm = async (algorithm: PixelationAlgorithm, size?: PixelationSize) => {
+    if (
+      !this.handle ||
+      !this.state.settings ||
+      !this.state.metadata ||
+      this.state.stage !== VideoImportStage.Ready
+    )
+      return;
+    this.stopPlayback();
+    const version = ++this.algorithmVersion;
+    this.previewBase = SOURCE_OPENING_SHARE;
+    this.previewGeneration++;
+    this.previewWanted = false;
+    if (this.previewTimer !== null) clearTimeout(this.previewTimer);
+    this.previewTimer = null;
+    const handle = this.handle;
+    this.publish({
+      settings: { ...this.state.settings, algorithm },
+      analyzing: true,
+      previewing: true,
+      previewError: null,
+      progress: { phase: VideoImportPhase.Grid, completed: 0, total: 1, fraction: 0 },
+    });
+    try {
+      const grid = await handle.analyze(algorithm, size, (progress) => {
+        if (version === this.algorithmVersion && handle === this.handle)
+          this.publish({
+            progress: { ...progress, fraction: SOURCE_OPENING_SHARE * progress.fraction },
+          });
+      });
+      if (version !== this.algorithmVersion || handle !== this.handle) return;
+      const current = this.state.settings!;
+      const pixelation = applyPixelationGrid(current.pixelation, grid, this.state.metadata!);
+      const processing = this.processingCustomized
+        ? current.pixelation
+        : defaultImportPixelationSettings(this.state.metadata!, grid, this.getColorPicker());
+      this.publish({
+        grid,
+        analyzing: false,
+        settings: {
+          ...current,
+          pixelation: {
+            ...pixelation,
+            prepass: processing.prepass,
+            lineGuide: processing.lineGuide,
+            colorPicker: processing.colorPicker,
+            reduceColors: processing.reduceColors,
+          },
+        },
+      });
+      this.validate();
+      this.seek(this.state.previewTime);
+    } catch (reason) {
+      if (version === this.algorithmVersion && handle === this.handle)
+        this.publish({ analyzing: false, previewing: false, previewError: failureMessage(reason) });
+    }
+  };
+
   private validate() {
     try {
-      const plan = videoImportPlan(this.state.metadata!, this.state.settings!);
-      this.publish({ frameCount: plan.frames.length, validationError: null });
+      const plan = videoImportPlan(this.state.metadata!, this.state.settings!, this.state.grid!);
+      this.publish({
+        frameCount: plan.frames.length,
+        outputSize: { width: plan.width, height: plan.height },
+        validationError: null,
+      });
     } catch (reason) {
       this.publish({
         frameCount: 0,
@@ -228,7 +343,12 @@ export class VideoImportManager {
       return;
     }
     const settings = this.state.settings;
-    if (!settings || this.state.stage !== VideoImportStage.Ready || this.state.validationError)
+    if (
+      !settings ||
+      this.state.stage !== VideoImportStage.Ready ||
+      this.state.validationError ||
+      this.state.analyzing
+    )
       return;
     const time =
       this.state.previewTime >= settings.startSeconds &&
@@ -265,7 +385,12 @@ export class VideoImportManager {
   }
 
   private queuePreview(time: number, delay = PREVIEW_DEBOUNCE_MS) {
-    if (this.state.stage !== VideoImportStage.Ready || !Number.isFinite(time)) return;
+    if (
+      this.state.stage !== VideoImportStage.Ready ||
+      !Number.isFinite(time) ||
+      this.state.analyzing
+    )
+      return;
     const duration = this.state.metadata!.durationSeconds;
     this.previewGeneration++;
     if (this.state.validationError) {
@@ -277,7 +402,12 @@ export class VideoImportManager {
     this.publish({
       previewTime: Math.max(0, Math.min(duration, time)),
       previewing: true,
-      progress: { phase: VideoImportPhase.Preview, completed: 0, total: 1 },
+      progress: {
+        phase: VideoImportPhase.Preview,
+        completed: 0,
+        total: 1,
+        fraction: this.previewBase,
+      },
     });
     if (this.previewTimer !== null) clearTimeout(this.previewTimer);
     this.previewTimer = setTimeout(() => {
@@ -305,19 +435,25 @@ export class VideoImportManager {
           ),
         );
         const frameTime = settings!.startSeconds + frameIndex / settings!.frameRate;
-        const scale = Math.min(
-          1,
-          PREVIEW_MAX_DIMENSION / Math.max(settings!.width, settings!.height),
-        );
+        const plan = videoImportPlan(this.state.metadata!, settings!, this.state.grid!);
+        const scale = Math.min(1, PREVIEW_MAX_DIMENSION / Math.max(plan.width, plan.height));
         try {
           const preview = await handle.preview(
             frameTime,
-            Math.max(1, Math.round(settings!.width * scale)),
-            Math.max(1, Math.round(settings!.height * scale)),
-            videoImportPlan(this.state.metadata!, settings!),
+            Math.max(1, Math.round(plan.width * scale)),
+            Math.max(1, Math.round(plan.height * scale)),
+            plan,
             (progress) => {
               if (generation === this.previewGeneration && handle === this.handle)
-                this.publish({ progress });
+                this.publish({
+                  progress: {
+                    ...progress,
+                    fraction: Math.max(
+                      this.state.progress.fraction,
+                      this.previewBase + (1 - this.previewBase) * progress.fraction,
+                    ),
+                  },
+                });
             },
           );
           if (generation !== this.previewGeneration || handle !== this.handle) {
@@ -326,6 +462,7 @@ export class VideoImportManager {
           }
           const previous = this.preview;
           this.preview = preview;
+          this.previewBase = 0;
           this.publish({ previewUrl: preview.url, previewing: false, previewError: null });
           previous?.release();
           this.schedulePlayback();
@@ -343,6 +480,7 @@ export class VideoImportManager {
   async import() {
     if (
       this.state.stage !== VideoImportStage.Ready ||
+      this.state.analyzing ||
       !this.handle ||
       this.state.validationError ||
       this.state.previewError ||
@@ -352,14 +490,19 @@ export class VideoImportManager {
     const controller = this.controller!;
     this.stopPlayback();
     const handle = this.handle;
-    const plan = videoImportPlan(this.state.metadata!, this.state.settings!);
+    const plan = videoImportPlan(this.state.metadata!, this.state.settings!, this.state.grid!);
     this.previewGeneration++;
     this.previewWanted = false;
     this.publish({
       stage: VideoImportStage.Importing,
       error: null,
       previewing: false,
-      progress: { phase: VideoImportPhase.Frames, completed: 0, total: plan.frames.length },
+      progress: {
+        phase: VideoImportPhase.Frames,
+        completed: 0,
+        total: plan.frames.length,
+        fraction: 0,
+      },
     });
     try {
       const animation = await handle.decode(plan, (progress) => {
@@ -381,6 +524,7 @@ export class VideoImportManager {
 
   private finish(project: SessionProject | null) {
     this.stopPlayback();
+    this.previewBase = 0;
     const complete = this.complete;
     this.complete = null;
     this.unlinkAbort?.();
@@ -390,6 +534,7 @@ export class VideoImportManager {
     this.handle?.dispose();
     this.handle = null;
     this.previewGeneration++;
+    this.algorithmVersion++;
     this.previewWanted = false;
     if (this.previewTimer !== null) clearTimeout(this.previewTimer);
     this.previewTimer = null;
