@@ -168,6 +168,80 @@ describe("PWA timeout recovery", () => {
     await vi.advanceTimersByTimeAsync(STATUS_TIMEOUT_MS * 2);
     assert.equal(serviceWorker.register.mock.calls.length, 1);
   });
+
+  it("demotes activation timeout while the worker is still installing", async () => {
+    const { port, serviceWorker, errors } = harness();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const installing = Object.assign(new EventTarget(), {
+      state: "installing",
+      postMessage: vi.fn(
+        (_message: unknown, transfer: { postMessage: (data: unknown) => void }[]) => {
+          transfer[0].postMessage({
+            type: STATUS_MESSAGE,
+            ready: true,
+            version: "release-install",
+          });
+        },
+      ),
+    });
+    let resolveRegister: (value: unknown) => void = () => {};
+    serviceWorker.register.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveRegister = resolve;
+        }),
+    );
+    Object.assign(serviceWorker, { controller: null });
+    port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    const registration = Object.assign(new EventTarget(), {
+      active: null,
+      installing,
+      waiting: null,
+      update: vi.fn(async () => {}),
+    });
+    resolveRegister(registration);
+    await vi.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(120_000);
+    assert.equal(port.getState().offlineStatus, PwaOfflineStatus.Failed);
+    assert.equal(errors.length, 0, "install-in-progress timeout must not raise an exception");
+    assert.equal(
+      warn.mock.calls.some((call) => call[0] === "pwa_activation_timeout"),
+      true,
+    );
+    warn.mockRestore();
+    // Completing install later still prepares offline.
+    Object.assign(installing, { state: "activated" });
+    Object.assign(registration, { active: installing, installing: null });
+    installing.dispatchEvent(new Event("statechange"));
+    await vi.advanceTimersByTimeAsync(0);
+    assert.equal(port.getState().offlineStatus, PwaOfflineStatus.Ready);
+  });
+
+  it("prepares from an existing controller even when register never resolves", async () => {
+    const { port, worker, serviceWorker, errors } = harness();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    // Never resolve register — mirrors Safari hangs while an older controller stays active.
+    serviceWorker.register.mockImplementation(() => new Promise(() => {}));
+    worker.postMessage.mockImplementation((_message, transfer) =>
+      transfer[0].postMessage({
+        type: STATUS_MESSAGE,
+        ready: true,
+        version: "release-controller",
+      }),
+    );
+    port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    assert.equal(port.getState().offlineStatus, PwaOfflineStatus.Ready);
+    await vi.advanceTimersByTimeAsync(120_000);
+    assert.equal(errors.length, 0, "register hang with controller must not raise an exception");
+    assert.equal(
+      warn.mock.calls.some((call) => call[0] === "pwa_activation_timeout"),
+      false,
+      "successful prepare clears the activation budget",
+    );
+    warn.mockRestore();
+  });
 });
 
 describe("stale chunk reporting", () => {
