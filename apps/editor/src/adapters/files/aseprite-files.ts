@@ -2,6 +2,7 @@ import { fileWritePermissionRefused } from "$/adapters/files/file-write-permissi
 import { encodePng } from "$/adapters/files/images";
 import { importAsepriteInWorker } from "$/adapters/workers/aseprite-import-client";
 import { tUi } from "$/i18n";
+import { WORKER_LOAD_ERROR_NAME } from "$/managers/ports/chunk-load";
 import { FileWriteStage } from "$/managers/ports/diagnostics";
 import {
   downloadBlob,
@@ -279,7 +280,15 @@ export async function decodeAsepriteBlob(
     };
     if (!options.inflate && !options.decompressionStream) {
       const pending = importAsepriteInWorker({ bytes, fileName, limits });
-      if (pending) return await pending;
+      if (pending) {
+        try {
+          return await pending;
+        } catch (error) {
+          // Worker script missing after a deploy: keep the file open on the main thread.
+          // workerLoadFailed already announced the stale build for a single Reload prompt.
+          if (!(error instanceof Error) || error.name !== WORKER_LOAD_ERROR_NAME) throw error;
+        }
+      }
     }
     const project = await decodeAsepriteProject(bytes, {
       fileName,

@@ -289,6 +289,21 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
     console.warn("pwa_status_timeout", { ...context, ...pwa, ...details });
   }
 
+  /**
+   * Activation still in flight (installing/waiting) or register hung while a controller already
+   * serves the page: keep Failed for UI, log locally, do not raise as an exception. Real
+   * deadlocks (no worker progress, no controller) still go through report().
+   */
+  function warnActivationTimeout(details: PwaDetails): void {
+    let context: PwaDetails = {};
+    try {
+      context = diagnosticContext();
+    } catch {
+      // A restricted browser API must not hide the original failure.
+    }
+    console.warn("pwa_activation_timeout", { ...context, ...details });
+  }
+
   /** A lazy chunk failed twice: raise the Reload prompt and report with worker context. */
   async function chunkLoadFailed(error: unknown): Promise<void> {
     patch({ chunkFailures: state.chunkFailures + 1 });
@@ -449,6 +464,9 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
   }
 
   function prepareOffline(worker: ServiceWorker, expectedSession: number): Promise<void> {
+    // Preparing means activation already progressed far enough; drop the register/activate budget
+    // even when this call races ahead of register() arming the timer.
+    clearPreparationTimeout();
     const pending = pendingPreparations.get(worker);
     if (pending) return pending;
     const preparation = readAndPrepareOffline(worker, expectedSession);
@@ -478,17 +496,31 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
     let registered = false;
     patch({ offlineStatus: PwaOfflineStatus.Preparing });
     clearPreparationTimeout();
-    preparationTimeout = setTimeout(() => {
-      if (session === expectedSession && !disposed) {
+    // A returning visit already has a controller; start() prepares from it and register may hang
+    // harmlessly. Only budget activation when this tab still needs a worker to appear.
+    if (!navigator.serviceWorker.controller) {
+      preparationTimeout = setTimeout(() => {
+        if (session !== expectedSession || disposed) return;
         patch({ offlineStatus: PwaOfflineStatus.Failed });
-        report(new Error("The offline application did not activate."), {
+        const details: PwaDetails = {
           stage: registered ? PwaDiagnosticStage.Activation : PwaDiagnosticStage.Register,
           failure: PwaFailure.Timeout,
           timeout_ms: PREPARATION_TIMEOUT_MS,
           elapsed_ms: Math.round(performance.now() - startedAt),
-        });
-      }
-    }, PREPARATION_TIMEOUT_MS);
+        };
+        const installing = registration?.installing;
+        const waiting = registration?.waiting;
+        const controller = navigator.serviceWorker.controller;
+        // Still installing or waiting: precache can exceed the budget on slow networks / Safari.
+        // Controller appeared while register hung: prepare from it and keep this as local noise.
+        if (installing || waiting || controller) {
+          if (controller) void prepareOffline(controller, expectedSession);
+          warnActivationTimeout(details);
+          return;
+        }
+        report(new Error("The offline application did not activate."), details);
+      }, PREPARATION_TIMEOUT_MS);
+    }
     try {
       const current = await navigator.serviceWorker.register(
         `${options.baseUrl}${SERVICE_WORKER_FILENAME}`,
@@ -594,6 +626,10 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
           window.removeEventListener("online", reconnected);
           document.removeEventListener("visibilitychange", visible);
         });
+        // A returning visit already has a controller; prepare from it immediately so a slow
+        // register() cannot leave offline Failed for the full activation budget.
+        const existing = navigator.serviceWorker.controller;
+        if (existing) void prepareOffline(existing, currentSession);
         void register(currentSession);
       }
       let stopped = false;
