@@ -26,7 +26,11 @@ interface PendingRequest {
   timeoutMs: number;
 }
 
-export async function openVideoImport(file: File, signal: AbortSignal): Promise<VideoImportHandle> {
+export async function openVideoImport(
+  file: File,
+  signal: AbortSignal,
+  onProgress: (progress: VideoImportProgress) => void,
+): Promise<VideoImportHandle> {
   if (signal.aborted) throw new DOMException("Video import cancelled", "AbortError");
   if (typeof Worker !== "function")
     throw Object.assign(new Error(tUi("video.import.browser.unsupported")), {
@@ -74,10 +78,6 @@ export async function openVideoImport(file: File, signal: AbortSignal): Promise<
     const request = pending.get(data.id);
     if (!request) return;
     clearTimeout(request.timer);
-    if ("activity" in data) {
-      request.timer = setTimeout(timedOut, request.timeoutMs);
-      return;
-    }
     if ("thumbnail" in data) {
       request.timer = setTimeout(timedOut, request.timeoutMs);
       request.onThumbnail?.(data.thumbnail.index, retainPreview(data.thumbnail.blob));
@@ -143,7 +143,7 @@ export async function openVideoImport(file: File, signal: AbortSignal): Promise<
       }
     });
   try {
-    const opened = await run({ operation: VideoImportOperation.Open, file });
+    const opened = await run({ operation: VideoImportOperation.Open, file }, onProgress);
     if (opened.operation !== VideoImportOperation.Open)
       throw new Error(tUi("video.import.decode.failed"));
     return {
@@ -155,14 +155,17 @@ export async function openVideoImport(file: File, signal: AbortSignal): Promise<
           onFrame,
         );
       },
-      async preview(timeSeconds, width, height, plan) {
-        const result = await run({
-          operation: VideoImportOperation.Preview,
-          timeSeconds,
-          width,
-          height,
-          plan,
-        });
+      async preview(timeSeconds, width, height, plan, onProgress) {
+        const result = await run(
+          {
+            operation: VideoImportOperation.Preview,
+            timeSeconds,
+            width,
+            height,
+            plan,
+          },
+          onProgress,
+        );
         if (result.operation !== VideoImportOperation.Preview)
           throw new Error(tUi("video.import.decode.failed"));
         if (closed) throw new DOMException("Video source is closed", "AbortError");

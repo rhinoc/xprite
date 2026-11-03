@@ -5,6 +5,7 @@ import { tUi, useUiLanguage } from "$/i18n";
 import {
   VideoImportStage,
   VideoImportSampling,
+  VideoImportPhase,
   type VideoImportManager,
 } from "$/managers/files/video-import-manager";
 import {
@@ -53,15 +54,33 @@ export function VideoImportDialog({
   const importing = state.stage === VideoImportStage.Importing;
   const loading = state.stage === VideoImportStage.Loading;
   const updating = state.previewing && (!state.playing || !state.previewUrl);
-  const showProgress = loading || updating || importing;
+  const showProgress = loading || updating;
   const progress = state.progress.total
     ? Math.round((state.progress.completed / state.progress.total) * PERCENT)
     : 0;
-  const progressLabel = loading
-    ? tUi("video.import.loading")
-    : importing
-      ? tUi("video.import.title")
-      : tUi("ui.preparing.preview");
+  const progressLabel =
+    state.progress.phase === VideoImportPhase.Grid
+      ? tUi("video.import.detecting")
+      : state.progress.phase === VideoImportPhase.Palette
+        ? tUi("video.import.palette")
+        : state.progress.phase === VideoImportPhase.Frames
+          ? tUi("video.import.frames.progress", { ...state.progress, percent: progress })
+          : loading
+            ? tUi("video.import.loading")
+            : tUi("ui.preparing.preview");
+  const progressText =
+    state.progress.phase === VideoImportPhase.Grid ||
+    state.progress.phase === VideoImportPhase.Palette
+      ? tUi("video.import.progress", {
+          phase: progressLabel,
+          completed: state.progress.completed,
+          total: state.progress.total,
+        })
+      : progressLabel;
+  const progressValue =
+    state.progress.total && state.progress.completed > 0
+      ? state.progress.completed / state.progress.total
+      : undefined;
   const fields: FormField[] = settings
     ? [
         {
@@ -84,7 +103,7 @@ export function VideoImportDialog({
           label: tUi("video.import.recover"),
           text: "",
           value: settings.recoverGrid,
-          disabled: !ready || !metadata?.recovery.reliable,
+          disabled: !ready,
           onChange: (recoverGrid) => manager.update({ recoverGrid }),
         },
         ...(["width", "height"] as const).map((axis): FormField => ({
@@ -158,7 +177,11 @@ export function VideoImportDialog({
       beforeFields={
         <>
           {(loading || (metadata && settings)) && (
-            <div className={styles.preview} data-loading={loading} aria-busy={showProgress}>
+            <div
+              className={styles.preview}
+              data-loading={loading}
+              aria-busy={showProgress || importing}
+            >
               {state.previewUrl && settings && (
                 <div className={styles.image} data-updating={updating}>
                   <PixelImage
@@ -176,18 +199,11 @@ export function VideoImportDialog({
                   <ProgressBar
                     className={styles.progress}
                     label={progressLabel}
-                    value={
-                      importing && state.progress.completed > 0
-                        ? state.progress.completed / state.progress.total
-                        : undefined
-                    }
+                    value={progressValue}
                   />
-                  <div
-                    className={state.previewUrl ? styles.status : styles.waiting}
-                    role={importing ? undefined : "status"}
-                  >
-                    <Text variant={TextVariant.Inline} scale={2} ink="var(--ui-color-white)">
-                      {importing && state.progress.completed > 0 ? `${progress}%` : progressLabel}
+                  <div className={state.previewUrl ? styles.status : styles.waiting} role="status">
+                    <Text variant={TextVariant.Inline} scale={2} ink="var(--ui-color-white)" wrap>
+                      {progressText}
                     </Text>
                   </div>
                 </>
@@ -240,8 +256,18 @@ export function VideoImportDialog({
           </div>
         ) : undefined
       }
+      beforeActions={
+        importing ? (
+          <div className={styles.importProgress}>
+            <Text variant={TextVariant.Inline} scale={2} wrap>
+              {progressText}
+            </Text>
+            <ProgressBar label={progressLabel} value={progressValue} />
+          </div>
+        ) : undefined
+      }
       actions={[
-        ...(metadata
+        ...(metadata && !importing
           ? [
               {
                 label: state.frameCount

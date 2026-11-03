@@ -2492,6 +2492,9 @@
   "video.import.size.invalid": "Usa dimensiones enteras entre 1 y 16,384 píxeles.",
   "video.import.capacity": "La animación es demasiado grande. Reduce el intervalo, el tamaño o los fotogramas por segundo.",
   "video.import.recover": "Recuperar cuadrícula",
-  "video.import.recovery.unavailable": "No se detectó una cuadrícula uniforme. Desactiva la recuperación de cuadrícula.",
-  "video.import.colors.invalid": "Elige un número entero de colores entre 2 y 256."
+  "video.import.colors.invalid": "Elige un número entero de colores entre 2 y 256.",
+  "video.import.detecting": "Detectando cuadrícula",
+  "video.import.palette": "Preparando paleta",
+  "video.import.progress": "{phase} · {completed}/{total}",
+  "video.import.frames.progress": "{completed}/{total} fotogramas · {percent}%"
 }

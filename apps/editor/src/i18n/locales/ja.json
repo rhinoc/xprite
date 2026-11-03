@@ -2492,6 +2492,9 @@
   "video.import.size.invalid": "幅と高さを 1～16,384 の整数に設定してください。",
   "video.import.capacity": "アニメーションが大きすぎます。範囲、サイズ、フレームレートを減らしてください。",
   "video.import.recover": "グリッドを復元",
-  "video.import.recovery.unavailable": "一定のピクセルグリッドが見つかりません。グリッドの復元をオフにしてください。",
-  "video.import.colors.invalid": "色数を 2～256 の整数に設定してください。"
+  "video.import.colors.invalid": "色数を 2～256 の整数に設定してください。",
+  "video.import.detecting": "グリッドを検出中",
+  "video.import.palette": "パレットを準備中",
+  "video.import.progress": "{phase} · {completed}/{total}",
+  "video.import.frames.progress": "{completed}/{total} フレーム · {percent}%"
 }

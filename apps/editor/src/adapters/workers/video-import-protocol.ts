@@ -38,7 +38,6 @@ export type VideoImportResult =
   | { operation: VideoImportOperation.Thumbnails };
 
 export type VideoImportResponse =
-  | { id: number; activity: true }
   | { id: number; thumbnail: { index: number; blob: Blob } }
   | { id: number; progress: VideoImportProgress }
   | { id: number; ok: true; result: VideoImportResult }

@@ -32,6 +32,14 @@
   padding: 1px 4px;
   background: var(--ui-preview-status-face);
   pointer-events: none;
+  max-width: calc(100% - 4px);
+}
+
+.importProgress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  flex-shrink: 0;
 }
 
 .waiting {

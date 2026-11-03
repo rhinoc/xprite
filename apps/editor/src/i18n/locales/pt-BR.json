@@ -2492,6 +2492,9 @@
   "video.import.size.invalid": "Use dimensões inteiras entre 1 e 16,384 pixels.",
   "video.import.capacity": "A animação é grande demais. Reduza o intervalo, o tamanho ou a taxa de quadros.",
   "video.import.recover": "Recuperar grade",
-  "video.import.recovery.unavailable": "Nenhuma grade consistente foi detectada. Desative a recuperação da grade.",
-  "video.import.colors.invalid": "Escolha um número inteiro de cores entre 2 e 256."
+  "video.import.colors.invalid": "Escolha um número inteiro de cores entre 2 e 256.",
+  "video.import.detecting": "Detectando grade",
+  "video.import.palette": "Preparando paleta",
+  "video.import.progress": "{phase} · {completed}/{total}",
+  "video.import.frames.progress": "{completed}/{total} quadros · {percent}%"
 }

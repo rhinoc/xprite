@@ -2492,6 +2492,9 @@
   "video.import.size.invalid": "Задайте целые размеры от 1 до 16,384 пикселей.",
   "video.import.capacity": "Анимация слишком велика. Сократите диапазон, размер или частоту кадров.",
   "video.import.recover": "Восстановить сетку",
-  "video.import.recovery.unavailable": "Равномерная пиксельная сетка не найдена. Отключите восстановление сетки.",
-  "video.import.colors.invalid": "Выберите целое число цветов от 2 до 256."
+  "video.import.colors.invalid": "Выберите целое число цветов от 2 до 256.",
+  "video.import.detecting": "Определение сетки",
+  "video.import.palette": "Подготовка палитры",
+  "video.import.progress": "{phase} · {completed}/{total}",
+  "video.import.frames.progress": "Кадры: {completed}/{total} · {percent}%"
 }

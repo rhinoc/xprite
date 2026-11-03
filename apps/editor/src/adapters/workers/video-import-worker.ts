@@ -13,7 +13,11 @@ import {
   type VideoImportRequest,
   type VideoImportResponse,
 } from "$/adapters/workers/video-import-protocol";
-import { VideoImportFailure, VideoImportSampling } from "$/managers/ports/video-import";
+import {
+  VideoImportFailure,
+  VideoImportSampling,
+  VideoImportPhase,
+} from "$/managers/ports/video-import";
 import {
   assertRasterAnimationCapacity,
   type RasterAnimationFrame,
@@ -107,8 +111,8 @@ async function execute(request: VideoImportRequest) {
         ? stats.averagePacketRate
         : DEFAULT_FRAME_RATE;
     processing = new VideoFrameProcessing(track, firstTimestamp, durationSeconds);
-    const recovery = await processing.analyze(() =>
-      scope.postMessage({ id: request.id, activity: true }),
+    const recovery = await processing.analyze((progress) =>
+      scope.postMessage({ id: request.id, progress }),
     );
     previewSink = new VideoSampleSink(track);
     scope.postMessage({
@@ -161,9 +165,13 @@ async function execute(request: VideoImportRequest) {
     const time =
       firstTimestamp +
       Math.max(0, Math.min(durationSeconds - LAST_FRAME_EPSILON_SECONDS, request.timeSeconds));
-    const palette = await processing!.prepare(request.plan, () =>
-      scope.postMessage({ id: request.id, activity: true }),
+    const palette = await processing!.prepare(request.plan, (progress) =>
+      scope.postMessage({ id: request.id, progress }),
     );
+    scope.postMessage({
+      id: request.id,
+      progress: { phase: VideoImportPhase.Preview, completed: 0, total: 1 },
+    });
     const sample = await previewSink!.getSample(time);
     if (!sample) failure(VideoImportFailure.Frame, "No preview frame at this timestamp");
     try {
@@ -190,9 +198,13 @@ async function execute(request: VideoImportRequest) {
 
   const { plan } = request;
   assertRasterAnimationCapacity(plan.width, plan.height, plan.frames.length);
-  const palette = await processing!.prepare(plan, () =>
-    scope.postMessage({ id: request.id, activity: true }),
+  const palette = await processing!.prepare(plan, (progress) =>
+    scope.postMessage({ id: request.id, progress }),
   );
+  scope.postMessage({
+    id: request.id,
+    progress: { phase: VideoImportPhase.Frames, completed: 0, total: plan.frames.length },
+  });
   const sink = new VideoSampleSink(track);
   const frames: RasterAnimationFrame[] = [];
   let previousTimestamp = -Infinity;
@@ -224,7 +236,11 @@ async function execute(request: VideoImportRequest) {
       if (now - lastProgress >= PROGRESS_INTERVAL_MS || frames.length === plan.frames.length) {
         scope.postMessage({
           id: request.id,
-          progress: { completed: frames.length, total: plan.frames.length },
+          progress: {
+            phase: VideoImportPhase.Frames,
+            completed: frames.length,
+            total: plan.frames.length,
+          },
         });
         lastProgress = now;
       }

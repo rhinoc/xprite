@@ -2492,6 +2492,9 @@
   "video.import.size.invalid": "너비와 높이를 1~16,384 사이의 정수로 설정하세요.",
   "video.import.capacity": "애니메이션이 너무 큽니다. 범위, 크기 또는 프레임 속도를 줄이세요.",
   "video.import.recover": "격자 복원",
-  "video.import.recovery.unavailable": "일정한 픽셀 격자를 찾을 수 없습니다. 격자 복원을 끄세요.",
-  "video.import.colors.invalid": "색상 수를 2~256 사이의 정수로 설정하세요."
+  "video.import.colors.invalid": "색상 수를 2~256 사이의 정수로 설정하세요.",
+  "video.import.detecting": "격자 감지 중",
+  "video.import.palette": "팔레트 준비 중",
+  "video.import.progress": "{phase} · {completed}/{total}",
+  "video.import.frames.progress": "{completed}/{total} 프레임 · {percent}%"
 }

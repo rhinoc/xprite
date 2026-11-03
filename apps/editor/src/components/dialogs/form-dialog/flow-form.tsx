@@ -192,6 +192,7 @@ export function FlowForm({
   fields,
   beforeFields,
   afterFields,
+  beforeActions,
   scrollFields = false,
   viewportHeight,
   scrollLabel,
@@ -211,6 +212,7 @@ export function FlowForm({
   | "fields"
   | "beforeFields"
   | "afterFields"
+  | "beforeActions"
   | "scrollFields"
   | "actions"
   | "layout"
@@ -378,6 +380,7 @@ export function FlowForm({
           {fieldContent}
         </>
       )}
+      {beforeActions}
       <div className={styles.actions}>
         {actions.map((action, index) => (
           <Button

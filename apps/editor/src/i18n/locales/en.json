@@ -2492,6 +2492,9 @@
   "video.import.size.invalid": "Set whole-number dimensions from 1 to 16,384 pixels.",
   "video.import.capacity": "This animation is too large. Shorten the range, reduce the size or lower the frame rate.",
   "video.import.recover": "Recover grid",
-  "video.import.recovery.unavailable": "No consistent pixel grid was detected. Turn off grid recovery.",
-  "video.import.colors.invalid": "Choose a whole number of colors from 2 to 256."
+  "video.import.colors.invalid": "Choose a whole number of colors from 2 to 256.",
+  "video.import.detecting": "Detecting grid",
+  "video.import.palette": "Preparing palette",
+  "video.import.progress": "{phase} · {completed}/{total}",
+  "video.import.frames.progress": "{completed}/{total} frames · {percent}%"
 }

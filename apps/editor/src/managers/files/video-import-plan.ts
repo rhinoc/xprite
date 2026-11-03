@@ -75,8 +75,6 @@ export function videoImportPlan(
     throw new RangeError(tUi("video.import.size.invalid"));
   if (sampling !== VideoImportSampling.Smooth && sampling !== VideoImportSampling.Nearest)
     throw new RangeError(tUi("video.import.settings.invalid"));
-  if (settings.recoverGrid && !metadata.recovery.reliable)
-    throw new RangeError(tUi("video.import.recovery.unavailable"));
   if (
     settings.reduceColors &&
     (!Number.isSafeInteger(settings.maxColors) ||

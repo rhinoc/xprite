@@ -2492,6 +2492,9 @@
   "video.import.size.invalid": "请将宽高设为 1–16,384 的整数。",
   "video.import.capacity": "动画过大。请缩短片段、缩小尺寸或降低帧率。",
   "video.import.recover": "恢复网格",
-  "video.import.recovery.unavailable": "未检测到稳定像素网格。请关闭网格恢复。",
-  "video.import.colors.invalid": "请将颜色数设为 2–256 的整数。"
+  "video.import.colors.invalid": "请将颜色数设为 2–256 的整数。",
+  "video.import.detecting": "检测网格",
+  "video.import.palette": "生成调色板",
+  "video.import.progress": "{phase} · {completed}/{total}",
+  "video.import.frames.progress": "{completed}/{total} 帧 · {percent}%"
 }

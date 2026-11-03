@@ -14,7 +14,6 @@ export enum VideoImportFailure {
   Metadata = "metadata",
   Frame = "frame",
   Decode = "decode",
-  Recovery = "recovery",
 }
 
 export interface VideoImportRecovery {
@@ -55,7 +54,16 @@ export interface VideoImportPlan {
   frames: readonly { timestampSeconds: number; durationMs: number }[];
 }
 
+export enum VideoImportPhase {
+  Reading = "reading",
+  Grid = "grid",
+  Palette = "palette",
+  Preview = "preview",
+  Frames = "frames",
+}
+
 export interface VideoImportProgress {
+  phase: VideoImportPhase;
   completed: number;
   total: number;
 }
@@ -83,6 +91,7 @@ export interface VideoImportHandle {
     width: number,
     height: number,
     plan: VideoImportPlan,
+    onProgress: (progress: VideoImportProgress) => void,
   ): Promise<VideoImportPreview>;
   decode(
     plan: VideoImportPlan,
@@ -93,5 +102,9 @@ export interface VideoImportHandle {
 
 export interface VideoImportPort {
   isVideoSource(source: string): boolean;
-  open(source: string, signal: AbortSignal): Promise<VideoImportHandle>;
+  open(
+    source: string,
+    signal: AbortSignal,
+    onProgress: (progress: VideoImportProgress) => void,
+  ): Promise<VideoImportHandle>;
 }

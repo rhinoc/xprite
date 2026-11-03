@@ -86,6 +86,8 @@ export interface FormDialogProps {
   fields: readonly FormField[];
   beforeFields?: ReactNode;
   afterFields?: ReactNode;
+  /** Flow-form footer, kept outside the scrolling parameters. */
+  beforeActions?: ReactNode;
   message?: string;
   actions: readonly {
     label: string;
@@ -175,6 +177,7 @@ export function FormDialog({
   fields,
   beforeFields,
   afterFields,
+  beforeActions,
   message,
   actions,
   width,
@@ -392,6 +395,7 @@ export function FormDialog({
           fields={fields}
           beforeFields={beforeFields}
           afterFields={afterFields}
+          beforeActions={beforeActions}
           scrollFields={scrollFields}
           viewportHeight={client.height}
           scrollLabel={tUiSource(title)}

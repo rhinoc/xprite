@@ -18,6 +18,7 @@ import {
 import { ImageImportWorkerClient } from "$/adapters/workers/import-client";
 import { tUi } from "$/i18n";
 import { DiagnosticSource, type DiagnosticsPort } from "$/managers/ports/diagnostics";
+import type { VideoImportProgress } from "$/managers/ports/video-import";
 import { loadChunk } from "$/managers/pwa/chunk-load";
 import {
   pickOpenFiles,
@@ -101,11 +102,15 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
       const source = this.sources.get(token);
       return source instanceof File && isVideoFile(source);
     },
-    open: async (token: string, signal: AbortSignal) => {
+    open: async (
+      token: string,
+      signal: AbortSignal,
+      onProgress: (progress: VideoImportProgress) => void,
+    ) => {
       const source = this.sources.get(token);
       if (!(source instanceof File)) throw new Error(tUi("video.import.decode.failed"));
       const { openVideoImport } = await import("$/adapters/files/video-import");
-      return openVideoImport(source, signal);
+      return openVideoImport(source, signal, onProgress);
     },
   };
   hydrateDocumentHandles = async (documentKeys: readonly string[]) => {

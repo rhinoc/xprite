@@ -2,9 +2,11 @@ import { VideoSampleSink, type InputVideoTrack, type VideoSample } from "mediabu
 
 import {
   VideoImportFailure,
+  VideoImportPhase,
   VideoImportSampling,
   type VideoImportPlan,
   type VideoImportRecovery,
+  type VideoImportProgress,
 } from "$/managers/ports/video-import";
 import type { PixelBuffer, Rgba } from "@xprite/editor-core/base";
 import {
@@ -13,6 +15,7 @@ import {
   PixelationMethod,
   PixelationMode,
   detectWithAlgorithmAsync,
+  detectWithAlgorithm,
   extractPixelationPalette,
   pixelateImage,
   preloadWasm,
@@ -89,12 +92,15 @@ export class VideoFrameProcessing {
     };
   }
 
-  async analyze(onActivity: () => void): Promise<VideoImportRecovery> {
+  async analyze(onProgress: (progress: VideoImportProgress) => void): Promise<VideoImportRecovery> {
+    const report = (completed: number) =>
+      onProgress({ phase: VideoImportPhase.Grid, completed, total: GRID_SAMPLE_COUNT });
+    report(0);
     await preloadWasm().catch(() => {});
     const sink = new VideoSampleSink(this.track);
     const end = Math.min(ANALYSIS_DURATION_SECONDS, this.durationSeconds);
     for (let index = 0; index < GRID_SAMPLE_COUNT; index++) {
-      onActivity();
+      report(index);
       const time = Math.min(
         this.durationSeconds - FRAME_END_EPSILON,
         (end * index) / (GRID_SAMPLE_COUNT - 1),
@@ -117,7 +123,7 @@ export class VideoFrameProcessing {
         // A later representative frame may contain a usable grid.
       } finally {
         sample.close();
-        onActivity();
+        report(index + 1);
       }
     }
     return { reliable: false, width: this.track.displayWidth, height: this.track.displayHeight };
@@ -130,7 +136,6 @@ export class VideoFrameProcessing {
     height = plan.height,
   ): PixelBuffer {
     if (!plan.recoverGrid) return this.rasterize(sample, width, height, plan.sampling);
-    if (!this.grid) throw processingError(VideoImportFailure.Recovery);
     const source = this.rasterize(
       sample,
       this.workingWidth,
@@ -139,7 +144,12 @@ export class VideoFrameProcessing {
     );
     const recovered = pixelateImage(source, {
       mode: PixelationMode.RecoverGrid,
-      grid: this.grid,
+      grid:
+        this.grid ??
+        detectWithAlgorithm(source, PixelationAlgorithm.CustomSize, {
+          width: plan.width,
+          height: plan.height,
+        }),
       colorPicker: CellColorPicker.MostCommon,
     });
     if (recovered.width === width && recovered.height === height) return recovered;
@@ -152,7 +162,10 @@ export class VideoFrameProcessing {
         });
   }
 
-  prepare(plan: VideoImportPlan, onActivity: () => void): Promise<readonly Rgba[]> {
+  prepare(
+    plan: VideoImportPlan,
+    onProgress: (progress: VideoImportProgress) => void,
+  ): Promise<readonly Rgba[]> {
     if (!plan.reduceColors) return Promise.resolve([]);
     const key = JSON.stringify([
       plan.width,
@@ -165,7 +178,7 @@ export class VideoFrameProcessing {
       plan.frames[plan.frames.length - 1].timestampSeconds,
     ]);
     if (this.prepared?.key === key) return this.prepared.palette;
-    const palette = this.buildPalette(plan, onActivity);
+    const palette = this.buildPalette(plan, onProgress);
     this.prepared = { key, palette };
     void palette.catch(() => {
       if (this.prepared?.key === key) this.prepared = null;
@@ -175,9 +188,12 @@ export class VideoFrameProcessing {
 
   private async buildPalette(
     plan: VideoImportPlan,
-    onActivity: () => void,
+    onProgress: (progress: VideoImportProgress) => void,
   ): Promise<readonly Rgba[]> {
     const count = Math.min(PALETTE_FRAME_COUNT, plan.frames.length);
+    const report = (completed: number) =>
+      onProgress({ phase: VideoImportPhase.Palette, completed, total: count });
+    report(0);
     const timestamps = Array.from(
       { length: count },
       (_, index) =>
@@ -209,7 +225,7 @@ export class VideoFrameProcessing {
           data.set(image.data.subarray(offset, offset + RGBA_CHANNELS), written++ * RGBA_CHANNELS);
         }
         frameIndex++;
-        onActivity();
+        report(frameIndex);
       } finally {
         sample.close();
       }

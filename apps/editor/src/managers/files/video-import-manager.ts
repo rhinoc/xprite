@@ -2,6 +2,7 @@ import { tUi } from "$/i18n";
 import { defaultVideoImportSettings, videoImportPlan } from "$/managers/files/video-import-plan";
 import {
   VideoImportFailure,
+  VideoImportPhase,
   type VideoImportHandle,
   type VideoImportMetadata,
   type VideoImportPort,
@@ -12,7 +13,7 @@ import {
 import { rasterAnimationProject } from "@xprite/editor-core/import-export";
 import type { SessionProject, SessionSource } from "@xprite/editor-core/session";
 
-export { VideoImportSampling } from "$/managers/ports/video-import";
+export { VideoImportSampling, VideoImportPhase } from "$/managers/ports/video-import";
 
 export enum VideoImportStage {
   Idle = "idle",
@@ -61,7 +62,7 @@ const IDLE: VideoImportSnapshot = {
   error: null,
   validationError: null,
   frameCount: 0,
-  progress: { completed: 0, total: 0 },
+  progress: { phase: VideoImportPhase.Reading, completed: 0, total: 0 },
 };
 
 function failureMessage(reason: unknown): string {
@@ -79,8 +80,6 @@ function failureMessage(reason: unknown): string {
       return tUi("video.import.metadata.invalid");
     case VideoImportFailure.Frame:
       return tUi("video.import.frame.failed");
-    case VideoImportFailure.Recovery:
-      return tUi("video.import.recovery.unavailable");
     default:
       return tUi("video.import.decode.failed");
   }
@@ -136,7 +135,10 @@ export class VideoImportManager {
 
   private async load(source: string, controller: AbortController) {
     try {
-      const handle = await this.port!.open(source, controller.signal);
+      const handle = await this.port!.open(source, controller.signal, (progress) => {
+        if (controller === this.controller && !controller.signal.aborted)
+          this.publish({ progress });
+      });
       if (controller !== this.controller || controller.signal.aborted) {
         handle.dispose();
         return;
@@ -272,7 +274,11 @@ export class VideoImportManager {
       return;
     }
     this.previewWanted = true;
-    this.publish({ previewTime: Math.max(0, Math.min(duration, time)), previewing: true });
+    this.publish({
+      previewTime: Math.max(0, Math.min(duration, time)),
+      previewing: true,
+      progress: { phase: VideoImportPhase.Preview, completed: 0, total: 1 },
+    });
     if (this.previewTimer !== null) clearTimeout(this.previewTimer);
     this.previewTimer = setTimeout(() => {
       this.previewTimer = null;
@@ -309,6 +315,10 @@ export class VideoImportManager {
             Math.max(1, Math.round(settings!.width * scale)),
             Math.max(1, Math.round(settings!.height * scale)),
             videoImportPlan(this.state.metadata!, settings!),
+            (progress) => {
+              if (generation === this.previewGeneration && handle === this.handle)
+                this.publish({ progress });
+            },
           );
           if (generation !== this.previewGeneration || handle !== this.handle) {
             preview.release();
@@ -349,7 +359,7 @@ export class VideoImportManager {
       stage: VideoImportStage.Importing,
       error: null,
       previewing: false,
-      progress: { completed: 0, total: plan.frames.length },
+      progress: { phase: VideoImportPhase.Frames, completed: 0, total: plan.frames.length },
     });
     try {
       const animation = await handle.decode(plan, (progress) => {
