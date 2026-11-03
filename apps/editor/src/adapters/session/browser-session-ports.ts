@@ -17,6 +17,7 @@ import {
 import { ImageImportWorkerClient } from "$/adapters/workers/import-client";
 import { tUi } from "$/i18n";
 import { DiagnosticSource, type DiagnosticsPort } from "$/managers/ports/diagnostics";
+import { loadChunk } from "$/managers/pwa/chunk-load";
 import {
   pickOpenFiles,
   pickSaveFile,
@@ -224,7 +225,9 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
       source instanceof File &&
       isAsepriteData(new Uint8Array(await source.slice(0, ASEPRITE_SIGNATURE_BYTES).arrayBuffer()));
     if (!asepriteData) {
-      const { decodeAnimatedImageSource } = await import("$/adapters/files/animated-images");
+      const { decodeAnimatedImageSource } = await loadChunk(
+        () => import("$/adapters/files/animated-images"),
+      );
       const animation = await decodeAnimatedImageSource(source, name);
       if (animation) return animation;
       // The extension also routes damaged Aseprite files to their codec's precise errors.

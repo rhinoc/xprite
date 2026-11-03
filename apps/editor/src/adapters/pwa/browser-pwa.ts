@@ -304,10 +304,12 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
     console.warn("pwa_activation_timeout", { ...context, ...details });
   }
 
-  /** A lazy chunk failed twice: tell the user at once, then report with worker context. */
+  /** A lazy chunk failed twice: raise the Reload prompt and report with worker context. */
   async function chunkLoadFailed(error: unknown): Promise<void> {
     patch({ chunkFailures: state.chunkFailures + 1 });
     const url = failedChunkUrl(error);
+    // WorkerLoadError announcements have no chunk URL (caller may still fall back). Hashed
+    // `/assets/…` misses still only prompt — never auto-reload; the user may be mid-edit.
     const path = sameSiteAssetPath(url);
     const details: Record<string, string | number | boolean | null> = {
       stage: PwaDiagnosticStage.Chunk,

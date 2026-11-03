@@ -5,7 +5,7 @@ export const CHUNK_LOAD_RETRY_DELAY_MS = 600;
 /**
  * Loads a dynamically imported chunk, retrying once after a short pause. A second failure is
  * announced on `window` for the diagnostics adapter and then rethrown. It never reloads the page:
- * the user may be mid-edit.
+ * the user may be mid-edit. The PWA adapter raises the Reload prompt from that announcement.
  */
 export async function loadChunk<T>(importer: () => Promise<T>): Promise<T> {
   try {

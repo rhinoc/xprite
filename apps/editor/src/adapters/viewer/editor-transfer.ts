@@ -1,4 +1,5 @@
 import type { EditorInitialProject } from "$/managers/ports/editor-host";
+import { loadChunk } from "$/managers/pwa/chunk-load";
 import { IndexedDbDatabase } from "@xprite/bedrock/browser/indexeddb";
 import { copyStoredPalette } from "@xprite/editor-core/import-export";
 
@@ -104,7 +105,9 @@ async function consumeProject(token: string): Promise<EditorInitialProject | nul
 
 async function decodeRecord(record: TransferRecord, file: Blob): Promise<EditorInitialProject> {
   if (/\.(?:gif|webp)$/i.test(record.name)) {
-    const { decodeAnimatedImageSource } = await import("$/adapters/files/animated-images");
+    const { decodeAnimatedImageSource } = await loadChunk(
+      () => import("$/adapters/files/animated-images"),
+    );
     const project = await decodeAnimatedImageSource(file, record.name);
     if (project) return { name: record.name, project };
   }
