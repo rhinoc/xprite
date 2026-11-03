@@ -3,7 +3,6 @@ const SOCIAL_IMAGE_URL = new URL("social-preview.png", SITE_URL).href;
 const ORGANIZATION_ID = `${SITE_URL}#organization`;
 /** Official profiles already linked from the editor and public site. */
 const SAME_AS = [
-  "https://xprite.cc/",
   "https://github.com/rhinoc/xprite",
   "https://rhinoc.itch.io/xprite",
   "https://x.com/rya_nooo",
@@ -61,8 +60,8 @@ export function siteIdentityMetadata() {
     {
       "@type": "Organization",
       "@id": ORGANIZATION_ID,
-      name: "Xprite pixel editor",
-      alternateName: ["Xprite", "xprite.cc"],
+      name: "Xprite",
+      alternateName: ["Xprite pixel editor", "xprite.cc"],
       url: SITE_URL,
       logo: new URL("icon-512.png", SITE_URL).href,
       founder: { "@type": "Person", name: "rhinoc", url: "https://github.com/rhinoc" },
