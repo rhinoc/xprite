@@ -1,8 +1,18 @@
 const SITE_URL = "https://xprite.cc/";
 const SOCIAL_IMAGE_URL = new URL("social-preview.png", SITE_URL).href;
 const ORGANIZATION_ID = `${SITE_URL}#organization`;
+/** Official profiles already linked from the editor and public site. */
+const SAME_AS = [
+  "https://xprite.cc/",
+  "https://github.com/rhinoc/xprite",
+  "https://rhinoc.itch.io/xprite",
+  "https://x.com/rya_nooo",
+  "https://ko-fi.com/rhinoc",
+  "https://space.bilibili.com/32089863",
+  "https://www.xiaohongshu.com/user/profile/6199f8f10000000010009efe",
+] as const;
 const APPLICATION_DESCRIPTION =
-  "Pixel art and animation in your browser. Open and save .ase/.aseprite projects, use touch and stylus input, and customize your workspace.";
+  "Xprite pixel editor: pixel art and animation in your browser at xprite.cc. Open and save .ase/.aseprite projects, use touch and stylus input, and customize your workspace.";
 /** Core capabilities stated in the README, the landing-page FAQ and the user guide. */
 const APPLICATION_FEATURES = [
   "Pixel art drawing",
@@ -17,7 +27,8 @@ export function editorApplicationMetadata(version?: string) {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "@id": `${SITE_URL}#application`,
-    name: "Xprite",
+    name: "Xprite pixel editor",
+    alternateName: ["Xprite", "Xprite Pixel Art Editor", "xprite.cc"],
     url: SITE_URL,
     description: APPLICATION_DESCRIPTION,
     image: SOCIAL_IMAGE_URL,
@@ -31,7 +42,7 @@ export function editorApplicationMetadata(version?: string) {
     author: { "@type": "Person", name: "rhinoc", url: "https://github.com/rhinoc" },
     publisher: { "@id": ORGANIZATION_ID },
     license: "https://github.com/rhinoc/xprite/blob/main/LICENSE",
-    sameAs: ["https://github.com/rhinoc/xprite", "https://rhinoc.itch.io/xprite"],
+    sameAs: [...SAME_AS],
   };
 }
 
@@ -41,8 +52,8 @@ export function siteIdentityMetadata() {
     {
       "@type": "WebSite",
       "@id": `${SITE_URL}#website`,
-      name: "Xprite",
-      alternateName: ["Xprite Pixel Art Editor", "xprite.cc"],
+      name: "Xprite pixel editor",
+      alternateName: ["Xprite", "Xprite Pixel Art Editor", "xprite.cc"],
       url: SITE_URL,
       inLanguage: ["en", "zh-CN"],
       publisher: { "@id": ORGANIZATION_ID },
@@ -50,11 +61,12 @@ export function siteIdentityMetadata() {
     {
       "@type": "Organization",
       "@id": ORGANIZATION_ID,
-      name: "Xprite",
+      name: "Xprite pixel editor",
+      alternateName: ["Xprite", "xprite.cc"],
       url: SITE_URL,
       logo: new URL("icon-512.png", SITE_URL).href,
       founder: { "@type": "Person", name: "rhinoc", url: "https://github.com/rhinoc" },
-      sameAs: ["https://github.com/rhinoc/xprite", "https://rhinoc.itch.io/xprite"],
+      sameAs: [...SAME_AS],
     },
   ];
 }
