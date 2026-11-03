@@ -1,0 +1,54 @@
+.preview {
+  position: relative;
+  height: clamp(64px, calc(100cqh - 240px), 220px);
+  min-width: 0;
+  background: var(--ui-color-canvas);
+  overflow: hidden;
+}
+
+.preview[data-loading="true"] {
+  height: 64px;
+}
+
+.image {
+  height: 100%;
+}
+
+.image[data-updating="true"] {
+  opacity: 0.45;
+}
+
+.progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.status {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  padding: 1px 4px;
+  background: var(--ui-preview-status-face);
+  pointer-events: none;
+}
+
+.waiting {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ui-space-4);
+}
+
+.transport {
+  align-items: flex-start;
+  flex-wrap: nowrap;
+}
+
+.timeline {
+  flex: 1;
+  min-width: 0;
+}

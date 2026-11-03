@@ -55,6 +55,7 @@ export function reportingSessionPorts(
     });
   };
   return {
+    videoImport: ports.videoImport,
     listRecentImages: ports.listRecentImages?.bind(ports),
     readRecentImage: ports.readRecentImage?.bind(ports),
     saveRecentImages: ports.saveRecentImages?.bind(ports),

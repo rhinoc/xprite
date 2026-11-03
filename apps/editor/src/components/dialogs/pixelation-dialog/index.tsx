@@ -33,7 +33,9 @@ import {
   TextVariant,
   defaultActionProps,
   useModalFocus,
+  ScrollArea,
 } from "@xprite/ui";
+import { useElementSize } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/pixelation-dialog/pixelation-dialog.module.css";
 
@@ -58,8 +60,10 @@ type Workflow = Pick<
 const DIALOG_WIDTH = 380;
 const DIALOG_MIN_WIDTH = 280;
 const DIALOG_HEIGHT = 560;
-const DIALOG_MIN_HEIGHT = 380;
 const PREVIEW_MIN = 72;
+const PREVIEW_MAX = 280;
+const PREVIEW_SHARE = 0.52;
+const PARAMETER_MIN_HEIGHT = 64;
 const GAP = 8;
 const SECTION_HEIGHT = 22;
 const OPTION_HEIGHT = 34;
@@ -69,6 +73,7 @@ const ROW_HEIGHT = 24;
 const FIELD_LABEL_HEIGHT = 18;
 const COMBO_HEIGHT = 30;
 const FOOTER_HEIGHT = 34;
+const FOOTER_STACK_HEIGHT = ROW_HEIGHT + GAP + FOOTER_HEIGHT;
 const BUTTON_WIDTH = 120;
 const BUTTON_GAP = 8;
 const SIZE_SEPARATOR = 16;
@@ -93,6 +98,8 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   const [removeBg, setRemoveBg] = useState<RemoveBackgroundSettings>(DEFAULT_REMOVE_BACKGROUND);
   const [pickingColor, setPickingColor] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const parameterViewport = useRef<HTMLDivElement>(null);
+  const parameterSize = useElementSize(parameterViewport);
 
   useModalFocus({
     open: !!pending,
@@ -199,31 +206,9 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     }
   };
 
-  // Window size stays put when Advanced opens; the body scrolls vertically. Preview height is
-  // sized from the collapsed stack so opening Advanced never steals canvas space.
-  const showDitherExtra =
-    showAdvanced && workflow.pixelationOptions.reduceColors
-      ? FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP
-      : 0;
   const showGridSource = showAdvanced && base[PixelationSlot.GridSource].visible;
-  const advancedHeight = showAdvanced
-    ? (showGridSource ? 5 : 4) * (FIELD_LABEL_HEIGHT + COMBO_HEIGHT + GAP) +
-      2 * (ROW_HEIGHT + GAP) +
-      showDitherExtra
-    : 0;
-  // Remove background checkbox is always reserved; mode + tolerance appear when checked.
-  const removeBgExtra = removeBg.enabled
-    ? ROW_HEIGHT +
-      GAP +
-      ROW_HEIGHT +
-      GAP +
-      (removeBg.mode === RemoveBackgroundMode.Manual ? ROW_HEIGHT + GAP : 0)
-    : 0;
   const dialogWidth = Math.min(DIALOG_WIDTH, Math.max(DIALOG_MIN_WIDTH, sceneBounds.width));
-  const dialogHeight = Math.min(
-    DIALOG_HEIGHT,
-    Math.max(DIALOG_MIN_HEIGHT, sceneBounds.height - 16),
-  );
+  const dialogHeight = Math.min(DIALOG_HEIGHT, Math.max(1, sceneBounds.height - 16));
   const bounds = {
     x: sceneBounds.x + Math.round((sceneBounds.width - dialogWidth) / 2),
     y: sceneBounds.y + Math.max(0, Math.round((sceneBounds.height - dialogHeight) / 2)),
@@ -243,6 +228,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       modal
       constrainToViewport
       scrollX={false}
+      scrollY={false}
       resizable={false}
       title={tUi("import.dialog.title")}
       bounds={bounds}
@@ -251,33 +237,22 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       }}
     >
       {({ clientBounds: client }) => {
-        // Both Pixelate and Keep as is reserve the hint and Advanced toggle rows, so toggling
-        // between them never resizes or moves the preview; Keep as is just leaves those rows empty.
-        // Advanced *fields* are excluded from the preview budget: they scroll inside the body.
-        const hintHeight = pixelateMessage ? HINT_HEIGHT + GAP : 0;
-        const advancedRowHeight = ROW_HEIGHT + GAP;
         const showDither = showAdvanced && workflow.pixelationOptions.reduceColors;
-        const collapsedBottom =
-          SECTION_HEIGHT +
-          4 +
-          OPTION_HEIGHT +
-          GAP +
-          hintHeight +
-          advancedRowHeight +
-          ROW_HEIGHT +
-          GAP +
-          ROW_HEIGHT +
-          GAP +
-          FOOTER_HEIGHT;
-        const previewHeight = Math.max(PREVIEW_MIN, client.height - collapsedBottom - GAP);
-        const contentHeight =
-          previewHeight + GAP + collapsedBottom + advancedHeight + removeBgExtra;
-        // A vertical track must not make the fixed-width plane spill sideways (dual scrollbars).
-        const width =
-          contentHeight > client.height + 0.5
-            ? Math.max(0, client.width - VERTICAL_SCROLLBAR_TRACK)
-            : client.width;
-        let y = previewHeight + GAP;
+        const previewHeight = Math.max(
+          PREVIEW_MIN,
+          Math.min(
+            PREVIEW_MAX,
+            Math.round(client.height * PREVIEW_SHARE),
+            client.height - FOOTER_STACK_HEIGHT - PARAMETER_MIN_HEIGHT - GAP * 2,
+          ),
+        );
+        const parameterTop = previewHeight + GAP;
+        const parameterHeight = Math.max(
+          0,
+          client.height - parameterTop - FOOTER_STACK_HEIGHT - GAP,
+        );
+        const width = parameterSize.width || Math.max(0, client.width - VERTICAL_SCROLLBAR_TRACK);
+        let y = 0;
         const at = (height: number, extra = 0) => {
           const top = y;
           y += height + extra;
@@ -311,11 +286,17 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
           removeBg.enabled && removeBg.mode === RemoveBackgroundMode.Manual
             ? at(ROW_HEIGHT, GAP)
             : null;
-        const rememberRow = at(ROW_HEIGHT, GAP);
-        const footerY = at(FOOTER_HEIGHT).y;
+        const parameterContentHeight = y;
+        const rememberRow = {
+          x: client.x,
+          y: client.y + client.height - FOOTER_STACK_HEIGHT,
+          width: client.width,
+          height: ROW_HEIGHT,
+        };
+        const footerY = rememberRow.y + ROW_HEIGHT + GAP;
         const buttonWidth = Math.min(
           BUTTON_WIDTH,
-          Math.max(72, Math.floor((width - BUTTON_GAP) / 2)),
+          Math.max(72, Math.floor((client.width - BUTTON_GAP) / 2)),
         );
         const option = (value: ImportAction, label: string, x: number, w: number) => (
           <Button
@@ -349,14 +330,14 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 position: "absolute",
                 left: 0,
                 top: 0,
-                width,
+                width: client.width,
                 height: previewHeight,
               }}
             >
               <ImportCompare
                 original={pending.pixels}
                 result={displayResult}
-                width={width}
+                width={client.width}
                 height={previewHeight}
                 comparing={showCompare}
                 updating={pixelate && workflow.pixelationPreviewing}
@@ -378,290 +359,317 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 }}
               />
             </div>
-            <Divider
-              text={tUi("import.dialog.result")}
-              bounds={sectionBounds}
-              relativeTo={client}
-            />
-            {option("pixelate", tUi("import.dialog.pixelate"), 0, half + 1)}
-            {option("import-as-is", tUi("import.dialog.import.as.is"), half, width - half)}
-            {message && hintBounds && (
-              <Text
-                variant={TextVariant.Control}
-                text={message}
-                wrap
-                bounds={hintBounds}
-                relativeTo={client}
-              />
-            )}
-            {pixelate && (
-              <Disclosure
-                title={tUi("import.dialog.advanced")}
-                open={showAdvanced}
-                onToggle={(event) => setAdvanced(event.currentTarget.open)}
-                className={styles.advanced}
-                style={{
-                  position: "absolute",
-                  left: 0,
-                  top: advancedRow.y - client.y,
-                  width,
-                  height: advancedRow.height,
-                }}
-              >
-                {null}
-              </Disclosure>
-            )}
-            {algorithmLabel && algorithmCombo && pickerLabel && pickerCombo && (
-              <>
-                <Text
-                  variant={TextVariant.Control}
-                  text={base[PixelationSlot.Algorithm].label ?? ""}
-                  bounds={algorithmLabel}
-                  relativeTo={client}
-                />
-                {base[PixelationSlot.Algorithm].render({
-                  bounds: algorithmCombo,
-                  relativeTo: client,
-                })}
-                {gridSourceLabel && gridSourceCombo && (
-                  <>
-                    <Text
-                      variant={TextVariant.Control}
-                      text={base[PixelationSlot.GridSource].label ?? ""}
-                      bounds={gridSourceLabel}
-                      relativeTo={client}
-                    />
-                    {base[PixelationSlot.GridSource].render({
-                      bounds: gridSourceCombo,
-                      relativeTo: client,
-                    })}
-                  </>
-                )}
-                <Text
-                  variant={TextVariant.Control}
-                  text={base[PixelationSlot.ColorPicker].label ?? ""}
-                  bounds={pickerLabel}
-                  relativeTo={client}
-                />
-                {base[PixelationSlot.ColorPicker].render({
-                  bounds: pickerCombo,
-                  relativeTo: client,
-                })}
-                {prepassLabel &&
-                  prepassCombo &&
-                  ([PixelationSlot.Prepass, PixelationSlot.LineGuide] as const).map(
-                    (slot, index) => {
-                      if (!base[slot].visible) return null;
-                      const half = Math.floor((prepassCombo.width - GAP) / 2);
-                      const x = index === 0 ? 0 : half + GAP;
-                      const w = index === 0 ? half : prepassCombo.width - half - GAP;
-                      return (
-                        <Fragment key={slot}>
-                          <Text
-                            variant={TextVariant.Control}
-                            text={base[slot].label ?? ""}
-                            bounds={{ ...prepassLabel, x: prepassLabel.x + x, width: w }}
-                            relativeTo={client}
-                          />
-                          {base[slot].render({
-                            bounds: { ...prepassCombo, x: prepassCombo.x + x, width: w },
-                            relativeTo: client,
-                          })}
-                        </Fragment>
-                      );
-                    },
-                  )}
-                {sizeLabel && sizeRow && (
-                  <>
-                    {([PixelationSlot.Width, PixelationSlot.Height] as const).map((slot, index) => {
-                      const half = Math.floor((sizeRow.width - SIZE_SEPARATOR) / 2);
-                      const x = index === 0 ? 0 : half + SIZE_SEPARATOR;
-                      const w = index === 0 ? half : sizeRow.width - half - SIZE_SEPARATOR;
-                      return (
-                        <Fragment key={slot}>
-                          <Text
-                            variant={TextVariant.Control}
-                            text={base[slot].label ?? ""}
-                            bounds={{ ...sizeLabel, x: sizeLabel.x + x, width: w }}
-                            relativeTo={client}
-                          />
-                          {base[slot].render({
-                            bounds: { ...sizeRow, x: sizeRow.x + x, width: w },
-                            relativeTo: client,
-                          })}
-                        </Fragment>
-                      );
-                    })}
-                    <Text
-                      variant={TextVariant.Control}
-                      text="×"
-                      bounds={{
-                        ...sizeRow,
-                        x: sizeRow.x + Math.floor((sizeRow.width - SIZE_SEPARATOR) / 2),
-                        width: SIZE_SEPARATOR,
-                        y: sizeRow.y + 8,
-                        height: 14,
-                      }}
-                      align={TextAlignment.Center}
-                      relativeTo={client}
-                    />
-                  </>
-                )}
-              </>
-            )}
-            {limitRow && (
-              <>
-                {base[PixelationSlot.LimitColors].render({
-                  bounds: { ...limitRow, width: Math.round(limitRow.width * LIMIT_SHARE) },
-                  relativeTo: client,
-                })}
-                {base[PixelationSlot.Colors].visible && (
-                  <>
-                    <Text
-                      variant={TextVariant.Control}
-                      text={base[PixelationSlot.Colors].label ?? ""}
-                      bounds={{
-                        ...limitRow,
-                        x: limitRow.x + Math.round(limitRow.width * LIMIT_SHARE) + GAP,
-                        width: Math.round(limitRow.width * COUNT_LABEL_SHARE),
-                      }}
-                      relativeTo={client}
-                    />
-                    {base[PixelationSlot.Colors].render({
-                      bounds: {
-                        ...limitRow,
-                        x:
-                          limitRow.x +
-                          Math.round(limitRow.width * (LIMIT_SHARE + COUNT_LABEL_SHARE)) +
-                          2 * GAP,
-                        width:
-                          limitRow.width -
-                          Math.round(limitRow.width * (LIMIT_SHARE + COUNT_LABEL_SHARE)) -
-                          2 * GAP,
-                      },
-                      relativeTo: client,
-                    })}
-                  </>
-                )}
-              </>
-            )}
-            {ditherLabel && ditherCombo && base[PixelationSlot.Dither].visible && (
-              <>
-                <Text
-                  variant={TextVariant.Control}
-                  text={base[PixelationSlot.Dither].label ?? ""}
-                  bounds={ditherLabel}
-                  relativeTo={client}
-                />
-                {base[PixelationSlot.Dither].render({
-                  bounds: ditherCombo,
-                  relativeTo: client,
-                })}
-              </>
-            )}
-            {noiseRow && (
-              <Checkbox
-                label={tUi("ui.remove.noise")}
-                checked={workflow.pixelationOptions.removeNoise}
-                disabled={workflow.busy}
-                onCheckedChange={(removeNoise) => workflow.setPixelationOptions({ removeNoise })}
-                bounds={noiseRow}
-                relativeTo={client}
-              />
-            )}
-            <Checkbox
-              label={tUi("import.dialog.remove.background")}
-              checked={removeBg.enabled}
-              onCheckedChange={(enabled) => {
-                setRemoveBg((prev) => ({ ...prev, enabled }));
-                if (!enabled) setPickingColor(false);
+            <ScrollArea
+              scrollX={false}
+              scrollY
+              reserveScrollbarGutter
+              viewportRef={parameterViewport}
+              viewportProps={{
+                role: "region",
+                "aria-label": tUi("ui.import.options"),
+                "data-ui-pixelation-fields": "",
               }}
-              bounds={removeBgRow}
-              relativeTo={client}
-            />
-            {removeModeRow && (
-              <>
-                <Checkbox
-                  mode={CheckboxMode.Radio}
-                  shape={CheckboxShape.Round}
-                  label={tUi("import.dialog.remove.background.auto")}
-                  checked={removeBg.mode === RemoveBackgroundMode.Auto}
-                  onCheckedChange={() => {
-                    setRemoveBg((prev) => ({ ...prev, mode: RemoveBackgroundMode.Auto }));
-                    setPickingColor(false);
-                  }}
-                  bounds={{ ...removeModeRow, width: Math.floor(removeModeRow.width / 2) }}
-                  relativeTo={client}
-                />
-                <Checkbox
-                  mode={CheckboxMode.Radio}
-                  shape={CheckboxShape.Round}
-                  label={tUi("import.dialog.remove.background.manual")}
-                  checked={removeBg.mode === RemoveBackgroundMode.Manual}
-                  onCheckedChange={() =>
-                    setRemoveBg((prev) => ({
-                      ...prev,
-                      mode: RemoveBackgroundMode.Manual,
-                      keyColor: prev.keyColor,
-                    }))
-                  }
-                  bounds={{
-                    ...removeModeRow,
-                    x: removeModeRow.x + Math.floor(removeModeRow.width / 2),
-                    width: Math.ceil(removeModeRow.width / 2),
-                  }}
-                  relativeTo={client}
-                />
-              </>
-            )}
-            {removeTolRow && (
-              <>
+              style={{
+                position: "absolute",
+                left: 0,
+                top: parameterTop,
+                width: client.width,
+                height: parameterHeight,
+              }}
+              contentStyle={{
+                width: "100%",
+                height: parameterContentHeight,
+                minWidth: 0,
+                minHeight: 0,
+              }}
+            >
+              <Divider
+                text={tUi("import.dialog.result")}
+                bounds={sectionBounds}
+                relativeTo={client}
+              />
+              {option("pixelate", tUi("import.dialog.pixelate"), 0, half + 1)}
+              {option("import-as-is", tUi("import.dialog.import.as.is"), half, width - half)}
+              {message && hintBounds && (
                 <Text
                   variant={TextVariant.Control}
-                  text={tUi("import.dialog.remove.background.tolerance")}
-                  bounds={{
-                    ...removeTolRow,
-                    width: Math.round(removeTolRow.width * 0.4),
-                  }}
+                  text={message}
+                  wrap
+                  bounds={hintBounds}
                   relativeTo={client}
                 />
-                <Slider
-                  aria-label={tUi("import.dialog.remove.background.tolerance")}
-                  bounds={{
-                    ...removeTolRow,
-                    x: removeTolRow.x + Math.round(removeTolRow.width * 0.4) + GAP,
-                    width: removeTolRow.width - Math.round(removeTolRow.width * 0.4) - GAP,
+              )}
+              {pixelate && (
+                <Disclosure
+                  title={tUi("import.dialog.advanced")}
+                  open={showAdvanced}
+                  onToggle={(event) => setAdvanced(event.currentTarget.open)}
+                  className={styles.advanced}
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    top: advancedRow.y - client.y,
+                    width,
+                    height: advancedRow.height,
                   }}
+                >
+                  {null}
+                </Disclosure>
+              )}
+              {algorithmLabel && algorithmCombo && pickerLabel && pickerCombo && (
+                <>
+                  <Text
+                    variant={TextVariant.Control}
+                    text={base[PixelationSlot.Algorithm].label ?? ""}
+                    bounds={algorithmLabel}
+                    relativeTo={client}
+                  />
+                  {base[PixelationSlot.Algorithm].render({
+                    bounds: algorithmCombo,
+                    relativeTo: client,
+                  })}
+                  {gridSourceLabel && gridSourceCombo && (
+                    <>
+                      <Text
+                        variant={TextVariant.Control}
+                        text={base[PixelationSlot.GridSource].label ?? ""}
+                        bounds={gridSourceLabel}
+                        relativeTo={client}
+                      />
+                      {base[PixelationSlot.GridSource].render({
+                        bounds: gridSourceCombo,
+                        relativeTo: client,
+                      })}
+                    </>
+                  )}
+                  <Text
+                    variant={TextVariant.Control}
+                    text={base[PixelationSlot.ColorPicker].label ?? ""}
+                    bounds={pickerLabel}
+                    relativeTo={client}
+                  />
+                  {base[PixelationSlot.ColorPicker].render({
+                    bounds: pickerCombo,
+                    relativeTo: client,
+                  })}
+                  {prepassLabel &&
+                    prepassCombo &&
+                    ([PixelationSlot.Prepass, PixelationSlot.LineGuide] as const).map(
+                      (slot, index) => {
+                        if (!base[slot].visible) return null;
+                        const half = Math.floor((prepassCombo.width - GAP) / 2);
+                        const x = index === 0 ? 0 : half + GAP;
+                        const w = index === 0 ? half : prepassCombo.width - half - GAP;
+                        return (
+                          <Fragment key={slot}>
+                            <Text
+                              variant={TextVariant.Control}
+                              text={base[slot].label ?? ""}
+                              bounds={{ ...prepassLabel, x: prepassLabel.x + x, width: w }}
+                              relativeTo={client}
+                            />
+                            {base[slot].render({
+                              bounds: { ...prepassCombo, x: prepassCombo.x + x, width: w },
+                              relativeTo: client,
+                            })}
+                          </Fragment>
+                        );
+                      },
+                    )}
+                  {sizeLabel && sizeRow && (
+                    <>
+                      {([PixelationSlot.Width, PixelationSlot.Height] as const).map(
+                        (slot, index) => {
+                          const half = Math.floor((sizeRow.width - SIZE_SEPARATOR) / 2);
+                          const x = index === 0 ? 0 : half + SIZE_SEPARATOR;
+                          const w = index === 0 ? half : sizeRow.width - half - SIZE_SEPARATOR;
+                          return (
+                            <Fragment key={slot}>
+                              <Text
+                                variant={TextVariant.Control}
+                                text={base[slot].label ?? ""}
+                                bounds={{ ...sizeLabel, x: sizeLabel.x + x, width: w }}
+                                relativeTo={client}
+                              />
+                              {base[slot].render({
+                                bounds: { ...sizeRow, x: sizeRow.x + x, width: w },
+                                relativeTo: client,
+                              })}
+                            </Fragment>
+                          );
+                        },
+                      )}
+                      <Text
+                        variant={TextVariant.Control}
+                        text="×"
+                        bounds={{
+                          ...sizeRow,
+                          x: sizeRow.x + Math.floor((sizeRow.width - SIZE_SEPARATOR) / 2),
+                          width: SIZE_SEPARATOR,
+                          y: sizeRow.y + 8,
+                          height: 14,
+                        }}
+                        align={TextAlignment.Center}
+                        relativeTo={client}
+                      />
+                    </>
+                  )}
+                </>
+              )}
+              {limitRow && (
+                <>
+                  {base[PixelationSlot.LimitColors].render({
+                    bounds: { ...limitRow, width: Math.round(limitRow.width * LIMIT_SHARE) },
+                    relativeTo: client,
+                  })}
+                  {base[PixelationSlot.Colors].visible && (
+                    <>
+                      <Text
+                        variant={TextVariant.Control}
+                        text={base[PixelationSlot.Colors].label ?? ""}
+                        bounds={{
+                          ...limitRow,
+                          x: limitRow.x + Math.round(limitRow.width * LIMIT_SHARE) + GAP,
+                          width: Math.round(limitRow.width * COUNT_LABEL_SHARE),
+                        }}
+                        relativeTo={client}
+                      />
+                      {base[PixelationSlot.Colors].render({
+                        bounds: {
+                          ...limitRow,
+                          x:
+                            limitRow.x +
+                            Math.round(limitRow.width * (LIMIT_SHARE + COUNT_LABEL_SHARE)) +
+                            2 * GAP,
+                          width:
+                            limitRow.width -
+                            Math.round(limitRow.width * (LIMIT_SHARE + COUNT_LABEL_SHARE)) -
+                            2 * GAP,
+                        },
+                        relativeTo: client,
+                      })}
+                    </>
+                  )}
+                </>
+              )}
+              {ditherLabel && ditherCombo && base[PixelationSlot.Dither].visible && (
+                <>
+                  <Text
+                    variant={TextVariant.Control}
+                    text={base[PixelationSlot.Dither].label ?? ""}
+                    bounds={ditherLabel}
+                    relativeTo={client}
+                  />
+                  {base[PixelationSlot.Dither].render({
+                    bounds: ditherCombo,
+                    relativeTo: client,
+                  })}
+                </>
+              )}
+              {noiseRow && (
+                <Checkbox
+                  label={tUi("ui.remove.noise")}
+                  checked={workflow.pixelationOptions.removeNoise}
+                  disabled={workflow.busy}
+                  onCheckedChange={(removeNoise) => workflow.setPixelationOptions({ removeNoise })}
+                  bounds={noiseRow}
                   relativeTo={client}
-                  value={removeBg.tolerance}
-                  min={0}
-                  max={120}
-                  label={
-                    removeBg.mode === RemoveBackgroundMode.Auto
-                      ? tUi("import.dialog.remove.background.auto.tol")
-                      : String(removeBg.tolerance)
-                  }
-                  disabled={removeBg.mode === RemoveBackgroundMode.Auto}
-                  onValueChange={(tolerance) => setRemoveBg((prev) => ({ ...prev, tolerance }))}
                 />
-              </>
-            )}
-            {removePickRow && (
-              <Button
-                text={
-                  pickingColor
-                    ? tUi("import.dialog.remove.background.picking")
-                    : tUi("import.dialog.remove.background.pick")
-                }
-                font={FontRole.Compact}
-                part="button_normal"
-                hotPart="button_hot"
-                bounds={removePickRow}
+              )}
+              <Checkbox
+                label={tUi("import.dialog.remove.background")}
+                checked={removeBg.enabled}
+                onCheckedChange={(enabled) => {
+                  setRemoveBg((prev) => ({ ...prev, enabled }));
+                  if (!enabled) setPickingColor(false);
+                }}
+                bounds={removeBgRow}
                 relativeTo={client}
-                selected={pickingColor}
-                onClick={() => setPickingColor((on) => !on)}
               />
-            )}
+              {removeModeRow && (
+                <>
+                  <Checkbox
+                    mode={CheckboxMode.Radio}
+                    shape={CheckboxShape.Round}
+                    label={tUi("import.dialog.remove.background.auto")}
+                    checked={removeBg.mode === RemoveBackgroundMode.Auto}
+                    onCheckedChange={() => {
+                      setRemoveBg((prev) => ({ ...prev, mode: RemoveBackgroundMode.Auto }));
+                      setPickingColor(false);
+                    }}
+                    bounds={{ ...removeModeRow, width: Math.floor(removeModeRow.width / 2) }}
+                    relativeTo={client}
+                  />
+                  <Checkbox
+                    mode={CheckboxMode.Radio}
+                    shape={CheckboxShape.Round}
+                    label={tUi("import.dialog.remove.background.manual")}
+                    checked={removeBg.mode === RemoveBackgroundMode.Manual}
+                    onCheckedChange={() =>
+                      setRemoveBg((prev) => ({
+                        ...prev,
+                        mode: RemoveBackgroundMode.Manual,
+                        keyColor: prev.keyColor,
+                      }))
+                    }
+                    bounds={{
+                      ...removeModeRow,
+                      x: removeModeRow.x + Math.floor(removeModeRow.width / 2),
+                      width: Math.ceil(removeModeRow.width / 2),
+                    }}
+                    relativeTo={client}
+                  />
+                </>
+              )}
+              {removeTolRow && (
+                <>
+                  <Text
+                    variant={TextVariant.Control}
+                    text={tUi("import.dialog.remove.background.tolerance")}
+                    bounds={{
+                      ...removeTolRow,
+                      width: Math.round(removeTolRow.width * 0.4),
+                    }}
+                    relativeTo={client}
+                  />
+                  <Slider
+                    aria-label={tUi("import.dialog.remove.background.tolerance")}
+                    bounds={{
+                      ...removeTolRow,
+                      x: removeTolRow.x + Math.round(removeTolRow.width * 0.4) + GAP,
+                      width: removeTolRow.width - Math.round(removeTolRow.width * 0.4) - GAP,
+                    }}
+                    relativeTo={client}
+                    value={removeBg.tolerance}
+                    min={0}
+                    max={120}
+                    label={
+                      removeBg.mode === RemoveBackgroundMode.Auto
+                        ? tUi("import.dialog.remove.background.auto.tol")
+                        : String(removeBg.tolerance)
+                    }
+                    disabled={removeBg.mode === RemoveBackgroundMode.Auto}
+                    onValueChange={(tolerance) => setRemoveBg((prev) => ({ ...prev, tolerance }))}
+                  />
+                </>
+              )}
+              {removePickRow && (
+                <Button
+                  text={
+                    pickingColor
+                      ? tUi("import.dialog.remove.background.picking")
+                      : tUi("import.dialog.remove.background.pick")
+                  }
+                  font={FontRole.Compact}
+                  part="button_normal"
+                  hotPart="button_hot"
+                  bounds={removePickRow}
+                  relativeTo={client}
+                  selected={pickingColor}
+                  onClick={() => setPickingColor((on) => !on)}
+                />
+              )}
+            </ScrollArea>
             <Checkbox
               label={tUi("import.dialog.remember")}
               checked={rememberChoice}
@@ -679,7 +687,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
               pushedPart="button_selected"
               disabled={!canImport}
               bounds={{
-                x: client.x + width - 2 * buttonWidth - BUTTON_GAP,
+                x: client.x + client.width - 2 * buttonWidth - BUTTON_GAP,
                 y: footerY,
                 width: buttonWidth,
                 height: FOOTER_HEIGHT,
@@ -695,7 +703,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
               focusedPart="button_focused"
               pushedPart="button_selected"
               bounds={{
-                x: client.x + width - buttonWidth,
+                x: client.x + client.width - buttonWidth,
                 y: footerY,
                 width: buttonWidth,
                 height: FOOTER_HEIGHT,

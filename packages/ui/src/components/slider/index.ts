@@ -5,4 +5,8 @@ export {
   SliderRendering,
   SliderValueFormat,
 } from "$/components/slider/types";
-export type { BrowserRangeSliderProps, SliderProps } from "$/components/slider/types";
+export type {
+  BrowserRangeSliderProps,
+  FilmstripSliderProps,
+  SliderProps,
+} from "$/components/slider/types";

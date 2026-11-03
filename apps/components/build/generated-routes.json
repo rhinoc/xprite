@@ -40,5 +40,6 @@
   "/components/pattern",
   "/components/pixel-image",
   "/components/color-selector",
-  "/components/create-ui-portal"
+  "/components/create-ui-portal",
+  "/components/progress-bar"
 ]

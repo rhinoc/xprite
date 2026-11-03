@@ -13,6 +13,7 @@ import {
 } from "$/managers/editor/editor-view-transition";
 import { useEditorSnapshot } from "$/managers/editor/use-editor-snapshot";
 import { useFeedback } from "$/managers/feedback/use-feedback";
+import { VideoImportStage } from "$/managers/files/video-import-manager";
 import { useWheelDevice, WheelDevice } from "$/managers/input/wheel-device-context";
 import { useEditorPaletteModel } from "$/managers/palette/editor-palette-model";
 import { readPalettePresets } from "$/managers/palette/presets";
@@ -158,6 +159,11 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     workspace.getSnapshot,
   );
   const session = active.session;
+  const videoImport = useSyncExternalStore(
+    workspace.videoImport.subscribe,
+    workspace.videoImport.getSnapshot,
+    workspace.videoImport.getSnapshot,
+  );
   const {
     device: wheelDevice,
     setDevice: setWheelDevice,
@@ -428,6 +434,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     ...(deleteRecoveryIds ? [InteractionBlocker.DeleteRecoveryDialog] : []),
     ...(deleteBrowserCopyItem ? [InteractionBlocker.DeleteBrowserCopyDialog] : []),
     ...(sequenceImport ? [InteractionBlocker.SequenceImportDialog] : []),
+    ...(videoImport.stage !== VideoImportStage.Idle ? [InteractionBlocker.VideoImportDialog] : []),
     ...(pending ? [InteractionBlocker.ImportConfirmation] : []),
     ...(replacement ? [InteractionBlocker.ReplacementConfirmation] : []),
     ...(error ? [InteractionBlocker.ErrorDialog] : []),
@@ -1759,6 +1766,8 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     activation,
     exitCount,
     requestImport,
+    videoImport,
+    videoImportManager: workspace.videoImport,
     sequenceImport,
     sequenceDuration,
     setSequenceDuration,

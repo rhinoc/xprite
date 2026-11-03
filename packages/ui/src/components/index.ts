@@ -51,4 +51,5 @@ export * from "$/components/curve-editor";
 export * from "$/components/color-selector";
 
 export * from "$/components/pixel-image";
+export * from "$/components/progress-bar";
 export * from "$/components/status-bar";

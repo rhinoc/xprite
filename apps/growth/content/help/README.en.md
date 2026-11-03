@@ -42,6 +42,7 @@ To delete a browser copy, close the project first, then open its menu in **Recen
 - Aseprite projects (`.ase`, `.aseprite`), with their layers, frames and tags.
 - Images such as PNG and JPEG, in any format your browser can decode.
 - Animated GIF and WebP, with each frame imported as a frame.
+- Videos such as MP4, MOV and WebM: drag the timeline handles to select a range and press Play to preview it. Set the frame rate and size, then import the animation. Audio is not imported; supported codecs depend on your browser.
 
 To open a sprite sheet, use **File → Import Sprite Sheet** and set the frame bounds so Xprite can find each frame.
 

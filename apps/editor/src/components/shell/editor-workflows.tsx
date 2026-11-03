@@ -18,6 +18,7 @@ import { useTimelineActions } from "$/components/timeline/timeline-actions";
 import { TilemapDialog } from "$/components/tools/tilemap-controls";
 import { tUi } from "$/i18n";
 import { ClipboardRegion } from "$/managers/clipboard";
+import { VideoImportStage } from "$/managers/files/video-import-manager";
 import { useEditorPreferences } from "$/managers/preferences/use-editor-preferences";
 import { formatEditorColor } from "$/managers/tools/color-control";
 import {
@@ -36,6 +37,11 @@ import styles from "$/components/shell/editor-workflows.module.css";
 const NewSpriteDialog = lazyChunk(() =>
   import("$/components/dialogs/new-sprite-dialog").then((module) => ({
     default: module.NewSpriteDialog,
+  })),
+);
+const VideoImportDialog = lazyChunk(() =>
+  import("$/components/dialogs/video-import").then((module) => ({
+    default: module.VideoImportDialog,
   })),
 );
 const preferencesDialog = preloadableLazy(() =>
@@ -228,6 +234,8 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
     canSaveErrorAs,
     saveErrorAs,
     requestImport,
+    videoImport,
+    videoImportManager,
     sequenceImport,
     sequenceDuration,
     setSequenceDuration,
@@ -315,6 +323,7 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
         deleteBrowserCopyItem ||
         newDialog ||
         sequenceImport ||
+        videoImport.stage !== VideoImportStage.Idle ||
         pending ||
         replacement ||
         error ||
@@ -339,6 +348,11 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
           }}
         />
         {children}
+        {videoImport.stage !== VideoImportStage.Idle && (
+          <Suspense fallback={null}>
+            <VideoImportDialog manager={videoImportManager} onCancel={cancelFileImport} />
+          </Suspense>
+        )}
         <FormDialog
           open={!!sequenceImport}
           onOpenChange={(open) => {
@@ -751,20 +765,22 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
           message="Your document is closed. This browser cannot close a user-opened tab; use the browser tab's close control to exit."
           actions={[{ label: "OK", onClick: () => setExitNotice(false) }]}
         />
-        {(busy || workspaceSnapshot.importBatch) && !(pending && !error) && (
-          <div className={styles.busy}>
-            <span role="status">
-              <Text variant={TextVariant.Inline} scale={2}>
-                {workspaceSnapshot.importBatch
-                  ? tUi("ui.import.batch.progress", workspaceSnapshot.importBatch)
-                  : tUi("ui.reading.image")}
-              </Text>
-            </span>
-            {workspaceSnapshot.importBatch && (
-              <Button onClick={cancelFileImport}>{tUi("ui.import.batch.cancel")}</Button>
-            )}
-          </div>
-        )}
+        {(busy || workspaceSnapshot.importBatch) &&
+          !(pending && !error) &&
+          videoImport.stage === VideoImportStage.Idle && (
+            <div className={styles.busy}>
+              <span role="status">
+                <Text variant={TextVariant.Inline} scale={2}>
+                  {workspaceSnapshot.importBatch
+                    ? tUi("ui.import.batch.progress", workspaceSnapshot.importBatch)
+                    : tUi("ui.reading.image")}
+                </Text>
+              </span>
+              {workspaceSnapshot.importBatch && (
+                <Button onClick={cancelFileImport}>{tUi("ui.import.batch.cancel")}</Button>
+              )}
+            </div>
+          )}
       </EditorActionsContext.Provider>
     </TooltipProvider>
   );

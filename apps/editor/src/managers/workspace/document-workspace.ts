@@ -7,6 +7,8 @@ import {
   type DocumentExportPreferences,
   type ExportRecord,
 } from "$/managers/files/export-preferences";
+import { VideoImportManager } from "$/managers/files/video-import-manager";
+import { videoProjectFileName } from "$/managers/files/video-import-plan";
 import { CanvasPointerController } from "$/managers/input/controllers/pointer-controller";
 import {
   WorkspaceDiagnosticAction,
@@ -236,6 +238,7 @@ function snapshotByteLength(value: unknown, seen = new WeakSet<object>()): numbe
 /** Owns document views. Linked views share content, history and IO while keeping
  * their own canvas and active-cel state. */
 export class DocumentWorkspace {
+  readonly videoImport: VideoImportManager;
   readonly clipboard = new ImageClipboard();
   readonly shortcuts: ShortcutManager;
   readonly effectPreferences: EffectDialogPreferences;
@@ -363,6 +366,7 @@ export class DocumentWorkspace {
     onSessionError,
   }: DocumentWorkspaceDependencies) {
     this.ports = ports;
+    this.videoImport = new VideoImportManager(ports.videoImport);
     // Document and bootstrap sessions borrow these resources; only the workspace disposes them.
     this.sessionPorts = {
       listRecentImages: ports.listRecentImages?.bind(ports),
@@ -2242,9 +2246,17 @@ export class DocumentWorkspace {
         this.notify();
         try {
           if (item.kind === FileImportKind.Document) {
-            const opening = this.openSource(item.source);
-            this.importSlot = this.active;
-            await Promise.race([opening, aborted]);
+            if (this.videoImport.isVideoSource(item.source.source)) {
+              const project = await this.videoImport.request(item.source, controller.signal);
+              if (controller.signal.aborted) break;
+              if (!project) continue;
+              this.createDocumentFromProject(project, videoProjectFileName(item.source.name));
+              this.importSlot = this.active;
+            } else {
+              const opening = this.openSource(item.source);
+              this.importSlot = this.active;
+              await Promise.race([opening, aborted]);
+            }
           } else {
             const source = this.ports.registerProject(item.name, () =>
               this.decodePngSequence(item, controller.signal),

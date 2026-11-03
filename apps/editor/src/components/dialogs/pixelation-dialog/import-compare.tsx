@@ -23,7 +23,13 @@ import { CanvasPinchZoomController } from "$/managers/canvas/canvas-manager";
 import { clampCanvasPan, documentToScreen, stepZoom } from "$/managers/canvas/canvas-presentation";
 import { EditorWheelAction, wheelZoomSteps } from "$/managers/input/use-wheel-input";
 import { useTouchInputPreferences } from "$/managers/preferences/use-touch-input-preferences";
-import { Combobox, ScrollbarStyle, ScrollbarThumb, type CanvasPixelSource } from "@xprite/ui";
+import {
+  Combobox,
+  ProgressBar,
+  ScrollbarStyle,
+  ScrollbarThumb,
+  type CanvasPixelSource,
+} from "@xprite/ui";
 import { clientPoint, clientRect } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/pixelation-dialog/import-compare.module.css";
@@ -356,7 +362,7 @@ export function ImportCompare({
             />
           )}
           {comparing && updating && (
-            <div className={styles.progress} role="progressbar" aria-label={labels.preparing} />
+            <ProgressBar className={styles.progress} label={labels.preparing} />
           )}
           {comparing && (
             <div

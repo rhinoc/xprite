@@ -80,6 +80,7 @@ export enum InteractionBlocker {
   DeleteRecoveryDialog = "delete-recovery-dialog",
   DeleteBrowserCopyDialog = "delete-browser-copy-dialog",
   SequenceImportDialog = "sequence-import-dialog",
+  VideoImportDialog = "video-import-dialog",
   ImportConfirmation = "import-confirmation",
   ReplacementConfirmation = "replacement-confirmation",
   ErrorDialog = "error-dialog",

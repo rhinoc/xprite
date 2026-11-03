@@ -166,6 +166,9 @@ importers:
       fflate:
         specifier: ^0.8.3
         version: 0.8.3
+      mediabunny:
+        specifier: 1.65.0
+        version: 1.65.0
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1833,6 +1836,12 @@ packages:
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
+  '@types/dom-mediacapture-transform@0.1.12':
+    resolution: {integrity: sha512-d7/QsLRwF864A5mgIM/YrfiglHoYn7zgCcAoJgW404r+2DwnNr7EBbLnCWpmOMgH8y0te73L1AV6H1bmauaWFw==}
+
+  '@types/dom-webcodecs@0.1.13':
+    resolution: {integrity: sha512-O5hkiFIcjjszPIYyUSyvScyvrBoV3NOEEZx/pMlsu44TKzWNkLVBBxnxJz42in5n3QIolYOcBYFCPZZ0h8SkwQ==}
+
   '@types/estree@1.0.9':
     resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
 
@@ -2963,6 +2972,9 @@ packages:
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
+
+  mediabunny@1.65.0:
+    resolution: {integrity: sha512-TNnDNOmD5Fme4rwMGWuNv485a9iQwd9lgw88PI9zQ0FMnzEUoo6EJpG7ZhdJ2iwZFWo8AzNkP1KPq5IAHaktKw==}
 
   merge-stream@2.0.0:
     resolution: {integrity: sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==}
@@ -4742,6 +4754,12 @@ snapshots:
 
   '@types/deep-eql@4.0.2': {}
 
+  '@types/dom-mediacapture-transform@0.1.12':
+    dependencies:
+      '@types/dom-webcodecs': 0.1.13
+
+  '@types/dom-webcodecs@0.1.13': {}
+
   '@types/estree@1.0.9': {}
 
   '@types/json-schema@7.0.15': {}
@@ -5841,6 +5859,11 @@ snapshots:
   marked@18.0.14: {}
 
   math-intrinsics@1.1.0: {}
+
+  mediabunny@1.65.0:
+    dependencies:
+      '@types/dom-mediacapture-transform': 0.1.12
+      '@types/dom-webcodecs': 0.1.13
 
   merge-stream@2.0.0: {}
 
