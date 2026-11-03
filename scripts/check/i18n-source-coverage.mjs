@@ -66,6 +66,13 @@ const sourceExceptions = new Map([
     ]),
   ],
   [
+    "apps/editor/src/adapters/workers/aseprite-import-client.ts",
+    new Set([
+      // Stale-build report for diagnostics; the user sees ui.pwa.worker.load.failed.
+      "The Aseprite import worker script could not be loaded",
+    ]),
+  ],
+  [
     "apps/editor/src/adapters/workers/recovery-codec-client.ts",
     new Set([
       "Provide worker or workerFactory, not both",

@@ -7,7 +7,8 @@ export interface WorkerJobOptions<Request, Response, Result> {
   signal?: AbortSignal;
   timeoutMs: number;
   timeoutError: () => Error;
-  transportError: () => Error;
+  /** Browser `error` / `messageerror`, or a synthetic `error` when postMessage throws. */
+  transportError: (event: Event) => Error;
   /** Decode the protocol result, throwing for a reported operation failure. */
   readResponse: (response: Response) => Result;
 }
@@ -71,15 +72,15 @@ function startWorkerJob<Request, Response, Result>(
     };
     worker.onerror = (event) => {
       event.preventDefault();
-      fail(options.transportError());
+      fail(options.transportError(event));
     };
-    worker.onmessageerror = () => fail(options.transportError());
+    worker.onmessageerror = (event) => fail(options.transportError(event));
     signal?.addEventListener("abort", abort, { once: true });
     timeout = setTimeout(() => fail(options.timeoutError()), options.timeoutMs);
     try {
       worker.postMessage(options.request, [...(options.transfer ?? [])]);
     } catch {
-      fail(options.transportError());
+      fail(options.transportError(new Event("error")));
     }
   });
   return { result, cancel: () => cancel() };

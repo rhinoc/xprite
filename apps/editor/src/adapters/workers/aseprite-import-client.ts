@@ -2,7 +2,9 @@ import type {
   AsepriteImportRequest,
   AsepriteImportResponse,
 } from "$/adapters/workers/aseprite-import-protocol";
+import { workerLoadFailed } from "$/adapters/workers/worker-load-failure";
 import { runWorkerJob } from "@xprite/bedrock/browser/worker-job";
+import { isOpaqueWorkerError } from "@xprite/bedrock/browser/worker-request-channel";
 import { markImmutableEditorProject } from "@xprite/editor-core/document";
 import { AsepriteCodecError } from "@xprite/editor-core/import-export";
 import type { SessionProject } from "@xprite/editor-core/session";
@@ -39,7 +41,13 @@ export function importAsepriteInWorker(
     signal,
     timeoutMs: IMPORT_TIMEOUT_MS,
     timeoutError: () => new Error("Opening this project took too long."),
-    transportError: () => new Error("Unable to open Aseprite project."),
+    transportError: (event) =>
+      // A bare error Event (no message/file) is the browser's signal that the worker script,
+      // or a module it imports, could not be fetched — usually a tab whose release was replaced.
+      // Announce it like a stale chunk and let decodeAsepriteBlob fall back to the main thread.
+      isOpaqueWorkerError(event)
+        ? workerLoadFailed("The Aseprite import worker script could not be loaded")
+        : new Error("Unable to open Aseprite project."),
     readResponse(data) {
       if (!data.ok) throw new AsepriteCodecError(data.message, data.issues, data.details);
       return markImmutableEditorProject(data.project);

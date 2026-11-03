@@ -48,7 +48,7 @@ afterEach(() => {
 });
 
 describe("workers whose script could not load", () => {
-  it("announce a stale build and reject with a reload message instead of a worker crash", async () => {
+  it("announce a stale build and keep packing on the main thread instead of crashing", async () => {
     const announced = listenForChunkFailures();
     const worker = new SilentWorker();
     const fatal: Error[] = [];
@@ -59,19 +59,18 @@ describe("workers whose script could not load", () => {
     const pending = client.packRecent(recentSnapshot());
     // A 404 worker script, or one whose imported module is missing, fires a bare `error` Event.
     worker.dispatchEvent(new Event("error"));
-    await assert.rejects(pending, (error: Error) => {
-      assert.equal(error.name, WORKER_LOAD_ERROR_NAME);
-      assert.match(error.message, /Reload the page to continue/);
-      return true;
-    });
+    const packed = await pending;
+    assert.equal(typeof packed, "object");
     assert.equal(fatal.length, 1);
     assert.equal(fatal[0].name, WORKER_LOAD_ERROR_NAME);
+    assert.match(fatal[0].message, /Reload the page to continue/);
     assert.equal(announced.length, 1);
     assert.equal((announced[0] as Error).name, WORKER_LOAD_ERROR_NAME);
     assert.match(
       (announced[0] as Error).message,
       /recovery codec worker script could not be loaded/,
     );
+    assert.equal(worker.terminated, true);
     client.close();
   });
 
