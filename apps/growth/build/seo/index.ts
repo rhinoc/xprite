@@ -9,12 +9,14 @@ import { ARTICLE_COLLECTIONS } from "../../content/articles/index.ts";
 import { FEATURES_PATH } from "../../content/features/index.ts";
 import { GUIDE_PAGES } from "../../content/help/pages.ts";
 import { SHOWCASE_PAGES } from "../../content/showcase/pages.ts";
+import { faqPageSchema } from "../../content/site/faq.ts";
 import {
   localizedSiteHref,
   PUBLIC_LANGUAGES,
   PublicLanguage,
 } from "../../content/site/language.ts";
 import { TOOLS, translateToolText, type PublicTool } from "../../content/tools/index.ts";
+import { TOOL_SEO_COPY, toolFaqEntries, toolSeoCopy } from "../../content/tools/seo-copy.ts";
 
 const SITE_URL = "https://xprite.cc/";
 const SOCIAL_IMAGE_URL = new URL("social-preview.png", SITE_URL).href;
@@ -41,7 +43,10 @@ const STARTUP_COPY_CLOSE_PATTERN = /(<section class="xse-startup-copy">[\s\S]*?)
  */
 function editorNoscriptSummary(): string {
   const links = [
-    { href: SHOWCASE_PAGES[PublicLanguage.English].path, label: "About Xprite" },
+    {
+      href: SHOWCASE_PAGES[PublicLanguage.English].path,
+      label: "About Xprite",
+    },
     { href: FEATURES_PATH, label: "Features" },
     { href: GUIDE_PAGES[PublicLanguage.English].path, label: "User guide" },
     ...TOOLS.map((tool) => ({ href: tool.path, label: tool.label })),
@@ -66,7 +71,10 @@ function editorNoscriptSummary(): string {
 /** The editor is the site root, so it also carries the site and publisher entities. */
 export function editorSearchMetadata(version?: string) {
   const { "@context": context, ...application } = editorApplicationMetadata(version);
-  return { "@context": context, "@graph": [...siteIdentityMetadata(), application] };
+  return {
+    "@context": context,
+    "@graph": [...siteIdentityMetadata(), application],
+  };
 }
 
 export function applyPageSearchMetadata(html: string, indexable: boolean): string {
@@ -128,7 +136,6 @@ export function applyToolSearchMetadata(
     )
     .join("\n");
   const application = {
-    "@context": "https://schema.org",
     "@type": "WebApplication",
     "@id": `${url}#application`,
     name: translateToolText(tool.name, language),
@@ -143,11 +150,23 @@ export function applyToolSearchMetadata(
     isAccessibleForFree: true,
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
   };
+  const seoCopy = TOOL_SEO_COPY[tool.path];
+  const faq = seoCopy
+    ? faqPageSchema(toolFaqEntries(toolSeoCopy(seoCopy, language)), {
+        url,
+        language,
+      })
+    : undefined;
+  const schema = JSON.stringify(
+    faq
+      ? { "@context": "https://schema.org", "@graph": [application, faq] }
+      : { "@context": "https://schema.org", ...application },
+  );
   return content
     .replace(CANONICAL_ELEMENT_PATTERN, "")
     .replace(
       HEAD_CLOSE_PATTERN,
-      `<link rel="canonical" href="${url}">\n${alternates}\n<script type="application/ld+json">${JSON.stringify(application).replaceAll("<", "\\u003c")}</script>\n</head>`,
+      `<link rel="canonical" href="${url}">\n${alternates}\n<script type="application/ld+json">${schema.replaceAll("<", "\\u003c")}</script>\n</head>`,
     );
 }
 
