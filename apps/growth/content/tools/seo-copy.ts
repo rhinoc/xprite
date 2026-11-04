@@ -32,7 +32,7 @@ export function toolFaqEntries(copy: ToolSeoCopy) {
   }));
 }
 
-export const VIEWER_SEO_COPY: ToolSeoCopySet = {
+const VIEWER_SEO_COPY: ToolSeoCopySet = {
   [PublicLanguage.English]: {
     introduction: [
       "Turning a photo into pixel art? Use the free ",
@@ -129,7 +129,7 @@ export const VIEWER_SEO_COPY: ToolSeoCopySet = {
   },
 };
 
-export const PIXELATE_SEO_COPY: ToolSeoCopySet = {
+const PIXELATE_SEO_COPY: ToolSeoCopySet = {
   [PublicLanguage.English]: {
     introduction: [
       "Free image to pixel art converter—photo or drawing to pixel art, no upload, then Edit more in Xprite. Already have soft or off-grid AI pixel art? ",
@@ -509,7 +509,7 @@ export const PIXELATE_SEO_COPY: ToolSeoCopySet = {
   },
 };
 
-export const FIX_AI_SEO_COPY: ToolSeoCopySet = {
+const FIX_AI_SEO_COPY: ToolSeoCopySet = {
   [PublicLanguage.English]: {
     introduction: [
       "Soft or off-grid AI pixel art is not on a true grid—Recover Grid snaps it to real pixels, no upload. For a photo or drawing, use ",
@@ -568,7 +568,7 @@ export const FIX_AI_SEO_COPY: ToolSeoCopySet = {
   },
 };
 
-export const GIF_SHEET_SEO_COPY: ToolSeoCopySet = {
+const GIF_SHEET_SEO_COPY: ToolSeoCopySet = {
   [PublicLanguage.English]: {
     introduction: [
       "Free GIF to sprite sheet converter—GIF to PNG sheet with layout and JSON frame data, no upload, then Edit more in Xprite. Need a still image as pixel art? Use the free ",
