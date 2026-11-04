@@ -11,6 +11,11 @@ import {
   VIEWER_TOOL,
   type PublicTool,
 } from "../../growth/content/tools/index.ts";
+import {
+  TOOL_SEO_COPY,
+  toolSeoCopy,
+  toolSeoCopyHtml,
+} from "../../growth/content/tools/seo-copy.ts";
 
 /** The startup root each tool page renders into and hydrates. */
 export const TOOL_BY_ROOT: Readonly<Record<string, PublicTool>> = {
@@ -129,5 +134,12 @@ export function localizedToolPage(html: string, language: PublicLanguage): strin
     if (!pattern.test(localized)) throw Error(`${tool.path} has no <meta ${selector}>.`);
     localized = localized.replace(pattern, `<meta ${selector} content="${value}" />`);
   }
+  const seoCopy = TOOL_SEO_COPY[tool.path];
+  if (seoCopy)
+    localized = localized.replace(
+      /(<div\b[^>]*\bid="tool-seo-copy"[^>]*>)[\s\S]*?(<\/div>)/i,
+      (_match, open: string, close: string) =>
+        `${open}${toolSeoCopyHtml(toolSeoCopy(seoCopy, language), language)}${close}`,
+    );
   return localized;
 }

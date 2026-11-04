@@ -96,7 +96,10 @@ describe("about page search metadata", () => {
       const faq = graph.find((item) => item["@type"] === "FAQPage") as unknown as {
         url: string;
         inLanguage: string;
-        mainEntity: { name: string; acceptedAnswer: { "@type": string; text: string } }[];
+        mainEntity: {
+          name: string;
+          acceptedAnswer: { "@type": string; text: string };
+        }[];
       };
       assert.equal(faq.url, new URL(page.path, SHOWCASE_SITE_URL).href);
       assert.equal(faq.inLanguage, language);
@@ -147,10 +150,35 @@ describe("tool page search metadata", () => {
     );
     const json = html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)?.[1];
     assert.ok(json);
-    assert.deepEqual((({ url, inLanguage }) => ({ url, inLanguage }))(JSON.parse(json)), {
+    const block = JSON.parse(json) as { "@graph": { "@type": string }[] };
+    const application = block["@graph"].find(
+      (item) => item["@type"] === "WebApplication",
+    ) as unknown as { url: string; inLanguage: string };
+    assert.deepEqual((({ url, inLanguage }) => ({ url, inLanguage }))(application), {
       url: "https://xprite.cc/ja/tools/pixelate/",
       inLanguage: "ja",
     });
+  });
+
+  it("describe the visible FAQ as a FAQPage in the page language", () => {
+    const html = applyToolSearchMetadata(
+      TOOL_HTML,
+      PIXELATE_TOOL,
+      PublicLanguage.Japanese,
+      "1.0.0",
+      true,
+    );
+    const json = html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)?.[1];
+    const block = JSON.parse(json ?? "") as { "@graph": { "@type": string }[] };
+    const faq = block["@graph"].find((item) => item["@type"] === "FAQPage") as unknown as {
+      url: string;
+      inLanguage: string;
+      mainEntity: { name: string; acceptedAnswer: { text: string } }[];
+    };
+    assert.equal(faq.url, "https://xprite.cc/ja/tools/pixelate/");
+    assert.equal(faq.inLanguage, "ja");
+    assert.ok(faq.mainEntity.length >= 5);
+    assert.match(faq.mainEntity[0].name, /変換ツール|無料/);
   });
 
   it("leave preview pages without canonical or alternates", () => {
