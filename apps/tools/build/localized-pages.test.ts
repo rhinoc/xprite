@@ -4,7 +4,9 @@ import { fileURLToPath } from "node:url";
 
 import { describe, it } from "vitest";
 
-import { PublicLanguage } from "../../growth/content/site/language.ts";
+import { checkStructuredData } from "../../../infra/structured-data.ts";
+import { applyToolSearchMetadata } from "../../growth/build/seo/index.ts";
+import { localizedSiteHref, PublicLanguage } from "../../growth/content/site/language.ts";
 import { TOOLS } from "../../growth/content/tools/index.ts";
 import { localizedToolPage } from "./localized-pages.ts";
 
@@ -76,6 +78,51 @@ describe("English tool page sources", () => {
         'name="twitter:description"',
       ])
         assert.equal(content(selector), tool.description, `${tool.path} ${selector}`);
+    }
+  });
+});
+
+describe("localized tool FAQ", () => {
+  const faqTools = [
+    "/tools/pixelate/",
+    "/tools/gif-to-sprite-sheet/",
+    "/tools/viewer/",
+    "/tools/fix-ai-pixel-art/",
+  ];
+
+  it("keep the crawlable FAQ after a language swap, with a matching FAQPage", () => {
+    for (const path of faqTools) {
+      const tool = TOOLS.find((entry) => entry.path === path);
+      assert.ok(tool);
+      const source = readFileSync(
+        fileURLToPath(new URL(`../${path.slice("/tools/".length)}index.html`, import.meta.url)),
+        "utf8",
+      );
+      const rootId = source.match(/<div id="([^"]+-root)">/)?.[1];
+      assert.ok(rootId);
+      const templates = ["zh-CN", "ja", "ko", "ru", "pt-BR", "es"]
+        .flatMap((language) =>
+          ["light", "dark"].map(
+            (theme) =>
+              `<template data-tool-locale="${language}-${theme}"><p>${language}</p></template>`,
+          ),
+        )
+        .join("");
+      const prerendered = source.replace(
+        new RegExp(`<div id="${rootId}">[\\s\\S]*?</div>`),
+        `<h1 id="tool-page-heading">Heading</h1><div id="${rootId}" data-tool-startup-view><p>en</p></div><template data-tool-theme="dark"><p>dark</p></template>${templates}<script id="tool-initial-artwork" type="application/json">{}</script>`,
+      );
+      const localized = localizedToolPage(prerendered, PublicLanguage.Japanese);
+      const questions = source.match(/<div\b[^>]*id="tool-seo-copy"[\s\S]*?<\/div>/)?.[0];
+      assert.ok(questions);
+      assert.ok(localized.includes(questions), path);
+      const html = applyToolSearchMetadata(localized, tool, PublicLanguage.Japanese, "1.0.0", true);
+      const page = localizedSiteHref(path, PublicLanguage.Japanese);
+      const issues = checkStructuredData([{ page, html }]).issues;
+      assert.deepEqual(issues, [], path);
+      assert.match(html, /"@type":"FAQPage"/);
+      assert.match(html, /"@type":"WebApplication"/);
+      assert.match(html, /"@type":"Offer"/);
     }
   });
 });

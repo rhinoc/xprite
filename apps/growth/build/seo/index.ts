@@ -1,6 +1,7 @@
 import type { Plugin } from "vite";
 
 import { VISUALLY_HIDDEN_STYLE } from "../../../../infra/site-html.ts";
+import { htmlToText } from "../../../../infra/structured-data.ts";
 import {
   editorApplicationMetadata,
   siteIdentityMetadata,
@@ -9,6 +10,7 @@ import { ARTICLE_COLLECTIONS } from "../../content/articles/index.ts";
 import { FEATURES_PATH } from "../../content/features/index.ts";
 import { GUIDE_PAGES } from "../../content/help/pages.ts";
 import { SHOWCASE_PAGES } from "../../content/showcase/pages.ts";
+import { type FaqEntry, faqPageSchema } from "../../content/site/faq.ts";
 import {
   localizedSiteHref,
   PUBLIC_LANGUAGES,
@@ -100,6 +102,22 @@ export function applyEditorSearchMetadata(
   );
 }
 
+const TOOL_SEO_COPY = /<([a-z][\w:-]*)\b[^>]*\bid=["']tool-seo-copy["'][^>]*>([\s\S]*?)<\/\1>/i;
+const TOOL_FAQ_QUESTION = /<h2\b[^>]*>([\s\S]*?)<\/h2>([\s\S]*?)(?=<h2\b|$)/gi;
+
+/**
+ * Questions shown in `#tool-seo-copy`. Schema is built from this markup, so it matches the
+ * crawlable FAQ instead of a second copy of the text.
+ */
+export function toolPageFaqEntries(html: string): FaqEntry[] {
+  const copy = html.match(TOOL_SEO_COPY)?.[2];
+  if (!copy) return [];
+  return [...copy.matchAll(TOOL_FAQ_QUESTION)].map((match) => ({
+    question: htmlToText(match[1]),
+    answer: htmlToText(match[2]),
+  }));
+}
+
 /**
  * Tool pages share one address shape in every language. Each page names its own address as
  * canonical, lists every language plus the English default, and describes the application in
@@ -143,11 +161,19 @@ export function applyToolSearchMetadata(
     isAccessibleForFree: true,
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
   };
+  // #tool-seo-copy stays English on every locale, so the FAQ language stays English too.
+  const faq = faqPageSchema(toolPageFaqEntries(content), {
+    url,
+    language: PublicLanguage.English,
+  });
+  const faqScript = faq
+    ? `\n<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", ...faq }).replaceAll("<", "\\u003c")}</script>`
+    : "";
   return content
     .replace(CANONICAL_ELEMENT_PATTERN, "")
     .replace(
       HEAD_CLOSE_PATTERN,
-      `<link rel="canonical" href="${url}">\n${alternates}\n<script type="application/ld+json">${JSON.stringify(application).replaceAll("<", "\\u003c")}</script>\n</head>`,
+      `<link rel="canonical" href="${url}">\n${alternates}\n<script type="application/ld+json">${JSON.stringify(application).replaceAll("<", "\\u003c")}</script>${faqScript}\n</head>`,
     );
 }
 

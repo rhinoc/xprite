@@ -1,18 +1,30 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { describe, it } from "vitest";
 
+import { checkStructuredData, htmlToText } from "../../../../infra/structured-data.ts";
 import { SHOWCASE_FAQ_COPY } from "../../content/showcase/faq.ts";
 import { showcaseSearchMetadata } from "../../content/showcase/index.ts";
 import { SHOWCASE_PAGES, SHOWCASE_SITE_URL } from "../../content/showcase/pages.ts";
 import { faqInlineText } from "../../content/site/faq.ts";
-import { PublicLanguage } from "../../content/site/language.ts";
-import { PIXELATE_TOOL } from "../../content/tools/index.ts";
+import { localizedSiteHref, PublicLanguage } from "../../content/site/language.ts";
+import {
+  FIX_AI_PIXEL_ART_TOOL,
+  GIF_SHEET_TOOL,
+  PIXELATE_TOOL,
+  VIEWER_TOOL,
+  type PublicTool,
+} from "../../content/tools/index.ts";
 import {
   applyEditorSearchMetadata,
   applyToolSearchMetadata,
   editorSearchMetadata,
 } from "./index.ts";
+
+const REPOSITORY_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 
 const EDITOR_HTML = `<!doctype html><html lang="en"><head><title>Xprite</title></head><body><div id="root"></div><div id="xse-startup"><section class="xse-startup-copy"><p>Intro</p></section></div></body></html>`;
 
@@ -145,9 +157,14 @@ describe("tool page search metadata", () => {
         ["x-default", "https://xprite.cc/tools/pixelate/"],
       ],
     );
-    const json = html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)?.[1];
-    assert.ok(json);
-    assert.deepEqual((({ url, inLanguage }) => ({ url, inLanguage }))(JSON.parse(json)), {
+    const blocks = [
+      ...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g),
+    ].map((match) => JSON.parse(match[1]) as { "@type": string; url: string; inLanguage: string });
+    assert.deepEqual(
+      blocks.map((block) => block["@type"]),
+      ["WebApplication"],
+    );
+    assert.deepEqual((({ url, inLanguage }) => ({ url, inLanguage }))(blocks[0]), {
       url: "https://xprite.cc/ja/tools/pixelate/",
       inLanguage: "ja",
     });
@@ -163,5 +180,67 @@ describe("tool page search metadata", () => {
     );
     assert.doesNotMatch(html, /rel="(?:canonical|alternate)"/);
     assert.match(html, /<meta name="robots" content="noindex, follow">/);
+    assert.doesNotMatch(html, /application\/ld\+json/);
+  });
+});
+
+/** h2 questions in `#tool-seo-copy`, with the markup that follows each one up to the next h2. */
+function visibleToolFaq(html: string): readonly (readonly [string, string])[] {
+  const copy = html.match(/id=["']tool-seo-copy["'][^>]*>([\s\S]*?)<\/div>/i)?.[1] ?? "";
+  return [...copy.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>([\s\S]*?)(?=<h2\b|$)/gi)].map((match) => [
+    htmlToText(match[1]),
+    htmlToText(match[2]),
+  ]);
+}
+
+function jsonLd(html: string): Record<string, unknown>[] {
+  return [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(
+    (match) => JSON.parse(match[1]) as Record<string, unknown>,
+  );
+}
+
+describe("tool page FAQ schema", () => {
+  const pages: readonly (readonly [string, PublicTool])[] = [
+    ["pixelate/index.html", PIXELATE_TOOL],
+    ["gif-to-sprite-sheet/index.html", GIF_SHEET_TOOL],
+    ["viewer/index.html", VIEWER_TOOL],
+    ["fix-ai-pixel-art/index.html", FIX_AI_PIXEL_ART_TOOL],
+  ];
+
+  it("describe the visible FAQ as a FAQPage and keep the application offer", () => {
+    for (const [file, tool] of pages) {
+      const source = readFileSync(resolve(REPOSITORY_ROOT, "apps/tools", file), "utf8");
+      const visible = visibleToolFaq(source);
+      assert.ok(visible.length >= 5 && visible.length <= 8, `${tool.path} has ${visible.length}`);
+      for (const language of [PublicLanguage.English, PublicLanguage.Japanese]) {
+        const html = applyToolSearchMetadata(source, tool, language, "1.0.0", true);
+        const blocks = jsonLd(html);
+        const application = blocks.find((block) => block["@type"] === "WebApplication");
+        const faq = blocks.find((block) => block["@type"] === "FAQPage");
+        assert.equal(application?.["@type"], "WebApplication", tool.path);
+        assert.deepEqual(application?.offers, {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+        });
+        assert.ok(faq, tool.path);
+        const page = localizedSiteHref(tool.path, language);
+        assert.equal(faq.url, new URL(page, "https://xprite.cc/").href);
+        assert.equal(faq.inLanguage, PublicLanguage.English);
+        assert.deepEqual(
+          (faq.mainEntity as { name: string; acceptedAnswer: { text: string } }[]).map((item) => [
+            item.name,
+            item.acceptedAnswer.text,
+          ]),
+          visible,
+          `${tool.path} ${language}`,
+        );
+        assert.deepEqual(
+          checkStructuredData([{ page, html }]).issues,
+          [],
+          `${tool.path} ${language}`,
+        );
+      }
+    }
   });
 });
