@@ -15,6 +15,7 @@ import {
   Input,
   Text,
   TextVariant,
+  ScrollArea,
   type SurfaceBounds,
 } from "@xprite/ui";
 import { RASTER_SCALE } from "@xprite/ui/canvas";
@@ -49,8 +50,14 @@ function FlowField({
       {tUiSource(field.label)}
     </Text>
   );
+  if (field.type === "custom" && field.fullWidth)
+    return (
+      <div ref={control} className={`${styles.standalone} ${styles.fullWidth}`}>
+        {field.render({ pixelSize })}
+      </div>
+    );
   if (field.type === "label") return <div className={styles.standalone}>{label}</div>;
-  if (field.type === "checkbox")
+  if (field.type === "checkbox" && field.text === undefined)
     return (
       <div className={styles.standalone}>
         <Checkbox
@@ -114,7 +121,18 @@ function FlowField({
     <div className={styles.field}>
       <div className={styles.caption}>{label}</div>
       <div ref={control} className={styles.control}>
-        {field.type === "color" ? (
+        {field.type === "custom" ? (
+          field.render({ pixelSize })
+        ) : field.type === "checkbox" ? (
+          <Checkbox
+            pixelSize={pixelSize}
+            label={field.text ?? ""}
+            aria-label={field.label}
+            checked={field.value}
+            disabled={field.disabled}
+            onCheckedChange={field.onChange}
+          />
+        ) : field.type === "color" ? (
           <EditorColorButton
             pixelSize={pixelSize}
             value={field.value}
@@ -180,6 +198,12 @@ function FlowField({
 /** Flow layout for generic forms and authored forms that cannot fit the viewport. */
 export function FlowForm({
   fields,
+  beforeFields,
+  afterFields,
+  beforeActions,
+  scrollFields = false,
+  viewportHeight,
+  scrollLabel,
   message,
   actions,
   layout,
@@ -193,9 +217,21 @@ export function FlowForm({
   submitOnEnter = true,
 }: Pick<
   FormDialogProps,
-  "fields" | "actions" | "layout" | "submitOnEnter" | "tabs" | "headerActions" | "sections"
+  | "fields"
+  | "beforeFields"
+  | "afterFields"
+  | "beforeActions"
+  | "scrollFields"
+  | "actions"
+  | "layout"
+  | "submitOnEnter"
+  | "tabs"
+  | "headerActions"
+  | "sections"
 > & {
   message?: string;
+  viewportHeight: number;
+  scrollLabel: string;
   density?: "default" | "compact";
   onHeightChange: (height: number) => void;
   actionSize?: { width: number; height: number };
@@ -245,11 +281,43 @@ export function FlowForm({
       />
     ));
   const hasChrome = !!(tabs?.items.length || headerActions?.length);
-  const formClass = [styles.form, density === "compact" ? styles.compact : ""]
+  const formClass = [
+    styles.form,
+    density === "compact" ? styles.compact : "",
+    scrollFields ? styles.bounded : "",
+  ]
     .filter(Boolean)
     .join(" ");
+  const fieldContent = (
+    <>
+      {rows.map((row) => (
+        <Fragment key={row}>
+          {renderSections(row)}
+          {renderSeparators(row)}
+          <div className={styles.row}>
+            {fields
+              .filter((field) => (field.row ?? field.key) === row)
+              .map((field) => (
+                <FlowField
+                  key={field.key}
+                  field={field}
+                  onColorClick={onColorClick}
+                  controlHeight={density === "compact" ? COMPACT_CONTROL_HEIGHT : CONTROL_HEIGHT}
+                />
+              ))}
+          </div>
+        </Fragment>
+      ))}
+      {renderSeparators()}
+      {afterFields}
+    </>
+  );
   return (
-    <div ref={form} className={formClass}>
+    <div
+      ref={form}
+      className={formClass}
+      style={scrollFields ? { height: viewportHeight } : undefined}
+    >
       {hasChrome && (
         <div className={styles.chrome}>
           {tabs?.items.length ? (
@@ -300,25 +368,27 @@ export function FlowForm({
           {message}
         </Text>
       )}
-      {rows.map((row) => (
-        <Fragment key={row}>
-          {renderSections(row)}
-          {renderSeparators(row)}
-          <div className={styles.row}>
-            {fields
-              .filter((field) => (field.row ?? field.key) === row)
-              .map((field) => (
-                <FlowField
-                  key={field.key}
-                  field={field}
-                  onColorClick={onColorClick}
-                  controlHeight={density === "compact" ? COMPACT_CONTROL_HEIGHT : CONTROL_HEIGHT}
-                />
-              ))}
-          </div>
-        </Fragment>
-      ))}
-      {renderSeparators()}
+      {scrollFields ? (
+        <>
+          {beforeFields && <div className={styles.beforeFields}>{beforeFields}</div>}
+          <ScrollArea
+            className={styles.fieldScroll}
+            contentClassName={styles.fields}
+            scrollX={false}
+            scrollY
+            reserveScrollbarGutter
+            viewportProps={{ role: "region", "aria-label": scrollLabel, "data-ui-form-fields": "" }}
+          >
+            {fieldContent}
+          </ScrollArea>
+        </>
+      ) : (
+        <>
+          {beforeFields}
+          {fieldContent}
+        </>
+      )}
+      {beforeActions}
       <div className={styles.actions}>
         {actions.map((action, index) => (
           <Button

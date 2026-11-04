@@ -1,3 +1,4 @@
+import type { VideoImportPort } from "$/managers/ports/video-import";
 import type {
   EditorSessionPorts,
   SessionSource,
@@ -5,6 +6,7 @@ import type {
 } from "@xprite/editor-core/session";
 
 export interface WorkspaceSessionPorts extends EditorSessionPorts<string> {
+  readonly videoImport?: VideoImportPort;
   registerAsset(url: string, name: string): SessionSource<string>;
   registerFile(file: File): SessionSource<string>;
   registerProject(name: string, load: () => Promise<SessionProject>): SessionSource<string>;

@@ -9,6 +9,7 @@ import {
 } from "$/editor/persistence-snapshot";
 import { RasterEditor } from "$/editor/RasterEditor";
 import type { EditorSnapshot } from "$/editor/types";
+import { defaultImportPixelationSettings } from "$/import-export/image";
 import {
   RecentImageStore,
   createBlankImage,
@@ -590,16 +591,11 @@ export class EditorSession<Source> {
     return getAllColorPickers().find((id) => id === remembered) ?? CellColorPicker.MostCommon;
   }
   private defaultOptions(candidate: Candidate) {
-    const photo = candidate.grid?.reliable === false;
-    return {
-      ...defaultPixelationSettings(candidate.pixels, candidate.grid),
-      // An unknown grid stays plain while analysis runs; only a completed refusal opts into lines.
-      prepass: photo ? OutlinePrepass.PixeloeLines : OutlinePrepass.None,
-      colorPicker: photo ? CellColorPicker.Contrast : this.importColorPicker(),
-      reduceColors: false,
-      // Import sizes the output from the target dimensions and lets the colour rule pick each block.
-      blockPicker: true,
-    };
+    return defaultImportPixelationSettings(
+      candidate.pixels,
+      candidate.grid,
+      this.importColorPicker(),
+    );
   }
   private gridOptions(candidate: Candidate, grid: PixelGridAnalysis): PixelationSettings {
     const current = this.state.pixelationOptions;

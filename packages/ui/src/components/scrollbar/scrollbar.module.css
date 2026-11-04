@@ -152,3 +152,22 @@
 .compactThumbStandalone[data-hovered="true"] {
   background: var(--ui-theme-wash, var(--xse-window));
 }
+
+.thumbStandalone[data-grip="vertical-bars"]::after,
+.compactThumbStandalone[data-grip="vertical-bars"]::after,
+.classicThumbStandalone[data-grip="vertical-bars"]::after {
+  height: 12px;
+  max-height: calc(100% - 8px);
+  background-image: linear-gradient(
+    to right,
+    var(--ui-color-border) 0 1px,
+    transparent 1px 5px,
+    var(--ui-color-border) 5px 6px
+  );
+  pointer-events: none;
+}
+
+/* Atlas thumbs reserve more space below the face for their bevel and shadow. */
+.thumbStandalone[data-grip="vertical-bars"]::after {
+  top: calc(50% - 2px);
+}

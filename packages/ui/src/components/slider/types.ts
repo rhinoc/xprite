@@ -54,6 +54,21 @@ export interface BrowserRangeSliderProps {
   disabled?: boolean;
 }
 
+export interface FilmstripSliderProps {
+  className?: string;
+  frames: readonly (string | null)[];
+  frameAspectRatio: number;
+  duration: number;
+  value: [number, number];
+  position: number;
+  step: number;
+  disabled?: boolean;
+  labels: { range: string; start: string; end: string; position: string };
+  formatValue(value: number): string;
+  onValueChange(value: [number, number]): void;
+  onPositionChange(value: number): void;
+}
+
 export enum SliderMode {
   Value = "value",
   Range = "range",
@@ -63,6 +78,7 @@ export enum SliderRendering {
   Pixel = "pixel",
   NumberEntry = "number-entry",
   BrowserRange = "browser-range",
+  Filmstrip = "filmstrip",
 }
 
 export enum SliderValueFormat {
@@ -71,6 +87,7 @@ export enum SliderValueFormat {
 }
 
 export type SliderProps =
+  | (FilmstripSliderProps & { rendering: SliderRendering.Filmstrip; mode: SliderMode.Range })
   | (ValueSliderProps & { mode?: SliderMode.Value; rendering?: SliderRendering.Pixel })
   | (ThresholdSliderProps & { mode: SliderMode.Range; rendering?: SliderRendering.Pixel })
   | (SliderEntryProps & { mode?: SliderMode.Value; rendering: SliderRendering.NumberEntry })

@@ -8,10 +8,16 @@ import { scrollbarStyles } from "$/components/scrollbar/variants";
 
 import styles from "$/components/scrollbar/scrollbar.module.css";
 
+export enum ScrollbarThumbGrip {
+  Theme = "theme",
+  VerticalBars = "vertical-bars",
+}
+
 export interface ScrollbarThumbProps {
   /** The `Scrollbar` variant to mirror; defaults to the theme's own scrollbar style. */
   scrollbarStyle?: ScrollbarStyle;
   hovered?: boolean;
+  grip?: ScrollbarThumbGrip;
   className?: string;
   style?: CSSProperties;
 }
@@ -23,6 +29,7 @@ export interface ScrollbarThumbProps {
 export function ScrollbarThumb({
   scrollbarStyle,
   hovered = false,
+  grip = ScrollbarThumbGrip.Theme,
   className,
   style,
 }: ScrollbarThumbProps) {
@@ -34,12 +41,20 @@ export function ScrollbarThumb({
   const variant = scrollbarStyles[resolved];
   const cls = (base: string) => (className ? `${base} ${className}` : base);
   if (resolved === ScrollbarStyle.Classic && parts)
-    return <span aria-hidden="true" className={cls(styles.classicThumbStandalone)} style={style} />;
+    return (
+      <span
+        aria-hidden="true"
+        data-grip={grip}
+        className={cls(styles.classicThumbStandalone)}
+        style={style}
+      />
+    );
   const compactThumb = resolved === ScrollbarStyle.Classic ? undefined : parts?.compactThumb;
   if (compactThumb)
     return (
       <span
         aria-hidden="true"
+        data-grip={grip}
         className={cls(styles.compactThumbStandalone)}
         data-hovered={hovered}
         style={{ ...style, borderWidth: compactThumb.borderWidth }}
@@ -49,7 +64,7 @@ export function ScrollbarThumb({
   // paint track then thumb exactly like Scrollbar does, clipped to the thumb's own box.
   const suffix = hovered && variant.hoverArtwork ? "_hot" : "";
   return (
-    <span aria-hidden="true" className={cls(styles.thumbStandalone)} style={style}>
+    <span aria-hidden="true" data-grip={grip} className={cls(styles.thumbStandalone)} style={style}>
       <span className={styles.thumbArtwork}>
         <ThemePart
           part={`${variant.artworkPrefix}_thumb${suffix}` as AtlasPartName}

@@ -1,0 +1,54 @@
+.root {
+  box-sizing: border-box;
+  height: 7px;
+  overflow: hidden;
+  pointer-events: none;
+  border-bottom: 1px solid var(--ui-progress-stripe);
+  background: var(--ui-color-canvas);
+}
+
+.fill {
+  height: 100%;
+  /* Three hard-edged rows form a two-pixel staircase; no diagonal antialiasing. */
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      var(--ui-progress-face) 0 6px,
+      var(--ui-progress-stripe) 6px 12px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      var(--ui-progress-face) 0 6px,
+      var(--ui-progress-stripe) 6px 12px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      var(--ui-progress-face) 0 6px,
+      var(--ui-progress-stripe) 6px 12px
+    );
+  background-size: 12px 2px;
+  background-repeat: repeat-x;
+  background-position:
+    0 0,
+    2px 2px,
+    4px 4px;
+}
+
+.root[data-indeterminate="true"] .fill {
+  animation: progress-slide 0.5s steps(6) infinite;
+}
+
+@keyframes progress-slide {
+  to {
+    background-position:
+      12px 0,
+      14px 2px,
+      16px 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root[data-indeterminate="true"] .fill {
+    animation: none;
+  }
+}

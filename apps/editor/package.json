@@ -27,6 +27,7 @@
     "@xprite/ui": "workspace:*",
     "core-js": "3.50.0",
     "fflate": "^0.8.3",
+    "mediabunny": "1.65.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "zustand": "^5.0.15"

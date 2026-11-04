@@ -7,6 +7,31 @@
   box-sizing: border-box;
 }
 
+.bounded {
+  min-height: 0;
+  overflow: hidden;
+  container-type: size;
+}
+
+.beforeFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-6, 12px);
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.fieldScroll {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-6, 12px);
+}
+
 .row {
   display: flex;
   flex-wrap: wrap;
@@ -38,6 +63,12 @@
 
 .standalone {
   grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.form .fullWidth.fullWidth {
+  flex: 1 1 100%;
+  width: 100%;
   min-width: 0;
 }
 

@@ -1,4 +1,12 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  Fragment,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { FlowForm } from "$/components/dialogs/form-dialog/flow-form";
@@ -24,6 +32,7 @@ import {
   isDialogPopupTarget,
   type ButtonProps,
   type SurfaceBounds,
+  type ControlPlacement,
   Text,
   TextVariant,
 } from "@xprite/ui";
@@ -38,6 +47,7 @@ export type FormField = FieldBase &
     | { type: "color"; value: string; onChange: (value: string) => void }
     | { type: "filename"; value: string; onChange: (value: string) => void; onBrowse?: () => void }
     | { type: "label" }
+    | { type: "custom"; fullWidth?: boolean; render(placement: ControlPlacement): ReactNode }
     | { type: "link"; onClick?: () => void; href?: string }
     | {
         type: "button";
@@ -54,7 +64,7 @@ export type FormField = FieldBase &
         max?: number;
         step?: number;
       }
-    | { type: "checkbox"; value: boolean; onChange: (value: boolean) => void }
+    | { type: "checkbox"; text?: string; value: boolean; onChange: (value: boolean) => void }
     | {
         type: "select";
         editable?: boolean;
@@ -76,6 +86,10 @@ export interface FormDialogProps {
   onOpenChange: (open: boolean) => void;
   title: string;
   fields: readonly FormField[];
+  beforeFields?: ReactNode;
+  afterFields?: ReactNode;
+  /** Flow-form footer, kept outside the scrolling parameters. */
+  beforeActions?: ReactNode;
   message?: string;
   actions: readonly {
     label: string;
@@ -84,6 +98,8 @@ export interface FormDialogProps {
   }[];
   /** Width in scene pixels, before the scene's display scale. */
   width?: number;
+  height?: number;
+  scrollFields?: boolean;
   layout?: FormLayout;
   /**
    * Force CSS flex FlowForm even when tabs/headerActions/layout are present.
@@ -161,9 +177,14 @@ export function FormDialog({
   onOpenChange,
   title,
   fields,
+  beforeFields,
+  afterFields,
+  beforeActions,
   message,
   actions,
   width,
+  height: requestedHeight,
+  scrollFields = false,
   tabs,
   layout,
   layoutMode,
@@ -250,11 +271,14 @@ export function FormDialog({
       field.type === "color" && field.key === colorFieldKey,
   );
   const typing = fields.length === 1 && fields[0]?.type === "text" && !content && !tabs;
-  const height =
+  const naturalHeight =
     flow && flowHeight !== null
       ? FORM_DIALOG_CHROME_HEIGHT + flowHeight
       : ((!flow ? layout?.height : undefined) ??
         FORM_DIALOG_CHROME_HEIGHT + 12 + messageHeight + rows.length * 44 + 52);
+  const height = scrollFields
+    ? Math.max(1, Math.min(requestedHeight ?? naturalHeight, scene.height - 16))
+    : naturalHeight;
   const [position, setPosition] = useState<{ x: number; y: number } | null>(() =>
     layout && !flow
       ? {
@@ -371,6 +395,12 @@ export function FormDialog({
       <>
         <FlowForm
           fields={fields}
+          beforeFields={beforeFields}
+          afterFields={afterFields}
+          beforeActions={beforeActions}
+          scrollFields={scrollFields}
+          viewportHeight={client.height}
+          scrollLabel={tUiSource(title)}
           message={displayMessage}
           actions={actions}
           layout={layout}
@@ -555,6 +585,47 @@ export function FormDialog({
               >
                 {field.label}
               </WorkspaceLink>
+            );
+          if (field.type === "custom" && field.fullWidth)
+            return (
+              <Fragment key={field.key}>
+                {field.render({
+                  bounds: { ...input, x: columnX + inset, width: columnWidth - inset },
+                  relativeTo: client,
+                })}
+              </Fragment>
+            );
+          if (field.type === "custom")
+            return (
+              <Fragment key={field.key}>
+                <Text
+                  variant={TextVariant.Control}
+                  bounds={{ x: columnX + inset, y: y + 6, width: labelWidth - inset, height: 20 }}
+                  relativeTo={client}
+                  text={field.label}
+                />
+                {field.render({ bounds: input, relativeTo: client })}
+              </Fragment>
+            );
+          if (field.type === "checkbox" && field.text !== undefined)
+            return (
+              <Fragment key={field.key}>
+                <Text
+                  variant={TextVariant.Control}
+                  bounds={{ x: columnX + inset, y: y + 6, width: labelWidth - inset, height: 20 }}
+                  relativeTo={client}
+                  text={field.label}
+                />
+                <Checkbox
+                  bounds={input}
+                  relativeTo={client}
+                  label={field.text}
+                  aria-label={field.label}
+                  checked={field.value}
+                  disabled={field.disabled}
+                  onCheckedChange={field.onChange}
+                />
+              </Fragment>
             );
           if (field.type === "checkbox")
             return (
@@ -797,6 +868,8 @@ export function FormDialog({
         autoFocus={false}
         modal
         constrainToViewport
+        scrollX={scrollFields ? false : undefined}
+        scrollY={scrollFields ? false : undefined}
         contentLayout={flow ? OverlayContentLayout.Flow : OverlayContentLayout.Positioned}
         titlebarActions={
           helpUrl
