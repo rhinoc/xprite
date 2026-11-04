@@ -109,7 +109,7 @@ const TOOL_FAQ_QUESTION = /<h2\b[^>]*>([\s\S]*?)<\/h2>([\s\S]*?)(?=<h2\b|$)/gi;
  * Questions shown in `#tool-seo-copy`. Schema is built from this markup, so it matches the
  * crawlable FAQ instead of a second copy of the text.
  */
-export function toolPageFaqEntries(html: string): FaqEntry[] {
+function toolPageFaqEntries(html: string): FaqEntry[] {
   const copy = html.match(TOOL_SEO_COPY)?.[2];
   if (!copy) return [];
   return [...copy.matchAll(TOOL_FAQ_QUESTION)].map((match) => ({
