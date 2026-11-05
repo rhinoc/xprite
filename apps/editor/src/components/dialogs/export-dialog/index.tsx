@@ -22,6 +22,7 @@ import {
   Text,
   TextVariant,
   Icon,
+  createModalFocusScope,
   focusDialogContainer,
   isDialogPopupTarget,
 } from "@xprite/ui";
@@ -123,9 +124,12 @@ export function ExportDialog(props: ExportDialogProps) {
   const current = useRef(props);
   current.current = props;
   useEffect(() => {
+    if (!root.current) return;
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    focusDialogContainer(root.current);
+    const scope = createModalFocusScope(root.current);
+    if (scope.isActive()) focusDialogContainer(root.current);
     const focus = (event: FocusEvent) => {
+      if (!scope.isActive()) return;
       if (
         !root.current?.contains(event.target as Node) &&
         !isDialogPopupTarget(root.current, event.target)
@@ -133,7 +137,13 @@ export function ExportDialog(props: ExportDialogProps) {
         focusDialogContainer(root.current);
     };
     const key = (event: KeyboardEvent) => {
-      if (isImeKeyboardEvent(event) || isDialogPopupTarget(root.current, event.target)) return;
+      if (
+        !scope.isActive() ||
+        event.defaultPrevented ||
+        isImeKeyboardEvent(event) ||
+        isDialogPopupTarget(root.current, event.target)
+      )
+        return;
       if (event.key === "Escape") {
         event.preventDefault();
         event.stopPropagation();
@@ -161,7 +171,7 @@ export function ExportDialog(props: ExportDialogProps) {
     return () => {
       document.removeEventListener("focusin", focus);
       document.removeEventListener("keydown", key);
-      if (previous?.isConnected) previous.focus({ preventScroll: true });
+      if (scope.dispose() && previous?.isConnected) previous.focus({ preventScroll: true });
     };
   }, []);
   const selected = props.registry.get(props.destination);

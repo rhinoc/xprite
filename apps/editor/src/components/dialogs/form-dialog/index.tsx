@@ -28,6 +28,7 @@ import {
   Combobox,
   Divider,
   Input,
+  createModalFocusScope,
   focusDialogContainer,
   isDialogPopupTarget,
   type ButtonProps,
@@ -301,6 +302,8 @@ export function FormDialog({
     }
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const root = host.current;
+    if (!root) return;
+    const scope = createModalFocusScope(root);
     const ownedPopup = (target: EventTarget | null) => isDialogPopupTarget(root, target);
     const first = () => {
       const target =
@@ -316,13 +319,14 @@ export function FormDialog({
         initializeFocus(root, { selectText: selectInitialInput, typing });
       else target?.focus({ preventScroll: true });
     };
-    first();
+    if (scope.isActive()) first();
     const focus = (event: FocusEvent) => {
+      if (!scope.isActive()) return;
       if (!root?.contains(event.target as Node) && !ownedPopup(event.target))
         focusDialogContainer(root);
     };
     const key = (event: KeyboardEvent) => {
-      if (isImeKeyboardEvent(event)) return;
+      if (!scope.isActive() || event.defaultPrevented || isImeKeyboardEvent(event)) return;
       if (ownedPopup(event.target as Node)) return;
       if (event.key === "Escape") {
         event.preventDefault();
@@ -365,7 +369,7 @@ export function FormDialog({
     return () => {
       document.removeEventListener("focusin", focus);
       document.removeEventListener("keydown", key, true);
-      if (previous?.isConnected) previous.focus({ preventScroll: true });
+      if (scope.dispose() && previous?.isConnected) previous.focus({ preventScroll: true });
     };
   }, [
     open,

@@ -7,6 +7,33 @@ const DIALOG_SELECTOR = '[role="dialog"]';
 const DIALOG_EDITABLE_SELECTOR =
   'input,textarea,[contenteditable="true"],[contenteditable="plaintext-only"]';
 
+const modalScopes = new WeakMap<Document, { root: HTMLElement }[]>();
+
+/** Register before initial focus so an existing modal cannot pull focus back. */
+export function createModalFocusScope(root: HTMLElement) {
+  const document = root.ownerDocument;
+  const scopes = modalScopes.get(document) ?? [];
+  const scope = { root };
+  modalScopes.set(document, scopes);
+  // React mounts child effects first. Insert a containing modal below its
+  // children without superseding a newer, unrelated modal.
+  const child = scopes.findIndex((candidate) => root.contains(candidate.root));
+  if (child < 0) scopes.push(scope);
+  else scopes.splice(child, 0, scope);
+  const isActive = () => scopes[scopes.length - 1] === scope;
+  return {
+    isActive,
+    /** Only the active modal may restore focus when it closes. */
+    dispose() {
+      const restore = isActive();
+      const index = scopes.indexOf(scope);
+      if (index >= 0) scopes.splice(index, 1);
+      if (!scopes.length) modalScopes.delete(document);
+      return restore;
+    },
+  };
+}
+
 /** Keep modal focus without reopening an editable control's software keyboard. */
 export function focusDialogContainer(root: HTMLElement | null) {
   const dialog = root?.matches(DIALOG_SELECTOR)
@@ -59,16 +86,21 @@ export function useModalFocus({
     if (!open || !root) return;
     const document = root.ownerDocument;
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    if (callbacks.current.initialFocus) callbacks.current.initialFocus(root);
-    else focusDialogContainer(root);
+    const scope = createModalFocusScope(root);
+    if (scope.isActive()) {
+      if (callbacks.current.initialFocus) callbacks.current.initialFocus(root);
+      else focusDialogContainer(root);
+    }
     const focus = (event: FocusEvent) => {
-      if (callbacks.current.isSuspended?.()) return;
+      if (!scope.isActive() || callbacks.current.isSuspended?.()) return;
       if (!root.contains(event.target as Node) && !isDialogPopupTarget(root, event.target)) {
         focusDialogContainer(root);
       }
     };
     const key = (event: KeyboardEvent) => {
       if (
+        !scope.isActive() ||
+        callbacks.current.isSuspended?.() ||
         event.defaultPrevented ||
         isImeKeyboardEvent(event) ||
         isDialogPopupTarget(root, event.target)
@@ -98,7 +130,7 @@ export function useModalFocus({
     return () => {
       document.removeEventListener("focusin", focus);
       document.removeEventListener("keydown", key, true);
-      if (previous?.isConnected) previous.focus({ preventScroll: true });
+      if (scope.dispose() && previous?.isConnected) previous.focus({ preventScroll: true });
     };
   }, [open, rootRef, focusableSelector]);
 }
