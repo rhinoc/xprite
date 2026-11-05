@@ -2080,6 +2080,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
         hostProp: false,
       },
       {
+        name: "fill",
+        kind: "string",
+        required: false,
+        type: "string | undefined",
+        hostProp: false,
+      },
+      {
         name: "font",
         kind: "enum",
         required: false,
@@ -2205,13 +2212,6 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
         kind: "boolean",
         required: false,
         type: "boolean | undefined",
-        hostProp: false,
-      },
-      {
-        name: "fill",
-        kind: "string",
-        required: false,
-        type: "string | undefined",
         hostProp: false,
       },
       {
@@ -2471,6 +2471,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             hostProp: false,
           },
           {
+            name: "fill",
+            kind: "string",
+            required: false,
+            type: "string | undefined",
+            hostProp: false,
+          },
+          {
             name: "font",
             kind: "enum",
             required: false,
@@ -2596,13 +2603,6 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             kind: "boolean",
             required: false,
             type: "boolean | undefined",
-            hostProp: false,
-          },
-          {
-            name: "fill",
-            kind: "string",
-            required: false,
-            type: "string | undefined",
             hostProp: false,
           },
           {
@@ -2767,6 +2767,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             hostProp: false,
           },
           {
+            name: "fill",
+            kind: "string",
+            required: false,
+            type: "string | undefined",
+            hostProp: false,
+          },
+          {
             name: "font",
             kind: "enum",
             required: false,
@@ -2885,13 +2892,6 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             kind: "boolean",
             required: false,
             type: "boolean | undefined",
-            hostProp: false,
-          },
-          {
-            name: "fill",
-            kind: "string",
-            required: false,
-            type: "string | undefined",
             hostProp: false,
           },
           {
@@ -3056,6 +3056,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             hostProp: false,
           },
           {
+            name: "fill",
+            kind: "string",
+            required: false,
+            type: "string | undefined",
+            hostProp: false,
+          },
+          {
             name: "font",
             kind: "enum",
             required: false,
@@ -3174,13 +3181,6 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             kind: "boolean",
             required: false,
             type: "boolean | undefined",
-            hostProp: false,
-          },
-          {
-            name: "fill",
-            kind: "string",
-            required: false,
-            type: "string | undefined",
             hostProp: false,
           },
           {
@@ -3345,6 +3345,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             hostProp: false,
           },
           {
+            name: "fill",
+            kind: "string",
+            required: false,
+            type: "string | undefined",
+            hostProp: false,
+          },
+          {
             name: "font",
             kind: "enum",
             required: false,
@@ -3463,13 +3470,6 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             kind: "boolean",
             required: false,
             type: "boolean | undefined",
-            hostProp: false,
-          },
-          {
-            name: "fill",
-            kind: "string",
-            required: false,
-            type: "string | undefined",
             hostProp: false,
           },
           {
@@ -3647,6 +3647,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             hostProp: false,
           },
           {
+            name: "fill",
+            kind: "string",
+            required: false,
+            type: "string | undefined",
+            hostProp: false,
+          },
+          {
             name: "font",
             kind: "enum",
             required: false,
@@ -3765,13 +3772,6 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             kind: "boolean",
             required: false,
             type: "boolean | undefined",
-            hostProp: false,
-          },
-          {
-            name: "fill",
-            kind: "string",
-            required: false,
-            type: "string | undefined",
             hostProp: false,
           },
           {
@@ -3936,6 +3936,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             hostProp: false,
           },
           {
+            name: "fill",
+            kind: "string",
+            required: false,
+            type: "string | undefined",
+            hostProp: false,
+          },
+          {
             name: "font",
             kind: "enum",
             required: false,
@@ -4054,13 +4061,6 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
             kind: "boolean",
             required: false,
             type: "boolean | undefined",
-            hostProp: false,
-          },
-          {
-            name: "fill",
-            kind: "string",
-            required: false,
-            type: "string | undefined",
             hostProp: false,
           },
           {
