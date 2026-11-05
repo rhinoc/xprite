@@ -11,7 +11,7 @@ import { type SurfaceBounds } from "$/components/canvas-surface";
 import { Text, TextVariant } from "$/components/text";
 import { wrapTooltipText } from "$/components/tooltip/text-layout";
 import { Dialog } from "$/components/window/dialog";
-import { isDialogPopupTarget } from "$/components/window/focus";
+import { createModalFocusScope, isDialogPopupTarget } from "$/components/window/focus";
 
 import styles from "$/components/window/alert.module.css";
 
@@ -131,6 +131,9 @@ export function AlertDialog({
       return;
     }
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const root = host.current;
+    if (!root) return;
+    const scope = createModalFocusScope(root);
     const focusDefault = () => {
       const current = latest.current;
       const preferred = buttons.current[current.defaultActionIndex];
@@ -139,13 +142,14 @@ export function AlertDialog({
         : buttons.current.find((button) => button && !button.disabled)
       )?.focus({ preventScroll: true });
     };
-    focusDefault();
+    if (scope.isActive()) focusDefault();
     const focus = (event: FocusEvent) => {
+      if (!scope.isActive()) return;
       if (isDialogPopupTarget(host.current, event.target)) return;
       if (!host.current?.contains(event.target as Node)) focusDefault();
     };
     const key = (event: KeyboardEvent) => {
-      if (isImeKeyboardEvent(event)) return;
+      if (!scope.isActive() || event.defaultPrevented || isImeKeyboardEvent(event)) return;
       if (isDialogPopupTarget(host.current, event.target)) return;
       const current = latest.current;
       if (event.key === "Escape") {
@@ -198,7 +202,7 @@ export function AlertDialog({
     return () => {
       document.removeEventListener("focusin", focus);
       document.removeEventListener("keydown", key, true);
-      if (previous?.isConnected) previous.focus({ preventScroll: true });
+      if (scope.dispose() && previous?.isConnected) previous.focus({ preventScroll: true });
     };
   }, [open]);
 

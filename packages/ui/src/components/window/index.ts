@@ -2,7 +2,11 @@ import "$/components/window/dialog-backdrop.module.css";
 
 export * from "$/components/window/dialog";
 export * from "$/components/window/alert-dialog";
-export { focusDialogContainer, isDialogPopupTarget } from "$/components/window/focus";
+export {
+  createModalFocusScope,
+  focusDialogContainer,
+  isDialogPopupTarget,
+} from "$/components/window/focus";
 export { FloatingLayer, FloatingLayerKind } from "$/components/window/floating-layer";
 export type { FloatingLayerProps } from "$/components/window/floating-layer";
 export {
