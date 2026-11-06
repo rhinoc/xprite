@@ -19,6 +19,7 @@ import {
   effectiveLayerVisible,
   layerEditable,
   renderTimelineFrame,
+  timelineTags,
   type BatchEditOperation,
   type EditorDocument,
   type PixelBuffer,
@@ -33,6 +34,9 @@ const MAX_DOCUMENT_SIDE = 2048;
 const PNG_MIME_TYPE = "image/png";
 const ASEPRITE_MIME_TYPE = "application/octet-stream";
 const DEFAULT_BATCH_NAME = "AI edit";
+const GRID_TRANSPARENT_CHARACTER = ".";
+const GRID_CHARACTER_ALPHABET =
+  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{}|;:',<`~?/\\\"";
 
 function inputObject(input: unknown): Record<string, unknown> {
   if (!input || typeof input !== "object" || Array.isArray(input))
@@ -62,6 +66,26 @@ function region(value: unknown, doc: EditorDocument, limit: number): Rect {
       `Read a smaller region (maximum ${limit} pixels)`,
     );
   return { x, y, width, height };
+}
+
+const PREVIEW_FILENAME = /^[\w.-]+\.png$/;
+
+function previewFileName(value: unknown): string {
+  const candidate = name(value, "filename");
+  if (!PREVIEW_FILENAME.test(candidate))
+    throw new BatchEditError(
+      BatchEditErrorCode.InvalidInput,
+      "filename must be a plain *.png file name",
+    );
+  return candidate;
+}
+
+function docBaseName(slot: DocumentSlot): string {
+  const base = slot.core
+    .getSnapshot()
+    .document!.name.replace(/\.[^.]+$/, "")
+    .replace(/[^\w.-]+/g, "-");
+  return base || "document";
 }
 
 /** No state mirror: every request resolves the current workspace and editor. */
@@ -166,6 +190,14 @@ export class AgentToolsManager {
           effectiveLayerVisible(t, index),
       })),
       frames: t.frames.map((frame, index) => ({ index, duration: frame.duration })),
+      tags: timelineTags(t).map((tag) => ({
+        name: tag.name,
+        from: tag.from,
+        to: tag.to,
+        direction: tag.direction,
+        repeat: tag.repeat,
+        color: [...tag.color],
+      })),
       selection: doc.selection
         ? {
             x: doc.selection.x,
@@ -241,6 +273,188 @@ export class AgentToolsManager {
       profile: workingColorProfile(t),
       revision: slot.core.getContentRevision(),
     };
+  }
+
+  private grid(read: ReturnType<AgentToolsManager["pixels"]>) {
+    const legend: Record<string, string> = {};
+    const colors = new Map<string, string>();
+    let next = 0;
+    const keyFor = (r: number, g: number, b: number, a: number) => `${r},${g},${b},${a}`;
+    const hex = (r: number, g: number, b: number, a: number) =>
+      `#${[r, g, b, a].map((value) => value.toString(16).padStart(2, "0")).join("")}`.toUpperCase();
+    const rows: string[] = [];
+    for (let y = 0; y < read.pixels.height; y++) {
+      let row = "";
+      for (let x = 0; x < read.pixels.width; x++) {
+        const at = (y * read.pixels.width + x) * BATCH_EDIT_LIMITS.rgbaChannels;
+        const r = read.pixels.data[at],
+          g = read.pixels.data[at + 1],
+          b = read.pixels.data[at + 2],
+          a = read.pixels.data[at + 3];
+        if (!a) {
+          row += GRID_TRANSPARENT_CHARACTER;
+          continue;
+        }
+        const key = keyFor(r, g, b, a);
+        let character = colors.get(key);
+        if (!character) {
+          if (next >= GRID_CHARACTER_ALPHABET.length)
+            throw new BatchEditError(
+              BatchEditErrorCode.InvalidInput,
+              `Grid read supports at most ${GRID_CHARACTER_ALPHABET.length} opaque colors`,
+            );
+          character = GRID_CHARACTER_ALPHABET[next++];
+          colors.set(key, character);
+          legend[character] = hex(r, g, b, a);
+        }
+        row += character;
+      }
+      rows.push(row);
+    }
+    return { legend, rows };
+  }
+
+  /** Resolve one diff endpoint: {documentId?, frameIndex?, layerId?} inherits defaults. */
+  private diffEndpoint(
+    endpoint: unknown,
+    defaults: { documentId: string; frameIndex: unknown; layerId: unknown },
+  ) {
+    const spec = endpoint === undefined ? {} : inputObject(endpoint);
+    const documentId = spec.documentId !== undefined ? spec.documentId : defaults.documentId;
+    const slot = this.resolve({ ...spec, documentId });
+    const t = slot.core.getSnapshot().document!.timeline!;
+    return {
+      slot,
+      documentId: slot.documentId,
+      frameIndex: spec.frameIndex !== undefined ? spec.frameIndex : defaults.frameIndex,
+      layerId: spec.layerId !== undefined ? spec.layerId : defaults.layerId,
+      frameCount: t.frames.length,
+    };
+  }
+
+  /** mode:"diff" — compare the same rect between two document/frame/layer endpoints. */
+  private diff(input: Record<string, unknown>): AgentToolResponse {
+    const rect = input.rect as Rect;
+    const defaults = {
+      documentId: input.documentId as string,
+      frameIndex: input.frameIndex,
+      layerId: input.layerId,
+    };
+    const fromSpec = this.diffEndpoint(input.from, defaults);
+    const toSpec = this.diffEndpoint(input.to, defaults);
+    const readAt = (spec: ReturnType<AgentToolsManager["diffEndpoint"]>) =>
+      this.pixels(
+        spec.slot,
+        {
+          ...input,
+          documentId: spec.documentId,
+          frameIndex: spec.frameIndex,
+          layerId: spec.layerId,
+          rect,
+        },
+        MAX_READ_PIXELS,
+      );
+    const from = readAt(fromSpec),
+      to = readAt(toSpec);
+    if (from.pixels.width !== to.pixels.width || from.pixels.height !== to.pixels.height)
+      throw new BatchEditError(
+        BatchEditErrorCode.InvalidInput,
+        "Diff endpoints resolved to different rect sizes",
+      );
+    let changedPixels = 0;
+    let minX = -1,
+      minY = -1,
+      maxX = -1,
+      maxY = -1;
+    const width = from.pixels.width,
+      height = from.pixels.height;
+    const fd = from.pixels.data,
+      td = to.pixels.data;
+    const CH = BATCH_EDIT_LIMITS.rgbaChannels;
+    // per-pixel marker for detail grid: 0 same, 1 erased-to-empty, 2 new color
+    const marks = new Uint8Array(width * height);
+    for (let y = 0; y < height; y++)
+      for (let x = 0; x < width; x++) {
+        const at = (y * width + x) * CH;
+        const same =
+          fd[at] === td[at] &&
+          fd[at + 1] === td[at + 1] &&
+          fd[at + 2] === td[at + 2] &&
+          fd[at + 3] === td[at + 3];
+        if (same) continue;
+        changedPixels++;
+        marks[y * width + x] = td[at + 3] === 0 ? 1 : 2;
+        if (minX < 0 || x < minX) minX = x;
+        if (minY < 0 || y < minY) minY = y;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+      }
+    const changedBounds =
+      changedPixels === 0
+        ? null
+        : {
+            x: (rect as Rect).x + minX,
+            y: (rect as Rect).y + minY,
+            width: maxX - minX + 1,
+            height: maxY - minY + 1,
+          };
+    const data: Record<string, unknown> = {
+      mode: "diff",
+      changedPixels,
+      changedBounds,
+      from: {
+        documentId: fromSpec.documentId,
+        frameIndex: from.frameIndex,
+        layerId: fromSpec.layerId ?? null,
+        revision: from.revision,
+      },
+      to: {
+        documentId: toSpec.documentId,
+        frameIndex: to.frameIndex,
+        layerId: toSpec.layerId ?? null,
+        revision: to.revision,
+      },
+      rect,
+    };
+    if (input.detail) {
+      const legend: Record<string, string> = {};
+      const colors = new Map<string, string>();
+      let next = 0;
+      const rows: string[] = [];
+      for (let y = 0; y < height; y++) {
+        let row = "";
+        for (let x = 0; x < width; x++) {
+          const mark = marks[y * width + x];
+          if (mark === 0) {
+            row += ".";
+            continue;
+          }
+          if (mark === 1) {
+            row += "-";
+            continue;
+          }
+          const at = (y * width + x) * BATCH_EDIT_LIMITS.rgbaChannels;
+          const key = `${td[at]},${td[at + 1]},${td[at + 2]},${td[at + 3]}`;
+          let ch = colors.get(key);
+          if (!ch) {
+            if (next >= GRID_CHARACTER_ALPHABET.length)
+              throw new BatchEditError(
+                BatchEditErrorCode.InvalidInput,
+                "Diff detail exceeds the color alphabet",
+              );
+            ch = GRID_CHARACTER_ALPHABET[next++];
+            colors.set(key, ch);
+            legend[ch] = `#${[td[at], td[at + 1], td[at + 2], td[at + 3]]
+              .map((v) => v.toString(16).padStart(2, "0"))
+              .join("")}`.toUpperCase();
+          }
+          row += ch;
+        }
+        rows.push(row);
+      }
+      data.detail = { legend, rows };
+    }
+    return { ok: true, data };
   }
 
   execute = async (tool: AgentToolName, args: unknown): Promise<AgentToolResponse> => {
@@ -321,6 +535,7 @@ export class AgentToolsManager {
       if (tool === AgentToolName.ReadPixels || tool === AgentToolName.Render) {
         if (tool === AgentToolName.ReadPixels && input.rect === undefined)
           throw new BatchEditError(BatchEditErrorCode.InvalidInput, "rect is required");
+        if (tool === AgentToolName.ReadPixels && input.mode === "diff") return this.diff(input);
         const read = this.pixels(
           slot,
           input,
@@ -352,7 +567,11 @@ export class AgentToolsManager {
             data: {
               ...metadata,
               colorSpace: "working",
-              rgba: Array.from(read.pixels.data),
+              ...(input.format === "grid"
+                ? { format: "grid", ...this.grid(read) }
+                : {
+                    rgba: Array.from(read.pixels.data),
+                  }),
               selectionMask,
             },
           };
@@ -364,6 +583,47 @@ export class AgentToolsManager {
             ...metadata,
             mimeType: PNG_MIME_TYPE,
             dataUrl: `data:${PNG_MIME_TYPE};base64,${this.port.encodeBase64(bytes)}`,
+          },
+        };
+      }
+      if (tool === AgentToolName.WritePreview) {
+        const directory = this.port.previewDirectory;
+        if (!directory)
+          throw new BatchEditError(
+            BatchEditErrorCode.Unsupported,
+            "Preview directory is not supported in this environment",
+          );
+        const read = this.pixels(slot, input, BATCH_EDIT_LIMITS.pixels);
+        const bytes = await this.port.encodePng(convertPixelsToSrgb(read.pixels, read.profile));
+        const filename =
+          input.filename === undefined
+            ? `preview-${docBaseName(slot)}-f${read.frameIndex}-r${read.revision}.png`
+            : previewFileName(input.filename);
+        try {
+          await directory.write(filename, bytes);
+        } catch (reason) {
+          const code =
+            reason && typeof reason === "object" && "code" in reason
+              ? String((reason as { code: unknown }).code)
+              : "preview_directory_write_failed";
+          const message = reason instanceof Error ? reason.message : String(reason);
+          return {
+            ok: false,
+            error: {
+              code,
+              message,
+            },
+          };
+        }
+        return {
+          ok: true,
+          data: {
+            documentId: slot.documentId,
+            revision: read.revision,
+            frameIndex: read.frameIndex,
+            rect: read.rect,
+            mimeType: PNG_MIME_TYPE,
+            filename,
           },
         };
       }

@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
+import { AgentPreferences } from "$/components/dialogs/agent-preferences";
 import { Alert } from "$/components/dialogs/alert";
 import { CanvasDisplayPreferencesSection } from "$/components/dialogs/canvas-display-preferences";
 import { CursorPreferencesSection } from "$/components/dialogs/cursor-preferences";
@@ -150,6 +151,12 @@ export interface PreferencesDialogProps {
   onDefaultTimelineFirstFrameChange?: (firstFrame: number) => void;
   canClearRecentFiles?: boolean;
   onClearRecentFiles?: () => void;
+  agentPreviewStatus?: {
+    state: "connected" | "unavailable" | "disconnected";
+    name?: string;
+  } | null;
+  onConnectAgentPreviewDirectory?: () => void;
+  onDisconnectAgentPreviewDirectory?: () => void;
   composeGroups?: boolean;
   onComposeGroupsChange?: (value: boolean) => void;
   recoverySettings?: RecoverySettings;
@@ -193,6 +200,7 @@ const sections = [
   "Aseprite Format",
   "Experimental",
   "Tablet",
+  "AI",
   DIAGNOSTICS_SECTION,
   RESET_SECTION,
 ];
@@ -250,6 +258,7 @@ const narrowContentEnds: Record<string, readonly [number, number]> = {
   Undo: [193, 16],
   Theme: [395, 0],
   Experimental: [389, 12],
+  AI: [123, 16],
   Tablet: [394, 18],
   Selection: [269, 16],
   Timeline: [305, 14],
@@ -329,6 +338,7 @@ const enabledSections = new Set([
   "Theme",
   "Tablet",
   "Experimental",
+  "AI",
   DIAGNOSTICS_SECTION,
   RESET_SECTION,
 ]);
@@ -435,6 +445,7 @@ function PreferencesChrome({
     "Theme",
     "Experimental",
     "Tablet",
+    "AI",
     DIAGNOSTICS_SECTION,
     RESET_SECTION,
   ].includes(section);
@@ -509,6 +520,13 @@ function PreferencesChrome({
         <>
           {divider(358, 303, 333, 11, "Color Quantization")}
           {divider(358, 358, 333, 11, "Performance")}
+          {divider(
+            narrowLayout ? 358 : 716,
+            narrowLayout ? 411 : 105,
+            narrowLayout ? 333 : 333,
+            11,
+            tUi("ui.agent.preview.section"),
+          )}
         </>
       )}
       {generalLayout && (
@@ -613,6 +631,9 @@ export function PreferencesDialog({
   onDefaultTimelineFirstFrameChange,
   canClearRecentFiles = false,
   onClearRecentFiles = noop,
+  agentPreviewStatus = null,
+  onConnectAgentPreviewDirectory,
+  onDisconnectAgentPreviewDirectory,
   composeGroups = false,
   onComposeGroupsChange,
   touchInputPreferences = DEFAULT_TOUCH_INPUT_PREFERENCES,
@@ -1914,6 +1935,15 @@ export function PreferencesDialog({
                                 }
                               : undefined
                           }
+                        />
+                      )}
+                      {section === "AI" && (
+                        <AgentPreferences
+                          box={box}
+                          client={contentClient}
+                          status={agentPreviewStatus}
+                          onConnect={onConnectAgentPreviewDirectory}
+                          onDisconnect={onDisconnectAgentPreviewDirectory}
                         />
                       )}
                       {section === DIAGNOSTICS_SECTION && (

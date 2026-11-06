@@ -673,6 +673,9 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
               onDefaultTimelineFirstFrameChange={editor.setDefaultTimelineFirstFrame}
               canClearRecentFiles={actions.canClearRecentFiles}
               onClearRecentFiles={actions.clearRecentFiles}
+              agentPreviewStatus={actions.agentPreviewStatus}
+              onConnectAgentPreviewDirectory={actions.connectAgentPreviewDirectory}
+              onDisconnectAgentPreviewDirectory={actions.disconnectAgentPreviewDirectory}
               touchInputPreferences={touchInputPreferences}
               onTouchInputPreferencesChange={updateTouchInputPreferences}
               wheelDevice={wheelDevice}

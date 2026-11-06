@@ -11,7 +11,7 @@ another browser's document memory.
 
 The editor HTML advertises `/agent/editor.md` with a `rel="describedby"`
 Markdown link in its head. The document is shipped as a static editor asset and
-explains how to discover the current schemas through `describe()`.  The editor's outer accessible name recommends `window.xpriteAgent`
+explains how to discover the current schemas through `describe()`. The editor's outer accessible name recommends `window.xpriteAgent`
 for browser drawing and editing, gives the `describe()` call and the documentation
 URL in the current UI language. Semantic snapshots can surface these without
 inspecting the head.
@@ -37,20 +37,22 @@ const result = await api.applyBatch({
   documentId: document.id,
   expectedRevision: document.revision,
   label: "Draw a red square",
-  operations: [{
-    type: "fillRect",
-    layerId: document.activeLayerId,
-    frameIndex: document.activeFrameIndex,
-    rect: { x: 0, y: 0, width: 4, height: 4 },
-    color: "#FF004D"
-  }]
+  operations: [
+    {
+      type: "fillRect",
+      layerId: document.activeLayerId,
+      frameIndex: document.activeFrameIndex,
+      rect: { x: 0, y: 0, width: 4, height: 4 },
+      color: "#FF004D",
+    },
+  ],
 });
 if (!result.ok) throw new Error(result.error.message);
 const preview = await api.render({ documentId: document.id });
 // preview.data.dataUrl is an sRGB PNG.
 const undone = await api.undo({
   documentId: document.id,
-  expectedRevision: result.data.revision
+  expectedRevision: result.data.revision,
 });
 ```
 
@@ -69,15 +71,33 @@ Do not retain document IDs across reloads or close/reopen cycles.
   data URL with the frame, rectangle and sampled revision. It ignores zoom and
   pan. The default is the active frame and full sprite.
 - `readPixels({ documentId, frameIndex?, layerId?, rect })` returns row-major
-  working-space RGBA bytes. Omit `layerId` for the visible composite. A missing
-  image cel reads transparent. `selectionMask` is null without a selection,
-  otherwise a row-major 0/1 mask for the returned region. Pixel writes honor
-  this mask, which may be irregular.
+  working-space RGBA bytes. `format: "grid"` returns the same region as a
+  single-character `legend` plus one `rows` string per sprite row; `.` is
+  transparent and identical RGBA colors reuse the same character. Omit
+  `layerId` for the visible composite. A missing image cel reads transparent.
+  `selectionMask` is null without a selection, otherwise a row-major 0/1 mask
+  for the returned region. Pixel writes honor this mask, which may be
+  irregular.
+  `mode: "diff"` instead compares the same `rect` between two endpoints:
+  `from` and `to` are `{ documentId?, frameIndex?, layerId? }` objects whose
+  omitted fields default to the top-level values, so cross-document, cross-frame
+  and layer-vs-composite comparisons are all expressible. It returns
+  `changedPixels`, `changedBounds` (sprite coordinates, `null` when unchanged),
+  the resolved `from`/`to` endpoints with their sampled revisions, and with
+  `detail: true` a `detail` map of `{ legend, rows }` over the region where `.`
+  is unchanged, `-` is erased to transparent, and any other character is the
+  new color at that pixel.
 - `exportDocument({ documentId, format, frameIndex? })` returns filename, MIME
   type, byte length and base64 bytes. `png` exports the specified or active
   frame in sRGB; `aseprite` exports the whole project with its color profile.
   Export does not download, mark saved or update export preferences. File data
   belongs to the returned revision even if the user edits during encoding.
+- `writePreview({ documentId, frameIndex?, rect?, filename? })` renders like
+  `render` but writes the PNG into the user-connected preview directory and
+  returns its `filename`. The user connects the directory once under
+  Preferences > Files > Agent Preview; until then the call fails with
+  `preview_directory_permission_required`. `filename` defaults to a unique
+  `preview-<doc>-f<frame>-r<revision>.png` and must be a plain `*.png` name.
 
 Read previews can include an in-progress raster gesture; context's `busy` flag
 distinguishes it from a committed state. Export and edits reject pending drawing,
@@ -98,6 +118,10 @@ frame shifts subsequent indices. Always reread context after a structural edit.
 - `fill`: `point`, `color`; contiguous fill with zero tolerance.
 - `pixels`: `rect`, `rgba`; exactly four bytes per pixel, including transparent
   pixels.
+- `grid`: `rect`, `legend`, `rows`; `.` means transparent. `transparent` is
+  `erase` by default and clears the covered pixels; `skip` leaves existing
+  pixels under `.` unchanged. Other characters map to working-space colors in
+  `legend`.
 - `addLayer`: caller-selected unique `layerId`, `name`, optional `afterLayerId`.
   Uses the editor's insertion rules, including insertion into an active group.
   Later operations in the batch can paint the new layer by its ID.
@@ -109,6 +133,13 @@ frame shifts subsequent indices. Always reread context after a structural edit.
   `duration` in milliseconds. Continuous cels stay linked; other duplicated
   cels receive independent images.
 - `setFrameDuration`: `frameIndex`, `duration` in milliseconds.
+- `addTag`: `name`, `from`, `to` (zero-based closed frame range), optional
+  `direction` (default `forward`), `repeat`, `color` ([r,g,b] or [r,g,b,a]).
+  `updateTag`: `tagIndex` plus any of the same fields to patch.
+  `removeTag`: `tagIndex`. Indices follow the order `getContext` returns.
+- `linkCels`: `layerId`, `frameIndices`; the first populated frame's cel
+  becomes the shared source for the rest of the list. `unlinkCels`: `layerId`,
+  `frameIndices`; each listed cel receives its own copy of the shared image.
 
 Colors are working-space `#RRGGBB`, `#RRGGBBAA`, or `[r, g, b, a]` bytes.
 Drawing uses replacement ink, honors the current selection, and requires a

@@ -1,3 +1,4 @@
+import { sharedAgentPreviewDirectory } from "$/adapters/agent/preview-directory";
 import {
   AGENT_GLOBAL_NAME,
   AGENT_INTERFACE_VERSION,
@@ -32,6 +33,7 @@ interface WebModelContext {
 
 /** Browser publication only; all edits and tool definitions belong to the manager. */
 export function createBrowserAgentToolsPort(): AgentToolsPort {
+  const previewDirectory = sharedAgentPreviewDirectory();
   return {
     encodePng: async (pixels) => new Uint8Array(await (await encodePngBlob(pixels)).arrayBuffer()),
     encodeBase64: (bytes) => {
@@ -103,6 +105,26 @@ export function createBrowserAgentToolsPort(): AgentToolsPort {
         if (Reflect.get(window, AGENT_GLOBAL_NAME) === api)
           Reflect.deleteProperty(window, AGENT_GLOBAL_NAME);
       };
+    },
+    previewDirectory: {
+      status: async () => {
+        if (!previewDirectory.supported) return { state: "unavailable" };
+        const handle = await previewDirectory.granted();
+        return handle ? { state: "connected", name: handle.name } : { state: "disconnected" };
+      },
+      connect: async () => (await previewDirectory.connect()) !== null,
+      disconnect: () => previewDirectory.disconnect(),
+      write: async (filename, bytes) => {
+        const handle = await previewDirectory.granted();
+        if (!handle)
+          throw Object.assign(new Error("Preview directory is not connected"), {
+            code: "preview_directory_permission_required",
+          });
+        const file = await handle.getFileHandle(filename, { create: true });
+        const stream = await file.createWritable();
+        await stream.write(bytes);
+        await stream.close();
+      },
     },
   };
 }

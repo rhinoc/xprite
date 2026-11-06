@@ -24,17 +24,23 @@ import {
   type BatchEditOperation,
   type BatchEditResult,
 } from "$/editor/batch-edit-types";
+import { AsepriteTagDirection, type AsepriteTag } from "$/import-export/aseprite/model";
 import {
   adjustTimelineTags,
+  assertSupportedAnimationTags,
   insertLayer,
   isBackgroundLayer,
   layerEditable,
   effectiveLayerVisible,
+  linkTimelineCels,
   LAYER_CONTINUOUS,
   LAYER_VISIBLE,
   MAX_TIMELINE_FRAMES,
   MAX_TIMELINE_LAYERS,
   moveLayerTree,
+  timelineTags,
+  unlinkTimelineCels,
+  withTimelineTags,
   type SpriteTimeline,
   type TimelineCel,
 } from "$/timeline";
@@ -109,6 +115,53 @@ function batchLayerIndex(timeline: SpriteTimeline, id: string): number {
   if (index < 0)
     throw new BatchEditError(BatchEditErrorCode.NotFound, `Layer ${id} does not exist`);
   return index;
+}
+
+const TAG_DIRECTIONS: readonly AsepriteTagDirection[] = [
+  AsepriteTagDirection.Forward,
+  AsepriteTagDirection.Reverse,
+  AsepriteTagDirection.PingPong,
+  AsepriteTagDirection.PingPongReverse,
+];
+
+function batchDirection(value: unknown): AsepriteTagDirection {
+  if (!TAG_DIRECTIONS.includes(value as AsepriteTagDirection))
+    throw new BatchEditError(
+      BatchEditErrorCode.InvalidInput,
+      `direction must be one of ${TAG_DIRECTIONS.join(", ")}`,
+    );
+  return value as AsepriteTagDirection;
+}
+
+/** Tag colours are [r,g,b] or [r,g,b,a] byte channels; alpha defaults to opaque. */
+function tagColor(value: unknown): [number, number, number, number] {
+  if (typeof value === "string") return [...color(value)] as [number, number, number, number];
+  if (!Array.isArray(value) || (value.length !== 3 && value.length !== 4))
+    throw new BatchEditError(
+      BatchEditErrorCode.InvalidInput,
+      "color must be [r,g,b] or [r,g,b,a] bytes",
+    );
+  const channels = value.map((channel) => batchInteger(channel, "color channel", 0, UINT8_MAX));
+  return [channels[0], channels[1], channels[2], channels[3] ?? UINT8_MAX];
+}
+
+/** Build an AsepriteTag from an addTag op, with core defaults. */
+function batchTag(
+  op: Extract<BatchEditOperation, { type: BatchEditKind.AddTag }>,
+  timeline: SpriteTimeline,
+): AsepriteTag {
+  const tag: AsepriteTag = {
+    name: batchName(op.name, "name"),
+    from: batchInteger(op.from, "from", 0, timeline.frames.length - 1),
+    to: batchInteger(op.to, "to", 0, timeline.frames.length - 1),
+    direction:
+      op.direction !== undefined ? batchDirection(op.direction) : AsepriteTagDirection.Forward,
+    repeat: op.repeat !== undefined ? batchInteger(op.repeat, "repeat", 0, UINT16_MAX) : 0,
+    color: op.color !== undefined ? tagColor(op.color) : [0, 0, 0, 0],
+  };
+  if (tag.name.length > 256 || tag.from > tag.to)
+    throw new BatchEditError(BatchEditErrorCode.InvalidInput, "Invalid tag name or frame range");
+  return tag;
 }
 
 function copyFrameCel(cel: TimelineCel | null, continuous: boolean): TimelineCel | null {
@@ -273,6 +326,95 @@ export function applyDocumentBatch(
         };
         break;
       }
+      case BatchEditKind.AddTag:
+      case BatchEditKind.UpdateTag:
+      case BatchEditKind.RemoveTag: {
+        const tags = [...timelineTags(timeline)];
+        const applyTag = (index: number, tag: AsepriteTag | null) => {
+          if (tag) {
+            assertSupportedAnimationTags(
+              [...tags.filter((_, at) => at !== index), tag],
+              timeline.frames.length,
+            );
+            if (index < tags.length) tags.splice(index, 1);
+            tags.push(tag);
+            tags.sort((a, b) => a.from - b.from || b.to - a.to);
+          } else {
+            tags.splice(index, 1);
+          }
+          timeline = withTimelineTags(timeline, tags);
+        };
+        if (op.type === BatchEditKind.AddTag) {
+          const tag = batchTag(op, timeline);
+          // Append at the insertion index setAnimationTag would use.
+          applyTag(tags.length, tag);
+        } else {
+          const index = batchInteger(op.tagIndex, "tagIndex", 0, tags.length - 1);
+          if (op.type === BatchEditKind.RemoveTag) {
+            applyTag(index, null);
+          } else {
+            const current = tags[index];
+            const merged: AsepriteTag = {
+              name: op.name !== undefined ? batchName(op.name, "name") : current.name,
+              from:
+                op.from !== undefined
+                  ? batchInteger(op.from, "from", 0, timeline.frames.length - 1)
+                  : current.from,
+              to:
+                op.to !== undefined
+                  ? batchInteger(op.to, "to", 0, timeline.frames.length - 1)
+                  : current.to,
+              direction: op.direction ?? current.direction,
+              repeat:
+                op.repeat !== undefined
+                  ? batchInteger(op.repeat, "repeat", 0, UINT16_MAX)
+                  : current.repeat,
+              color: op.color !== undefined ? tagColor(op.color) : current.color,
+              ...(current.userData !== undefined ? { userData: current.userData } : {}),
+            };
+            batchDirection(merged.direction);
+            if (merged.name.length > 256 || merged.from > merged.to)
+              throw new BatchEditError(
+                BatchEditErrorCode.InvalidInput,
+                "Invalid tag name or frame range",
+              );
+            applyTag(index, merged);
+          }
+        }
+        break;
+      }
+      case BatchEditKind.LinkCels:
+      case BatchEditKind.UnlinkCels: {
+        const index = batchLayerIndex(timeline, op.layerId);
+        if (
+          !Array.isArray(op.frameIndices) ||
+          !op.frameIndices.length ||
+          op.frameIndices.length > timeline.frames.length
+        )
+          throw new BatchEditError(
+            BatchEditErrorCode.InvalidInput,
+            "frameIndices must be a non-empty list of frame indices",
+          );
+        const frameSet = new Set<number>();
+        for (const fi of op.frameIndices)
+          frameSet.add(batchInteger(fi, "frameIndices", 0, timeline.frames.length - 1));
+        if (op.type === BatchEditKind.LinkCels && frameSet.size < 2)
+          throw new BatchEditError(
+            BatchEditErrorCode.InvalidInput,
+            "linkCels needs at least two distinct frames",
+          );
+        const range = {
+          kind: "cels" as const,
+          frames: [...frameSet].sort((a, b) => a - b),
+          layers: [index],
+        };
+        const next =
+          op.type === BatchEditKind.LinkCels
+            ? linkTimelineCels(timeline, range)
+            : unlinkTimelineCels(timeline, range);
+        timeline = next;
+        break;
+      }
       default: {
         if (!Object.values(BatchEditKind).includes(op.type))
           throw new BatchEditError(BatchEditErrorCode.InvalidInput, "Unknown operation type");
@@ -367,11 +509,14 @@ export function applyDocumentBatch(
         const currentCel = timeline.frames[frameIndex].cels[index]!;
         const local = (p: Point) => ({ x: p.x - currentCel.x, y: p.y - currentCel.y });
         const options: RasterOptions = {
-          color: op.type === BatchEditKind.Pixels ? [0, 0, 0, 0] : color(op.color),
+          color:
+            op.type === BatchEditKind.Pixels || op.type === BatchEditKind.Grid
+              ? [0, 0, 0, 0]
+              : color(op.color),
           brush: {
             shape: "circle",
             size:
-              op.type === BatchEditKind.Pixels
+              op.type === BatchEditKind.Pixels || op.type === BatchEditKind.Grid
                 ? 1
                 : batchInteger(op.size ?? 1, "size", 1, BATCH_EDIT_LIMITS.brushSize),
             angle: 0,
@@ -389,7 +534,8 @@ export function applyDocumentBatch(
         if (
           isBackgroundLayer(layer) &&
           options.color[3] !== UINT8_MAX &&
-          op.type !== BatchEditKind.Pixels
+          op.type !== BatchEditKind.Pixels &&
+          op.type !== BatchEditKind.Grid
         )
           throw new BatchEditError(
             BatchEditErrorCode.NotEditable,
@@ -453,6 +599,64 @@ export function applyDocumentBatch(
                 const p = local({ x: rect.x + px, y: rect.y + py });
                 write(p.x, p.y, rgba);
               }
+            break;
+          }
+          case BatchEditKind.Grid: {
+            const rect = batchRect(op.rect, doc.width, doc.height);
+            if (!op.legend || typeof op.legend !== "object" || Array.isArray(op.legend))
+              throw new BatchEditError(
+                BatchEditErrorCode.InvalidInput,
+                "Grid legend must be an object",
+              );
+            const transparent = op.transparent ?? "erase";
+            if (transparent !== "erase" && transparent !== "skip")
+              throw new BatchEditError(
+                BatchEditErrorCode.InvalidInput,
+                "Grid transparent must be erase or skip",
+              );
+            if (!Array.isArray(op.rows) || op.rows.length !== rect.height)
+              throw new BatchEditError(
+                BatchEditErrorCode.InvalidInput,
+                "Grid row count must match rect.height",
+              );
+            for (const [key, value] of Object.entries(op.legend))
+              if (key.length !== 1 || key === ".")
+                throw new BatchEditError(
+                  BatchEditErrorCode.InvalidInput,
+                  "Grid legend keys must be one character other than '.'",
+                );
+              else color(value as Rgba | string);
+            for (let py = 0; py < op.rows.length; py++) {
+              const row = op.rows[py];
+              if (typeof row !== "string" || row.length !== rect.width)
+                throw new BatchEditError(
+                  BatchEditErrorCode.InvalidInput,
+                  `Grid row ${py} must contain exactly ${rect.width} characters`,
+                );
+              for (let px = 0; px < rect.width; px++) {
+                const key = row[px];
+                if (key === ".") {
+                  if (transparent === "skip") continue;
+                  const p = local({ x: rect.x + px, y: rect.y + py });
+                  write(p.x, p.y, [0, 0, 0, 0]);
+                  continue;
+                }
+                const value = op.legend[key];
+                if (value === undefined)
+                  throw new BatchEditError(
+                    BatchEditErrorCode.InvalidInput,
+                    `Grid row ${py} uses undefined color '${key}'`,
+                  );
+                const rgba = color(value);
+                if (isBackgroundLayer(layer) && rgba[3] !== UINT8_MAX)
+                  throw new BatchEditError(
+                    BatchEditErrorCode.NotEditable,
+                    "Background pixels must be opaque",
+                  );
+                const p = local({ x: rect.x + px, y: rect.y + py });
+                write(p.x, p.y, rgba);
+              }
+            }
             break;
           }
           default: {

@@ -83,6 +83,21 @@ const operations = {
       },
       ["layerId", "frameIndex", "rect", "rgba"],
     ),
+    operation(
+      BatchEditKind.Grid,
+      {
+        ...target,
+        rect,
+        legend: {
+          type: "object",
+          propertyNames: { minLength: 1, maxLength: 1, pattern: "^[^.]$" },
+          additionalProperties: color,
+        },
+        rows: { type: "array", items: { type: "string" }, minItems: 1 },
+        transparent: { type: "string", enum: ["erase", "skip"] },
+      },
+      ["layerId", "frameIndex", "rect", "legend", "rows"],
+    ),
     operation(BatchEditKind.AddLayer, { layerId: id, name: id, afterLayerId: id }, [
       "layerId",
       "name",
@@ -110,6 +125,68 @@ const operations = {
       { frameIndex: integer, duration: { type: "integer", minimum: 1, maximum: 65535 } },
       ["frameIndex", "duration"],
     ),
+    operation(
+      BatchEditKind.AddTag,
+      {
+        name: { type: "string", minLength: 1, maxLength: 256 },
+        from: integer,
+        to: integer,
+        direction: {
+          type: "string",
+          enum: ["forward", "reverse", "ping-pong", "ping-pong-reverse"],
+        },
+        repeat: { type: "integer", minimum: 0, maximum: 65535 },
+        color: {
+          type: "array",
+          items: { type: "integer", minimum: 0, maximum: 255 },
+          minItems: 3,
+          maxItems: 4,
+        },
+      },
+      ["name", "from", "to"],
+    ),
+    operation(
+      BatchEditKind.UpdateTag,
+      {
+        tagIndex: integer,
+        name: { type: "string", minLength: 1, maxLength: 256 },
+        from: integer,
+        to: integer,
+        direction: {
+          type: "string",
+          enum: ["forward", "reverse", "ping-pong", "ping-pong-reverse"],
+        },
+        repeat: { type: "integer", minimum: 0, maximum: 65535 },
+        color: {
+          type: "array",
+          items: { type: "integer", minimum: 0, maximum: 255 },
+          minItems: 3,
+          maxItems: 4,
+        },
+      },
+      ["tagIndex"],
+    ),
+    operation(BatchEditKind.RemoveTag, { tagIndex: integer }, ["tagIndex"]),
+    operation(
+      BatchEditKind.LinkCels,
+      {
+        layerId: id,
+        frameIndices: {
+          type: "array",
+          items: integer,
+          minItems: 2,
+        },
+      },
+      ["layerId", "frameIndices"],
+    ),
+    operation(
+      BatchEditKind.UnlinkCels,
+      {
+        layerId: id,
+        frameIndices: { type: "array", items: integer, minItems: 1 },
+      },
+      ["layerId", "frameIndices"],
+    ),
   ],
 };
 
@@ -132,11 +209,29 @@ export const AGENT_TOOL_DEFINITIONS: readonly AgentToolDefinition[] = [
     name: AgentToolName.ReadPixels,
     readOnly: true,
     description:
-      "Read a region of working-space RGBA bytes and the current selection mask in row-major order. Omit layerId for the visible composite. Missing cel pixels are transparent. frameIndex defaults to the active frame. Maximum 65536 pixels per read.",
-    inputSchema: object({ ...document, frameIndex: integer, layerId: id, rect }, [
-      "documentId",
-      "rect",
-    ]),
+      "Read a region as row-major working-space RGBA bytes, as a single-character color legend plus one text row per pixel (format \"grid\": '.' is transparent, characters repeat per color), or as a diff between two endpoints (mode \"diff\": 'from' and 'to' are {documentId?, frameIndex?, layerId?} defaulting to the top-level values; returns changedPixels, changedBounds, and with detail:true a character map where '.' is unchanged, '-' erased, other characters the new color). Omit layerId for the visible composite. frameIndex defaults to the active frame. Maximum 65536 pixels per read.",
+    inputSchema: object(
+      {
+        ...document,
+        frameIndex: integer,
+        layerId: id,
+        rect,
+        format: { type: "string", enum: ["rgba", "grid"] },
+        mode: { type: "string", enum: ["rgba", "diff"] },
+        detail: { type: "boolean" },
+        from: {
+          type: "object",
+          properties: { documentId: id, frameIndex: integer, layerId: id },
+          additionalProperties: false,
+        },
+        to: {
+          type: "object",
+          properties: { documentId: id, frameIndex: integer, layerId: id },
+          additionalProperties: false,
+        },
+      },
+      ["documentId", "rect"],
+    ),
   },
   {
     name: AgentToolName.CreateDocument,
@@ -191,6 +286,21 @@ export const AGENT_TOOL_DEFINITIONS: readonly AgentToolDefinition[] = [
     inputSchema: object(
       { ...document, format: { type: "string", enum: ["png", "aseprite"] }, frameIndex: integer },
       ["documentId", "format"],
+    ),
+  },
+  {
+    name: AgentToolName.WritePreview,
+    readOnly: false,
+    description:
+      "Render a document frame or region as PNG and write it into the user-connected preview directory, returning the file name. The user connects the directory once in preferences; until then the tool reports preview_directory_permission_required. frameIndex is zero-based and defaults to the active frame; rect defaults to the whole sprite. filename defaults to a unique name and must be a plain *.png name.",
+    inputSchema: object(
+      {
+        ...document,
+        frameIndex: integer,
+        rect,
+        filename: { type: "string", minLength: 1, maxLength: BATCH_EDIT_LIMITS.nameLength },
+      },
+      ["documentId"],
     ),
   },
 ];
