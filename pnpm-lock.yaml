@@ -149,8 +149,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/palette-assets
       '@xprite/pixelate':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.1.2
+        version: 0.1.2
       '@xprite/site-assets':
         specifier: workspace:*
         version: link:../growth/public
@@ -216,8 +216,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/palette-assets
       '@xprite/pixelate':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.1.2
+        version: 0.1.2
       '@xprite/site-assets':
         specifier: workspace:*
         version: link:../growth/public
@@ -259,8 +259,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/editor-ui
       '@xprite/pixelate':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.1.2
+        version: 0.1.2
       '@xprite/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -317,8 +317,8 @@ importers:
         specifier: workspace:*
         version: link:../growth/content
       '@xprite/pixelate':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.1.2
+        version: 0.1.2
       '@xprite/site-assets':
         specifier: workspace:*
         version: link:../growth/public
@@ -350,8 +350,8 @@ importers:
         specifier: workspace:*
         version: link:../bedrock
       '@xprite/pixelate':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.1.2
+        version: 0.1.2
       fflate:
         specifier: ^0.8.3
         version: 0.8.3
@@ -371,8 +371,8 @@ importers:
         specifier: workspace:*
         version: link:../palette-assets
       '@xprite/pixelate':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.1.2
+        version: 0.1.2
       '@xprite/ui':
         specifier: workspace:*
         version: link:../ui
@@ -2145,8 +2145,8 @@ packages:
   '@webassemblyjs/wast-printer@1.14.1':
     resolution: {integrity: sha512-kPSSXE6De1XOR820C90RIo2ogvZG+c3KiHzqUoO/F34Y2shGzesfqv7o57xrxovZJH/MetF5UjroJ/R/3isoiw==}
 
-  '@xprite/pixelate@0.1.0':
-    resolution: {integrity: sha512-IivInWv7LBA3hsf08B3/kIy+9T1WHU1RXUwSrgwyjVxdhMJ/xBegbmZEqp8fk1PufjYc3V3V1X7zVXQ136pBAQ==}
+  '@xprite/pixelate@0.1.2':
+    resolution: {integrity: sha512-I7mHQALUnBLrmcZMUSKUx4sibENY66i2QMG8AaJa34IBwkYma+fzhLVUo0mNx58mcOxVhC9tC9do3pqRzWwM1g==}
     engines: {node: '>=20'}
 
   '@xtuc/ieee754@1.2.0':
@@ -5018,7 +5018,7 @@ snapshots:
       '@webassemblyjs/ast': 1.14.1
       '@xtuc/long': 4.2.2
 
-  '@xprite/pixelate@0.1.0': {}
+  '@xprite/pixelate@0.1.2': {}
 
   '@xtuc/ieee754@1.2.0': {}
 
