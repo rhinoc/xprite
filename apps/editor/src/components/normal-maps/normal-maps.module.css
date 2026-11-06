@@ -1,0 +1,92 @@
+.imagePanel {
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  height: clamp(120px, 28vh, 280px);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.zoom {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 3;
+}
+
+.imageViewport {
+  position: absolute;
+  inset: 0;
+  user-select: none;
+  min-width: 0;
+  overflow: hidden;
+  touch-action: none;
+  background-color: var(--ui-color-checker-light);
+  background-image: conic-gradient(
+    var(--ui-color-checker-dark) 25%,
+    transparent 0 50%,
+    var(--ui-color-checker-dark) 0 75%,
+    transparent 0
+  );
+  background-size: 16px 16px;
+}
+
+.viewModes {
+  justify-content: center;
+}
+
+.lightPosition {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  filter: drop-shadow(1px 1px var(--ui-color-border));
+}
+
+.lightPosition::before,
+.lightPosition::after {
+  content: "";
+  position: absolute;
+  background: var(--ui-color-white);
+}
+
+.lightPosition::before {
+  left: 5px;
+  width: 2px;
+  height: 12px;
+}
+
+.lightPosition::after {
+  top: 5px;
+  width: 12px;
+  height: 2px;
+}
+
+.lightPanel {
+  position: absolute;
+  inset: 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+.fill {
+  height: 100%;
+}
+
+.lightCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+
+.progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 4;
+}

@@ -21,6 +21,14 @@ import {
 import { tUi } from "$/i18n";
 import { CanvasPinchZoomController } from "$/managers/canvas/canvas-manager";
 import { clampCanvasPan, documentToScreen, stepZoom } from "$/managers/canvas/canvas-presentation";
+import {
+  fitImagePreview,
+  limitImagePreviewZoom,
+  zoomImagePreviewAt,
+  IMAGE_PREVIEW_FIT_ZOOM,
+  IMAGE_PREVIEW_ZOOMS,
+  type ImagePreviewView,
+} from "$/managers/canvas/image-preview-view";
 import { EditorWheelAction, wheelZoomSteps } from "$/managers/input/use-wheel-input";
 import { useTouchInputPreferences } from "$/managers/preferences/use-touch-input-preferences";
 import {
@@ -34,22 +42,11 @@ import { clientPoint, clientRect } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/pixelation-dialog/import-compare.module.css";
 
-const MAX_FIT_ZOOM = 8;
-const MIN_ZOOM = 1 / 64;
-const MAX_ZOOM = 64;
-const FIT_ZOOM = 0;
-const PRESET_ZOOMS = [1, 2, 4];
 const ZOOM_WIDTH = 72;
 const PERCENT = 100;
 const PAN_BUTTONS = [0, 1];
 /** Native keywords — themed `url()` cursors vanish under the editor's CSS `zoom` on this stage. */
 const NATIVE_PAN_CURSOR = { hand: "grab", dragging: "grabbing" } as const;
-
-interface View {
-  zoom: number;
-  pan: { x: number; y: number };
-  fit: boolean;
-}
 
 function PixelCanvas({
   pixels,
@@ -74,52 +71,6 @@ function PixelCanvas({
     );
   }, [pixels]);
   return <canvas ref={ref} className={className} style={style} />;
-}
-
-function fitView(
-  viewport: { width: number; height: number },
-  document: { width: number; height: number },
-): View {
-  const available = Math.min(
-    MAX_FIT_ZOOM,
-    Math.max(MIN_ZOOM, viewport.width / Math.max(1, document.width)),
-    Math.max(MIN_ZOOM, viewport.height / Math.max(1, document.height)),
-    MAX_ZOOM,
-  );
-  const zoom =
-    available >= 1 ? Math.floor(available) : 1 / Math.ceil(1 / Math.max(MIN_ZOOM, available));
-  return { zoom, pan: { x: 0, y: 0 }, fit: true };
-}
-
-function limitZoom(zoom: number, document: { width: number; height: number }) {
-  const max = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, 2048 / document.width, 2048 / document.height));
-  return Math.max(MIN_ZOOM, Math.min(max, zoom));
-}
-
-function applyZoom(
-  view: View,
-  zoom: number,
-  anchor: { x: number; y: number },
-  viewport: { width: number; height: number },
-  document: { width: number; height: number },
-): View {
-  const next = limitZoom(zoom, document);
-  const currentOrigin = documentToScreen({ x: 0, y: 0 }, viewport, document, view);
-  const documentPoint = {
-    x: (anchor.x - currentOrigin.x) / view.zoom,
-    y: (anchor.y - currentOrigin.y) / view.zoom,
-  };
-  const origin = documentToScreen(documentPoint, viewport, document, {
-    zoom: next,
-    pan: { x: 0, y: 0 },
-  });
-  const pan = clampCanvasPan(
-    { x: anchor.x - origin.x, y: anchor.y - origin.y },
-    viewport,
-    document,
-    next,
-  );
-  return { zoom: next, pan, fit: false };
 }
 
 /** One canvas, two layers: the original on one side of a draggable bar, the result on the other. */
@@ -161,12 +112,12 @@ export function ImportCompare({
   const pinch = useRef<CanvasPinchZoomController | null>(null);
   const viewport = { width, height };
   const documentSize = { width: original.width, height: original.height };
-  const [view, setView] = useState<View>(() => fitView(viewport, documentSize));
+  const [view, setView] = useState<ImagePreviewView>(() => fitImagePreview(viewport, documentSize));
   const viewRef = useRef(view);
   viewRef.current = view;
   // Refit when the dialog preview box or source image size changes.
   useEffect(() => {
-    setView(fitView(viewport, documentSize));
+    setView(fitImagePreview(viewport, documentSize));
   }, [width, height, original.width, original.height]);
 
   const origin = documentToScreen({ x: 0, y: 0 }, viewport, documentSize, view);
@@ -196,11 +147,11 @@ export function ImportCompare({
   const left = original;
   const right = result ?? (updating ? lastResult.current : null);
   const stale = !result && updating && !!right;
-  const zoomValue = view.fit ? FIT_ZOOM : view.zoom;
-  const zoomChoices = [FIT_ZOOM, ...PRESET_ZOOMS];
+  const zoomValue = view.fit ? IMAGE_PREVIEW_FIT_ZOOM : view.zoom;
+  const zoomChoices = [IMAGE_PREVIEW_FIT_ZOOM, ...IMAGE_PREVIEW_ZOOMS];
   if (!zoomChoices.includes(zoomValue)) zoomChoices.push(zoomValue);
-  const maxZoom = limitZoom(Number.POSITIVE_INFINITY, documentSize);
-  const canZoom = (zoom: number) => zoom === FIT_ZOOM || zoom <= maxZoom;
+  const maxZoom = limitImagePreviewZoom(Number.POSITIVE_INFINITY, documentSize);
+  const canZoom = (zoom: number) => zoom === IMAGE_PREVIEW_FIT_ZOOM || zoom <= maxZoom;
 
   return (
     <div className={styles.frame} style={{ width, height }}>
@@ -211,10 +162,10 @@ export function ImportCompare({
           aria-label={tUi("import.dialog.zoom.preview")}
           onValueChange={(next) => {
             const value = Number(next);
-            if (value === FIT_ZOOM) setView(fitView(viewport, documentSize));
+            if (value === IMAGE_PREVIEW_FIT_ZOOM) setView(fitImagePreview(viewport, documentSize));
             else
               setView(
-                applyZoom(
+                zoomImagePreviewAt(
                   viewRef.current,
                   value,
                   { x: width / 2, y: height / 2 },
@@ -226,8 +177,10 @@ export function ImportCompare({
           options={zoomChoices.map((zoom) => ({
             value: String(zoom),
             label:
-              zoom === FIT_ZOOM ? tUi("import.dialog.zoom.fit") : `${Math.round(zoom * PERCENT)}%`,
-            disabled: zoom !== FIT_ZOOM && !canZoom(zoom),
+              zoom === IMAGE_PREVIEW_FIT_ZOOM
+                ? tUi("import.dialog.zoom.fit")
+                : `${Math.round(zoom * PERCENT)}%`,
+            disabled: zoom !== IMAGE_PREVIEW_FIT_ZOOM && !canZoom(zoom),
           }))}
         />
       </div>
@@ -251,13 +204,13 @@ export function ImportCompare({
             pan: clampCanvasPan(pan, viewport, documentSize, old.zoom),
           }))
         }
-        onDoubleClick={() => setView(fitView(viewport, documentSize))}
+        onDoubleClick={() => setView(fitImagePreview(viewport, documentSize))}
         onWheelAction={(decision, delta, anchor) => {
           if (decision.action === EditorWheelAction.Zoom) {
             const steps = wheelZoomSteps(decision, delta);
             if (!steps) return;
             setView((old) =>
-              applyZoom(old, stepZoom(old.zoom, steps), anchor, viewport, documentSize),
+              zoomImagePreviewAt(old, stepZoom(old.zoom, steps), anchor, viewport, documentSize),
             );
           } else if (
             decision.action === EditorWheelAction.Horizontal ||

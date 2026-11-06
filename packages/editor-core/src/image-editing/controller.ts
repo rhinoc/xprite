@@ -14,6 +14,10 @@ import {
   type EffectSpec,
 } from "$/image-editing/effects";
 import {
+  writeNormalMapLayer,
+  type NormalMapFrameOutput,
+} from "$/image-editing/normal-map-document";
+import {
   resizeDocumentCanvas,
   resizeDocumentSprite,
   rotateDocumentCanvas,
@@ -58,6 +62,23 @@ export class ImageEditingController {
 
   beginEffect(): boolean {
     return this.port.prepareEffect() && canOpenEffect(this.port.getDocument());
+  }
+
+  beginNormalMap(): boolean {
+    return !!this.port.getDocument() && this.port.prepareEffect();
+  }
+
+  applyNormalMap(
+    outputs: readonly NormalMapFrameOutput[],
+    name?: string,
+    layerId?: string,
+  ): string | null {
+    if (!this.port.getDocument() || !this.port.prepareEffect()) return null;
+    let result: string | null = null;
+    this.port.commitDocumentEdit("Generate Normal Map", (document) => {
+      result = writeNormalMapLayer(document, outputs, name, layerId);
+    });
+    return result;
   }
 
   applyEffect(spec: EffectSpec, target = EffectTarget.Selected): void {

@@ -4,3 +4,6 @@ export * from "$/image-editing/size";
 export * from "$/image-editing/transform";
 export * from "$/image-editing/types";
 export * from "$/image-editing/advanced-filters";
+export * from "$/image-editing/normal-map";
+export * from "$/image-editing/normal-map-lighting";
+export * from "$/image-editing/normal-map-document";

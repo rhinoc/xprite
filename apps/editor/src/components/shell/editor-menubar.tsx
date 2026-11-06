@@ -5,6 +5,7 @@ import { useEffectActions } from "$/components/dialogs/effect-actions";
 import { FormDialog } from "$/components/dialogs/form-dialog";
 import { useGridActions } from "$/components/dialogs/grid-settings";
 import { UndoHistoryWindow } from "$/components/dialogs/undo-history-window";
+import { useNormalMapActions } from "$/components/normal-maps/normal-map-actions";
 import { useEditorLayout } from "$/components/shared/editor-layout-context";
 import { PixelArtIcon } from "$/components/shared/pixel-art-icon";
 import { useEditorActions } from "$/components/shell/editor-actions";
@@ -73,6 +74,7 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
   const menuInRail = presentation ? presentation === "rail" : inputInteractionMode === "touch";
   const menuHeight = uiFontHeight() + 8;
   const gridActions = useGridActions();
+  const normalMapActions = useNormalMapActions();
   const effectActions = useEffectActions(),
     animationActions = useAnimationActions();
   const editor = useEditorFields([
@@ -131,6 +133,14 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
       disabled: !actions.documentTabs.length || !actions.canStartInteraction,
     },
     Exit: { onSelect: actions.exit, disabled: !actions.canStartInteraction },
+    GenerateNormalMap: {
+      onSelect: () => normalMapActions?.openGeneration(),
+      disabled: documentUnavailable || !actions.canStartInteraction || !normalMapActions?.canOpen,
+    },
+    NormalMapLightPreview: {
+      onSelect: () => normalMapActions?.openLighting(),
+      disabled: documentUnavailable || !actions.canStartInteraction || !normalMapActions?.canOpen,
+    },
     NewFile: { onSelect: actions.new, disabled: !actions.canStartInteraction },
     Options: {
       onSelect: actions.preferences,

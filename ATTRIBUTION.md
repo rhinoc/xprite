@@ -309,3 +309,10 @@ KohakuBlueleaf (Apache-2.0). They are independent reimplementations in
 [`@xprite/pixelate`](https://github.com/rhinoc/xprite-pixelate) (`src/cell-color-picker.ts`); no PixelOE code is
 copied. Most common follows [proper-pixel-art](https://github.com/KennethJAllen/proper-pixel-art)
 (MIT).
+
+## Pixel Art Lighter
+
+Normal map generation in `packages/editor-core/src/image-editing/normal-map.ts`
+is adapted from [Pixel Art Lighter v3.5.22](https://www.moonfell-rpg.com/Pixel-Art-Lighter-v3.5.22.html)
+by Red Hat Sprite, Copyright (c) 2026 Red Hat Sprite, under the MIT License.
+The complete notice is retained in [LICENSES/pixel-art-lighter-MIT.txt](LICENSES/pixel-art-lighter-MIT.txt).

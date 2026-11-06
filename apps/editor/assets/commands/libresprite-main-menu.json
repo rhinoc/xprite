@@ -548,6 +548,14 @@
               "kind": "item",
               "label": "Median Blur...",
               "command": "Despeckle"
+            },
+            {
+              "kind": "separator"
+            },
+            {
+              "kind": "item",
+              "label": "Generate Normal Map...",
+              "command": "GenerateNormalMap"
             }
           ]
         },
@@ -1559,6 +1567,14 @@
           "mnemonic": "H",
           "mnemonicIndex": 0,
           "command": "Home"
+        },
+        {
+          "kind": "separator"
+        },
+        {
+          "kind": "item",
+          "label": "Lighting Preview",
+          "command": "NormalMapLightPreview"
         }
       ]
     }
