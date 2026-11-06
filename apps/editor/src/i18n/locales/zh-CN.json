@@ -2499,10 +2499,8 @@
   "video.import.colors.invalid": "请将颜色数设为 2–256 的整数。",
   "normal.generate.title": "生成法线贴图…",
   "normal.lighting.title": "光照预览",
-  "normal.group": "图层组：{value1}",
   "normal.source": "来源",
   "normal.source.visible": "可见图层合成",
-  "normal.source.flat": "平面",
   "normal.source.missing": "来源图层已不可用，请重新选择。",
   "normal.preset": "预设",
   "normal.preset.architecture": "建筑",
@@ -2535,5 +2533,6 @@
   "normal.history": "生成法线贴图",
   "normal.output.locked": "法线输出图层已锁定或不可用，请解锁后重试。",
   "normal.light.pixels": "{value1} 像素",
-  "normal.light.settings": "光照设置"
+  "normal.light.settings": "光照设置",
+  "normal.source.none": "无"
 }

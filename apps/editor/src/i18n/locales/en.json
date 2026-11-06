@@ -2499,10 +2499,8 @@
   "video.import.colors.invalid": "Choose a whole number of colors from 2 to 256.",
   "normal.generate.title": "Generate Normal Map...",
   "normal.lighting.title": "Lighting Preview",
-  "normal.group": "Group: {value1}",
   "normal.source": "Source",
   "normal.source.visible": "Visible layers",
-  "normal.source.flat": "Flat surface",
   "normal.source.missing": "The source layer is no longer available. Choose another source.",
   "normal.preset": "Preset",
   "normal.preset.architecture": "Architecture",
@@ -2535,5 +2533,6 @@
   "normal.history": "Generate Normal Map",
   "normal.output.locked": "The normal map output layer is locked or unavailable",
   "normal.light.pixels": "{value1} px",
-  "normal.light.settings": "Lighting Settings"
+  "normal.light.settings": "Lighting Settings",
+  "normal.source.none": "None"
 }

@@ -14,6 +14,7 @@ import {
   canStoreNormalMapLayer,
   createNormalMapProject,
   DEFAULT_NORMAL_LAYER_NAME,
+  DEFAULT_NORMAL_SOURCE_LAYER_NAME,
   defaultNormalMapOptions,
   defaultNormalMapLightOptions,
   normalMapSourcePixels,
@@ -269,7 +270,7 @@ export function useNormalMapManager(enabled: boolean) {
         const project = createNormalMapProject(
           input.source,
           generated.pixels,
-          tUi("normal.view.original"),
+          DEFAULT_NORMAL_SOURCE_LAYER_NAME,
           current.timeline!.frames[frame].duration,
         );
         workspace.createDocumentFromProject(
@@ -316,7 +317,8 @@ export function useNormalMapManager(enabled: boolean) {
     .filter((layer) => !(layer.flags & LAYER_REFERENCE))
     .map((layer) => ({
       value: layer.id,
-      label: layer.kind === "group" ? tUi("normal.group", { value1: layer.name }) : layer.name,
+      label: layer.name,
+      translateLabel: false,
     }));
   const targetLayer = outputs.get(sourceId);
   const hasRoom =
@@ -341,7 +343,7 @@ export function useNormalMapManager(enabled: boolean) {
       { value: NORMAL_VISIBLE_SOURCE, label: tUi("normal.source.visible") },
       ...choices,
     ],
-    normalChoices: [{ value: NORMAL_FLAT_SOURCE, label: tUi("normal.source.flat") }, ...choices],
+    normalChoices: [{ value: NORMAL_FLAT_SOURCE, label: tUi("normal.source.none") }, ...choices],
     canOpen: enabled && !!document,
     canApply: !!generated.pixels && !generated.busy && hasRoom && appliedRevision !== revision,
     // Moving the light refreshes only its image; it must not toggle the generation form's status/actions.

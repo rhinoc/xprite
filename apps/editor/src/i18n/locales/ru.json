@@ -2499,10 +2499,8 @@
   "video.import.colors.invalid": "Выберите целое число цветов от 2 до 256.",
   "normal.generate.title": "Создать карту нормалей…",
   "normal.lighting.title": "Предпросмотр освещения",
-  "normal.group": "Группа: {value1}",
   "normal.source": "Источник",
   "normal.source.visible": "Видимые слои вместе",
-  "normal.source.flat": "Плоская поверхность",
   "normal.source.missing": "Исходный слой недоступен. Выберите другой.",
   "normal.preset": "Набор настроек",
   "normal.preset.architecture": "Архитектура",
@@ -2535,5 +2533,6 @@
   "normal.history": "Создать карту нормалей",
   "normal.output.locked": "Выходной слой нормалей заблокирован или недоступен. Разблокируйте его и повторите.",
   "normal.light.pixels": "{value1} px",
-  "normal.light.settings": "Настройки освещения"
+  "normal.light.settings": "Настройки освещения",
+  "normal.source.none": "Нет"
 }

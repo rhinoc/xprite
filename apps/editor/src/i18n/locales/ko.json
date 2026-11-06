@@ -2499,10 +2499,8 @@
   "video.import.colors.invalid": "색상 수를 2~256 사이의 정수로 설정하세요.",
   "normal.generate.title": "노멀 맵 생성…",
   "normal.lighting.title": "조명 미리보기",
-  "normal.group": "그룹: {value1}",
   "normal.source": "원본",
   "normal.source.visible": "보이는 레이어 합성",
-  "normal.source.flat": "평면",
   "normal.source.missing": "원본 레이어가 없습니다. 다시 선택하세요.",
   "normal.preset": "프리셋",
   "normal.preset.architecture": "건축",
@@ -2535,5 +2533,6 @@
   "normal.history": "노멀 맵 생성",
   "normal.output.locked": "노멀 출력 레이어가 잠겼거나 사용할 수 없습니다. 잠금을 해제하세요.",
   "normal.light.pixels": "{value1} px",
-  "normal.light.settings": "조명 설정"
+  "normal.light.settings": "조명 설정",
+  "normal.source.none": "없음"
 }

@@ -2499,10 +2499,8 @@
   "video.import.colors.invalid": "色数を 2～256 の整数に設定してください。",
   "normal.generate.title": "法線マップを生成…",
   "normal.lighting.title": "ライティングプレビュー",
-  "normal.group": "グループ：{value1}",
   "normal.source": "入力",
   "normal.source.visible": "表示レイヤーを合成",
-  "normal.source.flat": "平面",
   "normal.source.missing": "入力レイヤーがありません。選び直してください。",
   "normal.preset": "プリセット",
   "normal.preset.architecture": "建築",
@@ -2535,5 +2533,6 @@
   "normal.history": "法線マップを生成",
   "normal.output.locked": "法線出力レイヤーがロックされているか利用できません。ロックを解除してください。",
   "normal.light.pixels": "{value1} px",
-  "normal.light.settings": "ライティング設定"
+  "normal.light.settings": "ライティング設定",
+  "normal.source.none": "なし"
 }

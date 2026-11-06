@@ -12,6 +12,7 @@ import styles from "$/components/normal-maps/normal-maps.module.css";
 
 const PREVIEW_BOUNDS = { x: 20, y: 80, width: 680, height: 480 };
 const PREVIEW_MINIMUM = { width: 240, height: 180 };
+const SETTINGS_BUTTON = { right: 56, top: 4, width: 26, height: 26 };
 export function NormalMapLightingPreview({ manager }: { manager: NormalMapManager }) {
   const [settings, setSettings] = useState(false);
   const [follow, setFollow] = useState(true);
@@ -32,9 +33,17 @@ export function NormalMapLightingPreview({ manager }: { manager: NormalMapManage
         titlebarActions={({ bounds }) => (
           <Tooltip text={tUi("normal.light.settings")}>
             <Button
-              bounds={{ x: bounds.x + bounds.width - 62, y: bounds.y + 6, width: 32, height: 22 }}
+              bounds={{
+                x: bounds.x + bounds.width - SETTINGS_BUTTON.right,
+                y: bounds.y + SETTINGS_BUTTON.top,
+                width: SETTINGS_BUTTON.width,
+                height: SETTINGS_BUTTON.height,
+              }}
               relativeTo={bounds}
-              text="…"
+              icon="timeline_gear"
+              selectedIcon="timeline_gear_active"
+              selected={settings}
+              insetContent={false}
               aria-label={tUi("normal.light.settings")}
               aria-expanded={settings}
               part="window_button_normal"

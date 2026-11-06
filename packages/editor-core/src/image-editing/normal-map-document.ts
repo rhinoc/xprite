@@ -21,6 +21,7 @@ const NORMAL_LAYER_ID_PREFIX = "normal-map-";
 const UUID_HEX_RADIX = 16;
 const UUID_HEX_BYTE_WIDTH = 2;
 export const DEFAULT_NORMAL_LAYER_NAME = "Normal";
+export const DEFAULT_NORMAL_SOURCE_LAYER_NAME = "Original";
 export enum NormalMapDocumentErrorCode {
   SourceMissing = "source-missing",
   OutputLocked = "output-locked",

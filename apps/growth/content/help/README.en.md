@@ -146,7 +146,7 @@ Screen color picking needs desktop Chrome or Edge, with Xprite opened over HTTPS
 
 Choose a source in **Edit → FX → Generate Normal Map...** to generate normals for the current frame. Applying creates a separate layer; applying again in the same session updates the corresponding result layer. Indexed, grayscale and other color-profile sources produce a new RGB document containing the original artwork and normal layers.
 
-Open **View → Lighting Preview**. Click **…** in its title bar to open **Lighting Settings** and select the artwork and normal layers. Move the pointer to inspect the lighting. Turn off **Follow pointer**, then click or drag in the preview to park the light. Use the wheel to zoom and middle-drag to pan. Painting and frame changes update the preview automatically.
+Open **View → Lighting Preview**. Click the gear in its title bar to open **Lighting Settings** and select the artwork and normal layers. Move the pointer to inspect the lighting. Turn off **Follow pointer**, then click or drag in the preview to park the light. Use the wheel to zoom and middle-drag to pan. Painting and frame changes update the preview automatically.
 
 ## Add to desktop and use offline
 

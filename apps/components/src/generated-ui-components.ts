@@ -6340,7 +6340,7 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
         name: "options",
         kind: "array",
         required: true,
-        type: "readonly { value: string; label: string; disabled?: boolean | undefined; separator?: boolean | undef",
+        type: "readonly ComboboxOption[]",
         hostProp: false,
       },
       {

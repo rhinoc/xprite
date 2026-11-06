@@ -2499,10 +2499,8 @@
   "video.import.colors.invalid": "Escolha um número inteiro de cores entre 2 e 256.",
   "normal.generate.title": "Gerar mapa de normais…",
   "normal.lighting.title": "Prévia de iluminação",
-  "normal.group": "Grupo: {value1}",
   "normal.source": "Origem",
   "normal.source.visible": "Camadas visíveis mescladas",
-  "normal.source.flat": "Superfície plana",
   "normal.source.missing": "A camada de origem não está disponível. Escolha outra.",
   "normal.preset": "Predefinição",
   "normal.preset.architecture": "Arquitetura",
@@ -2535,5 +2533,6 @@
   "normal.history": "Gerar mapa de normais",
   "normal.output.locked": "A camada de saída de normais está bloqueada ou indisponível. Desbloqueie e tente novamente.",
   "normal.light.pixels": "{value1} px",
-  "normal.light.settings": "Configurações de iluminação"
+  "normal.light.settings": "Configurações de iluminação",
+  "normal.source.none": "Nenhum"
 }

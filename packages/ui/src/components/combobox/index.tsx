@@ -33,11 +33,19 @@ import { Text, TextVariant } from "$/components/text";
 import { createUiPortal } from "$/components/theme/portal";
 
 import styles from "$/components/combobox/combobox.module.css";
+export interface ComboboxOption {
+  value: string;
+  label: string;
+  disabled?: boolean;
+  separator?: boolean;
+  /** User-authored content, such as layer and file names, is displayed verbatim. */
+  translateLabel?: boolean;
+}
 interface ComboboxContentProps {
   /** Width in theme pixels; keep the skin's natural height. */
   pixelWidth?: number;
   value: string;
-  options: readonly { value: string; label: string; disabled?: boolean; separator?: boolean }[];
+  options: readonly ComboboxOption[];
   onValueChange: (value: string) => void;
   /** Live edits for dependent drafts; onValueChange remains the commit callback. */
   onDraftValueChange?: (value: string) => void;
@@ -103,6 +111,11 @@ export function Combobox({
     "aria-invalid": ariaInvalid,
   });
   const { definition: theme, translateSource, translateKey } = useTheme();
+  const optionLabel = useCallback(
+    (option: ComboboxOption) =>
+      option.translateLabel === false ? option.label : translateSource(option.label),
+    [translateSource],
+  );
   const { measureThemeText, themeFontHeight, centerThemePixel: centerText } = useThemeText();
   const popupMenu = theme.controlParts?.combobox?.popupMenu;
   const rowHeight = popupMenu ? (theme.dimensions.menu_row_height ?? DEFAULT_ROW) : DEFAULT_ROW;
@@ -188,7 +201,7 @@ export function Combobox({
     return offset;
   });
   const selected = options.findIndex((option) => option.value === value),
-    text = selected >= 0 ? translateSource(options[selected].label) : value,
+    text = selected >= 0 ? optionLabel(options[selected]) : value,
     displayLabel = translateSource(label),
     displayTitle = title ? translateSource(title) : undefined,
     displayButtonLabel = buttonLabel ? translateSource(buttonLabel) : undefined;
@@ -230,9 +243,7 @@ export function Combobox({
       fitPopupToContent
         ? Math.max(
             bounds.width,
-            ...options.map(
-              (option) => measureThemeText(translateSource(option.label)) + POPUP_LABEL_RESERVE,
-            ),
+            ...options.map((option) => measureThemeText(optionLabel(option)) + POPUP_LABEL_RESERVE),
           )
         : bounds.width,
     );
@@ -264,7 +275,7 @@ export function Combobox({
     bottomInset,
     fitPopupToContent,
     measureThemeText,
-    translateSource,
+    optionLabel,
   ]);
   const open = () => {
     if (disabled || !anchor.current || !options.length) return;
@@ -736,7 +747,7 @@ export function Combobox({
                 next = enabled[Math.max(0, Math.min(enabled.length - 1, at + delta))];
               } else if (keyboardEventKey(event).length === 1 && !event.ctrlKey && !event.metaKey)
                 next = [...enabled.slice(at + 1), ...enabled.slice(0, at + 1)].find((index) =>
-                  options[index].label
+                  optionLabel(options[index])
                     .toLowerCase()
                     .startsWith(keyboardEventKey(event).toLowerCase()),
                 );
@@ -853,7 +864,7 @@ export function Combobox({
                         )}
                         <Text
                           variant={TextVariant.PositionedPixel}
-                          text={translateSource(option.label)}
+                          text={optionLabel(option)}
                           x={
                             labelInset +
                             (popupMenu && (active || highlighted || option.disabled)
@@ -900,7 +911,7 @@ export function Combobox({
                   id={`${id}-${index}`}
                   type="button"
                   role={option.separator ? "separator" : "option"}
-                  aria-label={translateSource(option.label)}
+                  aria-label={optionLabel(option)}
                   aria-selected={index === selected}
                   disabled={option.disabled || option.separator}
                   tabIndex={-1}
