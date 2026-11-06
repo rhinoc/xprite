@@ -11,6 +11,7 @@ import {
   CONTRAST_PAIRS,
   CONTRAST_TOLERANCE,
   contrastTarget,
+  rotateColor,
 } from "$/base/theme/themes/color-family/families";
 import asepriteDark from "$assets/themes/aseprite/aseprite-dark-theme.json";
 import aseprite from "$assets/themes/aseprite/aseprite-light-theme.json";
@@ -127,5 +128,14 @@ describe("color family palette", () => {
       }),
     );
     expect(low).toEqual([]);
+  });
+
+  it("tints the neutral light face greys and leaves black and white alone", () => {
+    for (const family of COLOR_FAMILIES) {
+      const tinted = rotateColor(hexToOklch("#c6c6c6"), family, UiColorScheme.Light);
+      expect(tinted.c).toBeGreaterThan(0.005);
+      for (const neutral of ["#000000", "#ffffff"])
+        expect(rotateColor(hexToOklch(neutral), family, UiColorScheme.Light).c).toBeLessThan(0.005);
+    }
   });
 });

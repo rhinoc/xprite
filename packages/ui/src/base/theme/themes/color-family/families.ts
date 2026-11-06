@@ -51,6 +51,13 @@ const DARK_NEUTRAL_CHROMA = 0.04;
 const DARK_CANVAS_MAX_LIGHTNESS = 0.27;
 const DARK_FACE_MAX_LIGHTNESS = 0.305;
 const DARK_TEXT_MIN_LIGHTNESS = 0.56;
+/**
+ * Classic light surfaces split into black text, white paper and a band of light greys for
+ * faces. Only that middle band carries a role; the extremes stay neutral so text and page
+ * background do not pick up color.
+ */
+const LIGHT_FACE_MIN_LIGHTNESS = 0.7;
+const LIGHT_FACE_MAX_LIGHTNESS = 0.97;
 
 export enum ColorIntensity {
   Soft = "soft",
@@ -65,13 +72,33 @@ interface IntensityRule {
   /** Gamut share of dark surfaces and dark text; null keeps the Classic share. */
   darkSurface: number | null;
   darkText: number | null;
+  /** Gamut share of the neutral face greys on the light scheme. */
+  lightSurface: number;
 }
 
 const INTENSITIES: Readonly<Record<ColorIntensity, IntensityRule>> = {
-  [ColorIntensity.Soft]: { tint: 1.6, limit: 0.5, darkSurface: 0.24, darkText: 0.06 },
-  [ColorIntensity.Vivid]: { tint: 3, limit: 0.85, darkSurface: 0.55, darkText: 0.1 },
+  [ColorIntensity.Soft]: {
+    tint: 1.6,
+    limit: 0.5,
+    darkSurface: 0.24,
+    darkText: 0.06,
+    lightSurface: 0.18,
+  },
+  [ColorIntensity.Vivid]: {
+    tint: 3,
+    limit: 0.85,
+    darkSurface: 0.55,
+    darkText: 0.1,
+    lightSurface: 0.4,
+  },
 };
-const CLASSIC_INTENSITY: IntensityRule = { tint: 1, limit: 1, darkSurface: null, darkText: null };
+const CLASSIC_INTENSITY: IntensityRule = {
+  tint: 1,
+  limit: 1,
+  darkSurface: null,
+  darkText: null,
+  lightSurface: 0,
+};
 
 export enum ColorFamilyId {
   Ocean = "ocean",
@@ -180,6 +207,11 @@ export function rotateColor(color: Oklch, family: ColorFamily, colorScheme: UiCo
     const fixedShare = color.l >= DARK_TEXT_MIN_LIGHTNESS ? rule.darkText : rule.darkSurface;
     const share = fixedShare ?? gamutShare(color);
     return oklch(color.l, maxChroma(color.l, hue) * share, hue);
+  }
+  if (colorScheme === UiColorScheme.Light && color.c < ACHROMATIC_CHROMA) {
+    if (color.l < LIGHT_FACE_MIN_LIGHTNESS || color.l > LIGHT_FACE_MAX_LIGHTNESS) return color;
+    const hue = targets[PaletteRole.Face];
+    return oklch(color.l, maxChroma(color.l, hue) * rule.lightSurface, hue);
   }
   if (color.c < ACHROMATIC_CHROMA) return color;
   const role = nearestRole(color.h, anchors);
