@@ -333,6 +333,7 @@ export class DocumentWorkspace {
   private listeners = new Set<() => void>();
   private snapshot: DocumentWorkspaceSnapshot;
   private initialization: Promise<void> | null = null;
+  private recoveryRetry: Promise<void> | null = null;
   private openingRecent = new Map<string, Promise<boolean>>();
   private closedProjects: ClosedProjectEntry[] = [];
   private closedProjectsRefresh = 0;
@@ -2490,50 +2491,7 @@ export class DocumentWorkspace {
         // Do not replace edits made while storage hydration was in progress.
         const untouched = this.slots.every((slot) => !slot.core.getSnapshot().document);
         if (!untouched) throw new Error("Workspace changed before recovery completed");
-        for (const id of saved.layout.slotIds) {
-          if (!this.slots.some((slot) => slot.id === id))
-            this.slots.push(this.createSlot(id, "Untitled"));
-        }
-        for (const slot of this.slots) {
-          const snapshot = saved.documents.get(slot.id);
-          if (snapshot) {
-            slot.core.restorePersistenceSnapshot(snapshot);
-            const recentId = isPlaygroundName(snapshot.document.name)
-              ? exampleProjectId
-              : saved.layout.recentIds?.[slot.id];
-            if (recentId) {
-              slot.session.restoreRecentIdentity(recentId);
-              const key = `${RECENT_PREFERENCE_PREFIX}${recentId}`;
-              if (!this.documentPreferences.has(key))
-                this.documentPreferences.copy(this.getDocumentPreferenceId(slot.id), key);
-              this.documentPreferenceKeys.set(slot.id, key);
-              this.restoreDocumentPreferences(slot.core, key);
-            }
-          }
-        }
-        const views = saved.layout.views;
-        for (const view of views) {
-          if (view.id === view.documentId) continue;
-          const source = this.slots.find((slot) => slot.id === view.documentId);
-          if (!source?.core.getSnapshot().document) continue;
-          const key = `${SLOT_PREFERENCE_PREFIX}${view.id}`;
-          this.documentPreferenceKeys.set(view.id, key);
-          const linked = this.createSlot(view.id, source.name, source);
-          this.slots.push(linked);
-          this.restoreDocumentPreferences(linked.core, key);
-        }
-        this.activeId = saved.layout.activeId;
-        const visibleIds = views.map((view) => view.id);
-        this.order = visibleIds;
-        this.closed = new Set(
-          this.slots.map((slot) => slot.id).filter((id) => !visibleIds.includes(id)),
-        );
-        const active = this.slots.find((slot) => slot.id === this.activeId);
-        if (active) active.session.selectView(active.core);
-        this.activePaneId = "main";
-        this.dockTree = { kind: "pane", id: "main" };
-        this.paneTabs = new Map([["main", this.order.filter((id) => !this.closed.has(id))]]);
-        this.paneActiveIds = new Map([["main", this.activeId]]);
+        this.installRecoveredWorkspace(saved);
       }
     } catch (error) {
       this.recovery.suspend(error);
@@ -2562,6 +2520,55 @@ export class DocumentWorkspace {
       this.recordWorkspaceEvent(WorkspaceDiagnosticAction.WorkspaceReady, this.active);
     this.notify();
   }
+  private installRecoveredWorkspace(
+    saved: NonNullable<Awaited<ReturnType<WorkspaceRecovery["restore"]>>>,
+  ) {
+    for (const id of saved.layout.slotIds) {
+      if (!this.slots.some((slot) => slot.id === id))
+        this.slots.push(this.createSlot(id, "Untitled"));
+    }
+    for (const slot of this.slots) {
+      const snapshot = saved.documents.get(slot.id);
+      if (snapshot) {
+        slot.core.restorePersistenceSnapshot(snapshot);
+        const recentId = isPlaygroundName(snapshot.document.name)
+          ? exampleProjectId
+          : saved.layout.recentIds?.[slot.id];
+        if (recentId) {
+          slot.session.restoreRecentIdentity(recentId);
+          const key = `${RECENT_PREFERENCE_PREFIX}${recentId}`;
+          if (!this.documentPreferences.has(key))
+            this.documentPreferences.copy(this.getDocumentPreferenceId(slot.id), key);
+          this.documentPreferenceKeys.set(slot.id, key);
+          this.restoreDocumentPreferences(slot.core, key);
+        }
+      }
+    }
+    const views = saved.layout.views;
+    for (const view of views) {
+      if (view.id === view.documentId) continue;
+      const source = this.slots.find((slot) => slot.id === view.documentId);
+      if (!source?.core.getSnapshot().document) continue;
+      const key = `${SLOT_PREFERENCE_PREFIX}${view.id}`;
+      this.documentPreferenceKeys.set(view.id, key);
+      const linked = this.createSlot(view.id, source.name, source);
+      this.slots.push(linked);
+      this.restoreDocumentPreferences(linked.core, key);
+    }
+    this.activeId = saved.layout.activeId;
+    const visibleIds = views.map((view) => view.id);
+    this.order = visibleIds;
+    this.closed = new Set(
+      this.slots.map((slot) => slot.id).filter((id) => !visibleIds.includes(id)),
+    );
+    const active = this.slots.find((slot) => slot.id === this.activeId);
+    if (active) active.session.selectView(active.core);
+    this.activePaneId = "main";
+    this.dockTree = { kind: "pane", id: "main" };
+    this.paneTabs = new Map([["main", this.order.filter((id) => !this.closed.has(id))]]);
+    this.paneActiveIds = new Map([["main", this.activeId]]);
+  }
+
   private async initializeDefaultPlayground(): Promise<void> {
     if (this.disposed || this.recentFilesCatalog.isProjectDismissed(exampleProjectId)) return;
     let existingProject: ClosedProjectEntry | null;
@@ -2645,6 +2652,51 @@ export class DocumentWorkspace {
         if (!this.disposed) void this.refreshClosedProjects();
       }, 750);
     }
+  }
+
+  /** Retry hydration only while no live or newly created document can be replaced. */
+  retryRecovery(): Promise<void> {
+    if (this.recoveryRetry) return this.recoveryRetry;
+    const run = this.retryWorkspaceRecovery();
+    this.recoveryRetry = run;
+    void run
+      .finally(() => {
+        if (this.recoveryRetry === run) this.recoveryRetry = null;
+      })
+      .catch(() => {});
+    return run;
+  }
+
+  private async retryWorkspaceRecovery(): Promise<void> {
+    if (!this.ready || this.disposed) throw new Error("Workspace is not ready to save");
+    if (!this.recovery.canWrite()) {
+      const slots = [...this.slots];
+      const canInstall = () =>
+        !this.disposed &&
+        this.slots.length === slots.length &&
+        this.slots.every(
+          (slot, index) => slot === slots[index] && !slot.core.getSnapshot().document,
+        );
+      if (!canInstall())
+        throw this.recovery.getSnapshot().error ?? new Error("Workspace recovery is not writable");
+      try {
+        const saved = await this.recovery.restore(undefined, canInstall);
+        if (!canInstall()) throw new Error("Workspace changed before recovery completed");
+        if (saved) this.installRecoveredWorkspace(saved);
+        this.removeEmptyStartupSlots();
+        this.recovery.start(
+          this.slots.filter((slot) => slot.id === slot.documentId),
+          this.recoveryLayout(),
+        );
+        for (const slot of this.slots)
+          if (!this.closed.has(slot.id)) this.linkRecentFileToWorkspaceProject(slot.id);
+        this.notify();
+      } catch (error) {
+        this.recovery.suspend(error);
+        throw error;
+      }
+    }
+    await this.recovery.retry();
   }
 
   flushRecovery = () =>

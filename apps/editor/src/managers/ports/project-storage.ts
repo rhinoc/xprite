@@ -48,12 +48,21 @@ export interface LoadedProject {
   recovered: boolean;
 }
 export class ProjectStorageError extends Error {
+  readonly cause?: unknown;
+  readonly diagnosticDetails?: Readonly<Record<string, unknown>>;
+
   constructor(
     public readonly code: "unavailable" | "conflict" | "corrupt" | "io" | "closed",
     message: string,
+    options: {
+      cause?: unknown;
+      diagnosticDetails?: Readonly<Record<string, unknown>>;
+    } = {},
   ) {
     super(message);
     this.name = "ProjectStorageError";
+    this.cause = options.cause;
+    this.diagnosticDetails = options.diagnosticDetails;
   }
 }
 export interface ProjectCatalog {

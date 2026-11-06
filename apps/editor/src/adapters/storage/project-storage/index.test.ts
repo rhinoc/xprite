@@ -12,6 +12,95 @@ import { ProjectRepository } from "$/managers/storage/project-repository";
 import { randomId, sha256Hex } from "@xprite/bedrock/browser/runtime-crypto";
 
 describe("project-storage", () => {
+  it("keeps the published head intact after an uncertain write and retries with a fresh generation", async () => {
+    const catalog = new IndexedDbProjectStorage({
+      factory: new IDBFactory(),
+      databaseName: "uncertain-opfs",
+    });
+    const values = new Map<string, Uint8Array>();
+    const writes: string[] = [];
+    let failNext = false,
+      nextId = 0;
+    const opfs = {
+      kind: "opfs" as const,
+      async write(id: string, bytes: Uint8Array) {
+        writes.push(id);
+        values.set(id, bytes.slice());
+        if (failNext) {
+          failNext = false;
+          throw new ProjectStorageError("io", "OPFS worker failed");
+        }
+      },
+      async read(id: string) {
+        return values.get(id)!;
+      },
+      async remove(id: string) {
+        values.delete(id);
+      },
+    };
+    const repo = new ProjectRepository({
+      makeId: () => `generation-${++nextId}`,
+      now: Date.now,
+      checksum: sha256Hex,
+      catalog,
+      stores: { opfs, indexeddb: catalog },
+      preferredBackend: "opfs",
+    });
+    const input = {
+      projectId: "project",
+      expectedHead: null,
+      metadata: { name: "Saved project" },
+      bytes: new Uint8Array([1]),
+    };
+    const original = await repo.save(input);
+    failNext = true;
+    const updated = { ...input, expectedHead: original.head.id, bytes: new Uint8Array([2]) };
+    await assert.rejects(repo.save(updated), (error) => error.code === "io");
+    assert.equal((await catalog.get("project"))!.head.id, original.head.id);
+    assert.deepEqual([...(await repo.load("project"))!.bytes], [1]);
+    assert.equal(writes.length, 2, "the failed write is not replayed");
+    const retried = await repo.save(updated);
+    assert.equal(new Set(writes).size, 3, "explicit retry uses a new immutable key");
+    assert.equal(retried.previous?.id, original.head.id);
+    assert.deepEqual([...(await repo.load("project"))!.bytes], [2]);
+    repo.close();
+  });
+
+  it("preserves original worker context through the project storage adapter", async () => {
+    const original = new Error("worker script evaluation failed");
+    const worker = {
+      onmessage: null,
+      onerror: null,
+      onmessageerror: null,
+      terminate() {},
+      postMessage() {
+        queueMicrotask(() =>
+          worker.onerror?.(
+            Object.assign(new Event("error"), { error: original, message: original.message }),
+          ),
+        );
+      },
+    };
+    const store = new OpfsPayloadStore("test", () => worker as unknown as Worker);
+    await assert.rejects(store.write("key", new Uint8Array([1])), (error: ProjectStorageError) => {
+      assert.equal(error.name, "ProjectStorageError");
+      assert.equal(error.code, "io");
+      assert.equal((error.cause as Error & { cause?: unknown }).cause, original);
+      assert.deepEqual(error.diagnosticDetails?.opfs, {
+        stage: "error",
+        workerAnswered: false,
+        message: original.message,
+        filename: undefined,
+        line: undefined,
+        column: undefined,
+        operation: "write",
+        requestId: 1,
+      });
+      return true;
+    });
+    store.close();
+  });
+
   it("project-storage behavior", async () => {
     const factory = new IDBFactory();
     const a = new ProjectRepository(
@@ -230,8 +319,18 @@ describe("project-storage", () => {
       workerStore.write("another", original),
       (error) => error.name === "QuotaExceededError",
     );
-    worker.onerror();
-    await assert.rejects(workerStore.read("valid-key"), (error) => error.code === "io");
+    worker.onerror(new Event("error"));
+    worker.postMessage = (message) =>
+      queueMicrotask(() =>
+        worker.onmessage({
+          data: { id: message.id, ok: true, bytes: new Uint8Array([7]).buffer },
+        }),
+      );
+    assert.deepEqual(
+      [...(await workerStore.read("valid-key"))],
+      [7],
+      "a later request recreates the worker",
+    );
     workerStore.close();
     await assert.rejects(workerStore.read("valid-key"), (error) => error.code === "closed");
     for (const instance of [a, b, repo, isolated]) instance.close();

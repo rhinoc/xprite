@@ -20,7 +20,10 @@ export class OpfsPayloadStore implements PayloadStore {
   private run<T>(operation: () => Promise<T>): Promise<T> {
     return operation().catch((error: unknown) => {
       if (error instanceof BrowserStorageError)
-        throw new ProjectStorageError(error.code, error.message);
+        throw new ProjectStorageError(error.code, error.message, {
+          cause: error,
+          diagnosticDetails: error.diagnosticDetails,
+        });
       throw error;
     });
   }

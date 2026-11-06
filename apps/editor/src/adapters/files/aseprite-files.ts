@@ -82,7 +82,11 @@ function withDiagnosticDetails(
   reason: unknown,
   diagnosticDetails: Readonly<Record<string, unknown>>,
 ): Error {
-  const error = reason instanceof Error ? reason : new Error(String(reason));
+  const error =
+    reason instanceof Error ||
+    (typeof DOMException === "function" && reason instanceof DOMException)
+      ? reason
+      : new Error(String(reason));
   const annotated = error as Error & { diagnosticDetails?: Record<string, unknown> };
   annotated.diagnosticDetails = { ...annotated.diagnosticDetails, ...diagnosticDetails };
   return error;
@@ -259,7 +263,16 @@ export async function decodeAsepriteBlob(
         value1: maxProjectBytes,
       }),
     );
-  const bytes = new Uint8Array(await blob.arrayBuffer());
+  let bytes: Uint8Array;
+  try {
+    bytes = new Uint8Array(await blob.arrayBuffer());
+  } catch (reason) {
+    // Re-reading the same Blob cannot renew its underlying file snapshot.
+    // Preserve the browser exception and distinguish IO from codec failures.
+    throw withDiagnosticDetails(reason, {
+      aseprite: { stage: "read", byteLength: blob.size },
+    });
+  }
   if (bytes.byteLength > maxProjectBytes)
     throw new AsepriteCodecError(
       tUi("ui.aseprite.file.exceeds.the.browser.resource.limit.for.aseprite.projects.bytes", {
