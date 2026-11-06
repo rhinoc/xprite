@@ -52,6 +52,23 @@ function groupedProject(): SessionProject {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("ASE project file save preserves group metadata", () => {
+  it("annotates unreadable Blob IO without retrying or starting the decoder", async () => {
+    const blob = new Blob([new Uint8Array([1, 2, 3])]);
+    const reason = new DOMException("Backing file is unreadable", "NotReadableError");
+    const read = vi.spyOn(blob, "arrayBuffer").mockRejectedValue(reason);
+    const source = vi.fn();
+    await assert.rejects(
+      decodeAsepriteBlob(blob, "unreadable.aseprite", { onSourceBytes: source }),
+      (error) => {
+        assert.equal(error, reason);
+        assert.equal(error.name, "NotReadableError");
+        assert.deepEqual(error.diagnosticDetails, { aseprite: { stage: "read", byteLength: 3 } });
+        return true;
+      },
+    );
+    assert.equal(read.mock.calls.length, 1);
+    assert.equal(source.mock.calls.length, 0);
+  });
   it("does not write or fall back to another destination when overwrite permission is denied", async () => {
     const write = vi.fn();
     const picker = vi.fn();

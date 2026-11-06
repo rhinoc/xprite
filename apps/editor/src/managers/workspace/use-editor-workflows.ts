@@ -287,7 +287,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
   const recoveryFailure =
     recoveryState.error ?? Object.values(recoveryState.documents).find((item) => item.error)?.error;
   const retryRecovery = () => {
-    void workspace.recovery.retry().catch(() => {
+    void workspace.retryRecovery().catch(() => {
       // Recovery state retains the failure and the latest unsaved revision.
     });
   };

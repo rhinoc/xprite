@@ -63,15 +63,38 @@ function toOpfsError(name: string, message: string): Error {
   return error;
 }
 
+const OPFS_READ_ATTEMPTS = 2;
+
+enum OpfsWorkerFailureStage {
+  Construction = "construction",
+  PostMessage = "post-message",
+  Error = "error",
+  MessageError = "messageerror",
+}
+
+/** Only transport failures are eligible for a bounded, read-only retry. */
+class OpfsWorkerFailure extends BrowserStorageError {
+  constructor(cause: unknown, details: Readonly<Record<string, unknown>>) {
+    super(BrowserStorageErrorCode.Io, "OPFS worker failed", {
+      cause,
+      diagnosticDetails: { opfs: details },
+    });
+  }
+}
+
 /** Stores opaque byte values in OPFS through a dedicated module worker. */
 export class OpfsByteStore implements ByteStore {
   private worker?: Worker;
   private closed = false;
-  private failed?: Error;
+  private workerAnswered = false;
   private nextId = 1;
   private pending = new Map<
     number,
-    { resolve: (bytes?: ArrayBuffer) => void; reject: (error: Error) => void }
+    {
+      operation: OpfsRequest["operation"];
+      resolve: (bytes?: ArrayBuffer) => void;
+      reject: (error: Error) => void;
+    }
   >();
 
   constructor(
@@ -83,7 +106,10 @@ export class OpfsByteStore implements ByteStore {
   private getWorker(): Worker {
     if (this.worker) return this.worker;
     const worker = this.workerFactory();
+    this.workerAnswered = false;
     worker.onmessage = (event: MessageEvent<OpfsResponse>) => {
+      if (this.worker !== worker) return;
+      this.workerAnswered = true;
       const response = event.data;
       const pending = this.pending.get(response.id);
       if (!pending) return;
@@ -91,24 +117,47 @@ export class OpfsByteStore implements ByteStore {
       if (response.ok) pending.resolve(response.bytes);
       else {
         const error = toOpfsError(response.name, response.message);
-        if (
-          error instanceof BrowserStorageError &&
-          error.code === BrowserStorageErrorCode.Unavailable
-        )
-          this.failed = error;
         pending.reject(error);
       }
     };
-    const fail = () => {
-      this.failed = new BrowserStorageError(BrowserStorageErrorCode.Io, "OPFS worker failed");
-      for (const request of this.pending.values()) request.reject(this.failed);
-      this.pending.clear();
-      worker.terminate();
-    };
-    worker.onerror = fail;
-    worker.onmessageerror = fail;
+    worker.onerror = (event) => this.failWorker(worker, event, OpfsWorkerFailureStage.Error);
+    worker.onmessageerror = (event) =>
+      this.failWorker(worker, event, OpfsWorkerFailureStage.MessageError);
     this.worker = worker;
     return worker;
+  }
+
+  private detachWorker(worker: Worker) {
+    worker.onmessage = null;
+    worker.onerror = null;
+    worker.onmessageerror = null;
+    if (this.worker === worker) this.worker = undefined;
+    worker.terminate();
+  }
+
+  private failWorker(worker: Worker, cause: unknown, stage: OpfsWorkerFailureStage) {
+    if (this.worker !== worker) return;
+    const event = cause as Partial<ErrorEvent> | undefined;
+    const details = {
+      stage,
+      workerAnswered: this.workerAnswered,
+      message: typeof event?.message === "string" ? event.message : undefined,
+      filename:
+        typeof event?.filename === "string" ? event.filename.split(/[?#]/, 1)[0] : undefined,
+      line: event?.lineno,
+      column: event?.colno,
+    };
+    const pending = [...this.pending.entries()];
+    this.pending.clear();
+    this.detachWorker(worker);
+    for (const [requestId, request] of pending)
+      request.reject(
+        new OpfsWorkerFailure(event?.error ?? cause, {
+          ...details,
+          operation: request.operation,
+          requestId,
+        }),
+      );
   }
 
   private request(
@@ -120,19 +169,26 @@ export class OpfsByteStore implements ByteStore {
       return Promise.reject(
         new BrowserStorageError(BrowserStorageErrorCode.Closed, "OPFS store is closed"),
       );
-    if (this.failed) return Promise.reject(this.failed);
     return new Promise((resolve, reject) => {
       const id = this.nextId++;
+      let worker: Worker | undefined;
       try {
-        const worker = this.getWorker();
-        this.pending.set(id, { resolve, reject });
+        worker = this.getWorker();
+        this.pending.set(id, { operation, resolve, reject });
         worker.postMessage(
           { id, operation, key, bytes, namespace: this.namespace } satisfies OpfsRequest,
           bytes ? [bytes] : [],
         );
       } catch (error) {
-        this.pending.delete(id);
-        reject(error);
+        if (worker) this.failWorker(worker, error, OpfsWorkerFailureStage.PostMessage);
+        else
+          reject(
+            new OpfsWorkerFailure(error, {
+              stage: OpfsWorkerFailureStage.Construction,
+              operation,
+              requestId: id,
+            }),
+          );
       }
     });
   }
@@ -142,10 +198,24 @@ export class OpfsByteStore implements ByteStore {
   }
 
   async read(key: string): Promise<Uint8Array> {
-    const bytes = await this.request("read", key);
-    if (!bytes)
-      throw new BrowserStorageError(BrowserStorageErrorCode.Corrupt, `OPFS key ${key} is missing`);
-    return new Uint8Array(bytes);
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const bytes = await this.request("read", key);
+        if (!bytes)
+          throw new BrowserStorageError(
+            BrowserStorageErrorCode.Corrupt,
+            `OPFS key ${key} is missing`,
+          );
+        return new Uint8Array(bytes);
+      } catch (error) {
+        if (
+          !(error instanceof OpfsWorkerFailure) ||
+          attempt + 1 >= OPFS_READ_ATTEMPTS ||
+          this.closed
+        )
+          throw error;
+      }
+    }
   }
 
   async remove(key: string): Promise<void> {
@@ -155,7 +225,7 @@ export class OpfsByteStore implements ByteStore {
   close(): void {
     if (this.closed) return;
     this.closed = true;
-    this.worker?.terminate();
+    if (this.worker) this.detachWorker(this.worker);
     for (const pending of this.pending.values())
       pending.reject(
         new BrowserStorageError(BrowserStorageErrorCode.Closed, "OPFS store is closed"),

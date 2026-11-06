@@ -156,6 +156,7 @@ export class WorkspaceRecovery {
     this.state = { error, settings, backingUp: false, recoveredProjectIds: [], documents: {} };
   }
   getSnapshot = () => this.state;
+  canWrite = () => this.writable;
   getRecoverySettings = () => this.state.settings;
   getSlotProjectId = (slotId: string): string | null =>
     this.bindings.get(slotId)?.projectId ?? null;
@@ -671,6 +672,7 @@ export class WorkspaceRecovery {
    * default document can never overwrite recovery data which failed to load. */
   async restore(
     knownSlotIds?: readonly string[],
+    canInstall: () => boolean = () => true,
   ): Promise<{ layout: RecoveryLayout; documents: Map<string, EditorPersistenceSnapshot> } | null> {
     try {
       const [records, loaded] = await Promise.all([
@@ -684,6 +686,7 @@ export class WorkspaceRecovery {
         this.archiveTimes.set(source, Math.max(this.archiveTimes.get(source) ?? -Infinity, time));
       }
       if (!loaded) {
+        if (!canInstall()) throw new Error("Workspace changed before recovery completed");
         this.writable = true;
         return null;
       }
@@ -746,6 +749,8 @@ export class WorkspaceRecovery {
           return { entry, project, snapshot };
         }),
       );
+      if (!canInstall()) throw new Error("Workspace changed before recovery completed");
+      this.restored.clear();
       for (const item of projects) {
         if (!item) continue;
         documents.set(item.entry.slotId, item.snapshot);
@@ -772,6 +777,7 @@ export class WorkspaceRecovery {
         documents,
       };
     } catch (error) {
+      this.writable = false;
       this.publish({ error });
       throw error;
     }
