@@ -17,3 +17,9 @@
   --ui-disclosure-indicator-size: 9px;
   --ui-disclosure-label-gap: 4px;
 }
+.advanced.disabled {
+  opacity: var(--ui-control-disabled-opacity, 0.5);
+}
+.advanced.disabled > summary {
+  cursor: default;
+}
