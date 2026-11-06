@@ -14,6 +14,7 @@ allowBuilds:
   # Wrangler uses workerd's installer to select its native runtime binary.
   workerd: true
 
+minimumReleaseAge: 0
 minimumReleaseAgeExclude:
   - '@xprite/pixelate@0.1.1'
   - '@xprite/pixelate@0.1.2'
