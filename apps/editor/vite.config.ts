@@ -22,6 +22,7 @@ import {
   developmentServerIdentity,
   developmentSiteProxy,
 } from "../../infra/dev-site.ts";
+import { importMetaPackageUrl } from "../../infra/import-meta-package-url.ts";
 import { packageLocalAliases } from "../../infra/package-local-aliases.ts";
 import { publicPackageAssets } from "../../infra/public-package-assets.ts";
 import { siteHtml, SiteIconStyle } from "../../infra/site-html.ts";
@@ -342,6 +343,7 @@ export default defineConfig({
   publicDir: resolve(appRoot, "assets/public"),
   plugins: [
     developmentServerIdentity(DevelopmentApp.Editor, repositoryRoot),
+    importMetaPackageUrl(),
     packageLocalAliases(),
     siteHtml(SiteIconStyle.Editor),
     publicPackageAssets(import.meta.url, "@xprite/site-assets", [

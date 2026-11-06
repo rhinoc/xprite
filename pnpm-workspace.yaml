@@ -15,7 +15,7 @@ allowBuilds:
   workerd: true
 
 minimumReleaseAgeExclude:
-  - '@xprite/pixelate@0.1.0'
+  - '@xprite/pixelate@0.1.1'
 
 # dependency-cruiser 18 uses the TypeScript compiler API that changed in v7.
 packageExtensions:

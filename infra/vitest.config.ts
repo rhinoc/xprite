@@ -1,10 +1,11 @@
 import { defineConfig } from "vitest/config";
 
+import { importMetaPackageUrl } from "./import-meta-package-url";
 import { packageLocalAliases } from "./package-local-aliases";
 import { CpuFirstSequencer } from "./vitest-sequencer";
 
 export default defineConfig({
-  plugins: [packageLocalAliases()],
+  plugins: [importMetaPackageUrl(), packageLocalAliases()],
   test: {
     include: [
       "apps/**/*.test.ts",

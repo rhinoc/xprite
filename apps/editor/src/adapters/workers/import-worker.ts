@@ -12,6 +12,8 @@ import {
 export { ImportWorkerOperation } from "$/adapters/workers/import-worker-types";
 
 // Nested Worker factory for Auto WASM||proposers overlap without COOP/COEP SAB.
+// The worker script ships inside @xprite/pixelate; the bare specifier is resolved by the
+// xprite-import-meta-package-url Vite plugin.
 setAcRlBrowserWorkerFactory(
   () =>
     new Worker(new URL("@xprite/pixelate/wasm/ac-rl-detect-browser-worker.js", import.meta.url), {
