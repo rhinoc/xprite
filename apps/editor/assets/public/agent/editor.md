@@ -23,8 +23,15 @@ All operations return `{ ok: true, data }` or
 - `render({ documentId, frameIndex?, rect? })` — get a visible composite as an
   sRGB PNG `dataUrl`, independent of the canvas zoom and pan.
 - `readPixels({ documentId, frameIndex?, layerId?, rect })` — get working-space
-  RGBA bytes and the current selection mask for a region. Omit `layerId` for
-  the visible composite.
+  RGBA bytes and the current selection mask for a region. Pass
+  `format: "grid"` to get a character `legend` plus one `rows` string per
+  sprite row instead of flat bytes; `.` is transparent. Omit `layerId` for the
+  visible composite. `mode: "diff"` instead compares the same `rect` between
+  two endpoints `from`/`to` (`{ documentId?, frameIndex?, layerId? }`,
+  defaulting to the top-level values) and returns `changedPixels`,
+  `changedBounds`, the resolved endpoints, and with `detail: true` a
+  `{ legend, rows }` map where `.` is unchanged, `-` erased, and other
+  characters the new colour.
 - `undo({ documentId, expectedRevision })` and
   `redo({ documentId, expectedRevision })` — traverse normal document history.
 - `exportDocument({ documentId, format, frameIndex? })` — return PNG or
@@ -55,17 +62,47 @@ const result = await api.applyBatch({
   documentId: doc.id,
   expectedRevision: doc.revision,
   label: "Draw square",
-  operations: [{
-    type: "fillRect",
-    layerId: doc.activeLayerId,
-    frameIndex: doc.activeFrameIndex,
-    rect: { x: 4, y: 4, width: 8, height: 8 },
-    color: "#FF004D"
-  }]
+  operations: [
+    {
+      type: "fillRect",
+      layerId: doc.activeLayerId,
+      frameIndex: doc.activeFrameIndex,
+      rect: { x: 4, y: 4, width: 8, height: 8 },
+      color: "#FF004D",
+    },
+  ],
 });
 if (!result.ok) throw new Error(result.error.message);
 const preview = await api.render({ documentId: doc.id });
 ```
+
+A `grid` batch operation writes the same representation back to a layer:
+
+```js
+await api.applyBatch({
+  documentId: doc.id,
+  expectedRevision: result.data.revision,
+  label: "Patch pixels",
+  operations: [
+    {
+      type: "grid",
+      layerId: doc.activeLayerId,
+      frameIndex: doc.activeFrameIndex,
+      rect: { x: 4, y: 4, width: 8, height: 2 },
+      legend: { K: "#292431", S: "#777386" },
+      rows: ["..KK....", ".KSSK..."],
+      transparent: "erase",
+    },
+  ],
+});
+```
+
+Structural operations in the same batch include `addLayer`, `renameLayer`,
+`setLayerVisibility`, `moveLayer`, `addFrame`, `setFrameDuration`,
+`linkCels`/`unlinkCels` (`{ layerId, frameIndices }`), and the animation tag
+operations `addTag` (`{ name, from, to, direction?, repeat?, color? }`),
+`updateTag` (`{ tagIndex, ... }`), `removeTag` (`{ tagIndex }`). Context lists
+each document's `tags` in order; `tagIndex` follows that order.
 
 Compatible WebMCP browsers also expose these operations as `xprite_*` tools.
 The JavaScript interface works when the browser tool can evaluate JavaScript in

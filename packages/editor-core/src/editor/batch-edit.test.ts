@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { BatchEditError, BatchEditKind, type BatchEditOperation } from "$/editor/batch-edit-types";
 import { RasterEditor } from "$/editor/RasterEditor";
+import { timelineTags } from "$/timeline/tags";
 
 function fixture() {
   return new RasterEditor(
@@ -57,6 +58,89 @@ describe("agent document batches", () => {
     expect(editor.canvas.composite().data.every((byte) => byte === 0)).toBe(true);
     editor.history.redo();
     expect(editor.canvas.composite().data).toEqual(painted);
+  });
+
+  it("writes grid rows through one batch operation", () => {
+    const editor = fixture(),
+      operation = fill(editor);
+    editor.applyBatch([operation], revision(editor), "Fill base");
+    const result = editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.Grid,
+          layerId: operation.layerId,
+          frameIndex: 0,
+          rect: { x: 0, y: 0, width: 4, height: 2 },
+          legend: {
+            K: "#292431",
+            S: "#777386",
+            H: "#C8BCC4",
+          },
+          rows: ["..KK", "KSHS"],
+          transparent: "erase",
+        },
+      ],
+      revision(editor),
+      "Grid patch",
+    );
+    const pixels = editor.canvas.composite().data;
+    expect(result.changedRegions[0].rect).toEqual({ x: 0, y: 0, width: 4, height: 2 });
+    expect(Array.from(pixels.slice(0, 8))).toEqual([0, 0, 0, 0, 0, 0, 0, 0]);
+    expect(Array.from(pixels.slice(8, 16))).toEqual([41, 36, 49, 255, 41, 36, 49, 255]);
+    expect(Array.from(pixels.slice(16, 20))).toEqual([41, 36, 49, 255]);
+    expect(Array.from(pixels.slice(20, 24))).toEqual([119, 115, 134, 255]);
+    expect(Array.from(pixels.slice(24, 28))).toEqual([200, 188, 196, 255]);
+    expect(Array.from(pixels.slice(28, 32))).toEqual([119, 115, 134, 255]);
+  });
+
+  it("can skip transparent grid cells", () => {
+    const editor = fixture(),
+      operation = fill(editor);
+    editor.applyBatch([operation], revision(editor), "Fill base");
+    const before = editor.canvas.composite().data.slice();
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.Grid,
+          layerId: operation.layerId,
+          frameIndex: 0,
+          rect: { x: 0, y: 0, width: 2, height: 2 },
+          legend: { K: "#292431" },
+          rows: [".K", "K."],
+          transparent: "skip",
+        },
+      ],
+      revision(editor),
+      "Grid overlay",
+    );
+    const pixels = editor.canvas.composite().data;
+    expect(Array.from(pixels.slice(0, 4))).toEqual(Array.from(before.slice(0, 4)));
+    expect(Array.from(pixels.slice(4, 8))).toEqual([41, 36, 49, 255]);
+    expect(Array.from(pixels.slice(16, 20))).toEqual([41, 36, 49, 255]);
+    expect(Array.from(pixels.slice(20, 24))).toEqual(Array.from(before.slice(20, 24)));
+  });
+
+  it("rejects malformed grid rows without changing the document", () => {
+    const editor = fixture(),
+      before = revision(editor);
+    expect(() =>
+      editor.applyBatch(
+        [
+          {
+            type: BatchEditKind.Grid,
+            layerId: editor.getSnapshot().document!.timeline!.layers[0].id,
+            frameIndex: 0,
+            rect: { x: 0, y: 0, width: 4, height: 1 },
+            legend: { K: "#292431" },
+            rows: ["..K"],
+          },
+        ],
+        before,
+        "Invalid grid",
+      ),
+    ).toThrow("exactly 4 characters");
+    expect(revision(editor)).toBe(before);
+    expect(editor.getSnapshot().canUndo).toBe(false);
   });
 
   it("rolls back the whole batch when a later operation is invalid", () => {
@@ -175,5 +259,66 @@ describe("agent document batches", () => {
     expect(Array.from(original.data)).toEqual([10, 20, 30, 255]);
     editor.history.undo();
     expect(editor.getSnapshot().document!.timeline!.frames[0].cels[0]!.pixels).toBe(original);
+  });
+
+  it("adds, updates and removes animation tags in one batch", () => {
+    const editor = fixture();
+    // grow to 4 frames so a 0..3 tag range is valid
+    for (let i = 0; i < 3; i++)
+      editor.applyBatch(
+        [{ type: BatchEditKind.AddFrame, afterFrameIndex: i, duplicate: false }],
+        revision(editor),
+        "Add frame",
+      );
+    editor.applyBatch(
+      [{ type: BatchEditKind.AddTag, name: "spin", from: 0, to: 3 }],
+      revision(editor),
+      "Tag",
+    );
+    let tags = timelineTags(editor.getSnapshot().document!.timeline!);
+    expect(tags).toHaveLength(1);
+    expect(tags[0]).toMatchObject({
+      name: "spin",
+      from: 0,
+      to: 3,
+      direction: "forward",
+      repeat: 0,
+    });
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.UpdateTag,
+          tagIndex: 0,
+          name: "spin-alt",
+          direction: "ping-pong",
+          color: [255, 0, 77],
+        },
+      ],
+      revision(editor),
+      "Update tag",
+    );
+    tags = timelineTags(editor.getSnapshot().document!.timeline!);
+    expect(tags[0]).toMatchObject({ name: "spin-alt", direction: "ping-pong" });
+    expect(tags[0].color).toEqual([255, 0, 77, 255]);
+    editor.applyBatch(
+      [{ type: BatchEditKind.RemoveTag, tagIndex: 0 }],
+      revision(editor),
+      "Remove tag",
+    );
+    expect(timelineTags(editor.getSnapshot().document!.timeline!)).toHaveLength(0);
+  });
+
+  it("rejects an out-of-range tag without touching the timeline", () => {
+    const editor = fixture(),
+      before = revision(editor);
+    expect(() =>
+      editor.applyBatch(
+        [{ type: BatchEditKind.AddTag, name: "bad", from: 0, to: 9 }],
+        before,
+        "Bad tag",
+      ),
+    ).toThrow(BatchEditError);
+    expect(timelineTags(editor.getSnapshot().document!.timeline!)).toHaveLength(0);
+    expect(revision(editor)).toBe(before);
   });
 });

@@ -233,6 +233,16 @@ export interface EditorPlatformPorts {
   wheelInput: EditorWheelInputPort;
   font: EditorFontPort;
   files: EditorFilePort;
+  /** Optional user-granted directory that agent tooling writes previews into. */
+  agentPreview?: {
+    status(): Promise<{
+      state: "connected" | "unavailable" | "disconnected";
+      name?: string;
+    }>;
+    /** Prompts for a directory; must run inside a user gesture. */
+    connect(): Promise<boolean>;
+    disconnect(): Promise<void>;
+  };
 }
 
 export interface StartupScreenPort {

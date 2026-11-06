@@ -199,6 +199,21 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
   const [aboutOpen, setAboutOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
   const [newTilemapDialog, setNewTilemapDialog] = useState(false);
+  const [agentPreviewStatus, setAgentPreviewStatus] = useState<{
+    state: "connected" | "unavailable" | "disconnected";
+    name?: string;
+  } | null>(null);
+  useEffect(() => {
+    const port = platform.agentPreview;
+    if (!port) return;
+    let cancelled = false;
+    void port.status().then((status) => {
+      if (!cancelled) setAgentPreviewStatus(status);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [platform]);
   const heldSpace = useRef(false);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
   const telemetry = useTelemetryFeatures(preferencesOpen, aboutOpen);
@@ -1025,6 +1040,23 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     clearRecentFiles: () => {
       if (!canStartInteraction()) return;
       void workspace.clearRecentFiles();
+    },
+    agentPreviewStatus,
+    connectAgentPreviewDirectory: () => {
+      const port = platform.agentPreview;
+      if (!port) return;
+      void (async () => {
+        if (await port.connect()) setAgentPreviewStatus(await port.status());
+        else setAgentPreviewStatus({ state: "disconnected" });
+      })().catch((error) => session.reportError(error));
+    },
+    disconnectAgentPreviewDirectory: () => {
+      const port = platform.agentPreview;
+      if (!port) return;
+      void port
+        .disconnect()
+        .then(() => setAgentPreviewStatus({ state: "disconnected" }))
+        .catch((error) => session.reportError(error));
     },
     canReopenClosedFile: workspaceSnapshot.canReopenClosedFile,
     reopenClosedFile: () => {

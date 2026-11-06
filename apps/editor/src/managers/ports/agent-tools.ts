@@ -9,6 +9,7 @@ export enum AgentToolName {
   Undo = "undo",
   Redo = "redo",
   ExportDocument = "exportDocument",
+  WritePreview = "writePreview",
 }
 
 export const AGENT_INTERFACE_VERSION = 1;
@@ -44,4 +45,17 @@ export interface AgentToolsPort {
   }): () => void;
   encodePng(pixels: PixelBuffer): Promise<Uint8Array>;
   encodeBase64(bytes: Uint8Array): string;
+  /**
+   * Optional agent preview directory. When present, the `writePreview` tool is
+   * advertised; `connectPreviewDirectory` must be called from a user gesture.
+   */
+  previewDirectory?: {
+    status(): Promise<{
+      state: "connected" | "unavailable" | "disconnected";
+      name?: string;
+    }>;
+    connect(): Promise<boolean>;
+    disconnect(): Promise<void>;
+    write(filename: string, bytes: Uint8Array): Promise<void>;
+  };
 }

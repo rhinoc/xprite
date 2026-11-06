@@ -1,3 +1,4 @@
+import { sharedAgentPreviewDirectory } from "$/adapters/agent/preview-directory";
 import { browserColorSampling } from "$/adapters/colors/browser-color-sampling";
 import { decodeAsepriteBlob } from "$/adapters/files/aseprite-files";
 import { createBrowserAnimalCrossingExportPort } from "$/adapters/files/browser-animal-crossing-export";
@@ -97,6 +98,16 @@ export function createBrowserEditorPlatformPorts(): EditorPlatformPorts {
     font: {
       localFonts: createBrowserLocalFontsPort(),
       rasterize: rasterizeEditorTextFont,
+    },
+    agentPreview: {
+      status: async () => {
+        const directory = sharedAgentPreviewDirectory();
+        if (!directory.supported) return { state: "unavailable" };
+        const handle = await directory.granted();
+        return handle ? { state: "connected", name: handle.name } : { state: "disconnected" };
+      },
+      connect: async () => (await sharedAgentPreviewDirectory().connect()) !== null,
+      disconnect: () => sharedAgentPreviewDirectory().disconnect(),
     },
   };
 }
