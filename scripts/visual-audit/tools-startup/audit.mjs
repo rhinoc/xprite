@@ -8,7 +8,6 @@ import { transform } from "esbuild";
 import { parseEgoReport, printEgoNonReportLines } from "../../base/ego-report.mjs";
 import { collectVisualSources } from "../base/audit-source-files.mjs";
 import { runBrowserPayload, visualShardCount } from "../base/browser.mjs";
-import { generateImageReport } from "../report.mjs";
 import { installStartupMonitor } from "../startup-continuity/monitor.mjs";
 import {
   CPU_SLOWDOWN,
@@ -201,6 +200,4 @@ try {
   manifest.error = error instanceof Error ? error.message : String(error);
   save();
   throw error;
-} finally {
-  generateImageReport();
 }

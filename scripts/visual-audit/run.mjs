@@ -21,6 +21,7 @@ import configuration from "../../infra/dev-site.json" with { type: "json" };
 import { mapConcurrent } from "../base/map-concurrent.mjs";
 import { BROWSER_ARGS, launchBrowserServer } from "./base/browser.mjs";
 import { startStaticSite } from "./base/static-site.mjs";
+import { generateImageReport } from "./report.mjs";
 
 const root = fileURLToPath(new URL("../../", import.meta.url)).replace(/[\\/]$/, "");
 const AUDIT_GROUP_CONCURRENCY = 2;
@@ -231,6 +232,7 @@ try {
     await Promise.race([site.exited, delay(10_000, undefined, { ref: false })]);
   }
 }
+generateImageReport();
 if (failed.length > 0) {
   console.error(
     `\nvisual: ${failed.length} audit(s) failed in ${seconds(started)}s: ${failed.join(", ")}`,

@@ -2,7 +2,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { generateImageReport } from "../report.mjs";
 import { assertCaptureContract, COMPARISON_METHOD } from "./compare-case.mjs";
 import { compareCases } from "./compare-pool.mjs";
 import { selectSceneIds, selectLanguages, languageDirectory, languageSceneIds } from "./scenes.mjs";
@@ -26,50 +25,46 @@ const [
 const baselineRoot = path.resolve(root, baselineArgument);
 const candidateRoot = path.resolve(root, candidateArgument);
 const summaries = [];
-try {
-  for (const language of languages) {
-    const baselineDir = languageDirectory(baselineRoot, language);
-    const candidateDir = languageDirectory(candidateRoot, language);
-    if (baselineDir === candidateDir) throw Error("Capture a separate candidate before comparing.");
-    const readManifest = (directory) =>
-      JSON.parse(fs.readFileSync(path.join(directory, "manifest.json"), "utf8"));
-    const baseline = readManifest(baselineDir),
-      candidate = readManifest(candidateDir);
-    if (candidate.captureComplete !== true)
-      throw Error(
-        `${language}: capture is incomplete or failed; partial comparisons cannot pass the gate.`,
-      );
-    const languageIds = languageSceneIds(language, ids);
-    assertCaptureContract(baseline, candidate, language, languageIds);
-    const results = await compareCases(baseline, candidate, baselineDir, candidateDir, languageIds);
-    const report = {
-      passed: results.every(({ passed }) => passed),
-      comparison: COMPARISON_METHOD,
-      results,
-    };
-    fs.writeFileSync(
-      path.join(candidateDir, "comparison.json"),
-      `${JSON.stringify(report, null, 2)}\n`,
+for (const language of languages) {
+  const baselineDir = languageDirectory(baselineRoot, language);
+  const candidateDir = languageDirectory(candidateRoot, language);
+  if (baselineDir === candidateDir) throw Error("Capture a separate candidate before comparing.");
+  const readManifest = (directory) =>
+    JSON.parse(fs.readFileSync(path.join(directory, "manifest.json"), "utf8"));
+  const baseline = readManifest(baselineDir),
+    candidate = readManifest(candidateDir);
+  if (candidate.captureComplete !== true)
+    throw Error(
+      `${language}: capture is incomplete or failed; partial comparisons cannot pass the gate.`,
     );
-    for (const result of results)
-      console.log(
-        `${language}/${result.id}: ${result.differentPixels}/${result.totalPixels} pixels differ; geometry ${result.geometrySame ? "same" : "changed"}`,
-      );
-    console.log(`Report: ${path.join(candidateDir, "comparison.json")}`);
-    summaries.push({ language, ...report });
-  }
+  const languageIds = languageSceneIds(language, ids);
+  assertCaptureContract(baseline, candidate, language, languageIds);
+  const results = await compareCases(baseline, candidate, baselineDir, candidateDir, languageIds);
+  const report = {
+    passed: results.every(({ passed }) => passed),
+    comparison: COMPARISON_METHOD,
+    results,
+  };
   fs.writeFileSync(
-    path.join(candidateRoot, "comparison-all.json"),
-    `${JSON.stringify(
-      {
-        passed: summaries.every(({ passed }) => passed),
-        languages: summaries,
-      },
-      null,
-      2,
-    )}\n`,
+    path.join(candidateDir, "comparison.json"),
+    `${JSON.stringify(report, null, 2)}\n`,
   );
-  process.exitCode = summaries.every(({ passed }) => passed) ? 0 : 1;
-} finally {
-  generateImageReport();
+  for (const result of results)
+    console.log(
+      `${language}/${result.id}: ${result.differentPixels}/${result.totalPixels} pixels differ; geometry ${result.geometrySame ? "same" : "changed"}`,
+    );
+  console.log(`Report: ${path.join(candidateDir, "comparison.json")}`);
+  summaries.push({ language, ...report });
 }
+fs.writeFileSync(
+  path.join(candidateRoot, "comparison-all.json"),
+  `${JSON.stringify(
+    {
+      passed: summaries.every(({ passed }) => passed),
+      languages: summaries,
+    },
+    null,
+    2,
+  )}\n`,
+);
+process.exitCode = summaries.every(({ passed }) => passed) ? 0 : 1;
