@@ -22,6 +22,11 @@ All operations return `{ ok: true, data }` or
   from `describe()` for the available operations and their arguments.
 - `render({ documentId, frameIndex?, rect? })` — get a visible composite as an
   sRGB PNG `dataUrl`, independent of the canvas zoom and pan.
+  `filmstrip: { frames?, layout?, scale? }` instead composites every listed
+  zero-based frame (default all) into one PNG, horizontally (`"strip"`) or in
+  a near-square `"grid"`, and returns `frameRects` mapping each region back to
+  a `frameIndex`. `onionSkin: { prev?, next?, alpha?, layerId? }` renders the
+  target frame at full alpha over ghosted neighboring frames, oldest first.
 - `readPixels({ documentId, frameIndex?, layerId?, rect })` — get working-space
   RGBA bytes and the current selection mask for a region. Pass
   `format: "grid"` to get a character `legend` plus one `rows` string per
@@ -31,13 +36,57 @@ All operations return `{ ok: true, data }` or
   defaulting to the top-level values) and returns `changedPixels`,
   `changedBounds`, the resolved endpoints, and with `detail: true` a
   `{ legend, rows }` map where `.` is unchanged, `-` erased, and other
-  characters the new colour.
+  characters the new colour. `mode: "stats"` returns a `colors` count, a
+  descending `histogram` (up to 64 colors), the non-transparent `bounds`,
+  and `offPalette` colors not in the document palette.
+- `validate({ documentId, checks?, strict?, expect? })` — lint the document
+  against pixel-art rules and return `passed`, a `score` 0-100, `findings`
+  with `check`, `severity` (`error`/`warning`/`note`), `message` and optional
+  `layerId`, `frameIndex`, `at` and `count`, plus a `summary`. `checks` limits
+  the run to a subset of `palette`, `strays`, `outline`, `banding`,
+  `antialiasing`, `layers`, `animation`, `export_readiness` (omit for all).
+  `strict` treats warnings as failures. `expect.layerFrames` maps a `layerId`
+  to zero-based `[from,to]` ranges that must hold ink; `expect.mustNotOverlap`
+  lists `[layerId, layerId]` pairs whose opaque pixels must never intersect on
+  a frame. Hidden layers are skipped by per-pixel checks.
 - `undo({ documentId, expectedRevision })` and
   `redo({ documentId, expectedRevision })` — traverse normal document history.
-- `exportDocument({ documentId, format, frameIndex? })` — return PNG or
-  Aseprite file bytes as `base64`, with `filename`, `mimeType` and `byteLength`.
-  Export does not download or mark the document saved. PNG is one frame;
-  Aseprite includes the complete project.
+- `exportDocument({ documentId, format, frameIndex?, frameRange?, tag?,
+  scale?, layout? })` — return file bytes as `base64`, with `filename`,
+  `mimeType` and `byteLength`. `png` exports one frame in sRGB; `aseprite`
+  exports the complete project. `gif` encodes all frames, `frameRange`
+  `[from, to]`, or the named `tag`'s range as an animated GIF with per-frame
+  durations; `scale` is an integer enlargement. `spritesheet` packs the same
+  selection as a `"strip"` (default) or `"grid"` PNG and adds `frameRects`
+  (`x, y, width, height, frameIndex`). `format: "tag"` exports that tag's
+  range as GIF when it spans more than one frame, PNG otherwise. Export does
+  not download or mark the document saved.
+- `palette({ documentId, op, ... })` — read and shape the document palette.
+  `op:"get"` returns `colors: [{index, hex, pixels}]` with usage counts across
+  every frame's visible composite. `op:"set"` writes `colors` at `startIndex`,
+  or replaces the palette with `replace: true`; `remapArt` is unsupported.
+  `op:"ramp"` returns `{ramp: [hex]}`, a hue-shifted ramp around `base`
+  (`steps` colors, `spread` reach; shadows toward blue, highlights toward
+  orange) — it does not apply, call `set` to append it. `op:"analyze"`
+  returns `size`, `unusedIndices`, `nearDuplicates` (ΔE < 3),
+  `offPaletteColors`, `lowestContrastPair` and `verdict`. `op:"extract"`
+  quantizes the visible composite across all frames to `maxColors` and
+  replaces the palette. Palette writes are one history entry.
+- `importImage({ documentId, expectedRevision, bytes, format?, layerId?,
+  frameIndex?, position?, newLayer?, name? })` — decode base64 PNG or GIF
+  bytes and paint them as one undo step. `format` defaults to `"auto"` byte
+  sniffing; a multi-frame GIF writes successive frames, appending new frames
+  only past the timeline end. Without `layerId` a new layer is created above
+  the active one (`newLayer: false` paints the active layer); with `layerId`
+  the image composites into that layer's cel at `frameIndex` plus `position`
+  (sprite coordinates, clipped to the canvas; default `{x:0,y:0}`). Returns
+  the target `layerId`, `frameIndex`, `rect`, `imageWidth`, `imageHeight`,
+  `frames` and the new `revision`.
+- `manageDocument({ op, documentId, name?, force? })` — `save` runs the
+  editor save workflow and marks the tab saved, returning `{ saved, name }`;
+  `close` closes the tab and rejects with unsaved changes unless
+  `force: true` discards them; `duplicate` opens a copy as a new unsaved tab
+  and returns its context. `open` is not supported.
 
 Drawing coordinates are integer sprite pixels, not screen coordinates. Frame
 indices are zero-based. Pixel edits explicitly target a `layerId` and
@@ -107,3 +156,11 @@ each document's `tags` in order; `tagIndex` follows that order.
 Compatible WebMCP browsers also expose these operations as `xprite_*` tools.
 The JavaScript interface works when the browser tool can evaluate JavaScript in
 the page. Screenshots and pointer input remain available for ordinary UI use.
+
+## Drawing well
+
+This document covers the interface; `/agent/craft/README.md` is a short
+opinionated handbook on drawing *well* with it — the inspect → draw → look →
+fix loop, palette ramps, hue-shifted shading, silhouette-first blocking,
+outline styles, animation timing and a pre-flight review checklist. Read
+`craft/00-core-principles.md` before any non-trivial drawing task.

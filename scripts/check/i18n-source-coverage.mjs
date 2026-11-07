@@ -104,7 +104,10 @@ function filesIn(directory) {
     if (entry.isDirectory()) return filesIn(filename);
     return /\.[cm]?[jt]sx?$/.test(filename) &&
       !/\.(test|spec)\./.test(filename) &&
-      !entry.name.startsWith("generated")
+      !entry.name.startsWith("generated") &&
+      // Agent tool schemas describe the machine-readable contract for AI callers,
+      // not UI copy; their descriptions are protocol text, never cataloged.
+      entry.name !== "agent-tool-definitions.ts"
       ? [filename]
       : [];
   });
