@@ -309,3 +309,14 @@ KohakuBlueleaf (Apache-2.0). They are independent reimplementations in
 [`@xprite/pixelate`](https://github.com/rhinoc/xprite-pixelate) (`src/cell-color-picker.ts`); no PixelOE code is
 copied. Most common follows [proper-pixel-art](https://github.com/KennethJAllen/proper-pixel-art)
 (MIT).
+
+## Agent craft rules
+
+The pixel-art craft knowledge base in `apps/editor/assets/public/agent/craft/`
+is adapted from the **Aseprite AI Artist** project by with-pebbly (MIT). The 62
+rule files keep the upstream numbering bands; tool names inside the text are
+translated to `window.xpriteAgent` operations and an adapter table sits in
+`00-adapter.md`. The upstream MIT notice is retained at
+`apps/editor/assets/public/agent/craft/LICENSE` and
+[`LICENSES/aseprite-ai-artist.txt`](LICENSES/aseprite-ai-artist.txt). Source:
+[Aseprite AI Artist](https://github.com/with-pebbly/aseprite-ai-artist).

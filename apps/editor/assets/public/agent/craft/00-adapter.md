@@ -34,4 +34,4 @@ operation:
 | `allowLossy` | `resizeSprite` `bilinear`/`rotsprite` — otherwise `nearest` only |
 | `rules://` / `craft/index.md` | ignore — navigation links to other docs |
 
-`craft/NN-name.md` in prose links to `craft/NN-name.md` in this directory.
+Each rule lives in a band directory — `craft/00-core/00-core-principles.md` style. Prose links inside the rules point at those paths; this file and `README.md` stay at the root next to `LICENSE`.
