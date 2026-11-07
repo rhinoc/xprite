@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@xprite/bedrock": "workspace:*",
+    "@xprite/lighter": "github:rhinoc/xprite-lighter",
     "@xprite/pixelate": "0.1.2",
     "fflate": "^0.8.3",
     "qr": "0.7.2",

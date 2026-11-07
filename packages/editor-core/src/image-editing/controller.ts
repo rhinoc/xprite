@@ -13,7 +13,6 @@ import {
   previewDocumentEffect,
   type EffectSpec,
 } from "$/image-editing/effects";
-import { DEFAULT_LIGHT_MASK_LAYER_NAME } from "$/image-editing/light-mask";
 import {
   writeNormalMapLayer,
   type NormalMapFrameOutput,
@@ -32,6 +31,7 @@ import {
   type FlipOrientation,
 } from "$/image-editing/transform";
 import type { TilesetMode } from "$/tilemap/types";
+import { DEFAULT_LIGHT_MASK_LAYER_NAME } from "@xprite/lighter";
 
 export interface ImageEditingSettings {
   background: Rgba;
