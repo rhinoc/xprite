@@ -28,6 +28,7 @@ pnpm-debug.log*
 !.dev.vars.example
 
 # Temporary files
+.artifacts/
 .tmp/
 artifacts/
 .refs/
