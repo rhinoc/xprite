@@ -313,7 +313,9 @@ interface; browsers without it still expose the page JS interface.
 
 ## Craft rules
 
-`assets/public/agent/craft/` is a short handbook of pixel-art craft rules for
-agents — the inspect→draw→look→fix loop, palette ramps, hue-shifted shading,
-silhouette-first blocking, outline styles, animation timing and a review
-checklist — shipped alongside `editor.md` so a connected agent can fetch it.
+`assets/public/agent/craft/` is a handbook of pixel-art craft rules for agents,
+grouped into band directories (`00-core`, `10-technique`, … `90-style`) with
+`README.md` as the index — the inspect→draw→look→fix loop, palette ramps,
+hue-shifted shading, silhouette-first blocking, outline styles, animation
+timing and a review checklist — shipped alongside `editor.md` so a connected
+agent can fetch it.

@@ -163,4 +163,4 @@ This document covers the interface; `/agent/craft/README.md` is a short
 opinionated handbook on drawing *well* with it — the inspect → draw → look →
 fix loop, palette ramps, hue-shifted shading, silhouette-first blocking,
 outline styles, animation timing and a pre-flight review checklist. Read
-`craft/00-core-principles.md` before any non-trivial drawing task.
+`craft/README.md` for the index, `craft/00-core/00-core-principles.md` before any non-trivial drawing task.
