@@ -1,3 +1,6 @@
+import * as React from "react";
+
+import { themeFontFamily } from "$/base/theme/font-families";
 import { pixelFrameImage, pixelFocusImage } from "$/base/theme/pixel-frame";
 import { useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
@@ -7,7 +10,7 @@ import {
   type AtlasPartName,
   type UiPartProps,
 } from "$/base/theme/theme-part";
-import { FontRole } from "$/base/theme/theme-types";
+import { FontRole, UiFontRenderer } from "$/base/theme/theme-types";
 import { Text, TextVariant } from "$/components/text";
 
 import styles from "$/components/button/button.module.css";
@@ -48,6 +51,80 @@ function OutlineButtonFrame({ children, className, style }: UiPartProps) {
   );
 }
 
+const fontAtlasStatus = new Map<string, Promise<boolean>>();
+
+function fontAtlasAvailable(url: string): Promise<boolean> {
+  const existing = fontAtlasStatus.get(url);
+  if (existing) return existing;
+  const status = new Promise<boolean>((resolve) => {
+    const image = new Image();
+    image.onload = () => resolve(true);
+    image.onerror = () => {
+      if (fontAtlasStatus.get(url) === status) fontAtlasStatus.delete(url);
+      resolve(false);
+    };
+    image.src = url;
+  });
+  fontAtlasStatus.set(url, status);
+  return status;
+}
+
+/** Bitmap fonts paint glyphs through a mask of the theme atlas; after a deploy the
+ * old URL can be gone while the page still runs, leaving controls blank. */
+function useFontAtlasReady(url: string | undefined): boolean {
+  const [ready, setReady] = React.useState(() => url === undefined);
+  React.useEffect(() => {
+    if (url === undefined) {
+      setReady(true);
+      return;
+    }
+    let active = true;
+    void fontAtlasAvailable(url).then((available) => {
+      if (active) setReady(available);
+    });
+    return () => {
+      active = false;
+    };
+  }, [url]);
+  return ready;
+}
+
+function InlineButtonText({
+  text,
+  x,
+  y,
+  color,
+  font,
+}: {
+  text: string;
+  x: number;
+  y: number;
+  color: string;
+  font: FontRole;
+}) {
+  const { definition } = useTheme();
+  const metrics = definition.typography[font];
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        position: "absolute",
+        left: x,
+        top: y,
+        whiteSpace: "pre",
+        pointerEvents: "none",
+        fontFamily: themeFontFamily(metrics),
+        fontSize: metrics.fontSize / 2,
+        lineHeight: `${metrics.lineHeight / 2}px`,
+      }}
+    >
+      <Text variant={TextVariant.Inline} scale={1} ink={color}>
+        {text}
+      </Text>
+    </span>
+  );
+}
+
 export function ThemeButtonArtwork({
   bounds,
   width,
@@ -71,6 +148,10 @@ export function ThemeButtonArtwork({
 }: ThemeButtonArtworkProps) {
   const { measureThemeText, themeFontHeight } = useThemeText();
   const { definition } = useTheme();
+  const metrics = definition.typography[font];
+  const atlasReady = useFontAtlasReady(
+    metrics.renderer === UiFontRenderer.Bitmap ? metrics.atlas.url : undefined,
+  );
   const outline = part.startsWith("button_") ? definition.controlParts?.button?.outline : undefined;
   const borderInk = definition.colors.text;
   const Frame = outline ? OutlineButtonFrame : ThemePart;
@@ -141,7 +222,10 @@ export function ThemeButtonArtwork({
           pressed={state.pressed}
         />
       )}
-      {text && disabled && disabledTextShadow && (
+      {text && !atlasReady && (
+        <InlineButtonText text={text} x={textX} y={textY} color={ink} font={font} />
+      )}
+      {text && atlasReady && disabled && disabledTextShadow && (
         <Text
           variant={TextVariant.PositionedPixel}
           text={text}
@@ -151,7 +235,7 @@ export function ThemeButtonArtwork({
           color={shadowColor}
         />
       )}
-      {text && (
+      {text && atlasReady && (
         <Text
           variant={TextVariant.PositionedPixel}
           text={text}

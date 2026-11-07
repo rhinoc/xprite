@@ -44,6 +44,14 @@ export interface RecentFile {
   isOpen?: boolean;
 }
 
+interface HomeNewsItem {
+  slug: string;
+  date: string;
+  title: string;
+  hook: string;
+  image?: string;
+}
+
 export interface HomeViewFooterSegment {
   text: string;
   href?: string;
@@ -55,6 +63,7 @@ interface HomeViewLabels extends HomeIdentityLabels {
   about: string;
   recentFiles: string;
   recentFilesHeading: string;
+  newsHeading: string;
   newFile: string;
   openFile: string;
   recoverFiles: string;
@@ -69,6 +78,7 @@ interface HomeViewLabels extends HomeIdentityLabels {
 
 export interface HomeViewProps {
   files: readonly RecentFile[];
+  news?: readonly HomeNewsItem[];
   labels: HomeViewLabels;
   mascot?: (hovered: boolean) => ReactNode;
   onSettings?: () => void;
@@ -89,6 +99,7 @@ export interface HomeViewProps {
 /** Home content uses normal layout flow; only themed artwork sits over its parent panel. */
 export function HomeView({
   files,
+  news,
   labels,
   mascot,
   onSettings,
@@ -135,6 +146,9 @@ export function HomeView({
     "--ui-home-workspace": colors.workspace,
     "--ui-home-workspace-text": colors.workspace_text,
     "--ui-home-text": `color-mix(in srgb, ${colors.workspace_text} 65%, ${colors.text})`,
+    "--ui-home-ink": colors.text,
+    "--ui-home-disabled": colors.disabled,
+    "--ui-home-hot": colors.menuitem_hot_face,
     "--ui-home-focus-ring": colors.focus ?? colors.text,
     "--xse-home-row-height": `${rowHeight}px`,
     "--xse-home-action-height": `${actionHeight}px`,
@@ -223,135 +237,197 @@ export function HomeView({
         </header>
       )}
 
-      <section
-        className={styles.recentSection}
-        aria-label={labels.recentFiles}
-        style={{ marginTop: recentSectionOffset }}
-      >
-        <h2 className={styles.recentHeading}>
-          <span className={styles.visuallyHidden}>{labels.recentFilesHeading}</span>
-          <Text variant={TextVariant.Inline} scale={2} ink={colors.workspace_text}>
-            {labels.recentFilesHeading}
-          </Text>
-        </h2>
+      <div className={styles.bodyRow} data-with-news={news && news.length > 0 ? "true" : "false"}>
+        <section
+          className={styles.recentSection}
+          aria-label={labels.recentFiles}
+          style={{ marginTop: recentSectionOffset }}
+        >
+          <h2 className={styles.recentHeading}>
+            <span className={styles.visuallyHidden}>{labels.recentFilesHeading}</span>
+            <Text variant={TextVariant.Inline} scale={2} ink={colors.workspace_text}>
+              {labels.recentFilesHeading}
+            </Text>
+          </h2>
 
-        <div className={styles.filesView}>
-          <div className={styles.filesFill} style={{ background: colors.background }} />
-          <ScrollArea
-            className={styles.filesScrollArea}
-            scrollX={false}
-            scrollY={showRecentScrollbar}
-            viewport={viewport}
-            viewportProps={{ role: "group", "aria-label": labels.recentFiles }}
-            contentClassName={styles.fileScrollContent}
-          >
-            {files.map((file) => {
-              const highlighted = hotFile === file.id;
-              return (
-                <div
-                  key={file.id}
-                  className={styles.fileRow}
-                  data-highlighted={highlighted}
-                  style={{
-                    background: highlighted ? colors.menuitem_hot_face : colors.background,
-                  }}
-                  onPointerEnter={(event) => {
-                    if (event.pointerType === "mouse") setHotFile(file.id);
-                  }}
-                  onPointerLeave={() => setHotFile(null)}
-                  onFocus={(event) => {
-                    if (event.target.matches(":focus-visible")) setHotFile(file.id);
-                  }}
-                  onBlur={(event) => {
-                    if (!event.currentTarget.contains(event.relatedTarget)) setHotFile(null);
-                  }}
-                >
-                  <WorkspaceLink
-                    layout="flow"
-                    className={styles.recentLink}
-                    bounds={{ x: 0, y: 0, width: 1, height: homeConfiguration.fileRowHeight }}
-                    style={{ flex: "1 1 auto", width: "100%", height: rowHeight }}
-                    variant={WorkspaceLinkVariant.Recent}
-                    onClick={() => onOpenRecent(file.id)}
-                    highlighted={highlighted}
+          <div className={styles.filesView}>
+            <div className={styles.filesFill} style={{ background: colors.background }} />
+            <ScrollArea
+              className={styles.filesScrollArea}
+              scrollX={false}
+              scrollY={showRecentScrollbar}
+              viewport={viewport}
+              viewportProps={{ role: "group", "aria-label": labels.recentFiles }}
+              contentClassName={styles.fileScrollContent}
+            >
+              {files.map((file) => {
+                const highlighted = hotFile === file.id;
+                return (
+                  <div
+                    key={file.id}
+                    className={styles.fileRow}
+                    data-highlighted={highlighted}
+                    style={{
+                      background: highlighted ? colors.menuitem_hot_face : colors.background,
+                    }}
+                    onPointerEnter={(event) => {
+                      if (event.pointerType === "mouse") setHotFile(file.id);
+                    }}
+                    onPointerLeave={() => setHotFile(null)}
+                    onFocus={(event) => {
+                      if (event.target.matches(":focus-visible")) setHotFile(file.id);
+                    }}
+                    onBlur={(event) => {
+                      if (!event.currentTarget.contains(event.relatedTarget)) setHotFile(null);
+                    }}
                   >
-                    {file.name}
-                  </WorkspaceLink>
-                  {onDownloadRecent && (
-                    <Button
-                      variant={ButtonVariant.FlatIcon}
-                      className={`${styles.fileAction} ${styles.downloadAction}`}
-                      paintArtwork={false}
-                      style={{ color: downloadRecentDisabled ? colors.disabled : colors.text }}
-                      pixelSize={{
-                        width: HOME_FILE_ACTION_BUTTON_SIZE,
-                        height: HOME_FILE_ACTION_BUTTON_SIZE,
-                      }}
-                      aria-label={labels.downloadFile(file.name)}
-                      title={labels.downloadFile(file.name)}
-                      disabled={downloadRecentDisabled}
-                      onClick={() => onDownloadRecent(file.id)}
+                    <WorkspaceLink
+                      layout="flow"
+                      className={styles.recentLink}
+                      bounds={{ x: 0, y: 0, width: 1, height: homeConfiguration.fileRowHeight }}
+                      style={{ flex: "1 1 auto", width: "100%", height: rowHeight }}
+                      variant={WorkspaceLinkVariant.Recent}
+                      onClick={() => onOpenRecent(file.id)}
+                      highlighted={highlighted}
                     >
-                      <PixelArtIcon name="download" size={HOME_FILE_ACTION_ICON_SIZE} />
-                    </Button>
-                  )}
-                  {(file.pinned || onPinRecent) && (
-                    <button
-                      type="button"
-                      className={styles.pin}
-                      data-pinned={!!file.pinned}
-                      aria-label={
-                        file.pinned ? labels.unpinFile(file.name) : labels.pinFile(file.name)
-                      }
-                      disabled={!onPinRecent}
-                      onClick={() => onPinRecent?.(file.id, !file.pinned)}
+                      {file.name}
+                    </WorkspaceLink>
+                    {onDownloadRecent && (
+                      <Button
+                        variant={ButtonVariant.FlatIcon}
+                        className={`${styles.fileAction} ${styles.downloadAction}`}
+                        paintArtwork={false}
+                        style={{ color: downloadRecentDisabled ? colors.disabled : colors.text }}
+                        pixelSize={{
+                          width: HOME_FILE_ACTION_BUTTON_SIZE,
+                          height: HOME_FILE_ACTION_BUTTON_SIZE,
+                        }}
+                        aria-label={labels.downloadFile(file.name)}
+                        title={labels.downloadFile(file.name)}
+                        disabled={downloadRecentDisabled}
+                        onClick={() => onDownloadRecent(file.id)}
+                      >
+                        <PixelArtIcon name="download" size={HOME_FILE_ACTION_ICON_SIZE} />
+                      </Button>
+                    )}
+                    {(file.pinned || onPinRecent) && (
+                      <button
+                        type="button"
+                        className={styles.pin}
+                        data-pinned={!!file.pinned}
+                        aria-label={
+                          file.pinned ? labels.unpinFile(file.name) : labels.pinFile(file.name)
+                        }
+                        disabled={!onPinRecent}
+                        onClick={() => onPinRecent?.(file.id, !file.pinned)}
+                      >
+                        <Icon
+                          kind={file.pinned ? "pinned" : "unpinned"}
+                          scale={2}
+                          color={colors.text}
+                          style={{ left: 0, top: 2, pointerEvents: "none" }}
+                        />
+                      </button>
+                    )}
+                    {onDeleteBrowserCopy && (
+                      <Button
+                        variant={ButtonVariant.FlatIcon}
+                        className={styles.fileAction}
+                        icon="tab_close_icon_normal"
+                        paintArtwork={false}
+                        pixelSize={{
+                          width: HOME_FILE_ACTION_BUTTON_SIZE,
+                          height: HOME_FILE_ACTION_BUTTON_SIZE,
+                        }}
+                        aria-label={labels.deleteBrowserCopy(file.name)}
+                        title={
+                          file.isOpen
+                            ? labels.closeBeforeDelete
+                            : labels.deleteBrowserCopy(file.name)
+                        }
+                        disabled={deleteBrowserCopyDisabled || file.isOpen}
+                        onClick={() => onDeleteBrowserCopy(file.id)}
+                      >
+                        <Icon
+                          kind="tab_close_icon_normal"
+                          scale={2}
+                          color={colors.text}
+                          style={{ position: "relative", pointerEvents: "none" }}
+                        />
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+            </ScrollArea>
+            <UiPart
+              part="editor_normal"
+              scale={2}
+              drawCenter={false}
+              className={styles.filesFrame}
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+            />
+          </div>
+        </section>
+
+        {news && news.length > 0 && (
+          <section
+            className={styles.newsSection}
+            aria-label={labels.newsHeading}
+            style={{ marginTop: recentSectionOffset }}
+          >
+            <h2 className={styles.recentHeading}>
+              <Text variant={TextVariant.Inline} scale={2} ink={colors.workspace_text}>
+                {labels.newsHeading}
+              </Text>
+            </h2>
+            <div className={styles.filesView}>
+              <div className={styles.filesFill} style={{ background: colors.background }} />
+              <ScrollArea
+                className={styles.filesScrollArea}
+                scrollX={false}
+                scrollY={showRecentScrollbar}
+                viewport={viewport}
+                viewportProps={{ role: "group", "aria-label": labels.newsHeading }}
+                contentClassName={styles.fileScrollContent}
+              >
+                {news.map((item) => {
+                  const inner = (
+                    <>
+                      <div className={styles.newsTitleRow}>
+                        <div className={styles.newsTitle}>{item.title}</div>
+                        <div className={styles.newsDate}>{item.date}</div>
+                      </div>
+                      <div className={styles.newsBody}>{item.hook}</div>
+                    </>
+                  );
+                  return (
+                    <article
+                      key={`${item.date}-${item.title}`}
+                      className={styles.newsItem}
+                      data-has-image={!!item.image}
                     >
-                      <Icon
-                        kind={file.pinned ? "pinned" : "unpinned"}
-                        scale={2}
-                        color={colors.text}
-                        style={{ left: 0, top: 2, pointerEvents: "none" }}
-                      />
-                    </button>
-                  )}
-                  {onDeleteBrowserCopy && (
-                    <Button
-                      variant={ButtonVariant.FlatIcon}
-                      className={styles.fileAction}
-                      icon="tab_close_icon_normal"
-                      paintArtwork={false}
-                      pixelSize={{
-                        width: HOME_FILE_ACTION_BUTTON_SIZE,
-                        height: HOME_FILE_ACTION_BUTTON_SIZE,
-                      }}
-                      aria-label={labels.deleteBrowserCopy(file.name)}
-                      title={
-                        file.isOpen ? labels.closeBeforeDelete : labels.deleteBrowserCopy(file.name)
-                      }
-                      disabled={deleteBrowserCopyDisabled || file.isOpen}
-                      onClick={() => onDeleteBrowserCopy(file.id)}
-                    >
-                      <Icon
-                        kind="tab_close_icon_normal"
-                        scale={2}
-                        color={colors.text}
-                        style={{ position: "relative", pointerEvents: "none" }}
-                      />
-                    </Button>
-                  )}
-                </div>
-              );
-            })}
-          </ScrollArea>
-          <UiPart
-            part="editor_normal"
-            scale={2}
-            drawCenter={false}
-            className={styles.filesFrame}
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-          />
-        </div>
-      </section>
+                      {inner}
+                      {item.image && (
+                        <div className={styles.newsPreview} aria-hidden="true">
+                          <img src={item.image} alt="" className={styles.newsPreviewImage} />
+                        </div>
+                      )}
+                    </article>
+                  );
+                })}
+              </ScrollArea>
+              <UiPart
+                part="editor_normal"
+                scale={2}
+                drawCenter={false}
+                className={styles.filesFrame}
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+              />
+            </div>
+          </section>
+        )}
+      </div>
 
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
