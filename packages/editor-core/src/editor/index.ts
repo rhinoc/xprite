@@ -5,3 +5,4 @@ export * from "$/editor/replay";
 export * from "$/editor/status";
 export * from "$/editor/types";
 export * from "$/editor/batch-edit-types";
+export * from "$/editor/validate";

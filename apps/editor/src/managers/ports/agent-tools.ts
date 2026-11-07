@@ -4,11 +4,15 @@ export enum AgentToolName {
   GetContext = "getContext",
   Render = "render",
   ReadPixels = "readPixels",
+  Validate = "validate",
   CreateDocument = "createDocument",
+  ImportImage = "importImage",
+  ManageDocument = "manageDocument",
   ApplyBatch = "applyBatch",
   Undo = "undo",
   Redo = "redo",
   ExportDocument = "exportDocument",
+  Palette = "palette",
   WritePreview = "writePreview",
 }
 
@@ -18,6 +22,9 @@ export const AGENT_DOCUMENTATION_FILE = "agent/editor.md";
 export enum AgentFileFormat {
   Png = "png",
   Aseprite = "aseprite",
+  Gif = "gif",
+  Spritesheet = "spritesheet",
+  Tag = "tag",
 }
 
 export type AgentToolResponse =
@@ -45,6 +52,9 @@ export interface AgentToolsPort {
   }): () => void;
   encodePng(pixels: PixelBuffer): Promise<Uint8Array>;
   encodeBase64(bytes: Uint8Array): string;
+  decodeBase64(value: string): Uint8Array;
+  decodeImage(bytes: Uint8Array): Promise<PixelBuffer>;
+  pixelate?(pixels: PixelBuffer, options: AgentPixelateOptions): Promise<PixelBuffer>;
   /**
    * Optional agent preview directory. When present, the `writePreview` tool is
    * advertised; `connectPreviewDirectory` must be called from a user gesture.
@@ -58,4 +68,13 @@ export interface AgentToolsPort {
     disconnect(): Promise<void>;
     write(filename: string, bytes: Uint8Array): Promise<void>;
   };
+}
+
+export interface AgentPixelateOptions {
+  method?: string;
+  colorPicker?: string;
+  targetWidth?: number;
+  targetHeight?: number;
+  outlineStrength?: number;
+  removeNoise?: boolean;
 }

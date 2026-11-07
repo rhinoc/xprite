@@ -1,28 +1,23 @@
 # Editor agent interface
 
-The ready editor publishes `window.xpriteAgent`. `describe()` returns tool names,
-descriptions and JSON Schemas. When the browser provides
-`document.modelContext.registerTool`, the same operations are registered as
-`xprite_getContext`, `xprite_render`, `xprite_readPixels`,
-`xprite_createDocument`, `xprite_applyBatch`, `xprite_undo`, `xprite_redo` and
-`xprite_exportDocument`. No additional server is required. A browser or agent
-must be connected to this live editor tab; fetching the website URL cannot read
-another browser's document memory.
+The ready editor publishes `window.xpriteAgent`; `describe()` returns tool
+names, descriptions and JSON Schemas (the authoritative contract — this file
+summarizes it, `agent-tool-definitions.ts` owns the details). When the browser
+provides `document.modelContext.registerTool`, the same operations are
+registered as `xprite_getContext`, `xprite_render`, `xprite_readPixels`,
+`xprite_validate`, `xprite_createDocument`, `xprite_applyBatch`,
+`xprite_undo`, `xprite_redo`, `xprite_importImage`, `xprite_manageDocument`,
+`xprite_exportDocument` and `xprite_palette`. No additional server is required;
+an agent must be connected to this live editor tab — fetching the website URL
+cannot read another browser's document memory.
 
 The editor HTML advertises `/agent/editor.md` with a `rel="describedby"`
-Markdown link in its head. The document is shipped as a static editor asset and
-explains how to discover the current schemas through `describe()`. The editor's outer accessible name recommends `window.xpriteAgent`
-for browser drawing and editing, gives the `describe()` call and the documentation
-URL in the current UI language. Semantic snapshots can surface these without
-inspecting the head.
-
+Markdown link in its head; the document is shipped as a static editor asset.
 The interface is available after workspace recovery completes and is removed
 when the editor unmounts. Calls return `{ ok: true, data }` or
-`{ ok: false, error: { code, message } }`. Inputs are validated for both entry
-points. The browser's WebMCP support and the agent's ability to call it are
-separate requirements. Registration failures emit the
-`xprite-agent-registration-error` browser event with the tool name and message;
-the page JS interface remains available.
+`{ ok: false, error: { code, message } }`. Registration failures emit the
+`xprite-agent-registration-error` browser event; the page JS interface remains
+available regardless.
 
 ## Draw in the current document
 
@@ -56,122 +51,103 @@ const undone = await api.undo({
 });
 ```
 
-Use a rectangle that fits the sprite. `createDocument({ width, height, name?,
-background? })` creates an RGBA document and returns its context. Background is
-`transparent` by default, or `white` / `black`. Existing documents remain open.
-Do not retain document IDs across reloads or close/reopen cycles.
+Use a rectangle that fits the sprite. `createDocument` caps new canvases at
+2048 px per side.
 
-## Read and export
+## Reads
 
-- `getContext({})` returns open documents and the active document, content
-  revisions, layers, zero-based frame indices and durations, selection bounds,
-  working palette, busy state, supported operations and limits. A document ID
-  identifies shared content across linked views; `viewId` identifies its tab.
-- `render({ documentId, frameIndex?, rect? })` returns a visible composite PNG
-  data URL with the frame, rectangle and sampled revision. It ignores zoom and
-  pan. The default is the active frame and full sprite.
-- `readPixels({ documentId, frameIndex?, layerId?, rect })` returns row-major
-  working-space RGBA bytes. `format: "grid"` returns the same region as a
-  single-character `legend` plus one `rows` string per sprite row; `.` is
-  transparent and identical RGBA colors reuse the same character. Omit
-  `layerId` for the visible composite. A missing image cel reads transparent.
-  `selectionMask` is null without a selection, otherwise a row-major 0/1 mask
-  for the returned region. Pixel writes honor this mask, which may be
-  irregular.
-  `mode: "diff"` instead compares the same `rect` between two endpoints:
-  `from` and `to` are `{ documentId?, frameIndex?, layerId? }` objects whose
-  omitted fields default to the top-level values, so cross-document, cross-frame
-  and layer-vs-composite comparisons are all expressible. It returns
-  `changedPixels`, `changedBounds` (sprite coordinates, `null` when unchanged),
-  the resolved `from`/`to` endpoints with their sampled revisions, and with
-  `detail: true` a `detail` map of `{ legend, rows }` over the region where `.`
-  is unchanged, `-` is erased to transparent, and any other character is the
-  new color at that pixel.
-- `exportDocument({ documentId, format, frameIndex? })` returns filename, MIME
-  type, byte length and base64 bytes. `png` exports the specified or active
-  frame in sRGB; `aseprite` exports the whole project with its color profile.
-  Export does not download, mark saved or update export preferences. File data
-  belongs to the returned revision even if the user edits during encoding.
-- `writePreview({ documentId, frameIndex?, rect?, filename? })` renders like
-  `render` but writes the PNG into the user-connected preview directory and
-  returns its `filename`. The user connects the directory once under
-  Preferences > Files > Agent Preview; until then the call fails with
-  `preview_directory_permission_required`. `filename` defaults to a unique
-  `preview-<doc>-f<frame>-r<revision>.png` and must be a plain `*.png` name.
-
-Read previews can include an in-progress raster gesture; context's `busy` flag
-distinguishes it from a committed state. Export and edits reject pending drawing,
-paste, selection transforms, text, filter/import previews and session operations.
+- `getContext`: documents, revisions, layers (kind/visible/locked/inkBounds/
+  writable), frames + durations, selection, palette, tilesets, busy flag.
+  Read previews can include an in-progress raster gesture; `busy` marks an
+  uncommitted gesture.
+- `render`: sRGB PNG data URL, independent of zoom/pan. `filmstrip` composes
+  listed frames into one image and returns `frameRects`; `onionSkin` ghosts
+  neighbouring frames. Includes in-progress raster gestures.
+- `readPixels`: `format:"grid"` returns a one-char-per-color legend plus row
+  strings (`.` = transparent); `mode:"diff"` compares two endpoints and with
+  `detail:true` returns the changed map; `mode:"stats"` returns color
+  histogram, bounds and off-palette colors. Omit `layerId` for the visible
+  composite. Cap: 65,536 px per read; larger sprites need region reads.
+- `validate`: mechanical lint (`palette`, `strays`, `outline`, `banding`,
+  `antialiasing`, `layers`, `animation`, `export_readiness`); `strict`
+  promotes warnings; `expect.layerFrames`/`mustNotOverlap` assert invariants.
+- `exportDocument`: `png` (one frame, sRGB), `aseprite` (whole project),
+  `gif` (all frames / `frameRange` / `tag`, honoring durations, `scale`
+  integer), `spritesheet` (`layout` `strip`|`grid`, returns `frameRects`),
+  `tag` shorthand. Never downloads or marks saved.
+- `importImage`: base64 PNG/GIF → cel (multi-frame GIF appends frames);
+  optional `pixelate` worker pass `{ method?, colorPicker?, targetWidth?,
+  targetHeight?, outlineStrength?, removeNoise? }` — `method` is the per-cell
+  resample (`nearest` crispest), `colorPicker` picks the cell color.
+- `manageDocument`: `save` / `close` (`force` discards unsaved) / `duplicate`
+  (new unsaved tab). `open` unsupported.
+- `writePreview`: PNG into the user's connected preview directory; fails with
+  `preview_directory_permission_required` until connected in preferences.
 
 ## Batch operations
 
-Painting explicitly targets `layerId` and `frameIndex`. Coordinates are integer
-sprite pixels within the canvas, independent of UI scale. Frame indices are
-zero-based and interpreted against the state at that operation: inserting a
-frame shifts subsequent indices. Always reread context after a structural edit.
+Ops explicitly target `layerId` + `frameIndex`; region edits add an optional
+`rect`. Frame indices evaluate against batch state — inserting a frame shifts
+later indices. Reread context after structural edits.
 
-- `stroke`: `points`, `color`, optional `size`.
-- `line`: `start`, `end`, `color`, optional `size`.
-- `rectangle`, `fillRect`, `ellipse`, `fillEllipse`: `rect`, `color`, optional
-  `size`. Size applies to line/rectangle/stroke brushes; ellipses have a one-pixel
-  outline and fills cover the specified area.
-- `fill`: `point`, `color`; contiguous fill with zero tolerance.
-- `pixels`: `rect`, `rgba`; exactly four bytes per pixel, including transparent
-  pixels.
-- `grid`: `rect`, `legend`, `rows`; `.` means transparent. `transparent` is
-  `erase` by default and clears the covered pixels; `skip` leaves existing
-  pixels under `.` unchanged. Other characters map to working-space colors in
-  `legend`.
-- `addLayer`: caller-selected unique `layerId`, `name`, optional `afterLayerId`.
-  Uses the editor's insertion rules, including insertion into an active group.
-  Later operations in the batch can paint the new layer by its ID.
-- `renameLayer`: `layerId`, `name`.
-- `setLayerVisibility`: `layerId`, `visible`.
-- `moveLayer`: `layerId`, `targetLayerId`; uses the editor's move-to-target
-  order and preserves layer subtrees/background constraints.
-- `addFrame`: `afterFrameIndex`, optional `duplicate` (default true) and
-  `duration` in milliseconds. Continuous cels stay linked; other duplicated
-  cels receive independent images.
-- `setFrameDuration`: `frameIndex`, `duration` in milliseconds.
-- `addTag`: `name`, `from`, `to` (zero-based closed frame range), optional
-  `direction` (default `forward`), `repeat`, `color` ([r,g,b] or [r,g,b,a]).
-  `updateTag`: `tagIndex` plus any of the same fields to patch.
-  `removeTag`: `tagIndex`. Indices follow the order `getContext` returns.
-- `linkCels`: `layerId`, `frameIndices`; the first populated frame's cel
-  becomes the shared source for the rest of the list. `unlinkCels`: `layerId`,
-  `frameIndices`; each listed cel receives its own copy of the shared image.
+- **Paint**: `stroke` (`points`, `size?`), `line` (`start`,`end`),
+  `rectangle`/`fillRect`/`ellipse`/`fillEllipse` (`rect`), `fill` (`point`),
+  `pixels` (`rect`,`rgba` 4 bytes/px), `grid` (`rect`,`legend`,`rows`;
+  `transparent` `erase`|`skip`). All take `color`, optional `size`.
+- **Structure**: `addLayer` (`layerId`, `name`, `afterLayerId?`),
+  `renameLayer`, `setLayerVisibility`, `moveLayer` (`targetLayerId`),
+  `setLayer` (`opacity`/`blendMode`/`visible`/`name`/`editable`),
+  `duplicateLayer` (`toDocumentId?` for cross-document), `mergeLayer`,
+  `groupLayer`/`ungroupLayer`, `deleteLayer`; `addFrame` (`afterFrameIndex`,
+  `duplicate?`, `duration?`), `copyFrame` (`to:[idx]`), `deleteFrame`,
+  `reorderFrame`, `deleteLayer`.
+- **Cel**: `clear`, `clearCel`, `copyCel` (`toFrameIndex`),
+  `blit` (`src:{documentId?,layerId,frameIndex,rect}`, `dest:{x,y}`),
+  `setCel` (`position`/`opacity`), `linkCels`/`unlinkCels`
+  (`layerId`,`frameIndices`).
+- **Transform**: `flip` (`direction`), `rotate90` (`angle`),
+  `translate` (`dx`,`dy`), `resizeCanvas` (`width`,`height`,`anchor`),
+  `resizeSprite` (`width`,`height`,`method` `nearest`/`bilinear`/`rotsprite`),
+  `cropToContent`.
+- **Tilemap** (tilemap layers only): `convertToTilemap` (image layer +
+  `tileWidth`/`tileHeight` → deduplicated tileset), `stampTiles`
+  (`cells:[{x,y,tile}]`, index must exist), `paintTiles` (`rect`+`rgba`,
+  re-packs the cel and grows the atlas on no-match blocks).
+- **Color & effects**: `replaceColor` (`from`,`to`,`frameRange?`),
+  `outline` (`color`,`position`,`size`), `adjustHsl` (additive HSL),
+  `effect` (`brightness-contrast`/`invert`/`median-blur`/
+  `convolution-matrix`/`color-curve`/`hue-saturation`), `gradient`
+  (`from`,`to`,`direction`,`dither`), `dither` (`colorA`,`colorB`,`pattern`,
+  `ratio`), `select` (masks later writes in the batch).
+- **Animation**: `tweenCels` (`layerId`,`fromFrame`,`toFrame`,`property`
+  `position`/`opacity`/`scale`, `from`, `to`, `ease`
+  `linear`/`in`/`out`/`inOut`/`pingpong`).
 
-Colors are working-space `#RRGGBB`, `#RRGGBBAA`, or `[r, g, b, a]` bytes.
-Drawing uses replacement ink, honors the current selection, and requires a
-visible, editable RGBA image layer. Background layers require opaque colors.
-Indexed/grayscale documents, reference layers, groups and tilemap layers are
-not pixel-write targets. They remain available to context, composite rendering
-and export. Brush/color UI settings are not changed. Existing active layer and
-frame are preserved; frame insertion adjusts the active index to keep the same
-frame selected. Painting a linked cel updates every cel sharing that image.
+## Semantics
 
-`applyBatch` requires a content `expectedRevision`, not the general UI revision.
-Pointer hover, zoom and pan do not invalidate it. A valid batch is one normal
-history entry and participates in recovery. Rejected batches leave no partial
-pixels or layer/frame changes; equal pixels do not consume an undo entry.
-`undo` and `redo` require the current revision and traverse normal history,
-including human edits. They return `{ changed, document }`; do not automatically
-undo a user edit when an earlier AI result has become stale.
+Colors are `#RRGGBB`/`#RRGGBBAA` or `[r,g,b,a]` bytes; replacement ink; writes
+honor the active selection. Background layers require opaque colors.
+Indexed/grayscale documents, reference layers and groups are not pixel-write
+targets; linked cels update together. A batch is one history entry; rejected
+batches leave no partial edits; no-op edits consume no undo entry.
 
-Limits: 128 operations per batch, 4096 stroke points, brush size 1–64, 4,194,304
-allocated pixels per batch/render, 65,536 pixels per `readPixels`, 2048 per side
-for new documents, and 1–65,535 ms for frame duration. Composite reads require
-a sprite within the render pixel limit; larger documents can use region reads
-with an image `layerId`. The core's existing project limits also apply.
+Limits: 128 ops/batch, 4096 stroke points, brush 1–64, 4,194,304 px
+allocated per batch/render, 65,536 px per `readPixels`, 2048 px per side for
+new documents, frame duration 1–65535 ms.
 
-Errors include `invalid_input`, `revision_conflict`, `busy`, `not_found`,
-`not_editable`, `unsupported`, and `operation_failed`. On a revision conflict,
-read context and reconsider the edit. `describe()` provides current schemas.
+Errors: `invalid_input`, `revision_conflict`, `busy`, `not_found`,
+`not_editable`, `unsupported`, `operation_failed`. `describe()` provides
+current schemas.
 
 ## Design sources
 
-Aseprite's local `tests/scripts/tools.lua` and `app_transaction.lua` demonstrate
-explicit drawing targets and grouping multiple operations into one undo step.
-Their headers and `src/doc/LICENSE.txt` identify MIT licensing. The interface uses the repository’s raster and history implementations.
-WebMCP registration follows the current imperative `document.modelContext`
-interface; browsers without it still expose the page JS interface.
+Aseprite's `tests/scripts/tools.lua` and `app_transaction.lua` (MIT) informed
+explicit drawing targets and one-undo-step batching. WebMCP registration uses
+`document.modelContext.registerTool`; the page JS interface remains available
+without it. Registration failures emit `xprite-agent-registration-error`.
+
+## Craft rules
+
+`assets/public/agent/craft/` is a handbook of pixel-art craft rules for agents,
+grouped into band directories (`00-core`, `10-technique`, … `90-style`) with
+`README.md` as the index — shipped alongside `editor.md` for connected agents.

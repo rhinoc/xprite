@@ -1,109 +1,73 @@
 # Xprite editor interface for browser agents
 
-The open editor tab provides `window.xpriteAgent`, a JavaScript interface to its
-live documents. These calls run inside this browser tab. Fetching this document
-or the website from a different browser does not give access to those documents.
+The open editor tab provides `window.xpriteAgent`, a JavaScript interface to
+its live documents. These calls run inside this browser tab; fetching this
+document or the site from another browser does not give access.
 
-After the editor finishes loading, call `window.xpriteAgent.describe()` to read
-the current tool descriptions and JSON Schemas. Call
-`await window.xpriteAgent.getContext()` to inspect open documents, their current
-revisions, layers, frames, palettes, selection bounds and editing limits.
-If the interface is not available yet, wait for the editor to finish loading.
+After the editor loads, call `window.xpriteAgent.describe()` for the tool
+descriptions and JSON Schemas — that response is the authoritative contract.
+Then `await window.xpriteAgent.getContext()` to inspect open documents,
+revisions, layers, frames, palette, selection and editing limits.
 
 All operations return `{ ok: true, data }` or
-`{ ok: false, error: { code, message } }`. The interface exposes:
+`{ ok: false, error: { code, message } }`. The tools:
 
-- `getContext()` — inspect current documents and supported operations.
+- `getContext()` — documents, layers, frames, palette, tilesets, limits.
 - `createDocument({ width, height, name?, background? })` — open a new RGBA
-  document without replacing existing documents. Background defaults to
-  `transparent`; `white` and `black` are also available.
-- `applyBatch({ documentId, expectedRevision, label, operations })` — submit
-  an atomic drawing or layer/frame edit as one undo step. Read its JSON Schema
-  from `describe()` for the available operations and their arguments.
-- `render({ documentId, frameIndex?, rect? })` — get a visible composite as an
-  sRGB PNG `dataUrl`, independent of the canvas zoom and pan.
-- `readPixels({ documentId, frameIndex?, layerId?, rect })` — get working-space
-  RGBA bytes and the current selection mask for a region. Pass
-  `format: "grid"` to get a character `legend` plus one `rows` string per
-  sprite row instead of flat bytes; `.` is transparent. Omit `layerId` for the
-  visible composite. `mode: "diff"` instead compares the same `rect` between
-  two endpoints `from`/`to` (`{ documentId?, frameIndex?, layerId? }`,
-  defaulting to the top-level values) and returns `changedPixels`,
-  `changedBounds`, the resolved endpoints, and with `detail: true` a
-  `{ legend, rows }` map where `.` is unchanged, `-` erased, and other
-  characters the new colour.
-- `undo({ documentId, expectedRevision })` and
-  `redo({ documentId, expectedRevision })` — traverse normal document history.
-- `exportDocument({ documentId, format, frameIndex? })` — return PNG or
-  Aseprite file bytes as `base64`, with `filename`, `mimeType` and `byteLength`.
-  Export does not download or mark the document saved. PNG is one frame;
-  Aseprite includes the complete project.
+  document.
+- `applyBatch({ documentId, expectedRevision, label, operations })` — atomic
+  drawing/structural/color/transform ops as one undo step; the op list lives
+  in `describe()`.
+- `render({ documentId, frameIndex?, rect?, filmstrip?, onionSkin? })` —
+  composite PNG for a frame, a frame strip, or an onion-skin ghost.
+- `readPixels({ documentId, frameIndex?, layerId?, rect, format?, mode?,
+  detail?, from?, to? })` — row-major RGBA, a character grid (`format:"grid"`),
+  a diff between two endpoints (`mode:"diff"`), or colour stats
+  (`mode:"stats"`).
+- `validate({ documentId, checks?, strict?, expect? })` — pixel-art lint:
+  palette/strays/outline/banding/antialiasing/layers/animation.
+- `undo` / `redo({ documentId, expectedRevision })` — normal document history.
+- `exportDocument({ documentId, format, frameIndex?, frameRange?, tag?,
+  scale?, layout? })` — `png`/`aseprite`/`gif`/`spritesheet`/`tag` bytes.
+- `palette({ documentId, op, ... })` — `get`/`set`/`ramp`/`analyze`/`extract`/
+  `snap` (nearest-palette repaint, the palette-lock repair).
+- `importImage({ documentId, expectedRevision, bytes, ... })` — decode PNG/GIF
+  into a cel; `pixelate` runs a photo→pixel-art pass first.
+- `manageDocument({ op, documentId, name?, force? })` — `save` / `close` /
+  `duplicate`.
+- `writePreview({ documentId, frameIndex?, rect?, filename? })` — render into
+  the user's connected preview directory.
 
-Drawing coordinates are integer sprite pixels, not screen coordinates. Frame
-indices are zero-based. Pixel edits explicitly target a `layerId` and
-`frameIndex`; they honor the current selection and require a visible, unlocked
-RGBA image layer. Colors are working-space hex strings or four RGBA bytes.
-Linked cels remain linked. Tool, color, zoom and pan controls are not changed.
-
-`applyBatch` needs the latest content revision. On `revision_conflict`, read
-context again before deciding how to proceed. A `busy` result means a user edit
-or document operation is still pending. A rejected batch does not leave partial
-edits. Undo uses the same history as human edits, so check the current revision
-before undoing.
-
-For example, create a separate small document and draw a square:
+Drawing coordinates are integer sprite pixels; frame indices are zero-based.
+Pixel ops need a visible editable RGBA image layer; tilemap layers take
+`stampTiles`/`paintTiles`/`convertToTilemap` instead. `expectedRevision` must
+match the latest content revision — on `revision_conflict`, re-read context.
 
 ```js
 const api = window.xpriteAgent;
-const created = await api.createDocument({ width: 16, height: 16, name: "Square" });
-if (!created.ok) throw new Error(created.error.message);
+const created = await api.createDocument({ width: 16, height: 16 });
 const doc = created.data;
 const result = await api.applyBatch({
   documentId: doc.id,
   expectedRevision: doc.revision,
   label: "Draw square",
-  operations: [
-    {
-      type: "fillRect",
-      layerId: doc.activeLayerId,
-      frameIndex: doc.activeFrameIndex,
-      rect: { x: 4, y: 4, width: 8, height: 8 },
-      color: "#FF004D",
-    },
-  ],
+  operations: [{
+    type: "fillRect",
+    layerId: doc.activeLayerId,
+    frameIndex: doc.activeFrameIndex,
+    rect: { x: 4, y: 4, width: 8, height: 8 },
+    color: "#FF004D",
+  }],
 });
-if (!result.ok) throw new Error(result.error.message);
 const preview = await api.render({ documentId: doc.id });
 ```
 
-A `grid` batch operation writes the same representation back to a layer:
+Compatible WebMCP browsers expose the same calls as `xprite_*` tools.
 
-```js
-await api.applyBatch({
-  documentId: doc.id,
-  expectedRevision: result.data.revision,
-  label: "Patch pixels",
-  operations: [
-    {
-      type: "grid",
-      layerId: doc.activeLayerId,
-      frameIndex: doc.activeFrameIndex,
-      rect: { x: 4, y: 4, width: 8, height: 2 },
-      legend: { K: "#292431", S: "#777386" },
-      rows: ["..KK....", ".KSSK..."],
-      transparent: "erase",
-    },
-  ],
-});
-```
+## Drawing well
 
-Structural operations in the same batch include `addLayer`, `renameLayer`,
-`setLayerVisibility`, `moveLayer`, `addFrame`, `setFrameDuration`,
-`linkCels`/`unlinkCels` (`{ layerId, frameIndices }`), and the animation tag
-operations `addTag` (`{ name, from, to, direction?, repeat?, color? }`),
-`updateTag` (`{ tagIndex, ... }`), `removeTag` (`{ tagIndex }`). Context lists
-each document's `tags` in order; `tagIndex` follows that order.
-
-Compatible WebMCP browsers also expose these operations as `xprite_*` tools.
-The JavaScript interface works when the browser tool can evaluate JavaScript in
-the page. Screenshots and pointer input remain available for ordinary UI use.
+`/agent/craft/README.md` indexes the pixel-art craft handbook — the
+inspect→draw→look→fix loop, palette ramps, hue-shifted shading, silhouette
+blocking, outlines, animation timing, review checklist — grouped into band
+directories. Read `craft/00-core/00-core-principles.md` before any non-trivial
+drawing task.
