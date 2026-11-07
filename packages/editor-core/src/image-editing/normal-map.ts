@@ -3,9 +3,16 @@
  * Copyright (c) 2026 Red Hat Sprite. Full notice: LICENSES/pixel-art-lighter-MIT.txt.
  * https://www.moonfell-rpg.com/Pixel-Art-Lighter-v3.5.22.html
  */
-import { UINT8_MAX } from "$/base/numeric-constants";
 import type { PixelBuffer } from "$/base/primitives";
 import { assertPixelBuffer } from "$/document/pixel-validation";
+import {
+  CONSTANT_LUMINANCE,
+  LightingMapRegionMode,
+  LUMINANCE_EPSILON,
+  segmentLightingMapSource,
+} from "$/image-editing/lighting-map-source";
+import { estimatePaintedLightAngle } from "$/image-editing/normal-map-light-estimate";
+import { paintedLightSignal } from "$/image-editing/normal-map-painted-light";
 
 export enum NormalMapPreset {
   Architecture = "architecture",
@@ -21,12 +28,14 @@ export interface NormalMapOptions {
   facets: number;
   mergeOutlines: boolean;
   invertY: boolean;
+  paintedLightAngle: number;
+  paintedLightInfluence: number;
 }
 const PERCENT = 100;
-const RED_LUMINANCE = 0.2126;
-const GREEN_LUMINANCE = 0.7152;
-const BLUE_LUMINANCE = 0.0722;
-const CONSTANT_LUMINANCE = 0.75;
+const DEFAULT_PAINTED_LIGHT_ANGLE = 135;
+const FULL_TURN_DEGREES = 360;
+const RADIANS_PER_DEGREE = Math.PI / 180;
+const PAINTED_LIGHT_TILT_GAIN = 3;
 const CENTER_SMOOTHING_WEIGHT = 2;
 const AZIMUTH_STEP = Math.PI / 4;
 const FACET_DIRECTION_STEP = Math.PI / 2;
@@ -41,7 +50,6 @@ const HEIGHT_PROFILES: Record<
   [NormalMapPreset.Terrain]: { silhouette: 0.12, cap: 16, luminance: 4 },
 };
 const NORMAL_CHANNEL_SCALE = 127.5;
-const LUMINANCE_EPSILON = 1e-5;
 const OUTLINE_DARKNESS = 0.24;
 const OUTLINE_INTERIOR_RATIO = 0.15;
 const FRONT_FACING_LIMIT = 0.12;
@@ -56,11 +64,16 @@ const ARCHITECTURE_TILT = 0.6;
 const ARCHITECTURE_FLAT_LIMIT = 0.06;
 const FACET_AREA_BASE = 180;
 const FACET_AREA_SCALE = 1.1;
+const FACET_REFERENCE_SIDE = 64;
+const FACET_MAX_SPRITE_SCALE = 2;
+const FACET_MIN_REGION_AREA = 8;
 const FACET_TILT_LIMIT = 0.35;
-const FACET_MIN_PIXELS = 16;
-const FACET_MIN_RATIO = 0.16;
-const FACET_DOT_LIMIT = 0.8;
-const FACET_DOT_SCALE = 0.001;
+const FACET_MIN_SUPPORT = 2;
+const FACET_SUPPORT_BASE = 1.5;
+const FACET_SUPPORT_RANGE = 0.75;
+const FACET_DOT_LIMIT = 0.7;
+const FACET_DOT_RANGE = 0.1;
+const FACET_DIRECTION_COUNT = 4;
 const DIRECTION_EPSILON = 0.001;
 const SPECKLE_MAX_PIXELS = 2;
 export const NORMAL_MAP_LIMITS = Object.freeze({
@@ -68,6 +81,8 @@ export const NORMAL_MAP_LIMITS = Object.freeze({
   normalStrength: 300,
   smoothing: 6,
   facets: 100,
+  paintedLightAngle: FULL_TURN_DEGREES - 1,
+  paintedLightInfluence: PERCENT,
 });
 const PRESET_DEFAULTS: Record<
   NormalMapPreset,
@@ -85,6 +100,8 @@ export function defaultNormalMapOptions(preset = NormalMapPreset.Object): Normal
     normalStrength: PERCENT,
     mergeOutlines: true,
     invertY: false,
+    paintedLightAngle: DEFAULT_PAINTED_LIGHT_ANGLE,
+    paintedLightInfluence: 0,
   };
 }
 export function normalizeNormalMapOptions(input: Partial<NormalMapOptions>): NormalMapOptions {
@@ -92,7 +109,7 @@ export function normalizeNormalMapOptions(input: Partial<NormalMapOptions>): Nor
     ? input.preset!
     : NormalMapPreset.Object;
   const result = defaultNormalMapOptions(preset);
-  for (const key of ["shapeStrength", "normalStrength", "smoothing", "facets"] as const) {
+  for (const key of Object.keys(NORMAL_MAP_LIMITS) as (keyof typeof NORMAL_MAP_LIMITS)[]) {
     const value = input[key];
     if (typeof value === "number" && Number.isFinite(value))
       result[key] = Math.round(Math.max(0, Math.min(NORMAL_MAP_LIMITS[key], value)));
@@ -103,68 +120,20 @@ export function normalizeNormalMapOptions(input: Partial<NormalMapOptions>): Nor
 }
 
 /** Cache source segmentation, silhouette distance and geometry between parameter edits. */
-export function createNormalMapGenerator(albedo: PixelBuffer): {
+export function createNormalMapGenerator(
+  albedo: PixelBuffer,
+  shading?: PixelBuffer,
+): {
+  setShading(source: PixelBuffer | null): void;
+  suggestPaintedLightAngle(): number | null;
   generate(input?: Partial<NormalMapOptions>): PixelBuffer;
 } {
-  assertPixelBuffer(albedo);
-  const w = albedo.width,
-    h = albedo.height,
-    N = w * h,
-    a = albedo.data.slice(),
-    fg = new Uint8Array(N),
-    lum = new Float32Array(N),
-    labels = new Int32Array(N);
-  labels.fill(-1);
-  let lo = Infinity,
-    hi = -Infinity;
-  for (let i = 0; i < N; i++) {
-    const k = i * 4;
-    fg[i] = a[k + 3] > 0 ? 1 : 0;
-    lum[i] =
-      (RED_LUMINANCE * a[k] + GREEN_LUMINANCE * a[k + 1] + BLUE_LUMINANCE * a[k + 2]) / UINT8_MAX;
-    if (fg[i]) {
-      lo = Math.min(lo, lum[i]);
-      hi = Math.max(hi, lum[i]);
-    }
-  }
-  const adjacent = (i: number) => {
-    const x = i % w,
-      y = (i / w) | 0,
-      out = [];
-    if (x) out.push(i - 1);
-    if (x < w - 1) out.push(i + 1);
-    if (y) out.push(i - w);
-    if (y < h - 1) out.push(i + w);
-    return out;
-  };
-  const queue = new Int32Array(N),
-    clusters: { pixels: number[]; value: number }[] = [];
-  for (let i = 0; i < N; i++)
-    if (fg[i] && labels[i] < 0) {
-      let head = 0,
-        tail = 1;
-      queue[0] = i;
-      const id = clusters.length,
-        pixels = [],
-        k = i * 4;
-      labels[i] = id;
-      while (head < tail) {
-        const p = queue[head++];
-        pixels.push(p);
-        for (const n of adjacent(p))
-          if (
-            fg[n] &&
-            labels[n] < 0 &&
-            a[n * 4] === a[k] &&
-            a[n * 4 + 1] === a[k + 1] &&
-            a[n * 4 + 2] === a[k + 2]
-          ) {
-            labels[n] = id;
-            queue[tail++] = n;
-          }
-      }
-      clusters.push({ pixels, value: lum[i] });
-    }
+  const { w, h, N, a, fg, lum, labels, lo, hi, adjacent, queue, clusters, foregroundArea } =
+    segmentLightingMapSource(albedo, LightingMapRegionMode.Perceptual);
+  const spriteScale = Math.min(
+    FACET_MAX_SPRITE_SCALE,
+    Math.sqrt(foregroundArea) / FACET_REFERENCE_SIDE,
+  );
   const distance = new Float32Array(N);
   distance.fill(N);
   let head = 0,
@@ -202,29 +171,53 @@ export function createNormalMapGenerator(albedo: PixelBuffer): {
   let cachedField: Float32Array | null = null;
   let cachedKey = "";
   let cachedDirections: Float32Array | null = null;
+  let shadingSource: PixelBuffer | undefined;
+  let lightSignal: Float32Array | undefined;
+  let suggestedAngle: number | null | undefined;
+  const setShading = (source: PixelBuffer | null) => {
+    if (source) {
+      assertPixelBuffer(source);
+      if (source.width !== w || source.height !== h)
+        throw new RangeError("Shading source must match the sprite dimensions");
+    }
+    shadingSource = source ? { ...source, data: source.data.slice() } : undefined;
+    lightSignal = undefined;
+    suggestedAngle = undefined;
+    cachedKey = "";
+  };
+  if (shading) setShading(shading);
   return {
+    setShading,
+    suggestPaintedLightAngle() {
+      if (suggestedAngle === undefined)
+        suggestedAngle = estimatePaintedLightAngle({ width: w, height: h, data: a }, shadingSource);
+      return suggestedAngle;
+    },
     generate(input: Partial<NormalMapOptions> = {}): PixelBuffer {
       const options = normalizeNormalMapOptions(input);
+      const influence = options.paintedLightInfluence / PERCENT;
       const key = JSON.stringify([
         options.preset,
         options.shapeStrength,
         options.smoothing,
         options.facets,
         options.mergeOutlines,
+        influence,
+        influence ? options.paintedLightAngle : 0,
       ]);
       let directions = cachedDirections;
       if (!directions || cachedKey !== key) {
         const preset = options.preset;
         const profile = HEIGHT_PROFILES[preset];
         const scale = options.shapeStrength / PERCENT;
-        const fieldKey = JSON.stringify([preset, options.smoothing]);
+        const fieldKey = JSON.stringify([preset, options.smoothing, influence]);
         let field = cachedField;
         if (!field || cachedFieldKey !== fieldKey) {
           let nextField = new Float32Array(N);
           for (let i = 0; i < N; i++)
             if (fg[i]) {
               const convex = Math.sqrt(Math.min(distance[i], profile.cap)) * profile.silhouette;
-              nextField[i] = convex + normalized(i) * profile.luminance;
+              nextField[i] = convex + normalized(i) * profile.luminance * (1 - influence);
             }
           for (let pass = 0; pass < options.smoothing; pass++) {
             const blurred = new Float32Array(N);
@@ -270,16 +263,32 @@ export function createNormalMapGenerator(albedo: PixelBuffer): {
             Math.sqrt(1 - elevation * elevation),
           ];
         };
-        for (let i = 0; i < N; i++)
-          if (fg[i]) {
-            const x = i % w,
-              y = (i / w) | 0,
-              at = (n: number) => (n >= 0 && n < N && fg[n] ? field[n] : field[i]);
-            const dx = (x < w - 1 ? at(i + 1) : field[i]) - (x ? at(i - 1) : field[i]),
-              dy = (y < h - 1 ? at(i + w) : field[i]) - (y ? at(i - w) : field[i]);
-            const normal = unit([-dx * scale, dy * scale, 1]);
-            dirs.set(normal, i * 3);
-          }
+        const heightField = field;
+        if (influence)
+          lightSignal ??= paintedLightSignal(w, h, fg, foregroundArea, lum, shadingSource);
+        const angle = options.paintedLightAngle * RADIANS_PER_DEGREE;
+        const lightX = Math.cos(angle) * influence * PAINTED_LIGHT_TILT_GAIN;
+        const lightY = Math.sin(angle) * influence * PAINTED_LIGHT_TILT_GAIN;
+        const normalAt = (pixel: number) => {
+          const x = pixel % w;
+          const y = (pixel / w) | 0;
+          const center = heightField[pixel];
+          const at = (neighbor: number) => (fg[neighbor] ? heightField[neighbor] : center);
+          const dx = (x < w - 1 ? at(pixel + 1) : center) - (x ? at(pixel - 1) : center);
+          const dy = (y < h - 1 ? at(pixel + w) : center) - (y ? at(pixel - w) : center);
+          if (!influence) return unit([-dx * scale, dy * scale, 1]);
+          const tilt = lightSignal![pixel];
+          return unit([-dx * scale + lightX * tilt, dy * scale + lightY * tilt, 1]);
+        };
+        for (let i = 0; i < N; i++) if (fg[i]) dirs.set(normalAt(i), i * 3);
+        const facetStrength = options.facets / PERCENT;
+        // Size eligibility by the occupied footprint, then size each candidate by its own region.
+        const minFacetArea = Math.max(
+          FACET_MIN_REGION_AREA,
+          Math.round((FACET_AREA_BASE - options.facets * FACET_AREA_SCALE) * spriteScale),
+        );
+        const facetSupportFactor = FACET_SUPPORT_BASE - facetStrength * FACET_SUPPORT_RANGE;
+        const facetDotLimit = FACET_DOT_LIMIT + facetStrength * FACET_DOT_RANGE;
         for (const cluster of clusters) {
           let sum = [0, 0, 0];
           for (const p of cluster.pixels) {
@@ -293,10 +302,7 @@ export function createNormalMapGenerator(albedo: PixelBuffer): {
           if (sum[2] === 0) sum = [0, 0, 1];
           const average = unit(sum),
             groups = new Map<number, number[]>();
-          const split =
-            options.facets > 0 &&
-            cluster.pixels.length >=
-              Math.round(FACET_AREA_BASE - options.facets * FACET_AREA_SCALE);
+          const split = options.facets > 0 && cluster.pixels.length >= minFacetArea;
           if (split) {
             for (const p of cluster.pixels) {
               const dx = dirs[p * 3],
@@ -304,15 +310,19 @@ export function createNormalMapGenerator(albedo: PixelBuffer): {
                 tilt = Math.hypot(dx, dy);
               const key =
                 tilt > FACET_TILT_LIMIT
-                  ? Math.round(Math.atan2(dy, dx) / FACET_DIRECTION_STEP)
+                  ? (Math.round(Math.atan2(dy, dx) / FACET_DIRECTION_STEP) +
+                      FACET_DIRECTION_COUNT) %
+                    FACET_DIRECTION_COUNT
                   : FRONT_FACET_KEY;
               if (!groups.has(key)) groups.set(key, []);
               groups.get(key)!.push(p);
             }
           }
-          const supported = [...groups.values()].filter(
-            (g) => g.length >= Math.max(FACET_MIN_PIXELS, cluster.pixels.length * FACET_MIN_RATIO),
+          const minSupport = Math.max(
+            FACET_MIN_SUPPORT,
+            Math.ceil(Math.sqrt(cluster.pixels.length) * facetSupportFactor),
           );
+          const supported = [...groups.values()].filter((group) => group.length >= minSupport);
           let allow = false;
           if (supported.length >= 2) {
             const means = supported.map((g) => {
@@ -322,10 +332,7 @@ export function createNormalMapGenerator(albedo: PixelBuffer): {
             });
             for (let i = 0; i < means.length; i++)
               for (let j = 0; j < i; j++)
-                if (
-                  means[i].reduce((s, v, c) => s + v * means[j][c], 0) <
-                  FACET_DOT_LIMIT - options.facets * FACET_DOT_SCALE
-                )
+                if (means[i].reduce((s, v, c) => s + v * means[j][c], 0) < facetDotLimit)
                   allow = true;
           }
           const base = quantize(average);
@@ -334,12 +341,7 @@ export function createNormalMapGenerator(albedo: PixelBuffer): {
             for (const g of supported) {
               const sum = [0, 0, 0];
               for (const p of g) {
-                const x = p % w,
-                  y = (p / w) | 0,
-                  at = (n: number) => (n >= 0 && n < N && fg[n] ? field[n] : field[p]);
-                const dx = (x < w - 1 ? at(p + 1) : field[p]) - (x ? at(p - 1) : field[p]),
-                  dy = (y < h - 1 ? at(p + w) : field[p]) - (y ? at(p - w) : field[p]);
-                const v = unit([-dx * scale, dy * scale, 1]);
+                const v = normalAt(p);
                 for (let c = 0; c < 3; c++) sum[c] += v[c];
               }
               const v = quantize(sum);
@@ -378,7 +380,7 @@ export function createNormalMapGenerator(albedo: PixelBuffer): {
               group.push(p);
               for (const n of adjacent(p))
                 if (
-                  fg[n] &&
+                  labels[n] === labels[i] &&
                   !seen[n] &&
                   Math.abs(dirs[n * 3] - dirs[i * 3]) < DIRECTION_EPSILON &&
                   Math.abs(dirs[n * 3 + 1] - dirs[i * 3 + 1]) < DIRECTION_EPSILON
@@ -388,7 +390,9 @@ export function createNormalMapGenerator(albedo: PixelBuffer): {
                 }
             }
             if (group.length <= SPECKLE_MAX_PIXELS) {
-              const neighbors = group.flatMap(adjacent).filter((n) => fg[n] && !group.includes(n));
+              const neighbors = group
+                .flatMap(adjacent)
+                .filter((n) => labels[n] === labels[i] && !group.includes(n));
               if (neighbors.length) {
                 const n = neighbors[0];
                 for (const p of group) dirs.set(dirs.subarray(n * 3, n * 3 + 3), p * 3);

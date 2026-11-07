@@ -2511,6 +2511,10 @@
   "normal.normalStrength": "法线强度",
   "normal.smoothing": "平滑",
   "normal.facets": "分面",
+  "normal.painted.influence": "原画光照影响",
+  "normal.painted.angle": "原画光源方向（0° 向右，90° 向上）",
+  "normal.painted.source": "明暗来源",
+  "normal.painted.fromSource": "使用原图明暗",
   "normal.mergeOutlines": "合并描边",
   "normal.invertY": "反转 Y（DirectX）",
   "normal.output.failed": "无法创建 RGB 结果文档。",
@@ -2534,5 +2538,13 @@
   "normal.output.locked": "法线输出图层已锁定或不可用，请解锁后重试。",
   "normal.light.pixels": "{value1} 像素",
   "normal.light.settings": "光照设置",
-  "normal.source.none": "无"
+  "normal.source.none": "无",
+  "normal.mask.generate": "生成光照遮罩…",
+  "normal.mask.history": "生成光照遮罩",
+  "normal.mask.shading": "明暗强度",
+  "normal.mask.darkest": "最暗值",
+  "normal.mask.lightest": "最亮值",
+  "normal.mask.cavity": "凹陷加深",
+  "normal.mask.influence": "遮罩强度",
+  "normal.mask": "光照遮罩"
 }

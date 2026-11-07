@@ -2511,6 +2511,10 @@
   "normal.normalStrength": "Intensidade das normais",
   "normal.smoothing": "Suavização",
   "normal.facets": "Divisão de faces",
+  "normal.painted.influence": "Influência da luz pintada",
+  "normal.painted.angle": "Ângulo da luz pintada (0° direita, 90° acima)",
+  "normal.painted.source": "Origem do sombreamento",
+  "normal.painted.fromSource": "Usar o sombreamento da imagem original",
   "normal.mergeOutlines": "Mesclar contornos",
   "normal.invertY": "Inverter Y (DirectX)",
   "normal.output.failed": "Não foi possível criar o documento RGB.",
@@ -2534,5 +2538,13 @@
   "normal.output.locked": "A camada de saída de normais está bloqueada ou indisponível. Desbloqueie e tente novamente.",
   "normal.light.pixels": "{value1} px",
   "normal.light.settings": "Configurações de iluminação",
-  "normal.source.none": "Nenhum"
+  "normal.source.none": "Nenhum",
+  "normal.mask.generate": "Gerar máscara de luz…",
+  "normal.mask.history": "Gerar máscara de luz",
+  "normal.mask.shading": "Intensidade do sombreamento",
+  "normal.mask.darkest": "Valor mais escuro",
+  "normal.mask.lightest": "Valor mais claro",
+  "normal.mask.cavity": "Escurecimento de cavidades",
+  "normal.mask.influence": "Influência da máscara",
+  "normal.mask": "Máscara de luz"
 }

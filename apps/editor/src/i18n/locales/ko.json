@@ -2511,6 +2511,10 @@
   "normal.normalStrength": "노멀 강도",
   "normal.smoothing": "부드럽게",
   "normal.facets": "면 분할",
+  "normal.painted.influence": "원본 조명의 영향",
+  "normal.painted.angle": "원본 광원 방향 (0° 오른쪽, 90° 위)",
+  "normal.painted.source": "명암 원본",
+  "normal.painted.fromSource": "원본 이미지의 명암 사용",
   "normal.mergeOutlines": "외곽선 병합",
   "normal.invertY": "Y 반전 (DirectX)",
   "normal.output.failed": "RGB 결과 문서를 만들 수 없습니다.",
@@ -2534,5 +2538,13 @@
   "normal.output.locked": "노멀 출력 레이어가 잠겼거나 사용할 수 없습니다. 잠금을 해제하세요.",
   "normal.light.pixels": "{value1} px",
   "normal.light.settings": "조명 설정",
-  "normal.source.none": "없음"
+  "normal.source.none": "없음",
+  "normal.mask.generate": "광원 마스크 생성…",
+  "normal.mask.history": "광원 마스크 생성",
+  "normal.mask.shading": "음영 강도",
+  "normal.mask.darkest": "최솟값",
+  "normal.mask.lightest": "최댓값",
+  "normal.mask.cavity": "오목한 부분 어둡게",
+  "normal.mask.influence": "마스크 강도",
+  "normal.mask": "광원 마스크"
 }

@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type HTMLAttributes,
+  type ReactNode,
+  type RefObject,
+} from "react";
 
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
 import { EditorPopover } from "$/components/dialogs/overlay";
@@ -80,6 +87,8 @@ export interface ColorPickerProps {
   showCloseButton?: boolean;
   /** Aseprite scene coordinates of the color button; popup fits below or above it. */
   anchor?: SurfaceBounds;
+  /** The control that opened the popup; its press does not dismiss as an outside pointer. */
+  triggerRef?: RefObject<HTMLElement | null>;
 }
 const LABELS: Record<ColorChannel, string> = {
   [ColorChannel.Red]: "Red",
@@ -189,6 +198,7 @@ export function ColorPicker({
   title = "Color",
   showCloseButton = false,
   anchor,
+  triggerRef,
 }: ColorPickerProps) {
   const colorProfile = useColorProfile();
   const scene = useSceneBounds();
@@ -344,6 +354,7 @@ export function ColorPicker({
         onOpenChange={onOpenChange}
         label={title}
         bounds={bounds}
+        triggerRef={triggerRef}
         showCloseButton={showCloseButton}
         closeOnEnter
         closeOnOutsideClick={!screenPicker.busy}

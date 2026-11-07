@@ -4,6 +4,7 @@ import type { NormalMapLightOptions } from "@xprite/editor-core/image-editing";
 export interface NormalMapLightFrame {
   source: PixelBuffer;
   normals: PixelBuffer | null;
+  mask: PixelBuffer | null;
   options: NormalMapLightOptions;
   viewport: { width: number; height: number };
   origin: Point;

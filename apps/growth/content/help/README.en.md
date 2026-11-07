@@ -146,7 +146,11 @@ Screen color picking needs desktop Chrome or Edge, with Xprite opened over HTTPS
 
 Choose a source in **Edit → FX → Generate Normal Map...** to generate normals for the current frame. Applying creates a separate layer; applying again in the same session updates the corresponding result layer. Indexed, grayscale and other color-profile sources produce a new RGB document containing the original artwork and normal layers.
 
+Raise **Painted light influence** above 0% to get a suggested angle from the artwork or the selected **Shading source**. Xprite keeps the current angle if the estimate is uncertain or you have set the angle by hand.
+
 Open **View → Lighting Preview**. Click the gear in its title bar to open **Lighting Settings** and select the artwork and normal layers. Move the pointer to inspect the lighting. Turn off **Follow pointer**, then click or drag in the preview to park the light. Use the wheel to zoom and middle-drag to pan. Painting and frame changes update the preview automatically.
+
+Choose **Edit → FX → Generate Light Mask...** to create a mask from the current frame, or select an existing mask layer in **Lighting Settings**. Paint darker shades on the mask to reduce direct light, for example under hair or inside clothing folds. White and transparent areas let direct light through. Ambient light stays the same.
 
 ## Add to desktop and use offline
 

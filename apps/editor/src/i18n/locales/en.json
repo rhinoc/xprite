@@ -2511,6 +2511,10 @@
   "normal.normalStrength": "Normal strength",
   "normal.smoothing": "Smoothing",
   "normal.facets": "Facet splitting",
+  "normal.painted.influence": "Painted light influence",
+  "normal.painted.angle": "Painted light angle (0° right, 90° up)",
+  "normal.painted.source": "Shading source",
+  "normal.painted.fromSource": "Use source artwork",
   "normal.mergeOutlines": "Merge outlines",
   "normal.invertY": "Invert Y (DirectX)",
   "normal.output.failed": "The RGB result document could not be created.",
@@ -2534,5 +2538,13 @@
   "normal.output.locked": "The normal map output layer is locked or unavailable",
   "normal.light.pixels": "{value1} px",
   "normal.light.settings": "Lighting Settings",
-  "normal.source.none": "None"
+  "normal.source.none": "None",
+  "normal.mask.generate": "Generate Light Mask...",
+  "normal.mask.history": "Generate Light Mask",
+  "normal.mask.shading": "Shading Strength",
+  "normal.mask.darkest": "Darkest Value",
+  "normal.mask.lightest": "Lightest Value",
+  "normal.mask.cavity": "Cavity Darkening",
+  "normal.mask.influence": "Light Mask Influence",
+  "normal.mask": "Light Mask"
 }

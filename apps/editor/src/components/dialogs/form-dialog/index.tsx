@@ -204,6 +204,7 @@ export function FormDialog({
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
   const [colorFieldKey, setColorFieldKey] = useState<string | null>(null);
   const [colorAnchor, setColorAnchor] = useState<SurfaceBounds>();
+  const colorTrigger = useRef<HTMLElement | null>(null);
   const [flowHeight, setFlowHeight] = useState<number | null>(null);
   const currentActions = useRef(actions);
   currentActions.current = actions;
@@ -424,22 +425,27 @@ export function FormDialog({
           actionSize={embedded ? NATIVE_ACTION_SIZE : undefined}
           onHeightChange={setFlowHeight}
           onColorClick={(field, anchor) => {
-            setColorFieldKey(field.key);
-            setColorAnchor(anchor);
+            colorTrigger.current = anchor;
+            setColorAnchor(measurePopoverAnchor(anchor).bounds);
+            setColorFieldKey((key) => (key === field.key ? null : field.key));
           }}
         />
-        {activeColorField && (
-          <ColorPicker
-            open
-            onOpenChange={(open) => {
-              if (!open) setColorFieldKey(null);
-            }}
-            value={activeColorField.value}
-            onValueChange={activeColorField.onChange}
-            title={activeColorField.label}
-            anchor={colorAnchor}
-          />
-        )}
+        {activeColorField && portalTarget
+          ? createUiPortal(
+              <ColorPicker
+                open
+                onOpenChange={(open) => {
+                  if (!open) setColorFieldKey(null);
+                }}
+                value={activeColorField.value}
+                onValueChange={activeColorField.onChange}
+                title={activeColorField.label}
+                anchor={colorAnchor}
+                triggerRef={colorTrigger}
+              />,
+              portalTarget,
+            )
+          : null}
       </>
     ) : (
       <>
@@ -677,10 +683,9 @@ export function FormDialog({
                   aria-label={field.label || field.key}
                   disabled={field.disabled}
                   onClick={(event) => {
-                    setColorFieldKey(field.key);
-                    setColorAnchor(
-                      embedded ? measurePopoverAnchor(event.currentTarget).bounds : input,
-                    );
+                    colorTrigger.current = event.currentTarget;
+                    setColorAnchor(measurePopoverAnchor(event.currentTarget).bounds);
+                    setColorFieldKey((key) => (key === field.key ? null : field.key));
                   }}
                 />
               </span>
@@ -772,18 +777,22 @@ export function FormDialog({
           );
         })}
         {content?.(client)}
-        {activeColorField && (
-          <ColorPicker
-            open
-            onOpenChange={(open) => {
-              if (!open) setColorFieldKey(null);
-            }}
-            value={activeColorField.value}
-            onValueChange={activeColorField.onChange}
-            title={activeColorField.label}
-            anchor={colorAnchor}
-          />
-        )}
+        {activeColorField && portalTarget
+          ? createUiPortal(
+              <ColorPicker
+                open
+                onOpenChange={(open) => {
+                  if (!open) setColorFieldKey(null);
+                }}
+                value={activeColorField.value}
+                onValueChange={activeColorField.onChange}
+                title={activeColorField.label}
+                anchor={colorAnchor}
+                triggerRef={colorTrigger}
+              />,
+              portalTarget,
+            )
+          : null}
         {actions.map((action, i) => {
           const widths = actions.map((item) => measureUiText(tUiSource(item.label)) + 32);
           const remaining = widths.slice(i).reduce((total, item) => total + item + 8, 0);

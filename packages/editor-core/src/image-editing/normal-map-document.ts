@@ -44,13 +44,14 @@ export interface NormalMapFrameOutput {
 /** An independent RGB result keeps the original artwork available for lighting and repainting. */
 export function createNormalMapProject(
   source: PixelBuffer,
-  normals: PixelBuffer,
+  pixels: PixelBuffer,
   sourceName: string,
   duration: number,
+  outputName = DEFAULT_NORMAL_LAYER_NAME,
 ): EditorProject {
   assertPixelBuffer(source);
   const document: EditorDocument = {
-    name: DEFAULT_NORMAL_LAYER_NAME,
+    name: outputName,
     width: source.width,
     height: source.height,
     layer: { name: sourceName, pixels: source, x: 0, y: 0, visible: true, locked: false },
@@ -87,8 +88,8 @@ export function createNormalMapProject(
       ],
     },
   };
-  writeNormalMapLayer(document, [{ frame: 0, pixels: normals }]);
-  return { image: normals, timeline: document.timeline! };
+  writeNormalMapLayer(document, [{ frame: 0, pixels }], outputName);
+  return { image: pixels, timeline: document.timeline! };
 }
 
 /** Data textures can share a document only when its color mode/profile preserve RGB bytes. */

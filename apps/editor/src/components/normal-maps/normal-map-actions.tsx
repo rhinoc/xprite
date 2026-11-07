@@ -25,6 +25,7 @@ const LightingPreview = lazyChunk(() =>
 );
 interface Actions {
   openGeneration(): void;
+  openMaskGeneration(): void;
   openLighting(): void;
   canOpen: boolean;
 }
@@ -52,6 +53,7 @@ export function NormalMapDialogsHost({ enabled }: { enabled: boolean }) {
     () =>
       registry?.register({
         openGeneration: () => latest.current.openGeneration(),
+        openMaskGeneration: () => latest.current.openGeneration(true),
         openLighting: () => latest.current.openLighting(),
         canOpen: manager.canOpen,
       }),

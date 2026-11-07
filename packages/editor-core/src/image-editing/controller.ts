@@ -13,6 +13,7 @@ import {
   previewDocumentEffect,
   type EffectSpec,
 } from "$/image-editing/effects";
+import { DEFAULT_LIGHT_MASK_LAYER_NAME } from "$/image-editing/light-mask";
 import {
   writeNormalMapLayer,
   type NormalMapFrameOutput,
@@ -73,9 +74,26 @@ export class ImageEditingController {
     name?: string,
     layerId?: string,
   ): string | null {
+    return this.applyLightingMap("Generate Normal Map", outputs, name, layerId);
+  }
+
+  applyLightMask(
+    outputs: readonly NormalMapFrameOutput[],
+    name = DEFAULT_LIGHT_MASK_LAYER_NAME,
+    layerId?: string,
+  ): string | null {
+    return this.applyLightingMap("Generate Light Mask", outputs, name, layerId);
+  }
+
+  private applyLightingMap(
+    label: string,
+    outputs: readonly NormalMapFrameOutput[],
+    name?: string,
+    layerId?: string,
+  ): string | null {
     if (!this.port.getDocument() || !this.port.prepareEffect()) return null;
     let result: string | null = null;
-    this.port.commitDocumentEdit("Generate Normal Map", (document) => {
+    this.port.commitDocumentEdit(label, (document) => {
       result = writeNormalMapLayer(document, outputs, name, layerId);
     });
     return result;

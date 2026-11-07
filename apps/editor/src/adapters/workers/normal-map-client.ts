@@ -8,6 +8,7 @@ import {
   NormalMapProcessingOperation,
   NormalMapProcessingFailure,
   type NormalMapProcessingInput,
+  type NormalMapProcessingResult,
   NormalMapProcessingPort,
 } from "$/managers/ports/normal-map-processing";
 import { WorkerRequestChannel } from "@xprite/bedrock/browser/worker-request-channel";
@@ -28,35 +29,47 @@ export function createBrowserNormalMapProcessor(): NormalMapProcessingPort {
   );
   let running = false;
   let source: PixelBuffer | null = null;
-  let generationSource: PixelBuffer | null = null;
+  const generationSources = new Map<NormalMapProcessingOperation, PixelBuffer>();
+  let generationShading: PixelBuffer | null | undefined;
   let normals: PixelBuffer | null | undefined;
+  let mask: PixelBuffer | null | undefined;
   let queued: { start(): void; reject(reason: Error): void } | null = null;
   const cancelled = () => new DOMException("Preview was superseded", "AbortError");
   return {
     process(input: NormalMapProcessingInput) {
-      return new Promise<PixelBuffer>((resolve, reject) => {
+      return new Promise<NormalMapProcessingResult>((resolve, reject) => {
         const start = () => {
           running = true;
           const id = channel.nextRequestId();
           let request: NormalMapWorkerRequest;
           if (input.operation === NormalMapProcessingOperation.Light) {
-            const changed = source !== input.source || normals !== input.normals;
+            const changed =
+              source !== input.source || normals !== input.normals || mask !== input.mask;
             request = {
               id,
               operation: input.operation,
               options: input.options,
-              ...(changed ? { textures: { source: input.source, normals: input.normals } } : {}),
+              ...(changed
+                ? { textures: { source: input.source, normals: input.normals, mask: input.mask } }
+                : {}),
             };
             source = input.source;
             normals = input.normals;
+            mask = input.mask;
           } else {
-            request = {
-              id,
-              operation: input.operation,
-              options: input.options,
-              ...(generationSource !== input.source ? { source: input.source } : {}),
-            };
-            generationSource = input.source;
+            const sourceChanged = generationSources.get(input.operation) !== input.source;
+            const nextSource = sourceChanged ? input.source : undefined;
+            if (input.operation === NormalMapProcessingOperation.Generate) {
+              request = {
+                ...input,
+                id,
+                source: nextSource,
+                shading:
+                  sourceChanged || generationShading !== input.shading ? input.shading : undefined,
+              };
+              generationShading = input.shading;
+            } else request = { ...input, id, source: nextSource };
+            generationSources.set(input.operation, input.source);
           }
           void channel
             .request(request, (response) => {
@@ -66,9 +79,16 @@ export function createBrowserNormalMapProcessor(): NormalMapProcessingPort {
                     ? tUi("normal.processing.failed")
                     : response.error,
                 );
-              return response.pixels;
+              return {
+                pixels: response.pixels,
+                suggestedPaintedLightAngle: response.suggestedPaintedLightAngle,
+              };
             })
-            .then(resolve, reject)
+            .then(resolve, (error: unknown) => {
+              if (input.operation === NormalMapProcessingOperation.Light) source = null;
+              else generationSources.delete(input.operation);
+              reject(error);
+            })
             .finally(() => {
               running = false;
               const next = queued;

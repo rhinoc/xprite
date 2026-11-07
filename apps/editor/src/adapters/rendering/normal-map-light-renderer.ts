@@ -13,6 +13,7 @@ const FRAGMENT_SOURCE = `
 precision highp float;
 uniform sampler2D albedo;
 uniform sampler2D normals;
+uniform sampler2D lightMask;
 uniform vec2 imageSize;
 uniform vec2 viewport;
 uniform vec2 origin;
@@ -25,6 +26,7 @@ uniform float ambient;
 uniform float radius;
 uniform float normalSign;
 uniform bool hasNormals;
+uniform float maskStrength;
 vec3 linearColor(vec3 color) {
   return mix(color / 12.92, pow((color + 0.055) / 1.055, vec3(2.4)), step(vec3(0.04045), color));
 }
@@ -47,7 +49,9 @@ void main() {
   vec3 direction = vec3(light.x - pixel.x, pixel.y - light.y, light.z);
   float distanceSquared = dot(direction, direction);
   float diffuse = max(0.0, dot(normal, direction) * inversesqrt(max(distanceSquared, 0.000001)));
-  float direct = power * diffuse / (1.0 + distanceSquared / (radius * radius));
+  vec4 mask = texture2D(lightMask, uv);
+  float reception = mix(1.0, dot(mask.rgb, vec3(0.2126, 0.7152, 0.0722)), maskStrength * mask.a);
+  float direct = power * diffuse * reception / (1.0 + distanceSquared / (radius * radius));
   vec3 color = encodedColor(linearColor(base.rgb) * (ambient + direct * linearColor(lightColor)));
   gl_FragColor = vec4(clamp(color, 0.0, 1.0), base.a);
 }
@@ -116,7 +120,8 @@ export function createBrowserNormalMapLightRenderer(
     return result;
   };
   const colorTexture = texture(0),
-    normalTexture = texture(1);
+    normalTexture = texture(1),
+    maskTexture = texture(2);
   const names = [
     "imageSize",
     "viewport",
@@ -130,14 +135,17 @@ export function createBrowserNormalMapLightRenderer(
     "radius",
     "normalSign",
     "hasNormals",
+    "maskStrength",
   ] as const;
   const locations = Object.fromEntries(
     names.map((name) => [name, gl.getUniformLocation(program, name)]),
   ) as Record<(typeof names)[number], WebGLUniformLocation | null>;
   gl.uniform1i(gl.getUniformLocation(program, "albedo"), 0);
   gl.uniform1i(gl.getUniformLocation(program, "normals"), 1);
+  gl.uniform1i(gl.getUniformLocation(program, "lightMask"), 2);
   let source: PixelBuffer | null = null,
-    normals: PixelBuffer | null | undefined;
+    normals: PixelBuffer | null | undefined,
+    mask: PixelBuffer | null | undefined;
   let width = 0,
     height = 0;
   const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number;
@@ -188,6 +196,10 @@ export function createBrowserNormalMapLightRenderer(
         upload(1, frame.normals);
         normals = frame.normals;
       }
+      if (mask !== frame.mask) {
+        upload(2, frame.mask);
+        mask = frame.mask;
+      }
       gl.uniform2f(locations.imageSize, source.width, source.height);
       gl.uniform2f(locations.viewport, width, height);
       gl.uniform2f(locations.origin, frame.origin.x, frame.origin.y);
@@ -213,11 +225,13 @@ export function createBrowserNormalMapLightRenderer(
       );
       gl.uniform1f(locations.normalSign, frame.options.invertY ? -1 : 1);
       gl.uniform1i(locations.hasNormals, frame.normals !== null ? 1 : 0);
+      gl.uniform1f(locations.maskStrength, frame.options.maskStrength / PERCENT);
       gl.drawArrays(gl.TRIANGLES, 0, VERTEX_COUNT);
     },
     dispose() {
       gl.deleteTexture(colorTexture);
       gl.deleteTexture(normalTexture);
+      gl.deleteTexture(maskTexture);
       gl.deleteBuffer(buffer);
       gl.deleteProgram(program);
       gl.deleteShader(vertex);

@@ -7,3 +7,4 @@ export * from "$/image-editing/advanced-filters";
 export * from "$/image-editing/normal-map";
 export * from "$/image-editing/normal-map-lighting";
 export * from "$/image-editing/normal-map-document";
+export * from "$/image-editing/light-mask";

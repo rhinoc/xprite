@@ -3,6 +3,11 @@ import assert from "node:assert/strict";
 import { describe, it } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
+import { createLightMaskGenerator } from "$/image-editing/light-mask";
+import {
+  LightingMapRegionMode,
+  segmentLightingMapSource,
+} from "$/image-editing/lighting-map-source";
 import {
   createNormalMapGenerator,
   generateNormalMap,
@@ -20,6 +25,59 @@ const image = (width: number, data: number[]): PixelBuffer => ({
 });
 
 describe("pixel-art normal generation", () => {
+  it("groups close colors but stops at contrast edges, alpha steps, and transparent gaps", () => {
+    const source = image(
+      6,
+      [
+        96, 96, 96, 255, 100, 100, 100, 255, 116, 116, 116, 255, 116, 116, 116, 180, 116, 116, 116,
+        0, 116, 116, 116, 180,
+      ],
+    );
+    const { labels, clusters } = segmentLightingMapSource(source, LightingMapRegionMode.Perceptual);
+    assert.deepEqual([...labels], [0, 0, 1, 2, -1, 3]);
+    assert.ok(Math.abs(clusters[0].value - 98 / 255) < 1e-6);
+    assert.deepEqual([...segmentLightingMapSource(source).labels], [0, 1, 2, 2, -1, 3]);
+  });
+
+  it("limits region growth across a ramp of individually weak edges", () => {
+    const ramp = [96, 104, 112, 120, 128, 136];
+    const source = image(
+      ramp.length,
+      ramp.flatMap((value) => [value, value, value, 255]),
+    );
+    const { labels } = segmentLightingMapSource(source, LightingMapRegionMode.Perceptual);
+    assert.equal(labels[0], labels[1]);
+    assert.notEqual(labels[0], labels[ramp.length - 1]);
+  });
+
+  it("splits a small sprite into facets independently of its transparent padding", () => {
+    const size = 8;
+    const source = image(
+      size,
+      Array.from({ length: size * size }, () => [100, 100, 100, 255]).flat(),
+    );
+    const options = { shapeStrength: 200, smoothing: 0, mergeOutlines: false };
+    const flat = generateNormalMap(source, { ...options, facets: 0 });
+    const faceted = generateNormalMap(source, { ...options, facets: 100 });
+    assert.notDeepEqual(faceted.data, flat.data);
+
+    const padding = 12;
+    const width = size + 2 * padding;
+    const padded = { width, height: width, data: new Uint8ClampedArray(width * width * 4) };
+    for (let y = 0; y < size; y++) {
+      const row = source.data.subarray(y * size * 4, (y + 1) * size * 4);
+      padded.data.set(row, ((y + padding) * width + padding) * 4);
+    }
+    const paddedFacets = generateNormalMap(padded, { ...options, facets: 100 });
+    for (let y = 0; y < size; y++) {
+      const start = ((y + padding) * width + padding) * 4;
+      assert.deepEqual(
+        paddedFacets.data.subarray(start, start + size * 4),
+        faceted.data.subarray(y * size * 4, (y + 1) * size * 4),
+      );
+    }
+  });
+
   it("keeps a source snapshot while cached intensity changes remain reversible", () => {
     const source = image(
       3,
@@ -67,7 +125,50 @@ describe("pixel-art normal generation", () => {
   });
 });
 
+describe("light mask generation", () => {
+  it("darkens an enclosed shade while preserving source coverage", () => {
+    const source = image(
+      3,
+      Array.from({ length: 9 }, (_, i) =>
+        i === 4 ? [32, 32, 32, 128] : [200, 200, 200, 255],
+      ).flat(),
+    );
+    const generator = createLightMaskGenerator(source);
+    const mask = generator.generate();
+    assert.deepEqual([...mask.data.subarray(16, 20)], [13, 13, 13, 128]);
+    assert.deepEqual([...mask.data.subarray(0, 4)], [255, 255, 255, 255]);
+    assert.deepEqual(
+      [...generator.generate({ cavity: 0 }).data.subarray(16, 20)],
+      [20, 20, 20, 128],
+    );
+  });
+});
+
 describe("normal lighting", () => {
+  it("masks direct light while preserving ambient light and albedo alpha", () => {
+    const albedo = image(1, [128, 64, 32, 128]);
+    const normal = image(1, [128, 128, 255, 255]);
+    const light = { ...defaultNormalMapLightOptions(1, 1), position: { x: 0, y: 0 }, height: 1 };
+    const black = image(1, [0, 0, 0, 255]);
+    const transparent = image(1, [0, 0, 0, 0]);
+    const fullLight = renderNormalMapLighting(albedo, normal, light);
+    const masked = renderNormalMapLighting(albedo, normal, light, black);
+    const partial = renderNormalMapLighting(albedo, normal, { ...light, maskStrength: 50 }, black);
+    assert.deepEqual(
+      masked.data,
+      renderNormalMapLighting(albedo, normal, { ...light, brightness: 0 }).data,
+    );
+    assert.equal(masked.data[3], 128);
+    assert.ok(masked.data[0] < partial.data[0] && partial.data[0] < fullLight.data[0]);
+    assert.deepEqual(
+      fullLight.data,
+      renderNormalMapLighting(albedo, normal, { ...light, maskStrength: 0 }, black).data,
+    );
+    assert.deepEqual(
+      fullLight.data,
+      renderNormalMapLighting(albedo, normal, light, transparent).data,
+    );
+  });
   it("responds to upward-facing normals and the Y convention, preserving albedo alpha", () => {
     const albedo = image(1, [128, 64, 32, 128]);
     const normal = image(1, [128, 255, 128, 255]);

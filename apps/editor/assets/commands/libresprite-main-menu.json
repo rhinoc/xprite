@@ -556,6 +556,11 @@
               "kind": "item",
               "label": "Generate Normal Map...",
               "command": "GenerateNormalMap"
+            },
+            {
+              "kind": "item",
+              "label": "Generate Light Mask...",
+              "command": "GenerateLightMask"
             }
           ]
         },

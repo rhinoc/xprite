@@ -6,8 +6,8 @@ import {
   NormalPreset,
   NormalPreviewView,
   NORMAL_GENERATOR_LIMITS,
+  LIGHT_MASK_LIMITS,
   type NormalMapManager,
-  type NormalGeneratorOptions,
 } from "$/managers/normal-maps/normal-map-manager";
 import { Button, ControlFlow, FontRole, Slider } from "@xprite/ui";
 
@@ -20,28 +20,56 @@ const STRENGTH_STEP_MIN = 0;
 export function NormalMapGenerationDialog({ manager }: { manager: NormalMapManager }) {
   const { options } = manager;
   const slider = (
-    key: "shapeStrength" | "normalStrength" | "smoothing" | "facets",
+    key: string,
     label: string,
+    value: number,
+    max: number,
+    onChange: (value: number) => void,
+    unit: string,
+    disabled = false,
   ): FormField => ({
     key,
     label,
     type: "custom",
+    disabled,
     render: (placement) => (
       <Slider
         {...(placement.bounds
           ? placement
           : { pixelSize: placement.pixelSize ?? DEFAULT_SLIDER_SIZE })}
-        value={options[key]}
-        label={key === "smoothing" ? String(options[key]) : `${options[key]}%`}
+        value={value}
+        label={`${value}${unit}`}
         min={STRENGTH_STEP_MIN}
-        max={NORMAL_GENERATOR_LIMITS[key]}
+        max={max}
         aria-label={label}
-        onValueChange={(value) => manager.setOptions({ ...options, [key]: value })}
+        disabled={disabled}
+        onValueChange={onChange}
       />
     ),
   });
-  const patch = (value: Partial<NormalGeneratorOptions>) =>
-    manager.setOptions({ ...options, ...value });
+  const normalSlider = (
+    key: keyof typeof NORMAL_GENERATOR_LIMITS,
+    label: string,
+    disabled = false,
+  ) =>
+    slider(
+      key,
+      label,
+      options[key],
+      NORMAL_GENERATOR_LIMITS[key],
+      (value) => manager.setOptions({ [key]: value }),
+      key === "paintedLightAngle" ? "°" : key === "smoothing" ? "" : "%",
+      disabled,
+    );
+  const maskSlider = (key: keyof typeof LIGHT_MASK_LIMITS, label: string) =>
+    slider(
+      key,
+      label,
+      manager.maskOptions[key],
+      LIGHT_MASK_LIMITS[key],
+      (value) => manager.setMaskOptions({ ...manager.maskOptions, [key]: value }),
+      key === "strength" || key === "cavity" ? "%" : "",
+    );
   const accept = () => {
     if (manager.canApply ? manager.apply() : !manager.generating && !manager.error)
       manager.closeGeneration();
@@ -52,7 +80,7 @@ export function NormalMapGenerationDialog({ manager }: { manager: NormalMapManag
       onOpenChange={(open) => {
         if (!open) manager.closeGeneration();
       }}
-      title={tUi("normal.generate.title")}
+      title={tUi(manager.generatingMask ? "normal.mask.generate" : "normal.generate.title")}
       width={GENERATOR_DIALOG_WIDTH}
       height={GENERATOR_DIALOG_HEIGHT}
       scrollFields
@@ -69,7 +97,10 @@ export function NormalMapGenerationDialog({ manager }: { manager: NormalMapManag
           <ControlFlow className={styles.viewModes} style={{ gap: 0, flexWrap: "nowrap" }}>
             {[
               { value: NormalPreviewView.Original, label: tUi("normal.view.original") },
-              { value: NormalPreviewView.Normal, label: tUi("normal.view.normal") },
+              {
+                value: NormalPreviewView.Normal,
+                label: tUi(manager.generatingMask ? "normal.mask" : "normal.view.normal"),
+              },
               { value: NormalPreviewView.Light, label: tUi("normal.view.light") },
             ].map(({ value, label }) => (
               <Button
@@ -96,37 +127,61 @@ export function NormalMapGenerationDialog({ manager }: { manager: NormalMapManag
           options: manager.sourceChoices,
           onChange: manager.setSourceId,
         },
-        {
-          key: "preset",
-          label: tUi("normal.preset"),
-          type: "select",
-          value: options.preset,
-          options: [
-            { value: NormalPreset.Architecture, label: tUi("normal.preset.architecture") },
-            { value: NormalPreset.Character, label: tUi("normal.preset.character") },
-            { value: NormalPreset.Object, label: tUi("normal.preset.object") },
-            { value: NormalPreset.Terrain, label: tUi("normal.preset.terrain") },
-          ],
-          onChange: (value) => manager.selectPreset(value as NormalPreset),
-        },
-        slider("shapeStrength", tUi("normal.shapeStrength")),
-        slider("normalStrength", tUi("normal.normalStrength")),
-        slider("smoothing", tUi("normal.smoothing")),
-        slider("facets", tUi("normal.facets")),
-        {
-          key: "merge",
-          label: tUi("normal.mergeOutlines"),
-          type: "checkbox",
-          value: options.mergeOutlines,
-          onChange: (mergeOutlines) => patch({ mergeOutlines }),
-        },
-        {
-          key: "invert",
-          label: tUi("normal.invertY"),
-          type: "checkbox",
-          value: options.invertY,
-          onChange: (invertY) => patch({ invertY }),
-        },
+        ...(manager.generatingMask
+          ? [
+              maskSlider("strength", tUi("normal.mask.shading")),
+              maskSlider("floor", tUi("normal.mask.darkest")),
+              maskSlider("ceiling", tUi("normal.mask.lightest")),
+              maskSlider("cavity", tUi("normal.mask.cavity")),
+            ]
+          : ([
+              {
+                key: "preset",
+                label: tUi("normal.preset"),
+                type: "select",
+                value: options.preset,
+                options: [
+                  { value: NormalPreset.Architecture, label: tUi("normal.preset.architecture") },
+                  { value: NormalPreset.Character, label: tUi("normal.preset.character") },
+                  { value: NormalPreset.Object, label: tUi("normal.preset.object") },
+                  { value: NormalPreset.Terrain, label: tUi("normal.preset.terrain") },
+                ],
+                onChange: (value) => manager.selectPreset(value as NormalPreset),
+              },
+              normalSlider("shapeStrength", tUi("normal.shapeStrength")),
+              normalSlider("normalStrength", tUi("normal.normalStrength")),
+              normalSlider("smoothing", tUi("normal.smoothing")),
+              normalSlider("facets", tUi("normal.facets")),
+              normalSlider("paintedLightInfluence", tUi("normal.painted.influence")),
+              normalSlider(
+                "paintedLightAngle",
+                tUi("normal.painted.angle"),
+                options.paintedLightInfluence === 0,
+              ),
+              {
+                key: "shading-source",
+                label: tUi("normal.painted.source"),
+                type: "select",
+                value: manager.shadingSourceId,
+                options: manager.shadingSourceChoices,
+                disabled: options.paintedLightInfluence === 0,
+                onChange: manager.setShadingSourceId,
+              },
+              {
+                key: "merge",
+                label: tUi("normal.mergeOutlines"),
+                type: "checkbox",
+                value: options.mergeOutlines,
+                onChange: (mergeOutlines) => manager.setOptions({ mergeOutlines }),
+              },
+              {
+                key: "invert",
+                label: tUi("normal.invertY"),
+                type: "checkbox",
+                value: options.invertY,
+                onChange: (invertY) => manager.setOptions({ invertY }),
+              },
+            ] satisfies FormField[])),
       ]}
       overlay={<NormalMapError error={manager.error} />}
       actions={[

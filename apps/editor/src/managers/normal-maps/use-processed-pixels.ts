@@ -4,8 +4,8 @@ import { useNormalMapProcessor } from "$/managers/normal-maps/processing-context
 import {
   NormalMapProcessingOperation,
   type NormalMapProcessingInput,
+  type NormalMapProcessingResult,
 } from "$/managers/ports/normal-map-processing";
-import type { PixelBuffer } from "@xprite/editor-core/base";
 
 export function useProcessedPixels(
   input: NormalMapProcessingInput | null,
@@ -26,7 +26,7 @@ export function useProcessedPixels(
   }, [enabled, identity]);
   const [result, setResult] = useState<{
     input: NormalMapProcessingInput;
-    pixels: PixelBuffer;
+    value: NormalMapProcessingResult;
     identity: object;
   } | null>(null);
   const [error, setError] = useState("");
@@ -36,14 +36,15 @@ export function useProcessedPixels(
     let current = true;
     const run = () => {
       void process(input).then(
-        (pixels) => {
+        (value) => {
           if (
             current ||
             (live.current &&
               owner.current === identity &&
-              latestInput.current?.source === input.source)
+              latestInput.current?.operation === input.operation &&
+              latestInput.current.source === input.source)
           )
-            setResult({ input, pixels, identity });
+            setResult({ input, value, identity });
         },
         (reason: unknown) => {
           if (current && !(reason instanceof Error && reason.name === "AbortError"))
@@ -52,7 +53,7 @@ export function useProcessedPixels(
       );
     };
     const frame =
-      input.operation === NormalMapProcessingOperation.Generate
+      input.operation !== NormalMapProcessingOperation.Light
         ? requestAnimationFrame(run)
         : undefined;
     if (frame === undefined) run();
@@ -62,13 +63,20 @@ export function useProcessedPixels(
     };
   }, [input, enabled, process, identity]);
   const display =
-    enabled && result?.identity === identity && result.input.source === input?.source
+    enabled &&
+    result?.identity === identity &&
+    result.input.operation === input?.operation &&
+    result.input.source === input.source
       ? result
       : null;
+  const current = result?.input === input ? result.value : null;
   return {
-    pixels: result?.input === input ? result.pixels : null,
-    displayPixels: display?.pixels ?? null,
-    displayInvertY: display?.input.options.invertY ?? false,
+    pixels: current?.pixels ?? null,
+    suggestedPaintedLightAngle: current?.suggestedPaintedLightAngle,
+    displayPixels: display?.value.pixels ?? null,
+    displayInvertY:
+      display?.input.operation === NormalMapProcessingOperation.Generate &&
+      display.input.options.invertY,
     error,
     busy: enabled && !!input && result?.input !== input && !error,
   };

@@ -2511,6 +2511,10 @@
   "normal.normalStrength": "法線の強さ",
   "normal.smoothing": "平滑化",
   "normal.facets": "面の分割",
+  "normal.painted.influence": "描画済みの光の影響",
+  "normal.painted.angle": "元の光源の方向（0° 右、90° 上）",
+  "normal.painted.source": "陰影のソース",
+  "normal.painted.fromSource": "元画像の陰影を使用",
   "normal.mergeOutlines": "輪郭を結合",
   "normal.invertY": "Y を反転（DirectX）",
   "normal.output.failed": "RGB ドキュメントを作成できませんでした。",
@@ -2534,5 +2538,13 @@
   "normal.output.locked": "法線出力レイヤーがロックされているか利用できません。ロックを解除してください。",
   "normal.light.pixels": "{value1} px",
   "normal.light.settings": "ライティング設定",
-  "normal.source.none": "なし"
+  "normal.source.none": "なし",
+  "normal.mask.generate": "ライトマスクを生成…",
+  "normal.mask.history": "ライトマスクを生成",
+  "normal.mask.shading": "陰影の強さ",
+  "normal.mask.darkest": "最小値",
+  "normal.mask.lightest": "最大値",
+  "normal.mask.cavity": "くぼみを暗くする",
+  "normal.mask.influence": "マスクの強さ",
+  "normal.mask": "ライトマスク"
 }

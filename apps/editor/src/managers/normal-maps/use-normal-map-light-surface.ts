@@ -13,6 +13,7 @@ import type { NormalMapLightOptions } from "@xprite/editor-core/image-editing";
 export interface NormalLightingScene {
   source: PixelBuffer;
   normals: PixelBuffer | null;
+  mask: PixelBuffer | null;
   options: NormalMapLightOptions;
   identity: object;
 }
@@ -107,6 +108,7 @@ export function useNormalMapLightSurface(
             operation: NormalMapProcessingOperation.Light,
             source: scene.source,
             normals: scene.normals,
+            mask: scene.mask,
             options: { ...scene.options, position: cpuPosition ?? scene.options.position },
           } as const)
         : null,

@@ -137,6 +137,10 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
       onSelect: () => normalMapActions?.openGeneration(),
       disabled: documentUnavailable || !actions.canStartInteraction || !normalMapActions?.canOpen,
     },
+    GenerateLightMask: {
+      onSelect: () => normalMapActions?.openMaskGeneration(),
+      disabled: documentUnavailable || !actions.canStartInteraction || !normalMapActions?.canOpen,
+    },
     NormalMapLightPreview: {
       onSelect: () => normalMapActions?.openLighting(),
       disabled: documentUnavailable || !actions.canStartInteraction || !normalMapActions?.canOpen,

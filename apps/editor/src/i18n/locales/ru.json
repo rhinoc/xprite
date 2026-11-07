@@ -2511,6 +2511,10 @@
   "normal.normalStrength": "Сила нормалей",
   "normal.smoothing": "Сглаживание",
   "normal.facets": "Разбиение на грани",
+  "normal.painted.influence": "Влияние нарисованного света",
+  "normal.painted.angle": "Угол нарисованного света (0° вправо, 90° вверх)",
+  "normal.painted.source": "Источник затенения",
+  "normal.painted.fromSource": "Использовать затенение исходного изображения",
   "normal.mergeOutlines": "Объединять контуры",
   "normal.invertY": "Инвертировать Y (DirectX)",
   "normal.output.failed": "Не удалось создать RGB-документ.",
@@ -2534,5 +2538,13 @@
   "normal.output.locked": "Выходной слой нормалей заблокирован или недоступен. Разблокируйте его и повторите.",
   "normal.light.pixels": "{value1} px",
   "normal.light.settings": "Настройки освещения",
-  "normal.source.none": "Нет"
+  "normal.source.none": "Нет",
+  "normal.mask.generate": "Создать маску света…",
+  "normal.mask.history": "Создать маску света",
+  "normal.mask.shading": "Сила затенения",
+  "normal.mask.darkest": "Минимальное значение",
+  "normal.mask.lightest": "Максимальное значение",
+  "normal.mask.cavity": "Затемнение углублений",
+  "normal.mask.influence": "Сила маски",
+  "normal.mask": "Маска света"
 }

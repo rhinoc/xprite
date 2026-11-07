@@ -345,6 +345,7 @@ export type AtlasPartName =
   | "window_button_selected"
   | "window_center_icon"
   | "window_close_icon"
+  | "window_gear_icon"
   | "window_help_icon"
   | "window_play_icon"
   | "window_stop_icon"

@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef } from "react";
+import { Fragment, useLayoutEffect, useRef } from "react";
 
 import type { FormDialogProps, FormField } from "$/components/dialogs/form-dialog";
 import { EditorColorButton } from "$/components/tools/editor-color-button";
@@ -16,10 +16,8 @@ import {
   Text,
   TextVariant,
   ScrollArea,
-  type SurfaceBounds,
 } from "@xprite/ui";
 import { RASTER_SCALE } from "@xprite/ui/canvas";
-import { measurePopoverAnchor } from "@xprite/ui/popover";
 import { useElementSize } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/form-dialog/flow-form.module.css";
@@ -38,7 +36,7 @@ function FlowField({
   controlHeight = CONTROL_HEIGHT,
 }: {
   field: FormField;
-  onColorClick: (field: FormField, anchor: SurfaceBounds) => void;
+  onColorClick: (field: FormField, trigger: HTMLElement) => void;
   controlHeight?: number;
 }) {
   const control = useRef<HTMLDivElement>(null);
@@ -138,9 +136,7 @@ function FlowField({
             value={field.value}
             aria-label={field.label || field.key}
             disabled={field.disabled}
-            onClick={(event) =>
-              onColorClick(field, measurePopoverAnchor(event.currentTarget).bounds)
-            }
+            onClick={(event) => onColorClick(field, event.currentTarget)}
           />
         ) : field.type === "select" ? (
           <Combobox
@@ -235,13 +231,13 @@ export function FlowForm({
   density?: "default" | "compact";
   onHeightChange: (height: number) => void;
   actionSize?: { width: number; height: number };
-  onColorClick: (field: FormField, anchor: SurfaceBounds) => void;
+  onColorClick: (field: FormField, trigger: HTMLElement) => void;
 }) {
   const defaultAction = submitOnEnter ? actions.find((action) => !action.disabled) : undefined;
   const rows = [...new Set(fields.map((field) => field.row ?? field.key))];
   const form = useRef<HTMLDivElement>(null);
   const size = useElementSize(form);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (size.height > 0) onHeightChange(size.height);
   }, [size.height, onHeightChange]);
   const sectionBefore = new Map<string, string[]>();
