@@ -755,25 +755,6 @@ export const themeDefinition = {
       },
       foregroundRole: "text",
     },
-    window_gear_icon: {
-      x: 16,
-      y: 11,
-      w: 6,
-      h: 6,
-      width: 6,
-      height: 6,
-      slices: null,
-      vector: {
-        width: 12,
-        height: 12,
-        path: "M3 0H5V1H3Z M7 0H9V1H7Z M3 1H9V2H3Z M1 2H11V3H1Z M1 3H5V4H1Z M7 3H11V4H7Z M2 4H4V5H2Z M8 4H10V5H8Z M2 5H4V6H2Z M8 5H10V6H8Z M1 6H5V7H1Z M7 6H11V7H7Z M1 7H11V8H1Z M3 8H9V9H3Z M3 9H5V10H3Z M7 9H9V10H7Z",
-        pressedFace: {
-          path: "M1 1H12V12H1Z",
-          colorRole: "selected",
-        },
-      },
-      foregroundRole: "text",
-    },
     slider_full: {
       x: 0,
       y: 144,
@@ -3724,6 +3705,25 @@ export const themeDefinition = {
       width: 5,
       height: 6,
       slices: null,
+    },
+    window_gear_icon: {
+      x: 16,
+      y: 11,
+      w: 6,
+      h: 6,
+      width: 6,
+      height: 6,
+      slices: null,
+      vector: {
+        width: 12,
+        height: 12,
+        path: "M3 0H5V1H3Z M7 0H9V1H7Z M3 1H9V2H3Z M1 2H11V3H1Z M1 3H5V4H1Z M7 3H11V4H7Z M2 4H4V5H2Z M8 4H10V5H8Z M2 5H4V6H2Z M8 5H10V6H8Z M1 6H5V7H1Z M7 6H11V7H7Z M1 7H11V8H1Z M3 8H9V9H3Z M3 9H5V10H3Z M7 9H9V10H7Z",
+        pressedFace: {
+          path: "M1 1H12V12H1Z",
+          colorRole: "selected",
+        },
+      },
+      foregroundRole: "text",
     },
   },
 } satisfies UiAtlasDefinition;
