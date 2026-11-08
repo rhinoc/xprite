@@ -17,6 +17,84 @@ function record(details: DiagnosticRecord["details"]): DiagnosticRecord {
 }
 
 describe("diagnostic telemetry privacy", () => {
+  it("reports OPFS transport context without forwarding paths, messages or request data", () => {
+    assert.deepEqual(
+      telemetryDiagnosticDetails(
+        record({
+          opfs: {
+            stage: "error",
+            operation: "read",
+            workerAnswered: false,
+            line: 12,
+            column: 3,
+            requestId: 42,
+            filename: "https://example.test/assets/opfs-worker.js?token=secret",
+            message: "Cannot read /Users/private/artwork.aseprite",
+            key: "private-project-id",
+            namespace: "private-workspace",
+            bytes: [1, 2, 3],
+            stack: "at /Users/private/artwork.aseprite:12:3",
+            cause: { message: "private artwork" },
+          },
+        }),
+      ),
+      {
+        opfs_stage: "error",
+        opfs_operation: "read",
+        opfs_worker_answered: false,
+        opfs_line: 12,
+        opfs_column: 3,
+      },
+    );
+  });
+
+  it.each(["construction", "post-message", "error", "messageerror"])(
+    "allows the OPFS %s stage for each storage operation",
+    (stage) => {
+      for (const operation of ["read", "write", "remove"])
+        assert.deepEqual(
+          telemetryDiagnosticDetails(record({ opfs: { stage, operation, workerAnswered: true } })),
+          { opfs_stage: stage, opfs_operation: operation, opfs_worker_answered: true },
+        );
+    },
+  );
+
+  it("requires a known OPFS stage before forwarding any context", () => {
+    for (const stage of [undefined, null, "", "private.aseprite", 1, {}, ["error"]])
+      assert.deepEqual(
+        telemetryDiagnosticDetails(
+          record({
+            opfs: { stage, operation: "read", workerAnswered: false, line: 12, column: 3 },
+          }),
+        ),
+        {},
+      );
+    for (const opfs of [undefined, null, "error", 1, true, [], [{ stage: "error" }]])
+      assert.deepEqual(telemetryDiagnosticDetails(record({ opfs })), {});
+  });
+
+  it("rejects invalid OPFS field values and unbounded source positions", () => {
+    for (const value of [undefined, "12", true, {}, [], -1, 1.5, NaN, Infinity, 86_400_001])
+      assert.deepEqual(
+        telemetryDiagnosticDetails(
+          record({
+            opfs: {
+              stage: "error",
+              operation: "private.aseprite",
+              workerAnswered: "false",
+              line: value,
+              column: value,
+            },
+          }),
+        ),
+        { opfs_stage: "error" },
+      );
+    assert.deepEqual(
+      telemetryDiagnosticDetails(record({ opfs: { stage: "error", line: 0, column: 86_400_000 } })),
+      { opfs_stage: "error", opfs_line: 0, opfs_column: 86_400_000 },
+    );
+  });
+
   it("reports actionable PWA and permission context without forwarding files or arbitrary fields", () => {
     assert.deepEqual(
       telemetryDiagnosticDetails(

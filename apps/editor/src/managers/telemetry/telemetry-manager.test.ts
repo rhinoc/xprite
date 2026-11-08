@@ -12,6 +12,8 @@ import {
 import { DiagnosticSource } from "$/managers/ports/diagnostics";
 import { TelemetryEvent, type TelemetryProperties } from "$/managers/ports/telemetry";
 import { TelemetryManager } from "$/managers/telemetry/telemetry-manager";
+import { OpfsByteStore } from "@xprite/bedrock/browser/opfs";
+import { BrowserStorageError } from "@xprite/bedrock/browser/storage-error";
 
 describe("view telemetry", () => {
   it("reports initial entry once and preserves user, automatic and navigation causes", () => {
@@ -89,6 +91,60 @@ describe("view telemetry", () => {
 });
 
 describe("exception telemetry", () => {
+  it("forwards real OPFS worker failures through the diagnostic allowlist", async () => {
+    const captured: TelemetryProperties[] = [];
+    const telemetry = new TelemetryManager({
+      enabled: true,
+      capture: () => {},
+      captureException: (_exception, properties) => captured.push(properties),
+    });
+    const store = new OpfsByteStore("private-workspace", () => {
+      const worker = {
+        onerror: null as ((event: ErrorEvent) => void) | null,
+        postMessage() {
+          queueMicrotask(() =>
+            worker.onerror?.({
+              message: "Cannot read /Users/private/artwork.aseprite",
+              filename: "https://example.test/assets/opfs-worker.js?token=secret",
+              lineno: 12,
+              colno: 3,
+            } as ErrorEvent),
+          );
+        },
+        terminate() {},
+      };
+      return worker as unknown as Worker;
+    });
+    try {
+      await assert.rejects(store.read("private-project-id"), (error: unknown) => {
+        assert.ok(error instanceof BrowserStorageError);
+        telemetry.observeDiagnostic({
+          id: "opfs",
+          timestamp: 1,
+          source: DiagnosticSource.Session,
+          name: error.name,
+          message: error.message,
+          context: "open-browser-project",
+          details: error.diagnosticDetails,
+        });
+        return true;
+      });
+      assert.deepEqual(captured, [
+        {
+          opfs_stage: "error",
+          opfs_operation: "read",
+          opfs_worker_answered: false,
+          opfs_line: 12,
+          opfs_column: 3,
+          error_source: DiagnosticSource.Session,
+          operation: "open-browser-project",
+        },
+      ]);
+    } finally {
+      store.close();
+    }
+  });
+
   it("attaches a scrubbed component stack to React boundary failures only", () => {
     const captured: TelemetryProperties[] = [];
     const telemetry = new TelemetryManager({
