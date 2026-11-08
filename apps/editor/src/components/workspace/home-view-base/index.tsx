@@ -391,31 +391,9 @@ export function HomeView({
                 viewportProps={{ role: "group", "aria-label": labels.newsHeading }}
                 contentClassName={styles.fileScrollContent}
               >
-                {news.map((item) => {
-                  const inner = (
-                    <>
-                      <div className={styles.newsTitleRow}>
-                        <div className={styles.newsTitle}>{item.title}</div>
-                        <div className={styles.newsDate}>{item.date}</div>
-                      </div>
-                      <div className={styles.newsBody}>{item.hook}</div>
-                    </>
-                  );
-                  return (
-                    <article
-                      key={`${item.date}-${item.title}`}
-                      className={styles.newsItem}
-                      data-has-image={!!item.image}
-                    >
-                      {inner}
-                      {item.image && (
-                        <div className={styles.newsPreview} aria-hidden="true">
-                          <img src={item.image} alt="" className={styles.newsPreviewImage} />
-                        </div>
-                      )}
-                    </article>
-                  );
-                })}
+                {news.map((item) => (
+                  <NewsItem key={`${item.date}-${item.title}`} item={item} />
+                ))}
               </ScrollArea>
               <UiPart
                 part="editor_normal"
@@ -465,5 +443,29 @@ export function HomeView({
         </div>
       </footer>
     </section>
+  );
+}
+
+/** Preview art loads on first hover/focus, not with the page; keeps the home view light. */
+function NewsItem({ item }: { item: HomeNewsItem }) {
+  const [armed, setArmed] = useState(false);
+  return (
+    <article
+      className={styles.newsItem}
+      data-has-image={!!item.image}
+      onMouseEnter={item.image && !armed ? () => setArmed(true) : undefined}
+      onFocus={item.image && !armed ? () => setArmed(true) : undefined}
+    >
+      <div className={styles.newsTitleRow}>
+        <div className={styles.newsTitle}>{item.title}</div>
+        <div className={styles.newsDate}>{item.date}</div>
+      </div>
+      <div className={styles.newsBody}>{item.hook}</div>
+      {item.image && (
+        <div className={styles.newsPreview} aria-hidden="true">
+          {armed && <img src={item.image} alt="" className={styles.newsPreviewImage} />}
+        </div>
+      )}
+    </article>
   );
 }
