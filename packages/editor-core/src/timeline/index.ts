@@ -15,4 +15,5 @@ export * from "$/timeline/operations/frame-cels";
 export * from "$/timeline/operations/timeline-range";
 export * from "$/timeline/operations/layer-drop";
 export * from "$/timeline/animation-loop";
+export { createLayerUuid } from "$/timeline/layer-uuid";
 export * from "$/timeline/operations/cel-movement";

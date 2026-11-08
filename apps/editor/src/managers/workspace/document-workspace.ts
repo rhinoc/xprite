@@ -10,6 +10,7 @@ import {
 import { VideoImportManager } from "$/managers/files/video-import-manager";
 import { videoProjectFileName } from "$/managers/files/video-import-plan";
 import { CanvasPointerController } from "$/managers/input/controllers/pointer-controller";
+import { NormalMapPreferences } from "$/managers/normal-maps/normal-map-preferences";
 import {
   WorkspaceDiagnosticAction,
   type DiagnosticsPort,
@@ -242,6 +243,7 @@ export class DocumentWorkspace {
   readonly clipboard = new ImageClipboard();
   readonly shortcuts: ShortcutManager;
   readonly effectPreferences: EffectDialogPreferences;
+  readonly normalMapPreferences: NormalMapPreferences;
   readonly userPresets: UserPresetsManager;
   readonly ports: WorkspaceSessionPorts;
   private readonly sessionPorts: EditorSessionPorts<string>;
@@ -396,6 +398,7 @@ export class DocumentWorkspace {
     this.userDataVisibilityPreferences = readUserDataVisibilityPreferences(preferenceStorage);
     this.diagnostics = diagnostics;
     this.effectPreferences = new EffectDialogPreferences(preferenceStorage);
+    this.normalMapPreferences = new NormalMapPreferences(preferenceStorage);
     this.userPresets = new UserPresetsManager(userPresetStorage, (error) =>
       this.active.session.reportError(error),
     );
@@ -939,6 +942,7 @@ export class DocumentWorkspace {
     this.colorPickerPreferences.reset();
     this.setEditorPreferences({ ...DEFAULT_EDITOR_PREFERENCES });
     this.effectPreferences.reset();
+    this.normalMapPreferences.reset();
     this.setUndoOptions(DEFAULT_UNDO_PREFERENCES);
     this.setFilePreferences(DEFAULT_FILE_PREFERENCES);
     this.setCursorPreferences(DEFAULT_CURSOR_PREFERENCES);

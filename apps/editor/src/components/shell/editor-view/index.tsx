@@ -16,6 +16,10 @@ import {
 import { EffectActionsProvider, EffectDialogsHost } from "$/components/dialogs/effect-actions";
 import { GridActionsProvider, GridSettingsHost } from "$/components/dialogs/grid-settings";
 import { EditorTileset } from "$/components/inspector/editor-tileset";
+import {
+  NormalMapActionsProvider,
+  NormalMapDialogsHost,
+} from "$/components/normal-maps/normal-map-actions";
 import { EditorColorbar } from "$/components/palette/editor-colorbar";
 import { EditorPalette } from "$/components/palette/editor-palette";
 import {
@@ -193,24 +197,26 @@ export function EditorView({
     <GridActionsProvider>
       <AnimationActionsProvider>
         <EffectActionsProvider>
-          <LayerCommandActionsProvider>
-            <SelectionActionsProvider>
-              <DocumentFeatureActionsProvider>
-                <TimelineActionsProvider>
-                  <EditorWorkflows
-                    appearanceMode={appearanceMode}
-                    onAppearanceModeChange={onAppearanceModeChange}
-                    persistAppearanceMode={persistAppearanceMode}
-                    appearanceTheme={appearanceTheme}
-                    onAppearanceThemeChange={onAppearanceThemeChange}
-                    persistAppearanceTheme={persistAppearanceTheme}
-                  >
-                    <DocumentScene />
-                  </EditorWorkflows>
-                </TimelineActionsProvider>
-              </DocumentFeatureActionsProvider>
-            </SelectionActionsProvider>
-          </LayerCommandActionsProvider>
+          <NormalMapActionsProvider>
+            <LayerCommandActionsProvider>
+              <SelectionActionsProvider>
+                <DocumentFeatureActionsProvider>
+                  <TimelineActionsProvider>
+                    <EditorWorkflows
+                      appearanceMode={appearanceMode}
+                      onAppearanceModeChange={onAppearanceModeChange}
+                      persistAppearanceMode={persistAppearanceMode}
+                      appearanceTheme={appearanceTheme}
+                      onAppearanceThemeChange={onAppearanceThemeChange}
+                      persistAppearanceTheme={persistAppearanceTheme}
+                    >
+                      <DocumentScene />
+                    </EditorWorkflows>
+                  </TimelineActionsProvider>
+                </DocumentFeatureActionsProvider>
+              </SelectionActionsProvider>
+            </LayerCommandActionsProvider>
+          </NormalMapActionsProvider>
         </EffectActionsProvider>
       </AnimationActionsProvider>
     </GridActionsProvider>
@@ -544,6 +550,7 @@ function DocumentScene() {
       <TimelineDialogs />
       <GridSettingsHost enabled={editor.tab === "document" && !actions.recoveryOpen} />
       <EffectDialogsHost enabled={editor.tab === "document" && !actions.recoveryOpen} />
+      <NormalMapDialogsHost enabled={editor.tab === "document" && !actions.recoveryOpen} />
       <AnimationDialogsHost
         enabled={editor.tab === "document" && !actions.recoveryOpen}
         previewOpen={editor.previewVisible}

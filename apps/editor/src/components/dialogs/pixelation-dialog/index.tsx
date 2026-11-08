@@ -60,6 +60,9 @@ const DIALOG_WIDTH = 380;
 const DIALOG_MIN_WIDTH = 280;
 const DIALOG_HEIGHT = 560;
 const PREVIEW_MIN = 72;
+const PREVIEW_MAX = 280;
+const PREVIEW_SHARE = 0.52;
+const PARAMETER_MIN_HEIGHT = 64;
 const GAP = 8;
 const SECTION_HEIGHT = 22;
 const OPTION_HEIGHT = 34;
@@ -234,6 +237,19 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
     >
       {({ clientBounds: client }) => {
         const showDither = showAdvanced && workflow.pixelationOptions.reduceColors;
+        const previewHeight = Math.max(
+          PREVIEW_MIN,
+          Math.min(
+            PREVIEW_MAX,
+            Math.round(client.height * PREVIEW_SHARE),
+            client.height - FOOTER_STACK_HEIGHT - PARAMETER_MIN_HEIGHT - GAP * 2,
+          ),
+        );
+        const parameterTop = previewHeight + GAP;
+        const parameterHeight = Math.max(
+          0,
+          client.height - parameterTop - FOOTER_STACK_HEIGHT - GAP,
+        );
         const width = parameterSize.width || Math.max(0, client.width - VERTICAL_SCROLLBAR_TRACK);
         let y = 0;
         const at = (height: number, extra = 0) => {
@@ -269,15 +285,6 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
             ? at(ROW_HEIGHT, GAP)
             : null;
         const parameterContentHeight = y;
-        const parameterHeight = Math.min(
-          parameterContentHeight,
-          Math.max(0, client.height - PREVIEW_MIN - FOOTER_STACK_HEIGHT - GAP * 2),
-        );
-        const previewHeight = Math.max(
-          PREVIEW_MIN,
-          client.height - parameterHeight - FOOTER_STACK_HEIGHT - GAP * 2,
-        );
-        const parameterTop = previewHeight + GAP;
         const rememberRow = {
           x: client.x,
           y: client.y + client.height - FOOTER_STACK_HEIGHT,

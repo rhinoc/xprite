@@ -6340,7 +6340,7 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
         name: "options",
         kind: "array",
         required: true,
-        type: "readonly { value: string; label: string; disabled?: boolean | undefined; separator?: boolean | undef",
+        type: "readonly ComboboxOption[]",
         hostProp: false,
       },
       {
@@ -46531,6 +46531,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
         kind: "json",
         required: true,
         type: "SurfaceBounds",
+        hostProp: false,
+      },
+      {
+        name: "triggerRef",
+        kind: "json",
+        required: false,
+        type: "RefObject<HTMLElement | null> | undefined",
         hostProp: false,
       },
       {

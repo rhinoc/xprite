@@ -3,10 +3,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createBrowserAgentToolsPort } from "$/adapters/agent/browser-agent-tools";
 import { createBrowserEditorHostPorts } from "$/adapters/platform/browser-editor-host";
 import { createBrowserPwaPort } from "$/adapters/pwa/browser-pwa";
+import { createBrowserNormalMapLightRenderer } from "$/adapters/rendering/normal-map-light-renderer";
 import { createBrowserReplayPort } from "$/adapters/replay/browser-replay";
 import { BrowserReplayStorage } from "$/adapters/replay/browser-replay-storage";
 import { DEFAULT_PROJECT_DATABASE_NAME } from "$/adapters/storage/project-storage/indexeddb";
 import { RecoverySettingsStore } from "$/adapters/storage/recovery-settings-store";
+import { createBrowserNormalMapProcessor } from "$/adapters/workers/normal-map-client";
 import { EditorSurface } from "$/components/canvas/editor-surface";
 import { animalCrossingExporter } from "$/components/dialogs/export-dialog/exporters/animal-crossing";
 import { beadExporter } from "$/components/dialogs/export-dialog/exporters/beads";
@@ -38,6 +40,7 @@ import { PROJECT_SHARE_LIMITS } from "$/managers/files/sharing-policy";
 import { CanvasInputProvider } from "$/managers/input/canvas-input-context";
 import { useWheelDevicePreferences } from "$/managers/input/use-wheel-device-preferences";
 import { WheelDeviceProvider } from "$/managers/input/wheel-device-context";
+import { NormalMapProcessingProvider } from "$/managers/normal-maps/processing-context";
 import { EditorPlatformProvider } from "$/managers/platform/editor-platform-context";
 import { AGENT_DOCUMENTATION_FILE, AGENT_GLOBAL_NAME } from "$/managers/ports/agent-tools";
 import { DiagnosticSource, type DiagnosticsPort } from "$/managers/ports/diagnostics";
@@ -369,21 +372,26 @@ export default function App({
   return (
     <ExporterRegistryProvider registry={exporters}>
       <EditorPlatformProvider ports={platform}>
-        <FontCatalogProvider manager={fontCatalog}>
-          <EditorChromePreferencesProvider manager={chromePreferences}>
-            <PwaProvider manager={pwa}>
-              <EditorApplication
-                workspace={workspace}
-                workspaceLifetime={workspaceLifetime}
-                uiStore={uiStore}
-                home={home}
-                initialTab={initialTab}
-                initialProject={initialProject}
-                initialRecent={initialRecent}
-              />
-            </PwaProvider>
-          </EditorChromePreferencesProvider>
-        </FontCatalogProvider>
+        <NormalMapProcessingProvider
+          createProcessor={createBrowserNormalMapProcessor}
+          createLightRenderer={createBrowserNormalMapLightRenderer}
+        >
+          <FontCatalogProvider manager={fontCatalog}>
+            <EditorChromePreferencesProvider manager={chromePreferences}>
+              <PwaProvider manager={pwa}>
+                <EditorApplication
+                  workspace={workspace}
+                  workspaceLifetime={workspaceLifetime}
+                  uiStore={uiStore}
+                  home={home}
+                  initialTab={initialTab}
+                  initialProject={initialProject}
+                  initialRecent={initialRecent}
+                />
+              </PwaProvider>
+            </EditorChromePreferencesProvider>
+          </FontCatalogProvider>
+        </NormalMapProcessingProvider>
       </EditorPlatformProvider>
     </ExporterRegistryProvider>
   );

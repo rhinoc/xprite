@@ -34,6 +34,7 @@ import {
   type ButtonProps,
   type SurfaceBounds,
   type ControlPlacement,
+  type ComboboxOption,
   Text,
   TextVariant,
 } from "@xprite/ui";
@@ -72,15 +73,12 @@ export type FormField = FieldBase &
         suffix?: string;
         value: string;
         onChange: (value: string) => void;
-        options: readonly {
-          label: string;
-          value: string;
-          disabled?: boolean;
-        }[];
+        options: readonly ComboboxOption[];
       }
   );
 export interface FormDialogProps {
   open: boolean;
+  modal?: boolean;
   /** Render the form inside an existing dialog, without another modal owner. */
   embedded?: boolean;
   onLayoutSizeChange?: (size: { width: number; height: number }) => void;
@@ -170,9 +168,10 @@ function wrapMessage(message: string, width: number): string[] {
   return lines;
 }
 
-/** Source-skinned, modal field layout. Editing algorithms belong to the caller. */
+/** Source-skinned field layout. Editing algorithms belong to the caller. */
 export function FormDialog({
   open,
+  modal = true,
   embedded = false,
   onLayoutSizeChange,
   onOpenChange,
@@ -200,11 +199,12 @@ export function FormDialog({
   const initializeFocus = useEditorDialogInitialFocus();
   useUiLanguage();
   const scene = useSceneBounds();
-  const host = useRef<HTMLDivElement>(null);
+  const host = useRef<HTMLElement | null>(null);
   const portalMarker = useRef<HTMLSpanElement>(null);
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
   const [colorFieldKey, setColorFieldKey] = useState<string | null>(null);
   const [colorAnchor, setColorAnchor] = useState<SurfaceBounds>();
+  const colorTrigger = useRef<HTMLElement | null>(null);
   const [flowHeight, setFlowHeight] = useState<number | null>(null);
   const currentActions = useRef(actions);
   currentActions.current = actions;
@@ -226,7 +226,14 @@ export function FormDialog({
     measureUiText("000000000000") + 24,
     ...fields.map((field) =>
       field.type === "select"
-        ? Math.max(0, ...field.options.map((option) => measureUiText(tUiSource(option.label)))) + 40
+        ? Math.max(
+            0,
+            ...field.options.map((option) =>
+              measureUiText(
+                option.translateLabel === false ? option.label : tUiSource(option.label),
+              ),
+            ),
+          ) + 40
         : field.type === "number"
           ? measureUiText(String(field.max ?? field.value)) + 24
           : 0,
@@ -300,6 +307,7 @@ export function FormDialog({
       setFlowHeight(null);
       return;
     }
+    if (!modal) return;
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const root = host.current;
     if (!root) return;
@@ -374,6 +382,7 @@ export function FormDialog({
   }, [
     open,
     embedded,
+    modal,
     submitOnEnter,
     portalTarget,
     layout?.initialFocusAction,
@@ -416,22 +425,27 @@ export function FormDialog({
           actionSize={embedded ? NATIVE_ACTION_SIZE : undefined}
           onHeightChange={setFlowHeight}
           onColorClick={(field, anchor) => {
-            setColorFieldKey(field.key);
-            setColorAnchor(anchor);
+            colorTrigger.current = anchor;
+            setColorAnchor(measurePopoverAnchor(anchor).bounds);
+            setColorFieldKey((key) => (key === field.key ? null : field.key));
           }}
         />
-        {activeColorField && (
-          <ColorPicker
-            open
-            onOpenChange={(open) => {
-              if (!open) setColorFieldKey(null);
-            }}
-            value={activeColorField.value}
-            onValueChange={activeColorField.onChange}
-            title={activeColorField.label}
-            anchor={colorAnchor}
-          />
-        )}
+        {activeColorField && portalTarget
+          ? createUiPortal(
+              <ColorPicker
+                open
+                onOpenChange={(open) => {
+                  if (!open) setColorFieldKey(null);
+                }}
+                value={activeColorField.value}
+                onValueChange={activeColorField.onChange}
+                title={activeColorField.label}
+                anchor={colorAnchor}
+                triggerRef={colorTrigger}
+              />,
+              portalTarget,
+            )
+          : null}
       </>
     ) : (
       <>
@@ -669,10 +683,9 @@ export function FormDialog({
                   aria-label={field.label || field.key}
                   disabled={field.disabled}
                   onClick={(event) => {
-                    setColorFieldKey(field.key);
-                    setColorAnchor(
-                      embedded ? measurePopoverAnchor(event.currentTarget).bounds : input,
-                    );
+                    colorTrigger.current = event.currentTarget;
+                    setColorAnchor(measurePopoverAnchor(event.currentTarget).bounds);
+                    setColorFieldKey((key) => (key === field.key ? null : field.key));
                   }}
                 />
               </span>
@@ -764,18 +777,22 @@ export function FormDialog({
           );
         })}
         {content?.(client)}
-        {activeColorField && (
-          <ColorPicker
-            open
-            onOpenChange={(open) => {
-              if (!open) setColorFieldKey(null);
-            }}
-            value={activeColorField.value}
-            onValueChange={activeColorField.onChange}
-            title={activeColorField.label}
-            anchor={colorAnchor}
-          />
-        )}
+        {activeColorField && portalTarget
+          ? createUiPortal(
+              <ColorPicker
+                open
+                onOpenChange={(open) => {
+                  if (!open) setColorFieldKey(null);
+                }}
+                value={activeColorField.value}
+                onValueChange={activeColorField.onChange}
+                title={activeColorField.label}
+                anchor={colorAnchor}
+                triggerRef={colorTrigger}
+              />,
+              portalTarget,
+            )
+          : null}
         {actions.map((action, i) => {
           const widths = actions.map((item) => measureUiText(tUiSource(item.label)) + 32);
           const remaining = widths.slice(i).reduce((total, item) => total + item + 8, 0);
@@ -822,7 +839,9 @@ export function FormDialog({
   if (embedded)
     return open ? (
       <div
-        ref={host}
+        ref={(node) => {
+          host.current = node;
+        }}
         style={{ position: "relative", ...embeddedSize }}
         onKeyDown={(event) => {
           if (
@@ -848,10 +867,13 @@ export function FormDialog({
         {renderContent({ x: 0, y: 0, ...embeddedSize })}
       </div>
     ) : null;
+  const DialogHost = modal ? "div" : "span";
   const dialog = open ? (
-    <div
-      ref={host}
-      className="xse-dialog-backdrop"
+    <DialogHost
+      ref={(node) => {
+        host.current = node;
+      }}
+      className={modal ? "xse-dialog-backdrop" : undefined}
       onPointerDown={(event) => {
         if (event.target === event.currentTarget) event.preventDefault();
         event.stopPropagation();
@@ -870,7 +892,7 @@ export function FormDialog({
         onBoundsChange={({ x, y }) => setPosition({ x, y })}
         resizable={false}
         autoFocus={false}
-        modal
+        modal={modal}
         constrainToViewport
         scrollX={scrollFields ? false : undefined}
         scrollY={scrollFields ? false : undefined}
@@ -895,7 +917,7 @@ export function FormDialog({
       >
         {({ clientBounds }) => renderContent(clientBounds)}
       </EditorDialog>
-    </div>
+    </DialogHost>
   ) : null;
   return (
     <>

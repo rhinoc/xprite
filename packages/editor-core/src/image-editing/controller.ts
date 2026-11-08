@@ -14,6 +14,10 @@ import {
   type EffectSpec,
 } from "$/image-editing/effects";
 import {
+  writeNormalMapLayer,
+  type NormalMapFrameOutput,
+} from "$/image-editing/normal-map-document";
+import {
   resizeDocumentCanvas,
   resizeDocumentSprite,
   rotateDocumentCanvas,
@@ -27,6 +31,7 @@ import {
   type FlipOrientation,
 } from "$/image-editing/transform";
 import type { TilesetMode } from "$/tilemap/types";
+import { DEFAULT_LIGHT_MASK_LAYER_NAME } from "@xprite/lighter";
 
 export interface ImageEditingSettings {
   background: Rgba;
@@ -58,6 +63,40 @@ export class ImageEditingController {
 
   beginEffect(): boolean {
     return this.port.prepareEffect() && canOpenEffect(this.port.getDocument());
+  }
+
+  beginNormalMap(): boolean {
+    return !!this.port.getDocument() && this.port.prepareEffect();
+  }
+
+  applyNormalMap(
+    outputs: readonly NormalMapFrameOutput[],
+    name?: string,
+    layerId?: string,
+  ): string | null {
+    return this.applyLightingMap("Generate Normal Map", outputs, name, layerId);
+  }
+
+  applyLightMask(
+    outputs: readonly NormalMapFrameOutput[],
+    name = DEFAULT_LIGHT_MASK_LAYER_NAME,
+    layerId?: string,
+  ): string | null {
+    return this.applyLightingMap("Generate Light Mask", outputs, name, layerId);
+  }
+
+  private applyLightingMap(
+    label: string,
+    outputs: readonly NormalMapFrameOutput[],
+    name?: string,
+    layerId?: string,
+  ): string | null {
+    if (!this.port.getDocument() || !this.port.prepareEffect()) return null;
+    let result: string | null = null;
+    this.port.commitDocumentEdit(label, (document) => {
+      result = writeNormalMapLayer(document, outputs, name, layerId);
+    });
+    return result;
   }
 
   applyEffect(spec: EffectSpec, target = EffectTarget.Selected): void {

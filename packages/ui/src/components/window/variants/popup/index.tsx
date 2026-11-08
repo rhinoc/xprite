@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { useRef, type ReactNode, type RefObject } from "react";
 
 import { useTheme } from "$/base/theme/theme-context";
 import { Button } from "$/components/button";
@@ -33,6 +33,8 @@ export interface PopupVariantProps {
   onOpenChange: (open: boolean) => void;
   label: string;
   bounds: SurfaceBounds;
+  /** The control that opened this popup; clicking it again does not count as an outside press. */
+  triggerRef?: RefObject<HTMLElement | null>;
   viewport?: SurfaceViewport;
   sceneBounds?: Pick<SurfaceBounds, "width" | "height">;
   clientInsets?: Partial<{ left: number; right: number; top: number; bottom: number }>;
@@ -57,6 +59,7 @@ export function PopupVariant({
   onOpenChange,
   label,
   bounds: requested,
+  triggerRef,
   viewport = DEFAULT_SURFACE_VIEWPORT,
   sceneBounds,
   clientInsets,
@@ -126,6 +129,7 @@ export function PopupVariant({
   const interaction = useOverlayInteraction({
     open,
     rootRef: root,
+    triggerRef,
     autoFocus,
     restoreFocus: true,
     closeOnEnter,

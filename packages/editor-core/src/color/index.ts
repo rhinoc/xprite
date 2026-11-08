@@ -17,3 +17,4 @@ export * from "$/color/palette-usage";
 export * from "$/color/selector";
 export * from "$/color/quantization";
 export * from "$/color/types";
+export { rgbToLab, type Lab } from "$/color/cielab";

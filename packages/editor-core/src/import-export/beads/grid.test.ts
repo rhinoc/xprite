@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { rgbToLab } from "$/color";
 import { renderBeadChart } from "$/import-export/beads/chart";
 import { BeadError, BeadErrorCode, beadErrorCode } from "$/import-export/beads/errors";
 import {
@@ -10,7 +11,6 @@ import {
   mapBeadGrid,
   MAX_BEAD_BOARDS,
   nearestBeadColor,
-  rgbToLab,
 } from "$/import-export/beads/grid";
 import { encodeBeadPdf } from "$/import-export/beads/pdf";
 
