@@ -177,7 +177,7 @@ importers:
         version: 18.3.1(react@18.3.1)
       zustand:
         specifier: ^5.0.15
-        version: 5.0.15(react@18.3.1)
+        version: 5.0.15(@types/react@18.3.31)(react@18.3.1)
 
   apps/growth:
     dependencies:
@@ -316,6 +316,9 @@ importers:
       '@xprite/growth-content':
         specifier: workspace:*
         version: link:../growth/content
+      '@xprite/lighter':
+        specifier: 0.1.1
+        version: 0.1.1
       '@xprite/pixelate':
         specifier: 0.1.2
         version: 0.1.2
@@ -6814,6 +6817,7 @@ snapshots:
 
   zod@4.6.5: {}
 
-  zustand@5.0.15(react@18.3.1):
+  zustand@5.0.15(@types/react@18.3.31)(react@18.3.1):
     optionalDependencies:
+      '@types/react': 18.3.31
       react: 18.3.1

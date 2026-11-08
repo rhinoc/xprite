@@ -34,3 +34,12 @@ export function ToolField({ label, children }: { label: string; children: ReactN
     </Field>
   );
 }
+
+/** A labelled control that takes the whole group row instead of flowing with siblings. */
+export function ToolFullField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <Field label={label} layout={FieldLayout.Inline} className={styles.fullField}>
+      {children}
+    </Field>
+  );
+}

@@ -4,6 +4,7 @@ import { renderToString } from "react-dom/server";
 import { AnimalCrossingPage } from "$/components/animal-crossing/animal-crossing-page";
 import { BeadPage } from "$/components/beads/bead-page";
 import { GifSheetPage } from "$/components/gif-sheet/gif-sheet-page";
+import { NormalMapPage } from "$/components/normal-map/normal-map-page";
 import { FixAiPixelArtPage } from "$/components/pixelation/fix-ai-pixel-art-page";
 import { PixelationPage } from "$/components/pixelation/pixelation-page";
 import { ToolAppearance } from "$/components/shared/tool-appearance";
@@ -12,10 +13,12 @@ import { ViewerPage } from "$/components/viewer/viewer-page";
 import { AnimalCrossingManager } from "$/managers/animal-crossing/animal-crossing-manager";
 import { BeadToolManager } from "$/managers/beads/bead-tool-manager";
 import { GifSheetManager } from "$/managers/gif-sheet/gif-sheet-manager";
+import { NormalMapManager } from "$/managers/normal-map/normal-map-manager";
 import { PixelationManager } from "$/managers/pixelation/pixelation-manager";
 import type { AnimalCrossingPort } from "$/managers/ports/animal-crossing";
 import type { BeadToolPort } from "$/managers/ports/beads";
 import type { GifSheetPort } from "$/managers/ports/gif-sheet";
+import type { NormalMapPort } from "$/managers/ports/normal-map";
 import type { ViewerPort } from "$/managers/ports/viewer";
 import { TOOL_EXAMPLES } from "$/managers/tools/tool-catalog";
 import { ToolHostManager } from "$/managers/tools/tool-host-manager";
@@ -67,7 +70,7 @@ export async function renderToolPage(rootId: string) {
       saveFrame: unavailable,
       saveAnimation: unavailable,
       edit: unavailable,
-    } satisfies ViewerPort & GifSheetPort & AnimalCrossingPort & BeadToolPort;
+    } satisfies ViewerPort & GifSheetPort & AnimalCrossingPort & BeadToolPort & NormalMapPort;
     const host = new ToolHostManager(ports);
     const desktop = new DesktopManager(undefined, {
       appearance: appearance === "dark" ? DesktopAppearance.Dark : DesktopAppearance.Light,
@@ -94,7 +97,9 @@ export async function renderToolPage(rootId: string) {
                 })
               : rootId === "animal-crossing-root"
                 ? new AnimalCrossingManager({ ...ports, read: unavailable })
-                : null;
+                : rootId === "normal-map-root"
+                  ? new NormalMapManager(ports)
+                  : null;
     try {
       const view =
         manager instanceof BeadToolManager ? (
@@ -111,6 +116,8 @@ export async function renderToolPage(rootId: string) {
           <ViewerPage manager={manager} />
         ) : manager instanceof GifSheetManager ? (
           <GifSheetPage manager={manager} />
+        ) : manager instanceof NormalMapManager ? (
+          <NormalMapPage manager={manager} />
         ) : null;
       return renderToString(
         <StrictMode>

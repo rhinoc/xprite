@@ -1,42 +1,84 @@
-import { FeatureIcon, type FeatureGroup, type FeatureItem } from "$content/features";
+import type { FeatureGroup, FeatureItem } from "$content/features";
 import { localizedSiteHref, pickText, publicLanguage } from "$content/site/language";
 import { useRef, useState } from "react";
 
 import { PublicImage } from "$/components/public/public-image";
 import {
   Button,
-  ButtonVariant,
-  ContentPadding,
   Dialog,
-  Icon,
-  IconKind,
-  IconSize,
-  Panel,
-  PanelBorderStyle,
-  PanelVariant,
   OverlayContentLayout,
   RichText,
   ScrollArea,
   Text,
   TextRole,
   TextVariant,
-  Tooltip,
-  TooltipPlacement,
 } from "@xprite/ui";
 
 import styles from "$/components/features/feature-directory.module.css";
 
-const FEATURE_ICONS: Record<FeatureIcon, IconKind> = {
-  [FeatureIcon.Application]: IconKind.Application,
-  [FeatureIcon.Document]: IconKind.Document,
-  [FeatureIcon.Folder]: IconKind.Folder,
-  [FeatureIcon.Image]: IconKind.Image,
-  [FeatureIcon.Map]: IconKind.Map,
-  [FeatureIcon.NotePad]: IconKind.NotePad,
-  [FeatureIcon.Search]: IconKind.Search,
-};
 const FEATURE_WINDOW_BOUNDS = { x: 0, y: 0, width: 640, height: 520 };
 const FEATURE_WINDOW_MIN_SIZE = { width: 280, height: 220 };
+
+/** A directory entry: preview on the left, name, description and input → output on the right. */
+function FeatureEntry({
+  item,
+  language,
+  onOpen,
+}: {
+  item: FeatureItem;
+  language: string;
+  onOpen: (item: FeatureItem, trigger: HTMLElement) => void;
+}) {
+  return (
+    <li>
+      <a
+        className={styles.item}
+        href={localizedSiteHref(item.href, language)}
+        aria-haspopup="dialog"
+        onClick={(event) => {
+          if (
+            event.button !== 0 ||
+            event.ctrlKey ||
+            event.metaKey ||
+            event.shiftKey ||
+            event.altKey
+          )
+            return;
+          event.preventDefault();
+          onOpen(item, event.currentTarget);
+        }}
+      >
+        {item.media ? (
+          <span className={styles.preview}>
+            <img
+              src={item.media.src}
+              alt=""
+              width={item.media.width}
+              height={item.media.height}
+              loading="lazy"
+              decoding="async"
+            />
+          </span>
+        ) : (
+          <span className={styles.preview} aria-hidden="true" />
+        )}
+        <span className={styles.itemBody}>
+          <span className={styles.itemHead}>
+            <span className={styles.itemTitle}>{item.title}</span>
+            {item.io && (
+              <span className={styles.io}>
+                <span className={styles.ioPart}>{item.io.input}</span>
+                <span className={styles.arrow} aria-hidden="true" />
+                <span className={styles.ioPart}>{item.io.output}</span>
+              </span>
+            )}
+          </span>
+          <span className={styles.itemText}>{item.description}</span>
+        </span>
+      </a>
+    </li>
+  );
+}
 
 export function FeatureDirectory({
   language,
@@ -69,47 +111,24 @@ export function FeatureDirectory({
           {description}
         </Text>
         {groups.map((group) => (
-          <Panel
-            key={group.id}
-            variant={PanelVariant.Content}
-            border={{ style: PanelBorderStyle.Single }}
-            contentPadding={ContentPadding.None}
-            title={
-              <h2 id={group.id} className={styles.groupTitle}>
-                {group.title}
-              </h2>
-            }
-            aria-labelledby={group.id}
-          >
-            <nav className={styles.items} aria-label={group.title}>
+          <section key={group.id} aria-labelledby={group.id}>
+            <h2 id={group.id} className={styles.groupTitle}>
+              {group.title}
+            </h2>
+            <ul className={styles.items}>
               {group.items.map((item) => (
-                <Tooltip key={item.title} text={item.description} placement={TooltipPlacement.Auto}>
-                  <Button
-                    variant={ButtonVariant.Tile}
-                    slots={{
-                      leading: <Icon kind={FEATURE_ICONS[item.icon]} size={IconSize.Large} />,
-                    }}
-                    text={item.title}
-                    href={localizedSiteHref(item.href, language)}
-                    aria-haspopup="dialog"
-                    onClick={(event) => {
-                      if (
-                        event.button !== 0 ||
-                        event.ctrlKey ||
-                        event.metaKey ||
-                        event.shiftKey ||
-                        event.altKey
-                      )
-                        return;
-                      event.preventDefault();
-                      trigger.current = event.currentTarget;
-                      setOpened(item);
-                    }}
-                  />
-                </Tooltip>
+                <FeatureEntry
+                  key={item.href}
+                  item={item}
+                  language={language}
+                  onOpen={(target, element) => {
+                    trigger.current = element;
+                    setOpened(target);
+                  }}
+                />
               ))}
-            </nav>
-          </Panel>
+            </ul>
+          </section>
         ))}
       </div>
       {opened && (

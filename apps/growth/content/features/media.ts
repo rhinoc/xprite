@@ -6,6 +6,7 @@ const ABOUT_IMAGES = "/about/images";
 const ARTICLE_IMAGES = "/compare/articles/images";
 const GUIDE_IMAGES = "/help/images";
 const EXAMPLE_IMAGES = "/showcase/ipad/hello";
+const TOOL_IMAGES = "/tools";
 const ISLAND_PATTERN = "/tools/animal-crossing/acnh/winding-cobblestone.png";
 const ISLAND_PATTERN_SOURCE =
   "https://aforestlife.com/2021/11/11/winding-cobblestone-path-from-bywater-shire-themed-island/";
@@ -28,6 +29,29 @@ export function featureMedia(href: string, language: string): FeatureMedia | und
   ) => pickText(selected, en, zh, ja, ko, ru, pt, es);
   const shared = editorCaptureMedia(selected);
   const media: Record<string, FeatureMedia> = {
+    [`${FEATURE_DETAIL_PATH}draw-pixel-art/`]: {
+      src: `${EXAMPLE_IMAGES}/hello-editor.png`,
+      width: 1440,
+      height: 840,
+      alt: text(
+        "The editor drawing the Hello lettering with pencil tools and layers",
+        "用铅笔工具和图层绘制 Hello 字样的编辑器",
+        "鉛筆ツールとレイヤーで Hello の文字を描くエディター",
+        "연필 도구와 레이어로 Hello 글자를 그리는 에디터",
+        "Редактор рисует надпись Hello карандашом на слоях",
+        "O editor desenhando o letreiro Hello com lápis e camadas",
+        "El editor dibujando el texto Hello con lápices y capas",
+      ),
+      caption: text(
+        "Pencils, shapes and layers",
+        "铅笔、形状和图层",
+        "鉛筆・図形・レイヤー",
+        "연필, 도형, 레이어",
+        "Карандаши, фигуры и слои",
+        "Lápis, formas e camadas",
+        "Lápices, formas y capas",
+      ),
+    },
     [`${FEATURE_DETAIL_PATH}layers-and-colors/`]: {
       src: `${ARTICLE_IMAGES}/editor-with-aseprite${suffix}.png`,
       width: chinese ? 1180 : 1640,
@@ -53,6 +77,30 @@ export function featureMedia(href: string, language: string): FeatureMedia | und
     },
     [`${FEATURE_DETAIL_PATH}frame-animation/`]: shared.animation,
     [`${FEATURE_DETAIL_PATH}workspace-layout/`]: shared.workspace,
+    [`${FEATURE_DETAIL_PATH}tilemaps/`]: {
+      src: `${TOOL_IMAGES}/animal-crossing/kenney-village.png`,
+      width: 192,
+      height: 160,
+      alt: text(
+        "A village scene assembled from repeated tiles",
+        "用重复瓦片拼出的村庄场景",
+        "繰り返しのタイルで組んだ村のシーン",
+        "반복 타일로 구성한 마을 장면",
+        "Деревня, собранная из повторяющихся тайлов",
+        "Uma vila montada com tiles repetidos",
+        "Un pueblo montado con tiles repetidos",
+      ),
+      caption: text(
+        "A scene assembled from tiles",
+        "用瓦片拼出的场景",
+        "タイルで組んだシーン",
+        "타일로 구성한 장면",
+        "Сцена из тайлов",
+        "Cena montada com tiles",
+        "Escena montada con tiles",
+      ),
+      credit: { label: "Kenney Tiny Town (CC0)", href: "https://kenney.nl/assets/tiny-town" },
+    },
     [`${FEATURE_DETAIL_PATH}aseprite-projects/`]: {
       src: `${ABOUT_IMAGES}/save-as-location${suffix}.png`,
       width: 720,
@@ -122,6 +170,29 @@ export function featureMedia(href: string, language: string): FeatureMedia | und
         "Ajustes táctiles",
       ),
     },
+    [`${FEATURE_DETAIL_PATH}drawing-process/`]: {
+      src: `${EXAMPLE_IMAGES}/writing.png`,
+      width: 2560,
+      height: 1280,
+      alt: text(
+        "Recorded strokes replaying the Hello lettering step by step",
+        "逐笔回放 Hello 字样的录制过程",
+        "Hello の文字を一筆ずつ再生する録画",
+        "Hello 글자를 획순대로 재생하는 녹화",
+        "Запись рисования надписи Hello штрих за штрихом",
+        "Traços gravados repetindo o letreiro Hello passo a passo",
+        "Trazos grabados reproduciendo el texto Hello paso a paso",
+      ),
+      caption: text(
+        "Replay the drawing step by step",
+        "逐笔回放绘画过程",
+        "一筆ずつ描画過程を再生",
+        "획순대로 그리기 과정 재생",
+        "Повтор рисования штрих за штрихом",
+        "Reproduza o desenho passo a passo",
+        "Reproduce el dibujo paso a paso",
+      ),
+    },
     [`${FEATURE_DETAIL_PATH}share-artwork/`]: {
       src: `${ABOUT_IMAGES}/share-dialog${suffix}.png`,
       width: 1440,
@@ -166,6 +237,103 @@ export function featureMedia(href: string, language: string): FeatureMedia | und
         "Экспорт из просмотрщика",
         "Exportar pelo visualizador",
         "Exportar desde el visor",
+      ),
+    },
+    "/tools/pixelate/": {
+      src: `${TOOL_IMAGES}/pixelate/girl-with-a-pearl-earring.jpg`,
+      width: 850,
+      height: 1007,
+      alt: text(
+        "The Girl with a Pearl Earring painting used as pixelate input",
+        "用作像素画输入的《戴珍珠耳环的少女》",
+        "ピクセル化の入力に使う「真珠の耳飾りの少女」",
+        "픽셀화 입력에 쓰는 '진주 귀걸이를 한 소녀'",
+        "Картина «Девушка с жемчужной серёжкой» как вход для пикселизации",
+        "A pintura Moça com Brinco de Pérola usada como entrada",
+        "La pintura La joven de la perla usada como entrada",
+      ),
+      caption: text(
+        "An image to pixelate",
+        "待转换的图片",
+        "ピクセル化する画像",
+        "픽셀화할 이미지",
+        "Картинка для пикселизации",
+        "Uma imagem para pixelar",
+        "Una imagen para pixelar",
+      ),
+      credit: {
+        label: "Johannes Vermeer (public domain)",
+        href: "https://commons.wikimedia.org/wiki/File:Girl_with_a_Pearl_Earring.jpg",
+      },
+    },
+    "/tools/normal-map/": {
+      src: `${TOOL_IMAGES}/normal-map/knight.png`,
+      width: 64,
+      height: 64,
+      alt: text(
+        "The knight sprite used as normal map input",
+        "用作法线贴图输入的骑士精灵图",
+        "ノーマルマップの入力に使う騎士のスプライト",
+        "노멀 맵 입력에 쓰는 기사 스프라이트",
+        "Спрайт рыцаря как вход для карты нормалей",
+        "O sprite do cavaleiro usado como entrada",
+        "El sprite del caballero usado como entrada",
+      ),
+      caption: text(
+        "A sprite to light",
+        "待生成法线贴图的精灵图",
+        "法線マップを作るスプライト",
+        "노멀 맵을 만들 스프라이트",
+        "Спрайт для карты нормалей",
+        "Um sprite para gerar o normal map",
+        "Un sprite para el mapa normal",
+      ),
+      credit: { label: "KayKit (CC0)", href: "https://kaylousberg.com/game-assets" },
+    },
+    "/tools/fix-ai-pixel-art/": {
+      src: `${TOOL_IMAGES}/fix-ai-pixel-art/ai-warrior.png`,
+      width: 2048,
+      height: 2048,
+      alt: text(
+        "The AI-generated warrior image used as grid-fixing input",
+        "用作网格修复输入的 AI 生成战士图",
+        "グリッド修復の入力に使う AI 生成の戦士イラスト",
+        "그리드 복구 입력에 쓰는 AI 생성 전사 이미지",
+        "Сгенерированный ИИ воин как вход для восстановления сетки",
+        "A imagem de guerreiro gerada por IA usada como entrada",
+        "La imagen de guerrero generada por IA usada como entrada",
+      ),
+      caption: text(
+        "Off-grid AI artwork to fix",
+        "待修复的 AI 图",
+        "修復する AI 作品",
+        "복구할 AI 작품",
+        "ИИ-рисунок вне сетки для исправления",
+        "Arte de IA fora da grade para corrigir",
+        "Arte de IA fuera de la cuadrícula para corregir",
+      ),
+    },
+    "/tools/fuse-beads/": {
+      src: `${EXAMPLE_IMAGES}/hello-frame-01.png`,
+      width: 128,
+      height: 80,
+      alt: text(
+        "The Hello sprite used as bead pattern input",
+        "用作拼豆图纸输入的 Hello 精灵图",
+        "ビーズ図案の入力に使う Hello スプライト",
+        "비즈 도안 입력에 쓰는 Hello 스프라이트",
+        "Спрайт Hello как вход для схемы из бусин",
+        "O sprite Hello usado como entrada do padrão",
+        "El sprite Hello usado como entrada del patrón",
+      ),
+      caption: text(
+        "Artwork for a bead chart",
+        "待生成图纸的图片",
+        "図案にする画像",
+        "도안으로 만들 이미지",
+        "Рисунок для схемы из бусин",
+        "Arte para um gráfico de beads",
+        "Arte para un gráfico de beads",
       ),
     },
     "/tools/gif-to-sprite-sheet/": {

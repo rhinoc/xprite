@@ -6,6 +6,7 @@ fallbacks for the stylesheet. They are separate from the website.
 
 ```sh
 pnpm build:xhs-minitool pixelate   # one tool: dist/pixelate/ and dist/pixelate.zip
+pnpm build:xhs-minitool normalmap  # the normal-map tool: dist/normalmap/ and dist/normalmap.zip
 pnpm build:xhs-minitool            # every tool under tools/
 ```
 
@@ -55,6 +56,20 @@ default; 用文件名 restores it). The export ratio is under 比例 below the c
 - `adapters/pixelation.ts` converts on the main thread (the container has no Workers) and
   downscales photos to 4 MP first.
 - No site navigation, help, footer, telemetry, network requests or external links.
+
+## Normal map (`tools/normalmap`)
+
+The lighter engine through `@xprite/lighter` on the main thread (the container has no Workers or
+WASM), with a 390-wide screen in Simplified Chinese. The preview shows the albedo, the generated
+normal map, or the lit result; dragging on it moves the light. 法线 picks a preset (建筑, 角色,
+物件, 地形) and its engine options: shape strength, normal strength, smoothing, facets, merge
+outlines, invert green and 去除原图光影 (delight with its angle). 光照 sets the light's height,
+brightness, ambient and colour. The export content is under the sheet: 光照图, 法线图 or 三联图.
+
+- `managers/editor.ts`: the screen's state (source, generation + lighting options, undo).
+- `adapters/example.ts`: the bundled dungeon PNG decoded through an image (no fetch).
+- `adapters/output.ts`: the export renderer; frames reuse `shared/frames`, trio is three
+  whole-pixel cells on a dark card.
 
 ## Adding a mini tool
 

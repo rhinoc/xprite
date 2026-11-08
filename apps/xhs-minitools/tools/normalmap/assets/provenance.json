@@ -1,0 +1,8 @@
+{
+  "file": "dungeon-256.png",
+  "title": "Dungeon (Xprite example artwork)",
+  "author": "Xprite",
+  "license": "Xprite project example art",
+  "derivedFrom": "Downloads/Dungeon_gif.aseprite (frame 0, flattened 256×256 PNG)",
+  "changes": "Exported the first animation frame as a flattened PNG for the Xiaohongshu mini tool only."
+}

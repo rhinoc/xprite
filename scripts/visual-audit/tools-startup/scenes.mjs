@@ -22,6 +22,12 @@ export const pages = [
   { name: "pixelate", path: "/tools/pixelate/", rootId: "pixelation-root", dropStage: true },
   { name: "beads", path: "/tools/fuse-beads/", rootId: "beads-root", dropStage: true },
   {
+    name: "normal-map",
+    path: "/tools/normal-map/",
+    rootId: "normal-map-root",
+    dropStage: true,
+  },
+  {
     name: "fix-ai-pixel-art",
     path: "/tools/fix-ai-pixel-art/",
     rootId: "fix-ai-root",
@@ -42,6 +48,7 @@ const selectedCoverage = [
   { language: "en", layout: layouts[1], appearance: appearances[0] },
   { language: "zh-CN", layout: layouts[1], appearance: appearances[0] },
   { language: "en", layout: layouts[1], appearance: appearances[1] },
+  { language: "en", layout: layouts[0], appearance: appearances[2] },
   { language: "en", layout: layouts[1], appearance: appearances[1] },
 ];
 

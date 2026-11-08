@@ -71,6 +71,20 @@ async function mountPublicControls() {
         typeof props.brandImage === "string" ? props.brandImage : DEFAULT_BRAND_IMAGE;
       props.brandImage = withViteBase(brandImage);
     }
+    if (island.dataset.publicIsland === "features") {
+      for (const group of props.groups ?? [])
+        for (const item of group.items ?? []) {
+          if (item.media?.src) item.media = { ...item.media, src: withViteBase(item.media.src) };
+          if (item.media?.animationSrc)
+            item.media = { ...item.media, animationSrc: withViteBase(item.media.animationSrc) };
+          if (typeof item.contentHtml === "string")
+            item.contentHtml = item.contentHtml.replace(
+              /(src|srcset)="(\/[^"]*)"/g,
+              (_match: string, attribute: string, path: string) =>
+                `${attribute}="${withViteBase(path)}"`,
+            );
+        }
+    }
     if (island.dataset.publicIsland === "index" && island.closest("[data-public-contents]"))
       contents = new DocumentContentsManager(
         props.items.map((item: { href: string }) => item.href),

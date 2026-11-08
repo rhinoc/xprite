@@ -39,6 +39,7 @@ const FIX_AI_PATH = "/tools/fix-ai-pixel-art/";
 const ANIMAL_CROSSING_PATH = "/tools/animal-crossing-qr/";
 const BEADS_PATH = "/tools/fuse-beads/";
 const GIF_PATH = "/tools/gif-to-sprite-sheet/";
+const NORMAL_MAP_PATH = "/tools/normal-map/";
 
 export default defineConfig(({ command }) => ({
   root,
@@ -82,6 +83,7 @@ export default defineConfig(({ command }) => ({
             VIEWER_PATH,
             GIF_PATH,
             PIXELATE_PATH,
+            NORMAL_MAP_PATH,
             FIX_AI_PATH,
             ANIMAL_CROSSING_PATH,
             BEADS_PATH,
@@ -168,6 +170,7 @@ export default defineConfig(({ command }) => ({
       input: {
         beads: resolve(root, "fuse-beads/index.html"),
         pixelate: resolve(root, "pixelate/index.html"),
+        normalMap: resolve(root, "normal-map/index.html"),
         fixAiPixelArt: resolve(root, "fix-ai-pixel-art/index.html"),
         animalCrossing: resolve(root, "animal-crossing-qr/index.html"),
         viewer: resolve(root, "viewer/index.html"),
