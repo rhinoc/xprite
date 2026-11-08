@@ -2539,6 +2539,7 @@
   "normal.light.ambient": "环境光",
   "normal.light.color": "灯光颜色",
   "normal.light.follow": "跟随指针",
+  "normal.light.delight": "去除原画明暗",
   "normal.lighting.canvas": "光照预览画布",
   "normal.processing.closed": "法线处理已关闭",
   "normal.processing.failed": "法线处理失败，请关闭窗口后重新打开。",

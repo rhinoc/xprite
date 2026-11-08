@@ -2539,6 +2539,7 @@
   "normal.light.ambient": "Luz ambiente",
   "normal.light.color": "Cor da luz",
   "normal.light.follow": "Seguir ponteiro",
+  "normal.light.delight": "Remover sombreamento pintado",
   "normal.lighting.canvas": "Tela de prévia de iluminação",
   "normal.processing.closed": "O processamento de normais foi encerrado",
   "normal.processing.failed": "Falha no processamento de normais. Feche e reabra a janela.",

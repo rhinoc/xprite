@@ -91,6 +91,13 @@ export function NormalMapLightingSettings({
           onChange: setFollow,
         },
         {
+          key: "delight",
+          label: tUi("normal.light.delight"),
+          type: "checkbox",
+          value: manager.delightOn,
+          onChange: manager.setDelightOn,
+        },
+        {
           key: "invert",
           label: tUi("normal.invertY"),
           type: "checkbox",

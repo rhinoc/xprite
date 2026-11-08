@@ -2539,6 +2539,7 @@
   "normal.light.ambient": "Ambient light",
   "normal.light.color": "Light color",
   "normal.light.follow": "Follow pointer",
+  "normal.light.delight": "De-light painted shading",
   "normal.lighting.canvas": "Lighting preview canvas",
   "normal.processing.closed": "Normal map processing is closed",
   "normal.processing.failed": "Normal map processing failed. Close and reopen the window to retry.",

@@ -2539,6 +2539,7 @@
   "normal.light.ambient": "주변광",
   "normal.light.color": "조명 색상",
   "normal.light.follow": "포인터 따라가기",
+  "normal.light.delight": "그려진 명암 제거",
   "normal.lighting.canvas": "조명 미리보기 캔버스",
   "normal.processing.closed": "노멀 맵 처리가 닫혔습니다",
   "normal.processing.failed": "노멀 맵 처리에 실패했습니다. 창을 닫고 다시 여세요.",

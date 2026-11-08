@@ -2539,6 +2539,7 @@
   "normal.light.ambient": "環境光",
   "normal.light.color": "ライトの色",
   "normal.light.follow": "ポインターに追従",
+  "normal.light.delight": "描かれた陰影を除去",
   "normal.lighting.canvas": "ライティングプレビューキャンバス",
   "normal.processing.closed": "法線処理は終了しています",
   "normal.processing.failed": "法線処理に失敗しました。ウィンドウを開き直してください。",

@@ -109,6 +109,7 @@ export function useNormalMapManager(enabled: boolean) {
   };
   const [view, setView] = useState(NormalPreviewView.Normal);
   const [light, setLight] = useState(() => defaultNormalMapLightOptions(1, 1));
+  const [delightOn, setDelightOn] = useState(true);
   const [applyError, setApplyError] = useState("");
   const [appliedRevision, setAppliedRevision] = useState<number | null>(null);
   const associations = useRef(
@@ -334,6 +335,12 @@ export function useNormalMapManager(enabled: boolean) {
   const albedo = generationOpen ? (input?.source ?? null) : diffuse.pixels;
   const previewNormals = generatingMask ? normals.pixels : generated.displayPixels;
   const previewMask = generatingMask ? generated.displayPixels : mask.pixels;
+  // Painted-light removal mirrors the generation settings: the same angle and
+  // influence divide the shading already baked into the albedo before relighting.
+  const delight =
+    delightOn && !generatingMask && options.paintedLightInfluence > 0
+      ? { angle: options.paintedLightAngle, influence: options.paintedLightInfluence }
+      : undefined;
   const generationLighting = useMemo<NormalLightingScene | null>(
     () =>
       albedo
@@ -345,6 +352,7 @@ export function useNormalMapManager(enabled: boolean) {
               ...light,
               invertY: generatingMask ? light.invertY : generated.displayInvertY,
               maskStrength: generatingMask ? NORMAL_LIGHT_LIMITS.maskStrength : light.maskStrength,
+              delight,
             },
             identity: source.owner,
           }
@@ -356,6 +364,7 @@ export function useNormalMapManager(enabled: boolean) {
       light,
       generatingMask,
       generated.displayInvertY,
+      delight,
       source.owner,
     ],
   );
@@ -366,11 +375,11 @@ export function useNormalMapManager(enabled: boolean) {
             source: diffuse.pixels,
             normals: normals.pixels,
             mask: mask.pixels,
-            options: light,
+            options: { ...light, delight },
             identity: source.owner,
           }
         : null,
-    [diffuse.pixels, normals.pixels, mask.pixels, light, source.owner],
+    [diffuse.pixels, normals.pixels, mask.pixels, light, delight, source.owner],
   );
   const apply = useCallback(() => {
     if (
@@ -493,6 +502,7 @@ export function useNormalMapManager(enabled: boolean) {
     normalId,
     view,
     light,
+    delightOn,
     sourceChoices: [
       { value: NORMAL_VISIBLE_SOURCE, label: tUi("normal.source.visible") },
       ...sourceLayerChoices,
@@ -596,6 +606,7 @@ export function useNormalMapManager(enabled: boolean) {
       setAppliedRevision(null);
     },
     setLight,
+    setDelightOn,
     setLightColor(color: string) {
       const values = color.match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
       if (values)

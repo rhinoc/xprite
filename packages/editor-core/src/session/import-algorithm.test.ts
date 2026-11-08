@@ -3,6 +3,7 @@ import { describe, expect, test } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
 import { RasterEditor } from "$/editor/RasterEditor";
+import { rasterAnimationProject } from "$/import-export/image/animation";
 import { EditorSession } from "$/session/editor-session";
 import { createBlankImage } from "$/session/recent-images";
 import type { EditorSessionPorts, ImportPixelationMemory } from "$/session/types";
@@ -197,6 +198,89 @@ describe("import dialog algorithm switching", () => {
     expect(shown).not.toBeNull();
     await session.pixelate();
     expect(session.getSnapshot().pendingImport).toBeNull();
+    session.dispose();
+  });
+
+  test("an animated project skips grid analysis but a custom size still resizes the preview", async () => {
+    const frames = [sprite(32), sprite(32)].map((art) => ({
+      pixels: upscaleNearest(art, 4),
+      durationMs: 100,
+    }));
+    const first = frames[0].pixels;
+    const editor = new RasterEditor(createBlankImage(2, 2), "Original");
+    const session = new EditorSession(editor, {
+      decode: async () => first,
+      decodeProject: async () =>
+        rasterAnimationProject({ width: first.width, height: first.height, frames }),
+      analyze: async () => {
+        throw new Error("animations never run grid analysis");
+      },
+      pixelate: async (pixels, options) => pixelateImage(pixels, options),
+      write: async (_pixels, name) => ({ method: "download", name }),
+      releaseSource: () => {},
+      dispose: () => {},
+      getImportPreference: () => ({ choice: "always-ask", algorithm: Auto }),
+    } as ConstructorParameters<typeof EditorSession>[1]);
+    await session.requestImport({ source: "anim", name: "anim.gif" });
+    await settle(session);
+    const opened = session.getSnapshot();
+    expect(opened.pendingImport?.grid).toBeNull();
+    const openingSize = sizeOf(session);
+
+    await session.setImportAlgorithm(PixelationAlgorithm.CustomSize, {
+      width: 40,
+      height: 40,
+    });
+    await settle(session);
+    const sized = session.getSnapshot();
+    expect(sized.pendingImport?.algorithm).toBe(PixelationAlgorithm.CustomSize);
+    expect(sized.pixelationOptions).toMatchObject({ targetWidth: 40, targetHeight: 40 });
+    expect(sizeOf(session)).toBe("40x40");
+    expect(sizeOf(session)).not.toBe(openingSize);
+
+    // Pixelate installs the pixelated timeline: every frame shrinks to the target size.
+    await session.pixelate();
+    const document = editor.getSnapshot().document;
+    expect(session.getSnapshot().pendingImport).toBeNull();
+    expect(document?.timeline.frames.length).toBe(frames.length);
+    for (const [index, frame] of document!.timeline.frames.entries()) {
+      expect(frame.duration).toBe(frames[index].durationMs);
+      for (const cel of frame.cels)
+        if (cel) expect(`${cel.pixels.width}x${cel.pixels.height}`).toBe("40x40");
+    }
+    session.dispose();
+  });
+
+  test("a decoded aseprite project opens directly without the import dialog", async () => {
+    const animation = rasterAnimationProject({
+      width: 64,
+      height: 64,
+      frames: [{ pixels: upscaleNearest(sprite(16), 4), durationMs: 100 }],
+    });
+    const project = {
+      ...animation,
+      timeline: {
+        ...animation.timeline,
+        asepriteSource: { format: "aseprite" } as never,
+      },
+    };
+    const editor = new RasterEditor(createBlankImage(2, 2), "Original");
+    const session = new EditorSession(editor, {
+      decode: async () => animation.image,
+      decodeProject: async () => project,
+      analyze: async () => {
+        throw new Error("projects never run grid analysis");
+      },
+      pixelate: async (pixels, options) => pixelateImage(pixels, options),
+      write: async (_pixels, name) => ({ method: "download", name }),
+      releaseSource: () => {},
+      dispose: () => {},
+      getImportPreference: () => ({ choice: "always-ask", algorithm: Auto }),
+    } as ConstructorParameters<typeof EditorSession>[1]);
+    const outcome = await session.requestImport({ source: "art", name: "art.aseprite" });
+    expect(outcome).toBe("created");
+    expect(session.getSnapshot().pendingImport).toBeNull();
+    expect(editor.getSnapshot().document?.format).toBe("aseprite");
     session.dispose();
   });
 });

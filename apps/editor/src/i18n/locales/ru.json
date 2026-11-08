@@ -2539,6 +2539,7 @@
   "normal.light.ambient": "Фоновое освещение",
   "normal.light.color": "Цвет света",
   "normal.light.follow": "Следовать за указателем",
+  "normal.light.delight": "Убрать нарисованное освещение",
   "normal.lighting.canvas": "Холст предпросмотра освещения",
   "normal.processing.closed": "Обработка нормалей завершена",
   "normal.processing.failed": "Ошибка обработки нормалей. Закройте и снова откройте окно.",

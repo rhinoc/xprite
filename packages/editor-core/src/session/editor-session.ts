@@ -9,7 +9,7 @@ import {
 } from "$/editor/persistence-snapshot";
 import { RasterEditor } from "$/editor/RasterEditor";
 import type { EditorSnapshot } from "$/editor/types";
-import { defaultImportPixelationSettings } from "$/import-export/image";
+import { defaultImportPixelationSettings, rasterAnimationProject } from "$/import-export/image";
 import {
   RecentImageStore,
   createBlankImage,
@@ -26,6 +26,7 @@ import type {
   RecentIdentityPort,
 } from "$/session/types";
 import { SessionOperation, SessionOutcome, SessionSaveIntent } from "$/session/types";
+import { renderTimelineFrame } from "$/timeline/timeline";
 import {
   type PixelationSettings,
   type PixelArtAnalysis,
@@ -638,6 +639,19 @@ export class EditorSession<Source> {
     return updatePixelationSettings(options, patch, candidate.pixels);
   }
   private offerCandidate(candidate: Candidate): SessionOutcome {
+    // Real editor projects (a decoded .ase/.aseprite keeps its asepriteSource) are documents,
+    // not pictures to classify: open them directly, no import dialog and no silent preference.
+    if (candidate.project?.timeline.asepriteSource)
+      return this.install(
+        candidate.pixels,
+        candidate.name,
+        true,
+        candidate.project?.palette,
+        true,
+        candidate.project,
+        candidate.recentIdentity ?? null,
+        candidate.recentAlias ?? null,
+      );
     const pref = this.ports.getImportPreference?.();
     if (pref) {
       if (pref.choice === "always-import-as-is")
@@ -825,8 +839,19 @@ export class EditorSession<Source> {
     this.gridOptionsCustomized = false;
     this.importSize = size ? { ...size } : undefined;
     this.candidate = { ...candidate, grid: undefined };
+    // Animation/project imports skip grid analysis, so a custom size can only reach the
+    // preview as the Convert target; still images get it back from their detected grid.
+    const pixelationOptions =
+      candidate.project && size
+        ? updatePixelationSettings(
+            this.state.pixelationOptions,
+            { targetWidth: size.width, targetHeight: size.height },
+            candidate.pixels,
+          )
+        : this.state.pixelationOptions;
     this.publish({
       pendingImport: { ...pending, algorithm, grid: null },
+      pixelationOptions,
       pixelationPreview: null,
       pixelationPalette: [],
     });
@@ -974,7 +999,7 @@ export class EditorSession<Source> {
   ): Promise<SessionOutcome> {
     if (this.disposed || !this.candidate || this.state.busy) return SessionOutcome.Ignored;
     if (options) this.setPixelationOptions(options);
-    const candidate = this.candidate,
+    let candidate = this.candidate,
       generation = this.generation;
     let completionGeneration = generation;
     this.publish({ busy: true, error: null });
@@ -992,6 +1017,16 @@ export class EditorSession<Source> {
         this.state.pixelationOptions.reduceColors && this.state.pixelationOptions.palette
           ? this.state.pixelationOptions.palette
           : undefined;
+      // A project candidate (animated GIF/WebP, image sequence) installs its timeline, not the
+      // preview pixels: pixelate every frame with the same options so the document matches
+      // what the dialog showed.
+      if (candidate.project) {
+        candidate = {
+          ...candidate,
+          project: await this.pixelateProject(candidate, pixels),
+        };
+        if (!this.valid(generation)) return SessionOutcome.Ignored;
+      }
       this.invalidate();
       completionGeneration = this.generation;
       if (this.changedSince(candidate.checkpoint)) {
@@ -1014,6 +1049,49 @@ export class EditorSession<Source> {
     } finally {
       if (this.valid(completionGeneration)) this.publish({ busy: false });
     }
+  }
+  /**
+   * Rebuild an imported project's timeline with every frame composite pixelated like the
+   * preview. Frame durations, the loop count and the project palette survive; layer
+   * structure and positioned metadata do not — pixelated output is one flat layer at the
+   * target size, same as a still image Pixelate.
+   */
+  private async pixelateProject(
+    candidate: Candidate,
+    firstFrame: PixelBuffer,
+  ): Promise<SessionProject> {
+    const project = candidate.project!;
+    const settings = this.state.pixelationOptions;
+    const { timeline } = project;
+    const frames = [] as { pixels: PixelBuffer; durationMs: number }[];
+    for (const [index, frame] of timeline.frames.entries()) {
+      const composite = renderTimelineFrame(
+        timeline,
+        project.image.width,
+        project.image.height,
+        index,
+        undefined,
+        false,
+      );
+      const pixels =
+        index === 0
+          ? firstFrame
+          : await this.ports.pixelate(
+              composite,
+              pixelationSettingsOptions(settings, composite, undefined),
+            );
+      if (this.disposed) break;
+      frames.push({ pixels, durationMs: frame.duration });
+    }
+    return {
+      ...rasterAnimationProject({
+        ...(timeline.loopCount === undefined ? {} : { loopCount: timeline.loopCount }),
+        width: firstFrame.width,
+        height: firstFrame.height,
+        frames,
+      }),
+      ...(project.palette ? { palette: project.palette } : {}),
+    };
   }
   requestNew(size: SessionSize = this.state.newSize): SessionOutcome {
     if (this.disposed) return SessionOutcome.Ignored;

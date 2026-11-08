@@ -2539,6 +2539,7 @@
   "normal.light.ambient": "Luz ambiental",
   "normal.light.color": "Color de luz",
   "normal.light.follow": "Seguir puntero",
+  "normal.light.delight": "Eliminar sombreado pintado",
   "normal.lighting.canvas": "Lienzo de vista previa de iluminación",
   "normal.processing.closed": "El procesamiento de normales está cerrado",
   "normal.processing.failed": "Falló el procesamiento de normales. Cierra y vuelve a abrir la ventana.",

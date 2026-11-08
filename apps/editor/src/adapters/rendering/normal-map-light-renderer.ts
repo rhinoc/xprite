@@ -27,12 +27,15 @@ uniform float radius;
 uniform float normalSign;
 uniform bool hasNormals;
 uniform float maskStrength;
+uniform vec3 delightDirection;
+uniform float delightStrength;
 vec3 linearColor(vec3 color) {
   return mix(color / 12.92, pow((color + 0.055) / 1.055, vec3(2.4)), step(vec3(0.04045), color));
 }
 vec3 encodedColor(vec3 color) {
   return mix(color * 12.92, 1.055 * pow(max(color, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055, step(vec3(0.0031308), color));
 }
+const float DELIGHT_AMBIENT = 0.15;
 void main() {
   vec2 screen = vec2(gl_FragCoord.x, viewport.y - gl_FragCoord.y) / pixelRatio;
   vec2 pixel = floor((screen - origin) / zoom);
@@ -52,7 +55,12 @@ void main() {
   vec4 mask = texture2D(lightMask, uv);
   float reception = mix(1.0, dot(mask.rgb, vec3(0.2126, 0.7152, 0.0722)), maskStrength * mask.a);
   float direct = power * diffuse * reception / (1.0 + distanceSquared / (radius * radius));
-  vec3 color = encodedColor(linearColor(base.rgb) * (ambient + direct * linearColor(lightColor)));
+  float gain = 1.0;
+  if (delightStrength > 0.0) {
+    float facing = max(0.0, dot(normal, delightDirection));
+    gain = 1.0 + delightStrength * (1.0 / (DELIGHT_AMBIENT + (1.0 - DELIGHT_AMBIENT) * facing) - 1.0);
+  }
+  vec3 color = encodedColor(linearColor(base.rgb) * gain * (ambient + direct * linearColor(lightColor)));
   gl_FragColor = vec4(clamp(color, 0.0, 1.0), base.a);
 }
 `;
@@ -61,7 +69,6 @@ const VERTEX_COUNT = 6;
 const LIGHT_RADIUS_FACTOR = 0.75;
 const PERCENT = 100;
 const BYTE_MAX = 255;
-
 /** Textures stay on the GPU; a moving light changes uniforms and one viewport-sized draw. */
 export function createBrowserNormalMapLightRenderer(
   canvas: HTMLCanvasElement,
@@ -136,6 +143,8 @@ export function createBrowserNormalMapLightRenderer(
     "normalSign",
     "hasNormals",
     "maskStrength",
+    "delightDirection",
+    "delightStrength",
   ] as const;
   const locations = Object.fromEntries(
     names.map((name) => [name, gl.getUniformLocation(program, name)]),
@@ -226,6 +235,22 @@ export function createBrowserNormalMapLightRenderer(
       gl.uniform1f(locations.normalSign, frame.options.invertY ? -1 : 1);
       gl.uniform1i(locations.hasNormals, frame.normals !== null ? 1 : 0);
       gl.uniform1f(locations.maskStrength, frame.options.maskStrength / PERCENT);
+      const delight = frame.options.delight;
+      const delightStrength = delight ? Math.min(1, Math.max(0, delight.influence / PERCENT)) : 0;
+      if (delightStrength > 0 && delight && Number.isFinite(delight.angle)) {
+        const azimuth = (delight.angle * Math.PI) / 180;
+        const elevation = (45 * Math.PI) / 180;
+        const ySign = frame.options.invertY ? -1 : 1;
+        gl.uniform3f(
+          locations.delightDirection,
+          Math.cos(azimuth) * Math.cos(elevation),
+          Math.sin(azimuth) * Math.cos(elevation) * ySign,
+          Math.sin(elevation),
+        );
+        gl.uniform1f(locations.delightStrength, delightStrength);
+      } else {
+        gl.uniform1f(locations.delightStrength, 0);
+      }
       gl.drawArrays(gl.TRIANGLES, 0, VERTEX_COUNT);
     },
     dispose() {

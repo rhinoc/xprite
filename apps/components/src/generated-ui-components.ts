@@ -46534,6 +46534,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
         hostProp: false,
       },
       {
+        name: "triggerRef",
+        kind: "json",
+        required: false,
+        type: "RefObject<HTMLElement | null> | undefined",
+        hostProp: false,
+      },
+      {
         name: "viewport",
         kind: "json",
         required: false,
