@@ -15,6 +15,7 @@ import {
   GIF_SHEET_TOOL,
   BEADS_TOOL,
   FIX_AI_PIXEL_ART_TOOL,
+  NORMAL_MAP_TOOL,
   PIXELATE_TOOL,
 } from "../../content/tools/index.ts";
 import { readArticleDocument } from "../pages/article-source.ts";
@@ -77,6 +78,7 @@ ${Object.entries(SHOWCASE_PAGES)
 - [Animal Crossing Design Converter](${new URL(ANIMAL_CROSSING_TOOL.path, SITE_URL).href}): Convert PNG images and Aseprite tilemap layers into NookLink QR codes.
 - [GIF to sprite sheet converter](${new URL(GIF_SHEET_TOOL.path, SITE_URL).href}): Free GIF to sprite sheet converter—no upload; PNG sheets and JSON frame coordinates and timing.
 - [Image to Pixel Art](${new URL(PIXELATE_TOOL.path, SITE_URL).href}): Free image to pixel art converter—no upload; then Edit more in Xprite or download PNG.
+- [Normal Map Generator](${new URL(NORMAL_MAP_TOOL.path, SITE_URL).href}): Free normal map generator—no upload; tangent-space normal maps from sprites and textures.
 - [Fix AI Pixel Art](${new URL(FIX_AI_PIXEL_ART_TOOL.path, SITE_URL).href}): Fix soft or off-grid AI pixel art by snapping it to a real pixel grid.
 - [Fuse Bead Pattern Maker](${new URL(BEADS_TOOL.path, SITE_URL).href}): Map artwork to MARD, Artkal, Perler or Hama colors and export PNG charts or PDFs with board pages and a material list.
 

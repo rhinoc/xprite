@@ -320,10 +320,10 @@ try {
           );
       } else if (scene.page.action === "feature") {
         await page.evaluate((href) => {
-          const item = [...document.querySelectorAll("main [data-ui-desktop-icon]")].find(
+          const item = [...document.querySelectorAll("main a[href]")].find(
             (node) => node.getAttribute("href") === href,
           );
-          if (!item) throw Error("Missing feature icon.");
+          if (!item) throw Error("Missing feature entry.");
           SiteGeometry.scrollElementIntoView(item, { block: "nearest", behavior: "instant" });
         }, scene.page.href);
         const selector = `main a[href=${JSON.stringify(scene.page.href)}]`;

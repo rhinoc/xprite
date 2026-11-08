@@ -109,6 +109,10 @@
 .inlineField {
   --ui-field-gap: 4px;
 }
+.fullField {
+  --ui-field-gap: 4px;
+  flex: 1 1 100%;
+}
 .group {
   flex: 1 1 auto !important;
 }

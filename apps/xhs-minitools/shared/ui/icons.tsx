@@ -21,6 +21,12 @@ const PATHS = {
       <path d="M5 11.5h9.5a5 5 0 0 1 0 10H11" />
     </>
   ),
+  redo: (
+    <>
+      <path d="M15 7l4.5 4.5L15 16" />
+      <path d="M19 11.5H9.5a5 5 0 0 0 0 10H13" />
+    </>
+  ),
   ratio: <rect x="6" y="3.5" width="12" height="17" rx="2" />,
   reset: (
     <>
@@ -48,6 +54,7 @@ const PATHS = {
     </>
   ),
   down: <path d="M7 10l5 5 5-5" />,
+  up: <path d="M7 14l5-5 5 5" />,
   /*
    * Rotate arrows in {@link PATHS.reset}'s style, on a smaller circle: the arc stops at 45° on its
    * upper side, and an open chevron sits a short gap further along that end's tangent, its apex on

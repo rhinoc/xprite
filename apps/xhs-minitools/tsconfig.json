@@ -21,7 +21,8 @@
         "../../packages/editor-core/src/*",
         "../../packages/ui/src/*",
         "../../packages/bedrock/browser/*"
-      ]
+      ],
+      "@xprite/ui/*": ["../../packages/ui/src/*"]
     }
   },
   "include": ["shared", "tools"],

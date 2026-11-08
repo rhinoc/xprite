@@ -10,6 +10,7 @@ export { ANIMAL_CROSSING_HELP, AnimalCrossingHelpSection } from "./animal-crossi
 export { BEADS_HELP, BeadsHelpSection } from "./beads-help.ts";
 export { FIX_AI_PIXEL_ART_HELP, FixAiPixelArtHelpSection } from "./fix-ai-pixel-art-help.ts";
 export { GIF_SHEET_HELP, GifSheetHelpSection } from "./gif-sheet-help.ts";
+export { NORMAL_MAP_HELP, NormalMapHelpSection } from "./normal-map-help.ts";
 export { PIXELATE_HELP, PixelateHelpSection } from "./pixelate-help.ts";
 export type { ToolHelpContent } from "./help.ts";
 export { VIEWER_EXPORT_HELP, ViewerHelpSection } from "./viewer-help.ts";
@@ -290,6 +291,24 @@ export const BEADS_TOOL = {
   dropLabel: "Drop a PNG, JPEG, WebP or Aseprite file",
 } as const;
 
+export const NORMAL_MAP_TOOL = {
+  path: "/tools/normal-map/",
+  name: "Xprite Normal Map Generator",
+  label: "Normal Map Generator",
+  startTitle: "Turn an image into a normal map",
+  title: "Normal Map Generator from Image: Free, No Upload | Xprite",
+  headline: "Normal map generator",
+  summary:
+    "Generate a tangent-space normal map from a sprite or texture, with shape and lighting controls.",
+  privacy: TOOL_FILE_PRIVACY,
+  description:
+    "Free normal map generator—no upload. Turn a sprite or texture into a tangent-space normal map PNG, then Edit more in Xprite or download the result.",
+  accept: ".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp",
+  fileLabel: "Choose an image for a normal map",
+  openLabel: "Open image",
+  dropLabel: "Drop a PNG, JPEG or WebP image",
+} as const;
+
 export const BEAD_ARTIFACT_ATTRIBUTION = {
   name: "Xprite",
   url: `https://xprite.cc${BEADS_TOOL.path}`,
@@ -309,6 +328,7 @@ export const TOOLS = [
   VIEWER_TOOL,
   GIF_SHEET_TOOL,
   PIXELATE_TOOL,
+  NORMAL_MAP_TOOL,
   ANIMAL_CROSSING_TOOL,
   BEADS_TOOL,
   FIX_AI_PIXEL_ART_TOOL,

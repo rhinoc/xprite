@@ -7,19 +7,91 @@
   margin: 0;
 }
 .groupTitle {
-  margin: 0;
+  margin: 0 0 var(--ui-space-3, 12px);
   font: inherit;
+  font-weight: 600;
 }
 .items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  justify-items: center;
-  align-items: start;
-  gap: var(--ui-space-8, 32px) var(--ui-space-5, 20px);
-  padding: var(--ui-space-7, 24px) var(--ui-space-4, 16px);
+  gap: 0;
+  border-top: 1px solid var(--ui-color-line);
 }
-.items :global([data-ui-desktop-icon]) {
-  width: min(100%, 128px);
+.item {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: var(--ui-space-4, 16px);
+  align-items: center;
+  padding: var(--ui-space-3, 12px) var(--ui-space-2, 8px);
+  border-bottom: 1px solid var(--ui-color-line);
+  color: inherit;
+  text-decoration: none;
+}
+.item:hover {
+  background: var(--ui-color-chrome);
+}
+.item:focus-visible {
+  outline: 2px dashed currentColor;
+  outline-offset: -2px;
+}
+.preview {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--ui-color-line);
+  background: repeating-conic-gradient(#c0c0c0 0 25%, #808080 0 50%) 0 0 / 12px 12px;
+}
+.preview:empty {
+  background: none;
+}
+.preview img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: cover;
+}
+.itemBody {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.itemHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px var(--ui-space-3, 12px);
+}
+.itemTitle {
+  font-weight: 600;
+}
+.itemText {
+  opacity: 0.85;
+  line-height: 1.5;
+}
+.io {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 11px/1 var(--ui-font-family-compact);
+}
+.ioPart {
+  padding: 3px 6px;
+  border: 1px solid currentColor;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+.arrow {
+  width: 10px;
+  height: 8px;
+  background: currentColor;
+  opacity: 0.7;
+  clip-path: polygon(0 40%, 60% 40%, 60% 0, 100% 50%, 60% 100%, 60% 60%, 0 60%);
 }
 .windowContent {
   box-sizing: border-box;
@@ -48,9 +120,11 @@
   .directory {
     padding: var(--ui-space-7, 24px) var(--ui-space-3, 12px);
   }
-  .items {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--ui-space-7, 24px) var(--ui-space-3, 12px);
-    padding: var(--ui-space-7, 24px) var(--ui-space-2, 8px);
+  .item {
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: var(--ui-space-3, 12px);
+  }
+  .preview {
+    width: 72px;
   }
 }

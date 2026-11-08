@@ -13,6 +13,7 @@ import {
   BEADS_TOOL,
   FIX_AI_PIXEL_ART_TOOL,
   GIF_SHEET_TOOL,
+  NORMAL_MAP_TOOL,
   PIXELATE_TOOL,
   TOOLS,
 } from "../../apps/growth/content/tools/index.ts";
@@ -418,6 +419,7 @@ const TOOL_ROOT_IDS = {
   "/tools/viewer/": "viewer-root",
   [GIF_SHEET_TOOL.path]: "gif-sheet-root",
   [PIXELATE_TOOL.path]: "pixelation-root",
+  [NORMAL_MAP_TOOL.path]: "normal-map-root",
   [BEADS_TOOL.path]: "beads-root",
   [FIX_AI_PIXEL_ART_TOOL.path]: "fix-ai-root",
 };

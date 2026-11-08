@@ -16,7 +16,8 @@ import {
   splitSegment,
   type SplitState,
 } from "$/tools/pixelate/managers/split-geometry";
-import { clientPoint, clientRect, displayPixelRatio, useElementSize } from "@xprite/ui/utils";
+import { clientPoint, clientRect, displayPixelRatio } from "@xprite/ui/base/utils/dom-geometry";
+import { useElementSize } from "@xprite/ui/base/utils/use-element-size";
 
 import styles from "$/tools/pixelate/components/pixelate.module.css";
 

@@ -44,7 +44,7 @@ import {
   type PixelationMethod,
 } from "@xprite/pixelate";
 import type { PixelationSnapshot } from "@xprite/tools-app/pixelation";
-import { displayPixelRatio, scrollElementIntoView } from "@xprite/ui/utils";
+import { displayPixelRatio, scrollElementIntoView } from "@xprite/ui/base/utils/dom-geometry";
 
 import ui from "$/shared/ui/ui.module.css";
 import styles from "$/tools/pixelate/components/pixelate.module.css";

@@ -12,6 +12,7 @@ import { ssgScopedName } from "./react-ssg-style-names.ts";
 const RAW_ASSET_NAMESPACE = "raw-asset";
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const PIXELATE_PACKAGE = "@xprite/pixelate";
+const LIGHTER_PACKAGE = "@xprite/lighter";
 const aliases: Record<string, string> = {
   "@xprite/growth-content/features": "apps/growth/content/features/index.ts",
   "@xprite/growth-content/language": "apps/growth/content/site/language.ts",
@@ -125,6 +126,7 @@ export async function createReactSsgRenderer<T>(options: {
       context.onResolve({ filter: /^(?:\$|@xprite\/)|\?(?:url|raw)$/ }, async (args) => {
         // A published npm package: esbuild resolves it from node_modules.
         if (args.path === PIXELATE_PACKAGE || args.path.startsWith(`${PIXELATE_PACKAGE}/`)) return;
+        if (args.path === LIGHTER_PACKAGE || args.path.startsWith(`${LIGHTER_PACKAGE}/`)) return;
         const source = resolveSource(args.path, args.importer);
         if (args.path.endsWith("?raw")) return { path: source, namespace: RAW_ASSET_NAMESPACE };
         return context.resolve(source, { kind: args.kind, resolveDir: dirname(args.importer) });

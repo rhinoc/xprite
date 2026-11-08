@@ -10,6 +10,7 @@ import { packageLocalAliases } from "../../../../infra/package-local-aliases.ts"
 import { siteTelemetryDefines } from "../../../../infra/site-telemetry.ts";
 import { xhsAudit } from "./audit.ts";
 import { lowerMiniToolCss } from "./legacy-css.ts";
+import { noWorkerModules } from "./no-worker-modules.ts";
 
 /**
  * One mini tool as a Xiaohongshu mini-tool package: one offline HTML page at the ZIP root with a
@@ -119,6 +120,7 @@ export function miniToolConfig(tool: string): UserConfig {
       modules: { generateScopedName: "[local]_[hash:base64:6]" },
     },
     plugins: [
+      noWorkerModules(),
       omitAsepriteFonts(),
       packageLocalAliases(),
       react(),

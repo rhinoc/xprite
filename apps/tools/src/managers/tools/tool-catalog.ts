@@ -5,11 +5,13 @@ import {
   PIXELATE_TOOL,
   FIX_AI_PIXEL_ART_TOOL,
   BEADS_TOOL,
+  NORMAL_MAP_TOOL,
   type PublicTool,
 } from "@xprite/growth-content/tools";
 import viewerPreview from "@xprite/site-assets/showcase/ipad/hello/hello-frame-01.png?url";
 import islandPreview from "@xprite/site-assets/tools/animal-crossing/acnh/winding-cobblestone.png?url";
 import warriorPreview from "@xprite/site-assets/tools/fix-ai-pixel-art/ai-warrior.png?url";
+import knightPreview from "@xprite/site-assets/tools/normal-map/knight.png?url";
 import pearlPreview from "@xprite/site-assets/tools/pixelate/girl-with-a-pearl-earring.jpg?url";
 
 export {
@@ -19,6 +21,7 @@ export {
   FIX_AI_PIXEL_ART_TOOL,
   ANIMAL_CROSSING_TOOL,
   BEADS_TOOL,
+  NORMAL_MAP_TOOL,
 };
 export type { PublicTool };
 
@@ -43,6 +46,13 @@ export const TOOL_EXAMPLES = {
     alt: "AI-generated warrior pixel art example",
     width: 2048,
     height: 2048,
+  },
+  [NORMAL_MAP_TOOL.path]: {
+    name: "knight.png",
+    preview: knightPreview,
+    alt: "Knight sprite by KayKit (CC0)",
+    width: 64,
+    height: 64,
   },
   [ANIMAL_CROSSING_TOOL.path]: {
     name: "acnh-winding-cobblestone.png",

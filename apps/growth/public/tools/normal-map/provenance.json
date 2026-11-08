@@ -1,0 +1,10 @@
+{
+  "name": "Knight sprite",
+  "author": "KayKit",
+  "source": "KayKit Character Pack — Adventures 1.0",
+  "license": "CC0 1.0 Universal (Public Domain)",
+  "url": "https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0",
+  "original": "https://kaylousberg.com/game-assets",
+  "dimensions": [64, 64],
+  "notes": "Copied from the Pixel Art Lighting playground samples (sample-knight.webp), converted to PNG without resizing."
+}

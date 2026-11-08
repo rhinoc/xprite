@@ -9,7 +9,7 @@
     "file": "apps/growth/public/showcase/ipad/hello/hello.aseprite",
     "sha256": "3fc1e6823932ac1c08d6af4e43702a8c9a5af1744d4d681324cee5293f4c25da"
   },
-  "sourceDigest": "39ca4377a0e518d1a3c357d420299fae2616ecfb6ffea3dea120133c46a64a1d",
+  "sourceDigest": "c5d5834f5aa5baf4a7dff325d56b63b08c088d12c97b6f34b21bda60c17ccf0a",
   "sourceHashes": {
     "apps/editor/assets/commands/aseprite-tool-tips.json": "e9e275e9d3b024deaa66850fa53e43713f155b70afd619d6d8c9d3ad86c47c26",
     "apps/editor/assets/commands/libresprite-keyboard-shortcuts.json": "36bfd19176989e659289b5e89927f29d7e4f2fe4e9389a1520552bd8711560d1",
@@ -2102,10 +2102,10 @@
     {
       "id": "home-wide",
       "file": "home-wide.png",
-      "sha256": "3924ee5430f40385751e1c6172c0e48893d8eec4c95995fc78b48ea8328819e9",
+      "sha256": "e32dfb5db0abed47c6548e098c96de907bfe917b6a3e5a124941a5bbaa46b18a",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-30T16:27:11.143Z",
+        "capturedAt": "2026-11-08T10:57:46.459Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 1440,
@@ -2133,7 +2133,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "3924ee5430f40385751e1c6172c0e48893d8eec4c95995fc78b48ea8328819e9",
+        "sha256": "e32dfb5db0abed47c6548e098c96de907bfe917b6a3e5a124941a5bbaa46b18a",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2170,35 +2170,35 @@
           "name": "recents",
           "x": 14,
           "y": 184,
-          "width": 1412,
+          "width": 692,
           "height": 680
         },
         {
           "name": "recent-row",
           "x": 14,
           "y": 184,
-          "width": 1336,
+          "width": 616,
           "height": 22
         },
         {
           "name": "pin",
-          "x": 1382,
+          "x": 662,
           "y": 187,
           "width": 16,
           "height": 16
         },
         {
           "name": "delete",
-          "x": 1402,
+          "x": 682,
           "y": 183,
           "width": 22,
           "height": 24
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-30T16:27:17.309Z",
-        "sourceDigest": "39ca4377a0e518d1a3c357d420299fae2616ecfb6ffea3dea120133c46a64a1d",
-        "gitRevision": "4fabc13a78217841ceaf54bd3078b3e5e794a1ff",
+        "capturedAt": "2026-11-08T10:58:04.516Z",
+        "sourceDigest": "c5d5834f5aa5baf4a7dff325d56b63b08c088d12c97b6f34b21bda60c17ccf0a",
+        "gitRevision": "016008af92e2e6ddcd4abcb53f3f0cfdbda5fd55",
         "browser": {
           "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
           "platform": "Linux x86_64"
@@ -3512,10 +3512,10 @@
     {
       "id": "home-compact",
       "file": "home-compact.png",
-      "sha256": "73662c9cbaefdf049037c189d36faf417898ffd816f9c0c6e4c170ff8a28fe6b",
+      "sha256": "10176ab5f02c939bb93742217f5e370ae6b1802986712e877e3eb2586b141245",
       "screenshot": {
         "schemaVersion": 1,
-        "capturedAt": "2026-10-30T16:27:11.115Z",
+        "capturedAt": "2026-11-08T10:57:46.434Z",
         "method": "Chromium CDP native PNG",
         "viewport": {
           "width": 390,
@@ -3543,7 +3543,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "73662c9cbaefdf049037c189d36faf417898ffd816f9c0c6e4c170ff8a28fe6b",
+        "sha256": "10176ab5f02c939bb93742217f5e370ae6b1802986712e877e3eb2586b141245",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3581,7 +3581,7 @@
           "x": 14,
           "y": 162,
           "width": 362,
-          "height": 646
+          "height": 297
         },
         {
           "name": "recent-row",
@@ -3606,9 +3606,9 @@
         }
       ],
       "capture": {
-        "capturedAt": "2026-10-30T16:27:17.309Z",
-        "sourceDigest": "39ca4377a0e518d1a3c357d420299fae2616ecfb6ffea3dea120133c46a64a1d",
-        "gitRevision": "4fabc13a78217841ceaf54bd3078b3e5e794a1ff",
+        "capturedAt": "2026-11-08T10:58:04.516Z",
+        "sourceDigest": "c5d5834f5aa5baf4a7dff325d56b63b08c088d12c97b6f34b21bda60c17ccf0a",
+        "gitRevision": "016008af92e2e6ddcd4abcb53f3f0cfdbda5fd55",
         "browser": {
           "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
           "platform": "Linux x86_64"

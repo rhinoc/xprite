@@ -878,10 +878,281 @@ export function toolSeoCopyHtml(copy: ToolSeoCopy, language: PublicLanguage): st
   return `${introduction}${questions}`;
 }
 
+const NORMAL_MAP_SEO_COPY: ToolSeoCopySet = {
+  [PublicLanguage.English]: {
+    introduction: [
+      "Free normal map generator—turn a sprite or texture into a tangent-space normal map, no upload, then Edit more in Xprite. Starting from a photo or drawing? First make pixel art with the free ",
+      { label: "image to pixel art converter", href: "/tools/pixelate/" },
+      ", then generate its normal map here. Need animation frames as one image? Use the free ",
+      {
+        label: "GIF to sprite sheet converter",
+        href: "/tools/gif-to-sprite-sheet/",
+      },
+      "—no upload—for a PNG sheet and JSON frame data.",
+    ],
+    questions: [
+      {
+        question: "Is the normal map generator free?",
+        answer: [
+          "Yes. Free, no account, and no watermark. Open the tool and generate in your browser.",
+        ],
+      },
+      {
+        question: "Do I need to upload my image?",
+        answer: [
+          "No. Processing stays on your device. Drop or open a PNG, JPEG, or WebP—the file is never uploaded to a server.",
+        ],
+      },
+      {
+        question: "What kind of normal map does it make?",
+        answer: [
+          "A tangent-space normal map in the common purple encoding: X to red, Y to green, Z to blue. Enable Invert Y for DirectX-style output; leave it off for OpenGL-style output.",
+        ],
+      },
+      {
+        question: "What does Edit more do?",
+        answer: [
+          "Edit more opens the generated normal map in the Xprite editor as a new project so you can repaint regions, combine it with the original artwork, or save .aseprite.",
+        ],
+      },
+    ],
+  },
+  [PublicLanguage.SimplifiedChinese]: {
+    introduction: [
+      "免费法线贴图生成器——把精灵图或纹理转成切线空间法线贴图，无需上传，然后在 Xprite 中继续编辑。源图是照片或插画？先用免费的",
+      { label: "图片转像素画工具", href: "/zh-CN/tools/pixelate/" },
+      "转成像素画，再在这里生成法线。需要把动画帧合成一张图？使用免费的",
+      { label: "GIF 转精灵表工具", href: "/zh-CN/tools/gif-to-sprite-sheet/" },
+      "——无需上传——得到 PNG 精灵表和 JSON 帧数据。",
+    ],
+    questions: [
+      {
+        question: "法线贴图生成器是免费的吗？",
+        answer: ["是的。免费、无需账号、无水印。打开工具即可在浏览器中生成。"],
+      },
+      {
+        question: "需要上传图片吗？",
+        answer: [
+          "不需要。处理全程在设备本地进行。拖入或打开 PNG、JPEG 或 WebP 即可，文件不会上传到服务器。",
+        ],
+      },
+      {
+        question: "生成的是哪种法线贴图？",
+        answer: [
+          "切线空间法线贴图，使用常见的紫色编码：X 存入红色通道、Y 存入绿色通道、Z 存入蓝色通道。勾选「反转 Y」输出 DirectX 风格，取消勾选则为 OpenGL 风格。",
+        ],
+      },
+      {
+        question: "「继续编辑」是什么？",
+        answer: [
+          "「继续编辑」会把生成的法线贴图作为新工程在 Xprite 编辑器中打开，方便重绘局部、与原图分图层组合或保存为 .aseprite。",
+        ],
+      },
+    ],
+  },
+  [PublicLanguage.Japanese]: {
+    introduction: [
+      "無料のノーマルマップジェネレーター——スプライトやテクスチャを接線空間ノーマルマップに変換、アップロード不要、Xprite で続けて編集できます。元画像が写真やイラストの場合は、まず無料の",
+      { label: "画像からドット絵への変換ツール", href: "/ja/tools/pixelate/" },
+      "でドット絵にしてから、ここでノーマルマップを生成してください。アニメーションフレームを1枚にまとめたい場合は、無料の",
+      {
+        label: "GIF からスプライトシートへの変換ツール",
+        href: "/ja/tools/gif-to-sprite-sheet/",
+      },
+      "（アップロード不要）をご利用ください。",
+    ],
+    questions: [
+      {
+        question: "ノーマルマップジェネレーターは無料ですか？",
+        answer: [
+          "はい。無料で、アカウントも透かしもありません。ツールを開いてブラウザで生成できます。",
+        ],
+      },
+      {
+        question: "画像をアップロードする必要がありますか？",
+        answer: [
+          "いいえ。処理はすべてお使いのデバイスで行われます。PNG、JPEG、WebP をドロップまたは開くだけで、ファイルがサーバーにアップロードされることはありません。",
+        ],
+      },
+      {
+        question: "どんなノーマルマップが生成されますか？",
+        answer: [
+          "一般的な紫色エンコードの接線空間ノーマルマップです：X は赤、Y は緑、Z は青に保存されます。「Y を反転」を有効にすると DirectX 形式、無効のままだと OpenGL 形式の出力になります。",
+        ],
+      },
+      {
+        question: "「さらに編集」とは何ですか？",
+        answer: [
+          "「さらに編集」は生成したノーマルマップを Xprite エディターの新規プロジェクトとして開き、部分修正や元画像とのレイヤー合成、.aseprite 保存ができます。",
+        ],
+      },
+    ],
+  },
+  [PublicLanguage.Korean]: {
+    introduction: [
+      "무료 노멀 맵 생성기 — 스프라이트나 텍스처를 접선 공간 노멀 맵으로 변환하고 업로드 없이 Xprite에서 이어서 편집하세요. 원본이 사진이나 일러스트라면 먼저 무료 ",
+      { label: "이미지 픽셀 아트 변환기", href: "/ko/tools/pixelate/" },
+      "로 픽셀 아트를 만든 뒤 여기에서 노멀 맵을 생성하세요. 애니메이션 프레임을 한 장으로 묶고 싶다면 무료 ",
+      {
+        label: "GIF 스프라이트 시트 변환기",
+        href: "/ko/tools/gif-to-sprite-sheet/",
+      },
+      "(업로드 불필요)를 이용하세요.",
+    ],
+    questions: [
+      {
+        question: "노멀 맵 생성기는 무료인가요?",
+        answer: [
+          "네. 무료이며 계정도 워터마크도 없습니다. 도구를 열어 브라우저에서 바로 생성하세요.",
+        ],
+      },
+      {
+        question: "이미지를 업로드해야 하나요?",
+        answer: [
+          "아니요. 처리는 모두 기기에서 이루어집니다. PNG, JPEG, WebP를 드롭하거나 열기만 하면 되며 파일은 서버에 업로드되지 않습니다.",
+        ],
+      },
+      {
+        question: "어떤 노멀 맵이 만들어지나요?",
+        answer: [
+          "일반적인 보라색 인코딩의 접선 공간 노멀 맵입니다. X는 빨강, Y는 초록, Z는 파랑에 저장됩니다. 'Y 반전'을 켜면 DirectX 스타일, 끄면 OpenGL 스타일로 출력됩니다.",
+        ],
+      },
+      {
+        question: "'더 편집하기'는 무엇인가요?",
+        answer: [
+          "'더 편집하기'는 생성된 노멀 맵을 Xprite 에디터의 새 프로젝트로 열어 부분을 다시 칠하거나 원본 이미지와 레이어로 합치거나 .aseprite로 저장할 수 있게 합니다.",
+        ],
+      },
+    ],
+  },
+  [PublicLanguage.Russian]: {
+    introduction: [
+      "Бесплатный генератор карт нормалей — превратите спрайт или текстуру в карту нормалей в касательном пространстве без загрузки, затем продолжите в Xprite. Исходник — фото или иллюстрация? Сначала сделайте пиксель-арт бесплатным ",
+      {
+        label: "конвертером изображения в пиксель-арт",
+        href: "/ru/tools/pixelate/",
+      },
+      ", затем сгенерируйте здесь карту нормалей. Нужны кадры анимации одним изображением? Используйте бесплатный ",
+      {
+        label: "конвертер GIF в спрайт-лист",
+        href: "/ru/tools/gif-to-sprite-sheet/",
+      },
+      " — без загрузки.",
+    ],
+    questions: [
+      {
+        question: "Генератор карт нормалей бесплатный?",
+        answer: [
+          "Да. Бесплатно, без аккаунта и без водяных знаков. Откройте инструмент и сгенерируйте в браузере.",
+        ],
+      },
+      {
+        question: "Нужно ли загружать изображение?",
+        answer: [
+          "Нет. Обработка происходит на вашем устройстве. Перетащите или откройте PNG, JPEG или WebP — файл никогда не загружается на сервер.",
+        ],
+      },
+      {
+        question: "Какую карту нормалей создаёт инструмент?",
+        answer: [
+          "Карту нормалей в касательном пространстве в привычной фиолетовой кодировке: X в красном канале, Y в зелёном, Z в синем. Включите «Инвертировать Y» для вывода в стиле DirectX; без неё — стиль OpenGL.",
+        ],
+      },
+      {
+        question: "Что делает «Редактировать дальше»?",
+        answer: [
+          "Открывает сгенерированную карту нормалей в редакторе Xprite как новый проект: можно перерисовать участки, совместить с исходной иллюстрацией или сохранить .aseprite.",
+        ],
+      },
+    ],
+  },
+  [PublicLanguage.BrazilianPortuguese]: {
+    introduction: [
+      "Gerador de normal map gratuito — transforme um sprite ou textura em um normal map em espaço tangente sem upload e continue no Xprite. A origem é uma foto ou ilustração? Primeiro faça pixel art com o ",
+      {
+        label: "conversor de imagem para pixel art",
+        href: "/pt-BR/tools/pixelate/",
+      },
+      " gratuito, depois gere o normal map aqui. Precisa dos quadros de uma animação em uma imagem? Use o ",
+      {
+        label: "conversor de GIF para sprite sheet",
+        href: "/pt-BR/tools/gif-to-sprite-sheet/",
+      },
+      " gratuito — sem upload.",
+    ],
+    questions: [
+      {
+        question: "O gerador de normal map é gratuito?",
+        answer: [
+          "Sim. Gratuito, sem conta e sem marca d'água. Abra a ferramenta e gere no navegador.",
+        ],
+      },
+      {
+        question: "Preciso enviar minha imagem?",
+        answer: [
+          "Não. O processamento fica no seu dispositivo. Arraste ou abra um PNG, JPEG ou WebP — o arquivo nunca é enviado a um servidor.",
+        ],
+      },
+      {
+        question: "Que tipo de normal map ele cria?",
+        answer: [
+          "Um normal map em espaço tangente na codificação roxa usual: X no vermelho, Y no verde, Z no azul. Ative Inverter Y para saída estilo DirectX; deixe desativado para estilo OpenGL.",
+        ],
+      },
+      {
+        question: "O que o Editar mais faz?",
+        answer: [
+          "Abre o normal map gerado no editor Xprite como um novo projeto, para repintar regiões, combinar com a arte original ou salvar .aseprite.",
+        ],
+      },
+    ],
+  },
+  [PublicLanguage.Spanish]: {
+    introduction: [
+      "Generador de mapas normales gratuito — convierte un sprite o textura en un mapa normal en espacio tangente sin subir nada y sigue en Xprite. ¿La fuente es una foto o ilustración? Primero haz pixel art con el ",
+      { label: "conversor de imagen a pixel art", href: "/es/tools/pixelate/" },
+      " gratuito y luego genera aquí su mapa normal. ¿Necesitas los fotogramas de una animación en una imagen? Usa el ",
+      {
+        label: "conversor de GIF a hoja de sprites",
+        href: "/es/tools/gif-to-sprite-sheet/",
+      },
+      " gratuito — sin subir nada.",
+    ],
+    questions: [
+      {
+        question: "¿El generador de mapas normales es gratuito?",
+        answer: [
+          "Sí. Gratuito, sin cuenta y sin marca de agua. Abre la herramienta y genera en tu navegador.",
+        ],
+      },
+      {
+        question: "¿Tengo que subir mi imagen?",
+        answer: [
+          "No. El procesamiento ocurre en tu dispositivo. Suelta o abre un PNG, JPEG o WebP: el archivo nunca se sube a un servidor.",
+        ],
+      },
+      {
+        question: "¿Qué tipo de mapa normal genera?",
+        answer: [
+          "Un mapa normal en espacio tangente con la codificación púrpura habitual: X en rojo, Y en verde, Z en azul. Activa Invertir Y para salida estilo DirectX; déjalo desactivado para estilo OpenGL.",
+        ],
+      },
+      {
+        question: "¿Qué hace Editar más?",
+        answer: [
+          "Abre el mapa normal generado en el editor Xprite como un proyecto nuevo para repintar zonas, combinarlo con la ilustración original o guardar .aseprite.",
+        ],
+      },
+    ],
+  },
+};
+
 /** The SEO copy each tool page carries, keyed by its public path. */
 export const TOOL_SEO_COPY: Readonly<Record<string, ToolSeoCopySet>> = {
   "/tools/viewer/": VIEWER_SEO_COPY,
   "/tools/pixelate/": PIXELATE_SEO_COPY,
   "/tools/fix-ai-pixel-art/": FIX_AI_SEO_COPY,
   "/tools/gif-to-sprite-sheet/": GIF_SHEET_SEO_COPY,
+  "/tools/normal-map/": NORMAL_MAP_SEO_COPY,
 };

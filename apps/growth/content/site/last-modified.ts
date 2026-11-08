@@ -12,6 +12,7 @@ const TOOL_LAST_MODIFIED: Readonly<Record<PublicTool["path"], string>> = {
   "/tools/fix-ai-pixel-art/": "2026-10-26",
   "/tools/animal-crossing-qr/": "2026-10-22",
   "/tools/fuse-beads/": "2026-10-22",
+  "/tools/normal-map/": "2026-11-08",
 };
 
 const TOOL_PAGE_LAST_MODIFIED = Object.fromEntries(

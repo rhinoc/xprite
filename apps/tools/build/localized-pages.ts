@@ -4,6 +4,7 @@ import {
   BEADS_TOOL,
   FIX_AI_PIXEL_ART_TOOL,
   GIF_SHEET_TOOL,
+  NORMAL_MAP_TOOL,
   PIXELATE_TOOL,
   TOOL_HEADING_ID,
   toolHeading,
@@ -25,6 +26,7 @@ export const TOOL_BY_ROOT: Readonly<Record<string, PublicTool>> = {
   "fix-ai-root": FIX_AI_PIXEL_ART_TOOL,
   "animal-crossing-root": ANIMAL_CROSSING_TOOL,
   "beads-root": BEADS_TOOL,
+  "normal-map-root": NORMAL_MAP_TOOL,
 };
 
 const OPEN_GRAPH_LOCALES: Readonly<Record<PublicLanguage, string>> = {

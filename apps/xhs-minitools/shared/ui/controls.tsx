@@ -11,7 +11,7 @@ import {
 
 import { Icon, type IconName } from "$/shared/ui/icons";
 import type { SharedText } from "$/shared/ui/text";
-import { clientPoint, clientRect } from "@xprite/ui/utils";
+import { clientPoint, clientRect } from "@xprite/ui/base/utils/dom-geometry";
 
 import styles from "$/shared/ui/ui.module.css";
 

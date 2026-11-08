@@ -1,4 +1,4 @@
-import { installResizeObserverFallback, scrollSize } from "@xprite/ui/utils";
+import { installResizeObserverFallback, scrollSize } from "@xprite/ui/base/utils/dom-geometry";
 
 /**
  * Small fallbacks for the oldest supported container web view (Chrome 61), limited to what this

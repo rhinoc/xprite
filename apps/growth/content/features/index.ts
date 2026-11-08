@@ -225,21 +225,12 @@ export const FEATURE_DETAILS = [
   },
 ] as const;
 
-export enum FeatureIcon {
-  Application = "application",
-  Document = "document",
-  Folder = "folder",
-  Image = "image",
-  Map = "map",
-  NotePad = "note-pad",
-  Search = "search",
-}
-
 export interface FeatureItem {
   title: string;
   description: string;
   href: string;
-  icon: FeatureIcon;
+  /** What the entry consumes and produces, e.g. a tool's "PNG > QR". */
+  io?: { input: string; output: string };
   contentHtml?: string;
   media?: FeatureMedia;
 }
