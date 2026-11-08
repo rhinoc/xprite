@@ -21,6 +21,19 @@ enum PermissionState {
   Prompt = "prompt",
 }
 
+enum OpfsDiagnosticStage {
+  Construction = "construction",
+  PostMessage = "post-message",
+  Error = "error",
+  MessageError = "messageerror",
+}
+
+enum OpfsDiagnosticOperation {
+  Read = "read",
+  Write = "write",
+  Remove = "remove",
+}
+
 const WORKER_STATES = Object.values(WorkerState);
 const PERMISSION_STATES = Object.values(PermissionState);
 const PWA_TEXT_FIELDS: Readonly<Record<string, readonly string[]>> = {
@@ -36,6 +49,10 @@ const FILE_WRITE_TEXT_FIELDS: Readonly<Record<string, readonly string[]>> = {
   stage: Object.values(FileWriteStage),
   permission: PERMISSION_STATES,
 };
+const OPFS_TEXT_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  stage: Object.values(OpfsDiagnosticStage),
+  operation: Object.values(OpfsDiagnosticOperation),
+};
 const PWA_BOOLEAN_FIELDS = [
   "online",
   "visible",
@@ -47,6 +64,7 @@ const PWA_BOOLEAN_FIELDS = [
 const FILE_WRITE_BOOLEAN_FIELDS = ["user_activation"];
 const PWA_NUMBER_FIELDS = ["timeout_ms", "elapsed_ms", "attempt", "status"];
 const FILE_WRITE_NUMBER_FIELDS = ["elapsed_ms"];
+const OPFS_NUMBER_FIELDS = ["line", "column"];
 const MAX_DIAGNOSTIC_NUMBER = 24 * 60 * 60 * 1000;
 const WORKER_VERSION_PATTERN = /^[a-zA-Z0-9_-]{1,128}$/;
 /** Same-site build paths only: a bare worker script such as /sw.js, or a hashed /assets file. */
@@ -89,6 +107,10 @@ function projectDetails(
 
 /** Only fixed diagnostic fields cross the telemetry boundary; artwork and arbitrary details stay local. */
 export function telemetryDiagnosticDetails(record: DiagnosticRecord): TelemetryProperties {
+  const opfsDetails = record.details?.opfs as Record<string, unknown> | undefined;
+  const opfs = projectDetails(opfsDetails, "opfs", OPFS_TEXT_FIELDS, [], OPFS_NUMBER_FIELDS);
+  if (opfs.opfs_stage && typeof opfsDetails?.workerAnswered === "boolean")
+    opfs.opfs_worker_answered = opfsDetails.workerAnswered;
   const pwa = projectDetails(
     record.details?.pwa,
     "pwa",
@@ -109,6 +131,7 @@ export function telemetryDiagnosticDetails(record: DiagnosticRecord): TelemetryP
       pwa[`pwa_${key}`] = path;
   }
   return {
+    ...opfs,
     ...pwa,
     ...projectDetails(
       record.details?.fileWrite,
