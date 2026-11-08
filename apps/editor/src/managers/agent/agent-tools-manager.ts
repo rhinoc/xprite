@@ -442,7 +442,6 @@ export class AgentToolsManager {
 
   /** mode:"diff" — compare the same rect between two document/frame/layer endpoints. */
   private diff(input: Record<string, unknown>): AgentToolResponse {
-    const rect = input.rect as Rect;
     const defaults = {
       documentId: input.documentId as string,
       frameIndex: input.frameIndex,
@@ -458,7 +457,6 @@ export class AgentToolsManager {
           documentId: spec.documentId,
           frameIndex: spec.frameIndex,
           layerId: spec.layerId,
-          rect,
         },
         MAX_READ_PIXELS,
       );
@@ -469,6 +467,7 @@ export class AgentToolsManager {
         BatchEditErrorCode.InvalidInput,
         "Diff endpoints resolved to different rect sizes",
       );
+    const rect = from.rect;
     let changedPixels = 0;
     let minX = -1,
       minY = -1,
@@ -501,8 +500,8 @@ export class AgentToolsManager {
       changedPixels === 0
         ? null
         : {
-            x: (rect as Rect).x + minX,
-            y: (rect as Rect).y + minY,
+            x: rect.x + minX,
+            y: rect.y + minY,
             width: maxX - minX + 1,
             height: maxY - minY + 1,
           };
@@ -890,7 +889,7 @@ export class AgentToolsManager {
     if (op === "snap") {
       if (!current.length)
         throw new BatchEditError(BatchEditErrorCode.InvalidInput, "Palette is empty; set it first");
-      const regions = snapDocumentToPalette(doc, current);
+      const { regions, skippedLayers } = snapDocumentToPalette(doc, current);
       if (!regions.length)
         return {
           ok: true,
@@ -899,6 +898,7 @@ export class AgentToolsManager {
             revision: slot.core.getContentRevision(),
             snappedPixels: 0,
             changedRegions: [],
+            skippedLayers,
           },
         };
       const operations: BatchEditOperation[] = regions.map((region) => ({
@@ -922,6 +922,7 @@ export class AgentToolsManager {
           revision: slot.core.getContentRevision(),
           snappedPixels: result.changedRegions.length,
           changedRegions: result.changedRegions,
+          skippedLayers,
         },
       };
     }
@@ -1212,6 +1213,38 @@ export class AgentToolsManager {
           ),
           row * rect.width * 4,
         );
+      // The op writes raw RGBA, so composite transparent and semi-transparent
+      // source pixels over the destination here; opaque pixels pass through.
+      // Frames appended past the timeline end land on empty cels — nothing to
+      // composite against — and a brand-new layer starts empty too.
+      const targetIsNew =
+        (input.layerId === undefined && newLayer) || target > timeline.frames.length - 1;
+      if (!targetIsNew) {
+        const base = this.pixels(
+          slot,
+          { layerId, frameIndex: target, rect },
+          MAX_IMPORT_SIDE * MAX_IMPORT_SIDE,
+        ).pixels;
+        for (let at = 0; at < clipped.length; at += 4) {
+          const alpha = clipped[at + 3];
+          if (alpha === 0) {
+            clipped.set(base.data.subarray(at, at + 4), at);
+            continue;
+          }
+          if (alpha === 255) continue;
+          const inverse = 255 - alpha,
+            baseAlpha = base.data[at + 3],
+            outAlpha = alpha + (baseAlpha * inverse) / 255;
+          if (outAlpha === 0) continue;
+          for (let channel = 0; channel < 3; channel++)
+            clipped[at + channel] = Math.round(
+              (clipped[at + channel] * alpha +
+                base.data[at + channel] * ((baseAlpha * inverse) / 255)) /
+                outAlpha,
+            );
+          clipped[at + 3] = Math.round(outAlpha);
+        }
+      }
       operations.push({
         type: BatchEditKind.Pixels,
         layerId,
@@ -1224,6 +1257,11 @@ export class AgentToolsManager {
       throw new BatchEditError(
         BatchEditErrorCode.InvalidInput,
         "position places the image fully outside the canvas",
+      );
+    if (operations.length > BATCH_EDIT_LIMITS.operations)
+      throw new BatchEditError(
+        BatchEditErrorCode.InvalidInput,
+        `Import needs ${operations.length} batch operations; the limit is ${BATCH_EDIT_LIMITS.operations} — import fewer frames`,
       );
     const result = slot.core.applyBatch(
       operations,

@@ -4,7 +4,7 @@ import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { rgbaToHsla, hslaToRgba } from "$/color/color";
 import { assertPaletteAllocation } from "$/color/palette-resize";
 import type { EditorDocument } from "$/document/types";
-import { renderTimelineFrame } from "$/timeline/timeline";
+import { effectiveLayerVisible, layerEditable, renderTimelineFrame } from "$/timeline/timeline";
 
 const RGBA_CHANNELS = 4;
 /** Agent-facing palettes cap at the GIF/indexed range, not the allocation budget. */
@@ -159,25 +159,39 @@ export interface PaletteSnapRegion {
 
 /**
  * Repaint every image cel's non-palette pixels to the nearest palette color in
- * CIELAB, preserving alpha and transparent pixels. Returns one cell-sized RGBA
- * patch per changed cel; the caller replays them as `pixels` ops so the snap is
- * a single undoable batch. Indexed/grayscale cels without RGBA pixels are
+ * CIELAB, preserving alpha and transparent pixels. Only the opaque palette
+ * entries take part in nearest-color matching, and each pixel keeps its own
+ * alpha — snapping never erases or further fades content. Hidden and locked
+ * layers are skipped and reported in `skippedLayers` so the replayed `pixels`
+ * ops cannot fail on an uneditable target. Returns one cell-sized RGBA patch
+ * per changed cel; the caller replays them as `pixels` ops so the snap is a
+ * single undoable batch. Indexed/grayscale cels without RGBA pixels are
  * skipped — they already resolve through the palette.
  */
 export function snapDocumentToPalette(
   document: EditorDocument,
   palette: readonly Rgba[],
-): PaletteSnapRegion[] {
+): { regions: PaletteSnapRegion[]; skippedLayers: string[] } {
   const timeline = document.timeline;
-  if (!timeline || !palette.length) return [];
+  if (!timeline || !palette.length) return { regions: [], skippedLayers: [] };
   const onPalette = new Set(palette.map((color) => color.join(",")));
-  const labs = palette.map((color) => rgbToLab(color));
+  const opaque = palette
+    .map((color, index) => ({ color, index }))
+    .filter(({ color }) => color[3] === UINT8_MAX);
+  if (!opaque.length) return { regions: [], skippedLayers: [] };
+  const labs = opaque.map(({ color }) => rgbToLab(color));
   const regions: PaletteSnapRegion[] = [];
+  const skippedLayers: string[] = [];
   for (let frameIndex = 0; frameIndex < timeline.frames.length; frameIndex++) {
     const frame = timeline.frames[frameIndex];
     for (let layerIndex = 0; layerIndex < frame.cels.length; layerIndex++) {
       const cel = frame.cels[layerIndex];
       if (!cel?.pixels) continue;
+      if (!layerEditable(timeline, layerIndex) || !effectiveLayerVisible(timeline, layerIndex)) {
+        const layerId = timeline.layers[layerIndex].id;
+        if (!skippedLayers.includes(layerId)) skippedLayers.push(layerId);
+        continue;
+      }
       const data = cel.pixels.data;
       const next = new Uint8ClampedArray(data);
       let changed = false;
@@ -196,11 +210,11 @@ export function snapDocumentToPalette(
             nearest = index;
           }
         }
-        const color = palette[nearest];
+        const color = opaque[nearest].color;
         next[at] = color[0];
         next[at + 1] = color[1];
         next[at + 2] = color[2];
-        next[at + 3] = Math.round((alpha / UINT8_MAX) * color[3]);
+        next[at + 3] = alpha;
         changed = true;
       }
       if (!changed) continue;
@@ -230,7 +244,7 @@ export function snapDocumentToPalette(
       });
     }
   }
-  return regions;
+  return { regions, skippedLayers };
 }
 
 const luminance = (color: readonly number[]) =>

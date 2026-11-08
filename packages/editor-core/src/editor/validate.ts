@@ -2,7 +2,12 @@ import { UINT8_MAX } from "$/base/numeric-constants";
 import type { PixelBuffer } from "$/base/primitives";
 import type { EditorDocument } from "$/document/types";
 import { BatchEditError, BatchEditErrorCode } from "$/editor/batch-edit-types";
-import { effectiveLayerVisible, timelineTags, type SpriteTimeline } from "$/timeline";
+import {
+  effectiveLayerVisible,
+  renderTimelineFrame,
+  timelineTags,
+  type SpriteTimeline,
+} from "$/timeline";
 
 export const VALIDATE_CHECKS = [
   "palette",
@@ -401,10 +406,13 @@ export function validateDocument(
   }
 
   if (wanted.has("export_readiness")) {
+    // Judge by what actually exports: the rendered composite covers tilemap
+    // cels and group layers that per-image-cel scanning would miss.
     let anyInk = false;
-    for (const { index } of imageLayers)
-      for (let f = 0; f < t.frames.length && !anyInk; f++)
-        anyInk = celHasInk(celSource(doc, t, index, f));
+    for (let f = 0; f < t.frames.length && !anyInk; f++)
+      anyInk = celHasInk({
+        pixels: renderTimelineFrame(t, doc.width, doc.height, f, undefined, false),
+      });
     if (!anyInk)
       add("export_readiness", "warning", "Document has no ink on any frame — nothing to export.");
   }

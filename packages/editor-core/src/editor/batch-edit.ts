@@ -58,7 +58,7 @@ import {
   commitTilemapPixels,
   convertLayerToTilemap,
   rasterizeTilemap,
-  setTileAt,
+  setTilesAt,
   tilesetForLayer,
   TilesetMode,
   TILE_INDEX_MASK,
@@ -1086,6 +1086,17 @@ export function applyDocumentBatch(
             BatchEditErrorCode.Unsupported,
             "blit only supports the same document",
           );
+        const destLayer = batchLayerIndex(timeline, op.layerId);
+        if (!layerEditable(timeline, destLayer) || !effectiveLayerVisible(timeline, destLayer))
+          throw new BatchEditError(
+            BatchEditErrorCode.NotEditable,
+            "Target layer is locked or hidden",
+          );
+        if (timeline.layers[destLayer].kind && timeline.layers[destLayer].kind !== "image")
+          throw new BatchEditError(
+            BatchEditErrorCode.Unsupported,
+            "Pixels can only be written to image layers",
+          );
         const srcLayer = batchLayerIndex(timeline, op.src.layerId);
         const srcFrame = batchInteger(
           op.src.frameIndex,
@@ -1095,27 +1106,36 @@ export function applyDocumentBatch(
         );
         const srcCel = celAt(timeline, srcFrame, srcLayer);
         if (!srcCel) throw new BatchEditError(BatchEditErrorCode.NotFound, "Source cel is empty");
+        // Intersect the requested canvas rect with the cel's canvas footprint
+        // first; the intersection is the source region and also shifts the
+        // destination when the rect is clipped on the left/top.
+        const clipLeft = Math.max(op.src.rect.x, srcCel.x);
+        const clipTop = Math.max(op.src.rect.y, srcCel.y);
+        const clipRight = Math.min(
+          op.src.rect.x + op.src.rect.width,
+          srcCel.x + srcCel.pixels.width,
+        );
+        const clipBottom = Math.min(
+          op.src.rect.y + op.src.rect.height,
+          srcCel.y + srcCel.pixels.height,
+        );
+        if (clipRight <= clipLeft || clipBottom <= clipTop) break;
+        const shiftX = clipLeft - op.src.rect.x,
+          shiftY = clipTop - op.src.rect.y;
         const region = batchRect(
           {
-            x: Math.max(0, op.src.rect.x - srcCel.x),
-            y: Math.max(0, op.src.rect.y - srcCel.y),
-            width: Math.min(
-              op.src.rect.width,
-              srcCel.x + srcCel.pixels.width - Math.max(0, op.src.rect.x),
-            ),
-            height: Math.min(
-              op.src.rect.height,
-              srcCel.y + srcCel.pixels.height - Math.max(0, op.src.rect.y),
-            ),
+            x: clipLeft - srcCel.x,
+            y: clipTop - srcCel.y,
+            width: clipRight - clipLeft,
+            height: clipBottom - clipTop,
           },
           srcCel.pixels.width,
           srcCel.pixels.height,
         );
         const patch = cropPixels(srcCel.pixels, region);
-        const destLayer = batchLayerIndex(timeline, op.layerId);
         const destFrame = batchInteger(op.frameIndex, "frameIndex", 0, timeline.frames.length - 1);
-        const dx = batchInteger(op.dest.x, "dest.x", -doc.width, doc.width);
-        const dy = batchInteger(op.dest.y, "dest.y", -doc.height, doc.height);
+        const dx = batchInteger(op.dest.x, "dest.x", -doc.width, doc.width) + shiftX;
+        const dy = batchInteger(op.dest.y, "dest.y", -doc.height, doc.height) + shiftY;
         const clippedX = Math.max(dx, 0),
           clippedY = Math.max(dy, 0);
         const clippedWidth = Math.min(patch.width - (clippedX - dx), doc.width - clippedX);
@@ -1419,8 +1439,16 @@ export function applyDocumentBatch(
             );
           return { x, y, tile };
         });
-        for (const cell of cells)
-          timeline = setTileAt(timeline, frameIndex, index, cell.x, cell.y, cell.tile);
+        // Anchor the expansion at the cel's current origin so negative grid
+        // coordinates cannot shift the basis for later cells in the same batch.
+        const origin = timeline.frames[frameIndex].cels[index];
+        timeline = setTilesAt(
+          timeline,
+          frameIndex,
+          index,
+          cells,
+          origin ? { x: origin.x, y: origin.y } : undefined,
+        );
         break;
       }
       case BatchEditKind.PaintTiles: {
