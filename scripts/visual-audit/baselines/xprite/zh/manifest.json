@@ -2404,7 +2404,7 @@
     {
       "id": "preferences-wide",
       "file": "preferences-wide.png",
-      "sha256": "28f119666b8492ecb56aa615d1de39b8da2ac6045284edbb53d4230c7f043cc8",
+      "sha256": "a2dd2945873012b45b7eb09979f56197035af7e93df7c7425732463d8055005a",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:13.799Z",
@@ -2435,7 +2435,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "28f119666b8492ecb56aa615d1de39b8da2ac6045284edbb53d4230c7f043cc8",
+        "sha256": "a2dd2945873012b45b7eb09979f56197035af7e93df7c7425732463d8055005a",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2650,7 +2650,7 @@
     {
       "id": "new-sprite-wide",
       "file": "new-sprite-wide.png",
-      "sha256": "f6daa30c51e500538752446cc69a82ba6a58538f2ddc802ac6845019ba3bbf63",
+      "sha256": "1333ebbe8f50483566a917c845ab9fa9d6fa813e2732d266b7161ccd3afbd57f",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:14.433Z",
@@ -2681,7 +2681,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "f6daa30c51e500538752446cc69a82ba6a58538f2ddc802ac6845019ba3bbf63",
+        "sha256": "1333ebbe8f50483566a917c845ab9fa9d6fa813e2732d266b7161ccd3afbd57f",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4025,7 +4025,7 @@
     {
       "id": "new-sprite-compact",
       "file": "new-sprite-compact.png",
-      "sha256": "236201a76e377eae70c02c27bba38a70e4e901aae5b6f1f3efecddc8d8c4f4c9",
+      "sha256": "0e3783b4141e66c1c91b487ee25eb4d76fafe235eae22a255d488a072fe091dd",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:14.749Z",
@@ -4056,7 +4056,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "236201a76e377eae70c02c27bba38a70e4e901aae5b6f1f3efecddc8d8c4f4c9",
+        "sha256": "0e3783b4141e66c1c91b487ee25eb4d76fafe235eae22a255d488a072fe091dd",
         "requestedClip": {
           "x": 0,
           "y": 0,

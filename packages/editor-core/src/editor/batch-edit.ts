@@ -1754,9 +1754,12 @@ export function applyDocumentBatch(
                   BatchEditErrorCode.NotEditable,
                   "Background pixels must be opaque",
                 );
-              polygon(vertices, (x, y, end) => {
-                for (let px = x; px <= end; px++) write(px, y);
-              });
+              polygon(
+                vertices.map((p: Point) => [p.x, p.y] as const),
+                (x, y, end) => {
+                  for (let px = x; px <= end; px++) write(px, y);
+                },
+              );
               if (outline) for (const p of lineStrokePoints(closed)) write(p.x, p.y, outline);
             }
             break;
